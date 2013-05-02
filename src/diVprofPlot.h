@@ -60,6 +60,7 @@ class VprofPlot : public VprofTables
 #endif
 #ifdef ROADOBS
   friend class VprofRTemp;
+  friend class VprofPilot;
 #endif
 
 public:

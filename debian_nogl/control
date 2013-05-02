@@ -1,0 +1,26 @@
+Source: diana
+Section: science
+Priority: extra
+Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
+Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
+ qt4-qmake, libqt4-dev, libemos-dev,
+ metlibs-difield-dev, metlibs-dimitiff-dev, metlibs-milib-dev,
+ metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
+ metlibs-pudatatypes-dev, metlibs-robs-dev,
+ libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
+ libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
+ libavformat-dev
+Build-Conflicts: autoconf2.13, automake1.4
+Standards-Version: 3.9.2
+
+Package: diana-nogl-@PVERSION_MAJOR_DOT_MINOR@
+Architecture: any
+Provides: diana-nogl@METNO_SUFFIX@
+Depends: diana-@METNO_VERSION@-common, ${shlibs:Depends}, ${misc:Depends}
+Recommends: dianamaps, dianaconfig-@METNO_VERSION@, metno-bufrtables
+Description: Meteorological visualisation tool
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL 
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.

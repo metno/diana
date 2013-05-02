@@ -41,8 +41,8 @@
 #include <puTools/miTime.h>
 #include <diField/diCommonFieldTypes.h>
 #include <diCommandParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 
 using namespace std;
 
@@ -94,8 +94,8 @@ private:
     int  hourOffset;
     int  hourDiff;
     miutil::miString fieldOpts;
-    vector<miutil::miString> levelOptions;
-    vector<miutil::miString> idnumOptions;
+    vector<std::string> levelOptions;
+    vector<std::string> idnumOptions;
     bool minus;
     miutil::miString time;
     //Used in gridio
@@ -111,7 +111,7 @@ private:
     bool idnummove;
     SelectedField() : inEdit(false), external(false), forecastSpec(false), editPlot(false),
         hourOffset(0), hourDiff(0), minus(false),
-        cdmSyntax(false), plotDefinition(true), levelmove(true), idnummove(true)
+        cdmSyntax(true), plotDefinition(true), levelmove(true), idnummove(true)
     {
     }
   };
@@ -184,9 +184,10 @@ private:
 
   void toolTips();
 
-  vector<miutil::miString> numberList( QComboBox* cBox, float number );
+  vector<miutil::miString> numberList( QComboBox* cBox, float number, bool onoff= false );
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
+
   std::string getParamString(int i);
 
   Controller* m_ctrl;
@@ -226,12 +227,12 @@ private:
   vector<miutil::miString> plottypes;
 
   map<miutil::miString, EnableWidget> enableMap;
-  vector<Colour::ColourInfo> colourInfo;
   vector<ColourShading::ColourShadingInfo> csInfo;
   vector<Pattern::PatternInfo> patternInfo;
 
   vector<miutil::miString> linetypes;
   vector<miutil::miString> lineintervals;
+  vector<miutil::miString> lineintervals2;
   QStringList      densityStringList;
   vector<miutil::miString> vectorunit;
   vector<miutil::miString> extremeType;
@@ -248,8 +249,8 @@ private:
 
   miutil::miString lastLevel;
   miutil::miString lastIdnum;
-  vector<miutil::miString> currentLevels;
-  vector<miutil::miString> currentIdnums;
+  vector<std::string> currentLevels;
+  vector<std::string> currentIdnums;
 
   QColor* color;
 
@@ -285,8 +286,6 @@ private:
   QComboBox* colorCbox;
 
   QComboBox* lineWidthCbox;
-  int        nr_linewidths;
-
   QComboBox* lineTypeCbox;
 
   QComboBox* lineintervalCbox;
@@ -312,7 +311,7 @@ private:
 signals:
   void FieldApply();
   void FieldHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(map<miutil::miString,miutil::miString>&);
 

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,49 +31,49 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <vector>
-#include <set>
-#include <math.h>
-#include <diVcrossFile.h>
-#include <diVcrossPlot.h>
-#include <diFtnVfile.h>
+#include "diVcrossFile.h"
 
-#include <math.h>
+#include "diLocationPlot.h"
+#include "diFtnVfile.h"
+#include "diVcrossPlot.h"
+
 #include <puCtools/stat.h>
 
-using namespace std; using namespace miutil;
+#include <cmath>
+#include <set>
+#include <vector>
+
+using namespace std;
+
+#define MILOGGER_CATEGORY "diana.VcrossFile"
+#include <miLogger/miLogging.h>
 
 //static
 GridConverter VcrossFile::gc;
 
-// Default constructor
-VcrossFile::VcrossFile(const miString& filename, const miString& modelname)
-: fileName(filename), modelName(modelname), vfile(0),
-modificationtime(0),
-numCross(0), numTime(0), numLev(0), numPar2d(0), numPar1d(0),
-nposmap(0), xposmap(0), yposmap(0), dataAddress(0)
+
+VcrossFile::VcrossFile(const std::string& filename, const std::string& modelname)
+  : fileName(filename), modelName(modelname), vfile(0),
+    modificationtime(0),
+    numCross(0), numTime(0), numLev(0), numPar2d(0), numPar1d(0),
+    nposmap(0), xposmap(0), yposmap(0), dataAddress(0)
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::Constructor" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 }
 
 
-// Destructor
-VcrossFile::~VcrossFile() {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::Destructor" << endl;
-#endif
+VcrossFile::~VcrossFile()
+{
+  METLIBS_LOG_SCOPE();
   cleanup();
 }
 
 
 void VcrossFile::cleanup()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::cleanup() fileName= " << fileName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
+
   delete[] xposmap;
   delete[] yposmap;
   delete[] dataAddress;
@@ -91,9 +89,8 @@ void VcrossFile::cleanup()
 
 bool VcrossFile::update()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::update() fileName= " << fileName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
   bool ok= true;
 
@@ -111,16 +108,17 @@ bool VcrossFile::update()
     ok= false;
   }
 
-  if (!ok) cleanup();
+  if (!ok)
+    cleanup();
 
   return ok;
 }
 
 
-bool VcrossFile::readFileHeader() {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::readFileHeader fileName= " << fileName << endl;
-#endif
+bool VcrossFile::readFileHeader()
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
   // reading and storing information, not data
 
@@ -194,8 +192,7 @@ bool VcrossFile::readFileHeader() {
 
     if (vcoord!=2 && vcoord!=10 && vcoord!=1 && vcoord!=4 &&
         vcoord!=5 && vcoord!=11 && vcoord!=12) {
-      cerr << "No or bad data in file." << endl;
-      cerr << "Vertical coordinate " << vcoord << endl;
+      METLIBS_LOG_WARN("No or bad data in file. Vertical coordinate " << vcoord);
       throw VfileError();
     }
 
@@ -252,7 +249,7 @@ bool VcrossFile::readFileHeader() {
       if (identPar1d[n]==-1007) nxdsPar= n;
     }
     if (nxgPar<0 || nygPar<0) {
-      cerr << "No horizontal grid positions found!" << endl;
+      METLIBS_LOG_WARN("No horizontal grid positions found!");
       throw VfileError();
     }
 
@@ -276,24 +273,25 @@ bool VcrossFile::readFileHeader() {
     tmp= vfile->getInt(numCross);
     size_t pn;
     for (n=0; n<numCross; n++) {
-      miString str= vfile->getString(tmp[n]);
-      miString name,opts;
+      std::string str= vfile->getString(tmp[n]);
+      std::string name,opts;
       if((pn=str.find("!!"))!=string::npos) {
         name=str.substr(0,pn-1);
         opts=str.substr(pn+2);
-        name.trim();
-        opts.trim();
+        miutil::trim(name);
+        miutil::trim(opts);
       } else {
         name=str;
-        name.trim();
+        miutil::trim(name);
       }
       //###################################################################
       //    cerr<<"crossection "<<n<<" : "<<name<<endl;
       //    cerr<<"       opts "<<n<<" : "<<opts<<endl;
       //###################################################################
       // had many names without the last ')' making serious PostScript errors
-      int nc1= name.countChar('(');
-      int nc2= name.countChar(')');
+      const miutil::miString misName(name);
+      int nc1= misName.countChar('(');
+      int nc2= misName.countChar(')');
       if (nc1!=nc2) {
         while (nc1<nc2) {
           name= '(' + name;
@@ -319,7 +317,7 @@ bool VcrossFile::readFileHeader() {
       int day   = tmp[i++];
       int hour  = tmp[i++];
       int fchour= tmp[i++];
-      miTime t= miTime(year,month,day,hour,0,0);
+      miutil::miTime t= miutil::miTime(year,month,day,hour,0,0);
       if (fchour!=0) t.addHour(fchour);
       //###################################################################
       //      cerr<<"time "<<n<<" : "<<t<<endl;
@@ -412,7 +410,7 @@ bool VcrossFile::readFileHeader() {
   }  // end of try
 
   catch (...) {
-    cerr << "Bad Vcross file: " << fileName << endl;
+    METLIBS_LOG_WARN("Bad Vcross file: " << fileName);
     delete vfile;
     vfile= 0;
     return false;
@@ -431,23 +429,17 @@ bool VcrossFile::readFileHeader() {
 }
 
 
-vector<miString> VcrossFile::getFieldNames()
+vector<std::string> VcrossFile::getFieldNames()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::getFieldNames" << endl;
-#endif
-
+  METLIBS_LOG_SCOPE();
   update();
-
   return VcrossPlot::getFieldNames(fileName);
 }
 
 
 void VcrossFile::getMapData(vector<LocationElement>& elements)
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::getMapData" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   LocationElement el;
   int nelem= elements.size();
@@ -466,38 +458,39 @@ void VcrossFile::getMapData(vector<LocationElement>& elements)
 }
 
 
-VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
-    int tgpos) {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossFile::getCrossection(" <<
-             time.format("%Y%m%d%H%M%S") << ", " << tgpos << ")" << endl;
-#endif
+VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::miTime& time, int tgpos)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(time.format("%Y%m%d%H%M%S") << ", " << tgpos);
 
-  VcrossPlot *vcp= 0;
-
-  if (!vfile) return vcp;
+  if (!vfile)
+    return 0;
 
   int iCross=0;
-  while (iCross<numCross && names[iCross]!=name) iCross++;
+  while (iCross<numCross && names[iCross]!=name)
+    iCross++;
 
-  if (iCross==numCross) return vcp;
+  if (iCross==numCross)
+    return 0;
 
   int iTime= 0;
   if (tgpos<0) {
-    while (iTime<numTime && validTime[iTime]!=time) iTime++;
-    if (iTime==numTime) return vcp;
+    while (iTime<numTime && validTime[iTime]!=time)
+      iTime++;
+    if (iTime==numTime)
+      return 0;
   } else if (tgpos>=numPoint[iCross]) {
-    return vcp;
+    return 0;
   }
 
   int nPoint= numPoint[iCross];
   if(nPoint==0) {
-    cerr <<"VcrossFile::getCrossection: The crossection "<<name<<" contains no positions"<<endl;
-    return vcp;
+    METLIBS_LOG_WARN("VcrossFile::getCrossection: The crossection "<<name<<" contains no positions");
+    return 0;
   }
   int nTotal= nPoint*numLev;
 
-  vcp= new VcrossPlot();
+  VcrossPlot* vcp = new VcrossPlot();
 
   vcp->modelName= modelName;
   vcp->crossectionName= names[iCross];
@@ -542,24 +535,24 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
 
   if (tgpos<0 && !posOptions[iCross].empty()) {
     vcp->refPosition=0.;
-    vector<miString> vopts= posOptions[iCross].split(' ');
+    vector<std::string> vopts= miutil::split(posOptions[iCross], 0, " ");
     for (unsigned int n=0; n<vopts.size(); n++) {
-      vector<miString> vkeyvalue= vopts[n].split('=');
+      vector<std::string> vkeyvalue= miutil::split(vopts[n], 0, "=");
       if (vkeyvalue.size()==2) {
-        miString key= vkeyvalue[0].downcase();
+        std::string key= miutil::to_lower(vkeyvalue[0]);
         if (key=="refpos") {
           // -1 : from fortran to C++
-          vcp->refPosition= atof(vkeyvalue[1].cStr()) - 1.;
+          vcp->refPosition= atof(vkeyvalue[1].c_str()) - 1.;
         } else if (key=="mark") {
-          vector<miString> vs= vkeyvalue[1].split(',');
+          vector<std::string> vs= miutil::split(vkeyvalue[1], 0, ",");
           if (vs.size()==2) {
-            float pos= atof(vs[0].cStr()) - 1.;
+            float pos= atof(vs[0].c_str()) - 1.;
             vcp->markNamePosMin.push_back(pos);
             vcp->markNamePosMax.push_back(pos);
             vcp->markName.push_back(vs[1]);
           } else if (vs.size()==3) {
-            float pos1= atof(vs[0].cStr()) - 1.;
-            float pos2= atof(vs[1].cStr()) - 1.;
+            float pos1= atof(vs[0].c_str()) - 1.;
+            float pos2= atof(vs[1].c_str()) - 1.;
             vcp->markNamePosMin.push_back(pos1);
             vcp->markNamePosMax.push_back(pos2);
             vcp->markName.push_back(vs[2]);
@@ -674,7 +667,7 @@ VcrossPlot* VcrossFile::getCrossection(const miString& name, const miTime& time,
   }  // end of try
 
   catch (...) {
-    cerr << "Bad Vcross file: " << fileName << endl;
+    METLIBS_LOG_WARN("Bad Vcross file: " << fileName);
     delete vfile;
     vfile= 0;
     return vcp;

@@ -79,9 +79,9 @@ void BrowserBox::upDate(const miutil::miString& name,
 			const miutil::miString& item)
 {
   miutil::miString caption= "<em><b>" + name + "</b></em>";
-  listname->setText(caption.cStr());
+  listname->setText(caption.c_str());
   numlabel->setNum(num+1);
-  label->setText(item.cStr());
+  label->setText(item.c_str());
 }
 
 void BrowserBox::keyPressEvent(QKeyEvent *me)

@@ -86,25 +86,25 @@ LegendPlot::LegendPlot(miString& str)
     vector<miString> tokens = vstr[1].split(";",false);
     int n=tokens.size();
     if(n>0){
-      titlestring = tokens[0];
+      if (poptions.tableHeader)
+        titlestring = tokens[0];
       for(int i=1;i<n;i+=3){
-	if(i+3>n) break;
-	ColourCode cc;
-	cc.colour = Colour(tokens[i]);
-	cc.pattern = tokens[i+1];
-	cc.colourstr = tokens[i+2];
-	//if string start with '|', do not plot colour/pattern box
-	if(cc.colourstr.find('|')==1){
-	  cc.plotBox = false;
-	  cc.colourstr.remove('|');
-	} else {
-	  cc.plotBox = true;
-	}
-	colourcodes.push_back(cc);
+        if(i+3>n) break;
+        ColourCode cc;
+        cc.colour = Colour(tokens[i]);
+        cc.pattern = tokens[i+1];
+        cc.colourstr = tokens[i+2];
+        //if string start with '|', do not plot colour/pattern box
+        if(cc.colourstr.find('|')==1){
+          cc.plotBox = false;
+          cc.colourstr.remove('|');
+        } else {
+          cc.plotBox = true;
+        }
+        colourcodes.push_back(cc);
       }
     }
   }
-
 }
 
 
@@ -171,6 +171,7 @@ void LegendPlot::memberCopy(const LegendPlot& rhs){
   y2title = rhs.y2title;
   xRatio  = rhs.xRatio;
   yRatio  = rhs.yRatio;
+  suffix  = rhs.suffix;
   showplot = rhs.showplot;
 }
 
@@ -184,7 +185,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
     for(int i=0;i<n;i++) str+="-";
   }
 
-  fp->getStringSize(str.cStr(), width, height);
+  fp->getStringSize(str.c_str(), width, height);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (hardcopy){
@@ -193,6 +194,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
     height*=fontsizeScale;
   }
 
+  height *= 1.2;
 }
 
 bool LegendPlot::plot(float x, float y)
@@ -209,6 +211,7 @@ bool LegendPlot::plot(float x, float y)
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
+    colourcodes[i].colourstr += suffix;
     getStringSize(colourcodes[i].colourstr, width, height);
     if (width>maxwidth) maxwidth= width;
     if (height>maxheight) maxheight= height;
@@ -262,7 +265,7 @@ bool LegendPlot::plot(float x, float y)
   float yborder;
   getStringSize("c",xborder,yborder);
   xborder /=2;
-  yborder /=4;
+  yborder /=2;
   titlewidth  = titlewidth + 2*xborder;
   float titleheight = maxheight*ntitle;
   float tablewidth  = maxwidth + 7*xborder;
@@ -302,7 +305,7 @@ bool LegendPlot::plot(float x, float y)
     glColor4ubv(poptions.textcolour.RGBA());
     float titley1 = y2title-yborder-maxheight/2;
     for (int i=0;i<ntitle;i++){
-      fp->drawStr(vtitlestring[i].cStr(),(x1title+xborder),titley1);
+      fp->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -372,7 +375,7 @@ bool LegendPlot::plot(float x, float y)
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
       miString cstring = colourcodes[i].colourstr;
-      fp->drawStr(cstring.cStr(),(x2box+xborder),(y1box+0.8*yborder));
+      fp->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
       UpdateOutput();
@@ -523,10 +526,3 @@ float LegendPlot::width()
   if(titlewidth < tablewidth ) titlewidth = tablewidth;
   return titlewidth;
 }
-
-
-
-
-
-
-

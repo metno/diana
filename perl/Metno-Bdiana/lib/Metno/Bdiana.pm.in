@@ -1,0 +1,147 @@
+package Metno::Bdiana;
+
+use 5.008008;
+use strict;
+use warnings;
+
+require Exporter;
+
+our @ISA = qw(Exporter);
+
+# Items to export into callers namespace by default. Note: do not export
+# names by default without a very good reason. Use EXPORT_OK instead.
+# Do not simply export all your public functions/methods/constants.
+
+# This allows declaration	use Metno::Bdiana ':all';
+# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
+# will save memory.
+our %EXPORT_TAGS = ( 'all' => [ qw(
+	readSetupFile
+    parseAndProcessString
+    DI_OK
+    DI_ERROR
+) ] );
+
+our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+
+our @EXPORT = qw(
+	
+);
+
+our $VERSION = '@PVERSION@';
+
+use constant DI_OK => 1;
+use constant OK => DI_OK(); # compatibility with old version
+use constant DI_ERROR => 99;
+use constant ERROR => DI_ERROR(); # compatibility with old version
+
+require XSLoader;
+XSLoader::load('Metno::Bdiana', $VERSION);
+
+# Preloaded methods go here.
+
+my $isInit = 0;
+sub init {
+    deInit_();
+    my $ret = init_();
+    if ($ret == DI_OK) {
+         $isInit++;
+    }
+    return $ret;
+}
+
+sub deInit_ {
+    if ($isInit) {
+        free();
+        $isInit = 0;
+    }
+}
+
+END {
+    deInit_();
+}
+
+1;
+__END__
+
+=head1 NAME
+
+Metno::Bdiana - Perl version of met.no's DIANA
+
+=head1 SYNOPSIS
+
+  use Metno::Bdiana qw(:all);
+
+  Metno::Bdiana::init(); # required once
+
+  my $setup = "/disk1/WMS/usr/share/metno-wmsservice/verportal/bdiana/diana.setup";
+  readSetupFile($setup) == DI_OK or die "cannot setup diana with $setup";
+
+  my $plot =<<'EOT';
+output = PNG
+colour = COLOUR
+buffersize = 256x256
+settime = 2012-09-13 13:00:00
+addhour = 00
+filename = /tmp/test.png
+PLOT
+MAP area=EPSG:3575 backcolour=255:255:255 xylimit=-640000,-320000,-2880000,-2560000
+
+FIELD Proff_default NEDBOR.1T alpha=160 base=0 colour=off colour_2=off extreme.radius=1 extreme.size=1 extreme.type=Ingen field.smooth=0 grid.lines=0 grid.lines.max=0 label.size=1 line.interval=40 line.smooth=0 value.label=0  line.values=0.1,0.2,0.5,1,2,4,6,10,15,20,25,30,...100 linetype=solid linewidth=1 maxvalue=off minvalue=off palettecolours=vp_nedbor patterns=off recursive=0 table=0 undef.colour=white undef.linetype=solid undef.linewidth=1 undef.masking=0 value.label=1
+
+
+ENDPLOT
+EOT
+
+  parseAndProcessString($plot) == DI_OK or die "cannot create plot";
+
+
+
+=head1 DESCRIPTION
+
+Metno::Bdiana gives perl-library access to the batch-diana functionality. The communication with diana follows with dianas own plotting syntax and works by simly
+sending a plot-string to the parseAndProcessString function.
+
+=head2 FUNCTIONS
+
+=over 8
+
+=item init()
+
+must be called at least once before any other bdiana function. Currently, no options possible.
+
+=item readSetupFile($filename)
+
+parses the setupFile given in the filename string.
+
+=item parseAndProcessString($string) 
+
+create a plot using a diana-plot commando as string.
+
+
+=back
+
+=head2 EXPORT
+
+None by default. ':all' gives 	readSetupFile, parseAndProcessString and the constants
+DI_OK and DI_ERROR
+
+
+=head1 SEE ALSO
+
+L<diana>
+
+=head1 AUTHOR
+
+Heiko Klein, E<lt>heiko.klein@met.noE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2012 by Heiko Klein
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.14.2 or,
+at your option, any later version of Perl 5 you may have available.
+
+
+=cut

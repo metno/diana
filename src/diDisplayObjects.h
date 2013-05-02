@@ -38,7 +38,7 @@
 #include <diUndoFront.h>
 #include <diMapMode.h>
 #include <diField/diGridConverter.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <puTools/miString.h>
 
 using namespace std; 

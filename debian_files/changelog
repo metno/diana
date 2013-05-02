@@ -1,0 +1,1510 @@
+diana (3.32.6-1) unstable; urgency=low
+
+  * he wms clients did not accept metadata, temporarily removed until clients are fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 29 Apr 2013 20:21:30 +0200
+
+diana (3.32.5-1) unstable; urgency=low
+
+  * Bugfix: profet
+  * Bugfix: vertical level and old syntax 
+  * Bugfix: FieldFunctions
+  * Using metlibs 4.10.7
+  * Using fimex 0.44-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 23 Apr 2013 15:16:57 +0200
+
+diana (3.32.4-1) unstable; urgency=low
+
+  * Bugfix: log.line.values
+  * Bugfix: vertical level and old syntax 
+  * new FieldFunctions
+  * Using metlibs 4.10.6
+  * Using fimex 0.44-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 21 Apr 2013 20:25:37 +0200
+
+diana (3.32.3-1) unstable; urgency=low
+
+  * Bugfix profet
+  * Bugfix connection to other applications (QImage)
+  * Using metlibs 4.10.5
+  * Using fimex 0.44-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 11 Apr 2013 17:28:17 +0200
+
+diana (3.32.2-1) unstable; urgency=low
+
+  * Several wms fixes
+  * Using metlibs 4.10.4
+  * Using fimex 0.44-1
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Apr 2013 12:22:57 +0200
+
+diana (3.32.1-1) unstable; urgency=low
+
+  * check if file has changed before reading field
+  * Using metlibs 4.10.0
+  * Using fimex 0.42-1
+  * Added clipping/masking of fields.
+  * New plotOption: legendunits - used in legends.
+  * Added <= and >= to criteria.
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 20 Mar 2013 13:13:02 +0100
+
+diana (3.32.0-2) unstable; urgency=low
+
+  * new debian revision
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 Feb 2013 12:54:14 +0100
+
+diana (3.32.0-1) unstable; urgency=low
+
+  * bdiana fixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Feb 2013 10:16:15 +0100
+
+diana (3.31.3-1) unstable; urgency=low
+
+  * Fixed legend plotting and cropping in bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 05 Feb 2013 11:51:00 +0100
+
+diana (3.31.2-1) unstable; urgency=low
+
+  * Bugfix: field - changeModel
+  * Bugfix: spectrum - changeTime
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 28 Jan 2013 07:47:15 +0100
+
+diana (3.31.1-1) unstable; urgency=low
+
+  * Bugfix: eps membersin quickMenus
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 22 Jan 2013 14:59:33 +0100
+
+diana (3.31.0-5) unstable; urgency=low
+
+  * -style=cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 12:56:03 +0100
+
+diana (3.31.0-4) unstable; urgency=low
+
+  * -style cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 16 Jan 2013 09:50:19 +0100
+
+diana (3.31.0-3) unstable; urgency=low
+
+  * -style cleanlooks
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 21:21:37 +0100
+
+diana (3.31.0-2) unstable; urgency=low
+
+  * Something is wrong with 3.31.0-1, try once more
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Jan 2013 13:55:51 +0100
+
+diana (3.31.0-1) unstable; urgency=low
+
+  * Observations:  Possible to select only stations with wmo-number and/or good quality flag
+  * Fields: Calculation of density of wind/vectors/values independent of projection
+  * FieldDialg: bugfix
+  * VcrossDialog: bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 11 Jan 2013 14:33:17 +0100
+
+diana (3.30.7-2) unstable; urgency=low
+
+  *  Multithread problems possibly solved by calling XInitThreads()
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 10:33:05 +0100
+
+diana (3.30.7-1) unstable; urgency=low
+
+  * Bugfixing + logfile in core mail
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 03 Jan 2013 09:15:20 +0100
+
+diana (3.30.6-1) unstable; urgency=low
+
+  * Bugfix: Quickmenus, PlotOptions, MapDialog (logging)
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 12 Dec 2012 13:09:43 +0100
+
+diana (3.30.5-1) unstable; urgency=low
+
+  * Bugfix: statusPlotButtons
+  * MySQL/postgres fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Dec 2012 15:51:51 +0100
+
+diana (3.30.4-1) unstable; urgency=low
+
+  * Bugfix: sigkart, vertical profiles
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Dec 2012 10:36:29 +0100
+
+diana (3.30.3-1) unstable; urgency=low
+
+  * Fixed verticalProfiles 
+  * Using metlibs with reverted postgres/mysql change
+  * Fixed some symbols/fronts/areas
+  * Reverted sigkart changes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:29:31 +0100
+
+diana (3.30.2-3) unstable; urgency=low
+
+  * new debian revision
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 30 Nov 2012 13:28:58 +0100
+
+diana (3.30.2-2) unstable; urgency=low
+
+  * Fixed Postscript and PDF rendering problems with observation plots.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 28 Nov 2012 16:05:40 +0100
+
+diana (3.30.1-1) unstable; urgency=low
+
+  * Write JSON legends in the same order as the plots that they describe.
+  * Bugfix: PlotOption: density=-1. Do not use gridpoints close to border.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 20 Nov 2012 13:03:18 +0100
+
+diana (3.30.0-4) unstable; urgency=low
+
+  * Ensured that the output format and annotations flag are reset for
+    each new plot.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 16 Nov 2012 13:13:36 +0100
+
+diana (3.30.0-3) unstable; urgency=low
+
+  * Fixed failonmissingdata handling in the case where no object plots
+    were defined.
+  * Updated the package description to depend on diana-3.30-common
+    instead of only recommending it.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 15 Nov 2012 12:18:13 +0100
+
+diana (3.30.0-2) unstable; urgency=low
+
+  * Fixed code introduced in 3.30.0~rc2-2 that broke the Diana build.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 12:24:38 +0100
+
+diana (3.30.0-1) unstable; urgency=low
+
+  * Regenerated package with a new version number.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 14 Nov 2012 11:05:43 +0100
+
+diana (3.30.0~rc2-2) unstable; urgency=low
+
+  * diana-metno depends on bdiana, not diana-headless 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 14:23:44 +0100
+
+diana (3.30.0~rc2-1) unstable; urgency=low
+
+  * using fimex 0.40
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 11:48:42 +0100
+
+diana (3.30.0~rc1-1) unstable; urgency=low
+
+  * merge from smhi
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 08 Nov 2012 09:37:43 +0100
+
+diana (3.29.2-4) unstable; urgency=low
+
+  * made diana@METNO_SUFFIX@-common transition to diana-desktop
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 08 Nov 2012 08:49:00 +0200
+
+diana (3.29.2-3) unstable; urgency=low
+
+  * removed LANG=en_US from diana script
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 24 Oct 2012 10:55:12 +0200
+
+diana (3.29.2-2) unstable; urgency=low
+
+  * fixed conflicts
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 22 Oct 2012 09:28:45 +0200
+
+diana (3.29.2-1) unstable; urgency=low
+
+  * Bugfix in metlibs (4.7.0)
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 19 Oct 2012 13:32:30 +0200
+
+diana (3.29.1-1) unstable; urgency=low
+
+  * New version number
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Oct 2012 09:57:33 +0200
+
+diana (3.29.0~rc5-2) unstable; urgency=low
+
+  * minor bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:41:19 +0200
+
+diana (3.29.0~rc5-1) unstable; urgency=low
+
+  * minor bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Oct 2012 08:40:30 +0200
+
+diana (3.29.0~rc4-4) unstable; urgency=low
+
+  * dependency fix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 15:15:53 +0200
+
+diana (3.29.0~rc4-3) unstable; urgency=low
+
+  * diana-metno depends on dianaconfig-@PVERSION_MAJOR_DOT_MINOR@
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 14:49:54 +0200
+
+diana (3.29.0~rc4-2) unstable; urgency=low
+
+  * resampling in satPlot and FieldPlot
+  * Call to getGridConversion removed 
+  * using libemos-dev=000382+dfsg-metno1
+	
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Oct 2012 11:50:29 +0200
+
+diana (3.29.0~rc4-1) unstable; urgency=low
+
+  * bugfix metlibs/diField
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 01 Oct 2012 15:09:02 +0200
+
+diana (3.29.0~rc3-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 28 Sep 2012 20:44:16 +0200
+
+diana (3.28.1~a1-8) unstable; urgency=low
+
+  * removed some fixed version numbers in .install files
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 15:32:01 +0200
+
+diana (3.28.1~a1-7) unstable; urgency=low
+
+  * Added dependency package diana-metno-X.Y pulling in diana programs and
+    met.no-specific configuration files to simplify installation at met.no.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 17 Sep 2012 14:21:00 +0200
+
+diana (3.28.1~a1-6) unstable; urgency=low
+
+  * Moved some files in /usr/share/dianab to new package diana-X.Y-common,
+    shared with diana-headless-X.Y.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 05 Sep 2012 16:21:00 +0200
+
+diana (3.28.1~a1-5) unstable; urgency=low
+
+  * Moved bdiana from package diana-X.Y to diana-headless-X.Y which is
+    built separately.
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 04 Sep 2012 16:51:00 +0200
+
+diana (3.28.1~a1-4) unstable; urgency=low
+
+  * Updated version number in order to create a package for Ubuntu 12.04.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 10 Jul 2012 12:22:00 +0200
+
+diana (3.28.1~a1-3) unstable; urgency=low
+
+  * include /etc/diana/setup*/ in update-alternatives
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 06 Jul 2012 14:49:33 +0200
+
+diana (3.28.1~a1-2) unstable; urgency=low
+
+  * added update-alternative slave for diana.bin
+
+ -- Alexander BÃ¼rger <alexander.buerger@met.no>  Thu, 05 Jul 2012 13:22:11 +0200
+
+diana (3.28.1~a1-1) unstable; urgency=low
+
+  * simultaneous installation of multiple diana versions
+  * versioned package names
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 26 Jun 2012 13:37:09 +0200
+
+diana-wms (3.27.22-0) lucid; urgency=low
+
+  * Fixed table legend parsing to include the last table cell.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 19 Jun 2012 15:57:00 +0200
+
+diana-wms (3.27.21-0) lucid; urgency=low
+
+  * Fixed table legend parsing issue.
+  * Ensured that painting is restarted correctly for each new plot.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 18 Jun 2012 17:17:00 +0200
+
+diana-wms (3.27.20-0) lucid; urgency=low
+
+  * Added preliminary support for updating field sources (Fimex only).
+
+ -- David Boddie <david.boddie@met.no>  Thu, 07 Jun 2012 17:37:00 +0200
+
+diana-wms (3.27.19-0) lucid; urgency=low
+
+  * Ensured that field source information is output for NetCDF files.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 07 Jun 2012 12:58:00 +0200
+
+diana-wms (3.27.18-0) lucid; urgency=low
+
+  * Updated satellite resampling to use the same mechanism as for fields.
+  * Changed the way vertices are processed for GL_QUAD primitives.
+  * Ensured that RGB colour handling explicitly sets a full alpha value.
+  * Disabled dependencies on unnecessary features.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 05 Jun 2012 17:23:00 +0200
+
+diana-wms (3.27.17-0) lucid; urgency=low
+
+  * Added a debugging option to bdiana.
+  * Debugging includes the input file text in the output image metadata.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 01 Jun 2012 17:19:00 +0200
+
+diana-wms (3.27.15-1) lucid; urgency=low
+
+  * Repackage to address libemos0d-wms dependency.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 28 May 2012 19:14:00 +0200
+
+diana-wms (3.27.16-0) lucid; urgency=low
+
+  * Included logging information about files read by bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 28 May 2012 19:13:00 +0200
+
+diana-wms (3.27.15-0) lucid; urgency=low
+
+  * Included fix for vertical coordinate handling.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 28 May 2012 17:50:00 +0200
+
+diana-wms (3.27.14-0) lucid; urgency=low
+
+  * Fixed handling of alpha channel.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 21 May 2012 18:26:00 +0200
+
+diana-wms (3.27.13-0) lucid; urgency=low
+
+  * Ensured that JSON legends are cleared before new ones are written.
+  * Made small drawing optimisations.
+  * Removed titles from table images used as WMS legends.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 21 May 2012 17:05:00 +0200
+
+diana-wms (3.27.12-1) lucid; urgency=low
+
+  * Rebuilt against the latest metlibs.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 16 May 2012 11:00:00 +0200
+
+diana-wms (3.27.12-0) lucid; urgency=low
+
+  * Reverted changes to line primitives introduced in 3.27.9.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 15 May 2012 18:51:00 +0200
+
+diana-wms (3.27.11-0) lucid; urgency=low
+
+  * Fixed incorrect handling of buffer resizing in input files.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 15 May 2012 13:56:00 +0200
+
+diana-wms (3.27.10-0) lucid; urgency=low
+
+  * Shared fixed-size arrays for primitives.
+  * Added checks for undefined/missing field sources.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 14 May 2012 13:41:00 +0200
+
+diana-test (3.28.0-ubuntu12) lucid; urgency=low
+
+  * Using metlibs 4.4
+  * compiled with xfont-support
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 13 May 2012 20:19:15 +0200
+
+diana-wms (3.27.9-0) lucid; urgency=low
+
+  * Used fixed-size arrays instead of variable-length lists.
+  * Ensured that the painter is closed before starting to paint again.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 11 May 2012 17:40:00 +0200
+
+diana-wms (3.27.8-0) lucid; urgency=low
+
+  * Enabled rendering directly to images to improve performance.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 11 May 2012 16:23:00 +0200
+
+diana-wms (3.27.7-0) lucid; urgency=low
+
+  * Fixed station handling when vertical profiles are shown.
+  * Enabled experimental resampling of satellite/radar images.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 09 May 2012 17:25:00 +0200
+
+diana-wms (3.27.6-1) lucid; urgency=low
+
+  * Repackage to address libemos0d-wms dependency.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 08 May 2012 15:31:00 +0200
+
+diana-wms (3.27.6-0) lucid; urgency=low
+
+  * Try to make the FIFO non-blocking multiple times before failing.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 07 May 2012 17:14:00 +0200
+
+diana-wms (3.27.5-0) lucid; urgency=low
+
+  * Used cosmetic pens to draw lines, fixing problems with display lists.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 04 May 2012 15:48:00 +0200
+
+diana-wms (3.27.4-2) lucid; urgency=low
+
+  * Updated the package dependencies to use the WMS version of libemos.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 02 May 2012 17:49:00 +0200
+
+diana-wms (3.27.4-1) lucid; urgency=low
+
+  * Updated the package number to reflect new dependencies.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 02 May 2012 14:53:00 +0200
+
+diana-test (3.28.0-ubuntu11) lucid; urgency=low
+
+  * New station dialog
+  * opengl-wrapper
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 02 May 2012 10:31:51 +0200
+
+diana-test (3.28.0-ubuntu10) lucid; urgency=low
+
+  * FieldDialog: added referencetime to selectedField string
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 23 Apr 2012 20:04:56 +0200
+
+diana-wms (3.27.4-0) lucid; urgency=low
+
+  * Merged the Diana WMS features into the mainstream version.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 23 Apr 2012 15:05:00 +0200
+
+diana-wms (3.27.3-0) lucid; urgency=low
+
+  * Observations and satellite/radar images are described using wildcards.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 23 Apr 2012 12:17:00 +0200
+
+diana-wms (3.27.2-0) lucid; urgency=low
+
+  * Added preliminary support for DESCRIBE sections in bdiana.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 20 Apr 2012 13:23:00 +0200
+
+diana-test (3.28.0-ubuntu9) lucid; urgency=low
+
+  * Bugfix: fieldedit
+  * EditObjects: minor changes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 17 Apr 2012 15:22:41 +0200
+
+diana-test (3.28.0-ubuntu8) lucid; urgency=low
+
+  * using libfimex-0.37.2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 12 Apr 2012 08:30:29 +0200
+
+diana-test (3.28.0-ubuntu7) lucid; urgency=low
+
+  * using libfimex-0.37.1
+  * New plotOption: rotateVectors
+  * Projections: not adding +towgs84 in projections from felt files
+  * Edit Objects: New fronts and areas
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 10 Apr 2012 09:06:22 +0200
+
+diana-wms (3.27.1-4) lucid; urgency=low
+
+  * Reverted package dependency changes.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 03 Apr 2012 12:49:00 +0200
+
+diana-wms (3.27.1-3) lucid; urgency=low
+
+  * Specified package dependencies explicitly.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 02 Apr 2012 17:53:00 +0200
+
+diana-wms (3.27.1-2) lucid; urgency=low
+
+  * Updated package dependencies.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 02 Apr 2012 14:20:00 +0200
+
+diana (3.28.0-ubuntu1) lucid; urgency=low
+
+  * using fimex 0.37.1
+  * using metlibs_trunk
+  * compiled without profet support
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 29 Mar 2012 21:42:51 +0200
+
+diana-wms (3.27.1-1) lucid; urgency=low
+
+  * Changed the way that annotations are written in JSON format.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 26 Mar 2012 15:50:00 +0200
+
+diana-wms (3.27.1-0) lucid; urgency=low
+
+  * Updated documentation.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 23 Mar 2012 15:46:00 +0100
+
+diana-wms (3.27.0-7) lucid; urgency=low
+
+  * Ensured separation of non-X code for compatibility with X systems.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 20 Mar 2012 17:46:00 +0100
+
+diana-wms (3.27.0-6) lucid; urgency=low
+
+  * Fixed JSON format output for legends.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 19 Mar 2012 16:36:00 +0100
+
+diana-wms (3.27.0-5) lucid; urgency=low
+
+  * Introduced preliminary support for output of JSON format annotations.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 19 Mar 2012 14:29:00 +0100
+
+diana-test (3.28.0-ubuntu6) lucid; urgency=low
+
+  * Fonts - QuickMenus: Helvetica changed to BITMAPFONT
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 19 Mar 2012 08:34:27 +0100
+
+diana-wms (3.27.0-4) lucid; urgency=low
+
+  * Enabled support for specifying new fields in input files.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 15 Mar 2012 18:25:00 +0100
+
+diana-test (3.28.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix: POSTGRESQL_LIBS
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 14 Mar 2012 07:35:50 +0100
+
+diana-test (3.28.0-ubuntu4) lucid; urgency=low
+
+  * Substituting "Helvetica" with BITMAPFONT when reading old object files
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 13 Mar 2012 18:43:36 +0100
+
+diana-wms (3.27.0-3) lucid; urgency=low
+
+  * Disabled subdivision of smoothed quads.
+  * Enabled anti-aliasing support for all products.
+
+ -- David Boddie <david.boddie@met.no>  Tue, 13 Mar 2012 13:02:00 +0100
+
+diana-test (3.28.0-ubuntu3) lucid; urgency=low
+
+  * Fonts - adjustments to use vera fonts
+  * Bufr - some more parameters decoded
+  * FieldDialog - some layout changes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 13 Mar 2012 10:25:14 +0100
+
+diana-wms (3.27.0-2) lucid; urgency=low
+
+  * Added definitions for the EPSG projections (4326, 32661, 32761).
+  * Changed the bdiana -antialias option to an input file setting.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 09 Mar 2012 15:06:00 +0100
+
+diana-wms (3.27.0-1) lucid; urgency=low
+
+  * Improved compatibility with amd64.
+
+ -- David Boddie <david.boddie@met.no>  Wed, 07 Mar 2012 14:06:00 +0100
+
+diana (3.27.4-ubuntu1) lucid; urgency=low
+
+  * Observations - bugfix criterias
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 01 Mar 2012 18:55:51 +0100
+
+diana-test (3.28.0-ubuntu2) lucid; urgency=low
+
+  * added news
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 29 Feb 2012 15:08:01 +0100
+
+diana-test (3.28.0-ubuntu1) lucid; urgency=low
+
+  * satellite - possible to reproject images
+  * FieldEdit - Reading felt files with fimex, write felt files
+	      with static I/O functions in MetnoFieldFile
+  * Using metlibs_trunk
+  * Using libfimex-0.35.2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 29 Feb 2012 12:18:56 +0100
+
+diana (3.27.3-ubuntu1) lucid; urgency=low
+
+  * HQC - bugfix
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Feb 2012 14:31:58 +0100
+
+diana-test (3.27.2-ubuntu2) lucid; urgency=low
+
+  * Some FieldDialog updates
+  * Bufr - decoding more messages
+
+ -- Lisbeth Bergholt <lisbethb@vpn-116-99.met.no>  Sun, 26 Feb 2012 19:55:17 +0100
+
+diana-test (3.27.2-ubuntu1) lucid; urgency=low
+
+  * Observations bugfix: bufr decoding
+  * Profet bugfix: Removing nearby points when drawing polygons
+  * Using metlibs_trunk
+  * Using libfimex-0.35
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Feb 2012 12:34:59 +0100
+
+diana (3.27.2-ubuntu1) lucid; urgency=low
+
+  * New EPS parameter - cluster representative
+  * Bugfix profet: computed fields (like FF) were not
+    changed when the original fields (u,v) were edited.
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 14 Feb 2012 20:32:42 +0100
+
+diana-test (3.27.1-ubuntu1) lucid; urgency=low
+
+  * Do not put computed fields in fieldCache
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 10 Feb 2012 14:35:17 +0100
+
+diana-wms (3.27.0-0) lucid; urgency=low
+
+  * Build a version of Diana that runs on a Web Map Service installation.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 10 Feb 2012 13:22:00 +0100
+
+diana (3.27.1-ubuntu1) lucid; urgency=low
+
+  * Minor fixes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 09 Feb 2012 14:48:14 +0100
+
+diana-test (3.27.0-ubuntu5) lucid; urgency=low
+
+  * Fields: new PlotOptions - precision
+  * Bugfix: CDM with several axes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 31 Jan 2012 20:12:34 +0100
+
+diana (3.27.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_4.3
+  * Using libfimex-0.35
+  * Using WDB/fimex
+  * Reading from KDVH
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 26 Jan 2012 09:42:51 +0100
+
+diana-test (3.27.0-ubuntu4) lucid; urgency=low
+
+  * Minor bugfixes
+  * Using metlibs_4.3
+  * Using libfimex-0.35
+
+ -- Lisbeth Bergholt <lisbethb@emet.no>  Tue, 10 Jan 2012 14:01:59 +0100
+
+diana-test (3.27.0-ubuntu3) lucid; urgency=low
+
+  * Using WDB/fimex
+  * Reading from KDVH
+  * Using metlibs_4.3
+  * Using libfimex-0.34
+
+ -- Lisbeth Bergholt <lisbethb@.met.no>  Thu, 08 Dec 2011 14:38:58 +0100
+
+diana (3.26.4-ubuntu3) lucid; urgency=low
+
+  * bdiana: default canvas changed to QGLPixelBuffer
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Mon, 28 Nov 2011 09:42:43 +0100
+
+diana (3.26.4-ubuntu2) lucid; urgency=low
+
+  * using +towgs in all proj strings except old mitiff files.
+  * Using metlibs_4.2
+  * Using libfimex-0.33-1
+
+ -- Lisbeth Bergholt <lisbethb@vpn-116-99.met.no>  Sat, 26 Nov 2011 16:42:14 +0100
+
+diana (3.26.4-ubuntu1) lucid; urgency=low
+
+  * Bugfix:DifferenceField - plot string was not parsed correctly
+  * Using metlibs_trunk (by mistake)
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 22 Nov 2011 13:54:05 +0100
+
+diana (3.26.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Ascii-observations - only observations from one file were used
+  * Using metlibs_trunk (by mistake)
+
+ -- Lisbeth Bergholt <lisbethb@.met.no>  Mon, 21 Nov 2011 13:30:46 +0100
+
+diana-test (3.27.0-ubuntu2) lucid; urgency=low
+
+  * Testing wdb/fimex
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 31 Oct 2011 13:13:39 +0100
+
+diana-wms (3.27.0-ubuntu2) lucid; urgency=low
+
+  * Testing wdb/fimex
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 31 Oct 2011 13:13:39 +0100
+
+diana-test (3.27.0-ubuntu1) lucid; urgency=low
+
+  * Skipping -towgs in mitiff files whitout proj string
+  * Using metlibs_trunk
+  * Using libfimex-0.32-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Oct 2011 12:14:43 +0200
+
+diana-wms (3.27.0-ubuntu1) lucid; urgency=low
+
+  * Skipping -towgs in mitiff files whitout proj string
+  * Using metlibs_trunk
+  * Using libfimex-0.32-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Oct 2011 12:14:43 +0200
+
+diana (3.26.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix: mark measurements/trajectory positions
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 09 Oct 2011 17:28:50 +0200
+
+diana (3.26.1-ubuntu2) lucid; urgency=low
+
+  * Bugfix bdiana: vertical levels
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 14:09:07 +0200
+
+diana (3.26.1-ubuntu1) lucid; urgency=low
+
+  * Bugfix bdiana: translation from plot name to field name
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 27 Sep 2011 12:52:03 +0200
+
+diana (3.26.0-ubuntu2) lucid; urgency=low
+
+  * Projections: datum fix removed
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 26 Sep 2011 10:39:04 +0200
+
+diana (3.26.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_4.2
+  * Using libfimex-0.31-2
+  * New profet function
+  * Improved fimex reading
+  * Vertical crossections: vt+omega / vt+w fixed
+  * Bufr: skip time variables with missing valaues
+  * Bugfix:projections
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 23 Sep 2011 15:38:14 +0200
+
+diana-test (3.26.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix projections: towgs -> towgs84
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 21 Sep 2011 14:11:12 +0200
+
+diana-wms (3.26.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix projections: towgs -> towgs84
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 21 Sep 2011 14:11:12 +0200
+
+diana-test (3.26.0-ubuntu6) lucid; urgency=low
+
+  * Bugfix: projection of sat-images
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 13 Sep 2011 09:44:28 +0200
+
+diana-wms (3.26.0-ubuntu6) lucid; urgency=low
+
+  * Bugfix: projection of sat-images
+
+ -- Lisbeth Bergholt <lisbethb@pc2982.pc.met.no>  Tue, 13 Sep 2011 09:44:28 +0200
+
+diana-test (3.26.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix:projections
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Sep 2011 11:57:05 +0200
+
+diana-wms (3.26.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix:projections
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Sep 2011 11:57:05 +0200
+
+diana-test (3.26.0-ubuntu4) lucid; urgency=low
+
+  * Using metlibs_4.2
+  * Using libfimex-0.31-1
+  * New profet function
+  * Improved fimex reading
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 09 Sep 2011 13:16:17 +0200
+
+diana-wms (3.26.0-ubuntu4) lucid; urgency=low
+
+  * Using metlibs_4.2
+  * Using libfimex-0.31-1
+  * New profet function
+  * Improved fimex reading
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 09 Sep 2011 13:16:17 +0200
+
+diana-test (3.26.0-ubuntu3) lucid; urgency=low
+
+  * Vertical crossections: vt+omega / vt+w fixed
+  * Bufr: skip time variables with missing valaues
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 22 Aug 2011 09:48:16 +0200
+
+diana-wms (3.26.0-ubuntu3) lucid; urgency=low
+
+  * Vertical crossections: vt+omega / vt+w fixed
+  * Bufr: skip time variables with missing valaues
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 22 Aug 2011 09:48:16 +0200
+
+diana-test (3.26.0-ubuntu2) lucid; urgency=low
+
+  * Fixed typo in the news
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 18 Aug 2011 09:53:38 +0200
+
+diana-wms (3.26.0-ubuntu2) lucid; urgency=low
+
+  * Fixed typo in the news
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 18 Aug 2011 09:53:38 +0200
+
+diana-test (3.26.0-ubuntu1) lucid; urgency=low
+
+  * Testversion from trunk
+  * Using metlibs trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 18 Aug 2011 09:51:15 +0200
+
+diana-wms (3.26.0-ubuntu1) lucid; urgency=low
+
+  * Testversion from trunk
+  * Using metlibs trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 18 Aug 2011 09:51:15 +0200
+
+diana (3.25.5-ubuntu2) lucid; urgency=low
+
+  * Bugfix: bdiana did not find fieldTimes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 04 Jul 2011 12:41:27 +0200
+
+diana-test (3.25.5-ubuntu2) lucid; urgency=low
+
+  * Bugfix: bdiana did not find fieldTimes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 04 Jul 2011 12:40:39 +0200
+
+diana-wms (3.25.5-ubuntu2) lucid; urgency=low
+
+  * Bugfix: bdiana did not find fieldTimes
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 04 Jul 2011 12:40:39 +0200
+
+diana-test (3.25.5-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Labels from ObsAscii files
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.29
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:46:48 +0200
+
+diana-wms (3.25.5-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Labels from ObsAscii files
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.29
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:46:48 +0200
+
+diana (3.25.5-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Labels from ObsAscii files
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.29
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 27 Jun 2011 09:45:07 +0200
+
+diana (3.25.4-ubuntu2) lucid; urgency=low
+
+  * Bugfix was not included in last version
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 22 Jun 2011 08:52:03 +0200
+
+diana (3.25.4-ubuntu1) lucid; urgency=low
+
+  * Bugfix: Memory leak in StationPlot
+  * PostScript fix: Always set font-specification
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 21 Jun 2011 14:53:45 +0200
+
+diana (3.25.3-ubuntu1) lucid; urgency=low
+
+  * More bugfix: profet
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 20 Jun 2011 13:30:54 +0200
+
+diana (3.25.2-ubuntu2) lucid; urgency=low
+
+  * Bugfix case insensitivity
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Jun 2011 14:54:36 +0200
+
+diana (3.25.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix xylimit
+  * Reverted fix: model and field are now case insensitive
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 17 Jun 2011 08:28:03 +0200
+
+diana-test (3.25.1-ubuntu1) lucid; urgency=low
+
+  * Field: model and field are now case sensitive
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 15:04:52 +0200
+
+diana-wms (3.25.1-ubuntu1) lucid; urgency=low
+
+  * Field: model and field are now case sensitive
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 15:04:52 +0200
+
+diana (3.25.1-ubuntu1) lucid; urgency=low
+
+  * Field: model and field are now case sensitive
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 16 Jun 2011 11:26:45 +0200
+
+diana (3.25.0-ubuntu4) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.28-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 15 Jun 2011 10:06:40 +0200
+
+diana-test (3.25.0-ubuntu13) lucid; urgency=low
+
+  * Bugfixes GridIO
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 23 May 2011 10:15:37 +0200
+
+diana-wms (3.25.0-ubuntu13) lucid; urgency=low
+
+  * Bugfixes GridIO
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 23 May 2011 10:15:37 +0200
+
+diana-test (3.25.0-ubuntu12) lucid; urgency=low
+
+  * geotiff enabled
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 May 2011 11:08:04 +0200
+
+diana-wms (3.25.0-ubuntu12) lucid; urgency=low
+
+  * geotiff enabled
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 May 2011 11:08:04 +0200
+
+diana-test (3.25.0-ubuntu11) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Usng libfimex-dev 0.28-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 May 2011 10:21:04 +0200
+
+diana-wms (3.25.0-ubuntu11) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Usng libfimex-dev 0.28-2
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 May 2011 10:21:04 +0200
+
+diana (3.25.0-ubuntu3) lucid; urgency=low
+
+  * Using metlibs_4.1
+  * Using libfimex-dev 0.28
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 10 May 2011 08:31:50 +0200
+
+diana (3.25.0-ubuntu2) lucid; urgency=low
+
+  * Geotiff support enabled
+  * Using metlibs_4.1
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 05 May 2011 12:02:30 +0200
+
+diana-test (3.25.0-ubuntu10) lucid; urgency=low
+
+  * Vertical crossections: vt+w plotted independent of vertical coordinat
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 05 Apr 2011 17:52:38 +0200
+
+diana-wms (3.25.0-ubuntu10) lucid; urgency=low
+
+  * Vertical crossections: vt+w plotted independent of vertical coordinat
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 05 Apr 2011 17:52:38 +0200
+
+diana-test (3.25.0-ubuntu9) lucid; urgency=low
+
+  * documatation
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 31 Mar 2011 11:11:22 +0200
+
+diana-wms (3.25.0-ubuntu9) lucid; urgency=low
+
+  * documatation
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 31 Mar 2011 11:11:22 +0200
+
+diana-test (3.25.0-ubuntu8) lucid; urgency=low
+
+  * Fields: plot method can be selected in dialog
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 31 Mar 2011 10:33:16 +0200
+
+diana-wms (3.25.0-ubuntu8) lucid; urgency=low
+
+  * Fields: plot method can be selected in dialog
+  * Using metlibs_4.0
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 31 Mar 2011 10:33:16 +0200
+
+diana-test (3.25.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix trajectories could not cross from 0 to nx in global fields
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 13 Mar 2011 19:31:39 +0100
+
+diana-wms (3.25.0-ubuntu7) lucid; urgency=low
+
+  * Bugfix trajectories could not cross from 0 to nx in global fields
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 13 Mar 2011 19:31:39 +0100
+
+diana-test (3.25.0-ubuntu6) lucid; urgency=low
+
+  * ...
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 13:28:49 +0100
+
+diana-wms (3.25.0-ubuntu6) lucid; urgency=low
+
+  * ...
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 13:28:49 +0100
+
+diana-test (3.25.0-ubuntu5) lucid; urgency=low
+
+  * using <diana.setup> tags when reading from url
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 12:10:07 +0100
+
+diana-wms (3.25.0-ubuntu5) lucid; urgency=low
+
+  * using <diana.setup> tags when reading from url
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 12:10:07 +0100
+
+diana-test (3.25.0-ubuntu4) lucid; urgency=low
+
+  * Reading setup from wiki
+  * Fixing plotbuttons focus
+  * Bugfix: observations, sea temperature
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 08:13:13 +0100
+
+diana-wms (3.25.0-ubuntu4) lucid; urgency=low
+
+  * Reading setup from wiki
+  * Fixing plotbuttons focus
+  * Bugfix: observations, sea temperature
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 01 Mar 2011 08:13:13 +0100
+
+diana-test (3.25.0-ubuntu3) lucid; urgency=low
+
+  * Fimex: Fixed one time step per file and different time units
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 16 Feb 2011 13:14:15 +0100
+
+diana-wms (3.25.0-ubuntu3) lucid; urgency=low
+
+  * Fimex: Fixed one time step per file and different time units
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 16 Feb 2011 13:14:15 +0100
+
+diana-test (3.25.0-ubuntu2) lucid; urgency=low
+
+  * bugfix
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 15:28:57 +0100
+
+diana-wms (3.25.0-ubuntu2) lucid; urgency=low
+
+  * bugfix
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 15:28:57 +0100
+
+diana-test (3.25.0-ubuntu1) lucid; urgency=low
+
+  * New field reader using fimex
+  * Using metlibs_2011-01-28
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 12:49:16 +0100
+
+diana-wms (3.25.0-ubuntu1) lucid; urgency=low
+
+  * New field reader using fimex
+  * Using metlibs_2011-01-28
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 12:49:16 +0100
+
+diana (3.25.0-ubuntu1) lucid; urgency=low
+
+  * New field reader using fimex
+  * Using metlibs_2011-01-28
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 28 Jan 2011 12:47:24 +0100
+
+diana-test (3.24.0-ubuntu6) lucid; urgency=low
+
+  * Testing fimex
+  * Using metlibs/trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 26 Jan 2011 11:07:42 +0100
+
+diana-wms (3.24.0-ubuntu6) lucid; urgency=low
+
+  * Testing fimex
+  * Using metlibs/trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 26 Jan 2011 11:07:42 +0100
+
+diana (3.24.0-ubuntu2) lucid; urgency=low
+
+  * Bugfix: enable/disable ObjectPlots
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 24 Jan 2011 11:01:52 +0100
+
+diana-test (3.24.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix: enable/disable ObjectPlots
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 24 Jan 2011 10:04:28 +0100
+
+diana-wms (3.24.0-ubuntu5) lucid; urgency=low
+
+  * Bugfix: enable/disable ObjectPlots
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 24 Jan 2011 10:04:28 +0100
+
+diana (3.24.0-ubuntu1) lucid; urgency=low
+
+  * Using metlibs_2011-01-13
+  * new version of profet
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 21 Jan 2011 13:26:08 +0100
+
+diana-test (3.24.0-ubuntu4) lucid; urgency=low
+
+  * charset=UTF-8 removed from news.html
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 14 Jan 2011 09:39:03 +0100
+
+diana-wms (3.24.0-ubuntu4) lucid; urgency=low
+
+  * charset=UTF-8 removed from news.html
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 14 Jan 2011 09:39:03 +0100
+
+diana-test (3.24.0-ubuntu3) lucid; urgency=low
+
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 13 Jan 2011 14:43:54 +0100
+
+diana-wms (3.24.0-ubuntu3) lucid; urgency=low
+
+  * Using metlibs_2011-01-13
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 13 Jan 2011 14:43:54 +0100
+
+diana-test (3.24.0-ubuntu2) lucid; urgency=low
+
+  * test package compiled with current metlibs/trunk
+  * testing new version of profet
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 12 Jan 2011 15:14:18 +0100
+
+diana-wms (3.24.0-ubuntu2) lucid; urgency=low
+
+  * test package compiled with current metlibs/trunk
+  * testing new version of profet
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 12 Jan 2011 15:14:18 +0100
+
+diana-test (3.24.0-ubuntu1) lucid; urgency=low
+
+  * test package using trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Jan 2011 13:58:12 +0100
+
+diana-wms (3.24.0-ubuntu1) lucid; urgency=low
+
+  * test package using trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 10 Jan 2011 13:58:12 +0100
+
+diana-test (3.23.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix parsing logfile
+  * Using metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@vpn-117-63.met.no>  Mon, 06 Dec 2010 09:04:02 +0100
+
+diana-wms (3.23.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix parsing logfile
+  * Using metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@vpn-117-63.met.no>  Mon, 06 Dec 2010 09:04:02 +0100
+
+diana (3.23.3-ubuntu1) lucid; urgency=low
+
+  * Bugfix parsing logfile
+  * Using metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@vpn-117-63.met.no>  Mon, 06 Dec 2010 09:00:58 +0100
+
+diana-test (3.23.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix obsplot: pressure tendency, temperature precision, metar clouds
+  * Bugfix editing: Snow_showers -> Snow showers
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 29 Nov 2010 13:23:09 +0100
+
+diana-wms (3.23.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix obsplot: pressure tendency, temperature precision, metar clouds
+  * Bugfix editing: Snow_showers -> Snow showers
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 29 Nov 2010 13:23:09 +0100
+
+diana (3.23.2-ubuntu1) lucid; urgency=low
+
+  * Bugfix obsplot: pressure tendency, temperature precision, metar clouds
+  * Bugfix editing: Snow_showers -> Snow showers
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 29 Nov 2010 13:22:29 +0100
+
+diana-test (3.23.1-ubuntu6) lucid; urgency=low
+
+  * Added export LANG=en_US in diana.in
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:04:44 +0100
+
+diana-wms (3.23.1-ubuntu6) lucid; urgency=low
+
+  * Added export LANG=en_US in diana.in
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:04:44 +0100
+
+diana-test (3.23.1-ubuntu5) lucid; urgency=low
+
+  * Fixed version number in configure.ac
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:04:03 +0100
+
+diana-wms (3.23.1-ubuntu5) lucid; urgency=low
+
+  * Fixed version number in configure.ac
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:04:03 +0100
+
+diana (3.23.1-ubuntu6) lucid; urgency=low
+
+  * Added export LANG=en_US in diana.in
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 14:00:45 +0100
+
+diana (3.23.1-ubuntu5) lucid; urgency=low
+
+  * Fixed version number in configure.ac
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:59:34 +0100
+
+diana-test (3.23.1-ubuntu4) lucid; urgency=low
+
+  * Bugfix uninitialised variable contourShape
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:52:01 +0100
+
+diana-wms (3.23.1-ubuntu4) lucid; urgency=low
+
+  * Bugfix uninitialised variable contourShape
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:52:01 +0100
+
+diana (3.23.1-ubuntu4) lucid; urgency=low
+
+  * Bugfix uninitialised variable contourShape
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 23 Nov 2010 13:51:17 +0100
+
+diana-test (3.23.1-ubuntu3) lucid; urgency=low
+
+  * Compiled with metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:38:55 +0100
+
+diana-wms (3.23.1-ubuntu3) lucid; urgency=low
+
+  * Compiled with metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:38:55 +0100
+
+diana (3.23.1-ubuntu3) lucid; urgency=low
+
+  * Compiled with metlibs_2010-11-15
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 15 Nov 2010 18:37:33 +0100
+
+diana (3.23.1-ubuntu2) lucid; urgency=low
+
+  * Satellite: show grid coordinates
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 10 Nov 2010 13:34:02 +0100
+
+diana-test (3.23.1-ubuntu2) lucid; urgency=low
+
+  * Satellite: show grid coordinates
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 10 Nov 2010 10:41:16 +0100
+
+diana-wms (3.23.1-ubuntu2) lucid; urgency=low
+
+  * Satellite: show grid coordinates
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 10 Nov 2010 10:41:16 +0100
+
+diana (3.23.1-ubuntu1) lucid; urgency=low
+
+  * Bugfix:Observations, pressure tendency
+  * Linked with metlibs/trunk
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 05 Nov 2010 09:02:57 +0100
+
+diana-test (3.23.1-ubuntu1) lucid; urgency=low
+
+  * Initial release.
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 04 Nov 2010 09:51:52 +0100
+
+diana-wms (3.23.1-ubuntu1) lucid; urgency=low
+
+  * Initial release.
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Thu, 04 Nov 2010 09:51:52 +0100
+
+diana (3.23.0-ubuntu3) lucid; urgency=low
+
+  * bufr support
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 18 Oct 2010 12:48:57 +0200
+
+diana (3.23.0-ubuntu2) lucid; urgency=low
+
+  * testing dependencies
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 12 Oct 2010 13:46:33 +0200
+
+diana (3.23.0-ubuntu1) lucid; urgency=low
+
+  * fix ubuntu version
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Oct 2010 12:11:35 +0200
+
+diana (3.23.0) lucid; urgency=low
+
+  * Initial release.
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Oct 2010 12:10:45 +0200

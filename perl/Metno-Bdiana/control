@@ -1,0 +1,14 @@
+Package: libmetno-bdiana-perl
+Version: 0.1-2
+Architecture: amd64
+Maintainer: Heiko Klein <Heiko.Klein@met.no>
+Depends: libc6 (>= 2.14), diana-headless-3.28, perl, libfimex-0.39-0
+Section: perl
+Priority: optional
+Description: bdiana bindings for perl
+ .
+ Currently a quickhack. Dependencies are 're-used' from diana-headless, though
+ it shouldn't be a requirement to have diana-headless installed.
+ .
+ Prototype.
+

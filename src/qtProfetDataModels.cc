@@ -110,9 +110,9 @@ QVariant UserListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 
   if (role == Qt::DisplayRole){
-    QString label(users[index.row()].name.cStr());
+    QString label(users[index.row()].name.c_str());
     label.append(" : ");
-    label.append(users[index.row()].editingParameter.cStr());
+    label.append(users[index.row()].editingParameter.c_str());
     return label;
   }
   else if (role == Qt::DecorationRole) {
@@ -204,7 +204,7 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const {
     miutil::miTime mt = sessions[index.row()].modeltime();
 
     QString str = QString("%1: %2, %3").arg(
-        rt.isoTime().cStr()).arg(mn.cStr()).arg(mt.isoTime().cStr());
+        rt.isoTime().c_str()).arg(mn.c_str()).arg(mt.isoTime().c_str());
     return str;
 
   } else if (role == Qt::DecorationRole) {
@@ -341,7 +341,7 @@ QVariant FetObjectListModel::data(const QModelIndex &index, int role) const {
     miutil::miString user    = objects[index.row()].user();
     miutil::miString objname = objects[index.row()].name();
     miutil::miTime edittime  = objects[index.row()].editTime();
-    QString str = QString("%1: %2 - %3").arg(user.cStr()).arg(objname.cStr()).arg(edittime.isoTime().cStr());
+    QString str = QString("%1: %2 - %3").arg(user.c_str()).arg(objname.c_str()).arg(edittime.isoTime().c_str());
     return str;
   } else if (role == Qt::DecorationRole) {
     miutil::miString param = objects[index.row()].parameter();
@@ -437,9 +437,9 @@ QVariant FetObjectTableModel::headerData(int section,
       fetParameter p;
       if ( itr != name2par.end())
         p = itr->second;
-      return QString(p.description().cStr());
+      return QString(p.description().c_str());
     } else
-    return QString(times[section].format("%a %k").cStr());
+    return QString(times[section].format("%a %k").c_str());
 
   } else if (role == Qt::DecorationRole && orientation == Qt::Vertical) {
     miutil::miString param = parameters[section];
@@ -519,7 +519,7 @@ QVariant FetObjectTableModel::data(const QModelIndex &index, int role) const {
     if(nUsers > 0){
       QString toolTipString;
       for(int j=0; j<nUsers; j++){
-        toolTipString.append(users[j].name.cStr());
+        toolTipString.append(users[j].name.c_str());
         if(j!=(nUsers-1)) toolTipString.append("\n");
       }
       return toolTipString;

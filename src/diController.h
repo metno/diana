@@ -42,7 +42,7 @@
 #include <diLocationPlot.h>
 #include <vector>
 #include <set>
-#include <diField/diColour.h>
+#include <diColour.h>
 
 #ifdef PROFET
 
@@ -155,12 +155,13 @@ public:
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
                     vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
-                    vector<miutil::miTime>& ptimes);
+                    vector<miutil::miTime>& ptimes, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(set<miutil::miTime>& okTimes,
                            set<miutil::miTime>& constTimes,
                            const vector<miutil::miString>& pinfos,
-                           bool allTimes=true);
+                           bool allTimes=true,
+                           bool updateSources=false);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
@@ -169,7 +170,7 @@ public:
   /// set plottime
   bool setPlotTime(miutil::miTime&);
   /// update plots
-  bool updatePlots();
+  bool updatePlots(bool failOnMissingData=false);
   /// update FieldPlots
   void updateFieldPlot(const vector<miutil::miString>& pin);
   /// toggle area conservatism
@@ -191,11 +192,11 @@ public:
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket
-  bool initHqcdata(int from, const miutil::miString&, const miutil::miString&,
-                   const miutil::miString&, const vector<miutil::miString>&);
+  bool initHqcdata(int from, const std::string&, const std::string&,
+                   const std::string&, const vector<std::string>&);
   /// update hqcData from QSocket
-  void updateHqcdata(const miutil::miString&, const miutil::miString&,
-                     const miutil::miString&, const vector<miutil::miString>&);
+  void updateHqcdata(const std::string&, const std::string&,
+                     const std::string&, const vector<std::string>&);
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
   /// plot trajectory position
@@ -215,7 +216,7 @@ public:
   /// get name++ of current channels (with calibration)
   vector<miutil::miString> getCalibChannels();
   /// show pixel values in status bar
-  vector<SatValues> showValues(int, int);
+  vector<SatValues> showValues(float, float);
   /// get satellite name from all SatPlots
   vector <miutil::miString> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
@@ -310,6 +311,8 @@ public:
                       miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
+///update list of fieldsources (field files)
+  void updateFieldSource(const std::string & modelName);
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();
@@ -320,8 +323,6 @@ public:
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
   set <miutil::miString> getComplexList();
-  /// return class specifications from fieldplot setup to EditDialog
-  miutil::miString getFieldClassSpecifications(const miutil::miString& fieldName);
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
@@ -339,9 +340,9 @@ public:
 
   //stations
   void putStations(StationPlot*);
-  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
-                       const miutil::miString& description, int from,
-                       const  vector<miutil::miString>& data);
+  void makeStationPlot(const std::string& commondesc, const std::string& common,
+                       const std::string& description, int from,
+                       const  vector<std::string>& data);
   void deleteStations(miutil::miString name);
   void deleteStations(int id=-2);
   miutil::miString findStation(int, int,miutil::miString name,int id=-1);
@@ -349,12 +350,13 @@ public:
                     vector<miutil::miString>& station);
   void getEditStation(int step, miutil::miString& name, int& id,
                       vector<miutil::miString>& stations);
-  void stationCommand(const miutil::miString& Command,
-                      vector<miutil::miString>& data,
-                      const miutil::miString& name="", int id=-1,
-                      const miutil::miString& misc="");
-  void stationCommand(const miutil::miString& Command,
-                      const miutil::miString& name="", int id=-1);
+  void getStationData(vector<std::string>& data);
+  void stationCommand(const std::string& Command,
+                      const vector<std::string>& data,
+                      const std::string& name="", int id=-1,
+                      const std::string& misc="");
+  void stationCommand(const std::string& Command,
+                      const std::string& name="", int id=-1);
   float getStationsScale();
   void setStationsScale(float new_scale);
 

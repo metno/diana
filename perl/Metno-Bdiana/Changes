@@ -1,0 +1,6 @@
+Revision history for Perl extension Metno::Bdiana.
+
+0.01  Fri Sep 21 14:04:13 2012
+	- original version; created by h2xs 1.23 with options
+		-n Metno::Bdiana -A -b 5.8.8 ../diana_wms_branch/src/bdiana_capi.h -L/disk1/heiko/local/dianaWms/lib -L/disk1/heiko/local/metlibs/lib -L/disk1/heiko/local/fimexTrunk/lib -L/usr/lib libdiana.a /disk1/heiko/local/metlibs/lib/libdiField.a /disk1/heiko/local/fimexTrunk/lib/libfimex.so /disk1/heiko/local/metlibs/lib/libmic.a /disk1/heiko/local/metlibs/lib/libpropoly.a /disk1/heiko/local/metlibs/lib/libmi.a -lgfortran /disk1/heiko/local/metlibs/lib/libdiMItiff.a /usr/lib/libproj.so /usr/lib/x86_64-linux-gnu/libtiff.so /disk1/heiko/local/metlibs/lib/libpuDatatypes.a /disk1/heiko/local/metlibs/lib/librobs.a /disk1/heiko/local/metlibs/lib/libparameter.a /disk1/heiko/local/metlibs/lib/libpuTools.a /disk1/heiko/local/metlibs/lib/libpuCtools.a /disk1/heiko/local/metlibs/lib/libmiLogger.a -llog4cpp /usr/lib/libshp.so /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so -lpng -L/opt/qt4-qws/lib -lQtSvg -lQtGui -lQtNetwork -lQtCore -lpthread -fopenmp -Wl,-rpath -Wl,/disk1/heiko/local/fimexTrunk/lib -Wl,-rpath -Wl,/opt/qt4-qws/lib ../diana_wms_branch/src/bdiana_capi.o
+

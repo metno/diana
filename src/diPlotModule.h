@@ -195,6 +195,8 @@ public:
   void prepareFields(const vector<miutil::miString>&);
   /// handles observations plot info strings
   void prepareObs(const vector<miutil::miString>&);
+  /// handles area info strings
+  void prepareArea(const vector<miutil::miString>&);
   /// handles map plot info strings
   void prepareMap(const vector<miutil::miString>&);
   /// handles images plot info strings
@@ -220,7 +222,7 @@ public:
   /// update FieldPlots
   bool updateFieldPlot(const vector<miutil::miString>& pin);
   /// update all plot objects, returning true if successful
-  bool updatePlots();
+  bool updatePlots(bool failOnMissingData=false);
   /// toggle conservative map area
   void keepCurrentArea(bool b){keepcurrentarea= b;}
 
@@ -265,12 +267,13 @@ public:
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
                     vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
-                    vector<miutil::miTime>& ptimes);
+                    vector<miutil::miTime>& ptimes, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(set<miutil::miTime>& okTimes,
                            set<miutil::miTime>& constTimes,
                            const vector<miutil::miString>& pinfos,
-                           bool allTimes=true);
+                           bool allTimes=true,
+                           bool updateSources=false);
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
@@ -326,7 +329,7 @@ public:
   /// get name++ of current channels (with calibration)
   vector<miutil::miString> getCalibChannels();
   ///show pixel values in status bar
-  vector<SatValues> showValues(int, int);
+  vector<SatValues> showValues(float x, float y);
   ///get satellite name from all SatPlots
   vector <miutil::miString> getSatnames();
   ///satellite follows main plot time

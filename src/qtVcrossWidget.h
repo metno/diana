@@ -34,7 +34,7 @@
 #include <qglobal.h>
 
 #include <iostream>
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 #include <qgl.h>
 #else
 #include <GL/gl.h>
@@ -45,7 +45,7 @@
 
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diPrintOptions.h>
 
 using namespace std;
@@ -64,7 +64,7 @@ class VcrossWidget : public QGLWidget
   Q_OBJECT
 
 public:
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
                 QWidget* parent = 0 );
 #else
@@ -80,15 +80,6 @@ public:
 
   void startHardcopy(const printOptions& po);
   void endHardcopy();
-
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  bool isValid() { return true; }
-  void makeCurrent() {}
-  void swapBuffers() {}
-  void setAutoBufferSwap(bool enable) {}
-  void updateGL() { update(); }
-  QImage grabFrameBuffer(bool withAlpha = false) { return QImage(); }
-#endif
 
 protected:
 

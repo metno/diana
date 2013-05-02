@@ -280,7 +280,8 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
 
   editfield->numSmoothed= 0;
 
-  editfield->validFieldTime= tprod;
+  editfield->validFieldTime = tprod;
+  editfield->analysisTime = tprod;
 
   metnoFieldFileIdent[0]= editfield->producer;
   metnoFieldFileIdent[1]= editfield->gridnum;
@@ -317,7 +318,7 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-
+  editfield->producer = metnoFieldFileIdent[0];
   vector<Field*> vf;
   vf.push_back(editfield);
 
@@ -454,9 +455,9 @@ bool FieldEdit::readEditfield(const miString& filename,
     const miString& fieldname)
 {
 
-  miutil::miString fileType = "fimex";
-  miutil::miString modelName = filename;
-  std::vector<miutil::miString> filenames;
+  std::string fileType = "fimex";
+  std::string modelName = filename;
+  std::vector<std::string> filenames;
   filenames.push_back(filename);
 
   std::vector<std::string> format;
@@ -471,7 +472,7 @@ bool FieldEdit::readEditfield(const miString& filename,
     config.push_back(inputFieldConfig);
   }
 
-  std::vector<miutil::miString> option;
+  std::vector<std::string> option;
 
   fieldPlotManager->addGridCollection(fileType, modelName, filenames,
       format,config, option);

@@ -132,6 +132,7 @@ stationDialogInfo StationManager::initDialog()
  * declared there.
  * Returns true if the file is parsed without error; otherwise returns false.
  */
+
 bool StationManager::parseSetup()
 {
   // Create stationSetInfo objects to be stored for later retrieval by the StationDialog.
@@ -144,20 +145,50 @@ bool StationManager::parseSetup()
   set<miutil::miString> urls;
 
   for (unsigned int i = 0; i < section.size(); ++i) {
-    vector<miString> pieces = section[i].split("=");
-    if (pieces.size() == 2) {
-      if (urls.find(pieces[1]) == urls.end()) {
-        stationSetInfo s_info;
-        s_info.name = pieces[0];
-        s_info.url = pieces[1];
-        m_info.chosen[s_info.url] = false;
-        m_info.sets.push_back(s_info);
+    if (section[i].find("image") != string::npos) {
+      // split on blank, preserve ""
+      vector<miString> tokens = section[i].split('"','"'," ",true);
+      stationSetInfo s_info;
+      for (size_t k = 0; k < tokens.size(); k++) {
+     //  cerr << "TOKENS = " << tokens[k] << endl;
+        vector<miString> pieces = tokens[k].split("=");
+        // tag name=url
+        if (k == 0 && pieces.size() == 2) {
+          if (urls.find(pieces[1]) == urls.end()) {
+       //     cerr << "ADDS = " << pieces[0] << endl;
+            s_info.name = pieces[0];
+            s_info.url = pieces[1];
+            m_info.chosen[s_info.url] = false;
 
-        // Record the URL of the set to avoid potential duplication.
-        urls.insert(pieces[1]);
+            // Record the URL of the set to avoid potential duplication.
+            urls.insert(pieces[1]);
+          }
+        }
+        // tag image=??.xpm
+        else if (k==1 && pieces.size() == 2) {
+         // cerr << "IMAGE = " << pieces[0] << endl;
+          s_info.image = pieces[1];
+        }
       }
-    } else
-      cerr << __FUNCTION__ << ": Invalid line in setup file: " << section[i] << endl;
+      m_info.sets.push_back(s_info);
+    }
+    else {
+      vector<miString> pieces = section[i].split("=");
+      if (pieces.size() == 2) {
+        if (urls.find(pieces[1]) == urls.end()) {
+          stationSetInfo s_info;
+          s_info.name = pieces[0];
+          s_info.url = pieces[1];
+          m_info.chosen[s_info.url] = false;
+          m_info.sets.push_back(s_info);
+
+          // Record the URL of the set to avoid potential duplication.
+          urls.insert(pieces[1]);
+        }
+      } else {
+	cerr << __FUNCTION__ << ": Invalid line in setup file: " << section[i] << endl;
+      }
+    }
   }
 
   return true;
@@ -186,7 +217,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
   }
 
   vector<Station*> stations;
-
+  bool useImage = false;
   for (unsigned int i = 0; i < lines.size(); ++i) {
 
     vector<miutil::miString> pieces = lines[i].split(";");
@@ -230,15 +261,79 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
           station->time = miutil::miTime(timeString.c_str());
       }
 
+      if (pieces.size() >= 8)
+        station->height = atof(pieces[7].c_str());
+
       stations.push_back(station);
+
+    } else {
+      Station *station = parseSMHI(lines[i], url);
+      if (station != NULL) {
+        useImage = true;
+        stations.push_back(station);
+      }
     }
   }
 
   // Construct a new StationPlot object.
   StationPlot *plot = new StationPlot(stations);
   plot->setName(name);
+  plot->setUseImage(useImage);
 
   return plot;
+}
+
+Station* StationManager::parseSMHI(miString& miLine, miString& url)
+{
+  Station* st = NULL;
+  vector<miString> stationVector;
+
+  miString image = "";
+  for (size_t i  = 0; i<m_info.sets.size(); ++i) {
+    if (m_info.sets[i].url == url) {
+        image = m_info.sets[i].image;
+    }
+  }
+
+  // the old format
+  if (miLine.contains(";")) {
+    stationVector = miLine.split(";", false);
+    if (stationVector.size() == 6) {
+      st = new Station();
+      st->name = stationVector[0];
+      st->lat = stationVector[1].toFloat();
+      st->lon = stationVector[2].toFloat();
+      st->height = stationVector[3].toInt(-1);
+      st->barHeight = stationVector[4].toInt(-1);
+      st->id = stationVector[5];
+      st->isVisible = true;
+      st->status = Station::working;
+      st->type = Station::visual;
+      st->image = image;
+    } else {
+      cerr << "Something is wrong with: " << miLine << endl;
+    }
+  }
+  // the old format
+  else if (miLine.contains(",")) {
+    stationVector = miLine.split(",", false);
+    if (stationVector.size() == 6) {
+      st = new Station();
+      st->name = stationVector[0];
+      st->lat = stationVector[1].toFloat();
+      st->lon = stationVector[2].toFloat();
+      st->height = stationVector[3].toInt(-1);
+      st->barHeight = stationVector[4].toInt(-1);
+      st->id = stationVector[5];
+      st->isVisible = true;
+      st->status = Station::working;
+      st->type = Station::visual;
+      st->image = image;
+    } else {
+      cerr << "Something is wrong with: " << miLine << endl;
+    }
+  }
+  return st;
 }
 
 float StationManager::getStationsScale()
@@ -296,9 +391,9 @@ void StationManager::putStations(StationPlot* stationPlot)
   stationPlots[stationPlot->getName()] = stationPlot;
 }
 
-void StationManager::makeStationPlot(const miutil::miString& commondesc,
-    const miutil::miString& common, const miutil::miString& description, int from,
-    const vector<miutil::miString>& data)
+void StationManager::makeStationPlot(const std::string& commondesc,
+    const std::string& common, const std::string& description, int from,
+    const vector<std::string>& data)
 {
   StationPlot* stationPlot = new StationPlot(commondesc, common, description,
       from, data);
@@ -374,27 +469,30 @@ bool StationManager::getEditStation(int step, miutil::miString& name, int& id, v
   return updateArea;
 }
 
-void StationManager::stationCommand(const miutil::miString& command,
-    vector<miutil::miString>& data, const miutil::miString& name, int id, const miutil::miString& misc)
+void StationManager::getStationData(vector<std::string>& data)
 {
   map <miutil::miString,StationPlot*>::iterator it;
 
-  if (command == "selected") {
-    for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      data.push_back((*it).second->stationRequest(command));
-    }
-  } else { // use stationPlot with name and id
-    for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      if ((id == -1 || id == (*it).second->getId()) &&
-          (name == (*it).second->getName() || !name.exists())) {
-        (*it).second->stationCommand(command, data, misc);
-        break;
-      }
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    data.push_back((*it).second->stationRequest("selected"));
+  }
+}
+
+void StationManager::stationCommand(const std::string& command,
+    const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
+{
+  map <miutil::miString,StationPlot*>::iterator it;
+
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == (*it).second->getId()) &&
+        (name == (*it).second->getName() || name.empty())) {
+      (*it).second->stationCommand(command, data, misc);
+      break;
     }
   }
 }
 
-void StationManager::stationCommand(const miutil::miString& command, const miutil::miString& name,
+void StationManager::stationCommand(const std::string& command, const std::string& name,
     int id)
 {
   if (command == "delete") {
@@ -402,7 +500,7 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
 
     while (p != stationPlots.end()) {
       if ((name == "all" && (*p).second->getId() != -1) ||
-          (id == (*p).second->getId() && (name == (*p).second->getName() || !name.exists()))) {
+          (id == (*p).second->getId() && (name == (*p).second->getName() || name.empty()))) {
         delete (*p).second;
         stationPlots.erase(p);
         if (name != "all")
@@ -419,7 +517,7 @@ void StationManager::stationCommand(const miutil::miString& command, const miuti
 
     for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
       if ((id == -1 || id == (*it).second->getId()) &&
-          (name == (*it).second->getName() || !name.exists()))
+          (name == (*it).second->getName() || name.empty()))
         (*it).second->stationCommand(command);
     }
   }

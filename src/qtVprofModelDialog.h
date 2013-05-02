@@ -92,7 +92,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
 };
 
 #endif

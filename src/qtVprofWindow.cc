@@ -67,14 +67,14 @@ VprofWindow::VprofWindow(Controller *co)
 
   setWindowTitle( tr("Diana Vertical Profiles") );
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
 #endif
   //central widget
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   vprofw= new VprofWidget(vprofm, fmt, this);
 #else
   vprofw= new VprofWidget(vprofm, this);
@@ -171,15 +171,15 @@ VprofWindow::VprofWindow(Controller *co)
   vpModelDialog = new VprofModelDialog(this,vprofm);
   connect(vpModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(vpModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(vpModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vpModelDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   vpSetupDialog = new VprofSetupDialog(this,vprofm);
   connect(vpSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vpSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vpSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vpSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
   //initialize everything in startUp
   firstTime = true;
@@ -233,8 +233,7 @@ void VprofWindow::rightStationClicked(){
 
 void VprofWindow::leftTimeClicked(){
   //called when the left time button is clicked
-  miutil::miTime t= vprofm->setTime(-1);
-  //update combobox
+  vprofm->setTime(-1);
   timeChangedSlot(-1);
   vprofw->updateGL();
 }
@@ -243,7 +242,7 @@ void VprofWindow::leftTimeClicked(){
 
 void VprofWindow::rightTimeClicked(){
   //called when the right Station button is clicked
-  miutil::miTime t= vprofm->setTime(+1);
+  vprofm->setTime(+1);
   timeChangedSlot(+1);
   vprofw->updateGL();
 }
@@ -679,7 +678,7 @@ void VprofWindow::updateTimeBox(){
 
   int n =times.size();
   for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
   }
 
   emit emitTimes("vprof",times);
@@ -797,6 +796,14 @@ void VprofWindow::startUp(const miutil::miTime& t){
 }
 
 /***************************************************************************/
+
+void VprofWindow::parseSetup()
+{
+
+  vprofm->parseSetup();
+  vpModelDialog->updateModelfileList();
+
+}
 
 vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
 {

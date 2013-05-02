@@ -34,8 +34,6 @@
 #include <puTools/miString.h>
 #include <map>
 
-using namespace std;
-
 namespace d_print {
 
   // postscript options
@@ -117,12 +115,12 @@ public:
 class printerManager {
 private:
   struct printerExtra { // extra commands for postscript
-    map<miutil::miString,miutil::miString> keys;// keys for matching..
-    map<string,string> commands;// Extra output-commands
+    std::map<miutil::miString,miutil::miString> keys;// keys for matching..
+    std::map<std::string,std::string> commands;// Extra output-commands
   };
-  static vector<printerExtra> printers;
-  static map<miutil::miString,d_print::PageSize> pages;
-  static map<d_print::PageSize,d_print::PaperSize> pagesizes;
+  static std::vector<printerExtra> printers;
+  static std::map<miutil::miString,d_print::PageSize> pages;
+  static std::map<d_print::PageSize,d_print::PaperSize> pagesizes;
   static miutil::miString pcommand; // printercommand
 
 public:
@@ -136,7 +134,7 @@ public:
   /// size from page
   d_print::PaperSize getSize(const d_print::PageSize ps);
   /// check if special commands exist for this setup
-  bool checkSpecial(const printOptions& po, map<string,string>& mc);
+  bool checkSpecial(const printOptions& po, std::map<std::string,std::string>& mc);
   /// expand variables in print-command
   bool expandCommand(miutil::miString& com, const printOptions& po);
   /// set print command

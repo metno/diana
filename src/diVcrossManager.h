@@ -33,7 +33,7 @@
 
 
 #include <diCommonTypes.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <diPrintOptions.h>
 #include <diLocationPlot.h>
 #include <puTools/miTime.h>
@@ -41,8 +41,6 @@
 #include <vector>
 #include <map>
 #include <diController.h>
-
-using namespace std;
 
 class VcrossOptions;
 class VcrossFile;
@@ -66,15 +64,15 @@ private:
     VcrossPlot* vcplot;
   };
 
-  // map<model,filename>
-  map<miutil::miString,miutil::miString> filenames;
-  vector<miutil::miString> modelnames;
-  map<miutil::miString, miutil::miString> filetypes;
+  // std::map<model,filename>
+  std::map<miutil::miString,miutil::miString> filenames;
+  std::vector<miutil::miString> modelnames;
+  std::map<miutil::miString, miutil::miString> filetypes;
 
-  map<miutil::miString,VcrossFile*> vcfiles;
-  map<miutil::miString,VcrossField*> vcfields;
+  std::map<miutil::miString,VcrossFile*> vcfiles;
+  std::map<miutil::miString,VcrossField*> vcfields;
 
-  vector<VcrossData> vcdata;
+  std::vector<VcrossData> vcdata;
 
   FieldManager *fieldm;   // field manager
 
@@ -82,23 +80,23 @@ private:
 
   bool dataChange;
 
-  vector<miutil::miString>    selectedModels;
-  vector<miutil::miString>    selectedFields;
-  vector<int>         selectedHourOffset;
-  vector<PlotOptions> selectedPlotOptions;
-  vector<bool>        selectedPlotShaded;
-  vector<miutil::miString>    selectedVcFile;
-  vector<int>         selectedVcData;
-  vector<miutil::miString>    selectedLabel;
-  vector<miutil::miString>    plotStrings;
+  std::vector<miutil::miString>    selectedModels;
+  std::vector<miutil::miString>    selectedFields;
+  std::vector<int>         selectedHourOffset;
+  std::vector<PlotOptions> selectedPlotOptions;
+  std::vector<bool>        selectedPlotShaded;
+  std::vector<miutil::miString>    selectedVcFile;
+  std::vector<int>         selectedVcData;
+  std::vector<miutil::miString>    selectedLabel;
+  std::vector<miutil::miString>    plotStrings;
 
   //bool asField;
 
   miutil::miString masterFile;
-  vector<miutil::miString> nameList;
-  vector<miutil::miTime>   timeList;
+  std::vector<std::string> nameList;
+  std::vector<miutil::miTime>   timeList;
 
-  vector<miutil::miString> usedModels;
+  std::vector<miutil::miString> usedModels;
 
   miutil::miString plotCrossection;
   miutil::miString lastCrossection;
@@ -112,7 +110,6 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  bool parseSetup();
   bool setModels();
 
 public:
@@ -123,11 +120,12 @@ public:
 
   void cleanup();
   void cleanupDynamicCrossSections();
+  bool parseSetup();
 
   VcrossOptions* getOptions() { return vcopt; }
 
   //routines from controller
-  vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
+  std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
 
   void preparePlot();
   void setCrossection(const miutil::miString& crossection);
@@ -140,27 +138,27 @@ public:
   void getCrossectionOptions(LocationData& locationdata);
   const miutil::miString getCrossection() { return plotCrossection; }
   const miutil::miString getLastCrossection(){return lastCrossection;}
-  const vector<miutil::miString>& getCrossectionList() { return nameList; }
-  const vector<miutil::miTime>&   getTimeList() { return timeList; }
-  vector<miutil::miString> getAllModels();
-  map<miutil::miString,miutil::miString> getAllFieldOptions();
-  vector<miutil::miString> getFieldNames(const miutil::miString& model);
-  vector<miutil::miString> getPlotStrings(){return plotStrings;}
+  const std::vector<std::string>& getCrossectionList() { return nameList; }
+  const std::vector<miutil::miTime>&   getTimeList() { return timeList; }
+  std::vector<miutil::miString> getAllModels();
+  std::map<miutil::miString,miutil::miString> getAllFieldOptions();
+  std::vector<std::string> getFieldNames(const miutil::miString& model);
+  std::vector<miutil::miString> getPlotStrings(){return plotStrings;}
 
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
   void mainWindowTimeChanged(const miutil::miTime& time);
-  bool setSelection(const vector<miutil::miString>& vstr);
+  bool setSelection(const std::vector<miutil::miString>& vstr);
   bool timeGraphOK();
   void disableTimeGraph();
   void setTimeGraphPos(int plotx, int ploty);
   void setTimeGraphPos(int incr);
-  void parseQuickMenuStrings(const vector<miutil::miString>& vstr);
-  vector<miutil::miString> getQuickMenuStrings();
+  void parseQuickMenuStrings(const std::vector<miutil::miString>& vstr);
+  std::vector<miutil::miString> getQuickMenuStrings();
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
+  std::vector<miutil::miString> writeLog();
+  void readLog(const std::vector<miutil::miString>& vstr,
 	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
 };

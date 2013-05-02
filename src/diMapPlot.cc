@@ -40,6 +40,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <diFontManager.h>
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 #include <float.h>
 #include <math.h>
@@ -55,7 +57,12 @@ map<miString,Area> MapPlot::shapeareas;
 
 // Default constructor
 MapPlot::MapPlot() :
-      Plot(), mapchanged(true), haspanned(false), usedrawlists(true)
+              Plot(), mapchanged(true), haspanned(false),
+#if defined(USE_PAINTGL)
+              usedrawlists(false)
+#else
+              usedrawlists(true)
+#endif
 {
 #ifdef DEBUGPRINT
   cerr << "++ MapPlot::Default Constructor" << endl;
@@ -106,135 +113,83 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   //new syntax
   //pinfo AREA defines area (projection,rectangle)
   //pinfo MAP defines map (which map, colours, lat,lon etc)
-
   //obsolete
-  //pinfo MAP contain "area=..."
-
-  if (tokens[0] == "AREA"){
-
-    xyLimit.clear();
-
-    const miString key_name=  "name";
-    const miString key_areaname=  "areaname"; //old syntax
-    const miString key_proj=  "proj4string";
-    const miString key_rectangle=  "rectangle";
-    const miString key_xypart=  "xypart";
-
-    Projection proj;
-    Rectangle rect;
-
-    int n = tokens.size();
-    for (int i=0; i<n; i++){
-      vector<miString> stokens= tokens[i].split(1,'=');
-      if (stokens.size() > 1) {
-        miString key= stokens[0].downcase();
-
-        if (key==key_name || key==key_areaname){
-          mapm.getMapAreaByName(stokens[1], newarea);
-          areadefined = true;
-          reqarea= newarea;
-        } else if (key==key_proj){
-          if ( proj.set_proj_definition(stokens[1]) ) {
-            reqarea.setP(proj);
-            areadefined = true;
-          }
-        } else if (key==key_rectangle){
-          if ( rect.setRectangle(stokens[1],false) ) {
-            reqarea.setR(rect);
-          }
-        } else if (key==key_xypart) {
-          cerr <<"xypart:"<<stokens[1]<<endl;
-          vector<miString> vstr= stokens[1].split(',');
-          if (vstr.size()>=4) {
-            xyPart.clear();
-            for (int j=0; j<4; j++) {
-              xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
-            }
-            if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3]) {
-              xyPart.clear();
-            }
-          }
-        }
-      }
-    }
+  //pinfo MAP contains "area=..."
 
 
-  } else if (tokens[0] == "MAP"){
-
-    miString bgcolourname;
-    MapInfo tmpinfo;
-    bool areadef=false;
-    for (int i=0; i<n; i++) {
-      vector<miString> stokens= tokens[i].split('=');
-      if (stokens.size()==2) {
-        if (stokens[0].upcase()=="MAP") {
-          mapm.getMapInfoByName(stokens[1], tmpinfo);
-        } else if (stokens[0].upcase()=="BACKCOLOUR") {
-          bgcolourname= stokens[1];
-        } else if (stokens[0].upcase()=="AREA") { //obsolete
-          mapm.getMapAreaByName(stokens[1], newarea);
-          areadef= true;
-        } else if (stokens[0].upcase() == "PROJECTION") { //obsolete
-          newarea.setArea(stokens[1]);
+  miString bgcolourname;
+  MapInfo tmpinfo;
+  bool areadef=false;
+  for (int i=0; i<n; i++) {
+    vector<miString> stokens= tokens[i].split('=');
+    if (stokens.size()==2) {
+      if (stokens[0].upcase()=="MAP") {
+        mapm.getMapInfoByName(stokens[1], tmpinfo);
+      } else if (stokens[0].upcase()=="BACKCOLOUR") {
+        bgcolourname= stokens[1];
+      } else if (stokens[0].upcase()=="AREA") { //obsolete
+        mapm.getMapAreaByName(stokens[1], newarea);
+        areadef= true;
+      } else if (stokens[0].upcase() == "PROJECTION") { //obsolete
+        newarea.setArea(stokens[1]);
+        xyLimit.clear();
+        areadef = true;
+      } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add warning and show new syntax
+        vector<miString> vstr= stokens[1].split(',');
+        if (vstr.size()>=4) {
           xyLimit.clear();
-          areadef = true;
-        } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add warning and show new syntax
-          vector<miString> vstr= stokens[1].split(',');
-          if (vstr.size()>=4) {
-            xyLimit.clear();
-            xyLimit.push_back((atof(vstr[0].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-            xyLimit.push_back((atof(vstr[1].cStr()) - 1.0)*newarea.P().getGridResolutionX());
-            xyLimit.push_back((atof(vstr[2].cStr()) - 1.0)*newarea.P().getGridResolutionY());
-            xyLimit.push_back((atof(vstr[3].cStr()) - 1.0)*newarea.P().getGridResolutionY());
-            cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
-            cerr <<"New syntax:"<<endl;
-            cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
+          xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
+          xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
+          cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
+          cerr <<"New syntax:"<<endl;
+          cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
 
-            if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
-              xyLimit.clear();
-          }
-        } else if (stokens[0].upcase()=="XYPART") {//obsolete
-          vector<miString> vstr= stokens[1].split(',');
-          if (vstr.size()>=4) {
+          if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
+            xyLimit.clear();
+        }
+      } else if (stokens[0].upcase()=="XYPART") {//obsolete
+        vector<miString> vstr= stokens[1].split(',');
+        if (vstr.size()>=4) {
+          xyPart.clear();
+          for (int j=0; j<4; j++)
+            xyPart.push_back(atof(vstr[j].c_str()) * 0.01);
+          if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
             xyPart.clear();
-            for (int j=0; j<4; j++)
-              xyPart.push_back(atof(vstr[j].cStr()) * 0.01);
-            if (xyPart[0]>=xyPart[1] || xyPart[2]>=xyPart[3])
-              xyPart.clear();
-          }
         }
       }
     }
-
-    bool equal= (tmpinfo.name == mapinfo.name);
-
-    if (ifequal && !equal) // check if essential mapinfo remains the same
-      return false;
-
-    mapinfo= tmpinfo;
-
-    if (bgcolourname.exists())
-      bgcolour= bgcolourname; // static Plot member
-    if (areadef) {
-      reqarea= newarea;
-    }
-    areadefined= areadef;
-
-    // fill in new options for mapinfo and make proper PlotOptions
-    // the different map-elements
-    mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
-
-    // set active zorder layer
-    for (int i = 0; i < 3; i++) {
-      isactive[i] = ((mapinfo.contour.ison && mapinfo.contour.zorder == i)
-          || (mapinfo.land.ison && mapinfo.land.zorder == i)
-          || (mapinfo.lon.ison && mapinfo.lon.zorder == i)
-          || (mapinfo.lat.ison && mapinfo.lat.zorder == i)
-          || (mapinfo.frame.ison && mapinfo.frame.zorder == i));
-    }
-
-    mapchanged= true;
   }
+
+  bool equal= (tmpinfo.name == mapinfo.name);
+
+  if (ifequal && !equal) // check if essential mapinfo remains the same
+    return false;
+
+  mapinfo= tmpinfo;
+
+  if (bgcolourname.exists())
+    bgcolour= bgcolourname; // static Plot member
+  if (areadef) {
+    reqarea= newarea;
+  }
+  areadefined= areadef;
+
+  // fill in new options for mapinfo and make proper PlotOptions
+  // the different map-elements
+  mapm.fillMapInfo(pinfo, mapinfo, contopts, landopts, lonopts, latopts, ffopts);
+
+  // set active zorder layer
+  for (int i = 0; i < 3; i++) {
+    isactive[i] = ((mapinfo.contour.ison && mapinfo.contour.zorder == i)
+        || (mapinfo.land.ison && mapinfo.land.zorder == i)
+        || (mapinfo.lon.ison && mapinfo.lon.zorder == i)
+        || (mapinfo.lat.ison && mapinfo.lat.zorder == i)
+        || (mapinfo.frame.ison && mapinfo.frame.zorder == i));
+  }
+
+  mapchanged= true;
 
   return true;
 }
@@ -1203,9 +1158,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      fp->drawStr(value_annotations[j].t.cStr(), x, y, 0);
+      fp->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      fp->getStringSize(value_annotations[j].t.cStr(),w,h);
+      fp->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
@@ -1277,9 +1232,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      fp->drawStr(value_annotations[j].t.cStr(), x, y, 0);
+      fp->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      fp->getStringSize(value_annotations[j].t.cStr(),w,h);
+      fp->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();

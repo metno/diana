@@ -41,6 +41,9 @@
 #include <QStackedWidget>
 #include <qUtilities/miLogFile.h>
 
+#include <iomanip>
+
+using namespace std;
 
 ProfetObjectDialog::ProfetObjectDialog(QWidget * parent, OperationMode om)
   : QDialog(parent), mode(om)
@@ -183,11 +186,11 @@ void ProfetObjectDialog::showObject(const fetObject & obj,
 {
   vector<fetBaseObject> fbo;
   setBaseObjects(fbo);//remove base objects/gui
-  baseComboBox->insertItem(0,obj.name().cStr());
+  baseComboBox->insertItem(0,obj.name().c_str());
   baseComboBox->setEnabled(false);
   addDymanicGui(components);
   cerr << "ProfetObjectDialog::showObject reason: " << obj.reason() << endl;
-  reasonText->setText(obj.reason().cStr());
+  reasonText->setText(obj.reason().c_str());
 }
 
 void ProfetObjectDialog::newObjectMode(){
@@ -233,7 +236,7 @@ void ProfetObjectDialog::setSession(const miutil::miTime & time){
 }
 
 void ProfetObjectDialog::setParameter(const miutil::miString & p){
-  parameterLabel->setText(p.cStr());
+  parameterLabel->setText(p.c_str());
 }
 
 void ProfetObjectDialog::setBaseObjects(const vector<fetBaseObject> & o){
@@ -245,8 +248,8 @@ void ProfetObjectDialog::setBaseObjects(const vector<fetBaseObject> & o){
   baseComboBox->clear();
   descriptionMap.clear();
   for(unsigned int i=0;i<o.size();i++){
-    baseComboBox->insertItem(i,o[i].name().cStr());
-    descriptionMap[QString(o[i].name().cStr())] = QString(o[i].description().cStr());
+    baseComboBox->insertItem(i,o[i].name().c_str());
+    descriptionMap[QString(o[i].name().c_str())] = QString(o[i].description().c_str());
   }
 }
 

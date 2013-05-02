@@ -70,7 +70,7 @@
     bool  undefRight;
     bool  outer;
     bool  inner;
-    vector<int> joined;
+    std::vector<int> joined;
   };
 
 /// the field contouring routine
@@ -116,13 +116,13 @@ void posConvert(int npos, float *x, float *y, float *cxy);
 void posConvert(int npos, float *x, float *y,
 		int nx, int ny, float *xz, float *yz);
 /// joins contour parts (also along undefined areas) to closed contours
-void joinContours(vector<ContourLine*>& contourlines, int idraw,
+void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
 		  bool drawBorders, int iconv, int valuecut);
 /// find points where a horizontal line crosses a closed contour
-vector<float> findCrossing(float ycross, int n, float *x, float *y);
+std::vector<float> findCrossing(float ycross, int n, float *x, float *y);
 
 /// uses OpenGL tesselation (triangulation) to shade between isolines
-void fillContours(vector<ContourLine*>& contourlines,
+void fillContours(std::vector<ContourLine*>& contourlines,
 		  int nx, int ny, float z[],
 		  int iconv, float *cxy, float *xz, float *yz, int idraw,
 		  const PlotOptions& poptions, bool drawBorders,
@@ -137,7 +137,7 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 /// draw part of contour line
 void drawLine(int start, int stop, float* x, float* y);
 /// write shapefile
-void writeShapefile(vector<ContourLine*>& contourlines,
+void writeShapefile(std::vector<ContourLine*>& contourlines,
 		    int nx, int ny,
 		    int iconv, float *cxy,
 		    float *xz, float *yz,
@@ -154,7 +154,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
 		    const int& fhour);
 
 /// get CL index
-void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind,
+void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vector<int> >& clind,
 		const PlotOptions& poptions, bool drawBorders, const float& fieldUndef);
 
 #endif

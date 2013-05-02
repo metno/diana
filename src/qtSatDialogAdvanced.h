@@ -38,7 +38,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <QListWidget>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include "qtToggleButton.h"
 #include "diController.h"
 

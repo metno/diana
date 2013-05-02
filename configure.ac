@@ -2,13 +2,13 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.28.0], [diana@met.no])
+AC_INIT([diana], [3.32.6], [diana@met.no])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
-METNO_SET_VERSION_INFO
+METNO_PVERSION
 METNO_PROGRAM_SUFFIX
 
 AC_LANG([C])
@@ -38,9 +38,9 @@ METNO_WIN32_WINSOCK
 AC_LANG_PUSH([C])
 
 METNO_WIN32_IFELSE([DEBUG_FLAGS=-gstabs], [DEBUG_FLAGS=-g])
-CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra"
+CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra -fPIC"
 METNO_WIN32_IFELSE([OPT_FLAGS="-msse2 -march=pentium4"], [OPT_FLAGS="-msse2 -march=core2"])
-CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall"
+CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall -fPIC"
 AC_SYS_LARGEFILE
 
 AC_LANG_POP([C])
@@ -123,6 +123,12 @@ AC_ARG_ENABLE([batch-only],
         [], [enable_batch_only=no])
 AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
 
+AC_ARG_ENABLE([perl],
+    [AS_HELP_STRING([--enable-perl], [enable perl module)])],
+	    [], [enable_perl=no])
+AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
+
+
 #
 # metlibs
 #
@@ -133,6 +139,7 @@ METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
 AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_PKG([GLTEXT], [glText])
     METNO_REQUIRE_PKG([GLP], [glp])
+    METNO_REQUIRE_PKG([GLU],[glu])
 ])
 
 METNO_REQUIRE_PKG([LIBMI], [libmi])
@@ -148,8 +155,11 @@ METNO_REQUIRE_PKG([PROPOLY],[propoly])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
-METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
+AS_IF([test x$enable_batch_only != xyes], [
+    METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
+])
 METNO_REQUIRE_PKG([ROBS], [robs])
+
 
 AS_IF([test x$enable_proddb = xyes], [
     METNO_REQUIRE_PKG([DISQL], [diSQL])
@@ -197,9 +207,11 @@ AS_IF([test x$enable_embedded != xyes], [
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])
-    METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
     METNO_REQUIRE_AVFORMAT
 ])
+
+METNO_REQUIRE_C_LIBRARY([PNG], [png], [png.h], [png_init_io], [${ZLIB_LIBS}])
+
 
 # shapefile
 METNO_REQUIRE_C_LIBRARY([SHP], [shp], [shapefil.h], [SHPOpen])
@@ -217,7 +229,6 @@ AS_IF([test x$enable_obs_bufr = xyes], [
 #
 AC_SUBST([program_suffix])
 
-AC_CONFIG_FILES([bin/diana])
 AC_CONFIG_FILES([bin/diana.bat])
 AC_CONFIG_FILES([bin/diana-zip.bat])
 AC_CONFIG_FILES([etc/diana/diana.setup])
@@ -225,4 +236,6 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([perl/Makefile perl/Metno-Bdiana/lib/Metno/Bdiana.pm])
+AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])
 AC_OUTPUT

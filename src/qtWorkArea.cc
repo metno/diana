@@ -44,7 +44,7 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
     : QWidget( parent), contr(co)
 {
   QVBoxLayout* vlayout = new QVBoxLayout(this);
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   // Create an openGL widget
   QGLFormat fmt, ofmt;
   ofmt= QGLFormat::defaultOverlayFormat();
@@ -59,7 +59,7 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
 #endif
   
   if ( !glw->isValid() ) {
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     // Try without double-buffering
     fmt.setDoubleBuffer(false);
     glw->setFormat( fmt );

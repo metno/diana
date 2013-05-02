@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,18 +29,17 @@
 #ifndef diPlot_h
 #define diPlot_h
 
-#include <GL/gl.h>
+#include <diColour.h>
+#include <diPlotOptions.h>
+#include <diPrintOptions.h>
+
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
-#include <diField/diColour.h>
-#include <diField/diPlotOptions.h>
-#include <diPrintOptions.h>
-#include <vector>
 
-using namespace std;
-using namespace d_print;
+#include <GL/gl.h>
+
+#include <vector>
 
 class GLPfile;
 class FontManager;
@@ -72,21 +69,21 @@ protected:
   static bool hardcopy;      // producing postscript
   static int pressureLevel;          // current pressure level
   static int oceandepth;       // current ocean depth
-  static miutil::miString bgcolour;  // name of background colour
+  static std::string bgcolour;  // name of background colour
   static Colour backgroundColour;   // background colour
   static Colour backContrastColour; // suitable contrast colour
   static float gcd;          // great circle distance
   static bool panning;       // panning in progress
-  static vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-  static vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
+  static std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
+  static std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
 
   bool enabled;              // plot enabled
   bool datachanged;          // plotdata has changed
   bool rgbmode;              // rgb or colour-index mode
-  miutil::miString pinfo;            // plotinfo
+  std::string pinfo;            // plotinfo
   PlotOptions poptions;      // plotoptions
   printerManager printman;   // printer manager
-  miutil::miString plotname;         // name of plot
+  std::string plotname;         // name of plot
 
   void psAddImage(const GLvoid*,GLint,GLint,GLint, // pixels,size,nx,ny
 		  GLfloat,GLfloat,GLfloat,GLfloat, // x,y,sx,sy
@@ -159,9 +156,9 @@ public:
   int getOceanDepth(){return oceandepth;}
 
   /// set name of background colour
-  void setBgColour(const miutil::miString& cn){bgcolour= cn;}
+  void setBgColour(const std::string& cn){bgcolour= cn;}
   /// return the name of the current background colour
-  const miutil::miString& getBgColour() const {return bgcolour;}
+  const std::string& getBgColour() const {return bgcolour;}
 
   /// set background colour
   void setBackgroundColour(const Colour& c){backgroundColour= c;}
@@ -174,13 +171,16 @@ public:
   Colour getBackContrastColour() const { return backContrastColour; }
 
   /// set the plot info string
-  void setPlotInfo(const miutil::miString& pin);
+  void setPlotInfo(const std::string& pin);
 
   /// return n elements of the current plot info string
-  miutil::miString getPlotInfo(int n=0);
+  std::string getPlotInfo(int n=0);
+
+  /// return the elements given
+  std::string getPlotInfo(std::string str);
 
   /// return true if right plot string
-  bool plotInfoOK(const miutil::miString& pin){return (pinfo == pin);}
+  bool plotInfoOK(const std::string& pin){return (pinfo == pin);}
 
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const { return poptions; }
@@ -202,9 +202,9 @@ public:
   void xyClear();
 
   /// set name of this plot object
-  void setPlotName(const miutil::miString& name){plotname= name;}
+  void setPlotName(const std::string& name){plotname= name;}
   /// return name of this plot object
-  virtual void getPlotName(miutil::miString& name){name= plotname;}
+  virtual void getPlotName(std::string& name){name= plotname;}
 
   // hardcopy routines
   /// start postscript output

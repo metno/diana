@@ -43,7 +43,7 @@
 #include "diVprofManager.h"
 
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
                         QWidget* parent)
     : QGLWidget( fmt, parent ), vprofm(vpm)
@@ -147,7 +147,7 @@ bool VprofWidget::saveRasterImage(const miutil::miString fname,
 
   // test of new grabFrameBuffer command
   QImage image= grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.cStr(), format.cStr(), quality );
+  image.save(fname.c_str(), format.c_str(), quality );
 
   return true;
 }

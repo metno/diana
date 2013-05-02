@@ -128,7 +128,7 @@ signals:
   void markMeasurementsPos(bool);
   void MeasurementsHide();
   void updateMeasurements();
-  void showsource(const miutil::miString, const miutil::miString="");  
+  void showsource(const std::string, const std::string="");  
 };
 
 #endif

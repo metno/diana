@@ -35,7 +35,7 @@
 
 #include "qtImageGallery.h"
 #include "diImageGallery.h"
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <QDataStream>
 #include <QFileInfo>
@@ -91,14 +91,14 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
   return true;
 }
 
-bool QtImageGallery::addImageToGallery(const miutil::miString name,
-				       miutil::miString& imageStr)
+bool QtImageGallery::addImageToGallery(const std::string name,
+				       std::string& imageStr)
 {
-  vector<miutil::miString> vs= imageStr.split(" ");
+  vector<string> vs = miutil::split(imageStr," ");
   int n=vs.size();
   QByteArray a(n,' ');
   for (int i=0; i<n; i++)
-    a[i]= char(atoi(vs[i].cStr()));
+    a[i]= char(atoi(vs[i].c_str()));
 
   // qt4 fix: Using pointer to a as arg
   QDataStream s( &a, QIODevice::ReadOnly );  // open on a's data
@@ -127,7 +127,7 @@ XPM X11 Pixmap Read/write
 
   glob_t globBuf;
   glob_cache(dir.c_str(),0,0,&globBuf);
-  for( int k=0; k<globBuf.gl_pathc; k++) {
+  for( size_t k=0; k<globBuf.gl_pathc; k++) {
     miutil::miString fname = globBuf.gl_pathv[k];
     if( !fname.contains("~") ){
       QString filename = fname.c_str();

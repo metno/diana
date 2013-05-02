@@ -41,12 +41,13 @@
 #include <QMessageBox>
 #include <QWindowsStyle>
 
-ProfetSessionDialog::ProfetSessionDialog( QWidget* parent,miutil::miString hostname)
+using namespace std;
+
+ProfetSessionDialog::ProfetSessionDialog( QWidget* parent)
   : QDialog(parent )
   {
 
 
-  setWindowTitle(tr("Edit Field Session at: ")+QString(hostname.cStr()));
   setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 
   QVBoxLayout * mainLayout   = new QVBoxLayout(this);
@@ -199,8 +200,8 @@ void ProfetSessionDialog::customEvent(QEvent * e){
       emit forcedClosePerformed(true);
       QMessageBox::critical(this,"Disconnected", me->message.message.c_str());
     } else if(me->message.type == Profet::InstantMessage::WARNING_MESSAGE){
-      QString qs = me->message.message.cStr();
-      QString title = me->message.sender.cStr();
+      QString qs = me->message.message.c_str();
+      QString title = me->message.sender.c_str();
       QMessageBox::warning(0, title ,qs,
           QMessageBox::Ok,  QMessageBox::NoButton);
     }else {
@@ -217,6 +218,13 @@ void ProfetSessionDialog::printSize(const QModelIndex &){
   cerr << "size: " << table->size().height() << endl;
   cerr << "minimumSize: " << table->minimumSize().height() << endl;
   cerr << "columnWidth: " << table->columnWidth(1) << endl;
+}
+
+void ProfetSessionDialog::setHostname(miutil::miString hostname)
+{
+
+  setWindowTitle(tr("Edit Field Session at: ")+QString(hostname.c_str()));
+
 }
 
 void ProfetSessionDialog::setUserModel(QAbstractItemModel * userModel){

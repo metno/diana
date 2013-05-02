@@ -2,16 +2,17 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
--include mk/debian.mk
-
-SUBDIRS = src bin etc
+SUBDIRS = src bin etc perl
 
 pixmapsdir= $(datarootdir)/pixmaps
-dist_pixmaps_DATA= share/pixmaps/$(APP).png 
+dist_pixmaps_DATA= share/pixmaps/diana.png
 
 applicationsdir= $(datarootdir)/applications
-dist_applications_DATA= share/applications/metno-$(APP).desktop
+dist_applications_DATA= share/applications/metno-diana-versioned.desktop
 
+install-data-hook:
+	mv $(DESTDIR)/$(applicationsdir)/metno-diana-versioned.desktop $(DESTDIR)/$(applicationsdir)/metno-diana-@PVERSION@.desktop
+	mv $(DESTDIR)/$(pixmapsdir)/diana.png $(DESTDIR)/$(pixmapsdir)/diana-@PVERSION@.png
 
 include share/doc/diana/doc.mk
 include share/diana/diana.mk

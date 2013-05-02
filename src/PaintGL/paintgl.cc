@@ -49,12 +49,14 @@ PaintGL::~PaintGL()
 #define ctx globalGL->currentContext
 
 PaintGLContext::PaintGLContext()
+    : painter(0)
 {
 }
 
 PaintGLContext::~PaintGLContext()
 {
-    ctx = 0;
+    if (globalGL)
+        ctx = 0;
 }
 
 void PaintGLContext::makeCurrent()
@@ -68,6 +70,19 @@ void PaintGLContext::makeCurrent()
     pointSize = 1.0;
 
     clearColor = QColor(0, 0, 0, 0);
+    colorMask = true;
+
+    stencil.clear = 0;
+    stencil.path = QPainterPath();
+    stencil.fail = GL_KEEP;
+    stencil.zfail = GL_KEEP;
+    stencil.zpass = GL_KEEP;
+    stencil.func = GL_ALWAYS;
+    stencil.ref = 0;
+    stencil.mask = ~0x0;
+    stencil.clip = false;
+    stencil.update = false;
+    stencil.enabled = false;
 
     attributes.color = qRgba(255, 255, 255, 255);
     attributes.width = 1.0;
@@ -90,7 +105,7 @@ void PaintGLContext::begin(QPainter *painter)
     // Use the painter supplied.
     this->painter = painter;
 
-    if (clear) {
+    if (clear && colorMask) {
         painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
         clear = false;
     }
@@ -108,7 +123,7 @@ void PaintGLContext::end()
 
 void PaintGLContext::setPen()
 {
-    QPen pen = QPen(QColor::fromRgb(attributes.color), attributes.width);
+    QPen pen = QPen(QColor::fromRgba(attributes.color), attributes.width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
@@ -138,7 +153,7 @@ void PaintGLContext::setPolygonColor(const QRgb &color)
             setPen();
         } else
             painter->setPen(Qt::NoPen);
-        painter->setBrush(QColor::fromRgb(color));
+        painter->setBrush(QColor::fromRgba(color));
         break;
     case GL_LINE: {
         setPen();
@@ -206,69 +221,71 @@ void PaintGLContext::renderPrimitive()
 
     switch (mode) {
     case GL_POINTS:
-        // qDebug() << "  GL_POINTS";
         setPen();
-        for (int i = 0; i < points.size(); ++i) {
-            painter->drawPoint(points.at(i));
+        if (colorMask) {
+            for (int i = 0; i < points.size(); ++i) {
+                painter->drawPoint(points.at(i));
+            }
         }
         break;
     case GL_LINES:
-        // qDebug() << "  GL_LINES";
         setPen();
-        for (int i = 0; i < points.size() - 1; i += 2) {
-            painter->drawLine(points.at(i), points.at(i+1));
+        if (colorMask) {
+            for (int i = 0; i < points.size() - 1; i += 2) {
+                painter->drawLine(points.at(i), points.at(i+1));
+            }
         }
         break;
     case GL_LINE_LOOP:
-        // qDebug() << "  GL_LINE_LOOP";
         setPen();
         points.append(points.at(0));
-        painter->drawPolyline(points);
+        if (colorMask)
+            painter->drawPolyline(points);
         break;
     case GL_LINE_STRIP: {
-        // qDebug() << "  GL_LINE_STRIP";
         setPen();
-        painter->drawPolyline(points);
+        if (colorMask)
+            painter->drawPolyline(points);
         break;
     }
     case GL_TRIANGLES: {
-        // qDebug() << "  GL_TRIANGLES";
         setPolygonColor(attributes.color);
 
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
-                QPolygonF poly = QPolygonF(points.mid(i, 3));
-                painter->drawConvexPolygon(poly);
+                for (int j = 0; j < 3; ++j)
+                    poly[j] = points.at(i + j);
+                if (colorMask)
+                    painter->drawConvexPolygon(poly, 3);
             }
         }
         break;
     }
     case GL_TRIANGLE_STRIP: {
-        // qDebug() << "  GL_TRIANGLE_STRIP";
         setPolygonColor(attributes.color);
 
         poly[0] = points.at(0);
         poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
             poly[i % 3] = points.at(i);
-            painter->drawConvexPolygon(poly, 3);
+            if (colorMask)
+                painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
     case GL_TRIANGLE_FAN: {
-        // qDebug() << "  GL_TRIANGLE_FAN";
         setPolygonColor(attributes.color);
 
         poly[0] = points.at(0);
         poly[1] = points.at(1);
         for (int i = 2; i < points.size(); ++i) {
             poly[2 - (i % 2)] = points.at(i);
-            painter->drawConvexPolygon(poly, 3);
+            if (colorMask)
+                painter->drawConvexPolygon(poly, 3);
         }
         break;
     }
     case GL_QUADS: {
-        // qDebug() << "  GL_QUADS";
         if (!blend)
             setPolygonColor(attributes.color);
         else {
@@ -277,14 +294,25 @@ void PaintGLContext::renderPrimitive()
         }
 
         QPolygonF quad(4);
+        int ok = 0;
 
-        for (int i = 0; i < points.size() - 3; i += 4) {
-            if (!validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i) || !validPoints.at(i))
+        for (int i = 0; i < points.size(); ++i) {
+            if (!validPoints.at(i)) {
+                ok = 0;
                 continue;
+            }
 
-            for (int j = 0; j < 4; ++j)
-                quad[j] = points.at(i + j);
+            quad[i % 4] = points.at(i);
+            ok++;
 
+            if (i % 4 != 3)     // Loop again for the first three points.
+                continue;
+            else if (ok != 4) {
+                ok = 0;         // If not enough points then reset the
+                continue;       // counter and examine the next quad.
+            }
+
+            if (colorMask) {
             if (useTexture) {
                 QImage texture = textures[currentTexture];
                 QTransform t;
@@ -299,15 +327,18 @@ void PaintGLContext::renderPrimitive()
             } else {
                 if (blend) {
                     // Optimisation: Diana only ever draws filled, blended quads without edges.
-                    painter->setBrush(QColor::fromRgb(colors.at(i)));
+                    int j = (i / 4) * 4;
+                    painter->setBrush(QColor::fromRgba(colors.at(j)));
                 }
                 painter->drawConvexPolygon(quad);
             }
+            }
+
+            ok = 0;
         }
         break;
     }
     case GL_QUAD_STRIP: {
-        // qDebug() << "  GL_QUAD_STRIP";
         if (!blend)
             setPolygonColor(attributes.color);
         else
@@ -333,29 +364,43 @@ void PaintGLContext::renderPrimitive()
                 color[i % 4 + 1] = colors.at(i + 1);
             }
 
-            if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
-                if (blend) {
-                    if (smooth) {
-                        plotSubdivided(poly, color);
-                    } else {
-                        setPolygonColor(colors.at(i));
+            if (colorMask) {
+                if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
+                    if (blend) {
+                        if (smooth) {
+                            painter->setCompositionMode(blendMode);
+                            plotSubdivided(poly, color);
+                        } else {
+                            setPolygonColor(colors.at(i));
+                            painter->drawConvexPolygon(poly, 4);
+                        }
+                    } else
                         painter->drawConvexPolygon(poly, 4);
-                    }
-                } else
-                    painter->drawConvexPolygon(poly, 4);
+                }
             }
         }
         break;
     }
     case GL_POLYGON: {
-        // qDebug() << "  GL_POLYGON";
         setPolygonColor(attributes.color);
         QPolygonF poly;
         for (int i = 0; i < points.size(); ++i) {
             if (validPoints.at(i))
                 poly.append(points.at(i));
         }
-        painter->drawPolygon(poly);
+        if (colorMask)
+            painter->drawPolygon(poly);
+        else {
+            QPainterPath newPath;
+            newPath.addPolygon(poly);
+            newPath.closeSubpath();
+
+            QPainterPathStroker stroker;
+            stroker.setWidth(ctx->attributes.width);
+            newPath = stroker.createStroke(newPath).united(newPath);
+            ctx->stencil.path += newPath;
+        }
+
         break;
     }
     default:
@@ -376,8 +421,25 @@ void PaintGLContext::setViewportTransform()
     transform = t;
 }
 
+void PaintGLContext::setClipPath()
+{
+    if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
+        QPainterPath p;
+        p.addRect(ctx->viewport);
+        QPainterPath clipPath = p - ctx->stencil.path;
+        ctx->painter->setClipPath(clipPath);
+    }
+}
+
+void PaintGLContext::unsetClipPath()
+{
+    if (ctx->stencil.enabled && ctx->stencil.clip)
+        ctx->painter->setClipRect(ctx->viewport);
+}
+
 #define ENSURE_CTX if (!globalGL || !ctx) return;
 #define ENSURE_CTX_BOOL if (!globalGL || !ctx) return false;
+#define ENSURE_CTX_INT if (!globalGL || !ctx) return 0;
 #define ENSURE_CTX_AND_PAINTER if (!globalGL || !ctx || !ctx->painter) return;
 #define ENSURE_CTX_AND_PAINTER_BOOL if (!globalGL || !ctx || !ctx->painter) return false;
 
@@ -415,10 +477,12 @@ void glBlendFunc(GLenum sfactor, GLenum dfactor)
 void glCallList(GLuint list)
 {
     ENSURE_CTX_AND_PAINTER
+    if (!ctx->colorMask) return;
+
     QPicture picture = ctx->lists[list];
 
     ctx->painter->save();
-    ctx->painter->setTransform(ctx->listTransforms[list].inverted() * ctx->transform);
+    ctx->painter->setTransform(ctx->transform);
     ctx->painter->drawPicture(0, 0, picture);
     ctx->painter->restore();
 }
@@ -434,22 +498,30 @@ void glClear(GLbitfield mask)
     ENSURE_CTX
 
     if (mask & GL_COLOR_BUFFER_BIT) {
-        if (ctx->isPainting())
+        if (ctx->isPainting() && ctx->colorMask)
             ctx->painter->fillRect(0, 0, ctx->painter->device()->width(),
                                          ctx->painter->device()->height(), ctx->clearColor);
         else
-            ctx->clear = true;
+            ctx->clear = true; // Is this used?
+    }
+    if (mask & GL_STENCIL_BUFFER_BIT) {
+        if (ctx->isPainting())
+            ctx->stencil.path = QPainterPath();
+        else
+            ctx->clear = true; // Is this used?
     }
 }
 
 void glClearStencil(GLint s)
 {
+    ENSURE_CTX
+    ctx->stencil.clear = s;
 }
 
 void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -457,7 +529,7 @@ void glColor3d(GLdouble red, GLdouble green, GLdouble blue)
 void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red * 255, green * 255, blue * 255);
+    ctx->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -465,7 +537,7 @@ void glColor3f(GLfloat red, GLfloat green, GLfloat blue)
 void glColor3fv(const GLfloat *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(v[0] * 255, v[1] * 255, v[2] * 255);
+    ctx->attributes.color = qRgba(v[0] * 255, v[1] * 255, v[2] * 255, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -473,7 +545,7 @@ void glColor3fv(const GLfloat *v)
 void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(red, green, blue);
+    ctx->attributes.color = qRgba(red, green, blue, 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -481,7 +553,7 @@ void glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 void glColor3ubv(const GLubyte *v)
 {
     ENSURE_CTX
-    ctx->attributes.color = qRgb(v[0], v[1], v[2]);
+    ctx->attributes.color = qRgba(v[0], v[1], v[2], 255);
     if (ctx->painter && !ctx->blend)
         ctx->renderPrimitive();
 }
@@ -528,6 +600,10 @@ void glColor4ubv(const GLubyte *v)
 
 void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
+    ENSURE_CTX
+
+    // These are only enabled or disabled together in Diana.
+    ctx->colorMask = red | green | blue | alpha;
 }
 
 void glDeleteLists(GLuint list, GLsizei range)
@@ -543,6 +619,10 @@ void glDeleteTextures(GLsizei n, const GLuint *textures)
 {
 }
 
+void glDepthMask(GLboolean flag)
+{
+}
+
 void glDisable(GLenum cap)
 {
     ENSURE_CTX
@@ -555,6 +635,13 @@ void glDisable(GLenum cap)
         break;
     case GL_LINE_STIPPLE:
         ctx->attributes.stipple = false;
+        break;
+    case GL_MULTISAMPLE:
+        if (ctx->isPainting())
+            ctx->painter->setRenderHint(QPainter::Antialiasing, false);
+        break;
+    case GL_STENCIL_TEST:
+        ctx->stencil.enabled = false;
         break;
     default:
         break;
@@ -585,15 +672,23 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
 
-    QPointF pos = ctx->rasterPos + ctx->bitmapMove;
+    if (!ctx->colorMask) return;
 
     ctx->painter->save();
-    // No need to record this transformation.
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
+    // It seems that we need to explicitly set the composition mode.
+    ctx->painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    // No need to record the following transformation because we will only use it once.
     ctx->painter->resetTransform();
-    ctx->painter->translate(pos);
+    ctx->painter->translate(ctx->rasterPos);
     ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
     ctx->painter->drawImage(0, 0, image);
     ctx->painter->restore();
+
+    // Update the raster position.
+    ctx->rasterPos += ctx->bitmapMove;
 }
 
 void glEdgeFlag(GLboolean flag)
@@ -613,6 +708,13 @@ void glEnable(GLenum cap)
     case GL_LINE_STIPPLE:
         ctx->attributes.stipple = true;
         break;
+    case GL_MULTISAMPLE:
+        if (ctx->isPainting())
+            ctx->painter->setRenderHint(QPainter::Antialiasing, true);
+        break;
+    case GL_STENCIL_TEST:
+        ctx->stencil.enabled = true;
+        break;
     default:
         break;
     }
@@ -625,7 +727,11 @@ void glEnableClientState(GLenum cap)
 void glEnd()
 {
     ENSURE_CTX_AND_PAINTER
+
+    ctx->setClipPath();
     ctx->renderPrimitive();
+    ctx->unsetClipPath();
+
     ctx->mode = ctx->stack.pop();
 }
 
@@ -637,6 +743,10 @@ void glEndList()
     delete ctx->painter;
 
     ctx->painter = item.painter;
+
+    // Restore the transformation matrix to the one stored before
+    // the list began.
+    ctx->transform = ctx->listTransforms[item.list];
 
     if (item.mode == GL_COMPILE_AND_EXECUTE)
         glCallList(item.list);
@@ -650,8 +760,7 @@ void glFlush()
 
 GLuint glGenLists(GLsizei range)
 {
-    if (!ctx)
-        return 0;
+    ENSURE_CTX_INT
 
     // Diana only ever asks for one list at a time, so we can do something simple.
     GLuint next = 1;
@@ -736,8 +845,7 @@ void glIndexi(GLint c)
 
 GLboolean glIsList(GLuint list)
 {
-    if (!ctx)
-        return 0;
+    ENSURE_CTX_INT
 
     if (ctx->lists.contains(list))
         return 1;
@@ -815,6 +923,11 @@ void glNewList(GLuint list, GLenum mode)
     ctx->painter->begin(&ctx->lists[list]);
     if (item.painter)
         ctx->painter->setRenderHints(item.painter->renderHints());
+
+    // For display lists, reset the transformation to the identity matrix.
+    // This works around issues with transformation errors in PDF, PS and
+    // SVG output when rendering circles defined as display lists in ObsPlot.
+    ctx->transform = QTransform();
 }
 
 void glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
@@ -939,10 +1052,40 @@ void glShadeModel(GLenum mode)
 
 void glStencilFunc(GLenum func, GLint ref, GLuint mask)
 {
+    ENSURE_CTX
+    ctx->stencil.func = func;
+    ctx->stencil.ref = ref;
+    ctx->stencil.mask = mask;
 }
 
 void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
+    ENSURE_CTX
+    ctx->stencil.fail = fail;
+    ctx->stencil.zfail = zfail;
+    ctx->stencil.zpass = zpass;
+
+    // Special cases for Diana. We perform a test here because glStencilOp
+    // is typically called after glStencilFunc in Diana code. Both tend to
+    // be called with a limited range of input parameters.
+    if (ctx->stencil.func == GL_ALWAYS && ctx->stencil.ref == 1 &&
+        ctx->stencil.mask == 1 && zpass == GL_REPLACE) {
+
+        ctx->stencil.update = true;
+        ctx->stencil.clip = false;
+
+    } else if (ctx->stencil.func == GL_EQUAL && ctx->stencil.ref == 0 &&
+               zpass == GL_KEEP) {
+
+        ctx->stencil.update = false;
+        ctx->stencil.clip = true;
+
+    } else if (ctx->stencil.func == GL_NOTEQUAL && ctx->stencil.ref == 1 &&
+               zpass == GL_KEEP) {
+
+        ctx->stencil.update = false;
+        ctx->stencil.clip = true;
+    }
 }
 
 void glTexCoord2f(GLfloat s, GLfloat t)
@@ -978,7 +1121,7 @@ void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
     ctx->transform = ctx->transform.translate(x, y);
 }
 
-void glVertex2dv(GLdouble *v)
+void glVertex2dv(const GLdouble *v)
 {
     ENSURE_CTX
     QPointF p = ctx->transform * QPointF(v[0], v[1]);
@@ -1014,6 +1157,10 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
     ENSURE_CTX
     ctx->viewport = QRect(x, y, width, height);
+    ctx->setViewportTransform();
+
+    if (ctx->isPainting())
+        ctx->painter->setClipRect(ctx->viewport);
 }
 
 
@@ -1028,8 +1175,19 @@ bool glText::defineFonts(const std::string pattern, const std::string family, co
     return true;
 }
 
-bool glText::defineFont(const std::string, const std::string, const glText::FontFace, const int, const std::string, const float, const float)
+bool glText::defineFont(const std::string font, const std::string fontfilename, const glText::FontFace, const int, const std::string, const float, const float)
 {
+    int handle = QFontDatabase::addApplicationFont(QString::fromStdString(fontfilename));
+    if (handle == -1)
+        return false;
+
+    QStringList families = QFontDatabase::applicationFontFamilies(handle);
+    if (families.isEmpty())
+        return false;
+
+    foreach (QString family, families)
+        fontMap[QString::fromStdString(font)] = family;
+
     return true;
 }
 
@@ -1047,7 +1205,8 @@ bool glText::setFont(const std::string name)
 {
     ENSURE_CTX_BOOL
 
-    ctx->font.setFamily(QString::fromStdString(name));
+    ctx->font.setFamily(fontMap[QString::fromStdString(name)]);
+    ctx->font.setStyleStrategy(QFont::NoFontMerging);
     return true;
 }
 
@@ -1057,8 +1216,9 @@ bool glText::setFontFace(const glText::FontFace face)
 
     if (face & 1)
         ctx->font.setWeight(QFont::Bold);
-    if (face & 2)
-        ctx->font.setItalic(true);
+    else
+        ctx->font.setWeight(QFont::Normal);
+    ctx->font.setItalic((face & 2) != 0);
     return true;
 }
 
@@ -1074,11 +1234,15 @@ bool glText::drawChar(const int c, const float x, const float y,
                       const float a)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
+    if (!ctx->colorMask) return true;
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
-    ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
+    ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
@@ -1093,11 +1257,15 @@ bool glText::drawStr(const char* s, const float x, const float y,
                      const float a)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
+    if (!ctx->colorMask) return true;
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
-    ctx->painter->setFont(ctx->font);
     ctx->painter->save();
+    // Set the clip path, but don't unset it - the state will be restored.
+    ctx->setClipPath();
+
+    ctx->painter->setFont(ctx->font);
     // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
@@ -1135,9 +1303,9 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     ENSURE_CTX_AND_PAINTER_BOOL
 
     QFontMetricsF fm(ctx->font);
-    QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(s));
+    QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     w = rect.width();
-    h = rect.height();
+    h = rect.height() * 0.8;
     return true;
 }
 
@@ -1259,4 +1427,29 @@ void PaintGLWidget::paint(QPainter *painter)
     glContext->begin(painter);
     paintGL();
     glContext->end();
+}
+
+void PaintGLWidget::print(QPrinter* device)
+{
+  makeCurrent();
+  if (!initialized) {
+      initializeGL();
+      initialized = true;
+  }
+
+  QPicture picture;
+  QPainter painter;
+  painter.begin(&picture);
+  paint(&painter);
+  painter.end();
+
+  painter.begin(device);
+  painter.translate(device->width()/2.0, device->height()/2.0);
+  double scale = qMin(device->width()/double(width()), device->height()/double(height()));
+  if (scale < 1.0)
+    painter.scale(scale, scale);
+  painter.translate(-width()/2, -height()/2);
+  painter.setClipRect(0, 0, width(), height());
+  painter.drawPicture(0, 0, picture);
+  painter.end();
 }

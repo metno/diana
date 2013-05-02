@@ -67,14 +67,14 @@ VcrossWindow::VcrossWindow(Controller *co)
 
   setWindowTitle( tr("Diana Vertical Crossections") );
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
 #endif
   //central widget
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   vcrossw= new VcrossWidget(vcrossm, fmt, this);
 #else
   vcrossw= new VcrossWidget(vcrossm, this);
@@ -125,9 +125,6 @@ VcrossWindow::VcrossWindow(Controller *co)
   //button for dynCross - pushbutton
   QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
   connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
-#ifndef SMHI
-  dynCrossButton->hide();
-#endif
 
   QPushButton *leftCrossectionButton= new QPushButton(QPixmap(bakover_xpm),"",this);
   connect(leftCrossectionButton, SIGNAL(clicked()), SLOT(leftCrossectionClicked()) );
@@ -184,15 +181,15 @@ VcrossWindow::VcrossWindow(Controller *co)
   vcDialog = new VcrossDialog(this,vcrossm);
   connect(vcDialog, SIGNAL(VcrossDialogApply(bool)),SLOT(changeFields(bool)));
   connect(vcDialog, SIGNAL(VcrossDialogHide()),SLOT(hideDialog()));
-  connect(vcDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vcDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(vcSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(vcSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
   // --------------------------------------------------------------------
   showPrevPlotAction = new QAction( tr("P&revious plot"), this );
@@ -409,10 +406,14 @@ void VcrossWindow::printClicked(){
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
+#if defined(USE_PAINTGL)
+    vcrossw->print(&qprt);
+#else
     vcrossw->startHardcopy(priop);
     vcrossw->updateGL();
     vcrossw->endHardcopy();
     vcrossw->updateGL();
+#endif
 
     // if output to printer: call appropriate command
     if (qprt.outputFileName().isNull()){
@@ -687,7 +688,7 @@ void VcrossWindow::updateCrossectionBox(){
 #endif
 
   crossectionBox->clear();
-  vector<miutil::miString> crossections= vcrossm->getCrossectionList();
+  vector<std::string> crossections= vcrossm->getCrossectionList();
 
   int n =crossections.size();
   for (int i=0; i<n; i++){
@@ -709,7 +710,7 @@ void VcrossWindow::updateTimeBox(){
 
   int n =times.size();
   for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
   }
 
   emit emitTimes("vcross",times);
@@ -726,6 +727,8 @@ void VcrossWindow::crossectionBoxActivated(int index){
   vcrossw->updateGL();
   QString sq = cbs.c_str();
   emit crossectionChanged(sq); //name of current crossection (to mainWindow)
+  miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+   emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
   //}
 }
 
@@ -841,6 +844,10 @@ void VcrossWindow::parseQuickMenuStrings(const vector<miutil::miString>& vstr)
 }
 
 /***************************************************************************/
+void VcrossWindow::parseSetup()
+{
+  vcrossm->parseSetup();
+}
 
 vector<miutil::miString> VcrossWindow::writeLog(const miutil::miString& logpart)
 {

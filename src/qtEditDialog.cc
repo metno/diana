@@ -1182,7 +1182,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
     if (editTranslations.count(etool))
       dialog_etool =editTranslations[etool];
     else
-      dialog_etool = etool.cStr();
+      dialog_etool = etool.c_str();
     list->addItem(QString(dialog_etool));
   }
 
@@ -1219,7 +1219,7 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
   m_Frontcm->clear();
   for( int i=0; i<n; i++ ){
     if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
-      m_Frontcm->addItem(QString(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode.cStr()));
+      m_Frontcm->addItem(QString(m_EditDI.mapmodeinfo[1].editmodeinfo[i].editmode.c_str()));
     }
   }
 
@@ -1268,7 +1268,7 @@ bool EditDialog::saveEverything(bool send)
   QString lcs(send ? " <font color=\"darkgreen\">"+tr("Saved") +"</font> "
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
-  QString(t.isoTime().cStr()) + QString("</font> ");
+  QString(t.isoTime().c_str()) + QString("</font> ");
   QString qs= lcs + tcs;
 
   if (send && approved){
@@ -1474,7 +1474,7 @@ void EditDialog::updateLabels()
   else
     s= "";
 
-  prodlabel->setText(s.cStr());
+  prodlabel->setText(s.c_str());
 }
 
 void EditDialog::newLogin(editDBinfo& d)
@@ -1588,19 +1588,24 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     for (int i=0; i<n; i++) {
       miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
-      m_Fieldeditmethods->addItem(QString(ts.cStr()));
+      m_Fieldeditmethods->addItem(QString(ts.c_str()));
     }
 
     numFieldEditTools= n;
 
-    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str;
+    map<std::string,PlotOptions>::iterator p;
+    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
+        != PlotOptions::fieldPlotOptions.end()){
+      str = p->second.classSpecifications;;
+    }
 
     vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {
       vector<miutil::miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
-        classValues.push_back(atof(vs[0].cStr()));
+        classValues.push_back(atof(vs[0].c_str()));
         classValuesLocked.push_back(false);
       }
     }
@@ -1610,12 +1615,12 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     for (unsigned int i=0; i<classNames.size(); i++) {
       miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
-      m_Fieldeditmethods->addItem(QString(estr.cStr()));
+      m_Fieldeditmethods->addItem(QString(estr.c_str()));
     }
 
     for (unsigned int i=0; i<classNames.size(); i++) {
       QListWidgetItem* item
-      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].c_str()));
       m_Fieldeditmethods->addItem(item);
     }
 
@@ -1781,7 +1786,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // put combids into select-areas listbox
   m_SelectAreas->clear();
   for (unsigned int i=0; i<combids.size(); i++){
-    m_SelectAreas->addItem(QString(combids[i].cStr()));
+    m_SelectAreas->addItem(QString(combids[i].c_str()));
   }
   if(combids.size()) m_SelectAreas->setCurrentItem(0);
 
@@ -1844,19 +1849,24 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     for (int i=0; i<n; i++) {
       miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
-      m_Fieldeditmethods->addItem(QString(ts.cStr()));
+      m_Fieldeditmethods->addItem(QString(ts.c_str()));
     }
 
     numFieldEditTools= n;
 
-    miutil::miString str= m_ctrl->getFieldClassSpecifications(currprod.fields[0].name);
+    miutil::miString str;
+    map<std::string,PlotOptions>::iterator p;
+    if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
+        != PlotOptions::fieldPlotOptions.end()){
+      str = p->second.classSpecifications;;
+    }
 
     vector<miutil::miString> vclass= str.split(',');
     for (unsigned int i=0; i<vclass.size(); i++) {
       vector<miutil::miString> vs= vclass[i].split(":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
-        classValues.push_back(atof(vs[0].cStr()));
+        classValues.push_back(atof(vs[0].c_str()));
         classValuesLocked.push_back(false);
       }
     }
@@ -1866,12 +1876,12 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     for (unsigned int i=0; i<classNames.size(); i++) {
       miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
-      m_Fieldeditmethods->addItem(QString(estr.cStr()));
+      m_Fieldeditmethods->addItem(QString(estr.c_str()));
     }
 
     for (unsigned int i=0; i<classNames.size(); i++) {
       QListWidgetItem* item
-      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].cStr()));
+      = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].c_str()));
       m_Fieldeditmethods->addItem(item);
     }
 

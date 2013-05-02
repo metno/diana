@@ -31,13 +31,11 @@
 #ifndef LocationPlot_h
 #define LocationPlot_h
 
-#include <iostream>
-#include <vector>
-#include <diPlot.h>
-#include <puTools/miString.h>
+#include "diPlot.h"
+
 #include <diField/diArea.h>
 
-using namespace std;
+#include <vector>
 
   /// Types of locations to be displayed
   enum LocationType {
@@ -47,23 +45,23 @@ using namespace std;
 
   /// Description of one location (name and position)
   struct LocationElement {
-    miutil::miString name;
-    vector<float> xpos;    // usually longitude
-    vector<float> ypos;    // usually latitude
+    std::string name;
+    std::vector<float> xpos;    // usually longitude
+    std::vector<float> ypos;    // usually latitude
   };
 
   /// Data and info for a set of locations
   struct LocationData {
-    miutil::miString         name;
+    std::string         name;
     LocationType     locationType; // for all elements
     Area             area;      // only Projection used (usually geo)
-    vector<LocationElement> elements;
-    miutil::miString         annotation;
-    miutil::miString         colour;
-    miutil::miString         linetype;
+    std::vector<LocationElement> elements;
+    std::string         annotation;
+    std::string         colour;
+    std::string         linetype;
     float            linewidth;
-    miutil::miString         colourSelected;
-    miutil::miString         linetypeSelected;
+    std::string         colourSelected;
+    std::string         linetypeSelected;
     float            linewidthSelected;
   };
 
@@ -88,18 +86,18 @@ public:
   bool setData(const LocationData& locationdata);
   void updateOptions(const LocationData& locationdata);
 
-  void setSelected(const miutil::miString& name)
+  void setSelected(const std::string& name)
 	{ selectedName= name; }
 
   void hide() { visible= false; }
   void show() { visible= true; }
-  bool isVisible() { return visible; }
+  bool isVisible() const { return visible; }
   bool plot();
   bool plot(const int) { return false; }
   bool changeProjection();
-  miutil::miString getName() { return locdata.name; }
-  miutil::miString find(int x, int y);
-  void getAnnotation(miutil::miString &str, Colour &col);
+  std::string getName() { return locdata.name; }
+  std::string find(int x, int y);
+  void getAnnotation(std::string &str, Colour &col);
 
 private:
 
@@ -115,9 +113,9 @@ private:
 
   LocationData locdata;
 
-  vector<InternalLocationInfo> locinfo;
+  std::vector<InternalLocationInfo> locinfo;
 
-  miutil::miString selectedName;
+  std::string selectedName;
 
   Area  posArea;
   int   numPos;

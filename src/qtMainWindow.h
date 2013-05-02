@@ -190,7 +190,9 @@ private slots:
   void undo();
   void redo();
   void save();
+  void parseSetup();
   void hardcopy();
+  void previewHardcopy();
   void saveraster();
   void saveRasterImage(QString filename);
   void emailPicture();
@@ -219,7 +221,7 @@ private slots:
   void spectrumSetChangedSlot();
 
   void connectionClosed();
-  void processLetter(miMessage&);
+  void processLetter(const miMessage&);
   void sendLetter(miMessage&);
 
   void updateObs();
@@ -277,6 +279,8 @@ private:
   QAction * emailPictureAction;
   QAction * saveAnimationAction;
   QAction * filePrintAction;
+  QAction * filePrintPreviewAction;
+  QAction * readSetupAction;
   QAction * fileQuitAction;
 
   QAction * optOnOffAction;

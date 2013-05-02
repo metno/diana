@@ -81,6 +81,7 @@ public:
   TextView(QWidget* parent);
   void setText( int id, const miutil::miString& name, const miutil::miString& text );
   void deleteTab( int id );
+  void deleteTab();
 
 private slots:
   void printSlot();

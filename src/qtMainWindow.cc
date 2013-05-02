@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
@@ -59,7 +61,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
 
@@ -71,6 +73,7 @@
 
 #include <qpushbutton.h>
 #include <qpixmap.h>
+#include <QIcon>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <QMenu>
@@ -106,6 +109,7 @@
 #include "qtTrajectoryDialog.h"
 #include "qtMeasurementsDialog.h"
 #include "qUtilities/qtHelpDialog.h"
+#include "qtSetupDialog.h"
 #include "qtPrintManager.h"
 #include "qtBrowserBox.h"
 #include "qtAddtoMenu.h"
@@ -130,6 +134,8 @@
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
 #include <qUtilities/miLogFile.h>
+
+#include <iomanip>
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -166,6 +172,8 @@
 //#include <paint_mode.xpm>
 #include <autoupdate.xpm>
 
+//#define DEBUGREDRAWCATCH 
+
 using namespace milogger;
 
 DianaMainWindow::DianaMainWindow(Controller *co,
@@ -185,7 +193,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   build_string = build_str;
 
   setWindowIcon(QIcon(diana_icon_xpm));
-  setWindowTitle(tr(dianaTitle.cStr()));
+  setWindowTitle(tr(dianaTitle.c_str()));
 
 
   //-------- The Actions ---------------------------------
@@ -208,6 +216,17 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
   filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( filePrintAction, SIGNAL( triggered() ) , SLOT( hardcopy() ) );
+  // --------------------------------------------------------------------
+#if defined(USE_PAINTGL)
+  filePrintPreviewAction = new QAction( tr("Print pre&view..."),this );
+  filePrintPreviewAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( filePrintPreviewAction, SIGNAL( triggered() ) , SLOT( previewHardcopy() ) );
+#endif
+  // --------------------------------------------------------------------
+  readSetupAction = new QAction( tr("Read setupfile"),this );
+  //restartAction->setShortcut(Qt::CTRL+Qt::Key_P);
+  readSetupAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect( readSetupAction, SIGNAL( triggered() ) , SLOT( parseSetup() ) );
   // --------------------------------------------------------------------
   fileQuitAction = new QAction( tr("&Quit..."), this );
   fileQuitAction->setShortcut(Qt::CTRL+Qt::Key_Q);
@@ -250,12 +269,14 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // show ======================
   // --------------------------------------------------------------------
-  showResetAreaAction = new QAction( QPixmap(thumbs_up_xpm),tr("Reset area and replot"), this );
+  showResetAreaAction = new QAction(QIcon( QPixmap(thumbs_up_xpm)),tr("Reset area and replot"), this );
   showResetAreaAction->setShortcutContext(Qt::ApplicationShortcut);
+  showResetAreaAction->setIconVisibleInMenu(true);
   connect( showResetAreaAction, SIGNAL( triggered() ) ,  SLOT( resetArea() ) );
   //----------------------------------------------------------------------
-  showResetAllAction = new QAction( QPixmap(thumbs_down_xpm),tr("Reset all"), this );
+  showResetAllAction = new QAction( QIcon(QPixmap(thumbs_down_xpm)),tr("Reset all"), this );
   showResetAllAction->setShortcutContext(Qt::ApplicationShortcut);
+  showResetAllAction->setIconVisibleInMenu(true);
   connect( showResetAllAction, SIGNAL( triggered() ) ,  SLOT( resetAll() ) );
   // --------------------------------------------------------------------
   showApplyAction = new QAction( tr("&Apply plot"), this );
@@ -285,77 +306,90 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showHideAllAction, SIGNAL( triggered() ) ,  SLOT( toggleDialogs() ) );
 
   // --------------------------------------------------------------------
-  showQuickmenuAction = new QAction( QPixmap(pick_xpm ),tr("&Quickmenu"), this );
+  showQuickmenuAction = new QAction( QIcon(QPixmap(pick_xpm )),tr("&Quickmenu"), this );
   showQuickmenuAction->setShortcutContext(Qt::ApplicationShortcut);
   showQuickmenuAction->setShortcut(Qt::Key_F12);
   showQuickmenuAction->setCheckable(true);
+  showQuickmenuAction->setIconVisibleInMenu(true);
   connect( showQuickmenuAction, SIGNAL( triggered() ) ,  SLOT( quickMenu() ) );
   // --------------------------------------------------------------------
   showMapDialogAction = new QAction( QPixmap(earth3_xpm ),tr("Maps"), this );
   showMapDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showMapDialogAction->setShortcut(Qt::ALT+Qt::Key_K);
   showMapDialogAction->setCheckable(true);
+  showMapDialogAction->setIconVisibleInMenu(true);
   connect( showMapDialogAction, SIGNAL( triggered() ) ,  SLOT( mapMenu() ) );
   // --------------------------------------------------------------------
-  showFieldDialogAction = new QAction( QPixmap(felt_xpm ),tr("&Fields"), this );
+  showFieldDialogAction = new QAction( QIcon(QPixmap(felt_xpm )),tr("&Fields"), this );
   showFieldDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showFieldDialogAction->setShortcut(Qt::ALT+Qt::Key_F);
   showFieldDialogAction->setCheckable(true);
+  showFieldDialogAction->setIconVisibleInMenu(true);
   connect( showFieldDialogAction, SIGNAL( triggered() ) ,  SLOT( fieldMenu() ) );
   // --------------------------------------------------------------------
-  showObsDialogAction = new QAction( QPixmap(synop_xpm ),tr("&Observations"), this );
+  showObsDialogAction = new QAction( QIcon(QPixmap(synop_xpm )),tr("&Observations"), this );
   showObsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showObsDialogAction->setShortcut(Qt::ALT+Qt::Key_O);
   showObsDialogAction->setCheckable(true);
+  showObsDialogAction->setIconVisibleInMenu(true);
   connect( showObsDialogAction, SIGNAL( triggered() ) ,  SLOT( obsMenu() ) );
   // --------------------------------------------------------------------
-  showSatDialogAction = new QAction( QPixmap(sat_xpm ),tr("&Satellites and Radar"), this );
+  showSatDialogAction = new QAction( QIcon(QPixmap(sat_xpm )),tr("&Satellites and Radar"), this );
   showSatDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showSatDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
   showSatDialogAction->setCheckable(true);
+  showSatDialogAction->setIconVisibleInMenu(true);
   connect( showSatDialogAction, SIGNAL( triggered() ) ,  SLOT( satMenu() ) );
   // --------------------------------------------------------------------
-  showStationDialogAction = new QAction( QPixmap(station_xpm), tr("&Stations"), this );
+  showStationDialogAction = new QAction( QIcon(QPixmap(station_xpm )),tr("&Toggle Stations"), this );
   showStationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
-  //showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
+  showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_A);
   showStationDialogAction->setCheckable(true);
-  connect(showStationDialogAction, SIGNAL(triggered()), SLOT(stationMenu()));
+  showStationDialogAction->setIconVisibleInMenu(true);
+  connect( showStationDialogAction, SIGNAL( triggered() ) ,  SLOT( stationMenu() ) );
   // --------------------------------------------------------------------
   showEditDialogAction = new QAction( QPixmap(editmode_xpm ),tr("&Product Editing"), this );
   showEditDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showEditDialogAction->setShortcut(Qt::ALT+Qt::Key_E);
   showEditDialogAction->setCheckable(true);
+  showEditDialogAction->setIconVisibleInMenu(true);
   connect( showEditDialogAction, SIGNAL( triggered() ) ,  SLOT( editMenu() ) );
   // --------------------------------------------------------------------
-  showObjectDialogAction = new QAction( QPixmap(front_xpm ),tr("O&bjects"), this );
+  showObjectDialogAction = new QAction( QIcon(QPixmap(front_xpm )),tr("O&bjects"), this );
   showObjectDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showObjectDialogAction->setShortcut(Qt::ALT+Qt::Key_J);
   showObjectDialogAction->setCheckable(true);
+  showObjectDialogAction->setIconVisibleInMenu(true);
   connect( showObjectDialogAction, SIGNAL( triggered() ) ,  SLOT( objMenu() ) );
   // --------------------------------------------------------------------
-  showTrajecDialogAction = new QAction( QPixmap( traj_xpm),tr("&Trajectories"), this );
+  showTrajecDialogAction = new QAction( QIcon(QPixmap( traj_xpm)),tr("&Trajectories"), this );
   showTrajecDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showTrajecDialogAction->setShortcut(Qt::ALT+Qt::Key_T);
   showTrajecDialogAction->setCheckable(true);
+  showTrajecDialogAction->setIconVisibleInMenu(true);
   connect( showTrajecDialogAction, SIGNAL( triggered() ) ,  SLOT( trajMenu() ) );
   // --------------------------------------------------------------------
-  showProfilesDialogAction = new QAction( QPixmap(balloon_xpm ),tr("&Vertical Profiles"), this );
+  showProfilesDialogAction = new QAction( QIcon(QPixmap(balloon_xpm )),tr("&Vertical Profiles"), this );
   showProfilesDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showProfilesDialogAction->setShortcut(Qt::ALT+Qt::Key_V);
   showProfilesDialogAction->setCheckable(false);
+  showProfilesDialogAction->setIconVisibleInMenu(true);
   connect( showProfilesDialogAction, SIGNAL( triggered() ) ,  SLOT( vprofMenu() ) );
   // --------------------------------------------------------------------
-  showCrossSectionDialogAction = new QAction( QPixmap(vcross_xpm ),tr("Vertical &Cross sections"), this );
+  showCrossSectionDialogAction = new QAction(QIcon( QPixmap(vcross_xpm )),tr("Vertical &Cross sections"), this );
   showCrossSectionDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showCrossSectionDialogAction->setShortcut(Qt::ALT+Qt::Key_C);
   showCrossSectionDialogAction->setCheckable(false);
+  showCrossSectionDialogAction->setIconVisibleInMenu(true);
   connect( showCrossSectionDialogAction, SIGNAL( triggered() ) ,  SLOT( vcrossMenu() ) );
   // --------------------------------------------------------------------
-  showWaveSpectrumDialogAction = new QAction( QPixmap(spectrum_xpm ),tr("&Wave spectra"), this );
+  showWaveSpectrumDialogAction = new QAction(QIcon( QPixmap(spectrum_xpm )),tr("&Wave spectra"), this );
   showWaveSpectrumDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showWaveSpectrumDialogAction->setShortcut(Qt::ALT+Qt::Key_W);
   showWaveSpectrumDialogAction->setCheckable(false);
+  showWaveSpectrumDialogAction->setIconVisibleInMenu(true);
   connect( showWaveSpectrumDialogAction, SIGNAL( triggered() ) ,  SLOT( spectrumMenu() ) );
+
   // --------------------------------------------------------------------
   zoomOutAction = new QAction( tr("Zoom out"), this );
   zoomOutAction->setVisible(false);
@@ -367,11 +401,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showUffdaDialogAction->setCheckable(true);
   connect( showUffdaDialogAction, SIGNAL( triggered() ), SLOT( uffMenu() ) );
   // --------------------------------------------------------------------
-     showMeasurementsDialogAction = new QAction( QPixmap( ruler),tr("&Measurements"), this );
-     showMeasurementsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
-     showMeasurementsDialogAction->setShortcut(Qt::ALT+Qt::Key_M);
-     showMeasurementsDialogAction->setCheckable(true);
-     connect( showMeasurementsDialogAction, SIGNAL( triggered() ) ,  SLOT( measurementsMenu() ) );
+  showMeasurementsDialogAction = new QAction( QPixmap( ruler),tr("&Measurements"), this );
+  showMeasurementsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showMeasurementsDialogAction->setShortcut(Qt::ALT+Qt::Key_M);
+  showMeasurementsDialogAction->setCheckable(true);
+  connect( showMeasurementsDialogAction, SIGNAL( triggered() ) ,  SLOT( measurementsMenu() ) );
   // ----------------------------------------------------------------
   uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
@@ -392,13 +426,14 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // ----------------------------------------------------------------
 
   if(enableProfet) {
-    toggleProfetGUIAction = new QAction( QPixmap(profet_xpm ),tr("Field E&dit"), this );
+    toggleProfetGUIAction = new QAction(QIcon( QPixmap(profet_xpm )),tr("Field E&dit"), this );  
     toggleProfetGUIAction->setShortcut(Qt::ALT + Qt::Key_D);
   } else {
-    toggleProfetGUIAction = new QAction( QPixmap(),tr("Field E&dit"), this );
+    toggleProfetGUIAction = new QAction(QIcon( QPixmap()),tr("Field E&dit"), this );
   }
   toggleProfetGUIAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleProfetGUIAction->setCheckable(true);
+  toggleProfetGUIAction->setIconVisibleInMenu(true);
   connect( toggleProfetGUIAction, SIGNAL( triggered() ), SLOT( toggleProfetGUI()));
 
   // --------------------------------------------------------------------
@@ -436,92 +471,105 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // timecommands ======================
   // --------------------------------------------------------------------
-  timeBackwardAction = new QAction( QPixmap(start_xpm ),tr("Run Backwards"), this);
+  timeBackwardAction = new QAction(QIcon( QPixmap(start_xpm )),tr("Run Backwards"), this);
   timeBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeBackwardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Left);
   timeBackwardAction->setCheckable(true);
+  timeBackwardAction->setIconVisibleInMenu(true);
   connect( timeBackwardAction, SIGNAL( triggered() ) ,  SLOT( animationBack() ) );
   // --------------------------------------------------------------------
-  timeForewardAction = new QAction( QPixmap(slutt_xpm ),tr("Run Forewards"), this );
+  timeForewardAction = new QAction(QIcon( QPixmap(slutt_xpm )),tr("Run Forewards"), this );
   timeForewardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeForewardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Right);
   timeForewardAction->setCheckable(true);
+  timeForewardAction->setIconVisibleInMenu(true);
   connect( timeForewardAction, SIGNAL( triggered() ) ,  SLOT( animation() ) );
   // --------------------------------------------------------------------
-  timeStepBackwardAction = new QAction( QPixmap(bakover_xpm ),tr("Step Backwards"), this );
+  timeStepBackwardAction = new QAction(QIcon( QPixmap(bakover_xpm )),tr("Step Backwards"), this );
   //  timeStepBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeStepBackwardAction->setShortcut(Qt::CTRL+Qt::Key_Left);
   timeStepBackwardAction->setCheckable(false);
+  timeStepBackwardAction->setIconVisibleInMenu(true);
   connect( timeStepBackwardAction, SIGNAL( triggered() ) ,  SLOT( stepback() ) );
   // --------------------------------------------------------------------
-  timeStepForewardAction = new QAction( QPixmap(forward_xpm ),tr("Step Forewards"), this );
+  timeStepForewardAction = new QAction(QIcon( QPixmap(forward_xpm )),tr("Step Forewards"), this );
   //  timeStepForewardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeStepForewardAction->setShortcut(Qt::CTRL+Qt::Key_Right);
   timeStepForewardAction->setCheckable(false);
+  timeStepForewardAction->setIconVisibleInMenu(true);
   connect( timeStepForewardAction, SIGNAL( triggered() ) ,  SLOT( stepforward() ) );
   // --------------------------------------------------------------------
-  timeStopAction = new QAction( QPixmap(stop_xpm ),tr("Stop"), this );
+  timeStopAction = new QAction(QIcon( QPixmap(stop_xpm )),tr("Stop"), this );
   timeStopAction->setShortcutContext(Qt::ApplicationShortcut);
   timeStopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Down);
   timeStopAction->setCheckable(false);
+  timeStopAction->setIconVisibleInMenu(true);
   connect( timeStopAction, SIGNAL( triggered() ) ,  SLOT( animationStop() ) );
   // --------------------------------------------------------------------
-  timeLoopAction = new QAction( QPixmap(loop_xpm ),tr("Run in loop"), this );
+  timeLoopAction = new QAction(QIcon( QPixmap(loop_xpm )),tr("Run in loop"), this );
   timeLoopAction->setShortcutContext(Qt::ApplicationShortcut);
   timeLoopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Up);
   timeLoopAction->setCheckable(true);
+  timeLoopAction->setIconVisibleInMenu(true);
   connect( timeLoopAction, SIGNAL( triggered() ) ,  SLOT( animationLoop() ) );
   // --------------------------------------------------------------------
-  timeControlAction = new QAction( QPixmap( clock_xpm ),tr("Time control"), this );
+  timeControlAction = new QAction(QIcon( QPixmap( clock_xpm )),tr("Time control"), this );
   timeControlAction->setShortcutContext(Qt::ApplicationShortcut);
   timeControlAction->setCheckable(true);
   timeControlAction->setEnabled(false);
+  timeControlAction->setIconVisibleInMenu(true);
   connect( timeControlAction, SIGNAL( triggered() ) ,  SLOT( timecontrolslot() ) );
   // --------------------------------------------------------------------
 
 
   // other tools ======================
   // --------------------------------------------------------------------
-  toolLevelUpAction = new QAction( QPixmap(levelUp_xpm ),tr("Level up"), this );
+  toolLevelUpAction = new QAction(QIcon( QPixmap(levelUp_xpm )),tr("Level up"), this );
   toolLevelUpAction->setShortcutContext(Qt::ApplicationShortcut);
   toolLevelUpAction->setShortcut(Qt::CTRL+Qt::Key_PageUp);
   toolLevelUpAction->setCheckable(false);
   toolLevelUpAction->setEnabled ( false );
+  toolLevelUpAction->setIconVisibleInMenu(true);
   connect( toolLevelUpAction, SIGNAL( triggered() ) ,  SLOT( levelUp() ) );
   // --------------------------------------------------------------------
-  toolLevelDownAction = new QAction( QPixmap(levelDown_xpm ),tr("Level down"), this );
+  toolLevelDownAction = new QAction(QIcon( QPixmap(levelDown_xpm )),tr("Level down"), this );
   toolLevelDownAction->setShortcutContext(Qt::ApplicationShortcut);
   toolLevelDownAction->setShortcut(Qt::CTRL+Qt::Key_PageDown);
   toolLevelDownAction->setCheckable(false);
   toolLevelDownAction->setEnabled ( false );
+  toolLevelDownAction->setIconVisibleInMenu(true);
   connect( toolLevelDownAction, SIGNAL( triggered() ) ,  SLOT( levelDown() ) );
   // --------------------------------------------------------------------
-  toolIdnumUpAction = new QAction( QPixmap(idnumUp_xpm ),
+  toolIdnumUpAction = new QAction(QIcon( QPixmap(idnumUp_xpm )),
       tr("EPS cluster/member etc up"), this );
   toolIdnumUpAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumUpAction->setShortcut(Qt::SHIFT+Qt::Key_PageUp);
   toolIdnumUpAction->setCheckable(false);
   toolIdnumUpAction->setEnabled ( false );
+  toolIdnumUpAction->setIconVisibleInMenu(true);
   connect( toolIdnumUpAction, SIGNAL( triggered() ) ,  SLOT( idnumUp() ) );
   // --------------------------------------------------------------------
-  toolIdnumDownAction = new QAction( QPixmap(idnumDown_xpm ),
+  toolIdnumDownAction = new QAction(QIcon( QPixmap(idnumDown_xpm )),
       tr("EPS cluster/member etc down"), this );
   toolIdnumDownAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumDownAction->setShortcut(Qt::SHIFT+Qt::Key_PageDown);
   toolIdnumDownAction->setEnabled ( false );
+  toolIdnumDownAction->setIconVisibleInMenu(true);
   connect( toolIdnumDownAction, SIGNAL( triggered() ) ,  SLOT( idnumDown() ) );
 
   // Status ===============================
   // --------------------------------------------------------------------
-  obsUpdateAction = new QAction( QPixmap(synop_red_xpm),
+  obsUpdateAction = new QAction(QIcon( QPixmap(synop_red_xpm)),
       tr("Update observations"), this );
+  obsUpdateAction->setIconVisibleInMenu(true);
   connect( obsUpdateAction, SIGNAL( triggered() ), SLOT(updateObs()));
 
   // Autoupdate ===============================
   // --------------------------------------------------------------------
-  autoUpdateAction = new QAction( QPixmap(autoupdate_xpm),
+  autoUpdateAction = new QAction(QIcon( QPixmap(autoupdate_xpm)),
       tr("Automatic updates"), this );
   autoUpdateAction->setCheckable(true);
+  autoUpdateAction->setIconVisibleInMenu(true);
   doAutoUpdate = false;
   connect( autoUpdateAction, SIGNAL( triggered() ), SLOT(autoUpdate()));
 
@@ -574,6 +622,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   filemenu->addAction( emailPictureAction );
   filemenu->addAction( saveAnimationAction );
   filemenu->addAction( filePrintAction );
+#if defined(USE_PAINTGL)
+  filemenu->addAction( filePrintPreviewAction );
+#endif
   filemenu->addSeparator();
   filemenu->addAction( fileQuitAction );
 
@@ -584,6 +635,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   optmenu->addAction( optAutoElementAction );
   optmenu->addAction( optAnnotationAction );
   optmenu->addAction( optScrollwheelZoomAction );
+  optmenu->addAction( readSetupAction );
   optmenu->addSeparator();
   optmenu->addAction( optFontAction );
 
@@ -611,7 +663,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   if (infoFiles.size()>0){
     map<miutil::miString,InfoFile>::iterator p=infoFiles.begin();
     for (; p!=infoFiles.end(); p++){
-      infomenu->addAction(p->first.cStr());
+      infomenu->addAction(p->first.c_str());
     }
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
@@ -737,8 +789,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   levelToolbar->addAction( toolIdnumDownAction );
   levelToolbar->addSeparator();
   levelToolbar->addAction( obsUpdateAction );
-  //  levelToolbar->addAction( autoUpdateAction );
-
+#ifdef SMHI
+  levelToolbar->addAction( autoUpdateAction );
+#endif
   /**************** Toolbar Buttons *********************************************/
 
   //  mainToolbar = new QToolBar(this);
@@ -764,6 +817,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   mainToolbar->addSeparator();
   mainToolbar->addAction( showEditDialogAction );
+  mainToolbar->addSeparator();
   mainToolbar->addSeparator();
   mainToolbar->addAction( showResetAllAction );
 
@@ -801,8 +855,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
   //   pluginB->setMinimumWidth( hpixbutton );
   //   pluginB->setMaximumWidth( hpixbutton );
-  connect(pluginB, SIGNAL(receivedMessage(miMessage&)),
-      SLOT(processLetter(miMessage&)));
+  connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
+      SLOT(processLetter(const miMessage&)));
   connect(pluginB, SIGNAL(connectionClosed()),SLOT(connectionClosed()));
   statusBar()->addPermanentWidget(pluginB);
 
@@ -986,28 +1040,28 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       this, SLOT(winResize(int, int)));
 
   // HELP
-  connect( fm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( om, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( sm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( stm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( mm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( em, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( qm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( objm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( trajm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( uffm, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
-  connect( paintToolBar, SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect( fm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( om, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( sm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( stm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( mm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( em, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( qm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( objm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( trajm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
+  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -1016,8 +1070,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vpWindow = new VprofWindow(contr);
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
-  connect(vpWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(vpWindow,SIGNAL(stationChanged(const QString &)),
       SLOT(stationChangedSlot(const QString &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
@@ -1026,8 +1080,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   vcWindow = new VcrossWindow(contr);
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
-  connect(vcWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(vcWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
       SLOT(crossectionChangedSlot(const QString &)));
   connect(vcWindow,SIGNAL(crossectionSetChanged()),
@@ -1044,8 +1098,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // create a new main window
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
-  connect(spWindow,SIGNAL(showsource(const miutil::miString,const miutil::miString)),
-      help,SLOT(showsource(const miutil::miString,const miutil::miString)));
+  connect(spWindow,SIGNAL(showsource(const std::string, const std::string)),
+      help,SLOT(showsource(const std::string, const std::string)));
   connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
@@ -1662,7 +1716,7 @@ bool DianaMainWindow::initProfet(){
   if(!paintToolBar) error += "PaintToolBar is NULL. ";
   if(!contr->getAreaManager()) error += "AreaManager is NULL. ";
   if(error.exists()){
-    QMessageBox::critical(0,"Init profet failed",error.cStr());
+    QMessageBox::critical(0,"Init profet failed",error.c_str());
     return false;
   }
 
@@ -1728,6 +1782,9 @@ bool DianaMainWindow::profetConnect(){
   loginDialog.setRoles((QStringList() << "forecast" << "observer"));
 
   if(loginDialog.exec()){ // OK button pressed
+    if ( loginDialog.test() ) {
+      Profet::ProfetController::SERVER_HOST = "profet-test";
+    }
     while(retry) {
       retry = false;
       if(loginDialog.username().isEmpty())
@@ -1749,6 +1806,7 @@ bool DianaMainWindow::profetConnect(){
           if(dmt != perferredType)
             QMessageBox::warning(0,"Running disconnected mode",
                 "Distributed field editing system is not available.");
+          profetGUI->setHostname(Profet::ProfetController::SERVER_HOST);
           return true;
         }catch(Profet::ServerException & se){
           contr->getProfetController()->disconnect();
@@ -1763,14 +1821,14 @@ bool DianaMainWindow::profetConnect(){
       if(error.exists()) {
         if(offerForcedConnection) {
           error += "<br><b>Do you want to connect anyway?<br>(Existing user will be disconnected)</b>";
-          int i = QMessageBox::warning(0,"Profet", error.cStr(), QMessageBox::Yes, QMessageBox::No);
+          int i = QMessageBox::warning(0,"Profet", error.c_str(), QMessageBox::Yes, QMessageBox::No);
           if (i == QMessageBox::Yes){
             error = "";
             retry = true;
             useForcedConnection = true;
           }
         } else {
-          QMessageBox::critical(0,"Profet",error.cStr());
+          QMessageBox::critical(0,"Profet",error.c_str());
         }
       } // end error handling
     } // end while retry
@@ -2061,8 +2119,8 @@ void DianaMainWindow::stationChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
   cerr << "DianaMainWindow::stationChangedSlot" << endl;
 #endif
-  miutil::miString s =station.toStdString();
-  vector<miutil::miString> data;
+  string s =station.toStdString();
+  vector<string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"vprof");
   w->updateGL();
@@ -2133,8 +2191,8 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
   //cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
   cerr << "DianaMainWindow::spectrumChangedSlot" << endl;
 #endif
-  miutil::miString s =station.toStdString();
-  vector<miutil::miString> data;
+  string s =station.toStdString();
+  vector<string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
   //  contr->setSelectedStation(s, "spectrum");
@@ -2181,7 +2239,7 @@ void DianaMainWindow::connectionClosed()
 }
 
 
-void DianaMainWindow::processLetter(miMessage &letter)
+void DianaMainWindow::processLetter(const miMessage &letter)
 {
   miutil::miString from(letter.from);
   //  cerr<<"Command: "<<letter.command<<"  ";
@@ -2192,7 +2250,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
   //  cerr <<endl;
   //   cerr<<" Common: "<<letter.common<<"  ";
   //  cerr <<endl;
-  //   for(unsigned int i=0;i<letter.data.size();i++)
+  //   for(unsigned size_t i=0;i<letter.data.size();i++)
   //    if(letter.data[i].length()<80)
   //       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
   //    cerr <<" From: "<<from<<endl;
@@ -2208,7 +2266,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
         letter.common,
         letter.description,
         letter.data) ){
-      if(letter.common.contains("synop"))
+      if(letter.common.find("synop") !=std::string::npos )
         om->setPlottype("Hqc_synop",true);
       else
         om->setPlottype("Hqc_list",true);
@@ -2246,7 +2304,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: lat:lon
     vprofMenu();
     if(letter.data.size()){
-      vector<miutil::miString> tmp= letter.data[0].split(":");
+      vector<string> tmp;
+      boost::algorithm::split(tmp, letter.data[0], boost::algorithm::is_any_of(":"));
       if(tmp.size()==2){
         float lat= atof(tmp[0].c_str());
         float lon= atof(tmp[1].c_str());
@@ -2278,7 +2337,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     int n = letter.data.size();
     for(int i=0; i<n; i++){
       // separate name and data
-      vector<miutil::miString> vs= letter.data[i].split(":");
+      vector<string> vs;
+      boost::algorithm::split(vs, letter.data[i], boost::algorithm::is_any_of(":"));
       if (vs.size()<2) continue;
       ig.addImageToGallery(vs[0], vs[1]);
     }
@@ -2293,17 +2353,22 @@ void DianaMainWindow::processLetter(miMessage &letter)
     if(letter.common == "diana") return;
 
     //obsolete -> new syntax
-    if(letter.description.contains(";")){
-      vector<miutil::miString> desc = letter.description.split(";");
+    string commondesc = letter.commondesc;
+    string common = letter.common;
+    string description = letter.description;
+
+    if(letter.description.find(";") != letter.description.npos){
+      vector<string> desc;
+      boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
       if( desc.size() < 2 ) return;
       miutil::miString dataSet = desc[0];
-      letter.description=desc[1];
-      letter.commondesc = "dataset:" + letter.commondesc;
-      letter.common = dataSet + ":" + letter.common;
+      description=desc[1];
+      commondesc = "dataset:" + letter.commondesc;
+      common = dataSet + ":" + letter.common;
     }
 
-    contr->makeStationPlot(letter.commondesc,letter.common,
-        letter.description,
+    contr->makeStationPlot(commondesc,common,
+        description,
         letter.from,letter.data);
 
     //    sendSelectedStations(qmstrings::selectposition);
@@ -2352,7 +2417,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //cerr << "Change text and image\n";
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
-    vector<miutil::miString> desc = letter.description.split(";");
+    vector<string> desc;
+    boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
     if( desc.size() == 2 ) { //obsolete syntax
       contr->stationCommand("changeImageandText",
           letter.data,desc[0],letter.from,desc[1]);
@@ -2404,7 +2470,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::areacommand ){
     //commondesc command:dataSet
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<string> token;
+    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
     if(token.size()>1){
       int n = letter.data.size();
       if(n==0) 	contr->areaCommand(token[0],token[1],miutil::miString(),letter.from);
@@ -2450,7 +2517,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //description: station:text
     if(letter.data.size()){
       textview_id = letter.from;
-      vector<miutil::miString> token = letter.data[0].split(1,":",true);
+      vector<string> token;
+      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
       if(token.size() == 2){
         miutil::miString name = pluginB->getClientName(letter.from);
         textview->setText(textview_id,name,token[1]);
@@ -2462,7 +2530,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
   else if (letter.command == qmstrings::enableshowtext ){
     //description: dataset:on/off
     if(letter.data.size()){
-      vector<miutil::miString> token = letter.data[0].split(":");
+      vector<string> token;
+      boost::algorithm::split(token, letter.data[0], boost::algorithm::is_any_of(":"));
       if(token.size() < 2) return;
       if(token[1] == "on"){
         textview->show();
@@ -2474,7 +2543,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::removeclient ){
     // commondesc = id:dataset
-    vector<miutil::miString> token = letter.common.split(":");
+    vector<string> token;
+    boost::algorithm::split(token, letter.common, boost::algorithm::is_any_of(":"));
     if(token.size()<2) return;
     int id =atoi(token[0].c_str());
     //remove stationPlots from this client
@@ -2490,7 +2560,8 @@ void DianaMainWindow::processLetter(miMessage &letter)
     //     if(textview && id == textview_id )
     //       textview->hide();
     //remove observations from hqc
-    if(token[1].downcase()=="hqc"){
+    string value = boost::algorithm::to_lower_copy(token[1]);
+    if( value =="hqc"){
       contr->processHqcCommand("remove");
       om->setPlottype("Hqc_synop",false);
       om->setPlottype("Hqc_list",false);
@@ -2502,7 +2573,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
 
   else if (letter.command == qmstrings::newclient ){
     qsocket = true;
-    autoredraw[atoi(letter.common.cStr())] = true;
+    autoredraw[atoi(letter.common.c_str())] = true;
     autoredraw[0] = true; //from server
   }
 
@@ -2521,7 +2592,7 @@ void DianaMainWindow::processLetter(miMessage &letter)
       timecontrol->useData(letter.common,letter.from);
       vector<miutil::miTime> times;
       for(int i=0;i<n;i++)
-        times.push_back(letter.data[i]);
+        times.push_back(miutil::miTime(letter.data[i]));
       tslider->insert(letter.common,times);
       contr->initHqcdata(letter.from,letter.commondesc,
           letter.common,letter.description,letter.data);
@@ -2542,7 +2613,9 @@ void DianaMainWindow::processLetter(miMessage &letter)
     miMessage l;
     l.to = letter.from;
     l.command = qmstrings::currentplotcommand;
-    l.data = v1;
+    for (size_t i = 0; i< v1.size(); ++i ) {
+      l.data.push_back(v1[i]);
+    }
     sendLetter(l);
     return; // no need to repaint
   }
@@ -2650,7 +2723,7 @@ void DianaMainWindow::sendLetter(miMessage& letter)
   //   cerr<<"Description: "<<letter.description<<endl;
   //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
   //   cerr<<"Common: "<<letter.common<<endl;
-  //       for(int i=0;i<letter.data.size();i++)
+  //       for(size_t i=0;i<letter.data.size();i++)
   // 	cerr<<"data:"<<letter.data[i]<<endl;
   //   cerr <<"To: "<<letter.to<<endl;
 }
@@ -2949,14 +3022,15 @@ void DianaMainWindow::idnumChange(int increment)
 
 void DianaMainWindow::saveraster()
 {
-  static QString fname = "./"; // keep users preferred image-path for later
 
+  cerr <<"DianaMainWindow::saveraster"<<endl;
+
+  static QString fname = "./"; // keep users preferred image-path for later
   QString s =
       QFileDialog::getSaveFileName(this,
           tr("Save plot as image"),
           fname,
           tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
-
 
   if (!s.isNull()) {// got a filename
     fname= s;
@@ -3060,7 +3134,7 @@ void DianaMainWindow::saveAnimation() {
 
       w->Glw()->resize(1280, 720);
       QImage image = w->Glw()->grabFrameBuffer(true);
-      moviemaker.addImage(&image);
+      moviemaker.addImage(image);
 
       /// go to next frame
       stepforward();
@@ -3098,7 +3172,7 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
   priop.drawbackground= true;
   priop.doEPS= true;
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   w->Glw()->startHardcopy(priop);
   w->updateGL();
   w->Glw()->endHardcopy();
@@ -3109,8 +3183,32 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
 }
 
 
+void DianaMainWindow::parseSetup()
+{
+  cerr<<" DianaMainWindow::parseSetup()"<<endl;
+  SetupDialog *setupDialog = new SetupDialog(this);
+
+  if( setupDialog->exec() ) {
+
+    LocalSetupParser sp;
+    miutil::miString filename;
+    if (!sp.parse(filename)){
+      cerr << "An error occured while re-reading setup " << endl;
+    }
+    contr->parseSetup();
+    vcWindow->parseSetup();
+    vpWindow->parseSetup();
+    spWindow->parseSetup();
+
+    fm->updateModels();
+    om->updateDialog();
+
+  }
+}
+
 void DianaMainWindow::hardcopy()
 {
+  //cerr <<"DianaMainWindow::hardcopy()"<<endl;
   QPrinter qprt;
 
   miutil::miString command= pman.printCommand();
@@ -3140,7 +3238,7 @@ void DianaMainWindow::hardcopy()
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
     //     contr->startHardcopy(priop);
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
     w->Glw()->startHardcopy(priop);
     w->updateGL();
     w->Glw()->endHardcopy();
@@ -3174,6 +3272,17 @@ void DianaMainWindow::hardcopy()
     //     // reset number of copies (saves a lot of paper)
     //     qprt.setNumCopies(1);
   }
+}
+
+void DianaMainWindow::previewHardcopy()
+{
+#if defined(USE_PAINTGL)
+  QPrinter qprt;
+  QPrintPreviewDialog previewDialog(&qprt, this);
+  connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
+          w->Glw(), SLOT(print(QPrinter*)));
+  previewDialog.exec();
+#endif
 }
 
 // left mouse click -> mark trajectory position
@@ -3313,6 +3422,10 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
         stationsText += tr("%1&nbsp;W").arg(-stations[i]->lon);
       stationsText += "</td>";
 
+      stationsText += "<td>";
+      stationsText += tr("%1&nbsp;m").arg(stations[i]->height);
+      stationsText += "</td>";
+
       stationsText += "</tr>";
     }
     stationsText += "</table>";
@@ -3352,7 +3465,7 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
   if ( nAreas>0 ) {
     zoomOutAction->setVisible(true);
     for (int i=1; i<=nAreas && i<MaxSelectedAreas; i++){
-      selectAreaAction[i]->setText(vselectAreas[i-1].name.cStr());
+      selectAreaAction[i]->setText(vselectAreas[i-1].name.c_str());
       selectAreaAction[i]->setData(i-1);
       selectAreaAction[i]->setVisible(true);
     }
@@ -3548,14 +3661,15 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 
 void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 {
-  vector<miutil::miString> data;
-  contr->stationCommand("selected",data);
+  vector<std::string> data;
+  contr->getStationData(data);
   int n=data.size();
   for(int i=0;i<n;i++){
-    vector<miutil::miString> token = data[i].split(":");
+    vector<string> token;
+    boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
     int m = token.size();
     if(token.size()<2) continue;
-    int id=atoi(token[m-1].cStr());
+    int id=atoi(token[m-1].c_str());
     miutil::miString dataset = token[m-2];
     token.pop_back(); //remove id
     token.pop_back(); //remove dataset
@@ -4086,6 +4200,8 @@ vector<miutil::miString> DianaMainWindow::writeLog(const miutil::miString& thisV
   vstr.push_back(str);
   str= "SatDialog.pos "   + miutil::miString(sm->x()) + " " + miutil::miString(sm->y());
   vstr.push_back(str);
+  str= "StationDialog.pos "   + miutil::miString(stm->x()) + " " + miutil::miString(stm->y());
+  vstr.push_back(str);
   str= "MapDialog.pos "   + miutil::miString(mm->x()) + " " + miutil::miString(mm->y());
   vstr.push_back(str);
   str= "EditDialog.pos "  + miutil::miString(em->x()) + " " + miutil::miString(em->y());
@@ -4191,6 +4307,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
         else if (tokens[0]=="ObsDialog.pos")   om->move(x,y);
         else if (tokens[0]=="SatDialog.pos")   sm->move(x,y);
         else if (tokens[0]=="MapDialog.pos")   mm->move(x,y);
+        else if (tokens[0]=="StationDialog.pos")   stm->move(x,y);
         else if (tokens[0]=="EditDialog.pos")  em->move(x,y);
         else if (tokens[0]=="ObjectDialog.pos") objm->move(x,y);
         else if (tokens[0]=="TrajectoryDialog.pos") trajm->move(x,y);
@@ -4213,8 +4330,6 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
           priop.orientation=d_print::ori_portrait;
         else
           priop.orientation=d_print::ori_landscape;
-      } else if (tokens[0]=="STATUSBUTTONS") {
-        showelem= (tokens[1]=="ON");
       } else if (tokens[0]=="AUTOSELECT") {
         autoselect = (tokens[1] == "ON");
       } else if (tokens[0] == "SCROLLWHEELZOOM") {
@@ -4229,7 +4344,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
         for(unsigned int i=2;i<tokens.size();i++)
           fontstr += " " + tokens[i];
         QFont font;
-        if (font.fromString(fontstr.cStr()))
+        if (font.fromString(fontstr.c_str()))
           qApp->setFont(font);
       }
     }

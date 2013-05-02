@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,7 +31,7 @@
 #include "config.h"
 #endif
 
-#include <diVcrossManager.h>
+#include "diVcrossManager.h"
 
 #include <diVcrossOptions.h>
 #include <diVcrossFile.h>
@@ -42,18 +40,20 @@
 #include <set>
 
 #include <diLocalSetupParser.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 
-//#define DEBUGPRINT 1
+#include <boost/foreach.hpp>
+#include <boost/range/adaptor/map.hpp>
+
+#define MILOGGER_CATEGORY "diana.VcrossManager"
+#include <miLogger/miLogging.h>
 
 using namespace::miutil;
 
 VcrossManager::VcrossManager(Controller *co)
 : dataChange(true), timeGraphPos(-1) , timeGraphPosMax(-1), hardcopy(false)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager constructed" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   fieldm= co->getFieldManager(); // set fieldmanager
 
@@ -70,21 +70,16 @@ VcrossManager::VcrossManager(Controller *co)
 
 VcrossManager::~VcrossManager()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager destructor" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   cleanup();
-
-  if (vcopt) delete vcopt;
+  delete vcopt;
 }
 
 
 void VcrossManager::cleanup()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::cleanup" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   plotCrossection.clear();
   masterFile.clear();
@@ -98,49 +93,31 @@ void VcrossManager::cleanup()
   selectedVcFile.clear();
   selectedVcData.clear();
 
-  int n= vcdata.size();
-  for (int i=0; i<n; i++)
-    delete vcdata[i].vcplot;
-
+  BOOST_FOREACH(VcrossData& d, vcdata)
+      delete d.vcplot;
   vcdata.clear();
 
-  map<miString,VcrossFile*>::iterator vf,vfend= vcfiles.end();
-
-  for (vf=vcfiles.begin(); vf!=vfend; vf++) {
-    if (vf->second) {
-      delete vf->second;
-      vf->second= 0;
-    }
+  BOOST_FOREACH(VcrossFile*& f, boost::adaptors::values(vcfiles)) {
+      delete f;
+      f = 0;
   }
 
-  map<miString, VcrossField*>::iterator vfi, vfiend = vcfields.end();
-  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
-    if (vfi->second) {
-      delete vfi->second;
-      vfi->second = 0;
-    }
-  }
+  BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields))
+      delete f;
   vcfields.clear();
-
 }
 
-void VcrossManager::cleanupDynamicCrossSections() {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::cleanupDynamicCrossSections" << endl;
-#endif
-  map<miString, VcrossField*>::iterator vfi, vfiend = vcfields.end();
-  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
-    if (vfi->second) {
-      vfi->second->cleanup();
-    }
-  }
+void VcrossManager::cleanupDynamicCrossSections()
+{
+  METLIBS_LOG_SCOPE();
+  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields))
+      if (f)
+        f->cleanup();
 }
 
 bool VcrossManager::parseSetup()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::parseSetup" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   const miString section1 = "VERTICAL_CROSSECTION_FILES";
 
@@ -149,8 +126,6 @@ bool VcrossManager::parseSetup()
   bool ok= true;
 
   if (SetupParser::getSection(section1,vstr)) {
-
-    set<miString> uniquemodels;
 
     miString model,filename;
     vector<miString> tokens,tokens1,tokens2;
@@ -161,7 +136,7 @@ bool VcrossManager::parseSetup()
       if (tokens.size()==2) {
         tokens1= tokens[0].split("=");
         tokens2= tokens[1].split("=");
-        if (tokens1.size()==2          && tokens2.size()==2) {
+        if (tokens1.size()==2 && tokens2.size()==2) {
 	  if (tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
 	    model= tokens1[1];
 	    filename= tokens2[1];
@@ -180,57 +155,52 @@ bool VcrossManager::parseSetup()
 	}
       }
     }
-
-    vstr.clear();
-
   } else {
     //cerr << "Missing section " << section1 << " in setupfile." << endl;
     //ok= false;
   }
 
   // parse remaining setup sections
-  if (!VcrossPlot::parseSetup()) ok= false;
+  if (!VcrossPlot::parseSetup())
+    ok = false;
 
   return ok;
 }
 
 
-vector< vector<Colour::ColourInfo> > VcrossManager::getMultiColourInfo(int multiNum){
+vector< vector<Colour::ColourInfo> > VcrossManager::getMultiColourInfo(int multiNum)
+{
   return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
 
 void VcrossManager::setCrossection(const miString& crossection)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setCrossection  " << crossection << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   plotCrossection= crossection;
   dataChange= true;
 }
 
-bool VcrossManager::setCrossection(float lat, float lon) {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setCrossection (" << lat << "," << lon << ")" << endl;
-#endif
-  map<miutil::miString, VcrossField*>::iterator vfi;
-  if (vcfields.size() == 0)
+bool VcrossManager::setCrossection(float lat, float lon)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+
+  if (vcfields.empty())
     return false;
-  for (vfi=vcfields.begin(); vfi != vcfields.end(); vfi++) {
-    (*vfi).second->setLatLon(lat, lon);
+  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+    f->setLatLon(lat, lon);
     // Get the new namelist with the crossections
-    nameList = (*vfi).second->getNames();
-    timeList = (*vfi).second->getTimes();
+    nameList = f->getNames();
+    timeList = f->getTimes();
   }
   return true;
 }
 
 void VcrossManager::setTime(const miTime& time)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setTime  " << time << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   plotTime= time;
   dataChange= true;
@@ -239,11 +209,9 @@ void VcrossManager::setTime(const miTime& time)
 
 miString VcrossManager::setCrossection(int step)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setCrossection   step=" << step << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
-  if (nameList.size()==0)
+  if (nameList.empty())
     return "";
 
   int i= 0;
@@ -268,11 +236,10 @@ miString VcrossManager::setCrossection(int step)
 
 miTime VcrossManager::setTime(int step)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setTime   step=" << step << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(step));
 
-  if (timeList.size()==0)
+  if (timeList.empty())
     return miTime::nowTime();
 
   int n= timeList.size();
@@ -294,8 +261,9 @@ miTime VcrossManager::setTime(int step)
 
 
 // start hardcopy
-void VcrossManager::startHardcopy(const printOptions& po){
-  if (hardcopy && hardcopystarted){
+void VcrossManager::startHardcopy(const printOptions& po)
+{
+  if (hardcopy && hardcopystarted) {
     // if hardcopy in progress and same filename: make new page
     if (po.fname == printoptions.fname){
       VcrossPlot::startPSnewpage();
@@ -304,23 +272,23 @@ void VcrossManager::startHardcopy(const printOptions& po){
     // different filename: end current output and start a new
     VcrossPlot::endPSoutput();
   }
-  hardcopy= true;
-  printoptions= po;
-  hardcopystarted= false;
+  hardcopy = true;
+  printoptions = po;
+  hardcopystarted = false;
 }
 
 // end hardcopy plot
-void VcrossManager::endHardcopy(){
-  if (hardcopy) VcrossPlot::endPSoutput();
+void VcrossManager::endHardcopy()
+{
+  if (hardcopy)
+    VcrossPlot::endPSoutput();
   hardcopy= false;
 }
 
 
 bool VcrossManager::plot()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::plot" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (dataChange) {
     preparePlot();
@@ -336,45 +304,41 @@ bool VcrossManager::plot()
 
   // postscript output
   //if (hardcopy) VcrossPlot::startPSoutput(printoptions);
-  if (hardcopy && !hardcopystarted){
+  if (hardcopy && !hardcopystarted) {
     VcrossPlot::startPSoutput(printoptions);
     hardcopystarted= true;
   }
 
-#ifdef DEBUGPRINT
-  cerr << "   plot  c=" << plotCrossection << "  t=" << plotTime << endl;
-#endif
+  METLIBS_LOG_DEBUG("plot  c=" << plotCrossection << "  t=" << plotTime);
 
-  bool plotShaded[2]= { true, false };
+  const bool plotShaded[2] = { true, false };
   int jback= -1;
 
   for (int p=0; p<2; p++) {
     for (int i=0; i<numplot; i++) {
       int j= selectedVcData[i];
       if (j>=0 && selectedPlotShaded[i]==plotShaded[p]) {
-        if (jback<0) jback= j;
+        if (jback<0)
+          jback= j;
         vcdata[j].vcplot->plot(vcopt,selectedFields[i],
             selectedPlotOptions[i]);
       }
     }
   }
 
-  if (jback>=0) vcdata[jback].vcplot->plotBackground(selectedLabel);
+  if (jback>=0)
+    vcdata[jback].vcplot->plotBackground(selectedLabel);
 
-  if (vcopt->pText) VcrossPlot::plotText();
+  if (vcopt->pText)
+    VcrossPlot::plotText();
 
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::plot finished" << endl;
-#endif
   return true;
 }
 
 
 void VcrossManager::preparePlot()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::preparePlot" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int numplot= selectedModels.size();
 
@@ -478,37 +442,29 @@ void VcrossManager::preparePlot()
         (prevdata[0].tgpos>=0 && vcdata[0].tgpos<0))
       VcrossPlot::standardPart();
   }
-
 }
 
 
 vector<miString> VcrossManager::getAllModels()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::getAllModels" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   return modelnames;
 }
 
 
 map<miString,miString> VcrossManager::getAllFieldOptions()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::getAllFieldOptions" << endl;
-#endif
-
+  METLIBS_LOG_SCOPE();
   return VcrossPlot::getAllFieldOptions();
 }
 
 
-vector<miString> VcrossManager::getFieldNames(const miString& model)
+vector<std::string> VcrossManager::getFieldNames(const miString& model)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::getFields  model= " << model << endl;
-  cerr << "filetypes[model]=" << filetypes[model] << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(filetypes[model]));
 
-  vector<miString> empty;
+  const vector<std::string> empty;
 
   if(filetypes[model] == "standard") {
   map<miString,miString>::iterator p= filenames.find(model);
@@ -550,10 +506,9 @@ vector<miString> VcrossManager::getFieldNames(const miString& model)
 
 /***************************************************************************/
 
-void VcrossManager::getCrossections(LocationData& locationdata){
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::getCrossections" << endl;
-#endif
+void VcrossManager::getCrossections(LocationData& locationdata)
+{
+  METLIBS_LOG_SCOPE();
 
   if (masterFile.exists()) {
 
@@ -572,55 +527,41 @@ void VcrossManager::getCrossections(LocationData& locationdata){
         annot+=(" "+usedModels[i]);
 
       vf->second->getMapData(locationdata.elements);
-
-      locationdata.name=         "vcross";
       locationdata.locationType= location_line;
       locationdata.area=         geoArea;
       locationdata.annotation=   annot;
-      locationdata.colour=            vcopt->vcOnMapColour;
-      locationdata.linetype=          vcopt->vcOnMapLinetype;
-      locationdata.linewidth=         vcopt->vcOnMapLinewidth;
-      locationdata.colourSelected=    vcopt->vcSelectedOnMapColour;
-      locationdata.linetypeSelected=  vcopt->vcSelectedOnMapLinetype;
-      locationdata.linewidthSelected= vcopt->vcSelectedOnMapLinewidth;
+      getCrossectionOptions(locationdata);
     }
     else {
       map<miString, VcrossField*>::iterator vfi = vcfields.find(masterFile);
       if (vfi != vcfields.end()) {
-#ifdef DEBUGPRINT
-        cerr << "Found masterFile in vcfields" << endl;
-#endif
+        METLIBS_LOG_DEBUG("Found masterFile in vcfields");
 
         miString annot = "Vertikalsnitt";
         int m = usedModels.size();
         for (int i = 0; i < m; i++)
           annot += (" " + usedModels[i]);
 
-	Projection pgeo;
-	pgeo.setGeographic();
-	Rectangle rgeo(0,0,90,360);
-	Area geoArea(pgeo,rgeo);
+        Projection pgeo;
+        pgeo.setGeographic();
+        Rectangle rgeo(0,0,90,360);
+        Area geoArea(pgeo,rgeo);
 
         vfi->second->getMapData(locationdata.elements);
-        locationdata.name = "vcross";
         locationdata.locationType = location_line;
         locationdata.area = geoArea;
         locationdata.annotation = annot;
-        locationdata.colour = vcopt->vcOnMapColour;
-        locationdata.linetype = vcopt->vcOnMapLinetype;
-        locationdata.linewidth = vcopt->vcOnMapLinewidth;
-        locationdata.colourSelected = vcopt->vcSelectedOnMapColour;
-        locationdata.linetypeSelected = vcopt->vcSelectedOnMapLinetype;
-        locationdata.linewidthSelected = vcopt->vcSelectedOnMapLinewidth;
+        getCrossectionOptions(locationdata);
       }
     }
   }
 
   // remember crossection
-  if (!plotCrossection.empty()) lastCrossection = plotCrossection;
-#ifdef DEBUGPRINT
-  cerr << "lastCrossection: "  << lastCrossection << endl;
-#endif
+  if (!plotCrossection.empty())
+    lastCrossection = plotCrossection;
+
+  METLIBS_LOG_DEBUG("lastCrossection: "  << lastCrossection);
+
   //if it's the first time, plotCrossection is first in list
   if (lastCrossection.empty() && nameList.size()) {
     plotCrossection=nameList[0];
@@ -636,17 +577,13 @@ void VcrossManager::getCrossections(LocationData& locationdata){
     }
     if (!found) plotCrossection.clear();
   }
-#ifdef DEBUGPRINT
-  cerr <<"plotCrossection: " << plotCrossection << endl;
-#endif
 }
 
 /***************************************************************************/
 
-void VcrossManager::getCrossectionOptions(LocationData& locationdata){
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::getCrossections" << endl;
-#endif
+void VcrossManager::getCrossectionOptions(LocationData& locationdata)
+{
+  METLIBS_LOG_SCOPE();
   locationdata.name=              "vcross";
   locationdata.colour=            vcopt->vcOnMapColour;
   locationdata.linetype=          vcopt->vcOnMapLinetype;
@@ -659,9 +596,8 @@ void VcrossManager::getCrossectionOptions(LocationData& locationdata){
 
 void VcrossManager::mainWindowTimeChanged(const miTime& time)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::mainWindowTimeChanged  " << time << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(time));
 
   miTime mainWindowTime = time;
   //change plotTime
@@ -675,15 +611,14 @@ void VcrossManager::mainWindowTimeChanged(const miTime& time)
       itime=i;
     }
   }
-  if (itime>-1) setTime(timeList[itime]);
+  if (itime>-1)
+    setTime(timeList[itime]);
 }
 
 
 bool VcrossManager::setSelection(const vector<miString>& vstr)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setSelection" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   //save plotStrings
   plotStrings = vstr;
@@ -758,9 +693,7 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
 
 bool VcrossManager::setModels()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setModels" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int numplot= selectedModels.size();
 
@@ -880,42 +813,29 @@ bool VcrossManager::setModels()
     modelChange= true;
   }
 
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setModels finish  modelChange="<<modelChange<<endl;
-#endif
-
+  METLIBS_LOG_DEBUG(LOGVAL(modelChange));
   return modelChange;
 }
 
 
 bool VcrossManager::timeGraphOK()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::timeGraphOK" << endl;
-#endif
-
+  METLIBS_LOG_SCOPE();
   return (selectedModels.size()>0);
 }
 
 
 void VcrossManager::disableTimeGraph()
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::disableTimeGraph" << endl;
-#endif
-
+  METLIBS_LOG_SCOPE();
   timeGraphPos= -1;
   dataChange= true;
-
-  //###############  VcrossPlot::standardPart();
 }
 
 
 void VcrossManager::setTimeGraphPos(int plotx, int ploty)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setTimeGraphPos(x,y)" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int numplot= selectedModels.size();
   for (int i=0; i<numplot; i++) {
@@ -927,16 +847,12 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
   }
 
   dataChange= true;
-
-  //###############  VcrossPlot::standardPart();
 }
 
 
 void VcrossManager::setTimeGraphPos(int incr)
 {
-#ifdef DEBUGPRINT
-  cerr << "VcrossManager::setTimeGraphPos(incr)" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int tgp= timeGraphPos;
 
@@ -986,7 +902,6 @@ void VcrossManager::parseQuickMenuStrings( const vector<miutil::miString>& vstr 
 
 vector<miutil::miString> VcrossManager::getQuickMenuStrings()
 {
-
   vector<miString> vstr;
 
   vector<miString> vstrOpt = getOptions()->writeOptions();

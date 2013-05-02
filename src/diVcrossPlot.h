@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,21 +29,21 @@
 #ifndef diVcrossPlot_h
 #define diVcrossPlot_h
 
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <vector>
-#include <map>
-#include <diFontManager.h>
-#include <GL/gl.h>
+#include "diColour.h"
+#include "diFontManager.h"
+#include "diPlotOptions.h"
+#include "diPrintOptions.h"
 
 #include <diField/diGridConverter.h>
-#include <diField/diColour.h>
-#include <diField/diPlotOptions.h>
-#include <diPrintOptions.h>
 #include <diField/diField.h>
 #include <diField/diFieldFunctions.h>
+#include <puTools/miString.h>
+#include <puTools/miTime.h>
 
-using namespace std;
+#include <GL/gl.h>
+
+#include <vector>
+#include <map>
 
 const int numVcrossFunctions= 42;
 
@@ -174,21 +172,21 @@ enum VcrossZoomType {
 /// Verical Crossection computations from setup file
 struct vcFunction {
   VcrossFunction function;
-  vector<miutil::miString> vars;
+  std::vector<miutil::miString> vars;
 };
 
 /// Vertical Crossection plottable fields from setup file
 struct vcField {
   miutil::miString name;
-  vector<miutil::miString> vars;
+  std::vector<miutil::miString> vars;
   VcrossPlotType plotType;
   miutil::miString       plotOpts;
 };
 
 /// Vertical Crossection data contents incl. possible computations
 struct FileContents {
-  vector<miutil::miString> fieldNames;
-  map<miutil::miString,vcFunction> useFunctions;
+  std::vector<std::string> fieldNames;
+  std::map<miutil::miString,vcFunction> useFunctions;
 };
 //----------------------------------------------------
 
@@ -236,10 +234,10 @@ public:
 
   static bool parseSetup();
   static void makeContents(const miutil::miString& fileName,
-			   const vector<int>& iparam, int vcoord);
+			   const std::vector<int>& iparam, int vcoord);
   static void deleteContents(const miutil::miString& fileName);
-  static vector<miutil::miString> getFieldNames(const miutil::miString& fileName);
-  static map<miutil::miString,miutil::miString> getAllFieldOptions();
+  static std::vector<std::string> getFieldNames(const std::string& fileName);
+  static std::map<miutil::miString,miutil::miString> getAllFieldOptions();
   static miutil::miString getFieldOptions(const miutil::miString& fieldname);
 
   static void setPlotWindow(int w, int h);
@@ -270,9 +268,9 @@ public:
   bool plot(VcrossOptions *vcoptions,
 	    const miutil::miString& fieldname,
 	    PlotOptions& poptions);
-  bool plotBackground(const vector<miutil::miString>& labels);
+  bool plotBackground(const std::vector<miutil::miString>& labels);
   void plotFrame();
-  void plotAnnotations(const vector<miutil::miString>& labels);
+  void plotAnnotations(const std::vector<miutil::miString>& labels);
   void plotVerticalMarkerLines();
   void plotMarkerLines();
   void plotVerticalGridLines();
@@ -296,15 +294,15 @@ private:
   FieldFunctions ffunc;     // Container for Field Functions
 
   //----------------------------------------------------
-  static map<miutil::miString,int> vcParName;    // name -> number
-  static map<int,miutil::miString> vcParNumber;  // number -> name
+  static std::map<miutil::miString,int> vcParName;    // name -> number
+  static std::map<int,miutil::miString> vcParNumber;  // number -> name
 
-  static multimap<miutil::miString,vcFunction> vcFunctions;
+  static std::multimap<miutil::miString,vcFunction> vcFunctions;
 
-  static map<miutil::miString,vcField> vcFields;
-  static vector<miutil::miString> vcFieldNames;  // setup/dialog sequence
+  static std::map<miutil::miString,vcField> vcFields;
+  static std::vector<std::string> vcFieldNames;  // setup/dialog sequence
 
-  static map<miutil::miString,FileContents> fileContents;
+  static std::map<miutil::miString,FileContents> fileContents;
   //----------------------------------------------------
 
   static int plotw;
@@ -339,7 +337,7 @@ private:
 
   static bool bottomStencil;
 
-  static vector<VcrossText> vcText;
+  static std::vector<VcrossText> vcText;
 
   //---------------------------------
 
@@ -349,8 +347,8 @@ private:
   miutil::miString crossectionName;
   miutil::miTime   validTime;
   int      forecastHour;
-  vector<miutil::miTime> validTimeSeries;
-  vector<int>    forecastHourSeries;
+  std::vector<miutil::miTime> validTimeSeries;
+  std::vector<int>    forecastHourSeries;
   bool     timeGraph;
 
   int horizontalPosNum;
@@ -361,14 +359,14 @@ private:
   int nTotal;
   int iundef;
 
-  vector<int> idPar1d; //parm number of corresponding entry in cdata1d
-  vector<int> idPar2d; //parm number of corresponding entry in cdata2d
+  std::vector<int> idPar1d; //parm number of corresponding entry in cdata1d
+  std::vector<int> idPar2d; //parm number of corresponding entry in cdata2d
 
-  vector<float*> cdata1d;
-  vector<float*> cdata2d;
+  std::vector<float*> cdata1d;
+  std::vector<float*> cdata2d;
 
-  vector<float> alevel;
-  vector<float> blevel;
+  std::vector<float> alevel;
+  std::vector<float> blevel;
 
   float vrangemin,vrangemax;
   float tgdx,tgdy,horizontalLength;
@@ -385,10 +383,10 @@ private:
   int npp,nzz,npi,nx,ny,nwork;
 
   // plottable 2d parameters (fields), access by name
-  // map<name,cdata2d_index>
-  map<miutil::miString,int> params;
+  // std::map<name,cdata2d_index>
+  std::map<miutil::miString,int> params;
 
-  map<miutil::miString,vcFunction> useFunctions;
+  std::map<miutil::miString,vcFunction> useFunctions;
 
   //----------------------------------
 
@@ -400,15 +398,15 @@ private:
   float xDatamin,xDatamax,yDatamin,yDatamax;
   float pmin,pmax,pimin,pimax;
 
-  vector<float> vlimitmin;
-  vector<float> vlimitmax;
+  std::vector<float> vlimitmin;
+  std::vector<float> vlimitmax;
 
   //----------------------------------
 
   float refPosition;
-  vector<miutil::miString> markName;
-  vector<float>    markNamePosMin;
-  vector<float>    markNamePosMax;
+  std::vector<miutil::miString> markName;
+  std::vector<float>    markNamePosMin;
+  std::vector<float>    markNamePosMax;
 
   //----------------------------------
 
@@ -421,7 +419,7 @@ private:
 	        PlotOptions& poptions);
   int findParam(const miutil::miString& var);
   int computer(const miutil::miString& var, VcrossFunction vcfunc,
-	       vector<int> parloc);
+	       std::vector<int> parloc);
 
   bool plotWind(float *u, float *v, float *x, float *y,
 		int *part, float *ylim,
@@ -429,7 +427,7 @@ private:
 		PlotOptions& poptions);
   bool vector2fixedLevel(float *u, float *v, float *x, float *y,
 			 int ix1, int ix2, float *ylim,
-			 int hstep, const vector<float> yfixed,
+			 int hstep, const std::vector<float> yfixed,
 			 int &kf1, int &kf2,
 			 float *uint, float *vint, float *xint, float *yint);
   bool vcMovement(float *vt, float *om, float *p, float *x, float *y,
@@ -442,14 +440,12 @@ private:
   void replaceUndefinedValues(int nx, int ny, float *f,
 			      bool fillAll);
   void xyclip(int npos, float *x, float *y, float xylim[4]);
-  vector <miutil::miString> split(const miutil::miString,const char,const char);
+  std::vector <miutil::miString> split(const miutil::miString,const char,const char);
   void plotArrow(const float& x0,
 		 const float& y0,
 		 const float& dx,
 		 const float& dy,
 		 bool thinArrows);
-
-
 };
 
 #endif

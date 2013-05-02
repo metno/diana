@@ -146,7 +146,7 @@ TimeControl::TimeControl(QWidget* parent)
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
     miutil::miString text(f,2);
-    timeoutBox->addItem(text.cStr());
+    timeoutBox->addItem(text.c_str());
   }
 
   connect(timeoutBox, SIGNAL( highlighted(int)), SLOT(timeoutSlot(int)));
@@ -261,7 +261,7 @@ void TimeControl::StartValue( int v ){
   startSlider->setValue( v );
   if ( v > stopSlider->value() )
     StopValue(v);
-  startTimeLabel->setText(m_times[v].isoTime().cStr());
+  startTimeLabel->setText(m_times[v].isoTime().c_str());
 
   return;
 }
@@ -270,14 +270,14 @@ void TimeControl::StopValue( int v ){
   stopSlider->setValue( v );
   if ( v < startSlider->value())
     StartValue(v);
-  stopTimeLabel->setText(m_times[v].isoTime().cStr());
+  stopTimeLabel->setText(m_times[v].isoTime().c_str());
   return;
 }
 
 void TimeControl::OffsetValue( int v ){
   offsetSlider->setValue( v );
   int hour = miutil::miTime::hourDiff(m_times[v], m_times[0]);
-  offsetTimeLabel->setText(miutil::miString(hour).cStr());
+  offsetTimeLabel->setText(QString::number(hour));
   return;
 }
 
@@ -340,7 +340,7 @@ void TimeControl::useData(miutil::miString type, int id){
   //new dataname
   external_id[id]=type;
   dataname.push_back(type);
-  dataBox->addItem(type.cStr());
+  dataBox->addItem(type.c_str());
   dataBox->setCurrentIndex(dataBox->count()-1);
   emit data(type);
 
@@ -358,7 +358,7 @@ vector<miutil::miString> TimeControl::deleteType(int id)
   vector<miutil::miString> type;
   miutil::miString currentDataname;
   if (dataBox->currentIndex() >=0) {
-    dataname[dataBox->currentIndex()];
+    currentDataname = dataname[dataBox->currentIndex()];
   }
 
   for(;q!=qend;q++){
@@ -374,11 +374,11 @@ vector<miutil::miString> TimeControl::deleteType(int id)
       dataname.erase(p);
       dataBox->removeItem(i);
       if (*p == currentDataname) {
-	currentDataname = "";
+        currentDataname = "";
       }
       if(id>-1){  //remove id from external_id
-	external_id.erase(q);
-	break;
+        external_id.erase(q);
+        break;
       }
     }
   }

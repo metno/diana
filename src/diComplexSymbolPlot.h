@@ -33,6 +33,7 @@
 
 #include <diPlot.h>
 #include <set>
+#include <vector>
 
 /**
 
@@ -62,15 +63,15 @@ public:
   /// reads complex text to be plotted from a string (written by readComplexText)
   void readComplexText(miutil::miString complexString);
   /// gets miutil::miString vectors with symboltext and xText for colored text
-  void getComplexColoredText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getComplexColoredText(std::vector<miutil::miString>& symbolText, std::vector<miutil::miString> & xText);
   /// gets miutil::miString vectors with multiline symboltext
-  void getMultilineText(vector <miutil::miString> & symbolText);
+  void getMultilineText(std::vector<miutil::miString> & symbolText);
   /// gets miutil::miString vectors with symboltext and xText
-  void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getComplexText(std::vector<miutil::miString> & symbolText, std::vector<miutil::miString> & xText);
   /// change multiline text to be drawn
-  void changeMultilineText(const vector <miutil::miString> & symbolText);
+  void changeMultilineText(const std::vector<miutil::miString> & symbolText);
   /// change text to be drawn
-  void changeComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeComplexText(const std::vector<miutil::miString> & symbolText, const std::vector<miutil::miString> & xText);
   /// writes complex text to a string (read by readComplexText)
   miutil::miString writeComplexText();
   /// get the the size and x,y of center of bounding box
@@ -83,17 +84,17 @@ public:
   /// returns true if symbol is edit text or textbox
   static bool isTextEdit(int drawIndex);
   /// gets current complex text (used in text dialog)
-  static void getCurrentComplexText(vector <miutil::miString> & symbolText,
-			     vector <miutil::miString> & xText);
+  static void getCurrentComplexText(std::vector<miutil::miString> & symbolText,
+			     std::vector<miutil::miString> & xText);
   /// sets current complex text (used in text dialog)
-  static void setCurrentComplexText(const vector <miutil::miString> & symbolText,
-			     const vector <miutil::miString> & xText);
+  static void setCurrentComplexText(const std::vector<miutil::miString> & symbolText,
+			     const std::vector<miutil::miString> & xText);
   /// Initial values of current strings (used in text dialog)
   static void initCurrentStrings(int drawIndex);
   /// sets list of complex texts (used in text dialog)
   static void initComplexList();
   /// get list of complex texts (used in text dialog)
-  static set<miutil::miString> getComplexList();
+  static std::set<miutil::miString> getComplexList();
 
 
 private:
@@ -143,11 +144,11 @@ private:
   void drawSigNumber(float x,float y);
 
   //text used in new complex symbols
-  static vector <miutil::miString> currentSymbolStrings;
-  static vector <miutil::miString> currentXStrings; //new sigstrings  (x/x)
-  static set <miutil::miString> clist;
-  vector <miutil::miString> symbolStrings; //text used in this complex symbols
-  vector <miutil::miString> xstrings; // sigstrings  (x/x)
+  static std::vector <miutil::miString> currentSymbolStrings;
+  static std::vector <miutil::miString> currentXStrings; //new sigstrings  (x/x)
+  static std::set <miutil::miString> clist;
+  std::vector <miutil::miString> symbolStrings; //text used in this complex symbols
+  std::vector <miutil::miString> xstrings; // sigstrings  (x/x)
   bool xvisible; //used when editing strings
   unsigned int nstringsvisible; //used when editing strings
   int symbolSizeToPlot;

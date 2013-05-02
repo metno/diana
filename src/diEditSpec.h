@@ -84,7 +84,7 @@ struct EditProductId {
   miutil::miString name;                    ///< VA,VNN etc..
   bool sendable;                    ///< 'send' enabled
   bool combinable;                  ///< may be used to combine ids
-  vector<miutil::miString> combineids;
+  std::vector<miutil::miString> combineids;
 };
 
   /**
@@ -101,7 +101,7 @@ struct EditProductField {
   miutil::miString filenamePart;            ///< "ANAmslp"
   int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
-  vector<miutil::miString> editTools;       ///< standard/classes/numbers
+  std::vector<miutil::miString> editTools;       ///< standard/classes/numbers
   miutil::miString vcoord_cdm;       ///< vertical coordinat -  cdm syntax
   miutil::miString vlevel_cdm;       ///< vertical level - cdm syntax
   miutil::miString unit_cdm;             ///< parameter unit (hectopascal)
@@ -115,23 +115,23 @@ struct EditProduct {
   // gui <--> controller
   miutil::miString name;                    ///< productname
   miutil::miString db_name;                 ///< productname in database
-  vector<miutil::miString> drawtools;       ///< tools to use
-  vector<EditProductId> pids;       ///< legal product-id's
-  vector <savedProduct> objectprods;///< products to fetch objects from
-  vector<EditProductField> fields;  ///< required fields
+  std::vector<miutil::miString> drawtools;       ///< tools to use
+  std::vector<EditProductId> pids;       ///< legal product-id's
+  std::vector <savedProduct> objectprods;///< products to fetch objects from
+  std::vector<EditProductField> fields;  ///< required fields
   editDBinfo dbi;                   ///< Database info
   // only used by EditManager
   miutil::miString savedir;                 ///< directory for saved product
-  vector<miutil::miString> inputdirs;       ///< savedir is always the first ???
+  std::vector<miutil::miString> inputdirs;       ///< savedir is always the first ???
   miutil::miString inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
   miutil::miString inputFieldConfig;        ///< fimex xml-config
-  vector<miutil::miString> inputproducts;   ///< products for input objects/fields
-  vector<miutil::miString> combinedirs;     ///< directory for combined product
+  std::vector<miutil::miString> inputproducts;   ///< products for input objects/fields
+  std::vector<miutil::miString> combinedirs;     ///< directory for combined product
   miutil::miString combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
   miutil::miString objectsFilenamePart;     ///< "ANAdraw"
   miutil::miString commentFilenamePart;     ///< "ANAcomm"
-  vector <miutil::miString> labels;         ///< annotations
-  vector <miutil::miString> OKstrings;      ///< define map background and area and other OKStrings
+  std::vector <miutil::miString> labels;         ///< annotations
+  std::vector <miutil::miString> OKstrings;      ///< define map background and area and other OKStrings
   miutil::miString commandFilename;         ///< file to read okstrings...
   int   producer, gridnum;          ///< common field idents
   Area  area;                       ///< area/projection if gridnum>0 !

@@ -34,6 +34,7 @@
 #endif
 
 #include <diCommandParser.h>
+#include <iostream>
 
 using namespace::miutil;
 

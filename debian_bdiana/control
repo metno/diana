@@ -1,0 +1,60 @@
+Source: diana
+Section: science
+Priority: extra
+Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
+Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
+ qt4-qmake-headless, libqt4-headless-dev, libemos-dev,
+ metlibs-difield-dev, metlibs-dimitiff-dev, metlibs-milib-dev,
+ metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
+ metlibs-pudatatypes-dev, metlibs-robs-dev,
+ libboost-date-time-dev, libboost-regex-dev,
+ libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
+ libavformat-dev
+Build-Conflicts: autoconf2.13, automake1.4
+Standards-Version: 3.9.2
+
+Package: bdiana-@PVERSION_MAJOR_DOT_MINOR@
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, diana-@PVERSION_MAJOR_DOT_MINOR@-common
+Conflicts: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
+Replaces: diana-headless-@PVERSION_MAJOR_DOT_MINOR@
+Recommends: dianamaps, dianaconfig-@PVERSION_MAJOR_DOT_MINOR@, metno-bufrtables
+Description: Meteorological visualisation tool
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL 
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ This package provides a version of Diana for batched generation of
+ products.
+
+Package: libmetno-bdiana-perl
+Architecture: any
+Section: perl
+Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends},
+ diana-@PVERSION_MAJOR_DOT_MINOR@-common
+Description: Meteorological visualisation tool, perl binding
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ This package provides a version of Diana for batched generation of
+ products via perl.
+
+
+Package: bdiana-dev
+Architecture: any
+Section: libdevel
+Depends: bdiana-@PVERSION_MAJOR_DOT_MINOR@, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: diana-headless-dev
+Replaces: diana-headless-dev
+Description: Meteorological visualisation tool
+ Diana is the core visualisation tool from met.no (Norwegian
+ Meteorological Institute) and is distributed under the GPL
+ license. See gpl.txt for details concerning the GPL license.
+ Diana is a graphical viewer and editor developed for use with
+ meteorological and oceanographic data.
+ This package provides development files required to build
+ additional libraries and tools against a version of Diana for
+ batched generation of products.

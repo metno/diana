@@ -33,13 +33,14 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <diTrajectoryPlot.h>
-#include <sstream>
-#include <math.h>
-#include <stdio.h>
+#include "diTrajectoryPlot.h"
 #include <diField/diField.h>
 #include <GL/gl.h>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 using namespace std; using namespace miutil;
 
@@ -952,7 +953,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const miString& filename)
   //output
   ofstream fs;
 
-  fs.open(filename.cStr());
+  fs.open(filename.c_str());
 
   if(!fs){
     cerr << "ERROR  printTrajectoryPositions: can't open file: "

@@ -33,15 +33,16 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <sstream>
-#include <map>
+#include "diObsBufr.h"
+#include "diObsData.h"
+#include "diVprofPlot.h"
 #include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <diObsData.h>
-#include <diVprofPlot.h>
-#include <diObsBufr.h>
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 using namespace std;
 using namespace miutil;
@@ -64,7 +65,7 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
   // open for read
   int len_bufr_file = bufr_file.length();
   int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.cStr(), bufr_access.cStr(), &iret, len_bufr_file,
+  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
       len_bufr_access);
 
   if (iret != 0) {
@@ -120,7 +121,7 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   // open for read
   int len_bufr_file = bufr_file.length();
   int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.cStr(), bufr_access.cStr(), &iret, len_bufr_file,
+  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
       len_bufr_access);
   if (iret != 0) {
     cerr << "PBOPEN failed for " << bufr_file << "   iret=" << iret << endl;
@@ -209,12 +210,12 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
   //if station(no)
   vector<miString> token = station.split("(");
   if (token.size() == 2)
-    index = atoi(token[1].cStr());
+    index = atoi(token[1].c_str());
 
   strStation = token[0];
 
   if (token[0].isInt()) {
-    int ii = atoi(station.cStr());
+    int ii = atoi(station.c_str());
     izone = ii / 1000;
     istation = ii - izone * 1000;
   }
@@ -386,6 +387,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   1002  WMO STATION NUMBER
     case 1002:
       wmoStation = int(values[j]);
+      d.fdata["wmonumber"] = float(wmoStation);
       wmoNumber = true;
       break;
 
@@ -1035,6 +1037,10 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         d.fdata["TE"] = values[j];
       break;
 
+    case 25053:
+      if (values[j] < bufrMissing)
+        d.fdata["quality"] = values[j];
+      break;
     }
   }
 
@@ -1083,7 +1089,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   int hour = 0;
   int minute = 0;
   miString station;
-  bool wmoNumber = true;
+  bool wmoNumber = false;
   int nn = 0; //what is nn used for??
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {

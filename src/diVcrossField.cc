@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diVcrossField.cc 410 2008-03-26 15:04:41Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,43 +31,45 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <vector>
-#include <set>
-#include <math.h>
-#include <diVcrossField.h>
-#include <diVcrossPlot.h>
+#include "diVcrossField.h"
+#include "diVcrossPlot.h"
+#include "diLocationPlot.h"
 
-#include <math.h>
+#include <diField/diFieldManager.h>
+#include <puDatatypes/miCoordinates.h>
+
+#include <cmath>
+#include <set>
+
+#define MILOGGER_CATEGORY "diana.VcrossField"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 
-//#define DEBUGPRINT 1
+namespace /* anonymous */ {
+const int VCOORD_HYBRID = 10;
+const int VCOORD_OTHER = 1;
+} // namespace anonymous
 
-// Default constructor
-VcrossField::VcrossField(const miutil::miString& modelname, FieldManager* fieldm)
+VcrossField::VcrossField(const std::string& modelname, FieldManager* fieldm)
     : modelName(modelname), fieldManager(fieldm), lastVcross(-1), lastTgpos(-1),
     lastVcrossPlot(0)
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::Constructor" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 }
 
 
-// Destructor
-VcrossField::~VcrossField() {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::Destructor" << endl;
-#endif
+VcrossField::~VcrossField()
+{
+  METLIBS_LOG_SCOPE();
   cleanup();
 }
 
 void VcrossField::cleanup()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::cleanup() modelName= " << modelName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(modelName));
+
   names.clear();
   crossSections.clear();
   startLatitude=stopLatitude=startLongitude=stopLongitude=-9999.0;
@@ -80,15 +80,14 @@ void VcrossField::cleanup()
 /*
  * Clear the active timegraph
  */
-void VcrossField::cleanupTGCache() {
-#ifdef DEBUGPRINT
-  cerr << "VcrossField::cleanupTGCache()" << endl;
-#endif
+void VcrossField::cleanupTGCache()
+{
+  METLIBS_LOG_SCOPE();
+
   // Clear timeGraph
-  if (lastVcrossPlot) {
-    delete lastVcrossPlot;
-  }
+  delete lastVcrossPlot;
   lastVcrossPlot = 0;
+
   if (lastVcrossData.size()) {
     for (size_t i=0;i<lastVcrossData.size();i++) {
       delete[] lastVcrossData[i];
@@ -104,14 +103,12 @@ void VcrossField::cleanupTGCache() {
 /*
  * Clear the active crossections
  */
-void VcrossField::cleanupCache() {
-#ifdef DEBUGPRINT
-  cerr << "VcrossField::cleanupCache()" << endl;
-#endif
+void VcrossField::cleanupCache()
+{
+  METLIBS_LOG_SCOPE();
 
   for (size_t i = 0; i < VcrossPlotVector.size(); i++)
-    if (VcrossPlotVector[i])
-      delete VcrossPlotVector[i];
+    delete VcrossPlotVector[i];
   VcrossPlotVector.clear();
 
   map<int, vector<float*> >::iterator vd, vdend = VcrossDataMap.end();
@@ -126,65 +123,55 @@ void VcrossField::cleanupCache() {
 
 bool VcrossField::update()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::update() modelName= " << modelName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(modelName));
 
-  bool ok= true;
-  return ok;
+  return true;
 }
 
 /*
  * Get parameters from field source
  */
-bool VcrossField::getInventory() {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::getInventory modelName= " << modelName << endl;
-#endif
+bool VcrossField::getInventory()
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(modelName));
 
   // Get parameters
-  bool inventory = fieldManager->invVCross(modelName, validTime, forecastHour,params);
-
-  // If false return
-  if(!inventory)
+  if (not fieldManager->invVCross(modelName, validTime, forecastHour, params))
     return false;
 
   // Set dynamic as the choosen crossection
   names.push_back("Dynamic");
 
-  VcrossPlot *vcp= 0;
-  vcp = new VcrossPlot();
-  map<miutil::miString,int>::iterator pn, pnend= vcp->vcParName.end();
+  const std::map<miutil::miString,int>::const_iterator pnend = VcrossPlot::vcParName.end();
   vector<int> iparam;
-  int vcoord = 10;
+  int vcoord = VCOORD_HYBRID;
 
   // For every parameter, check if it is specified in the setup file
   for (unsigned int i=0;i<params.size();i++) {
-    pn= vcp->vcParName.find(params[i]);
-    if(pn!=pnend) {
-#ifdef DEBUGPRINT
-      cerr << "Parameter " << params[i] << "("<<pn->second<<") defined in setup" << endl;
-#endif
+    const map<miutil::miString,int>::const_iterator pn = VcrossPlot::vcParName.find(params[i]);
+    if (pn != pnend) {
+      METLIBS_LOG_DEBUG("Parameter " << params[i] << "("<<pn->second<<") defined in setup");
       iparam.push_back(pn->second);
     } else {
-#ifdef DEBUGPRINT
-      cerr << "Parameter " << params[i] << " not defined in setup" << endl;
-#endif
+      METLIBS_LOG_DEBUG("Parameter " << params[i] << " not defined in setup");
       params.erase(params.begin()+i);
       i--;
     }
   }
-  delete vcp;
 
   // Create the Vcross contents
-  VcrossPlot::makeContents(modelName,iparam,vcoord);
+  VcrossPlot::makeContents(modelName, iparam, vcoord);
 
 #ifdef DEBUGPRINT
-  cerr << "params: ";
-  for(int i=0;i<params.size();i++) {
-    cerr << " " << params[i];
+  { std::ostringstream p;
+    p << "params: ";
+    for(int i=0;i<params.size();i++) {
+      p << " " << params[i];
+    }
+    METLIBS_LOG_DEBUG(p);
   }
-  cerr << endl;
 #endif
 
   // Put some special parameters (see diVcrossPlot.cc, prepareData for description)
@@ -208,14 +195,10 @@ bool VcrossField::getInventory() {
 }
 
 
-vector<miutil::miString> VcrossField::getFieldNames()
+vector<std::string> VcrossField::getFieldNames()
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::getFieldNames" << endl;
-#endif
-
+  METLIBS_LOG_SCOPE();
   update();
-
   return VcrossPlot::getFieldNames(modelName);
 }
 
@@ -224,10 +207,11 @@ vector<miutil::miString> VcrossField::getFieldNames()
  * The first time startL{atitude,ongitude} is set and the second
  * time stopL{atitude,ongitude}.
  */
-bool VcrossField::setLatLon(float lat,float lon) {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::setLatLon(" << lat << "," << lon << ")" << endl;
-#endif
+bool VcrossField::setLatLon(float lat, float lon)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+
   if ((startLatitude>-9999) && (startLongitude>-9999) && (stopLatitude<=-9999) && (stopLongitude<=-9999)) {
     // If start already set, compute the crossection
     stopLatitude = lat;
@@ -315,9 +299,7 @@ bool VcrossField::setLatLon(float lat,float lon) {
  */
 void VcrossField::getMapData(vector<LocationElement>& elements)
 {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::getMapData" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   int nelem= elements.size();
   for(size_t i=0;i<crossSections.size();i++) {
@@ -336,26 +318,31 @@ void VcrossField::getMapData(vector<LocationElement>& elements)
 /*
  * Get a crossection
  */
-VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
-    const miutil::miTime& time, int tgpos) {
-#ifdef DEBUGPRINT
-  cerr << "++ VcrossField::getCrossection(" << name << "," <<
-         time.format("%Y%m%d%H%M%S") << "," << tgpos << ")" << endl;
-#endif
-  int vcross=-1;
-  // Find crossection
-  for(size_t i=0;i<crossSections.size();i++) {
-    if(name == crossSections[i].name)
-      vcross = i;
+VcrossPlot* VcrossField::getCrossection(const std::string& name,
+    const miutil::miTime& time, int tgpos)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(name) << " time=" << time.format("%Y%m%d%H%M%S") << LOGVAL(tgpos));
+
+  if (crossSections.empty()) {
+    METLIBS_LOG_DEBUG("no crossections, no plot");
+    return 0;
   }
 
-  VcrossPlot *vcp= 0;
-  // Return if something is wrong
-  if(crossSections.size() == 0 || int(crossSections.size()) < vcross || vcross == -1)
-    return vcp;
-  if(crossSections[vcross].xpos.size() <= 1) return vcp;
-  vcp = new VcrossPlot();
+  int vcross=-1;
+  // Find crossection
+  for (size_t i=0;i<crossSections.size();i++) {
+    if (name == crossSections[i].name)
+      vcross = i;
+  }
+  METLIBS_LOG_DEBUG(LOGVAL(vcross));
+  if (vcross < 0)
+    return 0;
+  METLIBS_LOG_DEBUG(LOGVAL(crossSections[vcross].xpos.size()));
+  if (crossSections[vcross].xpos.size() <= 1)
+    return 0;
 
+  VcrossPlot *vcp = new VcrossPlot();
   vcp->modelName = modelName;
   vcp->crossectionName = modelName + name;
 
@@ -368,9 +355,6 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   // Cleanup cache
   if(tgpos < 0) {
     if(lastVcrossTime != time) {
-#ifdef DEBUGPRINT
-      cerr << "Cleaning up cache" << endl;
-#endif
       cleanupCache();
       for(size_t i=0;i<crossSections.size();i++)
         VcrossPlotVector.push_back(new VcrossPlot());
@@ -378,9 +362,6 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
     }
   } else {
     if(lastTgpos != tgpos && lastVcross != vcross) {
-#ifdef DEBUGPRINT
-      cerr << "Cleaning up TGCache" << endl;
-#endif
       cleanupTGCache();
     }
   }
@@ -389,10 +370,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   if(tgpos < 0) {
     // Check if crossection is cached (same time)
     if(VcrossDataMap[vcross].size() > 0) {
-  #ifdef DEBUGPRINT
-      cerr << "Using cached copy for " << crossSections[vcross].name <<
-      " time: " <<time.isoTime() << endl;
-  #endif
+      METLIBS_LOG_DEBUG("Using cached copy for " << crossSections[vcross].name << " time: " <<time.isoTime());
       vcp->alevel = VcrossPlotVector[vcross]->alevel;
       vcp->blevel = VcrossPlotVector[vcross]->blevel;
       vcp->nPoint = VcrossPlotVector[vcross]->nPoint;
@@ -424,23 +402,24 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
         }
       }
     } else {
-      // Get crossectiondata from diField (not cached)
+      METLIBS_LOG_DEBUG("fetching crossection data from diFieldManager (not cached)");
+      vector< boost::shared_array<float> > crossDataS;
       bool gotCrossection = fieldManager->makeVCross(modelName,time,
           crossSections[vcross].ypos,crossSections[vcross].xpos,params,
-          vcp->alevel,vcp->blevel,vcp->nPoint,crossData,multiLevel,vcp->iundef);
+          vcp->alevel,vcp->blevel,crossDataS,multiLevel,vcp->iundef);
 
-      if(!gotCrossection) {
+      if (not gotCrossection) {
+        METLIBS_LOG_DEBUG("fetch failed, no plot");
         delete vcp;
-        vcp= 0;
-        return vcp;
+        return 0;
       }
 
       vcp->numLev = vcp->alevel.size();
       vcp->horizontalPosNum = vcp->nPoint;
       if (vcp->blevel.size())
-    	vcp->vcoord = 10;
+        vcp->vcoord = VCOORD_HYBRID;
       else
-    	vcp->vcoord = 1;
+        vcp->vcoord = VCOORD_OTHER;
       vcp->nTotal = (vcp->nPoint * vcp->numLev);
       vcp->validTime = miutil::miTime(time);
       vcp->forecastHour = 0;
@@ -448,6 +427,8 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       vcp->timeGraph = false;
       vcp->vrangemin = 50;
       vcp->vrangemax = 1000;
+
+      METLIBS_LOG_DEBUG(LOGVAL(vcp->nPoint) << LOGVAL(vcp->nTotal));
 
       if(int(VcrossPlotVector.size()) < (vcross+1))
         VcrossPlotVector.push_back(new VcrossPlot());
@@ -467,29 +448,63 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
       VcrossPlotVector[vcross]->vrangemax = vcp->vrangemax;
       VcrossPlotVector[vcross]->iundef = vcp->iundef;
 
-      for(size_t i=0;i<crossData.size();i++) {
+      for(size_t i=0;i<crossDataS.size();i++) {
         VcrossMultiLevelMap[vcross].push_back(multiLevel[i]);
-        if(VcrossMultiLevelMap[vcross][i]) {
-          float* data = new float[VcrossPlotVector[vcross]->nPoint*VcrossPlotVector[vcross]->numLev];
-          for(int j=0;j<(VcrossPlotVector[vcross]->nPoint*VcrossPlotVector[vcross]->numLev);j++) {
-            data[j] = crossData[i][j];
+        const int ndata = multiLevel[i] ? vcp->nTotal : vcp->nPoint;
+        METLIBS_LOG_DEBUG(LOGVAL(params[i]) << LOGVAL(multiLevel[i]) << LOGVAL(ndata));
+          
+        float* data = new float[ndata];
+        const float dxy = 10000;
+        if (crossDataS[i]) {
+          METLIBS_LOG_DEBUG("values from crossDataS");
+          std::copy(crossDataS[i].get(), crossDataS[i].get() + ndata, data);
+        } else if ((params[i] == "-1001" or params[i] == "-1002" or params[i] == "-1003") and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake x/y/s grid data");
+          for(int j=0; j<ndata; j += 1)
+            data[j] = 0;//dxy*j;
+        } else if (params[i] == "-1005" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("copying lat data");
+          std::copy(crossSections[vcross].ypos.begin(), crossSections[vcross].ypos.end(), data);
+        } else if (params[i] == "-1006" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("copying lon data");
+          std::copy(crossSections[vcross].xpos.begin(), crossSections[vcross].xpos.end(), data);
+        } else if (params[i] == "-1007" and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake dx data");
+          const std::vector<float>& lons = crossSections[vcross].xpos, &lats = crossSections[vcross].ypos;
+          const size_t nPoint = lons.size();
+          if (nPoint >= 2) {
+            data[0] = 0;
+            miCoordinates c0(lons[0], lats[0]);
+            for (size_t c=1; c<nPoint; ++c) {
+              const miCoordinates c1(lons[c], lats[c]);
+              data[c] = c0.distanceTo(c1);
+              c0 = c1;
+            }
           }
-          VcrossDataMap[vcross].push_back(data);
+        } else if ((params[i] == "-1008" or params[i] == "-1009") and not multiLevel[i]) {
+          METLIBS_LOG_DEBUG("fake rot data");
+          std::fill(data, data+ndata, std::sqrt(2)/2);
         } else {
-          float* data = new float[VcrossPlotVector[vcross]->nPoint];
-          for(int j=0;j<VcrossPlotVector[vcross]->nPoint;j++) {
-            data[j] = crossData[i][j];
-          }
-          VcrossDataMap[vcross].push_back(data);
+          METLIBS_LOG_DEBUG("no crossdata for '" << params[i] << "', using 0s");
+          std::fill(data, data+ndata, 0);
+        }
+        VcrossDataMap[vcross].push_back(data);
+
+        // FIXME this copy is only to have something in crossdata (instead of crossDataS)
+        float* cdata = new float[ndata];
+        std::copy(data, data+ndata, cdata);
+        crossData.push_back(cdata);
+
+        { std::ostringstream debug;
+          std::copy(data, data+std::min(10, ndata), std::ostream_iterator<float>(debug, " << "));
+          METLIBS_LOG_DEBUG(LOGVAL(params[i]) << " values=" << debug.str());
         }
       }
     }
   } else {
     if(lastVcross == vcross && tgpos == lastTgpos) {
       // Use cached timeGraph (only used to be able to change parameters)
-  #ifdef DEBUGPRINT
-      cerr << "Using cached timeGraph for " << crossSections[vcross].name << "," << tgpos << endl;
-  #endif
+      METLIBS_LOG_DEBUG("Using cached timeGraph for " << crossSections[vcross].name << "," << tgpos);
       vcp->alevel = lastVcrossPlot->alevel;
       vcp->blevel = lastVcrossPlot->blevel;
       vcp->nPoint = lastVcrossPlot->nPoint;
@@ -521,9 +536,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
         }
       }
     } else {
-  #ifdef DEBUGPRINT
-      cerr << "Using noncached timeGraph for " << crossSections[vcross].name << "," << tgpos << endl;
-  #endif
+      METLIBS_LOG_DEBUG("Using noncached timeGraph for " << crossSections[vcross].name << "," << tgpos);
       // No cached timeGraph
       vector<float> xpos;
       vector<float> ypos;
@@ -544,16 +557,15 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
           vcp->nPoint,crossData,multiLevel,vcp->iundef);
       if(!gotCrossection) {
         delete vcp;
-        vcp= 0;
-        return vcp;
+        return 0;
       }
       vcp->numLev = vcp->alevel.size();
       vcp->nTotal = vcp->nPoint*vcp->numLev;
       vcp->horizontalPosNum = forecastHours.size();
       if (vcp->blevel.size())
-    	vcp->vcoord = 10;
+        vcp->vcoord = VCOORD_HYBRID;
       else
-    	vcp->vcoord = 1;
+        vcp->vcoord = VCOORD_OTHER;
       vcp->validTimeSeries = validTimes;
       vcp->forecastHourSeries = forecastHours;
       vcp->refPosition=0.;
@@ -627,7 +639,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   // Insert data into VcrossPlot
   map<miutil::miString, int>::iterator pn, pnend= vcp->vcParName.end();
   for(size_t i=0;i<params.size();i++) {
-    int param = params[i].toInt(0);
+    int param = miutil::to_int(params[i],0);
     if(param < 0) {
       if(multiLevel[i])
         vcp->addPar2d(param,crossData[i]);
@@ -641,9 +653,7 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
         else
           vcp->addPar1d(pn->second,crossData[i]);
       } else {
-#ifdef DEBUGPRINT
-        cerr << "Parameter " << params[i] << " not defined in setup" << endl;
-#endif
+        METLIBS_LOG_DEBUG("Parameter " << params[i] << " not defined in setup");
       }
     }
   }
@@ -651,25 +661,29 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
   /* Compute max/min mslp
    *(done every time, could be put in vector like in diVcrossFile.cc)
    */
-  int psurf = 0.0;
+  int psurf = 0;
   for(size_t i=0;i<params.size();i++)
     if(params[i] == "psurf")
       psurf=i;
+  METLIBS_LOG_DEBUG(LOGVAL(psurf) << LOGVAL(vcp->vcoord));
   float pressure=50;
   for(size_t i=0;i<vcp->alevel.size();i++) {
     for(int j=0;j<vcp->nPoint;j++) {
       if(crossData[psurf][j] < fieldUndef) {
-    	if (vcp->vcoord == 1)
-    	  pressure=vcp->alevel[i];
+        if (vcp->vcoord == VCOORD_OTHER)
+          pressure=vcp->alevel[i];
     	else
           pressure=vcp->alevel[i]+vcp->blevel[i]*crossData[psurf][j];
       }
-      if(pressure>vcp->vrangemax)
-        vcp->vrangemax=pressure;
-      if(pressure<vcp->vrangemin)
-        vcp->vrangemin=pressure;
+      if (pressure>0.1 and pressure < 1200) {
+        if(pressure>vcp->vrangemax)
+          vcp->vrangemax=pressure;
+        if(pressure<vcp->vrangemin)
+          vcp->vrangemin=pressure;
+      }
     }
   }
+  METLIBS_LOG_DEBUG(LOGVAL(vcp->vrangemin) << LOGVAL(vcp->vrangemax));
 
 #ifdef DEBUGPRINT
   cerr << "vcp->nPoint: " << vcp->nPoint << endl;
@@ -697,8 +711,5 @@ VcrossPlot* VcrossField::getCrossection(const miutil::miString& name,
     delete vcp;
     vcp= 0;
   }
-#ifdef DEBUGPRINT
-  cerr << "VcrossField::getCrossection done!" << endl;
-#endif
   return vcp;
 }

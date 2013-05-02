@@ -38,8 +38,8 @@
 #include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diCommandParser.h>
-#include <diField/diColourShading.h>
-#include <diField/diPattern.h>
+#include <diColourShading.h>
+#include <diPattern.h>
 
 using namespace std;
 
@@ -140,7 +140,7 @@ private slots:
 signals:
   void VcrossDialogApply(bool modelChange);
   void VcrossDialogHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
   void emitVcrossTimes( vector<miutil::miTime> );
 
 private:
@@ -151,7 +151,7 @@ private:
   bool m_advanced;
 
   vector<miutil::miString> models;  // all models
-  vector<miutil::miString> fields;  // for current selected model
+  vector<std::string> fields;  // for current selected model
 
   CommandParser *cp;
   vector<ParsedCommand> vpcopt;

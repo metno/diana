@@ -131,9 +131,13 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   if (nStations<1 || time_!=time) return vp;
   
   int n= 0;
-  while (n<nStations && (*stations)[n].name()!=station) n++;
+  while (n<nStations && (*stations)[n].stationID()!=station.toInt()) n++;
   // Return if station not found in station list
-  if (n==nStations) return vp;
+  if (n==nStations)
+  {
+	  cerr<<"Unable to find station: " << station << " in stationlist!" << endl;
+	  return vp;
+  }
 
 
   vp= new VprofPlot();
@@ -176,7 +180,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   road.close();
   vector<RDKCOMBINEDROW_2 > raw_data;
   map<int, vector<RDKCOMBINEDROW_2 > >::iterator itd = raw_data_map.begin();
-  itd = raw_data_map.find((*stations)[n].wmonr());
+  itd = raw_data_map.find((*stations)[n].stationID());
   if (itd != raw_data_map.end())
   {
 	  raw_data = itd->second;

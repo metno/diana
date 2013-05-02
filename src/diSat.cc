@@ -132,7 +132,12 @@ Sat::Sat (const miString &pin) :
         vector <miString> stokens=value.split(',');
         int m= stokens.size();
         for (int j=0; j<m; j++) {
-          hideColor.push_back(atoi(stokens[j].c_str()));
+          vector <miString> sstokens=stokens[j].split(':');
+          if(sstokens.size()==1) {
+            hideColour[atoi(sstokens[0].c_str())] = 0;
+          } else {
+            hideColour[atoi(sstokens[0].c_str())] = atoi(sstokens[1].c_str());
+          }
         }
       }
     }
@@ -192,7 +197,7 @@ void Sat::memberCopy(const Sat& rhs)
   alpha= rhs.alpha;
   maxDiff= rhs.maxDiff;
   classtable= rhs.classtable;
-  hideColor=rhs.hideColor;
+  hideColour=rhs.hideColour;
   nx = rhs.nx;
   ny = rhs.ny;
   area= rhs.area;
@@ -261,7 +266,6 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog)
  */
 void Sat::values(int x, int y, vector<SatValues>& satval)
 {
-
   if (x>=0 && x<nx && y>=0 && y<ny && approved) { // inside image/legal image
     int index = nx*(ny-y-1) + x;
 
@@ -283,8 +287,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
         pvalue = rawimage[p->first][index];
       }
       //return if colour is hidden
-      for (unsigned int i=0; i<hideColor.size(); i++) {
-        if (hideColor[i] ==pvalue)
+      if ( hideColour.count(pvalue) && hideColour[pvalue] == 0) {
           return;
       }
       if (pvalue!=0) {
@@ -293,7 +296,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
             if (palette) {
               sv.text = p->second.val[(int)pvalue];
             } else {
-              sv.value = atof(p->second.val[(int)pvalue].cStr());
+              sv.value = atof(p->second.val[(int)pvalue].c_str());
               if (p->second.channel.contains("TEMP"))
                 sv.value -= 273.0;//use degrees celsius instead of Kelvin
             }
@@ -426,6 +429,16 @@ void Sat::setCalibration()
       calibrationTable[1]=ct;
     cal_channels.push_back(ct.channel);
   }
+  else if (plotChannels == "IR") {
+      table_cal ct;
+      ct.channel = start + "Infrared (" + plotChannels + "):";
+      ct.a= AIr;
+      ct.b= BIr -273.0;
+      // Set in map 1, 0 is the image
+      calibrationTable[1]=ct;
+      cal_channels.push_back(ct.channel);
+
+    }
 
 #ifdef DEBUGPRINT
   cerr << "Sat::setCalibration -- vch.size(): " << vch.size() << endl;
@@ -466,7 +479,7 @@ void Sat::setCalibration()
       calibrationTable[j]=ct;
       cal_channels.push_back(ct.channel);
     } else if (vis) {
-      ct.channel = start + "Visual (" + vch[j] + "):";;
+      ct.channel = start + "Visual (" + vch[j] + "):";
       ct.a= AVis;
       ct.b= BVis;
 

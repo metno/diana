@@ -70,7 +70,7 @@ QString TimeSpinbox::textFromValue( int value ) const
     time.addSec(value);
     miutil::miString s= time.isoTime();
     if (!with_sec) s= s.substr(0,16);
-   return QString(s.cStr());
+   return QString(s.c_str());
   } else {
     return tr("undefined");
   }

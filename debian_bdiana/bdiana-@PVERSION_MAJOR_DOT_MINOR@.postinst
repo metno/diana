@@ -1,0 +1,4 @@
+#!/bin/sh
+
+set -e
+exec update-alternatives --install /usr/bin/bdiana bdiana /usr/bin/bdiana-@PVERSION_MAJOR_DOT_MINOR@ @PVERSION_NUMBER_MAJOR_MINOR@

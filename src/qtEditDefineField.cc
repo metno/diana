@@ -77,7 +77,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   MODELFIELDS = tr("Model fields").toStdString();
 
   miutil::miString txt= fieldname + " " + miutil::miString(tr("from:").toStdString());
-  QLabel* mainlabel= TitleLabel( txt.cStr(), this );
+  QLabel* mainlabel= TitleLabel( txt.c_str(), this );
 
   productNames=getProductNames();
   prodnamebox = ComboBox( this, productNames, true, 0);
@@ -260,13 +260,13 @@ void EditDefineFieldDialog::fillList()
   fBox->clearFocus();
   if (currentProductName==MODELFIELDS){
     for (unsigned int i=0; i<fields.size(); i++){
-      fBox->addItem(QString(fields[i].cStr()));
+      fBox->addItem(QString(fields[i].c_str()));
     }
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
       miutil::miString str = splist[i].pid + miutil::miString(" - ") +splist[i].ptime.isoTime();
-      QListWidgetItem* item = new QListWidgetItem(QString(str.cStr()));
+      QListWidgetItem* item = new QListWidgetItem(QString(str.c_str()));
       bool italic= (splist[i].source==data_local);
       QFont font = item->font();
       font.setItalic(italic);
@@ -334,6 +334,11 @@ void EditDefineFieldDialog::updateFilenames(){
       }
     }
   }
+
+  if ( filenames->count() ) {
+    filenames->item(0)->setSelected(true);
+    selectedProdIndex = 0;
+  }
 }
 
 /*********************************************/
@@ -358,8 +363,9 @@ void EditDefineFieldDialog::DeleteClicked(){
   if (fieldSelected()){
     selectedfield.clear();
     updateFilenames();
+    ok->setEnabled(true);
   }
-  else if (productSelected()&&selectedProdIndex < int(vselectedprod.size())){
+  else if (productSelected() && selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())){
     vselectedprod.erase(vselectedprod.begin()+selectedProdIndex);
     selectedProdIndex--;
     if (selectedProdIndex<0 && vselectedprod.size()) selectedProdIndex=0;
@@ -368,10 +374,10 @@ void EditDefineFieldDialog::DeleteClicked(){
       filenames->item(selectedProdIndex)->setSelected(true);
     else
       initCbs();
+    ok->setEnabled(true);
   }
   //refresh List, clear selection
   fillList();
-  if (vselectedprod.size() && selectedProdIndex > -1) ok->setEnabled(true);
 }
 
 /*********************************************/
@@ -391,7 +397,7 @@ void EditDefineFieldDialog::cbsClicked(){
 #endif
   if (num>-1) return;
   if (productSelected()){
-    if (selectedProdIndex < int(vselectedprod.size())){
+    if (selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())){
       vselectedprod[selectedProdIndex].selectObjectTypes=selectedObjectTypes();
       updateFilenames();
       if (selectedProdIndex>-1 && selectedProdIndex < filenames->count())

@@ -90,12 +90,12 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
 
   AVCodecContext *video = output->videoStream->codec;
   video->codec_id = (CodecID) output->outputCtx->oformat->video_codec;
-  video->codec_type = CODEC_TYPE_VIDEO;
+  video->codec_type = AVMEDIA_TYPE_VIDEO;
   video->bit_rate = VIDEO_BITRATE;
-  video->sample_aspect_ratio.den = 16;
-  video->sample_aspect_ratio.num = 9;
-  output->videoStream->sample_aspect_ratio.den = 16;
-  output->videoStream->sample_aspect_ratio.num = 9;
+  //video->sample_aspect_ratio.den = 16;
+  //video->sample_aspect_ratio.num = 9;
+  //output->videoStream->sample_aspect_ratio.den = 16;
+  //output->videoStream->sample_aspect_ratio.num = 9;
   //  video->dtg_active_format = FF_DTG_AFD_4_3; only used for decoding
   video->width = 1280;
   video->height = 720;
@@ -121,20 +121,20 @@ bool MovieMaker::addVideoStream(OutputCtx *output)
   return true;
 }
 
-AVFrame *MovieMaker::allocPicture(int pixFormat, int width, int height)
+AVFrame *MovieMaker::allocPicture(PixelFormat pixFormat, int width, int height)
 {
   AVFrame *frame = avcodec_alloc_frame();
   if (!frame)
     return NULL;
 
-  int size = avpicture_get_size(pixFormat, width, height);
+  int size = avpicture_get_size(static_cast<PixelFormat>(pixFormat), width, height);
   uint8_t *buffer = (uint8_t*) av_malloc(size);
   if (!buffer) {
     av_free(frame);
     return NULL;
   }
 
-  avpicture_fill((AVPicture *) frame, buffer, pixFormat, width, height);
+  avpicture_fill((AVPicture *) frame, buffer, static_cast<PixelFormat>(pixFormat), width, height);
   return frame;
 }
 
@@ -178,11 +178,11 @@ bool MovieMaker::initOutputStream(OutputCtx *output)
 {
   AVOutputFormat *outputFormat = 0;
   if (!g_strOutputVideoFormat.compare("mpg")) {
-    outputFormat = guess_format("dvd", NULL, NULL);
+    outputFormat = av_guess_format("dvd", NULL, NULL);
     if (outputFormat)
         outputFormat->video_codec = CODEC_ID_MPEG2VIDEO;
   } else if (!g_strOutputVideoFormat.compare("avi")) {
-      outputFormat = guess_format("avi", NULL, NULL);
+      outputFormat = av_guess_format("avi", NULL, NULL);
       if (outputFormat)
           outputFormat->video_codec = CODEC_ID_MSMPEG4V2;
   }
@@ -343,7 +343,7 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
     pkt.pts = av_rescale_q(video->coded_frame->pts, video->time_base,
         output->videoStream->time_base);
     if (video->coded_frame->key_frame)
-      pkt.flags |= PKT_FLAG_KEY;
+      pkt.flags |= AV_PKT_FLAG_KEY;
 
     pkt.stream_index = output->videoStream->index;
     pkt.data = (uint8_t *) output->videoBuffer;
@@ -359,18 +359,27 @@ bool MovieMaker::writeVideoFrame(OutputCtx *output)
   return true;
 }
 
-/*bool MovieMaker::addImage(QImage& image)
+bool MovieMaker::addImage(const QImage &image)
 {
-  // scale image to fit video format size
-  const QImage imageScaled = image.scaled(1280, 720, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  const QImage::Format format = QImage::Format_RGB32;
+  const QSize size(1280, 720);
 
-  addImage(&imageScaled);
+  QImage imageScaled = image;
 
-  return true;
+  if (imageScaled.format() != format)
+    imageScaled = imageScaled.convertToFormat(QImage::Format_RGB32);
 
-}*/
+  if (imageScaled.size() != size) {
+    const qreal scaleWidth = qreal(size.width()) / imageScaled.width();
+    const qreal scaleHeight = qreal(size.height()) / imageScaled.height();
+    const QMatrix mat = QMatrix().scale(scaleWidth, scaleHeight);
+    imageScaled = imageScaled.transformed(mat);
+  }
 
-bool MovieMaker::addImage(const QImage *image)
+  return makeVideoFrame(&imageScaled);
+}
+
+bool MovieMaker::makeVideoFrame(const QImage *image)
 {
   OutputCtx *output = &outputVideo;
 

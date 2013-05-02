@@ -35,11 +35,11 @@
 #include <deque>
 #include <iostream>
 #include <diPlot.h>
-#include <diField/diPlotOptions.h>
+#include <diPlotOptions.h>
 #include <puTools/miString.h>
 #include <puDatatypes/miCoordinates.h>
 #include <diCommonTypes.h>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diField/diArea.h>
 #include <diImageGallery.h>
 
@@ -86,11 +86,18 @@ struct Station {
   int alpha;
   float scale;
   Colour colour;
+  int height; /**< station height */
+  int barHeight; /**< barometer height */
+  miutil::miString id; /**< WMO or climate number */
   vector <stationText> vsText;
   miutil::miString url;
   Status status;
   Type type;
   miutil::miTime time;
+
+  Station() {
+    scale = 1; alpha=255;
+  }
 };
 
 class StationArea {
@@ -132,11 +139,11 @@ public:
         const vector <float> & lats, const vector <miutil::miString> images);
   /// constructor with stations
   StationPlot(const vector <Station*> &stations);
-  StationPlot(const miutil::miString& commondesc,
-	      const miutil::miString& common,
-	      const miutil::miString& description,
+  StationPlot(const std::string& commondesc,
+	      const std::string& common,
+	      const std::string& description,
 	      int from,
-	      const  vector<miutil::miString>& data);
+	      const  vector<std::string>& data);
   //destructor
   ~StationPlot();
 
@@ -169,9 +176,11 @@ public:
   /// set station number i to selected<br> if add is false, unselect all stations first
   int setSelectedStation(int i, bool add=false);
   /// get annotation
-  void getStationPlotAnnotation(miutil::miString &str,Colour &col);
+  void getStationPlotAnnotation(std::string &str,Colour &col);
   /// set annotation
-  void setStationPlotAnnotation(miutil::miString &str);
+  void setStationPlotAnnotation(const std::string &str);
+  /// set UseImage
+  void setUseImage(bool _useImage) { useImage = _useImage;}
   /// set name/plotname
   void setName(miutil::miString nm);
   /// return name
@@ -199,13 +208,13 @@ public:
   void setUseStationName(bool normal, bool selected);
   void setIcon(miutil::miString icon){iconName = icon;}
   miutil::miString getIcon(){return iconName;}
-  void setEditStations(const vector<miutil::miString>& );
+  void setEditStations(const vector<std::string>& );
   bool getEditStation(int step, miutil::miString& name, int& id,
 		      vector<miutil::miString>& stations, bool& updateArea);
-  bool stationCommand(const miutil::miString& Command,
-		      vector<miutil::miString>& data,
-		      const miutil::miString& misc="");
-  bool stationCommand(const miutil::miString& Command);
+  bool stationCommand(const std::string& Command,
+		      const vector<std::string>& data,
+		      const std::string& misc="");
+  bool stationCommand(const std::string& Command);
   miutil::miString stationRequest(const miutil::miString& Command);
 
   friend bool operator==(const StationPlot& lhs, const StationPlot& rhs)

@@ -91,6 +91,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
   cerr << "HDF5::readHDF5Header" << endl;
   cerr << "HDF5::readHDF5Header file.name: " << file.name << endl;
   cerr << "HDF5::readHDF5Header hdf5type: " << file.hdf5type << endl;
+  cerr << "HDF5::readHDF5Header time: " <<file.time << endl;
 
 #endif
 
@@ -100,6 +101,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
   ginfo.paletteinfo = file.paletteinfo;
   ginfo.channelinfo = file.channelinfo;
   ginfo.hdf5type = file.hdf5type;
+  ginfo.time = file.time;
 
   int rres =metno::satimgh5::HDF5_head_diana(file.name, ginfo);
 
@@ -111,15 +113,14 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
     cerr <<"HDF5_head_diana returned false - rres: " << rres << " file: " << file.name << endl;
     return false;
   }
-
-  file.time = ginfo.time;
+  // If time from file is not valid, use the time from filename
+  if (!ginfo.time.undef())
+    file.time = ginfo.time;
   file.opened = true;
 
   miString ch=ginfo.channel;
   file.channel=ch.split(" ");
   return true;
-  return true;
-
 }
 
 bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
@@ -139,6 +140,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   ginfo.paletteinfo = sd.paletteinfo;
   ginfo.channelinfo = sd.channelInfo;
   ginfo.hdf5type = sd.hdf5type;
+  ginfo.time = sd.time;
 
   int rres= metno::satimgh5::HDF5_read_diana(filename, &sd.rawimage[index], &sd.origimage[index],
       sd.no,sd.index, ginfo);
@@ -175,7 +177,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
 
 #ifdef DEBUGPRINT
     cerr << "HDF5::readHDF5 sd.paletteInfo.name: " << sd.paletteInfo.name << endl;
-    for (int d = 0; d < sd.paletteInfo.clname.size(); d++)
+    for (size_t d = 0; d < sd.paletteInfo.clname.size(); d++)
       cerr << "HDF5::readHDF5 sd.paletteInfo.clname: " << sd.paletteInfo.clname[d] << endl;
 #endif
 
@@ -188,6 +190,8 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   sd.satellite_name = ginfo.satellite;
 
   //time
+  if (!ginfo.time.undef())
+    sd.time = ginfo.time;
   sd.time = ginfo.time;
 
   //dimension

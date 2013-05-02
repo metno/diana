@@ -136,6 +136,8 @@ private:
   QCheckBox* tempPrecisionCheckBox;
   QCheckBox* parameterNameCheckBox;
   QCheckBox* moreTimesCheckBox;
+  QCheckBox* qualityCheckBox;
+  QCheckBox* wmoCheckBox;
   QCheckBox* devFieldCheckBox;
   QComboBox* devColourBox1;
   QComboBox* devColourBox2;

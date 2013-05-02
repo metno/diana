@@ -48,8 +48,15 @@
 extern "C" {
 #define __STDC_CONSTANT_MACROS
 #define __STDC_LIMIT_MACROS
+
+#ifndef INT64_C
+#define INT64_C(c) (c ## LL)
+#define UINT64_C(c) (c ## ULL)
+#endif
+
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/mathematics.h>
 }
 
 struct OutputCtx {
@@ -75,7 +82,7 @@ public:
   std::string outputFile() const;
   std::string outputFormat() const;
 
-  bool addImage(const QImage* image);
+  bool addImage(const QImage &image);
 
 private:
   float delay;
@@ -85,9 +92,9 @@ private:
 
   OutputCtx outputVideo;
 
-  //bool addImage(const QImage *image);
+  bool makeVideoFrame(const QImage *image);
   bool addVideoStream(OutputCtx *output);
-  AVFrame* allocPicture(int pixFormat, int width, int height);
+  AVFrame* allocPicture(PixelFormat pixFormat, int width, int height);
   bool openVideoEncoder(OutputCtx *output);
   bool initOutputStream(OutputCtx *output);
   void closeVideoEncoder(OutputCtx *output);

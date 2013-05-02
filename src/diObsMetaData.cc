@@ -43,7 +43,7 @@ void ObsMetaData::addStationsToUrl(miutil::miString& filename)
 {
 
   miutil::miString string;
-  map<miutil::miString, ObsData>::iterator p = metaData.begin();
+  std::map<miutil::miString, ObsData>::iterator p = metaData.begin();
   for ( ; p != metaData.end(); ++p ) {
     string +=("&s=" + p->second.id);
   }

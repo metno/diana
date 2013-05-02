@@ -35,6 +35,8 @@
 #include <diObsData.h>
 #include <diObsPlot.h>
 
+#include <map>
+
 /**
 
   \brief Observation metadata
@@ -44,9 +46,9 @@ struct ObsMetaData
 {
 
 public:
-  void setObsData( map< miutil::miString, ObsData> obs) { metaData = obs; }
+  void setObsData(const std::map< miutil::miString, ObsData>& obs) { metaData = obs; }
   void addStationsToUrl(miutil::miString& url);
-  map<miutil::miString, ObsData > metaData;
+  std::map<miutil::miString, ObsData > metaData;
 
 private:
   miutil::miString stationString;

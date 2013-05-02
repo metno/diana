@@ -52,6 +52,8 @@
 #include "diObjectManager.h"
 #include "qtUtility.h"
 
+#include <iomanip>
+
 /***************************************************************************/
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
@@ -480,7 +482,7 @@ void ObjectDialog::updateTimefileList(bool refresh){
   if (timeButton->isChecked()) {
 
     for (int i=0; i<nr_file; i++){
-      timefileList->addItem(QString(files[i].time.isoTime().cStr()));
+      timefileList->addItem(QString(files[i].time.isoTime().c_str()));
     }
 
   } else if (fileButton->isChecked()) {

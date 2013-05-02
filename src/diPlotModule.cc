@@ -59,6 +59,7 @@
 #include <GL/gl.h>
 #include <sstream>
 //#define DEBUGPRINT
+//#define DEBUGREDRAW
 
 using namespace miutil;
 using namespace milogger;
@@ -69,10 +70,10 @@ GridConverter PlotModule::gc; // Projection-converter
 
 // Default constructor
 PlotModule::PlotModule() :
-       apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
-       showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
-       mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
-       dopanning(false), keepcurrentarea(true), obsnr(0)
+           apEditmessage(0),plotw(0.),ploth(0.),resizezoom(true),
+           showanno(true),hardcopy(false),bgcolourname("midnightBlue"), inEdit(false),
+           mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
+           dopanning(false), keepcurrentarea(true), obsnr(0)
 {
 
   oldx = newx = oldy = newy = 0;
@@ -111,7 +112,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   idnumCurrent.clear();
 
   // split up input into separate products
-  vector<miString> fieldpi, obspi, mappi, satpi, statpi, objectpi, trajectorypi,
+  vector<miString> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
   labelpi, editfieldpi;
 
   int n = vpi.size();
@@ -127,7 +128,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
       else if (type == "MAP")
         mappi.push_back(vpi[i]);
       else if (type == "AREA")
-        mappi.push_back(vpi[i]);
+        areapi.push_back(vpi[i]);
       else if (type == "SAT")
         satpi.push_back(vpi[i]);
       else if (type == "STATION")
@@ -153,6 +154,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   prepareObs(obspi);
   prepareSat(satpi);
   prepareStations(statpi);
+  prepareArea(areapi);
   prepareMap(mappi);
   prepareObjects(objectpi);
   prepareTrajectory(trajectorypi);
@@ -168,6 +170,57 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 #ifdef DEBUGPRINT
   cerr << "++ Returning from PlotModule::preparePlots ++" << endl;
 #endif
+}
+
+void PlotModule::prepareArea(const vector<miutil::miString>& inp)
+{
+  MI_LOG & log = MI_LOG::getInstance("diana.PlotModule.prepareArea");
+  log.debugStream() << "++ PlotModule::prepareArea ++";
+
+  MapManager mapm;
+
+  if ( !inp.size() ) return;
+  if ( inp.size() > 1 )
+    COMMON_LOG::getInstance("common").debugStream() << "More AREA definitions, using: " <<inp[0];
+
+  const miString key_name=  "name";
+  const miString key_areaname=  "areaname"; //old syntax
+  const miString key_proj=  "proj4string";
+  const miString key_rectangle=  "rectangle";
+  const miString key_xypart=  "xypart";
+
+  Projection proj;
+  Rectangle rect;
+
+  vector<miString> tokens= inp[0].split('"','"'," ",true);
+
+  int n = tokens.size();
+  for (int i=0; i<n; i++){
+    vector<miString> stokens= tokens[i].split(1,'=');
+    if (stokens.size() > 1) {
+      miString key= stokens[0].downcase();
+
+      if (key==key_name || key==key_areaname){
+        if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown AREA definition: "<< inp[0];
+        }
+      } else if (key==key_proj){
+        if ( proj.set_proj_definition(stokens[1]) ) {
+          requestedarea.setP(proj);
+        } else {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown proj definition: "<< stokens[1];
+        }
+      } else if (key==key_rectangle){
+        if ( rect.setRectangle(stokens[1],false) ) {
+          requestedarea.setR(rect);
+        } else {
+          COMMON_LOG::getInstance("common").warnStream() << "Unknown rectangle definition: "<< stokens[1];
+        }
+      }
+    }
+  }
+
+
 }
 
 void PlotModule::prepareMap(const vector<miString>& inp)
@@ -187,8 +240,8 @@ void PlotModule::prepareMap(const vector<miString>& inp)
   int n = inp.size();
 
   // keep requested areas
-  Area rarea;
-  bool arearequested = false;
+  Area rarea = requestedarea;
+  bool arearequested = requestedarea.P().isDefined();
 
   bool isok;
   for (int k = 0; k < n; k++) { // loop through all plotinfo's
@@ -262,7 +315,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
     // keep enable flag
-    str = vfp[i]->getPlotInfo(3);
+    str = vfp[i]->getPlotInfo("model,plot,parameter,reftime");
     plotenabled[str] = vfp[i]->Enabled();
     // free old fields
     freeFields(vfp[i]);
@@ -285,7 +338,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
       delete vfp[n];
       vfp.pop_back();
     } else {
-      str = vfp[n]->getPlotInfo(3);
+      str = vfp[n]->getPlotInfo("model,plot,parameter,reftime");
       if (plotenabled.count(str) == 0)
         plotenabled[str] = true;
       vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());
@@ -865,10 +918,13 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 
 
 // update plots
-bool PlotModule::updatePlots()
+bool PlotModule::updatePlots(bool failOnMissingData)
 {
+#ifdef DEBUGREDRAW || DEBUGPRINT
+  milogger::LogHandler::getInstance()->setObjectName("diana.PlotModule.updatePlots");
+#endif
 #ifdef DEBUGREDRAW
-  cerr <<"PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea<<endl;
+  COMMON_LOG::getInstance("common").debugStream() << "PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea;
 #endif
   miString pin;
   vector<Field*> fv;
@@ -876,12 +932,18 @@ bool PlotModule::updatePlots()
   miTime t = splot.getTime();
   Area plotarea, newarea;
 
+  bool nodata=true; // false when data are found
+
   // prepare data for field plots
   n = vfp.size();
   for (i = 0; i < n; i++) {
     if (vfp[i]->updateNeeded(pin)) {
-      if (!fieldplotm->makeFields(pin, t, fv))
-        return false;
+      if (fieldplotm->makeFields(pin, t, fv)) {
+        nodata = false;
+        //        if ( failOnMissingData ) {
+        //          return false;
+        //        }
+      }
       //free old fields
       freeFields(vfp[i]);
       //set new fields
@@ -901,9 +963,15 @@ bool PlotModule::updatePlots()
   for (i = 0; i < n; i++) {
     if (!satm->setData(vsp[i])) {
 #ifdef DEBUGPRINT
-      cerr << "SatManager returned false from setData" << endl;
+      COMMON_LOG::getInstance("common").debugStream() << "SatManager returned false from setData";
 #endif
+//      if ( failOnMissingData ) {
+//        return false;
+//      }
+    } else {
+      nodata = false;
     }
+
   }
 
   // set maparea from map spec., sat or fields
@@ -1023,15 +1091,30 @@ bool PlotModule::updatePlots()
     vobsTimes.pop_back();
   }
   for (i = 0; i < n; i++) {
-    if (!obsm->prepare(vop[i], splot.getTime()))
-      cerr << "ObsManager returned false from prepare" << endl;
+    if (!obsm->prepare(vop[i], splot.getTime())){
+#ifdef DEBUGPRINT
+      COMMON_LOG::getInstance("common").debugStream() << "ObsManager returned false from prepare";
+#endif
+//      if ( failOnMissingData ) {
+//        return false;
+//      }
+    } else {
+      nodata = false;
+    }
+
   }
 
   //update list of positions ( used in "PPPP-mslp")
   obsm->updateObsPositions(vop);
 
   // prepare met-objects
-  objm->prepareObjects(t, splot.getMapArea(), objects);
+  if ( objects.defined && !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
+//    if ( failOnMissingData ) {
+//      return false;
+//    }
+  } else {
+    nodata = false;
+  }
 
   // prepare editobjects (projection etc.)
   editobjects.changeProjection(splot.getMapArea());
@@ -1040,6 +1123,7 @@ bool PlotModule::updatePlots()
   n = stam->plots().size();
   for (int i = 0; i < n; i++) {
     stam->plots()[i]->changeProjection();
+    nodata = false;
   }
 
   // Prepare/compute trajectories - change projection
@@ -1059,6 +1143,7 @@ bool PlotModule::updatePlots()
         }
       }
     }
+    nodata = false;
   }
 
   // Prepare measurement positions - change projection
@@ -1072,7 +1157,7 @@ bool PlotModule::updatePlots()
   PlotAreaSetup();
 
   // Successful update
-  return true;
+  return !(failOnMissingData && nodata);
 }
 
 // start hardcopy plot
@@ -1114,10 +1199,10 @@ void PlotModule::plot(bool under, bool over)
   cerr << "++ PlotModule.plot() ++" << endl;
 #endif
 #ifdef DEBUGREDRAW
-  cerr<<"PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  cerr<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
 #endif
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   // make background colour and a suitable contrast colour available
   splot.setBackgroundColour(cback);
@@ -1164,16 +1249,22 @@ void PlotModule::plot(bool under, bool over)
     plotOver();
   }
 
+#ifdef DEBUGREDRAW
+  cerr<<"++++++finished PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+#endif
 }
 
 // plot underlay ---------------------------------------
 void PlotModule::plotUnder()
 {
+#ifdef DEBUGREDRAW
+  cerr<<"++++++PlotModule::plotUnder  under,over: "<<endl;
+#endif
   int i, n, m;
 
   Rectangle plotr = splot.getPlotSize();
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   // set correct worldcoordinates
   glLoadIdentity();
@@ -1185,6 +1276,9 @@ void PlotModule::plotUnder()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // Set the default stencil buffer value.
+  glClearStencil(0);
 
   glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -1350,6 +1444,9 @@ void PlotModule::plotUnder()
 // plot overlay ---------------------------------------
 void PlotModule::plotOver()
 {
+#ifdef DEBUGREDRAW
+  cerr<<"++++++PlotModule::plotOver  under,over: "<<endl;
+#endif
 
   int i, n;
 
@@ -1479,7 +1576,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
   glLoadIdentity();
   glOrtho(plotr.x1, plotr.x2, plotr.y1, plotr.y2, -1, 1);
 
-  Colour cback(splot.getBgColour().cStr());
+  Colour cback(splot.getBgColour().c_str());
 
   glClearColor(cback.fR(), cback.fG(), cback.fB(), cback.fA());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -1855,7 +1952,8 @@ void PlotModule::getPlotTime(miTime& t)
 
 void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     vector<miTime>& sattimes, vector<miTime>& obstimes,
-    vector<miTime>& objtimes, vector<miTime>& ptimes)
+    vector<miTime>& objtimes, vector<miTime>& ptimes,
+    bool updateSources)
 {
 
   fieldtimes.clear();
@@ -1877,7 +1975,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
   if (pinfos.size() > 0) {
     bool constT;
-    fieldtimes = fieldplotm->getFieldTime(pinfos, constT);
+    fieldtimes = fieldplotm->getFieldTime(pinfos, constT, updateSources);
   }
 #ifdef DEBUGPRINT
   cerr << "--- Found fieldtimes:" << endl;
@@ -1926,7 +2024,8 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
 
 //returns union or intersection of plot times from all pinfos
 void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
-    set<miTime>& constTimes, const vector<miString>& pinfos, bool allTimes)
+    set<miTime>& constTimes, const vector<miString>& pinfos,
+    bool allTimes, bool updateSources)
 {
   vector<miTime> normalTimes;
   miTime constTime;
@@ -1940,7 +2039,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
       miString type = tokens[0].upcase();
       if (type == "FIELD")
         fieldplotm->getCapabilitiesTime(normalTimes, constTime, timediff,
-            pinfos[i]);
+            pinfos[i], updateSources);
       else if (type == "SAT")
         satm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i]);
       else if (type == "OBS")
@@ -2421,7 +2520,7 @@ vector<miString> PlotModule::getCalibChannels()
   return channels;
 }
 
-vector<SatValues> PlotModule::showValues(int x, int y)
+vector<SatValues> PlotModule::showValues(float x, float y)
 {
 
   // return values of current channels (with calibration)

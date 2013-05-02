@@ -81,7 +81,7 @@ signals:
   void undoPressed();
   void redoPressed();
   // display help (using existing name convention)
-  void showsource(const miutil::miString source,const miutil::miString tag);
+  void showsource(const std::string source,const std::string tag);
 };
 
 #endif /*QTPAINTTOOLBAR_H_*/

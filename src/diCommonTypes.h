@@ -35,7 +35,7 @@
 #include <puTools/miString.h>
 #include <set>
 #include <vector>
-#include <diField/diColour.h>
+#include <diColour.h>
 #include <diField/diArea.h>
 
 using namespace std;
@@ -151,6 +151,7 @@ struct MapElementOption {
   bool showvalue;      ///< plot value string (latlon)
   miutil::miString value_pos;  ///< value position (0=left, 1=bottom, 2=both) (latlon)
   float fontsize;      ///< fontsize for value plotting (latlon)
+  MapElementOption() : ison(false) {}
 };
 
 /**
@@ -183,8 +184,25 @@ struct MapDialogInfo {
   miutil::miString backcolour;    ///< background colour
 };
 
+/**
+   \brief GUI data for one station
+*/
+struct StationInfo {
+  miutil::miString name;             ///< name of station type
+  bool logok;                ///< ok to log
+  miutil::miString stationfile; ///< the file(s)
+  miutil::miString image;     ///file name to image, if none then just a black spot
+};
 
-//--------------------------------------------------
+/**
+   \brief GUI data for all stations
+*/
+struct StationDialogInfo {
+  vector<miutil::miString> types; ///< all defined stationtypes (names)
+ // miutil::miString default_type;  ///< default stationtype-name not aloud!
+  vector<StationInfo> stations;   ///< all defined stations
+  vector<miutil::miString> images; ///< list of all images
+};//--------------------------------------------------
 // Observation structures
 //--------------------------------------------------
 
@@ -263,6 +281,7 @@ struct stationInfo {
 struct stationSetInfo {
     miutil::miString name;
     miutil::miString url;
+    miutil::miString image;
 };
 
 struct stationDialogInfo {

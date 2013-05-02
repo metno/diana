@@ -117,21 +117,25 @@ bool Controller::parseSetup()
   Plot::initFontManager();
 
   //Parse field sections
-  vector<miString> fieldSubSect = fieldm->subsections();
+  vector<std::string> fieldSubSect = fieldm->subsections();
   int nsect = fieldSubSect.size();
-  vector<miString> errors;
+  vector<std::string> errors;
   for( int i=0; i<nsect; i++){
-    vector<miString> lines;
+    vector<miutil::miString> lines;
     if (!SetupParser::getSection(fieldSubSect[i],lines)) {
       //      cerr<<"Missing section "<<fieldSubSect[i]<<" in setupfile."<<endl;
     }
-    fieldm->parseSetup(lines,fieldSubSect[i],errors,false);
+    vector<std::string> string_lines;
+    for (int j=0; j<lines.size(); j++) {
+      string_lines.push_back(lines[j]);
+    }
+    fieldm->parseSetup(string_lines,fieldSubSect[i],errors);
   }
   //Write error messages
   int nerror = errors.size();
   for( int i=0; i<nerror; i++){
-    vector<miString> token = errors[i].split("|");
-    SetupParser::errorMsg(token[0],atoi(token[1].cStr()),token[2]);
+    vector<std::string> token = miutil::split(errors[i],"|");
+    SetupParser::errorMsg(token[0],atoi(token[1].c_str()),token[2]);
   }
 
   //parse some setup sections
@@ -266,9 +270,10 @@ void Controller::getPlotTimes(vector<miTime>& fieldtimes,
                               vector<miTime>& sattimes,
                               vector<miTime>& obstimes,
                               vector<miTime>& objtimes,
-                              vector<miTime>& ptimes)
+                              vector<miTime>& ptimes,
+                              bool updateSources)
 {
-  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
+  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes,updateSources);
 }
 
 bool Controller::getProductTime(miTime& t){
@@ -297,8 +302,8 @@ void Controller::keepCurrentArea(bool b){
 }
 
 // update plot-classes with new data
-bool Controller::updatePlots(){
-  return plotm->updatePlots();
+bool Controller::updatePlots(bool failOnMissingData){
+  return plotm->updatePlots( failOnMissingData );
 }
 
 void Controller::updateFieldPlot(const vector<miString>& pin){
@@ -335,18 +340,18 @@ void Controller::nextObs(bool next){
 
 //init hqcData from QSocket
 bool Controller::initHqcdata(int from,
-                             const miString& commondesc,
-                             const miString& common,
-                             const miString& desc,
-                             const vector<miString>& data){
+                             const string& commondesc,
+                             const string& common,
+                             const string& desc,
+                             const vector<string>& data){
    return obsm->initHqcdata(from,commondesc,common,desc,data);
 }
 
 //update hqcData from QSocket
-void Controller::updateHqcdata(const miString& commondesc,
-                               const miString& common,
-                               const miString& desc,
-                               const vector<miString>& data){
+void Controller::updateHqcdata(const string& commondesc,
+                               const string& common,
+                               const string& desc,
+                               const vector<string>& data){
   obsm->updateHqcdata(commondesc,common,desc,data);
 }
 
@@ -397,7 +402,7 @@ vector<miString> Controller::getCalibChannels(){
 }
 
 // show values in grid position x,y
-vector<SatValues> Controller::showValues(int x, int y){
+vector<SatValues> Controller::showValues(float x, float y){
   return plotm->showValues(x,y);
 }
 
@@ -614,13 +619,13 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_F9){
-//    cerr << "F9 - ikke definert" << endl;
+//    cerr << "F9 - not defined" << endl;
       return;
     } else if (me.key==key_F10){
-//    cerr << "Vis forrige plott(utf�r)" << endl;
+//    cerr << "Show previus plot (apply)" << endl;
       return;
     } else if (me.key==key_F11){
-//    cerr << "Vis neste plott (utf�r)" << endl;
+//    cerr << "Show next plot (apply)" << endl;
       return;
       //####################################################################
     } else if ((me.key==key_Left && me.modifier==key_Shift) ||
@@ -694,9 +699,10 @@ const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
                                      set<miTime>& constTimes,
                                      const vector<miString>& pinfos,
-                                     bool allTimes)
+                                     bool allTimes,
+                                     bool updateSources)
 {
-  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes);
+  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
 
 }
 
@@ -804,11 +810,6 @@ void Controller::getAllFieldNames(vector<miString> & fieldNames,
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
 
-miString Controller::getFieldClassSpecifications(const miString& fieldname)
-{
-  return fieldm->getFieldClassSpecifications(fieldname);
-}
-
 vector<miString> Controller::getFieldLevels(const miString& pinfo)
 {
   return fieldplotm->getFieldLevels(pinfo);
@@ -839,6 +840,11 @@ vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 {
   bool constT;
   return fieldplotm->getFieldTime(request,constT);
+}
+
+void Controller::updateFieldSource(const std::string & modelName)
+{
+  fieldm->updateSource(modelName);
 }
 
 MapDialogInfo Controller::initMapDialog(){
@@ -903,11 +909,11 @@ void Controller::putStations(StationPlot* stationPlot){
   plotm->setAnnotations();
 }
 
-void Controller::makeStationPlot(const miString& commondesc,
-                         const miString& common,
-                         const miString& description,
+void Controller::makeStationPlot(const string& commondesc,
+                         const string& common,
+                         const string& description,
                          int from,
-                         const  vector<miString>& data)
+                         const  vector<string>& data)
 {
   stam->makeStationPlot(commondesc,common,description,from,data);
 }
@@ -930,18 +936,23 @@ void Controller::getEditStation(int step,
     plotm->PlotAreaSetup();
 }
 
-void Controller::stationCommand(const miString& command,
-                                vector<miString>& data,
-                                const miString& name, int id,
-                                const miString& misc)
+void Controller::getStationData(vector<std::string>& data)
+{
+  stam->getStationData(data);
+}
+
+void Controller::stationCommand(const string& command,
+                                const vector<string>& data,
+                                const string& name, int id,
+                                const string& misc)
 {
   stam->stationCommand(command,data,name,id,misc);
 
   if (command == "annotation")
     plotm->setAnnotations();
 }
-void Controller::stationCommand(const miString& command,
-                                const miString& name, int id)
+void Controller::stationCommand(const string& command,
+                                const string& name, int id)
 {
   stam->stationCommand(command,name,id);
 

@@ -50,9 +50,9 @@ class QComboBox;
 class QStackedWidget;
 
 /// map of baseComboBox index and dynamic-gui widget
-typedef map<int,fetDynamicGui*> DynamicGuiMap;
+typedef std::map<int,fetDynamicGui*> DynamicGuiMap;
 /// map of baseObject name and description
-typedef map<QString,QString> DescriptionMap;
+typedef std::map<QString,QString> DescriptionMap;
 
 class ProfetObjectDialog: public QDialog{
   Q_OBJECT
@@ -95,23 +95,23 @@ protected:
 public:
   ProfetObjectDialog(QWidget* parent, OperationMode = NEW_OBJECT_MODE);
 
-  void addDymanicGui(vector<fetDynamicGui::GuiComponent> components);
+  void addDymanicGui(std::vector<fetDynamicGui::GuiComponent> components);
   void setSession(const miutil::miTime & session);
   void setParameter(const miutil::miString & parameter);
-  void setBaseObjects(const vector<fetBaseObject> & o);
+  void setBaseObjects(const std::vector<fetBaseObject> & o);
   void setAreaStatus(AreaStatus);
-  void setStatistics(map<miutil::miString,float>&);
+  void setStatistics(std::map<miutil::miString,float>&);
   miutil::miString getSelectedBaseObject();
   miutil::miString getReason();
   void selectDefault();
-  vector<fetDynamicGui::GuiComponent> getCurrentGuiComponents();
+  std::vector<fetDynamicGui::GuiComponent> getCurrentGuiComponents();
   void newObjectMode();
   void showObject(const fetObject & obj,
-      vector<fetDynamicGui::GuiComponent> components);
+      std::vector<fetDynamicGui::GuiComponent> components);
   void editObjectMode(const fetObject & obj,
-      vector<fetDynamicGui::GuiComponent> components);
+      std::vector<fetDynamicGui::GuiComponent> components);
   bool showingNewObject(){ return (mode==NEW_OBJECT_MODE);}
-  void startBookmarkDialog(vector<miutil::miString>& bookm);
+  void startBookmarkDialog(std::vector<miutil::miString>& bookm);
   void setLastSavedPolygonName(miutil::miString pn) {lastSavedPolygonName=pn;}
 private slots:
   void baseObjectChanged(const QString&);

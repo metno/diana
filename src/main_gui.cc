@@ -43,12 +43,11 @@
 #include "diPrintOptions.h"
 #include "diController.h"
 #include "qtMainWindow.h"
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
 #endif
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
-#include <diField/diProjection.h>
 #include <iostream>
 
 #include <miLogger/logger.h>
@@ -77,8 +76,8 @@ void printUsage(){
       << "Command line arguments:                                 "  << endl
       << "  -h            :  Show help  "                            <<  endl
       << "  -v            :  Version "                                << endl
-      << "  -s <filnavn>  :  name of setupfile (def. diana.setup)   " << endl
-      << "  -l <språk>    :  language                               " << endl
+      << "  -s <filename> :  name of setupfile (def. diana.setup)   " << endl
+      << "  -l <language> :  language used in dialogs                               " << endl
       << "  -L <logger>   :  loggerFile for debugging               " << endl
       << "  -p <profet>   :  profet test version                    " << endl
       << "  -S <server>   :  profet server host                     " << endl
@@ -93,6 +92,17 @@ int main(int argc, char **argv)
   cout << argv[0] << " : DIANA version: " << VERSION << "  build: "
       << build_string << endl;
 
+#if defined(Q_WS_QWS)
+  QApplication a(argc, argv, QApplication::GuiServer);
+#else
+  #if defined(USE_PAINTGL) // either QPA or X11 without OpenGL
+    QApplication a(argc, argv);
+  #endif
+#endif
+#if defined(USE_PAINTGL)
+  PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
+#endif
+
   miString logfilename;
   miString ver_str= VERSION;
   miString build_str= build_string;
@@ -102,9 +112,10 @@ int main(int argc, char **argv)
   miString profetServer;
   miString setupfile;
   miString lang;
-  bool useprojlib=true;
-  map<miString,miString> user_variables;
+  map<std::string, std::string> user_variables;
 
+  user_variables["PVERSION"]= PVERSION;
+  user_variables["SYSCONFDIR"]= SYSCONFDIR;
     // parsing command line arguments
   int ac= 1;
   while (ac < argc){
@@ -145,11 +156,6 @@ int main(int argc, char **argv)
       if (ac >= argc) printUsage();
       diana_title = miString(argv[ac]);
 
-    } else if (sarg=="--proj") {
-      ac++;
-      if (ac >= argc) printUsage();
-      useprojlib = (miString(argv[ac])=="true");
-
     } else {
       vector<miString> ks= sarg.split("=");
       if (ks.size()==2) {
@@ -161,27 +167,24 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
- //Set projection library (libmi or proj4)
-  Projection::setProjActive(useprojlib);
-
   // Fix logger
   // initLogHandler must always be done
   if (logfilename.exists()) {
     milogger::LogHandler::initLogHandler(logfilename);
   }
   else {
-    milogger::LogHandler::initLogHandler( 4, "");
+    milogger::LogHandler::initLogHandler( 2, "");
   }
   MI_LOG & log = MI_LOG::getInstance("diana.main_gui");
 
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
   printerManager printman;
   if (!printman.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
 
@@ -189,7 +192,7 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.cStr();
+    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
     return 99;
   }
 #ifdef PROFET
@@ -207,10 +210,13 @@ int main(int argc, char **argv)
   if(cl_lang.exists())
     lang=cl_lang;
 
-  miTime x; x.setDefaultLanguage(lang);
+  miTime x; x.setDefaultLanguage(lang.c_str());
 
   // gui init
+#if !defined(USE_PAINTGL)
+  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
   QApplication a( argc, argv );
+#endif
 
   QTranslator qutil( 0 );
   QTranslator myapp( 0 );
@@ -218,7 +224,7 @@ int main(int argc, char **argv)
 
   if(lang.exists()) {
 
-    log.infoStream() << "SYSTEM LANGUAGE: " << lang.cStr();
+    log.infoStream() << "SYSTEM LANGUAGE: " << lang.c_str();
 
     miString qtlang   = "qt_" +lang;
     miString dilang   = "diana_"+lang;
@@ -228,15 +234,15 @@ int main(int argc, char **argv)
     vector<miString> langpaths = LocalSetupParser::languagePaths();
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qt.load(    qtlang.cStr(),langpaths[i].cStr()))
+      if( qt.load(    qtlang.c_str(),langpaths[i].c_str()))
 	break;
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( myapp.load( dilang.cStr(),langpaths[i].cStr()))
+      if( myapp.load( dilang.c_str(),langpaths[i].c_str()))
 	break;
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
-      if( qutil.load( qulang.cStr(),langpaths[i].cStr()))
+      if( qutil.load( qulang.c_str(),langpaths[i].c_str()))
 	break;
 
     a.installTranslator( &qt    );
@@ -244,14 +250,15 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
-  PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
-#endif
 
   mw->start();
 
 //  a.setMainWidget(mw);
+#if defined(Q_WS_QWS)
+  mw->showFullScreen();
+#else
   mw->show();
+#endif
 
   // news ?
   mw->checkNews();

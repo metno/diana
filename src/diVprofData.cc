@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,20 +31,23 @@
 #include "config.h"
 #endif
 
+#include "diVprofData.h"
+#include "diFtnVfile.h"
+
+#include <cmath>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <diVprofData.h>
-#include <diFtnVfile.h>
 
-#include <math.h>
-
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 // Default constructor
 VprofData::VprofData(const miString& filename, const miString& modelname)
 : fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
-numPos(0), numTime(0), numParam(0), numLevel(0),
-dataBuffer(0)
+  numPos(0), numTime(0), numParam(0), numLevel(0),
+  dataBuffer(0)
 {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::Default Constructor" << endl;
@@ -72,7 +73,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   char line[1024];
   miString correctFileName = fileName;
   correctFileName.replace(modelName, "");
-  if ((stationfile = fopen(correctFileName.cStr(), "rb")) == NULL) {
+  if ((stationfile = fopen(correctFileName.c_str(), "rb")) == NULL) {
     cerr << "Unable to open file!" << endl;
     return false;
   }
@@ -83,18 +84,60 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   miString miLine;
   while (fgets(line, 1024, stationfile) != NULL) {
     miLine = miString(line);
-    stationVector = miLine.split(",", false);
-    if (stationVector.size() == 7) {
-      station st;
-      st.id = stationVector[0];
-      st.name = stationVector[1];
-      st.lat = stationVector[2].toFloat();
-      st.lon = stationVector[3].toFloat();
-      st.height = stationVector[4].toInt(-1);
-      st.barHeight = stationVector[5].toInt(-1);
-      stations.push_back(st);
-    } else {
-      cerr << "Something is wrong with: " << miLine << endl;
+    // just skip the first line if present.
+    if (miLine.contains("obssource"))
+      continue;
+    if (miLine.contains(";"))
+    {
+      // the new format
+      stationVector = miLine.split(";", false);
+      if (stationVector.size() == 7) {
+        station st;
+        char stid[10];
+        int wmo_block = stationVector[0].toInt()*1000;
+        int wmo_number = stationVector[1].toInt();
+        int wmo_id = wmo_block + wmo_number;
+        sprintf(stid, "%05d", wmo_id);
+        st.id = stid;
+        st.name = stationVector[2];
+        st.lat = stationVector[3].toFloat();
+        st.lon = stationVector[4].toFloat();
+        st.height = stationVector[5].toInt(-1);
+        st.barHeight = stationVector[6].toInt(-1);
+        stations.push_back(st);
+      } else {
+        if (stationVector.size() == 6)
+        {
+          station st;
+          st.id = stationVector[0];
+          st.name = stationVector[1];
+          st.lat = stationVector[2].toFloat();
+          st.lon = stationVector[3].toFloat();
+          st.height = stationVector[4].toInt(-1);
+          st.barHeight = stationVector[5].toInt(-1);
+          stations.push_back(st);
+        }
+        else {
+          cerr << "Something is wrong with: " << miLine << endl;
+        }
+      }
+    }
+    else
+    {
+      // the old format
+      stationVector = miLine.split(",", false);
+      if (stationVector.size() == 7) {
+        station st;
+        st.id = stationVector[0];
+        st.name = stationVector[1];
+        st.lat = stationVector[2].toFloat();
+        st.lon = stationVector[3].toFloat();
+        st.height = stationVector[4].toInt(-1);
+        st.barHeight = stationVector[5].toInt(-1);
+        stations.push_back(st);
+      } else {
+        cerr << "Something is wrong with: " << miLine << endl;
+      }
     }
   }
   for (size_t i = 0; i < stations.size(); i++) {
@@ -119,7 +162,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   vProfPlot = 0;
 
   return success;
-    //return true;
+  //return true;
 }
 
 
@@ -323,12 +366,15 @@ bool VprofData::readFile() {
 VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 #ifdef DEBUGPRINT
   cerr << "++ VprofData::getData  " << name << "  " << time
-  << "  " << modelName << endl;
+      << "  " << modelName << endl;
 #endif
+
+
 
   VprofPlot *vp= 0;
 
   int iPos=0;
+
   while (iPos<numPos && posName[iPos]!=name) iPos++;
 
   int iTime=0;
@@ -437,32 +483,32 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 #endif
   } else {
 
-  int j,k,n;
-  float scale;
+    int j,k,n;
+    float scale;
 
-  for (n=0; n<numParam; n++) {
-    j= iPos*numTime*numParam*numLevel + iTime*numParam*numLevel + n*numLevel;
-    scale= paramScale[n];
-    if (paramId[n]==8) {
-      for (k=0; k<numLevel; k++)
-        vp->ptt.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==4) {
-      for (k=0; k<numLevel; k++)
-        vp->tt.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==5) {
-      for (k=0; k<numLevel; k++)
-        vp->td.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==2) {
-      for (k=0; k<numLevel; k++)
-        vp->uu.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==3) {
-      for (k=0; k<numLevel; k++)
-        vp->vv.push_back(scale*dataBuffer[j++]);
-    } else if (paramId[n]==13) {
-      for (k=0; k<numLevel; k++)
-        vp->om.push_back(scale*dataBuffer[j++]);
+    for (n=0; n<numParam; n++) {
+      j= iPos*numTime*numParam*numLevel + iTime*numParam*numLevel + n*numLevel;
+      scale= paramScale[n];
+      if (paramId[n]==8) {
+        for (k=0; k<numLevel; k++)
+          vp->ptt.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==4) {
+        for (k=0; k<numLevel; k++)
+          vp->tt.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==5) {
+        for (k=0; k<numLevel; k++)
+          vp->td.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==2) {
+        for (k=0; k<numLevel; k++)
+          vp->uu.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==3) {
+        for (k=0; k<numLevel; k++)
+          vp->vv.push_back(scale*dataBuffer[j++]);
+      } else if (paramId[n]==13) {
+        for (k=0; k<numLevel; k++)
+          vp->om.push_back(scale*dataBuffer[j++]);
+      }
     }
-  }
 #ifdef DEBUGPRINT
     for (k=0; k<numLevel; k++) {
       cerr << "ptt["<<k<<"]" <<vp->ptt[k] << endl;
@@ -472,7 +518,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       cerr << "vv["<<k<<"]" <<vp->vv[k] << endl;
       cerr << "om["<<k<<"]" <<vp->om[k] << endl;
     }
-  #endif
+#endif
   }
 
 

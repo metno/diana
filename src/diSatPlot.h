@@ -55,6 +55,7 @@ private:
       float& scales, float& scaley, int& nx, int& ny);
 
   GLuint texture;
+  bool hasTexture;
 
 public:
   // Constructors

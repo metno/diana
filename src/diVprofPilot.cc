@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#ifdef METNOOBS
+//#ifdef METNOOBS
 
 #include <iostream>
 #include <diVprofPilot.h>
@@ -188,4 +188,4 @@ VprofPlot* VprofPilot::getStation(const miString& station,
   return vp;
 }
 
-#endif
+//#endif

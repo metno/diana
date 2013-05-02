@@ -1,6 +1,5 @@
 # $Id$
 
-include $(top_srcdir)/diana.mk
 
 if WITH_BATCH_ONLY
 bin_PROGRAMS = bdiana
@@ -36,6 +35,8 @@ common_cxx_sources = \
 	diAnnotationPlot.cc \
 	diAreaBorder.cc \
 	diAreaObjects.cc \
+	diColour.cc \
+	diColourShading.cc \
 	diCommandParser.cc \
 	diComplexSymbolPlot.cc \
 	diContouring.cc \
@@ -54,6 +55,7 @@ common_cxx_sources = \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
+	diLinetype.cc \
 	diLocalSetupParser.cc \
 	diLocationPlot.cc \
 	diMItiff.cc \
@@ -76,8 +78,10 @@ common_cxx_sources = \
 	diObsSynop.cc \
 	diObsTemp.cc \
 	diObsTide.cc \
+	diPattern.cc \
 	diPlot.cc \
 	diPlotModule.cc \
+	diPlotOptions.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \
@@ -90,7 +94,6 @@ common_cxx_sources = \
 	diSpectrumPlot.cc \
 	diStationManager.cc \
 	diStationPlot.cc \
-	diTimeFilter.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
 	diVcrossField.cc \
@@ -147,6 +150,7 @@ diana_qt_sources = \
 	qtQuickMenu.cc \
 	qtSatDialog.cc \
 	qtSatDialogAdvanced.cc \
+	qtSetupDialog.cc \
 	qtShowSatValues.cc \
 	qtSpectrumModelDialog.cc \
 	qtSpectrumSetupDialog.cc \
@@ -174,6 +178,15 @@ diana_qt_sources = \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
+
+common_cppflags += \
+	$(QUTILITIES_CPPFLAGS)
+
+common_ldflags += \
+	$(QUTILITIES_LDFLAGS)
+
+common_ldadd += \
+	$(QUTILITIES_LIBS)
 endif
 
 bdiana_qt_sources = \
@@ -183,16 +196,22 @@ bdiana_qt_sources = \
 	diOrderQueue.cc \
 	diWorkOrder.cc
 
+if WITH_EMBEDDED
+bdiana_qt_sources += \
+	PaintGL/paintgl.cc
+endif
+
 noinst_HEADERS = \
 	MovieMaker.h \
 	diAnnotationPlot.h \
 	diAreaBorder.h \
 	diAreaObjects.h \
+	diColour.h \
+	diColourShading.h \
 	diCommandParser.h \
 	diCommonTypes.h \
 	diComplexSymbolPlot.h \
 	diContouring.h \
-	diController.h \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
 	diEditManager.h \
@@ -211,7 +230,7 @@ noinst_HEADERS = \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
-	diLocalSetupParser.h \
+	diLinetype.h \
 	diLocationPlot.h \
 	diMItiff.h \
 	diMapManager.h \
@@ -240,8 +259,10 @@ noinst_HEADERS = \
 	diOrderClient.h \
 	diOrderListener.h \
 	diOrderQueue.h \
+	diPattern.h \
 	diPlot.h \
 	diPlotModule.h \
+	diPlotOptions.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diSat.h \
@@ -255,7 +276,6 @@ noinst_HEADERS = \
 	diStationManager.h \
 	diStationPlot.h \
 	diTesselation.h \
-	diTimeFilter.h \
 	diTrajectoryPlot.h \
 	diUndoFront.h \
 	diVcrossField.h \
@@ -308,6 +328,7 @@ noinst_HEADERS = \
 	qtQuickMenu.h \
 	qtSatDialog.h \
 	qtSatDialogAdvanced.h \
+	qtSetupDialog.h \
 	qtShowSatValues.h \
 	qtSpectrumModelDialog.h \
 	qtSpectrumSetupDialog.h \
@@ -336,7 +357,25 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-        signalhelper.h
+    signalhelper.h \
+    bdiana_capi.h
+
+if WITH_EMBEDDED
+if WITH_BATCH_ONLY
+# Headers
+include_HEADERS = \
+        diController.h \
+        diLocalSetupParser.h
+else
+noinst_HEADERS += \
+        diController.h \
+        diLocalSetupParser.h
+endif
+else
+noinst_HEADERS += \
+        diController.h \
+        diLocalSetupParser.h
+endif
 
 # diana_qt_forms= qtStationDialog.ui
 diana_qt_forms=
@@ -481,12 +520,11 @@ common_cppflags += \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
-	$(QUTILITIES_CPPFLAGS) \
 	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
-	$(UU_CPPFLAGS)
+        $(UU_CPPFLAGS)
 
 common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
@@ -494,12 +532,11 @@ common_ldflags += \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
-	$(QUTILITIES_LDFLAGS) \
 	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
-	$(UU_LDFLAGS)
+        $(UU_LDFLAGS)
 
 common_ldadd += \
 	$(DIFIELD_LIBS) \
@@ -507,12 +544,11 @@ common_ldadd += \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
 	$(PUDATATYPES_LIBS) \
-	$(QUTILITIES_LIBS) \
 	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
-	$(UU_LIBS)
+        $(UU_LIBS)
 
 # Additional source code for SMHI support
 if WITH_SMHI
@@ -649,7 +685,8 @@ endif
 # Embedded build support - remove X and OpenGL dependencies
 if WITH_EMBEDDED
 common_cppflags += \
-        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL
+        -I$(top_srcdir)/src/PaintGL -I$(top_srcdir)/src/PaintGL/GL \
+        -DUSE_PAINTGL
 
 common_c_sources += \
         PaintGL/GL/libtess/dict.c \
@@ -665,13 +702,9 @@ common_c_sources += \
         PaintGL/GL/libutil/error.c \
         PaintGL/GL/libutil/glue.c
 
-common_cxx_sources += \
-        PaintGL/paintgl.cc
-
 noinst_HEADERS +=  \
         PaintGL/GL/gl.h \
         PaintGL/GL/glu.h \
-        PaintGL/GL/gluint.h \
         PaintGL/GL/gluos.h \
         PaintGL/GL/libtess/dict.h \
         PaintGL/GL/libtess/dict-list.h \
@@ -685,22 +718,32 @@ noinst_HEADERS +=  \
         PaintGL/GL/libtess/sweep.h \
         PaintGL/GL/libtess/tess.h \
         PaintGL/GL/libtess/tessmono.h \
-        PaintGL/paintgl.h
+        PaintGL/GL/libutil/gluint.h
+
+if WITH_BATCH_ONLY
+include_HEADERS += PaintGL/paintgl.h
+else
+noinst_HEADERS += PaintGL/paintgl.h
+endif
+
 else
 common_cppflags += \
         $(FTGL_CPPFLAGS) \
-	    $(GLP_CPPFLAGS) \
-	    $(GLTEXT_CPPFLAGS)
+        $(GLP_CPPFLAGS) \
+        $(GLTEXT_CPPFLAGS) \
+        $(GLU_CPPFLAGS)
 
 common_ldflags += \
         $(FTGL_LDFLAGS) \
-	    $(GLP_LDFLAGS) \
-	    $(GLTEXT_LDFLAGS)
+        $(GLP_LDFLAGS) \
+        $(GLTEXT_LDFLAGS) \
+        $(GLU_LDFLAGS)
 
 common_ldadd += \
         $(FTGL_LIBS) \
-	    $(GLP_LIBS) \
-	    $(GLTEXT_LIBS)
+        $(GLP_LIBS) \
+        $(GLTEXT_LIBS) \
+        $(GLU_LIBS)
 endif
 
 # Generated Qt source code
@@ -722,13 +765,16 @@ language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_ru.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
-languagedir= $(datarootdir)/$(APP)/lang
+languagedir= $(datarootdir)/diana/@PVERSION@/lang
 nodist_language_DATA=$(language_sources:.ts=.qm)
 
 CLEANFILES += $(nodist_language_DATA)
 
+lupdate:
+	$(LUPDATE4) $(diana_qt_sources) -ts $(language_sources)
+.PHONY: lupdate
+
 %.qm: %.ts  $(diana_qt_sources)
-	$(LUPDATE4)  $(diana_qt_sources) -ts $< ; \
 	$(LRELEASE4)  $<
 
 # Problem:
@@ -750,15 +796,18 @@ common_ldadd += $(WIN32_LIBS)
 # Full set of source code for libdiana
 libdiana_a_SOURCES = \
 	$(common_c_sources) \
-	$(common_cxx_sources)
+	$(common_cxx_sources) \
+	$(bdiana_qt_sources) \
+	bdiana_capi.cc \
+	signalhelper.cc
 
 nodist_libdiana_a_SOURCES = \
-	$(common_moc_sources)
+        $(common_moc_sources) \
+        $(bdiana_moc_sources)
 
 libdiana_a_CPPFLAGS = \
 	$(common_cppflags)
 # no LDFLAGS / LDADD needed for libdiana
-
 
 # diana-specific sources (the rest is in libdiana)
 diana_bin_SOURCES = \
@@ -779,12 +828,9 @@ diana_bin_LDADD = $(common_ldadd)
 
 # bdiana-specific sources (the rest is in libdiana)
 bdiana_SOURCES = \
-	$(bdiana_qt_sources) \
-	bdiana.cc \
-	signalhelper.cc
+	bdiana.cc
 
-nodist_bdiana_SOURCES = \
-	$(bdiana_moc_sources)
+nodist_bdiana_SOURCES =
 
 bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
@@ -824,3 +870,13 @@ test_diOrderBook_SOURCES = \
 test_diOrderBook_CPPFLAGS = $(QT4_CPPFLAGS)
 test_diOrderBook_LDFLAGS = $(QT4_LDFLAGS)
 test_diOrderBook_LDADD = $(QT4_LIBS)
+
+if WITH_BATCH_ONLY
+# A shared library target for language binding experiments
+lib_LTLIBRARIES = libdiana.la
+libdiana_la_SOURCES = $(libdiana_a_SOURCES)
+libdiana_la_CPPFLAGS = $(libdiana_a_CPPFLAGS)
+libdiana_la_LDFLAGS = $(common_ldflags) -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSION_PATCH@
+libdiana_la_LIBADD = @LTLIBOBJS@ $(common_ldadd)
+endif
+

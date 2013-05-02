@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=diana-@PVERSION@
+GenericName=diana-@PVERSION@
+Comment=Diana @PVERSION@
+Exec=diana-@PVERSION@
+Icon=/usr/share/pixmaps/diana-@PVERSION@.png
+MimeType=
+ServiceTypes=
+Terminal=false
+Type=Application
+Categories=Science;Meteorologisk;Meteorologisk-VersionedPrograms

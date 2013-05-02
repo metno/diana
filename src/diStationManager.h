@@ -62,9 +62,9 @@ public:
   ///put StationPlot in list of StationPlots
   void putStations(StationPlot*);
   ///make StationPlot and put it in list of StationPlots
-  void makeStationPlot(const miutil::miString& commondesc, const miutil::miString& common,
-           const miutil::miString& description, int from,
-           const  vector<miutil::miString>& data);
+  void makeStationPlot(const std::string& commondesc, const std::string& common,
+           const std::string& description, int from,
+           const  vector<std::string>& data);
   ///Returns the first station close to position x,y found in the StationPlots
   ///held by this object
   Station* findStation(int x, int y);
@@ -80,21 +80,26 @@ public:
   ///get editable stations, returns name/id of StationPlot and stations
   bool getEditStation(int step, miutil::miString& name, int& id,
           vector<miutil::miString>& stations);
+  void getStationData(vector<std::string>& data);
   ///send command to StationPlot with name and id
-  void stationCommand(const miutil::miString& Command,
-          vector<miutil::miString>& data,
-          const miutil::miString& name="", int id=-1,
-          const miutil::miString& misc="");
+  void stationCommand(const std::string& Command,
+          const vector<std::string>& data,
+          const std::string& name="", int id=-1,
+          const std::string& misc="");
   ///send command to StationPlot with name and id
-  void stationCommand(const miutil::miString& Command,
-          const miutil::miString& name="", int id=-1);
+  void stationCommand(const std::string& Command,
+          const std::string& name="", int id=-1);
 
   ///Returns a vector containing the plots held by the manager.
   vector <StationPlot*> plots();
 
 private:
   stationDialogInfo m_info;
-  map <miutil::miString,StationPlot*> stationPlots;//stations to be plotted
+  //stations to be plotted
+  map <miutil::miString,StationPlot*> stationPlots;
+
+  Station* parseSMHI(miutil::miString& miLine, miutil::miString& url);
+
 };
 
 #endif

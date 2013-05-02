@@ -39,7 +39,7 @@
 #include <diSpectrumFile.h>
 #include <diSpectrumPlot.h>
 
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
@@ -85,6 +85,10 @@ void SpectrumManager::parseSetup()
 #ifdef DEBUGPRINT
   cerr << "SpectrumManager::parseSetup" << endl;
 #endif
+
+  //clear old setupinfo
+  dialogModelNames.clear();
+  dialogFileNames.clear();
 
   //const miString section1 = "SPECTRUM_SETUP";
   const miString section2 = "SPECTRUM_FILES";
@@ -812,7 +816,7 @@ void SpectrumManager::updateObs()
 
 miString SpectrumManager::getAnnotationString()
 {
-  miString str = miString("Bølgespekter ");
+  miString str = miString("Bï¿½lgespekter ");
   if (onlyObs)
     str += plotTime.isoTime();
   else

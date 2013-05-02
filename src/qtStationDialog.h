@@ -84,7 +84,7 @@ public:
 signals:
   void StationApply();
   void StationHide();
-  void showsource(const miutil::miString, const miutil::miString="");
+  void showsource(const std::string, const std::string="");
 
 protected:
   void showEvent(QShowEvent *event);

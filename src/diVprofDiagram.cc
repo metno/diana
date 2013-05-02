@@ -37,11 +37,12 @@
 #include "config.h"
 #endif
 
-#include <diVprofDiagram.h>
-#include <diField/diColour.h>
-#include <diField/diLinetype.h>
+#include "diVprofDiagram.h"
+#include "diColour.h"
+#include "diLinetype.h"
+#include <cmath>
+#include <iomanip>
 #include <sstream>
-#include <math.h>
 
 using namespace::miutil;
 
@@ -177,13 +178,21 @@ void VprofDiagram::plot()
     fpDrawStr(true);
   } else if (redraw) {
     drawlist = glGenLists(1);
+#if !defined(USE_PAINTGL)
     glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
+#endif
     plotDiagram();
+#if !defined(USE_PAINTGL)
     glEndList();
+#endif
     fpDrawStr(true);
     diagramInList = true;
   } else if (glIsList(drawlist)) {
+#if !defined(USE_PAINTGL)
     glCallList(drawlist);
+#else
+    plotDiagram();
+#endif
     fpDrawStr(false);
   }
 

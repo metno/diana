@@ -1,0 +1,4 @@
+libQtCore 4 libqtcore4
+libQtGui 4 libqtgui4
+libQtNetwork 4 libqt4-network
+libQtSvg 4 libqt4-svg

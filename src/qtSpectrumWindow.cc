@@ -67,14 +67,14 @@ SpectrumWindow::SpectrumWindow()
 
   setWindowTitle( tr("Diana Wavespectrum") );
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
   fmt.setDirectRendering(false);
 #endif
   //central widget
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
   spectrumw= new SpectrumWidget(spectrumm, fmt, this);
 #else
   spectrumw= new SpectrumWidget(spectrumm, this);
@@ -173,15 +173,15 @@ SpectrumWindow::SpectrumWindow()
   spModelDialog = new SpectrumModelDialog(this,spectrumm);
   connect(spModelDialog, SIGNAL(ModelApply()),SLOT(changeModel()));
   connect(spModelDialog, SIGNAL(ModelHide()),SLOT(hideModel()));
-  connect(spModelDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(spModelDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   spSetupDialog = new SpectrumSetupDialog(this,spectrumm);
   connect(spSetupDialog, SIGNAL(SetupApply()),SLOT(changeSetup()));
   connect(spSetupDialog, SIGNAL(SetupHide()),SLOT(hideSetup()));
-  connect(spSetupDialog, SIGNAL(showsource(const miutil::miString, const miutil::miString)),
-      SIGNAL(showsource(const miutil::miString, const miutil::miString)));
+  connect(spSetupDialog, SIGNAL(showsource(const std::string, const std::string)),
+      SIGNAL(showsource(const std::string, const std::string)));
 
 
   //initialize everything in startUp
@@ -234,7 +234,6 @@ void SpectrumWindow::leftTimeClicked()
 {
   //called when the left time button is clicked
   miutil::miTime t= spectrumm->setTime(-1);
-  //update combobox
   timeChangedSlot(-1);
   spectrumw->updateGL();
 }
@@ -662,7 +661,7 @@ void SpectrumWindow::updateTimeBox()
 
   int n =times.size();
   for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).cStr()));
+    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
   }
 
   emit emitTimes("spectrum",times);
@@ -772,6 +771,11 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
   mainWindowTimeChanged(t);
 }
 
+void SpectrumWindow::parseSetup()
+{
+  spectrumm->parseSetup();
+  spModelDialog->updateModelfileList();
+}
 
 vector<miutil::miString> SpectrumWindow::writeLog(const miutil::miString& logpart)
 {

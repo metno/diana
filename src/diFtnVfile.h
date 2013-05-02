@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,11 +29,8 @@
 #ifndef diFtnVfile_h
 #define diFtnVfile_h
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
-#include <stdio.h>
-
-using namespace std;
 
 const float   floatUndef= 1.e+35;
 const short int intUndef= -32767;
@@ -59,21 +54,21 @@ class FtnVfile {
 
 public:
 
-  FtnVfile(miutil::miString filename, int bufferlength);
+  FtnVfile(const std::string& filename, int bufferlength);
   ~FtnVfile();
   void init();
   bool setFilePosition(int record, int word);
   int        getInt     ();
   int*       getInt     (int length);
   int*       getIntDuo  (int length);
-  vector<int> getIntVector(int length);
+  std::vector<int> getIntVector(int length);
   short int* getShortInt(int length);
   float      getFloat   (int iscale, int iundef);
   float*     getFloat   (int length, int iscale, int iundef);
   void       getFloat   (float *fdata, int length,
 			 int iscale, int iundef);
-  vector<float> getFloatVector(int length, int iscale, int iundef);
-  miutil::miString   getString  (int length);
+  std::vector<float> getFloatVector(int length, int iscale, int iundef);
+  std::string   getString  (int length);
   void       skipData   (int length);
 
 private:
@@ -82,7 +77,7 @@ private:
   int bufferLength;
   short int *buffer;
 
-  miutil::miString fileName;
+  std::string fileName;
   bool firstRead;
   bool swapFile;
   int  index;

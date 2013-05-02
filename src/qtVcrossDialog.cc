@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 //#define DEBUGPRINT
 
@@ -84,11 +84,11 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   models= vcrossm->getAllModels();
 
   // get all fieldnames from setup file
-//#################  fieldnames = vcrossm->getAllFieldNames();
-//#################################################################
-//  for (i=0; i<fieldnames.size(); i++)
-//    cerr<<"   field "<<setw(3)<<i<<" : "<<fieldnames[i]<<endl;
-//#################################################################
+  //#################  fieldnames = vcrossm->getAllFieldNames();
+  //#################################################################
+  //  for (i=0; i<fieldnames.size(); i++)
+  //    cerr<<"   field "<<setw(3)<<i<<" : "<<fieldnames[i]<<endl;
+  //#################################################################
 
   // get all field plot options from setup file
   setupFieldOptions = vcrossm->getAllFieldOptions();
@@ -97,10 +97,10 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   map<miutil::miString,miutil::miString>::iterator pfopt, pfend= fieldOptions.end();
   for (pfopt=fieldOptions.begin(); pfopt!=pfend; pfopt++)
     changedOptions[pfopt->first]= false;
-//#################################################################
-//  for (pfopt=fieldOptions.begin(); pfopt!=pfend; pfopt++)
-//    cerr << pfopt->first << "   " << pfopt->second << endl;
-//#################################################################
+  //#################################################################
+  //  for (pfopt=fieldOptions.begin(); pfopt!=pfend; pfopt++)
+  //    cerr << pfopt->first << "   " << pfopt->second << endl;
+  //#################################################################
 
   //  END FIRST INNITIALISATION OF STATE
 
@@ -114,7 +114,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   patternInfo = Pattern::getAllPatternInfo();
 
   // linewidths
-   nr_linewidths= 12;
+  nr_linewidths= 12;
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
@@ -122,7 +122,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // density (of arrows etc, 0=automatic)
   densityStringList << "Auto";
-    QString qs;
+  QString qs;
   for (i=0;  i<10; i++) {
     densityStringList << qs.setNum(i);
   }
@@ -149,7 +149,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
   cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
   cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
-  //cp->addKey("extreme.radius", "",0,CommandParser::cmdFloat);
   cp->addKey("extreme.limits", "",0,CommandParser::cmdString);
   cp->addKey("line.smooth",    "",0,CommandParser::cmdInt);
   cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
@@ -190,7 +189,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   }
 
   connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-	   SLOT( modelboxClicked( QListWidgetItem * ) ) );
+      SLOT( modelboxClicked( QListWidgetItem * ) ) );
 
   // fieldlabel
   QLabel *fieldlabel= TitleLabel( tr("Fields"), this );
@@ -207,7 +206,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   fieldbox->setSelectionMode(QAbstractItemView::MultiSelection);
 
   connect( fieldbox, SIGNAL( itemClicked(QListWidgetItem*) ),
-  	   SLOT( fieldboxChanged(QListWidgetItem*) ) );
+      SLOT( fieldboxChanged(QListWidgetItem*) ) );
 
   // selectedFieldlabel
   QLabel *selectedFieldlabel= TitleLabel( tr("Selected Fields"), this );
@@ -224,7 +223,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   selectedFieldbox->setEnabled( true );
 
   connect( selectedFieldbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-	   SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
+      SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
 
   // deleteSelected
   Delete = NormalPushButton( tr("Delete"), this );
@@ -254,10 +253,10 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   connect(changeModelButton, SIGNAL(clicked()), SLOT(changeModel()));
 
   // historyBack
-//QPixmap hback = QPixmap(up32x24_xpm);
+  //QPixmap hback = QPixmap(up32x24_xpm);
   QPixmap hback = QPixmap(up20x20_xpm);
-//##//historyBackButton = PixmapButton( hback, this, 4, 4 );
-//##  historyBackButton = PixmapButton( hback, this, 2, 8 );
+  //##//historyBackButton = PixmapButton( hback, this, 4, 4 );
+  //##  historyBackButton = PixmapButton( hback, this, 2, 8 );
   historyBackButton= new QPushButton(hback,"",this);
   historyBackButton->setMinimumSize(hbutton+4,hbutton);
   historyBackButton->setMaximumSize(hbutton+4,hbutton);
@@ -266,10 +265,10 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   connect( historyBackButton, SIGNAL(clicked()), SLOT(historyBack()));
 
   // historyForward
-//QPixmap hforward = QPixmap(down32x24_xpm);
+  //QPixmap hforward = QPixmap(down32x24_xpm);
   QPixmap hforward = QPixmap(down20x20_xpm);
-//##//historyForwardButton = PixmapButton( hforward, this, 4, 4 );
-//##  historyForwardButton = PixmapButton( hforward, this, 2, 8 );
+  //##//historyForwardButton = PixmapButton( hforward, this, 4, 4 );
+  //##  historyForwardButton = PixmapButton( hforward, this, 2, 8 );
   historyForwardButton= new QPushButton(hforward,"",this);
   historyForwardButton->setMinimumSize(hbutton+4,hbutton);
   historyForwardButton->setMaximumSize(hbutton+4,hbutton);
@@ -280,7 +279,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   // historyOk
   historyOkButton = NormalPushButton( tr("OK"), this );
   historyOkButton->setMinimumWidth(hbutton*2);
-//historyOkButton->setMaximumWidth(hbutton*2+8);
+  //historyOkButton->setMaximumWidth(hbutton*2+8);
   highlightButton(historyOkButton,false);
 
   connect( historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
@@ -289,8 +288,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // upField
   QPixmap upfield = QPixmap(up12x12_xpm);
-//upFieldButton = PixmapButton( upfield, this, 14, 12 );
-//upFieldButton = PixmapButton( upfield, this, 12, 12 );
+  //upFieldButton = PixmapButton( upfield, this, 14, 12 );
+  //upFieldButton = PixmapButton( upfield, this, 12, 12 );
   upFieldButton= new QPushButton(upfield,"",this);
   upFieldButton->setMinimumSize(wbutton,hbutton);
   upFieldButton->setMaximumSize(wbutton,hbutton);
@@ -300,8 +299,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // downField
   QPixmap downfield = QPixmap(down12x12_xpm);
-//downFieldButton = PixmapButton( downfield, this, 14, 12 );
-//downFieldButton = PixmapButton( downfield, this, 12, 12 );
+  //downFieldButton = PixmapButton( downfield, this, 14, 12 );
+  //downFieldButton = PixmapButton( downfield, this, 12, 12 );
   downFieldButton= new QPushButton(downfield,"",this);
   downFieldButton->setMinimumSize(wbutton,hbutton);
   downFieldButton->setMaximumSize(wbutton,hbutton);
@@ -312,7 +311,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   // resetOptions
   resetOptionsButton = NormalPushButton( tr("R"), this );
   resetOptionsButton->setMinimumWidth(wbutton);
-//resetOptionsButton->setMaximumWidth(wbutton);
+  //resetOptionsButton->setMaximumWidth(wbutton);
   resetOptionsButton->setEnabled( false );
 
   connect( resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
@@ -324,7 +323,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   colorCbox->setEnabled( false );
 
   connect( colorCbox, SIGNAL( activated(int) ),
-	   SLOT( colorCboxActivated(int) ) );
+      SLOT( colorCboxActivated(int) ) );
 
   // linewidthcbox
   linewidthlabel= new QLabel( tr("Line width"), this );
@@ -332,7 +331,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   lineWidthCbox->setEnabled( false );
 
   connect( lineWidthCbox, SIGNAL( activated(int) ),
-	   SLOT( lineWidthCboxActivated(int) ) );
+      SLOT( lineWidthCboxActivated(int) ) );
 
   // linetypecbox
   linetypelabel= new QLabel( tr("Line type"), this );
@@ -340,7 +339,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   lineTypeCbox->setEnabled( false );
 
   connect( lineTypeCbox, SIGNAL( activated(int) ),
-	   SLOT( lineTypeCboxActivated(int) ) );
+      SLOT( lineTypeCboxActivated(int) ) );
 
   // lineinterval
   lineintervallabel= new QLabel( tr("Line interval"), this );
@@ -348,7 +347,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   lineintervalCbox->setEnabled( false );
 
   connect( lineintervalCbox, SIGNAL( activated(int) ),
-	   SLOT( lineintervalCboxActivated(int) ) );
+      SLOT( lineintervalCboxActivated(int) ) );
 
   // density
   densitylabel= new QLabel( tr("Density"), this );
@@ -356,15 +355,14 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   densityCbox->setEnabled( false );
 
   connect( densityCbox, SIGNAL( activated(int) ),
-	   SLOT( densityCboxActivated(int) ) );
+      SLOT( densityCboxActivated(int) ) );
 
   // vectorunit
   vectorunitlabel= new QLabel( tr("Unit"), this );
   vectorunitCbox=  new QComboBox(this );
-  vectorunitCbox->setEnabled( false );
 
   connect( vectorunitCbox, SIGNAL( activated(int) ),
-	   SLOT( vectorunitCboxActivated(int) ) );
+      SLOT( vectorunitCboxActivated(int) ) );
 
   // help
   fieldhelp = NormalPushButton( tr("Help"), this );
@@ -478,7 +476,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   vlayout->addLayout( v6layout );
 
   vlayout->activate();
-//vlayout->freeze();
+  //vlayout->freeze();
 
   CreateAdvanced();
 
@@ -538,7 +536,7 @@ void VcrossDialog::CreateAdvanced() {
   extremeValueCheckBox->setChecked( false );
   extremeValueCheckBox->setEnabled( false );
   connect( extremeValueCheckBox, SIGNAL( toggled(bool) ),
-     SLOT( extremeValueCheckBoxToggled(bool) ) );
+      SLOT( extremeValueCheckBoxToggled(bool) ) );
 
   //QLabel* extremeTypeLabelHead= new QLabel( "Min,max", advFrame );
   QLabel* extremeSizeLabel= new QLabel( tr("Size"),  advFrame );
@@ -551,7 +549,7 @@ void VcrossDialog::CreateAdvanced() {
   extremeSizeSpinBox->setValue(100);
   extremeSizeSpinBox->setEnabled( false );
   connect( extremeSizeSpinBox, SIGNAL( valueChanged(int) ),
-  	   SLOT( extremeSizeChanged(int) ) );
+      SLOT( extremeSizeChanged(int) ) );
 
   extremeLimits<<"Off";
   QString qstr;
@@ -565,14 +563,14 @@ void VcrossDialog::CreateAdvanced() {
   extremeLimitMinComboBox->addItems(extremeLimits);
   extremeLimitMinComboBox->setEnabled(false);
   connect( extremeLimitMinComboBox, SIGNAL( activated(int) ),
-     SLOT( extremeLimitsChanged() ) );
+      SLOT( extremeLimitsChanged() ) );
 
   QLabel* extremeLimitMaxLabel = new QLabel(tr("Level high"));
   extremeLimitMaxComboBox= new QComboBox( advFrame );
   extremeLimitMaxComboBox->addItems(extremeLimits);
   extremeLimitMaxComboBox->setEnabled(false);
   connect( extremeLimitMaxComboBox, SIGNAL( activated(int) ),
-     SLOT( extremeLimitsChanged() ) );
+      SLOT( extremeLimitsChanged() ) );
   QGridLayout* extremeLayout = new QGridLayout();
   extremeLayout->addWidget(extremeSizeLabel,        0, 0);
   extremeLayout->addWidget(extremeLimitMinLabel,    0, 1);
@@ -580,14 +578,6 @@ void VcrossDialog::CreateAdvanced() {
   extremeLayout->addWidget(extremeSizeSpinBox,      1, 0);
   extremeLayout->addWidget(extremeLimitMinComboBox, 1, 1);
   extremeLayout->addWidget(extremeLimitMaxComboBox, 1,2);
-  //QLabel* extremeRadiusLabel= new QLabel( "Søkeradius", advFrame );
-  //extremeRadiusSpinBox= new QSpinBox( 5,300,5, advFrame );
-  //extremeRadiusSpinBox->setWrapping(true);
-  //extremeRadiusSpinBox->setSuffix("%");
-  //extremeRadiusSpinBox->setValue(100);
-  //extremeRadiusSpinBox->setEnabled( false );
-  //connect( extremeRadiusSpinBox, SIGNAL( valueChanged(int) ),
-  //	   SLOT( extremeRadiusChanged(int) ) );
 
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
@@ -599,7 +589,7 @@ void VcrossDialog::CreateAdvanced() {
   lineSmoothSpinBox->setValue(0);
   lineSmoothSpinBox->setEnabled( false );
   connect( lineSmoothSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( lineSmoothChanged(int) ) );
+      SLOT( lineSmoothChanged(int) ) );
 
   QLabel* labelSizeLabel= new QLabel( tr("Digit size"),  advFrame );
   labelSizeSpinBox= new QSpinBox( advFrame );
@@ -611,7 +601,7 @@ void VcrossDialog::CreateAdvanced() {
   labelSizeSpinBox->setValue(100);
   labelSizeSpinBox->setEnabled( false );
   connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( labelSizeChanged(int) ) );
+      SLOT( labelSizeChanged(int) ) );
 
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
   hourOffsetSpinBox= new QSpinBox( advFrame );
@@ -621,7 +611,7 @@ void VcrossDialog::CreateAdvanced() {
   hourOffsetSpinBox->setValue(0);
   hourOffsetSpinBox->setEnabled( false );
   connect( hourOffsetSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( hourOffsetChanged(int) ) );
+      SLOT( hourOffsetChanged(int) ) );
 
   // Undefined masking
   ////QLabel* undefMaskingLabel= new QLabel( "Udefinert", advFrame );
@@ -659,14 +649,14 @@ void VcrossDialog::CreateAdvanced() {
   zeroLineCheckBox->setChecked( true );
   zeroLineCheckBox->setEnabled( false );
   connect( zeroLineCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( zeroLineCheckBoxToggled(bool) ) );
+      SLOT( zeroLineCheckBoxToggled(bool) ) );
 
   // enable/disable numbers on isolines
-valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
+  valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   valueLabelCheckBox->setChecked( true );
   valueLabelCheckBox->setEnabled( false );
   connect( valueLabelCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( valueLabelCheckBoxToggled(bool) ) );
+      SLOT( valueLabelCheckBoxToggled(bool) ) );
 
   QLabel* shadingLabel    = new QLabel( tr("Palette"),            advFrame );
   QLabel* shadingcoldLabel= new QLabel( tr("Palette (-)"),        advFrame );
@@ -677,20 +667,20 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   QLabel* maxLabel        = new QLabel( tr("Max"),               advFrame);
 
 
-//  tableCheckBox = new QCheckBox(tr("Table"), advFrame);
-//  tableCheckBox->setEnabled(false);
-//  connect( tableCheckBox, SIGNAL( toggled(bool) ),
-//	   SLOT( tableCheckBoxToggled(bool) ) );
+  //  tableCheckBox = new QCheckBox(tr("Table"), advFrame);
+  //  tableCheckBox->setEnabled(false);
+  //  connect( tableCheckBox, SIGNAL( toggled(bool) ),
+  //	   SLOT( tableCheckBoxToggled(bool) ) );
 
   repeatCheckBox = new QCheckBox(tr("Repeat"), advFrame);
   repeatCheckBox->setEnabled(false);
   connect( repeatCheckBox, SIGNAL( toggled(bool) ),
-	   SLOT( repeatCheckBoxToggled(bool) ) );
+      SLOT( repeatCheckBoxToggled(bool) ) );
 
   //shading
   shadingComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString() );
   connect( shadingComboBox, SIGNAL( activated(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingSpinBox = new QSpinBox(advFrame);
   shadingSpinBox->setMinimum(0);
@@ -698,11 +688,11 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
   shadingSpinBox->setEnabled(false);
   connect( shadingSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingcoldComboBox=  PaletteBox( advFrame,csInfo,false,0,tr("Off").toStdString() );
   connect( shadingcoldComboBox, SIGNAL( activated(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   shadingcoldSpinBox = new QSpinBox(advFrame);
   shadingcoldSpinBox->setMinimum(0);
@@ -710,17 +700,17 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
   shadingcoldSpinBox->setEnabled(false);
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( shadingChanged() ) );
+      SLOT( shadingChanged() ) );
 
   //pattern
   patternComboBox = PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString() );
   connect( patternComboBox, SIGNAL( activated(int) ),
-	   SLOT( patternComboBoxToggled(int) ) );
+      SLOT( patternComboBoxToggled(int) ) );
 
   //pattern colour
   patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
   connect( patternColourBox, SIGNAL( activated(int) ),
-	   SLOT( patternColourBoxToggled(int) ) );
+      SLOT( patternColourBoxToggled(int) ) );
 
   //alpha blending
   alphaSpinBox = new QSpinBox(advFrame);
@@ -730,12 +720,12 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   alphaSpinBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   connect( alphaSpinBox, SIGNAL( valueChanged(int) ),
-	   SLOT( alphaChanged(int) ) );
+      SLOT( alphaChanged(int) ) );
   //zero value
   zero1ComboBox= new QComboBox( advFrame );
   zero1ComboBox->setEnabled( false );
   connect( zero1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( zero1ComboBoxToggled(int) ) );
+      SLOT( zero1ComboBoxToggled(int) ) );
 
   //min
   min1ComboBox = new QComboBox(advFrame);
@@ -746,9 +736,9 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
   max1ComboBox->setEnabled( false );
 
   connect( min1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( min1ComboBoxToggled(int) ) );
+      SLOT( min1ComboBoxToggled(int) ) );
   connect( max1ComboBox, SIGNAL( activated(int) ),
-	   SLOT( max1ComboBoxToggled(int) ) );
+      SLOT( max1ComboBoxToggled(int) ) );
 
 
   // layout......................................................
@@ -789,7 +779,7 @@ valueLabelCheckBox= new QCheckBox(tr("Number on line"), advFrame);
 
   QGridLayout* adv2Layout = new QGridLayout();
   adv2Layout->addWidget(advSep2,               0, 0,1,3);
-//  adv2Layout->addWidget( tableCheckBox,      1, 0 );
+  //  adv2Layout->addWidget( tableCheckBox,      1, 0 );
   adv2Layout->addWidget( repeatCheckBox,  1, 0 );
   adv2Layout->addWidget( shadingLabel,       2, 0 );
   adv2Layout->addWidget( shadingComboBox,    2, 1 );
@@ -832,7 +822,7 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
   fields= vcrossm->getFieldNames(models[index]);
   QApplication::restoreOverrideCursor();
 
-//###  fieldbox->clearSelection();
+  //###  fieldbox->clearSelection();
   if (fieldbox->count()>0) {
     fieldbox->clearSelection();
     fieldbox->clear();
@@ -845,7 +835,7 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
   fieldbox->blockSignals(true);
 
   for (int i=0; i<nf; i++)
-      fieldbox->addItem(QString(fields[i].c_str()));
+    fieldbox->addItem(QString(fields[i].c_str()));
   fieldbox->setEnabled( true );
 
   countSelected.resize(nf);
@@ -858,8 +848,8 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
       j=0;
       while (j<nf && selectedFields[i].field!=fields[j]) j++;
       if (j<nf) {
-	fieldbox->item(j)->setSelected(true);
-	countSelected[j]++;
+        fieldbox->item(j)->setSelected(true);
+        countSelected[j]++;
       }
     }
   }
@@ -906,14 +896,14 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
       map<miutil::miString,miutil::miString>::iterator pfopt;
       pfopt= fieldOptions.find(fields[indexF]);
       if (pfopt!=fieldOptions.end())
-	sf.fieldOpts= pfopt->second;
+        sf.fieldOpts= pfopt->second;
 
       selectedFields.push_back(sf);
 
       countSelected[indexF]++;
 
       selectedFieldbox->addItem(modelbox->item(indexM)->text() + " " +
-				fieldbox->item(indexF)->text());
+          fieldbox->item(indexF)->text());
       last= selectedFields.size()-1;
 
     } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]>0) {
@@ -922,35 +912,35 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
       j= jp= -1;
       int jsel=-1, isel= selectedFieldbox->currentRow();
       for (i=0; i<n; i++) {
-	if (selectedFields[i].model==models[indexM]  &&
-	    selectedFields[i].field==fields[indexF]) {
-	  jp=j;
-	  j=i;
-	  if (i==isel) jsel=isel;
-	}
+        if (selectedFields[i].model==models[indexM]  &&
+            selectedFields[i].field==fields[indexF]) {
+          jp=j;
+          j=i;
+          if (i==isel) jsel=isel;
+        }
       }
       if (j>=0) {   // anything else is a program error!
-	// remove item in selectedFieldbox,
+        // remove item in selectedFieldbox,
         // a field may be selected (by copy) more than once,
         // the selected or the last of those are removed
         if (jsel>=0 && jp>=0) {
-	  jp= j;
-	  j= jsel;
+          jp= j;
+          j= jsel;
         }
-	if (jp>=0) {
-	  fieldbox->blockSignals(true);
-	  fieldbox->setCurrentRow(indexF);
-	  fieldbox->item(indexF)->setSelected(true);
-	  fieldbox->blockSignals(false);
-	  lastdelete= jp;
-	} else {
-	  lastdelete= j;
-	}
-	countSelected[indexF]--;
+        if (jp>=0) {
+          fieldbox->blockSignals(true);
+          fieldbox->setCurrentRow(indexF);
+          fieldbox->item(indexF)->setSelected(true);
+          fieldbox->blockSignals(false);
+          lastdelete= jp;
+        } else {
+          lastdelete= j;
+        }
+        countSelected[indexF]--;
         selectedFieldbox->takeItem(j);
-	for (i=j; i<n-1; i++)
-	  selectedFields[i]=selectedFields[i+1];
-	selectedFields.pop_back();
+        for (i=j; i<n-1; i++)
+          selectedFields[i]=selectedFields[i+1];
+        selectedFields.pop_back();
       }
     }
   }
@@ -991,7 +981,7 @@ void VcrossDialog::enableFieldOptions(){
   if (index<0 || index>lastindex) {
     cerr << "PROGRAM ERROR.1 in VcrossDialog::enableFieldOptions" << endl;
     cerr << "       index,selectedFields.size: "
-	 << index << " " << selectedFields.size() << endl;
+        << index << " " << selectedFields.size() << endl;
     disableFieldOptions();
     return;
   }
@@ -1008,27 +998,27 @@ void VcrossDialog::enableFieldOptions(){
     changeModelButton->setEnabled( true );
   Delete->setEnabled( true );
   copyField->setEnabled( true );
-//###############################################################################
-//  cerr<<"fieldOpts: "<<selectedFields[index].fieldOpts<<endl;
-//###############################################################################
+  //###############################################################################
+  //  cerr<<"fieldOpts: "<<selectedFields[index].fieldOpts<<endl;
+  //###############################################################################
 
   if (selectedFields[index].fieldOpts==currentFieldOpts) return;
 
   currentFieldOpts= selectedFields[index].fieldOpts;
 
-//###############################################################################
-//  cerr << "VcrossDialog::enableFieldOptions: "
-//       << fieldnames[selectedFields[index].fieldnumber] << endl;
-//  cerr << "             " << selectedFields[index].fieldOpts << endl;
-//###############################################################################
+  //###############################################################################
+  //  cerr << "VcrossDialog::enableFieldOptions: "
+  //       << fieldnames[selectedFields[index].fieldnumber] << endl;
+  //  cerr << "             " << selectedFields[index].fieldOpts << endl;
+  //###############################################################################
 
   deleteAll->setEnabled( true );
   resetOptionsButton->setEnabled( true );
 
   vpcopt= cp->parse(selectedFields[index].fieldOpts);
 
-//###############################################################################
-/*******************************************************
+  //###############################################################################
+  /*******************************************************
   n=vpcopt.size();
   bool err=false;
   bool listall= true;
@@ -1050,8 +1040,8 @@ void VcrossDialog::enableFieldOptions(){
         cerr << "               " << k << "    intValue: " << vpcopt[j].intValue[k] << endl;
     }
   }
-*******************************************************/
-//###############################################################################
+   *******************************************************/
+  //###############################################################################
 
   // colour(s)
   if ((nc=cp->findKey(vpcopt,"colour"))>=0) {
@@ -1062,12 +1052,12 @@ void VcrossDialog::enableFieldOptions(){
     }
     i=0;
     if(vpcopt[nc].allValue.downcase() == "off" ||
-       vpcopt[nc].allValue.downcase() == "av" ){
+        vpcopt[nc].allValue.downcase() == "av" ){
       updateFieldOptions("colour","off");
       colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
-	     && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
+          && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
       colorCbox->setCurrentIndex(i+1);
@@ -1082,14 +1072,14 @@ void VcrossDialog::enableFieldOptions(){
     shadingSpinBox->setEnabled(true);
     shadingcoldComboBox->setEnabled(true);
     shadingcoldSpinBox->setEnabled(true);
-//    tableCheckBox->setEnabled(true);
+    //    tableCheckBox->setEnabled(true);
     patternComboBox->setEnabled(true);
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
     vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
     vector<miutil::miString> stokens = tokens[0].split(";");
     if(stokens.size()==2)
-      shadingSpinBox->setValue(atoi(stokens[1].cStr()));
+      shadingSpinBox->setValue(atoi(stokens[1].c_str()));
     else
       shadingSpinBox->setValue(0);
     int nr_cs = csInfo.size();
@@ -1107,15 +1097,15 @@ void VcrossDialog::enableFieldOptions(){
     if(tokens.size()==2){
       vector<miutil::miString> stokens = tokens[1].split(";");
       if(stokens.size()==2)
-	shadingcoldSpinBox->setValue(atoi(stokens[1].cStr()));
-	shadingcoldSpinBox->setValue(0);
+        shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
+      shadingcoldSpinBox->setValue(0);
       i=0;
       while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
       if (i==nr_cs) {
-	shadingcoldComboBox->setCurrentIndex(0);
+        shadingcoldComboBox->setCurrentIndex(0);
       }else {
-	str += "," + tokens[1];
-	shadingcoldComboBox->setCurrentIndex(i+1);
+        str += "," + tokens[1];
+        shadingcoldComboBox->setCurrentIndex(i+1);
       }
     } else {
       shadingcoldComboBox->setCurrentIndex(0);
@@ -1127,8 +1117,8 @@ void VcrossDialog::enableFieldOptions(){
     shadingComboBox->setEnabled(false);
     shadingcoldComboBox->setCurrentIndex(0);
     shadingcoldComboBox->setEnabled(false);
-//    tableCheckBox->setEnabled(false);
-//    updateFieldOptions("table","remove");
+    //    tableCheckBox->setEnabled(false);
+    //    updateFieldOptions("table","remove");
     patternComboBox->setEnabled(false);
     updateFieldOptions("patterns","remove");
     repeatCheckBox->setEnabled(false);
@@ -1174,13 +1164,13 @@ void VcrossDialog::enableFieldOptions(){
   }
 
   //table
-//  nc=cp->findKey(vpcopt,"table");
-//  if (nc>=0) {
-//    bool on= vpcopt[nc].allValue=="1";
-//    tableCheckBox->setChecked( on );
-//    tableCheckBox->setEnabled(true);
-//    tableCheckBoxToggled(on);
-//  }
+  //  nc=cp->findKey(vpcopt,"table");
+  //  if (nc>=0) {
+  //    bool on= vpcopt[nc].allValue=="1";
+  //    tableCheckBox->setChecked( on );
+  //    tableCheckBox->setEnabled(true);
+  //    tableCheckBoxToggled(on);
+  //  }
 
   //repeat
   nc=cp->findKey(vpcopt,"repeat");
@@ -1258,11 +1248,11 @@ void VcrossDialog::enableFieldOptions(){
     if (s=="0") {
       i=0;
     } else {
-      i = densityStringList.indexOf(QString(s.cStr()));
+      i = densityStringList.indexOf(QString(s.c_str()));
       if (i==-1) {
-        densityStringList <<QString(s.cStr());
-	densityCbox->addItem(QString(s.cStr()));
-	i=densityCbox->count()-1;
+        densityStringList <<QString(s.c_str());
+        densityCbox->addItem(QString(s.c_str()));
+        i=densityCbox->count()-1;
       }
     }
     densityCbox->setCurrentIndex(i);
@@ -1276,10 +1266,8 @@ void VcrossDialog::enableFieldOptions(){
     if (vpcopt[nc].floatValue.size()>0) e= vpcopt[nc].floatValue[0];
     else e=5;
     vectorunit= numberList( vectorunitCbox, e);
-    vectorunitCbox->setEnabled(true);
   } else if (vectorunitCbox->isEnabled()) {
     vectorunitCbox->clear();
-    vectorunitCbox->setEnabled(false);
   }
 
   if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
@@ -1332,7 +1320,7 @@ void VcrossDialog::enableFieldOptions(){
     extremeRadiusSpinBox->setValue(100);
     extremeRadiusSpinBox->setEnabled(false);
   }
-*************************************************************************/
+   *************************************************************************/
 
   if ((nc=cp->findKey(vpcopt,"line.smooth"))>=0) {
     if (vpcopt[nc].intValue.size()>0) i=vpcopt[nc].intValue[0];
@@ -1375,7 +1363,7 @@ void VcrossDialog::enableFieldOptions(){
   hourOffsetSpinBox->setValue(i);
   hourOffsetSpinBox->setEnabled(true);
 
-/*************************************************************************
+  /*************************************************************************
   // undefined masking
   if ((nc=cp->findKey(vpcopt,"undef.masking"))>=0) {
     n= undefMasking.size();
@@ -1455,7 +1443,7 @@ void VcrossDialog::enableFieldOptions(){
     undefLinetypeCbox->clear();
     undefLinetypeCbox->setEnabled(false);
   }
-*************************************************************************/
+   *************************************************************************/
 
   nc=cp->findKey(vpcopt,"zero.line");
   if (nc>=0) {
@@ -1489,9 +1477,9 @@ void VcrossDialog::enableFieldOptions(){
     min1ComboBox->setEnabled(true);
     float value;
     if(vpcopt[nc].allValue=="off")
-      value=atof(base.cStr());
+      value=atof(base.c_str());
     else
-      value = atof(vpcopt[nc].allValue.cStr());
+      value = atof(vpcopt[nc].allValue.c_str());
     baseList(min1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
       min1ComboBox->setCurrentIndex(0);
@@ -1504,9 +1492,9 @@ void VcrossDialog::enableFieldOptions(){
     max1ComboBox->setEnabled(true);
     float value;
     if(vpcopt[nc].allValue=="off")
-      value=atof(base.cStr());
+      value=atof(base.c_str());
     else
-      value = atof(vpcopt[nc].allValue.cStr());
+      value = atof(vpcopt[nc].allValue.c_str());
     baseList(max1ComboBox,value,ekv,true);
     if(vpcopt[nc].allValue=="off")
       max1ComboBox->setCurrentIndex(0);
@@ -1545,7 +1533,7 @@ void VcrossDialog::disableFieldOptions(){
   shadingcoldComboBox->setEnabled( false );
   shadingcoldSpinBox->setValue(0);
   shadingcoldSpinBox->setEnabled( false );
-//  tableCheckBox->setEnabled(false);
+  //  tableCheckBox->setEnabled(false);
   patternComboBox->setEnabled(false);
   patternColourBox->setEnabled(false);
   repeatCheckBox->setEnabled(false);
@@ -1563,7 +1551,6 @@ void VcrossDialog::disableFieldOptions(){
   densityCbox->setEnabled( false );
 
   vectorunitCbox->clear();
-  vectorunitCbox->setEnabled( false );
 
   extremeValueCheckBox->setChecked( false );
   extremeValueCheckBox->setEnabled( false );
@@ -1629,7 +1616,7 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
 
   const int nenormal = 10;
   const float enormal[nenormal] = { 1., 2., 2.5, 3., 4., 5.,
-			            6., 7., 8., 9. };
+      6., 7., 8., 9. };
   float e, elog, ex, d, dd;
   int   i, j, k, n, ielog, nupdown;
 
@@ -1661,7 +1648,7 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
 
   QString qs;
   for (i=0; i<n; ++i) {
-    cBox->addItem(QString(vnumber[i].cStr()));
+    cBox->addItem(QString(vnumber[i].c_str()));
   }
 
   cBox->setCurrentIndex(nupdown);
@@ -1670,9 +1657,9 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
 }
 
 miutil::miString VcrossDialog::baseList( QComboBox* cBox,
-				float base,
-				float ekv,
-				bool onoff )
+    float base,
+    float ekv,
+    bool onoff )
 {
   miutil::miString str;
 
@@ -1696,10 +1683,10 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
     j++;
     float e= base + ekv*float(j);
     if(fabs(e)<ekv/2)
-    cBox->addItem("0");
+      cBox->addItem("0");
     else{
       miutil::miString estr(e);
-      cBox->addItem(estr.cStr());
+      cBox->addItem(estr.c_str());
     }
   }
 
@@ -1796,7 +1783,7 @@ void VcrossDialog::extremeLimitsChanged() {
     }
     extremeString = ost.str();
   }
-    updateFieldOptions("extreme.limits",extremeString);
+  updateFieldOptions("extreme.limits",extremeString);
 }
 
 //void VcrossDialog::extremeTypeActivated(int index){
@@ -1940,7 +1927,7 @@ void VcrossDialog::zero1ComboBoxToggled(int index){
   if(!zero1ComboBox->currentText().isNull() ){
     miutil::miString str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base",str);
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = lineintervalCbox->currentText().toInt();
     baseList(zero1ComboBox,a,b,true);
   }
@@ -1952,7 +1939,7 @@ void VcrossDialog::min1ComboBoxToggled(int index){
   else if(!min1ComboBox->currentText().isNull() ){
     miutil::miString str = min1ComboBox->currentText().toStdString();
     updateFieldOptions("minvalue",str);
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
       b = lineintervalCbox->currentText().toInt();
@@ -1966,7 +1953,7 @@ void VcrossDialog::max1ComboBoxToggled(int index){
   else if(!max1ComboBox->currentText().isNull() ){
     miutil::miString str = max1ComboBox->currentText().toStdString();
     updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
-    float a = atof(str.cStr());
+    float a = atof(str.c_str());
     float b = 1.0;
     if(!lineintervalCbox->currentText().isNull() )
       b = lineintervalCbox->currentText().toInt();
@@ -1974,11 +1961,11 @@ void VcrossDialog::max1ComboBoxToggled(int index){
   }
 }
 void VcrossDialog::updateFieldOptions(const miutil::miString& name,
-				      const miutil::miString& value,
-				      int valueIndex) {
+    const miutil::miString& value,
+    int valueIndex) {
 #ifdef DEBUGPRINT
   cerr<<"VcrossDialog::updateFieldOptions  name= " << name
-			           << "  value= " << value <<endl;
+      << "  value= " << value <<endl;
 #endif
 
   if (currentFieldOpts.empty()) return;
@@ -2009,10 +1996,10 @@ vector<miutil::miString> VcrossDialog::getOKString(){
 
   if (historyOkButton->isEnabled()) historyOk();
 
-//#################################################################
-//  cerr<<"VcrossDialog::getOKString  selectedFields.size()= "
-//      <<selectedFields.size()<<endl;
-//#################################################################
+  //#################################################################
+  //  cerr<<"VcrossDialog::getOKString  selectedFields.size()= "
+  //      <<selectedFields.size()<<endl;
+  //#################################################################
 
   vector<miutil::miString> vstr;
   if (selectedFields.size()==0) return vstr;
@@ -2026,7 +2013,7 @@ vector<miutil::miString> VcrossDialog::getOKString(){
     ostringstream ostr;
 
     ostr << "model=" << selectedFields[i].model
-         << " field=" <<  selectedFields[i].field;
+        << " field=" <<  selectedFields[i].field;
     //#############################################################
     //cerr << "OK: " << ostr.str() << endl;
     //#############################################################
@@ -2059,10 +2046,10 @@ vector<miutil::miString> VcrossDialog::getOKString(){
     if (hs>0) {
       hs--;
       if (commandHistory[hs].size()==hstr.size()) {
-	newcommand= false;
-	n= hstr.size();
-	for (int i=0; i<n; i++)
-	  if (commandHistory[hs][i]!=hstr[i]) newcommand= true;
+        newcommand= false;
+        n= hstr.size();
+        for (int i=0; i<n; i++)
+          if (commandHistory[hs][i]!=hstr[i]) newcommand= true;
       }
     }
     if (newcommand) commandHistory.push_back(hstr);
@@ -2178,21 +2165,21 @@ void VcrossDialog::showHistory(int step) {
       miutil::miString str;
       bool modelfound= false, fieldfound= false;
       for (int j=0; j<m; j++) {
-	if (vpc[j].idNumber>0) {
-	  if (vpc[j].key=="model") modelfound= true;
-	  if (vpc[j].key=="field") fieldfound= true;
-	  if (vpc[j].key=="model") str= vpc[j].allValue;
-	  if (vpc[j].key=="field") str+=(" " + vpc[j].allValue);
-	}
+        if (vpc[j].idNumber>0) {
+          if (vpc[j].key=="model") modelfound= true;
+          if (vpc[j].key=="field") fieldfound= true;
+          if (vpc[j].key=="model") str= vpc[j].allValue;
+          if (vpc[j].key=="field") str+=(" " + vpc[j].allValue);
+        }
       }
       if (modelfound && fieldfound)
-	vstr.push_back(str);
+        vstr.push_back(str);
     }
 
     int nvstr= vstr.size();
     if (nvstr>0) {
       for (int i=0; i<nvstr; i++)
-	  selectedFieldbox->addItem(QString(vstr[i].c_str()));
+        selectedFieldbox->addItem(QString(vstr[i].c_str()));
       deleteAll->setEnabled(true);
     }
 
@@ -2219,7 +2206,7 @@ void VcrossDialog::historyOk() {
 
 
 void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
-			      bool vcrossPrefix, bool checkOptions)
+    bool vcrossPrefix, bool checkOptions)
 {
 #ifdef DEBUGPRINT
   cerr << "VcrossDialog::putOKString starts" << endl;
@@ -2234,15 +2221,15 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
 
   miutil::miString fields2_model,model,field,fOpts;
   int ic,i,j,m,n,hourOffset;
-  vector<miutil::miString> fields2;
+  vector<std::string> fields2;
   int nf2= 0;
   vector<ParsedCommand> vpc;
 
   for (ic=0; ic<nc; ic++) {
 
-//######################################################################
-//    cerr << "P.OK>> " << vstr[ic] << endl;
-//######################################################################
+    //######################################################################
+    //    cerr << "P.OK>> " << vstr[ic] << endl;
+    //######################################################################
     if (checkOptions) {
       miutil::miString str= checkFieldOptions(vstr[ic],vcrossPrefix);
       if (str.empty()) continue;
@@ -2258,21 +2245,21 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
 
     m=vpc.size();
     for (j=0; j<m; j++) {
-//######################################################################
-//cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-//     << "   " << vpc[j].allValue << endl;
-//######################################################################
+      //######################################################################
+      //cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+      //     << "   " << vpc[j].allValue << endl;
+      //######################################################################
       if      (vpc[j].key=="model")      model=      vpc[j].strValue[0];
       else if (vpc[j].key=="field")      field=      vpc[j].strValue[0];
       else if (vpc[j].key=="hour.offset")hourOffset= vpc[j].intValue[0];
       else if (vpc[j].key!="unknown") {
-	if (fOpts.length()>0) fOpts+=" ";
-	fOpts+=(vpc[j].key + "=" + vpc[j].allValue);
+        if (fOpts.length()>0) fOpts+=" ";
+        fOpts+=(vpc[j].key + "=" + vpc[j].allValue);
       }
     }
-//######################################################################
-//    cerr << " ->" << model << " " << field << endl;
-//######################################################################
+    //######################################################################
+    //    cerr << " ->" << model << " " << field << endl;
+    //######################################################################
 
     if (model!=fields2_model) {
       fields2= vcrossm->getFieldNames(model);
@@ -2312,7 +2299,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
           if (j<n) {
             countSelected[j]++;
             fieldbox->item(j)->setSelected(true);
-	    change= true;
+            change= true;
           }
         }
       }
@@ -2364,8 +2351,8 @@ vector<miutil::miString> VcrossDialog::writeLog() {
 
 
 void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
-			   const miutil::miString& thisVersion,
-			   const miutil::miString& logVersion) {
+    const miutil::miString& thisVersion,
+    const miutil::miString& logVersion) {
 
   miutil::miString str,fieldname,fopts;
   vector<miutil::miString> hstr;
@@ -2386,12 +2373,12 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
     if (vstr[ivstr].substr(0,4)=="----") {
       if (hstr.size()>0) {
         commandHistory.push_back(hstr);
-	hstr.clear();
+        hstr.clear();
       }
     } else {
       str= checkFieldOptions(vstr[ivstr],false);
       if (str.exists())
-	hstr.push_back(str);
+        hstr.push_back(str);
     }
   }
   ivstr++;
@@ -2414,48 +2401,48 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
       if (pfopt!=pfend) {
         vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
         vector<ParsedCommand> vplog= cp->parse( fopts );
-	nopt= vpopt.size();
-	nlog= vplog.size();
-	changed= false;
-	for (i=0; i<nopt; i++) {
-	  j=0;
-	  while (j<nlog && vplog[j].key!=vpopt[i].key) j++;
-	  if (j<nlog) {
-	    // there is no option with variable no. of values, YET...
-	    if (vplog[j].allValue!=vpopt[i].allValue &&
-	        vplog[j].strValue.size()==vpopt[i].strValue.size()) {
-	      //###########################################################
-	      //cerr << "    D.CH: " << fieldname << " "
+        nopt= vpopt.size();
+        nlog= vplog.size();
+        changed= false;
+        for (i=0; i<nopt; i++) {
+          j=0;
+          while (j<nlog && vplog[j].key!=vpopt[i].key) j++;
+          if (j<nlog) {
+            // there is no option with variable no. of values, YET...
+            if (vplog[j].allValue!=vpopt[i].allValue &&
+                vplog[j].strValue.size()==vpopt[i].strValue.size()) {
+              //###########################################################
+              //cerr << "    D.CH: " << fieldname << " "
               //                     << vpopt[j].key << " "
               //                     << vpopt[j].allValue << " -> "
               //                     << vplog[i].allValue << endl;
-	      //###########################################################
-	      cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
-	      changed= true;
-	    }
-	  }
-	}
-	for (i=0; i<nlog; i++) {
-	  j=0;
-	  while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
-	  if (j==nopt) {
-	    cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
-	  }
-	}
+              //###########################################################
+              cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
+              changed= true;
+            }
+          }
+        }
+        for (i=0; i<nlog; i++) {
+          j=0;
+          while (j<nopt && vpopt[j].key!=vplog[i].key) j++;
+          if (j==nopt) {
+            cp->replaceValue(vpopt,vplog[i].key,vplog[i].allValue);
+          }
+        }
         if (changed) {
-	  //###########################################################
-	  //cerr << "D.OLD: " << fieldname << " " << pfopt->second << endl;
-	  //cerr << "D.LOG: " << fieldname << " " << fopts << endl;
-	  //###########################################################
-	  pfopt->second= cp->unParse(vpopt);
-	  //###########################################################
-	  //cerr << "D.NEW: " << fieldname << " " << pfopt->second << endl;
-	  //###########################################################
-	  changedOptions[fieldname]= true;
-	}
-	//###########################################################
-	//else cerr << "D.OK:  " << fieldname << " " << pfopt->second << endl;
-	//###########################################################
+          //###########################################################
+          //cerr << "D.OLD: " << fieldname << " " << pfopt->second << endl;
+          //cerr << "D.LOG: " << fieldname << " " << fopts << endl;
+          //###########################################################
+          pfopt->second= cp->unParse(vpopt);
+          //###########################################################
+          //cerr << "D.NEW: " << fieldname << " " << pfopt->second << endl;
+          //###########################################################
+          changedOptions[fieldname]= true;
+        }
+        //###########################################################
+        //else cerr << "D.OK:  " << fieldname << " " << pfopt->second << endl;
+        //###########################################################
       }
       //###########################################################
       //else cerr << "D.UNKNOWN: " << fieldname << " " << fopts << endl;
@@ -2481,59 +2468,73 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
 
   map<miutil::miString,miutil::miString>::iterator pfopt;
   miutil::miString fieldname;
-  int nopt,i,j;
+  int nopt;
 
   vector<ParsedCommand> vplog= cp->parse( str );
   int nlog= vplog.size();
   int first= (vcrossPrefix) ? 1 : 0;
 
   if (nlog>=2+first && vplog[first].key=="model"
-	            && vplog[first+1].key=="field") {
+      && vplog[first+1].key=="field") {
     fieldname= vplog[first+1].allValue;
     pfopt= setupFieldOptions.find(fieldname);
     if (pfopt!=setupFieldOptions.end()) {
       vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
       nopt= vpopt.size();
-//##################################################################
-//    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
-//    for (j=0; j<nlog; j++)
-//	cerr << "        log " << j << " : id " << vplog[j].idNumber
-//	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
-//##################################################################
+      //##################################################################
+      //    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
+      //    for (int j=0; j<nlog; j++)
+      //	cerr << "        log " << j << " : id " << vplog[j].idNumber
+      //	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
+      //##################################################################
       if (vcrossPrefix) newstr= "VCROSS ";
-      for (i=first; i<nlog; i++) {
-	if (vplog[i].idNumber==1)
-	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+      for (int i=first; i<nlog; i++) {
+        if (vplog[i].idNumber==1)
+          newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
-      for (j=0; j<nopt; j++) {
-	i=0;
-	while (i<nlog && vplog[i].key!=vpopt[j].key) i++;
-	if (i<nlog) {
-	  // there is no option with variable no. of values, YET...
-	  if (vplog[i].allValue!=vpopt[j].allValue &&
+
+      //loop through current options, replace the value if the new string has same option with different value
+      for (int j=0; j<nopt; j++) {
+        int i=0;
+        while (i<nlog && vplog[i].key!=vpopt[j].key) i++;
+        if (i<nlog) {
+          // there is no option with variable no. of values, YET...
+          if (vplog[i].allValue!=vpopt[j].allValue &&
               vplog[i].strValue.size()==vpopt[j].strValue.size())
-	    cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
-	}
+            cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
+        }
       }
+
+      //loop through new options, add new option if it is not a part of current options
+       for (int i = 2; i < nlog; i++) {
+         int j = 0;
+         while (j < nopt && vpopt[j].key != vplog[i].key)
+           j++;
+         if (j == nopt) {
+           cp->replaceValue(vpopt, vplog[i].key, vplog[i].allValue);
+         }
+       }
+
+
       newstr+= " ";
       newstr+= cp->unParse(vpopt);
       if (vcrossPrefix) {
-	// from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-        for (i=2+first; i<nlog; i++) {
-	  if (vplog[i].idNumber==4 || vplog[i].idNumber==-1)
-	    newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+        // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
+        for (int i=2+first; i<nlog; i++) {
+          if (vplog[i].idNumber==4 || vplog[i].idNumber==-1)
+            newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
         }
       }
-      for (i=2+first; i<nlog; i++) {
-	if (vplog[i].idNumber==3)
-	  newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
+      for (int i=2+first; i<nlog; i++) {
+        if (vplog[i].idNumber==3)
+          newstr+= (" " + vplog[i].key + "=" + vplog[i].allValue);
       }
     }
   }
-//##################################################################
-//  cerr<<"cF str:    "<<str<<endl;
-//  cerr<<"cF newstr: "<<newstr<<endl;
-//##################################################################
+  //##################################################################
+  //  cerr<<"cF str:    "<<str<<endl;
+  //  cerr<<"cF newstr: "<<newstr<<endl;
+  //##################################################################
 
   return newstr;
 }
@@ -2694,12 +2695,12 @@ void VcrossDialog::changeModel(){
       j= 0;
       while (j<nf && selectedFields[i].field!=fields[j]) j++;
       if (j<nf) {
-	countSelected[j]++;
-	if (countSelected[j]==1) {
-	  countSelected[j]++;
-	  fieldbox->setCurrentRow( j );
-	  fieldbox->item(j)->setSelected( true );
-	}
+        countSelected[j]++;
+        if (countSelected[j]==1) {
+          countSelected[j]++;
+          fieldbox->setCurrentRow( j );
+          fieldbox->item(j)->setSelected( true );
+        }
         selectedFields[i].model= model;
         miutil::miString str= model + " " + fields[j];
         QString qstr= str.c_str();
@@ -2842,7 +2843,7 @@ void VcrossDialog::cleanup()
   int n= models.size();
   if (n>0) {
     for (int i=0; i<n; i++)
-	modelbox->addItem(QString(models[i].c_str()));
+      modelbox->addItem(QString(models[i].c_str()));
   }
   fieldbox->setFocus();
 }

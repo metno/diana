@@ -71,6 +71,7 @@ public:
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
 
+  void parseSetup();
   vector<miutil::miString> writeLog(const miutil::miString& logpart);
   void readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
 	       const miutil::miString& thisVersion, const miutil::miString& logVersion,
@@ -133,7 +134,7 @@ private slots:
 
 signals:
   void SpectrumHide();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
   void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );

@@ -27,6 +27,21 @@ struct PaintAttributes {
     bool stipple;
 };
 
+struct StencilAttributes {
+    GLint clear;
+    GLenum func;
+    GLint ref;
+    GLuint mask;
+    GLenum fail;
+    GLenum zfail;
+    GLenum zpass;
+    QPainterPath path;
+
+    bool clip;
+    bool update;
+    bool enabled;
+};
+
 struct RenderItem {
     GLenum mode;
     QPainter *painter;
@@ -45,6 +60,9 @@ public:
 
     void renderPrimitive();
     void setViewportTransform();
+
+    void setClipPath();
+    void unsetClipPath();
 
     QPainter *painter;
 
@@ -68,9 +86,11 @@ public:
     QColor clearColor;
     bool clear;
     QFont font;
+    bool colorMask;
 
     GLenum mode;
     PaintAttributes attributes;
+    StencilAttributes stencil;
     QPolygonF points;
     QList<bool> validPoints;
     QList<QRgb> colors;
@@ -138,14 +158,14 @@ public:
   virtual ~GLPcontext() {}
 
   virtual int StartPage(int mode = GLP_RGBA) { return GLP_SUCCESS; }
-  virtual int StartPage(int mode,
-                        int size,
-                        GLPrgba *rgba) { return 0; }
-  virtual int UpdatePage(GLboolean more) { return GLP_SUCCESS; }
+  virtual int StartPage(int /* mode */,
+                        int /* size */,
+                        GLPrgba * /* rgba */) { return 0; }
+  virtual int UpdatePage(GLboolean /* more */) { return GLP_SUCCESS; }
   virtual int EndPage() { return GLP_SUCCESS; }
 
   void addReset() {}
-  void setViewport(int x, int y, int width, int height) {}
+  void setViewport(int /* x */, int /* y */, int /* width */, int /* height */) {}
   // add image - x/y in pixel coordinates
   virtual bool AddImage(const GLvoid*,// pixels
                         GLint,GLint,GLint, // size,nx,ny
@@ -159,11 +179,11 @@ public:
   bool addClipPath(const int& size,
                    const float* x, const float* y,
                    const bool rect = false);
-  void addStencil(const int& size, const float* x, const float* y) {}
-  void addScissor(const double x0, const double y0,
-                  const double  w, const double  h) {}
-  void addScissor(const int x0, const int y0,
-                  const int  w, const int  h) {}
+  void addStencil(const int& /* size */, const float* /* x */, const float* /* y */) {}
+  void addScissor(const double /* x0 */, const double /* y0 */,
+                  const double /* w */, const double /* h */) {}
+  void addScissor(const int /* x0 */, const int /* y0 */,
+                  const int /* w */, const int /* h */) {}
 
   bool removeClipping() { return true; }
 };
@@ -294,6 +314,7 @@ private:
   int Sizes[glText::MAXFONTSIZES];
   int numFonts; // number of defined fonts
   int numSizes; // number of defined fontsizes
+  QHash<QString,QString> fontMap;
 
   int FontIndex; // current font index
   glText::FontFace Face; // current font face
@@ -317,6 +338,8 @@ private:
 
 class PaintGLWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
     PaintGLWidget(QWidget *parent, bool antialiasing = false);
     virtual ~PaintGLWidget();
@@ -326,6 +349,10 @@ public:
     void makeCurrent();
     void swapBuffers();
     virtual void updateGL();
+
+public slots:
+    /// Print the visible contents of the widget.
+    void print(QPrinter* device);
 
 protected:
     void paintEvent(QPaintEvent* event);

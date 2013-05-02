@@ -3,6 +3,7 @@
 #endif
 
 #include <QVBoxLayout>
+#include <QLabel>
 
 
 #include "qtProfetSingleControl.h"
@@ -70,8 +71,8 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
         false,
         this);
     slider[itr->first] = mySlider;
-    connect(slider[itr->first],SIGNAL(valueChangedForPar(float,miutil::miString)),this,
-        SLOT(valueChangedBySlider(float,miutil::miString)));
+    connect(slider[itr->first],SIGNAL(valueChangedForPar(float,std::string)),this,
+        SLOT(valueChangedBySlider(float,std::string)));
 
     vb->addWidget(slider[itr->first]);
   }
@@ -126,7 +127,7 @@ void ProfetSingleControl::resetValue(miutil::miString par)
 }
 
 
-void ProfetSingleControl::valueChangedBySlider(float v, miutil::miString par)
+void ProfetSingleControl::valueChangedBySlider(float v, std::string par)
 {
   emit pushundo();
   valueChanged(v, par);
@@ -134,7 +135,7 @@ void ProfetSingleControl::valueChangedBySlider(float v, miutil::miString par)
     
     
     
-void ProfetSingleControl::valueChanged(float v, miutil::miString par)
+void ProfetSingleControl::valueChanged(float v, std::string par)
 {
   if(!data.parameters.count(par))
     return;

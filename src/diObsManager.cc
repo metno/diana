@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <iostream>
 #include <set>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #ifdef METNOOBS
 #include <diObsSynop.h>
@@ -64,11 +66,13 @@
 #endif
 
 #include <diObsManager.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
 
 using namespace std; using namespace miutil;
+
+// #define DEBUGPRINT 1
 
 
 // Default constructor
@@ -527,16 +531,22 @@ bool ObsManager::updateTimes(miString obsType)
   vector<FileInfo> oldfileInfo = Prod[obsType].fileInfo;
   Prod[obsType].fileInfo.clear();
 #ifdef ROADOBS
+  // WMO (synop) reports 1 time per hour. ICAO (metar) reports ever 30 minutes (x.20, x.50)
+  // Can we trust in obsType to select the right time intervall and obstime?
   if (Prod[obsType].obsformat == ofmt_roadobs)
   {
-	// Due to the fact that we have a database insteda of an archive,
+	// Due to the fact that we have a database instead of an archive,
 	// we maust fake the behavoir of anarchive
 	// Assume that all stations report every hour
 	// firt, get the current time.
 	miTime now = miTime::nowTime();
 	miClock nowClock = now.clock();
 	miDate nowDate = now.date();
-	nowClock.setClock(nowClock.hour(),0,0);
+	if (obsType.contains("wmo") || obsType.contains("ship"))
+		nowClock.setClock(nowClock.hour(),0,0);
+	else if (obsType.contains("icao"))
+		// if metar select startime +20 minutes.
+		nowClock.setClock(nowClock.hour(),20,0);
 	now.setTime(nowDate, nowClock);
 	// Check first if now already exists in oldfileInfo
 	int n = oldfileInfo.size();
@@ -561,13 +571,19 @@ bool ObsManager::updateTimes(miString obsType)
 		finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
 		finfo.filetype = Prod[obsType].pattern[j].fileType;
 		Prod[obsType].fileInfo.push_back(finfo);
-		time.addHour(-1);
+		if (obsType.contains("wmo") || obsType.contains("ship"))
+			time.addHour(-1);
+		else if (obsType.contains("icao"))
+			time.addMin(-30);
 		while ((hourdiff = miTime::hourDiff(time, starttime)) > 0) {
 			finfo.time = time;
 			finfo.filename = "ROADOBS_" + time.isoDate() + "_" + time.isoClock(true, true);
 			finfo.filetype = Prod[obsType].pattern[j].fileType;
 			Prod[obsType].fileInfo.push_back(finfo);
-			time.addHour(-1);
+			if (obsType.contains("wmo") || obsType.contains("ship"))
+				time.addHour(-1);
+			else if (obsType.contains("icao"))
+				time.addMin(-30);
 		}
 	 }
   }
@@ -576,12 +592,13 @@ bool ObsManager::updateTimes(miString obsType)
 #endif
   int npattern = Prod[obsType].pattern.size();
   for( int j=0;j<npattern; j++) {
-    if( !Prod[obsType].pattern[j].archive || useArchive ){
+    if( (!Prod[obsType].pattern[j].archive && !useArchive) ||
+       (Prod[obsType].pattern[j].archive && useArchive)  ){
       bool ok = Prod[obsType].pattern[j].filter.ok();
 
       glob_t globBuf;
       glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
+      for (__size_t k=0; k < globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if(ok &&
@@ -618,7 +635,7 @@ bool ObsManager::updateTimes(miString obsType)
     }
   }
 #ifdef ROADOBS
-  } // end´if obstype == roadobs
+  } // endï¿½if obstype == roadobs
 #endif
   // Check if timeLists are equal
   if (Prod[obsType].fileInfo.size() == oldfileInfo.size())
@@ -700,10 +717,11 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
   vector<miString> fname;
 
   for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
-    if( !Prod[obsType].pattern[j].archive || useArchive ){
+    if( (!Prod[obsType].pattern[j].archive && !useArchive ) ||
+      ( Prod[obsType].pattern[j].archive && useArchive ) ){
       glob_t globBuf;
       glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-      for(unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
+      for (__size_t k=0; k < globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
         if (Prod[obsType].pattern[j].fileType == "metnoobs") {
@@ -815,19 +833,14 @@ void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 // return observation times for list of obsTypes
 vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 {
-
-  vector<miTime> times;
   set<miTime> timeset;
 
   int n=obsTypes.size();
   for(int i=0; i<n; i++ ){
 
     miString obsType= obsTypes[i].downcase();
-    if(obsType.contains("hqc")) {
-      continue;
-    }
     if ( Prod[obsType].obsformat == ofmt_url ) {
-      //todo: move some of this to parseSetup
+      // TODO move some of this to parseSetup
       FileInfo finfo;
       if( !Prod[obsType].pattern.size() ) continue;
       finfo.filename = Prod[obsType].pattern[0].pattern;
@@ -857,27 +870,22 @@ vector<miTime> ObsManager::getTimes( vector<miString> obsTypes)
 
     } else {
 
-      if (updateTimes(obsType)) {
-        timeListChanged = true;
-      }
+        if(not obsType.contains("hqc")) {
+            if (updateTimes(obsType)) {
+                timeListChanged = true;
+            }
+            
+            if(Prod[obsType].timeInfo == "notime") continue;
+        }
 
-      if(Prod[obsType].timeInfo == "notime") continue;
-
-      vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
-      for (; p!=Prod[obsType].fileInfo.end(); p++)
-        timeset.insert((*p).time);
-
-
+        vector<FileInfo>::iterator p= Prod[obsType].fileInfo.begin();
+        for (; p!=Prod[obsType].fileInfo.end(); p++)
+            timeset.insert((*p).time);
     }
 
   }
 
-  if (timeset.size()>0) {
-    set<miTime>::iterator p= timeset.begin();
-    for (; p!=timeset.end(); p++) times.push_back(*p);
-  }
-
-  return times;
+  return vector<miTime>(timeset.begin(), timeset.end());
 }
 
 void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
@@ -949,7 +957,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   ObsDialogInfo::PlotType psynop;
   psynop.name = "Synop";
-  psynop.misc = "dev_field_button=true tempPrecision=true more_times";
+  psynop.misc = "dev_field_button=true tempPrecision=true more_times qualityflag wmoflag";
   psynop.criteriaList = criteriaList["synop"];
 
   psynop.button.push_back(addButton("Wind","Wind (direction and speed)"));
@@ -1031,7 +1039,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   plist.name="List";
   plist.misc =
-    "dev_field_button tempPrecision markerboxVisible orientation more_times";
+    "dev_field_button tempPrecision markerboxVisible orientation more_times qualityflag wmoflag";
   plist.criteriaList = criteriaList["list"];
 
   plist.button.push_back(addButton("Pos","Position",0,0,true));
@@ -1052,6 +1060,7 @@ ObsDialogInfo ObsManager::initDialog()
   plist.button.push_back(addButton("RRR_6","precipitation past 6 hours",-1,100));
   plist.button.push_back(addButton("RRR_12","precipitation past 12 hours",-1,100));
   plist.button.push_back(addButton("RRR_24","precipitation past 24 hours",-1,100));
+  plist.button.push_back(addButton("quality","quality",-1,100));
 
 
   obsformat.clear();
@@ -1181,6 +1190,7 @@ ObsDialogInfo ObsManager::initDialog()
 
       type.active.clear();
       type.name= pr->second.dialogName; // same name as the plot type
+	  //type.name = pr->second.plotFormat + ":" + pr->second.dialogName;
       proad.datatype.push_back(type);
       proad.criteriaList = criteriaList["roadobs"];
 
@@ -1441,32 +1451,24 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
 	Prod[oname].useFileTime= true;
   if (headerfound) {
     int nc= roplot->roadobsColumnName.size();
-    int nh= roplot->roadobsColumnHide.size();
-    int addWind= -1;
-    bool on= (nc-nh<7); // ????????
+    bool addWind= false;
     if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ff")) {
       addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ff"]) ?
                 roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ff"];
     }
-    for (int c=0; c<nc; c++) {
-      if (c==addWind) {
+	else if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ffk")) {
+      addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ffk"]) ?
+                roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ffk"];
+    }
+	if (addWind) {
         dialog.plottype[id].button.push_back(addButton("Wind",""));
-//         dialog.plottype[id].button.push_back("Wind");
-//         dialog.plottype[id].Default.push_back(true);
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
-      int h= 0;
-      while (h<nh && roplot->roadobsColumnHide[h]!=
-		     roplot->roadobsColumnName[c]) h++;
-      if (h==nh) {
-        dialog.plottype[id].button.push_back
-	  (addButton(roplot->roadobsColumnName[c],
+    }
+    for (int c=0; c<nc; c++) {
+        dialog.plottype[id].button.push_back(addButton(roplot->roadobsColumnName[c],
 		     roplot->roadobsColumnTooltip[c],
-		     -100,100,on));
-//         dialog.plottype[id].button.push_back(roplot->roadobsColumnName[c]);
-//         dialog.plottype[id].Default.push_back(on);
+		     -100,100,true));
         dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
-      }
     }
   }
 delete roplot;
@@ -1505,8 +1507,8 @@ delete roplot;
         bool found= false;
         glob_t globBuf;
         glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
-        unsigned int k= 0;
-        while (!found && int(k)<globBuf.gl_pathc) {
+        __size_t k= 0;
+        while (!found && k < globBuf.gl_pathc) {
           miString filename = globBuf.gl_pathv[k];
           ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo);
           found= obsAscii.asciiOK();
@@ -1690,6 +1692,9 @@ bool ObsManager::parseSetup()
   }
 
   // ********  Common to all plot types **********************
+  Prod.clear();
+  dialog.plottype.clear();
+  dialog.priority.clear();
 
   // Sliders and LCD-numbers
   dialog.density.minValue = 5;
@@ -1718,7 +1723,7 @@ bool ObsManager::parseSetup()
   defProd["synop"].timeRangeMin=-30;
   defProd["synop"].timeRangeMax= 30;
   defProd["synop"].synoptic= true;
-  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24";
+  parameter= "Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Name,St.no(3),St.no(5),Pos,dd,ff,T_red,Date,Time,Height,Zone,RRR_1,RRR_6,RRR_12,RRR_24,quality";
   defProd["synop"].parameter= parameter.split(",");
   defProd["aireps"].obsformat= ofmt_aireps;
   defProd["aireps"].timeRangeMin=-30;
@@ -1928,8 +1933,8 @@ bool ObsManager::parseSetup()
     else if( key == "timerange" && newprod ){
       vector<miString> time = token[1].split(",");
       if(time.size()==2){
-        Prod[prod].timeRangeMin=atoi(time[0].cStr());
-        Prod[prod].timeRangeMax=atoi(time[1].cStr());
+        Prod[prod].timeRangeMin=atoi(time[0].c_str());
+        Prod[prod].timeRangeMax=atoi(time[1].c_str());
       }
     } else if( key == "synoptic" && newprod ){
       if(token[1]=="true")
@@ -1937,7 +1942,7 @@ bool ObsManager::parseSetup()
       else
         Prod[prod].synoptic=false;
     } else if( key == "current" && newprod ){
-      Prod[prod].current=atof(token[1].cStr());
+      Prod[prod].current=atof(token[1].c_str());
     } else if( key == "headerinfo" && newprod ){
       Prod[prod].headerinfo.push_back(token[1]);
     } else if( key == "metadata" && newprod ){
@@ -2037,10 +2042,10 @@ bool ObsManager::parseSetup()
 }
 
 bool ObsManager::initHqcdata(int from,
-    const miString& commondesc,
-    const miString& common,
-    const miString& desc,
-    const vector<miString>& data)
+    const string& commondesc,
+    const string& common,
+    const string& desc,
+    const vector<string>& data)
 
 {
   //  cerr <<"ObsManager::initHqc: "<<desc<<endl;
@@ -2065,7 +2070,7 @@ bool ObsManager::initHqcdata(int from,
 
     for(int i=0;i<n;i++){
       FileInfo finfo;
-      finfo.time = data[i];
+      finfo.time = miTime(data[i]);
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
@@ -2075,26 +2080,30 @@ bool ObsManager::initHqcdata(int from,
 
 
   hqc_from = from;
-  vector<miString> descstr = commondesc.split(",");
-  vector<miString> commonstr = common.split(",");
+  vector<string> descstr;
+  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
+  vector<string> commonstr;
+  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::initHqcdata: different size of commondesc and common"
     <<endl;
     return false;
   }
   miString obsdataType;
-  if(common.contains("synop"))
+  if(common.find("synop") != std::string::npos)
     obsdataType = "hqc_synop";
   else
     obsdataType = "hqc_list";
 
   hqcdata.clear();
-  hqc_synop_parameter = desc.split(",");
+  vector<string> hqc_synop_parameter;
+  boost::algorithm::split(hqc_synop_parameter, desc, boost::algorithm::is_any_of(","));
 
   for(unsigned int i=0; i<descstr.size();i++){
-    if(descstr[i].downcase()=="time"){
+    string value = boost::algorithm::to_lower_copy(descstr[i]);
+    if(value=="time"){
       hqcTime = miTime(commonstr[i]);
-    } else if(descstr[i].downcase()=="plottype"){
+    } else if(value=="plottype"){
       hqcPlotType = commonstr[i];
     }
   }
@@ -2103,7 +2112,8 @@ bool ObsManager::initHqcdata(int from,
   int numStations = data.size();
   for(int j=0; j<numStations; j++){
     //    cerr <<j<<":"<<data[j]<<endl;
-    vector<miString> tokens = data[j].split(",");
+    vector<string> tokens;
+    boost::algorithm::split(tokens, data[j], boost::algorithm::is_any_of(","));
     ObsData obsd;
     if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
     hqcdata.push_back(obsd);
@@ -2151,15 +2161,18 @@ Colour ObsManager::flag2colour(const miString& flag)
   return col;
 }
 
-bool ObsManager::updateHqcdata(const miString& commondesc,
-    const miString& common,
-    const miString& desc,
-    const vector<miString>& data)
+bool ObsManager::updateHqcdata(const string& commondesc,
+    const string& common,
+    const string& desc,
+    const vector<string>& data)
 
 {
+
   //  cerr <<"updateHqcdata desc:"<<desc<<endl;
-  vector<miString> descstr = commondesc.split(",");
-  vector<miString> commonstr = common.split(",");
+  vector<string> descstr;
+  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
+  vector<string> commonstr;
+  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
     cerr <<"ObsManager::updateHqcdata: different size of commondesc and common"
     <<endl;
@@ -2167,19 +2180,22 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
   }
   miString plotType;
   for(unsigned int i=0; i<descstr.size();i++){
-    if(descstr[i].downcase()=="time"){
+    string value = boost::algorithm::to_lower_copy(descstr[i]);
+    if ( value == "time" ) {
       miTime t(commonstr[i]);
       hqcTime = t;
       //  if( t != hqcTime ) return false; //time doesn't match
-    } else if(descstr[i].downcase()=="plottype"){
+    } else if ( value == "plottype" ) {
       plotType = commonstr[i];
     }
   }
-  vector<miString> param = desc.split(",");
+  vector<string> param;
+  boost::algorithm::split(param, desc, boost::algorithm::is_any_of(","));
   if( param.size() <2 ) return false;
   //  cerr <<"data.size:"<<data.size();
   for(unsigned int j=0; j<data.size(); j++){
-    vector<miString> datastr = data[j].split(",");
+    vector<string> datastr;
+    boost::algorithm::split(datastr, data[j], boost::algorithm::is_any_of(","));
     if( datastr.size() !=param.size() ) continue;
     //find station
     int i=0;
@@ -2194,8 +2210,8 @@ bool ObsManager::updateHqcdata(const miString& commondesc,
 
 
 bool ObsManager::changeHqcdata(ObsData& odata,
-    const vector<miString>& param,
-    const vector<miString>& data)
+    const vector<string>& param,
+    const vector<string>& data)
 {
   //  cerr <<"ObsManager::changeHqcdata"<<endl;
   if( param.size() != data.size() ) {
@@ -2208,6 +2224,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     //     cerr <<"key:"<<param[i]<<endl;
     //        cerr <<"data:"<<data[i]<<endl;
     miString key = param[i];
+    string value = boost::algorithm::to_lower_copy(data[i]);
     if(key=="id"){
       odata.id=data[i];
     } else if(key == "lon"){
@@ -2215,19 +2232,19 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     } else if(key == "lat"){
       odata.ypos=atof(data[i].c_str());
     } else if(key == "auto"){
-      if(data[i].downcase()=="a")
+      if(value =="a")
         odata.fdata["ix"]=4.;
-      else if(data[i].downcase()=="n")
+      else if(value=="n")
         odata.fdata["ix"]=-1;
     } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
       odata.dataType=data[i];
       //      cerr <<"St.type:"<<data[i]<<endl;
     } else {
       miString value;
-      vector<miString> vstr  = data[i].split(";");
-      if(vstr.size() >2){
+      vector<string> vstr;
+      boost::algorithm::split(vstr, data[i], boost::algorithm::is_any_of(";"));
+      if(vstr.size() >= 2){
         value = vstr[0];
-        if(atoi(value.cStr()) == -32767) continue;
         odata.flag[key]=vstr[1];
         if(vstr.size() == 3)
           odata.flagColour[key]=Colour(vstr[2]);
@@ -2254,6 +2271,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >=0 && ival < 10)
           odata.fdata["a"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "ppp"){
         odata.fdata["ppp"]=atof(value.c_str());
       } else if(key == "RRR"){
@@ -2266,32 +2284,39 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >2 && ival < 10)
           odata.fdata["W1"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "W2"){
         float ival = atof(value.c_str());
         if(ival >2 && ival < 10)
           odata.fdata["W2"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Nh"){
         odata.fdata["Nh"]=atof(value.c_str());
       } else if(key == "Cl"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Cl"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Cm"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Cm"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Ch"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 10)
           odata.fdata["Ch"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "vs"){
         float ival = atof(value.c_str());
         if(ival >=0 && ival < 10)
           odata.fdata["vs"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "ds"){
         float ival = atof(value.c_str());
         if(ival >0 && ival < 9)
           odata.fdata["ds"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "TwTwTw"){
         odata.fdata["TwTwTw"]=atof(value.c_str());
       } else if(key == "PwaPwa"){
@@ -2302,6 +2327,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         float ival = atof(value.c_str());
         if(ival >0 && ival < 37)
           odata.fdata["dw1dw1"]=ival;
+        // FIXME else { do not keep old value }
       } else if(key == "Pw1Pw1"){
         odata.fdata["Pw1Pw1"]=atof(value.c_str());
       } else if(key == "Hw1Hw1"){

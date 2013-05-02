@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+METNO_CONFIG = @METNO_CONFIG@
+METNO_SUFFIX = @METNO_SUFFIX@
+
+include /usr/share/metno-devscripts/metno_rules.mk
+
+export DH_VERBOSE=1
+
+# Support parallel building.
+%:
+	dh $@ --parallel
+
+do-configure:
+	./autogen.sh
+	./configure $(confflags) \
+	    --prefix=/usr \
+	    --enable-obs-bufr \
+	    --enable-video-export \
+	    --enable-geotiff \
+	    --enable-embedded \
+	    --program-suffix=-nogl \
+	    CC="ccache gcc" CXX="ccache g++"

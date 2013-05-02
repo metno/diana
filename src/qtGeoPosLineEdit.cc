@@ -165,7 +165,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
     vector<miutil::miString> vs = s.split(":");
     float asign = 1.0;
     for (unsigned int k = 0; k < vs.size(); k++) {
-      float tval = atof(vs[k].cStr());
+      float tval = atof(vs[k].c_str());
       if (k == 0) // degrees (determines sign)
         asign = (vs[k].contains("-") ? -1.0 : 1.0);
       else { // minutes or seconds
@@ -180,7 +180,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
       testval += tval;
     }
   } else { // decimal degrees
-    testval = atof(s.cStr());
+    testval = atof(s.c_str());
   }
 
   testval *= lettersign; // modify sign

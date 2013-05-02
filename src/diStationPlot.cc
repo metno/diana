@@ -35,6 +35,8 @@
 
 #include <diStationPlot.h>
 #include <math.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <diFontManager.h>
 
 using namespace::miutil;
@@ -105,8 +107,8 @@ StationPlot::StationPlot(const vector <Station*> &stations)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const miString& commondesc, const miString& common,
-    const miString& description, int from, const vector<miString>& data)
+StationPlot::StationPlot(const string& commondesc, const string& common,
+    const string& description, int from, const vector<string>& data)
 {
   //   cerr <<"commondesc:"<<commondesc<<endl;
   //   cerr <<"common:"<<common<<endl;
@@ -119,9 +121,12 @@ StationPlot::StationPlot(const miString& commondesc, const miString& common,
   //if(data.size()==0) return;
 
   id = from;
-  vector<miString> vcommondesc = commondesc.split(":");
-  vector<miString> vcommon = common.split(":");
-  vector<miString> vdesc = description.split(":");
+  vector<string> vcommondesc;
+  vector<string> vcommon;
+  vector<string> vdesc;
+  boost::algorithm::split(vcommondesc, commondesc, boost::algorithm::is_any_of(":"));
+  boost::algorithm::split(vcommon, common, boost::algorithm::is_any_of(":"));
+  boost::algorithm::split(vdesc, description, boost::algorithm::is_any_of(":"));
 
   if (vcommondesc.size() != vcommon.size()) {
     cerr << "commondesc:" << commondesc << " and common:" << common
@@ -157,7 +162,7 @@ StationPlot::StationPlot(const miString& commondesc, const miString& common,
   if (commonmap.count("annotation"))
     annotation = vcommon[commonmap["annotation"]];
   if (commonmap.count("priority"))
-    priority = atoi(vcommon[commonmap["priority"]].cStr());
+    priority = atoi(vcommon[commonmap["priority"]].c_str());
 
   //decode data
   int ndata = data.size();
@@ -174,14 +179,15 @@ StationPlot::StationPlot(const miString& commondesc, const miString& common,
   float lat, lon;
   int alpha = 255;
   for (int i = 0; i < ndata; i++) {
-    vector<miString> token = data[i].split(":");
+    vector<string> token;
+    boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
     if (token.size() != ndesc)
       continue;
     stationname = token[datamap["name"]];
     lat = atof(token[datamap["lat"]].c_str());
     lon = atof(token[datamap["lon"]].c_str());
     if (datamap.count("alpha"))
-      alpha = atoi(token[datamap["alpha"]].cStr());
+      alpha = atoi(token[datamap["alpha"]].c_str());
     if (datamap.count("image")) {
       miString image = token[datamap["image"]];
       addStation(lon, lat, stationname, image, alpha);
@@ -329,7 +335,7 @@ bool StationPlot::plot()
     unselected[stations[i]->status].push_back(i);
   }
 
-  static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::working};
+  static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::failed};
 
   for (unsigned int i = 0; i < 5; ++i) {
     for (vector<int>::iterator it = unselected[plotOrder[i]].begin(); it != unselected[plotOrder[i]].end(); it++) {
@@ -743,7 +749,7 @@ int StationPlot::setSelectedStation(int i, bool add)
   return -1;
 }
 
-void StationPlot::getStationPlotAnnotation(miString &str, Colour &col)
+void StationPlot::getStationPlotAnnotation(string &str, Colour &col)
 {
   if (visible) {
     str = annotation;
@@ -754,7 +760,7 @@ void StationPlot::getStationPlotAnnotation(miString &str, Colour &col)
   }
 }
 
-void StationPlot::setStationPlotAnnotation(miString &str)
+void StationPlot::setStationPlotAnnotation(const string &str)
 {
   annotation = str;
 }
@@ -762,7 +768,7 @@ void StationPlot::setStationPlotAnnotation(miString &str)
 void StationPlot::setName(miString nm)
 {
   name = nm;
-  if (!plotname.exists())
+  if (plotname.empty())
     plotname = name;
 }
 
@@ -810,7 +816,7 @@ void StationPlot::setUseStationName(bool normal, bool selected)
   useStationNameSelected = selected;
 }
 
-void StationPlot::setEditStations(const vector<miString>& st)
+void StationPlot::setEditStations(const vector<string>& st)
 {
   //  cerr <<"setEditStations:"<<st.size()<<endl;
 
@@ -908,13 +914,14 @@ bool StationPlot::getEditStation(int step, miString& nname, int& iid, vector<
   return false;
 }
 
-bool StationPlot::stationCommand(const miString& command,
-    vector<miString>& data, const miString& misc)
+bool StationPlot::stationCommand(const string& command,
+    const vector<string>& data, const string& misc)
 {
   //   cerr <<"Command:"<<command<<endl;
 
   if (command == "changeImageandText") {
-    vector<miString> description = misc.split(":");
+    vector<string> description;
+    boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
     map<miString, int> datamap;
     for (int i = 0; i < ndesc; i++)
@@ -951,7 +958,8 @@ bool StationPlot::stationCommand(const miString& command,
     Colour colour;
     for (int i = 0; i < n; i++) {
       //       cerr <<"StationPlot::stationCommand:data:"<<data[i]<<endl;
-      vector<miString> token = data[i].split(":");
+      vector<string> token;
+      boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
       if (token.size() < description.size()) {
         cerr << "StationPlot::stationCommand: Description:" << misc
             << " and data:" << data[i] << " do not match" << endl;
@@ -967,13 +975,13 @@ bool StationPlot::stationCommand(const miString& command,
       if (defAlign)
         alignment = token[datamap["alignment"]];
       if (ch_dd)
-        dd = atoi(token[datamap["dd"]].cStr());
+        dd = atoi(token[datamap["dd"]].c_str());
       if (ch_ff)
-        ff = atoi(token[datamap["ff"]].cStr());
+        ff = atoi(token[datamap["ff"]].c_str());
       if (ch_colour)
         colour = Colour(token[datamap["colour"]]);
       if (ch_alpha)
-        alpha = atoi(token[datamap["alpha"]].cStr());
+        alpha = atoi(token[datamap["alpha"]].c_str());
 
       if (image == "_")
         image = "";
@@ -1087,11 +1095,13 @@ bool StationPlot::stationCommand(const miString& command,
 
   else if (command == "showPositionName" && data.size() > 0) {
     //    vector<miString> token = data[0].split(":"); //new syntax
-    vector<miString> token = data[0].split(":");
+    vector<string> token;
+    boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     //Obsolete
-    if (token.size() < 2)
-      token = data[0].split(",");
+    if (token.size() < 2) {
+      boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(","));
     //
+    }
     if (token.size() < 2)
       return false;
     bool normal = false, selected = false;
@@ -1113,7 +1123,8 @@ bool StationPlot::stationCommand(const miString& command,
   else if (command == "showPositionText" && data.size() > 0) {
     //    cerr <<"StationPlot showPositionText:"<< misc<<endl;
 
-    vector<miString> description = misc.split(":");
+    vector<string> description;
+    boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
     map<miString, int> datamap;
     for (int i = 0; i < ndesc; i++)
@@ -1123,7 +1134,8 @@ bool StationPlot::stationCommand(const miString& command,
           << endl;
       return false;
     }
-    vector<miString> token = data[0].split(":");
+    vector<string> token;
+    boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     if (token.size() < description.size()) {
       cerr << "StationPlot::stationCommand: Description:" << misc
           << " and data:" << data[0] << " do not match" << endl;
@@ -1134,9 +1146,9 @@ bool StationPlot::stationCommand(const miString& command,
     if (datamap.count("colour"))
       textColour = Colour(token[datamap["colour"]]);
     if (datamap.count("size"))
-      textSize = atoi(token[datamap["size"]].cStr());
+      textSize = atoi(token[datamap["size"]].c_str());
     if (datamap.count("style"))
-      textStyle = token[datamap["style"]].cStr();
+      textStyle = token[datamap["style"]].c_str();
 
     return true;
   }
@@ -1144,7 +1156,7 @@ bool StationPlot::stationCommand(const miString& command,
   return false;
 }
 
-bool StationPlot::stationCommand(const miString& command)
+bool StationPlot::stationCommand(const string& command)
 {
 
   if (command == "show") {
@@ -1173,8 +1185,8 @@ miString StationPlot::stationRequest(const miString& command)
     int n = stations.size();
     for (int i = 0; i < n; i++)
       if (stations[i]->isSelected)
-        ost << ":" << stations[i]->name.cStr();
-    ost << ":" << name.cStr() << ":" << id;
+        ost << ":" << stations[i]->name.c_str();
+    ost << ":" << name.c_str() << ":" << id;
   }
 
   return ost.str();

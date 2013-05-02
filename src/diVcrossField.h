@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diVcrossField.h 1 2007-09-12 08:06:42Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,16 +29,14 @@
 #ifndef diVcrossField_h
 #define diVcrossField_h
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <vector>
-#include <diField/diFieldManager.h>
-#include <diLocationPlot.h>
 
-using namespace std;
+#include <map>
+#include <vector>
 
 class VcrossPlot;
-
+class LocationElement;
+class FieldManager;
 
 /**
   \brief Vertical Crossection prognostic data from a field source
@@ -49,46 +45,49 @@ class VcrossField
 {
 
 public:
-  VcrossField(const miutil::miString& modelname, FieldManager* fieldm);
+  VcrossField(const std::string& modelname, FieldManager* fieldm);
   ~VcrossField();
   void cleanup();
   bool update();
   bool getInventory();
-  bool setLatLon(float lat,float lon);
-  vector<miutil::miString> getNames() { return names; }
-  vector<miutil::miTime> getTimes() { return validTime; }
-  vector<miutil::miString> getFieldNames();
-  void getMapData(vector<LocationElement>& elements);
+  bool setLatLon(float lat, float lon);
+  const std::vector<std::string>& getNames() const
+    { return names; }
 
-  VcrossPlot* getCrossection(const miutil::miString& name,
+  const std::vector<miutil::miTime>& getTimes() const
+    { return validTime; }
+
+  std::vector<std::string> getFieldNames();
+  void getMapData(std::vector<LocationElement>& elements);
+
+  VcrossPlot* getCrossection(const std::string& name,
 			     const miutil::miTime& time, int tgpos);
 
   void cleanupCache();
   void cleanupTGCache();
 
 private:
-
-  miutil::miString modelName;
+  std::string modelName;
   FieldManager* fieldManager;
 
-  vector<miutil::miString> names;
-  vector<miutil::miString> posOptions;
-  vector<miutil::miTime>   validTime;
-  vector<int>      forecastHour;
-  vector<miutil::miString> params;
+  std::vector<std::string> names;
+  std::vector<std::string> posOptions;
+  std::vector<miutil::miTime> validTime;
+  std::vector<int> forecastHour;
+  std::vector<std::string> params;
 
   // Holds active crossections
-  vector<LocationElement> crossSections;
+  std::vector<LocationElement> crossSections;
   miutil::miTime lastVcrossTime;
-  map<int,vector<float*> > VcrossDataMap;
-  map<int,vector<bool> > VcrossMultiLevelMap;
-  vector<VcrossPlot*> VcrossPlotVector;
+  std::map<int,std::vector<float*> > VcrossDataMap;
+  std::map<int,std::vector<bool> > VcrossMultiLevelMap;
+  std::vector<VcrossPlot*> VcrossPlotVector;
 
   // Holds the last timeGraph
   int lastVcross;
   int lastTgpos;
-  vector<float*> lastVcrossData;
-  vector<bool> lastVcrossMultiLevel;
+  std::vector<float*> lastVcrossData;
+  std::vector<bool> lastVcrossMultiLevel;
   VcrossPlot* lastVcrossPlot;
 
   // Holds positions clicked on the map

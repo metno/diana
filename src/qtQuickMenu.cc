@@ -34,7 +34,7 @@
 #endif
 
 #include <fstream>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 
 #include "qtQuickMenu.h"
@@ -197,7 +197,7 @@ firstcustom(-1), lastcustom(-1), instaticmenu(false)
   interval->setMaximum(360);
   interval->setSingleStep(2);
   interval->setValue(timerinterval);
-  interval->setSuffix(" sek");
+  interval->setSuffix(" sec");
   connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
   l->addWidget(interval);
 
@@ -315,8 +315,19 @@ miutil::miString QuickMenu::getCurrentName()
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const miutil::miString& name,
-    const vector<miutil::miString>& pstr, int index)
+    vector<miutil::miString> pstr, int index)
 {
+
+  //replace reftime by refhour, refoffset must be set manually
+  for (size_t i=0; i<pstr.size(); i++){
+    if ( pstr[i].find("reftime=") != std::string::npos ) {
+      miutil::miString hourstr = pstr[i].substr(pstr[i].find("reftime=")+19,2);
+      miutil::miString str1 = pstr[i].substr(pstr[i].find("reftime="),27);
+      miutil::miString str2 = "refhour=" + hourstr;
+      pstr[i].replace(str1,str2);
+    }
+  }
+
   if (qm.size()==0) return;
   bool goon= true;
   int m= qm[index].menuitems.size();
@@ -352,6 +363,24 @@ void QuickMenu::pushPlot(const miutil::miString& name,
     prev_listindex= index;
   }
 }
+
+//bool QuickMenu::replacereferencetime( vector<miutil::miString>& pstr ){
+//
+//  for (size_t i=0; i<pstr.size(); i++){
+//  std::string str = pstr[i];
+//  if ( str.find_first_of("referencetime=") != str.npos ) {
+//    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
+//    cerr <<timestr<<endl;
+//  }
+////  vector<miutil::miString> tokens = pstr[i].split(('"', '"');
+////  for ( size_t j=0; j<tokens.size(); j++ ) {
+////    vector<miutil::miString> stokens = tokens[j].split("=");
+////    if ( stokens.size() && stokens[0]="referencetime" ) {
+////
+////    }
+////  }
+//
+//}
 
 // called from quick-quick menu (Browsing)
 bool QuickMenu::prevQPlot(){
@@ -762,11 +791,10 @@ void QuickMenu::resetButton()
 
 bool QuickMenu::itemChanged(int menu, int item)
 {
-  int i= (lastcustom>0 ? lastcustom+1 : 1); // index to first static menu
-
+  int i= (lastcustom>0 ? lastcustom+1 : 2); // index to first static menu
   if (menu < i) return false; // not static menu
 
-  int oidx= menu-i; // in original list
+  int oidx= menu - i; // in original list
   int msize= orig_qm[oidx].menuitems[item].command.size();
   if (msize != int(qm[menu].menuitems[item].command.size()))
     return true;
@@ -1006,7 +1034,7 @@ void QuickMenu::fillMenuList()
 
   vector<QString> qnames;
   for (int i=0; i<n; i++){
-    qnames.push_back(qm[i].name.cStr());
+    qnames.push_back(qm[i].name.c_str());
   }
 
   for (int i=0; i<n; i++) menulist->addItem(qnames[i]);
@@ -1030,7 +1058,7 @@ void QuickMenu::menulistActivate(int idx)
     QStringList itemlist;
     for(int i=0; i<numitems; i++){
       // remove richtext tags
-      QString qstr= qm[idx].menuitems[i].name.cStr();
+      QString qstr= qm[idx].menuitems[i].name.c_str();
       qstr.replace(QRegExp("</*font[^>]*>"), "" );
       itemlist+= qstr;
     }
@@ -1054,13 +1082,13 @@ void QuickMenu::menulistActivate(int idx)
   if (n > maxoptions) n= maxoptions;
   if (n>0){
     for (int i=0; i<n; i++){
-      optionlabel[i]->setText(qm[idx].opt[i].key.cStr());
+      optionlabel[i]->setText(qm[idx].opt[i].key.c_str());
 
       int nopts= qm[idx].opt[i].options.size();
       int defidx= -1;
       if (nopts > 0){
         for(int j=0; j<nopts; j++){
-          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].cStr()));
+          optionmenu[i]->addItem(QString(qm[idx].opt[i].options[j].c_str()));
           if (qm[idx].opt[i].options[j] == qm[idx].opt[i].def)
             defidx= j;
         }
@@ -1108,7 +1136,7 @@ void QuickMenu::listClicked( QListWidgetItem * item)
     ts+= miutil::miString("\n");
   }
   // set command into command-edit
-  comedit->setText(QString(ts.cStr()));
+  comedit->setText(QString(ts.c_str()));
   comset= true;
   qm[activemenu].plotindex= idx;
   // enable/disable resetButton

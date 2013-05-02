@@ -59,6 +59,8 @@ public:
   //the constructor
   SpectrumModelDialog( QWidget* parent, SpectrumManager * vm );
   void setSelection();
+  void updateModelfileList();
+
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -75,7 +77,6 @@ private:
   miutil::miString OBS;
 
   //functions
-  void updateModelfileList();
   void setModel();
 
 private slots:
@@ -89,7 +90,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showsource(const miutil::miString, const miutil::miString=""); // activate help
+  void showsource(const std::string, const std::string=""); // activate help
 };
 
 #endif

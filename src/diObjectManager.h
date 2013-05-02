@@ -44,7 +44,7 @@
 #include <diAreaBorder.h>
 #include <diCommonTypes.h>
 #include <diUndoFront.h>
-#include <diTimeFilter.h>
+#include <diField/TimeFilter.h>
 
 using namespace std;
 

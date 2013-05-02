@@ -34,12 +34,12 @@
 #endif
 
 #include "qtTextView.h"
-
 #include <QTextEdit>
 #include <QPushButton>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+using namespace std;
 
 TextWidget::TextWidget(QWidget* parent, const miutil::miString& text, int id_)
   : QWidget(parent)
@@ -83,10 +83,11 @@ TextView::TextView(QWidget* parent)
 void TextView::setText(int id, const miutil::miString& name,
 		      const miutil::miString& text)
 {
+
   if (idmap.count(id) == 0) {
     TextWidget* widget = new TextWidget(this, text, id);
     idmap[id] = widget;
-    tabwidget->addTab(widget, name.cStr());
+    tabwidget->addTab(widget, name.c_str());
   }
   idmap[id]->setText(text);
 }
@@ -96,6 +97,19 @@ void TextView::deleteTab(int id)
   if (idmap.count(id) != 0) {
     tabwidget->removeTab(tabwidget->indexOf(idmap[id]));
     idmap.erase(id);
+  }
+
+  if (idmap.size() == 0)
+    hide();
+}
+void TextView::deleteTab()
+{
+  if (idmap.size() != 0) {
+    std::map<int,TextWidget*>::iterator p = idmap.begin();
+    for (; p!=idmap.end(); p++){
+      tabwidget->removeTab(tabwidget->indexOf(idmap[p->first]));
+      idmap.erase(p->first);
+    }
   }
 
   if (idmap.size() == 0)

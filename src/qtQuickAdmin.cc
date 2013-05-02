@@ -368,14 +368,14 @@ void QuickAdmin::updateWidgets()
   QTreeWidgetItem *tmp, *active = 0;
 
   for (int i = 0; i < n; i++) {
-    QString mname(menus[i].name.cStr());
+    QString mname(menus[i].name.c_str());
     QuickTreeWidgetItem* pp = new QuickTreeWidgetItem(menutree, QStringList(
         mname), i, -1);
     if (activeMenu == i && activeElement == -1)
       active = pp;
     int m = menus[i].menuitems.size();
     for (int j = 0; j < m; j++) {
-      QString qstr = menus[i].menuitems[j].name.cStr();
+      QString qstr = menus[i].menuitems[j].name.c_str();
       qstr.replace(QRegExp("</*font[^>]*>"), "");
       tmp = new QuickTreeWidgetItem(pp, QStringList(qstr), i, j);
       if (activeMenu == i && activeElement == j)
@@ -507,7 +507,7 @@ void QuickAdmin::renameClicked()
   bool ok = FALSE;
   if (activeElement == -1) {
     QString text = QInputDialog::getText(this, tr("Change menu name"), tr(
-        "New name:"), QLineEdit::Normal, menus[activeMenu].name.cStr(), &ok);
+        "New name:"), QLineEdit::Normal, menus[activeMenu].name.c_str(), &ok);
     if (ok && !text.isEmpty())
       menus[activeMenu].name = text.toStdString();
     menus[activeMenu].name.trim();
@@ -518,7 +518,7 @@ void QuickAdmin::renameClicked()
   } else {
     QString text = QInputDialog::getText(this, tr("Change plot name"), tr(
         "New name:"), QLineEdit::Normal,
-        menus[activeMenu].menuitems[activeElement].name.cStr(), &ok);
+        menus[activeMenu].menuitems[activeElement].name.c_str(), &ok);
     if (ok && !text.isEmpty())
       menus[activeMenu].menuitems[activeElement].name = text.toStdString();
   }
@@ -633,7 +633,7 @@ void QuickAdmin::updateCommand()
       ts += miutil::miString("\n");
     }
     // set command into command-edit
-    comedit->setText(ts.cStr());
+    comedit->setText(ts.c_str());
   } else
     comedit->clear();
   autochange = false;

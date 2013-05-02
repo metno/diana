@@ -36,16 +36,15 @@
 #include <diVcrossOptions.h>
 #include <iostream>
 
-using namespace::miutil;
+using namespace ::miutil;
+using namespace std;
 
-// default constructor
 VcrossOptions::VcrossOptions()
 {
   setDefaults();
 }
 
 
-// destructor
 VcrossOptions::~VcrossOptions()
 {
 }
@@ -329,29 +328,29 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="frame")          pFrame= (value.downcase()=="on");
 	else if (key=="frameColour")    frameColour= value;
 	else if (key=="frameLinetype")  frameLinetype= value;
-	else if (key=="frameLinewidth") frameLinewidth= atof(value.cStr());
+	else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
 
 	else if (key=="LevelNumbers") pLevelNumbers= (value.downcase()=="on");
 
 	else if (key=="UpperLevel")          pUpperLevel= (value.downcase()=="on");
 	else if (key=="upperLevelColour")    upperLevelColour= value;
 	else if (key=="upperLevelLinetype")  upperLevelLinetype= value;
-	else if (key=="upperLevelLinewidth") upperLevelLinewidth= atof(value.cStr());
+	else if (key=="upperLevelLinewidth") upperLevelLinewidth= atof(value.c_str());
 
 	else if (key=="LowerLevel")          pLowerLevel= (value.downcase()=="on");
 	else if (key=="lowerLevelColour")    lowerLevelColour= value;
 	else if (key=="lowerLevelLinetype")  lowerLevelLinetype= value;
-	else if (key=="lowerLevelLinewidth") lowerLevelLinewidth= atof(value.cStr());
+	else if (key=="lowerLevelLinewidth") lowerLevelLinewidth= atof(value.c_str());
 
 	else if (key=="OtherLevels")          pOtherLevels= (value.downcase()=="on");
 	else if (key=="otherLevelsColour")    otherLevelsColour= value;
 	else if (key=="otherLevelsLinetype")  otherLevelsLinetype= value;
-	else if (key=="otherLevelsLinewidth") otherLevelsLinewidth= atof(value.cStr());
+	else if (key=="otherLevelsLinewidth") otherLevelsLinewidth= atof(value.c_str());
 
 	else if (key=="Surface")          pSurface= (value.downcase()=="on");
 	else if (key=="surfaceColour")    surfaceColour= value;
 	else if (key=="surfaceLinetype")  surfaceLinetype= value;
-	else if (key=="surfaceLinewidth") surfaceLinewidth= atof(value.cStr());
+	else if (key=="surfaceLinewidth") surfaceLinewidth= atof(value.c_str());
 
 	else if (key=="Distance")       pDistance= (value.downcase()=="on");
 	else if (key=="distanceColour") distanceColour= value;
@@ -367,12 +366,12 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="VerticalGridLines") pVerticalGridLines= (value.downcase()=="on");
 	else if (key=="vergridColour")     vergridColour= value;
 	else if (key=="vergridLinetype")   vergridLinetype= value;
-	else if (key=="vergridLinewidth")  vergridLinewidth= atof(value.cStr());
+	else if (key=="vergridLinewidth")  vergridLinewidth= atof(value.c_str());
 
 	else if (key=="Markerlines")           pMarkerlines= (value.downcase()=="on");
 	else if (key=="markerlinesColour")     markerlinesColour= value;
 	else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
-	else if (key=="markerlinesLinewidth")  markerlinesLinewidth= atof(value.cStr());
+	else if (key=="markerlinesLinewidth")  markerlinesLinewidth= atof(value.c_str());
 
 	else if (key=="VerticalMarker")
 	  pVerticalMarker= (value.downcase()=="on");
@@ -381,9 +380,9 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="verticalMarkerLinetype")
 	  verticalMarkerLinetype= value;
 	else if (key=="verticalMarkerLinewidth")
-	  verticalMarkerLinewidth= atof(value.cStr());
+	  verticalMarkerLinewidth= atof(value.c_str());
 	else if (key=="verticalMarkerLimit")
-	  verticalMarkerLimit= atof(value.cStr());
+	  verticalMarkerLimit= atof(value.c_str());
 
 	else if (key=="extrapolateFixedLevels") extrapolateFixedLevels= (value.downcase()=="on");
 	else if (key=="extrapolateToBottom")    extrapolateToBottom= (value.downcase()=="on");
@@ -393,25 +392,25 @@ void VcrossOptions::readOptions(const vector<miString>& vstr)
 	else if (key=="Vertical")               verticalType= value;
 
 	else if (key=="keepVerHorRatio") keepVerHorRatio= (value.downcase()=="on");
-	else if (key=="verHorRatio")     verHorRatio= atoi(value.cStr());
+	else if (key=="verHorRatio")     verHorRatio= atoi(value.c_str());
 
 	else if (key=="stdVerticalArea") stdVerticalArea= (value.downcase()=="on");
-	else if (key=="minVerticalArea") minVerticalArea= atoi(value.cStr());
-	else if (key=="maxVerticalArea") maxVerticalArea= atoi(value.cStr());
+	else if (key=="minVerticalArea") minVerticalArea= atoi(value.c_str());
+	else if (key=="maxVerticalArea") maxVerticalArea= atoi(value.c_str());
 
 	else if (key=="stdHorizontalArea") stdHorizontalArea= (value.downcase()=="on");
-	else if (key=="minHorizontalArea") minHorizontalArea= atoi(value.cStr());
-	else if (key=="maxHorizontalArea") maxHorizontalArea= atoi(value.cStr());
+	else if (key=="minHorizontalArea") minHorizontalArea= atoi(value.c_str());
+	else if (key=="maxHorizontalArea") maxHorizontalArea= atoi(value.c_str());
 
 	else if (key=="backgroundColour") backgroundColour= value;
 
 	else if (key=="OnMapColour")    vcOnMapColour= value;
 	else if (key=="OnMapLinetype")  vcOnMapLinetype= value;
-	else if (key=="OnMapLinewidth") vcOnMapLinewidth= atof(value.cStr());
+	else if (key=="OnMapLinewidth") vcOnMapLinewidth= atof(value.c_str());
 
 	else if (key=="SelectedOnMapColour")    vcSelectedOnMapColour= value;
 	else if (key=="SelectedOnMapLinetype")  vcSelectedOnMapLinetype= value;
-	else if (key=="SelectedOnMapLinewidth") vcSelectedOnMapLinewidth= atof(value.cStr());
+	else if (key=="SelectedOnMapLinewidth") vcSelectedOnMapLinewidth= atof(value.c_str());
 
       }
     }

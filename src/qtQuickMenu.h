@@ -134,7 +134,7 @@ public:
 
   /// add command to history
   void pushPlot(const miutil::miString& name,
-		const vector<miutil::miString>& pstr, int index=0);
+		vector<miutil::miString> pstr, int index=0);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot
@@ -160,7 +160,7 @@ public:
 
 signals:
   void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands
-  void showsource(const miutil::miString, const miutil::miString=""); ///< activate help
+  void showsource(const std::string, const std::string=""); ///< activate help
 
 private slots:
   void menulistActivate(int);       // quick-menu combobox activated

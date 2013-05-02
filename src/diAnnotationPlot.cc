@@ -200,9 +200,10 @@ bool AnnotationPlot::prepare(const miString& pin)
   poptions.textcolour = Colour("black");
   PlotOptions::parsePlotOption(pinfo, poptions);
 
-  useAnaTime = pinfo.contains("@") || pinfo.contains("&");
+  useAnaTime = miutil::contains(pinfo, "@") || miutil::contains(pinfo, "&");
 
-  vector<miString> stokens, tokens = pinfo.split('"', '"');
+  const vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
+  vector<miString> stokens;
   miString key, value;
   int i, n = tokens.size();
   if (n < 2)
@@ -253,17 +254,17 @@ bool AnnotationPlot::prepare(const miString& pin)
     } else {
       labelstrings += " " + tokens[i];
       if (key == "margin") {
-        cmargin = atof(value.cStr());
+        cmargin = atof(value.c_str());
       } else if (key == "xoffset") {
-        cxoffset = atof(value.cStr());
+        cxoffset = atof(value.c_str());
       } else if (key == "yoffset") {
-        cyoffset = atof(value.cStr());
+        cyoffset = atof(value.c_str());
       } else if (key == "xratio") {
-        cxratio = atof(value.cStr());
+        cxratio = atof(value.c_str());
       } else if (key == "yratio") {
-        cyratio = atof(value.cStr());
+        cyratio = atof(value.c_str());
       } else if (key == "clinewidth") {
-        clinewidth = atoi(value.cStr());
+        clinewidth = atoi(value.c_str());
       } else if (key == "plotrequested") {
         if (value == "true")
           plotRequested = true;
@@ -488,7 +489,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
       } else if (subtokens[0] == "image")
         e.eImage = subtokens[1];
       else if (subtokens[0] == "arrow")
-        e.arrowLength = atof(subtokens[1].cStr());
+        e.arrowLength = atof(subtokens[1].c_str());
       else if (subtokens[0] == "feather")
         e.arrowFeather = (subtokens[1] == "true");
       else if (subtokens[0] == "symbol")
@@ -525,6 +526,9 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
           e.polystyle = poly_none;
       } else if (e.eType == table && subtokens[0] == "fcolour") {
         e.classplot->setBackgroundColour(Colour(subtokens[1]));
+      } else if (e.eType == table && subtokens[0] == "suffix") {
+        subtokens[1].remove('"');
+        e.classplot->setSuffix(subtokens[1]);
       }
     }
   }
@@ -753,23 +757,23 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
           * fontsizeToPlot);
       miString astring = annoEl[j].eText;
       astring += " ";
-      fp->getStringSize(astring.cStr(), wid, hei);
+      fp->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       hei *= fontsizeScale;
       if (annoEl[j].eHalign == align_right && j + 1 == nel)
         x = bbox.x2 - wid - border;
-      fp->drawStr(astring.cStr(), x, y, 0.0);
+      fp->drawStr(astring.c_str(), x, y, 0.0);
       //remember corners of box around text for marking and editing
       annoEl[j].x1 = x;
       annoEl[j].y1 = y;
       annoEl[j].x2 = x + wid;
       annoEl[j].y2 = y + hei;
       if (annoEl[j].inEdit) {
-        //Hvis* editeringstext,tegn strek for markør og for
+        //Hvis* editeringstext,tegn strek for markï¿½r og for
         //markert tekst
         float w, h;
         miString substring = astring.substr(0, annoEl[j].itsCursor);
-        fp->getStringSize(substring.cStr(), w, h);
+        fp->getStringSize(substring.c_str(), w, h);
         glColor4f(0, 0, 0, 1.0);
         glBegin(GL_LINE_STRIP);
         glVertex2f(annoEl[j].x1 + w, annoEl[j].y1);
@@ -786,8 +790,8 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       fp->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
       miString astring = " ";
-      fp->drawStr(astring.cStr(), x, y, 0.0);
-      fp->getStringSize(astring.cStr(), wid, hei);
+      fp->drawStr(astring.c_str(), x, y, 0.0);
+      fp->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       wid += tmpwid;
       hei *= fontsizeScale;
@@ -901,7 +905,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
           * fontsizeToPlot);
       miString astring = annoEl[j].eText;
       astring += " ";
-      fp->getStringSize(astring.cStr(), w, h);
+      fp->getStringSize(astring.c_str(), w, h);
       if (hardcopy)
         fontsizeScale = fp->getSizeDiv();
       else
@@ -931,7 +935,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
       else
         fontsizeScale = 1.0;
       miString astring = " ";
-      fp->getStringSize(astring.cStr(), w, h);
+      fp->getStringSize(astring.c_str(), w, h);
       w *= fontsizeScale;
       w += w;
       h *= fontsizeScale;

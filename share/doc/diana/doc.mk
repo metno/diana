@@ -1,4 +1,4 @@
-docdir= $(datarootdir)/doc/$(APP)
+docdir= $(datarootdir)/doc/diana-@PVERSION@
 dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/vprofSetup.png \
 	share/doc/diana/vprofSetup2.png \
@@ -142,11 +142,3 @@ dist_doc_DATA= share/doc/diana/vprofWindow.png \
 	share/doc/diana/anim_backwards.png \
 	share/doc/diana/animation.png \
 	share/doc/diana/altmenu.png 
-
-
-
-
-
-
-
-

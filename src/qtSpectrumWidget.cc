@@ -43,11 +43,11 @@
 #include "qtSpectrumWidget.h"
 #include "diSpectrumManager.h"
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(USE_PAINTGL)
 #include "GL/gl.h"
 #endif
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 SpectrumWidget::SpectrumWidget(SpectrumManager *spm, const QGLFormat fmt,
                         QWidget* parent)
     : QGLWidget( fmt, parent), spectrumm(spm)
@@ -149,7 +149,7 @@ bool SpectrumWidget::saveRasterImage(const miutil::miString fname,
 
   // test of new grabFrameBuffer command
   QImage image= grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.cStr(), format.cStr(), quality );
+  image.save(fname.c_str(), format.c_str(), quality );
 
   return true;
 }

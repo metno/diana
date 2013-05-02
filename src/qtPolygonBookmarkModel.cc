@@ -52,7 +52,7 @@ void PolygonBookmarkModel::addBookmark(miutil::miString s,bool isFolder)
     if(col==last && !isFolder) {
 
       int r=parentItem->rowCount();
-      QStandardItem *childItem  = new QStandardItem(words[col].cStr());
+      QStandardItem *childItem  = new QStandardItem(words[col].c_str());
       if(lockedBookmark) {
         childItem->setIcon(lockedBookmarkIcon);
         childItem->setEditable(false);
@@ -75,7 +75,7 @@ void PolygonBookmarkModel::addBookmark(miutil::miString s,bool isFolder)
           lockedBookmark=true;
 
       } else {
-        QStandardItem *childItem = new QStandardItem(words[col].cStr());
+        QStandardItem *childItem = new QStandardItem(words[col].c_str());
 
         bool isTrash=false;
         if(!col) {

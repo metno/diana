@@ -45,7 +45,7 @@
 #include "diVcrossPlot.h"
 
 
-#if !defined(Q_WS_QWS) && !defined(Q_WS_QPA)
+#if !defined(USE_PAINTGL)
 VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
                          QWidget* parent)
     : QGLWidget( fmt, parent),
@@ -347,7 +347,7 @@ bool VcrossWidget::saveRasterImage(const miutil::miString fname,
 
   // test of new grabFrameBuffer command
   QImage image= grabFrameBuffer(true); // withAlpha=TRUE
-  image.save(fname.cStr(), format.cStr(), quality );
+  image.save(fname.c_str(), format.c_str(), quality );
 
   return true;
 }

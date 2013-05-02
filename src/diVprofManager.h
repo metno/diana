@@ -38,7 +38,7 @@
 #include <set>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
-#include <diTimeFilter.h>
+#include <diField/TimeFilter.h>
 #include <diController.h>
 
 using namespace std;
@@ -154,7 +154,6 @@ private:
 
   map<miutil::miString,miutil::miString> menuConst;
 
-  void parseSetup();
   miutil::miString getDefaultModel();
   void updateObsFileList();
   bool initVprofData(miutil::miString file,miutil::miString model);
@@ -179,6 +178,7 @@ public:
   VprofOptions* getOptions() { return vpopt; }
   void setPlotWindow(int w, int h);
 
+  void parseSetup();
   void setModel();
   void setStation(const miutil::miString& station);
   void setTime(const miutil::miTime& time);

@@ -108,7 +108,7 @@ bool MapManager::parseMapAreas()
 
     } else {
       SetupParser::errorMsg(SectMapAreas, i, "Incomplete maparea-specification");
-      return false;
+      return true;
     }
 
   }
@@ -123,11 +123,10 @@ bool MapManager::parseMapTypes()
   vector<miString> strlist;
   MapInfo mapinfo;
   unsigned int i, n, q;
-  int m;
+
   PlotOptions a, b, c, d, e;
 
   mapfiles.clear();
-  m = -1;
 
   if (!SetupParser::getSection(SectMapTypes, strlist))
     return true;
@@ -315,7 +314,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mfi.fname = value;
       } else if (key == key_limit) {
         newfile = true;
-        mfi.sizelimit = atof(value.cStr());
+        mfi.sizelimit = atof(value.c_str());
 
       } else if (key == "contour") {
         mi.contour.ison = (value.upcase() == "ON");
@@ -324,12 +323,12 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         contopts.linecolour = Colour(value);
       } else if (key == "cont.linewidth") {
         mi.contour.linewidth = value;
-        contopts.linewidth = atoi(value.cStr());
+        contopts.linewidth = atoi(value.c_str());
       } else if (key == "cont.linetype") {
         mi.contour.linetype = value;
         contopts.linetype = Linetype(value);
       } else if (key == "cont.zorder") {
-        mi.contour.zorder = atoi(value.cStr());
+        mi.contour.zorder = atoi(value.c_str());
 
       } else if (key == "land") {
         mi.land.ison = (value.upcase() == "ON");
@@ -337,7 +336,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mi.land.fillcolour = value;
         landopts.fillcolour = Colour(value);
       } else if (key == "land.zorder") {
-        mi.land.zorder = atoi(value.cStr());
+        mi.land.zorder = atoi(value.c_str());
 
         // Old combined latlon (deprecated)
       } else if (key == "latlon") {
@@ -347,14 +346,14 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         lonopts.linecolour = latopts.linecolour = Colour(value);
       } else if (key == "latlon.linewidth") {
         mi.lon.linewidth = mi.lat.linewidth = value;
-        lonopts.linewidth = latopts.linewidth = atoi(value.cStr());
+        lonopts.linewidth = latopts.linewidth = atoi(value.c_str());
       } else if (key == "latlon.linetype") {
         mi.lon.linetype = mi.lat.linetype = value;
         lonopts.linetype = latopts.linetype = Linetype(value);
       } else if (key == "latlon.density") {
-        mi.lon.density = mi.lat.density = atof(value.cStr());
+        mi.lon.density = mi.lat.density = atof(value.c_str());
       } else if (key == "latlon.zorder") {
-        mi.lon.zorder = mi.lat.zorder = atoi(value.cStr());
+        mi.lon.zorder = mi.lat.zorder = atoi(value.c_str());
 
       } else if (key == "lon") {
         mi.lon.ison = (value.upcase() == "ON");
@@ -363,20 +362,20 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         lonopts.linecolour = Colour(value);
       } else if (key == "lon.linewidth") {
         mi.lon.linewidth = value;
-        lonopts.linewidth = atoi(value.cStr());
+        lonopts.linewidth = atoi(value.c_str());
       } else if (key == "lon.linetype") {
         mi.lon.linetype = value;
         lonopts.linetype = Linetype(value);
       } else if (key == "lon.density") {
-        mi.lon.density = atof(value.cStr());
+        mi.lon.density = atof(value.c_str());
       } else if (key == "lon.zorder") {
-        mi.lon.zorder = atoi(value.cStr());
+        mi.lon.zorder = atoi(value.c_str());
       } else if (key == "lon.showvalue") {
         mi.lon.showvalue = (value.upcase() == "ON");
       } else if (key == "lon.value_pos") {
         mi.lon.value_pos = value;
       } else if (key == "lon.fontsize") {
-        mi.lon.fontsize = atof(value.cStr());
+        mi.lon.fontsize = atof(value.c_str());
 
       } else if (key == "lat") {
         mi.lat.ison = (value.upcase() == "ON");
@@ -385,20 +384,20 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         latopts.linecolour = Colour(value);
       } else if (key == "lat.linewidth") {
         mi.lat.linewidth = value;
-        latopts.linewidth = atoi(value.cStr());
+        latopts.linewidth = atoi(value.c_str());
       } else if (key == "lat.linetype") {
         mi.lat.linetype = value;
         latopts.linetype = Linetype(value);
       } else if (key == "lat.density") {
-        mi.lat.density = atof(value.cStr());
+        mi.lat.density = atof(value.c_str());
       } else if (key == "lat.zorder") {
-        mi.lat.zorder = atoi(value.cStr());
+        mi.lat.zorder = atoi(value.c_str());
       } else if (key == "lat.showvalue") {
         mi.lat.showvalue = (value.upcase() == "ON");
       } else if (key == "lat.value_pos") {
         mi.lat.value_pos = value;
       } else if (key == "lat.fontsize") {
-        mi.lat.fontsize = atof(value.cStr());
+        mi.lat.fontsize = atof(value.c_str());
 
       } else if (key == "frame") {
         mi.frame.ison = (value.upcase() == "ON");
@@ -407,14 +406,14 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         ffopts.linecolour = Colour(value);
       } else if (key == "frame.linewidth") {
         mi.frame.linewidth = value;
-        ffopts.linewidth = atoi(value.cStr());
+        ffopts.linewidth = atoi(value.c_str());
       } else if (key == "frame.linetype") {
         mi.frame.linetype = value;
         ffopts.linetype = Linetype(value);
       } else if (key == "frame.zorder") {
-        mi.frame.zorder = atoi(value.cStr());
+        mi.frame.zorder = atoi(value.c_str());
       } else if (key == "symbol") {
-        mi.symbol = atoi(value.cStr());
+        mi.symbol = atoi(value.c_str());
         mi.special = true;
       } else if (key == "dbfcol") {
         mi.dbfcol = value;

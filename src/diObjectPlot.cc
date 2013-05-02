@@ -934,8 +934,8 @@ bool ObjectPlot::readObjectString(miString objectString)
         for (int pp=0; pp< nPoints; pp++){
 	  //cerr << points2add[pp*2] << endl;
 	  //cerr << points2add[pp*2+1] << endl;
-	 addPoint( atof(points2add[pp*2].cStr()),
-		    atof(points2add[pp*2+1].cStr()));
+	 addPoint( atof(points2add[pp*2].c_str()),
+		    atof(points2add[pp*2+1].c_str()));
        }
      }
      else if (key == "rgba"){
@@ -1325,12 +1325,3 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
 
   return ns;
 }
-
-
-
-
-
-
-
-
-

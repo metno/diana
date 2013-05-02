@@ -37,7 +37,7 @@
 #include <diSatManager.h>
 #include <GL/gl.h>
 #include <puCtools/glob_cache.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 #include <set>
@@ -71,11 +71,9 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
   //                - make a new SatPlot for each SAT entry in pinfo
   //                - if similar plot already exists, just make a copy of the
   //                  old one (satellite, filetype and channel the same)
-
-LogHandler::getInstance()->setObjectName("diana.SatManager.init");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.init");
 #ifdef DEBUGPRINT
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init() ++";
-  //cerr << "++ SatManager::init() ++" << endl;
+  log.debugStream() << "++ SatManager::init() ++";
 #endif
 
   int nsp= vsatp.size();
@@ -140,14 +138,14 @@ LogHandler::getInstance()->setObjectName("diana.SatManager.init");
           sdp->hdf5type = satdata->hdf5type;
 
 #ifdef DEBUGPRINT
-          COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init(): sdp->formatType ++" << sdp->formatType;
-          COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::init(): sdp->metadata ++" << sdp->metadata;
+          log.debugStream() << "++ SatManager::init(): sdp->formatType ++" << sdp->formatType;
+          log.debugStream() << "++ SatManager::init(): sdp->metadata ++" << sdp->metadata;
 #endif
 
           sdp->classtable= satdata->classtable;
           sdp->maxDiff = satdata->maxDiff;
           sdp->autoFile = satdata->autoFile;
-          sdp->hideColor=satdata->hideColor;
+          sdp->hideColour=satdata->hideColour;
           delete satdata; //deleting the new sat created
           // add a new satplot, which is a copy of the old one,
           // and contains a pointer to a sat(sdp), to the end of vector
@@ -191,9 +189,9 @@ bool SatManager::setData(SatPlot *satp)
 {
 
   //  PURPOSE:s   Read data from file, and init. SatPlot
-  LogHandler::getInstance()->setObjectName("diana.SatManager.setData");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.setData");
 #ifdef DEBUGPRINT
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::setData() ++";
+  log.debugStream() << "++ SatManager::setData() ++";
 #endif
 
 
@@ -243,14 +241,14 @@ bool SatManager::setData(SatPlot *satp)
 
   if (readfresh) { // nothing to reuse..
     satp->clearData();
-  //find out which channels to read (satdata->index), total no
+    //find out which channels to read (satdata->index), total no
     if ( !parseChannels(fInfo) ) {
-    	COMMON_LOG::getInstance("common").errorStream() << "Failed parseChannels";
+      log.errorStream() << "Failed parseChannels";
       return false;
     }
     satdata->cleanup();
     if (!readSatFile()) {
-    	COMMON_LOG::getInstance("common").errorStream() << "Failed readSatFile";
+      log.errorStream() << "Failed readSatFile";
       return false;
     }
     satdata->setArea();
@@ -291,16 +289,17 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   //   1,2 are in the visual spectrum, 3-5 infrared
   // METEOSAT 1 channel per file
   //   either VIS_RAW(visual) or IR_CAL(infrared)
-  LogHandler::getInstance()->setObjectName("diana.SatManager.parseChannels");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.parseChannels");
   miString channels;
   if (channelmap.count(satdata->plotChannels))
     channels = channelmap[satdata->plotChannels];
   else
     channels = satdata->plotChannels;
 
-  if (channels=="day_night" && !MItiff::day_night(fInfo, channels))
-  return false;
-
+  if (channels=="day_night" && !MItiff::day_night(fInfo, channels)) {
+    log.errorStream() << "day_night";
+    return false;
+  }
   //name of channels selected
 
   satdata->vch = channels.split("+");
@@ -327,7 +326,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   }
 
   if (no==0) {
-	COMMON_LOG::getInstance("common").errorStream() << "Channel(s):"<<satdata->plotChannels<<" doesn't exist";
+    log.errorStream() << "Channel(s):"<<satdata->plotChannels<<" doesn't exist";
     return false;
   }
 
@@ -343,17 +342,17 @@ bool SatManager::readSatFile()
 
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
-	LogHandler::getInstance()->setObjectName("diana.SatManager.readSatFile");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.readSatFile");
   if(!_isafile(satdata->actualfile)) {
     //stat() is not able to get the file attributes,
     //so the file obviously does not exist or
     //more capabilities is required
-	  COMMON_LOG::getInstance("common").errorStream() << "filename:" << satdata->actualfile << " does not exist or is not readable";
+    log.errorStream() << "filename:" << satdata->actualfile << " does not exist or is not readable";
     return false;
   }
 
 #ifdef DEBUGPRINT
-  COMMON_LOG::getInstance("common").debugStream() << "++ satdata->formattype: " << satdata->formatType;
+  log.debugStream() << "++ satdata->formattype: " << satdata->formatType;
 #endif
 
   if (satdata->formatType == "mitiff") {
@@ -396,9 +395,9 @@ void SatManager::setPalette(SatFileInfo &fInfo)
 {
 
   //  PURPOSE:   uses palette to put data from image into satdata.image
-	LogHandler::getInstance()->setObjectName("diana.SatManager.setPalette");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.setPalette");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream() <<"++ SatManager::setPalette  " << miTime::nowTime();
+  log.debugStream() <<"++ SatManager::setPalette  " << miTime::nowTime();
 #endif
 
   int nx=satdata->nx;
@@ -428,23 +427,16 @@ void SatManager::setPalette(SatFileInfo &fInfo)
     fInfo.col.push_back(Colour(colmap[0][i], colmap[1][i], colmap[2][i]));
 
   //convert image from palette to RGBA
-  int nhide = satdata->hideColor.size();
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {
       int rawIndex = (int)satdata->rawimage[0][j*nx+i]; //raw image index
-      bool hide = false;
-      for (int ic=0; ic<nhide; ic++)
-        if (rawIndex==satdata->hideColor[ic]) {
-          hide=true;
-          break;
-        }
       int index = (i+(ny-j-1)*nx)*4;//image index
-      if (!hide) {
-        for (int k=0; k<3; k++)
-          satdata->image[index+k] = colmap[k][rawIndex];
+      for (int k=0; k<3; k++)
+        satdata->image[index+k] = colmap[k][rawIndex];
+      if (!satdata->hideColour.count(rawIndex)) {
         satdata->image[index+3] = satdata->alpha;;
       } else {
-        satdata->image[index+3] = 0;
+        satdata->image[index+3] = satdata->hideColour[rawIndex];
       }
     }
   }
@@ -454,9 +446,9 @@ void SatManager::setRGB()
 {
 
   //   * PURPOSE:   put data from 3 images into satdata.image
-	LogHandler::getInstance()->setObjectName("diana.SatManager.setRGB");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.setRGB");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream() << "++ SatManager::setRGB " << satdata->filetype;
+  log.debugStream() << "++ SatManager::setRGB " << satdata->filetype;
 #endif
 
   int i, j, k;
@@ -497,86 +489,86 @@ void SatManager::setRGB()
       float factor;
 
       if (satdata->formatType == "geotiff" ) {
-	if (satdata->rawimage[0]!=NULL) {
-	  int index[6];
-	  if (satdata->cut==-0.5 && //reuse stretch from first image
-	      satdata->plotChannels == colourStretchInfo.channels) {
-	    for (k=0; k<3; k++) {
-	      index[0+k*2] = colourStretchInfo.index1[k];
-	      index[1+k*2] = colourStretchInfo.index2[k];
-	    }
-	  } else { //find stretch from this image
-	    cutImageRGBA(satdata->rawimage[0], satdata->cut, index);
-	  }
-	  //remember stretch from first image
-	  if (!colourStretchInfo.channels.exists()
-	      || satdata->commonColourStretch) {
-	    for (k=0; k<3; k++) {
-	      colourStretchInfo.index1[k]= index[0+k*2];
-	      colourStretchInfo.index2[k]= index[1+k*2];
-	    }
-	    colourStretchInfo.channels = satdata->plotChannels;
-	    satdata->commonColourStretch=true;
-	  }
+        if (satdata->rawimage[0]!=NULL) {
+          int index[6];
+          if (satdata->cut==-0.5 && //reuse stretch from first image
+              satdata->plotChannels == colourStretchInfo.channels) {
+            for (k=0; k<3; k++) {
+              index[0+k*2] = colourStretchInfo.index1[k];
+              index[1+k*2] = colourStretchInfo.index2[k];
+            }
+          } else { //find stretch from this image
+            cutImageRGBA(satdata->rawimage[0], satdata->cut, index);
+          }
+          //remember stretch from first image
+          if (!colourStretchInfo.channels.exists()
+              || satdata->commonColourStretch) {
+            for (k=0; k<3; k++) {
+              colourStretchInfo.index1[k]= index[0+k*2];
+              colourStretchInfo.index2[k]= index[1+k*2];
+            }
+            colourStretchInfo.channels = satdata->plotChannels;
+            satdata->commonColourStretch=true;
+          }
 
-	  for (k=0; k<3; k++) {
-	    factor=(float)(colmapsize-1)/(index[1+k*2]-index[0+k*2]+1);
-	    shift=index[0+k*2]-1;
-	    int idx;
-	    colmap[k][0] = (unsigned char) (0);
-	    for (i=1; i<colmapsize; i++) {
-	      idx=(int)(float(i-shift)*factor + 0.5);
-	      if (idx<1)
-		idx=1;
-	      if (idx>255)
-		idx=255;
-	      colmap[k][i] = (unsigned char) (idx);
-	    }
-	  }
-	}
+          for (k=0; k<3; k++) {
+            factor=(float)(colmapsize-1)/(index[1+k*2]-index[0+k*2]+1);
+            shift=index[0+k*2]-1;
+            int idx;
+            colmap[k][0] = (unsigned char) (0);
+            for (i=1; i<colmapsize; i++) {
+              idx=(int)(float(i-shift)*factor + 0.5);
+              if (idx<1)
+                idx=1;
+              if (idx>255)
+                idx=255;
+              colmap[k][i] = (unsigned char) (idx);
+            }
+          }
+        }
       } else {
-	for (k=0; k<3; k++)
-	  if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
+        for (k=0; k<3; k++)
+          if (color[k]!=NULL && (k==0 || color[k]!=color[k-1])) {
 
-	    int index1, index2;
-	    if (satdata->cut==-0.5 && //reuse stretch from first image
-		satdata->plotChannels == colourStretchInfo.channels) {
-	      index1 = colourStretchInfo.index1[k];
-	      index2 = colourStretchInfo.index2[k];
-	    } else { //find stretch from this image
-	      cutImage(color[k], satdata->cut, index1, index2);
-	    }
-	    //remember stretch from first image
-	    if (!colourStretchInfo.channels.exists()
-		|| satdata->commonColourStretch) {
-	      colourStretchInfo.index1[k]= index1;
-	      colourStretchInfo.index2[k]= index2;
-	      colourStretchInfo.channels = satdata->plotChannels;
-	      satdata->commonColourStretch=true;
-	    }
-	    factor=(float)(colmapsize-1)/(index2-index1+1);
-	    shift=index1-1;
-	    int index;
+            int index1, index2;
+            if (satdata->cut==-0.5 && //reuse stretch from first image
+                satdata->plotChannels == colourStretchInfo.channels) {
+              index1 = colourStretchInfo.index1[k];
+              index2 = colourStretchInfo.index2[k];
+            } else { //find stretch from this image
+              cutImage(color[k], satdata->cut, index1, index2);
+            }
+            //remember stretch from first image
+            if (!colourStretchInfo.channels.exists()
+                || satdata->commonColourStretch) {
+              colourStretchInfo.index1[k]= index1;
+              colourStretchInfo.index2[k]= index2;
+              colourStretchInfo.channels = satdata->plotChannels;
+              satdata->commonColourStretch=true;
+            }
+            factor=(float)(colmapsize-1)/(index2-index1+1);
+            shift=index1-1;
+            int index;
 
-	    colmap[k][0] = (unsigned char) (0);
-	    for (i=1; i<colmapsize; i++) {
-	      index=(int)(float(i-shift)*factor + 0.5);
-	      if (index<1)
-		index=1;
-	      if (index>255)
-		index=255;
-	      colmap[k][i] = (unsigned char) (index);
-	    }
-	  }
+            colmap[k][0] = (unsigned char) (0);
+            for (i=1; i<colmapsize; i++) {
+              index=(int)(float(i-shift)*factor + 0.5);
+              if (index<1)
+                index=1;
+              if (index>255)
+                index=255;
+              colmap[k][i] = (unsigned char) (index);
+            }
+          }
       }
     } else { // set colourStretchInfo even if cut is off
       if (!colourStretchInfo.channels.exists()) {
-	for (k=0; k<3; k++) {
-	  colourStretchInfo.index1[k]= 0;
-	  colourStretchInfo.index2[k]= 255;
-	  colourStretchInfo.channels = satdata->plotChannels;
-	  satdata->commonColourStretch=true;
-	}
+        for (k=0; k<3; k++) {
+          colourStretchInfo.index1[k]= 0;
+          colourStretchInfo.index2[k]= 255;
+          colourStretchInfo.channels = satdata->plotChannels;
+          satdata->commonColourStretch=true;
+        }
       }
     }
     // Put 1,2 or 3 different channels into satdata->image(RGBA).
@@ -586,44 +578,44 @@ void SatManager::setRGB()
       // UINT32 RGBA version
 
       if (satdata->image)
-	delete[] satdata->image;
+        delete[] satdata->image;
       satdata->image= new unsigned char[size*4];
 
-	if (satdata->rawimage[0] == NULL) {
-	  for (k=0; k<3; k++)
-	    for (i=0; i<size; i++)
-	      satdata->image[i*4+k] = 0;
-	} else if (satdata->cut > -1 ) {
-	  for (i=0; i<size; i++) {
-	    satdata->image[i*4+0] = colmap[0][(unsigned int)(satdata->rawimage[0][i*4+0])];
-	    satdata->image[i*4+1] = colmap[1][(unsigned int)(satdata->rawimage[0][i*4+1])];
-	    satdata->image[i*4+2] = colmap[2][(unsigned int)(satdata->rawimage[0][i*4+2])];
-	  }
-	} else {
-	  satdata->image= satdata->rawimage[0];
-	  satdata->rawimage[0] = NULL;
-	}
+      if (satdata->rawimage[0] == NULL) {
+        for (k=0; k<3; k++)
+          for (i=0; i<size; i++)
+            satdata->image[i*4+k] = 0;
+      } else if (satdata->cut > -1 ) {
+        for (i=0; i<size; i++) {
+          satdata->image[i*4+0] = colmap[0][(unsigned int)(satdata->rawimage[0][i*4+0])];
+          satdata->image[i*4+1] = colmap[1][(unsigned int)(satdata->rawimage[0][i*4+1])];
+          satdata->image[i*4+2] = colmap[2][(unsigned int)(satdata->rawimage[0][i*4+2])];
+        }
+      } else {
+        satdata->image= satdata->rawimage[0];
+        satdata->rawimage[0] = NULL;
+      }
     } else {
       if (satdata->image)
-	delete[] satdata->image;
+        delete[] satdata->image;
       satdata->image= new unsigned char[size*4];
 
       for (k=0; k<3; k++)
-	if (color[k]==NULL) {
-	  for (i=0; i<size; i++)
-	    satdata->image[i*4+k] = 0;
-	} else if (satdata->cut > -1 && (k==0 || color[k]!=color[k-1])) {
-	  for (j=0; j<ny; j++)
-	    for (i=0; i<nx; i++)
-	      satdata->image[(i+(ny-j-1)*nx)*4+k] = colmap[k][int(color[k][j*nx+i])];
-	} else if (satdata->cut > -1) {
-	  for (i=0; i<size; i++)
-	    satdata->image[i*4+k] = satdata->image[i*4+k-1];
-	} else {
-	  for (j=0; j<ny; j++)
-	    for (i=0; i<nx; i++)
-	      satdata->image[(i+(ny-j-1)*nx)*4+k] = color[k][j*nx+i];
-	}
+        if (color[k]==NULL) {
+          for (i=0; i<size; i++)
+            satdata->image[i*4+k] = 0;
+        } else if (satdata->cut > -1 && (k==0 || color[k]!=color[k-1])) {
+          for (j=0; j<ny; j++)
+            for (i=0; i<nx; i++)
+              satdata->image[(i+(ny-j-1)*nx)*4+k] = colmap[k][int(color[k][j*nx+i])];
+        } else if (satdata->cut > -1) {
+          for (i=0; i<size; i++)
+            satdata->image[i*4+k] = satdata->image[i*4+k-1];
+        } else {
+          for (j=0; j<ny; j++)
+            for (i=0; i<nx; i++)
+              satdata->image[(i+(ny-j-1)*nx)*4+k] = color[k][j*nx+i];
+        }
     }
   }
 
@@ -644,11 +636,11 @@ void SatManager::setRGB()
         //set alpha value to default or the one chosen in dialog
         satdata->image[i*4+3] = (unsigned char) satdata->alpha;
         //remove black pixels
-	/*if (satdata->formatType != "geotiff") { */
-	  if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
-	      && satdata->image[i*4+2] == 0)
-	    satdata->image[i*4+3]=0;
-	  //	}
+        /*if (satdata->formatType != "geotiff") { */
+        if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
+            && satdata->image[i*4+2] == 0)
+          satdata->image[i*4+3]=0;
+        //	}
 
       }
     }
@@ -695,9 +687,9 @@ void SatManager::cutImage(unsigned char *image, float cut, int &index1,
 
 int SatManager::getFileName(miString &name)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.getFileName");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getFileName");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"getFileName:"<<name;
+  log.debugStream()<<"getFileName:"<<name;
 #endif
 
   vector<SatFileInfo> &ft = Prod[satdata->satellite][satdata->filetype].file;
@@ -711,15 +703,20 @@ int SatManager::getFileName(miString &name)
       break;
     }
   }
+
+  if (fileno < 0 ) {
+    log.warnStream() << "Could not find "<<name<<" in inventory";
+  }
+
   return fileno;
 
 }
 
 int SatManager::getFileName(const miTime &time)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.getFileName");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getFileName");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: time: " << time;
+  log.debugStream()<<"SatManager::getFileName: time: " << time;
 #endif
 
   int fileno=-1;
@@ -729,8 +726,8 @@ int SatManager::getFileName(const miTime &time)
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
 #ifdef DEBUGPRINT
-  COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: satdata->satellite satdata->filetype: "
-  << satdata->satellite << " " << satdata->filetype;
+  log.debugStream()<<"SatManager::getFileName: satdata->satellite satdata->filetype: "
+      << satdata->satellite << " " << satdata->filetype;
 #endif
 
   miTime now = miTime::nowTime();
@@ -756,9 +753,13 @@ int SatManager::getFileName(const miTime &time)
 
 #ifdef DEBUGPRINT
 
-  COMMON_LOG::getInstance("common").debugStream()<<"SatManager::getFileName: fileno: " << fileno;
+  log.debugStream()<<"SatManager::getFileName: fileno: " << fileno;
 #endif
   //cerr<<"SatManager----> getFileName:  " << fileListChanged <<endl;
+
+  if (fileno < 0 ) {
+    log.warnStream() << "Could not find data from "<<time.isoTime("T")<<" in inventory";
+  }
   return fileno;
 }
 
@@ -766,9 +767,9 @@ void SatManager::addMosaicfiles()
 {
 
   //  * PURPOSE:   add files to existing image
-	LogHandler::getInstance()->setObjectName("diana.SatManager.addMosaicfiles");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.addMosaicfiles");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream() << "SatManager::addMosaicfiles";
+  log.debugStream() << "SatManager::addMosaicfiles";
 #endif
 
   unsigned char *color[3];//contains the three rgb channels of raw image
@@ -809,7 +810,7 @@ void SatManager::addMosaicfiles()
     int size =sd.nx*sd.ny;
     if (sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay || sd.Bx!=satdata->Bx || sd.By
         !=satdata->By) {
-    	COMMON_LOG::getInstance("common").warnStream() << "Warning: SatManager::addMosaicfiles(): File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok";
+      log.warnStream() << "Warning: SatManager::addMosaicfiles(): File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok";
       continue;
     }
 
@@ -858,9 +859,9 @@ void SatManager::addMosaicfiles()
 
 void SatManager::getMosaicfiles()
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.getMosaicfiles");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getMosaicfiles");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"getMosaicfiles:";
+  log.debugStream()<<"getMosaicfiles:";
 #endif
 
   int satdiff, plotdiff, diff= satdata->maxDiff+1;
@@ -896,10 +897,10 @@ void SatManager::getMosaicfiles()
 
 bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.readHeader");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.readHeader");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: file.name "<<file.name;
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: file.formattype "<<file.formattype;
+  log.debugStream()<<"SatManager----> readHeader: file.name "<<file.name;
+  log.debugStream()<<"SatManager----> readHeader: file.formattype "<<file.formattype;
 #endif
 
   if (file.formattype=="mitiff") {
@@ -909,7 +910,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 #ifdef HDF5FILE
   if (file.formattype=="hdf5" || file.formattype=="hdf5-standalone") {
 #ifdef DEBUGPRINT
-	  COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: readHDF5Header";
+    log.debugStream()<<"SatManager----> readHeader: readHDF5Header";
 #endif
     HDF5::readHDF5Header(file);
   }
@@ -919,11 +920,11 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
   //cerr<<"SatManager----> inside geotiff"<<file.name<<endl;
   if (file.formattype=="geotiff") {
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: reading geotiff"<<file.name;
+    log.debugStream()<<"SatManager----> readHeader: reading geotiff"<<file.name;
 #endif
     GEOtiff::readGEOtiffHeader(file);
 #ifdef DEBUGPRINT
-    COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> readHeader: finished reading geotiff"<<file.name;
+    log.debugStream()<<"SatManager----> readHeader: finished reading geotiff"<<file.name;
 #endif
   }
 #endif
@@ -936,7 +937,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
         name.replace("v.", "i.");
       else if (name.contains("i."))
         name.replace("i.", "v.");
-      ifstream inFile(name.cStr(), ios::in);
+      ifstream inFile(name.c_str(), ios::in);
       if (inFile)
         file.channel.push_back("IR+V");
     }
@@ -994,9 +995,9 @@ const vector<miString>& SatManager::getChannels(const miString &satellite,
 
 void SatManager::listFiles(subProdInfo &subp)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.listFiles");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.listFiles");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> List files ";
+  log.debugStream()<<"SatManager----> List files ";
 #endif
 
   miTime now = miTime::nowTime();
@@ -1018,7 +1019,7 @@ void SatManager::listFiles(subProdInfo &subp)
     glob_cache(subp.pattern[j].c_str(), 0, 0, &globBuf);
     //loop over files
     if (globBuf.gl_pathc == 0) {
-    	COMMON_LOG::getInstance("common").infoStream() << "No files found: " << subp.pattern[j].c_str();
+      log.errorStream() << "ERROR: No files found! " << subp.pattern[j].c_str();
     }
     for (int i=globBuf.gl_pathc-1; i>=0; i--) {
       //remember that archive files are read
@@ -1068,7 +1069,10 @@ void SatManager::listFiles(subProdInfo &subp)
         fileListChanged = true;
 
         //try to find time from filename
+	log.debugStream()<< ft.name << " " << ft.time;
         if (subp.filter[j].getTime(ft.name, ft.time) || true) {
+	  log.debugStream()<< ft.name << " Failed";
+
           ft.opened = false;
         } else {
           //Open file if time not found from filename
@@ -1080,6 +1084,7 @@ void SatManager::listFiles(subProdInfo &subp)
           readHeader(ft, subp.channel);
           ft.opened=true;
         }
+	log.debugStream()<< ft.time << " time";
 
         //put it in the sorted list
         //Check if filelist is empty
@@ -1123,9 +1128,9 @@ void SatManager::listFiles(subProdInfo &subp)
   else if (subp.formattype == "geotiff") {
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
-	  if (subp.file.size() > 0 && subp.file[0].name != "") {
-		  GEOtiff::readGEOtiffPalette(subp.file[0].name.c_str(), subp.colours);
-	  }
+    if (subp.file.size() > 0 && subp.file[0].name != "") {
+      GEOtiff::readGEOtiffPalette(subp.file[0].name.c_str(), subp.colours);
+    }
   }
 #endif
   //cerr<<"SatManager----> listFiles:  " << fileListChanged <<endl;
@@ -1210,15 +1215,15 @@ void SatManager::cutImageRGBA(unsigned char *image, float cut, int *index)
 const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
     const miString & file, bool update)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.getFiles");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getFiles");
   //check if satellite exists, (name occurs in prod)
   if (Prod.find(satellite)==Prod.end()) {
-	COMMON_LOG::getInstance("common").errorStream() << "Product doesn't exist:"<<satellite;
+    log.errorStream() << "Product doesn't exist:"<<satellite;
     return emptyfile;
   }
   //check if filetype exist...
   if (Prod[satellite].find(file)==Prod[satellite].end()) {
-	COMMON_LOG::getInstance("common").errorStream() << "Subproduct doesn't exist:"<<file;
+    log.errorStream() << "Subproduct doesn't exist:"<<file;
     return emptyfile;
   }
 
@@ -1268,9 +1273,9 @@ bool SatManager::isMosaic(const miString &satellite, const miString & file)
 vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
-	LogHandler::getInstance()->setObjectName("diana.SatManager.getSatTimes");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getSatTimes");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream()<<"SatManager----> getSatTimes ";
+  log.debugStream()<<"SatManager----> getSatTimes ";
 #endif
 
   set<miTime> timeset;
@@ -1288,12 +1293,12 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
     file = tokens[2];
 
     if (Prod.find(satellite)==Prod.end()) {
-    	COMMON_LOG::getInstance("common").errorStream() << "Product doesn't exist:"<<satellite;
+      log.errorStream() << "Product doesn't exist:"<<satellite;
       continue;
     }
 
     if (Prod[satellite].find(file)==Prod[satellite].end()) {
-    	COMMON_LOG::getInstance("common").errorStream() << "Subproduct doesn't exist:"<<file;
+      log.errorStream() << "Subproduct doesn't exist:"<<file;
       continue;
     }
 
@@ -1374,13 +1379,16 @@ void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 }
 
+
+/**
+ * Sets flag to update filelists for all satellites
+ */
 void SatManager::updateFiles()
 {
-
   //  * PURPOSE: sets flag to update filelists for all satellites
-	LogHandler::getInstance()->setObjectName("diana.SatManager.updateFiles");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.updateFiles");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream() << "++SatManager::updateFiles";
+  log.debugStream() << "++SatManager::updateFiles";
 #endif
 
   //loop over all satellites and filetypes
@@ -1397,20 +1405,25 @@ void SatManager::updateFiles()
   }
 }
 
-/*********************************************************************/
+/**
+ * Read config from setup file
+ */
 bool SatManager::parseSetup()
 {
   //  * PURPOSE:   Info to fro setup
-	LogHandler::getInstance()->setObjectName("diana.SatManager.parseSetup");
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.parseSetup");
 #ifdef DEBUGPRINT
-	COMMON_LOG::getInstance("common").debugStream() << "++SatManager: parseSetup";
+  log.debugStream() << "++SatManager: parseSetup";
 #endif
+
+  //remove old setup info
+  Prod.clear();
 
   const miString sat_name = "IMAGE";
   vector<miString> sect_sat;
 
   if (!SetupParser::getSection(sat_name, sect_sat)) {
-	COMMON_LOG::getInstance("common").infoStream() << "Missing section " << sat_name << " in setupfile.";
+    log.debugStream() << "Missing section " << sat_name << " in setupfile.";
     return true;
   }
 
@@ -1449,7 +1462,7 @@ bool SatManager::parseSetup()
         channels.push_back(vstr[0]);
       }
     } else if (key=="mosaic") {
-      cerr << "mosaic " << value << endl;
+      //cerr << "mosaic " << value << endl;
       mosaic=(value=="yes") ? true : false;
     } else if (key == "image") {
       prod=value;
@@ -1622,19 +1635,19 @@ bool SatManager::parseSetup()
 /*********************************************************************/
 bool SatManager::_isafile(const miString name)
 {
-	pu_struct_stat filestat;
-	// first check if fname is a proper file
-	int result = _filestat(name, filestat);
-	if (!result) {
-	    return true;
-	  }
-	else
-	  {
-		//stat() is not able to get the file attributes,
-		//so the file obviously does not exist or
-		//more capabilities is required
-		return false;
-	  }
+  pu_struct_stat filestat;
+  // first check if fname is a proper file
+  int result = _filestat(name, filestat);
+  if (!result) {
+    return true;
+  }
+  else
+  {
+    //stat() is not able to get the file attributes,
+    //so the file obviously does not exist or
+    //more capabilities is required
+    return false;
+  }
 }
 
 /*********************************************************************/
@@ -1652,13 +1665,13 @@ unsigned long SatManager::_modtime(const miString fname)
 /*********************************************************************/
 int SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
 {
-  return pu_stat(fname.cStr(), &filestat);
+  return pu_stat(fname.c_str(), &filestat);
 }
 
 void SatManager::init_rgbindex(Sat& sd)
 {
-	LogHandler::getInstance()->setObjectName("diana.SatManager.init_rgbindex");
-	if (sd.no==1) {
+  MI_LOG & log = MI_LOG::getInstance("diana.SatManager.init_rgbindex");
+  if (sd.no==1) {
     sd.rgbindex[0]= 0;
     sd.rgbindex[1]= 0;
     sd.rgbindex[2]= 0;
@@ -1674,8 +1687,7 @@ void SatManager::init_rgbindex(Sat& sd)
     sd.rgbindex[2]= 2;
 
   } else {
-	  COMMON_LOG::getInstance("common").infoStream() << "SatManager: number of channels: " << sd.no;
-    //    return false;
+    log.infoStream() << "SatManage r: number of channels: " << sd.no;
   }
 }
 
@@ -1694,7 +1706,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   Sat sd2;
   if (name.contains("v.")) {
     name.replace("v.", "i.");
-    ifstream inFile(name.cStr(), ios::in);
+    ifstream inFile(name.c_str(), ios::in);
     miString cal=sd.cal_vis;
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
@@ -1714,7 +1726,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   } else if (name.contains("i.")) {
     name.replace("i.", "v.");
     miString cal=sd.cal_ir;
-    ifstream inFile(name.cStr(), ios::in);
+    ifstream inFile(name.c_str(), ios::in);
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
       sd.cal_ir=cal;

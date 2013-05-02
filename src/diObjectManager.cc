@@ -42,10 +42,11 @@
 #include <diEditObjects.h>
 #include <diDisplayObjects.h>
 #include <diWeatherSymbol.h>
-#include <puCtools/glob.h>
+#include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 
 
 using namespace::miutil;
@@ -82,6 +83,10 @@ bool ObjectManager::parseSetup() {
     cerr << "No " << section << " section in setupfile, ok." << endl;
     return true;
   }
+
+  //clear old setup info
+  objectNames.clear();
+  objectFiles.clear();
 
   miString key,value,error;
   int i,n,nv,nvstr=vstr.size();
@@ -578,7 +583,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
   if (outputString.empty()) return false;
 
   // open filestream
-  ofstream file(filename.cStr());
+  ofstream file(filename.c_str());
   if (!file){
     cerr << "ERROR OPEN (WRITE) " << filename << endl;
     return false;
@@ -1239,7 +1244,7 @@ miString ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
 
 bool ObjectManager::_isafile(const miString name){
   FILE *fp;
-  if ((fp=fopen(name.cStr(),"r"))){
+  if ((fp=fopen(name.c_str(),"r"))){
     fclose(fp);
     return true;
   } else return false;

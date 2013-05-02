@@ -61,7 +61,7 @@ DianaProfetGUI::DianaProfetGUI(Profet::ProfetController & pc,
 #endif
   logfile.setSection("PROFET.LOG");
 
-  sessionDialog = new ProfetSessionDialog(parent,controller.SERVER_HOST);
+  sessionDialog = new ProfetSessionDialog(parent);
   viewObjectDialog = new ProfetObjectDialog(parent,
       ProfetObjectDialog::VIEW_OBJECT_MODE);
   editObjectDialog = new ProfetObjectDialog(parent);
@@ -725,7 +725,7 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
     obj.push_back(currentObject);
   currentObjectMutex.unlock();
 
-  set<miutil::miString> deletion_ids;
+  set<std::string> deletion_ids;
   controller.getTimeValueObjects(obj, tv, deletion_ids);
   for (size_t i = 0; i < del_ids.size(); ++i) {
     deletion_ids.insert(del_ids[i]);
@@ -809,7 +809,7 @@ void DianaProfetGUI::selectPolygon(miutil::miString polyname)
 
 void DianaProfetGUI::requestPolygonList()
 {
-  vector<miutil::miString> polynames;
+  vector<std::string> polynames;
   try {
     polynames = controller.getPolygonIndex();
   } catch (Profet::ServerException & se) {
@@ -817,9 +817,10 @@ void DianaProfetGUI::requestPolygonList()
     return;
   }
 
-  if (polynames.size())
-    editObjectDialog->startBookmarkDialog(polynames);
-
+  if (not polynames.empty()) {
+    vector<miutil::miString> polynames_ms(polynames.begin(), polynames.end());
+    editObjectDialog->startBookmarkDialog(polynames_ms);
+  }
 }
 
 void DianaProfetGUI::dynamicGuiChanged()

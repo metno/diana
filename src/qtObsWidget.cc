@@ -53,10 +53,11 @@
 #include "qtUtility.h"
 
 
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 
 
@@ -135,6 +136,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   bool orient=false;
   bool parameterName=false;
   bool moreTimes=false;
+  bool qualityFlag=false;
+  bool wmoFlag=false;
   markerboxVisible=false;
   leveldiffs=false;
   bool criteria=true;
@@ -165,6 +168,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
         moreTimes = on;
       else if(stokens[0]=="criteria")
         criteria = on;
+      else if(stokens[0]=="qualityflag")
+        qualityFlag = on;
+      else if(stokens[0]=="wmoflag")
+        wmoFlag = on;
     }
   }
 
@@ -228,7 +235,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     //       vstr.push_back(miutil::miString(dialogInfo.pressureLevels[i]));
     for(int i=1; i<psize+1; i++){
       miutil::miString str(dialogInfo.pressureLevels[psize-i]);
-      pressureComboBox->addItem(str.cStr());
+      pressureComboBox->addItem(str.c_str());
       levelMap[str]=i;
     }
 
@@ -241,13 +248,13 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
       for(int i=0;i<4;i++){
         int aa=(int)pow(10.0,i);
         miutil::miString tmp(aa);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=i*3;
         tmp = miutil::miString(aa*2);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=1*3+1;
         tmp = miutil::miString(aa*5);
-        leveldiffComboBox->addItem(tmp.cStr());
+        leveldiffComboBox->addItem(tmp.c_str());
         leveldiffMap[tmp]=i*3+2;
       }
       pressureLayout->addWidget( leveldiffLabel );
@@ -285,6 +292,10 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   devLayout->addWidget(devColourBox2);
   allAirepsLevelsCheckBox= new QCheckBox(tr("Aireps in all levels"),this);
   if( !allAirepsLevels ) allAirepsLevelsCheckBox->hide();
+  qualityCheckBox= new QCheckBox(tr("Quality stations"),this);
+  if ( !qualityFlag ) qualityCheckBox->hide();
+  wmoCheckBox= new QCheckBox(tr("WMO stations"),this);
+  if ( !wmoFlag ) wmoCheckBox->hide();
 
   //Onlypos & marker
   onlyposCheckBox= new QCheckBox(tr("Positions only"),this);
@@ -437,6 +448,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addWidget( tempPrecisionCheckBox );
   vcommonlayout->addWidget( parameterNameCheckBox );
   vcommonlayout->addWidget( moreTimesCheckBox );
+  vcommonlayout->addWidget( qualityCheckBox );
+  vcommonlayout->addWidget( wmoCheckBox );
   vcommonlayout->addLayout( devLayout );
   vcommonlayout->addWidget( allAirepsLevelsCheckBox );
   vcommonlayout->addLayout( onlyposLayout);
@@ -477,6 +490,8 @@ void ObsWidget::ToolTip(){
   devColourBox1->setToolTip(tr("PPPP-MSLP<0"));
   devColourBox2->setToolTip(tr("PPPP-MSLP>0"));
   moreTimesCheckBox->setToolTip(tr("Affecting synoptic data: All observations in the time interval given, mixing observations with different times"));
+  qualityCheckBox->setToolTip(tr("Only show stations with quality flag good."));
+  wmoCheckBox->setToolTip(tr("Only show stations with wmo number"));
   diffLcdnum->setToolTip(tr("Max time difference"));
   diffComboBox->setToolTip(tr("Max value for the slider"));
   pricheckbox->setToolTip(tr("Show only observations in the priority list") );
@@ -758,6 +773,12 @@ miutil::miString ObsWidget::getOKString(bool forLog){
   if( moreTimesCheckBox->isChecked() )
     dVariables.misc["moretimes"]="true";
 
+  if( qualityCheckBox->isChecked() )
+    dVariables.misc["qualityflag"]="true";
+
+  if( wmoCheckBox->isChecked() )
+    dVariables.misc["wmoflag"]="true";
+
   if( orientCheckBox->isChecked() )
     dVariables.misc["orientation"]="horizontal";
 
@@ -953,6 +974,18 @@ void ObsWidget::updateDialog(bool setChecked){
     moreTimesCheckBox->setChecked(true);
   }
 
+  //Quality flag
+  if (setChecked && dVariables.misc.count("qualityflag") &&
+      dVariables.misc["qualityflag"] == "true"){
+    qualityCheckBox->setChecked(true);
+  }
+
+  //WMO number
+  if (setChecked && dVariables.misc.count("wmoflag") &&
+      dVariables.misc["wmoflag"] == "true"){
+    wmoCheckBox->setChecked(true);
+  }
+
   //dev from field
   if (dVariables.misc.count("devfield") &&
       dVariables.misc["devfield"] == "true"){
@@ -1048,7 +1081,7 @@ void ObsWidget::updateDialog(bool setChecked){
     if( timediff_minutes == "alltimes"){
       number=time_slider2lcd.size();
     } else {
-      int iminutes = atoi(timediff_minutes.cStr());
+      int iminutes = atoi(timediff_minutes.c_str());
       if(iminutes<3*60){
         i=0;
         maxSliderValue = 13;
@@ -1180,6 +1213,10 @@ void ObsWidget::setFalse(){
   parameterNameCheckBox->setChecked(false);
 
   moreTimesCheckBox->setChecked(false);
+
+  qualityCheckBox->setChecked(false);
+
+  wmoCheckBox->setChecked(false);
 
   allAirepsLevelsCheckBox->setChecked(false);
 

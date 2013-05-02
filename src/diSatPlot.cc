@@ -35,7 +35,18 @@
 
 #include <sys/time.h>
 #include <diSatPlot.h>
-#include <GL/gl.h>
+
+#include <QtGlobal>
+#if defined(USE_PAINTGL)
+#include <QtGui>
+#include <QtSvg>
+#include "PaintGL/paintgl.h"
+#else
+#include <QtOpenGL>
+#endif
+
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 #define NO_TEXTTURE
 using namespace::miutil;
@@ -44,7 +55,8 @@ using namespace::miutil;
 SatPlot::SatPlot()
 :Plot(), imagedata(0), previrs(1), satdata(0)
 {
-	texture =-1;
+    texture = 0;
+    hasTexture = false;
 }
 
 SatPlot::~SatPlot(){
@@ -52,7 +64,7 @@ SatPlot::~SatPlot(){
   satdata = 0;
   if (imagedata) delete[] imagedata;
   imagedata=0;
-  if (texture != -1) {
+  if (hasTexture) {
     glDeleteTextures( 1, &texture );
   }
 }
@@ -87,7 +99,8 @@ void SatPlot::getSatName(miString &str){
 
 void SatPlot::setData(Sat *data){
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::setData() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.setData");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::setData() ++";
 #endif
   delete imagedata;
   imagedata = NULL;
@@ -97,7 +110,8 @@ void SatPlot::setData(Sat *data){
 }
 void SatPlot::clearData(){
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::clearData() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.clearData");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::clearData() ++";
 #endif
   delete imagedata;
   imagedata = NULL;
@@ -142,7 +156,8 @@ bool SatPlot::plot(){
 #endif
 
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::plot() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plot");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::plot() ++";
 #endif
 
   if (!enabled)
@@ -169,41 +184,61 @@ bool SatPlot::plotFillcell()
 
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
-      area, maprect, true,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
 
   //todo: reduce resolution when zooming out
 //  int factor = fullrect.width()/nx/2000;
+  int factor = 1;
+  int rnx = nx;
+  int rny = ny;
 
-  double plotH = pow(pow(pwidth, 2) + pow(pheight, 2), 0.5);
-  double gridH = pow(pow(nx, 2) + pow(ny, 2), 0.5);
-  double fullH = pow(pow(fullrect.width(), 2) + pow(fullrect.height(), 2), 0.5);
-  int factor = (fullH/gridH) / (plotH * 2);
-  if ( factor < 1 ) factor = 1;
+  float cx[2], cy[2];
+  cx[0] = satdata->area.R().x1;
+  cy[0] = satdata->area.R().y1;
+  cx[1] = satdata->area.R().x2;
+  cy[1] = satdata->area.R().y2;
+  int npos = 2;
+  gc.getPoints(satdata->area.P(), area.P(), npos, cx, cy);
+
+  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
+  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
+  double resamplingF = min(gridW/pwidth, gridH/pheight);
+  factor = int(resamplingF);
+
+  if (factor >= 2) {
+    rnx = nx/factor;
+    rny = ny/factor;
+    gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
+        area, maprect, true,
+        rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
+  } else {
+    factor = 1;
+    gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
+        area, maprect, true,
+        nx, ny, &x, &y, ix1, ix2, iy1, iy2);
+  }
+  if (ix1>ix2 || iy1>iy2) return false;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBegin(GL_QUADS);
   vector<float>::iterator it;
-  for (int iy=iy1; iy<=iy2-factor; iy+=factor) {
-    for (int ix = ix1; ix <= ix2-factor; ix+=factor) {
-      float x1 = x[iy * (nx+1) + ix];
-      float x2 = x[iy * (nx+1) + (ix+factor)];
-      float x3 = x[(iy+factor) * (nx+1) + (ix+factor)];
-      float x4 = x[(iy+factor) * (nx+1) + ix];
-      float y1 = y[iy * (nx+1) +ix];
-      float y2 = y[(iy) * (nx+1) +(ix+factor)];
-      float y3 = y[(iy+factor) * (nx+1) +(ix+factor)];
-      float y4 = y[(iy+factor) * (nx+1) +(ix)];
+  for (int iy=iy1; iy<=iy2-1; iy++) {
+    for (int ix = ix1; ix <= ix2-1; ix++) {
+      float x1 = x[iy * (rnx+1) + ix];
+      float x2 = x[iy * (rnx+1) + (ix+1)];
+      float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
+      float x4 = x[(iy+1) * (rnx+1) + ix];
+      float y1 = y[iy * (rnx+1) +ix];
+      float y2 = y[(iy) * (rnx+1) +(ix+1)];
+      float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
+      float y4 = y[(iy+1) * (rnx+1) +(ix)];
 
-      char f1 = satdata->image[(ix + (iy * (nx)))*4];
-      char f2 = satdata->image[(ix + (iy * (nx)))*4+1];
-      char f3 = satdata->image[(ix + (iy * (nx)))*4+2];
-      char f4 = satdata->image[(ix + (iy * (nx)))*4+3];
-      if(int(f1)==0 && int(f2) == 0 && int(f3)== 0 ) {
+      char f1 = satdata->image[(ix * factor + (iy * (nx) * factor))*4];
+      char f2 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+1];
+      char f3 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+2];
+      char f4 = satdata->image[(ix * factor + (iy * (nx) * factor))*4+3];
+      if(int(f4)==0  ) {
         continue;
       }
       glColor4ub(f1,f2,f3,f4);
@@ -351,9 +386,9 @@ bool SatPlot::plotPixmap()
   bool wrap =true;
 
   // allocate a texture name
-  if (texture == -1) {
+  if (!hasTexture) {
     glGenTextures( 1, &texture );
-    cerr << "Gentext: " << texture << endl;
+    //cerr << "Gentext: " << texture << endl;
   }
 
   // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -402,11 +437,11 @@ bool SatPlot::plotPixmap()
       float h = ny -1;
    
 
-     cerr << "nx " << nx << " ny " << ny << endl;
-     cerr << "grStartx " << grStartx << " grStarty " << grStarty << " grStopx " << grStopx << " grStopy " << grStopy << endl;
-     cerr << "bmStartx/nx bmStarty/ny bmStopx/nx bmStopy/ny" << endl;
-     cerr << bmStartx << " " << bmStarty << " " << bmStopx << " " << bmStopy << endl;
-     cerr << bmStartx/w << " " << bmStarty/h << " " << bmStopx/w << " " << bmStopy/h << endl;
+     //cerr << "nx " << nx << " ny " << ny << endl;
+     //cerr << "grStartx " << grStartx << " grStarty " << grStarty << " grStopx " << grStopx << " grStopy " << grStopy << endl;
+     //cerr << "bmStartx/nx bmStarty/ny bmStopx/nx bmStopy/ny" << endl;
+     //cerr << bmStartx << " " << bmStarty << " " << bmStopx << " " << bmStopy << endl;
+     //cerr << bmStartx/w << " " << bmStarty/h << " " << bmStopx/w << " " << bmStopy/h << endl;
    
 
       glTexCoord2f(bmStartx/w, bmStarty/h); glVertex3f(grStartx, grStarty, 0);
@@ -435,12 +470,14 @@ bool SatPlot::plotPixmap()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from SatPlot::plot() ++" << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
+  COMMON_LOG::getInstance("common").debugStream() << "++ Returning from SatPlot::plot() ++";
 #endif
 #ifdef M_TIME
   gettimeofday(&post, NULL);
   double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "SatPlot::plot(): " << s1 << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
+  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::plot(): " << s1;
 #endif
   return true;
 }
@@ -455,7 +492,8 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
   gettimeofday(&pre, NULL);
 #endif
 #ifdef DEBUGPRINT
-  cerr << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley<<endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
+  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley;
 #endif
   unsigned char * cimage;
   int irs= 1;            // resample-size
@@ -508,7 +546,8 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
 #ifdef M_TIME
   gettimeofday(&post, NULL);
   double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  cerr << "SatPlot::resampleImage(): " << s1 << endl;
+  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
+  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::resampleImage(): " << s1;
 #endif
 
   return cimage;
