@@ -136,8 +136,8 @@ all-local: $(PERLMAKEFILE)
 clean-local: $(PERLMAKEFILE)
 	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
 
-check-local: $(PERLMAKEFILE)
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) test
+#check-local: $(PERLMAKEFILE)
+#	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) test
 
 install-exec-local:
 	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install

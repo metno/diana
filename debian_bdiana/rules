@@ -18,7 +18,7 @@ endif
 
 # Ensure that the executable searches for libraries under the /opt/qt4-headless prefix
 # and work around missing linkage to the Boost threading library in metlibs.
-confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread"
+confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread" CC="ccache gcc" CXX="ccache g++"
 
 do-configure:
 	./autogen.sh

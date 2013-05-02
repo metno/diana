@@ -2443,250 +2443,271 @@ bool FieldPlot::plotContour(){
     return false;
   }
 
-  if (ix1>=ix2 || iy1>=iy2) return false;
-  if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
+  if (ix1 == ix2 || iy1 >= iy2) return false;
 
-  if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y);
-
-  ipart[0] = ix1;
-  ipart[1] = ix2;
-  ipart[2] = iy1;
-  ipart[3] = iy2;
-
-  xylim[0] = maprect.x1;
-  xylim[1] = maprect.x2;
-  xylim[2] = maprect.y1;
-  xylim[3] = maprect.y2;
-
-  if (poptions.valueLabel==0) labfmt[0] = 0;
-  else                        labfmt[0] =-1;
-  labfmt[1] = 0;
-  labfmt[2] = 0;
-  ibcol = -1;
-
-  if (labfmt[0]!=0) {
-    float fontsize= 10. * poptions.labelSize;
-
-    fp->set(poptions.fontname,poptions.fontface,fontsize);
-    fp->getCharSize('0',chxlab,chylab);
-
-    // the real height for numbers 0-9 (width is ok)
-    chylab *= 0.75;
+  int ix1v[2], ix2v[2];
+  int areas;
+  if (ix1 > ix2) {
+    areas = 2;
+    ix1v[0] = ix1;
+    ix2v[0] = nx - 1;
+    ix1v[1] = 0;
+    ix2v[1] = ix2;
   } else {
-    chxlab= chylab= 1.0;
+    areas = 1;
+    ix1v[0] = ix1;
+    ix2v[0] = ix2;
   }
 
-  zstep= poptions.lineinterval;
-  zoff = poptions.base;
+  for (int a = 0; a < areas; ++a) {
 
-  if (poptions.linevalues.size()>0) {
-    nlines = poptions.linevalues.size();
-    if ( nlines > mmmUsed ) nlines = mmmUsed;
-    for (int ii=0; ii<nlines; ii++){
-      rlines[ii]= poptions.linevalues[ii];
-    }
-    idraw = 3;
-  } else if (poptions.loglinevalues.size()>0) {
-    nlines = poptions.loglinevalues.size();
-    if ( nlines > mmmUsed ) nlines = mmmUsed;
-    for (int ii=0; ii<nlines; ii++){
-      rlines[ii]= poptions.loglinevalues[ii];
-    }
-    idraw = 4;
-  } else {
-    nlines= 0;
-    idraw= 1;
-    if (poptions.zeroLine==0) {
-      idraw= 2;
-      zoff= 0.;
-    }
-  }
+    ix1 = ix1v[a];
+    ix2 = ix2v[a];
 
-
-  zrange[0]= +1.;
-  zrange[1]= -1.;
-  zrange2[0] = +1.;
-  zrange2[1] = -1.;
-
-  if ( poptions.minvalue > -fieldUndef ||
-      poptions.maxvalue < fieldUndef ) {
-    zrange[0] = poptions.minvalue;
-    zrange[1] = poptions.maxvalue;
-  }
-
-  ncol = 1;
-  icol[0] = -1; // -1: set colour below
-  // otherwise index in poptions.colours[]
-  ntyp = 1;
-  ityp[0] = -1;
-  nwid = 1;
-  iwid[0] = -1;
-  nlim = 0;
-  rlim[0] = 0.;
-
-  nlines2 = 0;
-  ncol2 = 1;
-  icol2[0] = -1;
-  ntyp2 = 1;
-  ityp2[0] = -1;
-  nwid2 = 1;
-  iwid2[0] = -1;
-  nlim2 = 0;
-  rlim2[0] = 0.;
-
-  ismooth = poptions.lineSmooth;
-  if (ismooth<0) ismooth=0;
-
-  ibmap  = 0;
-  lbmap  = 0;
-  nxbmap = 0;
-  nybmap = 0;
-
-  if (poptions.contourShading==0 && !poptions.options_1)
-    idraw=0;
-
-  //Plot colour shading
-  if (poptions.contourShading!=0) {
-
-    int idraw2=0;
-
-    res = contour(nx, ny, fields[0]->data, x, y,
-        ipart, 2, NULL, xylim,
-        idraw, zrange, zstep, zoff,
-        nlines, rlines,
-        ncol, icol, ntyp, ityp,
-        nwid, iwid, nlim, rlim,
-        idraw2, zrange2, zstep2, zoff2,
-        nlines2, rlines2,
-        ncol2, icol2, ntyp2, ityp2,
-        nwid2, iwid2, nlim2, rlim2,
-        ismooth, labfmt, chxlab, chylab,
-        ibcol,
-        ibmap, lbmap, kbmap,
-        nxbmap, nybmap, rbmap,
-        fp, poptions, psoutput,
-        fields[0]->area, fieldUndef,
-        getModelName(), fields[0]->name, ftime.hour());
-
-  }
-
-  //Plot contour lines
-  if (!poptions.options_1) idraw=0;
-
-  if (!poptions.options_2) {
-    idraw2 = 0;
-  } else {
-    zstep2= poptions.lineinterval_2;
-    zoff2 = poptions.base_2;
-    if (poptions.linevalues_2.size()>0) {
-      nlines2 = poptions.linevalues_2.size();
-      if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
-      for (int ii=0; ii<nlines2; ii++){
-        rlines2[ii]= poptions.linevalues_2[ii];
-      }
-      idraw2 = 3;
-    } else if (poptions.loglinevalues_2.size()>0) {
-      nlines2 = poptions.loglinevalues_2.size();
-      if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
-      for (int ii=0; ii<nlines2; ii++){
-        rlines2[ii]= poptions.loglinevalues_2[ii];
-      }
-      idraw2 = 4;
+    if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
+  
+    if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y);
+  
+    ipart[0] = ix1;
+    ipart[1] = ix2;
+    ipart[2] = iy1;
+    ipart[3] = iy2;
+  
+    xylim[0] = maprect.x1;
+    xylim[1] = maprect.x2;
+    xylim[2] = maprect.y1;
+    xylim[3] = maprect.y2;
+  
+    if (poptions.valueLabel==0) labfmt[0] = 0;
+    else                        labfmt[0] =-1;
+    labfmt[1] = 0;
+    labfmt[2] = 0;
+    ibcol = -1;
+  
+    if (labfmt[0]!=0) {
+      float fontsize= 10. * poptions.labelSize;
+  
+      fp->set(poptions.fontname,poptions.fontface,fontsize);
+      fp->getCharSize('0',chxlab,chylab);
+  
+      // the real height for numbers 0-9 (width is ok)
+      chylab *= 0.75;
     } else {
-      idraw2= 1;
+      chxlab= chylab= 1.0;
+    }
+  
+    zstep= poptions.lineinterval;
+    zoff = poptions.base;
+  
+    if (poptions.linevalues.size()>0) {
+      nlines = poptions.linevalues.size();
+      if ( nlines > mmmUsed ) nlines = mmmUsed;
+      for (int ii=0; ii<nlines; ii++){
+        rlines[ii]= poptions.linevalues[ii];
+      }
+      idraw = 3;
+    } else if (poptions.loglinevalues.size()>0) {
+      nlines = poptions.loglinevalues.size();
+      if ( nlines > mmmUsed ) nlines = mmmUsed;
+      for (int ii=0; ii<nlines; ii++){
+        rlines[ii]= poptions.loglinevalues[ii];
+      }
+      idraw = 4;
+    } else {
+      nlines= 0;
+      idraw= 1;
       if (poptions.zeroLine==0) {
-        idraw2 = 2;
-        zoff2 = 0;
+        idraw= 2;
+        zoff= 0.;
       }
     }
-  }
-
-  if(idraw>0 || idraw2>0){
-
-    if (rgbmode){
-      if(poptions.colours.size()>1){
-        if(idraw>0 && idraw2>0) {
-          icol[0] =0;
-          icol2[0]=1;
-        } else {
-          ncol=poptions.colours.size();
-          if ( ncol > mmmUsed ) ncol = mmmUsed;
-          for (int i=0; i<ncol; ++i) icol[i]= i;
-        }
-      } else if(idraw>0) {
-        glColor3ubv(poptions.linecolour.RGB());
-      } else  {
-        glColor3ubv(poptions.linecolour_2.RGB());
-      }
-    } else if (!rgbmode) {
-      // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
-      glIndexi(poptions.linecolour.Index());
+  
+  
+    zrange[0]= +1.;
+    zrange[1]= -1.;
+    zrange2[0] = +1.;
+    zrange2[1] = -1.;
+  
+    if ( poptions.minvalue > -fieldUndef ||
+        poptions.maxvalue < fieldUndef ) {
+      zrange[0] = poptions.minvalue;
+      zrange[1] = poptions.maxvalue;
     }
-
-    if ( poptions.minvalue_2 > -fieldUndef ||
-        poptions.maxvalue_2 < fieldUndef ) {
-      zrange2[0] = poptions.minvalue_2;
-      zrange2[1] = poptions.maxvalue_2;
+  
+    ncol = 1;
+    icol[0] = -1; // -1: set colour below
+    // otherwise index in poptions.colours[]
+    ntyp = 1;
+    ityp[0] = -1;
+    nwid = 1;
+    iwid[0] = -1;
+    nlim = 0;
+    rlim[0] = 0.;
+  
+    nlines2 = 0;
+    ncol2 = 1;
+    icol2[0] = -1;
+    ntyp2 = 1;
+    ityp2[0] = -1;
+    nwid2 = 1;
+    iwid2[0] = -1;
+    nlim2 = 0;
+    rlim2[0] = 0.;
+  
+    ismooth = poptions.lineSmooth;
+    if (ismooth<0) ismooth=0;
+  
+    ibmap  = 0;
+    lbmap  = 0;
+    nxbmap = 0;
+    nybmap = 0;
+  
+    if (poptions.contourShading==0 && !poptions.options_1)
+      idraw=0;
+  
+    //Plot colour shading
+    if (poptions.contourShading!=0) {
+  
+      int idraw2=0;
+  
+      res = contour(nx, ny, fields[0]->data, x, y,
+          ipart, 2, NULL, xylim,
+          idraw, zrange, zstep, zoff,
+          nlines, rlines,
+          ncol, icol, ntyp, ityp,
+          nwid, iwid, nlim, rlim,
+          idraw2, zrange2, zstep2, zoff2,
+          nlines2, rlines2,
+          ncol2, icol2, ntyp2, ityp2,
+          nwid2, iwid2, nlim2, rlim2,
+          ismooth, labfmt, chxlab, chylab,
+          ibcol,
+          ibmap, lbmap, kbmap,
+          nxbmap, nybmap, rbmap,
+          fp, poptions, psoutput,
+          fields[0]->area, fieldUndef,
+          getModelName(), fields[0]->name, ftime.hour());
+  
     }
-
-    if (poptions.linewidths.size()==1) {
-      glLineWidth(poptions.linewidth);
-    } else {
-      if(idraw2>0){ // two set of plot options
-        iwid[0] = 0;
-        iwid2[0]= 1;
-      } else {      // one set of plot options, different lines
-        nwid=poptions.linewidths.size();
-        if ( nwid > mmmUsed ) nwid = mmmUsed;
-        for (int i=0; i<nwid; ++i) iwid[i]= i;
-      }
-    }
-
-    if (poptions.linetypes.size()==1 && poptions.linetype.stipple) {
-      glLineStipple(poptions.linetype.factor,poptions.linetype.bmap);
-      glEnable(GL_LINE_STIPPLE);
-    } else {
-      if(idraw2>0){ // two set of plot options
-        ityp[0] =0;
-        ityp2[0]=1;
-      } else {      // one set of plot options, different lines
-        if ( ntyp > mmmUsed ) ntyp = mmmUsed;
-        ntyp=poptions.linetypes.size();
-        for (int i=0; i<ntyp; ++i) ityp[i]= i;
-      }
-    }
-
+  
+    //Plot contour lines
     if (!poptions.options_1) idraw=0;
-
-    //turn off contour shading
-    bool contourShading = poptions.contourShading;
-    poptions.contourShading = 0;
-
-    res = contour(nx, ny, fields[0]->data, x, y,
-        ipart, 2, NULL, xylim,
-        idraw, zrange, zstep, zoff,
-        nlines, rlines,
-        ncol, icol, ntyp, ityp,
-        nwid, iwid, nlim, rlim,
-        idraw2, zrange2, zstep2, zoff2,
-        nlines2, rlines2,
-        ncol2, icol2, ntyp2, ityp2,
-        nwid2, iwid2, nlim2, rlim2,
-        ismooth, labfmt, chxlab, chylab,
-        ibcol,
-        ibmap, lbmap, kbmap,
-        nxbmap, nybmap, rbmap,
-        fp, poptions, psoutput,
-        fields[0]->area, fieldUndef,
-        getModelName(), fields[0]->name, ftime.hour());
-
-    //reset contour shading
-    poptions.contourShading = contourShading;
+  
+    if (!poptions.options_2) {
+      idraw2 = 0;
+    } else {
+      zstep2= poptions.lineinterval_2;
+      zoff2 = poptions.base_2;
+      if (poptions.linevalues_2.size()>0) {
+        nlines2 = poptions.linevalues_2.size();
+        if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
+        for (int ii=0; ii<nlines2; ii++){
+          rlines2[ii]= poptions.linevalues_2[ii];
+        }
+        idraw2 = 3;
+      } else if (poptions.loglinevalues_2.size()>0) {
+        nlines2 = poptions.loglinevalues_2.size();
+        if ( nlines2 > mmmUsed ) nlines2 = mmmUsed;
+        for (int ii=0; ii<nlines2; ii++){
+          rlines2[ii]= poptions.loglinevalues_2[ii];
+        }
+        idraw2 = 4;
+      } else {
+        idraw2= 1;
+        if (poptions.zeroLine==0) {
+          idraw2 = 2;
+          zoff2 = 0;
+        }
+      }
+    }
+  
+    if(idraw>0 || idraw2>0){
+  
+      if (rgbmode){
+        if(poptions.colours.size()>1){
+          if(idraw>0 && idraw2>0) {
+            icol[0] =0;
+            icol2[0]=1;
+          } else {
+            ncol=poptions.colours.size();
+            if ( ncol > mmmUsed ) ncol = mmmUsed;
+            for (int i=0; i<ncol; ++i) icol[i]= i;
+          }
+        } else if(idraw>0) {
+          glColor3ubv(poptions.linecolour.RGB());
+        } else  {
+          glColor3ubv(poptions.linecolour_2.RGB());
+        }
+      } else if (!rgbmode) {
+        // drawing in overlay ... NOT USED !!!!!!!!!!!!!!
+        glIndexi(poptions.linecolour.Index());
+      }
+  
+      if ( poptions.minvalue_2 > -fieldUndef ||
+          poptions.maxvalue_2 < fieldUndef ) {
+        zrange2[0] = poptions.minvalue_2;
+        zrange2[1] = poptions.maxvalue_2;
+      }
+  
+      if (poptions.linewidths.size()==1) {
+        glLineWidth(poptions.linewidth);
+      } else {
+        if(idraw2>0){ // two set of plot options
+          iwid[0] = 0;
+          iwid2[0]= 1;
+        } else {      // one set of plot options, different lines
+          nwid=poptions.linewidths.size();
+          if ( nwid > mmmUsed ) nwid = mmmUsed;
+          for (int i=0; i<nwid; ++i) iwid[i]= i;
+        }
+      }
+  
+      if (poptions.linetypes.size()==1 && poptions.linetype.stipple) {
+        glLineStipple(poptions.linetype.factor,poptions.linetype.bmap);
+        glEnable(GL_LINE_STIPPLE);
+      } else {
+        if(idraw2>0){ // two set of plot options
+          ityp[0] =0;
+          ityp2[0]=1;
+        } else {      // one set of plot options, different lines
+          if ( ntyp > mmmUsed ) ntyp = mmmUsed;
+          ntyp=poptions.linetypes.size();
+          for (int i=0; i<ntyp; ++i) ityp[i]= i;
+        }
+      }
+  
+      if (!poptions.options_1) idraw=0;
+  
+      //turn off contour shading
+      bool contourShading = poptions.contourShading;
+      poptions.contourShading = 0;
+  
+      res = contour(nx, ny, fields[0]->data, x, y,
+          ipart, 2, NULL, xylim,
+          idraw, zrange, zstep, zoff,
+          nlines, rlines,
+          ncol, icol, ntyp, ityp,
+          nwid, iwid, nlim, rlim,
+          idraw2, zrange2, zstep2, zoff2,
+          nlines2, rlines2,
+          ncol2, icol2, ntyp2, ityp2,
+          nwid2, iwid2, nlim2, rlim2,
+          ismooth, labfmt, chxlab, chylab,
+          ibcol,
+          ibmap, lbmap, kbmap,
+          nxbmap, nybmap, rbmap,
+          fp, poptions, psoutput,
+          fields[0]->area, fieldUndef,
+          getModelName(), fields[0]->name, ftime.hour());
+  
+      //reset contour shading
+      poptions.contourShading = contourShading;
+    }
+  
+    const std::string pexu = miutil::to_upper(poptions.extremeType);
+    if (pexu=="L+H" || pexu=="C+W" || pexu=="VALUE")
+      markExtreme();
   }
-
-  const std::string pexu = miutil::to_upper(poptions.extremeType);
-  if (pexu=="L+H" || pexu=="C+W" || pexu=="VALUE")
-    markExtreme();
 
   UpdateOutput();
 
@@ -3132,89 +3153,115 @@ bool FieldPlot::plotFillCell(){
         area, maprect, true,
         nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
   }
-  if (ix1>ix2 || iy1>iy2) return false;
 
-  glLineWidth(poptions.linewidth);
-  glColor3ubv(poptions.bordercolour.RGB());
-  if ( poptions.frame ) {
-    if (factor >= 2) {
-      plotFrame(rnx+1,rny+1,x,y);
-    } else {
-      plotFrame(nx+1,ny+1,x,y);
-    }
+  int ix1v[2], ix2v[2];
+  int areas;
+  if (ix1 > ix2) {
+    areas = 2;
+    ix1v[0] = ix1;
+    ix2v[0] = nx - 1;
+    ix1v[1] = 0;
+    ix2v[1] = ix2;
+  } else {
+    areas = 1;
+    ix1v[0] = ix1;
+    ix2v[0] = ix2;
   }
 
-  //auto -> 0
-  if ( poptions.density == 0 ) {
-    poptions.density = 10;
-  }
+  for (int a = 0; a < areas; ++a) {
 
-  //  float dx = poptions.density*(0.1) * (x[1]-x[0]);
-  //  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
+    ix1 = ix1v[a];
+    ix2 = ix2v[a];
 
-  if(poptions.alpha<255){
-    for(size_t  i=0;i<poptions.palettecolours.size();i++) {
-      poptions.palettecolours[i].set(Colour::alpha,uchar_t(poptions.alpha));
-    }
-  }
+    if (ix1>ix2 || iy1>iy2) return false;
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
-  vector<float>::iterator it;
-  for (int iy=iy1; iy<=iy2; iy++) {
-    for (int ix = ix1; ix <= ix2; ix++) {
-
-      float value = fields[0]->data[ix*factor + (iy * (nx)*factor)];
-      if ( value == fieldUndef ) continue;
-      if (value >= poptions.minvalue && value <= poptions.maxvalue) {
-
-        float x1 = x[iy * (rnx+1) + ix];
-        float x2 = x[iy * (rnx+1) + (ix+1)];
-        float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
-        float x4 = x[(iy+1) * (rnx+1) + ix];
-        float y1 = y[iy * (rnx+1) +ix];
-        float y2 = y[(iy) * (rnx+1) +(ix+1)];
-        float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
-        float y4 = y[(iy+1) * (rnx+1) +(ix)];
-
-        // set fillcolor of cell
-        if(poptions.linevalues.size() == 0){
-          size_t index = 0;
-          if ( value > poptions.base) {
-            index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
-          } else{
-            index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
-          }
-          if ( value <poptions.base && index !=0) {
-            index = poptions.palettecolours.size() - index;
-          }
-          if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
-          if (index<0) index=0;
-          glColor4ubv(poptions.palettecolours[index].RGBA());
-        } else {
-          it=poptions.linevalues.begin();
-          while( *it < value && it!=poptions.linevalues.end()) {
-            it++;
-          }
-          if(it == poptions.linevalues.begin() ) continue; //less than first limit
-          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()-1].RGBA());
-        }
-
-        // lower-left corner of gridcell
-        glVertex2f(x1, y1);
-        // lower-right corner of gridcell
-        glVertex2f(x2, y2);
-        // upper-right corner of gridcell
-        glVertex2f(x3, y3);
-        // upper-left corner of gridcell
-        glVertex2f(x4, y4);
+    glLineWidth(poptions.linewidth);
+    glColor3ubv(poptions.bordercolour.RGB());
+    if ( poptions.frame ) {
+      if (factor >= 2) {
+        plotFrame(rnx+1,rny+1,x,y);
+      } else {
+        plotFrame(nx+1,ny+1,x,y);
       }
     }
+
+    //auto -> 0
+    if ( poptions.density == 0 ) {
+      poptions.density = 10;
+    }
+
+    //  float dx = poptions.density*(0.1) * (x[1]-x[0]);
+    //  float dy = poptions.density*(0.1) * (y[nx]-y[0]);
+
+    if(poptions.alpha<255){
+      for(size_t  i=0;i<poptions.palettecolours.size();i++) {
+        poptions.palettecolours[i].set(Colour::alpha,uchar_t(poptions.alpha));
+      }
+    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBegin(GL_QUADS);
+    vector<float>::iterator it;
+    for (int iy=iy1; iy<=iy2; iy++) {
+      for (int ix = ix1; ix <= ix2; ix++) {
+
+        float value = fields[0]->data[ix*factor + (iy * (nx)*factor)];
+        if ( value == fieldUndef ) continue;
+        if (value >= poptions.minvalue && value <= poptions.maxvalue) {
+
+          float x1 = x[iy * (rnx+1) + ix];
+          float x2 = x[iy * (rnx+1) + (ix+1)];
+          float x3 = x[(iy+1) * (rnx+1) + (ix+1)];
+          float x4 = x[(iy+1) * (rnx+1) + ix];
+          float y1 = y[iy * (rnx+1) +ix];
+          float y2 = y[(iy) * (rnx+1) +(ix+1)];
+          float y3 = y[(iy+1) * (rnx+1) +(ix+1)];
+          float y4 = y[(iy+1) * (rnx+1) +(ix)];
+
+          // Discard quads that face away from the viewer. This depends on
+          // the quads having vertices specified in the correct order.
+          if ((x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1) <= 0.0)
+            continue;
+
+          // set fillcolor of cell
+          if(poptions.linevalues.size() == 0){
+            size_t index = 0;
+            if ( value > poptions.base) {
+              index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
+            } else{
+              index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
+            }
+            if ( value <poptions.base && index !=0) {
+              index = poptions.palettecolours.size() - index;
+            }
+            if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
+            if (index<0) index=0;
+            glColor4ubv(poptions.palettecolours[index].RGBA());
+          } else {
+            it=poptions.linevalues.begin();
+            while( *it < value && it!=poptions.linevalues.end()) {
+              it++;
+            }
+            if(it == poptions.linevalues.begin() ) continue; //less than first limit
+            glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()-1].RGBA());
+          }
+
+          // lower-left corner of gridcell
+          glVertex2f(x1, y1);
+          // lower-right corner of gridcell
+          glVertex2f(x2, y2);
+          // upper-right corner of gridcell
+          glVertex2f(x3, y3);
+          // upper-left corner of gridcell
+          glVertex2f(x4, y4);
+        }
+      }
+    }
+    glEnd();
+    glDisable(GL_BLEND);
   }
-  glEnd();
-  glDisable(GL_BLEND);
 
   UpdateOutput();
 

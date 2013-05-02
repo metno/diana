@@ -45,6 +45,7 @@
 #include <puTools/miSetupParser.h>
 #include <diField/diMetConstants.h>
 
+#include <GL/gl.h>
 #if !defined(USE_PAINTGL)
 #include <glText/glText.h>
 #include <glp/glpfile.h>

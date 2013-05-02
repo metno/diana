@@ -34,12 +34,12 @@ POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
 target_triplet = x86_64-unknown-linux-gnu
-#am__append_1 = 
-am__append_2 = \
-	$(QUTILITIES_LDFLAGS)
+am__append_1 = 
+#am__append_2 = \
+#	$(QUTILITIES_LDFLAGS)
 
-am__append_3 = \
-	$(QUTILITIES_LIBS)
+#am__append_3 = \
+#	$(QUTILITIES_LIBS)
 
 #am__append_4 = \
 #	${ROADAPI_LDFLAGS}
@@ -66,19 +66,19 @@ am__append_10 = \
 
 
 # Additional source code for met.no prod db
-am__append_11 = \
-	$(PUSQL_LDFLAGS) \
-	$(DISQL_LDFLAGS)
+#am__append_11 = \
+#	$(PUSQL_LDFLAGS) \
+#	$(DISQL_LDFLAGS)
 
-am__append_12 = \
-	$(PUSQL_LIBS) \
-	$(DISQL_LIBS)
+#am__append_12 = \
+#	$(PUSQL_LIBS) \
+#	$(DISQL_LIBS)
 
-am__append_13 = \
-	$(PROFET_LDFLAGS)
+#am__append_13 = \
+#	$(PROFET_LDFLAGS)
 
-am__append_14 = \
-	$(PROFET_LIBS)
+#am__append_14 = \
+#	$(PROFET_LIBS)
 
 
 # Additional source code for video export feature
@@ -86,18 +86,18 @@ am__append_15 = $(AVFORMAT_LDFLAGS)
 am__append_16 = $(AVFORMAT_LIBS)
 
 # Embedded build support - remove X and OpenGL dependencies
-#am__append_17 = 
-am__append_18 = \
-        $(FTGL_LDFLAGS) \
-        $(GLP_LDFLAGS) \
-        $(GLTEXT_LDFLAGS) \
-        $(GLU_LDFLAGS)
+am__append_17 = 
+#am__append_18 = \
+#        $(FTGL_LDFLAGS) \
+#        $(GLP_LDFLAGS) \
+#        $(GLTEXT_LDFLAGS) \
+#        $(GLU_LDFLAGS)
 
-am__append_19 = \
-        $(FTGL_LIBS) \
-        $(GLP_LIBS) \
-        $(GLTEXT_LIBS) \
-        $(GLU_LIBS)
+#am__append_19 = \
+#        $(FTGL_LIBS) \
+#        $(GLP_LIBS) \
+#        $(GLTEXT_LIBS) \
+#        $(GLU_LIBS)
 
 subdir = perl
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -125,48 +125,48 @@ CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/davidb/local/src/opengl-wrapper/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
 APP = diana
 AR = ar
-AUTOCONF = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/missing --run autoconf
-AUTOHEADER = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/missing --run autoheader
-AUTOMAKE = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/davidb/local/src/opengl-wrapper/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/davidb/local/src/opengl-wrapper/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/davidb/local/src/opengl-wrapper/missing --run automake-1.11
 AVFORMAT_CPPFLAGS = -I/usr/include/libavformat
 AVFORMAT_LDFLAGS = 
 AVFORMAT_LIBS = -lavformat -lavcodec -lavutil 
-AWK = mawk
-CC = gcc
+AWK = gawk
+CC = ccache gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -O2 -pipe -g -Wall -Wextra -fPIC
-CPP = gcc -E
-CPPFLAGS = 
+CFLAGS = -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -O2 -pipe -g -Wall -Wextra -fPIC
+CPP = ccache gcc -E
+CPPFLAGS = -D_FORTIFY_SOURCE=2
 CURL_CPPFLAGS = -I/usr/include
 CURL_DIR = 
 CURL_INCLUDEDIR = /usr/include
 CURL_LDFLAGS = 
 CURL_LIBDIR = 
 CURL_LIBS = -lcurl 
-CXX = g++
-CXXCPP = g++ -E
+CXX = ccache g++
+CXXCPP = ccache g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2 -msse2 -march=core2 -Wall -fPIC
+CXXFLAGS = -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -msse2 -march=core2 -Wall -fPIC
 CYGPATH_W = echo
 DEBIAN_INPUT_BASE = 
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-DIFIELD_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-DIFIELD_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+DIFIELD_CPPFLAGS = -I/usr/include/metlibs  
+DIFIELD_LDFLAGS =  
 DIFIELD_LIBS = -ldiField -lproj -lboost_date_time-mt -lfimex -lmic -lpropoly -lmi -lgfortran -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-DIFIELD_VERSION = 4.10.5
-DIMITIFF_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-DIMITIFF_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+DIFIELD_VERSION = 4.10.7
+DIMITIFF_CPPFLAGS = -I/usr/include/metlibs  
+DIMITIFF_LDFLAGS =  
 DIMITIFF_LIBS = -ldiMItiff -lproj -lgeotiff -ltiff -lboost_thread-mt -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-DIMITIFF_VERSION = 4.10.5
-DISQL_CPPFLAGS = -DBIG_JOINS=1 -fno-strict-aliasing -g -I/disk1/diana_trunk/local/include -I/usr/include/mysql  
-DISQL_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-DISQL_LIBS = -ldiSQL -lpuSQL -lmysqlclient_r -lpthread -lz -lm -lrt -ldl -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-DISQL_VERSION = 4.10.5
+DIMITIFF_VERSION = 4.10.7
+DISQL_CPPFLAGS = 
+DISQL_LDFLAGS = 
+DISQL_LIBS = 
+DISQL_VERSION = 
 DLLTOOL = false
 DSYMUTIL = 
 DUMPBIN = 
@@ -184,18 +184,18 @@ EXEEXT =
 F77 = gfortran
 FFLAGS = -g -O2
 FGREP = /bin/grep -F
-GLP_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-GLP_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-GLP_LIBS = -lglp  
-GLP_VERSION = 4.10.5
-GLTEXT_CPPFLAGS = -I/disk1/diana_trunk/local/include -I/usr/include/freetype2  
-GLTEXT_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-GLTEXT_LIBS = -lglText -lglp -lmiFTGL -lfreetype  
-GLTEXT_VERSION = 4.10.5
-GLU_CPPFLAGS =  
-GLU_LDFLAGS =  
-GLU_LIBS = -lGLU -lGL  
-GLU_VERSION = 8.0.4
+GLP_CPPFLAGS = 
+GLP_LDFLAGS = 
+GLP_LIBS = 
+GLP_VERSION = 
+GLTEXT_CPPFLAGS = 
+GLTEXT_LDFLAGS = 
+GLTEXT_LIBS = 
+GLTEXT_VERSION = 
+GLU_CPPFLAGS = 
+GLU_LDFLAGS = 
+GLU_LIBS = 
+GLU_VERSION = 
 GREP = /bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -203,35 +203,35 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld
-LDFLAGS = 
-LIBMI_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-LIBMI_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+LDFLAGS = -Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread
+LIBMI_CPPFLAGS = -I/usr/include/metlibs  
+LIBMI_LDFLAGS =  
 LIBMI_LIBS = -lmi -lgfortran  
-LIBMI_VERSION = 4.10.5
+LIBMI_VERSION = 4.10.7
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
-LRELEASE4 = /usr/bin/lrelease-qt4
+LRELEASE4 = /opt/qt4-headless/bin/lrelease
 LTLIBOBJS = 
-LUPDATE4 = /usr/bin/lupdate-qt4
-MAKEINFO = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/missing --run makeinfo
+LUPDATE4 = /opt/qt4-headless/bin/lupdate
+MAKEINFO = ${SHELL} /home/davidb/local/src/opengl-wrapper/missing --run makeinfo
 MANIFEST_TOOL = :
-MIFTGL_CPPFLAGS = -I/disk1/diana_trunk/local/include -I/usr/include/freetype2  
-MIFTGL_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-MIFTGL_LIBS = -lmiFTGL -lfreetype  
-MIFTGL_VERSION = 4.10.5
-MILIB_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-MILIB_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+MIFTGL_CPPFLAGS = 
+MIFTGL_LDFLAGS = 
+MIFTGL_LIBS = 
+MIFTGL_VERSION = 
+MILIB_CPPFLAGS = -I/usr/include/metlibs  
+MILIB_LDFLAGS =  
 MILIB_LIBS = -lmic -lmi -lgfortran  
-MILIB_VERSION = 4.10.5
-MILOGGER_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-MILOGGER_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+MILIB_VERSION = 4.10.7
+MILOGGER_CPPFLAGS = -I/usr/include/metlibs  
+MILOGGER_LDFLAGS =  
 MILOGGER_LIBS = -lmiLogger -llog4cpp  
-MILOGGER_VERSION = 4.10.5
+MILOGGER_VERSION = 4.10.7
 MKDIR_P = /bin/mkdir -p
-MOC4 = /usr/bin/moc-qt4
+MOC4 = /opt/qt4-headless/bin/moc
 NEWARKAPI_CPPFLAGS = 
 NEWARKAPI_LDFLAGS = 
 NEWARKAPI_LIBS = 
@@ -245,80 +245,80 @@ OTOOL64 =
 PACKAGE = diana
 PACKAGE_BUGREPORT = diana@met.no
 PACKAGE_NAME = diana
-PACKAGE_STRING = diana 3.32.3
+PACKAGE_STRING = diana 3.32.6
 PACKAGE_TARNAME = diana
 PACKAGE_URL = 
-PACKAGE_VERSION = 3.32.3
-PARAMETER_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PARAMETER_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+PACKAGE_VERSION = 3.32.6
+PARAMETER_CPPFLAGS = -I/usr/include/metlibs  
+PARAMETER_LDFLAGS =  
 PARAMETER_LIBS = -lparameter -lpuCtools -lmiLogger -llog4cpp  
-PARAMETER_VERSION = 4.10.5
+PARAMETER_VERSION = 4.10.7
 PATH_SEPARATOR = :
 PGCONPOOL_CPPFLAGS = 
 PGCONPOOL_LDFLAGS = 
 PGCONPOOL_LIBS = 
 PGCONPOOL_VERSION = 
 PKG_CONFIG = /usr/bin/pkg-config
-PKG_CONFIG_PATH = /disk1/diana_trunk/local/lib/pkgconfig
+PKG_CONFIG_PATH = /usr/lib/pkgconfig
 PNG_CPPFLAGS = -I/usr/include
 PNG_DIR = 
 PNG_INCLUDEDIR = /usr/include
 PNG_LDFLAGS = 
 PNG_LIBDIR = 
 PNG_LIBS = -lpng 
-PODS_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PODS_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-PODS_LIBS = -lpods -lomniORB4 -lomniDynamic4 -lomnithread  
-PODS_VERSION = 4.10.5
-PROFET_CPPFLAGS = -DQT_WEBKIT -DQT_NO_DEBUG -DQT_XML_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED -DQT_OPENGL_LIB -DBIG_JOINS=1 -fno-strict-aliasing -g -I/disk1/diana_trunk/local/include -I/usr/share/qt4/mkspecs/linux-g++-64 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtNetwork -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtXml -I/usr/include/qt4 -I/usr/include/qt4/QtOpenGL -I/usr/X11R6/include -I/usr/include/postgresql -I/usr/include/mysql  
-PROFET_LDFLAGS = -L/disk1/diana_trunk/local/lib -L/usr/X11R6/lib64  
-PROFET_LIBS = -lprofet -lQtXml -lQtGui -lQtNetwork -lQtCore -lQtOpenGL -lGL -lldap -lpqxx -lpods -lomniORB4 -lomniDynamic4 -lomnithread -lproFunctions -lqUtilities -ldiField -lproj -lboost_date_time-mt -lfimex -lmic -lpropoly -lmi -lgfortran -lpuSQL -lmysqlclient_r -lpthread -lz -lm -lrt -ldl -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PROFET_VERSION = 4.10.5
-PROFUNCTIONS_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PROFUNCTIONS_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-PROFUNCTIONS_LIBS = -lproFunctions -ldiField -lproj -lboost_date_time-mt -lfimex -lmic -lpropoly -lmi -lgfortran -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PROFUNCTIONS_VERSION = 4.10.5
-PROPOLY_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PROPOLY_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+PODS_CPPFLAGS = 
+PODS_LDFLAGS = 
+PODS_LIBS = 
+PODS_VERSION = 
+PROFET_CPPFLAGS = 
+PROFET_LDFLAGS = 
+PROFET_LIBS = 
+PROFET_VERSION = 
+PROFUNCTIONS_CPPFLAGS = 
+PROFUNCTIONS_LDFLAGS = 
+PROFUNCTIONS_LIBS = 
+PROFUNCTIONS_VERSION = 
+PROPOLY_CPPFLAGS = -I/usr/include/metlibs  
+PROPOLY_LDFLAGS =  
 PROPOLY_LIBS = -lpropoly -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PROPOLY_VERSION = 4.10.5
+PROPOLY_VERSION = 4.10.7
 PSUFFIX = 
-PUCTOOLS_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PUCTOOLS_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+PUCTOOLS_CPPFLAGS = -I/usr/include/metlibs  
+PUCTOOLS_LDFLAGS =  
 PUCTOOLS_LIBS = -lpuCtools -lmiLogger -llog4cpp  
-PUCTOOLS_VERSION = 4.10.5
-PUDATATYPES_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PUDATATYPES_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+PUCTOOLS_VERSION = 4.10.7
+PUDATATYPES_CPPFLAGS = -I/usr/include/metlibs  
+PUDATATYPES_LDFLAGS =  
 PUDATATYPES_LIBS = -lpuDatatypes -lparameter -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PUDATATYPES_VERSION = 4.10.5
-PUSQL_CPPFLAGS = -DBIG_JOINS=1 -fno-strict-aliasing -g -I/disk1/diana_trunk/local/include -I/usr/include/mysql  
-PUSQL_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-PUSQL_LIBS = -lpuSQL -lmysqlclient_r -lpthread -lz -lm -lrt -ldl -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PUSQL_VERSION = 4.10.5
-PUTOOLS_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-PUTOOLS_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+PUDATATYPES_VERSION = 4.10.7
+PUSQL_CPPFLAGS = 
+PUSQL_LDFLAGS = 
+PUSQL_LIBS = 
+PUSQL_VERSION = 
+PUTOOLS_CPPFLAGS = -I/usr/include/metlibs  
+PUTOOLS_LDFLAGS =  
 PUTOOLS_LIBS = -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-PUTOOLS_VERSION = 4.10.5
+PUTOOLS_VERSION = 4.10.7
 PVERSION = 3.32
 PVERSION_AM_MAJOR_MINOR = 3_32
 PVERSION_MAJOR = 3
 PVERSION_MAJOR_DOT_MINOR = 3.32
 PVERSION_MINOR = 32
-PVERSION_PATCH = 3
-QMAKE4 = /usr/bin/qmake-qt4
-QT4_CPPFLAGS =  -DQT_WEBKIT -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtNetwork -I/usr/include/qt4/QtGui -I/usr/include/qt4/QtOpenGL -I/usr/include/qt4/QtSvg -I/usr/include/qt4 -I/usr/X11R6/include
-QT4_DIR = 
+PVERSION_PATCH = 6
+QMAKE4 = /opt/qt4-headless/bin/qmake
+QT4_CPPFLAGS =  -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED -I/opt/qt4-headless/mkspecs/linux-g++-64 -I/opt/qt4-headless/include/QtCore -I/opt/qt4-headless/include/QtNetwork -I/opt/qt4-headless/include/QtGui -I/opt/qt4-headless/include/QtSvg -I/opt/qt4-headless/include
+QT4_DIR = /opt/qt4-headless
 QT4_DLL = 
-QT4_INCLUDEDIR = 
+QT4_INCLUDEDIR = /opt/qt4-headless/include
 QT4_LDFLAGS = 
-QT4_LIBDIR = 
-QT4_LIBS =  -L/usr/lib/x86_64-linux-gnu -L/usr/X11R6/lib64 -lQtSvg -lQtOpenGL -lQtGui -lQtNetwork -lQtCore -lGL -lpthread
-QUTILITIES_CPPFLAGS = -DBIG_JOINS=1 -fno-strict-aliasing -g -I/disk1/diana_trunk/local/include -I/usr/include/mysql  
-QUTILITIES_LDFLAGS = -L/disk1/diana_trunk/local/lib  
-QUTILITIES_LIBS = -lqUtilities -lpuSQL -lmysqlclient_r -lpthread -lz -lm -lrt -ldl -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-QUTILITIES_VERSION = 4.10.5
+QT4_LIBDIR = /opt/qt4-headless/lib
+QT4_LIBS =  -L/opt/qt4-headless/lib -lQtSvg -L/opt/qt4-headless/lib -lQtGui -lQtNetwork -lQtCore -lpthread
+QUTILITIES_CPPFLAGS = 
+QUTILITIES_LDFLAGS = 
+QUTILITIES_LIBS = 
+QUTILITIES_VERSION = 
 RANLIB = ranlib
-RCC4 = /usr/bin/rcc
+RCC4 = /opt/qt4-headless/bin/rcc
 RDKAPI_CPPFLAGS = 
 RDKAPI_LDFLAGS = 
 RDKAPI_LIBS = 
@@ -327,10 +327,10 @@ ROADAPI_CPPFLAGS =
 ROADAPI_LDFLAGS = 
 ROADAPI_LIBS = 
 ROADAPI_VERSION = 
-ROBS_CPPFLAGS = -I/disk1/diana_trunk/local/include  
-ROBS_LDFLAGS = -L/disk1/diana_trunk/local/lib  
+ROBS_CPPFLAGS = -I/usr/include/metlibs  
+ROBS_LDFLAGS =  
 ROBS_LIBS = -lrobs -lparameter -lpuTools -lcurl -lpuCtools -lmiLogger -llog4cpp  
-ROBS_VERSION = 4.10.5
+ROBS_VERSION = 4.10.7
 SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/bash
@@ -341,8 +341,8 @@ SHP_LDFLAGS = -L/usr/lib
 SHP_LIBDIR = /usr/lib
 SHP_LIBS = -lshp 
 STRIP = strip
-UIC4 = /usr/bin/uic-qt4
-VERSION = 3.32.3
+UIC4 = /opt/qt4-headless/bin/uic
+VERSION = 3.32.6
 WIN32_CPPFLAGS = 
 WIN32_LDFLAGS = 
 WIN32_LIBS = 
@@ -353,13 +353,13 @@ ZLIB_INCLUDEDIR = /usr/include
 ZLIB_LDFLAGS = 
 ZLIB_LIBDIR = 
 ZLIB_LIBS = -lz 
-abs_builddir = /disk1/diana_trunk/local/src/diana_trunk/perl
-abs_srcdir = /disk1/diana_trunk/local/src/diana_trunk/perl
-abs_top_builddir = /disk1/diana_trunk/local/src/diana_trunk
-abs_top_srcdir = /disk1/diana_trunk/local/src/diana_trunk
+abs_builddir = /home/davidb/local/src/opengl-wrapper/perl
+abs_srcdir = /home/davidb/local/src/opengl-wrapper/perl
+abs_top_builddir = /home/davidb/local/src/opengl-wrapper
+abs_top_srcdir = /home/davidb/local/src/opengl-wrapper
 ac_ct_AR = ar
-ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CC = ccache gcc
+ac_ct_CXX = 
 ac_ct_DUMPBIN = 
 ac_ct_F77 = gfortran
 am__include = include
@@ -390,7 +390,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /disk1/diana_trunk/local/src/diana_trunk/install-sh
+install_sh = ${SHELL} /home/davidb/local/src/opengl-wrapper/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -399,7 +399,7 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /disk1/diana_trunk/local
+prefix = /usr
 program_suffix = NONE
 program_transform_name = s&$$&-3.32&;s,x,x,
 psdir = ${docdir}
@@ -434,13 +434,13 @@ common_ldadd = -ldiana $(am__append_3) $(DIFIELD_LIBS) \
 	$(am__append_9) $(am__append_10) $(am__append_12) \
 	$(am__append_14) $(am__append_16) $(am__append_19) $(QT4_LIBS) \
 	$(WIN32_LIBS)
-#PERL = perl
-#PERLMAKEFILE = Metno-Bdiana/Makefile
-#PERLDEPEND = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
-#PERLCONFIG = PREFIX="$(prefix)" \
-#				  INSTALLDIRS=vendor \
-#				  INC="-Wall -I. -I$(top_srcdir)/../src" \
-#				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd) -lboost_thread"
+PERL = perl
+PERLMAKEFILE = Metno-Bdiana/Makefile
+PERLDEPEND = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
+PERLCONFIG = PREFIX="$(prefix)" \
+				  INSTALLDIRS=vendor \
+				  INC="-Wall -I. -I$(top_srcdir)/../src" \
+				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd) -lboost_thread"
 
 EXTRA_DIST = \
         Metno-Bdiana/ppport.h \
@@ -529,11 +529,9 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-check-local:
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) check-local
 check: check-am
-all-local:
+#all-local:
 all-am: Makefile all-local
 installdirs:
 install: install-am
@@ -566,10 +564,10 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-uninstall-local:
-distclean-local:
-install-exec-local:
-clean-local:
+#uninstall-local:
+#distclean-local:
+#install-exec-local:
+#clean-local:
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-local mostlyclean-am
@@ -636,14 +634,14 @@ ps-am:
 
 uninstall-am: uninstall-local
 
-.MAKE: check-am install-am install-strip
+.MAKE: install-am install-strip
 
-.PHONY: all all-am all-local check check-am check-local clean \
-	clean-generic clean-libtool clean-local distclean \
-	distclean-generic distclean-libtool distclean-local distdir \
-	dvi dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-exec-local install-html \
+.PHONY: all all-am all-local check check-am clean clean-generic \
+	clean-libtool clean-local distclean distclean-generic \
+	distclean-libtool distclean-local distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-exec-local install-html \
 	install-html-am install-info install-info-am install-man \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
@@ -656,35 +654,35 @@ uninstall-am: uninstall-local
 #PERLCONFIG    += OPTIMIZE=-g
 #endif
 
-#$(PERLMAKEFILE): $(PERLDEPEND) Makefile.am
-#	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \\
-#	   chmod -R u+w Metno-Bdiana && touch Metno-Bdiana/.distclean
-#	cd Metno-Bdiana && $(PERL) Makefile.PL $(PERLCONFIG)
+$(PERLMAKEFILE): $(PERLDEPEND) Makefile.am
+	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \\
+	   chmod -R u+w Metno-Bdiana && touch Metno-Bdiana/.distclean
+	cd Metno-Bdiana && $(PERL) Makefile.PL $(PERLCONFIG)
 
-#all-local: $(PERLMAKEFILE)
-#	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS)
+all-local: $(PERLMAKEFILE)
+	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS)
 
-#clean-local: $(PERLMAKEFILE)
-#	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
+clean-local: $(PERLMAKEFILE)
+	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
 
 #check-local: $(PERLMAKEFILE)
 #	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) test
 
-#install-exec-local:
-#	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
+install-exec-local:
+	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
 
-#uninstall-local:
-#	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/Metno/Bdiana.pm
-#	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.so
-#	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.bs
-#	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/autosplit.ix
-#	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/.packlist
-#	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
-#	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
+uninstall-local:
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/Metno/Bdiana.pm
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.so
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/Bdiana.bs
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/autosplit.ix
+	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/.packlist
+	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
+	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
 
-#distclean-local: 
-#	test -f Metno-Bdiana/.distclean
-#	rm -r Makefile
+distclean-local: 
+	test -f Metno-Bdiana/.distclean
+	rm -r Makefile
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
