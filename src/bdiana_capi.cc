@@ -1506,6 +1506,7 @@ static void printPage(int ox, int oy)
 void createPaintDevice()
 {
   ensureNewContext();
+  context.printing = false;
 
   if (raster) {
     image = QImage(xsize, ysize, QImage::Format_ARGB32_Premultiplied);
@@ -1519,12 +1520,17 @@ void createPaintDevice()
     painter.begin(&picture);
     context.begin(&painter);
 
+    if (pdf)
+      context.printing = true;
+
   } else { // Postscript
 
     picture = QPicture();
     picture.setBoundingRect(QRect(0, 0, xsize, ysize));
     painter.begin(&picture);
     context.begin(&painter);
+
+    context.printing = true;
   }
 }
 #endif
@@ -1786,8 +1792,6 @@ static int parseAndProcess(istream &is)
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
-        else if (svg || pdf)
-          painter.setRenderHint(QPainter::Antialiasing);
 #endif
 
         if (verbose)
@@ -1882,8 +1886,6 @@ static int parseAndProcess(istream &is)
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
-        else if (svg || pdf)
-          painter.setRenderHint(QPainter::Antialiasing);
 #endif
         vcrossmanager->plot();
 
@@ -1955,8 +1957,6 @@ static int parseAndProcess(istream &is)
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
-        else if (svg || pdf)
-          painter.setRenderHint(QPainter::Antialiasing);
 #endif
         vprofmanager->plot();
 
@@ -2023,8 +2023,6 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
-        else if (svg || pdf)
           painter.setRenderHint(QPainter::Antialiasing);
 #endif
         spectrummanager->plot();
