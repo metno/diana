@@ -1,3 +1,13 @@
+diana (3.32.7-1) unstable; urgency=low
+
+  * Bugfix: Significant weather fronts
+  * Bugfix: UTM projection 
+  * Bugfix: stencil plotting 
+  * Using metlibs 4.10.8
+  * Using fimex 0.44-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 06 May 2013 14:53:36 +0200
+
 diana (3.32.6-1) unstable; urgency=low
 
   * he wms clients did not accept metadata, temporarily removed until clients are fixed
