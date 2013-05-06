@@ -123,7 +123,13 @@ void PaintGLContext::end()
 
 void PaintGLContext::setPen()
 {
-    QPen pen = QPen(QColor::fromRgba(attributes.color), attributes.width);
+    qreal width;
+    if (printing)
+        width = attributes.width/2.0;
+    else
+        width = attributes.width;
+
+    QPen pen = QPen(QColor::fromRgba(attributes.color), width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
     if (attributes.stipple && !attributes.dashes.isEmpty()) {
@@ -131,9 +137,12 @@ void PaintGLContext::setPen()
            the length of each element to compensate for the line
            width. */
         QVector<qreal> dashes;
-        qreal width = attributes.width;
-        if (width == 0)
-            width = 1;
+        if (width == 0) {
+            if (printing)
+                width = 0.5;
+            else
+                width = 1;
+        }
 
         for (int i = 0; i < attributes.dashes.size(); ++i)
             dashes << attributes.dashes[i]/width;
@@ -395,10 +404,8 @@ void PaintGLContext::renderPrimitive()
             newPath.addPolygon(poly);
             newPath.closeSubpath();
 
-            QPainterPathStroker stroker;
-            stroker.setWidth(ctx->attributes.width);
-            newPath = stroker.createStroke(newPath).united(newPath);
-            ctx->stencil.path += newPath;
+            newPath = newPath.united(newPath.translated(-ctx->attributes.width, -ctx->attributes.width));
+            ctx->stencil.path += newPath.translated(0.5*ctx->attributes.width, 0.5*ctx->attributes.width);
         }
 
         break;
