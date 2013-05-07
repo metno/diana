@@ -47,7 +47,7 @@
 #endif
 #include <diLocalSetupParser.h>
 
-using namespace ::miutil;
+using namespace miutil;
 using namespace std;
 
 miString FontManager::fontpath;

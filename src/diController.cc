@@ -50,7 +50,7 @@
 #include <diMapManager.h>
 #include <diLocalSetupParser.h>
 
-using namespace::miutil;
+using namespace miutil;
 
 // Default constructor
 Controller::Controller()
@@ -121,7 +121,7 @@ bool Controller::parseSetup()
   int nsect = fieldSubSect.size();
   vector<std::string> errors;
   for( int i=0; i<nsect; i++){
-    vector<miutil::miString> lines;
+    vector<miString> lines;
     if (!SetupParser::getSection(fieldSubSect[i],lines)) {
       //      cerr<<"Missing section "<<fieldSubSect[i]<<" in setupfile."<<endl;
     }
