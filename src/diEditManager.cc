@@ -58,7 +58,7 @@
 #include <cmath>
 
 //#define DEBUGPRINT
-using namespace::miutil;
+using namespace miutil;
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),

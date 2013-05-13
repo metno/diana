@@ -426,6 +426,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   //Finding times from pinfo
   //TODO: find const time
 
+  cerr <<"FieldPlotManager::getCapabilitiesTime: "<<pinfo<<endl;
   vector<miString> pinfos;
   pinfos.push_back(pinfo);
 
@@ -449,6 +450,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     normalTimes.clear();
   }
 
+  cerr <<"FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size()<<endl;
 }
 
 vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
