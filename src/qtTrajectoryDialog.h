@@ -87,7 +87,7 @@ private:
    
   //init QT stuff
   vector<Colour::ColourInfo> colourInfo;
-  vector<miutil::miString> linetypes;
+  vector<std::string> linetypes;
 
   //qt widget
   QLabel* fieldName;

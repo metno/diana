@@ -119,14 +119,14 @@ QDialog(parent)
   int i;
 
   // get all field plot options from setup file
-  vector<miutil::miString> fieldNames;
+  vector<std::string> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames, fieldPrefixes, fieldSuffixes);
   { std::map<std::string, std::string> sfu;
     PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
-    setupFieldOptions = std::map<miutil::miString, miutil::miString>(sfu.begin(), sfu.end()); }
+    setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
 
   //#################################################################
-  //  map<miutil::miString,miutil::miString>::iterator pfopt, pfend= setupFieldOptions.end();
+  //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();
   //  for (pfopt=setupFieldOptions.begin(); pfopt!=pfend; pfopt++)
   //    cerr << pfopt->first << "   " << pfopt->second << endl;
   //#################################################################
@@ -139,7 +139,7 @@ QDialog(parent)
   { const std::vector< std::vector<std::string> > ptd = PlotOptions::getPlotTypes();
     plottypes_dim.clear();
     BOOST_FOREACH(const std::vector<std::string>& v, ptd)
-        plottypes_dim.push_back(std::vector<miutil::miString>(v.begin(), v.end())); }
+        plottypes_dim.push_back(std::vector<std::string>(v.begin(), v.end())); }
   if ( plottypes_dim.size() > 1 ) {
     plottypes = plottypes_dim[1];
   }
@@ -488,7 +488,7 @@ QDialog(parent)
       SLOT(allTimeStepToggled(bool)));
 
   // advanced
-  miutil::miString more_str[2] =
+  std::string more_str[2] =
   { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
   advanced = new ToggleButton(this, more_str);
   advanced->setChecked(false);connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
@@ -1153,7 +1153,7 @@ void FieldDialog::updateModelBoxes()
 #endif
 
   //keep old plots
-  vector<miutil::miString> vstr = getOKString();
+  vector<std::string> vstr = getOKString_std();
 
   modelGRbox->clear();
   indexMGRtable.clear();
@@ -1246,7 +1246,7 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   int indexM =modelbox->row(item);
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
 
-  miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
+  std::string model = m_modelgroup[indexMGR].modelNames[indexM];
 
   set<std::string> refTimes = m_ctrl->getFieldReferenceTimes(model);
 
@@ -1276,7 +1276,7 @@ void FieldDialog::updateFieldGroups()
   if ( indexM < 0 ) return;
 
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
-  miutil::miString model = m_modelgroup[indexMGR].modelNames[indexM];
+  std::string model = m_modelgroup[indexMGR].modelNames[indexM];
 
   getFieldGroups(model, refTimeComboBox->currentText().toStdString(), indexMGR, indexM,
       fieldGroupCheckBox->isChecked(), vfgi);
@@ -1436,7 +1436,7 @@ void FieldDialog::setLevel()
 
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
-  if (i >= 0 && selectedFields[i].level.exists()) {
+  if (i >= 0 && !selectedFields[i].level.empty()) {
     lastLevel = selectedFields[i].level;
     n = selectedFields[i].levelOptions.size();
     l = 0;
@@ -1506,7 +1506,7 @@ vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
 #endif
   // called from MainWindow levelUp/levelDown
 
-  miutil::miString level;
+  std::string level;
   vector<std::string> vlevels;
   int n = selectedFields.size();
 
@@ -1534,7 +1534,7 @@ vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
 
   //plot with levels exists, find next level
   if( i != n ) {
-    miutil::miString level_incremented;
+    std::string level_incremented;
     int m = vlevels.size();
     int current = 0;
     while (current < m && vlevels[current] != level) current++;
@@ -1610,7 +1610,7 @@ void FieldDialog::setIdnum()
 
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
-  if (i >= 0 && selectedFields[i].idnum.exists()) {
+  if (i >= 0 && !selectedFields[i].idnum.empty()) {
     lastIdnum = selectedFields[i].idnum;
     n = selectedFields[i].idnumOptions.size();
     l = 0;
@@ -1780,13 +1780,13 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
       countSelected[indexF]++;
 
-      miutil::miString text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
+      std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
       selectedFieldbox->addItem(QString(text.c_str()));
       last = selectedFields.size() - 1;
 
     } else if (!fieldbox->item(indexF)->isSelected() && countSelected[indexF]
                                                                       > 0) {
-      miutil::miString fieldName = vfgi[indexFGR].fieldNames[indexF];
+      std::string fieldName = vfgi[indexFGR].fieldNames[indexF];
       n = selectedFields.size();
       j = jp = -1;
       int jsel = -1, isel = selectedFieldbox->currentRow();
@@ -2000,7 +2000,7 @@ void FieldDialog::enableFieldOptions()
 
   //plottype
   if ((nc = cp->findKey(vpcopt, "plottype")) >= 0) {
-    miutil::miString value = vpcopt[nc].allValue;
+    std::string value = vpcopt[nc].allValue;
     i = 0;
     while (i < nr_plottypes && value != plottypes[i])
       i++;
@@ -2020,7 +2020,7 @@ void FieldDialog::enableFieldOptions()
   // colour(s)
   if ((nc = cp->findKey(vpcopt, "colour_2")) >= 0) {
     int nr_colours = colour2ComboBox->count();
-    if (vpcopt[nc].allValue.downcase() == "off" ) {
+    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
       updateFieldOptions("colour_2", "off");
       colour2ComboBox->setCurrentIndex(0);
     } else {
@@ -2039,7 +2039,7 @@ void FieldDialog::enableFieldOptions()
 
   if ((nc = cp->findKey(vpcopt, "colour")) >= 0) {
     int nr_colours = colorCbox->count();
-    if (vpcopt[nc].allValue.downcase() == "off" ) {
+    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
       updateFieldOptions("colour", "off");
       colorCbox->setCurrentIndex(0);
     } else {
@@ -2059,7 +2059,7 @@ void FieldDialog::enableFieldOptions()
   // 3 colours
   if ((nc = cp->findKey(vpcopt, "colours")) >= 0) {
     int nr_colours = threeColourBox[0]->count();
-    vector<miutil::miString> colours = vpcopt[nc].allValue.split(",");
+    vector<std::string> colours = miutil::split(vpcopt[nc].allValue,",");
     if (colours.size() == 3) {
       for (int j = 0; j < 3; j++) {
         i = 1;
@@ -2078,18 +2078,18 @@ void FieldDialog::enableFieldOptions()
 
   //contour shading
   if ((nc = cp->findKey(vpcopt, "palettecolours")) >= 0) {
-    if (vpcopt[nc].allValue.downcase() == "off" ) {
+    if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
       updateFieldOptions("palettecolours", "off");
       shadingComboBox->setCurrentIndex(0);
     } else {
-      vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
-      vector<miutil::miString> stokens = tokens[0].split(";");
+      vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
+      vector<std::string> stokens = miutil::split(tokens[0],";");
       if (stokens.size() == 2)
         shadingSpinBox->setValue(atoi(stokens[1].c_str()));
       else
         shadingSpinBox->setValue(0);
       int nr_cs = csInfo.size();
-      miutil::miString str;
+      std::string str;
       i = 0;
       while (i < nr_cs && stokens[0] != csInfo[i].name)
         i++;
@@ -2108,9 +2108,9 @@ void FieldDialog::enableFieldOptions()
   }
   //pattern
   if ((nc = cp->findKey(vpcopt, "patterns")) >= 0) {
-    miutil::miString value = vpcopt[nc].allValue;
+    std::string value = vpcopt[nc].allValue;
     int nr_p = patternInfo.size();
-    miutil::miString str;
+    std::string str;
     i = 0;
     while (i < nr_p && value != patternInfo[i].name)
       i++;
@@ -2230,7 +2230,7 @@ void FieldDialog::enableFieldOptions()
 
   // wind/vector density
   if ((nc = cp->findKey(vpcopt, "density")) >= 0) {
-    miutil::miString s;
+    std::string s;
     if (!vpcopt[nc].strValue.empty()) {
       s = vpcopt[nc].strValue[0];
     } else {
@@ -2584,7 +2584,7 @@ void FieldDialog::setDefaultFieldOptions()
 #endif
 }
 
-void FieldDialog::enableWidgets(miutil::miString plottype)
+void FieldDialog::enableWidgets(std::string plottype)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::enableWidgets called:"<<plottype<<endl;
@@ -2661,7 +2661,7 @@ void FieldDialog::enableWidgets(miutil::miString plottype)
 #endif
 }
 
-vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number, bool onoff)
+vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool onoff)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::numberList called: "<<number<<endl;
@@ -2669,7 +2669,7 @@ vector<miutil::miString> FieldDialog::numberList(QComboBox* cBox, float number, 
 
   cBox->clear();
 
-  vector<miutil::miString> vnumber;
+  vector<std::string> vnumber;
 
   const int nenormal = 18;
   const float enormal[nenormal] =
@@ -2848,37 +2848,37 @@ void FieldDialog::extremeTypeActivated(int index)
 
 void FieldDialog::extremeSizeChanged(int value)
 {
-  miutil::miString str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::miString(float(value) * 0.01);
   updateFieldOptions("extreme.size", str);
 }
 
 void FieldDialog::extremeRadiusChanged(int value)
 {
-  miutil::miString str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::miString(float(value) * 0.01);
   updateFieldOptions("extreme.radius", str);
 }
 
 void FieldDialog::lineSmoothChanged(int value)
 {
-  miutil::miString str = miutil::miString(value);
+  std::string str = miutil::miString(value);
   updateFieldOptions("line.smooth", str);
 }
 
 void FieldDialog::fieldSmoothChanged(int value)
 {
-  miutil::miString str = miutil::miString(value);
+  std::string str = miutil::miString(value);
   updateFieldOptions("field.smooth", str);
 }
 
 void FieldDialog::labelSizeChanged(int value)
 {
-  miutil::miString str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::miString(float(value) * 0.01);
   updateFieldOptions("label.size", str);
 }
 
 void FieldDialog::valuePrecisionBoxActivated( int index )
 {
-  miutil::miString str = miutil::miString(index);
+  std::string str = miutil::miString(index);
   updateFieldOptions("precision", str);
 }
 
@@ -2893,13 +2893,13 @@ void FieldDialog::gridValueCheckBoxToggled(bool on)
 
 void FieldDialog::gridLinesChanged(int value)
 {
-  miutil::miString str = miutil::miString(value);
+  std::string str = miutil::miString(value);
   updateFieldOptions("grid.lines", str);
 }
 
 // void FieldDialog::gridLinesMaxChanged(int value)
 // {
-//   miutil::miString str= miutil::miString( value );
+//   std::string str= miutil::miString( value );
 //   updateFieldOptions("grid.lines.max",str);
 // }
 
@@ -3031,7 +3031,7 @@ void FieldDialog::threeColoursChanged()
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
 
-    miutil::miString str = miutil::miString(threeColourBox[0]->currentText().toStdString()) + ","
+    std::string str = std::string(threeColourBox[0]->currentText().toStdString()) + ","
         + threeColourBox[1]->currentText().toStdString() + "," + threeColourBox[2]->currentText().toStdString();
 
     updateFieldOptions("colours", "remove");
@@ -3062,7 +3062,7 @@ void FieldDialog::updatePaletteString()
     return;
   }
 
-  miutil::miString str;
+  std::string str;
   if (index1 > 0) {
     str = csInfo[index1 - 1].name;
     if (value1 > 0)
@@ -3098,7 +3098,7 @@ void FieldDialog::interval2ComboBoxToggled(int index)
 void FieldDialog::zero1ComboBoxToggled(int index)
 {
   if (!zero1ComboBox->currentText().isNull()) {
-    miutil::miString str = zero1ComboBox->currentText().toStdString();
+    std::string str = zero1ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
     baseList(zero1ComboBox, a);
     str = zero1ComboBox->currentText().toStdString();
@@ -3109,7 +3109,7 @@ void FieldDialog::zero1ComboBoxToggled(int index)
 void FieldDialog::zero2ComboBoxToggled(int index)
 {
   if (!zero2ComboBox->currentText().isNull()) {
-    miutil::miString str = zero2ComboBox->currentText().toStdString();
+    std::string str = zero2ComboBox->currentText().toStdString();
     updateFieldOptions("base_2", str);
     float a = atof(str.c_str());
     str = zero2ComboBox->currentText().toStdString();
@@ -3122,7 +3122,7 @@ void FieldDialog::min1ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions("minvalue", "off");
   else if (!min1ComboBox->currentText().isNull()) {
-    miutil::miString str = min1ComboBox->currentText().toStdString();
+    std::string str = min1ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
     baseList(min1ComboBox, a, true);
     updateFieldOptions("minvalue", min1ComboBox->currentText().toStdString());
@@ -3134,7 +3134,7 @@ void FieldDialog::max1ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions("maxvalue", "off");
   else if (!max1ComboBox->currentText().isNull()) {
-    miutil::miString str = max1ComboBox->currentText().toStdString();
+    std::string str = max1ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
     baseList(max1ComboBox, a, true);
     updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
@@ -3147,7 +3147,7 @@ void FieldDialog::min2ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions("minvalue_2", "remove");
   else if (!min2ComboBox->currentText().isNull()) {
-    miutil::miString str = min2ComboBox->currentText().toStdString();
+    std::string str = min2ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
     baseList(min2ComboBox, a, true);
     updateFieldOptions("minvalue_2", min2ComboBox->currentText().toStdString());
@@ -3159,7 +3159,7 @@ void FieldDialog::max2ComboBoxToggled(int index)
   if (index == 0)
     updateFieldOptions("maxvalue_2", "remove");
   else if (!max2ComboBox->currentText().isNull()) {
-    miutil::miString str = max2ComboBox->currentText().toStdString();
+    std::string str = max2ComboBox->currentText().toStdString();
     float a = atof(str.c_str());
     baseList(max2ComboBox, a, true);
     updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
@@ -3231,8 +3231,8 @@ void FieldDialog::enableType2Options(bool on)
   }
 }
 
-void FieldDialog::updateFieldOptions(const miutil::miString& name,
-    const miutil::miString& value, int valueIndex)
+void FieldDialog::updateFieldOptions(const std::string& name,
+    const std::string& value, int valueIndex)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::updateFieldOptions  name= " << name
@@ -3264,12 +3264,12 @@ void FieldDialog::updateFieldOptions(const miutil::miString& name,
 
 }
 
-void FieldDialog::getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR,
+void FieldDialog::getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR,
     int& indexM, bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
 
 
-  miutil::miString modelName;
+  std::string modelName;
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -3279,13 +3279,13 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, const std::strin
 
   if (indexMGR >= 0 && indexM >= 0) {
     // field groups will be shown, translate the name parts
-    map<miutil::miString, miutil::miString>::const_iterator pt, ptend =
+    map<std::string, std::string>::const_iterator pt, ptend =
         fgTranslations.end();
     size_t pos;
     for (unsigned int n = 0; n < vfg.size(); n++) {
       for (pt = fgTranslations.begin(); pt != ptend; pt++) {
         if ((pos = vfg[n].groupName.find(pt->first)) != string::npos)
-          vfg[n].groupName.string::replace(pos, pt->first.size(), pt->second);
+          vfg[n].groupName.replace(pos, pt->first.size(), pt->second);
       }
     }
   } else {
@@ -3316,6 +3316,18 @@ void FieldDialog::getFieldGroups(const miutil::miString& model, const std::strin
   }
 }
 
+vector<std::string> FieldDialog::getOKString_std( bool resetLevelMove )
+{
+
+  vector<miutil::miString> vstr = getOKString( resetLevelMove );
+  vector<std::string> vstdstr;
+  size_t n = vstr.size();
+  for ( size_t i = 0; i<n; ++i ) {
+    vstdstr.push_back(vstr[i]);
+  }
+  return vstdstr;
+
+}
 vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 {
 #ifdef DEBUGPRINT
@@ -3339,7 +3351,7 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 
   bool allTimeSteps = allTimeStepButton->isChecked();
 
-  vector<miutil::miString> hstr;
+  vector<std::string> hstr;
 
   int n = selectedFields.size();
 
@@ -3377,11 +3389,11 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
       ostr << " overlay=1";
     }
 
-    if (selectedFields[i].time.exists()) {
+    if (!selectedFields[i].time.empty()) {
       ostr << " time=" << selectedFields[i].time;
     }
 
-    miutil::miString str;
+    std::string str;
 
     if (selectedFields[i].inEdit && selectedFields[i].editPlot) {
 
@@ -3432,7 +3444,7 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
   //  cerr << "OK-----------------------------" << endl;
   //  n= hstr.size();
   //  bool eq;
-  //  vector< vector<miutil::miString> >::iterator p, pend= commandHistory.end();
+  //  vector< vector<std::string> >::iterator p, pend= commandHistory.end();
   //  for (p=commandHistory.begin(); p!=pend; p++) {
   //    if (p->size()==n) {
   //	eq= true;
@@ -3474,20 +3486,17 @@ std::string FieldDialog::getParamString(int i)
       ostr << " parameter=" << selectedFields[i].fieldName;
     }
 
-    if (selectedFields[i].level.exists()) {
+    if (!selectedFields[i].level.empty()) {
       if ( selectedFields[i].zaxis.empty() ) {
         selectedFields[i].zaxis = FieldSpecTranslation::getVcoorFromLevel(selectedFields[i].level);
       }
       ostr << " vcoord=" << selectedFields[i].zaxis;
       ostr << " vlevel=" << selectedFields[i].level;
     }
-    if (selectedFields[i].idnum.exists()) {
+    if (!selectedFields[i].idnum.empty()) {
       ostr << " ecoord="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
-    //    if (selectedFields[i].grid.exists()) {
-    //ostr << " grid="<< selectedFields[i].grid;
-    //    }
     if (selectedFields[i].hourOffset != 0)
       ostr << " hour.offset=" << selectedFields[i].hourOffset;
 
@@ -3503,9 +3512,9 @@ std::string FieldDialog::getParamString(int i)
 
     ostr << " " << selectedFields[i].fieldName;
 
-    if (selectedFields[i].level.exists())
+    if (!selectedFields[i].level.empty())
       ostr << " level=" << selectedFields[i].level;
-    if (selectedFields[i].idnum.exists())
+    if (!selectedFields[i].idnum.empty())
       ostr << " idnum=" << selectedFields[i].idnum;
 
     if (selectedFields[i].hourOffset != 0)
@@ -3520,34 +3529,34 @@ std::string FieldDialog::getParamString(int i)
 
 }
 
-miutil::miString FieldDialog::getShortname()
+std::string FieldDialog::getShortname()
 {
   // AC: simple version for testing...the shortname could perhaps
   // be made in getOKString?
 
-  miutil::miString name;
+  std::string name;
   int n = selectedFields.size();
   ostringstream ostr;
-  miutil::miString pmodelName;
+  std::string pmodelName;
   bool fielddiff = false, paramdiff = false, leveldiff = false;
 
   for (int i = numEditFields; i < n; i++) {
-    miutil::miString modelName = selectedFields[i].modelName;
-    miutil::miString fieldName = selectedFields[i].fieldName;
-    miutil::miString level = selectedFields[i].level;
-    miutil::miString idnum = selectedFields[i].idnum;
+    std::string modelName = selectedFields[i].modelName;
+    std::string fieldName = selectedFields[i].fieldName;
+    std::string level = selectedFields[i].level;
+    std::string idnum = selectedFields[i].idnum;
 
     //difference field
     if (i < n - 1 && selectedFields[i + 1].minus) {
 
-      miutil::miString modelName2 = selectedFields[i + 1].modelName;
-      miutil::miString fieldName2 = selectedFields[i + 1].fieldName;
-      miutil::miString level_2 = selectedFields[i + 1].level;
-      miutil::miString idnum_2 = selectedFields[i + 1].idnum;
+      std::string modelName2 = selectedFields[i + 1].modelName;
+      std::string fieldName2 = selectedFields[i + 1].fieldName;
+      std::string level_2 = selectedFields[i + 1].level;
+      std::string idnum_2 = selectedFields[i + 1].idnum;
 
       fielddiff = (modelName != modelName2);
       paramdiff = (fieldName != fieldName2);
-      leveldiff = (!level.exists() || level != level_2 || idnum != idnum_2);
+      leveldiff = (level.empty() || level != level_2 || idnum != idnum_2);
 
       if (modelName != pmodelName || modelName2 != pmodelName) {
 
@@ -3564,13 +3573,13 @@ miutil::miString FieldDialog::getShortname()
       if (!fielddiff || (fielddiff && paramdiff) || (fielddiff && leveldiff))
         ostr << " " << fieldName;
 
-      if (selectedFields[i].level.exists()) {
+      if (!selectedFields[i].level.empty()) {
         if (!fielddiff && !paramdiff)
           ostr << " ( " << selectedFields[i].level;
         else if ((fielddiff || paramdiff) && leveldiff)
           ostr << " " << selectedFields[i].level;
       }
-      if (selectedFields[i].idnum.exists() && leveldiff)
+      if (!selectedFields[i].idnum.empty() && leveldiff)
         ostr << " " << selectedFields[i].idnum;
 
     } else if (selectedFields[i].minus) {
@@ -3586,11 +3595,11 @@ miutil::miString FieldDialog::getShortname()
       else if (paramdiff || (fielddiff && leveldiff))
         ostr << " " << fieldName;
 
-      if (selectedFields[i].level.exists()) {
+      if (!selectedFields[i].level.empty()) {
         if (!leveldiff && paramdiff)
           ostr << " )";
         ostr << " " << selectedFields[i].level;
-        if (selectedFields[i].idnum.exists())
+        if (!selectedFields[i].idnum.empty())
           ostr << " " << selectedFields[i].idnum;
         if (leveldiff)
           ostr << " )";
@@ -3612,9 +3621,9 @@ miutil::miString FieldDialog::getShortname()
 
       ostr << " " << fieldName;
 
-      if (selectedFields[i].level.exists())
+      if (!selectedFields[i].level.empty())
         ostr << " " << selectedFields[i].level;
-      if (selectedFields[i].idnum.exists())
+      if (!selectedFields[i].idnum.empty())
         ostr << " " << selectedFields[i].idnum;
     }
   }
@@ -3713,8 +3722,8 @@ void FieldDialog::showHistory(int step)
     selectedFieldbox->clear();
 
     bool minus = false;
-    miutil::miString history_str;
-    vector<miutil::miString> vstr;
+    std::string history_str;
+    vector<std::string> vstr;
     int n = commandHistory[historyPos].size();
 
     for (int i = 0; i < n; i++) {
@@ -3723,7 +3732,7 @@ void FieldDialog::showHistory(int step)
         history_str = commandHistory[historyPos][i];
 
       //if (field1 - field2)
-      miutil::miString field1, field2;
+      std::string field1, field2;
       if (fieldDifference(history_str, field1, field2))
         history_str = field1;
 
@@ -3744,7 +3753,7 @@ void FieldDialog::showHistory(int step)
        cerr << "               " << k << "    intValue: " << vpc[j].intValue[k] << endl;
        }
        *******************************************************/
-      miutil::miString str;
+      std::string str;
       if (minus)
         str = "  -  ";
 
@@ -3766,7 +3775,7 @@ void FieldDialog::showHistory(int step)
       history_str.clear();
 
       //if ( field1 - field2 )
-      if (field2.exists()) {
+      if (!field2.empty()) {
         minus = true;
         history_str = field2;
         i--;
@@ -3796,14 +3805,14 @@ void FieldDialog::historyOk()
 #endif
 
   if (historyPos < 0 || historyPos >= int(commandHistory.size())) {
-    vector<miutil::miString> vstr;
+    vector<std::string> vstr;
     putOKString(vstr, false, false);
   } else {
     putOKString(commandHistory[historyPos], false, false);
   }
 }
 
-void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
+void FieldDialog::putOKString(const vector<std::string>& vstr,
     bool checkOptions, bool external)
 {
 #ifdef DEBUGPRINT
@@ -3820,10 +3829,10 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
     return;
   }
 
-  miutil::miString vfg2_model, model, field, level, idnum, fOpts;
+  std::string vfg2_model, model, field, level, idnum, fOpts;
   int indexMGR, indexM, indexFGR;
   bool minus = false;
-  miutil::miString str;
+  std::string str;
 
   for (int ic = 0; ic < nc; ic++) {
     if (str.empty())
@@ -3837,14 +3846,14 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
       str = str.substr(6, str.size() - 6);
 
     //if (field1 - field2)
-    miutil::miString field1, field2;
+    std::string field1, field2;
     if (fieldDifference(str, field1, field2))
       str = field1;
 
     SelectedField sf;
     sf.external = external; // from QuickMenu
     bool decodeOK = false;
-    sf.cdmSyntax = str.contains("model=");
+    sf.cdmSyntax = miutil::contains(str,"model=");
 
     if (checkOptions) {
       str = checkFieldOptions(str, sf.cdmSyntax);
@@ -3891,7 +3900,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 
       selectedFields.push_back(sf);
 
-      miutil::miString text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
+      std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
       selectedFieldbox->addItem(QString(text.c_str()));
 
       selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
@@ -3988,7 +3997,7 @@ void FieldDialog::putOKString(const vector<miutil::miString>& vstr,
 #endif
 }
 
-bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, SelectedField& sf, bool& allTimeSteps )
+bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
 {
 
   vector<ParsedCommand> vpc;
@@ -4109,10 +4118,10 @@ bool FieldDialog::decodeString_cdmSyntax( const miutil::miString& fieldString, S
   return false;
 }
 
-bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, SelectedField& sf, bool& allTimeSteps )
+bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
 {
 
-  miutil::miString vfg2_model, model, field, level, idnum, fOpts;
+  std::string vfg2_model, model, field, level, idnum, fOpts;
   int hourOffset, hourDiff;
   int indexMGR, indexM, indexFGR, indexF;
   bool forecastSpec;
@@ -4186,11 +4195,11 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
     //      cout << "Searching for correct model, index:" << j << " has model:" << vfg2[j].modelName << endl;
 
     // Old syntax: Model, new syntax: Model(gridnr)
-    miutil::miString modelName = vfg2[j].modelName;
-    if (miutil::contains(vfg2[j].modelName,"(") && !model.contains("(")) {
+    std::string modelName = vfg2[j].modelName;
+    if (miutil::contains(vfg2[j].modelName,"(") && !miutil::contains(model,"(")) {
       modelName = modelName.substr(0, modelName.find(("(")));
     }
-    if (!miutil::contains(vfg2[j].modelName,"(") && model.contains("(")) {
+    if (!miutil::contains(vfg2[j].modelName,"(") && miutil::contains(model,"(")) {
       model = model.substr(0, model.find(("(")));
     }
 
@@ -4273,8 +4282,8 @@ bool FieldDialog::decodeString_oldSyntax( const miutil::miString& fieldString, S
 }
 
 
-bool FieldDialog::fieldDifference(const miutil::miString& str,
-    miutil::miString& field1, miutil::miString& field2) const
+bool FieldDialog::fieldDifference(const std::string& str,
+    std::string& field1, std::string& field2) const
 {
   size_t beginOper = str.find("( ");
   if (beginOper != string::npos) {
@@ -4331,7 +4340,7 @@ void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
     map<miutil::miString, miutil::miString>::iterator q = p->second.begin();
     //loop through options
     for (; q != p->second.end(); q++) {
-      miutil::miString opt = q->first.downcase();
+      miutil::miString opt = miutil::to_lower(q->first);
       unsigned int i = 0;
       while (i < parsedComm.size() && parsedComm[i].key != opt)
         i++;
@@ -4344,10 +4353,10 @@ void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
 
 }
 
-vector<miutil::miString> FieldDialog::writeLog()
+vector<std::string> FieldDialog::writeLog()
 {
 
-  vector<miutil::miString> vstr;
+  vector<std::string> vstr;
 
   // write history
 
@@ -4367,11 +4376,11 @@ vector<miutil::miString> FieldDialog::writeLog()
 
   // write used field options
 
-  map<miutil::miString, miutil::miString>::iterator pfopt, pfend =
+  map<std::string, std::string>::iterator pfopt, pfend =
       fieldOptions.end();
 
   for (pfopt = fieldOptions.begin(); pfopt != pfend; pfopt++) {
-    miutil::miString sopts = getFieldOptions(pfopt->first, true);
+    std::string sopts = getFieldOptions(pfopt->first, true);
     // only logging options if different from setup
     if (sopts != pfopt->second)
       vstr.push_back(pfopt->first + " " + pfopt->second);
@@ -4382,7 +4391,7 @@ vector<miutil::miString> FieldDialog::writeLog()
     vstr.push_back("--- EDIT ---");
     pfend = editFieldOptions.end();
     for (pfopt = editFieldOptions.begin(); pfopt != pfend; pfopt++) {
-      miutil::miString sopts = getFieldOptions(pfopt->first, true);
+      std::string sopts = getFieldOptions(pfopt->first, true);
       // only logging options if different from setup
       if (sopts != pfopt->second) {
         vstr.push_back(pfopt->first + " " + pfopt->second);
@@ -4396,11 +4405,11 @@ vector<miutil::miString> FieldDialog::writeLog()
 }
 
 void FieldDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion)
+    const std::string& thisVersion, const std::string& logVersion)
 {
 
-  miutil::miString str, fieldname, fopts, sopts;
-  vector<miutil::miString> hstr;
+  std::string str, fieldname, fopts, sopts;
+  vector<std::string> hstr;
   size_t pos, end;
 
   int nopt, nlog;
@@ -4493,7 +4502,7 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
   historyForwardButton->setEnabled(false);
 }
 
-miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str, bool cdmSyntax)
+std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSyntax)
 {
 #ifdef DEBUGPRINT
   cerr<<"FieldDialog::checkFieldOptions:"<<str<<endl;
@@ -4501,9 +4510,9 @@ miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str, boo
 
   //merging fieldOptions from str whith current fieldOptions from same field
 
-  miutil::miString newstr;
+  std::string newstr;
 
-  miutil::miString fieldname;
+  std::string fieldname;
 
   vector<ParsedCommand> vplog = cp->parse(str);
   int nlog = vplog.size();
@@ -4522,8 +4531,8 @@ miutil::miString FieldDialog::checkFieldOptions(const miutil::miString& str, boo
     }
   }
 
-  if ( fieldname.exists() ) {
-    miutil::miString fopts = getFieldOptions(fieldname, true);
+  if ( !fieldname.empty() ) {
+    std::string fopts = getFieldOptions(fieldname, true);
 
     if (!fopts.empty()) {
       vector<ParsedCommand> vpopt = cp->parse(fopts);
@@ -4705,7 +4714,7 @@ void FieldDialog::deleteAllSelected()
   if (numEditFields > 0) {
     // show edit fields
     for (int i = 0; i < numEditFields; i++) {
-      miutil::miString str = editName + " " + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
+      std::string str = editName + " " + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
       selectedFieldbox->addItem(QString(str.c_str()));
     }
     selectedFieldbox->setCurrentRow(0);
@@ -4754,25 +4763,25 @@ void FieldDialog::copySelectedField()
         i++;
       if (i < n) {
         int ml = vfgi[indexFGR].levelNames.size();
-        if (ml > 0 && selectedFields[index].level.exists()) {
+        if (ml > 0 && !selectedFields[index].level.empty()) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].levelNames[l]
                                                      != selectedFields[index].level)
             l++;
           if (l == ml)
             i = n;
-        } else if (ml > 0 || selectedFields[index].level.exists()) {
+        } else if (ml > 0 || !selectedFields[index].level.empty()) {
           i = n;
         }
         ml = vfgi[indexFGR].idnumNames.size();
-        if (ml > 0 && selectedFields[index].idnum.exists()) {
+        if (ml > 0 && !selectedFields[index].idnum.empty()) {
           int l = 0;
           while (l < ml && vfgi[indexFGR].idnumNames[l]
                                                      != selectedFields[index].idnum)
             l++;
           if (l == ml)
             i = n;
-        } else if (ml > 0 || selectedFields[index].idnum.exists()) {
+        } else if (ml > 0 || !selectedFields[index].idnum.empty()) {
           i = n;
         }
         if (i < n)
@@ -4824,10 +4833,10 @@ void FieldDialog::changeModel()
   if (indexFGR < 0 || indexFGR >= int(vfgi.size()))
     return;
 
-  miutil::miString oldModel = selectedFields[index].modelName;
-  miutil::miString oldRefTime = selectedFields[index].refTime;
-  miutil::miString newModel = vfgi[indexFGR].modelName;
-  miutil::miString newRefTime = vfgi[indexFGR].refTime;
+  std::string oldModel = selectedFields[index].modelName;
+  std::string oldRefTime = selectedFields[index].refTime;
+  std::string newModel = vfgi[indexFGR].modelName;
+  std::string newRefTime = vfgi[indexFGR].refTime;
   if ( (oldModel == newModel) && (oldRefTime == newRefTime) )
     return;
   //ignore (gridnr)
@@ -4839,17 +4848,17 @@ void FieldDialog::changeModel()
   int gbest, fbest, gnear, fnear;
 
   for (int i = 0; i < n; i++) {
-    miutil::miString selectedModel = selectedFields[i].modelName;
+    std::string selectedModel = selectedFields[i].modelName;
     selectedModel = selectedModel.substr(0, selectedModel.find("("));
-    miutil::miString selectedRefTime = selectedFields[i].refTime;
+    std::string selectedRefTime = selectedFields[i].refTime;
     if ( (selectedModel == oldModel) && (selectedRefTime == oldRefTime) ) {
       // check if field exists for the new model
       gbest = fbest = gnear = fnear = -1;
       int j = 0;
       while (gbest < 0 && j < nvfgi) {
-        miutil::miString model = vfgi[j].modelName;
+        std::string model = vfgi[j].modelName;
         model = model.substr(0, model.find("("));
-        miutil::miString refTime = vfgi[j].refTime;
+        std::string refTime = vfgi[j].refTime;
         if ( (model == newModel) && (refTime == newRefTime) ) {
           int m = vfgi[j].fieldNames.size();
           int k = 0;
@@ -4910,7 +4919,7 @@ void FieldDialog::changeModel()
         selectedFields[i].cdmSyntax = vfgi[indexFGR].cdmSyntax;
         selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
 
-        miutil::miString str = selectedFields[i].modelName + " "
+        std::string str = selectedFields[i].modelName + " "
             + selectedFields[i].fieldName;
         selectedFieldbox->item(i)->setText(QString(str.c_str()));
       }
@@ -5007,7 +5016,7 @@ void FieldDialog::resetOptions()
   if (index < 0 || index >= n)
     return;
 
-  miutil::miString fopts = getFieldOptions(selectedFields[index].fieldName,
+  std::string fopts = getFieldOptions(selectedFields[index].fieldName,
       true);
   if (fopts.empty())
     return;
@@ -5020,12 +5029,12 @@ void FieldDialog::resetOptions()
   enableFieldOptions();
 }
 
-miutil::miString FieldDialog::getFieldOptions(
-    const miutil::miString& fieldName, bool reset, bool edit) const
+std::string FieldDialog::getFieldOptions(
+    const std::string& fieldName, bool reset, bool edit) const
 {
-  miutil::miString fieldname = fieldName;
+  std::string fieldname = fieldName;
 
-  map<miutil::miString, miutil::miString>::const_iterator pfopt;
+  map<std::string, std::string>::const_iterator pfopt;
 
   if (!reset) {
     if (edit) {
@@ -5049,7 +5058,7 @@ miutil::miString FieldDialog::getFieldOptions(
 
   // test known suffixes and prefixes to the original name.
 
-  map<miutil::miString, miutil::miString>::const_iterator pfend =
+  map<std::string, std::string>::const_iterator pfend =
       setupFieldOptions.end();
 
   set<std::string>::const_iterator ps;
@@ -5179,27 +5188,27 @@ void FieldDialog::updateTime()
   //  allTimeStepButton->setChecked(false);
 }
 
-void FieldDialog::addField(miutil::miString str)
+void FieldDialog::addField(std::string str)
 {
-  //  cerr <<"void FieldDialog::addField(miutil::miString str) "<<endl;
+  //  cerr <<"void FieldDialog::addField(std::string str) "<<endl;
   bool remove = false;
-  vector<miutil::miString> token = str.split(1, " ", true);
+  vector<std::string> token = miutil::split(str,1, " ", true);
   if (token.size() == 2 && token[0] == "REMOVE") {
     str = token[1];
     remove = true;
   }
 
-  vector<miutil::miString> vstr = getOKString();
+  vector<std::string> vstr = getOKString_std();
 
   //remove option overlay=1 from all strings
   //(should be a more general setOption()
   for (unsigned int i = 0; i < vstr.size(); i++) {
-    vstr[i].replace("overlay=1", "");
+    miutil::replace(vstr[i],"overlay=1", "");
   }
 
-  vector<miutil::miString>::iterator p = vstr.begin();
+  vector<std::string>::iterator p = vstr.begin();
   for (; p != vstr.end(); p++) {
-    if ((*p).contains(str)) {
+    if (miutil::contains((*p),str)) {
       p = vstr.erase(p);
       if (p == vstr.end())
         break;
@@ -5212,7 +5221,7 @@ void FieldDialog::addField(miutil::miString str)
 
 }
 
-void FieldDialog::fieldEditUpdate(miutil::miString str)
+void FieldDialog::fieldEditUpdate(std::string str)
 {
 
 #ifdef DEBUGREDRAW
@@ -5233,7 +5242,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
         keep.push_back(i);
       } else if (i < m && selectedField2edit_exists[i]) {
         selectedFields[i] = selectedField2edit[i];
-        miutil::miString text = selectedFields[i].modelName + " "
+        std::string text = selectedFields[i].modelName + " "
             + selectedFields[i].fieldName;
         QString qtext = text.c_str();
         selectedFieldbox->item(i)->setText(qtext);
@@ -5275,15 +5284,15 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     int indrm = -1;
     SelectedField sf;
 
-    vector<miutil::miString> vstr = str.split(' ');
+    vector<std::string> vstr = miutil::split(str,' ');
 
     if (vstr.size() == 1) {
       // In original edit, str=fieldName if the field is not already read
       sf.fieldName = vstr[0];
     } else {
-      miutil::miString modelName;
-      miutil::miString fieldName;
-      if ( str.contains("model=") ) {
+      std::string modelName;
+      std::string fieldName;
+      if ( miutil::contains(str,"model=") ) {
         //edit field from profet
         bool allTimeSteps;
         decodeString_cdmSyntax(str, sf, allTimeSteps);
@@ -5307,7 +5316,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     }
 
 
-    map<miutil::miString, miutil::miString>::const_iterator pfo;
+    map<std::string, std::string>::const_iterator pfo;
     if ((pfo = editFieldOptions.find(sf.fieldName))
         != editFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
@@ -5321,10 +5330,10 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
 
     // Searching for time=
     unsigned int j = 0;
-    while (j < vstr.size() && !vstr[j].downcase().contains("time="))
+    while (j < vstr.size() && !miutil::contains(miutil::to_lower(vstr[j]),"time="))
       j++;
     if (j < vstr.size()) {
-      vector<miutil::miString> stokens = vstr[j].split("=");
+      vector<std::string> stokens = miutil::split(vstr[j],"=");
       if (stokens.size() == 2) { //Profet edit, using FieldPlot
         sf.time = stokens[1];
         sf.editPlot = false;
@@ -5365,7 +5374,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
       selectedFields[i] = selectedFields[i - 1];
     selectedFields[numEditFields] = sf;
 
-    miutil::miString text = editName + " " + sf.fieldName;
+    std::string text = editName + " " + sf.fieldName;
     selectedFieldbox->insertItem(numEditFields, QString(text.c_str()));
     selectedFieldbox->setCurrentRow(numEditFields);
     if (!sf.editPlot) {

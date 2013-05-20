@@ -53,6 +53,7 @@ class QPixmap;
 class QColor;
 
 
+int getIndex( vector<std::string> vstr, std::string def_str );
 int getIndex( vector<miutil::miString> vstr, miutil::miString def_str );
 
 int getIndex( vector<Colour::ColourInfo> cInfo, miutil::miString def_str );
@@ -73,8 +74,11 @@ QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 
 // ComboBox
 
+QComboBox* ComboBox(QWidget* parent, vector<std::string> vstr,
+        bool Enabled=true, int defItem=0);
+
 QComboBox* ComboBox(QWidget* parent, vector<miutil::miString> vstr,
-		    bool Enabled=true, int defItem=0);
+        bool Enabled=true, int defItem=0);
 
 QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
 		    bool Enabled=true, int defItem=0);

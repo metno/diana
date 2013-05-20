@@ -48,7 +48,7 @@ FieldPlotManager::FieldPlotManager(FieldManager* fm) :
 {
 }
 
-void FieldPlotManager::getAllFieldNames(vector<miString>& fieldNames)
+void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
 {
 
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
@@ -486,10 +486,10 @@ vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
 
 }
 
-vector<miString> FieldPlotManager::getPlotFields()
+vector<std::string> FieldPlotManager::getPlotFields()
 {
 
-  vector<miString> param;
+  vector<std::string> param;
   for (unsigned int i = 0; i < vPlotField.size(); i++) {
     param.push_back(vPlotField[i].name);
   }
@@ -964,7 +964,7 @@ std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model
 }
 
 
-void FieldPlotManager::getAllFieldNames(vector<miString> & fieldNames,
+void FieldPlotManager::getAllFieldNames(vector<std::string> & fieldNames,
     set<std::string>& fprefixes, set<std::string>& fsuffixes)
 {
 

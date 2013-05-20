@@ -46,7 +46,7 @@ class Linetype {
 public:
   // Constructors
   Linetype();
-  Linetype(const miutil::miString& _name);
+  Linetype(const std::string& _name);
 
   // Assignment operator
   Linetype& operator=(const Linetype &rhs);
@@ -56,28 +56,28 @@ public:
   /// clear static data
   static void init();
   /// define a new lint type from name, bitmap and repeat factor
-  static void define(const miutil::miString& _name,
+  static void define(const std::string& _name,
 		     uint16 _bmap= 0xFFFF, int _factor= 1);
 
   /// return default line type
   static Linetype getDefaultLinetype() { return defaultLinetype; }
 
   /// return names of defined line types
-  static std::vector<miutil::miString> getLinetypeNames() { return linetypeSequence; }
+  static std::vector<std::string> getLinetypeNames() { return linetypeSequence; }
   /// return all line types in string code
-  static std::vector<miutil::miString> getLinetypeInfo();
+  static std::vector<std::string> getLinetypeInfo();
   /// return all line names and types in string code
-  static void getLinetypeInfo(std::vector<miutil::miString>& name,
-			      std::vector<miutil::miString>& pattern);
+  static void getLinetypeInfo(std::vector<std::string>& name,
+			      std::vector<std::string>& pattern);
 
-  miutil::miString name;     ///< name of line type
+  std::string name;     ///< name of line type
   bool     stipple;  ///< not solid
   uint16   bmap;     ///< bitmap defing stipple pattern
   int      factor;   ///< repeat factor
 
 private:
-  static std::map<miutil::miString,Linetype> linetypes;
-  static std::vector<miutil::miString> linetypeSequence;
+  static std::map<std::string,Linetype> linetypes;
+  static std::vector<std::string> linetypeSequence;
   static Linetype defaultLinetype;
 
   // Copy members

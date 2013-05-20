@@ -803,7 +803,7 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
   return fieldm->getFieldDialogInfo();
 }
 
-void Controller::getAllFieldNames(vector<miString> & fieldNames,
+void Controller::getAllFieldNames(vector<std::string> & fieldNames,
                                     set<std::string>& fieldprefixes,
                                     set<std::string>& fieldsuffixes)
 {
@@ -825,8 +825,8 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
   return fieldm->getBestReferenceTime(model, refOffset, refHour);
 }
 
-void Controller::getFieldGroups(const miString& modelNameRequest,
-                                miString& modelName,
+void Controller::getFieldGroups(const std::string& modelNameRequest,
+                                std::string& modelName,
                                 std::string refTime,
                                 bool plotGroups,
                                 vector<FieldGroupInfo>& vfgi)

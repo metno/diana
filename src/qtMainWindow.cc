@@ -1282,7 +1282,8 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
   } else {
 
     // strings for each dialog
-    vector<miutil::miString> mapcom,fldcom,obscom,satcom,statcom,objcom,labelcom;
+    vector<miutil::miString> mapcom,obscom,satcom,statcom,objcom,labelcom;
+    vector<std::string> fldcom;
     int n= vstr.size();
     // sort strings..
     for (int i=0; i<n; i++){
@@ -3973,7 +3974,7 @@ void DianaMainWindow::writeLogFile()
   file << "[/MAP.LOG]" << endl;
   file << endl;
 
-  vstr= fm->writeLog();
+  vector<std::string> vstdstr= fm->writeLog();
   n= vstr.size();
   file << "[FIELD.LOG]" << endl;
   for (i=0; i<n; i++) file << vstr[i] << endl;

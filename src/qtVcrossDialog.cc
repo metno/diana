@@ -1051,13 +1051,13 @@ void VcrossDialog::enableFieldOptions(){
       colorCbox->setEnabled(true);
     }
     i=0;
-    if(vpcopt[nc].allValue.downcase() == "off" ||
-        vpcopt[nc].allValue.downcase() == "av" ){
+    if(miutil::to_lower(vpcopt[nc].allValue) == "off" ||
+        miutil::to_lower(vpcopt[nc].allValue) == "av" ){
       updateFieldOptions("colour","off");
       colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
-          && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
+          && miutil::to_lower(vpcopt[nc].allValue)!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
       colorCbox->setCurrentIndex(i+1);
@@ -1076,8 +1076,8 @@ void VcrossDialog::enableFieldOptions(){
     patternComboBox->setEnabled(true);
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
-    vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
-    vector<miutil::miString> stokens = tokens[0].split(";");
+    vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
+    vector<std::string> stokens = miutil::split(tokens[0],";");
     if(stokens.size()==2)
       shadingSpinBox->setValue(atoi(stokens[1].c_str()));
     else
@@ -1095,7 +1095,7 @@ void VcrossDialog::enableFieldOptions(){
       shadingComboBox->setCurrentIndex(i+1);
     }
     if(tokens.size()==2){
-      vector<miutil::miString> stokens = tokens[1].split(";");
+      vector<std::string> stokens = miutil::split(tokens[1],";");
       if(stokens.size()==2)
         shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
       shadingcoldSpinBox->setValue(0);
@@ -1281,7 +1281,7 @@ void VcrossDialog::enableFieldOptions(){
 
   if ((nc=cp->findKey(vpcopt,"extreme.limits"))>=0) {
     miutil::miString value = vpcopt[nc].allValue;
-    vector<miutil::miString> tokens = value.split(",");
+    vector<std::string> tokens = miutil::split(value,",");
     if ( tokens.size() > 0 ) {
       int index = extremeLimits.indexOf(tokens[0].c_str());
       if ( index > -1 ) {
@@ -1298,7 +1298,7 @@ void VcrossDialog::enableFieldOptions(){
 
   // extreme.type (value or none)
   if ((nc=cp->findKey(vpcopt,"extreme.type"))>=0) {
-    if( vpcopt[nc].allValue.downcase() == "value" ) {
+    if( miutil::to_lower(vpcopt[nc].allValue) == "value" ) {
       extremeValueCheckBox->setChecked(true);
     } else {
       extremeValueCheckBox->setChecked(false);

@@ -55,6 +55,16 @@
 
 
 
+int getIndex( vector<std::string> vstr, std::string def_str  ){
+  for( unsigned int k=0; k<vstr.size(); k++){
+    if( def_str == vstr[k] ){
+      return k;
+    }
+  }
+  return -1;
+}
+
+
 int getIndex( vector<miutil::miString> vstr, miutil::miString def_str  ){
   for( unsigned int k=0; k<vstr.size(); k++){
     if( def_str == vstr[k] ){
@@ -122,6 +132,27 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
   b->setMaximumSize( width, height );
 
   return b;
+}
+
+
+
+/*********************************************/
+QComboBox* ComboBox( QWidget* parent, vector<std::string> vstr,
+    bool Enabled, int defItem  ){
+
+  QComboBox* box = new QComboBox( parent );
+
+  int nr_box = vstr.size();
+
+  for( int i=0; i<nr_box; i++ ){
+    box->addItem(QString(vstr[i].c_str()));
+  }
+
+  box->setEnabled( Enabled );
+
+  box->setCurrentIndex(defItem);
+
+  return box;
 }
 
 
@@ -355,7 +386,7 @@ QComboBox* PatternBox( QWidget* parent,
 /*********************************************/
 QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  ) {
 
-  vector<miutil::miString> slinetypes = Linetype::getLinetypeInfo();
+  vector<std::string> slinetypes = Linetype::getLinetypeInfo();
   int nr_linetypes= slinetypes.size();
 
   QPixmap** pmapLinetypes = new QPixmap*[nr_linetypes];

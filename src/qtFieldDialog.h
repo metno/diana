@@ -87,17 +87,17 @@ private:
     int indexMGR; //index model group
     int indexM;   //index model
     int indexRefTime; //index reference time
-    miutil::miString modelName;
-    miutil::miString fieldName;
-    miutil::miString level;
-    miutil::miString idnum;
+    std::string modelName;
+    std::string fieldName;
+    std::string level;
+    std::string idnum;
     int  hourOffset;
     int  hourDiff;
-    miutil::miString fieldOpts;
+    std::string fieldOpts;
     vector<std::string> levelOptions;
     vector<std::string> idnumOptions;
     bool minus;
-    miutil::miString time;
+    std::string time;
     //Used in gridio
     std::string refTime;
     std::string zaxis;
@@ -136,55 +136,56 @@ public:
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
   vector<miutil::miString> getOKString(bool resetLevelMove=true);
+  vector<std::string> getOKString_std(bool resetLevelMove=true);
   /// return a short text for quickmenue
-  miutil::miString getShortname();
+  std::string getShortname();
   bool levelsExists(bool up, int type=0);
-  void putOKString(const vector<miutil::miString>& vstr,
+  void putOKString(const vector<std::string>& vstr,
 		   bool checkOptions=true, bool external=true);
-  bool decodeString_cdmSyntax(const miutil::miString& fieldstr, SelectedField& sf, bool& allTimeSteps);
-  bool decodeString_oldSyntax(const miutil::miString& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString_cdmSyntax(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
+  bool decodeString_oldSyntax(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
   void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);
   /// make contents for the diana log file
-  vector<miutil::miString> writeLog();
+  vector<std::string> writeLog();
   /// digest contents from the diana log file (a previous session)
   void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+	       const std::string& thisVersion, const std::string& logVersion);
 
 protected:
   void closeEvent( QCloseEvent* );
 
 public slots:
   void advancedToggled(bool on);
-  void fieldEditUpdate(miutil::miString str);
-  void addField(miutil::miString str);
+  void fieldEditUpdate(std::string str);
+  void addField(std::string str);
   void updateModels();
 
 private:
 
   void updateModelBoxes();
   void setDefaultFieldOptions();
-  void enableWidgets(miutil::miString plottype);
+  void enableWidgets(std::string plottype);
   void enableFieldOptions();
   void enableType2Options(bool);
-  void updateFieldOptions(const miutil::miString& name,
-			  const miutil::miString& value, int valueIndex= 0);
+  void updateFieldOptions(const std::string& name,
+			  const std::string& value, int valueIndex= 0);
   void updateTime();
   void setLevel();
   void setIdnum();
-  void getFieldGroups(const miutil::miString& model, const std::string& refTime, int& indexMGR, int& indexM,
+  void getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR, int& indexM,
 		      bool plotDefinitions, vector<FieldGroupInfo>& vfg);
   void showHistory(int step);
-  miutil::miString checkFieldOptions(const miutil::miString& str, bool cdmSyntax);
-  miutil::miString getFieldOptions(const miutil::miString& fieldName, bool reset, bool edit=false) const;
+  std::string checkFieldOptions(const std::string& str, bool cdmSyntax);
+  std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
 
-  bool fieldDifference(const miutil::miString& str,
-		       miutil::miString& field1, miutil::miString& field2) const;
+  bool fieldDifference(const std::string& str,
+		       std::string& field1, std::string& field2) const;
 
   void toolTips();
 
-  vector<miutil::miString> numberList( QComboBox* cBox, float number, bool onoff= false );
+  vector<std::string> numberList( QComboBox* cBox, float number, bool onoff= false );
 
   void baseList( QComboBox* cBox, float base, bool onoff= false );
 
@@ -198,19 +199,19 @@ private:
   bool levelInMotion;
   bool idnumInMotion;
 
-  miutil::miString lastFieldGroupName;
+  std::string lastFieldGroupName;
 
   CommandParser *cp;
   vector<ParsedCommand> vpcopt;
 
-  miutil::miString editName;  // replacing the modelName during editing
+  std::string editName;  // replacing the modelName during editing
 
-  map<miutil::miString,miutil::miString> fgTranslations;
+  map<std::string,std::string> fgTranslations;
 
   // map<fieldName,fieldOptions>
-  map<miutil::miString,miutil::miString> setupFieldOptions;
-  map<miutil::miString,miutil::miString> fieldOptions;
-  map<miutil::miString,miutil::miString> editFieldOptions;
+  map<std::string,std::string> setupFieldOptions;
+  map<std::string,std::string> fieldOptions;
+  map<std::string,std::string> editFieldOptions;
 
   // possible extensions of fieldnames (not found in setup)
   set<std::string> fieldPrefixes;
@@ -223,32 +224,32 @@ private:
 
   vector<int> countSelected;
 
-  vector< vector<miutil::miString> > plottypes_dim;
-  vector<miutil::miString> plottypes;
+  vector< vector<std::string> > plottypes_dim;
+  vector<std::string> plottypes;
 
-  map<miutil::miString, EnableWidget> enableMap;
+  map<std::string, EnableWidget> enableMap;
   vector<ColourShading::ColourShadingInfo> csInfo;
   vector<Pattern::PatternInfo> patternInfo;
 
-  vector<miutil::miString> linetypes;
-  vector<miutil::miString> lineintervals;
-  vector<miutil::miString> lineintervals2;
+  vector<std::string> linetypes;
+  vector<std::string> lineintervals;
+  vector<std::string> lineintervals2;
   QStringList      densityStringList;
-  vector<miutil::miString> vectorunit;
-  vector<miutil::miString> extremeType;
-  miutil::miString currentFieldOpts;
+  vector<std::string> vectorunit;
+  vector<std::string> extremeType;
+  std::string currentFieldOpts;
   bool     currentFieldOptsInEdit;
 
   // info about selected model, fields, levels, idnums and plot options
   vector<FieldGroupInfo> vfgi;
 
-  vector<vector<miutil::miString> > commandHistory;
+  vector<vector<std::string> > commandHistory;
 
   vector<FieldDialogInfo> m_modelgroup;
   vector<int>             indexMGRtable;
 
-  miutil::miString lastLevel;
-  miutil::miString lastIdnum;
+  std::string lastLevel;
+  std::string lastIdnum;
   vector<std::string> currentLevels;
   vector<std::string> currentIdnums;
 
@@ -312,8 +313,8 @@ signals:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
-  void fieldPlotOptionsChanged(map<miutil::miString,miutil::miString>&);
+  void emitTimes( const std::string& ,const vector<miutil::miTime>& );
+  void fieldPlotOptionsChanged(map<std::string,std::string>&);
 
 private slots:
   void modelGRboxActivated( int index );
@@ -444,7 +445,7 @@ private:
   QComboBox* linetype2ComboBox;
   FieldColourDialog* colourLineDialog;
 
-  vector<miutil::miString> undefMasking;
+  vector<std::string> undefMasking;
 
 };
 

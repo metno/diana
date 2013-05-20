@@ -123,7 +123,7 @@ private:
   static QColor* pixcolor;
   static int        nr_linewidths;
   static int        nr_linetypes;
-  static vector<miutil::miString> linetypes;
+  static vector<std::string> linetypes;
 
   QCheckBox * checkbox;
   QLabel    * label;

@@ -38,8 +38,8 @@
 using namespace miutil;
 using namespace std;
 
-map<miString,Linetype> Linetype::linetypes;
-vector<miString>       Linetype::linetypeSequence;
+map<std::string,Linetype> Linetype::linetypes;
+vector<std::string>       Linetype::linetypeSequence;
 Linetype               Linetype::defaultLinetype;
 
 
@@ -54,10 +54,10 @@ Linetype::Linetype()
 
 
 // Constructor
-Linetype::Linetype(const miString& _name)
+Linetype::Linetype(const std::string& _name)
 {
-  miString ltname= _name.downcase();
-  map<miString,Linetype>::iterator p;
+  std::string ltname= miutil::to_lower(_name);
+  map<std::string,Linetype>::iterator p;
   if ((p=linetypes.find(ltname))!=linetypes.end())
     memberCopy(p->second);
   else
@@ -100,10 +100,10 @@ void Linetype::init()
 
 
 // static
-void Linetype::define(const miString& _name,
+void Linetype::define(const std::string& _name,
 		      uint16 _bmap, int _factor)
 {
-  miString ltname= _name.downcase();
+  std::string ltname= miutil::to_lower(_name);
   Linetype lt;
   lt.name=    ltname;
   lt.stipple= (_bmap!=0xFFFF);
@@ -120,13 +120,13 @@ void Linetype::define(const miString& _name,
 
 
 // static
-vector<miString> Linetype::getLinetypeInfo(){
-  vector<miString> vs;
-  map<miString,Linetype>::iterator p, pend= linetypes.end();
+vector<std::string> Linetype::getLinetypeInfo(){
+  vector<std::string> vs;
+  map<std::string,Linetype>::iterator p, pend= linetypes.end();
   int n= linetypeSequence.size();
   for (int i=0; i<n; i++) {
     if ((p=linetypes.find(linetypeSequence[i]))!=pend) {
-      miString str16= "                ";
+      std::string str16= "                ";
       for (int k=0; k<16; k++)
         if ((p->second.bmap & (1 << (15-k)))!=0) str16[k]='-';
       vs.push_back(p->first + '[' + str16 + ']');
@@ -135,14 +135,14 @@ vector<miString> Linetype::getLinetypeInfo(){
   return vs;
 }
 
-void Linetype::getLinetypeInfo(vector<miString>& name,
-			       vector<miString>& pattern)
+void Linetype::getLinetypeInfo(vector<std::string>& name,
+			       vector<std::string>& pattern)
 {
-  map<miString,Linetype>::iterator p, pend= linetypes.end();
+  map<std::string,Linetype>::iterator p, pend= linetypes.end();
   int n= linetypeSequence.size();
   for (int i=0; i<n; i++) {
     if ((p=linetypes.find(linetypeSequence[i]))!=pend) {
-      miString str16= "                ";
+      std::string str16= "                ";
       for (int k=0; k<16; k++)
         if ((p->second.bmap & (1 << (15-k)))!=0) str16[k]='-';
       name.push_back( p->first );
