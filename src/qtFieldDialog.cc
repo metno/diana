@@ -2197,7 +2197,7 @@ void FieldDialog::enableFieldOptions()
     if (  i  > nr_linewidths )  {
       ExpandLinewidthBox(lineWidthCbox, i);
     }
-    updateFieldOptions("linewidth", miutil::miString(i));
+    updateFieldOptions("linewidth", miutil::from_number(i));
     lineWidthCbox->setCurrentIndex(i-1);
   }
 
@@ -2207,7 +2207,7 @@ void FieldDialog::enableFieldOptions()
     if ( i  > nr_linewidths )  {
       ExpandLinewidthBox(linewidth2ComboBox, i);
     }
-    updateFieldOptions("linewidth_2", miutil::miString(i));
+    updateFieldOptions("linewidth_2", miutil::from_number(i));
     linewidth2ComboBox->setCurrentIndex(i-1);
   }
 
@@ -2406,7 +2406,7 @@ void FieldDialog::enableFieldOptions()
     if ( i  > nr_linewidths )  {
       ExpandLinewidthBox(undefLinewidthCbox, i);
     }
-    updateFieldOptions("undef.linewidth", miutil::miString(i));
+    updateFieldOptions("undef.linewidth", miutil::from_number(i));
     undefLinewidthCbox->setCurrentIndex(i-1);
   }
 
@@ -2707,7 +2707,7 @@ vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool 
     if (k < 0)
       k += nenormal;
     ex = powf(10., ielog + j);
-    vnumber.push_back(miutil::miString(enormal[k] * ex));
+    vnumber.push_back(miutil::from_number(enormal[k] * ex));
   }
   n = 1 + nupdown * 2;
 
@@ -2805,7 +2805,7 @@ void FieldDialog::colorCboxActivated(int index)
 
 void FieldDialog::lineWidthCboxActivated(int index)
 {
-  updateFieldOptions("linewidth", miutil::miString(index + 1));
+  updateFieldOptions("linewidth", miutil::from_number(index + 1));
 }
 
 void FieldDialog::lineTypeCboxActivated(int index)
@@ -2848,37 +2848,37 @@ void FieldDialog::extremeTypeActivated(int index)
 
 void FieldDialog::extremeSizeChanged(int value)
 {
-  std::string str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::from_number(float(value) * 0.01);
   updateFieldOptions("extreme.size", str);
 }
 
 void FieldDialog::extremeRadiusChanged(int value)
 {
-  std::string str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::from_number(float(value) * 0.01);
   updateFieldOptions("extreme.radius", str);
 }
 
 void FieldDialog::lineSmoothChanged(int value)
 {
-  std::string str = miutil::miString(value);
+  std::string str = miutil::from_number(value);
   updateFieldOptions("line.smooth", str);
 }
 
 void FieldDialog::fieldSmoothChanged(int value)
 {
-  std::string str = miutil::miString(value);
+  std::string str = miutil::from_number(value);
   updateFieldOptions("field.smooth", str);
 }
 
 void FieldDialog::labelSizeChanged(int value)
 {
-  std::string str = miutil::miString(float(value) * 0.01);
+  std::string str = miutil::from_number(float(value) * 0.01);
   updateFieldOptions("label.size", str);
 }
 
 void FieldDialog::valuePrecisionBoxActivated( int index )
 {
-  std::string str = miutil::miString(index);
+  std::string str = miutil::from_number(index);
   updateFieldOptions("precision", str);
 }
 
@@ -2893,13 +2893,13 @@ void FieldDialog::gridValueCheckBoxToggled(bool on)
 
 void FieldDialog::gridLinesChanged(int value)
 {
-  std::string str = miutil::miString(value);
+  std::string str = miutil::from_number(value);
   updateFieldOptions("grid.lines", str);
 }
 
 // void FieldDialog::gridLinesMaxChanged(int value)
 // {
-//   std::string str= miutil::miString( value );
+//   std::string str= miutil::from_number( value );
 //   updateFieldOptions("grid.lines.max",str);
 // }
 
@@ -2920,7 +2920,7 @@ void FieldDialog::hourDiffChanged(int value)
 
 void FieldDialog::undefMaskingActivated(int index)
 {
-  updateFieldOptions("undef.masking", miutil::miString(index));
+  updateFieldOptions("undef.masking", miutil::from_number(index));
   undefColourCbox->setEnabled(index > 0);
   undefLinewidthCbox->setEnabled(index > 1);
   undefLinetypeCbox->setEnabled(index > 1);
@@ -2933,7 +2933,7 @@ void FieldDialog::undefColourActivated(int index)
 
 void FieldDialog::undefLinewidthActivated(int index)
 {
-  updateFieldOptions("undef.linewidth", miutil::miString(index + 1));
+  updateFieldOptions("undef.linewidth", miutil::from_number(index + 1));
 }
 
 void FieldDialog::undefLinetypeActivated(int index)
@@ -3066,21 +3066,21 @@ void FieldDialog::updatePaletteString()
   if (index1 > 0) {
     str = csInfo[index1 - 1].name;
     if (value1 > 0)
-      str += ";" + miutil::miString(value1);
+      str += ";" + miutil::from_number(value1);
     if (index2 > 0)
       str += ",";
   }
   if (index2 > 0) {
     str += csInfo[index2 - 1].name;
     if (value2 > 0)
-      str += ";" + miutil::miString(value2);
+      str += ";" + miutil::from_number(value2);
   }
   updateFieldOptions("palettecolours", str, -1);
 }
 
 void FieldDialog::alphaChanged(int index)
 {
-  updateFieldOptions("alpha", miutil::miString(index));
+  updateFieldOptions("alpha", miutil::from_number(index));
 }
 
 void FieldDialog::interval2ComboBoxToggled(int index)
@@ -3169,12 +3169,12 @@ void FieldDialog::max2ComboBoxToggled(int index)
 void FieldDialog::linewidth1ComboBoxToggled(int index)
 {
   lineWidthCbox->setCurrentIndex(index);
-  updateFieldOptions("linewidth", miutil::miString(index + 1));
+  updateFieldOptions("linewidth", miutil::from_number(index + 1));
 }
 
 void FieldDialog::linewidth2ComboBoxToggled(int index)
 {
-  updateFieldOptions("linewidth_2", miutil::miString(index + 1));
+  updateFieldOptions("linewidth_2", miutil::from_number(index + 1));
 }
 
 void FieldDialog::linetype1ComboBoxToggled(int index)
@@ -3216,7 +3216,7 @@ void FieldDialog::enableType2Options(bool on)
         > 0)
       updateFieldOptions("maxvalue_2",
           max2ComboBox->currentText().toStdString());
-    updateFieldOptions("linewidth_2", miutil::miString(
+    updateFieldOptions("linewidth_2", miutil::from_number(
         linewidth2ComboBox->currentIndex() + 1));
     updateFieldOptions("linetype_2",
         linetypes[linetype2ComboBox->currentIndex()]);

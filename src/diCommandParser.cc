@@ -76,7 +76,7 @@ void CommandParser::memberCopy(const CommandParser& rhs){
 }
 
 
-bool CommandParser::isInt(const miString& s){
+bool CommandParser::isInt(const std::string& s){
   int i= 0, n= s.length();
   if (n==0) return false;
   if (s[i]=='-' || s[i]=='+'){
@@ -91,7 +91,7 @@ bool CommandParser::isInt(const miString& s){
 }
 
 
-bool CommandParser::isFloat(const miString& s){
+bool CommandParser::isFloat(const std::string& s){
   bool adot= false;
   int i= 0, n= s.length();
   if (n==0) return false;
@@ -123,8 +123,8 @@ bool CommandParser::isFloat(const miString& s){
 }
 
 
-vector<miString> CommandParser::parseString(const miString& str) {
-  vector<miString> vs;
+vector<std::string> CommandParser::parseString(const std::string& str) {
+  vector<std::string> vs;
 
   size_t i,pos, end= str.length();
   i= str.find_first_not_of(' ',0);
@@ -148,10 +148,10 @@ vector<miString> CommandParser::parseString(const miString& str) {
 }
 
 
-vector<float> CommandParser::parseFloat(const miString& str) {
+vector<float> CommandParser::parseFloat(const std::string& str) {
   vector<float> vf;
 
-  miString snum;
+  std::string snum;
   size_t i,pos, end= str.length();
   i= str.find_first_not_of(' ',0);
 
@@ -172,10 +172,10 @@ vector<float> CommandParser::parseFloat(const miString& str) {
 }
 
 
-vector<int> CommandParser::parseInt(const miString& str) {
+vector<int> CommandParser::parseInt(const std::string& str) {
   vector<int> vi;
 
-  miString snum;
+  std::string snum;
   size_t i,pos, end= str.length();
   i= str.find_first_not_of(' ',0);
 
@@ -209,20 +209,20 @@ bool CommandParser::setCaseType(cmdCaseType casetype) {
 }
 
 
-bool CommandParser::addKey(const miString& name, const miString& key,
+bool CommandParser::addKey(const std::string& name, const std::string& key,
 	                   int idNumber, cmdValueType valuetype,
 		           bool printError ) {
   // add key
 
-  miString newkey;
+  std::string newkey;
   if (!key.empty()) {
-    if      (caseType==cmdLowerCase) newkey= key.downcase();
-    else if (caseType==cmdUpperCase) newkey= key.upcase();
+    if      (caseType==cmdLowerCase) newkey= miutil::to_lower(key);
+    else if (caseType==cmdUpperCase) newkey= miutil::to_upper(key);
     else                             newkey= key;
   } else if (!name.empty()) {
     // key==name
-    if      (caseType==cmdLowerCase) newkey= name.downcase();
-    else if (caseType==cmdUpperCase) newkey= name.upcase();
+    if      (caseType==cmdLowerCase) newkey= miutil::to_lower(name);
+    else if (caseType==cmdUpperCase) newkey= miutil::to_upper(name);
     else                             newkey= name;
   } else {
     if (printError) cerr<<"CommandParser::addKey ERROR: key= "<<key
@@ -243,7 +243,7 @@ bool CommandParser::addKey(const miString& name, const miString& key,
 }
 
 
-vector<ParsedCommand> CommandParser::parse(const miString& str) {
+vector<ParsedCommand> CommandParser::parse(const std::string& str) {
 
   // Purpose:
   // Split string into interesting parts.
@@ -287,16 +287,16 @@ vector<ParsedCommand> CommandParser::parse(const miString& str) {
   i= str.find_first_not_of(' ');
   if (i>=strlen) return vpc;
 
-  map<miString,keyDescription>::iterator pk, pkend= keyDataBase.end();
+  map<std::string,keyDescription>::iterator pk, pkend= keyDataBase.end();
 
-  miString tmp,key;
+  std::string tmp,key;
   cmdValueType valueType;
 
   // very nice always having a space at the end of the string...
   tmp= str.substr(0,strlen) + " ";
 
-  if      (caseType==cmdLowerCase) tmp= tmp.downcase();
-  else if (caseType==cmdUpperCase) tmp= tmp.upcase();
+  if      (caseType==cmdLowerCase) tmp= miutil::to_lower(tmp);
+  else if (caseType==cmdUpperCase) tmp= miutil::to_upper(tmp);
 
   // assuming: always a space at tmp[strlen], added above
   //           find_first_... returns a large value if char(s) not found
@@ -386,7 +386,7 @@ vector<ParsedCommand> CommandParser::parse(const miString& str) {
 
 
 int CommandParser::findKey(vector<ParsedCommand>& vpc,
-			   const miString& key, bool addkey) const {
+			   const std::string& key, bool addkey) const {
   int n= vpc.size();
   int i= 0;
   while (i<n && vpc[i].key!=key) i++;
@@ -405,7 +405,7 @@ int CommandParser::findKey(vector<ParsedCommand>& vpc,
 
 
 bool CommandParser::removeValue(vector<ParsedCommand>& vpc,
-			         const miString& key){
+			         const std::string& key){
 
   vector<ParsedCommand>::iterator p=vpc.begin(), pend=vpc.end();
   while(p!=pend && p->key!=key) p++;
@@ -418,8 +418,8 @@ bool CommandParser::removeValue(vector<ParsedCommand>& vpc,
 }
 
 bool CommandParser::replaceValue(vector<ParsedCommand>& vpc,
-			         const miString& key,
-				 const miString value, int valueIndex) const {
+			         const std::string& key,
+				 const std::string value, int valueIndex) const {
   int n= findKey(vpc,key,true);
 
   if (n>=0) return replaceValue(vpc[n],value,valueIndex);
@@ -429,7 +429,7 @@ bool CommandParser::replaceValue(vector<ParsedCommand>& vpc,
 
 
 bool CommandParser::replaceValue(ParsedCommand& pc,
-				 const miString value, int valueIndex) const {
+				 const std::string value, int valueIndex) const {
 
   // valueIndex > existing : append a new value element
   // valueIndex < 0        : value contains all values
@@ -478,9 +478,9 @@ bool CommandParser::replaceValue(ParsedCommand& pc,
 }
 
 
-miString CommandParser::unParse(const vector<ParsedCommand>& vpc) const {
+std::string CommandParser::unParse(const vector<ParsedCommand>& vpc) const {
 
-  miString str;
+  std::string str;
 
   int n, nvpc= vpc.size();
 
