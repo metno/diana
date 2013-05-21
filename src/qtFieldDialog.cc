@@ -5221,7 +5221,7 @@ void FieldDialog::addField(std::string str)
 
 }
 
-void FieldDialog::fieldEditUpdate(std::string str)
+void FieldDialog::fieldEditUpdate(miutil::miString str)
 {
 
 #ifdef DEBUGREDRAW
