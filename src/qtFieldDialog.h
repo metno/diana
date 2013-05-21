@@ -158,7 +158,7 @@ protected:
 
 public slots:
   void advancedToggled(bool on);
-  void fieldEditUpdate(std::string str);
+  void fieldEditUpdate(miutil::miString str);
   void addField(std::string str);
   void updateModels();
 
@@ -313,7 +313,7 @@ signals:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes( const std::string& ,const vector<miutil::miTime>& );
+  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(map<std::string,std::string>&);
 
 private slots:
