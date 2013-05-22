@@ -354,12 +354,19 @@ bool wait_for_input = false; // if running as lib
 
 miString fifo_name;
 
+miString logfilename = "";
+
+#define INFO_ COMMON_LOG::getInstance("common").infoStream()
+#define WARN_ COMMON_LOG::getInstance("common").warnStream()
+#define ERROR_ COMMON_LOG::getInstance("common").errorStream()
+#define DEBUG_ COMMON_LOG::getInstance("common").debugStream()
+
 #define MAKE_CONTROLLER \
     main_controller = new Controller; \
     if (!main_controller->parseSetup()) { \
-      cerr \
+      ERROR_ \
           << "ERROR, an error occured while main_controller parsed setup: " \
-          << setupfile << endl; \
+          << setupfile; \
       return 99; \
     }
 
@@ -403,8 +410,8 @@ void unpackloop(vector<miString>& orig, // original strings..
 
   vs = loops.split('=');
   if (vs.size() < 2) {
-    cerr << "ERROR, missing \'=\' in loop-statement at line:"
-        << origlines[start] << endl;
+    ERROR_ << "ERROR, missing \'=\' in loop-statement at line:"
+        << origlines[start];
     exit(1);
   }
 
@@ -428,8 +435,7 @@ void unpackloop(vector<miString>& orig, // original strings..
     }
     if (k == lists.size()) {
       // list not found
-      cerr << "ERROR, reference to unknown list at line:" << origlines[start]
-          << endl;
+      ERROR_ << "ERROR, reference to unknown list at line:" << origlines[start];
       exit(1);
     }
     nargu = lists[k].l.size();
@@ -438,9 +444,8 @@ void unpackloop(vector<miString>& orig, // original strings..
       vs = lists[k].l[j].split('|');
       // check if correct number of arguments
       if (vs.size() != nkeys) {
-        cerr << "ERROR, number of arguments in loop at:'" << lists[k].l[j]
-            << "' line:" << origlines[start] << " does not match key:" << keys
-            << endl;
+        ERROR_ << "ERROR, number of arguments in loop at:'" << lists[k].l[j]
+               << "' line:" << origlines[start] << " does not match key:" << keys;
         exit(1);
       }
       arguments.push_back(vs);
@@ -454,9 +459,8 @@ void unpackloop(vector<miString>& orig, // original strings..
       vs = vs2[k].split('|');
       // check if correct number of arguments
       if (vs.size() != nkeys) {
-        cerr << "ERROR, number of arguments in loop at:'" << vs2[k]
-            << "' line:" << origlines[start] << " does not match key:" << keys
-            << endl;
+        ERROR_ << "ERROR, number of arguments in loop at:'" << vs2[k]
+            << "' line:" << origlines[start] << " does not match key:" << keys;
         exit(1);
       }
       arguments.push_back(vs);
@@ -498,8 +502,7 @@ void unpackloop(vector<miString>& orig, // original strings..
     }
   }
   if (index == orig.size()) {
-    cerr << "ERROR, missing \'LOOP.END\' for loop at line:" << origlines[start]
-        << endl;
+    ERROR_ << "ERROR, missing \'LOOP.END\' for loop at line:" << origlines[start];
     exit(1);
   }
 }
@@ -530,7 +533,7 @@ void unpackinput(vector<miString>& orig, // original setup
       // save a list
       stringlist li;
       if (orig[i].length() < 6) {
-        cerr << "ERROR, missing name for LIST at line:" << origlines[i] << endl;
+        ERROR_ << "ERROR, missing name for LIST at line:" << origlines[i];
         exit(1);
       }
       li.name = orig[i].substr(5, orig[i].length() - 5);
@@ -539,8 +542,8 @@ void unpackinput(vector<miString>& orig, // original setup
       for (; i < orig.size() && orig[i].downcase() != com_listend; i++)
         li.l.push_back(orig[i]);
       if (i == orig.size() || orig[i].downcase() != com_listend) {
-        cerr << "ERROR, missing LIST.END for list starting at line:"
-            << origlines[start] << endl;
+        ERROR_ << "ERROR, missing LIST.END for list starting at line:"
+               << origlines[start];
         exit(1);
       }
       // push it..
@@ -623,7 +626,7 @@ void startVideo(const printOptions priop)
   }
 
   delete movieMaker;
-  cout << "opening video stream |-->" << endl;
+  INFO_ << "opening video stream |-->";
   movieMaker = new MovieMaker(output, format, 0.2f);
 }
 
@@ -637,7 +640,7 @@ bool addVideoFrame(const QImage &img)
 
 void endVideo()
 {
-  cout << "-->| video stream closed" << endl;
+  INFO_ << "-->| video stream closed";
   delete movieMaker;
   movieMaker = 0;
 }
@@ -648,23 +651,23 @@ void startHardcopy(const plot_type pt, const printOptions priop)
 #if !defined(USE_PAINTGL)
   if (pt == plot_standard && main_controller) {
     if (verbose)
-      cout << "- startHardcopy (standard)" << endl;
+      INFO_ << "- startHardcopy (standard)";
     main_controller->startHardcopy(priop);
   } else if (pt == plot_vcross && vcrossmanager) {
     if (verbose)
-      cout << "- startHardcopy (vcross)" << endl;
+      INFO_ << "- startHardcopy (vcross)";
     vcrossmanager->startHardcopy(priop);
   } else if (pt == plot_vprof && vprofmanager) {
     if (verbose)
-      cout << "- startHardcopy (vprof)" << endl;
+      INFO_ << "- startHardcopy (vprof)";
     vprofmanager->startHardcopy(priop);
   } else if (pt == plot_spectrum && spectrummanager) {
     if (verbose)
-      cout << "- startHardcopy (spectrum)" << endl;
+      INFO_ << "- startHardcopy (spectrum)";
     spectrummanager->startHardcopy(priop);
   } else {
     if (verbose)
-      cout << "- startHardcopy failure (missing manager)" << endl;
+      INFO_ << "- startHardcopy failure (missing manager)";
   }
 #else
   if (!printer) {
@@ -721,19 +724,19 @@ void endHardcopy(const plot_type pt)
   // finish off postscript-sessions
   if (pt == plot_standard && hardcopy_started[pt] && main_controller) {
     if (verbose)
-      cout << "- endHardcopy (standard)" << endl;
+      INFO_ << "- endHardcopy (standard)";
     main_controller->endHardcopy();
   } else if (pt == plot_vcross && hardcopy_started[pt] && vcrossmanager) {
     if (verbose)
-      cout << "- endHardcopy (vcross)" << endl;
+      INFO_ << "- endHardcopy (vcross)";
     vcrossmanager->endHardcopy();
   } else if (pt == plot_vprof && hardcopy_started[pt] && vprofmanager) {
     if (verbose)
-      cout << "- endHardcopy (vprof)" << endl;
+      INFO_ << "- endHardcopy (vprof)";
     vprofmanager->endHardcopy();
   } else if (pt == plot_spectrum && hardcopy_started[pt] && spectrummanager) {
     if (verbose)
-      cout << "- endHardcopy (spectrum)" << endl;
+      INFO_ << "- endHardcopy (spectrum)";
     spectrummanager->endHardcopy();
   } else if (pt == plot_none) {
     // stop all
@@ -884,16 +887,14 @@ static void parse_spectrum_options(const vector<miString>& opts)
 static bool readSetup(const miString& constSetupfile, printerManager& printmanager)
 {
   miString setupfile = constSetupfile;
-  cout << "Reading setupfile:" << setupfile << endl;
+  INFO_ << "Reading setupfile:" << setupfile;
 
   if (!LocalSetupParser::parse(setupfile)) {
-    cerr << "ERROR, an error occured while reading setup: " << setupfile
-        << endl;
+    ERROR_ << "ERROR, an error occured while reading setup: " << setupfile;
     return false;
   }
   if (!printmanager.parseSetup()) {
-    cerr << "ERROR, an error occured while reading setup: " << setupfile
-        << endl;
+    ERROR_ << "ERROR, an error occured while reading setup: " << setupfile;
     return false;
   }
   return true;
@@ -1603,22 +1604,22 @@ static int parseAndProcess(istream &is)
       if (lines[k].downcase() == com_plot) {
         plottype = plot_standard;
         if (verbose)
-          cout << "Preparing new standard-plot" << endl;
+          INFO_ << "Preparing new standard-plot";
 
       } else if (lines[k].downcase() == com_vcross_plot) {
         plottype = plot_vcross;
         if (verbose)
-          cout << "Preparing new vcross-plot" << endl;
+          INFO_ << "Preparing new vcross-plot";
 
       } else if (lines[k].downcase() == com_vprof_plot) {
         plottype = plot_vprof;
         if (verbose)
-          cout << "Preparing new vprof-plot" << endl;
+          INFO_ << "Preparing new vprof-plot";
 
       } else if (lines[k].downcase() == com_spectrum_plot) {
         plottype = plot_spectrum;
         if (verbose)
-          cout << "Preparing new spectrum-plot" << endl;
+          INFO_ << "Preparing new spectrum-plot";
       }
 
       // if new plottype: make sure previous postscript-session is stopped
@@ -1630,34 +1631,34 @@ static int parseAndProcess(istream &is)
       if (multiple_plots && multiple_plottype != plot_none
           && hardcopy_started[multiple_plottype] && multiple_plottype
           != plottype) {
-        cerr
+        ERROR_
             << "ERROR, you can not mix STANDARD/VCROSS/VPROF/SPECTRUM in multiple plots "
-            << "..Exiting.." << endl;
+            << "..Exiting..";
         return 1;
       }
       multiple_plottype = plottype;
 
       if (multiple_plots && shape ) {
-        cerr
+        ERROR_
             << "ERROR, you can not use shape option for multiple plots "
-            << "..Exiting.." << endl;
+            << "..Exiting..";
         return 1;
       }
       if ( !(plottype == plot_none || plottype == plot_standard)  && shape ) {
-        cerr
+        ERROR_
             << "ERROR, you can only use plottype STANDARD when using shape option"
-            << "..Exiting.." << endl;
+            << "..Exiting..";
         return 1;
       }
 
       if (!buffermade) {
-        cerr << "ERROR, no buffersize set..exiting" << endl;
+        ERROR_ << "ERROR, no buffersize set..exiting";
         return 1;
       }
       if (!setupread) {
         setupread = readSetup(setupfile, *printman);
         if (!setupread) {
-          cerr << "ERROR, no setupinformation..exiting" << endl;
+          ERROR_ << "ERROR, no setupinformation..exiting";
           return 99;
         }
       }
@@ -1668,7 +1669,7 @@ static int parseAndProcess(istream &is)
         if (shape ) {
                 if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
                         lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
-                        cerr << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting" << endl;
+                        ERROR_ << "Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting";
                         return 1;
                 }
                 if ( lines[i].contains("FIELD") ) {
@@ -1697,9 +1698,9 @@ static int parseAndProcess(istream &is)
 
           vector<std::string> field_errors;
           if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
-            cerr << "ERROR, an error occurred while adding new fields:" << endl;
+            ERROR_ << "ERROR, an error occurred while adding new fields:";
             for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
-              cerr << field_errors[kk] << endl;
+              ERROR_ << field_errors[kk];
           }
         }
 
@@ -1707,7 +1708,7 @@ static int parseAndProcess(istream &is)
         main_controller->archiveMode(useArchive);
 
         if (verbose)
-          cout << "- setPlotWindow" << endl;
+          INFO_ << "- setPlotWindow";
         if (!multiple_plots)
           main_controller->setPlotWindow(xsize, ysize);
         else
@@ -1722,7 +1723,7 @@ static int parseAndProcess(istream &is)
         main_controller->setPlotTime(thetime);
 
         if (verbose)
-          cout << "- sending plotCommands" << endl;
+          INFO_ << "- sending plotCommands";
         main_controller->plotCommands(pcom);
 
         vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
@@ -1746,19 +1747,19 @@ static int parseAndProcess(istream &is)
           thetime = ptime;
 
         if (verbose)
-          cout << "- plotting for time:" << thetime << endl;
+          INFO_ << "- plotting for time:" << thetime;
         main_controller->setPlotTime(thetime);
 
         if (verbose)
-          cout << "- updatePlots" << endl;
+          INFO_ << "- updatePlots";
         if (!main_controller->updatePlots(failOnMissingData)) {
-            cerr << "Failed to update plots." << endl;
+            WARN_ << "Failed to update plots.";
 #if defined(USE_PAINTGL)
             ensureNewContext();
 #endif
             return 99;
         }
-        cout <<main_controller->getMapArea()<<endl;
+        INFO_ << main_controller->getMapArea();
 
         if (!raster && !shape && !json && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_standard, priop);
@@ -1795,7 +1796,7 @@ static int parseAndProcess(istream &is)
 #endif
 
         if (verbose)
-          cout << "- plot" << endl;
+          INFO_ << "- plot";
 
 #if defined(USE_PAINTGL)
         if (plotAnnotationsOnly) {
@@ -1847,7 +1848,7 @@ static int parseAndProcess(istream &is)
         parse_vcross_options(pcom);
 
         if (verbose)
-          cout << "- sending plotCommands" << endl;
+          INFO_ << "- sending plotCommands";
         if (vcross_optionschanged)
           vcrossmanager->getOptions()->readOptions(vcross_options);
         vcross_optionschanged = false;
@@ -1856,15 +1857,15 @@ static int parseAndProcess(istream &is)
         if (ptime.undef()) {
           thetime = vcrossmanager->getTime();
           if (verbose)
-            cout << "VCROSS has default time:" << thetime << endl;
+            INFO_ << "VCROSS has default time:" << thetime;
         } else
           thetime = ptime;
         if (verbose)
-          cout << "- plotting for time:" << thetime << endl;
+          INFO_ << "- plotting for time:" << thetime;
         vcrossmanager->setTime(thetime);
 
         if (verbose)
-          cout << "- setting cross-section:" << crossection << endl;
+          INFO_ << "- setting cross-section:" << crossection;
         if (crossection.exists())
           vcrossmanager->setCrossection(crossection);
 
@@ -1881,7 +1882,7 @@ static int parseAndProcess(istream &is)
           subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
-          cout << "- plot" << endl;
+          INFO_ << "- plot";
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
@@ -1916,7 +1917,7 @@ static int parseAndProcess(istream &is)
         parse_vprof_options(pcom);
 
         if (verbose)
-          cout << "- sending plotCommands" << endl;
+          INFO_ << "- sending plotCommands";
         if (vprof_optionschanged)
           vprofmanager->getOptions()->readOptions(vprof_options);
         vprof_optionschanged = false;
@@ -1927,15 +1928,15 @@ static int parseAndProcess(istream &is)
         if (ptime.undef()) {
           thetime = vprofmanager->getTime();
           if (verbose)
-            cout << "VPROF has default time:" << thetime << endl;
+            INFO_ << "VPROF has default time:" << thetime;
         } else
           thetime = ptime;
         if (verbose)
-          cout << "- plotting for time:" << thetime << endl;
+          INFO_ << "- plotting for time:" << thetime;
         vprofmanager->setTime(thetime);
 
         if (verbose)
-          cout << "- setting station:" << vprof_station << endl;
+          INFO_ << "- setting station:" << vprof_station;
         if (vprof_station.exists())
           vprofmanager->setStation(vprof_station);
 
@@ -1952,7 +1953,7 @@ static int parseAndProcess(istream &is)
           subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
-          cout << "- plot" << endl;
+          INFO_ << "- plot";
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
@@ -1983,7 +1984,7 @@ static int parseAndProcess(istream &is)
         parse_spectrum_options(pcom);
 
         if (verbose)
-          cout << "- sending plotCommands" << endl;
+          INFO_ << "- sending plotCommands";
         if (spectrum_optionschanged)
           spectrummanager->getOptions()->readOptions(spectrum_options);
         spectrum_optionschanged = false;
@@ -1994,15 +1995,15 @@ static int parseAndProcess(istream &is)
         if (ptime.undef()) {
           thetime = spectrummanager->getTime();
           if (verbose)
-            cout << "SPECTRUM has default time:" << thetime << endl;
+            INFO_ << "SPECTRUM has default time:" << thetime;
         } else
           thetime = ptime;
         if (verbose)
-          cout << "- plotting for time:" << thetime << endl;
+          INFO_ << "- plotting for time:" << thetime;
         spectrummanager->setTime(thetime);
 
         if (verbose)
-          cout << "- setting station:" << spectrum_station << endl;
+          INFO_ << "- setting station:" << spectrum_station;
         if (spectrum_station.exists())
           spectrummanager->setStation(spectrum_station);
 
@@ -2019,7 +2020,7 @@ static int parseAndProcess(istream &is)
           subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (verbose)
-          cout << "- plot" << endl;
+          INFO_ << "- plot";
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
@@ -2050,9 +2051,8 @@ static int parseAndProcess(istream &is)
 #endif
 #endif
         } else if (canvasType == qt_glpixelbuffer) {
-          cerr
-              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer"
-              << endl;
+          ERROR_
+              << "WARNING! double buffer swapping not implemented for qt_glpixelbuffer";
         }
       }
 
@@ -2064,48 +2064,46 @@ static int parseAndProcess(istream &is)
       if (raster) {
 
         if (verbose)
-          cout << "- Preparing for raster output" << endl;
+          INFO_ << "- Preparing for raster output";
         glFlush();
 
 #if !defined(USE_PAINTGL)
         if (canvasType == qt_glpixelbuffer) {
           if (qpbuffer == 0) {
-            cerr << " ERROR. when saving image - qpbuffer is NULL" << endl;
+            ERROR_ << " ERROR. when saving image - qpbuffer is NULL";
           } else {
             const QImage image = qpbuffer->toImage();
 
             if (verbose) {
-              cout << "- Saving image to:" << priop.fname;
-              cout.flush();
+              INFO_ << "- Saving image to:" << priop.fname;
             }
 
             bool result = false;
 
             if (raster_type == image_png || raster_type == image_unknown) {
               result = image.save(priop.fname.c_str());
-              cerr << "--------- write_png: " << priop.fname << endl;
+              INFO_ << "--------- write_png: " << priop.fname;
 #ifdef VIDEO_EXPORT
             } else if (raster_type == image_avi) {
               result = addVideoFrame(image);
-              cerr << "--------- write_avi_frame: " << priop.fname << endl;
+              INFO_ << "--------- write_avi_frame: " << priop.fname;
 #endif
             }
 
             if (verbose) {
-              cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
+              INFO_ << " .." << miString(result ? "Ok" : " **FAILED!**");
             } else if (!result) {
-              cerr << " ERROR, saving image to:" << priop.fname << endl;
+              ERROR_ << " ERROR, saving image to:" << priop.fname;
             }
           }
         } else if (canvasType == qt_glframebuffer) {
           if (qfbuffer == 0) {
-            cerr << " ERROR. when saving image - qfbuffer is NULL" << endl;
+            ERROR_ << " ERROR. when saving image - qfbuffer is NULL";
           } else {
             const QImage image = qfbuffer->toImage();
 
             if (verbose) {
-              cout << "- Saving image to:" << priop.fname;
-              cout.flush();
+              INFO_ << "- Saving image to:" << priop.fname;
             }
 
             bool result = false;
@@ -2117,12 +2115,12 @@ static int parseAndProcess(istream &is)
               result = addVideoFrame(image);
 #endif
             }
-            cerr << "--------- write_png: " << priop.fname << endl;
+            INFO_ << "--------- write_png: " << priop.fname;
 
             if (verbose) {
-              cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
+              INFO_ << " .." << miString(result ? "Ok" : " **FAILED!**");
             } else if (!result) {
-              cerr << " ERROR, saving image to:" << priop.fname << endl;
+              ERROR_ << " ERROR, saving image to:" << priop.fname;
             }
           }
         }
@@ -2190,23 +2188,21 @@ static int parseAndProcess(istream &is)
           // save as PNG -----------------------------------------------
           if (raster_type == image_png || raster_type == image_unknown) {
             if (verbose) {
-              cout << "- Saving PNG-image to:" << img.filename;
-              cout.flush();
+              INFO_ << "- Saving PNG-image to:" << img.filename;
             }
             result = imageIO::write_png(img);
 #ifdef VIDEO_EXPORT
           } else if (raster_type == image_avi) {
             if (verbose) {
-              cout << "- Adding image to:" << img.filename;
-              cout.flush();
+              INFO_ << "- Adding image to:" << img.filename;
             }
 //            result = addVideoFrame(img);
 #endif
           }
           if (verbose)
-            cout << " .." << miString(result ? "Ok" : " **FAILED!**") << endl;
+            INFO_ << " .." << miString(result ? "Ok" : " **FAILED!**");
           else if (!result)
-            cerr << " ERROR, saving PNG-image to:" << img.filename << endl;
+            ERROR_ << " ERROR, saving PNG-image to:" << img.filename;
           // -------------------------------------------------------------
 
         }
@@ -2214,10 +2210,10 @@ static int parseAndProcess(istream &is)
       } else if (shape) { // Only shape output
 
           if (priop.fname.contains("tmp_diana")) {
-                  cout << "Using shape option without file name, it will be created automatically" << endl;
+            INFO_ << "Using shape option without file name, it will be created automatically";
           } else {
-                  cout << "Using shape option with given file name : " << priop.fname << endl;
-                  }
+            INFO_ << "Using shape option with given file name : " << priop.fname;
+          }
           // first stop postscript-generation
           endHardcopy(plot_none);
 
@@ -2310,8 +2306,8 @@ static int parseAndProcess(istream &is)
           // Note that this option works bad for multi-page output:
           // use PRINT_DOCUMENT instead
           if (!priop.printer.exists()) {
-            cerr << " ERROR, printing document:" << priop.fname
-                << "  Printer not defined!" << endl;
+            ERROR_ << " ERROR, printing document:" << priop.fname
+                   << "  Printer not defined!";
             continue;
           }
           // first stop postscript-generation
@@ -2324,10 +2320,10 @@ static int parseAndProcess(istream &is)
           printman->expandCommand(command, priop);
 
           if (verbose)
-            cout << "- Issuing print command:" << command << endl;
+            INFO_ << "- Issuing print command:" << command;
           int res = system(command.c_str());
           if (verbose)
-            cout << " result:" << res << endl;
+            INFO_ << " result:" << res;
         }
       }
 #endif
@@ -2341,7 +2337,7 @@ static int parseAndProcess(istream &is)
       if (!setupread) {
         setupread = readSetup(setupfile, *printman);
         if (!setupread) {
-          cerr << "ERROR, no setupinformation..exiting" << endl;
+          ERROR_ << "ERROR, no setupinformation..exiting";
           return 99;
         }
       }
@@ -2354,7 +2350,7 @@ static int parseAndProcess(istream &is)
       if (lines[k].downcase() == com_time) {
 
         if (verbose)
-          cout << "- finding times" << endl;
+          INFO_ << "- finding times";
 
         //Find ENDTIME
         vector<miString> pcom;
@@ -2365,7 +2361,7 @@ static int parseAndProcess(istream &is)
         main_controller->setPlotTime(thetime);
 
         if (verbose)
-          cout << "- sending plotCommands" << endl;
+          INFO_ << "- sending plotCommands";
         main_controller->plotCommands(pcom);
 
         set<miTime> okTimes;
@@ -2376,7 +2372,7 @@ static int parseAndProcess(istream &is)
         // open filestream
         ofstream file(priop.fname.c_str());
         if (!file) {
-          cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+          ERROR_ << "ERROR OPEN (WRITE) " << priop.fname;
           return 1;
         }
         file << "PROG" << endl;
@@ -2394,7 +2390,7 @@ static int parseAndProcess(istream &is)
       } else if (lines[k].downcase() == com_level) {
 
         if (verbose)
-          cout << "- finding levels" << endl;
+          INFO_ << "- finding levels";
 
         //Find ENDLEVEL
         vector<miString> pcom;
@@ -2407,7 +2403,7 @@ static int parseAndProcess(istream &is)
         // open filestream
         ofstream file(priop.fname.c_str());
         if (!file) {
-          cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+          ERROR_ << "ERROR OPEN (WRITE) " << priop.fname;
           return 1;
         }
 
@@ -2432,7 +2428,7 @@ static int parseAndProcess(istream &is)
       if (!setupread) {
         setupread = readSetup(setupfile, *printman);
         if (!setupread) {
-          cerr << "ERROR, no setupinformation..exiting" << endl;
+          ERROR_ << "ERROR, no setupinformation..exiting";
           return 99;
         }
       }
@@ -2443,7 +2439,7 @@ static int parseAndProcess(istream &is)
       }
 
       if (verbose)
-        cout << "- finding times" << endl;
+        INFO_ << "- finding times";
 
       //Find ENDTIME
       vector<miString> pcom;
@@ -2465,15 +2461,15 @@ static int parseAndProcess(istream &is)
       if (ptime.undef()) {
         thetime = spectrummanager->getTime();
         if (verbose)
-          cout << "SPECTRUM has default time:" << thetime << endl;
+          INFO_ << "SPECTRUM has default time:" << thetime;
       } else
         thetime = ptime;
       if (verbose)
-        cout << "- describing spectrum for time:" << thetime << endl;
+        INFO_ << "- describing spectrum for time:" << thetime;
       spectrummanager->setTime(thetime);
 
       if (verbose)
-        cout << "- setting station:" << spectrum_station << endl;
+        INFO_ << "- setting station:" << spectrum_station;
       if (spectrum_station.exists())
         spectrummanager->setStation(spectrum_station);
 
@@ -2483,7 +2479,7 @@ static int parseAndProcess(istream &is)
       // open filestream
       ofstream file(priop.fname.c_str());
       if (!file) {
-        cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+        ERROR_ << "ERROR OPEN (WRITE) " << priop.fname;
         return 1;
       }
       file << "PROG" << endl;
@@ -2502,12 +2498,12 @@ static int parseAndProcess(istream &is)
 
     } else if (lines[k].downcase() == com_print_document) {
       if (raster) {
-        cerr << " ERROR, trying to print raster-image!" << endl;
+        ERROR_ << " ERROR, trying to print raster-image!";
         continue;
       }
       if (!priop.printer.exists()) {
-        cerr << " ERROR, printing document:" << priop.fname
-            << "  Printer not defined!" << endl;
+        ERROR_ << " ERROR, printing document:" << priop.fname
+               << "  Printer not defined!";
         continue;
       }
       // first stop postscript-generation
@@ -2520,10 +2516,10 @@ static int parseAndProcess(istream &is)
       printman->expandCommand(command, priop);
 
       if (verbose)
-        cout << "- Issuing print command:" << command << endl;
+        INFO_ << "- Issuing print command:" << command;
       int res = system(command.c_str());
       if (verbose)
-        cout << "Result:" << res << endl;
+        INFO_ << "Result:" << res;
 
       continue;
 
@@ -2535,8 +2531,7 @@ static int parseAndProcess(istream &is)
        */
 
       if (!command_path.exists()) {
-        cerr << "ERROR, wait_for_commands found, but command_path not set"
-            << endl;
+        ERROR_ << "ERROR, wait_for_commands found, but command_path not set";
         continue;
       }
       static int prev_iclock = -1;
@@ -2549,8 +2544,8 @@ static int parseAndProcess(istream &is)
       if (prev_iclock > 0)
         diff = float(iclock - prev_iclock) / float(CLOCKS_PER_SEC);
 
-      cerr << "================ WAIT FOR COMMANDS, TIME is:" << nowtime
-          << ", seconds spent on previous command(s):" << diff << endl;
+      INFO_ << "================ WAIT FOR COMMANDS, TIME is:" << nowtime
+            << ", seconds spent on previous command(s):" << diff;
 
       miString pattern = command_path;
       vector<miString> newlines;
@@ -2569,15 +2564,14 @@ static int parseAndProcess(istream &is)
 
       nowtime = miTime::nowTime();
       prev_iclock = clock();
-      cerr << "================ FOUND COMMAND-FILE(S), TIME is:" << nowtime
-          << endl;
+      INFO_ << "================ FOUND COMMAND-FILE(S), TIME is:" << nowtime;
 
       vector<miString> filenames;
 
       //loop over files
       for (int ij = 0; ij < number_of_files; ij++) {
         miString filename = globBuf.gl_pathv[ij];
-        cerr << "==== Reading file:" << filename << endl;
+        INFO_ << "==== Reading file:" << filename;
         filenames.push_back(filename);
         ifstream file(filename.c_str());
         while (file) {
@@ -2600,11 +2594,11 @@ static int parseAndProcess(istream &is)
         ost << "rm -f " << filenames[ik];
         std::string command = ost.str();
 
-        cerr << "==== Cleaning up with:" << command << endl;
+        INFO_ << "==== Cleaning up with:" << command;
         int res = system(command.c_str());
 
         if (res != 0){
-          cerr << "Command:" << command << " failed" << endl;
+          WARN_ << "Command:" << command << " failed";
         }
       }
       // add new wait-command
@@ -2616,7 +2610,7 @@ static int parseAndProcess(istream &is)
       linenum = lines.size();
       k--;
 
-      cerr << "================ EXECUTING COMMANDS" << endl;
+      INFO_ << "================ EXECUTING COMMANDS";
       continue;
       // =============================================================
 
@@ -2634,21 +2628,21 @@ static int parseAndProcess(istream &is)
       if (kk < linenum)
         k = kk;         // skip the </FIELD_FILES> line
       else {
-          cerr << "ERROR, no " << com_field_files_end << " found:" << lines[k]
-               << " Linenumber:" << linenumbers[k] << endl;
+          ERROR_ << "ERROR, no " << com_field_files_end << " found:" << lines[k]
+                 << " Linenumber:" << linenumbers[k];
         return 1;
       }
       continue;
 
     } else if (lines[k].downcase() == com_field_files_end) {
-      cerr << "WARNING, " << com_field_files_end << " found:" << lines[k]
-           << " Linenumber:" << linenumbers[k] << endl;
+      WARN_ << "WARNING, " << com_field_files_end << " found:" << lines[k]
+            << " Linenumber:" << linenumbers[k];
       continue;
 
     } else if (lines[k].downcase() == com_describe) {
 
       if (verbose)
-        cout << "- finding information about data sources" << endl;
+        INFO_ << "- finding information about data sources";
 
       //Find ENDDESCRIBE
       vector<miString> pcom;
@@ -2660,7 +2654,7 @@ static int parseAndProcess(istream &is)
       }
 
       if (verbose)
-        cout << "- sending plotCommands" << endl;
+        INFO_ << "- sending plotCommands";
       main_controller->plotCommands(pcom);
 
       vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
@@ -2684,21 +2678,21 @@ static int parseAndProcess(istream &is)
         thetime = ptime;
 
       if (verbose)
-        cout << "- describing field for time: " << thetime << endl;
+        INFO_ << "- describing field for time: " << thetime;
       main_controller->setPlotTime(thetime);
 
       if (verbose)
-        cout << "- updatePlots" << endl;
+        INFO_ << "- updatePlots";
 
       if (main_controller->updatePlots(failOnMissingData)) {
 
           if (verbose)
-            cout << "- opening file " << priop.fname.c_str() << endl;
+            INFO_ << "- opening file " << priop.fname.c_str();
 
           // open filestream
           ofstream file(priop.fname.c_str());
           if (!file) {
-            cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+            ERROR_ << "ERROR OPEN (WRITE) " << priop.fname;
             return 1;
           }
 
@@ -2773,7 +2767,7 @@ static int parseAndProcess(istream &is)
     } else if (lines[k].downcase() == com_describe_spectrum) {
 
       if (verbose)
-        cout << "- finding information about data sources" << endl;
+        INFO_ << "- finding information about data sources";
 
       //Find ENDDESCRIBE
       vector<miString> pcom;
@@ -2791,7 +2785,7 @@ static int parseAndProcess(istream &is)
       parse_spectrum_options(pcom);
 
       if (verbose)
-        cout << "- sending plotCommands" << endl;
+        INFO_ << "- sending plotCommands";
 
       if (spectrum_optionschanged)
         spectrummanager->getOptions()->readOptions(spectrum_options);
@@ -2803,25 +2797,25 @@ static int parseAndProcess(istream &is)
       if (ptime.undef()) {
         thetime = spectrummanager->getTime();
         if (verbose)
-          cout << "SPECTRUM has default time:" << thetime << endl;
+          INFO_ << "SPECTRUM has default time:" << thetime;
       } else
         thetime = ptime;
       if (verbose)
-        cout << "- describing spectrum for time:" << thetime << endl;
+        INFO_ << "- describing spectrum for time:" << thetime;
       spectrummanager->setTime(thetime);
 
       if (verbose)
-        cout << "- setting station:" << spectrum_station << endl;
+        INFO_ << "- setting station:" << spectrum_station;
       if (spectrum_station.exists())
         spectrummanager->setStation(spectrum_station);
 
       if (verbose)
-        cout << "- opening file " << priop.fname.c_str() << endl;
+        INFO_ << "- opening file " << priop.fname.c_str();
 
       // open filestream
       ofstream file(priop.fname.c_str());
       if (!file) {
-        cerr << "ERROR OPEN (WRITE) " << priop.fname << endl;
+        ERROR_ << "ERROR OPEN (WRITE) " << priop.fname;
         return 1;
       }
 
@@ -2835,8 +2829,8 @@ static int parseAndProcess(istream &is)
       continue;
 
     } else if (lines[k].downcase() == com_describe_end) {
-      cerr << "WARNING, " << com_describe_end << " found:" << lines[k]
-           << " Linenumber:" << linenumbers[k] << endl;
+      ERROR_ << "WARNING, " << com_describe_end << " found:" << lines[k]
+             << " Linenumber:" << linenumbers[k];
       continue;
     }
 
@@ -2845,8 +2839,8 @@ static int parseAndProcess(istream &is)
     vs = lines[k].split("=");
     int nv = vs.size();
     if (nv < 2) {
-      cerr << "ERROR, unknown command:" << lines[k] << " Linenumber:"
-          << linenumbers[k] << endl;
+      ERROR_ << "ERROR, unknown command:" << lines[k] << " Linenumber:"
+             << linenumbers[k];
       return 1;
     }
     miString key = vs[0].downcase();
@@ -2857,15 +2851,15 @@ static int parseAndProcess(istream &is)
 
     if (key == com_setupfile) {
       if (setupread) {
-        cerr
+        WARN_
             << "WARNING, setupfile overrided by command line option. Linenumber:"
-            << linenumbers[k] << endl;
+            << linenumbers[k];
         //      return 1;
       } else {
         setupfile = value;
         setupread = readSetup(setupfile, *printman);
         if (!setupread) {
-          cerr << "ERROR, no setupinformation..exiting" << endl;
+          ERROR_ << "ERROR, no setupinformation..exiting";
           return 99;
         }
       }
@@ -2879,8 +2873,8 @@ static int parseAndProcess(istream &is)
     } else if (key == com_buffersize) {
       vvs = value.split("x");
       if (vvs.size() < 2) {
-        cerr << "ERROR, buffersize should be WxH:" << lines[k]
-            << " Linenumber:" << linenumbers[k] << endl;
+        ERROR_ << "ERROR, buffersize should be WxH:" << lines[k]
+               << " Linenumber:" << linenumbers[k];
         return 1;
       }
       int tmp_xsize = atoi(vvs[0].c_str());
@@ -2909,18 +2903,18 @@ static int parseAndProcess(istream &is)
           }
         }
 
-        //cout << "- Creating X pixmap.." << endl;
+        //INFO_ << "- Creating X pixmap..";
         pixmap = XCreatePixmap(dpy, RootWindow(dpy, pdvi->screen),
             xsize, ysize, pdvi->depth);
         if (!pixmap) {
-          cerr << "ERROR, could not create X pixmap" << endl;
+          ERROR_ << "ERROR, could not create X pixmap";
           return 1;
         }
 
-        //cout << "- Creating GLX pixmap.." << endl;
+        //INFO_ << "- Creating GLX pixmap..";
         pix = glXCreateGLXPixmap(dpy, pdvi, pixmap);
         if (!pix) {
-          cerr << "ERROR, could not create GLX pixmap" << endl;
+          ERROR_ << "ERROR, could not create GLX pixmap";
           return 1;
         }
 
@@ -2939,7 +2933,7 @@ static int parseAndProcess(istream &is)
         GLXFBConfig* pbconfig = glXChooseFBConfig(dpy, DefaultScreen(dpy), (use_double_buffer ? dblBuf : snglBuf), &nelements);
 
         if (nelements == 0) {
-          cerr << "glXChooseFBConfig returned no configurations" << endl;
+          ERROR_ << "ERROR, glXChooseFBConfig returned no configurations";
           exit(1);
         }
 
@@ -2956,24 +2950,24 @@ static int parseAndProcess(istream &is)
         pbufAttr[n] = None;
         n++;
 
-        //cout << "- Creating GLX pbuffer.." << endl;
+        //INFO_ << "- Creating GLX pbuffer..";
         pbuf = glXCreatePbuffer(dpy, pbconfig[0], pbufAttr);
         if (!pbuf) {
-          cerr << "ERROR, could not create GLX pbuffer" << endl;
+          ERROR_ << "ERROR, could not create GLX pbuffer";
           return 1;
         }
 
         pdvi = glXGetVisualFromFBConfig(dpy, pbconfig[0]);
         if (!pdvi) {
-          cerr << "ERROR, could not get visual from FBConfig" << endl;
+          ERROR_ << "ERROR, could not get visual from FBConfig";
           return 1;
         }
 
-        //cout << "- Create glx rendering context.." << endl;
+        //INFO_ << "- Create glx rendering context..";
         cx = glXCreateContext(dpy, pdvi,// display and visual
             0, 0); // sharing and direct rendering
         if (!cx) {
-          cerr << "ERROR, could not create rendering context" << endl;
+          ERROR_ << "ERROR, could not create rendering context";
           return 1;
         }
 
@@ -3028,9 +3022,9 @@ static int parseAndProcess(istream &is)
         if (vvvs[l].contains("x")) {
           vvs = vvvs[l].split("x");
           if (vvs.size() < 2) {
-            cerr
+            ERROR_
                 << "ERROR, papersize should be WxH or WxH,PAPERTYPE or PAPERTYPE:"
-                << lines[k] << " Linenumber:" << linenumbers[k] << endl;
+                << lines[k] << " Linenumber:" << linenumbers[k];
             return 1;
           }
           priop.papersize.hsize = atoi(vvs[0].c_str());
@@ -3043,8 +3037,8 @@ static int parseAndProcess(istream &is)
 
     } else if (key == com_filename) {
       if (!value.exists()) {
-        cerr << "ERROR, illegal filename in:" << lines[k] << " Linenumber:"
-            << linenumbers[k] << endl;
+        ERROR_ << "ERROR, illegal filename in:" << lines[k] << " Linenumber:"
+               << linenumbers[k];
         return 1;
       } else
         priop.fname = value;
@@ -3099,15 +3093,15 @@ static int parseAndProcess(istream &is)
         }
 #endif
       } else {
-        cerr << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
-            << linenumbers[k] << endl;
+        ERROR_ << "ERROR, unknown output-format:" << lines[k] << " Linenumber:"
+               << linenumbers[k];
         return 1;
       }
 
       if (raster && multiple_plots) {
-        cerr
+        ERROR_
             << "ERROR, multiple plots and raster-output can not be used together: "
-            << lines[k] << " Linenumber:" << linenumbers[k] << endl;
+            << lines[k] << " Linenumber:" << linenumbers[k];
         return 1;
       }
       if (raster || shape) {
@@ -3169,9 +3163,9 @@ static int parseAndProcess(istream &is)
 
     } else if (key == com_multiple_plots) {
       if (raster) {
-        cerr
+        ERROR_
             << "ERROR, multiple plots and raster-output can not be used together: "
-            << lines[k] << " Linenumber:" << linenumbers[k] << endl;
+            << lines[k] << " Linenumber:" << linenumbers[k];
         return 1;
       }
       if (value.downcase() == "off") {
@@ -3184,7 +3178,7 @@ static int parseAndProcess(istream &is)
 
       } else {
         if (multiple_plots) {
-          cerr << "Multiple plots are already enabled at line " << linenumbers[k] << endl;
+          ERROR_ << "Multiple plots are already enabled at line " << linenumbers[k];
 #if defined(USE_PAINTGL)
           endHardcopy(plot_none);
           if (printer && pagePainter.isActive()) {
@@ -3195,16 +3189,16 @@ static int parseAndProcess(istream &is)
         }
         vector<miString> v1 = value.split(",");
         if (v1.size() < 2) {
-          cerr << "WARNING, illegal values to multiple.plots:" << lines[k]
-              << " Linenumber:" << linenumbers[k] << endl;
+          WARN_ << "WARNING, illegal values to multiple.plots:" << lines[k]
+                << " Linenumber:" << linenumbers[k];
           multiple_plots = false;
           return 1;
         }
         numrows = atoi(v1[0].c_str());
         numcols = atoi(v1[1].c_str());
         if (numrows < 1 || numcols < 1) {
-          cerr << "WARNING, illegal values to multiple.plots:" << lines[k]
-              << " Linenumber:" << linenumbers[k] << endl;
+          WARN_ << "WARNING, illegal values to multiple.plots:" << lines[k]
+                << " Linenumber:" << linenumbers[k];
           multiple_plots = false;
           return 1;
         }
@@ -3213,16 +3207,16 @@ static int parseAndProcess(istream &is)
         if (v1.size() > 2) {
           fspacing = atof(v1[2].c_str());
           if (fspacing >= 100 || fspacing < 0) {
-            cerr << "WARNING, illegal value for spacing:" << lines[k]
-                << " Linenumber:" << linenumbers[k] << endl;
+            WARN_ << "WARNING, illegal value for spacing:" << lines[k]
+                  << " Linenumber:" << linenumbers[k];
             fspacing = 0;
           }
         }
         if (v1.size() > 3) {
           fmargin = atof(v1[3].c_str());
           if (fmargin >= 100 || fmargin < 0) {
-            cerr << "WARNING, illegal value for margin:" << lines[k]
-                << " Linenumber:" << linenumbers[k] << endl;
+            WARN_ << "WARNING, illegal value for margin:" << lines[k]
+                  << " Linenumber:" << linenumbers[k];
             fmargin = 0;
           }
         }
@@ -3234,8 +3228,8 @@ static int parseAndProcess(istream &is)
         multiple_newpage = true;
         plotcol = plotrow = 0;
         if (verbose)
-          cout << "Starting multiple_plot, rows:" << numrows << " , columns: "
-              << numcols << endl;
+          INFO_ << "Starting multiple_plot, rows:" << numrows << " , columns: "
+                << numcols;
 
 #if defined(USE_PAINTGL)
         // A new multiple plot needs a new paint device to be created.
@@ -3245,22 +3239,22 @@ static int parseAndProcess(istream &is)
 
     } else if (key == com_plotcell) {
       if (!multiple_plots) {
-        cerr << "ERROR, multiple plots not initialised:" << lines[k]
-            << " Linenumber:" << linenumbers[k] << endl;
+        ERROR_ << "ERROR, multiple plots not initialised:" << lines[k]
+               << " Linenumber:" << linenumbers[k];
         return 1;
       } else {
         vector<miString> v1 = value.split(",");
         if (v1.size() != 2) {
-          cerr << "WARNING, illegal values to plotcell:" << lines[k]
-              << " Linenumber:" << linenumbers[k] << endl;
+          WARN_ << "WARNING, illegal values to plotcell:" << lines[k]
+                << " Linenumber:" << linenumbers[k];
           return 1;
         }
         plotrow = atoi(v1[0].c_str());
         plotcol = atoi(v1[1].c_str());
         if (plotrow < 0 || plotrow >= numrows || plotcol < 0 || plotcol
             >= numcols) {
-          cerr << "WARNING, illegal values to plotcell:" << lines[k]
-              << " Linenumber:" << linenumbers[k] << endl;
+          WARN_ << "WARNING, illegal values to plotcell:" << lines[k]
+                << " Linenumber:" << linenumbers[k];
           return 1;
         }
         // row 0 should be on top of page
@@ -3288,8 +3282,8 @@ static int parseAndProcess(istream &is)
       time_format = value;
 
     } else {
-      cerr << "WARNING, unknown command:" << lines[k] << " Linenumber:"
-          << linenumbers[k] << endl;
+      WARN_ << "WARNING, unknown command:" << lines[k] << " Linenumber:"
+            << linenumbers[k];
     }
   }
 
@@ -3312,7 +3306,7 @@ int diana_parseAndProcessString(const char* string)
 {
     stringstream ss;
     ss << string;
-    cerr << "start processing" << endl;
+    INFO_ << "start processing";
     miTime undef;
     ptime=fixedtime=undef;
     int retVal = parseAndProcess(ss);
@@ -3328,7 +3322,7 @@ int diana_parseAndProcessString(const char* string)
 
 static int dispatchWork(const std::string &file)
 {
-  cerr << "Reading input file: " << file << endl;
+  INFO_ << "Reading input file: " << file;
 
   // commands in file
   ifstream is(file.c_str());
@@ -3465,6 +3459,12 @@ int diana_init(int _argc, char** _argv)
       setupfile = argv[ac].toStdString();
       setupfilegiven = true;
 
+    } else if (sarg == "-logger" || sarg == "-L") {
+      ac++;
+      if (ac >= argc)
+        printUsage(false);
+      logfilename = argv[ac].toStdString();
+
     } else if (sarg == "-v") {
       verbose = true;
 
@@ -3573,7 +3573,10 @@ int diana_init(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  plog = milogger::LogHandler::initLogHandler( 3, "" );
+  if (logfilename.exists())
+    plog = milogger::LogHandler::initLogHandler(logfilename);
+  else
+    plog = milogger::LogHandler::initLogHandler(3, "");
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
@@ -3601,14 +3604,14 @@ int diana_init(int _argc, char** _argv)
 
 #if !defined(USE_PAINTGL)
   if (canvasType == qt_glpixelbuffer) {
-    cerr <<"qt_glpixelbuffer"<<endl;
+    INFO_ << "qt_glpixelbuffer";
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
       COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
     if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
-      cerr << "This system does not support OpenGL framebuffers." << endl;
+      ERROR_ << "This system does not support OpenGL framebuffers.";
       return 1;
     } else {
       //Create QGL widget as a rendering context
@@ -3694,7 +3697,7 @@ int diana_init(int _argc, char** _argv)
    Read initial input and process commands...
    */
   if (!batchinput.empty()) {
-    cerr << "Reading input file: " << batchinput.c_str() << endl;
+    INFO_ << "Reading input file: " << batchinput.c_str();
     ifstream is(batchinput.c_str());
     if (!is) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, cannot open inputfile " << batchinput;
@@ -3761,23 +3764,23 @@ int diana_init(int _argc, char** _argv)
       QPointer<diWorkOrder> order = orderbook->getNextOrder();
       if (order) {
         istringstream is(order->getText());
-        cerr << "processing order..." << endl;
+        INFO_ << "processing order...";
         parseAndProcess(is);
-        cerr << "done" << endl;
+        INFO_ << "done";
         if (order) // may have been deleted (if the client disconnected)
           order->signalCompletion();
         else
-          cerr << "diWorkOrder went away" << endl;
+          INFO_ << "diWorkOrder went away";
         application->processEvents();
       } else {
-        cerr << "waiting" << endl;
+        INFO_ << "waiting";
         application->processEvents(QEventLoop::WaitForMoreEvents);
       }
     }
   } else if (wait_for_input) {
     // nothing to be done, just a dummy
   } else if (batchinput.empty()) {
-    cerr << "Neither -address nor -signal was specified" << endl;
+    WARN_ << "Neither -address nor -signal was specified";
   }
   return DIANA_OK;
 }
