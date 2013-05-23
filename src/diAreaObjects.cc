@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherArea.h>
@@ -43,7 +44,7 @@ using namespace::miutil;
 
 AreaObjects::AreaObjects(){
 #ifdef DEBUGPRINT
-  cerr << "AreaObjects::AreaObjects\n";
+  DEBUG_ << "AreaObjects::AreaObjects\n";
 #endif
  init();
  currentArea = NULL;
@@ -54,9 +55,9 @@ AreaObjects::AreaObjects(){
 void AreaObjects::makeAreas(const miString& name, const miString& icon,
 			    const miString& areastring, int id,const Area& area){
 #ifdef DEBUGPRINT
-  cerr << "AreaObjects::makeAreas\n";
-  cerr << "name=" << name << endl;
-  cerr << "areastring=" << areastring << endl;
+  DEBUG_ << "AreaObjects::makeAreas\n";
+  DEBUG_ << "name=" << name;
+  DEBUG_ << "areastring=" << areastring;
 #endif
 
   //  clear();
@@ -69,10 +70,10 @@ void AreaObjects::makeAreas(const miString& name, const miString& icon,
   autozoom = false;
 
   if (readEditDrawString(areastring,area,true))
-    cerr << "AreaObjects " << itsName << " id=" << itsId << " read OK!" << endl;
+    DEBUG_ << "AreaObjects " << itsName << " id=" << itsId << " read OK!";
 
   else
-    cerr << "Areaobjects not read OK" << endl;
+    DEBUG_ << "Areaobjects not read OK";
 
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){
@@ -91,9 +92,9 @@ void AreaObjects::makeAreas(const miString& name, const miString& icon,
 
 bool AreaObjects::areaCommand(const miString& command,const miString& data){
 #ifdef DEBUGPRINT
-  cerr << "Areaobjects::areaCommand" << endl;
-  cerr << "command=" << command << endl;
-  cerr << "data=" << data << endl;
+  DEBUG_ << "Areaobjects::areaCommand";
+  DEBUG_ << "command=" << command;
+  DEBUG_ << "data=" << data;
 #endif
 
   vector<miString> token = data.split(1,":",true);
@@ -115,7 +116,7 @@ bool AreaObjects::areaCommand(const miString& command,const miString& data){
   while (p!= objects.end() && (*p)->getName()!=token[0]) p++;
   if( p== objects.end() ) return false;
   ObjectPlot * pobject = *p;
-  //    cerr <<"pobject->getName():"<<pobject->getName()<<endl;
+  //    DEBUG_ <<"pobject->getName():"<<pobject->getName();
   if (command=="show"){
     pobject->setVisible(on);
   }else if (command=="select"){
@@ -183,7 +184,7 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
 
 
 Rectangle AreaObjects::getBoundBox(const miString& name){
-  //cerr << "AreaObjects::getBoundBox " << name << endl;
+  //DEBUG_ << "AreaObjects::getBoundBox " << name;
   Rectangle box;
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){

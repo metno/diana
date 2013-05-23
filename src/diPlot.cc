@@ -33,6 +33,7 @@
 
 #include "diPlot.h"
 
+#include <diCommonTypes.h>
 #include "diFontManager.h"
 
 #include <qglobal.h>
@@ -183,7 +184,7 @@ Area Plot::findBestMatch(const Area& newa){
   ypos[3]= area.R().y1;
 
   if (!gc.getPoints(area.P(),newa.P(),npos,xpos,ypos)) {
-    cerr << "findBestMatch: getPoints error" << endl;
+    ERROR_ << "findBestMatch: getPoints error";
     delete[] xpos;
     delete[] ypos;
     return a;
@@ -213,7 +214,7 @@ Area Plot::findBestMatch(const Area& newa){
 
 
 void Plot::setDirty(const bool f){
-  //cerr << "SetDirty " << (f ? "true" : "false") << endl;
+  //DEBUG_ << "SetDirty " << (f ? "true" : "false");
   dirty= f;
 
 }
@@ -366,7 +367,7 @@ bool Plot::startPSnewpage()
   if (!hardcopy || !psoutput) return false;
   glFlush();
   if (psoutput->EndPage() != 0) {
-    cerr << "startPSnewpage: EndPage BAD!!!" << endl;
+    WARN_ << "startPSnewpage: EndPage BAD!!!";
   }
   psoutput->StartPage();
   return true;

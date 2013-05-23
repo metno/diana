@@ -48,6 +48,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
+#include "diCommonTypes.h"
 #include "qtButtonLayout.h"
 #include "qtObsWidget.h"
 #include "qtUtility.h"
@@ -73,7 +74,7 @@ ObsWidget::ObsWidget( QWidget* parent ):QWidget(parent)
 {
 
 #ifdef dObsDlg
-  cerr<<"ObsWidget::ObsWidget called"<<endl;
+  DEBUG_<<"ObsWidget::ObsWidget called";
 #endif
   initOK=false;
 //  Qt::WA_DeleteOnClose;
@@ -84,7 +85,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     int plottype_nr)
 {
 #ifdef dObsDlg
-  cerr<<"ObsWidget::setDialogInfo"<<endl;
+  DEBUG_<<"ObsWidget::setDialogInfo";
 #endif
 
   initOK=true;
@@ -661,7 +662,7 @@ void ObsWidget::inTopClicked( int id )
   emit getTimes();
   QApplication::restoreOverrideCursor();
 
-  //  cerr<<"ObsWidget::inTopClicked returned"<<endl;
+  //  DEBUG_<<"ObsWidget::inTopClicked returned";
 }
 
 
@@ -688,7 +689,7 @@ void ObsWidget::outTopClicked( int id )
   QApplication::restoreOverrideCursor();
 
 
-  //  cerr<<"ObsWidget::outTopClicked returned"<<endl;
+  //  DEBUG_<<"ObsWidget::outTopClicked returned";
 }
 
 void ObsWidget::markButton(const miutil::miString& str,bool on)
@@ -906,7 +907,7 @@ void ObsWidget::putOKString(const miutil::miString& str){
 
 void ObsWidget::readLog(const miutil::miString& str){
 
-  //  cerr <<"ObsWidget::readLog"<<endl;
+  //  DEBUG_ <<"ObsWidget::readLog";
   setFalse();
   dVariables.misc.clear();
   decodeString(str,dVariables,true);
@@ -917,7 +918,7 @@ void ObsWidget::readLog(const miutil::miString& str){
 
 void ObsWidget::updateDialog(bool setChecked){
 
-  //    cerr<<"ObsWidget::updateDialog"<<endl;
+  //    DEBUG_<<"ObsWidget::updateDialog";
   int number,m,j;
   double scalednumber;
 
@@ -928,7 +929,7 @@ void ObsWidget::updateDialog(bool setChecked){
   if ( setChecked ){
     m = dVariables.data.size();
     for(j=0; j<m; j++){
-      //cerr <<"updateDialog: "<<dVariables.data[j]<<endl;
+      //DEBUG_ <<"updateDialog: "<<dVariables.data[j];
       int index = datatypeButtons->setButtonOn(dVariables.data[j]);
       if(index<0) continue;
       if(parameterButtons)
@@ -1161,7 +1162,7 @@ void ObsWidget::updateDialog(bool setChecked){
 void ObsWidget::decodeString(const miutil::miString& str, dialogVariables& var,
     bool fromLog)
 {
-  //   cerr <<"decodeString:"<<str<<endl;
+  //   DEBUG_ <<"decodeString:"<<str;
   vector<miutil::miString> parts= str.split(' ',true);
   vector<miutil::miString> tokens;
   int nparts= parts.size();
@@ -1293,7 +1294,7 @@ void ObsWidget::saveCriteria(const vector<miutil::miString>& vstr)
 bool ObsWidget::saveCriteria(const vector<miutil::miString>& vstr,
     const miutil::miString& name)
 {
-  //  cerr <<"saveCriteria"<<endl;
+  //  DEBUG_ <<"saveCriteria";
 
   //don't save list whithout name
   if( !name.exists() ) {
@@ -1308,7 +1309,7 @@ bool ObsWidget::saveCriteria(const vector<miutil::miString>& vstr,
   //list not found, make new list
   if(i==n){
     if(vstr.size()==0) return false;  //no list
-    //    cerr <<"Ny liste:"<<name<<endl;
+    //    DEBUG_ <<"Ny liste:"<<name;
     ObsDialogInfo::CriteriaList clist;
     clist.name=name;
     clist.criteria=vstr;

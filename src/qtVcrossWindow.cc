@@ -46,6 +46,7 @@
 #include <QPixmap>
 #include <QAction>
 
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include "qtVcrossWindow.h"
 #include "qtToggleButton.h"
@@ -207,7 +208,7 @@ VcrossWindow::VcrossWindow(Controller *co)
   firstTime = true;
   active = false;
 #ifdef DEBUGPRINT
-  cerr<<"VcrossWindow::VcrossWindow() finished"<<endl;
+  DEBUG_<<"VcrossWindow::VcrossWindow() finished";
 #endif
 }
 
@@ -218,12 +219,12 @@ void VcrossWindow::dataClicked( bool on ){
   //called when the model button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    cerr << "Model/field button clicked on" << endl;
+    DEBUG_ << "Model/field button clicked on";
 #endif
     vcDialog->show();
   } else {
 #ifdef DEBUGPRINT
-    cerr << "Model/field button clicked off" << endl;
+    DEBUG_ << "Model/field button clicked off";
 #endif
     vcDialog->hide();
   }
@@ -277,7 +278,7 @@ bool VcrossWindow::timeChangedSlot(int diff){
   //called if signal timeChanged is emitted from graphics
   //window (qtVcrossWidget)
 #ifdef DEBUGPRINT
-  cerr << "timeChangedSlot(int) is called " << endl;
+  DEBUG_ << "timeChangedSlot(int) is called ";
 #endif
   int index=timeBox->currentIndex();
   while(diff<0){
@@ -312,9 +313,9 @@ bool VcrossWindow::timeChangedSlot(int diff){
     }
   }
   if (tbs!=tstring){
-//    cerr << "WARNING! timeChangedSlot  time from vcrossm ="
-//    << t    <<" not equal to timeBox text = " << tbs << endl
-//    << "You should search through timelist!" << endl;
+//    WARN_ << "WARNING! timeChangedSlot  time from vcrossm ="
+//    << t    <<" not equal to timeBox text = " << tbs
+//    << "You should search through timelist!";
     return false;
   }
 
@@ -328,7 +329,7 @@ bool VcrossWindow::timeChangedSlot(int diff){
 
 bool VcrossWindow::crossectionChangedSlot(int diff){
 #ifdef DEBUGPRINT
-  cerr << "crossectionChangedSlot(int) is called " << endl;
+  DEBUG_ << "crossectionChangedSlot(int) is called ";
 #endif
   int index=crossectionBox->currentIndex();
   while(diff<0){
@@ -368,8 +369,8 @@ bool VcrossWindow::crossectionChangedSlot(int diff){
     emit crossectionChanged(sq); //name of current crossection (to mainWindow)
     return true;
   } else {
-    //    cerr << "WARNING! crossectionChangedSlot  crossection from vcrossm ="
-    // 	 << s    <<" not equal to crossectionBox text = " << sbs << endl;
+    //    WARN_ << "WARNING! crossectionChangedSlot  crossection from vcrossm ="
+    // 	 << s    <<" not equal to crossectionBox text = " << sbs;
     //current or last crossection plotted is not in the list, insert it...
     crossectionBox->addItem(sq,0);
     crossectionBox->setCurrentIndex(0);
@@ -425,7 +426,7 @@ void VcrossWindow::printClicked(){
       int res = system(command.c_str());
 
       if (res != 0){
-        cerr << "Print command:" << command << " failed" << endl;
+        WARN_ << "Print command:" << command << " failed";
       }
 
     }
@@ -508,7 +509,7 @@ void VcrossWindow::timeGraphClicked(bool on)
 {
   //called when the timeGraph button is clicked
 #ifdef DEBUGPRINT
-  cerr << "TiemGraph button clicked on=" << on << endl;
+  DEBUG_ << "TiemGraph button clicked on=" << on;
 #endif
   if (on && vcrossm->timeGraphOK()) {
     vcrossw->enableTimeGraph(true);
@@ -526,7 +527,7 @@ void VcrossWindow::timeGraphClicked(bool on)
 void VcrossWindow::quitClicked(){
   //called when the quit button is clicked
 #ifdef DEBUGPRINT
-  cerr << "quit clicked" << endl;
+  DEBUG_ << "quit clicked";
 #endif
   vcToolbar->hide();
   tsToolbar->hide();
@@ -552,7 +553,7 @@ void VcrossWindow::quitClicked(){
 void VcrossWindow::helpClicked(){
   //called when the help button in Vcrosswindow is clicked
 #ifdef DEBUGPRINT
-  cerr << "help clicked" << endl;
+  DEBUG_ << "help clicked";
 #endif
   emit showsource("ug_verticalcrosssections.html");
 }
@@ -561,7 +562,7 @@ void VcrossWindow::helpClicked(){
 //called when the Dynamic/Clear button in Vprofwindow is clicked
 void VcrossWindow::dynCrossClicked(){
 #ifdef DEBUGPRINT
-  cerr << "Dynamic/Clear clicked" << endl;
+  DEBUG_ << "Dynamic/Clear clicked";
 #endif
   // Clean up the current dynamic crossections
   vcrossm->cleanupDynamicCrossSections();
@@ -579,7 +580,7 @@ void VcrossWindow::dynCrossClicked(){
 void VcrossWindow::MenuOK(){
   //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::MenuOK()" << endl;
+  DEBUG_ << "VcrossWindow::MenuOK()";
 #endif
 }
 
@@ -589,7 +590,7 @@ void VcrossWindow::changeFields(bool modelChanged){
   //called when the apply button from model/field dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::changeFields()" << endl;
+  DEBUG_ << "VcrossWindow::changeFields()";
 #endif
 
   if (modelChanged) {
@@ -618,7 +619,7 @@ void VcrossWindow::changeFields(bool modelChanged){
 void VcrossWindow::changeSetup(){
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::changeSetup()" << endl;
+  DEBUG_ << "VcrossWindow::changeSetup()";
 #endif
 
   //###if (mapOptionsChanged) {
@@ -638,7 +639,7 @@ void VcrossWindow::changeSetup(){
 void VcrossWindow::hideDialog(){
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::hideDialog()" << endl;
+  DEBUG_ << "VcrossWindow::hideDialog()";
 #endif
   vcDialog->hide();
   dataButton->setChecked(false);
@@ -649,7 +650,7 @@ void VcrossWindow::hideDialog(){
 void VcrossWindow::hideSetup(){
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::hideSetup()" << endl;
+  DEBUG_ << "VcrossWindow::hideSetup()";
 #endif
   vcSetupDialog->hide();
   setupButton->setChecked(false);
@@ -659,7 +660,7 @@ void VcrossWindow::hideSetup(){
 
 void VcrossWindow::getCrossections(LocationData& locationdata){
 #ifdef DEBUGPRINT
-  cerr <<"VcrossWindow::getCrossections()" << endl;
+  DEBUG_ <<"VcrossWindow::getCrossections()";
 #endif
 
   vcrossm->getCrossections(locationdata);
@@ -671,7 +672,7 @@ void VcrossWindow::getCrossections(LocationData& locationdata){
 
 void VcrossWindow::getCrossectionOptions(LocationData& locationdata){
 #ifdef DEBUGPRINT
-  cerr <<"VcrossWindow::getCrossectionOptions()" << endl;
+  DEBUG_ <<"VcrossWindow::getCrossectionOptions()";
 #endif
 
   vcrossm->getCrossectionOptions(locationdata);
@@ -684,7 +685,7 @@ void VcrossWindow::getCrossectionOptions(LocationData& locationdata){
 void VcrossWindow::updateCrossectionBox(){
   //update list of crossections in crossectionBox
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::updateCrossectionBox" << endl;
+  DEBUG_ << "VcrossWindow::updateCrossectionBox";
 #endif
 
   crossectionBox->clear();
@@ -702,7 +703,7 @@ void VcrossWindow::updateCrossectionBox(){
 void VcrossWindow::updateTimeBox(){
   //update list of times
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::updateTimeBox" << endl;
+  DEBUG_ << "VcrossWindow::updateTimeBox";
 #endif
 
   timeBox->clear();
@@ -749,7 +750,7 @@ void VcrossWindow::timeBoxActivated(int index){
 
 bool VcrossWindow::changeCrossection(const miutil::miString& crossection){
 #ifdef DEBUGPRINT
-  cerr << "VcrossWindow::changeCrossection" << endl;
+  DEBUG_ << "VcrossWindow::changeCrossection";
 #endif
   vcrossm->setCrossection(crossection); //HK ??? should check if crossection exists ?
   vcrossw->updateGL();
@@ -776,7 +777,7 @@ bool VcrossWindow::changeCrossection(const miutil::miString& crossection){
 void VcrossWindow::mainWindowTimeChanged(const miutil::miTime& t){
   if (!active) return;
 #ifdef DEBUGPRINT
-  cerr << "vcrossWindow::mainWindowTimeChanged called with time " << t << endl;
+  DEBUG_ << "vcrossWindow::mainWindowTimeChanged called with time " << t;
 #endif
   vcrossm->mainWindowTimeChanged(t);
   //get correct selection in comboboxes
@@ -790,7 +791,7 @@ void VcrossWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
 void VcrossWindow::startUp(const miutil::miTime& t){
 #ifdef DEBUGPRINT
-  cerr << "vcrossWindow::startUp  t= " << t << endl;
+  DEBUG_ << "vcrossWindow::startUp  t= " << t;
 #endif
   active = true;
   vcToolbar->show();
@@ -814,7 +815,7 @@ void VcrossWindow::startUp(const miutil::miTime& t){
  */
 void VcrossWindow::mapPos(float lat, float lon) {
 #ifdef DEBUGPRINT
-  cout<<"VcrossWindow::mapPos(" << lat << "," << lon << ")" <<endl;
+  DEBUG_<<"VcrossWindow::mapPos(" << lat << "," << lon << ")";
 #endif
   if(vcrossm->setCrossection(lat,lon)) {
     // If the return is true (field) update the crossection box and

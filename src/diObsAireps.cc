@@ -35,6 +35,7 @@
 
 #ifdef METNOOBS
 
+#include <diCommonTypes.h>
 #include <diObsAireps.h>
 
 using namespace::miutil;
@@ -66,8 +67,8 @@ void ObsAireps::init(ObsPlot *oplot, vector<int> &levels){
 
     if (j==n){
       j= n/2;
-      cerr <<"Level: "<<level<<" is not in the list, using "
-	   <<levels[j]<<" hPa"<<endl;
+      WARN_ <<"Level: "<<level<<" is not in the list, using "
+	   <<levels[j]<<" hPa";
     }
 
     if( j-1 < 0 )

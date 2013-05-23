@@ -39,6 +39,7 @@
 #include <QKeyEvent>
 #include <QApplication>
 
+#include "diCommonTypes.h"
 #include "qtVprofWidget.h"
 #include "diVprofManager.h"
 
@@ -65,7 +66,7 @@ VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
 void VprofWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofWidget::initializeGL" << endl;
+  DEBUG_ << "VprofWidget::initializeGL";
 #endif
 
   glShadeModel( GL_FLAT );
@@ -77,10 +78,10 @@ void VprofWidget::initializeGL()
 void VprofWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofWidget::paintGL" << endl;
+  DEBUG_ << "VprofWidget::paintGL";
 #endif
 #ifdef DEBUGREDRAW
-  cerr << "VprofWidget::paintGL" << endl;
+  DEBUG_ << "VprofWidget::paintGL";
 #endif
 
   if (!vprofm) return;
@@ -97,7 +98,7 @@ void VprofWidget::paintGL()
 void VprofWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofWidget::resizeGL  w=" << w << " h=" << h << endl;
+  DEBUG_ << "VprofWidget::resizeGL  w=" << w << " h=" << h;
 #endif
   if (vprofm) vprofm->setPlotWindow(w,h);
 

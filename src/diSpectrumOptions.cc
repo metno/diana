@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diSpectrumOptions.h>
 #include <iostream>
 
@@ -54,7 +55,7 @@ SpectrumOptions::~SpectrumOptions()
 void SpectrumOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::setDefaults" << endl;
+  DEBUG_ << "SpectrumOptions::setDefaults";
 #endif
 
   pText= true;
@@ -99,7 +100,7 @@ void SpectrumOptions::setDefaults()
 vector<miString> SpectrumOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::writeOptions" << endl;
+  DEBUG_ << "SpectrumOptions::writeOptions";
 #endif
 
   vector<miString> vstr;
@@ -158,7 +159,7 @@ vector<miString> SpectrumOptions::writeOptions()
 void SpectrumOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::readOptions" << endl;
+  DEBUG_ << "SpectrumOptions::readOptions";
 #endif
 
   vector<miString> vs,tokens;
@@ -217,12 +218,12 @@ void SpectrumOptions::readOptions(const vector<miString>& vstr)
 
 	else if (key=="backgroundColour") backgroundColour= value;
 //####################################################################
-//      else cerr<<">>>>>>>>ERROR KEY: "<<vs[j]<<endl;
+//      else DEBUG_<<">>>>>>>>ERROR KEY: "<<vs[j];
 //####################################################################
 
       }
 //####################################################################
-//    else cerr<<">>>>>>>>ERROR LINE: "<<vs[j]<<endl;
+//    else DEBUG_<<">>>>>>>>ERROR LINE: "<<vs[j];
 //####################################################################
     }
   }

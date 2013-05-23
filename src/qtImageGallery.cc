@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "qtImageGallery.h"
 #include "diImageGallery.h"
 #include <puCtools/puCglob.h>
@@ -50,8 +51,8 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
 				       const QImage& image)
 {
   if (image.isNull()){
-    cerr << "qtImageGallery::addImageToGallery ERROR:"
-	 << " invalid image:" << name << endl;
+    ERROR_ << "qtImageGallery::addImageToGallery ERROR:"
+	   << " invalid image:" << name;
     return false;
   }
   ImageGallery ig;
@@ -62,8 +63,8 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
   int k=0;
   bool addok= false;
   if (numb==0){
-    cerr << "qtImageGallery::addImageToGallery ERROR:"
-	 << " zero bytes in image:" << name << endl;
+    ERROR_ << "qtImageGallery::addImageToGallery ERROR:"
+	   << " zero bytes in image:" << name;
     return false;
   } else {
     data= new unsigned char [numb];
@@ -110,7 +111,7 @@ bool QtImageGallery::addImageToGallery(const std::string name,
 }
 
 void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
-//  cerr << "============= globbing in:" << dir << endl;
+//  DEBUG_ << "============= globbing in:" << dir;
 /* Image support in Qt
 BMP Windows Bitmap Read/write 
 GIF Graphic Interchange Format (optional) Read 
@@ -162,7 +163,7 @@ XPM X11 Pixmap Read/write
 		  image.load(fname.c_str(),NULL);
 	  if (image.isNull())
 	  {
-		  cerr << "QtImageGallery::addImagesInDirectory: problem loading image: " << fname << endl;
+		  ERROR_ << "QtImageGallery::addImagesInDirectory: problem loading image: " << fname;
 		  continue;
 	  }
 	  addImageToGallery(name.toStdString(),image);

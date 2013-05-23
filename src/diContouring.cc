@@ -43,6 +43,7 @@
 
 #include <shapefil.h>
 
+#include <diCommonTypes.h>
 #include <diFontManager.h>
 #include <diPlotOptions.h>
 #include <diField/diArea.h>
@@ -335,56 +336,56 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   // Impose minimum and maximum limits on the size of the array used.
   if (nx<2 || nx>100000 ||
       ny<2 || ny>100000) {
-    cerr << "CONTOUR ERROR. nx,ny: " << nx << " " << ny << endl;
+    WARN_ << "CONTOUR ERROR. nx,ny: " << nx << " " << ny;
     err = 1;
   }
 
   if (icxy<0 || icxy>2) {
-    cerr << "CONTOUR ERROR. icxy: " << icxy << endl;
+    WARN_ << "CONTOUR ERROR. icxy: " << icxy;
     err = 1;
   }
 
   if (ipart[0]<0 || ipart[0]>=ipart[1] || ipart[1]>nx-1 ||
       ipart[2]<0 || ipart[2]>=ipart[3] || ipart[3]>ny-1) {
-    cerr << "CONTOUR ERROR. ipart: "
+    WARN_ << "CONTOUR ERROR. ipart: "
     << ipart[0] << " " << ipart[1] << " "
-    << ipart[2] << " " << ipart[3] << endl;
+    << ipart[2] << " " << ipart[3];
     err = 1;
   }
 
   if (xylim[0]>=xylim[1] || xylim[2]>=xylim[3]) {
-    cerr << "CONTOUR ERROR. xylim: "
+    WARN_ << "CONTOUR ERROR. xylim: "
     << xylim[0] << " " << xylim[1] << " "
-    << xylim[2] << " " << xylim[3] << endl;
+    << xylim[2] << " " << xylim[3];
     err = 1;
   }
 
   if (idraw<0 || idraw>4) {
-    cerr << "CONTOUR ERROR. idraw: " << idraw << endl;
+    WARN_ << "CONTOUR ERROR. idraw: " << idraw;
     err = 1;
   }
 
   if (ncol<1 || ntyp<1 || nwid<1) {
-    cerr << "CONTOUR ERROR. ncol,ntyp,nwid: "
-    << ncol << " " << ntyp << " " << nwid << endl;
+    WARN_ << "CONTOUR ERROR. ncol,ntyp,nwid: "
+    << ncol << " " << ntyp << " " << nwid;
     err = 1;
   }
 
   if ((idraw==1 || idraw==2) && zstep<=0.0) {
-    cerr << "CONTOUR ERROR. zstep: " << zstep << endl;
+    WARN_ << "CONTOUR ERROR. zstep: " << zstep;
     err = 1;
   }
 
   if (idraw==3 || idraw==4) {
     if (nlines<1 || nlines>mvalue) {
-      cerr << "CONTOUR ERROR. nlines: " << nlines << endl;
+      WARN_ << "CONTOUR ERROR. nlines: " << nlines;
       err = 1;
     }
     else {
       k = 1;
       for (n=1; n<nlines; ++n) if (rlines[n]<=rlines[n-1]) k=0;
       if (k==0) {
-        cerr << "CONTOUR ERROR. sequence of line values." << endl;
+        WARN_ << "CONTOUR ERROR. sequence of line values.";
         err = 1;
       }
     }
@@ -393,25 +394,25 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   if (idraw2>0)
   {
     if (idraw2<1 || idraw2>4) {
-      cerr << "CONTOUR ERROR. idraw(2): " << idraw2 << endl;
+      WARN_ << "CONTOUR ERROR. idraw(2): " << idraw2;
       err = 1;
     }
 
     if ((idraw2==1 || idraw2==2) && zstep2<=0.0) {
-      cerr << "CONTOUR ERROR. zstep(2): " << zstep2 << endl;
+      WARN_ << "CONTOUR ERROR. zstep(2): " << zstep2;
       err = 1;
     }
 
     if (idraw2==3 || idraw2==4) {
       if (nlines2<1 || nlines2>mvalue) {
-        cerr << "CONTOUR ERROR. nlines(2): " << nlines2 << endl;
+        WARN_ << "CONTOUR ERROR. nlines(2): " << nlines2;
         err = 1;
       }
       else {
         k = 1;
         for (n=1; n<nlines2; ++n) if (rlines2[n]<=rlines2[n-1]) k=0;
         if (k==0) {
-          cerr << "CONTOUR ERROR. sequence of line values(2)." << endl;
+          WARN_ << "CONTOUR ERROR. sequence of line values(2).";
           err = 1;
         }
       }
@@ -419,13 +420,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
   }
 
   if (ismooth>100) {
-    cerr << "CONTOUR ERROR. ismooth: " << ismooth << endl;
+    WARN_ << "CONTOUR ERROR. ismooth: " << ismooth;
     err = 1;
   }
 
   if (labfmt[0] != 0 && (chxlab<=0. || chylab<=0.)) {
-    cerr << "CONTOUR ERROR. chxlab,chylab: "
-    << chxlab << " " << chylab << endl;
+    WARN_ << "CONTOUR ERROR. chxlab,chylab: "
+    << chxlab << " " << chylab;
     err = 1;
   }
 
@@ -437,7 +438,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     if (labfmt[0]==3 && (labfmt[2]<0 || labfmt[2]>labfmt[1]-5)) k=0;
     if (labfmt[0]==4 && (labfmt[2]<0 || labfmt[2]>labfmt[1]-6)) k=0;
     if (k==0) {
-      cerr << "CONTOUR ERROR. label format." << endl;
+      WARN_ << "CONTOUR ERROR. label format.";
       err = 1;
     }
   }
@@ -456,7 +457,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       if(i<0 || i>=nxbmap || j<0 || j>=nybmap) k=0;
     }
     if(k==0) {
-      cerr << "CONTOUR ERROR. bit map parameters." << endl;
+      WARN_ << "CONTOUR ERROR. bit map parameters.";
       err = 1;
     }
   }
@@ -703,8 +704,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         ncol,icol,ntyp,ityp,nwid,iwid,nlim,rlim,
         fieldUndef);
     if (nvalue < 0) {
-      cerr << "CONTOUR ERROR.  Line colour/type/width spec."
-      << endl;
+      WARN_ << "CONTOUR ERROR.  Line colour/type/width spec.";
     }
   }
 
@@ -715,8 +715,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         ncol2,icol2,ntyp2,ityp2,nwid2,iwid2,nlim2,rlim2,
         fieldUndef);
     if (nvalue < 0) {
-      cerr << "CONTOUR ERROR.  Line colour/type/width spec(2)."
-      << endl;
+      WARN_ << "CONTOUR ERROR.  Line colour/type/width spec(2).";
     }
   }
 
@@ -764,9 +763,9 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     firstLev=1;
   }
   //###################################################################
-  //cerr<<"firstLev,zmin,zmax,zrange,zvalue[0]: "
+  //DEBUG_<<"firstLev,zmin,zmax,zrange,zvalue[0]: "
   //    <<firstLev<<"  "<<zmin<<" "<<zmax<<"  "<<zrange[0]<<" "<<zrange[1]
-  //    <<" "<<zvalue[0]<<endl;
+  //    <<" "<<zvalue[0];
   //###################################################################
 
   if (nvalue>firstLev+1)         zzstp2 = zvalue[firstLev+1]-zvalue[firstLev];
@@ -3651,8 +3650,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
 
         if (looptest==ncl || n<0) {
 
-          cerr<<"CONTOUR joinContours ERROR  nc,lr,nstop,n: "
-          <<nc<<" "<<lr<<" "<<nstop<<" "<<n<<endl;
+          WARN_<<"CONTOUR joinContours ERROR  nc,lr,nstop,n: "
+          <<nc<<" "<<lr<<" "<<nstop<<" "<<n;
 
           joinerror= true;
         }
@@ -3684,8 +3683,8 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
           n=    n%maxLines;
 
 	  	  if (n>=int(contourlines.size()))
-            cerr<<"CONTOUR ERROR. n,contourlines.size(): "
-            <<n<<" "<<contourlines.size()<<endl;
+            WARN_<<"CONTOUR ERROR. n,contourlines.size(): "
+            <<n<<" "<<contourlines.size();
 
           cl= contourlines[n];
           npos= cl->npos;
@@ -3693,7 +3692,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
           cly= cl->ypos;
 
           if (npos<1)
-            cerr<<"CONTOUR ERROR. npos: "<<npos<<endl;
+            WARN_<<"CONTOUR ERROR. npos: "<<npos;
 
           if (nend==0) {
             i=0;
@@ -3795,10 +3794,10 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
       n=    n%maxLines;
 
       if (!contourlines[n]->corner)
-        cerr<<"CONTOUR joinContours ERROR.  NOT corner/side"<<endl;
+        WARN_<<"CONTOUR joinContours ERROR.  NOT corner/side";
 
       if (nend!=0)
-        cerr<<"CONTOUR joinContours ERROR.  nend!=0"<<endl;
+        WARN_<<"CONTOUR joinContours ERROR.  nend!=0";
 
       npos+=contourlines[n]->npos;
       nend=(nend+1)%2;
@@ -3807,7 +3806,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
     npos++;
 
     if (looptest==ncl || n<0)
-      cerr<<"CONTOUR joinContours ERROR at corners/sides"<<endl;
+      WARN_<<"CONTOUR joinContours ERROR at corners/sides";
 
     float *xpos= new float[npos];
     float *ypos= new float[npos];
@@ -3929,7 +3928,7 @@ void joinContours(vector<ContourLine*>& contourlines, int idraw,
       else if (area2 < 0.0)
         cl->direction= -1;  // clockwise
       else {
-        cerr<<"CONTOUR DIRECTION ERROR  nc,npos: "<<j<<" "<<npos<<endl;
+        WARN_<<"CONTOUR DIRECTION ERROR  nc,npos: "<<j<<" "<<npos;
       }
       if (cl->direction!=0) {
         if (( cl->highLeft && cl->direction==1) ||
@@ -4307,7 +4306,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   // open filestream and write .prj file
   ofstream projfile(projFileName.c_str());
   if (!projfile){
-    cerr << "ERROR OPEN (WRITE) " << projFileName << endl;
+    ERROR_ << "ERROR OPEN (WRITE) " << projFileName;
     return;
   }
   projfile << projStr << endl;

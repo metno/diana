@@ -40,6 +40,7 @@
 #include <qimage.h>
 #include <QKeyEvent>
 
+#include "diCommonTypes.h"
 #include "qtSpectrumWidget.h"
 #include "diSpectrumManager.h"
 
@@ -69,7 +70,7 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, QWidget* parent)
 void SpectrumWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumWidget::initializeGL" << endl;
+  DEBUG_ << "SpectrumWidget::initializeGL";
 #endif
 
   glShadeModel( GL_FLAT );
@@ -81,10 +82,10 @@ void SpectrumWidget::initializeGL()
 void SpectrumWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumWidget::paintGL" << endl;
+  DEBUG_ << "SpectrumWidget::paintGL";
 #endif
 #ifdef DEBUGREDRAW
-  cerr << "SpectrumWidget::paintGL" << endl;
+  DEBUG_ << "SpectrumWidget::paintGL";
 #endif
 
   if (!spectrumm) return;
@@ -99,7 +100,7 @@ void SpectrumWidget::paintGL()
 void SpectrumWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumWidget::resizeGL  w=" << w << " h=" << h << endl;
+  DEBUG_ << "SpectrumWidget::resizeGL  w=" << w << " h=" << h;
 #endif
   if (spectrumm) spectrumm->setPlotWindow(w,h);
 

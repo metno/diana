@@ -42,6 +42,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include "diSpectrumManager.h"
 #include "qtVcrossSetup.h"
@@ -53,7 +54,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   : QDialog(parent), spectrumm(vm)
 {
 #ifdef DEBUGPRINT
-  cout<<"SpectrumSetupDialog::SpectrumSetupDialog called"<<endl;
+  DEBUG_<<"SpectrumSetupDialog::SpectrumSetupDialog called";
 #endif
 
   //caption to appear on top of dialog
@@ -122,7 +123,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   isInitialized=false;
 
 #ifdef DEBUGPRINT
-  cout<<"SpectrumSetupDialog::SpectrumSetupDialog finished"<<endl;
+  DEBUG_<<"SpectrumSetupDialog::SpectrumSetupDialog finished";
 #endif
 }
 
@@ -130,7 +131,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
 void SpectrumSetupDialog::initOptions(QWidget* parent)
 {
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::initOptions" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::initOptions";
 #endif
 
   //make a grid with 4 rows, columms for labels and
@@ -195,10 +196,10 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   spSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
-    cerr<<"=================================================="<<endl;
-    cerr<<"===== SpectrumSetupDialog: glayout numrows= "<<numrows<<endl;
-    cerr<<"=====                                 nrow= "<<nrow<<endl;
-    cerr<<"=================================================="<<endl;
+    DEBUG_<<"==================================================";
+    DEBUG_<<"===== SpectrumSetupDialog: glayout numrows= "<<numrows;
+    DEBUG_<<"=====                                 nrow= "<<nrow;
+    DEBUG_<<"==================================================";
   }
 }
 
@@ -207,7 +208,7 @@ void SpectrumSetupDialog::standardClicked()
 {
   //this slot is called when standard button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::standardClicked()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::standardClicked()";
 #endif
   SpectrumOptions * spopt= new SpectrumOptions; // diana defaults
   setup(spopt);
@@ -230,7 +231,7 @@ void SpectrumSetupDialog::start()
 void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 {
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::setup()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::setup()";
 #endif
 
   int n= spSetups.size();
@@ -284,8 +285,8 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
       spSetups[i]->setColour(spopt->backgroundColour);
 
     } else {
-      cerr<<"SpectrumSetupDialog::setup ERROR : "
-	  <<spSetups[i]->name<<endl;
+      ERROR_<<"SpectrumSetupDialog::setup ERROR : "
+	  <<spSetups[i]->name;
     }
 
   }
@@ -295,7 +296,7 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 void SpectrumSetupDialog::applySetup()
 {
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::applySetup()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::applySetup()";
 #endif
   SpectrumOptions * spopt= spectrumm->getOptions();
 
@@ -351,8 +352,8 @@ void SpectrumSetupDialog::applySetup()
       spopt->backgroundColour= spSetups[i]->getColour().name;
 
     } else {
-      cerr<<"SpectrumSetupDialog::applySetup ERROR : "
-	  <<spSetups[i]->name<<endl;
+      ERROR_<<"SpectrumSetupDialog::applySetup ERROR : "
+	  <<spSetups[i]->name;
     }
 
   }
@@ -363,7 +364,7 @@ void SpectrumSetupDialog::helpClicked()
 {
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::helpClicked()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::helpClicked()";
 #endif
   emit showsource("ug_spectrum.html");
 }
@@ -373,7 +374,7 @@ void SpectrumSetupDialog::applyClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::applyClicked()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::applyClicked()";
 #endif
   applySetup();
   emit SetupApply();
@@ -384,7 +385,7 @@ void SpectrumSetupDialog::applyhideClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumSetupDialog::applyhideClicked()" << endl;
+  DEBUG_ <<"SpectrumSetupDialog::applyhideClicked()";
 #endif
   applySetup();
   emit SetupHide();

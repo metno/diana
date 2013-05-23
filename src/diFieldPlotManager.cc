@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
@@ -78,7 +79,7 @@ bool FieldPlotManager::parseSetup()
 bool FieldPlotManager::parseFieldPlotSetup()
 {
 
-  //   cerr <<"bool FieldPlotManager::parseSetup"<<endl;
+  //   DEBUG_ <<"bool FieldPlotManager::parseSetup";
 
   fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
@@ -86,7 +87,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   vector<miString> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    cerr << sect_name << " section not found" << endl;
+    ERROR_ << sect_name << " section not found";
     return true;
   }
 
@@ -242,7 +243,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               != name)
             i++;
           if (i < vPlotField.size()) {
-            //cerr << "  replacing plot specs. for field " << name << endl;
+            //INFO_ << "  replacing plot specs. for field " << name;
             vPlotField[i].input = input;
           } else {
             PlotField pf;
@@ -271,7 +272,7 @@ bool FieldPlotManager::parseFieldGroupSetup()
   vector<miString> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    cerr << sect_name << " section not found" << endl;
+    ERROR_ << sect_name << " section not found";
     return true;
   }
 
@@ -426,7 +427,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   //Finding times from pinfo
   //TODO: find const time
 
-  cerr <<"FieldPlotManager::getCapabilitiesTime: "<<pinfo<<endl;
+  DEBUG_ <<"FieldPlotManager::getCapabilitiesTime: "<<pinfo;
   vector<miString> pinfos;
   pinfos.push_back(pinfo);
 
@@ -450,7 +451,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     normalTimes.clear();
   }
 
-  cerr <<"FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size()<<endl;
+  DEBUG_ <<"FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size();
 }
 
 vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
@@ -823,18 +824,18 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   }
 
 #ifdef DEBUGFDIFF
-  cerr<<"F1-F2: validFieldTime: "<<f1->validFieldTime<<endl;
-  cerr<<"F1-F2: analysisTime:   "<<f1->analysisTime<<endl;
-  cerr<<"F1-F2: name:           "<<f1->name<<endl;
-  cerr<<"F1-F2: text:           "<<f1->text<<endl;
-  cerr<<"F1-F2: fulltext:       "<<f1->fulltext<<endl;
-  cerr<<"F1-F2: modelName:      "<<f1->modelName<<endl;
-  cerr<<"F1-F2: fieldText:      "<<f1->fieldText<<endl;
-  cerr<<"F1-F2: leveltext:      "<<f1->leveltext<<endl;
-  cerr<<"F1-F2: idnumtext:      "<<f1->idnumtext<<endl;
-  cerr<<"F1-F2: progtext:       "<<f1->progtext<<endl;
-  cerr<<"F1-F2: timetext:       "<<f1->timetext<<endl;
-  cerr<<"-----------------------------------------------------"<<endl;
+  DEBUG_<<"F1-F2: validFieldTime: "<<f1->validFieldTime;
+  DEBUG_<<"F1-F2: analysisTime:   "<<f1->analysisTime;
+  DEBUG_<<"F1-F2: name:           "<<f1->name;
+  DEBUG_<<"F1-F2: text:           "<<f1->text;
+  DEBUG_<<"F1-F2: fulltext:       "<<f1->fulltext;
+  DEBUG_<<"F1-F2: modelName:      "<<f1->modelName;
+  DEBUG_<<"F1-F2: fieldText:      "<<f1->fieldText;
+  DEBUG_<<"F1-F2: leveltext:      "<<f1->leveltext;
+  DEBUG_<<"F1-F2: idnumtext:      "<<f1->idnumtext;
+  DEBUG_<<"F1-F2: progtext:       "<<f1->progtext;
+  DEBUG_<<"F1-F2: timetext:       "<<f1->timetext;
+  DEBUG_<<"-----------------------------------------------------";
 #endif
   bool ok = fieldManager->makeDifferenceFields(fv, fv2);
   if (!ok) {
@@ -847,7 +848,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
     std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
-  //cerr <<__FUNCTION__<<endl;
+  //DEBUG_ <<__FUNCTION__;
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
@@ -995,7 +996,7 @@ void FieldPlotManager::parseString( std::string& pin,
     std::string& plotName )
 {
 
-//  cerr <<"PIN: "<<pin<<endl;
+//  DEBUG_ <<"PIN: "<<pin;
 
 
   std::vector<std::string> tokens;
@@ -1077,7 +1078,7 @@ void FieldPlotManager::parseString( std::string& pin,
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-//  cerr <<"PIN: "<<pin<<endl;
+//  DEBUG_ <<"PIN: "<<pin;
 
 
   // if difference
@@ -1091,7 +1092,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if ( oldSyntax ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-//  cerr <<"PIN NEW: "<<pin<<endl;
+//  DEBUG_ <<"PIN NEW: "<<pin;
 
   FieldRequest fieldrequest;
   vector<std::string> paramNames;
@@ -1099,11 +1100,11 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
   // Try to parse old syntax once more, parse modelName
   if ( oldSyntax && !fieldManager->modelOK(fieldrequest.modelName) ) {
-    cerr <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName<<endl;
+    WARN_ <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName;
     pin = FieldSpecTranslation::getNewFieldString(origPin, true);
     paramNames.clear();
     parseString(pin, fieldrequest, paramNames, plotName);
-    cerr <<"New modelName: " <<fieldrequest.modelName<<endl;
+    WARN_ <<"New modelName: " <<fieldrequest.modelName;
   }
 
   //  //plotName -> fieldName

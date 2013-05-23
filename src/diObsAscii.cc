@@ -35,6 +35,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <diCommonTypes.h>
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
@@ -96,7 +97,7 @@ bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miSt
   // open filestream
   ifstream file(filename.c_str());
   if (!file) {
-    cerr << "ObsAscii: " << filename << " not found" << endl;
+    ERROR_ << "ObsAscii: " << filename << " not found";
     return false;
   }
 
@@ -148,10 +149,10 @@ void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfi
 {
 
   //####################################################################
-//  cerr<<"ObsAscii::readFile  filename= "<<filename<<endl;
-//  cerr <<"Headerfiles:"<<headerfile<<endl;
+//  DEBUG_<<"ObsAscii::readFile  filename= "<<filename;
+//  DEBUG_ <<"Headerfiles:"<<headerfile;
 //  for(size_t i = 0; i < headerinfo.size(); i++) {
-//      cerr << "headerinfo: " << headerinfo[i]<<endl;
+//      DEBUG_ << "headerinfo: " << headerinfo[i];
 //    }
   //####################################################################
 
@@ -190,7 +191,7 @@ void ObsAscii::readData(const miString &filename)
 
 void ObsAscii::decodeHeader()
 {
-//cerr <<__FUNCTION__<<endl;
+//DEBUG_ <<__FUNCTION__;
   vector<miString> vstr,pstr;
   miString str;
   size_t p;
@@ -231,10 +232,10 @@ void ObsAscii::decodeHeader()
   bool ok= true;
   int n= vstr.size();
   //####################################################################
-//  cerr<<"HEADER:"<<endl;
+//  DEBUG_<<"HEADER:";
 //  for (int  j=0; j<n; j++)
-//    cerr<<vstr[j]<<endl;
-//  cerr<<"-----------------"<<endl;
+//    DEBUG_<<vstr[j];
+//  DEBUG_<<"-----------------";
   //####################################################################
   size_t p1,p2;
   int i= 0;
@@ -313,21 +314,21 @@ void ObsAscii::decodeHeader()
 
   if (!ok) {
     //####################################################################
-    cerr<<"   bad header !!!!!!!!!"<<endl;
+    ERROR_<<"   bad header !!!!!!!!!";
     //####################################################################
     return;
   }
 
   n= columnType.size();
   //####################################################################
-//  cerr<<"     coloumns= "<<n<<endl;
+//  DEBUG_<<"     coloumns= "<<n;
   //####################################################################
 
   knots=false;
   for (i=0; i<n; i++) {
     //####################################################################
-//    cerr<<"   column "<<i<<" : "<<columnName[i]<<"  "
-//        <<columnType[i]<<endl;
+//    DEBUG_<<"   column "<<i<<" : "<<columnName[i]<<"  "
+//        <<columnType[i];
     //####################################################################
     if      (columnType[i]=="d")
       asciiColumn["date"]= i;
@@ -387,7 +388,7 @@ void ObsAscii::decodeHeader()
 
 //  if (!asciiColumn.count("x") || !asciiColumn.count("y")) {
 //    //####################################################################
-//    cerr<<"   bad header, missing lat,lon !!!!!!!!!"<<endl;
+//    DEBUG_<<"   bad header, missing lat,lon !!!!!!!!!";
 //    //####################################################################
 //    return;
 //  }
@@ -400,7 +401,7 @@ void ObsAscii::decodeHeader()
 
 void ObsAscii::decodeData()
 {
-//  cerr <<__FUNCTION__<<endl;
+//  DEBUG_ <<__FUNCTION__;
   // read data....................................................
 
 
@@ -539,13 +540,13 @@ void ObsAscii::decodeData()
         }
 
         //#################################################################
-//                  cerr <<"obstime:"<<obstime<<endl;
-//                 cerr <<"plotTime:"<<plotTime<<endl;
-//                 cerr <<"timeDiff"<<timeDiff<<endl;
+//                  DEBUG_ <<"obstime:"<<obstime;
+//                 DEBUG_ <<"plotTime:"<<plotTime;
+//                 DEBUG_ <<"timeDiff"<<timeDiff;
 //                  if (timeDiff < 0 || abs(miTime::minDiff(obstime,plotTime))<timeDiff)
-//                    cerr<<obstime<<" ok"<<endl;
+//                    DEBUG_<<obstime<<" ok";
 //                  else
-//                    cerr<<obstime<<" not ok"<<endl;
+//                    DEBUG_<<obstime<<" not ok";
         //#################################################################
         if (timeDiff <0
             || abs(miTime::minDiff(obstime,plotTime))<timeDiff){
@@ -564,10 +565,10 @@ void ObsAscii::decodeData()
       }
     }
     //####################################################################
-    //    cerr<<"----------- at end -----------------------------"<<endl;
-    //    cerr<<"     columnName.size()= "<<columnName.size()<<endl;
-    //    cerr<<"     columnType.size()= "<<columnType.size()<<endl;
-    //    cerr<<"------------------------------------------------"<<endl;
+    //    DEBUG_<<"----------- at end -----------------------------";
+    //    DEBUG_<<"     columnName.size()= "<<columnName.size();
+    //    DEBUG_<<"     columnType.size()= "<<columnType.size();
+    //    DEBUG_<<"------------------------------------------------";
     //####################################################################
 
 

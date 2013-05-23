@@ -37,6 +37,7 @@
 #include <vector>
 #include <diColour.h>
 #include <diField/diArea.h>
+#include <miLogger/LogHandler.h>
 
 using namespace std;
 
@@ -384,5 +385,11 @@ struct InfoFile {
   miutil::miString doctype; ///< documenttype: auto,xml,html,text
   miutil::miString fonttype;///< fonttype: auto, fixed
 };
+
+/* Logging macros for convenience */
+#define INFO_ COMMON_LOG::getInstance("common").infoStream()
+#define WARN_ COMMON_LOG::getInstance("common").warnStream()
+#define ERROR_ COMMON_LOG::getInstance("common").errorStream()
+#define DEBUG_ COMMON_LOG::getInstance("common").debugStream()
 
 #endif

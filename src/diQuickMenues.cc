@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diQuickMenues.h>
 #include <diLocalSetupParser.h>
 #include <fstream>
@@ -53,11 +54,11 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
 
   if (!menufile){
     if(newSyntax){
-      cerr << "QuickMenu Warning: Old syntax in quick-menu file:"
-	   << filename << endl;
+      WARN_ << "QuickMenu Warning: Old syntax in quick-menu file:"
+	    << filename;
     }else {
-      cerr << "QuickMenu Error: Could not write quick-menu file:"
-	   << filename << endl;
+      WARN_ << "QuickMenu Error: Could not write quick-menu file:"
+	    << filename;
     }
     return false;
   }
@@ -128,8 +129,8 @@ bool readQuickMenu(quickMenu& qm)
   qm.plotindex= 0;
 
   if (!menufile){ // menufile not ok
-    cerr << "QuickMenu Warning: Could not open quickmenu file "
-	 << filename << endl;
+    WARN_ << "QuickMenu Warning: Could not open quickmenu file "
+	 << filename;
     return false;
   }
 
@@ -162,8 +163,8 @@ bool readQuickMenu(quickMenu& qm)
 	// add a new option
 	qm.opt.push_back(op);
       } else {
-	cerr << "QuickMenu Error: defined option without items in file "
-	     << filename << endl;
+	ERROR_ << "QuickMenu Error: defined option without items in file "
+	       << filename;
 	menufile.close();
 	return false;
       }
@@ -179,8 +180,8 @@ bool readQuickMenu(quickMenu& qm)
 	updates += updateSyntax(line);
 	qm.menuitems[numitems-1].command.push_back(line);
       } else {
-	cerr << "QuickMenu Error: command line without defined menuitem in file:"
-	     << filename << endl;
+	ERROR_ << "QuickMenu Error: command line without defined menuitem in file:"
+	       << filename;
 	menufile.close();
 	return false;
       }

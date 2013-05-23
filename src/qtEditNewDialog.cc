@@ -48,6 +48,7 @@
 #include <QFrame>
 #include <QVBoxLayout>
 
+#include <diCommonTypes.h>
 #include "qtEditNewDialog.h"
 #include "qtUtility.h"
 #include "qtEditDefineField.h"
@@ -243,7 +244,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
 void EditNewDialog::tabSelected(int tabindex)
 {
-  //  cerr << "EditNewDialog::Selected tab:" <<tabindex<< endl;
+  //  DEBUG_ << "EditNewDialog::Selected tab:" <<tabindex;
   normal= (tabindex == 0);
 
   if (normal)
@@ -269,7 +270,7 @@ void EditNewDialog::tabSelected(int tabindex)
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
   miutil::miString s= item->text().toStdString();
-  //  cerr << "EditNewDialog::Combineselect:" << s << endl;
+  //  DEBUG_ << "EditNewDialog::Combineselect:" << s;
   if (miutil::miTime::isValid(s)){
     combinetime= miutil::miTime(s);
   }
@@ -295,7 +296,7 @@ void EditNewDialog::combineClear(){
 void EditNewDialog::prodtimechanged(int v)
 {
   prodtime= timespin->Time();
-  //  cerr << "EditNewDialog::Prodtime changed:" << prodtime << endl;
+  //  DEBUG_ << "EditNewDialog::Prodtime changed:" << prodtime;
   productfree= checkProductFree();
 }
 
@@ -340,7 +341,7 @@ bool EditNewDialog::checkStatus()
 
 void EditNewDialog::prodBox(int idx)
 {
-  //cerr << "EditNewDialog::prodBox called" << endl;
+  //DEBUG_ << "EditNewDialog::prodBox called";
   int n= products.size();
   if (n==0 || idx<0 || idx>=n) return;
 
@@ -350,7 +351,7 @@ void EditNewDialog::prodBox(int idx)
     ok->setText(tr("OK Combine") + " " + prodbox->currentText());
 
   currprod= idx;
-  //cerr << "....Selected Product:" << products[idx].name << endl;
+  //DEBUG_ << "....Selected Product:" << products[idx].name;
 
   idbox->clear();
   int m= products[currprod].pids.size();
@@ -389,7 +390,7 @@ void EditNewDialog::prodBox(int idx)
 
 void EditNewDialog::idBox(int idx)
 {
-  //cerr << "EditNewDialog::idBox" << endl;
+  //DEBUG_ << "EditNewDialog::idBox";
   int n= products.size();
   if (n==0 || currprod<0) return;
   int m= products[currprod].pids.size();
@@ -402,7 +403,7 @@ void EditNewDialog::idBox(int idx)
 
   productfree= checkProductFree();
 
-  //cerr << "....Selected Pid:" << products[currprod].pids[idx].name << endl;
+  //DEBUG_ << "....Selected Pid:" << products[currprod].pids[idx].name;
 
   if(!pid.combinable){
     if (twd->currentIndex()!=0) twd->setCurrentIndex(0);
@@ -417,7 +418,7 @@ void EditNewDialog::idBox(int idx)
 
 
 bool EditNewDialog::load(editDBinfo& edbi){
-  //cerr << "EditNewDialog::load" << endl;
+  //DEBUG_ << "EditNewDialog::load";
   isdata= false;
   productfree= false;
   newActive=true;
@@ -458,7 +459,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     timespin->setTime(prodtime);
 
   } else {
-    //cerr << "EditNewDialog::load - No controller!"<<endl;
+    //DEBUG_ << "EditNewDialog::load - No controller!";
     checkStatus();
     return false;
   }
@@ -480,7 +481,7 @@ miutil::miString EditNewDialog::savedProd2Str(const savedProduct& sp,
 
 bool EditNewDialog::setNormal()
 {
-  //cerr << "EditNewDialog::setNormal called" << endl;
+  //DEBUG_ << "EditNewDialog::setNormal called";
   isdata= false;
   for (int i=1; i<maxelements; i++){
     ebut[i]->hide();
@@ -562,7 +563,7 @@ void EditNewDialog::handleObjectButton(int num)
       products[currprod].objectprods.clear();
     }
   } else {
-    cerr << "EditNewDialog::handleelementButton - No controller!"<<endl;
+    WARN_ << "EditNewDialog::handleelementButton - No controller!";
   }
   setObjectLabel();
   checkStatus();
@@ -596,7 +597,7 @@ void EditNewDialog::handleFieldButton(int num)
     }
 
   } else {
-    //cerr << "EditNewDialog::handleelementButton - No controller!"<<endl;
+    //DEBUG_ << "EditNewDialog::handleelementButton - No controller!";
   }
   setFieldLabel();
   checkStatus();
@@ -623,7 +624,7 @@ void EditNewDialog::ebutton3()
 }
 
 bool EditNewDialog::load_combine(){
-  //cerr << "EditNewDialog::Load-combine" << endl;
+  //DEBUG_ << "EditNewDialog::Load-combine";
   isdata= false;
   if (pid.sendable && !dbi.loggedin) {
     checkStatus();
@@ -643,14 +644,14 @@ bool EditNewDialog::load_combine(){
       cBox->setCurrentRow(index);
       combineSelect(cBox->currentItem());
     } else {
-      cerr << "EditNewDialog::load - no analyses found"<<endl;
+      WARN_ << "EditNewDialog::load - no analyses found";
       checkStatus();
       combineClear();
       return false;
     }
 
   } else {
-    //cerr << "EditNewDialog::load - No controller!"<<endl;
+    //DEBUG_ << "EditNewDialog::load - No controller!";
     checkStatus();
     return false;
   }
@@ -755,12 +756,12 @@ void EditNewDialog::login_clicked()
       message= tr("Username and server required").toStdString();
       dbi.loggedin= false;
     } else {
-      //       cerr << "Trying host:" << dbi.host << " User:" << dbi.user << " Pass:"
-      // 	   << dbi.pass << endl;
+      //       DEBUG_ << "Trying host:" << dbi.host << " User:" << dbi.user << " Pass:"
+      // 	   << dbi.pass;
       dbi.loggedin= m_editm->loginDatabase(dbi,message);
     }
     if (dbi.loggedin) {
-      //       cerr << "Success...logged in" << endl;
+      //       DEBUG_ << "Success...logged in";
       emit newLogin(dbi);
 
       setLoginLabel();

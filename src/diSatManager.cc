@@ -34,6 +34,7 @@
 #endif
 
 #include <fstream>
+#include <diCommonTypes.h>
 #include <diSatManager.h>
 #include <GL/gl.h>
 #include <puCtools/glob_cache.h>
@@ -477,7 +478,7 @@ void SatManager::setRGB()
   bool dorgb= (satdata->noimages() || satdata->rgboperchanged);
   bool doalpha= (satdata->noimages() || satdata->alphaoperchanged || dorgb);
 
-  // cerr << dorgb << " " << doalpha << endl;
+  // DEBUG_ << dorgb << " " << doalpha;
   if (dorgb) {
     // index -> RGB
     const int colmapsize=256;
@@ -755,7 +756,7 @@ int SatManager::getFileName(const miTime &time)
 
   log.debugStream()<<"SatManager::getFileName: fileno: " << fileno;
 #endif
-  //cerr<<"SatManager----> getFileName:  " << fileListChanged <<endl;
+  //DEBUG_<<"SatManager----> getFileName:  " << fileListChanged;
 
   if (fileno < 0 ) {
     log.warnStream() << "Could not find data from "<<time.isoTime("T")<<" in inventory";
@@ -917,7 +918,7 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
 #endif
 
 #ifdef GEOTIFF
-  //cerr<<"SatManager----> inside geotiff"<<file.name<<endl;
+  //DEBUG_<<"SatManager----> inside geotiff"<<file.name;
   if (file.formattype=="geotiff") {
 #ifdef DEBUGPRINT
     log.debugStream()<<"SatManager----> readHeader: reading geotiff"<<file.name;
@@ -1045,7 +1046,7 @@ void SatManager::listFiles(subProdInfo &subp)
           if (modtime >= subp.updateTime) {
             //special case - file has been changed since last updated
             //but read header
-            //	     cerr <<"SPECIAL CASE"<<ft.name<<endl;
+            //	     DEBUG_ <<"SPECIAL CASE"<<ft.name;
             ft.formattype= subp.formattype;
             ft.metadata = subp.metadata;
             ft.channelinfo = subp.channelinfo;
@@ -1133,7 +1134,7 @@ void SatManager::listFiles(subProdInfo &subp)
     }
   }
 #endif
-  //cerr<<"SatManager----> listFiles:  " << fileListChanged <<endl;
+  //DEBUG_<<"SatManager----> listFiles:  " << fileListChanged;
 }
 
 void SatManager::cutImageRGBA(unsigned char *image, float cut, int *index)
@@ -1249,8 +1250,8 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
     }
   }
 
-  //  cerr <<"RETURN - getFiles"<<endl;
-  // cerr<<"SatManager----> getFiles:  " << fileListChanged <<endl;
+  //  DEBUG_ <<"RETURN - getFiles";
+  // DEBUG_<<"SatManager----> getFiles:  " << fileListChanged;
   return Prod[satellite][file].file;
 
 }
@@ -1332,7 +1333,7 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
     for (; p!=timeset.end(); p++)
       timevec.push_back(*p);
   }
-  //cerr<<"SatManager----> getSatTimes:  " << fileListChanged <<endl;
+  //DEBUG_<<"SatManager----> getSatTimes:  " << fileListChanged;
   return timevec;
 }
 
@@ -1462,7 +1463,7 @@ bool SatManager::parseSetup()
         channels.push_back(vstr[0]);
       }
     } else if (key=="mosaic") {
-      //cerr << "mosaic " << value << endl;
+      //DEBUG_ << "mosaic " << value;
       mosaic=(value=="yes") ? true : false;
     } else if (key == "image") {
       prod=value;
@@ -1715,7 +1716,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
       sd.rgbindex[1]= 0;
       sd.rgbindex[2]= tmpidx;
     } else {
-      cerr <<"No IR channel available"<<endl;
+      WARN_ <<"No IR channel available";
       sd.rgbindex[0]= 0;
       sd.rgbindex[1]= 0;
       sd.rgbindex[2]= 0;
@@ -1734,7 +1735,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
       sd.rgbindex[1]= tmpidx;
       sd.rgbindex[2]= 0;
     } else {
-      cerr <<"No visual channel available"<<endl;
+      WARN_ <<"No visual channel available";
       sd.rgbindex[0]= 0;
       sd.rgbindex[1]= 0;
       sd.rgbindex[2]= 0;

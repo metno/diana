@@ -35,6 +35,7 @@
 
 #include <iostream>
 
+#include <diCommonTypes.h>
 #include <diOrderQueue.h>
 
 diOrderQueue::diOrderQueue(QObject *parent):
@@ -46,8 +47,8 @@ diOrderQueue::~diOrderQueue()
 {
 	mutex.lock();
 	if (!orders.empty())
-		std::cerr << "deleting diOrderQueue with " <<
-		    orders.size() << " orders pending" << std::endl;
+		INFO_ << "deleting diOrderQueue with " <<
+		    orders.size() << " orders pending";
 	while (!orders.empty())
 		orders.dequeue()->deleteLater();
 	mutex.unlock();

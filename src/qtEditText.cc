@@ -45,6 +45,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <diCommonTypes.h>
 #include <puTools/miString.h>
 #include "qtEditText.h"
 #include "qtUtility.h"
@@ -101,7 +102,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       setWindowTitle(tr("Write text for editing"));
       QString multitext;
       int ns = symbolText.size();
-      cerr<<"?????????ns = "<< ns <<endl;
+      DEBUG_<<"?????????ns = "<< ns;
      // int nx = xText.size();
       //set <miutil::miString> complexList = m_ctrl->getEditList();
       set <miutil::miString> complexList = cList;

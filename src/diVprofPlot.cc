@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include "diVprofPlot.h"
 #include "diColour.h"
 
@@ -50,7 +51,7 @@ VprofPlot::VprofPlot()
 : VprofTables(), windInKnots(true)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::Default Constructor" << endl;
+  DEBUG_ << "++ VprofPlot::Default Constructor";
 #endif
 }
 
@@ -58,7 +59,7 @@ VprofPlot::VprofPlot()
 // Destructor
 VprofPlot::~VprofPlot() {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::Destructor" << endl;
+  DEBUG_ << "++ VprofPlot::Destructor";
 #endif
 }
 
@@ -66,13 +67,13 @@ VprofPlot::~VprofPlot() {
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::plot " << nplot << endl;
+  DEBUG_ << "++ VprofPlot::plot " << nplot;
 #endif
 
   if (!text.posName.exists()) return false;
 
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::plot start plotting " << text.posName << endl;
+  DEBUG_ << "++ VprofPlot::plot start plotting " << text.posName;
 #endif
 
   const float dptab=idptab;
@@ -103,11 +104,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (ptt.size()>0) {
     nlevel= ptt.size();
 #ifdef DEBUGPRINT
-	cerr << "ptt.size()," << nlevel << endl;
+	DEBUG_ << "ptt.size()," << nlevel;
 #endif
 	for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-	  cerr << ptt[k] << endl;
+	  DEBUG_ << ptt[k];
 #endif
       x= ptt[k]*dpinv;
       i= int(x);
@@ -128,11 +129,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (vpopt->ptdtd && ptd.size()>0) {
     nlevel= ptd.size();
 #ifdef DEBUGPRINT
-	cerr << "ptd.size()," << nlevel << endl;
+	DEBUG_ << "ptd.size()," << nlevel;
 #endif
     for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-      cerr << ptd[k] << endl;
+      DEBUG_ << ptd[k];
 #endif
       x= ptd[k]*dpinv;
       i= int(x);
@@ -158,11 +159,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
     nlevel= puv.size();
 #ifdef DEBUGPRINT
-	cerr << "puv.size()," << nlevel << endl;
+	DEBUG_ << "puv.size()," << nlevel;
 #endif
     for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-	  cerr << puv[k] << endl;
+	  DEBUG_ << puv[k];
 #endif
       x= puv[k]*dpinv;
       i= int(x);
@@ -445,7 +446,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 void VprofPlot::relhum(const vector<float>& tt,
     const vector<float>& td) {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::relhum(...)" << endl;
+  DEBUG_ << "++ VprofPlot::relhum(...)";
 #endif
 
   int nlev= tt.size();
@@ -476,7 +477,7 @@ void VprofPlot::ducting(const vector<float>& pp,
     const vector<float>& tt,
     const vector<float>& td) {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::ducting(...)" << endl;
+  DEBUG_ << "++ VprofPlot::ducting(...)";
 #endif
 
   // p,t,td -> ducting index
@@ -552,7 +553,7 @@ void VprofPlot::kindex(const vector<float>& pp,
   // K-index = (t+td)850 - (t-td)700 - (t)500
 
 #ifdef DEBUGPRINT
-  cerr << "++ VprofPlot::kindex(...)" << endl;
+  DEBUG_ << "++ VprofPlot::kindex(...)";
 #endif
 
   const float dptab=idptab;

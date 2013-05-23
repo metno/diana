@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "qtProfetObjectDialog.h"
 #include <QGroupBox>
 #include <QLayout>
@@ -189,7 +190,7 @@ void ProfetObjectDialog::showObject(const fetObject & obj,
   baseComboBox->insertItem(0,obj.name().c_str());
   baseComboBox->setEnabled(false);
   addDymanicGui(components);
-  cerr << "ProfetObjectDialog::showObject reason: " << obj.reason() << endl;
+  DEBUG_ << "ProfetObjectDialog::showObject reason: " << obj.reason();
   reasonText->setText(obj.reason().c_str());
 }
 

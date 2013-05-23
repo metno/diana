@@ -37,6 +37,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
@@ -51,7 +52,7 @@ LegendPlot::LegendPlot()
   : Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Default Constructor" << endl;
+  DEBUG_ << "++ LegendPlot::Default Constructor";
 #endif
   showplot = true;
   x1title = 0;
@@ -68,7 +69,7 @@ LegendPlot::LegendPlot(miString& str)
   : Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Default Constructor" << endl;
+  DEBUG_ << "++ LegendPlot::Default Constructor";
 #endif
 
   showplot = true;
@@ -112,7 +113,7 @@ void LegendPlot::setData(const miString& title,
 			     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::setdata" << endl;
+  DEBUG_ << "++ LegendPlot::setdata";
 #endif
 
   // fill the table with colours and textstrings from palette information
@@ -124,7 +125,7 @@ void LegendPlot::setData(const miString& title,
 // Copy constructor
 LegendPlot::LegendPlot(const LegendPlot &rhs){
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Copy constructor";
+  DEBUG_ << "++ LegendPlot::Copy constructor";
 #endif
   // elementwise copy
   memberCopy(rhs);
@@ -133,14 +134,14 @@ LegendPlot::LegendPlot(const LegendPlot &rhs){
 // Destructor
 LegendPlot::~LegendPlot(){
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Destructor" << endl;
+  DEBUG_ << "++ LegendPlot::Destructor";
 #endif
 }
 
 // Assignment operator
 LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Assignment operator" << endl;
+  DEBUG_ << "++ LegendPlot::Assignment operator";
 #endif
   if (this == &rhs) return *this;
 
@@ -153,14 +154,14 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
 // Equality operator
 bool LegendPlot::operator==(const LegendPlot &rhs) const{
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::Equality operator" << endl;
+  DEBUG_ << "++ LegendPlot::Equality operator";
 #endif
   return false;
 }
 
 void LegendPlot::memberCopy(const LegendPlot& rhs){
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::MemberCopy" << endl;
+  DEBUG_ << "++ LegendPlot::MemberCopy";
 #endif
   // copy members
   titlestring= rhs.titlestring;
@@ -200,7 +201,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
 bool LegendPlot::plot(float x, float y)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ LegendPlot::plot" << endl;
+  DEBUG_ << "++ LegendPlot::plot";
 #endif
   // fill the table with colours and textstrings from palette information
 
@@ -384,7 +385,7 @@ bool LegendPlot::plot(float x, float y)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from Legend::plot() ++" << endl;
+  DEBUG_ << "++ Returning from Legend::plot() ++";
 #endif
 
   return true;

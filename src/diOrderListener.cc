@@ -35,8 +35,8 @@
 
 #include <iostream>
 
+#include <diCommonTypes.h>
 #include <diOrderListener.h>
-#include<QDebug>
 
 const int diOrderListener::DEFAULT_PORT = 3190;
 
@@ -64,11 +64,11 @@ diOrderListener::listen(const QHostAddress &addr, quint16 port)
 	mutex.lock();
 	if ((ok = !server.isListening())) {
 		if ((ok = server.listen(addr, port))) {
-			qDebug() << this << QString("listening on %1:%2").
-			    arg(addr.toString()).arg(port);
+			INFO_ << this << QString("listening on %1:%2").
+			    arg(addr.toString()).arg(port).toStdString();
 		} else {
-			qDebug() << this << QString("failed to listen on %1:%2: %3").
-			    arg(addr.toString()).arg(port).arg(server.errorString());
+			INFO_ << this << QString("failed to listen on %1:%2: %3").
+			    arg(addr.toString()).arg(port).arg(server.errorString()).toStdString();
 		}
 	}
 	mutex.unlock();
@@ -118,11 +118,11 @@ diOrderListener::newClientConnection()
 	QTcpSocket *socket = server->nextPendingConnection();
 	if (socket == NULL)
 		return;
-	std::cerr << "new client connection from " <<
-	    socket->peerAddress().toString().toStdString() << std::endl;
+	INFO_ << "new client connection from " <<
+	    socket->peerAddress().toString().toStdString();
 	diOrderClient *client = new diOrderClient(this, socket);
 	if (client == NULL) {
-		std::cerr << "failed to allocate new client" << std::endl;
+		INFO_ << "failed to allocate new client";
 		return;
 	}
 	mutex.lock();

@@ -65,6 +65,7 @@
 #include <diObsBufr.h>
 #endif
 
+#include <diCommonTypes.h>
 #include <diObsManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
@@ -99,20 +100,20 @@ ObsManager::ObsManager(){
 
 bool ObsManager::init(ObsPlot *oplot,const miString& pin){
 #ifdef DEBUGPRINT
-  cerr << "++ ObsManager::init() ++" << endl;
+  DEBUG_ << "++ ObsManager::init() ++";
 #endif
 
 
   //sending PlotInfo to obsPlot
   if(!oplot->prepare(pin)){
-    cerr << "++ Returning false from ObsManager::init() ++" << endl;
+    ERROR_ << "++ Returning false from ObsManager::init() ++";
     return false;
   }
 
   mslp=false;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from ObsManager::init() ++" << endl;
+  DEBUG_ << "++ Returning from ObsManager::init() ++";
 #endif
 
   return true;
@@ -121,7 +122,7 @@ bool ObsManager::init(ObsPlot *oplot,const miString& pin){
 
 bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 #ifdef DEBUGPRINT
-  cerr << "++ ObsManager::prepare() ++" << endl;
+  DEBUG_ << "++ ObsManager::prepare() ++";
 #endif
 
   oplot->clear();
@@ -129,9 +130,9 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   mslp = mslp || oplot->mslp();
 
   if( oplot->flagInfo()){
-    cerr <<"ObsManager::prepare HQC"<<endl;
-    cerr <<"hqcTime:"<<hqcTime<<endl;
-    cerr <<"Time:"<<time<<endl;
+    INFO_ <<"ObsManager::prepare HQC";
+    INFO_ <<"hqcTime:"<<hqcTime;
+    INFO_ <<"Time:"<<time;
     int d = abs(miTime::minDiff(time, hqcTime));
     if( oplot->getTimeDiff()>-1 && d>oplot->getTimeDiff() ) return false;
     if( sendHqcdata(oplot))
@@ -272,7 +273,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
         }  // end of try
 
         catch (...){
-          cerr<<"Exception in "<<dataType[i]<<": " <<finfo[j].filename<<endl;
+          WARN_<<"Exception in "<<dataType[i]<<": " <<finfo[j].filename;
           //reset oplot
           oplot->resetObs(num);
           continue;
@@ -292,7 +293,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   if(oplot->setData()){
 
     //   if (!oplot->setData())
-    //     cerr <<"ObsPlot::setData returned false (no data)"<<endl;;
+    //     DEBUG_ <<"ObsPlot::setData returned false (no data)";;
 
     //minTime - maxTime are used in the annotation
     //minTime/maxTime is time -/+ timeDiff (from dialog) unless
@@ -363,7 +364,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   oplot->setPlotName(anno_str);
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsManager prepare() ++" << endl;
+  DEBUG_ << "++ End ObsManager prepare() ++";
 #endif
 
   return true;
@@ -371,13 +372,13 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 bool ObsManager::addStationsAndTimeFromMetaData( const miutil::miString& metaData,
     miutil::miString& url, const miutil::miTime& time)
 {
-  //cerr <<__FUNCTION__<<endl;
+  //DEBUG_ <<__FUNCTION__;
   //read metadata
   if ( !metaDataMap.count(metaData) ) {
 
     ObsMetaData* pMetaData = new ObsMetaData();
     if ( !Prod.count(metaData) || !Prod[metaData].pattern.size()) {
-      cerr <<"WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available"<<endl;
+      WARN_ <<"WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available";
       return false;
     }
 
@@ -406,8 +407,8 @@ bool ObsManager::addStationsAndTimeFromMetaData( const miutil::miString& metaDat
 void ObsManager::getFileName(vector<FileInfo>& finfo,
     miTime &time, miString obsType,
     ObsPlot* oplot){
-  //     cerr <<"getFileName:"<<time.isoTime()<<endl;
-  //     cerr <<"getFileName:"<<obsType<<endl;
+  //     DEBUG_ <<"getFileName:"<<time.isoTime();
+  //     DEBUG_ <<"getFileName:"<<obsType;
 
 
   finfo.clear();
@@ -425,7 +426,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
   for( int i=0; i<n; i++ ){
     miTime t=Prod[obsType].fileInfo[i].time;
     if (t.undef()){
-      cerr <<"No time defined:"<<Prod[obsType].fileInfo[i].filename<<endl;
+      WARN_ <<"No time defined:"<<Prod[obsType].fileInfo[i].filename;
       continue;
     }
     int d = (miTime::minDiff(time, t));
@@ -488,7 +489,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
         tt = Obs.fileObsTime();
       }
       catch (...){
-        cerr<<"Exception in: " <<finfo[i].filename<<endl;
+        WARN_<<"Exception in: " <<finfo[i].filename;
         continue;
       }
       if(tt!=finfo[i].time){
@@ -521,7 +522,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
 bool ObsManager::updateTimes(miString obsType)
 {
   //Making list of file names and times using file names
-  //  cerr<<"Finner tider fra filnavn:"<<obsType<<endl;
+  //  DEBUG_<<"Finner tider fra filnavn:"<<obsType;
 
   obsType= obsType.downcase();
 
@@ -615,7 +616,7 @@ bool ObsManager::updateTimes(miString obsType)
               finfo.time = Obs.fileObsTime();
             }
             catch (...){
-              cerr<<"Exception in: " <<finfo.filename<<endl;
+              WARN_<<"Exception in: " <<finfo.filename;
               continue;
             }
 #endif
@@ -732,7 +733,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
             finfo.time = Obs.fileObsTime();
           }
           catch (...){
-            cerr<<"Exception in: " <<finfo.filename<<endl;
+            WARN_<<"Exception in: " <<finfo.filename;
             continue;
           }
 #endif
@@ -780,7 +781,7 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
   vector<miString> obsTypes;
 
   for (int i=0; i<nn; i++){
-    //     cerr << "Processing: " << pinfos[i].infoStr() << endl;
+    //     DEBUG_ << "Processing: " << pinfos[i].infoStr();
     tokens= pinfos[i].split();
     m= tokens.size();
     if (m<2) continue;
@@ -1385,19 +1386,19 @@ ObsDialogInfo::Button  ObsManager::addButton(const miString& name,
 ObsDialogInfo ObsManager::updateDialog(const miString& name)
 {
   // called the first time an ascii dialog is activated
-  //  cerr <<"updateDialog:"<< name<<endl;
+  //  DEBUG_ <<"updateDialog:"<< name;
 
   if(name == "Hqc_synop" || name == "Hqc_list")
     return updateHqcDialog(name);
 
 #ifdef DEBUGPRINT
-  cerr << "updateDialog: " << name << endl;
+  DEBUG_ << "updateDialog: " << name;
 #endif
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=name) id++;
   if (id==nd) {
-    cerr << name << " not found in dialog.plottype" << endl;
+    ERROR_ << name << " not found in dialog.plottype";
     return dialog;
   }
   miString oname= name.downcase();
@@ -1407,17 +1408,17 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
     oname = oname.substr(pos+1);
   }
 #ifdef DEBUGPRINT
-  cerr << "updateDialog: " << oname << endl;
+  DEBUG_ << "updateDialog: " << oname;
   map<miString,ProdInfo>::iterator p= Prod.begin();
   while (p != Prod.end()) {
-    cerr << p->first << endl;
+    DEBUG_ << p->first;
     p++;
 }
 #endif
 
   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
   if (pr==Prod.end()) {
-    cerr << oname << " not found in Prod" << endl;
+    ERROR_ << oname << " not found in Prod";
     return dialog;
   }
 #ifdef ROADOBS
@@ -1540,12 +1541,12 @@ delete roplot;
 ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
 {
   // called each time initHqcData() is called
-  //  cerr<<"updateHqcDialog"<<endl;
+  //  DEBUG_<<"updateHqcDialog";
 
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=plotType) {
-    //    cerr <<dialog.plottype[id].name<<endl;
+    //    DEBUG_ <<dialog.plottype[id].name;
     id++;
   }
   if (id==nd) return dialog;
@@ -1561,7 +1562,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   if(plotType == "Hqc_synop"){
     int wind=0;
     for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //        cerr <<"para: "<<hqc_synop_parameter[i]<<endl;
+      //        DEBUG_ <<"para: "<<hqc_synop_parameter[i];
       if(hqc_synop_parameter[i]=="dd" || hqc_synop_parameter[i]=="ff" ) {
         wind++;
         continue;
@@ -1586,7 +1587,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   } else if( plotType == "Hqc_list"){
     int wind=0;
     for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //      cerr <<"para: "<<hqc_ascii_parameter[i]<<endl;
+      //      DEBUG_ <<"para: "<<hqc_ascii_parameter[i];
       if(hqc_synop_parameter[i]=="DD" || hqc_synop_parameter[i]=="FF" ) wind++;
       if(hqc_synop_parameter[i]=="auto")continue;
       dialog.plottype[id].button.push_back
@@ -1611,83 +1612,82 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
 {
 
   unsigned int i;
-  cerr << "***** ProdInfo ******" << endl;
+  INFO_ << "***** ProdInfo ******";
 #ifdef ROADOBS
   if (pinfo.obsformat == ofmt_roadobs)
-    cerr << "obsformat: ofmt_roadobs" << endl;
+    INFO_ << "obsformat: ofmt_roadobs";
 #endif
   if (pinfo.obsformat == ofmt_unknown)
-    cerr << "obsformat: ofmt_unknown" << endl;
+    INFO_ << "obsformat: ofmt_unknown";
   if (pinfo.obsformat == ofmt_synop)
-    cerr << "obsformat: ofmt_synop" << endl;
+    INFO_ << "obsformat: ofmt_synop";
   if (pinfo.obsformat == ofmt_aireps)
-    cerr << "obsformat: ofmt_aireps" << endl;
+    INFO_ << "obsformat: ofmt_aireps";
   if (pinfo.obsformat == ofmt_satob)
-    cerr << "obsformat: ofmt_satob" << endl;
+    INFO_ << "obsformat: ofmt_satob";
   if (pinfo.obsformat == ofmt_dribu)
-    cerr << "obsformat: ofmt_dribu" << endl;
+    INFO_ << "obsformat: ofmt_dribu";
   if (pinfo.obsformat == ofmt_temp)
-    cerr << "obsformat: ofmt_temp" << endl;
+    INFO_ << "obsformat: ofmt_temp";
   if (pinfo.obsformat == ofmt_ocea)
-    cerr << "obsformat: ofmt_ocea" << endl;
+    INFO_ << "obsformat: ofmt_ocea";
   if (pinfo.obsformat == ofmt_tide)
-    cerr << "obsformat: ofmt_tide" << endl;
+    INFO_ << "obsformat: ofmt_tide";
   if (pinfo.obsformat == ofmt_pilot)
-    cerr << "obsformat: ofmt_pilot" << endl;
+    INFO_ << "obsformat: ofmt_pilot";
   if (pinfo.obsformat == ofmt_metar)
-    cerr << "obsformat: ofmt_metar" << endl;
+    INFO_ << "obsformat: ofmt_metar";
   if (pinfo.obsformat == ofmt_ascii)
-    cerr << "obsformat: ofmt_ascii" << endl;
+    INFO_ << "obsformat: ofmt_ascii";
   if (pinfo.obsformat == ofmt_hqc)
-    cerr << "obsformat: ofmt_hqc" << endl;
-  cerr << "dialogname: " << pinfo.dialogName << endl;
-  cerr << "plotFormat: " << pinfo.plotFormat << endl;
-  cerr << "pattern: " << endl;
+    INFO_ << "obsformat: ofmt_hqc";
+  INFO_ << "dialogname: " << pinfo.dialogName;
+  INFO_ << "plotFormat: " << pinfo.plotFormat;
+  INFO_ << "pattern: ";
   for(i = 0; i < pinfo.pattern.size(); i++)
     {
       // TDB: timefiler
-      cerr << "\tpattern: " << pinfo.pattern[i].pattern << " archive: " << pinfo.pattern[i].archive << " fileType: " << pinfo.pattern[i].fileType << endl;
+      INFO_ << "\tpattern: " << pinfo.pattern[i].pattern << " archive: " << pinfo.pattern[i].archive << " fileType: " << pinfo.pattern[i].fileType;
     }
-  cerr << "fileInfo: " << endl;
+  INFO_ << "fileInfo: ";
   for(i = 0; i < pinfo.fileInfo.size(); i++)
     {
-      cerr << "\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype << endl;
+      INFO_ << "\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype;
     }
-  cerr << "timeInfo"
-      ": " << pinfo.timeInfo << endl;
-  cerr << "timeRangeMin: " << pinfo.timeRangeMin << endl;
-  cerr << "timeRangeMax: " << pinfo.timeRangeMax << endl;
-  cerr << "current: " << pinfo.current << endl;
-  cerr << "synoptic: " << pinfo.synoptic << endl;
-  cerr << "headerfile: " << pinfo.headerfile << endl;
+  INFO_ << "timeInfo"
+      ": " << pinfo.timeInfo;
+  INFO_ << "timeRangeMin: " << pinfo.timeRangeMin;
+  INFO_ << "timeRangeMax: " << pinfo.timeRangeMax;
+  INFO_ << "current: " << pinfo.current;
+  INFO_ << "synoptic: " << pinfo.synoptic;
+  INFO_ << "headerfile: " << pinfo.headerfile;
   for(i = 0; i < pinfo.headerinfo.size(); i++)
     {
-      cerr << "\t headerinfo: " << pinfo.headerinfo[i]<<endl;
+      INFO_ << "\t headerinfo: " << pinfo.headerinfo[i];
     }
 #ifdef ROADOBS
-  cerr << "databasefile: " << pinfo.databasefile << endl;
-  cerr << "stationfile: " << pinfo.stationfile << endl;
-  cerr << "daysback: " << pinfo.daysback << endl;
+  INFO_ << "databasefile: " << pinfo.databasefile;
+  INFO_ << "stationfile: " << pinfo.stationfile;
+  INFO_ << "daysback: " << pinfo.daysback;
 #endif
-  cerr << "useFileTime: " << pinfo.useFileTime << endl;
-  cerr << "\tparameters: ";
+  INFO_ << "useFileTime: " << pinfo.useFileTime;
+  INFO_ << "\tparameters: ";
   for(i = 0; i < pinfo.parameter.size(); i++)
     {
-      cerr << pinfo.parameter[i] << ",";
+      INFO_ << pinfo.parameter[i] << ",";
     }
-  cerr << endl;
-  cerr << "**** end ProdInfo *****" << endl;
+  INFO_ << "**** end ProdInfo *****";
 }
 
 bool ObsManager::parseSetup()
 {
 
-  //  cerr << "Obs: parseSetup"<<endl;
+  //  DEBUG_ << "Obs: parseSetup";
   const miString obs_name = "OBSERVATION_FILES";
   vector<miString> sect_obs;
 
   if (!SetupParser::getSection(obs_name,sect_obs)){
-    cerr << obs_name << " section not found" << endl;
+    ERROR_ << obs_name << " section not found";
     return true;
   }
 
@@ -2048,7 +2048,7 @@ bool ObsManager::initHqcdata(int from,
     const vector<string>& data)
 
 {
-  //  cerr <<"ObsManager::initHqc: "<<desc<<endl;
+  //  DEBUG_ <<"ObsManager::initHqc: "<<desc;
 
 
   //   if(desc == "remove" && from != hqc_from)
@@ -2074,7 +2074,7 @@ bool ObsManager::initHqcdata(int from,
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
-    //    cerr <<"Prod[_synop].time.size():  "<<Prod["hqc_synop"].time.size()<<endl;
+    //    DEBUG_ <<"Prod[_synop].time.size():  "<<Prod["hqc_synop"].time.size();
     return true;
   }
 
@@ -2085,8 +2085,7 @@ bool ObsManager::initHqcdata(int from,
   vector<string> commonstr;
   boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
-    cerr <<"ObsManager::initHqcdata: different size of commondesc and common"
-    <<endl;
+    ERROR_ <<"ObsManager::initHqcdata: different size of commondesc and common";
     return false;
   }
   miString obsdataType;
@@ -2111,20 +2110,20 @@ bool ObsManager::initHqcdata(int from,
 
   int numStations = data.size();
   for(int j=0; j<numStations; j++){
-    //    cerr <<j<<":"<<data[j]<<endl;
+    //    DEBUG_ <<j<<":"<<data[j];
     vector<string> tokens;
     boost::algorithm::split(tokens, data[j], boost::algorithm::is_any_of(","));
     ObsData obsd;
     if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
     hqcdata.push_back(obsd);
   }
-  //  cerr <<"returning from initHqcdata"<<endl;
+  //  DEBUG_ <<"returning from initHqcdata";
   return true;
 }
 
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
-  //  cerr <<"sendHqcData"<<endl;
+  //  DEBUG_ <<"sendHqcData";
   oplot->addObsVector(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
@@ -2168,14 +2167,13 @@ bool ObsManager::updateHqcdata(const string& commondesc,
 
 {
 
-  //  cerr <<"updateHqcdata desc:"<<desc<<endl;
+  //  DEBUG_ <<"updateHqcdata desc:"<<desc;
   vector<string> descstr;
   boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
   vector<string> commonstr;
   boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
-    cerr <<"ObsManager::updateHqcdata: different size of commondesc and common"
-    <<endl;
+    ERROR_ <<"ObsManager::updateHqcdata: different size of commondesc and common";
     return false;
   }
   miString plotType;
@@ -2192,7 +2190,7 @@ bool ObsManager::updateHqcdata(const string& commondesc,
   vector<string> param;
   boost::algorithm::split(param, desc, boost::algorithm::is_any_of(","));
   if( param.size() <2 ) return false;
-  //  cerr <<"data.size:"<<data.size();
+  //  DEBUG_ <<"data.size:"<<data.size();
   for(unsigned int j=0; j<data.size(); j++){
     vector<string> datastr;
     boost::algorithm::split(datastr, data[j], boost::algorithm::is_any_of(","));
@@ -2213,16 +2211,16 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     const vector<string>& param,
     const vector<string>& data)
 {
-  //  cerr <<"ObsManager::changeHqcdata"<<endl;
+  //  DEBUG_ <<"ObsManager::changeHqcdata";
   if( param.size() != data.size() ) {
-    cerr <<"No. of parameters: "<<param.size()<<" != no. of data: "
-    <<data.size()<<endl;
+    ERROR_ <<"No. of parameters: "<<param.size()<<" != no. of data: "
+    <<data.size();
     return false;
   }
 
   for(unsigned int i=0; i<param.size(); i++){
-    //     cerr <<"key:"<<param[i]<<endl;
-    //        cerr <<"data:"<<data[i]<<endl;
+    //     DEBUG_ <<"key:"<<param[i];
+    //        DEBUG_ <<"data:"<<data[i];
     miString key = param[i];
     string value = boost::algorithm::to_lower_copy(data[i]);
     if(key=="id"){
@@ -2238,7 +2236,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         odata.fdata["ix"]=-1;
     } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
       odata.dataType=data[i];
-      //      cerr <<"St.type:"<<data[i]<<endl;
+      //      DEBUG_ <<"St.type:"<<data[i];
     } else {
       miString value;
       vector<string> vstr;

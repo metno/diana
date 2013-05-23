@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diVcrossOptions.h>
 #include <iostream>
 
@@ -53,7 +54,7 @@ VcrossOptions::~VcrossOptions()
 void VcrossOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossOptions::setDefaults" << endl;
+  DEBUG_ << "VcrossOptions::setDefaults";
 #endif
 
   pText= true;
@@ -171,7 +172,7 @@ void VcrossOptions::setDefaults()
 vector<miString> VcrossOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossOptions::writeOptions" << endl;
+  DEBUG_ << "VcrossOptions::writeOptions";
 #endif
 
   vector<miString> vstr;
@@ -295,7 +296,7 @@ vector<miString> VcrossOptions::writeOptions()
 void VcrossOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossOptions::readOptions" << endl;
+  DEBUG_ << "VcrossOptions::readOptions";
 #endif
 
   vector<miString> vs,tokens;

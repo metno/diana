@@ -42,6 +42,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <diCommonTypes.h>
 #include <diFilledMap.h>
 #include <puCtools/stat.h>
 
@@ -153,7 +154,7 @@ bool FilledMap::readheader()
 {
   FILE *pfile;
   if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
-    cerr << "Could not open file for read:" << filename << endl;
+    ERROR_ << "Could not open file for read:" << filename;
     return false;
   }
 
@@ -170,7 +171,7 @@ bool FilledMap::readheader()
   nwr = fread(indata, 2, nwrec, pfile);
   if (nwr != nwrec) {
     fclose(pfile);
-    cerr << "Reading error 1" << endl;
+    ERROR_ << "Reading error 1";
     fclose(pfile);
     return false;
   }
@@ -199,7 +200,7 @@ bool FilledMap::readheader()
       nwr = fread(indata, 2, nwrec, pfile);
       if (nwr != nwrec) {
         fclose(pfile);
-        cerr << "Reading error 1.5" << endl;
+        ERROR_ << "Reading error 1.5";
         fclose(pfile);
         return false;
       }
@@ -230,14 +231,14 @@ bool FilledMap::readheader()
     //     groups[k].tilex[gidx+3]= groups[k].tilex[gidx+1]; // south-east
     //     groups[k].tiley[gidx+3]= groups[k].tiley[gidx+0];
 
-    //     cerr << "SouthWest(" << groups[k].tiley[gidx+0] << ","
+    //     DEBUG_ << "SouthWest(" << groups[k].tiley[gidx+0] << ","
     // 	 << groups[k].tilex[gidx+0]
     // 	 << ") NorthEast(" << groups[k].tiley[gidx+1] << ","
     // 	 << groups[k].tilex[gidx+1]
     // 	 << ") NorthWest(" << groups[k].tiley[gidx+2] << ","
     // 	 << groups[k].tilex[gidx+2]
     // 	 << ") SouthEast(" << groups[k].tiley[gidx+3] << ","
-    // 	 << groups[k].tilex[gidx+3] << ")" << endl;
+    // 	 << groups[k].tilex[gidx+3] << ")";
 
     float minx = bignum, miny = bignum, maxx = -bignum, maxy = -bignum;
 
@@ -250,7 +251,7 @@ bool FilledMap::readheader()
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 2" << endl;
+          ERROR_ << "Reading error 2";
           fclose(pfile);
           return false;
         }
@@ -343,8 +344,8 @@ bool FilledMap::plot(Area area, // current area
     long ctimestamp = gettimestamp();
     filechanged = (ctimestamp != timestamp);
     if (filechanged) {
-      cerr << "MAPFile changed on disk:" << filename << " Current timestamp:"
-          << ctimestamp << " Old timestamp:" << timestamp << endl;
+      INFO_ << "MAPFile changed on disk:" << filename << " Current timestamp:"
+          << ctimestamp << " Old timestamp:" << timestamp;
     }
   }
 
@@ -352,13 +353,13 @@ bool FilledMap::plot(Area area, // current area
 
   if (startfresh) {
     if (!readheader()) {
-      cerr << "Readheader returned false..exiting" << endl;
+      ERROR_ << "Readheader returned false..exiting";
       return false;
     }
     opened = true;
   }
 
-  //cerr << "FilledMap::plot():" << filename << endl;
+  //DEBUG_ << "FilledMap::plot():" << filename;
   glLineWidth(linewidth);
   if (linetype != 0xFFFF) {
     glLineStipple(1, linetype);
@@ -393,7 +394,7 @@ bool FilledMap::plot(Area area, // current area
 
   FILE *pfile;
   if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
-    cerr << "Could not open file for read:" << filename << endl;
+    ERROR_ << "Could not open file for read:" << filename;
     return false;
   }
 
@@ -487,29 +488,24 @@ bool FilledMap::plot(Area area, // current area
             < cty[bidx + 3]))) {
           groups[i].use[j] = false;
 #ifdef DEBUGPRINT
-          cerr << "Dropping tile " << j << " in group " << i << endl;
-          cerr << "X midlon:" << ctx[num4+j] << " " << groups[i].midlon[j] << endl;
-          cerr << "X borders:";
+          DEBUG_ << "Dropping tile " << j << " in group " << i;
+          DEBUG_ << "X midlon:" << ctx[num4+j] << " " << groups[i].midlon[j];
+          DEBUG_ << "X borders:";
           for (int k=0; k<4; ++k){
-            cerr << ctx[bidx+k] << ", ";
+            DEBUG_ << ctx[bidx+k] << ", ";
           }
-          cerr << endl;
           for (int k=0; k<4; ++k){
-            cerr << groups[i].tilex[bidx+k] << ", ";
+            DEBUG_ << groups[i].tilex[bidx+k] << ", ";
           }
-          cerr << endl;
 
-          cerr << "Y midlat:" << cty[num4+j] << " " << groups[i].midlat[j] << endl;
-          cerr << "Y borders:";
+          DEBUG_ << "Y midlat:" << cty[num4+j] << " " << groups[i].midlat[j];
+          DEBUG_ << "Y borders:";
           for (int k=0; k<4; ++k){
-            cerr << cty[bidx+k] << ", ";
+            DEBUG_ << cty[bidx+k] << ", ";
           }
-          cerr << endl;
           for (int k=0; k<4; ++k){
-            cerr << groups[i].tiley[bidx+k] << ", ";
+            DEBUG_ << groups[i].tiley[bidx+k] << ", ";
           }
-          cerr << endl;
-          cerr << endl << endl;
 #endif
           continue;
         }
@@ -583,7 +579,7 @@ bool FilledMap::plot(Area area, // current area
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 3" << endl;
+          ERROR_ << "Reading error 3";
           return false;
         }
         recnr = groups[g].crecnr[i];
@@ -594,7 +590,7 @@ bool FilledMap::plot(Area area, // current area
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 4" << endl;
+          ERROR_ << "Reading error 4";
           return false;
         }
         recnr++;
@@ -653,7 +649,7 @@ bool FilledMap::plot(Area area, // current area
           nwr = fread(indata, 2, nwrec, pfile);
           if (nwr != nwrec) {
             fclose(pfile);
-            cerr << "Reading error 4.2" << endl;
+            ERROR_ << "Reading error 4.2";
             return false;
           }
           recnr = typerecnr[type];
@@ -664,7 +660,7 @@ bool FilledMap::plot(Area area, // current area
           nwr = fread(indata, 2, nwrec, pfile);
           if (nwr != nwrec) {
             fclose(pfile);
-            cerr << "Reading error 4.3" << endl;
+            ERROR_ << "Reading error 4.3";
             return false;
           }
           recnr++;
@@ -683,7 +679,7 @@ bool FilledMap::plot(Area area, // current area
             nwr = fread(indata, 2, nwrec, pfile);
             if (nwr != nwrec) {
               fclose(pfile);
-              cerr << "Reading error 5" << endl;
+              ERROR_ << "Reading error 5";
               return false;
             }
             recnr++;
@@ -712,7 +708,7 @@ bool FilledMap::plot(Area area, // current area
               nwr = fread(indata, 2, nwrec, pfile);
               if (nwr != nwrec) {
                 fclose(pfile);
-                cerr << "Reading error 6" << endl;
+                ERROR_ << "Reading error 6";
                 return false;
               }
               recnr++;
@@ -729,7 +725,7 @@ bool FilledMap::plot(Area area, // current area
                 nwr = fread(indata, 2, nwrec, pfile);
                 if (nwr != nwrec) {
                   fclose(pfile);
-                  cerr << "Reading error 7" << endl;
+                  ERROR_ << "Reading error 7";
                   return false;
                 }
                 recnr++;
@@ -747,7 +743,7 @@ bool FilledMap::plot(Area area, // current area
               nwr = fread(indata, 2, nwrec, pfile);
               if (nwr != nwrec) {
                 fclose(pfile);
-                cerr << "Reading error 8" << endl;
+                ERROR_ << "Reading error 8";
                 return false;
               }
               recnr++;
@@ -824,7 +820,7 @@ bool FilledMap::plot(Area area, // current area
   else
     clearPolys();
 
-  //cerr << "+++ Finished" << endl;
+  //DEBUG_ << "+++ Finished";
   fclose(pfile);
   glDisable(GL_LINE_STIPPLE);
   return true;

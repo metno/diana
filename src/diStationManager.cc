@@ -150,12 +150,12 @@ bool StationManager::parseSetup()
       vector<miString> tokens = section[i].split('"','"'," ",true);
       stationSetInfo s_info;
       for (size_t k = 0; k < tokens.size(); k++) {
-     //  cerr << "TOKENS = " << tokens[k] << endl;
+     //  DEBUG_ << "TOKENS = " << tokens[k];
         vector<miString> pieces = tokens[k].split("=");
         // tag name=url
         if (k == 0 && pieces.size() == 2) {
           if (urls.find(pieces[1]) == urls.end()) {
-       //     cerr << "ADDS = " << pieces[0] << endl;
+       //     DEBUG_ << "ADDS = " << pieces[0];
             s_info.name = pieces[0];
             s_info.url = pieces[1];
             m_info.chosen[s_info.url] = false;
@@ -166,7 +166,7 @@ bool StationManager::parseSetup()
         }
         // tag image=??.xpm
         else if (k==1 && pieces.size() == 2) {
-         // cerr << "IMAGE = " << pieces[0] << endl;
+         // DEBUG_ << "IMAGE = " << pieces[0];
           s_info.image = pieces[1];
         }
       }
@@ -186,7 +186,7 @@ bool StationManager::parseSetup()
           urls.insert(pieces[1]);
         }
       } else {
-	cerr << __FUNCTION__ << ": Invalid line in setup file: " << section[i] << endl;
+	ERROR_ << __FUNCTION__ << ": Invalid line in setup file: " << section[i];
       }
     }
   }
@@ -211,7 +211,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
 
   if (!success) {
 #ifdef DEBUGPRINT
-    cerr << "*** Failed to open " << url << endl;
+    DEBUG_ << "*** Failed to open " << url;
 #endif
     return 0;
   }
@@ -311,7 +311,7 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
       st->type = Station::visual;
       st->image = image;
     } else {
-      cerr << "Something is wrong with: " << miLine << endl;
+      ERROR_ << "Something is wrong with: " << miLine;
     }
   }
   // the old format
@@ -330,7 +330,7 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
       st->type = Station::visual;
       st->image = image;
     } else {
-      cerr << "Something is wrong with: " << miLine << endl;
+      ERROR_ << "Something is wrong with: " << miLine;
     }
   }
   return st;
@@ -360,7 +360,7 @@ void StationManager::setStationsScale(float new_scale)
 void StationManager::putStations(StationPlot* stationPlot)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::putStations"<< endl;
+  DEBUG_ << "PlotModule::putStations";
 #endif
 
   miutil::miString name = stationPlot->getName();

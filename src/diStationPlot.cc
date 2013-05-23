@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diStationPlot.h>
 #include <math.h>
 #include <boost/algorithm/string.hpp>
@@ -62,7 +63,7 @@ StationPlot::StationPlot(const vector<miString> & names,
   Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::StationPlot(miString,float,float)"<< endl;
+  DEBUG_ << "StationPlot::StationPlot(miString,float,float)";
 #endif
   init();
   unsigned int n = names.size();
@@ -82,7 +83,7 @@ StationPlot::StationPlot(const vector<miString> & names,
   Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::StationPlot(miString,float,float)"<< endl;
+  DEBUG_ << "StationPlot::StationPlot(miString,float,float)";
 #endif
   init();
   unsigned int n = names.size();
@@ -110,11 +111,11 @@ StationPlot::StationPlot(const vector <Station*> &stations)
 StationPlot::StationPlot(const string& commondesc, const string& common,
     const string& description, int from, const vector<string>& data)
 {
-  //   cerr <<"commondesc:"<<commondesc<<endl;
-  //   cerr <<"common:"<<common<<endl;
-  //   cerr <<"description:"<<description<<endl;
+  //   DEBUG_ <<"commondesc:"<<commondesc;
+  //   DEBUG_ <<"common:"<<common;
+  //   DEBUG_ <<"description:"<<description;
   //   for(int i=0;i<data.size();i++)
-  //     cerr <<"data:"<<data[i]<<endl;
+  //     DEBUG_ <<"data:"<<data[i];
   init();
 
   // Lisbeth: Er dette greit? hilsen Audun
@@ -129,8 +130,8 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   boost::algorithm::split(vdesc, description, boost::algorithm::is_any_of(":"));
 
   if (vcommondesc.size() != vcommon.size()) {
-    cerr << "commondesc:" << commondesc << " and common:" << common
-        << " do not match" << endl;
+    ERROR_ << "commondesc:" << commondesc << " and common:" << common
+        << " do not match";
     return;
   }
 
@@ -171,8 +172,8 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   for (unsigned int i = 0; i < ndesc; i++)
     datamap[vdesc[i]] = i;
   if (!datamap.count("name") || !datamap.count("lat") || !datamap.count("lon")) {
-    cerr << "diStationPlot:" << endl;
-    cerr << " positions must contain name:lat:lon" << endl;
+    ERROR_ << "diStationPlot:";
+    ERROR_ << " positions must contain name:lat:lon";
     return;
   }
   miString stationname;
@@ -229,7 +230,7 @@ void StationPlot::init()
 StationPlot::~StationPlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::~StationPlot" << endl;
+  DEBUG_ << "StationPlot::~StationPlot";
 #endif
   int n = stations.size();
   for (int i = 0; i < n; i++) {
@@ -300,7 +301,7 @@ bool StationPlot::plot()
    if useStationNameNormal/useStationNameSelected==true plot name
    */
 #ifdef DEBUGPRINT
-  cerr <<"StationPlot::plot "<< name << endl;
+  DEBUG_ <<"StationPlot::plot "<< name;
 #endif
   if (!enabled || !visible)
     return false;
@@ -352,7 +353,7 @@ bool StationPlot::plot()
 void StationPlot::plotStation(int i)
 {
 #ifdef DEBUGPRINT
-  cerr <<"StationPlot::plotStation "<< i <<endl;
+  DEBUG_ <<"StationPlot::plotStation "<< i;
 #endif
 
   float h = 0, w = 0; //height for displaying text
@@ -362,7 +363,7 @@ void StationPlot::plotStation(int i)
 
   if (useImage) {
     //use either stations[i]->image or imageNormal/imageSelected
-    //cerr << "useImage=true" << endl;
+    //DEBUG_ << "useImage=true";
     if (!stations[i]->image.empty() && stations[i]->image2.empty()) {
       if (stations[i]->image == "wind") {
         if (stations[i]->isSelected)
@@ -420,7 +421,7 @@ void StationPlot::plotStation(int i)
       h = ig.height(imageSelected);
     } else {
       //if no image plot crosses and circles for selected/normal stations
-      //cerr << "useImage=false" << endl;
+      //DEBUG_ << "useImage=false";
       glPlot(Station::failed, x, y, w, h, stations[i]->isSelected);
     }
 
@@ -478,7 +479,7 @@ void StationPlot::plotStation(int i)
 void StationPlot::hide()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::hide" << endl;
+  DEBUG_ << "StationPlot::hide";
 #endif
 
   visible = false;
@@ -489,7 +490,7 @@ void StationPlot::hide()
 void StationPlot::show()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::show" << endl;
+  DEBUG_ << "StationPlot::show";
 #endif
 
   visible = true;
@@ -518,7 +519,7 @@ void StationPlot::defineCoordinates()
   //should be called from constructor and when new stations have
   //been added
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::defineCoordinates()" << endl;
+  DEBUG_ << "StationPlot::defineCoordinates()";
 #endif
   // correct spec. when making Projection for long/lat coordinates
   //positions from lat/lon will be converted in changeprojection
@@ -535,8 +536,8 @@ void StationPlot::defineCoordinates()
 bool StationPlot::changeProjection()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::changeProjection" << endl;
-  cerr << "Change projection to: "<< area << endl;
+  DEBUG_ << "StationPlot::changeProjection";
+  DEBUG_ << "Change projection to: "<< area;
 #endif
 
   int npos = xplot.size();
@@ -552,7 +553,7 @@ bool StationPlot::changeProjection()
   }
 
   if (area.P().convertFromGeographic(npos, xpos, ypos) != 0 ) {
-    cerr << "changeProjection: getPoints error" << endl;
+    ERROR_ << "changeProjection: getPoints error";
     delete[] xpos;
     delete[] ypos;
     return false;
@@ -702,7 +703,7 @@ vector<Station*> StationPlot::getSelectedStations() const
 int StationPlot::setSelectedStation(miString station, bool add)
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::setSelectedStation" << station << endl;
+  DEBUG_ << "StationPlot::setSelectedStation" << station;
 #endif
 
   int n = stations.size();
@@ -724,7 +725,7 @@ int StationPlot::setSelectedStation(miString station, bool add)
 int StationPlot::setSelectedStation(int i, bool add)
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::setSelectedStation: " << i << endl;
+  DEBUG_ << "StationPlot::setSelectedStation: " << i;
 #endif
   int n = stations.size();
 
@@ -789,8 +790,8 @@ void StationPlot::setImage(miString im1, miString im2)
 void StationPlot::setImageScale(float new_scale)
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::setImageScale "
-  << endl;
+  DEBUG_ << "StationPlot::setImageScale "
+ ;
 #endif
   int n = stations.size();
   for (int i = 0; i < n; i++) {
@@ -801,8 +802,8 @@ void StationPlot::setImageScale(float new_scale)
 void StationPlot::clearText()
 {
 #ifdef DEBUGPRINT
-  cerr << "StationPlot::clearText "
-  << endl;
+  DEBUG_ << "StationPlot::clearText "
+ ;
 #endif
   int n = stations.size();
   for (int i = 0; i < n; i++) {
@@ -818,7 +819,7 @@ void StationPlot::setUseStationName(bool normal, bool selected)
 
 void StationPlot::setEditStations(const vector<string>& st)
 {
-  //  cerr <<"setEditStations:"<<st.size()<<endl;
+  //  DEBUG_ <<"setEditStations:"<<st.size();
 
   int m = st.size();
 
@@ -852,7 +853,7 @@ void StationPlot::setEditStations(const vector<string>& st)
 bool StationPlot::getEditStation(int step, miString& nname, int& iid, vector<
     miString>& sstations, bool& updateArea)
 {
-  //  cerr <<"getEditStations:"<<step<< "  editIndex:"<<editIndex<<endl;
+  //  DEBUG_ <<"getEditStations:"<<step<< "  editIndex:"<<editIndex;
 
   if (editIndex < 0)
     return false;
@@ -917,7 +918,7 @@ bool StationPlot::getEditStation(int step, miString& nname, int& iid, vector<
 bool StationPlot::stationCommand(const string& command,
     const vector<string>& data, const string& misc)
 {
-  //   cerr <<"Command:"<<command<<endl;
+  //   DEBUG_ <<"Command:"<<command;
 
   if (command == "changeImageandText") {
     vector<string> description;
@@ -927,11 +928,10 @@ bool StationPlot::stationCommand(const string& command,
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("name")) {
-      cerr << " StationPlot::stationCommand: missing name of station" << endl;
+      ERROR_ << " StationPlot::stationCommand: missing name of station";
       return false;
     }
-    bool chImage, chImage2, chText, defAlign, ch_dd, ch_ff, ch_colour, ch_alpha;
-    ;
+    bool chImage, chImage2, chText, defAlign, ch_dd, ch_ff, ch_colour, ch_alpha;;
     chImage = chImage2 = chText = defAlign = ch_dd = ch_ff = ch_colour
         = ch_alpha = false;
     if (datamap.count("image"))
@@ -957,12 +957,12 @@ bool StationPlot::stationCommand(const string& command,
     int dd=0, ff=0, alpha=0;
     Colour colour;
     for (int i = 0; i < n; i++) {
-      //       cerr <<"StationPlot::stationCommand:data:"<<data[i]<<endl;
+      //       DEBUG_ <<"StationPlot::stationCommand:data:"<<data[i];
       vector<string> token;
       boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
       if (token.size() < description.size()) {
-        cerr << "StationPlot::stationCommand: Description:" << misc
-            << " and data:" << data[i] << " do not match" << endl;
+        ERROR_ << "StationPlot::stationCommand: Description:" << misc
+            << " and data:" << data[i] << " do not match";
         continue;
       }
       name = token[datamap["name"]];
@@ -1121,7 +1121,7 @@ bool StationPlot::stationCommand(const string& command,
   }
 
   else if (command == "showPositionText" && data.size() > 0) {
-    //    cerr <<"StationPlot showPositionText:"<< misc<<endl;
+    //    DEBUG_ <<"StationPlot showPositionText:"<< misc;
 
     vector<string> description;
     boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
@@ -1130,15 +1130,14 @@ bool StationPlot::stationCommand(const string& command,
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("showtext")) {
-      cerr << " StationPlot::stationCommand: description must contain showtext"
-          << endl;
+      ERROR_ << " StationPlot::stationCommand: description must contain showtext";
       return false;
     }
     vector<string> token;
     boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     if (token.size() < description.size()) {
-      cerr << "StationPlot::stationCommand: Description:" << misc
-          << " and data:" << data[0] << " do not match" << endl;
+      ERROR_ << "StationPlot::stationCommand: Description:" << misc
+          << " and data:" << data[0] << " do not match";
       return false;
     }
     showText = (token[datamap["showtext"]] == "true"

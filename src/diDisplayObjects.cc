@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
@@ -44,7 +45,7 @@ using namespace::miutil;
 
 DisplayObjects::DisplayObjects(){
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::DisplayObjects\n";
+  DEBUG_ << "DisplayObjects::DisplayObjects\n";
 #endif
 
  init();
@@ -53,7 +54,7 @@ DisplayObjects::DisplayObjects(){
 
 void DisplayObjects::init(){
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::init" << endl;
+  DEBUG_ << "DisplayObjects::init";
 #endif
   defined=false;
   approved=false;
@@ -72,7 +73,7 @@ void DisplayObjects::init(){
 bool DisplayObjects::define(const miString& pi)
 {
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::define" << endl;
+  DEBUG_ << "DisplayObjects::define";
 #endif
 
   init();
@@ -95,7 +96,7 @@ bool DisplayObjects::define(const miString& pi)
 	key = stokens[0].downcase();
 	value = stokens[1];
 #ifdef DEBUGPRINT
-	cerr <<"key,value" << key << " " << value << endl;
+	DEBUG_ <<"key,value" << key << " " << value;
 #endif
 	if ( key=="file") {
 	  int l= value.length();
@@ -142,13 +143,13 @@ bool DisplayObjects::prepareObjects()
   if (!defined) return false;
 
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::prepareObjects" << endl;
-  cerr << "...area = " << itsArea.Name() << endl;
-  cerr << "...size of wObjects =  "<< objects.size() << endl;
-  cerr << "...wObjects.objectname = " <<  objectname << endl;
-  cerr << "...wObjects.time = " << itsTime << endl;
-  cerr << "...wObjects.filename = " << filename << endl;
-  cerr << "...autoFile = " << autoFile << endl;
+  DEBUG_ << "DisplayObjects::prepareObjects";
+  DEBUG_ << "...area = " << itsArea.Name();
+  DEBUG_ << "...size of wObjects =  "<< objects.size();
+  DEBUG_ << "...wObjects.objectname = " <<  objectname;
+  DEBUG_ << "...wObjects.time = " << itsTime;
+  DEBUG_ << "...wObjects.filename = " << filename;
+  DEBUG_ << "...autoFile = " << autoFile;
 #endif
 
 

@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diWeatherArea.h>
 #include <polyStipMasks.h>
 #include <math.h>
@@ -52,7 +53,7 @@ WeatherArea::WeatherArea() :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherArea default constructor" << endl;
+  DEBUG_ << "WeatherArea default constructor";
 #endif
 
   setType(0);
@@ -62,7 +63,7 @@ WeatherArea::WeatherArea(int ty) :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherArea(int) constructor" << endl;
+  DEBUG_ << "WeatherArea(int) constructor";
 #endif
 
   setType(ty);
@@ -72,11 +73,11 @@ WeatherArea::WeatherArea(miString tystring) :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherArea(miString) constructor" << endl;
+  DEBUG_ << "WeatherArea(miString) constructor";
 #endif
   // set correct areatype
   if (!setType(tystring))
-    cerr << "WeatherArea constructor error, type " << tystring
+    DEBUG_ << "WeatherArea constructor error, type " << tystring
         << " not found !!!";
 
 }
@@ -96,7 +97,7 @@ void WeatherArea::defineAreas(vector<editToolInfo> areas)
 // calculates spline between nodepoints and triangulates area
 void WeatherArea::recalculate()
 {
-  //cerr << "WeatherArea::recalculate()" << endl;
+  //ERROR_ << "WeatherArea::recalculate()";
   int length = nodePoints.size();
   if (!spline) {
     if (length < 3)
@@ -186,7 +187,7 @@ void WeatherArea::recalculate()
 // if set to active:  use crude plotting
 void WeatherArea::setState(const state s)
 {
-  //cerr << "setState " << endl;
+  //DEBUG_ << "setState ";
   currentState = s;
 }
 
@@ -367,7 +368,7 @@ void WeatherArea::setType(int ty)
 bool WeatherArea::setType(miString tystring)
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherArea::setType(miString)=" << tystring << endl;
+  DEBUG_ << "WeatherArea::setType(miString)=" << tystring;
 #endif
   if (areaTypes.find(tystring) != areaTypes.end()) {
     type = areaTypes[tystring];
@@ -380,7 +381,7 @@ bool WeatherArea::setType(miString tystring)
 
 bool WeatherArea::setSpline(bool s)
 {
-  //cerr << "SetSpline " << s << endl;
+  //DEBUG_ << "SetSpline " << s;
   if (spline != s) {
     spline = s;
     recalculate();
@@ -530,7 +531,7 @@ miString WeatherArea::writeTypeString()
 void WeatherArea::drawSigweather()
 {
   const float PI = 3.1415926535897932384626433832795; // this is a double double
-  //cerr << "WeatherArea::drawSigweather"<< endl;
+  //DEBUG_ << "WeatherArea::drawSigweather";
   //calculate total length
   //   if (!orientationClockwise())
   //     flip();

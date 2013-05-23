@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diSpectrumManager.h>
 
 #include <diSpectrumOptions.h>
@@ -50,7 +51,7 @@ SpectrumManager::SpectrumManager()
 : showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager constructed" << endl;
+  DEBUG_ << "SpectrumManager constructed";
 #endif
 
   spopt= new SpectrumOptions();  // defaults are set
@@ -70,7 +71,7 @@ SpectrumManager::SpectrumManager()
 SpectrumManager::~SpectrumManager()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager destructor" << endl;
+  DEBUG_ << "SpectrumManager destructor";
 #endif
 
   if (spopt) delete spopt;
@@ -83,7 +84,7 @@ SpectrumManager::~SpectrumManager()
 void SpectrumManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::parseSetup" << endl;
+  DEBUG_ << "SpectrumManager::parseSetup";
 #endif
 
   //clear old setupinfo
@@ -95,7 +96,7 @@ void SpectrumManager::parseSetup()
   vector<miString> vstr;
 
   //if (!SetupParser::getSection(section1,vstr)) {
-  //  cerr << "Missing section " << section1 << " in setupfile." << endl;
+  //  DEBUG_ << "Missing section " << section1 << " in setupfile.";
   //  return false;
   //}
   //vstr.clear();
@@ -141,7 +142,7 @@ void SpectrumManager::parseSetup()
 
   } else {
 
-    //cerr << "Missing section " << section2 << " in setupfile." << endl;
+    //DEBUG_ << "Missing section " << section2 << " in setupfile.";
 
   }
 }
@@ -150,7 +151,7 @@ void SpectrumManager::parseSetup()
 void SpectrumManager::updateObsFileList()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::updateObsFileList" << endl;
+  DEBUG_ << "SpectrumManager::updateObsFileList";
 #endif
   obsfiles.clear();
   int n= obsAaaPaths.size();
@@ -187,7 +188,7 @@ void SpectrumManager::updateObsFileList()
 void SpectrumManager::setPlotWindow(int w, int h)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setPlotWindow:" << w << " " << h << endl;
+  DEBUG_ << "SpectrumManager::setPlotWindow:" << w << " " << h;
 #endif
   plotw= w;
   ploth= h;
@@ -216,7 +217,7 @@ vector<miString> SpectrumManager::getLineThickness()
 void SpectrumManager::setModel()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setModel" << endl;
+  DEBUG_ << "SpectrumManager::setModel";
 #endif
 
   // should not clear all data, possibly needed again...
@@ -228,7 +229,7 @@ void SpectrumManager::setModel()
   //check if there are any selected models, if not use default
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
-  //     cerr << "No model selected" << endl;
+  //     DEBUG_ << "No model selected";
   //     miString model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
@@ -254,7 +255,7 @@ void SpectrumManager::setModel()
     map<miString,miString>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
-      cerr << "NO SPECTRUMFILE for model " << model << endl;
+      ERROR_ << "NO SPECTRUMFILE for model " << model;
     } else
       initSpectrumFile(pf->second,model);
   }
@@ -292,7 +293,7 @@ void SpectrumManager::setModel()
   dataChange= true;
 
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setModels finished" << endl;
+  DEBUG_ << "SpectrumManager::setModels finished";
 #endif
 }
 
@@ -300,7 +301,7 @@ void SpectrumManager::setModel()
 void SpectrumManager::setStation(const miString& station)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setStation  " << station << endl;
+  DEBUG_ << "SpectrumManager::setStation  " << station;
 #endif
 
   plotStation= station;
@@ -312,7 +313,7 @@ void SpectrumManager::setStation(const miString& station)
 void SpectrumManager::setTime(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setTime  " << time << endl;
+  DEBUG_ << "SpectrumManager::setTime  " << time;
 #endif
 
   plotTime= time;
@@ -327,7 +328,7 @@ void SpectrumManager::setTime(const miTime& time)
 miString SpectrumManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setStation   step=" << step << endl;
+  DEBUG_ << "SpectrumManager::setStation   step=" << step;
 #endif
 
   if (nameList.size()==0)
@@ -355,7 +356,7 @@ miString SpectrumManager::setStation(int step)
 miTime SpectrumManager::setTime(int step)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::setTime   step=" << step << endl;
+  DEBUG_ << "SpectrumManager::setTime   step=" << step;
 #endif
 
   if (timeList.size()==0)
@@ -415,7 +416,7 @@ void SpectrumManager::endHardcopy(){
 bool SpectrumManager::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::plot  " << plotStation << "  " << plotTime << endl;
+  DEBUG_ << "SpectrumManager::plot  " << plotStation << "  " << plotTime;
 #endif
 
   if (dataChange) {
@@ -470,7 +471,7 @@ bool SpectrumManager::plot()
 	      }
             }
             catch (...) {
-              cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
+              DEBUG_<<"Exception in: " <<obsfiles[nn].filename;
             }
           }
           nn++;
@@ -493,7 +494,7 @@ bool SpectrumManager::plot()
   //  hardcopy= false;
 
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::plot finished" << endl;
+  DEBUG_ << "SpectrumManager::plot finished";
 #endif
   return true;
 }
@@ -502,7 +503,7 @@ bool SpectrumManager::plot()
 void SpectrumManager::preparePlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::preparePlot" << endl;
+  DEBUG_ << "SpectrumManager::preparePlot";
 #endif
 
   int n= spectrumplots.size();
@@ -526,7 +527,7 @@ void SpectrumManager::preparePlot()
 vector <miString> SpectrumManager::getModelNames()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::getModelNames" << endl;
+  DEBUG_ << "SpectrumManager::getModelNames";
 #endif
   updateObsFileList();
   return dialogModelNames;
@@ -536,7 +537,7 @@ vector <miString> SpectrumManager::getModelNames()
 vector <miString> SpectrumManager::getModelFiles()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::getModelFiles" << endl;
+  DEBUG_ << "SpectrumManager::getModelFiles";
 #endif
   vector<miString> modelfiles= dialogFileNames;
   updateObsFileList();
@@ -602,11 +603,11 @@ bool SpectrumManager::initSpectrumFile(miString file,miString model)
   SpectrumFile *spf= new SpectrumFile(file,model);
   //if (spf->readFileHeader()) {
   if (spf->update()) {
-    cerr << "SPECTRUMFILE READFILE OK for model " << model << endl;
+    INFO_ << "SPECTRUMFILE READFILE OK for model " << model;
     spfile.push_back(spf);
     return true;
   } else {
-    cerr << "SPECTRUMFILE READFILE ERROR file " << file << endl;
+    ERROR_ << "SPECTRUMFILE READFILE ERROR file " << file;
     delete spf;
     return false;
   }
@@ -618,7 +619,7 @@ void SpectrumManager::initStations()
   //merge lists from all models
   int nspfile = spfile.size();
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::initStations-size of spfile " << nspfile << endl;
+  DEBUG_ << "SpectrumManager::initStations-size of spfile " << nspfile;
 #endif
 
   nameList.clear();
@@ -640,8 +641,7 @@ void SpectrumManager::initStations()
     unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
         n!=obslist.size()) {
-      cerr << "diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!"
-      << endl;
+      ERROR_ << "diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!";
     } else{
       for (unsigned int j = 0;j<n;j++){
         StationPos newPos;
@@ -659,14 +659,14 @@ void SpectrumManager::initStations()
   obslist.clear();
 
 #ifdef DEBUGPRINT
-  cerr << "Number of stations" << nstations << endl;
+  DEBUG_ << "Number of stations" << nstations;
 #endif
   map<miString,StationPos>::iterator p=stations.begin();
   for (; p!=stations.end(); p++) {
     miString name=p->first;
     StationPos pos = p->second;
 #ifdef DEBUGPRINT
-    cerr <<"Station name " << name << endl;
+    DEBUG_ <<"Station name " << name;
 #endif
     namelist.push_back(name);
     latitudelist.push_back(pos.latitude);
@@ -681,7 +681,7 @@ void SpectrumManager::initStations()
   // remember station
   if (!plotStation.empty()) lastStation = plotStation;
 #ifdef DEBUGPRINT
-  cerr << "lastStation"  << lastStation << endl;
+  DEBUG_ << "lastStation"  << lastStation;
 #endif
   //if it's the first time, plotStation is first in list
   if (lastStation.empty() && nameList.size())
@@ -700,7 +700,7 @@ void SpectrumManager::initStations()
     dataChange= true;
   }
 #ifdef DEBUGPRINT
-  cerr <<"plotStation" << plotStation << endl;
+  DEBUG_ <<"plotStation" << plotStation;
 #endif
 }
 
@@ -708,7 +708,7 @@ void SpectrumManager::initStations()
 void SpectrumManager::initTimes()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::initTimes" << endl;
+  DEBUG_ << "SpectrumManager::initTimes";
 #endif
 
   timeList.clear();
@@ -735,7 +735,7 @@ void SpectrumManager::initTimes()
 void SpectrumManager::checkObsTime(int hour)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::checkObsTime  hour= " << hour << endl;
+  DEBUG_ << "SpectrumManager::checkObsTime  hour= " << hour;
 #endif
 
   // use hour=-1 to check all files
@@ -761,7 +761,7 @@ void SpectrumManager::checkObsTime(int hour)
 	    obsfiles[i].time= ofile.fileObsTime();
           }
           catch (...) {
-            cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
+            DEBUG_<<"Exception in: "<<obsfiles[i].filename;
 	  }
            ***************************************************************************/
         }
@@ -785,7 +785,7 @@ void SpectrumManager::checkObsTime(int hour)
 void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::mainWindowTimeChanged  " << time << endl;
+  DEBUG_ << "SpectrumManager::mainWindowTimeChanged  " << time;
 #endif
 
   miTime mainWindowTime = time;
@@ -807,7 +807,7 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 void SpectrumManager::updateObs()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumManager::updateObs" << endl;
+  DEBUG_ << "SpectrumManager::updateObs";
 #endif
   updateObsFileList();
   checkObsTime();

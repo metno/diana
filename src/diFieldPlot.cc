@@ -36,6 +36,7 @@
 //#define DEBUGPRINT
 
 #include "diFieldPlot.h"
+#include <diCommonTypes.h>
 #include "diContouring.h"
 #include "diFontManager.h"
 #include <diImageGallery.h>
@@ -59,14 +60,14 @@ FieldPlot::FieldPlot()
 :Plot(), overlay(false),
  pshade(false), pundefined(false),vectorAnnotationSize(0.) {
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::Default Constructor" << endl;
+  DEBUG_ << "++ FieldPlot::Default Constructor";
 #endif
 }
 
 // Destructor
 FieldPlot::~FieldPlot(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::Destructor" << endl;
+  DEBUG_ << "++ FieldPlot::Destructor";
 #endif
   clearFields();
 }
@@ -74,7 +75,7 @@ FieldPlot::~FieldPlot(){
 
 void FieldPlot::clearFields(){
 #ifdef DEBUGPRINT
-  cerr << " FieldPlot::clearFields fields.size():" << endl;
+  DEBUG_ << " FieldPlot::clearFields fields.size():";
 #endif
   int n= tmpfields.size();
   for (int i=0; i<n; i++) {
@@ -155,18 +156,18 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
   plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT
-  if      (plottype==fpt_contour)          cerr<<"FieldPlot "<<fname<<" : "<<"plotContour"<<endl;
-  else if (plottype==fpt_wind)             cerr<<"FieldPlot "<<fname<<" : "<<"plotWind"<<endl;
-  else if (plottype==fpt_wind_temp_fl)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
-  else if (plottype==fpt_wind_value)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
-  else if (plottype==fpt_value)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
-  else if (plottype==fpt_symbol)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
-  else if (plottype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
-  else if (plottype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
-  else if (plottype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
-  else if (plottype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
-  else if (plottype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
-  else                                  cerr<<"FieldPlot "<<fname<<" : "<<"ERROR"<<endl;
+  if      (plottype==fpt_contour)          DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotContour";
+  else if (plottype==fpt_wind)             DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotWind";
+  else if (plottype==fpt_wind_temp_fl)      DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue";
+  else if (plottype==fpt_wind_value)      DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue";
+  else if (plottype==fpt_value)           DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotValue";
+  else if (plottype==fpt_symbol)           DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotValue";
+  else if (plottype==fpt_vector)           DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotVector";
+  else if (plottype==fpt_direction)        DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotDirection";
+  else if (plottype==fpt_alpha_shade)      DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade";
+  else if (plottype==fpt_alarm_box)        DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox";
+  else if (plottype==fpt_fill_cell)        DEBUG_<<"FieldPlot "<<fname<<" : "<<"plotFillCell";
+  else                                  DEBUG_<<"FieldPlot "<<fname<<" : "<<"ERROR";
 #endif
 
   pshade= (plottype==fpt_alpha_shade ||
@@ -184,7 +185,7 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 
-  //   cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
+  //   DEBUG_ <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime();
 
   clearFields();
 
@@ -210,7 +211,7 @@ struct aTable{
 
 bool FieldPlot::getAnnotations(vector<miString>& anno)
 {
-  //  cerr <<"getAnnotations:"<<anno.size()<<endl;
+  //  DEBUG_ <<"getAnnotations:"<<anno.size();
 
   if (fields.size()==0 || !fields[0] || !fields[0]->data)
     return false;
@@ -436,7 +437,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
 bool FieldPlot::getDataAnnotations(vector<miString>& anno)
 {
-  //  cerr <<"getDataAnnotations:"<<anno.size()<<endl;
+  //  DEBUG_ <<"getDataAnnotations:"<<anno.size();
 
   if (fields.size()==0 || !fields[0] || !fields[0]->data)
     return false;
@@ -468,7 +469,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
                                                           + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
-          + ",tcolour=" + poptions.linecolour.Name() + endString ;
+          + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
 
     }
@@ -480,7 +481,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
 
 bool FieldPlot::plot(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plot() ++" << getModelName()<<endl;
+  DEBUG_ << "++ FieldPlot::plot() ++" << getModelName();
 #endif
   int n= fields.size();
 
@@ -493,11 +494,9 @@ bool FieldPlot::plot(){
         int nsmooth= poptions.fieldSmooth - fields[i]->numSmoothed;
         fields[i]->smooth(nsmooth);
       } else if (fields[i]->numSmoothed>poptions.fieldSmooth) {
-        cerr << endl;
-        cerr << "FieldPlot::plot ERROR: field smoothed too much !!!" << endl;
-        cerr << "    numSmoothed,fieldSmooth: "
-            << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
-        cerr << endl;
+        ERROR_ << "FieldPlot::plot ERROR: field smoothed too much !!!";
+        ERROR_ << "    numSmoothed,fieldSmooth: "
+            << fields[i]->numSmoothed << " " << poptions.fieldSmooth;
       }
     }
   }
@@ -558,7 +557,7 @@ bool FieldPlot::plot(){
 vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareVectors() ++" << endl;
+  DEBUG_ << "++ FieldPlot::prepareVectors() ++";
 #endif
   vector<float*> uv;
 
@@ -604,7 +603,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
   uv.push_back(u);
   uv.push_back(v);
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareVectors() finished ++" << endl;
+  DEBUG_ << "++ FieldPlot::prepareVectors() finished ++";
 #endif
   return uv;
 }
@@ -613,7 +612,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotateVectors )
 {
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareDirectionVectors() ++" << endl;
+  DEBUG_ << "++ FieldPlot::prepareDirectionVectors() ++";
 #endif
   vector<float*> uv;
 
@@ -662,7 +661,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
   uv.push_back(u);
   uv.push_back(v);
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareDirectionVectors() finished ++" << endl;
+  DEBUG_ << "++ FieldPlot::prepareDirectionVectors() finished ++";
 #endif
   return uv;
 }
@@ -816,7 +815,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float s
 // Fields u(0) v(1), optional- colorfield(2)
 bool FieldPlot::plotWind(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotWind.." << endl;
+  DEBUG_ << "++ FieldPlot::plotWind..";
 #endif
 
   int n= fields.size();
@@ -1080,7 +1079,7 @@ bool FieldPlot::plotWind(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotWind() ++";
 #endif
   return true;
 }
@@ -1094,7 +1093,7 @@ bool FieldPlot::plotWind(){
 
 bool FieldPlot::plotValue(){
 #ifdef DEBUGPRINT
-  cerr << "++ plotValue" << endl;
+  DEBUG_ << "++ plotValue";
 #endif
 
   int n= fields.size();
@@ -1230,7 +1229,7 @@ bool FieldPlot::plotValue(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValue() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotValue() ++";
 #endif
 
   return true;
@@ -1246,7 +1245,7 @@ bool FieldPlot::plotValue(){
 
 bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 #ifdef DEBUGPRINT
-  cerr << "++ plotWindAndValue" << endl;
+  DEBUG_ << "++ plotWindAndValue";
 #endif
   int n= fields.size();
   if (n<3) return false;
@@ -1642,7 +1641,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindAndValue() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotWindAndValue() ++";
 #endif
   return true;
 }
@@ -1659,7 +1658,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
 
 bool FieldPlot::plotValues(){
 #ifdef DEBUGPRINT
-  cerr << "++ plotValues" << endl;
+  DEBUG_ << "++ plotValues";
 #endif
 
   size_t nfields= fields.size();
@@ -1829,7 +1828,7 @@ bool FieldPlot::plotValues(){
   glDisable(GL_LINE_STIPPLE);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValues() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotValues() ++";
 #endif
   return true;
 }
@@ -1837,7 +1836,7 @@ bool FieldPlot::plotValues(){
 //  plot vector field as arrows (wind,sea current,...)
 bool FieldPlot::plotVector(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotting vector field.." << endl;
+  DEBUG_ << "++ Plotting vector field..";
 #endif
   int n= fields.size();
 
@@ -1941,7 +1940,7 @@ bool FieldPlot::plotVector(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotVector() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotVector() ++";
 #endif
   return true;
 }
@@ -1950,7 +1949,7 @@ bool FieldPlot::plotVector(){
 // ALGORITHM: Fields u(0) v(1) colorfield(2)
 bool FieldPlot::plotVectorColour(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter vector-felt.." << endl;
+  DEBUG_ << "++ Plotter vector-felt..";
 #endif
   int n= fields.size();
   if (n<3) return false;
@@ -2111,7 +2110,7 @@ bool FieldPlot::plotVectorColour(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotVectorColour() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotVectorColour() ++";
 #endif
   return true;
 }
@@ -2120,7 +2119,7 @@ bool FieldPlot::plotVectorColour(){
 /* plot true north direction field as arrows (wave,...) */
 bool FieldPlot::plotDirection(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter retnings-felt.." << endl;
+  DEBUG_ << "++ Plotter retnings-felt..";
 #endif
   int n= fields.size();
 
@@ -2220,7 +2219,7 @@ bool FieldPlot::plotDirection(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotDirection() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotDirection() ++";
 #endif
   return true;
 }
@@ -2231,7 +2230,7 @@ bool FieldPlot::plotDirection(){
  */
 bool FieldPlot::plotDirectionColour(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter retnings-felt m. farge.." << endl;
+  DEBUG_ << "++ Plotter retnings-felt m. farge..";
 #endif
   int n= fields.size();
   if (n<2) return false;
@@ -2317,14 +2316,13 @@ bool FieldPlot::plotDirectionColour(){
 
   }
   //##############################################################
-  //  cerr<<"--------------"<<endl;
-  //  cerr<<" nlim,ncol: "<<nlim<<" "<<ncol<<endl;
+  //  DEBUG_<<"--------------";
+  //  DEBUG_<<" nlim,ncol: "<<nlim<<" "<<ncol;
   //  for (i=0; i<nlim; i++)
-  //    cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-  //        <<"  lim= "<<limits[i]<<endl;
+  //    DEBUG_<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
+  //        <<"  lim= "<<limits[i];
   //  i=nlim;
-  //  cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-  //      <<endl;
+  //  DEBUG_<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2];
   //##############################################################
 
   // length if abs(vector) = 1
@@ -2393,7 +2391,7 @@ bool FieldPlot::plotDirectionColour(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotDirectionColour() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotDirectionColour() ++";
 #endif
   return true;
 }
@@ -2402,7 +2400,7 @@ bool FieldPlot::plotDirectionColour(){
 //  plot scalar field as contour lines
 bool FieldPlot::plotContour(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotContour()" << endl;
+  DEBUG_ << "++ FieldPlot::plotContour()";
 #endif
 
   int n= fields.size();
@@ -2439,7 +2437,7 @@ bool FieldPlot::plotContour(){
   if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
-    cerr <<"fieldPlot::plotContour() : getGridPoints returned false"<<endl;
+    ERROR_ <<"fieldPlot::plotContour() : getGridPoints returned false";
     return false;
   }
 
@@ -2692,13 +2690,13 @@ bool FieldPlot::plotContour(){
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
+  if (!res) ERROR_<<"FieldPlot::plotContour() -  Contour error";
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotContour() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotContour() ++";
 #endif
   return true;
 }
@@ -2707,7 +2705,7 @@ bool FieldPlot::plotContour(){
 //not used, do not work properly
 bool FieldPlot::plotBox_pattern(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter Box_pattern-felt.." << endl;
+  DEBUG_ << "++ Plotter Box_pattern-felt..";
 #endif
   int n= fields.size();
   if (n<1) return false;
@@ -2817,7 +2815,7 @@ bool FieldPlot::plotBox_pattern(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotBox_pattern() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotBox_pattern() ++";
 #endif
   return true;
 }
@@ -2826,7 +2824,7 @@ bool FieldPlot::plotBox_pattern(){
 // plot scalar field with RGBA (RGB=constant)
 bool FieldPlot::plotBox_alpha_shade(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter Box_alpha_shade-felt.." << endl;
+  DEBUG_ << "++ Plotter Box_alpha_shade-felt..";
 #endif
   int n= fields.size();
   if (n<1) return false;
@@ -2931,7 +2929,7 @@ bool FieldPlot::plotBox_alpha_shade(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotBox_alpha_shade() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotBox_alpha_shade() ++";
 #endif
   return true;
 }
@@ -2940,7 +2938,7 @@ bool FieldPlot::plotBox_alpha_shade(){
 //  plot some scalar field values with RGBA (RGB=constant)
 bool FieldPlot::plotAlarmBox(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter AlarmBox-felt.." << endl;
+  DEBUG_ << "++ Plotter AlarmBox-felt..";
 #endif
   int n= fields.size();
   if (n<1) return false;
@@ -3007,7 +3005,7 @@ bool FieldPlot::plotAlarmBox(){
 
     } else {
 
-      cerr << "FieldPlot::plotAlarmBox ERROR in setup!" << endl;
+      ERROR_ << "FieldPlot::plotAlarmBox ERROR in setup!";
       return false;
 
     }
@@ -3019,7 +3017,7 @@ bool FieldPlot::plotAlarmBox(){
 
   } else {
 
-    cerr << "FieldPlot::plotAlarmBox ERROR in setup!" << endl;
+    ERROR_ << "FieldPlot::plotAlarmBox ERROR in setup!";
     return false;
 
   }
@@ -3076,14 +3074,14 @@ bool FieldPlot::plotAlarmBox(){
     plotFrameStencil(nxc, ny+1, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotAlarmBox() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotAlarmBox() ++";
 #endif
   return true;
 }
 
 bool FieldPlot::plotFillCell(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter FillCell-felt.." << endl;
+  DEBUG_ << "++ Plotter FillCell-felt..";
 #endif
   int n= fields.size();
   if (n<1) return false;
@@ -3226,7 +3224,7 @@ bool FieldPlot::plotFillCell(){
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::FillCell() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::FillCell() ++";
 #endif
   return true;
 }
@@ -3235,7 +3233,7 @@ bool FieldPlot::plotFillCell(){
 // plot scalar field with RGBA (RGB=constant)
 bool FieldPlot::plotAlpha_shade(){
 #ifdef DEBUGPRINT
-  cerr << "++ Plotter Alpha_shade-felt.." << endl;
+  DEBUG_ << "++ Plotter Alpha_shade-felt..";
 #endif
   int n= fields.size();
   if (n<1) return false;
@@ -3316,7 +3314,7 @@ bool FieldPlot::plotAlpha_shade(){
     plotFrameStencil(nx, ny, x, y);
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotAlpha_shade() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotAlpha_shade() ++";
 #endif
   return true;
 }
@@ -3353,7 +3351,7 @@ bool FieldPlot::plotFrameOnly()
 void FieldPlot::plotFrame(const int nx, const int ny,
     float *x, float *y){
 #ifdef DEBUGPRINT
-  cerr << "++ Plot frame.." << nx<<" : "<<ny<<endl;
+  DEBUG_ << "++ Plot frame.." << nx<<" : "<<ny;
 #endif
 
   if (!rgbmode) return;
@@ -3456,7 +3454,7 @@ void FieldPlot::plotFrame(const int nx, const int ny,
   UpdateOutput();
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotFrame() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotFrame() ++";
 #endif
   return;
 }
@@ -3522,7 +3520,7 @@ void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
  */
 bool FieldPlot::markExtreme(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::markExtreme start" << endl;
+  DEBUG_ << "++ FieldPlot::markExtreme start";
 #endif
 
   if (fields.size()<1) return false;
@@ -3796,7 +3794,7 @@ bool FieldPlot::markExtreme(){
   delete[] iscan;
 
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::markExtreme end" << endl;
+  DEBUG_ << "++ FieldPlot::markExtreme end";
 #endif
   return true;
 }
@@ -3804,7 +3802,7 @@ bool FieldPlot::markExtreme(){
 // draw the grid lines in some density
 bool FieldPlot::plotGridLines(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotGridLines start" << endl;
+  DEBUG_ << "++ FieldPlot::plotGridLines start";
 #endif
 
   if (fields.size()<1) return false;
@@ -3868,7 +3866,7 @@ bool FieldPlot::plotGridLines(){
 // show areas with undefined field values
 bool FieldPlot::plotUndefined(){
 #ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotUndefined start" << endl;
+  DEBUG_ << "++ FieldPlot::plotUndefined start";
 #endif
 
   if (!enabled || fields.size()<1) return false;
@@ -4003,7 +4001,7 @@ bool FieldPlot::plotUndefined(){
  */
 bool FieldPlot::plotNumbers(){
 #ifdef DEBUGPRINT
-  cerr << "++ plotNumbers.." << endl;
+  DEBUG_ << "++ plotNumbers..";
 #endif
   int n= fields.size();
   if (n!=1) return false;
@@ -4116,7 +4114,7 @@ bool FieldPlot::plotNumbers(){
   UpdateOutput();
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
+  DEBUG_ << "++ Returning from FieldPlot::plotNumbers() ++";
 #endif
   return true;
 }

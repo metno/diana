@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include "qtButtonLayout.h"
 #include "qtUtility.h"
 #include <QGridLayout>
@@ -108,7 +109,7 @@ void ButtonLayout::setEnabled( bool enabled ){
    false.
    */
 #ifdef dButLay
-  cerr<<"ButtonLayout::setEnabled called"<<endl;
+  DEBUG_<<"ButtonLayout::setEnabled called";
 #endif
   int nr_buttons = buttonList.size();
 
@@ -241,7 +242,7 @@ vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
 
 void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
 {
-  //  cerr <<"setRightClicked:"<<name<<endl;
+  //  DEBUG_ <<"setRightClicked:"<<name;
 
   int n = buttonList.size();
 
@@ -267,7 +268,7 @@ void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
 
 void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 {
-  //  cerr <<"rightButtonClicked"<<endl;
+  //  DEBUG_ <<"rightButtonClicked";
 
   unsigned int id = bgroup->id(butto);
   if(buttonList.size() > id){

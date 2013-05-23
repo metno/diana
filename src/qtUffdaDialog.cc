@@ -42,6 +42,7 @@
 #include <QVBoxLayout>
 
 #include <fstream>
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include "qtUffdaDialog.h"
 #include "diStationPlot.h"
@@ -52,7 +53,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef dUffdaDlg
-  cout<<"UffdaDialog::UffdaDialog called"<<endl;
+  DEBUG_<<"UffdaDialog::UffdaDialog called";
 #endif
 
   //caption to appear on top of dialog
@@ -152,7 +153,7 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
 void UffdaDialog::classlistSlot(QListWidgetItem*){
   //called when an uffda class is selected
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::classlistSlot called"<<endl;
+    DEBUG_<<"UffdaDialog::classlistSlot called";
 #endif
     int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
@@ -165,7 +166,7 @@ void UffdaDialog::classlistSlot(QListWidgetItem*){
 void UffdaDialog::satlistSlot(QListWidgetItem* item){
   //called when a satellite is selected
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::satlistSlot called"<<endl;
+    DEBUG_<<"UffdaDialog::satlistSlot called";
 #endif
     int posIndex = poslist->currentRow();
     if (posIndex < 0) return;
@@ -180,7 +181,7 @@ void UffdaDialog::satlistSlot(QListWidgetItem* item){
 void UffdaDialog::poslistSlot(QListWidgetItem* item){
   //called when a satellite is selected
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::poslistSlot called"<<endl;
+    DEBUG_<<"UffdaDialog::poslistSlot called";
 #endif
     int posIndex=poslist->row(item);
     if (posIndex < 0) return;
@@ -194,7 +195,7 @@ void UffdaDialog::poslistSlot(QListWidgetItem* item){
 void UffdaDialog::storeClicked(){
   //called when store button is pressed
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::storeClicked called"<<endl;
+    DEBUG_<<"UffdaDialog::storeClicked called";
 #endif
     miutil::miString body=getUffdaString();
     // write to local file (backup)
@@ -218,7 +219,7 @@ void UffdaDialog::storeClicked(){
 void UffdaDialog::sendClicked(){
   //called when help button is pressed
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::sendClicked called"<<endl;
+    DEBUG_<<"UffdaDialog::sendClicked called";
 #endif
     bool okbody=false,okfile=false;
     miutil::miString subject ="REPLY";
@@ -265,7 +266,7 @@ void UffdaDialog::DeleteClicked(){
   //called when delete/slett button is called
   //unselects and unhighlights everything
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::DeleteClicked called"<<endl;
+    DEBUG_<<"UffdaDialog::DeleteClicked called";
 #endif
     //clear uffda deque
     int posIndex = poslist->currentRow();
@@ -287,7 +288,7 @@ void UffdaDialog::DeleteAllClicked(){
   //called when delete/slett button is called
   //unselects and unhighlights everything
 #ifdef dUffdaDlg
-    cerr<<"UffdaDialog::DeleteAllClicked called"<<endl;
+    DEBUG_<<"UffdaDialog::DeleteAllClicked called";
 #endif
     vector <float> vlat_uffda;
     vector <float> vlon_uffda;
@@ -342,7 +343,7 @@ bool UffdaDialog::okToExit(){
 
 void UffdaDialog::addPosition(float lat, float lon){
 #ifdef dUffdaDlg
-  cerr<<"UffdaDialog::addPosition called"<<endl;
+  DEBUG_<<"UffdaDialog::addPosition called";
 #endif
   int currIndex=-1;
   QString sattime="dummy";
@@ -381,7 +382,7 @@ void UffdaDialog::addPosition(float lat, float lon){
 
 void UffdaDialog::updatePoslist(uffdaElement &ue,int nr, bool newItem) {
 #ifdef dUffdaDlg
-  cout<<"uffdaDialog::update_posList"<<endl;
+  DEBUG_<<"uffdaDialog::update_posList";
 #endif
   //Make string and insert in posList
   ue.ok=true;

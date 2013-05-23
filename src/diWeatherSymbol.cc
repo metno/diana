@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diWeatherSymbol.h>
 #include <diFontManager.h>
 #include <sstream>
@@ -58,7 +59,7 @@ set <miString> WeatherSymbol::textlist; //texts used in combobox
 //Constructor
 WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0) {
 #ifdef DEBUGPRINT
-  cerr << "Weather symbol- default constructor" << endl;
+  DEBUG_ << "Weather symbol- default constructor";
 #endif
   setType(0);
   if (drawIndex < 1000)
@@ -71,7 +72,7 @@ WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0) {
 //constructor taking symboltype as argument
 WeatherSymbol::WeatherSymbol(int ty) : ObjectPlot(wSymbol),complexSymbol(0){
 #ifdef DEBUGPRINT
-  cerr << "Weather symbol - int constructor" << endl;
+  DEBUG_ << "Weather symbol - int constructor";
 #endif
 
   setType(ty);
@@ -83,14 +84,14 @@ WeatherSymbol::WeatherSymbol(int ty) : ObjectPlot(wSymbol),complexSymbol(0){
 WeatherSymbol::WeatherSymbol(miString tystring,int objTy) : ObjectPlot(objTy),
 symbolSize(defaultSize),complexSymbol(0){
 #ifdef DEBUGPRINT
-  cerr << "Weather symbol(miString,int) constructor" << endl;
+  DEBUG_ << "Weather symbol(miString,int) constructor";
 #endif
 
   // set correct symboltype
   if (tystring.empty())
     setType(0);
   else if (!setType(tystring))
-    cerr << "WeatherSymbol constructor error, type " << tystring << " not found !!!" << endl;
+    ERROR_ << "WeatherSymbol constructor error, type " << tystring << " not found !!!";
 }
 
 
@@ -106,7 +107,7 @@ WeatherSymbol::WeatherSymbol(const WeatherSymbol &rhs):ObjectPlot(rhs){
 // destructor
 WeatherSymbol::~WeatherSymbol(){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol destructor" << endl;
+  DEBUG_ << "WeatherSymbol destructor";
 #endif
   if (complexSymbol!=0) delete complexSymbol;
 }
@@ -272,8 +273,8 @@ void WeatherSymbol::addPoint( float x , float y){
 bool WeatherSymbol::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << " Weather symbol::plot()" << endl;
-  cerr << " drawIndex = " << drawIndex<< endl;
+  DEBUG_ << " Weather symbol::plot()";
+  DEBUG_ << " drawIndex = " << drawIndex;
 #endif
   if (!enabled) return false;
 
@@ -395,7 +396,7 @@ void WeatherSymbol::setStandardSize(int size1,int size2){
 
 void WeatherSymbol::setType(int ty){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::setType(int)" << ty << endl;
+  DEBUG_ << "WeatherSymbol::setType(int)" << ty;
 #endif
   if (typeOfObject ==wSymbol){
     if (-1<ty && ty<int(allSymbols.size()))
@@ -460,7 +461,7 @@ void WeatherSymbol::increaseType(int val){
 
 bool WeatherSymbol::setType(miString tystring){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::setType(miString)=" << tystring <<  endl;
+  DEBUG_ << "WeatherSymbol::setType(miString)=" << tystring <<  endl;
 #endif
   if (objectIs(wSymbol) && symbolTypes.find(tystring)!=symbolTypes.end()){
     setType(symbolTypes[tystring]);
@@ -502,7 +503,7 @@ bool WeatherSymbol::isOnObject(float x,float y){
 miString WeatherSymbol::writeTypeString()
 {
 #ifdef DEBUGPRINT
-  cerr <<"WeatherSymbol::writeTypeString" << endl;
+  DEBUG_ <<"WeatherSymbol::writeTypeString";
 #endif
   miString ret,tstring ;
   ostringstream cs;
@@ -543,7 +544,7 @@ miString WeatherSymbol::writeTypeString()
   ret+=tstring;
   ret+=cs.str();
 #ifdef DEBUGPRINT
-  cerr << "ret=" << ret << endl;
+  DEBUG_ << "ret=" << ret;
 #endif
   return ret;
 }
@@ -571,7 +572,7 @@ void WeatherSymbol::applyFilters(vector <miString> symbolfilter){
  ************************************************************/
 void WeatherSymbol::getComplexText(vector <miString> & symbolText, vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::getComplexText" << endl;
+  DEBUG_ << "WeatherSymbol::getComplexText";
 #endif
   if (complexSymbol!=0) {
     if (drawIndex==900)
@@ -584,7 +585,7 @@ void WeatherSymbol::getComplexText(vector <miString> & symbolText, vector <miStr
 
 void WeatherSymbol::getMultilineText(vector <miString> & symbolText){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::getMultilineText" << endl;
+  DEBUG_ << "WeatherSymbol::getMultilineText";
 #endif
   if (complexSymbol!=0) {
     if (drawIndex>=3000)
@@ -594,7 +595,7 @@ void WeatherSymbol::getMultilineText(vector <miString> & symbolText){
 
 void WeatherSymbol::readComplexText(miString s){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::readComplexText " <<  s << endl;
+  DEBUG_ << "WeatherSymbol::readComplexText " <<  s;
 #endif
   if (complexSymbol!=0)
     complexSymbol->readComplexText(s);
@@ -602,7 +603,7 @@ void WeatherSymbol::readComplexText(miString s){
 
 void WeatherSymbol::changeMultilineText(const vector <miString> & symbolText){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::changeMultilineText" << endl;
+  DEBUG_ << "WeatherSymbol::changeMultilineText";
 #endif
   if (complexSymbol!=0) {
     if (drawIndex>=3000)
@@ -612,7 +613,7 @@ void WeatherSymbol::changeMultilineText(const vector <miString> & symbolText){
 
 void WeatherSymbol::changeComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::changeComplexText" << endl;
+  DEBUG_ << "WeatherSymbol::changeComplexText";
 #endif
   if (complexSymbol!=0) {
     if (drawIndex<=3000)  
@@ -624,7 +625,7 @@ void WeatherSymbol::changeComplexText(const vector <miString> & symbolText, cons
 void WeatherSymbol::rotateObject(float val){
   //only works for complex objects
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::rotateObject" << endl;
+  DEBUG_ << "WeatherSymbol::rotateObject";
 #endif
   rotation+=val;
 }
@@ -633,7 +634,7 @@ void WeatherSymbol::rotateObject(float val){
 void WeatherSymbol::hideBox(){
   //only works for complex objects
 #ifdef DEBUGPRINT
-  cerr << "WeatherSymbol::hideBox" << endl;
+  DEBUG_ << "WeatherSymbol::hideBox";
 #endif
   if (complexSymbol!=0)
     complexSymbol->hideBox();

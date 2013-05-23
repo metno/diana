@@ -42,6 +42,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include <diCommonTypes.h>
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
 #include "qtTimeStepSpinbox.h"
@@ -187,7 +188,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   vpWindow(0), vcWindow(0), spWindow(0),contr(co),
   timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
-  cerr << "Creating DianaMainWindow" << endl;
+  INFO_ << "Creating DianaMainWindow";
 
   version_string = ver_str;
   build_string = build_str;
@@ -1158,7 +1159,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   vector<miutil::miString> sect_label;
 
   if (!miutil::SetupParser::getSection(label_name,sect_label)){
-    cerr << label_name << " section not found" << endl;
+    WARN_ << label_name << " section not found";
     //default
     vlabel.push_back("LABEL data font=BITMAPFONT");
     miutil::miString labelstr= "LABEL text=\"$day $date $auto UTC\" ";
@@ -1175,7 +1176,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   }
 
 
-  cerr << "Creating DianaMainWindow done" << endl;
+  INFO_ << "Creating DianaMainWindow done";
 
 }
 
@@ -1225,7 +1226,7 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
 void DianaMainWindow::editUpdate()
 {
 #ifdef DEBUGREDRAW
-  cerr << "DianaMainWindow::editUpdate" << endl;
+  DEBUG_ << "DianaMainWindow::editUpdate";
 #endif
   w->Glw()->forceUnderlay(true);
   w->updateGL();
@@ -1236,7 +1237,7 @@ void DianaMainWindow::editUpdate()
 void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
 {
 #ifdef DEBUGPRINT
-  cerr << "quickMenuApply:" << endl;
+  DEBUG_ << "quickMenuApply:";
 #endif
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->plotCommands(s);
@@ -1326,7 +1327,7 @@ void DianaMainWindow::togglePaintMode()
   if (paintToolBar == 0) return;
   if (paintToolBar->isVisible()) paintToolBar->hide();
   else paintToolBar->show();
-  cerr << "DianaMainWindow::togglePaintMode enabled " << paintToolBar->isVisible() << endl;
+  DEBUG_ << "DianaMainWindow::togglePaintMode enabled " << paintToolBar->isVisible();
   contr->setPaintModeEnabled(paintToolBar->isVisible());
 }
 void DianaMainWindow::setPaintMode(bool enabled)
@@ -1416,7 +1417,7 @@ void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
 void DianaMainWindow::MenuOK()
 {
 #ifdef DEBUGREDRAW
-  cerr<<"DianaMainWindow::MenuOK"<<endl;
+  DEBUG_<<"DianaMainWindow::MenuOK";
 #endif
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -1434,9 +1435,9 @@ void DianaMainWindow::MenuOK()
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
 
   // printout
-  cerr << "------- the final string from all dialogs:" << endl;
+  INFO_ << "------- the final string from all dialogs:";
   for (unsigned int i = 0; i < pstr.size(); ++i)
-    cerr << pstr[i] << endl;
+    INFO_ << pstr[i];
 
   miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
@@ -2076,7 +2077,7 @@ void DianaMainWindow::spectrumStartup()
 void DianaMainWindow::hideVprofWindow()
 {
 #ifdef DEBUGPRINT
-  cerr << "hideVprofWindow called !" << endl;
+  DEBUG_ << "hideVprofWindow called !";
 #endif
   if ( !vpWindow ) return;
   vpWindow->hide();
@@ -2089,7 +2090,7 @@ void DianaMainWindow::hideVprofWindow()
 void DianaMainWindow::hideVcrossWindow()
 {
 #ifdef DEBUGPRINT
-  cerr << "hideVcrossWindow called !" << endl;
+  DEBUG_ << "hideVcrossWindow called !";
 #endif
   if ( !vcWindow ) return;
   // vcWindow hidden and locationPlots deleted
@@ -2102,7 +2103,7 @@ void DianaMainWindow::hideVcrossWindow()
 void DianaMainWindow::hideSpectrumWindow()
 {
 #ifdef DEBUGPRINT
-  cerr << "hideSpectrumWindow called !" << endl;
+  DEBUG_ << "hideSpectrumWindow called !";
 #endif
   if ( !spWindow ) return;
   // spWindow and stations only hidden, should also be possible to
@@ -2117,8 +2118,8 @@ void DianaMainWindow::hideSpectrumWindow()
 void DianaMainWindow::stationChangedSlot(const QString& station)
 {
 #ifdef DEBUGPRINT
-  //cerr << "DianaMainWindow::stationChangedSlot to " << station << endl;
-  cerr << "DianaMainWindow::stationChangedSlot" << endl;
+  //DEBUG_ << "DianaMainWindow::stationChangedSlot to " << station;
+  DEBUG_ << "DianaMainWindow::stationChangedSlot";
 #endif
   string s =station.toStdString();
   vector<string> data;
@@ -2131,7 +2132,7 @@ void DianaMainWindow::stationChangedSlot(const QString& station)
 void DianaMainWindow::modelChangedSlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::modelChangedSlot()" << endl;
+  DEBUG_ << "DianaMainWindow::modelChangedSlot()";
 #endif
   if ( !vpWindow ) return;
   StationPlot * sp = vpWindow->getStations() ;
@@ -2146,8 +2147,8 @@ void DianaMainWindow::modelChangedSlot()
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::crossectionChangedSlot to " << name.toStdString() << endl;
-  //cerr << "DianaMainWindow::crossectionChangedSlot " << endl;
+  DEBUG_ << "DianaMainWindow::crossectionChangedSlot to " << name.toStdString();
+  //DEBUG_ << "DianaMainWindow::crossectionChangedSlot ";
 #endif
   miutil::miString s= name.toStdString();
   contr->setSelectedLocation("vcross", s);
@@ -2158,7 +2159,7 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
 void DianaMainWindow::crossectionSetChangedSlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::crossectionSetChangedSlot()" << endl;
+  DEBUG_ << "DianaMainWindow::crossectionSetChangedSlot()";
 #endif
   if ( !vcWindow ) return;
   LocationData ed;
@@ -2175,7 +2176,7 @@ void DianaMainWindow::crossectionSetChangedSlot()
 void DianaMainWindow::crossectionSetUpdateSlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::crossectionSetUpdateSlot()" << endl;
+  DEBUG_ << "DianaMainWindow::crossectionSetUpdateSlot()";
 #endif
   if ( !vcWindow ) return;
   LocationData ed;
@@ -2189,8 +2190,8 @@ void DianaMainWindow::crossectionSetUpdateSlot()
 void DianaMainWindow::spectrumChangedSlot(const QString& station)
 {
 #ifdef DEBUGPRINT
-  //cerr << "DianaMainWindow::spectrumChangedSlot to " << name << endl;
-  cerr << "DianaMainWindow::spectrumChangedSlot" << endl;
+  //DEBUG_ << "DianaMainWindow::spectrumChangedSlot to " << name;
+  DEBUG_ << "DianaMainWindow::spectrumChangedSlot";
 #endif
   string s =station.toStdString();
   vector<string> data;
@@ -2204,7 +2205,7 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
 void DianaMainWindow::spectrumSetChangedSlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::spectrumSetChangedSlot()" << endl;
+  DEBUG_ << "DianaMainWindow::spectrumSetChangedSlot()";
 #endif
   if ( !spWindow ) return;
   StationPlot * stp = spWindow->getStations() ;
@@ -2218,7 +2219,7 @@ void DianaMainWindow::spectrumSetChangedSlot()
 
 void DianaMainWindow::connectionClosed()
 {
-  //  cerr <<"Connection closed"<<endl;
+  //  DEBUG_ <<"Connection closed";
   qsocket = false;
 
   contr->stationCommand("delete","all");
@@ -2243,19 +2244,15 @@ void DianaMainWindow::connectionClosed()
 void DianaMainWindow::processLetter(const miMessage &letter)
 {
   miutil::miString from(letter.from);
-  //  cerr<<"Command: "<<letter.command<<"  ";
-  //  cerr <<endl;
-  //   cerr<<" Description: "<<letter.description<<"  ";
-  //  cerr <<endl;
-  //   cerr<<" commonDesc: "<<letter.commondesc<<"  ";
-  //  cerr <<endl;
-  //   cerr<<" Common: "<<letter.common<<"  ";
-  //  cerr <<endl;
+  //  DEBUG_<<"Command: "<<letter.command<<"  ";
+  //   DEBUG_<<" Description: "<<letter.description<<"  ";
+  //   DEBUG_<<" commonDesc: "<<letter.commondesc<<"  ";
+  //   DEBUG_<<" Common: "<<letter.common<<"  ";
   //   for(unsigned size_t i=0;i<letter.data.size();i++)
   //    if(letter.data[i].length()<80)
-  //       cerr <<" data["<<i<<"]:"<<letter.data[i]<<endl;;
-  //    cerr <<" From: "<<from<<endl;
-  //   cerr <<"To: "<<letter.to<<endl;
+  //       DEBUG_ <<" data["<<i<<"]:"<<letter.data[i];;
+  //    DEBUG_ <<" From: "<<from;
+  //   DEBUG_ <<"To: "<<letter.to;
 
   if( letter.command == "menuok"){
     MenuOK();
@@ -2415,7 +2412,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   //   }
 
   else if (letter.command == qmstrings::changeimageandtext ){
-    //cerr << "Change text and image\n";
+    //DEBUG_ << "Change text and image\n";
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
     vector<string> desc;
@@ -2435,7 +2432,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   //   else if (letter.command == qmstrings::changeimageandimage ){ //Obsolete
-  //     //cerr << "Change image and image\n";
+  //     //DEBUG_ << "Change image and image\n";
   //     //description: dataset;stationname:image:image2
   //     //find name of data set from description
   //     vector<miutil::miString> desc = letter.description.split(";");
@@ -2643,7 +2640,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   // show the latest timestep
   else if (letter.command == qmstrings::directory_changed) {
 #ifdef DEBUGPRINT
-    cerr << letter.command <<" received" << endl;
+    DEBUG_ << letter.command <<" received";
 #endif
 
     if (doAutoUpdate) {
@@ -2652,9 +2649,9 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         om->getTimes();
         sm->RefreshList();
         if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
-          //cerr << "new satfile or satfile deleted!" << endl;
-          //cerr << "setPlotTime" << endl;
-          //	  cerr << "doAutoUpdate  timer on" << endl;
+          //DEBUG_ << "new satfile or satfile deleted!";
+          //DEBUG_ << "setPlotTime";
+          //	  DEBUG_ << "doAutoUpdate  timer on";
           contr->satFileListUpdated();
           contr->obsTimeListUpdated();
         }
@@ -2673,13 +2670,13 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         // If t > tp force repaint...
         if (contr->satFileListChanged() || contr->obsTimeListChanged() || (t > tp))
         {
-          //cerr << "new satfile or satfile deleted!" << endl;
-          //cerr << "setPlotTime" << endl;
+          //DEBUG_ << "new satfile or satfile deleted!";
+          //DEBUG_ << "setPlotTime";
           setPlotTime(t);
           contr->satFileListUpdated();
           contr->obsTimeListUpdated();
         }
-        //cerr << "stepforward" << endl;
+        //DEBUG_ << "stepforward";
         stepforward();
         QApplication::restoreOverrideCursor();
       }
@@ -2690,7 +2687,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   // when the user presses the updateObs button.
   else if (letter.command == qmstrings::file_changed) {
 #ifdef DEBUGPRINT
-    cerr << letter.command <<" received" << endl;
+    DEBUG_ << letter.command <<" received";
 #endif
     if (doAutoUpdate) {
       // Just a call to update obs will work fine
@@ -2719,20 +2716,20 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-  //   cerr <<"SENDING>>>>"<<endl;
-  //   cerr<<"Command: "<<letter.command<<endl;
-  //   cerr<<"Description: "<<letter.description<<endl;
-  //   cerr<<"commonDesc: "<<letter.commondesc<<endl;
-  //   cerr<<"Common: "<<letter.common<<endl;
+  //   DEBUG_ <<"SENDING>>>>";
+  //   DEBUG_<<"Command: "<<letter.command;
+  //   DEBUG_<<"Description: "<<letter.description;
+  //   DEBUG_<<"commonDesc: "<<letter.commondesc;
+  //   DEBUG_<<"Common: "<<letter.common;
   //       for(size_t i=0;i<letter.data.size();i++)
-  // 	cerr<<"data:"<<letter.data[i]<<endl;
-  //   cerr <<"To: "<<letter.to<<endl;
+  // 	DEBUG_<<"data:"<<letter.data[i];
+  //   DEBUG_ <<"To: "<<letter.to;
 }
 
 void DianaMainWindow::updateObs()
 {
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::obsUpdate()" << endl;
+  DEBUG_ << "DianaMainWindow::obsUpdate()";
 #endif
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->updateObs();
@@ -2745,7 +2742,7 @@ void DianaMainWindow::autoUpdate()
 {
   doAutoUpdate = !doAutoUpdate;
 #ifdef DEBUGPRINT
-  cerr << "DianaMainWindow::autoUpdate(): " << doAutoUpdate << endl;
+  DEBUG_ << "DianaMainWindow::autoUpdate(): " << doAutoUpdate;
 #endif
   autoUpdateAction->setChecked(doAutoUpdate);
 }
@@ -3024,7 +3021,7 @@ void DianaMainWindow::idnumChange(int increment)
 void DianaMainWindow::saveraster()
 {
 
-  cerr <<"DianaMainWindow::saveraster"<<endl;
+  DEBUG_ <<"DianaMainWindow::saveraster";
 
   static QString fname = "./"; // keep users preferred image-path for later
   QString s =
@@ -3186,7 +3183,7 @@ void DianaMainWindow::makeEPS(const miutil::miString& filename)
 
 void DianaMainWindow::parseSetup()
 {
-  cerr<<" DianaMainWindow::parseSetup()"<<endl;
+  DEBUG_<<" DianaMainWindow::parseSetup()";
   SetupDialog *setupDialog = new SetupDialog(this);
 
   if( setupDialog->exec() ) {
@@ -3194,7 +3191,7 @@ void DianaMainWindow::parseSetup()
     LocalSetupParser sp;
     miutil::miString filename;
     if (!sp.parse(filename)){
-      cerr << "An error occured while re-reading setup " << endl;
+      ERROR_ << "An error occured while re-reading setup ";
     }
     contr->parseSetup();
     vcWindow->parseSetup();
@@ -3209,7 +3206,7 @@ void DianaMainWindow::parseSetup()
 
 void DianaMainWindow::hardcopy()
 {
-  //cerr <<"DianaMainWindow::hardcopy()"<<endl;
+  //DEBUG_ <<"DianaMainWindow::hardcopy()";
   QPrinter qprt;
 
   miutil::miString command= pman.printCommand();
@@ -3259,12 +3256,12 @@ void DianaMainWindow::hardcopy()
       pman.expandCommand(command, priop);
 
       //########################################################################
-      cerr<<"PRINT: "<< command << endl;
+      DEBUG_<<"PRINT: "<< command;
       //########################################################################
       int res = system(command.c_str());
 
       if (res != 0){
-        cerr << "Print command:" << command << " failed" << endl;
+        ERROR_ << "Print command:" << command << " failed";
       }
 
     }
@@ -3306,7 +3303,7 @@ void DianaMainWindow::measurementsPositions(bool b)
 void DianaMainWindow::vCrossPositions(bool b)
 {
 #ifdef DEBUGPRINT
-  cerr << "vCrossPositions b=" << b << endl;
+  DEBUG_ << "vCrossPositions b=" << b;
 #endif
   markMeasurementsPos = false;
   markTrajPos = false;
@@ -3439,7 +3436,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 {
-  //  cerr <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)"<<endl;
+  //  DEBUG_ <<"void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)";
 
   int x = mev.x;
   int y = mev.y;
@@ -3483,7 +3480,7 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
 {
 #ifdef DEBUGREDRAWCATCH
-  cerr<<"DianaMainWindow::catchMouseMovePos x,y: "<<mev.x<<" "<<mev.y<<endl;
+  DEBUG_<<"DianaMainWindow::catchMouseMovePos x,y: "<<mev.x<<" "<<mev.y;
 #endif
   int x = mev.x;
   int y = mev.y;
@@ -3540,7 +3537,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
 {
 
 #ifdef DEBUGREDRAWCATCH
-  cerr<<"DianaMainWindow::catchElement x,y: "<<mev.x<<" "<<mev.y<<endl;
+  DEBUG_<<"DianaMainWindow::catchElement x,y: "<<mev.x<<" "<<mev.y;
 #endif
   int x = mev.x;
   int y = mev.y;
@@ -3776,7 +3773,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       if( name.exists() && stations.size()>0){
         miMessage letter;
         letter.to = qmstrings::all;
-        //	cerr <<"To: "<<letter.to<<endl;
+        //	DEBUG_ <<"To: "<<letter.to;
         letter.command    = qmstrings::selectposition;
         letter.commondesc =  "dataset";
         letter.common     =  name;
@@ -3947,7 +3944,7 @@ void DianaMainWindow::writeLogFile()
   // open filestream
   ofstream file(logfile.c_str());
   if (!file){
-    cerr << "ERROR OPEN (WRITE) " << logfile << endl;
+    ERROR_ << "ERROR OPEN (WRITE) " << logfile;
     return;
   }
 
@@ -4070,7 +4067,7 @@ void DianaMainWindow::writeLogFile()
 
 
   file.close();
-  cerr << "Finished writing " << logfile << endl;
+  INFO_ << "Finished writing " << logfile;
 }
 
 
@@ -4091,11 +4088,11 @@ void DianaMainWindow::readLogFile()
   // open filestream
   ifstream file(logfile.c_str());
   if (!file){
-    //    cerr << "Can't open " << logfile << endl;
+    //    DEBUG_ << "Can't open " << logfile;
     return;
   }
 
-  cerr << "READ " << logfile << endl;
+  INFO_ << "READ " << logfile;
 
   miutil::miString beginStr, endStr, str;
   vector<miutil::miString> vstr;
@@ -4105,7 +4102,7 @@ void DianaMainWindow::readLogFile()
       beginStr.trim();
       int l= beginStr.length();
       if (l<3 || beginStr[0]!='[' || beginStr[l-1]!=']') {
-        cerr << "Bad keyword found in " << logfile << " : " << beginStr << endl;
+        ERROR_ << "Bad keyword found in " << logfile << " : " << beginStr;
         break;
       }
 
@@ -4160,12 +4157,12 @@ void DianaMainWindow::readLogFile()
       }
 
       //else
-      //	cerr << "Unhandled log section: " << beginStr << endl;
+      //	DEBUG_ << "Unhandled log section: " << beginStr;
     }
   }
 
   file.close();
-  cerr << "Finished reading " << logfile << endl;
+  INFO_ << "Finished reading " << logfile;
 }
 
 
@@ -4354,7 +4351,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
   if (logVersion.empty()) logVersion= "0.0.0";
 
   if (logVersion!=thisVersion)
-    cerr << "log from version " << logVersion << endl;
+    INFO_ << "log from version " << logVersion;
 }
 
 void DianaMainWindow::restoreDocState(miutil::miString logstr)
@@ -4367,7 +4364,7 @@ void DianaMainWindow::restoreDocState(miutil::miString logstr)
   }
 
   if (!restoreState( state)){
-    cerr << "!!!restoreState failed" << endl;
+    ERROR_ << "!!!restoreState failed";
   }
 }
 
@@ -4376,7 +4373,7 @@ void DianaMainWindow::getDisplaySize()
   displayWidth=  QApplication::desktop()->width();
   displayHeight= QApplication::desktop()->height();
 
-  cerr << "display width,height: "<<displayWidth<<" "<<displayHeight<<endl;
+  DEBUG_ << "display width,height: "<<displayWidth<<" "<<displayHeight;
 }
 
 

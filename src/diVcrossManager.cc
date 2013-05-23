@@ -47,6 +47,7 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossManager"
 #include <miLogger/miLogging.h>
+#include <diCommonTypes.h>
 
 using namespace::miutil;
 
@@ -156,7 +157,7 @@ bool VcrossManager::parseSetup()
       }
     }
   } else {
-    //cerr << "Missing section " << section1 << " in setupfile." << endl;
+    //DEBUG_ << "Missing section " << section1 << " in setupfile.";
     //ok= false;
   }
 
@@ -495,7 +496,7 @@ vector<std::string> VcrossManager::getFieldNames(const miString& model)
       vcfields[model] = vcfield;
       return VcrossPlot::getFieldNames(model);
     } else {
-      cerr << "Error making inventory of model " << model << endl;
+      ERROR_ << "Error making inventory of model " << model;
       return empty;
     }
   } else {
@@ -636,7 +637,7 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
 
   for (int i=0; i<n; i++) {
 
-    cerr<<vstr[i]<<endl;
+    INFO_<<vstr[i];
 
     vector<miString> vs1= vstr[i].split(' ');
     int m= vs1.size();

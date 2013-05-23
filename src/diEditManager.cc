@@ -36,6 +36,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <diCommonTypes.h>
 #include <diEditManager.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
@@ -66,7 +67,7 @@ combinematrix(0),numregs(0), hiddenObjects(false),
 hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 {
   if (plotm==0 || objm==0){
-    cerr << "Catastrophic error: plotm or objm == 0" << endl;
+    WARN_ << "Catastrophic error: plotm or objm == 0";
   }
 
   initEditTools();
@@ -87,14 +88,14 @@ EditManager::~EditManager()
 
 bool EditManager::parseSetup() {
 #ifdef DEBUGPRINT
-  cerr << "++ EditManager::parseSetup" << endl;
+  DEBUG_ << "++ EditManager::parseSetup";
 #endif
 
   miString section="EDIT";
   vector<miString> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
-    cerr << "No " << section << " section in setupfile, ok." << endl;
+    ERROR_ << "No " << section << " section in setupfile, ok.";
     return true;
   }
 
@@ -382,7 +383,7 @@ bool EditManager::parseSetup() {
 void EditManager::readCommandFile(EditProduct & ep)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ EditManager::readCommandFile" << endl;
+  DEBUG_ << "++ EditManager::readCommandFile";
 #endif
   // the commands OKstrings to be exectuted when we start an
   // edit session, for the time being called from parseSeup
@@ -395,7 +396,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   // open filestream
   ifstream file(ep.commandFilename.c_str());
   if (!file){
-    cerr << "ERROR OPEN (READ) " << ep.commandFilename << endl;
+    ERROR_ << "ERROR OPEN (READ) " << ep.commandFilename;
     return;
   }
   while (getline(file,s)){
@@ -428,10 +429,10 @@ void EditManager::readCommandFile(EditProduct & ep)
   }
   ep.labels=labcom;
 #ifdef DEBUGPRINT
-  cerr << "++ EditManager::readCommandFile start reading --------" << endl;
+  DEBUG_ << "++ EditManager::readCommandFile start reading --------";
   for (int ari=0; ari<ep.labels.size(); ari++)
-       cerr << "   " << ep.labels[ari ] << "  " << endl;
-  cerr << "++ EditManager::readCommandFile finish reading ------------" << endl;
+       DEBUG_ << "   " << ep.labels[ari ] << "  ";
+  DEBUG_ << "++ EditManager::readCommandFile finish reading ------------";
 #endif
 
   ep.OKstrings=commands;
@@ -467,7 +468,7 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
   else if (mmode=="normal_mode")
     mapmode= normal_mode;
   else {
-    cerr << "diEditManager::setEditMode  unknown mapmode:" << mmode << endl;
+    ERROR_ << "diEditManager::setEditMode  unknown mapmode:" << mmode;
     return;
   }
 
@@ -487,8 +488,8 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
   int mmidx=0;
   while (mmidx<n && mmode!=mapmodeinfo[mmidx].mapmode) mmidx++;
   if (mmidx==n){
-    cerr << "diEditManager::setEditMode  no info for mapmode:"
-    << mmode << endl;
+    ERROR_ << "diEditManager::setEditMode  no info for mapmode:"
+    << mmode;
     editmode=edittool=0;
     return;
   }
@@ -502,7 +503,7 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
   while (emidx<n &&
       emode!=mapmodeinfo[mmidx].editmodeinfo[emidx].editmode) emidx++;
   if (emidx==n){
-    cerr << "diEditManager::setEditMode  unknown editmode:" << emode << endl;
+    ERROR_ << "diEditManager::setEditMode  unknown editmode:" << emode;
     editmode=edittool=0;
     return;
   }
@@ -534,7 +535,7 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
     EventResult& res){
 
   //#ifdef DEBUGREDRAW
-  //  cerr<<"EditManager::sendMouseEvent"<<endl;
+  //  DEBUG_<<"EditManager::sendMouseEvent";
   //#endif
   res.savebackground= true;
   res.background= false;
@@ -655,7 +656,7 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
         res.repaint= true;
       }
     } else if (me.type == mousemove){
-      //cerr << "mousemove " << endl;
+      //DEBUG_ << "mousemove ";
       res.action = quick_browsing;
       if (me.button == noButton){
         if (objm->inDrawing()){
@@ -711,7 +712,7 @@ void EditManager::sendMouseEvent(const mouseEvent& me,
     }
   }
 #ifdef DEBUGREDRAW
-  cerr<<"EditManager::sendMouseEvent return res.repaint= "<<res.repaint<<endl;
+  DEBUG_<<"EditManager::sendMouseEvent return res.repaint= "<<res.repaint;
 #endif
 }
 
@@ -720,7 +721,7 @@ void EditManager::sendKeyboardEvent(const keyboardEvent& me,
     EventResult& res){
 
 #ifdef DEBUGREDRAW
-  cerr<<"EditManager::sendKeyboardEvent"<<endl;
+  DEBUG_<<"EditManager::sendKeyboardEvent";
 #endif
   res.savebackground= true;
   res.background= false;
@@ -969,7 +970,7 @@ bool EditManager::unsentEditChanges(){
 
 
 bool EditManager::getProductTime(miTime& t){
-  //cerr << "EditManager::getProductTime" << endl;
+  //DEBUG_ << "EditManager::getProductTime";
   //returns the current product time
   if (plotm->prodtimedefined){
     t= plotm->producttime;
@@ -980,7 +981,7 @@ bool EditManager::getProductTime(miTime& t){
 
 
 miString EditManager::getProductName(){
-  //cerr << "EditManager::getProductName" << endl;
+  //DEBUG_ << "EditManager::getProductName";
   //returns the current product time
   return EdProd.name;
 }
@@ -1072,7 +1073,7 @@ bool EditManager::loginDatabase(editDBinfo& db, miString& message)
   ProductionGate::dbInfo dbi(db.host, db.user, db.pass, db.base, db.port);
 
   if (!gate.login(dbi, w)){
-    cerr << "Could not log in" << endl;
+    ERROR_ << "Could not log in";
     message= w.w2cStr();
     return false;
   }
@@ -1116,7 +1117,7 @@ bool EditManager::startEdit(const EditProduct& ep,
     const miTime& valid)
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::startEdit()" << endl;
+  DEBUG_ << "EditManager::startEdit()";
 #endif
 
   //this routine starts an Edit session
@@ -1175,7 +1176,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       miString filename = EdProd.fields[j].fromprod.filename;
 
-      //cerr << "filename for saved field file to open:" << filename << endl;
+      //INFO_ << "filename for saved field file to open:" << filename;
 
       FieldEdit *fed= new FieldEdit( fieldPlotManager );
       // spec. used when reading and writing field
@@ -1204,7 +1205,7 @@ bool EditManager::startEdit(const EditProduct& ep,
     savedProduct objectProd = EdProd.objectprods[i];
     miString filename =  objectProd.filename;
     if (!filename.empty()){
-      //cerr << "filename for saved objects file to open:" << filename << endl;
+      //INFO_ << "filename for saved objects file to open:" << filename;
       plotm->editobjects.setSelectedObjectTypes(objectProd.selectObjectTypes);
       objm->editCommandReadDrawFile(filename);
       miString commentstring="Objects from:\n" +
@@ -1240,19 +1241,19 @@ bool EditManager::startEdit(const EditProduct& ep,
     // messages from ProductionGate
     miString message;
     if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-      //cerr << "We are allowed to start production" << endl;
+      //INFO_ << "We are allowed to start production";
       // start production
       if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-        cerr << "We are in production" << endl;
+        INFO_ << "We are in production";
       else{
-        cerr << "We could not start production" << endl;
+        ERROR_ << "We could not start production";
         return false;
       }
     } else{
-      cerr << "We are NOT allowed to start production" << endl;
+      ERROR_ << "We are NOT allowed to start production";
       return false;
     }
-    cerr << "Message:" << message << endl;
+    INFO_ << "Message:" << message;
 #endif
   }
   return true;
@@ -1266,7 +1267,7 @@ bool EditManager::writeEditProduct(miString&  message,
     const bool isapproved){
 
 #ifdef DEBUGPRINT
-  cerr << "EditManager::writeEditProduct" << endl;
+  DEBUG_ << "EditManager::writeEditProduct";
 #endif
 
   bool res= true;
@@ -1275,7 +1276,7 @@ bool EditManager::writeEditProduct(miString&  message,
 
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
-      //cerr << "Writing field:" << i << endl;
+      //INFO_ << "Writing field:" << i;
       miString filenamePart =EdProd.fields[i].filenamePart;
       miString filename= editFileName(EdProd.savedir,EdProdId.name,
           filenamePart,t);
@@ -1406,11 +1407,11 @@ bool EditManager::findProduct(EditProduct& ep, miString pname){
   while (i<n && editproducts[i].name!=pname) i++;
 
   if (i<n) {
-    //cerr << "Found correct product for " << pname << endl;
+    //INFO_ << "Found correct product for " << pname;
     ep= editproducts[i];
     return true;
   } else {
-    cerr << "ERROR: No product found for " << pname << endl;
+    ERROR_ << "ERROR: No product found for " << pname;
     return false;
   }
 }
@@ -1474,7 +1475,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
     const EditProductId& ei)
 {
-  //cerr << "getCombineProducts" << endl;
+  //DEBUG_ << "getCombineProducts";
 
   vector<miTime> ctime;
 
@@ -1498,12 +1499,12 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   for (int i=0; i<ncombdirs; i++) {
     dir = ep.combinedirs[i];
     dataSource dsource= (dir==ep.savedir) ? data_local : data_server;
-    //cerr << "Looking in directory " << dir << endl;
+    //DEBUG_ << "Looking in directory " << dir;
     for (int j=-1; j<numfields; j++) {
       if (j == -1) filenamePart= ep.objectsFilenamePart;
       else         filenamePart= ep.fields[j].filenamePart;
       fileString = dir + "/" + pid + "_" + filenamePart+ ".*";
-      //cerr << "    find " << fileString << endl;
+      //DEBUG_ << "    find " << fileString;
       findSavedProducts(combineprods,fileString,dsource,j);
     }
   }
@@ -1583,7 +1584,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 
   for (int i=0; i<globBuf.gl_pathc; i++) {
     miString name = globBuf.gl_pathv[i];
-    //cerr << "Found a file " << name << endl;
+    //DEBUG_ << "Found a file " << name;
     savedProduct savedprod;
     savedprod.pid= objm->prefixFileName(name);
     savedprod.ptime= objm->timeFileName(name);
@@ -1633,7 +1634,7 @@ vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
 void EditManager::stopEdit()
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::stopEdit" << endl;
+  DEBUG_ << "EditManager::stopEdit";
 #endif
 
   plotm->prodtimedefined= false;
@@ -1661,11 +1662,10 @@ void EditManager::stopEdit()
 #ifdef METNOPRODDB
     miString message;
     if (gate.endProd(message)){
-      cerr << "We are no longer in production, " << message <<
-      endl;
+      INFO_ << "We are no longer in production, " << message;
 
     } else
-      cerr << "We could not stop production" << endl;
+      INFO_ << "We could not stop production";
 #endif
   }
 }
@@ -1744,7 +1744,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     const miTime& valid,
     vector<miString>& pids){
 #ifdef DEBUGPRINT
-cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
+DEBUG_ << "EditManager::startCombineEdit()  Time = " << valid;
 #endif
 
   int nfe = fedits.size();
@@ -1797,7 +1797,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
   miString filename = EdProd.combineBorders + EdProdId.name;
   //read AreaBorders
   if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
-    cerr << "EditManager::startCombineEdit  error reading borders" << endl;
+    ERROR_ << "EditManager::startCombineEdit  error reading borders";
     return false;
   }
 
@@ -1829,7 +1829,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
         // spec. used when reading field
         fed->setSpec(EdProd, j);
         miString filename = combineprods[ipc].filename;
-        //cerr << "Read field file " << filename << endl;
+        //DEBUG_ << "Read field file " << filename;
         if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
           int nx,ny;
           fed->getFieldSize(nx,ny);
@@ -1857,7 +1857,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
   }
 
   if (!ok) {
-    cerr << "EditManager::startCombineEdit  error reading fields" << endl;
+    ERROR_ << "EditManager::startCombineEdit  error reading fields";
     cleanCombineData(true);
     combineprods.clear(); // not needed to keep this, as dialog works now
     return false;
@@ -1882,7 +1882,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
         combineprods[ipc].element!=-1)) ipc++;
     if (ipc<ipcend) {
       miString filename = combineprods[ipc].filename;
-      //cerr << "Read object file " << filename << endl;
+      //DEBUG_ << "Read object file " << filename;
       EditObjects wo;
       //init weather objects with correct prefix (region name)
       wo.setPrefix(combineprods[ipc].pid);
@@ -1927,19 +1927,19 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
     // messages from ProductionGate
     miString message;
     if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-      cerr << "We are allowed to start production" << endl;
+      INFO_ << "We are allowed to start production";
       // start production
       if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-        cerr << "We are in production" << endl;
+        INFO_ << "We are in production";
       else{
-        cerr << "We could not start production" << endl;
+        ERROR_ << "We could not start production";
         return false;
       }
     } else{
-      cerr << "We are NOT allowed to start production" << endl;
+      ERROR_ << "We are NOT allowed to start production";
       return false;
     }
-    cerr << "Message:" << message << endl;
+    INFO_ << "Message:" << message;
 #endif
   }
 
@@ -1954,7 +1954,7 @@ cerr << "EditManager::startCombineEdit()  Time = " << valid << endl;
 bool EditManager::editCombine()
 {
 #ifdef DEBUGPRINT
-  cerr<<"EditManager::editCombine......................."<<endl;
+  DEBUG_<<"EditManager::editCombine.......................";
 #endif
 
   int nfe = fedits.size();
@@ -2082,7 +2082,7 @@ bool EditManager::editCombine()
 void EditManager::stopCombine()
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::stopCombine" << endl;
+  DEBUG_ << "EditManager::stopCombine";
 #endif
 
   objm->undofrontClear();
@@ -2127,11 +2127,11 @@ bool EditManager::combineFields(float zoneWidth) {
   int i,n, size= nx*ny;
 
   int nf= fedits.size();
-  //cerr << "number of fedits:" << nf << endl;
-  //cerr << "number of combinefields:" << mc << endl;
+  //DEBUG_ << "number of fedits:" << nf;
+  //DEBUG_ << "number of combinefields:" << mc;
 
   if ( nf < 1 ){
-    cerr << "EditManager::combineFields, number of fields is zero" << endl;
+    ERROR_ << "EditManager::combineFields, number of fields is zero";
     return false;
   }
 
@@ -2191,8 +2191,8 @@ bool EditManager::combineFields(float zoneWidth) {
     delete[] xdircp;
     delete[] ydircp;
     delete[] f2;
-    cerr << "ERROR: OUT OF MEMORY in combineFields !!!!!!!!" << endl;
-    cerr << "       NOT ABLE TO SMOOTH the result field !!!" << endl;
+    ERROR_ << "ERROR: OUT OF MEMORY in combineFields !!!!!!!!";
+    ERROR_ << "       NOT ABLE TO SMOOTH the result field !!!";
     return true;
   }
 
@@ -2279,12 +2279,12 @@ struct polygon{
 
 bool EditManager::recalcCombineMatrix(){
 
-  //cerr << "recalcCombineMatrix" << endl;
+  //DEBUG_ << "recalcCombineMatrix";
   int cosize= plotm->combiningobjects.objects.size();
   int nf= fedits.size();
 
   if ( nf < 1 ){
-    cerr << "EditManager::recalcCombineMatrix, number of fields is zero" << endl;
+    ERROR_ << "EditManager::recalcCombineMatrix, number of fields is zero";
     return false;
   }
 
@@ -2320,25 +2320,25 @@ bool EditManager::recalcCombineMatrix(){
     }
   }
   //####################################################################
-//  cerr << "recalcCombineMatrix  nborders=" << nborders << endl;
+//  DEBUG_ << "recalcCombineMatrix  nborders=" << nborders;
 //  for (int nb=0; nb<nborders; nb++) {
-//    cerr<<"PRE CONV border "<<nb<<endl;
+//    DEBUG_<<"PRE CONV border "<<nb;
 //    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//      cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+//      DEBUG_<<"  x,y:  " << xposis[ip] << "  " << yposis[ip];
 //  }
   //####################################################################
 
   Area oldArea= plotm->getMapArea();
   Area newArea= fedits[0]->editfield->area;
   if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis,yposis)) {
-    cerr << "changeProjection: getPoints error" << endl;
+    ERROR_ << "changeProjection: getPoints error";
     return false;
   }
   //####################################################################
 //  for (int nb=0; nb<nborders; nb++) {
-//    cerr<<"AFTER CONV border "<<nb<<endl;
+//    DEBUG_<<"AFTER CONV border "<<nb;
 //    for (int ip=startv[nb]; ip<startv[nb]+numv[nb]; ip++)
-//      cerr<<"  x,y:  " << xposis[ip] << "  " << yposis[ip] << endl;
+//      DEBUG_<<"  x,y:  " << xposis[ip] << "  " << yposis[ip];
 //  }
   //####################################################################
 
@@ -2593,7 +2593,7 @@ bool EditManager::recalcCombineMatrix(){
 void EditManager::prepareEditFields(const miString& plotName, const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ EditManager::prepareEditFields ++" << endl;
+  DEBUG_ << "++ EditManager::prepareEditFields ++";
 #endif
 
   // setting plot options
@@ -2620,7 +2620,7 @@ void EditManager::prepareEditFields(const miString& plotName, const vector<miStr
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from EditManager::prepareEditFields ++" << endl;
+  DEBUG_ << "++ Returning from EditManager::prepareEditFields ++";
 #endif
 }
 
@@ -2641,8 +2641,8 @@ bool EditManager::getFieldArea(Area& a)
 void EditManager::plot(bool under, bool over)
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::plot  under="<<under<<"  over="<<over
-  <<"  showRegion="<<showRegion<<endl;
+  DEBUG_ << "EditManager::plot  under="<<under<<"  over="<<over
+  <<"  showRegion="<<showRegion;
 #endif
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
@@ -2676,11 +2676,11 @@ void EditManager::plot(bool under, bool over)
   bool plotinfluence= (mapmode==fedit_mode);
 
 #ifdef DEBUGPRINT
-  cerr<<" plototherfield="<<plototherfield
+  DEBUG_<<" plototherfield="<<plototherfield
   <<" plotactivefield="<<plotactivefield
   <<" plotobjects="<<plotobjects
   <<" plotinfluence="<<plotinfluence
-  <<" plotregion="<<plotregion<<endl;
+  <<" plotregion="<<plotregion;
 #endif
 
   if (plotcombine && under){
@@ -2694,7 +2694,7 @@ void EditManager::plot(bool under, bool over)
       if (fedits[i]->editfield && fedits[i]->editfieldplot) {
         bool act= fedits[i]->activated();
         if ((act && plotactivefield) || (!act && plototherfield)){
-          //cerr << "  Plotting field " << i << endl;
+          //DEBUG_ << "  Plotting field " << i;
           fedits[i]->plot(plotinfluence);
         }
       }
@@ -2743,7 +2743,7 @@ void EditManager::plot(bool under, bool over)
         }
         scale= npos*0.5*gridResolutionX/s;
       } else {
-        cerr << "EditManager::plot : getPoints error" << endl;
+        ERROR_ << "EditManager::plot : getPoints error";
       }
       delete[] x;
       delete[] y;
@@ -2761,7 +2761,7 @@ void EditManager::plot(bool under, bool over)
 void EditManager::plotSingleRegion()
 {
 #ifdef DEBUGPRINT
-  cerr << "EditManager::plotSingleRegion" << endl;
+  DEBUG_ << "EditManager::plotSingleRegion";
 #endif
 
   if (showRegion<0 || showRegion>=numregs) return;
@@ -2823,7 +2823,7 @@ void EditManager::initEditTools(){
   /* called from EditManager constructor. Defines edit tools used
      for editing fields, and displaying and editing objects  */
 #ifdef DEBUGPRINT
-  cerr << "EditManager::initEditTools" << endl;
+  DEBUG_ << "EditManager::initEditTools";
 #endif
   //defines edit and drawing tools
 
@@ -3122,7 +3122,7 @@ void EditManager::setMapmodeinfo(){
   edit session, which will appear in the edit dialog
   drawtools used for EditProducts are defined in setup-file */
 #ifdef DEBUGPRINT
-  cerr << "EditManager::setMapmodeinfo()" << endl;
+  DEBUG_ << "EditManager::setMapmodeinfo()";
 #endif
 
   mapmodeinfo.clear();

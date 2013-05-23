@@ -35,6 +35,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <diCommonTypes.h>
 #include <diObjectPoint.h>
 
 /* Created at Thu Jul 18 14:14:53 2002 */
@@ -42,7 +43,7 @@
 // Default constructor
 ObjectPoint::ObjectPoint() {
 #ifdef DEBUGPRINT
-  cerr << "Ny ObjectPoint() laget" << endl;
+  DEBUG_ << "Ny ObjectPoint() laget";
 #endif
   x=0;
   y=0;
@@ -54,7 +55,7 @@ ObjectPoint::ObjectPoint() {
 // x,y constructor
 ObjectPoint::ObjectPoint(float xin,float yin) {
 #ifdef DEBUGPRINT
-  cerr << "Ny ObjectPoint(float,float) laget" << endl;
+  DEBUG_ << "Ny ObjectPoint(float,float) laget";
 #endif
   x=xin;
   y=yin;
@@ -78,16 +79,16 @@ float ObjectPoint::distSquared(float xm, float ym){
 
 //check if point xm,ym is in rectangle with sides fdeltaw around point
 bool ObjectPoint::isInRectangle(float xm,float ym, float fdeltaw){
-  //cerr << "ObjectPoint::isInRectangle" << endl;
+  //DEBUG_ << "ObjectPoint::isInRectangle";
   myRect.x1=x - fdeltaw;
   myRect.x2=x + fdeltaw;
   myRect.y1=y - fdeltaw;
   myRect.y2=y + fdeltaw;
   if (myRect.isinside(xm,ym)){
-    //cerr << "ObjectPoint::isInRectangle return true" << endl;
+    //DEBUG_ << "ObjectPoint::isInRectangle return true";
     return true;
   }
-  //cerr << "ObjectPoint::isInRectangle return false" << endl;
+  //DEBUG_ << "ObjectPoint::isInRectangle return false";
   return false;
 }
 

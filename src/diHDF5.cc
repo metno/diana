@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include "diHDF5.h"
 
 using namespace::miutil;
@@ -54,8 +55,8 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
   ginfo.hdf5type = file.hdf5type;
 
 #ifdef DEBUGPRINT
-  cerr << "HDF5::readHDF5Palette ginfo.metadata " << ginfo.metadata << endl;
-  cerr << "HDF5::readHDF5Palette filename " << file.name << endl;
+  DEBUG_ << "HDF5::readHDF5Palette ginfo.metadata " << ginfo.metadata;
+  DEBUG_ << "HDF5::readHDF5Palette filename " << file.name;
 #endif
 
   // if not colour palette image
@@ -88,10 +89,10 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, vector<Colour>& col)
 bool HDF5::readHDF5Header(SatFileInfo& file)
 {
 #ifdef DEBUGPRINT
-  cerr << "HDF5::readHDF5Header" << endl;
-  cerr << "HDF5::readHDF5Header file.name: " << file.name << endl;
-  cerr << "HDF5::readHDF5Header hdf5type: " << file.hdf5type << endl;
-  cerr << "HDF5::readHDF5Header time: " <<file.time << endl;
+  DEBUG_ << "HDF5::readHDF5Header";
+  DEBUG_ << "HDF5::readHDF5Header file.name: " << file.name;
+  DEBUG_ << "HDF5::readHDF5Header hdf5type: " << file.hdf5type;
+  DEBUG_ << "HDF5::readHDF5Header time: " <<file.time;
 
 #endif
 
@@ -110,7 +111,7 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
   else if (rres==0)
     file.palette=false;
   else {
-    cerr <<"HDF5_head_diana returned false - rres: " << rres << " file: " << file.name << endl;
+    ERROR_ <<"HDF5_head_diana returned false - rres: " << rres << " file: " << file.name;
     return false;
   }
   // If time from file is not valid, use the time from filename
@@ -131,7 +132,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
   // satellite pictures in the structure ginfo
 
 #ifdef DEBUGPRINT
-  cerr << "HDF5::readHDF5 (index:" << index << endl;
+  DEBUG_ << "HDF5::readHDF5 (index:" << index;
 #endif
 
   satimg::dihead ginfo;
@@ -146,26 +147,26 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
       sd.no,sd.index, ginfo);
 
   if (rres == -1) {
-    cerr << "HDF5_read_diana returned false:" << filename << endl;
+    ERROR_ << "HDF5_read_diana returned false:" << filename;
     return false;
   }
 
 #ifdef DEBUGPRINT
-  cerr << "HDF5::readHDF5 -> ginfo.name: " << ginfo.name << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.noofcl: " << ginfo.noofcl << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.satellite: " << ginfo.satellite << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.time: " << ginfo.time << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.xsize: " << ginfo.xsize << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.ysize: " << ginfo.ysize << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.trueLat: " << ginfo.trueLat << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.gridRot: " << ginfo.gridRot << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.Ax: " << ginfo.Ax << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.Ay: " << ginfo.Ay << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.Bx: " << ginfo.Bx << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.By: " << ginfo.By << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.cal_vis: " << ginfo.cal_vis << endl;
-  cerr << "HDF5::readHDF5 -> ginfo.cal_ir: " << ginfo.cal_ir << endl;
-  cerr << "HDF5::readHDF5 -> rres: " << rres << endl;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.name: " << ginfo.name;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.noofcl: " << ginfo.noofcl;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.satellite: " << ginfo.satellite;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.time: " << ginfo.time;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.xsize: " << ginfo.xsize;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.ysize: " << ginfo.ysize;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.trueLat: " << ginfo.trueLat;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.gridRot: " << ginfo.gridRot;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.Ax: " << ginfo.Ax;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.Ay: " << ginfo.Ay;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.Bx: " << ginfo.Bx;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.By: " << ginfo.By;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.cal_vis: " << ginfo.cal_vis;
+  DEBUG_ << "HDF5::readHDF5 -> ginfo.cal_ir: " << ginfo.cal_ir;
+  DEBUG_ << "HDF5::readHDF5 -> rres: " << rres;
 #endif
 
   if (rres == 2) {
@@ -176,9 +177,9 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
     sd.paletteInfo.clname = ginfo.clname;
 
 #ifdef DEBUGPRINT
-    cerr << "HDF5::readHDF5 sd.paletteInfo.name: " << sd.paletteInfo.name << endl;
+    DEBUG_ << "HDF5::readHDF5 sd.paletteInfo.name: " << sd.paletteInfo.name;
     for (size_t d = 0; d < sd.paletteInfo.clname.size(); d++)
-      cerr << "HDF5::readHDF5 sd.paletteInfo.clname: " << sd.paletteInfo.clname[d] << endl;
+      DEBUG_ << "HDF5::readHDF5 sd.paletteInfo.clname: " << sd.paletteInfo.clname[d];
 #endif
 
     for (int j=0; j<3; j++)

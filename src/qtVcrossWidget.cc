@@ -40,6 +40,7 @@
 #include <QKeyEvent>
 #include <QApplication>
 
+#include "diCommonTypes.h"
 #include "qtVcrossWidget.h"
 #include "diVcrossManager.h"
 #include "diVcrossPlot.h"
@@ -81,7 +82,7 @@ VcrossWidget::~VcrossWidget()
 void VcrossWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossWidget::initializeGL" << endl;
+  DEBUG_ << "VcrossWidget::initializeGL";
 #endif
 
   glShadeModel( GL_FLAT );
@@ -93,7 +94,7 @@ void VcrossWidget::initializeGL()
 void VcrossWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossWidget::paintGL" << endl;
+  DEBUG_ << "VcrossWidget::paintGL";
 #endif
 
   if (!vcrossm) return;
@@ -106,7 +107,7 @@ void VcrossWidget::paintGL()
   if (!fbuffer) {
 
 #ifdef DEBUGREDRAW
-    cerr << "VcrossWidget::paintGL ... vcrossm->plot" << endl;
+    DEBUG_ << "VcrossWidget::paintGL ... vcrossm->plot";
 #endif
     QApplication::setOverrideCursor( Qt::WaitCursor );
     vcrossm->plot();
@@ -114,7 +115,7 @@ void VcrossWidget::paintGL()
 
     if (savebackground) {
 #ifdef DEBUGREDRAW
-    cerr << "VcrossWidget::paintGL ...... savebackground" << endl;
+    DEBUG_ << "VcrossWidget::paintGL ...... savebackground";
 #endif
 
       VcrossPlot::getPlotSize(glx1,gly1,glx2,gly2,rubberbandColour);
@@ -135,7 +136,7 @@ void VcrossWidget::paintGL()
 
   } else {
 #ifdef DEBUGREDRAW
-    cerr << "VcrossWidget::paintGL ...... drawbackground" << endl;
+    DEBUG_ << "VcrossWidget::paintGL ...... drawbackground";
 #endif
 
     makeCurrent();
@@ -185,7 +186,7 @@ void VcrossWidget::paintGL()
 void VcrossWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossWidget::resizeGL  w=" << w << " h=" << h << endl;
+  DEBUG_ << "VcrossWidget::resizeGL  w=" << w << " h=" << h;
 #endif
   VcrossPlot::setPlotWindow(w,h);
 
@@ -329,7 +330,7 @@ void VcrossWidget::mouseReleaseEvent(QMouseEvent* me)
 void VcrossWidget::enableTimeGraph(bool on)
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossWidget::enableTimeGraph  on=" << on << endl;
+  DEBUG_ << "VcrossWidget::enableTimeGraph  on=" << on;
 #endif
   timeGraph= false;
   startTimeGraph= on;

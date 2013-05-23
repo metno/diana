@@ -37,6 +37,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "diVprofDiagram.h"
 #include "diColour.h"
 #include "diLinetype.h"
@@ -52,7 +53,7 @@ VprofDiagram::VprofDiagram(VprofOptions *vpop) :
       numprog(0)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::VprofDiagram" << endl;
+  DEBUG_ << "VprofDiagram::VprofDiagram";
 #endif
   setDefaults();
   plotw = ploth = 0;
@@ -63,7 +64,7 @@ VprofDiagram::VprofDiagram(VprofOptions *vpop) :
 VprofDiagram::~VprofDiagram()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::~VprofDiagram" << endl;
+  DEBUG_ << "VprofDiagram::~VprofDiagram";
 #endif
   if (glIsList(drawlist))
     glDeleteLists(drawlist, 1);
@@ -73,7 +74,7 @@ VprofDiagram::~VprofDiagram()
 void VprofDiagram::changeOptions(VprofOptions *vpop)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::changeOptions"<<endl;
+  DEBUG_ << "VprofDiagram::changeOptions";
 #endif
   vpopt = vpop;
   newdiagram = true;
@@ -82,7 +83,7 @@ void VprofDiagram::changeOptions(VprofOptions *vpop)
 void VprofDiagram::changeNumber(int ntemp, int nprog)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::changeNumber  ntemp,nprog: "<<ntemp<<" "<<nprog<<endl;
+  DEBUG_ << "VprofDiagram::changeNumber  ntemp,nprog: "<<ntemp<<" "<<nprog;
 #endif
   if (ntemp != numtemp || nprog != numprog) {
     numtemp = ntemp;
@@ -102,7 +103,7 @@ void VprofDiagram::setPlotWindow(int w, int h)
 void VprofDiagram::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::plot" << endl;
+  DEBUG_ << "VprofDiagram::plot";
 #endif
 
   vptext.clear();
@@ -201,7 +202,7 @@ void VprofDiagram::plot()
 void VprofDiagram::setDefaults()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::setDefaults" << endl;
+  DEBUG_ << "VprofDiagram::setDefaults";
 #endif
 
   newdiagram = true;
@@ -225,7 +226,7 @@ void VprofDiagram::setDefaults()
 void VprofDiagram::prepare()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::prepare" << endl;
+  DEBUG_ << "VprofDiagram::prepare";
 #endif
 
   // constants
@@ -687,8 +688,8 @@ void VprofDiagram::prepare()
   xysize[0][3] = ymax;
   //###############################################################
   //for (n=0; n<mxysize; n++)
-  //  cerr<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
-  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3]<<endl;
+  //  DEBUG_<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
+  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3];
   //###############################################################
 
   vpopt->changed = false;
@@ -698,7 +699,7 @@ void VprofDiagram::prepare()
 void VprofDiagram::condensationtrails()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::condensationtrails" << endl;
+  DEBUG_ << "VprofDiagram::condensationtrails";
 #endif
   //
   // compute lines for evaluation of possibility for
@@ -855,14 +856,14 @@ void VprofDiagram::condensationtrails()
     cotrails[n][0] = 2. * cotrails[n][1] - cotrails[n][2];
 
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::condensationtrails finished" << endl;
+  DEBUG_ << "VprofDiagram::condensationtrails finished";
 #endif
 }
 
 void VprofDiagram::plotDiagram()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::plotDiagram" << endl;
+  DEBUG_ << "VprofDiagram::plotDiagram";
 #endif
 
   // constants
@@ -922,8 +923,8 @@ void VprofDiagram::plotDiagram()
 
   //###############################################################
   //for (n=0; n<mxysize; n++)
-  //  cerr<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
-  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3]<<endl;
+  //  DEBUG_<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
+  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3];
   //###############################################################
 
   // thick lines not changed by dialogs...
@@ -1555,9 +1556,9 @@ void VprofDiagram::plotDiagram()
     UpdateOutput();
     if (vpopt->plabelflevels) {
       //######################################################################
-      //cerr<<" flightlevels.size()= "<< flightlevels.size()<<endl;
-      //cerr<<"pflightlevels.size()= "<<pflightlevels.size()<<endl;
-      //cerr<<"                  kk= "<<kk<<endl;
+      //DEBUG_<<" flightlevels.size()= "<< flightlevels.size();
+      //DEBUG_<<"pflightlevels.size()= "<<pflightlevels.size();
+      //DEBUG_<<"                  kk= "<<kk;
       //######################################################################
       y1 += chy * 0.6;
       y2 -= chy * 0.6;
@@ -1885,7 +1886,7 @@ void VprofDiagram::fpInitStr(const miString& str, float x, float y, float z,
     float size, Colour c, miString format, miString font)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::fpInitStr" << endl;
+  DEBUG_ << "VprofDiagram::fpInitStr";
 #endif
 
   fpStrInfo strInfo;
@@ -1904,7 +1905,7 @@ void VprofDiagram::fpInitStr(const miString& str, float x, float y, float z,
 void VprofDiagram::fpDrawStr(bool first)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::fpDrawStr" << endl;
+  DEBUG_ << "VprofDiagram::fpDrawStr";
 #endif
   float w, h;
   int n = fpStr.size();
@@ -1939,7 +1940,7 @@ void VprofDiagram::fpDrawStr(bool first)
 void VprofDiagram::plotText()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofDiagram::plotText" << endl;
+  DEBUG_ << "VprofDiagram::plotText";
 #endif
 
   if (vpopt->ptext) {

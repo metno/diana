@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "qtQuickAdmin.h"
 #include "qtQuickEditOptions.h"
 
@@ -252,13 +253,13 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
 
 void QuickAdmin::selectionChanged(QTreeWidgetItem *p, int i)
 {
-  //   cerr <<"selectionChanged()"<<endl;
+  //   DEBUG_ <<"selectionChanged()";
   //   QTreeWidgetItem * p = menutree->currentItem();
-  //   cerr <<"columnCount:"<<p->columnCount()<<endl;
-  //   if(p->columnCount()>0) cerr <<p->text(0).toStdString()<<endl;
+  //   DEBUG_ <<"columnCount:"<<p->columnCount();
+  //   if(p->columnCount()>0) DEBUG_ <<p->text(0).toStdString();
   //   QList<QTreeWidgetItem *> lq = menutree->selectedItems();
   //   for(int i=0;i<lq.count();i++)
-  //     cerr <<i<<"  "<<lq[i]->text(0).toStdString()<<endl;
+  //     DEBUG_ <<i<<"  "<<lq[i]->text(0).toStdString();
   if (p) {
     QuickTreeWidgetItem* qp = (QuickTreeWidgetItem*) (p);
     activeMenu = qp->Menu();
@@ -441,7 +442,7 @@ void QuickAdmin::newClicked()
     QString text = QInputDialog::getText(this, tr("Make new menu"), tr(
         "Make new menu with name:"), QLineEdit::Normal, QString::null, &ok);
     if (ok && !text.isEmpty()) {
-      //       cerr << "Making a new MENU after menu:" << activeMenu << endl;
+      //       DEBUG_ << "Making a new MENU after menu:" << activeMenu;
       quickMenu tmp;
       tmp.name = text.toStdString();
       tmp.name.trim();
@@ -462,8 +463,8 @@ void QuickAdmin::newClicked()
     QString text = QInputDialog::getText(this, tr("Make new plot"), tr(
         "Make new plot with name:"), QLineEdit::Normal, QString::null, &ok);
     if (ok && !text.isEmpty()) {
-      //       cerr << "Making a new ITEM in menu:" << activeMenu
-      // 	   << " after item:" << activeElement << endl;
+      //       DEBUG_ << "Making a new ITEM in menu:" << activeMenu
+      // 	   << " after item:" << activeElement;
       quickMenuItem tmp;
       tmp.name = text.toStdString();
       menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()
@@ -535,7 +536,7 @@ void QuickAdmin::eraseClicked()
       //      if( system( rm menus[activeMenu].fielname)==0){
       miutil::miString sys = "rm " + menus[activeMenu].filename;
       if (system(sys.c_str()) == 0) {
-        cerr << "Removing file:" << menus[activeMenu].filename << endl;
+        INFO_ << "Removing file:" << menus[activeMenu].filename;
       }
     }
     menus.erase(menus.begin() + activeMenu);
@@ -564,11 +565,11 @@ void QuickAdmin::copyClicked()
   copyElement = activeElement;
 
   if (copyElement == -1) {
-    //     cerr << "Copy menu:" << copyMenu << endl;
+    //     DEBUG_ << "Copy menu:" << copyMenu;
     MenuCopy = menus[copyMenu];
   } else {
-    //     cerr << "Copy item:" << copyElement
-    // 	 << " from menu:" << copyMenu <<endl;
+    //     DEBUG_ << "Copy item:" << copyElement
+    // 	 << " from menu:" << copyMenu;
     MenuItemCopy = menus[copyMenu].menuitems[copyElement];
   }
 
@@ -587,7 +588,7 @@ void QuickAdmin::copyClicked()
 void QuickAdmin::pasteClicked()
 {
   if (copyElement == -1) {
-    //     cerr << "Paste menu:" << copyMenu << " after menu:" << activeMenu << endl;
+    //     DEBUG_ << "Paste menu:" << copyMenu << " after menu:" << activeMenu;
     quickMenu tmp = MenuCopy;
     tmp.name.trim();
     tmp.name.replace(",", " ");
@@ -604,9 +605,9 @@ void QuickAdmin::pasteClicked()
     activeMenu++;
     activeElement = -1; // move to start of menu
   } else {
-    //     cerr << "Paste item:" << copyElement
+    //     DEBUG_ << "Paste item:" << copyElement
     //     	 << " from menu:" << copyMenu
-    //      	 << " to item:" << activeElement << ", menu:" << activeMenu << endl;
+    //      	 << " to item:" << activeElement << ", menu:" << activeMenu;
     quickMenuItem tmp = MenuItemCopy;
     int pos = (activeElement != -1 ? activeElement + 1 : 0);
     menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()

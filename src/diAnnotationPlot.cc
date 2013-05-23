@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diAnnotationPlot.h>
 #include <diLegendPlot.h>
 #include <diFontManager.h>
@@ -49,7 +50,7 @@ AnnotationPlot::AnnotationPlot() :
   Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ AnnotationPlot::Default Constructor" << endl;
+  DEBUG_ << "++ AnnotationPlot::Default Constructor";
 #endif
   init();
 }
@@ -59,7 +60,7 @@ AnnotationPlot::AnnotationPlot(const miString& po) :
   Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ AnnotationPlot::Constructor: " << po<<endl;
+  DEBUG_ << "++ AnnotationPlot::Constructor: " << po;
 #endif
   init();
   prepare(po);
@@ -311,7 +312,7 @@ void AnnotationPlot::splitAnnotations()
 
 bool AnnotationPlot::putElements()
 {
-  //  cerr << "AnnotationPlot::putElements" << endl;
+  //  DEBUG_ << "AnnotationPlot::putElements";
   //decode strings, put into elements...
   vector<miString> stokens, tokens, elementstrings;
   vector<Annotation> anew;
@@ -337,7 +338,7 @@ bool AnnotationPlot::putElements()
     elementstrings = expanded(annotations[i].vstr);
     int nel = elementstrings.size();
     for (int l = 0; l < nel; l++) {
-      //      cerr <<"  elementstrings[l]:"<<elementstrings[l]<<endl;
+      //      DEBUG_ <<"  elementstrings[l]:"<<elementstrings[l];
       if (elementstrings[l].contains("horalign=")) {
         //sets alignment for the whole annotation !
         stokens = elementstrings[l].split('\"', '\"', ",", true);
@@ -430,7 +431,7 @@ void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
 
 bool AnnotationPlot::decodeElement(miString elementstring, element& e)
 {
-  //    cerr <<"EL:"<<elementstring<<endl;
+  //    DEBUG_ <<"EL:"<<elementstring;
   e.eSize = 1.0;
   e.eFace = poptions.fontface;
   e.eHalign = align_left;
@@ -538,7 +539,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
 bool AnnotationPlot::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ AnnotationPlot::plot() ++" << endl;
+  DEBUG_ << "++ AnnotationPlot::plot() ++";
 #endif
   if (!enabled || !annotations.size() || nothingToDo)
     return false;
@@ -672,7 +673,7 @@ bool AnnotationPlot::plot()
 bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
-  //  cerr <<"plotElements:"<<annoEl.size()<<endl;
+  //  DEBUG_ <<"plotElements:"<<annoEl.size();
   float fontsizeScale;
   float wid, hei;
   int nel = annoEl.size();
@@ -681,7 +682,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
   else
     fontsizeScale = 1.0;
 
-  //    cerr <<"fontsizeScale:"<<fontsizeScale<<endl;
+  //    DEBUG_ <<"fontsizeScale:"<<fontsizeScale;
   for (int j = 0; j < nel; j++) {
     if (!horizontal && j != 0)
       y -= annoEl[j].height;
@@ -892,7 +893,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ AnnotationPlot::getAnnoSize:" <<annoEl.size()<< endl;
+  DEBUG_ << "++ AnnotationPlot::getAnnoSize:" <<annoEl.size();
 #endif
   float fontsizeScale;
 
@@ -963,7 +964,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
 
 void AnnotationPlot::getXYBox()
 {
-  //  cerr <<"getXYBox()"<<endl;
+  //  DEBUG_ <<"getXYBox()";
 
   float xoffset = 0, yoffset = 0;
   xoffset = cxoffset * bbox.width();
@@ -1466,7 +1467,7 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 
 vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
 {
-  //  cerr <<"AnnotationPlot::getAnnotationStrings():"<<annotations.size()<<endl;
+  //  DEBUG_ <<"AnnotationPlot::getAnnotationStrings():"<<annotations.size();
   vector<vector<miString> > vvstr;
   bool orig = false;
 
@@ -1499,7 +1500,7 @@ vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
 bool AnnotationPlot::setAnnotationStrings(vector<vector<miString> >& vvstr)
 {
   int n = vvstr.size();
-  //  cerr <<"setAnnotationStrings:"<<n<<endl;
+  //  DEBUG_ <<"setAnnotationStrings:"<<n;
   if (n == 0)
     return false;
 

@@ -40,6 +40,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diSpectrumManager.h"
@@ -54,7 +55,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 : QDialog(parent),spectrumm(vm)
 {
 #ifdef DEBUGPRINT
-  cout<<"SpectrumModelDialog::SpectrumModelDialog called"<<endl;
+  DEBUG_<<"SpectrumModelDialog::SpectrumModelDialog called";
 #endif
 
   //caption to appear on top of dialog
@@ -160,7 +161,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 void SpectrumModelDialog::modelfileClicked(int tt){
   //this slot is called when modelfile button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::modelfileClicked()\n";
+  DEBUG_ <<"SpectrumModelDialog::modelfileClicked()\n";
 #endif
 
   updateModelfileList();
@@ -172,7 +173,7 @@ void SpectrumModelDialog::modelfileClicked(int tt){
 void SpectrumModelDialog::refreshClicked(){
   //this slot is called when refresh button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::refreshClicked()\n";
+  DEBUG_ <<"SpectrumModelDialog::refreshClicked()\n";
 #endif
   updateModelfileList();
 
@@ -183,7 +184,7 @@ void SpectrumModelDialog::refreshClicked(){
 void SpectrumModelDialog::deleteAllClicked(){
   //this slot is called when delete button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::deleteAllClicked()\n";
+  DEBUG_ <<"SpectrumModelDialog::deleteAllClicked()\n";
 #endif
   modelfileList->clearSelection();
 }
@@ -193,7 +194,7 @@ void SpectrumModelDialog::deleteAllClicked(){
 void SpectrumModelDialog::helpClicked(){
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::helpClicked()\n";
+  DEBUG_ <<"SpectrumModelDialog::helpClicked()\n";
 #endif
   emit showsource("ug_spectrum.html");
 }
@@ -204,7 +205,7 @@ void SpectrumModelDialog::helpClicked(){
 void SpectrumModelDialog::applyClicked(){
   //this slot is called when apply button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::applyClicked(int tt)\n";
+  DEBUG_ <<"SpectrumModelDialog::applyClicked(int tt)\n";
 #endif
   setModel();
   emit ModelApply();
@@ -216,7 +217,7 @@ void SpectrumModelDialog::applyClicked(){
 void SpectrumModelDialog::applyhideClicked(){
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModelDialog::applyhideClicked(int tt)\n";
+  DEBUG_ <<"SpectrumModelDialog::applyhideClicked(int tt)\n";
 #endif
   setModel();
   emit ModelHide();
@@ -228,7 +229,7 @@ void SpectrumModelDialog::applyhideClicked(){
 /*********************************************/
 void SpectrumModelDialog::setSelection(){
 #ifdef DEBUGPRINT
-  cerr<< "SpectrumModelDialog::setSelection()" << endl;
+  DEBUG_<< "SpectrumModelDialog::setSelection()";
 #endif
   if (modelButton->isChecked()){
     vector <miutil::miString> models = spectrumm->getSelectedModels();
@@ -247,7 +248,7 @@ void SpectrumModelDialog::setSelection(){
 /*********************************************/
 void SpectrumModelDialog::setModel(){
 #ifdef DEBUGPRINT
-  cerr<< "SpectrumModelDialog::setModel()" << endl;
+  DEBUG_<< "SpectrumModelDialog::setModel()";
 #endif
 
   bool showObs=false;
@@ -287,7 +288,7 @@ void SpectrumModelDialog::setModel(){
 
 void SpectrumModelDialog::updateModelfileList(){
 #ifdef DEBUGPRINT
-  cerr << "SpectrumModelDialog::updateModelfileList()\n";
+  DEBUG_ << "SpectrumModelDialog::updateModelfileList()\n";
 #endif
 
   //want to keep the selected models/files
@@ -330,7 +331,7 @@ void SpectrumModelDialog::updateModelfileList(){
 
 void SpectrumModelDialog::closeEvent( QCloseEvent* e) {
 #ifdef DEBUGPRINT
-  cerr <<"SpectrumModel was closed!" << endl;
+  DEBUG_ <<"SpectrumModel was closed!";
 #endif
   emit ModelHide();
 }

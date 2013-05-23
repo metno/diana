@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "diVprofManager.h"
 
 #include "diVprofOptions.h"
@@ -87,7 +88,7 @@ VprofManager::VprofManager(Controller* co)
   plotw(0), ploth(0), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager constructed" << endl;
+  DEBUG_ << "VprofManager constructed";
 #endif
   fieldm= co->getFieldManager(); // set fieldmanager
 
@@ -106,7 +107,7 @@ VprofManager::VprofManager(Controller* co)
 VprofManager::~VprofManager()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager destructor" << endl;
+  DEBUG_ << "VprofManager destructor";
 #endif
 
   if (vpdiag) delete vpdiag;
@@ -120,7 +121,7 @@ VprofManager::~VprofManager()
 void VprofManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::parseSetup" << endl;
+  DEBUG_ << "VprofManager::parseSetup";
 #endif
 
   filenames.clear();
@@ -246,14 +247,14 @@ void VprofManager::parseSetup()
 #ifdef DEBUGPRINT_FILES
     int l= filePaths.size();
     for (int i=0; i<l; i++) {
-      cerr << "index: " << i << endl;
+      DEBUG_ << "index: " << i;
       printObsFilePath(filePaths[i]);
     }
 #endif
 
   } else {
 
-    cerr << "Missing section " << section2 << " in setupfile." << endl;
+    ERROR_ << "Missing section " << section2 << " in setupfile.";
 
   }
 
@@ -265,7 +266,7 @@ void VprofManager::parseSetup()
 void VprofManager::updateObsFileList()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::updateObsFileList" << endl;
+  DEBUG_ << "VprofManager::updateObsFileList";
 #endif
   obsfiles.clear();
   int n= filePaths.size();
@@ -407,7 +408,7 @@ void VprofManager::updateObsFileList()
 #ifdef DEBUGPRINT_FILES
   int l= obsfiles.size();
   for (int i=0; i<l; i++) {
-    cerr << "index: " << i << endl;
+    DEBUG_ << "index: " << i;
     printObsFiles(obsfiles[i]);
   }
 #endif
@@ -417,7 +418,7 @@ void VprofManager::updateObsFileList()
 void VprofManager::setPlotWindow(int w, int h)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setPlotWindow:" << w << " " << h << endl;
+  DEBUG_ << "VprofManager::setPlotWindow:" << w << " " << h;
 #endif
   plotw= w;
   ploth= h;
@@ -430,7 +431,7 @@ void VprofManager::setPlotWindow(int w, int h)
 void VprofManager::setModel()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setModel" << endl;
+  DEBUG_ << "VprofManager::setModel";
 #endif
 
   // should not clear all data, possibly needed again...
@@ -442,7 +443,7 @@ void VprofManager::setModel()
   //check if there are any selected models, if not use default
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
-  //     cerr << "No model selected" << endl;
+  //     DEBUG_ << "No model selected";
   //     miString model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
@@ -468,7 +469,7 @@ void VprofManager::setModel()
     map<miString,miString>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
-      cerr << "NO VPROFDATA for model " << model << endl;
+      ERROR_ << "NO VPROFDATA for model " << model;
     } else
       initVprofData(pf->second,model);
   }
@@ -514,7 +515,7 @@ void VprofManager::setModel()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setModels finished" << endl;
+  DEBUG_ << "VprofManager::setModels finished";
 #endif
 }
 
@@ -522,7 +523,7 @@ void VprofManager::setModel()
 void VprofManager::setStation(const miString& station)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setStation  " << station << endl;
+  DEBUG_ << "VprofManager::setStation  " << station;
 #endif
 
   plotStation= station;
@@ -532,7 +533,7 @@ void VprofManager::setStation(const miString& station)
 void VprofManager::setTime(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setTime  " << time << endl;
+  DEBUG_ << "VprofManager::setTime  " << time;
 #endif
 
   plotTime= time;
@@ -545,7 +546,7 @@ void VprofManager::setTime(const miTime& time)
 miString VprofManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setStation   step=" << step << endl;
+  DEBUG_ << "VprofManager::setStation   step=" << step;
 #endif
 
   if (nameList.size()==0)
@@ -572,7 +573,7 @@ miString VprofManager::setStation(int step)
 miTime VprofManager::setTime(int step)
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::setTime   step=" << step << endl;
+  DEBUG_ << "VprofManager::setTime   step=" << step;
 #endif
 
   if (timeList.size()==0)
@@ -627,7 +628,7 @@ void VprofManager::endHardcopy(){
 bool VprofManager::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::plot  " << plotStation << "  " << plotTime << endl;
+  DEBUG_ << "VprofManager::plot  " << plotStation << "  " << plotTime;
 #endif
 
   if (!vpdiag) {
@@ -712,7 +713,7 @@ bool VprofManager::plot()
                 }
               }
               catch (...) {
-                cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
+                ERROR_<<"Exception in: " <<obsfiles[nn].filename;
               }
 #endif
             } else if(obsfiles[nn].fileformat==bufr &&
@@ -770,7 +771,7 @@ bool VprofManager::plot()
                 }
               }
               catch (...) {
-                cerr<<"Exception in: " <<obsfiles[nn].filename<<endl;
+                ERROR_<<"Exception in: " <<obsfiles[nn].filename;
               }
             }
 #endif
@@ -789,7 +790,7 @@ bool VprofManager::plot()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::plot finished" << endl;
+  DEBUG_ << "VprofManager::plot finished";
 #endif
   return true;
 }
@@ -799,7 +800,7 @@ bool VprofManager::plot()
 
 vector <miString> VprofManager::getModelNames(){
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::getModelNames" << endl;
+  DEBUG_ << "VprofManager::getModelNames";
 #endif
   updateObsFileList();
   return dialogModelNames;
@@ -809,14 +810,14 @@ vector <miString> VprofManager::getModelNames(){
 
 vector <miString> VprofManager::getModelFiles(){
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::getModelFiles" << endl;
+  DEBUG_ << "VprofManager::getModelFiles";
 #endif
   vector<miString> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES
-    cerr << "index: " << i << endl;
+    DEBUG_ << "index: " << i;
     printObsFiles(obsfiles[i]);
 #endif
     modelfiles.push_back(obsfiles[i].filename);
@@ -894,22 +895,22 @@ bool VprofManager::initVprofData(miString file,miString model){
   VprofData *vpd= new VprofData(file,model);
   if(filetypes[file] == "standard") {
     if (vpd->readFile()) {
-      cerr << "VPROFDATA READFILE OK for model " << model << endl;
+      INFO_ << "VPROFDATA READFILE OK for model " << model;
       vpdata.push_back(vpd);
       return true;
     } else {
-      cerr << "VPROFDATA READFILE ERROR file " << file << endl;
+      ERROR_ << "VPROFDATA READFILE ERROR file " << file;
       delete vpd;
       return false;
     }
   } else if (filetypes[file] == "GribFile") {
-    //    cerr << "Model is a gribfile" << endl;
+    //    DEBUG_ << "Model is a gribfile";
     if (vpd->readField(filetypes[file],fieldm)) {
-      cerr << "VPROFDATA READFIELD OK for model " << model << endl;
+      INFO_ << "VPROFDATA READFIELD OK for model " << model;
       vpdata.push_back(vpd);
       return true;
     } else {
-      cerr << "VPROFDATA READFIELD ERROR: " << file << endl;
+      ERROR_ << "VPROFDATA READFIELD ERROR: " << file;
       return false;
     }
   }
@@ -923,7 +924,7 @@ void VprofManager::initStations(){
   //merge lists from all models
   int nvpdata = vpdata.size();
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::initStations-size of vpdata " << nvpdata << endl;
+  DEBUG_ << "VprofManager::initStations-size of vpdata " << nvpdata;
 #endif
 
   nameList.clear();
@@ -945,8 +946,7 @@ void VprofManager::initStations(){
     unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
         n!=obslist.size()) {
-      cerr << "diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!"
-          << endl;
+      ERROR_ << "diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!";
     } else if (n>0) {
       // check for duplicates
       // name should be used as to check
@@ -1019,7 +1019,7 @@ void VprofManager::initStations(){
             tlist= ofile.getStationTimes();
         }
         catch (...) {
-          cerr<<"Exception in: " <<obsfiles[i].filename<<endl;
+          ERROR_<<"Exception in: " <<obsfiles[i].filename;
         }
 #endif
 #ifdef ROADOBS
@@ -1039,7 +1039,7 @@ void VprofManager::initStations(){
           }
           if (stations == NULL)
           {
-            cerr<<"Unable to find stationlist: " <<obsfiles[i].stationfile << endl;
+            ERROR_<<"Unable to find stationlist: " <<obsfiles[i].stationfile;
           }
           else
           {
@@ -1077,8 +1077,7 @@ void VprofManager::initStations(){
     unsigned int ns= namelist.size();
     if (ns!=latitudelist.size() || ns!=longitudelist.size() ||
         ns!=obslist.size()) {
-      cerr << "diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!"
-          << endl;
+      ERROR_ << "diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!";
     } else if (ns>0) {
       for (unsigned int j=0; j<ns; j++) {
         if (namelist[j].substr(0,2)=="99") {
@@ -1143,7 +1142,7 @@ void VprofManager::initStations(){
 // remember station
 if (!plotStation.empty()) lastStation = plotStation;
 #ifdef DEBUGPRINT
-cerr << "lastStation"  << lastStation << endl;
+DEBUG_ << "lastStation"  << lastStation;
 #endif
 //if it's the first time, plotStation is first in list
 if (lastStation.empty() && nameList.size())
@@ -1161,7 +1160,7 @@ else{
   if (!found) plotStation.clear();
 }
 #ifdef DEBUGPRINT
-cerr <<"plotStation" << plotStation << endl;
+DEBUG_ <<"plotStation" << plotStation;
 #endif
 }
 
@@ -1170,7 +1169,7 @@ cerr <<"plotStation" << plotStation << endl;
 
 void VprofManager::initTimes(){
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::initTimes:" << plotTime.isoTime()<<endl;
+  DEBUG_ << "VprofManager::initTimes:" << plotTime.isoTime();
 #endif
 
   timeList.clear();
@@ -1197,7 +1196,7 @@ void VprofManager::initTimes(){
 
 void VprofManager::checkObsTime(int hour) {
 #ifdef DEBUGPRINT
-  cerr << "VprofManager::checkObsTime  hour= " << hour << endl;
+  DEBUG_ << "VprofManager::checkObsTime  hour= " << hour;
 #endif
 
   // use hour=-1 to check all files
@@ -1211,7 +1210,7 @@ void VprofManager::checkObsTime(int hour) {
 
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES
-    cerr << "index: " << i << endl;
+    DEBUG_ << "index: " << i;
     printObsFiles(obsfiles[i]);
 #endif
     if (obsfiles[i].modificationTime<0)
@@ -1243,7 +1242,7 @@ void VprofManager::checkObsTime(int hour) {
               obsfiles[i].time= ofile.fileObsTime();
             }
             catch (...) {
-              cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
+              ERROR_<<"Exception in: "<<obsfiles[i].filename;
             }
           }
         }
@@ -1265,7 +1264,7 @@ void VprofManager::checkObsTime(int hour) {
             obsfiles[i].time= ofile.fileObsTime();
           }
           catch (...) {
-            cerr<<"Exception in: "<<obsfiles[i].filename<<endl;
+            ERROR_<<"Exception in: "<<obsfiles[i].filename;
           }
         }
       }
@@ -1295,7 +1294,7 @@ void VprofManager::checkObsTime(int hour) {
   void VprofManager::mainWindowTimeChanged(const miTime& time)
   {
 #ifdef DEBUGPRINT
-    cerr << "VprofManager::mainWindowTimeChanged  " << time << endl;
+    DEBUG_ << "VprofManager::mainWindowTimeChanged  " << time;
 #endif
 
     miTime mainWindowTime = time;
@@ -1317,7 +1316,7 @@ void VprofManager::checkObsTime(int hour) {
   void VprofManager::updateObs()
   {
 #ifdef DEBUGPRINT
-    cerr << "VprofManager::updateObs" << endl;
+    DEBUG_ << "VprofManager::updateObs";
 #endif
     updateObsFileList();
     checkObsTime();
@@ -1445,7 +1444,7 @@ void VprofManager::checkObsTime(int hour) {
     ifstream file;
     file.open(amdarStationFile.c_str());
     if (file.bad()) {
-      cerr<<"Amdar station list  "<<amdarStationFile<<"  not found"<<endl;
+      ERROR_<<"Amdar station list  "<<amdarStationFile<<"  not found";
       return;
     }
 
@@ -1504,18 +1503,18 @@ void VprofManager::checkObsTime(int hour) {
      long       modificationTime; 
      }; 
      */
-    cerr << "ObsFile: < " << endl;
-    cerr << "filename: " << of.filename << endl;
-    cerr << "obsType: " << of.obstype << endl;
-    cerr << "FileFormat: " << of.fileformat << endl;
-    cerr << "Time: " << of.time.isoTime(true, true) << endl;
-    cerr << "ModificationTime: " << of.modificationTime << endl;
+    INFO_ << "ObsFile: < ";
+    INFO_ << "filename: " << of.filename;
+    INFO_ << "obsType: " << of.obstype;
+    INFO_ << "FileFormat: " << of.fileformat;
+    INFO_ << "Time: " << of.time.isoTime(true, true);
+    INFO_ << "ModificationTime: " << of.modificationTime;
 #ifdef ROADOBS 
-    cerr << "Parameterfile: " << of.parameterfile << endl;
-    cerr << "Stationfile: " << of.stationfile << endl;
-    cerr << "Databasefile: " << of.databasefile << endl;
+    INFO_ << "Parameterfile: " << of.parameterfile;
+    INFO_ << "Stationfile: " << of.stationfile;
+    INFO_ << "Databasefile: " << of.databasefile;
 #endif 
-    cerr << ">" << endl;
+    INFO_ << ">";
   }
 
   void VprofManager::printObsFilePath(const ObsFilePath & ofp)
@@ -1528,14 +1527,14 @@ void VprofManager::checkObsTime(int hour) {
      TimeFilter tf; 
      }; 
      */
-    cerr << "ObsFilePath: < " << endl;
-    cerr << "filepath: " << ofp.filepath << endl;
-    cerr << "obsType: " << ofp.obstype << endl;
-    cerr << "FileFormat: " << ofp.fileformat << endl;
+    INFO_ << "ObsFilePath: < ";
+    INFO_ << "filepath: " << ofp.filepath;
+    INFO_ << "obsType: " << ofp.obstype;
+    INFO_ << "FileFormat: " << ofp.fileformat;
 #ifdef ROADOBS 
-    cerr << "Parameterfile: " << ofp.parameterfile << endl;
-    cerr << "Stationfile: " << ofp.stationfile << endl;
-    cerr << "Databasefile: " << ofp.databasefile << endl;
+    INFO_ << "Parameterfile: " << ofp.parameterfile;
+    INFO_ << "Stationfile: " << ofp.stationfile;
+    INFO_ << "Databasefile: " << ofp.databasefile;
 #endif 
-    cerr << ">" << endl;
+    INFO_ << ">";
   }

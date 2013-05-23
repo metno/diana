@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diImageIO.h>
 #include <png.h>
 #include <map>
@@ -62,11 +63,11 @@ bool imageIO::read_image(Image_data& img)
 
 
 bool imageIO::read_png(Image_data& img){
-  cout << "--------- read_png: " << img.filename << endl;
+  INFO_ << "--------- read_png: " << img.filename;
 
   FILE *fp = fopen(img.filename.c_str(), "rb");
   if (!fp){
-    cerr << "read_png ERROR can't open file:" << img.filename << endl;
+    ERROR_ << "read_png ERROR can't open file:" << img.filename;
     return false;
   }
 
@@ -76,7 +77,7 @@ bool imageIO::read_png(Image_data& img){
      0,//user_error_fn,
      0);//user_warning_fn);
   if (!png_ptr){
-    cerr << "read_png ERROR creating png_struct" << endl;
+    ERROR_ << "read_png ERROR creating png_struct";
     fclose(fp);
     return false;
   }
@@ -85,7 +86,7 @@ bool imageIO::read_png(Image_data& img){
   if (!info_ptr){
     png_destroy_read_struct(&png_ptr,
 			    (png_infopp)NULL, (png_infopp)NULL);
-    cerr << "read_png ERROR creating info_struct" << endl;
+    ERROR_ << "read_png ERROR creating info_struct";
     fclose(fp);
     return false;
   }
@@ -94,7 +95,7 @@ bool imageIO::read_png(Image_data& img){
   if (!end_info){
     png_destroy_read_struct(&png_ptr, &info_ptr,
 			    (png_infopp)NULL);
-    cerr << "read_png ERROR creating end_info_struct" << endl;
+    ERROR_ << "read_png ERROR creating end_info_struct";
     fclose(fp);
     return false;
   }
@@ -103,7 +104,7 @@ bool imageIO::read_png(Image_data& img){
   //if (setjmp(png_ptr->jmpbuf)){
     png_destroy_read_struct(&png_ptr, &info_ptr,
 			    &end_info);
-    cerr << "read_png ERROR longjmp out of process" << endl;
+    ERROR_ << "read_png ERROR longjmp out of process";
     fclose(fp);
     return false;
   }
@@ -128,10 +129,10 @@ bool imageIO::read_png(Image_data& img){
   img.width= uwidth;
   img.height= uheight;
 
-  //   cerr << "image width:" << img.width << endl;
-  //   cerr << "image height:" << img.height << endl;
-  //   cerr << "image bit_depth:" << bit_depth << endl;
-  //   cerr << "image color_type:" << color_type << endl;
+  //   DEBUG_ << "image width:" << img.width;
+  //   DEBUG_ << "image height:" << img.height;
+  //   DEBUG_ << "image bit_depth:" << bit_depth;
+  //   DEBUG_ << "image color_type:" << color_type;
 
   img.nchannels=4;
   if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
@@ -143,16 +144,16 @@ bool imageIO::read_png(Image_data& img){
   else if (color_type == PNG_COLOR_TYPE_GRAY)
     img.nchannels= 3;
   else if (color_type == PNG_COLOR_TYPE_PALETTE){
-    cerr << "PNG_COLOR_TYPE_PALETTE"
-	 << " ..exiting" << endl;
+    ERROR_ << "PNG_COLOR_TYPE_PALETTE"
+	 << " ..exiting";
     return false;
   } else {
-    cerr << "Unknown color_type:" << color_type
-	 << " ..exiting" << endl;
+    ERROR_ << "Unknown color_type:" << color_type
+	 << " ..exiting";
     return false;
   }
 
-  //cout << "image nchannels:" << img.nchannels << endl;
+  //INFO_ << "image nchannels:" << img.nchannels;
 
 
   png_bytep *row_pointers;
@@ -197,12 +198,12 @@ bool imageIO::read_png(Image_data& img){
 
 
 bool imageIO::write_png(const Image_data& img){
-  cerr << "--------- write_png: " << img.filename << endl;
+  INFO_ << "--------- write_png: " << img.filename;
 
   // open file for write
   FILE *fp = fopen(img.filename.c_str(), "wb");
   if (!fp) {
-    cerr << "write_png ERROR can't open file:" << img.filename << endl;
+    ERROR_ << "write_png ERROR can't open file:" << img.filename;
     return false;
   }
 
@@ -211,7 +212,7 @@ bool imageIO::write_png(const Image_data& img){
     (PNG_LIBPNG_VER_STRING, (png_voidp)0, 0, 0);
 
   if (!png_ptr){
-    cerr << "write_png ERROR creating png_struct" << endl;
+    ERROR_ << "write_png ERROR creating png_struct";
     fclose(fp);
     return false;
   }
@@ -221,7 +222,7 @@ bool imageIO::write_png(const Image_data& img){
   if (!info_ptr) {
     png_destroy_write_struct(&png_ptr,
 			     (png_infopp)NULL);
-    cerr << "write_png ERROR creating info_struct" << endl;
+    ERROR_ << "write_png ERROR creating info_struct";
     fclose(fp);
     return false;
   }
@@ -232,7 +233,7 @@ bool imageIO::write_png(const Image_data& img){
   if (setjmp(png_ptr->jmpbuf)) {
 #endif
     png_destroy_write_struct(&png_ptr, &info_ptr);
-    cerr << "write_png ERROR longjmp out of process" << endl;
+    ERROR_ << "write_png ERROR longjmp out of process";
     fclose(fp);
     return false;
   }
@@ -346,7 +347,7 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
 
   vs= buf.split(" ");
   if (vs.size() < 4){
-    cerr << "imageFromXpmdata ERROR too few elements:" << buf << endl;
+    ERROR_ << "imageFromXpmdata ERROR too few elements:" << buf;
     return false;
   }
   xsize= atoi(vs[0].c_str());
@@ -355,10 +356,10 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
   nchar= atoi(vs[3].c_str());
 
   if (xsize < 1 || ysize < 1 || ncols < 1 || nchar < 1){
-    cerr << "imageFromXpmdata ERROR Illegal numbers "
+    ERROR_ << "imageFromXpmdata ERROR Illegal numbers "
 	 << " xsize:" << xsize << " ysize:" << ysize
 	 << " ncols:" << ncols << " nchar:" << nchar
-	 << endl;
+	;
     return false;
   }
 
@@ -371,8 +372,8 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
     buf = xd[1+i];
     int j= buf.find_last_of("c");
     if (j < 0){
-      cerr << "imageFromXpmdata ERROR Illegal colourdefinition:"
-	   << buf << endl;
+      ERROR_ << "imageFromXpmdata ERROR Illegal colourdefinition:"
+	   << buf;
       return false;
     }
     miString key=    buf.substr(0,nchar);
@@ -385,8 +386,8 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
       alphamap[key]= 0;
     } else {
       if (colour.size() < 2){
-	cerr << "imageFromXpmdata ERROR Illegal colourdefinition:"
-	     << buf << endl;
+	ERROR_ << "imageFromXpmdata ERROR Illegal colourdefinition:"
+	     << buf;
 	return false;
       }
       colour= colour.substr(1,colour.length()-1);
@@ -426,7 +427,7 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
 
   vs= buf.split(" ");
   if (vs.size() < 4){
-    cerr << "imageFromXpmdata ERROR too few elements:" << buf << endl;
+    ERROR_ << "imageFromXpmdata ERROR too few elements:" << buf;
     return false;
   }
   xsize= atoi(vs[0].c_str());
@@ -435,10 +436,10 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
   nchar= atoi(vs[3].c_str());
 
   if (xsize < 32 || ysize < 32 || ncols < 2 || nchar < 1){
-    cerr << "patternFromXpmdata ERROR Illegal numbers "
+    ERROR_ << "patternFromXpmdata ERROR Illegal numbers "
 	 << " xsize:" << xsize << " ysize:" << ysize
 	 << " ncols:" << ncols << " nchar:" << nchar
-	 << endl;
+	;
     return false;
   }
 
@@ -453,8 +454,8 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
     buf = xd[1+i];
     int j= buf.find_last_of("c");
     if (j < 0){
-      cerr << "imageFromXpmdata ERROR Illegal colourdefinition:"
-	   << buf << endl;
+      ERROR_ << "imageFromXpmdata ERROR Illegal colourdefinition:"
+	   << buf;
       return false;
     }
     miString colour= buf.substr(j+1,buf.length()-j-1);
@@ -495,13 +496,13 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
 
 
 bool imageIO::read_xpm(Image_data& img){
-  cerr << "--------- read_xpm: " << img.filename << endl;
+  INFO_ << "--------- read_xpm: " << img.filename;
 
   ifstream file(img.filename.c_str());
 
   if (!file){
-    cerr << "readXpmFile ERROR: Unable to open file:"
-	 << img.filename << endl;
+    ERROR_ << "readXpmFile ERROR: Unable to open file:"
+	 << img.filename;
     return false;
   }
 
@@ -521,11 +522,11 @@ bool imageIO::read_xpm(Image_data& img){
   if (vs.size() == 0)
     return false;
 
-  //   cerr << "RESULTING DATA:" << endl;
+  //   DEBUG_ << "RESULTING DATA:";
   char **data = new (char*[vs.size()]);
   for (unsigned int i=0; i<vs.size(); i++){
     data[i]= strdup(vs[i].c_str());
-    //     cerr << data[i] << endl;
+    //     DEBUG_ << data[i];
   }
 
   bool res;

@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include "diPlotOptions.h"
 #include "diColourShading.h"
 #include "diPattern.h"
@@ -341,13 +342,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
     if (l>1){
       key= etokens[0];
       value= etokens[1];
-//      cerr << "Key:"<<key<< " Value:"<<value<<endl;
+//      DEBUG_ << "Key:"<<key<< " Value:"<<value;
       if (value[0]=='\'' && value[value.length()-1]=='\'')
         value= value.substr(1,value.length()-2);
 
 //      if (key==key_fplottype_obsolete && po.plottype== fpt_contour){
 //        key=key_fplottype;
-////        cerr <<"New key:"<<key<<endl;
+////        DEBUG_ <<"New key:"<<key;
 //      }
 
       if (key==key_colour){
@@ -661,7 +662,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         } else  if(value == "number") {
           po.plottype = fpt_value;
 #ifdef DEBUGPRINT
-            cerr<<"........diPlotOptions::parsePlotOption po.plottype ="<< value <<endl;
+            DEBUG_<<"........diPlotOptions::parsePlotOption po.plottype ="<< value;
 
 #endif
         } else {
@@ -860,8 +861,8 @@ bool PlotOptions::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
 #ifdef DEBUGPRINT
-  cerr<<":::::::::PlotOptions::updateFieldPlotOptions"<<endl;
-  cerr<<":::::::::name: "<< name << "   *******  optstr: "<<optstr<<endl;
+  DEBUG_<<":::::::::PlotOptions::updateFieldPlotOptions";
+  DEBUG_<<":::::::::name: "<< name << "   *******  optstr: "<<optstr;
 #endif
   std::string tmpOpt = optstr;
   return parsePlotOption(tmpOpt,fieldPlotOptions[name]);

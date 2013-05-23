@@ -43,6 +43,7 @@
 #include <fstream>
 #include <sstream>
 
+#include <diCommonTypes.h>
 #include <diObsPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
@@ -83,11 +84,11 @@ int ObsPlot::ucount = 0;
 ObsPlot::ObsPlot() : Plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::ObsPlot() ++" << endl;
+  DEBUG_ << "++ ObsPlot::ObsPlot() ++";
 #endif
 #ifdef ROADOBS
   ucount++;
-  cerr << "++ ObsPlot::ObsPlot(), ucount: " << ucount << " ++" << endl;
+  DEBUG_ << "++ ObsPlot::ObsPlot(), ucount: " << ucount << " ++";
 #endif
   x = NULL;
   y = NULL;
@@ -143,11 +144,11 @@ ObsPlot::ObsPlot() : Plot()
 ObsPlot::~ObsPlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::~ObsPlot() ++" << endl;
+  DEBUG_ << "++ ObsPlot::~ObsPlot() ++";
 #endif
 #ifdef ROADOBS
   ucount--;
-  cerr << "++ ObsPlot::~ObsPlot(), ucount: " << ucount << " ++" << endl;
+  DEBUG_ << "++ ObsPlot::~ObsPlot(), ucount: " << ucount << " ++";
 #endif
   delete[] x;
   delete[] y;
@@ -168,7 +169,7 @@ void ObsPlot::getObsAnnotation(miString &str, Colour &col)
 bool ObsPlot::getDataAnnotations(vector<miString>& anno)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getDataAnnotations() ++" << endl;
+  DEBUG_ << "++ ObsPlot::getDataAnnotations() ++";
 #endif
 #ifdef ROADOBS
   if (!enabled || (obsp.size()==0 && roadobsp.size()==0) || current<0) {
@@ -207,7 +208,7 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
     }
   }
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getDataAnnotations() done, true ++" << endl;
+  DEBUG_ << "++ ObsPlot::getDataAnnotations() done, true ++";
 #endif
   return true;
 }
@@ -215,20 +216,20 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
 ObsData& ObsPlot::getNextObs()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getNextObs() ++" << endl;
+  DEBUG_ << "++ ObsPlot::getNextObs() ++";
 #endif
   ObsData d;
   d.dataType = currentDatatype;
   obsp.push_back(d);
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getNextObs() done ++" << endl;
+  DEBUG_ << "++ ObsPlot::getNextObs() done ++";
 #endif
   return obsp[obsp.size() - 1];
 }
 
 void ObsPlot::mergeMetaData(map<miutil::miString, ObsData>& metaData) {
 
-  //cerr <<__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size()<<endl;
+  //DEBUG_ <<__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size();
   for(size_t i=0; i<obsp.size(); ++i ) {
     if(metaData.count(obsp[i].id)) {
       obsp[i].xpos = metaData[obsp[i].id].xpos;
@@ -240,11 +241,11 @@ void ObsPlot::mergeMetaData(map<miutil::miString, ObsData>& metaData) {
 void ObsPlot::updateLevel(const miString& dataType)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::updateLevel( dataType: " << dataType << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::updateLevel( dataType: " << dataType << " ) ++";
 #endif
   if (level < -1) {
 #ifdef DEBUGPRINT
-    cerr << "++ ObsPlot::updateLevel() done, level < -1 ++" << endl;
+    DEBUG_ << "++ ObsPlot::updateLevel() done, level < -1 ++";
 #endif
     return; //no levels
   }
@@ -254,7 +255,7 @@ void ObsPlot::updateLevel(const miString& dataType)
       level = getOceanDepth();
     if (level == -1) {
       level = 0; //default!!
-      //cerr<<"No sea level, using 0m"<<endl;
+      //DEBUG_<<"No sea level, using 0m";
     }
   } else { //temp, pilot,aireps
     if (levelAsField) //from field
@@ -264,22 +265,22 @@ void ObsPlot::updateLevel(const miString& dataType)
         level = 500; //default!!
       else
         level = 1000; //default!!
-      //cerr<<"No pressure level, using "<<level<<" hPa"<<endl;
+      //DEBUG_<<"No pressure level, using "<<level<<" hPa";
     }
   }
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::updateLevel() done ++" << endl;
+  DEBUG_ << "++ ObsPlot::updateLevel() done ++";
 #endif
 }
 
 int ObsPlot::numPositions()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::numPositions() ++" << endl;
+  DEBUG_ << "++ ObsPlot::numPositions() ++";
 #endif
   if (obsp.size() > 0) {
 #ifdef DEBUGPRINT
-    cerr << "++ ObsPlot::numPositions() done, obsp.size() ++" << endl;
+    DEBUG_ << "++ ObsPlot::numPositions() done, obsp.size() ++";
 #endif
     return obsp.size();
   }
@@ -288,7 +289,7 @@ int ObsPlot::numPositions()
   if(roadobsp.size()>0)
   {
 #ifdef DEBUGPRINT
-    cerr << "++ ObsPlot::numPositions() done, roadobsp.size() ++" << endl;
+    DEBUG_ << "++ ObsPlot::numPositions() done, roadobsp.size() ++";
 #endif
     return roadobsp.size();
   }
@@ -299,12 +300,12 @@ int ObsPlot::numPositions()
 void ObsPlot::clearModificationTime()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::cleanModificationTime() ++" << endl;
+  DEBUG_ << "++ ObsPlot::cleanModificationTime() ++";
 #endif
   fileNames.clear();
   modificationTime.clear();
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::cleanModificationTime() done ++" << endl;
+  DEBUG_ << "++ ObsPlot::cleanModificationTime() done ++";
 #endif
 }
 
@@ -312,7 +313,7 @@ void ObsPlot::setModificationTime(const miString& fname)
 {
 
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::setModificationTime( fname: " << fname << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::setModificationTime( fname: " << fname << " ) ++";
 #endif
 #ifdef ROADOBS
   if (fname.contains("ROAD"))
@@ -345,7 +346,7 @@ void ObsPlot::setModificationTime(const miString& fname)
   }
 #endif
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::setModificationTime() done ++" << endl;
+  DEBUG_ << "++ ObsPlot::setModificationTime() done ++";
 #endif
 }
 
@@ -354,7 +355,7 @@ bool ObsPlot::updateObs()
   //returns true if update is needed
   //(one or more files are changed)
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::updateObs() ++" << endl;
+  DEBUG_ << "++ ObsPlot::updateObs() ++";
 #endif
 #ifdef ROADOBS
   long ltime = time(NULL);
@@ -364,7 +365,7 @@ bool ObsPlot::updateObs()
     {
       if( ltime - modificationTime[i]> 1) {
 #ifdef DEBUGPRINT
-        cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
+        DEBUG_ << "++ ObsPlot::updateObs() done, true ++";
 #endif
         return true;
       }
@@ -375,15 +376,15 @@ bool ObsPlot::updateObs()
       pu_struct_stat buf;
       if (pu_stat(path, &buf) != 0) {
 #ifdef DEBUGPRINT
-        cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
+        DEBUG_ << "++ ObsPlot::updateObs() done, true ++";
 #endif
-        //       cerr<<"Something is wrong"<<endl;
+        //       DEBUG_<<"Something is wrong";
         return true;
       }
       if( modificationTime[i] != (long)buf.st_mtime) {
-        //       cerr <<fileNames[i]<<" has changed"<<endl;
+        //       DEBUG_ <<fileNames[i]<<" has changed";
 #ifdef DEBUGPRINT
-        cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
+        DEBUG_ << "++ ObsPlot::updateObs() done, true ++";
 #endif
         return true;
       }
@@ -397,23 +398,23 @@ bool ObsPlot::updateObs()
     pu_struct_stat buf;
     if (pu_stat(path, &buf) != 0) {
 #ifdef DEBUGPRINT
-      cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
+      DEBUG_ << "++ ObsPlot::updateObs() done, true ++";
 #endif
-      //       cerr<<"Something is wrong"<<endl;
+      //       DEBUG_<<"Something is wrong";
       return true;
     }
     if (modificationTime[i] != buf.st_mtime) {
-      //       cerr <<fileNames[i]<<" has changed"<<endl;
+      //       DEBUG_ <<fileNames[i]<<" has changed";
 #ifdef DEBUGPRINT
-      cerr << "++ ObsPlot::updateObs() done, true ++" << endl;
+      DEBUG_ << "++ ObsPlot::updateObs() done, true ++";
 #endif
       return true;
     }
   }
 #endif
-  //   cerr<<"Nothing has changed"<<endl;
+  //   DEBUG_<<"Nothing has changed";
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::updateObs() done, false ++" << endl;
+  DEBUG_ << "++ ObsPlot::updateObs() done, false ++";
 #endif
   return false; // no update needed
 
@@ -422,7 +423,7 @@ bool ObsPlot::updateObs()
 bool ObsPlot::prepare(const miString& pin)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::prepare( pin: " << pin << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::prepare( pin: " << pin << " ) ++";
 #endif
 
   if (pin.size() > 0) //if there is an info string, save it.
@@ -602,7 +603,7 @@ bool ObsPlot::prepare(const miString& pin)
       miString filename = path + "/synpltab.dat";
       if (!readTable(plottype, filename)) {
 #ifdef DEBUGPRINT
-        cerr << "++ End ObsPlot prepare(), false ++" << endl;
+        DEBUG_ << "++ End ObsPlot prepare(), false ++";
 #endif
         return false;
       }
@@ -618,7 +619,7 @@ bool ObsPlot::prepare(const miString& pin)
       miString filename = path + "/metpltab.dat";
       if (!readTable(plottype, filename)) {
 #ifdef DEBUGPRINT
-        cerr << "++ End ObsPlot prepare(), false ++" << endl;
+        DEBUG_ << "++ End ObsPlot prepare(), false ++";
 #endif
         return false;
       }
@@ -637,7 +638,7 @@ bool ObsPlot::prepare(const miString& pin)
       if (!readTable(plottype,filename))
       {
 #ifdef DEBUGPRINT
-        cerr << "++ End ObsPlot prepare(), false ++" << endl;
+        DEBUG_ << "++ End ObsPlot prepare(), false ++";
 #endif
         return false;
       }
@@ -661,7 +662,7 @@ bool ObsPlot::prepare(const miString& pin)
 #endif
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot prepare() ++" << endl;
+  DEBUG_ << "++ End ObsPlot prepare() ++";
 #endif
   return true;
 }
@@ -669,7 +670,7 @@ bool ObsPlot::prepare(const miString& pin)
 bool ObsPlot::setData(void)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::setData() ++" << endl;
+  DEBUG_ << "++ ObsPlot::setData() ++";
 #endif
 
   int i;
@@ -697,10 +698,10 @@ bool ObsPlot::setData(void)
 #endif
 
   if (numObs < 1) {
-    cerr <<"ObsPlot::setData: no data"<<endl;
+    WARN_ <<"ObsPlot::setData: no data";
 #ifdef DEBUGPRINT
-    cerr << "Number of stations: "<<numObs<<endl;
-    cerr << "++ End ObsPlot setData(), false ++" << endl;
+    DEBUG_ << "Number of stations: "<<numObs;
+    DEBUG_ << "++ End ObsPlot setData(), false ++";
 #endif
     return false;
   }
@@ -709,7 +710,7 @@ bool ObsPlot::setData(void)
   x = new float[numObs];
   y = new float[numObs];
 #ifdef DEBUGPRINT
-    cerr << "roadobsData: "<<roadobsData<<endl;
+    DEBUG_ << "roadobsData: "<<roadobsData;
 #endif
   if (roadobsData) {
 #ifdef ROADOBS
@@ -717,7 +718,7 @@ bool ObsPlot::setData(void)
     // stationlist are the same as in the roadobsp map.
     for (i=0; i<numObs; i++) {
       int stationid = (*stationlist)[i].stationID();
-      //cerr << "stationid: " << stationid << endl;
+      //DEBUG_ << "stationid: " << stationid;
       if (roadobsp[stationid].size() != 0)
       {
         x[i] = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
@@ -728,16 +729,16 @@ bool ObsPlot::setData(void)
         x[i] = (*stationlist)[i].lat();
         y[i] = (*stationlist)[i].lon();
       }
-      //cerr << x[i] << ", " << y[i] << endl;
+      //DEBUG_ << x[i] << ", " << y[i];
     }
     roadobspar.clear();
     int nc= roadobsColumnName.size();
     int np= roadobsParameter.size();
     //######################################################################
     //for (int c=0; c<nc; c++)
-    //  cerr<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]<<endl;
+    //  DEBUG_<<"ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c];
     //for (int p=0; p<np; p++)
-    //  cerr<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]<<endl;
+    //  DEBUG_<<"ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p];
     //######################################################################
     for (int c=0; c<nc; c++) {
       miString cpar= roadobsColumnName[c].downcase();
@@ -745,7 +746,7 @@ bool ObsPlot::setData(void)
       while (p<np && roadobsParameter[p]!=cpar) p++;
       if (p<np) roadobspar.push_back(c);
       //######################################################################
-      /*      cerr<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p<<endl;*/
+      /*      DEBUG_<<"ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p;*/
       //######################################################################
     }
 
@@ -784,7 +785,7 @@ bool ObsPlot::setData(void)
 
     if (roadobsData) {
 #ifdef ROADOBS
-      //cerr << "numObs: " << numObs << endl;
+      //DEBUG_ << "numObs: " << numObs;
       roadobsdd.resize(numObs);
       roadobsff.resize(numObs);
 
@@ -802,7 +803,7 @@ bool ObsPlot::setData(void)
 		  else
 			aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
         }
-        //cerr << "add: " << add << " aff: " << aff << " i: " << i << endl;
+        //DEBUG_ << "add: " << add << " aff: " << aff << " i: " << i;
         if(roadobsKnots) aff = knots2ms(aff);
         roadobsff[i]= int(aff + 0.5);
         if( add> 0.0 && add <= 360.0 ) {
@@ -819,8 +820,8 @@ bool ObsPlot::setData(void)
       for (i = 0; i < numObs; i++) {
         //##############################################################
         //      if (obsp[i].dd<1 || obsp[i].dd>360 || obsp[i].ff<1)
-        //	cerr<<"DATA DD,FF "<<obsp[i].dd<<" "<<obsp[i].ff
-        //            <<" "<<obsp[i].id<<" "<<obsp[i].obsTime<<endl;
+        //	DEBUG_<<"DATA DD,FF "<<obsp[i].dd<<" "<<obsp[i].ff
+        //            <<" "<<obsp[i].id<<" "<<obsp[i].obsTime;
         //##############################################################
         int angle = (int) (atan2f(u[i], v[i]) * 180 / PI);
         if (obsp[i].fdata.count("dd") && obsp[i].fdata["dd"] > 0
@@ -869,8 +870,8 @@ bool ObsPlot::setData(void)
     initMetarMap();
 
 #ifdef DEBUGPRINT
-  cerr << "Number of stations: "<<numObs<<endl;
-  cerr << "++ End ObsPlot setData(), true ++" << endl;
+  DEBUG_ << "Number of stations: "<<numObs;
+  DEBUG_ << "++ End ObsPlot setData(), true ++";
 #endif
 
   return true;
@@ -882,16 +883,16 @@ bool ObsPlot::timeOK(const miTime& t)
   //if timediff == -1 :use all observations
   //if not: use all observations with abs(obsTime-Time)<timediff
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::timeOK( time: " << t.isoTime() << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::timeOK( time: " << t.isoTime() << " ) ++";
 #endif
   if (timeDiff < 0 || abs(miTime::minDiff(t, Time)) < timeDiff + 1) {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::timeOK(), true ++" << endl;
+    DEBUG_ << "++ End ObsPlot::timeOK(), true ++";
 #endif
     return true;
   }
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::timeOK(), false ++" << endl;
+  DEBUG_ << "++ End ObsPlot::timeOK(), false ++";
 #endif
   return false;
 
@@ -900,14 +901,14 @@ bool ObsPlot::timeOK(const miTime& t)
 void ObsPlot::logStations()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::logStations() ++" << endl;
+  DEBUG_ << "++ ObsPlot::logStations() ++";
 #endif
 
 #ifdef ROADOBS
   if(roadobsData)
   {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::logStations(), roadobsData ++" << endl;
+    DEBUG_ << "++ End ObsPlot::logStations(), roadobsData ++";
 #endif
     return; // difficult to log because no "Id"
   }
@@ -922,14 +923,14 @@ void ObsPlot::logStations()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::logStations() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::logStations() ++";
 #endif
 }
 
 void ObsPlot::readStations()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::readStations() ++" << endl;
+  DEBUG_ << "++ ObsPlot::readStations() ++";
 #endif
 
 #ifdef ROADOBS
@@ -937,7 +938,7 @@ void ObsPlot::readStations()
   if(roadobsData) {
     all_stations = all_from_file;
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::readStations(), roadobsData ++" << endl;
+    DEBUG_ << "++ End ObsPlot::readStations(), roadobsData ++";
 #endif
     return;
   }
@@ -981,14 +982,14 @@ void ObsPlot::readStations()
   fromFile = false;
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::readStations() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::readStations() ++";
 #endif
 }
 
 void ObsPlot::clear()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::clear() ++" << endl;
+  DEBUG_ << "++ ObsPlot::clear() ++";
 #endif
   //  logStations();
   firstplot = true;
@@ -1002,14 +1003,14 @@ void ObsPlot::clear()
   plotname.clear();
   labels.clear();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::clear() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::clear() ++";
 #endif
 }
 
 void ObsPlot::priority_sort(void)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::priority_sort() ++" << endl;
+  DEBUG_ << "++ ObsPlot::priority_sort() ++";
 #endif
   //sort the observations according to priority list
   int numObs = 0;
@@ -1021,7 +1022,7 @@ void ObsPlot::priority_sort(void)
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
 #endif
-  //  cerr <<"Priority_sort:"<<numObs<<endl;
+  //  DEBUG_ <<"Priority_sort:"<<numObs;
   int i;
 
   all_from_file.resize(numObs);
@@ -1131,7 +1132,7 @@ void ObsPlot::priority_sort(void)
 #endif
 
   #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::priority_sort() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::priority_sort() ++";
 #endif
 }
 
@@ -1142,7 +1143,7 @@ void ObsPlot::time_sort(void)
   //both all_from_file (sorted acc. to priority file) and
   // all_stations (stations from last plot on top) are sorted
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::time_sort() ++" << endl;
+  DEBUG_ << "++ ObsPlot::time_sort() ++";
 #endif
   int index, numObs = 0;
 
@@ -1191,14 +1192,14 @@ void ObsPlot::time_sort(void)
   for (int i = 0; i < numObs; i++, q++)
     all_from_file[i] = q->second;
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::time_sort() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::time_sort() ++";
 #endif
 }
 
 void ObsPlot::readPriorityFile(const miString& filename)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::readPriorityFile( filename: " << filename << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::readPriorityFile( filename: " << filename << " ) ++";
 #endif
   priorityList.clear();
 
@@ -1210,9 +1211,9 @@ void ObsPlot::readPriorityFile(const miString& filename)
 
   inFile.open(filename.c_str(), ios::in);
   if (inFile.bad()) {
-    cerr << "ObsPlot: Can't open file: " << priorityFile << endl;
+    WARN_ << "ObsPlot: Can't open file: " << priorityFile;
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::readPriorityFile(), open error ++" << endl;
+    DEBUG_ << "++ End ObsPlot::readPriorityFile(), open error ++";
 #endif
     return;
   }
@@ -1227,7 +1228,7 @@ void ObsPlot::readPriorityFile(const miString& filename)
 
   inFile.close();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::readPriorityFile() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::readPriorityFile() ++";
 #endif
 }
 
@@ -1236,11 +1237,11 @@ void ObsPlot::readPriorityFile(const miString& filename)
 bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getPositions() ++" << endl;
+  DEBUG_ << "++ ObsPlot::getPositions() ++";
 #endif
   if (!devfield) {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::getPositions(), !devfield ++" << endl;
+    DEBUG_ << "++ End ObsPlot::getPositions(), !devfield ++";
 #endif
     return false;
   }
@@ -1260,7 +1261,7 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::getPositions() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::getPositions() ++";
 #endif
   return true;
 }
@@ -1268,11 +1269,11 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 int ObsPlot::getPositions(float *xpos, float *ypos, int n)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getPositions() ++" << endl;
+  DEBUG_ << "++ ObsPlot::getPositions() ++";
 #endif
   if (!devfield) {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::getPositions(), !devfield ++" << endl;
+    DEBUG_ << "++ End ObsPlot::getPositions(), !devfield ++";
 #endif
     return false;
   }
@@ -1286,15 +1287,15 @@ int ObsPlot::getPositions(float *xpos, float *ypos, int n)
     numObs = roadobsp.size();
 #endif
 
-  //   cerr<<"n:"<<n<<endl;
-  //   cerr<<"numObs:"<<numObs<<endl;
+  //   DEBUG_<<"n:"<<n;
+  //   DEBUG_<<"numObs:"<<numObs;
 
   for (int i = 0; i < numObs; i++) {
     xpos[i + n] = x[i];
     ypos[i + n] = y[i];
   }
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::getPositions() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::getPositions() ++";
 #endif
   return (n + numObs);
 }
@@ -1304,13 +1305,13 @@ int ObsPlot::getPositions(float *xpos, float *ypos, int n)
 void ObsPlot::obs_mslp(float *values)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::obs_mslp() ++" << endl;
+  DEBUG_ << "++ ObsPlot::obs_mslp() ++";
 #endif
   //PPPP-mslp
   if (!devfield) {
     plot();
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::obs_mslp(), !devfield ++" << endl;
+    DEBUG_ << "++ End ObsPlot::obs_mslp(), !devfield ++";
 #endif
     return;
   }
@@ -1328,7 +1329,7 @@ void ObsPlot::obs_mslp(float *values)
   for (int i = 0; i < numObs; i++)
     obsp[i].fdata.erase("PPPP_mslp");
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::obs_mslp() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::obs_mslp() ++";
 #endif
 }
 
@@ -1338,11 +1339,11 @@ void ObsPlot::obs_mslp(float *values)
 bool ObsPlot::findObs(int xx, int yy)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::findObs( xx: " << " yy: " << yy << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::findObs( xx: " << " yy: " << yy << " ) ++";
 #endif
   if (!showpos) {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::findObs(), !showpos ++" << endl;
+    DEBUG_ << "++ End ObsPlot::findObs(), !showpos ++";
 #endif
     return false;
   }
@@ -1371,7 +1372,7 @@ bool ObsPlot::findObs(int xx, int yy)
 
   if (min_i < 0) {
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::findObs(), min_i<0 ++" << endl;
+    DEBUG_ << "++ End ObsPlot::findObs(), min_i<0 ++";
 #endif
     return false;
   }
@@ -1381,7 +1382,7 @@ bool ObsPlot::findObs(int xx, int yy)
     r = powf(xpos - x[nextplot[0]], 2) + powf(ypos - y[nextplot[0]], 2);
     if (r < min_r) {
 #ifdef DEBUGPRINT
-      cerr << "++ End ObsPlot::findObs(), r<min_r ++" << endl;
+      DEBUG_ << "++ End ObsPlot::findObs(), r<min_r ++";
 #endif
       return false;
     }
@@ -1393,7 +1394,7 @@ bool ObsPlot::findObs(int xx, int yy)
   notplot.erase(min_p);
   thisObs = true;
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::findObs() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::findObs() ++";
 #endif
   return true;
 
@@ -1404,7 +1405,7 @@ bool ObsPlot::findObs(int xx, int yy)
 bool ObsPlot::getObsName(int xx, int yy, miString& name)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++";
 #endif
 
 
@@ -1434,7 +1435,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
     }
     if (min_i < 0) {
 #ifdef DEBUGPRINT
-      cerr << "++ End ObsPlot::getObsName(), min_i < 0, onlypos ++" << endl;
+      DEBUG_ << "++ End ObsPlot::getObsName(), min_i < 0, onlypos ++";
 #endif
       return false;
     }
@@ -1449,7 +1450,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
     }
     if (min_i < 0) {
 #ifdef DEBUGPRINT
-      cerr << "++ End ObsPlot::getObsName(), min_i < 0 ++" << endl;
+      DEBUG_ << "++ End ObsPlot::getObsName(), min_i < 0 ++";
 #endif
       return false;
     }
@@ -1470,7 +1471,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 
   if (name == lastName)
 #ifdef DEBUGPRINT
-    cerr << "++ End ObsPlot::getObsName(), name == lastName ++" << endl;
+    DEBUG_ << "++ End ObsPlot::getObsName(), name == lastName ++";
 #endif
   return false;
 
@@ -1478,7 +1479,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 
   selectedStation = name;
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::getObsName() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::getObsName() ++";
 #endif
   return true;
 
@@ -1489,7 +1490,7 @@ bool ObsPlot::getObsName(int xx, int yy, miString& name)
 void ObsPlot::nextObs(bool Next)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::nextObs() ++" << endl;
+  DEBUG_ << "++ ObsPlot::nextObs() ++";
 #endif
   thisObs = false;
 
@@ -1501,7 +1502,7 @@ void ObsPlot::nextObs(bool Next)
     plotnr--;
   }
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::nextObs() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::nextObs() ++";
 #endif
 }
 
@@ -1512,21 +1513,21 @@ void ObsPlot::nextObs(bool Next)
 
 bool ObsPlot::preparePlot() {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::preparePlot() ++" << endl;
+  DEBUG_ << "++ ObsPlot::preparePlot() ++";
 #endif
 
   if (!enabled) {
     // make sure plot-densities etc are recalc. next time
     if (dirty) beendisabled= true;
 #ifdef DEBUGPRINT
-    cerr << "++ Returning from ObsPlot::preparePlot(), !enabled ++" << endl;
+    DEBUG_ << "++ Returning from ObsPlot::preparePlot(), !enabled ++";
 #endif
     return false;
   }
   if(obsp.size()==0 && roadobsp.size() == 0) {
 
 #ifdef DEBUGPRINT
-    cerr << "++ Returning from ObsPlot::preparePlot(), Nothing to plot ++" << endl;
+    DEBUG_ << "++ Returning from ObsPlot::preparePlot(), Nothing to plot ++";
 #endif
     return false;
   }
@@ -1617,7 +1618,7 @@ bool ObsPlot::preparePlot() {
       }
     }
 
-    //    cerr <<"all this area:"<<all_this_area.size()<<endl;
+    //    DEBUG_ <<"all this area:"<<all_this_area.size();
     // plot the observations from last plot if possible,
     // then the rest if possible
 
@@ -1650,7 +1651,7 @@ bool ObsPlot::preparePlot() {
     pend = all_this_area.end();
 
   } else if (thisObs) {
-    //    cerr <<"thisobs"<<endl;
+    //    DEBUG_ <<"thisobs";
     // plot the station pointed at and those plotted last time if possible,
     // then the rest if possible.
     ptmp = nextplot;
@@ -1659,7 +1660,7 @@ bool ObsPlot::preparePlot() {
     pend = ptmp.end();
 
   } else if (plotnr> maxnr) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     // plot as many observations as possible which have not been plotted before
     maxnr++;
     plotnr= maxnr;
@@ -1674,7 +1675,7 @@ bool ObsPlot::preparePlot() {
     pend = ptmp.end();
 
   } else if (previous && plotnr<0) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     // should return to the initial priority as often as possible...
 
     if(!fromFile) { //if priority from last plot has been used so far
@@ -1696,7 +1697,7 @@ bool ObsPlot::preparePlot() {
     pend = all_this_area.end();
 
   } else if(previous || next) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     //    plot observations from plotnr
     int psize= all_this_area.size();
     notplot.clear();
@@ -1785,7 +1786,7 @@ bool ObsPlot::preparePlot() {
   beendisabled = false;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from ObsPlot::preparePlot() ++" << endl;
+  DEBUG_ << "++ Returning from ObsPlot::preparePlot() ++";
 #endif
   return true;
 }
@@ -1794,7 +1795,7 @@ bool ObsPlot::preparePlot() {
 bool ObsPlot::plot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plot() ++" << endl;
+  DEBUG_ << "++ ObsPlot::plot() ++";
 #endif
 
   if (!enabled) {
@@ -1802,7 +1803,7 @@ bool ObsPlot::plot()
     if (dirty)
       beendisabled = true;
 #ifdef DEBUGPRINT
-    cerr << "++ Returning from ObsPlot::plot(), !enabled ++" << endl;
+    DEBUG_ << "++ Returning from ObsPlot::plot(), !enabled ++";
 #endif
     return false;
   }
@@ -1817,7 +1818,7 @@ bool ObsPlot::plot()
 
   if (numObs == 0) {
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from ObsPlot::plot(), Nothing to plot ++" << endl;
+  DEBUG_ << "++ Returning from ObsPlot::plot(), Nothing to plot ++";
 #endif
     return false;
   }
@@ -1849,7 +1850,7 @@ bool ObsPlot::plot()
     ImageGallery ig;
     ig.plotImages(numObs, image, x, y, true, Scale);
 #ifdef DEBUGPRINT
-    cerr << "++ Returning from ObsPlot::plot(), onlypos ++" << endl;
+    DEBUG_ << "++ Returning from ObsPlot::plot(), onlypos ++";
 #endif
     return true;
   }
@@ -1958,7 +1959,7 @@ bool ObsPlot::plot()
       }
     }
 
-    //    cerr <<"all this area:"<<all_this_area.size()<<endl;
+    //    DEBUG_ <<"all this area:"<<all_this_area.size();
     // plot the observations from last plot if possible,
     // then the rest if possible
 
@@ -1991,7 +1992,7 @@ bool ObsPlot::plot()
     pend = all_this_area.end();
 
   } else if (thisObs) {
-    //    cerr <<"thisobs"<<endl;
+    //    DEBUG_ <<"thisobs";
     // plot the station pointed at and those plotted last time if possible,
     // then the rest if possible.
     ptmp = nextplot;
@@ -2000,7 +2001,7 @@ bool ObsPlot::plot()
     pend = ptmp.end();
 
   } else if (plotnr > maxnr) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     // plot as many observations as possible which have not been plotted before
     maxnr++;
     plotnr = maxnr;
@@ -2015,7 +2016,7 @@ bool ObsPlot::plot()
     pend = ptmp.end();
 
   } else if (previous && plotnr < 0) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     // should return to the initial priority as often as possible...
 
     if (!fromFile) { //if priority from last plot has been used so far
@@ -2037,7 +2038,7 @@ bool ObsPlot::plot()
     pend = all_this_area.end();
 
   } else if (previous || next) {
-    //    cerr <<"plotnr:"<<plotnr<<endl;
+    //    DEBUG_ <<"plotnr:"<<plotnr;
     //    plot observations from plotnr
     int psize = all_this_area.size();
     notplot.clear();
@@ -2186,7 +2187,7 @@ bool ObsPlot::plot()
 #ifdef ROADOBS
   else if (plottype == "roadobs") {
     for (int i=0; i<n; i++) {
-		//cerr << i << ", " << nextplot[i] << endl;
+		//DEBUG_ << i << ", " << nextplot[i];
       plotRoadobs(nextplot[i]);
       if (i % 50 == 0) UpdateOutput();
     }
@@ -2206,7 +2207,7 @@ bool ObsPlot::plot()
   firstplot = false;
   beendisabled = false;
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from ObsPlot::plot() ++" << endl;
+  DEBUG_ << "++ Returning from ObsPlot::plot() ++";
 #endif
   return true;
 }
@@ -2214,20 +2215,20 @@ bool ObsPlot::plot()
 bool ObsPlot::positionFree(const float& x, const float& y, float dist)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::positionFree( x: " << x << " y: " << y << " dist: " << dist << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::positionFree( x: " << x << " y: " << y << " dist: " << dist << " ) ++";
 #endif
   int n = xUsed.size();
   for (int i = 0; i < n; i++)
     if ((pow(x - xUsed[i], 2) + pow(y - yUsed[i], 2)) < dist) {
 #ifdef DEBUGPRINT
-      cerr << "++ End ObsPlot::positionFree(), false ++" << endl;
+      DEBUG_ << "++ End ObsPlot::positionFree(), false ++";
 #endif
       return false;
     }
   xUsed.push_back(x);
   yUsed.push_back(y);
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::positionFree(), true ++" << endl;
+  DEBUG_ << "++ End ObsPlot::positionFree(), true ++";
 #endif
   return true;
 }
@@ -2235,20 +2236,20 @@ bool ObsPlot::positionFree(const float& x, const float& y, float dist)
 bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::positionFree( x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::positionFree( x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist << " ) ++";
 #endif
   int n = xUsed.size();
   for (int i = 0; i < n; i++)
     if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist) {
 #ifdef DEBUGPRINT
-      cerr << "++ End ObsPlot::positionFree(), false ++" << endl;
+      DEBUG_ << "++ End ObsPlot::positionFree(), false ++";
 #endif
       return false;
     }
   xUsed.push_back(x);
   yUsed.push_back(y);
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::positionFree(), true ++" << endl;
+  DEBUG_ << "++ End ObsPlot::positionFree(), true ++";
 #endif
   return true;
 }
@@ -2258,8 +2259,8 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
 {
 
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::areaFreeSetup( scale: "
-      << scale << " space: " << space << " num: " << num << " xdist: " << xdist << " ydist: " << ydist << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::areaFreeSetup( scale: "
+      << scale << " space: " << space << " num: " << num << " xdist: " << xdist << " ydist: " << ydist << " ) ++";
 #endif
   areaFreeSpace = space;
 
@@ -2292,7 +2293,7 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
     areaFreeYsize = 0.0;
   }
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::areaFreeSetup() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::areaFreeSetup() ++";
 #endif
 }
 
@@ -2300,7 +2301,7 @@ bool ObsPlot::areaFree(int idx)
 {
 
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::areaFree( idx: " << idx << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::areaFree( idx: " << idx << " ) ++";
 #endif
 
   float xc = x[idx];
@@ -2379,7 +2380,7 @@ bool ObsPlot::areaFree(int idx)
       usedBox.push_back(ub[ib]);
   }
 #ifdef DEBUGPRINT
-cerr << "++ End ObsPlot::areaFree() ++" << endl;
+DEBUG_ << "++ End ObsPlot::areaFree() ++";
 #endif
 return result;
 }
@@ -2387,8 +2388,8 @@ return result;
 void ObsPlot::clearPos()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::clearPos() ++" << endl;
-  cerr << "clearPos " << xUsed.size()<<endl;
+  DEBUG_ << "++ ObsPlot::clearPos() ++";
+  DEBUG_ << "clearPos " << xUsed.size();
 #endif
 
   //Reset before new plot
@@ -2396,14 +2397,14 @@ void ObsPlot::clearPos()
   yUsed.clear();
   usedBox.clear();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::clearPos() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::clearPos() ++";
 #endif
 }
 
 void ObsPlot::plotList(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotList( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotList( index: " << index << " ) ++";
 #endif
 
 
@@ -3139,7 +3140,7 @@ void ObsPlot::plotList(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotList() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotList() ++";
 #endif
 }
 
@@ -3239,7 +3240,7 @@ void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
 void ObsPlot::plotAscii(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotAscii( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotAscii( index: " << index << " ) ++";
 #endif
   ObsData &dta = obsp[index];
 
@@ -3375,7 +3376,7 @@ void ObsPlot::plotAscii(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotAscii() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotAscii() ++";
 #endif
 }
 
@@ -3384,7 +3385,7 @@ void ObsPlot::plotAscii(int index)
 void ObsPlot::plotDBMetar(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotDBMetar( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotDBMetar( index: " << index << " ) ++";
 #endif
 
   miString icao_value  = "X";
@@ -3393,7 +3394,7 @@ void ObsPlot::plotDBMetar(int index)
   bool isData = (*stationlist)[index].data();
   //NOTE! The plot is dependent of the plotting order of
   // the individual parameters.
-  //cerr << "Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData << endl;
+  //DEBUG_ << "Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData;
   // Do not plot stations with no data
   if (!isData) return;
 
@@ -3893,7 +3894,7 @@ void ObsPlot::plotDBMetar(int index)
   else
   {
 	  // Clouds
-	  //cerr << "Clouds: Nh = " << Nh_value << " h = " << h_value << endl;
+	  //DEBUG_ << "Clouds: Nh = " << Nh_value << " h = " << h_value;
 	  if(Nh_value != undef || h_value != undef) {
 		  float Nh,h;
 		  Nh = Nh_value;
@@ -3983,7 +3984,7 @@ void ObsPlot::plotDBMetar(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotDBMetar() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotDBMetar() ++";
 #endif
 }
 
@@ -3998,7 +3999,7 @@ void ObsPlot::plotDBMetar(int index)
 void ObsPlot::plotRoadobs(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotRoadobs( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotRoadobs( index: " << index << " ) ++";
 #endif
 
   // EXTRACT the data
@@ -4013,14 +4014,14 @@ void ObsPlot::plotRoadobs(int index)
 	  plotDBMetar(index);
 
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotRoadobs() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotRoadobs() ++";
 #endif
 }
 
 void ObsPlot::plotDBSynop(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotDBSynop( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotDBSynop( index: " << index << " ) ++";
 #endif
   miString station_type = (*stationlist)[index].station_type();
   int stationid_wmo = (*stationlist)[index].wmonr();
@@ -4030,7 +4031,7 @@ void ObsPlot::plotDBSynop(int index)
   bool isData = (*stationlist)[index].data();
   //NOTE! The plot is dependent of the plotting order of
   // the individual parameters.
-  //cerr << "Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData << endl;
+  //DEBUG_ << "Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData;
   // Do not plot stations with no data
   if (!isData) return;
   // loop all the parameters and then plot them
@@ -4387,7 +4388,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   //wind - dd,ff
-  //cerr << "wind - dd,ff" << endl;
+  //DEBUG_ << "wind - dd,ff";
   if( roadobsWind && roadobsdd[index] != undef ) {
     bool ddvar=false;
 
@@ -4426,7 +4427,7 @@ void ObsPlot::plotDBSynop(int index)
   bool precip = automationcode; // Not correct!
 
   //Total cloud cover - N
-  //cerr << "Total cloud cover - N: value " << N_value << endl;
+  //DEBUG_ << "Total cloud cover - N: value " << N_value;
   if(N_value != undef) {
     /* convert to eights */
     int N_value_plot = (int)(long)(N_value * 8.0)/100.0;
@@ -4441,7 +4442,7 @@ void ObsPlot::plotDBSynop(int index)
   }*/
 
   //Weather - WW
-  //cerr << "Weather - WW: value " << ww_value << endl;
+  //DEBUG_ << "Weather - WW: value " << ww_value;
   float VVxpos = iptab[lpos+14] + 22;
   if( ww_value != undef &&
       ww_value>3) {//1-3 skal ikke plottes
@@ -4452,7 +4453,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   //characteristics of pressure tendency - a
-  //cerr << "characteristics of pressure tendency - a: value " << a_value << endl;
+  //DEBUG_ << "characteristics of pressure tendency - a: value " << a_value;
   if( a_value != undef ) {
     if(ccriteria) checkColourCriteria("a",a_value);
     if(ppp_value != undef && ppp_value> 9 )
@@ -4462,7 +4463,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // High cloud type - Ch
-  //cerr << "High cloud type - Ch, value: " << Ch_value << endl;
+  //DEBUG_ << "High cloud type - Ch, value: " << Ch_value;
   if(Ch_value != undef)
   {
     Ch_value = Ch_value - 10.0;
@@ -4474,7 +4475,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // Middle cloud type - Cm
-  //cerr << "Middle cloud type - Cm, value: " << Cm_value << endl;
+  //DEBUG_ << "Middle cloud type - Cm, value: " << Cm_value;
   if(Cm_value != undef)
   {
     Cm_value = Cm_value - 20.0;
@@ -4486,7 +4487,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // Low cloud type - Cl
-  //cerr << "Low cloud type - Cl, value: " << Cl_value << endl;
+  //DEBUG_ << "Low cloud type - Cl, value: " << Cl_value;
   if(Cl_value != undef)
   {
     Cl_value = Cl_value - 30.0;
@@ -4498,14 +4499,14 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // Past weather - W1
-  //cerr << "Past weather - W1: value " << W1_value << endl;
+  //DEBUG_ << "Past weather - W1: value " << W1_value;
   if( W1_value != undef) {
     if(ccriteria) checkColourCriteria("W1",W1_value);
     pastWeather(int(W1_value), iptab[lpos+34], iptab[lpos+35],0.8);
   }
 
   // Past weather - W2
-  //cerr << "Past weather - W2: value " << W2_value << endl;
+  //DEBUG_ << "Past weather - W2: value " << W2_value;
   if( W2_value ) {
     if(ccriteria) checkColourCriteria("W2",W2_value);
     pastWeather((int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
@@ -4536,14 +4537,14 @@ void ObsPlot::plotDBSynop(int index)
    }
    }
    else */
-  //cerr << "Pressure - PPPP: value " << PPPP_value << endl;
+  //DEBUG_ << "Pressure - PPPP: value " << PPPP_value;
   if( PPPP_value != undef ) {
     if(ccriteria) checkColourCriteria("PPPP",PPPP_value);
     printNumber(PPPP_value,iptab[lpos+44]+2,iptab[lpos+45]+2,"PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
-  //cerr << "Pressure tendency over 3 hours - ppp: value " << ppp_value << endl;
+  //DEBUG_ << "Pressure tendency over 3 hours - ppp: value " << ppp_value;
   if( ppp_value != undef ) {
     if(ccriteria) checkColourCriteria("ppp",ppp_value);
     printNumber(ppp_value,iptab[lpos+40]+2,iptab[lpos+41]+2,"ppp");
@@ -4581,7 +4582,7 @@ void ObsPlot::plotDBSynop(int index)
 	   else
 	   {
 		   // Clouds
-		   //cerr << "Clouds: Nh = " << Nh_value << " h = " << h_value << endl;
+		   //DEBUG_ << "Clouds: Nh = " << Nh_value << " h = " << h_value;
 		   if(Nh_value != undef || h_value != undef) {
 			   float Nh,h;
 			   Nh = Nh_value;
@@ -4635,7 +4636,7 @@ void ObsPlot::plotDBSynop(int index)
 	   else
 	   {
 		   // Clouds
-		   //cerr << "Clouds: Nh = " << Nh_value << " h = " << h_value << endl;
+		   //DEBUG_ << "Clouds: Nh = " << Nh_value << " h = " << h_value;
 		   if(Nh_value != undef || h_value != undef) {
 			   float Nh,h;
 			   Nh = Nh_value;
@@ -4658,7 +4659,7 @@ void ObsPlot::plotDBSynop(int index)
    }
 
   //Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.
-  //cerr << "Precipitation - RRR, select 1,3,6,12,24 hour accumulation time." << endl;
+  //DEBUG_ << "Precipitation - RRR, select 1,3,6,12,24 hour accumulation time.";
   float rrr_plot_value = undef;
   if( rrr_24_value != undef)
     rrr_plot_value = rrr_24_value;
@@ -4671,7 +4672,7 @@ void ObsPlot::plotDBSynop(int index)
   else if( rrr_1_value != undef)
     rrr_plot_value = rrr_1_value;
 
-  //cerr << "Value to plot: value " << rrr_plot_value << endl;
+  //DEBUG_ << "Value to plot: value " << rrr_plot_value;
   if (rrr_plot_value != undef)
   {
     if(ccriteria) checkColourCriteria("RRR",rrr_plot_value);
@@ -4684,7 +4685,7 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // Horizontal visibility - VV
-  //cerr << "Horizontal visibility - VV: value " << VV_value << endl;
+  //DEBUG_ << "Horizontal visibility - VV: value " << VV_value;
   if( VV_value != undef ) {
     if(ccriteria) checkColourCriteria("VV",VV_value);
 	// dont print in synop code, print in km #515, redmine
@@ -4696,20 +4697,20 @@ void ObsPlot::plotDBSynop(int index)
 	
   }
   // Temperature - TTT
-  //cerr << "Temperature - TTT: value " << TTT_value << endl;
+  //DEBUG_ << "Temperature - TTT: value " << TTT_value;
   if( TTT_value != undef ) {
     if(ccriteria) checkColourCriteria("TTT",TTT_value);
     printNumber(TTT_value,iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
   }
   // Dewpoint temperature - TdTdTd
-  //cerr << "Dewpoint temperature - TdTdTd: value " << TdTdTd_value << endl;
+  //DEBUG_ << "Dewpoint temperature - TdTdTd: value " << TdTdTd_value;
   if( TdTdTd_value != undef ) {
     if(ccriteria) checkColourCriteria("TdTdTd",TdTdTd_value);
     printNumber(TdTdTd_value,iptab[lpos+16]+2,iptab[lpos+17]+2,"temp");
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
-  //cerr << "Max/min temperature - TxTxTx/TnTnTn" << endl;
+  //DEBUG_ << "Max/min temperature - TxTxTx/TnTnTn";
   if( TxTnFlag ) {
     // The days maximum should be plotted at 18Z
     // The nights minimum should be plotted at 06Z
@@ -4722,7 +4723,7 @@ void ObsPlot::plotDBSynop(int index)
     {
       TxTn_value = TxTx_value;
     }
-    //cerr << "TxTn: " << TxTn_value << endl;
+    //DEBUG_ << "TxTn: " << TxTn_value;
     if (TxTn_value != undef)
     {
       if(ccriteria) checkColourCriteria("TxTn",TxTn_value);
@@ -4731,14 +4732,14 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   // Snow depth - sss
-  //cerr << "Snow depth - sss: value " << sss_value << endl;
+  //DEBUG_ << "Snow depth - sss: value " << sss_value;
   if( sss_value != undef && zone!=99 ) {
     if(ccriteria) checkColourCriteria("sss",sss_value);
     printNumber(sss_value,iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
 
   // Maximum wind speed (gusts) - 911ff
-  //cerr << "Maximum wind speed (gusts) - 911ff: value " << f911ff_value << endl;
+  //DEBUG_ << "Maximum wind speed (gusts) - 911ff: value " << f911ff_value;
   if( f911ff_value != undef ) {
     if(ccriteria) checkColourCriteria("911ff",f911ff_value);
     printNumber(ms2knots(f911ff_value),
@@ -4758,7 +4759,7 @@ void ObsPlot::plotDBSynop(int index)
    */
 
   // Maximum wind speed
-  //cerr << "Maximum wind speed: value " << fxfx_value << endl;
+  //DEBUG_ << "Maximum wind speed: value " << fxfx_value;
   if( fxfx_value != undef
       && !(zone>1 && zone < 99)) {
     if(ccriteria) checkColourCriteria("fxfx",fxfx_value);
@@ -4770,7 +4771,7 @@ void ObsPlot::plotDBSynop(int index)
           iptab[lpos+6]+12,iptab[lpos+7]-14,"fill_2",true);
   }
   // WMO station id
-  //cerr << "WMO station id" << endl;
+  //DEBUG_ << "WMO station id";
   if (wmono_value != undef || !call_sign.empty())
   {
     if(ccriteria) checkColourCriteria("St.no(5)",0);
@@ -4789,7 +4790,7 @@ void ObsPlot::plotDBSynop(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotDBSynop() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotDBSynop() ++";
 #endif
 }
 #endif
@@ -4797,7 +4798,7 @@ void ObsPlot::plotDBSynop(int index)
 void ObsPlot::plotSynop(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotSynop( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotSynop( index: " << index << " ) ++";
 #endif
   ObsData &dta = obsp[index];
 
@@ -4916,7 +4917,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("ch") && (f_p = dta.fdata.find("Ch")) != fend) {
     if (ccriteria)
       checkColourCriteria("Ch", f_p->second);
-    //cerr << "Ch: " << f_p->second << endl;
+    //DEBUG_ << "Ch: " << f_p->second;
     symbol(itab[190 + (int) f_p->second], iptab[lpos + 4], iptab[lpos + 5], 0.8);
   }
 
@@ -4924,7 +4925,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("cm") && (f_p = dta.fdata.find("Cm")) != fend) {
     if (ccriteria)
       checkColourCriteria("Cm", f_p->second);
-    //cerr << "Cm: " << f_p->second << endl;
+    //DEBUG_ << "Cm: " << f_p->second;
     symbol(itab[180 + (int) f_p->second], iptab[lpos + 2], iptab[lpos + 3], 0.8);
   }
 
@@ -4932,7 +4933,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("cl") && (f_p = dta.fdata.find("Cl")) != fend) {
     if (ccriteria)
       checkColourCriteria("Cl", f_p->second);
-    //cerr << "Cl: " << f_p->second << endl;
+    //DEBUG_ << "Cl: " << f_p->second;
     symbol(itab[170 + (int) f_p->second], iptab[lpos + 22], iptab[lpos + 23],
         0.8);
   }
@@ -5244,14 +5245,14 @@ void ObsPlot::plotSynop(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotSynop() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotSynop() ++";
 #endif
 }
 
 void ObsPlot::plotMetar(int index)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::plotMetar( index: " << index << " ) ++" << endl;
+  DEBUG_ << "++ ObsPlot::plotMetar( index: " << index << " ) ++";
 #endif
   ObsData &dta = obsp[index];
 
@@ -5434,7 +5435,7 @@ void ObsPlot::plotMetar(int index)
 
   glPopMatrix();
 #ifdef DEBUGPRINT
-  cerr << "++ End ObsPlot::plotMetar() ++" << endl;
+  DEBUG_ << "++ End ObsPlot::plotMetar() ++";
 #endif
 }
 
@@ -5630,7 +5631,7 @@ void ObsPlot::metarWind(int dd, int ff, float & radius, int &lpos)
 {
 
   GLfloat x1, x2, x3, y1, y2, y3, x4, y4;
-  //cerr << "metarWind: " << dd << "," << ff << endl;
+  //DEBUG_ << "metarWind: " << dd << "," << ff;
 
   lpos = itab[1] + 10;
   //dd=999;
@@ -6503,7 +6504,7 @@ void ObsPlot::symbol(int n, float xpos, float ypos, float scale, miString align)
 {
 
 #ifdef DEBUGPRINT
-cerr << "ObsPlot::symbol(n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align: " << align << " ) ++ " << endl;
+DEBUG_ << "ObsPlot::symbol(n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align: " << align << " ) ++ ";
 #endif
 
 int npos, nstep, k1, k2, k = 0;
@@ -6556,7 +6557,7 @@ if (k > 0) {
 glPopMatrix();
 
 #ifdef DEBUGPRINT
-cerr << "ObsPlot::symbol() done ++ " << endl;
+DEBUG_ << "ObsPlot::symbol() done ++ ";
 #endif
 
 }
@@ -6963,7 +6964,7 @@ bool ObsPlot::readTable(const miString& type, const miString& filename)
 
   //   Initialize itab and iptab from file.
 #ifdef DEBUGPRINT
-  cerr << "++ ObsPlot::readTable( type: " << type << " filename: " << filename << " ++" << endl;
+  DEBUG_ << "++ ObsPlot::readTable( type: " << type << " filename: " << filename << " ++";
 #endif
 
   const int ITAB = 380;
@@ -6985,7 +6986,7 @@ bool ObsPlot::readTable(const miString& type, const miString& filename)
 
   FILE *fp = fopen(filename.c_str(), "rb");
   if (!fp) {
-    cerr << "ObsPlot::readTable: Couldn't open " << filename << endl;
+    ERROR_ << "ObsPlot::readTable: Couldn't open " << filename;
     return false;
   }
 
@@ -6995,7 +6996,7 @@ bool ObsPlot::readTable(const miString& type, const miString& filename)
   short *table = new short[size];
 
   if (fread(table, 2, size, fp) != size) {
-    cerr << "ObsPlot::readTable: Error reading " << filename << endl;
+    ERROR_ << "ObsPlot::readTable: Error reading " << filename;
     fclose(fp);
     delete[] table;
     return false;

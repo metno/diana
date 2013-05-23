@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diCommonTypes.h"
 #include "qtProfetSessionDialog.h"
 #include "qtProfetEvents.h"
 #include <QHBoxLayout>
@@ -211,13 +212,13 @@ void ProfetSessionDialog::customEvent(QEvent * e){
 }
 
 void ProfetSessionDialog::hideViewObjectDialog(){
-  cerr << "ProfetSessionDialog::hideViewObjectDialog" << endl;
+  DEBUG_ << "ProfetSessionDialog::hideViewObjectDialog";
   viewObjectButton->setChecked(false);
 }
 void ProfetSessionDialog::printSize(const QModelIndex &){
-  cerr << "size: " << table->size().height() << endl;
-  cerr << "minimumSize: " << table->minimumSize().height() << endl;
-  cerr << "columnWidth: " << table->columnWidth(1) << endl;
+  DEBUG_ << "size: " << table->size().height();
+  DEBUG_ << "minimumSize: " << table->minimumSize().height();
+  DEBUG_ << "columnWidth: " << table->columnWidth(1);
 }
 
 void ProfetSessionDialog::setHostname(miutil::miString hostname)

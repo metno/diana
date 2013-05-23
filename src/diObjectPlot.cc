@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diObjectPlot.h>
 #include <math.h>
 #include <puTools/miString.h>
@@ -56,7 +57,7 @@ ObjectPlot::ObjectPlot(int objTy)
   : Plot(),typeOfObject(objTy){
   initVariables();
 #ifdef DEBUGPRINT
-  cerr << "New ObjectPlot made(int)" << endl;
+  DEBUG_ << "New ObjectPlot made(int)";
 #endif
 }
 
@@ -65,7 +66,7 @@ ObjectPlot::ObjectPlot(int objTy)
 ObjectPlot::ObjectPlot(const ObjectPlot &rhs){
   // elementwise copy
 #ifdef DEBUGPRINT
-  cerr << "Objectplot-copy constr" << endl;
+  DEBUG_ << "Objectplot-copy constr";
 #endif
   memberCopy(rhs);
 }
@@ -73,7 +74,7 @@ ObjectPlot::ObjectPlot(const ObjectPlot &rhs){
 // Destructor
 ObjectPlot::~ObjectPlot(){
 #ifdef DEBUGPRINT
-  cerr << "Objectplot- destructor" << endl;
+  DEBUG_ << "Objectplot- destructor";
 #endif
   if (x != NULL)  delete[] x;
   if (y != NULL)  delete[] y;
@@ -81,7 +82,7 @@ ObjectPlot::~ObjectPlot(){
   if (y_s != NULL)  delete[] y_s;
 
 #ifdef DEBUGPRINT
-  cerr << "end of objectplot- destructor" << endl;
+  DEBUG_ << "end of objectplot- destructor";
 #endif
 }
 
@@ -313,7 +314,7 @@ void ObjectPlot::setXY(vector<float> x,vector <float> y){
 
 void ObjectPlot::recalculate()
 {
-  //cerr << "------------ ObjectPlot::recalculate" << endl;
+  //DEBUG_ << "------------ ObjectPlot::recalculate";
 }
 
 void ObjectPlot::addPoint( float x , float y){
@@ -680,7 +681,7 @@ bool ObjectPlot::isEndPoint( float x , float y, float &xin, float &yin){
 void ObjectPlot::updateBoundBox(){
   // updates the bound box
 #ifdef DEBUGPRINT
-  cerr << "UpdateBoundbox called " << endl;
+  DEBUG_ << "UpdateBoundbox called ";
 #endif
   boundBox.x1= +INT_MAX;   // makes impossible box
   boundBox.x2= -INT_MAX;
@@ -860,15 +861,15 @@ void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {
 }
 
 void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
-  //cerr << "rgba value is " << rgbstring << endl;
+  //DEBUG_ << "rgba value is " << rgbstring;
   vector<miString> colours2add=rgbstring.split(",");
   int nColours = colours2add.size()/4;
   for (int cc=0; cc < nColours; cc++){
-    //cerr << "cc = " << cc << endl;
-    //cerr <<"The colour string to be added is\n ";
+    //DEBUG_ << "cc = " << cc;
+    //DEBUG_ <<"The colour string to be added is\n ";
     uchar_t cadd[4];
     for (int i = 0;i<4;i++){
-      //cerr << colours2add[cc*4+i] << endl;
+      //DEBUG_ << colours2add[cc*4+i];
       cadd[i] = atoi(colours2add[cc*4+i].c_str());
     }
     objectColour = Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
@@ -894,8 +895,8 @@ bool ObjectPlot::readObjectString(miString objectString)
   bool typeRead = false;
   bool LonLatRead = false;
 #ifdef DEBUGPRINT
-  cerr << "ObjectPlot::readObjectString\n";
-  cerr << "string is: " << objectString << endl;
+  DEBUG_ << "ObjectPlot::readObjectString\n";
+  DEBUG_ << "string is: " << objectString;
 #endif
 
   vector <miString> tokens = objectString.split(';');
@@ -904,7 +905,7 @@ bool ObjectPlot::readObjectString(miString objectString)
      key = stokens[0].downcase();
      value = stokens[1];
      if (key == "object"){
-        // cerr << "Object value is " << value << endl;
+        // DEBUG_ << "Object value is " << value;
        // typeOfObject is already set in constructor
        objectRead = true;
       }
@@ -916,24 +917,24 @@ bool ObjectPlot::readObjectString(miString objectString)
            typeRead=setType(editTranslations[value]);
          }
        }
-       //cerr << "Type value is " << value << endl;
+       //DEBUG_ << "Type value is " << value;
      }
      else if (key =="name"){
        name=value; //set
 #ifdef DEBUGPRINT
-       cerr << "Name is " << value << endl;
+       DEBUG_ << "Name is " << value;
 
 #endif
      }
      else if (key == "latitudelongitude" ||     // old and wrong!
 	      key == "longitudelatitude") {
-       //cerr << "Lonlat value is " << value << endl;
+       //DEBUG_ << "Lonlat value is " << value;
        LonLatRead = true;
        vector<miString> points2add=value.split(",");
        int nPoints = points2add.size()/2;
         for (int pp=0; pp< nPoints; pp++){
-	  //cerr << points2add[pp*2] << endl;
-	  //cerr << points2add[pp*2+1] << endl;
+	  //DEBUG_ << points2add[pp*2];
+	  //DEBUG_ << points2add[pp*2+1];
 	 addPoint( atof(points2add[pp*2].c_str()),
 		    atof(points2add[pp*2+1].c_str()));
        }
@@ -942,46 +943,46 @@ bool ObjectPlot::readObjectString(miString objectString)
        setObjectRGBColor(value);
      }
      else if (key == "size"){
-       //cerr << "size value is " << value << endl;
+       //DEBUG_ << "size value is " << value;
        setSize(atof(value.c_str()));
      }
      else if (key == "linewidth"){
-       //cerr << "lineWidth value is " << value << endl;
+       //DEBUG_ << "lineWidth value is " << value;
        setLineWidth(value.toFloat());
      }
      else if (key == "rotation"){
-       //cerr << "rotation value is " << value << endl;
+       //DEBUG_ << "rotation value is " << value;
        setRotation(atof(value.c_str()));
      }
     else if (key == "text"){
-       //cerr << "text value is " << value << endl;
+       //DEBUG_ << "text value is " << value;
        setString(value);
      }
      else if (key == "complextext"){
-       //cerr << "complexText value is " << value << endl;
+       //DEBUG_ << "complexText value is " << value;
        readComplexText(value);
      }
      else if (key == "whitebox"){
-       //cerr << "whitebox value is " << value << endl;
+       //DEBUG_ << "whitebox value is " << value;
        setWhiteBox(atoi(value.c_str()));
      }
      else
-       cerr << "ObjectPlot::readObjectString - Warning !, unknown key = "
-	    << key << endl;
+       WARN_ << "ObjectPlot::readObjectString - Warning !, unknown key = "
+	    << key;
   }
   //check if type and Latlondefined !
   if (!objectRead || !typeRead || !LonLatRead){
-    cerr << "ObjectPlot::readObjectString - Warning !, " <<
+    WARN_ << "ObjectPlot::readObjectString - Warning !, " <<
       "Input string lacks Object,Type or Longitude/Latitude Input! "
-	 << objectString << endl;
+	 << objectString;
     return false;
   }
-  //if (objectIs(wFront)) cerr << "Object is front" << endl;
-  //else if (objectIs(wSymbol)) cerr << "Object is symbol" << endl;
-  //else if (objectIs(wArea)) cerr << "Object is area" << endl;
-  //else cerr << "Unknown object type "<< typeOfObject << endl;
-  //cerr << "Type = " << type << endl;
-  //cerr << "Number of points = " << nodePoints.size() << endl;
+  //if (objectIs(wFront)) DEBUG_ << "Object is front";
+  //else if (objectIs(wSymbol)) DEBUG_ << "Object is symbol";
+  //else if (objectIs(wArea)) DEBUG_ << "Object is area";
+  //else DEBUG_ << "Unknown object type "<< typeOfObject;
+  //DEBUG_ << "Type = " << type;
+  //DEBUG_ << "Number of points = " << nodePoints.size();
   return true;
 }
 
@@ -1111,7 +1112,7 @@ bool ObjectPlot::onLine(float x, float y){
     if  (boundBox.isinside(x,y)){
       if (spline){
 	if (x_s==NULL) {
-	  cerr << "Online::x_s = 0 !\n";
+	  DEBUG_ << "Online::x_s = 0 !\n";
 	  return false;
 	}
 	for (int i = 0; i < s_length-1; i++){

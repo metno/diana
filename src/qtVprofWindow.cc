@@ -46,6 +46,7 @@
 #include <QPrinter>
 #include <QPixmap>
 
+#include "diCommonTypes.h"
 #include "qtVprofWindow.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
@@ -187,7 +188,7 @@ VprofWindow::VprofWindow(Controller *co)
   mainWindowTime= miutil::miTime::nowTime();
 
 #ifdef DEBUGPRINT
-  cerr<<"VprofWindow::VprofWindow() finished"<<endl;
+  DEBUG_<<"VprofWindow::VprofWindow() finished";
 #endif
 }
 
@@ -198,12 +199,12 @@ void VprofWindow::modelClicked( bool on ){
   //called when the model button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    cerr << "Model button clicked on" << endl;
+    DEBUG_ << "Model button clicked on";
 #endif
     vpModelDialog->show();
   } else {
 #ifdef DEBUGPRINT
-    cerr << "Model button clicked off" << endl;
+    DEBUG_ << "Model button clicked off";
 #endif
     vpModelDialog->hide();
   }
@@ -254,7 +255,7 @@ bool VprofWindow::timeChangedSlot(int diff){
   //called if signal timeChanged is emitted from graphics
   //window (qtVprofWidget)
 #ifdef DEBUGPRINT
-  cerr << "timeChangedSlot(int) is called " << endl;
+  DEBUG_ << "timeChangedSlot(int) is called ";
 #endif
   int index=timeBox->currentIndex();
   while(diff<0){
@@ -289,9 +290,9 @@ bool VprofWindow::timeChangedSlot(int diff){
     }
   }
   if (tbs!=tstring){
-    cerr << "WARNING! timeChangedSlot  time from vprofm ="
-    << t    <<" not equal to timeBox text = " << tbs << endl
-    << "You should search through timelist!" << endl;
+    WARN_ << "WARNING! timeChangedSlot  time from vprofm ="
+    << t    <<" not equal to timeBox text = " << tbs;
+    WARN_ << "You should search through timelist!";
     return false;
   }
 
@@ -314,7 +315,7 @@ bool VprofWindow::timeChangedSlot(int diff){
 
 bool VprofWindow::stationChangedSlot(int diff){
 #ifdef DEBUGPRINT
-  cerr << "stationChangedSlot(int) is called " << endl;
+  DEBUG_ << "stationChangedSlot(int) is called ";
 #endif
   int index=stationBox->currentIndex();
   while(diff<0){
@@ -354,8 +355,8 @@ bool VprofWindow::stationChangedSlot(int diff){
     emit stationChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
-    //    cerr << "WARNING! stationChangedSlot  station from vprofm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs << endl;
+    //    WARN_ << "WARNING! stationChangedSlot  station from vprofm ="
+    // 	 << s    <<" not equal to stationBox text = " << sbs;
     //current or last station plotted is not in the list, insert it...
     stationBox->addItem(sq,0);
     stationBox->setCurrentIndex(0);
@@ -409,7 +410,7 @@ void VprofWindow::printClicked()
       int res = system(command.c_str());
 
       if (res != 0){
-        cerr << "Print command:" << command << " failed" << endl;
+        WARN_ << "Print command:" << command << " failed";
       }
 
     }
@@ -480,14 +481,14 @@ void VprofWindow::setupClicked(bool on){
   //called when the setup button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    cerr << "Setup button clicked on" << endl;
+    DEBUG_ << "Setup button clicked on";
 #endif
     vpSetupDialog->start();
     vpSetupDialog->show();
 
   } else {
 #ifdef DEBUGPRINT
-    cerr << "Setup button clicked off" << endl;
+    DEBUG_ << "Setup button clicked off";
 #endif
     vpSetupDialog->hide();
   }
@@ -499,7 +500,7 @@ void VprofWindow::setupClicked(bool on){
 void VprofWindow::quitClicked(){
   //called when the quit button is clicked
 #ifdef DEBUGPRINT
-  cerr << "quit clicked" << endl;
+  DEBUG_ << "quit clicked";
 #endif
   //for now, only hide window, not really quit !
   vpToolbar->hide();
@@ -518,7 +519,7 @@ void VprofWindow::quitClicked(){
 void VprofWindow::hideClicked(){
   //called when the hide button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  cerr << "hide clicked" << endl;
+  DEBUG_ << "hide clicked";
 #endif
 }
 
@@ -527,7 +528,7 @@ void VprofWindow::hideClicked(){
 void VprofWindow::updateClicked(){
   //called when the update button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  cerr << "update clicked" << endl;
+  DEBUG_ << "update clicked";
 #endif
   vprofm->updateObs();      // check obs.files
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
@@ -539,7 +540,7 @@ void VprofWindow::updateClicked(){
 void VprofWindow::helpClicked(){
   //called when the help button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  cerr << "help clicked" << endl;
+  DEBUG_ << "help clicked";
 #endif
   emit showsource("ug_verticalprofiles.html");
 }
@@ -550,7 +551,7 @@ void VprofWindow::helpClicked(){
 void VprofWindow::MenuOK(){
   //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::MenuOK()" << endl;
+  DEBUG_ << "VprofWindow::MenuOK()";
 #endif
 }
 
@@ -561,7 +562,7 @@ void VprofWindow::changeModel(){
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::changeModel()" << endl;
+  DEBUG_ << "VprofWindow::changeModel()";
 #endif
   QApplication::setOverrideCursor( Qt::WaitCursor );
   vprofm->setModel();
@@ -586,7 +587,7 @@ void VprofWindow::changeModel(){
 void VprofWindow::changeSetup(){
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::changeSetup()" << endl;
+  DEBUG_ << "VprofWindow::changeSetup()";
 #endif
   vprofw->updateGL();
 }
@@ -598,7 +599,7 @@ void VprofWindow::changeSetup(){
 void VprofWindow::hideModel(){
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::hideModel()" << endl;
+  DEBUG_ << "VprofWindow::hideModel()";
 #endif
   vpModelDialog->hide();
   modelButton->setChecked(false);
@@ -608,7 +609,7 @@ void VprofWindow::hideModel(){
 void VprofWindow::hideSetup(){
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::hideSetup()" << endl;
+  DEBUG_ << "VprofWindow::hideSetup()";
 #endif
   vpSetupDialog->hide();
   setupButton->setChecked(false);
@@ -618,7 +619,7 @@ void VprofWindow::hideSetup(){
 
 StationPlot* VprofWindow::getStations(){
 #ifdef DEBUGPRINT
-  cerr <<"VprofWindow::getStations()" << endl;
+  DEBUG_ <<"VprofWindow::getStations()";
 #endif
   const vector <miutil::miString> stations = vprofm->getStationList();
   const vector <float> latitude = vprofm->getLatitudes();
@@ -633,9 +634,9 @@ StationPlot* VprofWindow::getStations(){
   //the coordinates are defined here
 #ifdef DEBUGPRINT
   //  for (int i = 0; i<n;i++){
-  //     cerr <<"Station number " << i << " name = " << stations[i]
+  //     DEBUG_ <<"Station number " << i << " name = " << stations[i]
   // 	 << " latitude = " << latitude[i]
-  // 	 << " longitude = " << longitude[i] << endl;
+  // 	 << " longitude = " << longitude[i];
   //   }
 #endif
 
@@ -647,7 +648,7 @@ StationPlot* VprofWindow::getStations(){
 void VprofWindow::updateStationBox(){
   //update list of stations in stationBox
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::updateStationBox" << endl;
+  DEBUG_ << "VprofWindow::updateStationBox";
 #endif
 
   stationBox->clear();
@@ -670,7 +671,7 @@ void VprofWindow::updateStationBox(){
 void VprofWindow::updateTimeBox(){
   //update list of times
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::updateTimeBox" << endl;
+  DEBUG_ << "VprofWindow::updateTimeBox";
 #endif
 
   timeBox->clear();
@@ -725,7 +726,7 @@ void VprofWindow::timeBoxActivated(int index){
 
 bool VprofWindow::changeStation(const miutil::miString& station){
 #ifdef DEBUGPRINT
-  cerr << "VprofWindow::changeStation" << endl;
+  DEBUG_ << "VprofWindow::changeStation";
 #endif
   vprofm->setStation(station); //HK ??? should check if station exists ?
   vprofw->updateGL();
@@ -754,7 +755,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
   if (!active) return;
 #ifdef DEBUGPRINT
-  cerr << "vprofWindow::mainWindowTimeChanged called with time " << t << endl;
+  DEBUG_ << "vprofWindow::mainWindowTimeChanged called with time " << t;
 #endif
   vprofm->mainWindowTimeChanged(t);
   if (onlyObs) {
@@ -774,7 +775,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
 void VprofWindow::startUp(const miutil::miTime& t){
 #ifdef DEBUGPRINT
-  cerr << "vprofWindow::startUp called with time " << t << endl;
+  DEBUG_ << "vprofWindow::startUp called with time " << t;
 #endif
   active = true;
   vpToolbar->show();

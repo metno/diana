@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diGEOtiff.h>
 
 GEOtiff::GEOtiff(){
@@ -70,7 +71,7 @@ bool GEOtiff::readGEOtiffPalette(const miutil::miString& filename,
 bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
 {
 #ifdef DEBUGPRINT
-  cerr<<"GEOtiff::readGEOtiffHeader: inside the GEOtiff"<<file.name<<endl;
+  DEBUG_<<"GEOtiff::readGEOtiffHeader: inside the GEOtiff"<<file.name;
 #endif
 
   satimg::dihead ginfo;
@@ -82,7 +83,7 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
   else if (rres==0)
     file.palette=false;
   else{
-    cerr <<"GEOTIFF_head_diana returned false:"<<file.name<<endl;
+    ERROR_ <<"GEOTIFF_head_diana returned false:"<<file.name;
     return false;
   }
 
@@ -104,7 +105,7 @@ bool GEOtiff::readGEOtiff(const miutil::miString& filename, Sat& sd, int index)
 
   int rres= metno::GeoTiff::read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
   if (rres == -1) {
-    cerr << "GEOTIFF_read_diana returned false:" << filename << endl;
+    ERROR_ << "GEOTIFF_read_diana returned false:" << filename;
     return false;
   }
 

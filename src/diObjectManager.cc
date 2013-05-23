@@ -34,6 +34,7 @@
 #endif
 
 #include <fstream>
+#include <diCommonTypes.h>
 #include <diObjectManager.h>
 #include <diPlotModule.h>
 #include <diDrawingTypes.h>
@@ -55,7 +56,7 @@ ObjectManager::ObjectManager(PlotModule* pl)
   : plotm(pl), mapmode(normal_mode)
 {
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager constructor" << endl;
+  DEBUG_ << "ObjectManager constructor";
 #endif
 
 
@@ -80,7 +81,7 @@ bool ObjectManager::parseSetup() {
   vector<miString> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
-    cerr << "No " << section << " section in setupfile, ok." << endl;
+    ERROR_ << "No " << section << " section in setupfile, ok.";
     return true;
   }
 
@@ -93,7 +94,7 @@ bool ObjectManager::parseSetup() {
 
   for (nv=0; nv<nvstr; nv++) {
 //#####################################################################
-//  cerr << "ObjectManager::parseSetup: " << vstr[nv] << endl;
+//  DEBUG_ << "ObjectManager::parseSetup: " << vstr[nv];
 //#####################################################################
     vector<miString> tokens= vstr[nv].split('\"','\"'," ",true);
     n= tokens.size();
@@ -161,7 +162,7 @@ vector<miTime> ObjectManager::getObjectTimes(const vector<miString>& pinfos)
 //  * PURPOSE:   return times for list of PlotInfo's
 {
 #ifdef DEBUGPRINT
-   cerr<<"ObjectManager----> getTimes "<<endl;
+   DEBUG_<<"ObjectManager----> getTimes ";
 #endif
 
   set<miTime> timeset;
@@ -255,7 +256,7 @@ PlotOptions ObjectManager::getPlotOptions(miString objectName){
 bool ObjectManager::insertObjectName(const miString & name,
 				     const miString & file){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::insertObjectName " << name << " " << file << endl;
+  DEBUG_ << "ObjectManager::insertObjectName " << name << " " << file;
 #endif
   bool ok=false;
   ObjectList olist;
@@ -310,7 +311,7 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const miString objectname,
 						  bool refresh){
   // called from ObjectDialog
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::getObjectFiles" << endl;
+  DEBUG_ << "ObjectManager::getObjectFiles";
 #endif
 
   if (refresh) {
@@ -338,7 +339,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
   glob_t globBuf;
   miString fileString= ol.filename + "*";
 #ifdef DEBUGPRINT
-  cerr <<"ObjectManager::listFiles, search string " << fileString << endl;
+  DEBUG_ <<"ObjectManager::listFiles, search string " << fileString;
 #endif
 
   vector<ObjFileInfo> files;
@@ -425,7 +426,7 @@ miTime ObjectManager::timeFromString(miString timeString)
 
 bool ObjectManager::getFileName(DisplayObjects& wObjects){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::getFileName" << endl;
+  DEBUG_ << "ObjectManager::getFileName";
 #endif
 
 
@@ -469,7 +470,7 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects){
 bool ObjectManager::editCommandReadCommentFile(const miString filename)
 {
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editCommandReadCommentfile" << endl;
+  DEBUG_ << "ObjectManager::editCommandReadCommentfile";
 #endif
 
   //read file with comments
@@ -482,7 +483,7 @@ bool ObjectManager::editCommandReadCommentFile(const miString filename)
 bool ObjectManager::readEditCommentFile(const miString filename,
 				     WeatherObjects& wObjects){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::readEditCommentFile" << endl;
+  DEBUG_ << "ObjectManager::readEditCommentFile";
 #endif
 
   return wObjects.readEditCommentFile(filename);
@@ -491,7 +492,7 @@ bool ObjectManager::readEditCommentFile(const miString filename,
 void ObjectManager::putCommentStartLines(miString name,miString prefix){
   //return the startline of the comments file
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::putCommentStartLines" << endl;
+  DEBUG_ << "ObjectManager::putCommentStartLines";
 #endif
 
   plotm->editobjects.putCommentStartLines(name,prefix);
@@ -521,8 +522,8 @@ miString ObjectManager::readComments(bool inEditSession){
 bool ObjectManager::editCommandReadDrawFile(const miString filename)
 {
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editCommandReadDrawfile" << endl;
-  cerr << "ObjectManager::filename =   "<< filename << endl;
+  DEBUG_ << "ObjectManager::editCommandReadDrawfile";
+  DEBUG_ << "ObjectManager::filename =   "<< filename;
 #endif
 
   //size of objects to start with
@@ -547,7 +548,7 @@ bool ObjectManager::readEditDrawFile(const miString filename,
 				     const Area& area,
 				     WeatherObjects& wObjects){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::readEditDrawFile(2)" << endl;
+  DEBUG_ << "ObjectManager::readEditDrawFile(2)";
 #endif
 
 
@@ -558,7 +559,7 @@ bool ObjectManager::readEditDrawFile(const miString filename,
   //with same time.
   //HK ??? to solve temporary problem with file names with/without mins
   if (!checkFileName(fileName)){
-    cerr << "FILE " << fileName << " does not exist !" << endl;
+    ERROR_ << "FILE " << fileName << " does not exist !";
     return false;
   }
 
@@ -577,7 +578,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
 				      const miString outputString){
 
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::writeEditDrawFile" << endl;
+  DEBUG_ << "ObjectManager::writeEditDrawFile";
 #endif
 
   if (outputString.empty()) return false;
@@ -585,7 +586,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
   // open filestream
   ofstream file(filename.c_str());
   if (!file){
-    cerr << "ERROR OPEN (WRITE) " << filename << endl;
+    ERROR_ << "ERROR OPEN (WRITE) " << filename;
     return false;
   }
 
@@ -594,7 +595,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
   file.close();
 
 #ifdef DEBUGPRINT
-  cerr << "File " << filename   << " closed " << endl;
+  DEBUG_ << "File " << filename   << " closed ";
 #endif
 
   return true;
@@ -755,7 +756,7 @@ set <miString> ObjectManager::getComplexList(){
 
 void ObjectManager::autoJoinToggled(bool on){
 #ifdef DEBUGPRINT
-  cerr << "autoJoinToggled is called" << endl;
+  DEBUG_ << "autoJoinToggled is called";
 #endif
   plotm->editobjects.setAutoJoinOn(on);
   if (autoJoinOn()) plotm->editobjects.editJoinFronts(true,true,false);
@@ -782,7 +783,7 @@ void ObjectManager::createNewObject()
   // to make the dialog work properly
   // (type as editmode and edittool)
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::createNewObject" << endl;
+  DEBUG_ << "ObjectManager::createNewObject";
 #endif
   editStopDrawing();
   if (mapmode==draw_mode)
@@ -801,7 +802,7 @@ void ObjectManager::editTestFront(){
 
 void ObjectManager::editSplitFront(const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editSplitFront" << endl;
+  DEBUG_ << "ObjectManager::editSplitFront";
 #endif
   if (mapmode==draw_mode){
     editPrepareChange(SplitFronts);
@@ -818,7 +819,7 @@ void ObjectManager::editSplitFront(const float x, const float y){
 
 void ObjectManager::editResumeDrawing(const float x, const float y) {
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editResumeDrawing" << endl;
+  DEBUG_ << "ObjectManager::editResumeDrawing";
 #endif
   if (mapmode==draw_mode){
 
@@ -833,7 +834,7 @@ void ObjectManager::editResumeDrawing(const float x, const float y) {
 
 bool ObjectManager::editCheckPosition(const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editCheckPosition" << endl;
+  DEBUG_ << "ObjectManager::editCheckPosition";
 #endif
   bool changed=false;
 
@@ -857,7 +858,7 @@ bool ObjectManager::editCheckPosition(const float x, const float y){
 void ObjectManager::setAllPassive(){
   //Sets current status of the objects to passive
 #ifdef DEBUGPRINT
-  cerr <<"ObjectManager::setAllPassive()"<< endl;
+  DEBUG_ <<"ObjectManager::setAllPassive()";
 #endif
   plotm->editobjects.setAllPassive();
   plotm->combiningobjects.setAllPassive();
@@ -866,7 +867,7 @@ void ObjectManager::setAllPassive(){
 
 bool ObjectManager::setRubber(bool rubber, const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr <<"ObjectManager::setRubber called" << endl;
+  DEBUG_ <<"ObjectManager::setRubber called";
 #endif
   return plotm->editobjects.setRubber(rubber,x,y);
 }
@@ -878,7 +879,7 @@ bool ObjectManager::setRubber(bool rubber, const float x, const float y){
 void ObjectManager::editPrepareChange(const operation op)
 {
 #ifdef DEBUGPRINT
-  cerr << "objm::editPrepareChange" << endl;
+  DEBUG_ << "objm::editPrepareChange";
 #endif
 
   //temporary undo buffer, in case changes occur
@@ -892,7 +893,7 @@ void ObjectManager::editPrepareChange(const operation op)
 void ObjectManager::editMouseRelease(bool moved)
 {
 #ifdef DEBUGPRINT
-  cerr << "objm::editMouserRelease" << endl;
+  DEBUG_ << "objm::editMouserRelease";
 #endif
   if (moved)objectsChanged = true;
   editPostOperation();
@@ -903,7 +904,7 @@ void ObjectManager::editMouseRelease(bool moved)
 
 void ObjectManager::editPostOperation(){
 #ifdef DEBUGPRINT
-  cerr << "!! editPostOperation" << endl;
+  DEBUG_ << "!! editPostOperation";
 #endif
   if (objectsChanged && undoTemp!=0){
     plotm->editobjects.newUndoCurrent(undoTemp);
@@ -916,7 +917,7 @@ void ObjectManager::editPostOperation(){
 
 void ObjectManager::editNewObjectsAdded(int edSize){
 #ifdef DEBUGPRINT
-  cerr << "editNewObjectsAdded" << endl;
+  DEBUG_ << "editNewObjectsAdded";
 #endif
 
   //for undo buffer
@@ -965,7 +966,7 @@ void ObjectManager::editStopDrawing(){
 
 void ObjectManager::editDeleteMarkedPoints(){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editDeleteMarkedPoints" << endl;
+  DEBUG_ << "ObjectManager::editDeleteMarkedPoints";
 #endif
 
   if (mapmode==draw_mode){
@@ -985,7 +986,7 @@ void ObjectManager::editDeleteMarkedPoints(){
 
 void ObjectManager::editAddPoint(const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::editAddPoint" << endl;
+  DEBUG_ << "ObjectManager::editAddPoint";
 #endif
 
   if(mapmode== draw_mode){
@@ -1018,7 +1019,7 @@ ObjectManager::editMergeFronts(bool mergeAll){
   //mergeAll = true ->all fronts are joined
   //        = false->only marked or active fronts are joined
 #ifdef DEBUGPRINT
-  cerr << "+++EditManager::editMergeFronts" << endl;
+  DEBUG_ << "+++EditManager::editMergeFronts";
 #endif
   if(mapmode== draw_mode){
     editPrepareChange(JoinFronts);
@@ -1198,7 +1199,7 @@ void ObjectManager::checkJoinPoints(){
 
 bool ObjectManager::redofront(){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::redofront" << endl;
+  DEBUG_ << "ObjectManager::redofront";
 #endif
   return plotm->editobjects.redofront();
 }
@@ -1206,7 +1207,7 @@ bool ObjectManager::redofront(){
 
 bool ObjectManager::undofront(){
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::undofront" << endl;
+  DEBUG_ << "ObjectManager::undofront";
 #endif
   return plotm->editobjects.undofront();
 }
@@ -1254,8 +1255,8 @@ bool ObjectManager::_isafile(const miString name){
 bool ObjectManager::checkFileName(miString &fileName){
   if(!_isafile(fileName)) {
 #ifdef DEBUGPRINT
-  cerr << "ObjectManager::checkFileName" << endl;
-  cerr << "filename =  " << fileName << endl;
+  DEBUG_ << "ObjectManager::checkFileName";
+  DEBUG_ << "filename =  " << fileName;
 #endif
     //find time of file
     miTime time = timeFileName(fileName);

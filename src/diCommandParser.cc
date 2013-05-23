@@ -34,6 +34,7 @@
 #endif
 
 #include <diCommandParser.h>
+#include <diCommonTypes.h>
 #include <iostream>
 
 using namespace::miutil;
@@ -225,8 +226,8 @@ bool CommandParser::addKey(const std::string& name, const std::string& key,
     else if (caseType==cmdUpperCase) newkey= miutil::to_upper(name);
     else                             newkey= name;
   } else {
-    if (printError) cerr<<"CommandParser::addKey ERROR: key= "<<key
-                        <<"  name= "<<name<<endl;
+    if (printError) ERROR_<<"CommandParser::addKey ERROR: key= "<<key
+                          <<"  name= "<<name;
     return false;
   }
 
@@ -235,8 +236,8 @@ bool CommandParser::addKey(const std::string& name, const std::string& key,
     keyDataBase[newkey].name=      name;
     keyDataBase[newkey].idNumber=  idNumber;
   } else {
-    if (printError) cerr<<"CommandParser::addKey ERROR: key= "<<key
-                        <<"  name= "<<name<<endl;
+    if (printError) ERROR_<<"CommandParser::addKey ERROR: key= "<<key
+                          <<"  name= "<<name;
     return false;
   }
   return true;

@@ -49,6 +49,7 @@
 #include <qbrush.h>
 #include <QIcon>
 
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include <diLinetype.h>
 #include "diImageGallery.h"
@@ -513,13 +514,13 @@ XPM X11 Pixmap Read/write
       image.load(filename.c_str(),NULL);
     if (image.isNull())
     {
-      cerr << "PixmapBox: problem loading image: " << filename << endl;
+      WARN_ << "PixmapBox: problem loading image: " << filename;
       continue;
     }
     QPixmap p = QPixmap::fromImage(image);
     if (p.isNull())
     {
-      cerr << "PixmapBox: problem converting from QImage to QPixmap" << filename << endl;
+      WARN_ << "PixmapBox: problem converting from QImage to QPixmap" << filename;
       continue;
     }
     box->addItem (p, "" );

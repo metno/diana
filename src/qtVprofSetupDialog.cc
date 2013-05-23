@@ -43,6 +43,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
+#include "diCommonTypes.h"
 #include "qtUtility.h"
 #include "diVprofManager.h"
 #include "qtVcrossSetup.h"
@@ -58,7 +59,7 @@ VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   : QDialog(parent),vprofm(vm)
 {
 #ifdef DEBUGPRINT
-  cout<<"VprofSetUpDialog::VprofSetUpDialog called"<<endl;
+  DEBUG_<<"VprofSetUpDialog::VprofSetUpDialog called";
 #endif
 
   //caption to appear on top of dialog
@@ -178,7 +179,7 @@ void VprofSetupDialog::setTemperatureMax(int value){
 void VprofSetupDialog::standardClicked(){
   //this slot is called when standard button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::standardClicked()" << endl;
+  DEBUG_ <<"VprofSetupDialog::standardClicked()";
 #endif
   VprofOptions * vpopt= new VprofOptions; // diana defaults
   setup(vpopt);
@@ -204,7 +205,7 @@ void VprofSetupDialog::start(){
 
 void VprofSetupDialog::setup(VprofOptions *vpopt){
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::setup()" << endl;
+  DEBUG_ <<"VprofSetupDialog::setup()";
 #endif
 
   int j, n = vpSetups.size();
@@ -358,7 +359,7 @@ void VprofSetupDialog::setup(VprofOptions *vpopt){
 
 void VprofSetupDialog::applySetup(){
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::applySetup()" << endl;
+  DEBUG_ <<"VprofSetupDialog::applySetup()";
 #endif
   VprofOptions * vpopt= vprofm->getOptions();
 
@@ -509,20 +510,20 @@ void VprofSetupDialog::printSetup(){
 /*
   #ifdef DEBUGPRINT
   //HK, used for debugging...
-  cerr <<"VprofSetupDialog::printSetup()" << endl;
+  DEBUG_ <<"VprofSetupDialog::printSetup()";
 
   int n = vpSetups.size();
-  cerr<< "Number of setups =" << n << endl;
+  DEBUG_<< "Number of setups =" << n;
   for (int i = 0;i<n;i++){
-    cerr << "Name =" << vpSetups[i]->name;
+    DEBUG_ << "Name =" << vpSetups[i]->name;
     if (vpSetups[i]->isChecked()){
-      cerr << " is on !" << endl;
+      DEBUG_ << " is on !";
       ColourInfo sColour = vpSetups[i]->getColour();
-      cerr << "    Colour = " << sColour.name << endl;
-      cerr << "    linethickness = " << vpSetups[i]->getLinewidth() << endl;
-      cerr << "    linetype = " << vpSetups[i]->getLinetype() << endl;
+      DEBUG_ << "    Colour = " << sColour.name;
+      DEBUG_ << "    linethickness = " << vpSetups[i]->getLinewidth();
+      DEBUG_ << "    linetype = " << vpSetups[i]->getLinetype();
     }else
-      cerr << " is off !" << endl;
+      DEBUG_ << " is off !";
   }
 #endif
 */
@@ -534,7 +535,7 @@ void VprofSetupDialog::printSetup(){
 void VprofSetupDialog::helpClicked(){
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::helpClicked()" << endl;
+  DEBUG_ <<"VprofSetupDialog::helpClicked()";
 #endif
   emit showsource("ug_verticalprofiles.html");
 }
@@ -544,7 +545,7 @@ void VprofSetupDialog::helpClicked(){
 void VprofSetupDialog::applyClicked(){
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::applyClicked(int tt)" << endl;
+  DEBUG_ <<"VprofSetupDialog::applyClicked(int tt)";
 #endif
   applySetup();
   //printSetup();
@@ -557,7 +558,7 @@ void VprofSetupDialog::applyClicked(){
 void VprofSetupDialog::applyhideClicked(){
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofSetupDialog::applyhideClicked(int tt)" << endl;
+  DEBUG_ <<"VprofSetupDialog::applyhideClicked(int tt)";
 #endif
   applySetup();
   //printSetup();

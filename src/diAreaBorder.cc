@@ -34,6 +34,7 @@
 #endif
 
 #include <diAreaBorder.h>
+#include <diCommonTypes.h>
 #include <math.h>
 #include <puTools/miString.h>
 #include <sstream>
@@ -49,13 +50,13 @@ AreaBorder::AreaBorder() : ObjectPlot(){
   type=7;         // default fronttype
 
 #ifdef DEBUGPRINT
-  cerr << "New AreaBorder made" << endl;
+  DEBUG_ << "New AreaBorder made";
 #endif
 }
 
 AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs){
 #ifdef DEBUGPRINT
-  cerr << "AreaBorder copy constructror" << endl;
+  DEBUG_ << "AreaBorder copy constructror";
 #endif
   linewidth=rhs.linewidth;    // default linewidth of front
   transitionwidth=rhs.transitionwidth;  // default linewidth of transition area

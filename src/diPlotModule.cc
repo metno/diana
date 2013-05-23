@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include <diCommonTypes.h>
 #include <diPlotModule.h>
 #include <diObsPlot.h>
 
@@ -101,7 +102,7 @@ PlotModule::~PlotModule()
 void PlotModule::preparePlots(const vector<miString>& vpi)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::preparePlots ++" << endl;
+  DEBUG_ << "++ PlotModule::preparePlots ++";
 #endif
   // reset flags
   mapDefinedByUser = false;
@@ -168,7 +169,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::preparePlots ++" << endl;
+  DEBUG_ << "++ Returning from PlotModule::preparePlots ++";
 #endif
 }
 
@@ -226,7 +227,7 @@ void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 void PlotModule::prepareMap(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareMap ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareMap ++";
 #endif
 
   splot.xyClear();
@@ -304,7 +305,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 void PlotModule::prepareFields(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareFields ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareFields ++";
 #endif
 
   int npi = inp.size();
@@ -346,14 +347,14 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::prepareFields ++" << endl;
+  DEBUG_ << "++ Returning from PlotModule::prepareFields ++";
 #endif
 }
 
 void PlotModule::prepareObs(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareObs ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareObs ++";
 #endif
 
   int npi = inp.size();
@@ -411,14 +412,14 @@ void PlotModule::prepareObs(const vector<miString>& inp)
   obsnr = 0;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::prepareObs ++" << endl;
+  DEBUG_ << "++ Returning from PlotModule::prepareObs ++";
 #endif
 }
 
 void PlotModule::prepareSat(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareSat ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareSat ++";
 #endif
 
   // keep enable flag
@@ -430,7 +431,7 @@ void PlotModule::prepareSat(const vector<miString>& inp)
   }
 
   if (!satm->init(vsp, inp)) {
-    cerr << "PlotModule::prepareSat.  init returned false" << endl;
+    WARN_ << "PlotModule::prepareSat.  init returned false";
   }
 
   for (unsigned int i = 0; i < vsp.size(); i++) {
@@ -444,12 +445,12 @@ void PlotModule::prepareSat(const vector<miString>& inp)
 void PlotModule::prepareStations(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareStations ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareStations ++";
 #endif
 
   if (!stam->init(inp)) {
 #ifdef DEBUGPRINT
-    cerr << "PlotModule::prepareStations.  init returned false" << endl;
+    DEBUG_ << "PlotModule::prepareStations.  init returned false";
 #endif
   }
 }
@@ -457,7 +458,7 @@ void PlotModule::prepareStations(const vector<miString>& inp)
 void PlotModule::prepareAnnotation(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareAnnotation ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareAnnotation ++";
 #endif
 
   // for now -- erase all annotationplots
@@ -478,7 +479,7 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
 void PlotModule::prepareObjects(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareObjects ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareObjects ++";
 #endif
 
   int npi = inp.size();
@@ -507,7 +508,7 @@ void PlotModule::prepareObjects(const vector<miString>& inp)
 void PlotModule::prepareTrajectory(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareTrajectory ++" << endl;
+  DEBUG_ << "++ PlotModule::prepareTrajectory ++";
 #endif
   //   vtp.push_back(new TrajectoryPlot());
 
@@ -515,7 +516,7 @@ void PlotModule::prepareTrajectory(const vector<miString>& inp)
 
 vector<PlotElement>& PlotModule::getPlotElements()
 {
-  //  cerr <<"PlotModule::getPlotElements()"<<endl;
+  //  DEBUG_ <<"PlotModule::getPlotElements()";
   static vector<PlotElement> pel;
   pel.clear();
 
@@ -706,7 +707,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
 void PlotModule::setAnnotations()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::setAnnotations ++" << endl;
+  DEBUG_ << "++ PlotModule::setAnnotations ++";
 #endif
 
   int n = vap.size();
@@ -905,7 +906,7 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
   for (i = 0; i < n; i++) {
     if (vop[i]->LevelAsField()) {
       if (!obsm->prepare(vop[i], t))
-        cerr << "updateLevel: ObsManager returned false from prepare" << endl;
+        WARN_ << "updateLevel: ObsManager returned false from prepare";
     }
   }
 
@@ -978,17 +979,17 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   //######################################################################
   //  Area aa;
-  //  cerr << "----------------------------------------------------" << endl;
+  //  DEBUG_ << "----------------------------------------------------";
   //  aa=previousrequestedarea;
-  //  cerr << "previousrequestedarea " << previousrequestedarea << endl;
+  //  DEBUG_ << "previousrequestedarea " << previousrequestedarea;
   //  aa=requestedarea;
-  //  cerr << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea<<endl;
-  //  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
-  //  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
-  //  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
-  //  cerr << "mapdefined=       " << mapdefined << endl;
-  //  cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
-  //  cerr << "----------------------------------------------------" << endl;
+  //  DEBUG_ << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea;
+  //  DEBUG_ << "mapDefinedByUser= " << mapDefinedByUser;
+  //  DEBUG_ << "mapDefinedByData= " << mapDefinedByData;
+  //  DEBUG_ << "mapDefinedByView= " << mapDefinedByView;
+  //  DEBUG_ << "mapdefined=       " << mapdefined;
+  //  DEBUG_ << "keepcurrentarea=  " << keepcurrentarea;
+  //  DEBUG_ << "----------------------------------------------------";
   //######################################################################
   mapdefined = false;
 
@@ -1196,10 +1197,10 @@ void PlotModule::plot(bool under, bool over)
 {
 
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.plot() ++" << endl;
+  DEBUG_ << "++ PlotModule.plot() ++";
 #endif
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  DEBUG_<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over;
 #endif
 
   Colour cback(splot.getBgColour().c_str());
@@ -1250,7 +1251,7 @@ void PlotModule::plot(bool under, bool over)
   }
 
 #ifdef DEBUGREDRAW
-  cerr<<"++++++finished PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  DEBUG_<<"++++++finished PlotModule::plot  under,over: "<<under<<" "<<over;
 #endif
 }
 
@@ -1258,7 +1259,7 @@ void PlotModule::plot(bool under, bool over)
 void PlotModule::plotUnder()
 {
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plotUnder  under,over: "<<endl;
+  DEBUG_<<"++++++PlotModule::plotUnder  under,over: ";
 #endif
   int i, n, m;
 
@@ -1295,7 +1296,7 @@ void PlotModule::plotUnder()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    DEBUG_ << "Kaller plot til mapplot number:" << i;
 #endif
     vmp[i]->plot(0);
   }
@@ -1304,7 +1305,7 @@ void PlotModule::plotUnder()
   n = vsp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til satplot number:" << i << endl;
+    DEBUG_ << "Kaller plot til satplot number:" << i;
 #endif
     vsp[i]->plot();
   }
@@ -1314,7 +1315,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (vfp[i]->getUndefinedPlot()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plotUndefined til fieldplot number:" << i << endl;
+      DEBUG_ << "Kaller plotUndefined til fieldplot number:" << i;
 #endif
       vfp[i]->plotUndefined();
     }
@@ -1325,7 +1326,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (vfp[i]->getShadePlot()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til fieldplot number:" << i << endl;
+      DEBUG_ << "Kaller plot til fieldplot number:" << i;
 #endif
       vfp[i]->plot();
     }
@@ -1335,7 +1336,7 @@ void PlotModule::plotUnder()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    DEBUG_ << "Kaller plot til mapplot number:" << i;
 #endif
     vmp[i]->plot(1);
   }
@@ -1350,7 +1351,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til fieldplot number:" << i << endl;
+      DEBUG_ << "Kaller plot til fieldplot number:" << i;
 #endif
       vfp[i]->plot();
     }
@@ -1432,7 +1433,7 @@ void PlotModule::plotUnder()
     // plot Annotations
     n = vap.size();
     for (i = 0; i < n; i++) {
-      //	cerr <<"i:"<<i<<endl;
+      //	DEBUG_ <<"i:"<<i;
       vap[i]->plot();
     }
   }
@@ -1445,7 +1446,7 @@ void PlotModule::plotUnder()
 void PlotModule::plotOver()
 {
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plotOver  under,over: "<<endl;
+  DEBUG_<<"++++++PlotModule::plotOver  under,over: ";
 #endif
 
   int i, n;
@@ -1501,7 +1502,7 @@ void PlotModule::plotOver()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    DEBUG_ << "Kaller plot til mapplot number:" << i;
 #endif
     vmp[i]->plot(2);
   }
@@ -1536,8 +1537,8 @@ void PlotModule::plotOver()
   // plot rubberbox
   if (dorubberband) {
 #ifdef DEBUGREDRAW
-    cerr<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
-        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
+    DEBUG_<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
+        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy;
 #endif
     Rectangle fullr = splot.getPlotSize();
     float x1 = fullr.x1 + fullr.width() * oldx / plotw;
@@ -1585,7 +1586,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
 
   unsigned int n = vap.size();
   for (unsigned int i = 0; i < n; i++) {
-    //	cerr <<"i:"<<i<<endl;
+    //	DEBUG_ <<"i:"<<i;
     vap[i]->plot();
     rectangles.push_back(vap[i]->getBoundingBox());
   }
@@ -1596,7 +1597,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
 void PlotModule::PlotAreaSetup()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.PlotAreaSetup() ++" << endl;
+  DEBUG_ << "++ PlotModule.PlotAreaSetup() ++";
 #endif
 
   if (plotw < 1 || ploth < 1)
@@ -1652,18 +1653,18 @@ void PlotModule::PlotAreaSetup()
   splot.setPlotSize(fr);
 
 #ifdef DEBUGPRINT
-  cerr << "============ After PlotAreaSetup ======" << endl;
-  cerr << "Fullplotarea:" << fr << endl;
-  cerr << "plotarea:" << mr << endl;
-  cerr << "=======================================" << endl;
+  DEBUG_ << "============ After PlotAreaSetup ======";
+  DEBUG_ << "Fullplotarea:" << fr;
+  DEBUG_ << "plotarea:" << mr;
+  DEBUG_ << "=======================================";
 #endif
 }
 
 void PlotModule::setPlotWindow(const int& w, const int& h)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.setPlotWindow() ++" <<
-      " w=" << w << " h=" << h << endl;
+  DEBUG_ << "++ PlotModule.setPlotWindow() ++" <<
+      " w=" << w << " h=" << h;
 #endif
 
   plotw = float(w);
@@ -1754,7 +1755,7 @@ void PlotModule::cleanup()
   apEditmessage = 0;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::cleanup ++" << endl;
+  DEBUG_ << "++ Returning from PlotModule::cleanup ++";
 #endif
 }
 
@@ -1771,9 +1772,9 @@ void PlotModule::PixelArea(const Rectangle r)
   //Rectangle mapr= ma.R();
 
 #ifdef DEBUGPRINT
-  cerr << "Plotw:" << plotw << endl;
-  cerr << "Ploth:" << ploth << endl;
-  cerr << "Selected rectangle:" << r << endl;
+  DEBUG_ << "Plotw:" << plotw;
+  DEBUG_ << "Ploth:" << ploth;
+  DEBUG_ << "Selected rectangle:" << r;
 #endif
 
   // map to grid-coordinates
@@ -1784,10 +1785,10 @@ void PlotModule::PixelArea(const Rectangle r)
   newr.y2 = fullr.y1 + fullr.height() * r.y2 / ploth;
 
 #ifdef DEBUGPRINT
-  cerr << "Fullplotarea:" << fullr << endl;
-  cerr << "plotarea:" << plotr << endl;
-  //cerr << "maparea:" << mapr << endl;
-  cerr << "new maparea:" << newr << endl;
+  DEBUG_ << "Fullplotarea:" << fullr;
+  DEBUG_ << "plotarea:" << plotr;
+  //DEBUG_ << "maparea:" << mapr;
+  DEBUG_ << "new maparea:" << newr;
 #endif
 
   // keep selection inside plotarea
@@ -1920,21 +1921,21 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   aream = gam;
 
   if (!fieldm)
-    cerr << "PlotModule::ERROR fieldmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR fieldmanager==0";
   if (!fieldplotm)
-    cerr << "PlotModule::ERROR fieldplotmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR fieldplotmanager==0";
   if (!obsm)
-    cerr << "PlotModule::ERROR obsmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR obsmanager==0";
   if (!satm)
-    cerr << "PlotModule::ERROR satmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR satmanager==0";
   if (!stam)
-    cerr << "PlotModule::ERROR stationmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR stationmanager==0";
   if (!objm)
-    cerr << "PlotModule::ERROR objectmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR objectmanager==0";
   if (!editm)
-    cerr << "PlotModule::ERROR editmanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR editmanager==0";
   if (!aream)
-    cerr << "PlotModule::ERROR gridareamanager==0" << endl;
+    ERROR_ << "PlotModule::ERROR gridareamanager==0";
 }
 
 // return current plottime
@@ -1971,16 +1972,16 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
     pinfos.push_back(vfp[i]->getPlotInfo());
-    cerr << "Field plotinfo:" << vfp[i]->getPlotInfo() << endl;
+    INFO_ << "Field plotinfo:" << vfp[i]->getPlotInfo();
   }
   if (pinfos.size() > 0) {
     bool constT;
     fieldtimes = fieldplotm->getFieldTime(pinfos, constT, updateSources);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found fieldtimes:" << endl;
+  DEBUG_ << "--- Found fieldtimes:";
   for (unsigned int i=0; i<fieldtimes.size(); i++)
-    cerr << fieldtimes[i] << endl;
+    DEBUG_ << fieldtimes[i];
 #endif
 
   n = vsp.size();
@@ -1991,9 +1992,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     sattimes = satm->getSatTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found sattimes:" << endl;
+  DEBUG_ << "--- Found sattimes:";
   for (unsigned int i=0; i<sattimes.size(); i++)
-    cerr << sattimes[i] << endl;
+    DEBUG_ << sattimes[i];
 #endif
 
   n = vop.size();
@@ -2004,9 +2005,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     obstimes = obsm->getObsTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found obstimes:" << endl;
+  DEBUG_ << "--- Found obstimes:";
   for (unsigned int i=0; i<obstimes.size(); i++)
-    cerr << obstimes[i] << endl;
+    DEBUG_ << obstimes[i];
 #endif
 
   pinfos.clear();
@@ -2015,9 +2016,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     objtimes = objm->getObjectTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found objtimes:" << endl;
+  DEBUG_ << "--- Found objtimes:";
   for (unsigned int i=0; i<objtimes.size(); i++)
-    cerr << objtimes[i] << endl;
+    DEBUG_ << objtimes[i];
 #endif
 
 }
@@ -2050,7 +2051,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
 
     if (!constTime.undef()) { //insert constTime
 
-      cerr << "constTime:" << constTime.isoTime() << endl;
+      INFO_ << "constTime:" << constTime.isoTime();
       constTimes.insert(constTime);
 
     } else if (moreTimes) { //insert okTimes
@@ -2125,7 +2126,7 @@ void PlotModule::updateObs()
   for (int i = 0; i < nvop; i++) {
     if (vop[i]->updateObs()) {
       if (!obsm->prepare(vop[i], splot.getTime()))
-        cerr << "ObsManager returned false from prepare" << endl;
+        WARN_ << "ObsManager returned false from prepare";
     }
   }
 
@@ -2166,9 +2167,9 @@ bool PlotModule::getObsName(int x, int y, miString& name)
 void PlotModule::makeAreas(miString name, miString areastring, int id)
 {
   int n = vareaobjects.size();
-  //   cerr <<"makeAreas:"<<n<<endl;
-  //   cerr <<"name:"<<name<<endl;
-  //   cerr <<"areastring:"<<areastring<<endl;
+  //   DEBUG_ <<"makeAreas:"<<n;
+  //   DEBUG_ <<"name:"<<name;
+  //   DEBUG_ <<"areastring:"<<areastring;
   //name can be name:icon
   vector<miString> tokens = name.split(":");
   miString icon;
@@ -2198,10 +2199,10 @@ void PlotModule::makeAreas(miString name, miString areastring, int id)
 void PlotModule::areaCommand(const miString& command, const miString& dataSet,
     const miString& data, int id)
 {
-  //   cerr << "PlotModule::areaCommand" << endl;
-  //   cerr << "id=" << id << endl;
-  //   cerr << "command=" << command << endl;
-  //   cerr <<"data="<<data<<endl;
+  //   DEBUG_ << "PlotModule::areaCommand";
+  //   DEBUG_ << "id=" << id;
+  //   DEBUG_ << "command=" << command;
+  //   DEBUG_ <<"data="<<data;
 
   int n = vareaobjects.size();
   for (int i = 0; i < n && i > -1; i++) {
@@ -2227,7 +2228,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
 
 vector<selectArea> PlotModule::findAreas(int x, int y, bool newArea)
 {
-  //cerr << "PlotModule::findAreas"  << x << " " << y << endl;
+  //DEBUG_ << "PlotModule::findAreas"  << x << " " << y;
   float xm = 0, ym = 0;
   PhysToMap(x, y, xm, ym);
   vector<selectArea> vsA;
@@ -2247,7 +2248,7 @@ vector<selectArea> PlotModule::findAreas(int x, int y, bool newArea)
 void PlotModule::putLocation(const LocationData& locationdata)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::putLocation"<< endl;
+  DEBUG_ << "PlotModule::putLocation";
 #endif
   bool found = false;
   int n = locationPlots.size();
@@ -2274,7 +2275,7 @@ void PlotModule::putLocation(const LocationData& locationdata)
 void PlotModule::updateLocation(const LocationData& locationdata)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::updateLocation"<< endl;
+  DEBUG_ << "PlotModule::updateLocation";
 #endif
   int n = locationPlots.size();
   miString name = locationdata.name;
@@ -2392,7 +2393,7 @@ void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
         delete op;
         op = NULL;
       } else if (!obsm->prepare(op, newTime))
-        cerr << "ObsManager returned false from prepare" << endl;
+        WARN_ << "ObsManager returned false from prepare";
 
       ot.vobsOneTime.push_back(op);
     }
@@ -2634,7 +2635,7 @@ vector<miString> PlotModule::writeAnnotations(miString prodname)
 void PlotModule::updateEditLabels(vector<miString> productLabelstrings,
     miString productName, bool newProduct)
 {
-  cerr << "diPlotModule::updateEditLabels" << endl;
+  DEBUG_ << "diPlotModule::updateEditLabels";
   int n;
   vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...

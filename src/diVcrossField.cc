@@ -43,6 +43,7 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossField"
 #include <miLogger/miLogging.h>
+#include <diCommonTypes.h>
 
 using namespace std;
 
@@ -622,16 +623,16 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
 
 #ifdef DEBUGPRINT
   for(int i=0;i<vcp->alevel.size();i++)
-    cerr << "vcp->alevel["<<i<<"]: " << vcp->alevel[i] << endl;
+    DEBUG_ << "vcp->alevel["<<i<<"]: " << vcp->alevel[i];
   for(int i=0;i<vcp->blevel.size();i++)
-    cerr << "vcp->blevel["<<i<<"]: " << vcp->blevel[i] << endl;
-  cerr << "number of data values: " << crossData.size() << endl;
-  cerr << "parameters: " << endl;
+    DEBUG_ << "vcp->blevel["<<i<<"]: " << vcp->blevel[i];
+  DEBUG_ << "number of data values: " << crossData.size();
+  DEBUG_ << "parameters: ";
   for(int i=0;i<params.size();i++) {
-    cerr << params[i] << endl;
+    DEBUG_ << params[i];
     /*if(multiLevel[i] == false)
       for(int j=0;j<vcp->nPoint;j++)
-        cerr << "["<<j<<"]: " << crossData[i][j] << endl;*/
+        DEBUG_ << "["<<j<<"]: " << crossData[i][j];*/
   }
 #endif
 
@@ -686,24 +687,24 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   METLIBS_LOG_DEBUG(LOGVAL(vcp->vrangemin) << LOGVAL(vcp->vrangemax));
 
 #ifdef DEBUGPRINT
-  cerr << "vcp->nPoint: " << vcp->nPoint << endl;
-  cerr << "vcp->numLev: " << vcp->numLev << endl;
-  cerr << "vcp->horizontalPosNum: " << vcp->horizontalPosNum << endl;
-  cerr << "vcp->vcoord: " << vcp->vcoord << endl;
-  cerr << "vcp->nTotal: " << vcp->nTotal << endl;
-  cerr << "vcp->validTime: " << vcp->validTime << endl;
-  cerr << "vcp->forecastHour: " << vcp->forecastHour << endl;
-  cerr << "vcp->refPosition: " << vcp->refPosition << endl;
-  cerr << "vcp->timeGraph: " << vcp->timeGraph << endl;
-  cerr << "vcp->vrangemin: " << vcp->vrangemin << endl;
-  cerr << "vcp->vrangemax: " << vcp->vrangemax << endl;
-  cerr << "vcp->iundef: " << vcp->iundef << endl;
+  DEBUG_ << "vcp->nPoint: " << vcp->nPoint;
+  DEBUG_ << "vcp->numLev: " << vcp->numLev;
+  DEBUG_ << "vcp->horizontalPosNum: " << vcp->horizontalPosNum;
+  DEBUG_ << "vcp->vcoord: " << vcp->vcoord;
+  DEBUG_ << "vcp->nTotal: " << vcp->nTotal;
+  DEBUG_ << "vcp->validTime: " << vcp->validTime;
+  DEBUG_ << "vcp->forecastHour: " << vcp->forecastHour;
+  DEBUG_ << "vcp->refPosition: " << vcp->refPosition;
+  DEBUG_ << "vcp->timeGraph: " << vcp->timeGraph;
+  DEBUG_ << "vcp->vrangemin: " << vcp->vrangemin;
+  DEBUG_ << "vcp->vrangemax: " << vcp->vrangemax;
+  DEBUG_ << "vcp->iundef: " << vcp->iundef;
   /*for(int p=0;p<vcp->cdata2d.size();p++)
     for(int q=0;q<vcp->nTotal;q++)
-      cerr << "vcp->cdata2d["<<p<<"]["<<q<<"]: " << vcp->cdata2d[p][q] << endl;
+      DEBUG_ << "vcp->cdata2d["<<p<<"]["<<q<<"]: " << vcp->cdata2d[p][q];
   for(int p=0;p<vcp->cdata1d.size();p++)
     for(int q=0;q<vcp->nPoint;q++)
-      cerr << "vcp->cdata1d["<<p<<"]["<<q<<"]: " << vcp->cdata1d[p][q] << endl;*/
+      DEBUG_ << "vcp->cdata1d["<<p<<"]["<<q<<"]: " << vcp->cdata1d[p][q];*/
 #endif
 
   // Try to prepare the data

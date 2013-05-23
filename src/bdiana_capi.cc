@@ -356,11 +356,6 @@ miString fifo_name;
 
 miString logfilename = "";
 
-#define INFO_ COMMON_LOG::getInstance("common").infoStream()
-#define WARN_ COMMON_LOG::getInstance("common").warnStream()
-#define ERROR_ COMMON_LOG::getInstance("common").errorStream()
-#define DEBUG_ COMMON_LOG::getInstance("common").debugStream()
-
 #define MAKE_CONTROLLER \
     main_controller = new Controller; \
     if (!main_controller->parseSetup()) { \
