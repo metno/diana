@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.FieldPlotManager"
+#include <miLogger/miLogging.h>
+
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
@@ -79,7 +81,7 @@ bool FieldPlotManager::parseSetup()
 bool FieldPlotManager::parseFieldPlotSetup()
 {
 
-  //   DEBUG_ <<"bool FieldPlotManager::parseSetup";
+  //   METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
 
   fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
@@ -87,7 +89,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   vector<miString> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    ERROR_ << sect_name << " section not found";
+    METLIBS_LOG_ERROR(sect_name << " section not found");
     return true;
   }
 
@@ -243,7 +245,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               != name)
             i++;
           if (i < vPlotField.size()) {
-            //INFO_ << "  replacing plot specs. for field " << name;
+            //METLIBS_LOG_INFO("  replacing plot specs. for field " << name);
             vPlotField[i].input = input;
           } else {
             PlotField pf;
@@ -272,7 +274,7 @@ bool FieldPlotManager::parseFieldGroupSetup()
   vector<miString> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    ERROR_ << sect_name << " section not found";
+    METLIBS_LOG_ERROR(sect_name << " section not found");
     return true;
   }
 
@@ -427,7 +429,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   //Finding times from pinfo
   //TODO: find const time
 
-  DEBUG_ <<"FieldPlotManager::getCapabilitiesTime: "<<pinfo;
+  METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: "<<pinfo);
   vector<miString> pinfos;
   pinfos.push_back(pinfo);
 
@@ -451,7 +453,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     normalTimes.clear();
   }
 
-  DEBUG_ <<"FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size();
+  METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
 
 vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
@@ -824,18 +826,18 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   }
 
 #ifdef DEBUGFDIFF
-  DEBUG_<<"F1-F2: validFieldTime: "<<f1->validFieldTime;
-  DEBUG_<<"F1-F2: analysisTime:   "<<f1->analysisTime;
-  DEBUG_<<"F1-F2: name:           "<<f1->name;
-  DEBUG_<<"F1-F2: text:           "<<f1->text;
-  DEBUG_<<"F1-F2: fulltext:       "<<f1->fulltext;
-  DEBUG_<<"F1-F2: modelName:      "<<f1->modelName;
-  DEBUG_<<"F1-F2: fieldText:      "<<f1->fieldText;
-  DEBUG_<<"F1-F2: leveltext:      "<<f1->leveltext;
-  DEBUG_<<"F1-F2: idnumtext:      "<<f1->idnumtext;
-  DEBUG_<<"F1-F2: progtext:       "<<f1->progtext;
-  DEBUG_<<"F1-F2: timetext:       "<<f1->timetext;
-  DEBUG_<<"-----------------------------------------------------";
+  METLIBS_LOG_DEBUG("F1-F2: validFieldTime: "<<f1->validFieldTime);
+  METLIBS_LOG_DEBUG("F1-F2: analysisTime:   "<<f1->analysisTime);
+  METLIBS_LOG_DEBUG("F1-F2: name:           "<<f1->name);
+  METLIBS_LOG_DEBUG("F1-F2: text:           "<<f1->text);
+  METLIBS_LOG_DEBUG("F1-F2: fulltext:       "<<f1->fulltext);
+  METLIBS_LOG_DEBUG("F1-F2: modelName:      "<<f1->modelName);
+  METLIBS_LOG_DEBUG("F1-F2: fieldText:      "<<f1->fieldText);
+  METLIBS_LOG_DEBUG("F1-F2: leveltext:      "<<f1->leveltext);
+  METLIBS_LOG_DEBUG("F1-F2: idnumtext:      "<<f1->idnumtext);
+  METLIBS_LOG_DEBUG("F1-F2: progtext:       "<<f1->progtext);
+  METLIBS_LOG_DEBUG("F1-F2: timetext:       "<<f1->timetext);
+  METLIBS_LOG_DEBUG("-----------------------------------------------------");
 #endif
   bool ok = fieldManager->makeDifferenceFields(fv, fv2);
   if (!ok) {
@@ -848,7 +850,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
 void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
     std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
-  //DEBUG_ <<__FUNCTION__;
+  //METLIBS_LOG_DEBUG(__FUNCTION__);
 
   fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
 
@@ -996,7 +998,7 @@ void FieldPlotManager::parseString( std::string& pin,
     std::string& plotName )
 {
 
-//  DEBUG_ <<"PIN: "<<pin;
+//  METLIBS_LOG_DEBUG("PIN: "<<pin);
 
 
   std::vector<std::string> tokens;
@@ -1078,7 +1080,7 @@ void FieldPlotManager::parseString( std::string& pin,
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-//  DEBUG_ <<"PIN: "<<pin;
+//  METLIBS_LOG_DEBUG("PIN: "<<pin);
 
 
   // if difference
@@ -1092,7 +1094,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
   if ( oldSyntax ) {
     pin = FieldSpecTranslation::getNewFieldString(pin);
   }
-//  DEBUG_ <<"PIN NEW: "<<pin;
+//  METLIBS_LOG_DEBUG("PIN NEW: "<<pin);
 
   FieldRequest fieldrequest;
   vector<std::string> paramNames;
@@ -1100,11 +1102,11 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
   // Try to parse old syntax once more, parse modelName
   if ( oldSyntax && !fieldManager->modelOK(fieldrequest.modelName) ) {
-    WARN_ <<"Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName;
+    METLIBS_LOG_WARN("Old syntax: try to split modelName and refhour from modelName: "<<fieldrequest.modelName);
     pin = FieldSpecTranslation::getNewFieldString(origPin, true);
     paramNames.clear();
     parseString(pin, fieldrequest, paramNames, plotName);
-    WARN_ <<"New modelName: " <<fieldrequest.modelName;
+    METLIBS_LOG_WARN("New modelName: " <<fieldrequest.modelName);
   }
 
   //  //plotName -> fieldName

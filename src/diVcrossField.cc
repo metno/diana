@@ -43,7 +43,9 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossField"
 #include <miLogger/miLogging.h>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VcrossField"
+#include <miLogger/miLogging.h>
+
 
 using namespace std;
 
@@ -623,16 +625,16 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
 
 #ifdef DEBUGPRINT
   for(int i=0;i<vcp->alevel.size();i++)
-    DEBUG_ << "vcp->alevel["<<i<<"]: " << vcp->alevel[i];
+    METLIBS_LOG_DEBUG("vcp->alevel["<<i<<"]: " << vcp->alevel[i]);
   for(int i=0;i<vcp->blevel.size();i++)
-    DEBUG_ << "vcp->blevel["<<i<<"]: " << vcp->blevel[i];
-  DEBUG_ << "number of data values: " << crossData.size();
-  DEBUG_ << "parameters: ";
+    METLIBS_LOG_DEBUG("vcp->blevel["<<i<<"]: " << vcp->blevel[i]);
+  METLIBS_LOG_DEBUG("number of data values: " << crossData.size());
+  METLIBS_LOG_DEBUG("parameters: ");
   for(int i=0;i<params.size();i++) {
-    DEBUG_ << params[i];
+    METLIBS_LOG_DEBUG(params[i]);
     /*if(multiLevel[i] == false)
       for(int j=0;j<vcp->nPoint;j++)
-        DEBUG_ << "["<<j<<"]: " << crossData[i][j];*/
+        METLIBS_LOG_DEBUG("["<<j<<"]: " << crossData[i][j]);*/
   }
 #endif
 
@@ -687,24 +689,24 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   METLIBS_LOG_DEBUG(LOGVAL(vcp->vrangemin) << LOGVAL(vcp->vrangemax));
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "vcp->nPoint: " << vcp->nPoint;
-  DEBUG_ << "vcp->numLev: " << vcp->numLev;
-  DEBUG_ << "vcp->horizontalPosNum: " << vcp->horizontalPosNum;
-  DEBUG_ << "vcp->vcoord: " << vcp->vcoord;
-  DEBUG_ << "vcp->nTotal: " << vcp->nTotal;
-  DEBUG_ << "vcp->validTime: " << vcp->validTime;
-  DEBUG_ << "vcp->forecastHour: " << vcp->forecastHour;
-  DEBUG_ << "vcp->refPosition: " << vcp->refPosition;
-  DEBUG_ << "vcp->timeGraph: " << vcp->timeGraph;
-  DEBUG_ << "vcp->vrangemin: " << vcp->vrangemin;
-  DEBUG_ << "vcp->vrangemax: " << vcp->vrangemax;
-  DEBUG_ << "vcp->iundef: " << vcp->iundef;
+  METLIBS_LOG_DEBUG("vcp->nPoint: " << vcp->nPoint);
+  METLIBS_LOG_DEBUG("vcp->numLev: " << vcp->numLev);
+  METLIBS_LOG_DEBUG("vcp->horizontalPosNum: " << vcp->horizontalPosNum);
+  METLIBS_LOG_DEBUG("vcp->vcoord: " << vcp->vcoord);
+  METLIBS_LOG_DEBUG("vcp->nTotal: " << vcp->nTotal);
+  METLIBS_LOG_DEBUG("vcp->validTime: " << vcp->validTime);
+  METLIBS_LOG_DEBUG("vcp->forecastHour: " << vcp->forecastHour);
+  METLIBS_LOG_DEBUG("vcp->refPosition: " << vcp->refPosition);
+  METLIBS_LOG_DEBUG("vcp->timeGraph: " << vcp->timeGraph);
+  METLIBS_LOG_DEBUG("vcp->vrangemin: " << vcp->vrangemin);
+  METLIBS_LOG_DEBUG("vcp->vrangemax: " << vcp->vrangemax);
+  METLIBS_LOG_DEBUG("vcp->iundef: " << vcp->iundef);
   /*for(int p=0;p<vcp->cdata2d.size();p++)
     for(int q=0;q<vcp->nTotal;q++)
-      DEBUG_ << "vcp->cdata2d["<<p<<"]["<<q<<"]: " << vcp->cdata2d[p][q];
+      METLIBS_LOG_DEBUG("vcp->cdata2d["<<p<<"]["<<q<<"]: " << vcp->cdata2d[p][q]);
   for(int p=0;p<vcp->cdata1d.size();p++)
     for(int q=0;q<vcp->nPoint;q++)
-      DEBUG_ << "vcp->cdata1d["<<p<<"]["<<q<<"]: " << vcp->cdata1d[p][q];*/
+      METLIBS_LOG_DEBUG("vcp->cdata1d["<<p<<"]["<<q<<"]: " << vcp->cdata1d[p][q]);*/
 #endif
 
   // Try to prepare the data

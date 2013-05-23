@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ObjectPlot"
+#include <miLogger/miLogging.h>
+
 #include <diObjectPlot.h>
 #include <math.h>
 #include <puTools/miString.h>
@@ -57,7 +59,7 @@ ObjectPlot::ObjectPlot(int objTy)
   : Plot(),typeOfObject(objTy){
   initVariables();
 #ifdef DEBUGPRINT
-  DEBUG_ << "New ObjectPlot made(int)";
+  METLIBS_LOG_DEBUG("New ObjectPlot made(int)");
 #endif
 }
 
@@ -66,7 +68,7 @@ ObjectPlot::ObjectPlot(int objTy)
 ObjectPlot::ObjectPlot(const ObjectPlot &rhs){
   // elementwise copy
 #ifdef DEBUGPRINT
-  DEBUG_ << "Objectplot-copy constr";
+  METLIBS_LOG_DEBUG("Objectplot-copy constr");
 #endif
   memberCopy(rhs);
 }
@@ -74,7 +76,7 @@ ObjectPlot::ObjectPlot(const ObjectPlot &rhs){
 // Destructor
 ObjectPlot::~ObjectPlot(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "Objectplot- destructor";
+  METLIBS_LOG_DEBUG("Objectplot- destructor");
 #endif
   if (x != NULL)  delete[] x;
   if (y != NULL)  delete[] y;
@@ -82,7 +84,7 @@ ObjectPlot::~ObjectPlot(){
   if (y_s != NULL)  delete[] y_s;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "end of objectplot- destructor";
+  METLIBS_LOG_DEBUG("end of objectplot- destructor");
 #endif
 }
 
@@ -314,7 +316,7 @@ void ObjectPlot::setXY(vector<float> x,vector <float> y){
 
 void ObjectPlot::recalculate()
 {
-  //DEBUG_ << "------------ ObjectPlot::recalculate";
+  //METLIBS_LOG_DEBUG("------------ ObjectPlot::recalculate");
 }
 
 void ObjectPlot::addPoint( float x , float y){
@@ -681,7 +683,7 @@ bool ObjectPlot::isEndPoint( float x , float y, float &xin, float &yin){
 void ObjectPlot::updateBoundBox(){
   // updates the bound box
 #ifdef DEBUGPRINT
-  DEBUG_ << "UpdateBoundbox called ";
+  METLIBS_LOG_DEBUG("UpdateBoundbox called ");
 #endif
   boundBox.x1= +INT_MAX;   // makes impossible box
   boundBox.x2= -INT_MAX;
@@ -861,15 +863,15 @@ void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {
 }
 
 void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
-  //DEBUG_ << "rgba value is " << rgbstring;
+  //METLIBS_LOG_DEBUG("rgba value is " << rgbstring);
   vector<miString> colours2add=rgbstring.split(",");
   int nColours = colours2add.size()/4;
   for (int cc=0; cc < nColours; cc++){
-    //DEBUG_ << "cc = " << cc;
-    //DEBUG_ <<"The colour string to be added is\n ";
+    //METLIBS_LOG_DEBUG("cc = " << cc);
+    //METLIBS_LOG_DEBUG("The colour string to be added is\n ");
     uchar_t cadd[4];
     for (int i = 0;i<4;i++){
-      //DEBUG_ << colours2add[cc*4+i];
+      //METLIBS_LOG_DEBUG(colours2add[cc*4+i]);
       cadd[i] = atoi(colours2add[cc*4+i].c_str());
     }
     objectColour = Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
@@ -895,8 +897,8 @@ bool ObjectPlot::readObjectString(miString objectString)
   bool typeRead = false;
   bool LonLatRead = false;
 #ifdef DEBUGPRINT
-  DEBUG_ << "ObjectPlot::readObjectString\n";
-  DEBUG_ << "string is: " << objectString;
+  METLIBS_LOG_DEBUG("ObjectPlot::readObjectString\n");
+  METLIBS_LOG_DEBUG("string is: " << objectString);
 #endif
 
   vector <miString> tokens = objectString.split(';');
@@ -905,7 +907,7 @@ bool ObjectPlot::readObjectString(miString objectString)
      key = stokens[0].downcase();
      value = stokens[1];
      if (key == "object"){
-        // DEBUG_ << "Object value is " << value;
+        // METLIBS_LOG_DEBUG("Object value is " << value);
        // typeOfObject is already set in constructor
        objectRead = true;
       }
@@ -917,24 +919,24 @@ bool ObjectPlot::readObjectString(miString objectString)
            typeRead=setType(editTranslations[value]);
          }
        }
-       //DEBUG_ << "Type value is " << value;
+       //METLIBS_LOG_DEBUG("Type value is " << value);
      }
      else if (key =="name"){
        name=value; //set
 #ifdef DEBUGPRINT
-       DEBUG_ << "Name is " << value;
+       METLIBS_LOG_DEBUG("Name is " << value);
 
 #endif
      }
      else if (key == "latitudelongitude" ||     // old and wrong!
 	      key == "longitudelatitude") {
-       //DEBUG_ << "Lonlat value is " << value;
+       //METLIBS_LOG_DEBUG("Lonlat value is " << value);
        LonLatRead = true;
        vector<miString> points2add=value.split(",");
        int nPoints = points2add.size()/2;
         for (int pp=0; pp< nPoints; pp++){
-	  //DEBUG_ << points2add[pp*2];
-	  //DEBUG_ << points2add[pp*2+1];
+	  //METLIBS_LOG_DEBUG(points2add[pp*2]);
+	  //METLIBS_LOG_DEBUG(points2add[pp*2+1]);
 	 addPoint( atof(points2add[pp*2].c_str()),
 		    atof(points2add[pp*2+1].c_str()));
        }
@@ -943,46 +945,46 @@ bool ObjectPlot::readObjectString(miString objectString)
        setObjectRGBColor(value);
      }
      else if (key == "size"){
-       //DEBUG_ << "size value is " << value;
+       //METLIBS_LOG_DEBUG("size value is " << value);
        setSize(atof(value.c_str()));
      }
      else if (key == "linewidth"){
-       //DEBUG_ << "lineWidth value is " << value;
+       //METLIBS_LOG_DEBUG("lineWidth value is " << value);
        setLineWidth(value.toFloat());
      }
      else if (key == "rotation"){
-       //DEBUG_ << "rotation value is " << value;
+       //METLIBS_LOG_DEBUG("rotation value is " << value);
        setRotation(atof(value.c_str()));
      }
     else if (key == "text"){
-       //DEBUG_ << "text value is " << value;
+       //METLIBS_LOG_DEBUG("text value is " << value);
        setString(value);
      }
      else if (key == "complextext"){
-       //DEBUG_ << "complexText value is " << value;
+       //METLIBS_LOG_DEBUG("complexText value is " << value);
        readComplexText(value);
      }
      else if (key == "whitebox"){
-       //DEBUG_ << "whitebox value is " << value;
+       //METLIBS_LOG_DEBUG("whitebox value is " << value);
        setWhiteBox(atoi(value.c_str()));
      }
      else
-       WARN_ << "ObjectPlot::readObjectString - Warning !, unknown key = "
-	    << key;
+       METLIBS_LOG_WARN("ObjectPlot::readObjectString - Warning !, unknown key = "
+	    << key);
   }
   //check if type and Latlondefined !
   if (!objectRead || !typeRead || !LonLatRead){
-    WARN_ << "ObjectPlot::readObjectString - Warning !, " <<
+    METLIBS_LOG_WARN("ObjectPlot::readObjectString - Warning !, " <<
       "Input string lacks Object,Type or Longitude/Latitude Input! "
-	 << objectString;
+	 << objectString);
     return false;
   }
-  //if (objectIs(wFront)) DEBUG_ << "Object is front";
-  //else if (objectIs(wSymbol)) DEBUG_ << "Object is symbol";
-  //else if (objectIs(wArea)) DEBUG_ << "Object is area";
-  //else DEBUG_ << "Unknown object type "<< typeOfObject;
-  //DEBUG_ << "Type = " << type;
-  //DEBUG_ << "Number of points = " << nodePoints.size();
+  //if (objectIs(wFront)) METLIBS_LOG_DEBUG("Object is front");
+  //else if (objectIs(wSymbol)) METLIBS_LOG_DEBUG("Object is symbol");
+  //else if (objectIs(wArea)) METLIBS_LOG_DEBUG("Object is area");
+  //else METLIBS_LOG_DEBUG("Unknown object type "<< typeOfObject);
+  //METLIBS_LOG_DEBUG("Type = " << type);
+  //METLIBS_LOG_DEBUG("Number of points = " << nodePoints.size());
   return true;
 }
 
@@ -1112,7 +1114,7 @@ bool ObjectPlot::onLine(float x, float y){
     if  (boundBox.isinside(x,y)){
       if (spline){
 	if (x_s==NULL) {
-	  DEBUG_ << "Online::x_s = 0 !\n";
+	  METLIBS_LOG_DEBUG("Online::x_s = 0 !\n");
 	  return false;
 	}
 	for (int i = 0; i < s_length-1; i++){

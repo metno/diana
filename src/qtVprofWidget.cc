@@ -39,7 +39,9 @@
 #include <QKeyEvent>
 #include <QApplication>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VprofWidget"
+#include <miLogger/miLogging.h>
+
 #include "qtVprofWidget.h"
 #include "diVprofManager.h"
 
@@ -66,7 +68,7 @@ VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
 void VprofWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWidget::initializeGL";
+  METLIBS_LOG_DEBUG("VprofWidget::initializeGL");
 #endif
 
   glShadeModel( GL_FLAT );
@@ -78,10 +80,10 @@ void VprofWidget::initializeGL()
 void VprofWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWidget::paintGL";
+  METLIBS_LOG_DEBUG("VprofWidget::paintGL");
 #endif
 #ifdef DEBUGREDRAW
-  DEBUG_ << "VprofWidget::paintGL";
+  METLIBS_LOG_DEBUG("VprofWidget::paintGL");
 #endif
 
   if (!vprofm) return;
@@ -98,7 +100,7 @@ void VprofWidget::paintGL()
 void VprofWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWidget::resizeGL  w=" << w << " h=" << h;
+  METLIBS_LOG_DEBUG("VprofWidget::resizeGL  w=" << w << " h=" << h);
 #endif
   if (vprofm) vprofm->setPlotWindow(w,h);
 

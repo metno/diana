@@ -6,7 +6,9 @@
 #include <QLabel>
 
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.ProfetSingleControl"
+#include <miLogger/miLogging.h>
+
 #include "qtProfetSingleControl.h"
 
 
@@ -55,8 +57,8 @@ ProfetSingleControl::ProfetSingleControl(QWidget* p, fetObject::TimeValues tv, i
   map<miutil::miString,float>::iterator itr=data.parameters.begin();
   for(;itr!=data.parameters.end();itr++) {
     if(!data.guiComponents.count(itr->first) ){
-      ERROR_ << "could not build GUI for timeSmooth - guiComponents missinng for parameter: "
-      << itr->first;
+      METLIBS_LOG_ERROR("could not build GUI for timeSmooth - guiComponents missinng for parameter: "
+      << itr->first);
       continue;
     }
     fetDynamicGui::GuiComponent guic=data.guiComponents[itr->first];

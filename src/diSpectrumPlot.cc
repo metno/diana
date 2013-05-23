@@ -38,7 +38,9 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.SpectrumPlot"
+#include <miLogger/miLogging.h>
+
 #include <diSpectrumPlot.h>
 #include <diSpectrumOptions.h>
 #include <diFontManager.h>
@@ -105,7 +107,7 @@ SpectrumPlot::SpectrumPlot()
 	: numDirec(0), numFreq(0), sdata(0), xdata(0), ydata(0)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ SpectrumPlot::Default Constructor";
+  METLIBS_LOG_DEBUG("++ SpectrumPlot::Default Constructor");
 #endif
 
   if (!fp) {
@@ -122,7 +124,7 @@ SpectrumPlot::SpectrumPlot()
 // Destructor
 SpectrumPlot::~SpectrumPlot() {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ SpectrumPlot::Destructor";
+  METLIBS_LOG_DEBUG("++ SpectrumPlot::Destructor");
 #endif
 
   delete[] sdata;
@@ -268,7 +270,7 @@ bool SpectrumPlot::startPSnewpage()
   if (!hardcopy || !psoutput) return false;
   glFlush();
   if (psoutput->EndPage() != 0) {
-    ERROR_ << "startPSnewpage: EndPage BAD!!!";
+    METLIBS_LOG_ERROR("startPSnewpage: EndPage BAD!!!");
   }
   psoutput->StartPage();
   return true;
@@ -296,7 +298,7 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
 			     SpectrumOptions *spopt)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumPlot::startPlot numplots=" << numplots;
+  METLIBS_LOG_DEBUG("SpectrumPlot::startPlot numplots=" << numplots);
 #endif
 
   numplot= numplots;
@@ -417,7 +419,7 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
 void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ SpectrumPlot::plotDiagram";
+  METLIBS_LOG_DEBUG("++ SpectrumPlot::plotDiagram");
 #endif
   const float rad= 3.141592654/180.;
 
@@ -607,8 +609,8 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 bool SpectrumPlot::plot(SpectrumOptions *spopt)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ SpectrumPlot::plot " << posName << " "
-  				   << validTime;
+  METLIBS_LOG_DEBUG("++ SpectrumPlot::plot " << posName << " "
+  				   << validTime);
 #endif
   const float rad= 3.141592654/180.;
 
@@ -720,7 +722,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
                    ibmap,lbmap,bmap,nxbmap,nybmap,rbmap,
                    fp, poptions, psoutput, dummyArea, fieldUndef);
 
-      if (!res) ERROR_<<"SpectrumPlot::plot  Contour error";
+      if (!res) METLIBS_LOG_ERROR("SpectrumPlot::plot  Contour error");
 
       UpdateOutput();
     }
@@ -751,7 +753,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
                    ibmap,lbmap,bmap,nxbmap,nybmap,rbmap,
                    fp, poptions, psoutput, dummyArea, fieldUndef);
 
-      if (!res) ERROR_<<"SpectrumPlot::plot  Contour error";
+      if (!res) METLIBS_LOG_ERROR("SpectrumPlot::plot  Contour error");
 
       UpdateOutput();
     }

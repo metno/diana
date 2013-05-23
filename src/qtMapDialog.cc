@@ -44,7 +44,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.MapDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtMapDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
@@ -62,7 +64,7 @@ MapDialog::MapDialog(QWidget* parent, Controller* llctrl) :
   QDialog(parent)
   {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::MapDialog called";
+  METLIBS_LOG_DEBUG("MapDialog::MapDialog called");
 #endif
   m_ctrl = llctrl;
   ConstructorCernel(llctrl->initMapDialog());
@@ -73,7 +75,7 @@ MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi) :
   QDialog(parent)
   {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::MapDialog called";
+  METLIBS_LOG_DEBUG("MapDialog::MapDialog called");
 #endif
   ConstructorCernel(mdi);
   }
@@ -82,7 +84,7 @@ MapDialog::MapDialog(QWidget* parent, const MapDialogInfo& mdi) :
 void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
 {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::ConstructorCernel called";
+  METLIBS_LOG_DEBUG("MapDialog::ConstructorCernel called");
 #endif
 
   setWindowTitle(tr("Map and Area"));
@@ -735,7 +737,7 @@ void MapDialog::ff_zordercboxActivated(int index)
 void MapDialog::mapboxChanged()
 {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::mapboxChanged called";
+  METLIBS_LOG_DEBUG("MapDialog::mapboxChanged called");
 #endif
 
   int numselected = selectedmaps.size();
@@ -873,7 +875,7 @@ void MapDialog::mapalldeleteClicked()
 void MapDialog::cont_checkboxActivated(bool on)
 {
   if (activemap < 0) {
-    ERROR_ << "checkboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("checkboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].contour.ison = on;
@@ -894,7 +896,7 @@ void MapDialog::cont_checkboxActivated(bool on)
 void MapDialog::cont_linecboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "linecboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("linecboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].contour.linewidth = miutil::miString(index + 1);
@@ -903,7 +905,7 @@ void MapDialog::cont_linecboxActivated(int index)
 void MapDialog::cont_linetypeboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "linetypeboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("linetypeboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].contour.linetype = linetypes[index];
@@ -912,7 +914,7 @@ void MapDialog::cont_linetypeboxActivated(int index)
 void MapDialog::cont_colorcboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "colorcboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].contour.linecolour = cInfo[index].name;
@@ -921,7 +923,7 @@ void MapDialog::cont_colorcboxActivated(int index)
 void MapDialog::cont_zordercboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "zordercboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("zordercboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].contour.zorder = index;
@@ -933,7 +935,7 @@ void MapDialog::cont_zordercboxActivated(int index)
 void MapDialog::land_checkboxActivated(bool on)
 {
   if (activemap < 0) {
-    ERROR_ << "checkboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("checkboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].land.ison = on;
@@ -950,7 +952,7 @@ void MapDialog::land_checkboxActivated(bool on)
 void MapDialog::land_colorcboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "colorcboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("colorcboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].land.fillcolour = cInfo[index].name;
@@ -959,7 +961,7 @@ void MapDialog::land_colorcboxActivated(int index)
 void MapDialog::land_zordercboxActivated(int index)
 {
   if (activemap < 0) {
-    ERROR_ << "zordercboxactivated::Catastrophic: activemap < 0";
+    METLIBS_LOG_ERROR("zordercboxactivated::Catastrophic: activemap < 0");
     return;
   }
   m_MapDI.maps[activemap].land.zorder = index;
@@ -1058,7 +1060,7 @@ void MapDialog::lat_showValueActivated(bool on)
 void MapDialog::backcolorcboxActivated(int index)
 {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::backcolorcboxActivated called";
+  METLIBS_LOG_DEBUG("MapDialog::backcolorcboxActivated called");
 #endif
 }
 
@@ -1078,9 +1080,9 @@ void MapDialog::saveFavoriteClicked()
 void MapDialog::useFavorite()
 {
   /*
-  DEBUG_ << "useFavorite:";
+  METLIBS_LOG_DEBUG("useFavorite:");
   for (int i=0; i<favorite.size();i++)
-    DEBUG_ << favorite[i];
+    METLIBS_LOG_DEBUG(favorite[i]);
    */
   putOKString(favorite);
 }
@@ -1118,7 +1120,7 @@ void MapDialog::closeEvent(QCloseEvent* e)
 vector<miutil::miString> MapDialog::getOKString()
 {
 #ifdef dMapDlg
-  DEBUG_<<"MapDialog::getOKString called";
+  METLIBS_LOG_DEBUG("MapDialog::getOKString called");
 #endif
   vector<miutil::miString> vstr;
 

@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.QuickMenues"
+#include <miLogger/miLogging.h>
+
 #include <diQuickMenues.h>
 #include <diLocalSetupParser.h>
 #include <fstream>
@@ -54,11 +56,11 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
 
   if (!menufile){
     if(newSyntax){
-      WARN_ << "QuickMenu Warning: Old syntax in quick-menu file:"
-	    << filename;
+      METLIBS_LOG_WARN("QuickMenu Warning: Old syntax in quick-menu file:"
+	    << filename);
     }else {
-      WARN_ << "QuickMenu Error: Could not write quick-menu file:"
-	    << filename;
+      METLIBS_LOG_WARN("QuickMenu Error: Could not write quick-menu file:"
+	    << filename);
     }
     return false;
   }
@@ -129,8 +131,8 @@ bool readQuickMenu(quickMenu& qm)
   qm.plotindex= 0;
 
   if (!menufile){ // menufile not ok
-    WARN_ << "QuickMenu Warning: Could not open quickmenu file "
-	 << filename;
+    METLIBS_LOG_WARN("QuickMenu Warning: Could not open quickmenu file "
+	 << filename);
     return false;
   }
 
@@ -163,8 +165,8 @@ bool readQuickMenu(quickMenu& qm)
 	// add a new option
 	qm.opt.push_back(op);
       } else {
-	ERROR_ << "QuickMenu Error: defined option without items in file "
-	       << filename;
+	METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file "
+	       << filename);
 	menufile.close();
 	return false;
       }
@@ -180,8 +182,8 @@ bool readQuickMenu(quickMenu& qm)
 	updates += updateSyntax(line);
 	qm.menuitems[numitems-1].command.push_back(line);
       } else {
-	ERROR_ << "QuickMenu Error: command line without defined menuitem in file:"
-	       << filename;
+	METLIBS_LOG_ERROR("QuickMenu Error: command line without defined menuitem in file:"
+	       << filename);
 	menufile.close();
 	return false;
       }

@@ -46,7 +46,9 @@
 #include <qmotifstyle.h>
 #include <QPixmap>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.SpectrumWindow"
+#include <miLogger/miLogging.h>
+
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "qtSpectrumWindow.h"
@@ -191,7 +193,7 @@ SpectrumWindow::SpectrumWindow()
   //mainWindowTime= miutil::miTime::nowTime();
 
 #ifdef DEBUGPRINT
-  DEBUG_<<"SpectrumWindow::SpectrumWindow() finished";
+  METLIBS_LOG_DEBUG("SpectrumWindow::SpectrumWindow() finished");
 #endif
 }
 
@@ -201,12 +203,12 @@ void SpectrumWindow::modelClicked( bool on )
   //called when the model button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    DEBUG_ << "Model button clicked on";
+    METLIBS_LOG_DEBUG("Model button clicked on");
 #endif
     spModelDialog->show();
   } else {
 #ifdef DEBUGPRINT
-    DEBUG_ << "Model button clicked off";
+    METLIBS_LOG_DEBUG("Model button clicked off");
 #endif
     spModelDialog->hide();
   }
@@ -254,7 +256,7 @@ bool SpectrumWindow::timeChangedSlot(int diff)
   //called if signal timeChanged is emitted from graphics
   //window (qtSpectrumWidget)
 #ifdef DEBUGPRINT
-  DEBUG_ << "timeChangedSlot(int) is called ";
+  METLIBS_LOG_DEBUG("timeChangedSlot(int) is called ");
 #endif
   int index=timeBox->currentIndex();
   while(diff<0){
@@ -289,9 +291,9 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     }
   }
   if (tbs!=tstring){
-    WARN_ << "WARNING! timeChangedSlot  time from spectrumm ="
-    << t    <<" not equal to timeBox text = " << tbs;
-    WARN_ << "You should search through timelist!";
+    METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from spectrumm ="
+    << t    <<" not equal to timeBox text = " << tbs);
+    METLIBS_LOG_WARN("You should search through timelist!");
     return false;
   }
 
@@ -313,7 +315,7 @@ bool SpectrumWindow::timeChangedSlot(int diff)
 bool SpectrumWindow::stationChangedSlot(int diff)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "stationChangedSlot(int) is called ";
+  METLIBS_LOG_DEBUG("stationChangedSlot(int) is called ");
 #endif
   int index=stationBox->currentIndex();
   while(diff<0){
@@ -353,8 +355,8 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     emit spectrumChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
-    //    WARN_ << "WARNING! stationChangedSlot  station from spectrumm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs;
+    //    METLIBS_LOG_WARN("WARNING! stationChangedSlot  station from spectrumm ="
+    // 	 << s    <<" not equal to stationBox text = " << sbs);
     //current or last station plotted is not in the list, insert it...
     stationBox->insertItem(0,sq);
     stationBox->setCurrentIndex(0);
@@ -405,7 +407,7 @@ void SpectrumWindow::printClicked()
       int res = system(command.c_str());
 
       if (res != 0){
-        WARN_ << "Print command:" << command << " failed";
+        METLIBS_LOG_WARN("Print command:" << command << " failed");
       }
     }
     QApplication::restoreOverrideCursor();
@@ -474,14 +476,14 @@ void SpectrumWindow::setupClicked(bool on)
   //called when the setup button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    DEBUG_ << "Setup button clicked on";
+    METLIBS_LOG_DEBUG("Setup button clicked on");
 #endif
     spSetupDialog->start();
     spSetupDialog->show();
 
   } else {
 #ifdef DEBUGPRINT
-    DEBUG_ << "Setup button clicked off";
+    METLIBS_LOG_DEBUG("Setup button clicked off");
 #endif
     spSetupDialog->hide();
   }
@@ -492,7 +494,7 @@ void SpectrumWindow::quitClicked()
 {
   //called when the quit button is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "quit clicked";
+  METLIBS_LOG_DEBUG("quit clicked");
 #endif
   //for now, only hide window, not really quit !
   spToolbar->hide();
@@ -520,7 +522,7 @@ void SpectrumWindow::updateClicked()
 {
   //called when the update button in Spectrumwindow is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "update clicked";
+  METLIBS_LOG_DEBUG("update clicked");
 #endif
   spectrumm->updateObs();      // check obs.files
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
@@ -532,7 +534,7 @@ void SpectrumWindow::helpClicked()
 {
   //called when the help button in Spectrumwindow is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "help clicked";
+  METLIBS_LOG_DEBUG("help clicked");
 #endif
   emit showsource("ug_spectrum.html");
 }
@@ -542,7 +544,7 @@ void SpectrumWindow::MenuOK()
 {
   //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::MenuOK()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::MenuOK()");
 #endif
 }
 
@@ -552,7 +554,7 @@ void SpectrumWindow::changeModel()
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::changeModel()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::changeModel()");
 #endif
   spectrumm->setModel();
 
@@ -574,7 +576,7 @@ void SpectrumWindow::changeSetup()
 {
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::changeSetup()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::changeSetup()");
 #endif
   spectrumw->updateGL();
 }
@@ -584,7 +586,7 @@ void SpectrumWindow::hideModel()
 {
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::hideModel()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::hideModel()");
 #endif
   spModelDialog->hide();
   modelButton->setChecked(false);
@@ -595,7 +597,7 @@ void SpectrumWindow::hideSetup()
 {
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::hideSetup()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::hideSetup()");
 #endif
   spSetupDialog->hide();
   setupButton->setChecked(false);
@@ -605,7 +607,7 @@ void SpectrumWindow::hideSetup()
 StationPlot* SpectrumWindow::getStations()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumWindow::getStations()";
+  METLIBS_LOG_DEBUG("SpectrumWindow::getStations()");
 #endif
   const vector <miutil::miString> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();
@@ -620,9 +622,9 @@ StationPlot* SpectrumWindow::getStations()
   //the coordinates are defined here
 #ifdef DEBUGPRINT
   //  for (int i = 0; i<n;i++){
-  //     DEBUG_ <<"Station number " << i << " name = " << stations[i]
+  //     METLIBS_LOG_DEBUG("Station number " << i << " name = " << stations[i]
   // 	 << " latitude = " << latitude[i]
-  // 	 << " longitude = " << longitude[i];
+  // 	 << " longitude = " << longitude[i]);
   //   }
 #endif
 
@@ -634,7 +636,7 @@ void SpectrumWindow::updateStationBox()
 {
   //update list of stations in stationBox
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::updateStationBox";
+  METLIBS_LOG_DEBUG("SpectrumWindow::updateStationBox");
 #endif
 
   stationBox->clear();
@@ -654,7 +656,7 @@ void SpectrumWindow::updateTimeBox()
 {
   //update list of times
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::updateTimeBox";
+  METLIBS_LOG_DEBUG("SpectrumWindow::updateTimeBox");
 #endif
 
   timeBox->clear();
@@ -706,7 +708,7 @@ void SpectrumWindow::timeBoxActivated(int index)
 bool SpectrumWindow::changeStation(const miutil::miString& station)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWindow::changeStation";
+  METLIBS_LOG_DEBUG("SpectrumWindow::changeStation");
 #endif
   spectrumm->setStation(station);
   spectrumw->updateGL();
@@ -733,7 +735,7 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 
   if (!active) return;
 #ifdef DEBUGPRINT
-  DEBUG_ << "spectrumWindow::mainWindowTimeChanged called with time " << t;
+  METLIBS_LOG_DEBUG("spectrumWindow::mainWindowTimeChanged called with time " << t);
 #endif
   spectrumm->mainWindowTimeChanged(t);
   if (onlyObs) {
@@ -752,7 +754,7 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 void SpectrumWindow::startUp(const miutil::miTime& t)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "spectrumWindow::startUp called with time " << t;
+  METLIBS_LOG_DEBUG("spectrumWindow::startUp called with time " << t);
 #endif
   active = true;
   spToolbar->show();

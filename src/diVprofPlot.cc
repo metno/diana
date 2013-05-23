@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VprofPlot"
+#include <miLogger/miLogging.h>
+
 #include "diVprofPlot.h"
 #include "diColour.h"
 
@@ -51,7 +53,7 @@ VprofPlot::VprofPlot()
 : VprofTables(), windInKnots(true)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::Default Constructor";
+  METLIBS_LOG_DEBUG("++ VprofPlot::Default Constructor");
 #endif
 }
 
@@ -59,7 +61,7 @@ VprofPlot::VprofPlot()
 // Destructor
 VprofPlot::~VprofPlot() {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::Destructor";
+  METLIBS_LOG_DEBUG("++ VprofPlot::Destructor");
 #endif
 }
 
@@ -67,13 +69,13 @@ VprofPlot::~VprofPlot() {
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::plot " << nplot;
+  METLIBS_LOG_DEBUG("++ VprofPlot::plot " << nplot);
 #endif
 
   if (!text.posName.exists()) return false;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::plot start plotting " << text.posName;
+  METLIBS_LOG_DEBUG("++ VprofPlot::plot start plotting " << text.posName);
 #endif
 
   const float dptab=idptab;
@@ -104,11 +106,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (ptt.size()>0) {
     nlevel= ptt.size();
 #ifdef DEBUGPRINT
-	DEBUG_ << "ptt.size()," << nlevel;
+	METLIBS_LOG_DEBUG("ptt.size()," << nlevel);
 #endif
 	for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-	  DEBUG_ << ptt[k];
+	  METLIBS_LOG_DEBUG(ptt[k]);
 #endif
       x= ptt[k]*dpinv;
       i= int(x);
@@ -129,11 +131,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (vpopt->ptdtd && ptd.size()>0) {
     nlevel= ptd.size();
 #ifdef DEBUGPRINT
-	DEBUG_ << "ptd.size()," << nlevel;
+	METLIBS_LOG_DEBUG("ptd.size()," << nlevel);
 #endif
     for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-      DEBUG_ << ptd[k];
+      METLIBS_LOG_DEBUG(ptd[k]);
 #endif
       x= ptd[k]*dpinv;
       i= int(x);
@@ -159,11 +161,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
     nlevel= puv.size();
 #ifdef DEBUGPRINT
-	DEBUG_ << "puv.size()," << nlevel;
+	METLIBS_LOG_DEBUG("puv.size()," << nlevel);
 #endif
     for (unsigned int k=0; k<nlevel; k++) {
 #ifdef DEBUGPRINT
-	  DEBUG_ << puv[k];
+	  METLIBS_LOG_DEBUG(puv[k]);
 #endif
       x= puv[k]*dpinv;
       i= int(x);
@@ -446,7 +448,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 void VprofPlot::relhum(const vector<float>& tt,
     const vector<float>& td) {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::relhum(...)";
+  METLIBS_LOG_DEBUG("++ VprofPlot::relhum(...)");
 #endif
 
   int nlev= tt.size();
@@ -477,7 +479,7 @@ void VprofPlot::ducting(const vector<float>& pp,
     const vector<float>& tt,
     const vector<float>& td) {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::ducting(...)";
+  METLIBS_LOG_DEBUG("++ VprofPlot::ducting(...)");
 #endif
 
   // p,t,td -> ducting index
@@ -553,7 +555,7 @@ void VprofPlot::kindex(const vector<float>& pp,
   // K-index = (t+td)850 - (t-td)700 - (t)500
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ VprofPlot::kindex(...)";
+  METLIBS_LOG_DEBUG("++ VprofPlot::kindex(...)");
 #endif
 
   const float dptab=idptab;

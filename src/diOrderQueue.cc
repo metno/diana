@@ -35,7 +35,9 @@
 
 #include <iostream>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.OrderQueue"
+#include <miLogger/miLogging.h>
+
 #include <diOrderQueue.h>
 
 diOrderQueue::diOrderQueue(QObject *parent):
@@ -47,8 +49,8 @@ diOrderQueue::~diOrderQueue()
 {
 	mutex.lock();
 	if (!orders.empty())
-		INFO_ << "deleting diOrderQueue with " <<
-		    orders.size() << " orders pending";
+		METLIBS_LOG_INFO("deleting diOrderQueue with " <<
+		    orders.size() << " orders pending");
 	while (!orders.empty())
 		orders.dequeue()->deleteLater();
 	mutex.unlock();

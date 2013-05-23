@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VcrossOptions"
+#include <miLogger/miLogging.h>
+
 #include <diVcrossOptions.h>
 #include <iostream>
 
@@ -54,7 +56,7 @@ VcrossOptions::~VcrossOptions()
 void VcrossOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossOptions::setDefaults";
+  METLIBS_LOG_DEBUG("VcrossOptions::setDefaults");
 #endif
 
   pText= true;
@@ -172,7 +174,7 @@ void VcrossOptions::setDefaults()
 vector<miString> VcrossOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossOptions::writeOptions";
+  METLIBS_LOG_DEBUG("VcrossOptions::writeOptions");
 #endif
 
   vector<miString> vstr;
@@ -296,7 +298,7 @@ vector<miString> VcrossOptions::writeOptions()
 void VcrossOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossOptions::readOptions";
+  METLIBS_LOG_DEBUG("VcrossOptions::readOptions");
 #endif
 
   vector<miString> vs,tokens;

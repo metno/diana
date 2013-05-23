@@ -40,7 +40,9 @@
 #include <qimage.h>
 #include <QKeyEvent>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.SpectrumWidget"
+#include <miLogger/miLogging.h>
+
 #include "qtSpectrumWidget.h"
 #include "diSpectrumManager.h"
 
@@ -70,7 +72,7 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, QWidget* parent)
 void SpectrumWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWidget::initializeGL";
+  METLIBS_LOG_DEBUG("SpectrumWidget::initializeGL");
 #endif
 
   glShadeModel( GL_FLAT );
@@ -82,10 +84,10 @@ void SpectrumWidget::initializeGL()
 void SpectrumWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWidget::paintGL";
+  METLIBS_LOG_DEBUG("SpectrumWidget::paintGL");
 #endif
 #ifdef DEBUGREDRAW
-  DEBUG_ << "SpectrumWidget::paintGL";
+  METLIBS_LOG_DEBUG("SpectrumWidget::paintGL");
 #endif
 
   if (!spectrumm) return;
@@ -100,7 +102,7 @@ void SpectrumWidget::paintGL()
 void SpectrumWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumWidget::resizeGL  w=" << w << " h=" << h;
+  METLIBS_LOG_DEBUG("SpectrumWidget::resizeGL  w=" << w << " h=" << h);
 #endif
   if (spectrumm) spectrumm->setPlotWindow(w,h);
 

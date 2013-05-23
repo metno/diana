@@ -42,7 +42,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.SpectrumSetupDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include "diSpectrumManager.h"
 #include "qtVcrossSetup.h"
@@ -54,7 +56,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   : QDialog(parent), spectrumm(vm)
 {
 #ifdef DEBUGPRINT
-  DEBUG_<<"SpectrumSetupDialog::SpectrumSetupDialog called";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::SpectrumSetupDialog called");
 #endif
 
   //caption to appear on top of dialog
@@ -123,7 +125,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   isInitialized=false;
 
 #ifdef DEBUGPRINT
-  DEBUG_<<"SpectrumSetupDialog::SpectrumSetupDialog finished";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::SpectrumSetupDialog finished");
 #endif
 }
 
@@ -131,7 +133,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
 void SpectrumSetupDialog::initOptions(QWidget* parent)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::initOptions";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::initOptions");
 #endif
 
   //make a grid with 4 rows, columms for labels and
@@ -196,10 +198,10 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   spSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
-    DEBUG_<<"==================================================";
-    DEBUG_<<"===== SpectrumSetupDialog: glayout numrows= "<<numrows;
-    DEBUG_<<"=====                                 nrow= "<<nrow;
-    DEBUG_<<"==================================================";
+    METLIBS_LOG_DEBUG("==================================================");
+    METLIBS_LOG_DEBUG("===== SpectrumSetupDialog: glayout numrows= "<<numrows);
+    METLIBS_LOG_DEBUG("=====                                 nrow= "<<nrow);
+    METLIBS_LOG_DEBUG("==================================================");
   }
 }
 
@@ -208,7 +210,7 @@ void SpectrumSetupDialog::standardClicked()
 {
   //this slot is called when standard button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::standardClicked()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::standardClicked()");
 #endif
   SpectrumOptions * spopt= new SpectrumOptions; // diana defaults
   setup(spopt);
@@ -231,7 +233,7 @@ void SpectrumSetupDialog::start()
 void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::setup()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::setup()");
 #endif
 
   int n= spSetups.size();
@@ -285,8 +287,8 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
       spSetups[i]->setColour(spopt->backgroundColour);
 
     } else {
-      ERROR_<<"SpectrumSetupDialog::setup ERROR : "
-	  <<spSetups[i]->name;
+      METLIBS_LOG_ERROR("SpectrumSetupDialog::setup ERROR : "
+	  <<spSetups[i]->name);
     }
 
   }
@@ -296,7 +298,7 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 void SpectrumSetupDialog::applySetup()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::applySetup()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::applySetup()");
 #endif
   SpectrumOptions * spopt= spectrumm->getOptions();
 
@@ -352,8 +354,8 @@ void SpectrumSetupDialog::applySetup()
       spopt->backgroundColour= spSetups[i]->getColour().name;
 
     } else {
-      ERROR_<<"SpectrumSetupDialog::applySetup ERROR : "
-	  <<spSetups[i]->name;
+      METLIBS_LOG_ERROR("SpectrumSetupDialog::applySetup ERROR : "
+	  <<spSetups[i]->name);
     }
 
   }
@@ -364,7 +366,7 @@ void SpectrumSetupDialog::helpClicked()
 {
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::helpClicked()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::helpClicked()");
 #endif
   emit showsource("ug_spectrum.html");
 }
@@ -374,7 +376,7 @@ void SpectrumSetupDialog::applyClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::applyClicked()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::applyClicked()");
 #endif
   applySetup();
   emit SetupApply();
@@ -385,7 +387,7 @@ void SpectrumSetupDialog::applyhideClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"SpectrumSetupDialog::applyhideClicked()";
+  METLIBS_LOG_DEBUG("SpectrumSetupDialog::applyhideClicked()");
 #endif
   applySetup();
   emit SetupHide();

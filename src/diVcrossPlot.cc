@@ -57,7 +57,9 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossPlot"
 #include <miLogger/miLogging.h>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VcrossPlot"
+#include <miLogger/miLogging.h>
+
 
 using namespace std;
 using namespace miutil;
@@ -269,7 +271,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-//    DEBUG_ << "Missing section " << section2 << " in setupfile.";
+//    METLIBS_LOG_DEBUG("Missing section " << section2 << " in setupfile.");
     //error= true;
   }
 
@@ -328,7 +330,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-    //DEBUG_ << "Missing section " << section3 << " in setupfile.";
+    //METLIBS_LOG_DEBUG("Missing section " << section3 << " in setupfile.");
     //error= true;
   }
 
@@ -413,7 +415,7 @@ bool VcrossPlot::parseSetup()
     vstr.clear();
 
   } else {
-    //DEBUG_ << "Missing section " << section4 << " in setupfile.";
+    //METLIBS_LOG_DEBUG("Missing section " << section4 << " in setupfile.");
     //error= true;
   }
 
@@ -444,7 +446,7 @@ void VcrossPlot::makeContents(const miString& fileName,
     } else {
       paramdef.insert(pn->second);
       //##############################################################
-      //      DEBUG_<<" input param: "<<iparam[i]<<"  "<<pn->second;
+      //      METLIBS_LOG_DEBUG(" input param: "<<iparam[i]<<"  "<<pn->second);
       //##############################################################
     }
   }
@@ -471,7 +473,7 @@ void VcrossPlot::makeContents(const miString& fileName,
           i++;
         if (i == n) {
           //##############################################################
-          //     DEBUG_<<" function param: "<<vf->first;
+          //     METLIBS_LOG_DEBUG(" function param: "<<vf->first);
           //##############################################################
           paramtmp.insert(vf->first);
           fco.useFunctions[vf->first] = vf->second;
@@ -493,7 +495,7 @@ void VcrossPlot::makeContents(const miString& fileName,
   pt= paramdef.begin();
   ptend= paramdef.end();
   while (pt!=ptend) {
-    DEBUG_<<"      paramdef: "<<*pt;
+    METLIBS_LOG_DEBUG("      paramdef: "<<*pt);
     pt++;
   }
 #endif
@@ -523,18 +525,18 @@ void VcrossPlot::makeContents(const miString& fileName,
       if (i == n) {
         fco.fieldNames.push_back(f->second.name);
         //#ifdef DEBUGPRINT
-        //	DEBUG_<<"   field: "<<f->second.name<<"   found:";
-        //	for (i=0; i<n; i++) DEBUG_<<" "<<f->second.vars[i];
-        //	DEBUG_;
+        //	METLIBS_LOG_DEBUG("   field: "<<f->second.name<<"   found:");
+        //	for (i=0; i<n; i++) METLIBS_LOG_DEBUG(" "<<f->second.vars[i]);
+        //	METLIBS_LOG_DEBUG();
         //#endif
       }
     }
   }
 
 #ifdef DEBUGPRINT
-  DEBUG_<<"  no. of output fields: "<<fco.fieldNames.size();
+  METLIBS_LOG_DEBUG("  no. of output fields: "<<fco.fieldNames.size());
   for (int j=0; j<fco.fieldNames.size(); j++)
-    DEBUG_<<setw(5)<<j<<": "<<fco.fieldNames[j];
+    METLIBS_LOG_DEBUG(setw(5)<<j<<": "<<fco.fieldNames[j]);
 #endif
 
   fileContents[fileName] = fco;
@@ -1161,7 +1163,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
   //      if (fmin>cdata1d[n][i]) fmin=cdata1d[n][i];
   //      if (fmax<cdata1d[n][i]) fmax=cdata1d[n][i];
   //    }
-  //    DEBUG_<<"par1d,min,max: "<<idPar1d[n]<<"  "<<fmin<<"  "<<fmax;
+  //    METLIBS_LOG_DEBUG("par1d,min,max: "<<idPar1d[n]<<"  "<<fmin<<"  "<<fmax);
   //  }
   //  for (n=0; n<numPar2d; n++) {
   //    for (k=0; k<numLev; k++) {
@@ -1170,10 +1172,10 @@ bool VcrossPlot::prepareData(const miString& fileName)
   //        if (fmin>cdata2d[n][k*nPoint+i]) fmin=cdata2d[n][k*nPoint+i];
   //        if (fmax<cdata2d[n][k*nPoint+i]) fmax=cdata2d[n][k*nPoint+i];
   //      }
-  //      DEBUG_<<"par2d,k,min,max: "<<idPar2d[n]<<" "<<k<<"  "<<fmin<<"  "<<fmax;
+  //      METLIBS_LOG_DEBUG("par2d,k,min,max: "<<idPar2d[n]<<" "<<k<<"  "<<fmin<<"  "<<fmax);
   //    }
   //  }
-  //  DEBUG_<<"vrangemin,vrangemax: "<<vrangemin<<" "<<vrangemax;
+  //  METLIBS_LOG_DEBUG("vrangemin,vrangemax: "<<vrangemin<<" "<<vrangemax);
   //##################################################################################
 
   // locate som parameters in the data arrays
@@ -1242,11 +1244,11 @@ bool VcrossPlot::prepareData(const miString& fileName)
     error = true;
   }
   //if (vcoord==5 && npss<0) {
-  //  DEBUG_<<"sea elevation (single level parameter 301) missing";
+  //  METLIBS_LOG_DEBUG("sea elevation (single level parameter 301) missing");
   //  error=true;
   //}
   //if (vcoord==5 && npsb<0) {
-  //  DEBUG_<<"sea bottom (single level parameter 351) missing";
+  //  METLIBS_LOG_DEBUG("sea bottom (single level parameter 351) missing");
   //  error=true;
   //}
   if (vcoord == 11 && ntopo < 0) {
@@ -1459,10 +1461,10 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
   //############################################################################
   //  for (n=0; n<idPar1d.size(); n++)
-  //    DEBUG_<<"VcrossPlot::prepareData n,idPar1d[n]: "<<n<<" "<<idPar1d[n];
+  //    METLIBS_LOG_DEBUG("VcrossPlot::prepareData n,idPar1d[n]: "<<n<<" "<<idPar1d[n]);
   //  for (n=0; n<idPar2d.size(); n++)
-  //    DEBUG_<<"VcrossPlot::prepareData n,idPar2d[n]: "<<n<<" "<<idPar2d[n];
-  //  DEBUG_<<"VcrossPlot::prepareData ntopo,nps,nzz: "<<ntopo<<" "<<nps<<" "<<nzz;
+  //    METLIBS_LOG_DEBUG("VcrossPlot::prepareData n,idPar2d[n]: "<<n<<" "<<idPar2d[n]);
+  //  METLIBS_LOG_DEBUG("VcrossPlot::prepareData ntopo,nps,nzz: "<<ntopo<<" "<<nps<<" "<<nzz);
   //############################################################################
   return true;
 }
@@ -1662,10 +1664,10 @@ void VcrossPlot::prepareVertical()
   }
 
   //####################################################################
-  //DEBUG_<<"xDatamin,xDatamax: "<<xDatamin<<" "<<xDatamax;
-  //DEBUG_<<"yDatamin,yDatamax: "<<yDatamin<<" "<<yDatamax;
-  //DEBUG_<<"pmin,    pmax:     "<<pmin    <<" "<<pmax;
-  //DEBUG_<<"pimin,   pimax:    "<<pimin   <<" "<<pimax;
+  //METLIBS_LOG_DEBUG("xDatamin,xDatamax: "<<xDatamin<<" "<<xDatamax);
+  //METLIBS_LOG_DEBUG("yDatamin,yDatamax: "<<yDatamin<<" "<<yDatamax);
+  //METLIBS_LOG_DEBUG("pmin,    pmax:     "<<pmin    <<" "<<pmax);
+  //METLIBS_LOG_DEBUG("pimin,   pimax:    "<<pimin   <<" "<<pimax);
   //####################################################################
 
   // y min,max in each level
@@ -4447,25 +4449,25 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
        FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
        const Area& fieldArea, const float& fieldUndef)
        */
-      DEBUG_ << "contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "],";
-      DEBUG_ << "part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "],";
-      DEBUG_ << idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << ",";
-      DEBUG_ << nlines << ",rlines[100](" << rlines[0] <<"),";
-      DEBUG_ << ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<"),";
-      DEBUG_ << nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"],";
-      DEBUG_ << idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << ",";
-      DEBUG_ << nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "],";
-      DEBUG_ << ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "],";
-      DEBUG_ << nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"],";
-      DEBUG_ << ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << ",";
-      DEBUG_ << ibcol << ",";
+      METLIBS_LOG_DEBUG("contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "],");
+      METLIBS_LOG_DEBUG("part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "],");
+      METLIBS_LOG_DEBUG(idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << ",");
+      METLIBS_LOG_DEBUG(nlines << ",rlines[100](" << rlines[0] <<"),");
+      METLIBS_LOG_DEBUG(ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<"),");
+      METLIBS_LOG_DEBUG(nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"],");
+      METLIBS_LOG_DEBUG(idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << ",");
+      METLIBS_LOG_DEBUG(nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "],");
+      METLIBS_LOG_DEBUG(ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "],");
+      METLIBS_LOG_DEBUG(nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"],");
+      METLIBS_LOG_DEBUG(ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << ",");
+      METLIBS_LOG_DEBUG(ibcol << ",");
       if (bmap != NULL)
-        DEBUG_ << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")";
+        METLIBS_LOG_DEBUG(ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")");
       else
-        DEBUG_ << ibmap << "," << lbmap << ",bmap[lbmap](NULL),";
-      DEBUG_ << nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "],";
-      DEBUG_ << "fp, poptions, psoutput,";
-      DEBUG_ << "dummyArea," << fieldUndef;
+        METLIBS_LOG_DEBUG(ibmap << "," << lbmap << ",bmap[lbmap](NULL),");
+      METLIBS_LOG_DEBUG(nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "],");
+      METLIBS_LOG_DEBUG("fp, poptions, psoutput,");
+      METLIBS_LOG_DEBUG("dummyArea," << fieldUndef);
 #endif
 
       res = contour(nPoint, numLev, cdata2d[no1], cdata2d[nx], cdata2d[ny],
@@ -4476,7 +4478,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
           lbmap, bmap, nxbmap, nybmap, rbmap, fp, poptions, psoutput,
           dummyArea, fieldUndef);
 #ifdef DEBUGCONTOUR
-      DEBUG_ << "contour: poptions.contourShading!=0 res: " << res;
+      METLIBS_LOG_DEBUG("contour: poptions.contourShading!=0 res: " << res);
 #endif
 
     }
@@ -4565,25 +4567,25 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
        FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
        const Area& fieldArea, const float& fieldUndef)
        */
-      DEBUG_ << "contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "],";
-      DEBUG_ << "part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "],";
-      DEBUG_ << idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << ",";
-      DEBUG_ << nlines << ",rlines[100](" << rlines[0] <<"),";
-      DEBUG_ << ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<"),";
-      DEBUG_ << nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"],";
-      DEBUG_ << idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << ",";
-      DEBUG_ << nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "],";
-      DEBUG_ << ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "],";
-      DEBUG_ << nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"],";
-      DEBUG_ << ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << ",";
-      DEBUG_ << ibcol << ",";
+      METLIBS_LOG_DEBUG("contour: " << nPoint << "," << numLev << "," << "cdata2d[" << no1 << "]," << "cdata2d[" << nx << "]," << "cdata2d[" << ny << "],");
+      METLIBS_LOG_DEBUG("part[" << part[0] << "," << part[1] << "," << part[2] << "," << part[3] << "]," << iconv << ",conv[" << conv[0] << "," << conv[1] << "," << conv[2] << "," << conv[3] << "," << conv[4]<< "," << conv[5] << "],xylim[" << xylim[0] << "," << xylim[1] << "," << xylim[2] << "," << xylim[3] << "],");
+      METLIBS_LOG_DEBUG(idraw << ",zrange[" << zrange[0] << "," << zrange[1] << "]," << zstep << "," << zoff << ",");
+      METLIBS_LOG_DEBUG(nlines << ",rlines[100](" << rlines[0] <<"),");
+      METLIBS_LOG_DEBUG(ncol << ",icol[100](" << icol[0] <<")," << ntyp << ",ityp[100](" << ityp[0] <<"),");
+      METLIBS_LOG_DEBUG(nwid << ",iwid[100](" << iwid[0] <<")," << nlim << ",rlim[" << rlim[0] << "," << rlim[1] <<"],");
+      METLIBS_LOG_DEBUG(idraw2 << ",zrange2[" << zrange2[0] << "," << zrange2[1] << "]," << zstep2 <<"," << zoff2 << ",");
+      METLIBS_LOG_DEBUG(nlines2 << ",rlines2[" << rlines2[0] << "," << rlines2[1] << "],");
+      METLIBS_LOG_DEBUG(ncol2 << ",icol2[" << icol2[0] <<"," << icol2[1] << "],"<< ntyp2 << ",ityp2[" << ityp2[0]<<"," << ityp2[1] << "],");
+      METLIBS_LOG_DEBUG(nwid2 << ",iwid2[" << iwid2[0]<<","<<iwid2[1] <<"]," << nlim2 << ",rlim2[" << rlim2[0] << "," << rlim2[1] <<"],");
+      METLIBS_LOG_DEBUG(ismooth << ",labfmt["<< labfmt[0] <<"," <<labfmt[1] << ","<< labfmt[2]<<"]," << chxlab << "," << chylab << ",");
+      METLIBS_LOG_DEBUG(ibcol << ",");
       if (bmap != NULL)
-        DEBUG_ << ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")";
+        METLIBS_LOG_DEBUG(ibmap << "," << lbmap << ",bmap[lbmap](" << bmap[0] << ")");
       else
-        DEBUG_ << ibmap << "," << lbmap << ",bmap[lbmap](NULL),";
-      DEBUG_ << nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "],";
-      DEBUG_ << "fp, poptions, psoutput,";
-      DEBUG_ << "dummyArea," << fieldUndef;
+        METLIBS_LOG_DEBUG(ibmap << "," << lbmap << ",bmap[lbmap](NULL),");
+      METLIBS_LOG_DEBUG(nxbmap << "," << nybmap << ",rbmap[" << rbmap[0] << "," << rbmap[1] << "," << rbmap[2] << "," << rbmap[3] << "],");
+      METLIBS_LOG_DEBUG("fp, poptions, psoutput,");
+      METLIBS_LOG_DEBUG("dummyArea," << fieldUndef);
 #endif
 
       res = contour(nPoint, numLev, cdata2d[no1], cdata2d[nx], cdata2d[ny],
@@ -4594,7 +4596,7 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
           lbmap, bmap, nxbmap, nybmap, rbmap, fp, poptions, psoutput,
           dummyArea, fieldUndef);
 #ifdef DEBUGCONTOUR
-      DEBUG_ << "contour: poptions.contourShading = 0; res: " << res;
+      METLIBS_LOG_DEBUG("contour: poptions.contourShading = 0); res: " << res;
 #endif
 
       //reset contour shading

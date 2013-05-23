@@ -35,7 +35,9 @@
 
 #include <iostream>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.OrderClient"
+#include <miLogger/miLogging.h>
+
 #include <diOrderClient.h>
 
 /*
@@ -100,7 +102,7 @@ diWorkOrder *
 diOrderClient::getOrder()
 {
 	if (state == pending) {
-		INFO_ << __func__ << "(): order retrieved";
+		METLIBS_LOG_INFO(__func__ << "(): order retrieved");
 		return order;
 	}
 	return NULL;
@@ -109,16 +111,16 @@ diOrderClient::getOrder()
 void
 diOrderClient::readCommands()
 {
-//	DEBUG_ << __func__ << "(): " <<
-//	    socket->bytesAvailable() << " bytes available";
+//	METLIBS_LOG_DEBUG(__func__ << "(): " <<
+//	    socket->bytesAvailable() << " bytes available");
 	while (socket->canReadLine()) {
 		if (state != idle && state != reading) {
 			/*
 			 * We are not in a state in which we will accept
 			 * input; defer it until later.
 			 */
-//			DEBUG_ << __func__ << "(): " <<
-//			    socket->bytesAvailable() << " bytes deferred";
+//			METLIBS_LOG_DEBUG(__func__ << "(): " <<
+//			    socket->bytesAvailable() << " bytes deferred");
 			break;
 		}
 
@@ -137,7 +139,7 @@ diOrderClient::readCommands()
 		if (state != reading && line.isEmpty())
 			return;
 		std::string sline = line.constData();
-		// DEBUG_ << "[" << sline.toStdString() << "]";
+		// METLIBS_LOG_DEBUG("[" << sline.toStdString() << "]");
 		if (state == idle) {
 			if (sline == kw_goodbye) {
 				message(kw_goodbye);
@@ -193,12 +195,12 @@ void
 diOrderClient::workOrderCompleted()
 {
 	if (state != pending) {
-		WARN_ << "Received completion signal from work order " <<
-		    order->getSerial() << " while not in pending state";
+		METLIBS_LOG_WARN("Received completion signal from work order " <<
+		    order->getSerial() << " while not in pending state");
 		return;
 	}
 	if (static_cast<diWorkOrder *>(sender()) != order) {
-		WARN_ << "Received completion signal from unknown work order ";
+		METLIBS_LOG_WARN("Received completion signal from unknown work order ");
 		return;
 	}
 	message(kw_complete, QString("%1").arg(order->getSerial()));

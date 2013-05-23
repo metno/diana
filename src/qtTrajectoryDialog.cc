@@ -47,7 +47,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.TrajectoryDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include "qtGeoPosLineEdit.h"
 #include "qtTrajectoryDialog.h"
@@ -60,7 +62,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
 {
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::TrajectoryDialog called";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::TrajectoryDialog called");
 #endif
 
   //caption to appear on top of dialog
@@ -206,7 +208,7 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
 
 void TrajectoryDialog::posButtonToggled(bool b){
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::posButtonToggled  b="<<b;
+  METLIBS_LOG_DEBUG("TrajectoryDialog::posButtonToggled  b="<<b);
 #endif
   //called when "Select positions om map" is clicked
 
@@ -289,7 +291,7 @@ void TrajectoryDialog::editDone(){
 
   float lat=0,lon=0;
   if(!edit->getValues(lat,lon))
-    DEBUG_<<"getValues returned false";
+    METLIBS_LOG_DEBUG("getValues returned false");
 
   mapPos(lat,lon);
   edit->clear();
@@ -343,7 +345,7 @@ void TrajectoryDialog::deleteAllClicked(){
 void TrajectoryDialog::startCalcButtonClicked(){
   //this slot is called when start calc. button pressed
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::startCalcButtonClicked";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::startCalcButtonClicked");
 #endif
 
 
@@ -469,7 +471,7 @@ miutil::miString TrajectoryDialog::makeString() {
 
 void TrajectoryDialog::mapPos(float lat, float lon) {
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::mapPos";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::mapPos");
 #endif
 
   //Put this position in vector of positions
@@ -502,7 +504,7 @@ void TrajectoryDialog::mapPos(float lat, float lon) {
 
 void TrajectoryDialog::update_posList(float lat, float lon) {
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::update_posList";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::update_posList");
 #endif
 
   //Make string and insert in posList
@@ -538,7 +540,7 @@ void TrajectoryDialog::update_posList(float lat, float lon) {
 
 void TrajectoryDialog::sendAllPositions(){
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::sendAllPositions";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::sendAllPositions");
 #endif
 
   vector<miutil::miString> vstr;
@@ -561,7 +563,7 @@ void TrajectoryDialog::sendAllPositions(){
 
 void TrajectoryDialog::showplus(){
 #ifdef DEBUGPRINT
-  DEBUG_<<"TrajectoryDialog::showplus";
+  METLIBS_LOG_DEBUG("TrajectoryDialog::showplus");
 #endif
   this->show();
 

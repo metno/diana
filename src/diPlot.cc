@@ -33,7 +33,9 @@
 
 #include "diPlot.h"
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.Plot"
+#include <miLogger/miLogging.h>
+
 #include "diFontManager.h"
 
 #include <qglobal.h>
@@ -184,7 +186,7 @@ Area Plot::findBestMatch(const Area& newa){
   ypos[3]= area.R().y1;
 
   if (!gc.getPoints(area.P(),newa.P(),npos,xpos,ypos)) {
-    ERROR_ << "findBestMatch: getPoints error";
+    METLIBS_LOG_ERROR("findBestMatch: getPoints error");
     delete[] xpos;
     delete[] ypos;
     return a;
@@ -214,7 +216,7 @@ Area Plot::findBestMatch(const Area& newa){
 
 
 void Plot::setDirty(const bool f){
-  //DEBUG_ << "SetDirty " << (f ? "true" : "false");
+  //METLIBS_LOG_DEBUG("SetDirty " << (f ? "true" : "false"));
   dirty= f;
 
 }
@@ -367,7 +369,7 @@ bool Plot::startPSnewpage()
   if (!hardcopy || !psoutput) return false;
   glFlush();
   if (psoutput->EndPage() != 0) {
-    WARN_ << "startPSnewpage: EndPage BAD!!!";
+    METLIBS_LOG_WARN("startPSnewpage: EndPage BAD!!!");
   }
   psoutput->StartPage();
   return true;

@@ -34,7 +34,9 @@
 #endif
 
 #include <diCommandParser.h>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.CommandParser"
+#include <miLogger/miLogging.h>
+
 #include <iostream>
 
 using namespace::miutil;
@@ -226,8 +228,8 @@ bool CommandParser::addKey(const std::string& name, const std::string& key,
     else if (caseType==cmdUpperCase) newkey= miutil::to_upper(name);
     else                             newkey= name;
   } else {
-    if (printError) ERROR_<<"CommandParser::addKey ERROR: key= "<<key
-                          <<"  name= "<<name;
+    if (printError) METLIBS_LOG_ERROR("CommandParser::addKey ERROR: key= "<<key
+                          <<"  name= "<<name);
     return false;
   }
 
@@ -236,8 +238,8 @@ bool CommandParser::addKey(const std::string& name, const std::string& key,
     keyDataBase[newkey].name=      name;
     keyDataBase[newkey].idNumber=  idNumber;
   } else {
-    if (printError) ERROR_<<"CommandParser::addKey ERROR: key= "<<key
-                          <<"  name= "<<name;
+    if (printError) METLIBS_LOG_ERROR("CommandParser::addKey ERROR: key= "<<key
+                          <<"  name= "<<name);
     return false;
   }
   return true;

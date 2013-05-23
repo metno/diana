@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.Controller"
+#include <miLogger/miLogging.h>
+
 #include <diController.h>
 #include <diPlotModule.h>
 #include <diField/diRectangle.h>
@@ -59,7 +61,7 @@ Controller::Controller()
     objm(0), editm(0), aream(0),editoverride(false)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "Controller Constructor";
+  METLIBS_LOG_DEBUG("Controller Constructor");
 #endif
   // data managers
 #ifdef PROFET
@@ -124,7 +126,7 @@ bool Controller::parseSetup()
   for( int i=0; i<nsect; i++){
     vector<miString> lines;
     if (!SetupParser::getSection(fieldSubSect[i],lines)) {
-      //      WARN_<<"Missing section "<<fieldSubSect[i]<<" in setupfile.";
+      //      METLIBS_LOG_WARN("Missing section "<<fieldSubSect[i]<<" in setupfile.");
     }
     vector<std::string> string_lines;
     for (int j=0; j<lines.size(); j++) {
@@ -160,21 +162,21 @@ bool Controller::parseSetup()
 void Controller::plotCommands(const vector<miString>& inp){
 #ifdef DEBUGPRINT
   for (int q = 0; q < inp.size(); q++)
-  DEBUG_ << "++ Controller::plotCommands:" << inp[q];
+  METLIBS_LOG_DEBUG("++ Controller::plotCommands:" << inp[q]);
 #endif
   plotm->preparePlots(inp);
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ Returning from Controller::plotCommands ++";
+  METLIBS_LOG_DEBUG("++ Returning from Controller::plotCommands ++");
 #endif
 }
 
 void Controller::plot(bool under, bool over){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ Controller::plot() ++";
+  METLIBS_LOG_DEBUG("++ Controller::plot() ++");
 #endif
   plotm->plot(under, over);
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ Returning from Controller::plot() ++";
+  METLIBS_LOG_DEBUG("++ Returning from Controller::plot() ++");
 #endif
 }
 
@@ -489,7 +491,7 @@ void Controller::archiveMode(bool on){
 void Controller::sendMouseEvent(const mouseEvent& me,
                                 EventResult& res){
 #ifdef DEBUGREDRAW
-  DEBUG_<<"Controller::sendMouseEvent................................";
+  METLIBS_LOG_DEBUG("Controller::sendMouseEvent................................");
 #endif
   res.repaint= false;        // whether event is followed by a repaint
   res.background= false;     // ...and should the background be drawn too
@@ -532,9 +534,9 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
-      DEBUG_<<"Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
+      METLIBS_LOG_DEBUG("Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
           <<res.repaint<<" "<<res.background<<" "<<res.savebackground<<" "
-          <<res.action;
+          <<res.action);
 #endif
     }
   }
@@ -620,13 +622,13 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
     } else if (me.key==key_F9){
-//    WARN_ << "F9 - not defined";
+//    METLIBS_LOG_WARN("F9 - not defined");
       return;
     } else if (me.key==key_F10){
-//    WARN_ << "Show previus plot (apply)";
+//    METLIBS_LOG_WARN("Show previus plot (apply)");
       return;
     } else if (me.key==key_F11){
-//    WARN_ << "Show next plot (apply)";
+//    METLIBS_LOG_WARN("Show next plot (apply)");
       return;
       //####################################################################
     } else if ((me.key==key_Left && me.modifier==key_Shift) ||
@@ -970,13 +972,13 @@ void Controller::setStationsScale(float new_scale)
 
 //areas
 void Controller::makeAreas(const miString& name, miString areastring, int id){
-  //DEBUG_ << "Controller::makeAreas ";
+  //METLIBS_LOG_DEBUG("Controller::makeAreas ");
   plotm->makeAreas(name,areastring,id);
 }
 
 void Controller::areaCommand(const miString& command,const miString& dataSet,
                              const miString& data, int id ){
-  //DEBUG_ << "Controller::areaCommand";
+  //METLIBS_LOG_DEBUG("Controller::areaCommand");
   plotm->areaCommand(command,dataSet,data,id);
 }
 
@@ -989,21 +991,21 @@ vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-        DEBUG_ << "Controller::putLocation";
+        METLIBS_LOG_DEBUG("Controller::putLocation");
 #endif
   plotm->putLocation(locationdata);
 }
 
 void Controller::updateLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-        DEBUG_ << "Controller::updateLocation";
+        METLIBS_LOG_DEBUG("Controller::updateLocation");
 #endif
   plotm->updateLocation(locationdata);
 }
 
 void Controller::deleteLocation(const miString& name){
 #ifdef DEBUGPRINT
-        DEBUG_ << "Controller::deleteLocation: " << name;
+        METLIBS_LOG_DEBUG("Controller::deleteLocation: " << name);
 #endif
   plotm->deleteLocation(name);
 }
@@ -1011,14 +1013,14 @@ void Controller::deleteLocation(const miString& name){
 void Controller::setSelectedLocation(const miString& name,
                                    const miString& elementname){
 #ifdef DEBUGPRINT
-        DEBUG_ << "Controller::setSelectedLocation: " << name << "," << elementname;
+        METLIBS_LOG_DEBUG("Controller::setSelectedLocation: " << name << "," << elementname);
 #endif
   plotm->setSelectedLocation(name,elementname);
 }
 
 miString Controller::findLocation(int x, int y, const miString& name){
 #ifdef DEBUGPRINT
-        DEBUG_ << "Controller::findLocation: " << x << "," << y << "," << name;
+        METLIBS_LOG_DEBUG("Controller::findLocation: " << x << "," << y << "," << name);
 #endif
   return plotm->findLocation(x,y,name);
 }

@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VprofManager"
+#include <miLogger/miLogging.h>
+
 #include "diVprofManager.h"
 
 #include "diVprofOptions.h"
@@ -62,6 +64,8 @@
 #include "diVprofPilot.h"
 #endif // ROADOBS
 
+#define MILOGGER_CATEGORY "diana.VprofManager"
+#include <miLogger/miLogging.h>
 #include <diField/diFieldManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
@@ -88,7 +92,7 @@ VprofManager::VprofManager(Controller* co)
   plotw(0), ploth(0), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager constructed";
+  METLIBS_LOG_DEBUG("VprofManager constructed");
 #endif
   fieldm= co->getFieldManager(); // set fieldmanager
 
@@ -107,7 +111,7 @@ VprofManager::VprofManager(Controller* co)
 VprofManager::~VprofManager()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager destructor";
+  METLIBS_LOG_DEBUG("VprofManager destructor");
 #endif
 
   if (vpdiag) delete vpdiag;
@@ -121,7 +125,7 @@ VprofManager::~VprofManager()
 void VprofManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::parseSetup";
+  METLIBS_LOG_DEBUG("VprofManager::parseSetup");
 #endif
 
   filenames.clear();
@@ -247,14 +251,14 @@ void VprofManager::parseSetup()
 #ifdef DEBUGPRINT_FILES
     int l= filePaths.size();
     for (int i=0; i<l; i++) {
-      DEBUG_ << "index: " << i;
+      METLIBS_LOG_DEBUG("index: " << i);
       printObsFilePath(filePaths[i]);
     }
 #endif
 
   } else {
 
-    ERROR_ << "Missing section " << section2 << " in setupfile.";
+    METLIBS_LOG_ERROR("Missing section " << section2 << " in setupfile.");
 
   }
 
@@ -266,7 +270,7 @@ void VprofManager::parseSetup()
 void VprofManager::updateObsFileList()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::updateObsFileList";
+  METLIBS_LOG_DEBUG("VprofManager::updateObsFileList");
 #endif
   obsfiles.clear();
   int n= filePaths.size();
@@ -408,7 +412,7 @@ void VprofManager::updateObsFileList()
 #ifdef DEBUGPRINT_FILES
   int l= obsfiles.size();
   for (int i=0; i<l; i++) {
-    DEBUG_ << "index: " << i;
+    METLIBS_LOG_DEBUG("index: " << i);
     printObsFiles(obsfiles[i]);
   }
 #endif
@@ -418,7 +422,7 @@ void VprofManager::updateObsFileList()
 void VprofManager::setPlotWindow(int w, int h)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setPlotWindow:" << w << " " << h;
+  METLIBS_LOG_DEBUG("VprofManager::setPlotWindow:" << w << " " << h);
 #endif
   plotw= w;
   ploth= h;
@@ -431,7 +435,7 @@ void VprofManager::setPlotWindow(int w, int h)
 void VprofManager::setModel()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setModel";
+  METLIBS_LOG_DEBUG("VprofManager::setModel");
 #endif
 
   // should not clear all data, possibly needed again...
@@ -443,7 +447,7 @@ void VprofManager::setModel()
   //check if there are any selected models, if not use default
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
-  //     DEBUG_ << "No model selected";
+  //     METLIBS_LOG_DEBUG("No model selected");
   //     miString model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
@@ -469,7 +473,7 @@ void VprofManager::setModel()
     map<miString,miString>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
-      ERROR_ << "NO VPROFDATA for model " << model;
+      METLIBS_LOG_ERROR("NO VPROFDATA for model " << model);
     } else
       initVprofData(pf->second,model);
   }
@@ -515,7 +519,7 @@ void VprofManager::setModel()
   }
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setModels finished";
+  METLIBS_LOG_DEBUG("VprofManager::setModels finished");
 #endif
 }
 
@@ -523,7 +527,7 @@ void VprofManager::setModel()
 void VprofManager::setStation(const miString& station)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setStation  " << station;
+  METLIBS_LOG_DEBUG("VprofManager::setStation  " << station);
 #endif
 
   plotStation= station;
@@ -533,7 +537,7 @@ void VprofManager::setStation(const miString& station)
 void VprofManager::setTime(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setTime  " << time;
+  METLIBS_LOG_DEBUG("VprofManager::setTime  " << time);
 #endif
 
   plotTime= time;
@@ -546,7 +550,7 @@ void VprofManager::setTime(const miTime& time)
 miString VprofManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setStation   step=" << step;
+  METLIBS_LOG_DEBUG("VprofManager::setStation   step=" << step);
 #endif
 
   if (nameList.size()==0)
@@ -573,7 +577,7 @@ miString VprofManager::setStation(int step)
 miTime VprofManager::setTime(int step)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::setTime   step=" << step;
+  METLIBS_LOG_DEBUG("VprofManager::setTime   step=" << step);
 #endif
 
   if (timeList.size()==0)
@@ -628,7 +632,7 @@ void VprofManager::endHardcopy(){
 bool VprofManager::plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::plot  " << plotStation << "  " << plotTime;
+  METLIBS_LOG_DEBUG("VprofManager::plot  " << plotStation << "  " << plotTime);
 #endif
 
   if (!vpdiag) {
@@ -713,7 +717,7 @@ bool VprofManager::plot()
                 }
               }
               catch (...) {
-                ERROR_<<"Exception in: " <<obsfiles[nn].filename;
+                METLIBS_LOG_ERROR("Exception in: " <<obsfiles[nn].filename);
               }
 #endif
             } else if(obsfiles[nn].fileformat==bufr &&
@@ -771,7 +775,7 @@ bool VprofManager::plot()
                 }
               }
               catch (...) {
-                ERROR_<<"Exception in: " <<obsfiles[nn].filename;
+                METLIBS_LOG_ERROR("Exception in: " <<obsfiles[nn].filename);
               }
             }
 #endif
@@ -790,7 +794,7 @@ bool VprofManager::plot()
   }
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::plot finished";
+  METLIBS_LOG_DEBUG("VprofManager::plot finished");
 #endif
   return true;
 }
@@ -800,7 +804,7 @@ bool VprofManager::plot()
 
 vector <miString> VprofManager::getModelNames(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::getModelNames";
+  METLIBS_LOG_DEBUG("VprofManager::getModelNames");
 #endif
   updateObsFileList();
   return dialogModelNames;
@@ -810,14 +814,14 @@ vector <miString> VprofManager::getModelNames(){
 
 vector <miString> VprofManager::getModelFiles(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::getModelFiles";
+  METLIBS_LOG_DEBUG("VprofManager::getModelFiles");
 #endif
   vector<miString> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES
-    DEBUG_ << "index: " << i;
+    METLIBS_LOG_DEBUG("index: " << i);
     printObsFiles(obsfiles[i]);
 #endif
     modelfiles.push_back(obsfiles[i].filename);
@@ -895,22 +899,22 @@ bool VprofManager::initVprofData(miString file,miString model){
   VprofData *vpd= new VprofData(file,model);
   if(filetypes[file] == "standard") {
     if (vpd->readFile()) {
-      INFO_ << "VPROFDATA READFILE OK for model " << model;
+      METLIBS_LOG_INFO("VPROFDATA READFILE OK for model " << model);
       vpdata.push_back(vpd);
       return true;
     } else {
-      ERROR_ << "VPROFDATA READFILE ERROR file " << file;
+      METLIBS_LOG_ERROR("VPROFDATA READFILE ERROR file " << file);
       delete vpd;
       return false;
     }
   } else if (filetypes[file] == "GribFile") {
-    //    DEBUG_ << "Model is a gribfile";
+    //    METLIBS_LOG_DEBUG("Model is a gribfile");
     if (vpd->readField(filetypes[file],fieldm)) {
-      INFO_ << "VPROFDATA READFIELD OK for model " << model;
+      METLIBS_LOG_INFO("VPROFDATA READFIELD OK for model " << model);
       vpdata.push_back(vpd);
       return true;
     } else {
-      ERROR_ << "VPROFDATA READFIELD ERROR: " << file;
+      METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
       return false;
     }
   }
@@ -924,7 +928,7 @@ void VprofManager::initStations(){
   //merge lists from all models
   int nvpdata = vpdata.size();
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::initStations-size of vpdata " << nvpdata;
+  METLIBS_LOG_DEBUG("VprofManager::initStations-size of vpdata " << nvpdata);
 #endif
 
   nameList.clear();
@@ -946,7 +950,7 @@ void VprofManager::initStations(){
     unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
         n!=obslist.size()) {
-      ERROR_ << "diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!";
+      METLIBS_LOG_ERROR("diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
     } else if (n>0) {
       // check for duplicates
       // name should be used as to check
@@ -1019,7 +1023,7 @@ void VprofManager::initStations(){
             tlist= ofile.getStationTimes();
         }
         catch (...) {
-          ERROR_<<"Exception in: " <<obsfiles[i].filename;
+          METLIBS_LOG_ERROR("Exception in: " <<obsfiles[i].filename);
         }
 #endif
 #ifdef ROADOBS
@@ -1039,7 +1043,7 @@ void VprofManager::initStations(){
           }
           if (stations == NULL)
           {
-            ERROR_<<"Unable to find stationlist: " <<obsfiles[i].stationfile;
+            METLIBS_LOG_ERROR("Unable to find stationlist: " <<obsfiles[i].stationfile);
           }
           else
           {
@@ -1077,7 +1081,7 @@ void VprofManager::initStations(){
     unsigned int ns= namelist.size();
     if (ns!=latitudelist.size() || ns!=longitudelist.size() ||
         ns!=obslist.size()) {
-      ERROR_ << "diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!";
+      METLIBS_LOG_ERROR("diVprofManager::initStations - SOMETHING WRONG WITH OBS.STATIONLIST!");
     } else if (ns>0) {
       for (unsigned int j=0; j<ns; j++) {
         if (namelist[j].substr(0,2)=="99") {
@@ -1142,7 +1146,7 @@ void VprofManager::initStations(){
 // remember station
 if (!plotStation.empty()) lastStation = plotStation;
 #ifdef DEBUGPRINT
-DEBUG_ << "lastStation"  << lastStation;
+METLIBS_LOG_DEBUG("lastStation"  << lastStation);
 #endif
 //if it's the first time, plotStation is first in list
 if (lastStation.empty() && nameList.size())
@@ -1160,7 +1164,7 @@ else{
   if (!found) plotStation.clear();
 }
 #ifdef DEBUGPRINT
-DEBUG_ <<"plotStation" << plotStation;
+METLIBS_LOG_DEBUG("plotStation" << plotStation);
 #endif
 }
 
@@ -1169,7 +1173,7 @@ DEBUG_ <<"plotStation" << plotStation;
 
 void VprofManager::initTimes(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::initTimes:" << plotTime.isoTime();
+  METLIBS_LOG_DEBUG("VprofManager::initTimes:" << plotTime.isoTime());
 #endif
 
   timeList.clear();
@@ -1196,7 +1200,7 @@ void VprofManager::initTimes(){
 
 void VprofManager::checkObsTime(int hour) {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofManager::checkObsTime  hour= " << hour;
+  METLIBS_LOG_DEBUG("VprofManager::checkObsTime  hour= " << hour);
 #endif
 
   // use hour=-1 to check all files
@@ -1210,7 +1214,7 @@ void VprofManager::checkObsTime(int hour) {
 
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES
-    DEBUG_ << "index: " << i;
+    METLIBS_LOG_DEBUG("index: " << i);
     printObsFiles(obsfiles[i]);
 #endif
     if (obsfiles[i].modificationTime<0)
@@ -1242,7 +1246,7 @@ void VprofManager::checkObsTime(int hour) {
               obsfiles[i].time= ofile.fileObsTime();
             }
             catch (...) {
-              ERROR_<<"Exception in: "<<obsfiles[i].filename;
+              METLIBS_LOG_ERROR("Exception in: "<<obsfiles[i].filename);
             }
           }
         }
@@ -1264,7 +1268,7 @@ void VprofManager::checkObsTime(int hour) {
             obsfiles[i].time= ofile.fileObsTime();
           }
           catch (...) {
-            ERROR_<<"Exception in: "<<obsfiles[i].filename;
+            METLIBS_LOG_ERROR("Exception in: "<<obsfiles[i].filename);
           }
         }
       }
@@ -1294,7 +1298,7 @@ void VprofManager::checkObsTime(int hour) {
   void VprofManager::mainWindowTimeChanged(const miTime& time)
   {
 #ifdef DEBUGPRINT
-    DEBUG_ << "VprofManager::mainWindowTimeChanged  " << time;
+    METLIBS_LOG_DEBUG("VprofManager::mainWindowTimeChanged  " << time);
 #endif
 
     miTime mainWindowTime = time;
@@ -1316,7 +1320,7 @@ void VprofManager::checkObsTime(int hour) {
   void VprofManager::updateObs()
   {
 #ifdef DEBUGPRINT
-    DEBUG_ << "VprofManager::updateObs";
+    METLIBS_LOG_DEBUG("VprofManager::updateObs");
 #endif
     updateObsFileList();
     checkObsTime();
@@ -1444,7 +1448,7 @@ void VprofManager::checkObsTime(int hour) {
     ifstream file;
     file.open(amdarStationFile.c_str());
     if (file.bad()) {
-      ERROR_<<"Amdar station list  "<<amdarStationFile<<"  not found";
+      METLIBS_LOG_ERROR("Amdar station list  "<<amdarStationFile<<"  not found");
       return;
     }
 
@@ -1503,18 +1507,18 @@ void VprofManager::checkObsTime(int hour) {
      long       modificationTime; 
      }; 
      */
-    INFO_ << "ObsFile: < ";
-    INFO_ << "filename: " << of.filename;
-    INFO_ << "obsType: " << of.obstype;
-    INFO_ << "FileFormat: " << of.fileformat;
-    INFO_ << "Time: " << of.time.isoTime(true, true);
-    INFO_ << "ModificationTime: " << of.modificationTime;
+    METLIBS_LOG_INFO("ObsFile: < ");
+    METLIBS_LOG_INFO("filename: " << of.filename);
+    METLIBS_LOG_INFO("obsType: " << of.obstype);
+    METLIBS_LOG_INFO("FileFormat: " << of.fileformat);
+    METLIBS_LOG_INFO("Time: " << of.time.isoTime(true, true));
+    METLIBS_LOG_INFO("ModificationTime: " << of.modificationTime);
 #ifdef ROADOBS 
-    INFO_ << "Parameterfile: " << of.parameterfile;
-    INFO_ << "Stationfile: " << of.stationfile;
-    INFO_ << "Databasefile: " << of.databasefile;
+    METLIBS_LOG_INFO("Parameterfile: " << of.parameterfile);
+    METLIBS_LOG_INFO("Stationfile: " << of.stationfile);
+    METLIBS_LOG_INFO("Databasefile: " << of.databasefile);
 #endif 
-    INFO_ << ">";
+    METLIBS_LOG_INFO(">");
   }
 
   void VprofManager::printObsFilePath(const ObsFilePath & ofp)
@@ -1527,14 +1531,14 @@ void VprofManager::checkObsTime(int hour) {
      TimeFilter tf; 
      }; 
      */
-    INFO_ << "ObsFilePath: < ";
-    INFO_ << "filepath: " << ofp.filepath;
-    INFO_ << "obsType: " << ofp.obstype;
-    INFO_ << "FileFormat: " << ofp.fileformat;
+    METLIBS_LOG_INFO("ObsFilePath: < ");
+    METLIBS_LOG_INFO("filepath: " << ofp.filepath);
+    METLIBS_LOG_INFO("obsType: " << ofp.obstype);
+    METLIBS_LOG_INFO("FileFormat: " << ofp.fileformat);
 #ifdef ROADOBS 
-    INFO_ << "Parameterfile: " << ofp.parameterfile;
-    INFO_ << "Stationfile: " << ofp.stationfile;
-    INFO_ << "Databasefile: " << ofp.databasefile;
+    METLIBS_LOG_INFO("Parameterfile: " << ofp.parameterfile);
+    METLIBS_LOG_INFO("Stationfile: " << ofp.stationfile);
+    METLIBS_LOG_INFO("Databasefile: " << ofp.databasefile);
 #endif 
-    INFO_ << ">";
+    METLIBS_LOG_INFO(">");
   }

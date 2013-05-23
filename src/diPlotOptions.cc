@@ -31,7 +31,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.PlotOptions"
+#include <miLogger/miLogging.h>
+
 #include "diPlotOptions.h"
 #include "diColourShading.h"
 #include "diPattern.h"
@@ -342,13 +344,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
     if (l>1){
       key= etokens[0];
       value= etokens[1];
-//      DEBUG_ << "Key:"<<key<< " Value:"<<value;
+//      METLIBS_LOG_DEBUG("Key:"<<key<< " Value:"<<value);
       if (value[0]=='\'' && value[value.length()-1]=='\'')
         value= value.substr(1,value.length()-2);
 
 //      if (key==key_fplottype_obsolete && po.plottype== fpt_contour){
 //        key=key_fplottype;
-////        DEBUG_ <<"New key:"<<key;
+////        METLIBS_LOG_DEBUG("New key:"<<key);
 //      }
 
       if (key==key_colour){
@@ -662,7 +664,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         } else  if(value == "number") {
           po.plottype = fpt_value;
 #ifdef DEBUGPRINT
-            DEBUG_<<"........diPlotOptions::parsePlotOption po.plottype ="<< value;
+            METLIBS_LOG_DEBUG("........diPlotOptions::parsePlotOption po.plottype ="<< value);
 
 #endif
         } else {
@@ -861,8 +863,8 @@ bool PlotOptions::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
 #ifdef DEBUGPRINT
-  DEBUG_<<":::::::::PlotOptions::updateFieldPlotOptions";
-  DEBUG_<<":::::::::name: "<< name << "   *******  optstr: "<<optstr;
+  METLIBS_LOG_DEBUG(":::::::::PlotOptions::updateFieldPlotOptions");
+  METLIBS_LOG_DEBUG(":::::::::name: "<< name << "   *******  optstr: "<<optstr);
 #endif
   std::string tmpOpt = optstr;
   return parsePlotOption(tmpOpt,fieldPlotOptions[name]);

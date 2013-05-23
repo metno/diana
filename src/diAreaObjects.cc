@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.AreaObjects"
+#include <miLogger/miLogging.h>
+
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherArea.h>
@@ -44,7 +46,7 @@ using namespace::miutil;
 
 AreaObjects::AreaObjects(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "AreaObjects::AreaObjects\n";
+  METLIBS_LOG_DEBUG("AreaObjects::AreaObjects\n");
 #endif
  init();
  currentArea = NULL;
@@ -55,9 +57,9 @@ AreaObjects::AreaObjects(){
 void AreaObjects::makeAreas(const miString& name, const miString& icon,
 			    const miString& areastring, int id,const Area& area){
 #ifdef DEBUGPRINT
-  DEBUG_ << "AreaObjects::makeAreas\n";
-  DEBUG_ << "name=" << name;
-  DEBUG_ << "areastring=" << areastring;
+  METLIBS_LOG_DEBUG("AreaObjects::makeAreas\n");
+  METLIBS_LOG_DEBUG("name=" << name);
+  METLIBS_LOG_DEBUG("areastring=" << areastring);
 #endif
 
   //  clear();
@@ -70,10 +72,10 @@ void AreaObjects::makeAreas(const miString& name, const miString& icon,
   autozoom = false;
 
   if (readEditDrawString(areastring,area,true))
-    DEBUG_ << "AreaObjects " << itsName << " id=" << itsId << " read OK!";
+    METLIBS_LOG_DEBUG("AreaObjects " << itsName << " id=" << itsId << " read OK!");
 
   else
-    DEBUG_ << "Areaobjects not read OK";
+    METLIBS_LOG_DEBUG("Areaobjects not read OK");
 
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){
@@ -92,9 +94,9 @@ void AreaObjects::makeAreas(const miString& name, const miString& icon,
 
 bool AreaObjects::areaCommand(const miString& command,const miString& data){
 #ifdef DEBUGPRINT
-  DEBUG_ << "Areaobjects::areaCommand";
-  DEBUG_ << "command=" << command;
-  DEBUG_ << "data=" << data;
+  METLIBS_LOG_DEBUG("Areaobjects::areaCommand");
+  METLIBS_LOG_DEBUG("command=" << command);
+  METLIBS_LOG_DEBUG("data=" << data);
 #endif
 
   vector<miString> token = data.split(1,":",true);
@@ -116,7 +118,7 @@ bool AreaObjects::areaCommand(const miString& command,const miString& data){
   while (p!= objects.end() && (*p)->getName()!=token[0]) p++;
   if( p== objects.end() ) return false;
   ObjectPlot * pobject = *p;
-  //    DEBUG_ <<"pobject->getName():"<<pobject->getName();
+  //    METLIBS_LOG_DEBUG("pobject->getName():"<<pobject->getName());
   if (command=="show"){
     pobject->setVisible(on);
   }else if (command=="select"){
@@ -184,7 +186,7 @@ vector <selectArea> AreaObjects::findAreas(float x, float y, bool newArea){
 
 
 Rectangle AreaObjects::getBoundBox(const miString& name){
-  //DEBUG_ << "AreaObjects::getBoundBox " << name;
+  //METLIBS_LOG_DEBUG("AreaObjects::getBoundBox " << name);
   Rectangle box;
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){

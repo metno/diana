@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VprofOptions"
+#include <miLogger/miLogging.h>
+
 #include <diVprofOptions.h>
 #include <iostream>
 
@@ -55,7 +57,7 @@ VprofOptions::~VprofOptions()
 void VprofOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofOptions::setDefaults";
+  METLIBS_LOG_DEBUG("VprofOptions::setDefaults");
 #endif
 
   ptttt=    true;   // t
@@ -229,7 +231,7 @@ void VprofOptions::setDefaults()
 void VprofOptions::checkValues()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofOptions::checkValues";
+  METLIBS_LOG_DEBUG("VprofOptions::checkValues");
 #endif
 
   if (diagramtype<0 || diagramtype>3) diagramtype= 0;
@@ -259,7 +261,7 @@ void VprofOptions::checkValues()
 vector<miString> VprofOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofOptions::writeOptions";
+  METLIBS_LOG_DEBUG("VprofOptions::writeOptions");
 #endif
 
   vector<miString> vstr;
@@ -429,7 +431,7 @@ vector<miString> VprofOptions::writeOptions()
 void VprofOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofOptions::readOptions";
+  METLIBS_LOG_DEBUG("VprofOptions::readOptions");
 #endif
 
   vector<miString> vs,tokens;

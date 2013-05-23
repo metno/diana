@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.AnnotationPlot"
+#include <miLogger/miLogging.h>
+
 #include <diAnnotationPlot.h>
 #include <diLegendPlot.h>
 #include <diFontManager.h>
@@ -50,7 +52,7 @@ AnnotationPlot::AnnotationPlot() :
   Plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ AnnotationPlot::Default Constructor";
+  METLIBS_LOG_DEBUG("++ AnnotationPlot::Default Constructor");
 #endif
   init();
 }
@@ -60,7 +62,7 @@ AnnotationPlot::AnnotationPlot(const miString& po) :
   Plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ AnnotationPlot::Constructor: " << po;
+  METLIBS_LOG_DEBUG("++ AnnotationPlot::Constructor: " << po);
 #endif
   init();
   prepare(po);
@@ -312,7 +314,7 @@ void AnnotationPlot::splitAnnotations()
 
 bool AnnotationPlot::putElements()
 {
-  //  DEBUG_ << "AnnotationPlot::putElements";
+  //  METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
   //decode strings, put into elements...
   vector<miString> stokens, tokens, elementstrings;
   vector<Annotation> anew;
@@ -338,7 +340,7 @@ bool AnnotationPlot::putElements()
     elementstrings = expanded(annotations[i].vstr);
     int nel = elementstrings.size();
     for (int l = 0; l < nel; l++) {
-      //      DEBUG_ <<"  elementstrings[l]:"<<elementstrings[l];
+      //      METLIBS_LOG_DEBUG("  elementstrings[l]:"<<elementstrings[l]);
       if (elementstrings[l].contains("horalign=")) {
         //sets alignment for the whole annotation !
         stokens = elementstrings[l].split('\"', '\"', ",", true);
@@ -431,7 +433,7 @@ void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
 
 bool AnnotationPlot::decodeElement(miString elementstring, element& e)
 {
-  //    DEBUG_ <<"EL:"<<elementstring;
+  //    METLIBS_LOG_DEBUG("EL:"<<elementstring);
   e.eSize = 1.0;
   e.eFace = poptions.fontface;
   e.eHalign = align_left;
@@ -539,7 +541,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
 bool AnnotationPlot::plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ AnnotationPlot::plot() ++";
+  METLIBS_LOG_DEBUG("++ AnnotationPlot::plot() ++");
 #endif
   if (!enabled || !annotations.size() || nothingToDo)
     return false;
@@ -673,7 +675,7 @@ bool AnnotationPlot::plot()
 bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
-  //  DEBUG_ <<"plotElements:"<<annoEl.size();
+  //  METLIBS_LOG_DEBUG("plotElements:"<<annoEl.size());
   float fontsizeScale;
   float wid, hei;
   int nel = annoEl.size();
@@ -682,7 +684,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
   else
     fontsizeScale = 1.0;
 
-  //    DEBUG_ <<"fontsizeScale:"<<fontsizeScale;
+  //    METLIBS_LOG_DEBUG("fontsizeScale:"<<fontsizeScale);
   for (int j = 0; j < nel; j++) {
     if (!horizontal && j != 0)
       y -= annoEl[j].height;
@@ -893,7 +895,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ AnnotationPlot::getAnnoSize:" <<annoEl.size();
+  METLIBS_LOG_DEBUG("++ AnnotationPlot::getAnnoSize:" <<annoEl.size());
 #endif
   float fontsizeScale;
 
@@ -964,7 +966,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
 
 void AnnotationPlot::getXYBox()
 {
-  //  DEBUG_ <<"getXYBox()";
+  //  METLIBS_LOG_DEBUG("getXYBox()");
 
   float xoffset = 0, yoffset = 0;
   xoffset = cxoffset * bbox.width();
@@ -1467,7 +1469,7 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 
 vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
 {
-  //  DEBUG_ <<"AnnotationPlot::getAnnotationStrings():"<<annotations.size();
+  //  METLIBS_LOG_DEBUG("AnnotationPlot::getAnnotationStrings():"<<annotations.size());
   vector<vector<miString> > vvstr;
   bool orig = false;
 
@@ -1500,7 +1502,7 @@ vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
 bool AnnotationPlot::setAnnotationStrings(vector<vector<miString> >& vvstr)
 {
   int n = vvstr.size();
-  //  DEBUG_ <<"setAnnotationStrings:"<<n;
+  //  METLIBS_LOG_DEBUG("setAnnotationStrings:"<<n);
   if (n == 0)
     return false;
 

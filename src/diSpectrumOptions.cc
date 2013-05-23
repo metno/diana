@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.SpectrumOptions"
+#include <miLogger/miLogging.h>
+
 #include <diSpectrumOptions.h>
 #include <iostream>
 
@@ -55,7 +57,7 @@ SpectrumOptions::~SpectrumOptions()
 void SpectrumOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumOptions::setDefaults";
+  METLIBS_LOG_DEBUG("SpectrumOptions::setDefaults");
 #endif
 
   pText= true;
@@ -100,7 +102,7 @@ void SpectrumOptions::setDefaults()
 vector<miString> SpectrumOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumOptions::writeOptions";
+  METLIBS_LOG_DEBUG("SpectrumOptions::writeOptions");
 #endif
 
   vector<miString> vstr;
@@ -159,7 +161,7 @@ vector<miString> SpectrumOptions::writeOptions()
 void SpectrumOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumOptions::readOptions";
+  METLIBS_LOG_DEBUG("SpectrumOptions::readOptions");
 #endif
 
   vector<miString> vs,tokens;
@@ -218,12 +220,12 @@ void SpectrumOptions::readOptions(const vector<miString>& vstr)
 
 	else if (key=="backgroundColour") backgroundColour= value;
 //####################################################################
-//      else DEBUG_<<">>>>>>>>ERROR KEY: "<<vs[j];
+//      else METLIBS_LOG_DEBUG(">>>>>>>>ERROR KEY: "<<vs[j]);
 //####################################################################
 
       }
 //####################################################################
-//    else DEBUG_<<">>>>>>>>ERROR LINE: "<<vs[j];
+//    else METLIBS_LOG_DEBUG(">>>>>>>>ERROR LINE: "<<vs[j]);
 //####################################################################
     }
   }

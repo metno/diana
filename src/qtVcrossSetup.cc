@@ -40,7 +40,9 @@
 #include <QGridLayout>
 
 #include "qtUtility.h"
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VcrossSetup"
+#include <miLogger/miLogging.h>
+
 #include "diVcrossManager.h"
 #include "qtVcrossSetup.h"
 

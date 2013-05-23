@@ -35,7 +35,9 @@
 
 #include <fstream>
 #include <iostream>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ShapeObject"
+#include <miLogger/miLogging.h>
+
 #include <diColourShading.h>
 #include <diTesselation.h>
 #include <diShapeObject.h>
@@ -110,7 +112,7 @@ void ShapeObject::memberCopy(const ShapeObject& rhs)
 bool ShapeObject::changeProj(Area fromArea)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "ShapeObject::changeproj(): ";
+  METLIBS_LOG_DEBUG("ShapeObject::changeproj(): ");
 #endif
   int nEntities = shapes.size();
   bool success = false;
@@ -158,7 +160,7 @@ bool ShapeObject::changeProj(Area fromArea)
     delete[] ty;
   }
 #ifdef DEBUGPRINT
-  DEBUG_ << "done!";
+  METLIBS_LOG_DEBUG("done!");
 #endif
   return (success && success2);
 }
@@ -171,7 +173,7 @@ bool ShapeObject::read(miutil::miString filename)
 bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "ShapeObject::read(" << filename << "," << convertFromGeo;
+  METLIBS_LOG_DEBUG("ShapeObject::read(" << filename << "," << convertFromGeo);
 #endif
   // shape reading
   SHPHandle hSHP;
@@ -180,7 +182,7 @@ bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
   hSHP = SHPOpen(filename.c_str(), "rb");
 
   if (hSHP == NULL) {
-    ERROR_<<"Unable to open: "<<filename;
+    METLIBS_LOG_ERROR("Unable to open: "<<filename);
     return false;
   }
 
@@ -328,12 +330,12 @@ bool ShapeObject::plot(Area area, // current area
 
         //also scale according to windowheight and width (standard is 500)
         scalefactor = sqrtf(pheight*pheight+pwidth*pwidth)/500;
-//DEBUG_ << "scalefactor =" <<scalefactor; 
+//METLIBS_LOG_DEBUG("scalefactor =" <<scalefactor); 
         fontSizeToPlot = int(fontSizeToPlot*scalefactor);
         //symbol_rad = int(symbol * scalefactor);
         symbol_rad = symbol;
-//DEBUG_ << "symbol_rad = " << symbol_rad; 
-//DEBUG_ << "fontSizeToPlot = " << fontSizeToPlot; 
+//METLIBS_LOG_DEBUG("symbol_rad = " << symbol_rad); 
+//METLIBS_LOG_DEBUG("fontSizeToPlot = " << fontSizeToPlot); 
 
 	x1= area.R().x1 -1.;
 	x2= area.R().x2 +1.;
@@ -358,13 +360,13 @@ bool ShapeObject::plot(Area area, // current area
 	float dsY = sizeWY * .01;
 
 #ifdef DEBUGPRINT
-	DEBUG_ << "x1=" << x1;
-	DEBUG_ << "x2=" << x2;
-	DEBUG_ << "y1=" << y1;
-	DEBUG_ << "y2=" << y2;
+	METLIBS_LOG_DEBUG("x1=" << x1);
+	METLIBS_LOG_DEBUG("x2=" << x2);
+	METLIBS_LOG_DEBUG("y1=" << y1);
+	METLIBS_LOG_DEBUG("y2=" << y2);
 
-	DEBUG_ << "sizeWX: " << sizeWX << " dX: " << dX; 
-	DEBUG_ << "sizeWY: " << sizeWY << " dY: " << dY; 
+	METLIBS_LOG_DEBUG("sizeWX: " << sizeWX << " dX: " << dX); 
+	METLIBS_LOG_DEBUG("sizeWY: " << sizeWY << " dY: " << dY); 
 #endif
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -406,22 +408,22 @@ bool ShapeObject::plot(Area area, // current area
 
 	int n=shapes.size();
 #ifdef DEBUGPRINT
-	DEBUG_ << "***Map contains " << n <<  " shapes. ";
+	METLIBS_LOG_DEBUG("***Map contains " << n <<  " shapes. ");
 #endif
 	for (int i=0; i<n; i++) {
 		// Debug......
 		//if (i != 13) continue;
 		if ((shapes[i]->nSHPType!=SHPT_POLYGON)&&(shapes[i]->nSHPType!=SHPT_ARC)&&(shapes[i]->nSHPType!=SHPT_POINT)){
-			ERROR_ << "shapes["<<i<<"]=" << shapes[i]->nSHPType << " unsupported shape type!";
+			METLIBS_LOG_ERROR("shapes["<<i<<"]=" << shapes[i]->nSHPType << " unsupported shape type!");
 			continue;
 		}
 		// Check if shape is outside
 		if((((shapes[i]->dfXMin > x2) || (shapes[i]->dfXMin < x1 && shapes[i]->dfXMax < x1)) && (shapes[i]->dfYMin > y2))
 		    || (shapes[i]->dfYMin < y1 && shapes[i]->dfYMax < y1)) {
 #ifdef DEBUGPRINT
-				DEBUG_ << "minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax;
-				DEBUG_ << "x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2;
-				DEBUG_ << "shapes["<<i<<"] is outside";
+				METLIBS_LOG_DEBUG("minX: " << shapes[i]->dfXMin << " maxX: " << shapes[i]->dfXMax << " minY: " << shapes[i]->dfYMin << " maxY: " << shapes[i]->dfYMax);
+				METLIBS_LOG_DEBUG("x1: " << x1 << " x2: " << x2 << " y1: " << y1 << " y2: " << y2);
+				METLIBS_LOG_DEBUG("shapes["<<i<<"] is outside");
 #endif
 				continue;
 		}
@@ -435,7 +437,7 @@ bool ShapeObject::plot(Area area, // current area
 			if ((xSize < dY) && (ySize < dY))
 			{
 #ifdef DEBUGPRINT
-				DEBUG_ << "shapes["<<i<<"] is to small, xSize: " << xSize << " ySize: " << ySize << " dy: " << dY << " dx: " << dX;
+				METLIBS_LOG_DEBUG("shapes["<<i<<"] is to small, xSize: " << xSize << " ySize: " << ySize << " dy: " << dY << " dx: " << dX);
 #endif
 				continue;
 			}
@@ -500,7 +502,7 @@ bool ShapeObject::plot(Area area, // current area
 		// should be set to 1 if part should not be filled ?!
 /*		
 #ifdef DEBUGPRINT
-		DEBUG_ << "shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. ";
+		METLIBS_LOG_DEBUG("shapes["<<i<<"] contains " << nv << " vertices and " << nparts << " parts. ");
 #endif*/
 		GLdouble *gldata= new GLdouble[nv*3];
 		GLdouble *pdata= new GLdouble[nv*2];
@@ -561,7 +563,7 @@ bool ShapeObject::plot(Area area, // current area
 			// Allocate temporary buffer
 			// Assume, all points are valid.
 			int psize = nstop-nstart;
-			//DEBUG_ << "Size of part[ " << jpart << " ]: " << psize;
+			//METLIBS_LOG_DEBUG("Size of part[ " << jpart << " ]: " << psize);
 			GLdouble * xTemparr = new GLdouble[psize];
 			GLdouble * yTemparr = new GLdouble[psize];
 			int incr = 1;
@@ -771,7 +773,7 @@ bool ShapeObject::plot(Area area, // current area
 
 			countpos[jpart]=ncount;
 #ifdef DEBUGPRINT
-			DEBUG_ << "Points to draw and fill [ " << jpart << " ]: " << ncount;
+			METLIBS_LOG_DEBUG("Points to draw and fill [ " << jpart << " ]: " << ncount);
 #endif
 
 		}
@@ -877,7 +879,7 @@ bool ShapeObject::plot(Area area, // current area
 				{
 
 					if ((gldata[pos] != gldata[npos*3 + pos-3])&&(gldata[pos+1] != gldata[npos*3 + pos -2]))
-						WARN_ << "shapes["<<i<<"] part["<<p<<"] not closed";
+						METLIBS_LOG_WARN("shapes["<<i<<"] part["<<p<<"] not closed");
 				}
 				pos = pos + npos*3;
 			}
@@ -1084,14 +1086,14 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   vector<double> dummydouble;
   vector<miutil::miString> dummystring;
 #ifdef DEBUGPRINT
-  DEBUG_<<"readDBFfile: "<<filename;
+  METLIBS_LOG_DEBUG("readDBFfile: "<<filename);
 #endif
   /* -------------------------------------------------------------------- */
   /*      Open the file.                                                  */
   /* -------------------------------------------------------------------- */
   hDBF = DBFOpen(filename.c_str(), "rb");
   if (hDBF == NULL) {
-    ERROR_<<"DBFOpen "<<filename<<" failed";
+    METLIBS_LOG_ERROR("DBFOpen "<<filename<<" failed");
     return 2;
   }
 
@@ -1099,7 +1101,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   /*	If there is no data in this file let the user know.		*/
   /* -------------------------------------------------------------------- */
   if (DBFGetFieldCount(hDBF) == 0) {
-    ERROR_<<"There are no fields in this table!";
+    METLIBS_LOG_ERROR("There are no fields in this table!");
     return 3;
   }
 
@@ -1114,7 +1116,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 
     eType = DBFGetFieldInfo(hDBF, i, szTitle, &nWidth, &nDecimals);
 #ifdef DEBUGPRINT
-    DEBUG_<<"---> "<<szTitle;
+    METLIBS_LOG_DEBUG("---> "<<szTitle);
 #endif
     miutil::miString name= miutil::miString(szTitle).upcase();
 
@@ -1140,11 +1142,11 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   }
 #ifdef DEBUGPRINT
   for ( int n=0; n<dbfIntName.size(); n++)
-    DEBUG_<<"Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n];
+    METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
   for (int n=0; n<dbfDoubleName.size(); n++)
-    DEBUG_<<"Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n];
+    METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
   for (int n=0; n<dbfStringName.size(); n++)
-    DEBUG_<<"String description:  "<<indexString[n]<<"  "<<dbfStringName[n];
+    METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
 #endif
   /* -------------------------------------------------------------------- */
   /*	Read all the records 						*/
@@ -1153,7 +1155,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   for (n=0; n<dbfIntName.size(); n++) {
     i= indexInt[n];
 #ifdef DEBUGPRINT
-	DEBUG_<<"Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n];
+	METLIBS_LOG_DEBUG("Int    description:  "<<indexInt[n]<<"  "<<dbfIntName[n]);
 #endif
 	for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
@@ -1161,8 +1163,8 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 	  else {
         dbfIntDesc[n].push_back(DBFReadIntegerAttribute(hDBF, iRecord, i) );
 #ifdef DEBUGPRINT
-        DEBUG_ << "DBFReadIntegerAttribute(hDBF, iRecord, i)"
-              << DBFReadIntegerAttribute(hDBF, iRecord, i);
+        METLIBS_LOG_DEBUG("DBFReadIntegerAttribute(hDBF, iRecord, i)"
+              << DBFReadIntegerAttribute(hDBF, iRecord, i));
 #endif
 	  }
     }
@@ -1171,7 +1173,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
   for (n=0; n<dbfDoubleName.size(); n++) {
     i= indexDouble[n];
 #ifdef DEBUGPRINT
-	DEBUG_<<"Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n];
+	METLIBS_LOG_DEBUG("Double description:  "<<indexDouble[n]<<"  "<<dbfDoubleName[n]);
 #endif    
 	for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
@@ -1179,8 +1181,8 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
       else {
         dbfDoubleDesc[n].push_back(DBFReadDoubleAttribute(hDBF, iRecord, i) );
 #ifdef DEBUGPRINT
-          DEBUG_ << "DBFReadDoubleAttribute( hDBF, iRecord, i )"
-              << DBFReadDoubleAttribute(hDBF, iRecord, i);
+          METLIBS_LOG_DEBUG("DBFReadDoubleAttribute( hDBF, iRecord, i )"
+              << DBFReadDoubleAttribute(hDBF, iRecord, i));
 #endif
       }
     }
@@ -1190,7 +1192,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     i= indexString[n];
     vector<miutil::miString> tempStr;
 #ifdef DEBUGPRINT
-	DEBUG_<<"String description:  "<<indexString[n]<<"  "<<dbfStringName[n];
+	METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
 #endif
     for (iRecord=0; iRecord<nRecordCount; iRecord++) {
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
@@ -1201,8 +1203,8 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
         tempStr.push_back(miutil::miString(DBFReadStringAttribute(hDBF,
             iRecord, i) ) );
 #ifdef DEBUGPRINT
-          DEBUG_ << "DBFReadStringAttribute( hDBF, iRecord, i )"
-              << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord];
+          METLIBS_LOG_DEBUG("DBFReadStringAttribute( hDBF, iRecord, i )"
+              << DBFReadStringAttribute(hDBF, iRecord, i) << "**temp= " << tempStr[iRecord]);
 #endif
       }
     }
@@ -1215,9 +1217,9 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
  /* map <miutil::miString, vector<miutil::miString> >::iterator it=dbfPlotDesc.begin();
     for (; it!=dbfPlotDesc.end(); it++) {
       vector<miutil::miString> temp=it->second;
-        DEBUG_ << "*** ID_temp " << it->first;
+        METLIBS_LOG_DEBUG("*** ID_temp " << it->first);
       for (int ar=0; ar<temp.size(); ar++) {
-        DEBUG_ << "***temp [" << ar <<"] =  " << temp[ar];
+        METLIBS_LOG_DEBUG("***temp [" << ar <<"] =  " << temp[ar]);
       }
     }
 */
@@ -1261,31 +1263,31 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     }
   }
 #ifdef DEBUGPRINT
-  DEBUG_<<"nFieldCount=      "<<nFieldCount;
-  DEBUG_<<"nRecordCount=     "<<nRecordCount;
+  METLIBS_LOG_DEBUG("nFieldCount=      "<<nFieldCount);
+  METLIBS_LOG_DEBUG("nRecordCount=     "<<nRecordCount);
 
   for (n=0; n<dbfIntName.size(); n++)
-    DEBUG_<<"Int    description, size,name:  "<<dbfIntDesc[n].size()<<"  "
-        <<dbfIntName[n];
+    METLIBS_LOG_DEBUG("Int    description, size,name:  "<<dbfIntDesc[n].size()<<"  "
+        <<dbfIntName[n]);
   for (n=0; n<dbfDoubleName.size(); n++)
-    DEBUG_<<"Double description, size,name:  "<<dbfDoubleDesc[n].size()<<"  "
-        <<dbfDoubleName[n];
+    METLIBS_LOG_DEBUG("Double description, size,name:  "<<dbfDoubleDesc[n].size()<<"  "
+        <<dbfDoubleName[n]);
   for (n=0; n<dbfStringName.size(); n++)
-    DEBUG_<<"String description, size,name:  "<<dbfStringDesc[n].size()<<"  "
-        <<dbfStringName[n];
+    METLIBS_LOG_DEBUG("String description, size,name:  "<<dbfStringDesc[n].size()<<"  "
+        <<dbfStringName[n]);
 #endif
   return 0;
 }
 
 void ShapeObject::writeCoordinates()
 {
-  WARN_ << "ShapeObject:writeCoordinates NOT IMPLEMENTED";
+  METLIBS_LOG_WARN("ShapeObject:writeCoordinates NOT IMPLEMENTED");
   /*****************************************************************************
-   DEBUG_ << "ShapeObject:writeCoordinates";
+   METLIBS_LOG_DEBUG("ShapeObject:writeCoordinates");
    // open filestream
    ofstream dbfile("shapelocations.txt");
    if (!dbfile){
-   DEBUG_ << "ERROR OPEN (WRITE) ";
+   METLIBS_LOG_DEBUG("ERROR OPEN (WRITE) ");
    return;
    }
 
@@ -1296,7 +1298,7 @@ void ShapeObject::writeCoordinates()
    int nr=650+i;
    dbfile << nr << "|" << "shape " << i << "|county|1|";
    int nparts=shapes[i]->nParts;
-   DEBUG_ << "number of parts " << nparts;
+   METLIBS_LOG_DEBUG("number of parts " << nparts);
    int nv= shapes[i]->nVertices;
    int j=0;
    for (int jpart=0;jpart<nparts;jpart++){
@@ -1310,10 +1312,10 @@ void ShapeObject::writeCoordinates()
    shapes[i]->padfY[0] == shapes[i]->padfY[nstop-1])
    nstop--;
    for(int k = nstart; k < nstop; k++ ){
-   DEBUG_ << "x=" <<  shapes[i]->padfX[k];
-   DEBUG_ << "  y =" << shapes[i]->padfY[k];
+   METLIBS_LOG_DEBUG("x=" <<  shapes[i]->padfX[k]);
+   METLIBS_LOG_DEBUG("  y =" << shapes[i]->padfY[k]);
    miCoordinates newcor(float(shapes[i]->padfX[k]),float(shapes[i]->padfY[k]));
-   DEBUG_ << newcor.str();
+   METLIBS_LOG_DEBUG(newcor.str());
    dbfile << newcor.iLon() << " " << newcor.iLat();
    //dbfile << shapes[i]->padfX[k] << "   " << shapes[i]->padfY[k];
    if (k!=nstop-1)

@@ -35,7 +35,9 @@
 
 #include <fstream>
 #include <iostream>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ObjectPoint"
+#include <miLogger/miLogging.h>
+
 #include <diObjectPoint.h>
 
 /* Created at Thu Jul 18 14:14:53 2002 */
@@ -43,7 +45,7 @@
 // Default constructor
 ObjectPoint::ObjectPoint() {
 #ifdef DEBUGPRINT
-  DEBUG_ << "Ny ObjectPoint() laget";
+  METLIBS_LOG_DEBUG("Ny ObjectPoint() laget");
 #endif
   x=0;
   y=0;
@@ -55,7 +57,7 @@ ObjectPoint::ObjectPoint() {
 // x,y constructor
 ObjectPoint::ObjectPoint(float xin,float yin) {
 #ifdef DEBUGPRINT
-  DEBUG_ << "Ny ObjectPoint(float,float) laget";
+  METLIBS_LOG_DEBUG("Ny ObjectPoint(float,float) laget");
 #endif
   x=xin;
   y=yin;
@@ -79,16 +81,16 @@ float ObjectPoint::distSquared(float xm, float ym){
 
 //check if point xm,ym is in rectangle with sides fdeltaw around point
 bool ObjectPoint::isInRectangle(float xm,float ym, float fdeltaw){
-  //DEBUG_ << "ObjectPoint::isInRectangle";
+  //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle");
   myRect.x1=x - fdeltaw;
   myRect.x2=x + fdeltaw;
   myRect.y1=y - fdeltaw;
   myRect.y2=y + fdeltaw;
   if (myRect.isinside(xm,ym)){
-    //DEBUG_ << "ObjectPoint::isInRectangle return true";
+    //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle return true");
     return true;
   }
-  //DEBUG_ << "ObjectPoint::isInRectangle return false";
+  //METLIBS_LOG_DEBUG("ObjectPoint::isInRectangle return false");
   return false;
 }
 

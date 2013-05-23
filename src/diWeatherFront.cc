@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.WeatherFront"
+#include <miLogger/miLogging.h>
+
 #include <diWeatherFront.h>
 #include <math.h>
 #include <puTools/miString.h>
@@ -50,7 +52,7 @@ float WeatherFront::defaultLineWidth=8;
 WeatherFront::WeatherFront() : ObjectPlot(wFront),linewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "WeatherFront default constructror: " << defaultLineWidth;
+  METLIBS_LOG_DEBUG("WeatherFront default constructror: " << defaultLineWidth);
 #endif
   setType(0);         // default fronttype
 }
@@ -60,7 +62,7 @@ WeatherFront::WeatherFront() : ObjectPlot(wFront),linewidth(defaultLineWidth)
 WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),linewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "WeatherFront(int) constructor: " << defaultLineWidth;
+  METLIBS_LOG_DEBUG("WeatherFront(int) constructor: " << defaultLineWidth);
 #endif
   setType(ty);         // fronttype
 }
@@ -68,11 +70,11 @@ WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),linewidth(defaultLineWid
 WeatherFront::WeatherFront(miString tystring) : ObjectPlot(wFront),linewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "WeatherFront(miString) constructor: " << defaultLineWidth;
+  METLIBS_LOG_DEBUG("WeatherFront(miString) constructor: " << defaultLineWidth);
 #endif
   // set correct fronttype
   if (!setType(tystring))
-    ERROR_ << "WeatherFront constructor error, type " << tystring << " not found !!!";
+    METLIBS_LOG_ERROR("WeatherFront constructor error, type " << tystring << " not found !!!");
 
 }
 
@@ -82,7 +84,7 @@ WeatherFront::WeatherFront(miString tystring) : ObjectPlot(wFront),linewidth(def
 
 WeatherFront::WeatherFront(const WeatherFront &rhs) : ObjectPlot(rhs){
 #ifdef DEBUGPRINT
-  DEBUG_ << "WeatherFront copy constructror";
+  METLIBS_LOG_DEBUG("WeatherFront copy constructror");
 #endif
   linewidth=rhs.linewidth;    // default linewidth of front
   rubber = false; //draw rubber ?
@@ -111,7 +113,7 @@ void WeatherFront::defineFronts(vector<editToolInfo> fronts)
 
 
 void WeatherFront::recalculate(){
-  //DEBUG_ << "WeatherFront::recalculate";
+  //METLIBS_LOG_DEBUG("WeatherFront::recalculate");
   // Makes smooth lines
   int div=divSpline;  // div = subdivision points between to edge points
 
@@ -374,7 +376,7 @@ bool WeatherFront::showLine(float x, float y){
 
 /* Draw triangles on smooth line */
 void WeatherFront::drawColds(){
-  // DEBUG_ << "WeatherFront::drawColds";
+  // METLIBS_LOG_DEBUG("WeatherFront::drawColds");
   // colds are blue triangles on the front
 
   float r= scaledlinewidth*2*getDwidth();
@@ -478,7 +480,7 @@ void WeatherFront::drawColds(){
    Draw arch on smooth line
  */
 void WeatherFront::drawWarms(){
-  //  DEBUG_ << "WeatherFront::drawWarms";
+  //  METLIBS_LOG_DEBUG("WeatherFront::drawWarms");
   // warms are red arches on the front
 
   const float PI=3.1415926535897932384626433832795;
@@ -598,7 +600,7 @@ void WeatherFront::drawWarms(){
   Draws triangles and arch on smooth line
  */
 void WeatherFront::drawOccluded(){
-  //  DEBUG_ << "WeatherFront::drawOccluded";
+  //  METLIBS_LOG_DEBUG("WeatherFront::drawOccluded");
 
   const float PI=3.1415926535897932384626433832795;
 
@@ -748,7 +750,7 @@ void WeatherFront::drawOccluded(){
   Draws stationary front on smooth line
  */
 void WeatherFront::drawStationary(){
-  //  DEBUG_ << "WeatherFront::drawStationary";
+  //  METLIBS_LOG_DEBUG("WeatherFront::drawStationary");
   // colds are blue triangles on the front
 
   const float PI=3.1415926535897932384626433832795;
@@ -893,7 +895,7 @@ void WeatherFront::drawStationary(){
   Draws Squall line crosses on smooth line
  */
 void WeatherFront::drawSquallLine(){
-  //  DEBUG_ << "WeatherFront::drawSquallLine";
+  //  METLIBS_LOG_DEBUG("WeatherFront::drawSquallLine");
   // colds are blue triangles on the front
 
   const float PI=3.1415926535897932384626433832795;
@@ -982,7 +984,7 @@ void WeatherFront::drawArrowLine(){
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
       s+= sqrtf(dxs*dxs+dys*dys);
-    //DEBUG_ << "********** s1 =   " << s;
+    //METLIBS_LOG_DEBUG("********** s1 =   " << s);
       i--;
       ncount++;
     }
@@ -1002,7 +1004,7 @@ void WeatherFront::drawArrowLine(){
       s= sqrtf(dxs*dxs+dys*dys);
       i--;
     }
-    //DEBUG_ << "********** i2 =   " << i;
+    //METLIBS_LOG_DEBUG("********** i2 =   " << i);
 
       fraction= slim/s;
       xend= xstart - dxs * fraction;
@@ -1017,7 +1019,7 @@ void WeatherFront::drawArrowLine(){
     xtop2= (xstart+xend)*0.5 + dys*0.6;
     ytop2= (ystart+yend)*0.5 - dxs*0.6;
 
-  //DEBUG_ << "********** ncount =   " << ncount;
+  //METLIBS_LOG_DEBUG("********** ncount =   " << ncount);
     /*   glPointSize(4.0);
   	//glLoadIdentity();
 	glColor3f(1.0, 0.0, 0.0); //red 
@@ -1064,7 +1066,7 @@ void WeatherFront::drawArrowLine(){
   Draws TroughLine
  */
 void WeatherFront::drawTroughLine(){
-  //  DEBUG_ << "WeatherFront::drawTroughLine";
+  //  METLIBS_LOG_DEBUG("WeatherFront::drawTroughLine");
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
   int ncount=0;
@@ -1087,16 +1089,16 @@ void WeatherFront::drawTroughLine(){
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
       s+= sqrtf(dxs*dxs+dys*dys);
-    //DEBUG_ << "********** s1 =   " << s;
+    //METLIBS_LOG_DEBUG("********** s1 =   " << s);
       i++;
     }
     if (s<slim) break;
-    DEBUG_ << "********** s1 =   " << s;
-    DEBUG_ << "********** i1 =   " << i;
-    DEBUG_ << "********** dxs1 =   " << dxs;
-    DEBUG_ << "********** dys1 =   " << dys;
-    DEBUG_ << "********** slim =   " << slim;
-    DEBUG_ << "********** sprev =   " << sprev;
+    METLIBS_LOG_DEBUG("********** s1 =   " << s);
+    METLIBS_LOG_DEBUG("********** i1 =   " << i);
+    METLIBS_LOG_DEBUG("********** dxs1 =   " << dxs);
+    METLIBS_LOG_DEBUG("********** dys1 =   " << dys);
+    METLIBS_LOG_DEBUG("********** slim =   " << slim);
+    METLIBS_LOG_DEBUG("********** sprev =   " << sprev);
     i--;
     istart= i-1;
     fraction= (slim-sprev)/(s-sprev);
@@ -1113,7 +1115,7 @@ void WeatherFront::drawTroughLine(){
       i++;
     }
     if (s<slim) break;
-    //DEBUG_ << "********** i2 =   " << i;
+    //METLIBS_LOG_DEBUG("********** i2 =   " << i);
 
     i--;
     if (istart==i-1) {
@@ -1153,7 +1155,7 @@ void WeatherFront::drawTroughLine(){
     ytop2= (ystart+yend)*0.5 - dxs*0.6;
 
     if (ncount%2==0){
-    //DEBUG_ << "********** ncount =   " << ncount;
+    //METLIBS_LOG_DEBUG("********** ncount =   " << ncount);
       /*glBegin(GL_POLYGON);
       glVertex2f(xstart,ystart);
       glVertex2f(xend,yend);
@@ -1230,7 +1232,7 @@ void WeatherFront::setType(int ty){
 
 bool WeatherFront::setType(miString tystring){
 #ifdef DEBUGPRINT
-  DEBUG_ << "WeatherFront::setType(miString)=" << tystring <<  endl;
+  METLIBS_LOG_DEBUG("WeatherFront::setType(miString)=" << tystring <<  endl);
 #endif
   if (frontTypes.find(tystring)!=frontTypes.end()){
     type = frontTypes[tystring];
@@ -1266,7 +1268,7 @@ miString WeatherFront::writeTypeString()
 
 void WeatherFront::drawSigweather(){
   const float PI=3.1415926535897932384626433832795;
-  //DEBUG_ << "WeatherFront::drawSigweather";
+  //METLIBS_LOG_DEBUG("WeatherFront::drawSigweather");
   recalculate();
   first=true;
   npoints=0;
@@ -1322,7 +1324,7 @@ void WeatherFront::drawSigweather(){
 
 
 bool WeatherFront::smooth(){
-  //DEBUG_ << "WeatherFront::smoth";
+  //METLIBS_LOG_DEBUG("WeatherFront::smoth");
   //produces a curve with evenly spaced points
   float totalLength=0;
   for (int i = 0; i < s_length-1; i++){

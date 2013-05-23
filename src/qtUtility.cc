@@ -49,7 +49,9 @@
 #include <qbrush.h>
 #include <QIcon>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.Utility"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include <diLinetype.h>
 #include "diImageGallery.h"
@@ -514,13 +516,13 @@ XPM X11 Pixmap Read/write
       image.load(filename.c_str(),NULL);
     if (image.isNull())
     {
-      WARN_ << "PixmapBox: problem loading image: " << filename;
+      METLIBS_LOG_WARN("PixmapBox: problem loading image: " << filename);
       continue;
     }
     QPixmap p = QPixmap::fromImage(image);
     if (p.isNull())
     {
-      WARN_ << "PixmapBox: problem converting from QImage to QPixmap" << filename;
+      METLIBS_LOG_WARN("PixmapBox: problem converting from QImage to QPixmap" << filename);
       continue;
     }
     box->addItem (p, "" );

@@ -39,7 +39,9 @@
 
 #include <fstream>
 #include <iostream>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ObsRoad"
+#include <miLogger/miLogging.h>
+
 #include <diObsRoad.h>
 #include <diObsPlot.h>
 // from kvroadapi
@@ -64,7 +66,7 @@ ObsRoad::ObsRoad(const miString &filename, const miString &databasefile, const m
 		   const miTime &filetime, ObsPlot *oplot, bool breadData)
 {
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::ObsRoad() ++";
+	METLIBS_LOG_DEBUG("++ ObsRoad::ObsRoad() ++");
 #endif
   filename_ = filename;
   databasefile_ = databasefile;
@@ -80,7 +82,7 @@ ObsRoad::ObsRoad(const miString &filename, const miString &databasefile, const m
 void ObsRoad::readHeader(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ ObsRoad::readHeader( headerfile: " << headerfile_ << " ) ++";
+  METLIBS_LOG_DEBUG("++ ObsRoad::readHeader( headerfile: " << headerfile_ << " ) ++");
 #endif
   int n,i;
   vector<miString> vstr,pstr;
@@ -100,9 +102,9 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 		if (params == NULL)
 		{
 			oplot->roadobsHeader = false;
-			ERROR_ << " ObsRoad::readHeader() error, parameterfile: " << headerfile_;
+			METLIBS_LOG_ERROR(" ObsRoad::readHeader() error, parameterfile: " << headerfile_);
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ ObsRoad::readHeader() done, error finding parameters ++";
+  METLIBS_LOG_DEBUG("++ ObsRoad::readHeader() done, error finding parameters ++");
 #endif
 		}
 
@@ -154,14 +156,14 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 		// check consistency
 		n= oplot->roadobsColumnType.size();
 //####################################################################
-//  DEBUG_<<"     coloumns= "<<n;
+//  METLIBS_LOG_DEBUG("     coloumns= "<<n);
 //####################################################################
 
 		oplot->roadobsKnots=false;
 		for (i=0; i<n; i++) {
 //####################################################################
-//DEBUG_<<"   column "<<i<<" : "<<oplot->roadobsColumnName[i]<<"  "
-//		            <<oplot->roadobsColumnType[i];
+//METLIBS_LOG_DEBUG("   column "<<i<<" : "<<oplot->roadobsColumnName[i]<<"  "
+//		            <<oplot->roadobsColumnType[i]);
 //####################################################################
 		if      (oplot->roadobsColumnType[i]=="d")
 			oplot->roadobsColumn["date"]= i;
@@ -224,14 +226,14 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 	}
   }
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ ObsRoad::readHeader()  done ++";
+  METLIBS_LOG_DEBUG("++ ObsRoad::readHeader()  done ++");
 #endif
 }
 
 void ObsRoad::initData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::initData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl;
+	METLIBS_LOG_DEBUG("++ ObsRoad::initData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 	// read the headerfile if needed
 	if(!oplot->roadobsHeader)
@@ -241,14 +243,14 @@ void ObsRoad::initData(ObsPlot *oplot)
 	
 	initRoadData(oplot);
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::initData()done ++ ";
+	METLIBS_LOG_DEBUG("++ ObsRoad::initData()done ++ ");
 #endif
 }
 
 void ObsRoad::initRoadData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl;
+	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 
   vector<miString> vstr,pstr;
@@ -370,9 +372,9 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 	
 //#################################################################
 //  if (abs(miTime::minDiff(obstime,tplot))<tdiff)
-//    DEBUG_<<obstime<<" ok";
+//    METLIBS_LOG_DEBUG(obstime<<" ok");
 //  else
-//    DEBUG_<<obstime<<" not ok";
+//    METLIBS_LOG_DEBUG(obstime<<" not ok");
 //#################################################################
 	  if (oplot->getTimeDiff() <0 
 		  || abs(miTime::minDiff(obstime,tplot))<tdiff){
@@ -416,18 +418,18 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
   }
 //####################################################################
   /*
-  DEBUG_<<"----------- at end -----------------------------";
-  DEBUG_<<"   oplot->roadobsp.size()= "<<oplot->roadobsp.size();
-  DEBUG_ <<"     oplot->dateRoad= "<<oplot->dateRoad;
-  DEBUG_ <<"     oplot->timeRoad= "<<oplot->timeRoad;
-  DEBUG_<<"     oplot->xRoad=    "<<oplot->xRoad;
-  DEBUG_<<"     oplot->yRoad=    "<<oplot->yRoad;
-  DEBUG_<<"     oplot->ddRoad=   "<<oplot->ddRoad;
-  DEBUG_<<"     oplot->ffRoad=   "<<oplot->ffRoad;
-  DEBUG_<<"     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size();
-  DEBUG_<<"     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size();
-  DEBUG_<<"     oplot->roadobsHeader= "<<oplot->roadobsHeader;
-  DEBUG_<<"------------------------------------------------";
+  METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+  METLIBS_LOG_DEBUG("   oplot->roadobsp.size()= "<<oplot->roadobsp.size());
+  METLIBS_LOG_DEBUG("     oplot->dateRoad= "<<oplot->dateRoad);
+  METLIBS_LOG_DEBUG("     oplot->timeRoad= "<<oplot->timeRoad);
+  METLIBS_LOG_DEBUG("     oplot->xRoad=    "<<oplot->xRoad);
+  METLIBS_LOG_DEBUG("     oplot->yRoad=    "<<oplot->yRoad);
+  METLIBS_LOG_DEBUG("     oplot->ddRoad=   "<<oplot->ddRoad);
+  METLIBS_LOG_DEBUG("     oplot->ffRoad=   "<<oplot->ffRoad);
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsHeader= "<<oplot->roadobsHeader);
+  METLIBS_LOG_DEBUG("------------------------------------------------");
   */
 //####################################################################
 
@@ -435,18 +437,18 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
   
 //####################################################################
   /*
-  DEBUG_<<"----------- at end -----------------------------";
-  DEBUG_<<"   oplot->roadobsp.size()= "<<oplot->roadobsp.size();
-  DEBUG_ <<"     oplot->dateRoad= "<<oplot->dateRoad;
-  DEBUG_ <<"     oplot->timeRoad= "<<oplot->timeRoad;
-  DEBUG_<<"     oplot->xRoad=    "<<oplot->xRoad;
-  DEBUG_<<"     oplot->yRoad=    "<<oplot->yRoad;
-  DEBUG_<<"     oplot->ddRoad=   "<<oplot->ddRoad;
-  DEBUG_<<"     oplot->ffRoad=   "<<oplot->ffRoad;
-  DEBUG_<<"     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size();
-  DEBUG_<<"     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size();
-  DEBUG_<<"     oplot->roadobsHeader= "<<oplot->roadobsHeader;
-  DEBUG_<<"------------------------------------------------";
+  METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+  METLIBS_LOG_DEBUG("   oplot->roadobsp.size()= "<<oplot->roadobsp.size());
+  METLIBS_LOG_DEBUG("     oplot->dateRoad= "<<oplot->dateRoad);
+  METLIBS_LOG_DEBUG("     oplot->timeRoad= "<<oplot->timeRoad);
+  METLIBS_LOG_DEBUG("     oplot->xRoad=    "<<oplot->xRoad);
+  METLIBS_LOG_DEBUG("     oplot->yRoad=    "<<oplot->yRoad);
+  METLIBS_LOG_DEBUG("     oplot->ddRoad=   "<<oplot->ddRoad);
+  METLIBS_LOG_DEBUG("     oplot->ffRoad=   "<<oplot->ffRoad);
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsHeader= "<<oplot->roadobsHeader);
+  METLIBS_LOG_DEBUG("------------------------------------------------");
   */
 //####################################################################
 
@@ -459,14 +461,14 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
   oplot->preparePlot();
 
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::initRoadData()done ++ ";
+	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData()done ++ ");
 #endif
 }
 
 void ObsRoad::readData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::readData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl;
+	METLIBS_LOG_DEBUG("++ ObsRoad::readData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 	// read the headerfile if needed
 	if(!oplot->roadobsHeader)
@@ -476,14 +478,14 @@ void ObsRoad::readData(ObsPlot *oplot)
 
 	readRoadData(oplot);
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::readData()done ++ ";
+	METLIBS_LOG_DEBUG("++ ObsRoad::readData()done ++ ");
 #endif
 }
 
 void ObsRoad::readRoadData(ObsPlot *oplot)
 {
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::readRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl;
+	METLIBS_LOG_DEBUG("++ ObsRoad::readRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 
   vector<miString> vstr,pstr;
@@ -547,7 +549,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 	stnid = it->first;
 	str = it->second;
 	str.trim();
-	//DEBUG_ << str;
+	//METLIBS_LOG_DEBUG(str);
 
     nline++;
     if (nline>nskip && str.exists() && str[0]!='#') {
@@ -612,9 +614,9 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 	
 //#################################################################
 //  if (abs(miTime::minDiff(obstime,tplot))<tdiff)
-//    DEBUG_<<obstime<<" ok";
+//    METLIBS_LOG_DEBUG(obstime<<" ok");
 //  else
-//    DEBUG_<<obstime<<" not ok";
+//    METLIBS_LOG_DEBUG(obstime<<" not ok");
 //#################################################################
 	  if (oplot->getTimeDiff() <0 
 		  || abs(miTime::minDiff(obstime,tplot))<tdiff){
@@ -658,18 +660,18 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   }
 //####################################################################
   /*
-  DEBUG_<<"----------- at end -----------------------------";
-  DEBUG_<<"   oplot->roadobsp.size()= "<<oplot->roadobsp.size();
-  DEBUG_ <<"     oplot->dateRoad= "<<oplot->dateRoad;
-  DEBUG_ <<"     oplot->timeRoad= "<<oplot->timeRoad;
-  DEBUG_<<"     oplot->xRoad=    "<<oplot->xRoad;
-  DEBUG_<<"     oplot->yRoad=    "<<oplot->yRoad;
-  DEBUG_<<"     oplot->ddRoad=   "<<oplot->ddRoad;
-  DEBUG_<<"     oplot->ffRoad=   "<<oplot->ffRoad;
-  DEBUG_<<"     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size();
-  DEBUG_<<"     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size();
-  DEBUG_<<"     oplot->roadobsHeader= "<<oplot->roadobsHeader;
-  DEBUG_<<"------------------------------------------------";
+  METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+  METLIBS_LOG_DEBUG("   oplot->roadobsp.size()= "<<oplot->roadobsp.size());
+  METLIBS_LOG_DEBUG("     oplot->dateRoad= "<<oplot->dateRoad);
+  METLIBS_LOG_DEBUG("     oplot->timeRoad= "<<oplot->timeRoad);
+  METLIBS_LOG_DEBUG("     oplot->xRoad=    "<<oplot->xRoad);
+  METLIBS_LOG_DEBUG("     oplot->yRoad=    "<<oplot->yRoad);
+  METLIBS_LOG_DEBUG("     oplot->ddRoad=   "<<oplot->ddRoad);
+  METLIBS_LOG_DEBUG("     oplot->ffRoad=   "<<oplot->ffRoad);
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size());
+  METLIBS_LOG_DEBUG("     oplot->roadobsHeader= "<<oplot->roadobsHeader);
+  METLIBS_LOG_DEBUG("------------------------------------------------");
   */
 //####################################################################
 
@@ -677,7 +679,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   oplot->roadobsOK= (oplot->roadobsp.size()>0);
 
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::readRoadData()done ++ ";
+	METLIBS_LOG_DEBUG("++ ObsRoad::readRoadData()done ++ ");
 #endif
 }
 
@@ -686,11 +688,11 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 {
 
 #ifdef DEBUGPRINT
-	DEBUG_ << "++ ObsRoad::readFile( filename= " << filename << " headerfile= " << headerfile << " filetime= " << filetime.isoTime() << " )++ " << endl;
+	METLIBS_LOG_DEBUG("++ ObsRoad::readFile( filename= " << filename << " headerfile= " << headerfile << " filetime= " << filetime.isoTime() << " )++ " << endl);
 #endif
 //####################################################################
-//  DEBUG_<<"ObsRoad::readFile  filename= "<<filename
-//      <<"   filetime= "<<filetime;
+//  METLIBS_LOG_DEBUG("ObsRoad::readFile  filename= "<<filename
+//      <<"   filetime= "<<filetime);
 //####################################################################
   int n,i;
   vector<miString> vstr,pstr;
@@ -701,18 +703,18 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
   if (headerfile.empty() || oplot->roadobsHeader) {
     file.open(filename.c_str());
     if (file.bad()) {
-      ERROR_ << "ObsRoad: " << filename << " not found";
+      METLIBS_LOG_ERROR("ObsRoad: " << filename << " not found");
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() ++ ";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() ++ ");
 #endif
       return;
     }
   } else if (!oplot->roadobsHeader) {
     file.open(headerfile.c_str());
     if (file.bad()) {
-      ERROR_ << "ObsRoad: " << headerfile << " not found";
+      METLIBS_LOG_ERROR("ObsRoad: " << headerfile << " not found");
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() ++ ";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() ++ ");
 #endif
       return;
     }
@@ -739,18 +741,18 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
     }
   }
 //####################################################################
-//  DEBUG_<<"----------- at start -----------------------------";
-//  DEBUG_<<"   oplot->roadobsp.size()= "<<oplot->roadobsp.size();
-//  DEBUG_<<"     oplot->dateRoad= "<<oplot->dateRoad;
-//  DEBUG_<<"     oplot->timeRoad= "<<oplot->timeRoad;
-//  DEBUG_<<"     oplot->xRoad=    "<<oplot->xRoad;
-//  DEBUG_<<"     oplot->yRoad=    "<<oplot->yRoad;
-//  DEBUG_<<"     oplot->ddRoad=   "<<oplot->ddRoad;
-//  DEBUG_<<"     oplot->ffRoad=   "<<oplot->ffRoad;
-//  DEBUG_<<"     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size();
-//  DEBUG_<<"     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size();
-//  DEBUG_<<"     oplot->roadobsHeader= "<<oplot->roadobsHeader;
-//  DEBUG_<<"--------------------------------------------------";
+//  METLIBS_LOG_DEBUG("----------- at start -----------------------------");
+//  METLIBS_LOG_DEBUG("   oplot->roadobsp.size()= "<<oplot->roadobsp.size());
+//  METLIBS_LOG_DEBUG("     oplot->dateRoad= "<<oplot->dateRoad);
+//  METLIBS_LOG_DEBUG("     oplot->timeRoad= "<<oplot->timeRoad);
+//  METLIBS_LOG_DEBUG("     oplot->xRoad=    "<<oplot->xRoad);
+//  METLIBS_LOG_DEBUG("     oplot->yRoad=    "<<oplot->yRoad);
+//  METLIBS_LOG_DEBUG("     oplot->ddRoad=   "<<oplot->ddRoad);
+//  METLIBS_LOG_DEBUG("     oplot->ffRoad=   "<<oplot->ffRoad);
+//  METLIBS_LOG_DEBUG("     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size());
+//  METLIBS_LOG_DEBUG("     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size());
+//  METLIBS_LOG_DEBUG("     oplot->roadobsHeader= "<<oplot->roadobsHeader);
+//  METLIBS_LOG_DEBUG("--------------------------------------------------");
 //####################################################################
 
 
@@ -786,10 +788,10 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
     bool ok= true;
     n= vstr.size();
 //####################################################################
-//DEBUG_<<"HEADER:";
+//METLIBS_LOG_DEBUG("HEADER:");
 //for (int j=0; j<n; j++)
-//  DEBUG_<<vstr[j];
-//DEBUG_<<"-----------------";
+//  METLIBS_LOG_DEBUG(vstr[j]);
+//METLIBS_LOG_DEBUG("-----------------");
 //####################################################################
     size_t p1,p2;
     i= 0;
@@ -869,26 +871,26 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 
     if (!ok) {
 //####################################################################
-//    DEBUG_<<"   bad header !!!!!!!!!";
+//    METLIBS_LOG_DEBUG("   bad header !!!!!!!!!");
 //####################################################################
       file.close();
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() done ++ ";
-	DEBUG_<<"   bad header !!!!!!!!!";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() done ++ ");
+	METLIBS_LOG_DEBUG("   bad header !!!!!!!!!");
 #endif
       return;
     }
 
     n= oplot->roadobsColumnType.size();
 //####################################################################
-//  DEBUG_<<"     coloumns= "<<n;
+//  METLIBS_LOG_DEBUG("     coloumns= "<<n);
 //####################################################################
 
     oplot->roadobsKnots=false;
     for (i=0; i<n; i++) {
 //####################################################################
-//DEBUG_<<"   column "<<i<<" : "<<oplot->roadobsColumnName[i]<<"  "
-//		            <<oplot->roadobsColumnType[i];
+//METLIBS_LOG_DEBUG("   column "<<i<<" : "<<oplot->roadobsColumnName[i]<<"  "
+//		            <<oplot->roadobsColumnType[i]);
 //####################################################################
       if      (oplot->roadobsColumnType[i]=="d")
         oplot->roadobsColumn["date"]= i;
@@ -948,12 +950,12 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 
     if (!oplot->roadobsColumn.count("x") || !oplot->roadobsColumn.count("y")) {
 //####################################################################
-//    DEBUG_<<"   bad header, missing lat,lon !!!!!!!!!";
+//    METLIBS_LOG_DEBUG("   bad header, missing lat,lon !!!!!!!!!");
 //####################################################################
       file.close();
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() done ++ ";
-	DEBUG_<<"   bad header, missing lat,lon !!!!!!!!!";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() done ++ ");
+	METLIBS_LOG_DEBUG("   bad header, missing lat,lon !!!!!!!!!");
 #endif
       return;
     }
@@ -971,9 +973,9 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
       file.close();
       file.open(filename.c_str());
       if (file.bad()) {
-        ERROR_ << "ObsRoad: " << filename << " not found";
+        METLIBS_LOG_ERROR("ObsRoad: " << filename << " not found");
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() done ++ ";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() done ++ ");
 #endif
         return;
       }
@@ -1074,9 +1076,9 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 	
 //#################################################################
 //  if (abs(miTime::minDiff(obstime,tplot))<tdiff)
-//    DEBUG_<<obstime<<" ok";
+//    METLIBS_LOG_DEBUG(obstime<<" ok");
 //  else
-//    DEBUG_<<obstime<<" not ok";
+//    METLIBS_LOG_DEBUG(obstime<<" not ok");
 //#################################################################
 	  if (oplot->getTimeDiff() <0 
 	      || abs(miTime::minDiff(obstime,tplot))<tdiff){
@@ -1095,25 +1097,25 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
     }
   }
 //####################################################################
-//  DEBUG_<<"----------- at end -----------------------------";
-//  DEBUG_<<"   oplot->roadobsp.size()= "<<oplot->roadobsp.size();
-//  DEBUG_<<"     oplot->dateRoad= "<<oplot->dateRoad;
-//  DEBUG_<<"     oplot->timeRoad= "<<oplot->timeRoad;
-//  DEBUG_<<"     oplot->xRoad=    "<<oplot->xRoad;
-//  DEBUG_<<"     oplot->yRoad=    "<<oplot->yRoad;
-//  DEBUG_<<"     oplot->ddRoad=   "<<oplot->ddRoad;
-//  DEBUG_<<"     oplot->ffRoad=   "<<oplot->ffRoad;
-//  DEBUG_<<"     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size();
-//  DEBUG_<<"     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size();
-//  DEBUG_<<"     oplot->roadobsHeader= "<<oplot->roadobsHeader;
-//  DEBUG_<<"------------------------------------------------";
+//  METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+//  METLIBS_LOG_DEBUG("   oplot->roadobsp.size()= "<<oplot->roadobsp.size());
+//  METLIBS_LOG_DEBUG("     oplot->dateRoad= "<<oplot->dateRoad);
+//  METLIBS_LOG_DEBUG("     oplot->timeRoad= "<<oplot->timeRoad);
+//  METLIBS_LOG_DEBUG("     oplot->xRoad=    "<<oplot->xRoad);
+//  METLIBS_LOG_DEBUG("     oplot->yRoad=    "<<oplot->yRoad);
+//  METLIBS_LOG_DEBUG("     oplot->ddRoad=   "<<oplot->ddRoad);
+//  METLIBS_LOG_DEBUG("     oplot->ffRoad=   "<<oplot->ffRoad);
+//  METLIBS_LOG_DEBUG("     oplot->roadobsColumnName.size()= "<<oplot->roadobsColumnName.size());
+//  METLIBS_LOG_DEBUG("     oplot->roadobsColumnType.size()= "<<oplot->roadobsColumnType.size());
+//  METLIBS_LOG_DEBUG("     oplot->roadobsHeader= "<<oplot->roadobsHeader);
+//  METLIBS_LOG_DEBUG("------------------------------------------------");
 //####################################################################
 
   file.close();
 
   oplot->roadobsOK= (oplot->roadobsp.size()>0);
 #ifdef DEBUGPRINT
-	DEBUG_ << " ++ ObsRoad::readFile() done ++ ";
+	METLIBS_LOG_DEBUG(" ++ ObsRoad::readFile() done ++ ");
 #endif
 }
 //#endif //ROADOBS

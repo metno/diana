@@ -46,7 +46,9 @@
 #include <QPrinter>
 #include <QPixmap>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VprofWindow"
+#include <miLogger/miLogging.h>
+
 #include "qtVprofWindow.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
@@ -188,7 +190,7 @@ VprofWindow::VprofWindow(Controller *co)
   mainWindowTime= miutil::miTime::nowTime();
 
 #ifdef DEBUGPRINT
-  DEBUG_<<"VprofWindow::VprofWindow() finished";
+  METLIBS_LOG_DEBUG("VprofWindow::VprofWindow() finished");
 #endif
 }
 
@@ -199,12 +201,12 @@ void VprofWindow::modelClicked( bool on ){
   //called when the model button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    DEBUG_ << "Model button clicked on";
+    METLIBS_LOG_DEBUG("Model button clicked on");
 #endif
     vpModelDialog->show();
   } else {
 #ifdef DEBUGPRINT
-    DEBUG_ << "Model button clicked off";
+    METLIBS_LOG_DEBUG("Model button clicked off");
 #endif
     vpModelDialog->hide();
   }
@@ -255,7 +257,7 @@ bool VprofWindow::timeChangedSlot(int diff){
   //called if signal timeChanged is emitted from graphics
   //window (qtVprofWidget)
 #ifdef DEBUGPRINT
-  DEBUG_ << "timeChangedSlot(int) is called ";
+  METLIBS_LOG_DEBUG("timeChangedSlot(int) is called ");
 #endif
   int index=timeBox->currentIndex();
   while(diff<0){
@@ -290,9 +292,9 @@ bool VprofWindow::timeChangedSlot(int diff){
     }
   }
   if (tbs!=tstring){
-    WARN_ << "WARNING! timeChangedSlot  time from vprofm ="
-    << t    <<" not equal to timeBox text = " << tbs;
-    WARN_ << "You should search through timelist!";
+    METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from vprofm ="
+    << t    <<" not equal to timeBox text = " << tbs);
+    METLIBS_LOG_WARN("You should search through timelist!");
     return false;
   }
 
@@ -315,7 +317,7 @@ bool VprofWindow::timeChangedSlot(int diff){
 
 bool VprofWindow::stationChangedSlot(int diff){
 #ifdef DEBUGPRINT
-  DEBUG_ << "stationChangedSlot(int) is called ";
+  METLIBS_LOG_DEBUG("stationChangedSlot(int) is called ");
 #endif
   int index=stationBox->currentIndex();
   while(diff<0){
@@ -355,8 +357,8 @@ bool VprofWindow::stationChangedSlot(int diff){
     emit stationChanged(sq); //name of current station (to mainWindow)
     return true;
   } else {
-    //    WARN_ << "WARNING! stationChangedSlot  station from vprofm ="
-    // 	 << s    <<" not equal to stationBox text = " << sbs;
+    //    METLIBS_LOG_WARN("WARNING! stationChangedSlot  station from vprofm ="
+    // 	 << s    <<" not equal to stationBox text = " << sbs);
     //current or last station plotted is not in the list, insert it...
     stationBox->addItem(sq,0);
     stationBox->setCurrentIndex(0);
@@ -410,7 +412,7 @@ void VprofWindow::printClicked()
       int res = system(command.c_str());
 
       if (res != 0){
-        WARN_ << "Print command:" << command << " failed";
+        METLIBS_LOG_WARN("Print command:" << command << " failed");
       }
 
     }
@@ -481,14 +483,14 @@ void VprofWindow::setupClicked(bool on){
   //called when the setup button is clicked
   if( on ){
 #ifdef DEBUGPRINT
-    DEBUG_ << "Setup button clicked on";
+    METLIBS_LOG_DEBUG("Setup button clicked on");
 #endif
     vpSetupDialog->start();
     vpSetupDialog->show();
 
   } else {
 #ifdef DEBUGPRINT
-    DEBUG_ << "Setup button clicked off";
+    METLIBS_LOG_DEBUG("Setup button clicked off");
 #endif
     vpSetupDialog->hide();
   }
@@ -500,7 +502,7 @@ void VprofWindow::setupClicked(bool on){
 void VprofWindow::quitClicked(){
   //called when the quit button is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "quit clicked";
+  METLIBS_LOG_DEBUG("quit clicked");
 #endif
   //for now, only hide window, not really quit !
   vpToolbar->hide();
@@ -519,7 +521,7 @@ void VprofWindow::quitClicked(){
 void VprofWindow::hideClicked(){
   //called when the hide button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "hide clicked";
+  METLIBS_LOG_DEBUG("hide clicked");
 #endif
 }
 
@@ -528,7 +530,7 @@ void VprofWindow::hideClicked(){
 void VprofWindow::updateClicked(){
   //called when the update button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "update clicked";
+  METLIBS_LOG_DEBUG("update clicked");
 #endif
   vprofm->updateObs();      // check obs.files
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
@@ -540,7 +542,7 @@ void VprofWindow::updateClicked(){
 void VprofWindow::helpClicked(){
   //called when the help button in Vprofwindow is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "help clicked";
+  METLIBS_LOG_DEBUG("help clicked");
 #endif
   emit showsource("ug_verticalprofiles.html");
 }
@@ -551,7 +553,7 @@ void VprofWindow::helpClicked(){
 void VprofWindow::MenuOK(){
   //obsolete - nothing happens here
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::MenuOK()";
+  METLIBS_LOG_DEBUG("VprofWindow::MenuOK()");
 #endif
 }
 
@@ -562,7 +564,7 @@ void VprofWindow::changeModel(){
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::changeModel()";
+  METLIBS_LOG_DEBUG("VprofWindow::changeModel()");
 #endif
   QApplication::setOverrideCursor( Qt::WaitCursor );
   vprofm->setModel();
@@ -587,7 +589,7 @@ void VprofWindow::changeModel(){
 void VprofWindow::changeSetup(){
   //called when the apply from setup dialog is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::changeSetup()";
+  METLIBS_LOG_DEBUG("VprofWindow::changeSetup()");
 #endif
   vprofw->updateGL();
 }
@@ -599,7 +601,7 @@ void VprofWindow::changeSetup(){
 void VprofWindow::hideModel(){
   //called when the hide button (from model dialog) is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::hideModel()";
+  METLIBS_LOG_DEBUG("VprofWindow::hideModel()");
 #endif
   vpModelDialog->hide();
   modelButton->setChecked(false);
@@ -609,7 +611,7 @@ void VprofWindow::hideModel(){
 void VprofWindow::hideSetup(){
   //called when the hide button (from setup dialog) is clicked
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::hideSetup()";
+  METLIBS_LOG_DEBUG("VprofWindow::hideSetup()");
 #endif
   vpSetupDialog->hide();
   setupButton->setChecked(false);
@@ -619,7 +621,7 @@ void VprofWindow::hideSetup(){
 
 StationPlot* VprofWindow::getStations(){
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VprofWindow::getStations()";
+  METLIBS_LOG_DEBUG("VprofWindow::getStations()");
 #endif
   const vector <miutil::miString> stations = vprofm->getStationList();
   const vector <float> latitude = vprofm->getLatitudes();
@@ -634,9 +636,9 @@ StationPlot* VprofWindow::getStations(){
   //the coordinates are defined here
 #ifdef DEBUGPRINT
   //  for (int i = 0; i<n;i++){
-  //     DEBUG_ <<"Station number " << i << " name = " << stations[i]
+  //     METLIBS_LOG_DEBUG("Station number " << i << " name = " << stations[i]
   // 	 << " latitude = " << latitude[i]
-  // 	 << " longitude = " << longitude[i];
+  // 	 << " longitude = " << longitude[i]);
   //   }
 #endif
 
@@ -648,7 +650,7 @@ StationPlot* VprofWindow::getStations(){
 void VprofWindow::updateStationBox(){
   //update list of stations in stationBox
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::updateStationBox";
+  METLIBS_LOG_DEBUG("VprofWindow::updateStationBox");
 #endif
 
   stationBox->clear();
@@ -671,7 +673,7 @@ void VprofWindow::updateStationBox(){
 void VprofWindow::updateTimeBox(){
   //update list of times
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::updateTimeBox";
+  METLIBS_LOG_DEBUG("VprofWindow::updateTimeBox");
 #endif
 
   timeBox->clear();
@@ -726,7 +728,7 @@ void VprofWindow::timeBoxActivated(int index){
 
 bool VprofWindow::changeStation(const miutil::miString& station){
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofWindow::changeStation";
+  METLIBS_LOG_DEBUG("VprofWindow::changeStation");
 #endif
   vprofm->setStation(station); //HK ??? should check if station exists ?
   vprofw->updateGL();
@@ -755,7 +757,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
   if (!active) return;
 #ifdef DEBUGPRINT
-  DEBUG_ << "vprofWindow::mainWindowTimeChanged called with time " << t;
+  METLIBS_LOG_DEBUG("vprofWindow::mainWindowTimeChanged called with time " << t);
 #endif
   vprofm->mainWindowTimeChanged(t);
   if (onlyObs) {
@@ -775,7 +777,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 
 void VprofWindow::startUp(const miutil::miTime& t){
 #ifdef DEBUGPRINT
-  DEBUG_ << "vprofWindow::startUp called with time " << t;
+  METLIBS_LOG_DEBUG("vprofWindow::startUp called with time " << t);
 #endif
   active = true;
   vpToolbar->show();

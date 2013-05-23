@@ -42,7 +42,9 @@
 #include <fstream>
 #include <list>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.LocalSetupParser"
+#include <miLogger/miLogging.h>
+
 #include <diLocalSetupParser.h>
 #include <diColourShading.h>
 #include <diPattern.h>
@@ -89,7 +91,7 @@ bool LocalSetupParser::makeDirectory(const miutil::miString& filename, miutil::m
 
 bool LocalSetupParser::parse(miutil::miString & mainfilename){
 
-  INFO_ << "LocalSetupParser::parse:" << mainfilename;
+  METLIBS_LOG_INFO("LocalSetupParser::parse:" << mainfilename);
 
   //find $HOME, and make homedir
   miutil::miString homedir=getenv("HOME");
@@ -112,24 +114,24 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
   if (!setupFilename.exists()) {
     setupFilename = "diana.setup";
     miutil::miString filename_str = setupFilename;
-    INFO_ << "filename:" << setupFilename;
+    METLIBS_LOG_INFO("filename:" << setupFilename);
     ifstream file(setupFilename.c_str());
     if (!file) {
       setupFilename = homedir + "/diana.setup";
       filename_str += " or ";
       filename_str += setupFilename;
-      INFO_ << "filename:" << setupFilename;
+      METLIBS_LOG_INFO("filename:" << setupFilename);
       ifstream file2(setupFilename.c_str());
       if (!file2) {
         setupFilename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
         filename_str += " or ";
         filename_str += setupFilename;
-        INFO_ << "filename:" << setupFilename;
+        METLIBS_LOG_INFO("filename:" << setupFilename);
         ifstream file3(setupFilename.c_str());
         if (!file3) {
-          ERROR_ << "LocalSetupParser::readSetup. cannot open default setupfile "
-          << filename_str;
-          ERROR_ << "Try diana-" PVERSION ".bin -s setupfile";
+          METLIBS_LOG_ERROR("LocalSetupParser::readSetup. cannot open default setupfile "
+          << filename_str);
+          METLIBS_LOG_ERROR("Try diana-" PVERSION ".bin -s setupfile");
           return false;
         }
       }
@@ -370,12 +372,12 @@ bool LocalSetupParser::parsePalettes(const miutil::miString& sectname){
   }
 
 #ifdef DEBUGPRINT1
-  DEBUG_<<"nRGBtab,mRGBtab: "<<nRGBtab<<" "<<mRGBtab;
+  METLIBS_LOG_DEBUG("nRGBtab,mRGBtab: "<<nRGBtab<<" "<<mRGBtab);
   for (int i=0; i<nRGBtab; i++) {
-    DEBUG_<<setw(3)<<i<<":  "
+    METLIBS_LOG_DEBUG(setw(3)<<i<<":  "
     <<setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
     <<setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
-    <<setw(3)<<int(RGBtab[i][2]*255.+0.5);
+    <<setw(3)<<int(RGBtab[i][2]*255.+0.5));
   }
 #endif
 

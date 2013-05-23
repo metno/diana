@@ -868,7 +868,7 @@ test_diOrderBook_SOURCES = \
 	$(test_diOrderBook_qt_sources:.cc=.moc.cc) \
 	test-diOrderBook.cc
 test_diOrderBook_CPPFLAGS = $(common_cppflags)
-test_diOrderBook_LDFLAGS = $(common_cppflags) -llog4cpp
+test_diOrderBook_LDFLAGS = $(common_cppflags) -lmiLogger -llog4cpp
 test_diOrderBook_LDADD = $(QT4_LIBS)
 
 if WITH_BATCH_ONLY

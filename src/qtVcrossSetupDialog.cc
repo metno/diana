@@ -42,7 +42,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VcrossSetupDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include "diVcrossManager.h"
 #include "qtVcrossSetup.h"
@@ -54,7 +56,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   : QDialog(parent), vcrossm(vm)
 {
 #ifdef DEBUGPRINT
-  DEBUG_<<"VcrossSetupDialog::VcrossSetupDialog called";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::VcrossSetupDialog called");
 #endif
 
   //caption to appear on top of dialog
@@ -139,7 +141,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   isInitialized=false;
 
 #ifdef DEBUGPRINT
-  DEBUG_<<"VcrossSetupDialog::VcrossSetupDialog finished";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::VcrossSetupDialog finished");
 #endif
 }
 
@@ -147,7 +149,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
 void VcrossSetupDialog::initOptions(QWidget* parent)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::initOptions";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::initOptions");
 #endif
 
   //make a grid with 4 rows, columms for labels and
@@ -258,10 +260,10 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups.push_back(new VcrossSetup(parent,HITMAPDRAW,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
-    DEBUG_<<"==================================================";
-    DEBUG_<<"===== VcrossSetupDialog: glayout numrows= "<<numrows;
-    DEBUG_<<"=====                               nrow= "<<nrow;
-    DEBUG_<<"==================================================";
+    METLIBS_LOG_DEBUG("==================================================");
+    METLIBS_LOG_DEBUG("===== VcrossSetupDialog: glayout numrows= "<<numrows);
+    METLIBS_LOG_DEBUG("=====                               nrow= "<<nrow);
+    METLIBS_LOG_DEBUG("==================================================");
   }
 }
 
@@ -270,7 +272,7 @@ void VcrossSetupDialog::standardClicked()
 {
   //this slot is called when standard button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::standardClicked()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::standardClicked()");
 #endif
   VcrossOptions * vcopt= new VcrossOptions; // diana defaults
   setup(vcopt);
@@ -293,7 +295,7 @@ void VcrossSetupDialog::start()
 void VcrossSetupDialog::setup(VcrossOptions *vcopt)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::setup()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::setup()");
 #endif
 
   int n= vcSetups.size();
@@ -413,8 +415,8 @@ void VcrossSetupDialog::setup(VcrossOptions *vcopt)
       vcSetups[i]->setLinetype (vcopt->vcSelectedOnMapLinetype);
 
     } else {
-      ERROR_<<"VcrossSetupDialog::setup ERROR : "
-	  <<vcSetups[i]->name;
+      METLIBS_LOG_ERROR("VcrossSetupDialog::setup ERROR : "
+	  <<vcSetups[i]->name);
     }
 
   }
@@ -424,7 +426,7 @@ void VcrossSetupDialog::setup(VcrossOptions *vcopt)
 void VcrossSetupDialog::applySetup()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::applySetup()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::applySetup()");
 #endif
   VcrossOptions * vcopt= vcrossm->getOptions();
 
@@ -545,8 +547,8 @@ void VcrossSetupDialog::applySetup()
       vcopt->vcSelectedOnMapLinetype=  vcSetups[i]->getLinetype();
 
     } else {
-      ERROR_<<"VcrossSetupDialog::applySetup ERROR : "
-	  <<vcSetups[i]->name;
+      METLIBS_LOG_ERROR("VcrossSetupDialog::applySetup ERROR : "
+	  <<vcSetups[i]->name);
     }
 
   }
@@ -557,7 +559,7 @@ void VcrossSetupDialog::helpClicked()
 {
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::helpClicked()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::helpClicked()");
 #endif
   emit showsource("ug_verticalcrosssections.html");
 }
@@ -567,7 +569,7 @@ void VcrossSetupDialog::applyClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::applyClicked()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::applyClicked()");
 #endif
   applySetup();
   emit SetupApply();
@@ -578,7 +580,7 @@ void VcrossSetupDialog::applyhideClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  DEBUG_ <<"VcrossSetupDialog::applyhideClicked()";
+  METLIBS_LOG_DEBUG("VcrossSetupDialog::applyhideClicked()");
 #endif
   applySetup();
   emit SetupHide();

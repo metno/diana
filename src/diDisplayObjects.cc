@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.DisplayObjects"
+#include <miLogger/miLogging.h>
+
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
@@ -45,7 +47,7 @@ using namespace::miutil;
 
 DisplayObjects::DisplayObjects(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "DisplayObjects::DisplayObjects\n";
+  METLIBS_LOG_DEBUG("DisplayObjects::DisplayObjects\n");
 #endif
 
  init();
@@ -54,7 +56,7 @@ DisplayObjects::DisplayObjects(){
 
 void DisplayObjects::init(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "DisplayObjects::init";
+  METLIBS_LOG_DEBUG("DisplayObjects::init");
 #endif
   defined=false;
   approved=false;
@@ -73,7 +75,7 @@ void DisplayObjects::init(){
 bool DisplayObjects::define(const miString& pi)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "DisplayObjects::define";
+  METLIBS_LOG_DEBUG("DisplayObjects::define");
 #endif
 
   init();
@@ -96,7 +98,7 @@ bool DisplayObjects::define(const miString& pi)
 	key = stokens[0].downcase();
 	value = stokens[1];
 #ifdef DEBUGPRINT
-	DEBUG_ <<"key,value" << key << " " << value;
+	METLIBS_LOG_DEBUG("key,value" << key << " " << value);
 #endif
 	if ( key=="file") {
 	  int l= value.length();
@@ -143,13 +145,13 @@ bool DisplayObjects::prepareObjects()
   if (!defined) return false;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "DisplayObjects::prepareObjects";
-  DEBUG_ << "...area = " << itsArea.Name();
-  DEBUG_ << "...size of wObjects =  "<< objects.size();
-  DEBUG_ << "...wObjects.objectname = " <<  objectname;
-  DEBUG_ << "...wObjects.time = " << itsTime;
-  DEBUG_ << "...wObjects.filename = " << filename;
-  DEBUG_ << "...autoFile = " << autoFile;
+  METLIBS_LOG_DEBUG("DisplayObjects::prepareObjects");
+  METLIBS_LOG_DEBUG("...area = " << itsArea.Name());
+  METLIBS_LOG_DEBUG("...size of wObjects =  "<< objects.size());
+  METLIBS_LOG_DEBUG("...wObjects.objectname = " <<  objectname);
+  METLIBS_LOG_DEBUG("...wObjects.time = " << itsTime);
+  METLIBS_LOG_DEBUG("...wObjects.filename = " << filename);
+  METLIBS_LOG_DEBUG("...autoFile = " << autoFile);
 #endif
 
 

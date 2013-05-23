@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.SpectrumManager"
+#include <miLogger/miLogging.h>
+
 #include <diSpectrumManager.h>
 
 #include <diSpectrumOptions.h>
@@ -51,7 +53,7 @@ SpectrumManager::SpectrumManager()
 : showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager constructed";
+  METLIBS_LOG_DEBUG("SpectrumManager constructed");
 #endif
 
   spopt= new SpectrumOptions();  // defaults are set
@@ -71,7 +73,7 @@ SpectrumManager::SpectrumManager()
 SpectrumManager::~SpectrumManager()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager destructor";
+  METLIBS_LOG_DEBUG("SpectrumManager destructor");
 #endif
 
   if (spopt) delete spopt;
@@ -84,7 +86,7 @@ SpectrumManager::~SpectrumManager()
 void SpectrumManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::parseSetup";
+  METLIBS_LOG_DEBUG("SpectrumManager::parseSetup");
 #endif
 
   //clear old setupinfo
@@ -96,7 +98,7 @@ void SpectrumManager::parseSetup()
   vector<miString> vstr;
 
   //if (!SetupParser::getSection(section1,vstr)) {
-  //  DEBUG_ << "Missing section " << section1 << " in setupfile.";
+  //  METLIBS_LOG_DEBUG("Missing section " << section1 << " in setupfile.");
   //  return false;
   //}
   //vstr.clear();
@@ -142,7 +144,7 @@ void SpectrumManager::parseSetup()
 
   } else {
 
-    //DEBUG_ << "Missing section " << section2 << " in setupfile.";
+    //METLIBS_LOG_DEBUG("Missing section " << section2 << " in setupfile.");
 
   }
 }
@@ -151,7 +153,7 @@ void SpectrumManager::parseSetup()
 void SpectrumManager::updateObsFileList()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::updateObsFileList";
+  METLIBS_LOG_DEBUG("SpectrumManager::updateObsFileList");
 #endif
   obsfiles.clear();
   int n= obsAaaPaths.size();
@@ -188,7 +190,7 @@ void SpectrumManager::updateObsFileList()
 void SpectrumManager::setPlotWindow(int w, int h)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setPlotWindow:" << w << " " << h;
+  METLIBS_LOG_DEBUG("SpectrumManager::setPlotWindow:" << w << " " << h);
 #endif
   plotw= w;
   ploth= h;
@@ -217,7 +219,7 @@ vector<miString> SpectrumManager::getLineThickness()
 void SpectrumManager::setModel()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setModel";
+  METLIBS_LOG_DEBUG("SpectrumManager::setModel");
 #endif
 
   // should not clear all data, possibly needed again...
@@ -229,7 +231,7 @@ void SpectrumManager::setModel()
   //check if there are any selected models, if not use default
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
-  //     DEBUG_ << "No model selected";
+  //     METLIBS_LOG_DEBUG("No model selected");
   //     miString model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
@@ -255,7 +257,7 @@ void SpectrumManager::setModel()
     map<miString,miString>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
-      ERROR_ << "NO SPECTRUMFILE for model " << model;
+      METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << model);
     } else
       initSpectrumFile(pf->second,model);
   }
@@ -293,7 +295,7 @@ void SpectrumManager::setModel()
   dataChange= true;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setModels finished";
+  METLIBS_LOG_DEBUG("SpectrumManager::setModels finished");
 #endif
 }
 
@@ -301,7 +303,7 @@ void SpectrumManager::setModel()
 void SpectrumManager::setStation(const miString& station)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setStation  " << station;
+  METLIBS_LOG_DEBUG("SpectrumManager::setStation  " << station);
 #endif
 
   plotStation= station;
@@ -313,7 +315,7 @@ void SpectrumManager::setStation(const miString& station)
 void SpectrumManager::setTime(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setTime  " << time;
+  METLIBS_LOG_DEBUG("SpectrumManager::setTime  " << time);
 #endif
 
   plotTime= time;
@@ -328,7 +330,7 @@ void SpectrumManager::setTime(const miTime& time)
 miString SpectrumManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setStation   step=" << step;
+  METLIBS_LOG_DEBUG("SpectrumManager::setStation   step=" << step);
 #endif
 
   if (nameList.size()==0)
@@ -356,7 +358,7 @@ miString SpectrumManager::setStation(int step)
 miTime SpectrumManager::setTime(int step)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::setTime   step=" << step;
+  METLIBS_LOG_DEBUG("SpectrumManager::setTime   step=" << step);
 #endif
 
   if (timeList.size()==0)
@@ -416,7 +418,7 @@ void SpectrumManager::endHardcopy(){
 bool SpectrumManager::plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::plot  " << plotStation << "  " << plotTime;
+  METLIBS_LOG_DEBUG("SpectrumManager::plot  " << plotStation << "  " << plotTime);
 #endif
 
   if (dataChange) {
@@ -471,7 +473,7 @@ bool SpectrumManager::plot()
 	      }
             }
             catch (...) {
-              DEBUG_<<"Exception in: " <<obsfiles[nn].filename;
+              METLIBS_LOG_DEBUG("Exception in: " <<obsfiles[nn].filename);
             }
           }
           nn++;
@@ -494,7 +496,7 @@ bool SpectrumManager::plot()
   //  hardcopy= false;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::plot finished";
+  METLIBS_LOG_DEBUG("SpectrumManager::plot finished");
 #endif
   return true;
 }
@@ -503,7 +505,7 @@ bool SpectrumManager::plot()
 void SpectrumManager::preparePlot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::preparePlot";
+  METLIBS_LOG_DEBUG("SpectrumManager::preparePlot");
 #endif
 
   int n= spectrumplots.size();
@@ -527,7 +529,7 @@ void SpectrumManager::preparePlot()
 vector <miString> SpectrumManager::getModelNames()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::getModelNames";
+  METLIBS_LOG_DEBUG("SpectrumManager::getModelNames");
 #endif
   updateObsFileList();
   return dialogModelNames;
@@ -537,7 +539,7 @@ vector <miString> SpectrumManager::getModelNames()
 vector <miString> SpectrumManager::getModelFiles()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::getModelFiles";
+  METLIBS_LOG_DEBUG("SpectrumManager::getModelFiles");
 #endif
   vector<miString> modelfiles= dialogFileNames;
   updateObsFileList();
@@ -603,11 +605,11 @@ bool SpectrumManager::initSpectrumFile(miString file,miString model)
   SpectrumFile *spf= new SpectrumFile(file,model);
   //if (spf->readFileHeader()) {
   if (spf->update()) {
-    INFO_ << "SPECTRUMFILE READFILE OK for model " << model;
+    METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
     spfile.push_back(spf);
     return true;
   } else {
-    ERROR_ << "SPECTRUMFILE READFILE ERROR file " << file;
+    METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
     delete spf;
     return false;
   }
@@ -619,7 +621,7 @@ void SpectrumManager::initStations()
   //merge lists from all models
   int nspfile = spfile.size();
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::initStations-size of spfile " << nspfile;
+  METLIBS_LOG_DEBUG("SpectrumManager::initStations-size of spfile " << nspfile);
 #endif
 
   nameList.clear();
@@ -641,7 +643,7 @@ void SpectrumManager::initStations()
     unsigned int n=namelist.size();
     if (n!=latitudelist.size()||n!=longitudelist.size()||
         n!=obslist.size()) {
-      ERROR_ << "diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!";
+      METLIBS_LOG_ERROR("diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
     } else{
       for (unsigned int j = 0;j<n;j++){
         StationPos newPos;
@@ -659,14 +661,14 @@ void SpectrumManager::initStations()
   obslist.clear();
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "Number of stations" << nstations;
+  METLIBS_LOG_DEBUG("Number of stations" << nstations);
 #endif
   map<miString,StationPos>::iterator p=stations.begin();
   for (; p!=stations.end(); p++) {
     miString name=p->first;
     StationPos pos = p->second;
 #ifdef DEBUGPRINT
-    DEBUG_ <<"Station name " << name;
+    METLIBS_LOG_DEBUG("Station name " << name);
 #endif
     namelist.push_back(name);
     latitudelist.push_back(pos.latitude);
@@ -681,7 +683,7 @@ void SpectrumManager::initStations()
   // remember station
   if (!plotStation.empty()) lastStation = plotStation;
 #ifdef DEBUGPRINT
-  DEBUG_ << "lastStation"  << lastStation;
+  METLIBS_LOG_DEBUG("lastStation"  << lastStation);
 #endif
   //if it's the first time, plotStation is first in list
   if (lastStation.empty() && nameList.size())
@@ -700,7 +702,7 @@ void SpectrumManager::initStations()
     dataChange= true;
   }
 #ifdef DEBUGPRINT
-  DEBUG_ <<"plotStation" << plotStation;
+  METLIBS_LOG_DEBUG("plotStation" << plotStation);
 #endif
 }
 
@@ -708,7 +710,7 @@ void SpectrumManager::initStations()
 void SpectrumManager::initTimes()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::initTimes";
+  METLIBS_LOG_DEBUG("SpectrumManager::initTimes");
 #endif
 
   timeList.clear();
@@ -735,7 +737,7 @@ void SpectrumManager::initTimes()
 void SpectrumManager::checkObsTime(int hour)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::checkObsTime  hour= " << hour;
+  METLIBS_LOG_DEBUG("SpectrumManager::checkObsTime  hour= " << hour);
 #endif
 
   // use hour=-1 to check all files
@@ -761,7 +763,7 @@ void SpectrumManager::checkObsTime(int hour)
 	    obsfiles[i].time= ofile.fileObsTime();
           }
           catch (...) {
-            DEBUG_<<"Exception in: "<<obsfiles[i].filename;
+            METLIBS_LOG_DEBUG("Exception in: "<<obsfiles[i].filename);
 	  }
            ***************************************************************************/
         }
@@ -785,7 +787,7 @@ void SpectrumManager::checkObsTime(int hour)
 void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::mainWindowTimeChanged  " << time;
+  METLIBS_LOG_DEBUG("SpectrumManager::mainWindowTimeChanged  " << time);
 #endif
 
   miTime mainWindowTime = time;
@@ -807,7 +809,7 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 void SpectrumManager::updateObs()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "SpectrumManager::updateObs";
+  METLIBS_LOG_DEBUG("SpectrumManager::updateObs");
 #endif
   updateObsFileList();
   checkObsTime();

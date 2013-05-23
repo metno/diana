@@ -65,7 +65,9 @@
 #include <diObsBufr.h>
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ObsManager"
+#include <miLogger/miLogging.h>
+
 #include <diObsManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
@@ -100,20 +102,20 @@ ObsManager::ObsManager(){
 
 bool ObsManager::init(ObsPlot *oplot,const miString& pin){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ ObsManager::init() ++";
+  METLIBS_LOG_DEBUG("++ ObsManager::init() ++");
 #endif
 
 
   //sending PlotInfo to obsPlot
   if(!oplot->prepare(pin)){
-    ERROR_ << "++ Returning false from ObsManager::init() ++";
+    METLIBS_LOG_ERROR("++ Returning false from ObsManager::init() ++");
     return false;
   }
 
   mslp=false;
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ Returning from ObsManager::init() ++";
+  METLIBS_LOG_DEBUG("++ Returning from ObsManager::init() ++");
 #endif
 
   return true;
@@ -122,7 +124,7 @@ bool ObsManager::init(ObsPlot *oplot,const miString& pin){
 
 bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ ObsManager::prepare() ++";
+  METLIBS_LOG_DEBUG("++ ObsManager::prepare() ++");
 #endif
 
   oplot->clear();
@@ -130,9 +132,9 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   mslp = mslp || oplot->mslp();
 
   if( oplot->flagInfo()){
-    INFO_ <<"ObsManager::prepare HQC";
-    INFO_ <<"hqcTime:"<<hqcTime;
-    INFO_ <<"Time:"<<time;
+    METLIBS_LOG_INFO("ObsManager::prepare HQC");
+    METLIBS_LOG_INFO("hqcTime:"<<hqcTime);
+    METLIBS_LOG_INFO("Time:"<<time);
     int d = abs(miTime::minDiff(time, hqcTime));
     if( oplot->getTimeDiff()>-1 && d>oplot->getTimeDiff() ) return false;
     if( sendHqcdata(oplot))
@@ -273,7 +275,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
         }  // end of try
 
         catch (...){
-          WARN_<<"Exception in "<<dataType[i]<<": " <<finfo[j].filename;
+          METLIBS_LOG_WARN("Exception in "<<dataType[i]<<": " <<finfo[j].filename);
           //reset oplot
           oplot->resetObs(num);
           continue;
@@ -293,7 +295,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   if(oplot->setData()){
 
     //   if (!oplot->setData())
-    //     DEBUG_ <<"ObsPlot::setData returned false (no data)";;
+    //     METLIBS_LOG_DEBUG("ObsPlot::setData returned false (no data)");;
 
     //minTime - maxTime are used in the annotation
     //minTime/maxTime is time -/+ timeDiff (from dialog) unless
@@ -364,7 +366,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
   oplot->setPlotName(anno_str);
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ End ObsManager prepare() ++";
+  METLIBS_LOG_DEBUG("++ End ObsManager prepare() ++");
 #endif
 
   return true;
@@ -372,13 +374,13 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 bool ObsManager::addStationsAndTimeFromMetaData( const miutil::miString& metaData,
     miutil::miString& url, const miutil::miTime& time)
 {
-  //DEBUG_ <<__FUNCTION__;
+  //METLIBS_LOG_DEBUG(__FUNCTION__);
   //read metadata
   if ( !metaDataMap.count(metaData) ) {
 
     ObsMetaData* pMetaData = new ObsMetaData();
     if ( !Prod.count(metaData) || !Prod[metaData].pattern.size()) {
-      WARN_ <<"WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available";
+      METLIBS_LOG_WARN("WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available");
       return false;
     }
 
@@ -407,8 +409,8 @@ bool ObsManager::addStationsAndTimeFromMetaData( const miutil::miString& metaDat
 void ObsManager::getFileName(vector<FileInfo>& finfo,
     miTime &time, miString obsType,
     ObsPlot* oplot){
-  //     DEBUG_ <<"getFileName:"<<time.isoTime();
-  //     DEBUG_ <<"getFileName:"<<obsType;
+  //     METLIBS_LOG_DEBUG("getFileName:"<<time.isoTime());
+  //     METLIBS_LOG_DEBUG("getFileName:"<<obsType);
 
 
   finfo.clear();
@@ -426,7 +428,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
   for( int i=0; i<n; i++ ){
     miTime t=Prod[obsType].fileInfo[i].time;
     if (t.undef()){
-      WARN_ <<"No time defined:"<<Prod[obsType].fileInfo[i].filename;
+      METLIBS_LOG_WARN("No time defined:"<<Prod[obsType].fileInfo[i].filename);
       continue;
     }
     int d = (miTime::minDiff(time, t));
@@ -489,7 +491,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
         tt = Obs.fileObsTime();
       }
       catch (...){
-        WARN_<<"Exception in: " <<finfo[i].filename;
+        METLIBS_LOG_WARN("Exception in: " <<finfo[i].filename);
         continue;
       }
       if(tt!=finfo[i].time){
@@ -522,7 +524,7 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
 bool ObsManager::updateTimes(miString obsType)
 {
   //Making list of file names and times using file names
-  //  DEBUG_<<"Finner tider fra filnavn:"<<obsType;
+  //  METLIBS_LOG_DEBUG("Finner tider fra filnavn:"<<obsType);
 
   obsType= obsType.downcase();
 
@@ -616,7 +618,7 @@ bool ObsManager::updateTimes(miString obsType)
               finfo.time = Obs.fileObsTime();
             }
             catch (...){
-              WARN_<<"Exception in: " <<finfo.filename;
+              METLIBS_LOG_WARN("Exception in: " <<finfo.filename);
               continue;
             }
 #endif
@@ -733,7 +735,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
             finfo.time = Obs.fileObsTime();
           }
           catch (...){
-            WARN_<<"Exception in: " <<finfo.filename;
+            METLIBS_LOG_WARN("Exception in: " <<finfo.filename);
             continue;
           }
 #endif
@@ -781,7 +783,7 @@ vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
   vector<miString> obsTypes;
 
   for (int i=0; i<nn; i++){
-    //     DEBUG_ << "Processing: " << pinfos[i].infoStr();
+    //     METLIBS_LOG_DEBUG("Processing: " << pinfos[i].infoStr());
     tokens= pinfos[i].split();
     m= tokens.size();
     if (m<2) continue;
@@ -1386,19 +1388,19 @@ ObsDialogInfo::Button  ObsManager::addButton(const miString& name,
 ObsDialogInfo ObsManager::updateDialog(const miString& name)
 {
   // called the first time an ascii dialog is activated
-  //  DEBUG_ <<"updateDialog:"<< name;
+  //  METLIBS_LOG_DEBUG("updateDialog:"<< name);
 
   if(name == "Hqc_synop" || name == "Hqc_list")
     return updateHqcDialog(name);
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "updateDialog: " << name;
+  METLIBS_LOG_DEBUG("updateDialog: " << name);
 #endif
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=name) id++;
   if (id==nd) {
-    ERROR_ << name << " not found in dialog.plottype";
+    METLIBS_LOG_ERROR(name << " not found in dialog.plottype");
     return dialog;
   }
   miString oname= name.downcase();
@@ -1408,17 +1410,17 @@ ObsDialogInfo ObsManager::updateDialog(const miString& name)
     oname = oname.substr(pos+1);
   }
 #ifdef DEBUGPRINT
-  DEBUG_ << "updateDialog: " << oname;
+  METLIBS_LOG_DEBUG("updateDialog: " << oname);
   map<miString,ProdInfo>::iterator p= Prod.begin();
   while (p != Prod.end()) {
-    DEBUG_ << p->first;
+    METLIBS_LOG_DEBUG(p->first);
     p++;
 }
 #endif
 
   map<miString,ProdInfo>::iterator pr= Prod.find(oname);
   if (pr==Prod.end()) {
-    ERROR_ << oname << " not found in Prod";
+    METLIBS_LOG_ERROR(oname << " not found in Prod");
     return dialog;
   }
 #ifdef ROADOBS
@@ -1541,12 +1543,12 @@ delete roplot;
 ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
 {
   // called each time initHqcData() is called
-  //  DEBUG_<<"updateHqcDialog";
+  //  METLIBS_LOG_DEBUG("updateHqcDialog");
 
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=plotType) {
-    //    DEBUG_ <<dialog.plottype[id].name;
+    //    METLIBS_LOG_DEBUG(dialog.plottype[id].name);
     id++;
   }
   if (id==nd) return dialog;
@@ -1562,7 +1564,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   if(plotType == "Hqc_synop"){
     int wind=0;
     for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //        DEBUG_ <<"para: "<<hqc_synop_parameter[i];
+      //        METLIBS_LOG_DEBUG("para: "<<hqc_synop_parameter[i]);
       if(hqc_synop_parameter[i]=="dd" || hqc_synop_parameter[i]=="ff" ) {
         wind++;
         continue;
@@ -1587,7 +1589,7 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   } else if( plotType == "Hqc_list"){
     int wind=0;
     for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //      DEBUG_ <<"para: "<<hqc_ascii_parameter[i];
+      //      METLIBS_LOG_DEBUG("para: "<<hqc_ascii_parameter[i]);
       if(hqc_synop_parameter[i]=="DD" || hqc_synop_parameter[i]=="FF" ) wind++;
       if(hqc_synop_parameter[i]=="auto")continue;
       dialog.plottype[id].button.push_back
@@ -1612,82 +1614,82 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
 {
 
   unsigned int i;
-  INFO_ << "***** ProdInfo ******";
+  METLIBS_LOG_INFO("***** ProdInfo ******");
 #ifdef ROADOBS
   if (pinfo.obsformat == ofmt_roadobs)
-    INFO_ << "obsformat: ofmt_roadobs";
+    METLIBS_LOG_INFO("obsformat: ofmt_roadobs");
 #endif
   if (pinfo.obsformat == ofmt_unknown)
-    INFO_ << "obsformat: ofmt_unknown";
+    METLIBS_LOG_INFO("obsformat: ofmt_unknown");
   if (pinfo.obsformat == ofmt_synop)
-    INFO_ << "obsformat: ofmt_synop";
+    METLIBS_LOG_INFO("obsformat: ofmt_synop");
   if (pinfo.obsformat == ofmt_aireps)
-    INFO_ << "obsformat: ofmt_aireps";
+    METLIBS_LOG_INFO("obsformat: ofmt_aireps");
   if (pinfo.obsformat == ofmt_satob)
-    INFO_ << "obsformat: ofmt_satob";
+    METLIBS_LOG_INFO("obsformat: ofmt_satob");
   if (pinfo.obsformat == ofmt_dribu)
-    INFO_ << "obsformat: ofmt_dribu";
+    METLIBS_LOG_INFO("obsformat: ofmt_dribu");
   if (pinfo.obsformat == ofmt_temp)
-    INFO_ << "obsformat: ofmt_temp";
+    METLIBS_LOG_INFO("obsformat: ofmt_temp");
   if (pinfo.obsformat == ofmt_ocea)
-    INFO_ << "obsformat: ofmt_ocea";
+    METLIBS_LOG_INFO("obsformat: ofmt_ocea");
   if (pinfo.obsformat == ofmt_tide)
-    INFO_ << "obsformat: ofmt_tide";
+    METLIBS_LOG_INFO("obsformat: ofmt_tide");
   if (pinfo.obsformat == ofmt_pilot)
-    INFO_ << "obsformat: ofmt_pilot";
+    METLIBS_LOG_INFO("obsformat: ofmt_pilot");
   if (pinfo.obsformat == ofmt_metar)
-    INFO_ << "obsformat: ofmt_metar";
+    METLIBS_LOG_INFO("obsformat: ofmt_metar");
   if (pinfo.obsformat == ofmt_ascii)
-    INFO_ << "obsformat: ofmt_ascii";
+    METLIBS_LOG_INFO("obsformat: ofmt_ascii");
   if (pinfo.obsformat == ofmt_hqc)
-    INFO_ << "obsformat: ofmt_hqc";
-  INFO_ << "dialogname: " << pinfo.dialogName;
-  INFO_ << "plotFormat: " << pinfo.plotFormat;
-  INFO_ << "pattern: ";
+    METLIBS_LOG_INFO("obsformat: ofmt_hqc");
+  METLIBS_LOG_INFO("dialogname: " << pinfo.dialogName);
+  METLIBS_LOG_INFO("plotFormat: " << pinfo.plotFormat);
+  METLIBS_LOG_INFO("pattern: ");
   for(i = 0; i < pinfo.pattern.size(); i++)
     {
       // TDB: timefiler
-      INFO_ << "\tpattern: " << pinfo.pattern[i].pattern << " archive: " << pinfo.pattern[i].archive << " fileType: " << pinfo.pattern[i].fileType;
+      METLIBS_LOG_INFO("\tpattern: " << pinfo.pattern[i].pattern << " archive: " << pinfo.pattern[i].archive << " fileType: " << pinfo.pattern[i].fileType);
     }
-  INFO_ << "fileInfo: ";
+  METLIBS_LOG_INFO("fileInfo: ");
   for(i = 0; i < pinfo.fileInfo.size(); i++)
     {
-      INFO_ << "\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype;
+      METLIBS_LOG_INFO("\tfilename: " << pinfo.fileInfo[i].filename << " time: " << pinfo.fileInfo[i].time.isoTime() << " filetype: " << pinfo.fileInfo[i].filetype);
     }
-  INFO_ << "timeInfo"
-      ": " << pinfo.timeInfo;
-  INFO_ << "timeRangeMin: " << pinfo.timeRangeMin;
-  INFO_ << "timeRangeMax: " << pinfo.timeRangeMax;
-  INFO_ << "current: " << pinfo.current;
-  INFO_ << "synoptic: " << pinfo.synoptic;
-  INFO_ << "headerfile: " << pinfo.headerfile;
+  METLIBS_LOG_INFO("timeInfo"
+      ": " << pinfo.timeInfo);
+  METLIBS_LOG_INFO("timeRangeMin: " << pinfo.timeRangeMin);
+  METLIBS_LOG_INFO("timeRangeMax: " << pinfo.timeRangeMax);
+  METLIBS_LOG_INFO("current: " << pinfo.current);
+  METLIBS_LOG_INFO("synoptic: " << pinfo.synoptic);
+  METLIBS_LOG_INFO("headerfile: " << pinfo.headerfile);
   for(i = 0; i < pinfo.headerinfo.size(); i++)
     {
-      INFO_ << "\t headerinfo: " << pinfo.headerinfo[i];
+      METLIBS_LOG_INFO("\t headerinfo: " << pinfo.headerinfo[i]);
     }
 #ifdef ROADOBS
-  INFO_ << "databasefile: " << pinfo.databasefile;
-  INFO_ << "stationfile: " << pinfo.stationfile;
-  INFO_ << "daysback: " << pinfo.daysback;
+  METLIBS_LOG_INFO("databasefile: " << pinfo.databasefile);
+  METLIBS_LOG_INFO("stationfile: " << pinfo.stationfile);
+  METLIBS_LOG_INFO("daysback: " << pinfo.daysback);
 #endif
-  INFO_ << "useFileTime: " << pinfo.useFileTime;
-  INFO_ << "\tparameters: ";
+  METLIBS_LOG_INFO("useFileTime: " << pinfo.useFileTime);
+  METLIBS_LOG_INFO("\tparameters: ");
   for(i = 0; i < pinfo.parameter.size(); i++)
     {
-      INFO_ << pinfo.parameter[i] << ",";
+      METLIBS_LOG_INFO(pinfo.parameter[i] << ",");
     }
-  INFO_ << "**** end ProdInfo *****";
+  METLIBS_LOG_INFO("**** end ProdInfo *****");
 }
 
 bool ObsManager::parseSetup()
 {
 
-  //  DEBUG_ << "Obs: parseSetup";
+  //  METLIBS_LOG_DEBUG("Obs: parseSetup");
   const miString obs_name = "OBSERVATION_FILES";
   vector<miString> sect_obs;
 
   if (!SetupParser::getSection(obs_name,sect_obs)){
-    ERROR_ << obs_name << " section not found";
+    METLIBS_LOG_ERROR(obs_name << " section not found");
     return true;
   }
 
@@ -2048,7 +2050,7 @@ bool ObsManager::initHqcdata(int from,
     const vector<string>& data)
 
 {
-  //  DEBUG_ <<"ObsManager::initHqc: "<<desc;
+  //  METLIBS_LOG_DEBUG("ObsManager::initHqc: "<<desc);
 
 
   //   if(desc == "remove" && from != hqc_from)
@@ -2074,7 +2076,7 @@ bool ObsManager::initHqcdata(int from,
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
-    //    DEBUG_ <<"Prod[_synop].time.size():  "<<Prod["hqc_synop"].time.size();
+    //    METLIBS_LOG_DEBUG("Prod[_synop].time.size():  "<<Prod["hqc_synop"].time.size());
     return true;
   }
 
@@ -2085,7 +2087,7 @@ bool ObsManager::initHqcdata(int from,
   vector<string> commonstr;
   boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
-    ERROR_ <<"ObsManager::initHqcdata: different size of commondesc and common";
+    METLIBS_LOG_ERROR("ObsManager::initHqcdata: different size of commondesc and common");
     return false;
   }
   miString obsdataType;
@@ -2110,20 +2112,20 @@ bool ObsManager::initHqcdata(int from,
 
   int numStations = data.size();
   for(int j=0; j<numStations; j++){
-    //    DEBUG_ <<j<<":"<<data[j];
+    //    METLIBS_LOG_DEBUG(j<<":"<<data[j]);
     vector<string> tokens;
     boost::algorithm::split(tokens, data[j], boost::algorithm::is_any_of(","));
     ObsData obsd;
     if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
     hqcdata.push_back(obsd);
   }
-  //  DEBUG_ <<"returning from initHqcdata";
+  //  METLIBS_LOG_DEBUG("returning from initHqcdata");
   return true;
 }
 
 bool ObsManager::sendHqcdata(ObsPlot* oplot)
 {
-  //  DEBUG_ <<"sendHqcData";
+  //  METLIBS_LOG_DEBUG("sendHqcData");
   oplot->addObsVector(hqcdata);
   oplot->setSelectedStation(selectedStation);
   oplot->setHqcFlag(hqcFlag);
@@ -2167,13 +2169,13 @@ bool ObsManager::updateHqcdata(const string& commondesc,
 
 {
 
-  //  DEBUG_ <<"updateHqcdata desc:"<<desc;
+  //  METLIBS_LOG_DEBUG("updateHqcdata desc:"<<desc);
   vector<string> descstr;
   boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
   vector<string> commonstr;
   boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
   if(commonstr.size() != descstr.size()){
-    ERROR_ <<"ObsManager::updateHqcdata: different size of commondesc and common";
+    METLIBS_LOG_ERROR("ObsManager::updateHqcdata: different size of commondesc and common");
     return false;
   }
   miString plotType;
@@ -2190,7 +2192,7 @@ bool ObsManager::updateHqcdata(const string& commondesc,
   vector<string> param;
   boost::algorithm::split(param, desc, boost::algorithm::is_any_of(","));
   if( param.size() <2 ) return false;
-  //  DEBUG_ <<"data.size:"<<data.size();
+  //  METLIBS_LOG_DEBUG("data.size:"<<data.size());
   for(unsigned int j=0; j<data.size(); j++){
     vector<string> datastr;
     boost::algorithm::split(datastr, data[j], boost::algorithm::is_any_of(","));
@@ -2211,16 +2213,16 @@ bool ObsManager::changeHqcdata(ObsData& odata,
     const vector<string>& param,
     const vector<string>& data)
 {
-  //  DEBUG_ <<"ObsManager::changeHqcdata";
+  //  METLIBS_LOG_DEBUG("ObsManager::changeHqcdata");
   if( param.size() != data.size() ) {
-    ERROR_ <<"No. of parameters: "<<param.size()<<" != no. of data: "
-    <<data.size();
+    METLIBS_LOG_ERROR("No. of parameters: "<<param.size()<<" != no. of data: "
+    <<data.size());
     return false;
   }
 
   for(unsigned int i=0; i<param.size(); i++){
-    //     DEBUG_ <<"key:"<<param[i];
-    //        DEBUG_ <<"data:"<<data[i];
+    //     METLIBS_LOG_DEBUG("key:"<<param[i]);
+    //        METLIBS_LOG_DEBUG("data:"<<data[i]);
     miString key = param[i];
     string value = boost::algorithm::to_lower_copy(data[i]);
     if(key=="id"){
@@ -2236,7 +2238,7 @@ bool ObsManager::changeHqcdata(ObsData& odata,
         odata.fdata["ix"]=-1;
     } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
       odata.dataType=data[i];
-      //      DEBUG_ <<"St.type:"<<data[i];
+      //      METLIBS_LOG_DEBUG("St.type:"<<data[i]);
     } else {
       miString value;
       vector<string> vstr;

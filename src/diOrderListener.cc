@@ -35,7 +35,9 @@
 
 #include <iostream>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.OrderListener"
+#include <miLogger/miLogging.h>
+
 #include <diOrderListener.h>
 
 const int diOrderListener::DEFAULT_PORT = 3190;
@@ -64,11 +66,11 @@ diOrderListener::listen(const QHostAddress &addr, quint16 port)
 	mutex.lock();
 	if ((ok = !server.isListening())) {
 		if ((ok = server.listen(addr, port))) {
-			INFO_ << this << QString("listening on %1:%2").
-			    arg(addr.toString()).arg(port).toStdString();
+			METLIBS_LOG_INFO(this << QString("listening on %1:%2").
+			    arg(addr.toString()).arg(port).toStdString());
 		} else {
-			INFO_ << this << QString("failed to listen on %1:%2: %3").
-			    arg(addr.toString()).arg(port).arg(server.errorString()).toStdString();
+			METLIBS_LOG_INFO(this << QString("failed to listen on %1:%2: %3").
+			    arg(addr.toString()).arg(port).arg(server.errorString()).toStdString());
 		}
 	}
 	mutex.unlock();
@@ -118,11 +120,11 @@ diOrderListener::newClientConnection()
 	QTcpSocket *socket = server->nextPendingConnection();
 	if (socket == NULL)
 		return;
-	INFO_ << "new client connection from " <<
-	    socket->peerAddress().toString().toStdString();
+	METLIBS_LOG_INFO("new client connection from " <<
+	    socket->peerAddress().toString().toStdString());
 	diOrderClient *client = new diOrderClient(this, socket);
 	if (client == NULL) {
-		INFO_ << "failed to allocate new client";
+		METLIBS_LOG_INFO("failed to allocate new client");
 		return;
 	}
 	mutex.lock();

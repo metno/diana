@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ImageGallery"
+#include <miLogger/miLogging.h>
+
 #include <diImageGallery.h>
 #include <diImageIO.h>
 #include <fstream>
@@ -174,7 +176,7 @@ bool ImageGallery::readImage(const miString& name)
   img.pattern = false;
   if( !imageIO::read_image(img)){
     if (!Images[name].read_error)
-      ERROR_ << "ImageGallery::readImage ERROR couldn't read image:"<<name;
+      METLIBS_LOG_ERROR("ImageGallery::readImage ERROR couldn't read image:"<<name);
     Images[name].read_error= true;
     return false;
   }
@@ -199,7 +201,7 @@ bool ImageGallery::readPattern(const miString& name)
   img.pattern = true;
   if( !imageIO::read_image(img)){
     if (!Patterns[name].read_error)
-      ERROR_ << "ImageGallery::readImage ERROR couldn't read image:"<<name;
+      METLIBS_LOG_ERROR("ImageGallery::readImage ERROR couldn't read image:"<<name);
     Patterns[name].read_error= true;
     return false;
   }
@@ -223,17 +225,17 @@ bool ImageGallery::addImage(const miString& name,
   int size= w*h;
 
   if (!name.exists()){
-    ERROR_ << "ImageGallery::addImage ERROR trying to add image with no name";
+    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no name");
     return false;
   }
   if (size == 0){
-    ERROR_ << "ImageGallery::addImage ERROR trying to add image with zero width/height:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with zero width/height:"
+    << name);
     return false;
   }
   if (d==0){
-    ERROR_ << "ImageGallery::addImage ERROR trying to add image with no imagedata:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no imagedata:"
+    << name);
     return false;
   }
 
@@ -260,12 +262,12 @@ bool ImageGallery::addPattern(const miString& name,
 
 
   if (!name.exists()){
-    ERROR_ << "ImageGallery::addPattern ERROR trying to add image with no name";
+    METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no name");
     return false;
   }
   if (d==0){
-    ERROR_ << "ImageGallery::addPattern ERROR trying to add image with no data:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no data:"
+    << name);
     return false;
   }
 
@@ -282,8 +284,8 @@ float ImageGallery::width(const miString& name)
 {
   float w= 0.0;
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::width ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::width ERROR image not found:"
+    << name);
   } else {
     readImage(name);
     w= Images[name].width*fullrect.width()/(pwidth > 0 ? pwidth*1.0 : 1.0);;
@@ -295,8 +297,8 @@ float ImageGallery::height(const miString& name)
 {
   float h= 0.0;
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::height ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::height ERROR image not found:"
+    << name);
   } else {
     readImage(name);
     h= Images[name].height*fullrect.height()/(pheight > 0 ? pheight*1.0 : 1.0);
@@ -308,8 +310,8 @@ int ImageGallery::widthp(const miString& name)
 {
   int w= 0;
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::pwidth ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::pwidth ERROR image not found:"
+    << name);
   } else {
     readImage(name);
     if( Images[name].type == marker ){
@@ -332,8 +334,8 @@ int ImageGallery::heightp(const miString& name)
 {
   int h= 0;
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::pheight ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::pheight ERROR image not found:"
+    << name);
   } else {
     readImage(name);
     if( Images[name].type == marker ){
@@ -355,8 +357,8 @@ int ImageGallery::heightp(const miString& name)
 bool ImageGallery::delImage(const miString& name)
 {
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::delImage ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::delImage ERROR image not found:"
+    << name);
     return false;
   }
   Images[name].erase();
@@ -366,8 +368,8 @@ bool ImageGallery::delImage(const miString& name)
 bool ImageGallery::delPattern(const miString& name)
 {
   if (!Patterns.count(name)){
-    ERROR_ << "ImageGallery::delPattern ERROR pattern not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::delPattern ERROR pattern not found:"
+    << name);
     return false;
   }
   Patterns[name].erase();
@@ -501,7 +503,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
 
   inFile.open(filename.c_str(),ios::in);
   if (inFile.bad()) {
-    ERROR_ << "ImageGallery: Can't open file: " << filename;
+    METLIBS_LOG_ERROR("ImageGallery: Can't open file: " << filename);
     return false;
   }
 
@@ -559,8 +561,8 @@ bool ImageGallery::plotImage(const miString& name,
   if(!readImage(name)) return false;
 
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::plot ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:"
+    << name);
     return false;
   }
 
@@ -568,8 +570,8 @@ bool ImageGallery::plotImage(const miString& name,
     return plotMarker_(name, x, y, scale);
 
   if (Images[name].data==0) {
-    ERROR_ << "ImageGallery::plot ERROR no image-data:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
+    << name);
     return false;
   }
 
@@ -616,12 +618,12 @@ bool ImageGallery::plotImages(const int n,
 {
 
   if (n == 0){
-    ERROR_ << "ImageGallery::plotImages ERROR no positions:";
+    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
     return false;
   }
   if (n != int(vn.size())){
-    ERROR_ << "ImageGallery::plotImages ERROR names and positions do not match:"
-    << n;
+    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR names and positions do not match:"
+    << n);
     return false;
   }
 
@@ -641,8 +643,8 @@ bool ImageGallery::plotImages(const int n,
 
   for (int j=0; j<n; j++){
     if (!Images.count(vn[j])){
-      ERROR_ << "ImageGallery::plotImages ERROR image not found:"
-      << vn[j];
+      METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR image not found:"
+      << vn[j]);
       return false;
     }
 
@@ -654,8 +656,8 @@ bool ImageGallery::plotImages(const int n,
     }
 
     if (Images[vn[j]].data==0) {
-      ERROR_ << "ImageGallery::plotImages ERROR no image-data:"
-      << vn[j];
+      METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no image-data:"
+      << vn[j]);
       return false;
     }
 
@@ -696,7 +698,7 @@ bool ImageGallery::plotImages(const int n,
   if(!readImage(name)) return false;
 
   if (n == 0){
-    ERROR_ << "ImageGallery::plotImages ERROR no positions:";
+    METLIBS_LOG_ERROR("ImageGallery::plotImages ERROR no positions:");
     return false;
   }
 
@@ -715,8 +717,8 @@ bool ImageGallery::plotImageAtPixel(const miString& name,
   if(!readImage(name)) return false;
 
   if (!Images.count(name)){
-    ERROR_ << "ImageGallery::plot ERROR image not found:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::plot ERROR image not found:"
+    << name);
     return false;
   }
 
@@ -724,8 +726,8 @@ bool ImageGallery::plotImageAtPixel(const miString& name,
     return plotMarker_(name, x, y, scale);
 
   if (Images[name].data==0) {
-    ERROR_ << "ImageGallery::plot ERROR no image-data:"
-    << name;
+    METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
+    << name);
     return false;
   }
 
@@ -777,10 +779,10 @@ void ImageGallery::printInfo() const
 {
   map<miString,image>::const_iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
-    INFO_ << "Image: " << p->second.name
+    METLIBS_LOG_INFO("Image: " << p->second.name
     << " W:" << p->second.width
     << " H:" << p->second.height
-    << " A:" << (p->second.alpha ? "YES" : "NO");
+    << " A:" << (p->second.alpha ? "YES" : "NO"));
   }
 }
 
@@ -809,12 +811,12 @@ miString ImageGallery::getFilename(const miString& name, bool pattern)
 
 bool ImageGallery::parseSetup()
 {
-  //  DEBUG_ << "ImageGallery: parseSetup";
+  //  METLIBS_LOG_DEBUG("ImageGallery: parseSetup");
   const miString ig_name = "IMAGE_GALLERY";
   vector<miString> sect_ig;
 
   if (!SetupParser::getSection(ig_name,sect_ig)){
-    ERROR_ << ig_name << " section not found";
+    METLIBS_LOG_ERROR(ig_name << " section not found");
     return false;
   }
 
@@ -829,8 +831,8 @@ bool ImageGallery::parseSetup()
 
     miString key = token[0].downcase();
     miString value = token[1];
-    //      DEBUG_ <<"key: "<<key;
-    //      DEBUG_ <<"Value: "<<value;
+    //      METLIBS_LOG_DEBUG("key: "<<key);
+    //      METLIBS_LOG_DEBUG("Value: "<<value);
     if(key.contains("path")){
       key.replace("path","");
       value += "/*";

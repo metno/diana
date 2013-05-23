@@ -54,7 +54,9 @@
 
 #include <iostream>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.EditDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtEditDialog.h"
 #include "qtEditNewDialog.h"
 #include "qtEditComment.h"
@@ -90,7 +92,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
 #ifdef dEditDlg
-  DEBUG_<<"EditDialog::EditDialog called";
+  METLIBS_LOG_DEBUG("EditDialog::EditDialog called");
 #endif
 
   TABNAME_FIELD= tr("Field");
@@ -186,7 +188,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 {
 #ifdef dEditDlg
-  DEBUG_<<"EditDialog::ConstructorCernel called";
+  METLIBS_LOG_DEBUG("EditDialog::ConstructorCernel called");
 #endif
 
   m_editm= m_ctrl->getEditManager();
@@ -575,7 +577,7 @@ void EditDialog::exlineCheckBoxToggled(bool on)
 void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 {
 #ifdef DEBUGREDRAW
-  DEBUG_<<"EditDialog::FieldEditMethods(index)  index= "<<m_Fieldeditmethods->currentRow();
+  METLIBS_LOG_DEBUG("EditDialog::FieldEditMethods(index)  index= "<<m_Fieldeditmethods->currentRow());
 #endif
 
   if(m_Fieldeditmethods->count()==0) return;
@@ -734,7 +736,7 @@ void  EditDialog::FrontTabBox( int index )
 
 void EditDialog::FrontEditClicked()
 {
-  //  DEBUG_ << "FrontEditClicked " ;
+  //  METLIBS_LOG_DEBUG("FrontEditClicked " );
   //called when an item in the objects list box clicked
   if (!inEdit || m_Fronteditmethods->count()==0) return;
 
@@ -879,7 +881,7 @@ void EditDialog::EditMarkedText()
   //changes all marked texts and objectmanagers current text !
   vector <miutil::miString> symbolText,xText,eText, mText;
   miutil::miString text = m_objm->getMarkedText();
-     //DEBUG_ << "-----EditDialog::EditMarkedText called------- text = "  << text;
+     //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
   if (!text.empty()){
     //get new text from inputdialog box
     Colour::ColourInfo colour=m_objm->getMarkedColour();
@@ -902,14 +904,14 @@ void EditDialog::EditMarkedText()
   }
   m_objm->getMarkedComplexText(symbolText,xText);
   if (symbolText.size()||xText.size()){
-     //DEBUG_ << "-----EditDialog::getMarkedComplexText returns nonempty strings" ;
-     //DEBUG_;
+     //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedComplexText returns nonempty strings" );
+     //METLIBS_LOG_DEBUG();
      if (getComplexText(symbolText,xText))
        m_objm->changeMarkedComplexText(symbolText,xText);
   }
   m_objm->getMarkedMultilineText(mText);
   if (mText.size()){
-     //DEBUG_ << "-----EditDialog::getMarkedMultilineText returns nonempty strings" ;
+     //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedMultilineText returns nonempty strings" );
      if (getEditText(mText))
         m_objm->changeMarkedMultilineText(mText);
   }
@@ -917,7 +919,7 @@ void EditDialog::EditMarkedText()
 
   m_objm->getMarkedComplexTextColored(symbolText,xText);
   if (symbolText.size()==1 && xText.size()==1){
-     //DEBUG_ << "------EditDialog::getMarkedComplexTextColored returns nonempty strings" ;
+     //METLIBS_LOG_DEBUG("------EditDialog::getMarkedComplexTextColored returns nonempty strings" );
      Colour::ColourInfo colour=m_objm->getMarkedTextColour();
      if (getComplexColoredText(symbolText,xText,colour)){
        m_objm->changeMarkedComplexTextColored(symbolText,xText);
@@ -959,7 +961,7 @@ bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
     vector <miutil::miString> & xText,Colour::ColourInfo & colour)
 {
-  //DEBUG_ << "EditDialog::getComplexColoredText called" ;
+  //METLIBS_LOG_DEBUG("EditDialog::getComplexColoredText called" );
   bool ok=false;
   if (symbolText.size() && xText.size()){
     set <miutil::miString> complexList = m_ctrl->getComplexList();
@@ -1058,7 +1060,7 @@ void  EditDialog::CombineTab()
 
 void EditDialog::stopCombine()
 {
-//   DEBUG_ << "EditDialog::stopCombine called";
+//   METLIBS_LOG_DEBUG("EditDialog::stopCombine called");
 
   twd->setTabEnabled(0, true);
   twd->setTabEnabled(1, true);
@@ -1113,8 +1115,8 @@ void EditDialog::CombineEditMethods()
       if (inEdit) m_objm->createNewObject();
     }
   } else {
-    ERROR_ << "EditDialog::CombineEditMethods    unknown combineAction:"
-    << combineAction;
+    METLIBS_LOG_ERROR("EditDialog::CombineEditMethods    unknown combineAction:"
+    << combineAction);
     return;
   }
   if (inEdit) {
@@ -1130,7 +1132,7 @@ void EditDialog::CombineEditMethods()
 void EditDialog::tabSelected( int tabindex)
 {
 #ifdef DEBUGREDRAW
-  DEBUG_<<"EditDialog::tabSelected:"<<tabindex;
+  METLIBS_LOG_DEBUG("EditDialog::tabSelected:"<<tabindex);
 #endif
   QString tabname = twd->tabText(tabindex);
 
@@ -1138,7 +1140,7 @@ void EditDialog::tabSelected( int tabindex)
     //unmark all objects when changing mapMode
     m_objm->editNotMarked();
 #ifdef DEBUGREDRAW
-    if (!inEdit) DEBUG_<<"EditDialog::tabSelected emit editUpdate()...(1)";
+    if (!inEdit) METLIBS_LOG_DEBUG("EditDialog::tabSelected emit editUpdate()...(1)");
 #endif
     if (!inEdit) emit editUpdate();
     if (m_EditDI.mapmodeinfo.size()>0){
@@ -1159,7 +1161,7 @@ void EditDialog::tabSelected( int tabindex)
   }
   // do a complete redraw - with underlay saving
 #ifdef DEBUGREDRAW
-  if (inEdit) DEBUG_<<"EditDialog::tabSelected emit editUpdate()...(2)";
+  if (inEdit) METLIBS_LOG_DEBUG("EditDialog::tabSelected emit editUpdate()...(2)");
 #endif
   if (inEdit) emit editUpdate();
 }
@@ -1175,7 +1177,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   for ( int i=0; i<n; i++){
     miutil::miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
 #ifdef DEBUGPRINT
-  if (inEdit) DEBUG_<<"ListWidgetData etool = "<< etool;
+  if (inEdit) METLIBS_LOG_DEBUG("ListWidgetData etool = "<< etool);
 #endif
     vstr.push_back(etool);
     QString dialog_etool;
@@ -1429,7 +1431,7 @@ bool EditDialog::cleanupForExit()
 void EditDialog::exitClicked()
 {
 #ifdef DEBUGREDRAW
-  DEBUG_<<"EditDialog::exitClicked....................";
+  METLIBS_LOG_DEBUG("EditDialog::exitClicked....................");
 #endif
   if (!cleanupForExit()) return;
   commentbutton->setChecked(false);
@@ -1489,7 +1491,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-//   DEBUG_ << "EditDialog::EditNewOk called................";
+//   METLIBS_LOG_DEBUG("EditDialog::EditNewOk called................");
   emit editMode(true);
 
   // Turn off Undo-buttons
@@ -1518,12 +1520,12 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   // update field dialog
 #ifdef DEBUGREDRAW
-  DEBUG_<<"EditDialog::EditNewOk emit emitFieldEditUpdate(empty)";
+  METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate(empty)");
 #endif
   emit emitFieldEditUpdate("");
 
   if (!m_editm->startEdit(ep,ci,time)) {
-    ERROR_ << "Error starting edit";
+    METLIBS_LOG_ERROR("Error starting edit");
     emit editApply();
     return;
   }
@@ -1683,7 +1685,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   vector<miutil::miTime> Times;
   Times.push_back(t);
 #ifdef DEBUGREDRAW
-  DEBUG_<<"EditDialog::EditNewOk emit emitTimes(product): "<<Times[0];
+  METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitTimes(product): "<<Times[0]);
 #endif
   emit emitTimes("product",Times);
 
@@ -1692,13 +1694,13 @@ void EditDialog::EditNewOk(EditProduct& ep,
     if (currprod.fields[i].fromfield){
       // this will remove the original field in the field dialog
 #ifdef DEBUGREDRAW
-      DEBUG_<<"EditDialog::EditNewOk emit emitFieldEditUpdate";
+      METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate");
 #endif
       emit emitFieldEditUpdate(currprod.fields[i].fromfname);
     } else {
       // add a new selected field in the field dialog
 #ifdef DEBUGREDRAW
-      DEBUG_<<"EditDialog::EditNewOk emit emitFieldEditUpdate...new";
+      METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate...new");
 #endif
       emit emitFieldEditUpdate(currprod.fields[i].name);
     }
@@ -1714,7 +1716,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   if (ep.OKstrings.size()){
 #ifdef DEBUGREDRAW
-    DEBUG_<<"EditDialog::EditNewOk emit Apply(ep.OKstrings)";
+    METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit Apply(ep.OKstrings)");
 #endif
     //apply commands for this EditProduct (probably MAP)
     m_ctrl->keepCurrentArea(false); // unset area conservatism
@@ -1723,19 +1725,19 @@ void EditDialog::EditNewOk(EditProduct& ep,
   } else {
     //  m_ctrl->keepCurrentArea(true); // reset area conservatism
 #ifdef DEBUGREDRAW
-    DEBUG_<<"EditDialog::EditNewOk emit editApply()";
+    METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit editApply()");
 #endif
     emit editApply();
     //  m_ctrl->keepCurrentArea(false); // reset area conservatism
   }
 
 #ifdef DEBUGREDRAW
-  DEBUG_<<"REMOVED EditDialog::EditNewOk emit editUpdate()";
+  METLIBS_LOG_DEBUG("REMOVED EditDialog::EditNewOk emit editUpdate()");
 #endif
   //emit editUpdate();
 
 #ifdef DEBUGREDRAW
-  DEBUG_ << "EditDialog::EditNewOk finished....................";
+  METLIBS_LOG_DEBUG("EditDialog::EditNewOk finished....................");
 #endif
 }
 
@@ -1744,7 +1746,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-//   DEBUG_ << "EditNewCombineOK";
+//   METLIBS_LOG_DEBUG("EditNewCombineOK");
   // Turn off Undo-buttons
   undoFrontsEnable();
   undoFieldsDisable();
@@ -1779,7 +1781,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   vector<miutil::miString> combids;
   // try to start combine
   if (!m_editm->startCombineEdit(ep,ci,time,combids)){
-    ERROR_ << "Error starting combine";
+    METLIBS_LOG_ERROR("Error starting combine");
     emit editApply();
     return;
   }
@@ -1924,7 +1926,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
       emit emitFieldEditUpdate(currprod.fields[i].name);
     }
   } else {
-    WARN_ << "Controller returned no producttime";
+    METLIBS_LOG_WARN("Controller returned no producttime");
   }
 
   m_editm->editCombine();

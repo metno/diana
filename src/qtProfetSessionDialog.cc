@@ -31,7 +31,9 @@
 #include "config.h"
 #endif
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.ProfetSessionDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtProfetSessionDialog.h"
 #include "qtProfetEvents.h"
 #include <QHBoxLayout>
@@ -212,13 +214,13 @@ void ProfetSessionDialog::customEvent(QEvent * e){
 }
 
 void ProfetSessionDialog::hideViewObjectDialog(){
-  DEBUG_ << "ProfetSessionDialog::hideViewObjectDialog";
+  METLIBS_LOG_DEBUG("ProfetSessionDialog::hideViewObjectDialog");
   viewObjectButton->setChecked(false);
 }
 void ProfetSessionDialog::printSize(const QModelIndex &){
-  DEBUG_ << "size: " << table->size().height();
-  DEBUG_ << "minimumSize: " << table->minimumSize().height();
-  DEBUG_ << "columnWidth: " << table->columnWidth(1);
+  METLIBS_LOG_DEBUG("size: " << table->size().height());
+  METLIBS_LOG_DEBUG("minimumSize: " << table->minimumSize().height());
+  METLIBS_LOG_DEBUG("columnWidth: " << table->columnWidth(1));
 }
 
 void ProfetSessionDialog::setHostname(miutil::miString hostname)

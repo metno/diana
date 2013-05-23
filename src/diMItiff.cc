@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.MItiff"
+#include <miLogger/miLogging.h>
+
 #include <diMItiff.h>
 
 using namespace::miutil;
@@ -82,7 +84,7 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
   else if (rres==0)
     file.palette=false;
   else{
-    ERROR_ <<"MITIFF_head_diana returned false:"<<file.name;
+    METLIBS_LOG_ERROR("MITIFF_head_diana returned false:"<<file.name);
     return false;
   }
 
@@ -105,7 +107,7 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 
   int rres= satimg::MITIFF_read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
   if (rres == -1) {
-    ERROR_ << "MITIFF_read_diana returned false:" << filename;
+    METLIBS_LOG_ERROR("MITIFF_read_diana returned false:" << filename);
     return false;
   }
 

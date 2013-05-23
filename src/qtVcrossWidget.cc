@@ -40,7 +40,9 @@
 #include <QKeyEvent>
 #include <QApplication>
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VcrossWidget"
+#include <miLogger/miLogging.h>
+
 #include "qtVcrossWidget.h"
 #include "diVcrossManager.h"
 #include "diVcrossPlot.h"
@@ -82,7 +84,7 @@ VcrossWidget::~VcrossWidget()
 void VcrossWidget::initializeGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossWidget::initializeGL";
+  METLIBS_LOG_DEBUG("VcrossWidget::initializeGL");
 #endif
 
   glShadeModel( GL_FLAT );
@@ -94,7 +96,7 @@ void VcrossWidget::initializeGL()
 void VcrossWidget::paintGL()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossWidget::paintGL";
+  METLIBS_LOG_DEBUG("VcrossWidget::paintGL");
 #endif
 
   if (!vcrossm) return;
@@ -107,7 +109,7 @@ void VcrossWidget::paintGL()
   if (!fbuffer) {
 
 #ifdef DEBUGREDRAW
-    DEBUG_ << "VcrossWidget::paintGL ... vcrossm->plot";
+    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ... vcrossm->plot");
 #endif
     QApplication::setOverrideCursor( Qt::WaitCursor );
     vcrossm->plot();
@@ -115,7 +117,7 @@ void VcrossWidget::paintGL()
 
     if (savebackground) {
 #ifdef DEBUGREDRAW
-    DEBUG_ << "VcrossWidget::paintGL ...... savebackground";
+    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ...... savebackground");
 #endif
 
       VcrossPlot::getPlotSize(glx1,gly1,glx2,gly2,rubberbandColour);
@@ -136,7 +138,7 @@ void VcrossWidget::paintGL()
 
   } else {
 #ifdef DEBUGREDRAW
-    DEBUG_ << "VcrossWidget::paintGL ...... drawbackground";
+    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ...... drawbackground");
 #endif
 
     makeCurrent();
@@ -186,7 +188,7 @@ void VcrossWidget::paintGL()
 void VcrossWidget::resizeGL( int w, int h )
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossWidget::resizeGL  w=" << w << " h=" << h;
+  METLIBS_LOG_DEBUG("VcrossWidget::resizeGL  w=" << w << " h=" << h);
 #endif
   VcrossPlot::setPlotWindow(w,h);
 
@@ -330,7 +332,7 @@ void VcrossWidget::mouseReleaseEvent(QMouseEvent* me)
 void VcrossWidget::enableTimeGraph(bool on)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VcrossWidget::enableTimeGraph  on=" << on;
+  METLIBS_LOG_DEBUG("VcrossWidget::enableTimeGraph  on=" << on);
 #endif
   timeGraph= false;
   startTimeGraph= on;

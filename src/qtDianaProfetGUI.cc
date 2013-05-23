@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.DianaProfetGUI"
+#include <miLogger/miLogging.h>
+
 #include "qtDianaProfetGUI.h"
 #include "qtPaintToolBar.h"
 #include "qtProfetEvents.h"
@@ -242,7 +244,7 @@ void DianaProfetGUI::toggleObjectOverview(bool turnon, miutil::miString par,
 {
   if (turnon) {
     vector<fetObject> objects = controller.getOverviewObjects(par, time);
-    INFO_ << "Got " << objects.size() << " objects for par:" << par;
+    METLIBS_LOG_INFO("Got " << objects.size() << " objects for par:" << par);
 
     areaManager->clearTemporaryAreas();
     for (size_t i = 0; i < objects.size(); i++) {
@@ -269,7 +271,7 @@ void DianaProfetGUI::sessionModified(const QModelIndex & topLeft,
   if (topLeft == bottomRight) {
     fetSession s = sessionModel.getSession(topLeft);
     if (s == currentSession) {
-      INFO_ << "CURRENTSESSION CHANGED!!!!!";
+      METLIBS_LOG_INFO("CURRENTSESSION CHANGED!!!!!");
       // current session has been modified
       currentSession = s;
       enableObjectButtons(enableNewbutton_, enableModifyButtons_, enableTable_);
@@ -293,8 +295,8 @@ fetSession DianaProfetGUI::getCurrentSession()
 void DianaProfetGUI::enableObjectButtons(bool enableNewbutton,
     bool enableModifyButtons, bool enableTable)
 {
-  //   DEBUG_ << "DianaProfetGUI::enableObjectButtons (" << enableNewbutton
-  //        << "," << enableModifyButtons << "," << enableTable << ")";
+  //   METLIBS_LOG_DEBUG("DianaProfetGUI::enableObjectButtons (" << enableNewbutton
+  //        << "," << enableModifyButtons << "," << enableTable << ")");
 
   fetSession s = getCurrentSession();
   bool isopen = (!s.referencetime().undef() && s.editstatus()
@@ -340,7 +342,7 @@ void DianaProfetGUI::setParameters(const vector<fetParameter>& vp){
 
 void DianaProfetGUI::setCurrentSession(const fetSession & session)
 {
-  //DEBUG_ << "DianaProfetGUI::setCurrentSession:" << session;
+  //METLIBS_LOG_DEBUG("DianaProfetGUI::setCurrentSession:" << session);
 
   //Changing current session must be done in QT event queue
   //to be performed in the correct order...
@@ -477,7 +479,7 @@ void DianaProfetGUI::updateObjects(const vector<fetObject> & objects)
       objects);
   QCoreApplication::postEvent(this, oue);//thread-safe
   QCoreApplication::flush();
-  DEBUG_ << "DianaProfetGUI:: updateObjects";
+  METLIBS_LOG_DEBUG("DianaProfetGUI:: updateObjects");
 }
 
 void DianaProfetGUI::updateObject(const fetObject & object, bool remove)
@@ -486,7 +488,7 @@ void DianaProfetGUI::updateObject(const fetObject & object, bool remove)
       remove);
   QCoreApplication::postEvent(this, oue);//thread-safe
   QCoreApplication::flush();
-  DEBUG_ << "DianaProfetGUI:: updateObject";
+  METLIBS_LOG_DEBUG("DianaProfetGUI:: updateObject");
 }
 
 /**
@@ -523,7 +525,7 @@ void DianaProfetGUI::baseObjectSelected(miutil::miString id)
         fetSession s = getCurrentSession();
         refTime = s.referencetime();
       } catch (InvalidIndexException & iie) {
-        ERROR_ << "DianaProfetGUI::baseObjectSelected invalid session index";
+        METLIBS_LOG_ERROR("DianaProfetGUI::baseObjectSelected invalid session index");
       }
 
       // TODO: fetch parent from somewhere...
@@ -682,7 +684,7 @@ void DianaProfetGUI::startTimesmooth()
     fetSession s = getCurrentSession();
     tim = s.times();
   } catch (InvalidIndexException & iie) {
-    ERROR_ << "DianaProfetGUI::startTimesmooth invalid session index";
+    METLIBS_LOG_ERROR("DianaProfetGUI::startTimesmooth invalid session index");
     return;
   }
   vector<fetObject::TimeValues> obj;
@@ -740,8 +742,8 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
       }
     }
   } catch (Profet::ServerException & se) {
-    ERROR_ << "DianaProfetGUI::processTimesmooth:  Failed to delete "
-        << "deprecated object. (Not significant)";
+    METLIBS_LOG_ERROR("DianaProfetGUI::processTimesmooth:  Failed to delete "
+        << "deprecated object. (Not significant)");
   }
 
   for (size_t i = 0; i < obj.size(); i++) {
@@ -753,7 +755,7 @@ void DianaProfetGUI::processTimeValues(vector<fetObject::TimeValues> tv,
         emit timesmoothProcessed(tim, obj[i].id());
       } else {
         emit timesmoothProcessed(tim, "");
-        ERROR_ << "could not process" << obj[i].id() << " at " << tim;
+        METLIBS_LOG_ERROR("could not process" << obj[i].id() << " at " << tim);
       }
     } catch (Profet::ServerException & se) {
       handleServerException(se);
@@ -841,14 +843,14 @@ void DianaProfetGUI::dynamicGuiChanged()
 
 void DianaProfetGUI::sessionSelected(int index)
 {
-  DEBUG_ << "DianaProfetGUI::sessionSelected:" << index;
+  METLIBS_LOG_DEBUG("DianaProfetGUI::sessionSelected:" << index);
   try {
     controller.currentSessionChanged(sessionModel.getSession(index));
   } catch (Profet::ServerException & se) {
     handleServerException(se);
     return;
   } catch (InvalidIndexException & iie) {
-    ERROR_ << "DianaProfetGUI::sessionSelected invalid index";
+    METLIBS_LOG_ERROR("DianaProfetGUI::sessionSelected invalid index");
     return;
   }
   //enableObjectButtons(true,false,true);
@@ -1121,8 +1123,8 @@ void DianaProfetGUI::processSpatialsmooth()
       }
     }
     if (!foundit) {
-      ERROR_ << "processSpatialSmoothing: Unable to find area for object:"
-          << spatialsmoothtv[i].id;
+      METLIBS_LOG_ERROR("processSpatialSmoothing: Unable to find area for object:"
+          << spatialsmoothtv[i].id);
     }
   }
 
@@ -1205,7 +1207,7 @@ void DianaProfetGUI::gridAreaChanged()
             fetSession s = getCurrentSession();
             refTime = s.referencetime();
           } catch (InvalidIndexException & iie) {
-            ERROR_ << "DianaProfetGUI::baseObjectSelected invalid session index";
+            METLIBS_LOG_ERROR("DianaProfetGUI::baseObjectSelected invalid session index");
           }
           // TODO: fetch parent from somewhere...
           miutil::miString parent_ = "";

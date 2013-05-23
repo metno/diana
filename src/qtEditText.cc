@@ -45,7 +45,9 @@
 #include <fstream>
 #include <iostream>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.EditText"
+#include <miLogger/miLogging.h>
+
 #include <puTools/miString.h>
 #include "qtEditText.h"
 #include "qtUtility.h"
@@ -102,7 +104,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       setWindowTitle(tr("Write text for editing"));
       QString multitext;
       int ns = symbolText.size();
-      DEBUG_<<"?????????ns = "<< ns;
+      METLIBS_LOG_DEBUG("?????????ns = "<< ns);
      // int nx = xText.size();
       //set <miutil::miString> complexList = m_ctrl->getEditList();
       set <miutil::miString> complexList = cList;

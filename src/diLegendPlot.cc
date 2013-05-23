@@ -37,7 +37,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.LegendPlot"
+#include <miLogger/miLogging.h>
+
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
@@ -52,7 +54,7 @@ LegendPlot::LegendPlot()
   : Plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Default Constructor";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
 #endif
   showplot = true;
   x1title = 0;
@@ -69,7 +71,7 @@ LegendPlot::LegendPlot(miString& str)
   : Plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Default Constructor";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
 #endif
 
   showplot = true;
@@ -113,7 +115,7 @@ void LegendPlot::setData(const miString& title,
 			     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::setdata";
+  METLIBS_LOG_DEBUG("++ LegendPlot::setdata");
 #endif
 
   // fill the table with colours and textstrings from palette information
@@ -125,7 +127,7 @@ void LegendPlot::setData(const miString& title,
 // Copy constructor
 LegendPlot::LegendPlot(const LegendPlot &rhs){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Copy constructor";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Copy constructor");
 #endif
   // elementwise copy
   memberCopy(rhs);
@@ -134,14 +136,14 @@ LegendPlot::LegendPlot(const LegendPlot &rhs){
 // Destructor
 LegendPlot::~LegendPlot(){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Destructor";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Destructor");
 #endif
 }
 
 // Assignment operator
 LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Assignment operator";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Assignment operator");
 #endif
   if (this == &rhs) return *this;
 
@@ -154,14 +156,14 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
 // Equality operator
 bool LegendPlot::operator==(const LegendPlot &rhs) const{
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::Equality operator";
+  METLIBS_LOG_DEBUG("++ LegendPlot::Equality operator");
 #endif
   return false;
 }
 
 void LegendPlot::memberCopy(const LegendPlot& rhs){
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::MemberCopy";
+  METLIBS_LOG_DEBUG("++ LegendPlot::MemberCopy");
 #endif
   // copy members
   titlestring= rhs.titlestring;
@@ -201,7 +203,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
 bool LegendPlot::plot(float x, float y)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ LegendPlot::plot";
+  METLIBS_LOG_DEBUG("++ LegendPlot::plot");
 #endif
   // fill the table with colours and textstrings from palette information
 
@@ -385,7 +387,7 @@ bool LegendPlot::plot(float x, float y)
   }
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "++ Returning from Legend::plot() ++";
+  METLIBS_LOG_DEBUG("++ Returning from Legend::plot() ++");
 #endif
 
   return true;

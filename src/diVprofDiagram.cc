@@ -37,7 +37,9 @@
 #include "config.h"
 #endif
 
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VprofDiagram"
+#include <miLogger/miLogging.h>
+
 #include "diVprofDiagram.h"
 #include "diColour.h"
 #include "diLinetype.h"
@@ -53,7 +55,7 @@ VprofDiagram::VprofDiagram(VprofOptions *vpop) :
       numprog(0)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::VprofDiagram";
+  METLIBS_LOG_DEBUG("VprofDiagram::VprofDiagram");
 #endif
   setDefaults();
   plotw = ploth = 0;
@@ -64,7 +66,7 @@ VprofDiagram::VprofDiagram(VprofOptions *vpop) :
 VprofDiagram::~VprofDiagram()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::~VprofDiagram";
+  METLIBS_LOG_DEBUG("VprofDiagram::~VprofDiagram");
 #endif
   if (glIsList(drawlist))
     glDeleteLists(drawlist, 1);
@@ -74,7 +76,7 @@ VprofDiagram::~VprofDiagram()
 void VprofDiagram::changeOptions(VprofOptions *vpop)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::changeOptions";
+  METLIBS_LOG_DEBUG("VprofDiagram::changeOptions");
 #endif
   vpopt = vpop;
   newdiagram = true;
@@ -83,7 +85,7 @@ void VprofDiagram::changeOptions(VprofOptions *vpop)
 void VprofDiagram::changeNumber(int ntemp, int nprog)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::changeNumber  ntemp,nprog: "<<ntemp<<" "<<nprog;
+  METLIBS_LOG_DEBUG("VprofDiagram::changeNumber  ntemp,nprog: "<<ntemp<<" "<<nprog);
 #endif
   if (ntemp != numtemp || nprog != numprog) {
     numtemp = ntemp;
@@ -103,7 +105,7 @@ void VprofDiagram::setPlotWindow(int w, int h)
 void VprofDiagram::plot()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::plot";
+  METLIBS_LOG_DEBUG("VprofDiagram::plot");
 #endif
 
   vptext.clear();
@@ -202,7 +204,7 @@ void VprofDiagram::plot()
 void VprofDiagram::setDefaults()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::setDefaults";
+  METLIBS_LOG_DEBUG("VprofDiagram::setDefaults");
 #endif
 
   newdiagram = true;
@@ -226,7 +228,7 @@ void VprofDiagram::setDefaults()
 void VprofDiagram::prepare()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::prepare";
+  METLIBS_LOG_DEBUG("VprofDiagram::prepare");
 #endif
 
   // constants
@@ -688,8 +690,8 @@ void VprofDiagram::prepare()
   xysize[0][3] = ymax;
   //###############################################################
   //for (n=0; n<mxysize; n++)
-  //  DEBUG_<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
-  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3];
+  //  METLIBS_LOG_DEBUG("xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
+  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3]);
   //###############################################################
 
   vpopt->changed = false;
@@ -699,7 +701,7 @@ void VprofDiagram::prepare()
 void VprofDiagram::condensationtrails()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::condensationtrails";
+  METLIBS_LOG_DEBUG("VprofDiagram::condensationtrails");
 #endif
   //
   // compute lines for evaluation of possibility for
@@ -856,14 +858,14 @@ void VprofDiagram::condensationtrails()
     cotrails[n][0] = 2. * cotrails[n][1] - cotrails[n][2];
 
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::condensationtrails finished";
+  METLIBS_LOG_DEBUG("VprofDiagram::condensationtrails finished");
 #endif
 }
 
 void VprofDiagram::plotDiagram()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::plotDiagram";
+  METLIBS_LOG_DEBUG("VprofDiagram::plotDiagram");
 #endif
 
   // constants
@@ -923,8 +925,8 @@ void VprofDiagram::plotDiagram()
 
   //###############################################################
   //for (n=0; n<mxysize; n++)
-  //  DEBUG_<<"xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
-  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3];
+  //  METLIBS_LOG_DEBUG("xysize "<<n<<" "<<xysize[n][0]<<" "<<xysize[n][1]
+  //      <<" "<<xysize[n][2]<<" "<<xysize[n][3]);
   //###############################################################
 
   // thick lines not changed by dialogs...
@@ -1556,9 +1558,9 @@ void VprofDiagram::plotDiagram()
     UpdateOutput();
     if (vpopt->plabelflevels) {
       //######################################################################
-      //DEBUG_<<" flightlevels.size()= "<< flightlevels.size();
-      //DEBUG_<<"pflightlevels.size()= "<<pflightlevels.size();
-      //DEBUG_<<"                  kk= "<<kk;
+      //METLIBS_LOG_DEBUG(" flightlevels.size()= "<< flightlevels.size());
+      //METLIBS_LOG_DEBUG("pflightlevels.size()= "<<pflightlevels.size());
+      //METLIBS_LOG_DEBUG("                  kk= "<<kk);
       //######################################################################
       y1 += chy * 0.6;
       y2 -= chy * 0.6;
@@ -1886,7 +1888,7 @@ void VprofDiagram::fpInitStr(const miString& str, float x, float y, float z,
     float size, Colour c, miString format, miString font)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::fpInitStr";
+  METLIBS_LOG_DEBUG("VprofDiagram::fpInitStr");
 #endif
 
   fpStrInfo strInfo;
@@ -1905,7 +1907,7 @@ void VprofDiagram::fpInitStr(const miString& str, float x, float y, float z,
 void VprofDiagram::fpDrawStr(bool first)
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::fpDrawStr";
+  METLIBS_LOG_DEBUG("VprofDiagram::fpDrawStr");
 #endif
   float w, h;
   int n = fpStr.size();
@@ -1940,7 +1942,7 @@ void VprofDiagram::fpDrawStr(bool first)
 void VprofDiagram::plotText()
 {
 #ifdef DEBUGPRINT
-  DEBUG_ << "VprofDiagram::plotText";
+  METLIBS_LOG_DEBUG("VprofDiagram::plotText");
 #endif
 
   if (vpopt->ptext) {

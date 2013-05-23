@@ -33,7 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ButtonLayout"
+#include <miLogger/miLogging.h>
+
 #include "qtButtonLayout.h"
 #include "qtUtility.h"
 #include <QGridLayout>
@@ -109,7 +111,7 @@ void ButtonLayout::setEnabled( bool enabled ){
    false.
    */
 #ifdef dButLay
-  DEBUG_<<"ButtonLayout::setEnabled called";
+  METLIBS_LOG_DEBUG("ButtonLayout::setEnabled called");
 #endif
   int nr_buttons = buttonList.size();
 
@@ -242,7 +244,7 @@ vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
 
 void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
 {
-  //  DEBUG_ <<"setRightClicked:"<<name;
+  //  METLIBS_LOG_DEBUG("setRightClicked:"<<name);
 
   int n = buttonList.size();
 
@@ -268,7 +270,7 @@ void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
 
 void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 {
-  //  DEBUG_ <<"rightButtonClicked";
+  //  METLIBS_LOG_DEBUG("rightButtonClicked");
 
   unsigned int id = bgroup->id(butto);
   if(buttonList.size() > id){

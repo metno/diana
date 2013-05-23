@@ -45,7 +45,9 @@
 #include <glText/glTextQtTexture.h>
 #include <glp/GLP.h>
 #endif
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.FontManager"
+#include <miLogger/miLogging.h>
+
 #include <diLocalSetupParser.h>
 
 using namespace miutil;
@@ -192,7 +194,7 @@ bool FontManager::parseSetup()
   }
 
   if (!SetupParser::getSection(sf_name, sect_fonts)) {
-    //WARN_ << "Missing section " << sf_name << " in setupfile.";
+    //METLIBS_LOG_WARN("Missing section " << sf_name << " in setupfile.");
     testDefineFonts(fontpath);
     return false;
   }
@@ -247,7 +249,7 @@ bool FontManager::parseSetup()
       enginefamilies[key_bitmap].insert(fontfam);
       if (fontengines[key_bitmap]) fontengines[key_bitmap]->defineFonts(fontname, fontfam, postscript);
 #else
-      WARN_ << "X-FONTS not supported!";
+      METLIBS_LOG_WARN("X-FONTS not supported!");
 #endif
 #endif
     } else if (fonttype.downcase() == key_scaleable) {
@@ -342,7 +344,7 @@ bool FontManager::check_family(const miString& fam, miString& family)
   }
 
   if (itr == enginefamilies.end()) {
-    ERROR_ << "FontManager::check_family ERROR, unknown font family:" << family;
+    METLIBS_LOG_ERROR("FontManager::check_family ERROR, unknown font family:" << family);
     return false;
   }
 

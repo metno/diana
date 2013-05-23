@@ -35,7 +35,9 @@
 
 #ifdef METNOOBS
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.ObsAireps"
+#include <miLogger/miLogging.h>
+
 #include <diObsAireps.h>
 
 using namespace::miutil;
@@ -67,8 +69,8 @@ void ObsAireps::init(ObsPlot *oplot, vector<int> &levels){
 
     if (j==n){
       j= n/2;
-      WARN_ <<"Level: "<<level<<" is not in the list, using "
-	   <<levels[j]<<" hPa";
+      METLIBS_LOG_WARN("Level: "<<level<<" is not in the list, using "
+	   <<levels[j]<<" hPa");
     }
 
     if( j-1 < 0 )

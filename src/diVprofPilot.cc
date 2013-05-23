@@ -36,7 +36,9 @@
 //#ifdef METNOOBS
 
 #include <iostream>
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.VprofPilot"
+#include <miLogger/miLogging.h>
+
 #include <diVprofPilot.h>
 #include <diVprofPlot.h>
 #include <robs/geopos.h>
@@ -47,7 +49,7 @@ using namespace::miutil;
 // Default constructor
 VprofPilot::VprofPilot(void)
 {
-  DEBUG_ <<"++ VprofPilot::VprofPilot()-default";
+  METLIBS_LOG_DEBUG("++ VprofPilot::VprofPilot()-default");
 }
 
 
@@ -127,17 +129,17 @@ VprofPlot* VprofPilot::getStation(const miString& station,
 
 //####################################################################
 //  if (station=="03005" || station=="03953") {
-//    DEBUG_<<"-------------------------------------------------";
-//    DEBUG_<<station<<"   "<<time;
+//    METLIBS_LOG_DEBUG("-------------------------------------------------");
+//    METLIBS_LOG_DEBUG(station<<"   "<<time);
 //    for (int k=0; k<nLevel; k++) {
-//      DEBUG_<<"  p="<<contents[n].data.PPPP[k]
+//      METLIBS_LOG_DEBUG("  p="<<contents[n].data.PPPP[k]
 //          <<"  dd="<<contents[n].data.dd[k]
 //          <<"  ff="<<contents[n].data.ff[k]
 //          <<"  t="<<contents[n].data.TTT[k]
 //          <<"  td="<<contents[n].data.TdTdTd[k]
-//          <<"  flags1="<<contents[n].data.flags1[k];
+//          <<"  flags1="<<contents[n].data.flags1[k]);
 //    }
-//    DEBUG_<<"-------------------------------------------------";
+//    METLIBS_LOG_DEBUG("-------------------------------------------------");
 //  }
 //####################################################################
 
