@@ -64,6 +64,19 @@
 using namespace std;
 using namespace miutil;
 
+namespace {
+void LOG_2D(float* data, int maxi, int n, const char* name)
+{
+  std::ostringstream debug;
+  std::copy(data, data+std::min(n, maxi), std::ostream_iterator<float>(debug, " "));
+  if (n < maxi) {
+    debug << " ..... ";
+    std::copy(data + std::max(0, maxi-n), data+maxi, std::ostream_iterator<float>(debug, " "));
+  }
+  METLIBS_LOG_DEBUG("computer " << name << " = " << debug.str());
+}
+}
+
 // static
 FontManager* VcrossPlot::fp = 0; // fontpack
 GridConverter VcrossPlot::gc; // Projection-converter
@@ -1321,13 +1334,14 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
   METLIBS_LOG_DEBUG(LOGVAL(timeGraph));
   if (!timeGraph) {
-    float dx, dy, ds;
-    dx = cdata1d[nxg][1] - cdata1d[nxg][0];
-    dy = cdata1d[nyg][1] - cdata1d[nyg][0];
-    ds = sqrtf(dx * dx + dy * dy);
+    LOG_2D(cdata1d[nxg], nPoint, nPoint, "nxg");
+    LOG_2D(cdata1d[nyg], nPoint, nPoint, "nyg");
+    float dx = cdata1d[nxg][1] - cdata1d[nxg][0];
+    float dy = cdata1d[nyg][1] - cdata1d[nyg][0];
+    float ds = sqrtf(dx * dx + dy * dy);
     cdata1d[nsin][0] = dy / ds;
     cdata1d[ncos][0] = dx / ds;
-    for (i = 1; i < nPoint - 1; i++) {
+    for (int i = 1; i < nPoint - 1; i++) {
       dx = cdata1d[nxg][i + 1] - cdata1d[nxg][i - 1];
       dy = cdata1d[nyg][i + 1] - cdata1d[nyg][i - 1];
       ds = sqrtf(dx * dx + dy * dy);
@@ -1341,11 +1355,10 @@ bool VcrossPlot::prepareData(const miString& fileName)
     cdata1d[ncos][nPoint - 1] = dx / ds;
   } else {
     // time graph (one position) ..... directions rel. crossection
-    float dx, dy, ds;
-    ds = sqrtf(tgdx * tgdx + tgdy * tgdy);
-    dy = tgdy / ds;
-    dx = tgdx / ds;
-    for (i = 0; i < nPoint; i++) {
+    float ds = sqrtf(tgdx * tgdx + tgdy * tgdy);
+    float dy = tgdy / ds;
+    float dx = tgdx / ds;
+    for (int i = 0; i < nPoint; i++) {
       cdata1d[nsin][i] = dy;
       cdata1d[ncos][i] = dx;
     }
@@ -1388,50 +1401,50 @@ bool VcrossPlot::prepareData(const miString& fileName)
   nx = addPar2d(-31001);
   ny = addPar2d(-31002);
 
+  METLIBS_LOG_DEBUG(LOGVAL(vcoord));
   if (vcoord == 2 || vcoord == 10) {
     // pressure in all levels
     // p = alevel + blevel*ps
     // (for sigma this is the same as p = ptop + sigma*(ps-ptop))
-    n = 0;
-    for (k = 0; k < numLev; k++)
-      for (i = 0; i < nPoint; i++)
+    int n = 0;
+    for (int k = 0; k < numLev; k++)
+      for (int i = 0; i < nPoint; i++)
         cdata2d[npp][n++] = alevel[k] + blevel[k] * cdata1d[nps][i];
+    float* ff = new float[numLev];
+    std::copy(alevel.begin(), alevel.end(), ff);
+    LOG_2D(ff, numLev, nPoint, "prepData alevel");
+    std::copy(blevel.begin(), blevel.end(), ff);
+    LOG_2D(ff, numLev, nPoint, "prepData blevel");
+    delete[] ff;
+    LOG_2D(cdata2d[nps], nTotal, nPoint, "prepData nps");
   } else if (vcoord == 1) {
     // pressure levels
-    n = 0;
-    for (k = 0; k < numLev; k++)
-      for (i = 0; i < nPoint; i++)
+    int n = 0;
+    for (int k = 0; k < numLev; k++)
+      for (int i = 0; i < nPoint; i++)
         cdata2d[npp][n++] = alevel[k];
   }
 
-  if (npp >= 0 && iundef == 0) {
+  METLIBS_LOG_DEBUG(LOGVAL(npp));
+  LOG_2D(cdata2d[npp], nTotal, nPoint, "prepData npp");
+  if (npp >= 0) {
     // exner function (pi) in all levels
     // pi = 1004.*(p/1000.)**(287./1004.)
-    float p, pi;
-    for (n = 0; n < nTotal; n++) {
-      p = cdata2d[npp][n];
-      pi = cp * powf(p * p0inv, kappa);
-      cdata2d[npi][n] = pi;
-    }
-  } else if (npp >= 0) {
-    // exner function (pi) in all levels
-    // pi = 1004.*(p/1000.)**(287./1004.)
-    float p, pi;
-    for (n = 0; n < nTotal; n++) {
-      if (cdata2d[npp][n] != fieldUndef) {
-        p = cdata2d[npp][n];
+    for (int n = 0; n < nTotal; n++) {
+      float p = cdata2d[npp][n], pi;
+      if (iundef == 0 or p != fieldUndef) {
         pi = cp * powf(p * p0inv, kappa);
-        cdata2d[npi][n] = pi;
       } else {
-        cdata2d[npi][n] = fieldUndef;
+        pi = fieldUndef;
       }
+      cdata2d[npi][n] = pi;
     }
   }
 
   // used by misc. routines (incl. contouring)
   n = 0;
-  for (k = 0; k < numLev; k++)
-    for (i = 0; i < nPoint; i++)
+  for (int k = 0; k < numLev; k++)
+    for (int i = 0; i < nPoint; i++)
       cdata2d[nx][n++] = cdata1d[nxs][i];
 
   // location of 2d parameters (fields) by name,
@@ -1520,6 +1533,7 @@ void VcrossPlot::prepareVertical()
       yscale = (yDatamax - yDatamin) / (pimin - pimax);
       yconst = yDatamin - yscale * pimax;
       npc = npi;
+      LOG_2D(cdata2d[npi], nTotal, nPoint, "cdata2d[npi]");
     } else if (vcoordPlot == vcv_pressure) {
       // pressure as vertical plot coordinate
       METLIBS_LOG_DEBUG("pressure" << LOGVAL(pmin) << LOGVAL(pmax));
@@ -1530,8 +1544,7 @@ void VcrossPlot::prepareVertical()
       // no "zrange" of crossections available, yet...
       float zmin, zmax;
       zmin = zmax = cdata2d[nzz][0];
-      n = 0;
-      for (n = 0; n < nTotal; n++) {
+      for (int n = 1; n < nTotal; n++) {
         if (zmin > cdata2d[nzz][n])
           zmin = cdata2d[nzz][n];
         if (zmax < cdata2d[nzz][n])
@@ -1546,14 +1559,11 @@ void VcrossPlot::prepareVertical()
       npc = nzz;
     }
     METLIBS_LOG_DEBUG(LOGVAL(yconst) << LOGVAL(yscale) << LOGVAL(yDatamin) << LOGVAL(yDatamax) << LOGVAL(iundef) << LOGVAL(npc));
-    if (iundef == 0) {
-      for (i = 0; i < nTotal; i++)
+    for (int i = 0; i < nTotal; i++) {
+      if (iundef == 0 or cdata2d[npc][i] != fieldUndef)
         cdata2d[ny][i] = yconst + yscale * cdata2d[npc][i];
-    } else {
-      for (i = 0; i < nTotal; i++)
-        if (cdata2d[ny][i] != fieldUndef)
-          cdata2d[ny][i] = yconst + yscale * cdata2d[npc][i];
     }
+    LOG_2D(cdata2d[ny], nTotal, nPoint, "cdata2d[ny]");
 
     if (npy1 >= 0) {
       if (nps >= 0 && vcoordPlot == vcv_exner) {
@@ -1594,7 +1604,7 @@ void VcrossPlot::prepareVertical()
         }
         // we don't want any undefined values in this array
         bool found = false;
-        for (i = 0; i < nPoint; i++) {
+        for (int i = 0; i < nPoint; i++) {
           if (cdata1d[npy1][i] != fieldUndef) {
             found = true;
             if (cdata1d[npy1][i] < (yDatamin + yDatamax) * 0.5)
@@ -1674,12 +1684,11 @@ void VcrossPlot::prepareVertical()
   n = 0;
   vlimitmin.clear();
   vlimitmax.clear();
-  for (k = 0; k < numLev; k++) {
+  for (int k = 0; k < numLev; k++) {
     float vmin = +fieldUndef;
     float vmax = -fieldUndef;
-    float v;
-    for (i = 0; i < nPoint; i++) {
-      v = cdata2d[ny][n++];
+    for (int i = 0; i < nPoint; i++) {
+      float v = cdata2d[ny][n++];
       if (v != fieldUndef) {
         if (vmin > v)
           vmin = v;
@@ -2065,6 +2074,15 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc, vector<int>
       nrot2 = ngdir2;
       s1 = 1.;
     }
+  {
+    METLIBS_LOG_DEBUG(LOGVAL(compute) << LOGVAL(nu) << LOGVAL(nv) << LOGVAL(nrot1) << LOGVAL(nrot2));
+    LOG_2D(cdata2d[nu], nTotal, nPoint, "u");
+    LOG_2D(cdata2d[nv], nTotal, nPoint, "v");
+    if (nrot1 >= 0)
+      LOG_2D(cdata1d[nrot1], nPoint, nPoint, "nrot1");
+    if (nrot2 >= 0)
+      LOG_2D(cdata1d[nrot2], nPoint, nPoint, "nrot2");
+  }
     if (nrot1 < 0 || nrot2 < 0)
       return -1;
     if (allDefined) {
@@ -2206,9 +2224,7 @@ int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc, vector<int>
     // for (int lev=0; lev<numLev; ++lev)
     //   for (int p=0; p<nPoint; ++p)
     //     cdata2d[no][n++] = 1e-3*(lev-numLev/2)*(lev-numLev/2)*(p-nPoint/2)*(p-nPoint/2);
-    std::ostringstream debug;
-    std::copy(cdata2d[no], cdata2d[no]+std::min(50, nTotal), std::ostream_iterator<float>(debug, " "));
-    METLIBS_LOG_DEBUG("computer computed: " << var << " = " << debug.str());
+    LOG_2D(cdata2d[no], nTotal, nPoint, var.c_str());
   }
   return no;
 }
@@ -2784,8 +2800,7 @@ void VcrossPlot::plotXLabels()
 
       if (vcopt->distanceStep == "grid") { //distance at gridpoints
         for (i = ip1; i <= ip2; i++) {
-          if ((cdata1d[nxs][i] > x + xlen && cdata1d[nxs][i] < xcut) || i
-              == ip2) {
+          if ((cdata1d[nxs][i] > x + xlen && cdata1d[nxs][i] < xcut) || i == ip2) {
             ostringstream xostr;
             xostr << setprecision(1) << setiosflags(ios::fixed) << fabsf(
                 (cdata1d[nxs][i] - rpos) / unit);
@@ -2808,14 +2823,12 @@ void VcrossPlot::plotXLabels()
         int step = vcopt->distanceStep.toInt();
         int i = ip1;
         //pos first possible label
-        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i]
-                                                                       > xcut))
+        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i] > xcut))
           i++;
         float p1 = ((cdata1d[nxs][i] - rpos) / unit);
         x = cdata1d[nxs][i];
         //pos nex possible label
-        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i]
-                                                                       > xcut))
+        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i] > xcut))
           i++;
         float p2 = ((cdata1d[nxs][i] - rpos) / unit);
         //step
@@ -3078,10 +3091,9 @@ void VcrossPlot::plotXLabels()
         x += ((vpstr[n].length() + 2) * chxt);
       }
     }
-
   }
-
 }
+
 
 void VcrossPlot::plotLevels()
 {
@@ -4765,57 +4777,118 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
 {
   METLIBS_LOG_SCOPE();
 
-  int ix1 = part[0];
-  int ix2 = part[1];
-  int iy1 = part[2];
-  int iy2 = part[3];
+  const int ix1 = part[0];
+  const int ix2 = part[1] + 1;
+  const int iy1 = part[2];
+  const int iy2 = part[3] + 1;
 
-  float ymin = ylim[0];
-  float ymax = ylim[1];
+  const float ymin = ylim[0];
+  const float ymax = ylim[1];
 
-  int hstep = poptions.density;
+  int xstep = poptions.density;
+  const int step = 1;
 
-  if (hstep < 1) {
-    hstep = hstepAuto;
-  } else if (hstep == 1) {
+  if (xstep < 1) {
+    xstep = hstepAuto;
+  } else if (xstep == 1) {
     for (int k = 0; k < numLev; k++)
       uselevel[k] = true;
   }
+  const bool colourwind = false;
+  const float* colourdata = 0;
 
-  int i, n, n50, n10, n05;
-  float ff, gu, gv, gx, gy, dx, dy, dxf, dyf;
-  float flagl = size * 0.85;
-  float flagstep = flagl / 10.;
-  float flagw = flagl * 0.35;
-  float hflagw = 0.6;
+  float* limits=0;
+  const GLfloat* rgb=0;
+  int nlim = poptions.limits.size();
+  int ncol = poptions.colours.size();
+
+  const int n_rgb_default = 4;
+  const GLfloat rgb_default[n_rgb_default * 3] = {0.5,0.5,0.5,  0,0,0,  0,1,1,  1,0,0};
+
+  if (colourwind) {
+    if (ncol>=2) {
+      GLfloat* rgb_tmp = new GLfloat[ncol*3];
+      for (int i=0; i<ncol; i++) {
+        rgb_tmp[i*3+0] = poptions.colours[i].fR();
+        rgb_tmp[i*3+1] = poptions.colours[i].fG();
+        rgb_tmp[i*3+2] = poptions.colours[i].fB();
+      }
+      rgb = rgb_tmp;
+    } else {
+      ncol = n_rgb_default;
+      rgb = rgb_default;
+    }
+
+    if (nlim>=1 ) {
+
+      if (nlim>ncol-1) nlim= ncol-1;
+      if (ncol>nlim+1) ncol= nlim+1;
+      limits= new float[nlim];
+      for (int i=0; i<nlim; i++) {
+        limits[i]= poptions.limits[i];
+      }
+
+    } else {
+
+      // default, should be handled when reading setup, if allowed...
+      const int maxdef= 4;
+      nlim= maxdef-1;
+
+      float fmin=fieldUndef, fmax=-fieldUndef;
+      for (int i=0; i<nx*ny; ++i) {
+        const float cv = colourdata[i];
+        if (cv != fieldUndef) {
+          if (fmin > cv) fmin = cv;
+          if (fmax < cv) fmax = cv;
+        }
+      }
+      if (fmin>fmax)
+        return false;
+
+      limits= new float[nlim];
+      float dlim= (fmax-fmin)/float(ncol);
+
+      for (int i=0; i<nlim; i++) {
+        limits[i]= fmin + dlim*float(i+1);
+      }
+    }
+  }
+
+  const int nx = nPoint;
+  const float unitlength = 1;
+  const float flagl = size * 0.85 / unitlength;
+  const float flagstep = flagl / 10.;
+  const float flagw = flagl * 0.35;
+  const float hflagw = 0.6;
+  // for arrow tip
+  const float afac = -1.5, sfac = afac * 0.5;
 
   vector<float> vx, vy; // keep vertices for 50-knot flags
-
-  ix2++;
-  iy2++;
+  vector<int>   vc;    // keep the colour too
 
   glLineWidth(poptions.linewidth + 0.1); // +0.1 to avoid MesaGL coredump
   glColor3ubv(poptions.linecolour.RGB());
 
   glBegin(GL_LINES);
 
-  for (int iy = iy1; iy < iy2; iy++) {
+  for (int iy = iy1; iy < iy2; iy += step) {
     if (uselevel[iy]) {
-      for (int ix = ix1; ix < ix2; ix += hstep) {
-        i = iy * nPoint + ix;
-        gx = x[i];
-        gy = y[i];
-        if (u[i] != fieldUndef && v[i] != fieldUndef && y[i] >= ymin && y[i]
-                                                                          <= ymax) {
-          ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
-          if (ff > 0.00001) {
+      for (int ix = ix1; ix < ix2; ix += xstep) {
+        const int i = iy * nx + ix;
+        const int sign = 1;
+        float gx = x[i];
+        float gy = y[i];
+        if (u[i] != fieldUndef && v[i] != fieldUndef && gy >= ymin && gy <= ymax) {
+          float ff = sqrtf(u[i] * u[i] + v[i] * v[i]);
+          if (ff>0.00001 && (!colourwind || colourdata[i]!=fieldUndef) ){
 
-            gu = u[i] / ff;
-            gv = v[i] / ff;
+            const float gu = u[i] / ff;
+            const float gv = v[i] / ff;
 
             ff *= 3600.0 / 1852.0;
 
             // find no. of 50,10 and 5 knot flags
+            int n50, n10, n05;
             if (ff < 182.49) {
               n05 = int(ff * 0.2 + 0.5);
               n50 = n05 / 10;
@@ -4840,10 +4913,27 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
               n05 = 0;
             }
 
-            dx = flagstep * gu;
-            dy = flagstep * gv;
-            dxf = -flagw * gv - dx;
-            dyf = flagw * gu - dy;
+            int l = 0;
+            if (colourwind) {
+              while (l<nlim && colourdata[i]>limits[l])
+                l++;
+              glColor3fv(&rgb[l*3]);
+            }
+
+            const float dx = flagstep * gu;
+            const float dy = flagstep * gv;
+            const float dxf = -sign*flagw * gv - dx;
+            const float dyf = sign*flagw * gu - dy;
+
+            if (poptions.arrowstyle == arrow_wind_arrow) {
+              // arrow (drawn as two lines)
+              vx.push_back(gx);
+              vy.push_back(gy);
+              vx.push_back(gx + afac*dx + sfac*dy);
+              vy.push_back(gy + afac*dy - sfac*dx);
+              vx.push_back(gx + afac*dx - sfac*dy);
+              vy.push_back(gy + afac*dy + sfac*dx);
+            }
 
             // direction
             glVertex2f(gx, gy);
@@ -4853,7 +4943,9 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
 
             // 50-knot flags, store for plot below
             if (n50 > 0) {
-              for (n = 0; n < n50; n++) {
+              for (int n = 0; n < n50; n++) {
+                if (colourwind)
+                  vc.push_back(l);
                 vx.push_back(gx);
                 vy.push_back(gy);
                 gx += dx * 2.;
@@ -4867,7 +4959,7 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
               gy += dy;
             }
             // 10-knot flags
-            for (n = 0; n < n10; n++) {
+            for (int n = 0; n < n10; n++) {
               glVertex2f(gx, gy);
               glVertex2f(gx + dxf, gy + dyf);
               gx += dx;
@@ -4893,10 +4985,13 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
 
   // draw 50-knot flags
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi = vx.size();
+  const int vi = vx.size();
   if (vi >= 3) {
     glBegin(GL_TRIANGLES);
-    for (i = 0; i < vi; i += 3) {
+    for (int i = 0; i < vi; i += 3) {
+      if (colourwind)
+        glColor3fv(&rgb[vc[i]]);
+      
       glVertex2f(vx[i], vy[i]);
       glVertex2f(vx[i + 1], vy[i + 1]);
       glVertex2f(vx[i + 2], vy[i + 2]);
@@ -4904,6 +4999,11 @@ bool VcrossPlot::plotWind(float *u, float *v, float *x, float *y, int *part,
     glEnd();
     UpdateOutput();
   }
+  
+  if (rgb != rgb_default)
+    delete[] rgb;
+  delete[] limits;
+
   //glDisable(GL_LINE_STIPPLE);
 
   return true;
@@ -5026,8 +5126,7 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
         x0 = x[n];
         y0 = y[n];
 
-        if (y0 >= ymin && y0 <= ymax && vt[n] != fieldUndef && wom[n]
-                                                                   != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
+        if (y0 >= ymin && y0 <= ymax && vt[n] != fieldUndef && wom[n] != fieldUndef && (vt[n] != 0. || wom[n] != 0.)) {
           // vt+w
           if (p==NULL) {
             if (vcoordPlot == vcv_height) {

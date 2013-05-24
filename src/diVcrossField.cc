@@ -308,6 +308,18 @@ void VcrossField::getMapData(vector<LocationElement>& elements)
   elements.insert(elements.end(), crossSections.begin(), crossSections.end());
 }
 
+namespace {
+void LOG_2D(float* data, int maxi, const char* name)
+{
+  std::ostringstream debug;
+  const int n = 50;
+  std::copy(data, data+std::min(n, maxi), std::ostream_iterator<float>(debug, " "));
+  debug << " ..... ";
+  std::copy(data + std::max(0, maxi-n), data+maxi, std::ostream_iterator<float>(debug, " "));
+  METLIBS_LOG_DEBUG("VcrossField " << name << " = " << debug.str());
+}
+}
+
 /*
  * Get a crossection
  */
@@ -421,7 +433,21 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       vcp->vrangemin = 50;
       vcp->vrangemax = 1000;
 
-      METLIBS_LOG_DEBUG(LOGVAL(vcp->nPoint) << LOGVAL(vcp->nTotal));
+      bool reverse_Z = false;
+      {
+        const int ll = vcp->numLev-1;
+        const float pstart = vcp->alevel[ 0]+vcp->blevel[ 0]*1013;
+        const float pstop  = vcp->alevel[ll]+vcp->blevel[ll]*1013;
+        METLIBS_LOG_DEBUG(LOGVAL(pstart) << LOGVAL(pstop));
+        reverse_Z = (pstart < pstop);
+        if (reverse_Z) {
+          for(int i=0, j=ll; i<vcp->numLev/2; ++i, --j) {
+            std::swap(vcp->alevel[i], vcp->alevel[j]);
+            std::swap(vcp->blevel[i], vcp->blevel[j]);
+          }
+        }
+      }
+      METLIBS_LOG_DEBUG(LOGVAL(vcp->nPoint) << LOGVAL(vcp->nTotal) << LOGVAL(reverse_Z));
 
       if(int(VcrossPlotVector.size()) < (vcross+1))
         VcrossPlotVector.push_back(new VcrossPlot());
@@ -446,52 +472,77 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
         const int ndata = multiLevel[i] ? vcp->nTotal : vcp->nPoint;
         METLIBS_LOG_DEBUG(LOGVAL(params[i]) << LOGVAL(multiLevel[i]) << LOGVAL(ndata));
           
+        METLIBS_LOG_DEBUG("getting '" << params[i] << "'");
         float* data = new float[ndata];
         const float dxy = 10000;
         if (crossDataS[i]) {
           METLIBS_LOG_DEBUG("values from crossDataS");
-          std::copy(crossDataS[i].get(), crossDataS[i].get() + ndata, data);
-        } else if ((params[i] == "-1001" or params[i] == "-1002" or params[i] == "-1003") and not multiLevel[i]) {
-          METLIBS_LOG_DEBUG("fake x/y/s grid data");
-          for(int j=0; j<ndata; j += 1)
-            data[j] = 0;//dxy*j;
-        } else if (params[i] == "-1005" and not multiLevel[i]) {
-          METLIBS_LOG_DEBUG("copying lat data");
-          std::copy(crossSections[vcross].ypos.begin(), crossSections[vcross].ypos.end(), data);
-        } else if (params[i] == "-1006" and not multiLevel[i]) {
-          METLIBS_LOG_DEBUG("copying lon data");
-          std::copy(crossSections[vcross].xpos.begin(), crossSections[vcross].xpos.end(), data);
-        } else if (params[i] == "-1007" and not multiLevel[i]) {
-          METLIBS_LOG_DEBUG("fake dx data");
-          const std::vector<float>& lons = crossSections[vcross].xpos, &lats = crossSections[vcross].ypos;
-          const size_t nPoint = lons.size();
-          if (nPoint >= 2) {
-            data[0] = 0;
-            miCoordinates c0(lons[0], lats[0]);
-            for (size_t c=1; c<nPoint; ++c) {
-              const miCoordinates c1(lons[c], lats[c]);
-              data[c] = c0.distanceTo(c1);
-              c0 = c1;
+          const float* cd = crossDataS[i].get();
+          if ((not reverse_Z) or (not multiLevel[i])) {
+            std::copy(cd, cd + ndata, data);
+          } else {
+            for (int l=0; l<vcp->numLev; ++l) {
+              const float* cd0 = cd + (vcp->numLev - 1 - l)*vcp->nPoint;
+              std::copy(cd0, cd0 + vcp->nPoint, data + l*vcp->nPoint);
             }
           }
-        } else if ((params[i] == "-1008" or params[i] == "-1009") and not multiLevel[i]) {
-          METLIBS_LOG_DEBUG("fake rot data");
-          std::fill(data, data+ndata, std::sqrt(2)/2);
+        } else if (not multiLevel[i]) {
+          if (params[i] == "-1005") {
+            METLIBS_LOG_DEBUG("copying lat data");
+            std::copy(crossSections[vcross].ypos.begin(), crossSections[vcross].ypos.end(), data);
+          } else if (params[i] == "-1006") {
+            METLIBS_LOG_DEBUG("copying lon data");
+            std::copy(crossSections[vcross].xpos.begin(), crossSections[vcross].xpos.end(), data);
+          } else if (params[i] == "-1007" or params[i] == "-1001" or params[i] == "-1002" or params[i] == "-1003") {
+            METLIBS_LOG_DEBUG("fake x/y/dx data");
+            double (*function)(double) = 0;
+            // use sin/cos for x/y as angle 0 is north (not "east" as in standard maths)
+            if (params[i] == "-1001")
+              function = std::sin;
+            else if (params[i] == "-1002")
+              function = std::cos;
+            const bool accumulate = (params[i] == "-1003");
+            const std::vector<float>& lons = crossSections[vcross].xpos, &lats = crossSections[vcross].ypos;
+            const size_t nPoint = lons.size();
+            if (nPoint >= 2) {
+              data[0] = 0;
+              LonLat c0 = LonLat::fromDegrees(lons[0], lats[0]);
+              for (size_t c=0; c<nPoint-1; ++c) {
+                const LonLat c1 = LonLat::fromDegrees(lons[c+1], lats[c+1]);
+                if (not function) {
+                  data[c+1] = c0.distanceTo(c1);
+                  if (accumulate)
+                    data[c+1] += data[c];
+                } else {
+                  const double b = c0.bearingTo(c1);
+                  data[c] = function(b);
+                  if (c>0)
+                    data[c] += data[c-1];
+                }
+                c0 = c1;
+              }
+              if (function and nPoint >= 3)
+                data[nPoint-1] = 2*data[nPoint-2] - data[nPoint-3];
+            }
+          } else if (params[i] == "-1008" or params[i] == "-1009") {
+            METLIBS_LOG_DEBUG("fake rot data");
+            std::fill(data, data+ndata, std::sqrt(2)/2);
+          } else {
+            METLIBS_LOG_DEBUG("no 1d crossdata for '" << params[i] << "', using 0s");
+            std::fill(data, data+ndata, 0);
+          }
         } else {
-          METLIBS_LOG_DEBUG("no crossdata for '" << params[i] << "', using 0s");
+          METLIBS_LOG_DEBUG("no 2d crossdata for '" << params[i] << "', using 0s");
           std::fill(data, data+ndata, 0);
         }
         VcrossDataMap[vcross].push_back(data);
-
+        
         // FIXME this copy is only to have something in crossdata (instead of crossDataS)
         float* cdata = new float[ndata];
         std::copy(data, data+ndata, cdata);
         crossData.push_back(cdata);
-
-        { std::ostringstream debug;
-          std::copy(data, data+std::min(10, ndata), std::ostream_iterator<float>(debug, " << "));
-          METLIBS_LOG_DEBUG(LOGVAL(params[i]) << " values=" << debug.str());
-        }
+        
+        LOG_2D(data, ndata, "values");
       }
     }
   } else {
