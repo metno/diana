@@ -241,8 +241,10 @@ bool VcrossField::setLatLon(float lat, float lon)
                                  Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
           */
 
+    // FIXME use proj4/geod
+
     // Compute distance and points on line
-    float radius = 6371000.0;
+    float radius = EARTH_RADIUS_M;
     float TORAD = M_PI/180;
     float dLon = (stopLongitude-startLongitude)*TORAD;
     float lat1 = startLatitude*TORAD;
@@ -303,19 +305,7 @@ bool VcrossField::setLatLon(float lat, float lon)
 void VcrossField::getMapData(vector<LocationElement>& elements)
 {
   METLIBS_LOG_SCOPE();
-
-  int nelem= elements.size();
-  for(size_t i=0;i<crossSections.size();i++) {
-    LocationElement el;
-    elements.push_back(el);
-    int noPoints = crossSections[i].xpos.size();
-    elements[nelem].name = crossSections[i].name;
-    for(int j=0;j<noPoints;j++) {
-      elements[nelem].xpos.push_back(crossSections[i].xpos[j]);
-      elements[nelem].ypos.push_back(crossSections[i].ypos[j]);
-    }
-    nelem++;
-  }
+  elements.insert(elements.end(), crossSections.begin(), crossSections.end());
 }
 
 /*
