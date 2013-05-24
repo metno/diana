@@ -38,6 +38,8 @@
 #include <diField/diFieldManager.h>
 #include <puDatatypes/miCoordinates.h>
 
+#include <boost/foreach.hpp>
+
 #include <cmath>
 #include <set>
 
@@ -141,8 +143,27 @@ bool VcrossField::getInventory()
   METLIBS_LOG_DEBUG(LOGVAL(modelName));
 
   // Get parameters
-  if (not fieldManager->invVCross(modelName, validTime, forecastHour, params))
+  std::vector<std::vector<LonLat> > predefinedCrossSections;
+  if (not fieldManager->invVCross(modelName, validTime, forecastHour, params, predefinedCrossSections))
     return false;
+
+  BOOST_FOREACH(const std::vector<LonLat>& pcs, predefinedCrossSections) {
+    if (pcs.empty())
+      continue;
+
+    LocationElement cs;
+    BOOST_FOREACH(const LonLat& ll, pcs) {
+      cs.xpos.push_back(ll.lon() * RAD_TO_DEG);
+      cs.ypos.push_back(ll.lat() * RAD_TO_DEG);
+    }
+    std::ostringstream csname;
+    csname << "[" << cs.xpos.front() << ',' << cs.ypos.front() << "]->["
+           << cs.xpos.back() << ',' << cs.ypos.back() << "]";
+    cs.name = csname.str();
+    
+    crossSections.push_back(cs);
+    names.push_back(cs.name);
+  }
 
   // Set dynamic as the choosen crossection
   names.push_back("Dynamic");
@@ -434,10 +455,16 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
       vcp->vrangemax = 1000;
 
       bool reverse_Z = false;
-      {
+      if (not vcp->blevel.empty()) {
         const int ll = vcp->numLev-1;
-        const float pstart = vcp->alevel[ 0]+vcp->blevel[ 0]*1013;
-        const float pstop  = vcp->alevel[ll]+vcp->blevel[ll]*1013;
+        float pstart, pstop;
+        if (not vcp->blevel.empty()) {
+          pstart = vcp->alevel[ 0]+vcp->blevel[ 0]*1013;
+          pstop  = vcp->alevel[ll]+vcp->blevel[ll]*1013;
+        } else {
+          pstart = vcp->alevel[ 0];
+          pstop  = vcp->alevel[ll];
+        }
         METLIBS_LOG_DEBUG(LOGVAL(pstart) << LOGVAL(pstop));
         reverse_Z = (pstart < pstop);
         if (reverse_Z) {
