@@ -65,7 +65,7 @@ public:
   bool plot(const int){return false;}
   bool updateNeeded(miutil::miString&);
   // check if current has same level
-  bool updatePinNeeded(const miutil::miString pin);
+  bool updatePinNeeded(const std::string& pin);
   bool prepare(const miutil::miString& fname, const miutil::miString&);
   bool setData(const vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();

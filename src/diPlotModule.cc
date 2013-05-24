@@ -55,9 +55,11 @@
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
 #include <diMapManager.h>
+
 #include <diField/diFieldManager.h>
 #include <diField/FieldSpecTranslation.h>
 #include <diFieldPlotManager.h>
+#include <puDatatypes/miCoordinates.h>
 
 #include <GL/gl.h>
 #include <sstream>
@@ -1891,21 +1893,9 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
 
 }
 
-float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1,
-    float lon2)
+float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
-  const float degToRad = 0.0174533; //conversion factor
-  const float earthRadius = 6367000; //earth radius in meters
-  lat1 = lat1 * degToRad;
-  lat2 = lat2 * degToRad;
-  lon1 = lon1 * degToRad;
-  lon2 = lon2 * degToRad;
-  float sinlat = sin((lat2 - lat1) / 2);
-  float sinlon = sin((lon2 - lon1) / 2);
-  float a = sinlat * sinlat + cos(lat1) * cos(lat2) * sinlon * sinlon;
-  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  float dist = earthRadius * c;
-  return dist;
+  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
 }
 
 // set managers

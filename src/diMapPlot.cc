@@ -1493,9 +1493,9 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   }
 }
 
-int MapPlot::convertLatLonPos(miutil::miString pos)
+int MapPlot::convertLatLonPos(const std::string& p)
 {
-  pos = pos.downcase();
+  const std::string pos = miutil::to_lower(p);
   if(pos == "left") {
     return map_left;
   }
@@ -1514,5 +1514,4 @@ int MapPlot::convertLatLonPos(miutil::miString pos)
 
   //obsolete syntax
   return atoi(pos.c_str());
-
 }
