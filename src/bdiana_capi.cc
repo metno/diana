@@ -3409,6 +3409,12 @@ int diana_init(int _argc, char** _argv)
     xhost = ctmp;
   }
 
+  // get the BDIANA_LOGGER variable
+  ctmp = getenv("BDIANA_LOGGER");
+  if (ctmp) {
+    logfilename = ctmp;
+  }
+
 #if defined(Q_WS_QWS)
   application = new QApplication(_argc, _argv, QApplication::GuiServer);
 #else
