@@ -37,6 +37,7 @@
 
 #include <diField/diFieldManager.h>
 #include <puDatatypes/miCoordinates.h>
+#include <puTools/miStringBuilder.h>
 
 #include <boost/foreach.hpp>
 
@@ -153,10 +154,9 @@ bool VcrossField::getInventory()
       cs.xpos.push_back(ll.lon() * RAD_TO_DEG);
       cs.ypos.push_back(ll.lat() * RAD_TO_DEG);
     }
-    std::ostringstream csname;
-    csname << "[" << cs.xpos.front() << ',' << cs.ypos.front() << "]->["
-           << cs.xpos.back() << ',' << cs.ypos.back() << "]";
-    cs.name = csname.str();
+    cs.name = (miutil::StringBuilder()
+        << "[" << cs.xpos.front() << ',' << cs.ypos.front() << "]->["
+        << cs.xpos.back() << ',' << cs.ypos.back() << "]");
     
     crossSections.push_back(cs);
     names.push_back(cs.name);
@@ -165,13 +165,13 @@ bool VcrossField::getInventory()
   // Set dynamic as the choosen crossection
   names.push_back("Dynamic");
 
-  const std::map<miutil::miString,int>::const_iterator pnend = VcrossPlot::vcParName.end();
+  const std::map<std::string,int>::const_iterator pnend = VcrossPlot::vcParName.end();
   vector<int> iparam;
   int vcoord = VCOORD_HYBRID;
 
   // For every parameter, check if it is specified in the setup file
   for (unsigned int i=0;i<params.size();i++) {
-    const map<miutil::miString,int>::const_iterator pn = VcrossPlot::vcParName.find(params[i]);
+    const map<std::string,int>::const_iterator pn = VcrossPlot::vcParName.find(params[i]);
     if (pn != pnend) {
       METLIBS_LOG_DEBUG("Parameter " << params[i] << "("<<pn->second<<") defined in setup");
       iparam.push_back(pn->second);
@@ -292,8 +292,9 @@ bool VcrossField::setLatLon(float lat, float lon)
       crossSections[elem].xpos.push_back(stepLon);
       crossSections[elem].ypos.push_back(stepLat);
     }
-    crossSections[elem].name = miutil::miString("(" + miutil::miString(startLatitude) + "," + miutil::miString(startLongitude) +
-        ")->(" + miutil::miString(stopLatitude) + "," + miutil::miString(stopLongitude) + ")");
+    crossSections[elem].name = (miutil::StringBuilder()
+        << '(' << startLatitude << ',' << startLongitude
+        << ")->(" << stopLatitude << ',' << stopLongitude << ')');
 
     // Rebuild the crossection list
     names.clear();
@@ -705,7 +706,7 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
 
 
   // Insert data into VcrossPlot
-  map<miutil::miString, int>::iterator pn, pnend= vcp->vcParName.end();
+  map<std::string, int>::iterator pn, pnend= vcp->vcParName.end();
   for(size_t i=0;i<params.size();i++) {
     int param = miutil::to_int(params[i],0);
     if(param < 0) {

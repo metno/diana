@@ -240,7 +240,10 @@ void VcrossWindow::leftCrossectionClicked(){
   crossectionChangedSlot(-1);
   vcrossw->updateGL();
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 }
 
 /***************************************************************************/
@@ -251,8 +254,10 @@ void VcrossWindow::rightCrossectionClicked(){
   crossectionChangedSlot(+1);
   vcrossw->updateGL();
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
 
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 }
 
 /***************************************************************************/
@@ -612,8 +617,10 @@ void VcrossWindow::changeFields(bool modelChanged){
   vcrossw->updateGL();
 
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
 
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 }
 
 /***************************************************************************/
@@ -633,7 +640,10 @@ void VcrossWindow::changeSetup(){
   vcrossw->updateGL();
 
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 }
 
 /***************************************************************************/
@@ -731,7 +741,9 @@ void VcrossWindow::crossectionBoxActivated(int index){
   QString sq = cbs.c_str();
   emit crossectionChanged(sq); //name of current crossection (to mainWindow)
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-   emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
   //}
 }
 
@@ -758,7 +770,9 @@ bool VcrossWindow::changeCrossection(const miutil::miString& crossection){
   vcrossw->updateGL();
   raise();
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 
   if (crossectionChangedSlot(0))
     return true;
@@ -816,9 +830,9 @@ void VcrossWindow::startUp(const miutil::miTime& t){
  * Set the position clicked on the map in the current VcrossPlot.
  */
 void VcrossWindow::mapPos(float lat, float lon) {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossWindow::mapPos(" << lat << "," << lon << ")");
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+
   if(vcrossm->setCrossection(lat,lon)) {
     // If the return is true (field) update the crossection box and
     // tell mainWindow to reread the crossections.
@@ -826,15 +840,15 @@ void VcrossWindow::mapPos(float lat, float lon) {
     emit crossectionSetChanged();
   }
   miutil::miString plotname = "<font color=\"#005566\">" + vcDialog->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  emit quickMenuStrings(plotname, vcrossm->getQuickMenuStrings());
-
-
+  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
+  const std::vector<miutil::miString> qm_miString(qm_string.begin(), qm_string.end());
+  /*emit*/ quickMenuStrings(plotname, qm_miString);
 }
 
 void VcrossWindow::parseQuickMenuStrings(const vector<miutil::miString>& vstr)
 {
-
-  vcrossm->parseQuickMenuStrings(vstr);
+  const std::vector<std::string> qm_string(vstr.begin(), vstr.end());
+  vcrossm->parseQuickMenuStrings(qm_string);
   vcDialog->putOKString(vstr);
   emit crossectionSetChanged();
 
@@ -884,9 +898,8 @@ vector<miutil::miString> VcrossWindow::writeLog(const miutil::miString& logpart)
     }
 
   } else if (logpart=="setup") {
-
-    vstr= vcrossm->writeLog();
-
+    const std::vector<std::string> l_string = vcrossm->writeLog();
+    vstr = std::vector<miutil::miString>(l_string.begin(), l_string.end());
   } else if (logpart=="field") {
 
     vstr= vcDialog->writeLog();
@@ -938,11 +951,10 @@ void VcrossWindow::readLog(const miutil::miString& logpart, const vector<miutil:
     }
 
   } else if (logpart=="setup") {
-
-    vcrossm->readLog(vstr,thisVersion,logVersion);
+    const std::vector<std::string> l_string(vstr.begin(), vstr.end());
+    vcrossm->readLog(l_string, thisVersion, logVersion);
 
   } else if (logpart=="field") {
-
     vcDialog->readLog(vstr,thisVersion,logVersion);
 
   }

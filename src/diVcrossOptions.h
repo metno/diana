@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,7 +29,7 @@
 #ifndef VCROSSOPTIONS_H
 #define VCROSSOPTIONS_H
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
 
 /**
@@ -47,8 +45,8 @@ public:
   void setDefaults();
 
   // log and setup
-  std::vector<miutil::miString> writeOptions();
-  void readOptions(const std::vector<miutil::miString>& vstr);
+  std::vector<std::string> writeOptions();
+  void readOptions(const std::vector<std::string>& vstr);
 
 private:
   friend class VcrossSetupDialog;
@@ -58,63 +56,63 @@ private:
   bool changed;
 
   bool     pText;
-  miutil::miString textColour;
+  std::string textColour;
 
   bool     pPositionNames;
-  miutil::miString positionNamesColour;
+  std::string positionNamesColour;
 
   bool     pFrame;
-  miutil::miString frameColour;
-  miutil::miString frameLinetype;
+  std::string frameColour;
+  std::string frameLinetype;
   float    frameLinewidth;
 
   bool     pLevelNumbers;
 
   bool     pUpperLevel;
-  miutil::miString upperLevelColour;
-  miutil::miString upperLevelLinetype;
+  std::string upperLevelColour;
+  std::string upperLevelLinetype;
   float    upperLevelLinewidth;
 
   bool     pLowerLevel;
-  miutil::miString lowerLevelColour;
-  miutil::miString lowerLevelLinetype;
+  std::string lowerLevelColour;
+  std::string lowerLevelLinetype;
   float    lowerLevelLinewidth;
 
   bool     pOtherLevels;
-  miutil::miString otherLevelsColour;
-  miutil::miString otherLevelsLinetype;
+  std::string otherLevelsColour;
+  std::string otherLevelsLinetype;
   float    otherLevelsLinewidth;
 
   bool     pSurface;
-  miutil::miString surfaceColour;
-  miutil::miString surfaceLinetype;
+  std::string surfaceColour;
+  std::string surfaceLinetype;
   float    surfaceLinewidth;
 
   bool     pMarkerlines;
-  miutil::miString markerlinesColour;
-  miutil::miString markerlinesLinetype;
+  std::string markerlinesColour;
+  std::string markerlinesLinetype;
   float    markerlinesLinewidth;
 
   bool     pVerticalMarker;
-  miutil::miString verticalMarkerColour;
-  miutil::miString verticalMarkerLinetype;
+  std::string verticalMarkerColour;
+  std::string verticalMarkerLinetype;
   float    verticalMarkerLinewidth;
   float    verticalMarkerLimit;
 
   bool     pDistance;
-  miutil::miString distanceColour;
-  miutil::miString distanceUnit;
-  miutil::miString distanceStep;
+  std::string distanceColour;
+  std::string distanceUnit;
+  std::string distanceStep;
 
   bool     pXYpos;
-  miutil::miString xyposColour;
+  std::string xyposColour;
 
   bool     pGeoPos;
-  miutil::miString geoposColour;
+  std::string geoposColour;
 
   bool     pVerticalGridLines;
-  miutil::miString vergridColour;
-  miutil::miString vergridLinetype;
+  std::string vergridColour;
+  std::string vergridLinetype;
   float    vergridLinewidth;
 
   bool     extrapolateFixedLevels;
@@ -122,7 +120,7 @@ private:
 
   bool     thinArrows;
 
-  miutil::miString verticalType;
+  std::string verticalType;
 
   bool keepVerHorRatio;
   int  verHorRatio;
@@ -135,18 +133,18 @@ private:
   int  minHorizontalArea;
   int  maxHorizontalArea;
 
-  miutil::miString backgroundColour;
+  std::string backgroundColour;
 
   std::vector<float> fixedPressureLevels;
 
   //-------------
 
-  miutil::miString vcOnMapColour;
-  miutil::miString vcOnMapLinetype;
+  std::string vcOnMapColour;
+  std::string vcOnMapLinetype;
   float    vcOnMapLinewidth;
 
-  miutil::miString vcSelectedOnMapColour;
-  miutil::miString vcSelectedOnMapLinetype;
+  std::string vcSelectedOnMapColour;
+  std::string vcSelectedOnMapLinetype;
   float    vcSelectedOnMapLinewidth;
 
 };

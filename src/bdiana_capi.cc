@@ -801,7 +801,7 @@ void parse_vprof_options(const vector<miString>& opts)
 }
 
 // VCROSS-options with parser
-vector<miString> vcross_data, vcross_options;
+vector<std::string> vcross_data, vcross_options;
 miString crossection;
 bool vcross_optionschanged;
 

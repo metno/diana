@@ -72,9 +72,7 @@
 VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 : QDialog(parent), vcrossm(vm)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::VcrossDialog called");
-#endif
+  METLIBS_LOG_SCOPE();
 
   setWindowTitle( tr("Vertical Crossections"));
 
@@ -84,7 +82,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   historyPos= -1;
 
-  models= vcrossm->getAllModels();
+  const std::vector<std::string> models_string = vcrossm->getAllModels();
+  models = std::vector<miutil::miString>(models_string.begin(), models_string.end());
 
   // get all fieldnames from setup file
   //#################  fieldnames = vcrossm->getAllFieldNames();
@@ -94,7 +93,8 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //#################################################################
 
   // get all field plot options from setup file
-  setupFieldOptions = vcrossm->getAllFieldOptions();
+  const std::map<std::string, std::string> options_string = vcrossm->getAllFieldOptions();
+  setupFieldOptions = std::map<miutil::miString,miutil::miString>(options_string.begin(), options_string.end());
   fieldOptions = setupFieldOptions;
 
   map<miutil::miString,miutil::miString>::iterator pfopt, pfend= fieldOptions.end();
@@ -2787,17 +2787,19 @@ void VcrossDialog::resetOptions() {
 
 
 void VcrossDialog::applyClicked(){
-  if (historyOkButton->isEnabled()) historyOk();
-  vector<miutil::miString> vstr= getOKString();
-  bool modelChange= vcrossm->setSelection(vstr);
+  if (historyOkButton->isEnabled())
+    historyOk();
+  const std::vector<miutil::miString> vstr = getOKString();
+  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
   emit VcrossDialogApply(modelChange);
 }
 
 
 void VcrossDialog::applyhideClicked(){
-  if (historyOkButton->isEnabled()) historyOk();
-  vector<miutil::miString> vstr= getOKString();
-  bool modelChange= vcrossm->setSelection(vstr);
+  if (historyOkButton->isEnabled())
+    historyOk();
+  const std::vector<miutil::miString> vstr = getOKString();
+  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
   emit VcrossDialogHide();
   emit VcrossDialogApply(modelChange);
 }

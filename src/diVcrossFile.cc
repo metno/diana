@@ -285,9 +285,9 @@ bool VcrossFile::readFileHeader()
       //    cerr<<"       opts "<<n<<" : "<<opts<<endl;
       //###################################################################
       // had many names without the last ')' making serious PostScript errors
-      const miutil::miString misName(name);
-      int nc1= misName.countChar('(');
-      int nc2= misName.countChar(')');
+      const std::string misName(name);
+      int nc1= miutil::count_char(misName, '(');
+      int nc2= miutil::count_char(misName, ')');
       if (nc1!=nc2) {
         while (nc1<nc2) {
           name= '(' + name;

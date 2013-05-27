@@ -81,12 +81,12 @@ GridConverter VcrossPlot::gc; // Projection-converter
 GLPfile* VcrossPlot::psoutput = 0; // PostScript module
 bool VcrossPlot::hardcopy = false; // producing postscript
 
-map<miString, int> VcrossPlot::vcParName; // name -> number
-map<int, miString> VcrossPlot::vcParNumber; // number -> name
-multimap<miString, vcFunction> VcrossPlot::vcFunctions;
-map<miString, vcField> VcrossPlot::vcFields;
+map<std::string, int> VcrossPlot::vcParName; // name -> number
+map<int, std::string> VcrossPlot::vcParNumber; // number -> name
+multimap<std::string, vcFunction> VcrossPlot::vcFunctions;
+map<std::string, vcField> VcrossPlot::vcFields;
 vector<std::string> VcrossPlot::vcFieldNames; // setup/dialog sequence
-map<miString, FileContents> VcrossPlot::fileContents;
+map<std::string, FileContents> VcrossPlot::fileContents;
 
 int VcrossPlot::plotw = 100;
 int VcrossPlot::ploth = 100;
@@ -183,7 +183,7 @@ bool VcrossPlot::parseSetup()
     return false;
   }
 
-  miString vcrossFunctionNames[numVcrossFunctions];
+  std::string vcrossFunctionNames[numVcrossFunctions];
   int vcrossFunctionArguments[numVcrossFunctions];
 
   for (int f = 0; f < numVcrossFunctions; f++) {
@@ -202,7 +202,7 @@ bool VcrossPlot::parseSetup()
     vcrossFunctionArguments[f] = narg;
   }
 
-  miString vcrossPlotNames[numVcrossPlotTypes];
+  std::string vcrossPlotNames[numVcrossPlotTypes];
   int vcrossPlotArguments[numVcrossPlotTypes];
 
   for (int p = 0; p < numVcrossPlotTypes; p++) {
@@ -223,9 +223,9 @@ bool VcrossPlot::parseSetup()
 
   //------------------------------------------------
 
-  const miString section2 = "VERTICAL_CROSSECTION_PARAMETERS";
-  const miString section3 = "VERTICAL_CROSSECTION_COMPUTATIONS";
-  const miString section4 = "VERTICAL_CROSSECTION_PLOTS";
+  const std::string section2 = "VERTICAL_CROSSECTION_PARAMETERS";
+  const std::string section3 = "VERTICAL_CROSSECTION_COMPUTATIONS";
+  const std::string section4 = "VERTICAL_CROSSECTION_PLOTS";
 
   vcParNumber.clear();
   vcParName.clear();
@@ -233,9 +233,9 @@ bool VcrossPlot::parseSetup()
   vcFields.clear();
   vcFieldNames.clear();
 
-  set<miString> definedNames;
-  vector<miString> vstr, tokens, parts, names;
-  miString msg, str, name, func;
+  set<std::string> definedNames;
+  vector<std::string> vstr, tokens, parts, names;
+  std::string msg, str, name, func;
   int nvstr, nt, number;
 
   bool error = false;
@@ -248,11 +248,11 @@ bool VcrossPlot::parseSetup()
 
     for (int l = 0; l < nvstr; l++) {
 
-      tokens = vstr[l].downcase().split(' ');
+      tokens = miutil::split(miutil::to_lower(vstr[l]), 0, " ");
       nt = tokens.size();
 
       for (int t = 0; t < nt; t++) {
-        parts = tokens[t].split('=');
+        parts = miutil::split(tokens[t], 0, "=");
         if (parts.size() == 2) {
           if (CommandParser::isInt(parts[1])) {
             name = parts[0];
@@ -293,11 +293,11 @@ bool VcrossPlot::parseSetup()
 
     for (int l = 0; l < nvstr; l++) {
 
-      tokens = vstr[l].downcase().split(' ');
+      tokens = miutil::split(miutil::to_lower(vstr[l]), 0, " ");
       nt = tokens.size();
 
       for (int t = 0; t < nt; t++) {
-        parts = tokens[t].split('=');
+        parts = miutil::split(tokens[t], 0, "=");
         if (parts.size() == 2) {
           name = parts[0];
           definedNames.insert(name);
@@ -306,7 +306,7 @@ bool VcrossPlot::parseSetup()
           if (k1 != string::npos && k2 != string::npos && k2 > k1 + 1) {
             func = parts[1].substr(0, k1);
             str = parts[1].substr(k1 + 1, k2 - k1 - 1);
-            names = str.split(',');
+            names = miutil::split(str, 0, ",");
             int j = 0;
             while (j < numVcrossFunctions && func != vcrossFunctionNames[j])
               j++;
@@ -320,7 +320,7 @@ bool VcrossPlot::parseSetup()
               vcFunction vcfunc;
               vcfunc.function = VcrossFunction(j);
               vcfunc.vars = names;
-              vcFunctions.insert(pair<miString, vcFunction> (name, vcfunc));
+              vcFunctions.insert(pair<std::string, vcFunction> (name, vcfunc));
             } else {
               msg = "Bad function/arguments: " + tokens[t];
             }
@@ -352,21 +352,21 @@ bool VcrossPlot::parseSetup()
 
     for (int l = 0; l < nvstr; l++) {
 
-      tokens = vstr[l].downcase().split(' ');
+      tokens = miutil::split(miutil::to_lower(vstr[l]), 0, " ");
       nt = tokens.size();
 
       vcField vcf;
       vcf.plotType = vcpt_no_plot;
 
       for (int t = 0; t < nt; t++) {
-        parts = tokens[t].split('=');
+        parts = miutil::split(tokens[t], 0, "=");
         if (parts.size() == 2) {
           if (parts[0] == "name") {
             name = parts[1];
             if (vcFields.find(name) == vcFields.end()) {
               // resplit line to get mixedcase name
-              vector<miString> tokens2 = vstr[l].split(' ');
-              vector<miString> parts2 = tokens2[t].split('=');
+              vector<std::string> tokens2 = miutil::split(vstr[l], 0, " ");
+              vector<std::string> parts2 = miutil::split(tokens2[t], 0, "=");
               vcf.name = parts2[1];
             } else {
               msg = "Illegal redefinition: " + name;
@@ -377,7 +377,7 @@ bool VcrossPlot::parseSetup()
             if (k1 != string::npos && k2 != string::npos && k2 > k1 + 1) {
               func = parts[1].substr(0, k1);
               str = parts[1].substr(k1 + 1, k2 - k1 - 1);
-              names = str.split(',');
+              names = miutil::split(str, 0, ",");
               int j = 0;
               while (j < numVcrossPlotTypes && func != vcrossPlotNames[j])
                 j++;
@@ -416,8 +416,8 @@ bool VcrossPlot::parseSetup()
           msg.clear();
         }
       }
-      if (vcf.name.exists() && vcf.plotType != vcpt_no_plot) {
-        name = vcf.name.downcase();
+      if ((not vcf.name.empty()) and vcf.plotType != vcpt_no_plot) {
+        name = miutil::to_lower(vcf.name);
         vcFields[name] = vcf;
         vcFieldNames.push_back(name);
       }
@@ -433,7 +433,7 @@ bool VcrossPlot::parseSetup()
 }
 
 // static function
-void VcrossPlot::makeContents(const miString& fileName,
+void VcrossPlot::makeContents(const std::string& fileName,
     const vector<int>& iparam, int vcoord)
 {
   METLIBS_LOG_SCOPE();
@@ -441,11 +441,11 @@ void VcrossPlot::makeContents(const miString& fileName,
 
   FileContents fco;
 
-  set<miString> paramdef;
+  set<std::string> paramdef;
 
   int np = iparam.size();
 
-  map<int, miString>::iterator pn, pnend = vcParNumber.end();
+  map<int, std::string>::iterator pn, pnend = vcParNumber.end();
 
   for (int i = 0; i < np; i++) {
     pn = vcParNumber.find(iparam[i]);
@@ -461,12 +461,12 @@ void VcrossPlot::makeContents(const miString& fileName,
     }
   }
 
-  multimap<miString, vcFunction>::iterator vf, vfbegin, vfend;
+  multimap<std::string, vcFunction>::iterator vf, vfbegin, vfend;
   vfbegin = vcFunctions.begin();
   vfend = vcFunctions.end();
 
-  set<miString> paramtmp;
-  set<miString>::iterator pt, ptend;
+  set<std::string> paramtmp;
+  set<std::string>::iterator pt, ptend;
 
   unsigned int numfound = 0;
 
@@ -510,15 +510,15 @@ void VcrossPlot::makeContents(const miString& fileName,
   }
 #endif
 
-  map<miString, vcField>::iterator fend = vcFields.end();
-  map<miString, vcField>::iterator f;
-  set<miString>::iterator pend = paramdef.end();
+  map<std::string, vcField>::iterator fend = vcFields.end();
+  map<std::string, vcField>::iterator f;
+  set<std::string>::iterator pend = paramdef.end();
 
   int m = vcFieldNames.size();
 
   for (int j = 0; j < m; j++) {
 
-    miString fname = vcFieldNames[j];
+    std::string fname = vcFieldNames[j];
     f = vcFields.find(fname);
 
     if (f != fend) {
@@ -553,7 +553,7 @@ void VcrossPlot::makeContents(const miString& fileName,
 }
 
 // static function
-void VcrossPlot::deleteContents(const miString& fileName)
+void VcrossPlot::deleteContents(const std::string& fileName)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(fileName));
@@ -567,7 +567,7 @@ vector<std::string> VcrossPlot::getFieldNames(const std::string& fileName)
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(fileName));
 
-  map<miString, FileContents>::iterator p = fileContents.find(fileName);
+  map<std::string, FileContents>::iterator p = fileContents.find(fileName);
   if (p != fileContents.end()) {
     return p->second.fieldNames;
   } else {
@@ -576,16 +576,16 @@ vector<std::string> VcrossPlot::getFieldNames(const std::string& fileName)
 }
 
 // static function
-map<miString, miString> VcrossPlot::getAllFieldOptions()
+map<std::string, std::string> VcrossPlot::getAllFieldOptions()
 {
   METLIBS_LOG_SCOPE();
 
-  map<miString, miString> fieldopts;
+  map<std::string, std::string> fieldopts;
 
   Linetype defaultLinetype = Linetype::getDefaultLinetype();
 
-  map<miString, vcField>::iterator vcf = vcFields.begin();
-  map<miString, vcField>::iterator vcfend = vcFields.end();
+  map<std::string, vcField>::iterator vcf = vcFields.begin();
+  map<std::string, vcField>::iterator vcfend = vcFields.end();
 
   while (vcf != vcfend) {
     PlotOptions po;
@@ -685,7 +685,7 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
       ostr << "colour=" << po.linecolour.Name();
     }
 
-    //    miString ucn="white";  // default WhiteC has no name!
+    //    std::string ucn="white";  // default WhiteC has no name!
     //    if (po.undefColour.Name().exists()) ucn= po.undefColour.Name();
     //
     //    ostr << " undef.masking="   << po.undefMasking
@@ -694,7 +694,7 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
     //	 << " undef.linewidth=" << po.undefLinewidth
     //	 << " undef.linetype="  << po.undefLinetype.name;
 
-    miString opts = ostr.str();
+    std::string opts = ostr.str();
 
     fieldopts[vcf->second.name] = opts;
     vcf++;
@@ -704,13 +704,13 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
 }
 
 // static function
-miString VcrossPlot::getFieldOptions(const miString& fieldname)
+std::string VcrossPlot::getFieldOptions(const std::string& fieldname)
 {
   METLIBS_LOG_SCOPE();
 
-  const std::map<miString, vcField>::const_iterator vcf = vcFields.find(fieldname.downcase());
+  const std::map<std::string, vcField>::const_iterator vcf = vcFields.find(miutil::to_lower(fieldname));
   if (vcf == vcFields.end())
-    return miString();
+    return std::string();
   
   return vcf->second.plotOpts;
 }
@@ -755,7 +755,7 @@ void VcrossPlot::plotText()
 
   float wmod = 0., wcrs = 0., wfn = 0, wfc = 0, wtime = 0;
 
-  vector<miString> fctext(n);
+  vector<std::string> fctext(n);
 
   for (int i = 0; i < n; i++) {
     fp->getStringSize(vcText[i].modelName.c_str(), w, h);
@@ -774,7 +774,7 @@ void VcrossPlot::plotText()
       fp->getStringSize(fctext[i].c_str(), w, h);
       if (wfc < w)
         wfc = w;
-      miString ts = vcText[i].validTime.isoTime();
+      std::string ts = vcText[i].validTime.isoTime();
       fp->getStringSize(ts.c_str(), w, h);
       if (wtime < w)
         wtime = w;
@@ -798,7 +798,7 @@ void VcrossPlot::plotText()
     fp->drawStr(vcText[i].fieldName.c_str(), xfn, y, 0.0);
     if (!vcText[i].timeGraph) {
       fp->drawStr(fctext[i].c_str(), xfc, y, 0.0);
-      miString ts = vcText[i].validTime.isoTime();
+      std::string ts = vcText[i].validTime.isoTime();
       fp->drawStr(ts.c_str(), xtime, y, 0.0);
     }
     fp->drawStr(vcText[i].extremeValueString.c_str(), xextreme, y, 0.0);
@@ -807,7 +807,7 @@ void VcrossPlot::plotText()
 
 }
 
-bool VcrossPlot::plot(VcrossOptions *vcoptions, const miString& fieldname,
+bool VcrossPlot::plot(VcrossOptions *vcoptions, const std::string& fieldname,
     PlotOptions& poptions)
 {
   METLIBS_LOG_SCOPE();
@@ -816,9 +816,9 @@ bool VcrossPlot::plot(VcrossOptions *vcoptions, const miString& fieldname,
   vcopt = vcoptions;
 
   VcrossVertical vcplot = vcv_none;
-  miString vcaxis;
+  std::string vcaxis;
 
-  vector<miString> vs = vcopt->verticalType.downcase().split('/');
+  vector<std::string> vs = miutil::split(miutil::to_lower(vcopt->verticalType), 0, "/");
 
   if (vs.size() == 1) {
     vs.push_back("x");
@@ -1132,7 +1132,7 @@ void VcrossPlot::standardPart()
   zoomType = vczoom_standard;
 }
 
-bool VcrossPlot::prepareData(const miString& fileName)
+bool VcrossPlot::prepareData(const std::string& fileName)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1157,7 +1157,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
     return false;
   }
 
-  int i, k, n;
+  int i, n;
   bool error = false;
 
   int numPar1d = idPar1d.size();
@@ -1360,7 +1360,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
     tgypos = cdata1d[nyg][0];
     // time graph: good dummy values needed for plotting
     ds = 2. * horizontalLength / float(horizontalPosNum + nPoint - 2);
-    for (i = 0; i < nPoint; i++) {
+    for (int i = 0; i < nPoint; i++) {
       cdata1d[nxg][i] = float(i);
       cdata1d[nyg][i] = 0.0;
       cdata1d[nxs][i] = float(i) * ds; // hmmm...... good ????
@@ -1446,7 +1446,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
 
   params.clear();
 
-  map<int, miString>::iterator pn, pnend = vcParNumber.end();
+  map<int, std::string>::iterator pn, pnend = vcParNumber.end();
 
   for (int n = 0; n < numPar2d; n++) {
     pn = vcParNumber.find(idPar2d[n]);
@@ -1457,7 +1457,7 @@ bool VcrossPlot::prepareData(const miString& fileName)
   }
 
   // the computation functions
-  map<miString, FileContents>::iterator pfc = fileContents.find(fileName);
+  map<std::string, FileContents>::iterator pfc = fileContents.find(fileName);
   if (pfc != fileContents.end())
     useFunctions = pfc->second.useFunctions;
 
@@ -1561,27 +1561,26 @@ void VcrossPlot::prepareVertical()
 
     if (npy1 >= 0) {
       if (nps >= 0 && vcoordPlot == vcv_exner) {
-        for (i = 0; i < nPoint; i++) {
+        for (int i = 0; i < nPoint; i++) {
           p = cdata1d[nps][i];
           pi = cp * powf(p * p0inv, kappa);
           cdata1d[npy1][i] = yconst + yscale * pi;
         }
       } else if (nps >= 0 && vcoordPlot == vcv_pressure) {
-        for (i = 0; i < nPoint; i++) {
+        for (int i = 0; i < nPoint; i++) {
           p = cdata1d[nps][i];
           cdata1d[npy1][i] = yconst + yscale * p;
         }
       } else if (ntopo >= 0 && vcoordPlot == vcv_height) {
-        float z;
-        for (i = 0; i < nPoint; i++) {
-          z = cdata1d[ntopo][i];
+        for (int i = 0; i < nPoint; i++) {
+          const float z = cdata1d[ntopo][i];
           cdata1d[npy1][i] = yconst + yscale * z;
         }
       } else {
         // isentropic levels
         // approx. surface according to existing data
         // (but can't find anything below the lower level)
-        for (i = 0; i < nPoint; i++) {
+        for (int i = 0; i < nPoint; i++) {
           k = 0;
           while (k < numLev && cdata2d[ny][k * nPoint + i] == fieldUndef)
             k++;
@@ -1615,7 +1614,7 @@ void VcrossPlot::prepareVertical()
         }
         if (!found) {
           y = yDatamax + yDatamax - yDatamin;
-          for (i = 0; i < nPoint; i++)
+          for (int i = 0; i < nPoint; i++)
             cdata1d[npy1][i] = y;
         }
       }
@@ -1733,17 +1732,17 @@ void VcrossPlot::prepareVertical()
 }
 
 
-int VcrossPlot::findParam(const miString& var)
+int VcrossPlot::findParam(const std::string& var)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(var));
 
-  map<miString, int>::iterator p = params.find(var);
+  map<std::string, int>::iterator p = params.find(var);
 
   if (p != params.end())
     return p->second;
 
-  map<miString, vcFunction>::iterator f = useFunctions.find(var);
+  map<std::string, vcFunction>::iterator f = useFunctions.find(var);
 
   if (f == useFunctions.end())
     return -1;
@@ -1762,7 +1761,7 @@ int VcrossPlot::findParam(const miString& var)
   return computer(var, f->second.function, parloc);
 }
 
-int VcrossPlot::computer(const miString& var, VcrossFunction vcfunc, vector<int> parloc)
+int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, vector<int> parloc)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(var));
@@ -2528,7 +2527,7 @@ int VcrossPlot::getNearestPos(int px)
   return n;
 }
 
-bool VcrossPlot::plotBackground(const vector<miString>& labels)
+bool VcrossPlot::plotBackground(const vector<std::string>& labels)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2543,7 +2542,7 @@ bool VcrossPlot::plotBackground(const vector<miString>& labels)
 
 
   /************************************************************************
-   vector<miString> posmarkName;
+   vector<std::string> posmarkName;
    vector<float>    posmarkLatitude;
    vector<float>    posmarkLongitude;
    float posmarkDistance= 100.;
@@ -2783,8 +2782,8 @@ void VcrossPlot::plotXLabels()
       float rpos = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i])
               * (refPosition - float(i));
       float unit;
-      miString uname;
-      if (vcopt->distanceUnit.downcase() == "nm") {
+      std::string uname;
+      if (miutil::to_lower(vcopt->distanceUnit) == "nm") {
         unit = 1852.; // Nautical mile
         uname = "nm";
       } else {
@@ -2798,7 +2797,7 @@ void VcrossPlot::plotXLabels()
             ostringstream xostr;
             xostr << setprecision(1) << setiosflags(ios::fixed) << fabsf(
                 (cdata1d[nxs][i] - rpos) / unit);
-            miString xstr = xostr.str() + uname;
+            std::string xstr = xostr.str() + uname;
             float dx, dy;
             fp->getStringSize(xstr.c_str(), dx, dy);
             x = cdata1d[nxs][i];
@@ -2814,7 +2813,7 @@ void VcrossPlot::plotXLabels()
         }
 
       } else { //distance in "step" km or nm
-        int step = vcopt->distanceStep.toInt();
+        int step = miutil::to_int(vcopt->distanceStep);
         int i = ip1;
         //pos first possible label
         while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i] > xcut))
@@ -2842,7 +2841,7 @@ void VcrossPlot::plotXLabels()
             //print string
             ostringstream xostr;
             xostr << abs(xLabel);
-            miString xstr = xostr.str() + uname;
+            std::string xstr = xostr.str() + uname;
             float dx, dy;
             fp->getStringSize(xstr.c_str(), dx, dy);
             fp->drawStr(xstr.c_str(), x + chxt * 1.5 - dx, y1, 0.0);
@@ -3015,7 +3014,7 @@ void VcrossPlot::plotXLabels()
     }
     if (vcopt->pDistance || vcopt->pXYpos || vcopt->pGeoPos) {
       y -= (chy * chystp);
-      vector<miString> vpstr, vpcol;
+      vector<std::string> vpstr, vpcol;
       int l = 0;
       if (vcopt->pDistance) {
         //----------------------------------------------------------
@@ -3030,8 +3029,8 @@ void VcrossPlot::plotXLabels()
         ostringstream xostr;
         xostr << "Distance=" << setprecision(1) << setiosflags(ios::fixed)
                 << (cdata1d[nxs][i] - rpos) / 1000.;
-        miString xstr = xostr.str();
-        xstr.trim();
+        std::string xstr = xostr.str();
+        miutil::trim(xstr);
         xstr += "km";
         l += xstr.length();
         vpstr.push_back(xstr);
@@ -3042,7 +3041,7 @@ void VcrossPlot::plotXLabels()
         ostringstream ostr;
         ostr << "X=" << setprecision(1) << setiosflags(ios::fixed) << tgxpos
             << "  Y=" << setprecision(1) << setiosflags(ios::fixed) << tgypos;
-        miString xystr = ostr.str();
+        std::string xystr = ostr.str();
         l += xystr.length();
         vpstr.push_back(xystr);
         vpcol.push_back(vcopt->xyposColour);
@@ -3064,7 +3063,7 @@ void VcrossPlot::plotXLabels()
           yostr << 'W';
         else
           yostr << 'E';
-        miString str = xostr.str() + yostr.str();
+        std::string str = xostr.str() + yostr.str();
         l += str.length();
         vpstr.push_back(str);
         vpcol.push_back(vcopt->geoposColour);
@@ -3122,7 +3121,7 @@ void VcrossPlot::plotLevels()
 
   for (int loop = 0; loop < 3; loop++) {
     float lwidth;
-    miString ltype;
+    std::string ltype;
     if (loop == 0 && vcopt->pUpperLevel) {
       k1 = k2 = numLev - 1;
       c = Colour(vcopt->upperLevelColour);
@@ -3422,7 +3421,7 @@ void VcrossPlot::plotVerticalMarkerLines()
 }
 
 
-void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
+void VcrossPlot::plotAnnotations(const vector<std::string>& labels)
 {
   //Annotations
   float xoffset = (xPlotmax - xPlotmin) / 50;
@@ -3432,57 +3431,56 @@ void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
 
   for (int i = 0; i < nlabels; i++) {
     left = top = true;
-    vector<miString> tokens = labels[i].split('"', '"');
+    vector<std::string> tokens = miutil::split_protected(labels[i], '"', '"');
     int ntokens = tokens.size();
-    miString text;
+    std::string text;
     float unit = 1.0, xfac = 1.0, yfac = 1.0;
     bool arrow = false;
     vector<float> arrow_x, arrow_y;
     Colour tcolour, fcolour, bcolour;
     float yoffsetfac = 1.0, xoffsetfac = 1.0;
     for (int j = 0; j < ntokens; j++) {
-      vector<miString> stokens = split(tokens[j], '<', '>');
+      vector<std::string> stokens = split(tokens[j], '<', '>');
       int nstokens = stokens.size();
       if (nstokens > 0) {
         for (int k = 0; k < nstokens; k++) {
-          vector<miString> sstokens = stokens[k].split('\"', '\"', ",", true);
+          vector<std::string> sstokens = miutil::split_protected(stokens[k], '\"', '\"', ",", true);
           int nsstokens = sstokens.size();
           for (int l = 0; l < nsstokens; l++) {
-            vector<miString> ssstokens = sstokens[l].split('\"', '\"', "=",
-                true);
+            vector<std::string> ssstokens = miutil::split_protected(sstokens[l], '\"', '\"', "=", true);
             if (ssstokens.size() == 2) {
-              if (ssstokens[0].upcase() == "TEXT") {
+              if (miutil::to_upper(ssstokens[0]) == "TEXT") {
                 text = ssstokens[1];
-              } else if (ssstokens[0].upcase() == "ARROW") {
-                unit = ssstokens[1].toFloat();;
+              } else if (miutil::to_upper(ssstokens[0]) == "ARROW") {
+                unit = miutil::to_double(ssstokens[1]);;
                 arrow = true;
-              } else if (ssstokens[0].upcase() == "XFAC") {
-                xfac = ssstokens[1].toFloat();
-              } else if (ssstokens[0].upcase() == "YFAC") {
-                yfac = ssstokens[1].toFloat();;
+              } else if (miutil::to_upper(ssstokens[0]) == "XFAC") {
+                xfac = miutil::to_double(ssstokens[1]);
+              } else if (miutil::to_upper(ssstokens[0]) == "YFAC") {
+                yfac = miutil::to_double(ssstokens[1]);;
               }
             }
           }
         }
       } else {
-        vector<miString> stokens = tokens[j].split("=");
+        vector<std::string> stokens = miutil::split(tokens[j], "=");
         if (stokens.size() == 2) {
-          if (stokens[0].upcase() == "TCOLOUR") {
+          if (miutil::to_upper(stokens[0]) == "TCOLOUR") {
             tcolour = Colour(stokens[1]);
-          } else if (stokens[0].upcase() == "FCOLOUR") {
+          } else if (miutil::to_upper(stokens[0]) == "FCOLOUR") {
             fcolour = Colour(stokens[1]);
-          } else if (stokens[0].upcase() == "BCOLOUR") {
+          } else if (miutil::to_upper(stokens[0]) == "BCOLOUR") {
             bcolour = Colour(stokens[1]);
-          } else if (stokens[0].upcase() == "VALIGN" && stokens[1].upcase()
+          } else if (miutil::to_upper(stokens[0]) == "VALIGN" && miutil::to_upper(stokens[1])
               == "BOTTOM") {
             top = false;
-          } else if (stokens[0].upcase() == "HALIGN" && stokens[1].upcase()
+          } else if (miutil::to_upper(stokens[0]) == "HALIGN" && miutil::to_upper(stokens[1])
               == "RIGHT") {
             left = false;
-          } else if (stokens[0].upcase() == "XOFFSET") {
-            xoffsetfac = stokens[1].toFloat();
-          } else if (stokens[0].upcase() == "YOFFSET") {
-            yoffsetfac = stokens[1].toFloat();
+          } else if (miutil::to_upper(stokens[0]) == "XOFFSET") {
+            xoffsetfac = miutil::to_double(stokens[1]);
+          } else if (miutil::to_upper(stokens[0]) == "YOFFSET") {
+            yoffsetfac = miutil::to_double(stokens[1]);
           }
         }
       }
@@ -3542,10 +3540,10 @@ void VcrossPlot::plotAnnotations(const vector<miutil::miString>& labels)
     if (arrow) {
       plotArrow(xpos + xoffset * 0.3, ypos - dy * 1.4, ddx, ddy, true);
     }
-    if (text.exists()) {
-      text.remove('"');
+    if (not text.empty()) {
+      miutil::remove(text, '"');
       text = validTime.format(text);
-      text.trim();
+      miutil::trim(text);
       fp->drawStr(text.c_str(), xpos + xoffset * 0.3 + ddx * 2,
           ypos - dy * 1.4, 0.0);
     }
@@ -3905,7 +3903,7 @@ void VcrossPlot::plotFrame()
 
 }
 
-bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
+bool VcrossPlot::plotData(const std::string& fieldname, PlotOptions& poptions)
 {
   METLIBS_LOG_SCOPE();
 
@@ -4064,9 +4062,9 @@ bool VcrossPlot::plotData(const miString& fieldname, PlotOptions& poptions)
   ylim[0] = yPlotmin;
   ylim[1] = yPlotmax;
 
-  miString fname = fieldname.downcase();
+  std::string fname = miutil::to_lower(fieldname);
 
-  map<miString, vcField>::iterator vcf = vcFields.find(fname);
+  map<std::string, vcField>::iterator vcf = vcFields.find(fname);
 
   if (vcf == vcFields.end())
     return false;
@@ -5539,9 +5537,9 @@ void VcrossPlot::xyclip(int npos, float *x, float *y, float xylim[4])
   }
 }
 
-//copy from diAnnotationPlot, move to miString?
+//copy from diAnnotationPlot, move to std::string?
 
-vector<miString> VcrossPlot::split(const miString eString, const char s1,
+vector<std::string> VcrossPlot::split(const std::string eString, const char s1,
     const char s2)
 {
   /*finds entries delimited by s1 and s2
@@ -5550,7 +5548,7 @@ vector<miString> VcrossPlot::split(const miString eString, const char s1,
    f.ex. <"this is also > an entry">
    */
   int stop, start, stop2, start2, len;
-  vector<miString> vec;
+  vector<std::string> vec;
 
   if (eString.empty())
     return vec;

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,7 +36,6 @@
 #include "diPrintOptions.h"
 #include "diLocationPlot.h"
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <vector>
 #include <map>
@@ -57,20 +54,20 @@ class VcrossManager {
 private:
 
   struct VcrossData {
-    miutil::miString    filename;
-    miutil::miString    crossection;
+    std::string    filename;
+    std::string    crossection;
     int         tgpos;
     miutil::miTime      time;
     VcrossPlot* vcplot;
   };
 
   // std::map<model,filename>
-  std::map<miutil::miString,miutil::miString> filenames;
-  std::vector<miutil::miString> modelnames;
-  std::map<miutil::miString, miutil::miString> filetypes;
+  std::map<std::string,std::string> filenames;
+  std::vector<std::string> modelnames;
+  std::map<std::string, std::string> filetypes;
 
-  std::map<miutil::miString,VcrossFile*> vcfiles;
-  std::map<miutil::miString,VcrossField*> vcfields;
+  std::map<std::string,VcrossFile*> vcfiles;
+  std::map<std::string,VcrossField*> vcfields;
 
   std::vector<VcrossData> vcdata;
 
@@ -80,26 +77,26 @@ private:
 
   bool dataChange;
 
-  std::vector<miutil::miString>    selectedModels;
-  std::vector<miutil::miString>    selectedFields;
+  std::vector<std::string>    selectedModels;
+  std::vector<std::string>    selectedFields;
   std::vector<int>         selectedHourOffset;
   std::vector<PlotOptions> selectedPlotOptions;
   std::vector<bool>        selectedPlotShaded;
-  std::vector<miutil::miString>    selectedVcFile;
+  std::vector<std::string>    selectedVcFile;
   std::vector<int>         selectedVcData;
-  std::vector<miutil::miString>    selectedLabel;
-  std::vector<miutil::miString>    plotStrings;
+  std::vector<std::string>    selectedLabel;
+  std::vector<std::string>    plotStrings;
 
   //bool asField;
 
-  miutil::miString masterFile;
+  std::string masterFile;
   std::vector<std::string> nameList;
   std::vector<miutil::miTime>   timeList;
 
-  std::vector<miutil::miString> usedModels;
+  std::vector<std::string> usedModels;
 
-  miutil::miString plotCrossection;
-  miutil::miString lastCrossection;
+  std::string plotCrossection;
+  std::string lastCrossection;
   miutil::miTime   plotTime;
   miutil::miTime   ztime;
 
@@ -128,38 +125,38 @@ public:
   std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
 
   void preparePlot();
-  void setCrossection(const miutil::miString& crossection);
+  void setCrossection(const std::string& crossection);
   void setTime(const miutil::miTime& time);
-  miutil::miString setCrossection(int step);
+  std::string setCrossection(int step);
   bool setCrossection(float lat, float lon);
   miutil::miTime setTime(int step);
   const miutil::miTime getTime() { return plotTime; }
   void getCrossections(LocationData& locationdata);
   void getCrossectionOptions(LocationData& locationdata);
-  const miutil::miString getCrossection() { return plotCrossection; }
-  const miutil::miString getLastCrossection(){return lastCrossection;}
+  const std::string getCrossection() { return plotCrossection; }
+  const std::string getLastCrossection(){return lastCrossection;}
   const std::vector<std::string>& getCrossectionList() { return nameList; }
   const std::vector<miutil::miTime>&   getTimeList() { return timeList; }
-  std::vector<miutil::miString> getAllModels();
-  std::map<miutil::miString,miutil::miString> getAllFieldOptions();
-  std::vector<std::string> getFieldNames(const miutil::miString& model);
-  std::vector<miutil::miString> getPlotStrings(){return plotStrings;}
+  std::vector<std::string> getAllModels();
+  std::map<std::string,std::string> getAllFieldOptions();
+  std::vector<std::string> getFieldNames(const std::string& model);
+  std::vector<std::string> getPlotStrings(){return plotStrings;}
 
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
   void mainWindowTimeChanged(const miutil::miTime& time);
-  bool setSelection(const std::vector<miutil::miString>& vstr);
+  bool setSelection(const std::vector<std::string>& vstr);
   bool timeGraphOK();
   void disableTimeGraph();
   void setTimeGraphPos(int plotx, int ploty);
   void setTimeGraphPos(int incr);
-  void parseQuickMenuStrings(const std::vector<miutil::miString>& vstr);
-  std::vector<miutil::miString> getQuickMenuStrings();
+  void parseQuickMenuStrings(const std::vector<std::string>& vstr);
+  std::vector<std::string> getQuickMenuStrings();
 
-  std::vector<miutil::miString> writeLog();
-  void readLog(const std::vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion);
 
 private:
   VcrossField* getVcrossField(const std::string& modelname);
