@@ -412,8 +412,9 @@ void VcrossManager::preparePlot()
         miTime t = plotTime;
         if (selectedHourOffset[i] != 0)
           t.addHour(selectedHourOffset[i]);
-        VcrossField *vcfield = vcfields[model];
-        if(vcfield) {
+
+        VcrossField* vcfield = getVcrossField(model);
+        if (vcfield) {
           VcrossPlot *vcp = vcfield->getCrossection(plotCrossection,t,timeGraphPos);
           if (vcp) {
             timeGraphPosMax = vcp->getHorizontalPosNum() - 1;
@@ -426,6 +427,8 @@ void VcrossManager::preparePlot()
             vcd.vcplot = vcp;
             vcdata.push_back(vcd);
           }
+        } else {
+          METLIBS_LOG_ERROR("filetype=GribFile but no vcfield!");
         }
       }
     }
@@ -466,41 +469,67 @@ vector<std::string> VcrossManager::getFieldNames(const miString& model)
   const vector<std::string> empty;
 
   if(filetypes[model] == "standard") {
-  map<miString,miString>::iterator p= filenames.find(model);
-  if (p==filenames.end())
-    return empty;
-
-  map<miString,VcrossFile*>::iterator vf= vcfiles.find(p->second);
-  if (vf!=vcfiles.end()) {
-    if (!vf->second) {
-      VcrossFile *vcfile= new VcrossFile(p->second,model);
-      if (!vcfile->update()) {
-        delete vcfile;
+    map<miString,miString>::iterator p= filenames.find(model);
+    if (p==filenames.end())
+      return empty;
+    
+    map<miString,VcrossFile*>::iterator vf= vcfiles.find(p->second);
+    if (vf!=vcfiles.end()) {
+      if (!vf->second) {
+        VcrossFile *vcfile= new VcrossFile(p->second,model);
+        if (!vcfile->update()) {
+          delete vcfile;
+          return empty;
+        }
+        vf->second= vcfile;
+      } else if (!vf->second->update()) {
         return empty;
       }
-      vf->second= vcfile;
-    } else if (!vf->second->update()) {
-      return empty;
-    }
-
-  } else {
-    return empty;
-  }
-
-  return VcrossPlot::getFieldNames(p->second);
- } else if(filetypes[model] == "GribFile") {
-    VcrossField *vcfield = new VcrossField(model,fieldm);
-    if(vcfield->getInventory()) {
-      vcfields[model] = vcfield;
-      return VcrossPlot::getFieldNames(model);
+      
     } else {
-      METLIBS_LOG_ERROR("Error making inventory of model " << model);
       return empty;
     }
+    
+    return VcrossPlot::getFieldNames(p->second);
+  } else if(filetypes[model] == "GribFile") {
+    VcrossField *vcfield = getVcrossField(model);
+    if (vcfield)
+      return VcrossPlot::getFieldNames(model);
   } else {
-    return empty;
+    METLIBS_LOG_ERROR("unknown filetype for model " << model);
   }
   return empty;
+}
+
+VcrossField* VcrossManager::getVcrossField(const std::string& modelname)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(modelname));
+
+  const std::map<miutil::miString, miutil::miString>::const_iterator fit = filetypes.find(modelname);
+  if (fit == filetypes.end() or fit->second != "GribFile") {
+    METLIBS_LOG_ERROR("model '" << modelname << "' not registered as 'GribFile'");
+    return 0;
+  }
+  
+  const std::map<miString, VcrossField*>::iterator vfit = vcfields.find(modelname);
+  if (vfit == vcfields.end() or not vfit->second) {
+    VcrossField *vcfield = new VcrossField(modelname, fieldm);
+    if (not vcfield->getInventory()) {
+      delete vcfield;
+      METLIBS_LOG_ERROR("failed to make inventory of model '" << modelname << "'");
+      return 0;
+    }
+    METLIBS_LOG_DEBUG("inventory for model '" << modelname << "' complete");
+
+    if (vfit == vcfields.end()) {
+      vcfields.insert(std::make_pair(modelname, vcfield));
+      return vcfield;
+    } else {
+      vfit->second = vcfield;
+    }
+  }
+  return vfit->second;
 }
 
 /***************************************************************************/
@@ -707,12 +736,16 @@ bool VcrossManager::setModels()
   usedModels.clear();
 
   for (int i=0; i<numplot; i++) {
+    const miString& model=    selectedModels[i];
+    const miString& filename= selectedVcFile[i];
+    METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(model) << LOGVAL(filename));
 
-    miString model=    selectedModels[i];
-    miString filename= selectedVcFile[i];
-
-     if (filetypes[model] == "GribFile") {
-      vcfield = vcfields[model];
+    if (filetypes[model] == "GribFile") {
+      vcfield = getVcrossField(model);
+      if (not vcfield) {
+        METLIBS_LOG_ERROR("filetype=GribFile but no vcfield!");
+        return false;
+      }
       int m = usedModels.size();
       int j = 0;
       while (j < m && usedModels[j] != model)

@@ -161,6 +161,8 @@ public:
   void readLog(const std::vector<miutil::miString>& vstr,
 	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
 
+private:
+  VcrossField* getVcrossField(const std::string& modelname);
 };
 
 #endif
