@@ -45,9 +45,6 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossField"
 #include <miLogger/miLogging.h>
-#define MILOGGER_CATEGORY "diana.VcrossField"
-#include <miLogger/miLogging.h>
-
 
 using namespace std;
 

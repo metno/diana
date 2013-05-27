@@ -47,9 +47,6 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossManager"
 #include <miLogger/miLogging.h>
-#define MILOGGER_CATEGORY "diana.VcrossManager"
-#include <miLogger/miLogging.h>
-
 
 using namespace::miutil;
 
@@ -147,8 +144,7 @@ bool VcrossManager::parseSetup()
 	    modelnames.push_back(model);
 	    filetypes[model] = "standard";
 	    vcfiles[filename]= 0;
-	  }
-	  else if (tokens1[0].downcase() == "m" && tokens2[0].downcase() == "t") {
+	  } else if (tokens1[0].downcase() == "m" && tokens2[0].downcase() == "t") {
             model = tokens1[1];
             miString filetype = tokens2[1];
 	    modelnames.push_back(model);
@@ -342,7 +338,7 @@ bool VcrossManager::plot()
 void VcrossManager::preparePlot()
 {
   METLIBS_LOG_SCOPE();
-
+  
   int numplot= selectedModels.size();
 
   vector<VcrossData> prevdata= vcdata;
@@ -356,7 +352,7 @@ void VcrossManager::preparePlot()
   for (int i=0; i<numplot; i++) {
 
     selectedVcData[i]= -1;
-
+    
     miString model= selectedModels[i];
     p= filenames.find(model);
 
@@ -366,9 +362,9 @@ void VcrossManager::preparePlot()
       vf= vcfiles.find(filename);
 
       if (vf!=vfend && vf->second) {
-
+        
         VcrossFile *vcfile= vf->second;
-
+        
         miTime t= plotTime;
         if (selectedHourOffset[i]!=0)
           t.addHour(selectedHourOffset[i]);
@@ -703,7 +699,7 @@ bool VcrossManager::setModels()
   map<miString,VcrossFile*>::iterator vf, vfend=vcfiles.end();
   set<miString> vcfilesUsed;
 
-  miString prevmasterFile= masterFile;
+  const miString prevmasterFile= masterFile;
 
   VcrossFile *vcfile1= 0;
   VcrossField *vcfield = 0;
@@ -725,7 +721,7 @@ bool VcrossManager::setModels()
         usedModels.push_back(model);
       masterFile = model;
     } else if (vcfilesUsed.find(filename)==vcfilesUsed.end()) {
-
+      
       vcfilesUsed.insert(filename);
 
       vf= vcfiles.find(filename);

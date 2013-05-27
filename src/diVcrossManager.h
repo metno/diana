@@ -32,21 +32,21 @@
 #define VCROSSMANAGER_H
 
 
-#include <diCommonTypes.h>
-#include <diPlotOptions.h>
-#include <diPrintOptions.h>
-#include <diLocationPlot.h>
-#include <puTools/miTime.h>
+#include "diCommonTypes.h"
+#include "diController.h"
+#include "diPlotOptions.h"
+#include "diPrintOptions.h"
+#include "diLocationPlot.h"
+
 #include <puTools/miString.h>
+#include <puTools/miTime.h>
 #include <vector>
 #include <map>
-#include <diController.h>
 
 class VcrossOptions;
 class VcrossFile;
 class VcrossPlot;
 class VcrossField;
-
 
 /**
    \brief Managing Vertical Crossection data sources and plotting

@@ -57,9 +57,6 @@
 
 #define MILOGGER_CATEGORY "diana.VcrossPlot"
 #include <miLogger/miLogging.h>
-#define MILOGGER_CATEGORY "diana.VcrossPlot"
-#include <miLogger/miLogging.h>
-
 
 using namespace std;
 using namespace miutil;
@@ -671,8 +668,7 @@ map<miString, miString> VcrossPlot::getAllFieldOptions()
       //    ostr << "linewidth="   << po.linewidth
       //	   << " density="    << po.density
       //	   << " vector.unit="<< po.vectorunit
-    } else if (vcf->second.plotType == vcpt_vt_omega || vcf->second.plotType
-        == vcpt_vt_w) {
+    } else if (vcf->second.plotType == vcpt_vt_omega || vcf->second.plotType == vcpt_vt_w) {
       ostr << "colour=" << po.linecolour.Name() << " linewidth="
           << po.linewidth << " density=" << po.density << " vector.unit="
           << po.vectorunit;
@@ -888,8 +884,6 @@ bool VcrossPlot::plot(VcrossOptions *vcoptions, const miString& fieldname,
     float y2 = yWindowmax;
     float dx = x2 - x1;
     float dy = y2 - y1;
-    dx = x2 - x1;
-    dy = y2 - y1;
     if (w / h > dx / dy) {
       dx = (dy * w / h - dx) * 0.5;
       x1 -= dx;
