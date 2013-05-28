@@ -235,7 +235,11 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
       }
 
       miString str  = "table=\"";
-      str += fields[0]->fieldText;
+      if ( poptions.legendtitle.empty() ) {
+        str += fields[0]->fieldText;
+      } else {
+        str += poptions.legendtitle;
+      }
 
       //find min/max if repeating colours
       float cmin=  fieldUndef;

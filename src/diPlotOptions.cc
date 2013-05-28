@@ -313,6 +313,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
   const std::string key_units="units";
   //legend units
   const std::string key_legendunits="legendunits";
+  //legend title
+  const std::string key_legendtitle="legendtitle";
   //anti-aliasing
   const std::string key_antialiasing="antialiasing";
   //use_stencil
@@ -833,6 +835,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         po.unit=value.c_str();
       } else if (key==key_legendunits){
         po.legendunits=value.c_str();
+      } else if (key==key_legendtitle){
+        po.legendtitle=value.c_str();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
       } else if (key==key_use_stencil){
@@ -1117,6 +1121,14 @@ std::string PlotOptions::toString()
 
   if(!unit.empty()) {
     ostr << " unit="  << unit;
+  }
+
+  if(!legendunits.empty()) {
+    ostr << " legendunits="  << legendunits;
+  }
+
+  if(!legendtitle.empty()) {
+    ostr << " legendtitle="  << legendtitle;
   }
 
   if( precision > 0 ) {
