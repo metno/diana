@@ -3569,8 +3569,10 @@ int diana_init(int _argc, char** _argv)
   // Init loghandler with debug level
   if (logfilename.exists())
     plog = milogger::LogHandler::initLogHandler(logfilename);
-  else
-    plog = milogger::LogHandler::initLogHandler(3, "");
+  else {
+    plog = milogger::LogHandler::initLogHandler(2, "");
+    cerr << "No properties file given for logging. Writing to stdout." << endl;
+  }
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
