@@ -27,11 +27,11 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 /*
   DESCRIPTION:    Plots classification table for classified data
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -51,7 +51,7 @@ using namespace std; using namespace miutil;
 
 // Default constructor
 LegendPlot::LegendPlot()
-  : Plot()
+: Plot()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
@@ -68,7 +68,7 @@ LegendPlot::LegendPlot()
 
 
 LegendPlot::LegendPlot(miString& str)
-  : Plot()
+: Plot()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
@@ -112,7 +112,7 @@ LegendPlot::LegendPlot(miString& str)
 
 
 void LegendPlot::setData(const miString& title,
-			     const vector<ColourCode>& colourcode)
+    const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ LegendPlot::setdata");
@@ -228,27 +228,27 @@ bool LegendPlot::plot(float x, float y)
     if(titlewidth>maxwidth){
       vector<miString> vs = titlestring.split(" ");
       if (vs.size()>=5) {
-	// handle field difference...
-	miString smove;
-	int l, n= vs.size();
-	for (int i=0; i<n; i++) {
-	  l= vs[i].length();
-	  if (l==1 && vs[i]=="(" && i<n-1) {
-	    smove="( ";
-	  } else if (l==1 && vs[i]=="-" && i<n-1) {
-	    smove="- ";
-	  } else if (l==1 && vs[i]==")" && vtitlestring.size()>0)  {
-	    int j= vtitlestring.size();
-	    vtitlestring[j-1] += " )";
-	  } else if (!smove.empty()) {
-	    vtitlestring.push_back(smove + vs[i]);
-	    smove.clear();
-	  } else {
-	    vtitlestring.push_back(vs[i]);
-	  }
-	}
+        // handle field difference...
+        miString smove;
+        int l, n= vs.size();
+        for (int i=0; i<n; i++) {
+          l= vs[i].length();
+          if (l==1 && vs[i]=="(" && i<n-1) {
+            smove="( ";
+          } else if (l==1 && vs[i]=="-" && i<n-1) {
+            smove="- ";
+          } else if (l==1 && vs[i]==")" && vtitlestring.size()>0)  {
+            int j= vtitlestring.size();
+            vtitlestring[j-1] += " )";
+          } else if (!smove.empty()) {
+            vtitlestring.push_back(smove + vs[i]);
+            smove.clear();
+          } else {
+            vtitlestring.push_back(vs[i]);
+          }
+        }
       } else {
-	vtitlestring= vs;
+        vtitlestring= vs;
       }
     } else {
       vtitlestring.push_back(titlestring);
@@ -298,10 +298,10 @@ bool LegendPlot::plot(float x, float y)
     glColor3ubv(poptions.fillcolour.RGB());
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
-      glVertex2f(x1title,y2title);
-      glVertex2f(x1title,y1title);
-      glVertex2f(x2title,y1title);
-      glVertex2f(x2title,y2title);
+    glVertex2f(x1title,y2title);
+    glVertex2f(x1title,y1title);
+    glVertex2f(x2title,y1title);
+    glVertex2f(x2title,y2title);
     glEnd();
 
     //draw title
@@ -328,8 +328,6 @@ bool LegendPlot::plot(float x, float y)
     glVertex2f(x2table,y1table);
     glEnd();
 
-    glDisable(GL_BLEND);
-
     // draw table
     float x1box = x1table + xborder;
     float x2box = x1box   + 4*xborder;
@@ -339,40 +337,40 @@ bool LegendPlot::plot(float x, float y)
     glEnable(GL_POLYGON_STIPPLE);
     for (int i=0;i<ncolours;i++){
       if(colourcodes[i].plotBox){
-	//draw colour/pattern box
-	// draw background of colour/pattern boxes
-	glColor3ubv(poptions.fillcolour.RGB());
-	glBegin(GL_POLYGON);
-          glVertex2f(x1box,y1box);
-          glVertex2f(x1box,y2box);
-          glVertex2f(x2box,y2box);
-          glVertex2f(x2box,y1box);
+        //draw colour/pattern box
+        // draw background of colour/pattern boxes
+        glColor3ubv(poptions.fillcolour.RGB());
+        glBegin(GL_POLYGON);
+        glVertex2f(x1box,y1box);
+        glVertex2f(x1box,y2box);
+        glVertex2f(x2box,y2box);
+        glVertex2f(x2box,y1box);
         glEnd();
-	if(colourcodes[i].pattern.exists()){
-	  GLubyte* p=ig.getPattern(colourcodes[i].pattern);
-	  if(p==0)
-	    glPolygonStipple(solid);
-	  else
-	    glPolygonStipple(p);
-	}else{
-	  glPolygonStipple(solid);
-	}
-	glColor4ubv(colourcodes[i].colour.RGBA());
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glBegin(GL_POLYGON);
-	  glVertex2f(x1box,y1box);
-	  glVertex2f(x1box,y2box);
-	  glVertex2f(x2box,y2box);
-	  glVertex2f(x2box,y1box);
-	glEnd();
+        if(colourcodes[i].pattern.exists()){
+          GLubyte* p=ig.getPattern(colourcodes[i].pattern);
+          if(p==0)
+            glPolygonStipple(solid);
+          else
+            glPolygonStipple(p);
+        }else{
+          glPolygonStipple(solid);
+        }
+        glColor4ubv(colourcodes[i].colour.RGBA());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBegin(GL_POLYGON);
+        glVertex2f(x1box,y1box);
+        glVertex2f(x1box,y2box);
+        glVertex2f(x2box,y2box);
+        glVertex2f(x2box,y1box);
+        glEnd();
 
-	// draw border of colour/pattern box
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBegin(GL_POLYGON);
-  	  glVertex2f(x1box,y1box);
-          glVertex2f(x1box,y2box);
-          glVertex2f(x2box,y2box);
-	  glVertex2f(x2box,y1box);
+        // draw border of colour/pattern box
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBegin(GL_POLYGON);
+        glVertex2f(x1box,y1box);
+        glVertex2f(x1box,y2box);
+        glVertex2f(x2box,y2box);
+        glVertex2f(x2box,y1box);
         glEnd();
       }
       //draw textstring
@@ -383,8 +381,9 @@ bool LegendPlot::plot(float x, float y)
       y1box -= maxheight;
       UpdateOutput();
     }
-      glDisable(GL_POLYGON_STIPPLE);
+    glDisable(GL_POLYGON_STIPPLE);
   }
+  glDisable(GL_BLEND);
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ Returning from Legend::plot() ++");
