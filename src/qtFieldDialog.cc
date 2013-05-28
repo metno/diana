@@ -4970,7 +4970,11 @@ void FieldDialog::upField()
       minusButton->setChecked(false);
   }
 
-  selectedFieldbox->setCurrentRow(index - 1);
+  index--;
+  selectedFieldbox->setCurrentRow(index);
+  upFieldButton->setEnabled((index > numEditFields));
+  downFieldButton->setEnabled((index < (n-1)));
+
 }
 
 void FieldDialog::downField()
@@ -5002,7 +5006,11 @@ void FieldDialog::downField()
       minusButton->setChecked(false);
   }
 
-  selectedFieldbox->setCurrentRow(index + 1);
+  index++;
+  selectedFieldbox->setCurrentRow(index);
+  upFieldButton->setEnabled((index > numEditFields));
+  downFieldButton->setEnabled((index < (n-1)));
+
 }
 
 void FieldDialog::resetOptions()
