@@ -3976,7 +3976,7 @@ void DianaMainWindow::writeLogFile()
   vector<std::string> vstdstr= fm->writeLog();
   n= vstr.size();
   file << "[FIELD.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
+  for (i=0; i<n; i++) file << vstdstr[i] << endl;
   file << "[/FIELD.LOG]" << endl;
   file << endl;
 
