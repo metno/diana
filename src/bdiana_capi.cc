@@ -3567,12 +3567,13 @@ int diana_init(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  if (logfilename.exists())
-    plog = milogger::LogHandler::initLogHandler(logfilename);
-  else {
-    plog = milogger::LogHandler::initLogHandler(2, "");
-    cerr << "No properties file given for logging. Writing to stdout." << endl;
+  if (!logfilename.exists()) {
+    // If no log file name is given then use /etc/diana/<major>.<minor>/diana.logger
+    vector<string> versionPieces = miutil::split(VERSION, ".");
+    logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
   }
+
+  plog = milogger::LogHandler::initLogHandler(logfilename);
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
