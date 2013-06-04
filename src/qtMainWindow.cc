@@ -1421,6 +1421,7 @@ void DianaMainWindow::MenuOK()
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DianaMainWindow::MenuOK");
 #endif
+  METLIBS_LOG_SCOPE();
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
 
