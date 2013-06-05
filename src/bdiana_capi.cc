@@ -3573,9 +3573,15 @@ int diana_init(int _argc, char** _argv)
     logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
   }
 
-  cerr << "Using properties file: " << logfilename << endl;
+  if (QFileInfo(QString::fromStdString(logfilename)).exists()) {
+    cerr << "Using properties file: " << logfilename << endl;
+    plog = milogger::LogHandler::initLogHandler(logfilename);
+  } else {
+    cerr << "Properties file does not exist: " << logfilename << endl;
+    cerr << "Using stderr instead." << endl;
+    plog = milogger::LogHandler::initLogHandler(2, cerr);
+  }
 
-  plog = milogger::LogHandler::initLogHandler(logfilename);
   plog->setObjectName("diana.bdiana.main");
   COMMON_LOG::getInstance("common").infoStream() << argv[0].toStdString() << " : DIANA batch version " << VERSION;
 
