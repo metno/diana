@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,6 +34,7 @@
 //#define DEBUGPRINT
 
 #include "diFieldPlot.h"
+
 #include "diContouring.h"
 #include "diFontManager.h"
 #include <diImageGallery.h>
@@ -45,47 +44,42 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.FieldPlot"
+#define M_TIME
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 const int MaxWindsAuto=40;
 const int MaxArrowsAuto=55;
 
 
-// Default constructor
 FieldPlot::FieldPlot()
 :Plot(), overlay(false),
- pshade(false), pundefined(false),vectorAnnotationSize(0.) {
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::Default Constructor" << endl;
-#endif
+ pshade(false), pundefined(false),vectorAnnotationSize(0.)
+{
+  METLIBS_LOG_SCOPE();
 }
 
-// Destructor
-FieldPlot::~FieldPlot(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::Destructor" << endl;
-#endif
+FieldPlot::~FieldPlot()
+{
+  METLIBS_LOG_SCOPE();
   clearFields();
 }
 
 
-void FieldPlot::clearFields(){
-#ifdef DEBUGPRINT
-  cerr << " FieldPlot::clearFields fields.size():" << endl;
-#endif
+void FieldPlot::clearFields()
+{
+  METLIBS_LOG_SCOPE();
   int n= tmpfields.size();
   for (int i=0; i<n; i++) {
     delete tmpfields[i];
-    tmpfields[i] = NULL;
   }
   tmpfields.clear();
 
-  for(unsigned int i=1; i<fields.size(); i++) {
-    fields[i] = NULL;
-  }
   fields.clear();
 }
 
@@ -93,7 +87,8 @@ void FieldPlot::clearFields(){
 Area& FieldPlot::getFieldArea(){
   if (fields.size() && fields[0])
     return fields[0]->area;
-  else return area; // return master-area
+  else
+    return area; // return master-area
 }
 
 
@@ -119,16 +114,14 @@ bool FieldPlot::updateNeeded(miString& pin){
 }
 
 // check if current has same level
-bool FieldPlot::updatePinNeeded(const miString pin)
+bool FieldPlot::updatePinNeeded(const std::string& pin)
 {
-
   if (pinfo == pin ) {
     return false;
   }
 
   pinfo = pin;
   return true;
-
 }
 
 
@@ -140,14 +133,12 @@ void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
     c= poptions.fillcolour;
 
   s = plotname;
-
 }
 
 
 // Extract plotting-parameters from PlotInfo.
 bool FieldPlot::prepare(const miString& fname, const miString& pin)
 {
-
   //merge current plotOptions (from pin) with plotOptions form setup
   pinfo= pin;
   poptions.fillFieldPlotOptions(fname,pinfo,poptions);
@@ -155,18 +146,18 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
   plottype= poptions.plottype;
 
 #ifdef DEBUGPRINT
-  if      (plottype==fpt_contour)          cerr<<"FieldPlot "<<fname<<" : "<<"plotContour"<<endl;
-  else if (plottype==fpt_wind)             cerr<<"FieldPlot "<<fname<<" : "<<"plotWind"<<endl;
-  else if (plottype==fpt_wind_temp_fl)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
-  else if (plottype==fpt_wind_value)      cerr<<"FieldPlot "<<fname<<" : "<<"plotWindAndValue"<<endl;
-  else if (plottype==fpt_value)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
-  else if (plottype==fpt_symbol)           cerr<<"FieldPlot "<<fname<<" : "<<"plotValue"<<endl;
-  else if (plottype==fpt_vector)           cerr<<"FieldPlot "<<fname<<" : "<<"plotVector"<<endl;
-  else if (plottype==fpt_direction)        cerr<<"FieldPlot "<<fname<<" : "<<"plotDirection"<<endl;
-  else if (plottype==fpt_alpha_shade)      cerr<<"FieldPlot "<<fname<<" : "<<"plotAlpha_shade"<<endl;
-  else if (plottype==fpt_alarm_box)        cerr<<"FieldPlot "<<fname<<" : "<<"plotAlarmBox"<<endl;
-  else if (plottype==fpt_fill_cell)        cerr<<"FieldPlot "<<fname<<" : "<<"plotFillCell"<<endl;
-  else                                  cerr<<"FieldPlot "<<fname<<" : "<<"ERROR"<<endl;
+  if      (plottype==fpt_contour)          METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour");
+  else if (plottype==fpt_wind)             METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWind");
+  else if (plottype==fpt_wind_temp_fl)      METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
+  else if (plottype==fpt_wind_value)      METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
+  else if (plottype==fpt_value)           METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotValue");
+  else if (plottype==fpt_symbol)           METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotValue");
+  else if (plottype==fpt_vector)           METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotVector");
+  else if (plottype==fpt_direction)        METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotDirection");
+  else if (plottype==fpt_alpha_shade)      METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotAlpha_shade");
+  else if (plottype==fpt_alarm_box)        METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotAlarmBox");
+  else if (plottype==fpt_fill_cell)        METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotFillCell");
+  else                                  METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"ERROR");
 #endif
 
   pshade= (plottype==fpt_alpha_shade ||
@@ -184,7 +175,7 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 
-  //   cerr <<" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime()<<endl;
+  //   METLIBS_LOG_DEBUG(" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime());
 
   clearFields();
 
@@ -210,7 +201,7 @@ struct aTable{
 
 bool FieldPlot::getAnnotations(vector<miString>& anno)
 {
-  //  cerr <<"getAnnotations:"<<anno.size()<<endl;
+  //  METLIBS_LOG_DEBUG("getAnnotations:"<<anno.size());
 
   if (fields.size()==0 || !fields[0] || !fields[0]->data)
     return false;
@@ -244,7 +235,11 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
       }
 
       miString str  = "table=\"";
-      str += fields[0]->fieldText;
+      if ( poptions.legendtitle.empty() ) {
+        str += fields[0]->fieldText;
+      } else {
+        str += poptions.legendtitle;
+      }
 
       //find min/max if repeating colours
       float cmin=  fieldUndef;
@@ -436,7 +431,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
 bool FieldPlot::getDataAnnotations(vector<miString>& anno)
 {
-  //  cerr <<"getDataAnnotations:"<<anno.size()<<endl;
+  //  METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
 
   if (fields.size()==0 || !fields[0] || !fields[0]->data)
     return false;
@@ -468,7 +463,7 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
                                                           + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
-          + ",tcolour=" + poptions.linecolour.Name() + endString ;
+          + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
 
     }
@@ -478,10 +473,11 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
 }
 
 
-bool FieldPlot::plot(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plot() ++" << getModelName()<<endl;
-#endif
+bool FieldPlot::plot()
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
+
   int n= fields.size();
 
   if (!enabled || n<1) return false;
@@ -493,11 +489,8 @@ bool FieldPlot::plot(){
         int nsmooth= poptions.fieldSmooth - fields[i]->numSmoothed;
         fields[i]->smooth(nsmooth);
       } else if (fields[i]->numSmoothed>poptions.fieldSmooth) {
-        cerr << endl;
-        cerr << "FieldPlot::plot ERROR: field smoothed too much !!!" << endl;
-        cerr << "    numSmoothed,fieldSmooth: "
-            << fields[i]->numSmoothed << " " << poptions.fieldSmooth << endl;
-        cerr << endl;
+        METLIBS_LOG_ERROR("field smoothed too much !!! numSmoothed = "
+            << fields[i]->numSmoothed << ", fieldSmooth=" << poptions.fieldSmooth);
       }
     }
   }
@@ -557,11 +550,9 @@ bool FieldPlot::plot(){
 
 vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 {
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareVectors() ++" << endl;
-#endif
-  vector<float*> uv;
+  METLIBS_LOG_SCOPE();
 
+  vector<float*> uv;
   float *u=0, *v=0;
 
   int nf= tmpfields.size();
@@ -603,18 +594,14 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
   }
   uv.push_back(u);
   uv.push_back(v);
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareVectors() finished ++" << endl;
-#endif
   return uv;
 }
 
 
 vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotateVectors )
 {
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareDirectionVectors() ++" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+
   vector<float*> uv;
 
   float *u=0, *v=0;
@@ -661,9 +648,6 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
   }
   uv.push_back(u);
   uv.push_back(v);
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::prepareDirectionVectors() finished ++" << endl;
-#endif
   return uv;
 }
 
@@ -757,9 +741,10 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1, i
 
 int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float sdist)
 {
-  int xstep;
-  int i,ix;
-  int nx= fields[0]->nx;
+  const int nx = fields[0]->nx;
+  if (nx<3)
+    return 1;
+
   int ix1 = ixx1;
 
   // Use all grid point to make average step, not only current rectangle.
@@ -769,38 +754,35 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float s
     ix2 = nx-nx/4;
   }
 
-  if (nx<3) {
-    return 1;
-  }
-
   int mx= ix2-ix1;
-  int ixstep = (mx>5) ? mx/5 : 1;
+  const int ixstep = (mx>5) ? mx/5 : 1;
 
   if (mx>5) {
     if (ix1<2)    ix1= 2;
     if (ix2>nx-3) ix2= nx-3;
   }
 
-  float dx, dy;
-  float adx=0.0f;
+  float adx = 0.0f;
 
-  mx= (ix2-ix1+ixstep-1)/ixstep;
+  mx = (ix2-ix1+ixstep-1)/ixstep;
 
-  for (ix=ix1; ix<ix2; ix+=ixstep) {
-    i = iy*nx+ix;
+  for (int ix=ix1; ix<ix2; ix+=ixstep) {
+    const int i = iy*nx+ix;
     if ( x[i]==HUGE_VAL || y[i]==HUGE_VAL || x[i+1]==HUGE_VAL || y[i+1]==HUGE_VAL ){
       continue;
     }
-    dx = x[i+1]-x[i];
-    dy = y[i+1]-y[i];
+    const float dx = x[i+1]-x[i];
+    const float dy = y[i+1]-y[i];
     adx += sqrtf(dx*dx+dy*dy);
   }
 
-  adx/=float(mx);
+  adx /= float(mx);
 
-  if(adx>0.0) {
+  int xstep;
+  if (adx > 0) {
     xstep= int(sdist/adx+0.75);
-    if (xstep<1) xstep=1;
+    if (xstep<1)
+      xstep=1;
   } else {
     xstep=nx;
   }
@@ -814,26 +796,27 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float s
 
 // plot vector field as wind arrows
 // Fields u(0) v(1), optional- colorfield(2)
-bool FieldPlot::plotWind(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotWind.." << endl;
-#endif
+bool FieldPlot::plotWind()
+{
+  METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<2) return false;
-  bool colourwind = false;
-  if (!fields[0] || !fields[1] ) return false;
-  if (!fields[0]->data || !fields[1]->data) return false;
-  if ( n == 3 ) {
-    colourwind = true;
-    if ( !fields[2] ) return false;
-    if ( !fields[2]->data) return false;
+  const int n = fields.size();
+  if (n<2)
+    return false;
+  const bool colourwind = (n == 3);
+  const float* colourdata = 0;
+  if (!fields[0] || !fields[1] )
+    return false;
+  if (!fields[0]->data || !fields[1]->data)
+    return false;
+  if (colourwind) {
+    if (not fields[2] or not fields[2]->data)
+      return false;
+    colourdata = fields[2]->data;
   }
 
-
-  int ix,iy,l;
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
@@ -841,49 +824,44 @@ bool FieldPlot::plotWind(){
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  if (ix1>ix2 || iy1>iy2) return false;
+  if (ix1>ix2 || iy1>iy2)
+    return false;
 
   // convert windvectors to correct projection
-  vector<float*> uv= prepareVectors(x,y,poptions.rotateVectors);
-  if (uv.size()!=2) return false;
-  float *u= uv[0];
-  float *v= uv[1];
+  const vector<float*> uv = prepareVectors(x,y,poptions.rotateVectors);
+  if (uv.size()!=2)
+    return false;
+  const float *u= uv[0];
+  const float *v= uv[1];
 
-  int step= poptions.density;
+  int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
-  int xstep= step;
 
-  if ( poptions.frame ) {
+  if (poptions.frame) {
     plotFrame(nx,ny,x,y);
   }
 
   float* limits=0;
-  GLfloat* rgb=0;
-  int nlim= poptions.limits.size();
-  int ncol= poptions.colours.size();
+  const GLfloat* rgb=0;
+  int nlim = poptions.limits.size();
+  int ncol = poptions.colours.size();
+
+  const int n_rgb_default = 4;
+  const GLfloat rgb_default[n_rgb_default * 3] = {0.5,0.5,0.5,  0,0,0,  0,1,1,  1,0,0};
 
   if (colourwind ) {
-
-    if ( ncol>=2 ) {
-      rgb=    new GLfloat[ncol*3];
+    if (ncol>=2) {
+      GLfloat* rgb_tmp = new GLfloat[ncol*3];
       for (int i=0; i<ncol; i++) {
-        rgb[i*3+0]=  poptions.colours[i].fR();
-        rgb[i*3+1]=  poptions.colours[i].fG();
-        rgb[i*3+2]=  poptions.colours[i].fB();
+        rgb_tmp[i*3+0] = poptions.colours[i].fR();
+        rgb_tmp[i*3+1] = poptions.colours[i].fG();
+        rgb_tmp[i*3+2] = poptions.colours[i].fB();
       }
+      rgb = rgb_tmp;
     } else {
-      const int maxdef= 4;
-      float rgbdef[maxdef][3]={{0.5,0.5,0.5},{0,0,0},{0,1,1},{1,0,0}};
-
-      ncol= maxdef;
-
-      rgb=    new GLfloat[ncol*3];
-      for (int i=0; i<ncol; i++) {
-        rgb[i*3+0]= rgbdef[i][0];
-        rgb[i*3+1]= rgbdef[i][1];
-        rgb[i*3+2]= rgbdef[i][2];
-      }
+      ncol = n_rgb_default;
+      rgb = rgb_default;
     }
 
     if (nlim>=1 ) {
@@ -903,12 +881,16 @@ bool FieldPlot::plotWind(){
 
       float fmin=fieldUndef, fmax=-fieldUndef;
       for (int i=0; i<nx*ny; ++i) {
-        if (fields[2]->data[i]!=fieldUndef) {
-          if (fmin > fields[2]->data[i]) fmin=fields[2]->data[i];
-          if (fmax < fields[2]->data[i]) fmax=fields[2]->data[i];
+        const float cv = colourdata[i];
+        if (cv != fieldUndef) {
+          if (fmin > cv)
+            fmin = cv;
+          if (fmax < cv)
+            fmax = cv;
         }
       }
-      if (fmin>fmax) return false;
+      if (fmin>fmax)
+        return false;
 
       limits= new float[nlim];
       float dlim= (fmax-fmin)/float(ncol);
@@ -919,16 +901,13 @@ bool FieldPlot::plotWind(){
     }
   }
 
-  float unitlength  = poptions.vectorunit / 10;
-  int   n50,n10,n05;
-  float ff,gu,gv,gx,gy,dx,dy,dxf,dyf;
-  float flagl = sdist * 0.85 / unitlength;
-  float flagstep = flagl/10.;
-  float flagw = flagl * 0.35;
-  float hflagw = 0.6;
+  const float unitlength = poptions.vectorunit / 10;
+  const float flagl = sdist * 0.85 / unitlength;
+  const float flagstep = flagl/10.;
+  const float flagw = flagl * 0.35;
+  const float hflagw = 0.6;
   // for arrow tip
-  const float afac = -1.5;
-  const float sfac = afac * 0.5;
+  const float afac = -1.5, sfac = afac * 0.5;
 
   vector<float> vx,vy; // keep vertices for 50-knot flags
   vector<int>   vc;    // keep the colour too
@@ -942,39 +921,37 @@ bool FieldPlot::plotWind(){
 
   Projection geoProj;
   geoProj.setGeographic();
-  Projection projection = area.P();
+  const Projection& projection = area.P();
 
   glLineWidth(poptions.linewidth+0.1);  // +0.1 to avoid MesaGL coredump
   glColor3ubv(poptions.linecolour.RGB());
 
   glBegin(GL_LINES);
 
-  for (iy=iy1; iy<iy2; iy+=step){
-    xstep= xAutoStep(x,y,ix1,ix2,iy,sdist);
-    for (ix=ix1; ix<ix2; ix+=xstep){
-
-      int i= iy*nx+ix;
+  for (int iy=iy1; iy<iy2; iy+=step) {
+    const int xstep = xAutoStep(x,y,ix1,ix2,iy,sdist);
+    for (int ix=ix1; ix<ix2; ix+=xstep) {
+      const int i= iy*nx+ix;
 
       //If southern hemisphere, turn the feathers
       float xx = x[i];
       float yy = y[i];
-      int sign = 1;
       projection.convertToGeographic(1,&xx,&yy,geoProj);
-      if(yy<0) {
-        sign = -1;
-      }
+      const int sign = (yy<0) ? -1 : 1;
 
-      gx= x[i]; gy= y[i];
-      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)){
-        ff= sqrtf(u[i]*u[i]+v[i]*v[i]);
-        if (ff>0.00001 && (!colourwind || fields[2]->data[i]!=fieldUndef) ){
+      float gx = x[i];
+      float gy = y[i];
+      if (u[i]!=fieldUndef && v[i]!=fieldUndef && maprect.isnear(gx,gy)) {
+        float ff = sqrtf(u[i]*u[i]+v[i]*v[i]);
+        if (ff>0.00001 && (!colourwind || colourdata[i]!=fieldUndef)) {
 
-          gu= u[i]/ff;
-          gv= v[i]/ff;
+          const float gu= u[i]/ff;
+          const float gv= v[i]/ff;
 
           ff *= 3600.0/1852.0;
 
           // find no. of 50,10 and 5 knot flags
+          int n50, n10, n05;
           if (ff<182.49) {
             n05  = int(ff*0.2 + 0.5);
             n50  = n05/10;
@@ -982,25 +959,34 @@ bool FieldPlot::plotWind(){
             n10  = n05/2;
             n05 -= n10*2;
           } else if (ff<190.) {
-            n50 = 3;  n10 = 3;  n05 = 0;
+            n50 = 3;
+            n10 = 3;
+            n05 = 0;
           } else if(ff<205.) {
-            n50 = 4;  n10 = 0;  n05 = 0;
+            n50 = 4;
+            n10 = 0;
+            n05 = 0;
           } else if (ff<225.) {
-            n50 = 4;  n10 = 1;  n05 = 0;
+            n50 = 4;
+            n10 = 1;
+            n05 = 0;
           } else {
-            n50 = 5;  n10 = 0;  n05 = 0;
+            n50 = 5;
+            n10 = 0;
+            n05 = 0;
           }
 
-          if ( colourwind ) {
-            l=0;
-            while (l<nlim && fields[2]->data[i]>limits[l]) l++;
+          int l = 0;
+          if (colourwind) {
+            while (l<nlim && colourdata[i]>limits[l])
+              l++;
             glColor3fv(&rgb[l*3]);
           }
 
-          dx = flagstep*gu;
-          dy = flagstep*gv;
-          dxf = -sign*flagw*gv - dx;
-          dyf = sign*flagw*gu - dy;
+          const float dx = flagstep*gu;
+          const float dy = flagstep*gv;
+          const float dxf = -sign*flagw*gv - dx;
+          const float dyf = sign*flagw*gu - dy;
 
           if ( poptions.arrowstyle == arrow_wind_arrow ) {
             // arrow (drawn as two lines)
@@ -1019,29 +1005,34 @@ bool FieldPlot::plotWind(){
 
           // 50-knot flags, store for plot below
           if (n50>0) {
-            for (n=0; n<n50; n++) {
-              if ( colourwind ) {
+            for (int n=0; n<n50; n++) {
+              if (colourwind)
                 vc.push_back(l);
-              }
               vx.push_back(gx);
               vy.push_back(gy);
-              gx+=dx*2.;  gy+=dy*2.;
+              gx+=dx*2.;
+              gy+=dy*2.;
               vx.push_back(gx+dxf);
               vy.push_back(gy+dyf);
               vx.push_back(gx);
               vy.push_back(gy);
             }
-            gx+=dx; gy+=dy;
+            gx+=dx;
+            gy+=dy;
           }
           // 10-knot flags
-          for (n=0; n<n10; n++) {
+          for (int n=0; n<n10; n++) {
             glVertex2f(gx,gy);
             glVertex2f(gx+dxf,gy+dyf);
-            gx+=dx; gy+=dy;
+            gx+=dx;
+            gy+=dy;
           }
           // 5-knot flag
           if (n05>0) {
-            if (n50+n10==0) { gx+=dx; gy+=dy; }
+            if (n50+n10==0) {
+              gx+=dx;
+              gy+=dy;
+            }
             glVertex2f(gx,gy);
             glVertex2f(gx+hflagw*dxf,gy+hflagw*dyf);
           }
@@ -1055,13 +1046,13 @@ bool FieldPlot::plotWind(){
 
   // draw 50-knot flags
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  int vi= vx.size(), j=0;
+  const int vi= vx.size();
   if (vi>=3){
     glBegin(GL_TRIANGLES);
     for (int i=0; i<vi; i+=3){
-      if ( colourwind ) {
-        glColor3fv(&rgb[vc[j++]*3]);
-      }
+      if (colourwind)
+        glColor3fv(&rgb[vc[i]]);
+
       glVertex2f(vx[i  ],vy[i  ]);
       glVertex2f(vx[i+1],vy[i+1]);
       glVertex2f(vx[i+2],vy[i+2]);
@@ -1071,7 +1062,8 @@ bool FieldPlot::plotWind(){
 
   UpdateOutput();
 
-  delete[] rgb;
+  if (rgb != rgb_default)
+    delete[] rgb;
   delete[] limits;
 
   glDisable(GL_LINE_STIPPLE);
@@ -1079,9 +1071,6 @@ bool FieldPlot::plotWind(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWind() ++" << endl;
-#endif
   return true;
 }
 
@@ -1092,10 +1081,9 @@ bool FieldPlot::plotWind(){
     ALGORITHM:
  */
 
-bool FieldPlot::plotValue(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotValue" << endl;
-#endif
+bool FieldPlot::plotValue()
+{
+  METLIBS_LOG_SCOPE();
 
   int n= fields.size();
 
@@ -1229,13 +1217,8 @@ bool FieldPlot::plotValue(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValue() ++" << endl;
-#endif
-
   return true;
 }
-
 
 
 /*
@@ -1244,10 +1227,10 @@ bool FieldPlot::plotValue(){
     ALGORITHM: Fields u(0) v(1) number(2)
  */
 
-bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
-#ifdef DEBUGPRINT
-  cerr << "++ plotWindAndValue" << endl;
-#endif
+bool FieldPlot::plotWindAndValue(bool flightlevelChart)
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<3) return false;
   if (!fields[0] || !fields[1] || !fields[2]) return false;
@@ -1641,9 +1624,6 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotWindAndValue() ++" << endl;
-#endif
   return true;
 }
 
@@ -1656,11 +1636,9 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart ){
     colours are set by poptions.textcolour or poptions.colours
     minvalue and maxvalue refer to field1
  */
-
-bool FieldPlot::plotValues(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotValues" << endl;
-#endif
+bool FieldPlot::plotValues()
+{
+  METLIBS_LOG_SCOPE();
 
   size_t nfields= fields.size();
 
@@ -1828,19 +1806,15 @@ bool FieldPlot::plotValues(){
 
   glDisable(GL_LINE_STIPPLE);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotValues() ++" << endl;
-#endif
   return true;
 }
 
 //  plot vector field as arrows (wind,sea current,...)
-bool FieldPlot::plotVector(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotting vector field.." << endl;
-#endif
-  int n= fields.size();
+bool FieldPlot::plotVector()
+{
+  METLIBS_LOG_SCOPE();
 
+  int n= fields.size();
   if ( n==3) {
     return plotVectorColour();
   }
@@ -1940,18 +1914,15 @@ bool FieldPlot::plotVector(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotVector() ++" << endl;
-#endif
   return true;
 }
 
 // PURPOSE:   plot vector field as arrows (wind,sea current,...)
 // ALGORITHM: Fields u(0) v(1) colorfield(2)
-bool FieldPlot::plotVectorColour(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter vector-felt.." << endl;
-#endif
+bool FieldPlot::plotVectorColour()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<3) return false;
   if (!fields[0] || !fields[1] || !fields[2]) return false;
@@ -2110,21 +2081,17 @@ bool FieldPlot::plotVectorColour(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotVectorColour() ++" << endl;
-#endif
   return true;
 }
 
 
 /* plot true north direction field as arrows (wave,...) */
-bool FieldPlot::plotDirection(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter retnings-felt.." << endl;
-#endif
-  int n= fields.size();
+bool FieldPlot::plotDirection()
+{
+  METLIBS_LOG_SCOPE();
 
-  if ( n==2) {
+  int n= fields.size();
+  if (n==2) {
     return plotDirectionColour();
   }
 
@@ -2219,9 +2186,6 @@ bool FieldPlot::plotDirection(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotDirection() ++" << endl;
-#endif
   return true;
 }
 
@@ -2229,10 +2193,10 @@ bool FieldPlot::plotDirection(){
   PURPOSE:   plot true north direction field as arrows (wave,...)
  * ALGORITHM: Fields: dd(0) colourfield(1)
  */
-bool FieldPlot::plotDirectionColour(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter retnings-felt m. farge.." << endl;
-#endif
+bool FieldPlot::plotDirectionColour()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<2) return false;
   if (!fields[0] || !fields[1]) return false;
@@ -2317,14 +2281,13 @@ bool FieldPlot::plotDirectionColour(){
 
   }
   //##############################################################
-  //  cerr<<"--------------"<<endl;
-  //  cerr<<" nlim,ncol: "<<nlim<<" "<<ncol<<endl;
+  //  METLIBS_LOG_DEBUG("--------------");
+  //  METLIBS_LOG_DEBUG(" nlim,ncol: "<<nlim<<" "<<ncol);
   //  for (i=0; i<nlim; i++)
-  //    cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-  //        <<"  lim= "<<limits[i]<<endl;
+  //    METLIBS_LOG_DEBUG("   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
+  //        <<"  lim= "<<limits[i]);
   //  i=nlim;
-  //  cerr<<"   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]
-  //      <<endl;
+  //  METLIBS_LOG_DEBUG("   RGB: "<<rgb[i*3+0]<<" "<<rgb[i*3+1]<<" "<<rgb[i*3+2]);
   //##############################################################
 
   // length if abs(vector) = 1
@@ -2392,18 +2355,14 @@ bool FieldPlot::plotDirectionColour(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotDirectionColour() ++" << endl;
-#endif
   return true;
 }
 
 
 //  plot scalar field as contour lines
-bool FieldPlot::plotContour(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotContour()" << endl;
-#endif
+bool FieldPlot::plotContour()
+{
+  METLIBS_LOG_SCOPE();
 
   int n= fields.size();
   if (n<1) return false;
@@ -2411,8 +2370,8 @@ bool FieldPlot::plotContour(){
 
   if (!fields[0]->data) return false;
 
-  int nx= fields[0]->nx;
-  int ny= fields[0]->ny;
+  const int nx= fields[0]->nx;
+  const int ny= fields[0]->ny;
 
   int ipart[4];
 
@@ -2439,7 +2398,7 @@ bool FieldPlot::plotContour(){
   if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
       area, maprect, false,
       nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
-    cerr <<"fieldPlot::plotContour() : getGridPoints returned false"<<endl;
+    METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
   }
 
@@ -2707,29 +2666,54 @@ bool FieldPlot::plotContour(){
     const std::string pexu = miutil::to_upper(poptions.extremeType);
     if (pexu=="L+H" || pexu=="C+W" || pexu=="VALUE")
       markExtreme();
+
+    if (!poptions.options_1) idraw=0;
+
+    //turn off contour shading
+    bool contourShading = poptions.contourShading;
+    poptions.contourShading = 0;
+
+    res = contour(nx, ny, fields[0]->data, x, y,
+        ipart, 2, NULL, xylim,
+        idraw, zrange, zstep, zoff,
+        nlines, rlines,
+        ncol, icol, ntyp, ityp,
+        nwid, iwid, nlim, rlim,
+        idraw2, zrange2, zstep2, zoff2,
+        nlines2, rlines2,
+        ncol2, icol2, ntyp2, ityp2,
+        nwid2, iwid2, nlim2, rlim2,
+        ismooth, labfmt, chxlab, chylab,
+        ibcol,
+        ibmap, lbmap, kbmap,
+        nxbmap, nybmap, rbmap,
+        fp, poptions, psoutput,
+        fields[0]->area, fieldUndef,
+        getModelName(), fields[0]->name, ftime.hour());
+
+    //restore contour shading
+    poptions.contourShading = contourShading;
   }
 
   UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
-  if (!res) cerr<<"FieldPlot::plotContour() -  Contour error"<<endl;
+  if (!res)
+    METLIBS_LOG_ERROR("contour error");
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotContour() ++" << endl;
-#endif
   return true;
 }
 
 // plot scalar field as boxes with filled with patterns (cloud)
 //not used, do not work properly
-bool FieldPlot::plotBox_pattern(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter Box_pattern-felt.." << endl;
-#endif
+bool FieldPlot::plotBox_pattern()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<1) return false;
   if (!fields[0]) return false;
@@ -2836,19 +2820,15 @@ bool FieldPlot::plotBox_pattern(){
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotBox_pattern() ++" << endl;
-#endif
   return true;
 }
 
 
 // plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotBox_alpha_shade(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter Box_alpha_shade-felt.." << endl;
-#endif
+bool FieldPlot::plotBox_alpha_shade()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<1) return false;
   if (!fields[0]) return false;
@@ -2951,18 +2931,15 @@ bool FieldPlot::plotBox_alpha_shade(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotBox_alpha_shade() ++" << endl;
-#endif
   return true;
 }
 
 
 //  plot some scalar field values with RGBA (RGB=constant)
-bool FieldPlot::plotAlarmBox(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter AlarmBox-felt.." << endl;
-#endif
+bool FieldPlot::plotAlarmBox()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<1) return false;
   if (!fields[0]) return false;
@@ -3027,10 +3004,8 @@ bool FieldPlot::plotAlarmBox(){
                                              + r2 * poptions.forecastValueMax[i];
 
     } else {
-
-      cerr << "FieldPlot::plotAlarmBox ERROR in setup!" << endl;
+      METLIBS_LOG_ERROR("ERROR in setup!");
       return false;
-
     }
 
   } else if (sf==0 && s1==0 && s2==0 ) {
@@ -3040,7 +3015,7 @@ bool FieldPlot::plotAlarmBox(){
 
   } else {
 
-    cerr << "FieldPlot::plotAlarmBox ERROR in setup!" << endl;
+    METLIBS_LOG_ERROR("ERROR in setup!");
     return false;
 
   }
@@ -3096,16 +3071,13 @@ bool FieldPlot::plotAlarmBox(){
   if (poptions.update_stencil)
     plotFrameStencil(nxc, ny+1, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotAlarmBox() ++" << endl;
-#endif
   return true;
 }
 
-bool FieldPlot::plotFillCell(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter FillCell-felt.." << endl;
-#endif
+bool FieldPlot::plotFillCell()
+{
+  METLIBS_LOG_TIME();
+
   int n= fields.size();
   if (n<1) return false;
   if (!fields[0]) return false;
@@ -3225,9 +3197,10 @@ bool FieldPlot::plotFillCell(){
           if ((x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1) <= 0.0)
             continue;
 
+          size_t index = 0;
+
           // set fillcolor of cell
           if(poptions.linevalues.size() == 0){
-            size_t index = 0;
             if ( value > poptions.base) {
               index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
             } else{
@@ -3256,6 +3229,20 @@ bool FieldPlot::plotFillCell(){
           glVertex2f(x3, y3);
           // upper-left corner of gridcell
           glVertex2f(x4, y4);
+
+          if ( value < poptions.base && index !=0) {
+            index = poptions.palettecolours.size() - index;
+          }
+          if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
+          if (index<0) index=0;
+          glColor4ubv(poptions.palettecolours[index].RGBA());
+        } else {
+          std::vector<float>::const_iterator it = poptions.linevalues.begin();
+          while (*it < value && it!=poptions.linevalues.end()) {
+            it++;
+          }
+          if (it == poptions.linevalues.begin()) continue; //less than first limit
+          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()-1].RGBA());
         }
       }
     }
@@ -3271,19 +3258,15 @@ bool FieldPlot::plotFillCell(){
     else
       plotFrameStencil(nx+1, ny+1, x, y);
   }
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::FillCell() ++" << endl;
-#endif
   return true;
 }
 
 
 // plot scalar field with RGBA (RGB=constant)
-bool FieldPlot::plotAlpha_shade(){
-#ifdef DEBUGPRINT
-  cerr << "++ Plotter Alpha_shade-felt.." << endl;
-#endif
+bool FieldPlot::plotAlpha_shade()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n<1) return false;
   if (!fields[0]) return false;
@@ -3362,9 +3345,6 @@ bool FieldPlot::plotAlpha_shade(){
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotAlpha_shade() ++" << endl;
-#endif
   return true;
 }
 
@@ -3397,11 +3377,10 @@ bool FieldPlot::plotFrameOnly()
 }
 
 // plot frame for complete field area
-void FieldPlot::plotFrame(const int nx, const int ny,
-    float *x, float *y){
-#ifdef DEBUGPRINT
-  cerr << "++ Plot frame.." << nx<<" : "<<ny<<endl;
-#endif
+void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(nx) << LOGVAL(ny));
 
   if (!rgbmode) return;
 
@@ -3502,9 +3481,6 @@ void FieldPlot::plotFrame(const int nx, const int ny,
 
   UpdateOutput();
 
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotFrame() ++" << endl;
-#endif
   return;
 }
 
@@ -3567,10 +3543,9 @@ void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
 /*
   Mark extremepoints in a field with L/H (Low/High), C/W (Cold/Warm) or value
  */
-bool FieldPlot::markExtreme(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::markExtreme start" << endl;
-#endif
+bool FieldPlot::markExtreme()
+{
+  METLIBS_LOG_SCOPE();
 
   if (fields.size()<1) return false;
   if (!fields[0]) return false;
@@ -3842,17 +3817,13 @@ bool FieldPlot::markExtreme(){
 
   delete[] iscan;
 
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::markExtreme end" << endl;
-#endif
   return true;
 }
 
 // draw the grid lines in some density
-bool FieldPlot::plotGridLines(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotGridLines start" << endl;
-#endif
+bool FieldPlot::plotGridLines()
+{
+  METLIBS_LOG_SCOPE();
 
   if (fields.size()<1) return false;
   if (!fields[0]) return false;
@@ -3913,10 +3884,9 @@ bool FieldPlot::plotGridLines(){
 }
 
 // show areas with undefined field values
-bool FieldPlot::plotUndefined(){
-#ifdef DEBUGPRINT
-  cerr << "++ FieldPlot::plotUndefined start" << endl;
-#endif
+bool FieldPlot::plotUndefined()
+{
+  METLIBS_LOG_SCOPE();
 
   if (!enabled || fields.size()<1) return false;
   if (!fields[0]) return false;
@@ -4048,10 +4018,10 @@ bool FieldPlot::plotUndefined(){
   plot field values as numbers in each gridpoint
   skip plotting if too many (or too small) numbers
  */
-bool FieldPlot::plotNumbers(){
-#ifdef DEBUGPRINT
-  cerr << "++ plotNumbers.." << endl;
-#endif
+bool FieldPlot::plotNumbers()
+{
+  METLIBS_LOG_SCOPE();
+
   int n= fields.size();
   if (n!=1) return false;
   if (!fields[0]) return false;
@@ -4159,12 +4129,7 @@ bool FieldPlot::plotNumbers(){
     glEnd();
   }
 
-
   UpdateOutput();
-
-#ifdef DEBUGPRINT
-  cerr << "++ Returning from FieldPlot::plotNumbers() ++" << endl;
-#endif
   return true;
 }
 
@@ -4243,4 +4208,3 @@ bool FieldPlot::fieldsOK()
   return true;
 
 }
-

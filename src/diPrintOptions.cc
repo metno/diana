@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.PrintOptions"
+#include <miLogger/miLogging.h>
+
 #include <diPrintOptions.h>
 #include <diLocalSetupParser.h>
 #include <fstream>
@@ -176,7 +179,7 @@ bool printerManager::expandCommand(miString& com, const printOptions& po)
 
 bool printerManager::readPrinterInfo(const miString fname)
 {
-  //   cerr << "Reading printerdef from:" << fname << endl;
+  //   METLIBS_LOG_DEBUG("Reading printerdef from:" << fname);
   printers.clear();
 
   if (!fname.exists()) return false;
@@ -184,8 +187,8 @@ bool printerManager::readPrinterInfo(const miString fname)
   // open filestream
   ifstream file(fname.c_str());
   if (!file){
-    cerr << "printerManager ERROR: can't open printer definition file " <<
-      fname << endl;
+    METLIBS_LOG_ERROR("printerManager ERROR: can't open printer definition file " <<
+      fname);
     return false;
   }
 
@@ -292,7 +295,7 @@ bool printerManager::parseSetup() {
   miString printerfile= "";
 
   if (!SetupParser::getSection(section,vstr)){
-    cerr << "No " << section << " section in setupfile, ok." << endl;
+    METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
     return true;
   }
 

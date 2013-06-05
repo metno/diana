@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.TrajectoryPlot"
+#include <miLogger/miLogging.h>
+
 #include "diTrajectoryPlot.h"
 #include <diField/diField.h>
 #include <GL/gl.h>
@@ -70,7 +73,7 @@ TrajectoryPlot::~TrajectoryPlot(){
 
 bool TrajectoryPlot::prepare(void){
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::prepare() ++" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::prepare() ++");
 #endif
 
   //Change projection
@@ -110,7 +113,7 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
   for(int i=0;i<vstr.size();i++)
-    cerr << "++ TrajectoryPlot::trajPos() " << vstr[i] << endl;
+    METLIBS_LOG_DEBUG("++ TrajectoryPlot::trajPos() " << vstr[i]);
 #endif
 
   int action= 0;  // action to be taken by PlotModule (0=none)
@@ -129,10 +132,10 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
     for( int i=0; i<n; i++){
       vector<miString> stokens = tokens[i].split('=');
 #ifdef DEBUGPRINT
-      cerr << "stokens:";
+      METLIBS_LOG_DEBUG("stokens:");
       for (int j=0; j<stokens.size(); j++)
-        cerr << "  " << stokens[j];
-      cerr << endl;
+        METLIBS_LOG_DEBUG("  " << stokens[j]);
+      METLIBS_LOG_DEBUG();
 #endif
       if( stokens.size() == 1) {
         key= stokens[0].downcase();
@@ -270,20 +273,20 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
 #ifdef DEBUGPRINT
     nlon = lon.size();
     for (int i=0; i<nlon; i++){
-      cerr<<"   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                            <<"    "<<x[i]<<" "<<y[i]<<endl;
+      METLIBS_LOG_DEBUG("   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
+                                                            <<"    "<<x[i]<<" "<<y[i]);
     }
 #endif
 
 #ifdef DEBUGPRINT
-    cerr<<"TrajectoryPlot::trajPos  lon.size= "<<lon.size()<<endl;
+    METLIBS_LOG_DEBUG("TrajectoryPlot::trajPos  lon.size= "<<lon.size());
     for (int i=0; i<nlon; i++){
       int ndup=0;
       for (int j=i+1; j<nlon; j++)
         if (lat[i]==lat[j] && lon[i]==lon[j]) ndup++;
       if (ndup>0)
-        cerr<<"   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                                       <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup<<endl;
+        METLIBS_LOG_DEBUG("   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
+                                                                       <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup);
     }
 #endif
   }
@@ -294,7 +297,7 @@ int TrajectoryPlot::trajPos(vector<miString>& vstr)
 
 bool TrajectoryPlot::plot(){
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::plot() ++" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::plot() ++");
 #endif
 
   if (!plot_on || !enabled)
@@ -337,7 +340,7 @@ bool TrajectoryPlot::plot(){
         int npos= numTraj * vtrajdata[n]->ndata;
         if (!gc.getPoints(vtrajdata[n]->area.P(), area.P(),
             npos, vtrajdata[n]->x, vtrajdata[n]->y)) {
-          cerr << "TrajectoryPlot::plot  getPoints ERROR" << endl;
+          METLIBS_LOG_ERROR("TrajectoryPlot::plot  getPoints ERROR");
           return false;
         }
         vtrajdata[n]->area= area;
@@ -348,19 +351,19 @@ bool TrajectoryPlot::plot(){
     vector <float> xmark,ymark;
     TrajectoryData *td;
     for (int i=0; i<numTraj; i++) {
-//      cerr <<"Traj no:"<<i<<endl;
+//      METLIBS_LOG_DEBUG("Traj no:"<<i);
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(lineType.factor,lineType.bmap);
       glBegin(GL_LINE_STRIP);
       for (int n=0; n<vtsize; n++) {
-//        cerr <<"??:"<<n<<endl;
+//        METLIBS_LOG_DEBUG("??:"<<n);
         td= vtrajdata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
         if (j1<j2) {
           int begin= td->ndata * i;
           for (int j=j1; j<j2; j++){
-            //	    cerr <<"x:"<<td->x[begin+j]<<"  y:"<< td->y[begin+j]<<endl;
+            //	    METLIBS_LOG_DEBUG("x:"<<td->x[begin+j]<<"  y:"<< td->y[begin+j]);
             glVertex2f(td->x[begin+j], td->y[begin+j]);
             miTime thistime = td->time[j];
             int diff = miTime::minDiff(firstTime,thistime);
@@ -501,7 +504,7 @@ bool TrajectoryPlot::plot(){
 bool TrajectoryPlot::startComputation(vector<Field*> vf)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::startComputation" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::startComputation");
 #endif
 
   stopComputation();  //in case not done before..
@@ -524,7 +527,7 @@ bool TrajectoryPlot::startComputation(vector<Field*> vf)
   firstStep= true;
 
 #ifdef DEBUGPRINT
-  cerr << ".....OK" << endl;
+  METLIBS_LOG_DEBUG(".....OK");
 #endif
   return true;
 }
@@ -533,7 +536,7 @@ bool TrajectoryPlot::startComputation(vector<Field*> vf)
 void TrajectoryPlot::stopComputation()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::stopComputation" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::stopComputation");
 #endif
   // remove fields etc...
   // mark as not running
@@ -551,7 +554,7 @@ void TrajectoryPlot::stopComputation()
 void TrajectoryPlot::clearData()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::clearData" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::clearData");
 #endif
 
   int n= vtrajdata.size();
@@ -573,7 +576,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   // return true  if trajectories are computed (changed)
   // return false if trajectories are not computed, this is not an error!
 #ifdef DEBUGPRINT
-  cerr << "++ TrajectoryPlot::compute" << endl;
+  METLIBS_LOG_DEBUG("++ TrajectoryPlot::compute");
 #endif
 
   if (!computing) return false;
@@ -659,14 +662,14 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     numTraj= 0;
 
     for (int i=0; i<npos; i++) {
-//      cerr<<"x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]<<endl;
+//      METLIBS_LOG_DEBUG("x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]);
       if(su[i]!=fieldUndef && sv[i]!=fieldUndef) {
         sx[numTraj]= sx[i];
         sy[numTraj]= sy[i];
         numTraj++;
       }
     }
-    //cerr<<"npos,numTraj: "<<npos<<" "<<numTraj<<endl;
+    //METLIBS_LOG_DEBUG("npos,numTraj: "<<npos<<" "<<numTraj);
 
     delete[] su;
     delete[] sv;
@@ -689,8 +692,8 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   if (!gc.getMapFields(fu1->area, imapr, icori,
       fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
       dxgrid, dygrid)) {
-    cerr<<"TrajectoryPlot::compute : gc.getMapFields ERROR."
-    <<"  Cannot compute trajectories !"<<endl;
+    METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
+    <<"  Cannot compute trajectories !");
     stopComputation();
     return false;
   }
@@ -780,8 +783,8 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     if (vtrajdata[n]->area.P() != fieldArea.P()) {
       // posistions are converted to a different map projection
       if(!gc.getPoints(vtrajdata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
-        cerr<<"TrajectoryPlot::compute : gc.getMapFields ERROR."
-        <<"  Trajectory computation stopped !"<<endl;
+        METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
+        <<"  Trajectory computation stopped !");
         stopComputation();
         return false;
       }
@@ -815,7 +818,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   float u,v;
 
   for (int istep=0; istep<nstep; istep++) {
-    //cerr<<"istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep<<endl;
+    //METLIBS_LOG_DEBUG("istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep);
 
     float ct1b= float(istep)/float(nstep);
     float ct1a= 1.0 - ct1b;
@@ -825,7 +828,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     // iteration no. 0 to get a first guess (then the real iterations)
 
     for (int iter=0; iter<=numIterations; iter++) {
-      //cerr<<"   iter: "<<iter<<endl;
+      //METLIBS_LOG_DEBUG("   iter: "<<iter);
 
       int interpoltype= 101;
       fu1->interpolate(numTraj, xt, yt, u1, interpoltype);
@@ -918,7 +921,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
 
 #ifdef DEBUGPRINT
-  cerr << "...finished" << endl;
+  METLIBS_LOG_DEBUG("...finished");
 #endif
   return true;
 }
@@ -956,8 +959,8 @@ bool TrajectoryPlot::printTrajectoryPositions(const miString& filename)
   fs.open(filename.c_str());
 
   if(!fs){
-    cerr << "ERROR  printTrajectoryPositions: can't open file: "
-    <<filename << endl;
+    METLIBS_LOG_ERROR("ERROR  printTrajectoryPositions: can't open file: "
+    <<filename);
     return false;
   }
 

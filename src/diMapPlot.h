@@ -118,7 +118,7 @@ private:
   */
 
   //convert position "bottom", left" etc to MapValuePosition
-  int convertLatLonPos(miutil::miString pos);
+  int convertLatLonPos(const std::string& pos);
 
   bool plotMapLand4(const miutil::miString&, float[], const Linetype&, float,
       const Colour&);

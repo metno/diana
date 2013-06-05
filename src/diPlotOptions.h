@@ -181,6 +181,7 @@ public:
   std::string  shapefilename;
   std::string unit;        // used to get data in right unit
   std::string legendunits; //used in legends
+  std::string legendtitle; //used in legends
   bool      tableHeader; // whether each table is drawn with a header
   bool      antialiasing;
   bool      use_stencil;    // whether a stencil is used to mask out plotting of the current field

@@ -34,6 +34,9 @@
 #endif
 
 #include <fstream>
+#define MILOGGER_CATEGORY "diana.MeasurementsPlot"
+#include <miLogger/miLogging.h>
+
 #include <diMeasurementsPlot.h>
 #include <sstream>
 #include <math.h>
@@ -58,7 +61,7 @@ MeasurementsPlot::~MeasurementsPlot(){
 
 bool MeasurementsPlot::prepare(void){
 #ifdef DEBUGPRINT
-  cerr << "++ MeasurementsPlot::prepare() ++" << endl;
+  METLIBS_LOG_DEBUG("++ MeasurementsPlot::prepare() ++");
 #endif
 
   //Change projection
@@ -98,7 +101,7 @@ void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
   for(size_t  i=0;i<vstr.size();i++)
-    cerr << "++ MeasurementsPlot::measurementsPos() " << vstr[i] << endl;
+    METLIBS_LOG_DEBUG("++ MeasurementsPlot::measurementsPos() " << vstr[i]);
 #endif
 
   int nvstr = vstr.size();
@@ -115,10 +118,9 @@ void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
     for( int i=0; i<n; i++){
       vector<miString> stokens = tokens[i].split('=');
 #ifdef DEBUGPRINT
-      cerr << "stokens:";
+      METLIBS_LOG_DEBUG("stokens:");
       for (int j=0; j<stokens.size(); j++)
-        cerr << "  " << stokens[j];
-      cerr << endl;
+        METLIBS_LOG_DEBUG("  " << stokens[j]);
 #endif
       if( stokens.size() == 1) {
         key= stokens[0].downcase();
@@ -189,7 +191,7 @@ void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
 
 bool MeasurementsPlot::plot(){
 #ifdef DEBUGPRINT
-  cerr << "++ MeasurementsPlot::plot() ++" << endl;
+  METLIBS_LOG_DEBUG("++ MeasurementsPlot::plot() ++");
 #endif
 
   if ( !enabled )

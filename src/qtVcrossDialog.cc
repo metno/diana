@@ -51,6 +51,9 @@
 #include <QVBoxLayout>
 #include <QApplication>
 
+#define MILOGGER_CATEGORY "diana.VcrossDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtVcrossDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
@@ -69,9 +72,7 @@
 VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 : QDialog(parent), vcrossm(vm)
 {
-#ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::VcrossDialog called"<<endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   setWindowTitle( tr("Vertical Crossections"));
 
@@ -81,17 +82,19 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   historyPos= -1;
 
-  models= vcrossm->getAllModels();
+  const std::vector<std::string> models_string = vcrossm->getAllModels();
+  models = std::vector<miutil::miString>(models_string.begin(), models_string.end());
 
   // get all fieldnames from setup file
   //#################  fieldnames = vcrossm->getAllFieldNames();
   //#################################################################
   //  for (i=0; i<fieldnames.size(); i++)
-  //    cerr<<"   field "<<setw(3)<<i<<" : "<<fieldnames[i]<<endl;
+  //    METLIBS_LOG_DEBUG("   field "<<setw(3)<<i<<" : "<<fieldnames[i]);
   //#################################################################
 
   // get all field plot options from setup file
-  setupFieldOptions = vcrossm->getAllFieldOptions();
+  const std::map<std::string, std::string> options_string = vcrossm->getAllFieldOptions();
+  setupFieldOptions = std::map<miutil::miString,miutil::miString>(options_string.begin(), options_string.end());
   fieldOptions = setupFieldOptions;
 
   map<miutil::miString,miutil::miString>::iterator pfopt, pfend= fieldOptions.end();
@@ -99,7 +102,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
     changedOptions[pfopt->first]= false;
   //#################################################################
   //  for (pfopt=fieldOptions.begin(); pfopt!=pfend; pfopt++)
-  //    cerr << pfopt->first << "   " << pfopt->second << endl;
+  //    METLIBS_LOG_DEBUG(pfopt->first << "   " << pfopt->second);
   //#################################################################
 
   //  END FIRST INNITIALISATION OF STATE
@@ -491,7 +494,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   fieldbox->setFocus();
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::ConstructorCernel returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::ConstructorCernel returned");
 #endif
 }
 
@@ -516,7 +519,7 @@ void VcrossDialog::toolTips()
 
 void VcrossDialog::advancedToggled(bool on){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::advancedToggled  on= " << on <<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::advancedToggled  on= " << on);
 #endif
 
   this->showExtension(on);
@@ -526,7 +529,7 @@ void VcrossDialog::advancedToggled(bool on){
 
 void VcrossDialog::CreateAdvanced() {
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::CreateAdvanced" <<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::CreateAdvanced");
 #endif
 
   advFrame= new QWidget(this);
@@ -814,7 +817,7 @@ void VcrossDialog::CreateAdvanced() {
 
 void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::modelboxHighlighted called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::modelboxHighlighted called");
 #endif
 
   int index = modelbox->row(item);
@@ -861,7 +864,7 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
     enableFieldOptions();
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::modelboxHighlighted returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::modelboxHighlighted returned");
 #endif
 }
 
@@ -869,7 +872,7 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
 void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
 {
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::fieldboxChanged called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::fieldboxChanged called");
 #endif
 
   if (historyOkButton->isEnabled()) deleteAllSelected();
@@ -959,7 +962,7 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
   }
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::fieldboxChanged returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::fieldboxChanged returned");
 #endif
   return;
 }
@@ -967,7 +970,7 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
 
 void VcrossDialog::enableFieldOptions(){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::enableFieldOptions called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions called");
 #endif
 
   disableFieldOptions();
@@ -979,9 +982,9 @@ void VcrossDialog::enableFieldOptions(){
   lastindex= selectedFields.size()-1;
 
   if (index<0 || index>lastindex) {
-    cerr << "PROGRAM ERROR.1 in VcrossDialog::enableFieldOptions" << endl;
-    cerr << "       index,selectedFields.size: "
-        << index << " " << selectedFields.size() << endl;
+    METLIBS_LOG_ERROR("PROGRAM ERROR.1 in VcrossDialog::enableFieldOptions");
+    METLIBS_LOG_ERROR("       index,selectedFields.size: "
+        << index << " " << selectedFields.size());
     disableFieldOptions();
     return;
   }
@@ -999,7 +1002,7 @@ void VcrossDialog::enableFieldOptions(){
   Delete->setEnabled( true );
   copyField->setEnabled( true );
   //###############################################################################
-  //  cerr<<"fieldOpts: "<<selectedFields[index].fieldOpts<<endl;
+  //  METLIBS_LOG_DEBUG("fieldOpts: "<<selectedFields[index].fieldOpts);
   //###############################################################################
 
   if (selectedFields[index].fieldOpts==currentFieldOpts) return;
@@ -1007,9 +1010,9 @@ void VcrossDialog::enableFieldOptions(){
   currentFieldOpts= selectedFields[index].fieldOpts;
 
   //###############################################################################
-  //  cerr << "VcrossDialog::enableFieldOptions: "
-  //       << fieldnames[selectedFields[index].fieldnumber] << endl;
-  //  cerr << "             " << selectedFields[index].fieldOpts << endl;
+  //  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions: "
+  //       << fieldnames[selectedFields[index].fieldnumber]);
+  //  METLIBS_LOG_DEBUG("             " << selectedFields[index].fieldOpts);
   //###############################################################################
 
   deleteAll->setEnabled( true );
@@ -1025,19 +1028,19 @@ void VcrossDialog::enableFieldOptions(){
   for (j=0; j<n; j++)
     if (vpcopt[j].key=="unknown") err=true;
   if (err || listall) {
-    cerr << "VcrossDialog::enableFieldOptions: "
-         << fieldnames[selectedFields[index].fieldnumber] << endl;
-    cerr << "             " << selectedFields[index].fieldOpts << endl;
+    METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions: "
+         << fieldnames[selectedFields[index].fieldnumber]);
+    METLIBS_LOG_DEBUG("             " << selectedFields[index].fieldOpts);
     for (j=0; j<n; j++) {
-      cerr << "  parse " << j << " : key= " << vpcopt[j].key
-	   << "  idNumber= " << vpcopt[j].idNumber << endl;
-      cerr << "            allValue: " << vpcopt[j].allValue << endl;
+      METLIBS_LOG_DEBUG("  parse " << j << " : key= " << vpcopt[j].key
+	   << "  idNumber= " << vpcopt[j].idNumber);
+      METLIBS_LOG_DEBUG("            allValue: " << vpcopt[j].allValue);
       for (k=0; k<vpcopt[j].strValue.size(); k++)
-        cerr << "               " << k << "    strValue: " << vpcopt[j].strValue[k] << endl;
+        METLIBS_LOG_DEBUG("               " << k << "    strValue: " << vpcopt[j].strValue[k]);
       for (k=0; k<vpcopt[j].floatValue.size(); k++)
-        cerr << "               " << k << "  floatValue: " << vpcopt[j].floatValue[k] << endl;
+        METLIBS_LOG_DEBUG("               " << k << "  floatValue: " << vpcopt[j].floatValue[k]);
       for (k=0; k<vpcopt[j].intValue.size(); k++)
-        cerr << "               " << k << "    intValue: " << vpcopt[j].intValue[k] << endl;
+        METLIBS_LOG_DEBUG("               " << k << "    intValue: " << vpcopt[j].intValue[k]);
     }
   }
    *******************************************************/
@@ -1051,13 +1054,13 @@ void VcrossDialog::enableFieldOptions(){
       colorCbox->setEnabled(true);
     }
     i=0;
-    if(vpcopt[nc].allValue.downcase() == "off" ||
-        vpcopt[nc].allValue.downcase() == "av" ){
+    if(miutil::to_lower(vpcopt[nc].allValue) == "off" ||
+        miutil::to_lower(vpcopt[nc].allValue) == "av" ){
       updateFieldOptions("colour","off");
       colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors
-          && vpcopt[nc].allValue.downcase()!=colourInfo[i].name) i++;
+          && miutil::to_lower(vpcopt[nc].allValue)!=colourInfo[i].name) i++;
       if (i==nr_colors) i=0;
       updateFieldOptions("colour",colourInfo[i].name);
       colorCbox->setCurrentIndex(i+1);
@@ -1076,8 +1079,8 @@ void VcrossDialog::enableFieldOptions(){
     patternComboBox->setEnabled(true);
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
-    vector<miutil::miString> tokens = vpcopt[nc].allValue.split(",");
-    vector<miutil::miString> stokens = tokens[0].split(";");
+    vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
+    vector<std::string> stokens = miutil::split(tokens[0],";");
     if(stokens.size()==2)
       shadingSpinBox->setValue(atoi(stokens[1].c_str()));
     else
@@ -1095,7 +1098,7 @@ void VcrossDialog::enableFieldOptions(){
       shadingComboBox->setCurrentIndex(i+1);
     }
     if(tokens.size()==2){
-      vector<miutil::miString> stokens = tokens[1].split(";");
+      vector<std::string> stokens = miutil::split(tokens[1],";");
       if(stokens.size()==2)
         shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
       shadingcoldSpinBox->setValue(0);
@@ -1132,7 +1135,7 @@ void VcrossDialog::enableFieldOptions(){
     patternComboBox->setEnabled(true);
     patternColourBox->setEnabled(true);
     miutil::miString value = vpcopt[nc].allValue;
-    //cerr <<"patterns:"<<value<<endl;
+    //METLIBS_LOG_DEBUG("patterns:"<<value);
     int nr_p = patternInfo.size();
     miutil::miString str;
     i=0;
@@ -1281,7 +1284,7 @@ void VcrossDialog::enableFieldOptions(){
 
   if ((nc=cp->findKey(vpcopt,"extreme.limits"))>=0) {
     miutil::miString value = vpcopt[nc].allValue;
-    vector<miutil::miString> tokens = value.split(",");
+    vector<std::string> tokens = miutil::split(value,",");
     if ( tokens.size() > 0 ) {
       int index = extremeLimits.indexOf(tokens[0].c_str());
       if ( index > -1 ) {
@@ -1298,7 +1301,7 @@ void VcrossDialog::enableFieldOptions(){
 
   // extreme.type (value or none)
   if ((nc=cp->findKey(vpcopt,"extreme.type"))>=0) {
-    if( vpcopt[nc].allValue.downcase() == "value" ) {
+    if( miutil::to_lower(vpcopt[nc].allValue) == "value" ) {
       extremeValueCheckBox->setChecked(true);
     } else {
       extremeValueCheckBox->setChecked(false);
@@ -1503,14 +1506,14 @@ void VcrossDialog::enableFieldOptions(){
   }
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::enableFieldOptions returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions returned");
 #endif
 }
 
 
 void VcrossDialog::disableFieldOptions(){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::disableFieldOptions called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::disableFieldOptions called");
 #endif
 
   if (currentFieldOpts.empty()) return;
@@ -1600,14 +1603,14 @@ void VcrossDialog::disableFieldOptions(){
   //undefLinetypeCbox->setEnabled(false);
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::disableFieldOptions returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::disableFieldOptions returned");
 #endif
 }
 
 
 vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number ){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::numberList called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::numberList called");
 #endif
 
   cBox->clear();
@@ -1701,7 +1704,7 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
 void VcrossDialog::selectedFieldboxClicked( QListWidgetItem * item  )
 {
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::selectedFieldboxHighlighted called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::selectedFieldboxHighlighted called");
 #endif
   int index = selectedFieldbox->row(item);
 
@@ -1711,7 +1714,7 @@ void VcrossDialog::selectedFieldboxClicked( QListWidgetItem * item  )
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::selectedFieldboxHighlighted returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::selectedFieldboxHighlighted returned");
 #endif
   return;
 }
@@ -1964,8 +1967,8 @@ void VcrossDialog::updateFieldOptions(const miutil::miString& name,
     const miutil::miString& value,
     int valueIndex) {
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::updateFieldOptions  name= " << name
-      << "  value= " << value <<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::updateFieldOptions  name= " << name
+      << "  value= " << value);
 #endif
 
   if (currentFieldOpts.empty()) return;
@@ -1991,14 +1994,14 @@ void VcrossDialog::updateFieldOptions(const miutil::miString& name,
 vector<miutil::miString> VcrossDialog::getOKString(){
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::getOKString called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::getOKString called");
 #endif
 
   if (historyOkButton->isEnabled()) historyOk();
 
   //#################################################################
-  //  cerr<<"VcrossDialog::getOKString  selectedFields.size()= "
-  //      <<selectedFields.size()<<endl;
+  //  METLIBS_LOG_DEBUG("VcrossDialog::getOKString  selectedFields.size()= "
+  //      <<selectedFields.size());
   //#################################################################
 
   vector<miutil::miString> vstr;
@@ -2015,7 +2018,7 @@ vector<miutil::miString> VcrossDialog::getOKString(){
     ostr << "model=" << selectedFields[i].model
         << " field=" <<  selectedFields[i].field;
     //#############################################################
-    //cerr << "OK: " << ostr.str() << endl;
+    //METLIBS_LOG_DEBUG("OK: " << ostr.str());
     //#############################################################
 
     if (selectedFields[i].hourOffset!=0)
@@ -2034,7 +2037,7 @@ vector<miutil::miString> VcrossDialog::getOKString(){
     vstr.push_back(str);
 
     //#############################################################
-    //cerr << "OK: " << str << endl;
+    //METLIBS_LOG_DEBUG("OK: " << str);
     //#############################################################
   }
 
@@ -2054,13 +2057,13 @@ vector<miutil::miString> VcrossDialog::getOKString(){
     }
     if (newcommand) commandHistory.push_back(hstr);
     //###############################################################
-    //if (newcommand) cerr << "NEW COMMAND !!!!!!!!!!!!!" << endl;
-    //else            cerr << "SAME COMMAND !!!!!!!!!!!!!" << endl;
+    //if (newcommand) METLIBS_LOG_DEBUG("NEW COMMAND !!!!!!!!!!!!!");
+    //else            METLIBS_LOG_DEBUG("SAME COMMAND !!!!!!!!!!!!!");
     //###############################################################
   }
   //###############################################################
   //if (hstr.size()>0) {
-  //  cerr << "OK-----------------------------" << endl;
+  //  METLIBS_LOG_DEBUG("OK-----------------------------");
   //  n= hstr.size();
   //  bool eq;
   //  vector< vector<miutil::miString> >::iterator p, pend= commandHistory.end();
@@ -2069,10 +2072,10 @@ vector<miutil::miString> VcrossDialog::getOKString(){
   //	eq= true;
   //	for (i=0; i<n; i++)
   //	  if (p[i]!=hstr[i]) eq= false;
-  //	if (eq) cerr << "FOUND" << endl;
+  //	if (eq) METLIBS_LOG_DEBUG("FOUND");
   //  }
   //  }
-  //  cerr << "-------------------------------" << endl;
+  //  METLIBS_LOG_DEBUG("-------------------------------");
   //}
   //###############################################################
 
@@ -2193,7 +2196,7 @@ void VcrossDialog::showHistory(int step) {
 
 void VcrossDialog::historyOk() {
 #ifdef DEBUGPRINT
-  cerr << "VcrossDialog::historyOk()" << endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::historyOk()");
 #endif
 
   if (historyPos<0 || historyPos>=int(commandHistory.size())) {
@@ -2209,7 +2212,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
     bool vcrossPrefix, bool checkOptions)
 {
 #ifdef DEBUGPRINT
-  cerr << "VcrossDialog::putOKString starts" << endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::putOKString starts");
 #endif
 
   deleteAllSelected();
@@ -2228,7 +2231,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
   for (ic=0; ic<nc; ic++) {
 
     //######################################################################
-    //    cerr << "P.OK>> " << vstr[ic] << endl;
+    //    METLIBS_LOG_DEBUG("P.OK>> " << vstr[ic]);
     //######################################################################
     if (checkOptions) {
       miutil::miString str= checkFieldOptions(vstr[ic],vcrossPrefix);
@@ -2246,8 +2249,8 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
     m=vpc.size();
     for (j=0; j<m; j++) {
       //######################################################################
-      //cerr << "   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
-      //     << "   " << vpc[j].allValue << endl;
+      //METLIBS_LOG_DEBUG("   " << j << " : " << vpc[j].key << " = " << vpc[j].strValue[0]
+      //     << "   " << vpc[j].allValue);
       //######################################################################
       if      (vpc[j].key=="model")      model=      vpc[j].strValue[0];
       else if (vpc[j].key=="field")      field=      vpc[j].strValue[0];
@@ -2258,7 +2261,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
       }
     }
     //######################################################################
-    //    cerr << " ->" << model << " " << field << endl;
+    //    METLIBS_LOG_DEBUG(" ->" << model << " " << field);
     //######################################################################
 
     if (model!=fields2_model) {
@@ -2312,7 +2315,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
   }
 
 #ifdef DEBUGPRINT
-  cerr << "VcrossDialog::putOKString finished" << endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::putOKString finished");
 #endif
 }
 
@@ -2412,10 +2415,10 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
             if (vplog[j].allValue!=vpopt[i].allValue &&
                 vplog[j].strValue.size()==vpopt[i].strValue.size()) {
               //###########################################################
-              //cerr << "    D.CH: " << fieldname << " "
+              //METLIBS_LOG_DEBUG("    D.CH: " << fieldname << " "
               //                     << vpopt[j].key << " "
               //                     << vpopt[j].allValue << " -> "
-              //                     << vplog[i].allValue << endl;
+              //                     << vplog[i].allValue);
               //###########################################################
               cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
               changed= true;
@@ -2431,21 +2434,21 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
         }
         if (changed) {
           //###########################################################
-          //cerr << "D.OLD: " << fieldname << " " << pfopt->second << endl;
-          //cerr << "D.LOG: " << fieldname << " " << fopts << endl;
+          //METLIBS_LOG_DEBUG("D.OLD: " << fieldname << " " << pfopt->second);
+          //METLIBS_LOG_DEBUG("D.LOG: " << fieldname << " " << fopts);
           //###########################################################
           pfopt->second= cp->unParse(vpopt);
           //###########################################################
-          //cerr << "D.NEW: " << fieldname << " " << pfopt->second << endl;
+          //METLIBS_LOG_DEBUG("D.NEW: " << fieldname << " " << pfopt->second);
           //###########################################################
           changedOptions[fieldname]= true;
         }
         //###########################################################
-        //else cerr << "D.OK:  " << fieldname << " " << pfopt->second << endl;
+        //else METLIBS_LOG_DEBUG("D.OK:  " << fieldname << " " << pfopt->second);
         //###########################################################
       }
       //###########################################################
-      //else cerr << "D.UNKNOWN: " << fieldname << " " << fopts << endl;
+      //else METLIBS_LOG_DEBUG("D.UNKNOWN: " << fieldname << " " << fopts);
       //###########################################################
     }
   }
@@ -2461,7 +2464,7 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
 miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bool vcrossPrefix)
 {
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::checkFieldOptions"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::checkFieldOptions");
 #endif
 
   miutil::miString newstr;
@@ -2482,10 +2485,10 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
       vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
       nopt= vpopt.size();
       //##################################################################
-      //    cerr << "    nopt= " << nopt << "  nlog= " << nlog << endl;
+      //    METLIBS_LOG_DEBUG("    nopt= " << nopt << "  nlog= " << nlog);
       //    for (int j=0; j<nlog; j++)
-      //	cerr << "        log " << j << " : id " << vplog[j].idNumber
-      //	     << "  " << vplog[j].key << " = " << vplog[j].allValue << endl;
+      //	METLIBS_LOG_DEBUG("        log " << j << " : id " << vplog[j].idNumber
+      //	     << "  " << vplog[j].key << " = " << vplog[j].allValue);
       //##################################################################
       if (vcrossPrefix) newstr= "VCROSS ";
       for (int i=first; i<nlog; i++) {
@@ -2532,8 +2535,8 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
     }
   }
   //##################################################################
-  //  cerr<<"cF str:    "<<str<<endl;
-  //  cerr<<"cF newstr: "<<newstr<<endl;
+  //  METLIBS_LOG_DEBUG("cF str:    "<<str);
+  //  METLIBS_LOG_DEBUG("cF newstr: "<<newstr);
   //##################################################################
 
   return newstr;
@@ -2542,7 +2545,7 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
 
 void VcrossDialog::deleteSelected(){
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::deleteSelected called"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::deleteSelected called");
 #endif
 
   int index = selectedFieldbox->currentRow();
@@ -2584,7 +2587,7 @@ void VcrossDialog::deleteSelected(){
   }
 
 #ifdef DEBUGPRINT
-  cerr<<"VcrossDialog::deleteSelected returned"<<endl;
+  METLIBS_LOG_DEBUG("VcrossDialog::deleteSelected returned");
 #endif
   return;
 }
@@ -2592,7 +2595,7 @@ void VcrossDialog::deleteSelected(){
 
 void VcrossDialog::deleteAllSelected(){
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::deleteAllSelected() called"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::deleteAllSelected() called");
 #endif
 
   // calls:
@@ -2625,7 +2628,7 @@ void VcrossDialog::deleteAllSelected(){
   disableFieldOptions();
 
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::deleteAllSelected() returned"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::deleteAllSelected() returned");
 #endif
   return;
 }
@@ -2633,7 +2636,7 @@ void VcrossDialog::deleteAllSelected(){
 
 void VcrossDialog::copySelectedField(){
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::copySelectedField called"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::copySelectedField called");
 #endif
 
   if (selectedFieldbox->count()==0) return;
@@ -2659,7 +2662,7 @@ void VcrossDialog::copySelectedField(){
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::copySelectedField returned"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::copySelectedField returned");
 #endif
   return;
 }
@@ -2667,7 +2670,7 @@ void VcrossDialog::copySelectedField(){
 
 void VcrossDialog::changeModel(){
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::changeModel called"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::changeModel called");
 #endif
 
   if (selectedFieldbox->count()==0) return;
@@ -2717,7 +2720,7 @@ void VcrossDialog::changeModel(){
   enableFieldOptions();
 
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::changeModel returned"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::changeModel returned");
 #endif
   return;
 }
@@ -2784,17 +2787,19 @@ void VcrossDialog::resetOptions() {
 
 
 void VcrossDialog::applyClicked(){
-  if (historyOkButton->isEnabled()) historyOk();
-  vector<miutil::miString> vstr= getOKString();
-  bool modelChange= vcrossm->setSelection(vstr);
+  if (historyOkButton->isEnabled())
+    historyOk();
+  const std::vector<miutil::miString> vstr = getOKString();
+  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
   emit VcrossDialogApply(modelChange);
 }
 
 
 void VcrossDialog::applyhideClicked(){
-  if (historyOkButton->isEnabled()) historyOk();
-  vector<miutil::miString> vstr= getOKString();
-  bool modelChange= vcrossm->setSelection(vstr);
+  if (historyOkButton->isEnabled())
+    historyOk();
+  const std::vector<miutil::miString> vstr = getOKString();
+  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
   emit VcrossDialogHide();
   emit VcrossDialogApply(modelChange);
 }
@@ -2831,7 +2836,7 @@ void VcrossDialog::highlightButton(QPushButton* button, bool on)
 void VcrossDialog::cleanup()
 {
 #ifdef DEBUGPRINT
-  cerr<<" VcrossDialog::cleanup() called"<<endl;
+  METLIBS_LOG_DEBUG(" VcrossDialog::cleanup() called");
 #endif
   deleteAllSelected();
   fieldbox->clear();

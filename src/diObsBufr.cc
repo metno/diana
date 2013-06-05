@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.ObsBufr"
+#include <miLogger/miLogging.h>
+
 #include "diObsBufr.h"
 #include "diObsData.h"
 #include "diVprofPlot.h"
@@ -52,7 +55,7 @@ const double bufrMissing = 1.6e+38;
 bool ObsBufr::init(const miString& bufr_file, const miString& format)
 {
 
-  //	     cerr	 <<"ObsBufr::init:"<<bufr_file<<endl;
+  //	     METLIBS_LOG_DEBUG("ObsBufr::init:"<<bufr_file);
   obsTime = miTime(); //undef
   //   const int ibflen=4*512000;
   //   int ibuff[512000];
@@ -69,8 +72,8 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
       len_bufr_access);
 
   if (iret != 0) {
-    cerr << "ObsBufr::init: PBOPEN failed for " << bufr_file << "   iret="
-        << iret << endl;
+    METLIBS_LOG_ERROR("ObsBufr::init: PBOPEN failed for " << bufr_file << "   iret="
+        << iret);
     return false;
   }
 
@@ -88,9 +91,9 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
 
     if (iret != 0) {
       if (iret == -2)
-        cerr << "ObsBufr::init: ERROR: File handling problem" << endl;
+        METLIBS_LOG_ERROR("ObsBufr::init: ERROR: File handling problem");
       if (iret == -3)
-        cerr << "ObsBufr::init: ERROR: Array too small" << endl;
+        METLIBS_LOG_ERROR("ObsBufr::init: ERROR: Array too small");
       pbclose_(&iunit,&iret);
       return false;
     }
@@ -109,7 +112,7 @@ bool ObsBufr::init(const miString& bufr_file, const miString& format)
 
 bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 {
-  //   cerr <<"ObsBufr::ObsTime"<<endl;
+  //   METLIBS_LOG_DEBUG("ObsBufr::ObsTime");
   const int ibflen = 200000;
   int ibuff[ibflen / 4];
   //   const int ibflen=4*512000;
@@ -124,7 +127,7 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
       len_bufr_access);
   if (iret != 0) {
-    cerr << "PBOPEN failed for " << bufr_file << "   iret=" << iret << endl;
+    METLIBS_LOG_ERROR("PBOPEN failed for " << bufr_file << "   iret=" << iret);
     return false;
   }
 
@@ -134,11 +137,11 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
 
   if (iret != 0) {
     if (iret == -1)
-      cerr << "EOF" << endl;
+      METLIBS_LOG_INFO("EOF");
     if (iret == -2)
-      cerr << "ERROR: File handling problem" << endl;
+      METLIBS_LOG_ERROR("ERROR: File handling problem");
     if (iret == -3)
-      cerr << "ERROR: Array too small" << endl;
+      METLIBS_LOG_ERROR("ERROR: Array too small");
     return false;
   }
 
@@ -156,7 +159,7 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
 //  if (ksec1[5] > 1) {
-//    cerr <<"ksec1[5]: "<<ksec1[5]<<endl;
+//    METLIBS_LOG_DEBUG("ksec1[5]: "<<ksec1[5]);
 //    return false;
 //  }
 
@@ -234,7 +237,7 @@ VprofPlot* ObsBufr::getVprofPlot(const vector<miString>& bufr_file,
 
 bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
 {
-  //   cerr <<"  // Decode BUFR message into fully decoded form."<<endl;
+  //   METLIBS_LOG_DEBUG("  // Decode BUFR message into fully decoded form.");
 
   const int kelem = 40000; //length of subsection
   const int kvals = 360000;
@@ -262,7 +265,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   int kkvals = kvals;
   bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
   if (kerr > 0)
-    cerr << "ObsBufr: Error in BUS012: KERR=" << kerr << endl;
+    METLIBS_LOG_ERROR("ObsBufr: Error in BUS012: KERR=" << kerr);
   int kxelem = kvals / ksup[5];
   if (kxelem > kelem)
     kxelem = kelem;
@@ -271,7 +274,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
       &cnames[0][0], &cunits[0][0], &kkvals, values, &cvals[0][0], &kerr,
       len_cnames, len_cunits, len_cvals);
   if (kerr > 0) {
-    cerr << "ObsBufr::BUFRdecode: Error in BUFREX: KERR=" << kerr << endl;
+    METLIBS_LOG_ERROR("ObsBufr::BUFRdecode: Error in BUFREX: KERR=" << kerr);
     return true;
   }
 
@@ -280,7 +283,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
   //  if (ksec1[5] > 1) {
-  //    cerr <<ksec1[5]<<endl;
+  //    METLIBS_LOG_DEBUG(ksec1[5]);
   //    return true;
   //  }
 
@@ -302,7 +305,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
     busel2_(&i, &kxelem, &ktdlen, ktdlst, &ktdexl, ktdexp, &cnames[0][0],
         &cunits[0][0], &kerr);
     if (kerr > 0)
-      cerr << "ObsBufr::init: Error in BUSEL: KERR=" << kerr << endl;
+      METLIBS_LOG_ERROR("ObsBufr::init: Error in BUSEL: KERR=" << kerr);
 
     if (format.downcase() == "obsplot") {
 
@@ -370,7 +373,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   d.ypos = -32767;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
-//cerr <<ktdexp[i]<<" : "<<values[j]<<endl;
+//METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
     switch (ktdexp[i]) {
     //   8021  TIME SIGNIFICANCE
     case 8021:
@@ -628,7 +631,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         if ( selected_wind_vector_ambiguities ) {
           if ( selected_wind_vector_ambiguities == wind_dir_selection_count ) {
             d.fdata["dd"] = values[j];
-            //cerr<<"dd:"<<values[j]<<endl;
+            //METLIBS_LOG_DEBUG("dd:"<<values[j]);
           }
           wind_dir_selection_count++;
         } else {
@@ -648,10 +651,10 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 11012:
       if (values[j] < bufrMissing) {
         if ( selected_wind_vector_ambiguities ) {
-        //cerr <<"wind_speed_selection_count:"<<wind_speed_selection_count<<endl;
+        //METLIBS_LOG_DEBUG("wind_speed_selection_count:"<<wind_speed_selection_count);
           if ( selected_wind_vector_ambiguities == wind_speed_selection_count ) {
             d.fdata["ff"] = values[j];
-          //  cerr<<"ff:"<<values[j]<<endl;
+          //  METLIBS_LOG_DEBUG("ff:"<<values[j]);
           }
           wind_speed_selection_count++;
         } else {
@@ -966,7 +969,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 21102:
       if ( values[j] < bufrMissing ) {
         selected_wind_vector_ambiguities = values[j];
-        //cerr <<"selected_wind_vector_ambiguities:"<<selected_wind_vector_ambiguities<<endl;
+        //METLIBS_LOG_DEBUG("selected_wind_vector_ambiguities:"<<selected_wind_vector_ambiguities);
       }
     break;
 
@@ -1195,7 +1198,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     const char cvals[][80], int len_cvals, int subset, int kelem, ObsData &d,
     int level)
 {
-  //    cerr <<"get_diana_data"<<endl;
+  //    METLIBS_LOG_DEBUG("get_diana_data");
   d.fdata.clear();
   d.id.clear();
   d.zone = 0;

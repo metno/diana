@@ -31,6 +31,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.PlotOptions"
+#include <miLogger/miLogging.h>
+
 #include "diPlotOptions.h"
 #include "diColourShading.h"
 #include "diPattern.h"
@@ -310,6 +313,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
   const std::string key_units="units";
   //legend units
   const std::string key_legendunits="legendunits";
+  //legend title
+  const std::string key_legendtitle="legendtitle";
   //anti-aliasing
   const std::string key_antialiasing="antialiasing";
   //use_stencil
@@ -341,13 +346,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
     if (l>1){
       key= etokens[0];
       value= etokens[1];
-//      cerr << "Key:"<<key<< " Value:"<<value<<endl;
+//      METLIBS_LOG_DEBUG("Key:"<<key<< " Value:"<<value);
       if (value[0]=='\'' && value[value.length()-1]=='\'')
         value= value.substr(1,value.length()-2);
 
 //      if (key==key_fplottype_obsolete && po.plottype== fpt_contour){
 //        key=key_fplottype;
-////        cerr <<"New key:"<<key<<endl;
+////        METLIBS_LOG_DEBUG("New key:"<<key);
 //      }
 
       if (key==key_colour){
@@ -661,7 +666,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         } else  if(value == "number") {
           po.plottype = fpt_value;
 #ifdef DEBUGPRINT
-            cerr<<"........diPlotOptions::parsePlotOption po.plottype ="<< value <<endl;
+            METLIBS_LOG_DEBUG("........diPlotOptions::parsePlotOption po.plottype ="<< value);
 
 #endif
         } else {
@@ -830,6 +835,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         po.unit=value.c_str();
       } else if (key==key_legendunits){
         po.legendunits=value.c_str();
+      } else if (key==key_legendtitle){
+        po.legendtitle=value.c_str();
       } else if (key==key_antialiasing){
         po.antialiasing=(value == "true");
       } else if (key==key_use_stencil){
@@ -860,8 +867,8 @@ bool PlotOptions::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
 #ifdef DEBUGPRINT
-  cerr<<":::::::::PlotOptions::updateFieldPlotOptions"<<endl;
-  cerr<<":::::::::name: "<< name << "   *******  optstr: "<<optstr<<endl;
+  METLIBS_LOG_DEBUG(":::::::::PlotOptions::updateFieldPlotOptions");
+  METLIBS_LOG_DEBUG(":::::::::name: "<< name << "   *******  optstr: "<<optstr);
 #endif
   std::string tmpOpt = optstr;
   return parsePlotOption(tmpOpt,fieldPlotOptions[name]);
@@ -1114,6 +1121,14 @@ std::string PlotOptions::toString()
 
   if(!unit.empty()) {
     ostr << " unit="  << unit;
+  }
+
+  if(!legendunits.empty()) {
+    ostr << " legendunits="  << legendunits;
+  }
+
+  if(!legendtitle.empty()) {
+    ostr << " legendtitle="  << legendtitle;
   }
 
   if( precision > 0 ) {

@@ -34,7 +34,9 @@
 #include <puTools/miSetupParser.h>
 #include <puTools/miTime.h>
 
-#include <diCommonTypes.h>
+#define MILOGGER_CATEGORY "diana.StationManager"
+#include <miLogger/miLogging.h>
+
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <diObsAscii.h>
@@ -150,12 +152,12 @@ bool StationManager::parseSetup()
       vector<miString> tokens = section[i].split('"','"'," ",true);
       stationSetInfo s_info;
       for (size_t k = 0; k < tokens.size(); k++) {
-     //  cerr << "TOKENS = " << tokens[k] << endl;
+     //  METLIBS_LOG_DEBUG("TOKENS = " << tokens[k]);
         vector<miString> pieces = tokens[k].split("=");
         // tag name=url
         if (k == 0 && pieces.size() == 2) {
           if (urls.find(pieces[1]) == urls.end()) {
-       //     cerr << "ADDS = " << pieces[0] << endl;
+       //     METLIBS_LOG_DEBUG("ADDS = " << pieces[0]);
             s_info.name = pieces[0];
             s_info.url = pieces[1];
             m_info.chosen[s_info.url] = false;
@@ -166,7 +168,7 @@ bool StationManager::parseSetup()
         }
         // tag image=??.xpm
         else if (k==1 && pieces.size() == 2) {
-         // cerr << "IMAGE = " << pieces[0] << endl;
+         // METLIBS_LOG_DEBUG("IMAGE = " << pieces[0]);
           s_info.image = pieces[1];
         }
       }
@@ -186,7 +188,7 @@ bool StationManager::parseSetup()
           urls.insert(pieces[1]);
         }
       } else {
-	cerr << __FUNCTION__ << ": Invalid line in setup file: " << section[i] << endl;
+	METLIBS_LOG_ERROR(__FUNCTION__ << ": Invalid line in setup file: " << section[i]);
       }
     }
   }
@@ -211,7 +213,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
 
   if (!success) {
 #ifdef DEBUGPRINT
-    cerr << "*** Failed to open " << url << endl;
+    METLIBS_LOG_DEBUG("*** Failed to open " << url);
 #endif
     return 0;
   }
@@ -311,7 +313,7 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
       st->type = Station::visual;
       st->image = image;
     } else {
-      cerr << "Something is wrong with: " << miLine << endl;
+      METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
     }
   }
   // the old format
@@ -330,7 +332,7 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
       st->type = Station::visual;
       st->image = image;
     } else {
-      cerr << "Something is wrong with: " << miLine << endl;
+      METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
     }
   }
   return st;
@@ -360,7 +362,7 @@ void StationManager::setStationsScale(float new_scale)
 void StationManager::putStations(StationPlot* stationPlot)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::putStations"<< endl;
+  METLIBS_LOG_DEBUG("PlotModule::putStations");
 #endif
 
   miutil::miString name = stationPlot->getName();

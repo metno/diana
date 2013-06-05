@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.VprofTables"
+#include <miLogger/miLogging.h>
+
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
 #if !defined(USE_PAINTGL)
@@ -123,7 +126,7 @@ void VprofTables::setFontsize(float chy)
   }
   if (near>=0) fp->setFontSize(fontsizes[near]);
 //###########################################################################
-//if (near>=0) cerr<<"setfont "<<near<<" "<<chy<<" "<<fontsizes[near]<<endl;
+//if (near>=0) METLIBS_LOG_DEBUG("setfont "<<near<<" "<<chy<<" "<<fontsizes[near]);
 //###########################################################################//###########################################################################
 }
 
@@ -373,7 +376,7 @@ bool VprofTables::startPSnewpage()
   if (!hardcopy || !psoutput) return false;
   glFlush();
   if (psoutput->EndPage() != 0) {
-    cerr << "startPSnewpage: EndPage BAD!!!" << endl;
+    METLIBS_LOG_ERROR("startPSnewpage: EndPage BAD!!!");
   }
   psoutput->StartPage();
   return true;

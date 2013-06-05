@@ -34,6 +34,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.WeatherObjects"
+#include <miLogger/miLogging.h>
+
 #include <diWeatherObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
@@ -56,7 +59,7 @@ WeatherObjects::WeatherObjects()
 : xcopy(0), ycopy(0)
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects constructor" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects constructor");
 #endif
   //zero time = 00:00:00 UTC Jan 1 1970
   itsTime=ztime;
@@ -79,7 +82,7 @@ WeatherObjects::WeatherObjects()
 void WeatherObjects::clear()
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::clear" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::clear");
 #endif
   int no = objects.size();
   for (int i=0; i<no; i++)
@@ -104,7 +107,7 @@ bool WeatherObjects::empty(){
 
 void WeatherObjects::plot(){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::plot\n";
+  METLIBS_LOG_DEBUG("WeatherObjects::plot\n");
 #endif
   if (!enabled) return;
   // draw objects
@@ -113,7 +116,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wArea)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wArea plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wArea plotted  ");
 #endif
       objects[i]->plot();}
   }
@@ -121,7 +124,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wFront)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wFront plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wFront plotted  ");
 #endif
 
       objects[i]->plot();}
@@ -130,7 +133,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(wSymbol)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wSymbol plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wSymbol plotted  ");
 #endif
 
       objects[i]->plot();}
@@ -140,7 +143,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(Border)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wBorder plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wBorder plotted  ");
 #endif
 
       objects[i]->plot();}
@@ -150,7 +153,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(RegionName)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wRegionName plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wRegionName plotted  ");
 #endif
 
       objects[i]->plot();}
@@ -160,7 +163,7 @@ void WeatherObjects::plot(){
   for (int i=0; i<n; i++){
     if (objects[i]->objectIs(ShapeXXX)){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects:wShape plotted  ";
+  METLIBS_LOG_DEBUG("WeatherObjects:wShape plotted  ");
 #endif
 
       objects[i]->plot();}
@@ -176,9 +179,9 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 {
 
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::changeProjection" << endl;
-  cerr << "Change projection from " << itsArea <<endl<<" to " <<
-  newArea << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::changeProjection");
+  METLIBS_LOG_DEBUG("Change projection from " << itsArea);
+  DEBUG <<" to " << newArea;
 #endif
 
 
@@ -227,7 +230,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   }
 
   if(!err || ierror !=0 ) {
-    cerr << "WeatherObjects::changeProjection: getPoints error" << endl;
+    METLIBS_LOG_ERROR("WeatherObjects::changeProjection: getPoints error");
     delete[] xpos;
     delete[] ypos;
     return false;
@@ -265,7 +268,7 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 void WeatherObjects::updateObjects()
 {
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::updateObjects" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::updateObjects");
 #endif
 
   int obsize = objects.size();
@@ -279,8 +282,8 @@ void WeatherObjects::updateObjects()
 bool
 WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::readEditDrawFile(2)" << endl;
-  cerr << "filename" << fn << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::readEditDrawFile(2)");
+  METLIBS_LOG_DEBUG("filename" << fn);
 #endif
 
 
@@ -293,7 +296,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
     }
     changeProjection(geoArea);
 
-    cerr << "This is a shapefile" << endl;
+    METLIBS_LOG_INFO("This is a shapefile");
     ShapeObject * shape = new ShapeObject();
     addObject(shape);
     shape->read(fn);
@@ -306,7 +309,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
   // open filestream
   ifstream file(fn.c_str());
   if (!file){
-    cerr << "ERROR OPEN (READ) " << fn << endl;
+    METLIBS_LOG_ERROR("ERROR OPEN (READ) " << fn);
     return false;
   }
 
@@ -318,7 +321,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 
   // read the first line check if it contains "date"
   getline(file,str);
-  //cerr << "The first line read is " << str << endl;
+  //METLIBS_LOG_DEBUG("The first line read is " << str);
   vector<miString> stokens = str.split('=');
   if ( stokens.size()==2) {
     key = stokens[0].downcase();
@@ -349,7 +352,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
     return readEditDrawString(fileString,newArea);
   }
   else{
-    cerr << "This file is not in the new format " << endl;
+    METLIBS_LOG_ERROR("This file is not in the new format ");
     file.close();
   }
 
@@ -363,8 +366,8 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
     const Area& newArea, bool replace){
 
 #ifdef DEBUGPRINT
-  cerr << "readEditDrawString\n";
-  cerr << "Input string" << inputString << endl;
+  METLIBS_LOG_DEBUG("readEditDrawString\n");
+  METLIBS_LOG_DEBUG("Input string" << inputString);
 #endif
 
   miString key,value,objectString;
@@ -392,12 +395,12 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
       key = stokens[0].downcase();
       value = stokens[1];
     } else {
-      cerr << "WeatherObjects::readEditDrawString - Warning !";
-      cerr << "Error in objectString " << objectStrings[i] << endl;
+      METLIBS_LOG_WARN("WeatherObjects::readEditDrawString - Warning !");
+      METLIBS_LOG_ERROR("Error in objectString " << objectStrings[i]);
       continue;
     }
     if (key == "date"){
-      //cerr << "date of object file = " << timeFromString(value) << endl;
+      //METLIBS_LOG_DEBUG("date of object file = " << timeFromString(value));
     }
     else if (key == "object"){
       ObjectPlot * tObject;
@@ -418,8 +421,8 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
       else if (value == "RegionName")
         tObject = new WeatherSymbol("",RegionName);
       else {
-        cerr << "WeatherObjects::readEditDrawString Unknown object:"
-        << value << endl;
+        METLIBS_LOG_ERROR("WeatherObjects::readEditDrawString Unknown object:"
+        << value);
         continue;
       }
       if (tObject->readObjectString(objectStrings[i]))
@@ -427,7 +430,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
         addObject(tObject,replace);
       else delete tObject;
     }
-    else cerr << "Error! Object key not found !" << endl;
+    else METLIBS_LOG_ERROR("Error! Object key not found !");
   }
 
   changeProjection(newArea);
@@ -438,7 +441,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
 miString WeatherObjects::writeEditDrawString(const miTime& t){
 
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::writeEditDrawString" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::writeEditDrawString");
 #endif
   if (empty()) return miString();
 
@@ -475,14 +478,14 @@ miString WeatherObjects::writeEditDrawString(const miTime& t){
 
 bool WeatherObjects::readEditCommentFile(const miString fn){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::readEditCommentFile" << fn << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::readEditCommentFile" << fn);
 #endif
 
   // open filestream
   ifstream file(fn.c_str());
   if (!file){
 #ifdef DEBUGPRINT
-    cerr << "not found " << fn << endl;
+    METLIBS_LOG_DEBUG("not found " << fn);
 #endif
     return false;
   }
@@ -499,7 +502,7 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
   itsOldComments += fileString;
 
 #ifdef DEBUGPRINT
-  cerr <<"itsOldComments" << itsOldComments << endl;
+  METLIBS_LOG_DEBUG("itsOldComments" << itsOldComments);
 #endif
 
   return true;
@@ -508,7 +511,7 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
 
 miString WeatherObjects::readComments(){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::Read comments" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::Read comments");
 #endif
   //read the old comments
   if (itsOldComments.empty())
@@ -523,7 +526,7 @@ miString WeatherObjects::readComments(){
 
 vector <miString> WeatherObjects::getObjectLabels(){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::getObjectLabels" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::getObjectLabels");
 #endif
   //oldLabels from object file
   return itsOldLabels;
@@ -531,7 +534,7 @@ vector <miString> WeatherObjects::getObjectLabels(){
 
 vector <miString> WeatherObjects::getEditLabels(){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::getEditLabels" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::getEditLabels");
 #endif
   //new edited labels
   return itsLabels;
@@ -545,14 +548,14 @@ bool WeatherObjects::readAreaBorders(const miString fn,
 
     const Area& newArea){
 #ifdef DEBUGPRINT
-  cerr << "WeatherObjects::readAreaBorders" << endl;
-  cerr << "filename = " << fn << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::readAreaBorders");
+  METLIBS_LOG_DEBUG("filename = " << fn);
 #endif
 
   // open filestream
   ifstream file(fn.c_str());
   if (!file){
-    cerr << "ERROR OPEN (READ) " << fn << endl;
+    METLIBS_LOG_ERROR("ERROR OPEN (READ) " << fn);
     return false;
   }
 
@@ -579,7 +582,7 @@ bool WeatherObjects::writeAreaBorders(const miString fn){
   // open filestream
   ofstream file(fn.c_str());
   if (!file){
-    cerr << "ERROR OPEN (WRITE) " << fn << endl;
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << fn);
     return false;
   }
 
@@ -622,7 +625,7 @@ int WeatherObjects::objectCount(int type ){
 
 void WeatherObjects::addObject(ObjectPlot * object, bool replace){
 #ifdef DEBUGPRINT
-  cerr <<"WeatherObjects::addObject" << endl;
+  METLIBS_LOG_DEBUG("WeatherObjects::addObject");
 #endif
   if (!object) return;
 

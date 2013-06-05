@@ -38,6 +38,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.FieldEdit"
+#include <miLogger/miLogging.h>
+
 #include <diFieldEdit.h>
 #include <diField/diMetnoFieldFile.h>
 #include <diPlotModule.h>
@@ -65,7 +68,7 @@ posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), od
 numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 {
 #ifdef DEBUGPRINT
-  cerr << "FieldEdit constructor" << endl;
+  METLIBS_LOG_DEBUG("FieldEdit constructor");
 #endif
 }
 
@@ -73,7 +76,7 @@ numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 FieldEdit::~FieldEdit()
 {
 #ifdef DEBUGPRINT
-  cerr << "FieldEdit destructor" << endl;
+  METLIBS_LOG_DEBUG("FieldEdit destructor");
 #endif
   cleanup();
 }
@@ -82,7 +85,7 @@ FieldEdit::~FieldEdit()
 // Assignment operator
 FieldEdit& FieldEdit::operator=(const FieldEdit &rhs){
 #ifdef DEBUGPRINT
-  cerr << "FieldEdit assignment operator" << endl;
+  METLIBS_LOG_DEBUG("FieldEdit assignment operator");
 #endif
   if (this == &rhs) return *this;
 
@@ -447,7 +450,7 @@ void FieldEdit::changeGrid()
   miString demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
   if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum)) {
-    cerr << "   specification/interpolation failure!!!!" << endl;
+    METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
 }
 
@@ -572,7 +575,7 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
   //create file
   if (filename != lastFileWritten) {
     if (!MetnoFieldFile::createFile(editfield, 1, filename)) {
-      cerr << "Error creating file:" << filename << endl;
+      METLIBS_LOG_ERROR("Error creating file:" << filename);
       return false;
     }
     lastFileWritten= filename;
@@ -580,15 +583,15 @@ bool FieldEdit::writeEditFieldFile(const miString& filename,
 
 
   if (!MetnoFieldFile::openFile(filename,funit)) {
-    cerr << "Error opening file:" << filename << endl;
+    METLIBS_LOG_ERROR("Error opening file:" << filename);
     return false;
   }
   if ( !MetnoFieldFile::writeFieldAndReturnData(editfield,filename, funit, &idata, metnoFieldFileIdentSpec[5] )) {
-      cerr << "Error writing file:" << filename << endl;
+      METLIBS_LOG_ERROR("Error writing file:" << filename);
       return false;
     }
   if (!MetnoFieldFile::closeFile(filename,funit)) {
-    cerr << "Error closing file:" << filename << endl;
+    METLIBS_LOG_ERROR("Error closing file:" << filename);
     return false;
   }
 
@@ -669,8 +672,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
   // Return true if repaint (of overlay) is needed
   //
 #ifdef DEBUGREDRAW
-  cerr<<"FieldEdit::notifyEditEvent  type,order: "
-  <<ee.type<<" "<<ee.order<<endl;
+  METLIBS_LOG_DEBUG("FieldEdit::notifyEditEvent  type,order: "
+  <<ee.type<<" "<<ee.order);
 #endif
 
   // do not exit if only setup/default information from dialog
@@ -725,7 +728,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (maparea.P()!=editfield->area.P()) {
         int npos= 1;
         if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
-          cerr << "EDIT: getPoints error" << endl;
+          METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
       }
@@ -917,7 +920,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
     if (convertpos) {
       int npos= 1;
       if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
-        cerr << "EDIT: getPoints error" << endl;
+        METLIBS_LOG_ERROR("EDIT: getPoints error");
         return false;
       }
     }
@@ -984,7 +987,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
             (gy+ayellipse*0.5)*editfield->gridResolutionY };
         int npos= 3;
         if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
-          cerr << "EDIT: getPoints error" << endl;
+          METLIBS_LOG_ERROR("EDIT: getPoints error");
           return false;
         }
         gx= rx[0]/editfield->gridResolutionX;
@@ -1037,7 +1040,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
         if (convertpos) {
           int npos= 4;
           if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
-            cerr << "EDIT: getPoints error" << endl;
+            METLIBS_LOG_ERROR("EDIT: getPoints error");
             return false;
           }
         }
@@ -1089,19 +1092,19 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           fline=fieldUndef;
         if (fline==fieldUndef) {
 #ifdef DEBUGCLASSES
-          cerr<<"fline==fieldUndef"<<endl;
+          METLIBS_LOG_DEBUG("fline==fieldUndef");
 #endif
           return false;
         }
 #ifdef DEBUGCLASSES
-        cerr<<"fline= "<<fline<<endl;
+        METLIBS_LOG_DEBUG("fline= "<<fline);
 #endif
         int nsmooth= 0;
         isoline= findIsoLine(gx,gy,fline,nsmooth,nx,ny,workfield->data,true);
         if (!isoline.x.size()) {
           fline= fieldUndef;
 #ifdef DEBUGCLASSES
-          cerr<<"NO isoLine found"<<endl;
+          METLIBS_LOG_DEBUG("NO isoLine found");
 #endif
           return false;
         }
@@ -1238,7 +1241,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
               (gy+ayellipse*0.5)*editfield->gridResolutionY };
           int npos= 2;
           if (!gc.getPoints(editfield->area.P(),maparea.P(),npos,rx,ry)) {
-            cerr << "EDIT: getPoints error" << endl;
+            METLIBS_LOG_ERROR("EDIT: getPoints error");
             return false;
           }
           axellipsePlot= rx[1]-rx[0];
@@ -2102,7 +2105,7 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
   float zright= z[ij+ijadd[kk+1]];
   //###############################################################################
 #ifdef DEBUGCLASSES
-  if (drawBorders) cerr<<"findIsoLine  zleft,zright: "<<zleft<<" "<<zright<<endl;
+  if (drawBorders) METLIBS_LOG_DEBUG("findIsoLine  zleft,zright: "<<zleft<<" "<<zright);
 #endif
   //###############################################################################
 
@@ -2331,27 +2334,23 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     int npos= xtmp.size();
     //#############################################################
 #ifdef DEBUGCLASSES
-    cerr<<"---------------------------------------------"<<endl;
-    cerr<<"Before drawBorders linefix  npos= "<<npos
-    <<"  closed= "<<closed<<endl;
+    METLIBS_LOG_DEBUG("---------------------------------------------");
+    METLIBS_LOG_DEBUG("Before drawBorders linefix  npos= "<<npos
+    <<"  closed= "<<closed);
     int n1= (npos<6) ? npos : 6;
     int n2= (npos<6) ? 0 : npos-6;
-    cerr<<"start x:";
+    METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i];
-    cerr<<endl;
-    cerr<<"      y:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+    METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i];
-    cerr<<endl;
-    cerr<<"  end x:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+    METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i];
-    cerr<<endl;
-    cerr<<"      y:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+    METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i];
-    cerr<<endl;
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
 #endif
     //#############################################################
     if (closed) {
@@ -2376,28 +2375,24 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     //#############################################################
 #ifdef DEBUGCLASSES
     npos= xtmp.size();
-    cerr<<"----------------"<<endl;
-    cerr<<"After drawBorders linefix  npos= "<<npos
-    <<"  closed= "<<closed<<endl;
+    METLIBS_LOG_DEBUG("----------------");
+    METLIBS_LOG_DEBUG("After drawBorders linefix  npos= "<<npos
+    <<"  closed= "<<closed);
     n1= (npos<6) ? npos : 6;
     n2= (npos<6) ? 0 : npos-6;
-    cerr<<"start x:";
+    METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i];
-    cerr<<endl;
-    cerr<<"      y:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+    METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i];
-    cerr<<endl;
-    cerr<<"  end x:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+    METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i];
-    cerr<<endl;
-    cerr<<"      y:";
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+    METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      cerr<<setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i];
-    cerr<<endl;
-    cerr<<"---------------------------------------------"<<endl;
+      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+    METLIBS_LOG_DEBUG("---------------------------------------------");
 #endif
     //#############################################################
 
@@ -2687,8 +2682,8 @@ void FieldEdit::editBrush(float px, float py)
     if (j2>ny) j2=ny;
 
 #ifdef DEBUGCLASSES
-    cerr<<"BRUSH n,i1,i2,j1,j2,r: "
-    <<n<<" "<<i1<<" "<<i2<<" "<<j1<<" "<<j2<<" "<<r<<endl;
+    METLIBS_LOG_DEBUG("BRUSH n,i1,i2,j1,j2,r: "
+    <<n<<" "<<i1<<" "<<i2<<" "<<j1<<" "<<j2<<" "<<r);
 #endif
 
     if (infl<0) {
@@ -2837,8 +2832,8 @@ void FieldEdit::editClassLine()
   float px, py, dx, dy, d2, d2min;
   int k;
 #ifdef DEBUGCLASSES
-  cerr<<"FieldEdit::editClassLine xline.size(),isoline.x.size(): "
-  <<xline.size()<<"  "<<isoline.x.size()<<endl;
+  METLIBS_LOG_DEBUG("FieldEdit::editClassLine xline.size(),isoline.x.size(): "
+  <<xline.size()<<"  "<<isoline.x.size());
 #endif
 
   int npos= xline.size();
@@ -2855,7 +2850,7 @@ void FieldEdit::editClassLine()
     editfield->interpolate(1,&px,&py,&fv,interpoltype);
     if (fv==fieldUndef || fabsf(fv-fline)<0.5) {
 #ifdef DEBUGCLASSES
-      cerr<<"!!!!!!!!!!!!!!! NO classLine !!!!!!!!!!!!!!!!!"<<endl;
+      METLIBS_LOG_DEBUG("!!!!!!!!!!!!!!! NO classLine !!!!!!!!!!!!!!!!!");
 #endif
       return;
     }
@@ -3019,14 +3014,14 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
         jm= j-j1;
         //###########################################################
 #ifdef DEBUGCLASSES
-        cerr<<"  MARK im,jm: "<<im<<" "<<jm
+        METLIBS_LOG_DEBUG("  MARK im,jm: "<<im<<" "<<jm
         <<"  n,x1,y1,x2,y2: "<<setw(2)<<n<<" "
         <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x1-i1<<" "
         <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y1-j1<<" "
         <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x2-i1<<" "
         <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y2-j1<<"  px,py: "
         <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<px-i1<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<py-j1<<endl;
+        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<py-j1);
 #endif
         //###########################################################
         ibit= jm*mx+im;
@@ -3052,25 +3047,23 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
   //#############################################################
 #ifdef DEBUGCLASSES
   if (m<31) {
-    cerr<<"--------------------------------------"<<endl;
+    METLIBS_LOG_DEBUG("--------------------------------------");
     const int PW=6, PR=2;
     int nppp=m;
     int nsss=10;
     for (int ii1=0; ii1<nppp; ii1+=nsss) {
       int ii2= (ii1+nsss)<nppp ? ii1+nsss : nppp;
-      cerr<<"  x:";
+      METLIBS_LOG_DEBUG("  x:");
       for (int ii=ii1; ii<ii2; ii++)
-        cerr<<" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
-        <<vx[ii]-i1;
-      cerr<<endl;
-      cerr<<"  y:";
+        METLIBS_LOG_DEBUG(" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
+        <<vx[ii]-i1);
+      METLIBS_LOG_DEBUG("  y:");
       for (int ii=ii1; ii<ii2; ii++)
-        cerr<<" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
-        <<vy[ii]-j1;
-      cerr<<endl;
+        METLIBS_LOG_DEBUG(" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
+        <<vy[ii]-j1);
     }
   }
-  cerr<<"---------- mx,my: "<<mx<<" "<<my<<endl;
+  METLIBS_LOG_DEBUG("---------- mx,my: "<<mx<<" "<<my);
   if (mx<40 && my<40) {
     for (jm=my-1; jm>=0; jm--) {
       miString str;
@@ -3087,7 +3080,7 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
           else                               str+="U.";
         }
       }
-      cerr<<"  "<<str<<endl;
+      METLIBS_LOG_DEBUG("  "<<str);
     }
   }
 #endif
@@ -3610,8 +3603,8 @@ void FieldEdit::drawInfluence()
 bool FieldEdit::plot(bool showinfluence)
 {
 #ifdef DEBUGREDRAW
-  if (active) cerr<<"Plot active editfield"<<endl;
-  else        cerr<<"Plot deactivated editfield"<<endl;
+  if (active) METLIBS_LOG_DEBUG("Plot active editfield");
+  else        METLIBS_LOG_DEBUG("Plot deactivated editfield");
 #endif
   if (editfieldplot->getUndefinedPlot())
     editfieldplot->plotUndefined();

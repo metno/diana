@@ -48,10 +48,6 @@ using namespace std;
 #define MILOGGER_CATEGORY "diana.VcrossFile"
 #include <miLogger/miLogging.h>
 
-//static
-GridConverter VcrossFile::gc;
-
-
 VcrossFile::VcrossFile(const std::string& filename, const std::string& modelname)
   : fileName(filename), modelName(modelname), vfile(0),
     modificationtime(0),
@@ -289,9 +285,9 @@ bool VcrossFile::readFileHeader()
       //    cerr<<"       opts "<<n<<" : "<<opts<<endl;
       //###################################################################
       // had many names without the last ')' making serious PostScript errors
-      const miutil::miString misName(name);
-      int nc1= misName.countChar('(');
-      int nc2= misName.countChar(')');
+      const std::string misName(name);
+      int nc1= miutil::count_char(misName, '(');
+      int nc2= miutil::count_char(misName, ')');
       if (nc1!=nc2) {
         while (nc1<nc2) {
           name= '(' + name;
@@ -583,6 +579,7 @@ VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::mi
       int record= dataAddress[itime*numCross*2+iCross*2];
       int word=   dataAddress[itime*numCross*2+iCross*2+1];
       if(!vfile->setFilePosition(record,word)){
+        delete vcp;
         vcp=0;
         return  vcp;
       }
@@ -636,17 +633,14 @@ VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::mi
         for (int n=0; n<numPar2d; n++)
           for (l=0; l<numLev; l++)
             tgdata2d[n][numTime*l+itime]= vcp->cdata2d[n][l*nPoint+tgpos];
-        vcp->tgdx=  vcp->cdata1d[nxgPar][tgpos2]
-                                         - vcp->cdata1d[nxgPar][tgpos1];
-        vcp->tgdy=  vcp->cdata1d[nygPar][tgpos2]
-                                         - vcp->cdata1d[nygPar][tgpos1];
+        vcp->tgdx=  vcp->cdata1d[nxgPar][tgpos2] - vcp->cdata1d[nxgPar][tgpos1];
+        vcp->tgdy=  vcp->cdata1d[nygPar][tgpos2] - vcp->cdata1d[nygPar][tgpos1];
         if (nxdsPar>=0) {
           vcp->horizontalLength= 0.;
           for (int n=1; n<nPoint; n++)
             vcp->horizontalLength+= vcp->cdata1d[nxdsPar][n];
         } else if (nxsPar>=0) {
-          vcp->horizontalLength=  vcp->cdata1d[nxsPar][nPoint-1]
-                                                       - vcp->cdata1d[nxsPar][0];
+          vcp->horizontalLength=  vcp->cdata1d[nxsPar][nPoint-1] - vcp->cdata1d[nxsPar][0];
         } else {
           vcp->horizontalLength= 50000. * float(nPoint-1);
         }

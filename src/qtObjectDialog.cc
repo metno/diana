@@ -46,6 +46,9 @@
 #include <QButtonGroup>
 #include <QGroupBox>
 
+#define MILOGGER_CATEGORY "diana.ObjectDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtToggleButton.h"
 #include "qtObjectDialog.h"
 #include "qtEditComment.h"
@@ -59,7 +62,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef dObjectDlg
-  cout<<"ObjectDialog::ObjectDialog called"<<endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::ObjectDialog called");
 #endif
 
   m_objm= m_ctrl->getObjectManager();
@@ -266,7 +269,7 @@ anything if the new value  selected is equal to the old one.
  (HK ?? not yet) */
 
 #ifdef dObjectDlg
-  cerr<<"ObjectDialog::nameListClicked called"<<endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::nameListClicked called");
 #endif
 
   //update the time/file list
@@ -278,7 +281,7 @@ anything if the new value  selected is equal to the old one.
 void ObjectDialog::timefileClicked(int tt){
 /* This function is called when timefileBut (auto/time/file)is selected*/
 #ifdef dObjectDlg
-  cerr<<"ObjectDialog::timefileClicked called,tt =" << tt << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::timefileClicked called,tt =" << tt);
 #endif
 
 
@@ -299,7 +302,7 @@ void ObjectDialog::timefileListSlot( QListWidgetItem * item  ){
 sent from the list of time/file and a new list item is highlighted
 */
 #ifdef dObjectDlg
-   cerr<<"SatDialog::timefileListSlot called"<<endl;
+   METLIBS_LOG_DEBUG("SatDialog::timefileListSlot called");
 #endif
 
 
@@ -321,7 +324,7 @@ sent from the list of time/file and a new list item is highlighted
 void ObjectDialog::DeleteClicked(){
   //unselects  everything
 #ifdef dObjectDlg
-    cerr<<"ObjectDialog::DeleteClicked called"<<endl;
+    METLIBS_LOG_DEBUG("ObjectDialog::DeleteClicked called");
 #endif
 
     if(namebox->currentItem())
@@ -336,7 +339,7 @@ void ObjectDialog::DeleteClicked(){
     emit emitTimes("obj",times,false );
 
 #ifdef dObjectDlg
-    cerr<<"ObjectDialog::DeleteClicked returned"<<endl;
+    METLIBS_LOG_DEBUG("ObjectDialog::DeleteClicked returned");
 #endif
   return;
 }
@@ -346,8 +349,7 @@ void ObjectDialog::DeleteClicked(){
 
 void ObjectDialog::Refresh(){
 #ifdef dObjectDlg
-  cerr<<"ObjectDialog::Refresh() called; Filene blir hentet nytt fra disken"
-      <<endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::Refresh() called); Filene blir hentet nytt fra disken";
 #endif
 
   //update the timefileList
@@ -362,7 +364,7 @@ void ObjectDialog::Refresh(){
 /********************************************/
 void ObjectDialog::applyhideClicked(){
 #ifdef dObjectDlg
-  cerr<<"applyhideClicked()"<<endl;
+  METLIBS_LOG_DEBUG("applyhideClicked()");
 #endif
   emit ObjHide();
   emit ObjApply();
@@ -447,8 +449,8 @@ void ObjectDialog::hideAll(){
 /**********************************************/
 void ObjectDialog::updateTimefileList(bool refresh){
 #ifdef dObjectDlg
-  cerr<<"ObjectDialog::updateTimefileList called" <<endl;
-  if (refresh) cerr << "refresh file list from disk" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::updateTimefileList called");
+  if (refresh) METLIBS_LOG_DEBUG("refresh file list from disk");
 #endif
 
   //clear box with list of files
@@ -507,7 +509,7 @@ void ObjectDialog::updateSelectedFileList()
 {
 
 #ifdef dObjectDlg
-  cerr <<"updateSelectedFileList" << endl;
+  METLIBS_LOG_DEBUG("updateSelectedFileList");
 #endif
 
   //clear box with names of files
@@ -535,7 +537,7 @@ void ObjectDialog::updateSelectedFileList()
   }
 
 #ifdef dObjectDlg
-  cerr << "...namestr=" <<namestr << endl;
+  METLIBS_LOG_DEBUG("...namestr=" <<namestr);
 #endif
 
 }
@@ -544,7 +546,7 @@ void ObjectDialog::updateSelectedFileList()
 
 vector<miutil::miString> ObjectDialog::getOKString(){
 #ifdef dObjectDlg
-  cerr << "ObjectDialog::getOKstring" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::getOKstring");
 #endif
 
   vector<miutil::miString> vstr;
@@ -606,7 +608,7 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
 {
 #ifdef dObjectDlg
-  cerr << "ObjectDialog::putOKstring" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::putOKstring");
 #endif
 
   //clear plot
@@ -642,7 +644,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
 
   if (!found) return;
   if (!plotVariables.time.empty()) {
-    //cerr << "time =" << plotVariables.time << endl;
+    //METLIBS_LOG_DEBUG("time =" << plotVariables.time);
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
       miutil::miString listtime=stringFromTime(files[j].time);
@@ -653,7 +655,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
       }
     }
   } else if (!plotVariables.file.empty()) {
-    //cerr << "file =" << plotVariables.file << endl;
+    //METLIBS_LOG_DEBUG("file =" << plotVariables.file);
     int nf = files.size();
     for (int j=0;j<nf;j++ ){
       miutil::miString listfile =  files[j].name;
@@ -669,14 +671,14 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
   }
 
   if (plotVariables.alphanr >=0){
-    //cerr << "alpha =" << plotVariables.alphanr << endl;
+    //METLIBS_LOG_DEBUG("alpha =" << plotVariables.alphanr);
     int alphavalue = int(plotVariables.alphanr/m_alphascale + 0.5);
     salpha->setValue(  alphavalue );
     alpha->setChecked(true);
     greyAlpha( true );
   }
   if (plotVariables.totalminutes >=0){
-    //cerr << "totalminutes =" << plotVariables.totalminutes << endl;
+    //METLIBS_LOG_DEBUG("totalminutes =" << plotVariables.totalminutes);
     int number= int(plotVariables.totalminutes/m_scalediff + 0.5);
     diffSlider->setValue( number);
   }
@@ -704,7 +706,7 @@ ObjectDialog::PlotVariables
 ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
 {
 #ifdef dObjectDlg
-  cerr << "ObjectDialog::decodeString" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
 #endif
 
   PlotVariables okVar;
@@ -756,7 +758,7 @@ ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
 miutil::miString ObjectDialog::getShortname()
 {
 #ifdef dObjectDlg
-  cerr << "ObjectDialog::getShortname" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::getShortname");
 #endif
   miutil::miString name;
 
@@ -780,7 +782,7 @@ miutil::miString ObjectDialog::getShortname()
 
 miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
 #ifdef dObjectDlg
-  cerr << "ObjectDialog::makeOKString" << endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::makeOKString");
 #endif
 
 
@@ -811,7 +813,7 @@ miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
       ostr<<" alpha="<<okVar.alphanr;
     str += ostr.str();
 
-    //cerr << "string from ObjectDialog::makeOKstring " << str << endl;
+    //METLIBS_LOG_DEBUG("string from ObjectDialog::makeOKstring " << str);
 
     return str;
 
@@ -822,7 +824,7 @@ miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
 void ObjectDialog::archiveMode( bool on )
 {
 #ifdef dObjectDlg
-  cerr<<"ObjectDialog::archiveMode called"<<endl;
+  METLIBS_LOG_DEBUG("ObjectDialog::archiveMode called");
 #endif
   useArchive= on;
 

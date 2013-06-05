@@ -119,35 +119,34 @@ bool VcrossManager::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  const miString section1 = "VERTICAL_CROSSECTION_FILES";
+  const std::string section1 = "VERTICAL_CROSSECTION_FILES";
 
-  vector<miString> vstr;
+  vector<std::string> vstr;
 
   bool ok= true;
 
   if (SetupParser::getSection(section1,vstr)) {
 
-    miString model,filename;
-    vector<miString> tokens,tokens1,tokens2;
+    std::string model,filename;
+    vector<std::string> tokens,tokens1,tokens2;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= vstr[i].split();
+      tokens= miutil::split(vstr[i]);
       if (tokens.size()==2) {
-        tokens1= tokens[0].split("=");
-        tokens2= tokens[1].split("=");
+        tokens1= miutil::split(tokens[0], 0, "=");
+        tokens2= miutil::split(tokens[1], 0, "=");
         if (tokens1.size()==2 && tokens2.size()==2) {
-	  if (tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+	  if (miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="f") {
 	    model= tokens1[1];
 	    filename= tokens2[1];
 	    filenames[model]= filename;
 	    modelnames.push_back(model);
 	    filetypes[model] = "standard";
 	    vcfiles[filename]= 0;
-	  }
-	  else if (tokens1[0].downcase() == "m" && tokens2[0].downcase() == "t") {
+	  } else if (miutil::to_lower(tokens1[0]) == "m" && miutil::to_lower(tokens2[0]) == "t") {
             model = tokens1[1];
-            miString filetype = tokens2[1];
+            std::string filetype = tokens2[1];
 	    modelnames.push_back(model);
             filetypes[model] = filetype;
 	    vcfiles[filename]= 0;
@@ -156,7 +155,7 @@ bool VcrossManager::parseSetup()
       }
     }
   } else {
-    //cerr << "Missing section " << section1 << " in setupfile." << endl;
+    //METLIBS_LOG_DEBUG("Missing section " << section1 << " in setupfile.");
     //ok= false;
   }
 
@@ -174,7 +173,7 @@ vector< vector<Colour::ColourInfo> > VcrossManager::getMultiColourInfo(int multi
 }
 
 
-void VcrossManager::setCrossection(const miString& crossection)
+void VcrossManager::setCrossection(const std::string& crossection)
 {
   METLIBS_LOG_SCOPE();
 
@@ -207,7 +206,7 @@ void VcrossManager::setTime(const miTime& time)
 }
 
 
-miString VcrossManager::setCrossection(int step)
+std::string VcrossManager::setCrossection(int step)
 {
   METLIBS_LOG_SCOPE();
 
@@ -339,7 +338,7 @@ bool VcrossManager::plot()
 void VcrossManager::preparePlot()
 {
   METLIBS_LOG_SCOPE();
-
+  
   int numplot= selectedModels.size();
 
   vector<VcrossData> prevdata= vcdata;
@@ -347,25 +346,25 @@ void VcrossManager::preparePlot()
   vector<bool> prevUsed(m,false);
   vcdata.clear();
 
-  map<miString,miString>::iterator p, pend=filenames.end();
-  map<miString,VcrossFile*>::iterator vf, vfend=vcfiles.end();
+  map<std::string,std::string>::iterator p, pend=filenames.end();
+  map<std::string,VcrossFile*>::iterator vf, vfend=vcfiles.end();
 
   for (int i=0; i<numplot; i++) {
 
     selectedVcData[i]= -1;
-
-    miString model= selectedModels[i];
+    
+    std::string model= selectedModels[i];
     p= filenames.find(model);
 
     if (p!=pend) {
 
-      miString filename= p->second;
+      std::string filename= p->second;
       vf= vcfiles.find(filename);
 
       if (vf!=vfend && vf->second) {
-
+        
         VcrossFile *vcfile= vf->second;
-
+        
         miTime t= plotTime;
         if (selectedHourOffset[i]!=0)
           t.addHour(selectedHourOffset[i]);
@@ -413,8 +412,9 @@ void VcrossManager::preparePlot()
         miTime t = plotTime;
         if (selectedHourOffset[i] != 0)
           t.addHour(selectedHourOffset[i]);
-        VcrossField *vcfield = vcfields[model];
-        if(vcfield) {
+
+        VcrossField* vcfield = getVcrossField(model);
+        if (vcfield) {
           VcrossPlot *vcp = vcfield->getCrossection(plotCrossection,t,timeGraphPos);
           if (vcp) {
             timeGraphPosMax = vcp->getHorizontalPosNum() - 1;
@@ -427,6 +427,8 @@ void VcrossManager::preparePlot()
             vcd.vcplot = vcp;
             vcdata.push_back(vcd);
           }
+        } else {
+          METLIBS_LOG_ERROR("filetype=GribFile but no vcfield!");
         }
       }
     }
@@ -445,21 +447,21 @@ void VcrossManager::preparePlot()
 }
 
 
-vector<miString> VcrossManager::getAllModels()
+vector<std::string> VcrossManager::getAllModels()
 {
   METLIBS_LOG_SCOPE();
   return modelnames;
 }
 
 
-map<miString,miString> VcrossManager::getAllFieldOptions()
+map<std::string,std::string> VcrossManager::getAllFieldOptions()
 {
   METLIBS_LOG_SCOPE();
   return VcrossPlot::getAllFieldOptions();
 }
 
 
-vector<std::string> VcrossManager::getFieldNames(const miString& model)
+vector<std::string> VcrossManager::getFieldNames(const std::string& model)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(filetypes[model]));
@@ -467,41 +469,67 @@ vector<std::string> VcrossManager::getFieldNames(const miString& model)
   const vector<std::string> empty;
 
   if(filetypes[model] == "standard") {
-  map<miString,miString>::iterator p= filenames.find(model);
-  if (p==filenames.end())
-    return empty;
-
-  map<miString,VcrossFile*>::iterator vf= vcfiles.find(p->second);
-  if (vf!=vcfiles.end()) {
-    if (!vf->second) {
-      VcrossFile *vcfile= new VcrossFile(p->second,model);
-      if (!vcfile->update()) {
-        delete vcfile;
+    map<std::string,std::string>::iterator p= filenames.find(model);
+    if (p==filenames.end())
+      return empty;
+    
+    map<std::string,VcrossFile*>::iterator vf= vcfiles.find(p->second);
+    if (vf!=vcfiles.end()) {
+      if (!vf->second) {
+        VcrossFile *vcfile= new VcrossFile(p->second,model);
+        if (!vcfile->update()) {
+          delete vcfile;
+          return empty;
+        }
+        vf->second= vcfile;
+      } else if (!vf->second->update()) {
         return empty;
       }
-      vf->second= vcfile;
-    } else if (!vf->second->update()) {
-      return empty;
-    }
-
-  } else {
-    return empty;
-  }
-
-  return VcrossPlot::getFieldNames(p->second);
- } else if(filetypes[model] == "GribFile") {
-    VcrossField *vcfield = new VcrossField(model,fieldm);
-    if(vcfield->getInventory()) {
-      vcfields[model] = vcfield;
-      return VcrossPlot::getFieldNames(model);
+      
     } else {
-      cerr << "Error making inventory of model " << model << endl;
       return empty;
     }
+    
+    return VcrossPlot::getFieldNames(p->second);
+  } else if(filetypes[model] == "GribFile") {
+    VcrossField *vcfield = getVcrossField(model);
+    if (vcfield)
+      return VcrossPlot::getFieldNames(model);
   } else {
-    return empty;
+    METLIBS_LOG_ERROR("unknown filetype for model " << model);
   }
   return empty;
+}
+
+VcrossField* VcrossManager::getVcrossField(const std::string& modelname)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(modelname));
+
+  const std::map<std::string, std::string>::const_iterator fit = filetypes.find(modelname);
+  if (fit == filetypes.end() or fit->second != "GribFile") {
+    METLIBS_LOG_ERROR("model '" << modelname << "' not registered as 'GribFile'");
+    return 0;
+  }
+  
+  const std::map<std::string, VcrossField*>::iterator vfit = vcfields.find(modelname);
+  if (vfit == vcfields.end() or not vfit->second) {
+    VcrossField *vcfield = new VcrossField(modelname, fieldm);
+    if (not vcfield->getInventory()) {
+      delete vcfield;
+      METLIBS_LOG_ERROR("failed to make inventory of model '" << modelname << "'");
+      return 0;
+    }
+    METLIBS_LOG_DEBUG("inventory for model '" << modelname << "' complete");
+
+    if (vfit == vcfields.end()) {
+      vcfields.insert(std::make_pair(modelname, vcfield));
+      return vcfield;
+    } else {
+      vfit->second = vcfield;
+    }
+  }
+  return vfit->second;
 }
 
 /***************************************************************************/
@@ -510,9 +538,9 @@ void VcrossManager::getCrossections(LocationData& locationdata)
 {
   METLIBS_LOG_SCOPE();
 
-  if (masterFile.exists()) {
+  if (not masterFile.empty()) {
 
-    map<miString,VcrossFile*>::iterator vf= vcfiles.find(masterFile);
+    map<std::string,VcrossFile*>::iterator vf= vcfiles.find(masterFile);
 
     if (vf!=vcfiles.end()) {
 
@@ -521,7 +549,7 @@ void VcrossManager::getCrossections(LocationData& locationdata)
       Rectangle rgeo(0,0,90,360);
       Area geoArea(pgeo,rgeo);
 
-      miString annot= "Vertikalsnitt";
+      std::string annot= "Vertikalsnitt";
       int m= usedModels.size();
       for (int i=0; i<m; i++)
         annot+=(" "+usedModels[i]);
@@ -533,11 +561,11 @@ void VcrossManager::getCrossections(LocationData& locationdata)
       getCrossectionOptions(locationdata);
     }
     else {
-      map<miString, VcrossField*>::iterator vfi = vcfields.find(masterFile);
+      map<std::string, VcrossField*>::iterator vfi = vcfields.find(masterFile);
       if (vfi != vcfields.end()) {
         METLIBS_LOG_DEBUG("Found masterFile in vcfields");
 
-        miString annot = "Vertikalsnitt";
+        std::string annot = "Vertikalsnitt";
         int m = usedModels.size();
         for (int i = 0; i < m; i++)
           annot += (" " + usedModels[i]);
@@ -616,7 +644,7 @@ void VcrossManager::mainWindowTimeChanged(const miTime& time)
 }
 
 
-bool VcrossManager::setSelection(const vector<miString>& vstr)
+bool VcrossManager::setSelection(const vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
@@ -636,20 +664,20 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
 
   for (int i=0; i<n; i++) {
 
-    cerr<<vstr[i]<<endl;
+    METLIBS_LOG_INFO(vstr[i]);
 
-    vector<miString> vs1= vstr[i].split(' ');
+    vector<std::string> vs1= miutil::split(vstr[i], 0, " ");
     int m= vs1.size();
-    if( m>1 && vs1[1].upcase()=="LABEL"){
+    if( m>1 && miutil::to_upper(vs1[1])=="LABEL"){
       selectedLabel.push_back(vstr[i]);
     }
-    miString model,field,options;
+    std::string model,field,options;
     int hourOffset= 0;
     bool plotShaded= false;
     for (int j=0; j<m; j++) {
-      vector<miString> vs2= vs1[j].split('=');
+      vector<std::string> vs2= miutil::split(vs1[j], 0, "=");
       if (vs2.size()==2) {
-        miString key= vs2[0].downcase();
+        std::string key= miutil::to_lower(vs2[0]);
         if (key=="model") {
           model=vs2[1];
         } else if (key=="field") {
@@ -664,13 +692,13 @@ bool VcrossManager::setSelection(const vector<miString>& vstr)
         }
       }
     }
-    if (model.exists() && field.exists() &&
-        ((filenames.find(model)!=filenames.end())
-	 || (filetypes[model] == "GribFile"))) {
+    if (not model.empty() and not field.empty()
+        and ((filenames.find(model) != filenames.end()) or (filetypes[model] == "GribFile")))
+    {
       // there may be options not handled in dialog
       // or uncomplete batch input
-      miString defaultOptions= VcrossPlot::getFieldOptions(field);
-      if (defaultOptions.exists()) {
+      std::string defaultOptions= VcrossPlot::getFieldOptions(field);
+      if (not defaultOptions.empty()) {
         PlotOptions poptions;
         PlotOptions::parsePlotOption(defaultOptions,poptions);
         PlotOptions::parsePlotOption(options,poptions);
@@ -697,10 +725,10 @@ bool VcrossManager::setModels()
 
   int numplot= selectedModels.size();
 
-  map<miString,VcrossFile*>::iterator vf, vfend=vcfiles.end();
-  set<miString> vcfilesUsed;
+  map<std::string,VcrossFile*>::iterator vf, vfend=vcfiles.end();
+  set<std::string> vcfilesUsed;
 
-  miString prevmasterFile= masterFile;
+  const std::string prevmasterFile= masterFile;
 
   VcrossFile *vcfile1= 0;
   VcrossField *vcfield = 0;
@@ -708,12 +736,16 @@ bool VcrossManager::setModels()
   usedModels.clear();
 
   for (int i=0; i<numplot; i++) {
+    const std::string& model=    selectedModels[i];
+    const std::string& filename= selectedVcFile[i];
+    METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(model) << LOGVAL(filename));
 
-    miString model=    selectedModels[i];
-    miString filename= selectedVcFile[i];
-
-     if (filetypes[model] == "GribFile") {
-      vcfield = vcfields[model];
+    if (filetypes[model] == "GribFile") {
+      vcfield = getVcrossField(model);
+      if (not vcfield) {
+        METLIBS_LOG_ERROR("filetype=GribFile but no vcfield!");
+        return false;
+      }
       int m = usedModels.size();
       int j = 0;
       while (j < m && usedModels[j] != model)
@@ -722,7 +754,7 @@ bool VcrossManager::setModels()
         usedModels.push_back(model);
       masterFile = model;
     } else if (vcfilesUsed.find(filename)==vcfilesUsed.end()) {
-
+      
       vcfilesUsed.insert(filename);
 
       vf= vcfiles.find(filename);
@@ -762,7 +794,7 @@ bool VcrossManager::setModels()
   }
 
   // delete unused files (from active list), header information
-  set<miString>::iterator uend= vcfilesUsed.end();
+  set<std::string>::iterator uend= vcfilesUsed.end();
 
   for (vf=vcfiles.begin(); vf!=vfend; vf++) {
     if (vf->second) {
@@ -778,7 +810,7 @@ bool VcrossManager::setModels()
   if (masterFile.empty()) {
     nameList.clear();
     timeList.clear();
-    modelChange= prevmasterFile.exists();
+    modelChange = (not prevmasterFile.empty());
   } else if (masterFile!=prevmasterFile) {
     // lists from the first model only, yet...
     if(vcfield) {
@@ -802,7 +834,7 @@ bool VcrossManager::setModels()
       }
       if (itime>-1) setTime(timeList[itime]);
       int j= 0;
-      if (plotCrossection.exists()) {
+      if (not plotCrossection.empty()) {
         n= nameList.size();
         while (j<n && nameList[j]!=plotCrossection) j++;
         if (j==n) j=0;
@@ -864,26 +896,26 @@ void VcrossManager::setTimeGraphPos(int incr)
   dataChange= (timeGraphPos!=tgp);
 }
 
-void VcrossManager::parseQuickMenuStrings( const vector<miutil::miString>& vstr )
+void VcrossManager::parseQuickMenuStrings( const vector<std::string>& vstr )
 {
-  vector<miString> vcross_data, vcross_options;
-  miString crossection;
+  vector<std::string> vcross_data, vcross_options;
+  std::string crossection;
 
   bool data_exist = false;
   int n = vstr.size();
   for (int i = 1; i < n; i++) {
-    miString line = vstr[i];
-    line.trim();
-    if (!line.exists())
+    std::string line = vstr[i];
+    miutil::trim(line);
+    if (line.empty())
       continue;
-    miString upline = line.upcase();
+    std::string upline = miutil::to_upper(line);
 
-    if (upline.contains("CROSSECTION=")) {
-      vector<miString> vs = line.split("=");
+    if (miutil::contains(upline, "CROSSECTION=")) {
+      vector<std::string> vs = miutil::split(line, "=");
       crossection = vs[1];
-      if (crossection.contains("\""))
-        crossection.remove('\"');
-    } else if (upline.contains("VCROSS ")) {
+      if (miutil::contains(crossection, "\""))
+        miutil::remove(crossection, '\"');
+    } else if (miutil::contains(upline, "VCROSS ")) {
       if (!data_exist)
         vcross_data.clear();
       vcross_data.push_back(line);
@@ -900,13 +932,13 @@ void VcrossManager::parseQuickMenuStrings( const vector<miutil::miString>& vstr 
 
 }
 
-vector<miutil::miString> VcrossManager::getQuickMenuStrings()
+vector<std::string> VcrossManager::getQuickMenuStrings()
 {
-  vector<miString> vstr;
+  vector<std::string> vstr;
 
-  vector<miString> vstrOpt = getOptions()->writeOptions();
-  vector<miString> vstrPlot = getPlotStrings();
-  miString crossection = "CROSSECTION=" + getCrossection();
+  vector<std::string> vstrOpt = getOptions()->writeOptions();
+  vector<std::string> vstrPlot = getPlotStrings();
+  std::string crossection = "CROSSECTION=" + getCrossection();
 
   vstr.push_back("VCROSS");
   vstr.insert(vstr.end(),vstrOpt.begin(),vstrOpt.end());
@@ -916,15 +948,15 @@ vector<miutil::miString> VcrossManager::getQuickMenuStrings()
   return vstr;
 }
 
-vector<miString> VcrossManager::writeLog()
+vector<std::string> VcrossManager::writeLog()
 {
   return vcopt->writeOptions();
 }
 
 
-void VcrossManager::readLog(const vector<miString>& vstr,
-    const miString& thisVersion,
-    const miString& logVersion)
+void VcrossManager::readLog(const vector<std::string>& vstr,
+    const std::string& thisVersion,
+    const std::string& logVersion)
 {
   vcopt->readOptions(vstr);
 }

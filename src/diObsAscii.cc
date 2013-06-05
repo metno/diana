@@ -35,6 +35,9 @@
 
 #include <fstream>
 #include <iostream>
+#define MILOGGER_CATEGORY "diana.ObsAscii"
+#include <miLogger/miLogging.h>
+
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
@@ -96,7 +99,7 @@ bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miSt
   // open filestream
   ifstream file(filename.c_str());
   if (!file) {
-    cerr << "ObsAscii: " << filename << " not found" << endl;
+    METLIBS_LOG_ERROR("ObsAscii: " << filename << " not found");
     return false;
   }
 
@@ -148,10 +151,10 @@ void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfi
 {
 
   //####################################################################
-//  cerr<<"ObsAscii::readFile  filename= "<<filename<<endl;
-//  cerr <<"Headerfiles:"<<headerfile<<endl;
+//  METLIBS_LOG_DEBUG("ObsAscii::readFile  filename= "<<filename);
+//  METLIBS_LOG_DEBUG("Headerfiles:"<<headerfile);
 //  for(size_t i = 0; i < headerinfo.size(); i++) {
-//      cerr << "headerinfo: " << headerinfo[i]<<endl;
+//      METLIBS_LOG_DEBUG("headerinfo: " << headerinfo[i]);
 //    }
   //####################################################################
 
@@ -190,7 +193,7 @@ void ObsAscii::readData(const miString &filename)
 
 void ObsAscii::decodeHeader()
 {
-//cerr <<__FUNCTION__<<endl;
+//METLIBS_LOG_DEBUG(__FUNCTION__);
   vector<miString> vstr,pstr;
   miString str;
   size_t p;
@@ -231,10 +234,10 @@ void ObsAscii::decodeHeader()
   bool ok= true;
   int n= vstr.size();
   //####################################################################
-//  cerr<<"HEADER:"<<endl;
+//  METLIBS_LOG_DEBUG("HEADER:");
 //  for (int  j=0; j<n; j++)
-//    cerr<<vstr[j]<<endl;
-//  cerr<<"-----------------"<<endl;
+//    METLIBS_LOG_DEBUG(vstr[j]);
+//  METLIBS_LOG_DEBUG("-----------------");
   //####################################################################
   size_t p1,p2;
   int i= 0;
@@ -313,21 +316,21 @@ void ObsAscii::decodeHeader()
 
   if (!ok) {
     //####################################################################
-    cerr<<"   bad header !!!!!!!!!"<<endl;
+    METLIBS_LOG_ERROR("   bad header !!!!!!!!!");
     //####################################################################
     return;
   }
 
   n= columnType.size();
   //####################################################################
-//  cerr<<"     coloumns= "<<n<<endl;
+//  METLIBS_LOG_DEBUG("     coloumns= "<<n);
   //####################################################################
 
   knots=false;
   for (i=0; i<n; i++) {
     //####################################################################
-//    cerr<<"   column "<<i<<" : "<<columnName[i]<<"  "
-//        <<columnType[i]<<endl;
+//    METLIBS_LOG_DEBUG("   column "<<i<<" : "<<columnName[i]<<"  "
+//        <<columnType[i]);
     //####################################################################
     if      (columnType[i]=="d")
       asciiColumn["date"]= i;
@@ -387,7 +390,7 @@ void ObsAscii::decodeHeader()
 
 //  if (!asciiColumn.count("x") || !asciiColumn.count("y")) {
 //    //####################################################################
-//    cerr<<"   bad header, missing lat,lon !!!!!!!!!"<<endl;
+//    METLIBS_LOG_DEBUG("   bad header, missing lat,lon !!!!!!!!!");
 //    //####################################################################
 //    return;
 //  }
@@ -400,7 +403,7 @@ void ObsAscii::decodeHeader()
 
 void ObsAscii::decodeData()
 {
-//  cerr <<__FUNCTION__<<endl;
+//  METLIBS_LOG_DEBUG(__FUNCTION__);
   // read data....................................................
 
 
@@ -539,13 +542,13 @@ void ObsAscii::decodeData()
         }
 
         //#################################################################
-//                  cerr <<"obstime:"<<obstime<<endl;
-//                 cerr <<"plotTime:"<<plotTime<<endl;
-//                 cerr <<"timeDiff"<<timeDiff<<endl;
+//                  METLIBS_LOG_DEBUG("obstime:"<<obstime);
+//                 METLIBS_LOG_DEBUG("plotTime:"<<plotTime);
+//                 METLIBS_LOG_DEBUG("timeDiff"<<timeDiff);
 //                  if (timeDiff < 0 || abs(miTime::minDiff(obstime,plotTime))<timeDiff)
-//                    cerr<<obstime<<" ok"<<endl;
+//                    METLIBS_LOG_DEBUG(obstime<<" ok");
 //                  else
-//                    cerr<<obstime<<" not ok"<<endl;
+//                    METLIBS_LOG_DEBUG(obstime<<" not ok");
         //#################################################################
         if (timeDiff <0
             || abs(miTime::minDiff(obstime,plotTime))<timeDiff){
@@ -564,10 +567,10 @@ void ObsAscii::decodeData()
       }
     }
     //####################################################################
-    //    cerr<<"----------- at end -----------------------------"<<endl;
-    //    cerr<<"     columnName.size()= "<<columnName.size()<<endl;
-    //    cerr<<"     columnType.size()= "<<columnType.size()<<endl;
-    //    cerr<<"------------------------------------------------"<<endl;
+    //    METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+    //    METLIBS_LOG_DEBUG("     columnName.size()= "<<columnName.size());
+    //    METLIBS_LOG_DEBUG("     columnType.size()= "<<columnType.size());
+    //    METLIBS_LOG_DEBUG("------------------------------------------------");
     //####################################################################
 
 

@@ -31,6 +31,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.VprofData"
+#include <miLogger/miLogging.h>
+
 #include "diVprofData.h"
 #include "diFtnVfile.h"
 
@@ -50,7 +53,7 @@ VprofData::VprofData(const miString& filename, const miString& modelname)
   dataBuffer(0)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofData::Default Constructor" << endl;
+  METLIBS_LOG_DEBUG("++ VprofData::Default Constructor");
 #endif
 }
 
@@ -58,7 +61,7 @@ VprofData::VprofData(const miString& filename, const miString& modelname)
 // Destructor
 VprofData::~VprofData() {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofData::Destructor" << endl;
+  METLIBS_LOG_DEBUG("++ VprofData::Destructor");
 #endif
   if (dataBuffer)
     delete[] dataBuffer;
@@ -67,14 +70,14 @@ VprofData::~VprofData() {
 bool VprofData::readField(miString type, FieldManager* fieldm)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName << endl;
+  METLIBS_LOG_DEBUG("++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
 #endif
   FILE *stationfile;
   char line[1024];
   miString correctFileName = fileName;
   correctFileName.replace(modelName, "");
   if ((stationfile = fopen(correctFileName.c_str(), "rb")) == NULL) {
-    cerr << "Unable to open file!" << endl;
+    METLIBS_LOG_ERROR("Unable to open file!");
     return false;
   }
   fieldManager = fieldm;
@@ -118,7 +121,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
           stations.push_back(st);
         }
         else {
-          cerr << "Something is wrong with: " << miLine << endl;
+          METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
         }
       }
     }
@@ -136,7 +139,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
         st.barHeight = stationVector[5].toInt(-1);
         stations.push_back(st);
       } else {
-        cerr << "Something is wrong with: " << miLine << endl;
+        METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
       }
     }
   }
@@ -168,7 +171,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
 
 bool VprofData::readFile() {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofData::readFile  fileName= " << fileName << endl;
+  METLIBS_LOG_DEBUG("++ VprofData::readFile  fileName= " << fileName);
 #endif
 
   // reading and storing all information and unpacked data
@@ -349,7 +352,7 @@ bool VprofData::readFile() {
   }  // end of try
 
   catch (...) {
-    cerr << "Bad Vprof file: " << fileName << endl;
+    METLIBS_LOG_ERROR("Bad Vprof file: " << fileName);
     success= false;
   }
 
@@ -365,8 +368,8 @@ bool VprofData::readFile() {
 
 VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
 #ifdef DEBUGPRINT
-  cerr << "++ VprofData::getData  " << name << "  " << time
-      << "  " << modelName << endl;
+  METLIBS_LOG_DEBUG("++ VprofData::getData  " << name << "  " << time
+      << "  " << modelName);
 #endif
 
 
@@ -409,7 +412,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
     vp->windInKnots = false;
     if((name == vProfPlotName) && (time == vProfPlotTime)) {
 #ifdef DEBUGPRINT
-      cerr  << "returning cached VProfPlot" << endl;
+      METLIBS_LOG_DEBUG("returning cached VProfPlot");
 #endif
       for (k=0; k<vProfPlot->ptt.size(); k++)
         vp->ptt.push_back(vProfPlot->ptt[k]);
@@ -463,23 +466,23 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
     //iTime = 0;
 #ifdef DEBUGPRINT
     for (k=0; k<vp->ptt.size(); k++)
-      cerr << "ptt["<<k<<"]: " <<vp->ptt[k] << endl;
+      METLIBS_LOG_DEBUG("ptt["<<k<<"]: " <<vp->ptt[k]);
     for (k=0; k<vp->tt.size(); k++)
-      cerr << "tt["<<k<<"]: " <<vp->tt[k] << endl;
+      METLIBS_LOG_DEBUG("tt["<<k<<"]: " <<vp->tt[k]);
     for (k=0; k<vp->ptd.size(); k++)
-      cerr << "ptd["<<k<<"]: " <<vp->ptd[k] << endl;
+      METLIBS_LOG_DEBUG("ptd["<<k<<"]: " <<vp->ptd[k]);
     for (k=0; k<vp->td.size(); k++)
-      cerr << "td["<<k<<"]: " <<vp->td[k] << endl;
+      METLIBS_LOG_DEBUG("td["<<k<<"]: " <<vp->td[k]);
     for (k=0; k<vp->puv.size(); k++)
-      cerr << "puv["<<k<<"]: " <<vp->puv[k] << endl;
+      METLIBS_LOG_DEBUG("puv["<<k<<"]: " <<vp->puv[k]);
     for (k=0; k<vp->uu.size(); k++)
-      cerr << "uu["<<k<<"]: " <<vp->uu[k] << endl;
+      METLIBS_LOG_DEBUG("uu["<<k<<"]: " <<vp->uu[k]);
     for (k=0; k<vp->vv.size(); k++)
-      cerr << "vv["<<k<<"]: " <<vp->vv[k] << endl;
+      METLIBS_LOG_DEBUG("vv["<<k<<"]: " <<vp->vv[k]);
     for (k=0; k<vp->om.size(); k++)
-      cerr << "om["<<k<<"]: " <<vp->om[k] << endl;
+      METLIBS_LOG_DEBUG("om["<<k<<"]: " <<vp->om[k]);
     for (k=0; k<vp->pom.size(); k++)
-      cerr << "pom["<<k<<"]: " <<vp->pom[k] << endl;
+      METLIBS_LOG_DEBUG("pom["<<k<<"]: " <<vp->pom[k]);
 #endif
   } else {
 
@@ -511,12 +514,12 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
     }
 #ifdef DEBUGPRINT
     for (k=0; k<numLevel; k++) {
-      cerr << "ptt["<<k<<"]" <<vp->ptt[k] << endl;
-      cerr << "tt["<<k<<"]" <<vp->tt[k] << endl;
-      cerr << "td["<<k<<"]" <<vp->td[k] << endl;
-      cerr << "uu["<<k<<"]" <<vp->uu[k] << endl;
-      cerr << "vv["<<k<<"]" <<vp->vv[k] << endl;
-      cerr << "om["<<k<<"]" <<vp->om[k] << endl;
+      METLIBS_LOG_DEBUG("ptt["<<k<<"]" <<vp->ptt[k]);
+      METLIBS_LOG_DEBUG("tt["<<k<<"]" <<vp->tt[k]);
+      METLIBS_LOG_DEBUG("td["<<k<<"]" <<vp->td[k]);
+      METLIBS_LOG_DEBUG("uu["<<k<<"]" <<vp->uu[k]);
+      METLIBS_LOG_DEBUG("vv["<<k<<"]" <<vp->vv[k]);
+      METLIBS_LOG_DEBUG("om["<<k<<"]" <<vp->om[k]);
     }
 #endif
   }
@@ -555,19 +558,19 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
   }
 
   //################################################################
-  //cerr<<"    "<<vp->posName<<"  "<<vp->validTime.isoTime()<<endl;
-  //cerr<<"           vp->ptt.size()= "<<vp->ptt.size()<<endl;
-  //cerr<<"           vp->tt.size()=  "<<vp->tt.size()<<endl;
-  //cerr<<"           vp->ptd.size()= "<<vp->ptd.size()<<endl;
-  //cerr<<"           vp->td.size()=  "<<vp->td.size()<<endl;
-  //cerr<<"           vp->puv.size()= "<<vp->puv.size()<<endl;
-  //cerr<<"           vp->uu.size()=  "<<vp->uu.size()<<endl;
-  //cerr<<"           vp->vv.size()=  "<<vp->vv.size()<<endl;
-  //cerr<<"           vp->pom.size()= "<<vp->pom.size()<<endl;
-  //cerr<<"           vp->om.size()=  "<<vp->om.size()<<endl;
-  //cerr<<"           vp->dd.size()=  "<<vp->dd.size()<<endl;
-  //cerr<<"           vp->ff.size()=  "<<vp->ff.size()<<endl;
-  //cerr<<"           vp->sigwind.size()=  "<<vp->sigwind.size()<<endl;
+  //METLIBS_LOG_DEBUG("    "<<vp->posName<<"  "<<vp->validTime.isoTime());
+  //METLIBS_LOG_DEBUG("           vp->ptt.size()= "<<vp->ptt.size());
+  //METLIBS_LOG_DEBUG("           vp->tt.size()=  "<<vp->tt.size());
+  //METLIBS_LOG_DEBUG("           vp->ptd.size()= "<<vp->ptd.size());
+  //METLIBS_LOG_DEBUG("           vp->td.size()=  "<<vp->td.size());
+  //METLIBS_LOG_DEBUG("           vp->puv.size()= "<<vp->puv.size());
+  //METLIBS_LOG_DEBUG("           vp->uu.size()=  "<<vp->uu.size());
+  //METLIBS_LOG_DEBUG("           vp->vv.size()=  "<<vp->vv.size());
+  //METLIBS_LOG_DEBUG("           vp->pom.size()= "<<vp->pom.size());
+  //METLIBS_LOG_DEBUG("           vp->om.size()=  "<<vp->om.size());
+  //METLIBS_LOG_DEBUG("           vp->dd.size()=  "<<vp->dd.size());
+  //METLIBS_LOG_DEBUG("           vp->ff.size()=  "<<vp->ff.size());
+  //METLIBS_LOG_DEBUG("           vp->sigwind.size()=  "<<vp->sigwind.size());
   //################################################################
 
   return vp;

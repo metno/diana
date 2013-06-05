@@ -34,6 +34,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.Sat"
+#include <miLogger/miLogging.h>
+
 #include <diSat.h>
 #include <iostream>
 
@@ -58,7 +61,7 @@ Sat::Sat() :
   {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat constructor" << endl;
+  METLIBS_LOG_DEBUG("Sat constructor");
 #endif
 
   for (int i=0; i<maxch; i ++)
@@ -71,7 +74,7 @@ Sat::Sat() :
 Sat::Sat (const Sat &rhs)
 {
 #ifdef DEBUGPRINT
-  cerr << "Sat copy constructor  ";
+  METLIBS_LOG_DEBUG("Sat copy constructor  ");
 #endif
   // elementwise copy
   memberCopy(rhs);
@@ -88,7 +91,7 @@ Sat::Sat (const miString &pin) :
   {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat constructor(pin)" << endl;
+  METLIBS_LOG_DEBUG("Sat constructor(pin)");
 #endif
 
   for (int i=0; i<maxch; i++)
@@ -99,7 +102,7 @@ Sat::Sat (const miString &pin) :
   vector<miString> tokens= pin.split();
   int n= tokens.size();
   if (n < 4) {
-    cerr << "Wrong syntax: "<<pin<<endl;
+    METLIBS_LOG_WARN("Wrong syntax: "<<pin);
   }
 
   satellite = tokens[1];
@@ -144,10 +147,10 @@ Sat::Sat (const miString &pin) :
   }
 
 #ifdef DEBUGPRINT
-  cerr << "cut = " << cut << endl; cerr<< "alphaCut = " << alphacut <<endl;
-  cerr << "alpha = " << alpha << endl;
-  cerr << "maxDiff = " << maxDiff << endl;
-  cerr<< "classtable = " << classtable << endl;
+  METLIBS_LOG_DEBUG("cut = " << cut); METLIBS_LOG_DEBUG("alphaCut = " << alphacut);
+  METLIBS_LOG_DEBUG("alpha = " << alpha);
+  METLIBS_LOG_DEBUG("maxDiff = " << maxDiff);
+  METLIBS_LOG_DEBUG("classtable = " << classtable);
 #endif
 
   }
@@ -155,7 +158,7 @@ Sat::Sat (const miString &pin) :
 // Destructor
 Sat::~Sat() {
 #ifdef DEBUGPRINT
-  cerr << "Sat destructor  nx=" << nx << " ny=" << ny << endl;
+  METLIBS_LOG_DEBUG("Sat destructor  nx=" << nx << " ny=" << ny);
 #endif
   cleanup();
 }
@@ -163,7 +166,7 @@ Sat::~Sat() {
 // Assignment operato r
 Sat& Sat::operator=(const Sat &rhs) {
 #ifdef DEBUGPRINT
-  cerr <<"Sat assignment operator  " ;
+  METLIBS_LOG_DEBUG("Sat assignment operator  " );
 #endif
 
   if (this == &rhs) return *this;
@@ -181,7 +184,7 @@ bool Sat::operator==(const Sat &rhs) const {
 void Sat::memberCopy(const Sat& rhs)
 {
 #ifdef DEBUGPRINT
-  cerr << "Sat memberCopy nx=" << rhs.nx << " ny=" << rhs.ny << endl;
+  METLIBS_LOG_DEBUG("Sat memberCopy nx=" << rhs.nx << " ny=" << rhs.ny);
 #endif
   // first clean up images etc.
   cleanup();
@@ -316,7 +319,7 @@ void Sat::setCalibration()
   //decode calibration strings from TIFF file
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration satellite_name: "<< satellite_name << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration satellite_name: "<< satellite_name);
 #endif
 
   cal_channels.clear();
@@ -329,7 +332,7 @@ void Sat::setCalibration()
   miString start = satellite_name + " " + filetype +"|";
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration -- palette: " << palette << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration -- palette: " << palette);
 #endif
 
   if (palette) {
@@ -345,7 +348,7 @@ void Sat::setCalibration()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration -- cal_table.size(): " << cal_table.size() << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_table.size(): " << cal_table.size());
 #endif
 
   //Table
@@ -375,7 +378,7 @@ void Sat::setCalibration()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration -- cal_vis.exists(): " << cal_vis.exists() << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_vis.exists(): " << cal_vis.exists());
 #endif
 
   //Visual
@@ -393,7 +396,7 @@ void Sat::setCalibration()
   }
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration -- cal_ir.exists(): " << cal_ir.exists() << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration -- cal_ir.exists(): " << cal_ir.exists());
 #endif
 
   //Infrared
@@ -441,7 +444,7 @@ void Sat::setCalibration()
     }
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setCalibration -- vch.size(): " << vch.size() << endl;
+  METLIBS_LOG_DEBUG("Sat::setCalibration -- vch.size(): " << vch.size());
 #endif
 
   //channel "3", "4" and "5" are infrared, the rest are visual
@@ -449,7 +452,7 @@ void Sat::setCalibration()
   for (int j=0; j<n; j++) {
 
 #ifdef DEBUGPRINT
-    cerr << "Sat::setCalibration -- vch["<< j << "]: " << vch[j] << endl;
+    METLIBS_LOG_DEBUG("Sat::setCalibration -- vch["<< j << "]: " << vch[j]);
 #endif
 
     /* hdf5type == 0 => radar or mitiff
@@ -472,8 +475,8 @@ void Sat::setCalibration()
       ct.b= BIr-273.0;//use degrees celsius instead of Kelvin
 
 #ifdef DEBUGPRINT
-      cerr << "Sat::setCalibration -- ir ct.a: " << ct.a << endl;
-      cerr << "Sat::setCalibration -- ir ct.b: " << ct.a << endl;
+      METLIBS_LOG_DEBUG("Sat::setCalibration -- ir ct.a: " << ct.a);
+      METLIBS_LOG_DEBUG("Sat::setCalibration -- ir ct.b: " << ct.a);
 #endif
 
       calibrationTable[j]=ct;
@@ -484,8 +487,8 @@ void Sat::setCalibration()
       ct.b= BVis;
 
 #ifdef DEBUGPRINT
-      cerr << "Sat::setCalibration -- vis ct.a: " << ct.a << endl;
-      cerr << "Sat::setCalibration -- vis ct.b: " << ct.a << endl;
+      METLIBS_LOG_DEBUG("Sat::setCalibration -- vis ct.a: " << ct.a);
+      METLIBS_LOG_DEBUG("Sat::setCalibration -- vis ct.b: " << ct.a);
 #endif
 
       calibrationTable[j]=ct;
@@ -537,7 +540,7 @@ void Sat::setArea()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat::setArea: " << Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By<<endl;
+  METLIBS_LOG_DEBUG("Sat::setArea: " << Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By);
 #endif
 
   // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
@@ -571,7 +574,7 @@ void Sat::cleanup()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "Sat cleanup nx=" << nx << " ny=" << ny << endl;
+  METLIBS_LOG_DEBUG("Sat cleanup nx=" << nx << " ny=" << ny);
 #endif
 
   nx = 0;

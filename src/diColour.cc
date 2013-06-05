@@ -34,6 +34,9 @@
 #endif
 
 #include <diColour.h>
+#define MILOGGER_CATEGORY "diana.Colour"
+#include <miLogger/miLogging.h>
+
 #include <iomanip>
 #include <iostream>
 #include <stdio.h>
@@ -63,7 +66,7 @@ Colour::Colour(const uint32 hexv){
 }
 
 Colour::Colour(const miString name_){
-  //  cerr <<name_<<endl;
+  //  METLIBS_LOG_DEBUG(name_);
 
   miString lname= name_.downcase();
   vector<miString> vstr = lname.split(":");
@@ -72,7 +75,7 @@ Colour::Colour(const miString name_){
     if(cmap.count(lname))
       memberCopy(cmap[lname]);
     else{
-      cerr <<"Colour:"<<lname<<" unknown"<<endl;
+      METLIBS_LOG_DEBUG("Colour:"<<lname<<" unknown");
       set(0,0,0);
       name = "black";
     }
@@ -195,7 +198,7 @@ void Colour::readColourMap(const miString fname){
       lname= miString(name_).downcase();
       define(lname,r,g,b,255);
     }
-    cout << "Found " << cmap.size() << " colours in " << fname << endl;
+    METLIBS_LOG_DEBUG("Found " << cmap.size() << " colours in " << fname);
     fclose(fp);
   }
 }

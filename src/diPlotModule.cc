@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.PlotModule"
+#include <miLogger/miLogging.h>
+
 #include <diPlotModule.h>
 #include <diObsPlot.h>
 
@@ -52,9 +55,11 @@
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
 #include <diMapManager.h>
+
 #include <diField/diFieldManager.h>
 #include <diField/FieldSpecTranslation.h>
 #include <diFieldPlotManager.h>
+#include <puDatatypes/miCoordinates.h>
 
 #include <GL/gl.h>
 #include <sstream>
@@ -101,7 +106,7 @@ PlotModule::~PlotModule()
 void PlotModule::preparePlots(const vector<miString>& vpi)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::preparePlots ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::preparePlots ++");
 #endif
   // reset flags
   mapDefinedByUser = false;
@@ -168,7 +173,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::preparePlots ++" << endl;
+  METLIBS_LOG_DEBUG("++ Returning from PlotModule::preparePlots ++");
 #endif
 }
 
@@ -226,7 +231,7 @@ void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 void PlotModule::prepareMap(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareMap ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareMap ++");
 #endif
 
   splot.xyClear();
@@ -304,7 +309,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 void PlotModule::prepareFields(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareFields ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareFields ++");
 #endif
 
   int npi = inp.size();
@@ -346,14 +351,14 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   }
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::prepareFields ++" << endl;
+  METLIBS_LOG_DEBUG("++ Returning from PlotModule::prepareFields ++");
 #endif
 }
 
 void PlotModule::prepareObs(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareObs ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareObs ++");
 #endif
 
   int npi = inp.size();
@@ -411,14 +416,14 @@ void PlotModule::prepareObs(const vector<miString>& inp)
   obsnr = 0;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::prepareObs ++" << endl;
+  METLIBS_LOG_DEBUG("++ Returning from PlotModule::prepareObs ++");
 #endif
 }
 
 void PlotModule::prepareSat(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareSat ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareSat ++");
 #endif
 
   // keep enable flag
@@ -430,7 +435,7 @@ void PlotModule::prepareSat(const vector<miString>& inp)
   }
 
   if (!satm->init(vsp, inp)) {
-    cerr << "PlotModule::prepareSat.  init returned false" << endl;
+    METLIBS_LOG_WARN("PlotModule::prepareSat.  init returned false");
   }
 
   for (unsigned int i = 0; i < vsp.size(); i++) {
@@ -444,12 +449,12 @@ void PlotModule::prepareSat(const vector<miString>& inp)
 void PlotModule::prepareStations(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareStations ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareStations ++");
 #endif
 
   if (!stam->init(inp)) {
 #ifdef DEBUGPRINT
-    cerr << "PlotModule::prepareStations.  init returned false" << endl;
+    METLIBS_LOG_DEBUG("PlotModule::prepareStations.  init returned false");
 #endif
   }
 }
@@ -457,7 +462,7 @@ void PlotModule::prepareStations(const vector<miString>& inp)
 void PlotModule::prepareAnnotation(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareAnnotation ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareAnnotation ++");
 #endif
 
   // for now -- erase all annotationplots
@@ -478,7 +483,7 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
 void PlotModule::prepareObjects(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareObjects ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareObjects ++");
 #endif
 
   int npi = inp.size();
@@ -507,7 +512,7 @@ void PlotModule::prepareObjects(const vector<miString>& inp)
 void PlotModule::prepareTrajectory(const vector<miString>& inp)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::prepareTrajectory ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::prepareTrajectory ++");
 #endif
   //   vtp.push_back(new TrajectoryPlot());
 
@@ -515,7 +520,7 @@ void PlotModule::prepareTrajectory(const vector<miString>& inp)
 
 vector<PlotElement>& PlotModule::getPlotElements()
 {
-  //  cerr <<"PlotModule::getPlotElements()"<<endl;
+  //  METLIBS_LOG_DEBUG("PlotModule::getPlotElements()");
   static vector<PlotElement> pel;
   pel.clear();
 
@@ -706,7 +711,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
 void PlotModule::setAnnotations()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule::setAnnotations ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule::setAnnotations ++");
 #endif
 
   int n = vap.size();
@@ -905,7 +910,7 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
   for (i = 0; i < n; i++) {
     if (vop[i]->LevelAsField()) {
       if (!obsm->prepare(vop[i], t))
-        cerr << "updateLevel: ObsManager returned false from prepare" << endl;
+        METLIBS_LOG_WARN("updateLevel: ObsManager returned false from prepare");
     }
   }
 
@@ -978,17 +983,17 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   //######################################################################
   //  Area aa;
-  //  cerr << "----------------------------------------------------" << endl;
+  //  METLIBS_LOG_DEBUG("----------------------------------------------------");
   //  aa=previousrequestedarea;
-  //  cerr << "previousrequestedarea " << previousrequestedarea << endl;
+  //  METLIBS_LOG_DEBUG("previousrequestedarea " << previousrequestedarea);
   //  aa=requestedarea;
-  //  cerr << "requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea<<endl;
-  //  cerr << "mapDefinedByUser= " << mapDefinedByUser << endl;
-  //  cerr << "mapDefinedByData= " << mapDefinedByData << endl;
-  //  cerr << "mapDefinedByView= " << mapDefinedByView << endl;
-  //  cerr << "mapdefined=       " << mapdefined << endl;
-  //  cerr << "keepcurrentarea=  " << keepcurrentarea << endl;
-  //  cerr << "----------------------------------------------------" << endl;
+  //  METLIBS_LOG_DEBUG("requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea);
+  //  METLIBS_LOG_DEBUG("mapDefinedByUser= " << mapDefinedByUser);
+  //  METLIBS_LOG_DEBUG("mapDefinedByData= " << mapDefinedByData);
+  //  METLIBS_LOG_DEBUG("mapDefinedByView= " << mapDefinedByView);
+  //  METLIBS_LOG_DEBUG("mapdefined=       " << mapdefined);
+  //  METLIBS_LOG_DEBUG("keepcurrentarea=  " << keepcurrentarea);
+  //  METLIBS_LOG_DEBUG("----------------------------------------------------");
   //######################################################################
   mapdefined = false;
 
@@ -1196,10 +1201,10 @@ void PlotModule::plot(bool under, bool over)
 {
 
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.plot() ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule.plot() ++");
 #endif
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  METLIBS_LOG_DEBUG("++++++PlotModule::plot  under,over: "<<under<<" "<<over);
 #endif
 
   Colour cback(splot.getBgColour().c_str());
@@ -1250,7 +1255,7 @@ void PlotModule::plot(bool under, bool over)
   }
 
 #ifdef DEBUGREDRAW
-  cerr<<"++++++finished PlotModule::plot  under,over: "<<under<<" "<<over<<endl;
+  METLIBS_LOG_DEBUG("++++++finished PlotModule::plot  under,over: "<<under<<" "<<over);
 #endif
 }
 
@@ -1258,7 +1263,7 @@ void PlotModule::plot(bool under, bool over)
 void PlotModule::plotUnder()
 {
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plotUnder  under,over: "<<endl;
+  METLIBS_LOG_DEBUG("++++++PlotModule::plotUnder  under,over: ");
 #endif
   int i, n, m;
 
@@ -1295,7 +1300,7 @@ void PlotModule::plotUnder()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
 #endif
     vmp[i]->plot(0);
   }
@@ -1304,7 +1309,7 @@ void PlotModule::plotUnder()
   n = vsp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til satplot number:" << i << endl;
+    METLIBS_LOG_DEBUG("Kaller plot til satplot number:" << i);
 #endif
     vsp[i]->plot();
   }
@@ -1314,7 +1319,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (vfp[i]->getUndefinedPlot()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plotUndefined til fieldplot number:" << i << endl;
+      METLIBS_LOG_DEBUG("Kaller plotUndefined til fieldplot number:" << i);
 #endif
       vfp[i]->plotUndefined();
     }
@@ -1325,7 +1330,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (vfp[i]->getShadePlot()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til fieldplot number:" << i << endl;
+      METLIBS_LOG_DEBUG("Kaller plot til fieldplot number:" << i);
 #endif
       vfp[i]->plot();
     }
@@ -1335,7 +1340,7 @@ void PlotModule::plotUnder()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
 #endif
     vmp[i]->plot(1);
   }
@@ -1350,7 +1355,7 @@ void PlotModule::plotUnder()
   for (i = 0; i < n; i++) {
     if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()) {
 #ifdef DEBUGPRINT
-      cerr << "Kaller plot til fieldplot number:" << i << endl;
+      METLIBS_LOG_DEBUG("Kaller plot til fieldplot number:" << i);
 #endif
       vfp[i]->plot();
     }
@@ -1432,7 +1437,7 @@ void PlotModule::plotUnder()
     // plot Annotations
     n = vap.size();
     for (i = 0; i < n; i++) {
-      //	cerr <<"i:"<<i<<endl;
+      //	METLIBS_LOG_DEBUG("i:"<<i);
       vap[i]->plot();
     }
   }
@@ -1445,7 +1450,7 @@ void PlotModule::plotUnder()
 void PlotModule::plotOver()
 {
 #ifdef DEBUGREDRAW
-  cerr<<"++++++PlotModule::plotOver  under,over: "<<endl;
+  METLIBS_LOG_DEBUG("++++++PlotModule::plotOver  under,over: ");
 #endif
 
   int i, n;
@@ -1501,7 +1506,7 @@ void PlotModule::plotOver()
   n = vmp.size();
   for (i = 0; i < n; i++) {
 #ifdef DEBUGPRINT
-    cerr << "Kaller plot til mapplot number:" << i << endl;
+    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
 #endif
     vmp[i]->plot(2);
   }
@@ -1536,8 +1541,8 @@ void PlotModule::plotOver()
   // plot rubberbox
   if (dorubberband) {
 #ifdef DEBUGREDRAW
-    cerr<<"PlotModule::plot rubberband oldx,oldy,newx,newy: "
-        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy<<endl;
+    METLIBS_LOG_DEBUG("PlotModule::plot rubberband oldx,oldy,newx,newy: "
+        <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy);
 #endif
     Rectangle fullr = splot.getPlotSize();
     float x1 = fullr.x1 + fullr.width() * oldx / plotw;
@@ -1585,7 +1590,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
 
   unsigned int n = vap.size();
   for (unsigned int i = 0; i < n; i++) {
-    //	cerr <<"i:"<<i<<endl;
+    //	METLIBS_LOG_DEBUG("i:"<<i);
     vap[i]->plot();
     rectangles.push_back(vap[i]->getBoundingBox());
   }
@@ -1596,7 +1601,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
 void PlotModule::PlotAreaSetup()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.PlotAreaSetup() ++" << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule.PlotAreaSetup() ++");
 #endif
 
   if (plotw < 1 || ploth < 1)
@@ -1652,18 +1657,18 @@ void PlotModule::PlotAreaSetup()
   splot.setPlotSize(fr);
 
 #ifdef DEBUGPRINT
-  cerr << "============ After PlotAreaSetup ======" << endl;
-  cerr << "Fullplotarea:" << fr << endl;
-  cerr << "plotarea:" << mr << endl;
-  cerr << "=======================================" << endl;
+  METLIBS_LOG_DEBUG("============ After PlotAreaSetup ======");
+  METLIBS_LOG_DEBUG("Fullplotarea:" << fr);
+  METLIBS_LOG_DEBUG("plotarea:" << mr);
+  METLIBS_LOG_DEBUG("=======================================");
 #endif
 }
 
 void PlotModule::setPlotWindow(const int& w, const int& h)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ PlotModule.setPlotWindow() ++" <<
-      " w=" << w << " h=" << h << endl;
+  METLIBS_LOG_DEBUG("++ PlotModule.setPlotWindow() ++" <<
+      " w=" << w << " h=" << h);
 #endif
 
   plotw = float(w);
@@ -1754,7 +1759,7 @@ void PlotModule::cleanup()
   apEditmessage = 0;
 
 #ifdef DEBUGPRINT
-  cerr << "++ Returning from PlotModule::cleanup ++" << endl;
+  METLIBS_LOG_DEBUG("++ Returning from PlotModule::cleanup ++");
 #endif
 }
 
@@ -1771,9 +1776,9 @@ void PlotModule::PixelArea(const Rectangle r)
   //Rectangle mapr= ma.R();
 
 #ifdef DEBUGPRINT
-  cerr << "Plotw:" << plotw << endl;
-  cerr << "Ploth:" << ploth << endl;
-  cerr << "Selected rectangle:" << r << endl;
+  METLIBS_LOG_DEBUG("Plotw:" << plotw);
+  METLIBS_LOG_DEBUG("Ploth:" << ploth);
+  METLIBS_LOG_DEBUG("Selected rectangle:" << r);
 #endif
 
   // map to grid-coordinates
@@ -1784,10 +1789,10 @@ void PlotModule::PixelArea(const Rectangle r)
   newr.y2 = fullr.y1 + fullr.height() * r.y2 / ploth;
 
 #ifdef DEBUGPRINT
-  cerr << "Fullplotarea:" << fullr << endl;
-  cerr << "plotarea:" << plotr << endl;
-  //cerr << "maparea:" << mapr << endl;
-  cerr << "new maparea:" << newr << endl;
+  METLIBS_LOG_DEBUG("Fullplotarea:" << fullr);
+  METLIBS_LOG_DEBUG("plotarea:" << plotr);
+  //METLIBS_LOG_DEBUG("maparea:" << mapr);
+  METLIBS_LOG_DEBUG("new maparea:" << newr);
 #endif
 
   // keep selection inside plotarea
@@ -1888,21 +1893,9 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
 
 }
 
-float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1,
-    float lon2)
+float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
-  const float degToRad = 0.0174533; //conversion factor
-  const float earthRadius = 6367000; //earth radius in meters
-  lat1 = lat1 * degToRad;
-  lat2 = lat2 * degToRad;
-  lon1 = lon1 * degToRad;
-  lon2 = lon2 * degToRad;
-  float sinlat = sin((lat2 - lat1) / 2);
-  float sinlon = sin((lon2 - lon1) / 2);
-  float a = sinlat * sinlat + cos(lat1) * cos(lat2) * sinlon * sinlon;
-  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  float dist = earthRadius * c;
-  return dist;
+  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
 }
 
 // set managers
@@ -1920,21 +1913,21 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   aream = gam;
 
   if (!fieldm)
-    cerr << "PlotModule::ERROR fieldmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR fieldmanager==0");
   if (!fieldplotm)
-    cerr << "PlotModule::ERROR fieldplotmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR fieldplotmanager==0");
   if (!obsm)
-    cerr << "PlotModule::ERROR obsmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR obsmanager==0");
   if (!satm)
-    cerr << "PlotModule::ERROR satmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR satmanager==0");
   if (!stam)
-    cerr << "PlotModule::ERROR stationmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR stationmanager==0");
   if (!objm)
-    cerr << "PlotModule::ERROR objectmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR objectmanager==0");
   if (!editm)
-    cerr << "PlotModule::ERROR editmanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
   if (!aream)
-    cerr << "PlotModule::ERROR gridareamanager==0" << endl;
+    METLIBS_LOG_ERROR("PlotModule::ERROR gridareamanager==0");
 }
 
 // return current plottime
@@ -1971,16 +1964,16 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
     pinfos.push_back(vfp[i]->getPlotInfo());
-    cerr << "Field plotinfo:" << vfp[i]->getPlotInfo() << endl;
+    METLIBS_LOG_INFO("Field plotinfo:" << vfp[i]->getPlotInfo());
   }
   if (pinfos.size() > 0) {
     bool constT;
     fieldtimes = fieldplotm->getFieldTime(pinfos, constT, updateSources);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found fieldtimes:" << endl;
+  METLIBS_LOG_DEBUG("--- Found fieldtimes:");
   for (unsigned int i=0; i<fieldtimes.size(); i++)
-    cerr << fieldtimes[i] << endl;
+    METLIBS_LOG_DEBUG(fieldtimes[i]);
 #endif
 
   n = vsp.size();
@@ -1991,9 +1984,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     sattimes = satm->getSatTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found sattimes:" << endl;
+  METLIBS_LOG_DEBUG("--- Found sattimes:");
   for (unsigned int i=0; i<sattimes.size(); i++)
-    cerr << sattimes[i] << endl;
+    METLIBS_LOG_DEBUG(sattimes[i]);
 #endif
 
   n = vop.size();
@@ -2004,9 +1997,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     obstimes = obsm->getObsTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found obstimes:" << endl;
+  METLIBS_LOG_DEBUG("--- Found obstimes:");
   for (unsigned int i=0; i<obstimes.size(); i++)
-    cerr << obstimes[i] << endl;
+    METLIBS_LOG_DEBUG(obstimes[i]);
 #endif
 
   pinfos.clear();
@@ -2015,9 +2008,9 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     objtimes = objm->getObjectTimes(pinfos);
   }
 #ifdef DEBUGPRINT
-  cerr << "--- Found objtimes:" << endl;
+  METLIBS_LOG_DEBUG("--- Found objtimes:");
   for (unsigned int i=0; i<objtimes.size(); i++)
-    cerr << objtimes[i] << endl;
+    METLIBS_LOG_DEBUG(objtimes[i]);
 #endif
 
 }
@@ -2050,7 +2043,7 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
 
     if (!constTime.undef()) { //insert constTime
 
-      cerr << "constTime:" << constTime.isoTime() << endl;
+      METLIBS_LOG_INFO("constTime:" << constTime.isoTime());
       constTimes.insert(constTime);
 
     } else if (moreTimes) { //insert okTimes
@@ -2125,7 +2118,7 @@ void PlotModule::updateObs()
   for (int i = 0; i < nvop; i++) {
     if (vop[i]->updateObs()) {
       if (!obsm->prepare(vop[i], splot.getTime()))
-        cerr << "ObsManager returned false from prepare" << endl;
+        METLIBS_LOG_WARN("ObsManager returned false from prepare");
     }
   }
 
@@ -2166,9 +2159,9 @@ bool PlotModule::getObsName(int x, int y, miString& name)
 void PlotModule::makeAreas(miString name, miString areastring, int id)
 {
   int n = vareaobjects.size();
-  //   cerr <<"makeAreas:"<<n<<endl;
-  //   cerr <<"name:"<<name<<endl;
-  //   cerr <<"areastring:"<<areastring<<endl;
+  //   METLIBS_LOG_DEBUG("makeAreas:"<<n);
+  //   METLIBS_LOG_DEBUG("name:"<<name);
+  //   METLIBS_LOG_DEBUG("areastring:"<<areastring);
   //name can be name:icon
   vector<miString> tokens = name.split(":");
   miString icon;
@@ -2198,10 +2191,10 @@ void PlotModule::makeAreas(miString name, miString areastring, int id)
 void PlotModule::areaCommand(const miString& command, const miString& dataSet,
     const miString& data, int id)
 {
-  //   cerr << "PlotModule::areaCommand" << endl;
-  //   cerr << "id=" << id << endl;
-  //   cerr << "command=" << command << endl;
-  //   cerr <<"data="<<data<<endl;
+  //   METLIBS_LOG_DEBUG("PlotModule::areaCommand");
+  //   METLIBS_LOG_DEBUG("id=" << id);
+  //   METLIBS_LOG_DEBUG("command=" << command);
+  //   METLIBS_LOG_DEBUG("data="<<data);
 
   int n = vareaobjects.size();
   for (int i = 0; i < n && i > -1; i++) {
@@ -2227,7 +2220,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
 
 vector<selectArea> PlotModule::findAreas(int x, int y, bool newArea)
 {
-  //cerr << "PlotModule::findAreas"  << x << " " << y << endl;
+  //METLIBS_LOG_DEBUG("PlotModule::findAreas"  << x << " " << y);
   float xm = 0, ym = 0;
   PhysToMap(x, y, xm, ym);
   vector<selectArea> vsA;
@@ -2247,7 +2240,7 @@ vector<selectArea> PlotModule::findAreas(int x, int y, bool newArea)
 void PlotModule::putLocation(const LocationData& locationdata)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::putLocation"<< endl;
+  METLIBS_LOG_DEBUG("PlotModule::putLocation");
 #endif
   bool found = false;
   int n = locationPlots.size();
@@ -2274,7 +2267,7 @@ void PlotModule::putLocation(const LocationData& locationdata)
 void PlotModule::updateLocation(const LocationData& locationdata)
 {
 #ifdef DEBUGPRINT
-  cerr << "PlotModule::updateLocation"<< endl;
+  METLIBS_LOG_DEBUG("PlotModule::updateLocation");
 #endif
   int n = locationPlots.size();
   miString name = locationdata.name;
@@ -2392,7 +2385,7 @@ void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
         delete op;
         op = NULL;
       } else if (!obsm->prepare(op, newTime))
-        cerr << "ObsManager returned false from prepare" << endl;
+        METLIBS_LOG_WARN("ObsManager returned false from prepare");
 
       ot.vobsOneTime.push_back(op);
     }
@@ -2634,7 +2627,7 @@ vector<miString> PlotModule::writeAnnotations(miString prodname)
 void PlotModule::updateEditLabels(vector<miString> productLabelstrings,
     miString productName, bool newProduct)
 {
-  cerr << "diPlotModule::updateEditLabels" << endl;
+  METLIBS_LOG_DEBUG("diPlotModule::updateEditLabels");
   int n;
   vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...

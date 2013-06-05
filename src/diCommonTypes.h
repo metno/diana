@@ -37,6 +37,7 @@
 #include <vector>
 #include <diColour.h>
 #include <diField/diArea.h>
+#include <miLogger/LogHandler.h>
 
 using namespace std;
 
@@ -144,7 +145,7 @@ struct MapElementOption {
   bool ison;           ///< element is on
   miutil::miString linecolour; ///< line color
   miutil::miString fillcolour; ///< fill color
-  miutil::miString linetype;   ///< line type
+  std::string linetype;   ///< line type
   miutil::miString linewidth;  ///< line width
   int zorder;          ///< z-position on map
   float density;       ///< density in degrees (latlon)

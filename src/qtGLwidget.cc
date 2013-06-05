@@ -41,6 +41,9 @@
 #include <QKeyEvent>
 #include <QPicture>
 
+#define MILOGGER_CATEGORY "diana.GLwidget"
+#include <miLogger/miLogging.h>
+
 #include "qtGLwidget.h"
 #include "diController.h"
 
@@ -89,11 +92,11 @@ void GLwidget::paintGL()
 {
 
 #ifdef DEBUGPRINT
-  cerr << "paintGL()" << endl;
+  METLIBS_LOG_DEBUG("paintGL()");
 #endif
 
 #ifdef DEBUGREDRAW
-  cerr<<"GLwidget::paintGL ... plot under"<<endl;
+  METLIBS_LOG_DEBUG("GLwidget::paintGL ... plot under");
 #endif
   if (contr) {
     contr->plot(true, false); // draw underlay
@@ -101,7 +104,7 @@ void GLwidget::paintGL()
 
   if (savebackground) {
 #ifdef DEBUGREDRAW
-    cerr<<"GLwidget::paintGL ... savebackground"<<endl;
+    METLIBS_LOG_DEBUG("GLwidget::paintGL ... savebackground");
 #endif
     if (!fbuffer) {
       fbuffer = new GLuint[4 * plotw * ploth];
@@ -126,7 +129,7 @@ void GLwidget::editPaint(bool drawb)
 
   if (drawb && fbuffer) {
 #ifdef DEBUGREDRAW
-    cerr<<"GLwidget::editPaint ... drawbackground"<<endl;
+    METLIBS_LOG_DEBUG("GLwidget::editPaint ... drawbackground");
 #endif
     float glx1, gly1, glx2, gly2, delta;
     contr->getPlotSize(glx1, gly1, glx2, gly2);
@@ -145,7 +148,7 @@ void GLwidget::editPaint(bool drawb)
   }
 
 #ifdef DEBUGREDRAW
-  cerr<<"GLwidget::editPaint ... plot over"<<endl;
+  METLIBS_LOG_DEBUG("GLwidget::editPaint ... plot over");
 #endif
   if (contr) {
     contr->plot(false, true); // draw overlay
@@ -165,7 +168,7 @@ void GLwidget::initializeGL()
 void GLwidget::resizeGL(int w, int h)
 {
 #ifdef DEBUGPRINT
-  cerr << "resizeGL" << endl;
+  METLIBS_LOG_DEBUG("resizeGL");
 #endif
   if (contr) {
     contr->setPlotWindow(w, h);
@@ -188,7 +191,7 @@ void GLwidget::changeCursor(const cursortype c)
 {
   if ((c != keep_it) && (c != curcursor)) {
 #ifdef DEBUGPRINT
-    cerr << "About to change cursor to: " << c << endl;
+    METLIBS_LOG_DEBUG("About to change cursor to: " << c);
 #endif
     switch (c) {
     case edit_cursor:

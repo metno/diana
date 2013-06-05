@@ -36,6 +36,9 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#define MILOGGER_CATEGORY "diana.SpectrumFile"
+#include <miLogger/miLogging.h>
+
 #include <diSpectrumFile.h>
 #include <diSpectrumPlot.h>
 #include <diFtnVfile.h>
@@ -52,7 +55,7 @@ SpectrumFile::SpectrumFile(const miString& filename, const miString& modelname)
       dataAddress(0)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ SpectrumFile::Constructor" << endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::Constructor");
 #endif
 }
 
@@ -60,7 +63,7 @@ SpectrumFile::SpectrumFile(const miString& filename, const miString& modelname)
 // Destructor
 SpectrumFile::~SpectrumFile() {
 #ifdef DEBUGPRINT
-  cerr << "++ SpectrumFile::Destructor" << endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::Destructor");
 #endif
   cleanup();
 }
@@ -69,7 +72,7 @@ SpectrumFile::~SpectrumFile() {
 void SpectrumFile::cleanup()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ SpectrumFile::cleanup() fileName= " << fileName << endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::cleanup() fileName= " << fileName);
 #endif
   delete[] dataAddress;
   delete vfile;
@@ -82,7 +85,7 @@ void SpectrumFile::cleanup()
 bool SpectrumFile::update()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ SpectrumFile::update() fileName= " << fileName << endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::update() fileName= " << fileName);
 #endif
 
   bool ok= true;
@@ -109,7 +112,7 @@ bool SpectrumFile::update()
 
 bool SpectrumFile::readFileHeader() {
 #ifdef DEBUGPRINT
-  cerr << "++ SpectrumFile::readFileHeader fileName= " << fileName << endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::readFileHeader fileName= " << fileName);
 #endif
 
   // reading and storing information, not data
@@ -176,7 +179,7 @@ bool SpectrumFile::readFileHeader() {
       }
       if(namemap[str]>0) str = str + "(" + miString(namemap[str]) + ")";
 //###################################################################
-//      cerr<<"name: "<<n<<" : "<<str<<endl;
+//      METLIBS_LOG_DEBUG("name: "<<n<<" : "<<str);
 //###################################################################
       posName.push_back(str);
     }
@@ -195,7 +198,7 @@ bool SpectrumFile::readFileHeader() {
       miTime t= miTime(year,month,day,hour,minute,0);
 //    if (fchour!=0) t.addHour(fchour);
 //###################################################################
-//      cerr<<"time "<<n<<" : "<<t<<endl;
+//      METLIBS_LOG_DEBUG("time "<<n<<" : "<<t);
 //###################################################################
       validTime.push_back(t);
       forecastHour.push_back(fchour);
@@ -220,7 +223,7 @@ bool SpectrumFile::readFileHeader() {
   }  // end of try
 
   catch (...) {
-    cerr << "Bad Spectrum file: " << fileName << endl;
+    METLIBS_LOG_ERROR("Bad Spectrum file: " << fileName);
     delete vfile;
     vfile= 0;
     return false;
@@ -233,7 +236,7 @@ bool SpectrumFile::readFileHeader() {
 SpectrumPlot* SpectrumFile::getData(const miString& name, const miTime& time)
 {
 #ifdef DEBUGPRINT
-  cerr<<"++ SpectrumFile::getData   "<<name<<"   "<<time<<endl;
+  METLIBS_LOG_DEBUG("++ SpectrumFile::getData   "<<name<<"   "<<time);
 #endif
 
   SpectrumPlot *spp= 0;
@@ -293,7 +296,7 @@ SpectrumPlot* SpectrumFile::getData(const miString& name, const miTime& time)
   }  // end of try
 
   catch (...) {
-    cerr << "Bad Spectrum file: " << fileName << endl;
+    METLIBS_LOG_ERROR("Bad Spectrum file: " << fileName);
     delete vfile;
     vfile= 0;
     return spp;
@@ -356,9 +359,9 @@ SpectrumPlot* SpectrumFile::getData(const miString& name, const miTime& time)
   }
 //###############################################
 //  for (int i=0; i<numDirec; i++)
-//    cerr<<"direc,angle,x,y:  "
+//    METLIBS_LOG_DEBUG("direc,angle,x,y:  "
 //        <<directions[i]<<"  "<<90.-directions[i]-rotation<<"  "
-//        <<cosdir[i]<<"  "<<sindir[i]<<endl;
+//        <<cosdir[i]<<"  "<<sindir[i]);
 //###############################################
 
 //######################################################################
@@ -381,15 +384,15 @@ for (int i=0; i<numFreq; i++) {
   if (etotmin>spp->eTotal[i]) etotmin= spp->eTotal[i];
   if (etotmax<spp->eTotal[i]) etotmax= spp->eTotal[i];
 }
-cerr<<"   northRotation=   "<<spp->northRotation<<endl;
-cerr<<"   wspeed=          "<<spp->wspeed<<endl;
-cerr<<"   wdir=            "<<spp->wdir<<endl;
-cerr<<"   hmo=             "<<spp->hmo<<endl;
-cerr<<"   tPeak=           "<<spp->tPeak<<endl;
-cerr<<"   ddPeak=          "<<spp->ddPeak<<endl;
-cerr<<"   specmin,specmax: "<<specmin<<"  "<<specmax<<endl;
-cerr<<"   sdatmin,sdatmax: "<<sdatmin<<"  "<<sdatmax<<endl;
-cerr<<"   etotmin,etotmax: "<<etotmin<<"  "<<etotmax<<endl;
+METLIBS_LOG_DEBUG("   northRotation=   "<<spp->northRotation);
+METLIBS_LOG_DEBUG("   wspeed=          "<<spp->wspeed);
+METLIBS_LOG_DEBUG("   wdir=            "<<spp->wdir);
+METLIBS_LOG_DEBUG("   hmo=             "<<spp->hmo);
+METLIBS_LOG_DEBUG("   tPeak=           "<<spp->tPeak);
+METLIBS_LOG_DEBUG("   ddPeak=          "<<spp->ddPeak);
+METLIBS_LOG_DEBUG("   specmin,specmax: "<<specmin<<"  "<<specmax);
+METLIBS_LOG_DEBUG("   sdatmin,sdatmax: "<<sdatmin<<"  "<<sdatmax);
+METLIBS_LOG_DEBUG("   etotmin,etotmax: "<<etotmin<<"  "<<etotmax);
 ******************************************************************/
 //######################################################################
 

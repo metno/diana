@@ -59,6 +59,9 @@
 #include <iostream>
 #include "qtUtility.h"
 #include "diLocalSetupParser.h"
+#define MILOGGER_CATEGORY "diana.QuickMenu"
+#include <miLogger/miLogging.h>
+
 
 #include <QString>
 #include <QStringList>
@@ -370,7 +373,7 @@ void QuickMenu::pushPlot(const miutil::miString& name,
 //  std::string str = pstr[i];
 //  if ( str.find_first_of("referencetime=") != str.npos ) {
 //    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
-//    cerr <<timestr<<endl;
+//    METLIBS_LOG_DEBUG(timestr);
 //  }
 ////  vector<miutil::miString> tokens = pstr[i].split(('"', '"');
 ////  for ( size_t j=0; j<tokens.size(); j++ ) {
@@ -508,20 +511,20 @@ bool QuickMenu::applyItem(const miutil::miString& mlist, const miutil::miString&
     listIndex++;
   }
   if( listIndex==n ) {
-    cerr <<"list not found"<<endl;
+    METLIBS_LOG_ERROR("list not found");
     return false;
   }
 
   //find item index
   int m=qm[listIndex].menuitems.size();
   int itemIndex=0;
-  cerr <<item<<endl;
+  METLIBS_LOG_INFO(item);
   while(itemIndex<m && qm[listIndex].menuitems[itemIndex].name != item){
-    cerr <<qm[listIndex].menuitems[itemIndex].name<<endl;
+    METLIBS_LOG_INFO(qm[listIndex].menuitems[itemIndex].name);
     itemIndex++;
   }
   if( itemIndex==m  ) {
-    cerr <<"item not found"<<endl;
+    METLIBS_LOG_ERROR("item not found");
     return false;
   }
 
@@ -1047,7 +1050,7 @@ void QuickMenu::fillMenuList()
 
 void QuickMenu::menulistActivate(int idx)
 {
-  //  cerr << "Menulistactivate called:" << idx << endl;
+  //  METLIBS_LOG_DEBUG("Menulistactivate called:" << idx);
   if (qm.size() == 0) return;
   if (idx >= int(qm.size())) idx= qm.size()-1;
 
@@ -1144,7 +1147,7 @@ void QuickMenu::listClicked( QListWidgetItem * item)
 }
 
 void QuickMenu::comChanged(){
-  //   cerr << "Command text changed" << endl;
+  //   METLIBS_LOG_DEBUG("Command text changed");
   miutil::miString ts= comedit->toPlainText().toStdString();
   // check if any variables to set here
   int m= qm[activemenu].opt.size();

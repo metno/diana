@@ -40,6 +40,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#define MILOGGER_CATEGORY "diana.VprofModelDialog"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diVprofManager.h"
@@ -53,7 +56,7 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   QDialog(parent), vprofm(vm)
 {
 #ifdef DEBUGPRINT
-  cout<<"VprofModelDialog::VprofModelDialog called"<<endl;
+  METLIBS_LOG_DEBUG("VprofModelDialog::VprofModelDialog called");
 #endif
 
   //caption to appear on top of dialog
@@ -90,7 +93,7 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   modelfileList->setEnabled(true);
 
   modelButton = new ToggleButton(this, tr("Model").toStdString());
-  if (modelButton->isChecked()) cerr <<"CHECKED"<<endl;
+  if (modelButton->isChecked()) METLIBS_LOG_DEBUG("CHECKED");
   fileButton = new ToggleButton(this, tr("File").toStdString());
   modelfileBut = new QButtonGroup(this);
   modelfileBut->addButton(modelButton, 0);
@@ -157,7 +160,7 @@ void VprofModelDialog::modelfileClicked(int tt)
 {
   //this slot is called when modelfile button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::modelfileClicked()\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::modelfileClicked()\n");
 #endif
 
   updateModelfileList();
@@ -169,7 +172,7 @@ void VprofModelDialog::refreshClicked()
 {
   //this slot is called when refresh button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::refreshClicked()\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::refreshClicked()\n");
 #endif
   updateModelfileList();
 
@@ -181,7 +184,7 @@ void VprofModelDialog::deleteAllClicked()
 {
   //this slot is called when delete button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::deleteAllClicked()\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::deleteAllClicked()\n");
 #endif
   modelfileList->clearSelection();
 }
@@ -192,7 +195,7 @@ void VprofModelDialog::helpClicked()
 {
   //this slot is called when help button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::helpClicked()\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::helpClicked()\n");
 #endif
   emit showsource("ug_verticalprofiles.html");
 }
@@ -203,7 +206,7 @@ void VprofModelDialog::applyClicked()
 {
   //this slot is called when apply button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::applyClicked(int tt)\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::applyClicked(int tt)\n");
 #endif
   setModel();
   emit ModelApply();
@@ -216,7 +219,7 @@ void VprofModelDialog::applyhideClicked()
 {
   //this slot is called when applyhide button pressed
 #ifdef DEBUGPRINT
-  cerr <<"VprofModelDialog::applyhideClicked(int tt)\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::applyhideClicked(int tt)\n");
 #endif
   setModel();
   emit ModelHide();
@@ -228,7 +231,7 @@ void VprofModelDialog::applyhideClicked()
 void VprofModelDialog::setSelection()
 {
 #ifdef DEBUGPRINT
-  cerr<< "VprofModelDialog::setSelection()" << endl;
+  METLIBS_LOG_DEBUG("VprofModelDialog::setSelection()");
 #endif
   if (modelButton->isChecked()) {
     vector<miutil::miString> models = vprofm->getSelectedModels();
@@ -249,7 +252,7 @@ void VprofModelDialog::setSelection()
 void VprofModelDialog::setModel()
 {
 #ifdef DEBUGPRINT
-  cerr<< "VprofModelDialog::setModel()" << endl;
+  METLIBS_LOG_DEBUG("VprofModelDialog::setModel()");
 #endif
 
   bool showObsTemp = false;
@@ -299,7 +302,7 @@ void VprofModelDialog::setModel()
 void VprofModelDialog::updateModelfileList()
 {
 #ifdef DEBUGPRINT
-  cerr << "VprofModelDialog::updateModelfileList()\n";
+  METLIBS_LOG_DEBUG("VprofModelDialog::updateModelfileList()\n");
 #endif
 
   //want to keep th selected models/files
@@ -346,7 +349,7 @@ void VprofModelDialog::updateModelfileList()
 void VprofModelDialog::closeEvent(QCloseEvent* e)
 {
 #ifdef DEBUGPRINT
-  cerr <<"VprofModel was closed!" << endl;
+  METLIBS_LOG_DEBUG("VprofModel was closed!");
 #endif
   emit ModelHide();
 }

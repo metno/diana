@@ -125,7 +125,7 @@ void PaintGLContext::setPen()
 {
     qreal width;
     if (printing)
-        width = attributes.width/2.0;
+        width = attributes.width/3.0;
     else
         width = attributes.width;
 

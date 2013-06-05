@@ -59,8 +59,12 @@ public:
                QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
-	       miutil::miString* name,
-	       QColor* color = 0 );
+         std::string* name,
+         QColor* color = 0 );
+
+ ToggleButton( QWidget* parent,
+         miutil::miString* name,
+         QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
 	       const QPixmap& pixmap,

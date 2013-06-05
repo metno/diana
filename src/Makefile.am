@@ -867,9 +867,9 @@ test_diOrderBook_SOURCES = \
 	$(test_diOrderBook_qt_sources) \
 	$(test_diOrderBook_qt_sources:.cc=.moc.cc) \
 	test-diOrderBook.cc
-test_diOrderBook_CPPFLAGS = $(QT4_CPPFLAGS)
-test_diOrderBook_LDFLAGS = $(QT4_LDFLAGS)
-test_diOrderBook_LDADD = $(QT4_LIBS)
+test_diOrderBook_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
+test_diOrderBook_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
+test_diOrderBook_LDADD = $(QT4_LIBS) $(MILOGGER_LIBS)
 
 if WITH_BATCH_ONLY
 # A shared library target for language binding experiments
@@ -879,4 +879,3 @@ libdiana_la_CPPFLAGS = $(libdiana_a_CPPFLAGS)
 libdiana_la_LDFLAGS = $(common_ldflags) -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSION_PATCH@
 libdiana_la_LIBADD = @LTLIBOBJS@ $(common_ldadd)
 endif
-

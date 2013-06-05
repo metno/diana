@@ -42,6 +42,9 @@
 #include <diFontManager.h>
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
+#define MILOGGER_CATEGORY "diana.MapPlot"
+#include <miLogger/miLogging.h>
+
 
 #include <float.h>
 #include <math.h>
@@ -65,7 +68,7 @@ MapPlot::MapPlot() :
 #endif
 {
 #ifdef DEBUGPRINT
-  cerr << "++ MapPlot::Default Constructor" << endl;
+  METLIBS_LOG_DEBUG("++ MapPlot::Default Constructor");
 #endif
   drawlist[0]=0;
   drawlist[1]=0;
@@ -79,7 +82,7 @@ MapPlot::MapPlot() :
 MapPlot::~MapPlot()
 {
 #ifdef DEBUGPRINT
-  cerr << "++ MapPlot::Destructor" << endl;
+  METLIBS_LOG_DEBUG("++ MapPlot::Destructor");
 #endif
   if (glIsList(drawlist[0]))
     glDeleteLists(drawlist[0], 1);
@@ -95,7 +98,7 @@ MapPlot::~MapPlot()
 bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 {
 #ifdef DEBUGPRINT
-  cerr <<"MapPlot::prepare: "<<pinfo<<endl;
+  METLIBS_LOG_DEBUG("MapPlot::prepare: "<<pinfo);
 #endif
 
   Area newarea;
@@ -142,9 +145,9 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
           xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
           xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
           xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
-          cerr <<"WARNING: using obsolete syntax xylimit"<<endl;
-          cerr <<"New syntax:"<<endl;
-          cerr <<"AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]<<endl;
+          METLIBS_LOG_WARN("WARNING: using obsolete syntax xylimit");
+          METLIBS_LOG_WARN("New syntax:");
+          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<xyLimit[0]<<":"<<xyLimit[1]<<":"<<xyLimit[2]<<":"<<xyLimit[3]);
 
           if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
             xyLimit.clear();
@@ -242,7 +245,7 @@ void MapPlot::markFiles()
 bool MapPlot::plot(const int zorder)
 {
 #ifdef DEBUGPRINT
-  cerr << "++ MapPlot::plot() ++" << endl;
+  METLIBS_LOG_DEBUG("++ MapPlot::plot() ++");
 #endif
   if (!enabled || !isactive[zorder])
     return false;
@@ -312,7 +315,7 @@ bool MapPlot::plot(const int zorder)
         float xylim[4]= { maprect.x1, maprect.x2, maprect.y1, maprect.y2 };
         if (!plotMapLand4(mapfile, xylim, contopts.linetype,
             contopts.linewidth, c))
-          cerr << "ERROR OPEN/READ " << mapfile << endl;
+          METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
       }
 
     } else if (mapinfo.type=="triangles") {
@@ -334,7 +337,7 @@ bool MapPlot::plot(const int zorder)
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
         if (!plotLinesSimpleText(mapfile))
-          cerr << "ERROR OPEN/READ " << mapfile << endl;
+          METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
       }
 
     } else if (mapinfo.type=="shape") {
@@ -345,7 +348,7 @@ bool MapPlot::plot(const int zorder)
 
       if (shapemaps.count(mapfile) == 0) {
 #ifdef DEBUGPRINT
-        cerr << "Creating new shapeObject for map: " << mapfile << endl;
+        METLIBS_LOG_DEBUG("Creating new shapeObject for map: " << mapfile);
 #endif
         shapemaps[mapfile] = ShapeObject();
         shapemaps[mapfile].read(mapfile,true);
@@ -353,7 +356,7 @@ bool MapPlot::plot(const int zorder)
       }
       if (shapeareas[mapfile].P() != area.P()) {
 #ifdef DEBUGPRINT
-        cerr << "Projection wrong for: " << mapfile << endl;
+        METLIBS_LOG_DEBUG("Projection wrong for: " << mapfile);
 #endif
         bool success = shapemaps[mapfile].changeProj(shapeareas[mapfile]);
 
@@ -370,8 +373,8 @@ bool MapPlot::plot(const int zorder)
           contopts.linetype.bmap, contopts.linewidth, c.RGBA(),
           landopts.fillcolour.RGBA(), backgroundColour.RGBA());
     } else {
-      cerr << "Unknown maptype for map " << mapinfo.name << " = "
-          << mapinfo.type << endl;
+      METLIBS_LOG_WARN("Unknown maptype for map " << mapinfo.name << " = "
+          << mapinfo.type);
     }
 
     if (makelist)
@@ -398,7 +401,7 @@ bool MapPlot::plot(const int zorder)
 
   // plot frame
   if (frameok && mapinfo.frame.ison && mapinfo.frame.zorder==zorder) {
-    //    cerr << "Plotting frame for layer:" << zorder << endl;
+    //    METLIBS_LOG_DEBUG("Plotting frame for layer:" << zorder);
     Rectangle reqr= reqarea.R();
     Colour c= ffopts.linecolour;
     if (c==backgroundColour)
@@ -621,7 +624,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     return false;
   }
 
-  //  cerr << "plotMapLand4 file=" << filename << " version=" << version << endl;
+  //  METLIBS_LOG_DEBUG("plotMapLand4 file=" << filename << " version=" << version);
 
   // for version 1 this is the scaling of all values (lat,long)
   // for version 2 this is the scaling of reference values (lat,long)
@@ -720,7 +723,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
           // convert coordinates from longitude,latitude to x,y
           int b = projection.convertFromGeographic(np,x,y,geoProj);
           if (b!=0){
-            cerr << "plotMapLand4(0), getPoints returned false" << endl;
+            METLIBS_LOG_WARN("plotMapLand4(0), getPoints returned false");
           }
 
           //xyconvert(np, x, y, igeogrid, geogrid, gridtype, gridparam, &ierror);
@@ -806,7 +809,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
     nn = n;
     int b = projection.convertToGeographic(nn,x,y,geoProj);
     if (b!=0){
-      cerr << "plotMapLand4(1), getPoints returned false" << endl;
+      METLIBS_LOG_WARN("plotMapLand4(1), getPoints returned false");
     }
     glonmin = glonmax = x[0];
     glatmin = glatmax = y[0];
@@ -954,7 +957,7 @@ bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
                   // convert coordinates from longitude,latitude to x,y
                   int b = projection.convertFromGeographic(np,x,y, geoProj);
                   if (b!=0){
-                    cerr << "plotMapLand4(2), getPoints returned false"<< endl;
+                    METLIBS_LOG_WARN("plotMapLand4(2), getPoints returned false");
                   }
                   /*
 TODO: what about this?
@@ -1014,20 +1017,20 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   float lat_fontsize = mapinfo.lat.fontsize;
 
   /*
-  cerr << (lon_values ? "lon_values=ON" : "lon_values=OFF") << " "
+  METLIBS_LOG_DEBUG((lon_values ? "lon_values=ON" : "lon_values=OFF") << " "
   << (lat_values ? "lat_values=ON" : "lat_values=OFF") << " lon_valuepos="
-  << lon_valuepos << " lat_valuepos=" << lat_valuepos << endl;
+  << lon_valuepos << " lat_valuepos=" << lat_valuepos);
    */
 
 
   Projection p= area.P();
   if (!p.isDefined()) {
-    cerr<<"MapPlot::plotGeoGrid ERROR: undefined projection"<<endl;
+    METLIBS_LOG_ERROR("MapPlot::plotGeoGrid ERROR: undefined projection");
     return false;
   }
 
   if (latitudeStep<0.001 || longitudeStep<0.001) {
-    cerr<<"MapPlot::plotGeoGrid ERROR: latitude/longitude step"<<endl;
+    METLIBS_LOG_ERROR("MapPlot::plotGeoGrid ERROR: latitude/longitude step");
     return false;
   }
 
@@ -1071,11 +1074,11 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
 
 
   //########################################################################
-  //cerr<<"longitudeStep,latitudeStep:  "<<longitudeStep<<" "<<latitudeStep<<endl;
-  //cerr<<"ilon1,ilon2,ilat1,ilat2:     "<<ilon1<<" "<<ilon2<<" "<<ilat1<<" "<<ilat2<<endl;
-  //cerr<<"glon1,glon2,glat1,glat2:     "<<glon1<<" "<<glon2<<" "<<glat1<<" "<<glat2<<endl;
-  //cerr<<"lonmin,lonmax,latmin,latmax: "<<lonmin<<" "<<lonmax<<" "<<latmin<<" "<<latmax<<endl;
-  //cerr<<"maprect x1,x2,y1,y2:         "<<xylim[0]<<" "<<xylim[1]<<" "<<xylim[2]<<" "<<xylim[3]<<endl;
+  //METLIBS_LOG_DEBUG("longitudeStep,latitudeStep:  "<<longitudeStep<<" "<<latitudeStep);
+  //METLIBS_LOG_DEBUG("ilon1,ilon2,ilat1,ilat2:     "<<ilon1<<" "<<ilon2<<" "<<ilat1<<" "<<ilat2);
+  //METLIBS_LOG_DEBUG("glon1,glon2,glat1,glat2:     "<<glon1<<" "<<glon2<<" "<<glat1<<" "<<glat2);
+  //METLIBS_LOG_DEBUG("lonmin,lonmax,latmin,latmax: "<<lonmin<<" "<<lonmax<<" "<<latmin<<" "<<latmax);
+  //METLIBS_LOG_DEBUG("maprect x1,x2,y1,y2:         "<<xylim[0]<<" "<<xylim[1]<<" "<<xylim[2]<<" "<<xylim[3]);
   //########################################################################
 
   n= (ilat2-ilat1+1)*(ilon2-ilon1+1);
@@ -1085,7 +1088,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     if (n<2)
       n=2;
     //########################################################################
-    //cerr<<"geoGrid: plotResolution,n: "<<plotResolution<<" "<<n<<endl;
+    //METLIBS_LOG_DEBUG("geoGrid: plotResolution,n: "<<plotResolution<<" "<<n);
     //########################################################################
     if (plotResolution>n)
       plotResolution= n;
@@ -1120,8 +1123,8 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     glat = glat1 - dlat * float(n1);
     nlat += (n1 + n2);
     if (nlat < 2)
-      cerr << "** MapPlot::plotGeoGrid ERROR in Curved longitude lines, nlat="
-      << nlat << endl;
+      METLIBS_LOG_ERROR("** MapPlot::plotGeoGrid ERROR in Curved longitude lines, nlat="
+      << nlat);
     else {
       float *x = new float[nlat];
       float *y = new float[nlat];
@@ -1192,9 +1195,9 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     glon = glon1 - dlon * float(n1);
     nlon += (n1 + n2);
     if (nlon < 1) {
-      cerr << "** MapPlot::plotGeoGrid ERROR in Curved Latitude lines, nlon="
-          << nlon << endl;
-      cerr << "lonmin,lonmax=" << lonmin << "," << lonmax << endl;
+      METLIBS_LOG_ERROR("** MapPlot::plotGeoGrid ERROR in Curved Latitude lines, nlon="
+          << nlon);
+      METLIBS_LOG_ERROR("lonmin,lonmax=" << lonmin << "," << lonmax);
     } else {
       float *x = new float[nlon];
       float *y = new float[nlon];
@@ -1244,7 +1247,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   /*  }*/
 
   if (geo2xyError) {
-    cerr<<"MapPlot::plotGeoGrid ERROR: gc.geo2xy failure(s)"<<endl;
+    METLIBS_LOG_ERROR("MapPlot::plotGeoGrid ERROR: gc.geo2xy failure(s)");
   }
 
   return true;
@@ -1316,7 +1319,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
         clipPrimitiveLines(n, x, y, xylim, jumplimit);
         nlines++;
       } else {
-        cerr<<"MapPlot::plotLinesSimpleText  gc.geo2xy ERROR" << endl;
+        METLIBS_LOG_ERROR("MapPlot::plotLinesSimpleText  gc.geo2xy ERROR");
         endfile= true;
       }
       if (!endline && !endfile) {
@@ -1490,9 +1493,9 @@ void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
   }
 }
 
-int MapPlot::convertLatLonPos(miutil::miString pos)
+int MapPlot::convertLatLonPos(const std::string& p)
 {
-  pos = pos.downcase();
+  const std::string pos = miutil::to_lower(p);
   if(pos == "left") {
     return map_left;
   }
@@ -1511,5 +1514,4 @@ int MapPlot::convertLatLonPos(miutil::miString pos)
 
   //obsolete syntax
   return atoi(pos.c_str());
-
 }

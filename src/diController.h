@@ -301,14 +301,14 @@ public:
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(vector<miutil::miString>& fieldNames,
+  void getAllFieldNames(vector<std::string>& fieldNames,
                         set<std::string>& fieldprefixes,
                         set<std::string>& fieldsuffixes);
   ///return levels
   vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
-  void getFieldGroups(const miutil::miString& modelNameRequest,
-                      miutil::miString& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelNameRequest,
+                      std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
   /// return available times for the requested fields
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
 ///update list of fieldsources (field files)

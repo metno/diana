@@ -11,3 +11,4 @@ usr/share/diana/@METNO_VERSION@/jason_swh.header
 usr/share/diana/@METNO_VERSION@/metpltab.dat
 usr/share/diana/@METNO_VERSION@/amdar.stations
 usr/share/diana/@METNO_VERSION@/synpltab.dat
+etc/diana/@METNO_VERSION@/diana.logger

@@ -34,6 +34,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.EditObjects"
+#include <miLogger/miLogging.h>
+
 #include <diEditObjects.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
@@ -47,7 +50,7 @@ map<int,combine_modes> EditObjects::combineModes;
 
 EditObjects::EditObjects(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects constructor" << endl;
+  METLIBS_LOG_DEBUG("EditObjects constructor");
 #endif
   //undo variables
   undoCurrent = new UndoFront( );
@@ -83,7 +86,7 @@ void EditObjects::setEditMode(const mapMode mmode,
     const miString etool){
   //called when new edit mode/tool selected in gui (EditDIalog)
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::setEditMode" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::setEditMode");
 #endif
   mapmode= mmode;
   editmode= emode;
@@ -108,7 +111,7 @@ void EditObjects::setMouseCoordinates(const float x,const float y){
 
 void EditObjects::createNewObject(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::createNewObject" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::createNewObject");
 #endif
   createobject=true;
   inDrawing=true;
@@ -144,8 +147,8 @@ void EditObjects::editNotMarked(){
 
 bool EditObjects::editResumeDrawing(const float x, const float y) {
 #ifdef DEBUGPRINT
-  cerr <<"EditObjects::Edit resume drawing" << endl;
-  cerr << "mapmode = " << mapmode << "editmode = " << editmode << endl;
+  METLIBS_LOG_DEBUG("EditObjects::Edit resume drawing");
+  METLIBS_LOG_DEBUG("mapmode = " << mapmode << "editmode = " << editmode);
 #endif
 
   bool ok = false;
@@ -225,9 +228,9 @@ bool EditObjects::editDeleteMarkedPoints(){
 
 bool EditObjects::editAddPoint(const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::editAddPoint" << endl;
-  cerr << "mapmode = " << mapmode << "editmode = " << editmode << endl;
-  cerr << "drawingtool =" << drawingtool << endl;
+  METLIBS_LOG_DEBUG("EditObjects::editAddPoint");
+  METLIBS_LOG_DEBUG("mapmode = " << mapmode << "editmode = " << editmode);
+  METLIBS_LOG_DEBUG("drawingtool =" << drawingtool);
 #endif
 
 
@@ -284,8 +287,8 @@ bool EditObjects::editAddPoint(const float x, const float y){
 bool EditObjects::editMergeFronts(bool mergeAll){
   //merge two fronts of same type into one
 #ifdef DEBUGPRINT
-  cerr << "+++EditObjects::editMergeFronts" << endl;
-  if (mergeAll) cerr << "mergeAll = true" << endl;
+  METLIBS_LOG_DEBUG("+++EditObjects::editMergeFronts");
+  if (mergeAll) METLIBS_LOG_DEBUG("mergeAll = true");
 #endif
   bool frontsChanged= false;
   vector <ObjectPlot*>::iterator p = objects.begin();
@@ -374,10 +377,10 @@ EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine){
   //joinOnLine = true->join front to line not just end points
   //           = false->join front only to join- and endpoints...
 #ifdef DEBUGPRINT
-  cerr << "+++EditObjects::editJoinFronts" << endl;
-  if (joinAll) cerr << "joinAll = true" << endl;
-  if (movePoints) cerr << "movePoints = true" << endl;
-  if (joinOnLine) cerr << "joinOnLine = true" << endl;
+  METLIBS_LOG_DEBUG("+++EditObjects::editJoinFronts");
+  if (joinAll) METLIBS_LOG_DEBUG("joinAll = true");
+  if (movePoints) METLIBS_LOG_DEBUG("movePoints = true");
+  if (joinOnLine) METLIBS_LOG_DEBUG("joinOnLine = true");
 #endif
   vector <ObjectPlot*>::iterator p = objects.begin();
   for (;p!=objects.end();p++){
@@ -483,7 +486,7 @@ bool EditObjects::editRotateLine(const float x, const float y){
 
 void EditObjects::editCopyObjects(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::editCopyObjects !" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::editCopyObjects !");
 #endif
   int edsize = objects.size();
   copyObjects.clear();
@@ -510,7 +513,7 @@ void EditObjects::editCopyObjects(){
 
 void EditObjects::editPasteObjects(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::editPasteObjects !" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::editPasteObjects !");
 #endif
   float diffx,diffy;
   int csize = copyObjects.objects.size();
@@ -565,7 +568,7 @@ void EditObjects::editUnJoinPoints(){
 
 bool EditObjects::editChangeObjectType(int val){
 #ifdef DEBUGPRINT
-  cerr <<"EditObjects::editChangeObjectType" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::editChangeObjectType");
 #endif
   bool ok=false;
   int edsize=objects.size();
@@ -580,7 +583,7 @@ bool EditObjects::editChangeObjectType(int val){
 
 void EditObjects::editTestFront(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::editTestFront()"<< endl;
+  METLIBS_LOG_DEBUG("EditObjects::editTestFront()");
 #endif
   vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!=objects.end())
@@ -616,7 +619,7 @@ bool EditObjects::editSplitFront(const float x, const float y){
 
 void EditObjects::unmarkAllPoints(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::unmarkAllPoints " << endl;
+  METLIBS_LOG_DEBUG("EditObjects::unmarkAllPoints ");
 #endif
   //unmark all points
   int edsize=objects.size();
@@ -629,7 +632,7 @@ void EditObjects::unmarkAllPoints(){
 
 bool EditObjects::editCheckPosition(const float x, const float y){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::editCheckPosition" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::editCheckPosition");
 #endif
   //check to see if pointer over any symbols,fronts,areas
   bool found=false;
@@ -778,7 +781,7 @@ void EditObjects::editHideAll(){
 
 
 void EditObjects::editUnHideAll(){
-  //cerr << "editUnHideAll" << endl;
+  //METLIBS_LOG_DEBUG("editUnHideAll");
   int edsize = objects.size();
   for (int i =0; i< edsize;i++){
     objects[i]->setVisible(true);
@@ -787,7 +790,7 @@ void EditObjects::editUnHideAll(){
 
 void EditObjects::editHideCombineObjects(miString region){
 #ifdef DEBUGPRINT
-  cerr << "editHideCombineObject from " << region << endl;
+  METLIBS_LOG_DEBUG("editHideCombineObject from " << region);
 #endif
   int edsize = objects.size();
   for (int i =0; i< edsize;i++){
@@ -799,7 +802,7 @@ void EditObjects::editHideCombineObjects(miString region){
 
 void EditObjects::editHideCombineObjects(int ir ){
 #ifdef DEBUGPRINT
-  cerr << "editHideCombineObject from " << ir << endl;
+  METLIBS_LOG_DEBUG("editHideCombineObject from " << ir);
 #endif
   miString region = WeatherSymbol::getAllRegions(ir);
   if (!region.empty()){
@@ -818,7 +821,7 @@ void EditObjects::editHideCombineObjects(int ir ){
 
 bool EditObjects::setRubber(bool rubber, const float x, const float y){
 #ifdef DEBUGPRINT
-  //cerr <<"EditObjects::setRubber called" << endl;
+  //METLIBS_LOG_DEBUG("EditObjects::setRubber called");
 #endif
   bool changed=false;
   if(!createobject){
@@ -835,7 +838,7 @@ bool EditObjects::setRubber(bool rubber, const float x, const float y){
 
 void EditObjects::setAllPassive(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects:.setAllPassive" << endl;
+  METLIBS_LOG_DEBUG("EditObjects:.setAllPassive");
 #endif
   //Sets current status of the objects to passive
   int edsize=objects.size();
@@ -863,7 +866,7 @@ void EditObjects::cleanUp(){
 
 
 void EditObjects::checkJoinPoints(){
-  //cerr <<"EditObjects::checkJoinPoints !" << endl;
+  //METLIBS_LOG_DEBUG("EditObjects::checkJoinPoints !");
   int edsize=objects.size();
   // check all fronts for join points...
   for (int i =0; i <edsize; i++) {
@@ -909,12 +912,12 @@ void EditObjects::newUndoCurrent(UndoFront * undoNew){
   // last points back to the previous undoCurrent
   //next points to NULL
 #ifdef DEBUGPRINT
-  cerr << "newUndoCurrent called" << endl;
+  METLIBS_LOG_DEBUG("newUndoCurrent called");
 #endif
 
   if (undoNew == NULL){
-    cerr << "EditObjects	::newUndoCurrent" << endl;
-    cerr << " Warning ! undoNew = 0 !" << endl;
+    METLIBS_LOG_INFO("EditObjects	::newUndoCurrent");
+    METLIBS_LOG_WARN(" Warning ! undoNew = 0 !");
     return;
   }
 
@@ -936,14 +939,14 @@ void EditObjects::newUndoCurrent(UndoFront * undoNew){
   undoNew->Next = NULL;
   undoCurrent->Next = undoNew;
   undoCurrent =  undoNew;
-  if (undoCurrent->Next !=0) cerr << "***********undoCurrent->Next !=0\n";
+  if (undoCurrent->Next !=0) METLIBS_LOG_WARN("***********undoCurrent->Next !=0\n");
 }
 
 
 
 bool EditObjects::redofront(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::redofront" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::redofront");
 #endif
   if (undoCurrent->Next!=NULL){
     undoCurrent = undoCurrent->Next;
@@ -957,14 +960,14 @@ bool EditObjects::redofront(){
     else return true;
   }
   else{
-    cerr << "Not possible to redo any more!" << endl;
+    METLIBS_LOG_ERROR("Not possible to redo any more!");
     return false;
   }
 }
 
 bool EditObjects::undofront(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::undofront" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::undofront");
 #endif
   if (undoCurrent->Last!= NULL){
     if (!changeCurrentFronts()){
@@ -978,7 +981,7 @@ bool EditObjects::undofront(){
     else return true;
   }
   else {
-    cerr << "Not possible to undo any more ! " << endl;
+    METLIBS_LOG_ERROR("Not possible to undo any more ! ");
     return false;
   }
 }
@@ -1004,7 +1007,7 @@ void EditObjects::undofrontClear(){
 bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo){
 
 #ifdef DEBUGPRINT
-  cerr << "EditObjects	::saveCurrentFronts" << endl;
+  METLIBS_LOG_DEBUG("EditObjects	::saveCurrentFronts");
 #endif
 
   int edsize=objects.size();
@@ -1214,7 +1217,7 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo){
     }
     break;
   default:
-    cerr << "Error in saveCurrentFronts" << endl;
+    METLIBS_LOG_ERROR("Error in saveCurrentFronts");
   }
   return frontsChanged;
 }
@@ -1239,51 +1242,51 @@ bool EditObjects::saveCurrentFronts(int nObjects, UndoFront *undo){
 
 bool EditObjects::changeCurrentFronts(){
 #ifdef DEBUGPRINT
-  cerr << "changeCurrentFronts" << endl;
+  METLIBS_LOG_DEBUG("changeCurrentFronts");
   int edsize = objects.size();
-  cerr << "Number of objects " << edsize << endl;
+  METLIBS_LOG_DEBUG("Number of objects " << edsize);
   switch (undoCurrent->iop){
   case AddPoint:
-    cerr << "Type of operation;AddPoint " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);AddPoint ";
     break;
   case MoveMarkedPoints:
-    cerr << "Type of operation;MoveMarkedPoints " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);MoveMarkedPoints ";
     break;
   case DeleteMarkedPoints:
-    cerr << "Type of operation;DeleteMarkedPoints " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);DeleteMarkedPoints ";
     break;
   case FlipObjects:
-    cerr << "Type of operation;FlipObjects " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);FlipObjects ";
     break;
   case IncreaseSize:
-    cerr << "Type of operation;IncreaseSize " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);IncreaseSize ";
     break;
   case ChangeObjectType:
-    cerr << "Type of operation;ChangeObjectType " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);ChangeObjectType ";
     break;
   case RotateLine:
-    cerr << "Type of operation;RotateLine " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);RotateLine ";
     break;
   case ResumeDrawing:
-    cerr << "Type of operation;ResumeDrawing " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);ResumeDrawing ";
     break;
   case SplitFronts:
-    cerr << "Type of operation;SplitFronts " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);SplitFronts ";
     break;
   case JoinFronts:
-    cerr << "Type of operation;JoinFronts " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);JoinFronts ";
     break;
   case ReadObjects:
-    cerr << "Type of operation;ReadObjects " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);ReadObjects ";
     break;
   case CleanUp:
-    cerr << "Type of operation;CleanUp " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);CleanUp ";
     break;
   case PasteObjects:
-    cerr << "Type of operation;PasteObjects " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);PasteObjects ";
     break;
   default:
-    cerr << "Type of operation;Unknown " << endl;
+    METLIBS_LOG_DEBUG("Type of operation);Unknown ";
   }
 #endif
   //reads the current undoBuffer, and updates fronts
@@ -1301,21 +1304,21 @@ bool EditObjects::changeCurrentFronts(){
     if (p1->todo!=Insert &&
         (test<0 || test>=objects.size())){
       //HK ??? Something "strange" happened
-      cerr << "Warning! diEditObjects	::changeCurrentFronts " << endl
-      <<  "****************************************** "<< endl
+      METLIBS_LOG_WARN("Warning! diEditObjects	::changeCurrentFronts "
+      <<  "****************************************** "
       <<"undoCurrent->saveObjects.size()= "
-      << undoCurrent->saveobjects.size() << endl;
-      cerr << "p1->place = " <<p1->place << endl;
-      cerr << "nFrontsDeleted" << nFrontsDeleted << endl;
-      cerr << "objects.size()=" <<
-      objects.size() << endl;
-      cerr << "****************************************** "<<endl;
+      << undoCurrent->saveobjects.size());
+      METLIBS_LOG_WARN("p1->place = " <<p1->place);
+      METLIBS_LOG_WARN("nFrontsDeleted" << nFrontsDeleted);
+      METLIBS_LOG_WARN("objects.size()=" <<
+      objects.size());
+      METLIBS_LOG_WARN("****************************************** ");
       return false;
     }
 
     switch (p1->todo){
     case Replace:
-      //  cerr << "Replace front ! " << endl;
+      //  METLIBS_LOG_DEBUG("Replace front ! ");
       //erase front at p->place
       pold = *q;
       q=objects.erase(q);
@@ -1325,7 +1328,7 @@ bool EditObjects::changeCurrentFronts(){
       p1->object = pold;
       break;
     case Erase:
-      //  cerr << "Erase front ! " << endl;
+      //  METLIBS_LOG_DEBUG("Erase front ! ");
       pold = *q;
       //erase front at p->place
       objects.erase(q);
@@ -1334,13 +1337,13 @@ bool EditObjects::changeCurrentFronts(){
       nFrontsDeleted++;
       break;
     case Insert:
-      //  cerr << "Insert front !" << endl;
+      //  METLIBS_LOG_DEBUG("Insert front !");
       objects.insert(q,p1->object);
       p1->object=NULL;
       p1->todo=Erase;
       break;
     default:
-      cerr << "Error in undofront ! " << endl;
+      METLIBS_LOG_ERROR("Error in undofront ! ");
     }
     p1++;
   }
@@ -1362,7 +1365,7 @@ bool EditObjects::changeCurrentFronts(){
  ************************************************************/
 
 bool EditObjects::findAllJoined(const float x,const float y,objectType wType){
-  //cerr << "find all joined" << endl;
+  //METLIBS_LOG_DEBUG("find all joined");
   // recursive routine to find all joined fronts belonging to point x,y
   int frsize=objects.size();
   bool found = false;
@@ -1388,7 +1391,7 @@ bool EditObjects::findAllJoined(const float x,const float y,objectType wType){
 }
 
 void EditObjects::findJoinedFronts(ObjectPlot * pfront,objectType wType){
-  //cerr << "find JoinedFronts" << endl;
+  //METLIBS_LOG_DEBUG("find JoinedFronts");
   //routine to find fronts joined to pfront
   vector <float> xjoin=pfront->getXmarkedJoined();
   vector <float> yjoin=pfront->getYmarkedJoined();
@@ -1554,7 +1557,7 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
 
 void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects:::getMarkedMultilineText called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects:::getMarkedMultilineText called");
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1569,7 +1572,7 @@ void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
 
 void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::getMarkedComplex called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::getMarkedComplex called");
 #endif
   vector <miString> xString;
   if (mapmode==draw_mode){
@@ -1585,7 +1588,7 @@ void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <m
 
 void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::getMarkedComplexColored called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::getMarkedComplexColored called");
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1600,7 +1603,7 @@ void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, ve
 
 void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::changeMarkedComplex called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1614,7 +1617,7 @@ void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbo
 
 void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::changeMarkedMiltilineText called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::changeMarkedMiltilineText called");
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1628,7 +1631,7 @@ void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText
 
 void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::changeMarkedComplex called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1644,7 +1647,7 @@ void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, 
 
 bool EditObjects::inTextMode(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::inTextMode called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::inTextMode called");
 #endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isSimpleText(drawingtool);
@@ -1655,8 +1658,8 @@ bool EditObjects::inTextMode(){
 
 bool EditObjects::inComplexTextMode(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::inComplexTextMode called" << endl;
-  cerr << "drawingtool = " << drawingtool<< endl;
+  METLIBS_LOG_DEBUG("EditObjects::inComplexTextMode called");
+  METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isComplexText(drawingtool);
@@ -1666,8 +1669,8 @@ bool EditObjects::inComplexTextMode(){
 
 bool EditObjects::inComplexTextColorMode(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::inComplexTextColorMode" << endl;
-  cerr << "drawingtool = " << drawingtool<< endl;
+  METLIBS_LOG_DEBUG("EditObjects::inComplexTextColorMode");
+  METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isComplexTextColor(drawingtool);
@@ -1677,8 +1680,8 @@ bool EditObjects::inComplexTextColorMode(){
 
 bool EditObjects::inEditTextMode(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::inEditTextMode" << endl;
-  cerr << "drawingtool = " << drawingtool<< endl;
+  METLIBS_LOG_DEBUG("EditObjects::inEditTextMode");
+  METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isTextEdit(drawingtool);
@@ -1688,7 +1691,7 @@ bool EditObjects::inEditTextMode(){
 
 void EditObjects::initCurrentComplexText(){
 #ifdef DEBUGPRINT
-  cerr << "EditObjects::initCurrentComplexText called" << endl;
+  METLIBS_LOG_DEBUG("EditObjects::initCurrentComplexText called");
 #endif
   if (objectmode==symbol_drawing)
     WeatherSymbol::initCurrentComplexText(drawingtool);

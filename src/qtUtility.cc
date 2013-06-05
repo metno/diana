@@ -49,10 +49,23 @@
 #include <qbrush.h>
 #include <QIcon>
 
+#define MILOGGER_CATEGORY "diana.Utility"
+#include <miLogger/miLogging.h>
+
 #include "qtUtility.h"
 #include <diLinetype.h>
 #include "diImageGallery.h"
 
+
+
+int getIndex( vector<std::string> vstr, std::string def_str  ){
+  for( unsigned int k=0; k<vstr.size(); k++){
+    if( def_str == vstr[k] ){
+      return k;
+    }
+  }
+  return -1;
+}
 
 
 int getIndex( vector<miutil::miString> vstr, miutil::miString def_str  ){
@@ -122,6 +135,27 @@ QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent,
   b->setMaximumSize( width, height );
 
   return b;
+}
+
+
+
+/*********************************************/
+QComboBox* ComboBox( QWidget* parent, vector<std::string> vstr,
+    bool Enabled, int defItem  ){
+
+  QComboBox* box = new QComboBox( parent );
+
+  int nr_box = vstr.size();
+
+  for( int i=0; i<nr_box; i++ ){
+    box->addItem(QString(vstr[i].c_str()));
+  }
+
+  box->setEnabled( Enabled );
+
+  box->setCurrentIndex(defItem);
+
+  return box;
 }
 
 
@@ -355,7 +389,7 @@ QComboBox* PatternBox( QWidget* parent,
 /*********************************************/
 QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem  ) {
 
-  vector<miutil::miString> slinetypes = Linetype::getLinetypeInfo();
+  vector<std::string> slinetypes = Linetype::getLinetypeInfo();
   int nr_linetypes= slinetypes.size();
 
   QPixmap** pmapLinetypes = new QPixmap*[nr_linetypes];
@@ -482,13 +516,13 @@ XPM X11 Pixmap Read/write
       image.load(filename.c_str(),NULL);
     if (image.isNull())
     {
-      cerr << "PixmapBox: problem loading image: " << filename << endl;
+      METLIBS_LOG_WARN("PixmapBox: problem loading image: " << filename);
       continue;
     }
     QPixmap p = QPixmap::fromImage(image);
     if (p.isNull())
     {
-      cerr << "PixmapBox: problem converting from QImage to QPixmap" << filename << endl;
+      METLIBS_LOG_WARN("PixmapBox: problem converting from QImage to QPixmap" << filename);
       continue;
     }
     box->addItem (p, "" );

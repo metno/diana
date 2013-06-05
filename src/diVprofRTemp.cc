@@ -38,6 +38,9 @@
 //#define DEBUGPRINT 1
 
 #include <iostream>
+#define MILOGGER_CATEGORY "diana.VprofRTemp"
+#include <miLogger/miLogging.h>
+
 #include <diVprofRTemp.h>
 #include <diVprofPlot.h>
 #include <robs/geopos.h>
@@ -122,7 +125,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   }
   if (stations == NULL)
   {
-	  cerr<<"Unable to find stationlist: " <<stationfile_ << endl;
+	  METLIBS_LOG_ERROR("Unable to find stationlist: " <<stationfile_);
 	  return vp;
   }
 
@@ -135,7 +138,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   // Return if station not found in station list
   if (n==nStations)
   {
-	  cerr<<"Unable to find station: " << station << " in stationlist!" << endl;
+	  METLIBS_LOG_ERROR("Unable to find station: " << station << " in stationlist!");
 	  return vp;
   }
 
@@ -187,7 +190,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   }
   /* Sort the data */
 #ifdef DEBUGPRINT
-  cerr << "VprofRTemp::getStation: Lines returned from road.getData(): " << raw_data.size() << endl;
+  METLIBS_LOG_DEBUG("VprofRTemp::getStation: Lines returned from road.getData(): " << raw_data.size());
 #endif
   // For now, we dont use the surface data!
   vector <diParam> * params = NULL;
@@ -214,13 +217,13 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
       if (tmpresult.size() != 0)
 	  {
 		data_map[(*params)[k].diananame()] = tmpresult;
-		//cerr << "Parameter: " << (*params)[k].diananame() << endl;
+		//METLIBS_LOG_DEBUG("Parameter: " << (*params)[k].diananame());
 	  }
   }
   /* data is now sorted */
 
 #ifdef DEBUGPRINT
-  cerr << "VprofRTemp::getStation: Data is now sorted!" << endl;
+  METLIBS_LOG_DEBUG("VprofRTemp::getStation: Data is now sorted!");
 #endif
 
   /* Use TTT + 1 to detrmine no of levels */
@@ -247,7 +250,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 	  ittp = ittts->second.begin();
 	  for (; ittp != ittts->second.end(); ittp++) {
 		TTTs_value = ittp->second.floatvalue;
-		//cerr << "TTTs_value: " << TTTs_value << endl;
+		//METLIBS_LOG_DEBUG("TTTs_value: " << TTTs_value);
       }
   }
 
@@ -259,7 +262,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 	  ittp = ittds->second.begin();
 	  for (; ittp != ittds->second.end(); ittp++) {
 		TdTdTds_value = ittp->second.floatvalue;
-		//cerr << "TdTdTds_value: " << TdTdTds_value << endl;
+		//METLIBS_LOG_DEBUG("TdTdTds_value: " << TdTdTds_value);
       }
   }
 
@@ -270,7 +273,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 	  ittp = itdds->second.begin();
 	  for (; ittp != itdds->second.end(); ittp++) {
 		dds_value = ittp->second.floatvalue;
-		//cerr << "dds_value: " << dds_value << endl;
+		//METLIBS_LOG_DEBUG("dds_value: " << dds_value);
 	  }
   }
 
@@ -281,7 +284,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 	  ittp = itffs->second.begin();
 	  for (; ittp != itffs->second.end(); ittp++) {  
 		ffs_value = ittp->second.floatvalue;
-		//cerr << "ffs_value: " << ffs_value << endl;
+		//METLIBS_LOG_DEBUG("ffs_value: " << ffs_value);
 	  }	
   }
 
@@ -292,11 +295,11 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 	  ittp = itpps->second.begin();
 	  for (; ittp != itpps->second.end(); ittp++) {  
 		PPPPs_value = ittp->second.floatvalue;
-		//cerr << "PPPPs_value: " << PPPPs_value << endl;
+		//METLIBS_LOG_DEBUG("PPPPs_value: " << PPPPs_value);
 	  }	
   }
 #ifdef DEBUGPRINT
-  cerr << "VprofRTemp::getStation: surface data TTTs: " << TTTs_value << " TdTdTds: " << TdTdTds_value << " dds: " << dds_value << " ffs: " << ffs_value << " PPPP: " << PPPPs_value << endl;
+  METLIBS_LOG_DEBUG("VprofRTemp::getStation: surface data TTTs: " << TTTs_value << " TdTdTds: " << TdTdTds_value << " dds: " << dds_value << " ffs: " << ffs_value << " PPPP: " << PPPPs_value);
 #endif
   
   ittt = data_map.find("TTT");
@@ -345,17 +348,17 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 
 //####################################################################
 //  if (station=="03005" || station=="03953") {
-//    cerr<<"-------------------------------------------------"<<endl;
-//    cerr<<station<<"   "<<time<<endl;
+//    METLIBS_LOG_DEBUG("-------------------------------------------------");
+//    METLIBS_LOG_DEBUG(station<<"   "<<time);
 //    for (int k=0; k<nLevel; k++) {
-//      cerr<<"  p="<<contents[n].data.PPPP[k]
+//      METLIBS_LOG_DEBUG("  p="<<contents[n].data.PPPP[k]
 //          <<"  dd="<<contents[n].data.dd[k]
 //          <<"  ff="<<contents[n].data.ff[k]
 //          <<"  t="<<contents[n].data.TTT[k]
 //          <<"  td="<<contents[n].data.TdTdTd[k]
-//          <<"  flags1="<<contents[n].data.flags1[k]<<endl;
+//          <<"  flags1="<<contents[n].data.flags1[k]);
 //    }
-//    cerr<<"-------------------------------------------------"<<endl;
+//    METLIBS_LOG_DEBUG("-------------------------------------------------");
 //  }
 //####################################################################
 /* Can we trust that all parameters, has the same number of levels ? */

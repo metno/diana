@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.SpectrumOptions"
+#include <miLogger/miLogging.h>
+
 #include <diSpectrumOptions.h>
 #include <iostream>
 
@@ -54,7 +57,7 @@ SpectrumOptions::~SpectrumOptions()
 void SpectrumOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::setDefaults" << endl;
+  METLIBS_LOG_DEBUG("SpectrumOptions::setDefaults");
 #endif
 
   pText= true;
@@ -99,7 +102,7 @@ void SpectrumOptions::setDefaults()
 vector<miString> SpectrumOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::writeOptions" << endl;
+  METLIBS_LOG_DEBUG("SpectrumOptions::writeOptions");
 #endif
 
   vector<miString> vstr;
@@ -158,7 +161,7 @@ vector<miString> SpectrumOptions::writeOptions()
 void SpectrumOptions::readOptions(const vector<miString>& vstr)
 {
 #ifdef DEBUGPRINT
-  cerr << "SpectrumOptions::readOptions" << endl;
+  METLIBS_LOG_DEBUG("SpectrumOptions::readOptions");
 #endif
 
   vector<miString> vs,tokens;
@@ -217,12 +220,12 @@ void SpectrumOptions::readOptions(const vector<miString>& vstr)
 
 	else if (key=="backgroundColour") backgroundColour= value;
 //####################################################################
-//      else cerr<<">>>>>>>>ERROR KEY: "<<vs[j]<<endl;
+//      else METLIBS_LOG_DEBUG(">>>>>>>>ERROR KEY: "<<vs[j]);
 //####################################################################
 
       }
 //####################################################################
-//    else cerr<<">>>>>>>>ERROR LINE: "<<vs[j]<<endl;
+//    else METLIBS_LOG_DEBUG(">>>>>>>>ERROR LINE: "<<vs[j]);
 //####################################################################
     }
   }

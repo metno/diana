@@ -58,11 +58,11 @@ public:
 
   FieldPlotManager(FieldManager* fm);
 
-  void getAllFieldNames(vector<miutil::miString>& fieldNames);
+  void getAllFieldNames(vector<std::string>& fieldNames);
 
   /// return lists of inputfields
   vector<std::string> getFields();
-  vector<miutil::miString> getPlotFields();
+  vector<std::string> getPlotFields();
 
   /// read setup section for field plots
   bool parseSetup();
@@ -108,7 +108,7 @@ public:
   vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
 
   /// return all defined field plot names from setup
-  void getAllFieldNames(vector<miutil::miString>& fieldNames,
+  void getAllFieldNames(vector<std::string>& fieldNames,
       set<std::string>& fieldprefixes, set<std::string>& fieldsuffixes);
 
   /// Parse plotInfo string into FieldReqests and plotName

@@ -65,8 +65,6 @@ public:
   VcrossPlot* getCrossection(const std::string& name, const miutil::miTime& time, int tgpos= -1);
 
 private:
-  static GridConverter gc;
-
   std::string fileName;
   std::string modelName;
 

@@ -171,7 +171,7 @@ private:
   vector<miutil::miString> threeColourNames;
   vector<Pattern::PatternInfo> patternInfo;
 
-  vector<miutil::miString> linetypes;
+  vector<std::string> linetypes;
   vector<miutil::miString> lineintervals;
   QStringList      densityStringList;
   vector<miutil::miString> vectorunit;

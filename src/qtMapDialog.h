@@ -141,7 +141,7 @@ private:
   vector<int> logmaps; // selected maps ready for logging
 
   vector<Colour::ColourInfo> cInfo; // all defined colours
-  vector<miutil::miString> linetypes; // all defined linetypes
+  vector<std::string> linetypes; // all defined linetypes
   vector<miutil::miString> zorders; // all defined zorders
   vector<miutil::miString> densities; // latlon densities (degrees)
   vector<miutil::miString> positions; // all defined positions

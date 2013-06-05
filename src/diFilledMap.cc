@@ -42,6 +42,9 @@
 #include <fstream>
 #include <iostream>
 
+#define MILOGGER_CATEGORY "diana.FilledMap"
+#include <miLogger/miLogging.h>
+
 #include <diFilledMap.h>
 #include <puCtools/stat.h>
 
@@ -153,7 +156,7 @@ bool FilledMap::readheader()
 {
   FILE *pfile;
   if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
-    cerr << "Could not open file for read:" << filename << endl;
+    METLIBS_LOG_ERROR("Could not open file for read:" << filename);
     return false;
   }
 
@@ -170,7 +173,7 @@ bool FilledMap::readheader()
   nwr = fread(indata, 2, nwrec, pfile);
   if (nwr != nwrec) {
     fclose(pfile);
-    cerr << "Reading error 1" << endl;
+    METLIBS_LOG_ERROR("Reading error 1");
     fclose(pfile);
     return false;
   }
@@ -199,7 +202,7 @@ bool FilledMap::readheader()
       nwr = fread(indata, 2, nwrec, pfile);
       if (nwr != nwrec) {
         fclose(pfile);
-        cerr << "Reading error 1.5" << endl;
+        METLIBS_LOG_ERROR("Reading error 1.5");
         fclose(pfile);
         return false;
       }
@@ -230,14 +233,14 @@ bool FilledMap::readheader()
     //     groups[k].tilex[gidx+3]= groups[k].tilex[gidx+1]; // south-east
     //     groups[k].tiley[gidx+3]= groups[k].tiley[gidx+0];
 
-    //     cerr << "SouthWest(" << groups[k].tiley[gidx+0] << ","
+    //     METLIBS_LOG_DEBUG("SouthWest(" << groups[k].tiley[gidx+0] << ","
     // 	 << groups[k].tilex[gidx+0]
     // 	 << ") NorthEast(" << groups[k].tiley[gidx+1] << ","
     // 	 << groups[k].tilex[gidx+1]
     // 	 << ") NorthWest(" << groups[k].tiley[gidx+2] << ","
     // 	 << groups[k].tilex[gidx+2]
     // 	 << ") SouthEast(" << groups[k].tiley[gidx+3] << ","
-    // 	 << groups[k].tilex[gidx+3] << ")" << endl;
+    // 	 << groups[k].tilex[gidx+3] << ")");
 
     float minx = bignum, miny = bignum, maxx = -bignum, maxy = -bignum;
 
@@ -250,7 +253,7 @@ bool FilledMap::readheader()
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 2" << endl;
+          METLIBS_LOG_ERROR("Reading error 2");
           fclose(pfile);
           return false;
         }
@@ -343,8 +346,8 @@ bool FilledMap::plot(Area area, // current area
     long ctimestamp = gettimestamp();
     filechanged = (ctimestamp != timestamp);
     if (filechanged) {
-      cerr << "MAPFile changed on disk:" << filename << " Current timestamp:"
-          << ctimestamp << " Old timestamp:" << timestamp << endl;
+      METLIBS_LOG_INFO("MAPFile changed on disk:" << filename << " Current timestamp:"
+          << ctimestamp << " Old timestamp:" << timestamp);
     }
   }
 
@@ -352,13 +355,13 @@ bool FilledMap::plot(Area area, // current area
 
   if (startfresh) {
     if (!readheader()) {
-      cerr << "Readheader returned false..exiting" << endl;
+      METLIBS_LOG_ERROR("Readheader returned false..exiting");
       return false;
     }
     opened = true;
   }
 
-  //cerr << "FilledMap::plot():" << filename << endl;
+  //METLIBS_LOG_DEBUG("FilledMap::plot():" << filename);
   glLineWidth(linewidth);
   if (linetype != 0xFFFF) {
     glLineStipple(1, linetype);
@@ -393,7 +396,7 @@ bool FilledMap::plot(Area area, // current area
 
   FILE *pfile;
   if ((pfile = fopen(filename.c_str(), "rb")) == NULL) {
-    cerr << "Could not open file for read:" << filename << endl;
+    METLIBS_LOG_ERROR("Could not open file for read:" << filename);
     return false;
   }
 
@@ -487,29 +490,24 @@ bool FilledMap::plot(Area area, // current area
             < cty[bidx + 3]))) {
           groups[i].use[j] = false;
 #ifdef DEBUGPRINT
-          cerr << "Dropping tile " << j << " in group " << i << endl;
-          cerr << "X midlon:" << ctx[num4+j] << " " << groups[i].midlon[j] << endl;
-          cerr << "X borders:";
+          METLIBS_LOG_DEBUG("Dropping tile " << j << " in group " << i);
+          METLIBS_LOG_DEBUG("X midlon:" << ctx[num4+j] << " " << groups[i].midlon[j]);
+          METLIBS_LOG_DEBUG("X borders:");
           for (int k=0; k<4; ++k){
-            cerr << ctx[bidx+k] << ", ";
+            METLIBS_LOG_DEBUG(ctx[bidx+k] << ", ");
           }
-          cerr << endl;
           for (int k=0; k<4; ++k){
-            cerr << groups[i].tilex[bidx+k] << ", ";
+            METLIBS_LOG_DEBUG(groups[i].tilex[bidx+k] << ", ");
           }
-          cerr << endl;
 
-          cerr << "Y midlat:" << cty[num4+j] << " " << groups[i].midlat[j] << endl;
-          cerr << "Y borders:";
+          METLIBS_LOG_DEBUG("Y midlat:" << cty[num4+j] << " " << groups[i].midlat[j]);
+          METLIBS_LOG_DEBUG("Y borders:");
           for (int k=0; k<4; ++k){
-            cerr << cty[bidx+k] << ", ";
+            METLIBS_LOG_DEBUG(cty[bidx+k] << ", ");
           }
-          cerr << endl;
           for (int k=0; k<4; ++k){
-            cerr << groups[i].tiley[bidx+k] << ", ";
+            METLIBS_LOG_DEBUG(groups[i].tiley[bidx+k] << ", ");
           }
-          cerr << endl;
-          cerr << endl << endl;
 #endif
           continue;
         }
@@ -583,7 +581,7 @@ bool FilledMap::plot(Area area, // current area
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 3" << endl;
+          METLIBS_LOG_ERROR("Reading error 3");
           return false;
         }
         recnr = groups[g].crecnr[i];
@@ -594,7 +592,7 @@ bool FilledMap::plot(Area area, // current area
         nwr = fread(indata, 2, nwrec, pfile);
         if (nwr != nwrec) {
           fclose(pfile);
-          cerr << "Reading error 4" << endl;
+          METLIBS_LOG_ERROR("Reading error 4");
           return false;
         }
         recnr++;
@@ -653,7 +651,7 @@ bool FilledMap::plot(Area area, // current area
           nwr = fread(indata, 2, nwrec, pfile);
           if (nwr != nwrec) {
             fclose(pfile);
-            cerr << "Reading error 4.2" << endl;
+            METLIBS_LOG_ERROR("Reading error 4.2");
             return false;
           }
           recnr = typerecnr[type];
@@ -664,7 +662,7 @@ bool FilledMap::plot(Area area, // current area
           nwr = fread(indata, 2, nwrec, pfile);
           if (nwr != nwrec) {
             fclose(pfile);
-            cerr << "Reading error 4.3" << endl;
+            METLIBS_LOG_ERROR("Reading error 4.3");
             return false;
           }
           recnr++;
@@ -683,7 +681,7 @@ bool FilledMap::plot(Area area, // current area
             nwr = fread(indata, 2, nwrec, pfile);
             if (nwr != nwrec) {
               fclose(pfile);
-              cerr << "Reading error 5" << endl;
+              METLIBS_LOG_ERROR("Reading error 5");
               return false;
             }
             recnr++;
@@ -712,7 +710,7 @@ bool FilledMap::plot(Area area, // current area
               nwr = fread(indata, 2, nwrec, pfile);
               if (nwr != nwrec) {
                 fclose(pfile);
-                cerr << "Reading error 6" << endl;
+                METLIBS_LOG_ERROR("Reading error 6");
                 return false;
               }
               recnr++;
@@ -729,7 +727,7 @@ bool FilledMap::plot(Area area, // current area
                 nwr = fread(indata, 2, nwrec, pfile);
                 if (nwr != nwrec) {
                   fclose(pfile);
-                  cerr << "Reading error 7" << endl;
+                  METLIBS_LOG_ERROR("Reading error 7");
                   return false;
                 }
                 recnr++;
@@ -747,7 +745,7 @@ bool FilledMap::plot(Area area, // current area
               nwr = fread(indata, 2, nwrec, pfile);
               if (nwr != nwrec) {
                 fclose(pfile);
-                cerr << "Reading error 8" << endl;
+                METLIBS_LOG_ERROR("Reading error 8");
                 return false;
               }
               recnr++;
@@ -824,7 +822,7 @@ bool FilledMap::plot(Area area, // current area
   else
     clearPolys();
 
-  //cerr << "+++ Finished" << endl;
+  //METLIBS_LOG_DEBUG("+++ Finished");
   fclose(pfile);
   glDisable(GL_LINE_STIPPLE);
   return true;

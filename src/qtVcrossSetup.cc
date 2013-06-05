@@ -40,7 +40,9 @@
 #include <QGridLayout>
 
 #include "qtUtility.h"
-#include "diCommonTypes.h"
+#define MILOGGER_CATEGORY "diana.VcrossSetup"
+#include <miLogger/miLogging.h>
+
 #include "diVcrossManager.h"
 #include "qtVcrossSetup.h"
 
@@ -51,7 +53,7 @@ int                VcrossSetup::nr_colors=0;
 QColor*            VcrossSetup::pixcolor=0;
 int                VcrossSetup::nr_linewidths=0;
 int                VcrossSetup::nr_linetypes=0;
-vector<miutil::miString>   VcrossSetup::linetypes;
+vector<std::string>   VcrossSetup::linetypes;
 
 VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
 			QGridLayout * glayout, int row, int options)

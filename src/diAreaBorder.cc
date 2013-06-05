@@ -34,6 +34,9 @@
 #endif
 
 #include <diAreaBorder.h>
+#define MILOGGER_CATEGORY "diana.AreaBorder"
+#include <miLogger/miLogging.h>
+
 #include <math.h>
 #include <puTools/miString.h>
 #include <sstream>
@@ -49,13 +52,13 @@ AreaBorder::AreaBorder() : ObjectPlot(){
   type=7;         // default fronttype
 
 #ifdef DEBUGPRINT
-  cerr << "New AreaBorder made" << endl;
+  METLIBS_LOG_DEBUG("New AreaBorder made");
 #endif
 }
 
 AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs){
 #ifdef DEBUGPRINT
-  cerr << "AreaBorder copy constructror" << endl;
+  METLIBS_LOG_DEBUG("AreaBorder copy constructror");
 #endif
   linewidth=rhs.linewidth;    // default linewidth of front
   transitionwidth=rhs.transitionwidth;  // default linewidth of transition area

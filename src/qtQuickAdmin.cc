@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.QuickAdmin"
+#include <miLogger/miLogging.h>
+
 #include "qtQuickAdmin.h"
 #include "qtQuickEditOptions.h"
 
@@ -58,6 +61,8 @@
 #include "editcut.xpm"
 #include "editpaste.xpm"
 
+#define MILOGGER_CATEGORY "diana.QuickAdmin"
+#include <miLogger/miLogging.h>
 #include "qtUtility.h"
 
 class QuickTreeWidgetItem: public QTreeWidgetItem {
@@ -252,13 +257,13 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm, int fc, int lc) :
 
 void QuickAdmin::selectionChanged(QTreeWidgetItem *p, int i)
 {
-  //   cerr <<"selectionChanged()"<<endl;
+  //   METLIBS_LOG_DEBUG("selectionChanged()");
   //   QTreeWidgetItem * p = menutree->currentItem();
-  //   cerr <<"columnCount:"<<p->columnCount()<<endl;
-  //   if(p->columnCount()>0) cerr <<p->text(0).toStdString()<<endl;
+  //   METLIBS_LOG_DEBUG("columnCount:"<<p->columnCount());
+  //   if(p->columnCount()>0) METLIBS_LOG_DEBUG(p->text(0).toStdString());
   //   QList<QTreeWidgetItem *> lq = menutree->selectedItems();
   //   for(int i=0;i<lq.count();i++)
-  //     cerr <<i<<"  "<<lq[i]->text(0).toStdString()<<endl;
+  //     METLIBS_LOG_DEBUG(i<<"  "<<lq[i]->text(0).toStdString());
   if (p) {
     QuickTreeWidgetItem* qp = (QuickTreeWidgetItem*) (p);
     activeMenu = qp->Menu();
@@ -441,7 +446,7 @@ void QuickAdmin::newClicked()
     QString text = QInputDialog::getText(this, tr("Make new menu"), tr(
         "Make new menu with name:"), QLineEdit::Normal, QString::null, &ok);
     if (ok && !text.isEmpty()) {
-      //       cerr << "Making a new MENU after menu:" << activeMenu << endl;
+      //       METLIBS_LOG_DEBUG("Making a new MENU after menu:" << activeMenu);
       quickMenu tmp;
       tmp.name = text.toStdString();
       tmp.name.trim();
@@ -462,8 +467,8 @@ void QuickAdmin::newClicked()
     QString text = QInputDialog::getText(this, tr("Make new plot"), tr(
         "Make new plot with name:"), QLineEdit::Normal, QString::null, &ok);
     if (ok && !text.isEmpty()) {
-      //       cerr << "Making a new ITEM in menu:" << activeMenu
-      // 	   << " after item:" << activeElement << endl;
+      //       METLIBS_LOG_DEBUG("Making a new ITEM in menu:" << activeMenu
+      // 	   << " after item:" << activeElement);
       quickMenuItem tmp;
       tmp.name = text.toStdString();
       menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()
@@ -535,7 +540,7 @@ void QuickAdmin::eraseClicked()
       //      if( system( rm menus[activeMenu].fielname)==0){
       miutil::miString sys = "rm " + menus[activeMenu].filename;
       if (system(sys.c_str()) == 0) {
-        cerr << "Removing file:" << menus[activeMenu].filename << endl;
+        METLIBS_LOG_INFO("Removing file:" << menus[activeMenu].filename);
       }
     }
     menus.erase(menus.begin() + activeMenu);
@@ -564,11 +569,11 @@ void QuickAdmin::copyClicked()
   copyElement = activeElement;
 
   if (copyElement == -1) {
-    //     cerr << "Copy menu:" << copyMenu << endl;
+    //     METLIBS_LOG_DEBUG("Copy menu:" << copyMenu);
     MenuCopy = menus[copyMenu];
   } else {
-    //     cerr << "Copy item:" << copyElement
-    // 	 << " from menu:" << copyMenu <<endl;
+    //     METLIBS_LOG_DEBUG("Copy item:" << copyElement
+    // 	 << " from menu:" << copyMenu);
     MenuItemCopy = menus[copyMenu].menuitems[copyElement];
   }
 
@@ -587,7 +592,7 @@ void QuickAdmin::copyClicked()
 void QuickAdmin::pasteClicked()
 {
   if (copyElement == -1) {
-    //     cerr << "Paste menu:" << copyMenu << " after menu:" << activeMenu << endl;
+    //     METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << activeMenu);
     quickMenu tmp = MenuCopy;
     tmp.name.trim();
     tmp.name.replace(",", " ");
@@ -604,9 +609,9 @@ void QuickAdmin::pasteClicked()
     activeMenu++;
     activeElement = -1; // move to start of menu
   } else {
-    //     cerr << "Paste item:" << copyElement
+    //     METLIBS_LOG_DEBUG("Paste item:" << copyElement
     //     	 << " from menu:" << copyMenu
-    //      	 << " to item:" << activeElement << ", menu:" << activeMenu << endl;
+    //      	 << " to item:" << activeElement << ", menu:" << activeMenu);
     quickMenuItem tmp = MenuItemCopy;
     int pos = (activeElement != -1 ? activeElement + 1 : 0);
     menus[activeMenu].menuitems.insert(menus[activeMenu].menuitems.begin()

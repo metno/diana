@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.DisplayObjects"
+#include <miLogger/miLogging.h>
+
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
@@ -44,7 +47,7 @@ using namespace::miutil;
 
 DisplayObjects::DisplayObjects(){
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::DisplayObjects\n";
+  METLIBS_LOG_DEBUG("DisplayObjects::DisplayObjects\n");
 #endif
 
  init();
@@ -53,7 +56,7 @@ DisplayObjects::DisplayObjects(){
 
 void DisplayObjects::init(){
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::init" << endl;
+  METLIBS_LOG_DEBUG("DisplayObjects::init");
 #endif
   defined=false;
   approved=false;
@@ -72,7 +75,7 @@ void DisplayObjects::init(){
 bool DisplayObjects::define(const miString& pi)
 {
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::define" << endl;
+  METLIBS_LOG_DEBUG("DisplayObjects::define");
 #endif
 
   init();
@@ -95,7 +98,7 @@ bool DisplayObjects::define(const miString& pi)
 	key = stokens[0].downcase();
 	value = stokens[1];
 #ifdef DEBUGPRINT
-	cerr <<"key,value" << key << " " << value << endl;
+	METLIBS_LOG_DEBUG("key,value" << key << " " << value);
 #endif
 	if ( key=="file") {
 	  int l= value.length();
@@ -142,13 +145,13 @@ bool DisplayObjects::prepareObjects()
   if (!defined) return false;
 
 #ifdef DEBUGPRINT
-  cerr << "DisplayObjects::prepareObjects" << endl;
-  cerr << "...area = " << itsArea.Name() << endl;
-  cerr << "...size of wObjects =  "<< objects.size() << endl;
-  cerr << "...wObjects.objectname = " <<  objectname << endl;
-  cerr << "...wObjects.time = " << itsTime << endl;
-  cerr << "...wObjects.filename = " << filename << endl;
-  cerr << "...autoFile = " << autoFile << endl;
+  METLIBS_LOG_DEBUG("DisplayObjects::prepareObjects");
+  METLIBS_LOG_DEBUG("...area = " << itsArea.Name());
+  METLIBS_LOG_DEBUG("...size of wObjects =  "<< objects.size());
+  METLIBS_LOG_DEBUG("...wObjects.objectname = " <<  objectname);
+  METLIBS_LOG_DEBUG("...wObjects.time = " << itsTime);
+  METLIBS_LOG_DEBUG("...wObjects.filename = " << filename);
+  METLIBS_LOG_DEBUG("...autoFile = " << autoFile);
 #endif
 
 

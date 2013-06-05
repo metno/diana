@@ -52,6 +52,9 @@
 
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
+#define MILOGGER_CATEGORY "diana.in_gui"
+#include <miLogger/miLogging.h>
+
 
 #ifdef PROFET
 #include <profet/ProfetController.h>
@@ -141,7 +144,7 @@ int main(int argc, char **argv)
       logfilename= argv[ac];
 
     } else if (sarg=="-v" || sarg=="--version") {
-      //cerr << argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string<<endl;
+      //METLIBS_LOG_DEBUG(argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string);
       return 0;
 
     } else if (sarg=="-p" || sarg=="--profet") {
@@ -161,7 +164,7 @@ int main(int argc, char **argv)
       if (ks.size()==2) {
         user_variables[ks[0].upcase()] = ks[1];
       } else {
-        cerr << "WARNING, unknown argument on commandline:" << sarg << endl;
+        METLIBS_LOG_WARN("WARNING, unknown argument on commandline:" << sarg);
       }
     }
     ac++;
