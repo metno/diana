@@ -1,3 +1,9 @@
+diana (3.33.0-1) unstable; urgency=low
+
+  * adjustments due to AROME_Norway
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 10 Jun 2013 09:55:59 +0200
+
 diana (3.32.7-1) unstable; urgency=low
 
   * Bugfix: Significant weather fronts
