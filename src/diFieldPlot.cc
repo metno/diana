@@ -3297,6 +3297,10 @@ void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
   if (fields.empty()) return;
   if (!fields[0]) return;
 
+  // If the frame value was 2 then fill the frame with a transparent colour.
+  if (poptions.frame == 2)
+    plotFilledFrame(nx, ny, x, y);
+
   glColor3ubv(poptions.bordercolour.RGB());
   //glLineWidth(1);
   glLineWidth(poptions.linewidth);
@@ -3448,6 +3452,29 @@ void FieldPlot::plotFrameStencil(const int nx, const int ny, float *x, float *y)
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); 
   glDepthMask(GL_TRUE);
+}
+
+void FieldPlot::plotFilledFrame(const int nx, const int ny, float *x, float *y)
+{
+  const int ix1 = 0;
+  const int ix2 = nx;
+  const int iy1 = 0;
+  const int iy2 = ny;
+  int ix,iy;
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor4f(0.0, 0.0, 0.0, 0.0);
+
+  for (iy=iy1; iy<iy2 - 1; iy++) {
+    glBegin(GL_QUAD_STRIP);
+    for (ix=ix1; ix<ix2; ix++) {
+      int i = (iy * nx) + ix;
+      int j = ((iy + 1) * nx) + ix;
+      glVertex2f(x[i], y[i]);
+      glVertex2f(x[j], y[j]);
+    }
+    glEnd();
+  }
 }
 
 /*

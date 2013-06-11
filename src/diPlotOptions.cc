@@ -601,7 +601,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         if (miutil::is_int(value)) {
           po.frame= atoi(value.c_str());
           if (po.frame<0) po.frame=0;
-          if (po.frame> 1) po.frame= 1;
+          if (po.frame == 1) po.frame= 1;
+          if (po.frame> 2) po.frame= 2;
         } else result=false;
 
       } else if (key==key_zeroLine){
