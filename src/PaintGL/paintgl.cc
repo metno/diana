@@ -88,6 +88,8 @@ void PaintGLContext::makeCurrent()
     attributes.width = 1.0;
     attributes.polygonMode[GL_FRONT] = GL_FILL;
     attributes.polygonMode[GL_BACK] = GL_FILL;
+    attributes.stipple = false;
+    attributes.antialiasing = false;
 
     points.clear();
     validPoints.clear();
@@ -158,10 +160,7 @@ void PaintGLContext::setPolygonColor(const QRgb &color)
 {
     switch (attributes.polygonMode[GL_FRONT]) {
     case GL_FILL:
-        if (painter->testRenderHint(QPainter::Antialiasing)) {
-            setPen();
-        } else
-            painter->setPen(Qt::NoPen);
+        painter->setPen(Qt::NoPen);
         painter->setBrush(QColor::fromRgba(color));
         break;
     case GL_LINE: {
@@ -239,6 +238,8 @@ void PaintGLContext::renderPrimitive()
         break;
     case GL_LINES:
         setPen();
+        painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
+
         if (colorMask) {
             for (int i = 0; i < points.size() - 1; i += 2) {
                 painter->drawLine(points.at(i), points.at(i+1));
@@ -247,12 +248,14 @@ void PaintGLContext::renderPrimitive()
         break;
     case GL_LINE_LOOP:
         setPen();
+        painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
         points.append(points.at(0));
         if (colorMask)
             painter->drawPolyline(points);
         break;
     case GL_LINE_STRIP: {
         setPen();
+        painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
         if (colorMask)
             painter->drawPolyline(points);
         break;
@@ -295,12 +298,11 @@ void PaintGLContext::renderPrimitive()
         break;
     }
     case GL_QUADS: {
-        if (!blend)
-            setPolygonColor(attributes.color);
-        else {
-            // Optimisation: Diana only ever draws filled, blended quads without edges.
+        // Optimisation: Diana only ever draws filled, blended quads without edges.
+        if (blend)
             painter->setPen(Qt::NoPen);
-        }
+        else
+            setPolygonColor(attributes.color);
 
         QPolygonF quad(4);
         int ok = 0;
@@ -376,8 +378,8 @@ void PaintGLContext::renderPrimitive()
             if (colorMask) {
                 if (validPoints.at(i - 2) && validPoints.at(i - 1) && validPoints.at(i) && validPoints.at(i + 1)) {
                     if (blend) {
+                        painter->setCompositionMode(blendMode);
                         if (smooth) {
-                            painter->setCompositionMode(blendMode);
                             plotSubdivided(poly, color);
                         } else {
                             setPolygonColor(colors.at(i));
@@ -417,6 +419,9 @@ void PaintGLContext::renderPrimitive()
     points.clear();
     validPoints.clear();
     colors.clear();
+
+    if (attributes.antialiasing)
+        painter->setRenderHint(QPainter::Antialiasing, false);
 }
 
 void PaintGLContext::setViewportTransform()
@@ -644,8 +649,7 @@ void glDisable(GLenum cap)
         ctx->attributes.stipple = false;
         break;
     case GL_MULTISAMPLE:
-        if (ctx->isPainting())
-            ctx->painter->setRenderHint(QPainter::Antialiasing, false);
+        ctx->attributes.antialiasing = false;
         break;
     case GL_STENCIL_TEST:
         ctx->stencil.enabled = false;
@@ -716,8 +720,7 @@ void glEnable(GLenum cap)
         ctx->attributes.stipple = true;
         break;
     case GL_MULTISAMPLE:
-        if (ctx->isPainting())
-            ctx->painter->setRenderHint(QPainter::Antialiasing, true);
+        ctx->attributes.antialiasing = true;
         break;
     case GL_STENCIL_TEST:
         ctx->stencil.enabled = true;
