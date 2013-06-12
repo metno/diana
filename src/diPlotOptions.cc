@@ -333,6 +333,9 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
 
   std::string origStr;
 
+  //Default
+  po.contourShading=0;
+
   //float lw;
   bool result=true;
 
