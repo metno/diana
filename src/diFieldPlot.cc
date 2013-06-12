@@ -1697,7 +1697,7 @@ bool FieldPlot::plotValues()
   float yshift= chx*0.5;
 
   if(nfields == 3) {
-    yshift *= 1.5;
+    yshift *= 1.9;
   }
 
 
