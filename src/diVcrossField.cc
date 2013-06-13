@@ -40,6 +40,7 @@
 #include <puTools/miStringBuilder.h>
 
 #include <boost/foreach.hpp>
+#include <boost/range/adaptor/map.hpp>
 
 #include <cmath>
 #include <set>
@@ -91,10 +92,8 @@ void VcrossField::cleanupTGCache()
   delete lastVcrossPlot;
   lastVcrossPlot = 0;
 
-  if (lastVcrossData.size()) {
-    for (size_t i=0;i<lastVcrossData.size();i++) {
-      delete[] lastVcrossData[i];
-    }
+  BOOST_FOREACH(float* lvcd, lastVcrossData) {
+    delete[] lvcd;
   }
   lastVcrossData.clear();
   lastVcrossMultiLevel.clear();
@@ -110,16 +109,13 @@ void VcrossField::cleanupCache()
 {
   METLIBS_LOG_SCOPE();
 
-  for (size_t i = 0; i < VcrossPlotVector.size(); i++)
-    delete VcrossPlotVector[i];
+  BOOST_FOREACH(VcrossPlot* vcp, VcrossPlotVector)
+      delete vcp;
   VcrossPlotVector.clear();
 
-  map<int, vector<float*> >::iterator vd, vdend = VcrossDataMap.end();
-  for (vd = VcrossDataMap.begin(); vd != vdend; vd++) {
-    if (vd->second.size()) {
-      for (size_t j = 0; j < vd->second.size(); j++)
-        delete[] vd->second[j];
-    }
+  BOOST_FOREACH(vector<float*>& vcd, boost::adaptors::values(VcrossDataMap)) {
+    BOOST_FOREACH(float* d, vcd)
+        delete[] d;
   }
   VcrossDataMap.clear();
 }
@@ -259,7 +255,7 @@ bool VcrossField::setLatLon(float lat, float lon)
                                  Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
           */
 
-    // FIXME use proj4/geod
+    // FIXME use proj4/geod; similar in MapPlot::plotGeoGrid
 
     // Compute distance and points on line
     float radius = EARTH_RADIUS_M;

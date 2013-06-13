@@ -418,7 +418,7 @@ private:
 	        PlotOptions& poptions);
   int findParam(const std::string& var);
   int computer(const std::string& var, VcrossFunction vcfunc,
-	       std::vector<int> parloc);
+	       const std::vector<int>& parloc);
 
   bool plotWind(float *u, float *v, float *x, float *y,
 		int *part, float *ylim,
