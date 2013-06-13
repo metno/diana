@@ -3297,9 +3297,13 @@ void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
   if (fields.empty()) return;
   if (!fields[0]) return;
 
-  // If the frame value was 2 then fill the frame with a transparent colour.
-  if (poptions.frame == 2)
+  // If the frame value is 2 or 3 then fill the frame with a transparent colour.
+  if ((poptions.frame & 2) != 0) {
     plotFilledFrame(nx, ny, x, y);
+    // Only plot a frame if the lowest bit is set (frame=3).
+    if ((poptions.frame & 1) == 0)
+      return;
+  }
 
   glColor3ubv(poptions.bordercolour.RGB());
   //glLineWidth(1);
@@ -3463,7 +3467,7 @@ void FieldPlot::plotFilledFrame(const int nx, const int ny, float *x, float *y)
   int ix,iy;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4f(0.0, 0.0, 0.0, 0.0);
+  glColor4ub(backgroundColour.R(), backgroundColour.G(), backgroundColour.B(), backgroundColour.A());
 
   for (iy=iy1; iy<iy2 - 1; iy++) {
     glBegin(GL_QUAD_STRIP);
