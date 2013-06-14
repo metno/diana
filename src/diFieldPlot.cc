@@ -3284,6 +3284,8 @@ bool FieldPlot::plotFrameOnly()
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
+
+  return true;
 }
 
 // plot frame for complete field area
@@ -3468,6 +3470,7 @@ void FieldPlot::plotFilledFrame(const int nx, const int ny, float *x, float *y)
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColor4ub(backgroundColour.R(), backgroundColour.G(), backgroundColour.B(), backgroundColour.A());
+  glDisable(GL_BLEND);
 
   for (iy=iy1; iy<iy2 - 1; iy++) {
     glBegin(GL_QUAD_STRIP);
