@@ -226,6 +226,7 @@ void PaintGLContext::renderPrimitive()
         return;
 
     static QPointF poly[4];
+    static QRgb color[4];
 
     switch (mode) {
     case GL_POINTS:
@@ -357,22 +358,26 @@ void PaintGLContext::renderPrimitive()
 
         poly[0] = points.at(0);
         poly[1] = points.at(1);
-        QRgb color[4];
         color[0] = colors.at(0);
         color[1] = colors.at(1);
 
+        int j, k;
         for (int i = 2; i < points.size() - 1; i += 2) {
 
             if (i % 4 == 2) {
-                poly[i % 4] = points.at(i + 1);
-                poly[i % 4 + 1] = points.at(i);
-                color[i % 4] = colors.at(i + 1);
-                color[i % 4 + 1] = colors.at(i);
+                j = i + 1;
+                k = i;
             } else {
-                poly[i % 4] = points.at(i);
-                poly[i % 4 + 1] = points.at(i + 1);
-                color[i % 4] = colors.at(i);
-                color[i % 4 + 1] = colors.at(i + 1);
+                j = i;
+                k = i + 1;
+            }
+
+            poly[i % 4] = points.at(j);
+            poly[i % 4 + 1] = points.at(k);
+
+            if (blend && smooth) {
+                color[i % 4] = colors.at(j);
+                color[i % 4 + 1] = colors.at(k);
             }
 
             if (colorMask) {
