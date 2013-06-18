@@ -1327,69 +1327,62 @@ bool WeatherFront::smooth(){
   //METLIBS_LOG_DEBUG("WeatherFront::smoth");
   //produces a curve with evenly spaced points
   float totalLength=0;
-  for (int i = 0; i < s_length-1; i++){
-    float  deltay = y_s[i+1]-y_s[i];
-    float  deltax = x_s[i+1]-x_s[i];
-    float hyp = sqrtf(deltay*deltay+deltax*deltax);
-    totalLength+=hyp;
+  for (int i = 0; i < s_length - 1; i++) {
+    float deltay = y_s[i + 1] - y_s[i];
+    float deltax = x_s[i + 1] - x_s[i];
+    float hyp = sqrtf(deltay * deltay + deltax * deltax);
+    totalLength += hyp;
   }
   int nplot;
   float radius;
-  if (first){
-    radius= siglinewidth*8*getDwidth();
-    nplot= (int)(totalLength/radius)+1;
-    if (nplot<2) return false;
-  }
-  else nplot=npoints;
-  radius = totalLength/(nplot-1);
+  if (first) {
+    radius = siglinewidth * 8 * getDwidth();
+    nplot = (int) (totalLength / radius) + 1;
+    if (nplot < 2)
+      return false;
+  } else
+    nplot = npoints;
+  radius = totalLength / (nplot - 1);
   xplot = new float[nplot];
   yplot = new float[nplot];
-  xplot[0]=x_s[0];yplot[0]=y_s[0];
-  int j,i_s=0;//index of x_s,y_s
-  float totalDist=0; // distance
-  bool end= false;
-  for (j=1;j<nplot &&totalDist<totalLength && !end;j++){
+  xplot[0] = x_s[0];
+  yplot[0] = y_s[0];
+  int j, i_s = 0;//index of x_s,y_s
+  float totalDist = 0; // distance
+  bool end = false;
+  for (j = 1; j < nplot && totalDist < totalLength && !end; j++) {
     //starting point for this step
-    float xstart=xplot[j-1];
-    float ystart=yplot[j-1];
+    float xstart = xplot[j - 1];
+    float ystart = yplot[j - 1];
     //how many steps ???
-    float dist=0; // distance
+    float dist = 0; // distance
     int i = i_s;
-    while(dist<radius){
+    while (dist < radius) {
       i++;
-      float deltay = y_s[i]-ystart;
-      float deltax = x_s[i]-xstart;
-      float hyp = sqrtf(deltay*deltay+deltax*deltax);
-      dist+=hyp;
+      float deltay = y_s[i] - ystart;
+      float deltax = x_s[i] - xstart;
+      float hyp = sqrtf(deltay * deltay + deltax * deltax);
+      dist += hyp;
       //next step
-      xstart=x_s[i];
-      ystart=y_s[i];
+      xstart = x_s[i];
+      ystart = y_s[i];
     }
-    float deltax,deltay,hyp;
-    deltay = ystart-yplot[j-1];
-    deltax = xstart-xplot[j-1];
-    hyp = sqrtf(deltay*deltay+deltax*deltax);
-    float cosalfa=deltax/hyp;
-    float sinalfa=deltay/hyp;
-    xplot[j]=xplot[j-1]+radius*cosalfa;
-    yplot[j]=yplot[j-1]+radius*sinalfa;
-    deltay = yplot[j]-yplot[j-1];
-    deltax = xplot[j]-xplot[j-1];
-    hyp = sqrtf(deltay*deltay+deltax*deltax);
-    totalDist+=hyp;
-    i_s=i-1;
+    float deltax, deltay, hyp;
+    deltay = ystart - yplot[j - 1];
+    deltax = xstart - xplot[j - 1];
+    hyp = sqrtf(deltay * deltay + deltax * deltax);
+    float cosalfa = deltax / hyp;
+    float sinalfa = deltay / hyp;
+    xplot[j] = xplot[j - 1] + radius * cosalfa;
+    yplot[j] = yplot[j - 1] + radius * sinalfa;
+    deltay = yplot[j] - yplot[j - 1];
+    deltax = xplot[j] - xplot[j - 1];
+    hyp = sqrtf(deltay * deltay + deltax * deltax);
+    totalDist += hyp;
+    i_s = i - 1;
   }
-  npoints=j;
-  xplot[npoints-1]=x_s[s_length-1];
-  yplot[npoints-1]=y_s[s_length-1];
+  npoints = j;
+  xplot[npoints - 1] = x_s[s_length - 1];
+  yplot[npoints - 1] = y_s[s_length - 1];
   return true;
 }
-
-
-
-
-
-
-
-
-
