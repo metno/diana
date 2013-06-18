@@ -1133,12 +1133,8 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
   vector<std::string> paramNames;
   std::string suffix;
   splitSuffix(plotName, suffix);
-
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
-    //Do not remember why vcoord had to match,
-    //Removed test in order to fix bdiana
-    //    if ( vPlotField[i].name == plotName && vPlotField[i].vcoord.count(vcoord)) {
-    if ( vPlotField[i].name == plotName ) {
+    if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.size()==0 || vPlotField[i].vcoord.count(vcoord))) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
         miString inputName = vPlotField[i].input[j];
         vector<miString> vstr = inputName.split(":");
@@ -1149,13 +1145,13 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
           standard_name = false;
         }
 
-      inputName += suffix;
-      paramNames.push_back(inputName);
+        inputName += suffix;
+        paramNames.push_back(inputName);
+      }
+
+      return paramNames;
+
     }
-
-    return paramNames;
-
-  }
 
   }
 
