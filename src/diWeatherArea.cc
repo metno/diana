@@ -463,61 +463,6 @@ bool WeatherArea::isInsideArea(float x, float y)
   return false;
 }
 
-bool WeatherArea::orientationClockwise()
-{
-  float xlr, ylr;
-  int n, m1, m2, m3;
-  double ax, bx, cx, ay, by, cy, area2;
-
-  if (x_s != 0 && y_s != 0 && s_length > 4) {
-    n = s_length - 2;
-    xlr = x_s[0];
-    ylr = y_s[0];
-    m1 = 0;
-    for (int i = 1; i < n; i++) {
-      if (ylr > x_s[i] || (ylr == y_s[i] && xlr > x_s[i])) {
-        xlr = x_s[i];
-        ylr = y_s[i];
-        m1 = i;
-      }
-    }
-  } else if (nodePoints.size() > 2) {
-    n = nodePoints.size() - 1;
-    xlr = nodePoints[0].x;
-    ylr = nodePoints[0].y;
-    m1 = 0;
-    for (int i = 1; i < n; i++) {
-      if (ylr > nodePoints[i].x || (ylr == nodePoints[i].y && xlr
-				    > nodePoints[i].x)) {
-        xlr = nodePoints[i].x;
-        ylr = nodePoints[i].y;
-        m1 = i;
-      }
-    }
-  } else {
-    // undefined...
-    return true;
-  }
-
-  n--; // the line should not be closed here
-  // clockwise or counterclockwise direction
-  m2 = (m1 - 1 + n) % n;
-  m3 = (m1 + 1) % n;
-  ax = x_s[m2];
-  bx = x_s[m1];
-  cx = x_s[m3];
-  ay = y_s[m2];
-  by = y_s[m1];
-  cy = y_s[m3];
-  area2 = ax * by - ay * bx + ay * cx - ax * cy + bx * cy - cx * by;
-  // area2 > 0 : counterclockwise
-  // area2 < 0 : clockwise
-  // area2 = 0 : error
-  if (area2 < 0.0)
-    return true; // clockwise
-  return false; // counterclockwise
-}
-
 miString WeatherArea::writeTypeString()
 {
   miString ret = "Object=Area;\n";
