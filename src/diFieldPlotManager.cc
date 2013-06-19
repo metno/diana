@@ -240,21 +240,12 @@ bool FieldPlotManager::parseFieldPlotSetup()
         }
 
         if (!name.empty() && !input.empty()) {
-          unsigned int i = 0;
-          while (i < vPlotField.size() && vPlotField[i].name
-              != name)
-            i++;
-          if (i < vPlotField.size()) {
-            //METLIBS_LOG_INFO("  replacing plot specs. for field " << name);
-            vPlotField[i].input = input;
-          } else {
             PlotField pf;
             pf.name = name;
             pf.fieldgroup = fieldgroup;
             pf.input = input;
             pf.vcoord = vcoord;
             vPlotField.push_back(pf);
-          }
         }
       }
 
