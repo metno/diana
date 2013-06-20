@@ -1,4 +1,4 @@
-etc/diana/@METNO_VERSION@
+etc/diana/@METNO_VERSION@/diana.setup
 usr/bin/diana*
 usr/share/applications/metno-diana-@METNO_VERSION@.desktop
 usr/share/doc/diana-@METNO_VERSION@

@@ -1298,8 +1298,7 @@ void AnnotationPlot::editLastAnnoElement()
   }
 }
 
-vector<miString> AnnotationPlot::split(const miString eString, const char s1,
-    const char s2)
+vector<miString> AnnotationPlot::split(const miString eString, const char s1, const char s2)
 {
   /*finds entries delimited by s1 and s2
    (f.ex. s1=<,s2=>) <"this is the entry">

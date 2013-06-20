@@ -25,6 +25,7 @@ struct PaintAttributes {
     QVector<qreal> dashes;
     qreal dashOffset;
     bool stipple;
+    bool antialiasing;
 };
 
 struct StencilAttributes {

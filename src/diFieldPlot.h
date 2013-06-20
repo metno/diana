@@ -134,6 +134,7 @@ private:
   void plotFrame(const int nx, const int ny,
       float *x, float *y);
   void plotFrameStencil(const int nx, const int ny, float *x, float *y);
+  void plotFilledFrame(const int nx, const int ny, float *x, float *y);
   bool markExtreme();
   bool plotGridLines();
 };

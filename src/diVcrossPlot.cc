@@ -51,6 +51,8 @@
 #include <glp/glpfile.h>
 #endif
 
+#include <boost/foreach.hpp>
+
 #include <cmath>
 #include <iterator>
 #include <iomanip>
@@ -310,8 +312,7 @@ bool VcrossPlot::parseSetup()
             int j = 0;
             while (j < numVcrossFunctions && func != vcrossFunctionNames[j])
               j++;
-            if (j < numVcrossFunctions && int(names.size())
-            == vcrossFunctionArguments[j]) {
+            if (j < numVcrossFunctions && int(names.size()) == vcrossFunctionArguments[j]) {
               for (unsigned int i = 0; i < names.size(); i++) {
                 if (definedNames.find(names[i]) == definedNames.end()) {
                   msg = "Input name not defined: " + names[i];
@@ -807,8 +808,7 @@ void VcrossPlot::plotText()
 
 }
 
-bool VcrossPlot::plot(VcrossOptions *vcoptions, const std::string& fieldname,
-    PlotOptions& poptions)
+bool VcrossPlot::plot(VcrossOptions *vcoptions, const std::string& fieldname, PlotOptions& poptions)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(fieldname));
@@ -1015,8 +1015,7 @@ bool VcrossPlot::startPSoutput(const printOptions& po)
 
   psoutput->StartPage();
   // set viewport
-  psoutput->setViewport(pro.viewport_x0, pro.viewport_y0, pro.viewport_width,
-      pro.viewport_height);
+  psoutput->setViewport(pro.viewport_x0, pro.viewport_y0, pro.viewport_width, pro.viewport_height);
   hardcopy = true;
 
   // inform fontpack
@@ -1737,22 +1736,17 @@ int VcrossPlot::findParam(const std::string& var)
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(var));
 
-  map<std::string, int>::iterator p = params.find(var);
-
+  const std::map<std::string, int>::const_iterator p = params.find(var);
   if (p != params.end())
     return p->second;
 
-  map<std::string, vcFunction>::iterator f = useFunctions.find(var);
-
+  const std::map<std::string, vcFunction>::const_iterator f = useFunctions.find(var);
   if (f == useFunctions.end())
     return -1;
 
-  vector<int> parloc;
-
-  int n = f->second.vars.size();
-
-  for (int i = 0; i < n; i++) {
-    int np = findParam(f->second.vars[i]);
+  std::vector<int> parloc;
+  BOOST_FOREACH(const std::string& v, f->second.vars) {
+    const int np = findParam(v);
     if (np < 0)
       return -1;
     parloc.push_back(np);
@@ -1761,7 +1755,7 @@ int VcrossPlot::findParam(const std::string& var)
   return computer(var, f->second.function, parloc);
 }
 
-int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, vector<int> parloc)
+int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const vector<int>& parloc)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(var));
@@ -2205,10 +2199,8 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, vector<i
     break;
 
   default:
-    METLIBS_LOG_ERROR("VcrossPlot::computer ERROR function= " << vcfunc );
+    METLIBS_LOG_ERROR("unknown function '" << vcfunc << "'");
     return -1;
-    break;
-
   }
 
   params[var] = no;
@@ -2622,16 +2614,14 @@ void VcrossPlot::plotTitle()
       i = 0;
     if (i > nPoint - 2)
       i = nPoint - 2;
-    float x1 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
-        - float(i));
+    float x1 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x - float(i));
     x = markNamePosMax[n];
     i = int(x);
     if (i < 0)
       i = 0;
     if (i > nPoint - 2)
       i = nPoint - 2;
-    float x2 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x
-        - float(i));
+    float x2 = cdata1d[nxs][i] + (cdata1d[nxs][i + 1] - cdata1d[nxs][i]) * (x - float(i));
     if (x2 > xDatamin && x1 < xDatamax) {
       float dx,dy;
       fp->getStringSize(markName[n].c_str(), dx, dy);
@@ -3051,14 +3041,12 @@ void VcrossPlot::plotXLabels()
         float glat = cdata1d[nlat][0];
         float glon = cdata1d[nlon][0];
         ostringstream xostr, yostr;
-        xostr << "Lat=" << setprecision(1) << setiosflags(ios::fixed) << fabsf(
-            glat);
+        xostr << "Lat=" << setprecision(1) << setiosflags(ios::fixed) << fabsf(glat);
         if (glat < 0.)
           xostr << 'S';
         else
           xostr << 'N';
-        yostr << "  Long=" << setprecision(1) << setiosflags(ios::fixed)
-                << fabsf(glon);
+        yostr << "  Long=" << setprecision(1) << setiosflags(ios::fixed) << fabsf(glon);
         if (glon < 0.)
           yostr << 'W';
         else
@@ -3160,8 +3148,7 @@ void VcrossPlot::plotLevels()
       }
       if (vcoord != 4) {
         for (int k = k1; k < k2; k++)
-          xyclip(npd, &cdata2d[nx][k * nPoint + ipd1], &cdata2d[ny][k * nPoint
-                                                                    + ipd1], xylim);
+          xyclip(npd, &cdata2d[nx][k * nPoint + ipd1], &cdata2d[ny][k * nPoint + ipd1], xylim);
       } else {
         // theta levels
         for (int k = k1; k < k2; k++) {
@@ -3242,8 +3229,7 @@ void VcrossPlot::plotSurfacePressure()
             { yPlotmax, 0., cdata1d[npy1][ibgn] };
             xyclip(3, xline, yline, xylim);
           }
-          xyclip(iend - ibgn + 1, &cdata1d[nxs][ibgn], &cdata1d[npy1][ibgn],
-              xylim);
+          xyclip(iend - ibgn + 1, &cdata1d[nxs][ibgn], &cdata1d[npy1][ibgn], xylim);
           if (iend < ipd2) {
             float x = (cdata1d[nxs][iend] + cdata1d[nxs][iend + 1]) * 0.5;
             float xline[3] =
@@ -5539,8 +5525,7 @@ void VcrossPlot::xyclip(int npos, float *x, float *y, float xylim[4])
 
 //copy from diAnnotationPlot, move to std::string?
 
-vector<std::string> VcrossPlot::split(const std::string eString, const char s1,
-    const char s2)
+vector<std::string> VcrossPlot::split(const std::string eString, const char s1, const char s2)
 {
   /*finds entries delimited by s1 and s2
    (f.ex. s1=<,s2=>) <"this is the entry">

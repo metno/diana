@@ -1438,9 +1438,12 @@ void DianaMainWindow::MenuOK()
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
 
   // printout
-  METLIBS_LOG_INFO("------- the final string from all dialogs:");
+  std:string logstr = "------- the final string from all dialogs:\n";
   for (unsigned int i = 0; i < pstr.size(); ++i)
-    METLIBS_LOG_INFO(pstr[i]);
+    logstr += pstr[i] + "\n";
+
+  METLIBS_LOG_INFO(logstr);
+  //METLIBS_LOG_INFO(logstr[i]);
 
   miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
@@ -3975,7 +3978,7 @@ void DianaMainWindow::writeLogFile()
   file << endl;
 
   vector<std::string> vstdstr= fm->writeLog();
-  n= vstr.size();
+  n= vstdstr.size();
   file << "[FIELD.LOG]" << endl;
   for (i=0; i<n; i++) file << vstdstr[i] << endl;
   file << "[/FIELD.LOG]" << endl;

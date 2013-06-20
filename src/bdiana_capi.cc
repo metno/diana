@@ -3567,11 +3567,11 @@ int diana_init(int _argc, char** _argv)
   if (!batchinput.empty() && !batchinput.exists())
     printUsage(false);
   // Init loghandler with debug level
-  if (!logfilename.exists()) {
+/*if (!logfilename.exists()) {
     // If no log file name is given then use /etc/diana/<major>.<minor>/diana.logger
     vector<string> versionPieces = miutil::split(VERSION, ".");
     logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
-  }
+  }*/
 
   if (QFileInfo(QString::fromStdString(logfilename)).exists()) {
     cerr << "Using properties file: " << logfilename << endl;

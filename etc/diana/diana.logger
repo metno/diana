@@ -3,11 +3,10 @@
 # configuration of categories
 # WARNings from libraries
 log4cpp.rootCategory=WARN, rootAppender
-# more information from the pure diana-logger
-log4cpp.category.diana=INFO, rootAppender
-log4cpp.additivity.diana=false
+log4cpp.rootCategory=INFO, rootAppender
 
 # configuration of appenders
-log4cpp.appender.rootAppender=ConsoleAppender
+log4cpp.appender.rootAppender=FileAppender
+log4cpp.appender.rootAppender.fileName=/tmp/bdiana.log
 log4cpp.appender.rootAppender.layout=PatternLayout
 log4cpp.appender.rootAppender.layout.ConversionPattern=%d [%p] %m%n
