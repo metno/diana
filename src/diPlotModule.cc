@@ -2810,6 +2810,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
       areaInsert(splot.getMapArea(), true); // Save last area
       dopanning = true;
       splot.panPlot(true);
+      res.newcursor = paint_move_cursor;
       return;
     }
 
@@ -2847,6 +2848,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
       res.action = quick_browsing;
       res.background = true;
       res.repaint = true;
+      res.newcursor = paint_move_cursor;
       return;
     }
 
