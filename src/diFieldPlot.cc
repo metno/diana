@@ -3126,14 +3126,9 @@ bool FieldPlot::plotFillCell()
         // set fillcolor of cell
         if(poptions.linevalues.size() == 0){
           size_t index = 0;
-          if ( value > poptions.base) {
-            index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
-          } else{
-            index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
-          }
-          if ( value <poptions.base && index !=0) {
-            index = poptions.palettecolours.size() - index;
-          }
+          if (poptions.repeat || value > poptions.base)
+          index = int((value-poptions.base)/poptions.lineinterval)%poptions.palettecolours.size();
+
           if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
           if (index<0) index=0;
           glColor4ubv(poptions.palettecolours[index].RGBA());
