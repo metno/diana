@@ -149,11 +149,6 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
     }
   }
 
-  if (mappi.size() == 0) {
-    // just for the initial map, use first map from setup
-    mappi.push_back("MAP map=default");
-  }
-
   // call prepare methods
   prepareFields(fieldpi);
   prepareObs(obspi);
@@ -937,7 +932,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   miTime t = splot.getTime();
   Area plotarea, newarea;
 
-  bool nodata=true; // false when data are found
+  bool nodata = !vmp.size(); // false when data are found
 
   // prepare data for field plots
   n = vfp.size();
@@ -945,9 +940,6 @@ bool PlotModule::updatePlots(bool failOnMissingData)
     if (vfp[i]->updateNeeded(pin)) {
       if (fieldplotm->makeFields(pin, t, fv)) {
         nodata = false;
-        //        if ( failOnMissingData ) {
-        //          return false;
-        //        }
       }
       //free old fields
       freeFields(vfp[i]);
@@ -970,9 +962,6 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 #ifdef DEBUGPRINT
       COMMON_LOG::getInstance("common").debugStream() << "SatManager returned false from setData";
 #endif
-//      if ( failOnMissingData ) {
-//        return false;
-//      }
     } else {
       nodata = false;
     }
@@ -1100,9 +1089,6 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 #ifdef DEBUGPRINT
       COMMON_LOG::getInstance("common").debugStream() << "ObsManager returned false from prepare";
 #endif
-//      if ( failOnMissingData ) {
-//        return false;
-//      }
     } else {
       nodata = false;
     }
@@ -1113,12 +1099,10 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   obsm->updateObsPositions(vop);
 
   // prepare met-objects
-  if ( objects.defined && !objm->prepareObjects(t, splot.getMapArea(), objects) ) {
-//    if ( failOnMissingData ) {
-//      return false;
-//    }
-  } else {
-    nodata = false;
+  if ( objects.defined ) {
+    if ( objm->prepareObjects(t, splot.getMapArea(), objects) ) {
+      nodata = false;
+    }
   }
 
   // prepare editobjects (projection etc.)
