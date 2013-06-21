@@ -180,12 +180,12 @@ private slots:
   void trajPositions(bool);
   void measurementsPositions(bool);
   void vCrossPositions(bool);
-  void catchMouseGridPos(const mouseEvent);
-  void catchMouseRightPos(const mouseEvent);
-  void catchMouseMovePos(const mouseEvent,bool);
-  void catchKeyPress(const keyboardEvent);
-  void catchMouseDoubleClick(const mouseEvent);
-  void catchElement(const mouseEvent);
+  void catchMouseGridPos(QMouseEvent*);
+  void catchMouseRightPos(QMouseEvent*);
+  void catchMouseMovePos(QMouseEvent*,bool);
+  void catchKeyPress(QKeyEvent*);
+  void catchMouseDoubleClick(QMouseEvent*);
+  void catchElement(QMouseEvent*);
   void sendSelectedStations(const miutil::miString& command);
   void undo();
   void redo();

@@ -40,6 +40,9 @@
 #include <puTools/miString.h>
 #include <diColour.h>
 
+#include <QKeyEvent>
+#include <QMouseEvent>
+
 #ifndef NOLOG4CXX
 #include <log4cxx/logger.h>
 #else
@@ -103,22 +106,22 @@ private:
 	bool selectArea(Point p);
 	void updateSelectedArea();
 	void doSpatialInterpolation(const miutil::miString & movedId, float moveX, float moveY);
-	void handleModeChanged(const mouseEvent& me, EventResult& res);
-	void handleSelectEvent(const mouseEvent& me, EventResult& res,
+	void handleModeChanged(QMouseEvent* me, EventResult& res);
+	void handleSelectEvent(QMouseEvent* me, EventResult& res,
 	    const float& x, const float& y);
-	void handleDrawEvent(const mouseEvent& me, EventResult& res,
+	void handleDrawEvent(QMouseEvent* me, EventResult& res,
 	    const float& x, const float& y);
-	void handleEditEvent(const mouseEvent& me, EventResult& res,
+	void handleEditEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y);
-	void handleMoveEvent(const mouseEvent& me, EventResult& res,
+	void handleMoveEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y, const float& first_x, const float& first_y);
-  void handleMovePointEvent(const mouseEvent& me, EventResult& res,
+  void handleMovePointEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y, const float& first_x, const float& first_y);
-  void handleAddPointEvent(const mouseEvent& me, EventResult& res,
+  void handleAddPointEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y);
-  void handleRemovePointEvent(const mouseEvent& me, EventResult& res,
+  void handleRemovePointEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y);
-  void handleSpatialInterpolationEvent(const mouseEvent& me, EventResult& res,
+  void handleSpatialInterpolationEvent(QMouseEvent* me, EventResult& res,
       const float& x, const float& y, const float& first_x, const float& first_y);
 public:
 	GridAreaManager();
@@ -156,9 +159,9 @@ public:
 	/// Removes current area (returns true if removed)
 	bool removeCurrentArea();
 	/// Handle mouse event
-	void sendMouseEvent(const mouseEvent& me, EventResult& res, float x, float y);
+	void sendMouseEvent(QMouseEvent* me, EventResult& res, float x, float y);
 	/// Handle keyboard event
-	void sendKeyboardEvent(const keyboardEvent& me, EventResult& res);
+	void sendKeyboardEvent(QKeyEvent* ke, EventResult& res);
 	/// Plotting current areas
 	bool plot();
 	/// true if undo is possible (history available)

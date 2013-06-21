@@ -64,6 +64,9 @@ class TrajectoryPlot;
 class MeasurementsPlot;
 class StationPlot;
 
+class QKeyEvent;
+class QMouseEvent;
+
 using namespace std;
 
 /**
@@ -290,7 +293,7 @@ public:
   ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
   ///in edit mode: change obs time, leave the rest unchanged
-  void obsTime(const keyboardEvent& me, EventResult& res);
+  void obsTime(QKeyEvent* ke, EventResult& res);
   ///sets the step used in obsTime()
   void obsStepChanged(int step);
 
@@ -367,7 +370,7 @@ public:
   /// push a new area onto the area stack
   void areaInsert(Area, bool);
   /// respond to shortcuts to move to predefined areas
-  void changeArea(const keyboardEvent& me);
+  void changeArea(QKeyEvent* ke);
   /// zoom to specified rectangle
   void zoomTo(const Rectangle& rectangle);
   /// zoom out (about 1.3 times)
@@ -381,9 +384,9 @@ public:
 
   // keyboard/mouse events
   /// send one mouse event
-  void sendMouseEvent(const mouseEvent& me, EventResult& res);
+  void sendMouseEvent(QMouseEvent* me, EventResult& res);
   /// send one keyboard event
-  void sendKeyboardEvent(const keyboardEvent& me, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* ke, EventResult& res);
 
   // return settings formatted for log file
   vector<miutil::miString> writeLog();

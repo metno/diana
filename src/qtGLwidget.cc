@@ -233,64 +233,16 @@ void GLwidget::changeCursor(const cursortype c)
   }
 }
 
-// fill mouseEvent struct (diMapMode.h) with
-// information from QMouseEvent
-void GLwidget::fillMouseEvent(const QMouseEvent* me, mouseEvent& mev)
-{
-  // set button
-  if (mev.type != mousemove) {
-    // for mouse-click and release event
-    if (me->button() == Qt::LeftButton)
-      mev.button = leftButton;
-    else if (me->button() == Qt::MidButton)
-      mev.button = midButton;
-    else if (me->button() == Qt::RightButton)
-      mev.button = rightButton;
-    else
-      mev.button = noButton;
-  } else {
-    // if mouse-move event, button found in state-mask
-    // NB: we only keep one button when moving!
-    if (me->buttons() & Qt::LeftButton)
-      mev.button = leftButton;
-    else if (me->buttons() & Qt::MidButton)
-      mev.button = midButton;
-    else if (me->buttons() & Qt::RightButton)
-      mev.button = rightButton;
-    else
-      mev.button = noButton;
-  }
-
-  // set modifier
-  if (me->modifiers() & Qt::ShiftModifier)
-    mev.modifier = key_Shift;
-  else if (me->modifiers() & Qt::AltModifier)
-    mev.modifier = key_Alt;
-  else if (me->modifiers() & Qt::ControlModifier)
-    mev.modifier = key_Control;
-  else
-    mev.modifier = key_unknown;
-
-  // set position
-  mev.x = me->x();
-  mev.y = height() - me->y();
-  mev.globalX = me->globalX();
-  mev.globalY = me->globalY();
-}
-
-// Translates all Qmouseevents into mouseEvent structs (diMapMode.h)
-// and sends it off to controller. Return values are checked,
+// Sends all QMouseEvents off to controller. Return values are checked,
 // and any GUI-action taken
-void GLwidget::handleMouseEvents(QMouseEvent* me, const mouseEventType met)
+void GLwidget::handleMouseEvents(QMouseEvent* me)
 {
-  mouseEvent mev;
   EventResult res;
 
-  mev.type = met;
-  fillMouseEvent(me, mev);
-
+  QMouseEvent me2(me->type(), QPoint(me->x(), height() - me->y()), me->globalPos(),
+                  me->button(), me->buttons(), me->modifiers());
   // send event to controller
-  contr->sendMouseEvent(mev, res);
+  contr->sendMouseEvent(&me2, res);
 
   // check return values, and take appropriate action
   changeCursor(res.newcursor);
@@ -300,16 +252,16 @@ void GLwidget::handleMouseEvents(QMouseEvent* me, const mouseEventType met)
   if (res.action != no_action) {
     switch (res.action) {
     case browsing:
-      emit mouseMovePos(mev, false);
+      emit mouseMovePos(&me2, false);
       break;
     case quick_browsing:
-      emit mouseMovePos(mev, true);
+      emit mouseMovePos(&me2, true);
       break;
     case pointclick:
-      emit mouseGridPos(mev);
+      emit mouseGridPos(&me2);
       break;
     case rightclick:
-      emit mouseRightPos(mev);
+      emit mouseRightPos(&me2);
       break;
     case objects_changed:
       emit objectsChanged();
@@ -321,7 +273,7 @@ void GLwidget::handleMouseEvents(QMouseEvent* me, const mouseEventType met)
       emit gridAreaChanged();
       break;
     case doubleclick:
-      emit mouseDoubleClick(mev);
+      emit mouseDoubleClick(&me2);
       break;
     case keypressed:
       break;
@@ -340,29 +292,14 @@ void GLwidget::handleMouseEvents(QMouseEvent* me, const mouseEventType met)
   }
 }
 
-// Translates all QKeyEvents into keyboardEvent structs (diMapMode.h)
-// and sends it off to controller. Return values are checked,
+// Sends all QKeyEvents off to controller. Return values are checked,
 // and any GUI-action taken
-void GLwidget::handleKeyEvents(QKeyEvent* me, const keyboardEventType ket)
+void GLwidget::handleKeyEvents(QKeyEvent* ke)
 {
-  keyboardEvent kev;
   EventResult res;
 
-  kev.type = ket;
-  kev.key = keymap[me->key()];
-
-  // set modifier
-  if (me->modifiers() & Qt::ShiftModifier)
-    kev.modifier = key_Shift;
-  else if (me->modifiers() & Qt::AltModifier)
-    kev.modifier = key_Alt;
-  else if (me->modifiers() & Qt::ControlModifier)
-    kev.modifier = key_Control;
-  else
-    kev.modifier = key_unknown;
-
   // send event to controller
-  contr->sendKeyboardEvent(kev, res);
+  contr->sendKeyboardEvent(ke, res);
 
   // check return values, and take appropriate action
   changeCursor(res.newcursor);
@@ -375,7 +312,7 @@ void GLwidget::handleKeyEvents(QKeyEvent* me, const keyboardEventType ket)
       emit objectsChanged();
       break;
     case keypressed:
-      emit keyPress(kev);
+      emit keyPress(ke);
       break;
     default:
       break;
@@ -421,34 +358,34 @@ void GLwidget::wheelEvent(QWheelEvent *we)
   }
 }
 
-void GLwidget::keyPressEvent(QKeyEvent *me)
+void GLwidget::keyPressEvent(QKeyEvent *ke)
 {
-  handleKeyEvents(me, keypress);
+  handleKeyEvents(ke);
 }
 
-void GLwidget::keyReleaseEvent(QKeyEvent *me)
+void GLwidget::keyReleaseEvent(QKeyEvent *ke)
 {
-  handleKeyEvents(me, keyrelease);
+  handleKeyEvents(ke);
 }
 
 void GLwidget::mousePressEvent(QMouseEvent* me)
 {
-  handleMouseEvents(me, mousepress);
+  handleMouseEvents(me);
 }
 
 void GLwidget::mouseMoveEvent(QMouseEvent* me)
 {
-  handleMouseEvents(me, mousemove);
+  handleMouseEvents(me);
 }
 
 void GLwidget::mouseReleaseEvent(QMouseEvent* me)
 {
-  handleMouseEvents(me, mouserelease);
+  handleMouseEvents(me);
 }
 
 void GLwidget::mouseDoubleClickEvent(QMouseEvent* me)
 {
-  handleMouseEvents(me, mousedoubleclick);
+  handleMouseEvents(me);
 }
 
 // start hardcopy plot

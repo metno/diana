@@ -898,20 +898,20 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   w= new WorkArea(contr,this);
   setCentralWidget(w);
 
-  connect(w->Glw(), SIGNAL(mouseGridPos(const mouseEvent)),
-      SLOT(catchMouseGridPos(const mouseEvent)));
+  connect(w->Glw(), SIGNAL(mouseGridPos(QMouseEvent*)),
+      SLOT(catchMouseGridPos(QMouseEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseRightPos(const mouseEvent)),
-      SLOT(catchMouseRightPos(const mouseEvent)));
+  connect(w->Glw(), SIGNAL(mouseRightPos(QMouseEvent*)),
+      SLOT(catchMouseRightPos(QMouseEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseMovePos(const mouseEvent,bool)),
-      SLOT(catchMouseMovePos(const mouseEvent,bool)));
+  connect(w->Glw(), SIGNAL(mouseMovePos(QMouseEvent*,bool)),
+      SLOT(catchMouseMovePos(QMouseEvent*,bool)));
 
-  connect(w->Glw(), SIGNAL(keyPress(const keyboardEvent)),
-      SLOT(catchKeyPress(const keyboardEvent)));
+  connect(w->Glw(), SIGNAL(keyPress(QKeyEvent*)),
+      SLOT(catchKeyPress(QKeyEvent*)));
 
-  connect(w->Glw(), SIGNAL(mouseDoubleClick(const mouseEvent)),
-      SLOT(catchMouseDoubleClick(const mouseEvent)));
+  connect(w->Glw(), SIGNAL(mouseDoubleClick(QMouseEvent*)),
+      SLOT(catchMouseDoubleClick(QMouseEvent*)));
 
   // ----------- init dialog-objects -------------------
 
@@ -3317,11 +3317,11 @@ void DianaMainWindow::vCrossPositions(bool b)
 }
 
 // picks up a single click on position x,y
-void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
+void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 {
 
-  int x = mev.x;
-  int y = mev.y;
+  int x = mev->x();
+  int y = mev->y();
 
   float lat=0,lon=0;
   contr->PhysToGeo(x,y,lat,lon);
@@ -3345,7 +3345,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     catchElement(mev);
   }
 
-  if (mev.modifier==key_Control){
+  if (mev->modifiers()==Qt::Key_Control){
     if (uffda && contr->getSatnames().size()){
       showUffda();
     }
@@ -3364,7 +3364,7 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     sendLetter(letter);
   }
 
-  vector<Station*> allStations = contr->getStationManager()->findStations(mev.x, mev.y);
+  vector<Station*> allStations = contr->getStationManager()->findStations(mev->x(), mev->y());
   vector<Station*> stations;
   for (unsigned int i = 0; i < allStations.size(); ++i) {
     if (allStations[i]->status != Station::noStatus)
@@ -3434,26 +3434,26 @@ void DianaMainWindow::catchMouseGridPos(const mouseEvent mev)
     }
     stationsText += "</table>";
 
-    QWhatsThis::showText(w->mapToGlobal(QPoint(mev.x, w->height() - mev.y)), stationsText, w);
+    QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
   }
 }
 
 
 // picks up a single click on position x,y
-void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
+void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 {
-  //  METLIBS_LOG_DEBUG("void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)");
+  //  METLIBS_LOG_DEBUG("void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)");
 
-  int x = mev.x;
-  int y = mev.y;
-  int globalX = mev.globalX;
-  int globalY = mev.globalY;
+  int x = mev->x();
+  int y = mev->y();
+  int globalX = mev->globalX();
+  int globalY = mev->globalY();
 
 
   float map_x,map_y;
-  contr->PhysToMap(mev.x,mev.y,map_x,map_y);
+  contr->PhysToMap(mev->x(),mev->y(),map_x,map_y);
 
-  if (mev.modifier!=key_Shift &&
+  if (mev->modifiers()!=Qt::Key_Shift &&
       ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
     return;
   }
@@ -3483,13 +3483,13 @@ void DianaMainWindow::catchMouseRightPos(const mouseEvent mev)
 
 
 // picks up mousemovements (without buttonclicks)
-void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
+void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
 {
 #ifdef DEBUGREDRAWCATCH
-  METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev.x<<" "<<mev.y);
+  METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev->x()<<" "<<mev->y());
 #endif
-  int x = mev.x;
-  int y = mev.y;
+  int x = mev->x();
+  int y = mev->y();
 
   float xmap=-1., ymap=-1.;
   contr->PhysToMap(x,y,xmap,ymap);
@@ -3534,19 +3534,19 @@ void DianaMainWindow::catchMouseMovePos(const mouseEvent mev, bool quick)
 }
 
 
-void DianaMainWindow::catchMouseDoubleClick(const mouseEvent mev)
+void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 {
 }
 
 
-void DianaMainWindow::catchElement(const mouseEvent mev)
+void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
 
 #ifdef DEBUGREDRAWCATCH
-  METLIBS_LOG_DEBUG("DianaMainWindow::catchElement x,y: "<<mev.x<<" "<<mev.y);
+  METLIBS_LOG_DEBUG("DianaMainWindow::catchElement x,y: "<<mev->x()<<" "<<mev->y());
 #endif
-  int x = mev.x;
-  int y = mev.y;
+  int x = mev->x();
+  int y = mev->y();
 
   bool needupdate= false; // updateGL necessary
 
@@ -3591,7 +3591,7 @@ void DianaMainWindow::catchElement(const mouseEvent mev)
     vector<miutil::miString> station;
 
     bool add = false;
-    //    if(mev.modifier==key_Shift) add = true; //todo: shift already used (skip editmode)
+    //    if(mev->modifiers()==Qt::Key_Shift) add = true; //todo: shift already used (skip editmode)
     contr->findStations(x,y,add,name,id,station);
     int n = name.size();
 
@@ -3690,11 +3690,11 @@ void DianaMainWindow::sendSelectedStations(const miutil::miString& command)
 
 
 
-void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
+void DianaMainWindow::catchKeyPress(QKeyEvent* ke)
 {
   if (!em->inedit() && qsocket) {
 
-    if( kev.key == key_Plus || kev.key == key_Minus){
+    if( ke->key() == Qt::Key_Plus || ke->key() == Qt::Key_Minus){
       miutil::miString dataset;
       int id;
       vector<miutil::miString> stations;
@@ -3704,15 +3704,15 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
         letter.command = qmstrings::editposition;
         letter.commondesc = "dataset";
         letter.common = dataset;
-        if(kev.modifier == key_Control)
+        if(ke->modifiers() == Qt::Key_Control)
           letter.description = "position:value_2";
-        else if(kev.modifier == key_Alt)
+        else if(ke->modifiers() == Qt::Key_Alt)
           letter.description = "position:value_3";
         else
           letter.description = "position:value_1";
         for(unsigned int i=0;i<stations.size();i++){
           miutil::miString str = stations[i];
-          if( kev.key == key_Plus )
+          if( ke->key() == Qt::Key_Plus )
             str += ":+1";
           else
             str += ":-1";
@@ -3723,13 +3723,13 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       }
     }
 
-    else if( kev.modifier == key_Control){
+    else if( ke->modifiers() == Qt::Key_Control){
 
-      if( kev.key == key_C ) {
+      if( ke->key() == Qt::Key_C ) {
         sendSelectedStations(qmstrings::copyvalue);
       }
 
-      else if( kev.key == key_U) {
+      else if( ke->key() == Qt::Key_U) {
         contr->stationCommand("unselect");
         sendSelectedStations(qmstrings::selectposition);
         w->updateGL();
@@ -3737,10 +3737,10 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
 
       else {
         miutil::miString keyString;
-        if(kev.key == key_G) keyString = "ctrl_G";
-        else if(kev.key == key_S)  keyString = "ctrl_S";
-        else if(kev.key == key_Z)  keyString = "ctrl_Z";
-        else if(kev.key == key_Y)  keyString = "ctrl_Y";
+        if(ke->key() == Qt::Key_G) keyString = "ctrl_G";
+        else if(ke->key() == Qt::Key_S)  keyString = "ctrl_S";
+        else if(ke->key() == Qt::Key_Z)  keyString = "ctrl_Z";
+        else if(ke->key() == Qt::Key_Y)  keyString = "ctrl_Y";
         else return;
 
         miMessage letter;
@@ -3752,12 +3752,12 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       }
     }
 
-    else if( kev.modifier == key_Alt){
+    else if( ke->modifiers() == Qt::Key_Alt){
       miutil::miString keyString;
-      if(kev.key == key_F5) keyString = "alt_F5";
-      else if(kev.key == key_F6) keyString = "alt_F6";
-      else if(kev.key == key_F7) keyString = "alt_F7";
-      else if(kev.key == key_F8) keyString = "alt_F8";
+      if(ke->key() == Qt::Key_F5) keyString = "alt_F5";
+      else if(ke->key() == Qt::Key_F6) keyString = "alt_F6";
+      else if(ke->key() == Qt::Key_F7) keyString = "alt_F7";
+      else if(ke->key() == Qt::Key_F8) keyString = "alt_F8";
       else return;
 
       miMessage letter;
@@ -3769,12 +3769,12 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
     }
 
 
-    else if( kev.key == key_W || kev.key == key_S ) {
+    else if( ke->key() == Qt::Key_W || ke->key() == Qt::Key_S ) {
       miutil::miString name;
       int id;
       vector<miutil::miString> stations;
-      int step = (kev.key == key_S) ? 1 : -1;
-      if(kev.modifier==key_Shift) name = "add";
+      int step = (ke->key() == Qt::Key_S) ? 1 : -1;
+      if(ke->modifiers()==Qt::Key_Shift) name = "add";
       contr->getEditStation(step,name,id,stations);
       if( name.exists() && stations.size()>0){
         miMessage letter;
@@ -3791,12 +3791,12 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       w->updateGL();
     }
 
-    else if( kev.key == key_N || kev.key == key_P ) {
+    else if( ke->key() == Qt::Key_N || ke->key() == Qt::Key_P ) {
       //      int id=vselectAreas[ia].id;
       miMessage letter;
       letter.command = qmstrings::selectarea;
       letter.description = "next";
-      if( kev.key == key_P )
+      if( ke->key() == Qt::Key_P )
         letter.data.push_back("-1");
       else
         letter.data.push_back("+1");
@@ -3804,10 +3804,10 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       sendLetter(letter);
     }
 
-    else if( kev.key == key_A || kev.key == key_D ) {
+    else if( ke->key() == Qt::Key_A || ke->key() == Qt::Key_D ) {
       miMessage letter;
       letter.command    = qmstrings::changetype;
-      if( kev.key == key_A )
+      if( ke->key() == Qt::Key_A )
         letter.data.push_back("-1");
       else
         letter.data.push_back("+1");
@@ -3815,7 +3815,7 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
       sendLetter(letter);
     }
 
-    else if( kev.key == key_Escape) {
+    else if( ke->key() == Qt::Key_Escape) {
       miMessage letter;
       letter.command    = qmstrings::copyvalue;
       letter.commondesc =  "dataset";
@@ -3825,12 +3825,12 @@ void DianaMainWindow::catchKeyPress(const keyboardEvent kev)
     }
 
     //FIXME (?): Will resize stationplots when connected to a coserver, regardless of which other client(s) are connected.
-    if (kev.modifier == key_Control && kev.key == key_Plus) {
+    if (ke->modifiers() == Qt::Key_Control && ke->key() == Qt::Key_Plus) {
       float current_scale = contr->getStationsScale();
       contr->setStationsScale(current_scale + 0.1); //FIXME: No hardcoding of increment.
       w->updateGL();
     }
-    if (kev.modifier == key_Control && kev.key == key_Minus) {
+    if (ke->modifiers() == Qt::Key_Control && ke->key() == Qt::Key_Minus) {
       float current_scale = contr->getStationsScale();
       contr->setStationsScale(current_scale - 0.1); //FIXME: No hardcoding of decrement.
       w->updateGL();
