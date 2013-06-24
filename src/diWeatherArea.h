@@ -55,7 +55,6 @@ private:
   void recalculate();
   void drawSigweather();
   bool smooth();
-  bool orientationClockwise();
 
   float * xplot;
   float * yplot;

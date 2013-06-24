@@ -415,8 +415,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
       } else if (key==key_palettecolours){
         po.palettecolours.clear();
         po.palettecolours_cold.clear();
-        if(value!="off")
-          po.contourShading=1;
+        po.contourShading = ( value != "off");
         po.palettename=value;
         stokens= miutil::split(value, 0, ",");
         m= stokens.size();

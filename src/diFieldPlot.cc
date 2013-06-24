@@ -3197,23 +3197,17 @@ bool FieldPlot::plotFillCell()
           if ((x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1) <= 0.0)
             continue;
 
-          size_t index = 0;
-
           // set fillcolor of cell
           if(poptions.linevalues.size() == 0){
-            if ( value > poptions.base) {
-              index = int(value/poptions.lineinterval)%poptions.palettecolours.size();
-            } else{
-              index = int(-value/poptions.lineinterval)%poptions.palettecolours.size();
-            }
-            if ( value <poptions.base && index !=0) {
-              index = poptions.palettecolours.size() - index;
-            }
+            size_t index = 0;
+            if (poptions.repeat || value > poptions.base)
+              index = int((value-poptions.base)/poptions.lineinterval)%poptions.palettecolours.size();
+            
             if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
             if (index<0) index=0;
             glColor4ubv(poptions.palettecolours[index].RGBA());
           } else {
-            it=poptions.linevalues.begin();
+            std::vector<float>::const_iterator it = poptions.linevalues.begin();
             while( *it < value && it!=poptions.linevalues.end()) {
               it++;
             }
@@ -3229,20 +3223,6 @@ bool FieldPlot::plotFillCell()
           glVertex2f(x3, y3);
           // upper-left corner of gridcell
           glVertex2f(x4, y4);
-
-          if ( value < poptions.base && index !=0) {
-            index = poptions.palettecolours.size() - index;
-          }
-          if (index>poptions.palettecolours.size()-1) index=poptions.palettecolours.size()-1;
-          if (index<0) index=0;
-          glColor4ubv(poptions.palettecolours[index].RGBA());
-        } else {
-          std::vector<float>::const_iterator it = poptions.linevalues.begin();
-          while (*it < value && it!=poptions.linevalues.end()) {
-            it++;
-          }
-          if (it == poptions.linevalues.begin()) continue; //less than first limit
-          glColor4ubv(poptions.palettecolours[it - poptions.linevalues.begin()-1].RGBA());
         }
       }
     }

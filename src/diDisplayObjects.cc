@@ -241,7 +241,3 @@ void DisplayObjects::getPlotName(miString &name){
   else
     name.erase();
 }
-
-
-
-
