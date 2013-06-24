@@ -53,6 +53,8 @@ class ObjectManager;
 class FieldPlotManager;
 class Field;
 
+class QKeyEvent;
+class QMouseEvent;
 
 /**
 
@@ -212,9 +214,9 @@ public:
   /// sets pause in editing on or off
   void setEditPause(bool on){editpause=on;}
   /// handle mouse event
-  void sendMouseEvent(const mouseEvent& me, EventResult& res);
+  void sendMouseEvent(QMouseEvent* me, EventResult& res);
   /// handle keyboard event
-  void sendKeyboardEvent(const keyboardEvent& me, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
   /// notifies field edits about EditEvent
   bool notifyEditEvent(const EditEvent& ee);
   /// activated field edit index

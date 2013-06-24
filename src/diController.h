@@ -68,6 +68,8 @@ class FieldPlot;
 class ObsPlot;
 class SatPlot;
 
+class QKeyEvent;
+class QMouseEvent;
 
 /**
 
@@ -244,9 +246,9 @@ public:
   void archiveMode( bool );
 
   /// mouse events
-  void sendMouseEvent(const mouseEvent& me, EventResult& res);
+  void sendMouseEvent(QMouseEvent* me, EventResult& res);
   /// keyboard events
-  void sendKeyboardEvent(const keyboardEvent& me, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
 
   // edit and drawing methods
   /// get mode of main workarea

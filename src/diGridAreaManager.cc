@@ -8,6 +8,9 @@
 #include <propoly/Point.h>
 #include <sstream>
 
+#include <QKeyEvent>
+#include <QMouseEvent>
+
 using namespace::miutil;
 
 GridAreaManager::GridAreaManager() :
@@ -43,11 +46,11 @@ ProjectablePolygon GridAreaManager::getArea(miString id) {
   return ProjectablePolygon();
 }
 
-void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::sendMouseEvent(QMouseEvent* me, EventResult& res,
     float x, float y) {
   handleModeChanged(me, res);
 
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     first_x = x;
     first_y = y;
     overrideMouseEvent = true;
@@ -77,12 +80,12 @@ void GridAreaManager::sendMouseEvent(const mouseEvent& me, EventResult& res,
 }
 
 
-void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) {
+void GridAreaManager::handleModeChanged(QMouseEvent* me, EventResult& res) {
   if (modeChanged) {
     LOG4CXX_DEBUG(logger,"Changing cursor to " << getCurrentCursor());
     res.newcursor = getCurrentCursor();
     modeChanged = false;
-    if (gridAreas.count(currentId) && me.button == noButton) {
+    if (gridAreas.count(currentId) && me->button() == Qt::NoButton) {
       if (paintMode == REMOVE_POINT || paintMode == MOVE_POINT) {
         gridAreas[currentId].setMode(GridArea::NODE_SELECT);
       } else if (paintMode == ADD_POINT) {
@@ -98,27 +101,27 @@ void GridAreaManager::handleModeChanged(const mouseEvent& me, EventResult& res) 
   }
 }
 
-void GridAreaManager::handleSelectEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleSelectEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
-  if (me.type == mousepress && me.button == rightButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::RightButton) {
     res.action = rightclick;
-  } else if (me.type == mousepress && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     miString prevId = currentId;
     selectArea(Point(x, y));
     LOG4CXX_DEBUG(logger,"Selected area: " << currentId);
     gridAreas[currentId].setMode(GridArea::NORMAL);
     res.repaint = true;
     res.action=grid_area_changed;
-  } else if (me.type == mouserelease) {
+  } else if (me->type() == QEvent::MouseButtonRelease) {
     overrideMouseEvent = false;
   }
 }
 
-void GridAreaManager::handleDrawEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleDrawEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
       LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
       gridAreas[currentId].startDraw(Point(x, y));
@@ -126,13 +129,13 @@ void GridAreaManager::handleDrawEvent(const mouseEvent& me, EventResult& res,
       gridAreas[currentId].addPoint(Point(x, y));
     }
     res.repaint = true;
-  } else if (me.type == mousemove && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
     gridAreas[currentId].addPoint(Point(x, y));
     res.repaint = true;
-  } else if (me.type == mousemove && me.button != leftButton) {
+  } else if (me->type() == QEvent::MouseMove && !(me->buttons() & Qt::LeftButton)) {
     gridAreas[currentId].setNextPoint(Point(x, y));
     res.repaint = true;
-  } else if (me.type == mousepress && me.button == rightButton) {
+  } else if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::RightButton) {
     gridAreas[currentId].addPoint(Point(x, y));
     gridAreas[currentId].doDraw();
     res.repaint = true;
@@ -141,10 +144,10 @@ void GridAreaManager::handleDrawEvent(const mouseEvent& me, EventResult& res,
   }
 }
 
-void GridAreaManager::handleEditEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleEditEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
       LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
       gridAreas[currentId].startEdit(Point(x, y));
@@ -152,13 +155,13 @@ void GridAreaManager::handleEditEvent(const mouseEvent& me, EventResult& res,
       gridAreas[currentId].addPoint(Point(x, y));
     }
     res.repaint = true;
-  } else if (me.type == mousemove && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
     gridAreas[currentId].addPoint(Point(x, y));
     res.repaint = true;
-  } else if (me.type == mousemove && me.button != leftButton) {
+  } else if (me->type() == QEvent::MouseMove && !(me->buttons() & Qt::LeftButton)) {
     gridAreas[currentId].setNextPoint(Point(x, y));
     res.repaint = true;
-  } else if (me.type == mousepress && me.button == rightButton) {
+  } else if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::RightButton) {
     if (paintMode == INCLUDE_MODE) {
       gridAreas[currentId].addPoint(Point(x, y));
       gridAreas[currentId].addEditPolygon();
@@ -172,17 +175,17 @@ void GridAreaManager::handleEditEvent(const mouseEvent& me, EventResult& res,
   }
 }
 
-void GridAreaManager::handleMoveEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleMoveEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     LOG4CXX_DEBUG(logger,"Starting move " << currentId);
     gridAreas[currentId].startMove();
     res.repaint = true;
-  } else if (me.type == mousemove && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
     gridAreas[currentId].setMove((x-first_x), (y-first_y));
     res.repaint = true;
-  } else if (me.type == mouserelease && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonRelease && me->button() == Qt::LeftButton) {
     gridAreas[currentId].doMove();
     res.repaint = true;
     res.action = grid_area_changed;
@@ -190,20 +193,20 @@ void GridAreaManager::handleMoveEvent(const mouseEvent& me, EventResult& res,
   }
 }
 
-void GridAreaManager::handleMovePointEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleMovePointEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
     gridAreas[currentId].startNodeMove();
     res.repaint = true;
-  } else if (me.type == mousemove && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
     gridAreas[currentId].setMove((x-first_x), (y-first_y));
     res.repaint = true;
-  } else if (me.type == mousemove && me.button != leftButton) {
+  } else if (me->type() == QEvent::MouseMove && !(me->buttons() & Qt::LeftButton)) {
     if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
       res.repaint = true;
-  } else if (me.type == mouserelease && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonRelease && me->button() == Qt::LeftButton) {
     gridAreas[currentId].doNodeMove();
     res.repaint = true;
     res.action = grid_area_changed;
@@ -211,17 +214,17 @@ void GridAreaManager::handleMovePointEvent(const mouseEvent& me, EventResult& re
   }
 }
 
-void GridAreaManager::handleSpatialInterpolationEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleSpatialInterpolationEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
     gridAreas[currentId].startMove();
     res.repaint = true;
-  } else if (me.type == mousemove && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
     doSpatialInterpolation(currentId, (x-first_x), (y-first_y));
     res.repaint = true;
-  } else if (me.type == mouserelease && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonRelease && me->button() == Qt::LeftButton) {
     vector<SpatialInterpolateArea>::iterator gitr;
     for (gitr=spatialAreas.begin(); gitr!=spatialAreas.end(); gitr++){
       gitr->area.doMove();
@@ -234,36 +237,36 @@ void GridAreaManager::handleSpatialInterpolationEvent(const mouseEvent& me, Even
   }
 }
 
-void GridAreaManager::handleAddPointEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleAddPointEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     gridAreas[currentId].doNodeInsert();
     res.repaint = true;
     res.action = grid_area_changed;
-  } else if (me.type == mousemove) {
+  } else if (me->type() == QEvent::MouseMove) {
     if(gridAreas[currentId].setNodeInsertFocus(Point(x, y))) { // focus changed
       res.newcursor = paint_add_crusor;
     } else res.newcursor = paint_forbidden_crusor;
     res.repaint = true;
-  } else if (me.type == mouserelease && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonRelease && me->button() == Qt::LeftButton) {
     overrideMouseEvent = false;
   }
 }
 
-void GridAreaManager::handleRemovePointEvent(const mouseEvent& me, EventResult& res,
+void GridAreaManager::handleRemovePointEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
-  if (me.type == mousepress && me.button == leftButton) {
+  if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
     if(gridAreas[currentId].removeFocusedPoint()) {
       res.repaint = true;
       res.action = grid_area_changed;
     }
-  } else if (me.type == mousemove) {
+  } else if (me->type() == QEvent::MouseMove) {
     if(gridAreas[currentId].setNodeFocus(Point(x, y))) // focus changed
       res.repaint = true;
-  } else if (me.type == mouserelease && me.button == leftButton) {
+  } else if (me->type() == QEvent::MouseButtonRelease && me->button() == Qt::LeftButton) {
     overrideMouseEvent = false;
   }
 }
@@ -423,12 +426,12 @@ bool GridAreaManager::setCurrentArea(miString id) {
   return true;
 }
 
-void GridAreaManager::sendKeyboardEvent(const keyboardEvent& me,
-    EventResult& res) {
-  if (me.key == key_Shift) {
-    if (me.type == keypress)
+void GridAreaManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+{
+  if (ke->key() == Qt::Key_Shift) {
+    if (ke->type() == QEvent::KeyPress)
       res.newcursor = normal_cursor;
-    if (me.type == keyrelease)
+    if (ke->type() == QEvent::KeyRelease)
       res.newcursor = getCurrentCursor();
     res.repaint = true;
   }

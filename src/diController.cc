@@ -53,6 +53,9 @@
 #include <diMapManager.h>
 #include <diLocalSetupParser.h>
 
+#include <QKeyEvent>
+#include <QMouseEvent>
+
 using namespace miutil;
 
 // Default constructor
@@ -478,8 +481,7 @@ void Controller::archiveMode(bool on){
 // keyboard/mouse events
 
 //------------------------------------------------------------
-// the mouseevents are sent from GUI to controller,
-// using a mouseEvent structure (diMapMode.h)
+// the mouseevents are sent from GUI to controller
 //
 // the events are routed to other managers, depending
 // on the current mapmode
@@ -488,8 +490,8 @@ void Controller::archiveMode(bool on){
 // if repaint is required and if any action should be taken
 // (emitting mousemove or mouseclick signals etc.)
 //
-void Controller::sendMouseEvent(const mouseEvent& me,
-                                EventResult& res){
+void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
+{
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("Controller::sendMouseEvent................................");
 #endif
@@ -507,7 +509,7 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 
   // first check events independent of mode
   //-------------------------------------
-  if (me.type== mousepress && me.modifier==key_Shift){
+  if (me->type() == QEvent::MouseButtonPress && me->modifiers() & Qt::ShiftModifier){
     // turn off editing functions temporarily until mouse-release
     // event. Pan and Zoom will now work when editing
     editoverride= true;
@@ -518,16 +520,16 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 
     if(paintModeEnabled){
 
-      if (me.type == mousemove && me.modifier==key_Shift){
+      if (me->type() == QEvent::MouseMove && me->modifiers() & Qt::ShiftModifier){
         // shift + mouse move
         res.action=browsing;
-      } else if (me.button== leftButton && me.type == mousepress && me.modifier==key_Shift){
+      } else if (me->button() == Qt::LeftButton && me->type() == QEvent::MouseButtonPress && me->modifiers() & Qt::ShiftModifier){
         // shift + mouse click
         res.action=pointclick;
       } else {
         // Area
         float map_x,map_y;
-        plotm->PhysToMap(me.x,me.y,map_x,map_y);
+        plotm->PhysToMap(me->x(), me->y(), map_x, map_y);
         aream->sendMouseEvent(me,res,map_x,map_y);
       }
     } else if (inEdit){
@@ -548,12 +550,12 @@ void Controller::sendMouseEvent(const mouseEvent& me,
   }
 
   // final mode-independent checks
-  if (me.type==mouserelease){
+  if (me->type() == QEvent::MouseButtonRelease){
     // mouse released: turn on editing functions again
     editoverride= false;
   }
 
-  if (editoverride || me.modifier==key_Shift){ // set normal cursor
+  if (editoverride || me->modifiers() & Qt::ShiftModifier){ // set normal cursor
     res.newcursor= normal_cursor;
   }
 
@@ -564,8 +566,7 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 }
 
 //------------------------------------------------------------
-// the keyboardevents are sent from GUI to controller,
-// using a keyboardEvent structure (diMapMode.h)
+// the keyboardevents are sent from GUI to controller
 //
 // the events are routed to other managers, depending
 // on the current mapmode
@@ -573,10 +574,8 @@ void Controller::sendMouseEvent(const mouseEvent& me,
 // a struct EventResult is sent back to the GUI, informing
 // if repaint is required and if any action should be taken
 //
-void Controller::sendKeyboardEvent(const keyboardEvent& me,
-                                   EventResult& res){
-
-
+void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+{
   bool keyoverride = false;
   res.repaint= false;        // whether event is followed by a repaint
   res.background= true;      // ...and should the background be drawn too
@@ -584,75 +583,75 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
   res.newcursor= keep_it;    // leave the cursor be for now
   res.action= no_action;     // trigger GUI-action
 
-  if (me.key==key_unknown) return;
+  if (ke->key() == Qt::Key_unknown) return;
 
   mapMode mm= editm->getMapMode();
   bool inEdit = (mm != normal_mode);
 
-  if ((me.type== keypress && me.modifier==key_Shift) ||editm->getEditPause()) {
+  if ((ke->type() == QEvent::KeyPress && ke->modifiers() & Qt::ShiftModifier) ||editm->getEditPause()) {
     keyoverride= true;
   }
 
     //TESTING GRIDEDITMANAGER
-//  gridm->sendKeyboardEvent(me,res);
+//  gridm->sendKeyboardEvent(ke,res);
 
   // first check keys independent of mode
   //-------------------------------------
-  if (me.type==keypress){
-    if (me.key==key_PageUp){
+  if (ke->type() == QEvent::KeyPress){
+    if (ke->key() == Qt::Key_PageUp){
       plotm->nextObs(false);  // browse through observations, backwards
       res.repaint= true;
       res.background= true;
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
-    } else if (me.key==key_PageDown){
+    } else if (ke->key() == Qt::Key_PageDown){
       plotm->nextObs(true);  // browse through observations, forwards
       res.repaint= true;
       res.background= true;
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
-    } else if (me.modifier!=key_Alt &&
-               (me.key==key_F2 || me.key==key_F3 ||
-               me.key==key_F4 || me.key==key_F5 ||
-               me.key==key_F6 || me.key==key_F7 ||
-               me.key==key_F8)) {
-      plotm->changeArea(me);
+    } else if (!(ke->modifiers() & Qt::AltModifier) &&
+               (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
+               ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
+               ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
+               ke->key() == Qt::Key_F8)) {
+      plotm->changeArea(ke);
       res.repaint= true;
       res.background= true;
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
-    } else if (me.key==key_F9){
+    } else if (ke->key() == Qt::Key_F9){
 //    METLIBS_LOG_WARN("F9 - not defined");
       return;
-    } else if (me.key==key_F10){
+    } else if (ke->key() == Qt::Key_F10){
 //    METLIBS_LOG_WARN("Show previus plot (apply)");
       return;
-    } else if (me.key==key_F11){
+    } else if (ke->key() == Qt::Key_F11){
 //    METLIBS_LOG_WARN("Show next plot (apply)");
       return;
       //####################################################################
-    } else if ((me.key==key_Left && me.modifier==key_Shift) ||
-               (me.key==key_Right && me.modifier==key_Shift) ){
-      plotm->obsTime(me,res);  // change observation time only
+    } else if ((ke->key() == Qt::Key_Left && ke->modifiers() & Qt::ShiftModifier) ||
+               (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) ){
+      plotm->obsTime(ke,res);  // change observation time only
       res.repaint= true;
       res.background= true;
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
       //####################################################################
-     } else if (me.modifier!=key_Control &&
-                (me.key==key_Left || me.key==key_Right ||
-                me.key==key_Down || me.key==key_Up    ||
-                me.key==key_Z    || me.key==key_X     ||
-// 		me.key==key_A    || me.key==key_D     ||
-// 		me.key==key_S    || me.key==key_W     ||
-                me.key==key_Home)) {
-      plotm->sendKeyboardEvent(me,res);
+     } else if (!(ke->modifiers() & Qt::ControlModifier) &&
+                (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
+                ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
+                ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
+// 		ke->key() == Qt::Key_A    || ke->key() == Qt::Key_D     ||
+// 		ke->key() == Qt::Key_S    || ke->key() == Qt::Key_W     ||
+                ke->key() == Qt::Key_Home)) {
+      plotm->sendKeyboardEvent(ke,res);
       res.repaint= true;
       res.background= true;
       if (inEdit || paintModeEnabled) res.savebackground= true;
       return;
-    } else if (me.key==key_R) {
-      plotm->sendKeyboardEvent(me,res);
+    } else if (ke->key() == Qt::Key_R) {
+      plotm->sendKeyboardEvent(ke,res);
       return;
     }
   }
@@ -660,13 +659,13 @@ void Controller::sendKeyboardEvent(const keyboardEvent& me,
   // catch events to editmanager
   //-------------------------------------
   if (inEdit ){
-    editm->sendKeyboardEvent(me,res);
+    editm->sendKeyboardEvent(ke,res);
   }
   // catch events to PlotModule
   //-------------------------------------
   if( !inEdit || keyoverride ) {
-    //    plotm->sendKeyboardEvent(me,res);
-    if (me.type==keypress)
+    //    plotm->sendKeyboardEvent(ke,res);
+    if (ke->type() == QEvent::KeyPress)
       res.action = keypressed;
   }
 

@@ -63,6 +63,9 @@
 
 #include <GL/gl.h>
 #include <sstream>
+
+#include <QKeyEvent>
+#include <QMouseEvent>
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
 
@@ -2321,7 +2324,7 @@ void PlotModule::nextObs(bool next)
 
 }
 
-void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
+void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
 {
   // This function changes the observation time one hour,
   // and leaves the rest (fields, images etc.) unchanged.
@@ -2335,15 +2338,15 @@ void PlotModule::obsTime(const keyboardEvent& me, EventResult& res)
   if (!inEdit)
     return;
 
-  if (obsnr == 0 && me.key == key_Right)
+  if (obsnr == 0 && ke->key() == Qt::Key_Right)
     return;
-  if (obsnr > 20 && me.key == key_Left)
+  if (obsnr > 20 && ke->key() == Qt::Key_Left)
     return;
 
   obsm->clearObsPositions();
 
   miTime newTime = splot.getTime();
-  if (me.key == key_Left) {
+  if (ke->key() == Qt::Key_Left) {
     obsnr++;
   } else {
     obsnr--;
@@ -2685,50 +2688,49 @@ void PlotModule::areaInsert(Area a, bool newArea)
 
 }
 
-void PlotModule::changeArea(const keyboardEvent& me)
+void PlotModule::changeArea(QKeyEvent* ke)
 {
-
   Area a;
   MapManager mapm;
 
   // define your own area
-  if (me.key == key_F2 && me.modifier == key_Shift) {
+  if (ke->key() == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier) {
     myArea = splot.getMapArea();
     return;
   }
 
-  if (me.key == key_F3 || me.key == key_F4) { // go to previous or next area
+  if (ke->key() == Qt::Key_F3 || ke->key() == Qt::Key_F4) { // go to previous or next area
     //if last area is not saved, save it
     if (!areaSaved) {
       areaInsert(splot.getMapArea(), false);
       areaSaved = true;
     }
-    if (me.key == key_F3) { // go to previous area
+    if (ke->key() == Qt::Key_F3) { // go to previous area
       if (areaIndex < 1)
         return;
       areaIndex--;
       a = areaQ[areaIndex];
 
-    } else if (me.key == key_F4) { //go to next area
+    } else if (ke->key() == Qt::Key_F4) { //go to next area
       if (areaIndex + 2 > int(areaQ.size()))
         return;
       areaIndex++;
       a = areaQ[areaIndex];
     }
 
-  } else if (me.key == key_F2) { //get your own area
+  } else if (ke->key() == Qt::Key_F2) { //get your own area
     areaInsert(splot.getMapArea(), true);//save last area
     a = myArea;
-  } else if (me.key == key_F5) { //get predefined areas
+  } else if (ke->key() == Qt::Key_F5) { //get predefined areas
     areaInsert(splot.getMapArea(), true);
     mapm.getMapAreaByFkey("F5", a);
-  } else if (me.key == key_F6) {
+  } else if (ke->key() == Qt::Key_F6) {
     areaInsert(splot.getMapArea(), true);
     mapm.getMapAreaByFkey("F6", a);
-  } else if (me.key == key_F7) {
+  } else if (ke->key() == Qt::Key_F7) {
     areaInsert(splot.getMapArea(), true);
     mapm.getMapAreaByFkey("F7", a);
-  } else if (me.key == key_F8) {
+  } else if (ke->key() == Qt::Key_F8) {
     areaInsert(splot.getMapArea(), true);
     mapm.getMapAreaByFkey("F8", a);
   }
@@ -2769,17 +2771,17 @@ void PlotModule::zoomOut()
 }
 
 // keyboard/mouse events
-void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
+void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
-  newx = me.x;
-  newy = me.y;
+  newx = me->x();
+  newy = me->y();
 
   // ** mousepress
-  if (me.type == mousepress) {
-    oldx = me.x;
-    oldy = me.y;
+  if (me->type() == QEvent::MouseButtonPress) {
+    oldx = me->x();
+    oldy = me->y();
 
-    if (me.button == leftButton) {
+    if (me->button() == Qt::LeftButton) {
       if (aream)
         dorubberband = !aream->overrideMouseEvent;
       else
@@ -2790,7 +2792,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
       return;
 
-    } else if (me.button == midButton) {
+    } else if (me->button() == Qt::MiddleButton) {
       areaInsert(splot.getMapArea(), true); // Save last area
       dopanning = true;
       splot.panPlot(true);
@@ -2798,14 +2800,14 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
       return;
     }
 
-    else if (me.button == rightButton) {
+    else if (me->button() == Qt::RightButton) {
       res.action = rightclick;
     }
 
     return;
   }
   // ** mousemove
-  else if (me.type == mousemove) {
+  else if (me->type() == QEvent::MouseMove) {
 
     res.action = browsing;
 
@@ -2817,8 +2819,8 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
     } else if (dopanning) {
       float x1, y1, x2, y2;
-      float wd = me.x - oldx;
-      float hd = me.y - oldy;
+      float wd = me->x() - oldx;
+      float hd = me->y() - oldy;
       x1 = -wd;
       y1 = -hd;
       x2 = plotw - wd;
@@ -2826,8 +2828,8 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
       Rectangle r(x1, y1, x2, y2);
       PixelArea(r);
-      oldx = me.x;
-      oldy = me.y;
+      oldx = me->x();
+      oldy = me->y();
 
       res.action = quick_browsing;
       res.background = true;
@@ -2838,7 +2840,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
   }
   // ** mouserelease
-  else if (me.type == mouserelease) {
+  else if (me->type() == QEvent::MouseButtonRelease) {
 
     bool plotnew = false;
 
@@ -2848,17 +2850,17 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
     // minimum rubberband size for zooming (in pixels)
     const float rubberlimit = 15.;
 
-    if (me.button == rightButton) { // zoom out
+    if (me->button() == Qt::RightButton) { // zoom out
 
       //end of popup
       //res.action= rightclick;
 
-    } else if (me.button == leftButton) {
+    } else if (me->button() == Qt::LeftButton) {
 
       x1 = oldx;
       y1 = oldy;
-      x2 = me.x;
-      y2 = me.y;
+      x2 = me->x();
+      y2 = me->y();
 
       if (oldx > x2) {
         x1 = x2;
@@ -2877,7 +2879,7 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
 
       dorubberband = false;
 
-    } else if (me.button == midButton) {
+    } else if (me->button() == Qt::MiddleButton) {
       dopanning = false;
       splot.panPlot(false);
       res.repaint = true;
@@ -2896,28 +2898,28 @@ void PlotModule::sendMouseEvent(const mouseEvent& me, EventResult& res)
     return;
   }
   // ** mousedoubleclick
-  else if (me.type == mousedoubleclick) {
+  else if (me->type() == QEvent::MouseButtonDblClick) {
     res.action = doubleclick;
   }
 }
 
-void PlotModule::sendKeyboardEvent(const keyboardEvent& me, EventResult& res)
+void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
   static int arrowKeyDirection = 1;
 
   float dx = 0, dy = 0;
   float zoom = 0.;
 
-  if (me.type == keypress) {
+  if (ke->type() == QEvent::KeyPress) {
 
-    if (me.key == key_Home) {
+    if (ke->key() == Qt::Key_Home) {
       keepcurrentarea = false;
       updatePlots();
       keepcurrentarea = true;
       return;
     }
 
-    if (me.key == key_R) {
+    if (ke->key() == Qt::Key_R) {
       if (arrowKeyDirection > 0)
         arrowKeyDirection = -1;
       else
@@ -2925,23 +2927,23 @@ void PlotModule::sendKeyboardEvent(const keyboardEvent& me, EventResult& res)
       return;
     }
 
-    if (me.key == key_Left)
+    if (ke->key() == Qt::Key_Left)
       dx = -plotw / 8;
-    else if (me.key == key_Right)
+    else if (ke->key() == Qt::Key_Right)
       dx = plotw / 8;
-    else if (me.key == key_Down)
+    else if (ke->key() == Qt::Key_Down)
       dy = -ploth / 8;
-    else if (me.key == key_Up)
+    else if (ke->key() == Qt::Key_Up)
       dy = ploth / 8;
-    //     else if (me.key==key_A)     dx= -plotw/8;
-    //     else if (me.key==key_D)     dx=  plotw/8;
-    //     else if (me.key==key_S)     dy= -ploth/8;
-    //     else if (me.key==key_W)     dy=  ploth/8;
-    else if (me.key == key_Z && me.modifier == key_Shift)
+    //     else if (ke->key()==Qt::Key_A)     dx= -plotw/8;
+    //     else if (ke->key()==Qt::Key_D)     dx=  plotw/8;
+    //     else if (ke->key()==Qt::Key_S)     dy= -ploth/8;
+    //     else if (ke->key()==Qt::Key_W)     dy=  ploth/8;
+    else if (ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
       zoom = 1.3;
-    else if (me.key == key_Z)
+    else if (ke->key() == Qt::Key_Z)
       zoom = 1. / 1.3;
-    else if (me.key == key_X)
+    else if (ke->key() == Qt::Key_X)
       zoom = 1.3;
 
     if (dx != 0 || dy != 0) {

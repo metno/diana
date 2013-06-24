@@ -101,19 +101,19 @@ public:
 
 signals:
   /// single click signal
-  void mouseGridPos(const mouseEvent mev);
+  void mouseGridPos(QMouseEvent* me);
   /// single click signal (right mouse button)
-  void mouseRightPos(const mouseEvent mev);
+  void mouseRightPos(QMouseEvent* me);
   /// mouse movement, no buttons
-  void mouseMovePos(const mouseEvent mev, bool quick);
+  void mouseMovePos(QMouseEvent* me, bool quick);
   /// profet grid objects changed
   void gridAreaChanged();
   void objectsChanged();
   void fieldsChanged();
   /// key press
-  void keyPress(const keyboardEvent kev);
+  void keyPress(QKeyEvent* ke);
   /// mouse double click
-  void mouseDoubleClick(const mouseEvent mev);
+  void mouseDoubleClick(QMouseEvent* me);
 
 protected:
 
@@ -122,12 +122,10 @@ protected:
   void editPaint(bool drawb= true);
   void resizeGL(int width, int height);
 
-  void buildKeyMap();
-  void fillMouseEvent(const QMouseEvent*,mouseEvent&);
   void changeCursor(const cursortype);
 
-  void handleMouseEvents(QMouseEvent*,const mouseEventType);
-  void handleKeyEvents(QKeyEvent*,const keyboardEventType);
+  void handleMouseEvents(QMouseEvent*);
+  void handleKeyEvents(QKeyEvent*);
 
   void wheelEvent(QWheelEvent*);
   void keyPressEvent(QKeyEvent*);

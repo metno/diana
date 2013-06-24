@@ -57,57 +57,6 @@ enum combine_modes{
   set_borders     // edit border
 };
 
-/// types of mouse events
-enum mouseEventType{
-  mousepress,
-  mouserelease,
-  mousemove,
-  mousedoubleclick,
-  mouseunknown
-};
-
-/// the mouse buttons
-enum mouseButton{
-  noButton,
-  leftButton,
-  midButton,
-  rightButton
-};
-
-/// types of keyboard events
-enum keyboardEventType{
-  keypress,
-  keyrelease,
-  keytype_unknown
-};
-
-/// single mouse event from GUI
-struct mouseEvent{
-  mouseButton button;
-  mouseEventType type;
-  int x;  // pointer position
-  int y;
-  int globalX;
-  int globalY;
-  KeyType modifier;
-  mouseEvent() :
-    button(noButton), type(mouseunknown), x(0), y(0), globalX(0), globalY(0),
-        modifier(key_unknown)
-  {
-  }
-};
-
-/// single keyboard event from GUI
-struct keyboardEvent{
-  keyboardEventType type;
-  KeyType key;
-  KeyType modifier;
-  keyboardEvent() :
-    type(keytype_unknown), key(key_unknown), modifier(key_unknown)
-  {
-  }
-};
-
 /// suggestive use of cursors
 enum cursortype{
   keep_it,
