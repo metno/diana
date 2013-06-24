@@ -174,7 +174,10 @@ dist_markers_DATA= share/diana/images/markers/x.xpm \
 	share/diana/images/markers/cc_black_obs.xpm \
 	share/diana/images/markers/cc_amber.xpm \
 	share/diana/images/markers/cc_amber_trend.xpm \
-	share/diana/images/markers/cc_amber_obs.xpm 
+	share/diana/images/markers/cc_amber_obs.xpm \ 
+	share/diana/images/markers/cc_default.xpm \
+	share/diana/images/markers/cc_default_trend.xpm \
+	share/diana/images/markers/cc_default_obs.xpm
 
 patternsdir= $(datarootdir)/diana/@PVERSION@/images/patterns
 dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
