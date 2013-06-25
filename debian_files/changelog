@@ -1,3 +1,18 @@
+diana (3.33.0~rc2-1) unstable; urgency=low
+
+  * Variables with zaxis with one level: ignore zaxis
+  * Use qt mouse- and keyboardevents
+  * Using metlibs 4.11.2
+  * Using fimex 0.46.1-1
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 25 Jun 2013 12:06:01 +0200
+
+diana (3.33.0~rc1-1) unstable; urgency=low
+
+  * Adjustments necessary in order to use AROME parameter and axis names
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 21 Jun 2013 14:42:54 +0200
+
 diana (3.32.7-2) unstable; urgency=low
 
   * bdiana

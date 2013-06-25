@@ -28,7 +28,7 @@ our @EXPORT = qw(
 	
 );
 
-our $VERSION = '3.32';
+our $VERSION = '3.33';
 
 use constant DI_OK => 1;
 use constant OK => DI_OK(); # compatibility with old version
