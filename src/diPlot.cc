@@ -268,7 +268,7 @@ std::string Plot::getPlotInfo(std::string return_tokens)
   vector<std::string> return_token = miutil::split(return_tokens, 0, ",");
   vector<std::string> token = miutil::split(pinfo, 0, " ");
   std::string str;
-  //  str.join(token," ");
+
   for(unsigned int i=0;i<token.size();i++){
     vector<std::string> stoken = miutil::split(token[i], 0, "=");
     if( stoken.size() == 2 ) {
@@ -279,6 +279,12 @@ std::string Plot::getPlotInfo(std::string return_tokens)
       }
     }
   }
+
+  //probably old FIELD string syntax
+  if ( str.empty() ) {
+    return getPlotInfo(3);
+  }
+
   return str;
 }
 
