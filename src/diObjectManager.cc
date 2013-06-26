@@ -1268,12 +1268,3 @@ bool ObjectManager::checkFileName(miString &fileName){
   }
   return true;
 }
-
-
-
-
-
-
-
-
-

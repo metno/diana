@@ -585,7 +585,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
   if (ke->key() == Qt::Key_unknown) return;
 
-  mapMode mm= editm->getMapMode();
+  mapMode mm = editm->getMapMode();
   bool inEdit = (mm != normal_mode);
 
   if ((ke->type() == QEvent::KeyPress && ke->modifiers() & Qt::ShiftModifier) ||editm->getEditPause()) {

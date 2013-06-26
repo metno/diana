@@ -483,10 +483,10 @@ void EditManager::setEditMode(const miString mmode,  // mapmode
 
   if (mapmode==normal_mode){
     editmode= edittool= 0;
-    plotm->inEdit= false;
+    plotm->inEdit = false;
     return;
   } else {
-    plotm->inEdit= true;
+    plotm->inEdit = true;
   }
 
   int n= mapmodeinfo.size();
