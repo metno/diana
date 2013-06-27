@@ -176,7 +176,6 @@ private:
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR, int& indexM,
 		      bool plotDefinitions, vector<FieldGroupInfo>& vfg);
-  void showHistory(int step);
   std::string checkFieldOptions(const std::string& str, bool cdmSyntax);
   std::string getFieldOptions(const std::string& fieldName, bool reset, bool edit=false) const;
 
@@ -243,8 +242,6 @@ private:
   // info about selected model, fields, levels, idnums and plot options
   vector<FieldGroupInfo> vfgi;
 
-  vector<vector<std::string> > commandHistory;
-
   vector<FieldDialogInfo> m_modelgroup;
   vector<int>             indexMGRtable;
 
@@ -276,11 +273,6 @@ private:
   QPushButton*  copyField;
   QPushButton*  resetOptionsButton;
   QPushButton*  changeModelButton;
-
-  QPushButton*  historyBackButton;
-  QPushButton*  historyForwardButton;
-  QPushButton*  historyOkButton;
-  int           historyPos;
 
   QLineEdit* unitLineEdit;
   QComboBox* plottypeComboBox;
@@ -334,9 +326,6 @@ private slots:
   void copySelectedField();
   void resetOptions();
   void changeModel();
-  void historyBack();
-  void historyForward();
-  void historyOk();
   void unitEditingFinished();
   void plottypeComboBoxActivated( int index );
   void colorCboxActivated( int index );

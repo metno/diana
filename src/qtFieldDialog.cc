@@ -69,8 +69,6 @@
 #include <iostream>
 #include <math.h>
 
-#include "up20x20.xpm"
-#include "down20x20.xpm"
 #include "up12x12.xpm"
 #include "down12x12.xpm"
 //#include "minus12x12.xpm"
@@ -96,7 +94,6 @@ QDialog(parent)
 
   numEditFields = 0;
   currentFieldOptsInEdit = false;
-  historyPos = -1;
 
   editName = tr("EDIT").toStdString();
 
@@ -397,25 +394,6 @@ QDialog(parent)
   int width = changeModelButton->sizeHint().width()/3;
   int height = changeModelButton->sizeHint().height();;
 
-  // historyBack
-  historyBackButton = new QPushButton(QPixmap(up20x20_xpm), "", this);
-  historyBackButton->setMaximumSize(width,height);
-  historyBackButton->hide();
-  connect(historyBackButton, SIGNAL(clicked()), SLOT(historyBack()));
-
-  // historyForward
-  historyForwardButton = new QPushButton(QPixmap(down20x20_xpm), "", this);
-  historyForwardButton->setMaximumSize(width,height);
-  historyForwardButton->hide();
-  connect(historyForwardButton, SIGNAL(clicked()), SLOT(historyForward()));
-
-  // historyOk
-  historyOkButton = NormalPushButton("OK", this);
-  historyOkButton->setMaximumSize(width*2,height);
-  historyOkButton->setEnabled( false );
-  historyOkButton->hide();
-  connect(historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
-
   // upField
   upFieldButton = new QPushButton(QPixmap(up12x12_xpm), "", this);
   upFieldButton->setMaximumSize(width,height);
@@ -548,14 +526,6 @@ QDialog(parent)
   v3layout->addLayout(v1h4layout);
   v3layout->addLayout(vxh4layout);
 
-  //  QHBoxLayout* v1h5layout = new QHBoxLayout();
-  //  v1h5layout->addWidget(historyBackButton);
-  //  v1h5layout->addWidget(historyForwardButton);
-  //
-  //  QVBoxLayout* v4layout = new QVBoxLayout();
-  //  v4layout->addLayout(v1h5layout);
-  //  v4layout->addWidget(historyOkButton, 1);
-
   QHBoxLayout* h3layout = new QHBoxLayout();
   h3layout->addLayout(v3layout);
   //  h3layout->addLayout(v4layout);
@@ -661,9 +631,6 @@ void FieldDialog::toolTips()
   resetOptionsButton->setToolTip(tr("reset plot options"));
   minusButton->setToolTip(tr("selected field minus the field above"));
   changeModelButton->setToolTip(tr("change model/termin"));
-  historyBackButton->setToolTip(tr("history back"));
-  historyForwardButton->setToolTip(tr("history forward"));
-  historyOkButton->setToolTip(tr("use history shown"));
   allTimeStepButton->setToolTip(tr("all time steps / only common time steps"));
 
   gridValueCheckBox->setToolTip(tr(
@@ -1709,9 +1676,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     return;
   if (!fieldbox->count())
     return;
-
-  if (historyOkButton->isEnabled())
-    deleteAllSelected();
 
   int i, j, jp, n;
   int indexMGR = indexMGRtable[modelGRbox->currentIndex()];
@@ -3343,16 +3307,11 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
     }
   }
 
-  if (historyOkButton->isEnabled())
-    historyOk();
-
   vector<miutil::miString> vstr;
   if (selectedFields.size() == 0)
     return vstr;
 
   bool allTimeSteps = allTimeStepButton->isChecked();
-
-  vector<std::string> hstr;
 
   int n = selectedFields.size();
 
@@ -3382,7 +3341,6 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 
     ostr << " " << selectedFields[i].fieldOpts;
 
-    // for local and global history and for QuickMenues
     if (allTimeSteps)
       ostr << " allTimeSteps=on";
 
@@ -3404,64 +3362,13 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
 
       str = "FIELD " + ostr.str();
 
-      // the History string (but not if quickmenu command)
-      if (!selectedFields[i].external)
-        hstr.push_back(ostr.str());
-
     }
 
     // the OK string
     vstr.push_back(str);
 
-    //#############################################################
-    //METLIBS_LOG_DEBUG("OK: " << str);
-    //#############################################################
+    METLIBS_LOG_DEBUG("OK: " << str);
   }
-
-  // could check if a previous equal command should be deleted...
-  // check if previous command was equal (the easiest...)
-  if (hstr.size() > 0) {
-    bool newcommand = true;
-    int hs = commandHistory.size();
-    if (hs > 0) {
-      hs--;
-      if (commandHistory[hs].size() == hstr.size()) {
-        newcommand = false;
-        n = hstr.size();
-        for (int i = 0; i < n; i++)
-          if (commandHistory[hs][i] != hstr[i])
-            newcommand = true;
-      }
-    }
-    if (newcommand)
-      commandHistory.push_back(hstr);
-    //###############################################################
-    //if (newcommand) METLIBS_LOG_DEBUG("NEW COMMAND !!!!!!!!!!!!!");
-    //else            METLIBS_LOG_DEBUG("SAME COMMAND !!!!!!!!!!!!!");
-    //###############################################################
-  }
-  //###############################################################
-  //if (hstr.size()>0) {
-  //  METLIBS_LOG_DEBUG("OK-----------------------------");
-  //  n= hstr.size();
-  //  bool eq;
-  //  vector< vector<std::string> >::iterator p, pend= commandHistory.end();
-  //  for (p=commandHistory.begin(); p!=pend; p++) {
-  //    if (p->size()==n) {
-  //	eq= true;
-  //	for (i=0; i<n; i++)
-  //	  if (p[i]!=hstr[i]) eq= false;
-  //	if (eq) METLIBS_LOG_DEBUG("FOUND");
-  //  }
-  //  }
-  //  METLIBS_LOG_DEBUG("-------------------------------");
-  //}
-  //###############################################################
-
-  historyPos = commandHistory.size();
-
-  historyBackButton->setEnabled(true);
-  historyForwardButton->setEnabled(false);
 
   return vstr;
 }
@@ -3676,141 +3583,6 @@ bool FieldDialog::levelsExists(bool up, int type)
 
   return false;
 
-}
-
-void FieldDialog::historyBack()
-{
-  showHistory(-1);
-}
-
-void FieldDialog::historyForward()
-{
-  showHistory(1);
-}
-
-void FieldDialog::showHistory(int step)
-{
-
-  int hs = commandHistory.size();
-  if (hs == 0) {
-    historyPos = -1;
-    historyBackButton->setEnabled(false);
-    historyForwardButton->setEnabled(false);
-    historyOkButton->setEnabled(false);
-    return;
-  }
-
-  historyPos += step;
-  if (historyPos < -1)
-    historyPos = -1;
-  if (historyPos > hs)
-    historyPos = hs;
-
-  if (historyPos < 0 || historyPos >= hs) {
-
-    // enable model/field boxes and show edit fields
-    deleteAllSelected();
-
-  } else {
-
-    if (!historyOkButton->isEnabled()) {
-      deleteAllSelected(); // some cleanup before browsing history
-      if (numEditFields > 0)
-        enableWidgets("none");
-    }
-
-    // not show edit fields during history browsing
-    selectedFieldbox->clear();
-
-    bool minus = false;
-    std::string history_str;
-    vector<std::string> vstr;
-    int n = commandHistory[historyPos].size();
-
-    for (int i = 0; i < n; i++) {
-
-      if (history_str.empty())
-        history_str = commandHistory[historyPos][i];
-
-      //if (field1 - field2)
-      std::string field1, field2;
-      if (fieldDifference(history_str, field1, field2))
-        history_str = field1;
-
-      vector<ParsedCommand> vpc = cp->parse(history_str);
-
-      /*******************************************************
-       int mmm= (vpc.size()<10) ? vpc.size() : 10;
-       METLIBS_LOG_DEBUG("--------------------------------");
-       for (int j=0; j<mmm; j++) {
-       METLIBS_LOG_DEBUG("  parse " << j << " : key= " << vpc[j].key
-       << "  idNumber= " << vpc[j].idNumber);
-       METLIBS_LOG_DEBUG("            allValue: " << vpc[j].allValue);
-       for (int k=0; k<vpc[j].strValue.size(); k++)
-       METLIBS_LOG_DEBUG("               " << k << "    strValue: " << vpc[j].strValue[k]);
-       for (int k=0; k<vpc[j].floatValue.size(); k++)
-       METLIBS_LOG_DEBUG("               " << k << "  floatValue: " << vpc[j].floatValue[k]);
-       for (int k=0; k<vpc[j].intValue.size(); k++)
-       METLIBS_LOG_DEBUG("               " << k << "    intValue: " << vpc[j].intValue[k]);
-       }
-       *******************************************************/
-      std::string str;
-      if (minus)
-        str = "  -  ";
-
-      if (vpc.size() > 1 && vpc[0].key == "unknown") {
-        str += vpc[0].allValue; // modelName
-        if (vpc[1].key == "unknown") {
-          str += (" " + vpc[1].allValue); // fieldName
-          int nc;
-          if ((nc = cp->findKey(vpc, "level")) >= 0)
-            str += (" " + vpc[nc].allValue);
-          if ((nc = cp->findKey(vpc, "idnum")) >= 0)
-            str += (" " + vpc[nc].allValue);
-          vstr.push_back(str);
-        }
-      }
-
-      //reset
-      minus = false;
-      history_str.clear();
-
-      //if ( field1 - field2 )
-      if (!field2.empty()) {
-        minus = true;
-        history_str = field2;
-        i--;
-      }
-    }
-
-    int nvstr = vstr.size();
-    if (nvstr > 0) {
-      for (int i = 0; i < nvstr; i++) {
-        selectedFieldbox->addItem(QString(vstr[i].c_str()));
-      }
-      deleteAll->setEnabled(true);
-    }
-
-    historyOkButton->setEnabled(true);
-
-  }
-
-  historyBackButton->setEnabled(historyPos > -1);
-  historyForwardButton->setEnabled(historyPos < hs);
-}
-
-void FieldDialog::historyOk()
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("FieldDialog::historyOk()");
-#endif
-
-  if (historyPos < 0 || historyPos >= int(commandHistory.size())) {
-    vector<std::string> vstr;
-    putOKString(vstr, false, false);
-  } else {
-    putOKString(commandHistory[historyPos], false, false);
-  }
 }
 
 void FieldDialog::putOKString(const vector<std::string>& vstr,
@@ -4359,22 +4131,6 @@ vector<std::string> FieldDialog::writeLog()
 
   vector<std::string> vstr;
 
-  // write history
-
-  int i, n, h, hf = 0, hs = commandHistory.size();
-
-  // avoid eternal history
-  if (hs > 100)
-    hf = hs - 100;
-
-  for (h = hf; h < hs; h++) {
-    n = commandHistory[h].size();
-    for (i = 0; i < n; i++)
-      vstr.push_back(commandHistory[h][i]);
-    vstr.push_back("----------------");
-  }
-  vstr.push_back("================");
-
   // write used field options
 
   map<std::string, std::string>::iterator pfopt, pfend =
@@ -4410,7 +4166,6 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
 {
 
   std::string str, fieldname, fopts, sopts;
-  vector<std::string> hstr;
   size_t pos, end;
 
   int nopt, nlog;
@@ -4418,23 +4173,6 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
 
   int nvstr = vstr.size();
   int ivstr = 0;
-
-  // history of commands,
-  // many checks in case program and/or diana.setup has changed
-
-  for (; ivstr < nvstr; ivstr++) {
-    if (vstr[ivstr].substr(0, 4) == "====")
-      break;
-    if (vstr[ivstr].substr(0, 4) == "----") {
-      if (hstr.size() > 0) {
-        commandHistory.push_back(hstr);
-        hstr.clear();
-      }
-    } else {
-      hstr.push_back(vstr[ivstr]);
-    }
-  }
-  ivstr++;
 
   // field options:
   // do not destroy any new options in the program
@@ -4497,10 +4235,6 @@ void FieldDialog::readLog(const vector<miutil::miString>& vstr,
   }
   ivstr++;
 
-  historyPos = commandHistory.size();
-
-  historyBackButton->setEnabled(historyPos > 0);
-  historyForwardButton->setEnabled(false);
 }
 
 std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSyntax)
@@ -4688,14 +4422,6 @@ void FieldDialog::deleteAllSelected()
   METLIBS_LOG_DEBUG(" FieldDialog::deleteAllSelected() called");
 #endif
 
-  // calls:
-  //  1: button clicked (while selecting fields)
-  //  2: button clicked when history is shown (get out of history)
-  //  3: from putOKString when accepting history command
-  //  4: from putOKString when inserting QuickMenu command
-  //     (possibly when dialog in "history" state...)
-  //  5: variable useArchive changed
-
   int n = fieldbox->count();
   for (int i = 0; i < n; i++)
     countSelected[i] = 0;
@@ -4710,7 +4436,6 @@ void FieldDialog::deleteAllSelected()
   selectedFieldbox->clear();
   minusButton->setChecked(false);
   minusButton->setEnabled(false);
-  historyOkButton->setEnabled(false);
 
   if (numEditFields > 0) {
     // show edit fields
@@ -5410,15 +5135,11 @@ void FieldDialog::allTimeStepToggled(bool on)
 
 void FieldDialog::applyClicked()
 {
-  if (historyOkButton->isEnabled())
-    historyOk();
   emit FieldApply();
 }
 
 void FieldDialog::applyhideClicked()
 {
-  if (historyOkButton->isEnabled())
-    historyOk();
   emit FieldHide();
   emit FieldApply();
 }
