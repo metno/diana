@@ -108,9 +108,7 @@ PlotModule::~PlotModule()
 
 void PlotModule::preparePlots(const vector<miString>& vpi)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::preparePlots ++");
-#endif
   // reset flags
   mapDefinedByUser = false;
 
@@ -153,12 +151,12 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   }
 
   // call prepare methods
+  prepareArea(areapi);
+  prepareMap(mappi);
   prepareFields(fieldpi);
   prepareObs(obspi);
   prepareSat(satpi);
   prepareStations(statpi);
-  prepareArea(areapi);
-  prepareMap(mappi);
   prepareObjects(objectpi);
   prepareTrajectory(trajectorypi);
   prepareAnnotation(labelpi);
@@ -306,9 +304,7 @@ void PlotModule::prepareMap(const vector<miString>& inp)
 
 void PlotModule::prepareFields(const vector<miString>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareFields ++");
-#endif
 
   int npi = inp.size();
 
@@ -342,15 +338,16 @@ void PlotModule::prepareFields(const vector<miString>& inp)
       vfp.pop_back();
     } else {
       str = vfp[n]->getPlotInfo("model,plot,parameter,reftime");
-      if (plotenabled.count(str) == 0)
-        plotenabled[str] = true;
-      vfp[n]->enable(plotenabled[str] && vfp[n]->Enabled());
+      if (plotenabled.count(str))
+        vfp[n]->enable(plotenabled[str]);
+      else
+        vfp[n]->enable(vfp[n]->Enabled());
+
+
     }
   }
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ Returning from PlotModule::prepareFields ++");
-#endif
 }
 
 void PlotModule::prepareObs(const vector<miString>& inp)
