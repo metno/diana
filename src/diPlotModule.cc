@@ -127,6 +127,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
     vector<miString> tokens = vpi[i].split(1);
     if (!tokens.empty()) {
       miString type = tokens[0].upcase();
+      METLIBS_LOG_INFO(vpi[i]);
       if (type == "FIELD")
         fieldpi.push_back(vpi[i]);
       else if (type == "OBS")
@@ -226,9 +227,7 @@ void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 
 void PlotModule::prepareMap(const vector<miString>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareMap ++");
-#endif
 
   splot.xyClear();
 
@@ -920,12 +919,8 @@ bool PlotModule::updateFieldPlot(const vector<miString>& pin)
 // update plots
 bool PlotModule::updatePlots(bool failOnMissingData)
 {
-#ifdef DEBUGREDRAW || DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.PlotModule.updatePlots");
-#endif
-#ifdef DEBUGREDRAW
-  COMMON_LOG::getInstance("common").debugStream() << "PlotModule::updatePlots  keepcurrentarea="<<keepcurrentarea;
-#endif
+  METLIBS_LOG_DEBUG("++ PlotModule::updatePlots ++");
+
   miString pin;
   vector<Field*> fv;
   int i, n;
@@ -1948,7 +1943,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
     pinfos.push_back(vfp[i]->getPlotInfo());
-    METLIBS_LOG_INFO("Field plotinfo:" << vfp[i]->getPlotInfo());
+    METLIBS_LOG_DEBUG("Field plotinfo:" << vfp[i]->getPlotInfo());
   }
   if (pinfos.size() > 0) {
     bool constT;

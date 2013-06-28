@@ -1442,7 +1442,7 @@ void DianaMainWindow::MenuOK()
   for (unsigned int i = 0; i < pstr.size(); ++i)
     logstr += pstr[i] + "\n";
 
-  METLIBS_LOG_INFO(logstr);
+  METLIBS_LOG_DEBUG(logstr);
   //METLIBS_LOG_INFO(logstr[i]);
 
   miutil::miTime t = tslider->Value();
