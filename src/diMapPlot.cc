@@ -172,8 +172,15 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
 
   mapinfo= tmpinfo;
 
-  if (bgcolourname.exists())
+  //Background colour
+  if (bgcolourname.exists()) {
     bgcolour= bgcolourname; // static Plot member
+    //just background colour, no map. No reason to make MapPlot object
+    if ( n==2 ) {
+      return false;
+    }
+  }
+
   if (areadef) {
     reqarea= newarea;
   }
