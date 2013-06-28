@@ -28,7 +28,7 @@ Description: Meteorological visualisation tool
  This package provides a version of Diana for batched generation of
  products.
 
-Package: libmetno-bdiana-perl
+Package: libmetno-bdiana-perl-@PVERSION_MAJOR_DOT_MINOR@
 Architecture: any
 Section: perl
 Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends},
