@@ -240,6 +240,11 @@ void ObsPlot::mergeMetaData(map<miutil::miString, ObsData>& metaData) {
   }
 }
 
+void ObsPlot::addObsData(const std::vector<ObsData>& obs)
+{
+  obsp.insert(obsp.end(),obs.begin(),obs.end());
+}
+
 void ObsPlot::updateLevel(const miString& dataType)
 {
 #ifdef DEBUGPRINT

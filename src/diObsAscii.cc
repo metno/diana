@@ -74,7 +74,7 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   }
   decodeData();
 
-  oplot->setObsData(vObsData);
+  oplot->addObsData(vObsData);
 }
 
 ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
@@ -96,6 +96,7 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
 
 bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
 {
+  cerr <<"getFromFile: "<<filename<<endl;
   // open filestream
   ifstream file(filename.c_str());
   if (!file) {

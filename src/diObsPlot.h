@@ -339,7 +339,7 @@ public:
   void removeObs(){obsp.pop_back();}
   ObsData& getNextObs();
   void mergeMetaData(std::map<miutil::miString, ObsData>& metaData);
-  void setObsData(const std::vector<ObsData>& obs) { obsp = obs; }
+  void addObsData(const std::vector<ObsData>& obs);
   void addObsVector(const std::vector<ObsData>& vdata){obsp = vdata;}
   bool timeOK(const miutil::miTime& t);
   //get get pressure level etc from field (if needed)
