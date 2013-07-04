@@ -2372,6 +2372,7 @@ bool FieldPlot::plotContour()
 
   const int nx= fields[0]->nx;
   const int ny= fields[0]->ny;
+  int rnx, rny;
 
   int ipart[4];
 
@@ -2392,20 +2393,46 @@ bool FieldPlot::plotContour()
 
   int   ix1, ix2, iy1, iy2;
   bool  res= true;
+  float *x=0, *y=0;
 
   // convert gridpoints to correct projection
-  float *x=0, *y=0;
-  if(!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+  int factor = resamplingFactor(nx, ny);
+
+  if (factor < 2)
+    factor = 1;
+
+  rnx = nx/factor;
+  rny = ny/factor;
+
+  if (!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
       area, maprect, false,
-      nx, ny, &x, &y, ix1, ix2, iy1, iy2)){
+      rnx, rny, &x, &y, ix1, ix2, iy1, iy2)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
   }
 
-  if (ix1>=ix2 || iy1>=iy2) return false;
-  if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0) return false;
+  // Create a resampled data array to pass to the contour function.
+  float *data;
+  if (factor != 1) {
+    METLIBS_LOG_INFO("Resampled field from" << LOGVAL(nx) << LOGVAL(ny) << " to" << LOGVAL(rnx) << LOGVAL(rny));
+    data = new float[rnx*rny];
+    int i = 0;
+    for (int iy = 0; iy < rny; ++iy) {
+      int j = 0;
+      for (int ix = 0; ix < rnx; ++ix) {
+        data[(i*rnx) + j] = fields[0]->data[(iy*nx*factor) + (ix*factor)];
+        ++j;
+      }
+      ++i;
+    }
+  } else
+    data = fields[0]->data;
 
-  if (rgbmode && poptions.frame) plotFrame(nx,ny,x,y);
+  if (ix1>=ix2 || iy1>=iy2) return false;
+  if (ix1>=rnx || ix2<0 || iy1>=rny || iy2<0) return false;
+
+  if (rgbmode && poptions.frame)
+    plotFrame(rnx, rny, x, y);
 
   ipart[0] = ix1;
   ipart[1] = ix2;
@@ -2509,7 +2536,7 @@ bool FieldPlot::plotContour()
 
     int idraw2=0;
 
-    res = contour(nx, ny, fields[0]->data, x, y,
+    res = contour(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
@@ -2621,7 +2648,7 @@ bool FieldPlot::plotContour()
     bool contourShading = poptions.contourShading;
     poptions.contourShading = 0;
 
-    res = contour(nx, ny, fields[0]->data, x, y,
+    res = contour(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
@@ -2655,7 +2682,10 @@ bool FieldPlot::plotContour()
     METLIBS_LOG_ERROR("contour error");
 
   if (poptions.update_stencil)
-    plotFrameStencil(nx, ny, x, y);
+    plotFrameStencil(rnx+1, rny+1, x, y);
+
+  if (factor != 1)
+    delete[] data;
 
   return true;
 }
@@ -3044,50 +3074,29 @@ bool FieldPlot::plotFillCell()
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
+  int rnx, rny;
 
   // convert gridbox corners to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
 
-  int factor = 1;
-  int rnx = nx;
-  int rny = ny;
-  float cx[2], cy[2];
-  cx[0] = fields[0]->area.R().x1;
-  cy[0] = fields[0]->area.R().y1;
-  cx[1] = fields[0]->area.R().x2;
-  cy[1] = fields[0]->area.R().y2;
-  int npos = 2;
-  gc.getPoints(fields[0]->area.P(), area.P(), npos, cx, cy);
+  int factor = resamplingFactor(nx, ny);
 
-  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
-  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
-  double resamplingF = min(gridW/pwidth, gridH/pheight);
-  factor = int(resamplingF);
-
-  if (factor >= 2) {
-    rnx = nx/factor;
-    rny = ny/factor;
-    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
-        area, maprect, true,
-        rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
-  } else {
+  if (factor < 2)
     factor = 1;
-    gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX, fields[0]->gridResolutionY,
-        area, maprect, true,
-        nx, ny, &x, &y, ix1, ix2, iy1, iy2, false);
-  }
+
+  rnx = nx/factor;
+  rny = ny/factor;
+  gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
+      area, maprect, true,
+      rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
+
   if (ix1>ix2 || iy1>iy2) return false;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
-  if ( poptions.frame ) {
-    if (factor >= 2) {
-      plotFrame(rnx+1,rny+1,x,y);
-    } else {
-      plotFrame(nx+1,ny+1,x,y);
-    }
-  }
+  if ( poptions.frame )
+    plotFrame(rnx+1,rny+1,x,y);
 
   //auto -> 0
   if ( poptions.density == 0 ) {
@@ -4146,4 +4155,20 @@ bool FieldPlot::fieldsOK()
     if(!fields[i] || !fields[i]->data) return false;
   return true;
 
+}
+
+int FieldPlot::resamplingFactor(int nx, int ny) const
+{
+  float cx[2], cy[2];
+  cx[0] = fields[0]->area.R().x1;
+  cy[0] = fields[0]->area.R().y1;
+  cx[1] = fields[0]->area.R().x2;
+  cy[1] = fields[0]->area.R().y2;
+  int npos = 2;
+  gc.getPoints(fields[0]->area.P(), area.P(), npos, cx, cy);
+
+  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
+  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
+  double resamplingF = min(gridW/pwidth, gridH/pheight);
+  return int(resamplingF);
 }

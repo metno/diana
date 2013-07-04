@@ -137,6 +137,8 @@ private:
   void plotFilledFrame(const int nx, const int ny, float *x, float *y);
   bool markExtreme();
   bool plotGridLines();
+
+  int resamplingFactor(int nx, int ny) const;
 };
 
 #endif
