@@ -4170,5 +4170,5 @@ int FieldPlot::resamplingFactor(int nx, int ny) const
   double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
   double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
   double resamplingF = min(gridW/pwidth, gridH/pheight);
-  return int(resamplingF);
+  return abs(int(resamplingF));
 }
