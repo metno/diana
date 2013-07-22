@@ -4167,8 +4167,8 @@ int FieldPlot::resamplingFactor(int nx, int ny) const
   int npos = 2;
   gc.getPoints(fields[0]->area.P(), area.P(), npos, cx, cy);
 
-  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
-  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
-  double resamplingF = min(gridW/pwidth, gridH/pheight);
-  return abs(int(resamplingF));
+  double xs = fullrect.width()/fabs(cx[1] - cx[0]);
+  double ys = fullrect.height()/fabs(cy[1] - cy[0]);
+  double resamplingF = min(xs, ys);
+  return int(resamplingF);
 }
