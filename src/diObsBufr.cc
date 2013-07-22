@@ -1761,25 +1761,29 @@ miString ObsBufr::cloud_TCU_CB(int i)
 
 float ObsBufr::height_of_clouds(double height)
 {
-  if (height > 2500)
+  if (height < 1 )
     return 9.0;
-  if (height > 2000)
-    return 8.0;
-  if (height > 1500)
-    return 7.0;
-  if (height > 1000)
-    return 6.0;
-  if (height > 600)
-    return 5.0;
-  if (height > 300)
-    return 4.0;
-  if (height > 200)
-    return 3.0;
-  if (height > 100)
-    return 2.0;
-  if (height > 50)
+  if (height < 50)
+    return 0.0;
+  if (height < 100)
     return 1.0;
-  return 9.0; // when there are no clouds -> height = 0
+  if (height < 200)
+    return 2.0;
+  if (height < 300)
+    return 3.0;
+  if (height < 600)
+    return 4.0;
+  if (height < 1000)
+    return 5.0;
+  if (height < 1500)
+    return 6.0;
+  if (height < 2000)
+    return 7.0;
+  if (height < 2500)
+    return 8.0;
+  return 9.0; 
+  // when there are no clouds -> height = 0
+  //height=0 > returns 9 when no clouds, but what if there are clouds?
 }
 
 void ObsBufr::cloud_type(ObsData& d, double v)
