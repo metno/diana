@@ -2682,7 +2682,7 @@ bool FieldPlot::plotContour()
     METLIBS_LOG_ERROR("contour error");
 
   if (poptions.update_stencil)
-    plotFrameStencil(rnx+1, rny+1, x, y);
+    plotFrameStencil(rnx, rny, x, y);
 
   if (factor != 1)
     delete[] data;
