@@ -1689,11 +1689,11 @@ static int parseAndProcess(istream &is)
           MAKE_CONTROLLER
 
           vector<std::string> field_errors;
-          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
-            METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
-            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
-              METLIBS_LOG_ERROR(field_errors[kk]);
-          }
+//          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+//            METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
+//            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+//              METLIBS_LOG_ERROR(field_errors[kk]);
+//          }
         }
 
         // turn on/off archive-mode (observations)
@@ -1720,7 +1720,7 @@ static int parseAndProcess(istream &is)
 
         vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
         main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-            ptimes, true);
+            ptimes, false);
 
         if (ptime.undef()) {
           if (use_nowtime)
@@ -2650,7 +2650,7 @@ static int parseAndProcess(istream &is)
 
       vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
       main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-          ptimes, true);
+          ptimes, false);
 
       if (ptime.undef()) {
         if (use_nowtime)
