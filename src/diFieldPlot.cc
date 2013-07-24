@@ -142,8 +142,11 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
   //merge current plotOptions (from pin) with plotOptions form setup
   pinfo= pin;
   poptions.fillFieldPlotOptions(fname,pinfo,poptions);
-
   plottype= poptions.plottype;
+  if (poptions.enabled == false) enabled = false;
+
+  METLIBS_LOG_DEBUG(" FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<requestedarea.getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters<<"\n");
+  if ( requestedarea.getDiagonalInMeters() > poptions.maxDiagonalInMeters && poptions.maxDiagonalInMeters > -1 ) return false;
 
 #ifdef DEBUGPRINT
   if      (plottype==fpt_contour)          METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour");
@@ -174,8 +177,7 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
 
 //  set list of field-pointers, update datatime
 bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
-
-  //   METLIBS_LOG_DEBUG(" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime());
+  METLIBS_LOG_DEBUG(" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime());
 
   clearFields();
 

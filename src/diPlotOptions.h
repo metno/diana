@@ -187,6 +187,7 @@ public:
   bool      use_stencil;    // whether a stencil is used to mask out plotting of the current field
   bool      update_stencil; // whether a stencil is updated with the plot area of the current field
   bool      plot_under;     // plot field together with shade plots
+  float     maxDiagonalInMeters;
 
   // Constructor
   PlotOptions();

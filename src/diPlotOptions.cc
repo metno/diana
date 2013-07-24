@@ -68,7 +68,7 @@ PlotOptions::PlotOptions():
   alignX(0), alignY(0),
   fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
-  antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false)
+  antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
 {
 
   limits.clear();
@@ -322,6 +322,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
   //update_stencil
   const std::string key_update_stencil="update_stencil";
   const std::string key_plot_under="plot_under";
+  //only plot if gcd less than maxDiagonalInMeters
+  const std::string key_maxDiagonalInMeters="maxdiagonalinmeters";
   //------------------------------------------
 
 
@@ -847,6 +849,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
         po.update_stencil=(value == "true");
       } else if (key==key_plot_under){
         po.plot_under=(value == "true");
+      } else if (key==key_maxDiagonalInMeters){
+        po.maxDiagonalInMeters=atof(value.c_str());
 
       } else {
        origStr += " " + key + "=" + value;
