@@ -2906,6 +2906,7 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Green smooth line stipple",Line,"green","green",0,true,"dash2"));
   fronts.push_back(newEditToolInfo("Black sharp arrow",ArrowLine,"black","black",0,false));
   fronts.push_back(newEditToolInfo("Black sharp thin arrow",ArrowLine,"black","black",-2,false));
+  fronts.push_back(newEditToolInfo("Black smooth arrow",ArrowLine,"black"));
   fronts.push_back(newEditToolInfo("Red sharp arrow",ArrowLine,"red","red",0,false));
   fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
   fronts.push_back(newEditToolInfo("Blue sharp arrow",ArrowLine,"blue","blue",0,false));
