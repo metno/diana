@@ -2399,8 +2399,8 @@ bool FieldPlot::plotContour()
   bool  res= true;
   float *x=0, *y=0;
 
-  // convert gridpoints to correct projection
-  int factor = resamplingFactor(nx, ny);
+  //Resampling disabled
+  int factor = 1; //resamplingFactor(nx, ny);
 
   if (factor < 2)
     factor = 1;
@@ -2408,6 +2408,7 @@ bool FieldPlot::plotContour()
   rnx = nx/factor;
   rny = ny/factor;
 
+  // convert gridpoints to correct projection
   if (!gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
       area, maprect, false,
       rnx, rny, &x, &y, ix1, ix2, iy1, iy2)) {
@@ -3094,6 +3095,11 @@ bool FieldPlot::plotFillCell()
   gc.getGridPoints(fields[0]->area,fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
       area, maprect, true,
       rnx, rny, &x, &y, ix1, ix2, iy1, iy2, false);
+
+// Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
+  if ( ix2 == nx-1 ) {
+    ix2--;
+  }
 
   if (ix1>ix2 || iy1>iy2) return false;
 
