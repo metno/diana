@@ -738,6 +738,9 @@ void ObsDialog::markButton(miutil::miString& str)
   //Wind
   if(vstr[0]=="dd" || vstr[0]=="ff")
     obsWidget[m_selected]->markButton("Wind",true);
+  //Pos
+  if(vstr[0]=="lat" || vstr[0]=="lon")
+    obsWidget[m_selected]->markButton("Pos",true);
 }
 
 
@@ -1062,6 +1065,14 @@ void ObsDialog::rightButtonClicked(miutil::miString name)
   if(name=="Wind") {
     rightButtonClicked("dd");
     rightButtonClicked("ff");
+    obsWidget[m_selected]->markButton(name,true);
+    return;
+  }
+
+  //Pos
+  if(name=="Pos") {
+    rightButtonClicked("lat");
+    rightButtonClicked("lon");
     obsWidget[m_selected]->markButton(name,true);
     return;
   }

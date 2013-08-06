@@ -1098,6 +1098,9 @@ ObsDialogInfo ObsManager::initDialog()
   ppressure.button.push_back(addButton("Date","Date(mm-dd)",0,0));
   ppressure.button.push_back(addButton("Time","hh.mm",0,0,true));
   ppressure.button.push_back(addButton("HHH","geopotential",true));
+  ppressure.button.push_back(addButton("QI","Percent confidence",0,100,true));
+  ppressure.button.push_back(addButton("QI_NM","Percent confidence no model",0,100,true));
+  ppressure.button.push_back(addButton("QI_RFF","Percent confidence recursive filter flag",0,100,true));
 
   obsformat.clear();
   obsformat.push_back(ofmt_temp);
@@ -1749,7 +1752,7 @@ bool ObsManager::parseSetup()
   defProd["temp"].timeRangeMin=-30;
   defProd["temp"].timeRangeMax= 30;
   defProd["temp"].synoptic= false;
-  parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH";
+  parameter= "Pos,dd,ff,Wind,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF";
   defProd["temp"].parameter= parameter.split(",");
   defProd["ocea"].obsformat= ofmt_ocea;
   defProd["ocea"].timeRangeMin=-180;

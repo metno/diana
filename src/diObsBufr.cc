@@ -158,10 +158,10 @@ bool ObsBufr::ObsTime(const miString& bufr_file, miTime& time)
   pbclose_(&iunit,&iret);
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
-//  if (ksec1[5] > 1) {
-//    METLIBS_LOG_DEBUG("ksec1[5]: "<<ksec1[5]);
-//    return false;
-//  }
+  //  if (ksec1[5] > 1) {
+  //    METLIBS_LOG_DEBUG("ksec1[5]: "<<ksec1[5]);
+  //    return false;
+  //  }
 
   //HACK if year has only two digits, files from year 1971 to 2070 is assumed
   int year = ksec1[8];
@@ -240,7 +240,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen, const miString& format)
   //   METLIBS_LOG_DEBUG("  // Decode BUFR message into fully decoded form.");
 
   const int kelem = 40000; //length of subsection
-  const int kvals = 360000;
+  const int kvals = 440000;
 
   const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
 
@@ -373,7 +373,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   d.ypos = -32767;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
-//METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
+    //METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
     switch (ktdexp[i]) {
     //   8021  TIME SIGNIFICANCE
     case 8021:
@@ -412,7 +412,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     }
     break;
 
-      //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+    //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
     case 1011:
     {
       if ( !wmoNumber ) {
@@ -460,9 +460,9 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       if ( !wmoNumber ) {
         d.id = miString(int(values[j]));
       }
-    break;
+      break;
 
-    //001195 MOBIL LAND STATION IDENTIFIER
+      //001195 MOBIL LAND STATION IDENTIFIER
     case 1195:
     {
       if ( !wmoNumber ) {
@@ -651,10 +651,10 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     case 11012:
       if (values[j] < bufrMissing) {
         if ( selected_wind_vector_ambiguities ) {
-        //METLIBS_LOG_DEBUG("wind_speed_selection_count:"<<wind_speed_selection_count);
+          //METLIBS_LOG_DEBUG("wind_speed_selection_count:"<<wind_speed_selection_count);
           if ( selected_wind_vector_ambiguities == wind_speed_selection_count ) {
             d.fdata["ff"] = values[j];
-          //  METLIBS_LOG_DEBUG("ff:"<<values[j]);
+            //  METLIBS_LOG_DEBUG("ff:"<<values[j]);
           }
           wind_speed_selection_count++;
         } else {
@@ -663,7 +663,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       }
       break;
 
-    // 011002 WIND SPEED
+      // 011002 WIND SPEED
     case 11002:
       if (!d.fdata.count("ff") && values[j] < bufrMissing )
         d.fdata["ff"] = values[j];
@@ -971,9 +971,9 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
         selected_wind_vector_ambiguities = values[j];
         //METLIBS_LOG_DEBUG("selected_wind_vector_ambiguities:"<<selected_wind_vector_ambiguities);
       }
-    break;
+      break;
 
-    // 022011 PERIOD OF WAVES, s
+      // 022011 PERIOD OF WAVES, s
     case 22011:
       if (values[j] < bufrMissing)
         d.fdata["PwaPwa"] = values[j];
@@ -1051,7 +1051,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-            << wmoStation;
+                << wmoStation;
     d.id = ostr.str();
   }
 
@@ -1154,8 +1154,8 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
       minute = int(values[j]);
       break;
 
-    //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
-    //   5002  LATITUDE (COARSE ACCURACY), DEGREE
+      //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
+      //   5002  LATITUDE (COARSE ACCURACY), DEGREE
     case 5001:
     case 5002:
       latitude.push_back(values[j]);
@@ -1176,7 +1176,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   ostringstream ostr;
   if (wmoNumber) {
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-            << wmoStation;
+                << wmoStation;
     station = ostr.str();
   } else {
     ostr << station;
@@ -1222,6 +1222,11 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   bool found = false;
   bool stop = false;
   bool replication = false;
+  bool is_amv = false;
+  bool found_amv_speed = false;
+  bool found_amv_direction = false;
+  bool checked_amv_pppp = false;
+  int found_amv_conf = 0;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
 
@@ -1236,7 +1241,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         replication=true;
         break;
 
-      //   1001  WMO BLOCK NUMBER
+        //   1001  WMO BLOCK NUMBER
       case 1001:
         wmoBlock = int(values[j]);
         d.zone = wmoBlock;
@@ -1281,17 +1286,26 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
       //   4001  YEAR
       case 4001:
-        year = int(values[j]);
+        if (values[j] < bufrMissing)
+        {
+          year = int(values[j]);
+        }
         break;
 
         //   4002  MONTH
       case 4002:
-        month = int(values[j]);
+        if (values[j] < bufrMissing)
+        {
+          month = int(values[j]);
+        }
         break;
 
         //   4003  DAY
       case 4003:
-        day = int(values[j]);
+        if (values[j] < bufrMissing)
+        {
+          day = int(values[j]);
+        }
         break;
 
         //   4004  HOUR
@@ -1313,6 +1327,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       case 5001:
       case 5002:
         d.ypos = values[j];
+        d.fdata["lat"] = d.ypos;
         break;
 
         //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
@@ -1320,8 +1335,15 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
       case 6001:
       case 6002:
         d.xpos = values[j];
+        d.fdata["lon"] = d.xpos;
         break;
 
+      case 2023:
+        if ( values[j] >= 0 && values[j] < 16)
+        {
+          is_amv = true;
+        }
+        break;
         //   7001  HEIGHT OF STATION, M
       case 7001:
         if (values[j] < bufrMissing)
@@ -1330,13 +1352,26 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
 
         //   007004  PRESSURE, Pa->hPa
       case 7004:
-        if (found) {
-          stop = true;
-        } else {
-          if (values[j] < bufrMissing) {
+        if ( is_amv )
+        {
+          if (values[j] < bufrMissing && not checked_amv_pppp ) {
             if (int(values[j] * pa2hpa) > levelmin && int(values[j] * pa2hpa) < levelmax) {
-              found = true;
               d.fdata["PPPP"] = values[j] * pa2hpa;
+              found = true;
+            }
+            checked_amv_pppp = true;
+          }
+        }
+        else
+        {
+          if (found) {
+            stop = true;
+          } else {
+            if (values[j] < bufrMissing) {
+              if (int(values[j] * pa2hpa) > levelmin && int(values[j] * pa2hpa) < levelmax) {
+                found = true;
+                d.fdata["PPPP"] = values[j] * pa2hpa;
+              }
             }
           }
         }
@@ -1359,14 +1394,32 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         // 011001 WIND DIRECTION
       case 11001:
         if (values[j] < bufrMissing) {
-          d.fdata["dd"] = values[j];
+          if ( is_amv )
+          {
+            if ( not found_amv_direction )
+            {
+              d.fdata["dd"] = values[j];
+              found_amv_direction = true;
+            }
+          }
+          else
+            d.fdata["dd"] = values[j];
         }
         break;
 
         // 011002 WIND SPEED
       case 11002:
         if (values[j] < bufrMissing) {
-          d.fdata["ff"] = values[j];
+          if ( is_amv )
+          {
+            if ( not found_amv_speed )
+            {
+              d.fdata["ff"] = values[j];
+              found_amv_speed = true;
+            }
+          }
+          else
+            d.fdata["ff"] = values[j];
         }
         break;
 
@@ -1424,6 +1477,18 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
           d.fdata["SSSS"] = values[j];
         break;
 
+      case 33007:
+        if ( values[j] < bufrMissing)
+        {
+          if ( found_amv_conf == 0 )
+            d.fdata["QI"] = values[j];
+          else if ( found_amv_conf == 4 )
+            d.fdata["QI_NM"] = values[j];
+          else if ( found_amv_conf == 8 )
+            d.fdata["QI_RFF"] = values[j];
+        }
+        found_amv_conf++;
+        break;
       }
     }
 
@@ -1439,7 +1504,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                << wmoStation;
+                    << wmoStation;
     d.id = ostr.str();
   }
 
@@ -1629,7 +1694,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
           ok = (p > 0. && p < 1300.);
         } else {
           p=-1;
-         ok=false;
+          ok=false;
         }
         break;
 

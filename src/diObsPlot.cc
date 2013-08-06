@@ -3144,6 +3144,36 @@ void ObsPlot::plotList(int index)
       printList(undef, xpos, ypos, 2, align);
     }
   }
+  if (pFlag.count("QI")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("QI")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("QI", f_p->second);
+      printList(f_p->second, xpos, ypos, 2, align);
+    } else {
+      printList(undef, xpos, ypos, 2, align);
+    }
+  }
+  if (pFlag.count("QI_NM")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("QI_NM")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("QI_NM", f_p->second);
+      printList(f_p->second, xpos, ypos, 2, align);
+    } else {
+      printList(undef, xpos, ypos, 2, align);
+    }
+  }
+  if (pFlag.count("QI_RFF")) {
+    ypos -= yStep;
+    if ((f_p = dta.fdata.find("QI_RFF")) != dta.fdata.end()) {
+      if (ccriteria)
+        checkColourCriteria("QI_RFF", f_p->second);
+      printList(f_p->second, xpos, ypos, 2, align);
+    } else {
+      printList(undef, xpos, ypos, 2, align);
+    }
+  }
 
   glPopMatrix();
 #ifdef DEBUGPRINT

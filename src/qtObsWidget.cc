@@ -1354,6 +1354,16 @@ bool ObsWidget::getCriteriaLimits(const miutil::miString& name, int& low, int&hi
     high = 100;
     return true;
   }
+  if(name=="lat"){
+    low = -90;
+    high = 90;
+    return true;
+  }
+  if(name=="lon"){
+    low = -180;
+    high = 180;
+    return true;
+  }
 
   return false;
 
