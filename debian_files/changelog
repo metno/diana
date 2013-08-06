@@ -1,3 +1,14 @@
+diana (3.33.0~rc4-1) unstable; urgency=low
+
+  * Disabled resampeling of contour plotting
+  * New PlotOption: maxDiagonalInMeters
+  * Improved bufr reading: satellite wind data
+  * Do not reread all sources when asking for plotTimes
+  * Bugfix: heigth of clouds = 2000m is categori 8 not 7, etc
+  * Bugfix: Ascii observations 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 06 Aug 2013 19:53:12 +0200
+
 diana (3.33.0~rc2-1) unstable; urgency=low
 
   * Variables with zaxis with one level: ignore zaxis
