@@ -119,6 +119,7 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/fog.png \
 	share/diana/images/dnmi.xpm \
 	share/diana/images/dnmi.png \
+	share/diana/images/Met_sort_horisontal2.png \
 	share/diana/images/yr_cloudy.png \
 	share/diana/images/yr_fair.png \
 	share/diana/images/yr_fog.png \
