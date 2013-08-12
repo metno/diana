@@ -597,13 +597,13 @@ int prepareInput(istream &is)
 
   linenum = lines.size();
 
-  // substitute key-values
+  // substitute environment variables and key-values
   unsigned int nkeys = keys.size();
-  if (nkeys > 0)
-    for (unsigned int k = 0; k < linenum; k++)
-      for (unsigned int m = 0; m < nkeys; m++)
-        lines[k].replace("$" + keys[m].key, keys[m].value);
-
+  for (unsigned int k = 0; k < linenum; k++) {
+    SetupParser::checkEnvironment(lines[k]);
+    for (unsigned int m = 0; m < nkeys; m++)
+      lines[k].replace("$" + keys[m].key, keys[m].value);
+  }
   return 0;
 }
 
