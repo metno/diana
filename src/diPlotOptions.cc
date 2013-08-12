@@ -1150,6 +1150,9 @@ std::string PlotOptions::toString()
   if (update_stencil)
     ostr << " update_stencil=" << update_stencil;
 
+  if (!enabled)
+    ostr << " enabled=false";
+
   //   ost << " font="  << fontname
   //    << " face="  << fontface
   //    << " fontsize="  << fontsize
