@@ -1051,7 +1051,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                << wmoStation;
+                    << wmoStation;
     d.id = ostr.str();
   }
 
@@ -1176,7 +1176,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
   ostringstream ostr;
   if (wmoNumber) {
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                << wmoStation;
+                    << wmoStation;
     station = ostr.str();
   } else {
     ostr << station;
@@ -1504,7 +1504,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   if (wmoNumber) {
     ostringstream ostr;
     ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                    << wmoStation;
+                        << wmoStation;
     d.id = ostr.str();
   }
 
@@ -1541,11 +1541,13 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
 
   bool ok = false;
   bool found = false;
+  bool sounding_significance_ok = true;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
 
     if (ktdexp[i] < 7000 // station info
         || ok // pressure ok
+        || ktdexp[i] == 8042  //       sounding significance
         || ktdexp[i] == 7004) { // next pressure level
 
       if (ktdexp[i] == 7004) { //new pressure level, save data
@@ -1587,154 +1589,166 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         }
       }
 
-      switch (ktdexp[i]) {
-
-      //   1001  WMO BLOCK NUMBER
-      case 1001:
-      {
-        if (izone != int(values[j])) {
-          return false;
-        }
-        found = true;
+      //skip data if 008042 EXTENDED VERTICAL SOUNDING SIGNIFICANCE = 0
+      if ( !sounding_significance_ok && ktdexp[i] != 8042 ) {
+        ok = false;
+        continue;
       }
-      break;
 
-      //   1002  WMO STATION NUMBER
-      case 1002:
-      {
-        if (istation != int(values[j])) {
-          return false;
-        }
-        if (index != ii) {
-          ii++;
-          return false;
-        }
-        ii = 0;
-        found = true;
-      }
-      break;
+        switch (ktdexp[i]) {
 
-
-
-      // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
-      case 1006:
-      case 1011:
-      case 1194:
-
-      {
-        if ( !found ) {
-          station.clear();
-          int iindex = int(values[j]) / 1000 - 1;
-          for (int k = 0; k < 6; k++) {
-            station += cvals[iindex][k];
-          }
-          strStation.trim();
-          station.trim();
-          if( strStation != station ) {
+        //   1001  WMO BLOCK NUMBER
+        case 1001:
+        {
+          if (izone != int(values[j])) {
             return false;
-          }
-          if( index != ii){
-            ii++;
-            return false;
-          }
-          if(station.exists()){
-            ii=0;
           }
           found = true;
         }
-      }
-      break;
-
-      //   4001  YEAR
-      case 4001:
-        year = int(values[j]);
         break;
 
-        //   4002  MONTH
-      case 4002:
-        month = int(values[j]);
-        break;
-
-        //   4003  DAY
-      case 4003:
-        day = int(values[j]);
-        break;
-
-        //   4004  HOUR
-      case 4004:
-        hour = int(values[j]);
-        break;
-
-        //   4005  MINUTE
-      case 4005:
-        minute = int(values[j]);
-        break;
-
-        //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
-        //   5002  LATITUDE (COARSE ACCURACY), DEGREE
-      case 5001:
-      case 5002:{
-        lat = values[j];
-      }
-      break;
-
-      //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
-      //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
-      case 6001:
-      case 6002:
-      {
-        lon = values[j];
-      }
-      break;
-
-      //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
-      case 7004:
-        if (values[j] < bufrMissing) {
-          p = int(values[j] * pa2hpa);
-          ok = (p > 0. && p < 1300.);
-        } else {
-          p=-1;
-          ok=false;
+        //   1002  WMO STATION NUMBER
+        case 1002:
+        {
+          if (istation != int(values[j])) {
+            return false;
+          }
+          if (index != ii) {
+            ii++;
+            return false;
+          }
+          ii = 0;
+          found = true;
         }
         break;
 
-        //   VERTICAL SOUNDING SIGNIFICANCE
-      case 8001:
-        if (values[j] > 31. && values[j] < 64)
-          bpart = 0;
-        else
-          bpart = 1;
+
+
+        // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+        case 1006:
+        case 1011:
+        case 1194:
+
+        {
+          if ( !found ) {
+            station.clear();
+            int iindex = int(values[j]) / 1000 - 1;
+            for (int k = 0; k < 6; k++) {
+              station += cvals[iindex][k];
+            }
+            strStation.trim();
+            station.trim();
+            if( strStation != station ) {
+              return false;
+            }
+            if( index != ii){
+              ii++;
+              return false;
+            }
+            if(station.exists()){
+              ii=0;
+            }
+            found = true;
+          }
+        }
         break;
 
-        //   11001  WIND DIRECTION
-      case 11001:
-        if (values[j] < bufrMissing)
-          dd = int(values[j]);
+        //   4001  YEAR
+        case 4001:
+          year = int(values[j]);
+          break;
+
+          //   4002  MONTH
+        case 4002:
+          month = int(values[j]);
+          break;
+
+          //   4003  DAY
+        case 4003:
+          day = int(values[j]);
+          break;
+
+          //   4004  HOUR
+        case 4004:
+          hour = int(values[j]);
+          break;
+
+          //   4005  MINUTE
+        case 4005:
+          minute = int(values[j]);
+          break;
+
+          //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
+          //   5002  LATITUDE (COARSE ACCURACY), DEGREE
+        case 5001:
+        case 5002:{
+          lat = values[j];
+        }
         break;
 
-        //   11002  WIND SPEED
-      case 11002:
-        if (values[j] < bufrMissing)
-          ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
+        //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
+        //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
+        case 6001:
+        case 6002:
+        {
+          lon = values[j];
+        }
         break;
 
-        //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
-        //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
-      case 12101:
-      case 12001:
-        if (values[j] < bufrMissing)
-          tt = values[j] - t0;
-        break;
+        //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
+        case 7004:
+          if (values[j] < bufrMissing) {
+            p = int(values[j] * pa2hpa);
+            ok = (p > 0. && p < 1300.);
+          } else {
+            p=-1;
+            ok=false;
+          }
+          break;
 
-        //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
-        //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
-      case 12103:
-      case 12003:
-        if (values[j] < bufrMissing)
-          td = values[j] - t0;
-        break;
+          //   VERTICAL SOUNDING SIGNIFICANCE
+        case 8001:
+          if (values[j] > 31. && values[j] < 64)
+            bpart = 0;
+          else
+            bpart = 1;
+          break;
 
-      }
+          //   008042 EXTENDED VERTICAL SOUNDING SIGNIFICE
+        case 8042:
+          if (values[j] < bufrMissing )
+            sounding_significance_ok = (values[j] != 0 );
+          break;
+
+          //   11001  WIND DIRECTION
+        case 11001:
+          if (values[j] < bufrMissing)
+            dd = int(values[j]);
+          break;
+
+          //   11002  WIND SPEED
+        case 11002:
+          if (values[j] < bufrMissing)
+            ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
+          break;
+
+          //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
+          //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
+        case 12101:
+        case 12001:
+          if (values[j] < bufrMissing)
+            tt = values[j] - t0;
+          break;
+
+          //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
+          //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
+        case 12103:
+        case 12003:
+          if (values[j] < bufrMissing)
+            td = values[j] - t0;
+          break;
+
+        }
     }
 
     // right pressure level found and corresponding parameters read
