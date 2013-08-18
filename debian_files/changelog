@@ -1,3 +1,9 @@
+diana (3.33.0~rc7-1) unstable; urgency=low
+
+  * Bugfix: computed parameters 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 18 Aug 2013 22:14:54 +0200
+
 diana (3.33.0~rc6-1) unstable; urgency=low
 
   * Bugfix: Computed parameters from eps members
