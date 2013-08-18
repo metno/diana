@@ -1066,6 +1066,12 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
     d.fdata["ppp"] *= -1;
   }
 
+  // when there are no clouds, height might be reported as 0m,
+  // but this should be category 9, not 0
+  if(d.fdata.count("N") && d.fdata.count("h") && d.fdata["N"]==0 && d.fdata["h"]==0) {
+    d.fdata["h"] = 9;
+  }
+
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
@@ -1840,8 +1846,6 @@ miString ObsBufr::cloud_TCU_CB(int i)
 
 float ObsBufr::height_of_clouds(double height)
 {
-  if (height < 1 )
-    return 9.0;
   if (height < 50)
     return 0.0;
   if (height < 100)
@@ -1861,8 +1865,6 @@ float ObsBufr::height_of_clouds(double height)
   if (height < 2500)
     return 8.0;
   return 9.0; 
-  // when there are no clouds -> height = 0
-  //height=0 > returns 9 when no clouds, but what if there are clouds?
 }
 
 void ObsBufr::cloud_type(ObsData& d, double v)
