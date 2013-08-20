@@ -145,10 +145,10 @@ bool FieldPlot::prepare(const miString& fname, const miString& pin)
   plottype= poptions.plottype;
   if (poptions.enabled == false) enabled = false;
 
-  float pdiag = sqrtf((pow(pheight,2)+pow(pwidth,2)));
-  METLIBS_LOG_INFO(" FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<requestedarea.getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
-  METLIBS_LOG_DEBUG(" FieldPlot::prepare: pwidth/pheight: "<< pwidth<<"/" <<pheight<<" : "<<pdiag);
-  if ( requestedarea.getDiagonalInMeters() > poptions.maxDiagonalInMeters && poptions.maxDiagonalInMeters > -1 ) return false;
+  if ( poptions.maxDiagonalInMeters > -1 ) {
+    METLIBS_LOG_INFO(" FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<requestedarea.getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
+    if ( requestedarea.getDiagonalInMeters() > poptions.maxDiagonalInMeters  ) return false;
+  }
 
 #ifdef DEBUGPRINT
   if      (plottype==fpt_contour)          METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour");
