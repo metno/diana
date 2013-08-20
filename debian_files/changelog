@@ -1,3 +1,9 @@
+diana (3.33.0~rc8-1) unstable; urgency=low
+
+  * New PlotOption: ignore_times - used in bdiana (wms)
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 20 Aug 2013 16:03:39 +0200
+
 diana (3.33.0~rc7-2) unstable; urgency=low
 
   * Using metlibs 4.11.6-1
