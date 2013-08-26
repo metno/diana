@@ -3128,7 +3128,9 @@ static int parseAndProcess(istream &is)
       }
 
     } else if (key == com_settime) {
-      if (miTime::isValid(value)) {
+      if ( value == "nowtime" || value == "current" ) {
+        use_nowtime = true;
+      } else if (miTime::isValid(value)) {
         fixedtime = ptime = miTime(value);
       }
 

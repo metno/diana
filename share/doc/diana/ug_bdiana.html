@@ -58,6 +58,7 @@ Usage: bdiana -i {job-filename} [-s {setup-filename}] [-v] [-display xhost:displ
 -use_doublebuffer : use double buffering OpenGL (default)
 -use_singlebuffer : use single buffering OpenGL
 -use_qimage       : use QImage as drawing medium
+-use_nowtime      : select field time close to current time          
 
 special key/value pairs:
  - TIME="YYYY-MM-DD hh:mm:ss"      plot-time
@@ -258,6 +259,7 @@ ENDPLOT                  # End of plot-command
 #--------------------------------------------------------------   
 #- alternative to TIME=.. commandline option:                     
 #  use settime=YYYY-MM-DD hh:mm:ss                                
+#  use settime=current / nowtime  
 #- use addhour=&lt;value&gt; or addminute=&lt;value&gt; to increment datatime 
 #  (offset from TIME="" variable). Useful in loops              
 #--------------------------------------------------------------   
