@@ -1,3 +1,10 @@
+diana (3.33.0-1) unstable; urgency=low
+
+  * bdiana: support settime=current/nowtime 
+  * Bugfix: plottype=wind_colour
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 26 Aug 2013 15:14:29 +0200
+
 diana (3.33.0~rc8-1) unstable; urgency=low
 
   * New PlotOption: ignore_times - used in bdiana (wms)
