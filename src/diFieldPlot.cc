@@ -1051,12 +1051,13 @@ bool FieldPlot::plotWind()
   // draw 50-knot flags
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   const int vi= vx.size();
+  int j=0;
   if (vi>=3){
     glBegin(GL_TRIANGLES);
     for (int i=0; i<vi; i+=3){
-      if (colourwind)
-        glColor3fv(&rgb[vc[i]]);
-
+      if (colourwind){
+        glColor3fv(&rgb[vc[j++]*3]);
+      }
       glVertex2f(vx[i  ],vy[i  ]);
       glVertex2f(vx[i+1],vy[i+1]);
       glVertex2f(vx[i+2],vy[i+2]);
