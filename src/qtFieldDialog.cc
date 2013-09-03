@@ -713,7 +713,7 @@ void FieldDialog::CreateAdvanced()
   QLabel* fieldSmoothLabel = new QLabel(tr("Smooth fields"), advFrame);
   fieldSmoothSpinBox = new QSpinBox(advFrame);
   fieldSmoothSpinBox->setMinimum(0);
-  fieldSmoothSpinBox->setMaximum(10);
+  fieldSmoothSpinBox->setMaximum(20);
   fieldSmoothSpinBox->setSingleStep(1);
   fieldSmoothSpinBox->setSpecialValueText(tr("Off"));
   fieldSmoothSpinBox->setValue(0);
