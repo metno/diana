@@ -36,7 +36,6 @@
 #include <fstream>
 #include <diMapManager.h>
 #include <diMapPlot.h>
-#include <milib/milib.h>
 #include <iostream>
 #include <stdio.h>
 #include <diFontManager.h>
