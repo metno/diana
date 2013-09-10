@@ -300,7 +300,7 @@ void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const
 
     foreach (QPointF p, points) {
       vpoints.append(p);
-      text += QString("(%1, %2 bravo) ").arg(p.x()).arg(p.y());
+      text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
     }
     properties.insert("points", vpoints);
     text += "\n";
