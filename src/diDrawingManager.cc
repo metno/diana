@@ -150,13 +150,14 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       }
     }
 
-  } else if (event->type() == QEvent::MouseMove) {
+  } else if (event->type() == QEvent::MouseMove)
     editItemManager->mouseMove(&me2);
-  } else if (event->type() == QEvent::MouseButtonRelease) {
+
+  else if (event->type() == QEvent::MouseButtonRelease)
     editItemManager->mouseRelease(&me2);
-  } else if (event->type() == QEvent::MouseButtonDblClick) {
+
+  else if (event->type() == QEvent::MouseButtonDblClick)
     editItemManager->mouseDoubleClick(&me2);
-  }
 
   res.repaint = editItemManager->needsRepaint();
   res.action = editItemManager->canUndo() ? objects_changed : no_action;
