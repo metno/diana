@@ -48,7 +48,6 @@ class QUndoStack;
 class EditItemManager : public QObject
 {
     Q_OBJECT
-    friend class AddOrRemoveItemsCommand;
 
 public:
     EditItemManager(DrawingManager *drawm);
@@ -71,6 +70,11 @@ public:
     QSet<EditItemBase *> findHitItems(const QPoint &) const;
 
     void createUndoView();
+
+    void storeItems(const QSet<EditItemBase *> &);
+    void retrieveItems(const QSet<EditItemBase *> &);
+    QList<QPointF> PhysToGeo(const QList<QPoint> &points);
+    QList<QPoint> GeoToPhys(const QList<QPointF> &points);
 
 public slots:
     void abortEditing();
@@ -108,7 +112,6 @@ private:
     DrawingManager *drawingManager_;
 
     void addItem_(EditItemBase *);
-    void retrieveItems(const QSet<EditItemBase *> &);
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
     void incompleteMouseMove(QMouseEvent *);
@@ -119,31 +122,43 @@ private:
                       QSet<EditItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
     void removeItem(EditItemBase *item);
-    void storeItems(const QSet<EditItemBase *> &);
 };
 
-class AddOrRemoveItemsCommand : public QUndoCommand
+class EditItemCommand : public QUndoCommand
 {
 public:
-    AddOrRemoveItemsCommand(EditItemManager *, const QSet<EditItemBase *> &, const QSet<EditItemBase *> &);
+    EditItemCommand(const QString &text, QUndoCommand *parent = 0);
+    EditItemCommand() {}
+    virtual ~EditItemCommand() {}
+
+    EditItemManager *eim_;
+};
+
+class AddOrRemoveItemsCommand : public EditItemCommand
+{
+public:
+    AddOrRemoveItemsCommand(const QSet<EditItemBase *> &, const QSet<EditItemBase *> &);
     virtual ~AddOrRemoveItemsCommand() {}
 
 private:
-    EditItemManager *eim_;
     QSet<EditItemBase *> addedItems_;
     QSet<EditItemBase *> removedItems_;
     virtual void undo();
     virtual void redo();
 };
 
-class SetGeometryCommand : public QUndoCommand
+class SetGeometryCommand : public EditItemCommand
 {
 public:
     SetGeometryCommand(EditItemBase *, const QList<QPoint> &, const QList<QPoint> &);
+    virtual ~SetGeometryCommand() {}
+
 private:
     EditItemBase *item_;
     QList<QPoint> oldGeometry_;
     QList<QPoint> newGeometry_;
+    QList<QPointF> oldLatLonPoints_;
+    QList<QPointF> newLatLonPoints_;
     virtual void undo();
     virtual void redo();
 };

@@ -85,7 +85,8 @@ void EditItemManager::addItem(EditItemBase *item, bool incomplete)
         QSet<EditItemBase *> addedItems;
         addedItems.insert(item);
         QSet<EditItemBase *> removedItems;
-        AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(this, addedItems, removedItems);
+        AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, removedItems);
+        arCmd->eim_ = this;
         undoStack_.push(arCmd);
     }
 
@@ -101,17 +102,6 @@ void EditItemManager::addItem_(EditItemBase *item)
     items_.insert(item);
     connect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selItems_.insert(item); // for now, don't pre-select new items
-}
-
-void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
-{
-    foreach (EditItemBase *item, items) {
-        // The items stored on the undo stack have been given geographic
-        // coordinates, so we use those to obtain screen coordinates.
-        if (!item->getLatLonPoints().isEmpty())
-            drawingManager_->setLatLonPoints(item, item->getLatLonPoints());
-        addItem_(item);
-    }
 }
 
 void EditItemManager::removeItem(EditItemBase *item)
@@ -130,11 +120,33 @@ void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
     }
 }
 
+void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
+{
+    foreach (EditItemBase *item, items) {
+        // The items stored on the undo stack have been given geographic
+        // coordinates, so we use those to obtain screen coordinates.
+        if (!item->getLatLonPoints().isEmpty())
+            drawingManager_->setLatLonPoints(item, item->getLatLonPoints());
+        addItem_(item);
+    }
+}
+
+QList<QPointF> EditItemManager::PhysToGeo(const QList<QPoint> &points)
+{
+    return drawingManager_->PhysToGeo(points);
+}
+
+QList<QPoint> EditItemManager::GeoToPhys(const QList<QPointF> &points)
+{
+    return drawingManager_->GeoToPhys(points);
+}
+
 void EditItemManager::reset()
 {
     // FIXME: We need to make certain that this is how we want to handle the undo stack.
     QSet<EditItemBase *> addedItems;
-    AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(this, addedItems, items_);
+    AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, items_);
+    arCmd->eim_ = this;
     undoStack_.push(arCmd);
 }
 
@@ -266,8 +278,11 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
         undoStack_.beginMacro(undoCommandText(0, 0, undoCommands.size()));
         skipRepaint_ = true; // temporarily prevent redo() calls from repainting
         // push sub-commands representing individual item modifications
-        foreach (QUndoCommand *undoCmd, undoCommands)
+        foreach (QUndoCommand *undoCmd, undoCommands) {
+            if (EditItemCommand *cmd = static_cast<EditItemCommand *>(undoCmd))
+                cmd->eim_ = this;
             undoStack_.push(undoCmd);
+        }
         undoStack_.endMacro();
         skipRepaint_ = false;
         repaintNeeded_ = true;
@@ -593,12 +608,16 @@ void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
     skipRepaint_ = true; // temporarily prevent redo() calls from repainting
     if (addedOrRemovedItems) {
         // push sub-command representing aggregated adding/removal of items
-        AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(this, addedItems, removedItems);
+        AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, removedItems);
+        arCmd->eim_ = this;
         undoStack_.push(arCmd);
     }
     // push sub-commands representing individual item modifications
-    foreach (QUndoCommand *undoCmd, undoCommands)
+    foreach (QUndoCommand *undoCmd, undoCommands) {
+        if (EditItemCommand *cmd = static_cast<EditItemCommand *>(undoCmd))
+            cmd->eim_ = this;
         undoStack_.push(undoCmd);
+    }
     if (!undoCommands.empty())
         repaintNeeded_ = true; // assume that any item modification requires a repaint ### BUT ALWAYS SET BELOW!
     undoStack_.endMacro();
@@ -607,10 +626,13 @@ void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
 }
 
 
+EditItemCommand::EditItemCommand(const QString &text, QUndoCommand *parent)
+    : QUndoCommand(text, parent)
+{}
+
 AddOrRemoveItemsCommand::AddOrRemoveItemsCommand(
-    EditItemManager *eim, const QSet<EditItemBase *> &addedItems, const QSet<EditItemBase *> &removedItems)
-    : QUndoCommand(undoCommandText(addedItems.size(), removedItems.size(), 0))
-    , eim_(eim)
+    const QSet<EditItemBase *> &addedItems, const QSet<EditItemBase *> &removedItems)
+    : EditItemCommand(undoCommandText(addedItems.size(), removedItems.size(), 0))
     , addedItems_(addedItems)
     , removedItems_(removedItems)
 {}
@@ -638,12 +660,28 @@ SetGeometryCommand::SetGeometryCommand(
 
 void SetGeometryCommand::undo()
 {
+    // Store the new points as geographic coordinates for later redo if necessary.
+    if (newLatLonPoints_.isEmpty())
+        newLatLonPoints_ = eim_->PhysToGeo(newGeometry_);
+
+    // Retrieve the old points, if present, and convert them to screen coordinates.
+    if (!oldLatLonPoints_.isEmpty())
+        oldGeometry_ = eim_->GeoToPhys(oldLatLonPoints_);
+
     item_->setPoints(oldGeometry_);
     item_->repaint();
 }
 
 void SetGeometryCommand::redo()
 {
+    // Store the old points as geographic coordinates for later undo if necessary.
+    if (oldLatLonPoints_.isEmpty())
+        oldLatLonPoints_ = eim_->PhysToGeo(oldGeometry_);
+
+    // Retrieve the new points, if present, and convert them to screen coordinates.
+    if (!newLatLonPoints_.isEmpty())
+        newGeometry_ = eim_->GeoToPhys(newLatLonPoints_);
+
     item_->setPoints(newGeometry_);
     item_->repaint();
 }

@@ -185,12 +185,17 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 
 QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
 {
+  QList<QPoint> points = item->getPoints();
+  return PhysToGeo(points);
+}
+
+QList<QPointF> DrawingManager::PhysToGeo(const QList<QPoint> &points) const
+{
   int w, h;
   plotm->getPlotWindow(w, h);
   float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
   float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
 
-  QList<QPoint> points = item->getPoints();
   int n = points.size();
 
   QList<QPointF> latLonPoints;
@@ -207,6 +212,12 @@ QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
 }
 
 void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints)
+{
+  QList<QPoint> points = GeoToPhys(latLonPoints);
+  item->setPoints(points);
+}
+
+QList<QPoint> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 {
   int w, h;
   plotm->getPlotWindow(w, h);
@@ -225,7 +236,7 @@ void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &l
     points.append(QPoint(x + dx, y + dy));
   }
 
-  item->setPoints(points);
+  return points;
 }
 
 bool DrawingManager::changeProjection(const Area& newArea)
