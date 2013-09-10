@@ -162,7 +162,7 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
       stream << selItems_.size();
 
       foreach (EditItemBase *item, selItems_) {
-        QList<QPoint> points = item->getPoints();
+        QList<QPointF> points = getLatLonPoints(item);
         stream << points;
       }
 
@@ -182,10 +182,10 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
         stream >> n;
 
         for (int i = 0; i < n; ++i) {
-          QList<QPoint> points;
+          QList<QPointF> points;
           stream >> points;
           EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-          area->setPoints(points);
+          setLatLonPoints(area, points);
           editItemManager->addItem(area, false);
         }
       }
@@ -214,6 +214,28 @@ QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
     latLonPoints.append(QPointF(x, y));
   }
   return latLonPoints;
+}
+
+void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints)
+{
+  int w, h;
+  plotm->getPlotWindow(w, h);
+  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
+  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+
+  QList<QPoint> points;
+  int n = latLonPoints.size();
+
+  // Convert screen coordinates to geographic coordinates.
+  for (int i = 0; i < n; ++i) {
+    float x, y;
+    plotm->GeoToPhys(latLonPoints.at(i).x(),
+                     latLonPoints.at(i).y(),
+                     x, y, currentArea, plotRect);
+    points.append(QPoint(x + dx, y + dy));
+  }
+
+  item->setPoints(points);
 }
 
 bool DrawingManager::changeProjection(const Area& newArea)

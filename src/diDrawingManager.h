@@ -75,6 +75,7 @@ public:
 
   EditItemManager *getEditItemManager() { return editItemManager; }
   QList<QPointF> getLatLonPoints(EditItemBase* item) const;
+  void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
 
 private:
   PlotModule* plotm;
