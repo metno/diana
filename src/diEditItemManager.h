@@ -76,6 +76,8 @@ public:
     QList<QPointF> PhysToGeo(const QList<QPoint> &points);
     QList<QPoint> GeoToPhys(const QList<QPointF> &points);
 
+    static EditItemManager *instance() { return self; }
+
 public slots:
     void abortEditing();
     void completeEditing();
@@ -122,6 +124,8 @@ private:
                       QSet<EditItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
     void removeItem(EditItemBase *item);
+
+    static EditItemManager *self;   // singleton instance pointer
 };
 
 class EditItemCommand : public QUndoCommand
@@ -130,8 +134,6 @@ public:
     EditItemCommand(const QString &text, QUndoCommand *parent = 0);
     EditItemCommand() {}
     virtual ~EditItemCommand() {}
-
-    EditItemManager *eim_;
 };
 
 class AddOrRemoveItemsCommand : public EditItemCommand
