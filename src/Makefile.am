@@ -42,7 +42,6 @@ common_cxx_sources = \
 	diContouring.cc \
 	diController.cc \
 	diDisplayObjects.cc \
-	diDrawingManager.cc \
 	diEditManager.cc \
 	diEditObjects.cc \
 	diFieldEdit.cc \
@@ -117,6 +116,7 @@ common_cxx_sources = \
 
 # Qt sources
 common_qt_sources = \
+	diDrawingManager.cc \
 	diEditItemManager.cc \
 	EditItems/edititembase.cc \
 	EditItems/weatherarea.cc \

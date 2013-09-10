@@ -71,10 +71,17 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   editRect = plotm->getPlotSize();
   drawingModeEnabled = false;
   currentArea = plotm->getCurrentArea();
+
+  cutAction = new QAction(tr("Cut"), 0);
+  copyAction = new QAction(tr("&Copy"), 0);
+  pasteAction = new QAction(tr("&Paste"), 0);
 }
 
 DrawingManager::~DrawingManager()
 {
+  delete cutAction;
+  delete copyAction;
+  delete pasteAction;
 }
 
 bool DrawingManager::parseSetup()
@@ -124,17 +131,17 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         && (!editItemManager->hasIncompleteItem())) {
       // Handle the event via a global context menu only; don't delegate to items via edit item manager.
       QMenu contextMenu;
-      QAction copyAction("&Copy", 0);
-      QAction pasteAction("&Paste", 0);
       if (editItemManager->getSelectedItems().size() > 0)
-        contextMenu.addAction(&copyAction);
+        contextMenu.addAction(copyAction);
       if (QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"))
-        contextMenu.addAction(&pasteAction);
-      QAction *action = contextMenu.exec(me2.globalPos());
-      if (action == &copyAction)
-        copySelectedItems();
-      else if (action == &pasteAction)
-        pasteItems();
+        contextMenu.addAction(pasteAction);
+      if (!contextMenu.isEmpty()) {
+        QAction *action = contextMenu.exec(me2.globalPos());
+        if (action == copyAction)
+          copySelectedItems();
+        else if (action == pasteAction)
+          pasteItems();
+      }
     } else {
       // Send the mouse press to the edit item manager.
       QSet<EditItemBase *> itemsToCopy; // items to be copied

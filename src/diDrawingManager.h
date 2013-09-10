@@ -38,6 +38,7 @@
 #include <diField/diGridConverter.h>
 #include <diMapMode.h>
 #include <QList>
+#include <QObject>
 #include <QPointF>
 
 using namespace std;
@@ -47,6 +48,7 @@ class EditItemManager;
 class PlotModule;
 class ObjectManager;
 
+class QAction;
 class QKeyEvent;
 class QMouseEvent;
 
@@ -54,8 +56,10 @@ class QMouseEvent;
   \brief Manager for drawing areas and annotations.
 */
 
-class DrawingManager
+class DrawingManager : public QObject
 {
+  Q_OBJECT
+
 public:
   DrawingManager(PlotModule*, ObjectManager*);
   ~DrawingManager();
@@ -81,6 +85,10 @@ public:
   QList<QPoint> GeoToPhys(const QList<QPointF> &latLonPoints);
 
 private:
+  QAction* cutAction;
+  QAction* copyAction;
+  QAction* pasteAction;
+
   PlotModule* plotm;
   ObjectManager* objm;
   EditItemManager *editItemManager;     // fronts,symbols,areas
