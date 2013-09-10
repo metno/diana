@@ -434,6 +434,7 @@ void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<EditItemBase 
     if (index >= 0 && index < points_.size())
         points_.removeAt(index);
 
+    hoveredCtrlPointIndex_ = -1;
     updateControlPoints();
     repaintNeeded = true;
 }

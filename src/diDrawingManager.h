@@ -69,7 +69,6 @@ public:
   void plot(bool under, bool over);
 
   bool drawingModeEnabled;
-  bool createNewItem;
 
 private:
   PlotModule* plotm;

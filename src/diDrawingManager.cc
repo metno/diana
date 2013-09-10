@@ -70,7 +70,6 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   editItemManager = new EditItemManager();
   editRect = plotm->getPlotSize();
   drawingModeEnabled = false;
-  createNewItem = true;
 }
 
 DrawingManager::~DrawingManager()
@@ -114,13 +113,12 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
                   me->globalPos(), me->button(), me->buttons(), me->modifiers());
 
   if (me->type() == QEvent::MouseButtonPress) {
-    if (createNewItem) {
+    editItemManager->mousePress(&me2);
+    if (editItemManager->getSelectedItems().size() == 0 && !editItemManager->hasIncompleteItem()) {
       EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
       editItemManager->addItem(area, true);
-      createNewItem = false;
+      editItemManager->mousePress(&me2);
     }
-
-    editItemManager->mousePress(&me2);
   } else if (me->type() == QEvent::MouseMove)
     editItemManager->mouseMove(&me2);
   else if (me->type() == QEvent::MouseButtonRelease)
