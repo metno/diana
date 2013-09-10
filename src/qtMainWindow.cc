@@ -415,6 +415,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // ----------------------------------------------------------------
   toggleDrawingAction = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
   toggleDrawingAction->setShortcutContext(Qt::ApplicationShortcut);
+  toggleDrawingAction->setShortcut(Qt::ALT+Qt::Key_B);
   toggleDrawingAction->setCheckable(true);
   toggleDrawingAction->setIconVisibleInMenu(true);
   connect(toggleDrawingAction, SIGNAL(triggered()), SLOT(toggleDrawing()));
@@ -827,7 +828,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   mainToolbar->addSeparator();
   mainToolbar->addAction( showEditDialogAction );
+#if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
   mainToolbar->addAction(toggleDrawingAction);
+#endif
   mainToolbar->addSeparator();
   mainToolbar->addSeparator();
   mainToolbar->addAction( showResetAllAction );
