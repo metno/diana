@@ -67,6 +67,7 @@ public:
 
     QSet<EditItemBase *> getItems() const;
     QSet<EditItemBase *> getSelectedItems() const;
+    QSet<EditItemBase *> findHitItems(const QPoint &) const;
 
     void createUndoView();
 
@@ -79,7 +80,7 @@ public slots:
     void keyRelease(QKeyEvent *);
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
-    void mousePress(QMouseEvent *);
+    void mousePress(QMouseEvent *, QSet<EditItemBase *> * = 0);
     void mouseRelease(QMouseEvent *);
     void pasteObjects();
     void redo();
@@ -106,7 +107,6 @@ private:
 
     void addItem_(EditItemBase *);
     void addItems(const QSet<EditItemBase *> &);
-    QList<EditItemBase *> findHitItems(const QPoint &) const;
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
     void incompleteMouseMove(QMouseEvent *);

@@ -108,6 +108,7 @@ void WeatherArea::init()
   addPoint_ = new QAction(tr("&Add point"), 0);
   remove_ = new QAction(tr("&Remove"), 0);
   removePoint_ = new QAction(tr("Remove &point"), 0);
+  copyItems_ = new QAction(tr("&Copy items of same type"), 0);
   type = Cold;
   s_length = 0;
 
@@ -222,8 +223,9 @@ int WeatherArea::hitPoint(const QPoint &position) const
     return minIndex;
 }
 
-void WeatherArea::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                              QSet<EditItemBase *> *items, bool *multiItemOp)
+void WeatherArea::mousePress(
+    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *items, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
 
@@ -254,6 +256,8 @@ void WeatherArea::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUnd
                 contextMenu.addAction(remove_);
                 contextMenu.addAction(addPoint_);
             }
+            if (itemsToCopy)
+              contextMenu.addAction(copyItems_);
             QAction *action = contextMenu.exec(event->globalPos(), remove_);
             if (action == remove_)
                 remove(repaintNeeded, items);
@@ -261,6 +265,15 @@ void WeatherArea::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUnd
                 removePoint(repaintNeeded, pointIndex, items);
             else if (action == addPoint_)
                 addPoint(repaintNeeded, lineIndex, position, items);
+            else if (action == copyItems_) {
+                Q_ASSERT(itemsToCopy);
+                QSet<EditItemBase *>::const_iterator it;
+                for (it = items->begin(); it != items->end(); ++it) {
+                    WeatherArea *weatherArea = qobject_cast<WeatherArea *>(*it);
+                    if (weatherArea)
+                        itemsToCopy->insert(weatherArea);
+                }
+            }
         }
     }
 }

@@ -87,6 +87,10 @@ private:
 
   Rectangle plotRect;
   Rectangle editRect;
+
+  void copyItems(const QSet<EditItemBase *> &) const;
+  void copySelectedItems() const;
+  void pasteItems();
 };
 
 #endif

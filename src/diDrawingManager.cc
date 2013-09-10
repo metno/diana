@@ -118,21 +118,45 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
   if (event->type() == QEvent::MouseButtonPress) {
-    // Send the mouse press to the edit item manager.
-    editItemManager->mousePress(&me2);
-    
-    // If nothing was changed or interacted with, create a new area and repeat the mouse click.
-    if (editItemManager->getSelectedItems().size() == 0 && !editItemManager->hasIncompleteItem()) {
-      EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-      editItemManager->addItem(area, true);
-      editItemManager->mousePress(&me2);
+
+    if ((me2.button() == Qt::RightButton)
+        && (editItemManager->findHitItems(me2.pos()).size() == 0)
+        && (!editItemManager->hasIncompleteItem())) {
+      // Handle the event via a global context menu only; don't delegate to items via edit item manager.
+      QMenu contextMenu;
+      QAction copyAction("&Copy", 0);
+      QAction pasteAction("&Paste", 0);
+      if (editItemManager->getSelectedItems().size() > 0)
+        contextMenu.addAction(&copyAction);
+      if (QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"))
+        contextMenu.addAction(&pasteAction);
+      QAction *action = contextMenu.exec(me2.globalPos());
+      if (action == &copyAction)
+        copySelectedItems();
+      else if (action == &pasteAction)
+        pasteItems();
+    } else {
+      // Send the mouse press to the edit item manager.
+      QSet<EditItemBase *> itemsToCopy; // items to be copied
+      editItemManager->mousePress(&me2, &itemsToCopy);
+
+      if (itemsToCopy.size() > 0) {
+        copyItems(itemsToCopy);
+      } else if (editItemManager->getSelectedItems().size() == 0 && !editItemManager->hasIncompleteItem()) {
+        // Nothing was changed or interacted with, so create a new area and repeat the mouse click.
+        EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
+        editItemManager->addItem(area, true);
+        editItemManager->mousePress(&me2);
+      }
     }
-  } else if (event->type() == QEvent::MouseMove)
+
+  } else if (event->type() == QEvent::MouseMove) {
     editItemManager->mouseMove(&me2);
-  else if (event->type() == QEvent::MouseButtonRelease)
+  } else if (event->type() == QEvent::MouseButtonRelease) {
     editItemManager->mouseRelease(&me2);
-  else if (event->type() == QEvent::MouseButtonDblClick)
+  } else if (event->type() == QEvent::MouseButtonDblClick) {
     editItemManager->mouseDoubleClick(&me2);
+  }
 
   res.repaint = editItemManager->needsRepaint();
   res.action = editItemManager->canUndo() ? objects_changed : no_action;
@@ -153,48 +177,58 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   if (event->type() == QEvent::KeyRelease) {
 
     if (event->key() == Qt::Key_C && event->modifiers() & Qt::ControlModifier) {
-
-      QSet<EditItemBase *> selItems_ = editItemManager->getSelectedItems();
-
-      QByteArray bytes;
-      QDataStream stream(&bytes, QIODevice::WriteOnly);
-      QString text;
-
-      stream << selItems_.size();
-      text += QString("Number of items: %1\n").arg(selItems_.size());
-
-      foreach (EditItemBase *item, selItems_) {
-        QList<QPointF> points = getLatLonPoints(item);
-        stream << points;
-        foreach (QPointF p, points)
-            text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
-        text += "\n";
-      }
-
-      QMimeData *data = new QMimeData();
-      data->setData("application/x-diana-object", bytes);
-      data->setData("text/plain", text.toUtf8());
-
-      QApplication::clipboard()->setMimeData(data);
-
+      copySelectedItems();
     } else if (event->key() == Qt::Key_V && event->modifiers() & Qt::ControlModifier) {
+      pasteItems();
+    }
+  }
+}
 
-      const QMimeData *data = QApplication::clipboard()->mimeData();
-      if (data->hasFormat("application/x-diana-object")) {
+void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const
+{
+  QByteArray bytes;
+  QDataStream stream(&bytes, QIODevice::WriteOnly);
+  QString text;
 
-        QByteArray bytes = data->data("application/x-diana-object");
-        QDataStream stream(&bytes, QIODevice::ReadOnly);
-        int n;
-        stream >> n;
+  stream << items.size();
+  text += QString("Number of items: %1\n").arg(items.size());
 
-        for (int i = 0; i < n; ++i) {
-          QList<QPointF> points;
-          stream >> points;
-          EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-          setLatLonPoints(area, points);
-          editItemManager->addItem(area, false);
-        }
-      }
+  foreach (EditItemBase *item, items) {
+    QList<QPointF> points = getLatLonPoints(item);
+    stream << points;
+    foreach (QPointF p, points)
+      text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
+    text += "\n";
+  }
+
+  QMimeData *data = new QMimeData();
+  data->setData("application/x-diana-object", bytes);
+  data->setData("text/plain", text.toUtf8());
+
+  QApplication::clipboard()->setMimeData(data);
+}
+
+void DrawingManager::copySelectedItems() const
+{
+  copyItems(editItemManager->getSelectedItems());
+}
+
+void DrawingManager::pasteItems()
+{
+  const QMimeData *data = QApplication::clipboard()->mimeData();
+  if (data->hasFormat("application/x-diana-object")) {
+
+    QByteArray bytes = data->data("application/x-diana-object");
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+    int n;
+    stream >> n;
+
+    for (int i = 0; i < n; ++i) {
+      QList<QPointF> points;
+      stream >> points;
+      EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
+      setLatLonPoints(area, points);
+      editItemManager->addItem(area, false);
     }
   }
 }

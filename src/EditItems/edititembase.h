@@ -75,7 +75,7 @@ public:
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<EditItemBase *> *items = 0, bool *multiItemOp = 0);
+        QSet<EditItemBase *> *itemsToCopy = 0, QSet<EditItemBase *> *items = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 

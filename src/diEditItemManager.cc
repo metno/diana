@@ -143,18 +143,18 @@ QSet<EditItemBase *> EditItemManager::getSelectedItems() const
     return selItems_;
 }
 
-void EditItemManager::mousePress(QMouseEvent *event)
+void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *itemsToCopy)
 {
     if (incompleteItem_) {
         incompleteMousePress(event);
         return;
     }
 
-    const QList<EditItemBase *> hitItems = findHitItems(event->pos());
+    const QSet<EditItemBase *> hitItems = findHitItems(event->pos());
     EditItemBase *hitItem = // consider only this item to be hit
         hitItems.empty()
         ? 0
-        : hitItems.first(); // for now; eventually use the one with higher z-value etc. ... 2 B DONE
+        : *(hitItems.begin()); // for now; eventually use the one with higher z-value etc. ... 2 B DONE
     const bool hitSelItem = selItems_.contains(hitItem); // whether an already selected item was hit
     const bool selectMulti = event->modifiers() & Qt::ControlModifier;
 
@@ -182,7 +182,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
         QSet<EditItemBase *> eventItems(selItems_); // operate on current selection
 
         bool rpn = false;
-        hitItem->mousePress(event, rpn, &undoCommands, &eventItems, &multiItemOp);
+        hitItem->mousePress(event, rpn, &undoCommands, itemsToCopy, &eventItems, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
         addedItems = eventItems - selItems_;
         removedItems = selItems_ - eventItems;
@@ -191,8 +191,8 @@ void EditItemManager::mousePress(QMouseEvent *event)
             // the hit item is still there
             if (multiItemOp) {
                 // send the mouse press to other selected items
-                // (note that these are not allowed to modify item sets, nor does it make sense for them to flag
-                // the event as the beginning of a potential multi-item operation)
+                // (note that these are not allowed to modify item sets, nor requesting items to be copied,
+                // nor does it make sense for them to flag the event as the beginning of a potential multi-item operation)
                 foreach (EditItemBase *item, selItems_)
                     if (item != hitItem) {
                         rpn = false;
@@ -304,11 +304,11 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     bool rpn = false;
 
     if (hover) {
-        const QList<EditItemBase *> hitItems = findHitItems(event->pos());
+        const QSet<EditItemBase *> hitItems = findHitItems(event->pos());
         if (!hitItems.empty()) {
             // consider only the topmost item that was hit ... 2 B DONE
             // for now, consider only the first that was found
-            hoverItem_ = hitItems.first();
+            hoverItem_ = *(hitItems.begin());
             
             // send mouse hover event to the hover item
             hoverItem_->mouseHover(event, rpn);
@@ -533,12 +533,12 @@ bool EditItemManager::canRedo() const
     return undoStack_.canRedo();
 }
 
-QList<EditItemBase *> EditItemManager::findHitItems(const QPoint &pos) const
+QSet<EditItemBase *> EditItemManager::findHitItems(const QPoint &pos) const
 {
-    QList<EditItemBase *> hitItems;
+    QSet<EditItemBase *> hitItems;
     foreach (EditItemBase *item, items_)
         if (item->hit(pos, selItems_.contains(item)))
-            hitItems.append(item);
+            hitItems.insert(item);
     return hitItems;
 }
 

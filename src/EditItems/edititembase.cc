@@ -80,9 +80,12 @@ int EditItemBase::nextId_ = 0;
  * \a repaintNeeded is set to true iff the scene needs to be repainted (typically if the item
  * modified it's state in a way that is reflected visually).
  *
- * Undo-commands representing the effect of this event may be inserted into  * \a undoCommands.
+ * Undo-commands representing the effect of this event should be inserted into \a undoCommands.
  * NOTE: commands must not be removed from this container (it may contain commands from other
  * items as well).
+ *
+ * If \a itemsToCopy is non-null, then items that should be copied (typically to the clipboard)
+ * as a result of the event should be inserted into \a itemsToCopy.
  *
  * \a items is, if non-null, a set of items that may potentially be operated on by the event
  * (always including this item).
@@ -94,8 +97,9 @@ int EditItemBase::nextId_ = 0;
  * \a multiItemOp is, if non-null, set to true iff the event starts an operation that may involve
  * other items (such as a move operation).
  */
-void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                              QSet<EditItemBase *> *items, bool *multiItemOp)
+void EditItemBase::mousePress(
+    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *items, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
