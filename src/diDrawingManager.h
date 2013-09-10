@@ -64,9 +64,9 @@ public:
   bool parseSetup();
 
   /// handle mouse event
-  void sendMouseEvent(QMouseEvent* me, EventResult& res);
+  void sendMouseEvent(QMouseEvent* event, EventResult& res);
   /// handle keyboard event
-  void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
   bool changeProjection(const Area& newArea);
   void plot(bool under, bool over);

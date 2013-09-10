@@ -89,7 +89,7 @@ bool DrawingManager::parseSetup()
   return true;
 }
 
-void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
+void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
   res.savebackground= true;
   res.background= true;
@@ -97,7 +97,7 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   res.newcursor= edit_cursor;
 
   float newx, newy;
-  plotm->PhysToMap(me->x(), me->y(), newx, newy);
+  plotm->PhysToMap(event->x(), event->y(), newx, newy);
 
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
@@ -114,10 +114,10 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
 
   // Translate the mouse event by the current displacement of the viewport.
-  QMouseEvent me2(me->type(), QPoint(me->x() + dx, me->y() + dy),
-                  me->globalPos(), me->button(), me->buttons(), me->modifiers());
+  QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
+                  event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
-  if (me->type() == QEvent::MouseButtonPress) {
+  if (event->type() == QEvent::MouseButtonPress) {
     // Send the mouse press to the edit item manager.
     editItemManager->mousePress(&me2);
     
@@ -127,18 +127,18 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
       editItemManager->addItem(area, true);
       editItemManager->mousePress(&me2);
     }
-  } else if (me->type() == QEvent::MouseMove)
+  } else if (event->type() == QEvent::MouseMove)
     editItemManager->mouseMove(&me2);
-  else if (me->type() == QEvent::MouseButtonRelease)
+  else if (event->type() == QEvent::MouseButtonRelease)
     editItemManager->mouseRelease(&me2);
-  else if (me->type() == QEvent::MouseButtonDblClick)
+  else if (event->type() == QEvent::MouseButtonDblClick)
     editItemManager->mouseDoubleClick(&me2);
 
   res.repaint = editItemManager->needsRepaint();
   res.action = editItemManager->canUndo() ? objects_changed : no_action;
 }
 
-void DrawingManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 {
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DrawingManager::sendKeyboardEvent");
@@ -147,8 +147,50 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   res.background= false;
   res.repaint= false;
 
-  editItemManager->keyPress(ke);
+  editItemManager->keyPress(event);
   res.repaint = true;
+
+  if (event->type() == QEvent::KeyRelease) {
+
+    if (event->key() == Qt::Key_C && event->modifiers() & Qt::ControlModifier) {
+
+      QSet<EditItemBase *> selItems_ = editItemManager->getSelectedItems();
+
+      QByteArray bytes;
+      QDataStream stream(&bytes, QIODevice::WriteOnly);
+
+      stream << selItems_.size();
+
+      foreach (EditItemBase *item, selItems_) {
+        QList<QPoint> points = item->getPoints();
+        stream << points;
+      }
+
+      QMimeData *data = new QMimeData();
+      data->setData("application/x-diana-object", bytes);
+
+      QApplication::clipboard()->setMimeData(data);
+
+    } else if (event->key() == Qt::Key_V && event->modifiers() & Qt::ControlModifier) {
+
+      const QMimeData *data = QApplication::clipboard()->mimeData();
+      if (data->hasFormat("application/x-diana-object")) {
+
+        QByteArray bytes = data->data("application/x-diana-object");
+        QDataStream stream(&bytes, QIODevice::ReadOnly);
+        int n;
+        stream >> n;
+
+        for (int i = 0; i < n; ++i) {
+          QList<QPoint> points;
+          stream >> points;
+          EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
+          area->setPoints(points);
+          editItemManager->addItem(area, false);
+        }
+      }
+    }
+  }
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
