@@ -174,9 +174,9 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   editItemManager->keyPress(event);
   res.repaint = true;
 
-  if (event->type() == QEvent::KeyRelease) {
+  if (event->type() == QEvent::KeyPress) {
     if (event->key() == Qt::Key_C && event->modifiers() & Qt::ControlModifier)
-      copyItems();
+      copySelectedItems();
     else if (event->key() == Qt::Key_V && event->modifiers() & Qt::ControlModifier)
       pasteItems();
   }
@@ -272,18 +272,16 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-void DrawingManager::copyItems() const
+void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const
 {
-  QSet<EditItemBase *> selItems_ = editItemManager->getSelectedItems();
-
   QByteArray bytes;
   QDataStream stream(&bytes, QIODevice::WriteOnly);
   QString text;
 
-  stream << selItems_.size();
-  text += QString("Number of items: %1\n").arg(selItems_.size());
+  stream << items.size();
+  text += QString("Number of items: %1\n").arg(items.size());
 
-  foreach (EditItemBase *item, selItems_) {
+  foreach (EditItemBase *item, items) {
     QList<QPointF> points = getLatLonPoints(item);
     stream << points;
     foreach (QPointF p, points)
@@ -296,6 +294,11 @@ void DrawingManager::copyItems() const
   data->setData("text/plain", text.toUtf8());
 
   QApplication::clipboard()->setMimeData(data);
+}
+
+void DrawingManager::copySelectedItems() const
+{
+  copyItems(editItemManager->getSelectedItems());
 }
 
 void DrawingManager::pasteItems()
