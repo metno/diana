@@ -1008,6 +1008,14 @@ void glPopMatrix()
     ctx->transform = ctx->transformStack.pop();
 }
 
+void glPopAttrib(void)
+{
+}
+
+void glPushAttrib(GLbitfield mask)
+{
+}
+
 void glPushMatrix()
 {
     ENSURE_CTX
@@ -1158,6 +1166,12 @@ void glVertex2f(GLfloat x, GLfloat y)
     ctx->colors.append(ctx->attributes.color);
 }
 
+void glVertex2i(GLint x, GLint y)
+{
+    ENSURE_CTX
+    glVertex2f(x, y);
+}
+
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
 {
     Q_UNUSED(z)
@@ -1166,6 +1180,12 @@ void glVertex3f(GLfloat x, GLfloat y, GLfloat z)
     ctx->points.append(p);
     ctx->validPoints.append(!isnan(p.x()) && !isnan(p.y()));
     ctx->colors.append(ctx->attributes.color);
+}
+
+void glVertex3i(GLint x, GLint y, GLint z)
+{
+    ENSURE_CTX
+    glVertex3f(x, y, z);
 }
 
 void glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)

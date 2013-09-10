@@ -100,6 +100,9 @@ int main(int argc, char **argv)
 #else
   #if defined(USE_PAINTGL) // either QPA or X11 without OpenGL
     QApplication a(argc, argv);
+  #else
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+    QApplication a( argc, argv );
   #endif
 #endif
 #if defined(USE_PAINTGL)
@@ -214,12 +217,6 @@ int main(int argc, char **argv)
     lang=cl_lang;
 
   miTime x; x.setDefaultLanguage(lang.c_str());
-
-  // gui init
-#if !defined(USE_PAINTGL)
-  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-  QApplication a( argc, argv );
-#endif
 
   QTranslator qutil( 0 );
   QTranslator myapp( 0 );

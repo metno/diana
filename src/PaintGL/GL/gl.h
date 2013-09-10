@@ -59,6 +59,9 @@ typedef double          GLclampd;   /* double precision float in [0,1] */
 #define GL_STACK_UNDERFLOW      0x0504
 #define GL_OUT_OF_MEMORY        0x0505
 
+/* Attribute bits */
+#define GL_LINE_BIT             0x00000004
+
 /* Buffers, Pixel Drawing/Reading */
 #define GL_ALPHA                0x1906
 #define GL_COLOR                0x1800
@@ -211,7 +214,9 @@ void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 void glTexCoord2f(GLfloat s, GLfloat t);
 void glVertex2dv(const GLdouble *v);
 void glVertex2f(GLfloat x, GLfloat y);
+void glVertex2i(GLint x, GLint y);
 void glVertex3f(GLfloat x, GLfloat y, GLfloat z);
+void glVertex3i(GLint x, GLint y, GLint z);
 
 /*
  * Vertex Arrays  (1.1)
@@ -242,6 +247,8 @@ void glLineWidth(GLfloat width);
 void glPointSize(GLfloat size);
 void glPolygonMode(GLenum face, GLenum mode);
 void glPolygonStipple(const GLubyte *mask);
+void glPopAttrib(void);
+void glPushAttrib(GLbitfield mask);
 void glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
 
 /*
