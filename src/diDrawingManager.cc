@@ -101,7 +101,7 @@ bool DrawingManager::parseSetup()
 
 void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
-  res.savebackground= true;
+  res.savebackground= false;
   res.background= false;
   res.repaint= false;
   res.newcursor= edit_cursor;
@@ -182,7 +182,7 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DrawingManager::sendKeyboardEvent");
 #endif
-  res.savebackground= true;
+  res.savebackground= false;
   res.background= false;
   res.repaint= false;
 
