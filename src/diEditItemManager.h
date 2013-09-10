@@ -36,12 +36,13 @@
 #include <QPoint>
 #include <QSet>
 #include <QUndoCommand>
-#include <QUndoStack>
+#include <QUndoView>
 
 class AddOrRemoveItemsCommand;
 class EditItemBase;
 class QKeyEvent;
 class QMouseEvent;
+class QUndoStack;
 
 class EditItemManager : public QObject
 {
@@ -66,6 +67,8 @@ public:
 
     QSet<EditItemBase *> getItems() const;
     QSet<EditItemBase *> getSelectedItems() const;
+
+    void createUndoView();
 
 public slots:
     void abortEditing();

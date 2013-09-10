@@ -142,10 +142,18 @@ QList<QPoint> WeatherArea::getPoints() const
 
 void WeatherArea::setPoints(const QList<QPoint> &points)
 {
-    points_ = points;
+    setGeometry(points);
 }
 
-// Internal/private methods
+QList<QPoint> WeatherArea::baseGeometry() const
+{
+    return basePoints_;
+}
+
+QList<QPoint> WeatherArea::getBasePoints() const
+{
+    return baseGeometry();
+}
 
 bool WeatherArea::hit(const QPoint &pos, bool selected) const
 {
@@ -236,14 +244,16 @@ void WeatherArea::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUnd
             QPoint position = event->pos();
 
             // Add actions, checking for a click on a line or a point.
-            int lineIndex = hitLine(position);
-            int pointIndex = hitPoint(position);
-            if (lineIndex != -1)
-                contextMenu.addAction(addPoint_);
-            if (pointIndex != -1)
+            const int lineIndex = hitLine(position);
+            const int pointIndex = hitControlPoint(position);
+            if (pointIndex != -1) {
+                if (points_.size() <= 3)
+                    return; // an area needs at least three points
                 contextMenu.addAction(removePoint_);
-            contextMenu.addAction(tr("&Remove"));
-
+            } else if (lineIndex != -1) {
+                contextMenu.addAction(remove_);
+                contextMenu.addAction(addPoint_);
+            }
             QAction *action = contextMenu.exec(event->globalPos(), remove_);
             if (action == remove_)
                 remove(repaintNeeded, items);
@@ -253,16 +263,6 @@ void WeatherArea::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUnd
                 addPoint(repaintNeeded, lineIndex, position, items);
         }
     }
-}
-
-void WeatherArea::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
-{
-    Q_UNUSED(event); 
-    Q_UNUSED(repaintNeeded); // no need to set this
-    Q_ASSERT(undoCommands);
-    if ((moving_ || resizing_) && (geometry() != baseGeometry()))
-        undoCommands->append(new SetGeometryCommand(this, baseGeometry(), geometry()));
-    moving_ = resizing_ = false;
 }
 
 void WeatherArea::mouseMove(QMouseEvent *event, bool &repaintNeeded)
@@ -280,18 +280,6 @@ void WeatherArea::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
     hoveredCtrlPointIndex_ = hitControlPoint(event->pos());
     repaintNeeded = true;
-}
-
-void WeatherArea::keyPress(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands, QSet<EditItemBase *> *items)
-{
-    Q_UNUSED(repaintNeeded); // no need to set this
-    Q_UNUSED(undoCommands); // not used, since the key press currently doesn't modify this item
-    // (it may mark it for removal, but adding and removing items is handled on the outside)
-
-    if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        Q_ASSERT(items->contains(this));
-        items->remove(this);
-    }
 }
 
 void WeatherArea::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -357,6 +345,13 @@ void WeatherArea::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool
             repaintNeeded = true;
         }
     }
+}
+
+void WeatherArea::moveBy(const QPoint &pos)
+{
+    baseMousePos_ = QPoint();
+    basePoints_ = points_;
+    move(pos);
 }
 
 // Returns the index (>= 0)  of the control point hit by \a pos, or -1 if no
@@ -434,7 +429,6 @@ void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<EditItemBase 
     if (index >= 0 && index < points_.size())
         points_.removeAt(index);
 
-    hoveredCtrlPointIndex_ = -1;
     updateControlPoints();
     repaintNeeded = true;
 }

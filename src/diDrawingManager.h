@@ -70,6 +70,8 @@ public:
 
   bool drawingModeEnabled;
 
+  EditItemManager *getEditItemManager() { return editItemManager; }
+
 private:
   PlotModule* plotm;
   ObjectManager* objm;

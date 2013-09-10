@@ -34,6 +34,20 @@
 
 #include <QtGui>
 
+// ### Move this class to a separate .h file?
+class EditItemBase;
+class SetGeometryCommand : public QUndoCommand
+{
+public:
+    SetGeometryCommand(EditItemBase *, const QList<QPoint> &, const QList<QPoint> &);
+private:
+    EditItemBase *item_;
+    QList<QPoint> oldGeometry_;
+    QList<QPoint> newGeometry_;
+    virtual void undo();
+    virtual void redo();
+};
+
 // This is the abstract base class for editable items.
 class EditItemBase : public QObject
 {
@@ -83,6 +97,9 @@ public:
     virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
     virtual void incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded);
 
+    // Moves the item by the specified amount (i.e. \a pos is relative to the item's current position).
+    virtual void moveBy(const QPoint &pos);
+
     // Draws the item.
     // \a modes indicates whether the item is selected, hovered, both, or neither.
     // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
@@ -102,8 +119,16 @@ public:
     // Sets the item's points.
     virtual void setPoints(const QList<QPoint> &points) = 0;
 
+    virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
+
 protected:
     EditItemBase();
+
+    // Returns the item's base points (representing the start of a move operation etc.).
+    virtual QList<QPoint> getBasePoints() const = 0;
+
+    bool moving_;
+    bool resizing_;
 
 private:
     int id_;

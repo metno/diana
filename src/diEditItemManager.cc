@@ -46,6 +46,14 @@ static QString undoCommandText(int nadded, int nremoved, int nmodified)
     return s;
 }
 
+void EditItemManager::createUndoView()
+{
+    QUndoView *undoView = new QUndoView(&undoStack_);
+    undoView->setWindowTitle("EditItemManager undo stack");
+    undoView->resize(600, 300);
+    undoView->show();
+}
+
 EditItemManager::EditItemManager()
     : hoverItem_(0)
     , incompleteItem_(0)
@@ -78,6 +86,10 @@ void EditItemManager::addItem(EditItemBase *item, bool incomplete)
         AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(this, addedItems, removedItems);
         undoStack_.push(arCmd);
     }
+
+//    qDebug() << "   ###### addItem()" << item << ", incomplete:" << incomplete << ", item infos:";
+//    foreach (EditItemBase *item, items_)
+//        qDebug() << "   ###### - " << item->infoString().toLatin1().data();
 
     repaint();
 }
@@ -445,18 +457,18 @@ void EditItemManager::keyRelease(QKeyEvent *event)
         return;
     }
 
-    bool rpNeeded = false; // whether at least one item needs to be repainted after processing the event
+    repaintNeeded_ = false; // whether at least one item needs to be repainted after processing the event
 
     // send to selected items
     foreach (EditItemBase *item, selItems_) {
         bool rpn = false;
         item->keyRelease(event, rpn);
         if (rpn)
-            rpNeeded = true;
+            repaintNeeded_ = true;
     }
 
-    if (rpNeeded)
-        emit repaintNeeded();
+    if (repaintNeeded_)
+        repaint();
 }
 
 // Handles a key release event for an item in the process of being completed.
@@ -578,10 +590,10 @@ void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
     foreach (QUndoCommand *undoCmd, undoCommands)
         undoStack_.push(undoCmd);
     if (!undoCommands.empty())
-        repaintNeeded_ = true; // assume that any item modification requires a repaint
+        repaintNeeded_ = true; // assume that any item modification requires a repaint ### BUT ALWAYS SET BELOW!
     undoStack_.endMacro();
     skipRepaint_ = false;
-    repaintNeeded_ = true;
+    repaintNeeded_ = true; // ###
 }
 
 

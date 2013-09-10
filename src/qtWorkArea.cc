@@ -39,10 +39,14 @@
 #include "qtWorkArea.h"
 #include "diController.h"
 
+#include "diEditManager.h"
+#include "diDrawingManager.h"
+#include "diEditItemManager.h"
 
 WorkArea::WorkArea(Controller *co,  QWidget* parent)
     : QWidget( parent), contr(co)
 {
+  contr->getDrawingManager()->getEditItemManager()->createUndoView();
   QVBoxLayout* vlayout = new QVBoxLayout(this);
 #if !defined(USE_PAINTGL)
   // Create an openGL widget

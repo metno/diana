@@ -63,12 +63,14 @@ private:
     virtual void mouseHover(QMouseEvent *, bool &);
     virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *, bool *);
     virtual void mouseMove(QMouseEvent *, bool &);
-    virtual void mouseRelease(QMouseEvent *, bool &, QList<QUndoCommand *> *);
-    virtual void keyPress(QKeyEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
+
+    virtual void moveBy(const QPoint &);
+
+    virtual QString infoString() const { return QString("%1 type=WeatherArea npoints=%2").arg(EditItemBase::infoString()).arg(points_.size()); }
 
     virtual void draw(DrawModes, bool);
     void drawControlPoints();
@@ -85,7 +87,8 @@ private:
 
     QList<QPoint> geometry() const { return points_; }
     void setGeometry(const QList<QPoint> &);
-    QList<QPoint> baseGeometry() const { return basePoints_; }
+    virtual QList<QPoint> baseGeometry() const;
+    virtual QList<QPoint> getBasePoints() const;
     qreal distance(const QPoint &) const;
     int hitLine(const QPoint &) const;
     int hitPoint(const QPoint &) const;
@@ -94,8 +97,6 @@ private:
     QList<QRect> controlPoints_;
     QList<QPoint> basePoints_;
 
-    bool moving_;
-    bool resizing_;
     QPoint baseMousePos_;
     int pressedCtrlPointIndex_;
     int hoveredCtrlPointIndex_;

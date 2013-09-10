@@ -46,6 +46,8 @@
 
 #include "qtGLwidget.h"
 #include "diController.h"
+#include "diDrawingManager.h"
+#include "diEditItemManager.h"
 
 #if defined(USE_PAINTGL)
 #include <QPrinter>
@@ -78,6 +80,8 @@ GLwidget::GLwidget(Controller* c, QWidget* parent) :
 
   // sets default cursor in widget
   changeCursor(normal_cursor);
+
+  connect(contr->getDrawingManager()->getEditItemManager(), SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
 }
 
 //  Release allocated resources

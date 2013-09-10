@@ -644,6 +644,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       return;
       //####################################################################
      } else if (!(ke->modifiers() & Qt::ControlModifier) &&
+                !(ke->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier
                 (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
                 ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
                 ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||

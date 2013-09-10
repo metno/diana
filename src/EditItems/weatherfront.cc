@@ -72,37 +72,6 @@ static qreal distance2(const QPointF &p, const QPointF &v, const QPointF &w)
     return sqrt(dist2(p, p2));
 }
 
-class SetGeometryCommand : public QUndoCommand
-{
-public:
-    SetGeometryCommand(WeatherFront *, const QList<QPoint> &, const QList<QPoint> &);
-private:
-    WeatherFront *item_;
-    QList<QPoint> oldGeometry_;
-    QList<QPoint> newGeometry_;
-    virtual void undo();
-    virtual void redo();
-};
-
-SetGeometryCommand::SetGeometryCommand(
-    WeatherFront *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
-    : item_(item)
-    , oldGeometry_(oldGeometry)
-    , newGeometry_(newGeometry)
-{}
-
-void SetGeometryCommand::undo()
-{
-    item_->setGeometry(oldGeometry_);
-    item_->repaint();
-}
-
-void SetGeometryCommand::redo()
-{
-    item_->setGeometry(newGeometry_);
-    item_->repaint();
-}
-
 WeatherFront::WeatherFront()
 {
     init();
@@ -117,20 +86,16 @@ WeatherFront::~WeatherFront()
     delete remove_;
     delete split_;
     delete merge_;
-    delete contextMenu_;
 }
 
 void WeatherFront::init()
 {
-  moving_ = false;
-  resizing_ = false;
   pressedCtrlPointIndex_ = -1;
   hoveredCtrlPointIndex_ = -1;
   placementPos_ = 0;
   remove_ = new QAction(tr("Remove"), 0);
   split_ = new QAction(tr("Split"), 0);
   merge_ = new QAction(tr("Merge"), 0);
-  contextMenu_ = new QMenu;
   type = Cold;
   s_length = 0;
 
@@ -160,15 +125,23 @@ void WeatherFront::setType(frontType type)
 
 QList<QPoint> WeatherFront::getPoints() const
 {
-    return points_;
+    return geometry();
 }
 
 void WeatherFront::setPoints(const QList<QPoint> &points)
 {
-    points_ = points;
+    setGeometry(points);
 }
 
-// Internal/private methods
+QList<QPoint> WeatherFront::baseGeometry() const
+{
+    return basePoints_;
+}
+
+QList<QPoint> WeatherFront::getBasePoints() const
+{
+    return baseGeometry();
+}
 
 bool WeatherFront::hit(const QPoint &pos, bool selected) const
 {
@@ -254,15 +227,15 @@ void WeatherFront::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUn
     } else if (event->button() == Qt::RightButton) {
         if (items) {
             // open a context menu and perform the selected action
-            contextMenu_->clear();
-            contextMenu_->addAction(remove_);
-            contextMenu_->addAction(split_);
+            QMenu contextMenu;
+            contextMenu.addAction(remove_);
+            contextMenu.addAction(split_);
             // Add a merge action if there is more than one item selected.
             // This also needs to check if both fronts have points under
             // the cursor.
             if (items->size() > 1)
-                contextMenu_->addAction(merge_);
-            QAction *action = contextMenu_->exec(event->globalPos(), remove_);
+                contextMenu.addAction(merge_);
+            QAction *action = contextMenu.exec(event->globalPos(), remove_);
             if (action == remove_)
                 remove(repaintNeeded, items);
             else if (action == split_)
@@ -271,16 +244,6 @@ void WeatherFront::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUn
                 merge(event->pos(), repaintNeeded, undoCommands, items);
         }
     }
-}
-
-void WeatherFront::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
-{
-    Q_UNUSED(event); 
-    Q_UNUSED(repaintNeeded); // no need to set this
-    Q_ASSERT(undoCommands);
-    if ((moving_ || resizing_) && (geometry() != baseGeometry()))
-        undoCommands->append(new SetGeometryCommand(this, baseGeometry(), geometry()));
-    moving_ = resizing_ = false;
 }
 
 void WeatherFront::mouseMove(QMouseEvent *event, bool &repaintNeeded)
@@ -300,18 +263,6 @@ void WeatherFront::mouseHover(QMouseEvent *event, bool &repaintNeeded)
     repaintNeeded = true;
 }
 
-void WeatherFront::keyPress(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands, QSet<EditItemBase *> *items)
-{
-    Q_UNUSED(repaintNeeded); // no need to set this
-    Q_UNUSED(undoCommands); // not used, since the key press currently doesn't modify this item
-    // (it may mark it for removal, but adding and removing items is handled on the outside)
-
-    if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        Q_ASSERT(items->contains(this));
-        items->remove(this);
-    }
-}
-
 void WeatherFront::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
     Q_UNUSED(complete);
@@ -327,21 +278,19 @@ void WeatherFront::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded,
 
     } else if (event->button() == Qt::RightButton) {
 
-        if (points_.size() < 1) {
-            // There must be at least one point in the multiline.
-            aborted = true;
-            repaintNeeded = true;
+        if (placementPos_) { // no longer needed, since placement will now either be aborted or completed
+            delete placementPos_;
+            placementPos_ = 0;
         }
 
-        Q_ASSERT(placementPos_);
-        delete placementPos_;
-        placementPos_ = 0;
-
-        if (points_.size() >= 2) {
-            complete = true; // causes repaint
-        } else {
-            aborted = true; // not a complete multiline
+        if (points_.size() < 1) {
+            // at least one point is required to form a valid multiline
+            aborted = true;
             repaintNeeded = true;
+        } else {
+            points_.append(QPoint(event->pos())); // the current mouse pos forms the last point
+            updateControlPoints();
+            complete = true; // causes repaint
         }
     }
 }
@@ -375,6 +324,13 @@ void WeatherFront::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, boo
             repaintNeeded = true;
         }
     }
+}
+
+void WeatherFront::moveBy(const QPoint &pos)
+{
+    baseMousePos_ = QPoint();
+    basePoints_ = points_;
+    move(pos);
 }
 
 // Returns the index (>= 0)  of the control point hit by \a pos, or -1 if no

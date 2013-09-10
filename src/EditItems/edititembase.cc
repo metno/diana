@@ -31,8 +31,31 @@
 
 #include "edititembase.h"
 
+// ### --- BEGIN - Move this class to a separate .cc file? ---
+SetGeometryCommand::SetGeometryCommand(
+    EditItemBase *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
+    : item_(item)
+    , oldGeometry_(oldGeometry)
+    , newGeometry_(newGeometry)
+{}
+
+void SetGeometryCommand::undo()
+{
+    item_->setPoints(oldGeometry_);
+    item_->repaint();
+}
+
+void SetGeometryCommand::redo()
+{
+    item_->setPoints(newGeometry_);
+    item_->repaint();
+}
+// ### --- END - Move this class to a separate .cc file? ---
+
 EditItemBase::EditItemBase()
-    : id_(nextId())
+    : moving_(false)
+    , resizing_(false)
+    , id_(nextId())
 {}
 
 int EditItemBase::id() const { return id_; }
@@ -54,7 +77,7 @@ int EditItemBase::nextId_ = 0;
  *
  * \a event is the event.
  *
- * \a repaintNeeded is set to true iff the scene needs to be repainted (typically of the item
+ * \a repaintNeeded is set to true iff the scene needs to be repainted (typically if the item
  * modified it's state in a way that is reflected visually).
  *
  * Undo-commands representing the effect of this event may be inserted into  * \a undoCommands.
@@ -74,11 +97,11 @@ int EditItemBase::nextId_ = 0;
 void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
                               QSet<EditItemBase *> *items, bool *multiItemOp)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(undoCommands)
-  Q_UNUSED(items)
-  Q_UNUSED(multiItemOp)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+    Q_UNUSED(undoCommands)
+    Q_UNUSED(items)
+    Q_UNUSED(multiItemOp)
 }
 
 /**
@@ -94,91 +117,114 @@ void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUn
  */
 void EditItemBase::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(complete)
-  Q_UNUSED(aborted)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+    Q_UNUSED(complete)
+    Q_UNUSED(aborted)
 }
 
 void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(undoCommands)
+    Q_UNUSED(event);
+    Q_UNUSED(repaintNeeded); // no need to set this
+    Q_ASSERT(undoCommands);
+    if ((moving_ || resizing_) && (getPoints() != getBasePoints()))
+        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), getPoints()));
+    moving_ = resizing_ = false;
 }
 
 void EditItemBase::mouseMove(QMouseEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
                             QSet<EditItemBase *> *items)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(undoCommands)
-  Q_UNUSED(items)
+    if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
+        Q_ASSERT(items->contains(this));
+        items->remove(this);
+    } else if (
+               (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
+               ((event->key() == Qt::Key_Left)
+                || (event->key() == Qt::Key_Right)
+                || (event->key() == Qt::Key_Down)
+                || (event->key() == Qt::Key_Up))) {
+        QPoint pos;
+        const int nudgeVal = 1; // nudge item by this much
+        if (event->key() == Qt::Key_Left) pos += QPoint(-nudgeVal, 0);
+        else if (event->key() == Qt::Key_Right) pos += QPoint(nudgeVal, 0);
+        else if (event->key() == Qt::Key_Down) pos += QPoint(0, -nudgeVal);
+        else pos += QPoint(0, nudgeVal); // Key_Up
+        moveBy(pos);
+        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), getPoints()));
+        repaintNeeded = true;
+    }
 }
 
 void EditItemBase::keyRelease(QKeyEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(complete)
-  Q_UNUSED(aborted)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+    Q_UNUSED(complete)
+    Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteMouseMove(QMouseEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseDoubleClick(QMouseEvent *event, bool &repaintNeeded, bool &complete,
                                               bool &aborted)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(complete)
-  Q_UNUSED(aborted)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+    Q_UNUSED(complete)
+    Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
-  Q_UNUSED(complete)
-  Q_UNUSED(aborted)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+    Q_UNUSED(complete)
+    Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
 {
-  Q_UNUSED(event)
-  Q_UNUSED(repaintNeeded)
+    Q_UNUSED(event)
+    Q_UNUSED(repaintNeeded)
+}
+
+void EditItemBase::moveBy(const QPoint &pos)
+{
+    Q_UNUSED(pos);
 }
