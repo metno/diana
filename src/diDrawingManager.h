@@ -40,6 +40,7 @@
 
 using namespace std;
 
+class EditItemManager;
 class PlotModule;
 class ObjectManager;
 
@@ -52,12 +53,6 @@ class QMouseEvent;
 
 class DrawingManager
 {
-private:
-  PlotModule* plotm;
-  ObjectManager* objm;
-
-  GridConverter gc;   // gridconverter class
-
 public:
   DrawingManager(PlotModule*, ObjectManager*);
   ~DrawingManager();
@@ -69,6 +64,23 @@ public:
   void sendMouseEvent(QMouseEvent* me, EventResult& res);
   /// handle keyboard event
   void sendKeyboardEvent(QKeyEvent* me, EventResult& res);
+
+  bool changeProjection(const Area& newArea);
+  void plot(bool under, bool over);
+
+  bool drawingModeEnabled;
+
+private:
+  PlotModule* plotm;
+  ObjectManager* objm;
+  EditItemManager *editItemManager;     // fronts,symbols,areas
+
+  GridConverter gc;   // gridconverter class
+
+  Rectangle plotRect;
+  Rectangle editRect;
+  float first_x, first_y;
+  bool moved;
 };
 
 #endif

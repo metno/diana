@@ -103,7 +103,6 @@ private:
 
   bool editoverride; // do not route mouse/key-events to editmanager
   bool paintModeEnabled;
-  bool drawingModeEnabled;
   bool scrollwheelZoom;
 
 public:

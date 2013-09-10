@@ -417,7 +417,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   toggleDrawingAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleDrawingAction->setCheckable(true);
   toggleDrawingAction->setIconVisibleInMenu(true);
-  connect(toggleDrawingAction, SIGNAL(triggered()), SLOT(startPainting()));
+  connect(toggleDrawingAction, SIGNAL(triggered()), SLOT(toggleDrawing()));
   // --------------------------------------------------------------------
 
   profetLoginError = new QErrorMessage(this);

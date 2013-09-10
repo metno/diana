@@ -386,4 +386,11 @@ struct InfoFile {
   miutil::miString fonttype;///< fonttype: auto, fixed
 };
 
+/**
+   \brief front types and options
+ */
+enum frontType {
+    Cold, Warm, Occluded, Stationary, TroughLine, ArrowLine, SquallLine, SigweatherFront, Line
+};
+
 #endif

@@ -58,6 +58,7 @@ class SatManager;
 class StationManager;
 class ObjectManager;
 class EditManager;
+class DrawingManager;
 class GridAreaManager;
 class Field;
 class TrajectoryPlot;
@@ -88,6 +89,7 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
+  DrawingManager *drawm;  // drawing manager
   GridAreaManager *aream; // Polygon edit manager for continuous drwaing/editing
 
   friend class EditManager;   // editing and drawing
@@ -235,6 +237,8 @@ public:
   Area& getMapArea(){return splot.getMapArea();}
   /// get plotwindow rectangle
   Rectangle& getPlotSize(){return splot.getPlotSize();}
+  /// get the size of the plot window
+  void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
   void setPlotWindow(const int&, const int&);
   /// receive rectangle in pixels
@@ -261,7 +265,8 @@ public:
                    StationManager*,
                    ObjectManager*,
                    EditManager*,
-                   GridAreaManager*);
+                   GridAreaManager*,
+                   DrawingManager*);
 
   /// return current plottime
   void getPlotTime(miutil::miString&);

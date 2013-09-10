@@ -50,6 +50,7 @@
 #include <diStationManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
+#include <diDrawingManager.h>
 #include <diGridAreaManager.h>
 #include <diAnnotationPlot.h>
 #include <diWeatherArea.h>
@@ -1104,6 +1105,9 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   editobjects.changeProjection(splot.getMapArea());
   combiningobjects.changeProjection(splot.getMapArea());
 
+  // update drawing items
+  drawm->changeProjection(splot.getMapArea());
+  
   n = stam->plots().size();
   for (int i = 0; i < n; i++) {
     stam->plots()[i]->changeProjection();
@@ -1358,6 +1362,11 @@ void PlotModule::plotUnder()
   // plot inactive edit fields/objects under observations
   if (inEdit) {
     editm->plot(true, false);
+  }
+
+  // plot inactive edit fields/objects under observations
+  if (drawm->drawingModeEnabled) {
+    drawm->plot(true, false);
   }
 
   // if "PPPP-mslp", calc. values and plot observations,
@@ -1880,7 +1889,7 @@ float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float 
 // set managers
 void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm,
-    GridAreaManager* gam)
+    GridAreaManager* gam, DrawingManager* dm)
 {
   fieldm = fm;
   fieldplotm = fpm;
@@ -1890,6 +1899,7 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   objm = obm;
   editm = edm;
   aream = gam;
+  drawm = dm;
 
   if (!fieldm)
     METLIBS_LOG_ERROR("PlotModule::ERROR fieldmanager==0");
@@ -1907,6 +1917,8 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
   if (!aream)
     METLIBS_LOG_ERROR("PlotModule::ERROR gridareamanager==0");
+  if (!drawm)
+    METLIBS_LOG_ERROR("PlotModule::ERROR drawingmanager==0");
 }
 
 // return current plottime
@@ -3110,4 +3122,10 @@ vector<FieldPlot*> PlotModule::getFieldPlots() const
 vector<ObsPlot*> PlotModule::getObsPlots() const
 {
   return vop;
+}
+
+void PlotModule::getPlotWindow(int &width, int &height)
+{
+  width = plotw;
+  height = ploth;
 }
