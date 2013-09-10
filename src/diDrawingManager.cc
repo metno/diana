@@ -92,7 +92,7 @@ bool DrawingManager::parseSetup()
 void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
   res.savebackground= true;
-  res.background= true;
+  res.background= false;
   res.repaint= false;
   res.newcursor= edit_cursor;
 
