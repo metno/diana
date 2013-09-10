@@ -115,7 +115,11 @@ common_cxx_sources = \
         diWeatherSymbol.cc
 
 # Qt sources
-common_qt_sources =
+common_qt_sources = \
+	diEditItemManager.cc \
+	EditItems/edititembase.cc \
+	EditItems/weatherarea.cc \
+	EditItems/weatherfront.cc
 
 if WITH_BATCH_ONLY
 diana_qt_sources =
@@ -214,6 +218,10 @@ noinst_HEADERS = \
 	diContouring.h \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
+	diEditItemManager.h \
+	EditItems/edititembase.h \
+	EditItems/weatherarea.h \
+	EditItems/weatherfront.h \
 	diEditManager.h \
 	diEditObjects.h \
 	diEditSpec.h \
@@ -797,6 +805,7 @@ common_ldadd += $(WIN32_LIBS)
 libdiana_a_SOURCES = \
 	$(common_c_sources) \
 	$(common_cxx_sources) \
+	$(common_qt_sources) \
 	$(bdiana_qt_sources) \
 	bdiana_capi.cc \
 	signalhelper.cc
@@ -811,6 +820,7 @@ libdiana_a_CPPFLAGS = \
 
 # diana-specific sources (the rest is in libdiana)
 diana_bin_SOURCES = \
+	$(common_qt_sources) \
 	$(diana_qt_sources) \
 	$(common_xpm_sources) \
 	$(language_sources) \
