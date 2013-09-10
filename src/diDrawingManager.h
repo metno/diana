@@ -100,6 +100,7 @@ private:
   Rectangle editRect;
 
   void copyItems(const QSet<EditItemBase *> &) const;
+  void cutSelectedItems() const;
   void copySelectedItems() const;
   void pasteItems();
 };

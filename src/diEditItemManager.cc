@@ -109,6 +109,16 @@ void EditItemManager::addItem_(EditItemBase *item)
 
 void EditItemManager::removeItem(EditItemBase *item)
 {
+    // create undo command
+    QSet<EditItemBase *> addedItems;
+    QSet<EditItemBase *> removedItems;
+    removedItems.insert(item);
+    AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, removedItems);
+    undoStack_.push(arCmd);
+}
+
+void EditItemManager::removeItem_(EditItemBase *item)
+{
     items_.remove(item);
     disconnect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     selItems_.remove(item);
@@ -119,7 +129,7 @@ void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
     foreach (EditItemBase *item, items) {
         // Convert the item's screen coordinates to geographic coordinates.
         item->setLatLonPoints(drawingManager_->getLatLonPoints(item));
-        removeItem(item);
+        removeItem_(item);
     }
 }
 

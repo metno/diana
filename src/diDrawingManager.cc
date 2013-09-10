@@ -73,8 +73,11 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   currentArea = plotm->getCurrentArea();
 
   cutAction = new QAction(tr("Cut"), 0);
+  cutAction->setShortcut(tr("Ctrl+X"));
   copyAction = new QAction(tr("&Copy"), 0);
+  copyAction->setShortcut(QKeySequence::Copy);
   pasteAction = new QAction(tr("&Paste"), 0);
+  pasteAction->setShortcut(QKeySequence::Paste);
 }
 
 DrawingManager::~DrawingManager()
@@ -131,13 +134,17 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         && (!editItemManager->hasIncompleteItem())) {
       // Handle the event via a global context menu only; don't delegate to items via edit item manager.
       QMenu contextMenu;
-      if (editItemManager->getSelectedItems().size() > 0)
-        contextMenu.addAction(copyAction);
-      if (QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"))
-        contextMenu.addAction(pasteAction);
+      contextMenu.addAction(cutAction);
+      cutAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
+      contextMenu.addAction(copyAction);
+      copyAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
+      contextMenu.addAction(pasteAction);
+      pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
       if (!contextMenu.isEmpty()) {
         QAction *action = contextMenu.exec(me2.globalPos());
-        if (action == copyAction)
+        if (action == cutAction)
+          cutSelectedItems();
+        else if (action == copyAction)
           copySelectedItems();
         else if (action == pasteAction)
           pasteItems();
@@ -179,15 +186,20 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   res.background= false;
   res.repaint= false;
 
-  editItemManager->keyPress(event);
-  res.repaint = true;
-
   if (event->type() == QEvent::KeyPress) {
-    if (event->key() == Qt::Key_C && event->modifiers() & Qt::ControlModifier)
+    if (cutAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      cutSelectedItems();
+    else if (copyAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       copySelectedItems();
-    else if (event->key() == Qt::Key_V && event->modifiers() & Qt::ControlModifier)
+    else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       pasteItems();
   }
+
+  res.repaint = true;
+  if (event->isAccepted())
+    return;
+
+  editItemManager->keyPress(event);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
@@ -289,6 +301,14 @@ void DrawingManager::plot(bool under, bool over)
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
   editItemManager->draw();
   glPopMatrix();
+}
+
+void DrawingManager::cutSelectedItems() const
+{
+  QSet<EditItemBase*> items = editItemManager->getSelectedItems();
+  copyItems(items);
+  foreach (EditItemBase* item, items)
+    editItemManager->removeItem(item);
 }
 
 void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const

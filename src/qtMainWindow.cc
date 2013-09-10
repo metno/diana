@@ -410,8 +410,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showMeasurementsDialogAction->setCheckable(true);
   connect( showMeasurementsDialogAction, SIGNAL( triggered() ) ,  SLOT( measurementsMenu() ) );
   // ----------------------------------------------------------------
-  uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
-  connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
+  //uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
+  //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
   toggleDrawingAction = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
   toggleDrawingAction->setShortcutContext(Qt::ApplicationShortcut);

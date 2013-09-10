@@ -56,6 +56,7 @@ public:
     // Registers a new item with the manager.
     // \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
     void addItem(EditItemBase *item, bool incomplete = false);
+    void removeItem(EditItemBase *item);
 
     // Returns the undo stack.
     QUndoStack *undoStack();
@@ -123,7 +124,7 @@ private:
     void pushCommands(QSet<EditItemBase *> addedItems,
                       QSet<EditItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
-    void removeItem(EditItemBase *item);
+    void removeItem_(EditItemBase *item);
 
     static EditItemManager *self;   // singleton instance pointer
 };
