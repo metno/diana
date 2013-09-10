@@ -172,7 +172,7 @@
 #include <ruler.xpm>
 #include <info.xpm>
 #include <profet.xpm>
-//#include <paint_mode.xpm>
+#include <paint_mode.xpm>       // reused for area drawing functionality
 #include <autoupdate.xpm>
 
 //#define DEBUGREDRAWCATCH 
@@ -413,6 +413,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
+  toggleDrawingAction = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
+  toggleDrawingAction->setShortcutContext(Qt::ApplicationShortcut);
+  toggleDrawingAction->setCheckable(true);
+  toggleDrawingAction->setIconVisibleInMenu(true);
+  connect(toggleDrawingAction, SIGNAL(triggered()), SLOT(startPainting()));
+  // --------------------------------------------------------------------
 
   profetLoginError = new QErrorMessage(this);
   /* Paint mode not implemented
@@ -700,6 +706,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   if (uffda){
     showmenu->addAction( showUffdaDialogAction );
   }
+  showmenu->addAction(toggleDrawingAction);
   showmenu->addMenu( infomenu );
 
 
@@ -820,6 +827,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   mainToolbar->addSeparator();
   mainToolbar->addAction( showEditDialogAction );
+  mainToolbar->addAction(toggleDrawingAction);
   mainToolbar->addSeparator();
   mainToolbar->addSeparator();
   mainToolbar->addAction( showResetAllAction );
@@ -4592,4 +4600,9 @@ bool DianaMainWindow::event(QEvent* event)
   }
 
   return QMainWindow::event(event);
+}
+
+void DianaMainWindow::toggleDrawing()
+{
+  contr->setDrawingModeEnabled(toggleDrawingAction->isChecked());
 }

@@ -82,6 +82,7 @@ Controller::Controller()
   editm= new EditManager(plotm,objm,fieldplotm);
   aream = new GridAreaManager();
   paintModeEnabled = false;
+  drawingModeEnabled = false;
   scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream);
 //  profetController = new Profet::ProfetController(fieldm);
@@ -540,6 +541,8 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
           <<res.repaint<<" "<<res.background<<" "<<res.savebackground<<" "
           <<res.action);
 #endif
+    } else if (drawingModeEnabled) {
+      //drawm->sendMouseEvent(me, res);
     }
   }
   // catch events to PlotModule
@@ -1056,8 +1059,14 @@ void Controller::readLog(const vector<miString>& vstr,
   plotm->readLog(vstr,thisVersion,logVersion);
 }
 
-void Controller::setPaintModeEnabled(bool pm_enabled){
-        paintModeEnabled = pm_enabled;
+void Controller::setPaintModeEnabled(bool pm_enabled)
+{
+  paintModeEnabled = pm_enabled;
+}
+
+void Controller::setDrawingModeEnabled(bool enable)
+{
+  drawingModeEnabled = enable;
 }
 
 bool Controller::useScrollwheelZoom() {

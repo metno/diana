@@ -101,6 +101,7 @@ private:
 
   bool editoverride; // do not route mouse/key-events to editmanager
   bool paintModeEnabled;
+  bool drawingModeEnabled;
   bool scrollwheelZoom;
 
 public:
@@ -397,6 +398,7 @@ public:
 #endif
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
+  void setDrawingModeEnabled(bool);
 
   bool useScrollwheelZoom();
 

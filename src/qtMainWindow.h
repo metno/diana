@@ -163,6 +163,7 @@ private slots:
   void measurementsMenu();
   void quickMenu();
   void toggleProfetGUI();
+  void toggleDrawing();
 
   void showHelp();
   void showAccels();
@@ -316,6 +317,7 @@ private:
 
 //  QAction * togglePaintModeAction;
   QAction * toggleProfetGUIAction;
+  QAction * toggleDrawingAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
