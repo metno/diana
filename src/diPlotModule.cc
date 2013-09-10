@@ -2814,6 +2814,7 @@ void PlotModule::zoomOut()
   areaInsert(splot.getMapArea(), true);
   Rectangle r(x1, y1, x2, y2);
   PixelArea(r);
+  drawm->changeProjection(splot.getMapArea());
 }
 
 // keyboard/mouse events
@@ -2937,6 +2938,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       areaInsert(splot.getMapArea(), true);
       Rectangle r(x1, y1, x2, y2);
       PixelArea(r);
+      drawm->changeProjection(splot.getMapArea());
       res.repaint = true;
       res.background = true;
     }

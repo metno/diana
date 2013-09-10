@@ -681,6 +681,8 @@ void SetGeometryCommand::redo()
     // Retrieve the new points, if present, and convert them to screen coordinates.
     if (!newLatLonPoints_.isEmpty())
         newGeometry_ = eim_->GeoToPhys(newLatLonPoints_);
+    else
+        newLatLonPoints_ = eim_->PhysToGeo(newGeometry_);
 
     item_->setPoints(newGeometry_);
     item_->repaint();
