@@ -31,6 +31,7 @@
 
 #include <QtGui>
 
+#include <diDrawingManager.h>
 #include <diEditItemManager.h>
 #include <EditItems/edititembase.h>
 
@@ -54,11 +55,12 @@ void EditItemManager::createUndoView()
     undoView->show();
 }
 
-EditItemManager::EditItemManager()
+EditItemManager::EditItemManager(DrawingManager *drawm)
     : hoverItem_(0)
     , incompleteItem_(0)
     , repaintNeeded_(false)
     , skipRepaint_(false)
+    , drawingManager_(drawm)
 {
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
@@ -101,10 +103,15 @@ void EditItemManager::addItem_(EditItemBase *item)
     if (false) selItems_.insert(item); // for now, don't pre-select new items
 }
 
-void EditItemManager::addItems(const QSet<EditItemBase *> &items)
+void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
 {
-    foreach (EditItemBase *item, items)
+    foreach (EditItemBase *item, items) {
+        // The items stored on the undo stack have been given geographic
+        // coordinates, so we use those to obtain screen coordinates.
+        if (!item->getLatLonPoints().isEmpty())
+            drawingManager_->setLatLonPoints(item, item->getLatLonPoints());
         addItem_(item);
+    }
 }
 
 void EditItemManager::removeItem(EditItemBase *item)
@@ -114,10 +121,13 @@ void EditItemManager::removeItem(EditItemBase *item)
     selItems_.remove(item);
 }
 
-void EditItemManager::removeItems(const QSet<EditItemBase *> &items)
+void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
 {
-    foreach (EditItemBase *item, items)
+    foreach (EditItemBase *item, items) {
+        // Convert the item's screen coordinates to geographic coordinates.
+        item->setLatLonPoints(drawingManager_->getLatLonPoints(item));
         removeItem(item);
+    }
 }
 
 void EditItemManager::reset()
@@ -607,14 +617,33 @@ AddOrRemoveItemsCommand::AddOrRemoveItemsCommand(
 
 void AddOrRemoveItemsCommand::undo()
 {
-    eim_->addItems(removedItems_);
-    eim_->removeItems(addedItems_);
+    eim_->retrieveItems(removedItems_);
+    eim_->storeItems(addedItems_);
     eim_->repaint();
 }
 
 void AddOrRemoveItemsCommand::redo()
 {
-    eim_->addItems(addedItems_);
-    eim_->removeItems(removedItems_);
+    eim_->retrieveItems(addedItems_);
+    eim_->storeItems(removedItems_);
     eim_->repaint();
+}
+
+SetGeometryCommand::SetGeometryCommand(
+    EditItemBase *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
+    : item_(item)
+    , oldGeometry_(oldGeometry)
+    , newGeometry_(newGeometry)
+{}
+
+void SetGeometryCommand::undo()
+{
+    item_->setPoints(oldGeometry_);
+    item_->repaint();
+}
+
+void SetGeometryCommand::redo()
+{
+    item_->setPoints(newGeometry_);
+    item_->repaint();
 }

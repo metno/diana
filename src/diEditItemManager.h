@@ -39,6 +39,7 @@
 #include <QUndoView>
 
 class AddOrRemoveItemsCommand;
+class DrawingManager;
 class EditItemBase;
 class QKeyEvent;
 class QMouseEvent;
@@ -50,7 +51,7 @@ class EditItemManager : public QObject
     friend class AddOrRemoveItemsCommand;
 
 public:
-    EditItemManager();
+    EditItemManager(DrawingManager *drawm);
     virtual ~EditItemManager();
 
     // Registers a new item with the manager.
@@ -104,9 +105,10 @@ private:
     bool repaintNeeded_;
     bool skipRepaint_;
     QUndoStack undoStack_;
+    DrawingManager *drawingManager_;
 
     void addItem_(EditItemBase *);
-    void addItems(const QSet<EditItemBase *> &);
+    void retrieveItems(const QSet<EditItemBase *> &);
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
     void incompleteMouseMove(QMouseEvent *);
@@ -117,7 +119,7 @@ private:
                       QSet<EditItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
     void removeItem(EditItemBase *item);
-    void removeItems(const QSet<EditItemBase *> &);
+    void storeItems(const QSet<EditItemBase *> &);
 };
 
 class AddOrRemoveItemsCommand : public QUndoCommand
@@ -130,6 +132,18 @@ private:
     EditItemManager *eim_;
     QSet<EditItemBase *> addedItems_;
     QSet<EditItemBase *> removedItems_;
+    virtual void undo();
+    virtual void redo();
+};
+
+class SetGeometryCommand : public QUndoCommand
+{
+public:
+    SetGeometryCommand(EditItemBase *, const QList<QPoint> &, const QList<QPoint> &);
+private:
+    EditItemBase *item_;
+    QList<QPoint> oldGeometry_;
+    QList<QPoint> newGeometry_;
     virtual void undo();
     virtual void redo();
 };

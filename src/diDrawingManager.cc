@@ -67,7 +67,7 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   if (plotm==0 || objm==0){
     METLIBS_LOG_WARN("Catastrophic error: plotm or objm == 0");
   }
-  editItemManager = new EditItemManager();
+  editItemManager = new EditItemManager(this);
   editRect = plotm->getPlotSize();
   drawingModeEnabled = false;
   currentArea = plotm->getCurrentArea();
@@ -216,7 +216,7 @@ void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &l
   QList<QPoint> points;
   int n = latLonPoints.size();
 
-  // Convert screen coordinates to geographic coordinates.
+  // Convert geographic coordinates to screen coordinates.
   for (int i = 0; i < n; ++i) {
     float x, y;
     plotm->GeoToPhys(latLonPoints.at(i).x(),

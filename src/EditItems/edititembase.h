@@ -33,20 +33,9 @@
 #define EDITITEMBASE_H
 
 #include <QtGui>
+#include "diEditItemManager.h"
 
-// ### Move this class to a separate .h file?
 class EditItemBase;
-class SetGeometryCommand : public QUndoCommand
-{
-public:
-    SetGeometryCommand(EditItemBase *, const QList<QPoint> &, const QList<QPoint> &);
-private:
-    EditItemBase *item_;
-    QList<QPoint> oldGeometry_;
-    QList<QPoint> newGeometry_;
-    virtual void undo();
-    virtual void redo();
-};
 
 // This is the abstract base class for editable items.
 class EditItemBase : public QObject
@@ -119,6 +108,11 @@ public:
     // Sets the item's points.
     virtual void setPoints(const QList<QPoint> &points) = 0;
 
+    // Returns the item's geographic points.
+    virtual QList<QPointF> getLatLonPoints() const;
+    // Sets the item's geographic points.
+    virtual void setLatLonPoints(const QList<QPointF> &points);
+
     virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
 protected:
@@ -134,6 +128,7 @@ private:
     int id_;
     static int nextId_;
     int nextId();
+    QList<QPointF> latLonPoints;
 
 signals:
     void repaintNeeded();

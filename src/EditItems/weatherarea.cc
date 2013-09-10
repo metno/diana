@@ -51,37 +51,6 @@ static qreal distance2(const QPointF &p, const QPointF &v, const QPointF &w)
     return sqrt(dist2(p, p2));
 }
 
-class SetGeometryCommand : public QUndoCommand
-{
-public:
-    SetGeometryCommand(WeatherArea *, const QList<QPoint> &, const QList<QPoint> &);
-private:
-    WeatherArea *item_;
-    QList<QPoint> oldGeometry_;
-    QList<QPoint> newGeometry_;
-    virtual void undo();
-    virtual void redo();
-};
-
-SetGeometryCommand::SetGeometryCommand(
-    WeatherArea *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
-    : item_(item)
-    , oldGeometry_(oldGeometry)
-    , newGeometry_(newGeometry)
-{}
-
-void SetGeometryCommand::undo()
-{
-    item_->setGeometry(oldGeometry_);
-    item_->repaint();
-}
-
-void SetGeometryCommand::redo()
-{
-    item_->setGeometry(newGeometry_);
-    item_->repaint();
-}
-
 WeatherArea::WeatherArea()
 {
     init();

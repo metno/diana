@@ -31,27 +31,6 @@
 
 #include "edititembase.h"
 
-// ### --- BEGIN - Move this class to a separate .cc file? ---
-SetGeometryCommand::SetGeometryCommand(
-    EditItemBase *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
-    : item_(item)
-    , oldGeometry_(oldGeometry)
-    , newGeometry_(newGeometry)
-{}
-
-void SetGeometryCommand::undo()
-{
-    item_->setPoints(oldGeometry_);
-    item_->repaint();
-}
-
-void SetGeometryCommand::redo()
-{
-    item_->setPoints(newGeometry_);
-    item_->repaint();
-}
-// ### --- END - Move this class to a separate .cc file? ---
-
 EditItemBase::EditItemBase()
     : moving_(false)
     , resizing_(false)
@@ -231,4 +210,14 @@ void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
 void EditItemBase::moveBy(const QPoint &pos)
 {
     Q_UNUSED(pos);
+}
+
+QList<QPointF> EditItemBase::getLatLonPoints() const
+{
+    return latLonPoints;
+}
+
+void EditItemBase::setLatLonPoints(const QList<QPointF> &points)
+{
+    latLonPoints = points;
 }
