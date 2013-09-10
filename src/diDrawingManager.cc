@@ -78,6 +78,8 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   copyAction->setShortcut(QKeySequence::Copy);
   pasteAction = new QAction(tr("&Paste"), 0);
   pasteAction->setShortcut(QKeySequence::Paste);
+  editAction = new QAction(tr("P&roperties"), 0);
+  editAction->setShortcut(tr("Ctrl+R"));
 }
 
 DrawingManager::~DrawingManager()
@@ -140,6 +142,9 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       copyAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
       contextMenu.addAction(pasteAction);
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+      contextMenu.addSeparator();
+      contextMenu.addAction(editAction);
+      editAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
       if (!contextMenu.isEmpty()) {
         QAction *action = contextMenu.exec(me2.globalPos());
         if (action == cutAction)
@@ -148,14 +153,19 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
           copySelectedItems();
         else if (action == pasteAction)
           pasteItems();
+        else if (action == editAction)
+          editItemManager->editItemProperties(editItemManager->getSelectedItems());
       }
     } else {
       // Send the mouse press to the edit item manager.
       QSet<EditItemBase *> itemsToCopy; // items to be copied
-      editItemManager->mousePress(&me2, &itemsToCopy);
+      QSet<EditItemBase *> itemsToEdit; // items to be edited
+      editItemManager->mousePress(&me2, &itemsToCopy, &itemsToEdit);
 
       if (itemsToCopy.size() > 0) {
         copyItems(itemsToCopy);
+      } else if (itemsToEdit.size() > 0) {
+        editItemManager->editItemProperties(itemsToEdit);
       } else if (editItemManager->getSelectedItems().size() == 0 && !editItemManager->hasIncompleteItem()) {
         // Nothing was changed or interacted with, so create a new area and repeat the mouse click.
         EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();

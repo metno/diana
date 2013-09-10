@@ -61,7 +61,9 @@ private:
     void init();
 
     virtual void mouseHover(QMouseEvent *, bool &);
-    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *, QSet<EditItemBase *> *, bool *);
+    virtual void mousePress(
+        QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *, QSet<EditItemBase *> *,
+        QSet<EditItemBase *> *, bool *);
     virtual void mouseMove(QMouseEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
@@ -107,6 +109,7 @@ private:
     QAction *remove_;
     QAction *removePoint_;
     QAction *copyItems_;
+    QAction *editItems_;
 
     QColor color_;
     frontType type;

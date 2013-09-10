@@ -58,6 +58,11 @@ WeatherArea::WeatherArea()
     color_.setRed(0);
     color_.setGreen(0);
     color_.setBlue(0);
+
+    // ### dummy properties used for testing:
+    properties_.insert("dummy 1", 4711);
+    properties_.insert("dummy 2", 3.1415);
+    properties_.insert("dummy 3", "bla bla");
 }
 
 WeatherArea::~WeatherArea()
@@ -78,6 +83,7 @@ void WeatherArea::init()
   remove_ = new QAction(tr("&Remove"), 0);
   removePoint_ = new QAction(tr("Remove &point"), 0);
   copyItems_ = new QAction(tr("&Copy items of same type"), 0);
+  editItems_ = new QAction(tr("P&roperties"), 0);
   type = Cold;
   s_length = 0;
 
@@ -194,7 +200,8 @@ int WeatherArea::hitPoint(const QPoint &position) const
 
 void WeatherArea::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *items, bool *multiItemOp)
+    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
+    QSet<EditItemBase *> *items, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
 
@@ -227,6 +234,8 @@ void WeatherArea::mousePress(
             }
             if (itemsToCopy)
               contextMenu.addAction(copyItems_);
+            if (itemsToEdit)
+              contextMenu.addAction(editItems_);
             QAction *action = contextMenu.exec(event->globalPos(), remove_);
             if (action == remove_)
                 remove(repaintNeeded, items);
@@ -242,6 +251,10 @@ void WeatherArea::mousePress(
                     if (weatherArea)
                         itemsToCopy->insert(weatherArea);
                 }
+            } else if (action == editItems_) {
+                Q_ASSERT(itemsToEdit);
+                //Q_ASSERT(items->contains(this));
+                itemsToEdit->insert(this);
             }
         }
     }

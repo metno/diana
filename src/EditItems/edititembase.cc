@@ -66,6 +66,9 @@ int EditItemBase::nextId_ = 0;
  * If \a itemsToCopy is non-null, then items that should be copied (typically to the clipboard)
  * as a result of the event should be inserted into \a itemsToCopy.
  *
+ * If \a itemsToEdit is non-null, then items that should be edited as a result of the event should
+ * be inserted into \a itemsToEdit.
+ *
  * \a items is, if non-null, a set of items that may potentially be operated on by the event
  * (always including this item).
  * Items may be inserted into or removed from this container to reflect how items were inserted or
@@ -78,11 +81,14 @@ int EditItemBase::nextId_ = 0;
  */
 void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *items, bool *multiItemOp)
+    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
+    QSet<EditItemBase *> *items, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
     Q_UNUSED(undoCommands)
+    Q_UNUSED(itemsToCopy)
+    Q_UNUSED(itemsToEdit)
     Q_UNUSED(items)
     Q_UNUSED(multiItemOp)
 }
@@ -220,4 +226,14 @@ QList<QPointF> EditItemBase::getLatLonPoints() const
 void EditItemBase::setLatLonPoints(const QList<QPointF> &points)
 {
     latLonPoints = points;
+}
+
+QVariantMap EditItemBase::properties() const
+{
+  return properties_;
+}
+
+void EditItemBase::setProperties(const QVariantMap &properties)
+{
+  properties_ = properties;
 }

@@ -64,7 +64,8 @@ public:
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<EditItemBase *> *itemsToCopy = 0, QSet<EditItemBase *> *items = 0, bool *multiItemOp = 0);
+        QSet<EditItemBase *> *itemsToCopy = 0, QSet<EditItemBase *> *itemsToEdit = 0,
+        QSet<EditItemBase *> *items = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
@@ -113,6 +114,11 @@ public:
     // Sets the item's geographic points.
     virtual void setLatLonPoints(const QList<QPointF> &points);
 
+    // Returns the item's properties.
+    QVariantMap properties() const;
+    // sets the item's properties.
+    void setProperties(const QVariantMap &);
+
     virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
 protected:
@@ -123,6 +129,7 @@ protected:
 
     bool moving_;
     bool resizing_;
+    QVariantMap properties_;
 
 private:
     int id_;

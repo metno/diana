@@ -88,6 +88,7 @@ private:
   QAction* cutAction;
   QAction* copyAction;
   QAction* pasteAction;
+  QAction* editAction;
 
   PlotModule* plotm;
   ObjectManager* objm;

@@ -79,6 +79,8 @@ public:
 
     static EditItemManager *instance() { return self; }
 
+    void editItemProperties(const QSet<EditItemBase *> &);
+
 public slots:
     void abortEditing();
     void completeEditing();
@@ -88,7 +90,7 @@ public slots:
     void keyRelease(QKeyEvent *);
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
-    void mousePress(QMouseEvent *, QSet<EditItemBase *> * = 0);
+    void mousePress(QMouseEvent *, QSet<EditItemBase *> * = 0, QSet<EditItemBase *> * = 0);
     void mouseRelease(QMouseEvent *);
     void pasteObjects();
     void redo();
