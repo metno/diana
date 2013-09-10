@@ -192,7 +192,8 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DrawingManager::sendKeyboardEvent");
 #endif
-  res.savebackground= false;
+  event->accept();
+  res.savebackground= true;
   res.background= false;
   res.repaint= false;
 
@@ -203,6 +204,8 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
       copySelectedItems();
     else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       pasteItems();
+    else
+      event->ignore();
   }
 
   res.repaint = true;
