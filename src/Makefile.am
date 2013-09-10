@@ -42,6 +42,7 @@ common_cxx_sources = \
 	diContouring.cc \
 	diController.cc \
 	diDisplayObjects.cc \
+	diDrawingManager.cc \
 	diEditManager.cc \
 	diEditObjects.cc \
 	diFieldEdit.cc \
@@ -222,6 +223,7 @@ noinst_HEADERS = \
 	EditItems/edititembase.h \
 	EditItems/weatherarea.h \
 	EditItems/weatherfront.h \
+	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \
 	diEditSpec.h \

@@ -45,6 +45,7 @@
 #include <diObsManager.h>
 #include <diSatManager.h>
 #include <diObjectManager.h>
+#include <diDrawingManager.h>
 #include <diEditManager.h>
 #include <diGridAreaManager.h>
 #include <diStationManager.h>
@@ -81,6 +82,7 @@ Controller::Controller()
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
   aream = new GridAreaManager();
+  drawm = new DrawingManager(plotm, objm);
   paintModeEnabled = false;
   drawingModeEnabled = false;
   scrollwheelZoom = false;
@@ -153,6 +155,7 @@ bool Controller::parseSetup()
   if (!objm->parseSetup()) return false;
   if (!editm->parseSetup()) return false;
   if (!stam->parseSetup()) return false;
+  if (!drawm->parseSetup()) return false;
 
   MapManager mapm;
   if (!mapm.parseSetup()) return false;
@@ -542,7 +545,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
           <<res.action);
 #endif
     } else if (drawingModeEnabled) {
-      //drawm->sendMouseEvent(me, res);
+      drawm->sendMouseEvent(me, res);
     }
   }
   // catch events to PlotModule
@@ -664,6 +667,9 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   if (inEdit ){
     editm->sendKeyboardEvent(ke,res);
   }
+  if (drawingModeEnabled)
+    drawm->sendKeyboardEvent(ke, res);
+
   // catch events to PlotModule
   //-------------------------------------
   if( !inEdit || keyoverride ) {

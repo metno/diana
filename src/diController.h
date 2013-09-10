@@ -58,6 +58,7 @@ class FieldManager;
 class FieldPlotManager;
 class ObsManager;
 class SatManager;
+class DrawingManager;
 class EditManager;
 class GridAreaManager;
 class ObjectManager;
@@ -93,6 +94,7 @@ private:
   StationManager    *stam;
   ObjectManager *objm;
   EditManager   *editm;
+  DrawingManager   *drawm;
 #ifdef PROFET
   Profet::ProfetController * profetController;
 #endif
@@ -114,6 +116,7 @@ public:
   StationManager* getStationManager() { return stam; };
   SatManager* getSatelliteManager() { return satm; };
   ObsManager* getObservationManager() { return obsm; };
+  DrawingManager* getDrawingManager() { return drawm; };
   /// init static FontManager in class Plot
   void restartFontManager();
   /// parse setup
