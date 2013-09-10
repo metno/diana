@@ -666,8 +666,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   //-------------------------------------
   if (inEdit ){
     editm->sendKeyboardEvent(ke,res);
-  }
-  if (drawm->drawingModeEnabled)
+  } else if (drawm->drawingModeEnabled)
     drawm->sendKeyboardEvent(ke, res);
 
   // catch events to PlotModule
