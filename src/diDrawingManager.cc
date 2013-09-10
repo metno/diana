@@ -279,16 +279,28 @@ void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const
   QDataStream stream(&bytes, QIODevice::WriteOnly);
   QString text;
 
-  stream << items.size();
   text += QString("Number of items: %1\n").arg(items.size());
+  QVariantList weatherAreas;
 
   foreach (EditItemBase *item, items) {
-    QList<QPointF> points = getLatLonPoints(item);
-    stream << points;
-    foreach (QPointF p, points)
-        text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
+    QVariantMap properties;
+    QVariantList vpoints;
+    const QList<QPointF> points = getLatLonPoints(item);
+
+    foreach (QPointF p, points) {
+      vpoints.append(p);
+      text += QString("(%1, %2 bravo) ").arg(p.x()).arg(p.y());
+    }
+    properties.insert("points", vpoints);
     text += "\n";
+    //properties.insert("color", item->color()); // example
+    // .. and so on for other properties
+    weatherAreas.append(properties);
   }
+
+  QVariantMap mainVMap;
+  mainVMap.insert("weatherAreas", weatherAreas);
+  stream << mainVMap;
 
   QMimeData *data = new QMimeData();
   data->setData("application/x-diana-object", bytes);
@@ -309,12 +321,20 @@ void DrawingManager::pasteItems()
 
     QByteArray bytes = data->data("application/x-diana-object");
     QDataStream stream(&bytes, QIODevice::ReadOnly);
-    int n;
-    stream >> n;
 
-    for (int i = 0; i < n; ++i) {
+    QVariantMap mainVMap;
+    stream >> mainVMap;
+
+    const QVariantList weatherAreas = mainVMap.value("weatherAreas").toList();
+
+    foreach (QVariant weatherArea, weatherAreas) {
+      const QVariantMap properties = weatherArea.toMap();
+      const QVariantList vpoints = properties.value("points").toList();
       QList<QPointF> points;
-      stream >> points;
+      foreach (QVariant vpoint, vpoints)
+        points.append(vpoint.toPointF());
+      //const QColor color = properties.value("color").value<QColor>(); // example
+      // .. and so on for other properties
       EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
       setLatLonPoints(area, points);
       editItemManager->addItem(area, false);
