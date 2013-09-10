@@ -170,7 +170,7 @@ void EditItemManager::createUndoView()
     QUndoView *undoView = new QUndoView(&undoStack_);
     undoView->setWindowTitle("EditItemManager undo stack");
     undoView->resize(600, 300);
-    undoView->show();
+    //undoView->show();
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
