@@ -1365,9 +1365,9 @@ void PlotModule::plotUnder()
   }
 
   // plot inactive edit fields/objects under observations
-  if (drawm->drawingModeEnabled) {
+  //if (drawm->drawingModeEnabled) {
     drawm->plot(true, false);
-  }
+  //}
 
   // if "PPPP-mslp", calc. values and plot observations,
   //if inEdit use editField, if not use first "MSLP"-field
@@ -1819,6 +1819,26 @@ bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
   return ret;
 }
 
+bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon, Area area, Rectangle r)
+{
+  bool ret=false;
+
+  if (mapdefined && plotw > 0 && ploth > 0) {
+    GridConverter gc;
+    int npos = 1;
+    float gx = r.x1 + r.width() / plotw * x;
+    float gy = r.y1 + r.height() / ploth * y;
+
+    // convert point to correct projection
+    ret = gc.xy2geo(area, npos, &gx, &gy);
+
+    lon = gx;
+    lat = gy;
+  }
+
+  return ret;
+}
+
 bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
 {
   bool ret=false;
@@ -1828,6 +1848,27 @@ bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
     Area area = splot.getMapArea();
 
     Rectangle r = splot.getPlotSize();
+    int npos = 1;
+
+    float yy = lat;
+    float xx = lon;
+
+    // convert point to correct projection
+    ret = gc.geo2xy(area, npos, &xx, &yy);
+
+    x = (xx - r.x1) * plotw / r.width();
+    y = (yy - r.y1) * ploth / r.height();
+
+  }
+  return ret;
+}
+
+bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y, Area area, Rectangle r)
+{
+  bool ret=false;
+
+  if (mapdefined && plotw > 0 && ploth > 0) {
+    GridConverter gc;
     int npos = 1;
 
     float yy = lat;

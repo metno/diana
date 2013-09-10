@@ -70,6 +70,7 @@ DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
   editItemManager = new EditItemManager();
   editRect = plotm->getPlotSize();
   drawingModeEnabled = false;
+  currentArea = plotm->getCurrentArea();
 }
 
 DrawingManager::~DrawingManager()
@@ -103,8 +104,12 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   plotm->getPlotWindow(w, h);
   plotRect = plotm->getPlotSize();
 
+  if (editItemManager->getItems().size() == 0)
+    editRect = plotRect;
+
   // Determine the displacement from the edit origin to the current view origin
-  // in screen coordinates.
+  // in screen coordinates. This gives us displaced screen coordinates - these
+  // are coordinates relative to the original edit rectangle.
   float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
   float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
 
@@ -113,7 +118,10 @@ void DrawingManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
                   me->globalPos(), me->button(), me->buttons(), me->modifiers());
 
   if (me->type() == QEvent::MouseButtonPress) {
+    // Send the mouse press to the edit item manager.
     editItemManager->mousePress(&me2);
+    
+    // If nothing was changed or interacted with, create a new area and repeat the mouse click.
     if (editItemManager->getSelectedItems().size() == 0 && !editItemManager->hasIncompleteItem()) {
       EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
       editItemManager->addItem(area, true);
@@ -143,13 +151,57 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   res.repaint = true;
 }
 
+QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
+{
+  int w, h;
+  plotm->getPlotWindow(w, h);
+  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
+  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+
+  QList<QPoint> points = item->getPoints();
+  int n = points.size();
+
+  QList<QPointF> latLonPoints;
+
+  // Convert screen coordinates to geographic coordinates.
+  for (int i = 0; i < n; ++i) {
+    float x, y;
+    plotm->PhysToGeo(points.at(i).x() - dx,
+                     points.at(i).y() - dy,
+                     x, y, currentArea, plotRect);
+    latLonPoints.append(QPointF(x, y));
+  }
+  return latLonPoints;
+}
+
 bool DrawingManager::changeProjection(const Area& newArea)
 {
-  // TODO: Perform transformations on the items.
+  int w, h;
+  plotm->getPlotWindow(w, h);
+
+  Rectangle newPlotRect = plotm->getPlotSize();
+
+  // Obtain the items from the editor.
+  QSet<EditItemBase *> items = editItemManager->getItems();
+
+  foreach (EditItemBase *item, items) {
+
+    QList<QPointF> latLonPoints = getLatLonPoints(item);
+    QList<QPoint> points;
+
+    for (int i = 0; i < latLonPoints.size(); ++i) {
+      float x, y;
+      plotm->GeoToPhys(latLonPoints.at(i).x(), latLonPoints.at(i).y(), x, y, newArea, newPlotRect);
+      points.append(QPoint(x, y));
+    }
+
+    item->setPoints(points);
+  }
 
   // Update the edit rectangle so that objects are positioned consistently.
-  editRect = plotm->getPlotSize();
-  plotRect = plotm->getPlotSize();
+  plotRect = newPlotRect;
+  editRect = newPlotRect;
+  currentArea = newArea;
 
   return true;
 }
@@ -164,6 +216,6 @@ void DrawingManager::plot(bool under, bool over)
   plotm->getPlotWindow(w, h);
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
-  editItemManager->draw();    //editobjects.plot();
+  editItemManager->draw();
   glPopMatrix();
 }

@@ -37,9 +37,12 @@
 #include <diDrawingTypes.h>
 #include <diField/diGridConverter.h>
 #include <diMapMode.h>
+#include <QList>
+#include <QPointF>
 
 using namespace std;
 
+class EditItemBase;
 class EditItemManager;
 class PlotModule;
 class ObjectManager;
@@ -71,6 +74,7 @@ public:
   bool drawingModeEnabled;
 
   EditItemManager *getEditItemManager() { return editItemManager; }
+  QList<QPointF> getLatLonPoints(EditItemBase* item) const;
 
 private:
   PlotModule* plotm;
@@ -78,11 +82,10 @@ private:
   EditItemManager *editItemManager;     // fronts,symbols,areas
 
   GridConverter gc;   // gridconverter class
+  Area currentArea;
 
   Rectangle plotRect;
   Rectangle editRect;
-  float first_x, first_y;
-  bool moved;
 };
 
 #endif
