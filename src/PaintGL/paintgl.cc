@@ -111,6 +111,9 @@ void PaintGLContext::begin(QPainter *painter)
         painter->fillRect(0, 0, painter->device()->width(), painter->device()->height(), clearColor);
         clear = false;
     }
+
+    // Start painting with the preset anti-aliasing attribute.
+    painter->setRenderHint(QPainter::Antialiasing, false);
 }
 
 bool PaintGLContext::isPainting() const
@@ -425,6 +428,7 @@ void PaintGLContext::renderPrimitive()
     validPoints.clear();
     colors.clear();
 
+    // Turn off anti-aliasing if it was enabled.
     if (attributes.antialiasing)
         painter->setRenderHint(QPainter::Antialiasing, false);
 }
