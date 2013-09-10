@@ -74,8 +74,12 @@ public:
   bool drawingModeEnabled;
 
   EditItemManager *getEditItemManager() { return editItemManager; }
+
   QList<QPointF> getLatLonPoints(EditItemBase* item) const;
   void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
+
+  void copyItems() const;
+  void pasteItems();
 
 private:
   PlotModule* plotm;

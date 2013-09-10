@@ -1105,9 +1105,6 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   editobjects.changeProjection(splot.getMapArea());
   combiningobjects.changeProjection(splot.getMapArea());
 
-  // update drawing items
-  drawm->changeProjection(splot.getMapArea());
-  
   n = stam->plots().size();
   for (int i = 0; i < n; i++) {
     stam->plots()[i]->changeProjection();
@@ -1143,6 +1140,10 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   setAnnotations();
 
   PlotAreaSetup();
+
+  // Update drawing items - this needs to be after the PlotAreaSetup call
+  // because we need to reproject the items to screen coordinates.
+  drawm->changeProjection(splot.getMapArea());
 
   // Successful update
   return !(failOnMissingData && nodata);
