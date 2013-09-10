@@ -871,7 +871,7 @@ test_diOrderBook_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
 test_diOrderBook_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
 test_diOrderBook_LDADD = $(QT4_LIBS) $(MILOGGER_LIBS)
 
-if WITH_BATCH_ONLY
+if WITH_EMBEDDED
 # A shared library target for language binding experiments
 lib_LTLIBRARIES = libdiana.la
 libdiana_la_SOURCES = $(libdiana_a_SOURCES)
