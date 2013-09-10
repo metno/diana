@@ -59,6 +59,7 @@ EditItemManager::EditItemManager(DrawingManager *drawm)
     self = this;
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
+    connect(&undoStack_, SIGNAL(indexChanged(int)), this, SLOT(repaint()));
 }
 
 EditItemManager::~EditItemManager()
@@ -663,7 +664,6 @@ void SetGeometryCommand::undo()
         oldGeometry_ = EditItemManager::instance()->GeoToPhys(oldLatLonPoints_);
 
     item_->setPoints(oldGeometry_);
-    item_->repaint();
 }
 
 void SetGeometryCommand::redo()
@@ -679,5 +679,4 @@ void SetGeometryCommand::redo()
         newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry_);
 
     item_->setPoints(newGeometry_);
-    item_->repaint();
 }
