@@ -158,16 +158,22 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 
       QByteArray bytes;
       QDataStream stream(&bytes, QIODevice::WriteOnly);
+      QString text;
 
       stream << selItems_.size();
+      text += QString("Number of items: %1\n").arg(selItems_.size());
 
       foreach (EditItemBase *item, selItems_) {
         QList<QPointF> points = getLatLonPoints(item);
         stream << points;
+        foreach (QPointF p, points)
+            text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
+        text += "\n";
       }
 
       QMimeData *data = new QMimeData();
       data->setData("application/x-diana-object", bytes);
+      data->setData("text/plain", text.toUtf8());
 
       QApplication::clipboard()->setMimeData(data);
 
