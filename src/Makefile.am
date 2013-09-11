@@ -115,17 +115,17 @@ common_cxx_sources = \
         diWeatherSymbol.cc
 
 # Qt sources
-common_qt_sources = \
-	diDrawingManager.cc \
-	diEditItemManager.cc \
-	EditItems/edititembase.cc \
-	EditItems/weatherarea.cc \
-	EditItems/weatherfront.cc
+common_qt_sources = 
 
 if WITH_BATCH_ONLY
 diana_qt_sources =
 else
 diana_qt_sources = \
+	diDrawingManager.cc \
+	diEditItemManager.cc \
+	EditItems/edititembase.cc \
+	EditItems/weatherarea.cc \
+	EditItems/weatherfront.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAdvancedButton.cc \
@@ -817,7 +817,8 @@ nodist_libdiana_a_SOURCES = \
         $(bdiana_moc_sources)
 
 libdiana_a_CPPFLAGS = \
-	$(common_cppflags)
+	$(common_cppflags) \
+	-DBATCH_ONLY
 # no LDFLAGS / LDADD needed for libdiana
 
 # diana-specific sources (the rest is in libdiana)
@@ -844,7 +845,8 @@ bdiana_SOURCES = \
 
 nodist_bdiana_SOURCES =
 
-bdiana_CPPFLAGS = $(common_cppflags)
+bdiana_CPPFLAGS = $(common_cppflags) \
+	-DBATCH_ONLY
 bdiana_LDFLAGS = $(common_ldflags)
 bdiana_LDADD = $(common_ldadd)
 

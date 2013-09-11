@@ -82,7 +82,9 @@ Controller::Controller()
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
   aream = new GridAreaManager();
+#ifndef BATCH_ONLY
   drawm = new DrawingManager(plotm, objm);
+#endif
   paintModeEnabled = false;
   scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream,drawm);
@@ -154,7 +156,9 @@ bool Controller::parseSetup()
   if (!objm->parseSetup()) return false;
   if (!editm->parseSetup()) return false;
   if (!stam->parseSetup()) return false;
+#ifndef BATCH_ONLY
   if (!drawm->parseSetup()) return false;
+#endif
 
   MapManager mapm;
   if (!mapm.parseSetup()) return false;
@@ -544,8 +548,10 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
           <<res.action);
 #endif
     }
+#ifndef BATCH_ONLY
   } else if (drawm->drawingModeEnabled) {
     drawm->sendMouseEvent(me, res);
+#endif
   }
   // catch events to PlotModule
   //-------------------------------------
@@ -666,8 +672,11 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   //-------------------------------------
   if (inEdit ){
     editm->sendKeyboardEvent(ke,res);
-  } else if (drawm->drawingModeEnabled)
+  }
+#ifndef BATCH_ONLY
+  else if (drawm->drawingModeEnabled)
     drawm->sendKeyboardEvent(ke, res);
+#endif
 
   // catch events to PlotModule
   //-------------------------------------
@@ -1071,7 +1080,9 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
 
 void Controller::setDrawingModeEnabled(bool enable)
 {
+#ifndef BATCH_ONLY
   drawm->drawingModeEnabled = enable;
+#endif
 }
 
 bool Controller::useScrollwheelZoom() {

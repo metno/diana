@@ -1141,9 +1141,11 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   PlotAreaSetup();
 
+#ifndef BATCH_ONLY
   // Update drawing items - this needs to be after the PlotAreaSetup call
   // because we need to reproject the items to screen coordinates.
   drawm->changeProjection(splot.getMapArea());
+#endif
 
   // Successful update
   return !(failOnMissingData && nodata);
@@ -1365,10 +1367,12 @@ void PlotModule::plotUnder()
     editm->plot(true, false);
   }
 
+#ifndef BATCH_ONLY
   // plot inactive edit fields/objects under observations
   //if (drawm->drawingModeEnabled) {
     drawm->plot(true, false);
   //}
+#endif
 
   // if "PPPP-mslp", calc. values and plot observations,
   //if inEdit use editField, if not use first "MSLP"-field
@@ -1959,8 +1963,10 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
   if (!aream)
     METLIBS_LOG_ERROR("PlotModule::ERROR gridareamanager==0");
+#ifndef BATCH_ONLY
   if (!drawm)
     METLIBS_LOG_ERROR("PlotModule::ERROR drawingmanager==0");
+#endif
 }
 
 // return current plottime
@@ -2814,7 +2820,9 @@ void PlotModule::zoomOut()
   areaInsert(splot.getMapArea(), true);
   Rectangle r(x1, y1, x2, y2);
   PixelArea(r);
+#ifndef BATCH_ONLY
   drawm->changeProjection(splot.getMapArea());
+#endif
 }
 
 // keyboard/mouse events
@@ -2938,7 +2946,9 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       areaInsert(splot.getMapArea(), true);
       Rectangle r(x1, y1, x2, y2);
       PixelArea(r);
+#ifndef BATCH_ONLY
       drawm->changeProjection(splot.getMapArea());
+#endif
       res.repaint = true;
       res.background = true;
     }
