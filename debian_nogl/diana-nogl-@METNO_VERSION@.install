@@ -1,0 +1,5 @@
+usr/bin/diana.bin*
+usr/share/applications/metno-diana-@METNO_VERSION@-nogl.desktop
+usr/share/doc/diana-@METNO_VERSION@-nogl
+usr/share/pixmaps/diana-@METNO_VERSION@-nogl.png
+usr/share/diana/@METNO_VERSION@-nogl/lang
