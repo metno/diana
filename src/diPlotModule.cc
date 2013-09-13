@@ -50,12 +50,12 @@
 #include <diStationManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
-#include <diDrawingManager.h>
 #include <diGridAreaManager.h>
 #include <diAnnotationPlot.h>
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
 #include <diMapManager.h>
+#include <diManager.h>
 
 #include <diField/diFieldManager.h>
 #include <diField/FieldSpecTranslation.h>
@@ -1141,11 +1141,13 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   PlotAreaSetup();
 
-#ifndef BATCH_ONLY
   // Update drawing items - this needs to be after the PlotAreaSetup call
   // because we need to reproject the items to screen coordinates.
-  drawm->changeProjection(splot.getMapArea());
-#endif
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    it->second->changeProjection(splot.getMapArea());
+    ++it;
+  }
 
   // Successful update
   return !(failOnMissingData && nodata);
@@ -1367,12 +1369,13 @@ void PlotModule::plotUnder()
     editm->plot(true, false);
   }
 
-#ifndef BATCH_ONLY
   // plot inactive edit fields/objects under observations
-  //if (drawm->drawingModeEnabled) {
-    drawm->plot(true, false);
-  //}
-#endif
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    if (it->second->enabled)
+      it->second->plot(true, false);
+    ++it;
+  }
 
   // if "PPPP-mslp", calc. values and plot observations,
   //if inEdit use editField, if not use first "MSLP"-field
@@ -1935,7 +1938,7 @@ float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float 
 // set managers
 void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm,
-    GridAreaManager* gam, DrawingManager* dm)
+    GridAreaManager* gam)
 {
   fieldm = fm;
   fieldplotm = fpm;
@@ -1945,7 +1948,6 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   objm = obm;
   editm = edm;
   aream = gam;
-  drawm = dm;
 
   if (!fieldm)
     METLIBS_LOG_ERROR("PlotModule::ERROR fieldmanager==0");
@@ -1963,10 +1965,6 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
   if (!aream)
     METLIBS_LOG_ERROR("PlotModule::ERROR gridareamanager==0");
-#ifndef BATCH_ONLY
-  if (!drawm)
-    METLIBS_LOG_ERROR("PlotModule::ERROR drawingmanager==0");
-#endif
 }
 
 // return current plottime
@@ -2820,9 +2818,11 @@ void PlotModule::zoomOut()
   areaInsert(splot.getMapArea(), true);
   Rectangle r(x1, y1, x2, y2);
   PixelArea(r);
-#ifndef BATCH_ONLY
-  drawm->changeProjection(splot.getMapArea());
-#endif
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    it->second->changeProjection(splot.getMapArea());
+    ++it;
+  }
 }
 
 // keyboard/mouse events
@@ -2946,9 +2946,11 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       areaInsert(splot.getMapArea(), true);
       Rectangle r(x1, y1, x2, y2);
       PixelArea(r);
-#ifndef BATCH_ONLY
-      drawm->changeProjection(splot.getMapArea());
-#endif
+      map<string,Manager*>::iterator it = managers.begin();
+      while (it != managers.end()) {
+        it->second->changeProjection(splot.getMapArea());
+        ++it;
+      }
       res.repaint = true;
       res.background = true;
     }

@@ -37,6 +37,7 @@
 #include <miLogger/miLogging.h>
 
 #include <diController.h>
+#include <diManager.h>
 #include <diPlotModule.h>
 #include <diField/diRectangle.h>
 #include <diField/diArea.h>
@@ -82,12 +83,9 @@ Controller::Controller()
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
   aream = new GridAreaManager();
-#ifndef BATCH_ONLY
-  drawm = new DrawingManager(plotm, objm);
-#endif
   paintModeEnabled = false;
   scrollwheelZoom = false;
-  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream,drawm);
+  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream);
 //  profetController = new Profet::ProfetController(fieldm);
 }
 
@@ -156,9 +154,14 @@ bool Controller::parseSetup()
   if (!objm->parseSetup()) return false;
   if (!editm->parseSetup()) return false;
   if (!stam->parseSetup()) return false;
-#ifndef BATCH_ONLY
-  if (!drawm->parseSetup()) return false;
-#endif
+
+  map<string,Manager*>::iterator it = plotm->managers.begin();
+
+  while (it != plotm->managers.end()) {
+    if (!it->second->parseSetup())
+      return false;
+    ++it;
+  }
 
   MapManager mapm;
   if (!mapm.parseSetup()) return false;
@@ -548,16 +551,23 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
           <<res.action);
 #endif
     }
-#ifndef BATCH_ONLY
-  } else if (drawm->drawingModeEnabled) {
-    drawm->sendMouseEvent(me, res);
-#endif
-  }
-  // catch events to PlotModule
-  //-------------------------------------
-  else {
+  } else {
+    bool handled = false;
+    map<string,Manager*>::iterator it = plotm->managers.begin();
+    while (it != plotm->managers.end()) {
+      if (it->second->enabled) {
+        it->second->sendMouseEvent(me, res);
+        handled = true;
+        break;
+      }
+      ++it;
+    }
+    if (!handled) {
+    // catch events to PlotModule
+    //-------------------------------------
     res.newcursor= normal_cursor;
     plotm->sendMouseEvent(me,res);
+    }
   }
 
   // final mode-independent checks
@@ -672,11 +682,16 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   //-------------------------------------
   if (inEdit ){
     editm->sendKeyboardEvent(ke,res);
+  } else {
+    map<string,Manager*>::iterator it = plotm->managers.begin();
+    while (it != plotm->managers.end()) {
+      if (it->second->enabled) {
+        it->second->sendKeyboardEvent(ke, res);
+        break;
+      }
+      ++it;
+    }
   }
-#ifndef BATCH_ONLY
-  else if (drawm->drawingModeEnabled)
-    drawm->sendKeyboardEvent(ke, res);
-#endif
 
   // catch events to PlotModule
   //-------------------------------------
@@ -1080,9 +1095,9 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
 
 void Controller::setDrawingModeEnabled(bool enable)
 {
-#ifndef BATCH_ONLY
-  drawm->drawingModeEnabled = enable;
-#endif
+  Manager *drawm = plotm->managers["drawing"];
+  if (drawm)
+    drawm->enabled = enable;
 }
 
 bool Controller::useScrollwheelZoom() {
@@ -1140,3 +1155,15 @@ vector<ObsPlot*> Controller::getObsPlots() const
 {
   return plotm->getObsPlots();
 }
+
+void Controller::addManager(const std::string &name, Manager *man)
+{
+  plotm->managers[name] = man;
+  man->setPlotModule(plotm);
+}
+
+Manager *Controller::getManager(const std::string &name)
+{
+  return plotm->managers[name];
+}
+

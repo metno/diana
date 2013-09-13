@@ -61,15 +61,15 @@
 //#define DEBUGPRINT
 using namespace miutil;
 
-DrawingManager::DrawingManager(PlotModule* pm, ObjectManager* om)
-  : plotm(pm), objm(om)
+DrawingManager *DrawingManager::self = 0;
+
+DrawingManager::DrawingManager()
 {
-  if (plotm==0 || objm==0){
-    METLIBS_LOG_WARN("Catastrophic error: plotm or objm == 0");
-  }
-  editItemManager = new EditItemManager(this);
+  self = this;
+  editItemManager = new EditItemManager();
+
   editRect = plotm->getPlotSize();
-  drawingModeEnabled = false;
+  enabled = false;
   currentArea = plotm->getCurrentArea();
 
   cutAction = new QAction(tr("Cut"), 0);

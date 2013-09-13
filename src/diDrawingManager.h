@@ -36,6 +36,7 @@
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diField/diGridConverter.h>
+#include "diManager.h"
 #include <diMapMode.h>
 #include <QList>
 #include <QObject>
@@ -56,13 +57,15 @@ class QMouseEvent;
   \brief Manager for drawing areas and annotations.
 */
 
-class DrawingManager : public QObject
+class DrawingManager : public QObject, public Manager
 {
   Q_OBJECT
 
 public:
-  DrawingManager(PlotModule*, ObjectManager*);
+  DrawingManager();
   ~DrawingManager();
+
+  void setPlotModule(PlotModule *pm) { plotm = pm; }
 
   /// parse DRAWING section of setup file (defines Drawing products)
   bool parseSetup();
@@ -75,14 +78,17 @@ public:
   bool changeProjection(const Area& newArea);
   void plot(bool under, bool over);
 
-  bool drawingModeEnabled;
-
   EditItemManager *getEditItemManager() { return editItemManager; }
+  void setEditItemManager(EditItemManager *eim) { editItemManager = eim; }
 
   QList<QPointF> getLatLonPoints(EditItemBase* item) const;
   void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPoint> &points) const;
   QList<QPoint> GeoToPhys(const QList<QPointF> &latLonPoints);
+
+  static DrawingManager *instance() { return self; }
+
+  bool enabled;
 
 private:
   QAction* cutAction;
@@ -104,6 +110,8 @@ private:
   void cutSelectedItems() const;
   void copySelectedItems() const;
   void pasteItems();
+
+  static DrawingManager *self;  // singleton instance pointer
 };
 
 #endif

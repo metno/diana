@@ -46,7 +46,8 @@
 WorkArea::WorkArea(Controller *co,  QWidget* parent)
     : QWidget( parent), contr(co)
 {
-  contr->getDrawingManager()->getEditItemManager()->createUndoView();
+  DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("drawing"));
+  drawm->getEditItemManager()->createUndoView();
   QVBoxLayout* vlayout = new QVBoxLayout(this);
 #if !defined(USE_PAINTGL)
   // Create an openGL widget

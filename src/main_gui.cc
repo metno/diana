@@ -42,6 +42,8 @@
 #include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
 #include "diController.h"
+#include "diDrawingManager.h"
+#include "diEditItemManager.h"
 #include "qtMainWindow.h"
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -195,6 +197,7 @@ int main(int argc, char **argv)
   }
 
   Controller contr;
+  contr.addManager("drawing", new DrawingManager());
 
   // read setup
   if (!contr.parseSetup()){

@@ -148,14 +148,14 @@ static QString undoCommandText(int nadded, int nremoved, int nmodified)
 
 EditItemManager *EditItemManager::self = 0;
 
-EditItemManager::EditItemManager(DrawingManager *drawm)
+EditItemManager::EditItemManager()
     : hoverItem_(0)
     , incompleteItem_(0)
     , repaintNeeded_(false)
     , skipRepaint_(false)
-    , drawingManager_(drawm)
 {
     self = this;
+    drawingManager_ = DrawingManager::instance();
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
     connect(&undoStack_, SIGNAL(indexChanged(int)), this, SLOT(repaint()));

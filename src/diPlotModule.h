@@ -53,6 +53,7 @@ class AnnotationPlot;
 class FieldManager;
 class FieldPlotManager;
 class FieldPlot;
+class Manager;
 class ObsManager;
 class SatManager;
 class StationManager;
@@ -89,7 +90,6 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-  DrawingManager *drawm;  // drawing manager
   GridAreaManager *aream; // Polygon edit manager for continuous drwaing/editing
 
   friend class EditManager;   // editing and drawing
@@ -267,8 +267,7 @@ public:
                    StationManager*,
                    ObjectManager*,
                    EditManager*,
-                   GridAreaManager*,
-                   DrawingManager*);
+                   GridAreaManager*);
 
   /// return current plottime
   void getPlotTime(miutil::miString&);
@@ -405,6 +404,8 @@ public:
   vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
   vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
   vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+
+  std::map<std::string, Manager*> managers;
 };
 
 #endif

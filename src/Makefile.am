@@ -112,7 +112,7 @@ common_cxx_sources = \
 	diWeatherArea.cc \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
-        diWeatherSymbol.cc
+	diWeatherSymbol.cc
 
 # Qt sources
 common_qt_sources = 
@@ -243,6 +243,7 @@ noinst_HEADERS = \
 	diLinetype.h \
 	diLocationPlot.h \
 	diMItiff.h \
+	diManager.h \
 	diMapManager.h \
 	diMapMode.h \
 	diMapPlot.h \
@@ -817,8 +818,7 @@ nodist_libdiana_a_SOURCES = \
         $(bdiana_moc_sources)
 
 libdiana_a_CPPFLAGS = \
-	$(common_cppflags) \
-	-DBATCH_ONLY
+	$(common_cppflags)
 # no LDFLAGS / LDADD needed for libdiana
 
 # diana-specific sources (the rest is in libdiana)
@@ -845,8 +845,7 @@ bdiana_SOURCES = \
 
 nodist_bdiana_SOURCES =
 
-bdiana_CPPFLAGS = $(common_cppflags) \
-	-DBATCH_ONLY
+bdiana_CPPFLAGS = $(common_cppflags)
 bdiana_LDFLAGS = $(common_ldflags)
 bdiana_LDADD = $(common_ldadd)
 

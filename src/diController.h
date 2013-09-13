@@ -61,6 +61,7 @@ class SatManager;
 class DrawingManager;
 class EditManager;
 class GridAreaManager;
+class Manager;
 class ObjectManager;
 class StationManager;
 class StationPlot;
@@ -115,7 +116,10 @@ public:
   StationManager* getStationManager() { return stam; };
   SatManager* getSatelliteManager() { return satm; };
   ObsManager* getObservationManager() { return obsm; };
-  DrawingManager* getDrawingManager() { return drawm; };
+
+  void addManager(const std::string &name, Manager *man);
+  Manager *getManager(const std::string &name);
+
   /// init static FontManager in class Plot
   void restartFontManager();
   /// parse setup

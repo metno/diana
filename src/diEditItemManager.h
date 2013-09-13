@@ -50,7 +50,7 @@ class EditItemManager : public QObject
     Q_OBJECT
 
 public:
-    EditItemManager(DrawingManager *drawm);
+    EditItemManager();
     virtual ~EditItemManager();
 
     // Registers a new item with the manager.
