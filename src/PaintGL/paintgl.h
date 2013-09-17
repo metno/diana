@@ -351,11 +351,11 @@ public:
     bool isValid();
     void makeCurrent();
     void swapBuffers();
-    virtual void updateGL();
 
 public slots:
     /// Print the visible contents of the widget.
     void print(QPrinter* device);
+    virtual void updateGL();
 
 protected:
     void paintEvent(QPaintEvent* event);

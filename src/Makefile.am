@@ -887,7 +887,12 @@ test_diOrderBook_LDADD = $(QT4_LIBS) $(MILOGGER_LIBS)
 if WITH_EMBEDDED
 # A shared library target for language binding experiments
 lib_LTLIBRARIES = libdiana.la
+if WITH_BATCH_ONLY
 libdiana_la_SOURCES = $(libdiana_a_SOURCES)
+else
+libdiana_la_SOURCES = $(diana_bin_SOURCES) $(diana_moc_sources)
+libdiana_la_SOURCES -= main_gui.cc
+endif
 libdiana_la_CPPFLAGS = $(libdiana_a_CPPFLAGS)
 libdiana_la_LDFLAGS = $(common_ldflags) -version-number @PVERSION_MAJOR@:@PVERSION_MINOR@:@PVERSION_PATCH@
 libdiana_la_LIBADD = @LTLIBOBJS@ $(common_ldadd)
