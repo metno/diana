@@ -197,7 +197,7 @@ int main(int argc, char **argv)
   }
 
   Controller contr;
-  contr.addManager("drawing", new DrawingManager());
+  contr.addManager("drawing", DrawingManager::instance());
 
   // read setup
   if (!contr.parseSetup()){

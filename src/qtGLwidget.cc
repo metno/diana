@@ -82,7 +82,8 @@ GLwidget::GLwidget(Controller* c, QWidget* parent) :
   changeCursor(normal_cursor);
 
   DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("drawing"));
-  connect(drawm->getEditItemManager(), SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
+  if (drawm)
+    connect(drawm->getEditItemManager(), SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
 }
 
 //  Release allocated resources

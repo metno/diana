@@ -86,9 +86,10 @@ public:
   QList<QPointF> PhysToGeo(const QList<QPoint> &points) const;
   QList<QPoint> GeoToPhys(const QList<QPointF> &latLonPoints);
 
-  static DrawingManager *instance() { return self; }
+  bool isEnabled() const;
+  void setEnabled(bool enable);
 
-  bool enabled;
+  static DrawingManager *instance();
 
 private:
   QAction* cutAction;
@@ -110,6 +111,8 @@ private:
   void cutSelectedItems() const;
   void copySelectedItems() const;
   void pasteItems();
+
+  bool enabled;
 
   static DrawingManager *self;  // singleton instance pointer
 };

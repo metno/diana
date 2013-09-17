@@ -89,6 +89,14 @@ DrawingManager::~DrawingManager()
   delete pasteAction;
 }
 
+DrawingManager *DrawingManager::instance()
+{
+  if (!DrawingManager::self)
+    DrawingManager::self = new DrawingManager();
+
+  return DrawingManager::self;
+}
+
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT
@@ -391,4 +399,14 @@ void DrawingManager::pasteItems()
       editItemManager->addItem(area, false);
     }
   }
+}
+
+bool DrawingManager::isEnabled() const
+{
+  return enabled;
+}
+
+void DrawingManager::setEnabled(bool enable)
+{
+  enabled = enable;
 }

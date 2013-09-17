@@ -54,7 +54,8 @@ public:
 
   virtual void setPlotModule(PlotModule *pm) = 0;
 
-  bool enabled;
+  virtual bool isEnabled() const = 0;
+  virtual void setEnabled(bool enable) = 0;
 };
 
 #endif

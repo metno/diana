@@ -1372,7 +1372,7 @@ void PlotModule::plotUnder()
   // plot inactive edit fields/objects under observations
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
-    if (it->second->enabled)
+    if (it->second->isEnabled())
       it->second->plot(true, false);
     ++it;
   }

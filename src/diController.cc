@@ -555,7 +555,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     bool handled = false;
     map<string,Manager*>::iterator it = plotm->managers.begin();
     while (it != plotm->managers.end()) {
-      if (it->second->enabled) {
+      if (it->second->isEnabled()) {
         it->second->sendMouseEvent(me, res);
         handled = true;
         break;
@@ -685,7 +685,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   } else {
     map<string,Manager*>::iterator it = plotm->managers.begin();
     while (it != plotm->managers.end()) {
-      if (it->second->enabled) {
+      if (it->second->isEnabled()) {
         it->second->sendKeyboardEvent(ke, res);
         break;
       }
@@ -1095,9 +1095,9 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
 
 void Controller::setDrawingModeEnabled(bool enable)
 {
-  Manager *drawm = plotm->managers["drawing"];
+  Manager *drawm = getManager("drawing");
   if (drawm)
-    drawm->enabled = enable;
+    drawm->setEnabled(enable);
 }
 
 bool Controller::useScrollwheelZoom() {
@@ -1164,6 +1164,10 @@ void Controller::addManager(const std::string &name, Manager *man)
 
 Manager *Controller::getManager(const std::string &name)
 {
-  return plotm->managers[name];
+  map<string,Manager*>::iterator it = plotm->managers.find(name);
+  if (it != plotm->managers.end())
+    return plotm->managers[name];
+  else
+    return 0;
 }
 
