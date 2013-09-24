@@ -200,6 +200,7 @@ AS_IF([test x$enable_embedded != xyes], [
 
 AS_IF([test x$enable_batch_only != xyes], [
     METNO_REQUIRE_QT4([
+        Xml
     ])
 ])
 
