@@ -81,7 +81,7 @@ bool FieldPlotManager::parseSetup()
 bool FieldPlotManager::parseFieldPlotSetup()
 {
 
-  //   METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
+  METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
 
   fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
@@ -993,7 +993,7 @@ void FieldPlotManager::parseString( std::string& pin,
     std::string& plotName )
 {
 
-//  METLIBS_LOG_DEBUG("PIN: "<<pin);
+  METLIBS_LOG_DEBUG("PIN: "<<pin);
 
 
   std::vector<std::string> tokens;
@@ -1011,7 +1011,6 @@ void FieldPlotManager::parseString( std::string& pin,
       if (key == "model") {
         fieldrequest.modelName = vtoken[1];
       }else if (key == "parameter") {
-        plotName = vtoken[1];
         paramNames.push_back(vtoken[1]);
         fieldrequest.plotDefinition=false;
       }else if (key == "plot") {
@@ -1075,7 +1074,7 @@ void FieldPlotManager::parseString( std::string& pin,
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
 {
 
-//  METLIBS_LOG_DEBUG("PIN: "<<pin);
+  METLIBS_LOG_DEBUG("parsePin - PIN: "<<pin);
 
 
   // if difference
