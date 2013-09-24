@@ -162,9 +162,7 @@ public:
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(vector<miutil::miTime>& fieldtimes,vector<miutil::miTime>& sattimes,
-                    vector<miutil::miTime>& obstimes,vector<miutil::miTime>& objtimes,
-                    vector<miutil::miTime>& ptimes, bool updateSources=false);
+  void getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(set<miutil::miTime>& okTimes,
                            set<miutil::miTime>& constTimes,

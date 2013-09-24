@@ -74,6 +74,7 @@ class MailDialog;
 class DianaProfetGUI;
 class PaintToolBar;
 
+class DataDialog;
 class EditDialog;
 class Controller;
 class TimeSlider;
@@ -120,6 +121,8 @@ public:
   void checkNews();
   void start();
 
+  void addDialog(DataDialog *dialog);
+
 protected:
   void timerEvent(QTimerEvent*);
   void setTimeLabel();
@@ -132,6 +135,7 @@ protected:
 
 public slots:
   void toggleToolBar();
+  void updateDialog();
 
 private slots:
   void timecontrolslot();
@@ -163,7 +167,6 @@ private slots:
   void measurementsMenu();
   void quickMenu();
   void toggleProfetGUI();
-  void toggleDrawing();
 
   void showHelp();
   void showAccels();
@@ -317,7 +320,6 @@ private:
 
 //  QAction * togglePaintModeAction;
   QAction * toggleProfetGUIAction;
-  QAction * toggleDrawingAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
@@ -395,8 +397,8 @@ private:
   MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
-  DianaProfetGUI	* profetGUI;
-  PaintToolBar	    * paintToolBar;
+  DianaProfetGUI    * profetGUI;
+  PaintToolBar      * paintToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markMeasurementsPos; //left mouse click -> mark measurement position
@@ -474,6 +476,8 @@ private:
   void getPlotStrings(vector<miutil::miString> &pstr,
                       vector<miutil::miString> &diagstr,
                       vector<miutil::miString> &shortnames);
+
+  map<QAction*, DataDialog*> dialogs;
 
 // Profet methods
   bool initProfet();

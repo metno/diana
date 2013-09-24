@@ -1,9 +1,9 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diController.cc 3685 2013-09-11 17:19:09Z davidb $
+  $Id$
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,44 +28,39 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#ifndef _datadialog_h
+#define _datadialog_h
 
-#ifndef MANAGER_H
-#define MANAGER_H
-
+#include <QDialog>
 #include <vector>
-#include <diField/diArea.h>
+#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include "diMapMode.h"
-#include <QObject>
 
-class PlotModule;
-class QKeyEvent;
-class QMouseEvent;
+using namespace std;
 
-class Manager : public QObject
+class Controller;
+class QAction;
+
+class DataDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  Manager();
-  virtual ~Manager();
+  DataDialog(QWidget *parent, Controller *ctrl);
+  virtual ~DataDialog();
 
-  virtual bool parseSetup() = 0;
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
-  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
-
-  virtual std::vector<miutil::miTime> getTimes() const = 0;
-  virtual bool changeProjection(const Area& newArea) = 0;
-  virtual bool prepare(const miutil::miTime &time) = 0;
-  virtual void plot(bool under, bool over) = 0;
-
-  virtual void setPlotModule(PlotModule *pm) = 0;
-
-  virtual bool isEnabled() const = 0;
-  virtual void setEnabled(bool enable) = 0;
+  virtual QAction *action() const;
 
 signals:
-  void timesUpdated();
+  void emitTimes(const miutil::miString &, const vector<miutil::miTime> &);
+  void emitTimes(const miutil::miString &, const vector<miutil::miTime> &, bool);
+  void applyData();
+  void hideData();
+  void showsource(const std::string, const std::string="");
+
+protected:
+  Controller *m_ctrl;
+  QAction *m_action;
 };
 
 #endif

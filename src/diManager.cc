@@ -3,7 +3,7 @@
 
   $Id: diController.cc 3685 2013-09-11 17:19:09Z davidb $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,43 +29,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef MANAGER_H
-#define MANAGER_H
+#include "diManager.h"
 
-#include <vector>
-#include <diField/diArea.h>
-#include <puTools/miTime.h>
-#include "diMapMode.h"
-#include <QObject>
-
-class PlotModule;
-class QKeyEvent;
-class QMouseEvent;
-
-class Manager : public QObject
+Manager::Manager()
 {
-  Q_OBJECT
+}
 
-public:
-  Manager();
-  virtual ~Manager();
-
-  virtual bool parseSetup() = 0;
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
-  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
-
-  virtual std::vector<miutil::miTime> getTimes() const = 0;
-  virtual bool changeProjection(const Area& newArea) = 0;
-  virtual bool prepare(const miutil::miTime &time) = 0;
-  virtual void plot(bool under, bool over) = 0;
-
-  virtual void setPlotModule(PlotModule *pm) = 0;
-
-  virtual bool isEnabled() const = 0;
-  virtual void setEnabled(bool enable) = 0;
-
-signals:
-  void timesUpdated();
-};
-
-#endif
+Manager::~Manager()
+{
+}

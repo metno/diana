@@ -46,6 +46,7 @@ class WeatherArea : public EditItemBase
     friend class SetGeometryCommand;
 public:
     WeatherArea();
+    WeatherArea(const QVariantMap &, QString *);
     virtual ~WeatherArea();
 
     EditItemBase *copy() const;
@@ -53,6 +54,8 @@ public:
     void setType(frontType type);
     QList<QPoint> getPoints() const;
     void setPoints(const QList<QPoint> &points);
+
+    static QList<WeatherArea *> createFromKML(const QByteArray &, QString *);
 
 private:
     virtual bool hit(const QPoint &, bool) const;
@@ -72,7 +75,10 @@ private:
 
     virtual void moveBy(const QPoint &);
 
-    virtual QString infoString() const { return QString("%1 type=WeatherArea npoints=%2").arg(EditItemBase::infoString()).arg(points_.size()); }
+    virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(EditItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
+
+    virtual QVariantMap clipboardVarMap() const;
+    virtual QString clipboardPlainText() const;
 
     virtual void draw(DrawModes, bool);
     void drawControlPoints();
@@ -93,7 +99,6 @@ private:
     virtual QList<QPoint> getBasePoints() const;
     qreal distance(const QPoint &) const;
     int hitLine(const QPoint &) const;
-    int hitPoint(const QPoint &) const;
 
     QList<QPoint> points_;
     QList<QRect> controlPoints_;

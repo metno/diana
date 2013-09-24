@@ -185,22 +185,21 @@ AS_IF([test x$enable_profet = xyes], [
 #
 # Other third-party dependencies
 #
-AS_IF([test x$enable_embedded = xyes], [
-    METNO_REQUIRE_QT4([
-        Core
-        Gui
-        Network
-    	Svg
-    ])
+METNO_REQUIRE_QT4([
+    Core
+    Gui
+    Network
+	Svg
 ])
 
 AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_QT4([
-        Core
-        Gui
-        Network
         OpenGL
-    	Svg
+    ])
+])
+
+AS_IF([test x$enable_batch_only != xyes], [
+    METNO_REQUIRE_QT4([
     ])
 ])
 

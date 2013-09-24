@@ -184,16 +184,17 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time, bool restricted){
 }
 
 void TimeSlider::insert(const miutil::miString& datatype,
-			const vector<miutil::miTime>& vt,
-			bool use){
+                        const vector<miutil::miTime>& vt,
+                        bool use)
+{
   tlist[datatype]= vt;
   usetlist[datatype] = use;
   updateList();
   emit newTimes(orig_times);
-
 }
 
-void TimeSlider::updateList(){
+void TimeSlider::updateList()
+{
   const int maxticks= 20;
 
   times.clear();
@@ -240,6 +241,17 @@ void TimeSlider::updateList(){
   else if ( tlist["obj"].size()>0) {
     times = tlist["obj"];
     dataTypeUsed = "obj";
+  }
+  else {
+    // Just use the first list of times in the collection.
+    map<miutil::miString,vector<miutil::miTime> >::iterator it;
+    for (it = tlist.begin(); it != tlist.end(); ++it) {
+      if (it->second.size() > 0) {
+        times = it->second;
+        dataTypeUsed = it->first;
+        break;
+      }
+    }
   }
 
   orig_times = times; // orig_times = all times
@@ -398,8 +410,8 @@ void TimeSlider::setFirstTime(const miutil::miTime& t){
 
 // Set slider to value v (if legal value)
 // Remember corresponding miutil::miTime as prevtime.
-bool TimeSlider::setSliderValue(const int v){
-//   cerr << "setSliderValue:" << v << endl;
+bool TimeSlider::setSliderValue(const int v)
+{
   int n= times.size();
   if (v>=0 && v<n){
     setValue(v);
@@ -438,11 +450,3 @@ void TimeSlider::deleteType(const miutil::miString& type)
     tlist.erase(p);
 
 }
-
-
-
-
-
-
-
-

@@ -35,16 +35,72 @@
 #include <diEditItemManager.h>
 #include <EditItems/edititembase.h>
 
-static QWidget * createEditor(const QVariant &val)
+class TextEditor : public QDialog
+{
+public:
+  TextEditor(const QString &text)
+  {
+    setWindowTitle("Text Editor");
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    textEdit_ = new QTextEdit;
+    textEdit_->setPlainText(text);
+    layout->addWidget(textEdit_);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(accept()));
+    layout->addWidget(buttonBox);
+
+    setLayout(layout);
+  }
+
+  virtual ~TextEditor()
+  {
+    delete textEdit_;
+  }
+
+  QString text() const { return textEdit_->toPlainText(); }
+
+private:
+  QTextEdit *textEdit_;
+};
+
+SpecialLineEdit::SpecialLineEdit(const QString &pname)
+  : propertyName_(pname)
+{
+}
+
+QString SpecialLineEdit::propertyName() const { return propertyName_; }
+
+void SpecialLineEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+  QMenu *menu = createStandardContextMenu();
+  QAction action(tr("&Edit"), 0);
+  connect(&action, SIGNAL(triggered()), this, SLOT(openTextEdit()));
+  menu->addAction(&action);
+  menu->exec(event->globalPos());
+  delete menu;
+}
+
+void SpecialLineEdit::openTextEdit()
+{
+  TextEditor textEditor(text());
+  textEditor.setWindowTitle(propertyName());
+  if (textEditor.exec() == QDialog::Accepted)
+    setText(textEditor.text());
+}
+
+static QWidget * createEditor(const QString &propertyName, const QVariant &val)
 {
   QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::String)) {
-    editor = new QLineEdit;
+  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int)
+      || (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
+    editor = new SpecialLineEdit(propertyName);
     qobject_cast<QLineEdit *>(editor)->setText(val.toString());
   } else {
     qDebug() << "WARNING: unsupported type:" << val.typeName();
-    editor = new QLineEdit;
-    qobject_cast<QLineEdit *>(editor)->setText(QString("UNSUPPORTED TYPE:").arg(val.typeName()));
+    editor = new QLabel(QString("UNSUPPORTED TYPE: %1").arg(val.typeName()));
   }
   return editor;
 }
@@ -89,13 +145,13 @@ public:
       //label->setStyleSheet("QLabel { background-color:#ff0 }");
       label->setAlignment(Qt::AlignRight);
       glayout_->addWidget(label, row, 0);
-      QWidget *editor = createEditor(values.value(key));
+      QWidget *editor = createEditor(key, values.value(key));
       glayout_->addWidget(editor, row, 1);
       row++;
     }
 
     // open dialog
-    if (exec()== QDialog::Accepted) {
+    if (exec() == QDialog::Accepted) {
       // return edited values
       QVariantMap newValues;
       for (int i = 0; i < glayout_->rowCount(); ++i) {
@@ -116,6 +172,8 @@ public:
 private:
   VarMapEditor()
   {
+    setWindowTitle("Item Properties");
+
     QVBoxLayout *layout = new QVBoxLayout;
     glayout_ = new QGridLayout;
     layout->addLayout(glayout_);
@@ -268,9 +326,9 @@ void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
     const QVariantMap newProperties = VarMapEditor::instance()->edit(item->properties());
     if (newProperties != item->properties()) {
       item->setProperties(newProperties);
-      QMessageBox::information(0, "info", "Values changed!");
+      //QMessageBox::information(0, "info", "Values changed!");
     } else {
-      QMessageBox::information(0, "info", "Values unchanged");
+      //QMessageBox::information(0, "info", "Values unchanged");
     }
   }
 }
@@ -645,7 +703,8 @@ void EditItemManager::draw()
             modes |= EditItemBase::Selected;
         if (item == hoverItem_)
             modes |= EditItemBase::Hovered;
-        item->draw(modes, false);
+        if (item->properties().value("visible", true).toBool())
+            item->draw(modes, false);
     }
     if (incompleteItem_) // note that only complete items may be selected
         incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
@@ -710,8 +769,9 @@ void EditItemManager::completeEditing()
 {
     if (incompleteItem_) {
         addItem(incompleteItem_); // causes repaint
-        incompleteItem_ = 0;
         emit incompleteEditing(false);
+        emit itemAdded(incompleteItem_);
+        incompleteItem_ = 0;
     }
 }
 

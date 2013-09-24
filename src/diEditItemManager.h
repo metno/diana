@@ -37,6 +37,7 @@
 #include <QSet>
 #include <QUndoCommand>
 #include <QUndoView>
+#include <QLineEdit>
 
 class AddOrRemoveItemsCommand;
 class DrawingManager;
@@ -44,6 +45,20 @@ class EditItemBase;
 class QKeyEvent;
 class QMouseEvent;
 class QUndoStack;
+
+// ### move this class declaration to a private header file?
+class SpecialLineEdit : public QLineEdit
+{
+  Q_OBJECT
+public:
+  SpecialLineEdit(const QString &);
+private:
+  QString propertyName_;
+  QString propertyName() const;
+  void contextMenuEvent(QContextMenuEvent *);
+private slots:
+  void openTextEdit();
+};
 
 class EditItemManager : public QObject
 {
@@ -70,8 +85,6 @@ public:
     QSet<EditItemBase *> getSelectedItems() const;
     QSet<EditItemBase *> findHitItems(const QPoint &) const;
 
-    void createUndoView();
-
     void storeItems(const QSet<EditItemBase *> &);
     void retrieveItems(const QSet<EditItemBase *> &);
     QList<QPointF> PhysToGeo(const QList<QPoint> &points);
@@ -80,6 +93,8 @@ public:
     static EditItemManager *instance() { return self; }
 
     void editItemProperties(const QSet<EditItemBase *> &);
+
+    void createUndoView();
 
 public slots:
     void abortEditing();
@@ -104,6 +119,7 @@ signals:
     void canUndoChanged(bool);
     void canRedoChanged(bool);
     void incompleteEditing(bool);
+    void itemAdded(EditItemBase *);
 
 private:
     QSet<EditItemBase *> items_;

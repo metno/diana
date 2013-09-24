@@ -282,14 +282,9 @@ void Controller::getPlotTime(miTime& t){
   plotm->getPlotTime(t);
 }
 
-void Controller::getPlotTimes(vector<miTime>& fieldtimes,
-                              vector<miTime>& sattimes,
-                              vector<miTime>& obstimes,
-                              vector<miTime>& objtimes,
-                              vector<miTime>& ptimes,
-                              bool updateSources)
+void Controller::getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources)
 {
-  plotm->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes,updateSources);
+  plotm->getPlotTimes(times, updateSources);
 }
 
 bool Controller::getProductTime(miTime& t){

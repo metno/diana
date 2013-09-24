@@ -1335,6 +1335,33 @@ static miutil::miTime selectNowTime(vector<miutil::miTime>& fieldtimes,
   return fieldtimes.back();
 }
 
+static miutil::miTime selectTime()
+{
+  map<string,vector<miTime> > times;
+  main_controller->getPlotTimes(times, false);
+  miTime thetime;
+
+  if (ptime.undef()) {
+    if (use_nowtime)
+      thetime = selectNowTime(times.at("fields"), times.at("satellites"),
+                              times.at("observations"), times.at("objects"),
+                              times.at("products"));
+    else if (times.at("fields").size() > 0)
+      thetime = times.at("fields").back();
+    else if (times.at("satellites").size() > 0)
+      thetime = times.at("satellites").back();
+    else if (times.at("observations").size() > 0)
+      thetime = times.at("observations").back();
+    else if (times.at("objects").size() > 0)
+      thetime = times.at("objects").back();
+    else if (times.at("products").size() > 0)
+      thetime = times.at("products").back();
+  } else
+    thetime = ptime;
+
+  return thetime;
+}
+
 #if defined(USE_PAINTGL)
 /*
  * Returns the area covered in the requested annotation in the ox, oy, xsize and ysize
@@ -1718,25 +1745,7 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- sending plotCommands");
         main_controller->plotCommands(pcom);
 
-        vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
-        main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-            ptimes, false);
-
-        if (ptime.undef()) {
-          if (use_nowtime)
-            thetime = selectNowTime(fieldtimes, sattimes, obstimes, objtimes, ptimes);
-          else if (fieldtimes.size() > 0)
-            thetime = fieldtimes[fieldtimes.size() - 1];
-          else if (sattimes.size() > 0)
-            thetime = sattimes[sattimes.size() - 1];
-          else if (obstimes.size() > 0)
-            thetime = obstimes[obstimes.size() - 1];
-          else if (objtimes.size() > 0)
-            thetime = objtimes[objtimes.size() - 1];
-          else if (ptimes.size() > 0)
-            thetime = ptimes[ptimes.size() - 1];
-        } else
-          thetime = ptime;
+        thetime = selectTime();
 
         if (verbose)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
@@ -2648,25 +2657,7 @@ static int parseAndProcess(istream &is)
         METLIBS_LOG_INFO("- sending plotCommands");
       main_controller->plotCommands(pcom);
 
-      vector<miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
-      main_controller->getPlotTimes(fieldtimes, sattimes, obstimes, objtimes,
-          ptimes, false);
-
-      if (ptime.undef()) {
-        if (use_nowtime)
-          thetime = selectNowTime(fieldtimes, sattimes, obstimes, objtimes, ptimes);
-        else if (fieldtimes.size() > 0)
-          thetime = fieldtimes[fieldtimes.size() - 1];
-        else if (sattimes.size() > 0)
-          thetime = sattimes[sattimes.size() - 1];
-        else if (obstimes.size() > 0)
-          thetime = obstimes[obstimes.size() - 1];
-        else if (objtimes.size() > 0)
-          thetime = objtimes[objtimes.size() - 1];
-        else if (ptimes.size() > 0)
-          thetime = ptimes[ptimes.size() - 1];
-      } else
-        thetime = ptime;
+      thetime = selectTime();
 
       if (verbose)
         METLIBS_LOG_INFO("- describing field for time: " << thetime);

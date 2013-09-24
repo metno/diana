@@ -57,7 +57,7 @@ class QMouseEvent;
   \brief Manager for drawing areas and annotations.
 */
 
-class DrawingManager : public QObject, public Manager
+class DrawingManager : public Manager
 {
   Q_OBJECT
 
@@ -75,7 +75,10 @@ public:
   /// handle keyboard event
   void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
+  virtual std::vector<miutil::miTime> getTimes() const;
+
   bool changeProjection(const Area& newArea);
+  bool prepare(const miutil::miTime &time);
   void plot(bool under, bool over);
 
   EditItemManager *getEditItemManager() { return editItemManager; }
@@ -90,12 +93,25 @@ public:
   void setEnabled(bool enable);
 
   static DrawingManager *instance();
+  QList<QAction*> actions();
+
+private slots:
+  void copySelectedItems();
+  void cutSelectedItems();
+  void editItems();
+  void initNewItem(EditItemBase *item);
+  void pasteItems();
 
 private:
+  void copyItems(const QSet<EditItemBase *> &);
+  void loadItemsFromFile();
+  void updateActions();
+
   QAction* cutAction;
   QAction* copyAction;
   QAction* pasteAction;
   QAction* editAction;
+  QAction* loadAction;
 
   PlotModule* plotm;
   ObjectManager* objm;
@@ -106,11 +122,6 @@ private:
 
   Rectangle plotRect;
   Rectangle editRect;
-
-  void copyItems(const QSet<EditItemBase *> &) const;
-  void cutSelectedItems() const;
-  void copySelectedItems() const;
-  void pasteItems();
 
   bool enabled;
 

@@ -123,6 +123,7 @@ else
 diana_qt_sources = \
 	diDrawingManager.cc \
 	diEditItemManager.cc \
+	diManager.cc \
 	EditItems/edititembase.cc \
 	EditItems/weatherarea.cc \
 	EditItems/weatherfront.cc \
@@ -133,6 +134,8 @@ diana_qt_sources = \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
 	qtComplexText.cc \
+	qtDataDialog.cc \
+	qtDrawingDialog.cc \
 	qtEditComment.cc \
 	qtEditDefineField.cc \
 	qtEditDialog.cc \
@@ -315,6 +318,8 @@ noinst_HEADERS = \
 	qtBrowserBox.h \
 	qtButtonLayout.h \
 	qtComplexText.h \
+	qtDataDialog.h \
+	qtDrawingDialog.h \
 	qtEditComment.h \
 	qtEditText.h \
 	qtEditDefineField.h \

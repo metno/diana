@@ -44,10 +44,13 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
+
+#include "qtDrawingDialog.h"
 #include "qtMainWindow.h"
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
 #endif
+
 #include <puTools/miCommandLine.h>
 #include <puTools/miString.h>
 #include <iostream>
@@ -252,7 +255,12 @@ int main(int argc, char **argv)
     a.installTranslator( &myapp );
     a.installTranslator( &qutil );
   }
+
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
+
+  DrawingDialog *drawingDialog = new DrawingDialog(mw, &contr);
+  drawingDialog->hide();
+  mw->addDialog(drawingDialog);
 
   mw->start();
 

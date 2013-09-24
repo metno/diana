@@ -30,6 +30,7 @@
 */
 
 #include "edititembase.h"
+#include "weatherarea.h"
 
 EditItemBase::EditItemBase()
     : moving_(false)
@@ -233,7 +234,44 @@ QVariantMap EditItemBase::properties() const
   return properties_;
 }
 
+QVariantMap &EditItemBase::propertiesRef()
+{
+  return properties_;
+}
+
 void EditItemBase::setProperties(const QVariantMap &properties)
 {
   properties_ = properties;
+}
+
+QVariantMap EditItemBase::clipboardVarMap() const
+{
+  QVariantMap vmap;
+  vmap.insert("type", metaObject()->className());
+  return vmap;
+}
+
+QString EditItemBase::clipboardPlainText() const
+{
+  return QString();
+}
+
+EditItemBase *EditItemBase::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  EditItemBase *item = 0;
+  *error = QString();
+  if (vmap.value("type").toString() == "EditItem_WeatherArea::WeatherArea") {
+    EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea(vmap, error);
+    if (!error->isEmpty())
+      delete area;
+    else
+      item = area;
+  } else {
+    *error = QString("unsupported item type: %1, expected %2")
+        .arg(vmap.value("type").toString()).arg("EditItem_WeatherArea::WeatherArea");
+  }
+  return item;
 }

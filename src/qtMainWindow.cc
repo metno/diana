@@ -100,7 +100,9 @@
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
+#include "diDrawingManager.h"
 
+#include "qtDataDialog.h"
 #include "qtQuickMenu.h"
 #include "qtObsDialog.h"
 #include "qtSatDialog.h"
@@ -172,7 +174,6 @@
 #include <ruler.xpm>
 #include <info.xpm>
 #include <profet.xpm>
-#include <paint_mode.xpm>       // reused for area drawing functionality
 #include <autoupdate.xpm>
 
 //#define DEBUGREDRAWCATCH 
@@ -413,13 +414,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
-  toggleDrawingAction = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
-  toggleDrawingAction->setShortcutContext(Qt::ApplicationShortcut);
-  toggleDrawingAction->setShortcut(Qt::ALT+Qt::Key_B);
-  toggleDrawingAction->setCheckable(true);
-  toggleDrawingAction->setIconVisibleInMenu(true);
-  connect(toggleDrawingAction, SIGNAL(triggered()), SLOT(toggleDrawing()));
-  // --------------------------------------------------------------------
 
   profetLoginError = new QErrorMessage(this);
   /* Paint mode not implemented
@@ -707,7 +701,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   if (uffda){
     showmenu->addAction( showUffdaDialogAction );
   }
-  showmenu->addAction(toggleDrawingAction);
   showmenu->addMenu( infomenu );
 
 
@@ -828,9 +821,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   mainToolbar->addSeparator();
   mainToolbar->addAction( showEditDialogAction );
-#if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
-  mainToolbar->addAction(toggleDrawingAction);
-#endif
   mainToolbar->addSeparator();
   mainToolbar->addSeparator();
   mainToolbar->addAction( showResetAllAction );
@@ -1255,14 +1245,14 @@ void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->plotCommands(s);
 
-  vector<miutil::miTime> fieldtimes, sattimes, obstimes, objtimes, ptimes;
-  contr->getPlotTimes(fieldtimes,sattimes,obstimes,objtimes,ptimes);
+  map<string,vector<miutil::miTime> > times;
+  contr->getPlotTimes(times);
 
-  tslider->insert("field", fieldtimes);
-  tslider->insert("sat", sattimes);
-  tslider->insert("obs", obstimes);
-  tslider->insert("obs", objtimes);
-  tslider->insert("product", ptimes);
+  map<string,vector<miutil::miTime> >::iterator it = times.begin();
+  while (it != times.end()) {
+    tslider->insert(it->first, it->second);
+    ++it;
+  }
 
   miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
@@ -4605,7 +4595,38 @@ bool DianaMainWindow::event(QEvent* event)
   return QMainWindow::event(event);
 }
 
-void DianaMainWindow::toggleDrawing()
+void DianaMainWindow::addDialog(DataDialog *dialog)
 {
-  contr->setDrawingModeEnabled(toggleDrawingAction->isChecked());
+  QAction *action = dialog->action();
+  dialogs[action] = dialog;
+  connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
+  connect(dialog, SIGNAL(hideData()), SLOT(updateDialog()));
+  connect(action, SIGNAL(triggered()), SLOT(updateDialog()));
+  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &)),
+      tslider, SLOT(insert(const miutil::miString &, const vector<miutil::miTime> &)));
+  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &, bool)),
+      tslider, SLOT(insert(const miutil::miString &, const vector<miutil::miTime> &, bool)));
+
+  showmenu->addAction(action);
+
+#if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
+  mainToolbar->addAction(action);
+#endif
+}
+
+void DianaMainWindow::updateDialog()
+{
+  QAction *action;
+  DataDialog *dialog;
+
+  if (action = static_cast<QAction *>(sender()))
+    dialog = dialogs[action];
+  else if (dialog = static_cast<DataDialog *>(sender()))
+    action = dialog->action();
+  else
+    return;
+
+  bool visible = dialog->isVisible();
+  dialog->setVisible(!visible);
+  action->setChecked(!visible);
 }

@@ -57,6 +57,7 @@
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QFileDialog>
 
 //#define DEBUGPRINT
 using namespace miutil;
@@ -68,25 +69,32 @@ DrawingManager::DrawingManager()
   self = this;
   editItemManager = new EditItemManager();
 
-  editRect = plotm->getPlotSize();
+  connect(editItemManager, SIGNAL(itemAdded(EditItemBase *)), SLOT(initNewItem(EditItemBase *)));
+
   enabled = false;
+  plotm = PlotModule::instance();
+  editRect = plotm->getPlotSize();
   currentArea = plotm->getCurrentArea();
 
-  cutAction = new QAction(tr("Cut"), 0);
+  cutAction = new QAction(tr("Cut"), this);
   cutAction->setShortcut(tr("Ctrl+X"));
-  copyAction = new QAction(tr("&Copy"), 0);
+  copyAction = new QAction(tr("&Copy"), this);
   copyAction->setShortcut(QKeySequence::Copy);
-  pasteAction = new QAction(tr("&Paste"), 0);
+  pasteAction = new QAction(tr("&Paste"), this);
   pasteAction->setShortcut(QKeySequence::Paste);
-  editAction = new QAction(tr("P&roperties"), 0);
+  editAction = new QAction(tr("P&roperties"), this);
   editAction->setShortcut(tr("Ctrl+R"));
+  loadAction = new QAction(tr("&Load"), this);
+  loadAction->setShortcut(tr("Ctrl+L"));
+
+  connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
+  connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
+  connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
+  connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
 }
 
 DrawingManager::~DrawingManager()
 {
-  delete cutAction;
-  delete copyAction;
-  delete pasteAction;
 }
 
 DrawingManager *DrawingManager::instance()
@@ -145,13 +153,13 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       // Handle the event via a global context menu only; don't delegate to items via edit item manager.
       QMenu contextMenu;
       contextMenu.addAction(cutAction);
-      cutAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
       contextMenu.addAction(copyAction);
-      copyAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
       contextMenu.addAction(pasteAction);
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
       contextMenu.addSeparator();
       contextMenu.addAction(editAction);
+      contextMenu.addSeparator();
+      contextMenu.addAction(loadAction);
       editAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
       if (!contextMenu.isEmpty()) {
         QAction *action = contextMenu.exec(me2.globalPos());
@@ -162,7 +170,9 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         else if (action == pasteAction)
           pasteItems();
         else if (action == editAction)
-          editItemManager->editItemProperties(editItemManager->getSelectedItems());
+          editItems();
+        else if (action == loadAction)
+          loadItemsFromFile();
       }
     } else {
       // Send the mouse press to the edit item manager.
@@ -193,6 +203,8 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 
   res.repaint = editItemManager->needsRepaint();
   res.action = editItemManager->canUndo() ? objects_changed : no_action;
+
+  updateActions();
 }
 
 void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
@@ -201,7 +213,7 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   METLIBS_LOG_DEBUG("DrawingManager::sendKeyboardEvent");
 #endif
   event->accept();
-  res.savebackground= true;
+  res.savebackground= false;
   res.background= false;
   res.repaint= false;
 
@@ -212,6 +224,10 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
       copySelectedItems();
     else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       pasteItems();
+    else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      editItems();
+    else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      loadItemsFromFile();
     else
       event->ignore();
   }
@@ -221,6 +237,8 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
     return;
 
   editItemManager->keyPress(event);
+
+  updateActions();
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
@@ -279,6 +297,49 @@ QList<QPoint> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
   return points;
 }
 
+/**
+ * Returns a vector containing the times for which the manager has data.
+*/
+std::vector<miutil::miTime> DrawingManager::getTimes() const
+{
+  std::set<miutil::miTime> times;
+  QSet<EditItemBase *> items = editItemManager->getItems();
+
+  foreach (EditItemBase *item, items) {
+    QVariantMap p = item->propertiesRef();
+    std::string time_str = p.value("time").toString().toStdString();
+    if (!time_str.empty())
+        times.insert(miutil::miTime(time_str));
+  }
+
+  std::vector<miutil::miTime> output;
+  output.assign(times.begin(), times.end());
+
+  // Sort the times.
+  std::sort(output.begin(), output.end());
+
+  return output;
+}
+
+/**
+ * Prepares the manager for display of, and interaction with, items that
+ * correspond to the given \a time.
+*/
+bool DrawingManager::prepare(const miutil::miTime &time)
+{
+  // Change the visibility of items in the editor.
+  QSet<EditItemBase *> items = editItemManager->getItems();
+
+  foreach (EditItemBase *item, items) {
+    QVariantMap p = item->propertiesRef();
+    std::string time_str = p.value("time").toString().toStdString();
+    p["visible"] = (time.isoTime() == miutil::miString(time_str));
+    item->setProperties(p);
+  }
+
+  return true;
+}
+
 bool DrawingManager::changeProjection(const Area& newArea)
 {
   int w, h;
@@ -312,6 +373,9 @@ bool DrawingManager::changeProjection(const Area& newArea)
 
 void DrawingManager::plot(bool under, bool over)
 {
+  if (!under)
+    return;
+
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
@@ -324,51 +388,41 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-void DrawingManager::cutSelectedItems() const
+void DrawingManager::cutSelectedItems()
 {
   QSet<EditItemBase*> items = editItemManager->getSelectedItems();
   copyItems(items);
   foreach (EditItemBase* item, items)
     editItemManager->removeItem(item);
+
+  updateActions();
 }
 
-void DrawingManager::copyItems(const QSet<EditItemBase *> &items) const
+void DrawingManager::copyItems(const QSet<EditItemBase *> &items)
 {
   QByteArray bytes;
   QDataStream stream(&bytes, QIODevice::WriteOnly);
   QString text;
 
   text += QString("Number of items: %1\n").arg(items.size());
-  QVariantList weatherAreas;
+  QVariantList cbItems;
 
   foreach (EditItemBase *item, items) {
-    QVariantMap properties;
-    QVariantList vpoints;
-    const QList<QPointF> points = getLatLonPoints(item);
-
-    foreach (QPointF p, points) {
-      vpoints.append(p);
-      text += QString("(%1, %2) ").arg(p.x()).arg(p.y());
-    }
-    properties.insert("points", vpoints);
-    text += "\n";
-    //properties.insert("color", item->color()); // example
-    // .. and so on for other properties
-    weatherAreas.append(properties);
+    cbItems.append(item->clipboardVarMap());
+    text += QString("%1\n").arg(item->clipboardPlainText());
   }
 
-  QVariantMap mainVMap;
-  mainVMap.insert("weatherAreas", weatherAreas);
-  stream << mainVMap;
+  stream << cbItems;
 
   QMimeData *data = new QMimeData();
   data->setData("application/x-diana-object", bytes);
   data->setData("text/plain", text.toUtf8());
 
   QApplication::clipboard()->setMimeData(data);
+  updateActions();
 }
 
-void DrawingManager::copySelectedItems() const
+void DrawingManager::copySelectedItems()
 {
   copyItems(editItemManager->getSelectedItems());
 }
@@ -381,24 +435,43 @@ void DrawingManager::pasteItems()
     QByteArray bytes = data->data("application/x-diana-object");
     QDataStream stream(&bytes, QIODevice::ReadOnly);
 
-    QVariantMap mainVMap;
-    stream >> mainVMap;
+    QVariantList cbItems;
+    stream >> cbItems;
 
-    const QVariantList weatherAreas = mainVMap.value("weatherAreas").toList();
-
-    foreach (QVariant weatherArea, weatherAreas) {
-      const QVariantMap properties = weatherArea.toMap();
-      const QVariantList vpoints = properties.value("points").toList();
-      QList<QPointF> points;
-      foreach (QVariant vpoint, vpoints)
-        points.append(vpoint.toPointF());
-      //const QColor color = properties.value("color").value<QColor>(); // example
-      // .. and so on for other properties
-      EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-      setLatLonPoints(area, points);
-      editItemManager->addItem(area, false);
+    foreach (QVariant cbItem, cbItems) {
+      QString error;
+      EditItemBase *item = EditItemBase::createItemFromVarMap(cbItem.toMap(), &error);
+      if (item)
+        editItemManager->addItem(item, false);
+      else
+        QMessageBox::warning(0, "Error", error);
     }
   }
+
+  updateActions();
+}
+
+QList<QAction*> DrawingManager::actions()
+{
+  QList<QAction*> a;
+  a << cutAction << copyAction << pasteAction << editAction;
+  return a;
+}
+
+void DrawingManager::updateActions()
+{
+  cutAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
+  copyAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
+  pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+  editAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
+
+  // Let other components know about any changes to item times.
+  emit timesUpdated();
+
+  // Update the visibility of items based on the current plot time.
+  miutil::miTime time;
+  plotm->getPlotTime(time);
+  prepare(time);
 }
 
 bool DrawingManager::isEnabled() const
@@ -409,4 +482,52 @@ bool DrawingManager::isEnabled() const
 void DrawingManager::setEnabled(bool enable)
 {
   enabled = enable;
+}
+
+void DrawingManager::editItems()
+{
+  editItemManager->editItemProperties(editItemManager->getSelectedItems());
+}
+
+void DrawingManager::loadItemsFromFile()
+{
+  // open file and read content
+  const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC areas (*.kml)"));
+  QFile file(fileName);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QMessageBox::warning(0, "Error", QString("failed to open file %1 for reading").arg(fileName));
+    return;
+  }
+  QByteArray data = file.readAll();
+  file.close();
+
+  QString error;
+  const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, &error);
+  qDebug() << "areas:" << areas;
+  qDebug() << "error:" << error;
+  if (!areas.isEmpty()) {
+    foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
+      setLatLonPoints(area, area->getLatLonPoints());
+      editItemManager->addItem(area, false);
+    }
+  } else {
+    QMessageBox::warning(
+          0, "Error", QString("failed to create areas from file %1: %2")
+          .arg(fileName).arg(!error.isEmpty() ? error : "<error msg not set>"));
+  }
+
+  updateActions();
+}
+
+void DrawingManager::initNewItem(EditItemBase *item)
+{
+  // Use the current time for the new item.
+  miutil::miTime time;
+  plotm->getPlotTime(time);
+  QVariantMap p = item->propertiesRef();
+  p["time"] = QString::fromStdString(time.isoTime());
+  item->setProperties(p);
+
+  // Let other components know about any changes to item times.
+  emit timesUpdated();
 }

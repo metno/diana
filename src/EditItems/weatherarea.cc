@@ -31,6 +31,8 @@
 
 #include <GL/gl.h>
 #include "weatherarea.h"
+#include <QDomDocument>
+#include <diTesselation.h>
 
 namespace EditItem_WeatherArea {
 
@@ -58,18 +60,50 @@ WeatherArea::WeatherArea()
     color_.setRed(0);
     color_.setGreen(0);
     color_.setBlue(0);
+}
 
-    // ### dummy properties used for testing:
-    properties_.insert("dummy 1", 4711);
-    properties_.insert("dummy 2", 3.1415);
-    properties_.insert("dummy 3", "bla bla");
+WeatherArea::WeatherArea(const QVariantMap &vmap, QString *error)
+{
+  init();
+
+  *error = QString();
+
+  // verify type
+  if (vmap.value("type").toString() != "EditItem_WeatherArea::WeatherArea") {
+    *error = QString("invalid type: %1, expected %2")
+        .arg(vmap.value("type").toString()).arg("EditItem_WeatherArea::WeatherArea");
+    return;
+  }
+
+  // set any properties
+  if (vmap.contains("properties")) {
+    if (!vmap.value("properties").canConvert(QVariant::Map)) {
+      *error = QString("invalid properties type: %1, expected %2")
+          .arg(vmap.value("properties").typeName()).arg("QVariantMap");
+      return;
+    }
+    setProperties(vmap.value("properties").toMap());
+  }
+
+  // set points
+  if (!vmap.contains("points")) {
+    *error = QString("no points found");
+    return;
+  }
+  if (!vmap.value("points").canConvert(QVariant::List)) {
+    *error = QString("invalid points type: %1, expected %2")
+        .arg(vmap.value("points").typeName()).arg("QVariantList");
+    return;
+  }
+  const QVariantList vpoints = vmap.value("points").toList();
+  QList<QPointF> points;
+  foreach (QVariant vpoint, vpoints)
+    points.append(vpoint.toPointF());
+  setPoints(EditItemManager::instance()->GeoToPhys(points));
 }
 
 WeatherArea::~WeatherArea()
 {
-    delete addPoint_;
-    delete remove_;
-    delete removePoint_;
 }
 
 void WeatherArea::init()
@@ -79,11 +113,6 @@ void WeatherArea::init()
   pressedCtrlPointIndex_ = -1;
   hoveredCtrlPointIndex_ = -1;
   placementPos_ = 0;
-  addPoint_ = new QAction(tr("&Add point"), 0);
-  remove_ = new QAction(tr("&Remove"), 0);
-  removePoint_ = new QAction(tr("Remove &point"), 0);
-  copyItems_ = new QAction(tr("&Copy items of same type"), 0);
-  editItems_ = new QAction(tr("P&roperties"), 0);
   type = Cold;
   s_length = 0;
 
@@ -134,7 +163,10 @@ QList<QPoint> WeatherArea::getBasePoints() const
 bool WeatherArea::hit(const QPoint &pos, bool selected) const
 {
     const qreal proximityTolerance = 3.0;
-    return ((points_.size() >= 2) && (distance(pos) < proximityTolerance)) || (selected && (hitControlPoint(pos) >= 0));
+    const bool hitEdge = ((points_.size() >= 2) && (distance(pos) < proximityTolerance)) || (selected && (hitControlPoint(pos) >= 0));
+    const QPolygon polygon(points_.toVector());
+    const bool hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
+    return hitEdge || hitInterior;
 }
 
 bool WeatherArea::hit(const QRect &rect) const
@@ -171,33 +203,6 @@ int WeatherArea::hitLine(const QPoint &position) const
     return minIndex;
 }
 
-/**
- * Returns the index of the line close to the position specified, or -1 if no
- * line was close enough.
- */
-int WeatherArea::hitPoint(const QPoint &position) const
-{
-    if (points_.size() == 0)
-        return -1;
-
-    const qreal proximityTolerance = 3.0;
-    qreal minDist = sqrt(dist2(QPointF(position), QPointF(points_.at(0))));
-    int minIndex = 0;
-
-    for (int i = 1; i < points_.size(); ++i) {
-        const qreal dist = sqrt(dist2(QPointF(position), QPointF(points_.at(i))));
-        if (dist < minDist) {
-            minDist = dist;
-            minIndex = i;
-        }
-    }
-
-    if (minDist > proximityTolerance)
-        return -1;
-
-    return minIndex;
-}
-
 void WeatherArea::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
@@ -220,6 +225,11 @@ void WeatherArea::mousePress(
             // open a context menu and perform the selected action
             QMenu contextMenu;
             QPoint position = event->pos();
+            QAction addPoint_act(tr("&Add point"), 0);
+            QAction remove_act(tr("&Remove"), 0);
+            QAction removePoint_act(tr("Remove &point"), 0);
+            QAction copyItems_act(tr("&Copy"), 0);
+            QAction editItems_act(tr("P&roperties"), 0);
 
             // Add actions, checking for a click on a line or a point.
             const int lineIndex = hitLine(position);
@@ -227,23 +237,23 @@ void WeatherArea::mousePress(
             if (pointIndex != -1) {
                 if (points_.size() <= 3)
                     return; // an area needs at least three points
-                contextMenu.addAction(removePoint_);
+                contextMenu.addAction(&removePoint_act);
             } else if (lineIndex != -1) {
-                contextMenu.addAction(remove_);
-                contextMenu.addAction(addPoint_);
+                contextMenu.addAction(&addPoint_act);
             }
+            contextMenu.addAction(&remove_act);
             if (itemsToCopy)
-              contextMenu.addAction(copyItems_);
+              contextMenu.addAction(&copyItems_act);
             if (itemsToEdit)
-              contextMenu.addAction(editItems_);
-            QAction *action = contextMenu.exec(event->globalPos(), remove_);
-            if (action == remove_)
+              contextMenu.addAction(&editItems_act);
+            QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
+            if (action == &remove_act)
                 remove(repaintNeeded, items);
-            else if (action == removePoint_)
+            else if (action == &removePoint_act)
                 removePoint(repaintNeeded, pointIndex, items);
-            else if (action == addPoint_)
+            else if (action == &addPoint_act)
                 addPoint(repaintNeeded, lineIndex, position, items);
-            else if (action == copyItems_) {
+            else if (action == &copyItems_act) {
                 Q_ASSERT(itemsToCopy);
                 QSet<EditItemBase *>::const_iterator it;
                 for (it = items->begin(); it != items->end(); ++it) {
@@ -251,7 +261,7 @@ void WeatherArea::mousePress(
                     if (weatherArea)
                         itemsToCopy->insert(weatherArea);
                 }
-            } else if (action == editItems_) {
+            } else if (action == &editItems_act) {
                 Q_ASSERT(itemsToEdit);
                 //Q_ASSERT(items->contains(this));
                 itemsToEdit->insert(this);
@@ -273,8 +283,8 @@ void WeatherArea::mouseMove(QMouseEvent *event, bool &repaintNeeded)
 
 void WeatherArea::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-    hoveredCtrlPointIndex_ = hitControlPoint(event->pos());
-    repaintNeeded = true;
+  hoveredCtrlPointIndex_ = hitControlPoint(event->pos());
+  repaintNeeded = true;
 }
 
 void WeatherArea::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -467,20 +477,37 @@ void WeatherArea::draw(DrawModes modes, bool incomplete)
         }
     }
 
-    // draw the basic item
+    // draw the interior
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glEnable( GL_BLEND );
+    GLdouble *gldata = new GLdouble[points_.size() * 3];
+    for (int i = 0; i < points_.size(); ++i) {
+        const QPoint p = points_.at(i);
+        gldata[3 * i] = p.x();
+        gldata[3 * i + 1] = p.y();
+        gldata[3 * i + 2] = 0.0;
+    }
+    glColor4ub(128, 128, 128, 50);
+    beginTesselation();
+    int npoints = points_.size();
+    tesselation(gldata, 1, &npoints);
+    endTesselation();
+    delete[] gldata;
+
+    // draw the outline
     glBegin(GL_LINE_LOOP);
     glColor3ub(color_.red(), color_.green(), color_.blue());
     foreach (QPoint p, points_)
         glVertex2i(p.x(), p.y());
     glEnd();
 
-    // draw control points if we're selected
-    if (modes & Selected)
-        drawControlPoints();
-
-    // draw highlighting if we're hovered
+    // draw highlighting if hovered
     if (modes & Hovered)
         drawHoverHighlighting(incomplete);
+
+    // draw control points if selected
+    if (modes & Selected)
+        drawControlPoints();
 }
 
 void WeatherArea::drawControlPoints()
@@ -526,6 +553,144 @@ void WeatherArea::drawHoverHighlighting(bool incomplete)
         glEnd();
         glPopAttrib();
     }
+}
+
+// Attempts to create new WeatherArea objects from the KML structure in \a data.
+// If successful, the function returns a list of pointers to the new objects.
+// Otherwise, the function returns an empty list and passes an explanation in \a error.
+QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString *error)
+{
+  *error = QString();
+
+  int line;
+  int col;
+  QString err;
+  QDomDocument doc;
+  if (doc.setContent(data, &err, &line, &col) == false) {
+    *error = QString("parse error at line=%1, column=%2: %3").arg(line).arg(col).arg(err);
+    return QList<WeatherArea *>();
+  }
+
+  const QDomNodeList folderNodes = doc.elementsByTagName("Folder");
+  if (folderNodes.size() == 0) {
+    *error = QString("no Folder elements found");
+    return QList<WeatherArea *>();
+  }
+
+  QList<WeatherArea *> areas;
+
+  // loop over folders
+  for (int i = 0; i < folderNodes.size(); ++i) {
+    const QDomElement folderElement = folderNodes.item(i).toElement();
+
+    // folder name
+    const QDomElement folderNameElement = folderElement.firstChildElement("name");
+    if (folderNameElement.isNull()) {
+      *error = QString("no folder name element found");
+      break;
+    }
+    const QString folderName = folderNameElement.firstChild().nodeValue();
+
+    // placemarks
+    const QDomNodeList placemarkNodes = folderElement.elementsByTagName("Placemark");
+    if (placemarkNodes.size() == 0) {
+      *error = QString("no Placemark elements found in Folder element %1").arg(folderName);
+      break;
+    }
+
+    // loop over placemarks
+    for (int j = 0; j < placemarkNodes.size(); ++j) {
+      const QDomElement placemarkElement = placemarkNodes.item(j).toElement();
+
+      // placemark name
+      const QDomElement placemarkNameElement = placemarkElement.firstChildElement("name");
+      if (placemarkNameElement.isNull()) {
+        *error = QString("no name element found in Placemark element %1 in Folder element %2")
+            .arg(j).arg(folderName);
+        break;
+      }
+      const QString placemarkName = placemarkNameElement.firstChild().nodeValue();
+
+      // placemark coordinates
+      const QDomNodeList coordinatesNodes = placemarkElement.elementsByTagName("coordinates");
+      if (coordinatesNodes.size() != 1) {
+        *error = QString("exactly one coordinates element expected in Placemark element %1 in Folder element %2, found %3")
+            .arg(placemarkName).arg(folderName).arg(coordinatesNodes.size());
+        break;
+      }
+      if (coordinatesNodes.item(0).childNodes().size() != 1) {
+        *error = QString("one child expected in coordinates element in Placemark element %1 in Folder element %2, found %3")
+            .arg(placemarkName).arg(folderName).arg(coordinatesNodes.item(0).childNodes().size());
+        break;
+      }
+      const QString coords = coordinatesNodes.item(0).firstChild().nodeValue();
+      QList<QPointF> points;
+      foreach (QString coord, coords.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
+        const QStringList coordComps = coord.split(",", QString::SkipEmptyParts);
+        if (coordComps.size() < 2) {
+          *error = QString("expected at least two components (i.e. lat, lon) in coordinate in Placemark element %1 in Folder element %2, found %3: %4")
+              .arg(placemarkName).arg(folderName).arg(coordComps.size()).arg(coord);
+          break;
+        }
+        bool ok;
+        const double lon = coordComps.at(1).toDouble(&ok);
+        if (!ok) {
+          *error = QString("failed to convert longitude string to double value in Placemark element %1 in Folder element %2: %3")
+              .arg(placemarkName).arg(folderName).arg(coordComps.at(1));
+          break;
+        }
+        const double lat = coordComps.at(0).toDouble(&ok);
+        if (!ok) {
+          *error = QString("failed to convert latitude string to double value in Placemark element %1 in Folder element %2: %3")
+              .arg(placemarkName).arg(folderName).arg(coordComps.at(0));
+          break;
+        }
+        points.append(QPointF(lon, lat));
+      }
+
+      if (!error->isEmpty())
+        break;
+
+      WeatherArea *area = new WeatherArea();
+      area->setLatLonPoints(points);
+      area->propertiesRef().insert("origKML", data);
+      area->propertiesRef().insert("folderName", folderName);
+      area->propertiesRef().insert("placemarkName", placemarkName);
+      areas.append(area);
+
+    } // placemarks
+
+    if (!error->isEmpty())
+      break;
+
+  } // folders
+
+  if (!error->isEmpty()) {
+    foreach (WeatherArea *area, areas)
+      delete area;
+    areas.clear();
+  }
+
+  return areas;
+}
+
+QVariantMap WeatherArea::clipboardVarMap() const
+{
+  QVariantMap vmap = EditItemBase::clipboardVarMap();
+  QVariantList vpoints;
+  foreach (QPointF p, EditItemManager::instance()->PhysToGeo(getPoints()))
+    vpoints.append(p);
+  vmap.insert("points", vpoints);
+  vmap.insert("properties", properties());
+  return vmap;
+}
+
+QString WeatherArea::clipboardPlainText() const
+{
+  QString s = EditItemBase::clipboardPlainText();
+  foreach (QPointF p, EditItemManager::instance()->PhysToGeo(getPoints()))
+    s.append(QString("(%1, %2) ").arg(p.x()).arg(p.y()));
+  return s;
 }
 
 } // namespace EditItem_WeatherArea

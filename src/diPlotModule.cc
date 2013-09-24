@@ -76,6 +76,7 @@ using namespace milogger;
 // static class members
 GridConverter PlotModule::gc; // Projection-converter
 
+PlotModule *PlotModule::self = 0;
 
 // Default constructor
 PlotModule::PlotModule() :
@@ -84,7 +85,7 @@ PlotModule::PlotModule() :
            mapmode(normal_mode), prodtimedefined(false),dorubberband(false),
            dopanning(false), keepcurrentarea(true), obsnr(0)
 {
-
+  self = this;
   oldx = newx = oldy = newy = 0;
   mapdefined = false;
   mapDefinedByUser = false;
@@ -1101,6 +1102,13 @@ bool PlotModule::updatePlots(bool failOnMissingData)
     }
   }
 
+  // prepare item stored in miscellaneous managers
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    it->second->prepare(splot.getTime());
+    ++it;
+  }
+
   // prepare editobjects (projection etc.)
   editobjects.changeProjection(splot.getMapArea());
   combiningobjects.changeProjection(splot.getMapArea());
@@ -1143,7 +1151,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   // Update drawing items - this needs to be after the PlotAreaSetup call
   // because we need to reproject the items to screen coordinates.
-  map<string,Manager*>::iterator it = managers.begin();
+  it = managers.begin();
   while (it != managers.end()) {
     it->second->changeProjection(splot.getMapArea());
     ++it;
@@ -1369,7 +1377,7 @@ void PlotModule::plotUnder()
     editm->plot(true, false);
   }
 
-  // plot inactive edit fields/objects under observations
+  // plot drawing items
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
     if (it->second->isEnabled())
@@ -1980,21 +1988,14 @@ void PlotModule::getPlotTime(miTime& t)
   t = splot.getTime();
 }
 
-void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
-    vector<miTime>& sattimes, vector<miTime>& obstimes,
-    vector<miTime>& objtimes, vector<miTime>& ptimes,
+void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
     bool updateSources)
 {
-
-  fieldtimes.clear();
-  sattimes.clear();
-  obstimes.clear();
-  objtimes.clear();
-  ptimes.clear();
+  times.clear();
 
   // edit product proper time
   if (prodtimedefined) {
-    ptimes.push_back(producttime);
+    times["products"].push_back(producttime);
   }
 
   vector<miString> pinfos;
@@ -2005,7 +2006,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   }
   if (pinfos.size() > 0) {
     bool constT;
-    fieldtimes = fieldplotm->getFieldTime(pinfos, constT, updateSources);
+    times["fields"] = fieldplotm->getFieldTime(pinfos, constT, updateSources);
   }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("--- Found fieldtimes:");
@@ -2018,7 +2019,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   for (int i = 0; i < n; i++)
     pinfos.push_back(vsp[i]->getPlotInfo());
   if (pinfos.size() > 0) {
-    sattimes = satm->getSatTimes(pinfos);
+    times["satellites"] = satm->getSatTimes(pinfos);
   }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("--- Found sattimes:");
@@ -2031,7 +2032,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   for (int i = 0; i < n; i++)
     pinfos.push_back(vop[i]->getPlotInfo());
   if (pinfos.size() > 0) {
-    obstimes = obsm->getObsTimes(pinfos);
+    times["observations"] = obsm->getObsTimes(pinfos);
   }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("--- Found obstimes:");
@@ -2042,7 +2043,7 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
   pinfos.clear();
   pinfos.push_back(objects.getPlotInfo());
   if (pinfos.size() > 0) {
-    objtimes = objm->getObjectTimes(pinfos);
+    times["objects"] = objm->getObjectTimes(pinfos);
   }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("--- Found objtimes:");
@@ -2050,6 +2051,11 @@ void PlotModule::getPlotTimes(vector<miTime>& fieldtimes,
     METLIBS_LOG_DEBUG(objtimes[i]);
 #endif
 
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    times[it->first] = it->second->getTimes();
+    ++it;
+  }
 }
 
 //returns union or intersection of plot times from all pinfos
@@ -2818,6 +2824,8 @@ void PlotModule::zoomOut()
   areaInsert(splot.getMapArea(), true);
   Rectangle r(x1, y1, x2, y2);
   PixelArea(r);
+
+  // change the projection for drawing items
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
     it->second->changeProjection(splot.getMapArea());
@@ -2946,6 +2954,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       areaInsert(splot.getMapArea(), true);
       Rectangle r(x1, y1, x2, y2);
       PixelArea(r);
+
+      // update the projection for drawing items
       map<string,Manager*>::iterator it = managers.begin();
       while (it != managers.end()) {
         it->second->changeProjection(splot.getMapArea());

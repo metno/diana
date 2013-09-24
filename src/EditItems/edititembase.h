@@ -35,8 +35,6 @@
 #include <QtGui>
 #include "diEditItemManager.h"
 
-class EditItemBase;
-
 // This is the abstract base class for editable items.
 class EditItemBase : public QObject
 {
@@ -116,10 +114,16 @@ public:
 
     // Returns the item's properties.
     QVariantMap properties() const;
+    QVariantMap &propertiesRef();
     // sets the item's properties.
     void setProperties(const QVariantMap &);
 
     virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
+
+    virtual QVariantMap clipboardVarMap() const;
+    virtual QString clipboardPlainText() const;
+
+    static EditItemBase *createItemFromVarMap(const QVariantMap &, QString *);
 
 protected:
     EditItemBase();
