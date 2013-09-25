@@ -95,11 +95,11 @@ public:
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
 
-  /// return available times for the selceted models and fields
+  /// Returns the available times for the selected models and fields.
   vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,
       bool& constTimes, bool updateSources=false);
 
-  ///returns union or intersection of plot times from all pinfos
+  /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
       miutil::miTime& constTimes, int& timediff, const miutil::miString& pinfo,
       bool updateSources=false);

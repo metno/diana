@@ -303,9 +303,9 @@ public:
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
   vector<FieldDialogInfo> initFieldDialog();
-  ///return all reference times for given model
+  ///return all reference times for the given model
   set<std::string> getFieldReferenceTimes(const std::string model);
-  ///return referencetime given by refoffset and refhour or last referencetime for given model
+  ///return the reference time given by refOffset and refhour or the last reference time for the given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(vector<std::string>& fieldNames,
