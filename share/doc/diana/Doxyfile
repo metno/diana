@@ -82,7 +82,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ./include \
+INPUT                  = ../../../src \
                          ./html/src/doxymain.txt 
 FILE_PATTERNS          = *
 RECURSIVE              = NO
@@ -96,6 +96,8 @@ IMAGE_PATH             =
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
 FILTER_SOURCE_FILES    = NO
+EXCLUDE                = .lib
+EXCLUDE_PATTERNS       = *.lo *.o *.moc.cc *.xpm *.la *.a *.so *.bin
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
