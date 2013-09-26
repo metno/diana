@@ -1341,20 +1341,23 @@ static miutil::miTime selectTime()
   main_controller->getPlotTimes(times, false);
   miTime thetime;
 
+  // Check for times in a certain order, initialising a time vector as
+  // empty vectors if the getPlotTimes function did not return one for
+  // a given data type.
   if (ptime.undef()) {
     if (use_nowtime)
-      thetime = selectNowTime(times.at("fields"), times.at("satellites"),
-                              times.at("observations"), times.at("objects"),
-                              times.at("products"));
-    else if (times.at("fields").size() > 0)
+      thetime = selectNowTime(times["fields"], times["satellites"],
+                              times["observations"], times["objects"],
+                              times["products"]);
+    else if (times["fields"].size() > 0)
       thetime = times.at("fields").back();
-    else if (times.at("satellites").size() > 0)
+    else if (times["satellites"].size() > 0)
       thetime = times.at("satellites").back();
-    else if (times.at("observations").size() > 0)
+    else if (times["observations"].size() > 0)
       thetime = times.at("observations").back();
-    else if (times.at("objects").size() > 0)
+    else if (times["objects"].size() > 0)
       thetime = times.at("objects").back();
-    else if (times.at("products").size() > 0)
+    else if (times["products"].size() > 0)
       thetime = times.at("products").back();
   } else
     thetime = ptime;
