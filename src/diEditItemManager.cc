@@ -262,6 +262,7 @@ void EditItemManager::addItem_(EditItemBase *item)
     items_.insert(item);
     connect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selItems_.insert(item); // for now, don't pre-select new items
+    emit itemAdded(item);
 }
 
 void EditItemManager::removeItem(EditItemBase *item)
@@ -279,6 +280,7 @@ void EditItemManager::removeItem_(EditItemBase *item)
     items_.remove(item);
     disconnect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     selItems_.remove(item);
+    emit itemRemoved(item);
 }
 
 void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
@@ -770,7 +772,6 @@ void EditItemManager::completeEditing()
     if (incompleteItem_) {
         addItem(incompleteItem_); // causes repaint
         emit incompleteEditing(false);
-        emit itemAdded(incompleteItem_);
         incompleteItem_ = 0;
     }
 }

@@ -31,6 +31,7 @@
 #ifndef _drawingdialog_h
 #define _drawingdialog_h
 
+#include "EditItems/edititembase.h"
 #include "qtDataDialog.h"
 
 class DrawingDialog : public DataDialog
@@ -48,8 +49,13 @@ public slots:
   void updateTimes();
   void toggleDrawingMode(bool);
 
+private slots:
+  void addItem(EditItemBase *item);
+  void removeItem(EditItemBase *item);
+
 private:
   Controller *ctrl;
+  QListWidget *itemList;
 };
 
 #endif

@@ -558,10 +558,8 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
       ++it;
     }
     if (!handled) {
-    // catch events to PlotModule
-    //-------------------------------------
-    res.newcursor= normal_cursor;
-    plotm->sendMouseEvent(me,res);
+      res.newcursor= normal_cursor;
+      plotm->sendMouseEvent(me,res);
     }
   }
 

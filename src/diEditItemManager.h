@@ -120,6 +120,7 @@ signals:
     void canRedoChanged(bool);
     void incompleteEditing(bool);
     void itemAdded(EditItemBase *);
+    void itemRemoved(EditItemBase *);
 
 private:
     QSet<EditItemBase *> items_;

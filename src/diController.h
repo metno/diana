@@ -316,7 +316,7 @@ public:
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelNameRequest,
                       std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
-  /// return available times for the requested fields
+  /// Returns available times for the requested fields.
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
 ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);

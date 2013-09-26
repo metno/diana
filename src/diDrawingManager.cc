@@ -119,7 +119,7 @@ bool DrawingManager::parseSetup()
 
 void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
-  res.savebackground= false;
+  res.savebackground= true;
   res.background= false;
   res.repaint= false;
   res.newcursor= edit_cursor;
@@ -213,7 +213,7 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   METLIBS_LOG_DEBUG("DrawingManager::sendKeyboardEvent");
 #endif
   event->accept();
-  res.savebackground= false;
+  res.savebackground= true;
   res.background= false;
   res.repaint= false;
 
@@ -525,7 +525,8 @@ void DrawingManager::initNewItem(EditItemBase *item)
   miutil::miTime time;
   plotm->getPlotTime(time);
   QVariantMap p = item->propertiesRef();
-  p["time"] = QString::fromStdString(time.isoTime());
+  if (!p.contains("time"))
+    p["time"] = QString::fromStdString(time.isoTime());
   item->setProperties(p);
 
   // Let other components know about any changes to item times.

@@ -32,6 +32,8 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "qtDrawingDialog.h"
+#include "EditItems/weatherarea.h"
+#include "EditItems/weatherfront.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
 
 #include <QAction>
@@ -53,14 +55,16 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   foreach (QAction *a, DrawingManager::instance()->actions())
     drawingToolBar->addAction(a);
 
-  QPushButton *updateButton = new QPushButton(tr("&Update times"));
-  connect(updateButton, SIGNAL(clicked()), SLOT(updateTimes()));
+  itemList = new QListWidget();
 
+  EditItemManager *editor = DrawingManager::instance()->getEditItemManager();
+  connect(editor, SIGNAL(itemAdded(EditItemBase*)), SLOT(addItem(EditItemBase*)));
+  connect(editor, SIGNAL(itemRemoved(EditItemBase*)), SLOT(removeItem(EditItemBase*)));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->addWidget(drawingToolBar);
-  layout->addWidget(updateButton);
+  layout->addWidget(itemList);
 }
 
 DrawingDialog::~DrawingDialog()
@@ -76,4 +80,26 @@ void DrawingDialog::updateTimes()
 void DrawingDialog::toggleDrawingMode(bool enable)
 {
   m_ctrl->setDrawingModeEnabled(enable);
+}
+
+void DrawingDialog::addItem(EditItemBase *item)
+{
+  QListWidgetItem *listItem = new QListWidgetItem();
+  if (static_cast<EditItem_WeatherArea::WeatherArea*>(item))
+      listItem->setText(tr("Area"));
+  else if (static_cast<EditItem_WeatherFront::WeatherFront*>(item))
+      listItem->setText(tr("Front"));
+  else
+      listItem->setText(tr("Unknown"));
+  listItem->setData(Qt::UserRole, item->id());
+  itemList->addItem(listItem);
+}
+
+void DrawingDialog::removeItem(EditItemBase *item)
+{
+  for (int i = 0; i < itemList->count(); ++i)
+    if (itemList->item(i)->data(Qt::UserRole).toInt() == item->id()) {
+      delete itemList->takeItem(i);
+      break;
+    }
 }
