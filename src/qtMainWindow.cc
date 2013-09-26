@@ -4219,6 +4219,15 @@ vector<miutil::miString> DianaMainWindow::writeLog(const miutil::miString& thisV
   vstr.push_back(str);
   str= "Textview.pos "  + miutil::miString(textview->x()) + " " + miutil::miString(textview->y());
   vstr.push_back(str);
+
+  map<QAction*, DataDialog*>::iterator it;
+  for (it = dialogs.begin(); it != dialogs.end(); ++it) {
+    str = it->second->name() + ".pos " + miutil::miString(it->second->x()) + " " + miutil::miString(it->second->y());
+    vstr.push_back(str);
+    str = it->second->name() + ".size " + miutil::miString(it->second->width()) + " " + miutil::miString(it->second->height());
+    vstr.push_back(str);
+  }
+
   str="DocState " + saveDocState();
   vstr.push_back(str);
   vstr.push_back("================");
@@ -4318,6 +4327,18 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
         else if (tokens[0]=="TrajectoryDialog.pos") trajm->move(x,y);
         else if (tokens[0]=="Textview.size")   textview->resize(x,y);
         else if (tokens[0]=="Textview.pos")    textview->move(x,y);
+        else {
+          map<QAction*, DataDialog*>::iterator it;
+          for (it = dialogs.begin(); it != dialogs.end(); ++it) {
+            if (tokens[0] == it->second->name() + ".pos") {
+              it->second->move(x, y);
+              break;
+            } else if (tokens[0] == it->second->name() + ".size") {
+              it->second->resize(x, y);
+              break;
+            }
+          }
+        }
       }
     }
   }

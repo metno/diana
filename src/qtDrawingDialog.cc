@@ -71,6 +71,11 @@ DrawingDialog::~DrawingDialog()
 {
 }
 
+std::string DrawingDialog::name() const
+{
+  return "DrawingDialog";
+}
+
 void DrawingDialog::updateTimes()
 {
   std::vector<miutil::miTime> times = DrawingManager::instance()->getTimes();

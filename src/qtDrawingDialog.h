@@ -42,6 +42,8 @@ public:
   DrawingDialog(QWidget *parent, Controller *ctrl);
   ~DrawingDialog();
 
+  std::string name() const;
+
 signals:
   void emitTimes(const miutil::miString &, const vector<miutil::miTime> &);
 
