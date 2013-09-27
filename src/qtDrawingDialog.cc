@@ -65,6 +65,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->addWidget(drawingToolBar);
   layout->addWidget(itemList);
+  layout->addWidget(editor->getUndoView());
 }
 
 DrawingDialog::~DrawingDialog()

@@ -4620,9 +4620,10 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 {
   QAction *action = dialog->action();
   dialogs[action] = dialog;
+  connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
+  connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(hideData()), SLOT(updateDialog()));
-  connect(action, SIGNAL(triggered()), SLOT(updateDialog()));
   connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &)),
       tslider, SLOT(insert(const miutil::miString &, const vector<miutil::miTime> &)));
   connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &, bool)),
@@ -4637,17 +4638,13 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 
 void DianaMainWindow::updateDialog()
 {
-  QAction *action;
-  DataDialog *dialog;
+  QAction *action = qobject_cast<QAction *>(sender());
+  DataDialog *dialog = qobject_cast<DataDialog *>(sender());
 
-  if (action = static_cast<QAction *>(sender()))
-    dialog = dialogs[action];
-  else if (dialog = static_cast<DataDialog *>(sender()))
+  if (dialog)
     action = dialog->action();
-  else
+  else if (!action)
     return;
 
-  bool visible = dialog->isVisible();
-  dialog->setVisible(!visible);
-  action->setChecked(!visible);
+  action->setChecked(!action->isChecked());
 }

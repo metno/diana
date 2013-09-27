@@ -94,7 +94,7 @@ public:
 
     void editItemProperties(const QSet<EditItemBase *> &);
 
-    void createUndoView();
+    QUndoView *getUndoView();
 
 public slots:
     void abortEditing();
@@ -131,6 +131,7 @@ private:
     bool repaintNeeded_;
     bool skipRepaint_;
     QUndoStack undoStack_;
+    QUndoView *undoView_;
     DrawingManager *drawingManager_;
 
     void addItem_(EditItemBase *);

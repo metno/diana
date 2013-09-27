@@ -211,6 +211,7 @@ EditItemManager::EditItemManager()
     , incompleteItem_(0)
     , repaintNeeded_(false)
     , skipRepaint_(false)
+    , undoView_(0)
 {
     self = this;
     drawingManager_ = DrawingManager::instance();
@@ -223,12 +224,12 @@ EditItemManager::~EditItemManager()
 {
 }
 
-void EditItemManager::createUndoView()
+QUndoView *EditItemManager::getUndoView()
 {
-    QUndoView *undoView = new QUndoView(&undoStack_);
-    undoView->setWindowTitle("EditItemManager undo stack");
-    undoView->resize(600, 300);
-    //undoView->show();
+    if (!undoView_)
+        undoView_ = new QUndoView(&undoStack_);
+
+    return undoView_;
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
@@ -752,9 +753,13 @@ bool EditItemManager::canRedo() const
 QSet<EditItemBase *> EditItemManager::findHitItems(const QPoint &pos) const
 {
     QSet<EditItemBase *> hitItems;
-    foreach (EditItemBase *item, items_)
+    foreach (EditItemBase *item, items_) {
+        QVariantMap p = item->properties();
+        if (!p.contains("visible") || p.value("visible").toBool() == false)
+            continue;
         if (item->hit(pos, selItems_.contains(item)))
             hitItems.insert(item);
+    }
     return hitItems;
 }
 

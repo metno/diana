@@ -332,8 +332,11 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
   foreach (EditItemBase *item, items) {
     QVariantMap p = item->propertiesRef();
-    std::string time_str = p.value("time").toString().toStdString();
-    p["visible"] = (time.isoTime() == miutil::miString(time_str));
+    if (p.contains("time")) {
+      std::string time_str = p.value("time").toString().toStdString();
+      p["visible"] = (time_str.empty() | (time.isoTime() == miutil::miString(time_str)));
+    } else
+      p["visible"] = true;
     item->setProperties(p);
   }
 
