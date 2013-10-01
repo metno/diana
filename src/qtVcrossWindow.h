@@ -145,7 +145,7 @@ signals:
   void crossectionChanged(const QString& );
   void crossectionSetChanged();
   void crossectionSetUpdate();
-  void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
   void setTime(const miutil::miString&, const miutil::miTime&);
   void updateCrossSectionPos(bool);
   void quickMenuStrings(const miutil::miString, const vector<miutil::miString>&);

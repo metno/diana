@@ -1,5 +1,3 @@
-#ifndef QTDIANAPROFETGUI_H_
-#define QTDIANAPROFETGUI_H_
 /*
   Diana - A Free Meteorological Visualisation Tool
 
@@ -30,6 +28,9 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#ifndef QTDIANAPROFETGUI_H_
+#define QTDIANAPROFETGUI_H_
 
 #include <QEvent>
 #include <QMutex>
@@ -291,7 +292,7 @@ private slots:
 signals:
   void setPaintMode(bool);
   void showProfetField(miutil::miString field);
-  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
   void setTime(const miutil::miTime & t);
   void repaintMap(bool onlyObjects);
   void toggleProfetGui();

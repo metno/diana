@@ -305,7 +305,7 @@ signals:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>& );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(map<std::string,std::string>&);
 
 private slots:

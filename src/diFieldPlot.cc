@@ -3314,7 +3314,7 @@ void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
   if (fields.empty()) return;
   if (!fields[0]) return;
 
-  // If the frame value is 2 or 3 then fill the frame with a transparent colour.
+  // If the frame value is 2 or 3 then fill the frame with the background colour.
   if ((poptions.frame & 2) != 0) {
     plotFilledFrame(nx, ny, x, y);
     // Only plot a frame if the lowest bit is set (frame=3).

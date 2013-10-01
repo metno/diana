@@ -158,7 +158,7 @@ signals:
   void SatApply();
   void SatHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes( const miutil::miString& ,const vector<miutil::miTime>&,bool );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&,bool );
 
 private:
 

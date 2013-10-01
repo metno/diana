@@ -53,8 +53,8 @@ public:
   virtual std::string name() const = 0;
 
 signals:
-  void emitTimes(const miutil::miString &, const vector<miutil::miTime> &);
-  void emitTimes(const miutil::miString &, const vector<miutil::miTime> &, bool);
+  void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &);
+  void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &, bool);
   void applyData();
   void hideData();
   void showsource(const std::string, const std::string="");

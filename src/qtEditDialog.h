@@ -167,7 +167,7 @@ signals:
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times
-  void emitTimes(const miutil::miString&,const vector<miutil::miTime>&);
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&);
   /// update field dialog
   void emitFieldEditUpdate(miutil::miString);
   /// editing on or off

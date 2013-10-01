@@ -110,7 +110,7 @@ signals:
   void ObsApply();
   void ObsHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
   void setCriteria( miutil::miString, bool );
 
 private:

@@ -80,7 +80,7 @@ public:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
-  void insert(const miutil::miString& datatype, const vector<miutil::miTime>&,bool =true);
+  void insert(const miutil::miString& datatype, const std::vector<miutil::miTime>&,bool =true);
  /// force new value
   void setTime(const miutil::miTime&);
  /// force new value if datatype match

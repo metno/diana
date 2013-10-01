@@ -44,9 +44,6 @@ public:
 
   std::string name() const;
 
-signals:
-  void emitTimes(const miutil::miString &, const vector<miutil::miTime> &);
-
 public slots:
   void updateTimes();
   void toggleDrawingMode(bool);

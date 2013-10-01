@@ -1119,38 +1119,38 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(browser, SIGNAL(nextlist()), this, SLOT(nextList()));
   browser->hide();
 
-  connect( fm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+  connect(fm, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+          tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
-  connect( om ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+  connect(om, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+          tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
-  connect( sm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&,bool)),
-      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&,bool)));
+  connect(sm, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&,bool)),
+          tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&,bool)));
 
-  connect( em ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+  connect(em, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+          tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
-  connect( objm ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&,bool)),
-      tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&,bool)));
+  connect(objm, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&,bool)),
+          tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&,bool)));
 
   if ( vpWindow ){
-    connect( vpWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+    connect(vpWindow, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+            tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
-    connect( vpWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
-        tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
+    connect(vpWindow, SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
+            tslider, SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
   if ( vcWindow ){
-    connect( vcWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+    connect(vcWindow, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+            tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
-    connect( vcWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
-        tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
+    connect(vcWindow, SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
+            tslider, SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
   if ( spWindow ){
-    connect( spWindow ,SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
-        tslider,SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+    connect(spWindow, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
+            tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
 
     connect( spWindow ,SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
         tslider,SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
@@ -1755,9 +1755,9 @@ bool DianaMainWindow::initProfet(){
     connect( profetGUI, SIGNAL(repaintMap(bool)),
         SLOT(plotProfetMap(bool)));
     connect( profetGUI ,
-        SIGNAL(emitTimes(const miutil::miString&,const vector<miutil::miTime>&)),
+        SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
         tslider,
-        SLOT(insert(const miutil::miString&,const vector<miutil::miTime>&)));
+        SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
     connect( profetGUI, SIGNAL(setTime(const miutil::miTime&)),
         tslider, SLOT(setTime(const miutil::miTime&)));
     connect( profetGUI, SIGNAL(updateModelDefinitions()),
@@ -4624,10 +4624,10 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
   connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(hideData()), SLOT(updateDialog()));
-  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &)),
-      tslider, SLOT(insert(const miutil::miString &, const vector<miutil::miTime> &)));
-  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const vector<miutil::miTime> &, bool)),
-      tslider, SLOT(insert(const miutil::miString &, const vector<miutil::miTime> &, bool)));
+  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &)),
+      tslider, SLOT(insert(const miutil::miString &, const std::vector<miutil::miTime> &)));
+  connect(dialog, SIGNAL(emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &, bool)),
+      tslider, SLOT(insert(const miutil::miString &, const std::vector<miutil::miTime> &, bool)));
 
   showmenu->addAction(action);
 

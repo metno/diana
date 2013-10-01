@@ -137,7 +137,7 @@ signals:
   void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
-  void emitTimes( const miutil::miString&,const vector<miutil::miTime>& );
+  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
   void setTime(const miutil::miString&, const miutil::miTime&);
 };
 #endif
