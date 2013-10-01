@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -49,14 +49,14 @@ map <miString,miString> ObjectPlot::editTranslations;
 
 // Default constructor
 ObjectPlot::ObjectPlot()
-  : Plot() {
+: Plot() {
   initVariables();
 }
 
 
 // Constructor taking type of object as argument
 ObjectPlot::ObjectPlot(int objTy)
-  : Plot(),typeOfObject(objTy){
+: Plot(),typeOfObject(objTy){
   initVariables();
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("New ObjectPlot made(int)");
@@ -327,9 +327,9 @@ void ObjectPlot::addPoint( float x , float y){
     if (n==0 || !nodePoints[n-1].isInRectangle(x,y,0)){
       ObjectPoint pxy(x,y);
       if (addTop)
-	nodePoints.push_front(pxy);
+        nodePoints.push_front(pxy);
       else
-	nodePoints.push_back(pxy);
+        nodePoints.push_back(pxy);
       //borders - first points always joined
       if (objectIs(Border)) nodePoints[0].joined=true;
     }
@@ -344,14 +344,14 @@ bool ObjectPlot::insertPoint(float x,float y){
   //find out between which points we should insert something
   //insert at x,y
   if (onLine(x,y))
-    {
-      ObjectPoint pxy(x,y);
-      nodePoints.insert(nodePoints.begin()+insert,pxy);
-      updateBoundBox();
-      unmarkAllPoints();
-      markPoint(x,y);
-      return true;
-    }
+  {
+    ObjectPoint pxy(x,y);
+    nodePoints.insert(nodePoints.begin()+insert,pxy);
+    updateBoundBox();
+    unmarkAllPoints();
+    markPoint(x,y);
+    return true;
+  }
   else{
     unmarkAllPoints();
     return false;
@@ -453,7 +453,7 @@ bool ObjectPlot::ismarkSomePoint(){
 bool ObjectPlot::ismarkEndPoint(){
   if (nodePoints.back().marked)
     return true;
-   return false;
+  return false;
 }
 
 bool ObjectPlot::ismarkBeginPoint(){
@@ -596,30 +596,30 @@ bool  ObjectPlot::rotateLine(float d_x , float d_y){
     if (m==0) {
       smax= s[n-1];
       for (i=0; i<n-1; i++) {
-	weight= (smax-s[i])/smax;
-	nodePoints[i].x+=(d_x*weight);
-	nodePoints[i].y+=(d_y*weight);
+        weight= (smax-s[i])/smax;
+        nodePoints[i].x+=(d_x*weight);
+        nodePoints[i].y+=(d_y*weight);
       }
       break;
     } else if (m==n-1) {
       smax= s[n-1];
       for (i=1; i<n; i++) {
-	weight= s[i]/smax;
-	nodePoints[i].x+=(d_x*weight);
-	nodePoints[i].y+=(d_y*weight);
+        weight= s[i]/smax;
+        nodePoints[i].x+=(d_x*weight);
+        nodePoints[i].y+=(d_y*weight);
       }
     } else {
       smax= s[m];
       for (i=1; i<m; i++) {
-	weight= s[i]/smax;
-	nodePoints[i].x+=(d_x*weight);
-	nodePoints[i].y+=(d_y*weight);
+        weight= s[i]/smax;
+        nodePoints[i].x+=(d_x*weight);
+        nodePoints[i].y+=(d_y*weight);
       }
       smax= s[n-1]-s[m];
       for (i=m; i<n-1; i++) {
-	weight= (s[n-1]-s[i])/smax;
-	nodePoints[i].x+=(d_x*weight);
-	nodePoints[i].y+=(d_y*weight);
+        weight= (s[n-1]-s[i])/smax;
+        nodePoints[i].x+=(d_x*weight);
+        nodePoints[i].y+=(d_y*weight);
       }
     }
     break;
@@ -740,10 +740,10 @@ void ObjectPlot::drawNodePoints(){
   glColor4f(0,1,1,1.0);
   //draw marked points here
   drawPoints(xmark,ymark);
-//###################################################################
+  //###################################################################
   //test= true; //test to show boundingbox and sensitive areas>
   if (test) drawTest();
-//###################################################################
+  //###################################################################
 }
 
 
@@ -765,9 +765,9 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
       GLfloat xc,yc;
       GLfloat radius=deltaw;
       for(int j=0;j<100;j++){
-	xc = radius*cos(j*2*PI/100.0);
-	yc = radius*sin(j*2*PI/100.0);
-	glVertex2f(xdraw[i]+xc,ydraw[i]+yc);
+        xc = radius*cos(j*2*PI/100.0);
+        yc = radius*sin(j*2*PI/100.0);
+        glVertex2f(xdraw[i]+xc,ydraw[i]+yc);
       }
     } else if (objectIs(wSymbol) || objectIs(RegionName)){
       float deltaw=window_dw*w*0.5;
@@ -799,31 +799,31 @@ void ObjectPlot::drawTest(){
   if (size > 1 && test){
     for (int i = 0; i < s_length-1; i++){
       if (x_s[i+1]!=x_s[i])
-	{
-	  float x1,x2,x3,x4,y1,y2,y3,y4;
-	  float dwidth = 16*getDwidth();
-	  float  deltay = y_s[i+1]-y_s[i];
-	  float  deltax = x_s[i+1]-x_s[i];
-	  float hyp = sqrtf(deltay*deltay+deltax*deltax);
-	  float dx = dwidth*deltay/hyp;
-	  float dy = dwidth*deltax/hyp;
-	  x1=x_s[i]-dx;
-	  y1=y_s[i]+dy;
-	  x2=x_s[i]+dx;
-	  y2=y_s[i]-dy;
-	  x3=x_s[i+1]+dx;
-	  y3=y_s[i+1]-dy;
-	  x4=x_s[i+1]-dx;
-	  y4=y_s[i+1]+dy;
-	  glColor4f(0.8,0.8,0.0,0.8);
-	  glLineWidth(2);
-	  glBegin(GL_LINE_LOOP);
-	  glVertex2f(x1,y1);
-	  glVertex2f(x2,y2);
-	  glVertex2f(x3,y3);
-	  glVertex2f(x4,y4);
-	  glEnd();
-	}
+      {
+        float x1,x2,x3,x4,y1,y2,y3,y4;
+        float dwidth = 16*getDwidth();
+        float  deltay = y_s[i+1]-y_s[i];
+        float  deltax = x_s[i+1]-x_s[i];
+        float hyp = sqrtf(deltay*deltay+deltax*deltax);
+        float dx = dwidth*deltay/hyp;
+        float dy = dwidth*deltax/hyp;
+        x1=x_s[i]-dx;
+        y1=y_s[i]+dy;
+        x2=x_s[i]+dx;
+        y2=y_s[i]-dy;
+        x3=x_s[i+1]+dx;
+        y3=y_s[i+1]-dy;
+        x4=x_s[i+1]-dx;
+        y4=y_s[i+1]+dy;
+        glColor4f(0.8,0.8,0.0,0.8);
+        glLineWidth(2);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(x1,y1);
+        glVertex2f(x2,y2);
+        glVertex2f(x3,y3);
+        glVertex2f(x4,y4);
+        glEnd();
+      }
     }
   }
 }
@@ -849,7 +849,7 @@ void ObjectPlot::setWindowInfo()
 
 
 void  ObjectPlot::setBasisColor(miString colour) {
- // sets basis color of object
+  // sets basis color of object
   basisColor = colour;
   objectColour = Colour(colour);
 }
@@ -896,87 +896,89 @@ bool ObjectPlot::readObjectString(miString objectString)
   bool objectRead = false;
   bool typeRead = false;
   bool LonLatRead = false;
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectPlot::readObjectString\n");
   METLIBS_LOG_DEBUG("string is: " << objectString);
-#endif
 
   vector <miString> tokens = objectString.split(';');
   for (unsigned int i = 0; i<tokens.size();i++){
-     vector <miString> stokens = tokens[i].split('=');
-     key = stokens[0].downcase();
-     value = stokens[1];
-     if (key == "object"){
-        // METLIBS_LOG_DEBUG("Object value is " << value);
-       // typeOfObject is already set in constructor
-       objectRead = true;
+    vector <miString> stokens = tokens[i].split('=');
+    if( stokens.size() != 2 ) {
+      METLIBS_LOG_WARN(" readObjectString: key without value: "<<tokens[i]);
+      return false;
+    }
+    key = stokens[0].downcase();
+    value = stokens[1];
+    if (key == "object"){
+      METLIBS_LOG_DEBUG("Object value is " << value);
+      // typeOfObject is already set in constructor
+      objectRead = true;
+    }
+    else if (key =="type"){
+      typeRead=setType(value);
+      if (!typeRead){
+        //check if value of type can be translated
+        if (editTranslations.count(value)){
+          typeRead=setType(editTranslations[value]);
+        }
       }
-     else if (key =="type"){
-       typeRead=setType(value);
-       if (!typeRead){
-         //check if value of type can be translated
-         if (editTranslations.count(value)){
-           typeRead=setType(editTranslations[value]);
-         }
-       }
-       //METLIBS_LOG_DEBUG("Type value is " << value);
-     }
-     else if (key =="name"){
-       name=value; //set
+      METLIBS_LOG_DEBUG("Type value is " << value);
+    }
+    else if (key =="name"){
+      name=value; //set
 #ifdef DEBUGPRINT
-       METLIBS_LOG_DEBUG("Name is " << value);
+      METLIBS_LOG_DEBUG("Name is " << value);
 
 #endif
-     }
-     else if (key == "latitudelongitude" ||     // old and wrong!
-	      key == "longitudelatitude") {
-       //METLIBS_LOG_DEBUG("Lonlat value is " << value);
-       LonLatRead = true;
-       vector<miString> points2add=value.split(",");
-       int nPoints = points2add.size()/2;
-        for (int pp=0; pp< nPoints; pp++){
-	  //METLIBS_LOG_DEBUG(points2add[pp*2]);
-	  //METLIBS_LOG_DEBUG(points2add[pp*2+1]);
-	 addPoint( atof(points2add[pp*2].c_str()),
-		    atof(points2add[pp*2+1].c_str()));
-       }
-     }
-     else if (key == "rgba"){
-       setObjectRGBColor(value);
-     }
-     else if (key == "size"){
-       //METLIBS_LOG_DEBUG("size value is " << value);
-       setSize(atof(value.c_str()));
-     }
-     else if (key == "linewidth"){
-       //METLIBS_LOG_DEBUG("lineWidth value is " << value);
-       setLineWidth(value.toFloat());
-     }
-     else if (key == "rotation"){
-       //METLIBS_LOG_DEBUG("rotation value is " << value);
-       setRotation(atof(value.c_str()));
-     }
+    }
+    else if (key == "latitudelongitude" ||     // old and wrong!
+        key == "longitudelatitude") {
+      METLIBS_LOG_DEBUG("Lonlat value is " << value);
+      LonLatRead = true;
+      vector<miString> points2add=value.split(",");
+      int nPoints = points2add.size()/2;
+      for (int pp=0; pp< nPoints; pp++){
+        METLIBS_LOG_DEBUG(points2add[pp*2]);
+        METLIBS_LOG_DEBUG(points2add[pp*2+1]);
+        addPoint( atof(points2add[pp*2].c_str()),
+            atof(points2add[pp*2+1].c_str()));
+      }
+    }
+    else if (key == "rgba"){
+      setObjectRGBColor(value);
+    }
+    else if (key == "size"){
+      METLIBS_LOG_DEBUG("size value is " << value);
+      setSize(atof(value.c_str()));
+    }
+    else if (key == "linewidth"){
+      METLIBS_LOG_DEBUG("lineWidth value is " << value);
+      setLineWidth(value.toFloat());
+    }
+    else if (key == "rotation"){
+      METLIBS_LOG_DEBUG("rotation value is " << value);
+      setRotation(atof(value.c_str()));
+    }
     else if (key == "text"){
-       //METLIBS_LOG_DEBUG("text value is " << value);
-       setString(value);
-     }
-     else if (key == "complextext"){
-       //METLIBS_LOG_DEBUG("complexText value is " << value);
-       readComplexText(value);
-     }
-     else if (key == "whitebox"){
-       //METLIBS_LOG_DEBUG("whitebox value is " << value);
-       setWhiteBox(atoi(value.c_str()));
-     }
-     else
-       METLIBS_LOG_WARN("ObjectPlot::readObjectString - Warning !, unknown key = "
-	    << key);
+      METLIBS_LOG_DEBUG("text value is " << value);
+      setString(value);
+    }
+    else if (key == "complextext"){
+      METLIBS_LOG_DEBUG("complexText value is " << value);
+      readComplexText(value);
+    }
+    else if (key == "whitebox"){
+      METLIBS_LOG_DEBUG("whitebox value is " << value);
+      setWhiteBox(atoi(value.c_str()));
+    }
+    else
+      METLIBS_LOG_WARN("ObjectPlot::readObjectString - Warning !, unknown key = "
+          << key);
   }
   //check if type and Latlondefined !
   if (!objectRead || !typeRead || !LonLatRead){
     METLIBS_LOG_WARN("ObjectPlot::readObjectString - Warning !, " <<
-      "Input string lacks Object,Type or Longitude/Latitude Input! "
-	 << objectString);
+        "Input string lacks Object,Type or Longitude/Latitude Input! "
+        << objectString);
     return false;
   }
   //if (objectIs(wFront)) METLIBS_LOG_DEBUG("Object is front");
@@ -994,25 +996,25 @@ bool ObjectPlot::readObjectString(miString objectString)
 miString ObjectPlot::writeObjectString(){
   //write type of object
   miString ret=writeTypeString();
-//ret+="LatitudeLongitude=\n";    // old and wrong!
+  //ret+="LatitudeLongitude=\n";    // old and wrong!
   ret+="LongitudeLatitude=\n";
   ostringstream cs;
   //write coordinates
   if (nodePoints.size()){
-  for (unsigned int i=0; i < nodePoints.size(); i++)
+    for (unsigned int i=0; i < nodePoints.size(); i++)
     {
       cs << nodePoints[i].x<<","<< nodePoints[i].y;
       if (i<nodePoints.size()-1) cs <<",\n";
       else cs <<";\n";
     }
-  ret+=cs.str();
+    ret+=cs.str();
   }
 
   ostringstream rs;
   ret+="RGBA=";
   //write colour
   rs << (int) objectColour.R() << "," << (int) objectColour.G()
-  << "," << (int) objectColour.B() <<"," << (int) objectColour.A();
+          << "," << (int) objectColour.B() <<"," << (int) objectColour.A();
   rs <<";\n";
   ret+=rs.str();
   //write "!" to signal end of object
@@ -1024,7 +1026,7 @@ miString ObjectPlot::writeObjectString(){
 
 
 bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,double resy,
-			    int * combinematrix){
+    int * combinematrix){
   int end = nodePoints.size();
   for (int i=0; i < end; i++){
     float x1=nodePoints[i].x/resx;
@@ -1046,7 +1048,7 @@ int ObjectPlot::combIndex(int matrix_nx, int matrix_ny, double resx, double resy
   float x1=nodePoints[0].x/resx;
   float y1=nodePoints[0].y/resy;
   if (x1>=0. && x1<=matrix_nx-1. &&
-    y1>=0. && y1<=matrix_ny-1.) {
+      y1>=0. && y1<=matrix_ny-1.) {
     int x= int(x1+0.5);
     int y= int(y1+0.5);
     int index = matrix_nx*y+x;
@@ -1106,45 +1108,45 @@ void ObjectPlot::setRubber(bool rub, const float x, const float y){
   Algorithm for checking whether a point is on the front.
  HK 15/9-00 - Use spline points, look in a tilted box following
  curve
-*/
+ */
 
 bool ObjectPlot::onLine(float x, float y){
   int size = nodePoints.size();
   if (size > 1){
     if  (boundBox.isinside(x,y)){
       if (spline){
-	if (x_s==NULL) {
-	  METLIBS_LOG_DEBUG("Online::x_s = 0 !\n");
-	  return false;
-	}
-	for (int i = 0; i < s_length-1; i++){
-	  if (isInsideBox(x,y,x_s[i],y_s[i],x_s[i+1],y_s[i+1])){
-	    //spline point location of point
-	    insert = i/(divSpline+1)+1;
-	    return true;
-	  }
-	}
+        if (x_s==NULL) {
+          METLIBS_LOG_DEBUG("Online::x_s = 0 !\n");
+          return false;
+        }
+        for (int i = 0; i < s_length-1; i++){
+          if (isInsideBox(x,y,x_s[i],y_s[i],x_s[i+1],y_s[i+1])){
+            //spline point location of point
+            insert = i/(divSpline+1)+1;
+            return true;
+          }
+        }
       }else{
-	for (int i = 0; i < size; i++){
-	  float x1,x2,y1,y2;
-	  if (i+1<size){
-	    x1=nodePoints[i].x;
-	    x2=nodePoints[i+1].x;
-	    y1=nodePoints[i].y;
-	    y2=nodePoints[i+1].y;
-	  } else if (i+1==size && objectIs(wArea)){
-	    x1=nodePoints[i].x;
-	    x2=nodePoints[0].x;
-	    y1=nodePoints[i].y;
-	    y2=nodePoints[0].y;
-	  } else
-	    continue;
-	  if (isInsideBox(x,y,x1,y1,x2,y2)){
-	    //spline point location of point
-	    insert = i+1;
-	    return true;
-	  }
-	}
+        for (int i = 0; i < size; i++){
+          float x1,x2,y1,y2;
+          if (i+1<size){
+            x1=nodePoints[i].x;
+            x2=nodePoints[i+1].x;
+            y1=nodePoints[i].y;
+            y2=nodePoints[i+1].y;
+          } else if (i+1==size && objectIs(wArea)){
+            x1=nodePoints[i].x;
+            x2=nodePoints[0].x;
+            y1=nodePoints[i].y;
+            y2=nodePoints[0].y;
+          } else
+            continue;
+          if (isInsideBox(x,y,x1,y1,x2,y2)){
+            //spline point location of point
+            insert = i+1;
+            return true;
+          }
+        }
       }
     }
   }
@@ -1154,8 +1156,8 @@ bool ObjectPlot::onLine(float x, float y){
 
 //called from onLine-checks if x,y inside the tilted rectangle made by x1,y1,x2,y2
 bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y2){
- float salpha,calpha;
- float dwidth = 2*getLineWidth()*getDwidth();
+  float salpha,calpha;
+  float dwidth = 2*getLineWidth()*getDwidth();
   Rectangle* box= new Rectangle(0,0,0,0);
   if (x2!=x1){
     float  dy = y2-y1;
@@ -1204,9 +1206,9 @@ bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y
 
 /*
   B-spline smooth of front
-*/
+ */
 int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast,
-			   int ismooth, float xsmooth[], float ysmooth[])
+    int ismooth, float xsmooth[], float ysmooth[])
 {
   // Smooth line, make and return spline through points.
   //
@@ -1248,81 +1250,81 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
 
   n = nfirst;
   if (n > 0)
-    {
-      xl1 = x[n]-x[n-1];
-      yl1 = y[n]-y[n-1];
-      s1  = sqrtf(xl1*xl1+yl1*yl1);
-      xl2 = x[n+1]-x[n];
-      yl2 = y[n+1]-y[n];
-      s2  = sqrtf(xl2*xl2+yl2*yl2);
-      dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
-      dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
-    }
+  {
+    xl1 = x[n]-x[n-1];
+    yl1 = y[n]-y[n-1];
+    s1  = sqrtf(xl1*xl1+yl1*yl1);
+    xl2 = x[n+1]-x[n];
+    yl2 = y[n+1]-y[n];
+    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
+    dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
+  }
   else
-    {
-      xl2 = x[n+1]-x[n];
-      yl2 = y[n+1]-y[n];
-      s2  = sqrtf(xl2*xl2+yl2*yl2);
-      dx2 = xl2/s2;
-      dy2 = yl2/s2;
-    }
+  {
+    xl2 = x[n+1]-x[n];
+    yl2 = y[n+1]-y[n];
+    s2  = sqrtf(xl2*xl2+yl2*yl2);
+    dx2 = xl2/s2;
+    dy2 = yl2/s2;
+  }
 
   xsmooth[0] = x[nfirst];
   ysmooth[0] = y[nfirst];
   ns = 0;
 
   for (n=nfirst+1; n<=nlast; ++n)
-    {
-      xl1 = xl2;
-      yl1 = yl2;
-      s1  = s2;
-      dx1 = dx2;
-      dy1 = dy2;
+  {
+    xl1 = xl2;
+    yl1 = yl2;
+    s1  = s2;
+    dx1 = dx2;
+    dy1 = dy2;
 
-      if (n < npos-1) {
-        xl2 = x[n+1]-x[n];
-        yl2 = y[n+1]-y[n];
-        s2  = sqrtf(xl2*xl2+yl2*yl2);
-        dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
-	dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
-      }
-      else {
-        dx2 = xl1/s1;
-        dy2 = yl1/s1;
-      }
-
-      // four spline coefficients for x and y
-      c32 =  1./s1;
-      c42 =  c32*c32;
-      c31 =  c42*3.;
-      c41 =  c42*c32*2.;
-      fx1 =  x[n-1];
-      fx2 =  dx1;
-      fx3 =  c31*xl1-c32*(2.*dx1+dx2);
-      fx4 = -c41*xl1+c42*(dx1+dx2);
-      fy1 =  y[n-1];
-      fy2 =  dy1;
-      fy3 =  c31*yl1-c32*(2.*dy1+dy2);
-      fy4 = -c41*yl1+c42*(dy1+dy2);
-
-      // make 'ismooth' straight lines, from point 'n-1' to point 'n'
-
-      tstep = s1*rdivs;
-      t = 0.;
-
-      for (i=0; i<ndivs; ++i) {
-        t += tstep;
-        t2 = t*t;
-	t3 = t2*t;
-        ns++;
-        xsmooth[ns] = fx1 + fx2*t + fx3*t2 + fx4*t3;
-	ysmooth[ns] = fy1 + fy2*t + fy3*t2 + fy4*t3;
-      }
-
-      ns++;
-      xsmooth[ns] = x[n];
-      ysmooth[ns] = y[n];
+    if (n < npos-1) {
+      xl2 = x[n+1]-x[n];
+      yl2 = y[n+1]-y[n];
+      s2  = sqrtf(xl2*xl2+yl2*yl2);
+      dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
+      dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
     }
+    else {
+      dx2 = xl1/s1;
+      dy2 = yl1/s1;
+    }
+
+    // four spline coefficients for x and y
+    c32 =  1./s1;
+    c42 =  c32*c32;
+    c31 =  c42*3.;
+    c41 =  c42*c32*2.;
+    fx1 =  x[n-1];
+    fx2 =  dx1;
+    fx3 =  c31*xl1-c32*(2.*dx1+dx2);
+    fx4 = -c41*xl1+c42*(dx1+dx2);
+    fy1 =  y[n-1];
+    fy2 =  dy1;
+    fy3 =  c31*yl1-c32*(2.*dy1+dy2);
+    fy4 = -c41*yl1+c42*(dy1+dy2);
+
+    // make 'ismooth' straight lines, from point 'n-1' to point 'n'
+
+    tstep = s1*rdivs;
+    t = 0.;
+
+    for (i=0; i<ndivs; ++i) {
+      t += tstep;
+      t2 = t*t;
+      t3 = t2*t;
+      ns++;
+      xsmooth[ns] = fx1 + fx2*t + fx3*t2 + fx4*t3;
+      ysmooth[ns] = fy1 + fy2*t + fy3*t2 + fy4*t3;
+    }
+
+    ns++;
+    xsmooth[ns] = x[n];
+    ysmooth[ns] = y[n];
+  }
 
   ns++;
 
