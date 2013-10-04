@@ -32,6 +32,7 @@
 #include <GL/gl.h>
 #include "weatherarea.h"
 #include <QDomDocument>
+#include <QFileDialog>
 #include <diTesselation.h>
 
 namespace EditItem_WeatherArea {
@@ -206,7 +207,7 @@ int WeatherArea::hitLine(const QPoint &position) const
 void WeatherArea::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
-    QSet<EditItemBase *> *items, bool *multiItemOp)
+    QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
 
@@ -221,7 +222,7 @@ void WeatherArea::mousePress(
             *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
 
     } else if (event->button() == Qt::RightButton) {
-        if (items) {
+        if (selItems) {
             // open a context menu and perform the selected action
             QMenu contextMenu;
             QPoint position = event->pos();
@@ -229,7 +230,10 @@ void WeatherArea::mousePress(
             QAction remove_act(tr("&Remove"), 0);
             QAction removePoint_act(tr("Remove &point"), 0);
             QAction copyItems_act(tr("&Copy"), 0);
-            QAction editItems_act(tr("P&roperties"), 0);
+            QAction editItems_act(tr("P&roperties..."), 0);
+            QAction saveAsSimpleAreas_act(tr("&Save as simple area(s)... (not yet implemented)"), 0);
+            saveAsSimpleAreas_act.setEnabled(false);
+            QAction saveAsVAACGroup_act(tr("Save as &VAAC group..."), 0);
 
             // Add actions, checking for a click on a line or a point.
             const int lineIndex = hitLine(position);
@@ -242,17 +246,20 @@ void WeatherArea::mousePress(
                 contextMenu.addAction(&addPoint_act);
             }
             contextMenu.addAction(&remove_act);
+            contextMenu.addAction(&saveAsSimpleAreas_act);
+            if (groupId() >= 0)
+                contextMenu.addAction(&saveAsVAACGroup_act);
             if (itemsToCopy)
               contextMenu.addAction(&copyItems_act);
             if (itemsToEdit)
               contextMenu.addAction(&editItems_act);
             QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
             if (action == &remove_act)
-                remove(repaintNeeded, items);
+                remove(repaintNeeded, items, selItems);
             else if (action == &removePoint_act)
-                removePoint(repaintNeeded, pointIndex, items);
+                removePoint(repaintNeeded, pointIndex, items, selItems);
             else if (action == &addPoint_act)
-                addPoint(repaintNeeded, lineIndex, position, items);
+                addPoint(repaintNeeded, lineIndex, position);
             else if (action == &copyItems_act) {
                 Q_ASSERT(itemsToCopy);
                 QSet<EditItemBase *>::const_iterator it;
@@ -265,6 +272,18 @@ void WeatherArea::mousePress(
                 Q_ASSERT(itemsToEdit);
                 //Q_ASSERT(items->contains(this));
                 itemsToEdit->insert(this);
+            } else if (action == &saveAsSimpleAreas_act) {
+                QString error;
+                if (!saveAsSimpleAreas(items, selItems, &error))
+                    QMessageBox::warning(
+                          0, "Error", QString("failed to save as simple areas: %1")
+                          .arg(!error.isEmpty() ? error : "<error msg not set>"));
+            } else if (action == &saveAsVAACGroup_act) {
+                QString error;
+                if (!saveAsVAACGroup(items, &error))
+                    QMessageBox::warning(
+                          0, "Error", QString("failed to save as VAAC group: %1")
+                          .arg(!error.isEmpty() ? error : "<error msg not set>"));
             }
         }
     }
@@ -396,38 +415,27 @@ void WeatherArea::updateControlPoints()
         controlPoints_.append(QRect(p.x() - size_2, p.y() - size_2, size, size));
 }
 
-void WeatherArea::addPoint(bool &repaintNeeded, int index, const QPoint &point, QSet<EditItemBase *> *items)
+void WeatherArea::addPoint(bool &repaintNeeded, int index, const QPoint &point)
 {
-    Q_ASSERT(items);
-    Q_ASSERT(items->contains(this));
-
     points_.insert(index + 1, point);
 
     updateControlPoints();
     repaintNeeded = true;
 }
 
-void WeatherArea::remove(bool &repaintNeeded, QSet<EditItemBase *> *items)
+void WeatherArea::remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
 {
-    Q_ASSERT(items);
-    Q_ASSERT(items->contains(this));
-
     // Option 1: remove this item only:
     // items->remove(this);
 
-    // Option 2: remove all items:
-    QSet<EditItemBase *>::iterator i = items->begin();
-    while (i != items->end())
-        i = items->erase(i);
+    // Option 2: remove all selected items:
+    items->subtract(*selItems);
 
     repaintNeeded = true;
 }
 
-void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items)
+void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
 {
-    Q_ASSERT(items);
-    Q_ASSERT(items->contains(this));
-
     if (points_.size() <= 3)
         items->remove(this);
 
@@ -555,10 +563,10 @@ void WeatherArea::drawHoverHighlighting(bool incomplete)
     }
 }
 
-// Attempts to create new WeatherArea objects from the KML structure in \a data.
+// Attempts to create new WeatherArea objects from the KML structure in \a data (originally read from \a origFileName).
 // If successful, the function returns a list of pointers to the new objects.
 // Otherwise, the function returns an empty list and passes an explanation in \a error.
-QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString *error)
+QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, const QString &origFileName, QString *error)
 {
   *error = QString();
 
@@ -578,13 +586,14 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
   }
 
   QList<WeatherArea *> areas;
+  int groupId = -1;
 
   // loop over folders
   for (int i = 0; i < folderNodes.size(); ++i) {
-    const QDomElement folderElement = folderNodes.item(i).toElement();
+    const QDomNode folderNode = folderNodes.item(i);
 
     // folder name
-    const QDomElement folderNameElement = folderElement.firstChildElement("name");
+    const QDomElement folderNameElement = folderNode.firstChildElement("name");
     if (folderNameElement.isNull()) {
       *error = QString("no folder name element found");
       break;
@@ -592,7 +601,7 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
     const QString folderName = folderNameElement.firstChild().nodeValue();
 
     // placemarks
-    const QDomNodeList placemarkNodes = folderElement.elementsByTagName("Placemark");
+    const QDomNodeList placemarkNodes = folderNode.toElement().elementsByTagName("Placemark");
     if (placemarkNodes.size() == 0) {
       *error = QString("no Placemark elements found in Folder element %1").arg(folderName);
       break;
@@ -600,10 +609,10 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
 
     // loop over placemarks
     for (int j = 0; j < placemarkNodes.size(); ++j) {
-      const QDomElement placemarkElement = placemarkNodes.item(j).toElement();
+      const QDomNode placemarkNode = placemarkNodes.item(j);
 
       // placemark name
-      const QDomElement placemarkNameElement = placemarkElement.firstChildElement("name");
+      const QDomElement placemarkNameElement = placemarkNode.firstChildElement("name");
       if (placemarkNameElement.isNull()) {
         *error = QString("no name element found in Placemark element %1 in Folder element %2")
             .arg(j).arg(folderName);
@@ -612,7 +621,7 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
       const QString placemarkName = placemarkNameElement.firstChild().nodeValue();
 
       // placemark coordinates
-      const QDomNodeList coordinatesNodes = placemarkElement.elementsByTagName("coordinates");
+      const QDomNodeList coordinatesNodes = placemarkNode.toElement().elementsByTagName("coordinates");
       if (coordinatesNodes.size() != 1) {
         *error = QString("exactly one coordinates element expected in Placemark element %1 in Folder element %2, found %3")
             .arg(placemarkName).arg(folderName).arg(coordinatesNodes.size());
@@ -633,19 +642,19 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
           break;
         }
         bool ok;
-        const double lon = coordComps.at(1).toDouble(&ok);
+        const double lon = coordComps.at(0).toDouble(&ok);
         if (!ok) {
           *error = QString("failed to convert longitude string to double value in Placemark element %1 in Folder element %2: %3")
-              .arg(placemarkName).arg(folderName).arg(coordComps.at(1));
-          break;
-        }
-        const double lat = coordComps.at(0).toDouble(&ok);
-        if (!ok) {
-          *error = QString("failed to convert latitude string to double value in Placemark element %1 in Folder element %2: %3")
               .arg(placemarkName).arg(folderName).arg(coordComps.at(0));
           break;
         }
-        points.append(QPointF(lon, lat));
+        const double lat = coordComps.at(1).toDouble(&ok);
+        if (!ok) {
+          *error = QString("failed to convert latitude string to double value in Placemark element %1 in Folder element %2: %3")
+              .arg(placemarkName).arg(folderName).arg(coordComps.at(1));
+          break;
+        }
+        points.append(QPointF(lat, lon)); // note lat,lon order
       }
 
       if (!error->isEmpty())
@@ -653,6 +662,10 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
 
       WeatherArea *area = new WeatherArea();
       area->setLatLonPoints(points);
+      if (groupId == -1)
+          groupId = area->id(); // use the first area's ID for group ID
+      area->propertiesRef().insert("groupId", groupId);
+      area->propertiesRef().insert("origFileName", origFileName);
       area->propertiesRef().insert("origKML", data);
       area->propertiesRef().insert("folderName", folderName);
       area->propertiesRef().insert("placemarkName", placemarkName);
@@ -672,6 +685,143 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, QString 
   }
 
   return areas;
+}
+
+// Saves this item and any other selected WeatherArea items as simple areas (not containing any VAAC-specific properties).
+// If successful, the function returns true.
+// Otherwise, the function returns false and passes an explanation in \a error.
+bool WeatherArea::saveAsSimpleAreas(QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, QString *error)
+{
+    QMessageBox::warning(0, "Warning", "saveAsSimpleAreas() not yet implemented");
+    Q_UNUSED(items);
+    Q_UNUSED(selItems);
+
+    // STEP 1: open a file dialog with no particular default file
+    // STEP 2: create a basic DOM structure for a non-VAAC KML structure
+    // STEP 3: add this item and all selected items as stand-alone elements in this DOM structure
+    // STEP 4: write the DOM structure to the selected file
+
+    return true;
+}
+
+// Saves the VAAC group to which this item belongs (a VAAC group is defined as all WeatherArea items sharing the same group ID).
+// If successful (or operation cancelled), the function returns true.
+// Otherwise, the function returns false and passes an explanation in \a error.
+bool WeatherArea::saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error)
+{
+    // get the name of the file in which to save the DOM structure
+    const QString fileName = QFileDialog::getSaveFileName(
+                0, tr("Save File"), propertiesRef().value("origFileName").toString(),
+                tr("VAAC messages (*.kml)"));
+    if (fileName.isNull())
+        return true; // operation cancelled
+
+    // find WeatherArea items belonging to same group as this item
+    QSet<WeatherArea *> group;
+    group.insert(this);
+    const int gid = groupId();
+    Q_ASSERT(gid >= 0);
+    QSet<EditItemBase *>::const_iterator it;
+    for (it = items->begin(); it != items->end(); ++it) {
+        WeatherArea *weatherArea = qobject_cast<WeatherArea *>(*it);
+        if (weatherArea && (weatherArea->groupId() == gid))
+            group.insert(weatherArea);
+    }
+
+    // create original DOM structure
+    int line;
+    int col;
+    QString err;
+    QDomDocument doc;
+    if (doc.setContent(propertiesRef().value("origKML").toString(), &err, &line, &col) == false) {
+      *error = QString("parse error at line=%1, column=%2: %3").arg(line).arg(col).arg(err);
+      return false;
+    }
+
+    // replace contents of <coordinates> elements
+
+    QMap<QString, QDomNodeList> pmNodeLists; // to avoid recomputing placemark node lists for the same folder
+    const QDomNodeList folderNodes = doc.elementsByTagName("Folder");
+
+    foreach (WeatherArea *area, group) {
+
+        // find Folder node
+        QDomNode folderNode;
+        const QString folderName = area->propertiesRef().value("folderName").toString();
+        for (int i = 0; i < folderNodes.size(); ++i) {
+          folderNode = folderNodes.item(i);
+          const QDomNode folderNameNode = folderNode.firstChildElement("name");
+          if ((!folderNameNode.isNull()) && (folderNameNode.firstChild().nodeValue() == folderName))
+              break;
+          else
+              folderNode = QDomNode();
+        }
+        if (folderNode.isNull()) {
+            *error = QString("failed to find Folder element %1").arg(folderName);
+            return false;
+        }
+        if (!pmNodeLists.contains(folderName))
+            pmNodeLists.insert(folderName, folderNode.toElement().elementsByTagName("Placemark"));
+        const QDomNodeList placemarkNodes = pmNodeLists.value(folderName);
+
+        // find Placemark node
+        QDomNode placemarkNode;
+        const QString placemarkName = area->propertiesRef().value("placemarkName").toString();
+        for (int i = 0; i < placemarkNodes.size(); ++i) {
+          placemarkNode = placemarkNodes.item(i);
+          const QDomNode placemarkNameNode = placemarkNode.firstChildElement("name");
+          if ((!placemarkNameNode.isNull()) && (placemarkNameNode.firstChild().nodeValue() == placemarkName))
+              break;
+          else
+              placemarkNode = QDomNode();
+        }
+        if (placemarkNode.isNull()) {
+            *error = QString("failed to find Placemark element %1 in Folder element %2").arg(placemarkName).arg(folderName);
+            return false;
+        }
+
+        // find coordinates node
+        const QDomNodeList coordNodes = placemarkNode.toElement().elementsByTagName("coordinates");
+        if (coordNodes.size() != 1) {
+            *error = QString("expected a single coordinates element in Placemark element %1 in Folder element %2, found %3")
+                    .arg(placemarkName).arg(folderName).arg(coordNodes.size());
+            return false;
+        }
+        QDomNode coordNode = coordNodes.item(0);
+        const QDomNodeList coordChildren = coordNode.childNodes();
+        if (coordChildren.size() != 1) {
+            *error = QString("expected a single child in coordinates element in Placemark element %1 in Folder element %2, found %3")
+                    .arg(placemarkName).arg(folderName).arg(coordChildren.size());
+            return false;
+        }
+        QDomNode coordTextNode = coordChildren.item(0);
+        if (coordTextNode.nodeType() != QDomNode::TextNode) {
+            *error = QString("expected the child in coordinates element in Placemark element %1 in Folder element %2 to be of type %3, actual type: %4")
+                    .arg(placemarkName).arg(folderName).arg(QDomNode::TextNode).arg(coordTextNode.nodeType());
+            return false;
+        }
+
+        // replace node value
+        const QList<QPointF> latLonPoints = EditItemManager::instance()->PhysToGeo(area->getPoints());
+        QString s;
+        foreach (QPointF p, latLonPoints)
+            s.append(QString("%2,%1,0 ").arg(p.x()).arg(p.y())); // note lon,lat order
+        coordTextNode.setNodeValue(s.trimmed());
+    }
+
+    // save updated DOM structure to selected file
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        *error = QString("failed to open %1 for writing").arg(fileName);
+        return false;
+    }
+    if (file.write(doc.toByteArray()) == -1) {
+        *error = QString("failed to write to %1: ").arg(fileName).arg(file.errorString());
+        return false;
+    }
+    file.close();
+
+    return true;
 }
 
 QVariantMap WeatherArea::clipboardVarMap() const

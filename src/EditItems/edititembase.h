@@ -63,7 +63,7 @@ public:
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
         QSet<EditItemBase *> *itemsToCopy = 0, QSet<EditItemBase *> *itemsToEdit = 0,
-        QSet<EditItemBase *> *items = 0, bool *multiItemOp = 0);
+        QSet<EditItemBase *> *items = 0, const QSet<EditItemBase *> *selItems = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
@@ -73,7 +73,9 @@ public:
     virtual void mouseMove(QMouseEvent *event, bool &repaintNeeded);
     virtual void mouseHover(QMouseEvent *event, bool &repaintNeeded);
     virtual void mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded);
-    virtual void keyPress(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands, QSet<EditItemBase *> *items = 0);
+    virtual void keyPress(
+        QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+        QSet<EditItemBase *> *items = 0, const QSet<EditItemBase *> *selItems = 0);
     virtual void keyRelease(QKeyEvent *event, bool &repaintNeeded);
 
     // Handles other events for an item in the process of being completed (i.e. during manual placement of a new item).
@@ -95,6 +97,9 @@ public:
 
     // Returns the item's globally unique ID.
     int id() const;
+
+    // Returns the item's group ID if set, or -1 otherwise.
+    int groupId() const;
 
     // Emits the repaintNeeded() signal.
     void repaint();

@@ -395,13 +395,13 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
 
         // send mouse press to the hit item
         bool multiItemOp = false;
-        QSet<EditItemBase *> eventItems(selItems_); // operate on current selection
+        QSet<EditItemBase *> eventItems(items_);
 
         bool rpn = false;
-        hitItem->mousePress(event, rpn, &undoCommands, itemsToCopy, itemsToEdit, &eventItems, &multiItemOp);
+        hitItem->mousePress(event, rpn, &undoCommands, itemsToCopy, itemsToEdit, &eventItems, &selItems_, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
-        addedItems = eventItems - selItems_;
-        removedItems = selItems_ - eventItems;
+        addedItems = eventItems - items_;
+        removedItems = items_ - eventItems;
 
         if (items_.contains(hitItem)) {
             // the hit item is still there
@@ -629,12 +629,12 @@ void EditItemManager::keyPress(QKeyEvent *event)
         EditItemBase *origSelItem = idToItem(items_, origSelId);
         if (origSelItem) {
             // it still exists, so pass the event
-            QSet<EditItemBase *> eventItems(selItems_); // operate on current selection
+            QSet<EditItemBase *> eventItems(items_);
             bool rpn = false;
-            origSelItem->keyPress(event, rpn, &undoCommands, &eventItems);
+            origSelItem->keyPress(event, rpn, &undoCommands, &eventItems, &selItems_);
             if (rpn) repaintNeeded_ = true;
-            addedItems.unite(eventItems - selItems_);
-            removedItems.unite(selItems_ - eventItems);
+            addedItems.unite(eventItems - items_);
+            removedItems.unite(items_ - eventItems);
             selItems_.subtract(removedItems);
         }
     }

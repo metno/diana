@@ -82,9 +82,9 @@ DrawingManager::DrawingManager()
   copyAction->setShortcut(QKeySequence::Copy);
   pasteAction = new QAction(tr("&Paste"), this);
   pasteAction->setShortcut(QKeySequence::Paste);
-  editAction = new QAction(tr("P&roperties"), this);
+  editAction = new QAction(tr("P&roperties..."), this);
   editAction->setShortcut(tr("Ctrl+R"));
-  loadAction = new QAction(tr("&Load"), this);
+  loadAction = new QAction(tr("&Load..."), this);
   loadAction->setShortcut(tr("Ctrl+L"));
 
   connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
@@ -495,7 +495,9 @@ void DrawingManager::editItems()
 void DrawingManager::loadItemsFromFile()
 {
   // open file and read content
-  const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC areas (*.kml)"));
+  const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC messages (*.kml)"));
+  if (fileName.isNull())
+      return; // operation cancelled
   QFile file(fileName);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QMessageBox::warning(0, "Error", QString("failed to open file %1 for reading").arg(fileName));
@@ -505,9 +507,7 @@ void DrawingManager::loadItemsFromFile()
   file.close();
 
   QString error;
-  const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, &error);
-  qDebug() << "areas:" << areas;
-  qDebug() << "error:" << error;
+  const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, fileName, &error);
   if (!areas.isEmpty()) {
     foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
       setLatLonPoints(area, area->getLatLonPoints());

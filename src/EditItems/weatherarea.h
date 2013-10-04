@@ -55,7 +55,7 @@ public:
     QList<QPoint> getPoints() const;
     void setPoints(const QList<QPoint> &points);
 
-    static QList<WeatherArea *> createFromKML(const QByteArray &, QString *);
+    static QList<WeatherArea *> createFromKML(const QByteArray &, const QString &, QString *);
 
 private:
     virtual bool hit(const QPoint &, bool) const;
@@ -66,7 +66,7 @@ private:
     virtual void mouseHover(QMouseEvent *, bool &);
     virtual void mousePress(
         QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *, QSet<EditItemBase *> *,
-        QSet<EditItemBase *> *, bool *);
+        QSet<EditItemBase *> *, const QSet<EditItemBase *> *, bool *);
     virtual void mouseMove(QMouseEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
@@ -76,6 +76,9 @@ private:
     virtual void moveBy(const QPoint &);
 
     virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(EditItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
+
+    bool saveAsSimpleAreas(QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, QString *error);
+    bool saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error);
 
     virtual QVariantMap clipboardVarMap() const;
     virtual QString clipboardPlainText() const;
@@ -89,9 +92,9 @@ private:
     void resize(const QPoint &);
     void updateControlPoints();
 
-    void addPoint(bool &repaintNeeded, int index, const QPoint &point, QSet<EditItemBase *> *items);
-    void remove(bool &, QSet<EditItemBase *> *);
-    void removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items);
+    void addPoint(bool &repaintNeeded, int index, const QPoint &point);
+    void remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
+    void removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
 
     QList<QPoint> geometry() const { return points_; }
     void setGeometry(const QList<QPoint> &);

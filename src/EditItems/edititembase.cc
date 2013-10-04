@@ -45,6 +45,19 @@ int EditItemBase::nextId()
     return nextId_++; // ### not thread safe; use a mutex for that
 }
 
+int EditItemBase::groupId() const
+{
+    const QVariant vgid = properties_.value("groupId");
+    int gid = -1;
+    if (vgid.isValid()) {
+        bool ok;
+        gid = vgid.toInt(&ok);
+        if (!ok)
+            gid = -1;
+    }
+    return gid;
+}
+
 void EditItemBase::repaint()
 {
     emit repaintNeeded();
@@ -77,13 +90,15 @@ int EditItemBase::nextId_ = 0;
  * NOTE: While new items may be created (with the new operator), existing items must never be
  * deleted (using the delete operator) while in this function. This will be done from the outside.
  *
+ * \a selItems is, if non-null, the subset of currently selected items.
+ *
  * \a multiItemOp is, if non-null, set to true iff the event starts an operation that may involve
  * other items (such as a move operation).
  */
 void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
-    QSet<EditItemBase *> *items, bool *multiItemOp)
+    QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
@@ -91,6 +106,7 @@ void EditItemBase::mousePress(
     Q_UNUSED(itemsToCopy)
     Q_UNUSED(itemsToEdit)
     Q_UNUSED(items)
+    Q_UNUSED(selItems)
     Q_UNUSED(multiItemOp)
 }
 
@@ -141,11 +157,11 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
     Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                            QSet<EditItemBase *> *items)
+void EditItemBase::keyPress(
+        QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+        QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
 {
     if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        Q_ASSERT(items->contains(this));
         items->remove(this);
     } else if (
                (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
