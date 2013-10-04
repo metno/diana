@@ -1501,6 +1501,12 @@ void PlotModule::plotOver()
 
   } // if inEdit
 
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    if (it->second->isEnabled())
+      it->second->plot(false, true);
+    ++it;
+  }
 
   if (hardcopy)
     splot.addHCScissor(plotr.x1 + 0.0001, plotr.y1 + 0.0001, plotr.x2
