@@ -90,10 +90,12 @@ void SpecialLineEdit::openTextEdit()
 static QWidget * createEditor(const QString &propertyName, const QVariant &val)
 {
   QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int)
-      || (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
+  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) ||
+      (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
     editor = new SpecialLineEdit(propertyName);
     qobject_cast<QLineEdit *>(editor)->setText(val.toString());
+  } else if (val.type() == QVariant::DateTime) {
+    editor = new QDateTimeEdit(val.toDateTime());
   } else {
     qDebug() << "WARNING: unsupported type:" << val.typeName();
     editor = new QLabel(QString("UNSUPPORTED TYPE: %1").arg(val.typeName()));
@@ -154,8 +156,9 @@ QVariantMap VarMapEditor::edit(const QVariantMap &values)
             QWidget *editor = glayout_->itemAtPosition(i, 1)->widget();
             if (qobject_cast<QLineEdit *>(editor)) {
                 newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-            } else {
-                // add more editor types ... 2 B DONE
+            } else if (qobject_cast<QDateTimeEdit *>(editor)) {
+                QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
+                newValues.insert(key, ed->dateTime());
             }
         }
         return newValues;

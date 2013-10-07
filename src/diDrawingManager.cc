@@ -326,8 +326,8 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   foreach (EditItemBase *item, items) {
     QVariantMap p = item->propertiesRef();
     if (p.contains("time")) {
-      std::string time_str = p.value("time").toString().toStdString();
-      p["visible"] = (time_str.empty() | (time.isoTime() == miutil::miString(time_str)));
+      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-dd hh:mm:ss");
+      p["visible"] = (time_str.isEmpty() | (time.isoTime() == time_str.toStdString()));
     } else
       p["visible"] = true;
     item->setProperties(p);
@@ -526,9 +526,11 @@ void DrawingManager::initNewItem(EditItemBase *item)
   // Use the current time for the new item.
   miutil::miTime time;
   plotm->getPlotTime(time);
+
   QVariantMap p = item->propertiesRef();
   if (!p.contains("time"))
-    p["time"] = QString::fromStdString(time.isoTime());
+    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
+
   item->setProperties(p);
 
   // Let other components know about any changes to item times.
