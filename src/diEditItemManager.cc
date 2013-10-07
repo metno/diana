@@ -35,11 +35,8 @@
 #include <diEditItemManager.h>
 #include <EditItems/edititembase.h>
 
-class TextEditor : public QDialog
+TextEditor::TextEditor(const QString &text)
 {
-public:
-  TextEditor(const QString &text)
-  {
     setWindowTitle("Text Editor");
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -53,18 +50,17 @@ public:
     layout->addWidget(buttonBox);
 
     setLayout(layout);
-  }
+}
 
-  virtual ~TextEditor()
-  {
+TextEditor::~TextEditor()
+{
     delete textEdit_;
-  }
+}
 
-  QString text() const { return textEdit_->toPlainText(); }
-
-private:
-  QTextEdit *textEdit_;
-};
+QString TextEditor::text() const
+{
+    return textEdit_->toPlainText();
+}
 
 SpecialLineEdit::SpecialLineEdit(const QString &pname)
   : propertyName_(pname)
@@ -105,74 +101,72 @@ static QWidget * createEditor(const QString &propertyName, const QVariant &val)
   return editor;
 }
 
-class VarMapEditor : public QDialog
+VarMapEditor *VarMapEditor::instance()
 {
-public:
-  static VarMapEditor *instance()
-  {
     if (!instance_)
-      instance_ = new VarMapEditor;
+        instance_ = new VarMapEditor;
     return instance_;
-  }
+}
 
-  // Opens the editor panel with initial values.
-  // Returns the edited values (always unchanged when the dialog is cancelled).
-  QVariantMap edit(const QVariantMap &values)
-  {
+/**
+ * Opens the editor panel with initial values.
+ * Returns the edited values (always unchanged when the dialog is cancelled).
+ */
+QVariantMap VarMapEditor::edit(const QVariantMap &values)
+{
     // clear old content
     if (glayout_->columnCount() == 2) {
-      Q_ASSERT((glayout_->rowCount() > 0));
-      for (int i = 0; i < glayout_->rowCount(); ++i) {
-        QLayoutItem *keyItem = glayout_->itemAtPosition(i, 0);
-        Q_ASSERT(keyItem);
-        Q_ASSERT(keyItem->widget());
-        Q_ASSERT(qobject_cast<QLabel *>(keyItem->widget()));
-        delete keyItem->widget();
-        // delete keyItem; ???
+        Q_ASSERT((glayout_->rowCount() > 0));
+        for (int i = 0; i < glayout_->rowCount(); ++i) {
+            QLayoutItem *keyItem = glayout_->itemAtPosition(i, 0);
+            Q_ASSERT(keyItem);
+            Q_ASSERT(keyItem->widget());
+            Q_ASSERT(qobject_cast<QLabel *>(keyItem->widget()));
+            delete keyItem->widget();
+            // delete keyItem; ???
 
-        QLayoutItem *valItem = glayout_->itemAtPosition(i, 1);
-        Q_ASSERT(valItem);
-        Q_ASSERT(valItem->widget());
-        delete valItem->widget();
-        // delete valItem; ???
-      }
+            QLayoutItem *valItem = glayout_->itemAtPosition(i, 1);
+            Q_ASSERT(valItem);
+            Q_ASSERT(valItem->widget());
+            delete valItem->widget();
+            // delete valItem; ???
+        }
     }
 
     // set new content and initial values
     int row = 0;
     foreach (const QString key, values.keys()) {
-      QLabel *label = new QLabel(key);
-      //label->setStyleSheet("QLabel { background-color:#ff0 }");
-      label->setAlignment(Qt::AlignRight);
-      glayout_->addWidget(label, row, 0);
-      QWidget *editor = createEditor(key, values.value(key));
-      glayout_->addWidget(editor, row, 1);
-      row++;
+        QLabel *label = new QLabel(key);
+        //label->setStyleSheet("QLabel { background-color:#ff0 }");
+        label->setAlignment(Qt::AlignRight);
+        glayout_->addWidget(label, row, 0);
+        QWidget *editor = createEditor(key, values.value(key));
+        glayout_->addWidget(editor, row, 1);
+        row++;
     }
 
     // open dialog
     if (exec() == QDialog::Accepted) {
-      // return edited values
-      QVariantMap newValues;
-      for (int i = 0; i < glayout_->rowCount(); ++i) {
-        const QString key = qobject_cast<const QLabel *>(glayout_->itemAtPosition(i, 0)->widget())->text();
-        QWidget *editor = glayout_->itemAtPosition(i, 1)->widget();
-        if (qobject_cast<QLineEdit *>(editor)) {
-          newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-        } else {
-          // add more editor types ... 2 B DONE
+        // return edited values
+        QVariantMap newValues;
+        for (int i = 0; i < glayout_->rowCount(); ++i) {
+            const QString key = qobject_cast<const QLabel *>(glayout_->itemAtPosition(i, 0)->widget())->text();
+            QWidget *editor = glayout_->itemAtPosition(i, 1)->widget();
+            if (qobject_cast<QLineEdit *>(editor)) {
+                newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
+            } else {
+                // add more editor types ... 2 B DONE
+            }
         }
-      }
-      return newValues;
+        return newValues;
     }
 
     return values; // return original values
-  }
+}
 
-private:
-  VarMapEditor()
-  {
-    setWindowTitle("Item Properties");
+VarMapEditor::VarMapEditor()
+{
+    setWindowTitle(tr("Item Properties"));
 
     QVBoxLayout *layout = new QVBoxLayout;
     glayout_ = new QGridLayout;
@@ -184,11 +178,7 @@ private:
     layout->addWidget(buttonBox);
 
     setLayout(layout);
-  }
-
-  static VarMapEditor *instance_;
-  QGridLayout *glayout_;
-};
+}
 
 VarMapEditor *VarMapEditor::instance_ = 0;
 
@@ -262,7 +252,7 @@ void EditItemManager::addItem_(EditItemBase *item)
 {
     items_.insert(item);
     connect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
-    if (false) selItems_.insert(item); // for now, don't pre-select new items
+    if (false) selectItem(item); // for now, don't pre-select new items
     emit itemAdded(item);
 }
 
@@ -280,7 +270,7 @@ void EditItemManager::removeItem_(EditItemBase *item)
 {
     items_.remove(item);
     disconnect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
-    selItems_.remove(item);
+    deselectItem(item);
     emit itemRemoved(item);
 }
 
@@ -329,6 +319,7 @@ void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
     const QVariantMap newProperties = VarMapEditor::instance()->edit(item->properties());
     if (newProperties != item->properties()) {
       item->setProperties(newProperties);
+      emit itemChanged(item);
       //QMessageBox::information(0, "info", "Values changed!");
     } else {
       //QMessageBox::information(0, "info", "Values unchanged");
@@ -381,8 +372,9 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
     // update selection and hit status
     if (!(hitSelItem || (hitItem && selectMulti))) {
         selItems_.clear();
+        emit selectionChanged();
     } else if (selectMulti && hitSelItem && (selItems_.size() > 1)) {
-        selItems_.remove(hitItem);
+        deselectItem(hitItem);
         hitItem = 0;
     }
 
@@ -391,7 +383,7 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
     QList<QUndoCommand *> undoCommands;
 
     if (hitItem) { // an item is still considered hit
-        selItems_.insert(hitItem); // ensure the hit item is selected (it might already be)
+        selectItem(hitItem); // ensure the hit item is selected (it might already be)
 
         // send mouse press to the hit item
         bool multiItemOp = false;
@@ -636,6 +628,7 @@ void EditItemManager::keyPress(QKeyEvent *event)
             addedItems.unite(eventItems - items_);
             removedItems.unite(items_ - eventItems);
             selItems_.subtract(removedItems);
+            emit selectionChanged();
         }
     }
 
@@ -815,6 +808,18 @@ void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
     undoStack_.endMacro();
     skipRepaint_ = false;
     repaintNeeded_ = true; // ###
+}
+
+void EditItemManager::selectItem(EditItemBase *item)
+{
+  selItems_.insert(item);
+  emit selectionChanged();
+}
+
+void EditItemManager::deselectItem(EditItemBase *item)
+{
+  selItems_.remove(item);
+  emit selectionChanged();
 }
 
 

@@ -38,6 +38,7 @@
 #include <diField/diGridConverter.h>
 #include "diManager.h"
 #include <diMapMode.h>
+#include <QHash>
 #include <QList>
 #include <QObject>
 #include <QPointF>
@@ -62,6 +63,10 @@ class DrawingManager : public Manager
   Q_OBJECT
 
 public:
+  enum Action {
+    Cut, Copy, Paste, Edit, Load, Save, Undo, Redo
+  };
+
   DrawingManager();
   ~DrawingManager();
 
@@ -93,25 +98,27 @@ public:
   void setEnabled(bool enable);
 
   static DrawingManager *instance();
-  QList<QAction*> actions();
+  QHash<Action, QAction*> actions();
 
 private slots:
   void copySelectedItems();
   void cutSelectedItems();
   void editItems();
   void initNewItem(EditItemBase *item);
+  void loadItemsFromFile();
   void pasteItems();
+  void updateActions();
 
 private:
   void copyItems(const QSet<EditItemBase *> &);
-  void loadItemsFromFile();
-  void updateActions();
 
   QAction* cutAction;
   QAction* copyAction;
   QAction* pasteAction;
   QAction* editAction;
   QAction* loadAction;
+  QAction* undoAction;
+  QAction* redoAction;
 
   PlotModule* plotm;
   ObjectManager* objm;

@@ -51,10 +51,13 @@ public slots:
 private slots:
   void addItem(EditItemBase *item);
   void removeItem(EditItemBase *item);
+  void updateItem(EditItemBase *item);
+  void updateItemList();
+  void updateSelection();
 
 private:
   Controller *ctrl;
-  QListWidget *itemList;
+  QTreeWidget *itemList;
 };
 
 #endif

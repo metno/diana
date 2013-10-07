@@ -70,6 +70,7 @@ DrawingManager::DrawingManager()
   editItemManager = new EditItemManager();
 
   connect(editItemManager, SIGNAL(itemAdded(EditItemBase *)), SLOT(initNewItem(EditItemBase *)));
+  connect(editItemManager, SIGNAL(selectionChanged()), SLOT(updateActions()));
 
   enabled = false;
   plotm = PlotModule::instance();
@@ -86,11 +87,14 @@ DrawingManager::DrawingManager()
   editAction->setShortcut(tr("Ctrl+R"));
   loadAction = new QAction(tr("&Load..."), this);
   loadAction->setShortcut(tr("Ctrl+L"));
+  undoAction = editItemManager->undoStack()->createUndoAction(this);
+  redoAction = editItemManager->undoStack()->createRedoAction(this);
 
   connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
   connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
   connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
   connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
+  connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
 }
 
 DrawingManager::~DrawingManager()
@@ -123,9 +127,6 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
   res.background= false;
   res.repaint= false;
   res.newcursor= edit_cursor;
-
-  float newx, newy;
-  plotm->PhysToMap(event->x(), event->y(), newx, newy);
 
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
@@ -161,19 +162,11 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       contextMenu.addSeparator();
       contextMenu.addAction(loadAction);
       editAction->setEnabled(editItemManager->getSelectedItems().size() > 0);
-      if (!contextMenu.isEmpty()) {
-        QAction *action = contextMenu.exec(me2.globalPos());
-        if (action == cutAction)
-          cutSelectedItems();
-        else if (action == copyAction)
-          copySelectedItems();
-        else if (action == pasteAction)
-          pasteItems();
-        else if (action == editAction)
-          editItems();
-        else if (action == loadAction)
-          loadItemsFromFile();
-      }
+
+      // Simply execute the menu since all of the actions are connected to slots.
+      if (!contextMenu.isEmpty())
+        contextMenu.exec(me2.globalPos());
+
     } else {
       // Send the mouse press to the edit item manager.
       QSet<EditItemBase *> itemsToCopy; // items to be copied
@@ -454,10 +447,16 @@ void DrawingManager::pasteItems()
   updateActions();
 }
 
-QList<QAction*> DrawingManager::actions()
+QHash<DrawingManager::Action, QAction*> DrawingManager::actions()
 {
-  QList<QAction*> a;
-  a << cutAction << copyAction << pasteAction << editAction;
+  QHash<Action, QAction*> a;
+  a[Cut] = cutAction;
+  a[Copy] = copyAction;
+  a[Paste] = pasteAction;
+  a[Edit] = editAction;
+  a[Load] = loadAction;
+  a[Undo] = undoAction;
+  a[Redo] = redoAction;
   return a;
 }
 

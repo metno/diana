@@ -32,6 +32,7 @@
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "qtDrawingDialog.h"
+#include "EditItems/edititembase.h"
 #include "EditItems/weatherarea.h"
 #include "EditItems/weatherfront.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
@@ -51,21 +52,57 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
-  QToolBar *drawingToolBar = new QToolBar();
-  foreach (QAction *a, DrawingManager::instance()->actions())
-    drawingToolBar->addAction(a);
+  QHash<DrawingManager::Action, QAction *> actions = DrawingManager::instance()->actions();
+  QToolButton *cutButton = new QToolButton();
+  cutButton->setDefaultAction(actions[DrawingManager::Cut]);
+  QToolButton *copyButton = new QToolButton();
+  copyButton->setDefaultAction(actions[DrawingManager::Copy]);
+  QToolButton *pasteButton = new QToolButton();
+  pasteButton->setDefaultAction(actions[DrawingManager::Paste]);
+  QToolButton *editButton = new QToolButton();
+  editButton->setDefaultAction(actions[DrawingManager::Edit]);
+  QToolButton *loadButton = new QToolButton();
+  loadButton->setDefaultAction(actions[DrawingManager::Load]);
 
-  itemList = new QListWidget();
+  QToolButton *undoButton = new QToolButton();
+  undoButton->setDefaultAction(actions[DrawingManager::Undo]);
+  QToolButton *redoButton = new QToolButton();
+  redoButton->setDefaultAction(actions[DrawingManager::Redo]);
+
+  QVBoxLayout *buttonLayout = new QVBoxLayout();
+  buttonLayout->addWidget(cutButton);
+  buttonLayout->addWidget(copyButton);
+  buttonLayout->addWidget(pasteButton);
+  buttonLayout->addWidget(editButton);
+  buttonLayout->addWidget(loadButton);
+  buttonLayout->addWidget(undoButton);
+  buttonLayout->addWidget(redoButton);
+  buttonLayout->addStretch();
+
+  itemList = new QTreeWidget();
+  itemList->setColumnCount(2);
+  //itemList->setHeaderHidden(true);
+  itemList->setHeaderLabels(QStringList() << tr("Object") << tr("Time"));
+  itemList->setRootIsDecorated(false);
+  itemList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  itemList->setSortingEnabled(true);
+
+  connect(itemList, SIGNAL(itemSelectionChanged()), SLOT(updateSelection()));
 
   EditItemManager *editor = DrawingManager::instance()->getEditItemManager();
   connect(editor, SIGNAL(itemAdded(EditItemBase*)), SLOT(addItem(EditItemBase*)));
+  connect(editor, SIGNAL(itemChanged(EditItemBase*)), SLOT(updateItem(EditItemBase*)));
   connect(editor, SIGNAL(itemRemoved(EditItemBase*)), SLOT(removeItem(EditItemBase*)));
+  connect(editor, SIGNAL(selectionChanged()), SLOT(updateItemList()));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
-  QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->addWidget(drawingToolBar);
-  layout->addWidget(itemList);
-  layout->addWidget(editor->getUndoView());
+  QHBoxLayout *layout = new QHBoxLayout(this);
+  layout->setMargin(4);
+  layout->addWidget(itemList, 1);
+  layout->addLayout(buttonLayout);
+  //layout->addWidget(editor->getUndoView());
+
+  setWindowTitle(tr("Drawing"));
 }
 
 DrawingDialog::~DrawingDialog()
@@ -90,22 +127,75 @@ void DrawingDialog::toggleDrawingMode(bool enable)
 
 void DrawingDialog::addItem(EditItemBase *item)
 {
-  QListWidgetItem *listItem = new QListWidgetItem();
+  QTreeWidgetItem *listItem = new QTreeWidgetItem();
   if (static_cast<EditItem_WeatherArea::WeatherArea*>(item))
-      listItem->setText(tr("Area"));
+      listItem->setText(0, tr("Area"));
   else if (static_cast<EditItem_WeatherFront::WeatherFront*>(item))
-      listItem->setText(tr("Front"));
+      listItem->setText(0, tr("Front"));
   else
-      listItem->setText(tr("Unknown"));
-  listItem->setData(Qt::UserRole, item->id());
-  itemList->addItem(listItem);
+      listItem->setText(0, tr("Unknown"));
+  listItem->setData(0, Qt::UserRole, item->id());
+  listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("-")));
+  itemList->addTopLevelItem(listItem);
 }
 
 void DrawingDialog::removeItem(EditItemBase *item)
 {
-  for (int i = 0; i < itemList->count(); ++i)
-    if (itemList->item(i)->data(Qt::UserRole).toInt() == item->id()) {
-      delete itemList->takeItem(i);
+  for (int i = 0; i < itemList->topLevelItemCount(); ++i)
+    if (itemList->topLevelItem(i)->data(0, Qt::UserRole).toInt() == item->id()) {
+      delete itemList->takeTopLevelItem(i);
       break;
     }
+}
+
+/**
+ * Updates the selection in the editor from the selection in the item list.
+ */
+void DrawingDialog::updateSelection()
+{
+  QSet<int> ids;
+  foreach (QTreeWidgetItem *listItem, itemList->selectedItems()) {
+    ids.insert(listItem->data(0, Qt::UserRole).toInt());
+  }
+
+  EditItemManager *eim = DrawingManager::instance()->getEditItemManager();
+  foreach (EditItemBase *item, eim->getItems()) {
+    if (ids.contains(item->id()))
+      eim->selectItem(item);
+    else
+      eim->deselectItem(item);
+  }
+
+  eim->repaint();
+}
+
+/**
+ * Updates the selection in the item list from the selection in the editor.
+ */
+void DrawingDialog::updateItemList()
+{
+  EditItemManager *eim = DrawingManager::instance()->getEditItemManager();
+  QSet<int> ids;
+  foreach (EditItemBase *item, eim->getSelectedItems())
+    ids.insert(item->id());
+
+  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
+    // Select the item in the list to match the corresponding item on the map.
+    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
+    listItem->setSelected(ids.contains(listItem->data(0, Qt::UserRole).toInt()));
+  }
+}
+
+/**
+ * Updates an item in the item list with properties from an item in the editor.
+ */
+void DrawingDialog::updateItem(EditItemBase *item)
+{
+  // Refresh the columns for the corresponding list item.
+  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
+    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
+    if (listItem->data(0, Qt::UserRole).toInt() == item->id()) {
+      listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("-")));
+    }
+  }
 }

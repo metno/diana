@@ -32,6 +32,8 @@
 #ifndef EDITITEMMANAGER_H
 #define EDITITEMMANAGER_H
 
+#include <QDialog>
+#include <QGridLayout>
 #include <QObject>
 #include <QPoint>
 #include <QSet>
@@ -44,7 +46,20 @@ class DrawingManager;
 class EditItemBase;
 class QKeyEvent;
 class QMouseEvent;
+class QTextEdit;
 class QUndoStack;
+
+class TextEditor : public QDialog
+{
+public:
+  TextEditor(const QString &text);
+  virtual ~TextEditor();
+
+  QString text() const;
+
+private:
+  QTextEdit *textEdit_;
+};
 
 // ### move this class declaration to a private header file?
 class SpecialLineEdit : public QLineEdit
@@ -58,6 +73,19 @@ private:
   void contextMenuEvent(QContextMenuEvent *);
 private slots:
   void openTextEdit();
+};
+
+class VarMapEditor : public QDialog
+{
+public:
+  static VarMapEditor *instance();
+  QVariantMap edit(const QVariantMap &values);
+
+private:
+  VarMapEditor();
+
+  static VarMapEditor *instance_;
+  QGridLayout *glayout_;
 };
 
 class EditItemManager : public QObject
@@ -100,6 +128,7 @@ public slots:
     void abortEditing();
     void completeEditing();
     void copyObjects();
+    void deselectItem(EditItemBase *);
     void draw();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
@@ -111,15 +140,18 @@ public slots:
     void redo();
     void repaint();
     void reset();
+    void selectItem(EditItemBase *);
     void undo();
 
 signals:
+    void selectionChanged();
     void paintDone();
     void repaintNeeded();
     void canUndoChanged(bool);
     void canRedoChanged(bool);
     void incompleteEditing(bool);
     void itemAdded(EditItemBase *);
+    void itemChanged(EditItemBase *);
     void itemRemoved(EditItemBase *);
 
 private:
