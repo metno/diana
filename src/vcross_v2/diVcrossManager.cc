@@ -447,7 +447,7 @@ void VcrossManager::preparePlot()
       p0 = data->parameters[arguments[0]].values;
     if (arguments.size() >= 2)
       p1 = data->parameters[arguments[1]].values;
-    mPlot->addPlot(mSetup->getPlotType(select.field), p0, p1, zax, select.plotOptions);
+    mPlot->addPlot(select.model, select.field, mSetup->getPlotType(select.field), p0, p1, zax, select.plotOptions);
   }
 
   mPlot->prepare();

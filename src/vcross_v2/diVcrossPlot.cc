@@ -95,6 +95,18 @@ inline void writeLatNS(std::ostream& out, float lat)
   writeLonEWLatNS(out, lat, 'N', 'S');
 }
 
+static const float LINE_GAP = 0.2;
+static const float LINES_1 = 1 + LINE_GAP;
+static const float LINES_2 = 2 + LINE_GAP;
+static const float LINES_3 = 3 + LINE_GAP;
+static const float CHARS_NUMBERS = 10;
+static const float CHARS_DISTANCE = 5.5;
+static const float CHARS_POS_LEFT  = 5.5;
+static const float CHARS_POS_RIGHT = 1.9;
+static const float CHARS_TIME = 2.5;
+
+static const float MAX_FRAMETEXT = 0.4;
+
 } // namespace anonymous
 
 // ########################################################################
@@ -138,67 +150,36 @@ VcrossPlot::~VcrossPlot()
   METLIBS_LOG_SCOPE();
 }
 
-#if 0
 void VcrossPlot::plotText()
 {
   METLIBS_LOG_SCOPE();
-
-  if (vcText.empty())
+  if (not mOptions->pText)
     return;
 
-  setFont();
-  fp->setFontSize(fontsize);
-
-  float wspace, h;
-  fp->getStringSize("oo", wspace, h);
-
-  float wmod = 0., wcrs = 0., wfn = 0, wfc = 0, wtime = 0;
-
-
-  BOOST_FOREACH(VcrossText& vct, vcText) {
-    VcrossUtil::updateMaxStringWidth(fp.get(), wmod, vct.modelName);
-    VcrossUtil::updateMaxStringWidth(fp.get(), wcrs, vct.crossectionName);
-    VcrossUtil::updateMaxStringWidth(fp.get(), wfn,  vct.fieldName);
-  }
-  std::vector<std::string> fctext, timetxt;
-  if (not vct.timeGraph) {
-    fctext  .reserve(vcText.size());
-    timetext.reserve(vcText.size());
-    BOOST_FOREACH(const VcrossText& vct, vcText) {
-      ostringstream ostr;
-      ostr << "(" << setiosflags(ios::showpos) << vcText[i].forecastHour << ")";
-      fctext.push_back(ostr.str());
-      VcrossUtil::updateMaxStringWidth(fp.get(), wfc, fctext.back());
-      timetxt.push_back(vct.validTime.isoTime());
-      VcrossUtil::updateMaxStringWidth(fp.get(), wtime, timetxt.back());
-    }
+  float widthModel = 0, widthField = 0;
+  BOOST_FOREACH(const Plot& plot, mPlots) {
+    VcrossUtil::updateMaxStringWidth(fp.get(), widthModel, plot.modelName);
+    VcrossUtil::updateMaxStringWidth(fp.get(), widthField, plot.fieldName);
   }
 
-  const float xmod = xWindowmin + wspace;
-  const float xcrs = xmod + wmod + wspace;
-  const float xfn = xcrs + wcrs + wspace;
-  const float xfc = xfn + wfn + wspace;
-  const float xtime = xfc + wfc + wspace;
-  const float xextreme = xtime + wtime + wspace;
+  const float xModel = mCharSize.width(), xField = xModel + widthModel + mCharSize.width();
+  float yPlot = mTotalSize.height() - LINE_GAP*mCharSize.height();
+  const float yCSName = yPlot, yStep = mCharSize.height() * LINES_1;
 
-  const float dy = chydef * 2;
-  float y = yWindowmin + dy * n;
+  BOOST_FOREACH(const Plot& plot, mPlots) {
+    glColor3ubv(colourOrContrast(plot.poptions.linecolour).RGB());
+    fp->drawStr(plot.modelName.c_str(), xModel, yPlot, 0);
+    fp->drawStr(plot.fieldName.c_str(), xField, yPlot, 0);
+    yPlot -= yStep;
+  }
 
-  std::vector<std::string>::const_iterator fc_it = fctext.begin(), tt_it = timetxt.begin();
-  BOOST_FOREACH(const VcrossText& vct, vcText) {
-    glColor3ubv(vct.colour.RGB());
-    fp->drawStr(vct.modelName.c_str(),       xmod, y, 0.0);
-    fp->drawStr(vct.crossectionName.c_str(), xcrs, y, 0.0);
-    fp->drawStr(vct.fieldName.c_str(),       xfn,  y, 0.0);
-    if (!vct.timeGraph) {
-      fp->drawStr((fc_it++)->c_str(), xfc,   y, 0.0);
-      fp->drawStr((tt_it++)->c_str(), xtime, y, 0.0);
-    }
-    fp->drawStr(vct.extremeValueString.c_str(), xextreme, y, 0.0);
-    y -= dy;
+  { // show cross section name
+    glColor3ubv(colourOrContrast(mOptions->frameColour).RGB());
+    float csn_w, csn_h;
+    fp->getStringSize(mCrossectionName.c_str(), csn_w, csn_h);
+    fp->drawStr(mCrossectionName.c_str(), mTotalSize.width() - csn_w - mCharSize.width(), yCSName, 0);
   }
 }
-#endif
 
 void VcrossPlot::viewSetWindow(int w, int h)
 {
@@ -325,11 +306,12 @@ void VcrossPlot::setVerticalAxis(VcrossData::ZAxis::Quantity q)
       : VcrossPlotDetail::Axis::HEIGHT;
 }
 
-void VcrossPlot::addPlot(VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1,
-    VcrossData::ZAxisPtr zax, const PlotOptions& poptions)
+void VcrossPlot::addPlot(const std::string& mn, const std::string& fn,
+    VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1, VcrossData::ZAxisPtr zax,
+    const PlotOptions& poptions)
 {
   METLIBS_LOG_SCOPE();
-  mPlots.push_back(Plot(type, p0, p1, zax, poptions));
+  mPlots.push_back(Plot(mn, fn, type, p0, p1, zax, poptions));
 }
 
 void VcrossPlot::prepare()
@@ -363,7 +345,6 @@ void VcrossPlot::prepareAxes()
   }
 
   const bool timeGraph = isTimeGraph();
-  METLIBS_LOG_DEBUG(LOGVAL(timeGraph));
 
   float yax_min = 1e35, yax_max = -1e35;
   BOOST_FOREACH(const Plot& plot, mPlots) {
@@ -401,7 +382,6 @@ void VcrossPlot::prepareView()
 {
   METLIBS_LOG_SCOPE();
 
-  vcText.clear();
   calculateContrastColour();
   computeMaxPlotArea();
   prepareAxesForAspectRatio();
@@ -445,18 +425,6 @@ void VcrossPlot::prepareAxesForAspectRatio()
       << LOGVAL(mAxisY->getPaintMin()) << LOGVAL(mAxisY->getPaintMax()));
 }
 
-static const float LINE_GAP = 0.2;
-static const float LINES_1 = 1 + LINE_GAP;
-static const float LINES_2 = 2 + LINE_GAP;
-static const float LINES_3 = 3 + LINE_GAP;
-static const float CHARS_NUMBERS = 10;
-static const float CHARS_DISTANCE = 5.5;
-static const float CHARS_POS_LEFT  = 5.5;
-static const float CHARS_POS_RIGHT = 1.9;
-static const float CHARS_TIME = 2.5;
-
-static const float MAX_FRAMETEXT = 0.4;
-
 void VcrossPlot::computeMaxPlotArea()
 {
   METLIBS_LOG_SCOPE();
@@ -473,11 +441,9 @@ void VcrossPlot::computeMaxPlotArea()
       VcrossUtil::maximize(charsXleft, CHARS_DISTANCE);
       charsXrght = charsXleft;
     }
-    if (mOptions->pXYpos)
-      linesYbot += LINES_2;
     if (mOptions->pGeoPos)
       linesYbot += LINES_2;
-    if (mOptions->pXYpos or mOptions->pGeoPos) {
+    if (mOptions->pGeoPos) {
       VcrossUtil::maximize(charsXleft, CHARS_POS_LEFT);
       VcrossUtil::maximize(charsXrght, CHARS_POS_RIGHT);
     }
@@ -489,7 +455,7 @@ void VcrossPlot::computeMaxPlotArea()
       charsXrght = charsXleft;
     }
     // time graph: only one position (and only one line needed)
-    if (mOptions->pDistance || mOptions->pXYpos || mOptions->pGeoPos)
+    if (mOptions->pDistance or mOptions->pGeoPos)
       linesYbot += LINES_1;
   }
 
@@ -587,6 +553,7 @@ void VcrossPlot::plot()
   plotData();
 
   plotFrame();
+  plotText();
   setFont();
   plotXLabels();
   plotTitle();
@@ -752,116 +719,37 @@ void VcrossPlot::plotXLabels()
         uname = "km";
       }
 
-      if (mOptions->distanceStep == "grid") { //distance at gridpoints
-        const float tickTopEnd = mAxisY->getPaintMax(), tickTopStart = tickTopEnd + 0.5*mCharSize.height();
-        const float tickBotStart = mAxisY->getPaintMin(), tickBotEnd = tickBotStart - 0.5*mCharSize.height();
-        float nextLabelX = mAxisX->getPaintMin() - 1;
-        const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
-        for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
-          const float distance = mCrossectionDistances.at(i); 
-          const float tickX = mAxisX->value2paint(distance);
-
-          if (mAxisX->legalPaint(tickX)) {
-            glBegin(GL_LINES);
-            glVertex2f(tickX, tickBotStart);
-            glVertex2f(tickX, tickBotEnd);
-            glVertex2f(tickX, tickTopStart);
-            glVertex2f(tickX, tickTopEnd);
-            glEnd();
-
-            if (tickX >= nextLabelX) {
-              std::ostringstream xostr;
-              xostr << std::setprecision(precision) << std::setiosflags(std::ios::fixed)
-                    << std::abs(distance / unit) << uname;
-              const std::string xstr = xostr.str();
-              const char* c_str = xstr.c_str();
-              float labelW=0, labelH=0;
-              fp->getStringSize(c_str, labelW, labelH);
-              fp->drawStr(c_str, tickX - labelW/2, labelY, 0.0);
-              nextLabelX += labelW + mCharSize.width();
-            }
+      const float tickTopEnd = mAxisY->getPaintMax(), tickTopStart = tickTopEnd + 0.5*mCharSize.height();
+      const float tickBotStart = mAxisY->getPaintMin(), tickBotEnd = tickBotStart - 0.5*mCharSize.height();
+      float nextLabelX = mAxisX->getPaintMin() - 1;
+      const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
+      for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
+        const float distance = mCrossectionDistances.at(i); 
+        const float tickX = mAxisX->value2paint(distance);
+        
+        if (mAxisX->legalPaint(tickX)) {
+          glBegin(GL_LINES);
+          glVertex2f(tickX, tickBotStart);
+          glVertex2f(tickX, tickBotEnd);
+          glVertex2f(tickX, tickTopStart);
+          glVertex2f(tickX, tickTopEnd);
+          glEnd();
+          
+          if (tickX >= nextLabelX) {
+            std::ostringstream xostr;
+            xostr << std::setprecision(precision) << std::setiosflags(std::ios::fixed)
+                  << std::abs(distance / unit) << uname;
+            const std::string xstr = xostr.str();
+            const char* c_str = xstr.c_str();
+            float labelW=0, labelH=0;
+            fp->getStringSize(c_str, labelW, labelH);
+            fp->drawStr(c_str, tickX - labelW/2, labelY, 0.0);
+            nextLabelX += labelW + mCharSize.width();
           }
         }
-      } else { //distance in "step" km or nm
-#if 0
-        int step = miutil::to_int(mOptions->distanceStep);
-        int i = ip1;
-        //pos first possible label
-        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i] > xcut))
-          i++;
-        float p1 = ((cdata1d[nxs][i] - rpos) / unit);
-        x = cdata1d[nxs][i];
-        //pos nex possible label
-        while (i <= ip2 && (cdata1d[nxs][i] < x + xlen || cdata1d[nxs][i] > xcut))
-          i++;
-        float p2 = ((cdata1d[nxs][i] - rpos) / unit);
-        //step
-        int minStep = abs(int(p1 - p2) / step * step);
-        if (minStep > step)
-          step = minStep;
-        //pos first label
-        int xLabel = int(p1 / step) * step;
-        for (i = ip1; i <= ip2; i++) {
-          float gridPointDist = ((cdata1d[nxs][i] - rpos) / unit);
-          if (gridPointDist > xLabel) {
-            //find position of xLabel
-            float rpos1 = ((cdata1d[nxs][i] - rpos) / unit);
-            float rpos2 = ((cdata1d[nxs][i + 1] - rpos) / unit);
-            x = (cdata1d[nxs][i + 1] - (rpos2 - xLabel) / (rpos2 - rpos1)
-                * (cdata1d[nxs][i + 1] - cdata1d[nxs][i]));
-            //print string
-            ostringstream xostr;
-            xostr << abs(xLabel);
-            std::string xstr = xostr.str() + uname;
-            float dx, dy;
-            fp->getStringSize(xstr.c_str(), dx, dy);
-            fp->drawStr(xstr.c_str(), x + chxt * 1.5 - dx, y1, 0.0);
-            //draw tickmarks
-            glBegin(GL_LINES);
-            glVertex2f(x, yPlotmin);
-            glVertex2f(x, yPlotmin - dchy);
-            glVertex2f(x, yPlotmax);
-            glVertex2f(x, yPlotmax + dchy);
-            glEnd();
-            xLabel += step;
-          }
-        }
-#endif
       }
       labelY += lines_1;
     }
-#if 0
-    // x,y coordinates
-    if (mOptions->pXYpos) {
-      glColor3ubv(colourOrContrast(mOptions->xyposColour).RGB());
-      chxt = chx;
-      chyt = chy;
-      fp->setFontSize(fontscale * 0.75);
-      float y1 = y - chyt * chystp;
-      float y2 = y - chyt * chystp * 2.;
-      y = y - chyt * chystp * 2.2;
-      float xlen = chxt * 6.75;
-      float xcut = xPlotmax - xlen;
-      float x = xPlotmin - xlen * 2.;
-      for (int i = ip1; i <= ip2; i++) {
-        if ((cdata1d[nxs][i] > x + xlen && cdata1d[nxs][i] < xcut) || i == ip2) {
-          ostringstream xostr, yostr;
-          xostr << setw(6) << setprecision(1) << setiosflags(ios::fixed)
-                  << cdata1d[nxg][i];
-          yostr << setw(6) << setprecision(1) << setiosflags(ios::fixed)
-                  << cdata1d[nyg][i];
-          string xstr = xostr.str();
-          string ystr = yostr.str();
-          float xdx, ydx, dy;
-          fp->getStringSize(xstr.c_str(), xdx, dy);
-          fp->getStringSize(ystr.c_str(), ydx, dy);
-          x = cdata1d[nxs][i];
-          fp->drawStr(xstr.c_str(), x + chxt * 1.5 - xdx, y1, 0.0);
-          fp->drawStr(ystr.c_str(), x + chxt * 1.5 - ydx, y2, 0.0);
-        }
-      }
-    }
-#endif
     // latitude,longitude
     if (mOptions->pGeoPos) {
       glColor3ubv(colourOrContrast(mOptions->geoposColour).RGB());
@@ -960,7 +848,7 @@ void VcrossPlot::plotXLabels()
         fp->drawStr(fctext[i].c_str(), x - chxt, y3, 0.0);
       }
     }
-    if (mOptions->pDistance || mOptions->pXYpos || mOptions->pGeoPos) {
+    if (mOptions->pDistance or mOptions->pGeoPos) {
       y -= (chy * chystp);
       vector<std::string> vpstr, vpcol;
       int l = 0;
@@ -985,15 +873,6 @@ void VcrossPlot::plotXLabels()
         vpcol.push_back(mOptions->distanceColour);
       }
       // x,y coordinate
-      if (mOptions->pXYpos) {
-        ostringstream ostr;
-        ostr << "X=" << setprecision(1) << setiosflags(ios::fixed) << tgxpos
-            << "  Y=" << setprecision(1) << setiosflags(ios::fixed) << tgypos;
-        std::string xystr = ostr.str();
-        l += xystr.length();
-        vpstr.push_back(xystr);
-        vpcol.push_back(mOptions->xyposColour);
-      }
       // latitude,longitude
       if (mOptions->pGeoPos) {
         float glat = cdata1d[nlat][0];
@@ -1603,7 +1482,6 @@ void VcrossPlot::plotData()
   METLIBS_LOG_SCOPE();
 
   BOOST_FOREACH(const Plot& plot, mPlots) {
-    METLIBS_LOG_DEBUG(LOGVAL(plot.type));
     if (plot.type == vcpt_contour) {
       plotDataContour(plot);
     } else if (plot.type == vcpt_wind) {
@@ -1613,96 +1491,6 @@ void VcrossPlot::plotData()
     }
 
     hardcopy->UpdateOutput();
-
-#if 0
-    if (ok) {
-      VcrossText vct;
-      vct.timeGraph = timeGraph;
-      vct.colour = colourOrContrast(poptions.linecolour);
-      vct.modelName = modelName;
-      vct.crossectionName = crossectionName;
-      vct.fieldName = fieldname;
-      if (!timeGraph) {
-        vct.forecastHour = forecastHour;
-        vct.validTime = validTime;
-      }
-      
-      if (poptions.extremeType=="Value" and no2 == -1) { //no2>-1 -> vectordata
-        // horizontal part of total crossection
-        int iwpd1 = 0, iwpd2 = 1;
-        for (int i = 0; i < nPoint - 1; i++) {
-          if (cdata1d[nxs][i] < xPlotmin)
-            iwpd1 = i + 1;
-          if (cdata1d[nxs][i] < xPlotmax)
-            iwpd2 = i;
-        }
-        if (cdata1d[nxs][nPoint - 1] <= xPlotmax)
-          iwpd2 = nPoint - 1;
-        
-        // find lower and upper level inside current window
-        // (contour plot: ilev1 - ilev2    wind plot: iwlev1 - iwlev2)
-        int iwlev1 = 0, iwlev2 = 1;
-        for (int k = 0; k < numLev - 1; k++) {
-        if (vlimitmax[k] < yPlotmin)
-          iwlev1 = k + 1;
-        if (vlimitmin[k] < yPlotmax)
-          iwlev2 = k;
-      }
-      if (vlimitmin[numLev - 1] <= yPlotmax)
-        iwlev2 = numLev - 1;
-
-      const int partwind[4] = { iwpd1, iwpd2, iwlev1, iwlev2 };
-
-      //find min/max
-      float minValue = fieldUndef;
-      float maxValue = -fieldUndef;
-      float maxPressure = fieldUndef;
-      float minPressure = -fieldUndef;
-      if (poptions.extremeLimits.size() > 0 ) {
-        maxPressure = poptions.extremeLimits[0];
-        if ( poptions.extremeLimits.size() > 1 ) {
-          minPressure = poptions.extremeLimits[1];
-        }
-      }
-      int ii_min=-1, ii_max=-1;
-      for (int j = partwind[2]; j<partwind[3]-1; ++j) {
-        for (int k= partwind[0]; k<partwind[1]-1; ++k) {
-          int i = j*nPoint + k;
-          if(cdata2d[no1][i] > maxValue && cdata2d[npp][i] > minPressure && cdata2d[npp][i] < maxPressure ) {
-            ii_max = i;
-            maxValue = cdata2d[no1][i];
-          }
-          if(cdata2d[no1][i] < minValue && cdata2d[npp][i] > minPressure && cdata2d[npp][i] < maxPressure ) {
-            ii_min=i;
-            minValue = cdata2d[no1][i];
-          }
-        }
-      }
-      ostringstream ost;
-      ost << setprecision(3);
-      if (ii_min > 1) {
-        ost << "Min: " << cdata2d[no1][ii_min] << '(';
-        writeLatNS(ost, cdata1d[nlat][ii_min%nPoint]);
-        ost << ", ";
-        writeLonEW(ost, cdata1d[nlon][ii_min%nPoint]);
-        ost << ", " << cdata2d[npp][ii_min] << "hPa)";
-      }
-      if (ii_max > 1) {
-        ost << " Max: " << cdata2d[no1][ii_max] << '(';
-        writeLatNS(ost, cdata1d[nlat][ii_max%nPoint]);
-        ost << ", ";
-        writeLonEW(ost, cdata1d[nlon][ii_max%nPoint]);
-        ost << ", " << cdata2d[npp][ii_max] << "hPa)";
-      }
-      vct.extremeValueString = ost.str();
-  
-      const float xylim[4] = { xPlotmin, xPlotmax, yPlotmin, yPlotmax };
-      const float scale = (xylim[1] - xylim[0])/100 * poptions.extremeSize;
-      plotMin(cdata2d[nx][ii_min],cdata2d[ny][ii_min],scale);
-      plotMax(cdata2d[nx][ii_max],cdata2d[ny][ii_max],scale);
-    }
-    vcText.push_back(vct);
-#endif
   }
 }
 

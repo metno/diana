@@ -56,18 +56,6 @@ enum VcrossVertical {
   vcv_none
 };
 
-/// Annotation info for Vertical Crossections
-struct VcrossText {
-  bool     timeGraph;
-  Colour   colour;
-  std::string modelName;
-  std::string crossectionName;
-  std::string fieldName;
-  int      forecastHour;
-  miutil::miTime   validTime;
-  std::string extremeValueString;
-};
-
 class VcrossHardcopy;
 class VcrossOptions;
 
@@ -84,12 +72,16 @@ class VcrossPlot
 public:
 private:
   struct Plot {
+    std::string modelName;
+    std::string fieldName;
     VCPlotType type;
     VcrossData::values_t p0, p1;
     VcrossData::ZAxisPtr zax;
     PlotOptions poptions;
-    Plot(VCPlotType t, const VcrossData::values_t& pp0, const VcrossData::values_t& pp1, VcrossData::ZAxisPtr z, const PlotOptions& po)
-      : type(t), p0(pp0), p1(pp1), zax(z), poptions(po) { }
+    Plot(const std::string& mn, const std::string& fn,
+        VCPlotType t, const VcrossData::values_t& pp0, const VcrossData::values_t& pp1, VcrossData::ZAxisPtr z,
+        const PlotOptions& po)
+      : modelName(mn), fieldName(fn), type(t), p0(pp0), p1(pp1), zax(z), poptions(po) { }
   };
   typedef std::vector<Plot> Plots_t;
 
@@ -115,8 +107,9 @@ public:
   void setHorizontalCross(const std::string& csName, const VcrossData::Cut::lonlat_t& ll);
   void setHorizontalTime(const std::vector<miutil::miTime>& times, int csPoint);
   void setVerticalAxis(VcrossData::ZAxis::Quantity q);
-  void addPlot(VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1,
-      VcrossData::ZAxisPtr zax, const PlotOptions& poptions);
+  void addPlot(const std::string& model, const std::string& field,
+      VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1, VcrossData::ZAxisPtr zax,
+      const PlotOptions& poptions);
   void prepare();
   void plot();
 
@@ -133,6 +126,7 @@ private:
   void plotLevels();
   void plotXLabels();
   void plotTitle();
+  void plotText();
 
   /*! Prepare axes' value ranges after all plots are added. */
   void prepareAxes();
@@ -190,7 +184,6 @@ private:
   int mTimeCSPoint;
 
   Plots_t mPlots;
-  std::vector<VcrossText> vcText;
 
   std::vector<std::string> markName;
   std::vector<float>    markNamePosMin;
