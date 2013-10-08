@@ -112,7 +112,8 @@ common_cxx_sources = \
 	diWeatherArea.cc \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
-	diWeatherSymbol.cc
+	diWeatherSymbol.cc \
+	PolyContouring.cc
 
 # Qt sources
 common_qt_sources = 
@@ -310,6 +311,8 @@ noinst_HEADERS = \
 	diWeatherObjects.h \
 	diWeatherSymbol.h \
 	diWorkOrder.h \
+	PolyContouring.h \
+	reversible_list.hh \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
