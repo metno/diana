@@ -20,6 +20,33 @@ namespace VcrossPlotDetail {
 
 const float UNDEF_VALUE = 1e30;
 
+inline bool isUndefined(float v)
+{
+  return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
+}
+
+void VCContourField::setLevels(float lstep)
+{
+  float vMin = UNDEF_VALUE, vMax = UNDEF_VALUE;
+  for (size_t ix=0; ix<nx(); ++ix) {
+    for (size_t iy=0; iy<ny(); ++iy) {
+      const float v = mData[index(ix, iy)];
+      if (isUndefined(v))
+        continue;
+      if (isUndefined(vMin) or v < vMin)
+        vMin = v;
+      if (isUndefined(vMax) or v > vMax)
+        vMax = v;
+    }
+  }
+  
+  if (not isUndefined(vMin)) {
+    const float lstart = ((int)(vMin / lstep)+1) * lstep;
+    const float lstop  = ((int)(vMax / lstep)+1) * lstep;
+    setLevels(lstart, lstop, lstep);
+  }
+}
+
 void VCContourField::setLevels(float lstart, float lstop, float lstep)
 {
   mLstepInv  = 1/lstep;
@@ -53,11 +80,6 @@ contouring::Point VCContourField::point(int levelIndex, int x0, int y0, int x1, 
   const float x = (1-c)*p0.x + c*p1.x; // FIXME interpolate before calling position?
   const float y = (1-c)*p0.y + c*p1.y;
   return contouring::Point(x, y);
-}
-
-inline bool isUndefined(float v)
-{
-  return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
 int VCContourField::level_point(int ix, int iy) const

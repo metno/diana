@@ -1711,7 +1711,7 @@ void VcrossPlot::plotDataContour(const Plot& plot)
   METLIBS_LOG_SCOPE();
 
   VcrossPlotDetail::VCContourField con_field(plot.p0, mAxisX, mAxisY, mCrossectionDistances, plot.zax);
-  con_field.setLevels(100, 300, 4);
+  con_field.setLevels(plot.poptions.lineinterval);
   VcrossPlotDetail::VCContouring con(&con_field, fp.get());
   con.makeLines();
 }

@@ -34,6 +34,7 @@ public:
 
   virtual contouring::Point point(int levelIndex, int x0, int y0, int x1, int y1) const;
 
+  void setLevels(float lstep);
   void setLevels(float lstart, float lstop, float lstep);
   const std::vector<float>& levels() const
     { return mLevels; }
