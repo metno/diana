@@ -34,7 +34,9 @@
 #if !defined(USE_PAINTGL)
 #include <qgl.h>
 #else
+#include <QWidget>
 #include "PaintGL/paintgl.h"
+#define QGLWidget PaintGLWidget
 #endif
 
 #include <diColour.h>
@@ -50,12 +52,7 @@ class QMouseEvent;
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-class VcrossWidget : public
-#if !defined(USE_PAINTGL)
-QGLWidget
-#else
-PaintGLWidget
-#endif // USE_PAINTGL
+class VcrossWidget : public QGLWidget
 {
   Q_OBJECT;
 

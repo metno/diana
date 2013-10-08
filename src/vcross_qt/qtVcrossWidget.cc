@@ -366,7 +366,7 @@ bool VcrossWidget::saveRasterImage(const std::string& fname,
 void VcrossWidget::print(QPrinter *qprt, const printOptions& priop)
 {
 #if defined(USE_PAINTGL)
-  print(&qprt);
+  print(qprt, priop);
 #else
   print(priop);
 #endif
