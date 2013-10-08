@@ -40,6 +40,9 @@
 /src/Makefile.in
 /src/*.moc.cc
 /src/*.moc.o
+/src/*/*.moc.cc
+/src/*/*.moc.o
+/src/vcross_v2/libdiana_vcross.a
 /src/test-diOrderBook
 /src/test_diOrderBook-*.o
 /stamp-h1
@@ -72,3 +75,4 @@
 /COPYING
 /.cproject
 /.project
+/compile
