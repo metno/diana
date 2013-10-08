@@ -3,6 +3,7 @@
 
 #include "diContouring.h"
 #include "diFontManager.h"
+#include "PolyContouring.h"
 
 #include <GL/gl.h>
 #if !defined(USE_PAINTGL)
@@ -17,9 +18,6 @@
 #define M_TIME
 #define MILOGGER_CATEGORY "diana.PolyContouring"
 #include <miLogger/miLogging.h>
-
-// FIXME hack for testing
-#include "/home/alexanderb/development/conpol-2/poly_contouring.cc"
 
 const float UNDEF_VALUE = 1e30;
 
