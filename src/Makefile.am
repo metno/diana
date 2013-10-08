@@ -40,6 +40,7 @@ common_cxx_sources = \
 	diCommandParser.cc \
 	diComplexSymbolPlot.cc \
 	diContouring.cc \
+	diPolyContouring.cc \
 	diController.cc \
 	diDisplayObjects.cc \
 	diEditManager.cc \

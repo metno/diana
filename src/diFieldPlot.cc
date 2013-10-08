@@ -36,6 +36,7 @@
 #include "diFieldPlot.h"
 
 #include "diContouring.h"
+#include "diPolyContouring.h"
 #include "diFontManager.h"
 #include <diImageGallery.h>
 #include <diPlotOptions.h>
@@ -532,7 +533,8 @@ bool FieldPlot::plot()
 
   bool ok = false;
 
-  if      (plottype==fpt_contour)          ok = plotContour();
+  if      (plottype==fpt_contour)          ok = plotContour(1);
+  else if (plottype==fpt_contour2)         ok = plotContour(2);
   else if (plottype==fpt_wind)             ok = plotWind();
   else if (plottype==fpt_wind_temp_fl)     ok = plotWindAndValue(true);
   else if (plottype==fpt_wind_value)       ok = plotWindAndValue(false);
@@ -2365,7 +2367,7 @@ bool FieldPlot::plotDirectionColour()
 
 
 //  plot scalar field as contour lines
-bool FieldPlot::plotContour()
+bool FieldPlot::plotContour(int version)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2374,6 +2376,18 @@ bool FieldPlot::plotContour()
   if (!fields[0]) return false;
 
   if (!fields[0]->data) return false;
+
+  bool (*contour_function)(int, int, float[], float[], float[],
+      const int[], int, float[], float[], int, float[], float, float,
+      int, float[], int, int[], int, int[], int, int[], int, float[],
+      int, float[], float , float, int, float[], int, int[], int, int[],
+      int, int[], int, float[], int, const int[], float, float, int,
+      int, int, int[], int, int, float[], FontManager*, const PlotOptions&, GLPfile*,
+      const Area&, const float&, const std::string&, const std::string&, const int&);
+  if (version == 2)
+    contour_function = poly_contour;
+  else
+    contour_function = contour;
 
   const int nx= fields[0]->nx;
   const int ny= fields[0]->ny;
@@ -2542,7 +2556,7 @@ bool FieldPlot::plotContour()
 
     int idraw2=0;
 
-    res = contour(rnx, rny, data, x, y,
+    res = contour_function(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
@@ -2654,7 +2668,7 @@ bool FieldPlot::plotContour()
     bool contourShading = poptions.contourShading;
     poptions.contourShading = 0;
 
-    res = contour(rnx, rny, data, x, y,
+    res = contour_function(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,

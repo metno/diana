@@ -78,6 +78,7 @@ enum Alignment {
 */
 const std::string
   fpt_contour         = "contour",
+  fpt_contour2        = "contour2",
   fpt_value           = "value",
   fpt_symbol          = "symbol",
   fpt_alpha_shade     = "alpha_shade",

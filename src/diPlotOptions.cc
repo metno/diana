@@ -85,6 +85,7 @@ PlotOptions::PlotOptions():
   //init plottypes
   vector< std::string> plottypes_all;
   plottypes_all.push_back(fpt_contour);
+  plottypes_all.push_back(fpt_contour2);
   plottypes_all.push_back(fpt_value);
   plottypes_all.push_back(fpt_symbol);
   plottypes_all.push_back(fpt_alpha_shade);
@@ -100,6 +101,7 @@ PlotOptions::PlotOptions():
 
   vector< std::string> plottypes_1dim;
   plottypes_1dim.push_back(fpt_contour);
+  plottypes_1dim.push_back(fpt_contour2);
   plottypes_1dim.push_back(fpt_value);
   plottypes_1dim.push_back(fpt_symbol);
   plottypes_1dim.push_back(fpt_alpha_shade);
@@ -131,6 +133,7 @@ PlotOptions::PlotOptions():
   plottypes.push_back(plottypes_4dim);
 
   enabledOptions[fpt_contour] = " extreme line shading contour font";
+  enabledOptions[fpt_contour2] = " extreme line shading contour font";
   enabledOptions[fpt_value] = "font density";
   enabledOptions[fpt_symbol] = "font density";
   enabledOptions[fpt_alpha_shade] = " extreme";
@@ -651,6 +654,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
       } else if (key==key_plottype){
         value= miutil::to_lower(value);
         if (value==fpt_contour         || value==fpt_value ||
+            value==fpt_contour2 ||
             value==fpt_alpha_shade     || value==fpt_symbol ||
             value==fpt_alarm_box       || value==fpt_fill_cell        ||
             value==fpt_wind            || value==fpt_vector          ||

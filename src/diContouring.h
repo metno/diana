@@ -31,6 +31,9 @@
 #ifndef CONTOURING_H
 #define CONTOURING_H
 
+#include <vector>
+#include <string>
+
   /// temporary field contouring info
   struct LinePart {
     int   pfirst,plast;
@@ -75,7 +78,7 @@
 
 /// the field contouring routine
 bool contour(int nx, int ny, float z[], float xz[], float yz[],
-	     int ipart[], int icxy, float cxy[], float xylim[],
+	     const int ipart[], int icxy, float cxy[], float xylim[],
 	     int idraw, float zrange[], float zstep, float zoff,
 	     int nlines, float rlines[],
 	     int ncol, int icol[], int ntyp, int ityp[],
@@ -84,13 +87,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
 	     int nlines2, float rlines2[],
 	     int ncol2, int icol2[], int ntyp2, int ityp2[],
 	     int nwid2, int iwid2[], int nlim2, float rlim2[],
-	     int ismooth, int labfmt[], float chxlab, float chylab,
+	     int ismooth, const int labfmt[], float chxlab, float chylab,
 	     int ibcol,
 	     int ibmap, int lbmap, int kbmap[],
 	     int nxbmap, int nybmap, float rbmap[],
              FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
 	     const Area& fieldArea, const float& fieldUndef,
-	     const miutil::miString& modelName = "", const miutil::miString& paramName = "",
+	     const std::string& modelName = "", const std::string& paramName = "",
 	     const int& fhour = 0);
 
 // functions called from contour
@@ -149,8 +152,8 @@ void writeShapefile(std::vector<ContourLine*>& contourlines,
 		    float zstep,
 		    float zoff,
 		    const float& fieldUndef,
-		    const miutil::miString& modelName,
-		    const miutil::miString& paramName,
+		    const std::string& modelName,
+		    const std::string& paramName,
 		    const int& fhour);
 
 /// get CL index
