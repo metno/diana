@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,25 +31,18 @@
 
 #include <qglobal.h>
 
-#include <iostream>
 #if !defined(USE_PAINTGL)
 #include <qgl.h>
 #else
-#include <GL/gl.h>
 #include "PaintGL/paintgl.h"
-#include <QWidget>
-#define QGLWidget PaintGLWidget
 #endif
 
-#include <QMouseEvent>
-#include <QKeyEvent>
 #include <diColour.h>
-#include <diPrintOptions.h>
 
-using namespace std;
-
+class printOptions;
 class VcrossManager;
-
+class QKeyEvent;
+class QMouseEvent;
 
 /**
    \brief The OpenGL widget for Vertical Crossections
@@ -59,33 +50,42 @@ class VcrossManager;
    Handles widget paint/redraw events.
    Receives mouse and keybord events and initiates actions.
 */
-class VcrossWidget : public QGLWidget
+class VcrossWidget : public
+#if !defined(USE_PAINTGL)
+QGLWidget
+#else
+PaintGLWidget
+#endif // USE_PAINTGL
 {
-  Q_OBJECT
+  Q_OBJECT;
 
 public:
-#if !defined(USE_PAINTGL)
-    VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-                QWidget* parent = 0 );
-#else
-  VcrossWidget(VcrossManager *vcm, QWidget* parent = 0 );
-#endif
+  VcrossWidget(VcrossManager *vcm, QWidget* parent = 0);
   ~VcrossWidget();
 
   void enableTimeGraph(bool on);
 
-  bool saveRasterImage(const miutil::miString fname,
-  		       const miutil::miString format,
-		       const int quality = -1);
+  bool saveRasterImage(const std::string& fname, const std::string& format, const int quality = -1);
 
-  void startHardcopy(const printOptions& po);
-  void endHardcopy();
+  /** print using either given QPrinter (if USE_PAINTGL) or using the given printOptions */
+  void print(QPrinter* qprt, const printOptions& priop);
+
+  /** make hardcopy using the given printOptions */
+  void print(const printOptions& priop);
 
 protected:
+  virtual void initializeGL();
+  virtual void paintGL();
+  virtual void resizeGL( int w, int h );
 
-  void initializeGL();
-  void paintGL();
-  void resizeGL( int w, int h );
+  virtual void keyPressEvent(QKeyEvent *me);
+  virtual void mousePressEvent(QMouseEvent* me);
+  virtual void mouseMoveEvent(QMouseEvent* me);
+  virtual void mouseReleaseEvent(QMouseEvent* me);
+
+private:
+  void startHardcopy(const printOptions& po);
+  void endHardcopy();
 
 private:
   VcrossManager *vcrossm;
@@ -105,16 +105,9 @@ private:
   bool timeGraph;
   bool startTimeGraph;
 
-  void keyPressEvent(QKeyEvent *me);
-  void mousePressEvent(QMouseEvent* me);
-  void mouseMoveEvent(QMouseEvent* me);
-  void mouseReleaseEvent(QMouseEvent* me);
-
 signals:
   void timeChanged(int);
   void crossectionChanged(int);
-
 };
-
 
 #endif

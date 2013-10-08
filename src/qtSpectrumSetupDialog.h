@@ -37,13 +37,12 @@
 #include <puTools/miString.h>
 #include <vector>
 
-using namespace std;
 
 class QFont;
 class QGridLayout;
 class SpectrumManager;
 class SpectrumOptions;
-class VcrossSetup;
+class VcrossSetupUI;
 
 /**
    \brief Dialogue to select Wave Spectrum diagram and data options
@@ -72,7 +71,7 @@ private:
 
   QGridLayout* glayout;
 
-  vector<VcrossSetup*> spSetups;
+  std::vector<VcrossSetupUI*> spSetups;
 
   bool isInitialized;
 
@@ -97,7 +96,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const std::string, const std::string=""); // activate help
+  void showsource(const std::string&, const std::string& = ""); // activate help
 };
 
 #endif

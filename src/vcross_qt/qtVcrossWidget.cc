@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -35,6 +33,14 @@
 #include "config.h"
 #endif
 
+#include "qtVcrossWidget.h"
+
+#ifdef USE_VCROSS_V2
+#include "diVcrossManager.h"
+#else
+#include "diVcross1Manager.h"
+#endif
+
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -43,23 +49,29 @@
 #define MILOGGER_CATEGORY "diana.VcrossWidget"
 #include <miLogger/miLogging.h>
 
-#include "qtVcrossWidget.h"
-#include "diVcrossManager.h"
-#include "diVcrossPlot.h"
-
-
+namespace /* anonymous */ {
 #if !defined(USE_PAINTGL)
-VcrossWidget::VcrossWidget(VcrossManager *vcm, const QGLFormat fmt,
-                         QWidget* parent)
-    : QGLWidget( fmt, parent),
-#else
-VcrossWidget::VcrossWidget(VcrossManager *vcm, QWidget* parent)
-    : PaintGLWidget(parent, true),
-#endif
-      vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
-      timeGraph(false), startTimeGraph(false)
+QGLFormat glfmt()
 {
+  QGLFormat fmt;
+  fmt.setOverlay(false);
+  fmt.setDoubleBuffer(true);
+  fmt.setDirectRendering(false);
+  return fmt;
+}
+#endif // !USE_PAINTGL
+} // namespace anonymous
 
+VcrossWidget::VcrossWidget(VcrossManager *vcm, QWidget* parent)
+  :
+#if !defined(USE_PAINTGL)
+  QGLWidget(glfmt(), parent),
+#else
+  PaintGLWidget(parent, true),
+#endif
+  vcrossm(vcm), fbuffer(0), arrowKeyDirection(1),
+  timeGraph(false), startTimeGraph(false)
+{
   if ( !isValid() ) {
     qFatal("Failed to create OpenGL rendering context on this display");
   }
@@ -76,16 +88,14 @@ VcrossWidget::VcrossWidget(VcrossManager *vcm, QWidget* parent)
 //  Release allocated resources
 VcrossWidget::~VcrossWidget()
 {
-  if (fbuffer) delete[] fbuffer;
+  delete[] fbuffer;
 }
 
 
 //  Set up the OpenGL rendering state
 void VcrossWidget::initializeGL()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossWidget::initializeGL");
-#endif
+  METLIBS_LOG_SCOPE();
 
   glShadeModel( GL_FLAT );
   setAutoBufferSwap(false);
@@ -95,11 +105,10 @@ void VcrossWidget::initializeGL()
 
 void VcrossWidget::paintGL()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossWidget::paintGL");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  if (!vcrossm) return;
+  if (!vcrossm)
+    return;
 
   if (fbuffer && !savebackground) {
     delete[] fbuffer;
@@ -109,7 +118,7 @@ void VcrossWidget::paintGL()
   if (!fbuffer) {
 
 #ifdef DEBUGREDRAW
-    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ... vcrossm->plot");
+    METLIBS_LOG_DEBUG("... vcrossm->plot");
 #endif
     QApplication::setOverrideCursor( Qt::WaitCursor );
     vcrossm->plot();
@@ -117,10 +126,10 @@ void VcrossWidget::paintGL()
 
     if (savebackground) {
 #ifdef DEBUGREDRAW
-    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ...... savebackground");
+    METLIBS_LOG_DEBUG("...... savebackground");
 #endif
 
-      VcrossPlot::getPlotSize(glx1,gly1,glx2,gly2,rubberbandColour);
+    vcrossm->getPlotSize(glx1,gly1,glx2,gly2,rubberbandColour);
 
       fbuffer= new GLuint[4*plotw*ploth];
 
@@ -138,7 +147,7 @@ void VcrossWidget::paintGL()
 
   } else {
 #ifdef DEBUGREDRAW
-    METLIBS_LOG_DEBUG("VcrossWidget::paintGL ...... drawbackground");
+    METLIBS_LOG_DEBUG("...... drawbackground");
 #endif
 
     makeCurrent();
@@ -185,12 +194,12 @@ void VcrossWidget::paintGL()
 
 
 //  Set up the OpenGL view port, matrix mode, etc.
-void VcrossWidget::resizeGL( int w, int h )
+void VcrossWidget::resizeGL(int w, int h)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossWidget::resizeGL  w=" << w << " h=" << h);
-#endif
-  VcrossPlot::setPlotWindow(w,h);
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG("w=" << w << " h=" << h);
+
+  vcrossm->setPlotWindow(w,h);
 
   glViewport( 0, 0, (GLint)w, (GLint)h );
   plotw= w;
@@ -232,23 +241,23 @@ void VcrossWidget::keyPressEvent(QKeyEvent *me)
     }
 
   } else if (me->key()==Qt::Key_Left){
-    VcrossPlot::movePart(-arrowKeyDirection*plotw/8, 0);
+    vcrossm->movePart(-arrowKeyDirection*plotw/8, 0);
   } else if (me->key()==Qt::Key_Right){
-    VcrossPlot::movePart(arrowKeyDirection*plotw/8, 0);
+    vcrossm->movePart(arrowKeyDirection*plotw/8, 0);
   } else if (me->key()==Qt::Key_Down){
-    VcrossPlot::movePart(0, -arrowKeyDirection*ploth/8);
+    vcrossm->movePart(0, -arrowKeyDirection*ploth/8);
   } else if (me->key()==Qt::Key_Up){
-    VcrossPlot::movePart(0, arrowKeyDirection*ploth/8);
+    vcrossm->movePart(0, arrowKeyDirection*ploth/8);
   } else if (me->key()==Qt::Key_X) {
-    VcrossPlot::increasePart();
+    vcrossm->increasePart();
   } else if (me->key()==Qt::Key_Z && me->modifiers() & Qt::ShiftModifier) {
-    VcrossPlot::increasePart();
+    vcrossm->increasePart();
   } else if (me->key()==Qt::Key_Z) {
     int dw= plotw - int(plotw/1.3);
     int dh= ploth - int(ploth/1.3);
-    VcrossPlot::decreasePart(dw,dh,plotw-dw,ploth-dh);
+    vcrossm->decreasePart(dw,dh,plotw-dw,ploth-dh);
   } else if (me->key()==Qt::Key_Home) {
-    VcrossPlot::standardPart();
+    vcrossm->standardPart();
   } else if (me->key()==Qt::Key_R) {
     if (arrowKeyDirection>0) arrowKeyDirection= -1;
     else                     arrowKeyDirection=  1;
@@ -282,7 +291,7 @@ void VcrossWidget::mousePressEvent(QMouseEvent* me)
     firstx= mousex;
     firsty= mousey;
   } else if (me->button()==Qt::RightButton) {
-    VcrossPlot::increasePart();
+    vcrossm->increasePart();
   }
 
   updateGL();
@@ -298,7 +307,7 @@ void VcrossWidget::mouseMoveEvent(QMouseEvent* me)
   } else if (dopanning) {
     mousex= me->x();
     mousey= height() - me->y();
-    VcrossPlot::movePart(firstx-mousex, firsty-mousey);
+    vcrossm->movePart(firstx-mousex, firsty-mousey);
     firstx= mousex;
     firsty= mousey;
     updateGL();
@@ -315,14 +324,14 @@ void VcrossWidget::mouseReleaseEvent(QMouseEvent* me)
     mousey= height() - me->y();
     if (abs(firstx-mousex)>rubberlimit ||
 	abs(firsty-mousey)>rubberlimit)
-      VcrossPlot::decreasePart(firstx,firsty,mousex,mousey);
+      vcrossm->decreasePart(firstx,firsty,mousex,mousey);
     dorubberband= false;
     savebackground= false;
     updateGL();
   } else if (dopanning) {
 //    mousex= me->x();
 //    mousey= height() - me->y();
-//    VcrossPlot::movePart(firstx-mousex, firsty-mousey);
+//    vcrossm->movePart(firstx-mousex, firsty-mousey);
     dopanning= false;
     updateGL();
   }
@@ -331,19 +340,18 @@ void VcrossWidget::mouseReleaseEvent(QMouseEvent* me)
 
 void VcrossWidget::enableTimeGraph(bool on)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossWidget::enableTimeGraph  on=" << on);
-#endif
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG("on=" << on);
+
   timeGraph= false;
   startTimeGraph= on;
 }
 
 
-bool VcrossWidget::saveRasterImage(const miutil::miString fname,
-			           const miutil::miString format,
+bool VcrossWidget::saveRasterImage(const std::string& fname,
+			           const std::string& format,
 			           const int quality)
 {
-
   updateGL();
   makeCurrent();
   glFlush();
@@ -355,6 +363,22 @@ bool VcrossWidget::saveRasterImage(const miutil::miString fname,
   return true;
 }
 
+void VcrossWidget::print(QPrinter *qprt, const printOptions& priop)
+{
+#if defined(USE_PAINTGL)
+  print(&qprt);
+#else
+  print(priop);
+#endif
+}
+
+void VcrossWidget::print(const printOptions& priop)
+{
+  startHardcopy(priop);
+  updateGL();
+  endHardcopy();
+  updateGL();
+}
 
 // start hardcopy plot
 void VcrossWidget::startHardcopy(const printOptions& po){
@@ -368,4 +392,3 @@ void VcrossWidget::endHardcopy(){
   makeCurrent();
   vcrossm->endHardcopy();
 }
-

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +31,8 @@
 #include "config.h"
 #endif
 
+#include "qtVcrossSetup.h"
+
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qcombobox.h>
@@ -40,66 +40,62 @@
 #include <QGridLayout>
 
 #include "qtUtility.h"
-#define MILOGGER_CATEGORY "diana.VcrossSetup"
+#include "diLinetype.h"
+
+#define MILOGGER_CATEGORY "diana.VcrossSetupUI"
 #include <miLogger/miLogging.h>
 
-#include "diVcrossManager.h"
-#include "qtVcrossSetup.h"
-
 // initialize static members
-bool               VcrossSetup::initialized= false;
-vector<Colour::ColourInfo> VcrossSetup::m_cInfo; // all defined colours
-int                VcrossSetup::nr_colors=0;
-QColor*            VcrossSetup::pixcolor=0;
-int                VcrossSetup::nr_linewidths=0;
-int                VcrossSetup::nr_linetypes=0;
-vector<std::string>   VcrossSetup::linetypes;
+bool               VcrossSetupUI::initialized= false;
+std::vector<Colour::ColourInfo> VcrossSetupUI::m_cInfo; // all defined colours
+int                VcrossSetupUI::nr_colors=0;
+QColor*            VcrossSetupUI::pixcolor=0;
+int                VcrossSetupUI::nr_linewidths=0;
+int                VcrossSetupUI::nr_linetypes=0;
+std::vector<std::string>   VcrossSetupUI::linetypes;
 
-VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
-			QGridLayout * glayout, int row, int options)
+VcrossSetupUI::VcrossSetupUI( QWidget* parent, const std::string& text,
+    QGridLayout * glayout, int row, int options)
   : QObject(parent),name(text)
 {
-  //a Qobject with a checkbox,and up to three comboboxes
-#ifdef DEBUGPRINT
-  cout<<"VcrossSetup::VcrossSetup called"<<endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
   //------------------------
   if (!initialized) {
   //------------------------
 
   // color types
-      m_cInfo = Colour::getColourInfo();
-  nr_colors= m_cInfo.size();
-  pixcolor = new QColor[nr_colors];// this must exist in the objectlifetime
-  for(int i=0; i<nr_colors; i++ ){
-    pixcolor[i]=QColor( m_cInfo[i].rgb[0], m_cInfo[i].rgb[1],
-			m_cInfo[i].rgb[2] );
+    m_cInfo = Colour::getColourInfo();
+    nr_colors= m_cInfo.size();
+    pixcolor = new QColor[nr_colors];// this must exist in the objectlifetime
+    for(int i=0; i<nr_colors; i++ ){
+      pixcolor[i]=QColor( m_cInfo[i].rgb[0], m_cInfo[i].rgb[1],
+          m_cInfo[i].rgb[2] );
+    }
+
+    // linewidths
+    nr_linewidths= 12;
+    
+    // linetypes
+    linetypes = Linetype::getLinetypeNames();
+    nr_linetypes= linetypes.size();
+    
+    //------------------------
+    initialized= true;
   }
-
-  // linewidths
-  nr_linewidths= 12;
-
-  // linetypes
-  linetypes = Linetype::getLinetypeNames();
-  nr_linetypes= linetypes.size();
-
   //------------------------
-  initialized= true;
-  }
-  //------------------------
-
+  
   int ncol = 0;
 
   if (options & useOnOff) {
-    checkbox = new QCheckBox(text.c_str(),parent);
+    checkbox = new QCheckBox(QString::fromStdString(text),parent);
     label= 0;
     glayout->addWidget(checkbox,row,ncol);
     connect( checkbox, SIGNAL( toggled(bool)), SLOT( setChecked( bool) ));
     ncol++;
   } else{
     checkbox= 0;
-    label = new QLabel(text.c_str(),parent);
+    label = new QLabel(QString::fromStdString(text),parent);
     glayout->addWidget(label,row,ncol,Qt::AlignLeft);
     ncol++;
   }
@@ -168,11 +164,10 @@ VcrossSetup::VcrossSetup( QWidget* parent, miutil::miString text,
     ncol++;
   } else
     textchoicebox2=0;
-
 }
 
 
-void VcrossSetup::setChecked(bool on)
+void VcrossSetupUI::setChecked(bool on)
 {
   if (checkbox)               checkbox->setChecked(on);
   if (colourbox)             colourbox->setEnabled(on);
@@ -186,15 +181,12 @@ void VcrossSetup::setChecked(bool on)
 }
 
 
-bool VcrossSetup::isChecked()
+bool VcrossSetupUI::isChecked()
 {
-  if (checkbox && checkbox->isChecked())
-    return true;
-  else
-    return false;
+  return (checkbox && checkbox->isChecked());
 }
 
-Colour::ColourInfo VcrossSetup::getColour()
+Colour::ColourInfo VcrossSetupUI::getColour()
 {
   Colour::ColourInfo sColour;
   if (colourbox){
@@ -205,7 +197,7 @@ Colour::ColourInfo VcrossSetup::getColour()
 }
 
 
-void VcrossSetup::setColour(const miutil::miString& colourString)
+void VcrossSetupUI::setColour(const std::string& colourString)
 {
   int nr_colours = m_cInfo.size();
   for (int i = 0;i<nr_colours;i++){
@@ -217,7 +209,7 @@ void VcrossSetup::setColour(const miutil::miString& colourString)
 }
 
 
-void VcrossSetup::setLinetype(const miutil::miString& linetype)
+void VcrossSetupUI::setLinetype(const std::string& linetype)
 {
   if (linetypebox) {
     int index= 0;
@@ -228,9 +220,9 @@ void VcrossSetup::setLinetype(const miutil::miString& linetype)
 }
 
 
-miutil::miString VcrossSetup::getLinetype()
+std::string VcrossSetupUI::getLinetype()
 {
-  miutil::miString sString;
+  std::string sString;
   if (linetypebox) {
     int index = linetypebox->currentIndex();
     sString = linetypes[index];
@@ -239,7 +231,7 @@ miutil::miString VcrossSetup::getLinetype()
 }
 
 
-void VcrossSetup::setLinewidth(float linew)
+void VcrossSetupUI::setLinewidth(float linew)
 {
   if (linewidthbox) {
     int index = int(linew - 1.0);
@@ -250,7 +242,7 @@ void VcrossSetup::setLinewidth(float linew)
 }
 
 
-float VcrossSetup::getLinewidth()
+float VcrossSetupUI::getLinewidth()
 {
   float linew= 1.;
   if (linewidthbox)
@@ -259,32 +251,32 @@ float VcrossSetup::getLinewidth()
 }
 
 
-void VcrossSetup::defineValue(int low, int high, int step, int value,
-			      const miutil::miString& prefix,
-			      const miutil::miString& suffix)
+void VcrossSetupUI::defineValue(int low, int high, int step, int value,
+			      const std::string& prefix,
+			      const std::string& suffix)
 {
   if (valuespinbox) {
     valuespinbox->setMinimum(low);
     valuespinbox->setMaximum(high);
     valuespinbox->setSingleStep(step);
     valuespinbox->setValue(value);
-    if (prefix.exists())
+    if (not prefix.empty())
       valuespinbox->setPrefix(QString(prefix.c_str()));
-    else if (suffix.exists())
+    else if (not suffix.empty())
       valuespinbox->setSuffix(QString(suffix.c_str()));
     valuespinbox->setValue(value);
   }
 }
 
 
-void VcrossSetup::setValue(int value)
+void VcrossSetupUI::setValue(int value)
 {
   if (valuespinbox)
     valuespinbox->setValue(value);
 }
 
 
-int VcrossSetup::getValue()
+int VcrossSetupUI::getValue()
 {
   if (valuespinbox)
     return valuespinbox->value();
@@ -293,32 +285,32 @@ int VcrossSetup::getValue()
 }
 
 
-void VcrossSetup::defineMinValue(int low, int high, int step, int value,
-			         const miutil::miString& prefix,
-			         const miutil::miString& suffix)
+void VcrossSetupUI::defineMinValue(int low, int high, int step, int value,
+			         const std::string& prefix,
+			         const std::string& suffix)
 {
   if (minvaluespinbox) {
     minvaluespinbox->setMinimum(low);
     minvaluespinbox->setMaximum(high);
     minvaluespinbox->setSingleStep(step);
     minvaluespinbox->setValue(value);
-    if (prefix.exists())
+    if (not prefix.empty())
       minvaluespinbox->setPrefix(QString(prefix.c_str()));
-    else if (suffix.exists())
+    else if (not suffix.empty())
       minvaluespinbox->setSuffix(QString(suffix.c_str()));
     minvaluespinbox->setValue(value);
   }
 }
 
 
-void VcrossSetup::setMinValue(int value)
+void VcrossSetupUI::setMinValue(int value)
 {
   if (minvaluespinbox)
     minvaluespinbox->setValue(value);
 }
 
 
-int VcrossSetup::getMinValue()
+int VcrossSetupUI::getMinValue()
 {
   if (minvaluespinbox)
     return minvaluespinbox->value();
@@ -327,32 +319,32 @@ int VcrossSetup::getMinValue()
 }
 
 
-void VcrossSetup::defineMaxValue(int low, int high, int step, int value,
-			         const miutil::miString& prefix,
-			         const miutil::miString& suffix)
+void VcrossSetupUI::defineMaxValue(int low, int high, int step, int value,
+			         const std::string& prefix,
+			         const std::string& suffix)
 {
   if (maxvaluespinbox) {
     maxvaluespinbox->setMinimum(low);
     maxvaluespinbox->setMaximum(high);
     maxvaluespinbox->setSingleStep(step);
     maxvaluespinbox->setValue(value);
-    if (prefix.exists())
-      maxvaluespinbox->setPrefix(QString(prefix.c_str()));
-    else if (suffix.exists())
-      maxvaluespinbox->setSuffix(QString(suffix.c_str()));
+    if (not prefix.empty())
+      maxvaluespinbox->setPrefix(QString::fromStdString(prefix));
+    else if (not suffix.empty())
+      maxvaluespinbox->setSuffix(QString::fromStdString(suffix));
     maxvaluespinbox->setValue(value);
   }
 }
 
 
-void VcrossSetup::setMaxValue(int value)
+void VcrossSetupUI::setMaxValue(int value)
 {
   if (maxvaluespinbox)
     maxvaluespinbox->setValue(value);
 }
 
 
-int VcrossSetup::getMaxValue()
+int VcrossSetupUI::getMaxValue()
 {
   if (maxvaluespinbox)
     return maxvaluespinbox->value();
@@ -361,18 +353,18 @@ int VcrossSetup::getMaxValue()
 }
 
 
-void VcrossSetup::forceMaxValue(int minvalue)
+void VcrossSetupUI::forceMaxValue(int minvalue)
 {
   if (maxvaluespinbox) {
-    int step=  maxvaluespinbox->singleStep();
-    int value= maxvaluespinbox->value();
+    const int step  = maxvaluespinbox->singleStep();
+    const int value = maxvaluespinbox->value();
     if (minvalue > value - step)
       maxvaluespinbox->setValue(value+step);
   }
 }
 
 
-void VcrossSetup::forceMinValue(int maxvalue)
+void VcrossSetupUI::forceMinValue(int maxvalue)
 {
   if (minvaluespinbox) {
     int step=  minvaluespinbox->singleStep();
@@ -383,14 +375,14 @@ void VcrossSetup::forceMinValue(int maxvalue)
 }
 
 
-void VcrossSetup::defineTextChoice(const vector<miutil::miString>& vchoice, int ndefault)
+void VcrossSetupUI::defineTextChoice(const std::vector<std::string>& vchoice, int ndefault)
 {
   if (textchoicebox) {
     textchoicebox->clear();
     vTextChoice= vchoice;
     int m= vTextChoice.size();
-    for (int i=0; i<m; i++){
-      textchoicebox->addItem(QString(vchoice[i].c_str()));
+    for (int i=0; i<m; i++) {
+      textchoicebox->addItem(QString::fromStdString(vchoice[i]));
     }
     textchoicebox->setEnabled(true);
     if (ndefault>=0 && ndefault<m)
@@ -400,7 +392,7 @@ void VcrossSetup::defineTextChoice(const vector<miutil::miString>& vchoice, int 
   }
 }
 
-void VcrossSetup::defineTextChoice2(const vector<miutil::miString>& vchoice, int ndefault)
+void VcrossSetupUI::defineTextChoice2(const std::vector<std::string>& vchoice, int ndefault)
 {
   if (textchoicebox2) {
     textchoicebox2->clear();
@@ -417,49 +409,53 @@ void VcrossSetup::defineTextChoice2(const vector<miutil::miString>& vchoice, int
 }
 
 
-void VcrossSetup::setTextChoice(const miutil::miString& choice)
+void VcrossSetupUI::setTextChoice(const std::string& choice)
 {
   if (textchoicebox) {
-    miutil::miString t= choice.downcase();
-    int m= vTextChoice.size();
+    const std::string t = miutil::to_lower(choice);
+    const int m= vTextChoice.size();
     int i= 0;
-    while (i<m && t!=vTextChoice[i].downcase()) i++;
-    if (i==m) i=0;
+    while (i<m && t!=miutil::to_lower(vTextChoice[i]))
+      i++;
+    if (i==m)
+      i=0;
     textchoicebox->setCurrentIndex(i);
   }
 }
 
 
-miutil::miString VcrossSetup::getTextChoice()
+std::string VcrossSetupUI::getTextChoice()
 {
   if (textchoicebox) {
-    int i= textchoicebox->currentIndex();
-    if (i<0 || i>=int(vTextChoice.size())) i=0;
+    int i = textchoicebox->currentIndex();
+    if (i<0 || i>=int(vTextChoice.size()))
+      i=0;
     return vTextChoice[i];
   } else
     return "";
 }
 
-void VcrossSetup::setTextChoice2(const miutil::miString& choice)
+void VcrossSetupUI::setTextChoice2(const std::string& choice)
 {
   if (textchoicebox2) {
-    miutil::miString t= choice.downcase();
-    int m= vTextChoice2.size();
-    int i= 0;
-    while (i<m && t!=vTextChoice2[i].downcase()) i++;
-    if (i==m) i=0;
+    const std::string t = miutil::to_lower(choice);
+    int m = vTextChoice2.size();
+    int i = 0;
+    while (i<m && t!=miutil::to_lower(vTextChoice2[i]))
+      i++;
+    if (i==m)
+      i=0;
     textchoicebox2->setCurrentIndex(i);
   }
 }
 
-
-miutil::miString VcrossSetup::getTextChoice2()
+std::string VcrossSetupUI::getTextChoice2()
 {
   if (textchoicebox2) {
     int i= textchoicebox2->currentIndex();
-    if (i<0 || i>=int(vTextChoice2.size())) i=0;
+    if (i<0 || i>=int(vTextChoice2.size()))
+      i=0;
     return vTextChoice2[i];
   } else
     return "";
 }
-

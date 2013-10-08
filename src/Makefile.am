@@ -97,11 +97,6 @@ common_cxx_sources = \
 	diStationPlot.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
-	diVcrossField.cc \
-	diVcrossFile.cc \
-	diVcrossManager.cc \
-	diVcrossOptions.cc \
-	diVcrossPlot.cc \
 	diVprofData.cc \
 	diVprofDiagram.cc \
 	diVprofManager.cc \
@@ -115,6 +110,33 @@ common_cxx_sources = \
 	diWeatherObjects.cc \
 	diWeatherSymbol.cc \
 	PolyContouring.cc
+
+if WITH_VCROSS_V2
+common_cppflags += -Ivcross_v2 -Ivcross_qt -DUSE_VCROSS_V2
+common_cxx_sources += \
+	vcross_v2/diVcrossAxis.cc \
+	vcross_v2/diVcrossComputer.cc \
+	vcross_v2/diVcrossContour.cc \
+	vcross_v2/diVcrossComputer.cc \
+	vcross_v2/diVcrossField.cc \
+	vcross_v2/diVcrossFile.cc \
+	vcross_v2/diVcrossHardcopy.cc \
+	vcross_v2/diVcrossManager.cc \
+	vcross_v2/diVcrossOptions.cc \
+	vcross_v2/diVcrossPaint.cc \
+	vcross_v2/diVcrossPlot.cc \
+	vcross_v2/diVcrossSetup.cc \
+	vcross_v2/diVcrossSource.cc \
+	vcross_v2/diVcrossUtil.cc
+else
+common_cppflags += -Ivcross_v1 -Ivcross_qt
+common_cxx_sources += \
+	vcross_v1/diVcross1Field.cc \
+	vcross_v1/diVcross1File.cc \
+	vcross_v1/diVcross1Manager.cc \
+	vcross_v1/diVcross1Options.cc \
+	vcross_v1/diVcross1Plot.cc
+endif
 
 # Qt sources
 common_qt_sources = 
@@ -178,16 +200,18 @@ diana_qt_sources = \
 	qtToggleButton.cc \
 	qtTrajectoryDialog.cc \
 	qtUffdaDialog.cc \
-	qtVcrossDialog.cc \
-	qtVcrossSetup.cc \
-	qtVcrossSetupDialog.cc \
-	qtVcrossWidget.cc \
-	qtVcrossWindow.cc \
 	qtVprofModelDialog.cc \
 	qtVprofSetupDialog.cc \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
 	qtWorkArea.cc
+
+diana_qt_sources += \
+	vcross_qt/qtVcrossDialog.cc \
+	vcross_qt/qtVcrossSetup.cc \
+	vcross_qt/qtVcrossSetupDialog.cc \
+	vcross_qt/qtVcrossWidget.cc \
+	vcross_qt/qtVcrossWindow.cc
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)
@@ -294,11 +318,6 @@ noinst_HEADERS = \
 	diTesselation.h \
 	diTrajectoryPlot.h \
 	diUndoFront.h \
-	diVcrossField.h \
-	diVcrossFile.h \
-	diVcrossManager.h \
-	diVcrossOptions.h \
-	diVcrossPlot.h \
 	diVprofData.h \
 	diVprofDiagram.h \
 	diVprofManager.h \
@@ -367,11 +386,6 @@ noinst_HEADERS = \
 	qtTrajectoryDialog.h \
 	qtUffdaDialog.h \
 	qtUtility.h \
-	qtVcrossDialog.h \
-	qtVcrossSetup.h \
-	qtVcrossSetupDialog.h \
-	qtVcrossWidget.h \
-	qtVcrossWindow.h \
 	qtVprofModelDialog.h \
 	qtVprofSetupDialog.h \
 	qtVprofWidget.h \
@@ -379,6 +393,36 @@ noinst_HEADERS = \
 	qtWorkArea.h \
     signalhelper.h \
     bdiana_capi.h
+
+if WITH_VCROSS_V2
+noinst_HEADERS += \
+	vcross_v2/diVcrossAxis.h \
+	vcross_v2/diVcrossComputer.h \
+	vcross_v2/diVcrossContour.h \
+	vcross_v2/diVcrossComputer.h \
+	vcross_v2/diVcrossField.h \
+	vcross_v2/diVcrossFile.h \
+	vcross_v2/diVcrossHardcopy.h \
+	vcross_v2/diVcrossManager.h \
+	vcross_v2/diVcrossOptions.h \
+	vcross_v2/diVcrossPaint.h \
+	vcross_v2/diVcrossPlot.h \
+	vcross_v2/diVcrossSetup.h \
+	vcross_v2/diVcrossSource.h \
+	vcross_v2/diVcrossUtil.h
+else
+	vcross_v1/diVcross1Field.h \
+	vcross_v1/diVcross1File.h \
+	vcross_v1/diVcross1Manager.h \
+	vcross_v1/diVcross1Options.h \
+	vcross_v1/diVcross1Plot.h
+endif
+noinst_HEADERS += \
+	vcross_qt/qtVcrossDialog.h \
+	vcross_qt/qtVcrossSetup.h \
+	vcross_qt/qtVcrossSetupDialog.h \
+	vcross_qt/qtVcrossWidget.h \
+	vcross_qt/qtVcrossWindow.h
 
 if WITH_EMBEDDED
 if WITH_BATCH_ONLY

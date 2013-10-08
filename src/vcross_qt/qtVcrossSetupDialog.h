@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,35 +31,29 @@
 
 #include <QDialog>
 
-#include <diCommonTypes.h>
-#include <puTools/miString.h>
 #include <vector>
 
-using namespace std;
-
-class QGridLayout;
 class VcrossManager;
 class VcrossOptions;
-class VcrossSetup;
+class VcrossSetupUI;
+class QGridLayout;
 
 /**
    \brief Dialogue to select Vertical Crossection background/diagram options
-
 */
 class VcrossSetupDialog: public QDialog
 {
   Q_OBJECT
 
 public:
-
-  //the constructor
-  VcrossSetupDialog( QWidget* parent, VcrossManager* vm );
+  VcrossSetupDialog(QWidget* parent, VcrossManager* vm);
   void start();
+
 protected:
-  void closeEvent( QCloseEvent* );
+  void closeEvent(QCloseEvent*);
 
 private:
-  VcrossManager * vcrossm;
+  VcrossManager* vcrossm;
 
   void initOptions(QWidget* parent);
 
@@ -71,45 +63,45 @@ private:
 
   QGridLayout* glayout;
 
-  vector<VcrossSetup*> vcSetups;
+  std::vector<VcrossSetupUI*> vcSetups;
 
   bool isInitialized;
 
-  miutil::miString TEXTPLOT;
-  miutil::miString FRAME;
-  miutil::miString POSNAMES;
-  miutil::miString LEVELNUMBERS;
-  miutil::miString UPPERLEVEL;
-  miutil::miString LOWERLEVEL;
-  miutil::miString OTHERLEVELS;
-  miutil::miString SURFACE;
-  miutil::miString DISTANCE;
-  miutil::miString GRIDPOS;
-  miutil::miString GEOPOS;
-  miutil::miString VERTGRID;
-  miutil::miString MARKERLINES;
-  miutil::miString VERTICALMARKER;
-  miutil::miString EXTRAPOLP;
-  miutil::miString BOTTOMEXT;
-  miutil::miString THINARROWS;
-  miutil::miString VERTICALTYPE;
-  miutil::miString VHSCALE;
-  miutil::miString STDVERAREA;
-  miutil::miString STDHORAREA;
-  miutil::miString BACKCOLOUR;
-  miutil::miString ONMAPDRAW;
-  miutil::miString HITMAPDRAW;
+  std::string TEXTPLOT;
+  std::string FRAME;
+  std::string POSNAMES;
+  std::string LEVELNUMBERS;
+  std::string UPPERLEVEL;
+  std::string LOWERLEVEL;
+  std::string OTHERLEVELS;
+  std::string SURFACE;
+  std::string DISTANCE;
+  std::string GRIDPOS;
+  std::string GEOPOS;
+  std::string VERTGRID;
+  std::string MARKERLINES;
+  std::string VERTICALMARKER;
+  std::string EXTRAPOLP;
+  std::string BOTTOMEXT;
+  std::string THINARROWS;
+  std::string VERTICALTYPE;
+  std::string VHSCALE;
+  std::string STDVERAREA;
+  std::string STDHORAREA;
+  std::string BACKCOLOUR;
+  std::string ONMAPDRAW;
+  std::string HITMAPDRAW;
 
-private slots:
+private Q_SLOTS:
   void standardClicked();
   void helpClicked();
   void applyClicked();
   void applyhideClicked();
 
-signals:
+Q_SIGNALS:
   void SetupHide();
   void SetupApply();
-  void showsource(const std::string, const std::string="");
+  void showsource(const std::string&, const std::string& = "");
 };
 
 #endif

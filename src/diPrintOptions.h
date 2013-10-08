@@ -136,11 +136,11 @@ public:
   /// check if special commands exist for this setup
   bool checkSpecial(const printOptions& po, std::map<std::string,std::string>& mc);
   /// expand variables in print-command
-  bool expandCommand(miutil::miString& com, const printOptions& po);
+  bool expandCommand(std::string& com, const printOptions& po);
   /// set print command
-  void setPrintCommand(const miutil::miString pc){pcommand= pc; }
+  void setPrintCommand(const std::string& pc){ pcommand = pc; }
   /// return current print command
-  miutil::miString printCommand() const {return pcommand; }
+  const std::string& printCommand() const { return pcommand; }
 };
 
 #endif

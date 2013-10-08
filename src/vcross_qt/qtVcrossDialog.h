@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,17 +29,18 @@
 #ifndef _vcrossdialog_h
 #define _vcrossdialog_h
 
+//#include "diCommonTypes.h"
+#include "diCommandParser.h"
+#include "diColourShading.h"
+#include "diPattern.h"
+
 #include <QDialog>
 
+#include <map>
 #include <vector>
 
-#include <puTools/miString.h>
-#include <diCommonTypes.h>
-#include <diCommandParser.h>
-#include <diColourShading.h>
-#include <diPattern.h>
-
-using namespace std;
+class ToggleButton;
+class VcrossManager;
 
 class QPushButton;
 class QComboBox;
@@ -51,8 +50,6 @@ class QLabel;
 class QSpinBox;
 class QCheckBox;
 
-class ToggleButton;
-class VcrossManager;
 
 /**
 
@@ -69,16 +66,16 @@ class VcrossDialog: public QDialog
 public:
   VcrossDialog( QWidget* parent, VcrossManager* vm);
 
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   /// returns a short text for quickmenue
-  miutil::miString getShortname();
+  std::string getShortname();
 
-  void putOKString(const vector<miutil::miString>& vstr,
+  void putOKString(const std::vector<std::string>& vstr,
 		   bool vcrossPrefix= true, bool checkOptions= true);
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
   void cleanup();
 
 protected:
@@ -87,31 +84,31 @@ protected:
 private:
 
   struct SelectedField {
-    miutil::miString model;
-    miutil::miString field;
-    miutil::miString fieldOpts;
+    std::string model;
+    std::string field;
+    std::string fieldOpts;
     int      hourOffset;
   };
 
   void disableFieldOptions();
   void enableFieldOptions();
-  void updateFieldOptions(const miutil::miString& name,
-			  const miutil::miString& value, int valueIndex= 0);
-  vector<miutil::miString> numberList( QComboBox* cBox, float number );
-  miutil::miString baseList( QComboBox* cBox, float base, float ekv,
+  void updateFieldOptions(const std::string& name,
+			  const std::string& value, int valueIndex= 0);
+  std::vector<std::string> numberList( QComboBox* cBox, float number );
+  std::string baseList( QComboBox* cBox, float base, float ekv,
 		     bool onoff=false );
 
   void showHistory(int step);
-  miutil::miString checkFieldOptions(const miutil::miString& str, bool fieldPrefix);
+  std::string checkFieldOptions(const std::string& str, bool fieldPrefix);
 
   void highlightButton(QPushButton* button, bool on);
 
   //** PRIVATE SLOTS ********************
 private slots:
 
-  void modelboxClicked( QListWidgetItem * item );
+  void modelboxClicked(QListWidgetItem* item);
   void fieldboxChanged(QListWidgetItem* item);
-  void selectedFieldboxClicked( QListWidgetItem * item );
+  void selectedFieldboxClicked(QListWidgetItem* item);
 
   void upField();
   void downField();
@@ -137,11 +134,10 @@ private slots:
 
   void advancedToggled(bool on);
 
-signals:
+Q_SIGNALS:
   void VcrossDialogApply(bool modelChange);
   void VcrossDialogHide();
-  void showsource(const std::string, const std::string="");
-  void emitVcrossTimes( vector<miutil::miTime> );
+  void showsource(const std::string&, const std::string& = "");
 
 private:
   void toolTips();
@@ -150,35 +146,35 @@ private:
 
   bool m_advanced;
 
-  vector<miutil::miString> models;  // all models
-  vector<std::string> fields;  // for current selected model
+  std::vector<std::string> models;  // all models
+  std::vector<std::string> fields;  // for current selected model
 
   CommandParser *cp;
-  vector<ParsedCommand> vpcopt;
+  std::vector<ParsedCommand> vpcopt;
 
   // map<fieldname,fieldOpts>
-  map<miutil::miString,miutil::miString> setupFieldOptions;
-  map<miutil::miString,miutil::miString> fieldOptions;
-  map<miutil::miString,bool> changedOptions;
+  std::map<std::string,std::string> setupFieldOptions;
+  std::map<std::string,std::string> fieldOptions;
+  std::map<std::string,bool> changedOptions;
 
-  vector<SelectedField> selectedFields;
+  std::vector<SelectedField> selectedFields;
 
-  vector<int> countSelected;
+  std::vector<int> countSelected;
 
-  vector<Colour::ColourInfo> colourInfo;
-  vector<ColourShading::ColourShadingInfo> csInfo;
-  vector<miutil::miString> twoColourNames;
-  vector<miutil::miString> threeColourNames;
-  vector<Pattern::PatternInfo> patternInfo;
+  std::vector<Colour::ColourInfo> colourInfo;
+  std::vector<ColourShading::ColourShadingInfo> csInfo;
+  std::vector<std::string> twoColourNames;
+  std::vector<std::string> threeColourNames;
+  std::vector<Pattern::PatternInfo> patternInfo;
 
-  vector<std::string> linetypes;
-  vector<miutil::miString> lineintervals;
+  std::vector<std::string> linetypes;
+  std::vector<std::string> lineintervals;
   QStringList      densityStringList;
-  vector<miutil::miString> vectorunit;
+  std::vector<std::string> vectorunit;
   QStringList extremeLimits;
-  miutil::miString currentFieldOpts;
+  std::string currentFieldOpts;
 
-  vector< vector<miutil::miString> > commandHistory;
+  std::vector< std::vector<std::string> > commandHistory;
 
   QListWidget*  modelbox;
   QListWidget*  fieldbox;
@@ -291,9 +287,8 @@ private:
   QComboBox* linetype1ComboBox;
   QComboBox* type1ComboBox;
 
-  vector<miutil::miString> baseopts;
-  vector<miutil::miString> undefMasking;
-
+  std::vector<std::string> baseopts;
+  std::vector<std::string> undefMasking;
 };
 
 #endif

@@ -37,14 +37,13 @@
 #include <puTools/miString.h>
 #include <vector>
 
-using namespace std;
 
 class QComboBox;
 class QCheckBox;
 class QSpinBox;
 class QTabWidget;
 class VprofManager;
-class VcrossSetup;
+class VcrossSetupUI;
 class VprofOptions;
 
 /**
@@ -97,7 +96,7 @@ private:
   int temperatureMin;
   int temperatureMax;
 
-  vector <VcrossSetup*> vpSetups;
+  std::vector<VcrossSetupUI*> vpSetups;
 
   bool isInitialized;
 
@@ -140,7 +139,7 @@ private slots:
 signals:
   void SetupHide();
   void SetupApply();
-  void showsource(const std::string, const std::string="");
+  void showsource(const std::string&, const std::string& = "");
 };
 
 #endif

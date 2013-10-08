@@ -76,9 +76,14 @@
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 
+#ifdef USE_VCROSS_V2
 #include <diVcrossManager.h>
-#include <diVcrossPlot.h>
 #include <diVcrossOptions.h>
+#else // !USE_VCROSS_V2
+#include <diVcross1Manager.h>
+#include <diVcross1Plot.h>
+#include <diVcross1Options.h>
+#endif // !USE_VCROSS_V2
 
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
@@ -1844,9 +1849,9 @@ static int parseAndProcess(istream &is)
 
         // set size of plotwindow
         if (!multiple_plots)
-          VcrossPlot::setPlotWindow(xsize, ysize);
+          vcrossmanager->setPlotWindow(xsize, ysize);
         else
-          VcrossPlot::setPlotWindow(deltax, deltay);
+          vcrossmanager->setPlotWindow(deltax, deltay);
 
         // extract options for plot
         parse_vcross_options(pcom);

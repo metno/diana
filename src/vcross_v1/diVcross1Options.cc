@@ -31,7 +31,7 @@
 #include "config.h"
 #endif
 
-#include "diVcrossOptions.h"
+#include "diVcross1Options.h"
 
 #include <puTools/miString.h>
 #include <puTools/miStringBuilder.h>

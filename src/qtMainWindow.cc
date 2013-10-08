@@ -4030,21 +4030,21 @@ void DianaMainWindow::writeLogFile()
   }
 
   if ( vcWindow ){
-    vstr= vcWindow->writeLog("window");
+    vstr= vcWindow->writeLogMI("window");
     n= vstr.size();
     file << "[VCROSS.WINDOW.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/VCROSS.WINDOW.LOG]" << endl;
     file << endl;
 
-    vstr= vcWindow->writeLog("setup");
+    vstr= vcWindow->writeLogMI("setup");
     n= vstr.size();
     file << "[VCROSS.SETUP.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/VCROSS.SETUP.LOG]" << endl;
     file << endl;
 
-    vstr= vcWindow->writeLog("field");
+    vstr= vcWindow->writeLogMI("field");
     n= vstr.size();
     file << "[VCROSS.FIELD.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;

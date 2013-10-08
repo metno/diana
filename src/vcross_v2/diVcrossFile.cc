@@ -33,23 +33,33 @@
 
 #include "diVcrossFile.h"
 
-#include "diLocationPlot.h"
 #include "diFtnVfile.h"
-#include "diVcrossPlot.h"
+#include "diLocationPlot.h"
 
 #include <puCtools/stat.h>
+
+#include <boost/range/adaptor/map.hpp>
+#include <boost/foreach.hpp>
 
 #include <cmath>
 #include <set>
 #include <vector>
 
-using namespace std;
-
 #define MILOGGER_CATEGORY "diana.VcrossFile"
 #include <miLogger/miLogging.h>
 
+using namespace std;
+
+namespace /* anonymous */ {
+
+const char PSURF_NAME[] = "8";
+
+} // anonymous namespace
+
+// ########################################################################
+
 VcrossFile::VcrossFile(const std::string& filename, const std::string& modelname)
-  : fileName(filename), modelName(modelname), vfile(0),
+  : VcrossSource(modelname), fileName(filename), vfile(0),
     modificationtime(0),
     numCross(0), numTime(0), numLev(0), numPar2d(0), numPar1d(0),
     nposmap(0), xposmap(0), yposmap(0), dataAddress(0)
@@ -79,7 +89,6 @@ void VcrossFile::cleanup()
   dataAddress= 0;
   vfile= 0;
   modificationtime= 0;
-  VcrossPlot::deleteContents(fileName);
 }
 
 
@@ -256,11 +265,11 @@ bool VcrossFile::readFileHeader()
     //cerr << "VcrossFile::readFileHeader fileName= " << fileName << endl;
     //cerr << "      sizes: "<<names.size()<<" "<<validTime.size()<<endl;
     //###################################################################
-    names.clear();
+    std::vector<std::string> names;
     validTime.clear();
     forecastHour.clear();
-    if (xposmap) delete[] xposmap;
-    if (yposmap) delete[] yposmap;
+    delete[] xposmap;
+    delete[] yposmap;
     xposmap= 0;
     yposmap= 0;
     nposmap= 0;
@@ -403,6 +412,16 @@ bool VcrossFile::readFileHeader()
     //###################################################################
     //...........................................................
 
+    mCrossections = crossections_t(numCross);
+    for (int n=0, np=0; n<numCross; n++) {
+      VcrossData::Cut& cs = mCrossections[n];
+      cs.name = names[n];
+      const size_t npoints = numPoint[n];
+      for (size_t j=0; j<npoints; ++j) {
+        cs.lonlat.push_back(LonLat::fromDegrees(xposmap[np], yposmap[np]));
+        np += 1;
+      }
+    }
   }  // end of try
 
   catch (...) {
@@ -419,150 +438,58 @@ bool VcrossFile::readFileHeader()
   //    cerr<<"VcrossFile::readFileHeader n,identPar2d[n]: "<<n<<" "<<identPar2d[n]<<endl;
   //############################################################################
 
-  VcrossPlot::makeContents(fileName,identPar2d,vcoord);
+  mParameterIds.clear();
+  BOOST_FOREACH(int p2d, identPar2d) {
+    mParameterIds.push_back(miutil::from_number(p2d));
+  }
 
   return true;
 }
 
-
-vector<std::string> VcrossFile::getFieldNames()
+VcrossData* VcrossFile::getCrossData(const std::string& csname, const std::set<std::string>& parameters, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
-  update();
-  return VcrossPlot::getFieldNames(fileName);
-}
-
-
-void VcrossFile::getMapData(vector<LocationElement>& elements)
-{
-  METLIBS_LOG_SCOPE();
-
-  LocationElement el;
-  int nelem= elements.size();
-  int np= 0;
-
-  for (int n=0; n<numCross; n++) {
-    elements.push_back(el);
-    elements[nelem].name= names[n];
-    int m= numPoint[n];
-    for (int j=0; j<m; j++, np++) {
-      elements[nelem].xpos.push_back(xposmap[np]);
-      elements[nelem].ypos.push_back(yposmap[np]);
-    }
-    nelem++;
-  }
-}
-
-
-VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::miTime& time, int tgpos)
-{
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(time.format("%Y%m%d%H%M%S") << ", " << tgpos);
 
   if (!vfile)
     return 0;
 
   int iCross=0;
-  while (iCross<numCross && names[iCross]!=name)
+  while (iCross<numCross && mCrossections[iCross].name != csname)
     iCross++;
-
   if (iCross==numCross)
     return 0;
 
   int iTime= 0;
-  if (tgpos<0) {
-    while (iTime<numTime && validTime[iTime]!=time)
-      iTime++;
-    if (iTime==numTime)
+  while (iTime<numTime && validTime[iTime]!=time)
+    iTime++;
+  if (iTime==numTime)
       return 0;
-  } else if (tgpos>=numPoint[iCross]) {
-    return 0;
-  }
 
   int nPoint= numPoint[iCross];
   if(nPoint==0) {
-    METLIBS_LOG_WARN("VcrossFile::getCrossection: The crossection "<<name<<" contains no positions");
+    METLIBS_LOG_WARN("The crossection '" << csname << "' contains no positions");
     return 0;
   }
-  int nTotal= nPoint*numLev;
 
-  VcrossPlot* vcp = new VcrossPlot();
+  std::auto_ptr<VcrossData> data(new VcrossData());
 
-  vcp->modelName= modelName;
-  vcp->crossectionName= names[iCross];
-
-  vcp->horizontalPosNum= nPoint;
-
-  vcp->vcoord=   vcoord;
-  vcp->nPoint=   nPoint;
-  vcp->numLev=   numLev;
-  vcp->nTotal=   nTotal;
-
-  int l,itime1,itime2,tgpos1 = 0,tgpos2 = 0;
-
+  VcrossData::ZAxisPtr zax(new VcrossData::ZAxis());
+  zax->name = "file z axis";
+  zax->quantity = VcrossData::ZAxis::PRESSURE;
+  zax->mPoints = nPoint;
+  zax->mLevels = numLev;
+  data->zAxes.push_back(zax);
+  std::vector<float> alevel, blevel;
+  
   // for TimeGraph data (when tgpos>=0)
-  vector<float*> tgdata1d;
-  vector<float*> tgdata2d;
+  std::vector<float*> tgdata1d;
+  std::vector<float*> tgdata2d;
 
-  if (tgpos<0) {
-    if (iTime<0)        iTime= 0;
-    if (iTime>=numTime) iTime= numTime-1;
-    itime1= iTime;
-    itime2= iTime;
-    vcp->validTime= validTime[iTime];
-    vcp->forecastHour= forecastHour[iTime];
-  } else {
-    // timegraph (timeseries, one point all timesteps)
-    itime1= 0;
-    itime2= numTime - 1;
-    for (int n=0; n<numPar2d; n++) {
-      float *p= new float[numTime*numLev];
-      tgdata2d.push_back(p);
-    }
-    for (int n=0; n<numPar1d; n++) {
-      float *p= new float[numTime];
-      tgdata1d.push_back(p);
-    }
-    tgpos1= (tgpos>0)        ? tgpos-1 : tgpos;
-    tgpos2= (tgpos<nPoint-1) ? tgpos+1 : tgpos;
-    vcp->validTimeSeries=    validTime;
-    vcp->forecastHourSeries= forecastHour;
-  }
-
-  if (tgpos<0 && !posOptions[iCross].empty()) {
-    vcp->refPosition=0.;
-    vector<std::string> vopts= miutil::split(posOptions[iCross], 0, " ");
-    for (unsigned int n=0; n<vopts.size(); n++) {
-      vector<std::string> vkeyvalue= miutil::split(vopts[n], 0, "=");
-      if (vkeyvalue.size()==2) {
-        std::string key= miutil::to_lower(vkeyvalue[0]);
-        if (key=="refpos") {
-          // -1 : from fortran to C++
-          vcp->refPosition= atof(vkeyvalue[1].c_str()) - 1.;
-        } else if (key=="mark") {
-          vector<std::string> vs= miutil::split(vkeyvalue[1], 0, ",");
-          if (vs.size()==2) {
-            float pos= atof(vs[0].c_str()) - 1.;
-            vcp->markNamePosMin.push_back(pos);
-            vcp->markNamePosMax.push_back(pos);
-            vcp->markName.push_back(vs[1]);
-          } else if (vs.size()==3) {
-            float pos1= atof(vs[0].c_str()) - 1.;
-            float pos2= atof(vs[1].c_str()) - 1.;
-            vcp->markNamePosMin.push_back(pos1);
-            vcp->markNamePosMax.push_back(pos2);
-            vcp->markName.push_back(vs[2]);
-          }
-        }
-      }
-    }
-  } else {
-    vcp->refPosition= 0.;
-  }
-  //#################################################################################
-  //  cerr<<"VcrossFile::getCrossection  refPosition=   "<<vcp->refPosition<<endl;
-  //  cerr<<"VcrossFile::getCrossection  markName.size= "<<vcp->markName.size()<<endl;
-  //#################################################################################
+  if (iTime<0)
+    iTime= 0;
+  if (iTime>=numTime)
+    iTime= numTime-1;
+  const int itime1= iTime, itime2= iTime;
 
   int iscale, iundef, iundef1d, iundef2d, ns;
   int *tmp;
@@ -578,20 +505,17 @@ VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::mi
       // set start position in file ("fortran" record and word)
       int record= dataAddress[itime*numCross*2+iCross*2];
       int word=   dataAddress[itime*numCross*2+iCross*2+1];
-      if(!vfile->setFilePosition(record,word)){
-        delete vcp;
-        vcp=0;
-        return  vcp;
-      }
+      if (not vfile->setFilePosition(record, word))
+        return 0;
       iundef= 0;
 
       // level values
       for (int n=0; n<nlvlid; n++) {
         iscale= vfile->getInt();
         if (n==0) {
-          vcp->alevel= vfile->getFloatVector(numLev,iscale,iundef);
+          alevel= vfile->getFloatVector(numLev,iscale,iundef);
         } else if (n==1) {
-          vcp->blevel= vfile->getFloatVector(numLev,iscale,iundef);
+          blevel= vfile->getFloatVector(numLev,iscale,iundef);
         } else {
           vfile->skipData(numLev);
         }
@@ -605,92 +529,70 @@ VcrossPlot* VcrossFile::getCrossection(const std::string& name, const miutil::mi
       tmp= vfile->getInt(numPar2d*numLev); // scaling, each param and level!
       ns= 0;
       for (int n=0; n<numPar2d; n++) {
-        float* pdata= new float[nTotal];
-        for (l=0; l<numLev; l++)
-          vfile->getFloat(&pdata[l*nPoint],nPoint,tmp[ns++],iundef2d);
-        vcp->addPar2d(identPar2d[n],pdata);
+        VcrossData::ParameterData pd;
+        pd.mPoints = nPoint;
+        pd.mLevels = numLev;
+        pd.alloc();
+        pd.zAxis = zax;
+
+        for (int l=0; l<numLev; l++)
+          vfile->getFloat(&(pd.values.get())[l*nPoint],nPoint,tmp[ns++],iundef2d);
+
+        data->parameters.insert(std::make_pair(miutil::from_number(identPar2d[n]), pd));
       }
       delete[] tmp;
 
       // single level data (surface etc.)
       tmp= vfile->getInt(numPar1d); // scaling, each param
       for (int n=0; n<numPar1d; n++) {
-        float *pdata= vfile->getFloat(nPoint,tmp[n],iundef1d);
-        vcp->addPar1d(identPar1d[n],pdata);
+
+        VcrossData::ParameterData pd;
+        pd.mPoints = nPoint;
+        pd.mLevels = 1;
+        pd.values = boost::shared_array<float>(vfile->getFloat(nPoint,tmp[n],iundef1d));
+        data->parameters.insert(std::make_pair(miutil::from_number(identPar1d[n]), pd));
       }
       delete[] tmp;
-
-      if (iundef1d<1 && iundef2d<1)
-        vcp->iundef= 0;
-      else
-        vcp->iundef= 1;
-
-      if (tgpos>=0) {
-        // store data for time graph of one (horizontal) position
-        // cdata2d(nPoint,nlev,npar2d) -> tgdata2d(ntime,nlev,npar)
-        // cdata1d(nPoint,npar1d)      -> tgdata1d(ntime,npar1)
-        // (for alevel and blevel we use values from the last timestep)
-        for (int n=0; n<numPar2d; n++)
-          for (l=0; l<numLev; l++)
-            tgdata2d[n][numTime*l+itime]= vcp->cdata2d[n][l*nPoint+tgpos];
-        vcp->tgdx=  vcp->cdata1d[nxgPar][tgpos2] - vcp->cdata1d[nxgPar][tgpos1];
-        vcp->tgdy=  vcp->cdata1d[nygPar][tgpos2] - vcp->cdata1d[nygPar][tgpos1];
-        if (nxdsPar>=0) {
-          vcp->horizontalLength= 0.;
-          for (int n=1; n<nPoint; n++)
-            vcp->horizontalLength+= vcp->cdata1d[nxdsPar][n];
-        } else if (nxsPar>=0) {
-          vcp->horizontalLength=  vcp->cdata1d[nxsPar][nPoint-1] - vcp->cdata1d[nxsPar][0];
-        } else {
-          vcp->horizontalLength= 50000. * float(nPoint-1);
-        }
-        for (int n=0; n<numPar1d; n++)
-          tgdata1d[n][itime]= vcp->cdata1d[n][tgpos];
-        for (int n=0; n<numPar2d; n++)
-          delete[] vcp->cdata2d[n];
-        for (int n=0; n<numPar1d; n++)
-          delete[] vcp->cdata1d[n];
-        vcp->cdata2d.clear();
-        vcp->cdata1d.clear();
-        vcp->idPar2d.clear();
-        vcp->idPar1d.clear();
-      }
-
     }
 
-  }  // end of try
-
-  catch (...) {
+  } catch (...) {
     METLIBS_LOG_WARN("Bad Vcross file: " << fileName);
     delete vfile;
     vfile= 0;
-    return vcp;
+    return 0;
   }
 
-  if (tgpos>=0) {
-    vcp->nPoint= numTime;
-    vcp->nTotal= numTime*numLev;
-    for (int n=0; n<numPar2d; n++)
-      vcp->addPar2d(identPar2d[n],tgdata2d[n]);
-    for (int n=0; n<numPar1d; n++)
-      vcp->addPar1d(identPar1d[n],tgdata1d[n]);
-    vcp->timeGraph= true;
+  zax->alloc();
+  if (vcoord == 10) { // 10 = eta (hybrid) ... Hirlam, Ecmwf,...
+    const VcrossData::Parameters_t::const_iterator psurf_it = data->parameters.find(PSURF_NAME);
+    for (int l=0; l<numLev; ++l) {
+      for (int p=0; p<nPoint; ++p) {
+        const float psurf = (psurf_it != data->parameters.end()) ? psurf_it->second.value(0, p) : 1013.5f;
+        const float v = alevel[l] + blevel[l] * psurf;
+        zax->setValue(l, p, v);
+      }
+    }
+  } else if (vcoord == 1) { // 1 = pressure
+    for (int l=0; l<numLev; ++l) {
+      for (int p=0; p<nPoint; ++p) {
+        zax->setValue(l, p, alevel[l]);
+      }
+    }
   }
 
-  if (vcp->alevel.size()==0) {
-    for (int n=0; n<numLev; n++) vcp->alevel.push_back(0.0);
-  }
-  if (vcp->blevel.size()==0) {
-    for (int n=0; n<numLev; n++) vcp->blevel.push_back(0.0);
-  }
+  return data.release();
+}
 
-  vcp->vrangemin= vrangemin[iCross];
-  vcp->vrangemax= vrangemax[iCross];
+VcrossData* VcrossFile::getTimeData(const std::string& csname, const std::set<std::string>& parameters, int csPositionIndex)
+{
+  if (!vfile)
+    return 0;
 
-  if (!vcp->prepareData(fileName)) {
-    delete vcp;
-    vcp= 0;
-  }
+  int iCross=0;
+  while (iCross<numCross && mCrossections[iCross].name!=csname)
+    iCross++;
+  if (iCross==numCross)
+    return 0;
 
-  return vcp;
+  return 0;
 }

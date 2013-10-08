@@ -31,12 +31,12 @@
 #include "config.h"
 #endif
 
-#include "diVcrossManager.h"
+#include "diVcross1Manager.h"
 
-#include <diVcrossOptions.h>
-#include <diVcrossFile.h>
-#include <diVcrossField.h>
-#include <diVcrossPlot.h>
+#include "diVcross1Options.h"
+#include "diVcross1File.h"
+#include "diVcross1Field.h"
+#include "diVcross1Plot.h"
 #include <set>
 
 #include <diLocalSetupParser.h>
@@ -172,6 +172,11 @@ vector< vector<Colour::ColourInfo> > VcrossManager::getMultiColourInfo(int multi
   return LocalSetupParser::getMultiColourInfo(multiNum);
 }
 
+
+void VcrossManager::setPlotWindow(int xs, int ys)
+{
+  VcrossPlot::setPlotWindow(xs, ys);
+}
 
 void VcrossManager::setCrossection(const std::string& crossection)
 {

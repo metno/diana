@@ -148,8 +148,8 @@ PlotOptions::PlotOptions():
 
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
-bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
-    bool returnMergedOptionString){
+bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool returnMergedOptionString)
+{
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline
@@ -871,6 +871,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po,
 
   return result;
 }
+
+bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po)
+{
+  std::string optstring(optstr);
+  return parsePlotOption(optstring, po, false);
+}
+
 
 // update static fieldplotoptions
 bool PlotOptions::updateFieldPlotOptions(const std::string& name,

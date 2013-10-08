@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,28 +29,27 @@
 #ifndef VCROSSSETUP_H
 #define VCROSSSETUP_H
 
-#include <puTools/miString.h>
-#include "diCommonTypes.h"
+#include "diColour.h"
+
+#include <QObject>
+
 #include <vector>
-#include <qwidget.h>
-#include <QGridLayout>
-#include <QLabel>
+#include <string>
 
-using namespace std;
+class VcrossManager;
 
+class QCheckBox;
+class QColor;
+class QComboBox;
 class QFont;
 class QGridLayout;
-class QCheckBox;
 class QLabel;
-class QComboBox;
 class QSpinBox;
-class VcrossManager;
 
 /**
    \brief Elements in the Vertical Crossection setup dialogue
-
 */
-class VcrossSetup : public QObject
+class VcrossSetupUI : public QObject
 {
   Q_OBJECT
 
@@ -70,40 +67,38 @@ public:
     useTextChoice2=0x0100
   };
 
-  //the constructor
-
-  VcrossSetup( QWidget* parent, miutil::miString text,
-	       QGridLayout* glayout,int row, int options);
+  VcrossSetupUI(QWidget* parent, const std::string& text,
+      QGridLayout* glayout, int row, int options);
 
   bool isChecked();
   Colour::ColourInfo getColour();
-  void setColour(const miutil::miString&);
-  void setLinetype(const miutil::miString&);
-  miutil::miString getLinetype();
+  void setColour(const std::string&);
+  void setLinetype(const std::string&);
+  std::string getLinetype();
   void setLinewidth(float linew);
   float getLinewidth();
 
   void defineValue(int low, int high, int step, int value,
-  		   const miutil::miString& prefix, const miutil::miString& suffix);
+  		   const std::string& prefix, const std::string& suffix);
   void setValue(int value);
   int getValue();
   void defineMinValue(int low, int high, int step, int value,
-		      const miutil::miString& prefix, const miutil::miString& suffix);
+		      const std::string& prefix, const std::string& suffix);
   void setMinValue(int value);
   int  getMinValue();
   void defineMaxValue(int low, int high, int step, int value,
-		      const miutil::miString& prefix, const miutil::miString& suffix);
+		      const std::string& prefix, const std::string& suffix);
   void setMaxValue(int value);
   int  getMaxValue();
-  void  defineTextChoice(const vector<miutil::miString>& vchoice, int ndefault=0);
-  void     setTextChoice(const miutil::miString& choice);
-  miutil::miString getTextChoice();
+  void  defineTextChoice(const std::vector<std::string>& vchoice, int ndefault=0);
+  void     setTextChoice(const std::string& choice);
+  std::string getTextChoice();
 
-  void  defineTextChoice2(const vector<miutil::miString>& vchoice, int ndefault=0);
-  void     setTextChoice2(const miutil::miString& choice);
-  miutil::miString getTextChoice2();
+  void  defineTextChoice2(const std::vector<std::string>& vchoice, int ndefault=0);
+  void     setTextChoice2(const std::string& choice);
+  std::string getTextChoice2();
 
-  miutil::miString name;
+  std::string name;
 
 public slots:
   void setChecked(bool on);
@@ -117,13 +112,13 @@ private:
 
   static bool initialized;
   //init QT stuff
-  static vector<Colour::ColourInfo> m_cInfo; // all defined colours
+  static std::vector<Colour::ColourInfo> m_cInfo; // all defined colours
   //pixmaps for combo boxes
   static int        nr_colors;
   static QColor* pixcolor;
   static int        nr_linewidths;
   static int        nr_linetypes;
-  static vector<std::string> linetypes;
+  static std::vector<std::string> linetypes;
 
   QCheckBox * checkbox;
   QLabel    * label;
@@ -136,9 +131,8 @@ private:
   QComboBox * textchoicebox;
   QComboBox * textchoicebox2;
 
-  vector<miutil::miString> vTextChoice;
-  vector<miutil::miString> vTextChoice2;
-
+  std::vector<std::string> vTextChoice;
+  std::vector<std::string> vTextChoice2;
 };
 
 #endif

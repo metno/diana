@@ -35,6 +35,7 @@
 #include "diPlotOptions.h"
 #include "diPrintOptions.h"
 #include "diLocationPlot.h"
+#include "diVcross1Plot.h"
 
 #include <puTools/miTime.h>
 #include <vector>
@@ -123,6 +124,17 @@ public:
 
   //routines from controller
   std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
+  void setPlotWindow(int xs, int ys);
+  void movePart(int pxmove, int pymove)
+    { VcrossPlot::movePart(pxmove, pymove); }
+  void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour)
+    { VcrossPlot::getPlotSize(x1, y1, x2, y2, rubberbandColour); }
+  void increasePart()
+    { VcrossPlot::increasePart(); }
+  void decreasePart(int px1, int py1, int px2, int py2)
+    { VcrossPlot::decreasePart(px1, py1, px2, py2); }
+  void standardPart()
+    { VcrossPlot::standardPart(); }
 
   void preparePlot();
   void setCrossection(const std::string& crossection);

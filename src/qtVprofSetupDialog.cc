@@ -593,18 +593,18 @@ void VprofSetupDialog::initDatatab(){
   glayout->addWidget(label1,nrow,0);
   nrow++;
 
-  int opts= VcrossSetup::useOnOff;
+  int opts= VcrossSetupUI::useOnOff;
 
-  vpSetups.push_back(new VcrossSetup(datatab,TEMP,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,DEWPOINT,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,WIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,VERTWIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,RELHUM,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,DUCTING,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,SIGNWIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,TEXT,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,KINDEX,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetup(datatab,GEOPOS,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,TEMP,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,DEWPOINT,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,WIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,VERTWIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,RELHUM,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,DUCTING,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,SIGNWIND,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,TEXT,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,KINDEX,glayout,nrow++,opts));
+  vpSetups.push_back(new VcrossSetupUI(datatab,GEOPOS,glayout,nrow++,opts));
 
 
   //spinbox for pressure and temperature range
@@ -697,55 +697,55 @@ void VprofSetupDialog::initDiagramtab(){
   glayout->addWidget(label4,0,3);
 
 
-  //here each of setup lines are defined - each VcrossSetup is a line with
+  //here each of setup lines are defined - each VcrossSetupUI is a line with
   //a checkbox and up to three comboboxes
 
   int nrow = 0;
-  int opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  int opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,PRESSLINES,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,PRESSLINES,glayout,++nrow,opts));
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,TEMPLINES,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,TEMPLINES,glayout,++nrow,opts));
 
-  opts= VcrossSetup::useOnOff;
+  opts= VcrossSetupUI::useOnOff;
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,LINEFLIGHT,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,LINEFLIGHT,glayout,++nrow,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,DRYADIABATS,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,DRYADIABATS,glayout,++nrow,opts));
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,WETADIABATS,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,WETADIABATS,glayout,++nrow,opts));
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,MIXINGRATIO,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,MIXINGRATIO,glayout,++nrow,opts));
 
-  opts= VcrossSetup::useOnOff;
+  opts= VcrossSetupUI::useOnOff;
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,PTLABELS,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,PTLABELS,glayout,++nrow,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,FRAME,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,FRAME,glayout,++nrow,opts));
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,FLIGHTLEVEL,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,FLIGHTLEVEL,glayout,++nrow,opts));
 
-  opts= VcrossSetup::useOnOff;
+  opts= VcrossSetupUI::useOnOff;
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,FLIGHTLABEL,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,FLIGHTLABEL,glayout,++nrow,opts));
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,SEPWIND,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,SEPWIND,glayout,++nrow,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,CONDTRAIL,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,CONDTRAIL,glayout,++nrow,opts));
 
-  opts= (VcrossSetup::useColour);
+  opts= (VcrossSetupUI::useColour);
   vpSetups.push_back
-    (new VcrossSetup(diagramtab,BACKCOLOUR,glayout,++nrow,opts));
+    (new VcrossSetupUI(diagramtab,BACKCOLOUR,glayout,++nrow,opts));
 
   //end diagramtab
 
@@ -775,22 +775,18 @@ void VprofSetupDialog::initColourtab(){
   glayout->addWidget(label3,0,2);
 
   int nrow = 0;
-  int opts= (VcrossSetup::useColour | VcrossSetup::useLineWidth);
+  int opts= (VcrossSetupUI::useColour | VcrossSetupUI::useLineWidth);
 
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data1",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data2",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data3",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data4",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data5",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data6",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data7",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetup(colourtab,"Data8",glayout,++nrow,opts));
-
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data1",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data2",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data3",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data4",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data5",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data6",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data7",glayout,++nrow,opts));
+  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data8",glayout,++nrow,opts));
 }
-
-
 
 void VprofSetupDialog::closeEvent( QCloseEvent* e) {
   emit SetupHide();
 }
-

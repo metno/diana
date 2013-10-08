@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,30 +29,28 @@
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
+#include "diPrintOptions.h"
 #include <QMainWindow>
-#include <qstring.h>
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
-#include <diLocationPlot.h>
-#include <diController.h>
-#include <puTools/miString.h>
 #include <vector>
 
-using namespace std;
-
-class QComboBox;
-class QToolBar;
+namespace miutil {
+class miTime;
+}
+class Controller;
+class LocationData;
 class ToggleButton;
 class VcrossWidget;
 class VcrossManager;
 class VcrossDialog;
 class VcrossSetupDialog;
-class QPrinter;
-class QAction;
 
+class QAction;
+class QComboBox;
+class QPrinter;
+class QString;
+class QToolBar;
 
 /**
-
   \brief Window for Vertical Crossections
 
   Contains a crossection window, toolbars and menues.
@@ -68,18 +64,31 @@ public:
   VcrossWindow(Controller* co);
   ~VcrossWindow(){}
 
+  //! alias for getCrossections \deprecated
+  void getCrossectionOptions(LocationData& locationdata)
+    { return getCrossections(locationdata); }
   void getCrossections(LocationData& locationdata);
-  void getCrossectionOptions(LocationData& locationdata);
-  bool changeCrossection(const miutil::miString& crossection);
+  bool changeCrossection(const std::string& crossection);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
-  void parseQuickMenuStrings(const vector<miutil::miString>& vstr);
+  void parseQuickMenuStrings(const std::vector<std::string>& vstr);
+
+  //! parseQuickMenuStrings accepting miString \deprecated
+  void parseQuickMenuStrings(const std::vector<miutil::miString>& m);
 
   void parseSetup();
-  vector<miutil::miString> writeLog(const miutil::miString& logpart);
-  void readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion,
-	       int displayWidth, int displayHeight);
+
+  std::vector<std::string> writeLog(const std::string& logpart);
+
+  //! writeLog returning miString \deprecated
+  std::vector<miutil::miString> writeLogMI(const std::string& lp);
+
+  //! readLog accepting miString \deprecated
+  void readLog(const std::string& lp, const std::vector<miutil::miString>& v, const std::string& tv, const std::string& lv, int dw, int dh);
+
+  void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion,
+      int displayWidth, int displayHeight);
 
   bool firstTime;
   bool active;
@@ -114,9 +123,10 @@ private:
   // printerdefinitions
   printOptions priop;
 
-  void makeEPS(const miutil::miString& filename);
+  void makeEPS(const std::string& filename);
+  void emitQmenuStrings();
 
-private slots:
+private Q_SLOTS:
   void dataClicked(bool on);
   void leftCrossectionClicked();
   void rightCrossectionClicked();
@@ -129,7 +139,6 @@ private slots:
   void quitClicked();
   void helpClicked();
   void dynCrossClicked();
-  void MenuOK();
   void changeFields(bool modelChanged);
   void changeSetup();
   void hideDialog();
@@ -139,16 +148,16 @@ private slots:
   bool timeChangedSlot(int);
   bool crossectionChangedSlot(int);
 
-signals:
+Q_SIGNALS:
   void VcrossHide();
-  void showsource(const std::string, const std::string=""); // activate help
-  void crossectionChanged(const QString& );
+  void showsource(const std::string&, const std::string& = ""); // activate help
+  void crossectionChanged(const QString&);
   void crossectionSetChanged();
   void crossectionSetUpdate();
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
-  void setTime(const miutil::miString&, const miutil::miTime&);
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
+  void setTime(const std::string&, const miutil::miTime&);
   void updateCrossSectionPos(bool);
-  void quickMenuStrings(const miutil::miString, const vector<miutil::miString>&);
+  void quickMenuStrings(const std::string&, const std::vector<std::string>&);
   void nextHVcrossPlot();
   void prevHVcrossPlot();
 };

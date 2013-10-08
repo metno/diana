@@ -35,8 +35,8 @@
 #include "config.h"
 #endif
 
-#include "diVcrossPlot.h"
-#include "diVcrossOptions.h"
+#include "diVcross1Plot.h"
+#include "diVcross1Options.h"
 #include "diCommandParser.h"
 #include "diContouring.h"
 

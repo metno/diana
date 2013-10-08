@@ -31,8 +31,8 @@
 #include "config.h"
 #endif
 
-#include "diVcrossField.h"
-#include "diVcrossPlot.h"
+#include "diVcross1Field.h"
+#include "diVcross1Plot.h"
 #include "diLocationPlot.h"
 
 #include <diField/diFieldManager.h>

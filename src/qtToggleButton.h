@@ -39,7 +39,6 @@
 #include <puTools/miString.h>
 
 
-using namespace std;
 
 /**
 
@@ -55,16 +54,16 @@ class ToggleButton : public QPushButton
 public:
 
  ToggleButton( QWidget* parent,
-	       miutil::miString name,
-               QColor* color = 0 );
+     const miutil::miString& name,
+     QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
-         std::string* name,
-         QColor* color = 0 );
+     const std::string* name,
+     QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
-         miutil::miString* name,
-         QColor* color = 0 );
+     const miutil::miString* name,
+     QColor* color = 0 );
 
  ToggleButton( QWidget* parent,
 	       const QPixmap& pixmap,

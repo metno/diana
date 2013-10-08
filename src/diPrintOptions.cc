@@ -45,6 +45,7 @@
 
 using namespace d_print;
 using namespace::miutil;
+using namespace std;
 
 vector<printerManager::printerExtra> printerManager::printers;
 map<miString,d_print::PageSize> printerManager::pages;
@@ -164,14 +165,13 @@ printerManager::printerManager()
 }
 
 // expand variables in pcommand
-bool printerManager::expandCommand(miString& com, const printOptions& po)
+bool printerManager::expandCommand(std::string& com, const printOptions& po)
 {
+  miutil::replace(com, "{printer}", po.printer);
+  miutil::replace(com, "{filename}", po.fname);
 
-  com.replace("{printer}",po.printer);
-  com.replace("{filename}",po.fname);
-
-  com.replace("{hash}","#"); // setupParser is not fond of #'s
-  com.replace("{numcopies}",miString(po.numcopies));
+  miutil::replace(com, "{hash}", "#"); // setupParser is not fond of #'s
+  miutil::replace(com, "{numcopies}", miutil::from_number(po.numcopies));
 
   return true;
 }

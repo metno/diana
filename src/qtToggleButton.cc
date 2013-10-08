@@ -40,9 +40,7 @@
 #include <iostream>
 
 
-ToggleButton::ToggleButton( QWidget* parent,
-			    miutil::miString name,
-			    QColor* color )
+ToggleButton::ToggleButton( QWidget* parent, const miutil::miString& name, QColor* color )
   : QPushButton( name.c_str(), parent)
 {
   NameChange = false;
@@ -51,25 +49,46 @@ ToggleButton::ToggleButton( QWidget* parent,
     inPalette = QPalette( color[0], color[1] );
     outPalette = this->palette();
     this->setPalette( outPalette );
-    usePalette  = true;
+    usePalette = true;
   } else {
-    usePalette    = false;
+    usePalette = false;
   }
 
-  this->setCheckable ( TRUE );
+  this->setCheckable(true);
 
   connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-
 }
 
 
 ToggleButton::ToggleButton( QWidget* parent,
-          std::string* name,
-          QColor* color )
+    const std::string* name, QColor* color )
   : QPushButton( (name[1]).c_str(),  parent )
 {
+  if (color && &color[0] && &color[1]) {
+    inPalette = QPalette( color[0], color[1] );
+    outPalette = this->palette();
+    this->setPalette( outPalette );
+    usePalette = true;
+  } else {
+    usePalette = false;
+  }
+
+  NameChange = true;
+
+  if ( name ) {
+    m_inName  = name[0];
+    m_outName = name[1];
+  }
+
+  this->setCheckable(true);
+
+  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
+}
 
 
+ToggleButton::ToggleButton( QWidget* parent, const miutil::miString* name, QColor* color)
+  : QPushButton( (name[1]).c_str(),  parent )
+{
   if (color && &color[0] && &color[1]) {
     inPalette = QPalette( color[0], color[1] );
     outPalette = this->palette();
@@ -78,7 +97,6 @@ ToggleButton::ToggleButton( QWidget* parent,
   } else {
     usePalette  = false;
   }
-
 
   NameChange = true;
 
@@ -90,38 +108,6 @@ ToggleButton::ToggleButton( QWidget* parent,
   this->setCheckable ( TRUE );
 
   connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-
-}
-
-
-ToggleButton::ToggleButton( QWidget* parent,
-          miutil::miString* name,
-          QColor* color )
-  : QPushButton( (name[1]).c_str(),  parent )
-{
-
-
-  if (color && &color[0] && &color[1]) {
-    inPalette = QPalette( color[0], color[1] );
-    outPalette = this->palette();
-    this->setPalette( outPalette );
-    usePalette  = true;
-  } else {
-    usePalette  = false;
-  }
-
-
-  NameChange = true;
-
-  if ( name ) {
-    m_inName  = name[0];
-    m_outName = name[1];
-  }
-
-  this->setCheckable ( TRUE );
-
-  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-
 }
 
 

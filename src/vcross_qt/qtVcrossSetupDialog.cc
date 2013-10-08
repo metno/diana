@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,18 +44,21 @@
 #include <miLogger/miLogging.h>
 
 #include "qtUtility.h"
+#ifdef USE_VCROSS_V2
 #include "diVcrossManager.h"
+#include "diVcrossOptions.h"
+#else
+#include "diVcross1Manager.h"
+#include "diVcross1Options.h"
+#endif
 #include "qtVcrossSetup.h"
 #include "qtVcrossSetupDialog.h"
-#include "diVcrossOptions.h"
 
 
 VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   : QDialog(parent), vcrossm(vm)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::VcrossSetupDialog called");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //caption to appear on top of dialog
   setWindowTitle( tr("Diana Vertical Crossections - settings"));
@@ -139,18 +140,12 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
   vlayout->addLayout( hlayout2 );
 
   isInitialized=false;
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::VcrossSetupDialog finished");
-#endif
 }
 
 
 void VcrossSetupDialog::initOptions(QWidget* parent)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::initOptions");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes/spinboxes
@@ -173,55 +168,55 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
 
   int n,opts;
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  vcSetups.push_back(new VcrossSetup(parent,TEXTPLOT,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,POSNAMES,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
+  vcSetups.push_back(new VcrossSetupUI(parent,TEXTPLOT,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,POSNAMES,glayout,nrow++,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent,FRAME,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+  vcSetups.push_back(new VcrossSetupUI(parent,FRAME,glayout,nrow++,opts));
 
-  opts= VcrossSetup::useOnOff;
-  vcSetups.push_back(new VcrossSetup(parent,LEVELNUMBERS,glayout,nrow++,opts));
+  opts= VcrossSetupUI::useOnOff;
+  vcSetups.push_back(new VcrossSetupUI(parent,LEVELNUMBERS,glayout,nrow++,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent,UPPERLEVEL,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,LOWERLEVEL,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,OTHERLEVELS,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,SURFACE,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,VERTGRID,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,MARKERLINES,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,VERTICALMARKER,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+  vcSetups.push_back(new VcrossSetupUI(parent,UPPERLEVEL,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,LOWERLEVEL,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,OTHERLEVELS,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,SURFACE,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,VERTGRID,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,MARKERLINES,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,VERTICALMARKER,glayout,nrow++,opts));
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useTextChoice | VcrossSetup::useTextChoice2);
-  vcSetups.push_back(new VcrossSetup(parent,DISTANCE,glayout,nrow++,opts));
-  vector<miutil::miString> distunit;
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useTextChoice | VcrossSetupUI::useTextChoice2);
+  vcSetups.push_back(new VcrossSetupUI(parent,DISTANCE,glayout,nrow++,opts));
+  std::vector<std::string> distunit;
   distunit.push_back("km");
   distunit.push_back("nm");
   n= vcSetups.size()-1;
   vcSetups[n]->defineTextChoice(distunit,0);
-  vector<miutil::miString> diststep;
+  std::vector<std::string> diststep;
   diststep.push_back("grid");
   diststep.push_back("1");
   diststep.push_back("10");
   diststep.push_back("100");
   vcSetups[n]->defineTextChoice2(diststep,0);
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  vcSetups.push_back(new VcrossSetup(parent,GRIDPOS,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,GEOPOS,glayout,nrow++,opts));
-  opts= VcrossSetup::useOnOff;
-  vcSetups.push_back(new VcrossSetup(parent,EXTRAPOLP,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,BOTTOMEXT,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
+  vcSetups.push_back(new VcrossSetupUI(parent,GRIDPOS,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,GEOPOS,glayout,nrow++,opts));
+  opts= VcrossSetupUI::useOnOff;
+  vcSetups.push_back(new VcrossSetupUI(parent,EXTRAPOLP,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,BOTTOMEXT,glayout,nrow++,opts));
 
-  vcSetups.push_back(new VcrossSetup(parent,THINARROWS,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,THINARROWS,glayout,nrow++,opts));
 
   nrow++;
-  opts= VcrossSetup::useTextChoice;
-  vcSetups.push_back(new VcrossSetup(parent,VERTICALTYPE,glayout,nrow++,opts));
-  vector<miutil::miString> vchoice;
+  opts= VcrossSetupUI::useTextChoice;
+  vcSetups.push_back(new VcrossSetupUI(parent,VERTICALTYPE,glayout,nrow++,opts));
+  std::vector<std::string> vchoice;
   vchoice.push_back("Standard/P");
   vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/P");
@@ -232,32 +227,32 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups[n]->defineTextChoice(vchoice,0);
 
   nrow++;
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useValue);
-  vcSetups.push_back(new VcrossSetup(parent,VHSCALE,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useValue);
+  vcSetups.push_back(new VcrossSetupUI(parent,VHSCALE,glayout,nrow++,opts));
   n= vcSetups.size()-1;
 //vcSetups[n]->defineValue(10,600,10,150,"","x");
   vcSetups[n]->defineValue(1,600,1,150,"","x");
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useMinValue | VcrossSetup::useMaxValue);
-  vcSetups.push_back(new VcrossSetup(parent,STDVERAREA,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useMinValue | VcrossSetupUI::useMaxValue);
+  vcSetups.push_back(new VcrossSetupUI(parent,STDVERAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
-  vcSetups.push_back(new VcrossSetup(parent,STDHORAREA,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,STDHORAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
   nrow++;
-  opts= VcrossSetup::useColour;
-  vcSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
+  opts= VcrossSetupUI::useColour;
+  vcSetups.push_back(new VcrossSetupUI(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   nrow++;
-  opts= (VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth | VcrossSetup::useLineType);
-  vcSetups.push_back(new VcrossSetup(parent, ONMAPDRAW,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetup(parent,HITMAPDRAW,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+  vcSetups.push_back(new VcrossSetupUI(parent, ONMAPDRAW,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,HITMAPDRAW,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
     METLIBS_LOG_DEBUG("==================================================");
@@ -271,9 +266,8 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
 void VcrossSetupDialog::standardClicked()
 {
   //this slot is called when standard button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::standardClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
+
   VcrossOptions * vcopt= new VcrossOptions; // diana defaults
   setup(vcopt);
   delete vcopt;
@@ -294,9 +288,7 @@ void VcrossSetupDialog::start()
 
 void VcrossSetupDialog::setup(VcrossOptions *vcopt)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::setup()");
-#endif
+  METLIBS_LOG_SCOPE();
 
   int n= vcSetups.size();
 
@@ -415,19 +407,16 @@ void VcrossSetupDialog::setup(VcrossOptions *vcopt)
       vcSetups[i]->setLinetype (vcopt->vcSelectedOnMapLinetype);
 
     } else {
-      METLIBS_LOG_ERROR("VcrossSetupDialog::setup ERROR : "
-	  <<vcSetups[i]->name);
+      METLIBS_LOG_ERROR("VcrossSetupDialog::setup ERROR : " <<vcSetups[i]->name);
     }
-
   }
 }
 
 
 void VcrossSetupDialog::applySetup()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::applySetup()");
-#endif
+  METLIBS_LOG_SCOPE();
+
   VcrossOptions * vcopt= vcrossm->getOptions();
 
   int n= vcSetups.size();
@@ -547,8 +536,7 @@ void VcrossSetupDialog::applySetup()
       vcopt->vcSelectedOnMapLinetype=  vcSetups[i]->getLinetype();
 
     } else {
-      METLIBS_LOG_ERROR("VcrossSetupDialog::applySetup ERROR : "
-	  <<vcSetups[i]->name);
+      METLIBS_LOG_ERROR("VcrossSetupDialog::applySetup ERROR : " <<vcSetups[i]->name);
     }
 
   }
@@ -558,37 +546,32 @@ void VcrossSetupDialog::applySetup()
 void VcrossSetupDialog::helpClicked()
 {
   //this slot is called when help button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::helpClicked()");
-#endif
-  emit showsource("ug_verticalcrosssections.html");
+  METLIBS_LOG_SCOPE();
+  /*emit*/ showsource("ug_verticalcrosssections.html");
 }
 
 
 void VcrossSetupDialog::applyClicked()
 {
   //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::applyClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
   applySetup();
-  emit SetupApply();
+  /*emit*/ SetupApply();
 }
 
 
 void VcrossSetupDialog::applyhideClicked()
 {
   //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossSetupDialog::applyhideClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
+
   applySetup();
-  emit SetupHide();
-  emit SetupApply();
+  /*emit*/ SetupHide();
+  /*emit*/ SetupApply();
 }
 
 
 void VcrossSetupDialog::closeEvent( QCloseEvent* e)
 {
-  emit SetupHide();
+  /*emit*/ SetupHide();
 }

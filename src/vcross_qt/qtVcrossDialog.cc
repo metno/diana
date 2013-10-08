@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -57,11 +55,14 @@
 #include "qtVcrossDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
+#ifdef USE_VCROSS_V2
 #include "diVcrossManager.h"
+#else
+#include "diVcross1Manager.h"
+#endif
 #include <diField/diMetConstants.h>
 
-#include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "up20x20.xpm"
 #include "down20x20.xpm"
@@ -82,8 +83,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   historyPos= -1;
 
-  const std::vector<std::string> models_string = vcrossm->getAllModels();
-  models = std::vector<miutil::miString>(models_string.begin(), models_string.end());
+  models = vcrossm->getAllModels();
 
   // get all fieldnames from setup file
   //#################  fieldnames = vcrossm->getAllFieldNames();
@@ -93,11 +93,9 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //#################################################################
 
   // get all field plot options from setup file
-  const std::map<std::string, std::string> options_string = vcrossm->getAllFieldOptions();
-  setupFieldOptions = std::map<miutil::miString,miutil::miString>(options_string.begin(), options_string.end());
-  fieldOptions = setupFieldOptions;
+  fieldOptions = vcrossm->getAllFieldOptions();
 
-  map<miutil::miString,miutil::miString>::iterator pfopt, pfend= fieldOptions.end();
+  std::map<std::string,std::string>::iterator pfopt, pfend= fieldOptions.end();
   for (pfopt=fieldOptions.begin(); pfopt!=pfend; pfopt++)
     changedOptions[pfopt->first]= false;
   //#################################################################
@@ -106,8 +104,6 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //#################################################################
 
   //  END FIRST INNITIALISATION OF STATE
-
-  int i, n;
 
   // Colours
   colourInfo = Colour::getColourInfo();
@@ -125,14 +121,13 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   // density (of arrows etc, 0=automatic)
   densityStringList << "Auto";
-  QString qs;
-  for (i=0;  i<10; i++) {
-    densityStringList << qs.setNum(i);
+  for (int i=0;  i<10; i++) {
+    densityStringList << QString::number(i);
   }
-  for (i=10;  i<60; i+=10) {
-    densityStringList << qs.setNum(i);
+  for (int i=10;  i<60; i+=10) {
+    densityStringList << QString::number(i);
   }
-  densityStringList << qs.setNum(100);
+  densityStringList << QString::number(100);
 
   //----------------------------------------------------------------
   cp = new CommandParser();
@@ -185,11 +180,9 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   modelbox->setMaximumHeight( 80 );
 #endif
 
-  n= models.size();
-  if (n>0) {
-    for (i=0; i<n; i++)
-      modelbox->addItem(QString(models[i].c_str()));
-  }
+  const int n = models.size();
+  for (int i=0; i<n; i++)
+    modelbox->addItem(QString::fromStdString(models[i]));
 
   connect( modelbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
       SLOT( modelboxClicked( QListWidgetItem * ) ) );
@@ -287,7 +280,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 
   connect( historyOkButton, SIGNAL(clicked()), SLOT(historyOk()));
 
-  int wbutton= hbutton-4;
+  const int wbutton = hbutton-4;
 
   // upField
   QPixmap upfield = QPixmap(up12x12_xpm);
@@ -378,7 +371,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //allTimeStepButton->setChecked(false);
 
   // advanced
-  miutil::miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
+  const std::string more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
   advanced= new ToggleButton( this, more_str);
   advanced->setChecked(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
@@ -517,20 +510,17 @@ void VcrossDialog::toolTips()
   //allTimeStepButton,    tr("all times / union of times") );
 }
 
-void VcrossDialog::advancedToggled(bool on){
-#ifdef DEBUGPRINT
+void VcrossDialog::advancedToggled(bool on)
+{
   METLIBS_LOG_DEBUG("VcrossDialog::advancedToggled  on= " << on);
-#endif
-
   this->showExtension(on);
   m_advanced= on;
 }
 
 
-void VcrossDialog::CreateAdvanced() {
-#ifdef DEBUGPRINT
+void VcrossDialog::CreateAdvanced()
+{
   METLIBS_LOG_DEBUG("VcrossDialog::CreateAdvanced");
-#endif
 
   advFrame= new QWidget(this);
 
@@ -810,15 +800,12 @@ void VcrossDialog::CreateAdvanced() {
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
-
-  return;
 }
 
 
-void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::modelboxHighlighted called");
-#endif
+void VcrossDialog::modelboxClicked(QListWidgetItem* item)
+{
+  METLIBS_LOG_SCOPE();
 
   int index = modelbox->row(item);
   QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -838,17 +825,16 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
   fieldbox->blockSignals(true);
 
   for (int i=0; i<nf; i++)
-    fieldbox->addItem(QString(fields[i].c_str()));
+    fieldbox->addItem(QString::fromStdString(fields[i]));
   fieldbox->setEnabled( true );
 
   countSelected.resize(nf);
   for (int i=0; i<nf; ++i) countSelected[i]= 0;
 
-  int j,n= selectedFields.size();
-
+  const int n= selectedFields.size();
   for (int i=0; i<n; ++i) {
     if (selectedFields[i].model==models[index]) {
-      j=0;
+      int j=0;
       while (j<nf && selectedFields[i].field!=fields[j]) j++;
       if (j<nf) {
         fieldbox->item(j)->setSelected(true);
@@ -862,18 +848,12 @@ void VcrossDialog::modelboxClicked( QListWidgetItem * item  ){
   // possibly enable changeModel button
   if (selectedFields.size()>0)
     enableFieldOptions();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::modelboxHighlighted returned");
-#endif
 }
 
 
 void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::fieldboxChanged called");
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (historyOkButton->isEnabled()) deleteAllSelected();
 
@@ -896,7 +876,7 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
       sf.field=    fields[indexF];
       sf.hourOffset= 0;
 
-      map<miutil::miString,miutil::miString>::iterator pfopt;
+      std::map<std::string,std::string>::iterator pfopt;
       pfopt= fieldOptions.find(fields[indexF]);
       if (pfopt!=fieldOptions.end())
         sf.fieldOpts= pfopt->second;
@@ -960,18 +940,12 @@ void VcrossDialog::fieldboxChanged(QListWidgetItem* item)
   } else if (selectedFields.size()==0) {
     disableFieldOptions();
   }
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::fieldboxChanged returned");
-#endif
-  return;
 }
 
 
-void VcrossDialog::enableFieldOptions(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions called");
-#endif
+void VcrossDialog::enableFieldOptions()
+{
+  METLIBS_LOG_SCOPE();
 
   disableFieldOptions();
 
@@ -1079,14 +1053,14 @@ void VcrossDialog::enableFieldOptions(){
     patternComboBox->setEnabled(true);
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
-    vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
-    vector<std::string> stokens = miutil::split(tokens[0],";");
+    std::vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
+    std::vector<std::string> stokens = miutil::split(tokens[0],";");
     if(stokens.size()==2)
       shadingSpinBox->setValue(atoi(stokens[1].c_str()));
     else
       shadingSpinBox->setValue(0);
     int nr_cs = csInfo.size();
-    miutil::miString str;
+    std::string str;
     i=0;
     while (i<nr_cs && stokens[0]!=csInfo[i].name) i++;
     if (i==nr_cs) {
@@ -1098,7 +1072,7 @@ void VcrossDialog::enableFieldOptions(){
       shadingComboBox->setCurrentIndex(i+1);
     }
     if(tokens.size()==2){
-      vector<std::string> stokens = miutil::split(tokens[1],";");
+      std::vector<std::string> stokens = miutil::split(tokens[1],";");
       if(stokens.size()==2)
         shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
       shadingcoldSpinBox->setValue(0);
@@ -1134,10 +1108,10 @@ void VcrossDialog::enableFieldOptions(){
   if ((nc=cp->findKey(vpcopt,"patterns"))>=0) {
     patternComboBox->setEnabled(true);
     patternColourBox->setEnabled(true);
-    miutil::miString value = vpcopt[nc].allValue;
+    std::string value = vpcopt[nc].allValue;
     //METLIBS_LOG_DEBUG("patterns:"<<value);
     int nr_p = patternInfo.size();
-    miutil::miString str;
+    std::string str;
     i=0;
     while (i<nr_p && value!=patternInfo[i].name) i++;
     if (i==nr_p) {
@@ -1213,10 +1187,10 @@ void VcrossDialog::enableFieldOptions(){
   if ((nc=cp->findKey(vpcopt,"linewidth"))>=0) {
     lineWidthCbox->setEnabled(true);
     i=0;
-    while (i<nr_linewidths && vpcopt[nc].allValue!=miutil::miString(i+1)) i++;
+    while (i<nr_linewidths && vpcopt[nc].allValue!=miutil::from_number(i+1)) i++;
     if (i==nr_linewidths) {
       i=0;
-      updateFieldOptions("linewidth",miutil::miString(i+1));
+      updateFieldOptions("linewidth",miutil::from_number(i+1));
     }
     lineWidthCbox->setCurrentIndex(i);
   } else if (lineWidthCbox->isEnabled()) {
@@ -1241,7 +1215,7 @@ void VcrossDialog::enableFieldOptions(){
       densityCbox->addItems(densityStringList);
       densityCbox->setEnabled(true);
     }
-    miutil::miString s;
+    std::string s;
     if (!vpcopt[nc].strValue.empty()) {
       s= vpcopt[nc].strValue[0];
     } else {
@@ -1283,8 +1257,8 @@ void VcrossDialog::enableFieldOptions(){
   }
 
   if ((nc=cp->findKey(vpcopt,"extreme.limits"))>=0) {
-    miutil::miString value = vpcopt[nc].allValue;
-    vector<std::string> tokens = miutil::split(value,",");
+    std::string value = vpcopt[nc].allValue;
+    std::vector<std::string> tokens = miutil::split(value,",");
     if ( tokens.size() > 0 ) {
       int index = extremeLimits.indexOf(tokens[0].c_str());
       if ( index > -1 ) {
@@ -1347,7 +1321,7 @@ void VcrossDialog::enableFieldOptions(){
   }
 
   // base
-  miutil::miString base;
+  std::string base;
   if (ekv>0. && (nc=cp->findKey(vpcopt,"base"))>=0) {
     if (!vpcopt[nc].floatValue.empty())
       e = vpcopt[nc].floatValue[0];
@@ -1355,7 +1329,8 @@ void VcrossDialog::enableFieldOptions(){
       e = 0.0;
     zero1ComboBox->setEnabled(true);
     base = baseList(zero1ComboBox,vpcopt[nc].floatValue[0],ekv/2.0);
-    if( base.exists() ) cp->replaceValue(vpcopt[nc],base,0);
+    if (not base.empty())
+      cp->replaceValue(vpcopt[nc],base, 0);
     base.clear();
   } else if (zero1ComboBox->isEnabled()) {
     zero1ComboBox->clear();
@@ -1504,19 +1479,15 @@ void VcrossDialog::enableFieldOptions(){
   } else {
     max1ComboBox->setEnabled( false );
   }
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions returned");
-#endif
 }
 
 
-void VcrossDialog::disableFieldOptions(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::disableFieldOptions called");
-#endif
+void VcrossDialog::disableFieldOptions()
+{
+  METLIBS_LOG_SCOPE();
 
-  if (currentFieldOpts.empty()) return;
+  if (currentFieldOpts.empty())
+    return;
   currentFieldOpts.clear();
 
   Delete->setEnabled( false );
@@ -1601,21 +1572,16 @@ void VcrossDialog::disableFieldOptions(){
 
   //undefLinetypeCbox->clear();
   //undefLinetypeCbox->setEnabled(false);
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::disableFieldOptions returned");
-#endif
 }
 
 
-vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number ){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::numberList called");
-#endif
+std::vector<std::string> VcrossDialog::numberList( QComboBox* cBox, float number )
+{
+  METLIBS_LOG_SCOPE();
 
   cBox->clear();
 
-  vector<miutil::miString> vnumber;
+  std::vector<std::string> vnumber;
 
   const int nenormal = 10;
   const float enormal[nenormal] = { 1., 2., 2.5, 3., 4., 5.,
@@ -1645,7 +1611,7 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
     if (i<0) j--;
     if (k<0) k+=nenormal;
     ex= powf(10., ielog+j);
-    vnumber.push_back(miutil::miString(enormal[k]*ex));
+    vnumber.push_back(miutil::from_number(enormal[k]*ex));
   }
   n=1+nupdown*2;
 
@@ -1659,19 +1625,19 @@ vector<miutil::miString> VcrossDialog::numberList( QComboBox* cBox, float number
   return vnumber;
 }
 
-miutil::miString VcrossDialog::baseList( QComboBox* cBox,
+std::string VcrossDialog::baseList( QComboBox* cBox,
     float base,
     float ekv,
     bool onoff )
 {
-  miutil::miString str;
+  std::string str;
 
   int n;
   if (base<0.) n= int(base/ekv - 0.5);
   else         n= int(base/ekv + 0.5);
   if (fabsf(base-ekv*float(n))>0.01*ekv) {
     base= ekv*float(n);
-    str = miutil::miString(base);
+    str = miutil::from_number(base);
   }
   n=21;
   int k=n/2;
@@ -1688,8 +1654,8 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
     if(fabs(e)<ekv/2)
       cBox->addItem("0");
     else{
-      miutil::miString estr(e);
-      cBox->addItem(estr.c_str());
+      const std::string estr = miutil::from_number(e);
+      cBox->addItem(QString::fromStdString(estr));
     }
   }
 
@@ -1701,26 +1667,21 @@ miutil::miString VcrossDialog::baseList( QComboBox* cBox,
   return str;
 }
 
-void VcrossDialog::selectedFieldboxClicked( QListWidgetItem * item  )
+void VcrossDialog::selectedFieldboxClicked(QListWidgetItem* item)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::selectedFieldboxHighlighted called");
-#endif
+  METLIBS_LOG_SCOPE();
+
   int index = selectedFieldbox->row(item);
 
   // may get here when there is none selected fields (the last is removed)
   if (index<0 || selectedFields.size()==0) return;
 
   enableFieldOptions();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::selectedFieldboxHighlighted returned");
-#endif
-  return;
 }
 
 
-void VcrossDialog::colorCboxActivated( int index ){
+void VcrossDialog::colorCboxActivated(int index)
+{
   if (index==0)
     updateFieldOptions("colour","off");
   else
@@ -1728,31 +1689,38 @@ void VcrossDialog::colorCboxActivated( int index ){
 }
 
 
-void VcrossDialog::lineWidthCboxActivated( int index ){
-  updateFieldOptions("linewidth",miutil::miString(index+1));
+void VcrossDialog::lineWidthCboxActivated(int index)
+{
+  updateFieldOptions("linewidth", miutil::from_number(index+1));
 }
 
 
-void VcrossDialog::lineTypeCboxActivated( int index ){
-  updateFieldOptions("linetype",linetypes[index]);
+void VcrossDialog::lineTypeCboxActivated(int index)
+{
+  updateFieldOptions("linetype", linetypes[index]);
 }
 
 
-void VcrossDialog::lineintervalCboxActivated( int index ){
-  updateFieldOptions("line.interval",lineintervals[index]);
+void VcrossDialog::lineintervalCboxActivated(int index)
+{
+  updateFieldOptions("line.interval", lineintervals[index]);
   // update the list (with selected value in the middle)
   float a= atof(lineintervals[index].c_str());
   lineintervals= numberList( lineintervalCbox, a);
 }
 
 
-void VcrossDialog::densityCboxActivated( int index ){
-  if (index==0) updateFieldOptions("density","0");
-  else  updateFieldOptions("density",densityCbox->currentText().toStdString());
+void VcrossDialog::densityCboxActivated(int index)
+{
+  if (index==0)
+    updateFieldOptions("density","0");
+  else
+    updateFieldOptions("density",densityCbox->currentText().toStdString());
 }
 
 
-void VcrossDialog::vectorunitCboxActivated( int index ){
+void VcrossDialog::vectorunitCboxActivated(int index)
+{
   updateFieldOptions("vector.unit",vectorunit[index]);
   // update the list (with selected value in the middle)
   float a= atof(vectorunit[index].c_str());
@@ -1760,14 +1728,14 @@ void VcrossDialog::vectorunitCboxActivated( int index ){
 }
 
 
-void VcrossDialog::extremeValueCheckBoxToggled(bool on){
+void VcrossDialog::extremeValueCheckBoxToggled(bool on)
+{
   if (on) {
     updateFieldOptions("extreme.type","Value");
     extremeLimitMinComboBox->setEnabled(true);
     extremeLimitMaxComboBox->setEnabled(true);
     extremeSizeSpinBox->setEnabled(true);
-  }
-  else {
+  } else {
     updateFieldOptions("extreme.type","None");
     extremeLimitMinComboBox->setEnabled(false);
     extremeLimitMaxComboBox->setEnabled(false);
@@ -1776,9 +1744,10 @@ void VcrossDialog::extremeValueCheckBoxToggled(bool on){
   extremeLimitsChanged();
 }
 
-void VcrossDialog::extremeLimitsChanged() {
-  miutil::miString extremeString = "remove";
-  ostringstream ost;
+void VcrossDialog::extremeLimitsChanged()
+{
+  std::string extremeString = "remove";
+  std::ostringstream ost;
   if (extremeLimitMinComboBox->isEnabled() && extremeLimitMinComboBox->currentIndex() > 0 ) {
     ost << extremeLimitMinComboBox->currentText().toStdString();
     if(  extremeLimitMaxComboBox->currentIndex() > 0 ) {
@@ -1789,38 +1758,31 @@ void VcrossDialog::extremeLimitsChanged() {
   updateFieldOptions("extreme.limits",extremeString);
 }
 
-//void VcrossDialog::extremeTypeActivated(int index){
-//  updateFieldOptions("extreme.type",extremeType[index]);
-//}
-
-
-void VcrossDialog::extremeSizeChanged(int value){
-  miutil::miString str= miutil::miString( float(value)*0.01 );
-  updateFieldOptions("extreme.size",str);
+void VcrossDialog::extremeSizeChanged(int value)
+{
+  const std::string str = miutil::from_number(float(value)*0.01);
+  updateFieldOptions("extreme.size", str);
 }
 
 
-//void VcrossDialog::extremeRadiusChanged(int value){
-//  miutil::miString str= miutil::miString( float(value)*0.01 );
-//  updateFieldOptions("extreme.radius",str);
-//}
-
-
-void VcrossDialog::lineSmoothChanged(int value){
-  miutil::miString str= miutil::miString( value );
+void VcrossDialog::lineSmoothChanged(int value)
+{
+  const std::string str = miutil::from_number(value);
   updateFieldOptions("line.smooth",str);
 }
 
 
-void VcrossDialog::labelSizeChanged(int value){
-  miutil::miString str= miutil::miString( float(value)*0.01 );
+void VcrossDialog::labelSizeChanged(int value)
+{
+  const std::string str = miutil::from_number(float(value)*0.01);
   updateFieldOptions("label.size",str);
 }
 
 
-void VcrossDialog::hourOffsetChanged(int value){
-  int n= selectedFieldbox->currentRow();
-  selectedFields[n].hourOffset= value;
+void VcrossDialog::hourOffsetChanged(int value)
+{
+  const int n = selectedFieldbox->currentRow();
+  selectedFields[n].hourOffset = value;
 }
 
 
@@ -1844,33 +1806,35 @@ void VcrossDialog::hourOffsetChanged(int value){
 //}
 
 
-void VcrossDialog::zeroLineCheckBoxToggled(bool on){
-  if (on) updateFieldOptions("zero.line","1");
-  else    updateFieldOptions("zero.line","0");
+void VcrossDialog::zeroLineCheckBoxToggled(bool on)
+{
+  updateFieldOptions("zero.line", on ? "1" : "0");
 }
 
 
-void VcrossDialog::valueLabelCheckBoxToggled(bool on){
-  if (on) updateFieldOptions("value.label","1");
-  else    updateFieldOptions("value.label","0");
+void VcrossDialog::valueLabelCheckBoxToggled(bool on)
+{
+  updateFieldOptions("value.label", on ? "1" : "0");
 }
 
 
-void VcrossDialog::tableCheckBoxToggled(bool on){
-  if (on) updateFieldOptions("table","1");
-  else    updateFieldOptions("table","0");
+void VcrossDialog::tableCheckBoxToggled(bool on)
+{
+  updateFieldOptions("table", on ? "1" : "0");
 }
 
-void VcrossDialog::patternComboBoxToggled(int index){
+void VcrossDialog::patternComboBoxToggled(int index)
+{
   if(index == 0){
     updateFieldOptions("patterns","off");
   } else {
-    updateFieldOptions("patterns",patternInfo[index-1].name);
+    updateFieldOptions("patterns", patternInfo[index-1].name);
   }
   updatePaletteString();
 }
 
-void VcrossDialog::patternColourBoxToggled(int index){
+void VcrossDialog::patternColourBoxToggled(int index)
+{
   if(index == 0){
     updateFieldOptions("patterncolour","remove");
   } else {
@@ -1880,12 +1844,13 @@ void VcrossDialog::patternColourBoxToggled(int index){
 }
 
 
-void VcrossDialog::repeatCheckBoxToggled(bool on){
-  if (on) updateFieldOptions("repeat","1");
-  else    updateFieldOptions("repeat","0");
+void VcrossDialog::repeatCheckBoxToggled(bool on)
+{
+  updateFieldOptions("repeat", on ? "1" : "0");
 }
 
-void VcrossDialog::shadingChanged(){
+void VcrossDialog::shadingChanged()
+{
   updatePaletteString();
 }
 
@@ -1906,29 +1871,31 @@ void VcrossDialog::updatePaletteString(){
     return;
   }
 
-  miutil::miString str;
+  std::string str;
   if(index1>0){
     str = csInfo[index1-1].name;
     if(value1>0)
-      str += ";" + miutil::miString(value1);
+      str += ";" + miutil::from_number(value1);
     if(index2>0)
       str += ",";
   }
   if(index2>0){
     str += csInfo[index2-1].name;
     if(value2>0)
-      str += ";" + miutil::miString(value2);
+      str += ";" + miutil::from_number(value2);
   }
   updateFieldOptions("palettecolours",str,-1);
 }
 
-void VcrossDialog::alphaChanged(int index){
-  updateFieldOptions("alpha",miutil::miString(index));
+void VcrossDialog::alphaChanged(int index)
+{
+  updateFieldOptions("alpha", miutil::from_number(index));
 }
 
-void VcrossDialog::zero1ComboBoxToggled(int index){
+void VcrossDialog::zero1ComboBoxToggled(int index)
+{
   if(!zero1ComboBox->currentText().isNull() ){
-    miutil::miString str = zero1ComboBox->currentText().toStdString();
+    std::string str = zero1ComboBox->currentText().toStdString();
     updateFieldOptions("base",str);
     float a = atof(str.c_str());
     float b = lineintervalCbox->currentText().toInt();
@@ -1936,11 +1903,12 @@ void VcrossDialog::zero1ComboBoxToggled(int index){
   }
 }
 
-void VcrossDialog::min1ComboBoxToggled(int index){
+void VcrossDialog::min1ComboBoxToggled(int index)
+{
   if( index == 0 )
     updateFieldOptions("minvalue","off");
   else if(!min1ComboBox->currentText().isNull() ){
-    miutil::miString str = min1ComboBox->currentText().toStdString();
+    std::string str = min1ComboBox->currentText().toStdString();
     updateFieldOptions("minvalue",str);
     float a = atof(str.c_str());
     float b = 1.0;
@@ -1950,11 +1918,12 @@ void VcrossDialog::min1ComboBoxToggled(int index){
   }
 }
 
-void VcrossDialog::max1ComboBoxToggled(int index){
+void VcrossDialog::max1ComboBoxToggled(int index)
+{
   if( index == 0 )
     updateFieldOptions("maxvalue","off");
   else if(!max1ComboBox->currentText().isNull() ){
-    miutil::miString str = max1ComboBox->currentText().toStdString();
+    std::string str = max1ComboBox->currentText().toStdString();
     updateFieldOptions("maxvalue", max1ComboBox->currentText().toStdString());
     float a = atof(str.c_str());
     float b = 1.0;
@@ -1963,13 +1932,11 @@ void VcrossDialog::max1ComboBoxToggled(int index){
     baseList(max1ComboBox,a,b,true);
   }
 }
-void VcrossDialog::updateFieldOptions(const miutil::miString& name,
-    const miutil::miString& value,
-    int valueIndex) {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::updateFieldOptions  name= " << name
-      << "  value= " << value);
-#endif
+void VcrossDialog::updateFieldOptions(const std::string& name,
+    const std::string& value, int valueIndex)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG("name= " << name << "  value= " << value);
 
   if (currentFieldOpts.empty()) return;
 
@@ -1985,35 +1952,35 @@ void VcrossDialog::updateFieldOptions(const miutil::miString& name,
   selectedFields[n].fieldOpts= currentFieldOpts;
 
   // update private settings
-  miutil::miString field= selectedFields[n].field;
+  std::string field= selectedFields[n].field;
   fieldOptions[field]= currentFieldOpts;
   changedOptions[field]= true;
 }
 
 
-vector<miutil::miString> VcrossDialog::getOKString(){
+std::vector<std::string> VcrossDialog::getOKString()
+{
+  METLIBS_LOG_SCOPE();
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::getOKString called");
-#endif
-
-  if (historyOkButton->isEnabled()) historyOk();
+  if (historyOkButton->isEnabled())
+    historyOk();
 
   //#################################################################
   //  METLIBS_LOG_DEBUG("VcrossDialog::getOKString  selectedFields.size()= "
   //      <<selectedFields.size());
   //#################################################################
 
-  vector<miutil::miString> vstr;
-  if (selectedFields.size()==0) return vstr;
+  std::vector<std::string> vstr;
+  if (selectedFields.size()==0)
+    return vstr;
 
-  vector<miutil::miString> hstr;
+  std::vector<std::string> hstr;
 
   int n= selectedFields.size();
 
   for (int i=0; i<n; i++) {
 
-    ostringstream ostr;
+    std::ostringstream ostr;
 
     ostr << "model=" << selectedFields[i].model
         << " field=" <<  selectedFields[i].field;
@@ -2026,7 +1993,7 @@ vector<miutil::miString> VcrossDialog::getOKString(){
 
     ostr << " " << selectedFields[i].fieldOpts;
 
-    miutil::miString str;
+    std::string str;
 
     str= "VCROSS " + ostr.str();
 
@@ -2087,18 +2054,15 @@ vector<miutil::miString> VcrossDialog::getOKString(){
   return vstr;
 }
 
-miutil::miString VcrossDialog::getShortname()
+std::string VcrossDialog::getShortname()
 {
-
-  miutil::miString name;
   int n = selectedFields.size();
-  ostringstream ostr;
-  miutil::miString pmodelName;
+  std::ostringstream ostr;
+  std::string pmodelName;
 
   for (int i = 0; i < n; i++) {
-    miutil::miString modelName = selectedFields[i].model;
-    miutil::miString fieldName = selectedFields[i].field;
-
+    const std::string& modelName = selectedFields[i].model;
+    const std::string& fieldName = selectedFields[i].field;
 
     if (i > 0)
       ostr << "  ";
@@ -2109,22 +2073,22 @@ miutil::miString VcrossDialog::getShortname()
     }
 
     ostr << " " << fieldName;
-
   }
 
   if (n > 0)
-    name = ostr.str();
-
-  return name;
+    return ostr.str();
+  return std::string();
 }
 
 
-void VcrossDialog::historyBack() {
+void VcrossDialog::historyBack()
+{
   showHistory(-1);
 }
 
 
-void VcrossDialog::historyForward() {
+void VcrossDialog::historyForward()
+{
   showHistory(1);
 }
 
@@ -2159,13 +2123,13 @@ void VcrossDialog::showHistory(int step) {
 
     selectedFieldbox->clear();
 
-    vector<miutil::miString> vstr;
+    std::vector<std::string> vstr;
     int n= commandHistory[historyPos].size();
 
     for (int i=0; i<n; i++) {
-      vector<ParsedCommand> vpc= cp->parse( commandHistory[historyPos][i] );
+      std::vector<ParsedCommand> vpc= cp->parse( commandHistory[historyPos][i] );
       int m= vpc.size();
-      miutil::miString str;
+      std::string str;
       bool modelfound= false, fieldfound= false;
       for (int j=0; j<m; j++) {
         if (vpc[j].idNumber>0) {
@@ -2194,13 +2158,12 @@ void VcrossDialog::showHistory(int step) {
 }
 
 
-void VcrossDialog::historyOk() {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::historyOk()");
-#endif
+void VcrossDialog::historyOk()
+{
+  METLIBS_LOG_SCOPE();
 
   if (historyPos<0 || historyPos>=int(commandHistory.size())) {
-    vector<miutil::miString> vstr;
+    std::vector<std::string> vstr;
     putOKString(vstr,false,false);
   } else {
     putOKString(commandHistory[historyPos],false,false);
@@ -2208,12 +2171,10 @@ void VcrossDialog::historyOk() {
 }
 
 
-void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
+void VcrossDialog::putOKString(const std::vector<std::string>& vstr,
     bool vcrossPrefix, bool checkOptions)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::putOKString starts");
-#endif
+  METLIBS_LOG_SCOPE();
 
   deleteAllSelected();
 
@@ -2222,11 +2183,11 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
   if (nc==0)
     return;
 
-  miutil::miString fields2_model,model,field,fOpts;
+  std::string fields2_model,model,field,fOpts;
   int ic,i,j,m,n,hourOffset;
-  vector<std::string> fields2;
+  std::vector<std::string> fields2;
   int nf2= 0;
-  vector<ParsedCommand> vpc;
+  std::vector<ParsedCommand> vpc;
 
   for (ic=0; ic<nc; ic++) {
 
@@ -2234,7 +2195,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
     //    METLIBS_LOG_DEBUG("P.OK>> " << vstr[ic]);
     //######################################################################
     if (checkOptions) {
-      miutil::miString str= checkFieldOptions(vstr[ic],vcrossPrefix);
+      std::string str= checkFieldOptions(vstr[ic],vcrossPrefix);
       if (str.empty()) continue;
       vpc= cp->parse( str );
     } else {
@@ -2282,7 +2243,7 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
 
       selectedFields.push_back(sf);
 
-      miutil::miString str= model + " " + field;
+      std::string str= model + " " + field;
       QString qstr= str.c_str();
       selectedFieldbox->addItem(qstr);
     }
@@ -2313,16 +2274,12 @@ void VcrossDialog::putOKString(const vector<miutil::miString>& vstr,
     selectedFieldbox->item(i)->setSelected(true);
     enableFieldOptions();
   }
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::putOKString finished");
-#endif
 }
 
 
-vector<miutil::miString> VcrossDialog::writeLog() {
-
-  vector<miutil::miString> vstr;
+std::vector<std::string> VcrossDialog::writeLog()
+{
+  std::vector<std::string> vstr;
 
   // write history
 
@@ -2341,7 +2298,7 @@ vector<miutil::miString> VcrossDialog::writeLog() {
 
   // write used field options
 
-  map<miutil::miString,miutil::miString>::iterator p, pend= fieldOptions.end();
+  std::map<std::string,std::string>::iterator p, pend= fieldOptions.end();
 
   for (p=fieldOptions.begin(); p!=pend; p++) {
     if (changedOptions[p->first])
@@ -2353,15 +2310,15 @@ vector<miutil::miString> VcrossDialog::writeLog() {
 }
 
 
-void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion,
-    const miutil::miString& logVersion) {
-
-  miutil::miString str,fieldname,fopts;
-  vector<miutil::miString> hstr;
+void VcrossDialog::readLog(const std::vector<std::string>& vstr,
+    const std::string& thisVersion,
+    const std::string& logVersion)
+{
+  std::string str,fieldname,fopts;
+  std::vector<std::string> hstr;
   size_t pos,end;
 
-  map<miutil::miString,miutil::miString>::iterator pfopt, pfend= fieldOptions.end();
+  std::map<std::string,std::string>::iterator pfopt, pfend= fieldOptions.end();
   int nopt,nlog,i,j;
   bool changed;
 
@@ -2380,7 +2337,7 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
       }
     } else {
       str= checkFieldOptions(vstr[ivstr],false);
-      if (str.exists())
+      if (not str.empty())
         hstr.push_back(str);
     }
   }
@@ -2402,8 +2359,8 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
 
       pfopt= fieldOptions.find(fieldname);
       if (pfopt!=pfend) {
-        vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
-        vector<ParsedCommand> vplog= cp->parse( fopts );
+        std::vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
+        std::vector<ParsedCommand> vplog= cp->parse( fopts );
         nopt= vpopt.size();
         nlog= vplog.size();
         changed= false;
@@ -2461,19 +2418,17 @@ void VcrossDialog::readLog(const vector<miutil::miString>& vstr,
 }
 
 
-miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bool vcrossPrefix)
+std::string VcrossDialog::checkFieldOptions(const std::string& str, bool vcrossPrefix)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::checkFieldOptions");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  miutil::miString newstr;
+  std::string newstr;
 
-  map<miutil::miString,miutil::miString>::iterator pfopt;
-  miutil::miString fieldname;
+  std::map<std::string,std::string>::iterator pfopt;
+  std::string fieldname;
   int nopt;
 
-  vector<ParsedCommand> vplog= cp->parse( str );
+  std::vector<ParsedCommand> vplog= cp->parse( str );
   int nlog= vplog.size();
   int first= (vcrossPrefix) ? 1 : 0;
 
@@ -2482,7 +2437,7 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
     fieldname= vplog[first+1].allValue;
     pfopt= setupFieldOptions.find(fieldname);
     if (pfopt!=setupFieldOptions.end()) {
-      vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
+      std::vector<ParsedCommand> vpopt= cp->parse( pfopt->second );
       nopt= vpopt.size();
       //##################################################################
       //    METLIBS_LOG_DEBUG("    nopt= " << nopt << "  nlog= " << nlog);
@@ -2543,10 +2498,9 @@ miutil::miString VcrossDialog::checkFieldOptions(const miutil::miString& str, bo
 }
 
 
-void VcrossDialog::deleteSelected(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::deleteSelected called");
-#endif
+void VcrossDialog::deleteSelected()
+{
+  METLIBS_LOG_SCOPE();
 
   int index = selectedFieldbox->currentRow();
 
@@ -2585,18 +2539,12 @@ void VcrossDialog::deleteSelected(){
   } else {
     disableFieldOptions();
   }
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::deleteSelected returned");
-#endif
-  return;
 }
 
 
-void VcrossDialog::deleteAllSelected(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::deleteAllSelected() called");
-#endif
+void VcrossDialog::deleteAllSelected()
+{
+  METLIBS_LOG_SCOPE();
 
   // calls:
   //  1: button clicked (while selecting fields)
@@ -2626,18 +2574,11 @@ void VcrossDialog::deleteAllSelected(){
   }
 
   disableFieldOptions();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::deleteAllSelected() returned");
-#endif
-  return;
 }
 
-
-void VcrossDialog::copySelectedField(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::copySelectedField called");
-#endif
+void VcrossDialog::copySelectedField()
+{
+  METLIBS_LOG_SCOPE();
 
   if (selectedFieldbox->count()==0) return;
 
@@ -2660,18 +2601,12 @@ void VcrossDialog::copySelectedField(){
   selectedFieldbox->setCurrentRow(n);
   selectedFieldbox->item(n)->setSelected( true );
   enableFieldOptions();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::copySelectedField returned");
-#endif
-  return;
 }
 
 
-void VcrossDialog::changeModel(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::changeModel called");
-#endif
+void VcrossDialog::changeModel()
+{
+  METLIBS_LOG_SCOPE();
 
   if (selectedFieldbox->count()==0) return;
   int i, n= selectedFields.size();
@@ -2685,8 +2620,8 @@ void VcrossDialog::changeModel(){
   int indexM= modelbox->currentRow();
   if (indexM<0) return;
 
-  miutil::miString oldmodel= selectedFields[index].model;
-  miutil::miString    model= models[indexM];
+  std::string oldmodel= selectedFields[index].model;
+  std::string    model= models[indexM];
 
   fieldbox->blockSignals(true);
 
@@ -2705,7 +2640,7 @@ void VcrossDialog::changeModel(){
           fieldbox->item(j)->setSelected( true );
         }
         selectedFields[i].model= model;
-        miutil::miString str= model + " " + fields[j];
+        std::string str= model + " " + fields[j];
         QString qstr= str.c_str();
         selectedFieldbox->item(i)->setText(qstr);
       }
@@ -2718,16 +2653,11 @@ void VcrossDialog::changeModel(){
   selectedFieldbox->setCurrentRow( index );
   selectedFieldbox->item(index)->setSelected( true );
   enableFieldOptions();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::changeModel returned");
-#endif
-  return;
 }
 
 
-void VcrossDialog::upField() {
-
+void VcrossDialog::upField()
+{
   if (selectedFieldbox->count()==0) return;
   int n= selectedFields.size();
   if (n==0) return;
@@ -2748,8 +2678,8 @@ void VcrossDialog::upField() {
 }
 
 
-void VcrossDialog::downField() {
-
+void VcrossDialog::downField()
+{
   if (selectedFieldbox->count()==0) return;
   int n= selectedFields.size();
   if (n==0) return;
@@ -2770,53 +2700,57 @@ void VcrossDialog::downField() {
 }
 
 
-void VcrossDialog::resetOptions() {
-
-  if (selectedFieldbox->count()==0) return;
+void VcrossDialog::resetOptions()
+{
+  if (selectedFieldbox->count()==0)
+    return;
   int n= selectedFields.size();
-  if (n==0) return;
+  if (n==0)
+    return;
 
   int index= selectedFieldbox->currentRow();
-  if (index<0 || index>=n) return;
+  if (index<0 || index>=n)
+    return;
 
-  miutil::miString field= selectedFields[index].field;
+  std::string field= selectedFields[index].field;
   selectedFields[index].fieldOpts= setupFieldOptions[field];
   selectedFields[index].hourOffset= 0;
   enableFieldOptions();
 }
 
 
-void VcrossDialog::applyClicked(){
+void VcrossDialog::applyClicked()
+{
   if (historyOkButton->isEnabled())
     historyOk();
-  const std::vector<miutil::miString> vstr = getOKString();
+  const std::vector<std::string> vstr = getOKString();
   bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
-  emit VcrossDialogApply(modelChange);
+  /*emit*/ VcrossDialogApply(modelChange);
 }
 
 
-void VcrossDialog::applyhideClicked(){
-  if (historyOkButton->isEnabled())
-    historyOk();
-  const std::vector<miutil::miString> vstr = getOKString();
-  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
-  emit VcrossDialogHide();
-  emit VcrossDialogApply(modelChange);
+void VcrossDialog::applyhideClicked()
+{
+  applyClicked();
+  hideClicked();
 }
 
 
-void VcrossDialog::hideClicked(){
-  emit VcrossDialogHide();
+void VcrossDialog::hideClicked()
+{
+  /*emit*/ VcrossDialogHide();
 }
 
 
-void VcrossDialog::helpClicked(){
-  emit showsource("ug_verticalcrosssections.html");
+void VcrossDialog::helpClicked()
+{
+  /*emit*/ showsource("ug_verticalcrosssections.html");
 }
 
 
-void VcrossDialog::closeEvent( QCloseEvent* e) {
-  emit VcrossDialogHide();
+void VcrossDialog::closeEvent(QCloseEvent* e)
+{
+  /*emit*/ VcrossDialogHide();
 }
 
 void VcrossDialog::highlightButton(QPushButton* button, bool on)
@@ -2835,9 +2769,8 @@ void VcrossDialog::highlightButton(QPushButton* button, bool on)
 
 void VcrossDialog::cleanup()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" VcrossDialog::cleanup() called");
-#endif
+  METLIBS_LOG_SCOPE();
+
   deleteAllSelected();
   fieldbox->clear();
   fields.clear();
@@ -2845,10 +2778,8 @@ void VcrossDialog::cleanup()
   // one way of unselecting model (in a single selection box)...
   modelbox->clearSelection();
   modelbox->clear();
-  int n= models.size();
-  if (n>0) {
-    for (int i=0; i<n; i++)
-      modelbox->addItem(QString(models[i].c_str()));
-  }
+  const int n = models.size();
+  for (int i=0; i<n; i++)
+    modelbox->addItem(QString::fromStdString(models[i]));
   fieldbox->setFocus();
 }

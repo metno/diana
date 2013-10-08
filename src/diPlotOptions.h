@@ -197,6 +197,7 @@ public:
   /** parse a string (possibly) containing plotting options,
       and fill a PlotOptions with appropriate values */
   static bool parsePlotOption(std::string&, PlotOptions&, bool returnMergedOptionString=false);
+  static bool parsePlotOption(const std::string&, PlotOptions&);
   /// update static fieldplotoptions
   static bool updateFieldPlotOptions(const std::string& name, const std::string& optstr);
   /** fill a fieldplotoption from static map, and substitute values

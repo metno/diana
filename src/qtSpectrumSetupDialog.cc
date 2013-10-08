@@ -158,44 +158,44 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
 
   int n,opts;
 
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  spSetups.push_back(new VcrossSetup(parent,TEXTPLOT,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetup(parent,FIXEDTEXT,glayout,nrow++,opts));
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth);
-  spSetups.push_back(new VcrossSetup(parent,FRAME,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetup(parent,SPECTRUMLINES,glayout,nrow++,opts));
-  opts= (VcrossSetup::useOnOff);
-  spSetups.push_back(new VcrossSetup(parent,SPECTRUMCOLOUR,glayout,nrow++,opts));
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth);
-  spSetups.push_back(new VcrossSetup(parent,ENERGYLINE,glayout,nrow++,opts));
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour);
-  spSetups.push_back(new VcrossSetup(parent,ENERGYCOLOUR,glayout,nrow++,opts));
-  opts= (VcrossSetup::useOnOff | VcrossSetup::useColour |
-	 VcrossSetup::useLineWidth);
-  spSetups.push_back(new VcrossSetup(parent,PLOTWIND,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetup(parent,PLOTPEAKDIREC,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
+  spSetups.push_back(new VcrossSetupUI(parent,TEXTPLOT,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetupUI(parent,FIXEDTEXT,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth);
+  spSetups.push_back(new VcrossSetupUI(parent,FRAME,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetupUI(parent,SPECTRUMLINES,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff);
+  spSetups.push_back(new VcrossSetupUI(parent,SPECTRUMCOLOUR,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth);
+  spSetups.push_back(new VcrossSetupUI(parent,ENERGYLINE,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
+  spSetups.push_back(new VcrossSetupUI(parent,ENERGYCOLOUR,glayout,nrow++,opts));
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useLineWidth);
+  spSetups.push_back(new VcrossSetupUI(parent,PLOTWIND,glayout,nrow++,opts));
+  spSetups.push_back(new VcrossSetupUI(parent,PLOTPEAKDIREC,glayout,nrow++,opts));
 
   nrow++;
-  opts= VcrossSetup::useTextChoice;
-  spSetups.push_back(new VcrossSetup(parent,FREQUENCYMAX,glayout,nrow++,opts));
-  vector<miutil::miString> vfreq;
-  vfreq.push_back(miutil::miString(0.50));
-  vfreq.push_back(miutil::miString(0.45));
-  vfreq.push_back(miutil::miString(0.40));
-  vfreq.push_back(miutil::miString(0.35));
-  vfreq.push_back(miutil::miString(0.30));
-  vfreq.push_back(miutil::miString(0.25));
-  vfreq.push_back(miutil::miString(0.20));
-  vfreq.push_back(miutil::miString(0.15));
-  vfreq.push_back(miutil::miString(0.10));
+  opts= VcrossSetupUI::useTextChoice;
+  spSetups.push_back(new VcrossSetupUI(parent,FREQUENCYMAX,glayout,nrow++,opts));
+  std::vector<std::string> vfreq;
+  vfreq.push_back(miutil::from_number(0.50));
+  vfreq.push_back(miutil::from_number(0.45));
+  vfreq.push_back(miutil::from_number(0.40));
+  vfreq.push_back(miutil::from_number(0.35));
+  vfreq.push_back(miutil::from_number(0.30));
+  vfreq.push_back(miutil::from_number(0.25));
+  vfreq.push_back(miutil::from_number(0.20));
+  vfreq.push_back(miutil::from_number(0.15));
+  vfreq.push_back(miutil::from_number(0.10));
   n= spSetups.size()-1;
   spSetups[n]->defineTextChoice(vfreq,4);
 
   nrow++;
-  opts= VcrossSetup::useColour;
-  spSetups.push_back(new VcrossSetup(parent,BACKCOLOUR,glayout,nrow++,opts));
+  opts= VcrossSetupUI::useColour;
+  spSetups.push_back(new VcrossSetupUI(parent,BACKCOLOUR,glayout,nrow++,opts));
 
   if (nrow!=numrows) {
     METLIBS_LOG_DEBUG("==================================================");
