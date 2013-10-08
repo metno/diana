@@ -447,7 +447,7 @@ void VcrossManager::preparePlot()
       p0 = data->parameters[arguments[0]].values;
     if (arguments.size() >= 2)
       p1 = data->parameters[arguments[1]].values;
-    mPlot->addPlot(mSetup->getPlotType(select.field), p0, p1, zax, mSetup->getPlotOptions(select.field));
+    mPlot->addPlot(mSetup->getPlotType(select.field), p0, p1, zax, select.plotOptions);
   }
 
   mPlot->prepare();
@@ -747,7 +747,7 @@ bool VcrossManager::setSelection(const std::vector<std::string>& vstr)
   selectedLabel.clear();
 
   BOOST_FOREACH(const std::string& sel, vstr) {
-    METLIBS_LOG_INFO(LOGVAL(sel));
+    METLIBS_LOG_DEBUG(LOGVAL(sel));
 
     const std::vector<std::string> vs1 = miutil::split(sel, 0, " ");
     if (vs1.size()>1 && miutil::to_upper(vs1[1])=="LABEL") {
@@ -782,12 +782,11 @@ bool VcrossManager::setSelection(const std::vector<std::string>& vstr)
     if ((not select.model.empty()) and (not select.field.empty()) and getVcrossSource(select.model)) {
       // there may be options not handled in dialog
       // or uncomplete batch input
-      std::string defaultOptions = mSetup->getPlotOptions(select.field);
-      if (not defaultOptions.empty()) {
+      const std::string& defaultOptions = mSetup->getPlotOptions(select.field);
+      if (not defaultOptions.empty())
         PlotOptions::parsePlotOption(defaultOptions, select.plotOptions);
-        PlotOptions::parsePlotOption(options,        select.plotOptions);
-      }
-      METLIBS_LOG_DEBUG("added '" << select.model << "'");
+      PlotOptions::parsePlotOption(options, select.plotOptions);
+      METLIBS_LOG_DEBUG("added '" << select.model << "'" << LOGVAL(defaultOptions) << LOGVAL(options) << LOGVAL(select.plotOptions.density));
       selected.push_back(select);
     }
   }

@@ -88,8 +88,8 @@ private:
     VcrossData::values_t p0, p1;
     VcrossData::ZAxisPtr zax;
     PlotOptions poptions;
-    Plot(VCPlotType t, const VcrossData::values_t& pp0, const VcrossData::values_t& pp1, VcrossData::ZAxisPtr z)
-      : type(t), p0(pp0), p1(pp1), zax(z) { }
+    Plot(VCPlotType t, const VcrossData::values_t& pp0, const VcrossData::values_t& pp1, VcrossData::ZAxisPtr z, const PlotOptions& po)
+      : type(t), p0(pp0), p1(pp1), zax(z), poptions(po) { }
   };
   typedef std::vector<Plot> Plots_t;
 
@@ -116,7 +116,7 @@ public:
   void setHorizontalTime(const std::vector<miutil::miTime>& times, int csPoint);
   void setVerticalAxis(VcrossData::ZAxis::Quantity q);
   void addPlot(VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1,
-      VcrossData::ZAxisPtr zax, const std::string& poptions);
+      VcrossData::ZAxisPtr zax, const PlotOptions& poptions);
   void prepare();
   void plot();
 

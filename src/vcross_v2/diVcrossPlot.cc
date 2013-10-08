@@ -326,12 +326,10 @@ void VcrossPlot::setVerticalAxis(VcrossData::ZAxis::Quantity q)
 }
 
 void VcrossPlot::addPlot(VCPlotType type, const VcrossData::values_t& p0, const VcrossData::values_t& p1,
-    VcrossData::ZAxisPtr zax, const std::string& poptions)
+    VcrossData::ZAxisPtr zax, const PlotOptions& poptions)
 {
   METLIBS_LOG_SCOPE();
-
-  mPlots.push_back(Plot(type, p0, p1, zax));
-  PlotOptions::parsePlotOption(poptions, mPlots.back().poptions);
+  mPlots.push_back(Plot(type, p0, p1, zax, poptions));
 }
 
 void VcrossPlot::prepare()
@@ -1728,12 +1726,18 @@ void VcrossPlot::plotDataWind(const Plot& plot)
   PaintWindArrow pw;
   pw.mWithArrowHead = (plot.poptions.arrowstyle == arrow_wind_arrow);
 
+  METLIBS_LOG_DEBUG(LOGVAL(plot.poptions.density));
+  const int xStep = std::max(plot.poptions.density, 1);
+  const bool xStepAuto = (plot.poptions.density < 1);
+
   const int nx = plot.zax->mPoints, ny = plot.zax->mLevels;
-  for (int ix=0; ix<nx; ++ix) {
+  float nextX = mAxisX->getPaintMin() - 1;
+  for (int ix=0; ix<nx; ix += xStep) {
     const float vx = mCrossectionDistances.at(ix);
     const float px = mAxisX->value2paint(vx);
-    if (not mAxisX->legalPaint(px))
+    if (not mAxisX->legalPaint(px) or (xStepAuto and px < nextX))
       continue;
+    bool painted = false;
     for (int iy=0; iy<ny; ++iy) {
       const float vy = plot.zax->value(iy, ix);
       const float py = mAxisY->value2paint(vy);
@@ -1742,10 +1746,14 @@ void VcrossPlot::plotDataWind(const Plot& plot)
         const float WIND_SCALE = 3600.0 / 1852.0;
 
         const float wx = plot.p0[idx], wy = plot.p1[idx];
-        if (not (isnan(wx) or isnan(wy)))
+        if (not (isnan(wx) or isnan(wy))) {
           pw.paint(WIND_SCALE * wx, WIND_SCALE * wy, px, py);
+          painted = true;
+        }
       }
     }
+    if (painted)
+      nextX = px + 2*pw.mSize;
   }
 }
 

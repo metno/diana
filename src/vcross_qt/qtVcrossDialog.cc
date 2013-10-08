@@ -1952,9 +1952,9 @@ void VcrossDialog::updateFieldOptions(const std::string& name,
   selectedFields[n].fieldOpts= currentFieldOpts;
 
   // update private settings
-  std::string field= selectedFields[n].field;
-  fieldOptions[field]= currentFieldOpts;
-  changedOptions[field]= true;
+  const std::string& field = selectedFields[n].field;
+  fieldOptions[field] = currentFieldOpts;
+  changedOptions[field] = true;
 }
 
 
@@ -2724,7 +2724,7 @@ void VcrossDialog::applyClicked()
   if (historyOkButton->isEnabled())
     historyOk();
   const std::vector<std::string> vstr = getOKString();
-  bool modelChange = vcrossm->setSelection(std::vector<std::string>(vstr.begin(), vstr.end()));
+  bool modelChange = vcrossm->setSelection(vstr);
   /*emit*/ VcrossDialogApply(modelChange);
 }
 
