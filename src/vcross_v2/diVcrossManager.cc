@@ -465,12 +465,11 @@ VcrossData::Parameters_t VcrossManager::calculateCSParameters(const VcrossData::
   pStep    .mLevels = 1;
   pBearing .mLevels = 1;
   pCoriolis.mLevels = 1;
-  
-  if (not cut.empty()) {
-    pStep    .alloc();
-    pBearing .alloc();
-    pCoriolis.alloc();
+  pStep    .alloc();
+  pBearing .alloc();
+  pCoriolis.alloc();
 
+  if (not cut.empty()) {
     pStep    .setValue(0, 0, 0);
     pCoriolis.setValue(0, 0, VcrossUtil::coriolisFactor(cut.front().lat()));
     if (cut.size() == 1) {

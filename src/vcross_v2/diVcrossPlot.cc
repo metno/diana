@@ -1526,7 +1526,7 @@ void VcrossPlot::plotFrame()
   } else if (mAxisY->quantity == VcrossPlotDetail::Axis::HEIGHT) {
     if (mAxisY->label == "m") {
       nticks = nzsteps;
-      tickValues = zsteps;
+      tickValues = tickLabels = zsteps;
     } else if (mAxisY->label == "Ft") {
       scale = fl2m;
       tickValues = tickLabels = flsteps;

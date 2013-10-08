@@ -63,11 +63,20 @@ const VcrossComputer::FunctionLike vcrossFunctionDefs[VcrossComputer::vcf_no_fun
 
 static FieldFunctions ffunc;     // Container for Field Functions
 
-float* par_floats(const VcrossData::Parameters_t& csPar, const std::string& name)
+const VcrossData::ParameterData* par_data(const VcrossData::Parameters_t& csPar, const std::string& name)
 {
   const VcrossData::Parameters_t::const_iterator it_pp = csPar.find(name);
   if (it_pp != csPar.end()) 
-    return it_pp->second.values.get();
+    return &it_pp->second;
+  else
+    return 0;
+}
+
+float* par_floats(const VcrossData::Parameters_t& csPar, const std::string& name)
+{
+  const VcrossData::ParameterData* d = par_data(csPar, name);
+  if (d) 
+    return d->values.get();
   else
     return 0;
 }
@@ -327,16 +336,15 @@ VcrossData::ParameterData compute(const VcrossData::Parameters_t& csPar, int vcf
     if (not par_bearing or (compute != 1 and compute != 2))
       return VcrossData::ParameterData();
 
-    const float b_offset = 90 * (2-compute) * DEG_TO_RAD; // TODO correct?
+    const float b0 = 90 * DEG_TO_RAD;
+    const float b_offset = b0 * (2-compute); // TODO correct?
 
     for (int p = 0; p < out.mPoints; p++) {
-      const float b = par_bearing[p] + b_offset, bsin = std::sin(b), bcos = std::cos(b);
+      const float b = (b0-par_bearing[p]) + b_offset, bsin = std::sin(b), bcos = std::cos(b);
       for (int l = 0, n = 0; l < out.mLevels; l++, n += out.mPoints) {
-        if (param0[n] != undefValue and param1[n] != undefValue) {
-          out.values.get()[n] = bsin * param0[n] + bcos * param1[n];
-        } else {
-          out.values.get()[n] = undefValue;
-        }
+        const float pX = param0[n], pY = param1[n];
+        const float v = (pX != undefValue and pY != undefValue) ? (bcos * pX + bsin * pY): undefValue;
+        out.setValue(l, p, v);
       }
     }
     break; }
