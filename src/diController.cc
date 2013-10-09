@@ -511,7 +511,6 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   bool inEdit = (mm != normal_mode);
   bool editpause= editm->getEditPause();
 
-
   // first check events independent of mode
   //-------------------------------------
   if (me->type() == QEvent::MouseButtonPress && me->modifiers() & Qt::ShiftModifier){
@@ -548,14 +547,17 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     }
   } else {
     bool handled = false;
-    map<string,Manager*>::iterator it = plotm->managers.begin();
-    while (it != plotm->managers.end()) {
-      if (it->second->isEnabled()) {
-        it->second->sendMouseEvent(me, res);
-        handled = true;
-        break;
+    if (!(me->modifiers() & Qt::ShiftModifier)) {
+      map<string,Manager*>::iterator it = plotm->managers.begin();
+      while (it != plotm->managers.end()) {
+        if (it->second->isEnabled()) {
+          it->second->sendMouseEvent(me, res);
+          if (me->isAccepted())
+            handled = true;
+          break;
+        }
+        ++it;
       }
-      ++it;
     }
     if (!handled) {
       res.newcursor= normal_cursor;

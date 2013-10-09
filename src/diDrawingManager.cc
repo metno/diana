@@ -196,6 +196,7 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 
   res.repaint = editItemManager->needsRepaint();
   res.action = editItemManager->canUndo() ? objects_changed : no_action;
+  event->setAccepted(res.repaint || (res.action != no_action));
 
   updateActions();
 }
@@ -226,6 +227,7 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
   }
 
   res.repaint = true;
+  res.background = true;
   if (event->isAccepted())
     return;
 
