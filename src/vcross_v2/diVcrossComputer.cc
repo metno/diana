@@ -56,9 +56,10 @@ const VcrossComputer::FunctionLike vcrossFunctionDefs[VcrossComputer::vcf_no_fun
 //  { "ff_north_south", 2, vcf_ff_north_south },
 //  { "ff_east_west", 2, vcf_ff_east_west },
   { "knots_from_ms", 1, vcf_knots_from_ms },
-  { "momentum_vn_fs", 1, vcf_momentum_vn_fs }
+  { "momentum_vn_fs", 1, vcf_momentum_vn_fs },
 //  { "height_above_msl_from_th", 1, vcf_height_above_msl_from_th },
 //  { "height_above_surface_from_th", 1, vcf_height_above_surface_from_th }
+  { "height_above_msl_from_surface_geopotential", 1, vcf_height_above_msl_from_surface_geopotential }
 };
 
 static FieldFunctions ffunc;     // Container for Field Functions
@@ -434,6 +435,14 @@ VcrossData::ParameterData compute(const VcrossData::Parameters_t& csPar, int vcf
     delete[] cwork2;
     break; }
 #endif
+
+  case vcf_height_above_msl_from_surface_geopotential: {
+    const float factor = 1/9.81;
+    compute = 3;
+    if (!ffunc.fieldOPERconstant(compute, out.mPoints, out.mLevels, param0, factor, out.values.get(), allDefined, undefValue))
+      return VcrossData::ParameterData();
+    out.unit = "m";
+    break; }
 
   case vcf_no_function:
     METLIBS_LOG_ERROR("unknown function '" << vcfunc << "'");

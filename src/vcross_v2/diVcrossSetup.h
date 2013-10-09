@@ -48,9 +48,10 @@ class KeyValue;
 }
 
 enum VCPlotType {
-  vcpt_contour,
-  vcpt_wind,
-  vcpt_vector,
+  vcpt_contour, //! 2D contour
+  vcpt_wind,    //! 2D wind arrows (fixed length, flags)
+  vcpt_vector,  //! 2D arrows with length ~ magnitude
+  vcpt_line,    //! 1D line (topography etc.)
   vcpt_no_plot
 };
 
