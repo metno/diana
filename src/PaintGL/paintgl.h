@@ -350,6 +350,7 @@ public:
     QImage grabFrameBuffer(bool withAlpha = false);
     bool isValid();
     void makeCurrent();
+    void renderText(int x, int y, const QString &str, const QFont &font = QFont(), int listBase = 2000);
     void swapBuffers();
 
 public slots:
