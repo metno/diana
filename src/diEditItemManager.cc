@@ -297,12 +297,12 @@ void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
     }
 }
 
-QList<QPointF> EditItemManager::PhysToGeo(const QList<QPoint> &points)
+QList<QPointF> EditItemManager::PhysToGeo(const QList<QPointF> &points)
 {
     return drawingManager_->PhysToGeo(points);
 }
 
-QList<QPoint> EditItemManager::GeoToPhys(const QList<QPointF> &points)
+QList<QPointF> EditItemManager::GeoToPhys(const QList<QPointF> &points)
 {
     return drawingManager_->GeoToPhys(points);
 }
@@ -746,7 +746,7 @@ bool EditItemManager::canRedo() const
     return undoStack_.canRedo();
 }
 
-QSet<EditItemBase *> EditItemManager::findHitItems(const QPoint &pos) const
+QSet<EditItemBase *> EditItemManager::findHitItems(const QPointF &pos) const
 {
     QSet<EditItemBase *> hitItems;
     foreach (EditItemBase *item, items_) {
@@ -852,7 +852,7 @@ void AddOrRemoveItemsCommand::redo()
 }
 
 SetGeometryCommand::SetGeometryCommand(
-    EditItemBase *item, const QList<QPoint> &oldGeometry, const QList<QPoint> &newGeometry)
+    EditItemBase *item, const QList<QPointF> &oldGeometry, const QList<QPointF> &newGeometry)
     : item_(item)
     , oldGeometry_(oldGeometry)
     , newGeometry_(newGeometry)
