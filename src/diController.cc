@@ -1090,7 +1090,7 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
 
 void Controller::setDrawingModeEnabled(bool enable)
 {
-  Manager *drawm = getManager("drawing");
+  Manager *drawm = getManager("DRAWING");
   if (drawm)
     drawm->setEnabled(enable);
 }
@@ -1154,7 +1154,6 @@ vector<ObsPlot*> Controller::getObsPlots() const
 void Controller::addManager(const std::string &name, Manager *man)
 {
   plotm->managers[name] = man;
-  man->setPlotModule(plotm);
 }
 
 Manager *Controller::getManager(const std::string &name)

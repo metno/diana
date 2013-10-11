@@ -29,6 +29,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <fstream>
+#include <iostream>
+#define MILOGGER_CATEGORY "diana.DrawingDialog"
+#include <miLogger/miLogging.h>
+
 #include "diController.h"
 #include "diDrawingManager.h"
 #include "qtDrawingDialog.h"
@@ -52,31 +57,31 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
-  QHash<DrawingManager::Action, QAction *> actions = DrawingManager::instance()->actions();
+  QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
   QToolButton *cutButton = new QToolButton();
-  cutButton->setDefaultAction(actions[DrawingManager::Cut]);
+  cutButton->setDefaultAction(actions[EditItemManager::Cut]);
   QToolButton *copyButton = new QToolButton();
-  copyButton->setDefaultAction(actions[DrawingManager::Copy]);
+  copyButton->setDefaultAction(actions[EditItemManager::Copy]);
   QToolButton *pasteButton = new QToolButton();
-  pasteButton->setDefaultAction(actions[DrawingManager::Paste]);
+  pasteButton->setDefaultAction(actions[EditItemManager::Paste]);
   QToolButton *editButton = new QToolButton();
-  editButton->setDefaultAction(actions[DrawingManager::Edit]);
+  editButton->setDefaultAction(actions[EditItemManager::Edit]);
   QToolButton *loadButton = new QToolButton();
-  loadButton->setDefaultAction(actions[DrawingManager::Load]);
+  loadButton->setDefaultAction(actions[EditItemManager::Load]);
 
   QToolButton *undoButton = new QToolButton();
-  undoButton->setDefaultAction(actions[DrawingManager::Undo]);
+  undoButton->setDefaultAction(actions[EditItemManager::Undo]);
   QToolButton *redoButton = new QToolButton();
-  redoButton->setDefaultAction(actions[DrawingManager::Redo]);
+  redoButton->setDefaultAction(actions[EditItemManager::Redo]);
 
   QVBoxLayout *buttonLayout = new QVBoxLayout();
-  buttonLayout->addWidget(cutButton);
-  buttonLayout->addWidget(copyButton);
-  buttonLayout->addWidget(pasteButton);
-  buttonLayout->addWidget(editButton);
-  buttonLayout->addWidget(loadButton);
-  buttonLayout->addWidget(undoButton);
-  buttonLayout->addWidget(redoButton);
+  buttonLayout->addWidget(cutButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(copyButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(pasteButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(editButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(loadButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(undoButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
+  buttonLayout->addWidget(redoButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
   buttonLayout->addStretch();
 
   itemList = new QTreeWidget();
@@ -89,7 +94,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   connect(itemList, SIGNAL(itemSelectionChanged()), SLOT(updateSelection()));
 
-  EditItemManager *editor = DrawingManager::instance()->getEditItemManager();
+  EditItemManager *editor = EditItemManager::instance();
   connect(editor, SIGNAL(itemAdded(EditItemBase*)), SLOT(addItem(EditItemBase*)));
   connect(editor, SIGNAL(itemChanged(EditItemBase*)), SLOT(updateItem(EditItemBase*)));
   connect(editor, SIGNAL(itemRemoved(EditItemBase*)), SLOT(removeItem(EditItemBase*)));
@@ -117,7 +122,22 @@ std::string DrawingDialog::name() const
 void DrawingDialog::updateTimes()
 {
   std::vector<miutil::miTime> times = DrawingManager::instance()->getTimes();
-  emit emitTimes("drawing", times);
+  emit emitTimes("DRAWING", times);
+}
+
+void DrawingDialog::updateDialog()
+{
+  METLIBS_LOG_DEBUG("DrawingDialog::updateDialog");
+}
+
+std::vector<miutil::miString> DrawingDialog::getOKString()
+{
+  METLIBS_LOG_DEBUG("DrawingDialog::getOKString");
+}
+
+void DrawingDialog::putOKString(const vector<miutil::miString>& vstr)
+{
+  METLIBS_LOG_DEBUG("DrawingDialog::putOKString");
 }
 
 void DrawingDialog::toggleDrawingMode(bool enable)
@@ -158,7 +178,7 @@ void DrawingDialog::updateSelection()
     ids.insert(listItem->data(0, Qt::UserRole).toInt());
   }
 
-  EditItemManager *eim = DrawingManager::instance()->getEditItemManager();
+  EditItemManager *eim = EditItemManager::instance();
   foreach (EditItemBase *item, eim->getItems()) {
     if (ids.contains(item->id()))
       eim->selectItem(item);
@@ -174,7 +194,7 @@ void DrawingDialog::updateSelection()
  */
 void DrawingDialog::updateItemList()
 {
-  EditItemManager *eim = DrawingManager::instance()->getEditItemManager();
+  EditItemManager *eim = EditItemManager::instance();
   QSet<int> ids;
   foreach (EditItemBase *item, eim->getSelectedItems())
     ids.insert(item->id());

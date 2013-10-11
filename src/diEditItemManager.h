@@ -40,6 +40,7 @@
 #include <QUndoCommand>
 #include <QUndoView>
 #include <QLineEdit>
+#include "diDrawingManager.h"
 
 class AddOrRemoveItemsCommand;
 class DrawingManager;
@@ -88,11 +89,15 @@ private:
   QGridLayout *glayout_;
 };
 
-class EditItemManager : public QObject
+class EditItemManager : public DrawingManager
 {
     Q_OBJECT
 
 public:
+    enum Action {
+      Cut, Copy, Paste, Edit, Load, Save, Undo, Redo
+    };
+
     EditItemManager();
     virtual ~EditItemManager();
 
@@ -113,35 +118,41 @@ public:
     QSet<EditItemBase *> getSelectedItems() const;
     QSet<EditItemBase *> findHitItems(const QPointF &) const;
 
+    void plot(bool under, bool over);
     void storeItems(const QSet<EditItemBase *> &);
     void retrieveItems(const QSet<EditItemBase *> &);
-    QList<QPointF> PhysToGeo(const QList<QPointF> &points);
-    QList<QPointF> GeoToPhys(const QList<QPointF> &points);
 
-    static EditItemManager *instance() { return self; }
+    static EditItemManager *instance();
+
+    void sendMouseEvent(QMouseEvent* event, EventResult& res);
+    void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
     void editItemProperties(const QSet<EditItemBase *> &);
 
+    QHash<Action, QAction*> actions();
     QUndoView *getUndoView();
 
 public slots:
     void abortEditing();
     void completeEditing();
-    void copyObjects();
+    void copySelectedItems();
+    void cutSelectedItems();
     void deselectItem(EditItemBase *);
-    void draw();
+    void editItems();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
+    void loadItemsFromFile();
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
     void mousePress(QMouseEvent *, QSet<EditItemBase *> * = 0, QSet<EditItemBase *> * = 0);
     void mouseRelease(QMouseEvent *);
-    void pasteObjects();
+    void pasteItems();
     void redo();
     void repaint();
     void reset();
     void selectItem(EditItemBase *);
     void undo();
+    void updateActions();
 
 signals:
     void selectionChanged();
@@ -153,9 +164,9 @@ signals:
     void itemAdded(EditItemBase *);
     void itemChanged(EditItemBase *);
     void itemRemoved(EditItemBase *);
+    void timesUpdated();
 
 private:
-    QSet<EditItemBase *> items_;
     QSet<EditItemBase *> selItems_;
     QSet<EditItemBase *> copiedItems_;
     EditItemBase *hoverItem_;
@@ -164,7 +175,14 @@ private:
     bool skipRepaint_;
     QUndoStack undoStack_;
     QUndoView *undoView_;
-    DrawingManager *drawingManager_;
+
+    QAction* cutAction;
+    QAction* copyAction;
+    QAction* pasteAction;
+    QAction* editAction;
+    QAction* loadAction;
+    QAction* undoAction;
+    QAction* redoAction;
 
     void addItem_(EditItemBase *);
     void incompleteMousePress(QMouseEvent *);
@@ -177,6 +195,9 @@ private:
                       QSet<EditItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
     void removeItem_(EditItemBase *item);
+
+    // Clipboard operations
+    void copyItems(const QSet<EditItemBase *> &);
 
     static EditItemManager *self;   // singleton instance pointer
 };

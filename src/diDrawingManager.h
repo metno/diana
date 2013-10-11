@@ -42,11 +42,11 @@
 #include <QList>
 #include <QObject>
 #include <QPointF>
+#include <QSet>
 
 using namespace std;
 
 class EditItemBase;
-class EditItemManager;
 class PlotModule;
 class ObjectManager;
 
@@ -63,74 +63,40 @@ class DrawingManager : public Manager
   Q_OBJECT
 
 public:
-  enum Action {
-    Cut, Copy, Paste, Edit, Load, Save, Undo, Redo
-  };
-
   DrawingManager();
   ~DrawingManager();
-
-  void setPlotModule(PlotModule *pm) { plotm = pm; }
 
   /// parse DRAWING section of setup file (defines Drawing products)
   bool parseSetup();
 
-  /// handle mouse event
-  void sendMouseEvent(QMouseEvent* event, EventResult& res);
-  /// handle keyboard event
-  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
-
-  virtual std::vector<miutil::miTime> getTimes() const;
+  std::vector<miutil::miTime> getTimes() const;
 
   bool changeProjection(const Area& newArea);
   bool prepare(const miutil::miTime &time);
   void plot(bool under, bool over);
+  bool processInput(const std::vector<std::string>& inp);
 
-  EditItemManager *getEditItemManager() { return editItemManager; }
-  void setEditItemManager(EditItemManager *eim) { editItemManager = eim; }
+  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
+  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
   QList<QPointF> getLatLonPoints(EditItemBase* item) const;
   void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
-  bool isEnabled() const;
-  void setEnabled(bool enable);
-
   static DrawingManager *instance();
-  QHash<Action, QAction*> actions();
-
-private slots:
-  void copySelectedItems();
-  void cutSelectedItems();
-  void editItems();
-  void initNewItem(EditItemBase *item);
-  void loadItemsFromFile();
-  void pasteItems();
-  void updateActions();
-
-private:
-  void copyItems(const QSet<EditItemBase *> &);
-
-  QAction* cutAction;
-  QAction* copyAction;
-  QAction* pasteAction;
-  QAction* editAction;
-  QAction* loadAction;
-  QAction* undoAction;
-  QAction* redoAction;
-
-  PlotModule* plotm;
-  ObjectManager* objm;
-  EditItemManager *editItemManager;     // fronts,symbols,areas
-
-  GridConverter gc;   // gridconverter class
-  Area currentArea;
 
   Rectangle plotRect;
   Rectangle editRect;
 
-  bool enabled;
+  QSet<EditItemBase *> items_;
+
+private slots:
+  void initNewItem(EditItemBase *item);
+
+private:
+  GridConverter gc;   // gridconverter class
+  Area currentArea;
 
   static DrawingManager *self;  // singleton instance pointer
 };

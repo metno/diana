@@ -32,9 +32,20 @@
 #include "diManager.h"
 
 Manager::Manager()
+    : enabled(false)
 {
 }
 
 Manager::~Manager()
 {
+}
+
+bool Manager::isEnabled() const
+{
+  return enabled;
+}
+
+void Manager::setEnabled(bool enable)
+{
+  enabled = enable;
 }

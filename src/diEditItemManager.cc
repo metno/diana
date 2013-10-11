@@ -31,9 +31,13 @@
 
 #include <QtGui>
 
-#include <diDrawingManager.h>
 #include <diEditItemManager.h>
+#include <diPlotModule.h>
 #include <EditItems/edititembase.h>
+#include <EditItems/weatherarea.h>
+#include <EditItems/weatherfront.h>
+
+#define PLOTM PlotModule::instance()
 
 TextEditor::TextEditor(const QString &text)
 {
@@ -207,14 +211,44 @@ EditItemManager::EditItemManager()
     , undoView_(0)
 {
     self = this;
-    drawingManager_ = DrawingManager::instance();
+
+    connect(this, SIGNAL(itemAdded(EditItemBase *)), SLOT(initNewItem(EditItemBase *)));
+    connect(this, SIGNAL(selectionChanged()), SLOT(updateActions()));
+
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
     connect(&undoStack_, SIGNAL(indexChanged(int)), this, SLOT(repaint()));
+
+    cutAction = new QAction(tr("Cut"), this);
+    cutAction->setShortcut(tr("Ctrl+X"));
+    copyAction = new QAction(tr("&Copy"), this);
+    copyAction->setShortcut(QKeySequence::Copy);
+    pasteAction = new QAction(tr("&Paste"), this);
+    pasteAction->setShortcut(QKeySequence::Paste);
+    editAction = new QAction(tr("P&roperties..."), this);
+    editAction->setShortcut(tr("Ctrl+R"));
+    loadAction = new QAction(tr("&Load..."), this);
+    loadAction->setShortcut(tr("Ctrl+L"));
+    undoAction = undoStack_.createUndoAction(this);
+    redoAction = undoStack_.createRedoAction(this);
+
+    connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
+    connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
+    connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
+    connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
+    connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
 }
 
 EditItemManager::~EditItemManager()
 {
+}
+
+EditItemManager *EditItemManager::instance()
+{
+  if (!EditItemManager::self)
+    EditItemManager::self = new EditItemManager();
+
+  return EditItemManager::self;
 }
 
 QUndoView *EditItemManager::getUndoView()
@@ -281,7 +315,7 @@ void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
 {
     foreach (EditItemBase *item, items) {
         // Convert the item's screen coordinates to geographic coordinates.
-        item->setLatLonPoints(drawingManager_->getLatLonPoints(item));
+        item->setLatLonPoints(getLatLonPoints(item));
         removeItem_(item);
     }
 }
@@ -292,19 +326,9 @@ void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
         // The items stored on the undo stack have been given geographic
         // coordinates, so we use those to obtain screen coordinates.
         if (!item->getLatLonPoints().isEmpty())
-            drawingManager_->setLatLonPoints(item, item->getLatLonPoints());
+            setLatLonPoints(item, item->getLatLonPoints());
         addItem_(item);
     }
-}
-
-QList<QPointF> EditItemManager::PhysToGeo(const QList<QPointF> &points)
-{
-    return drawingManager_->PhysToGeo(points);
-}
-
-QList<QPointF> EditItemManager::GeoToPhys(const QList<QPointF> &points)
-{
-    return drawingManager_->GeoToPhys(points);
 }
 
 void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
@@ -693,8 +717,20 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
         repaint();
 }
 
-void EditItemManager::draw()
+void EditItemManager::plot(bool under, bool over)
 {
+    if (!under)
+        return;
+
+    // Apply a transformation so that the items can be plotted with screen coordinates
+    // while everything else is plotted in map coordinates.
+    glPushMatrix();
+    plotRect = PLOTM->getPlotSize();
+    int w, h;
+    PLOTM->getPlotWindow(w, h);
+    glTranslatef(editRect.x1, editRect.y1, 0.0);
+    glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+
     Q_ASSERT(!items_.contains(incompleteItem_));
     foreach (EditItemBase *item, items_) {
         EditItemBase::DrawModes modes = EditItemBase::Normal;
@@ -708,6 +744,8 @@ void EditItemManager::draw()
     if (incompleteItem_) // note that only complete items may be selected
         incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
     emit paintDone();
+
+    glPopMatrix();
 }
 
 void EditItemManager::undo()
@@ -777,18 +815,6 @@ void EditItemManager::completeEditing()
     }
 }
 
-void EditItemManager::copyObjects()
-{
-    copiedItems_ = selItems_;
-}
-
-void EditItemManager::pasteObjects()
-{
-    foreach (EditItemBase *item, copiedItems_) {
-        addItem(item->copy());
-    }
-}
-
 void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
                                    QSet<EditItemBase *> removedItems,
                                    QList<QUndoCommand *> undoCommands)
@@ -825,6 +851,255 @@ void EditItemManager::deselectItem(EditItemBase *item)
   emit selectionChanged();
 }
 
+// Action handling
+
+QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
+{
+  QHash<Action, QAction*> a;
+  a[Cut] = cutAction;
+  a[Copy] = copyAction;
+  a[Paste] = pasteAction;
+  a[Edit] = editAction;
+  a[Load] = loadAction;
+  a[Undo] = undoAction;
+  a[Redo] = redoAction;
+  return a;
+}
+
+void EditItemManager::editItems()
+{
+    editItemProperties(getSelectedItems());
+}
+
+void EditItemManager::loadItemsFromFile()
+{
+    // open file and read content
+    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC messages (*.kml)"));
+    if (fileName.isNull())
+        return; // operation cancelled
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(0, "Error", QString("failed to open file %1 for reading").arg(fileName));
+        return;
+    }
+    QByteArray data = file.readAll();
+    file.close();
+
+    QString error;
+    const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, fileName, &error);
+    if (!areas.isEmpty()) {
+        foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
+            setLatLonPoints(area, area->getLatLonPoints());
+            addItem(area, false);
+        }
+    } else {
+        QMessageBox::warning(
+            0, "Error", QString("failed to create areas from file %1: %2")
+            .arg(fileName).arg(!error.isEmpty() ? error : "<error msg not set>"));
+    }
+
+    updateActions();
+}
+
+void EditItemManager::updateActions()
+{
+    cutAction->setEnabled(getSelectedItems().size() > 0);
+    copyAction->setEnabled(getSelectedItems().size() > 0);
+    pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+    editAction->setEnabled(getSelectedItems().size() > 0);
+
+    // Let other components know about any changes to item times.
+    emit timesUpdated();
+
+    // Update the visibility of items based on the current plot time.
+    miutil::miTime time;
+    PLOTM->getPlotTime(time);
+    prepare(time);
+}
+
+// Clipboard operations
+
+void EditItemManager::copyItems(const QSet<EditItemBase *> &items)
+{
+  QByteArray bytes;
+  QDataStream stream(&bytes, QIODevice::WriteOnly);
+  QString text;
+
+  text += QString("Number of items: %1\n").arg(items.size());
+  QVariantList cbItems;
+
+  foreach (EditItemBase *item, items) {
+    cbItems.append(item->clipboardVarMap());
+    text += QString("%1\n").arg(item->clipboardPlainText());
+  }
+
+  stream << cbItems;
+
+  QMimeData *data = new QMimeData();
+  data->setData("application/x-diana-object", bytes);
+  data->setData("text/plain", text.toUtf8());
+
+  QApplication::clipboard()->setMimeData(data);
+  updateActions();
+}
+
+void EditItemManager::copySelectedItems()
+{
+  copyItems(getSelectedItems());
+}
+
+void EditItemManager::cutSelectedItems()
+{
+  QSet<EditItemBase*> items = getSelectedItems();
+  copyItems(items);
+  foreach (EditItemBase* item, items)
+    removeItem(item);
+
+  updateActions();
+}
+
+void EditItemManager::pasteItems()
+{
+  const QMimeData *data = QApplication::clipboard()->mimeData();
+  if (data->hasFormat("application/x-diana-object")) {
+
+    QByteArray bytes = data->data("application/x-diana-object");
+    QDataStream stream(&bytes, QIODevice::ReadOnly);
+
+    QVariantList cbItems;
+    stream >> cbItems;
+
+    foreach (QVariant cbItem, cbItems) {
+      QString error;
+      EditItemBase *item = EditItemBase::createItemFromVarMap(cbItem.toMap(), &error);
+      if (item)
+        addItem(item, false);
+      else
+        QMessageBox::warning(0, "Error", error);
+    }
+  }
+
+  updateActions();
+}
+
+// Manager API
+
+void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
+{
+  res.savebackground= true;
+  res.background= false;
+  res.repaint= false;
+  res.newcursor= edit_cursor;
+
+  // Transform the mouse position into the original coordinate system used for the objects.
+  int w, h;
+  PLOTM->getPlotWindow(w, h);
+  plotRect = PLOTM->getPlotSize();
+
+  if (getItems().size() == 0)
+    editRect = plotRect;
+
+  // Determine the displacement from the edit origin to the current view origin
+  // in screen coordinates. This gives us displaced screen coordinates - these
+  // are coordinates relative to the original edit rectangle.
+  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
+  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+
+  // Translate the mouse event by the current displacement of the viewport.
+  QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
+                  event->globalPos(), event->button(), event->buttons(), event->modifiers());
+
+  if (event->type() == QEvent::MouseButtonPress) {
+
+    if ((me2.button() == Qt::RightButton)
+        && (findHitItems(me2.pos()).size() == 0)
+        && !hasIncompleteItem()) {
+      // Handle the event via a global context menu only; don't delegate to items via edit item manager.
+      QMenu contextMenu;
+      contextMenu.addAction(cutAction);
+      contextMenu.addAction(copyAction);
+      contextMenu.addAction(pasteAction);
+      pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+      contextMenu.addSeparator();
+      contextMenu.addAction(editAction);
+      contextMenu.addSeparator();
+      contextMenu.addAction(loadAction);
+      editAction->setEnabled(getSelectedItems().size() > 0);
+
+      // Simply execute the menu since all of the actions are connected to slots.
+      if (!contextMenu.isEmpty())
+        contextMenu.exec(me2.globalPos());
+
+    } else {
+      // Send the mouse press to the edit item manager.
+      QSet<EditItemBase *> itemsToCopy; // items to be copied
+      QSet<EditItemBase *> itemsToEdit; // items to be edited
+      mousePress(&me2, &itemsToCopy, &itemsToEdit);
+
+      if (itemsToCopy.size() > 0) {
+        copyItems(itemsToCopy);
+      } else if (itemsToEdit.size() > 0) {
+        editItemProperties(itemsToEdit);
+      } else if (getSelectedItems().size() == 0 && !hasIncompleteItem()) {
+        // Nothing was changed or interacted with, so create a new area and repeat the mouse click.
+        EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
+        addItem(area, true);
+        mousePress(&me2);
+      }
+    }
+
+  } else if (event->type() == QEvent::MouseMove)
+    mouseMove(&me2);
+
+  else if (event->type() == QEvent::MouseButtonRelease)
+    mouseRelease(&me2);
+
+  else if (event->type() == QEvent::MouseButtonDblClick)
+    mouseDoubleClick(&me2);
+
+  res.repaint = needsRepaint();
+  res.action = canUndo() ? objects_changed : no_action;
+  event->setAccepted(true);
+
+  updateActions();
+}
+
+void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
+{
+#ifdef DEBUGREDRAW
+  METLIBS_LOG_DEBUG("EditItemManager::sendKeyboardEvent");
+#endif
+  event->accept();
+  res.savebackground= true;
+  res.background= false;
+  res.repaint= false;
+
+  if (event->type() == QEvent::KeyPress) {
+    if (cutAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      cutSelectedItems();
+    else if (copyAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      copySelectedItems();
+    else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      pasteItems();
+    else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      editItems();
+    else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      loadItemsFromFile();
+    else
+      event->ignore();
+  }
+
+  res.repaint = true;
+  res.background = true;
+  if (event->isAccepted())
+    return;
+
+  keyPress(event);
+
+  updateActions();
+}
+
+// Command classes
 
 EditItemCommand::EditItemCommand(const QString &text, QUndoCommand *parent)
     : QUndoCommand(text, parent)
