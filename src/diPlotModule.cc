@@ -3038,6 +3038,14 @@ void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       PixelArea(r);
     }
 
+    // update the projection for drawing items
+    map<string,Manager*>::iterator it = managers.begin();
+    while (it != managers.end()) {
+      it->second->changeProjection(splot.getMapArea());
+      ++it;
+    }
+    res.repaint = true;
+    res.background = true;
   }
 
 }
