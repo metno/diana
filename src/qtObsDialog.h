@@ -72,7 +72,7 @@ public:
   vector<miutil::miString> getOKString();
   ///insert command strings
   void putOKString(const vector<miutil::miString>& vstr);
-  ///return short name of current commonad
+  ///return short name of current command
   miutil::miString getShortname();
   ///change plottype
   bool setPlottype(const miutil::miString& name, bool on);
