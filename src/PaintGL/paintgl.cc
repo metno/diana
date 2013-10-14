@@ -1492,3 +1492,11 @@ void PaintGLWidget::print(QPrinter* device)
   painter.drawPicture(0, 0, picture);
   painter.end();
 }
+
+void PaintGLWidget::renderText(int x, int y, const QString &str, const QFont &font, int listBase)
+{
+  glPushMatrix();
+  glContext->transform = QTransform();
+  glContext->painter->drawText(x, y, str);
+  glPopMatrix();
+}
