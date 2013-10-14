@@ -2064,11 +2064,6 @@ static int parseAndProcess(istream &is)
         }
       }
 
-#ifdef VIDEO_EXPORT
-      if (movieMaker)
-        endVideo();
-#endif
-
       if (raster) {
 
         if (verbose)
