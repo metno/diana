@@ -81,9 +81,9 @@ GLwidget::GLwidget(Controller* c, QWidget* parent) :
   // sets default cursor in widget
   changeCursor(normal_cursor);
 
-  DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("drawing"));
-  if (drawm)
-    connect(drawm->getEditItemManager(), SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
+  EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("DRAWING"));
+  if (editm)
+    connect(editm, SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
 }
 
 //  Release allocated resources
@@ -106,7 +106,7 @@ void GLwidget::paintGL()
     contr->plot(true, false); // draw underlay
   }
 
-  DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("drawing"));
+  DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("DRAWING"));
   if (drawm && drawm->isEnabled()) {
     glColor3ub(128, 0, 0);
     renderText(10, height() - 10, "new painting mode (experimental)");

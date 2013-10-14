@@ -200,7 +200,7 @@ int main(int argc, char **argv)
   }
 
   Controller contr;
-  contr.addManager("drawing", DrawingManager::instance());
+  contr.addManager("DRAWING", EditItemManager::instance());
 
   // read setup
   if (!contr.parseSetup()){

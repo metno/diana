@@ -122,6 +122,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   // split up input into separate products
   vector<miString> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
   labelpi, editfieldpi;
+  map<std::string, vector<std::string> > manager_pi;
 
   int n = vpi.size();
   // merge PlotInfo's for same type
@@ -150,6 +151,8 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
         labelpi.push_back(vpi[i]);
       else if (type == "EDITFIELD")
         editfieldpi.push_back(vpi[i]);
+      else if (managers.find(type) != managers.end())
+        manager_pi[type].push_back(vpi[i]);
     }
   }
 
@@ -169,6 +172,13 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
     vector<FieldRequest> vfieldrequest;
     fieldplotm->parsePin(editfieldpi[0],vfieldrequest,plotName);
     editm->prepareEditFields(plotName,editfieldpi);
+  }
+
+  // Send the commands to the other managers.
+  map<std::string, vector<std::string> >::iterator it;
+  for (it = manager_pi.begin(); it != manager_pi.end(); ++it) {
+    Manager *manager = managers.at(it->first);
+    manager->processInput(it->second);
   }
 
 #ifdef DEBUGPRINT

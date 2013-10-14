@@ -51,21 +51,24 @@ public:
   virtual ~Manager();
 
   virtual bool parseSetup() = 0;
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
-  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
 
   virtual std::vector<miutil::miTime> getTimes() const = 0;
   virtual bool changeProjection(const Area& newArea) = 0;
   virtual bool prepare(const miutil::miTime &time) = 0;
   virtual void plot(bool under, bool over) = 0;
+  virtual bool processInput(const std::vector<std::string>& inp) = 0;
 
-  virtual void setPlotModule(PlotModule *pm) = 0;
+  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
+  virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
 
-  virtual bool isEnabled() const = 0;
-  virtual void setEnabled(bool enable) = 0;
+  virtual bool isEnabled() const;
+  virtual void setEnabled(bool enable);
 
 signals:
   void timesUpdated();
+
+private:
+  bool enabled;
 };
 
 #endif
