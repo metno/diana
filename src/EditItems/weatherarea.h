@@ -52,14 +52,14 @@ public:
     EditItemBase *copy() const;
 
     void setType(frontType type);
-    QList<QPoint> getPoints() const;
-    void setPoints(const QList<QPoint> &points);
+    QList<QPointF> getPoints() const;
+    void setPoints(const QList<QPointF> &points);
 
     static QList<WeatherArea *> createFromKML(const QByteArray &, const QString &, QString *);
 
 private:
-    virtual bool hit(const QPoint &, bool) const;
-    virtual bool hit(const QRect &) const;
+    virtual bool hit(const QPointF &, bool) const;
+    virtual bool hit(const QRectF &) const;
 
     void init();
 
@@ -73,7 +73,7 @@ private:
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-    virtual void moveBy(const QPoint &);
+    virtual void moveBy(const QPointF &);
 
     virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(EditItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
 
@@ -87,31 +87,31 @@ private:
     void drawControlPoints();
     void drawHoverHighlighting(bool);
 
-    int hitControlPoint(const QPoint &) const;
-    void move(const QPoint &);
-    void resize(const QPoint &);
+    int hitControlPoint(const QPointF &) const;
+    void move(const QPointF &);
+    void resize(const QPointF &);
     void updateControlPoints();
 
-    void addPoint(bool &repaintNeeded, int index, const QPoint &point);
+    void addPoint(bool &repaintNeeded, int index, const QPointF &point);
     void remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
     void removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
 
-    QList<QPoint> geometry() const { return points_; }
-    void setGeometry(const QList<QPoint> &);
-    virtual QList<QPoint> baseGeometry() const;
-    virtual QList<QPoint> getBasePoints() const;
-    qreal distance(const QPoint &) const;
-    int hitLine(const QPoint &) const;
+    QList<QPointF> geometry() const { return points_; }
+    void setGeometry(const QList<QPointF> &);
+    virtual QList<QPointF> baseGeometry() const;
+    virtual QList<QPointF> getBasePoints() const;
+    qreal distance(const QPointF &) const;
+    int hitLine(const QPointF &) const;
 
-    QList<QPoint> points_;
-    QList<QRect> controlPoints_;
-    QList<QPoint> basePoints_;
+    QList<QPointF> points_;
+    QList<QRectF> controlPoints_;
+    QList<QPointF> basePoints_;
 
-    QPoint baseMousePos_;
+    QPointF baseMousePos_;
     int pressedCtrlPointIndex_;
     int hoveredCtrlPointIndex_;
 
-    QPoint *placementPos_;
+    QPointF *placementPos_;
 
     QAction *addPoint_;
     QAction *remove_;

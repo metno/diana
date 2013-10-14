@@ -91,8 +91,8 @@ public:
 
   QList<QPointF> getLatLonPoints(EditItemBase* item) const;
   void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
-  QList<QPointF> PhysToGeo(const QList<QPoint> &points) const;
-  QList<QPoint> GeoToPhys(const QList<QPointF> &latLonPoints);
+  QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
+  QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
   bool isEnabled() const;
   void setEnabled(bool enable);

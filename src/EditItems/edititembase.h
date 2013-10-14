@@ -53,12 +53,12 @@ public:
     // Returns true iff the item is hit at \a pos.
     // The item is considered selected iff \a selected is true (a selected item may typically be hit at
     // control points as well).
-    virtual bool hit(const QPoint &pos, bool selected) const = 0;
+    virtual bool hit(const QPointF &pos, bool selected) const = 0;
 
     // Returns true iff the item is considered to be hit by \a rect.
     // Whether this means that the item's shape is partially or fully inside \a rect is
     // up to the item itself.
-    virtual bool hit(const QRect &bbox) const = 0;
+    virtual bool hit(const QRectF &bbox) const = 0;
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
@@ -88,7 +88,7 @@ public:
     virtual void incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded);
 
     // Moves the item by the specified amount (i.e. \a pos is relative to the item's current position).
-    virtual void moveBy(const QPoint &pos);
+    virtual void moveBy(const QPointF &pos);
 
     // Draws the item.
     // \a modes indicates whether the item is selected, hovered, both, or neither.
@@ -108,9 +108,9 @@ public:
     virtual EditItemBase *copy() const = 0;
 
     // Returns the item's points.
-    virtual QList<QPoint> getPoints() const = 0;
+    virtual QList<QPointF> getPoints() const = 0;
     // Sets the item's points.
-    virtual void setPoints(const QList<QPoint> &points) = 0;
+    virtual void setPoints(const QList<QPointF> &points) = 0;
 
     // Returns the item's geographic points.
     virtual QList<QPointF> getLatLonPoints() const;
@@ -134,7 +134,7 @@ protected:
     EditItemBase();
 
     // Returns the item's base points (representing the start of a move operation etc.).
-    virtual QList<QPoint> getBasePoints() const = 0;
+    virtual QList<QPointF> getBasePoints() const = 0;
 
     bool moving_;
     bool resizing_;

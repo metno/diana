@@ -51,12 +51,12 @@ public:
     EditItemBase *copy() const;
 
     void setType(frontType type);
-    QList<QPoint> getPoints() const;
-    void setPoints(const QList<QPoint> &points);
+    QList<QPointF> getPoints() const;
+    void setPoints(const QList<QPointF> &points);
 
 private:
-    virtual bool hit(const QPoint &, bool) const;
-    virtual bool hit(const QRect &) const;
+    virtual bool hit(const QPointF &, bool) const;
+    virtual bool hit(const QRectF &) const;
 
     void init();
 
@@ -68,7 +68,7 @@ private:
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-    virtual void moveBy(const QPoint &);
+    virtual void moveBy(const QPointF &);
 
     virtual QString infoString() const { return QString("%1 type=WeatherFront npoints=%2").arg(EditItemBase::infoString()).arg(points_.size()); }
 
@@ -77,32 +77,32 @@ private:
     void drawControlPoints();
     void drawHoverHighlighting(bool);
 
-    int hitControlPoint(const QPoint &) const;
-    void move(const QPoint &);
-    void resize(const QPoint &);
+    int hitControlPoint(const QPointF &) const;
+    void move(const QPointF &);
+    void resize(const QPointF &);
     void updateControlPoints();
     void remove(bool &, QSet<EditItemBase *> *);
-    void split(const QPoint &, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *);
-    void merge(const QPoint &, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *);
-    virtual QList<QPoint> geometry() const { return points_; }
-    void setGeometry(const QList<QPoint> &);
-    virtual QList<QPoint> baseGeometry() const;
-    virtual QList<QPoint> getBasePoints() const;
-    QList<QPoint> firstSegment(int) const; // the arg is a control point index
-    QList<QPoint> secondSegment(int) const; // ditto
-    qreal distance(const QPoint &) const;
-    int hitLine(const QPoint &) const;
-    int hitPoint(const QPoint &) const;
+    void split(const QPointF &, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *);
+    void merge(const QPointF &, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *);
+    virtual QList<QPointF> geometry() const { return points_; }
+    void setGeometry(const QList<QPointF> &);
+    virtual QList<QPointF> baseGeometry() const;
+    virtual QList<QPointF> getBasePoints() const;
+    QList<QPointF> firstSegment(int) const; // the arg is a control point index
+    QList<QPointF> secondSegment(int) const; // ditto
+    qreal distance(const QPointF &) const;
+    int hitLine(const QPointF &) const;
+    int hitPoint(const QPointF &) const;
 
-    QList<QPoint> points_;
-    QList<QRect> controlPoints_;
-    QList<QPoint> basePoints_;
+    QList<QPointF> points_;
+    QList<QRectF> controlPoints_;
+    QList<QPointF> basePoints_;
 
-    QPoint baseMousePos_;
+    QPointF baseMousePos_;
     int pressedCtrlPointIndex_;
     int hoveredCtrlPointIndex_;
 
-    QPoint *placementPos_;
+    QPointF *placementPos_;
 
     QAction *remove_;
     QAction *split_;

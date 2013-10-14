@@ -238,11 +238,11 @@ void DrawingManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 
 QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
 {
-  QList<QPoint> points = item->getPoints();
+  QList<QPointF> points = item->getPoints();
   return PhysToGeo(points);
 }
 
-QList<QPointF> DrawingManager::PhysToGeo(const QList<QPoint> &points) const
+QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
   int w, h;
   plotm->getPlotWindow(w, h);
@@ -266,18 +266,18 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPoint> &points) const
 
 void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints)
 {
-  QList<QPoint> points = GeoToPhys(latLonPoints);
+  QList<QPointF> points = GeoToPhys(latLonPoints);
   item->setPoints(points);
 }
 
-QList<QPoint> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
+QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 {
   int w, h;
   plotm->getPlotWindow(w, h);
   float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
   float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
 
-  QList<QPoint> points;
+  QList<QPointF> points;
   int n = latLonPoints.size();
 
   // Convert geographic coordinates to screen coordinates.
@@ -286,7 +286,7 @@ QList<QPoint> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
     plotm->GeoToPhys(latLonPoints.at(i).x(),
                      latLonPoints.at(i).y(),
                      x, y, currentArea, plotRect);
-    points.append(QPoint(x + dx, y + dy));
+    points.append(QPointF(x + dx, y + dy));
   }
 
   return points;
@@ -351,12 +351,12 @@ bool DrawingManager::changeProjection(const Area& newArea)
   foreach (EditItemBase *item, items) {
 
     QList<QPointF> latLonPoints = getLatLonPoints(item);
-    QList<QPoint> points;
+    QList<QPointF> points;
 
     for (int i = 0; i < latLonPoints.size(); ++i) {
       float x, y;
       plotm->GeoToPhys(latLonPoints.at(i).x(), latLonPoints.at(i).y(), x, y, newArea, newPlotRect);
-      points.append(QPoint(x, y));
+      points.append(QPointF(x, y));
     }
 
     item->setPoints(points);

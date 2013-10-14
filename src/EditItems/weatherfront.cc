@@ -123,33 +123,33 @@ void WeatherFront::setType(frontType type)
     repaint();
 }
 
-QList<QPoint> WeatherFront::getPoints() const
+QList<QPointF> WeatherFront::getPoints() const
 {
     return geometry();
 }
 
-void WeatherFront::setPoints(const QList<QPoint> &points)
+void WeatherFront::setPoints(const QList<QPointF> &points)
 {
     setGeometry(points);
 }
 
-QList<QPoint> WeatherFront::baseGeometry() const
+QList<QPointF> WeatherFront::baseGeometry() const
 {
     return basePoints_;
 }
 
-QList<QPoint> WeatherFront::getBasePoints() const
+QList<QPointF> WeatherFront::getBasePoints() const
 {
     return baseGeometry();
 }
 
-bool WeatherFront::hit(const QPoint &pos, bool selected) const
+bool WeatherFront::hit(const QPointF &pos, bool selected) const
 {
     const qreal proximityTolerance = 3.0;
     return ((points_.size() >= 2) && (distance(pos) < proximityTolerance)) || (selected && (hitControlPoint(pos) >= 0));
 }
 
-bool WeatherFront::hit(const QRect &rect) const
+bool WeatherFront::hit(const QRectF &rect) const
 {
     Q_UNUSED(rect);
     return false; // for now
@@ -159,7 +159,7 @@ bool WeatherFront::hit(const QRect &rect) const
  * Returns the index of the line close to the position specified, or -1 if no
  * line was close enough.
  */
-int WeatherFront::hitLine(const QPoint &position) const
+int WeatherFront::hitLine(const QPointF &position) const
 {
     if (points_.size() < 2)
         return -1;
@@ -186,7 +186,7 @@ int WeatherFront::hitLine(const QPoint &position) const
  * Returns the index of the line close to the position specified, or -1 if no
  * line was close enough.
  */
-int WeatherFront::hitPoint(const QPoint &position) const
+int WeatherFront::hitPoint(const QPointF &position) const
 {
     if (points_.size() == 0)
         return -1;
@@ -271,8 +271,8 @@ void WeatherFront::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded,
     if (event->button() == Qt::LeftButton) {
 
         if (!placementPos_)
-            placementPos_ = new QPoint(event->pos());
-        points_.append(QPoint(event->pos()));
+            placementPos_ = new QPointF(event->pos());
+        points_.append(QPointF(event->pos()));
         updateControlPoints();
         repaintNeeded = true;
 
@@ -288,7 +288,7 @@ void WeatherFront::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded,
             aborted = true;
             repaintNeeded = true;
         } else {
-            points_.append(QPoint(event->pos())); // the current mouse pos forms the last point
+            points_.append(QPointF(event->pos())); // the current mouse pos forms the last point
             updateControlPoints();
             complete = true; // causes repaint
         }
@@ -326,16 +326,16 @@ void WeatherFront::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, boo
     }
 }
 
-void WeatherFront::moveBy(const QPoint &pos)
+void WeatherFront::moveBy(const QPointF &pos)
 {
-    baseMousePos_ = QPoint();
+    baseMousePos_ = QPointF();
     basePoints_ = points_;
     move(pos);
 }
 
 // Returns the index (>= 0)  of the control point hit by \a pos, or -1 if no
 // control point was hit.
-int WeatherFront::hitControlPoint(const QPoint &pos) const
+int WeatherFront::hitControlPoint(const QPointF &pos) const
 {
     for (int i = 0; i < controlPoints_.size(); ++i)
         if (controlPoints_.at(i).contains(pos))
@@ -343,18 +343,18 @@ int WeatherFront::hitControlPoint(const QPoint &pos) const
     return -1;
 }
 
-void WeatherFront::move(const QPoint &pos)
+void WeatherFront::move(const QPointF &pos)
 {
-    const QPoint delta = pos - baseMousePos_;
+    const QPointF delta = pos - baseMousePos_;
     Q_ASSERT(basePoints_.size() == points_.size());
     for (int i = 0; i < points_.size(); ++i)
         points_[i] = basePoints_.at(i) + delta;
     updateControlPoints();
 }
 
-void WeatherFront::resize(const QPoint &pos)
+void WeatherFront::resize(const QPointF &pos)
 {
-    const QPoint delta = pos - baseMousePos_;
+    const QPointF delta = pos - baseMousePos_;
     Q_ASSERT(pressedCtrlPointIndex_ >= 0);
     Q_ASSERT(pressedCtrlPointIndex_ < controlPoints_.size());
     Q_ASSERT(basePoints_.size() == points_.size());
@@ -366,8 +366,8 @@ void WeatherFront::updateControlPoints()
 {
     controlPoints_.clear();
     const int size = 10, size_2 = size / 2;
-    foreach (QPoint p, points_)
-        controlPoints_.append(QRect(p.x() - size_2, p.y() - size_2, size, size));
+    foreach (QPointF p, points_)
+        controlPoints_.append(QRectF(p.x() - size_2, p.y() - size_2, size, size));
 }
 
 void WeatherFront::remove(bool &repaintNeeded, QSet<EditItemBase *> *items)
@@ -387,7 +387,7 @@ void WeatherFront::remove(bool &repaintNeeded, QSet<EditItemBase *> *items)
 }
 
 // Splits all items of type Rectangle in two, including this item.
-void WeatherFront::split(const QPoint &position, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+void WeatherFront::split(const QPointF &position, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
                          QSet<EditItemBase *> *items)
 {
     // Check for a split at a point.
@@ -398,7 +398,7 @@ void WeatherFront::split(const QPoint &position, bool &repaintNeeded, QList<QUnd
         return;
     
     WeatherFront *newFront = new WeatherFront();
-    QList<QPoint> newFront_points;
+    QList<QPointF> newFront_points;
     
     bool atPoint = false;
     int beforeIndex;
@@ -426,7 +426,7 @@ void WeatherFront::split(const QPoint &position, bool &repaintNeeded, QList<QUnd
     repaintNeeded = true;
 
     // Create a list of points that precede the split.
-    QList<QPoint> new_points = points_.mid(0, beforeIndex + 1);
+    QList<QPointF> new_points = points_.mid(0, beforeIndex + 1);
     // If the split occurred on a line then include the click position.
     if (!atPoint)
         new_points.append(position);
@@ -444,7 +444,7 @@ void WeatherFront::split(const QPoint &position, bool &repaintNeeded, QList<QUnd
 // Merges items of type Rectangle into one by
 //   1) resizing this item to the bounding box of all items of type Rectangle, and
 //   2) removing all items of type Rectangle but this item
-void WeatherFront::merge(const QPoint &position, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+void WeatherFront::merge(const QPointF &position, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
                          QSet<EditItemBase *> *items)
 {
     // FOR NOW:
@@ -467,7 +467,7 @@ void WeatherFront::merge(const QPoint &position, bool &repaintNeeded, QList<QUnd
             int otherIndex = front->hitPoint(position);
 
             // Only connect to the end of the other front.
-            QList<QPoint> new_points = points_;
+            QList<QPointF> new_points = points_;
 
             if (otherIndex == 0) {
                 for (int i = 1; i < front->points_.size(); ++i) {
@@ -496,29 +496,29 @@ void WeatherFront::merge(const QPoint &position, bool &repaintNeeded, QList<QUnd
     }
 }
 
-void WeatherFront::setGeometry(const QList<QPoint> &points)
+void WeatherFront::setGeometry(const QList<QPointF> &points)
 {
     points_ = points;
     updateControlPoints();
 }
 
 // to be used by split()
-QList<QPoint> WeatherFront::firstSegment(int ctrlPointIndex) const
+QList<QPointF> WeatherFront::firstSegment(int ctrlPointIndex) const
 {
     Q_UNUSED(ctrlPointIndex);
-    return QList<QPoint>();
+    return QList<QPointF>();
 }
 
 // to be used by split()
-QList<QPoint> WeatherFront::secondSegment(int ctrlPointIndex) const
+QList<QPointF> WeatherFront::secondSegment(int ctrlPointIndex) const
 {
     Q_UNUSED(ctrlPointIndex);
-    return QList<QPoint>();
+    return QList<QPointF>();
 }
 
 // Returns the distance between \a p and the multiline (i.e. the mimimum distance between \a p and any of the line segments).
 // If the multiline contains fewer than two points, the function returns -1.
-qreal WeatherFront::distance(const QPoint &p) const
+qreal WeatherFront::distance(const QPointF &p) const
 {
     if (points_.size() < 2)
         return -1;
@@ -550,7 +550,7 @@ void WeatherFront::draw(DrawModes modes, bool incomplete)
     // draw the basic item
     glBegin(GL_LINE_STRIP);
     glColor3ub(color_.red(), color_.green(), color_.blue());
-    foreach (QPoint p, points_)
+    foreach (QPointF p, points_)
         glVertex2i(p.x(), p.y());
     glEnd();
 
@@ -729,7 +729,7 @@ void WeatherFront::drawFront(frontType type)
 void WeatherFront::drawControlPoints()
 {
     glColor3ub(0, 0, 0);
-    foreach (QRect c, controlPoints_) {
+    foreach (QRectF c, controlPoints_) {
         glBegin(GL_POLYGON);
         glVertex3i(c.left(),  c.bottom(), 1);
         glVertex3i(c.right(), c.bottom(), 1);
@@ -749,7 +749,7 @@ void WeatherFront::drawHoverHighlighting(bool incomplete)
 
     if (hoveredCtrlPointIndex_ >= 0) {
         // highlight a control point
-        const QRect *r = &controlPoints_.at(hoveredCtrlPointIndex_);
+        const QRectF *r = &controlPoints_.at(hoveredCtrlPointIndex_);
         glPushAttrib(GL_LINE_BIT);
         glLineWidth(2);
         glBegin(GL_LINE_LOOP);
@@ -764,7 +764,7 @@ void WeatherFront::drawHoverHighlighting(bool incomplete)
         glPushAttrib(GL_LINE_BIT);
         glLineWidth(4);
         glBegin(GL_LINE_STRIP);
-        foreach (QPoint p, points_)
+        foreach (QPointF p, points_)
             glVertex3i(p.x(), p.y(), 1);
         glEnd();
         glPopAttrib();

@@ -35,7 +35,7 @@
 #include <QDialog>
 #include <QGridLayout>
 #include <QObject>
-#include <QPoint>
+#include <QPointF>
 #include <QSet>
 #include <QUndoCommand>
 #include <QUndoView>
@@ -111,12 +111,12 @@ public:
 
     QSet<EditItemBase *> getItems() const;
     QSet<EditItemBase *> getSelectedItems() const;
-    QSet<EditItemBase *> findHitItems(const QPoint &) const;
+    QSet<EditItemBase *> findHitItems(const QPointF &) const;
 
     void storeItems(const QSet<EditItemBase *> &);
     void retrieveItems(const QSet<EditItemBase *> &);
-    QList<QPointF> PhysToGeo(const QList<QPoint> &points);
-    QList<QPoint> GeoToPhys(const QList<QPointF> &points);
+    QList<QPointF> PhysToGeo(const QList<QPointF> &points);
+    QList<QPointF> GeoToPhys(const QList<QPointF> &points);
 
     static EditItemManager *instance() { return self; }
 
@@ -205,13 +205,13 @@ private:
 class SetGeometryCommand : public EditItemCommand
 {
 public:
-    SetGeometryCommand(EditItemBase *, const QList<QPoint> &, const QList<QPoint> &);
+    SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
     virtual ~SetGeometryCommand() {}
 
 private:
     EditItemBase *item_;
-    QList<QPoint> oldGeometry_;
-    QList<QPoint> newGeometry_;
+    QList<QPointF> oldGeometry_;
+    QList<QPointF> newGeometry_;
     QList<QPointF> oldLatLonPoints_;
     QList<QPointF> newLatLonPoints_;
     virtual void undo();

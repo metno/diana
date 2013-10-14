@@ -169,12 +169,12 @@ void EditItemBase::keyPress(
                 || (event->key() == Qt::Key_Right)
                 || (event->key() == Qt::Key_Down)
                 || (event->key() == Qt::Key_Up))) {
-        QPoint pos;
-        const int nudgeVal = 1; // nudge item by this much
-        if (event->key() == Qt::Key_Left) pos += QPoint(-nudgeVal, 0);
-        else if (event->key() == Qt::Key_Right) pos += QPoint(nudgeVal, 0);
-        else if (event->key() == Qt::Key_Down) pos += QPoint(0, -nudgeVal);
-        else pos += QPoint(0, nudgeVal); // Key_Up
+        QPointF pos;
+        const qreal nudgeVal = 1; // nudge item by this much
+        if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
+        else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
+        else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
+        else pos += QPointF(0, nudgeVal); // Key_Up
         moveBy(pos);
         undoCommands->append(new SetGeometryCommand(this, getBasePoints(), getPoints()));
         repaintNeeded = true;
@@ -230,7 +230,7 @@ void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
     Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::moveBy(const QPoint &pos)
+void EditItemBase::moveBy(const QPointF &pos)
 {
     Q_UNUSED(pos);
 }
