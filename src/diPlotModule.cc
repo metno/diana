@@ -2807,14 +2807,18 @@ void PlotModule::changeArea(QKeyEvent* ke)
     mapm.getMapAreaByFkey("F8", a);
   }
 
-  Area temp = splot.getMapArea();
-  if (temp.P() == a.P()) {
-    splot.setMapArea(a, keepcurrentarea);
-    PlotAreaSetup();
-  } else { //if projection has changed, updatePlots must be called
-    splot.setMapArea(a, keepcurrentarea);
-    PlotAreaSetup();
+  const bool projChanged = (splot.getMapArea().P() != a.P());
+  splot.setMapArea(a, keepcurrentarea); // ### only when projChanged == true ?
+  PlotAreaSetup();
+  if (projChanged) {
     updatePlots();
+  } else {
+    // reproject items to screen coordinates
+    map<string,Manager*>::iterator it = managers.begin();
+    while (it != managers.end()) {
+      it->second->changeProjection(splot.getMapArea());
+      ++it;
+    }
   }
 }
 
