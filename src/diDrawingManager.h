@@ -3,7 +3,7 @@
 
   $Id$
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,7 +46,7 @@
 
 using namespace std;
 
-class EditItemBase;
+class DrawingItemBase;
 class PlotModule;
 class ObjectManager;
 
@@ -79,20 +79,20 @@ public:
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
-  QList<QPointF> getLatLonPoints(EditItemBase* item) const;
-  void setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints);
+  QList<QPointF> getLatLonPoints(DrawingItemBase* item) const;
+  void setLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
+  QSet<DrawingItemBase *> getItems() const;
+
   static DrawingManager *instance();
 
+protected:
   Rectangle plotRect;
   Rectangle editRect;
 
-  QSet<EditItemBase *> items_;
-
-private slots:
-  void initNewItem(EditItemBase *item);
+  QSet<DrawingItemBase *> items_;
 
 private:
   GridConverter gc;   // gridconverter class

@@ -43,18 +43,18 @@ public:
   ~DrawingDialog();
 
   std::string name() const;
+  std::vector<miutil::miString> getOKString();
+  void putOKString(const std::vector<miutil::miString>& vstr);
 
 public slots:
   void updateTimes();
   void toggleDrawingMode(bool);
   void updateDialog();
-  std::vector<miutil::miString> getOKString();
-  void putOKString(const vector<miutil::miString>& vstr);
 
 private slots:
-  void addItem(EditItemBase *item);
-  void removeItem(EditItemBase *item);
-  void updateItem(EditItemBase *item);
+  void addItem(DrawingItemBase *item);
+  void removeItem(DrawingItemBase *item);
+  void updateItem(DrawingItemBase *item);
   void updateItemList();
   void updateSelection();
 

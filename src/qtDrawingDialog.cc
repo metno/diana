@@ -36,10 +36,10 @@
 
 #include "diController.h"
 #include "diDrawingManager.h"
+#include "diEditItemManager.h"
 #include "qtDrawingDialog.h"
 #include "EditItems/edititembase.h"
 #include "EditItems/weatherarea.h"
-#include "EditItems/weatherfront.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
 
 #include <QAction>
@@ -95,9 +95,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(itemList, SIGNAL(itemSelectionChanged()), SLOT(updateSelection()));
 
   EditItemManager *editor = EditItemManager::instance();
-  connect(editor, SIGNAL(itemAdded(EditItemBase*)), SLOT(addItem(EditItemBase*)));
-  connect(editor, SIGNAL(itemChanged(EditItemBase*)), SLOT(updateItem(EditItemBase*)));
-  connect(editor, SIGNAL(itemRemoved(EditItemBase*)), SLOT(removeItem(EditItemBase*)));
+  connect(editor, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
+  connect(editor, SIGNAL(itemChanged(DrawingItemBase*)), SLOT(updateItem(DrawingItemBase*)));
+  connect(editor, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
   connect(editor, SIGNAL(selectionChanged()), SLOT(updateItemList()));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
@@ -145,13 +145,11 @@ void DrawingDialog::toggleDrawingMode(bool enable)
   m_ctrl->setDrawingModeEnabled(enable);
 }
 
-void DrawingDialog::addItem(EditItemBase *item)
+void DrawingDialog::addItem(DrawingItemBase *item)
 {
   QTreeWidgetItem *listItem = new QTreeWidgetItem();
   if (static_cast<EditItem_WeatherArea::WeatherArea*>(item))
       listItem->setText(0, tr("Area"));
-  else if (static_cast<EditItem_WeatherFront::WeatherFront*>(item))
-      listItem->setText(0, tr("Front"));
   else
       listItem->setText(0, tr("Unknown"));
   listItem->setData(0, Qt::UserRole, item->id());
@@ -159,7 +157,7 @@ void DrawingDialog::addItem(EditItemBase *item)
   itemList->addTopLevelItem(listItem);
 }
 
-void DrawingDialog::removeItem(EditItemBase *item)
+void DrawingDialog::removeItem(DrawingItemBase *item)
 {
   for (int i = 0; i < itemList->topLevelItemCount(); ++i)
     if (itemList->topLevelItem(i)->data(0, Qt::UserRole).toInt() == item->id()) {
@@ -179,7 +177,7 @@ void DrawingDialog::updateSelection()
   }
 
   EditItemManager *eim = EditItemManager::instance();
-  foreach (EditItemBase *item, eim->getItems()) {
+  foreach (DrawingItemBase *item, eim->getItems()) {
     if (ids.contains(item->id()))
       eim->selectItem(item);
     else
@@ -196,7 +194,7 @@ void DrawingDialog::updateItemList()
 {
   EditItemManager *eim = EditItemManager::instance();
   QSet<int> ids;
-  foreach (EditItemBase *item, eim->getSelectedItems())
+  foreach (DrawingItemBase *item, eim->getSelectedItems())
     ids.insert(item->id());
 
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
@@ -209,7 +207,7 @@ void DrawingDialog::updateItemList()
 /**
  * Updates an item in the item list with properties from an item in the editor.
  */
-void DrawingDialog::updateItem(EditItemBase *item)
+void DrawingDialog::updateItem(DrawingItemBase *item)
 {
   // Refresh the columns for the corresponding list item.
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {

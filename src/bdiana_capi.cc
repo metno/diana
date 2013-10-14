@@ -60,6 +60,7 @@
 
 #include <diAnnotationPlot.h>
 #include <diController.h>
+#include <diDrawingManager.h>
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
@@ -368,7 +369,8 @@ miString logfilename = "";
       METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " \
           << setupfile); \
       return 99; \
-    }
+    } \
+    main_controller->addManager("DRAWING", DrawingManager::instance());
 
 /*
  clean an input-string: remove preceding and trailing blanks,

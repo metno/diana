@@ -33,6 +33,7 @@
 #define WEATHERAREA_H
 
 #include <QtGui>
+#include "drawingweatherarea.h"
 #include "edititembase.h"
 #include <diCommonTypes.h>
 
@@ -40,7 +41,7 @@
 
 namespace EditItem_WeatherArea {
 
-class WeatherArea : public EditItemBase
+class WeatherArea : public EditItemBase, public DrawingItem_WeatherArea::WeatherArea
 {
     Q_OBJECT
     friend class SetGeometryCommand;
@@ -50,10 +51,8 @@ public:
     virtual ~WeatherArea();
 
     EditItemBase *copy() const;
-
-    void setType(frontType type);
-    QList<QPointF> getPoints() const;
-    void setPoints(const QList<QPointF> &points);
+    
+    void draw(DrawModes, bool);
 
     static QList<WeatherArea *> createFromKML(const QByteArray &, const QString &, QString *);
 
@@ -65,8 +64,8 @@ private:
 
     virtual void mouseHover(QMouseEvent *, bool &);
     virtual void mousePress(
-        QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<EditItemBase *> *, QSet<EditItemBase *> *,
-        QSet<EditItemBase *> *, const QSet<EditItemBase *> *, bool *);
+        QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, QSet<DrawingItemBase *> *,
+        QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
     virtual void mouseMove(QMouseEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
@@ -75,15 +74,14 @@ private:
 
     virtual void moveBy(const QPointF &);
 
-    virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(EditItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
+    virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(DrawingItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
 
-    bool saveAsSimpleAreas(QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, QString *error);
-    bool saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error);
+    bool saveAsSimpleAreas(QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, QString *error);
+    bool saveAsVAACGroup(QSet<DrawingItemBase *> *items, QString *error);
 
     virtual QVariantMap clipboardVarMap() const;
     virtual QString clipboardPlainText() const;
 
-    virtual void draw(DrawModes, bool);
     void drawControlPoints();
     void drawHoverHighlighting(bool);
 
@@ -93,8 +91,8 @@ private:
     void updateControlPoints();
 
     void addPoint(bool &repaintNeeded, int index, const QPointF &point);
-    void remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
-    void removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems);
+    void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
+    void removePoint(bool &repaintNeeded, int index, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
 
     QList<QPointF> geometry() const { return points_; }
     void setGeometry(const QList<QPointF> &);
@@ -103,7 +101,6 @@ private:
     qreal distance(const QPointF &) const;
     int hitLine(const QPointF &) const;
 
-    QList<QPointF> points_;
     QList<QRectF> controlPoints_;
     QList<QPointF> basePoints_;
 
@@ -118,13 +115,6 @@ private:
     QAction *removePoint_;
     QAction *copyItems_;
     QAction *editItems_;
-
-    QColor color_;
-    frontType type;
-    float *x,*y,*x_s,*y_s; // arrays for holding smooth line
-    int s_length;          // nr of smooth line points
-    float xwarmflag[nwarmflag];
-    float ywarmflag[nwarmflag];
 };
 
 } // namespace EditItem_WeatherArea

@@ -33,12 +33,17 @@
 #define EDITITEMBASE_H
 
 #include <QtGui>
+#include "drawingitembase.h"
 #include "diEditItemManager.h"
+
+#define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
+#define Editing(i) dynamic_cast<EditItemBase *>(i)
 
 // This is the abstract base class for editable items.
 class EditItemBase : public QObject
 {
     Q_OBJECT
+
 public:
     virtual ~EditItemBase() {}
     EditItemBase(const EditItemBase &other) {}
@@ -62,8 +67,8 @@ public:
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<EditItemBase *> *itemsToCopy = 0, QSet<EditItemBase *> *itemsToEdit = 0,
-        QSet<EditItemBase *> *items = 0, const QSet<EditItemBase *> *selItems = 0, bool *multiItemOp = 0);
+        QSet<DrawingItemBase *> *itemsToCopy = 0, QSet<DrawingItemBase *> *itemsToEdit = 0,
+        QSet<DrawingItemBase *> *items = 0, const QSet<DrawingItemBase *> *selItems = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
@@ -75,7 +80,7 @@ public:
     virtual void mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded);
     virtual void keyPress(
         QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<EditItemBase *> *items = 0, const QSet<EditItemBase *> *selItems = 0);
+        QSet<DrawingItemBase *> *items = 0, const QSet<DrawingItemBase *> *selItems = 0);
     virtual void keyRelease(QKeyEvent *event, bool &repaintNeeded);
 
     // Handles other events for an item in the process of being completed (i.e. during manual placement of a new item).
@@ -94,36 +99,13 @@ public:
     // \a modes indicates whether the item is selected, hovered, both, or neither.
     // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
     virtual void draw(DrawModes modes, bool incomplete) = 0;
-
-    // Returns the item's globally unique ID.
-    int id() const;
-
-    // Returns the item's group ID if set, or -1 otherwise.
-    int groupId() const;
+    virtual void draw();
 
     // Emits the repaintNeeded() signal.
     void repaint();
 
     // Returns a duplicate of the item.
     virtual EditItemBase *copy() const = 0;
-
-    // Returns the item's points.
-    virtual QList<QPointF> getPoints() const = 0;
-    // Sets the item's points.
-    virtual void setPoints(const QList<QPointF> &points) = 0;
-
-    // Returns the item's geographic points.
-    virtual QList<QPointF> getLatLonPoints() const;
-    // Sets the item's geographic points.
-    virtual void setLatLonPoints(const QList<QPointF> &points);
-
-    // Returns the item's properties.
-    QVariantMap properties() const;
-    QVariantMap &propertiesRef();
-    // sets the item's properties.
-    void setProperties(const QVariantMap &);
-
-    virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
     virtual QVariantMap clipboardVarMap() const;
     virtual QString clipboardPlainText() const;
@@ -138,13 +120,6 @@ protected:
 
     bool moving_;
     bool resizing_;
-    QVariantMap properties_;
-
-private:
-    int id_;
-    static int nextId_;
-    int nextId();
-    QList<QPointF> latLonPoints;
 
 signals:
     void repaintNeeded();

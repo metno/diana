@@ -3,7 +3,7 @@
 
   $Id$
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,7 +39,7 @@
 #include <miLogger/miLogging.h>
 
 #include <diDrawingManager.h>
-#include <EditItems/edititembase.h>
+#include <EditItems/drawingitembase.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <puTools/miDirtools.h>
@@ -52,6 +52,7 @@
 #include <set>
 #include <cmath>
 
+#include <QDateTime>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QFileDialog>
@@ -102,7 +103,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   return true;
 }
 
-QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
+QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const
 {
   QList<QPointF> points = item->getPoints();
   return PhysToGeo(points);
@@ -130,7 +131,7 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints)
+void DrawingManager::setLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints)
 {
   QList<QPointF> points = GeoToPhys(latLonPoints);
   item->setPoints(points);
@@ -165,7 +166,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::set<miutil::miTime> times;
 
-  foreach (EditItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
     std::string time_str = p.value("time").toString().toStdString();
     if (!time_str.empty())
@@ -189,7 +190,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 {
   // Change the visibility of items in the editor.
 
-  foreach (EditItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
     if (p.contains("time")) {
       QString time_str = p.value("time").toDateTime().toString("yyyy-MM-dd hh:mm:ss");
@@ -211,7 +212,7 @@ bool DrawingManager::changeProjection(const Area& newArea)
 
   // Obtain the items from the editor.
 
-  foreach (EditItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) {
 
     QList<QPointF> latLonPoints = getLatLonPoints(item);
     QList<QPointF> points;
@@ -246,27 +247,15 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  foreach (EditItemBase *item, items_) {
-      EditItemBase::DrawModes modes = EditItemBase::Normal;
+  foreach (DrawingItemBase *item, items_) {
       if (item->properties().value("visible", true).toBool())
-          item->draw(modes, false);
+          item->draw();
   }
 
   glPopMatrix();
 }
 
-void DrawingManager::initNewItem(EditItemBase *item)
+QSet<DrawingItemBase *> DrawingManager::getItems() const
 {
-  // Use the current time for the new item.
-  miutil::miTime time;
-  PLOTM->getPlotTime(time);
-
-  QVariantMap p = item->propertiesRef();
-  if (!p.contains("time"))
-    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
-
-  item->setProperties(p);
-
-  // Let other components know about any changes to item times.
-  emit timesUpdated();
+    return items_;
 }

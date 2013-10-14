@@ -30,6 +30,7 @@
 */
 
 #include <GL/gl.h>
+#include "drawingweatherarea.h"
 #include "weatherarea.h"
 #include <QDomDocument>
 #include <QFileDialog>
@@ -100,7 +101,7 @@ WeatherArea::WeatherArea(const QVariantMap &vmap, QString *error)
   QList<QPointF> points;
   foreach (QVariant vpoint, vpoints)
     points.append(vpoint.toPointF());
-  setPoints(EditItemManager::instance()->GeoToPhys(points));
+  setPoints(DrawingManager::instance()->GeoToPhys(points));
 }
 
 WeatherArea::~WeatherArea()
@@ -114,16 +115,6 @@ void WeatherArea::init()
   pressedCtrlPointIndex_ = -1;
   hoveredCtrlPointIndex_ = -1;
   placementPos_ = 0;
-  type = Cold;
-  s_length = 0;
-
-  // Create an arch shape to use repeatedly on the line.
-  float flagstep = M_PI/(nwarmflag-1);
-
-  for (int j = 0; j < nwarmflag; j++) {
-    xwarmflag[j]= cos(j * flagstep);
-    ywarmflag[j]= sin(j * flagstep);
-  }
 }
 
 EditItemBase *WeatherArea::copy() const
@@ -133,22 +124,6 @@ EditItemBase *WeatherArea::copy() const
     newItem->controlPoints_ = controlPoints_;
     newItem->basePoints_ = basePoints_;
     return newItem;
-}
-
-void WeatherArea::setType(frontType type)
-{
-    this->type = type;
-    repaint();
-}
-
-QList<QPointF> WeatherArea::getPoints() const
-{
-    return points_;
-}
-
-void WeatherArea::setPoints(const QList<QPointF> &points)
-{
-    setGeometry(points);
 }
 
 QList<QPointF> WeatherArea::baseGeometry() const
@@ -206,8 +181,8 @@ int WeatherArea::hitLine(const QPointF &position) const
 
 void WeatherArea::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
-    QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, bool *multiItemOp)
+    QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
+    QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
 
@@ -262,9 +237,9 @@ void WeatherArea::mousePress(
                 addPoint(repaintNeeded, lineIndex, position);
             else if (action == &copyItems_act) {
                 Q_ASSERT(itemsToCopy);
-                QSet<EditItemBase *>::const_iterator it;
+                QSet<DrawingItemBase *>::const_iterator it;
                 for (it = items->begin(); it != items->end(); ++it) {
-                    WeatherArea *weatherArea = qobject_cast<WeatherArea *>(*it);
+                    WeatherArea *weatherArea = qobject_cast<WeatherArea *>(Editing(*it));
                     if (weatherArea)
                         itemsToCopy->insert(weatherArea);
                 }
@@ -423,7 +398,7 @@ void WeatherArea::addPoint(bool &repaintNeeded, int index, const QPointF &point)
     repaintNeeded = true;
 }
 
-void WeatherArea::remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
+void WeatherArea::remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
 {
     // Option 1: remove this item only:
     // items->remove(this);
@@ -434,7 +409,7 @@ void WeatherArea::remove(bool &repaintNeeded, QSet<EditItemBase *> *items, const
     repaintNeeded = true;
 }
 
-void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
+void WeatherArea::removePoint(bool &repaintNeeded, int index, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
 {
     if (points_.size() <= 3)
         items->remove(this);
@@ -485,29 +460,8 @@ void WeatherArea::draw(DrawModes modes, bool incomplete)
         }
     }
 
-    // draw the interior
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glEnable( GL_BLEND );
-    GLdouble *gldata = new GLdouble[points_.size() * 3];
-    for (int i = 0; i < points_.size(); ++i) {
-        const QPointF p = points_.at(i);
-        gldata[3 * i] = p.x();
-        gldata[3 * i + 1] = p.y();
-        gldata[3 * i + 2] = 0.0;
-    }
-    glColor4ub(128, 128, 128, 50);
-    beginTesselation();
-    int npoints = points_.size();
-    tesselation(gldata, 1, &npoints);
-    endTesselation();
-    delete[] gldata;
-
-    // draw the outline
-    glBegin(GL_LINE_LOOP);
-    glColor3ub(color_.red(), color_.green(), color_.blue());
-    foreach (QPointF p, points_)
-        glVertex2i(p.x(), p.y());
-    glEnd();
+    // Use the superclass to draw the actual item.
+    DrawingItem_WeatherArea::WeatherArea::draw();
 
     // draw highlighting if hovered
     if (modes & Hovered)
@@ -690,7 +644,7 @@ QList<WeatherArea *> WeatherArea::createFromKML(const QByteArray &data, const QS
 // Saves this item and any other selected WeatherArea items as simple areas (not containing any VAAC-specific properties).
 // If successful, the function returns true.
 // Otherwise, the function returns false and passes an explanation in \a error.
-bool WeatherArea::saveAsSimpleAreas(QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, QString *error)
+bool WeatherArea::saveAsSimpleAreas(QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, QString *error)
 {
     QMessageBox::warning(0, "Warning", "saveAsSimpleAreas() not yet implemented");
     Q_UNUSED(items);
@@ -707,7 +661,7 @@ bool WeatherArea::saveAsSimpleAreas(QSet<EditItemBase *> *items, const QSet<Edit
 // Saves the VAAC group to which this item belongs (a VAAC group is defined as all WeatherArea items sharing the same group ID).
 // If successful (or operation cancelled), the function returns true.
 // Otherwise, the function returns false and passes an explanation in \a error.
-bool WeatherArea::saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error)
+bool WeatherArea::saveAsVAACGroup(QSet<DrawingItemBase *> *items, QString *error)
 {
     // get the name of the file in which to save the DOM structure
     const QString fileName = QFileDialog::getSaveFileName(
@@ -721,9 +675,9 @@ bool WeatherArea::saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error)
     group.insert(this);
     const int gid = groupId();
     Q_ASSERT(gid >= 0);
-    QSet<EditItemBase *>::const_iterator it;
+    QSet<DrawingItemBase *>::const_iterator it;
     for (it = items->begin(); it != items->end(); ++it) {
-        WeatherArea *weatherArea = qobject_cast<WeatherArea *>(*it);
+        WeatherArea *weatherArea = qobject_cast<WeatherArea *>(Editing(*it));
         if (weatherArea && (weatherArea->groupId() == gid))
             group.insert(weatherArea);
     }
@@ -802,7 +756,7 @@ bool WeatherArea::saveAsVAACGroup(QSet<EditItemBase *> *items, QString *error)
         }
 
         // replace node value
-        const QList<QPointF> latLonPoints = EditItemManager::instance()->PhysToGeo(area->getPoints());
+        const QList<QPointF> latLonPoints = DrawingManager::instance()->PhysToGeo(area->getPoints());
         QString s;
         foreach (QPointF p, latLonPoints)
             s.append(QString("%2,%1,0 ").arg(p.x()).arg(p.y())); // note lon,lat order
@@ -828,7 +782,7 @@ QVariantMap WeatherArea::clipboardVarMap() const
 {
   QVariantMap vmap = EditItemBase::clipboardVarMap();
   QVariantList vpoints;
-  foreach (QPointF p, EditItemManager::instance()->PhysToGeo(getPoints()))
+  foreach (QPointF p, DrawingManager::instance()->PhysToGeo(getPoints()))
     vpoints.append(p);
   vmap.insert("points", vpoints);
   vmap.insert("properties", properties());
@@ -838,7 +792,7 @@ QVariantMap WeatherArea::clipboardVarMap() const
 QString WeatherArea::clipboardPlainText() const
 {
   QString s = EditItemBase::clipboardPlainText();
-  foreach (QPointF p, EditItemManager::instance()->PhysToGeo(getPoints()))
+  foreach (QPointF p, DrawingManager::instance()->PhysToGeo(getPoints()))
     s.append(QString("(%1, %2) ").arg(p.x()).arg(p.y()));
   return s;
 }

@@ -54,9 +54,9 @@ public:
 
   /// Update the dialog after re-reading the setup file.
   virtual void updateDialog() = 0;
-  /// Return a vector of command strings.
+  /// Returns the vector of command strings in use.
   virtual std::vector<miutil::miString> getOKString() = 0;
-  /// Set new command strings, representing them in the dialog.
+  /// Sets new command strings to be represented in the dialog.
   virtual void putOKString(const vector<miutil::miString>& vstr) = 0;
 
 signals:
