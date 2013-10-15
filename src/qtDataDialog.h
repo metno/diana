@@ -57,7 +57,7 @@ public:
   /// Returns the vector of command strings in use.
   virtual std::vector<miutil::miString> getOKString() = 0;
   /// Sets new command strings to be represented in the dialog.
-  virtual void putOKString(const vector<miutil::miString>& vstr) = 0;
+  virtual void putOKString(const std::vector<miutil::miString>& vstr) = 0;
 
 signals:
   void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &);
