@@ -40,6 +40,7 @@
 
 #include <diDrawingManager.h>
 #include <EditItems/drawingitembase.h>
+#include <EditItems/drawingweatherarea.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <puTools/miDirtools.h>
@@ -98,9 +99,54 @@ bool DrawingManager::parseSetup()
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   vector<string>::const_iterator it;
-  for (it = inp.begin(); it != inp.end(); ++it)
-    cerr << "*** " << *it << endl;
+  for (it = inp.begin(); it != inp.end(); ++it) {
+
+    // Split each input line into a collection of "words".
+    QStringList pieces = QString::fromStdString(*it).split(" ", QString::SkipEmptyParts);
+    // Skip the first piece ("DRAWING").
+    pieces.pop_front();
+
+    foreach (QString piece, pieces) {
+      // Split each word into a key=value pair.
+      QStringList wordPieces = piece.split("=");
+      if (wordPieces.size() != 2) {
+        METLIBS_LOG_WARN("Invalid key=value pair: " << piece.toStdString());
+        return false;
+      }
+      QString key = wordPieces[0];
+      QString value = wordPieces[1];
+      if (key == "file")
+        loadItemsFromFile(value);
+    }
+  }
   return true;
+}
+
+void DrawingManager::loadItemsFromFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        METLIBS_LOG_WARN("Failed to open file " << fileName.toStdString() << " for reading.");
+        return;
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    QString error;
+    QList<DrawingItem_WeatherArea::WeatherArea *> areas;
+    areas = DrawingItem_WeatherArea::createFromKML<DrawingItem_WeatherArea::WeatherArea>(data, fileName, &error);
+
+    if (!areas.isEmpty()) {
+        foreach (DrawingItem_WeatherArea::WeatherArea *area, areas) {
+            setLatLonPoints(area, area->getLatLonPoints());
+            items_.insert(Drawing(area));
+        }
+    } else {
+        METLIBS_LOG_WARN("Failed to create areas from file " << fileName.toStdString() << ": "
+            << (!error.isEmpty() ? error.toStdString() : "<error msg not set>"));
+        return;
+    }
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const

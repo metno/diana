@@ -36,6 +36,8 @@
 #include <QPointF>
 #include <QVariant>
 
+#define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
+
 class DrawingItemBase
 {
 public:

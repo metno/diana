@@ -54,8 +54,6 @@ public:
     
     void draw(DrawModes, bool);
 
-    static QList<WeatherArea *> createFromKML(const QByteArray &, const QString &, QString *);
-
 private:
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;

@@ -141,7 +141,7 @@ public slots:
     void editItems();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
-    void loadItemsFromFile();
+    void loadItems();
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
     void mousePress(QMouseEvent *, QSet<DrawingItemBase *> * = 0, QSet<DrawingItemBase *> * = 0);

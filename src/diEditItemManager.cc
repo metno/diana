@@ -235,7 +235,7 @@ EditItemManager::EditItemManager()
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
     connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
-    connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
+    connect(loadAction, SIGNAL(triggered()), SLOT(loadItems()));
 }
 
 EditItemManager::~EditItemManager()
@@ -888,30 +888,34 @@ void EditItemManager::editItems()
     editItemProperties(getSelectedItems());
 }
 
-void EditItemManager::loadItemsFromFile()
+void EditItemManager::loadItems()
 {
     // open file and read content
     const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC messages (*.kml)"));
     if (fileName.isNull())
         return; // operation cancelled
+
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(0, "Error", QString("failed to open file %1 for reading").arg(fileName));
+        QMessageBox::warning(0, tr("Diana - Open File Error"), tr("Failed to open file %1 for reading.").arg(fileName));
         return;
     }
+
     QByteArray data = file.readAll();
     file.close();
 
     QString error;
-    const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, fileName, &error);
+    QList<EditItem_WeatherArea::WeatherArea *> areas;
+    areas = DrawingItem_WeatherArea::createFromKML<EditItem_WeatherArea::WeatherArea>(data, fileName, &error);
+
     if (!areas.isEmpty()) {
         foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
             setLatLonPoints(area, area->getLatLonPoints());
             addItem(Drawing(area), false);
         }
     } else {
-        QMessageBox::warning(
-            0, "Error", QString("failed to create areas from file %1: %2")
+        QMessageBox::warning(0, tr("Diana - Open File Error"),
+            tr("Failed to create areas from file %1: %2.")
             .arg(fileName).arg(!error.isEmpty() ? error : "<error msg not set>"));
     }
 
@@ -1100,7 +1104,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
     else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       editItems();
     else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      loadItemsFromFile();
+      loadItems();
     else
       event->ignore();
   }

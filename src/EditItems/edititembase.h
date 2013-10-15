@@ -36,7 +36,6 @@
 #include "drawingitembase.h"
 #include "diEditItemManager.h"
 
-#define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
 #define Editing(i) dynamic_cast<EditItemBase *>(i)
 
 // This is the abstract base class for editable items.

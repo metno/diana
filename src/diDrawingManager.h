@@ -43,6 +43,7 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
+#include <QString>
 
 using namespace std;
 
@@ -89,6 +90,8 @@ public:
   static DrawingManager *instance();
 
 protected:
+  virtual void loadItemsFromFile(const QString &fileName);
+
   Rectangle plotRect;
   Rectangle editRect;
 
