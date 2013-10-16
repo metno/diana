@@ -29,6 +29,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <fstream>
+#include <iostream>
+#define MILOGGER_CATEGORY "diana.EditItemManager"
+#include <miLogger/miLogging.h>
+
 #include <QtGui>
 
 #include <diEditItemManager.h>
@@ -100,7 +105,7 @@ static QWidget * createEditor(const QString &propertyName, const QVariant &val)
   } else if (val.type() == QVariant::DateTime) {
     editor = new QDateTimeEdit(val.toDateTime());
   } else {
-    qDebug() << "WARNING: unsupported type:" << val.typeName();
+    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
     editor = new QLabel(QString("UNSUPPORTED TYPE: %1").arg(val.typeName()));
   }
   return editor;
@@ -1113,9 +1118,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 
 void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 {
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("EditItemManager::sendKeyboardEvent");
-#endif
   event->accept();
   res.savebackground= true;
   res.background= false;
