@@ -757,11 +757,7 @@ bool EditItemManager::changeProjection(const Area& newArea)
     item->setPoints(points);
   }
 
-  // Update the edit rectangle so that objects are positioned consistently.
-  plotRect = editRect = newPlotRect;
-  currentArea = newArea;
-
-  return true;
+  return DrawingManager::changeProjection(newArea);
 }
 
 void EditItemManager::plot(bool under, bool over)

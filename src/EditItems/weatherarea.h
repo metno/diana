@@ -52,6 +52,9 @@ public:
 
     EditItemBase *copy() const;
     
+    // Sets the points for the area and updates any control points.
+    void setPoints(const QList<QPointF> &points);
+
     void draw(DrawModes, bool);
 
 private:

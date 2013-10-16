@@ -117,6 +117,12 @@ void WeatherArea::init()
   placementPos_ = 0;
 }
 
+void WeatherArea::setPoints(const QList<QPointF> &points)
+{
+    points_ = points;
+    updateControlPoints();
+}
+
 EditItemBase *WeatherArea::copy() const
 {
     WeatherArea *newItem = new WeatherArea();

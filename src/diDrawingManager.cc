@@ -254,6 +254,8 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
 bool DrawingManager::changeProjection(const Area& newArea)
 {
+  // Record the new plot rectangle and area.
+  // Update the edit rectangle so that objects are positioned consistently.
   plotRect = editRect = PLOTM->getPlotSize();
   currentArea = newArea;
   return true;
