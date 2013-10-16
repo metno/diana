@@ -119,6 +119,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
         loadItemsFromFile(value);
     }
   }
+
+  setEnabled(true);
   return true;
 }
 
@@ -139,7 +141,8 @@ void DrawingManager::loadItemsFromFile(const QString &fileName)
 
     if (!areas.isEmpty()) {
         foreach (DrawingItem_WeatherArea::WeatherArea *area, areas) {
-            setLatLonPoints(area, area->getLatLonPoints());
+            // Set the screen coordinates from the latitude and longitude values.
+            setFromLatLonPoints(area, area->getLatLonPoints());
             items_.insert(Drawing(area));
         }
     } else {
@@ -177,7 +180,7 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints)
+void DrawingManager::setFromLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints)
 {
   QList<QPointF> points = GeoToPhys(latLonPoints);
   item->setPoints(points);
@@ -251,31 +254,8 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
 bool DrawingManager::changeProjection(const Area& newArea)
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-
-  Rectangle newPlotRect = PLOTM->getPlotSize();
-
-  // Obtain the items from the editor.
-
-  foreach (DrawingItemBase *item, items_) {
-
-    QList<QPointF> latLonPoints = getLatLonPoints(item);
-    QList<QPointF> points;
-
-    for (int i = 0; i < latLonPoints.size(); ++i) {
-      float x, y;
-      PLOTM->GeoToPhys(latLonPoints.at(i).x(), latLonPoints.at(i).y(), x, y, newArea, newPlotRect);
-      points.append(QPointF(x, y));
-    }
-
-    item->setPoints(points);
-  }
-
-  // Update the edit rectangle so that objects are positioned consistently.
-  plotRect = editRect = newPlotRect;
+  plotRect = editRect = PLOTM->getPlotSize();
   currentArea = newArea;
-
   return true;
 }
 
@@ -294,8 +274,10 @@ void DrawingManager::plot(bool under, bool over)
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
   foreach (DrawingItemBase *item, items_) {
-      if (item->properties().value("visible", true).toBool())
+      if (item->properties().value("visible", true).toBool()) {
+          setFromLatLonPoints(item, item->getLatLonPoints());
           item->draw();
+      }
   }
 
   glPopMatrix();

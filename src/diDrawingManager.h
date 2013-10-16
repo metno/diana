@@ -72,16 +72,16 @@ public:
 
   std::vector<miutil::miTime> getTimes() const;
 
-  bool changeProjection(const Area& newArea);
+  virtual bool changeProjection(const Area& newArea);
   bool prepare(const miutil::miTime &time);
-  void plot(bool under, bool over);
+  virtual void plot(bool under, bool over);
   bool processInput(const std::vector<std::string>& inp);
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
   QList<QPointF> getLatLonPoints(DrawingItemBase* item) const;
-  void setLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints);
+  void setFromLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
@@ -94,12 +94,12 @@ protected:
 
   Rectangle plotRect;
   Rectangle editRect;
+  Area currentArea;
 
   QSet<DrawingItemBase *> items_;
 
 private:
   GridConverter gc;   // gridconverter class
-  Area currentArea;
 
   static DrawingManager *self;  // singleton instance pointer
 };

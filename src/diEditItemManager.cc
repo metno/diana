@@ -346,7 +346,7 @@ void EditItemManager::retrieveItems(const QSet<DrawingItemBase *> &items)
         // The items stored on the undo stack have been given geographic
         // coordinates, so we use those to obtain screen coordinates.
         if (!item->getLatLonPoints().isEmpty())
-            setLatLonPoints(item, item->getLatLonPoints());
+            setFromLatLonPoints(item, item->getLatLonPoints());
         addItem_(item);
     }
 }
@@ -734,6 +734,36 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
         repaint();
 }
 
+bool EditItemManager::changeProjection(const Area& newArea)
+{
+  int w, h;
+  PLOTM->getPlotWindow(w, h);
+
+  Rectangle newPlotRect = PLOTM->getPlotSize();
+
+  // Obtain the items from the editor.
+
+  foreach (DrawingItemBase *item, items_) {
+
+    QList<QPointF> latLonPoints = getLatLonPoints(item);
+    QList<QPointF> points;
+
+    for (int i = 0; i < latLonPoints.size(); ++i) {
+      float x, y;
+      PLOTM->GeoToPhys(latLonPoints.at(i).x(), latLonPoints.at(i).y(), x, y, newArea, newPlotRect);
+      points.append(QPointF(x, y));
+    }
+
+    item->setPoints(points);
+  }
+
+  // Update the edit rectangle so that objects are positioned consistently.
+  plotRect = editRect = newPlotRect;
+  currentArea = newArea;
+
+  return true;
+}
+
 void EditItemManager::plot(bool under, bool over)
 {
     if (!under)
@@ -910,7 +940,8 @@ void EditItemManager::loadItems()
 
     if (!areas.isEmpty()) {
         foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
-            setLatLonPoints(area, area->getLatLonPoints());
+            // Convert the item's latitude and longitude values into screen coordinates.
+            setFromLatLonPoints(area, area->getLatLonPoints());
             addItem(Drawing(area), false);
         }
     } else {
