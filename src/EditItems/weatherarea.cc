@@ -263,7 +263,7 @@ void WeatherArea::mousePress(
             else if (action == &copyItems_act) {
                 Q_ASSERT(itemsToCopy);
                 QSet<EditItemBase *>::const_iterator it;
-                for (it = items->begin(); it != items->end(); ++it) {
+                for (it = selItems->begin(); it != selItems->end(); ++it) {
                     WeatherArea *weatherArea = qobject_cast<WeatherArea *>(*it);
                     if (weatherArea)
                         itemsToCopy->insert(weatherArea);
