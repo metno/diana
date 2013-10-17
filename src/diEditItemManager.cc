@@ -290,6 +290,7 @@ void EditItemManager::addItem_(EditItemBase *item)
     items_.insert(item);
     connect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
+    item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
@@ -556,6 +557,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         // send move event to all selected items
         foreach (EditItemBase *item, selItems_) {
             item->mouseMove(event, rpn);
+            item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
         }
     }
@@ -738,8 +740,10 @@ void EditItemManager::plot(bool under, bool over)
             modes |= EditItemBase::Selected;
         if (item == hoverItem_)
             modes |= EditItemBase::Hovered;
-        if (item->properties().value("visible", true).toBool())
+        if (item->properties().value("visible", true).toBool()) {
+            setLatLonPoints(item, item->getLatLonPoints());
             item->draw(modes, false);
+        }
     }
     if (incompleteItem_) // note that only complete items may be selected
         incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);

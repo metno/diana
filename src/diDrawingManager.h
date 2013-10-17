@@ -73,7 +73,7 @@ public:
 
   bool changeProjection(const Area& newArea);
   bool prepare(const miutil::miTime &time);
-  void plot(bool under, bool over);
+  virtual void plot(bool under, bool over);
   bool processInput(const std::vector<std::string>& inp);
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
