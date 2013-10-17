@@ -257,16 +257,6 @@ void DrawingManager::plot(bool under, bool over)
 
 void DrawingManager::initNewItem(EditItemBase *item)
 {
-  // Use the current time for the new item.
-  miutil::miTime time;
-  PLOTM->getPlotTime(time);
-
-  QVariantMap p = item->propertiesRef();
-  if (!p.contains("time"))
-    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
-
-  item->setProperties(p);
-
   // Let other components know about any changes to item times.
   emit timesUpdated();
 }
