@@ -231,8 +231,6 @@ public:
 
 private:
     EditItemBase *item_;
-    QList<QPointF> oldGeometry_;
-    QList<QPointF> newGeometry_;
     QList<QPointF> oldLatLonPoints_;
     QList<QPointF> newLatLonPoints_;
     virtual void undo();

@@ -1133,34 +1133,17 @@ void AddOrRemoveItemsCommand::redo()
 SetGeometryCommand::SetGeometryCommand(
     EditItemBase *item, const QList<QPointF> &oldGeometry, const QList<QPointF> &newGeometry)
     : item_(item)
-    , oldGeometry_(oldGeometry)
-    , newGeometry_(newGeometry)
-{}
+{
+    oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry);
+    newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry);
+}
 
 void SetGeometryCommand::undo()
 {
-    // Store the new points as geographic coordinates for later redo if necessary.
-    if (newLatLonPoints_.isEmpty())
-        newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry_);
-
-    // Retrieve the old points, if present, and convert them to screen coordinates.
-    if (!oldLatLonPoints_.isEmpty())
-        oldGeometry_ = EditItemManager::instance()->GeoToPhys(oldLatLonPoints_);
-
-    item_->setPoints(oldGeometry_);
+    item_->setLatLonPoints(oldLatLonPoints_);
 }
 
 void SetGeometryCommand::redo()
 {
-    // Store the old points as geographic coordinates for later undo if necessary.
-    if (oldLatLonPoints_.isEmpty())
-        oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry_);
-
-    // Retrieve the new points, if present, and convert them to screen coordinates.
-    if (!newLatLonPoints_.isEmpty())
-        newGeometry_ = EditItemManager::instance()->GeoToPhys(newLatLonPoints_);
-    else
-        newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry_);
-
-    item_->setPoints(newGeometry_);
+    item_->setLatLonPoints(newLatLonPoints_);
 }
