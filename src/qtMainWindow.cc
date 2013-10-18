@@ -1399,6 +1399,13 @@ void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
   pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
   shortnames.push_back(mm->getShortname());
 
+  // Other data sources
+  map<QAction*, DataDialog*>::iterator it;
+  for (it = dialogs.begin(); it != dialogs.end(); ++it) {
+    diagstr = it->second->getOKString();
+    pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  }
+
   // label
   bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
   for(unsigned int i=0; i<vlabel.size(); i++){

@@ -59,6 +59,9 @@ public:
   /// Sets new command strings to be represented in the dialog.
   virtual void putOKString(const std::vector<miutil::miString>& vstr) = 0;
 
+public slots:
+  virtual void updateTimes() = 0;
+
 signals:
   void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &);
   void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &, bool);
@@ -67,8 +70,16 @@ signals:
   void showsource(const std::string, const std::string="");
 
 protected:
+  virtual void closeEvent(QCloseEvent *event);
+  QLayout *createStandardButtons();
+
   Controller *m_ctrl;
   QAction *m_action;
+  std::string helpFileName;
+
+private slots:
+  void applyhideClicked();
+  void helpClicked();
 };
 
 #endif

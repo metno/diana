@@ -402,7 +402,6 @@ public:
 #endif
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
-  void setDrawingModeEnabled(bool);
 
   bool useScrollwheelZoom();
 

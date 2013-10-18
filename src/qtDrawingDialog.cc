@@ -101,11 +101,16 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editor, SIGNAL(selectionChanged()), SLOT(updateItemList()));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
-  QHBoxLayout *layout = new QHBoxLayout(this);
+  QHBoxLayout *controlsLayout = new QHBoxLayout();
+  controlsLayout->setMargin(0);
+  controlsLayout->addWidget(itemList, 1);
+  controlsLayout->addLayout(buttonLayout);
+
+  QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(4);
-  layout->addWidget(itemList, 1);
-  layout->addLayout(buttonLayout);
+  layout->addLayout(controlsLayout);
   //layout->addWidget(editor->getUndoView());
+  layout->addLayout(createStandardButtons());
 
   setWindowTitle(tr("Drawing"));
 }
@@ -132,17 +137,42 @@ void DrawingDialog::updateDialog()
 
 std::vector<miutil::miString> DrawingDialog::getOKString()
 {
-  METLIBS_LOG_DEBUG("DrawingDialog::getOKString");
+  std::vector<miutil::miString> lines;
+
+  DrawingManager *drawm = DrawingManager::instance();
+  if (!drawm->isEnabled())
+    return lines;
+
+  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
+
+    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
+
+    QString type = listItem->data(0, Qt::DisplayRole).toString();
+    int group = listItem->data(0, Qt::UserRole).toInt();
+    QString time = listItem->data(1, Qt::DisplayRole).toString();
+    QVariantList vPoints = listItem->data(0, PointsRole).toList();
+    QStringList points;
+    foreach (QVariant v, vPoints) {
+      QPointF p = v.toPointF();
+      points.append(QString("%1,%2").arg(p.x()).arg(p.y()));
+    }
+
+    QString line = QString("DRAWING type=%1 group=%2 time=%3 polygon=%4").arg(type)
+        .arg(group).arg(time).arg(points.join(":"));
+    lines.push_back(line.toStdString());
+  }
+
+  return lines;
 }
 
 void DrawingDialog::putOKString(const vector<miutil::miString>& vstr)
 {
-  METLIBS_LOG_DEBUG("DrawingDialog::putOKString");
+  cerr << "*** DrawingDialog::putOKString" << endl;
 }
 
 void DrawingDialog::toggleDrawingMode(bool enable)
 {
-  m_ctrl->setDrawingModeEnabled(enable);
+  DrawingManager::instance()->setEnabled(enable);
 }
 
 void DrawingDialog::addItem(DrawingItemBase *item)
@@ -152,15 +182,20 @@ void DrawingDialog::addItem(DrawingItemBase *item)
       listItem->setText(0, tr("Area"));
   else
       listItem->setText(0, tr("Unknown"));
-  listItem->setData(0, Qt::UserRole, item->id());
-  listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("-")));
+  listItem->setData(0, IdRole, item->id());
+  listItem->setData(0, GroupRole, item->groupId());
+  listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("")));
+  QVariantList points;
+  foreach (QPointF p, item->getLatLonPoints())
+    points.append(QVariant(p));
+  listItem->setData(0, PointsRole, points);
   itemList->addTopLevelItem(listItem);
 }
 
 void DrawingDialog::removeItem(DrawingItemBase *item)
 {
   for (int i = 0; i < itemList->topLevelItemCount(); ++i)
-    if (itemList->topLevelItem(i)->data(0, Qt::UserRole).toInt() == item->id()) {
+    if (itemList->topLevelItem(i)->data(0, IdRole).toInt() == item->id()) {
       delete itemList->takeTopLevelItem(i);
       break;
     }
@@ -173,7 +208,7 @@ void DrawingDialog::updateSelection()
 {
   QSet<int> ids;
   foreach (QTreeWidgetItem *listItem, itemList->selectedItems()) {
-    ids.insert(listItem->data(0, Qt::UserRole).toInt());
+    ids.insert(listItem->data(0, IdRole).toInt());
   }
 
   EditItemManager *eim = EditItemManager::instance();
@@ -200,7 +235,7 @@ void DrawingDialog::updateItemList()
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
     // Select the item in the list to match the corresponding item on the map.
     QTreeWidgetItem *listItem = itemList->topLevelItem(i);
-    listItem->setSelected(ids.contains(listItem->data(0, Qt::UserRole).toInt()));
+    listItem->setSelected(ids.contains(listItem->data(0, IdRole).toInt()));
   }
 }
 
@@ -212,7 +247,7 @@ void DrawingDialog::updateItem(DrawingItemBase *item)
   // Refresh the columns for the corresponding list item.
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
     QTreeWidgetItem *listItem = itemList->topLevelItem(i);
-    if (listItem->data(0, Qt::UserRole).toInt() == item->id()) {
+    if (listItem->data(0, IdRole).toInt() == item->id()) {
       listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("-")));
     }
   }

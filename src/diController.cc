@@ -1088,13 +1088,6 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
   paintModeEnabled = pm_enabled;
 }
 
-void Controller::setDrawingModeEnabled(bool enable)
-{
-  Manager *drawm = getManager("DRAWING");
-  if (drawm)
-    drawm->setEnabled(enable);
-}
-
 bool Controller::useScrollwheelZoom() {
   return scrollwheelZoom;
 }

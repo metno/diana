@@ -299,6 +299,7 @@ void EditItemManager::addItem_(DrawingItemBase *item)
     items_.insert(Drawing(item));
     connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
+    item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
@@ -322,6 +323,7 @@ void EditItemManager::removeItem_(DrawingItemBase *item)
 
 void EditItemManager::initNewItem(DrawingItemBase *item)
 {
+/*
   // Use the current time for the new item.
   miutil::miTime time;
   PLOTM->getPlotTime(time);
@@ -331,7 +333,7 @@ void EditItemManager::initNewItem(DrawingItemBase *item)
     p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
 
   item->setProperties(p);
-
+*/
   // Let other components know about any changes to item times.
   emit timesUpdated();
 }
@@ -576,6 +578,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         // send move event to all selected items
         foreach (DrawingItemBase *item, selItems_) {
             Editing(item)->mouseMove(event, rpn);
+            item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
         }
     }
@@ -741,27 +744,6 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
 
 bool EditItemManager::changeProjection(const Area& newArea)
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-
-  Rectangle newPlotRect = PLOTM->getPlotSize();
-
-  // Obtain the items from the editor.
-
-  foreach (DrawingItemBase *item, items_) {
-
-    QList<QPointF> latLonPoints = getLatLonPoints(item);
-    QList<QPointF> points;
-
-    for (int i = 0; i < latLonPoints.size(); ++i) {
-      float x, y;
-      PLOTM->GeoToPhys(latLonPoints.at(i).x(), latLonPoints.at(i).y(), x, y, newArea, newPlotRect);
-      points.append(QPointF(x, y));
-    }
-
-    item->setPoints(points);
-  }
-
   return DrawingManager::changeProjection(newArea);
 }
 
@@ -786,8 +768,10 @@ void EditItemManager::plot(bool under, bool over)
             modes |= EditItemBase::Selected;
         if (item == Drawing(hoverItem_))
             modes |= EditItemBase::Hovered;
-        if (item->properties().value("visible", true).toBool())
+        if (item->properties().value("visible", true).toBool()) {
+            setFromLatLonPoints(item, item->getLatLonPoints());
             Editing(item)->draw(modes, false);
+        }
     }
     if (incompleteItem_) // note that only complete items may be selected
         incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
@@ -1178,34 +1162,17 @@ void AddOrRemoveItemsCommand::redo()
 SetGeometryCommand::SetGeometryCommand(
     EditItemBase *item, const QList<QPointF> &oldGeometry, const QList<QPointF> &newGeometry)
     : item_(item)
-    , oldGeometry_(oldGeometry)
-    , newGeometry_(newGeometry)
-{}
+{
+    oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry);
+    newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry);
+}
 
 void SetGeometryCommand::undo()
 {
-    // Store the new points as geographic coordinates for later redo if necessary.
-    if (newLatLonPoints_.isEmpty())
-        newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry_);
-
-    // Retrieve the old points, if present, and convert them to screen coordinates.
-    if (!oldLatLonPoints_.isEmpty())
-        oldGeometry_ = EditItemManager::instance()->GeoToPhys(oldLatLonPoints_);
-
-    Drawing(item_)->setPoints(oldGeometry_);
+    Drawing(item_)->setLatLonPoints(oldLatLonPoints_);
 }
 
 void SetGeometryCommand::redo()
 {
-    // Store the old points as geographic coordinates for later undo if necessary.
-    if (oldLatLonPoints_.isEmpty())
-        oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry_);
-
-    // Retrieve the new points, if present, and convert them to screen coordinates.
-    if (!newLatLonPoints_.isEmpty())
-        newGeometry_ = EditItemManager::instance()->GeoToPhys(newLatLonPoints_);
-    else
-        newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry_);
-
-    Drawing(item_)->setPoints(newGeometry_);
+    Drawing(item_)->setLatLonPoints(newLatLonPoints_);
 }

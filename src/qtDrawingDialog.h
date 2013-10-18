@@ -31,6 +31,7 @@
 #ifndef _drawingdialog_h
 #define _drawingdialog_h
 
+#include <qnamespace.h>
 #include "EditItems/edititembase.h"
 #include "qtDataDialog.h"
 
@@ -39,6 +40,12 @@ class DrawingDialog : public DataDialog
   Q_OBJECT
 
 public:
+  enum ItemRole {
+    IdRole = Qt::UserRole,
+    GroupRole = Qt::UserRole + 1,
+    PointsRole = Qt::UserRole + 2
+  };
+
   DrawingDialog(QWidget *parent, Controller *ctrl);
   ~DrawingDialog();
 

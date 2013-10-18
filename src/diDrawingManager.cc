@@ -106,6 +106,10 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     // Skip the first piece ("DRAWING").
     pieces.pop_front();
 
+    QDateTime time;
+    int group = -1;
+    QList<QPointF> polygon;
+
     foreach (QString piece, pieces) {
       // Split each word into a key=value pair.
       QStringList wordPieces = piece.split("=");
@@ -115,8 +119,27 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       }
       QString key = wordPieces[0];
       QString value = wordPieces[1];
-      if (key == "file")
+      if (key == "file") {
         loadItemsFromFile(value);
+        break;
+      } else if (key == "time") {
+        time = QDateTime::fromString(value, "yyyy-MM-dd hh:mm:ss");
+      } else if (key == "group") {
+        group = value.toInt();
+      } else if (key == "polygon") {
+        QStringList pieces = value.split(":");
+        foreach (QString piece, pieces) {
+          QStringList coordinates = piece.split(",");
+          if (coordinates.size() != 2)
+            METLIBS_LOG_WARN("Invalid point in coordinate list for object: " << piece.toStdString());
+          else
+            polygon.append(QPointF(coordinates[0].toDouble(), coordinates[1].toDouble()));
+        }
+      }
+    }
+
+    if (!polygon.isEmpty()) {
+      
     }
   }
 
