@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -57,10 +57,10 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
   if (!menufile){
     if(newSyntax){
       METLIBS_LOG_WARN("QuickMenu Warning: Old syntax in quick-menu file:"
-	    << filename);
+          << filename);
     }else {
       METLIBS_LOG_WARN("QuickMenu Error: Could not write quick-menu file:"
-	    << filename);
+          << filename);
     }
     return false;
   }
@@ -132,7 +132,7 @@ bool readQuickMenu(quickMenu& qm)
 
   if (!menufile){ // menufile not ok
     METLIBS_LOG_WARN("QuickMenu Warning: Could not open quickmenu file "
-	 << filename);
+        << filename);
     return false;
   }
 
@@ -146,29 +146,29 @@ bool readQuickMenu(quickMenu& qm)
     if (line[0]=='"'){
       // name of quickmenu
       if (line[line.length()-1]=='"')
-	qm.name = line.substr(1,line.length()-2);
+        qm.name = line.substr(1,line.length()-2);
       else
-	qm.name = line.substr(1,line.length()-1);
+        qm.name = line.substr(1,line.length()-1);
 
     } else if (line[0]=='['){
       // variable/options
       if (line[line.length()-1]==']')
-	line = line.substr(1,line.length()-2);
+        line = line.substr(1,line.length()-2);
       else
-	line = line.substr(1,line.length()-1);
+        line = line.substr(1,line.length()-1);
       tokens= line.split("=");
       if (tokens.size()>1){
-	op.key= tokens[0];
-	value= tokens[1];
-	op.options= value.split(",");
-	op.def= (op.options.size()>0 ? op.options[0] : "");
-	// add a new option
-	qm.opt.push_back(op);
+        op.key= tokens[0];
+        value= tokens[1];
+        op.options= value.split(",",false); //Do not skip blank enteries
+        op.def= (op.options.size()>0 ? op.options[0] : "");
+        // add a new option
+        qm.opt.push_back(op);
       } else {
-	METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file "
-	       << filename);
-	menufile.close();
-	return false;
+        METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file "
+            << filename);
+        menufile.close();
+        return false;
       }
     } else if (line[0]=='>'){
       // new menuitem
@@ -179,13 +179,13 @@ bool readQuickMenu(quickMenu& qm)
     } else {
       // commands
       if (numitems>0) {
-	updates += updateSyntax(line);
-	qm.menuitems[numitems-1].command.push_back(line);
+        updates += updateSyntax(line);
+        qm.menuitems[numitems-1].command.push_back(line);
       } else {
-	METLIBS_LOG_ERROR("QuickMenu Error: command line without defined menuitem in file:"
-	       << filename);
-	menufile.close();
-	return false;
+        METLIBS_LOG_ERROR("QuickMenu Error: command line without defined menuitem in file:"
+            << filename);
+        menufile.close();
+        return false;
       }
     }
   }
