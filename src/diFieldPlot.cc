@@ -3340,91 +3340,48 @@ void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
   //glLineWidth(1);
   glLineWidth(poptions.linewidth);
 
-  bool drawx1=true, drawx2=true, drawy1=true, drawy2=true;
-  int ix,iy,ixstep,iystep;
-  float x1,x2,y1,y2,dx,dy,dxm,dym;
-  ixstep= (nx>10) ? nx/10 : 1;
-  iystep= (ny>10) ? ny/10 : 1;
+  int ix, iy;
 
+  glBegin(GL_LINE_STRIP);
   iy=0;
-  x1=x2=x[iy*nx];
-  y1=y2=y[iy*nx];
-  for (int ix=0; ix<nx; ix+=ixstep) {
-    if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
-    if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
-    if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
-    if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
+  for (ix=0; ix<nx; ix++) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
   }
-  drawy1= (x1<x2 || y1<y2);
+  glEnd();
 
+
+  glBegin(GL_LINE_STRIP);
+  ix=nx-1;
+  for (iy=1; iy<ny; iy++) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
+    }
+  }
+  glEnd();
+
+  glBegin(GL_LINE_STRIP);
   iy=ny-1;
-  x1=x2=x[iy*nx];
-  y1=y2=y[iy*nx];
-  for (int ix=0; ix<nx; ix+=ixstep) {
-    if (x1>x[iy*nx+ix]) x1= x[iy*nx+ix];
-    if (x2<x[iy*nx+ix]) x2= x[iy*nx+ix];
-    if (y1>y[iy*nx+ix]) y1= y[iy*nx+ix];
-    if (y2<y[iy*nx+ix]) y2= y[iy*nx+ix];
-  }
-  drawy2= (x1<x2-0.01 || y1<y2-0.01);
-
-  dxm= 0.;
-  dym= 0.;
-  for (int iy=0; iy<ny; iy+=iystep) {
-    dx= fabsf(x[iy*nx]-x[iy*nx+nx-1]);
-    dy= fabsf(y[iy*nx]-y[iy*nx+nx-1]);
-    if (dxm<dx) dxm= dx;
-    if (dym<dy) dym= dy;
-  }
-  drawx1= drawx2= (dxm>0.01 || dym>0.01);
-
-  if (drawy1) {
-    glBegin(GL_LINE_STRIP);
-    iy=0;
-    for (ix=0; ix<nx; ix++) {
-      int i=iy*nx+ix;
-      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-        glVertex2f(x[i], y[i]);
-      }
+  for (ix=nx-1; ix>=0; ix--) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
     }
-    glEnd();
   }
+  glEnd();
 
-  if (drawx2) {
-    glBegin(GL_LINE_STRIP);
-    ix=nx-1;
-    for (iy=1; iy<ny; iy++) {
-      int i=iy*nx+ix;
-      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-        glVertex2f(x[i], y[i]);
-      }
+  glBegin(GL_LINE_STRIP);
+  ix=0;
+  for (iy=ny-1; iy>0; iy--) {
+    int i=iy*nx+ix;
+    if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
+      glVertex2f(x[i], y[i]);
     }
-    glEnd();
   }
-
-  if (drawy2) {
-    glBegin(GL_LINE_STRIP);
-    iy=ny-1;
-    for (ix=nx-1; ix>=0; ix--) {
-      int i=iy*nx+ix;
-      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-        glVertex2f(x[i], y[i]);
-      }
-    }
-    glEnd();
-  }
-
-  if (drawx1) {
-    glBegin(GL_LINE_STRIP);
-    ix=0;
-    for (iy=ny-1; iy>0; iy--) {
-      int i=iy*nx+ix;
-      if( x[i]!=HUGE_VAL && y[i]!=HUGE_VAL ){
-        glVertex2f(x[i], y[i]);
-      }
-    }
-    glEnd();
-  }
+  glEnd();
 
   // glDisable(GL_LINE_STIPPLE);
 
