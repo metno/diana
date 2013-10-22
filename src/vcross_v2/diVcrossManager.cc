@@ -103,7 +103,6 @@ void VcrossManager::cleanup()
   plotTime = -1;
   timeGraphPos = -1;
 
-  usedModels.clear();
   selected.clear();
   selectedLabel.clear();
 
@@ -690,12 +689,11 @@ void VcrossManager::fillLocationData(LocationData& ld)
 
   std::ostringstream annot;
   annot << "Vertikalsnitt";
-  BOOST_FOREACH(const std::string& m, usedModels) {
-    annot << ' ' << m;
-  }
   
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
+    annot << ' ' << select.model;
+
     VcrossSource* vcs = getVcrossSource(select.model);
     if (not vcs)
       continue;
@@ -829,7 +827,7 @@ bool VcrossManager::setModels()
 
   std::set<std::string> csnames;
   std::set<miutil::miTime> times;
-  usedModels.clear();
+  std::set<std::string> usedModels;
 
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
@@ -851,7 +849,7 @@ bool VcrossManager::setModels()
     METLIBS_LOG_DEBUG("no times or crossections");
     plotCrossection = -1;
     plotTime = -1;
-    return false;
+    return not (nameList.empty() and timeList.empty());
   }
 
   setTimeToBestMatch(timeBefore);

@@ -177,8 +177,6 @@ private:
   times_t timeList;
   int plotTime; //! timeList index of current plot time
 
-  std::set<std::string> usedModels;
-
   printOptions printoptions;
   bool hardcopy;
   bool hardcopystarted;
