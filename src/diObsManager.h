@@ -135,16 +135,13 @@ private:
   ObsPositions obsPositions;
 
   //HQC - perhaps its own class?
-  vector<ObsData> hqcdata;
-  vector<miutil::miString> hqc_synop_parameter;
+  std::vector<ObsData> hqcdata;
+  std::vector<std::string> hqc_synop_parameter;
   miutil::miTime hqcTime;
-  miutil::miString hqcFlag;
-  miutil::miString hqcFlag_old;
+  std::string hqcFlag;
+  std::string hqcFlag_old;
   int hqc_from;
-  miutil::miString hqcPlotType;
-  miutil::miString hqc_mark;
-  miutil::miString selectedStation;
-  //  miutil::miString obsdataType;
+  std::string selectedStation;
   //--------------------------------------
 
   bool addStationsAndTimeFromMetaData( const miutil::miString& metaData, miutil::miString& url, const miutil::miTime& time);
@@ -198,20 +195,18 @@ public:
   void calc_obs_mslp(const vector<ObsPlot*> oplot);
   void archiveMode( bool on ){useArchive=on;}
 //  HQC
-  ObsDialogInfo updateHqcDialog(const miutil::miString& plotType);
+  ObsDialogInfo updateHqcDialog(const std::string& plotType);
   bool initHqcdata(int from, 
-		   const std::string& commondesc,
-		   const std::string& common,
-		   const std::string& desc,
-		   const vector<std::string>&data);
+		   const std::string& commondesc, const std::string& common,
+		   const std::string& desc, const std::vector<std::string>&data);
   bool updateHqcdata(const std::string& commondesc, const std::string& common,
-		     const std::string& desc, const vector<std::string>&data);
+		     const std::string& desc, const std::vector<std::string>&data);
   bool sendHqcdata(ObsPlot* oplot);
-  void processHqcCommand(const miutil::miString&, const miutil::miString&);
+  void processHqcCommand(const std::string&, const std::string&);
   // Added for automatic updates
   bool timeListChanged;
 
-  map<miutil::miString,ProdInfo> getProductsInfo() const;
+  std::map<miutil::miString,ProdInfo> getProductsInfo() const;
 };
 
 #endif
