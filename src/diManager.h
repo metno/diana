@@ -63,12 +63,15 @@ public:
 
   virtual bool isEnabled() const;
   virtual void setEnabled(bool enable);
+  virtual bool isEditing() const;
+  virtual void setEditing(bool enable);
 
 signals:
   void timesUpdated();
 
 private:
   bool enabled;
+  bool editing;
 };
 
 #endif

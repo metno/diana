@@ -550,7 +550,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     if (!(me->modifiers() & Qt::ShiftModifier)) {
       map<string,Manager*>::iterator it = plotm->managers.begin();
       while (it != plotm->managers.end()) {
-        if (it->second->isEnabled()) {
+        if (it->second->isEditing()) {
           it->second->sendMouseEvent(me, res);
           if (me->isAccepted())
             handled = true;
@@ -680,7 +680,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   } else {
     map<string,Manager*>::iterator it = plotm->managers.begin();
     while (it != plotm->managers.end()) {
-      if (it->second->isEnabled()) {
+      if (it->second->isEditing()) {
         it->second->sendKeyboardEvent(ke, res);
         break;
       }

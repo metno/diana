@@ -255,6 +255,11 @@ EditItemManager *EditItemManager::instance()
   return EditItemManager::self;
 }
 
+bool EditItemManager::isEnabled() const
+{
+  return isEditing() | DrawingManager::isEnabled();
+}
+
 QUndoView *EditItemManager::getUndoView()
 {
     if (!undoView_)
@@ -296,10 +301,10 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete)
 
 void EditItemManager::addItem_(DrawingItemBase *item)
 {
-    items_.insert(Drawing(item));
+    DrawingManager::addItem_(item);
+
     connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
-    item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
@@ -315,7 +320,9 @@ void EditItemManager::removeItem(DrawingItemBase *item)
 
 void EditItemManager::removeItem_(DrawingItemBase *item)
 {
-    items_.remove(Drawing(item));
+    DrawingManager::removeItem_(item);
+    if (Drawing(hoverItem_) == item)
+      hoverItem_ = 0;
     disconnect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     deselectItem(item);
     emit itemRemoved(item);
@@ -752,32 +759,35 @@ void EditItemManager::plot(bool under, bool over)
     if (!under)
         return;
 
-    // Apply a transformation so that the items can be plotted with screen coordinates
-    // while everything else is plotted in map coordinates.
-    glPushMatrix();
-    plotRect = PLOTM->getPlotSize();
-    int w, h;
-    PLOTM->getPlotWindow(w, h);
-    glTranslatef(editRect.x1, editRect.y1, 0.0);
-    glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+    if (isEditing()) {
+        // Apply a transformation so that the items can be plotted with screen coordinates
+        // while everything else is plotted in map coordinates.
+        glPushMatrix();
+        plotRect = PLOTM->getPlotSize();
+        int w, h;
+        PLOTM->getPlotWindow(w, h);
+        glTranslatef(editRect.x1, editRect.y1, 0.0);
+        glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-    Q_ASSERT(!items_.contains(incompleteItem_));
-    foreach (DrawingItemBase *item, items_) {
-        EditItemBase::DrawModes modes = EditItemBase::Normal;
-        if (selItems_.contains(item))
-            modes |= EditItemBase::Selected;
-        if (item == Drawing(hoverItem_))
-            modes |= EditItemBase::Hovered;
-        if (item->properties().value("visible", true).toBool()) {
-            setFromLatLonPoints(item, item->getLatLonPoints());
-            Editing(item)->draw(modes, false);
+        Q_ASSERT(!items_.contains(incompleteItem_));
+        foreach (DrawingItemBase *item, items_) {
+            EditItemBase::DrawModes modes = EditItemBase::Normal;
+            if (selItems_.contains(item))
+                modes |= EditItemBase::Selected;
+            if (item == Drawing(hoverItem_))
+                modes |= EditItemBase::Hovered;
+            if (item->property("visible", true).toBool()) {
+                setFromLatLonPoints(item, item->getLatLonPoints());
+                Editing(item)->draw(modes, false);
+            }
         }
-    }
-    if (incompleteItem_) // note that only complete items may be selected
-        incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
-    emit paintDone();
+        if (incompleteItem_) // note that only complete items may be selected
+            incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
+        emit paintDone();
 
-    glPopMatrix();
+        glPopMatrix();
+    } else
+        DrawingManager::plot(under, over);
 }
 
 void EditItemManager::undo()
@@ -820,8 +830,7 @@ QSet<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos) const
 {
     QSet<DrawingItemBase *> hitItems;
     foreach (DrawingItemBase *item, items_) {
-        QVariantMap p = item->properties();
-        if (!p.contains("visible") || p.value("visible").toBool() == false)
+        if (item->property("visible", false).toBool() == false)
             continue;
         if (Editing(item)->hit(pos, selItems_.contains(item)))
             hitItems.insert(item);
@@ -901,6 +910,27 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
 void EditItemManager::editItems()
 {
     editItemProperties(getSelectedItems());
+}
+
+DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  DrawingItemBase *item = 0;
+  *error = QString();
+  if (vmap.value("type").toString().endsWith("WeatherArea")) {
+    DrawingItemBase *area = new EditItem_WeatherArea::WeatherArea();
+    item = area;
+  } else {
+    *error = QString("unsupported item type: %1, expected %2")
+        .arg(vmap.value("type").toString()).arg("WeatherArea");
+  }
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(item, item->getLatLonPoints());
+  }
+  return item;
 }
 
 void EditItemManager::loadItems()
@@ -1008,7 +1038,7 @@ void EditItemManager::pasteItems()
 
     foreach (QVariant cbItem, cbItems) {
       QString error;
-      EditItemBase *item = EditItemBase::createItemFromVarMap(cbItem.toMap(), &error);
+      EditItemBase *item = Editing(createItemFromVarMap(cbItem.toMap(), &error));
       if (item)
         addItem(item, false);
       else

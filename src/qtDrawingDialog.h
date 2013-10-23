@@ -40,10 +40,8 @@ class DrawingDialog : public DataDialog
   Q_OBJECT
 
 public:
-  enum ItemRole {
+  enum ItemRoles {
     IdRole = Qt::UserRole,
-    GroupRole = Qt::UserRole + 1,
-    PointsRole = Qt::UserRole + 2
   };
 
   DrawingDialog(QWidget *parent, Controller *ctrl);
@@ -68,6 +66,8 @@ private slots:
 private:
   Controller *ctrl;
   QTreeWidget *itemList;
+  QHash<int, QTreeWidgetItem *> listItemHash;
+  QHash<int, DrawingItemBase *> itemHash;
 };
 
 #endif

@@ -109,8 +109,6 @@ public:
     virtual QVariantMap clipboardVarMap() const;
     virtual QString clipboardPlainText() const;
 
-    static EditItemBase *createItemFromVarMap(const QVariantMap &, QString *);
-
 protected:
     EditItemBase();
 

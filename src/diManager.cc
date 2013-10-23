@@ -32,7 +32,7 @@
 #include "diManager.h"
 
 Manager::Manager()
-    : enabled(false)
+    : enabled(false), editing(false)
 {
 }
 
@@ -49,3 +49,14 @@ void Manager::setEnabled(bool enable)
 {
   enabled = enable;
 }
+
+bool Manager::isEditing() const
+{
+  return editing;
+}
+
+void Manager::setEditing(bool enable)
+{
+  editing = enable;
+}
+

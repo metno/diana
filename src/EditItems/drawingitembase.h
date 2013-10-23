@@ -52,6 +52,8 @@ public:
 
   virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
+  QVariant property(const QString &name, const QVariant &default_ = QVariant()) const;
+  void setProperty(const QString &name, const QVariant &value);
   // Returns the item's properties.
   QVariantMap properties() const;
   QVariantMap &propertiesRef();

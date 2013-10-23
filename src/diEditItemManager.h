@@ -124,6 +124,7 @@ public:
     void retrieveItems(const QSet<DrawingItemBase *> &);
 
     static EditItemManager *instance();
+    virtual bool isEnabled() const;
 
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
     void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
@@ -167,6 +168,11 @@ signals:
     void itemRemoved(DrawingItemBase *);
     void timesUpdated();
 
+protected:
+    virtual void addItem_(DrawingItemBase *);
+    virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &, QString *);
+    virtual void removeItem_(DrawingItemBase *item);
+
 private slots:
     void initNewItem(DrawingItemBase *item);
 
@@ -187,7 +193,6 @@ private:
     QAction* undoAction;
     QAction* redoAction;
 
-    void addItem_(DrawingItemBase *);
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
     void incompleteMouseMove(QMouseEvent *);
@@ -197,7 +202,6 @@ private:
     void pushCommands(QSet<DrawingItemBase *> addedItems,
                       QSet<DrawingItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
-    void removeItem_(DrawingItemBase *item);
 
     // Clipboard operations
     void copyItems(const QSet<DrawingItemBase *> &);

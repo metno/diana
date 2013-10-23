@@ -50,6 +50,8 @@ public:
   virtual ~DataDialog();
 
   virtual QAction *action() const;
+  /// Returns the name of the data source that the dialog displays. This should
+  /// be the same as the name used by the corresponding manager.
   virtual std::string name() const = 0;
 
   /// Update the dialog after re-reading the setup file.

@@ -64,46 +64,6 @@ WeatherArea::WeatherArea()
     color_.setBlue(0);
 }
 
-WeatherArea::WeatherArea(const QVariantMap &vmap, QString *error)
-{
-  init();
-
-  *error = QString();
-
-  // verify type
-  if (vmap.value("type").toString() != "EditItem_WeatherArea::WeatherArea") {
-    *error = QString("invalid type: %1, expected %2")
-        .arg(vmap.value("type").toString()).arg("EditItem_WeatherArea::WeatherArea");
-    return;
-  }
-
-  // set any properties
-  if (vmap.contains("properties")) {
-    if (!vmap.value("properties").canConvert(QVariant::Map)) {
-      *error = QString("invalid properties type: %1, expected %2")
-          .arg(vmap.value("properties").typeName()).arg("QVariantMap");
-      return;
-    }
-    setProperties(vmap.value("properties").toMap());
-  }
-
-  // set points
-  if (!vmap.contains("points")) {
-    *error = QString("no points found");
-    return;
-  }
-  if (!vmap.value("points").canConvert(QVariant::List)) {
-    *error = QString("invalid points type: %1, expected %2")
-        .arg(vmap.value("points").typeName()).arg("QVariantList");
-    return;
-  }
-  const QVariantList vpoints = vmap.value("points").toList();
-  QList<QPointF> points;
-  foreach (QVariant vpoint, vpoints)
-    points.append(vpoint.toPointF());
-  setPoints(DrawingManager::instance()->GeoToPhys(points));
-}
-
 WeatherArea::~WeatherArea()
 {
 }

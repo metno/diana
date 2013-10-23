@@ -478,6 +478,7 @@ private:
                       vector<miutil::miString> &shortnames);
 
   map<QAction*, DataDialog*> dialogs;
+  map<std::string, DataDialog*> dialogNames;
 
 // Profet methods
   bool initProfet();

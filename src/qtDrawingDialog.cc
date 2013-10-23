@@ -50,6 +50,7 @@
 DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
 {
+  // Create an action that can be used to open the dialog from within a menu or toolbar.
   m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
   m_action->setShortcutContext(Qt::ApplicationShortcut);
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
@@ -57,6 +58,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
+  // Add buttons for each of the actions exposed by the editor.
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
   QToolButton *cutButton = new QToolButton();
   cutButton->setDefaultAction(actions[EditItemManager::Cut]);
@@ -121,7 +123,7 @@ DrawingDialog::~DrawingDialog()
 
 std::string DrawingDialog::name() const
 {
-  return "DrawingDialog";
+  return "DRAWING";
 }
 
 void DrawingDialog::updateTimes()
@@ -132,7 +134,6 @@ void DrawingDialog::updateTimes()
 
 void DrawingDialog::updateDialog()
 {
-  METLIBS_LOG_DEBUG("DrawingDialog::updateDialog");
 }
 
 std::vector<miutil::miString> DrawingDialog::getOKString()
@@ -140,24 +141,23 @@ std::vector<miutil::miString> DrawingDialog::getOKString()
   std::vector<miutil::miString> lines;
 
   DrawingManager *drawm = DrawingManager::instance();
-  if (!drawm->isEnabled())
-    return lines;
+  //if (!drawm->isEnabled())
+  //  return lines;
 
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
 
     QTreeWidgetItem *listItem = itemList->topLevelItem(i);
+    int id = listItem->data(0, IdRole).toInt();
+    DrawingItemBase *item = itemHash[id];
 
     QString type = listItem->data(0, Qt::DisplayRole).toString();
-    int group = listItem->data(0, Qt::UserRole).toInt();
-    QString time = listItem->data(1, Qt::DisplayRole).toString();
-    QVariantList vPoints = listItem->data(0, PointsRole).toList();
+    int group = item->groupId();
+    QString time = item->property("time", "").toString();
     QStringList points;
-    foreach (QVariant v, vPoints) {
-      QPointF p = v.toPointF();
+    foreach (QPointF p, item->getLatLonPoints())
       points.append(QString("%1,%2").arg(p.x()).arg(p.y()));
-    }
 
-    QString line = QString("DRAWING type=%1 group=%2 time=%3 polygon=%4").arg(type)
+    QString line = QString("DRAWING type=%1 group=%2 time=%3 points=%4").arg(type)
         .arg(group).arg(time).arg(points.join(":"));
     lines.push_back(line.toStdString());
   }
@@ -165,40 +165,39 @@ std::vector<miutil::miString> DrawingDialog::getOKString()
   return lines;
 }
 
-void DrawingDialog::putOKString(const vector<miutil::miString>& vstr)
+void DrawingDialog::putOKString(const std::vector<miutil::miString>& vstr)
 {
-  cerr << "*** DrawingDialog::putOKString" << endl;
+  // Submit the lines as new input.
+  std::vector<std::string> inp;
+  inp.insert(inp.begin(), vstr.begin(), vstr.end());
+  DrawingManager::instance()->processInput(inp);
 }
 
 void DrawingDialog::toggleDrawingMode(bool enable)
 {
-  DrawingManager::instance()->setEnabled(enable);
+  EditItemManager::instance()->setEditing(enable);
 }
 
 void DrawingDialog::addItem(DrawingItemBase *item)
 {
   QTreeWidgetItem *listItem = new QTreeWidgetItem();
   if (static_cast<EditItem_WeatherArea::WeatherArea*>(item))
-      listItem->setText(0, tr("Area"));
+      listItem->setText(0, tr("WeatherArea"));
   else
       listItem->setText(0, tr("Unknown"));
   listItem->setData(0, IdRole, item->id());
-  listItem->setData(0, GroupRole, item->groupId());
-  listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("")));
-  QVariantList points;
-  foreach (QPointF p, item->getLatLonPoints())
-    points.append(QVariant(p));
-  listItem->setData(0, PointsRole, points);
+  listItem->setData(1, Qt::DisplayRole, item->property("time", ""));
   itemList->addTopLevelItem(listItem);
+  listItemHash[item->id()] = listItem;
+  itemHash[item->id()] = item;
 }
 
 void DrawingDialog::removeItem(DrawingItemBase *item)
 {
-  for (int i = 0; i < itemList->topLevelItemCount(); ++i)
-    if (itemList->topLevelItem(i)->data(0, IdRole).toInt() == item->id()) {
-      delete itemList->takeTopLevelItem(i);
-      break;
-    }
+  int i = itemList->indexOfTopLevelItem(listItemHash[item->id()]);
+  delete itemList->takeTopLevelItem(i);
+  listItemHash.remove(item->id());
+  itemHash.remove(item->id());
 }
 
 /**
@@ -245,10 +244,6 @@ void DrawingDialog::updateItemList()
 void DrawingDialog::updateItem(DrawingItemBase *item)
 {
   // Refresh the columns for the corresponding list item.
-  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
-    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
-    if (listItem->data(0, IdRole).toInt() == item->id()) {
-      listItem->setData(1, Qt::DisplayRole, item->properties().value("time", QVariant("-")));
-    }
-  }
+  QTreeWidgetItem *listItem = listItemHash[item->id()];
+  listItem->setData(1, Qt::DisplayRole, item->property("time", ""));
 }

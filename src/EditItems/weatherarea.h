@@ -47,7 +47,6 @@ class WeatherArea : public EditItemBase, public DrawingItem_WeatherArea::Weather
     friend class SetGeometryCommand;
 public:
     WeatherArea();
-    WeatherArea(const QVariantMap &, QString *);
     virtual ~WeatherArea();
 
     EditItemBase *copy() const;

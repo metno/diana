@@ -44,6 +44,7 @@
 #include <QPointF>
 #include <QSet>
 #include <QString>
+#include <QVariantMap>
 
 using namespace std;
 
@@ -75,7 +76,7 @@ public:
   virtual bool changeProjection(const Area& newArea);
   bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
-  bool processInput(const std::vector<std::string>& inp);
+  virtual bool processInput(const std::vector<std::string>& inp);
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
@@ -90,7 +91,10 @@ public:
   static DrawingManager *instance();
 
 protected:
+  virtual void addItem_(DrawingItemBase *);
+  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &, QString *);
   virtual void loadItemsFromFile(const QString &fileName);
+  virtual void removeItem_(DrawingItemBase *item);
 
   Rectangle plotRect;
   Rectangle editRect;

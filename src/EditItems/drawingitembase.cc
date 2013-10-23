@@ -62,6 +62,19 @@ int DrawingItemBase::groupId() const
     return gid;
 }
 
+QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const
+{
+  if (properties_.contains(name))
+    return properties_.value(name);
+  else
+    return default_;
+}
+
+void DrawingItemBase::setProperty(const QString &name, const QVariant &value)
+{
+  properties_[name] = value;
+}
+
 QVariantMap DrawingItemBase::properties() const
 {
   return properties_;
@@ -75,6 +88,14 @@ QVariantMap &DrawingItemBase::propertiesRef()
 void DrawingItemBase::setProperties(const QVariantMap &properties)
 {
   properties_ = properties;
+  if (properties.contains("points")) {
+    QVariantList points = properties.value("points").toList();
+    points_.clear();
+    latLonPoints.clear();
+    foreach (QVariant v, points) {
+      latLonPoints.append(v.toPointF());
+    }
+  }
 }
 
 QList<QPointF> DrawingItemBase::getPoints() const
