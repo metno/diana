@@ -103,7 +103,6 @@ void VcrossManager::cleanup()
   plotTime = -1;
   timeGraphPos = -1;
 
-  usedModels.clear();
   selected.clear();
   selectedLabel.clear();
 
@@ -382,7 +381,7 @@ void VcrossManager::preparePlot()
 
   bool haveZaxis = false;
   VcrossData::ZAxis::Quantity zQuantity = VcrossData::ZAxis::PRESSURE;
-  if (false /*mOptions->plotPressure*/) {
+  if (true /*mOptions->plotPressure*/) {
     zQuantity = VcrossData::ZAxis::PRESSURE;
     mPlot->setVerticalAxis(zQuantity);
     haveZaxis = true;
@@ -397,49 +396,73 @@ void VcrossManager::preparePlot()
       continue;
 
     bool goodZaxis = true;
-    VcrossData::ZAxisPtr zax = data->parameters[arguments.front()].zAxis;
-    METLIBS_LOG_DEBUG(LOGVAL(arguments.front()) << (zax ? " have zax" : " no zax"));
+    const std::string& arg0_name = arguments.front();
+    const VcrossData::ParameterData& arg0 = data->parameters[arg0_name];
+    VcrossData::ZAxisPtr zax = arg0.zAxis;
+    METLIBS_LOG_DEBUG(LOGVAL(arg0_name) << (zax ? " have zax" : " no zax") << LOGVAL(arg0.unit));
     
     for (size_t a=1; goodZaxis and a<arguments.size(); ++a) {
       VcrossData::ZAxisPtr zax1 = data->parameters[arguments[a]].zAxis;
       METLIBS_LOG_DEBUG(LOGVAL(arguments[a]) << (zax1 ? " have zax1" : " no zax1"));
       goodZaxis &= (zax == zax1);
     }
-    if (not zax or not goodZaxis) {
+    if (not goodZaxis) {
       METLIBS_LOG_WARN("zaxis mismatch for plot '" << select.field << "'");
       continue;
     }
 
-    if (not haveZaxis) {
+    if (zax and not haveZaxis) {
       zQuantity = zax->quantity;
       mPlot->setVerticalAxis(zQuantity);
       haveZaxis = true;
     }
-    if (zax->quantity != zQuantity) {
+    if (not zax) {
+      METLIBS_LOG_DEBUG("1D data");
+      // create "z axis" containing the parameter values, possibly converted to HEIGHT/PRESSURE 
+      VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
+      zaxc->quantity = zQuantity;
+      zaxc->name = arg0_name + ":1d";
+      zaxc->mPoints = arg0.mPoints;
+      zaxc->mLevels = 1;
+      zaxc->alloc();
+      for (int p=0; p<zaxc->mPoints; ++p) {
+        const float a = arg0.value(0, p);
+        float c = a;
+        if (zQuantity == VcrossData::ZAxis::PRESSURE and arg0.unit == "m")
+          c = VcrossUtil::pressureFromHeight(a);
+        else if (zQuantity == VcrossData::ZAxis::HEIGHT and arg0.unit == "hPa")
+          c = VcrossUtil::heightFromPressure(a);
+        else if (zQuantity == VcrossData::ZAxis::HEIGHT and arg0.unit == "Pa")
+          c = VcrossUtil::heightFromPressure(a/100);
+        else if (zQuantity == VcrossData::ZAxis::PRESSURE and arg0.unit == "Pa")
+          c = a/100;
+        zaxc->setValue(0, p, c);
+      }
+      zax = zaxc;
+    } else if (zax->quantity != zQuantity) {
+      METLIBS_LOG_DEBUG("2D data, convert from " << zax->quantity << " to " << zQuantity);
       // convert z axis to zQuantity (HEIGHT/PRESSURE)
       VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
       zaxc->quantity = zQuantity;
       zaxc->name = zax->name + ":converted";
       zaxc->mPoints = zax->mPoints;
       zaxc->mLevels = zax->mLevels;
-      zaxc->mValues = boost::shared_array<float>(new float[zaxc->mPoints * zaxc->mLevels]);
-      if (zQuantity == VcrossData::ZAxis::PRESSURE and zax->quantity == VcrossData::ZAxis::HEIGHT) {
-        // convert from height to pressure
-        for (int l=0; l<zax->mLevels; ++l) {
-          for (int p=0; p<zax->mPoints; ++p) {
-            zaxc->setValue(l, p, VcrossUtil::pressureFromHeight(zax->value(l, p)));
-          }
-        }
-      } else if (zQuantity == VcrossData::ZAxis::HEIGHT and zax->quantity == VcrossData::ZAxis::PRESSURE) {
-        // convert from height to pressure
-        for (int l=0; l<zax->mLevels; ++l) {
-          for (int p=0; p<zax->mPoints; ++p) {
-            zaxc->setValue(l, p, VcrossUtil::heightFromPressure(zax->value(l, p)));
-          }
+      METLIBS_LOG_DEBUG(LOGVAL(zax->mPoints) << LOGVAL(zax->mLevels));
+      zaxc->alloc();
+      for (int l=0; l<zaxc->mLevels; ++l) {
+        for (int p=0; p<zaxc->mPoints; ++p) {
+          const float z = zax->value(l, p);
+          float c = z;
+          if (zQuantity == VcrossData::ZAxis::PRESSURE and zax->quantity == VcrossData::ZAxis::HEIGHT)
+            c = VcrossUtil::pressureFromHeight(z);
+          else if (zQuantity == VcrossData::ZAxis::HEIGHT and zax->quantity == VcrossData::ZAxis::PRESSURE)
+            c = VcrossUtil::heightFromPressure(z);
+          zaxc->setValue(l, p, c);
         }
       }
       zax = zaxc;
     }
+    METLIBS_LOG_DEBUG("end zax conversion");
 
     // add plots
     VcrossData::values_t p0, p1;
@@ -666,12 +689,11 @@ void VcrossManager::fillLocationData(LocationData& ld)
 
   std::ostringstream annot;
   annot << "Vertikalsnitt";
-  BOOST_FOREACH(const std::string& m, usedModels) {
-    annot << ' ' << m;
-  }
   
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
+    annot << ' ' << select.model;
+
     VcrossSource* vcs = getVcrossSource(select.model);
     if (not vcs)
       continue;
@@ -805,7 +827,7 @@ bool VcrossManager::setModels()
 
   std::set<std::string> csnames;
   std::set<miutil::miTime> times;
-  usedModels.clear();
+  std::set<std::string> usedModels;
 
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
@@ -827,7 +849,7 @@ bool VcrossManager::setModels()
     METLIBS_LOG_DEBUG("no times or crossections");
     plotCrossection = -1;
     plotTime = -1;
-    return false;
+    return not (nameList.empty() and timeList.empty());
   }
 
   setTimeToBestMatch(timeBefore);

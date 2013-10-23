@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -42,6 +40,7 @@
 #include <set>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/foreach.hpp>
 
 #ifdef METNOOBS
 #include <diObsSynop.h>
@@ -73,7 +72,17 @@
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
+
+namespace /* anonymous */ {
+std::vector<std::string> split_on_comma(const std::string& txt, const char* comma = ",")
+{
+  std::vector<std::string> s;
+  boost::algorithm::split(s, txt, boost::algorithm::is_any_of(comma));
+  return s;
+}
+} /* anonymous namespace */
 
 // #define DEBUGPRINT 1
 
@@ -177,10 +186,10 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
     //Annotations
     if( nFiles>0 ){  //if there are any files of this dataType
-      anno_str+=dataType[i].upcase();
-      anno_str+=" ";
-      //This will be used in the annnotation
-      if(!Prod[dataType[i]].synoptic ){
+      anno_str += miutil::to_upper(dataType[i]);
+      anno_str += " ";
+      // this will be used in the annnotation
+      if (!Prod[dataType[i]].synoptic) {
         anno_synoptic=false;
       }
     }
@@ -1312,17 +1321,14 @@ ObsDialogInfo ObsManager::initDialog()
 void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
     const vector<ObsFormat>& obsformat)
 {
-
   map<miString,ProdInfo>::iterator prbegin= Prod.begin();
   map<miString,ProdInfo>::iterator prend=   Prod.end();
   map<miString,ProdInfo>::iterator pr;
 
   int n = obsformat.size();
-  for( int i=0; i<n; i++){
-
+  for (int i=0; i<n; i++) {
     for (pr=prbegin; pr!=prend; pr++) {
       if (pr->second.obsformat==obsformat[i]) {
-
         ObsDialogInfo::DataType type;
         type.active.resize(dialogInfo.button.size(),false);
         setActive(pr->second.parameter,true,type.active,dialogInfo.button);
@@ -1331,22 +1337,19 @@ void ObsManager::addType(ObsDialogInfo::PlotType& dialogInfo,
       }
     }
   }
-
-
 }
 
 void ObsManager::setActive(const vector<miString>& name, bool on,
     vector<bool>& active,
     const vector<ObsDialogInfo::Button>& b)
 {
-
   int nname=name.size();
   unsigned int nr=b.size();
   if(active.size() != nr) return;
 
-  for( int j=0; j<nname; j++)
-    for(unsigned  int i=0; i<nr; i++)
-      if(name[j] == b[i].name){
+  for (int j=0; j<nname; j++)
+    for (unsigned int i=0; i<nr; i++)
+      if (name[j] == b[i].name) {
         active[i]=on;
         break;
       }
@@ -1357,7 +1360,6 @@ void ObsManager::setAllActive(ObsDialogInfo::PlotType& dialogInfo,
     const miString& name,
     const vector<ObsDialogInfo::Button>& b)
 {
-
   int n=b.size();
   int m=parameter.size();
   for( int j=0; j<m; j++)
@@ -1367,10 +1369,9 @@ void ObsManager::setAllActive(ObsDialogInfo::PlotType& dialogInfo,
       }
 
   ObsDialogInfo::DataType type;
-  type.name= name;
+  type.name = name;
   type.active.resize(dialogInfo.button.size(),true);
   dialogInfo.datatype.push_back(type);
-
 }
 
 ObsDialogInfo::Button  ObsManager::addButton(const miString& name,
@@ -1543,7 +1544,7 @@ delete roplot;
   return dialog;
 }
 
-ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
+ObsDialogInfo ObsManager::updateHqcDialog(const std::string& plotType)
 {
   // called each time initHqcData() is called
   //  METLIBS_LOG_DEBUG("updateHqcDialog");
@@ -1551,10 +1552,10 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   int nd= dialog.plottype.size();
   int id= 0;
   while (id<nd && dialog.plottype[id].name!=plotType) {
-    //    METLIBS_LOG_DEBUG(dialog.plottype[id].name);
     id++;
   }
-  if (id==nd) return dialog;
+  if (id == nd)
+    return dialog;
 
   //   miString oname= name.downcase();
 
@@ -1564,58 +1565,49 @@ ObsDialogInfo ObsManager::updateHqcDialog(const miString& plotType)
   //   if (pr->second.obsformat==ofmt_hqc) {
   dialog.plottype[id].button.clear();
   dialog.plottype[id].datatype[0].active.clear();
-  if(plotType == "Hqc_synop"){
+  if (plotType == "Hqc_synop"){
     int wind=0;
-    for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //        METLIBS_LOG_DEBUG("para: "<<hqc_synop_parameter[i]);
-      if(hqc_synop_parameter[i]=="dd" || hqc_synop_parameter[i]=="ff" ) {
+    BOOST_FOREACH(const std::string& p, hqc_synop_parameter) {
+      if (p=="dd" || p=="ff") {
         wind++;
         continue;
       }
-      if(hqc_synop_parameter[i]=="lon" )continue;
-      if(hqc_synop_parameter[i]=="lat")continue;
-      if(hqc_synop_parameter[i]=="auto")continue;
-      dialog.plottype[id].button.push_back
-      (addButton(hqc_synop_parameter[i]," ",0,0,true));
+      if (p == "lon" or p == "lat" or p == "auto")
+        continue;
+      dialog.plottype[id].button.push_back(addButton(p," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
-    if(wind==2){
-      dialog.plottype[id].button.push_back
-      (addButton("Wind"," ",0,0,true));
+    if (wind == 2) {
+      dialog.plottype[id].button.push_back(addButton("Wind"," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
-    if(dialog.plottype[id].button.size()){
-      dialog.plottype[id].button.push_back
-      (addButton("Flag"," ",0,0,true));
+    if (dialog.plottype[id].button.size()) {
+      dialog.plottype[id].button.push_back(addButton("Flag"," ",0,0,true));
       dialog.plottype[id].datatype[0].active.push_back(true);
     }
-  } else if( plotType == "Hqc_list"){
+  } else if (plotType == "Hqc_list") {
     int wind=0;
-    for(unsigned int i=0; i<hqc_synop_parameter.size(); i++){
-      //      METLIBS_LOG_DEBUG("para: "<<hqc_ascii_parameter[i]);
-      if(hqc_synop_parameter[i]=="DD" || hqc_synop_parameter[i]=="FF" ) wind++;
-      if(hqc_synop_parameter[i]=="auto")continue;
-      dialog.plottype[id].button.push_back
-      (addButton(hqc_synop_parameter[i]," ",0,0,true));
-      dialog.plottype[id].datatype[0].active.push_back(true);
-      if(wind==2){
-        wind=0;
-        dialog.plottype[id].button.push_back
-        (addButton("Wind"," ",0,0,true));
+    BOOST_FOREACH(const std::string& p, hqc_synop_parameter) {
+      if (p == "auto")
+        continue;
+      if (p == "DD" or p == "FF") {
+        wind++;
+      } else {
+        dialog.plottype[id].button.push_back(addButton(p," ",0,0,true));
+        dialog.plottype[id].datatype[0].active.push_back(true);
+      }
+      if (wind == 2) {
+        wind = 0;
+        dialog.plottype[id].button.push_back(addButton("Wind"," ",0,0,true));
         dialog.plottype[id].datatype[0].active.push_back(true);
       }
     }
   }
   return dialog;
-
-  //   }
-
-
 }
 
 void ObsManager::printProdInfo(const ProdInfo & pinfo)
 {
-
   unsigned int i;
   METLIBS_LOG_INFO("***** ProdInfo ******");
 #ifdef ROADOBS
@@ -2047,82 +2039,64 @@ bool ObsManager::parseSetup()
 }
 
 bool ObsManager::initHqcdata(int from,
-    const string& commondesc,
-    const string& common,
-    const string& desc,
-    const vector<string>& data)
-
+    const string& commondesc, const string& common,
+    const string& desc, const std::vector<std::string>& data)
 {
-  //  METLIBS_LOG_DEBUG("ObsManager::initHqc: "<<desc);
-
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(commondesc) << LOGVAL(common) << LOGVAL(desc));
 
   //   if(desc == "remove" && from != hqc_from)
   //     return false;
 
-  hqcPlotType.clear();
-
-  if(common == "remove") {
+  if (common == "remove") {
     hqcdata.clear();
     hqc_synop_parameter.clear();
     return true;
   }
 
-  if(desc == "time") {
+  if (desc == "time") {
     int n = data.size();
 
     Prod["hqc_synop"].fileInfo.clear();
     Prod["hqc_list"].fileInfo.clear();
 
-    for(int i=0;i<n;i++){
+    for (int i=0; i<n; i++) {
+      METLIBS_LOG_DEBUG("time = " << data[i]);
       FileInfo finfo;
       finfo.time = miTime(data[i]);
       Prod["hqc_synop"].fileInfo.push_back(finfo);
       Prod["hqc_list"].fileInfo.push_back(finfo);
     }
-    //    METLIBS_LOG_DEBUG("Prod[_synop].time.size():  "<<Prod["hqc_synop"].time.size());
     return true;
   }
 
 
   hqc_from = from;
-  vector<string> descstr;
-  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
-  vector<string> commonstr;
-  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
+  const std::vector<std::string> descstr = split_on_comma(commondesc), commonstr = split_on_comma(common);
   if(commonstr.size() != descstr.size()){
     METLIBS_LOG_ERROR("ObsManager::initHqcdata: different size of commondesc and common");
     return false;
   }
-  miString obsdataType;
-  if(common.find("synop") != std::string::npos)
-    obsdataType = "hqc_synop";
-  else
-    obsdataType = "hqc_list";
 
-  hqcdata.clear();
-  vector<string> hqc_synop_parameter;
-  boost::algorithm::split(hqc_synop_parameter, desc, boost::algorithm::is_any_of(","));
-
-  for(unsigned int i=0; i<descstr.size();i++){
-    string value = boost::algorithm::to_lower_copy(descstr[i]);
-    if(value=="time"){
+  for (size_t i=0; i<descstr.size(); i++){
+    const std::string value = miutil::to_lower(descstr[i]);
+    if (value == "time") {
       hqcTime = miTime(commonstr[i]);
-    } else if(value=="plottype"){
-      hqcPlotType = commonstr[i];
     }
   }
 
+  hqcdata.clear();
+  hqc_synop_parameter = split_on_comma(desc);
+  METLIBS_LOG_DEBUG(LOGVAL(desc) << LOGVAL(hqc_synop_parameter.size()));
+  BOOST_FOREACH(const std::string& d, data) {
+    const std::vector<std::string> tokens = split_on_comma(d);
 
-  int numStations = data.size();
-  for(int j=0; j<numStations; j++){
-    //    METLIBS_LOG_DEBUG(j<<":"<<data[j]);
-    vector<string> tokens;
-    boost::algorithm::split(tokens, data[j], boost::algorithm::is_any_of(","));
     ObsData obsd;
-    if( !changeHqcdata(obsd,hqc_synop_parameter,tokens)) return false;
+    if (!changeHqcdata(obsd, hqc_synop_parameter, tokens))
+      return false;
+
     hqcdata.push_back(obsd);
   }
-  //  METLIBS_LOG_DEBUG("returning from initHqcdata");
   return true;
 }
 
@@ -2135,7 +2109,6 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
   //  oplot->flaginfo=true;
   oplot->changeParamColour(hqcFlag_old,false);
   oplot->changeParamColour(hqcFlag,true);
-  //  oplot->mark_parameter = hqc_mark;
   if(oplot->setData()){
     miString time=hqcTime.format("%D %H%M");
     miString anno="Hqc " + time;
@@ -2148,207 +2121,142 @@ bool ObsManager::sendHqcdata(ObsPlot* oplot)
 
 Colour ObsManager::flag2colour(const miString& flag)
 {
-
   Colour col;
 
-  if(flag.contains("7") ||flag.contains("8") || flag.contains("9")){
+  if (flag.contains("7") || flag.contains("8") || flag.contains("9")) {
     col = Colour("red");
-
-  }else if(flag.contains("0") ||flag.contains("2") || flag.contains("3") ||
-      flag.contains("4") ||flag.contains("5") || flag.contains("6")) {
+  } else if(flag.contains("0") || flag.contains("2") || flag.contains("3") ||
+      flag.contains("4") || flag.contains("5") || flag.contains("6"))
+  {
     col = Colour("gulbrun");
-
-  }else {
+  } else {
     col = Colour("green3");
   }
 
   return col;
 }
 
-bool ObsManager::updateHqcdata(const string& commondesc,
-    const string& common,
-    const string& desc,
-    const vector<string>& data)
-
+bool ObsManager::updateHqcdata(const string& commondesc, const string& common,
+    const string& desc, const vector<string>& data)
 {
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(commondesc) << LOGVAL(common) << LOGVAL(desc));
 
-  //  METLIBS_LOG_DEBUG("updateHqcdata desc:"<<desc);
-  vector<string> descstr;
-  boost::algorithm::split(descstr, commondesc, boost::algorithm::is_any_of(","));
-  vector<string> commonstr;
-  boost::algorithm::split(commonstr, common, boost::algorithm::is_any_of(","));
-  if(commonstr.size() != descstr.size()){
-    METLIBS_LOG_ERROR("ObsManager::updateHqcdata: different size of commondesc and common");
+  const std::vector<std::string> descstr = split_on_comma(commondesc), commonstr = split_on_comma(common);
+  if (commonstr.size() != descstr.size()) {
+    METLIBS_LOG_ERROR("different size of commondesc and common");
     return false;
   }
-  miString plotType;
-  for(unsigned int i=0; i<descstr.size();i++){
-    string value = boost::algorithm::to_lower_copy(descstr[i]);
-    if ( value == "time" ) {
-      miTime t(commonstr[i]);
+
+  for (size_t i=0; i<descstr.size(); i++) {
+    const std::string value = boost::algorithm::to_lower_copy(descstr[i]);
+    if (value == "time") {
+      const miutil::miTime t(commonstr[i]);
       hqcTime = t;
       //  if( t != hqcTime ) return false; //time doesn't match
-    } else if ( value == "plottype" ) {
-      plotType = commonstr[i];
     }
   }
-  vector<string> param;
-  boost::algorithm::split(param, desc, boost::algorithm::is_any_of(","));
-  if( param.size() <2 ) return false;
-  //  METLIBS_LOG_DEBUG("data.size:"<<data.size());
-  for(unsigned int j=0; j<data.size(); j++){
-    vector<string> datastr;
-    boost::algorithm::split(datastr, data[j], boost::algorithm::is_any_of(","));
-    if( datastr.size() !=param.size() ) continue;
-    //find station
-    int i=0;
-    int n=hqcdata.size();
-    while(i<n && hqcdata[i].id != datastr[0])
-      i++;
-    if(i==n) continue; // station not found
-    if(!changeHqcdata(hqcdata[i],param,datastr)) return false;
+
+  const std::vector<std::string> param = split_on_comma(desc);
+  if (param.size() < 2)
+    return false;
+  
+  BOOST_FOREACH(const std::string& d, data) {
+    METLIBS_LOG_DEBUG(LOGVAL(d));
+    
+    const std::vector<std::string> datastr = split_on_comma(d);
+
+    // find station
+    size_t i;
+    for (i=0; i<hqcdata.size() && hqcdata[i].id != datastr[0]; ++i) { }
+    if (i == hqcdata.size())
+      continue; // station not found
+    METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(datastr[0]));
+
+    if (!changeHqcdata(hqcdata[i], param, datastr))
+      return false;
   }
   return true;
 }
 
-
-bool ObsManager::changeHqcdata(ObsData& odata,
-    const vector<string>& param,
-    const vector<string>& data)
+bool ObsManager::changeHqcdata(ObsData& odata, const vector<string>& param, const vector<string>& data)
 {
-  //  METLIBS_LOG_DEBUG("ObsManager::changeHqcdata");
-  if( param.size() != data.size() ) {
-    METLIBS_LOG_ERROR("No. of parameters: "<<param.size()<<" != no. of data: "
-    <<data.size());
+  METLIBS_LOG_SCOPE();
+  if (param.size() != data.size()) {
+    METLIBS_LOG_ERROR("No. of parameters: "<<param.size()<<" != no. of data: " <<data.size());
     return false;
   }
 
-  for(unsigned int i=0; i<param.size(); i++){
-    //     METLIBS_LOG_DEBUG("key:"<<param[i]);
-    //        METLIBS_LOG_DEBUG("data:"<<data[i]);
-    miString key = param[i];
-    string value = boost::algorithm::to_lower_copy(data[i]);
-    if(key=="id"){
-      odata.id=data[i];
-    } else if(key == "lon"){
-      odata.xpos=atof(data[i].c_str());
-    } else if(key == "lat"){
-      odata.ypos=atof(data[i].c_str());
-    } else if(key == "auto"){
-      if(value =="a")
-        odata.fdata["ix"]=4.;
-      else if(value=="n")
-        odata.fdata["ix"]=-1;
-    } else if(key == "St.type" && data[i] != "none" && data[i] != "" ){
-      odata.dataType=data[i];
-      //      METLIBS_LOG_DEBUG("St.type:"<<data[i]);
+  for(unsigned int i=0; i<param.size(); i++) {
+    const std::string& key = param[i];
+    std::string value = miutil::to_lower(data[i]);
+    
+    if (key == "id") {
+      odata.id = data[i]; // no lower case!
+    } else if (key == "lon") {
+      odata.xpos = miutil::to_double(value);
+    } else if(key == "lat") {
+      odata.ypos = miutil::to_double(value);
+    } else if (key == "auto") {
+      if (value == "a")
+        odata.fdata["ix"] = 4;
+      else if (value == "n")
+        odata.fdata["ix"] = -1;
+    } else if (key == "St.type") {
+      if (value != "none" && value != "")
+        odata.dataType = value;
     } else {
-      miString value;
-      vector<string> vstr;
-      boost::algorithm::split(vstr, data[i], boost::algorithm::is_any_of(";"));
-      if(vstr.size() >= 2){
-        value = vstr[0];
-        odata.flag[key]=vstr[1];
-        if(vstr.size() == 3)
-          odata.flagColour[key]=Colour(vstr[2]);
-      } else {
+      const std::vector<std::string> vstr = split_on_comma(data[i], ";");
+      if (vstr.empty())
+        continue;
+      
+      value = vstr[0];
+      const float fvalue = miutil::to_double(value);
+      if (vstr.size() >= 2) {
+        odata.flag[key] = vstr[1];
+        if (vstr.size() == 3)
+          odata.flagColour[key] = Colour(vstr[2]);
+      }
+      
+      const char* simple_keys[] =  {
+        "h", "VV", "N", "dd", "ff", "TTT", "TdTdTd", "PPPP", "ppp", "RRR", "Rt", "ww", "Nh",
+        "TwTwTw", "PwaPwa", "HwaHwa", "Pw1Pw1", "Hw1Hw1", "s", "fxfx", "TxTn", "sss"
+      };
+      if (std::find(simple_keys, boost::end(simple_keys), key) != boost::end(simple_keys)) {
+        odata.fdata[key] = fvalue;
         continue;
       }
-      if(key == "h"){
-        odata.fdata["h"]=atof(value.c_str());
-      } else if(key == "VV"){
-        odata.fdata["VV"]=atof(value.c_str());
-      } else if(key == "N"){
-        odata.fdata["N"]=atof(value.c_str());
-      } else if(key == "dd"){
-        odata.fdata["dd"]=atof(value.c_str());
-      } else if(key == "ff"){
-        odata.fdata["ff"]=atof(value.c_str());
-      } else if(key == "TTT"){
-        odata.fdata["TTT"]=atof(value.c_str());
-      } else if(key == "TdTdTd"){
-        odata.fdata["TdTdTd"]=atof(value.c_str());
-      } else if(key == "PPPP"){
-        odata.fdata["PPPP"]=atof(value.c_str());
-      } else if(key == "a"){
-        float ival = atof(value.c_str());
-        if(ival >=0 && ival < 10)
-          odata.fdata["a"]=ival;
+
+      if (key == "a") {
+        if (fvalue >= 0 && fvalue < 10)
+          odata.fdata["a"] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "ppp"){
-        odata.fdata["ppp"]=atof(value.c_str());
-      } else if(key == "RRR"){
-        odata.fdata["RRR"]=atof(value.c_str());
-      } else if(key == "Rt"){
-        odata.fdata["Rt"]=atof(value.c_str());
-      } else if(key == "ww"){
-        odata.fdata["ww"]=atof(value.c_str());
-      } else if(key == "W1"){
-        float ival = atof(value.c_str());
-        if(ival >2 && ival < 10)
-          odata.fdata["W1"]=ival;
+      } else if (key == "W1" or key == "W2") {
+        if (fvalue > 2 && fvalue < 10)
+          odata.fdata[key] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "W2"){
-        float ival = atof(value.c_str());
-        if(ival >2 && ival < 10)
-          odata.fdata["W2"]=ival;
+      } else if (key == "Cl" or key == "Cm" or key == "Ch") {
+        if (fvalue > 0 && fvalue < 10)
+          odata.fdata[key] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "Nh"){
-        odata.fdata["Nh"]=atof(value.c_str());
-      } else if(key == "Cl"){
-        float ival = atof(value.c_str());
-        if(ival >0 && ival < 10)
-          odata.fdata["Cl"]=ival;
+      } else if(key == "vs") {
+        if (fvalue >= 0 && fvalue < 10)
+          odata.fdata[key] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "Cm"){
-        float ival = atof(value.c_str());
-        if(ival >0 && ival < 10)
-          odata.fdata["Cm"]=ival;
+      } else if(key == "ds") {
+        if (fvalue > 0 && fvalue < 9)
+          odata.fdata[key] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "Ch"){
-        float ival = atof(value.c_str());
-        if(ival >0 && ival < 10)
-          odata.fdata["Ch"]=ival;
+      } else if(key == "dw1dw1") {
+        if (fvalue > 0 && fvalue < 37)
+          odata.fdata[key] = fvalue;
         // FIXME else { do not keep old value }
-      } else if(key == "vs"){
-        float ival = atof(value.c_str());
-        if(ival >=0 && ival < 10)
-          odata.fdata["vs"]=ival;
-        // FIXME else { do not keep old value }
-      } else if(key == "ds"){
-        float ival = atof(value.c_str());
-        if(ival >0 && ival < 9)
-          odata.fdata["ds"]=ival;
-        // FIXME else { do not keep old value }
-      } else if(key == "TwTwTw"){
-        odata.fdata["TwTwTw"]=atof(value.c_str());
-      } else if(key == "PwaPwa"){
-        odata.fdata["PwaPwa"]=atof(value.c_str());
-      } else if(key == "HwaHwa"){
-        odata.fdata["HwaHwa"]=atof(value.c_str());
-      } else if(key == "dw1dw1"){
-        float ival = atof(value.c_str());
-        if(ival >0 && ival < 37)
-          odata.fdata["dw1dw1"]=ival;
-        // FIXME else { do not keep old value }
-      } else if(key == "Pw1Pw1"){
-        odata.fdata["Pw1Pw1"]=atof(value.c_str());
-      } else if(key == "Hw1Hw1"){
-        odata.fdata["Hw1Hw1"]=atof(value.c_str());
-      } else if(key == "TxTxTx"){
-        odata.fdata["TxTn"]=atof(value.c_str());
-      } else if(key == "TnTnTn"){
-        odata.fdata["TxTn"]=atof(value.c_str());
-      } else if(key == "TxTn"){
-        odata.fdata["TxTn"]=atof(value.c_str());
-      } else if(key == "sss"){
-        odata.fdata["sss"]=atof(value.c_str());
-      } else if(key == "911ff"){
-        odata.fdata["ff_911"]=atof(value.c_str());
-      } else if(key == "s"){
-        odata.fdata["s"]=atof(value.c_str());
-      } else if(key == "fxfx"){
-        odata.fdata["fxfx"]=atof(value.c_str());
+      } else if(key == "TxTxTx" or key == "TnTnTn") {
+        odata.fdata["TxTn"] = fvalue;;
+      } else if (key == "911ff" or key == "ff_911") {
+        odata.fdata["ff_911"] = fvalue;;
+      } else {
+        METLIBS_LOG_INFO("unknown key '" << key << '\'');
       }
     }
   }
@@ -2356,21 +2264,18 @@ bool ObsManager::changeHqcdata(ObsData& odata,
 }
 
 
-void ObsManager::processHqcCommand(const miString& command,
-    const miString& str)
+void ObsManager::processHqcCommand(const std::string& command, const std::string& str)
 {
-
-
-  if(command == "remove") {
+  if (command == "remove") {
     hqcdata.clear();
     hqc_synop_parameter.clear();
-  } else if( command == "flag" ){
+  } else if (command == "flag") {
     hqcFlag_old = hqcFlag;
     hqcFlag = str;
     //    hqcFlag = str.downcase();
-  } else if( command == "station"){
-    vector<miString> vstr = str.split(",");
-    if(vstr.size()>0)
+  } else if (command == "station") {
+    const std::vector<std::string> vstr = split_on_comma(str);
+    if (not vstr.empty())
       selectedStation = vstr[0];
   }
 }

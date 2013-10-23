@@ -1,3 +1,28 @@
+diana (3.33.1-1) unstable; urgency=low
+
+  * Bugfix: plotFrame
+  * Allow dynamic varibles with empty values
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 22 Oct 2013 07:34:23 +0200
+
+diana (3.33.0-6) unstable; urgency=low
+
+  * with postinst :-)
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Oct 2013 18:44:18 +0200
+
+diana (3.33.0-5) unstable; urgency=low
+
+  * reverted change in postinst
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 15 Oct 2013 16:25:22 +0200
+
+diana (3.33.0-4) unstable; urgency=low
+
+  * postinst changed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 10 Oct 2013 14:34:31 +0200
+
 diana (3.33.0-3) unstable; urgency=low
 
   * fixing news

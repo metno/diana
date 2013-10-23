@@ -305,6 +305,7 @@ void EditItemManager::addItem_(DrawingItemBase *item)
 
     connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
+    item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
@@ -586,6 +587,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         foreach (DrawingItemBase *item, selItems_) {
             Editing(item)->mouseMove(event, rpn);
             item->setLatLonPoints(getLatLonPoints(item));
+            item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
         }
     }
@@ -752,6 +754,8 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
 bool EditItemManager::changeProjection(const Area& newArea)
 {
   return DrawingManager::changeProjection(newArea);
+
+    glPopMatrix();
 }
 
 void EditItemManager::plot(bool under, bool over)

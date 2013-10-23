@@ -57,6 +57,7 @@ enum VcrossFunction {
   vcf_momentum_vn_fs,
 //  vcf_height_above_msl_from_th,
 //  vcf_height_above_surface_from_th,
+  vcf_height_above_msl_from_surface_geopotential,
   vcf_no_function
 };
 

@@ -69,6 +69,7 @@ const VcrossComputer::FunctionLike vcrossPlotDefs[vcpt_no_plot] = {
   { "contour",  1, vcpt_contour  },
   { "wind",     2, vcpt_wind     },
   { "vector",   2, vcpt_vector   },
+  { "line",     1, vcpt_line   },
 };
 
 } // namespace anonymous

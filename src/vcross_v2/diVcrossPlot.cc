@@ -1482,14 +1482,23 @@ void VcrossPlot::plotData()
   METLIBS_LOG_SCOPE();
 
   BOOST_FOREACH(const Plot& plot, mPlots) {
-    if (plot.type == vcpt_contour) {
+    switch(plot.type) {
+    case vcpt_contour:
       plotDataContour(plot);
-    } else if (plot.type == vcpt_wind) {
+      break;
+    case vcpt_wind:
       plotDataWind(plot);
-    } else {
+      break;
+    case vcpt_vector:
       plotDataVector(plot);
+      break;
+    case vcpt_line:
+      plotDataLine(plot);
+      break;
+    case vcpt_no_plot:
+      // no plot, nothing to do (but compiler complains)
+      break;
     }
-
     hardcopy->UpdateOutput();
   }
 }
@@ -1572,6 +1581,37 @@ void VcrossPlot::plotDataVector(const Plot& plot)
         if (not (isnan(u) or isnan(v)))
           pv.paint(u, v, px, py);
       }
+    }
+  }
+}
+
+void VcrossPlot::plotDataLine(const Plot& plot)
+{
+  METLIBS_LOG_SCOPE();
+
+  glLineWidth(plot.poptions.linewidth + 0.1); // +0.1 to avoid MesaGL coredump
+  glColor3ubv(plot.poptions.linecolour.RGB());
+
+  glBegin(GL_LINES);
+
+  bool last_ok = false;
+  float last_px = 0, last_py = 0;
+
+  const int nx = plot.zax->mPoints;
+  for (int ix=0; ix<nx; ++ix) {
+    const float vx = mCrossectionDistances.at(ix), p0 = plot.zax->value(0, ix);
+    const float px = mAxisX->value2paint(vx), py = mAxisY->value2paint(p0);
+    //METLIBS_LOG_DEBUG(LOGVAL(ix) << LOGVAL(vx) << LOGVAL(px) << LOGVAL(p0) << LOGVAL(py));
+    if (mAxisX->legalPaint(px) and mAxisY->legalPaint(py)) {
+      if (last_ok) {
+        glVertex2f(last_px, last_py);
+        glVertex2f(px, py);
+      }
+      last_px = px;
+      last_py = py;
+      last_ok = true;
+    } else {
+      last_ok = false;
     }
   }
 }

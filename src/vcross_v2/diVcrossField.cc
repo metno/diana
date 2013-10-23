@@ -132,40 +132,38 @@ std::string VcrossField::setLatLon(float lat, float lon)
     // FIXME use proj4/geod; similar in MapPlot::plotGeoGrid
 
     // Compute distance and points on line
-    float radius = EARTH_RADIUS_M;
-    float TORAD = M_PI/180;
-    float dLon = (stopLongitude-startLongitude)*TORAD;
-    float lat1 = startLatitude*TORAD;
-    float lat2 = stopLatitude*TORAD;
-    float lon1 = startLongitude*TORAD;
-    float lon2 = stopLongitude*TORAD;
+    const float radius = EARTH_RADIUS_M, TORAD = M_PI/180;
+    const float dLon = (stopLongitude-startLongitude)*TORAD;
+    const float lat1 = startLatitude*TORAD;
+    const float lat2 = stopLatitude*TORAD;
+    const float lon1 = startLongitude*TORAD;
+    const float lon2 = stopLongitude*TORAD;
 
-    float y = sin(dLon)*cos(lat2);
-    float x = cos(lat1)*sin(lat2) - sin(lat1)*cos(lat2)*cos(dLon);
-    float brng = (((int)(atan2(y,x)/TORAD+360))%360)*TORAD;
-
-    float distance = acosf(sinf(lat1)*sin(lat2) +
-                cos(lat1)*cos(lat2) * cos(lon2-lon1)) * radius;
+    const float y = sin(dLon)*cos(lat2);
+    const float x = cos(lat1)*sin(lat2) - sin(lat1)*cos(lat2)*cos(dLon);
+    const float brng = (((int)(atan2(y,x)/TORAD+360))%360)*TORAD;
+    
+    const float distance = acosf(sinf(lat1)*sin(lat2) +
+        cos(lat1)*cos(lat2) * cos(lon2-lon1)) * radius;
 
     // 10 km between points or minimum 100 points
-    int noOfPoints = (int)distance/14000;
-    if (noOfPoints<100)
-      noOfPoints = 100;
+    const int noOfPoints = std::max((int)distance/14000, 100);
+    const float step = distance/(noOfPoints-1.0);
 
-    float step = distance/(noOfPoints-1.0);
-
-    VcrossData::Cut& cs = mCrossections.back();
+    VcrossData::Cut cs;
+    cs.lonlat.push_back(LonLat::fromDegrees(startLongitude, startLatitude));
     for(int i=1; i<noOfPoints; i++) {
-      float stepLat = (asin(sin(lat1)*cos(i*step/radius) +
-              cos(lat1)*sin(i*step/radius)*cos(brng)))/TORAD;
-      float stepLon = (lon1 + atan2(sin(brng)*sin(i*step/radius)*cos(lat1),
-              cos(i*step/radius)-sin(lat1)*sin(lat2)))/TORAD;
-      cs.lonlat.push_back(LonLat(stepLon, stepLat));
+      const float stepLatRad = (asin(sin(lat1)*cos(i*step/radius) +
+              cos(lat1)*sin(i*step/radius)*cos(brng)));
+      const float stepLonRad = (lon1 + atan2(sin(brng)*sin(i*step/radius)*cos(lat1),
+              cos(i*step/radius)-sin(lat1)*sin(lat2)));
+      cs.lonlat.push_back(LonLat(stepLonRad, stepLatRad));
     }
     cs.name = (miutil::StringBuilder()
         << '(' << startLatitude << ',' << startLongitude
         << ")->(" << stopLatitude << ',' << stopLongitude << ')');
 
+    mCrossections.push_back(cs);
     return cs.name;
   } else {
     // If first time or not all set
@@ -175,11 +173,6 @@ std::string VcrossField::setLatLon(float lat, float lon)
     stopLatitude = -9999;
     stopLongitude = -9999;
 
-    VcrossData::Cut csDyn;
-    csDyn.name = (miutil::StringBuilder()
-        << '(' << startLatitude << ',' << startLongitude << ")->...");
-    csDyn.lonlat.push_back(LonLat(startLongitude, startLatitude));
-    mCrossections.push_back(csDyn);
     return "";
   }
 }

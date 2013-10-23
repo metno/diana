@@ -146,6 +146,7 @@ private:
   void plotDataContour(const Plot& plot);
   void plotDataWind(const Plot& plot);
   void plotDataVector(const Plot& plot);
+  void plotDataLine(const Plot& plot);
 
   void calculateContrastColour();
   Colour colourOrContrast(const Colour& c) const
