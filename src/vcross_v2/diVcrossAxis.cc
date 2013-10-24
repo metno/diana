@@ -31,7 +31,7 @@ float Axis::function(float x) const
   case EXNER:
     return VcrossUtil::exnerFunction(x);
   }
-  return 0; // not reached
+  return x; // not reached
 }
 
 float Axis::functionInverse(float x) const
@@ -42,7 +42,7 @@ float Axis::functionInverse(float x) const
   case EXNER:
     return VcrossUtil::exnerFunctionInverse(x);
   }
-  return 0; // not reached
+  return x; // not reached
 }
 
 void Axis::calculateScale()

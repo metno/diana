@@ -155,6 +155,7 @@ bool VcrossManager::setCrossection(float lat, float lon)
       csnames.insert(n);
   }
   VcrossUtil::from_set(nameList, csnames);
+  dataChange = true;
   return true;
 }
 
@@ -381,11 +382,6 @@ void VcrossManager::preparePlot()
 
   bool haveZaxis = false;
   VcrossData::ZAxis::Quantity zQuantity = VcrossData::ZAxis::PRESSURE;
-  if (false /*mOptions->plotPressure*/) {
-    zQuantity = VcrossData::ZAxis::PRESSURE;
-    mPlot->setVerticalAxis(zQuantity);
-    haveZaxis = true;
-  }
   BOOST_FOREACH(VcrossSelected& select, selected) {
     VcrossData* data = data4model[select.model];
     if (not data)
@@ -399,7 +395,7 @@ void VcrossManager::preparePlot()
     const std::string& arg0_name = arguments.front();
     const VcrossData::ParameterData& arg0 = data->parameters[arg0_name];
     if (not arg0.values) {
-      METLIBS_LOG_WARN("no values for argument '" << arg0_name << "'");
+      METLIBS_LOG_WARN("no values for argument0 '" << arg0_name << "'");
       continue;
     }
 
@@ -411,7 +407,6 @@ void VcrossManager::preparePlot()
       if (not arg.values) {
         METLIBS_LOG_WARN("no values for argument '" << arguments[a] << "'");
         goodZaxis = false;
-        break;
       }
 
       VcrossData::ZAxisPtr zax1 = arg.zAxis;
@@ -419,15 +414,10 @@ void VcrossManager::preparePlot()
       goodZaxis &= (zax == zax1);
     }
     if (not goodZaxis) {
-      METLIBS_LOG_WARN("zaxis mismatch for plot '" << select.field << "'");
+      METLIBS_LOG_WARN("bad zaxis for plot '" << select.field << "'");
       continue;
     }
 
-    if (zax and not haveZaxis) {
-      zQuantity = zax->quantity;
-      mPlot->setVerticalAxis(zQuantity);
-      haveZaxis = true;
-    }
     if (not zax) {
       METLIBS_LOG_DEBUG("1D data");
       // create "z axis" containing the parameter values, possibly converted to HEIGHT/PRESSURE 
@@ -451,7 +441,7 @@ void VcrossManager::preparePlot()
         zaxc->setValue(0, p, c);
       }
       zax = zaxc;
-    } else if (zax->quantity != zQuantity) {
+    } else if (haveZaxis and zax->quantity != zQuantity) {
       METLIBS_LOG_DEBUG("2D data, convert from " << zax->quantity << " to " << zQuantity);
       // convert z axis to zQuantity (HEIGHT/PRESSURE)
       VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
@@ -474,7 +464,12 @@ void VcrossManager::preparePlot()
       }
       zax = zaxc;
     }
-    METLIBS_LOG_DEBUG("end zax conversion");
+    METLIBS_LOG_DEBUG(LOGVAL(not not zax) << LOGVAL(haveZaxis));
+
+    if (zax and not haveZaxis) {
+      zQuantity = zax->quantity;
+      haveZaxis = true;
+    }
 
     // add plots
     VcrossData::values_t p0, p1;
@@ -485,7 +480,11 @@ void VcrossManager::preparePlot()
     mPlot->addPlot(select.model, select.field, mSetup->getPlotType(select.field), p0, p1, zax, select.plotOptions);
   }
 
-  mPlot->prepare();
+  METLIBS_LOG_DEBUG(LOGVAL(zQuantity) << LOGVAL(haveZaxis));
+  if (haveZaxis) {
+    mPlot->setVerticalAxis(zQuantity);
+    mPlot->prepare();
+  }
 }
 
 // ------------------------------------------------------------------------

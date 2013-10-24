@@ -301,15 +301,13 @@ void VcrossPlot::setHorizontalTime(const std::vector<miutil::miTime>& times, int
 
 void VcrossPlot::setVerticalAxis(VcrossData::ZAxis::Quantity q)
 {
-  METLIBS_LOG_SCOPE();
   if (q == VcrossData::ZAxis::PRESSURE) {
     mAxisY->quantity = VcrossPlotDetail::Axis::PRESSURE;
-    mAxisY->type     = VcrossPlotDetail::Axis::EXNER;
+    //mAxisY->type     = VcrossPlotDetail::Axis::EXNER;
   } else {
     mAxisY->quantity = VcrossPlotDetail::Axis::HEIGHT;
-    mAxisY->type     = VcrossPlotDetail::Axis::LINEAR;
+    //mAxisY->type     = VcrossPlotDetail::Axis::LINEAR;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(mAxisY->quantity) << LOGVAL(mAxisY->type));
 }
 
 void VcrossPlot::addPlot(const std::string& mn, const std::string& fn,
@@ -542,7 +540,6 @@ int VcrossPlot::getNearestPos(int px)
 void VcrossPlot::plot()
 {
   METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(mAxisY->quantity) << LOGVAL(mAxisY->type));
 
   if (mViewChanged)
     prepareView();
