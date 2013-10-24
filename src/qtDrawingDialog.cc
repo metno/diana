@@ -76,6 +76,10 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QToolButton *redoButton = new QToolButton();
   redoButton->setDefaultAction(actions[EditItemManager::Redo]);
 
+  // When the apply, hide or apply & hide buttons are pressed, we reset the undo stack.
+  connect(this, SIGNAL(applyData()), EditItemManager::instance(), SLOT(reset()));
+  connect(this, SIGNAL(hideData()), EditItemManager::instance(), SLOT(reset()));
+
   QVBoxLayout *buttonLayout = new QVBoxLayout();
   buttonLayout->addWidget(cutButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
   buttonLayout->addWidget(copyButton, 0, Qt::AlignJustify | Qt::AlignVCenter);

@@ -371,10 +371,7 @@ void EditItemManager::editItemProperties(const QSet<DrawingItemBase *> &items)
 
 void EditItemManager::reset()
 {
-    // FIXME: We need to make certain that this is how we want to handle the undo stack.
-    QSet<DrawingItemBase *> addedItems;
-    AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, items_);
-    undoStack_.push(arCmd);
+    undoStack_.clear();
 }
 
 QUndoStack * EditItemManager::undoStack()
