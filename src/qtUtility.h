@@ -39,8 +39,6 @@
 #include <QPixmap>
 #include <QLabel>
 
-using namespace std;
-
 class QWidget;
 class QPushButton;
 class QComboBox;
@@ -53,13 +51,12 @@ class QPixmap;
 class QColor;
 
 
-int getIndex( vector<std::string> vstr, std::string def_str );
-int getIndex( vector<miutil::miString> vstr, miutil::miString def_str );
+int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
+int getIndex(const std::vector<miutil::miString>& vstr, const std::string& def_str);
+int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& def_str);
 
-int getIndex( vector<Colour::ColourInfo> cInfo, miutil::miString def_str );
 
-
-// Lables
+// Labels
 
 QLabel* TitleLabel(const QString& name, QWidget* parent);
 
@@ -74,35 +71,35 @@ QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 
 // ComboBox
 
-QComboBox* ComboBox(QWidget* parent, vector<std::string> vstr,
-        bool Enabled=true, int defItem=0);
+QComboBox* ComboBox(QWidget* parent, const std::vector<std::string>& vstr,
+    bool Enabled=true, int defItem=0);
 
-QComboBox* ComboBox(QWidget* parent, vector<miutil::miString> vstr,
-        bool Enabled=true, int defItem=0);
+QComboBox* ComboBox(QWidget* parent, const std::vector<miutil::miString>& vstr,
+    bool Enabled=true, int defItem=0);
 
 QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
-		    bool Enabled=true, int defItem=0);
+    bool Enabled=true, int defItem=0);
 
-QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>&,
-         bool Enabled=true, int defItem=0,
-         miutil::miString firstItem="", bool name=false);
+QComboBox* ColourBox(QWidget* parent, const std::vector<Colour::ColourInfo>&,
+    bool Enabled=true, int defItem=0,
+    const std::string& firstItem="", bool name=false);
 
 QComboBox* ColourBox(QWidget* parent,
-         bool Enabled=true, int defItem=0,
-         miutil::miString firstItem="", bool name=false);
+    bool Enabled=true, int defItem=0,
+    const std::string& firstItem="", bool name=false);
 
-void ExpandColourBox( QComboBox* box, const Colour& col );
+void ExpandColourBox(QComboBox* box, const Colour& col);
 
 QComboBox* PaletteBox(QWidget* parent,
-		      const vector<ColourShading::ColourShadingInfo>&,
+		      const std::vector<ColourShading::ColourShadingInfo>&,
 		      bool Enabled=true, int defItem=0,
-		      miutil::miString firstItem="", bool name=false);
+		      const std::string& firstItem="", bool name=false);
 
 void ExpandPaletteBox( QComboBox* box, const ColourShading& palette );
 
-QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>&,
+QComboBox* PatternBox(QWidget* parent, const std::vector<Pattern::PatternInfo>&,
 		      bool Enabled=true, int defItem=0,
-		      miutil::miString firstItem="", bool name=false);
+		      const std::string& firstItem="", bool name=false);
 
 QComboBox* LinetypeBox(QWidget* parent,
 		    bool Enabled=true, int defItem=0);
@@ -115,7 +112,7 @@ QComboBox* LinewidthBox(QWidget* parent,
 void ExpandLinewidthBox( QComboBox* box,
     int new_nr_linewidths);
 
-QComboBox* PixmapBox(QWidget* parent, vector<miutil::miString>& markerName);
+QComboBox* PixmapBox(QWidget* parent, std::vector<miutil::miString>& markerName);
 
 // Div
 
@@ -127,9 +124,8 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent );
 
-void listWidget( QListWidget* box, vector<miutil::miString> vstr, int defItem=-1 );
+void listWidget(QListWidget* box, const std::vector<miutil::miString>& vstr, int defItem=-1);
 
-QPixmap* linePixmap(const miutil::miString& pattern, int linewidth);
-
+QPixmap* linePixmap(const std::string& pattern, int linewidth);
 
 #endif
