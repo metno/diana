@@ -108,57 +108,24 @@ std::string VcrossField::setLatLon(float lat, float lon)
     stopLatitude = lat;
     stopLongitude = lon;
 
-    /*
-    var R = 6371; // km
-    var dLat = (lat2-lat1).toRad();
-    var dLon = (lon2-lon1).toRad();
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    var d = R * c;
-          var y = Math.sin(dLon) * Math.cos(lat2);
-          var x = Math.cos(lat1)*Math.sin(lat2) -
-                  Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
-          var brng = Math.atan2(y, x).toBrng();
-
-    Destination point
-    var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
-                          Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
-    var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
-                                 Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
-          */
-
     // FIXME use proj4/geod; similar in MapPlot::plotGeoGrid
+    LonLat p0 = LonLat::fromDegrees(startLongitude, startLatitude);
+    LonLat pE = LonLat::fromDegrees(stopLongitude,  stopLatitude);
 
-    // Compute distance and points on line
-    const float radius = EARTH_RADIUS_M, TORAD = M_PI/180;
-    const float dLon = (stopLongitude-startLongitude)*TORAD;
-    const float lat1 = startLatitude*TORAD;
-    const float lat2 = stopLatitude*TORAD;
-    const float lon1 = startLongitude*TORAD;
-    const float lon2 = stopLongitude*TORAD;
-
-    const float y = sin(dLon)*cos(lat2);
-    const float x = cos(lat1)*sin(lat2) - sin(lat1)*cos(lat2)*cos(dLon);
-    const float brng = (((int)(atan2(y,x)/TORAD+360))%360)*TORAD;
-    
-    const float distance = acosf(sinf(lat1)*sin(lat2) +
-        cos(lat1)*cos(lat2) * cos(lon2-lon1)) * radius;
-
-    // 10 km between points or minimum 100 points
-    const int noOfPoints = std::max((int)distance/14000, 100);
-    const float step = distance/(noOfPoints-1.0);
+    const double distance = p0.distanceTo(pE); // in m
+    const int noOfPoints = std::max((int)(distance/14000), 100);
+    const double step = distance / (noOfPoints-1);
+    METLIBS_LOG_DEBUG(LOGVAL(distance) << LOGVAL(noOfPoints) << LOGVAL(step));
 
     VcrossData::Cut cs;
-    cs.lonlat.push_back(LonLat::fromDegrees(startLongitude, startLatitude));
-    for(int i=1; i<noOfPoints; i++) {
-      const float stepLatRad = (asin(sin(lat1)*cos(i*step/radius) +
-              cos(lat1)*sin(i*step/radius)*cos(brng)));
-      const float stepLonRad = (lon1 + atan2(sin(brng)*sin(i*step/radius)*cos(lat1),
-              cos(i*step/radius)-sin(lat1)*sin(lat2)));
-      cs.lonlat.push_back(LonLat(stepLonRad, stepLatRad));
+    cs.lonlat.push_back(p0);
+    for(int i=2; i<noOfPoints; i++) {
+      p0 = p0.stepTo(step, pE);
+      METLIBS_LOG_DEBUG("p[" << (i-1) << "] = " << p0.lonDeg() << "," << p0.latDeg());
+      cs.lonlat.push_back(p0);
     }
+    cs.lonlat.push_back(pE);
+
     cs.name = (miutil::StringBuilder()
         << '(' << startLatitude << ',' << startLongitude
         << ")->(" << stopLatitude << ',' << stopLongitude << ')');
