@@ -229,8 +229,8 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
-  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
+  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
 
   int n = points.size();
 
@@ -257,8 +257,8 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
-  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
+  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
 
   QList<QPointF> points;
   int n = latLonPoints.size();
