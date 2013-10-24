@@ -1094,8 +1094,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       SLOT(crossectionSetUpdateSlot()));
   connect(vcWindow,SIGNAL(updateCrossSectionPos(bool)),
       SLOT(vCrossPositions(bool)));
-  connect(vcWindow,SIGNAL(quickMenuStrings(const miutil::miString, const vector<miutil::miString>&)),
-      SLOT(updateQuickMenuHistory(const miutil::miString, const vector<miutil::miString>&)));
+  connect(vcWindow,SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
+      SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
   connect (vcWindow, SIGNAL(prevHVcrossPlot()), SLOT(prevHVcrossPlot()));
   connect (vcWindow, SIGNAL(nextHVcrossPlot()), SLOT(nextHVcrossPlot()));
   // Wave spectrum
@@ -1142,11 +1142,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
             tslider, SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
   }
   if ( vcWindow ){
-    connect(vcWindow, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
-            tslider, SLOT(insert(const miutil::miString&, const std::vector<miutil::miTime>&)));
+    connect(vcWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
+            tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
-    connect(vcWindow, SIGNAL(setTime(const miutil::miString&, const miutil::miTime&)),
-            tslider, SLOT(setTime(const miutil::miString&, const miutil::miTime&)));
+    connect(vcWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
+            tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if ( spWindow ){
     connect(spWindow, SIGNAL(emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&)),
@@ -1476,9 +1476,9 @@ void DianaMainWindow::MenuOK()
   QApplication::restoreOverrideCursor();
 }
 
-void DianaMainWindow::updateQuickMenuHistory(const miutil::miString plotname, const vector<miutil::miString>& pstr)
+void DianaMainWindow::updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>& pstr)
 {
-  qm->pushPlot(plotname,pstr,QuickMenu::VCROSS);
+  qm->pushPlot(plotname, pstr, QuickMenu::VCROSS);
 }
 
 // recall previous QuickMenu plot (if exists)

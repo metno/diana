@@ -183,6 +183,11 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time, bool restricted){
   return time != current;
 }
 
+void TimeSlider::insert(const std::string& datatype, const std::vector<miutil::miTime>& vt, bool use)
+{
+  insert(miutil::miString(datatype), vt, use);
+}
+
 void TimeSlider::insert(const miutil::miString& datatype,
                         const std::vector<miutil::miTime>& vt,
                         bool use)
@@ -342,6 +347,11 @@ void TimeSlider::updateList()
 
 void TimeSlider::setTime(const miutil::miTime& t){
   set(t);
+}
+
+void TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
+{
+  setTime(miutil::miString(datatype), t);
 }
 
 void TimeSlider::setTime(const miutil::miString& datatype, const miutil::miTime& t){

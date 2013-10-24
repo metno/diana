@@ -169,7 +169,7 @@ void VcrossManager::setTime(const miutil::miTime& time)
   }
   
   plotTime = (it - timeList.begin());
-  dataChange= true;
+  dataChange = true;
 }
 
 
@@ -765,6 +765,7 @@ void VcrossManager::setTimeToBestMatch(const vctime_t& time)
     }
   }
   plotTime = bestTime;
+  dataChange = true;
 }
 
 // ------------------------------------------------------------------------

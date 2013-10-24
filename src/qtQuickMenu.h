@@ -134,7 +134,9 @@ public:
 
   /// add command to history
   void pushPlot(const miutil::miString& name,
-		vector<miutil::miString> pstr, int index=0);
+      const std::vector<miutil::miString>& pstr, int index=0);
+  void pushPlot(const std::string& name,
+      const std::vector<std::string>& pstr, int index=0);
 
   bool prevQPlot(); ///< previous QuickMenu plot
   bool nextQPlot(); ///< next QuickMenu plot

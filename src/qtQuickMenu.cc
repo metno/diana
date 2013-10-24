@@ -318,8 +318,9 @@ miutil::miString QuickMenu::getCurrentName()
 
 // Push a new command on the history-stack
 void QuickMenu::pushPlot(const miutil::miString& name,
-    vector<miutil::miString> pstr, int index)
+    const vector<miutil::miString>& pstr_c, int index)
 {
+  std::vector<miutil::miString> pstr(pstr_c); // make copy so that refhour etc can be replaced
 
   //replace reftime by refhour, refoffset must be set manually
   for (size_t i=0; i<pstr.size(); i++){
@@ -331,7 +332,8 @@ void QuickMenu::pushPlot(const miutil::miString& name,
     }
   }
 
-  if (qm.size()==0) return;
+  if (qm.empty())
+    return;
   bool goon= true;
   int m= qm[index].menuitems.size();
   if (m > 0){ // check for duplicate
@@ -365,6 +367,11 @@ void QuickMenu::pushPlot(const miutil::miString& name,
     prev_plotindex= 0;
     prev_listindex= index;
   }
+}
+
+void QuickMenu::pushPlot(const std::string& name, const std::vector<std::string>& pstr, int index)
+{
+  pushPlot(miutil::miString(name), std::vector<miutil::miString>(pstr.begin(), pstr.end()), index);
 }
 
 //bool QuickMenu::replacereferencetime( vector<miutil::miString>& pstr ){

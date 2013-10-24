@@ -266,52 +266,42 @@ void VcrossWindow::rightTimeClicked()
 
 bool VcrossWindow::timeChangedSlot(int diff)
 {
-  //called if signal timeChanged is emitted from graphics
-  //window (qtVcrossWidget)
+  // called if signal timeChanged is emitted from graphics window (qtVcrossWidget)
   METLIBS_LOG_SCOPE();
 
-  int index=timeBox->currentIndex();
-  while(diff<0){
-    if(--index < 0) {
-      //set index to the last in the box !
-      index=timeBox->count()-1;
-    }
+  const int count = timeBox->count();
+  METLIBS_LOG_DEBUG(LOGVAL(count) << LOGVAL(diff));
+  if (count <= 0)
+    return false;
+
+  if (diff != 0) {
+    int index = timeBox->currentIndex();
+    index += diff;
+    while (index < 0)
+      index += count;
     timeBox->setCurrentIndex(index);
-    diff++;
   }
-  while(diff>0){
-    if(++index > timeBox->count()-1) {
-      //set index to the first in the box !
-      index=0;
-    }
-    timeBox->setCurrentIndex(index);
-    diff--;
-  }
+
   miutil::miTime t = vcrossm->getTime();
   const std::string tstring = t.isoTime(false,false);
-  if (!timeBox->count())
-    return false;
   std::string tbs = timeBox->currentText().toStdString();
-  if (tbs!=tstring){
-    //search timeList
-    const int n = timeBox->count();
-    for (int i = 0; i<n;i++){
-      if(tstring == timeBox->itemText(i).toStdString()){
+  if (tbs != tstring) {
+    // search timeList
+    for (int i = 0; i<count;i++){
+      if (tstring == timeBox->itemText(i).toStdString()){
         timeBox->setCurrentIndex(i);
         tbs = timeBox->currentText().toStdString();
+        METLIBS_LOG_DEBUG(LOGVAL(tbs) << LOGVAL(tstring) << LOGVAL(i));
         break;
       }
     }
   }
-  if (tbs!=tstring){
-//    METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from vcrossm ="
-//    << t    <<" not equal to timeBox text = " << tbs
-//    << "You should search through timelist!");
+  if (tbs != tstring) {
+    METLIBS_LOG_DEBUG(LOGVAL(tbs) << LOGVAL(tstring));
     return false;
   }
 
-  /*emit*/ setTime("vcross",t);
-
+  /*emit*/ setTime("vcross", t);
   return true;
 }
 
@@ -322,32 +312,27 @@ bool VcrossWindow::crossectionChangedSlot(int diff)
 {
   METLIBS_LOG_SCOPE();
 
-  int index=crossectionBox->currentIndex();
-  while(diff<0){
-    if(--index < 0) {
-      //set index to the last in the box !
-      index=crossectionBox->count()-1;
-    }
-    crossectionBox->setCurrentIndex(index);
-    diff++;
-  }
-  while(diff>0){
-    if(++index > crossectionBox->count()-1) {
-      //set index to the first in the box !
-      index=0;
-    }
-    crossectionBox->setCurrentIndex(index);
-    diff--;
-  }
-  if (!crossectionBox->count())
+  const int count = crossectionBox->count();
+  METLIBS_LOG_DEBUG(LOGVAL(count) << LOGVAL(diff));
+  if (count <= 0)
     return false;
+
+  if (diff != 0) {
+    int index = crossectionBox->currentIndex();
+    index += diff;
+    while (index < 0)
+      index += count;
+    index %= count;
+    crossectionBox->setCurrentIndex(index);
+  }
+
   //get current crossection
   std::string s = vcrossm->getCrossection();
   //if no current crossection, use last crossection plotted
   if (s.empty())
     s = ""; // FIXME vcrossm->getLastCrossection();
   std::string sbs = crossectionBox->currentText().toStdString();
-  if (sbs!=s){
+  if (sbs != s){
     const int n = crossectionBox->count();
     for(int i = 0;i<n;i++){
       if (s==crossectionBox->itemText(i).toStdString()) {
@@ -357,8 +342,8 @@ bool VcrossWindow::crossectionChangedSlot(int diff)
       }
     }
   }
-  QString sq = s.c_str();
-  if (sbs==s) {
+  QString sq = QString::fromStdString(s);
+  if (sbs == s) {
     /*emit*/ crossectionChanged(sq); //name of current crossection (to mainWindow)
     return true;
   } else {
@@ -525,10 +510,10 @@ void VcrossWindow::quitClicked()
   timeBox->clear();
 
   active = false;
-  emit updateCrossSectionPos(false);
-  emit VcrossHide();
+  /*emit*/ updateCrossSectionPos(false);
+  /*emit*/ VcrossHide();
   std::vector<miutil::miTime> t;
-  emit emitTimes("vcross",t);
+  /*emit*/ emitTimes("vcross", t);
 }
 
 /***************************************************************************/
@@ -549,11 +534,11 @@ void VcrossWindow::dynCrossClicked()
   // Clean up the current dynamic crossections
   vcrossm->cleanupDynamicCrossSections();
   updateCrossectionBox();
-  emit crossectionSetChanged();
+  /*emit*/ crossectionSetChanged();
 
   // Tell mainWindow to start receiving notifications
   // about mouse presses on the map
-  emit updateCrossSectionPos(true);
+  /*emit*/ updateCrossSectionPos(true);
   // Redraw to remove any old crossections
   vcrossw->update();
 }
@@ -679,26 +664,23 @@ void VcrossWindow::updateTimeBox()
 
 void VcrossWindow::crossectionBoxActivated(int index)
 {
-  const QString sq = crossectionBox->currentText();
-  const std::string cbs = sq.toStdString();
-  //if (index>=0 && index<crossections.size()) {
-  vcrossm->setCrossection(cbs);
+  const QString& sq = crossectionBox->currentText();
+  vcrossm->setCrossection(sq.toStdString());
   vcrossw->update();
   /*emit*/ crossectionChanged(sq); //name of current crossection (to mainWindow)
   emitQmenuStrings();
-  //}
 }
 
 /***************************************************************************/
 
 void VcrossWindow::timeBoxActivated(int index)
 {
-  std::vector<miutil::miTime> times= vcrossm->getTimeList();
+  const std::vector<miutil::miTime>& times = vcrossm->getTimeList();
 
-  if (index>=0 && index<int(times.size())) {
+  if (index>=0 && index < int(times.size())) {
     vcrossm->setTime(times[index]);
-
     vcrossw->update();
+    /*emit*/ setTime("vcross", times[index]);
   }
 }
 

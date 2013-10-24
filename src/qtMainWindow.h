@@ -133,11 +133,11 @@ protected:
   bool event(QEvent* event);
 
 
-public slots:
+public Q_SLOTS:
   void toggleToolBar();
   void updateDialog();
 
-private slots:
+private Q_SLOTS:
   void timecontrolslot();
   void timeoutChanged(float value);
   void animation();
@@ -180,7 +180,7 @@ private slots:
   void resetAll();
   void editApply();
   void MenuOK();
-  void updateQuickMenuHistory(const miutil::miString plotname, const vector<miutil::miString>&);
+  void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
   void trajPositions(bool);
   void measurementsPositions(bool);
   void vCrossPositions(bool);
