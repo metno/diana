@@ -163,7 +163,6 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 void DrawingManager::addItem_(DrawingItemBase *item)
 {
     items_.insert(item);
-    item->setLatLonPoints(getLatLonPoints(item));
 }
 
 DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
