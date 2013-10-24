@@ -33,7 +33,6 @@
 #define EDITITEMMANAGER_H
 
 #include <QDialog>
-#include <QGridLayout>
 #include <QObject>
 #include <QPointF>
 #include <QSet>
@@ -86,7 +85,7 @@ private:
   VarMapEditor();
 
   static VarMapEditor *instance_;
-  QGridLayout *glayout_;
+  QWidget *formWidget_;
 };
 
 class EditItemManager : public DrawingManager

@@ -106,7 +106,6 @@ static QWidget * createEditor(const QString &propertyName, const QVariant &val)
     editor = new QDateTimeEdit(val.toDateTime());
   } else {
     METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
-    editor = new QLabel(QString("UNSUPPORTED TYPE: %1").arg(val.typeName()));
   }
   return editor;
 }
@@ -125,48 +124,31 @@ VarMapEditor *VarMapEditor::instance()
 QVariantMap VarMapEditor::edit(const QVariantMap &values)
 {
     // clear old content
-    if (glayout_->columnCount() == 2) {
-        Q_ASSERT((glayout_->rowCount() > 0));
-        for (int i = 0; i < glayout_->rowCount(); ++i) {
-            QLayoutItem *keyItem = glayout_->itemAtPosition(i, 0);
-            Q_ASSERT(keyItem);
-            Q_ASSERT(keyItem->widget());
-            Q_ASSERT(qobject_cast<QLabel *>(keyItem->widget()));
-            delete keyItem->widget();
-            // delete keyItem; ???
-
-            QLayoutItem *valItem = glayout_->itemAtPosition(i, 1);
-            Q_ASSERT(valItem);
-            Q_ASSERT(valItem->widget());
-            delete valItem->widget();
-            // delete valItem; ???
-        }
-    }
+    qDeleteAll(formWidget_->children());
 
     // set new content and initial values
-    int row = 0;
+    QFormLayout *formLayout = new QFormLayout(formWidget_);
     foreach (const QString key, values.keys()) {
-        QLabel *label = new QLabel(key);
-        //label->setStyleSheet("QLabel { background-color:#ff0 }");
-        label->setAlignment(Qt::AlignRight);
-        glayout_->addWidget(label, row, 0);
         QWidget *editor = createEditor(key, values.value(key));
-        glayout_->addWidget(editor, row, 1);
-        row++;
+        if (editor)
+            formLayout->addRow(key, editor);
     }
 
     // open dialog
     if (exec() == QDialog::Accepted) {
         // return edited values
         QVariantMap newValues;
-        for (int i = 0; i < glayout_->rowCount(); ++i) {
-            const QString key = qobject_cast<const QLabel *>(glayout_->itemAtPosition(i, 0)->widget())->text();
-            QWidget *editor = glayout_->itemAtPosition(i, 1)->widget();
-            if (qobject_cast<QLineEdit *>(editor)) {
-                newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-            } else if (qobject_cast<QDateTimeEdit *>(editor)) {
-                QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
-                newValues.insert(key, ed->dateTime());
+        for (int i = 0; i < formLayout->rowCount(); ++i) {
+            QLayoutItem *item = formLayout->itemAt(i, QFormLayout::LabelRole);
+            if (item) {
+                const QString key = qobject_cast<const QLabel *>(item->widget())->text();
+                QWidget *editor = formLayout->itemAt(i, QFormLayout::FieldRole)->widget();
+                if (qobject_cast<QLineEdit *>(editor)) {
+                    newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
+                } else if (qobject_cast<QDateTimeEdit *>(editor)) {
+                    QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
+                    newValues.insert(key, ed->dateTime());
+                }
             }
         }
         return newValues;
@@ -179,16 +161,14 @@ VarMapEditor::VarMapEditor()
 {
     setWindowTitle(tr("Item Properties"));
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    glayout_ = new QGridLayout;
-    layout->addLayout(glayout_);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    formWidget_ = new QWidget();
+    layout->addWidget(formWidget_);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
     layout->addWidget(buttonBox);
-
-    setLayout(layout);
 }
 
 VarMapEditor *VarMapEditor::instance_ = 0;

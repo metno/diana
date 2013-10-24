@@ -130,7 +130,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       } else if (key == "type") {
         properties["type"] = value;
       } else if (key == "time") {
-        properties["time"] = QDateTime::fromString(value, "yyyy-MM-dd hh:mm:ss");
+        properties["time"] = QDateTime::fromString(value, "yyyy-MM-ddThh:mm:ss");
       } else if (key == "group") {
         properties["groupId"] = value.toInt();
       } else if (key == "points") {
@@ -310,8 +310,8 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
     if (p.contains("time")) {
-      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-dd hh:mm:ss");
-      bool visible = (time_str.isEmpty() | (time.isoTime() == time_str.toStdString()));
+      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-ddThh:mm:ss");
+      bool visible = (time_str.isEmpty() | (time.isoTime("T") == time_str.toStdString()));
       item->setProperty("visible", visible);
     } else
       item->setProperty("visible", true);
