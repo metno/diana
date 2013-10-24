@@ -324,12 +324,14 @@ std::string VcrossSetup::parseOneComputation(const KeyValue& kv)
   if (kv.value.empty())
     return "Empty computation definition";
 
+  const std::string& name = kv.key;
+  if (isDefinedName(name))
+    return "Name '" + name + "' already defined";
+
   std::string fname;
   std::vector<std::string> fargs;
   if (not VcrossUtil::parseNameAndArgs(miutil::to_lower(kv.value), fname, fargs))
     return "Error parsing computation definition '" + kv.value + "'";
-  if (isDefinedName(fname))
-    return "Name '" + fname + "' already defined";
 
   const VcrossComputer::FunctionLike* cf = VcrossComputer::findFunction(fname);
   if (not cf or (cf->id < VcrossComputer::vcf_add) or (cf->id >= VcrossComputer::vcf_no_function))
@@ -355,7 +357,6 @@ std::string VcrossSetup::parseOneComputation(const KeyValue& kv)
     return "Argument '" + a + "' not known";
   }
 
-  const std::string& name = kv.key;
   vcFunction vcfunc;
   vcfunc.function = static_cast<VcrossComputer::VcrossFunction>(cf->id);
   vcfunc.vars = fargs;

@@ -381,7 +381,7 @@ void VcrossManager::preparePlot()
 
   bool haveZaxis = false;
   VcrossData::ZAxis::Quantity zQuantity = VcrossData::ZAxis::PRESSURE;
-  if (true /*mOptions->plotPressure*/) {
+  if (false /*mOptions->plotPressure*/) {
     zQuantity = VcrossData::ZAxis::PRESSURE;
     mPlot->setVerticalAxis(zQuantity);
     haveZaxis = true;
@@ -398,11 +398,23 @@ void VcrossManager::preparePlot()
     bool goodZaxis = true;
     const std::string& arg0_name = arguments.front();
     const VcrossData::ParameterData& arg0 = data->parameters[arg0_name];
+    if (not arg0.values) {
+      METLIBS_LOG_WARN("no values for argument '" << arg0_name << "'");
+      continue;
+    }
+
     VcrossData::ZAxisPtr zax = arg0.zAxis;
     METLIBS_LOG_DEBUG(LOGVAL(arg0_name) << (zax ? " have zax" : " no zax") << LOGVAL(arg0.unit));
     
-    for (size_t a=1; goodZaxis and a<arguments.size(); ++a) {
-      VcrossData::ZAxisPtr zax1 = data->parameters[arguments[a]].zAxis;
+    for (size_t a=1; a<arguments.size(); ++a) {
+      const VcrossData::ParameterData& arg = data->parameters[arguments[a]];
+      if (not arg.values) {
+        METLIBS_LOG_WARN("no values for argument '" << arguments[a] << "'");
+        goodZaxis = false;
+        break;
+      }
+
+      VcrossData::ZAxisPtr zax1 = arg.zAxis;
       METLIBS_LOG_DEBUG(LOGVAL(arguments[a]) << (zax1 ? " have zax1" : " no zax1"));
       goodZaxis &= (zax == zax1);
     }
