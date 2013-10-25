@@ -49,7 +49,8 @@
 
 #include <qapplication.h>
 #include <QFileDialog>
-#include <QToolBar>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -60,15 +61,74 @@
 #include <QPixmap>
 #include <QAction>
 
+#include <QtCore/QAbstractListModel>
+#include <vector>
+
 #define MILOGGER_CATEGORY "diana.VcrossWindow"
 #include <miLogger/miLogging.h>
 
 #include "forover.xpm"
 #include "bakover.xpm"
 
+namespace /* anonymous */ {
+
+namespace VectorModelDetail {
+
+template<class ValueType>
+struct BasicExtract {
+  typedef ValueType value_t;
+};
+
+} // namespace VectorModelDetail
+
+// ========================================================================
+
+template<class Extract>
+class VectorModel : public QAbstractListModel {
+public:
+  typedef typename Extract::value_t value_t;
+  typedef std::vector<value_t> vector_t;
+
+  VectorModel(const vector_t& values, const Extract& e = Extract())
+    : mValues(values), mExtract(e) { }
+
+  int rowCount(const QModelIndex&) const
+    { return mValues.size(); }
+
+  QVariant data(const QModelIndex& index, int role) const;
+  
+  const vector_t& values() const
+    { return mValues; }
+
+private:
+  vector_t mValues;
+  Extract mExtract;
+};
+
+template<class Extract>
+QVariant VectorModel<Extract>::data(const QModelIndex& index, int role) const
+{
+  if (role == Qt::DisplayRole)
+    return mExtract.text(mValues.at(index.row()));
+  else if (role == Qt::ToolTipRole or role == Qt::StatusTipRole)
+    return mExtract.tip(mValues.at(index.row()));
+  else
+    return QVariant();
+}
+
+struct MiTimeExtract : public VectorModelDetail::BasicExtract<miutil::miTime>
+{
+  QVariant text(const miutil::miTime& t) const
+    { return QString::fromStdString(t.isoTime()); }
+  QVariant tip(const miutil::miTime& t) const
+    { return QVariant(); }
+};
+typedef VectorModel<MiTimeExtract> MiTimeModel;
+
+} // namespace anonymous
 
 VcrossWindow::VcrossWindow(Controller *co)
-  : QMainWindow(0)
+  : QDialog(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -77,19 +137,9 @@ VcrossWindow::VcrossWindow(Controller *co)
   setWindowTitle( tr("Diana Vertical Crossections") );
 
   //central widget
-  vcrossw= new VcrossWidget(vcrossm, this);
-  setCentralWidget(vcrossw);
+  vcrossw = new VcrossWidget(vcrossm, this);
   connect(vcrossw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(vcrossw, SIGNAL(crossectionChanged(int)),SLOT(crossectionChangedSlot(int)));
-
-  // tool bar and buttons
-  vcToolbar = new QToolBar(this);
-  addToolBar(Qt::TopToolBarArea,vcToolbar);
-
-  // tool bar for selecting time and station
-  tsToolbar = new QToolBar(this);
-  addToolBar(Qt::TopToolBarArea,tsToolbar);
-
 
   //button for model/field dialog-starts new dialog
   dataButton = new ToggleButton(this, tr("Model/field"));
@@ -123,7 +173,8 @@ VcrossWindow::VcrossWindow(Controller *co)
   QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
   connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
 
-  QPushButton *leftCrossectionButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  QAbstractButton *leftCrossectionButton= new QToolButton(this);
+  leftCrossectionButton->setIcon(QPixmap(bakover_xpm));
   connect(leftCrossectionButton, SIGNAL(clicked()), SLOT(leftCrossectionClicked()) );
   leftCrossectionButton->setAutoRepeat(true);
 
@@ -134,44 +185,57 @@ VcrossWindow::VcrossWindow(Controller *co)
   connect( crossectionBox, SIGNAL( activated(int) ),
       SLOT( crossectionBoxActivated(int) ) );
 
-  QPushButton *rightCrossectionButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  QAbstractButton *rightCrossectionButton= new QToolButton(this);
+  rightCrossectionButton->setIcon(QPixmap(forward_xpm));
   connect(rightCrossectionButton, SIGNAL(clicked()), SLOT(rightCrossectionClicked()) );
   rightCrossectionButton->setAutoRepeat(true);
 
-  QPushButton *leftTimeButton= new QPushButton(QPixmap(bakover_xpm),"",this);
+  QAbstractButton *leftTimeButton = new QToolButton(this);
+  leftTimeButton->setIcon(QPixmap(bakover_xpm));
   connect(leftTimeButton, SIGNAL(clicked()), SLOT(leftTimeClicked()) );
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
-  miutil::miTime tnow= miutil::miTime::nowTime();
-  miutil::miTime tset= miutil::miTime(tnow.year(),tnow.month(),tnow.day(),0,0,0);
-  std::vector<std::string> dummytime;
-  dummytime.push_back(tset.isoTime(false,false));
-  timeBox = ComboBox(this, dummytime, true, 0);
-  connect( timeBox, SIGNAL( activated(int) ),
-      SLOT( timeBoxActivated(int) ) );
+  timeBox = new QComboBox(this);
+  timeBox->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
+  timeBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  connect(timeBox, SIGNAL(activated(int)), SLOT(timeBoxActivated(int)));
 
-  QPushButton *rightTimeButton= new QPushButton(QPixmap(forward_xpm),"",this);
+  QAbstractButton *rightTimeButton = new QToolButton(this);
+  rightTimeButton->setIcon(QPixmap(forward_xpm));
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
-  vcToolbar->addWidget(dataButton);
-  vcToolbar->addWidget(setupButton);
-  vcToolbar->addWidget(timeGraphButton);
-  vcToolbar->addWidget(printButton);
-  vcToolbar->addWidget(saveButton);
-  vcToolbar->addWidget(quitButton);
-  vcToolbar->addWidget(helpButton);
-  vcToolbar->addWidget(dynCrossButton);
+  QVBoxLayout* vlayout = new QVBoxLayout;
+  vlayout->setSpacing(2);
 
-  insertToolBarBreak(tsToolbar);
+  QHBoxLayout* vclayout = new QHBoxLayout;
+  vclayout->setSpacing(2);
+  vclayout->addWidget(dataButton);
+  vclayout->addWidget(setupButton);
+  vclayout->addWidget(timeGraphButton);
+  vclayout->addWidget(printButton);
+  vclayout->addWidget(saveButton);
+  vclayout->addWidget(quitButton);
+  vclayout->addWidget(helpButton);
+  vclayout->addWidget(dynCrossButton);
+  vclayout->addStretch();
+  vlayout->addLayout(vclayout);
 
-  tsToolbar->addWidget(leftCrossectionButton);
-  tsToolbar->addWidget(crossectionBox);
-  tsToolbar->addWidget(rightCrossectionButton);
-  tsToolbar->addWidget(leftTimeButton);
-  tsToolbar->addWidget(timeBox);
-  tsToolbar->addWidget(rightTimeButton);
+  QHBoxLayout* tslayout = new QHBoxLayout;
+  tslayout->setSpacing(2);
+  tslayout->addWidget(leftCrossectionButton);
+  tslayout->addWidget(crossectionBox);
+  tslayout->addWidget(rightCrossectionButton);
+  tslayout->addWidget(leftTimeButton);
+  tslayout->addWidget(timeBox);
+  tslayout->addWidget(rightTimeButton);
+  tslayout->addStretch();
+  vlayout->addLayout(tslayout);
+
+  vlayout->addWidget(vcrossw);
+
+  setLayout(vlayout);
 
   //connected dialogboxes
 
@@ -205,6 +269,11 @@ VcrossWindow::VcrossWindow(Controller *co)
   active = false;
 }
 
+/***************************************************************************/
+
+VcrossWindow::~VcrossWindow()
+{
+}
 
 /***************************************************************************/
 
@@ -282,29 +351,32 @@ bool VcrossWindow::timeChangedSlot(int diff)
     timeBox->setCurrentIndex(index);
   }
 
-  miutil::miTime t = vcrossm->getTime();
-  const std::string tstring = t.isoTime(false,false);
-  std::string tbs = timeBox->currentText().toStdString();
-  if (tbs != tstring) {
-    // search timeList
-    for (int i = 0; i<count;i++){
-      if (tstring == timeBox->itemText(i).toStdString()){
+  const miutil::miTime& vct = vcrossm->getTime();
+  const MiTimeModel* tim = static_cast<MiTimeModel*>(timeBox->model());
+  const miutil::miTime& tbt = tim->values().at(timeBox->currentIndex());
+
+  bool ok = (vct == tbt);
+
+  // search timeList
+  if (not ok) {
+    for (int i = 0; i<count; i++) {
+      if (vct == tim->values().at(i)) {
         timeBox->setCurrentIndex(i);
-        tbs = timeBox->currentText().toStdString();
-        METLIBS_LOG_DEBUG(LOGVAL(tbs) << LOGVAL(tstring) << LOGVAL(i));
+        METLIBS_LOG_DEBUG(LOGVAL(i));
+        ok = true;
         break;
       }
     }
   }
-  if (tbs != tstring) {
-    METLIBS_LOG_DEBUG(LOGVAL(tbs) << LOGVAL(tstring));
+
+  if (not ok) {
+    METLIBS_LOG_DEBUG(LOGVAL(vct) << "not found");
     return false;
   }
 
-  /*emit*/ setTime("vcross", t);
+  /*emit*/ setTime("vcross", vct);
   return true;
 }
-
 
 /***************************************************************************/
 
@@ -497,8 +569,6 @@ void VcrossWindow::quitClicked()
   //called when the quit button is clicked
   METLIBS_LOG_SCOPE();
 
-  vcToolbar->hide();
-  tsToolbar->hide();
   dataButton->setChecked(false);
   setupButton->setChecked(false);
 
@@ -507,7 +577,7 @@ void VcrossWindow::quitClicked()
   vcrossm->cleanup();
 
   crossectionBox->clear();
-  timeBox->clear();
+  timeBox->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
 
   active = false;
   /*emit*/ updateCrossSectionPos(false);
@@ -646,17 +716,10 @@ void VcrossWindow::updateCrossectionBox()
 
 void VcrossWindow::updateTimeBox()
 {
-  //update list of times
   METLIBS_LOG_SCOPE();
 
-  timeBox->clear();
-  std::vector<miutil::miTime> times= vcrossm->getTimeList();
-
-  int n =times.size();
-  for (int i=0; i<n; i++){
-    timeBox->addItem(QString(times[i].isoTime(false,false).c_str()));
-  }
-
+  const std::vector<miutil::miTime>& times = vcrossm->getTimeList();
+  timeBox->setModel(new MiTimeModel(times));
   /*emit*/ emitTimes("vcross",times);
 }
 
@@ -726,8 +789,6 @@ void VcrossWindow::startUp(const miutil::miTime& t)
   METLIBS_LOG_DEBUG("t= " << t);
 
   active = true;
-  vcToolbar->show();
-  tsToolbar->show();
   //do something first time we start Vertical crossections
   if (firstTime){
     //vector<miutil::miString> models;

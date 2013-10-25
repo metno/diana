@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,11 +26,12 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
 #include "diPrintOptions.h"
-#include <QMainWindow>
+#include <QtGui/QDialog>
 #include <vector>
 
 namespace miutil {
@@ -48,7 +49,6 @@ class QAction;
 class QComboBox;
 class QPrinter;
 class QString;
-class QToolBar;
 
 /**
   \brief Window for Vertical Crossections
@@ -56,13 +56,13 @@ class QToolBar;
   Contains a crossection window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class VcrossWindow: public QMainWindow
+class VcrossWindow: public QDialog
 {
   Q_OBJECT
 
 public:
   VcrossWindow(Controller* co);
-  ~VcrossWindow(){}
+  ~VcrossWindow();
 
   //! alias for getCrossections \deprecated
   void getCrossectionOptions(LocationData& locationdata)
@@ -109,8 +109,6 @@ private:
   //qt widgets
   QAction *showPrevPlotAction;
   QAction *showNextPlotAction;
-  QToolBar *vcToolbar;
-  QToolBar *tsToolbar;
   ToggleButton * dataButton;
   ToggleButton * setupButton;
   ToggleButton * timeGraphButton;
@@ -161,7 +159,5 @@ Q_SIGNALS:
   void nextHVcrossPlot();
   void prevHVcrossPlot();
 };
-#endif
 
-
-
+#endif // _qt_vcrossmainwindow_
