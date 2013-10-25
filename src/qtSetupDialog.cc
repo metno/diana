@@ -1,8 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,6 +33,7 @@
 
 #include "qtSetupDialog.h"
 #include "diLocalSetupParser.h"
+#include <puTools/miSetupParser.h>
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
@@ -45,13 +45,10 @@
 using namespace std;
 
 SetupDialog::SetupDialog(QWidget* parent)
-: QDialog(parent)
+  : QDialog(parent)
 {
-
   setWindowTitle(tr("Setup"));
-
   setModal(true);
-
 
   QVBoxLayout* v= new QVBoxLayout(this);
 

@@ -45,10 +45,12 @@
 #include <glText/glTextQtTexture.h>
 #include <glp/GLP.h>
 #endif
+
+#include "diLocalSetupParser.h"
+#include <puTools/miSetupParser.h>
+
 #define MILOGGER_CATEGORY "diana.FontManager"
 #include <miLogger/miLogging.h>
-
-#include <diLocalSetupParser.h>
 
 using namespace miutil;
 using namespace std;

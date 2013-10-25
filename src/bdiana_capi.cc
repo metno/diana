@@ -2,9 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -75,6 +73,7 @@
 #include <diImageIO.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miSetupParser.h>
 
 #ifdef USE_VCROSS_V2
 #include "vcross_v2/diVcrossManager.h"

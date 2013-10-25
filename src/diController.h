@@ -382,9 +382,9 @@ public:
   void deleteLocation(const miutil::miString& name);
   void setSelectedLocation(const miutil::miString& name,
                          const miutil::miString& elementname);
-  miutil::miString findLocation(int x, int y, const miutil::miString& name);
+  std::string findLocation(int x, int y, const std::string& name);
 
-  map<miutil::miString,InfoFile> getInfoFiles();
+  std::map<std::string,InfoFile> getInfoFiles();
 
   vector<PlotElement>& getPlotElements();
   void enablePlotElement(const PlotElement& pe);

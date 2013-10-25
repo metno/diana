@@ -137,6 +137,7 @@
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
 #include <qUtilities/miLogFile.h>
+#include <puTools/miSetupParser.h>
 
 #include <iomanip>
 
@@ -179,9 +180,9 @@
 using namespace milogger;
 
 DianaMainWindow::DianaMainWindow(Controller *co,
-    const miutil::miString ver_str,
-    const miutil::miString build_str,
-    miutil::miString dianaTitle,
+    const std::string& ver_str,
+    const std::string& build_str,
+    const std::string& dianaTitle,
     bool ep)
 : QMainWindow(),
   enableProfet(ep), push_command(true),browsing(false),
@@ -661,12 +662,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   infomenu->setIcon(QPixmap(info_xpm));
   connect(infomenu, SIGNAL(triggered(QAction *)),
       SLOT(info_activated(QAction *)));
-  infoFiles= contr->getInfoFiles();
-  if (infoFiles.size()>0){
-    map<miutil::miString,InfoFile>::iterator p=infoFiles.begin();
-    for (; p!=infoFiles.end(); p++){
-      infomenu->addAction(p->first.c_str());
-    }
+  infoFiles = contr->getInfoFiles();
+  if (not infoFiles.empty()) {
+    std::map<std::string,InfoFile>::iterator p = infoFiles.begin();
+    for (; p!=infoFiles.end(); p++)
+      infomenu->addAction(QString::fromStdString(p->first));
   }
   //  infoB->setAccel(Qt::ALT+Qt::Key_N);
 
@@ -853,8 +853,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   hqcTo = -1;
   qsocket = false;
-  miutil::miString server = LocalSetupParser::basicValue("qserver");
-  pluginB = new ClientButton(tr("Diana"),server.c_str(),statusBar());
+  const std::string server = LocalSetupParser::basicValue("qserver");
+  pluginB = new ClientButton(tr("Diana"), QString::fromStdString(server),statusBar());
   //   pluginB->setMinimumWidth( hpixbutton );
   //   pluginB->setMaximumWidth( hpixbutton );
   connect(pluginB, SIGNAL(receivedMessage(const miMessage&)),
@@ -884,9 +884,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // Read the avatars to gallery
 
-  miutil::miString avatarpath = LocalSetupParser::basicValue("avatars");
-  if ( avatarpath.exists() ){
-    vector<miutil::miString> vs = avatarpath.split(":");
+  std::string avatarpath = LocalSetupParser::basicValue("avatars");
+  if (not avatarpath.empty()) {
+    const vector<std::string> vs = miutil::split(avatarpath, ":");
     for ( unsigned int i=0; i<vs.size(); i++ ){
       ig.addImagesInDirectory(vs[i]);
     }
@@ -1156,7 +1156,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
 
   //parse labels
-  const miutil::miString label_name = "LABELS";
+  const std::string label_name = "LABELS";
   vector<miutil::miString> sect_label;
 
   if (!miutil::SetupParser::getSection(label_name,sect_label)){

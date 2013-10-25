@@ -55,6 +55,8 @@
 #include <diMapManager.h>
 #include <diLocalSetupParser.h>
 
+#include <puTools/miSetupParser.h>
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 
@@ -1044,16 +1046,17 @@ void Controller::setSelectedLocation(const miString& name,
   plotm->setSelectedLocation(name,elementname);
 }
 
-miString Controller::findLocation(int x, int y, const miString& name){
+string Controller::findLocation(int x, int y, const string& name)
+{
 #ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Controller::findLocation: " << x << "," << y << "," << name);
+  METLIBS_LOG_DEBUG("Controller::findLocation: " << x << "," << y << "," << name);
 #endif
   return plotm->findLocation(x,y,name);
 }
 
 //******************************************************************
 
-map<miString,InfoFile> Controller::getInfoFiles()
+map<string,InfoFile> Controller::getInfoFiles()
 {
   return LocalSetupParser::getInfoFiles();
 }

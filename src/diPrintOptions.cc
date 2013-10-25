@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,15 +31,13 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.PrintOptions"
-#include <miLogger/miLogging.h>
-
 #include <diPrintOptions.h>
 #include <diLocalSetupParser.h>
+#include <puTools/miSetupParser.h>
 #include <fstream>
-#include <iostream>
 
-/* Created at Wed Oct 31 18:26:24 2001 */
+#define MILOGGER_CATEGORY "diana.PrintOptions"
+#include <miLogger/miLogging.h>
 
 using namespace d_print;
 using namespace::miutil;

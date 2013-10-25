@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,9 +31,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofManager"
-#include <miLogger/miLogging.h>
-
 #include "diVprofManager.h"
 
 #include "diVprofOptions.h"
@@ -64,18 +59,20 @@
 #include "diVprofPilot.h"
 #endif // ROADOBS
 
-#define MILOGGER_CATEGORY "diana.VprofManager"
-#include <miLogger/miLogging.h>
 #include <diField/diFieldManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
+#include <puTools/miSetupParser.h>
 
 #include <cmath>
 #include <iomanip>
 #include <fstream>
 #include <vector>
 #include <map>
+
+#define MILOGGER_CATEGORY "diana.VprofManager"
+#include <miLogger/miLogging.h>
 
 #ifdef ROADOBS
 using namespace road;

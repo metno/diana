@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,17 +29,10 @@
 #ifndef diLocalSetupParser_h
 #define diLocalSetupParser_h
 
-#include <puTools/miString.h>
-#include <puTools/miSetupParser.h>
+#include <diCommonTypes.h>
+
 #include <vector>
 #include <map>
-#include <diPlotOptions.h>
-#include <diCommonTypes.h>
-#include <diField/diArea.h>
-
-using namespace std;
-
-class Controller;
 
 /**
    \brief the setup file parser
@@ -56,47 +47,47 @@ class Controller;
 
 class LocalSetupParser {
 private:
-  static miutil::miString setupFilename;
-  static vector<QuickMenuDefs>   quickmenudefs;
-  static map<miutil::miString, miutil::miString> basic_values;
-  static map<miutil::miString, InfoFile> infoFiles;
-  static vector<miutil::miString>        langPaths;
+  static std::string setupFilename;
+  static std::vector<QuickMenuDefs>   quickmenudefs;
+  static std::map<std::string, std::string> basic_values;
+  static std::map<std::string, InfoFile> infoFiles;
+  static std::vector<std::string>        langPaths;
 
   // parse basic info
-  static bool parseBasics(const miutil::miString&);
+  static bool parseBasics(const std::string&);
   // parse section containing colour definitions
-  static bool parseColours(const miutil::miString&);
+  static bool parseColours(const std::string&);
   // parse section containing colour-palette definitions
-  static bool parsePalettes(const miutil::miString&);
+  static bool parsePalettes(const std::string&);
   // parse section containing fillpattern definitions
-  static bool parseFillPatterns(const miutil::miString&);
+  static bool parseFillPatterns(const std::string&);
   // parse section containing linetype definitions
-  static bool parseLineTypes(const miutil::miString&);
+  static bool parseLineTypes(const std::string&);
   // parse section containing definitions of quick-menus
-  static bool parseQuickMenus(const miutil::miString&);
+  static bool parseQuickMenus(const std::string&);
   // parse text-information-files
-  static bool parseTextInfoFiles(const miutil::miString&);
+  static bool parseTextInfoFiles(const std::string&);
   // check if fielname exists, if not make directory
-  static bool makeDirectory(const miutil::miString& filename, miutil::miString & error);
+  static bool makeDirectory(const std::string& filename, std::string & error);
 
 public:
   LocalSetupParser(){}
 
   /// recursively parse setupfiles - mainfilename can be changed in the process
-  static bool parse( miutil::miString& mainfilename );
+  static bool parse(std::string& mainfilename);
   /// get quick menues defined in setup
-  static bool getQuickMenus(vector<QuickMenuDefs>& qm);
+  static bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
   /// get list of lists of colours
-  static vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
+  static std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
   /// get list of InfoFile - used in textview
-  static map<miutil::miString,InfoFile> getInfoFiles() {return infoFiles;}
+  static const std::map<std::string, InfoFile> getInfoFiles() {return infoFiles;}
   /// paths to check for language files
-  static vector<miutil::miString> languagePaths() {return langPaths;}
+  static const std::vector<std::string>& languagePaths() {return langPaths;}
   /// Basic types
-  static miutil::miString basicValue(const miutil::miString& key) { return basic_values[key];}
+  static const std::string& basicValue(const std::string& key) { return basic_values[key];}
   /// Setup filename
-  static miutil::miString getSetupFileName() { return setupFilename;}
-  static void setSetupFileName(const miutil::miString& sf) { setupFilename=sf;}
+  static const std::string& getSetupFileName() { return setupFilename;}
+  static void setSetupFileName(const std::string& sf) { setupFilename=sf;}
 };
 
 #endif
