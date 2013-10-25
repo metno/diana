@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,13 +26,9 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef diDrawingTypes_h
 #define diDrawingTypes_h
-
-#include <puTools/miString.h>
-#include <vector>
-
-using namespace std;
 
 /// edit event types
 enum editType{
@@ -87,9 +81,7 @@ struct EditEvent {
 
 const int numObjectTypes= 5;
 
-const miutil::miString ObjectTypeNames[numObjectTypes]=
+const std::string ObjectTypeNames[numObjectTypes]=
 {"edittool","front","symbol","area","anno"};
 
-
-
-#endif
+#endif // diDrawingTypes_h
