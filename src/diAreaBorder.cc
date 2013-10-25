@@ -166,9 +166,9 @@ void AreaBorder::increaseSize(float val)
 }
 
 
-miString AreaBorder::writeTypeString()
+string AreaBorder::writeTypeString()
 {
-  miString ret ="Object=Border;\n";
+  string ret ="Object=Border;\n";
   ret+="Type=AreaBorder";
   ret+=";\n";
   return ret;

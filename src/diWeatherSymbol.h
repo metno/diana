@@ -115,7 +115,7 @@ public:
   /// get list of complex texts (used in text dialog)
   static set <miutil::miString> getComplexList();
   /// replace characters like !{ in string
-  static void replaceText(miutil::miString & tempString,bool writestring);
+  static void replaceText(std::string& tempString, bool writestring);
   /// set standard size to use for new weathersymbols
   static void setStandardSize(int size1, int size2);
   /// add new point to weather symbol
@@ -147,15 +147,15 @@ public:
   /// set white box for complex symbol
   void setWhiteBox(int on); //only works for complex objects
   /// set symbol string
-  void setString(miutil::miString s);
+  void setString(const std::string& s);
   /// get symbol string
-  miutil::miString getString(){return symbolString;}
+  std::string getString(){return symbolString;}
   /// returns true if x,y on symbol
   virtual bool isOnObject(float x, float y);
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
   /// apply filter to hide some symbols
-  virtual void applyFilters(vector <miutil::miString>);
+  virtual void applyFilters(const std::vector<miutil::miString>&);
   /// gets miutil::miString vectors with symboltext or multiline text
   void getMultilineText(vector <miutil::miString> & symbolText);
   /// gets miutil::miString vectors with symboltext and xText

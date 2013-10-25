@@ -502,7 +502,7 @@ bool WeatherSymbol::isOnObject(float x,float y){
 }
 
 
-miString WeatherSymbol::writeTypeString()
+string WeatherSymbol::writeTypeString()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherSymbol::writeTypeString");
@@ -552,15 +552,17 @@ miString WeatherSymbol::writeTypeString()
 }
 
 
-void WeatherSymbol::setString(miString s){
-  miString tempString=s;
+void WeatherSymbol::setString(const std::string& s)
+{
+  string tempString=s;
   replaceText(tempString,false);
   symbolString = tempString;
   textlist.insert(symbolString);
 }
 
 
-void WeatherSymbol::applyFilters(vector <miString> symbolfilter){
+void WeatherSymbol::applyFilters(const std::vector<miString>& symbolfilter)
+{
   for (unsigned int i=0;i<symbolfilter.size();i++){
     if (allSymbols[type].name==symbolfilter[i]){
       isVisible=false;
@@ -653,23 +655,24 @@ void WeatherSymbol::setWhiteBox(int on){
 
 
 
-void WeatherSymbol::replaceText(miString & tempString,bool writestring){
+void WeatherSymbol::replaceText(string& tempString, bool writestring)
+{
   //replace !;=#,:
   if (writestring){
-    tempString.replace("!","{exclamationmark}");
-    tempString.replace(";","{semicolon}");
-    tempString.replace("=","{equals}");
-    tempString.replace("#","{hash}");
-    tempString.replace(",","{comma}");
-    tempString.replace(":","{colon}");
-    tempString.replace("/","{slash}");
+    miutil::replace(tempString, "!","{exclamationmark}");
+    miutil::replace(tempString, ";","{semicolon}");
+    miutil::replace(tempString, "=","{equals}");
+    miutil::replace(tempString, "#","{hash}");
+    miutil::replace(tempString, ",","{comma}");
+    miutil::replace(tempString, ":","{colon}");
+    miutil::replace(tempString, "/","{slash}");
   } else {
-    tempString.replace("{exclamationmark}","!");
-    tempString.replace("{semicolon}",";");
-    tempString.replace("{equals}","=");
-    tempString.replace("{hash}","#");
-    tempString.replace("{comma}",",");
-    tempString.replace("{colon}",":");
-    tempString.replace("{slash}","/");
+    miutil::replace(tempString, "{exclamationmark}","!");
+    miutil::replace(tempString, "{semicolon}",";");
+    miutil::replace(tempString, "{equals}","=");
+    miutil::replace(tempString, "{hash}","#");
+    miutil::replace(tempString, "{comma}",",");
+    miutil::replace(tempString, "{colon}",":");
+    miutil::replace(tempString, "{slash}","/");
   }
 }

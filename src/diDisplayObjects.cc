@@ -201,18 +201,19 @@ void DisplayObjects::getObjAnnotation(miString &str, Colour &col){
 
 
 
-bool DisplayObjects::getAnnotations(  vector <miString> &anno){
-
+bool DisplayObjects::getAnnotations(vector <string>& anno)
+{
   if (!isEnabled())
     return false;
   int nanno = anno.size();
-    int n= objects.size();
-    if (!n) return false;
-  for(int i=0; i<nanno; i++){
-    if(!anno[i].contains("table") || anno[i].contains("table=")  )
+  int n= objects.size();
+  if (!n)
+    return false;
+  for(int i=0; i<nanno; i++) {
+    if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
       continue;
     miString endString;
-    if(anno[i].contains(",")){
+    if(miutil::contains(anno[i], ",")) {
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
     }
@@ -233,10 +234,12 @@ bool DisplayObjects::getAnnotations(  vector <miString> &anno){
 
 /*********************************************/
 
-void DisplayObjects::getPlotName(miString &name){
-  if(approved ){
+void DisplayObjects::getPlotName(string &name)
+{
+  if (approved) {
     name = objectname;
-    if (!autoFile) name += " " + itsTime.isoTime();
+    if (!autoFile)
+      name += " " + itsTime.isoTime();
   }
   else
     name.erase();

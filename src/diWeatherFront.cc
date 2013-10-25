@@ -1252,14 +1252,14 @@ bool WeatherFront::setSpline(bool s){
   return false;
 }
 
-miString WeatherFront::writeTypeString()
+string WeatherFront::writeTypeString()
 {
-  miString ret ="Object=Front;\n";
+  string ret ="Object=Front;\n";
   ret+="Type=";
   ret+=allFronts[type].name;
   ret+=";\n";
   ret+="Linewidth=";
-  ret+=miString(linewidth);
+  ret+=miutil::from_number(linewidth);
   ret+=";\n";
   return ret;
 }

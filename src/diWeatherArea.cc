@@ -463,14 +463,14 @@ bool WeatherArea::isInsideArea(float x, float y)
   return false;
 }
 
-miString WeatherArea::writeTypeString()
+string WeatherArea::writeTypeString()
 {
-  miString ret = "Object=Area;\n";
+  string ret = "Object=Area;\n";
   ret += "Type=";
   ret += allAreas[type].name;
   ret += ";\n";
   ret += "Linewidth=";
-  ret += miString(linewidth);
+  ret += miutil::from_number(linewidth);
   ret += ";\n";
   return ret;
 }

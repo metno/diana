@@ -204,7 +204,7 @@ struct aTable{
   miString text;
 };
 
-bool FieldPlot::getAnnotations(vector<miString>& anno)
+bool FieldPlot::getAnnotations(vector<string>& anno)
 {
   //  METLIBS_LOG_DEBUG("getAnnotations:"<<anno.size());
 
@@ -213,7 +213,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
   int nanno = anno.size();
   for(int j=0; j<nanno; j++){
-    if(anno[j].contains("table")){
+    if(miutil::contains(anno[j], "table")) {
       if (!enabled || poptions.table==0  ||
           (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
         continue;;
@@ -222,7 +222,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
 
       miString endString;
       miString startString;
-      if(anno[j].contains(",")){
+      if (miutil::contains(anno[j], ",")){
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
         startString =anno[j].substr(0,nn);
@@ -231,7 +231,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
       }
 
       //if asking for spesific field
-      if(anno[j].contains("table=")){
+      if (miutil::contains(anno[j], "table=")) {
         miString name = startString.substr(startString.find_first_of("=")+1);
         if( name[0]=='"' )
           name.remove('"');
@@ -434,7 +434,7 @@ bool FieldPlot::getAnnotations(vector<miString>& anno)
   return true;
 }
 
-bool FieldPlot::getDataAnnotations(vector<miString>& anno)
+bool FieldPlot::getDataAnnotations(vector<string>& anno)
 {
   //  METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
 
@@ -443,12 +443,13 @@ bool FieldPlot::getDataAnnotations(vector<miString>& anno)
 
   int nanno = anno.size();
   for(int j=0; j<nanno; j++){
-    if (anno[j].contains("arrow") && vectorAnnotationSize>0. && vectorAnnotationText.exists()) {
-      if(anno[j].contains("arrow="))continue;
+    if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize>0. && not vectorAnnotationText.empty()) {
+      if (miutil::contains(anno[j], "arrow="))
+        continue;
 
       miString endString;
       miString startString;
-      if(anno[j].contains(",")){
+      if (miutil::contains(anno[j], ",")) {
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
         startString =anno[j].substr(0,nn);

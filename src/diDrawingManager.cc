@@ -85,12 +85,8 @@ DrawingManager *DrawingManager::instance()
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ DrawingManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 #endif
-
-  miString section="DRAWING";
-  vector<miString> vstr;
-
   return true;
 }
 

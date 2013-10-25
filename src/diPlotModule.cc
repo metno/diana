@@ -846,7 +846,7 @@ void PlotModule::setAnnotations()
 
   //get field and sat annotations
   for (int i = 0; i < n; i++) {
-    vector<vector<miString> > vvstr = vap[i]->getAnnotationStrings();
+    vector<vector<string> > vvstr = vap[i]->getAnnotationStrings();
     int nn = vvstr.size();
     for (int k = 0; k < nn; k++) {
       m = vfp.size();
@@ -1423,7 +1423,7 @@ void PlotModule::plotUnder()
 
   int nanno = vap.size();
   for (int l = 0; l < nanno; l++) {
-    vector<vector<miString> > vvstr = vap[l]->getAnnotationStrings();
+    vector<vector<string> > vvstr = vap[l]->getAnnotationStrings();
     int nn = vvstr.size();
     for (int k = 0; k < nn; k++) {
       n = vfp.size();
@@ -2704,7 +2704,7 @@ void PlotModule::updateEditLabels(const vector<miString>& productLabelstrings,
     AnnotationPlot* ap = new AnnotationPlot(productLabelstrings[j]);
     ap->setProductName(productName);
 
-    vector<vector<miString> > vvstr = ap->getAnnotationStrings();
+    vector<vector<string> > vvstr = ap->getAnnotationStrings();
     int nn = vvstr.size();
     for (int k = 0; k < nn; k++) {
       int mm = vfp.size();

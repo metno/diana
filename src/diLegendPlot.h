@@ -34,15 +34,9 @@
 #include <diPlot.h>
 #include <puTools/miString.h>
 
-using namespace std;
-
 /**
-
   \brief Plots a legend with colour and text
-
-
 */
-
 
 class LegendPlot : public Plot {
 
@@ -57,7 +51,7 @@ public:
 
 private:
   miutil::miString titlestring;
-  vector<ColourCode> colourcodes;
+  std::vector<ColourCode> colourcodes;
 
   // x,y coordinates of the titlebar... if we click inside this area,
   //change value of showplot;
@@ -80,14 +74,14 @@ public:
   /// Constructor
   LegendPlot();
   /// Constructor which reads string to get title and make vector of ColourCode
-  LegendPlot(miutil::miString& str);
+  LegendPlot(const std::string& str);
   LegendPlot(const LegendPlot &rhs);
   /// Destructor
   ~LegendPlot();
   /// Assignment operator
   LegendPlot& operator=(const LegendPlot &rhs);
   /// sets title and ColourCode vector
-  void setData(const miutil::miString& title, const vector<ColourCode>& colourcode);
+  void setData(const miutil::miString& title, const std::vector<ColourCode>& colourcode);
   /// get width and height of string str with current font
   void getStringSize(miutil::miString str, float& width, float& height);
   /// plots the legend plot with top left corner at x,y

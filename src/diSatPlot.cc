@@ -554,10 +554,10 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
 
 }
 
-bool SatPlot::getAnnotations(vector<miString>& anno){
-
-
-  if (!enabled) return false;
+bool SatPlot::getAnnotations(vector<string>& anno)
+{
+  if (!enabled)
+    return false;
 
   if(satdata == NULL || satdata->image == NULL || !satdata->approved)
     return false;
@@ -565,16 +565,17 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
   int nanno = anno.size();
 
   for(int i=0; i<nanno; i++){
-    if(anno[i].contains("$sat"))
-      anno[i].replace("$sat", satdata->satellite_name);
+    if (miutil::contains(anno[i], "$sat"))
+      miutil::replace(anno[i], "$sat", satdata->satellite_name);
   }
 
   //Colour table
-  if (!satdata->palette || !satdata->classtable) return false;
+  if (!satdata->palette || !satdata->classtable)
+    return false;
 
   for(int i=0; i<nanno; i++){
 
-    if(!anno[i].contains("table"))
+    if(! miutil::contains(anno[i], "table"))
       continue;
 
     miString satName = satdata->paletteInfo.name;
@@ -582,7 +583,7 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
 
     miString endString;
     miString startString;
-    if(anno[i].contains(",")){
+    if (miutil::contains(anno[i], ",")){
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
       startString =anno[i].substr(0,nn);
@@ -590,12 +591,13 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
       startString =anno[i];
     }
 
-    if(anno[i].contains("table=")){
+    if (miutil::contains(anno[i], "table=")) {
       miString name = startString.substr(startString.find_first_of("=")+1);
       if( name[0]=='"' )
         name.remove('"');
       name.trim();
-      if(!satName.contains(name)) continue;
+      if(!satName.contains(name))
+        continue;
     }
 
     miString str  = "table=\"";
@@ -626,8 +628,8 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
   return true;
 }
 
-void SatPlot::setSatAuto(bool autoFile,const miString & satellite,
-    const miString & file){
+void SatPlot::setSatAuto(bool autoFile,const string& satellite, const string& file)
+{
   if (satdata->satellite == satellite && satdata->filetype == file)
     satdata->autoFile=autoFile;
 }

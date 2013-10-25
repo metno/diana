@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,7 +65,7 @@ LegendPlot::LegendPlot()
 }
 
 
-LegendPlot::LegendPlot(miString& str)
+LegendPlot::LegendPlot(const std::string& str)
 : Plot()
 {
 #ifdef DEBUGPRINT
@@ -82,8 +80,9 @@ LegendPlot::LegendPlot(miString& str)
   xRatio = 0.01;
   yRatio = 0.01;
 
-  miString sstr = str.replace('"',' ');
-  sstr.trim();
+  miString sstr(str);
+  miutil::replace(sstr, '"',' ');
+  miutil::trim(sstr);
   vector<miString> vstr = sstr.split("=");
   if(vstr.size()==2){
     vector<miString> tokens = vstr[1].split(";",false);

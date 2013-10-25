@@ -59,8 +59,8 @@ public:
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
-  bool getAnnotations(vector<miutil::miString>& anno);
-  bool getDataAnnotations(vector<miutil::miString>& anno);
+  bool getAnnotations(std::vector<std::string>& anno);
+  bool getDataAnnotations(std::vector<std::string>& anno);
   bool plot();
   bool plot(const int){return false;}
   bool updateNeeded(miutil::miString&);

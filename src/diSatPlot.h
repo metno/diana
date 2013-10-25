@@ -78,8 +78,8 @@ public:
   ///get pixel value
   void values(float x,float y, vector<SatValues>& satval);
   ///get legend
-  bool getAnnotations(vector<miutil::miString>& anno);
-  void setSatAuto(bool, const miutil::miString&, const miutil::miString&);
+  bool getAnnotations(std::vector<std::string>& anno);
+  void setSatAuto(bool, const std::string&, const std::string&);
 };
 
 #endif

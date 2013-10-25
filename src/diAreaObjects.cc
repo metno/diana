@@ -99,7 +99,7 @@ bool AreaObjects::areaCommand(const miString& command,const miString& data){
   METLIBS_LOG_DEBUG("data=" << data);
 #endif
 
-  vector<miString> token = data.split(1,":",true);
+  vector<string> token = miutil::split(data, 1,":",true);
 
   bool on=false;
   if((token.size()==2 && token[1]=="on") || data=="on")

@@ -93,7 +93,7 @@ public:
   /// returns true if point x,y on area line
   virtual bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
   /// selects or unselects area
   virtual void setSelected(bool s);
   /// returns true if x,y inside area

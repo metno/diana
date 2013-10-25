@@ -168,7 +168,7 @@ void ObsPlot::getObsAnnotation(miString &str, Colour &col)
   col = origcolour;
 }
 
-bool ObsPlot::getDataAnnotations(vector<miString>& anno)
+bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::getDataAnnotations() ++");
@@ -187,13 +187,13 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
   miString vectorAnnotationText = miString(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
-    if (anno[j].contains("arrow")) {
-      if (anno[j].contains("arrow="))
+    if (miutil::contains(anno[j], "arrow")) {
+      if (miutil::contains(anno[j], "arrow="))
         continue;
 
       miString endString;
       miString startString;
-      if (anno[j].contains(",")) {
+      if (miutil::contains(anno[j], ",")) {
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
         startString = anno[j].substr(0, nn);

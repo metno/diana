@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,18 +32,13 @@
 #include <diObjectPlot.h>
 #include <puTools/miString.h>
 
-using namespace std;
-
-
 /**
-
   \brief Borders between areas when merging
-
-  The area borders are used when merging different analyses, to set the boundary lines between regions. The lines can be moved and rotated, and points can be removed in the same way as for fronts.
-
+  
+  The area borders are used when merging different analyses, to set
+  the boundary lines between regions. The lines can be moved and
+  rotated, and points can be removed in the same way as for fronts.
 */
-
-
 class AreaBorder: public ObjectPlot
 {
 private:
@@ -53,7 +46,7 @@ private:
   float transitionwidth;
 
   void drawThickLine();
- public:
+public:
   //constructor
   AreaBorder();
   AreaBorder(const AreaBorder &rhs);
@@ -80,7 +73,7 @@ private:
   void setType(int ty){}
   bool setType(miutil::miString tystring){type = 0; return true;}
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
 
 };
 

@@ -105,7 +105,7 @@ private:
   /// returns true if of x,y on object
   bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
   /// returns x distance from point to line after onLine is called
   float getDistX(){return distX;}
   /// returns y distance from point to line after onLine is called

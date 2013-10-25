@@ -3196,7 +3196,7 @@ void EditManager::setMapmodeinfo(){
 
 }
 
-bool EditManager::getAnnotations(vector<miString>& anno)
+bool EditManager::getAnnotations(vector<string>& anno)
 {
   int nf= fedits.size();
 

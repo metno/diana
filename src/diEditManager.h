@@ -250,7 +250,7 @@ public:
   /// returns a string with product id, name, time and object types
   miutil::miString savedProductString(savedProduct sp);
   /// get fieldEdit annotations
-  bool getAnnotations(vector<miutil::miString>& anno);
+  bool getAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
   const miutil::miString insertTime(const miutil::miString&, const miutil::miTime&);
 };

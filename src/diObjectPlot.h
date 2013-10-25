@@ -245,13 +245,13 @@ public:
   virtual bool onLine(float x, float y);                      ///< returns true if x,y on line
   virtual float getDistX(){return 0;}
   virtual float  getDistY(){return 0;}
-  virtual miutil::miString writeTypeString(){return " ";}
+  virtual std::string writeTypeString(){return " ";}
   virtual void setDefaultSize( ){}
   virtual void changeDefaultSize(){}
   virtual float getTransitionWidth(){return 0.0;}
-  virtual miutil::miString getString(){return miutil::miString();}
-  virtual void setString(miutil::miString s){}
-  virtual void applyFilters(vector <miutil::miString>){};
+  virtual std::string getString(){return std::string();}
+  virtual void setString(const std::string& s){}
+  virtual void applyFilters(const std::vector<miutil::miString>&){};
 
   virtual void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText){}
   virtual void getMultilineText(vector <miutil::miString> & symbolText){}

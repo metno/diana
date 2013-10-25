@@ -65,16 +65,16 @@ class AnnotationPlot: public Plot {
   struct element {
     vector<element> subelement;
     elementType eType;
-    miutil::miString eText;
+    std::string eText;
     int eCharacter;
-    miutil::miString eFont;
-    miutil::miString eFace;
-    miutil::miString textcolour;
-    miutil::miString eImage;
+    std::string eFont;
+    std::string eFace;
+    std::string textcolour;
+    std::string eImage;
     LegendPlot* classplot;
     float arrowLength;
     bool arrowFeather;
-    miutil::miString eName;
+    std::string eName;
     Alignment eHalign; //where it makes sense
     float eSize;
     float x1, y1, x2, y2;//dimensions and size of element
@@ -96,8 +96,8 @@ public:
 
    */
   struct Annotation {
-    miutil::miString str;
-    vector<miutil::miString> vstr;
+    std::string str;
+    vector<std::string> vstr;
     Colour col;
     Alignment hAlign;
     polyStyle polystyle;
@@ -117,7 +117,7 @@ private:
   vector<Border> borderline;
 
   //for comparing input text
-  map<miutil::miString, miutil::miString> inputText;
+  map<std::string, std::string> inputText;
 
   // OKstring variables
   float cmargin;
@@ -130,8 +130,8 @@ private:
   bool plotRequested;//annotations aligned rel. to frame (not window)
   bool nothingToDo;
   //
-  miutil::miString labelstrings; //fixed part of okstrings
-  miutil::miString productname;
+  std::string labelstrings; //fixed part of okstrings
+  std::string productname;
   bool editable;
 
   Rectangle bbox;
@@ -151,14 +151,14 @@ private:
   //called from constructor
   void init();
   // insert time in text string
-  const miutil::miString insertTime(const miutil::miString&, const miutil::miTime&);
+  const std::string insertTime(const std::string&, const miutil::miTime&);
   // expand string-variables
-  const vector<miutil::miString> expanded(const vector<miutil::miString>&);
+  const vector<std::string> expanded(const vector<std::string>&);
   // decode string, put into elements
   void splitAnnotations();
   bool putElements();
   void addElement2Vector(vector<element>& v_e, const element& e, int index);
-  bool decodeElement(miutil::miString elementstring, element& el);
+  bool decodeElement(std::string elementstring, element& el);
   //get size of annotation line
   void getAnnoSize(vector<element>& annoEl, float& wid, float& hei,
       bool horizontal = true);
@@ -168,13 +168,13 @@ private:
       float annoHeight, bool horizontal = true);
   float plotArrow(float x, float y, float l, bool feather = false);
   void plotBorders();
-  vector<miutil::miString> split(const miutil::miString, const char, const char);
-  miutil::miString writeElement(element& annoEl);
+  vector<std::string> split(const std::string, const char, const char);
+  std::string writeElement(element& annoEl);
 
 public:
   // Constructors
   AnnotationPlot();
-  AnnotationPlot(const miutil::miString&);
+  AnnotationPlot(const std::string&);
   // Destructor
   ~AnnotationPlot();
 
@@ -184,17 +184,17 @@ public:
     return false;
   }
   ///decode plot info strings
-  bool prepare(const miutil::miString&);
+  bool prepare(const std::string&);
   ///set data annotations
   bool setData(const vector<Annotation>& a,
       const vector<miutil::miTime>& fieldAnalysisTime);
-  void setfillcolour(miutil::miString colname);
+  void setfillcolour(std::string colname);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
-  miutil::miString getMarkedAnnotation();
+  std::string getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(miutil::miString text, int cursor = 0, int sel1 = 0,
+  void changeMarkedAnnotation(std::string text, int cursor = 0, int sel1 = 0,
       int sel2 = 0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
@@ -208,18 +208,18 @@ public:
   void editLastAnnoElement();
   /// put info from saved edit labels into new annotation
   void updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct);
-  /// return vector miutil::miStrings with edited annotation for product prodname
-  miutil::miString writeAnnotation(miutil::miString prodname);
-  void setProductName(miutil::miString prodname)
+  /// return vector std::strings with edited annotation for product prodname
+  std::string writeAnnotation(std::string prodname);
+  void setProductName(std::string prodname)
   {
     productname = prodname;
   }
   //get raw annotation objects
   const vector<Annotation>& getAnnotations();
   //get annotations, change them somewhere else, and put them back
-  vector<vector<miutil::miString> > getAnnotationStrings();
+  vector<vector<std::string> > getAnnotationStrings();
   ///replace annotations
-  bool setAnnotationStrings(vector<vector<miutil::miString> >& vstr);
+  bool setAnnotationStrings(vector<vector<std::string> >& vstr);
 
   Rectangle getBoundingBox() const {return bbox;}
 };

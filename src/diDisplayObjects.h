@@ -68,16 +68,16 @@ public:
   /// returns a string with objectname and time
   void getObjAnnotation(miutil::miString &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
-  bool getAnnotations(vector <miutil::miString> &);
+  bool getAnnotations(std::vector<std::string>&);
   /// returns a string with object name and possibly time
-  void getPlotName(miutil::miString& name);
+  void getPlotName(std::string& name);
   /// returns plotInfo string
-  miutil::miString getPlotInfo() const {return pin;}
+  const std::string& getPlotInfo() const {return pin;}
 
   bool autoFile; // read new files
   bool approved;          //objects approved for plotting
   int timeDiff; 
-  miutil::miString objectname;
+  std::string objectname;
   bool defined;
 
 private:

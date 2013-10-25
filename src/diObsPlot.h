@@ -302,8 +302,8 @@ public:
   void clear();
   static void clearPos();
   void getObsAnnotation(miutil::miString &, Colour &);
-  bool getDataAnnotations(std::vector<miutil::miString>& anno);
-  void setObsAnnotation(miutil::miString &anno){annotation =anno;}
+  bool getDataAnnotations(std::vector<std::string>& anno);
+  void setObsAnnotation(std::string &anno){annotation =anno;}
   std::vector<miutil::miString> getObsExtraAnnotations(){return labels;}
   void setLabel(const miutil::miString& pin){labels.push_back(pin);}
   void setLabels(const std::vector<miutil::miString>& l){labels = l;}

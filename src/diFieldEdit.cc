@@ -3620,7 +3620,7 @@ bool FieldEdit::plot(bool showinfluence)
   return res;
 }
 
-bool FieldEdit::getAnnotations(vector<miString>& anno)
+bool FieldEdit::getAnnotations(vector<string>& anno)
 {
   return editfieldplot->getAnnotations(anno);
 }

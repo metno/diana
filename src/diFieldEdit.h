@@ -226,7 +226,7 @@ public:
   void deactivate() { active= false; };
   bool activated() { return active; }
   bool plot(bool showinfluence);
-  bool getAnnotations(vector<miutil::miString>& anno);
+  bool getAnnotations(vector<std::string>& anno);
 };
 
 #endif
