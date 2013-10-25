@@ -77,12 +77,12 @@
 #include <puCtools/glob_cache.h>
 
 #ifdef USE_VCROSS_V2
-#include <diVcrossManager.h>
-#include <diVcrossOptions.h>
+#include "vcross_v2/diVcrossManager.h"
+#include "vcross_v2/diVcrossOptions.h"
 #else // !USE_VCROSS_V2
-#include <diVcross1Manager.h>
-#include <diVcross1Plot.h>
-#include <diVcross1Options.h>
+#include "vcross_v2/diVcross1Manager.h"
+#include "vcross_v2/diVcross1Plot.h"
+#include "vcross_v2/diVcross1Options.h"
 #endif // !USE_VCROSS_V2
 
 #include <diVprofManager.h>

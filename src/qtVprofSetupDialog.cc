@@ -43,18 +43,19 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.VprofSetupDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtUtility.h"
 #include "diVprofManager.h"
-#include "qtVcrossSetup.h"
+#include "vcross_qt/qtVcrossSetup.h"
 #include "qtVprofSetupDialog.h"
 #include "diVprofOptions.h"
 
+#define MILOGGER_CATEGORY "diana.VprofSetupDialog"
+#include <miLogger/miLogging.h>
 
+namespace {
 const int pStep= 50;
 const int tStep= 5;
+}
 
 /***************************************************************************/
 VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )

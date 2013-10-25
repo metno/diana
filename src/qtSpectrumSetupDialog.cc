@@ -42,15 +42,14 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.SpectrumSetupDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtUtility.h"
 #include "diSpectrumManager.h"
-#include "qtVcrossSetup.h"
+#include "vcross_qt/qtVcrossSetup.h"
 #include "qtSpectrumSetupDialog.h"
 #include "diSpectrumOptions.h"
 
+#define MILOGGER_CATEGORY "diana.SpectrumSetupDialog"
+#include <miLogger/miLogging.h>
 
 SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   : QDialog(parent), spectrumm(vm)
