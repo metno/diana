@@ -348,6 +348,7 @@ bool VcrossWindow::timeChangedSlot(int diff)
     index += diff;
     while (index < 0)
       index += count;
+    index %= count;
     timeBox->setCurrentIndex(index);
   }
 
