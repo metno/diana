@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,7 +39,6 @@ class ObsWidget;
 class QPushButton;
 class QLabel;
 class ToggleButton;
-class AdvancedButton;
 class QListWidget;
 class QListWidgetItem;
 class QColor;

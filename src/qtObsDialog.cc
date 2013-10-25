@@ -53,18 +53,15 @@
 #include "qtObsWidget.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
-#include "qtAdvancedButton.h"
 
-#include <iostream>
 #include <qpushbutton.h>
 #include <math.h>
 
 
 
 ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
-: QDialog(parent)
+  : QDialog(parent)
 {
-
   setWindowTitle(tr("Observations"));
 
   m_ctrl=llctrl;

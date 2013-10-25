@@ -153,7 +153,6 @@ diana_qt_sources = \
 	EditItems/weatherfront.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
-	qtAdvancedButton.cc \
 	qtAnnoText.cc \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
@@ -336,7 +335,6 @@ noinst_HEADERS = \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
-	qtAdvancedButton.h \
 	qtAnnoText.h \
 	qtBrowserBox.h \
 	qtButtonLayout.h \
