@@ -207,7 +207,7 @@ bool EditManager::parseSetup() {
             } else if (vsub[0]=="max") {
               epf.maxValue= atof(vsub[1].c_str());
             } else if (vsub[0]=="tool") {
-              epf.editTools= vsub[1].downcase().split('+',true);
+              epf.editTools= miutil::split(miutil::to_lower(vsub[1]), "+", true);
             } else if (vsub[0]=="vcoord") {
               epf.vcoord_cdm= vsub[1];
             } else if (vsub[0]=="vlevel") {
@@ -360,7 +360,8 @@ bool EditManager::parseSetup() {
       //HK !!! important ! default drawtools if not specified in setup
       if (ep.drawtools.empty()) ep.drawtools.push_back(OBJECTS_ANALYSIS);
       //read commands(OKstrings) from commandfile
-      if (ep.commandFilename.exists()) readCommandFile(ep);
+      if (not ep.commandFilename.empty())
+        readCommandFile(ep);
       // find duplicate
 
       unsigned int q;
@@ -421,7 +422,7 @@ void EditManager::readCommandFile(EditProduct & ep)
     }
   }
   //split up in LABEL and OTHER info...
-  vector <miString> labcom,commands;
+  vector <std::string> labcom,commands;
   n=tmplines.size();
   for (int i=0; i<n; i++){
     miString s= tmplines[i];
@@ -429,10 +430,12 @@ void EditManager::readCommandFile(EditProduct & ep)
     if (!s.exists()) continue;
     vector<miString> vs= s.split(" ");
     miString pre= vs[0].upcase();
-    if (pre=="LABEL")   labcom.push_back(s);
-    else commands.push_back(s);
+    if (pre=="LABEL")
+      labcom.push_back(s);
+    else
+      commands.push_back(s);
   }
-  ep.labels=labcom;
+  ep.labels = labcom;
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
   for (int ari=0; ari<ep.labels.size(); ari++)
@@ -440,7 +443,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
 #endif
 
-  ep.OKstrings=commands;
+  ep.OKstrings = commands;
 }
 
 /*----------------------------------------------------------------------
@@ -1227,8 +1230,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
 
   // set correct time for labels
-  for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
-  end();p++)
+  for (vector<std::string>::iterator p=EdProd.labels.begin(); p!=EdProd.labels.end(); p++)
     *p=insertTime(*p,valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
@@ -1613,7 +1615,7 @@ vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
 
   // return names of existing fields valid for editing
   vector<miString> vstr;
-  miString fname= ep.fields[element].name.downcase();
+  miString fname= miutil::to_lower(ep.fields[element].name);
   int n= plotm->vfp.size();
   vector<Field*> vf;
 
@@ -1915,7 +1917,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
 
 
   // set correct time for labels
-  for (vector<miString>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
+  for (vector<string>::iterator p=EdProd.labels.begin();p!=EdProd.labels.
   end();p++)
     *p=insertTime(*p,valid);
   //Merge labels from EdProd  with object label input strings

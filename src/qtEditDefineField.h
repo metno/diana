@@ -63,17 +63,20 @@ class EditDefineFieldDialog: public QDialog
 public:
   EditDefineFieldDialog(QWidget* parent, Controller*,int n, EditProduct ep);
 
-  bool fieldSelected(){return selectedfield.exists();}
-  bool productSelected(){return (vselectedprod.size()
-				 && vselectedprod[0].filename.exists());}
-  miutil::miString selectedField(){return selectedfield;}
-  vector <savedProduct> vselectedProd(){return vselectedprod;}
+  bool fieldSelected()
+    {return not selectedfield.empty();}
+  bool productSelected()
+    {return (vselectedprod.size() && (not vselectedprod[0].filename.empty()));}
+  const std::string& selectedField()
+    {return selectedfield;}
+  const std::vector<savedProduct>& vselectedProd()
+    {return vselectedprod;}
 
 private:
   vector <miutil::miString> getProductNames();
   void fillList();
   void updateFilenames();
-  miutil::miString selectedObjectTypes(); //fronts /symbols/areas ?
+  std::string selectedObjectTypes(); //fronts /symbols/areas ?
   void setCheckedCbs(map<miutil::miString,bool> useEditobject);
   void initCbs();
 

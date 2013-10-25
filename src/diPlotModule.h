@@ -226,7 +226,9 @@ public:
   const Area& getCurrentArea(){return splot.getMapArea();}
 
   /// update FieldPlots
-  bool updateFieldPlot(const vector<miutil::miString>& pin);
+  bool updateFieldPlot(const std::vector<miutil::miString>& pin);
+  bool updateFieldPlot(const std::vector<std::string>& pin)
+    { return updateFieldPlot(std::vector<miutil::miString>(pin.begin(), pin.end())); }
   /// update all plot objects, returning true if successful
   bool updatePlots(bool failOnMissingData=false);
   /// toggle conservative map area
@@ -365,8 +367,11 @@ public:
   /// return vector miutil::miStrings with edited annotation for product prodname
   vector <miutil::miString> writeAnnotations(miutil::miString prodname);
   /// put info from saved edit labels into new annotation
-  void updateEditLabels(vector <miutil::miString> productLabelstrings,
-                    miutil::miString productName, bool newProduct);
+  void updateEditLabels(const std::vector<miutil::miString>& productLabelstrings,
+      const std::string& productName, bool newProduct);
+  void updateEditLabels(const std::vector<std::string>& productLabelstrings,
+      const std::string& productName, bool newProduct)
+    { updateEditLabels(std::vector<miutil::miString>(productLabelstrings.begin(), productLabelstrings.end()), productName, newProduct); }
 
   //Objects
   ///objects follow main plot time

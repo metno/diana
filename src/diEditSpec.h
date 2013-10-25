@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,24 +29,23 @@
 #ifndef _diEditSpec_h
 #define _diEditSpec_h
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <diField/diArea.h>
 #include <vector>
 #include <set>
 
-const miutil::miString OBJECTS_ANALYSIS= "Analyse";
-const miutil::miString OBJECTS_SIGMAPS=  "Sigkart";
+const std::string OBJECTS_ANALYSIS= "Analyse";
+const std::string OBJECTS_SIGMAPS=  "Sigkart";
 
 
   /**
      \brief Database info
   */
 struct editDBinfo {
-  miutil::miString host;
-  miutil::miString user;
-  miutil::miString pass;
-  miutil::miString base;
+  std::string host;
+  std::string user;
+  std::string pass;
+  std::string base;
   unsigned int port;
   bool loggedin;
 };
@@ -67,13 +64,13 @@ enum dataSource {
      \brief saved "products" (product elements)
   */
 struct savedProduct {
-  miutil::miString productName;
-  miutil::miString pid;      ///< productid    ("VA")
+  std::string productName;
+  std::string pid;      ///< productid    ("VA")
   miutil::miTime ptime;      ///< product time
   dataSource source; ///< source
   int  element;      ///< -1=objects, 0,1,...=field number
-  miutil::miString filename; ///< full filename
-  miutil::miString selectObjectTypes;   ///< fronts,symbols,areas to read
+  std::string filename; ///< full filename
+  std::string selectObjectTypes;   ///< fronts,symbols,areas to read
 };
 
 
@@ -81,10 +78,10 @@ struct savedProduct {
      \brief Product id
   */
 struct EditProductId {
-  miutil::miString name;                    ///< VA,VNN etc..
+  std::string name;                    ///< VA,VNN etc..
   bool sendable;                    ///< 'send' enabled
   bool combinable;                  ///< may be used to combine ids
-  std::vector<miutil::miString> combineids;
+  std::vector<std::string> combineids;
 };
 
   /**
@@ -92,19 +89,19 @@ struct EditProductId {
   */
 struct EditProductField {
   // gui <--> controller
-  miutil::miString name;                    ///< field-name
+  std::string name;                    ///< field-name
   // gui --> controller
   bool fromfield;                   ///< make from field
-  miutil::miString fromfname;               ///< from-field: model,name,..
+  std::string fromfname;               ///< from-field: model,name,..
   savedProduct fromprod;            ///< from-product
   // only used by EditManager
-  miutil::miString filenamePart;            ///< "ANAmslp"
+  std::string filenamePart;            ///< "ANAmslp"
   int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
-  std::vector<miutil::miString> editTools;       ///< standard/classes/numbers
-  miutil::miString vcoord_cdm;       ///< vertical coordinat -  cdm syntax
-  miutil::miString vlevel_cdm;       ///< vertical level - cdm syntax
-  miutil::miString unit_cdm;             ///< parameter unit (hectopascal)
+  std::vector<std::string> editTools;       ///< standard/classes/numbers
+  std::string vcoord_cdm;       ///< vertical coordinat -  cdm syntax
+  std::string vlevel_cdm;       ///< vertical level - cdm syntax
+  std::string unit_cdm;             ///< parameter unit (hectopascal)
 };
 
 
@@ -113,26 +110,26 @@ struct EditProductField {
   */
 struct EditProduct {
   // gui <--> controller
-  miutil::miString name;                    ///< productname
-  miutil::miString db_name;                 ///< productname in database
-  std::vector<miutil::miString> drawtools;       ///< tools to use
+  std::string name;                    ///< productname
+  std::string db_name;                 ///< productname in database
+  std::vector<std::string> drawtools;       ///< tools to use
   std::vector<EditProductId> pids;       ///< legal product-id's
   std::vector <savedProduct> objectprods;///< products to fetch objects from
   std::vector<EditProductField> fields;  ///< required fields
   editDBinfo dbi;                   ///< Database info
   // only used by EditManager
-  miutil::miString savedir;                 ///< directory for saved product
-  std::vector<miutil::miString> inputdirs;       ///< savedir is always the first ???
-  miutil::miString inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
-  miutil::miString inputFieldConfig;        ///< fimex xml-config
-  std::vector<miutil::miString> inputproducts;   ///< products for input objects/fields
-  std::vector<miutil::miString> combinedirs;     ///< directory for combined product
-  miutil::miString combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
-  miutil::miString objectsFilenamePart;     ///< "ANAdraw"
-  miutil::miString commentFilenamePart;     ///< "ANAcomm"
-  std::vector <miutil::miString> labels;         ///< annotations
-  std::vector <miutil::miString> OKstrings;      ///< define map background and area and other OKStrings
-  miutil::miString commandFilename;         ///< file to read okstrings...
+  std::string savedir;                 ///< directory for saved product
+  std::vector<std::string> inputdirs;       ///< savedir is always the first ???
+  std::string inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
+  std::string inputFieldConfig;        ///< fimex xml-config
+  std::vector<std::string> inputproducts;   ///< products for input objects/fields
+  std::vector<std::string> combinedirs;     ///< directory for combined product
+  std::string combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
+  std::string objectsFilenamePart;     ///< "ANAdraw"
+  std::string commentFilenamePart;     ///< "ANAcomm"
+  std::vector <std::string> labels;         ///< annotations
+  std::vector <std::string> OKstrings;      ///< define map background and area and other OKStrings
+  std::string commandFilename;         ///< file to read okstrings...
   int   producer, gridnum;          ///< common field idents
   Area  area;                       ///< area/projection if gridnum>0 !
   double gridResolutionX;

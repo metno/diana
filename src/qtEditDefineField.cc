@@ -439,12 +439,13 @@ void EditDefineFieldDialog::initCbs(){
 }
 
 
-miutil::miString EditDefineFieldDialog::selectedObjectTypes() {
+std::string EditDefineFieldDialog::selectedObjectTypes()
+{
   //fronts /symbols/areas ?
-  if (num>-1) return miutil::miString(" ");
-  miutil::miString str;
-  str+="types=";
+  if (num>-1)
+    return " ";
 
+  std::string str ="types=";
   if (cbs0->isChecked()) str+="front,";
   if (cbs1->isChecked()) str+="symbol,";
   if (cbs2->isChecked()) str+="area,";

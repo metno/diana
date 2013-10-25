@@ -2683,8 +2683,8 @@ vector<miString> PlotModule::writeAnnotations(miString prodname)
   return annostrings;
 }
 
-void PlotModule::updateEditLabels(vector<miString> productLabelstrings,
-    miString productName, bool newProduct)
+void PlotModule::updateEditLabels(const vector<miString>& productLabelstrings,
+    const std::string& productName, bool newProduct)
 {
   METLIBS_LOG_DEBUG("diPlotModule::updateEditLabels");
   int n;

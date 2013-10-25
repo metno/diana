@@ -53,15 +53,9 @@
 #include "qtObsWidget.h"
 #include "qtUtility.h"
 
-
-#include <cstdio>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 #include <cmath>
-
-
-
 
 /*
   GENERAL DESCRIPTION: This widget takes several datatypes ( that might

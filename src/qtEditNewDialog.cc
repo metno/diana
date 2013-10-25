@@ -517,7 +517,7 @@ void EditNewDialog::setObjectLabel(){
   miutil::miString tmp =
     miutil::miString("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + miutil::miString(" </font> ");
   if (products[currprod].objectprods.size()){
-    if (products[currprod].objectprods[0].filename.exists()){
+    if (not products[currprod].objectprods[0].filename.empty()) {
       tmp= miutil::miString("<font color=\"red\"> ") +
       savedProd2Str(products[currprod].objectprods[0]) +
       miutil::miString(" </font> ");
@@ -534,7 +534,7 @@ void EditNewDialog::setFieldLabel(){
 
     miutil::miString s;
     if (products[currprod].fields[i].fromfield){
-      if (products[currprod].fields[i].fromfname.exists())
+      if (not products[currprod].fields[i].fromfname.empty())
         s= miutil::miString("<font color=\"blue\"> ") +
         products[currprod].fields[i].fromfname + miutil::miString(" </font> ");
       else
@@ -754,7 +754,7 @@ void EditNewDialog::login_clicked()
     }
 
     miutil::miString message;
-    if (!dbi.user.exists() || !dbi.host.exists()){
+    if (dbi.user.empty() || dbi.host.empty()){
       message= tr("Username and server required").toStdString();
       dbi.loggedin= false;
     } else {

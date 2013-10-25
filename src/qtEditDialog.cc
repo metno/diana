@@ -1662,7 +1662,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     twd->setTabEnabled(0, false);
     FrontTabBox(0);
   }
-  twd->setTabEnabled(1, currprod.objectsFilenamePart.exists() );
+  twd->setTabEnabled(1, not currprod.objectsFilenamePart.empty() );
 
   twd->setTabEnabled(2, false);
   if (twd->currentIndex()!=mm) twd->setCurrentIndex(mm);
@@ -1672,7 +1672,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   b[sendb]->setEnabled(true);
 #endif
 
-  commentbutton->setEnabled(currprod.commentFilenamePart.exists() );
+  commentbutton->setEnabled(not currprod.commentFilenamePart.empty() );
 
   lStatus->setText(tr("Not saved"));
   // set timeslider producttime
@@ -1716,14 +1716,14 @@ void EditDialog::EditNewOk(EditProduct& ep,
 #endif
     //apply commands for this EditProduct (probably MAP)
     m_ctrl->keepCurrentArea(false); // unset area conservatism
-    emit Apply(ep.OKstrings,false);
+    /*emit*/ Apply(std::vector<miutil::miString>(ep.OKstrings.begin(), ep.OKstrings.end()), false);
     m_ctrl->keepCurrentArea(true); // reset area conservatism
   } else {
     //  m_ctrl->keepCurrentArea(true); // reset area conservatism
 #ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit editApply()");
 #endif
-    emit editApply();
+    /*emit*/ editApply();
     //  m_ctrl->keepCurrentArea(false); // reset area conservatism
   }
 
@@ -1935,9 +1935,9 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   ecomment->stopComment();
   ecomment->startComment();
   if (ep.OKstrings.size())
-    emit Apply(ep.OKstrings,false);
+    /*emit*/ Apply(std::vector<miutil::miString>(ep.OKstrings.begin(), ep.OKstrings.end()), false);
   else
-    emit editApply();
+    /*emit*/ editApply();
   //emit editUpdate();
 }
 
