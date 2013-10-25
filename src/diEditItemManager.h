@@ -234,6 +234,11 @@ class SetGeometryCommand : public EditItemCommand
 public:
     SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
     virtual ~SetGeometryCommand() {}
+    virtual int id() const;
+    virtual bool mergeWith(const QUndoCommand *command);
+
+    EditItemBase *item() const;
+    QList<QPointF> newLatLonPoints() const;
 
 private:
     EditItemBase *item_;

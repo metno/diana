@@ -495,12 +495,12 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
     const bool modifiedItems = !undoCommands.empty();
     if (modifiedItems) {
         // combine the aggregated effect of the operation into one undo command
-        undoStack_.beginMacro(undoCommandText(0, 0, undoCommands.size()));
+        //undoStack_.beginMacro(undoCommandText(0, 0, undoCommands.size()));
         skipRepaint_ = true; // temporarily prevent redo() calls from repainting
         // push sub-commands representing individual item modifications
         foreach (QUndoCommand *undoCmd, undoCommands)
             undoStack_.push(undoCmd);
-        undoStack_.endMacro();
+        //undoStack_.endMacro();
         skipRepaint_ = false;
         repaintNeeded_ = true;
     }
@@ -1176,6 +1176,17 @@ SetGeometryCommand::SetGeometryCommand(
 {
     oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry);
     newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry);
+    setText(EditItemManager::tr("Item moved"));
+}
+
+EditItemBase *SetGeometryCommand::item() const
+{
+    return item_;
+}
+
+QList<QPointF> SetGeometryCommand::newLatLonPoints() const
+{
+    return newLatLonPoints_;
 }
 
 void SetGeometryCommand::undo()
@@ -1186,4 +1197,23 @@ void SetGeometryCommand::undo()
 void SetGeometryCommand::redo()
 {
     Drawing(item_)->setLatLonPoints(newLatLonPoints_);
+}
+
+int SetGeometryCommand::id() const
+{
+    return 0x53657447;  // "SetG"
+}
+
+bool SetGeometryCommand::mergeWith(const QUndoCommand *command)
+{
+    if (command->id() != id())
+        return false;
+
+    const SetGeometryCommand *setgeo = static_cast<const SetGeometryCommand *>(command);
+
+    if (setgeo->item() != item_)
+        return false;
+
+    newLatLonPoints_ = setgeo->newLatLonPoints();
+    return true;
 }

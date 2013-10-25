@@ -71,8 +71,6 @@ public:
   /// parse DRAWING section of setup file (defines Drawing products)
   bool parseSetup();
 
-  std::vector<miutil::miTime> getTimes() const;
-
   virtual bool changeProjection(const Area& newArea);
   bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
@@ -89,6 +87,9 @@ public:
   QSet<DrawingItemBase *> getItems() const;
 
   static DrawingManager *instance();
+
+public slots:
+  std::vector<miutil::miTime> getTimes() const;
 
 protected:
   virtual void addItem_(DrawingItemBase *);
