@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -251,16 +249,14 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   connect(timestepspin, SIGNAL(valueChanged(int)), SLOT(stepchanged(int)));
 
   //toggle button for comments dialog
-  pausebutton = new ToggleButton( this, tr("Pause").toStdString() );
-  connect(  pausebutton, SIGNAL(toggled(bool)),
-      SLOT( pauseClicked(bool) ));
+  pausebutton = new ToggleButton(this, tr("Pause"));
+  connect(pausebutton, SIGNAL(toggled(bool)), SLOT(pauseClicked(bool)));
   pausebutton->setChecked(false);
 
 
   //toggle button for comments dialog
-  commentbutton = new ToggleButton( this, tr("Comments").toStdString());
-  connect(  commentbutton, SIGNAL(toggled(bool)),
-      SLOT( commentClicked(bool) ));
+  commentbutton = new ToggleButton( this, tr("Comments"));
+  connect(commentbutton, SIGNAL(toggled(bool)), SLOT(commentClicked(bool)));
 
   QHBoxLayout* h2layout = new QHBoxLayout();
   h2layout->addWidget(timelabel);

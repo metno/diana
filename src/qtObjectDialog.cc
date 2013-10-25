@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -87,9 +85,9 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //**** the three buttons "auto", "tid", "fil" *************
 
-  autoButton = new ToggleButton(this, tr("Auto").toStdString());
-  timeButton = new ToggleButton(this, tr("Time").toStdString());
-  fileButton = new ToggleButton(this, tr("File").toStdString());
+  autoButton = new ToggleButton(this, tr("Auto"));
+  timeButton = new ToggleButton(this, tr("Time"));
+  fileButton = new ToggleButton(this, tr("File"));
   timefileBut = new QButtonGroup( this );
   timefileBut->addButton(autoButton,0);
   timefileBut->addButton(timeButton,1);
@@ -164,7 +162,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   m_alphascale = 0.01;
 
 
-  alpha = new ToggleButton(this,tr("Alpha").toStdString());
+  alpha = new ToggleButton(this, tr("Alpha"));
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
 
 
@@ -195,7 +193,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
   //toggle button for comments
-  commentbutton = new ToggleButton(this,tr("Comments").toStdString());
+  commentbutton = new ToggleButton(this, tr("Comments"));
   connect(  commentbutton, SIGNAL(toggled(bool)),
 	    SLOT( commentClicked(bool) ));
 

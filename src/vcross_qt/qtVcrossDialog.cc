@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -371,8 +371,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //allTimeStepButton->setChecked(false);
 
   // advanced
-  const std::string more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
-  advanced= new ToggleButton( this, more_str);
+  advanced= new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 

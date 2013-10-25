@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -92,15 +92,15 @@ VcrossWindow::VcrossWindow(Controller *co)
 
 
   //button for model/field dialog-starts new dialog
-  dataButton = new ToggleButton(this,tr("Model/field").toStdString());
+  dataButton = new ToggleButton(this, tr("Model/field"));
   connect( dataButton, SIGNAL( toggled(bool)), SLOT( dataClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(this,tr("Settings").toStdString());
+  setupButton = new ToggleButton(this, tr("Settings"));
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for timeGraph
-  timeGraphButton = new ToggleButton(this,tr("TimeGraph").toStdString());
+  timeGraphButton = new ToggleButton(this, tr("TimeGraph"));
   connect( timeGraphButton, SIGNAL( toggled(bool)), SLOT( timeGraphClicked( bool) ));
 
   //button to print - starts print dialog

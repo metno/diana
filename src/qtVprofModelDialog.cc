@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -92,9 +90,10 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);
 
-  modelButton = new ToggleButton(this, tr("Model").toStdString());
-  if (modelButton->isChecked()) METLIBS_LOG_DEBUG("CHECKED");
-  fileButton = new ToggleButton(this, tr("File").toStdString());
+  modelButton = new ToggleButton(this, tr("Model"));
+  if (modelButton->isChecked())
+    METLIBS_LOG_DEBUG("CHECKED");
+  fileButton = new ToggleButton(this, tr("File"));
   modelfileBut = new QButtonGroup(this);
   modelfileBut->addButton(modelButton, 0);
   modelfileBut->addButton(fileButton, 1);

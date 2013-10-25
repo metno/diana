@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,61 +26,47 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 #ifndef _togglebutton_h
 #define _togglebutton_h
 
-#include <qwidget.h>
 #include <qpushbutton.h>
 #include <qpalette.h>
-#include <qpixmap.h>
-#include <QMouseEvent>
-#include <puTools/miString.h>
 
-
+class QMouseEvent;
+class QPixmap;
 
 /**
-
-  \brief Toggle button
-
-  Button changes colour ( and optionally text ) when toggled
-
+   \brief Toggle button
+   Button changes colour ( and optionally text ) when toggled
 */
 class ToggleButton : public QPushButton
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
+  ToggleButton(QWidget* parent, const QString& name, QColor* color = 0);
+  ToggleButton(QWidget* parent, const QString& nameIn, const QString& nameOut, QColor* color = 0);
 
- ToggleButton( QWidget* parent,
-     const miutil::miString& name,
-     QColor* color = 0 );
+  ToggleButton(QWidget* parent, const QPixmap& pixmap, QColor* color = 0);
 
- ToggleButton( QWidget* parent,
-     const std::string* name,
-     QColor* color = 0 );
-
- ToggleButton( QWidget* parent,
-     const miutil::miString* name,
-     QColor* color = 0 );
-
- ToggleButton( QWidget* parent,
-	       const QPixmap& pixmap,
-               QColor* color = 0 );
-
-signals:
+Q_SIGNALS:
   void rightButtonClicked(ToggleButton*);
 
-public slots:
- void Toggled( bool on );
+public Q_SLOTS:
+  void Toggled(bool on);
 
 protected:
- virtual void mouseReleaseEvent( QMouseEvent * );
+  virtual void mouseReleaseEvent(QMouseEvent *);
+
+private:
+  void init(QColor* color);
  
 private:
   bool usePalette;
   bool NameChange;
-  miutil::miString m_outName;
-  miutil::miString m_inName;
+  QString m_outName;
+  QString m_inName;
   QPalette outPalette;
   QPalette inPalette;
 };

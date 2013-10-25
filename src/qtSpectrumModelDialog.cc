@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -89,8 +87,8 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
   modelfileList->setEnabled(true);
 
-  modelButton = new ToggleButton(this, tr("Model").toStdString());
-  fileButton  = new ToggleButton(this, tr("File").toStdString());
+  modelButton = new ToggleButton(this, tr("Model"));
+  fileButton  = new ToggleButton(this, tr("File"));
   modelfileBut = new QButtonGroup( this );
   modelfileBut->addButton(modelButton,0);
   modelfileBut->addButton(fileButton,1);

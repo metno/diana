@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,7 +65,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   // Cut
   cutCheckBox = new QCheckBox(tr("Use stretch from first picture"),this);
 
-  cut = new ToggleButton( this,tr("Cut").toStdString() );
+  cut = new ToggleButton(this, tr("Cut"));
 
   cutlcd = LCDNumber( 4, this);
 
@@ -84,7 +82,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect( cut, SIGNAL( clicked()),SIGNAL(SatChanged()));
 
   // AlphaCut
-  alphacut = new ToggleButton( this,tr("Alpha cut").toStdString() );
+  alphacut = new ToggleButton(this, tr("Alpha cut"));
   connect( alphacut, SIGNAL( toggled(bool)), SLOT( greyAlphaCut( bool) ));
   connect( alphacut, SIGNAL( clicked()),SIGNAL(SatChanged()));
 
@@ -98,7 +96,7 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect(salphacut, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
   // Alpha
-  alpha = new ToggleButton( this,tr("Alpha").toStdString() );
+  alpha = new ToggleButton(this, tr("Alpha"));
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
   connect( alpha, SIGNAL( clicked()),SIGNAL(SatChanged()));
 
@@ -114,10 +112,10 @@ SatDialogAdvanced::SatDialogAdvanced( QWidget* parent,
   connect(salpha, SIGNAL(valueChanged(int)),SIGNAL(SatChanged()));
 
 
-  legendButton = new ToggleButton( this,tr("Table").toStdString() );
+  legendButton = new ToggleButton(this, tr("Table"));
   connect( legendButton, SIGNAL(clicked()),SIGNAL(SatChanged()));
 
-  colourcut = new ToggleButton( this,tr("Colour cut").toStdString() );
+  colourcut = new ToggleButton(this, tr("Colour cut"));
   connect( colourcut, SIGNAL(clicked()),SIGNAL(SatChanged()));
   connect( colourcut, SIGNAL(toggled(bool)),SLOT(colourcutClicked(bool)));
   colourcut->setChecked(false);

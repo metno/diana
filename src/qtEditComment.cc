@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -80,9 +78,9 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     mEdit = new QTextEdit(split);
     mEdit2 = new QTextEdit(split);
     mEdit2->hide();
-    showOld = new ToggleButton(this,tr("Show previous comments").toStdString());
+    showOld = new ToggleButton(this, tr("Show previous comments"));
     showOld->setChecked(false);
-    connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
+    connect(showOld, SIGNAL(toggled(bool)), SLOT(showOldToggled(bool)));
     QVBoxLayout * vlayout = new QVBoxLayout( this);
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);

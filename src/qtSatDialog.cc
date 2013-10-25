@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -106,9 +104,9 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( fileListWidget, SIGNAL( itemClicked( QListWidgetItem * ) ),
 	   SLOT( fileListWidgetClicked( QListWidgetItem * ) )  );
 
-  autoButton = new ToggleButton(this, tr("Auto").toStdString());
-  timeButton = new ToggleButton(this, tr("Time").toStdString());
-  fileButton = new ToggleButton(this, tr("File").toStdString());
+  autoButton = new ToggleButton(this, tr("Auto"));
+  timeButton = new ToggleButton(this, tr("Time"));
+  fileButton = new ToggleButton(this, tr("File"));
   timefileBut = new QButtonGroup( this );
   timefileBut->addButton(autoButton,0);
   timefileBut->addButton(timeButton,1);
@@ -180,10 +178,10 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   connect( DeleteAll, SIGNAL(clicked()),
 	   SLOT(DeleteAllClicked()));
 
-  multiPicture = new ToggleButton(  this, tr("Add picture").toStdString() );
+  multiPicture = new ToggleButton(this, tr("Add picture"));
   multiPicture->setToolTip(tr("Add new picture if any of above settings change"));
 
-  mosaic = new ToggleButton( this, tr("Mosaic").toStdString() );
+  mosaic = new ToggleButton(this, tr("Mosaic"));
   connect( mosaic, SIGNAL( toggled(bool)), SLOT( mosaicToggled( bool) ));
   mosaic->setChecked(false);
   mosaic->setEnabled(false);
@@ -207,8 +205,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
   QPushButton* sathelp = NormalPushButton( tr("Help"), this );
   refresh = NormalPushButton(tr("Refresh"), this);
 
-  miutil::miString more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
-  advanced= new ToggleButton( this, more_str );
+  advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);
 
   QPushButton* sathide = NormalPushButton( tr("Hide"), this );

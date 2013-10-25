@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -120,7 +118,7 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
   multiplot = false;
 
-  multiplotButton = new ToggleButton(  this, tr("Show all").toStdString() );
+  multiplotButton = new ToggleButton(this, tr("Show all"));
   multiplotButton->setToolTip(tr("Show all plot types") );
   obshelp =  NormalPushButton( tr("Help"), this );
   obsrefresh = NormalPushButton( tr("Refresh"), this );

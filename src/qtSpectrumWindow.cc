@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -97,11 +95,11 @@ SpectrumWindow::SpectrumWindow()
 
 
   //button for modeldialog-starts new dialog
-  modelButton = new ToggleButton(this,tr("Model").toStdString());
+  modelButton = new ToggleButton(this, tr("Model"));
   connect( modelButton, SIGNAL( toggled(bool)), SLOT( modelClicked( bool) ));
 
   //button for setup - starts setupdialog
-  setupButton = new ToggleButton(this,tr("Settings").toStdString());
+  setupButton = new ToggleButton(this, tr("Settings"));
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for update

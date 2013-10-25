@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -325,9 +323,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   currentCriteria = -1;
   criteriaCheckBox = new QCheckBox(tr("Criterias"),this);
   criteriaChecked(false);
-  miutil::miString more_str[2] = { (tr("<<Less").toStdString()),
-      (tr("More>>").toStdString()) };
-  moreButton= new ToggleButton( this, more_str);
+  moreButton = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   moreButton->setChecked(false);
   if(!criteria){
     criteriaCheckBox->hide();

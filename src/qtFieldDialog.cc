@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -409,7 +407,7 @@ QDialog(parent)
   connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
 
   // minus
-  minusButton = new ToggleButton(this, "Minus");
+  minusButton = new ToggleButton(this, tr("Minus"));
   connect( minusButton, SIGNAL(toggled(bool)), SLOT(minusField(bool)));
 
   // plottype
@@ -462,16 +460,13 @@ QDialog(parent)
   connect(fieldhelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   // allTimeStep
-  allTimeStepButton
-  = new ToggleButton(this, tr("All time steps").toStdString());
+  allTimeStepButton = new ToggleButton(this, tr("All time steps"));
   allTimeStepButton->setCheckable(true);
   allTimeStepButton->setChecked(false);connect( allTimeStepButton, SIGNAL(toggled(bool)),
       SLOT(allTimeStepToggled(bool)));
 
   // advanced
-  std::string more_str[2] =
-  { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
-  advanced = new ToggleButton(this, more_str);
+  advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 
   // hide
