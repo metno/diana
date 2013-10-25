@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,38 +29,32 @@
 #ifndef _qtImageGallery_h
 #define _qtImageGallery_h
 
-
 #include <qimage.h>
-#include <puTools/miString.h>
 #include <map>
-
-using namespace std; 
 
 /**
    \brief the Qt::image cache
 
    the Qt::image gallery is a cache of Qt::images
-
 */
-
 class QtImageGallery {
 private:
-  static map<miutil::miString,QImage> Images;
+  static std::map<std::string, QImage> Images;
 public:
   QtImageGallery();
 
   static void clear();                             ///< clear all images
-  bool delImage(const miutil::miString& name);             ///< remove image
+  bool delImage(const std::string& name);          ///< remove image
 
   /// add a new QImage with name to gallery
-  bool addImageToGallery(const miutil::miString name, const QImage& image);
+  bool addImageToGallery(const std::string& name, const QImage& image);
 
-  bool addImageToGallery(const std::string name, std::string& imageStr);
+  bool addImageToGallery(const std::string& name, std::string& imageStr);
 
-  void addImagesInDirectory(const miutil::miString& dir);
+  void addImagesInDirectory(const std::string& dir);
 
-  void ImageNames(vector<miutil::miString>& vnames) const; ///< return all image-names
-  bool Image(const miutil::miString& name, QImage& image); ///< return QImage
+  void ImageNames(std::vector<std::string>& vnames) const; ///< return all image-names
+  bool Image(const std::string& name, QImage& image); ///< return QImage
 };
 
-#endif
+#endif // _qtImageGallery_h
