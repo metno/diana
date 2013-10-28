@@ -128,7 +128,9 @@ PERLCONFIG    =   PREFIX="$(prefix)" \
 $(PERLMAKEFILE): $(PERLDEPEND) Makefile.am
 	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \\
 	   chmod -R u+w Metno-Bdiana && touch Metno-Bdiana/.distclean
-	cd Metno-Bdiana && $(PERL) Makefile.PL $(PERLCONFIG)
+#	FIXME next line is a hack
+	cp $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/
+	cd Metno-Bdiana && $(PERL) $(srcdir)/Metno-Bdiana/Makefile.PL $(PERLCONFIG)
 
 all-local: $(PERLMAKEFILE)
 	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS)
