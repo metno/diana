@@ -79,9 +79,9 @@
 #include "vcross_v2/diVcrossManager.h"
 #include "vcross_v2/diVcrossOptions.h"
 #else // !USE_VCROSS_V2
-#include "vcross_v2/diVcross1Manager.h"
-#include "vcross_v2/diVcross1Plot.h"
-#include "vcross_v2/diVcross1Options.h"
+#include "vcross_v1/diVcross1Manager.h"
+#include "vcross_v1/diVcross1Plot.h"
+#include "vcross_v1/diVcross1Options.h"
 #endif // !USE_VCROSS_V2
 
 #include <diVprofManager.h>

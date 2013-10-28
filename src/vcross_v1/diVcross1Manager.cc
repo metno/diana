@@ -40,6 +40,7 @@
 #include <set>
 
 #include <diLocalSetupParser.h>
+#include <puTools/miSetupParser.h>
 #include <puCtools/puCglob.h>
 
 #include <boost/foreach.hpp>
