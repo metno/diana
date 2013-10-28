@@ -93,6 +93,8 @@
 #include <diSpectrumManager.h>
 #include <diSpectrumOptions.h>
 
+#include <boost/algorithm/string/join.hpp>
+
 #ifdef VIDEO_EXPORT
 # include <MovieMaker.h>
 #endif
@@ -1407,7 +1409,7 @@ void createJsonAnnotation()
     vector<AnnotationPlot::Annotation> annotations = (*it)->getAnnotations();
     for (vector<AnnotationPlot::Annotation>::iterator iti = annotations.begin(); iti != annotations.end(); ++iti) {
 
-      for (vector<miString>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
+      for (vector<string>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
 
         // Find the table description in the string.
         miString legend = (*itj);
@@ -1487,11 +1489,8 @@ void createJsonAnnotation()
               line.clear();
             }
           }
-          miString value = miString();
-          value.join(colors, ", ");
-          textMap["colors"] = "[" + value + "]";
-          value.join(labels, ", ");
-          textMap["labels"] = "[" + value + "]";
+          textMap["colors"] = "[" + boost::algorithm::join(colors, ", ") + "]";
+          textMap["labels"] = "[" + boost::algorithm::join(labels, ", ") + "]";
 
           if (!title.empty()) {
             outputTextMaps[title] = textMap;
