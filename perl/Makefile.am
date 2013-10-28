@@ -126,11 +126,12 @@ PERLCONFIG    =   PREFIX="$(prefix)" \
 #endif
 
 $(PERLMAKEFILE): $(PERLDEPEND) Makefile.am
-	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \\
+	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \
 	   chmod -R u+w Metno-Bdiana && touch Metno-Bdiana/.distclean
-#	FIXME next line is a hack
-	cp $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/
-	cd Metno-Bdiana && $(PERL) $(srcdir)/Metno-Bdiana/Makefile.PL $(PERLCONFIG)
+#	FIXME why are the next two lines necessary?
+	-test $(srcdir)/Metno-Bdiana/Makefile.PL -nt Metno-Bdiana/Makefile.PL && \
+	   cp $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/Makefile.PL
+	cd Metno-Bdiana && $(PERL) Makefile.PL $(PERLCONFIG)
 
 all-local: $(PERLMAKEFILE)
 	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS)
