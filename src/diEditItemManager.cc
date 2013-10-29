@@ -494,13 +494,11 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
 
     const bool modifiedItems = !undoCommands.empty();
     if (modifiedItems) {
-        // combine the aggregated effect of the operation into one undo command
-        //undoStack_.beginMacro(undoCommandText(0, 0, undoCommands.size()));
         skipRepaint_ = true; // temporarily prevent redo() calls from repainting
         // push sub-commands representing individual item modifications
         foreach (QUndoCommand *undoCmd, undoCommands)
             undoStack_.push(undoCmd);
-        //undoStack_.endMacro();
+
         skipRepaint_ = false;
         repaintNeeded_ = true;
     }
@@ -1094,19 +1092,25 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         mousePress(&me2);
       }
     }
+    event->setAccepted(true);
 
-  } else if (event->type() == QEvent::MouseMove)
+  } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
+    event->setAccepted(false);
+  }
 
-  else if (event->type() == QEvent::MouseButtonRelease)
+  else if (event->type() == QEvent::MouseButtonRelease) {
     mouseRelease(&me2);
+    event->setAccepted(true);
+  }
 
-  else if (event->type() == QEvent::MouseButtonDblClick)
+  else if (event->type() == QEvent::MouseButtonDblClick) {
     mouseDoubleClick(&me2);
+    event->setAccepted(true);
+  }
 
   res.repaint = needsRepaint();
   res.action = canUndo() ? objects_changed : no_action;
-  event->setAccepted(true);
 
   updateActions();
 }
