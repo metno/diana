@@ -65,14 +65,12 @@ ObsMetar::putData(int i,ObsData &d){
 
   d.dataType="metar";
     //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.pos.longitude();
   d.ypos = contents[i].desc.pos.latitude();
   d.zone = _IDtoZone(contents[i].stationID);
   d.obsTime = contents[i].desc.obsTime;
-  d.metarId = contents[i].desc.metarKjennetegn;
-  d.metarId.trim();
+  d.metarId = miutil::trimmed(contents[i].desc.metarKjennetegn);
   //Data
   //  if(contents[i].data.ddd != undef)
     d.fdata["dd"]    = (float)contents[i].data.ddd;	// grader

@@ -137,8 +137,7 @@ ObsTemp::putData(int i, int levelIndex,miTime obsTime,ObsData &d)
 
   d.dataType="temp";
   //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.lengde/100.;
   d.ypos = contents[i].desc.bredde/100.;
   d.zone = _IDtoZone(contents[i].stationID);

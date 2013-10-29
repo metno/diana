@@ -2442,10 +2442,10 @@ void ObsPlot::plotList(int index)
     return;
   }
 
-  map<miString, float>::iterator f_p;
-  map<miString, float>::iterator q_p;
-  map<miString, float>::iterator ff_p = dta.fdata.find("ff");
-  map<miString, float>::iterator dd_p = dta.fdata.find("dd");
+  map<string, float>::iterator f_p;
+  map<string, float>::iterator q_p;
+  map<string, float>::iterator ff_p = dta.fdata.find("ff");
+  map<string, float>::iterator dd_p = dta.fdata.find("dd");
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -2857,7 +2857,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("pwahwa")) {
     ypos -= yStep;
-    map<miString, float>::iterator p;
+    map<string, float>::iterator p;
     if ((f_p = dta.fdata.find("PwaPwa")) != dta.fdata.end() && (p
         = dta.fdata.find("HwaHwa")) != dta.fdata.end()) {
       if (ccriteria)
@@ -2883,7 +2883,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("pw1hw1")) {
     ypos -= yStep;
-    map<miString, float>::iterator p;
+    map<string, float>::iterator p;
     if ((f_p = dta.fdata.find("Pw1Pw1")) != dta.fdata.end() && (p
         = dta.fdata.find("Hw1Hw1")) != dta.fdata.end()) {
       if (ccriteria)
@@ -3328,7 +3328,7 @@ void ObsPlot::plotAscii(int index)
     num--;
   }
 
-  if ( dta.id.exists() && dta.id == selectedStation ) {
+  if ((not dta.id.empty()) && dta.id == selectedStation) {
     Colour c("red");
     glColor4ubv(c.RGBA());
   }
@@ -4851,14 +4851,14 @@ void ObsPlot::plotSynop(int index)
   GLfloat radius = 7.0;
   GLfloat x1, x2, x3, y1, y2, y3;
   int lpos;
-  const map<miString, float>::iterator fend = dta.fdata.end();
-  map<miString, float>::iterator f_p;
-  map<miString, float>::iterator h_p;
-  map<miString, float>::iterator ttt_p = dta.fdata.find("TTT");
+  const map<string, float>::iterator fend = dta.fdata.end();
+  map<string, float>::iterator f_p;
+  map<string, float>::iterator h_p;
+  map<string, float>::iterator ttt_p = dta.fdata.find("TTT");
 
   //Some positions depend on wheather the following parameters are plotted or not
   bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count(
-      "st.type") && dta.dataType.exists())));
+                "st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
   bool timeFlag = (pFlag.count("time") && dta.zone == 99);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
@@ -4936,7 +4936,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //characteristics of pressure tendency - a
-  map<miString, float>::iterator ppp_p = dta.fdata.find("ppp");
+  map<string, float>::iterator ppp_p = dta.fdata.find("ppp");
   ;
   if (pFlag.count("a") && (f_p = dta.fdata.find("a")) != fend && f_p->second
       >= 0 && f_p->second < 9) {
@@ -5239,7 +5239,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //Type of station (replace Cl)
-  bool typeFlag = (pFlag.count("st.type") && dta.dataType.exists());
+  bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
   if (typeFlag)
     printString(dta.dataType.c_str(), iptab[lpos + 22], iptab[lpos + 23]);
 
@@ -5295,9 +5295,9 @@ void ObsPlot::plotMetar(int index)
 
   GLfloat radius = 7.0;
   int lpos = itab[1] + 10;
-  const map<miString, float>::iterator fend = dta.fdata.end();
-  map<miString, float>::iterator f2_p;
-  map<miString, float>::iterator f_p;
+  const map<string, float>::iterator fend = dta.fdata.end();
+  map<string, float>::iterator f2_p;
+  map<string, float>::iterator f_p;
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -5372,10 +5372,10 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("ww")) {
     if (ccriteria)
       checkColourCriteria("ww", 0);
-    if (dta.ww.size() > 0 && dta.ww[0].exists()) {
+    if (dta.ww.size() > 0 && not dta.ww[0].empty()) {
       metarSymbol(dta.ww[0], iptab[lpos + 8], iptab[lpos + 9], wwshift);
     }
-    if (dta.ww.size() > 1 && dta.ww[1].exists()) {
+    if (dta.ww.size() > 1 && not dta.ww[1].empty()) {
       metarSymbol(dta.ww[1], iptab[lpos + 10], iptab[lpos + 11], wwshift);
     }
   }
@@ -5384,14 +5384,14 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("reww")) {
     if (ccriteria)
       checkColourCriteria("REww", 0);
-    if (dta.REww.size() > 0 && dta.REww[0].exists()) {
+    if (dta.REww.size() > 0 && not dta.REww[0].empty()) {
       int intREww[5];
       metarString2int(dta.REww[0], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
         symbol(itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
       }
     }
-    if (dta.REww.size() > 1 && dta.REww[1].exists()) {
+    if (dta.REww.size() > 1 && not dta.REww[1].empty()) {
       int intREww[5];
       metarString2int(dta.REww[1], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {

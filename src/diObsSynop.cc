@@ -64,8 +64,7 @@ void ObsSynop::putData(int i, ObsData &d){
   d.dataType="synop";
 
   //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.pos.longitude();
   d.ypos = contents[i].desc.pos.latitude();
   d.fdata["stationHeight"] = (float)contents[i].desc.hoeyde;

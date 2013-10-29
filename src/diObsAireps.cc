@@ -102,8 +102,7 @@ void ObsAireps::putData(int i, ObsData &d){
 
   d.dataType="aireps";
   //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.pos.longitude();
   d.ypos = contents[i].desc.pos.latitude();
   d.zone = _IDtoZone(contents[i].stationID);
