@@ -69,7 +69,7 @@ VcrossManager::VcrossManager(Controller *co)
   , mSetup(new VcrossSetup())
   , mPlot(new VcrossPlot(mOptions.get()))
   , fieldm(co->getFieldManager())
-  , dataChange(true)
+  , dataChange(CHANGED_SEL)
   , plotCrossection(-1)
   , timeGraphPos(-1)
   , plotTime(-1)
@@ -137,7 +137,7 @@ void VcrossManager::setCrossection(const std::string& crossection)
   }
   
   plotCrossection = (it - nameList.begin());
-  dataChange = true;
+  dataChange |= CHANGED_CS;
 }
 
 bool VcrossManager::setCrossection(float lat, float lon)
@@ -155,8 +155,28 @@ bool VcrossManager::setCrossection(float lat, float lon)
       csnames.insert(n);
   }
   VcrossUtil::from_set(nameList, csnames);
-  dataChange = true;
+  dataChange |= CHANGED_CS;
   return true;
+}
+
+std::string VcrossManager::setCrossection(int step)
+{
+  METLIBS_LOG_SCOPE();
+
+  if (nameList.empty())
+    return "";
+
+  if (VcrossUtil::step_index(plotCrossection, step, nameList.size()))
+    dataChange |= CHANGED_CS;
+  return currentCSName();
+}
+
+const std::string& VcrossManager::currentCSName() const
+{
+  if (plotCrossection >= 0 and plotCrossection < (int)nameList.size())
+    return nameList.at(plotCrossection);
+  else
+    return EMPTY_STRING;
 }
 
 void VcrossManager::setTime(const miutil::miTime& time)
@@ -170,28 +190,9 @@ void VcrossManager::setTime(const miutil::miTime& time)
   }
   
   plotTime = (it - timeList.begin());
-  dataChange = true;
+  dataChange |= CHANGED_TIME;
 }
 
-
-std::string VcrossManager::setCrossection(int step)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (nameList.empty())
-    return "";
-
-  dataChange = VcrossUtil::step_index(plotCrossection, step, nameList.size());
-  return currentCSName();
-}
-
-const std::string& VcrossManager::currentCSName() const
-{
-  if (plotCrossection >= 0 and plotCrossection < (int)nameList.size())
-    return nameList.at(plotCrossection);
-  else
-    return EMPTY_STRING;
-}
 
 VcrossManager::vctime_t VcrossManager::setTime(int step)
 {
@@ -201,8 +202,34 @@ VcrossManager::vctime_t VcrossManager::setTime(int step)
   if (timeList.empty())
     return miutil::miTime::nowTime();
 
-  dataChange = VcrossUtil::step_index(plotTime, step, timeList.size());
+  if (VcrossUtil::step_index(plotTime, step, timeList.size()))
+    dataChange |= CHANGED_TIME;
   return currentTime();
+}
+
+// ------------------------------------------------------------------------
+
+void VcrossManager::setTimeToBestMatch(const vctime_t& time)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(time));
+  
+  if (timeList.empty()) {
+    plotTime = -1;
+    return;
+  }
+
+  int bestTime = 0;
+  int bestDiff = std::abs(miutil::miTime::minDiff(timeList.front(), time));
+  for (size_t i=1; i<timeList.size(); i++) {
+    const int diff = std::abs(miutil::miTime::minDiff(timeList[i], time));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestTime = i;
+    }
+  }
+  plotTime = bestTime;
+  dataChange |= CHANGED_TIME;
 }
 
 VcrossManager::vctime_t VcrossManager::currentTime() const
@@ -277,7 +304,7 @@ bool VcrossManager::plot()
   try {
   if (dataChange) {
     preparePlot();
-    dataChange= false;
+    dataChange = CHANGED_NO;
   }
 
   if (hardcopy && !hardcopystarted) {
@@ -307,9 +334,12 @@ void VcrossManager::preparePlot()
     return;
   }
   
-  mPlot->clear();
-  if (selected.empty())
+  if (selected.empty()) {
+    mPlot->clear();
     return;
+  }
+
+  mPlot->clear((dataChange != CHANGED_SEL), (dataChange != CHANGED_SEL));
 
   VcrossData::Cut::lonlat_t csll;
   BOOST_FOREACH(VcrossSelected& select, selected) {
@@ -744,31 +774,6 @@ void VcrossManager::mainWindowTimeChanged(const miutil::miTime& mwTime)
 
 // ------------------------------------------------------------------------
 
-void VcrossManager::setTimeToBestMatch(const vctime_t& time)
-{
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(time));
-  
-  if (timeList.empty()) {
-    plotTime = -1;
-    return;
-  }
-
-  int bestTime = 0;
-  int bestDiff = std::abs(miutil::miTime::minDiff(timeList.front(), time));
-  for (size_t i=1; i<timeList.size(); i++) {
-    const int diff = std::abs(miutil::miTime::minDiff(timeList[i], time));
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      bestTime = i;
-    }
-  }
-  plotTime = bestTime;
-  dataChange = true;
-}
-
-// ------------------------------------------------------------------------
-
 bool VcrossManager::setSelection(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
@@ -824,7 +829,7 @@ bool VcrossManager::setSelection(const std::vector<std::string>& vstr)
     }
   }
 
-  dataChange = true;
+  dataChange |= CHANGED_SEL;
   return setModels();
 }
 
@@ -890,7 +895,7 @@ void VcrossManager::disableTimeGraph()
 {
   METLIBS_LOG_SCOPE();
   timeGraphPos = -1;
-  dataChange = true;
+  dataChange = CHANGED_SEL;
 }
 
 // ------------------------------------------------------------------------
@@ -904,7 +909,7 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
   
   // convert plotx to lonlat
   timeGraphPos = mPlot->getNearestPos(plotx);
-  dataChange = true;
+  dataChange = CHANGED_SEL;
 #if 0
   METLIBS_LOG_SCOPE();
   int n = 0;
@@ -932,7 +937,8 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
 void VcrossManager::setTimeGraphPos(int incr)
 {
   METLIBS_LOG_SCOPE();
-  dataChange = VcrossUtil::step_index(timeGraphPos, incr, timeList.size());
+  if (VcrossUtil::step_index(timeGraphPos, incr, timeList.size()))
+    dataChange |= CHANGED_SEL; // TODO
 }
 
 // ------------------------------------------------------------------------

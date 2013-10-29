@@ -103,7 +103,7 @@ public:
 
   int getNearestPos(int px);
 
-  void clear();
+  void clear(bool keepX=false, bool keepY=false);
   void setHorizontalCross(const std::string& csName, const VcrossData::Cut::lonlat_t& ll);
   void setHorizontalTime(const std::vector<miutil::miTime>& times, int csPoint);
   void setVerticalAxis(VcrossData::ZAxis::Quantity q);
@@ -128,8 +128,11 @@ private:
   void plotTitle();
   void plotText();
 
-  /*! Prepare axes' value ranges after all plots are added. */
-  void prepareAxes();
+  /*! Prepare x axis value range after all plots are added. */
+  void prepareXAxis();
+
+  /*! Prepare y axis value range after all plots are added. */
+  void prepareYAxis();
 
   /*! Prepare view after changing plot or zoom. */
   void prepareView();
@@ -171,6 +174,7 @@ private:
   Colour mBackColour;
   Colour mContrastColour;
   bool mViewChanged;
+  bool mKeepX, mKeepY;
 
   VcrossPlotDetail::AxisPtr mAxisX, mAxisY;
 
