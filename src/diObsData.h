@@ -33,7 +33,7 @@
 
 #include <diColour.h>
 #include <puTools/miTime.h>
-
+#include <puTools/miString.h>
 
 /**
 

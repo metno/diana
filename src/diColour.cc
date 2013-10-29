@@ -34,17 +34,20 @@
 #endif
 
 #include <diColour.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <cstdio>
+#include <iomanip>
+#include <ostream>
+
 #define MILOGGER_CATEGORY "diana.Colour"
 #include <miLogger/miLogging.h>
-
-#include <iomanip>
-#include <iostream>
-#include <stdio.h>
 
 using namespace std;
 using namespace miutil;
 
-map<miString,Colour> Colour::cmap;
+map<std::string,Colour> Colour::cmap;
 vector<Colour::ColourInfo> Colour::colours;
 
 
@@ -65,11 +68,12 @@ Colour::Colour(const uint32 hexv){
   set(r,g,b,a);
 }
 
-Colour::Colour(const miString name_){
+Colour::Colour(const std::string& name_)
+{
   //  METLIBS_LOG_DEBUG(name_);
 
-  miString lname= name_.downcase();
-  vector<miString> vstr = lname.split(":");
+  std::string lname= miutil::to_lower(name_);
+  vector<std::string> vstr = miutil::split(lname, ":");
   int n = vstr.size();
   if (n<2){
     if(cmap.count(lname))
@@ -95,10 +99,10 @@ Colour::Colour(const miString name_){
 Colour::Colour(const uchar_t r, const uchar_t g,
 	       const uchar_t b, const uchar_t a){
   set(r,g,b,a);
-  name =miString(int(r)) +":";
-  name+=miString(int(g)) +":";
-  name+=miString(int(b)) +":";
-  name+=miString(int(a));
+  name =miutil::from_number(int(r)) +":";
+  name+=miutil::from_number(int(g)) +":";
+  name+=miutil::from_number(int(b)) +":";
+  name+=miutil::from_number(int(a));
 }
 
 // Copy constructor
@@ -132,27 +136,27 @@ void Colour::memberCopy(const Colour& rhs){
   colourindex= rhs.colourindex;
 }
 
-void Colour::define(const miString name_,
+void Colour::define(const std::string& name_,
 		    const uchar_t r, const uchar_t g,
 		    const uchar_t b, const uchar_t a){
   Colour c(r,g,b,a);
-  miString lname= name_.downcase();
+  std::string lname= miutil::to_lower(name_);
   c.name= lname;
   cmap[lname]= c;
 }
 
-void Colour::define(const miString name_, const values& va){
+void Colour::define(const std::string name_, const values& va){
   Colour c(va);
-  miString lname= name_.downcase();
+  std::string lname= miutil::to_lower(name_);
   c.name= lname;
   cmap[lname]= c;
 }
 
-void Colour::defineColourFromString(const miString rgba_string)
+void Colour::defineColourFromString(const std::string& rgba_string)
 {
 
   uchar_t r,g,b,a;
-  vector<miString> stokens = rgba_string.split(":");
+  vector<std::string> stokens = miutil::split(rgba_string, ":");
   if (stokens.size()>2 ) {
     r= atoi(stokens[0].c_str());
     g= atoi(stokens[1].c_str());
@@ -168,14 +172,15 @@ void Colour::defineColourFromString(const miString rgba_string)
 }
 
 // hack: colourindex is platform-dependent
-void Colour::setindex(const miString name_, const uchar_t index){
-  miString lname= name_.downcase();
+void Colour::setindex(const std::string& name_, const uchar_t index)
+{
+  std::string lname= miutil::to_lower(name_);
   cmap[lname].colourindex= index;
 }
 
 void Colour::addColourInfo(const ColourInfo& ci)
 {
-  if ( ci.name.exists() ){
+  if (not ci.name.empty()) {
     for ( unsigned int q=0; q<colours.size(); q++ )
       if ( colours[q].name == ci.name ){
 	colours[q] = ci;
@@ -185,17 +190,17 @@ void Colour::addColourInfo(const ColourInfo& ci)
   colours.push_back(ci);
 }
 
-void Colour::readColourMap(const miString fname){
+void Colour::readColourMap(const std::string fname){
   FILE *fp;
   char buffer[1024], name_[100];
-  miString lname;
+  std::string lname;
   int r,g,b;
   Colour c;
   if ((fp=fopen(fname.c_str(),"r"))){
     while (fgets(buffer,1023,fp)){
       if (buffer[0]=='#' || buffer[0]=='!') continue;
       sscanf(buffer,"%i %i %i %s\n",&r,&g,&b,name_);
-      lname= miString(name_).downcase();
+      lname= miutil::to_lower(name_);
       define(lname,r,g,b,255);
     }
     METLIBS_LOG_DEBUG("Found " << cmap.size() << " colours in " << fname);
@@ -213,5 +218,3 @@ ostream& operator<<(ostream& out, const Colour& rhs){
     " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]) <<
     " Index: " << int(rhs.colourindex) ;
 }
-
-
