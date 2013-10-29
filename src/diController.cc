@@ -711,7 +711,8 @@ mapMode Controller::getMapMode(){
 }
 
 
-set <miString> Controller::getComplexList(){
+set<string> Controller::getComplexList()
+{
   return objm->getComplexList();
 }
 

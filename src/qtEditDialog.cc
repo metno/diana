@@ -757,7 +757,7 @@ void EditDialog::FrontEditClicked()
       }
     }
     else if (m_objm->inComplexTextMode()){
-      vector <miutil::miString> symbolText,xText;
+      vector <string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
@@ -765,7 +765,7 @@ void EditDialog::FrontEditClicked()
       }
     } 
     else if (m_objm->inComplexTextColorMode()){
-      vector <miutil::miString> symbolText,xText;
+      vector<string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       Colour::ColourInfo colour=m_objm->getCurrentColour();
@@ -776,7 +776,7 @@ void EditDialog::FrontEditClicked()
   
     }
     else if (m_objm->inEditTextMode()){
-      vector <miutil::miString> symbolText,xText;
+      vector<string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getEditText(symbolText)){
@@ -801,14 +801,14 @@ void EditDialog::FrontEditDoubleClicked()
       m_objm->setCurrentColour(colour);
     }
   } else if (m_objm->inComplexTextMode()){
-    vector <miutil::miString> symbolText,xText;
+    vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
   
   } else if (m_objm->inComplexTextColorMode()){
-    vector <miutil::miString> symbolText,xText;
+    vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     Colour::ColourInfo colour=m_objm->getCurrentColour();
     if (getComplexColoredText(symbolText,xText,colour)){
@@ -817,7 +817,7 @@ void EditDialog::FrontEditDoubleClicked()
     }
   
   } else if (m_objm->inEditTextMode()){
-    vector <miutil::miString> symbolText,xText;
+    vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getEditText(symbolText)){
       m_objm->setCurrentComplexText(symbolText,xText);
@@ -875,7 +875,7 @@ void EditDialog::EditMarkedText()
 {
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
-  vector <miutil::miString> symbolText,xText,eText, mText;
+  vector <string> symbolText,xText,eText, mText;
   miutil::miString text = m_objm->getMarkedText();
      //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
   if (!text.empty()){
@@ -892,7 +892,7 @@ void EditDialog::EditMarkedText()
   text = m_ctrl->getMarkedAnnotation();
   if (!text.empty()){
     eText.push_back(text);
-    AnnoText * aText =new AnnoText(this,m_ctrl,m_editm->getProductName(), eText,xText);
+    AnnoText * aText =new AnnoText(this,m_ctrl,m_editm->getProductName(), eText, xText);
     connect(aText,SIGNAL(editUpdate()),SIGNAL(editUpdate()));
     m_ctrl->startEditAnnotation();
     aText->exec();
@@ -936,11 +936,10 @@ bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
 {
   bool ok = false;
 
-  vector <miutil::miString> symbolText,xText;
+  vector <string> symbolText,xText;
   symbolText.push_back(text);
-  set <miutil::miString> textList=m_objm->getTextList();
-  ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
-      textList,true);
+  set <string> textList=m_objm->getTextList();
+  ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText, textList,true);
   cText->setColour(colour);
   if (cText->exec()){
     cText->getComplexText(symbolText,xText);
@@ -954,15 +953,14 @@ bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
   return ok;
 }
 
-bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
-    vector <miutil::miString> & xText,Colour::ColourInfo & colour)
+bool EditDialog::getComplexColoredText(vector<string>& symbolText,
+    vector<string>& xText,Colour::ColourInfo & colour)
 {
   //METLIBS_LOG_DEBUG("EditDialog::getComplexColoredText called" );
   bool ok=false;
   if (symbolText.size() && xText.size()){
-    set <miutil::miString> complexList = m_ctrl->getComplexList();
-    ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
-        complexList,true);
+    set<string> complexList = m_ctrl->getComplexList();
+    ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText, complexList,true);
     cText->setColour(colour);
     if (cText->exec()){
       cText->getComplexText(symbolText,xText);
@@ -974,12 +972,11 @@ bool EditDialog::getComplexColoredText(vector <miutil::miString> & symbolText,
   return ok;
 }
 
-bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
-    vector <miutil::miString> & xText)
+bool EditDialog::getComplexText(vector<string>& symbolText, vector<string>& xText)
 {
   bool ok=false;
   if (symbolText.size()||xText.size()){
-    set <miutil::miString> complexList = m_ctrl->getComplexList();
+    set<string> complexList = m_ctrl->getComplexList();
     ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
         complexList);
     if (cText->exec()){
@@ -991,14 +988,14 @@ bool EditDialog::getComplexText(vector <miutil::miString> & symbolText,
   return ok;
 }
 
-bool EditDialog::getEditText(vector <miutil::miString> & editText)
+bool EditDialog::getEditText(vector<string>& editText)
 {
   bool ok=false;
   if (editText.size()) {
-     set <miutil::miString> complexList = m_ctrl->getComplexList();
-     //set <miutil::miString> textList=m_objm->getTextList();
-     EditText * eText =new EditText(this,m_ctrl, editText, complexList,true);
-     if (eText->exec()){
+    set<string> complexList = m_ctrl->getComplexList();
+    //set <miutil::miString> textList=m_objm->getTextList();
+    EditText * eText =new EditText(this,m_ctrl, editText, complexList, true);
+    if (eText->exec()){
       eText->getEditText(editText);
       ok=true;
     }

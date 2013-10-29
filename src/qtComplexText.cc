@@ -71,8 +71,8 @@ QColor*            ComplexText::pixcolor=0;
 
 /*********************************************/
 ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
-    vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText,
-    set <miutil::miString> cList,bool useColour)
+    vector <string> & symbolText, vector <string>  & xText,
+    set <string> cList,bool useColour)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -112,7 +112,7 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
         hglayout->addLayout(glayout, 0);
 
         //set <miutil::miString> complexList = m_ctrl->getComplexList();
-        set <miutil::miString> complexList = cList;
+        set <string> complexList = cList;
 
         for (int i=0;i<ns;i++){
 #ifdef DEBUGPRINT
@@ -127,11 +127,9 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
           text->setCompleter(NULL);
           if (!cv) cv = new complexValidator(this);
           text->addItem(symbolText[i].c_str());
-          set <miutil::miString>::iterator p = complexList.begin();
-          for (; p!=complexList.end(); p++) {
-            miutil::miString temp=*p;
-            text->addItem(temp.c_str());
-          }
+          set<string>::iterator p = complexList.begin();
+          for (; p!=complexList.end(); p++)
+            text->addItem(QString::fromStdString(*p));
 
           connect(text->lineEdit(),
               SIGNAL(selectionChanged()),SLOT(textSelected()));
@@ -228,7 +226,8 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
     }
 
 
-    void ComplexText::getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
+    void ComplexText::getComplexText(vector<string>& symbolText, vector<string>& xText)
+    {
 #ifdef DEBUGPRINT
       cout<<"ComplexText::getComplexText called"<<endl;
 #endif

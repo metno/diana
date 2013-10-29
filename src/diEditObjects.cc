@@ -1555,7 +1555,8 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
   }
 }
 
-void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
+void EditObjects::getMarkedMultilineText(vector<string>& symbolText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects:::getMarkedMultilineText called");
 #endif
@@ -1570,7 +1571,8 @@ void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
   }
 }
 
-void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
+void EditObjects::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::getMarkedComplex called");
 #endif
@@ -1586,7 +1588,8 @@ void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <m
   }
 }
 
-void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
+void EditObjects::getMarkedComplexTextColored(vector<string> & symbolText, vector<string> & xText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::getMarkedComplexColored called");
 #endif
@@ -1601,7 +1604,8 @@ void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, ve
   }
 }
 
-void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
+void EditObjects::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
 #endif
@@ -1615,7 +1619,8 @@ void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbo
   }
 }
 
-void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText){
+void EditObjects::changeMarkedMultilineText(const vector<string>& symbolText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::changeMarkedMiltilineText called");
 #endif
@@ -1629,7 +1634,8 @@ void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText
   }
 }
 
-void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
+void EditObjects::changeMarkedComplexText(const vector<string>& symbolText, const vector<string>& xText)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
 #endif

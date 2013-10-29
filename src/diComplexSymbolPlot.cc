@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,12 +31,12 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.ComplexSymbolPlot"
-#include <miLogger/miLogging.h>
-
 #include <diComplexSymbolPlot.h>
 #include <diFontManager.h>
 #include <diWeatherSymbol.h>
+
+#define MILOGGER_CATEGORY "diana.ComplexSymbolPlot"
+#include <miLogger/miLogging.h>
 
 using namespace::miutil;
 
@@ -69,9 +67,9 @@ using namespace::miutil;
 
 //static variables
 // text used in new complex symbols
-vector <miString> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
-vector <miString> ComplexSymbolPlot::currentXStrings; //xtext
-set <miString> ComplexSymbolPlot::clist; //texts used in combobox
+vector <std::string> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
+vector <std::string> ComplexSymbolPlot::currentXStrings; //xtext
+set <std::string> ComplexSymbolPlot::clist; //texts used in combobox
 float ComplexSymbolPlot::textShrink=1.5;
 
 ComplexSymbolPlot::ComplexSymbolPlot() : Plot(){
@@ -555,15 +553,6 @@ void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("** drawing filled area**");
 #endif
-   float x1, x2, y1, y2;
-   /*x1 = 111.651;
-   x2 = 131.999;
-   y1 = 66.0913;
-   y2 = 72.0713;*/
-   x1 = 5.5484e+06;
-   x2 = 3.4497e+06;
-   y1 = 6.6254e+06;
-   y2 = 3.12449e+06;
 //----------------------------------
   // draw filled area
   /*Colour fc = poptions.fillcolour;
@@ -1086,7 +1075,7 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
-  miString s = "10";
+  std::string s = "10";
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   fp->getStringSize(s.c_str(),sw,sh);
   sw=1.1*sw; sh=1.2*sh;
@@ -1164,7 +1153,7 @@ void ComplexSymbolPlot::drawCircle(int index,
 
   float sw,sh;
   if(circle) {
-    miString s = "10";
+    std::string s = "10";
     fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
     fp->getStringSize(s.c_str(),sw,sh);
     sw=1.1*sw; sh=1.2*sh;
@@ -1229,7 +1218,7 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
-  miString s = "10";
+  std::string s = "10";
   fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   fp->getStringSize(s.c_str(),sw,sh);
   sw=1.1*sw; sh=1.2*sh;
@@ -1680,7 +1669,7 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       fp->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (symbolStrings.size()>0)
 	fp->getStringSize(symbolStrings[0].c_str(),sw,sh);{
-	if (symbolStrings.size()>1 && symbolStrings[1].exists()){
+	if (symbolStrings.size()>1 && not symbolStrings[1].empty()){
 	  fp->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	  if (cw2>sh)  sw=cw2;
 	  sh += ch2;
@@ -1873,14 +1862,14 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
 
 
 
-void ComplexSymbolPlot::getCurrentComplexText(vector <miString> & symbolText,
-					  vector <miString> & xText){
+void ComplexSymbolPlot::getCurrentComplexText(vector <std::string> & symbolText,
+					  vector <std::string> & xText){
   symbolText=currentSymbolStrings;
   xText=currentXStrings;
 }
 
-void ComplexSymbolPlot::setCurrentComplexText(const vector <miString> &
-symbolText, const vector <miString> & xText){
+void ComplexSymbolPlot::setCurrentComplexText(const vector <std::string> &
+symbolText, const vector <std::string> & xText){
   currentSymbolStrings=symbolText;
   //insert into list of texts
   for (unsigned int i =0;i<symbolText.size();i++){
@@ -1889,7 +1878,7 @@ symbolText, const vector <miString> & xText){
   currentXStrings=xText;
 }
 
-void ComplexSymbolPlot::getComplexColoredText(vector <miString> & symbolText, vector <miString> & xText){
+void ComplexSymbolPlot::getComplexColoredText(vector <std::string> & symbolText, vector <std::string> & xText){
   xvisible = true;
 
   if (xvisible)
@@ -1899,13 +1888,13 @@ void ComplexSymbolPlot::getComplexColoredText(vector <miString> & symbolText, ve
     symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::getMultilineText(vector <miString> & symbolText){
+void ComplexSymbolPlot::getMultilineText(vector <std::string> & symbolText){
   symbolText.clear();
     for (unsigned int i = 0;i<symbolStrings.size();i++)
       symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::getComplexText(vector <miString> & symbolText, vector <miString> & xText){
+void ComplexSymbolPlot::getComplexText(vector <std::string> & symbolText, vector <std::string> & xText){
   if (xvisible)
     xText=xstrings;
   symbolText.clear();
@@ -1913,11 +1902,11 @@ void ComplexSymbolPlot::getComplexText(vector <miString> & symbolText, vector <m
     symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::changeMultilineText(const vector <miString> & symbolText){
+void ComplexSymbolPlot::changeMultilineText(const vector <std::string> & symbolText){
   symbolStrings=symbolText;
 }
 
-void ComplexSymbolPlot::changeComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
+void ComplexSymbolPlot::changeComplexText(const vector <std::string> & symbolText, const vector <std::string> & xText){
   symbolStrings=symbolText;
   //insert into list of texts
   for (unsigned int i =0;i<symbolText.size();i++)
@@ -1927,18 +1916,19 @@ void ComplexSymbolPlot::changeComplexText(const vector <miString> & symbolText, 
 
 
 
-void ComplexSymbolPlot::readComplexText(miString complexString){
+void ComplexSymbolPlot::readComplexText(const std::string& complexString)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ComplexSymbolPlot::readComplexText" << complexString);
 #endif
-  miString key,value;
-  vector <miString> tokens = complexString.split('/');
+  std::string key,value;
+  vector <std::string> tokens = miutil::split(complexString, 0, "/");
   for (unsigned int i = 0; i<tokens.size();i++){
-    vector <miString> stokens = tokens[i].split(':');
+    vector <std::string> stokens = miutil::split(tokens[i], 0, ":");
     if (stokens.size()==2){
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
-      vector <miString> texts = value.split(',');
+      vector <std::string> texts = miutil::split(value, 0, ",");
       if (key=="symbolstrings"){
 	symbolStrings=texts;
 	for (unsigned int i=0;i<symbolStrings.size();i++)
@@ -1954,11 +1944,11 @@ void ComplexSymbolPlot::readComplexText(miString complexString){
 }
 
 
-miString ComplexSymbolPlot::writeComplexText(){
+std::string ComplexSymbolPlot::writeComplexText(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ComplexSymbolPlot::writeComplexText-");
 #endif
-  miString ret;
+  std::string ret;
   int ns=symbolStrings.size();
   int nx=xstrings.size();
   if (ns || nx){
@@ -1966,7 +1956,7 @@ miString ComplexSymbolPlot::writeComplexText(){
    if (ns){
       ret+="symbolstrings:";
       for (int i=0;i<ns;i++){
-	miString tempString=symbolStrings[i];
+	std::string tempString=symbolStrings[i];
 	WeatherSymbol::replaceText(tempString,true);
 	ret+=tempString;
 	if (i<ns-1)
@@ -1977,7 +1967,7 @@ miString ComplexSymbolPlot::writeComplexText(){
     if (nx){
       ret+="xstrings:";
       for (int i=0;i<nx;i++){
-	miString tempString=xstrings[i];
+	std::string tempString=xstrings[i];
 	WeatherSymbol::replaceText(tempString,true);
 	ret+=tempString;
 	if (i<nx-1)
@@ -2040,7 +2030,7 @@ void ComplexSymbolPlot::initComplexList(){
 
 
 
-set <miString> ComplexSymbolPlot::getComplexList(){
+set <std::string> ComplexSymbolPlot::getComplexList(){
   return clist;
 }
 

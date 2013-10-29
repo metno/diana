@@ -253,10 +253,10 @@ public:
   virtual void setString(const std::string& s){}
   virtual void applyFilters(const std::vector<miutil::miString>&){};
 
-  virtual void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText){}
-  virtual void getMultilineText(vector <miutil::miString> & symbolText){}
-  virtual void changeComplexText(const vector <miutil::miString> & symbolText,const vector <miutil::miString> & xText){}
-  virtual void changeMultilineText(const vector <miutil::miString> & symbolText){}
+  virtual void getComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText) { }
+  virtual void getMultilineText(std::vector<std::string>& symbolText) {}
+  virtual void changeComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText) {}
+  virtual void changeMultilineText(const std::vector<std::string>& symbolText) {}
   virtual void readComplexText(miutil::miString complexString){}
   virtual void rotateObject(float val){} //only works for complex objects
   virtual void hideBox(){} //only works for complex objects

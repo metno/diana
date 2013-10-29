@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,18 +30,15 @@
 #define ComplexSymbolPlot_h
 
 #include <diPlot.h>
+
 #include <set>
 #include <vector>
 
 /**
-
   \brief Draw complex sigmap symbols
-
-The symbols are a combination of font symbols and text the user can enter
-
+  
+  The symbols are a combination of font symbols and text the user can enter
 */
-
-
 class ComplexSymbolPlot: public Plot
 {
 public:
@@ -61,22 +56,22 @@ public:
   /// hides/shows the white box behind symbol
   void setWhiteBox(int on);
   /// reads complex text to be plotted from a string (written by readComplexText)
-  void readComplexText(miutil::miString complexString);
-  /// gets miutil::miString vectors with symboltext and xText for colored text
-  void getComplexColoredText(std::vector<miutil::miString>& symbolText, std::vector<miutil::miString> & xText);
-  /// gets miutil::miString vectors with multiline symboltext
-  void getMultilineText(std::vector<miutil::miString> & symbolText);
-  /// gets miutil::miString vectors with symboltext and xText
-  void getComplexText(std::vector<miutil::miString> & symbolText, std::vector<miutil::miString> & xText);
+  void readComplexText(const std::string& complexString);
+  /// gets std::string vectors with symboltext and xText for colored text
+  void getComplexColoredText(std::vector<std::string>& symbolText, std::vector<std::string> & xText);
+  /// gets std::string vectors with multiline symboltext
+  void getMultilineText(std::vector<std::string> & symbolText);
+  /// gets std::string vectors with symboltext and xText
+  void getComplexText(std::vector<std::string> & symbolText, std::vector<std::string> & xText);
   /// change multiline text to be drawn
-  void changeMultilineText(const std::vector<miutil::miString> & symbolText);
+  void changeMultilineText(const std::vector<std::string> & symbolText);
   /// change text to be drawn
-  void changeComplexText(const std::vector<miutil::miString> & symbolText, const std::vector<miutil::miString> & xText);
+  void changeComplexText(const std::vector<std::string> & symbolText, const std::vector<std::string> & xText);
   /// writes complex text to a string (read by readComplexText)
-  miutil::miString writeComplexText();
+  std::string writeComplexText();
   /// get the the size and x,y of center of bounding box
   void getComplexBoundingBox(int index, float& sw, float & sh, float & x, float & y);
-  void setBorderColour(const miutil::miString& colstring){borderColour= Colour(colstring);}
+  void setBorderColour(const std::string& colstring){borderColour= Colour(colstring);}
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
   /// returns true if symbol is colored complex text
@@ -84,18 +79,17 @@ public:
   /// returns true if symbol is edit text or textbox
   static bool isTextEdit(int drawIndex);
   /// gets current complex text (used in text dialog)
-  static void getCurrentComplexText(std::vector<miutil::miString> & symbolText,
-			     std::vector<miutil::miString> & xText);
+  static void getCurrentComplexText(std::vector<std::string> & symbolText,
+			     std::vector<std::string> & xText);
   /// sets current complex text (used in text dialog)
-  static void setCurrentComplexText(const std::vector<miutil::miString> & symbolText,
-			     const std::vector<miutil::miString> & xText);
+  static void setCurrentComplexText(const std::vector<std::string> & symbolText,
+			     const std::vector<std::string> & xText);
   /// Initial values of current strings (used in text dialog)
   static void initCurrentStrings(int drawIndex);
   /// sets list of complex texts (used in text dialog)
   static void initComplexList();
   /// get list of complex texts (used in text dialog)
-  static std::set<miutil::miString> getComplexList();
-
+  static std::set<std::string> getComplexList();
 
 private:
   void initStrings(int drawIndex);
@@ -144,16 +138,16 @@ private:
   void drawSigNumber(float x,float y);
 
   //text used in new complex symbols
-  static std::vector <miutil::miString> currentSymbolStrings;
-  static std::vector <miutil::miString> currentXStrings; //new sigstrings  (x/x)
-  static std::set <miutil::miString> clist;
-  std::vector <miutil::miString> symbolStrings; //text used in this complex symbols
-  std::vector <miutil::miString> xstrings; // sigstrings  (x/x)
+  static std::vector <std::string> currentSymbolStrings;
+  static std::vector <std::string> currentXStrings; //new sigstrings  (x/x)
+  static std::set <std::string> clist;
+  std::vector <std::string> symbolStrings; //text used in this complex symbols
+  std::vector <std::string> xstrings; // sigstrings  (x/x)
   bool xvisible; //used when editing strings
   unsigned int nstringsvisible; //used when editing strings
   int symbolSizeToPlot;
 
-  miutil::miString sigString;
+  std::string sigString;
   bool whiteBox;
   static float textShrink;
   float diffx,diffy;
@@ -162,12 +156,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
-

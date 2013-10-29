@@ -155,7 +155,7 @@ public:
   /// change colour of marked text symbols in editObjects
   void changeMarkedColour(const Colour::ColourInfo & newColour);
   /// get text list from weather symbol
-  std::set<miutil::miString> getTextList();
+  std::set<std::string> getTextList();
   /// returns true if currently editing text symbol
   bool inTextMode();
   /// returns true if currently editing complex text symbol
@@ -166,25 +166,25 @@ public:
   /// returns true if currently editing edittext textbox
   bool inEditTextMode();
   /// gets current text of complex text symbols
-  void getCurrentComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>& xText);
+  void getCurrentComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   /// sets current text of complex text symbols
-  void setCurrentComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void setCurrentComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// inits current text of complex text symbols
   void initCurrentComplexText();
    /// get texts of marked complex colored text object
-  void getMarkedComplexTextColored(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getMarkedComplexTextColored(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
    /// get texts of marked complex multilinetext object
-  void getMarkedMultilineText(vector <miutil::miString> & symbolText);
+  void getMarkedMultilineText(std::vector<std::string>& symbolText);
    /// get texts of marked complex text object
-  void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getMarkedComplexText(std::vector<std::string>& symbolText, std::vector<std::string> & xText);
   /// changes texts of marked complex colored text object
-  void changeMarkedComplexTextColored(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeMarkedComplexTextColored(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// changes texts of marked multiline text object
-  void changeMarkedMultilineText(const vector <miutil::miString> & symbolText);
+  void changeMarkedMultilineText(const std::vector<std::string>& symbolText);
   /// changes texts of marked complex text object
-  void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// get text list from complex weather symbol
-  set <miutil::miString> getComplexList();
+  set <std::string> getComplexList();
   /// decode string with types of objects to plot
   map <miutil::miString,bool> decodeTypeString(miutil::miString);
   /// prepare objects for displaying

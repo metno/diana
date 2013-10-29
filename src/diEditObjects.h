@@ -97,17 +97,17 @@ public:
   /// changes colour of marked text object to newText
   void changeMarkedColour(const Colour::ColourInfo & newColour);
   /// get texts of marked complex colored text object
-  void getMarkedComplexTextColored(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getMarkedComplexTextColored(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   /// get texts of marked multiline text object
-  void getMarkedMultilineText(vector <miutil::miString> & symbolText);
+  void getMarkedMultilineText(std::vector<std::string>& symbolText);
   /// get texts of marked complex text object
-  void getMarkedComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  void getMarkedComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   /// changes texts of marked complex colored text object
-  void changeMarkedComplexTextColored(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeMarkedComplexTextColored(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// changes texts of marked multiline text object
-  void changeMarkedMultilineText(const vector <miutil::miString> & symbolText);
+  void changeMarkedMultilineText(const std::vector<std::string> & symbolText);
   /// changes texts of marked complex text object
-  void changeMarkedComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
+  void changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// returns true of current symbol is simple text
   bool inTextMode();
   /// returns true of current symbol is complext text

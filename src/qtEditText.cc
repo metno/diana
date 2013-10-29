@@ -73,7 +73,7 @@ QColor*            EditText::pixcolor=0;
 
 /*********************************************/
 EditText::EditText( QWidget* parent, Controller* llctrl,
-    vector <miutil::miString> & symbolText, set <miutil::miString> cList,bool useColour)
+    vector<string> & symbolText, set<string> cList, bool useColour)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -107,7 +107,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       METLIBS_LOG_DEBUG("?????????ns = "<< ns);
      // int nx = xText.size();
       //set <miutil::miString> complexList = m_ctrl->getEditList();
-      set <miutil::miString> complexList = cList;
+      set <string> complexList = cList;
       QTextEdit *edittext = new QTextEdit(this);
       edittext->setLineWrapMode(QTextEdit::WidgetWidth);
       edittext->setFont(QFont("Arial", 10, QFont::Normal));
@@ -180,7 +180,8 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
     }
 
 
-    void EditText::getEditText(vector <miutil::miString> & symbolText){
+    void EditText::getEditText(vector <string> & symbolText)
+    {
 #ifdef DEBUGPRINT
       cout<<"EditText::getEditText called"<<endl;
 #endif

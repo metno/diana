@@ -52,8 +52,8 @@
 
 
 /*********************************************/
-AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
-    vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText)
+AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
+    vector<string>& symbolText, vector<string>& xText)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -119,21 +119,22 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
 }
 
 
-    AnnoText::~AnnoText(){
-      int i,n;
-      n= vSymbolEdit.size();
-      for (i = 0;i<n;i++)
-        delete vSymbolEdit[i];
-      vSymbolEdit.clear();
-    }
+AnnoText::~AnnoText(){
+  int i,n;
+  n= vSymbolEdit.size();
+  for (i = 0;i<n;i++)
+    delete vSymbolEdit[i];
+  vSymbolEdit.clear();
+}
 
 
-    void AnnoText::getAnnoText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
-      symbolText.clear();
-      int ns=vSymbolEdit.size();
-      for (int i =0; i<ns;i++)
-        symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
-    }
+void AnnoText::getAnnoText(vector<string>& symbolText, vector<string>& xText)
+{
+  symbolText.clear();
+  int ns=vSymbolEdit.size();
+  for (int i =0; i<ns;i++)
+    symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
+}
 
 
     void AnnoText::textChanged(const QString &textstring){

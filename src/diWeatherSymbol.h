@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,21 +49,21 @@ class WeatherSymbol: public ObjectPlot
 {
 private:
   float symbolSize;
-  miutil::miString symbolString;
+  std::string symbolString;
   ComplexSymbolPlot * complexSymbol;
 
   static vector<editToolInfo>  allSymbols;
   static vector<editToolInfo> allRegions;
-  static map<miutil::miString,int> symbolTypes;  //finds symbol type number from name
-  static map<miutil::miString,int> regionTypes;  //finds region type number from name
+  static map<std::string,int> symbolTypes;  //finds symbol type number from name
+  static map<std::string,int> regionTypes;  //finds region type number from name
   static map<int,int> indexTypes;  //finds symbol type number 
   static map<int,int> next;  //finds next symbol type number from number
   static map<int,int> last;  //finds last symbol type number from number
   static float defaultSize;
   static float defaultComplexSize;
-  static miutil::miString currentText;
+  static std::string currentText;
   static Colour::ColourInfo currentColour;
-  static set <miutil::miString> textlist;
+  static set <std::string> textlist;
 
 public:
  /// default constructor
@@ -73,7 +71,7 @@ public:
   /// constructor with integer symbol type as argument
   WeatherSymbol(int ty);
   /// constructor with symbol name and type of object as argument
-  WeatherSymbol(miutil::miString,int);
+  WeatherSymbol(std::string,int);
   WeatherSymbol(const WeatherSymbol &rhs);
   /// Destructor
   ~WeatherSymbol();
@@ -83,37 +81,36 @@ public:
   /// define map to find region type number from name
   static void defineRegions(vector<editToolInfo>regions);
   /// set current text for text symbols
-  static void setCurrentText(const miutil::miString &);
+  static void setCurrentText(const std::string &);
   /// set current colour for text symbols
   static void setCurrentColour(const Colour::ColourInfo &);
   /// get current text for text symbols
-  static miutil::miString getCurrentText();
+  static std::string getCurrentText();
   /// get current colour for text symbols
   static Colour::ColourInfo getCurrentColour();
   /// returns true if symbol is simple text
-  static bool isSimpleText(miutil::miString edittool);
+  static bool isSimpleText(std::string edittool);
   /// returns true if symbol is complex text
-  static bool isComplexText(miutil::miString edittool);
+  static bool isComplexText(std::string edittool);
   /// returns true if symbol is colored complex text
-  static bool isComplexTextColor(miutil::miString edittool);
+  static bool isComplexTextColor(std::string edittool);
   /// returns true if symbol is edit text or textbox
-  static bool isTextEdit(miutil::miString edittool);
+  static bool isTextEdit(std::string edittool);
   /// get vectors with text from complex symbols
-  static void getCurrentComplexText(vector <miutil::miString> & symbolText, 
-			     vector <miutil::miString> & xText);
+  static void getCurrentComplexText(std::vector<std::string> & symbolText, std::vector<std::string> & xText);
   /// set vectors with text from complex symbols
-  static void setCurrentComplexText(const vector <miutil::miString> & symbolText,
-			     const vector <miutil::miString> & xText); 
+  static void setCurrentComplexText(const std::vector<std::string>& symbolText,
+      const std::vector<std::string>& xText); 
   /// initialise text for complex symbols
-  static void initCurrentComplexText(miutil::miString edittool);
+  static void initCurrentComplexText(std::string edittool);
   /// sets list of complex texts (used in text dialog)
   static void initComplexList();
   /// get name of region number ir
-  static miutil::miString getAllRegions(int ir);
+  static std::string getAllRegions(int ir);
   /// get list of text used in textsymbols (for dialog)
-  static set <miutil::miString> getTextList();
+  static set<std::string> getTextList();
   /// get list of complex texts (used in text dialog)
-  static set <miutil::miString> getComplexList();
+  static set<std::string> getComplexList();
   /// replace characters like !{ in string
   static void replaceText(std::string& tempString, bool writestring);
   /// set standard size to use for new weathersymbols
@@ -125,7 +122,7 @@ public:
   /// set type of symbol
   void setType(int ty);
   /// set type of symbol
-  bool setType(miutil::miString tystring);
+  bool setType(std::string tystring);
   /// set size of symbol
   void setSize(float si){setSymbolSize(si);}
    /// set size of symbol
@@ -155,16 +152,16 @@ public:
   /// writes a string with Object and Type
   std::string writeTypeString();
   /// apply filter to hide some symbols
-  virtual void applyFilters(const std::vector<miutil::miString>&);
-  /// gets miutil::miString vectors with symboltext or multiline text
-  void getMultilineText(vector <miutil::miString> & symbolText);
-  /// gets miutil::miString vectors with symboltext and xText
-  void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  virtual void applyFilters(const std::vector<std::string>&);
+  /// gets std::string vectors with symboltext or multiline text
+  void getMultilineText(std::vector<std::string>& symbolText);
+  /// gets std::string vectors with symboltext and xText
+  void getComplexText(std::vector<std::string>& symbolText, std::vector<std::string> & xText);
   /// reads complex text to be plotted from a string (written by readComplexText)
-  void readComplexText(miutil::miString s);
+  void readComplexText(std::string s);
   /// change text to be drawn
-  void changeComplexText(const vector <miutil::miString> & symbolText, const vector <miutil::miString> & xText);
-  void changeMultilineText(const vector <miutil::miString> & symbolText);
+  void changeComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
+  void changeMultilineText(const std::vector<std::string>& symbolText);
 
 };
 

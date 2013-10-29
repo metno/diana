@@ -57,10 +57,10 @@ class EditText :public QDialog
 public:
 
   /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  EditText( QWidget* parent, Controller* llctrl, vector <miutil::miString> &
-	       symbolText, set <miutil::miString> cList,bool useColour=false);
+  EditText( QWidget* parent, Controller* llctrl, std::vector<std::string>& symbolText,
+      std::set<std::string> cList, bool useColour=false);
   /// get text from dialogs input boxes
-  void getEditText(vector <miutil::miString> & symbolText );
+  void getEditText(std::vector<std::string> & symbolText );
   /// set colourbox colour
   void setColour(Colour::ColourInfo & colour);
   /// get colour from colourbox

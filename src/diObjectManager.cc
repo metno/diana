@@ -665,31 +665,37 @@ void ObjectManager::changeMarkedColour(const Colour::ColourInfo & newColour){
 
 
 
-set <miString> ObjectManager::getTextList(){
+set<string> ObjectManager::getTextList()
+{
   return WeatherSymbol::getTextList();
 }
 
-void ObjectManager::getMarkedMultilineText(vector <miString> & symbolText){
+void ObjectManager::getMarkedMultilineText(vector<string>& symbolText)
+{
   plotm->editobjects.getMarkedMultilineText(symbolText);
 }
 
 
-void ObjectManager::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
+void ObjectManager::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
+{
   plotm->editobjects.getMarkedComplexText(symbolText,xText);
 }
 
-void ObjectManager::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
+void ObjectManager::getMarkedComplexTextColored(vector <string> & symbolText, vector <string> & xText)
+{
   plotm->editobjects.getMarkedComplexTextColored(symbolText,xText);
 }
 
-void ObjectManager::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
+void ObjectManager::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
+{
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
     plotm->editobjects.changeMarkedComplexTextColored(symbolText,xText);
     editPostOperation();
   }
 }
-void ObjectManager::changeMarkedMultilineText(const vector <miString> & symbolText){
+void ObjectManager::changeMarkedMultilineText(const vector<string>& symbolText)
+{
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
     plotm->editobjects.changeMarkedMultilineText(symbolText);
@@ -697,7 +703,8 @@ void ObjectManager::changeMarkedMultilineText(const vector <miString> & symbolTe
   }
 }
 
-void ObjectManager::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
+void ObjectManager::changeMarkedComplexText(const vector<string>& symbolText, const vector<string>& xText)
+{
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
     plotm->editobjects.changeMarkedComplexText(symbolText,xText);
@@ -722,37 +729,31 @@ bool ObjectManager::inEditTextMode(){
   return plotm->editobjects.inEditTextMode();
 }
 
-void ObjectManager::getCurrentComplexText(vector <miString> & symbolText,
-					  vector <miString> & xText){
+void ObjectManager::getCurrentComplexText(vector<string> & symbolText, vector<string> & xText)
+{
   WeatherSymbol::getCurrentComplexText(symbolText,xText);
 }
 
-void ObjectManager::setCurrentComplexText(const vector <miString> &
-symbolText, const vector <miString> & xText){
+void ObjectManager::setCurrentComplexText(const vector<string>& symbolText, const vector<string> & xText)
+{
   WeatherSymbol::setCurrentComplexText(symbolText,xText);
 }
 
-
-void ObjectManager::initCurrentComplexText(){
+void ObjectManager::initCurrentComplexText()
+{
   plotm->editobjects.initCurrentComplexText();
 }
 
-
-
-set <miString> ObjectManager::getComplexList(){
+set<string> ObjectManager::getComplexList()
+{
   return WeatherSymbol::getComplexList();
 }
 
 
 
-
-
-
-
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
 // ---------------------------------------------------------------
-
 
 
 

@@ -329,7 +329,7 @@ public:
   /// returns current EditDialogInfo for gui
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
-  set <miutil::miString> getComplexList();
+  std::set<std::string> getComplexList();
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
