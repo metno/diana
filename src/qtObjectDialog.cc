@@ -542,12 +542,13 @@ void ObjectDialog::updateSelectedFileList()
 
 /*************************************************************************/
 
-vector<miutil::miString> ObjectDialog::getOKString(){
+vector<string> ObjectDialog::getOKString()
+{
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::getOKstring");
 #endif
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   if (selectedFileList->count()){
     miutil::miString str;
@@ -603,7 +604,7 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 }
 
 
-void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
+void ObjectDialog::putOKString(const vector<string>& vstr)
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::putOKstring");
@@ -621,7 +622,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
   for (int ip=0; ip<npi; ip++){
     //(if there are several plotInfos, only the last one will be
     //used
-    vector<miutil::miString> tokens= vstr[ip].split('"','"');
+    vector<string> tokens = miutil::split_protected(vstr[ip], '"', '"');
     //get info from OKstring into struct PlotVariables
     plotVariables = decodeString(tokens);
   }
@@ -700,8 +701,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
 }
 
 
-ObjectDialog::PlotVariables
-ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
+ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & tokens)
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
@@ -717,14 +717,14 @@ ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
   //loop over OKstrings
   for (int i=0; i<n; i++){
     //decode string
-    token= tokens[i].downcase();
+    token= miutil::to_lower(tokens[i]);
     if (token.contains("types=")){
       okVar.useobject = m_ctrl->decodeTypeString(token);
     } else {
       miutil::miString key, value;
-      vector<miutil::miString> stokens= tokens[i].split('=');
+      vector<string> stokens= miutil::split(tokens[i], 0, "=");
       if ( stokens.size()==2) {
-	key = stokens[0].downcase();
+	key = miutil::to_lower(stokens[0]);
 	value = stokens[1];
 	if ( key=="name") {
 	  if (value[0]=='"')

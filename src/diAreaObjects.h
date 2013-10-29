@@ -67,7 +67,7 @@ public:
   /// returns name
   miutil::miString getName(){return itsName;}
   /// gets name
-  void getPlotName(miutil::miString &name){name=itsName;}
+  void getPlotName(std::string &name){name=itsName;}
   /// gets bounding box of area with name name
   Rectangle getBoundBox(const miutil::miString& name);
   /// returns autozoom

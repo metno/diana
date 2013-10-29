@@ -66,17 +66,17 @@ public:
   /// update dialog after re-reading setupfile
   void updateDialog();
   ///return command strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   ///insert command strings
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current commonad
   miutil::miString getShortname();
   ///change plottype
   bool setPlottype(const miutil::miString& name, bool on);
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-               const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
 ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );

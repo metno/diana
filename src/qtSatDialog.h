@@ -90,19 +90,19 @@ public:
 
   SatDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   ///insert command strings
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current commonad
   miutil::miString getShortname();
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
-  vector<miutil::miString> writeLog() ;
+  std::vector<std::string> writeLog() ;
   /// read log string
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  void readLog(const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion);
   ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );
@@ -122,7 +122,7 @@ private:
   void emitSatTimes(bool update=false);
   int addSelectedPicture();
   //decode part of OK string
-  state decodeString(const vector <miutil::miString> & tokens);
+  state decodeString(const std::vector<std::string> & tokens);
   // make string from state
   miutil::miString makeOKString(state & okVar);
   void putOptions(const state okVar);

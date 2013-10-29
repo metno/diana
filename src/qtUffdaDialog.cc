@@ -357,7 +357,7 @@ void UffdaDialog::addPosition(float lat, float lon){
   if (satIndex > -1) sattime = satlist->item(satIndex)->text();
   //now get list of satellites available
   satlist->clear();
-  vector <miutil::miString> satnames = m_ctrl->getSatnames();
+  vector <string> satnames = m_ctrl->getSatnames();
   for (unsigned int i=0; i<satnames.size(); i++){
     QString satname = QString(satnames[i].c_str());
     satname=satname.simplified();

@@ -95,7 +95,7 @@ private:
   bool localTime;  //Use Time, not ctime
   int undef;
   miutil::miString annotation;
-  std::vector<miutil::miString> labels;    // labels from ascii-files or PlotModule(edit)
+  std::vector<std::string> labels;    // labels from ascii-files or PlotModule(edit)
   float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
   bool firstplot;
@@ -301,18 +301,18 @@ public:
   void readStations();
   void clear();
   static void clearPos();
-  void getObsAnnotation(miutil::miString &, Colour &);
+  void getObsAnnotation(std::string &, Colour &);
   bool getDataAnnotations(std::vector<std::string>& anno);
-  void setObsAnnotation(std::string &anno){annotation =anno;}
-  std::vector<miutil::miString> getObsExtraAnnotations(){return labels;}
+  void setObsAnnotation(const std::string &anno){annotation =anno;}
+  const std::vector<std::string>& getObsExtraAnnotations() const {return labels;}
   void setLabel(const miutil::miString& pin){labels.push_back(pin);}
-  void setLabels(const std::vector<miutil::miString>& l){labels = l;}
+  void setLabels(const std::vector<std::string>& l){labels = l;}
   bool getPositions(std::vector<float>&, std::vector<float>&);
   int  getPositions(float*,float*,int);
   int  numPositions();
   void obs_mslp(float *);
   bool findObs(int,int);
-  bool getObsName(int xx,int yy, miutil::miString& station);
+  bool getObsName(int xx,int yy, std::string& station);
   void nextObs(bool);
   std::vector<miutil::miString> getStations();
   void putStations(std::vector<miutil::miString>);
@@ -322,8 +322,8 @@ public:
   void changeParamColour(const miutil::miString& param, bool select);
 
   bool moreTimes(){return moretimes;}
-  void setDataType(miutil::miString datatype){currentDatatype = datatype;}
-  std::vector<miutil::miString>& dataTypes(){return datatypes;}
+  void setDataType(std::string datatype) {currentDatatype = datatype;}
+  const std::vector<miutil::miString>& dataTypes() const { return datatypes; }
   miutil::miTime getObsTime(){return Time;}
   void setObsTime(const miutil::miTime& t){Time=t;}
   int getTimeDiff(){return timeDiff;}

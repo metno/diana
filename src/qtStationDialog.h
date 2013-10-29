@@ -54,9 +54,9 @@ public:
 
   void updateDialog();
   ///return command strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   ///insert command strings
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current command
   miutil::miString getShortname();
 

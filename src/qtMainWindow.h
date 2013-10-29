@@ -174,8 +174,8 @@ private Q_SLOTS:
   void showUrl();
 
   void about();
-  void quickMenuApply(const vector<miutil::miString>&);
-  void recallPlot(const vector<miutil::miString>&,bool);
+  void quickMenuApply(const vector<std::string>&);
+  void recallPlot(const std::vector<std::string>&, bool);
   void resetArea();
   void resetAll();
   void editApply();
@@ -419,7 +419,7 @@ private:
   ClientButton      * pluginB;
   bool                dialogChanged;
 
-  vector<miutil::miString> vlabel;
+  std::vector<std::string> vlabel;
   QButton* mwhelp;
   Controller* contr;
   miutil::miString lastString;
@@ -462,20 +462,19 @@ private:
   miutil::miString saveDocState();
   void restoreDocState(miutil::miString logstr);
 
-  vector<miutil::miString> writeLog(const miutil::miString& thisVersion,
-			    const miutil::miString& thisBuild);
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion,
-	       miutil::miString& logVersion);
+  std::vector<std::string> writeLog(const std::string& thisVersion,
+      const std::string& thisBuild);
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, std::string& logVersion);
   void getDisplaySize();
   void timeChanged();
   void satFileListUpdate();
   void vprofStartup();
   void vcrossStartup();
   void spectrumStartup();
-  void getPlotStrings(vector<miutil::miString> &pstr,
-                      vector<miutil::miString> &diagstr,
-                      vector<miutil::miString> &shortnames);
+  void getPlotStrings(std::vector<std::string> &pstr,
+                      std::vector<std::string> &diagstr,
+                      std::vector<std::string> &shortnames);
 
   map<QAction*, DataDialog*> dialogs;
 

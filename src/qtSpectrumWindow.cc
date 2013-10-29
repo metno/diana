@@ -718,7 +718,7 @@ bool SpectrumWindow::changeStation(const miutil::miString& station)
 }
 
 
-void SpectrumWindow::setFieldModels(const vector<miutil::miString>& fieldmodels)
+void SpectrumWindow::setFieldModels(const vector<string>& fieldmodels)
 {
   spectrumm->setFieldModels(fieldmodels);
   if (active) changeModel();
@@ -778,9 +778,9 @@ void SpectrumWindow::parseSetup()
   spModelDialog->updateModelfileList();
 }
 
-vector<miutil::miString> SpectrumWindow::writeLog(const miutil::miString& logpart)
+vector<string> SpectrumWindow::writeLog(const string& logpart)
 {
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   miutil::miString str;
 
   if (logpart=="window") {
@@ -819,18 +819,18 @@ vector<miutil::miString> SpectrumWindow::writeLog(const miutil::miString& logpar
 }
 
 
-void SpectrumWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion,
+void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion,
     int displayWidth, int displayHeight)
 {
 
   if (logpart=="window") {
 
-    vector<miutil::miString> tokens;
+    vector<string> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= vstr[i].split(' ');
+      tokens= miutil::split(vstr[i], 0, " ");
 
       if (tokens.size()==3) {
 

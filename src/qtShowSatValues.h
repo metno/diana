@@ -56,7 +56,7 @@ private slots:
 
 public slots:
   /// set channels in combobox
-  void SetChannels(const vector<miutil::miString>& channel);
+  void SetChannels(const std::vector<std::string>& channel);
   /// show channel and value in status bar
   void ShowValues(const vector<SatValues>& satval);
 
@@ -64,21 +64,10 @@ public slots:
 //   void calibChannel(miutil::miString);
 
 private:
-  vector<miutil::miString> tooltip;
+  std::vector<std::string> tooltip;
   QLabel *sylabel;
   QLabel *chlabel;
   QComboBox *channelbox;
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
-

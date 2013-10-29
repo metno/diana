@@ -99,13 +99,13 @@ void SpectrumOptions::setDefaults()
 }
 
 
-vector<miString> SpectrumOptions::writeOptions()
+vector<string> SpectrumOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumOptions::writeOptions");
 #endif
 
-  vector<miString> vstr;
+  vector<string> vstr;
   miString str;
 
   str=  "text=" + miString(pText ? "on" : "off");
@@ -158,26 +158,26 @@ vector<miString> SpectrumOptions::writeOptions()
 }
 
 
-void SpectrumOptions::readOptions(const vector<miString>& vstr)
+void SpectrumOptions::readOptions(const vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumOptions::readOptions");
 #endif
 
-  vector<miString> vs,tokens;
+  vector<string> vs,tokens;
   miString key,value;
 
   int n= vstr.size();
 
   for (int i=0; i<n; i++) {
 
-    vs= vstr[i].split(' ');
+    vs= miutil::split(vstr[i], 0, " ");
 
     int m= vs.size();
 
     for (int j=0; j<m; j++) {
 
-      tokens= vs[j].split('=');
+      tokens= miutil::split(vs[j], 0, "=");
 
       if (tokens.size()==2) {
 

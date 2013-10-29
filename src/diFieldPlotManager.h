@@ -96,7 +96,7 @@ public:
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
 
   /// Returns the available times for the selected models and fields.
-  vector<miutil::miTime> getFieldTime(const vector<miutil::miString>& pinfos,
+  vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
       bool& constTimes, bool updateSources=false);
 
   /// Returns the union or intersection of plot times from all pinfos.

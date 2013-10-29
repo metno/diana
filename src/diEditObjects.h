@@ -236,7 +236,7 @@ public:
   /// add comments
   void addComments(const miutil::miString & comments){itsComments+=comments;}
   /// save labels
-  void saveEditLabels(vector <miutil::miString> labels);
+  void saveEditLabels(const std::vector<std::string>& labels);
 
   /// a new UndoFront is created and becomes undoCurrent
   void newUndoCurrent(UndoFront*);

@@ -61,16 +61,16 @@ public:
   MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   /// creates a short name for the current settings (used in quick menues)
   miutil::miString getShortname();
   /// returns all settings in logfile format
-  vector<miutil::miString> writeLog();
+  std::vector<std::string> writeLog();
   /// set the dialogue elements from logfile settings
-  void readLog(const vector<miutil::miString>& vstr, const miutil::miString& thisVersion,
-      const miutil::miString& logVersion);
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
   /// choose the favorite settings
   void useFavorite();
 
@@ -134,7 +134,7 @@ private slots:
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas
-  vector<miutil::miString> favorite; // favorite options
+  std::vector<std::string> favorite; // favorite options
   int numMaps; // number of maps
   vector<int> selectedmaps; // maps selected
   int activemap; // active selected map

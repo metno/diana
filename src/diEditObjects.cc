@@ -1442,7 +1442,8 @@ void EditObjects::setScaleToField(float s){
  *  Methods for reading and writing comments                *
  ************************************************************/
 
-void EditObjects::putCommentStartLines(miString name,miString prefix){
+void EditObjects::putCommentStartLines(miString name,miString prefix)
+{
   //return the startline of the comments file to read
   miString startline = prefix + miString(" ") + name +
   miString(" ") + itsTime.isoTime()+ miString("\n");
@@ -1471,8 +1472,9 @@ void EditObjects::putComments(const miString & comments){
 /************************************************************
  *  Methods for reading and writing labels                *
  ************************************************************/
-void EditObjects::saveEditLabels(vector <miString> labels){
-  itsLabels=labels;
+void EditObjects::saveEditLabels(const vector<string>& labels)
+{
+  itsLabels = labels;
   labelsSaved=false;
 }
 

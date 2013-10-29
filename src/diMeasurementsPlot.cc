@@ -97,7 +97,7 @@ bool MeasurementsPlot::prepare(void){
   return true;
 }
 
-void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
+void MeasurementsPlot::measurementsPos(vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   for(size_t  i=0;i<vstr.size();i++)

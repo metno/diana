@@ -1713,7 +1713,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 #endif
     //apply commands for this EditProduct (probably MAP)
     m_ctrl->keepCurrentArea(false); // unset area conservatism
-    /*emit*/ Apply(std::vector<miutil::miString>(ep.OKstrings.begin(), ep.OKstrings.end()), false);
+    /*emit*/ Apply(ep.OKstrings, false);
     m_ctrl->keepCurrentArea(true); // reset area conservatism
   } else {
     //  m_ctrl->keepCurrentArea(true); // reset area conservatism
@@ -1771,7 +1771,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // update field dialog
   emit emitFieldEditUpdate("");
 
-  vector<miutil::miString> combids;
+  vector<string> combids;
   // try to start combine
   if (!m_editm->startCombineEdit(ep,ci,time,combids)){
     METLIBS_LOG_ERROR("Error starting combine");
@@ -1932,7 +1932,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   ecomment->stopComment();
   ecomment->startComment();
   if (ep.OKstrings.size())
-    /*emit*/ Apply(std::vector<miutil::miString>(ep.OKstrings.begin(), ep.OKstrings.end()), false);
+    /*emit*/ Apply(ep.OKstrings, false);
   else
     /*emit*/ editApply();
   //emit editUpdate();

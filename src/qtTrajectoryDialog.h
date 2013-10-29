@@ -69,9 +69,9 @@ public:
   //send all positions to TrajectoryPlotdiObsDi
   void sendAllPositions();
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
 protected:
   void closeEvent( QCloseEvent* );
 

@@ -49,8 +49,8 @@ public:
   void setDefaults();
 
   // log and setup
-  vector<miutil::miString> writeOptions();
-  void readOptions(const vector<miutil::miString>& vstr);
+  std::vector<std::string> writeOptions();
+  void readOptions(const std::vector<std::string>& vstr);
 
 private:
   friend class SpectrumSetupDialog;

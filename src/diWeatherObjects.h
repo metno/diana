@@ -89,9 +89,9 @@ public:
   miutil::miString readComments();
 
   ///return oldLabels from object file
-  vector <miutil::miString> getObjectLabels();
+  std::vector<std::string> getObjectLabels();
   /// return new edited labels 
-  vector <miutil::miString> getEditLabels(); 
+  std::vector<std::string> getEditLabels(); 
 
   /// read file with weather objects and change projection to newArea
   bool readEditDrawFile(const miutil::miString ,const Area& newArea );
@@ -136,8 +136,8 @@ protected:
 
   miutil::miTime itsTime;                //plot time 
   miutil::miString itsOldComments;       // the comment string to edit
-  vector <miutil::miString> itsLabels;            //edited labels
-  vector <miutil::miString> itsOldLabels;         //labels read in from object file
+  std::vector<std::string> itsLabels;            //edited labels
+  std::vector<std::string> itsOldLabels;         //labels read in from object file
 
   //static members
   static miutil::miTime timeFromString(miutil::miString timeString);
@@ -145,6 +145,4 @@ protected:
 
 };
 
-
 #endif
-

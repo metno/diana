@@ -136,7 +136,7 @@ bool Controller::parseSetup()
       //      METLIBS_LOG_WARN("Missing section "<<fieldSubSect[i]<<" in setupfile.");
     }
     vector<std::string> string_lines;
-    for (int j=0; j<lines.size(); j++) {
+    for (size_t j=0; j<lines.size(); j++) {
       string_lines.push_back(lines[j]);
     }
     fieldm->parseSetup(string_lines,fieldSubSect[i],errors);
@@ -174,7 +174,7 @@ bool Controller::parseSetup()
   return true;
 }
 
-void Controller::plotCommands(const vector<miString>& inp){
+void Controller::plotCommands(const vector<string>& inp){
 #ifdef DEBUGPRINT
   for (int q = 0; q < inp.size(); q++)
   METLIBS_LOG_DEBUG("++ Controller::plotCommands:" << inp[q]);
@@ -319,7 +319,8 @@ bool Controller::updatePlots(bool failOnMissingData){
   return plotm->updatePlots( failOnMissingData );
 }
 
-void Controller::updateFieldPlot(const vector<miString>& pin){
+void Controller::updateFieldPlot(const vector<string>& pin)
+{
   plotm->updateFieldPlot(pin);
 }
 
@@ -375,12 +376,14 @@ void Controller::processHqcCommand(const miString& command,
 }
 
 //plot trajectory position
-void Controller::trajPos(vector<miString>& str){
+void Controller::trajPos(vector<string>& str)
+{
   plotm->trajPos(str);
 }
 
 //plot measurements position
-void Controller::measurementsPos(vector<miString>& str){
+void Controller::measurementsPos(vector<string>& str)
+{
   plotm->measurementsPos(str);
 }
 
@@ -390,7 +393,8 @@ bool Controller::startTrajectoryComputation(){
 }
 
 // get trajectory fields
-vector<miString> Controller::getTrajectoryFields(){
+vector<string> Controller::getTrajectoryFields()
+{
   return plotm->getTrajectoryFields();
 }
 
@@ -400,7 +404,8 @@ bool Controller::printTrajectoryPositions(const miString& filename ){
 }
 
 // get field models used (for Vprof etc.)
-vector<miString> Controller::getFieldModels(){
+vector<string> Controller::getFieldModels()
+{
   return plotm->getFieldModels();
 }
 
@@ -410,7 +415,8 @@ void Controller::obsStepChanged(int step){
 }
 
 // get name++ of current channels (with calibration)
-vector<miString> Controller::getCalibChannels(){
+vector<string> Controller::getCalibChannels()
+{
   return plotm->getCalibChannels();
 }
 
@@ -428,7 +434,8 @@ vector<SatValues> Controller::showValues(float x, float y){
 //   return plotm->inSatTable(x,y);
 // }
 
-vector <miString> Controller::getSatnames(){
+vector<string> Controller::getSatnames()
+{
   return plotm->getSatnames();
 }
 
@@ -464,7 +471,7 @@ void Controller::startEditAnnotation(){
 }
 
 void Controller::stopEditAnnotation(miString prodname){
-  vector <miString> labels  = plotm->writeAnnotations(prodname);
+  vector <string> labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
 }
@@ -730,12 +737,11 @@ const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
                                      set<miTime>& constTimes,
-                                     const vector<miString>& pinfos,
+                                     const vector<string>& pinfos,
                                      bool allTimes,
                                      bool updateSources)
 {
-  return plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
-
+  plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
 }
 
 const vector<Colour>& Controller::getSatColours(const miString& satellite,
@@ -1075,14 +1081,14 @@ void Controller::enablePlotElement(const PlotElement& pe)
 
 /********************* reading and writing log file *******************/
 
-vector<miString> Controller::writeLog()
+vector<string> Controller::writeLog()
 {
    return plotm->writeLog();
 }
 
-void Controller::readLog(const vector<miString>& vstr,
-                         const miString& thisVersion,
-                         const miString& logVersion)
+void Controller::readLog(const vector<string>& vstr,
+                         const string& thisVersion,
+                         const string& logVersion)
 {
   plotm->readLog(vstr,thisVersion,logVersion);
 }

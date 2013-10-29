@@ -136,10 +136,10 @@ private:
   vector<miutil::miTime> obsTime;
   bool onlyObs;
 
-  vector <miutil::miString> fieldModels;
-  vector <miutil::miString> selectedModels;
-  vector <miutil::miString> selectedFiles;
-  set <miutil::miString> usemodels;
+  std::vector<std::string> fieldModels;
+  std::vector<std::string> selectedModels;
+  std::vector<std::string> selectedFiles;
+  std::set<std::string> usemodels;
 
   int plotw, ploth;
 
@@ -193,15 +193,15 @@ public:
   const vector<miutil::miTime>&   getTimeList()    { return timeList; }
   vector <miutil::miString> getModelNames();
   vector <miutil::miString> getModelFiles();
-  void setFieldModels(const vector <miutil::miString> & fieldmodels);
-  void setSelectedModels(const vector <miutil::miString>& models,
+  void setFieldModels(const std::vector<std::string>& fieldmodels);
+  void setSelectedModels(const std::vector<std::string>& models,
 			 bool field, bool obsTemp,
 			 bool obsPilot, bool obsAmdar);
-  void setSelectedFiles(const vector <miutil::miString>& files,
+  void setSelectedFiles(const std::vector<std::string>& files,
 			bool field, bool obsTemp,
 			bool obsPilot, bool obsAmdar);
 
-  vector<miutil::miString> getSelectedModels();
+  std::vector<std::string> getSelectedModels();
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
@@ -213,14 +213,13 @@ public:
   void setMenuConst(map<miutil::miString,miutil::miString> mc)
   { menuConst = mc;}
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion);
   /* Added for debug purposes */
   void printObsFiles(const ObsFile &of);
   void printObsFilePath(const ObsFilePath & ofp);
 
 };
-
 
 #endif

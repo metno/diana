@@ -104,11 +104,12 @@ bool FieldPlot::getRealFieldArea(Area& a){
 
 
 // check if current data from plottime
-bool FieldPlot::updateNeeded(miString& pin){
+bool FieldPlot::updateNeeded(string& pin)
+{
   if (ftime.undef() ||
       (ftime != ctime && !miutil::contains(pinfo, " time="))
       || fields.size()==0){
-    pin= pinfo;
+    pin = pinfo;
     return true;
   }
   return false;
@@ -126,13 +127,13 @@ bool FieldPlot::updatePinNeeded(const std::string& pin)
 }
 
 
-void FieldPlot::getFieldAnnotation(miString& s, Colour& c)
+void FieldPlot::getFieldAnnotation(string& s, Colour& c)
 {
   if(poptions.options_1)
     c= poptions.linecolour;
   else
     c= poptions.fillcolour;
-
+  
   s = plotname;
 }
 

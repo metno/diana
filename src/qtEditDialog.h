@@ -147,7 +147,7 @@ private slots:
   void EditNewCancel();
   void newLogin(editDBinfo&);
 
-public slots:
+public Q_SLOTS:
   ///undo fields or objects depending on mode
   void undoEdit();
   ///redo fields or objects depending on mode
@@ -155,7 +155,7 @@ public slots:
   /// save edits to file
   void saveEdit();
 
-signals:
+Q_SIGNALS:
   /// hide dialog
   void EditHide();
   /// redraw (update GL)
@@ -163,7 +163,7 @@ signals:
   /// apply edit commands
   void editApply();
  /// send plot-commands
-  void Apply(const vector<miutil::miString>& s, bool);
+  void Apply(const std::vector<std::string>& s, bool);
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times

@@ -125,7 +125,7 @@ public:
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
-  void plotCommands(const vector<miutil::miString>&);
+  void plotCommands(const std::vector<std::string>&);
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
   /// get annotations
@@ -164,9 +164,9 @@ public:
   /// return data times (fields,images, observations, objects and editproducts)
   void getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(set<miutil::miTime>& okTimes,
-                           set<miutil::miTime>& constTimes,
-                           const vector<miutil::miString>& pinfos,
+  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
+                           std::set<miutil::miTime>& constTimes,
+                           const std::vector<std::string>& pinfos,
                            bool allTimes=true,
                            bool updateSources=false);
   /// returns the current product time
@@ -179,7 +179,7 @@ public:
   /// update plots
   bool updatePlots(bool failOnMissingData=false);
   /// update FieldPlots
-  void updateFieldPlot(const vector<miutil::miString>& pin);
+  void updateFieldPlot(const std::vector<std::string>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// get current area
@@ -207,25 +207,25 @@ public:
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
   /// plot trajectory position
-  void  trajPos(vector<miutil::miString>&);
+  void  trajPos(std::vector<std::string>&);
   /// plot measurements position
-  void  measurementsPos(vector<miutil::miString>&);
+  void  measurementsPos(std::vector<std::string>&);
   /// get trajectory fields
-  vector<miutil::miString> getTrajectoryFields();
+  std::vector<std::string> getTrajectoryFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file
   bool printTrajectoryPositions(const miutil::miString& filename);
   /// get field models used (for Vprof etc.)
-  vector<miutil::miString> getFieldModels();
+  std::vector<std::string> getFieldModels();
   /// obs time step changed
   void obsStepChanged(int);
   /// get name++ of current channels (with calibration)
-  vector<miutil::miString> getCalibChannels();
+  std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar
-  vector<SatValues> showValues(float, float);
+  std::vector<SatValues> showValues(float, float);
   /// get satellite name from all SatPlots
-  vector <miutil::miString> getSatnames();
+  std::vector<std::string> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
   /// toggle scrollwheelzoom
@@ -390,9 +390,9 @@ public:
   void enablePlotElement(const PlotElement& pe);
 
 /********************* reading and writing log file *******************/
- vector<miutil::miString> writeLog();
- void readLog(const vector<miutil::miString>& vstr,
-              const miutil::miString& thisVersion, const miutil::miString& logVersion);
+ std::vector<std::string> writeLog();
+ void readLog(const std::vector<std::string>& vstr,
+              const std::string& thisVersion, const std::string& logVersion);
 #ifdef PROFET
   bool initProfet();
 //  bool registerProfetUser(const Profet::PodsUser & u);

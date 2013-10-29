@@ -98,7 +98,7 @@ private:
   vector< vector<FieldEdit*> > combinefields;
   vector<EditObjects> combineobjects;
   int numregs;
-  vector<miutil::miString> regnames;
+  vector<std::string> regnames;
   bool hiddenObjects;
   bool hiddenCombining;
   bool hiddenCombineObjects;
@@ -106,9 +106,9 @@ private:
 
   vector<savedProduct> combineprods; // list of available product elements
 
-  miutil::miString editFileName(const miutil::miString directory,
-                        const miutil::miString region,
-                        const miutil::miString name,
+  std::string editFileName(const std::string directory,
+                        const std::string region,
+                        const std::string name,
 			const miutil::miTime& t);
 
   bool recalcCombineMatrix();
@@ -121,10 +121,10 @@ private:
 #endif
 
   void findSavedProducts(vector<savedProduct>& prods,
-			 const miutil::miString fileString,
+			 const std::string fileString,
 			 dataSource dsource, int element);
 
-  vector<miutil::miString> findAcceptedCombine(int ibegin, int iend,
+  vector<std::string> findAcceptedCombine(int ibegin, int iend,
 				       const EditProduct& ep,
 				       const EditProductId& ei);
 
@@ -154,29 +154,29 @@ public:
   /// reads the command file with OKstrings to be executed when we start an edit session
   void readCommandFile(EditProduct& ep);
   /// return names of existing fields valid for editing
-  vector<miutil::miString> getValidEditFields(const EditProduct& ep,
+  vector<std::string> getValidEditFields(const EditProduct& ep,
 				      const int element);
   /// get list of saved products matching pname (and pid)
   vector<savedProduct> getSavedProducts(const EditProduct& ep,
 					int element);
   /// get list of saved products matching pname (and pid)
   vector<savedProduct> getSavedProducts(const EditProduct& ep,
-					miutil::miString fieldname);
+					std::string fieldname);
   /// returns miutil::miTime vector of combined products from EditProduct and EditProductId
   vector<miutil::miTime> getCombineProducts(const EditProduct& ep,
   				    const EditProductId & ei);
-  /// returns miutil::miString vector of combined Ids from time,EditProduct and EditProductId
-  vector <miutil::miString> getCombineIds(const miutil::miTime & valid,
+  /// returns std::string vector of combined Ids from time,EditProduct and EditProductId
+  vector <std::string> getCombineIds(const miutil::miTime & valid,
 				  const EditProduct& ep,
 				  const EditProductId& ei);
   ///find product from name
-  bool findProduct(EditProduct& ep,miutil::miString pname);
+  bool findProduct(EditProduct& ep,std::string pname);
   /// returns true if changed product has not been saved !
   bool unsavedEditChanges();
   /// returns true if last saved product has not been sent !
   bool unsentEditChanges();
   /// save field and objects to file and/or database
-  bool writeEditProduct(miutil::miString&  message,
+  bool writeEditProduct(std::string&  message,
 			const bool wfield =true,
 			const bool wobjects =true,
                         const bool send = false,
@@ -184,9 +184,9 @@ public:
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
-  miutil::miString getProductName();
+  std::string getProductName();
   /// save edited annotations in EditObjects
-  void saveProductLabels(vector <miutil::miString> labels);
+  void saveProductLabels(vector <std::string> labels);
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
@@ -197,15 +197,15 @@ public:
   bool startCombineEdit(const EditProduct& ep,
 			const EditProductId& ei,
 			const miutil::miTime& valid,
-			vector<miutil::miString>& pids);
+			vector<std::string>& pids);
   /// stop editing combine product
   void stopCombine();
   /// combine products (when borders or data sources change)
   bool editCombine();
   /// set and get mapmode, editmode and edittool
-  void setEditMode(const miutil::miString mmode,  // mapmode
-		   const miutil::miString emode,  // editmode
-		   const miutil::miString etool); // edittool
+  void setEditMode(const std::string mmode,  // mapmode
+		   const std::string emode,  // editmode
+		   const std::string etool); // edittool
 
   /// get mapmode
   mapMode getMapMode();
@@ -224,7 +224,7 @@ public:
   /// returns current EditDialogInfo
   EditDialogInfo getEditDialogInfo();
   /// set plotting parameters for EditFields from inp
-  void prepareEditFields(const miutil::miString& plotName, const vector<miutil::miString>& inp);
+  void prepareEditFields(const std::string& plotName, const vector<std::string>& inp);
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
@@ -234,40 +234,40 @@ public:
   /// shows all hidden edit objects
   bool showAllObjects();
   /// login to the database
-  bool loginDatabase(editDBinfo& db, miutil::miString& message);
+  bool loginDatabase(editDBinfo& db, std::string& message);
   /// logout of the database
   bool logoutDatabase(editDBinfo& db);
   /// terminate one production
-  bool killProduction(const miutil::miString&,const miutil::miString&,
-		      const miutil::miTime&,miutil::miString&);
+  bool killProduction(const std::string&,const std::string&,
+		      const miutil::miTime&,std::string&);
   /// check if OK to start editing this product.
   /** If production already started return false, else return true,
       in: prodname,pid,prodtime out: message */
-  bool checkProductAvailability(const miutil::miString&,const miutil::miString&,
-				const miutil::miTime&,miutil::miString&);
+  bool checkProductAvailability(const std::string&,const std::string&,
+				const miutil::miTime&,std::string&);
   /// returns EditProducts defined in setup file
   vector<EditProduct> getEditProducts();
   /// returns a string with product id, name, time and object types
-  miutil::miString savedProductString(savedProduct sp);
+  std::string savedProductString(savedProduct sp);
   /// get fieldEdit annotations
   bool getAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
-  const miutil::miString insertTime(const miutil::miString&, const miutil::miTime&);
+  const std::string insertTime(const std::string&, const miutil::miTime&);
 };
 
 
 //useful functions not belonging to EditManager
-editToolInfo newEditToolInfo(const miutil::miString & newName,
+editToolInfo newEditToolInfo(const std::string & newName,
 			     const int newIndex,
-			     const miutil::miString & newColour="black",
-			     const miutil::miString & newBorderColour="black",
+			     const std::string & newColour="black",
+			     const std::string & newBorderColour="black",
 			     const int & newSizeIncrement=0,
 			     const bool & newSpline=true,
-			     const miutil::miString& newLinetype ="solid",
-			     const miutil::miString& newFilltype="");
-editModeInfo newEditModeInfo(const miutil::miString & newmode,
+			     const std::string& newLinetype ="solid",
+			     const std::string& newFilltype="");
+editModeInfo newEditModeInfo(const std::string & newmode,
 			     const vector <editToolInfo> newtools);
-mapModeInfo newMapModeInfo(const miutil::miString & newmode,
+mapModeInfo newMapModeInfo(const std::string & newmode,
 			   const vector <editModeInfo> newmodeinfo);
 
 #endif

@@ -277,8 +277,8 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
     combinetime= miutil::miTime(s);
   }
   cselectlabel->setText(s.c_str());
-  miutil::miString tmp;
-  vector <miutil::miString> pids =
+  string tmp;
+  vector <string> pids =
     m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
@@ -438,7 +438,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
       for (int j=0; j<m; j++){
         products[i].fields[j].fromfield= true;
 
-        vector<miutil::miString> fstr=
+        vector<string> fstr=
           m_editm->getValidEditFields(products[i],j);
         if (fstr.size())
           products[i].fields[j].fromfname= fstr[0];

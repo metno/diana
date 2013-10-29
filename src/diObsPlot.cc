@@ -156,12 +156,11 @@ ObsPlot::~ObsPlot()
   delete[] y;
 }
 
-void ObsPlot::getObsAnnotation(miString &str, Colour &col)
+void ObsPlot::getObsAnnotation(string &str, Colour &col)
 {
   //Append to number of plots to the annotation string
-  if (!annotation.empty()) {
-    int noplot = numPositions();
-    miString anno_str = (" ( " + miString(noplot) + " )");
+  if (not annotation.empty()) {
+    string anno_str = (" ( " + miutil::from_number(numPositions()) + " )");
     str = annotation + anno_str;
   } else
     str = annotation;
@@ -1409,7 +1408,7 @@ bool ObsPlot::findObs(int xx, int yy)
 
 //***********************************************************************
 
-bool ObsPlot::getObsName(int xx, int yy, miString& name)
+bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++");

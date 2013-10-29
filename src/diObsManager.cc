@@ -161,7 +161,7 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 
   oplot->clearModificationTime();
 
-  vector<miString> &dataType = oplot->dataTypes();
+  const vector<miString> &dataType = oplot->dataTypes();
 
   for(unsigned int i=0; i<dataType.size(); i++){
 
@@ -785,22 +785,22 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
 
 
 //return observation times for list of PlotInfo's
-vector<miTime> ObsManager::getObsTimes(const vector<miString>& pinfos)
+vector<miTime> ObsManager::getObsTimes(const vector<string>& pinfos)
 {
   int m,nn= pinfos.size();
-  vector<miString> tokens;
   vector<miString> obsTypes;
 
   for (int i=0; i<nn; i++){
     //     METLIBS_LOG_DEBUG("Processing: " << pinfos[i].infoStr());
-    tokens= pinfos[i].split();
+    const vector<string> tokens = miutil::split(pinfos[i]);
     m= tokens.size();
-    if (m<2) continue;
+    if (m<2)
+      continue;
     for (int k=1; k<m; k++){
-      vector<miString> stokens = tokens[k].split('=');
+      vector<string> stokens = miutil::split(tokens[k], 2, "=");
       if( stokens.size() == 2) {
-        if (stokens[0].downcase() == "data"){
-          vector<miString> obsT = stokens[1].split(",");
+        if (miutil::to_lower(stokens[0]) == "data"){
+          vector<string> obsT = miutil::split(stokens[1], 0, ",");
           obsTypes.insert(obsTypes.end(),obsT.begin(),obsT.end());
           break;
         }

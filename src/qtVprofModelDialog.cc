@@ -233,7 +233,7 @@ void VprofModelDialog::setSelection()
   METLIBS_LOG_DEBUG("VprofModelDialog::setSelection()");
 #endif
   if (modelButton->isChecked()) {
-    vector<miutil::miString> models = vprofm->getSelectedModels();
+    vector<string> models = vprofm->getSelectedModels();
     int n = models.size();
     for (int i = 0; i < n; i++) {
       miutil::miString model = models[i];
@@ -261,7 +261,7 @@ void VprofModelDialog::setModel()
 
   if (modelButton->isChecked()) {
 
-    vector<miutil::miString> models;
+    vector<string> models;
     int n = modelfileList->count();
     for (int i = 0; i < n; i++) {
       if (modelfileList->item(i)->isSelected()) {
@@ -283,7 +283,7 @@ void VprofModelDialog::setModel()
 
   } else if (fileButton->isChecked()) {
 
-    vector<miutil::miString> files;
+    vector<string> files;
     int n = modelfileList->count();
     for (int i = 0; i < n; i++) {
       if (modelfileList->item(i)->isSelected()) {

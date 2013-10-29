@@ -115,7 +115,7 @@ private:
   EditProduct EdProd;
   miutil::miString currentProductName;
   miutil::miString fieldname;
-  vector<miutil::miString> fields;
+  std::vector<std::string> fields;
   int num;
   int selectedProdIndex;
   map <miutil::miString, vector<savedProduct> > pmap;

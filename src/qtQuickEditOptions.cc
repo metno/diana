@@ -240,11 +240,10 @@ void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in lis
 
 void QuickEditOptions::chChanged(const QString& s)
 {
-  if (keynum<0 || keynum>=int(options.size())) return;
-  miutil::miString ms= s.toStdString();
-  vector<miutil::miString> vs= ms.split(",",false); //Do not skip blank enteries
+  if (keynum<0 || keynum>=int(options.size()))
+    return;
 
-  options[keynum].options= vs;
+  options[keynum].options = miutil::split(s.toStdString(), ",", false); //Do not skip blank enteries
 }
 
 void QuickEditOptions::upClicked()    // move item up

@@ -96,8 +96,8 @@ bool EditManager::parseSetup() {
   METLIBS_LOG_DEBUG("++ EditManager::parseSetup");
 #endif
 
-  miString section="EDIT";
-  vector<miString> vstr;
+  std::string section="EDIT";
+  vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
     METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
@@ -105,8 +105,8 @@ bool EditManager::parseSetup() {
   }
 
   int i,n,nval, nv=0, nvstr=vstr.size();
-  miString key,error;
-  vector<miString> values, vsub;
+  std::string key,error;
+  vector<std::string> values, vsub;
   bool ok= true;
 
   while (ok && nv<nvstr) {
@@ -200,7 +200,7 @@ bool EditManager::parseSetup() {
         epf.maxValue= fieldUndef;
         epf.editTools.push_back("standard");
         for (int j=6; j<nval; j++) {
-          vsub= values[j].split(':');
+          vsub= miutil::split(values[j], 0, ":");
           if (vsub.size()==2) {
             if (vsub[0]=="min") {
               epf.minValue= atof(vsub[1].c_str());
@@ -271,15 +271,15 @@ bool EditManager::parseSetup() {
         ep.producer= atoi(values[0].c_str());
         ep.gridnum=  atoi(values[1].c_str());
       } else if (key=="nx" && nval==1) {
-        ep.nx =  values[0].toInt();
+        ep.nx =  miutil::to_int(values[0]);
       } else if (key=="ny" && nval==1) {
-        ep.ny =  values[0].toInt();
+        ep.ny =  miutil::to_int(values[0]);
       } else if (key=="proj4string" && nval==1) {
         proj.set_proj_definition(values[0]);
       } else if (key=="rectangle" && nval==1) {
         rect.setRectangle(values[0]);
       } else if (key=="database" && nval==1) {
-        vector<miString> vs= values[0].split(' ',true);
+        vector<std::string> vs= miutil::split(values[0], 0, " ", true);
         if (vs.size()==3) {
           ep.dbi.host= vs[0];
           ep.dbi.base= vs[1];
@@ -304,7 +304,7 @@ bool EditManager::parseSetup() {
       } else if (key=="window_y" && nval==1){
         ep.winY = atoi(values[0].c_str());
       } else if (key=="time_start_early" && nval==1){
-        vector<miString> vs= values[0].split(':',true);
+        vector<std::string> vs= miutil::split(values[0], 0, ":", true);
         if (vs.size()==2) {
           int hr= atoi(vs[0].c_str());
           int mn= atoi(vs[1].c_str());
@@ -317,7 +317,7 @@ bool EditManager::parseSetup() {
           ok= false;
         }
       } else if (key=="time_start_late" && nval==1){
-        vector<miString> vs= values[0].split(':',true);
+        vector<std::string> vs= miutil::split(values[0], 0, ":", true);
         if (vs.size()==2) {
           int hr= atoi(vs[0].c_str());
           int mn= atoi(vs[1].c_str());
@@ -394,10 +394,10 @@ void EditManager::readCommandFile(EditProduct & ep)
   // the commands OKstrings to be exectuted when we start an
   // edit session, for the time being called from parseSeup
   // and the OKstrings stored for each product
-  miString s;
+  std::string s;
   bool merge= false, newmerge;
   int n,linenum=0;
-  vector<miString> tmplines;
+  vector<std::string> tmplines;
 
   // open filestream
   ifstream file(ep.commandFilename.c_str());
@@ -425,11 +425,12 @@ void EditManager::readCommandFile(EditProduct & ep)
   vector <std::string> labcom,commands;
   n=tmplines.size();
   for (int i=0; i<n; i++){
-    miString s= tmplines[i];
-    s.trim();
-    if (!s.exists()) continue;
-    vector<miString> vs= s.split(" ");
-    miString pre= vs[0].upcase();
+    std::string s= tmplines[i];
+    miutil::trim(s);
+    if (s.empty())
+      continue;
+    vector<std::string> vs= miutil::split(s, " ");
+    std::string pre= miutil::to_upper(vs[0]);
     if (pre=="LABEL")
       labcom.push_back(s);
     else
@@ -463,9 +464,9 @@ EditDialogInfo EditManager::getEditDialogInfo(){
 
 
 // set and get mapmode, editmode and edittool
-void EditManager::setEditMode(const miString mmode,  // mapmode
-    const miString emode,  // editmode
-    const miString etool){ // edittool
+void EditManager::setEditMode(const std::string mmode,  // mapmode
+    const std::string emode,  // editmode
+    const std::string etool){ // edittool
 
   if (mmode=="fedit_mode")
     mapmode= fedit_mode;
@@ -770,7 +771,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
     }
     else if (ke->key() >= keyRegMin && ke->key() <= keyRegMax){
       // show objects and fields from one region (during and after combine)
-      miString msg;
+      std::string msg;
       int reg= ke->key() - keyRegMin;
       if (reg!=showRegion) {
         showRegion= reg;
@@ -986,22 +987,22 @@ bool EditManager::getProductTime(miTime& t){
 }
 
 
-miString EditManager::getProductName(){
+std::string EditManager::getProductName(){
   //METLIBS_LOG_DEBUG("EditManager::getProductName");
   //returns the current product time
   return EdProd.name;
 }
 
 
-void EditManager::saveProductLabels(vector <miString> labels){
+void EditManager::saveProductLabels(vector <std::string> labels)
+{
   plotm->editobjects.saveEditLabels(labels);
-};
+}
 
 
-
-miString EditManager::editFileName(const miString directory,
-    const miString region,
-    const miString name,
+std::string EditManager::editFileName(const std::string directory,
+    const std::string region,
+    const std::string name,
     const miTime& t){
 
   //constructs a filename
@@ -1019,7 +1020,7 @@ miString EditManager::editFileName(const miString directory,
   << setw(2) << setfill('0') << hh
   << setw(2) << setfill('0') << min;
 
-  miString filename;
+  std::string filename;
 
   if (directory.length()>0)
     filename+= (directory + "/");
@@ -1048,10 +1049,10 @@ functions to start and end editing, reading and writing to database
 
 
 
-bool EditManager::checkProductAvailability(const miString& prodname,
-    const miString& pid,
+bool EditManager::checkProductAvailability(const std::string& prodname,
+    const std::string& pid,
     const miTime& valid,
-    miString& message)
+    std::string& message)
 
 {
 
@@ -1059,7 +1060,7 @@ bool EditManager::checkProductAvailability(const miString& prodname,
   //started return false, else return true
 
 #ifdef METNOPRODDB
-  miString mess;
+  std::string mess;
   if (gate.okToStart(prodname.c_str(),pid.c_str(),valid,mess))
     return true;
 
@@ -1071,7 +1072,7 @@ bool EditManager::checkProductAvailability(const miString& prodname,
 }
 
 
-bool EditManager::loginDatabase(editDBinfo& db, miString& message)
+bool EditManager::loginDatabase(editDBinfo& db, std::string& message)
 {
 #ifdef METNOPRODDB
   //login to the database
@@ -1098,13 +1099,13 @@ bool EditManager::logoutDatabase(editDBinfo& db)
 }
 
 // terminate one production
-bool EditManager::killProduction(const miString& prodname,
-    const miString& pid,
+bool EditManager::killProduction(const std::string& prodname,
+    const std::string& pid,
     const miTime& valid,
-    miString& message)
+    std::string& message)
 {
 #ifdef METNOPRODDB
-  miString mess;
+  std::string mess;
   if (gate.killProd(prodname,pid,valid,mess))
     return true;
 
@@ -1154,7 +1155,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
 
-    miString fieldname= EdProd.fields[j].name;
+    std::string fieldname= EdProd.fields[j].name;
 
     if (EdProd.fields[j].fromfield) {
 
@@ -1180,7 +1181,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 
       // get field from a saved product
 
-      miString filename = EdProd.fields[j].fromprod.filename;
+      std::string filename = EdProd.fields[j].fromprod.filename;
 
       //METLIBS_LOG_INFO("filename for saved field file to open:" << filename);
 
@@ -1209,25 +1210,22 @@ bool EditManager::startEdit(const EditProduct& ep,
   for (int i=0;i<nprods;i++){
 
     savedProduct objectProd = EdProd.objectprods[i];
-    miString filename =  objectProd.filename;
+    std::string filename =  objectProd.filename;
     if (!filename.empty()){
       //METLIBS_LOG_INFO("filename for saved objects file to open:" << filename);
       plotm->editobjects.setSelectedObjectTypes(objectProd.selectObjectTypes);
       objm->editCommandReadDrawFile(filename);
-      miString commentstring="Objects from:\n" +
-      savedProductString(objectProd)+miString("\n");
+      const std::string commentstring = "Objects from:\n" + savedProductString(objectProd) + "\n";
       plotm->editobjects.addComments(commentstring);
       //open the comments file
-      //filename.replace(EdProd.objectsFilenamePart,EdProd.commentFilenamePart);
-      filename.replace("draw","comm"); //simpler, sure, IF names are draw and comm!
+      //miutil::replace(filename, EdProd.objectsFilenamePart,EdProd.commentFilenamePart);
+      miutil::replace(filename, "draw", "comm"); //simpler, sure, IF names are draw and comm!
       objm->editCommandReadCommentFile(filename);
 
       if (objectProd.productName==EdProd.name && objectProd.ptime==valid)
         newProduct=false;
-
     }
   }
-
 
   // set correct time for labels
   for (vector<std::string>::iterator p=EdProd.labels.begin(); p!=EdProd.labels.end(); p++)
@@ -1235,7 +1233,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,newProduct);
   //save merged labels in editobjects
-  vector <miString> labels = plotm->writeAnnotations(EdProd.name);
+  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   plotm->editobjects.labelsAreSaved();
 
@@ -1244,7 +1242,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   if (EdProdId.sendable) {
 #ifdef METNOPRODDB
     // messages from ProductionGate
-    miString message;
+    std::string message;
     if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
       //METLIBS_LOG_INFO("We are allowed to start production");
       // start production
@@ -1265,7 +1263,7 @@ bool EditManager::startEdit(const EditProduct& ep,
 }
 
 
-bool EditManager::writeEditProduct(miString&  message,
+bool EditManager::writeEditProduct(std::string&  message,
     const bool wfield,
     const bool wobjects,
     const bool send,
@@ -1282,8 +1280,8 @@ bool EditManager::writeEditProduct(miString&  message,
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
       //METLIBS_LOG_INFO("Writing field:" << i);
-      miString filenamePart =EdProd.fields[i].filenamePart;
-      miString filename= editFileName(EdProd.savedir,EdProdId.name,
+      std::string filenamePart =EdProd.fields[i].filenamePart;
+      std::string filename= editFileName(EdProd.savedir,EdProdId.name,
           filenamePart,t);
       short int *fdata= 0;
       int fdatalength= 0;
@@ -1292,7 +1290,7 @@ bool EditManager::writeEditProduct(miString&  message,
         if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
           //save field to database !
-          miString mess;
+          std::string mess;
           if (!gate.saveField(filenamePart, fdata, fdatalength, mess)){
             res= false;
             message += "Could not store field to database:" + mess + "\n";
@@ -1310,10 +1308,10 @@ bool EditManager::writeEditProduct(miString&  message,
   if (wobjects){
     bool saveok = true;
     //get object string from objm to put in database and local files
-    miString objectsFilename, objectsFilenamePart,editObjectsString;
+    std::string objectsFilename, objectsFilenamePart,editObjectsString;
     editObjectsString = objm->writeEditDrawString(t,plotm->editobjects);
 
-    if (editObjectsString.exists()){
+    if (not editObjectsString.empty()) {
       //first save to local file
       objectsFilenamePart= EdProd.objectsFilenamePart;
       objectsFilename= editFileName(EdProd.savedir,EdProdId.name,
@@ -1327,7 +1325,7 @@ bool EditManager::writeEditProduct(miString&  message,
 
       if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
-        miString mess;
+        std::string mess;
         //filer blir skrevet ut fra databasen som "ANAdraw.yyyymmhhmn"
         if (!gate.saveString(objectsFilenamePart,editObjectsString,mess)){
           res= false;
@@ -1347,10 +1345,10 @@ bool EditManager::writeEditProduct(miString&  message,
     //get comment string from objm to put in database and local files
     //only do this if comments have changed !
 
-    miString commentFilename, commentFilenamePart,editCommentString;
+    std::string commentFilename, commentFilenamePart,editCommentString;
     editCommentString = objm->getComments();
 
-    if (editCommentString.exists()){
+    if (not editCommentString.empty()) {
       //first save to local file
       commentFilenamePart= EdProd.commentFilenamePart;
       commentFilename= editFileName(EdProd.savedir,EdProdId.name,
@@ -1364,7 +1362,7 @@ bool EditManager::writeEditProduct(miString&  message,
 
       if (EdProdId.sendable && send) {
 #ifdef METNOPRODDB
-        miString mess;
+        std::string mess;
         if (!gate.saveString(commentFilenamePart,editCommentString,mess)){
           res= false;
           saveok= false;
@@ -1380,7 +1378,7 @@ bool EditManager::writeEditProduct(miString&  message,
   if (EdProdId.sendable) {
     if(send){
 #ifdef METNOPRODDB
-      miString mess;
+      std::string mess;
       bool saveok=true;
       //send message to database that data has been saved
       if (!gate.reportSave(mess,isapproved)){
@@ -1404,7 +1402,7 @@ bool EditManager::writeEditProduct(miString&  message,
 }
 
 
-bool EditManager::findProduct(EditProduct& ep, miString pname){
+bool EditManager::findProduct(EditProduct& ep, std::string pname){
 
   //find product with name = pname
   int n= editproducts.size();
@@ -1424,7 +1422,7 @@ bool EditManager::findProduct(EditProduct& ep, miString pname){
 
 
 vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
-    miString fieldname){
+    std::string fieldname){
 
   int num=-1,n=ep.fields.size();
   for (int i=0;i<n;i++){
@@ -1442,7 +1440,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 {
   vector<savedProduct> prods;
 
-  miString fileString,filenamePart, dir,pid;
+  std::string fileString,filenamePart, dir,pid;
   dataSource dsource;
 
   // element objects or fields
@@ -1492,7 +1490,7 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
       ncombdirs<1 || ep.fields.size()<1)
     return ctime;
 
-  miString fileString,filenamePart, dir,pid;
+  std::string fileString,filenamePart, dir,pid;
 
   combineprods.clear();
 
@@ -1522,7 +1520,7 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   // some test on combinations (pids and objects/fields)
   // before adding legal time
 
-  vector<miString> okpids;
+  vector<std::string> okpids;
 
   int i=0;
   while (i<ncp) {
@@ -1540,10 +1538,10 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
 }
 
 
-vector<miString> EditManager::findAcceptedCombine(int ibegin, int iend,
+vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     const EditProduct& ep,
     const EditProductId& ei){
-  vector<miString> okpids;
+  vector<std::string> okpids;
 
   // a "table" of found pids and object/fields
   int nf= ep.fields.size();
@@ -1580,15 +1578,15 @@ vector<miString> EditManager::findAcceptedCombine(int ibegin, int iend,
 
 
 void EditManager::findSavedProducts(vector <savedProduct> & prods,
-    const miString fileString,
+    const std::string fileString,
     dataSource dsource, int element){
 
   //get files matching fileString
   glob_t globBuf;
   glob_cache(fileString.c_str(),0,0,&globBuf);
 
-  for (int i=0; i<globBuf.gl_pathc; i++) {
-    miString name = globBuf.gl_pathv[i];
+  for (size_t i=0; i<globBuf.gl_pathc; i++) {
+    std::string name = globBuf.gl_pathv[i];
     //METLIBS_LOG_DEBUG("Found a file " << name);
     savedProduct savedprod;
     savedprod.pid= objm->prefixFileName(name);
@@ -1610,12 +1608,12 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 }
 
 
-vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
+vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
     const int element){
 
   // return names of existing fields valid for editing
-  vector<miString> vstr;
-  miString fname= miutil::to_lower(ep.fields[element].name);
+  vector<std::string> vstr;
+  std::string fname= miutil::to_lower(ep.fields[element].name);
   int n= plotm->vfp.size();
   vector<Field*> vf;
 
@@ -1623,7 +1621,7 @@ vector<miString> EditManager::getValidEditFields(const EditProduct& ep,
     vf=  plotm->vfp[i]->getFields();
     // for now, only accept scalar fields
     if (vf.size() == 1) {
-      miString s= miutil::to_lower(vf[0]->name);
+      std::string s= miutil::to_lower(vf[0]->name);
       if (s.find(fname)!=string::npos) {
         vstr.push_back(vf[0]->fieldText);
       }
@@ -1665,7 +1663,7 @@ void EditManager::stopEdit()
 
   if (EdProdId.sendable){
 #ifdef METNOPRODDB
-    miString message;
+    std::string message;
     if (gate.endProd(message)){
       METLIBS_LOG_INFO("We are no longer in production, " << message);
 
@@ -1680,11 +1678,10 @@ vector<EditProduct> EditManager::getEditProducts(){
 }
 
 
-miString EditManager::savedProductString(savedProduct sp){
-  miString spstring=sp.pid +  miString(" ") +
-  sp.productName + miString(" ") + sp.ptime.isoTime()
-  +  miString(" ")+ sp.selectObjectTypes;
-  return spstring;
+std::string EditManager::savedProductString(savedProduct sp)
+{
+  return sp.pid + " " + sp.productName + " "
+      + sp.ptime.isoTime() + " " + sp.selectObjectTypes;
 }
 
 
@@ -1725,10 +1722,10 @@ void EditManager::cleanCombineData(bool cleanData){
 }
 
 
-vector <miString> EditManager::getCombineIds(const miTime & valid,
+vector <std::string> EditManager::getCombineIds(const miTime & valid,
     const EditProduct& ep,
     const EditProductId& ei){
-  vector <miString> pids;
+  vector <std::string> pids;
   int ipc=0, npc=combineprods.size();
   while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
   if (ipc==npc) return pids;
@@ -1747,7 +1744,7 @@ vector <miString> EditManager::getCombineIds(const miTime & valid,
 bool EditManager::startCombineEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid,
-    vector<miString>& pids){
+    vector<std::string>& pids){
 #ifdef DEBUGPRINT
 METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
 #endif
@@ -1799,7 +1796,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
   plotm->prodtimedefined= true;
 
 
-  miString filename = EdProd.combineBorders + EdProdId.name;
+  std::string filename = EdProd.combineBorders + EdProdId.name;
   //read AreaBorders
   if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
     METLIBS_LOG_ERROR("EditManager::startCombineEdit  error reading borders");
@@ -1822,7 +1819,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
 
   while (ok && j<nf) {
 
-    miString fieldname= EdProd.fields[j].name;
+    std::string fieldname= EdProd.fields[j].name;
 
     int i= 0;
     while (ok && i<numregs) {
@@ -1833,7 +1830,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
         FieldEdit *fed= new FieldEdit( fieldPlotManager );
         // spec. used when reading field
         fed->setSpec(EdProd, j);
-        miString filename = combineprods[ipc].filename;
+        std::string filename = combineprods[ipc].filename;
         //METLIBS_LOG_DEBUG("Read field file " << filename);
         if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
           int nx,ny;
@@ -1886,7 +1883,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
     while (ipc<ipcend && (combineprods[ipc].pid!=regnames[i] ||
         combineprods[ipc].element!=-1)) ipc++;
     if (ipc<ipcend) {
-      miString filename = combineprods[ipc].filename;
+      std::string filename = combineprods[ipc].filename;
       //METLIBS_LOG_DEBUG("Read object file " << filename);
       EditObjects wo;
       //init weather objects with correct prefix (region name)
@@ -1895,7 +1892,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
       combineobjects.push_back(wo);
       //open the comments file, which should have same path and
       //extension as the object file
-      filename.replace(EdProd.objectsFilenamePart,
+      miutil::replace(filename, EdProd.objectsFilenamePart,
           EdProd.commentFilenamePart);
       objm->editCommandReadCommentFile(filename);
     }
@@ -1923,14 +1920,14 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
   //Merge labels from EdProd  with object label input strings
   plotm->updateEditLabels(EdProd.labels,EdProd.name,true);
   //save merged labels in editobjects
-  vector <miString> labels = plotm->writeAnnotations(EdProd.name);
+  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   plotm->editobjects.labelsAreSaved();
 
   if (EdProdId.sendable) {
 #ifdef METNOPRODDB
     // messages from ProductionGate
-    miString message;
+    std::string message;
     if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
       METLIBS_LOG_INFO("We are allowed to start production");
       // start production
@@ -2097,7 +2094,7 @@ void EditManager::stopCombine()
   objm->setDoCombine(false);
   objm->editNewObjectsAdded(0);
 
-  vector <miString> labels = plotm->writeAnnotations(EdProd.name);
+  vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
   plotm->editobjects.labelsAreSaved();
 
@@ -2595,7 +2592,7 @@ bool EditManager::recalcCombineMatrix(){
  -----------------------------------------------------------------------*/
 
 
-void EditManager::prepareEditFields(const miString& plotName, const vector<miString>& inp)
+void EditManager::prepareEditFields(const std::string& plotName, const vector<std::string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ EditManager::prepareEditFields ++");
@@ -2605,7 +2602,7 @@ void EditManager::prepareEditFields(const miString& plotName, const vector<miStr
 
   if (fedits.size()==0) return;
 
-  vector<miString> vip= inp;
+  vector<std::string> vip= inp;
   unsigned int npi= vip.size();
   if (npi>fedits.size()) npi= fedits.size();
 
@@ -3165,7 +3162,7 @@ void EditManager::setMapmodeinfo(){
   int n= regnames.size();
   for (int i=0; i<n; i++) {
     int j=i%3;
-    miString colour;
+    std::string colour;
     if      (j==0) colour= "blue";
     else if (j==1) colour= "red";
     else           colour= "darkGreen";
@@ -3207,31 +3204,31 @@ bool EditManager::getAnnotations(vector<string>& anno)
   return true;
 }
 
-const miString EditManager::insertTime(const miString& s, const miTime& time) {
+const std::string EditManager::insertTime(const std::string& s, const miTime& time) {
 
   bool norwegian= true;
-  miString es= s;
-  if (es.contains("$")) {
-    if (es.contains("$dayeng")) { es.replace("$dayeng","%A"); norwegian= false; }
-    if (es.contains("$daynor")) { es.replace("$daynor","%A"); norwegian= true; }
-    if (es.contains("$day"   )) { es.replace("$day",   "%A"); norwegian= true; }
-    es.replace("$hour","%H");
-    es.replace("$min", "%M");
-    es.replace("$sec", "%S");
-    es.replace("$auto","$miniclock");
+  std::string es= s;
+  if (miutil::contains(es, "$")) {
+    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); norwegian= false; }
+    if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
+    if (miutil::contains(es, "$day"   )) { miutil::replace(es, "$day",   "%A"); norwegian= true; }
+    miutil::replace(es, "$hour","%H");
+    miutil::replace(es, "$min", "%M");
+    miutil::replace(es, "$sec", "%S");
+    miutil::replace(es, "$auto","$miniclock");
   }
-  if (es.contains("%")) {
-    if (es.contains("%anor")) { es.replace("%anor","%a"); norwegian= true; }
-    if (es.contains("%Anor")) { es.replace("%Anor","%A"); norwegian= true; }
-    if (es.contains("%bnor")) { es.replace("%bnor","%b"); norwegian= true; }
-    if (es.contains("%Bnor")) { es.replace("%Bnor","%B"); norwegian= true; }
-    if (es.contains("%aeng")) { es.replace("%aeng","%a"); norwegian= false; }
-    if (es.contains("%Aeng")) { es.replace("%Aeng","%A"); norwegian= false; }
-    if (es.contains("%beng")) { es.replace("%beng","%b"); norwegian= false; }
-    if (es.contains("%Beng")) { es.replace("%Beng","%B"); norwegian= false; }
+  if (miutil::contains(es, "%")) {
+    if (miutil::contains(es, "%anor")) { miutil::replace(es, "%anor","%a"); norwegian= true; }
+    if (miutil::contains(es, "%Anor")) { miutil::replace(es, "%Anor","%A"); norwegian= true; }
+    if (miutil::contains(es, "%bnor")) { miutil::replace(es, "%bnor","%b"); norwegian= true; }
+    if (miutil::contains(es, "%Bnor")) { miutil::replace(es, "%Bnor","%B"); norwegian= true; }
+    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng","%a"); norwegian= false; }
+    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng","%A"); norwegian= false; }
+    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng","%b"); norwegian= false; }
+    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng","%B"); norwegian= false; }
   }
 
-  if ((es.contains("%") || es.contains("$"))  && !time.undef()) {
+  if ((miutil::contains(es, "%") || miutil::contains(es, "$"))  && !time.undef()) {
     if (norwegian)
       es= time.format(es,miDate::Norwegian);
     else
@@ -3245,14 +3242,14 @@ const miString EditManager::insertTime(const miString& s, const miTime& time) {
 
 //useful functions not belonging to EditManager
 
-editToolInfo newEditToolInfo(const miString & newName,
+editToolInfo newEditToolInfo(const std::string & newName,
     const int newIndex,
-    const miString & newColour,
-    const miString & newBorderColour,
+    const std::string & newColour,
+    const std::string & newBorderColour,
     const int & newsizeIncrement,
     const bool& newSpline,
-    const miString& newLinetype,
-    const miString& newFilltype){
+    const std::string& newLinetype,
+    const std::string& newFilltype){
   editToolInfo eToolInfo;
   eToolInfo.name=  newName;
   eToolInfo.index= newIndex;
@@ -3265,7 +3262,7 @@ editToolInfo newEditToolInfo(const miString & newName,
   return eToolInfo;
 }
 
-editModeInfo newEditModeInfo(const miString & newmode,
+editModeInfo newEditModeInfo(const std::string & newmode,
     const vector <editToolInfo> newtools){
   editModeInfo eModeInfo;
   eModeInfo.editmode=newmode;
@@ -3274,7 +3271,7 @@ editModeInfo newEditModeInfo(const miString & newmode,
 }
 
 
-mapModeInfo newMapModeInfo(const miString & newmode,
+mapModeInfo newMapModeInfo(const std::string & newmode,
     const vector <editModeInfo> newmodeinfo){
   mapModeInfo mModeInfo;
   mModeInfo.mapmode= newmode;

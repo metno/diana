@@ -108,13 +108,13 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  int  trajPos(vector<miutil::miString>&);
+  int  trajPos(std::vector<std::string>&);
 
   bool startComputation(vector<Field*> vf);
   void stopComputation();
   void clearData();
   bool compute(vector<Field*> vf);
-  void getTrajectoryAnnotation(miutil::miString& s, Colour& c);
+  void getTrajectoryAnnotation(std::string& s, Colour& c);
 
   bool inComputation() { return computing; }
   miutil::miString getFieldName() { return fieldStr; }

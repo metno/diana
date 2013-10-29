@@ -167,7 +167,7 @@ void ObsDialog::updateDialog()
 {
 
   //save selections
-  vector<miutil::miString> vstr = getOKString();
+  vector<string> vstr = getOKString();
 
   //remove old widgets
   for( int i=0; i < nr_plot; i++){
@@ -348,13 +348,15 @@ void ObsDialog::archiveMode(bool on){
 
 
 /*******************************************************/
-vector<miutil::miString> ObsDialog::getOKString(){
+vector<string> ObsDialog::getOKString()
+{
   /* This function is called by the external program */
   //  cerr <<"QT - getOKString  "<<m_selected<<endl;
 
-  vector<miutil::miString> str;
+  vector<string> str;
 
-  if(nr_plot==0) return str;
+  if (nr_plot == 0)
+    return str;
 
   if(multiplot) {
     for (int i=nr_plot-1; i>-1; i--) {
@@ -376,9 +378,9 @@ vector<miutil::miString> ObsDialog::getOKString(){
 }
 
 
-vector<miutil::miString> ObsDialog::writeLog(){
-
-  vector<miutil::miString> vstr;
+vector<string> ObsDialog::writeLog()
+{
+  vector<string> vstr;
 
   if(nr_plot==0) return vstr;
 
@@ -407,9 +409,8 @@ vector<miutil::miString> ObsDialog::writeLog(){
 }
 
 
-void ObsDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion,
-    const miutil::miString& logVersion){
+void ObsDialog::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion){
 
   int n=0, nvstr= vstr.size();
   bool first=true;
@@ -452,9 +453,8 @@ miutil::miString ObsDialog::getShortname()
 }
 
 
-void ObsDialog::putOKString(const vector<miutil::miString>& vstr)
+void ObsDialog::putOKString(const vector<string>& vstr)
 {
-
   //unselect everything
   for (int i=0; i<nr_plot; i++) {
     if ( obsWidget[i]->initialized() ) {

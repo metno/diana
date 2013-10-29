@@ -232,7 +232,7 @@ void SpectrumModelDialog::setSelection(){
   METLIBS_LOG_DEBUG("SpectrumModelDialog::setSelection()");
 #endif
   if (modelButton->isChecked()){
-    vector <miutil::miString> models = spectrumm->getSelectedModels();
+    vector<string> models = spectrumm->getSelectedModels();
     int n = models.size();
     for (int i = 0;i<n;i++){
       miutil::miString model = models[i];
@@ -256,11 +256,11 @@ void SpectrumModelDialog::setModel(){
 
   if (modelButton->isChecked()) {
 
-    vector <miutil::miString> models;
+    vector<string> models;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-        miutil::miString model = modelfileList->item(i)->text().toStdString();
+        string model = modelfileList->item(i)->text().toStdString();
         if(model==OBS){
           showObs=true;
         } else if (model==ASFIELD){
@@ -272,11 +272,11 @@ void SpectrumModelDialog::setModel(){
 
   } else if (fileButton->isChecked()) {
 
-    vector <miutil::miString> files;
+    vector<string> files;
     int n = modelfileList->count();
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
-        miutil::miString file = modelfileList->item(i)->text().toStdString();
+        string file = modelfileList->item(i)->text().toStdString();
         files.push_back(file);
       }
     }

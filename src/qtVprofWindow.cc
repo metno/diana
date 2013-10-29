@@ -724,7 +724,8 @@ void VprofWindow::timeBoxActivated(int index){
 
 /***************************************************************************/
 
-bool VprofWindow::changeStation(const miutil::miString& station){
+bool VprofWindow::changeStation(const string& station)
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofWindow::changeStation");
 #endif
@@ -740,10 +741,11 @@ bool VprofWindow::changeStation(const miutil::miString& station){
 
 /***************************************************************************/
 
-void VprofWindow::setFieldModels(const vector<miutil::miString>& fieldmodels){
+void VprofWindow::setFieldModels(const vector<string>& fieldmodels)
+{
   vprofm->setFieldModels(fieldmodels);
-  if (active) changeModel();
-
+  if (active)
+    changeModel();
 }
 
 /***************************************************************************/
@@ -782,7 +784,7 @@ void VprofWindow::startUp(const miutil::miTime& t){
   tsToolbar->show();
   //do something first time we start Vertical profiles
   if (firstTime){
-    vector<miutil::miString> models;
+    vector<string> models;
     //define models for dialogs, comboboxes and stationplot
     vprofm->setSelectedModels(models,false,true,true,true);
     vpModelDialog->updateModelfileList();
@@ -806,9 +808,9 @@ void VprofWindow::parseSetup()
 
 }
 
-vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
+vector<string> VprofWindow::writeLog(const string& logpart)
 {
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   miutil::miString str;
 
   if (logpart=="window") {
@@ -847,18 +849,16 @@ vector<miutil::miString> VprofWindow::writeLog(const miutil::miString& logpart)
 }
 
 
-void VprofWindow::readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion,
+void VprofWindow::readLog(const string& logpart, const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion,
     int displayWidth, int displayHeight)
 {
-
   if (logpart=="window") {
 
-    vector<miutil::miString> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= vstr[i].split(' ');
+      vector<string> tokens= miutil::split(vstr[i], 0, " ");
 
       if (tokens.size()==3) {
 

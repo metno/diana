@@ -99,13 +99,13 @@ private:
   void fillPrivateMenus();              // read menus from $HOMEDIR
   void fillStaticMenus();              // read initial menus from setup
   void saveChanges(int,int);            // save command-text into qm
-  void varExpand(vector<miutil::miString>&);    // expand variables in command-text
+  void varExpand(std::vector<std::string>&);    // expand variables in command-text
   void fillMenuList();                  // fill main menu combobox
-  void getCommand(vector<miutil::miString>&);   // get command-text from comedit
+  void getCommand(std::vector<std::string>&);   // get command-text from comedit
   void timerEvent(QTimerEvent*);        // timer for demo-mode
   bool itemChanged(int menu, int item); // check changes in static menus
-  void replaceDynamicOptions(vector<miutil::miString>& oldCommand,
-			     vector<miutil::miString>& newCommand);
+  void replaceDynamicOptions(std::vector<std::string>& oldCommand,
+      std::vector<std::string>& newCommand);
 
 
 signals:
@@ -127,10 +127,9 @@ public:
 
   void start();
 
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion,
-	       miutil::miString& logVersion);
-  vector<miutil::miString> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
+  std::vector<std::string> writeLog();
 
   /// add command to history
   void pushPlot(const miutil::miString& name,
@@ -160,11 +159,11 @@ public:
   bool addToMenu(const int idx);
   miutil::miString getCurrentName();
 
-signals:
-  void Apply(const vector<miutil::miString>& s, bool); ///< send plot-commands
+Q_SIGNALS:
+  void Apply(const std::vector<std::string>& s, bool); ///< send plot-commands
   void showsource(const std::string, const std::string=""); ///< activate help
 
-private slots:
+private Q_SLOTS:
   void menulistActivate(int);       // quick-menu combobox activated
   void listClicked( QListWidgetItem *);       // single plot selected
   void listDoubleClicked( QListWidgetItem *); // single plot double-clicked

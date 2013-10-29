@@ -108,7 +108,7 @@ PlotModule::~PlotModule()
   cleanup();
 }
 
-void PlotModule::preparePlots(const vector<miString>& vpi)
+void PlotModule::preparePlots(const vector<string>& vpi)
 {
   METLIBS_LOG_DEBUG("++ PlotModule::preparePlots ++");
   // reset flags
@@ -120,16 +120,16 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
   idnumCurrent.clear();
 
   // split up input into separate products
-  vector<miString> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
+  vector<string> fieldpi, obspi, areapi, mappi, satpi, statpi, objectpi, trajectorypi,
   labelpi, editfieldpi;
   map<std::string, vector<std::string> > manager_pi;
 
   int n = vpi.size();
   // merge PlotInfo's for same type
   for (int i = 0; i < n; i++) {
-    vector<miString> tokens = vpi[i].split(1);
+    vector<string> tokens = miutil::split(vpi[i], 1);
     if (!tokens.empty()) {
-      miString type = tokens[0].upcase();
+      std::string type = miutil::to_upper(tokens[0]);
       METLIBS_LOG_INFO(vpi[i]);
       if (type == "FIELD")
         fieldpi.push_back(vpi[i]);
@@ -186,7 +186,7 @@ void PlotModule::preparePlots(const vector<miString>& vpi)
 #endif
 }
 
-void PlotModule::prepareArea(const vector<miutil::miString>& inp)
+void PlotModule::prepareArea(const vector<string>& inp)
 {
   MI_LOG & log = MI_LOG::getInstance("diana.PlotModule.prepareArea");
   log.debugStream() << "++ PlotModule::prepareArea ++";
@@ -197,22 +197,22 @@ void PlotModule::prepareArea(const vector<miutil::miString>& inp)
   if ( inp.size() > 1 )
     COMMON_LOG::getInstance("common").debugStream() << "More AREA definitions, using: " <<inp[0];
 
-  const miString key_name=  "name";
-  const miString key_areaname=  "areaname"; //old syntax
-  const miString key_proj=  "proj4string";
-  const miString key_rectangle=  "rectangle";
-  const miString key_xypart=  "xypart";
+  const std::string key_name=  "name";
+  const std::string key_areaname=  "areaname"; //old syntax
+  const std::string key_proj=  "proj4string";
+  const std::string key_rectangle=  "rectangle";
+  const std::string key_xypart=  "xypart";
 
   Projection proj;
   Rectangle rect;
 
-  vector<miString> tokens= inp[0].split('"','"'," ",true);
+  vector<std::string> tokens= miutil::split_protected(inp[0], '"','"'," ",true);
 
   int n = tokens.size();
   for (int i=0; i<n; i++){
-    vector<miString> stokens= tokens[i].split(1,'=');
+    vector<std::string> stokens= miutil::split(tokens[i], 1, "=");
     if (stokens.size() > 1) {
-      miString key= stokens[0].downcase();
+      std::string key= miutil::to_lower(stokens[0]);
 
       if (key==key_name || key==key_areaname){
         if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
@@ -237,7 +237,7 @@ void PlotModule::prepareArea(const vector<miutil::miString>& inp)
 
 }
 
-void PlotModule::prepareMap(const vector<miString>& inp)
+void PlotModule::prepareMap(const vector<string>& inp)
 {
   METLIBS_LOG_DEBUG("++ PlotModule::prepareMap ++");
 
@@ -313,14 +313,14 @@ void PlotModule::prepareMap(const vector<miString>& inp)
   }
 }
 
-void PlotModule::prepareFields(const vector<miString>& inp)
+void PlotModule::prepareFields(const vector<string>& inp)
 {
   METLIBS_LOG_DEBUG("++ PlotModule::prepareFields ++");
 
   int npi = inp.size();
 
-  miString str;
-  map<miString, bool> plotenabled;
+  std::string str;
+  map<std::string, bool> plotenabled;
 
   // for now -- erase all fieldplots
   for (unsigned int i = 0; i < vfp.size(); i++) {
@@ -361,7 +361,7 @@ void PlotModule::prepareFields(const vector<miString>& inp)
   METLIBS_LOG_DEBUG("++ Returning from PlotModule::prepareFields ++");
 }
 
-void PlotModule::prepareObs(const vector<miString>& inp)
+void PlotModule::prepareObs(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareObs ++");
@@ -370,8 +370,8 @@ void PlotModule::prepareObs(const vector<miString>& inp)
   int npi = inp.size();
 
   // keep enable flag
-  miString str;
-  map<miString, bool> plotenabled;
+  std::string str;
+  map<std::string, bool> plotenabled;
   for (unsigned int i = 0; i < vop.size(); i++) {
     str = vop[i]->getPlotInfo(3);
     plotenabled[str] = vop[i]->Enabled();
@@ -426,15 +426,15 @@ void PlotModule::prepareObs(const vector<miString>& inp)
 #endif
 }
 
-void PlotModule::prepareSat(const vector<miString>& inp)
+void PlotModule::prepareSat(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareSat ++");
 #endif
 
   // keep enable flag
-  miString str;
-  map<miString, bool> plotenabled;
+  std::string str;
+  map<std::string, bool> plotenabled;
   for (unsigned int i = 0; i < vsp.size(); i++) {
     str = vsp[i]->getPlotInfo(4);
     plotenabled[str] = vsp[i]->Enabled();
@@ -452,7 +452,7 @@ void PlotModule::prepareSat(const vector<miString>& inp)
   }
 }
 
-void PlotModule::prepareStations(const vector<miString>& inp)
+void PlotModule::prepareStations(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareStations ++");
@@ -465,7 +465,7 @@ void PlotModule::prepareStations(const vector<miString>& inp)
   }
 }
 
-void PlotModule::prepareAnnotation(const vector<miString>& inp)
+void PlotModule::prepareAnnotation(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareAnnotation ++");
@@ -486,7 +486,7 @@ void PlotModule::prepareAnnotation(const vector<miString>& inp)
   annotationStrings = inp;
 }
 
-void PlotModule::prepareObjects(const vector<miString>& inp)
+void PlotModule::prepareObjects(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareObjects ++");
@@ -494,8 +494,8 @@ void PlotModule::prepareObjects(const vector<miString>& inp)
 
   int npi = inp.size();
 
-  miString str;
-  map<miString, bool> plotenabled;
+  std::string str;
+  map<std::string, bool> plotenabled;
 
   // keep enable flag
   str = objects.getPlotInfo();
@@ -515,7 +515,7 @@ void PlotModule::prepareObjects(const vector<miString>& inp)
     objects.enable(plotenabled[str]);
 }
 
-void PlotModule::prepareTrajectory(const vector<miString>& inp)
+void PlotModule::prepareTrajectory(const vector<string>& inp)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ PlotModule::prepareTrajectory ++");
@@ -531,13 +531,13 @@ vector<PlotElement>& PlotModule::getPlotElements()
   pel.clear();
 
   int m;
-  miString str;
+  std::string str;
 
   // get field names
   m = vfp.size();
   for (int j = 0; j < m; j++) {
     vfp[j]->getPlotName(str);
-    str += "# " + miString(j);
+    str += "# " + miutil::from_number(j);
     bool enabled = vfp[j]->Enabled();
     // add plotelement
     pel.push_back(PlotElement("FIELD", str, "FIELD", enabled));
@@ -547,7 +547,7 @@ vector<PlotElement>& PlotModule::getPlotElements()
   m = vop.size();
   for (int j = 0; j < m; j++) {
     vop[j]->getPlotName(str);
-    str += "# " + miString(j);
+    str += "# " + miutil::from_number(j);
     bool enabled = vop[j]->Enabled();
     // add plotelement
     pel.push_back(PlotElement("OBS", str, "OBS", enabled));
@@ -557,7 +557,7 @@ vector<PlotElement>& PlotModule::getPlotElements()
   m = vsp.size();
   for (int j = 0; j < m; j++) {
     vsp[j]->getPlotName(str);
-    str += "# " + miString(j);
+    str += "# " + miutil::from_number(j);
     bool enabled = vsp[j]->Enabled();
     // add plotelement
     pel.push_back(PlotElement("RASTER", str, "RASTER", enabled));
@@ -565,8 +565,8 @@ vector<PlotElement>& PlotModule::getPlotElements()
 
   // get obj names
   objects.getPlotName(str);
-  if (str.exists()) {
-    str += "# " + miString("0");
+  if (not str.empty()) {
+    str += "# 0";
     bool enabled = objects.isEnabled();
     // add plotelement
     pel.push_back(PlotElement("OBJECTS", str, "OBJECTS", enabled));
@@ -576,8 +576,8 @@ vector<PlotElement>& PlotModule::getPlotElements()
   m = vtp.size();
   for (int j = 0; j < m; j++) {
     vtp[j]->getPlotName(str);
-    if (str.exists()) {
-      str += "# " + miString(j);
+    if (not str.empty()) {
+      str += "# " + miutil::from_number(j);
       bool enabled = vtp[j]->Enabled();
       // add plotelement
       pel.push_back(PlotElement("TRAJECTORY", str, "TRAJECTORY", enabled));
@@ -590,13 +590,13 @@ vector<PlotElement>& PlotModule::getPlotElements()
     if (!stam->plots()[j]->isVisible())
       continue;
     stam->plots()[j]->getPlotName(str);
-    if (str.exists()) {
-      str += "# " + miString(j);
+    if (not str.empty()) {
+      str += "# " + miutil::from_number(j);
       bool enabled = stam->plots()[j]->Enabled();
-      miString icon = stam->plots()[j]->getIcon();
+      std::string icon = stam->plots()[j]->getIcon();
       if (icon.empty())
         icon = "STATION";
-      miString ptype = "STATION";
+      std::string ptype = "STATION";
       // add plotelement
       pel.push_back(PlotElement(ptype, str, icon, enabled));
     }
@@ -606,10 +606,10 @@ vector<PlotElement>& PlotModule::getPlotElements()
   int n = vareaobjects.size();
   for (int j = 0; j < n; j++) {
     vareaobjects[j].getPlotName(str);
-    if (str.exists()) {
-      str += "# " + miString(j);
+    if (not str.empty()) {
+      str += "# " + miutil::from_number(j);
       bool enabled = vareaobjects[j].isEnabled();
-      miString icon = vareaobjects[j].getIcon();
+      std::string icon = vareaobjects[j].getIcon();
       // add plotelement
       pel.push_back(PlotElement("AREAOBJECTS", str, icon, enabled));
     }
@@ -619,8 +619,8 @@ vector<PlotElement>& PlotModule::getPlotElements()
   m = locationPlots.size();
   for (int j = 0; j < m; j++) {
     locationPlots[j]->getPlotName(str);
-    if (str.exists()) {
-      str += "# " + miString(j);
+    if (not str.empty()) {
+      str += "# " + miutil::from_number(j);
       bool enabled = locationPlots[j]->Enabled();
       // add plotelement
       pel.push_back(PlotElement("LOCATION", str, "LOCATION", enabled));
@@ -632,11 +632,11 @@ vector<PlotElement>& PlotModule::getPlotElements()
 
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
-  miString str;
+  std::string str;
   if (pe.type == "FIELD") {
     for (unsigned int i = 0; i < vfp.size(); i++) {
       vfp[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         vfp[i]->enable(pe.enabled);
         break;
@@ -645,7 +645,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == "RASTER") {
     for (unsigned int i = 0; i < vsp.size(); i++) {
       vsp[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         vsp[i]->enable(pe.enabled);
         break;
@@ -654,7 +654,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == "OBS") {
     for (unsigned int i = 0; i < vop.size(); i++) {
       vop[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         vop[i]->enable(pe.enabled);
         break;
@@ -669,7 +669,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == "TRAJECTORY") {
     for (unsigned int i = 0; i < vtp.size(); i++) {
       vtp[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         vtp[i]->enable(pe.enabled);
         break;
@@ -678,7 +678,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == "STATION") {
     for (unsigned int i = 0; i < stam->plots().size(); i++) {
       stam->plots()[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         stam->plots()[i]->enable(pe.enabled);
         break;
@@ -688,8 +688,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     int n = vareaobjects.size();
     for (int i = 0; i < n; i++) {
       vareaobjects[i].getPlotName(str);
-      if (str.exists()) {
-        str += "# " + miString(int(i));
+      if (not str.empty()) {
+        str += "# " + miutil::from_number(int(i));
         if (str == pe.str) {
           vareaobjects[i].enable(pe.enabled);
           break;
@@ -699,7 +699,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == "LOCATION") {
     for (unsigned int i = 0; i < locationPlots.size(); i++) {
       locationPlots[i]->getPlotName(str);
-      str += "# " + miString(int(i));
+      str += "# " + miutil::from_number(int(i));
       if (str == pe.str) {
         locationPlots[i]->enable(pe.enabled);
         break;
@@ -750,7 +750,7 @@ void PlotModule::setAnnotations()
 
   // set annotation-data
   Colour col;
-  miString str;
+  std::string str;
   vector<AnnotationPlot::Annotation> annotations;
   AnnotationPlot::Annotation ann;
 
@@ -786,7 +786,7 @@ void PlotModule::setAnnotations()
     objects.getObjAnnotation(str, col);
     ann.str = str;
     ann.col = col;
-    if (str.exists()) {
+    if (not str.empty()) {
       annotations.push_back(ann);
     }
   }
@@ -808,7 +808,7 @@ void PlotModule::setAnnotations()
       continue;
     vtp[j]->getTrajectoryAnnotation(str, col);
     // empty string if data plot is off
-    if (str.exists()) {
+    if (not str.empty()) {
       ann.str = str;
       ann.col = col;
       annotations.push_back(ann);
@@ -868,7 +868,7 @@ void PlotModule::setAnnotations()
   for (int i = 0; i < n; i++) {
     if (!vop[i]->Enabled())
       continue;
-    vector<miString> obsinfo = vop[i]->getObsExtraAnnotations();
+    vector<std::string> obsinfo = vop[i]->getObsExtraAnnotations();
     int npi = obsinfo.size();
     for (int j = 0; j < npi; j++) {
       AnnotationPlot* ap = new AnnotationPlot(obsinfo[j]);
@@ -877,7 +877,7 @@ void PlotModule::setAnnotations()
   }
 
   //objects
-  vector<miString> objLabelstring = objects.getObjectLabels();
+  vector<std::string> objLabelstring = objects.getObjectLabels();
   n = objLabelstring.size();
   for (int i = 0; i < n; i++) {
     AnnotationPlot* ap = new AnnotationPlot(objLabelstring[i]);
@@ -887,7 +887,7 @@ void PlotModule::setAnnotations()
 }
 
 
-bool PlotModule::updateFieldPlot(const vector<miString>& pin)
+bool PlotModule::updateFieldPlot(const vector<std::string>& pin)
 {
   vector<Field*> fv;
   int i, n;
@@ -933,7 +933,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 {
   METLIBS_LOG_DEBUG("++ PlotModule::updatePlots ++");
 
-  miString pin;
+  std::string pin;
   vector<Field*> fv;
   int i, n;
   miTime t = splot.getTime();
@@ -1062,7 +1062,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   if (!mapdefined) {
     // no data on initial map ... change to "Hirlam.50km" projection and area
-    //    miString areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
+    //    std::string areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
     Area a;
     a.setDefault();
     //    a.setAreaFromLog(areaString);
@@ -1134,7 +1134,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
     vtp[0]->prepare();
 
     if (vtp[0]->inComputation()) {
-      miString fieldname = vtp[0]->getFieldName().downcase();
+      std::string fieldname = vtp[0]->getFieldName().downcase();
       int i = 0, n = vfp.size();
       while (i < n && vfp[i]->getTrajectoryFieldName().downcase() != fieldname)
         i++;
@@ -1992,7 +1992,7 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
 }
 
 // return current plottime
-void PlotModule::getPlotTime(miString& s)
+void PlotModule::getPlotTime(std::string& s)
 {
   miTime t = splot.getTime();
 
@@ -2014,7 +2014,7 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
     times["products"].push_back(producttime);
   }
 
-  vector<miString> pinfos;
+  vector<std::string> pinfos;
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
     pinfos.push_back(vfp[i]->getPlotInfo());
@@ -2076,7 +2076,7 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
 
 //returns union or intersection of plot times from all pinfos
 void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
-    set<miTime>& constTimes, const vector<miString>& pinfos,
+    set<miTime>& constTimes, const vector<std::string>& pinfos,
     bool allTimes, bool updateSources)
 {
   vector<miTime> normalTimes;
@@ -2086,9 +2086,9 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
   bool normalTimesFound = false;
   bool moreTimes = true;
   for (int i = 0; i < n; i++) {
-    vector<miString> tokens = pinfos[i].split(1);
+    vector<std::string> tokens = miutil::split(pinfos[i], 1);
     if (!tokens.empty()) {
-      miString type = tokens[0].upcase();
+      std::string type = miutil::to_upper(tokens[0]);
       if (type == "FIELD")
         fieldplotm->getCapabilitiesTime(normalTimes, constTime, timediff,
             pinfos[i], updateSources);
@@ -2202,7 +2202,7 @@ bool PlotModule::findObs(int x, int y)
   return found;
 }
 
-bool PlotModule::getObsName(int x, int y, miString& name)
+bool PlotModule::getObsName(int x, int y, std::string& name)
 {
 
   int n = vop.size();
@@ -2215,15 +2215,15 @@ bool PlotModule::getObsName(int x, int y, miString& name)
 }
 
 //areas
-void PlotModule::makeAreas(miString name, miString areastring, int id)
+void PlotModule::makeAreas(std::string name, std::string areastring, int id)
 {
   int n = vareaobjects.size();
   //   METLIBS_LOG_DEBUG("makeAreas:"<<n);
   //   METLIBS_LOG_DEBUG("name:"<<name);
   //   METLIBS_LOG_DEBUG("areastring:"<<areastring);
   //name can be name:icon
-  vector<miString> tokens = name.split(":");
-  miString icon;
+  vector<std::string> tokens = miutil::split(name, ":");
+  std::string icon;
   if (tokens.size() > 1) {
     icon = tokens[1];
     name = tokens[0];
@@ -2247,8 +2247,8 @@ void PlotModule::makeAreas(miString name, miString areastring, int id)
 
 }
 
-void PlotModule::areaCommand(const miString& command, const miString& dataSet,
-    const miString& data, int id)
+void PlotModule::areaCommand(const std::string& command, const std::string& dataSet,
+    const std::string& data, int id)
 {
   //   METLIBS_LOG_DEBUG("PlotModule::areaCommand");
   //   METLIBS_LOG_DEBUG("id=" << id);
@@ -2259,7 +2259,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
   for (int i = 0; i < n && i > -1; i++) {
     if ((id == -1 || id == vareaobjects[i].getId()) && (dataSet == "all"
         || dataSet == vareaobjects[i].getName())) {
-      if (command == "delete" && (data == "all" || !data.exists())) {
+      if (command == "delete" && (data == "all" || data.empty())) {
         vareaobjects.erase(vareaobjects.begin() + i);
         i--;
         n = vareaobjects.size();
@@ -2267,7 +2267,7 @@ void PlotModule::areaCommand(const miString& command, const miString& dataSet,
         vareaobjects[i].areaCommand(command, data);
         //zoom to selected area
         if (command == "select" && vareaobjects[i].autoZoom()) {
-          vector<miString> token = data.split(":");
+          vector<std::string> token = miutil::split(data, ":");
           if (token.size() == 2 && token[1] == "on") {
             zoomTo(vareaobjects[i].getBoundBox(token[0]));
           }
@@ -2303,7 +2303,7 @@ void PlotModule::putLocation(const LocationData& locationdata)
 #endif
   bool found = false;
   int n = locationPlots.size();
-  miString name = locationdata.name;
+  std::string name = locationdata.name;
   for (int i = 0; i < n; i++) {
     if (name == locationPlots[i]->getName()) {
       bool visible = locationPlots[i]->isVisible();
@@ -2329,7 +2329,7 @@ void PlotModule::updateLocation(const LocationData& locationdata)
   METLIBS_LOG_DEBUG("PlotModule::updateLocation");
 #endif
   int n = locationPlots.size();
-  miString name = locationdata.name;
+  std::string name = locationdata.name;
   for (int i = 0; i < n; i++) {
     if (name == locationPlots[i]->getName()) {
       locationPlots[i]->updateOptions(locationdata);
@@ -2337,7 +2337,7 @@ void PlotModule::updateLocation(const LocationData& locationdata)
   }
 }
 
-void PlotModule::deleteLocation(const miString& name)
+void PlotModule::deleteLocation(const std::string& name)
 {
   vector<LocationPlot*>::iterator p = locationPlots.begin();
   vector<LocationPlot*>::iterator pend = locationPlots.end();
@@ -2351,8 +2351,8 @@ void PlotModule::deleteLocation(const miString& name)
   }
 }
 
-void PlotModule::setSelectedLocation(const miString& name,
-    const miString& elementname)
+void PlotModule::setSelectedLocation(const std::string& name,
+    const std::string& elementname)
 {
   int n = locationPlots.size();
   for (int i = 0; i < n; i++) {
@@ -2361,7 +2361,7 @@ void PlotModule::setSelectedLocation(const miString& name,
   }
 }
 
-miString PlotModule::findLocation(int x, int y, const miString& name)
+std::string PlotModule::findLocation(int x, int y, const std::string& name)
 {
 
   int n = locationPlots.size();
@@ -2369,7 +2369,7 @@ miString PlotModule::findLocation(int x, int y, const miString& name)
     if (name == locationPlots[i]->getName())
       return locationPlots[i]->find(x, y);
   }
-  return miString();
+  return std::string();
 }
 
 //****************************************************
@@ -2439,7 +2439,7 @@ void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
     for (int i = 0; i < nvop; i++) {
       ObsPlot *op;
       op = new ObsPlot();
-      miString pin = vop[i]->getInfoStr();
+      std::string pin = vop[i]->getInfoStr();
       if (!obsm->init(op, pin)) {
         delete op;
         op = NULL;
@@ -2464,9 +2464,9 @@ void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
   //update list of positions ( used in "PPPP-mslp")
   obsm->updateObsPositions(vop);
 
-  miString labelstr;
+  std::string labelstr;
   if (obsnr != 0) {
-    miString timer(obsnr * obsTimeStep);
+    std::string timer = miutil::from_number(obsnr * obsTimeStep);
     labelstr = "LABEL text=\"OBS -" + timer;
     labelstr += "\" tcolour=black bcolour=red fcolour=red:150 ";
     labelstr += "polystyle=both halign=center valign=top fontsize=18";
@@ -2506,7 +2506,7 @@ void PlotModule::obsStepChanged(int step)
 
 }
 
-void PlotModule::trajPos(vector<miString>& vstr)
+void PlotModule::trajPos(vector<std::string>& vstr)
 {
   int n = vtp.size();
 
@@ -2535,7 +2535,7 @@ void PlotModule::trajPos(vector<miString>& vstr)
   }
 }
 
-void PlotModule::measurementsPos(vector<miString>& vstr)
+void PlotModule::measurementsPos(vector<std::string>& vstr)
 {
   int n = vMeasurementsPlot.size();
   //if vstr starts with "quit", delete all MeasurementsPlot objects
@@ -2558,10 +2558,10 @@ void PlotModule::measurementsPos(vector<miString>& vstr)
 
 }
 
-vector<miString> PlotModule::getCalibChannels()
+vector<std::string> PlotModule::getCalibChannels()
 {
 
-  vector<miString> channels;
+  vector<std::string> channels;
 
   int n = vsp.size();
   for (int i = 0; i < n; i++) {
@@ -2590,10 +2590,10 @@ vector<SatValues> PlotModule::showValues(float x, float y)
 
 }
 
-vector<miString> PlotModule::getSatnames()
+vector<std::string> PlotModule::getSatnames()
 {
-  vector<miString> satnames;
-  miString str;
+  vector<std::string> satnames;
+  std::string str;
   // get sat names
   int m = vsp.size();
   for (int j = 0; j < m; j++) {
@@ -2614,19 +2614,19 @@ bool PlotModule::markAnnotationPlot(int x, int y)
   return marked;
 }
 
-miString PlotModule::getMarkedAnnotation()
+std::string PlotModule::getMarkedAnnotation()
 {
   int m = editVap.size();
-  miString annotext;
+  std::string annotext;
   for (int j = 0; j < m; j++) {
-    miString text = editVap[j]->getMarkedAnnotation();
+    std::string text = editVap[j]->getMarkedAnnotation();
     if (!text.empty())
       annotext = text;
   }
   return annotext;
 }
 
-void PlotModule::changeMarkedAnnotation(miString text, int cursor, int sel1,
+void PlotModule::changeMarkedAnnotation(std::string text, int cursor, int sel1,
     int sel2)
 {
   int m = editVap.size();
@@ -2671,19 +2671,19 @@ void PlotModule::editLastAnnoElement()
   }
 }
 
-vector<miString> PlotModule::writeAnnotations(miString prodname)
+vector<string> PlotModule::writeAnnotations(const string& prodname)
 {
-  vector<miString> annostrings;
+  vector<std::string> annostrings;
   int m = editVap.size();
   for (int j = 0; j < m; j++) {
-    miString str = editVap[j]->writeAnnotation(prodname);
-    if (!str.empty())
+    string str = editVap[j]->writeAnnotation(prodname);
+    if (not str.empty())
       annostrings.push_back(str);
   }
   return annostrings;
 }
 
-void PlotModule::updateEditLabels(const vector<miString>& productLabelstrings,
+void PlotModule::updateEditLabels(const vector<std::string>& productLabelstrings,
     const std::string& productName, bool newProduct)
 {
   METLIBS_LOG_DEBUG("diPlotModule::updateEditLabels");
@@ -2691,7 +2691,7 @@ void PlotModule::updateEditLabels(const vector<miString>& productLabelstrings,
   vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...
 
-  vector<miString> objLabelstrings = editobjects.getObjectLabels();
+  vector<std::string> objLabelstrings = editobjects.getObjectLabels();
   n = objLabelstrings.size();
   for (int i = 0; i < n; i++) {
     AnnotationPlot* ap = new AnnotationPlot(objLabelstrings[i]);
@@ -2727,8 +2727,8 @@ void PlotModule::updateEditLabels(const vector<miString>& productLabelstrings,
 }
 
 //autoFile
-void PlotModule::setSatAuto(bool autoFile, const miString& satellite,
-    const miString& file)
+void PlotModule::setSatAuto(bool autoFile, const std::string& satellite,
+    const std::string& file)
 {
   int m = vsp.size();
   for (int j = 0; j < m; j++)
@@ -3064,9 +3064,8 @@ void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
 }
 
-void PlotModule::setEditMessage(const miString& str)
+void PlotModule::setEditMessage(const string& str)
 {
-
   // set or remove (if empty string) an edit message
 
   if (apEditmessage) {
@@ -3074,8 +3073,8 @@ void PlotModule::setEditMessage(const miString& str)
     apEditmessage = 0;
   }
 
-  if (str.exists()) {
-    miString labelstr;
+  if (not str.empty()) {
+    string labelstr;
     labelstr = "LABEL text=\"" + str + "\"";
     labelstr += " tcolour=blue bcolour=red fcolour=red:128";
     labelstr += " polystyle=both halign=left valign=top";
@@ -3088,30 +3087,30 @@ void PlotModule::setEditMessage(const miString& str)
   }
 }
 
-vector<miString> PlotModule::getFieldModels()
+vector<std::string> PlotModule::getFieldModels()
 {
-  vector<miString> vstr;
-  set<miString> unique;
+  vector<std::string> vstr;
+  set<std::string> unique;
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
-    miString fname = vfp[i]->getModelName();
-    if (fname.exists())
+    std::string fname = vfp[i]->getModelName();
+    if (not fname.empty())
       unique.insert(fname);
   }
-  set<miString>::iterator p = unique.begin(), pend = unique.end();
+  set<std::string>::iterator p = unique.begin(), pend = unique.end();
   for (; p != pend; p++)
     vstr.push_back(*p);
 
   return vstr;
 }
 
-vector<miString> PlotModule::getTrajectoryFields()
+vector<std::string> PlotModule::getTrajectoryFields()
 {
-  vector<miString> vstr;
+  vector<std::string> vstr;
   int n = vfp.size();
   for (int i = 0; i < n; i++) {
-    miString fname = vfp[i]->getTrajectoryFieldName();
-    if (fname.exists())
+    std::string fname = vfp[i]->getTrajectoryFieldName();
+    if (not fname.empty())
       vstr.push_back(fname);
   }
   return vstr;
@@ -3122,7 +3121,7 @@ bool PlotModule::startTrajectoryComputation()
   if (vtp.size() < 1)
     return false;
 
-  miString fieldname = vtp[0]->getFieldName().downcase();
+  std::string fieldname = vtp[0]->getFieldName().downcase();
 
   int i = 0, n = vfp.size();
 
@@ -3145,7 +3144,7 @@ void PlotModule::stopTrajectoryComputation()
 }
 
 // write trajectory positions to file
-bool PlotModule::printTrajectoryPositions(const miString& filename)
+bool PlotModule::printTrajectoryPositions(const std::string& filename)
 {
   if (vtp.size() > 0)
     return vtp[0]->printTrajectoryPositions(filename);
@@ -3155,30 +3154,30 @@ bool PlotModule::printTrajectoryPositions(const miString& filename)
 
 /********************* reading and writing log file *******************/
 
-vector<miString> PlotModule::writeLog()
+vector<std::string> PlotModule::writeLog()
 {
 
   //put last area in areaQ
   areaInsert(splot.getMapArea(), true);
 
-  vector<miString> vstr;
+  vector<std::string> vstr;
 
   //Write self-defined area (F2)
-  miString aa = "name=F2 " + myArea.getAreaString();
+  std::string aa = "name=F2 " + myArea.getAreaString();
   vstr.push_back(aa);
 
   //Write all araes in list (areaQ)
   int n = areaQ.size();
   for (int i = 0; i < n; i++) {
-    aa = "name=" + miString(i) + " " + areaQ[i].getAreaString();
+    aa = "name=" + miutil::from_number(i) + " " + areaQ[i].getAreaString();
     vstr.push_back(aa);
   }
 
   return vstr;
 }
 
-void PlotModule::readLog(const vector<miString>& vstr,
-    const miString& thisVersion, const miString& logVersion)
+void PlotModule::readLog(const vector<std::string>& vstr,
+    const std::string& thisVersion, const std::string& logVersion)
 {
 
   areaQ.clear();

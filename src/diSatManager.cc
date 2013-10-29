@@ -68,7 +68,7 @@ SatManager::SatManager()
 
 }
 
-bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
+bool SatManager::init(vector<SatPlot*>& vsatp, const vector<string>& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
@@ -1273,7 +1273,7 @@ bool SatManager::isMosaic(const miString &satellite, const miString & file)
   return Prod[satellite][file].mosaic;
 }
 
-vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool updateFileList, bool openFiles)
+vector<miTime> SatManager::getSatTimes(const vector<string>& pinfos, bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getSatTimes");
@@ -1284,11 +1284,10 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
   set<miTime> timeset;
   vector< miTime> timevec;
   int m, nn= pinfos.size();
-  vector<miString> tokens;
   miString satellite, file;
 
   for(int i=0; i<nn; i++) {
-    tokens= pinfos[i].split('"', '"');
+    const vector<string> tokens = miutil::split_protected(pinfos[i], '"', '"');
     m= tokens.size();
     if (m<3)
       continue;

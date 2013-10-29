@@ -464,7 +464,7 @@ void VprofManager::setModel()
     usemodels.insert(selectedModels[i]);
 
   //define models/files  when "model" chosen in modeldialog
-  set <miString>::iterator p = usemodels.begin();
+  set<string>::iterator p = usemodels.begin();
   for (; p!=usemodels.end(); p++) {
     miString model= *p;
     map<miString,miString>::iterator pf;
@@ -476,7 +476,7 @@ void VprofManager::setModel()
   }
 
   //define models/files  when "file" chosen in modeldialog
-  vector <miString>::iterator q = selectedFiles.begin();
+  vector<string>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
     miString file= *q;
     if (file.contains(menuConst["OBSTEMP"]))
@@ -829,7 +829,8 @@ vector <miString> VprofManager::getModelFiles(){
 
 /***************************************************************************/
 
-void VprofManager::setFieldModels(const vector <miString> & fieldmodels){
+void VprofManager::setFieldModels(const vector<string>& fieldmodels)
+{
   //called when model selected in field dialog
   fieldModels = fieldmodels;
 }
@@ -837,9 +838,10 @@ void VprofManager::setFieldModels(const vector <miString> & fieldmodels){
 
 /***************************************************************************/
 
-void VprofManager::setSelectedModels(const vector <miString>& models ,
+void VprofManager::setSelectedModels(const vector <string>& models,
     bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar){
+    bool obsPilot, bool obsAmdar)
+{
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -854,9 +856,10 @@ void VprofManager::setSelectedModels(const vector <miString>& models ,
 
 /***************************************************************************/
 
-void VprofManager::setSelectedFiles(const vector <miString>& files,
+void VprofManager::setSelectedFiles(const vector<string>& files,
     bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar){
+    bool obsPilot, bool obsAmdar)
+{
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -871,7 +874,8 @@ void VprofManager::setSelectedFiles(const vector <miString>& files,
 
 /***************************************************************************/
 
-miString VprofManager::getDefaultModel(){
+miString VprofManager::getDefaultModel()
+{
   //for now, just the first model in filenames list
   map<miString,miString>::iterator p = filenames.begin();
   miString model = p->first;
@@ -880,8 +884,9 @@ miString VprofManager::getDefaultModel(){
 
 
 /***************************************************************************/
-vector<miString> VprofManager::getSelectedModels(){
-  vector <miString> models = selectedModels;
+vector<string> VprofManager::getSelectedModels()
+{
+  vector<string> models = selectedModels;
   if (showObsTemp)  models.push_back(menuConst["OBSTEMP"]);
   if (showObsPilot) models.push_back(menuConst["OBSPILOT"]);
   if (showObsAmdar) models.push_back(menuConst["OBSAMDAR"]);
@@ -1329,21 +1334,20 @@ void VprofManager::checkObsTime(int hour) {
     if (onlyObs)
       str += plotTime.isoTime();
     else
-      for (set <miString>::iterator p=usemodels.begin();p!=usemodels.end();p++)
+      for (set <string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
         str+=*p+miString(" ");
     return str;
   }
 
 
-  vector<miString> VprofManager::writeLog()
+  vector<string> VprofManager::writeLog()
   {
     return vpopt->writeOptions();
   }
 
 
-  void VprofManager::readLog(const vector<miString>& vstr,
-      const miString& thisVersion,
-      const miString& logVersion)
+  void VprofManager::readLog(const vector<string>& vstr,
+      const string& thisVersion, const string& logVersion)
   {
     vpopt->readOptions(vstr);
   }

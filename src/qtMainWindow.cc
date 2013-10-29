@@ -965,14 +965,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   //used for testing qickMenus without dialogs
   //connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
-  //  	  SLOT(quickMenuApply(const vector<miutil::miString>&)));
+  //  	  SLOT(quickMenuApply(const vector<std::string>&)));
 
 
-  connect(qm, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
-      SLOT(recallPlot(const vector<miutil::miString>&,bool)));
-
-  connect(em, SIGNAL(Apply(const vector<miutil::miString>&,bool)),
-      SLOT(recallPlot(const vector<miutil::miString>&,bool)));
+  connect(qm, SIGNAL(Apply(const std::vector<std::string>&,bool)),
+      SLOT(recallPlot(const std::vector<std::string>&,bool)));
+  connect(em, SIGNAL(Apply(const std::vector<std::string>&,bool)),
+      SLOT(recallPlot(const std::vector<std::string>&,bool)));
 
 
   // Mark trajectory positions
@@ -1235,7 +1234,7 @@ void DianaMainWindow::editUpdate()
 
 
 
-void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
+void DianaMainWindow::quickMenuApply(const vector<string>& s)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("quickMenuApply:");
@@ -1256,7 +1255,7 @@ void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
   contr->setPlotTime(t);
   contr->updatePlots();
   //find current field models and send to vprofwindow..
-  vector <miutil::miString> fieldmodels = contr->getFieldModels();
+  vector <string> fieldmodels = contr->getFieldModels();
   if (vpWindow) vpWindow->setFieldModels(fieldmodels);
   if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
@@ -1269,12 +1268,12 @@ void DianaMainWindow::quickMenuApply(const vector<miutil::miString>& s)
 void DianaMainWindow::resetAll()
 {
   mm->useFavorite();
-  vector<miutil::miString> pstr = mm->getOKString();;
+  vector<string> pstr = mm->getOKString();;
   recallPlot(pstr, true);
   MenuOK();
 }
 
-void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool replace)
+void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
 
@@ -1284,8 +1283,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
   } else {
 
     // strings for each dialog
-    vector<miutil::miString> mapcom,obscom,satcom,statcom,objcom,labelcom;
-    vector<std::string> fldcom;
+    vector<string> mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
     int n= vstr.size();
     // sort strings..
     for (int i=0; i<n; i++){
@@ -1304,7 +1302,7 @@ void DianaMainWindow::recallPlot(const vector<miutil::miString>& vstr,bool repla
       else if (pre=="LABEL") labelcom.push_back(s);
     }
 
-    vector<miutil::miString> tmplabel = vlabel;
+    vector<string> tmplabel = vlabel;
     // feed strings to dialogs
     if (replace || mapcom.size()) mm->putOKString(mapcom);
     if (replace || fldcom.size()) fm->putOKString(fldcom);
@@ -1363,11 +1361,8 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
-void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
-    vector<miutil::miString> &diagstr,
-    vector<miutil::miString> &shortnames)
+void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diagstr, vector<string> &shortnames)
 {
-
   // fields
   pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
@@ -1400,14 +1395,14 @@ void DianaMainWindow::getPlotStrings(vector<miutil::miString> &pstr,
   // label
   bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
   for(unsigned int i=0; i<vlabel.size(); i++){
-    if(!remove || !vlabel[i].contains("$"))  //remove labels with time
+    if(!remove || not miutil::contains(vlabel[i], "$"))  //remove labels with time
       pstr.push_back(vlabel[i]);
   }
 
   // remove empty lines
   for (unsigned int i = 0; i < pstr.size(); ++i){
-    pstr[i].trim();
-    if (!pstr[i].exists()){
+    miutil::trim(pstr[i]);
+    if (pstr[i].empty()) {
       pstr.erase(pstr.begin()+i);
       --i;
       continue;
@@ -1424,9 +1419,9 @@ void DianaMainWindow::MenuOK()
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
 
-  vector<miutil::miString> pstr;
-  vector<miutil::miString> diagstr;
-  vector<miutil::miString> shortnames;
+  vector<string> pstr;
+  vector<string> diagstr;
+  vector<string> shortnames;
 
   getPlotStrings(pstr, diagstr, shortnames);
 
@@ -1451,7 +1446,7 @@ void DianaMainWindow::MenuOK()
   cout <<contr->getMapArea()<<endl;
 
   //find current field models and send to vprofwindow..
-  vector <miutil::miString> fieldmodels = contr->getFieldModels();
+  vector<string> fieldmodels = contr->getFieldModels();
   if (vpWindow) vpWindow->setFieldModels(fieldmodels);
   if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
@@ -1464,7 +1459,7 @@ void DianaMainWindow::MenuOK()
     miutil::miString plotname;
     int m= shortnames.size();
     for (int j=0; j<m; j++)
-      if (shortnames[j].exists()){
+      if (not shortnames[j].empty()){
         plotname+= shortnames[j];
         if (j!=m-1) plotname+= " ";
       }
@@ -2610,7 +2605,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
-    vector<miutil::miString> v1, v2, v3;
+    vector<string> v1, v2, v3;
     getPlotStrings(v1, v2, v3);
 
     miMessage l;
@@ -2951,7 +2946,7 @@ void DianaMainWindow::timeChanged(){
   if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
 
   //update sat channels in statusbar
-  vector<miutil::miString> channels = contr->getCalibChannels();
+  vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
 
   if(qsocket){
@@ -3953,7 +3948,7 @@ void DianaMainWindow::writeLogFile()
     return;
   }
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   int i,n;
 
   vstr= writeLog(thisVersion,thisBuild);
@@ -4028,21 +4023,21 @@ void DianaMainWindow::writeLogFile()
   }
 
   if ( vcWindow ){
-    vstr= vcWindow->writeLogMI("window");
+    vstr= vcWindow->writeLog("window");
     n= vstr.size();
     file << "[VCROSS.WINDOW.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/VCROSS.WINDOW.LOG]" << endl;
     file << endl;
 
-    vstr= vcWindow->writeLogMI("setup");
+    vstr= vcWindow->writeLog("setup");
     n= vstr.size();
     file << "[VCROSS.SETUP.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
     file << "[/VCROSS.SETUP.LOG]" << endl;
     file << endl;
 
-    vstr= vcWindow->writeLogMI("field");
+    vstr= vcWindow->writeLog("field");
     n= vstr.size();
     file << "[VCROSS.FIELD.LOG]" << endl;
     for (i=0; i<n; i++) file << vstr[i] << endl;
@@ -4100,7 +4095,7 @@ void DianaMainWindow::readLogFile()
   METLIBS_LOG_INFO("READ " << logfile);
 
   miutil::miString beginStr, endStr, str;
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   while (getline(file,beginStr)) {
     if (!beginStr.empty() && beginStr[0]!='#') {
@@ -4171,10 +4166,9 @@ void DianaMainWindow::readLogFile()
 }
 
 
-vector<miutil::miString> DianaMainWindow::writeLog(const miutil::miString& thisVersion,
-    const miutil::miString& thisBuild)
+vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string& thisBuild)
 {
-  vector<miutil::miString> vstr;
+  std::vector<std::string> vstr;
   miutil::miString str;
 
   // version & time
@@ -4275,11 +4269,9 @@ miutil::miString DianaMainWindow::saveDocState()
   return ost.str();
 }
 
-void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion,
-    miutil::miString& logVersion)
+void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVersion, string& logVersion)
 {
-  vector<miutil::miString> tokens;
+  vector<string> tokens;
   int x,y;
 
   int nvstr= vstr.size();
@@ -4290,7 +4282,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
   //.....version & time .........
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") break;
-    tokens= vstr[ivstr].split(' ');
+    tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens[0]=="VERSION" && tokens.size()==2) logVersion= tokens[1];
     //if (tokens[0]=="LOGTIME" && tokens.size()==3) .................
   }
@@ -4299,7 +4291,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
   // dialog positions
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") break;
-    tokens= vstr[ivstr].split(' ');
+    tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
     if (paintToolBar != 0) {
       paintToolBar->hide();
@@ -4345,7 +4337,7 @@ void DianaMainWindow::readLog(const vector<miutil::miString>& vstr,
   // printer name & other options...
   for (; ivstr<nvstr; ivstr++) {
     if (vstr[ivstr].substr(0,4)=="====") continue;
-    tokens= vstr[ivstr].split(' ');
+    tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens.size()>=2) {
       if (tokens[0]=="PRINTER") {
         priop.printer=tokens[1];
@@ -4452,7 +4444,7 @@ void DianaMainWindow::toggleElement(PlotElement pe)
 {
   contr->enablePlotElement(pe);
   //update sat channels in statusbar
-  vector<miutil::miString> channels = contr->getCalibChannels();
+  vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   w->updateGL();
 }

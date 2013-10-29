@@ -67,15 +67,15 @@ public:
   ~VprofWindow(){}
 
   StationPlot* getStations();
-  bool changeStation(const miutil::miString& station);
-  void setFieldModels(const vector<miutil::miString>& fieldmodels);
+  bool changeStation(const std::string& station);
+  void setFieldModels(const std::vector<std::string>& fieldmodels);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
 
   void parseSetup();
-  vector<miutil::miString> writeLog(const miutil::miString& logpart);
-  void readLog(const miutil::miString& logpart, const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion,
+  std::vector<std::string> writeLog(const std::string& logpart);
+  void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion,
 	       int displayWidth, int displayHeight);
 
   bool firstTime;

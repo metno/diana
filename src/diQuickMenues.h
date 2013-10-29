@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,32 +30,30 @@
 #define _diQuickMenues_h
 
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
 #include <deque>
 
-using namespace std; 
-
 /// options for plot-commands: Example: UTC= 0,6,12,18
 struct quickMenuOption{
-  miutil::miString key;             ///< name of key
-  vector<miutil::miString> options; ///< available options
-  miutil::miString def;             ///< default option
+  std::string key;             ///< name of key
+  std::vector<std::string> options; ///< available options
+  std::string def;             ///< default option
 };
 
 /// one menuitem: menuname + plotcommands
 struct quickMenuItem{
-  miutil::miString name;            ///< menuname
-  vector<miutil::miString> command; ///< command strings
+  std::string name;            ///< menuname
+  std::vector<std::string> command; ///< command strings
 };
 
 /// contents of one quickmenu
 struct quickMenu{
-  miutil::miString filename; ///< file containing menu definitions
-  miutil::miString name;     ///< name of menuitem
+  std::string filename; ///< file containing menu definitions
+  std::string name;     ///< name of menuitem
   int plotindex;     ///< 
-  vector<quickMenuOption> opt;   /// any quickMenuOption 
-  deque<quickMenuItem> menuitems;/// all items in this menu
+  std::vector<quickMenuOption> opt;   /// any quickMenuOption 
+  std::deque<quickMenuItem> menuitems;/// all items in this menu
 };
 
 /// write a quick-menu to file
@@ -65,6 +61,6 @@ bool writeQuickMenu(const quickMenu& qm, bool newSyntax=false);
 /// read quick-menu file, and fill struct
 bool readQuickMenu(quickMenu& qm);
 /// if old syntax, update
-int  updateSyntax(miutil::miString& line);
+int updateSyntax(std::string& line);
 
 #endif

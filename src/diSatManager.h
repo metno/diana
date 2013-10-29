@@ -148,9 +148,9 @@ public:
   // Constructors
   SatManager();
 
-  bool init(vector<SatPlot*>&, const vector<miutil::miString>&);
+  bool init(vector<SatPlot*>&, const std::vector<std::string>&);
   bool setData(SatPlot *);
-  vector<miutil::miTime> getSatTimes(const vector<miutil::miString>&, bool updateFileList=false, bool openFiles=false);
+  vector<miutil::miTime> getSatTimes(const std::vector<std::string>&, bool updateFileList=false, bool openFiles=false);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(vector<miutil::miTime>& progTimes,

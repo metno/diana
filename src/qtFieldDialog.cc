@@ -1464,7 +1464,7 @@ void FieldDialog::levelChanged(int index)
   return;
 }
 
-vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
+vector<string> FieldDialog::changeLevel(int increment, int type)
 {
 
   METLIBS_LOG_DEBUG("FieldDialog::changeLevel called: "<<increment);
@@ -3276,10 +3276,9 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
   }
 }
 
-vector<std::string> FieldDialog::getOKString_std( bool resetLevelMove )
+vector<std::string> FieldDialog::getOKString_std(bool resetLevelMove)
 {
-
-  vector<miutil::miString> vstr = getOKString( resetLevelMove );
+  vector<string> vstr = getOKString( resetLevelMove );
   vector<std::string> vstdstr;
   size_t n = vstr.size();
   for ( size_t i = 0; i<n; ++i ) {
@@ -3288,11 +3287,9 @@ vector<std::string> FieldDialog::getOKString_std( bool resetLevelMove )
   return vstdstr;
 
 }
-vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
+vector<string> FieldDialog::getOKString(bool resetLevelMove)
 {
-
   METLIBS_LOG_DEBUG("FieldDialog::getOKString called");
-
 
   if ( resetLevelMove) {
     int n = selectedFields.size();
@@ -3302,7 +3299,7 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
     }
   }
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   if (selectedFields.size() == 0)
     return vstr;
 
@@ -4156,7 +4153,7 @@ vector<std::string> FieldDialog::writeLog()
   return vstr;
 }
 
-void FieldDialog::readLog(const vector<miutil::miString>& vstr,
+void FieldDialog::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
 

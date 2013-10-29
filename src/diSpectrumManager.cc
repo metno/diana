@@ -263,7 +263,7 @@ void SpectrumManager::setModel()
   }
 
   //define models/files  when "file" chosen in modeldialog
-  vector <miString>::iterator q = selectedFiles.begin();
+  vector<string>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
     miString file= *q;
     //HK ??? cheating...
@@ -551,15 +551,14 @@ vector <miString> SpectrumManager::getModelFiles()
 }
 
 
-void SpectrumManager::setFieldModels(const vector<miString>& fieldmodels)
+void SpectrumManager::setFieldModels(const vector<string>& fieldmodels)
 {
   //called when model selected in field dialog
   fieldModels = fieldmodels;
 }
 
 
-void SpectrumManager::setSelectedModels(const vector<miString>& models ,
-    bool obs ,bool field)
+void SpectrumManager::setSelectedModels(const vector<string>& models, bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -570,8 +569,7 @@ void SpectrumManager::setSelectedModels(const vector<miString>& models ,
 }
 
 
-void SpectrumManager::setSelectedFiles(const vector<miString>& files,
-    bool obs ,bool field)
+void SpectrumManager::setSelectedFiles(const vector<string>& files, bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -591,16 +589,18 @@ miString SpectrumManager::getDefaultModel()
 }
 
 
-vector<miString> SpectrumManager::getSelectedModels()
+vector<string> SpectrumManager::getSelectedModels()
 {
-  vector <miString> models = selectedModels;
-  if (showObs) models.push_back(menuConst["OBS"]);
-  if (asField) models.push_back(menuConst["ASFIELD"]);
+  vector <string> models = selectedModels;
+  if (showObs)
+    models.push_back(menuConst["OBS"]);
+  if (asField)
+    models.push_back(menuConst["ASFIELD"]);
   return models;
 }
 
 
-bool SpectrumManager::initSpectrumFile(miString file,miString model)
+bool SpectrumManager::initSpectrumFile(miString file, miString model)
 {
   SpectrumFile *spf= new SpectrumFile(file,model);
   //if (spf->readFileHeader()) {
@@ -828,15 +828,14 @@ miString SpectrumManager::getAnnotationString()
 }
 
 
-vector<miString> SpectrumManager::writeLog()
+vector<string> SpectrumManager::writeLog()
 {
   return spopt->writeOptions();
 }
 
 
-void SpectrumManager::readLog(const vector<miString>& vstr,
-    const miString& thisVersion,
-    const miString& logVersion)
+void SpectrumManager::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
 {
   spopt->readOptions(vstr);
 }

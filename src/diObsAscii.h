@@ -66,7 +66,7 @@ private:
   vector<miutil::miString> asciiColumnUndefined;
   map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
-  vector<miutil::miString> labels;
+  std::vector<std::string> labels;
 
   void readHeaderInfo(const miutil::miString &filename, const miutil::miString &headerfile,
       const vector<miutil::miString> headerinfo);

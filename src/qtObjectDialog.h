@@ -66,9 +66,9 @@ public:
   //the constructor
   ObjectDialog( QWidget* parent, Controller* llctrl );
   /// the plot info strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   /// creates a short name for the current settings (used in quick menues)
   miutil::miString getShortname();
   /// read comment belonging to objects
@@ -126,7 +126,7 @@ private:
   void updateSelectedFileList();
 
   //decode part of OK string
-  PlotVariables decodeString(const vector <miutil::miString> & tokens);
+  PlotVariables decodeString(const std::vector<std::string> & tokens);
   // make string from plotVariables
   miutil::miString makeOKString(PlotVariables & okVar);
   // get the time string on the form yyyymmddhhmn from time

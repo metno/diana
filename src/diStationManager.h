@@ -40,7 +40,7 @@ class StationManager
 public:
   StationManager();
 
-  bool init(const vector<miutil::miString>& inp);
+  bool init(const vector<std::string>& inp);
   stationDialogInfo initDialog();
   bool parseSetup();
 

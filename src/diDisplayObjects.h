@@ -66,7 +66,7 @@ public:
   /// prepares object plots by setting colour and alpha value, apply symbolfilter etc.
   bool prepareObjects();
   /// returns a string with objectname and time
-  void getObjAnnotation(miutil::miString &str, Colour &col);
+  void getObjAnnotation(std::string &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
   bool getAnnotations(std::vector<std::string>&);
   /// returns a string with object name and possibly time

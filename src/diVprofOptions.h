@@ -48,8 +48,8 @@ public:
   void setDefaults();
   void checkValues();
   // read/write setup and log
-  vector<miutil::miString> writeOptions();
-  void readOptions(const vector<miutil::miString>& vstr);
+  std::vector<string> writeOptions();
+  void readOptions(const std::vector<std::string>& vstr);
 
 //...........protected:
 private:

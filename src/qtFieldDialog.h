@@ -131,11 +131,11 @@ public:
   FieldDialog( QWidget* parent, Controller* lctrl);
 
   /// follows levelUp/levelDown in main window toolbar
-  vector<miutil::miString> changeLevel(int increment, int type = 0);
+  std::vector<std::string> changeLevel(int increment, int type = 0);
 
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
-  vector<miutil::miString> getOKString(bool resetLevelMove=true);
+  std::vector<std::string> getOKString(bool resetLevelMove=true);
   vector<std::string> getOKString_std(bool resetLevelMove=true);
   /// return a short text for quickmenue
   std::string getShortname();
@@ -150,7 +150,7 @@ public:
   /// make contents for the diana log file
   vector<std::string> writeLog();
   /// digest contents from the diana log file (a previous session)
-  void readLog(const vector<miutil::miString>& vstr,
+  void readLog(const std::vector<std::string>& vstr,
 	       const std::string& thisVersion, const std::string& logVersion);
 
 protected:

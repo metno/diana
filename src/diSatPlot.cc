@@ -70,7 +70,8 @@ SatPlot::~SatPlot(){
 }
 
 
-void SatPlot::getSatAnnotation(miString &str, Colour &col){
+void SatPlot::getSatAnnotation(string &str, Colour &col)
+{
   if (satdata->approved){
     str = satdata->annotation;
     Colour c("black");
@@ -81,16 +82,16 @@ void SatPlot::getSatAnnotation(miString &str, Colour &col){
 
 
 
-void SatPlot::getSatName(miString &str){
+void SatPlot::getSatName(string &str)
+{
   if (satdata->approved){
-    miString sat = satdata->satellite_name + satdata->filetype;
-    sat.trim();
+    string sat = miutil::trimmed(satdata->satellite_name + satdata->filetype);
     str = sat;
     if (satdata->mosaic)
       str+=" MOSAIKK ";
     else
       str+= " ";
-    str+=satdata->time.isoTime() ;
+    str+=satdata->time.isoTime();
   } else
     str.erase();
 }
@@ -117,7 +118,7 @@ void SatPlot::clearData(){
   imagedata = NULL;
 }
 
-void SatPlot::getCalibChannels(vector<miString>& channels )
+void SatPlot::getCalibChannels(vector<string>& channels)
 {
   channels.insert(channels.end(),
       satdata->cal_channels.begin(),

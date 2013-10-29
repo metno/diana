@@ -765,11 +765,11 @@ void endHardcopy(const plot_type pt)
 
 // VPROF-options with parser
 miString vprof_station;
-vector<miString> vprof_models, vprof_options;
+vector<string> vprof_models, vprof_options;
 bool vprof_plotobs = true;
 bool vprof_optionschanged;
 
-void parse_vprof_options(const vector<miString>& opts)
+void parse_vprof_options(const vector<string>& opts)
 {
   int n = opts.size();
   for (int i = 0; i < n; i++) {
@@ -794,7 +794,7 @@ void parse_vprof_options(const vector<miString>& opts)
             value.remove('\"');
           vprof_station = value;
         } else if (key == "MODELS" || key == "MODEL") {
-          vprof_models = value.split(",");
+          vprof_models = miutil::split(value, 0, ",");
         }
       }
     } else {
@@ -810,7 +810,7 @@ vector<std::string> vcross_data, vcross_options;
 miString crossection;
 bool vcross_optionschanged;
 
-void parse_vcross_options(const vector<miString>& opts)
+void parse_vcross_options(const vector<string>& opts)
 {
   bool data_exist = false;
   int n = opts.size();
@@ -841,11 +841,11 @@ void parse_vcross_options(const vector<miString>& opts)
 
 // SPECTRUM-options with parser
 miString spectrum_station;
-vector<miString> spectrum_models, spectrum_options;
+vector<string> spectrum_models, spectrum_options;
 bool spectrum_plotobs = false; // not used, yet...
 bool spectrum_optionschanged;
 
-static void parse_spectrum_options(const vector<miString>& opts)
+static void parse_spectrum_options(const vector<string>& opts)
 {
   int n = opts.size();
   for (int i = 0; i < n; i++) {
@@ -870,7 +870,7 @@ static void parse_spectrum_options(const vector<miString>& opts)
             value.remove('\"');
           spectrum_station = value;
         } else if (key == "MODELS" || key == "MODEL") {
-          spectrum_models = value.split(",");
+          spectrum_models = miutil::split(value, 0, ",");
         }
       }
     } else {
@@ -1599,7 +1599,7 @@ static int parseAndProcess(istream &is)
   for (int k = 0; k < linenum; k++) {// input-line loop
     // start parsing...
     if (lines[k].downcase() == com_vprof_opt) {
-      vector<miString> pcom;
+      vector<string> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase()
           != com_vprof_opt_end; i++, k++)
         pcom.push_back(lines[i]);
@@ -1608,7 +1608,7 @@ static int parseAndProcess(istream &is)
       continue;
 
     } else if (lines[k].downcase() == com_vcross_opt) {
-      vector<miString> pcom;
+      vector<string> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase()
           != com_vcross_opt_end; i++, k++)
         pcom.push_back(lines[i]);
@@ -1617,7 +1617,7 @@ static int parseAndProcess(istream &is)
       continue;
 
     } else if (lines[k].downcase() == com_spectrum_opt) {
-      vector<miString> pcom;
+      vector<string> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase()
           != com_spectrum_opt_end; i++, k++)
         pcom.push_back(lines[i]);
@@ -1688,7 +1688,7 @@ static int parseAndProcess(istream &is)
         }
       }
 
-      vector<miString> pcom;
+      vector<string> pcom;
       for (int i = k + 1; i < linenum && lines[i].downcase() != com_endplot
           && lines[i].downcase() != com_plotend; i++, k++) {
         if (shape ) {
@@ -1781,7 +1781,7 @@ static int parseAndProcess(istream &is)
           subplot(margin, plotcol, plotrow, deltax, deltay, spacing);
 
         if (plot_trajectory && !trajectory_started) {
-          vector<miString> vstr;
+          vector<string> vstr;
           vstr.push_back("clear");
           vstr.push_back("delete");
           vstr.push_back(trajectory_options);
@@ -1790,7 +1790,7 @@ static int parseAndProcess(istream &is)
           main_controller->startTrajectoryComputation();
           trajectory_started = true;
         } else if (!plot_trajectory && trajectory_started) {
-          vector<miString> vstr;
+          vector<string> vstr;
           vstr.push_back("clear");
           vstr.push_back("delete");
           main_controller->trajPos(vstr);
@@ -2354,7 +2354,7 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- finding times");
 
         //Find ENDTIME
-        vector<miString> pcom;
+        vector<string> pcom;
         FIND_END_COMMAND(com_endtime)
 
         // necessary to set time before plotCommands()..?
@@ -2367,8 +2367,7 @@ static int parseAndProcess(istream &is)
 
         set<miTime> okTimes;
         set<miTime> constTimes;
-        main_controller->getCapabilitiesTime(okTimes, constTimes, pcom,
-            time_options == "union", true);
+        main_controller->getCapabilitiesTime(okTimes, constTimes, pcom, time_options == "union", true);
 
         // open filestream
         ofstream file(priop.fname.c_str());
@@ -2443,7 +2442,7 @@ static int parseAndProcess(istream &is)
         METLIBS_LOG_INFO("- finding times");
 
       //Find ENDTIME
-      vector<miString> pcom;
+      vector<string> pcom;
       FIND_END_COMMAND(com_endtime)
 
       if (!spectrummanager)
@@ -2646,7 +2645,7 @@ static int parseAndProcess(istream &is)
         METLIBS_LOG_INFO("- finding information about data sources");
 
       //Find ENDDESCRIBE
-      vector<miString> pcom;
+      vector<string> pcom;
       FIND_END_COMMAND(com_describe_end)
 
       // Make Controller
@@ -2753,7 +2752,7 @@ static int parseAndProcess(istream &is)
         METLIBS_LOG_INFO("- finding information about data sources");
 
       //Find ENDDESCRIBE
-      vector<miString> pcom;
+      vector<string> pcom;
       FIND_END_COMMAND(com_describe_end)
 
       // Make Controller

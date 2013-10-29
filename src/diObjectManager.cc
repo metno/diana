@@ -160,7 +160,7 @@ vector<miString> ObjectManager::getObjectNames(bool archive) {
   return objNames;
 }
 
-vector<miTime> ObjectManager::getObjectTimes(const vector<miString>& pinfos)
+vector<miTime> ObjectManager::getObjectTimes(const vector<string>& pinfos)
 //  * PURPOSE:   return times for list of PlotInfo's
 {
 #ifdef DEBUGPRINT
@@ -186,13 +186,12 @@ vector<miTime> ObjectManager::getObjectTimes(const vector<miString>& pinfos)
   return timevec;
 }
 
-vector<miTime> ObjectManager::getObjectTimes(const miString& pinfo)
+vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 //  * PURPOSE:   return times for list of PlotInfo's
 {
-
   vector<miTime> timevec;
 
-  vector<miString> tokens= pinfo.split('"','"');
+  vector<string> tokens= miutil::split_protected(pinfo, '"', '"');
   int m= tokens.size();
   for (int j=0; j<m; j++){
     miString key,value;

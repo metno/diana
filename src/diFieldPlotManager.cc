@@ -381,7 +381,7 @@ vector<std::string> FieldPlotManager::getFields()
 
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
+vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     bool& constTimes, bool updateSources)
 {
   vector<miTime> fieldtime;
@@ -421,7 +421,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   //TODO: find const time
 
   METLIBS_LOG_INFO(" getCapabilitiesTime: "<<pinfo);
-  vector<miString> pinfos;
+  vector<string> pinfos;
   pinfos.push_back(pinfo);
 
   //finding timediff

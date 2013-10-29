@@ -109,7 +109,7 @@ bool TrajectoryPlot::prepare(void){
   return true;
 }
 
-int TrajectoryPlot::trajPos(vector<miString>& vstr)
+int TrajectoryPlot::trajPos(vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   for(int i=0;i<vstr.size();i++)
@@ -927,8 +927,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 }
 
 
-void TrajectoryPlot::getTrajectoryAnnotation(miString& s,
-    Colour& c)
+void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 {
   //#### if (vtrajdata.size()>0) {
   if (plot_on && vtrajdata.size()>0) {

@@ -322,8 +322,8 @@ public:
   vector <ObjFileInfo> getObjectFiles(const miutil::miString objectname,
 				      bool refresh);
   /// returns list of times
-  vector<miutil::miTime> getObjectTimes(const vector<miutil::miString>&pinfos);
-  vector<miutil::miTime> getObjectTimes(const miutil::miString& pinfo);
+  vector<miutil::miTime> getObjectTimes(const std::vector<std::string>&pinfos);
+  vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
 			   miutil::miTime& constTime,

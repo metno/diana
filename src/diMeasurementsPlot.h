@@ -57,7 +57,6 @@ private:
   vector<float> lon;
   Area oldArea;
 
-
 public:
   // Constructors
   MeasurementsPlot();
@@ -69,9 +68,7 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  void measurementsPos(vector<miutil::miString>&);
-
-
+  void measurementsPos(std::vector<std::string>&);
 };
 
 #endif

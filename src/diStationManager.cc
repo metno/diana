@@ -50,7 +50,7 @@ StationManager::StationManager()
 /**
  * Updates the vector of \a plots with the data provided in \a inp.
 */
-bool StationManager::init(const vector<miutil::miString>& inp)
+bool StationManager::init(const vector<string>& inp)
 {
   map <miutil::miString,StationPlot*>::iterator it;
 

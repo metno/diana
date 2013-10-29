@@ -205,11 +205,11 @@ void StationDialog::reloadSets()
  * Returns a vector of strings describing each set of stations and the
  * stations themselves.
  */
-vector<miutil::miString> StationDialog::getOKString()
+vector<string> StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
   vector<stationSetInfo>::iterator it;
-  vector<miutil::miString> strings;
+  vector<string> strings;
 
   for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
 
@@ -244,7 +244,7 @@ vector<miutil::miString> StationDialog::getOKString()
   return strings;
 }
 
-void StationDialog::putOKString(const vector<miutil::miString>& vstr)
+void StationDialog::putOKString(const vector<string>& vstr)
 {
   return;
 }

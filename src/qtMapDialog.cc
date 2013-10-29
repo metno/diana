@@ -1117,12 +1117,12 @@ void MapDialog::closeEvent(QCloseEvent* e)
  GetOKString
  */
 
-vector<miutil::miString> MapDialog::getOKString()
+vector<string> MapDialog::getOKString()
 {
 #ifdef dMapDlg
   METLIBS_LOG_DEBUG("MapDialog::getOKString called");
 #endif
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
 //Area string
   ostringstream areastr;
@@ -1252,9 +1252,8 @@ vector<miutil::miString> MapDialog::getOKString()
  PutOKString
  */
 
-void MapDialog::putOKString(const vector<miutil::miString>& vstr)
+void MapDialog::putOKString(const vector<string>& vstr)
 {
-
   int n = vstr.size();
   vector<int> themaps;
   vector<miutil::miString> tokens, stokens;
@@ -1449,9 +1448,9 @@ miutil::miString MapDialog::getShortname()
 // LOG-FILE read/write methods
 // ------------------------------------------------
 
-vector<miutil::miString> MapDialog::writeLog()
+vector<string> MapDialog::writeLog()
 {
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   // first: write all map-specifications
   int n = m_MapDI.maps.size();
@@ -1529,8 +1528,8 @@ vector<miutil::miString> MapDialog::writeLog()
   return vstr;
 }
 
-void MapDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion)
+void MapDialog::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");

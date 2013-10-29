@@ -70,12 +70,13 @@ ShowSatValues::ShowSatValues(QWidget* parent)
 void ShowSatValues::channelChanged(int index)
 {
   if( index < int(tooltip.size()) && index > -1 ){
-    miutil::miString tip = tooltip[index].replace('|',' ');
-    channelbox->setToolTip( QString(tip.c_str() ));
+    string tip = tooltip[index];
+    miutil::replace(tip, '|',' ');
+    channelbox->setToolTip(QString::fromStdString(tip));
   }
 }
 
-void ShowSatValues::SetChannels(const vector<miutil::miString>& channel)
+void ShowSatValues::SetChannels(const vector<string>& channel)
 {
   int nch = channel.size();
 
@@ -93,11 +94,11 @@ void ShowSatValues::SetChannels(const vector<miutil::miString>& channel)
   channelbox->clear();
   for(int i=0;i<nch;i++){
     //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
-    vector<miutil::miString> token = channel[i].split("|");
+    vector<string> token = miutil::split(channel[i], 0, "|");
     if(token.size()==2){
-      channelbox->addItem(token[1].c_str());
+      channelbox->addItem(QString::fromStdString(token[1]));
       //if no currentItem, use channel"4"
-      if(index == -1 && token[1].contains("4")) index = i;
+      if(index == -1 && miutil::contains(token[1], "4")) index = i;
     }
   }
   tooltip = channel;

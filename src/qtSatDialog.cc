@@ -319,7 +319,7 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
   miutil::miString name = namebox->currentText().toStdString();
   miutil::miString area = item->text().toStdString();
   if (satoptions[name][area].exists()) {
-    vector<miutil::miString> tokens = satoptions[name][area].split(" ");
+    vector<string> tokens = miutil::split(satoptions[name][area], 0, " ");
     state okVar = decodeString(tokens);
     putOptions(okVar);
     bool restore = multiPicture->isChecked();
@@ -843,24 +843,20 @@ void SatDialog::DeleteClicked()
 
 }
 /*********************************************/
-vector<miutil::miString> SatDialog::getOKString()
+vector<string> SatDialog::getOKString()
 {
 #ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::getOKString() called");
 #endif
 
-  vector<miutil::miString> vstr;
-
+  vector<string> vstr;
   if (pictures->count()) {
-
     for (unsigned int i = 0; i < m_state.size(); i++) {
       miutil::miString str = makeOKString(m_state[i]);
       satoptions[m_state[i].name][m_state[i].area] = str;
       vstr.push_back(str);
     }
-
   }
-
   return vstr;
 }
 
@@ -908,7 +904,7 @@ miutil::miString SatDialog::makeOKString(state & okVar)
  ***********quickMenu functions***************
  **********************************************/
 
-void SatDialog::putOKString(const vector<miutil::miString>& vstr)
+void SatDialog::putOKString(const vector<string>& vstr)
 {
   /* Called from MainWindow to put vstr values into dialog  */
 #ifdef dSatDlg
@@ -929,7 +925,7 @@ void SatDialog::putOKString(const vector<miutil::miString>& vstr)
   // loop through all PlotInfo's
   for (int ip = 0; ip < npi; ip++) {
     //decode string
-    vector<miutil::miString> tokens = vstr[ip].split('"', '"');
+    vector<string> tokens = miutil::split_protected(vstr[ip], '"', '"');
     state okVar = decodeString(tokens);
 
     if (okVar.name.empty() || okVar.area.empty() || okVar.channel.empty())
@@ -1035,7 +1031,7 @@ void SatDialog::putOptions(const state okVar)
 }
 /*********************************************/
 
-SatDialog::state SatDialog::decodeString(const vector<miutil::miString> & tokens)
+SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
 {
   /* This function is called by putOKstring.
    It decodes tokens, and puts plot variables into struct state */
@@ -1060,11 +1056,11 @@ SatDialog::state SatDialog::decodeString(const vector<miutil::miString> & tokens
   //loop
   miutil::miString token;
   for (int i = 4; i < n; i++) {
-    token = tokens[i].downcase();
+    token = miutil::to_lower(tokens[i]);
     miutil::miString key, value;
-    vector<miutil::miString> stokens = tokens[i].split('=');
+    vector<string> stokens = miutil::split(tokens[i], 0, "=");
     if (stokens.size() == 2) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
     }
     if (key == "time") {
@@ -1413,9 +1409,9 @@ miutil::miTime SatDialog::timeFromString(const miutil::miString &timeString)
   return miutil::miTime(year, mon, day, hour, min, 0);
 }
 
-vector<miutil::miString> SatDialog::writeLog()
+vector<string> SatDialog::writeLog()
 {
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator p = satoptions.begin();
   map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator pend = satoptions.end();
 
@@ -1432,12 +1428,12 @@ vector<miutil::miString> SatDialog::writeLog()
   return vstr;
 }
 
-void SatDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion)
+void SatDialog::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
 {
   int n = vstr.size();
   for (int i = 0; i < n; i++) {
-    vector<miutil::miString> tokens = vstr[i].split(" ");
+    vector<string> tokens = miutil::split(vstr[i], 0, " ");
     if (tokens.size() < 4)
       continue;
     satoptions[tokens[1]][tokens[2]] = vstr[i];

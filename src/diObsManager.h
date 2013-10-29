@@ -187,7 +187,7 @@ public:
 			   int& timediff,
 			   const miutil::miString& pinfo);
 // return observation times for list of obsTypes
-  vector<miutil::miTime> getObsTimes(const vector<miutil::miString>& obsTypes);
+  vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
   bool obs_mslp(){return mslp;}
   void updateObsPositions(const vector<ObsPlot*> oplot);
   ObsPositions& getObsPositions(){  return obsPositions;}

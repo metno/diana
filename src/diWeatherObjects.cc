@@ -524,7 +524,8 @@ miString WeatherObjects::readComments(){
  *  Methods for reading and writing labels *******
  *************************************************/
 
-vector <miString> WeatherObjects::getObjectLabels(){
+vector <string> WeatherObjects::getObjectLabels()
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::getObjectLabels");
 #endif
@@ -532,7 +533,8 @@ vector <miString> WeatherObjects::getObjectLabels(){
   return itsOldLabels;
 }
 
-vector <miString> WeatherObjects::getEditLabels(){
+vector<string> WeatherObjects::getEditLabels()
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::getEditLabels");
 #endif

@@ -189,7 +189,8 @@ bool DisplayObjects::prepareObjects()
 
 /*********************************************/
 
-void DisplayObjects::getObjAnnotation(miString &str, Colour &col){
+void DisplayObjects::getObjAnnotation(string &str, Colour &col)
+{
   if(approved ){
     str = objectname + " " + itsTime.format("%D %H:%M");
     Colour c("black");

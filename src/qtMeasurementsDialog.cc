@@ -252,7 +252,7 @@ void MeasurementsDialog::deleteClicked(){
   speedbox3->setText("0 knots");
   distancebox->setText("0 km");
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("delete");
   contr->measurementsPos(vstr);
   sendAllPositions();
@@ -329,7 +329,7 @@ void MeasurementsDialog::calculateVelocity() {
 
 void MeasurementsDialog::quitClicked(){
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("quit");
   contr->measurementsPos(vstr);
   emit markMeasurementsPos(false);
@@ -379,10 +379,8 @@ void MeasurementsDialog::mapPos(float lat, float lon) {
   str <<" numpos="<<1;
   str <<" time="<<pos.time;
 
-  miutil::miString posString = str.str();
-  vector<miutil::miString> vstr;
-  vstr.push_back(posString);
-
+  vector<string> vstr;
+  vstr.push_back(str.str());
   contr->measurementsPos(vstr);
 
   emit updateMeasurements();
@@ -454,7 +452,7 @@ void MeasurementsDialog::sendAllPositions(){
   cout<<"MeasurementsDialog::sendAllPositions"<<endl;
 #endif
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   int npos=positionVector.size();
   for( int i=0; i<npos; i++){

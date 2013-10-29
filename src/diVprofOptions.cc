@@ -258,13 +258,13 @@ void VprofOptions::checkValues()
 }
 
 
-vector<miString> VprofOptions::writeOptions()
+vector<string> VprofOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofOptions::writeOptions");
 #endif
 
-  vector<miString> vstr;
+  vector<string> vstr;
   miString str;
 
   str= "tttt=" + miString(ptttt ? "on" : "off");
@@ -428,26 +428,26 @@ vector<miString> VprofOptions::writeOptions()
 }
 
 
-void VprofOptions::readOptions(const vector<miString>& vstr)
+void VprofOptions::readOptions(const vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofOptions::readOptions");
 #endif
 
-  vector<miString> vs,tokens;
+  vector<string> vs,tokens;
   miString key,value;
 
   int n= vstr.size();
 
   for (int i=0; i<n; i++) {
 
-    vs= vstr[i].split(' ');
+    vs= miutil::split(vstr[i], 0, " ");
 
     int m= vs.size();
 
     for (int j=0; j<m; j++) {
 
-      tokens= vs[j].split('=');
+      tokens= miutil::split(vs[j], 0, "=");
 
       if (tokens.size()==2) {
 
