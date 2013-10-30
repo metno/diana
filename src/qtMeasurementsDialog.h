@@ -108,7 +108,7 @@ private:
   vector<posStruct> positionVector;
 
   //functions
-  miutil::miString makeString();
+  std::string makeString();
   void update_posList(float lat, float lon, miutil::miTime t, int index);
   void calculateVelocity();
 

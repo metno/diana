@@ -60,7 +60,7 @@ void DisplayObjects::init(){
 #endif
   defined=false;
   approved=false;
-  objectname=miString();
+  objectname=std::string();
   alpha = 255;
   newfrontlinewidth=0;  // might be changed by OKString
   fixedsymbolsize=0; // might be changed by OKString
@@ -72,7 +72,7 @@ void DisplayObjects::init(){
 
 /*********************************************/
 
-bool DisplayObjects::define(const miString& pi)
+bool DisplayObjects::define(const std::string& pi)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DisplayObjects::define");
@@ -80,22 +80,22 @@ bool DisplayObjects::define(const miString& pi)
 
   init();
   pin=pi;
-  vector<miString> tokens= pi.split('"','"');
+  vector<std::string> tokens= miutil::split_protected(pi, '"','"');
   int i,n= tokens.size();
   if (n<2) return false;
 
-  miString token;
-  vector<miString> stokens;
+  std::string token;
+  vector<std::string> stokens;
 
   for (i=0; i<n; i++){
-    token= tokens[i].downcase();
-    if (token.contains("types=")){
+    token= miutil::to_lower(tokens[i]);
+    if (miutil::contains(token, "types=")){
       setSelectedObjectTypes(token);
     } else {
-      miString key, value;
-      vector<miString> stokens= tokens[i].split('=');
+      std::string key, value;
+      vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
       if ( stokens.size()==2) {
-	key = stokens[0].downcase();
+	key = miutil::to_lower(stokens[0]);
 	value = stokens[1];
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("key,value" << key << " " << value);
@@ -103,7 +103,7 @@ bool DisplayObjects::define(const miString& pi)
 	if ( key=="file") {
 	  int l= value.length();
 	  int f= value.rfind('.') + 1;
-	  miString tstr= value.substr(f,l-f);
+	  std::string tstr= value.substr(f,l-f);
 	  itsTime= timeFromString(tstr);
 	  autoFile= false;
 	} else if ( key=="name") {
@@ -124,7 +124,7 @@ bool DisplayObjects::define(const miString& pi)
  	} else if ( key=="fixedsymbolsize") {
  	  fixedsymbolsize= atoi(value.c_str());
  	} else if ( key=="symbolfilter") {
-	  vector <miString> vals=value.split(",");
+	  vector <std::string> vals=miutil::split(value, ",");
 	  for (unsigned int i=0;i<vals.size();i++)
 	    symbolfilter.push_back(vals[i]);
 	}
@@ -175,9 +175,9 @@ bool DisplayObjects::prepareObjects()
 
   //read comments file (assume commentfile names can be obtained
   //by replacing "draw" with "comm")
-  miString commentfilename = filename;
-  if (commentfilename.contains("draw")){
-    commentfilename.replace("draw","comm");
+  std::string commentfilename = filename;
+  if (miutil::contains(commentfilename, "draw")){
+    miutil::replace(commentfilename, "draw","comm");
     readEditCommentFile(commentfilename);
   }
 
@@ -213,12 +213,12 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
   for(int i=0; i<nanno; i++) {
     if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
       continue;
-    miString endString;
+    std::string endString;
     if(miutil::contains(anno[i], ",")) {
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
     }
-    miString str;
+    std::string str;
     for (int i=0; i<n; i++){
       if (objects[i]->getAnnoTable(str)){
 	str+=endString;

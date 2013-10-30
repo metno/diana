@@ -52,10 +52,10 @@
 using namespace std; using namespace miutil;
 
 // static members
-map<miString,FilledMap> MapPlot::filledmaps;
-set<miString> MapPlot::usedFilledmaps;
-map<miString,ShapeObject> MapPlot::shapemaps;
-map<miString,Area> MapPlot::shapeareas;
+map<std::string,FilledMap> MapPlot::filledmaps;
+set<std::string> MapPlot::usedFilledmaps;
+map<std::string,ShapeObject> MapPlot::shapemaps;
+map<std::string,Area> MapPlot::shapeareas;
 
 // Default constructor
 MapPlot::MapPlot() :
@@ -94,7 +94,7 @@ MapPlot::~MapPlot()
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
+bool MapPlot::prepare(const std::string& pinfo, Area rarea, bool ifequal)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("MapPlot::prepare: "<<pinfo);
@@ -106,7 +106,7 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   reqarea = rarea; //get requested area from previous MapPlot
 
   // split on blank, preserve ""
-  vector<miString> tokens= pinfo.split('"','"'," ",true);
+  vector<std::string> tokens= miutil::split_protected(pinfo, '"','"'," ",true);
   int n= tokens.size();
   if (n == 0) {
     return false;
@@ -119,25 +119,25 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   //pinfo MAP contains "area=..."
 
 
-  miString bgcolourname;
+  std::string bgcolourname;
   MapInfo tmpinfo;
   bool areadef=false;
   for (int i=0; i<n; i++) {
-    vector<miString> stokens= tokens[i].split('=');
+    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
     if (stokens.size()==2) {
-      if (stokens[0].upcase()=="MAP") {
+      if (miutil::to_upper(stokens[0])=="MAP") {
         mapm.getMapInfoByName(stokens[1], tmpinfo);
-      } else if (stokens[0].upcase()=="BACKCOLOUR") {
+      } else if (miutil::to_upper(stokens[0])=="BACKCOLOUR") {
         bgcolourname= stokens[1];
-      } else if (stokens[0].upcase()=="AREA") { //obsolete
+      } else if (miutil::to_upper(stokens[0])=="AREA") { //obsolete
         mapm.getMapAreaByName(stokens[1], newarea);
         areadef= true;
-      } else if (stokens[0].upcase() == "PROJECTION") { //obsolete
+      } else if (miutil::to_upper(stokens[0]) == "PROJECTION") { //obsolete
         newarea.setArea(stokens[1]);
         xyLimit.clear();
         areadef = true;
-      } else if (stokens[0].upcase()=="XYLIMIT") { //todo: add warning and show new syntax
-        vector<miString> vstr= stokens[1].split(',');
+      } else if (miutil::to_upper(stokens[0])=="XYLIMIT") { //todo: add warning and show new syntax
+        vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
         if (vstr.size()>=4) {
           xyLimit.clear();
           xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
@@ -151,8 +151,8 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
           if (xyLimit[0]>=xyLimit[1] || xyLimit[2]>=xyLimit[3])
             xyLimit.clear();
         }
-      } else if (stokens[0].upcase()=="XYPART") {//obsolete
-        vector<miString> vstr= stokens[1].split(',');
+      } else if (miutil::to_upper(stokens[0])=="XYPART") {//obsolete
+        vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
         if (vstr.size()>=4) {
           xyPart.clear();
           for (int j=0; j<4; j++)
@@ -172,7 +172,7 @@ bool MapPlot::prepare(const miString& pinfo, Area rarea, bool ifequal)
   mapinfo= tmpinfo;
 
   //Background colour
-  if (bgcolourname.exists()) {
+  if ((not bgcolourname.empty())) {
     bgcolour= bgcolourname; // static Plot member
     //just background colour, no map. No reason to make MapPlot object
     if ( n==2 ) {
@@ -220,9 +220,9 @@ bool MapPlot::checkFiles(bool first)
       return false;
   } else {
     // erase the filledmaps not used
-    set<miString>::iterator uend= usedFilledmaps.end();
-    map<miString,FilledMap>::iterator p= filledmaps.begin();
-    vector<miString> erasemaps;
+    set<std::string>::iterator uend= usedFilledmaps.end();
+    map<std::string,FilledMap>::iterator p= filledmaps.begin();
+    vector<std::string> erasemaps;
     while (p!=filledmaps.end()) {
       if (usedFilledmaps.find(p->first)==uend)
         erasemaps.push_back(p->first);
@@ -290,7 +290,7 @@ bool MapPlot::plot(const int zorder)
   }
 
   if (makenew) {
-    miString mapfile;
+    std::string mapfile;
     // diagonal in pixels
     float physdiag= sqrt(pwidth*pwidth+pheight*pheight);
     // map resolution i km/pixel
@@ -480,7 +480,7 @@ bool MapPlot::plot(const int zorder)
 }
 
 
-bool MapPlot::plotMapLand4(const miString& filename, float xylim[],
+bool MapPlot::plotMapLand4(const std::string& filename, float xylim[],
     const Linetype& linetype, float linewidth, const Colour& colour)
 {
   //
@@ -1138,7 +1138,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
         glon = longitudeStep * float(ilon);
         ostringstream ost;
         ost << fabsf(glon) << " " << (glon < 0 ? "W" : "E");
-        miString plotstr = ost.str();
+        std::string plotstr = ost.str();
         for (n = 0; n < nlat; n++) {
           x[n] = glon;
           y[n] = glat + dlat * float(n);
@@ -1211,7 +1211,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
         glat = latitudeStep * float(ilat);
         ostringstream ost;
         ost << fabsf(glat) << " " << (glat < 0 ? "S" : "N");
-        miString plotstr = ost.str();
+        std::string plotstr = ost.str();
         for (n = 0; n < nlon; n++) {
           x[n] = glon + dlon * float(n);
           y[n] = glat;
@@ -1259,7 +1259,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   return true;
 }
 
-bool MapPlot::plotLinesSimpleText(const miString& filename)
+bool MapPlot::plotLinesSimpleText(const std::string& filename)
 {
   // plot lines from very simple text file,
   //  each line in file: latitude(desimal,float) longitude(desimal,float)
@@ -1287,8 +1287,8 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
   float x[nmax];
   float y[nmax];
 
-  miString str;
-  vector<miString> coords;
+  std::string str;
+  vector<std::string> coords;
   bool endfile= false;
   bool endline;
   int nlines= 0;
@@ -1300,7 +1300,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
     endline= false;
 
     while (!endline && n<nmax && getline(file, str)) {
-      coords= str.split(' ', true);
+      coords= miutil::split(str, " ", true);
       if (coords.size()>=2) {
         y[n]= atof(coords[0].c_str()); // latitude
         x[n]= atof(coords[1].c_str()); // longitude
@@ -1349,7 +1349,7 @@ bool MapPlot::plotLinesSimpleText(const miString& filename)
 }
 
 void MapPlot::clipPrimitiveLines(int npos, float *x, float *y, float xylim[4],
-    float jumplimit, bool plotanno, int anno_position, miString anno)
+    float jumplimit, bool plotanno, int anno_position, std::string anno)
 {
   int i, n = 0;
   while (n < npos) {
@@ -1363,7 +1363,7 @@ void MapPlot::clipPrimitiveLines(int npos, float *x, float *y, float xylim[4],
 }
 
 void MapPlot::xyclip(int npos, float *x, float *y, float xylim[4],
-    bool plotanno, int anno_position, miString anno)
+    bool plotanno, int anno_position, std::string anno)
 {
   // ploting part(s) of the continuous line that is within the given
   // area, also the segments between 'neighboring point' both of which are

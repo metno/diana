@@ -49,7 +49,7 @@ class TrajectoryPlot : public Plot {
 
 private:
 
-  miutil::miString fieldStr;
+  std::string fieldStr;
   Colour colour;
   int lineWidth;
   Linetype lineType;
@@ -117,8 +117,8 @@ public:
   void getTrajectoryAnnotation(std::string& s, Colour& c);
 
   bool inComputation() { return computing; }
-  miutil::miString getFieldName() { return fieldStr; }
-  bool printTrajectoryPositions(const miutil::miString& filename);
+  std::string getFieldName() { return fieldStr; }
+  bool printTrajectoryPositions(const std::string& filename);
 
 
 };

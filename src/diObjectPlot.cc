@@ -45,7 +45,7 @@ using namespace::miutil;
 
 // static members
 int ObjectPlot::siglinewidth=2;
-map <miString,miString> ObjectPlot::editTranslations;
+map <std::string,std::string> ObjectPlot::editTranslations;
 
 // Default constructor
 ObjectPlot::ObjectPlot()
@@ -848,13 +848,13 @@ void ObjectPlot::setWindowInfo()
 }
 
 
-void  ObjectPlot::setBasisColor(miString colour) {
+void  ObjectPlot::setBasisColor(std::string colour) {
   // sets basis color of object
   basisColor = colour;
   objectColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectColor(miString colour) {
+void  ObjectPlot::setObjectColor(std::string colour) {
   objectColour = Colour(colour);
 }
 
@@ -862,9 +862,9 @@ void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {
   objectColour = Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
 }
 
-void  ObjectPlot::setObjectRGBColor(miString rgbstring) {
+void  ObjectPlot::setObjectRGBColor(std::string rgbstring) {
   //METLIBS_LOG_DEBUG("rgba value is " << rgbstring);
-  vector<miString> colours2add=rgbstring.split(",");
+  vector<std::string> colours2add=miutil::split(rgbstring, ",");
   int nColours = colours2add.size()/4;
   for (int cc=0; cc < nColours; cc++){
     //METLIBS_LOG_DEBUG("cc = " << cc);
@@ -890,23 +890,23 @@ Colour::ColourInfo  ObjectPlot::getObjectColor() {
 }
 
 
-bool ObjectPlot::readObjectString(miString objectString)
+bool ObjectPlot::readObjectString(std::string objectString)
 {
-  miString key,value;
+  std::string key,value;
   bool objectRead = false;
   bool typeRead = false;
   bool LonLatRead = false;
   METLIBS_LOG_DEBUG("ObjectPlot::readObjectString\n");
   METLIBS_LOG_DEBUG("string is: " << objectString);
 
-  vector <miString> tokens = objectString.split(';');
+  vector <std::string> tokens = miutil::split(objectString, 0, ";");
   for (unsigned int i = 0; i<tokens.size();i++){
-    vector <miString> stokens = tokens[i].split('=');
+    vector <std::string> stokens = miutil::split(tokens[i], 0, "=");
     if( stokens.size() != 2 ) {
       METLIBS_LOG_WARN(" readObjectString: key without value: "<<tokens[i]);
       return false;
     }
-    key = stokens[0].downcase();
+    key = miutil::to_lower(stokens[0]);
     value = stokens[1];
     if (key == "object"){
       METLIBS_LOG_DEBUG("Object value is " << value);
@@ -934,7 +934,7 @@ bool ObjectPlot::readObjectString(miString objectString)
         key == "longitudelatitude") {
       METLIBS_LOG_DEBUG("Lonlat value is " << value);
       LonLatRead = true;
-      vector<miString> points2add=value.split(",");
+      vector<std::string> points2add=miutil::split(value, ",");
       int nPoints = points2add.size()/2;
       for (int pp=0; pp< nPoints; pp++){
         METLIBS_LOG_DEBUG(points2add[pp*2]);
@@ -952,7 +952,7 @@ bool ObjectPlot::readObjectString(miString objectString)
     }
     else if (key == "linewidth"){
       METLIBS_LOG_DEBUG("lineWidth value is " << value);
-      setLineWidth(value.toFloat());
+      setLineWidth(miutil::to_double(value));
     }
     else if (key == "rotation"){
       METLIBS_LOG_DEBUG("rotation value is " << value);
@@ -993,9 +993,9 @@ bool ObjectPlot::readObjectString(miString objectString)
 
 
 
-miString ObjectPlot::writeObjectString(){
+std::string ObjectPlot::writeObjectString(){
   //write type of object
-  miString ret=writeTypeString();
+  std::string ret=writeTypeString();
   //ret+="LatitudeLongitude=\n";    // old and wrong!
   ret+="LongitudeLatitude=\n";
   ostringstream cs;

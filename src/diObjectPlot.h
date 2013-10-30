@@ -96,13 +96,13 @@ private:
   float window_dw;  // scale of main window
   float window_dh;
   float w, h;
-  miutil::miString name;
-  miutil::miString basisColor;   // Object basis color if any;
+  std::string name;
+  std::string basisColor;   // Object basis color if any;
 
   void initVariables();
 
   //translate norwegian->english in old files
-  static map <miutil::miString,miutil::miString> editTranslations;
+  static map <std::string,std::string> editTranslations;
 
   // Copy members
   void memberCopy(const ObjectPlot &rhs);
@@ -111,7 +111,7 @@ private:
   void drawPoints(vector <float> xdraw, vector <float> ydraw);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
   void  setRotation(float r){rotation=r;}
-  miutil::miString region; //from which region (i.e. VA,VV,VNN)
+  std::string region; //from which region (i.e. VA,VV,VNN)
 
 protected:
   bool rubber;
@@ -157,7 +157,7 @@ protected:
   float getDwidth(){return  window_dw;}           // returns width of main window
   float getDheight(){return  window_dh;}          // returns height of main window
   virtual void setType(int ty){type = ty;}
-  virtual bool setType(miutil::miString tystring){return false;}
+  virtual bool setType(std::string tystring){return false;}
   virtual void setIndex(int index){drawIndex=index;}
 
 public:
@@ -176,16 +176,16 @@ public:
   bool objectIs(int Obtype){return (typeOfObject ==Obtype);}
   virtual bool plot(){return false;}
   virtual bool plot(const int){return false; }
-  miutil::miString getBasisColor() {return basisColor;}   ///< gets basis color of object
-  void   setBasisColor(miutil::miString);                 ///< sets basis color of object
-  void   setObjectColor(miutil::miString);                /// < sets actual color of object
+  std::string getBasisColor() {return basisColor;}   ///< gets basis color of object
+  void   setBasisColor(std::string);                 ///< sets basis color of object
+  void   setObjectColor(std::string);                /// < sets actual color of object
   void   setObjectColor(Colour::ColourInfo);      ///< sets actual color of object
-  void   setObjectRGBColor(miutil::miString);             /// < sets actual color of object from rgb
+  void   setObjectRGBColor(std::string);             /// < sets actual color of object from rgb
   /// set alpha value of object colour
   void   setColorAlpha(int alpha){ objectColour.set(Colour::alpha,alpha);}
   Colour::ColourInfo getObjectColor();            ///< gets actual colour of object
 
-  void setLineType(miutil::miString linetype){itsLinetype=Linetype(linetype);}
+  void setLineType(std::string linetype){itsLinetype=Linetype(linetype);}
   void updateBoundBox();                          ///< finds the new bound box
   Rectangle getBoundBox(){return boundBox;}       ///< returns bound box
   virtual void addPoint(float,float);             ///< adds new point
@@ -221,8 +221,8 @@ public:
   /// returns true if end point in rectangle around x,y point values returned in xin,yin
   bool isEndPoint(float d,float y,float& xin,float& yin);
   int endPoint(){return nodePoints.size()-1;}     ///< returns index to end point
-  bool readObjectString(miutil::miString objectString);   ///< reads string with object type, coordinates, colour
-  miutil::miString writeObjectString();                   ///< writes string with object type, coordinates, colour
+  bool readObjectString(std::string objectString);   ///< reads string with object type, coordinates, colour
+  std::string writeObjectString();                   ///< writes string with object type, coordinates, colour
   void drawNodePoints();                          ///< draws all the node points
   void drawJoinPoints();                          ///< draws all the join points
 
@@ -251,13 +251,13 @@ public:
   virtual float getTransitionWidth(){return 0.0;}
   virtual std::string getString(){return std::string();}
   virtual void setString(const std::string& s){}
-  virtual void applyFilters(const std::vector<miutil::miString>&){};
+  virtual void applyFilters(const std::vector<std::string>&){};
 
   virtual void getComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText) { }
   virtual void getMultilineText(std::vector<std::string>& symbolText) {}
   virtual void changeComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText) {}
   virtual void changeMultilineText(const std::vector<std::string>& symbolText) {}
-  virtual void readComplexText(miutil::miString complexString){}
+  virtual void readComplexText(std::string complexString){}
   virtual void rotateObject(float val){} //only works for complex objects
   virtual void hideBox(){} //only works for complex objects
   virtual void setWhiteBox(int on){} //only works for complex objects
@@ -276,8 +276,8 @@ public:
   /// returns true if object is complex symbol and multiline text
   bool isTextMultiline(){return (objectIs(wSymbol) && drawIndex>=3000);}
 
-  void setRegion(miutil::miString tt){region=tt;}                    ///< set from which region object come
-  miutil::miString getRegion(){return region;}                       ///< get from which region object come
+  void setRegion(std::string tt){region=tt;}                    ///< set from which region object come
+  std::string getRegion(){return region;}                       ///< get from which region object come
 
 
   float getFdeltaw(){return fSense*window_dw*w*0.5;}
@@ -285,7 +285,7 @@ public:
   virtual int getXYZsize(){return nodePoints.size();}        ///< returns number of nodepoints
   virtual vector<float> getX();                              ///< returns x-values for all nodepoints
   virtual vector<float> getY();                              ///< returns y-valyes for all nodepoints
-  virtual bool getAnnoTable(miutil::miString & str){return false;}
+  virtual bool getAnnoTable(std::string & str){return false;}
   vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints
   vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints
   vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints
@@ -301,8 +301,8 @@ public:
   virtual bool visible(){return isVisible;}                  ///< returns true if object visible
   virtual bool selected(){return isSelected;}                ///< returns true if object selected
   virtual bool isInsideArea(float x, float y){return true;}
-  miutil::miString getName(){return name;}                           ///< returns object name
-  void setName(miutil::miString n){name=n;}                          ///< sets object name
+  std::string getName(){return name;}                           ///< returns object name
+  void setName(std::string n){name=n;}                          ///< sets object name
 
 };
 

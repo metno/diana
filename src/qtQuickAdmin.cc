@@ -537,7 +537,7 @@ void QuickAdmin::eraseClicked()
     //remove file
     if (system(NULL)) {
       //      if( system( rm menus[activeMenu].fielname)==0){
-      miutil::miString sys = "rm " + menus[activeMenu].filename;
+      std::string sys = "rm " + menus[activeMenu].filename;
       if (system(sys.c_str()) == 0) {
         METLIBS_LOG_INFO("Removing file:" << menus[activeMenu].filename);
       }
@@ -630,11 +630,11 @@ void QuickAdmin::updateCommand()
 {
   autochange = true;
   if (activeMenu >= 0 && activeElement >= 0) {
-    miutil::miString ts;
+    std::string ts;
     int n = menus[activeMenu].menuitems[activeElement].command.size();
     for (int i = 0; i < n; i++) {
       ts += menus[activeMenu].menuitems[activeElement].command[i];
-      ts += miutil::miString("\n");
+      ts += "\n";
     }
     // set command into command-edit
     comedit->setText(ts.c_str());
@@ -651,14 +651,14 @@ void QuickAdmin::comChanged()
     return;
   //   int ni= comedit->numLines();
   //   int ni= comedit->paragraphs();
-  //   vector<miutil::miString> s;
+  //   vector<std::string> s;
   //   for (int i=0; i<ni; i++){
-  // //     miutil::miString str= comedit->textLine(i).toStdString();
-  //     miutil::miString str= comedit->text(i).toStdString();
-  //     str.trim();
-  //     if (str.contains("\n"))
+  // //     std::string str= comedit->textLine(i).toStdString();
+  //     std::string str= comedit->text(i).toStdString();
+  //     miutil::trim(str);
+  //     if (miutil::contains(str, "\n"))
   //       str.erase(str.end()-1);
-  //     if (str.exists()) s.push_back(str);
+  //     if ((not str.empty())) s.push_back(str);
   //   }
 
   //Qt4

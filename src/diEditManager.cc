@@ -1061,7 +1061,7 @@ bool EditManager::checkProductAvailability(const std::string& prodname,
 
 #ifdef METNOPRODDB
   std::string mess;
-  if (gate.okToStart(prodname.c_str(),pid.c_str(),valid,mess))
+  if (gate.okToStart(prodname, pid, valid, mess))
     return true;
 
   message= mess;

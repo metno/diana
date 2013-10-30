@@ -66,7 +66,7 @@ public:
   bool updateNeeded(std::string&);
   // check if current has same level
   bool updatePinNeeded(const std::string& pin);
-  bool prepare(const miutil::miString& fname, const miutil::miString&);
+  bool prepare(const std::string& fname, const std::string&);
   bool setData(const vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();
   bool getRealFieldArea(Area&);
@@ -78,8 +78,8 @@ public:
   miutil::miTime getAnalysisTime() const {return analysisTime;}
   bool plotUndefined();
   bool plotNumbers();
-  miutil::miString getModelName();
-  miutil::miString getTrajectoryFieldName();
+  std::string getModelName();
+  std::string getTrajectoryFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
   void clearFields();
@@ -93,13 +93,13 @@ private:
   bool overlay; //plot in overlay;
 
   // plotting parameters
-  miutil::miString plottype;       // plot-method to use
+  std::string plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
   bool pundefined;      // mark undefined areas/values
 
   // from plotting routines to annotations
   float    vectorAnnotationSize;
-  miutil::miString vectorAnnotationText;
+  std::string vectorAnnotationText;
 
   vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
   vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);

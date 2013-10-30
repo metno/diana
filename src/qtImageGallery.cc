@@ -127,32 +127,32 @@ XPM X11 Pixmap Read/write
   glob_t globBuf;
   glob_cache(dir.c_str(),0,0,&globBuf);
   for( size_t k=0; k<globBuf.gl_pathc; k++) {
-    miutil::miString fname = globBuf.gl_pathv[k];
-    if( !fname.contains("~") ){
+    std::string fname = globBuf.gl_pathv[k];
+    if (not miutil::contains(fname, "~")) {
       QString filename = fname.c_str();
       QFileInfo fileinfo(filename);
       QString name = fileinfo.baseName();
-	  miutil::miString format;
+	  std::string format;
 	  // sometimes Qt doesnt understand the format
-	  if(fname.contains(".xpm"))
+	  if(miutil::contains(fname, ".xpm"))
 		  format = "XPM";
-	  else if(fname.contains(".png"))
+	  else if(miutil::contains(fname, ".png"))
 		  format = "PNG";
-	  else if(fname.contains(".jpg"))
+	  else if(miutil::contains(fname, ".jpg"))
 		  format = "JPG";
-	  else if(fname.contains(".jpeg"))
+	  else if(miutil::contains(fname, ".jpeg"))
 		  format = "JPEG";
-	  else if(fname.contains(".gif"))
+	  else if(miutil::contains(fname, ".gif"))
 		  format = "GIF";
-	  else if(fname.contains(".pbm"))
+	  else if(miutil::contains(fname, ".pbm"))
 		  format = "PBM";
-	  else if(fname.contains(".pgm"))
+	  else if(miutil::contains(fname, ".pgm"))
 		  format = "PGM";
-	  else if(fname.contains(".ppm"))
+	  else if(miutil::contains(fname, ".ppm"))
 		  format = "PPM";
-	  else if(fname.contains(".xbm"))
+	  else if(miutil::contains(fname, ".xbm"))
 		  format = "XBM";
-	  else if(fname.contains(".bmp"))
+	  else if(miutil::contains(fname, ".bmp"))
 		  format = "BMP";
 	  QImage image;
 	  if (!format.empty())

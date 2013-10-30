@@ -43,15 +43,15 @@ class ShapeObject : public ObjectPlot {
 private:
 
   vector <Colour> colours;
-  miutil::miString fname; //field name to colour by
-  map <miutil::miString,Colour> stringcolourmap; //descr, colour
+  std::string fname; //field name to colour by
+  map <std::string,Colour> stringcolourmap; //descr, colour
   map <int,Colour> intcolourmap; //descr, colour
   map <double,Colour> doublecolourmap; //descr, colour
   bool colourmapMade; //true if colour map made  
   bool stringcolourmapMade;
   bool intcolourmapMade;
   bool doublecolourmapMade;
-  vector<miutil::miString> dbfStringDescr;
+  vector<std::string> dbfStringDescr;
   vector<int> dbfIntDescr;
   vector<double> dbfDoubleDescr;
   GridConverter gc;
@@ -63,17 +63,17 @@ private:
 
   vector <SHPObject*> shapes;
   vector <SHPObject*> orig_shapes;
-  vector<miutil::miString> dbfIntName;
-  vector<miutil::miString> dbfDoubleName;
-  vector<miutil::miString> dbfStringName;
+  vector<std::string> dbfIntName;
+  vector<std::string> dbfDoubleName;
+  vector<std::string> dbfStringName;
   vector< vector<int> > dbfIntDesc;
   vector< vector<double> > dbfDoubleDesc;
-  vector< vector<miutil::miString> > dbfStringDesc;
-  map <miutil::miString, vector<miutil::miString> > dbfPlotDesc;
-  int readDBFfile(const miutil::miString& filename, vector<miutil::miString>& dbfIntName,
-      vector< vector<int> >& dbfIntDesc, vector<miutil::miString>& dbfDoubleName,
-      vector< vector<double> >& dbfDoubleDesc, vector<miutil::miString>& dbfStringName,
-      vector< vector<miutil::miString> >& dbfStringDesc);
+  vector< vector<std::string> > dbfStringDesc;
+  map <std::string, vector<std::string> > dbfPlotDesc;
+  int readDBFfile(const std::string& filename, vector<std::string>& dbfIntName,
+      vector< vector<int> >& dbfIntDesc, vector<std::string>& dbfDoubleName,
+      vector< vector<double> >& dbfDoubleDesc, vector<std::string>& dbfStringName,
+      vector< vector<std::string> >& dbfStringDesc);
 
 public:
   ShapeObject();
@@ -82,8 +82,8 @@ public:
   ShapeObject& operator=(const ShapeObject &shpObj);
   ~ShapeObject();
   bool changeProj(Area fromArea);
-  bool read(miutil::miString filename);
-  bool read(miutil::miString filename, bool convertFromGeo);
+  bool read(std::string filename);
+  bool read(std::string filename, bool convertFromGeo);
   bool plot(Area area, // current area
             double gcd, // size of plotarea in m
             bool land, // plot triangles
@@ -91,7 +91,7 @@ public:
             bool keepcont, // keep contourlines for later
             bool special, // special case, when plotting symbol instead of a point
             int symbol, // symbol number to be plottet
-            miutil::miString dbfcol, // text in dfb file to be plottet for that column
+            std::string dbfcol, // text in dfb file to be plottet for that column
             GLushort linetype, // contour line type
             float linewidth, // contour linewidth
             const uchar_t* lcolour, // contour linecolour
@@ -104,7 +104,7 @@ public:
   virtual vector<float> getX();
   virtual vector<float> getY();
   virtual void setXY(vector<float> x, vector <float> y);
-  virtual bool getAnnoTable(miutil::miString & str);
+  virtual bool getAnnoTable(std::string & str);
 
 };
 

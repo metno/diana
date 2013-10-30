@@ -579,11 +579,11 @@ bool SatPlot::getAnnotations(vector<string>& anno)
     if(! miutil::contains(anno[i], "table"))
       continue;
 
-    miString satName = satdata->paletteInfo.name;
-    satName.trim();
+    std::string satName = satdata->paletteInfo.name;
+    miutil::trim(satName);
 
-    miString endString;
-    miString startString;
+    std::string endString;
+    std::string startString;
     if (miutil::contains(anno[i], ",")){
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
@@ -593,24 +593,24 @@ bool SatPlot::getAnnotations(vector<string>& anno)
     }
 
     if (miutil::contains(anno[i], "table=")) {
-      miString name = startString.substr(startString.find_first_of("=")+1);
+      std::string name = startString.substr(startString.find_first_of("=")+1);
       if( name[0]=='"' )
-        name.remove('"');
-      name.trim();
-      if(!satName.contains(name))
+        miutil::remove(name, '"');
+      miutil::trim(name);
+      if (not miutil::contains(satName, name))
         continue;
     }
 
-    miString str  = "table=\"";
+    std::string str  = "table=\"";
     str += satName;
 
     int n = satdata->paletteInfo.noofcl;
     //NB: better solution: get step from gui
     int step = n/50 +1;
     for (int j = 0;j< n;j+=step){
-      miString rgbstr;
+      std::string rgbstr;
       for( int k=0; k<3; k++){
-        rgbstr+=miString(satdata->paletteInfo.cmap[k][j+1]);
+        rgbstr+=miutil::from_number(satdata->paletteInfo.cmap[k][j+1]);
         if(k<2) rgbstr+=":";
       }
       str +=";";

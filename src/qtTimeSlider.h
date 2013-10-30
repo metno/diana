@@ -72,7 +72,7 @@ public:
   vector<miutil::miTime> getTimes(){return times;}
   void startAnimation(){startani= true;}
   ///Remove times from data type
-  void deleteType(const miutil::miString& type);
+  void deleteType(const std::string& type);
   
   void set(const miutil::miTime&);
 
@@ -80,17 +80,15 @@ public:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);
   void clearMinMax();
   ///add new times for datatype
-  void insert(const miutil::miString& datatype, const std::vector<miutil::miTime>&,bool =true);
   void insert(const std::string& datatype, const std::vector<miutil::miTime>&,bool =true);
  /// force new value
   void setTime(const miutil::miTime&);
  /// force new value if datatype match
-  void setTime( const miutil::miString& datatype, const miutil::miTime&);
   void setTime( const std::string& datatype, const miutil::miTime&);
   /// time-interval changed
   void setInterval(int);
   ///use times from datatype(field, sat, obs ..)
-  void useData(miutil::miString datatype);
+  void useData(std::string datatype);
 
   signals:
   /// emits smallest timeinterval (in hours)
@@ -104,8 +102,8 @@ public:
   void newTimes(vector<miutil::miTime>&);
 
 private:
-  map<miutil::miString,vector<miutil::miTime> > tlist; // times
-  map<miutil::miString,bool>  usetlist; // false if only one spesific time is set
+  map<std::string,vector<miutil::miTime> > tlist; // times
+  map<std::string,bool>  usetlist; // false if only one spesific time is set
   vector<miutil::miTime> orig_times; // the actual timepoints (all)
   vector<miutil::miTime> times; // the actual timepoints (min-max)
   miutil::miTime prevtime; // previous selected time
@@ -116,8 +114,8 @@ private:
   bool useminmax;  // use restricted timeinterval
   QPalette pal;    // keep original slider-palette
   bool startani;   // animation just started
-  miutil::miString  dataType; //dataType has priority   
-  miutil::miString  dataTypeUsed; //dataType in use
+  std::string  dataType; //dataType has priority   
+  std::string  dataTypeUsed; //dataType in use
 
   void init();
   void setFirstTime(const miutil::miTime&);

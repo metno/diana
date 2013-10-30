@@ -124,13 +124,13 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
     vector<float> longitude;
     vector<float> latitude;
 
-    miString value,orig_value,key;
-    miString pin = vstr[k];
-    vector<miString> tokens = pin.split('"','"');
+    std::string value,orig_value,key;
+    std::string pin = vstr[k];
+    vector<std::string> tokens = miutil::split_protected(pin, '"','"');
     int n = tokens.size();
 
     for( int i=0; i<n; i++){
-      vector<miString> stokens = tokens[i].split('=');
+      vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
 #ifdef DEBUGPRINT
       METLIBS_LOG_DEBUG("stokens:");
       for (int j=0; j<stokens.size(); j++)
@@ -138,7 +138,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
       METLIBS_LOG_DEBUG();
 #endif
       if( stokens.size() == 1) {
-        key= stokens[0].downcase();
+        key= miutil::to_lower(stokens[0]);
         if (key == "clear") {
           clearData();
           action= 1;  // remove annotation
@@ -151,9 +151,9 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
           y.clear();
         }
       } else if( stokens.size() == 2) {
-        key        = stokens[0].downcase();
+        key        = miutil::to_lower(stokens[0]);
         orig_value = stokens[1];
-        value      = stokens[1].downcase();
+        value      = miutil::to_lower(stokens[1]);
         if (key == "plot" ){
           if(value == "on")
             plot_on = true;
@@ -162,7 +162,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
           action= 1;  // add or remove annotation
         } else if (key == "longitudelatitude" ) {
           stopComputation();
-          vector<miString> lonlat = value.split(',');
+          vector<std::string> lonlat = miutil::split(value, 0, ",");
           int npos=lonlat.size()/2;
           for( int i=0; i<npos; i++){
             longitude.push_back(atof(lonlat[2*i].c_str()));
@@ -170,7 +170,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
           }
         } else if (key == "latitudelongitude" ) {
           stopComputation();
-          vector<miString> latlon = value.split(',');
+          vector<std::string> latlon = miutil::split(value, 0, ",");
           int npos=latlon.size()/2;
           for( int i=0; i<npos; i++){
             latitude.push_back(atof(latlon[2*i].c_str()));
@@ -949,7 +949,7 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 }
 
 
-bool TrajectoryPlot::printTrajectoryPositions(const miString& filename)
+bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 {
 
   //output

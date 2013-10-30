@@ -1134,9 +1134,9 @@ bool PlotModule::updatePlots(bool failOnMissingData)
     vtp[0]->prepare();
 
     if (vtp[0]->inComputation()) {
-      std::string fieldname = vtp[0]->getFieldName().downcase();
+      std::string fieldname = miutil::to_lower(vtp[0]->getFieldName());
       int i = 0, n = vfp.size();
-      while (i < n && vfp[i]->getTrajectoryFieldName().downcase() != fieldname)
+      while (i < n && miutil::to_lower(vfp[i]->getTrajectoryFieldName()) != fieldname)
         i++;
       if (i < n) {
         vector<Field*> vf = vfp[i]->getFields();
@@ -3121,11 +3121,11 @@ bool PlotModule::startTrajectoryComputation()
   if (vtp.size() < 1)
     return false;
 
-  std::string fieldname = vtp[0]->getFieldName().downcase();
+  std::string fieldname = miutil::to_lower(vtp[0]->getFieldName());
 
   int i = 0, n = vfp.size();
 
-  while (i < n && vfp[i]->getTrajectoryFieldName().downcase() != fieldname)
+  while (i < n && miutil::to_lower(vfp[i]->getTrajectoryFieldName()) != fieldname)
     i++;
   if (i == n)
     return false;

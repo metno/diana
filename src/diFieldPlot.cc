@@ -139,7 +139,7 @@ void FieldPlot::getFieldAnnotation(string& s, Colour& c)
 
 
 // Extract plotting-parameters from PlotInfo.
-bool FieldPlot::prepare(const miString& fname, const miString& pin)
+bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 {
   //merge current plotOptions (from pin) with plotOptions form setup
   pinfo= pin;
@@ -200,9 +200,9 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
 }
 
 struct aTable{
-  miString colour;
-  miString pattern;
-  miString text;
+  std::string colour;
+  std::string pattern;
+  std::string text;
 };
 
 bool FieldPlot::getAnnotations(vector<string>& anno)
@@ -219,10 +219,10 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
           (poptions.palettecolours.size()==0 && poptions.patterns.size()==0))
         continue;;
 
-      miString unit = " " + poptions.legendunits;
+      std::string unit = " " + poptions.legendunits;
 
-      miString endString;
-      miString startString;
+      std::string endString;
+      std::string startString;
       if (miutil::contains(anno[j], ",")){
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
@@ -233,14 +233,14 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
 
       //if asking for spesific field
       if (miutil::contains(anno[j], "table=")) {
-        miString name = startString.substr(startString.find_first_of("=")+1);
+        std::string name = startString.substr(startString.find_first_of("=")+1);
         if( name[0]=='"' )
-          name.remove('"');
-        name.trim();
+          miutil::remove(name, '"');
+        miutil::trim(name);
         if(!miutil::contains(fields[0]->fieldText,name))	continue;
       }
 
-      miString str  = "table=\"";
+      std::string str  = "table=\"";
       if ( poptions.legendtitle.empty() ) {
         str += fields[0]->fieldText;
       } else {
@@ -276,8 +276,8 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
       if(cmin>poptions.base) ncold=0;
 
 
-      vector<miString> classSpec;
-      classSpec = miString(poptions.classSpecifications).split(",");
+      vector<std::string> classSpec;
+      classSpec = miutil::split(poptions.classSpecifications, ",");
 
       // if class specification is given, do not plot more entries than class specifications
       if ( classSpec.size() && ncodes > classSpec.size()) {
@@ -313,7 +313,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
       if(poptions.discontinuous == 1 && classSpec.size() &&
           poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
         for (int i=0; i<ncodes; i++){
-          vector<miString> tstr = classSpec[i].split(":");
+          vector<std::string> tstr = miutil::split(classSpec[i], ":");
           if(tstr.size()>1) {
             vtable[i].text = tstr[1];
           } else {
@@ -448,8 +448,8 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
       if (miutil::contains(anno[j], "arrow="))
         continue;
 
-      miString endString;
-      miString startString;
+      std::string endString;
+      std::string startString;
       if (miutil::contains(anno[j], ",")) {
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
@@ -458,16 +458,16 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
         startString =anno[j];
       }
       //       //if asking for spesific field
-      //       if(anno[j].contains("arrow=")){
-      //         miString name = startString.substr(startString.find_first_of("=")+1);
+      //       if(miutil::contains(anno[j], "arrow=")){
+      //         std::string name = startString.substr(startString.find_first_of("=")+1);
       //         if( name[0]=='"' )
-      // 	  name.remove('"');
-      //         name.trim();
-      //         if(!fields[0]->fieldText.contains(name)) continue;
+      // 	  miutil::remove(name, '"');
+      //         miutil::trim(name);
+      //         if(!fields[0]->miutil::contains(fieldText, name)) continue;
       //       }
 
-      miString str  = "arrow=" + miString (vectorAnnotationSize)
-                                                          + ",tcolour=" + poptions.linecolour.Name() + endString;
+      std::string str  = "arrow=" + miutil::from_number(vectorAnnotationSize)
+          + ",tcolour=" + poptions.linecolour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\""
           + ",tcolour=" + poptions.linecolour.Name() + endString;
@@ -1106,14 +1106,14 @@ bool FieldPlot::plotValue()
 
   // plot symbol
   ImageGallery ig;
-  map<int, miString> classImages;
+  map<int, std::string> classImages;
   if (poptions.plottype==fpt_symbol &&  poptions.discontinuous == 1 && (not poptions.classSpecifications.empty())) {
     vector<int>      classValues;
-    vector<miString> classNames;
-    vector<miString> classSpec = miString(poptions.classSpecifications).split(",");
+    vector<std::string> classNames;
+    vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
     int nc = classSpec.size();
     for (int i = 0; i < nc; i++) {
-      vector<miString> vstr = classSpec[i].split(":");
+      vector<std::string> vstr = miutil::split(classSpec[i], ":");
       if (vstr.size() > 2) {
         int value = atoi(vstr[0].c_str());
         classValues.push_back(value);
@@ -1213,7 +1213,7 @@ bool FieldPlot::plotValue()
             ostr.precision( poptions.precision );
           }
           ostr<<value;
-          miString str= ostr.str();
+          std::string str= ostr.str();
           fp->drawStr(str.c_str(),gx-chx/2,gy-chy/2,0.0);
         }
       }
@@ -1555,7 +1555,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
           ostr<<value;
         }
 
-        miString str= ostr.str();
+        std::string str= ostr.str();
         fp->getStringSize(str.c_str(), w, h);
         //###########################################################################
         //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
@@ -1773,7 +1773,7 @@ bool FieldPlot::plotValues()
             int value= (fieldData[i]>=0.0f) ? int(fieldData[i]+0.5f) : int(fieldData[i]-0.5f);
             ostringstream ostr;
             ostr<<value;
-            miString str= ostr.str();
+            std::string str= ostr.str();
             fp->getStringSize(str.c_str(), w, h);
 
             int ipos1= position[j];
@@ -1792,7 +1792,7 @@ bool FieldPlot::plotValues()
         if(nfields == 4 || nfields == 5) {
           ostringstream ostr;
           ostr<<"----";
-          miString str= ostr.str();
+          std::string str= ostr.str();
           fp->getStringSize(str.c_str(), w, h);
 
           x1= gx + adx[8] + cdx[8]*w;
@@ -1869,7 +1869,7 @@ bool FieldPlot::plotVector()
 
   // for annotations .... should probably be resized if very small or large...
   vectorAnnotationSize= arrowlength;
-  vectorAnnotationText= miString(unitlength) + poptions.vectorunitname;
+  vectorAnnotationText= miutil::from_number(unitlength) + poptions.vectorunitname;
 
   // for arrow tip
   const float afac = -0.333333;
@@ -2026,7 +2026,7 @@ bool FieldPlot::plotVectorColour()
 
   // for annotations .... should probably be resized if very small or large...
   vectorAnnotationSize= arrowlength;
-  vectorAnnotationText= miString(unitlength) + poptions.vectorunitname;
+  vectorAnnotationText= miutil::from_number(unitlength) + poptions.vectorunitname;
 
   // for arrow tip
   const float afac = -0.333333;
@@ -3531,7 +3531,7 @@ bool FieldPlot::markExtreme()
   iy2++;
 
   char marks[2];
-  miString pmarks[2];
+  std::string pmarks[2];
   float chrx[2], chry[2];
   bool plotValue = false;
 
@@ -3724,7 +3724,7 @@ bool FieldPlot::markExtreme()
               // mark extreme point
               if ( plotValue ) {
                 int prec = log10(fabs(fpos));
-                miString fposStr(fpos,prec+2);
+                std::string fposStr(fpos,prec+2);
                 fp->drawStr(fposStr.c_str(),
                     gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
               } else {
@@ -4000,7 +4000,7 @@ bool FieldPlot::plotNumbers()
     iprec = -int(log10(fields[0]->storageScaling));
     if (iprec<0) iprec=0;
   }
-  miString str;
+  std::string str;
 
   glColor3ubv(poptions.linecolour.RGB());
 
@@ -4066,9 +4066,9 @@ bool FieldPlot::plotNumbers()
 }
 
 
-miString FieldPlot::getModelName()
+std::string FieldPlot::getModelName()
 {
-  miString str;
+  std::string str;
   if (fields.size()>0)
     if (fields[0])
       if (fields[0]->data)
@@ -4077,9 +4077,9 @@ miString FieldPlot::getModelName()
 }
 
 
-miString FieldPlot::getTrajectoryFieldName()
+std::string FieldPlot::getTrajectoryFieldName()
 {
-  miString str;
+  std::string str;
   unsigned int nf= 0;
   if (plottype==fpt_wind)          nf= 2;
   if (plottype==fpt_vector)        nf= 2;

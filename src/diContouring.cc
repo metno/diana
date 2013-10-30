@@ -871,7 +871,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
     verAttach[0]      [ycorner[2]]= 2 + maxLines;
   }
 
-  miString strlabel;
+  std::string strlabel;
 
   for (lev=firstLev; lev<nvalue; ++lev)
   {
@@ -2395,7 +2395,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           n2=n;
           n3=n;
           while (space2<=dxlab2 && n3<npos) {
-            vector<miString> bstr1, bstr2;
+            vector<std::string> bstr1, bstr2;
 
             n3++;
             dxx = x[n3]-x[n];
@@ -4055,15 +4055,15 @@ void fillContours(vector<ContourLine*>& contourlines,
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
   vector<int>      classValues;
-  vector<miString> classNames;
+  vector<std::string> classNames;
   unsigned int maxlen=0;
 
   if (poptions.discontinuous == 1 && (not poptions.classSpecifications.empty())) {
     // discontinuous (classes)
-    vector<miString> classSpec = miString(poptions.classSpecifications).split(",");
+    vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
     int nc = classSpec.size();
     for (int i = 0; i < nc; i++) {
-      vector<miString> vstr = classSpec[i].split(":");
+      vector<std::string> vstr = miutil::split(classSpec[i], ":");
       if (vstr.size() > 1) {
         classValues.push_back(atoi(vstr[0].c_str()));
         classNames.push_back(vstr[1]);
@@ -4262,14 +4262,14 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
   vector<int>      classValues;
-  vector<miString> classNames;
+  vector<std::string> classNames;
   unsigned int maxlen=0;
   if (poptions.discontinuous==1 && (not poptions.classSpecifications.empty())) {
     // discontinuous (classes)
-    vector<miString> classSpec=miString(poptions.classSpecifications).split(",");
+    vector<std::string> classSpec=miutil::split(poptions.classSpecifications, ",");
     int nc = classSpec.size();
     for (int i=0; i<nc; i++) {
-      vector<miString> vstr=classSpec[i].split(":");
+      vector<std::string> vstr=miutil::split(classSpec[i], ":");
       if (vstr.size()>1) {
     	classValues.push_back(atoi(vstr[0].c_str()));
 		classNames.push_back(vstr[1]);
@@ -4292,17 +4292,17 @@ void writeShapefile(vector<ContourLine*>& contourlines,
     }
   }
 
-  miString shapefileName;
+  std::string shapefileName;
   if (poptions.shapefilename.size()>0 && !miutil::contains(poptions.shapefilename, "tmp_diana") )
 	  shapefileName=poptions.shapefilename;
   else
-	  shapefileName= modelName + "_" + paramName + "_" + miString(fhour) + ".shp";
+    shapefileName= modelName + "_" + paramName + "_" + miutil::from_number(fhour) + ".shp";
 
   // Projection -- DIANA uses sperical earth....
-  miString projStr = "GEOGCS[\"unnamed ellipse\",DATUM[\"D_unknown\",SPHEROID[\"Unknown\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]";
-  miString projFileName;
+  std::string projStr = "GEOGCS[\"unnamed ellipse\",DATUM[\"D_unknown\",SPHEROID[\"Unknown\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]";
+  std::string projFileName;
   projFileName = shapefileName;
-  projFileName.replace(".shp","");
+  miutil::replace(projFileName, ".shp","");
   projFileName+=".prj";
 
   // open filestream and write .prj file

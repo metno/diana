@@ -397,7 +397,7 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
 #endif
 
   int latdeg, latmin, londeg, lonmin;
-  miutil::miString latdir, londir;
+  std::string latdir, londir;
   QString latstr, lonstr, timestr, datestr;
 
   latmin= int(fabsf(lat)*60.+0.5);
@@ -460,7 +460,7 @@ void MeasurementsDialog::sendAllPositions(){
     str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
     str << "latitudelongitude=";
     str << positionVector[i].lat << "," << positionVector[i].lon;
-    miutil::miString posString = str.str();
+    std::string posString = str.str();
     vstr.push_back(posString);
   }
   contr->measurementsPos(vstr);

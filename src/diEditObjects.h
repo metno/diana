@@ -63,7 +63,7 @@ public:
   /// called when a new object plot to be created
   void createNewObject();
   /// called when new edit mode/tool selected in gui (EditDIalog)
-  void setEditMode(const mapMode mmode,const int emode,const miutil::miString etool);
+  void setEditMode(const mapMode mmode,const int emode,const std::string etool);
   /// flags comments as saved
   void commentsAreSaved(){commentsSaved=true;}
   /// flags comments as changed
@@ -85,13 +85,13 @@ public:
   /// sets scaleToField variable used for plotting areaBorders
   void setScaleToField(float s);
   /// returns text of marked text object
-  miutil::miString getMarkedText();
+  std::string getMarkedText();
   /// returns colour of marked colored text object
   Colour::ColourInfo getMarkedTextColour();
   /// returns colour of marked text object
   Colour::ColourInfo getMarkedColour();
   /// changes text of marked text object to newText
-  void changeMarkedText(const miutil::miString & newText);
+  void changeMarkedText(const std::string & newText);
   /// changes colour of marked colored text object to new colour
   void changeMarkedTextColour(const Colour::ColourInfo & newColour);
   /// changes colour of marked text object to newText
@@ -127,7 +127,7 @@ private:
   mapMode mapmode;
   int editmode; // edit mode index
   int edittool; // edit tools index
-  miutil::miString drawingtool; 
+  std::string drawingtool; 
 
   object_modes objectmode;
   combine_modes combinemode;
@@ -143,7 +143,7 @@ private:
   bool commentsChanged;   // true if comments changed once
   bool commentsSaved;     // true if comments saved since last edit
   bool labelsSaved;     // true if comments saved since last edit
-  miutil::miString itsComments;   // old comment string
+  std::string itsComments;   // old comment string
 
   WeatherObjects copyObjects;
 
@@ -190,7 +190,7 @@ public:
   /// show all hidden objectts
   void editUnHideAll();
   /// hide all combine objects from region 
-  void editHideCombineObjects(miutil::miString region);
+  void editHideCombineObjects(std::string region);
   /// hide all combine objects from region number ir
   void editHideCombineObjects(int ir);
   /// adds a point at x,y to objects being edited
@@ -228,13 +228,13 @@ public:
   /// check all fronts for join points...
   void checkJoinPoints();
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(miutil::miString name,miutil::miString prefix);
+  void putCommentStartLines(std::string name,std::string prefix);
   /// returns the comments
-  miutil::miString getComments();
+  std::string getComments();
   /// set comments
-  void putComments(const miutil::miString & comments);
+  void putComments(const std::string & comments);
   /// add comments
-  void addComments(const miutil::miString & comments){itsComments+=comments;}
+  void addComments(const std::string & comments){itsComments+=comments;}
   /// save labels
   void saveEditLabels(const std::vector<std::string>& labels);
 

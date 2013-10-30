@@ -52,7 +52,7 @@ FontManager* VprofTables::fp= 0; // fontpack
 
 vector<float> VprofTables::charsizes;
 vector<float> VprofTables::fontsizes;
-miString VprofTables::defaultFont="BITMAPFONT";
+std::string VprofTables::defaultFont="BITMAPFONT";
 
 GLPfile* VprofTables::psoutput=0; // PostScript module
 bool VprofTables::hardcopy=false; // producing postscript

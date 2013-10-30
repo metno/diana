@@ -276,7 +276,7 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
 }
 
 
-bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
+bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
     const miTime& tprod){
 
   if (!editfield) return false;
@@ -305,12 +305,12 @@ bool FieldEdit::prepareEditFieldPlot(const miString& fieldname,
   metnoFieldFileIdent[13]= tprod.hour() *100 + tprod.min();
 
   // text for plot etc.
-  miString text, fulltext;
+  std::string text, fulltext;
   text = "ANALYSE " + fieldname;
 
-  miString sclock= editfield->validFieldTime.isoClock();
-  miString shour=  sclock.substr(0,2);
-  miString smin=   sclock.substr(3,2);
+  std::string sclock= editfield->validFieldTime.isoClock();
+  std::string shour=  sclock.substr(0,2);
+  std::string smin=   sclock.substr(3,2);
   if (smin=="00")
     fulltext = text + " " + editfield->validFieldTime.isoDate()
     + " " + shour + " UTC";
@@ -447,15 +447,15 @@ void FieldEdit::makeWorkfield()
 void FieldEdit::changeGrid()
 {
   int gridnum= metnoFieldFileIdentSpec[1];
-  miString demands= "fine.interpolation";
+  std::string demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
   if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum)) {
     METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
 }
 
-bool FieldEdit::readEditfield(const miString& filename,
-    const miString& fieldname)
+bool FieldEdit::readEditfield(const std::string& filename,
+    const std::string& fieldname)
 {
 
   std::string fileType = "fimex";
@@ -484,7 +484,7 @@ bool FieldEdit::readEditfield(const miString& filename,
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
   fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
   vector<Field*> vfout;
-  miString pin = "FIELD model=" + modelName + " plot=" + plotName;
+  std::string pin = "FIELD model=" + modelName + " plot=" + plotName;
   if ( !vcoord.empty() ) {
     pin +=  (" vcoord=" + vcoord);
   }
@@ -504,7 +504,7 @@ bool FieldEdit::readEditfield(const miString& filename,
 }
 
 void FieldEdit::setData(const vector<Field*>& vf,
-    const miString& fieldname,
+    const std::string& fieldname,
     const miTime& tprod) {
 
   cleanup();
@@ -535,8 +535,8 @@ void FieldEdit::setConstantValue(float value) {
 }
 
 
-bool FieldEdit::readEditFieldFile(const miString& filename,
-    const miString& fieldname,
+bool FieldEdit::readEditFieldFile(const std::string& filename,
+    const std::string& fieldname,
     const miTime& tprod){
 
   cleanup();
@@ -551,7 +551,7 @@ bool FieldEdit::readEditFieldFile(const miString& filename,
 
 }
 
-bool FieldEdit::writeEditFieldFile(const miString& filename,
+bool FieldEdit::writeEditFieldFile(const std::string& filename,
     bool returndata,
     short int** fdata, int& fdatalength) {
 
@@ -3066,7 +3066,7 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
   METLIBS_LOG_DEBUG("---------- mx,my: "<<mx<<" "<<my);
   if (mx<40 && my<40) {
     for (jm=my-1; jm>=0; jm--) {
-      miString str;
+      std::string str;
       mm=0;
       for (im=0; im<mx; im++) {
         ibit= jm*mx+im;

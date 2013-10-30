@@ -80,7 +80,7 @@ FilledMap::FilledMap() :
 {
 }
 
-FilledMap::FilledMap(const miString fn) :
+FilledMap::FilledMap(const std::string fn) :
   filename(fn), timestamp(0), scale(1.0), tscale(1.0), numGroups(0), groups(0),
       numPolytiles(0), polydata(0), opened(false), contexist(false)
 {

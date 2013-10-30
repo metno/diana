@@ -54,7 +54,7 @@ public:
   void enableRedo(bool enable);
 	
 private:
-  static miutil::miString helpPageName;
+  static std::string helpPageName;
   QActionGroup *modeActions;
   QAction *selectAction;
   QAction *drawAction;

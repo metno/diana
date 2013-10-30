@@ -39,8 +39,9 @@
 
 using namespace::miutil;
 
-ObsMetar::ObsMetar(const miString &file)
-:metar(file){
+ObsMetar::ObsMetar(const std::string &file)
+ : metar(file)
+{
 }
 
 void ObsMetar::init(ObsPlot *oplot){
@@ -113,18 +114,18 @@ ObsMetar::putData(int i,ObsData &d){
 
 }
 
-miString ObsMetar::cloud(miString cl)
+std::string ObsMetar::cloud(std::string cl)
 {
 
   if(cl.empty()) return cl;
 
-  if(cl.contains("SCT"))      cl.replace("SCT","S/");
-  else if(cl.contains("BKN")) cl.replace("BKN","B/");
-  else if(cl.contains("OVC")) cl.replace("OVC","O/");
-  else if(cl.contains("FEW")) cl.replace("FEW","F/");
+  if(miutil::contains(cl, "SCT"))      miutil::replace(cl, "SCT","S/");
+  else if(miutil::contains(cl, "BKN")) miutil::replace(cl, "BKN","B/");
+  else if(miutil::contains(cl, "OVC")) miutil::replace(cl, "OVC","O/");
+  else if(miutil::contains(cl, "FEW")) miutil::replace(cl, "FEW","F/");
 
-  if(cl.contains("TCU")) cl.replace("TCU"," TCU");
-  if(cl.contains("CB"))  cl.replace("CB"," CB");
+  if(miutil::contains(cl, "TCU")) miutil::replace(cl, "TCU"," TCU");
+  if(miutil::contains(cl, "CB"))  miutil::replace(cl, "CB"," CB");
 
   return cl;
 

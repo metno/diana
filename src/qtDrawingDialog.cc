@@ -130,12 +130,12 @@ void DrawingDialog::updateDialog()
   METLIBS_LOG_DEBUG("DrawingDialog::updateDialog");
 }
 
-std::vector<miutil::miString> DrawingDialog::getOKString()
+std::vector<std::string> DrawingDialog::getOKString()
 {
   METLIBS_LOG_DEBUG("DrawingDialog::getOKString");
 }
 
-void DrawingDialog::putOKString(const vector<miutil::miString>& vstr)
+void DrawingDialog::putOKString(const vector<std::string>& vstr)
 {
   METLIBS_LOG_DEBUG("DrawingDialog::putOKString");
 }

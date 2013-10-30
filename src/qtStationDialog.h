@@ -58,7 +58,7 @@ public:
   ///insert command strings
   void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current command
-  miutil::miString getShortname();
+  std::string getShortname();
 
   class Model : public QAbstractItemModel
   {

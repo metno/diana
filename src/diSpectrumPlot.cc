@@ -544,7 +544,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     chy*=0.75;
     chy2*=0.75;
 
-    miString str;
+    std::string str;
 
     str="F(f,dir) [m2/Hz/rad]";
     fp->getStringSize(str.c_str(),dx,dy);
@@ -566,7 +566,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
       int ivalue= i*incyefdiag;
       v=float(ivalue);
       y=yefdiag+v*dyefdiag/vyefdiag;
-      str=miString(ivalue);
+      str=miutil::from_number(ivalue);
       float s= (ivalue<10) ? 1.2 : 2.2;
       fp->drawStr(str.c_str(),xefdiag-dytext1*0.3-chx*s,y-chy*0.5,0.0);
     }
@@ -581,7 +581,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
       v=float(i)*0.1;
       x=xefdiag+v*dxefdiag/vxefdiag;
       if (i==0) str="0.0";
-      else      str=miString(v);
+      else      str=miutil::from_number(v);
       fp->drawStr(str.c_str(),x-chx2*0.5,yefdiag-dytext1*0.3-chy*1.1,0.0);
     }
 
@@ -595,7 +595,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     for (int i=5; i<=n; i+=5) {
       v=float(i);
       y=yhmo+v*dyhmo/vyhmo;
-      str=miString(i);
+      str=miutil::from_number(i);
       float s= (i<10) ? 1.0f : 2.0f;
       fp->drawStr(str.c_str(),xhmo-dytext1*0.1-chx*s,y-chy*0.5,0.0);
     }
@@ -703,7 +703,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
 //+++ poptions.contourShading= 1;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      miString optstr ="palettecolours=standard repeat=1";
+      std::string optstr ="palettecolours=standard repeat=1";
       PlotOptions::parsePlotOption(optstr,poptions);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -953,7 +953,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
   if (spopt->pText) {
 
-    miString str;
+    std::string str;
     float cx,cy;
 
     c= Colour(spopt->textColour);
@@ -977,7 +977,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     // the real height (x ok)
     cy*=0.75;
 
-    miString validtime= validTime.isoTime(true,false);
+    std::string validtime= validTime.isoTime(true,false);
 
     ostringstream ostr1,ostr2;
     ostr1<<"Position: "<<posName<<"   Time: "<<validtime
@@ -987,8 +987,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
          <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddPeak
          <<" deg";
 
-    miString str1= ostr1.str();
-    miString str2= ostr2.str();
+    std::string str1= ostr1.str();
+    std::string str2= ostr2.str();
     fp->getStringSize(str1.c_str(),dx,dy);
     fp->getStringSize(str2.c_str(), x,dy);
     if (dx<x) dx=x;

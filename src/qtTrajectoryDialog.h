@@ -81,7 +81,7 @@ private:
   struct posStruct {
     double lat,lon;
     int radius;
-    miutil::miString numPos;
+    std::string numPos;
   };
   vector<posStruct> positionVector;
    
@@ -105,7 +105,7 @@ private:
   QComboBox* numposBox;
 
   //functions
-  miutil::miString makeString();
+  std::string makeString();
   void update_posList(float lat, float lon); 
 
 private slots:

@@ -52,16 +52,14 @@
 #include <iostream>
 #include "diController.h"
 
-QValidator::State ComplexText::complexValidator::validate(QString& input,
-    int& pos) const
-    {
+QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
+{
   //validator, only used for zero isoterm input !!!
-  miutil::miString inputString = input.toStdString();
-  if (!inputString.contains("0°:")){
+  if (not input.contains("0°:")) {
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
-    }
+}
 
 // initialize static members
 bool               ComplexText::initialized= false;
@@ -111,14 +109,14 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
         QGridLayout* glayout = new QGridLayout();
         hglayout->addLayout(glayout, 0);
 
-        //set <miutil::miString> complexList = m_ctrl->getComplexList();
+        //set <std::string> complexList = m_ctrl->getComplexList();
         set <string> complexList = cList;
 
         for (int i=0;i<ns;i++){
 #ifdef DEBUGPRINT
       cout<<"symbolText["<<i<<"]"<<symbolText[i] <<endl;
 #endif
-          miutil::miString ltext="Text"+miutil::miString(i+1);
+          std::string ltext="Text"+miutil::from_number(i+1);
           QString labeltext=ltext.c_str();
           QLabel* namelabel= new QLabel(labeltext, this) ;
 
@@ -165,7 +163,7 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 #ifdef DEBUGPRINT
       cout<<"xText["<<i<<"]"<<xText[i] <<endl;
 #endif
-          miutil::miString ltext="X"+miutil::miString(i+1);
+          std::string ltext="X"+miutil::from_number(i+1);
           QString labeltext=ltext.c_str();
 
           QLabel* namelabel= new QLabel(labeltext, this) ;
@@ -309,11 +307,11 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
       //
       if (startEdit){
         startEdit=false;
-        miutil::miString text = vSymbolEdit[i]->currentText().toStdString();
+        std::string text = vSymbolEdit[i]->currentText().toStdString();
 #ifdef DEBUGPRINT
       cout<<"*** text =  "<< text <<endl;
 #endif
-        if (!text.contains("0°:")){
+        if (not miutil::contains(text, "0°:")){
           vSymbolEdit[i]->lineEdit()->setValidator(0);
           return;
         } else {

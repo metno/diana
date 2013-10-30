@@ -279,9 +279,9 @@ void SatDialogAdvanced::colourcutClicked(bool on){
   }
 }
 /*********************************************/
-miutil::miString SatDialogAdvanced::getOKString()
+std::string SatDialogAdvanced::getOKString()
 {
-  miutil::miString str;
+  std::string str;
   ostringstream ostr;
 
   if(!palette){
@@ -336,7 +336,7 @@ miutil::miString SatDialogAdvanced::getOKString()
 
 
 /*********************************************/
-void SatDialogAdvanced::setPictures(miutil::miString str){
+void SatDialogAdvanced::setPictures(std::string str){
   picturestring=str;
 }
 
@@ -400,20 +400,21 @@ void SatDialogAdvanced::setColours(vector <Colour> &colours){
 }
 
 /*********************************************/
-miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
+std::string SatDialogAdvanced::putOKString(std::string str)
+{
   //  cerr << "SatDialogAdvanced::putOKString: " << str<<endl;
   setStandard();
   blockSignals(true);
 
-  miutil::miString external;
-  vector<miutil::miString> tokens= str.split('"','"');
+  std::string external;
+  vector<std::string> tokens= miutil::split_protected(str, '"','"');
   int n= tokens.size();
 
-  miutil::miString key, value;
+  std::string key, value;
   for (int i=0; i<n; i++){    // search through plotinfo
-    vector<miutil::miString> stokens= tokens[i].split('=');
+    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
     if ( stokens.size()==2) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
       if ( key=="cut" && ! palette){
         m_cutnr = atof(value.c_str());
@@ -458,11 +459,11 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
       else if (key=="hide" && palette){
         colourcut->setChecked(true);
         //set selected colours
-        vector <miutil::miString> stokens=value.split(',');
+        vector <std::string> stokens=miutil::split(value, 0, ",");
         int m= stokens.size();
         for (int j=0; j<m; j++){
-          vector <miutil::miString> sstokens=stokens[j].split(':');
-          int icol=sstokens[0].toInt();
+          vector <std::string> sstokens=miutil::split(stokens[j], 0, ":");
+          int icol=miutil::to_int(sstokens[0]);
           if(icol < colourList->count()){
             colourList->item(icol)->setSelected(true);
           }
@@ -474,7 +475,7 @@ miutil::miString SatDialogAdvanced::putOKString(miutil::miString str){
         //anythig unknown, add to external string
         external+=" " + tokens[i];
       }
-    } else if (stokens.size() ==1 && stokens[0].downcase()=="hide"){
+    } else if (stokens.size() ==1 && miutil::to_lower(stokens[0])=="hide"){
       //colourList should be visible
       colourcut->setChecked(true);
     }else{

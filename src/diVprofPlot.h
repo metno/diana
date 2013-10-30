@@ -67,7 +67,7 @@ public:
   VprofPlot();
   ~VprofPlot();
   bool plot(VprofOptions *vpopt, int nplot);
-  void setName(const miutil::miString& name) { text.posName=name; }
+  void setName(const std::string& name) { text.posName=name; }
 
 private:
 

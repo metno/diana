@@ -67,7 +67,7 @@ private:
   vector <QComboBox*> vSymbolEdit;
   QPushButton* quitb;
 
-  miutil::miString productname;
+  std::string productname;
 
 signals:
   /// redraw (update GL)

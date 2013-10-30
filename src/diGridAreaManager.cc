@@ -39,7 +39,7 @@ ProjectablePolygon GridAreaManager::getCurrentPolygon() {
   return ProjectablePolygon();
 }
 
-ProjectablePolygon GridAreaManager::getArea(miString id) {
+ProjectablePolygon GridAreaManager::getArea(std::string id) {
   LOG4CXX_DEBUG(logger,"getArea("<<id<<")");
   if (gridAreas.count(id))
     return gridAreas[id].getPolygon();
@@ -107,7 +107,7 @@ void GridAreaManager::handleSelectEvent(QMouseEvent* me, EventResult& res,
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::RightButton) {
     res.action = rightclick;
   } else if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
-    miString prevId = currentId;
+    std::string prevId = currentId;
     selectArea(Point(x, y));
     LOG4CXX_DEBUG(logger,"Selected area: " << currentId);
     gridAreas[currentId].setMode(GridArea::NORMAL);
@@ -271,7 +271,7 @@ void GridAreaManager::handleRemovePointEvent(QMouseEvent* me, EventResult& res,
   }
 }
 
-void GridAreaManager::doSpatialInterpolation(const miString & movedId, float moveX, float moveY) {
+void GridAreaManager::doSpatialInterpolation(const std::string & movedId, float moveX, float moveY) {
   if (spatialAreas.empty()) return;
   GridArea & movedArea = gridAreas[movedId];
   movedArea.setMove(moveX, moveY);
@@ -321,7 +321,7 @@ void GridAreaManager::clearTemporaryAreas(){
   tmp_gridAreas.clear();
 }
 
-void GridAreaManager::addOverviewArea(miString id, ProjectablePolygon area, Colour & colour){
+void GridAreaManager::addOverviewArea(std::string id, ProjectablePolygon area, Colour & colour){
   GridArea newArea(id, area);
   newArea.updateCurrentProjection();
   newArea.setStyle(GridArea::OVERVIEW);
@@ -334,7 +334,7 @@ void GridAreaManager::clearSpatialInterpolation(){
   hasinterpolated = false;
 }
 
-void GridAreaManager::addSpatialInterpolateArea(miString id, miString parent, miTime valid, ProjectablePolygon area){
+void GridAreaManager::addSpatialInterpolateArea(std::string id, std::string parent, miTime valid, ProjectablePolygon area){
   GridArea newArea(id, area);
   newArea.updateCurrentProjection();
   newArea.setStyle(GridArea::GHOST);
@@ -348,7 +348,7 @@ void GridAreaManager::addSpatialInterpolateArea(miString id, miString parent, mi
 }
 
 
-bool GridAreaManager::addArea(miString id) {
+bool GridAreaManager::addArea(std::string id) {
   LOG4CXX_DEBUG(logger,"Adding empty area with id " << id);
   if (gridAreas.count(id)) {
     setCurrentArea(id);
@@ -365,7 +365,7 @@ bool GridAreaManager::addArea(miString id) {
   return foundNewArea;
 }
 
-bool GridAreaManager::addArea(miString id, ProjectablePolygon area,
+bool GridAreaManager::addArea(std::string id, ProjectablePolygon area,
     bool overwrite) {
   LOG4CXX_DEBUG(logger,"Adding " << id << ": " << area.toString());
   if (gridAreas.count(id) && !overwrite) {
@@ -381,7 +381,7 @@ bool GridAreaManager::addArea(miString id, ProjectablePolygon area,
   return foundNewArea;
 }
 
-bool GridAreaManager::updateArea(miString id, ProjectablePolygon area) {
+bool GridAreaManager::updateArea(std::string id, ProjectablePolygon area) {
   if (gridAreas.count(id)) {
     GridArea newArea(id, area);
     newArea.updateCurrentProjection();
@@ -391,7 +391,7 @@ bool GridAreaManager::updateArea(miString id, ProjectablePolygon area) {
   return false;
 }
 
-bool GridAreaManager::removeArea(miString id) {
+bool GridAreaManager::removeArea(std::string id) {
   if (gridAreas.count(id)) {
     if (id == currentId)
       setCurrentArea("");
@@ -405,7 +405,7 @@ bool GridAreaManager::removeCurrentArea() {
   return removeArea(currentId);
 }
 
-bool GridAreaManager::changeAreaId(miString oldId, miString newId) {
+bool GridAreaManager::changeAreaId(std::string oldId, std::string newId) {
   if (gridAreas.count(oldId)) {
     gridAreas[newId] = gridAreas[oldId];
     gridAreas.erase(oldId);
@@ -415,7 +415,7 @@ bool GridAreaManager::changeAreaId(miString oldId, miString newId) {
   return false;
 }
 
-bool GridAreaManager::setCurrentArea(miString id) {
+bool GridAreaManager::setCurrentArea(std::string id) {
   if (!gridAreas.count(id)) { // no area with this id
     currentId = "";
     updateSelectedArea();
@@ -441,7 +441,7 @@ void GridAreaManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
  * Has to be called from PlotModule::plot()
  */
 bool GridAreaManager::plot() {
-  map<miString,GridArea>::iterator iter;
+  map<std::string,GridArea>::iterator iter;
   // draw temporary areas
   for (iter = tmp_gridAreas.begin(); iter != tmp_gridAreas.end(); iter++) {
     iter->second.plot();
@@ -459,12 +459,12 @@ bool GridAreaManager::plot() {
   return true;
 }
 
-miString GridAreaManager::getCurrentId() {
+std::string GridAreaManager::getCurrentId() {
   return currentId;
 }
 
 bool GridAreaManager::selectArea(Point p) {
-  map<miString,GridArea>::iterator iter;
+  map<std::string,GridArea>::iterator iter;
   for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
     if (iter->second.inside(p)) {
       setCurrentArea(iter->first);
@@ -530,26 +530,26 @@ bool GridAreaManager::redo() {
   return ok;
 }
 
-miString GridAreaManager::getModeAsString() {
+std::string GridAreaManager::getModeAsString() {
   if (paintMode==SELECT_MODE)
-    return miString("Select");
+    return std::string("Select");
   else if (paintMode==MOVE_MODE)
-    return miString("Move");
+    return std::string("Move");
   else if (paintMode==SPATIAL_INTERPOLATION)
-    return miString("Spatial Interpolation");
+    return std::string("Spatial Interpolation");
   else if (paintMode==INCLUDE_MODE)
-    return miString("Include");
+    return std::string("Include");
   else if (paintMode==CUT_MODE)
-    return miString("Cut");
+    return std::string("Cut");
   else if (paintMode==DRAW_MODE)
-    return miString("Draw");
+    return std::string("Draw");
   else if (paintMode==MOVE_POINT)
-    return miString("Move Point");
+    return std::string("Move Point");
   else if (paintMode==ADD_POINT)
-    return miString("Add Point");
+    return std::string("Add Point");
   else if (paintMode==REMOVE_POINT)
-    return miString("Remove Point");
-  else return miString("Unknown");
+    return std::string("Remove Point");
+  else return std::string("Unknown");
 }
 
 cursortype GridAreaManager::getCurrentCursor() {
@@ -570,7 +570,7 @@ cursortype GridAreaManager::getCurrentCursor() {
 }
 
 void GridAreaManager::updateSelectedArea() {
-  map<miString,GridArea>::iterator iter;
+  map<std::string,GridArea>::iterator iter;
   for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
     if (iter->first == currentId) {
       iter->second.setSelected(true);
@@ -579,7 +579,7 @@ void GridAreaManager::updateSelectedArea() {
   }
 }
 
-bool GridAreaManager::setEnabled(miString id, bool enabled) {
+bool GridAreaManager::setEnabled(std::string id, bool enabled) {
   if (gridAreas.count(id)) {
     gridAreas[id].enable(enabled);
     return true;
@@ -594,9 +594,9 @@ void GridAreaManager::setActivePoints(list<Point> points) {
 
 }
 
-vector<miString> GridAreaManager::getId(Point p) {
-  vector<miString> vId;
-  map<miString,GridArea>::iterator iter;
+vector<std::string> GridAreaManager::getId(Point p) {
+  vector<std::string> vId;
+  map<std::string,GridArea>::iterator iter;
   for (iter = gridAreas.begin(); iter != gridAreas.end(); iter++) {
     if (iter->second.inside(p)) {
       vId.push_back(iter->first);

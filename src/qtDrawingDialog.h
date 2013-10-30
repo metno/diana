@@ -48,8 +48,8 @@ public slots:
   void updateTimes();
   void toggleDrawingMode(bool);
   void updateDialog();
-  std::vector<miutil::miString> getOKString();
-  void putOKString(const vector<miutil::miString>& vstr);
+  std::vector<std::string> getOKString();
+  void putOKString(const vector<std::string>& vstr);
 
 private slots:
   void addItem(EditItemBase *item);

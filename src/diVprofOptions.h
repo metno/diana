@@ -69,7 +69,7 @@ private:
   bool pkindex;   // Kindex
   bool pslwind;   // numbers at significant wind levels
 
-  vector<miutil::miString> dataColour;
+  vector<std::string> dataColour;
   vector<float>    dataLinewidth;
   vector<float>    windLinewidth;
 
@@ -85,7 +85,7 @@ private:
 
   //-----------------------------------------------------------------------
 
-  miutil::miString backgroundColour;
+  std::string backgroundColour;
 
   int diagramtype; // 0=Amble  1=Exner(pi)  2=Pressure  3=ln(P)
                    // (Amble: ln(P) below 500hPa, P above 500hPa)
@@ -102,36 +102,36 @@ private:
   vector<float> plevels; // pressure
   vector<int>    flightlevels; // flight levels
   vector<float> pflightlevels; // pressure at flight levels
-  miutil::miString      pColour;
-  miutil::miString      pLinetype;
+  std::string      pColour;
+  std::string      pLinetype;
   float         pLinewidth1; // thin lines
   float         pLinewidth2; // thick lines
 
   bool ptlines;   // temperature lines
   int  tStep;     // temp. step
-  miutil::miString tColour;
-  miutil::miString tLinetype;
+  std::string tColour;
+  std::string tLinetype;
   float    tLinewidth1; // thin lines
   float    tLinewidth2; // thick lines
 
   bool pdryadiabat;    // dry adiabats
   int  dryadiabatStep; // temperature step (C at 1000hPa)
-  miutil::miString dryadiabatColour;
-  miutil::miString dryadiabatLinetype;
+  std::string dryadiabatColour;
+  std::string dryadiabatLinetype;
   float    dryadiabatLinewidth;
 
   bool pwetadiabat;    // dry adiabats
   int  wetadiabatStep; // temperature step (C at 1000hPa)
-  miutil::miString wetadiabatColour;
-  miutil::miString wetadiabatLinetype;
+  std::string wetadiabatColour;
+  std::string wetadiabatLinetype;
   float    wetadiabatLinewidth;
   int      wetadiabatPmin;
   int      wetadiabatTmin;
 
   bool pmixingratio;    // mixing ratio
   int   mixingratioSet; // line set no. (1,2,3,4 available)
-  miutil::miString mixingratioColour;
-  miutil::miString mixingratioLinetype;
+  std::string mixingratioColour;
+  std::string mixingratioLinetype;
   float    mixingratioLinewidth;
   int      mixingratioPmin;
   int      mixingratioTmin;
@@ -141,14 +141,14 @@ private:
   bool plabelt; // t labels (numbers)
   bool plabelq; // mixing ratio labels (numbers)
   bool pframe;  // frame
-  miutil::miString frameColour;
-  miutil::miString frameLinetype;
+  std::string frameColour;
+  std::string frameLinetype;
   float    frameLinewidth;
-  miutil::miString textColour;
+  std::string textColour;
 
   bool pflevels; // flight levels (numbers/marks on axis only)
-  miutil::miString flevelsColour;
-  miutil::miString flevelsLinetype;
+  std::string flevelsColour;
+  std::string flevelsLinetype;
   float    flevelsLinewidth1;
   float    flevelsLinewidth2; // thick lines
   bool     plabelflevels; // labels (numbers)
@@ -161,14 +161,14 @@ private:
   float rsrelhum;  // relative size relative humidity (width of column)
   float rsducting; // relative size ducting (width of column)
 
-  miutil::miString rangeLinetype;  // for vertical wind, rel.hum. and ducting
+  std::string rangeLinetype;  // for vertical wind, rel.hum. and ducting
   float    rangeLinewidth;
 
   bool pcotrails; // condensation trail lines
                   // (linjer for vurdering av mulighet for
 		  //  kondensstriper fra fly)
-  miutil::miString cotrailsColour;
-  miutil::miString cotrailsLinetype;
+  std::string cotrailsColour;
+  std::string cotrailsLinetype;
   float    cotrailsLinewidth;
   int      cotrailsPmin;
   int      cotrailsPmax;

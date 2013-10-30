@@ -112,14 +112,14 @@ private:
 
   bool areaminimize;
   float minValue,maxValue; // used if not fieldUndef
-  miutil::miString inputFieldFormat;
-  miutil::miString inputFieldConfig;
-  miutil::miString plotName;
-  miutil::miString fieldUnit;
-  miutil::miString vcoord;
-  miutil::miString vlevel;
+  std::string inputFieldFormat;
+  std::string inputFieldConfig;
+  std::string plotName;
+  std::string fieldUnit;
+  std::string vcoord;
+  std::string vlevel;
 
-  miutil::miString lastFileWritten;
+  std::string lastFileWritten;
 
   int   metnoFieldFileIdentSpec[8];
   short metnoFieldFileIdent[20];
@@ -204,23 +204,23 @@ public:
   void setSpec(const EditProduct& ep, int fnum);
 
   void setData(const vector<Field*>& vf,
-               const miutil::miString& fieldname,
+               const std::string& fieldname,
 	       const miutil::miTime& tprod);
 
   bool notifyEditEvent(const EditEvent&);
 
   bool changedEditField();
   void getFieldSize(int &nx, int &ny);
-  bool prepareEditFieldPlot(const miutil::miString& fieldname,
+  bool prepareEditFieldPlot(const std::string& fieldname,
 			    const miutil::miTime& tprod);
 
   void setConstantValue(float value);
-  bool readEditFieldFile(const miutil::miString& filename,
-                         const miutil::miString& fieldname,
+  bool readEditFieldFile(const std::string& filename,
+                         const std::string& fieldname,
 			 const miutil::miTime& tprod);
-  bool readEditfield(const miutil::miString& filename,
-      const miutil::miString& fieldname);
-  bool writeEditFieldFile(const miutil::miString& filename, bool returndata,
+  bool readEditfield(const std::string& filename,
+      const std::string& fieldname);
+  bool writeEditFieldFile(const std::string& filename, bool returndata,
 			  short int** fdata, int& fdatalength);
   void activate();
   void deactivate() { active= false; };

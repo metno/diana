@@ -62,7 +62,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
 
       setModal(true);
       productname=prodname;
-      miutil::miString caption=productname+tr(":Write text").toStdString();
+      std::string caption=productname+tr(":Write text").toStdString();
       setWindowTitle(caption.c_str());
 
       //horizontal layout for holding grid layouts
@@ -74,7 +74,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
         hglayout->addLayout(glayout, 0);
 
         for (int i=0;i<ns;i++){
-          miutil::miString ltext="Text"+miutil::miString(i+1);
+          std::string ltext="Text"+miutil::from_number(i+1);
           QString labeltext=ltext.c_str();
           QLabel* namelabel= new QLabel(labeltext, this) ;
 
@@ -159,14 +159,14 @@ void AnnoText::getAnnoText(vector<string>& symbolText, vector<string>& xText)
         return;
       } else if(e->key()==Qt::Key_PageDown){
         m_ctrl->editNextAnnoElement();
-        miutil::miString text=m_ctrl->getMarkedAnnotation();
+        std::string text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();
         }
       } else if(e->key()==Qt::Key_PageUp){
         m_ctrl->editLastAnnoElement();
-        miutil::miString text=m_ctrl->getMarkedAnnotation();
+        std::string text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();

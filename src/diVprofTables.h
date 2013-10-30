@@ -79,8 +79,8 @@ class GLPfile;
 struct VprofText {
   int      index;
   Colour   colour;
-  miutil::miString modelName;
-  miutil::miString posName;
+  std::string modelName;
+  std::string posName;
   bool     prognostic;
   int      forecastHour;
   miutil::miTime   validTime;
@@ -126,7 +126,7 @@ protected:
   static FontManager* fp;
   static vector<float> charsizes;
   static vector<float> fontsizes;
-  static miutil::miString defaultFont;
+  static std::string defaultFont;
 
   // PostScript module
   static GLPfile* psoutput;  // PostScript module

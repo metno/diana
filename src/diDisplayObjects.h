@@ -61,8 +61,8 @@ public:
 
   /// initialize class variables to false/zero
   void init();
-  /// parse miutil::miString pi to define what objects to display
-  bool define(const miutil::miString& pi);
+  /// parse std::string pi to define what objects to display
+  bool define(const std::string& pi);
   /// prepares object plots by setting colour and alpha value, apply symbolfilter etc.
   bool prepareObjects();
   /// returns a string with objectname and time
@@ -82,13 +82,13 @@ public:
 
 private:
 
-  map<miutil::miString,bool> useobject;
+  map<std::string,bool> useobject;
 
-  miutil::miString pin;
+  std::string pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;
-  vector <miutil::miString> symbolfilter;
+  vector <std::string> symbolfilter;
 
 
 

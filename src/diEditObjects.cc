@@ -64,12 +64,12 @@ EditObjects::EditObjects(){
 void EditObjects::init(){
   createobject= false;
   inDrawing= false;
-  filename= miString();
-  itsComments = miString();
+  filename= std::string();
+  itsComments = std::string();
   commentsChanged = false;
   commentsSaved = true;
   labelsSaved=true;
-  prefix= miString();
+  prefix= std::string();
   mapmode = normal_mode;
   clear();
 }
@@ -83,7 +83,7 @@ void EditObjects::defineModes(map<int,object_modes> objModes,
 
 void EditObjects::setEditMode(const mapMode mmode,
     const int emode,
-    const miString etool){
+    const std::string etool){
   //called when new edit mode/tool selected in gui (EditDIalog)
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::setEditMode");
@@ -788,7 +788,7 @@ void EditObjects::editUnHideAll(){
   }
 }
 
-void EditObjects::editHideCombineObjects(miString region){
+void EditObjects::editHideCombineObjects(std::string region){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("editHideCombineObject from " << region);
 #endif
@@ -804,7 +804,7 @@ void EditObjects::editHideCombineObjects(int ir ){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("editHideCombineObject from " << ir);
 #endif
-  miString region = WeatherSymbol::getAllRegions(ir);
+  std::string region = WeatherSymbol::getAllRegions(ir);
   if (!region.empty()){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1442,11 +1442,11 @@ void EditObjects::setScaleToField(float s){
  *  Methods for reading and writing comments                *
  ************************************************************/
 
-void EditObjects::putCommentStartLines(miString name,miString prefix)
+void EditObjects::putCommentStartLines(std::string name,std::string prefix)
 {
   //return the startline of the comments file to read
-  miString startline = prefix + miString(" ") + name +
-  miString(" ") + itsTime.isoTime()+ miString("\n");
+  std::string startline = prefix + std::string(" ") + name +
+  std::string(" ") + itsTime.isoTime()+ std::string("\n");
   itsComments+=
     "*************************************************\n";
   itsComments+=startline;
@@ -1454,7 +1454,7 @@ void EditObjects::putCommentStartLines(miString name,miString prefix)
     "*************************************************\n";
 }
 
-miString EditObjects::getComments(){
+std::string EditObjects::getComments(){
   //return the comments
   commentsChanged = false;
   //HK ???
@@ -1462,7 +1462,7 @@ miString EditObjects::getComments(){
   return itsComments;
 }
 
-void EditObjects::putComments(const miString & comments){
+void EditObjects::putComments(const std::string & comments){
   itsComments = comments;
   commentsChanged = true;
   commentsSaved = false;
@@ -1482,7 +1482,7 @@ void EditObjects::saveEditLabels(const vector<string>& labels)
  *  Methods for reading and writing text                    *
  ************************************************************/
 
-miString EditObjects::getMarkedText(){
+std::string EditObjects::getMarkedText(){
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1492,7 +1492,7 @@ miString EditObjects::getMarkedText(){
     }
 
   }
-  return miString();
+  return std::string();
 }
 
 Colour::ColourInfo EditObjects::getMarkedTextColour(){
@@ -1524,7 +1524,7 @@ Colour::ColourInfo EditObjects::getMarkedColour(){
   return cinfo;
 }
 
-void EditObjects::changeMarkedText(const miString & newText){
+void EditObjects::changeMarkedText(const std::string & newText){
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1578,7 +1578,7 @@ void EditObjects::getMarkedComplexText(vector<string>& symbolText, vector<string
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditObjects::getMarkedComplex called");
 #endif
-  vector <miString> xString;
+  vector <std::string> xString;
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){

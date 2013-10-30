@@ -192,9 +192,9 @@ void StationDialog::reloadSets()
 {
   QItemSelectionModel* selectionModel = selectedStationPlotList->selectionModel();
   foreach (QModelIndex index, selectionModel->selectedRows(1)) {
-    miutil::miString url = index.data().toString().toStdString();
+    std::string url = index.data().toString().toStdString();
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
-    miutil::miString name = nameIndex.data().toString().toStdString();
+    std::string name = nameIndex.data().toString().toStdString();
 
     if (m_ctrl->getStationManager()->importStations(name, url))
       selectionModel->select(index, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
@@ -249,7 +249,7 @@ void StationDialog::putOKString(const vector<string>& vstr)
   return;
 }
 
-miutil::miString StationDialog::getShortname()
+std::string StationDialog::getShortname()
 {
   return "";
 }
