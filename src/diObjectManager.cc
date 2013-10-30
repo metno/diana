@@ -79,8 +79,8 @@ ObjectManager::~ObjectManager()
 
 bool ObjectManager::parseSetup() {
 
-  miString section="OBJECTS";
-  vector<miString> vstr;
+  std::string section="OBJECTS";
+  vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
     METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
@@ -91,16 +91,16 @@ bool ObjectManager::parseSetup() {
   objectNames.clear();
   objectFiles.clear();
 
-  miString key,value,error;
+  std::string key,value,error;
   int i,n,nv,nvstr=vstr.size();
 
   for (nv=0; nv<nvstr; nv++) {
 //#####################################################################
 //  METLIBS_LOG_DEBUG("ObjectManager::parseSetup: " << vstr[nv]);
 //#####################################################################
-    vector<miString> tokens= vstr[nv].split('\"','\"'," ",true);
+    vector<std::string> tokens= miutil::split_protected(vstr[nv], '\"','\"'," ",true);
     n= tokens.size();
-    miString name;
+    std::string name;
     ObjectList olist;
     olist.updated= false;
     bool ok= true;
@@ -126,7 +126,7 @@ bool ObjectManager::parseSetup() {
 	ok= false;
       }
     }
-    if (name.exists() && olist.filename.exists()){
+    if (not name.empty() && not olist.filename.empty()) {
       if (objectFiles.find(name)==objectFiles.end()) {     //add new name
 	objectNames.push_back(name);
       }
@@ -144,9 +144,9 @@ bool ObjectManager::parseSetup() {
 }
 
 
-vector<miString> ObjectManager::getObjectNames(bool archive) {
+vector<std::string> ObjectManager::getObjectNames(bool archive) {
   //return objectnames. with/without archive
-  vector<miString> objNames;
+  vector<std::string> objNames;
   int n = objectNames.size();
   for(int i = 0; i<n;i++){
     if (archive){
@@ -194,7 +194,7 @@ vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
   vector<string> tokens= miutil::split_protected(pinfo, '"', '"');
   int m= tokens.size();
   for (int j=0; j<m; j++){
-    miString key,value;
+    std::string key,value;
     SetupParser::splitKeyValue(tokens[j],key,value);
     if (key=="name"){
       vector<ObjFileInfo> ofi= getObjectFiles(value,true);
@@ -211,30 +211,30 @@ vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 					miTime& constTime,
 					int& timediff,
-					const miString& pinfo)
+					const std::string& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
 
-  miString fileName;
-  miString objectname;
+  std::string fileName;
+  std::string objectname;
   timediff=0;
 
-  vector<miString> tokens= pinfo.split('"','"');
+  vector<std::string> tokens= miutil::split_protected(pinfo, '"','"');
   int m= tokens.size();
   for (int j=0; j<m; j++){
-    miString key,value;
+    std::string key,value;
     SetupParser::splitKeyValue(tokens[j],key,value);
     if (key=="name"){
       objectname = value;
     } else if( key=="timediff"){
-      timediff = value.toInt();
+      timediff = miutil::to_int(value);
     } else if( key=="file"){ //Product with no time
       fileName=value;
     }
   }
 
-  if(fileName.exists() ){ //Product with const time
+  if (not fileName.empty()) { //Product with const time
     if(objectFiles.count(objectname)){
       constTime = timeFilterFileName(fileName,objectFiles[objectname].filter);
     }
@@ -249,13 +249,13 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 }
 
 
-PlotOptions ObjectManager::getPlotOptions(miString objectName){
+PlotOptions ObjectManager::getPlotOptions(std::string objectName){
   return objectFiles[objectName].poptions;
 }
 
 
-bool ObjectManager::insertObjectName(const miString & name,
-				     const miString & file){
+bool ObjectManager::insertObjectName(const std::string & name,
+				     const std::string & file){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::insertObjectName " << name << " " << file);
 #endif
@@ -308,7 +308,7 @@ bool ObjectManager::prepareObjects(const miTime& t,
 }
 
 
-vector<ObjFileInfo> ObjectManager::getObjectFiles(const miString objectname,
+vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string objectname,
 						  bool refresh){
   // called from ObjectDialog
 #ifdef DEBUGPRINT
@@ -316,14 +316,14 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const miString objectname,
 #endif
 
   if (refresh) {
-    map<miString,ObjectList>::iterator p,pend= objectFiles.end();
+    map<std::string,ObjectList>::iterator p,pend= objectFiles.end();
     for (p=objectFiles.begin(); p!=pend; p++)
       p->second.updated= false;
   }
 
   vector<ObjFileInfo> files;
 
-  map<miString,ObjectList>::iterator po= objectFiles.find(objectname);
+  map<std::string,ObjectList>::iterator po= objectFiles.find(objectname);
   if (po==objectFiles.end()) return files;
 
   if (!po->second.updated || !po->second.files.size()) {
@@ -338,7 +338,7 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const miString objectname,
 vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 
   glob_t globBuf;
-  miString fileString= ol.filename + "*";
+  std::string fileString= ol.filename + "*";
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::listFiles, search string " << fileString);
 #endif
@@ -349,7 +349,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 
   for (unsigned int i=0; int(i)<globBuf.gl_pathc; i++) {
     ObjFileInfo info;
-    miString name = globBuf.gl_pathv[i];
+    std::string name = globBuf.gl_pathv[i];
     miTime time = timeFilterFileName(name,ol.filter);
     if(!time.undef() && time!=ztime){
       info.name = name;
@@ -371,17 +371,17 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
 }
 
 
-miString ObjectManager::prefixFileName(miString fileName)
+std::string ObjectManager::prefixFileName(std::string fileName)
 {
   //get prefix from a file with name  /.../../prefix_*.yyyymmddhh
-    vector <miString> parts= fileName.split('/');
-    miString prefix = parts.back();
-    vector <miString> sparts= prefix.split('_');
+    vector <std::string> parts= miutil::split(fileName, 0, "/");
+    std::string prefix = parts.back();
+    vector <std::string> sparts= miutil::split(prefix, 0, "_");
     prefix=sparts[0];
     return prefix;
 }
 
-miTime ObjectManager::timeFilterFileName(miString fileName,TimeFilter filter)
+miTime ObjectManager::timeFilterFileName(std::string fileName,TimeFilter filter)
 {
   if (filter.ok()){
     miTime t;
@@ -393,10 +393,10 @@ miTime ObjectManager::timeFilterFileName(miString fileName,TimeFilter filter)
 }
 
 
-miTime ObjectManager::timeFileName(miString fileName)
+miTime ObjectManager::timeFileName(std::string fileName)
 {
   //get time from a file with name *.yyyymmddhh
-  vector <miString> parts= fileName.split('.');
+  vector <std::string> parts= miutil::split(fileName, 0, ".");
   int nparts= parts.size();
   //if (parts.size() != 2) {
   //if (parts.size() < 2) {
@@ -409,7 +409,7 @@ miTime ObjectManager::timeFileName(miString fileName)
   return timeFromString(parts[nparts-1]);
 }
 
-miTime ObjectManager::timeFromString(miString timeString)
+miTime ObjectManager::timeFromString(std::string timeString)
 {
   //get time from a string with yyyymmddhhmm
     int year= atoi(timeString.substr(0,4).c_str());
@@ -435,7 +435,7 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects){
     return false;
 
 
-  map<miString,ObjectList>::iterator po;
+  map<std::string,ObjectList>::iterator po;
   po= objectFiles.find(wObjects.objectname);
   if (po==objectFiles.end()) return false;
 
@@ -468,7 +468,7 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects){
 /*----------------------------------------------------------------------
 -----------  end of methods for finding and showing objectfiles ---------
  -----------------------------------------------------------------------*/
-bool ObjectManager::editCommandReadCommentFile(const miString filename)
+bool ObjectManager::editCommandReadCommentFile(const std::string filename)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::editCommandReadCommentfile");
@@ -481,7 +481,7 @@ bool ObjectManager::editCommandReadCommentFile(const miString filename)
 }
 
 
-bool ObjectManager::readEditCommentFile(const miString filename,
+bool ObjectManager::readEditCommentFile(const std::string filename,
 				     WeatherObjects& wObjects){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::readEditCommentFile");
@@ -490,7 +490,7 @@ bool ObjectManager::readEditCommentFile(const miString filename,
   return wObjects.readEditCommentFile(filename);
 }
 
-void ObjectManager::putCommentStartLines(miString name,miString prefix){
+void ObjectManager::putCommentStartLines(std::string name,std::string prefix){
   //return the startline of the comments file
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::putCommentStartLines");
@@ -499,16 +499,16 @@ void ObjectManager::putCommentStartLines(miString name,miString prefix){
   plotm->editobjects.putCommentStartLines(name,prefix);
 }
 
-miString ObjectManager::getComments(){
+std::string ObjectManager::getComments(){
   //return the comments
   return plotm->editobjects.getComments();
 }
 
-void ObjectManager::putComments(const miString & comments){
+void ObjectManager::putComments(const std::string & comments){
   plotm->editobjects.putComments(comments);
 }
 
-miString ObjectManager::readComments(bool inEditSession){
+std::string ObjectManager::readComments(bool inEditSession){
   if (inEditSession)
     return plotm->editobjects.readComments();
   else
@@ -520,7 +520,7 @@ miString ObjectManager::readComments(bool inEditSession){
 ----------- end of methods for reading and writing comments -------------
  -----------------------------------------------------------------------*/
 
-bool ObjectManager::editCommandReadDrawFile(const miString filename)
+bool ObjectManager::editCommandReadDrawFile(const std::string filename)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::editCommandReadDrawfile");
@@ -545,7 +545,7 @@ bool ObjectManager::editCommandReadDrawFile(const miString filename)
 }
 
 
-bool ObjectManager::readEditDrawFile(const miString filename,
+bool ObjectManager::readEditDrawFile(const std::string filename,
 				     const Area& area,
 				     WeatherObjects& wObjects){
 #ifdef DEBUGPRINT
@@ -553,7 +553,7 @@ bool ObjectManager::readEditDrawFile(const miString filename,
 #endif
 
 
-  miString fileName = filename;
+  std::string fileName = filename;
 
 
   //check if filename exists, if not look for other files
@@ -568,15 +568,15 @@ bool ObjectManager::readEditDrawFile(const miString filename,
   return wObjects.readEditDrawFile(fileName,area);
 }
 
-miString ObjectManager::writeEditDrawString(const miTime& t,
+std::string ObjectManager::writeEditDrawString(const miTime& t,
 					WeatherObjects& wObjects){
   return wObjects.writeEditDrawString(t);
 }
 
 
 
-bool ObjectManager::writeEditDrawFile(const miString filename,
-				      const miString outputString){
+bool ObjectManager::writeEditDrawFile(const std::string filename,
+				      const std::string outputString){
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::writeEditDrawFile");
@@ -607,7 +607,7 @@ bool ObjectManager::writeEditDrawFile(const miString filename,
  *  Methods for reading and writing text  *
  *************************************************/
 
-void ObjectManager::setCurrentText(const miString & newText){
+void ObjectManager::setCurrentText(const std::string & newText){
   WeatherSymbol::setCurrentText(newText);
 }
 
@@ -616,7 +616,7 @@ void ObjectManager::setCurrentColour(const Colour::ColourInfo & newColour){
 }
 
 
-miString ObjectManager::getCurrentText(){
+std::string ObjectManager::getCurrentText(){
   return WeatherSymbol::getCurrentText();
 }
 
@@ -625,7 +625,7 @@ Colour::ColourInfo ObjectManager::getCurrentColour(){
 }
 
 
-miString ObjectManager::getMarkedText(){
+std::string ObjectManager::getMarkedText(){
   return plotm->editobjects.getMarkedText();
 }
 
@@ -638,7 +638,7 @@ Colour::ColourInfo ObjectManager::getMarkedColour(){
 }
 
 
-void ObjectManager::changeMarkedText(const miString & newText){
+void ObjectManager::changeMarkedText(const std::string & newText){
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
     plotm->editobjects.changeMarkedText(newText);
@@ -943,7 +943,7 @@ void ObjectManager::editCommandJoinFronts(bool joinAll,bool movePoints,bool join
 
 void ObjectManager::setEditMode(const mapMode mmode,
 				const int emode,
-				const miString etool){
+				const std::string etool){
   mapmode= mmode;
 
   plotm->editobjects.setEditMode(mmode,emode,etool);
@@ -1219,12 +1219,13 @@ void ObjectManager::undofrontClear(){
 }
 
 
-map <miString,bool> ObjectManager::decodeTypeString(miString token){
+map <std::string,bool> ObjectManager::decodeTypeString(std::string token)
+{
   return WeatherObjects::decodeTypeString(token);
 }
 
 
-miString ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
+std::string ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
   int yyyy= t.year();
   int mm  = t.month();
   int dd  = t.day();
@@ -1239,13 +1240,13 @@ miString ObjectManager::stringFromTime(const miTime& t,bool addMinutes){
   if (addMinutes)
        ostr << setw(2) << setfill('0') << mn;
 
-  miString timestring = ostr.str();
+  std::string timestring = ostr.str();
   return timestring;
 }
 
 
 
-bool ObjectManager::_isafile(const miString name){
+bool ObjectManager::_isafile(const std::string name){
   FILE *fp;
   if ((fp=fopen(name.c_str(),"r"))){
     fclose(fp);
@@ -1254,7 +1255,7 @@ bool ObjectManager::_isafile(const miString name){
 }
 
 
-bool ObjectManager::checkFileName(miString &fileName){
+bool ObjectManager::checkFileName(std::string &fileName){
   if(!_isafile(fileName)) {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::checkFileName");

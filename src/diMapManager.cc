@@ -42,8 +42,8 @@ vector<Area> MapManager::mapareas;
 vector<Area> MapManager::mapareas_Fkeys;
 vector<MapInfo> MapManager::mapfiles;
 
-const miString SectMapAreas = "MAP_AREA";
-const miString SectMapTypes = "MAP_TYPE";
+const std::string SectMapAreas = "MAP_AREA";
+const std::string SectMapTypes = "MAP_TYPE";
 
 bool MapManager::parseSetup()
 {
@@ -60,7 +60,7 @@ bool MapManager::parseMapAreas()
 
   mapareas.clear();
 
-  vector<miString> setuplist;
+  vector<std::string> setuplist;
   if (!SetupParser::getSection(SectMapAreas, setuplist)) {
     return true;
   }
@@ -71,11 +71,11 @@ bool MapManager::parseMapAreas()
     Area area;
 
     if (area.setAreaFromString(setuplist[i])) {
-      miString name = area.Name();
-      if (name.contains("[F5]") || name.contains("[F6]") || name.contains(
-          "[F7]") || name.contains("[F8]")) {
-        miString Fkey = name.substr(name.find("["), 4);
-        name.replace(Fkey, "");
+      std::string name = area.Name();
+      if (miutil::contains(name, "[F5]") || miutil::contains(name, "[F6]") || miutil::contains(name, 
+          "[F7]") || miutil::contains(name, "[F8]")) {
+        std::string Fkey = name.substr(name.find("["), 4);
+        miutil::replace(name, Fkey, "");
         Fkey.erase(0, 1);
         Fkey.erase(2, 1);
         Area area_Fkey = area;
@@ -118,9 +118,9 @@ bool MapManager::parseMapAreas()
 bool MapManager::parseMapTypes()
 {
 
-  const miString key_name = "map=";
+  const std::string key_name = "map=";
 
-  vector<miString> strlist;
+  vector<std::string> strlist;
   MapInfo mapinfo;
   unsigned int i, n, q;
 
@@ -133,9 +133,9 @@ bool MapManager::parseMapTypes()
 
   n = strlist.size();
   for (i = 0; i < n; i++) {
-    if (strlist[i].contains(key_name)) {
+    if (miutil::contains(strlist[i], key_name)) {
       // save previous map and set defaults
-      if (mapinfo.name.exists()) {
+      if (not mapinfo.name.empty()) {
         // find duplicate
         for (q = 0; q < mapfiles.size(); q++)
           if (mapfiles[q].name == mapinfo.name)
@@ -194,7 +194,7 @@ bool MapManager::parseMapTypes()
   }
 
   // add final map to list
-  if (mapinfo.name.exists()) {
+  if (not mapinfo.name.empty()) {
     // find duplicate
     for (q = 0; q < mapfiles.size(); q++)
       if (mapfiles[q].name == mapinfo.name)
@@ -208,9 +208,9 @@ bool MapManager::parseMapTypes()
   return true;
 }
 
-vector<miString> MapManager::getMapAreaNames()
+vector<std::string> MapManager::getMapAreaNames()
 {
-  vector<miString> areanames;
+  vector<std::string> areanames;
   int i, n = mapareas.size();
   for (i = 0; i < n; i++)
     areanames.push_back(mapareas[i].Name());
@@ -218,11 +218,11 @@ vector<miString> MapManager::getMapAreaNames()
   return areanames;
 }
 
-bool MapManager::getMapAreaByName(const miString& name, Area& a)
+bool MapManager::getMapAreaByName(const std::string& name, Area& a)
 {
   int i, n = mapareas.size();
   //return first map
-  if (name.downcase() == "default" && n > 0) {
+  if (miutil::to_lower(name) == "default" && n > 0) {
     a = mapareas[0];
     return true;
   }
@@ -235,7 +235,7 @@ bool MapManager::getMapAreaByName(const miString& name, Area& a)
   return false;
 }
 
-bool MapManager::getMapAreaByFkey(const miString& name, Area& a)
+bool MapManager::getMapAreaByFkey(const std::string& name, Area& a)
 {
   //     cerr<<"getMapAreaByFkey:"<<name<<endl;
   int i, n = mapareas_Fkeys.size();
@@ -253,12 +253,12 @@ vector<MapInfo> MapManager::getMapInfo()
   return mapfiles;
 }
 
-bool MapManager::getMapInfoByName(const miString& name, MapInfo& mapinfo)
+bool MapManager::getMapInfoByName(const std::string& name, MapInfo& mapinfo)
 {
   int n = mapfiles.size();
   for (int i = 0; i < n; i++) {
-    miString mname = mapfiles[i].name;
-    if (mname.downcase() == name.downcase()) {
+    std::string mname = mapfiles[i].name;
+    if (miutil::to_lower(mname) == miutil::to_lower(name)) {
       mapinfo = mapfiles[i];
       return true;
     }
@@ -266,17 +266,17 @@ bool MapManager::getMapInfoByName(const miString& name, MapInfo& mapinfo)
   return false;
 }
 
-bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
+bool MapManager::fillMapInfo(const std::string& str, MapInfo& mi,
     PlotOptions& contopts, PlotOptions& landopts, PlotOptions& lonopts,
     PlotOptions& latopts, PlotOptions& ffopts)
 {
-  const miString key_name = "map";
-  const miString key_type = "type";
-  const miString key_file = "file";
-  const miString key_limit = "limit";
+  const std::string key_name = "map";
+  const std::string key_type = "type";
+  const std::string key_file = "file";
+  const std::string key_limit = "limit";
 
-  vector<miString> tokens, stokens;
-  miString key, value;
+  vector<std::string> tokens, stokens;
+  std::string key, value;
   MapFileInfo mfi;
   bool newfile = false;
   int m, j, o;
@@ -288,22 +288,22 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
   mi.lon.fontsize = 10;
   mi.lat.fontsize = 10;
 
-  tokens = str.split(" ");
+  tokens = miutil::split(str, " ");
   m = tokens.size();
   for (j = 0; j < m; j++) {
 
-    if (tokens[j].upcase() == "NO.LOG") {
+    if (miutil::to_upper(tokens[j]) == "NO.LOG") {
       mi.logok = false;
       continue;
     }
 
-    stokens = tokens[j].split('=');
+    stokens = miutil::split(tokens[j], 0, "=");
     o = stokens.size();
     if (o > 1) {
-      key = stokens[0].downcase();
-      key.trim();
+      key = miutil::to_lower(stokens[0]);
+      miutil::trim(key);
       value = stokens[1];
-      value.trim();
+      miutil::trim(value);
 
       if (key == key_name) {
         mi.name = value;
@@ -317,7 +317,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mfi.sizelimit = atof(value.c_str());
 
       } else if (key == "contour") {
-        mi.contour.ison = (value.upcase() == "ON");
+        mi.contour.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "cont.colour") {
         mi.contour.linecolour = value;
         contopts.linecolour = Colour(value);
@@ -331,7 +331,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mi.contour.zorder = atoi(value.c_str());
 
       } else if (key == "land") {
-        mi.land.ison = (value.upcase() == "ON");
+        mi.land.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "land.colour") {
         mi.land.fillcolour = value;
         landopts.fillcolour = Colour(value);
@@ -340,7 +340,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
 
         // Old combined latlon (deprecated)
       } else if (key == "latlon") {
-        mi.lon.ison = mi.lat.ison = (value.upcase() == "ON");
+        mi.lon.ison = mi.lat.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "latlon.colour") {
         mi.lon.linecolour = mi.lat.linecolour = value;
         lonopts.linecolour = latopts.linecolour = Colour(value);
@@ -356,7 +356,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
         mi.lon.zorder = mi.lat.zorder = atoi(value.c_str());
 
       } else if (key == "lon") {
-        mi.lon.ison = (value.upcase() == "ON");
+        mi.lon.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "lon.colour") {
         mi.lon.linecolour = value;
         lonopts.linecolour = Colour(value);
@@ -371,14 +371,14 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
       } else if (key == "lon.zorder") {
         mi.lon.zorder = atoi(value.c_str());
       } else if (key == "lon.showvalue") {
-        mi.lon.showvalue = (value.upcase() == "ON");
+        mi.lon.showvalue = (miutil::to_upper(value) == "ON");
       } else if (key == "lon.value_pos") {
         mi.lon.value_pos = value;
       } else if (key == "lon.fontsize") {
         mi.lon.fontsize = atof(value.c_str());
 
       } else if (key == "lat") {
-        mi.lat.ison = (value.upcase() == "ON");
+        mi.lat.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "lat.colour") {
         mi.lat.linecolour = value;
         latopts.linecolour = Colour(value);
@@ -393,14 +393,14 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
       } else if (key == "lat.zorder") {
         mi.lat.zorder = atoi(value.c_str());
       } else if (key == "lat.showvalue") {
-        mi.lat.showvalue = (value.upcase() == "ON");
+        mi.lat.showvalue = (miutil::to_upper(value) == "ON");
       } else if (key == "lat.value_pos") {
         mi.lat.value_pos = value;
       } else if (key == "lat.fontsize") {
         mi.lat.fontsize = atof(value.c_str());
 
       } else if (key == "frame") {
-        mi.frame.ison = (value.upcase() == "ON");
+        mi.frame.ison = (miutil::to_upper(value) == "ON");
       } else if (key == "frame.colour") {
         mi.frame.linecolour = value;
         ffopts.linecolour = Colour(value);
@@ -426,7 +426,7 @@ bool MapManager::fillMapInfo(const miString& str, MapInfo& mi,
   return true;
 }
 
-miString MapManager::MapInfo2str(const MapInfo& mi)
+std::string MapManager::MapInfo2str(const MapInfo& mi)
 {
   ostringstream ost;
   ost << "map=" << mi.name;
@@ -477,7 +477,7 @@ miString MapManager::MapInfo2str(const MapInfo& mi)
 
 MapDialogInfo MapManager::getMapDialogInfo()
 {
-  vector<miString> areas = getMapAreaNames();
+  vector<string> areas = getMapAreaNames();
   vector<MapInfo> maps = getMapInfo();
 
   MapDialogInfo MapDI;

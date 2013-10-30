@@ -51,13 +51,13 @@ public:
   GEOtiff();
 
   ///read image
-  static bool readGEOtiff(const miutil::miString& filename, Sat& sd, int index=0);
+  static bool readGEOtiff(const std::string& filename, Sat& sd, int index=0);
   ///read header info (time, channels)
   static bool readGEOtiffHeader(SatFileInfo& file);
   ///read palette info
-  static bool readGEOtiffPalette(const miutil::miString& filename, vector<Colour>& col);
+  static bool readGEOtiffPalette(const std::string& filename, vector<Colour>& col);
   ///set channels depending on solar heigt
-  static bool day_night(const miutil::miString& filename, miutil::miString& channels);
+  static bool day_night(const std::string& filename, std::string& channels);
 
 };
 

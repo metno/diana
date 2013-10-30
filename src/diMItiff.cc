@@ -43,7 +43,7 @@ using namespace::miutil;
 MItiff::MItiff(){
 }
 
-bool MItiff::readMItiffPalette(const miString& filename,
+bool MItiff::readMItiffPalette(const std::string& filename,
 				   vector<Colour>& col)
 {
 
@@ -91,13 +91,13 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
   file.time = ginfo.time;
   file.opened = true;
 
-  miString ch=ginfo.channel;
-  file.channel=ch.split(" ");
+  std::string ch=ginfo.channel;
+  file.channel=miutil::split(ch, " ");
 
   return true;
 }
 
-bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
+bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
 {
   //Read TIFF-file using libsatimg, MITIFF_read_diana returns the images
   //for each channel (index[i]) in rawimage[i], and  information about the
@@ -154,7 +154,7 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 }
 
 
-bool  MItiff::day_night(SatFileInfo &fInfo, miString& channels) {
+bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels) {
 
   int aa = satimg::day_night(fInfo.name);
 

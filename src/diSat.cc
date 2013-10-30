@@ -80,7 +80,7 @@ Sat::Sat (const Sat &rhs)
   memberCopy(rhs);
 }
 
-Sat::Sat (const miString &pin) :
+Sat::Sat (const std::string &pin) :
   approved(false),  autoFile(true),
   cut(defaultCut), alphacut(defaultAlphacut), alpha(defaultAlpha),
   maxDiff(defaultTimediff), classtable(defaultClasstable),
@@ -99,7 +99,7 @@ Sat::Sat (const miString &pin) :
   for (int i=0; i<3; i++)
     origimage[i]= NULL;
 
-  vector<miString> tokens= pin.split();
+  vector<std::string> tokens= miutil::split(pin);
   int n= tokens.size();
   if (n < 4) {
     METLIBS_LOG_WARN("Wrong syntax: "<<pin);
@@ -109,12 +109,12 @@ Sat::Sat (const miString &pin) :
   filetype = tokens[2];
   plotChannels = tokens[3];
 
-  miString key, value;
+  std::string key, value;
 
   for (int i=4; i<n; i++) { // search through plotinfo
-    vector<miString> stokens= tokens[i].split('=');
+    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
     if (stokens.size()==2) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
       if (key=="file") {
         filename = value;
@@ -132,10 +132,10 @@ Sat::Sat (const miString &pin) :
       else if (key=="table")
         classtable = (atoi(value.c_str())!=0);
       else if (key=="hide") {
-        vector <miString> stokens=value.split(',');
+        vector <std::string> stokens=miutil::split(value, 0, ",");
         int m= stokens.size();
         for (int j=0; j<m; j++) {
-          vector <miString> sstokens=stokens[j].split(':');
+          vector <std::string> sstokens=miutil::split(stokens[j], 0, ":");
           if(sstokens.size()==1) {
             hideColour[atoi(sstokens[0].c_str())] = 0;
           } else {
@@ -300,7 +300,7 @@ void Sat::values(int x, int y, vector<SatValues>& satval)
               sv.text = p->second.val[(int)pvalue];
             } else {
               sv.value = atof(p->second.val[(int)pvalue].c_str());
-              if (p->second.channel.contains("TEMP"))
+              if (miutil::contains(p->second.channel, "TEMP"))
                 sv.value -= 273.0;//use degrees celsius instead of Kelvin
             }
           }
@@ -329,14 +329,14 @@ void Sat::setCalibration()
   if (palette && !paletteInfo.clname.size() )
     return;
 
-  miString start = satellite_name + " " + filetype +"|";
+  std::string start = satellite_name + " " + filetype +"|";
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Sat::setCalibration -- palette: " << palette);
 #endif
 
   if (palette) {
-    miString name = start + paletteInfo.name;
+    std::string name = start + paletteInfo.name;
     table_cal ct;
     ct.channel = name;
     ct.val.push_back(" ");
@@ -355,7 +355,7 @@ void Sat::setCalibration()
   if (cal_table.size()>0) {
     for (unsigned int i=0; i<cal_table.size(); i++) {
       table_cal ct;
-      vector<miString> token = cal_table[i].split(",");
+      vector<std::string> token = miutil::split(cal_table[i], ",");
       if (token.size()!= 5)
         continue;
       int m = vch.size();
@@ -364,12 +364,12 @@ void Sat::setCalibration()
         j++;
       if (j==m)
         continue;
-      miString name = start + token[1]+"("+token[0]+")";
+      std::string name = start + token[1]+"("+token[0]+")";
       cal_channels.push_back(name);
-      token[4].remove('[');
-      token[4].remove(']');
+      miutil::remove(token[4], '[');
+      miutil::remove(token[4], ']');
       ct.channel = name;
-      ct.val =token[4].split(" ");
+      ct.val =miutil::split(token[4], " ");
       if (ct.val.size()!=256)
         continue;
       calibrationTable[j]=ct;
@@ -384,10 +384,10 @@ void Sat::setCalibration()
   //Visual
   bool vis=false;
   float AVis = 0.0, BVis = 0.0;
-  if (cal_vis.exists()) {
-    vector<miString> cal = cal_vis.split("+");
+  if (not cal_vis.empty()) {
+    vector<std::string> cal = miutil::split(cal_vis, "+");
     if (cal.size()==2) {
-      miString str = cal[0].substr(cal[0].find_first_of("(")+1);
+      std::string str = cal[0].substr(cal[0].find_first_of("(")+1);
       BVis = atof(str.c_str());
       str = cal[1].substr(cal[1].find_first_of("(")+1);
       AVis = atof(str.c_str());
@@ -402,10 +402,10 @@ void Sat::setCalibration()
   //Infrared
   bool ir = false;
   float AIr = 0.0, BIr = 0.0;
-  if (cal_ir.exists()) {
-    vector<miString> cal = cal_ir.split("+");
+  if (not cal_ir.empty()) {
+    vector<std::string> cal = miutil::split(cal_ir, "+");
     if (cal.size()==2) {
-      miString str = cal[0].substr(cal[0].find_first_of("(")+1);
+      std::string str = cal[0].substr(cal[0].find_first_of("(")+1);
       BIr = atof(str.c_str());
       str = cal[1].substr(cal[1].find_first_of("(")+1);
       AIr = atof(str.c_str());
@@ -460,14 +460,14 @@ void Sat::setCalibration()
      * hdf5type == 2 => MSG (HDF5)
      * and channels 4 and 7-11 ar infrared
      */
-    if(vch[j].contains("-")) {
+    if(miutil::contains(vch[j], "-")) {
       ir=false;
       vis=false;
     }
     bool isIRchannel=(((hdf5type == 0) && (vch[j]=="3" ||vch[j]=="4" || vch[j]=="5"))
-        || (hdf5type == 2 && (vch[j].contains("4") || vch[j].contains("7") ||
-            vch[j].contains("8") || vch[j].contains("9") || vch[j].contains("10") ||
-            vch[j].contains("11"))) || (hdf5type == 1 && (vch[j].contains("4"))));
+        || (hdf5type == 2 && (miutil::contains(vch[j], "4") || miutil::contains(vch[j], "7") ||
+            miutil::contains(vch[j], "8") || miutil::contains(vch[j], "9") || miutil::contains(vch[j], "10") ||
+            miutil::contains(vch[j], "11"))) || (hdf5type == 1 && (miutil::contains(vch[j], "4"))));
     table_cal ct;
     if (ir && isIRchannel) {
       ct.channel = start + "Infrared (" + vch[j] + "):";
@@ -501,7 +501,7 @@ void Sat::setCalibration()
 void Sat::setAnnotation()
 {
   annotation = satellite_name;
-  annotation.trim();
+  miutil::trim(annotation);
   if (mosaic)
     annotation += " MOSAIKK ";
   else
@@ -513,7 +513,7 @@ void Sat::setAnnotation()
   annotation += time.format("%D %H:%M");
   if (mosaic) {
     //add info about first/last mosaic-file
-    miString temp = " (";
+    std::string temp = " (";
     temp += firstMosaicFileTime.format("%H:%M");
     temp +=" - " + lastMosaicFileTime.format("%H:%M");
     temp+= ")";
@@ -524,7 +524,7 @@ void Sat::setAnnotation()
 void Sat::setPlotName()
 {
   plotname = satellite_name;
-  plotname.trim();
+  miutil::trim(plotname);
   if (mosaic)
     plotname += " MOSAIKK ";
   else

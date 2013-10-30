@@ -2398,7 +2398,7 @@ static int parseAndProcess(istream &is)
           pcom.push_back(lines[i]);
         k++;
 
-        vector<miString> levels;
+        vector<string> levels;
 
         // open filestream
         ofstream file(priop.fname.c_str());
@@ -2688,7 +2688,7 @@ static int parseAndProcess(istream &is)
             fieldPatterns.insert(fileNames.begin(), fileNames.end());
           }
 
-          map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
+          map<string, map<string,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
           set<miutil::miString> satPatterns;
           set<miutil::miString> satFiles;
 
@@ -2700,24 +2700,24 @@ static int parseAndProcess(istream &is)
                   for (vector<SatFileInfo>::iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
                     satFiles.insert(itsf->name);
                     if (itsf->name == sat->actualfile) {
-                        for (vector<miutil::miString>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
+                        for (vector<string>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
                             satPatterns.insert(*itp);
                     }
                   }
               }
           }
 
-          map<miutil::miString,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
+          map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
           set<miutil::miString> obsPatterns;
           set<miutil::miString> obsFiles;
 
           vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
           for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
-              vector<miutil::miString> obsFileNames = (*it)->getFileNames();
-              for (vector<miutil::miString>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
+              vector<string> obsFileNames = (*it)->getFileNames();
+              for (vector<string>::iterator itf = obsFileNames.begin(); itf != obsFileNames.end(); ++itf) {
                   obsFiles.insert(*itf);
 
-                  for (map<miutil::miString,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
+                  for (map<string,ObsManager::ProdInfo>::iterator ito = obsProducts.begin(); ito != obsProducts.end(); ++ito) {
                       for (vector<ObsManager::FileInfo>::iterator itof = ito->second.fileInfo.begin(); itof != ito->second.fileInfo.end(); ++itof) {
                           if (*itf == itof->filename) {
                               for (vector<ObsManager::patternInfo>::iterator itp = ito->second.pattern.begin(); itp != ito->second.pattern.end(); ++itp)

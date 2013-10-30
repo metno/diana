@@ -48,12 +48,12 @@ class FieldPlotManager {
   // Constructor
 public:
   struct PlotField {
-    miutil::miString name; ///< the field name in dialog etc.
-    miutil::miString fieldgroup; ///< special fieldgroup name (to separate some fields)
-    //miutil::miString text;            ///< not used, yet...
-    miutil::miString plot; ///< the plot type, for debugging only
-    vector<miutil::miString> input; ///< the input fields, read or computed
-    set< miutil::miString > vcoord;
+    std::string name; ///< the field name in dialog etc.
+    std::string fieldgroup; ///< special fieldgroup name (to separate some fields)
+    //miutil::std::string text;            ///< not used, yet...
+    std::string plot; ///< the plot type, for debugging only
+    vector<std::string> input; ///< the input fields, read or computed
+    set< std::string > vcoord;
   };
 
   FieldPlotManager(FieldManager* fm);
@@ -69,11 +69,11 @@ public:
   bool parseFieldPlotSetup();
   bool parseFieldGroupSetup();
 
-  bool makeDifferenceField(const miutil::miString& fspec1,
-      const miutil::miString& fspec2, const miutil::miTime& ptime,
+  bool makeDifferenceField(const std::string& fspec1,
+      const std::string& fspec2, const miutil::miTime& ptime,
       vector<Field*>& fv);
 
-  bool makeFields(const miutil::miString& pin, const miutil::miTime& ptime,
+  bool makeFields(const std::string& pin, const miutil::miTime& ptime,
       vector<Field*>& vfout,bool toCache = false);
 
   bool addGridCollection(const std::string fileType,
@@ -84,7 +84,7 @@ public:
       const std::vector<std::string>& option);
 
   /// return available times for the requested models and fields
-  void makeFieldText(Field* fout, const miutil::miString& plotName);
+  void makeFieldText(Field* fout, const std::string& plotName);
 
   vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request, bool& constTimes, bool updateSources=false);
 
@@ -101,11 +101,11 @@ public:
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
-      miutil::miTime& constTimes, int& timediff, const miutil::miString& pinfo,
+      miutil::miTime& constTimes, int& timediff, const std::string& pinfo,
       bool updateSources=false);
 
   ///return levels
-  vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
+  vector<std::string> getFieldLevels(const std::string& pinfo);
 
   /// return all defined field plot names from setup
   void getAllFieldNames(vector<std::string>& fieldNames,
@@ -120,17 +120,17 @@ private:
   set<std::string> fieldprefixes;
   set<std::string> fieldsuffixes;
 
-  vector<miutil::miString>
-      splitComStr(const miutil::miString& s, bool splitall);
+  vector<std::string>
+      splitComStr(const std::string& s, bool splitall);
 
   bool splitSuffix(std::string& plotName, std::string& suffix);
   vector<std::string> getParamNames(std::string plotName, std::string vcoord, bool& standard_name);
 
-  bool splitDifferenceCommandString(miutil::miString pin, miutil::miString& fspec1, miutil::miString& fspec2);
+  bool splitDifferenceCommandString(std::string pin, std::string& fspec1, std::string& fspec2);
 
   void parseString(std::string& pin, FieldRequest& fieldrequest, vector<std::string>& paramNames, std::string& plotName );
 
-  map<miutil::miString, miutil::miString> groupNames;
+  map<std::string, std::string> groupNames;
 
 
   FieldManager* fieldManager;

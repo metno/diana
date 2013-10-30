@@ -158,7 +158,7 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// return current plottime
-  void getPlotTime(miutil::miString&);
+  void getPlotTime(std::string&);
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
@@ -172,7 +172,7 @@ public:
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
-  miutil::miString getProductName();
+  std::string getProductName();
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
@@ -195,7 +195,7 @@ public:
   /// find obs in grid position x,y
   bool findObs(int,int);
   /// find name of obs in grid position x,y
-  bool getObsName(int x,int y, miutil::miString& name);
+  bool getObsName(int x,int y, std::string& name);
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket
@@ -205,7 +205,7 @@ public:
   void updateHqcdata(const std::string&, const std::string&,
                      const std::string&, const vector<std::string>&);
   /// select obs parameter to flag from QSocket
-  void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
+  void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
   void  trajPos(std::vector<std::string>&);
   /// plot measurements position
@@ -215,7 +215,7 @@ public:
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file
-  bool printTrajectoryPositions(const miutil::miString& filename);
+  bool printTrajectoryPositions(const std::string& filename);
   /// get field models used (for Vprof etc.)
   std::vector<std::string> getFieldModels();
   /// obs time step changed
@@ -233,16 +233,16 @@ public:
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
-  miutil::miString getMarkedAnnotation();
+  std::string getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(miutil::miString text,int cursor=0,
+  void changeMarkedAnnotation(std::string text,int cursor=0,
                               int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
   void startEditAnnotation();
   /// stop editing annotations
-  void stopEditAnnotation(miutil::miString prodname);
+  void stopEditAnnotation(std::string prodname);
   /// go to next element in annotation being edited
   void editNextAnnoElement();
   /// go to last element in annotation being edited
@@ -261,16 +261,16 @@ public:
 
   // Sat-dialog routines
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  const vector<SatFileInfo>& getSatFiles(const miutil::miString & satellite, const miutil::miString & file,bool update);
+  const vector<SatFileInfo>& getSatFiles(const std::string & satellite, const std::string & file,bool update);
   /// returns colour palette for subproduct of class satellite and subclass file
-  const vector<Colour>& getSatColours(const miutil::miString & satellite, const miutil::miString & file);
+  const vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
   /// returns channels for subproduct of class satellite and subclass file
-  const vector<miutil::miString>& getSatChannels(const miutil::miString & satellite, const miutil::miString &file ,
+  const vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
                                          int index=-1);
   /// returns true if satellite picture is a mosaic
-  bool isMosaic(const miutil::miString &, const miutil::miString &);
+  bool isMosaic(const std::string &, const std::string &);
   /// refresh list of satellite files
-  void SatRefresh(const miutil::miString &, const miutil::miString &);
+  void SatRefresh(const std::string &, const std::string &);
   /// returns information about whether list of satellite files have changed
   void satFileListUpdated();
   /// called when the dialog and timeSlider updated with info from satellite
@@ -280,13 +280,13 @@ public:
   /// called when the dialog and timeSlider updated with info from obs
   bool obsTimeListChanged();
   /// satellite follows main plot time
-  void setSatAuto(bool,const miutil::miString &, const miutil::miString &);
+  void setSatAuto(bool,const std::string &, const std::string &);
   /// get satellite classes for uffda dialog
-  void getUffdaClasses(vector <miutil::miString> &,vector <miutil::miString> &);
+  void getUffdaClasses(vector <std::string> &,vector <std::string> &);
   /// returns true if uffda option enables
   bool getUffdaEnabled();
   /// returns adress to send mail from uffda dialog
-  miutil::miString getUffdaMailAddress();
+  std::string getUffdaMailAddress();
   /// return button names for SatDialog
   SatDialogInfo initSatDialog();
 
@@ -296,9 +296,9 @@ public:
   /// return button names for ObsDialog
   ObsDialogInfo initObsDialog();
   /// return button names for ObsDialog ... ascii files (when activated)
-  ObsDialogInfo updateObsDialog(const miutil::miString& name);
+  ObsDialogInfo updateObsDialog(const std::string& name);
   /// get observation times for plot types name
-  vector<miutil::miTime> getObsTimes( vector<miutil::miString> name);
+  std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& name);
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
@@ -312,7 +312,7 @@ public:
                         set<std::string>& fieldprefixes,
                         set<std::string>& fieldsuffixes);
   ///return levels
-  vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
+  vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelNameRequest,
                       std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
@@ -323,7 +323,7 @@ public:
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();
-  bool MapInfoParser(miutil::miString& str, MapInfo& mi, bool tostr);
+  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui
@@ -333,13 +333,13 @@ public:
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<miutil::miString> getObjectNames(bool);
+  vector<std::string> getObjectNames(bool);
   ///objects follow main plot time
   void setObjAuto(bool autoFile);
   /// returns list of objectfiles for use in dialog
-  vector<ObjFileInfo> getObjectFiles(miutil::miString objectname, bool refresh);
+  vector<ObjFileInfo> getObjectFiles(std::string objectname, bool refresh);
   /// decode string with types of objects to plot
-  map <miutil::miString,bool> decodeTypeString(miutil::miString);
+  map <std::string,bool> decodeTypeString(std::string);
 
   // various GUI-methods
   vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
@@ -350,13 +350,13 @@ public:
   void makeStationPlot(const std::string& commondesc, const std::string& common,
                        const std::string& description, int from,
                        const  vector<std::string>& data);
-  void deleteStations(miutil::miString name);
+  void deleteStations(std::string name);
   void deleteStations(int id=-2);
-  miutil::miString findStation(int, int,miutil::miString name,int id=-1);
-  void findStations(int, int, bool add, vector<miutil::miString>& name,vector<int>& id,
-                    vector<miutil::miString>& station);
-  void getEditStation(int step, miutil::miString& name, int& id,
-                      vector<miutil::miString>& stations);
+  std::string findStation(int, int,std::string name,int id=-1);
+  void findStations(int, int, bool add, vector<std::string>& name,vector<int>& id,
+                    vector<std::string>& station);
+  void getEditStation(int step, std::string& name, int& id,
+                      vector<std::string>& stations);
   void getStationData(vector<std::string>& data);
   void stationCommand(const std::string& Command,
                       const vector<std::string>& data,
@@ -369,19 +369,19 @@ public:
 
   //areas
   ///put area into list of area objects
-  void makeAreas(const miutil::miString& name, miutil::miString areaString, int id=-1);
+  void makeAreas(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
-  void areaCommand(const miutil::miString& command, const miutil::miString& dataSet,
-                   const miutil::miString& data, int id );
+  void areaCommand(const std::string& command, const std::string& dataSet,
+                   const std::string& data, int id );
   ///find areas in position x,y
   vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);
   void updateLocation(const LocationData& locationdata);
-  void deleteLocation(const miutil::miString& name);
-  void setSelectedLocation(const miutil::miString& name,
-                         const miutil::miString& elementname);
+  void deleteLocation(const std::string& name);
+  void setSelectedLocation(const std::string& name,
+                         const std::string& elementname);
   std::string findLocation(int x, int y, const std::string& name);
 
   std::map<std::string,InfoFile> getInfoFiles();

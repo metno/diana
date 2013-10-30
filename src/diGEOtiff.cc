@@ -41,7 +41,7 @@
 GEOtiff::GEOtiff(){
 }
 
-bool GEOtiff::readGEOtiffPalette(const miutil::miString& filename,
+bool GEOtiff::readGEOtiffPalette(const std::string& filename,
 				   vector<Colour>& col)
 {
 
@@ -92,12 +92,12 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
   file.time = ginfo.time;
   file.opened = true;
 
-  miutil::miString ch=ginfo.channel;
-  file.channel=ch.split(" ");
+  std::string ch=ginfo.channel;
+  file.channel=miutil::split(ch, " ");
 
 }
 
-bool GEOtiff::readGEOtiff(const miutil::miString& filename, Sat& sd, int index)
+bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)
 {
   //Read TIFF-file using libsatgeotiff, GEOTIFF_read_diana returns the images
   //for each channel (index[i]) in rawimage[i], and  information about the 

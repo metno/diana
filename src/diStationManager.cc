@@ -31,15 +31,16 @@
 #include "config.h"
 #endif
 
-#include <puTools/miSetupParser.h>
-#include <puTools/miTime.h>
-
-#define MILOGGER_CATEGORY "diana.StationManager"
-#include <miLogger/miLogging.h>
-
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <diObsAscii.h>
+
+#include <puTools/miSetupParser.h>
+#include <puTools/miTime.h>
+#include <boost/algorithm/string/join.hpp>
+
+#define MILOGGER_CATEGORY "diana.StationManager"
+#include <miLogger/miLogging.h>
 
 using namespace miutil;
 
@@ -52,7 +53,7 @@ StationManager::StationManager()
 */
 bool StationManager::init(const vector<string>& inp)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
 
   // Hide all the station plots to begin with so that we can later
   // show and select/unselect them.
@@ -66,19 +67,18 @@ bool StationManager::init(const vector<string>& inp)
 
   for (unsigned int i = 0; i < inp.size(); ++i) {
 
-    miutil::miString plotStr = inp[i];
+    std::string plotStr = inp[i];
 
-    vector<miutil::miString> pieces = plotStr.split(" ");
+    vector<std::string> pieces = miutil::split(plotStr, " ");
     pieces.erase(pieces.begin());
 
-    miutil::miString select = pieces.back();
+    std::string select = pieces.back();
     pieces.pop_back();
 
-    miutil::miString url = pieces.back();
+    std::string url = pieces.back();
     pieces.pop_back();
 
-    miutil::miString name;
-    name.join(pieces, " ");
+    std::string name = boost::algorithm::join(pieces, " ");
 
     it = stationPlots.find(name);
     StationPlot* plot = 0;
@@ -138,22 +138,22 @@ stationDialogInfo StationManager::initDialog()
 bool StationManager::parseSetup()
 {
   // Create stationSetInfo objects to be stored for later retrieval by the StationDialog.
-  vector<miString> section;
+  vector<std::string> section;
 
   // Return true if there is no STATIONS section.
   if (!SetupParser::getSection("STATIONS", section))
     return true;
 
-  set<miutil::miString> urls;
+  set<std::string> urls;
 
   for (unsigned int i = 0; i < section.size(); ++i) {
     if (section[i].find("image") != string::npos) {
       // split on blank, preserve ""
-      vector<miString> tokens = section[i].split('"','"'," ",true);
+      vector<std::string> tokens = miutil::split_protected(section[i], '"','"'," ",true);
       stationSetInfo s_info;
       for (size_t k = 0; k < tokens.size(); k++) {
      //  METLIBS_LOG_DEBUG("TOKENS = " << tokens[k]);
-        vector<miString> pieces = tokens[k].split("=");
+        vector<std::string> pieces = miutil::split(tokens[k], "=");
         // tag name=url
         if (k == 0 && pieces.size() == 2) {
           if (urls.find(pieces[1]) == urls.end()) {
@@ -175,7 +175,7 @@ bool StationManager::parseSetup()
       m_info.sets.push_back(s_info);
     }
     else {
-      vector<miString> pieces = section[i].split("=");
+      vector<std::string> pieces = miutil::split(section[i], "=");
       if (pieces.size() == 2) {
         if (urls.find(pieces[1]) == urls.end()) {
           stationSetInfo s_info;
@@ -199,9 +199,9 @@ bool StationManager::parseSetup()
 /**
  * Imports the set of stations from the specified \a url.
  */
-StationPlot* StationManager::importStations(miutil::miString& name, miutil::miString& url)
+StationPlot* StationManager::importStations(std::string& name, std::string& url)
 {
-  vector<miutil::miString> lines;
+  vector<std::string> lines;
   bool success = false;
 
   if (url.find("http://") == 0)
@@ -222,7 +222,7 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
   bool useImage = false;
   for (unsigned int i = 0; i < lines.size(); ++i) {
 
-    vector<miutil::miString> pieces = lines[i].split(";");
+    vector<std::string> pieces = miutil::split(lines[i], ";");
     if (pieces.size() >= 7) {
 
       // Create a station with the latitude, longitude and a combination of
@@ -254,12 +254,12 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
       else
         station->type = Station::visual;
 
-      miutil::miString timeString = pieces[6];
-      vector<miutil::miString> timePieces = pieces[6].split(" ");
-      if (timePieces.size() == 2 && timePieces[0].countChar('-') == 2) {
-        if (timePieces[1].countChar(':') == 1)
+      std::string timeString = pieces[6];
+      vector<std::string> timePieces = miutil::split(pieces[6], " ");
+      if (timePieces.size() == 2 && miutil::count_char(timePieces[0], '-') == 2) {
+        if (miutil::count_char(timePieces[1], ':') == 1)
           timeString += ":00";
-        if (timePieces[1].countChar(':') == 2)
+        if (miutil::count_char(timePieces[1], ':') == 2)
           station->time = miutil::miTime(timeString.c_str());
       }
 
@@ -285,12 +285,12 @@ StationPlot* StationManager::importStations(miutil::miString& name, miutil::miSt
   return plot;
 }
 
-Station* StationManager::parseSMHI(miString& miLine, miString& url)
+Station* StationManager::parseSMHI(std::string& miLine, std::string& url)
 {
   Station* st = NULL;
-  vector<miString> stationVector;
+  vector<std::string> stationVector;
 
-  miString image = "";
+  std::string image = "";
   for (size_t i  = 0; i<m_info.sets.size(); ++i) {
     if (m_info.sets[i].url == url) {
         image = m_info.sets[i].image;
@@ -298,15 +298,15 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
   }
 
   // the old format
-  if (miLine.contains(";")) {
-    stationVector = miLine.split(";", false);
+  if (miutil::contains(miLine, ";")) {
+    stationVector = miutil::split(miLine, ";", false);
     if (stationVector.size() == 6) {
       st = new Station();
       st->name = stationVector[0];
-      st->lat = stationVector[1].toFloat();
-      st->lon = stationVector[2].toFloat();
-      st->height = stationVector[3].toInt(-1);
-      st->barHeight = stationVector[4].toInt(-1);
+      st->lat = miutil::to_double(stationVector[1]);
+      st->lon = miutil::to_double(stationVector[2]);
+      st->height = miutil::to_int(stationVector[3], -1);
+      st->barHeight = miutil::to_int(stationVector[4], -1);
       st->id = stationVector[5];
       st->isVisible = true;
       st->status = Station::working;
@@ -317,15 +317,15 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
     }
   }
   // the old format
-  else if (miLine.contains(",")) {
-    stationVector = miLine.split(",", false);
+  else if (miutil::contains(miLine, ",")) {
+    stationVector = miutil::split(miLine, ",", false);
     if (stationVector.size() == 6) {
       st = new Station();
       st->name = stationVector[0];
-      st->lat = stationVector[1].toFloat();
-      st->lon = stationVector[2].toFloat();
-      st->height = stationVector[3].toInt(-1);
-      st->barHeight = stationVector[4].toInt(-1);
+      st->lat = miutil::to_double(stationVector[1]);
+      st->lon = miutil::to_double(stationVector[2]);
+      st->height = miutil::to_int(stationVector[3], -1);
+      st->barHeight = miutil::to_int(stationVector[4], -1);
       st->id = stationVector[5];
       st->isVisible = true;
       st->status = Station::working;
@@ -341,7 +341,7 @@ Station* StationManager::parseSMHI(miString& miLine, miString& url)
 float StationManager::getStationsScale()
 {
   if(!stationPlots.empty()) {
-    map <miutil::miString,StationPlot*>::iterator it = stationPlots.begin();
+    map <std::string,StationPlot*>::iterator it = stationPlots.begin();
     return (*it).second->getImageScale(0);
   } else
     return .0;
@@ -349,7 +349,7 @@ float StationManager::getStationsScale()
 
 void StationManager::setStationsScale(float new_scale)
 {
-  map <miutil::miString,StationPlot*>::iterator p = stationPlots.begin();
+  map <std::string,StationPlot*>::iterator p = stationPlots.begin();
 
   while (p != stationPlots.end()) {
     (*p).second->setImageScale(new_scale);
@@ -365,9 +365,9 @@ void StationManager::putStations(StationPlot* stationPlot)
   METLIBS_LOG_DEBUG("PlotModule::putStations");
 #endif
 
-  miutil::miString name = stationPlot->getName();
-  map <miutil::miString,StationPlot*>::iterator p = stationPlots.begin();
-  map <miutil::miString,StationPlot*>::iterator pend = stationPlots.end();
+  std::string name = stationPlot->getName();
+  map <std::string,StationPlot*>::iterator p = stationPlots.begin();
+  map <std::string,StationPlot*>::iterator pend = stationPlots.end();
 
   //delete old stationPlot
   while (p != pend && name != (*p).second->getName())
@@ -404,7 +404,7 @@ void StationManager::makeStationPlot(const std::string& commondesc,
 
 Station* StationManager::findStation(int x, int y)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     Station* station = (*it).second->stationAt(x, y);
     if (station)
@@ -415,7 +415,7 @@ Station* StationManager::findStation(int x, int y)
 
 vector<Station*> StationManager::findStations(int x, int y)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
   vector<Station*> stations;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((*it).second->isVisible()) {
@@ -426,27 +426,27 @@ vector<Station*> StationManager::findStations(int x, int y)
   return stations;
 }
 
-miutil::miString StationManager::findStation(int x, int y, miutil::miString name, int id)
+string StationManager::findStation(int x, int y, std::string name, int id)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((id == -1 || id == (*it).second->getId()) && (name == (*it).second->getName())) {
-      vector<miutil::miString> st = (*it).second->findStation(x, y);
+      vector<std::string> st = (*it).second->findStation(x, y);
       if (st.size() > 0)
         return st[0];
     }
   }
-  return miutil::miString();
+  return std::string();
 }
 
-void StationManager::findStations(int x, int y, bool add, vector<miutil::miString>& name,
-    vector<int>& id, vector<miutil::miString>& station)
+void StationManager::findStations(int x, int y, bool add, vector<std::string>& name,
+    vector<int>& id, vector<std::string>& station)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
 
   int ii;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    vector<miutil::miString> st = (*it).second->findStation(x, y, add);
+    vector<std::string> st = (*it).second->findStation(x, y, add);
     if ((ii = (*it).second->getId()) > -1) {
       for (unsigned int j = 0; j < st.size(); j++) {
         name.push_back((*it).second->getName());
@@ -458,12 +458,12 @@ void StationManager::findStations(int x, int y, bool add, vector<miutil::miStrin
 
 }
 
-bool StationManager::getEditStation(int step, miutil::miString& name, int& id, vector<
-    miutil::miString>& stations)
+bool StationManager::getEditStation(int step, std::string& name, int& id, vector<
+    std::string>& stations)
 {
 
   bool updateArea = false;
-  map <miutil::miString,StationPlot*>::iterator it = stationPlots.begin();
+  map <std::string,StationPlot*>::iterator it = stationPlots.begin();
   while (it != stationPlots.end() && !(*it).second->getEditStation(step, name, id, stations,
       updateArea))
     it++;
@@ -473,7 +473,7 @@ bool StationManager::getEditStation(int step, miutil::miString& name, int& id, v
 
 void StationManager::getStationData(vector<std::string>& data)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
 
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     data.push_back((*it).second->stationRequest("selected"));
@@ -483,7 +483,7 @@ void StationManager::getStationData(vector<std::string>& data)
 void StationManager::stationCommand(const std::string& command,
     const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
 
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if ((id == -1 || id == (*it).second->getId()) &&
@@ -498,7 +498,7 @@ void StationManager::stationCommand(const std::string& command, const std::strin
     int id)
 {
   if (command == "delete") {
-    map <miutil::miString,StationPlot*>::iterator p = stationPlots.begin();
+    map <std::string,StationPlot*>::iterator p = stationPlots.begin();
 
     while (p != stationPlots.end()) {
       if ((name == "all" && (*p).second->getId() != -1) ||
@@ -515,7 +515,7 @@ void StationManager::stationCommand(const std::string& command, const std::strin
     }
 
   } else {
-    map <miutil::miString,StationPlot*>::iterator it;
+    map <std::string,StationPlot*>::iterator it;
 
     for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
       if ((id == -1 || id == (*it).second->getId()) &&
@@ -528,7 +528,7 @@ void StationManager::stationCommand(const std::string& command, const std::strin
 vector <StationPlot*> StationManager::plots()
 {
   vector <StationPlot*> values;
-  map <miutil::miString,StationPlot*>::iterator it;
+  map <std::string,StationPlot*>::iterator it;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it)
     values.push_back((*it).second);
 

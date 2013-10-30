@@ -131,7 +131,7 @@ bool Controller::parseSetup()
   int nsect = fieldSubSect.size();
   vector<std::string> errors;
   for( int i=0; i<nsect; i++){
-    vector<miString> lines;
+    vector<std::string> lines;
     if (!SetupParser::getSection(fieldSubSect[i],lines)) {
       //      METLIBS_LOG_WARN("Missing section "<<fieldSubSect[i]<<" in setupfile.");
     }
@@ -276,7 +276,7 @@ void Controller::endHardcopy(){
 
 
 // return current plottime
-void Controller::getPlotTime(miString& s){
+void Controller::getPlotTime(std::string& s){
   plotm->getPlotTime(s);
 }
 
@@ -293,13 +293,13 @@ bool Controller::getProductTime(miTime& t){
   return editm->getProductTime(t);
 }
 
-miString Controller::getProductName()
+std::string Controller::getProductName()
 {
   return editm->getProductName();
 }
 
 
-// vector<miString> Controller::getProductLabels(){
+// vector<std::string> Controller::getProductLabels(){
 //   return editm->getProductLabels();
 // }
 
@@ -343,7 +343,7 @@ bool Controller::findObs(int x, int y){
   return plotm->findObs(x,y);
 }
 
-bool Controller::getObsName(int x, int y, miString& name){
+bool Controller::getObsName(int x, int y, std::string& name){
   return plotm->getObsName(x,y,name);
 }
 
@@ -370,8 +370,8 @@ void Controller::updateHqcdata(const string& commondesc,
 }
 
 //select obs parameter to flag from QSocket
-void Controller::processHqcCommand(const miString& command,
-                                   const miString& str){
+void Controller::processHqcCommand(const std::string& command,
+                                   const std::string& str){
   obsm->processHqcCommand(command, str);
 }
 
@@ -399,7 +399,7 @@ vector<string> Controller::getTrajectoryFields()
 }
 
 // write trajectory positions to file
-bool Controller::printTrajectoryPositions(const miString& filename ){
+bool Controller::printTrajectoryPositions(const std::string& filename ){
   return plotm->printTrajectoryPositions( filename );
 }
 
@@ -451,11 +451,11 @@ bool Controller::markAnnotationPlot(int x, int y){
   return plotm->markAnnotationPlot(x,y);
 }
 
-miString Controller::getMarkedAnnotation(){
+std::string Controller::getMarkedAnnotation(){
   return plotm->getMarkedAnnotation();
 }
 
-void Controller::changeMarkedAnnotation(miString text,int cursor,
+void Controller::changeMarkedAnnotation(std::string text,int cursor,
                                         int sel1, int sel2){
   plotm->changeMarkedAnnotation(text,cursor,sel1,sel2);
 }
@@ -470,7 +470,7 @@ void Controller::startEditAnnotation(){
   plotm->startEditAnnotation();
 }
 
-void Controller::stopEditAnnotation(miString prodname){
+void Controller::stopEditAnnotation(std::string prodname){
   vector <string> labels  = plotm->writeAnnotations(prodname);
   editm->saveProductLabels(labels);
   plotm->stopEditAnnotation();
@@ -728,8 +728,8 @@ set<string> Controller::getComplexList()
 
 
 // return satfileinfo
-const vector<SatFileInfo>& Controller::getSatFiles(const miString& satellite,
-                                                   const miString& file,
+const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
+                                                   const std::string& file,
                                                    bool update){
   return satm->getFiles(satellite,file,update);
 }
@@ -744,23 +744,23 @@ void Controller::getCapabilitiesTime(set<miTime>& okTimes,
   plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
 }
 
-const vector<Colour>& Controller::getSatColours(const miString& satellite,
-                                                   const miString& file){
+const vector<Colour>& Controller::getSatColours(const std::string& satellite,
+                                                   const std::string& file){
   return satm->getColours(satellite,file);
 }
 
 
-const vector<miString>& Controller::getSatChannels(const miString& satellite,
-                                                   const miString& file,
-                                                   int index){
+const vector<std::string>& Controller::getSatChannels(const std::string& satellite,
+    const std::string& file, int index)
+{
   return satm->getChannels(satellite,file,index);
 }
 
-bool Controller::isMosaic(const miString & satellite, const miString & file){
+bool Controller::isMosaic(const std::string & satellite, const std::string & file){
   return satm->isMosaic(satellite,file);
 }
 
-void Controller::SatRefresh(const miString& satellite, const miString& file){
+void Controller::SatRefresh(const std::string& satellite, const std::string& file){
   // HK set flag to refresh all files
   satm->updateFiles();
   satm->getFiles(satellite,file,true);
@@ -794,14 +794,14 @@ void Controller::obsTimeListUpdated(){
 }
 
 
-void Controller::setSatAuto(bool autoFile,const miString& satellite,
-                            const miString& file){
+void Controller::setSatAuto(bool autoFile,const std::string& satellite,
+                            const std::string& file){
   plotm->setSatAuto(autoFile,satellite,file);
 }
 
 
-void Controller::getUffdaClasses(vector <miString> & vUffdaClass,
-                                 vector <miString> &vUffdaClassTip){
+void Controller::getUffdaClasses(vector <std::string> & vUffdaClass,
+                                 vector <std::string> &vUffdaClassTip){
   vUffdaClass=satm->vUffdaClass;
   vUffdaClassTip=satm->vUffdaClassTip;
 }
@@ -810,7 +810,7 @@ bool Controller::getUffdaEnabled(){
   return satm->uffdaEnabled;
 }
 
-miString Controller::getUffdaMailAddress(){
+std::string Controller::getUffdaMailAddress(){
   return satm->uffdaMailAddress;
 }
 
@@ -820,7 +820,7 @@ ObsDialogInfo Controller::initObsDialog(){
 }
 
 // return button names for ObsDialog ... ascii files (when activated)
-ObsDialogInfo Controller::updateObsDialog(const miString& name){
+ObsDialogInfo Controller::updateObsDialog(const std::string& name){
   return obsm->updateDialog(name);
 }
 
@@ -848,7 +848,7 @@ void Controller::getAllFieldNames(vector<std::string> & fieldNames,
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
 
-vector<miString> Controller::getFieldLevels(const miString& pinfo)
+vector<std::string> Controller::getFieldLevels(const std::string& pinfo)
 {
   return fieldplotm->getFieldLevels(pinfo);
 }
@@ -890,7 +890,7 @@ MapDialogInfo Controller::initMapDialog(){
   return mapm.getMapDialogInfo();
 }
 
-bool Controller::MapInfoParser(miString& str, MapInfo& mi, bool tostr)
+bool Controller::MapInfoParser(std::string& str, MapInfo& mi, bool tostr)
 {
   MapManager mapm;
   if (tostr){
@@ -904,7 +904,7 @@ bool Controller::MapInfoParser(miString& str, MapInfo& mi, bool tostr)
 
 //object dialog
 
-vector<miString> Controller::getObjectNames(bool useArchive){
+vector<std::string> Controller::getObjectNames(bool useArchive){
   return objm->getObjectNames(useArchive);
 }
 
@@ -912,14 +912,14 @@ void Controller::setObjAuto(bool autoFile){
   plotm->setObjAuto(autoFile);
 }
 
-vector<ObjFileInfo> Controller::getObjectFiles(miString objectname,
+vector<ObjFileInfo> Controller::getObjectFiles(std::string objectname,
                                                bool refresh) {
   return objm->getObjectFiles(objectname,refresh);
 }
 
 
 
-map<miString,bool> Controller::decodeTypeString( miString token){
+map<std::string,bool> Controller::decodeTypeString( std::string token){
   return objm->decodeTypeString(token);
 }
 
@@ -932,11 +932,9 @@ bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
   return LocalSetupParser::getQuickMenus(qm);
 }
 
-
-vector<miTime> Controller::getObsTimes( vector<miString> name){
-
+vector<miTime> Controller::getObsTimes(const vector<string>& name)
+{
   return obsm->getTimes(name);
-
 }
 
 
@@ -956,20 +954,20 @@ void Controller::makeStationPlot(const string& commondesc,
   stam->makeStationPlot(commondesc,common,description,from,data);
 }
 
-miString Controller::findStation(int x, int y, miString name, int id){
+std::string Controller::findStation(int x, int y, std::string name, int id){
   return stam->findStation(x,y,name,id);
 }
 
 void Controller::findStations(int x, int y, bool add,
-                              vector<miString>& name,
+                              vector<std::string>& name,
                               vector<int>& id,
-                              vector<miString>& station){
+                              vector<std::string>& station){
   stam->findStations(x,y,add,name,id,station);
 }
 
 void Controller::getEditStation(int step,
-                                miString& name, int& id,
-                                vector<miString>& stations){
+                                std::string& name, int& id,
+                                vector<std::string>& stations){
   if (stam->getEditStation(step,name,id,stations))
     plotm->PlotAreaSetup();
 }
@@ -1006,13 +1004,13 @@ void Controller::setStationsScale(float new_scale)
 }
 
 //areas
-void Controller::makeAreas(const miString& name, miString areastring, int id){
+void Controller::makeAreas(const std::string& name, std::string areastring, int id){
   //METLIBS_LOG_DEBUG("Controller::makeAreas ");
   plotm->makeAreas(name,areastring,id);
 }
 
-void Controller::areaCommand(const miString& command,const miString& dataSet,
-                             const miString& data, int id ){
+void Controller::areaCommand(const std::string& command,const std::string& dataSet,
+                             const std::string& data, int id ){
   //METLIBS_LOG_DEBUG("Controller::areaCommand");
   plotm->areaCommand(command,dataSet,data,id);
 }
@@ -1038,15 +1036,15 @@ void Controller::updateLocation(const LocationData& locationdata){
   plotm->updateLocation(locationdata);
 }
 
-void Controller::deleteLocation(const miString& name){
+void Controller::deleteLocation(const std::string& name){
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("Controller::deleteLocation: " << name);
 #endif
   plotm->deleteLocation(name);
 }
 
-void Controller::setSelectedLocation(const miString& name,
-                                   const miString& elementname){
+void Controller::setSelectedLocation(const std::string& name,
+                                   const std::string& elementname){
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("Controller::setSelectedLocation: " << name << "," << elementname);
 #endif

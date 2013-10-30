@@ -44,7 +44,7 @@ public:
   stationDialogInfo initDialog();
   bool parseSetup();
 
-  StationPlot* importStations(miutil::miString& name, miutil::miString& url);
+  StationPlot* importStations(std::string& name, std::string& url);
 
   // Stations
   /**
@@ -72,14 +72,14 @@ public:
   ///held by this object
   vector<Station*> findStations(int x, int y);
   ///find station in position x,y in StationPlot with name and id
-  miutil::miString findStation(int x, int y,miutil::miString name,int id=-1);
+  std::string findStation(int x, int y,std::string name,int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
-        vector<miutil::miString>& name,vector<int>& id,
-        vector<miutil::miString>& station);
+        vector<std::string>& name,vector<int>& id,
+        vector<std::string>& station);
   ///get editable stations, returns name/id of StationPlot and stations
-  bool getEditStation(int step, miutil::miString& name, int& id,
-          vector<miutil::miString>& stations);
+  bool getEditStation(int step, std::string& name, int& id,
+          vector<std::string>& stations);
   void getStationData(vector<std::string>& data);
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
@@ -96,9 +96,9 @@ public:
 private:
   stationDialogInfo m_info;
   //stations to be plotted
-  map <miutil::miString,StationPlot*> stationPlots;
+  map <std::string,StationPlot*> stationPlots;
 
-  Station* parseSMHI(miutil::miString& miLine, miutil::miString& url);
+  Station* parseSMHI(std::string& miLine, std::string& url);
 
 };
 

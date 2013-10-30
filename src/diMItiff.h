@@ -51,13 +51,13 @@ public:
   MItiff();
 
   ///read image
-  static bool readMItiff(const miutil::miString& filename, Sat& sd, int index=0);
+  static bool readMItiff(const std::string& filename, Sat& sd, int index=0);
   ///read header info (time, channels)
   static bool readMItiffHeader(SatFileInfo& file);
   ///read palette info
-  static bool readMItiffPalette(const miutil::miString& filename, vector<Colour>& col);
+  static bool readMItiffPalette(const std::string& filename, vector<Colour>& col);
   ///set channels depending on solar heigt
-  static bool day_night(SatFileInfo& file, miutil::miString& channels);
+  static bool day_night(SatFileInfo& file, std::string& channels);
 };
 
 #endif

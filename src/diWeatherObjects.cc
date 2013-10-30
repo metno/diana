@@ -88,9 +88,9 @@ void WeatherObjects::clear()
   for (int i=0; i<no; i++)
     delete objects[i];
   objects.clear();
-  prefix = miString();
-  filename= miString();
-  itsOldComments = miString();
+  prefix = std::string();
+  filename= std::string();
+  itsOldComments = std::string();
   itsLabels.clear();
   itsOldLabels.clear();
 
@@ -280,7 +280,7 @@ void WeatherObjects::updateObjects()
 /*********************************************/
 
 bool
-WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
+WeatherObjects::readEditDrawFile(const std::string fn,const Area& newArea){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::readEditDrawFile(2)");
   METLIBS_LOG_DEBUG("filename" << fn);
@@ -288,8 +288,8 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 
 
   //if *.shp read shapefile
-  vector <miString> parts= fn.split('.');
-  miString ext = parts.back();
+  vector <std::string> parts= miutil::split(fn, 0, ".");
+  std::string ext = parts.back();
   if (ext=="shp"){
     if (newArea.P()!=itsArea.P()){
       changeProjection(newArea);
@@ -317,26 +317,26 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
   /* ---------------------------------------------------------------------
  -----------------------start to read new format--------------------------
   -----------------------------------------------------------------------*/
-  miString str,value,key,fileString;
+  std::string str,value,key,fileString;
 
   // read the first line check if it contains "date"
   getline(file,str);
   //METLIBS_LOG_DEBUG("The first line read is " << str);
-  vector<miString> stokens = str.split('=');
+  vector<std::string> stokens = miutil::split(str, 0, "=");
   if ( stokens.size()==2) {
-    key = stokens[0].downcase();
+    key = miutil::to_lower(stokens[0]);
     value = stokens[1];
   }
   //check if the line contains keyword date ?
   if (key == "date")
   {
-    fileString = miString();
+    fileString = std::string();
     // read file
     while (getline(file,str) && !file.eof()){
-      if (str.exists() && str[0]!='#'){
+      if (not str.empty() && str[0]!='#'){
         // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
-        if (str.contains("Helvetica")) {
-          str.replace("Helvetica","BITMAPFONT");
+        if (miutil::contains(str, "Helvetica")) {
+          miutil::replace(str, "Helvetica","BITMAPFONT");
         }
         //check if this is a LABEL string
         if (str.substr(0,5)=="LABEL"){
@@ -362,7 +362,7 @@ WeatherObjects::readEditDrawFile(const miString fn,const Area& newArea){
 
 
 
-bool WeatherObjects::readEditDrawString(const miString inputString,
+bool WeatherObjects::readEditDrawString(const std::string inputString,
     const Area& newArea, bool replace){
 
 #ifdef DEBUGPRINT
@@ -370,7 +370,7 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
   METLIBS_LOG_DEBUG("Input string" << inputString);
 #endif
 
-  miString key,value,objectString;
+  std::string key,value,objectString;
 
   // nb ! if useobject not true for an objecttype, no objects used(read) for
   // this object type. Useobject is set in WeatherObjects constructor and
@@ -384,15 +384,15 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
 
 
   //split inputString into one string for each object
-  vector <miString> objectStrings = inputString.split('!');
+  vector <std::string> objectStrings = miutil::split(inputString, 0, "!");
 
   for (unsigned int i = 0;i<objectStrings.size();i++){
     //split objectString and check which type of new
     //object should be created from first keyword and value
-    vector <miString> tokens = objectStrings[i].split(';');
-    vector <miString> stokens = tokens[0].split('=');
+    vector <std::string> tokens = miutil::split(objectStrings[i], 0, ";");
+    vector <std::string> stokens = miutil::split(tokens[0], 0, "=");
     if ( stokens.size()==2) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
     } else {
       METLIBS_LOG_WARN("WeatherObjects::readEditDrawString - Warning !");
@@ -438,12 +438,12 @@ bool WeatherObjects::readEditDrawString(const miString inputString,
   return true;
 }
 
-miString WeatherObjects::writeEditDrawString(const miTime& t){
+std::string WeatherObjects::writeEditDrawString(const miTime& t){
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::writeEditDrawString");
 #endif
-  if (empty()) return miString();
+  if (empty()) return std::string();
 
   Area oldarea= itsArea;
   changeProjection(geoArea);
@@ -452,7 +452,7 @@ miString WeatherObjects::writeEditDrawString(const miTime& t){
   ostringstream ostr;
 
   //write out the date
-  miString date ="Date="+stringFromTime(t,true)+";";
+  std::string date ="Date="+stringFromTime(t,true)+";";
   ostr << date << endl << endl;
 
   vector <ObjectPlot*>::iterator p = objects.begin();
@@ -464,7 +464,7 @@ miString WeatherObjects::writeEditDrawString(const miTime& t){
 
   changeProjection(oldarea);
 
-  miString objectString = ostr.str();
+  std::string objectString = ostr.str();
   int n=itsLabels.size();
   for  (int i=0;i<n;i++)
     objectString+=itsLabels[i]+"\n";
@@ -476,7 +476,7 @@ miString WeatherObjects::writeEditDrawString(const miTime& t){
  *  Methods for reading comments  ****************
  *************************************************/
 
-bool WeatherObjects::readEditCommentFile(const miString fn){
+bool WeatherObjects::readEditCommentFile(const std::string fn){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::readEditCommentFile" << fn);
 #endif
@@ -490,9 +490,9 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
     return false;
   }
 
-  miString str,fileString;
+  std::string str,fileString;
 
-  fileString = miString();
+  fileString = std::string();
   // read file
   while (getline(file,str) && !file.eof())
     fileString+=str+"\n";
@@ -509,7 +509,7 @@ bool WeatherObjects::readEditCommentFile(const miString fn){
 }
 
 
-miString WeatherObjects::readComments(){
+std::string WeatherObjects::readComments(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::Read comments");
 #endif
@@ -546,7 +546,7 @@ vector<string> WeatherObjects::getEditLabels()
  *  Methods for reading and writing areaBorders  *
  *************************************************/
 
-bool WeatherObjects::readAreaBorders(const miString fn,
+bool WeatherObjects::readAreaBorders(const std::string fn,
 
     const Area& newArea){
 #ifdef DEBUGPRINT
@@ -562,9 +562,9 @@ bool WeatherObjects::readAreaBorders(const miString fn,
   }
 
 
-  miString str,fileString;
+  std::string str,fileString;
 
-  fileString = miString();
+  fileString = std::string();
   // read file
   while (getline(file,str) && !file.eof())
     fileString+=str+"\n";
@@ -577,7 +577,7 @@ bool WeatherObjects::readAreaBorders(const miString fn,
 
 
 
-bool WeatherObjects::writeAreaBorders(const miString fn){
+bool WeatherObjects::writeAreaBorders(const std::string fn){
 
   if (empty()) return false;
 
@@ -651,7 +651,7 @@ WeatherObjects::removeObject(vector<ObjectPlot*>::iterator p){
 
 /*********************************************/
 
-miString WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
+std::string WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
   int yyyy= t.year();
   int mm  = t.month();
   int dd  = t.day();
@@ -666,14 +666,14 @@ miString WeatherObjects::stringFromTime(const miTime& t,bool addMinutes){
   if (addMinutes)
     ostr << setw(2) << setfill('0') << mn;
 
-  miString timestring = ostr.str();
+  std::string timestring = ostr.str();
   return timestring;
 }
 
 
 /*********************************************/
 
-miTime WeatherObjects::timeFromString(miString timeString)
+miTime WeatherObjects::timeFromString(std::string timeString)
 {
   if (timeString.length()<10) return ztime;
   //get time from a string with yyyymmddhhmm
@@ -690,15 +690,15 @@ miTime WeatherObjects::timeFromString(miString timeString)
 
 /*********************************************/
 
-map<miString,bool> WeatherObjects::decodeTypeString( miString token){
+map<std::string,bool> WeatherObjects::decodeTypeString( std::string token){
 
-  map<miString,bool> use;
+  map<std::string,bool> use;
   for (int i=0; i<numObjectTypes; i++)
     use[ObjectTypeNames[i]]= false;
-  vector<miString> stokens;
+  vector<std::string> stokens;
   //types of objects to plot
   token= token.substr(6,token.size()-6);
-  stokens= token.split(',');
+  stokens= miutil::split(token, 0, ",");
   int m= stokens.size();
   for (int j=0; j<m; j++){
     if (stokens[j]=="all"){

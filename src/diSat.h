@@ -54,16 +54,16 @@ class Sat {
 public:
   // set from SatManager::init()
   bool approved;        ///< approved for plotting
-  miutil::miString satellite;   ///< main product name
-  miutil::miString filetype;    ///< subproduct
-  miutil::miString formatType;  ///< filetype (mitiff or hdf5)
-  miutil::miString metadata;
-  miutil::miString channelInfo;
-  miutil::miString paletteinfo;
+  std::string satellite;   ///< main product name
+  std::string filetype;    ///< subproduct
+  std::string formatType;  ///< filetype (mitiff or hdf5)
+  std::string metadata;
+  std::string channelInfo;
+  std::string paletteinfo;
   int hdf5type;
-  vector<miutil::miString> vch; ///< name of channels selected
-  miutil::miString filename;    ///< explicit selection of file
-  miutil::miString actualfile;  ///< actual filename used
+  vector<std::string> vch; ///< name of channels selected
+  std::string filename;    ///< explicit selection of file
+  std::string actualfile;  ///< actual filename used
   bool autoFile;        ///< filename from plot time
   float cut;            ///< image cut/stretch factor
   int alphacut;          ///< alpha-blending cutoff value
@@ -76,14 +76,14 @@ public:
   double gridResolutionX; /// Grid Resolution in the X direction
   double gridResolutionY; /// Grid Resolution in the Y direction
   miutil::miTime time;          ///< valid time
-  miutil::miString annotation;  ///< annotation string
-  miutil::miString plotname;    ///< unique plotname
+  std::string annotation;  ///< annotation string
+  std::string plotname;    ///< unique plotname
   bool palette;         ///< palette sat-file
-  miutil::miString plotChannels;///< channelname for annotation
+  std::string plotChannels;///< channelname for annotation
   bool mosaic;          ///< make mosaic plot
   miutil::miTime firstMosaicFileTime; ///< time start for mosaic image generation
   miutil::miTime lastMosaicFileTime;  ///< time stop for mosaic image generation
-  miutil::miString satellite_name; ///< name of satellite from file
+  std::string satellite_name; ///< name of satellite from file
   bool commonColourStretch;    /// other images can use stretch from this image
 
   //grid
@@ -95,28 +95,28 @@ public:
   float By;      ///< grid parameter
 
   //Projection
-  miutil::miString projection;
-  miutil::miString proj_string;
+  std::string projection;
+  std::string proj_string;
 
   // calibration
   //Strings from file header
-  miutil::miString cal_vis;            /// calibration info visible channel
-  miutil::miString cal_ir;             /// calibration info ir channel
-  vector<miutil::miString> cal_table;  /// calibration info
+  std::string cal_vis;            /// calibration info visible channel
+  std::string cal_ir;             /// calibration info ir channel
+  vector<std::string> cal_table;  /// calibration info
 
   struct table_cal{
-    miutil::miString channel;
-    vector<miutil::miString> val;
+    std::string channel;
+    vector<std::string> val;
     float a,b;
   };
   map<int,table_cal> calibrationTable; /// calibration of current channels
-  vector<miutil::miString> cal_channels;  /// name++ of current channels
+  vector<std::string> cal_channels;  /// name++ of current channels
 
   /// colour palette info
   struct Palette {
-    miutil::miString name;           ///< name of palette
+    std::string name;           ///< name of palette
     int noofcl;              ///< number of colours
-    vector<miutil::miString> clname; ///< names of colour classes
+    vector<std::string> clname; ///< names of colour classes
     int cmap[3][256];        ///< rgb value map
   };
 
@@ -135,7 +135,7 @@ public:
   int calibidx;         ///< channel to use in values routine
   /// calibration coefficients for channel values
   struct calib{
-    miutil::miString channel;  ///< GUI text
+    std::string channel;  ///< GUI text
     float a,b; ///< calibration coeff.
   };
   calib cal[maxch]; ///< calibration data for all channels
@@ -167,7 +167,7 @@ public:
   // Constructors
   Sat();
   Sat(const Sat &rhs);
-  Sat(const miutil::miString & pin);
+  Sat(const std::string & pin);
   // Destructor
   ~Sat();
 

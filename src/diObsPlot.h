@@ -55,12 +55,12 @@ class ObsPlot : public Plot {
 
 private:
   std::vector<ObsData> obsp;
-  std::map< miutil::miString, int > idmap; // maps obsData with id to index in obsp
+  std::map< std::string, int > idmap; // maps obsData with id to index in obsp
   //obs positions
   float *x, *y;
 
   //from plotInfo
-  miutil::miString infostr;
+  std::string infostr;
   float Scale;
   bool allObs;     //plot all observations
   int numPar;      //number of parameters to plot
@@ -75,15 +75,15 @@ private:
   bool devfield;
   bool onlypos;
   bool showOnlyPrioritized;
-  miutil::miString image;
+  std::string image;
   int level;
   int leveldiff;
   bool levelAsField;
-  miutil::miString plottype;
-  miutil::miString currentDatatype;
-  std::vector<miutil::miString> datatypes;
+  std::string plottype;
+  std::string currentDatatype;
+  std::vector<std::string> datatypes;
   bool priority;
-  miutil::miString priorityFile;
+  std::string priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool parameterName; //parameter name printed in front of value (ascii only)
   bool qualityFlag;
@@ -94,7 +94,7 @@ private:
   miutil::miTime Time;
   bool localTime;  //Use Time, not ctime
   int undef;
-  miutil::miString annotation;
+  std::string annotation;
   std::vector<std::string> labels;    // labels from ascii-files or PlotModule(edit)
   float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
@@ -103,9 +103,9 @@ private:
 
   int startxy; //used in getposition/obs_mslp
 
-  std::set<miutil::miString> knotParameters;
+  std::set<std::string> knotParameters;
   //Name and last modification time of files used
-  std::vector<miutil::miString> fileNames;
+  std::vector<std::string> fileNames;
   std::vector<long> modificationTime;
 
   enum flag {QUALITY_GOOD = 4};
@@ -135,13 +135,13 @@ private:
   struct markerCriteria{
     float limit;
     Sign sign;
-    miutil::miString marker;
+    std::string marker;
   };
 
-  std::map<miutil::miString,std::vector<plotCriteria> > plotcriteria;
-  std::map<miutil::miString,std::vector<colourCriteria> > colourcriteria;
-  std::map<miutil::miString,std::vector<colourCriteria> > totalcolourcriteria;
-  std::map<miutil::miString,std::vector<markerCriteria> > markercriteria;
+  std::map<std::string,std::vector<plotCriteria> > plotcriteria;
+  std::map<std::string,std::vector<colourCriteria> > colourcriteria;
+  std::map<std::string,std::vector<colourCriteria> > totalcolourcriteria;
+  std::map<std::string,std::vector<markerCriteria> > markercriteria;
 
   bool pcriteria;
   bool ccriteria;
@@ -149,7 +149,7 @@ private:
   bool mcriteria;
 
   //which parameters to plot
-  std::map<miutil::miString,bool> pFlag;
+  std::map<std::string,bool> pFlag;
 
 //Positions of plotted observations
   struct UsedBox {
@@ -161,8 +161,8 @@ private:
   static std::vector<UsedBox> usedBox;
 
   // static priority file
-  static miutil::miString currentPriorityFile;
-  static std::vector<miutil::miString> priorityList;
+  static std::string currentPriorityFile;
+  static std::vector<std::string> priorityList;
 
   // static synop and metar plot tables
   static short *itabSynop;
@@ -182,7 +182,7 @@ private:
   struct metarww{
     int lww, lwwg;
   };
-  static std::map<miutil::miString,metarww> metarMap;
+  static std::map<std::string,metarww> metarMap;
   static std::map<int,int> lwwg2;
 
   //which obs will be plotted
@@ -199,30 +199,30 @@ private:
   std::vector<int> all_stations; // all stations, from last plot or from file
   std::vector<int> all_from_file; // all stations, from file or priority list
   //id of all stations shown, sorted by plot type
-  static std::map< miutil::miString, std::vector<miutil::miString> > visibleStations;
+  static std::map< std::string, std::vector<std::string> > visibleStations;
 
   float areaFreeSpace,areaFreeWindSize;
   float areaFreeXsize,areaFreeYsize;
   float areaFreeXmove[4],areaFreeYmove[4];
 
   //Hqc
-  miutil::miString hqcFlag;  //which parameter is flagged
+  std::string hqcFlag;  //which parameter is flagged
   bool flaginfo;
   Colour flagColour;
-  std::map<miutil::miString,Colour> paramColour;
-  miutil::miString selectedStation;
-  miutil::miString mark_parameter;
+  std::map<std::string,Colour> paramColour;
+  std::string selectedStation;
+  std::string mark_parameter;
 
 
-  bool readTable(const miutil::miString& type, const miutil::miString& filename);
-  void readPriorityFile(const miutil::miString& filename);
+  bool readTable(const std::string& type, const std::string& filename);
+  void readPriorityFile(const std::string& filename);
 
-  void decodeCriteria(miutil::miString critStr);
+  void decodeCriteria(std::string critStr);
   bool checkPlotCriteria(int index);
   void checkTotalColourCriteria(int index);
-  miutil::miString checkMarkerCriteria(int index);
-  void checkColourCriteria(const miutil::miString& param, float value);
-  void parameterDecode(miutil::miString , bool =true);
+  std::string checkMarkerCriteria(int index);
+  void checkColourCriteria(const std::string& param, float value);
+  void parameterDecode(std::string , bool =true);
 
   bool positionFree(const float&, const float&, float);
   bool positionFree(float,float, float,float);
@@ -230,32 +230,32 @@ private:
 		     float xdist, float ydist);
   bool areaFree(int idx);
 
-  void printUndef(float& , float&, miutil::miString ="left");
+  void printUndef(float& , float&, std::string ="left");
   void printList(float f, float& xpos, float& ypos,
-		   int precision, miutil::miString align="left", miutil::miString opt="");
-  void printNumber(float, float, float, miutil::miString ="left",
+		   int precision, std::string align="left", std::string opt="");
+  void printNumber(float, float, float, std::string ="left",
 		   bool =false, bool =false);
-  void printAvvik(float, float, float, miutil::miString ="left");
-  void printTime(miutil::miTime, float, float, miutil::miString ="left", miutil::miString ="");
-  void printListString(const char *, float&, float& ,miutil::miString ="left");
-  void printString(const char *, float , float ,miutil::miString ="left",bool =false);
-  void metarSymbol(miutil::miString, float, float, int&);
-  void metarString2int(miutil::miString ww, int intww[]);
+  void printAvvik(float, float, float, std::string ="left");
+  void printTime(miutil::miTime, float, float, std::string ="left", std::string ="");
+  void printListString(const char *, float&, float& ,std::string ="left");
+  void printString(const char *, float , float ,std::string ="left",bool =false);
+  void metarSymbol(std::string, float, float, int&);
+  void metarString2int(std::string ww, int intww[]);
   void initMetarMap();
   void metarWind(int,int,float &, int &);
   void arrow(float& angle, float xpos, float ypos, float scale=1.);
   void zigzagArrow(float& angle, float xpos, float ypos, float scale=1.);
-  void symbol(int, float, float,float scale=1, miutil::miString align="left");
+  void symbol(int, float, float,float scale=1, std::string align="left");
   void cloudCover(const float& fN, const float& radius);
   void cloudCoverAuto(const float& fN, const float &radius);
   void plotWind(int dd,float ff_ms, bool ddvar,float &radius,float current=-1);
   //  void plotArrow(int,int, bool,float &);
   void weather(int16 ww, float & TTT, int& zone,
-	       float x, float y, float scale=1, miutil::miString align="left");
+	       float x, float y, float scale=1, std::string align="left");
   void pastWeather(int w, float x, float y,
-		   float scale=1, miutil::miString align="left");
+		   float scale=1, std::string align="left");
   void wave(const float& PwPw, const float& HwHw,
-	    float x, float y, miutil::miString align="left");
+	    float x, float y, std::string align="left");
   int visibility(float vv, bool ship);
   int vis_direction(float dv);
   void amountOfClouds(int16, int16, float,float);
@@ -294,8 +294,8 @@ public:
   bool plot(const int){return false;}
   bool updateObs();
   void clearModificationTime();
-  void setModificationTime(const miutil::miString& fname);
-  bool prepare(const miutil::miString&);
+  void setModificationTime(const std::string& fname);
+  bool prepare(const std::string&);
   bool setData(void);
   void logStations();
   void readStations();
@@ -305,7 +305,7 @@ public:
   bool getDataAnnotations(std::vector<std::string>& anno);
   void setObsAnnotation(const std::string &anno){annotation =anno;}
   const std::vector<std::string>& getObsExtraAnnotations() const {return labels;}
-  void setLabel(const miutil::miString& pin){labels.push_back(pin);}
+  void setLabel(const std::string& pin){labels.push_back(pin);}
   void setLabels(const std::vector<std::string>& l){labels = l;}
   bool getPositions(std::vector<float>&, std::vector<float>&);
   int  getPositions(float*,float*,int);
@@ -314,22 +314,22 @@ public:
   bool findObs(int,int);
   bool getObsName(int xx,int yy, std::string& station);
   void nextObs(bool);
-  std::vector<miutil::miString> getStations();
-  void putStations(std::vector<miutil::miString>);
-  miutil::miString getInfoStr(){return infostr;}
+  std::vector<std::string> getStations();
+  void putStations(std::vector<std::string>);
+  std::string getInfoStr(){return infostr;}
   bool mslp(){return devfield;}
   static int float2int(float f){return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
-  void changeParamColour(const miutil::miString& param, bool select);
+  void changeParamColour(const std::string& param, bool select);
 
   bool moreTimes(){return moretimes;}
   void setDataType(std::string datatype) {currentDatatype = datatype;}
-  const std::vector<miutil::miString>& dataTypes() const { return datatypes; }
+  const std::vector<std::string>& dataTypes() const { return datatypes; }
   miutil::miTime getObsTime(){return Time;}
   void setObsTime(const miutil::miTime& t){Time=t;}
   int getTimeDiff(){return timeDiff;}
   void setTimeDiff(int diff){timeDiff=diff;}
   void setCurrent(float cur){current=cur;}
-  miutil::miString plotType(){return plottype;}
+  std::string plotType(){return plottype;}
   bool LevelAsField(){return levelAsField;}
   bool AllAirepsLevels(){return allAirepsLevels;}
   int getLevelDiff(){return leveldiff;}
@@ -338,19 +338,19 @@ public:
   int sizeObs(){return obsp.size();}
   void removeObs(){obsp.pop_back();}
   ObsData& getNextObs();
-  void mergeMetaData(std::map<miutil::miString, ObsData>& metaData);
+  void mergeMetaData(std::map<std::string, ObsData>& metaData);
   void addObsData(const std::vector<ObsData>& obs);
   void addObsVector(const std::vector<ObsData>& vdata){obsp = vdata;}
   bool timeOK(const miutil::miTime& t);
   //get get pressure level etc from field (if needed)
-  void updateLevel(const miutil::miString& dataType);
+  void updateLevel(const std::string& dataType);
   static int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
   static float knots2ms(float ff) {return (ff*1852.0/3600.0);}
 
-  std::vector<miutil::miString> getFileNames() const; // Returns the file names containing observation data.
+  std::vector<std::string> getFileNames() const; // Returns the file names containing observation data.
 
   //Dialog info: Name, tooltip and type of parameter buttons. Used in ascii files
-  std::vector<miutil::miString> columnName;
+  std::vector<std::string> columnName;
 
   // observations from road
   bool roadobsData;
@@ -359,34 +359,34 @@ public:
   bool roadobsOK;
   bool roadobsKnots;
   int  roadobsSkipDataLines;
-  miutil::miString roadobsDataName;
+  std::string roadobsDataName;
   miutil::miTime   roadobsMainTime;
   miutil::miTime   roadobsStartTime;
   miutil::miTime   roadobsEndTime;
-  std::vector<miutil::miString> roadobsColumnName;
-  std::vector<miutil::miString> roadobsColumnTooltip;
-  std::vector<miutil::miString> roadobsColumnType;
-  std::vector<miutil::miString> roadobsColumnHide;
-  std::vector<miutil::miString> roadobsColumnUndefined;
+  std::vector<std::string> roadobsColumnName;
+  std::vector<std::string> roadobsColumnTooltip;
+  std::vector<std::string> roadobsColumnType;
+  std::vector<std::string> roadobsColumnHide;
+  std::vector<std::string> roadobsColumnUndefined;
 
   std::vector<miutil::miTime> roadobsTime;
 
-  //vector< std::vector<miutil::miString> > roadobsp;
+  //vector< std::vector<std::string> > roadobsp;
   // needed to get data from road ON DEMAND
-  miutil::miString filename;
-  miutil::miString databasefile;
-  miutil::miString stationfile;
-  miutil::miString headerfile;
+  std::string filename;
+  std::string databasefile;
+  std::string stationfile;
+  std::string headerfile;
   miutil::miTime filetime;
-  map <int, std::vector<miutil::miString> > roadobsp;
+  map <int, std::vector<std::string> > roadobsp;
   std::vector<road::diStation>  * stationlist;
   std::vector<road::diStation> stations_to_plot;
   bool preparePlot(void);
   std::vector<int> roadobsLengthMax;
 
-  std::map<miutil::miString,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
+  std::map<std::string,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
 
-  std::vector<miutil::miString> roadobsParameter;
+  std::vector<std::string> roadobsParameter;
   std::vector<int>      roadobspar;
   bool             roadobsWind;
 
@@ -397,8 +397,8 @@ public:
 
 //Hqc
   bool flagInfo(){return flaginfo;}
-  void setHqcFlag(const miutil::miString& flag){hqcFlag=flag;}
-  void setSelectedStation(const miutil::miString& station){selectedStation=station;}
+  void setHqcFlag(const std::string& flag){hqcFlag=flag;}
+  void setSelectedStation(const std::string& station){selectedStation=station;}
 };
 
 #endif
