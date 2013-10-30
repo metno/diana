@@ -43,6 +43,11 @@
 
 using namespace::miutil;
 
+namespace {
+inline vector<miString> to_vector_miString(const vector<string>& s)
+{ return vector<miString>(s.begin(), s.end()); }
+}
+
 // Default constructor
 VprofTemp::VprofTemp()
 {
@@ -50,15 +55,15 @@ VprofTemp::VprofTemp()
 
 
 // land or ship station with name
-VprofTemp::VprofTemp(const miString& file, bool amdar,
-		     const vector<miString>& stationList)
-  : temp(file,stationList), amdartemp(amdar)
+VprofTemp::VprofTemp(const std::string& file, bool amdar,
+		     const vector<std::string>& stationList)
+  : temp(file, to_vector_miString(stationList)), amdartemp(amdar)
 {
 }
 
 
 // ship station without name
-VprofTemp::VprofTemp(const miString& file, bool amdar,
+VprofTemp::VprofTemp(const std::string& file, bool amdar,
 		     float latitude, float longitude,
 		     float deltalat, float deltalong)
   : temp(file,geopos(latitude-deltalat,longitude-deltalong),
@@ -80,7 +85,7 @@ miTime VprofTemp::getFileObsTime(){
 }
 
 
-VprofPlot* VprofTemp::getStation(const miString& station,
+VprofPlot* VprofTemp::getStation(const std::string& station,
 				 const miTime& time)
 {
   const float rad=3.141592654/180.;
@@ -119,7 +124,7 @@ VprofPlot* VprofTemp::getStation(const miString& station,
 //####  else
 //####    vp->text.posName= contents[n].stationID;
   vp->text.posName= contents[n].desc.kjennetegn;
-  vp->text.posName.trim();
+  miutil::trim(vp->text.posName);
   vp->text.prognostic= false;
   vp->text.forecastHour= 0;
   vp->text.validTime= miTime(contents[n].desc.aar,contents[n].desc.mnd,

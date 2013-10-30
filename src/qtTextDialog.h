@@ -66,7 +66,7 @@ private:
   QTextBrowser* tb;
   QCheckBox* fixedb;
   InfoFile infofile;
-  miutil::miString path;
+  std::string path;
 
 };
 

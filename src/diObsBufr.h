@@ -72,7 +72,7 @@ class ObsBufr {
 
 private:
 
-  bool BUFRdecode(int* ibuff, int ilen, const miutil::miString& format);
+  bool BUFRdecode(int* ibuff, int ilen, const std::string& format);
   bool get_diana_data(int ktdexl, int *ktdexp, double* values,
 		      const char cvals[][80], int len_cvals, 
 		      int subset, int kelem, ObsData &d);
@@ -90,9 +90,9 @@ private:
 		      const char cvals[][80], int len_cvals, 
 		      int subset, int kelem, miutil::miTime time);
 
-  miutil::miString cloudAmount(int i);
-  miutil::miString cloudHeight(int i);
-  miutil::miString cloud_TCU_CB(int i);
+  std::string cloudAmount(int i);
+  std::string cloudHeight(int i);
+  std::string cloud_TCU_CB(int i);
   float height_of_clouds(double height);
   void cloud_type(ObsData& d, double v);
   float ms2code4451(float v);
@@ -100,28 +100,28 @@ private:
   miutil::miTime obsTime;
   VprofPlot *vplot;
   ObsPlot   *oplot;
-  map<miutil::miString,int> idmap;
-  vector<miutil::miString> id;
+  map<std::string,int> idmap;
+  vector<std::string> id;
   vector<miutil::miTime> id_time;
   vector<float> latitude;
   vector<float> longitude;
   int izone;
   int istation;
   int index;
-  miutil::miString strStation;
+  std::string strStation;
 
 public:
   ObsBufr(){;}
-  bool init(const miutil::miString& filename, const miutil::miString& format);
-  bool ObsTime(const miutil::miString& filename,miutil::miTime& time);
-  bool readStationInfo(const vector<miutil::miString>& bufr_file,
-      vector<miutil::miString>& namelist,
+  bool init(const std::string& filename, const std::string& format);
+  bool ObsTime(const std::string& filename,miutil::miTime& time);
+  bool readStationInfo(const vector<std::string>& bufr_file,
+      vector<std::string>& namelist,
       vector<miutil::miTime>& timelist,
       vector<float>& latitudelist,
       vector<float>& longitudelist);
-  VprofPlot* getVprofPlot(const vector<miutil::miString>& bufr_file,
-      const miutil::miString& modelName,
-      const miutil::miString& station,
+  VprofPlot* getVprofPlot(const vector<std::string>& bufr_file,
+      const std::string& modelName,
+      const std::string& station,
       const miutil::miTime& time);
   ObsPlot*   getObsPlot(){return oplot;}
   void setObsPlot(ObsPlot* op){oplot=op;}

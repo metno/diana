@@ -494,7 +494,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         if(miutil::contains(value, ","))
           po.patterns = miutil::split(value, 0, ",");
         else {
-          std::vector<miString> p = Pattern::getPatternInfo(value);
+          std::vector<std::string> p = Pattern::getPatternInfo(value);
           po.patterns = std::vector<std::string>(p.begin(), p.end());
         }
 

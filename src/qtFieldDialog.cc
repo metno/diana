@@ -2716,7 +2716,7 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
     if (fabs(e) < ekv / 2)
       cBox->addItem("0");
     else {
-      miutil::miString estr(e);
+      std::string estr = miutil::from_number(e);
       cBox->addItem(estr.c_str());
     }
   }
@@ -4079,18 +4079,18 @@ bool FieldDialog::fieldDifference(const std::string& str,
   return false;
 }
 
-void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
-    miutil::miString, miutil::miString> >& po)
+void FieldDialog::getEditPlotOptions(map<std::string, map<
+    std::string, std::string> >& po)
 {
 
   //map<paramater, map <option, value> >
 
-  map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator p =
+  map<std::string, map<std::string, std::string> >::iterator p =
       po.begin();
   //loop through parameters
   for (; p != po.end(); p++) {
-    miutil::miString options;
-    miutil::miString parameter = p->first;
+    std::string options;
+    std::string parameter = p->first;
     if (editFieldOptions.count(parameter)) {
       options = editFieldOptions[parameter];
     } else if (fieldOptions.count(parameter)) {
@@ -4102,10 +4102,10 @@ void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
     }
 
     vector<ParsedCommand> parsedComm = cp->parse(options);
-    map<miutil::miString, miutil::miString>::iterator q = p->second.begin();
+    map<std::string, std::string>::iterator q = p->second.begin();
     //loop through options
     for (; q != p->second.end(); q++) {
-      miutil::miString opt = miutil::to_lower(q->first);
+      std::string opt = miutil::to_lower(q->first);
       unsigned int i = 0;
       while (i < parsedComm.size() && parsedComm[i].key != opt)
         i++;
@@ -4947,7 +4947,7 @@ void FieldDialog::addField(std::string str)
 
 }
 
-void FieldDialog::fieldEditUpdate(miutil::miString str)
+void FieldDialog::fieldEditUpdate(std::string str)
 {
 
 

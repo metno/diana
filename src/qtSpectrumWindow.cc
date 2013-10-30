@@ -127,7 +127,7 @@ SpectrumWindow::SpectrumWindow()
   leftStationButton->setAutoRepeat(true);
 
   //combobox to select station
-  vector<miutil::miString> stations;
+  vector<std::string> stations;
   stations.push_back("                        ");
   stationBox = ComboBox( this, stations, true, 0);
   connect( stationBox, SIGNAL( activated(int) ),
@@ -142,7 +142,7 @@ SpectrumWindow::SpectrumWindow()
   leftTimeButton->setAutoRepeat(true);
 
   //combobox to select time
-  vector<miutil::miString> times;
+  vector<std::string> times;
   times.push_back("2002-01-01 00");
   timeBox = ComboBox( this, times, true, 0);
   connect( timeBox, SIGNAL( activated(int) ),
@@ -216,7 +216,7 @@ void SpectrumWindow::modelClicked( bool on )
 void SpectrumWindow::leftStationClicked()
 {
   //called when the left Station button is clicked
-  miutil::miString s= spectrumm->setStation(-1);
+  std::string s= spectrumm->setStation(-1);
   stationChangedSlot(-1);
   spectrumw->updateGL();
 }
@@ -225,7 +225,7 @@ void SpectrumWindow::leftStationClicked()
 void SpectrumWindow::rightStationClicked()
 {
   //called when the right Station button is clicked
-  miutil::miString s= spectrumm->setStation(+1);
+  std::string s= spectrumm->setStation(+1);
   stationChangedSlot(+1);
   spectrumw->updateGL();
 }
@@ -274,9 +274,9 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     diff--;
   }
   miutil::miTime t = spectrumm->getTime();
-  miutil::miString tstring=t.isoTime(false,false);
+  std::string tstring=t.isoTime(false,false);
   if (!timeBox->count()) return false;
-  miutil::miString tbs=timeBox->currentText().toStdString();
+  std::string tbs=timeBox->currentText().toStdString();
   if (tbs!=tstring){
     //search timeList
     int n = timeBox->count();
@@ -333,17 +333,17 @@ bool SpectrumWindow::stationChangedSlot(int diff)
     diff--;
   }
   //get current station
-  miutil::miString s = spectrumm->getStation();
+  std::string s = spectrumm->getStation();
   //if (!stationBox->count()) return false;
   //if no current station, use last station plotted
   if (s.empty()) s = spectrumm->getLastStation();
-  miutil::miString sbs=stationBox->currentText().toStdString();
+  std::string sbs=stationBox->currentText().toStdString();
   if (sbs!=s){
     int n = stationBox->count();
     for(int i = 0;i<n;i++){
       if (s==stationBox->itemText(i).toStdString()){
         stationBox->setCurrentIndex(i);
-        sbs=miutil::miString(stationBox->currentText().toStdString());
+        sbs=std::string(stationBox->currentText().toStdString());
         break;
       }
     }
@@ -366,7 +366,7 @@ bool SpectrumWindow::stationChangedSlot(int diff)
 void SpectrumWindow::printClicked()
 {
   printerManager pman;
-  miutil::miString command= pman.printCommand();
+  std::string command= pman.printCommand();
 
   QPrinter qprt;
   fromPrintOption(qprt,priop);
@@ -377,7 +377,7 @@ void SpectrumWindow::printClicked()
       priop.fname= qprt.outputFileName().toStdString();
     } else {
       priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
-      priop.fname= priop.fname.replace(' ','_');
+      miutil::replace(priop.fname, ' ','_');
     }
 
     // fill printOption from qprinter-selections
@@ -425,16 +425,16 @@ void SpectrumWindow::saveClicked()
 
   if (!s.isNull()) {// got a filename
     fname= s;
-    miutil::miString filename= s.toStdString();
-    miutil::miString format= "PNG";
+    std::string filename= s.toStdString();
+    std::string format= "PNG";
     int quality= -1; // default quality
 
     // find format
-    if (filename.contains(".xpm") || filename.contains(".XPM"))
+    if (miutil::contains(filename, ".xpm") || miutil::contains(filename, ".XPM"))
       format= "XPM";
-    else if (filename.contains(".bmp") || filename.contains(".BMP"))
+    else if (miutil::contains(filename, ".bmp") || miutil::contains(filename, ".BMP"))
       format= "BMP";
-    else if (filename.contains(".eps") || filename.contains(".epsf")){
+    else if (miutil::contains(filename, ".eps") || miutil::contains(filename, ".epsf")){
       // make encapsulated postscript
       // NB: not screendump!
       makeEPS(filename);
@@ -447,7 +447,7 @@ void SpectrumWindow::saveClicked()
 }
 
 
-void SpectrumWindow::makeEPS(const miutil::miString& filename)
+void SpectrumWindow::makeEPS(const std::string& filename)
 {
   QApplication::setOverrideCursor( Qt::WaitCursor );
   printOptions priop;
@@ -607,11 +607,11 @@ StationPlot* SpectrumWindow::getStations()
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumWindow::getStations()");
 #endif
-  const vector <miutil::miString> stations = spectrumm->getStationList();
+  const vector <std::string> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();
   const vector <float> longitude = spectrumm->getLongitudes();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
-  miutil::miString ann = spectrumm->getAnnotationString();
+  std::string ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
 
   // ADC set plotname (for StatusPlotButtons)
@@ -638,7 +638,7 @@ void SpectrumWindow::updateStationBox()
 #endif
 
   stationBox->clear();
-  vector<miutil::miString> stations= spectrumm->getStationList();
+  vector<std::string> stations= spectrumm->getStationList();
   //add dummy to make stationBox wide enough
   stations.push_back("                        ");
 
@@ -671,8 +671,8 @@ void SpectrumWindow::updateTimeBox()
 
 void SpectrumWindow::stationBoxActivated(int index)
 {
-  //vector<miutil::miString> stations= spectrumm->getStationList();
-  miutil::miString sbs=stationBox->currentText().toStdString();
+  //vector<std::string> stations= spectrumm->getStationList();
+  std::string sbs=stationBox->currentText().toStdString();
   //if (index>=0 && index<stations.size()) {
   spectrumm->setStation(sbs);
   spectrumw->updateGL();
@@ -703,7 +703,7 @@ void SpectrumWindow::timeBoxActivated(int index)
 }
 
 
-bool SpectrumWindow::changeStation(const miutil::miString& station)
+bool SpectrumWindow::changeStation(const std::string& station)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumWindow::changeStation");
@@ -759,7 +759,7 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
   tsToolbar->show();
   //do something first time we start
   if (firstTime){
-    //vector<miutil::miString> models;
+    //vector<std::string> models;
     //define models for dialogs, comboboxes and stationplot
     //spectrumm->setSelectedModels(models,false,false);
     //spModelDialog->setSelection();
@@ -781,25 +781,21 @@ void SpectrumWindow::parseSetup()
 vector<string> SpectrumWindow::writeLog(const string& logpart)
 {
   vector<string> vstr;
-  miutil::miString str;
+  std::string str;
 
   if (logpart=="window") {
 
-    str= "SpectrumWindow.size " + miutil::miString(this->width()) + " "
-    + miutil::miString(this->height());
+    str= "SpectrumWindow.size " + miutil::from_number(this->width()) + " " + miutil::from_number(this->height());
     vstr.push_back(str);
-    str= "SpectrumWindow.pos "  + miutil::miString(this->x()) + " "
-    + miutil::miString(this->y());
+    str= "SpectrumWindow.pos "  + miutil::from_number(this->x()) + " " + miutil::from_number(this->y());
     vstr.push_back(str);
-    str= "SpectrumModelDialog.pos " + miutil::miString(spModelDialog->x()) + " "
-    + miutil::miString(spModelDialog->y());
+    str= "SpectrumModelDialog.pos " + miutil::from_number(spModelDialog->x()) + " " + miutil::from_number(spModelDialog->y());
     vstr.push_back(str);
-    str= "SpectrumSetupDialog.pos " + miutil::miString(spSetupDialog->x()) + " "
-    + miutil::miString(spSetupDialog->y());
+    str= "SpectrumSetupDialog.pos " + miutil::from_number(spSetupDialog->x()) + " " + miutil::from_number(spSetupDialog->y());
     vstr.push_back(str);
 
     // printer name & options...
-    if (priop.printer.exists()){
+    if (not priop.printer.empty()){
       str= "PRINTER " + priop.printer;
       vstr.push_back(str);
       if (priop.orientation==d_print::ori_portrait)

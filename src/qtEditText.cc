@@ -55,15 +55,14 @@
 #include "diController.h"
 //#define DEBUGPRINT
 
-QValidator::State EditText::complexValidator::validate(QString& inputString,
-    int& pos) const
-    {
+QValidator::State EditText::complexValidator::validate(QString& inputString, int& pos) const
+{
   //validator, only used for zero isoterm input !!!
-  if (!inputString.contains("0°:")){
+  if (not inputString.contains("0°:")) {
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
-    }
+}
 
 // initialize static members
 bool               EditText::initialized= false;
@@ -106,7 +105,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       int ns = symbolText.size();
       METLIBS_LOG_DEBUG("?????????ns = "<< ns);
      // int nx = xText.size();
-      //set <miutil::miString> complexList = m_ctrl->getEditList();
+      //set <std::string> complexList = m_ctrl->getEditList();
       set <string> complexList = cList;
       QTextEdit *edittext = new QTextEdit(this);
       edittext->setLineWrapMode(QTextEdit::WidgetWidth);
@@ -190,15 +189,15 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       QTextDocument *doc = vSymbolEdit->document();
       // get each line from textedit and put it into vector 
       // line length is max 50 char
-      miutil::miString line;
+      std::string line;
       symbolText.clear();
       for (QTextBlock it = doc->begin(); it!=doc->end(); it = it.next()) {
            line = it.text().toStdString();
            if (line.length()<55){
               symbolText.push_back(line);
            } else {
-               vector<miutil::miString> stokens = line.split(" ", true);
-               miutil::miString token, oldtoken;
+               vector<std::string> stokens = miutil::split(line, " ", true);
+               std::string token, oldtoken;
                int slength;
                int mtokens = stokens.size();
                for (int k = 0; k < mtokens; k++) {

@@ -143,7 +143,8 @@ void toPrintOption(const QPrinter& qp, printOptions& priop)
 // set QPrinter-selections from printOptions
 void fromPrintOption(QPrinter& qp, printOptions& priop)
 {
-  if (priop.printer.exists()) qp.setPrinterName(priop.printer.c_str());
+  if (not priop.printer.empty())
+    qp.setPrinterName(QString::fromStdString(priop.printer));
   qp.setColorMode(getQPColourMode(priop.colop));
   qp.setOrientation(getQPOrientation(priop.orientation));
   qp.setPageSize(getQPPageSize(priop.pagesize));

@@ -209,7 +209,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   QHBoxLayout* bgroupLayout = new QHBoxLayout();
   int m_nr_buttons=3;
   b = new QPushButton*[m_nr_buttons];
-  vector<miutil::miString> vstr(3);
+  vector<std::string> vstr(3);
   vstr[prodb]=tr("Product").toStdString();
   vstr[saveb]=tr("Save").toStdString();
   vstr[sendb]=tr("Send").toStdString();
@@ -668,7 +668,7 @@ void  EditDialog::FrontTab()
 
   objecttab = new QWidget(twd );
 
-  vector<miutil::miString> vstr;
+  vector<std::string> vstr;
   m_Frontcm = ComboBox( objecttab, vstr );
   connect( m_Frontcm, SIGNAL( activated(int) ),
       SLOT( FrontTabBox(int) ) );
@@ -723,7 +723,7 @@ void  EditDialog::FrontTabBox( int index )
   } else if (m_FronteditIndex < m_Fronteditmethods->count()-1){
     m_Fronteditmethods->item(m_FronteditIndex)->setSelected(true);
   }
-  currEditmode= miutil::miString(m_Frontcm->itemText(m_FrontcmIndex).toStdString());
+  currEditmode= std::string(m_Frontcm->itemText(m_FrontcmIndex).toStdString());
   FrontEditClicked();
   return;
 }
@@ -747,7 +747,7 @@ void EditDialog::FrontEditClicked()
   if (index!=m_FronteditIndex){
     m_FronteditIndex=index;
     if (m_objm->inTextMode()){
-      miutil::miString text = m_objm->getCurrentText();
+      std::string text = m_objm->getCurrentText();
       Colour::ColourInfo colour= m_objm->getCurrentColour();
       if (text.empty()){
         if (getText(text,colour)){
@@ -793,7 +793,7 @@ void EditDialog::FrontEditDoubleClicked()
 {
   //called when am item in the objects list box doubleclicked
   if (m_objm->inTextMode()){
-    miutil::miString text = m_objm->getCurrentText();
+    std::string text = m_objm->getCurrentText();
     Colour::ColourInfo colour=m_objm->getCurrentColour();
     if (getText(text,colour)){
       //change objectmanagers current text !
@@ -876,7 +876,7 @@ void EditDialog::EditMarkedText()
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
   vector <string> symbolText,xText,eText, mText;
-  miutil::miString text = m_objm->getMarkedText();
+  std::string text = m_objm->getMarkedText();
      //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
   if (!text.empty()){
     //get new text from inputdialog box
@@ -932,7 +932,7 @@ void EditDialog::DeleteMarkedAnnotation()
 }
 
 
-bool EditDialog::getText(miutil::miString & text, Colour::ColourInfo & colour)
+bool EditDialog::getText(std::string & text, Colour::ColourInfo & colour)
 {
   bool ok = false;
 
@@ -993,7 +993,7 @@ bool EditDialog::getEditText(vector<string>& editText)
   bool ok=false;
   if (editText.size()) {
     set<string> complexList = m_ctrl->getComplexList();
-    //set <miutil::miString> textList=m_objm->getTextList();
+    //set <std::string> textList=m_objm->getTextList();
     EditText * eText =new EditText(this,m_ctrl, editText, complexList, true);
     if (eText->exec()){
       eText->getEditText(editText);
@@ -1077,7 +1077,7 @@ void EditDialog::combine_action(int idx)
 void EditDialog::selectAreas(QListWidgetItem * item )
 {
   int index = m_SelectAreas->currentRow();
-  miutil::miString tmp= miutil::miString( m_SelectAreas->item(index)->text().toStdString());
+  std::string tmp= std::string( m_SelectAreas->item(index)->text().toStdString());
   if (tmp !=currEdittool){
     currEdittool= tmp;
     if (inEdit) m_editm->setEditMode(currMapmode, currEditmode, currEdittool);
@@ -1104,7 +1104,7 @@ void EditDialog::CombineEditMethods()
       if(m_SelectAreas->currentRow()<0) {
         m_SelectAreas->setCurrentRow(0);
       }
-      currEdittool= miutil::miString( m_SelectAreas->currentItem()->text().toStdString());
+      currEdittool= std::string( m_SelectAreas->currentItem()->text().toStdString());
       if (inEdit) m_objm->createNewObject();
     }
   } else {
@@ -1164,11 +1164,11 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 {
 
   list->clear();
-  vector<miutil::miString> vstr;
+  vector<std::string> vstr;
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools.size();
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
-    miutil::miString etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
+    std::string etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
 #ifdef DEBUGPRINT
   if (inEdit) METLIBS_LOG_DEBUG("ListWidgetData etool = "<< etool);
 #endif
@@ -1192,8 +1192,8 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
     list->clear();
     list->setViewMode(QListView::IconMode);
     for ( int i=0; i<n; i++){
-      miutil::miString path = LocalSetupParser::basicValue("imagepath");
-      miutil::miString filename = path+ m_FronteditList[i] + ".png";
+      std::string path = LocalSetupParser::basicValue("imagepath");
+      std::string filename = path+ m_FronteditList[i] + ".png";
       QPixmap pmap(filename.c_str());
       if(!pmap.isNull()){
         QListWidgetItem* item = new QListWidgetItem(QIcon(pmap),QString());
@@ -1211,7 +1211,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 {
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo.size();
-  vector<miutil::miString> vstr;
+  vector<std::string> vstr;
   m_Frontcm->clear();
   for( int i=0; i<n; i++ ){
     if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
@@ -1247,12 +1247,12 @@ bool EditDialog::saveEverything(bool send)
   }
 
   ecomment->saveComment();
-  miutil::miString message;
+  std::string message;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-    message= miutil::miString(tr("Problem saving/sending product\n").toStdString()) +
-    miutil::miString(tr("Message from server:\n").toStdString())
+    message= std::string(tr("Problem saving/sending product\n").toStdString()) +
+    std::string(tr("Message from server:\n").toStdString())
     + message;
     QMessageBox::warning( this, tr("Save error:"),
         message.c_str());
@@ -1460,13 +1460,13 @@ void EditDialog::helpClicked()
 void EditDialog::updateLabels()
 {
   // update top-labels etc.
-  miutil::miString s;
+  std::string s;
   if (inEdit)
-    s= miutil::miString("<font color=\"darkgreen\">") +
-    currprod.name + miutil::miString("</font>") +
-    miutil::miString("<font color=\"blue\"> ") +
-    currid.name + miutil::miString("</font>") +
-    miutil::miString(" ") + prodtime.format("%D %H:%M");
+    s= std::string("<font color=\"darkgreen\">") +
+    currprod.name + std::string("</font>") +
+    std::string("<font color=\"blue\"> ") +
+    currid.name + std::string("</font>") +
+    std::string(" ") + prodtime.format("%D %H:%M");
   else
     s= "";
 
@@ -1583,22 +1583,22 @@ void EditDialog::EditNewOk(EditProduct& ep,
     int n= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools.size();
 
     for (int i=0; i<n; i++) {
-      miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
+      std::string ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
       m_Fieldeditmethods->addItem(QString(ts.c_str()));
     }
 
     numFieldEditTools= n;
 
-    miutil::miString str;
+    std::string str;
     map<std::string,PlotOptions>::iterator p;
     if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
         != PlotOptions::fieldPlotOptions.end()){
       str = p->second.classSpecifications;;
     }
 
-    vector<miutil::miString> vclass= str.split(',');
+    vector<std::string> vclass= miutil::split(str, 0, ",");
     for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<miutil::miString> vs= vclass[i].split(":");
+      vector<std::string> vs= miutil::split(vclass[i], ":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
         classValues.push_back(atof(vs[0].c_str()));
@@ -1610,7 +1610,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     classValuesLocked.push_back(false);
 
     for (unsigned int i=0; i<classNames.size(); i++) {
-      miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
+      std::string estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.c_str()));
     }
 
@@ -1844,22 +1844,22 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     int n= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools.size();
 
     for (int i=0; i<n; i++) {
-      miutil::miString ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
+      std::string ts= m_EditDI.mapmodeinfo[0].editmodeinfo[fieldEditToolGroup].edittools[i].name;
       m_Fieldeditmethods->addItem(QString(ts.c_str()));
     }
 
     numFieldEditTools= n;
 
-    miutil::miString str;
+    std::string str;
     map<std::string,PlotOptions>::iterator p;
     if ((p=PlotOptions::fieldPlotOptions.find(currprod.fields[0].name))
         != PlotOptions::fieldPlotOptions.end()){
       str = p->second.classSpecifications;;
     }
 
-    vector<miutil::miString> vclass= str.split(',');
+    vector<std::string> vclass= miutil::split(str, 0, ",");
     for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<miutil::miString> vs= vclass[i].split(":");
+      vector<std::string> vs= miutil::split(vclass[i], ":");
       if (vs.size()>=2) {
         classNames.push_back(vs[1]);
         classValues.push_back(atof(vs[0].c_str()));
@@ -1871,7 +1871,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     classValuesLocked.push_back(false);
 
     for (unsigned int i=0; i<classNames.size(); i++) {
-      miutil::miString estr= tr("New value:").toStdString() +  classNames[i];
+      std::string estr= tr("New value:").toStdString() +  classNames[i];
       m_Fieldeditmethods->addItem(QString(estr.c_str()));
     }
 

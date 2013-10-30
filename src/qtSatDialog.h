@@ -70,19 +70,19 @@ public:
 
 */  
   struct state{
-    miutil::miString OKString;
+    std::string OKString;
     int iname;
     int iarea;
     int ifiletime;
     int ichannel;
     int iautotimefile;
-    miutil::miString name; ///<satellite name
-    miutil::miString area; ///>filetype
+    std::string name; ///<satellite name
+    std::string area; ///>filetype
     miutil::miTime filetime; ///<time
-    miutil::miString channel; ///<selected channel
-    miutil::miString filename; ///<filename
-    miutil::miString advanced; ///<plotting options
-    miutil::miString external; ///<nothing to do whith the dialog
+    std::string channel; ///<selected channel
+    std::string filename; ///<filename
+    std::string advanced; ///<plotting options
+    std::string external; ///<nothing to do whith the dialog
     bool mosaic; ///<plot mosaic of pictures       
     int totalminutes;///<timediff
   };
@@ -94,7 +94,7 @@ public:
   ///insert command strings
   void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current commonad
-  miutil::miString getShortname();
+  std::string getShortname();
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
@@ -109,7 +109,7 @@ protected:
 
 private:
 
-  map< miutil::miString,map< miutil::miString,miutil::miString > > satoptions;
+  map< std::string,map< std::string,std::string > > satoptions;
   vector<state> m_state; //pictures to plot
   vector<miutil::miTime> times;    //emitted to TimeSlider 
   static miutil::miTime ztime;
@@ -124,14 +124,14 @@ private:
   //decode part of OK string
   state decodeString(const std::vector<std::string> & tokens);
   // make string from state
-  miutil::miString makeOKString(state & okVar);
+  std::string makeOKString(state & okVar);
   void putOptions(const state okVar);
 
-  miutil::miString pictureString(state,bool);  
+  std::string pictureString(state,bool);  
   // get the time string on the form yyyymmddhhmn from time
-  miutil::miString stringFromTime(const miutil::miTime& t);
+  std::string stringFromTime(const miutil::miTime& t);
   //get time from string
-  miutil::miTime timeFromString(const miutil::miString & timeString);
+  miutil::miTime timeFromString(const std::string & timeString);
 
 private slots:
   void DeleteClicked();
@@ -158,7 +158,7 @@ signals:
   void SatApply();
   void SatHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&,bool );
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool );
 
 private:
 
@@ -166,7 +166,7 @@ private:
   
   int m_nr_image;
  
-  miutil::miString m_channelstr;
+  std::string m_channelstr;
   miutil::miTime m_time;  
   vector<SatFileInfo> files;
   

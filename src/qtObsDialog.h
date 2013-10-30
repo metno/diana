@@ -70,9 +70,9 @@ public:
   ///insert command strings
   void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current commonad
-  miutil::miString getShortname();
+  std::string getShortname();
   ///change plottype
-  bool setPlottype(const miutil::miString& name, bool on);
+  bool setPlottype(const std::string& name, bool on);
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
@@ -92,7 +92,7 @@ private slots:
   void multiplotClicked(bool);
   void extensionToggled(bool);
   void criteriaOn();
-  void rightButtonClicked(miutil::miString);
+  void rightButtonClicked(std::string);
   void criteriaListSelected(int);
   void criteriaSelected(QListWidgetItem* );
   void signSlot(int);
@@ -107,28 +107,28 @@ signals:
   void ObsApply();
   void ObsHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
-  void setCriteria( miutil::miString, bool );
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void setCriteria( std::string, bool );
 
 private:
   void makeExtension();
-  void markButton(miutil::miString& );
-  miutil::miString makeCriteriaString();
+  void markButton(std::string& );
+  std::string makeCriteriaString();
   bool newCriteriaString();
   void updateExtension();
   void numberList( QComboBox* cBox, float number );
-  int findPlotnr(const miutil::miString&);
+  int findPlotnr(const std::string&);
 
  //ATTRIBUTES
   int nr_plot;
-  vector<miutil::miString> m_name;
-  vector<miutil::miString> savelog;
+  vector<std::string> m_name;
+  vector<std::string> savelog;
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;
   QStackedWidget* stackedWidget;
   vector<ObsWidget*> obsWidget;
-  miutil::miString parameterSelected;
+  std::string parameterSelected;
   QLabel * label;
   bool multiplot;
   ToggleButton* multiplotButton;
@@ -143,7 +143,7 @@ private:
   //  QLabel* parameterLabel;
   QComboBox* criteriaBox;
   QListWidget* criteriaListbox;
-  miutil::miString parameter;
+  std::string parameter;
   QLCDNumber* limitLcd;
   QSlider* limitSlider;
   QComboBox* stepComboBox;
@@ -157,7 +157,7 @@ private:
   QComboBox* markerBox;
   QLineEdit* lineedit;
   vector<Colour::ColourInfo> cInfo;
-  vector<miutil::miString> markerName;
+  vector<std::string> markerName;
   Controller* m_ctrl;
   bool freeze;
 };

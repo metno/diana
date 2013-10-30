@@ -139,8 +139,8 @@ void VprofWidget::keyPressEvent(QKeyEvent *me)
 }
 
 
-bool VprofWidget::saveRasterImage(const miutil::miString fname,
-			          const miutil::miString format,
+bool VprofWidget::saveRasterImage(const std::string fname,
+			          const std::string format,
 			          const int quality)
 {
 

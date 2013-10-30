@@ -67,7 +67,7 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   OBSAMDAR = tr("Observations:AMDAR").toStdString();
 
   // send translated menunames to manager
-  map<miutil::miString, miutil::miString> textconst;
+  map<std::string, std::string> textconst;
   textconst["ASFIELD"] = ASFIELD;
   textconst["OBSTEMP"] = OBSTEMP;
   textconst["OBSPILOT"] = OBSPILOT;
@@ -77,7 +77,7 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
   //********** create the various QT widgets to appear in dialog ***********
 
   //**** the three buttons "auto", "tid", "fil" *************
-  vector<miutil::miString> model;
+  vector<std::string> model;
   model.push_back(tr("Model").toStdString());
   model.push_back(tr("File").toStdString());
 
@@ -236,10 +236,10 @@ void VprofModelDialog::setSelection()
     vector<string> models = vprofm->getSelectedModels();
     int n = models.size();
     for (int i = 0; i < n; i++) {
-      miutil::miString model = models[i];
+      std::string model = models[i];
       int m = modelfileList->count();
       for (int j = 0; j < m; j++) {
-        miutil::miString listModel = modelfileList->item(j)->text().toStdString();
+        std::string listModel = modelfileList->item(j)->text().toStdString();
         if (model == listModel)
           modelfileList->item(j)->setSelected(true);
       }
@@ -265,7 +265,7 @@ void VprofModelDialog::setModel()
     int n = modelfileList->count();
     for (int i = 0; i < n; i++) {
       if (modelfileList->item(i)->isSelected()) {
-        miutil::miString model = modelfileList->item(i)->text().toStdString();
+        std::string model = modelfileList->item(i)->text().toStdString();
         if (model == OBSTEMP)
           showObsTemp = true;
         else if (model == OBSPILOT)
@@ -287,7 +287,7 @@ void VprofModelDialog::setModel()
     int n = modelfileList->count();
     for (int i = 0; i < n; i++) {
       if (modelfileList->item(i)->isSelected()) {
-        miutil::miString file = modelfileList->item(i)->text().toStdString();
+        std::string file = modelfileList->item(i)->text().toStdString();
         files.push_back(file);
       }
     }
@@ -306,17 +306,17 @@ void VprofModelDialog::updateModelfileList()
 
   //want to keep th selected models/files
   int n = modelfileList->count();
-  set<miutil::miString> current;
+  set<std::string> current;
   for (int i = 0; i < n; i++)
     if (modelfileList->item(i)->isSelected())
-      current.insert(miutil::miString(modelfileList->item(i)->text().toStdString()));
+      current.insert(std::string(modelfileList->item(i)->text().toStdString()));
 
   //clear box with list of files
   modelfileList->clear();
 
   if (modelButton->isChecked()) {
     //make a string list with models to insert into modelfileList
-    vector<miutil::miString> modelnames = vprofm->getModelNames();
+    vector<std::string> modelnames = vprofm->getModelNames();
     int nr_models = modelnames.size();
     modelfileList->addItem(QString(OBSTEMP.c_str()));
     modelfileList->addItem(QString(OBSPILOT.c_str()));
@@ -329,17 +329,17 @@ void VprofModelDialog::updateModelfileList()
     //insert into modelfilelist
   } else if (fileButton->isChecked()) {
     //make a string list with files to insert into modelfileList
-    vector<miutil::miString> modelfiles = vprofm->getModelFiles();
+    vector<std::string> modelfiles = vprofm->getModelFiles();
     int nr_files = modelfiles.size();
     for (int i = 0; i < nr_files; i++) {
       modelfileList->addItem(QString(modelfiles[i].c_str()));
     }
   }
 
-  set<miutil::miString>::iterator pend = current.end();
+  set<std::string>::iterator pend = current.end();
   n = modelfileList->count();
   for (int i = 0; i < n; i++)
-    if (current.find(miutil::miString(modelfileList->item(i)->text().toStdString()))
+    if (current.find(std::string(modelfileList->item(i)->text().toStdString()))
         != pend)
       modelfileList->item(i)->setSelected(true);
 

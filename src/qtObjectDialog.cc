@@ -382,7 +382,7 @@ void ObjectDialog::doubleDisplayDiff( int number ){
     int minutes=m_totalminutes-hours*60;
     ostringstream ostr;
     ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-    miutil::miString str= ostr.str();
+    std::string str= ostr.str();
     diffLcdnum->display( str.c_str() );
 }
 
@@ -513,7 +513,7 @@ void ObjectDialog::updateSelectedFileList()
   //clear box with names of files
   selectedFileList->clear();
 
-  miutil::miString namestr;
+  std::string namestr;
 
   int index= namebox->currentRow();
   if(index<0) return;
@@ -551,7 +551,7 @@ vector<string> ObjectDialog::getOKString()
   vector<string> vstr;
 
   if (selectedFileList->count()){
-    miutil::miString str;
+    std::string str;
     str = "OBJECTS";
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
@@ -569,7 +569,7 @@ vector<string> ObjectDialog::getOKString()
 	    str+=(" TIME=" + stringFromTime(time));
 	}
 	else if (fileButton->isChecked()){
-	  if (file.name.exists())
+	  if (not file.name.empty())
 	    str+=(" FILE=" + file.name);
 	}
       }
@@ -632,7 +632,7 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
   bool found=false;
   int nc = namebox->count();
   for (int j=0;j<nc;j++ ){
-    miutil::miString listname =  namebox->item(j)->text().toStdString();
+    std::string listname =  namebox->item(j)->text().toStdString();
     if (plotVariables.objectname==listname){
       namebox->setCurrentRow(j);
       namebox->item(j)->setSelected(true);
@@ -646,7 +646,7 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     //METLIBS_LOG_DEBUG("time =" << plotVariables.time);
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
-      miutil::miString listtime=stringFromTime(files[j].time);
+      std::string listtime=stringFromTime(files[j].time);
       if (plotVariables.time==listtime){
 	timefileBut->button(1)->setChecked(true);
 	timefileClicked(1);
@@ -657,7 +657,7 @@ void ObjectDialog::putOKString(const vector<string>& vstr)
     //METLIBS_LOG_DEBUG("file =" << plotVariables.file);
     int nf = files.size();
     for (int j=0;j<nf;j++ ){
-      miutil::miString listfile =  files[j].name;
+      std::string listfile =  files[j].name;
       if (plotVariables.file==listfile){
 	timefileBut->button(2)->setChecked(true);
 	timefileClicked(2);
@@ -712,16 +712,16 @@ ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & to
   okVar.alphanr=1.0;
 
   int n= tokens.size();
-  miutil::miString token;
+  std::string token;
 
   //loop over OKstrings
   for (int i=0; i<n; i++){
     //decode string
     token= miutil::to_lower(tokens[i]);
-    if (token.contains("types=")){
+    if (miutil::contains(token, "types=")){
       okVar.useobject = m_ctrl->decodeTypeString(token);
     } else {
-      miutil::miString key, value;
+      std::string key, value;
       vector<string> stokens= miutil::split(tokens[i], 0, "=");
       if ( stokens.size()==2) {
 	key = miutil::to_lower(stokens[0]);
@@ -753,12 +753,12 @@ ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & to
 }
 
 
-miutil::miString ObjectDialog::getShortname()
+std::string ObjectDialog::getShortname()
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::getShortname");
 #endif
-  miutil::miString name;
+  std::string name;
 
   int nameboxIndex = namebox->currentRow();
   int timefileListIndex = timefileList->currentRow();
@@ -771,20 +771,21 @@ miutil::miString ObjectDialog::getShortname()
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miutil::miString(selectedFileList->currentItem()->text().toStdString());
+      name+= (" FILE=") + std::string(selectedFileList->currentItem()->text().toStdString());
   }
 
   return name;
 }
 
 
-miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
+std::string ObjectDialog::makeOKString(PlotVariables & okVar)
+{
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::makeOKString");
 #endif
 
 
-    miutil::miString str;
+    std::string str;
     str = "OBJECTS";
 
     str+=(" NAME=\"" + okVar.objectname + "\"");
@@ -840,15 +841,14 @@ void ObjectDialog::archiveMode( bool on )
 
 /*************************************************************************/
 
-miutil::miString ObjectDialog::stringFromTime(const miutil::miTime& t){
-
+std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
+{
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << t.year()
        << setw(2) << setfill('0') << t.month()
        << setw(2) << setfill('0') << t.day()
        << setw(2) << setfill('0') << t.hour()
        << setw(2) << setfill('0') << t.min();
-
   return ostr.str();
 }
 

@@ -164,12 +164,12 @@ void ButtonLayout::DEFAULTClicked(){
 }
 
 
-int ButtonLayout::setButtonOn( miutil::miString buttonName ){
+int ButtonLayout::setButtonOn( std::string buttonName ){
 
   int n = buttonList.size();
 
   for( int j=0; j<n; j++){
-    if(buttonName.downcase()==buttonList[j].name.downcase()){
+    if(miutil::to_lower(buttonName)==miutil::to_lower(buttonList[j].name)){
       if(b[j]->isEnabled()){
         b[j]->setChecked( true );
         buttonOn[j]=true;
@@ -213,9 +213,9 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
 }
 
 
-vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
+vector<std::string> ButtonLayout::getOKString(bool forLog) {
 
-  vector<miutil::miString> str;
+  vector<std::string> str;
   int nr_buttons = buttonList.size();
 
   if(forLog){
@@ -231,7 +231,7 @@ vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
 }
 
 
-void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
+void ButtonLayout::setRightClicked(std::string name,bool on  )
 {
   //  METLIBS_LOG_DEBUG("setRightClicked:"<<name);
 
@@ -263,7 +263,7 @@ void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 
   unsigned int id = bgroup->id(butto);
   if(buttonList.size() > id){
-    miutil::miString name = buttonList[id].name;
+    std::string name = buttonList[id].name;
     if( !buttonOn[id] ) return;
     emit rightClickedOn(name);
   }

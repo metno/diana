@@ -66,7 +66,7 @@ public:
   ~SpectrumWindow(){}
 
   StationPlot* getStations();
-  bool changeStation(const miutil::miString& station); //change plotstation
+  bool changeStation(const std::string& station); //change plotstation
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
@@ -108,7 +108,7 @@ private:
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
 
-  void makeEPS(const miutil::miString& filename);
+  void makeEPS(const std::string& filename);
 
 private slots:
   void modelClicked(bool on);
@@ -137,8 +137,8 @@ signals:
   void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
-  void setTime(const miutil::miString&, const miutil::miTime&);
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void setTime(const std::string&, const miutil::miTime&);
 };
 #endif
 

@@ -63,13 +63,13 @@ public:
 
   bool isChecked(int);
   void setEnabled( bool enabled );
-  int setButtonOn(miutil::miString buttonName);
+  int setButtonOn(std::string buttonName);
   void enableButtons(vector<bool>);
 
-  vector<miutil::miString> getOKString(bool forLog=false);
+  vector<std::string> getOKString(bool forLog=false);
 
  public slots:
- void setRightClicked(miutil::miString name,bool on);
+ void setRightClicked(std::string name,bool on);
   void ALLClicked();
   void NONEClicked();
   void DEFAULTClicked();
@@ -81,8 +81,8 @@ private slots:
 signals:
   void inGroupClicked( int );
   void outGroupClicked( int );
-  void rightClickedOn( miutil::miString );
-  void rightClickedOff( miutil::miString );
+  void rightClickedOn( std::string );
+  void rightClickedOff( std::string );
 
 private:
 

@@ -132,8 +132,6 @@ public:
   std::vector<std::string> writeLog();
 
   /// add command to history
-  void pushPlot(const miutil::miString& name,
-      const std::vector<miutil::miString>& pstr, int index=0);
   void pushPlot(const std::string& name,
       const std::vector<std::string>& pstr, int index=0);
 
@@ -144,20 +142,20 @@ public:
   bool prevList();  ///< previous Menu
   bool nextList();  ///< next Menu
 
-  bool applyItem(const miutil::miString &list, const miutil::miString &item); 
+  bool applyItem(const std::string &list, const std::string &item); 
 
   void applyPlot();
   
   void getDetails(int& plotidx,
-		  miutil::miString& listname,
-		  miutil::miString& plotname);
+		  std::string& listname,
+		  std::string& plotname);
   void startBrowsing();
 
   // quick-quick menu methods
-  vector<miutil::miString> getCustomMenus();
-  bool addMenu(const miutil::miString& name);
+  vector<std::string> getCustomMenus();
+  bool addMenu(const std::string& name);
   bool addToMenu(const int idx);
-  miutil::miString getCurrentName();
+  std::string getCurrentName();
 
 Q_SIGNALS:
   void Apply(const std::vector<std::string>& s, bool); ///< send plot-commands

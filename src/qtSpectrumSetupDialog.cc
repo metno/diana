@@ -280,7 +280,7 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
       spSetups[i]->setLinewidth(spopt->peakDirectionLinewidth);
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      spSetups[i]->setTextChoice(miutil::miString(spopt->freqMax));
+      spSetups[i]->setTextChoice(miutil::from_number(spopt->freqMax));
 
     } else if (spSetups[i]->name== BACKCOLOUR) {
       spSetups[i]->setColour(spopt->backgroundColour);
@@ -346,7 +346,7 @@ void SpectrumSetupDialog::applySetup()
       spopt->peakDirectionLinewidth= spSetups[i]->getLinewidth();
 
     } else if (spSetups[i]->name== FREQUENCYMAX) {
-      miutil::miString str= spSetups[i]->getTextChoice();
+      std::string str= spSetups[i]->getTextChoice();
       spopt->freqMax= atof(str.c_str());
 
     } else if (spSetups[i]->name== BACKCOLOUR) {

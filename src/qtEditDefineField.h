@@ -73,11 +73,11 @@ public:
     {return vselectedprod;}
 
 private:
-  vector <miutil::miString> getProductNames();
+  vector <std::string> getProductNames();
   void fillList();
   void updateFilenames();
   std::string selectedObjectTypes(); //fronts /symbols/areas ?
-  void setCheckedCbs(map<miutil::miString,bool> useEditobject);
+  void setCheckedCbs(map<std::string,bool> useEditobject);
   void initCbs();
 
 private slots:
@@ -113,17 +113,17 @@ private:
   QCheckBox *cbs3;
 
   EditProduct EdProd;
-  miutil::miString currentProductName;
-  miutil::miString fieldname;
+  std::string currentProductName;
+  std::string fieldname;
   std::vector<std::string> fields;
   int num;
   int selectedProdIndex;
-  map <miutil::miString, vector<savedProduct> > pmap;
-  miutil::miString selectedfield;
+  map <std::string, vector<savedProduct> > pmap;
+  std::string selectedfield;
   vector <savedProduct> vselectedprod;
-  vector<miutil::miString> productNames;  //list of products in prodnamebox
+  vector<std::string> productNames;  //list of products in prodnamebox
 
-  miutil::miString MODELFIELDS;
+  std::string MODELFIELDS;
 
 };
 

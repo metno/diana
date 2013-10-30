@@ -52,7 +52,7 @@ class QColor;
 
 
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
-int getIndex(const std::vector<miutil::miString>& vstr, const std::string& def_str);
+int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
 int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& def_str);
 
 
@@ -72,9 +72,6 @@ QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 // ComboBox
 
 QComboBox* ComboBox(QWidget* parent, const std::vector<std::string>& vstr,
-    bool Enabled=true, int defItem=0);
-
-QComboBox* ComboBox(QWidget* parent, const std::vector<miutil::miString>& vstr,
     bool Enabled=true, int defItem=0);
 
 QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors,
@@ -112,7 +109,7 @@ QComboBox* LinewidthBox(QWidget* parent,
 void ExpandLinewidthBox( QComboBox* box,
     int new_nr_linewidths);
 
-QComboBox* PixmapBox(QWidget* parent, std::vector<miutil::miString>& markerName);
+QComboBox* PixmapBox(QWidget* parent, std::vector<std::string>& markerName);
 
 // Div
 
@@ -124,7 +121,7 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent );
 
-void listWidget(QListWidget* box, const std::vector<miutil::miString>& vstr, int defItem=-1);
+void listWidget(QListWidget* box, const std::vector<std::string>& vstr, int defItem=-1);
 
 QPixmap* linePixmap(const std::string& pattern, int linewidth);
 

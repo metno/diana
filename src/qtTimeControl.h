@@ -64,9 +64,9 @@ public:
 
   TimeControl(QWidget*);
   /// Set data basis for time slider
-  void useData(miutil::miString type, int id=-1);
+  void useData(std::string type, int id=-1);
   /// Remove one data type
-  vector<miutil::miString> deleteType(int id);
+  vector<std::string> deleteType(int id);
 
   signals:
   ///Animation speed (sec)
@@ -76,7 +76,7 @@ public:
   ///Animation interval cleared
   void clearMinMax();
   /// Data basis for time slider
-  void data(miutil::miString);
+  void data(std::string);
   void timecontrolHide();
 
 public slots:
@@ -95,8 +95,8 @@ private slots:
 
 private:
 
-  vector<miutil::miString> dataname;
-  map<int,miutil::miString> external_id;
+  vector<std::string> dataname;
+  map<int,std::string> external_id;
 
   vector<miutil::miTime> m_times;
   QFont m_font;

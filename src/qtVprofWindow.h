@@ -108,7 +108,7 @@ private:
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
 
-  void makeEPS(const miutil::miString& filename);
+  void makeEPS(const std::string& filename);
 
 private slots:
   void modelClicked(bool on);
@@ -138,7 +138,7 @@ signals:
   void showsource(const std::string, const std::string=""); // activate help
   void stationChanged(const QString& );
   void modelChanged();
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
-  void setTime(const miutil::miString&, const miutil::miTime&);
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
+  void setTime(const std::string&, const miutil::miTime&);
 };
 #endif

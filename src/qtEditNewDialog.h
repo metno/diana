@@ -78,8 +78,8 @@ private:
   void handleFieldButton(int);
   bool checkProductFree();
   void setLoginLabel();
-  miutil::miString savedProd2Str(const savedProduct& sp,
-			 const miutil::miString undef = "udefinert");
+  std::string savedProd2Str(const savedProduct& sp,
+			 const std::string undef = "udefinert");
 
 private slots:
   void login_clicked();

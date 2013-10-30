@@ -37,13 +37,13 @@
 
 using namespace miutil;
 
-map<miString,Pattern::PatternInfo> Pattern::pmap;
+map<std::string,Pattern::PatternInfo> Pattern::pmap;
 
 
-Pattern::Pattern( const miString& name, const vector<miString>& pattern)
+Pattern::Pattern( const std::string& name, const vector<std::string>& pattern)
 {
 
-  if(name.exists()){
+  if((not name.empty())){
     pmap[name].name    = name;
     pmap[name].pattern = pattern;
   }
@@ -52,19 +52,19 @@ Pattern::Pattern( const miString& name, const vector<miString>& pattern)
 
 void Pattern::addPatternInfo(const PatternInfo& pi)
 {
-  if ( pi.name.exists() ){
+  if ( (not pi.name.empty()) ){
     pmap[pi.name] = pi;
   }
 
 }
 
-vector<miString> Pattern::getPatternInfo(const miString& name)
+vector<std::string> Pattern::getPatternInfo(const std::string& name)
 {
 
   if(pmap.count(name)>0)
     return pmap[name].pattern;
 
-  vector<miString> v;
+  vector<std::string> v;
   return v;
 
 }
@@ -74,7 +74,7 @@ vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
 
   vector<PatternInfo> pattern;
 
-  map<miString,PatternInfo>::iterator p= pmap.begin();
+  map<std::string,PatternInfo>::iterator p= pmap.begin();
   for(;p!=pmap.end();p++) {
     pattern.push_back(p->second);
   }

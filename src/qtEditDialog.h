@@ -167,9 +167,9 @@ Q_SIGNALS:
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&);
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
   /// update field dialog
-  void emitFieldEditUpdate(miutil::miString);
+  void emitFieldEditUpdate(std::string);
   /// editing on or off
   void editMode(bool);
   /// resize main window
@@ -235,20 +235,20 @@ private:
 
   int m_FrontcmIndex; // index of m_Frontcm;
   int m_FronteditIndex; // index of m_Fronteditmethods;
-  vector <miutil::miString> m_FronteditList;// items in Frontedit
+  vector <std::string> m_FronteditList;// items in Frontedit
 
-  map <miutil::miString,QString> editTranslations;//translate to any language
+  map <std::string,QString> editTranslations;//translate to any language
 
   int fieldEditToolGroup;  // 0=standard 1=classes 2=numbers
   int numFieldEditTools;
   int currFieldEditToolIndex;
-  vector<miutil::miString> classNames;
+  vector<std::string> classNames;
   vector<float>    classValues;
   vector<bool>     classValuesLocked;
 
-  miutil::miString currMapmode;
-  miutil::miString currEditmode;
-  miutil::miString currEdittool;
+  std::string currMapmode;
+  std::string currEditmode;
+  std::string currEdittool;
   int combineAction;
   bool inEdit;          // editing is active
   bool productApproved; // product has been approved
@@ -262,7 +262,7 @@ private:
   TimeStepSpinbox* timestepspin;
   QLabel* timelabel;
 
-  bool getText(miutil::miString &, Colour::ColourInfo &);
+  bool getText(std::string &, Colour::ColourInfo &);
   bool getEditText(std::vector<std::string> &);
   bool getComplexText(std::vector<std::string> &, std::vector<std::string> &);
   bool getComplexColoredText(std::vector<std::string>&, std::vector<std::string>&, Colour::ColourInfo &);

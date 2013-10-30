@@ -146,7 +146,7 @@ public:
   bool decodeString_oldSyntax(const std::string& fieldstr, SelectedField& sf, bool& allTimeSteps);
 
   /// insert editoption values of <field,option> specified
-  void getEditPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >& po);
+  void getEditPlotOptions(map< std::string, map<std::string,std::string> >& po);
   /// make contents for the diana log file
   vector<std::string> writeLog();
   /// digest contents from the diana log file (a previous session)
@@ -158,7 +158,7 @@ protected:
 
 public slots:
   void advancedToggled(bool on);
-  void fieldEditUpdate(miutil::miString str);
+  void fieldEditUpdate(std::string str);
   void addField(std::string str);
   void updateModels();
 
@@ -305,7 +305,7 @@ signals:
   void FieldApply();
   void FieldHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& );
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
   void fieldPlotOptionsChanged(map<std::string,std::string>&);
 
 private slots:

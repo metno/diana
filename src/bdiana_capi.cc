@@ -122,79 +122,79 @@ using namespace std; using namespace miutil;
 bool verbose = false;
 
 // command-strings
-const miString com_liststart = "list.";
-const miString com_listend = "list.end";
+const std::string com_liststart = "list.";
+const std::string com_listend = "list.end";
 
-const miString com_loop = "loop";
-const miString com_endloop = "endloop";
-const miString com_loopend = "loop.end";
+const std::string com_loop = "loop";
+const std::string com_endloop = "endloop";
+const std::string com_loopend = "loop.end";
 
-const miString com_vprof_opt = "vprof.options";
-const miString com_vprof_opt_end = "vprof.options.end";
-const miString com_vcross_opt = "vcross.options";
-const miString com_vcross_opt_end = "vcross.options.end";
-const miString com_spectrum_opt = "spectrum.options";
-const miString com_spectrum_opt_end = "spectrum.options.end";
+const std::string com_vprof_opt = "vprof.options";
+const std::string com_vprof_opt_end = "vprof.options.end";
+const std::string com_vcross_opt = "vcross.options";
+const std::string com_vcross_opt_end = "vcross.options.end";
+const std::string com_spectrum_opt = "spectrum.options";
+const std::string com_spectrum_opt_end = "spectrum.options.end";
 
-const miString com_plot = "plot";
-const miString com_vcross_plot = "vcross.plot";
-const miString com_vprof_plot = "vprof.plot";
-const miString com_spectrum_plot = "spectrum.plot";
-const miString com_endplot = "endplot";
-const miString com_plotend = "plot.end";
+const std::string com_plot = "plot";
+const std::string com_vcross_plot = "vcross.plot";
+const std::string com_vprof_plot = "vprof.plot";
+const std::string com_spectrum_plot = "spectrum.plot";
+const std::string com_endplot = "endplot";
+const std::string com_plotend = "plot.end";
 
-const miString com_print_document = "print_document";
+const std::string com_print_document = "print_document";
 
-const miString com_wait_for_commands = "wait_for_commands";
-const miString com_wait_end = "wait.end";
-const miString com_fifo_name = "fifo";
+const std::string com_wait_for_commands = "wait_for_commands";
+const std::string com_wait_end = "wait.end";
+const std::string com_fifo_name = "fifo";
 
-const miString com_setupfile = "setupfile";
-const miString com_command_path = "command_path";
-const miString com_buffersize = "buffersize";
+const std::string com_setupfile = "setupfile";
+const std::string com_command_path = "command_path";
+const std::string com_buffersize = "buffersize";
 
-const miString com_papersize = "papersize";
-const miString com_filename = "filename";
-const miString com_toprinter = "toprinter";
-const miString com_printer = "printer";
-const miString com_output = "output";
-const miString com_colour = "colour";
-const miString com_drawbackground = "drawbackground";
-const miString com_orientation = "orientation";
-const miString com_antialiasing = "antialiasing";
+const std::string com_papersize = "papersize";
+const std::string com_filename = "filename";
+const std::string com_toprinter = "toprinter";
+const std::string com_printer = "printer";
+const std::string com_output = "output";
+const std::string com_colour = "colour";
+const std::string com_drawbackground = "drawbackground";
+const std::string com_orientation = "orientation";
+const std::string com_antialiasing = "antialiasing";
 
-const miString com_settime = "settime";
-const miString com_addhour = "addhour";
-const miString com_addminute = "addminute";
-const miString com_archive = "archive";
-const miString com_keepplotarea = "keepplotarea";
+const std::string com_settime = "settime";
+const std::string com_addhour = "addhour";
+const std::string com_addminute = "addminute";
+const std::string com_archive = "archive";
+const std::string com_keepplotarea = "keepplotarea";
 #if defined(USE_PAINTGL)
-const miString com_plotannotationsonly = "plotannotationsonly";
+const std::string com_plotannotationsonly = "plotannotationsonly";
 #endif
 
-const miString com_fail_on_missing_data="failonmissingdata";
-const miString com_multiple_plots = "multiple.plots";
-const miString com_plotcell = "plotcell";
+const std::string com_fail_on_missing_data="failonmissingdata";
+const std::string com_multiple_plots = "multiple.plots";
+const std::string com_plotcell = "plotcell";
 
-const miString com_trajectory = "trajectory";
-const miString com_trajectory_opt = "trajectory_options";
-const miString com_trajectory_print = "trajectory_print";
-const miString com_setup_field_info = "setup_field_info";
+const std::string com_trajectory = "trajectory";
+const std::string com_trajectory_opt = "trajectory_options";
+const std::string com_trajectory_print = "trajectory_print";
+const std::string com_setup_field_info = "setup_field_info";
 
-const miString com_time_opt = "time_options";
-const miString com_time_format = "time_format";
-const miString com_time = "time";
-const miString com_time_spectrum = "time.spectrum";
-const miString com_endtime = "endtime";
-const miString com_level = "level";
-const miString com_endlevel = "endlevel";
+const std::string com_time_opt = "time_options";
+const std::string com_time_format = "time_format";
+const std::string com_time = "time";
+const std::string com_time_spectrum = "time.spectrum";
+const std::string com_endtime = "endtime";
+const std::string com_level = "level";
+const std::string com_endlevel = "endlevel";
 
-const miString com_field_files = "<field_files>";
-const miString com_field_files_end = "</field_files>";
+const std::string com_field_files = "<field_files>";
+const std::string com_field_files_end = "</field_files>";
 
-const miString com_describe = "describe";
-const miString com_describe_spectrum = "describe.spectrum";
-const miString com_describe_end = "enddescribe";
+const std::string com_describe = "describe";
+const std::string com_describe_spectrum = "describe.spectrum";
+const std::string com_describe_end = "enddescribe";
 
 enum canvas {
   x_pixmap, glx_pixelbuffer, qt_glpixelbuffer, qt_glframebuffer, qt_qimage
@@ -218,14 +218,14 @@ enum plot_type {
  key/value pairs from commandline-parameters
  */
 struct keyvalue {
-  miString key;
-  miString value;
+  std::string key;
+  std::string value;
 };
 
 // one list of strings with name
 struct stringlist {
-  miString name;
-  vector<miString> l;
+  std::string name;
+  vector<std::string> l;
 };
 
 plot_type plottype = plot_none;// current plot_type
@@ -272,8 +272,8 @@ QPainter pagePainter;
 #endif
 QPicture picture;
 QImage image;
-map<miString, map<miString,miString> > outputTextMaps; // output text for cases where output data is XML/JSON
-vector<miString> outputTextMapOrder;                   // order of legends in output text
+map<std::string, map<std::string,std::string> > outputTextMaps; // output text for cases where output data is XML/JSON
+vector<std::string> outputTextMapOrder;                   // order of legends in output text
 
 int xsize; // total pixmap width
 int ysize; // total pixmap height
@@ -304,11 +304,11 @@ vector<keyvalue> keys;
 
 miTime thetime, ptime, fixedtime;
 
-miString batchinput;
+std::string batchinput;
 // diana setup file
-miString setupfile = "diana.setup";
+std::string setupfile = "diana.setup";
 bool setupfilegiven = false;
-miString command_path;
+std::string command_path;
 
 bool keeparea = false;
 bool useArchive = false;
@@ -332,19 +332,19 @@ QTransform annotationTransform;
 /*
  more...
  */
-vector<miString> vs, vvs, vvvs;
+vector<std::string> vs, vvs, vvvs;
 bool setupread = false;
 bool buffermade = false;
-vector<miString> lines, tmplines;
+vector<std::string> lines, tmplines;
 vector<int> linenumbers, tmplinenumbers;
 
 bool plot_trajectory = false;
 bool trajectory_started = false;
 
-miString trajectory_options;
+std::string trajectory_options;
 
-miString time_options;
-miString time_format = "$time";
+std::string time_options;
+std::string time_format = "$time";
 
 #ifdef VIDEO_EXPORT
 MovieMaker *movieMaker = 0;
@@ -359,9 +359,9 @@ printOptions priop;
 bool wait_for_signals = false;
 bool wait_for_input = false; // if running as lib
 
-miString fifo_name;
+std::string fifo_name;
 
-miString logfilename = "";
+std::string logfilename = "";
 
 #define MAKE_CONTROLLER \
     main_controller = new Controller; \
@@ -375,14 +375,14 @@ miString logfilename = "";
  clean an input-string: remove preceding and trailing blanks,
  remove comments
  */
-void cleanstr(miString& s)
+void cleanstr(std::string& s)
 {
   std::string::size_type p;
   if ((p = s.find("#")) != string::npos)
     s.erase(p);
 
-  s.remove('\n');
-  s.trim();
+  miutil::remove(s, '\n');
+  miutil::trim(s);
 }
 
 /*
@@ -396,38 +396,38 @@ void cleanstr(miString& s)
  <contents, all VAR1,VAR2,.. replaced by ARG1,ARG2,.. for each iteration>
  ENDLOOP or LOOP.END
  */
-void unpackloop(vector<miString>& orig, // original strings..
+void unpackloop(vector<std::string>& orig, // original strings..
     vector<int>& origlines, // ..with corresponding line-numbers
     unsigned int& index, // original string-counter to update
-    vector<miString>& part, // final strings from loop-unpacking..
+    vector<std::string>& part, // final strings from loop-unpacking..
     vector<int>& partlines) // ..with corresponding line-numbers
 {
   unsigned int start = index;
 
-  miString loops = orig[index];
+  std::string loops = orig[index];
   loops = loops.substr(4, loops.length() - 4);
 
-  vector<miString> vs, vs2;
+  vector<std::string> vs, vs2;
 
-  vs = loops.split('=');
+  vs = miutil::split(loops, 0, "=");
   if (vs.size() < 2) {
     METLIBS_LOG_ERROR("ERROR, missing \'=\' in loop-statement at line:"
         << origlines[start]);
     exit(1);
   }
 
-  miString keys = vs[0]; // key-part
-  vector<miString> vkeys = keys.split('|');
+  std::string keys = vs[0]; // key-part
+  vector<std::string> vkeys = miutil::split(keys, 0, "|");
   unsigned int nkeys = vkeys.size();
 
-  miString argu = vs[1]; // argument-part
+  std::string argu = vs[1]; // argument-part
   unsigned int nargu;
-  vector<vector<miString> > arguments;
+  vector<vector<std::string> > arguments;
 
   /* Check if argument is name of list
    Lists are recognized with preceding '@' */
   if (argu.length() > 1 && argu.substr(0, 1) == "@") {
-    miString name = argu.substr(1, argu.length() - 1);
+    std::string name = argu.substr(1, argu.length() - 1);
     // search for list..
     unsigned int k;
     for (k = 0; k < lists.size(); k++) {
@@ -442,7 +442,7 @@ void unpackloop(vector<miString>& orig, // original strings..
     nargu = lists[k].l.size();
     // split listentries into separate arguments for loop
     for (unsigned int j = 0; j < nargu; j++) {
-      vs = lists[k].l[j].split('|');
+      vs = miutil::split(lists[k].l[j], 0, "|");
       // check if correct number of arguments
       if (vs.size() != nkeys) {
         METLIBS_LOG_ERROR("ERROR, number of arguments in loop at:'" << lists[k].l[j]
@@ -454,10 +454,10 @@ void unpackloop(vector<miString>& orig, // original strings..
 
   } else {
     // ordinary arguments to loop: comma-separated
-    vs2 = argu.split(',');
+    vs2 = miutil::split(argu, 0, ",");
     nargu = vs2.size();
     for (unsigned int k = 0; k < nargu; k++) {
-      vs = vs2[k].split('|');
+      vs = miutil::split(vs2[k], 0, "|");
       // check if correct number of arguments
       if (vs.size() != nkeys) {
         METLIBS_LOG_ERROR("ERROR, number of arguments in loop at:'" << vs2[k]
@@ -469,7 +469,7 @@ void unpackloop(vector<miString>& orig, // original strings..
   }
 
   // temporary storage of loop-contents
-  vector<miString> tmppart;
+  vector<std::string> tmppart;
   vector<int> tmppartlines;
 
   // go to next line
@@ -477,15 +477,15 @@ void unpackloop(vector<miString>& orig, // original strings..
 
   // start unpacking loop
   for (; index < orig.size(); index++) {
-    if (orig[index].downcase() == com_endloop || orig[index].downcase() ==
+    if (miutil::to_lower(orig[index]) == com_endloop || miutil::to_lower(orig[index]) ==
         com_loopend) { // reached end
       // we have the loop-contents
       for (unsigned int i = 0; i < nargu; i++) { // loop over arguments
         for (unsigned int j = 0; j < tmppart.size(); j++) { // loop over lines
-          miString l = tmppart[j];
+          std::string l = tmppart[j];
           for (unsigned int k = 0; k < nkeys; k++) { // loop over keywords
             // replace all variables
-            l.replace(vkeys[k], arguments[i][k]);
+            miutil::replace(l, vkeys[k], arguments[i][k]);
           }
           part.push_back(l);
           partlines.push_back(tmppartlines[j]);
@@ -493,7 +493,7 @@ void unpackloop(vector<miString>& orig, // original strings..
       }
       break;
 
-    } else if (miString(orig[index].substr(0, 4)).downcase() == com_loop) {
+    } else if (miutil::to_lower(orig[index].substr(0, 4)) == com_loop) {
       // start of new loop
       unpackloop(orig, origlines, index, tmppart, tmppartlines);
 
@@ -520,17 +520,17 @@ void unpackloop(vector<miString>& orig, // original strings..
  ...
  LIST.END
  */
-void unpackinput(vector<miString>& orig, // original setup
+void unpackinput(vector<std::string>& orig, // original setup
     vector<int>& origlines, // original list of linenumbers
-    vector<miString>& final, // final setup
+    vector<std::string>& final, // final setup
     vector<int>& finallines) // final list of linenumbers
 {
   unsigned int i;
   for (i = 0; i < orig.size(); i++) {
-    if (miString(orig[i].substr(0, 4)).downcase() == com_loop) {
+    if (miutil::to_lower(orig[i].substr(0, 4)) == com_loop) {
       // found start of loop - unpack it
       unpackloop(orig, origlines, i, final, finallines);
-    } else if (miString(orig[i].substr(0, 5)).downcase() == com_liststart) {
+    } else if (miutil::to_lower(orig[i].substr(0, 5)) == com_liststart) {
       // save a list
       stringlist li;
       if (orig[i].length() < 6) {
@@ -540,9 +540,9 @@ void unpackinput(vector<miString>& orig, // original setup
       li.name = orig[i].substr(5, orig[i].length() - 5);
       unsigned int start = i;
       i++;
-      for (; i < orig.size() && orig[i].downcase() != com_listend; i++)
+      for (; i < orig.size() && miutil::to_lower(orig[i]) != com_listend; i++)
         li.l.push_back(orig[i]);
-      if (i == orig.size() || orig[i].downcase() != com_listend) {
+      if (i == orig.size() || miutil::to_lower(orig[i]) != com_listend) {
         METLIBS_LOG_ERROR("ERROR, missing LIST.END for list starting at line:"
                << origlines[start]);
         exit(1);
@@ -568,7 +568,7 @@ int prepareInput(istream &is)
   lines.clear();
   linenumbers.clear();
 
-  miString s;
+  std::string s;
   int n;
   bool merge = false, newmerge;
 
@@ -608,7 +608,7 @@ int prepareInput(istream &is)
   for (unsigned int k = 0; k < linenum; k++) {
     SetupParser::checkEnvironment(lines[k]);
     for (unsigned int m = 0; m < nkeys; m++)
-      lines[k].replace("$" + keys[m].key, keys[m].value);
+      miutil::replace(lines[k], "$" + keys[m].key, keys[m].value);
   }
   return 0;
 }
@@ -764,7 +764,7 @@ void endHardcopy(const plot_type pt)
 }
 
 // VPROF-options with parser
-miString vprof_station;
+std::string vprof_station;
 vector<string> vprof_models, vprof_options;
 bool vprof_plotobs = true;
 bool vprof_optionschanged;
@@ -773,25 +773,25 @@ void parse_vprof_options(const vector<string>& opts)
 {
   int n = opts.size();
   for (int i = 0; i < n; i++) {
-    miString line = opts[i];
-    line.trim();
-    if (!line.exists())
+    std::string line = opts[i];
+    miutil::trim(line);
+    if (line.empty())
       continue;
-    miString upline = line.upcase();
+    std::string upline = miutil::to_upper(line);
 
     if (upline == "OBSERVATION.ON")
       vprof_plotobs = true;
     else if (upline == "OBSERVATION.OFF")
       vprof_plotobs = false;
-    else if (upline.contains("MODELS=") || upline.contains("MODEL=")
-        || upline.contains("STATION=")) {
-      vector<miString> vs = line.split("=");
+    else if (miutil::contains(upline, "MODELS=") || miutil::contains(upline, "MODEL=")
+        || miutil::contains(upline, "STATION=")) {
+      vector<std::string> vs = miutil::split(line, "=");
       if (vs.size() > 1) {
-        miString key = vs[0].upcase();
-        miString value = vs[1];
+        std::string key = miutil::to_upper(vs[0]);
+        std::string value = vs[1];
         if (key == "STATION") {
-          if (value.contains("\""))
-            value.remove('\"');
+          if (miutil::contains(value, "\""))
+            miutil::remove(value, '\"');
           vprof_station = value;
         } else if (key == "MODELS" || key == "MODEL") {
           vprof_models = miutil::split(value, 0, ",");
@@ -807,7 +807,7 @@ void parse_vprof_options(const vector<string>& opts)
 
 // VCROSS-options with parser
 vector<std::string> vcross_data, vcross_options;
-miString crossection;
+std::string crossection;
 bool vcross_optionschanged;
 
 void parse_vcross_options(const vector<string>& opts)
@@ -815,18 +815,18 @@ void parse_vcross_options(const vector<string>& opts)
   bool data_exist = false;
   int n = opts.size();
   for (int i = 0; i < n; i++) {
-    miString line = opts[i];
-    line.trim();
-    if (!line.exists())
+    std::string line = opts[i];
+    miutil::trim(line);
+    if (line.empty())
       continue;
-    miString upline = line.upcase();
+    std::string upline = miutil::to_upper(line);
 
-    if (upline.contains("CROSSECTION=")) {
-      vector<miString> vs = line.split("=");
+    if (miutil::contains(upline, "CROSSECTION=")) {
+      vector<std::string> vs = miutil::split(line, "=");
       crossection = vs[1];
-      if (crossection.contains("\""))
-        crossection.remove('\"');
-    } else if (upline.contains("VCROSS ")) {
+      if (miutil::contains(crossection, "\""))
+        miutil::remove(crossection, '\"');
+    } else if (miutil::contains(upline, "VCROSS ")) {
       if (!data_exist)
         vcross_data.clear();
       vcross_data.push_back(line);
@@ -840,7 +840,7 @@ void parse_vcross_options(const vector<string>& opts)
 }
 
 // SPECTRUM-options with parser
-miString spectrum_station;
+std::string spectrum_station;
 vector<string> spectrum_models, spectrum_options;
 bool spectrum_plotobs = false; // not used, yet...
 bool spectrum_optionschanged;
@@ -849,25 +849,25 @@ static void parse_spectrum_options(const vector<string>& opts)
 {
   int n = opts.size();
   for (int i = 0; i < n; i++) {
-    miString line = opts[i];
-    line.trim();
-    if (!line.exists())
+    std::string line = opts[i];
+    miutil::trim(line);
+    if (line.empty())
       continue;
-    miString upline = line.upcase();
+    std::string upline = miutil::to_upper(line);
 
     if (upline == "OBSERVATION.ON")
       spectrum_plotobs = true;
     else if (upline == "OBSERVATION.OFF")
       spectrum_plotobs = false;
-    else if (upline.contains("MODELS=") || upline.contains("MODEL=")
-        || upline.contains("STATION=")) {
-      vector<miString> vs = line.split("=");
+    else if (miutil::contains(upline, "MODELS=") || miutil::contains(upline, "MODEL=")
+        || miutil::contains(upline, "STATION=")) {
+      vector<std::string> vs = miutil::split(line, "=");
       if (vs.size() > 1) {
-        miString key = vs[0].upcase();
-        miString value = vs[1];
+        std::string key = miutil::to_upper(vs[0]);
+        std::string value = vs[1];
         if (key == "STATION") {
-          if (value.contains("\""))
-            value.remove('\"');
+          if (miutil::contains(value, "\""))
+            miutil::remove(value, '\"');
           spectrum_station = value;
         } else if (key == "MODELS" || key == "MODEL") {
           spectrum_models = miutil::split(value, 0, ",");
@@ -885,9 +885,9 @@ static void parse_spectrum_options(const vector<string>& opts)
  parse setupfile
  perform other initialisations based on setup information
  */
-static bool readSetup(const miString& constSetupfile, printerManager& printmanager)
+static bool readSetup(const std::string& constSetupfile, printerManager& printmanager)
 {
-  miString setupfile = constSetupfile;
+  std::string setupfile = constSetupfile;
   METLIBS_LOG_INFO("Reading setupfile:" << setupfile);
 
   if (!LocalSetupParser::parse(setupfile)) {
@@ -908,7 +908,7 @@ int diana_readSetupFile(const char* setupFilename) {
 
     using namespace std; using namespace miutil;
     printman = new printerManager();
-    miString setupfile(setupFilename);
+    std::string setupfile(setupFilename);
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
@@ -924,9 +924,9 @@ int diana_readSetupFile(const char* setupFilename) {
  */
 static void printUsage(bool showexample)
 {
-  const miString help =
+  const std::string help =
       "***************************************************             \n"
-        " DIANA batch version:" + miString(VERSION) + "                  \n"
+        " DIANA batch version:" + std::string(VERSION) + "                  \n"
         " plot products in batch                                         \n"
         "***************************************************             \n"
         " Available products:                                            \n"
@@ -986,7 +986,7 @@ static void printUsage(bool showexample)
         " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time                          \n"
         "                                                                        \n";
 
-  const miString
+  const std::string
       example =
           "#--------------------------------------------------------------   \n"
             "# inputfile for bdiana                                            \n"
@@ -1412,7 +1412,7 @@ void createJsonAnnotation()
       for (vector<string>::iterator itj = iti->vstr.begin(); itj != iti->vstr.end(); ++itj) {
 
         // Find the table description in the string.
-        miString legend = (*itj);
+        std::string legend = (*itj);
         size_t at = legend.find("table=\"");
 
         if (at != string::npos) {
@@ -1425,15 +1425,15 @@ void createJsonAnnotation()
           // Remove leading and trailing quotes.
           legend = legend.substr(at, end - at);
 
-          map<miString,miString> textMap;
+          map<std::string,std::string> textMap;
           
-          miString title;
-          vector<miString> colors;
-          vector<miString> labels;
+          std::string title;
+          vector<std::string> colors;
+          vector<std::string> labels;
 
           bool first = true;
-          vector<miString> line;
-          miString current;
+          vector<std::string> line;
+          std::string current;
           unsigned int i = 0;
 
           while (i < legend.size()) {
@@ -1482,8 +1482,8 @@ void createJsonAnnotation()
                 cs.fill('0');
                 cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
                 colors.push_back("\"" + cs.str() + "\"");
-                miString label = line[1];
-                label.trim();
+                std::string label = line[1];
+                miutil::trim(label);
                 labels.push_back("\"" + label + "\"");
               }
               line.clear();
@@ -1503,14 +1503,14 @@ void createJsonAnnotation()
 
   // Add a metadata entry to describe the request that corresponds to this reply.
   // The wms clients did not accept metadata, temporarily removed until clients are fixed
-  //  map<miString,miString> metaDataMap;
+  //  map<std::string,std::string> metaDataMap;
 //
-//  miString thetime;
+//  std::string thetime;
 //  main_controller->getPlotTime(thetime);
 //  if ( !ptime.undef() ) {
-//    metaDataMap["request time"] = miString("\"") + ptime.isoTime() + miString("\"");
+//    metaDataMap["request time"] = std::string("\"") + ptime.isoTime() + std::string("\"");
 //  }
-//  metaDataMap["time used"] = miString("\"") + thetime + miString("\"");
+//  metaDataMap["time used"] = std::string("\"") + thetime + std::string("\"");
 //  outputTextMaps["metadata"] = metaDataMap;
 //  outputTextMapOrder.push_back("metadata");
 }
@@ -1576,7 +1576,7 @@ void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int s
 }
 
 #define FIND_END_COMMAND(COMMAND) \
-  for (int i = k + 1; i < linenum && lines[i].downcase() != COMMAND; i++, k++) \
+  for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != COMMAND; i++, k++) \
     pcom.push_back(lines[i]); \
   k++;
 
@@ -1598,53 +1598,53 @@ static int parseAndProcess(istream &is)
   // parse input - and perform plots
   for (int k = 0; k < linenum; k++) {// input-line loop
     // start parsing...
-    if (lines[k].downcase() == com_vprof_opt) {
+    if (miutil::to_lower(lines[k]) == com_vprof_opt) {
       vector<string> pcom;
-      for (int i = k + 1; i < linenum && lines[i].downcase()
+      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
           != com_vprof_opt_end; i++, k++)
         pcom.push_back(lines[i]);
       k++;
       parse_vprof_options(pcom);
       continue;
 
-    } else if (lines[k].downcase() == com_vcross_opt) {
+    } else if (miutil::to_lower(lines[k]) == com_vcross_opt) {
       vector<string> pcom;
-      for (int i = k + 1; i < linenum && lines[i].downcase()
+      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
           != com_vcross_opt_end; i++, k++)
         pcom.push_back(lines[i]);
       k++;
       parse_vcross_options(pcom);
       continue;
 
-    } else if (lines[k].downcase() == com_spectrum_opt) {
+    } else if (miutil::to_lower(lines[k]) == com_spectrum_opt) {
       vector<string> pcom;
-      for (int i = k + 1; i < linenum && lines[i].downcase()
+      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i])
           != com_spectrum_opt_end; i++, k++)
         pcom.push_back(lines[i]);
       k++;
       parse_spectrum_options(pcom);
       continue;
 
-    } else if (lines[k].downcase() == com_plot || lines[k].downcase()
-        == com_vcross_plot || lines[k].downcase() == com_vprof_plot
-        || lines[k].downcase() == com_spectrum_plot) {
+    } else if (miutil::to_lower(lines[k]) == com_plot || miutil::to_lower(lines[k])
+        == com_vcross_plot || miutil::to_lower(lines[k]) == com_vprof_plot
+        || miutil::to_lower(lines[k]) == com_spectrum_plot) {
       // --- START PLOT ---
-      if (lines[k].downcase() == com_plot) {
+      if (miutil::to_lower(lines[k]) == com_plot) {
         plottype = plot_standard;
         if (verbose)
           METLIBS_LOG_INFO("Preparing new standard-plot");
 
-      } else if (lines[k].downcase() == com_vcross_plot) {
+      } else if (miutil::to_lower(lines[k]) == com_vcross_plot) {
         plottype = plot_vcross;
         if (verbose)
           METLIBS_LOG_INFO("Preparing new vcross-plot");
 
-      } else if (lines[k].downcase() == com_vprof_plot) {
+      } else if (miutil::to_lower(lines[k]) == com_vprof_plot) {
         plottype = plot_vprof;
         if (verbose)
           METLIBS_LOG_INFO("Preparing new vprof-plot");
 
-      } else if (lines[k].downcase() == com_spectrum_plot) {
+      } else if (miutil::to_lower(lines[k]) == com_spectrum_plot) {
         plottype = plot_spectrum;
         if (verbose)
           METLIBS_LOG_INFO("Preparing new spectrum-plot");
@@ -1689,20 +1689,20 @@ static int parseAndProcess(istream &is)
       }
 
       vector<string> pcom;
-      for (int i = k + 1; i < linenum && lines[i].downcase() != com_endplot
-          && lines[i].downcase() != com_plotend; i++, k++) {
+      for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endplot
+          && miutil::to_lower(lines[i]) != com_plotend; i++, k++) {
         if (shape ) {
-                if ( (lines[i].contains("OBS") || lines[i].contains("SAT") || lines[i].contains("OBJECTS") ||
-                        lines[i].contains("EDITFIELD") || lines[i].contains("TRAJECTORY"))) {
+                if ( (miutil::contains(lines[i], "OBS") || miutil::contains(lines[i], "SAT") || miutil::contains(lines[i], "OBJECTS") ||
+                        miutil::contains(lines[i], "EDITFIELD") || miutil::contains(lines[i], "TRAJECTORY"))) {
                         METLIBS_LOG_ERROR("Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
                         return 1;
                 }
-                if ( lines[i].contains("FIELD") ) {
-                        miString shapeFileName=priop.fname;
+                if ( miutil::contains(lines[i], "FIELD") ) {
+                        std::string shapeFileName=priop.fname;
                         lines[i]+= " shapefilename=" + shapeFileName;
-                        if ( lines[i].contains("shapefile=0") )
-                                lines[i].replace("shapefile=0","shapefile=1");
-                        else if ( !lines[i].contains("shapefile=") )
+                        if ( miutil::contains(lines[i], "shapefile=0") )
+                                miutil::replace(lines[i], "shapefile=0","shapefile=1");
+                        else if (not miutil::contains(lines[i], "shapefile="))
                                 lines[i]+=" shapefile=1";
                 }
         }
@@ -1873,7 +1873,7 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- setting cross-section:" << crossection);
-        if (crossection.exists())
+        if (not crossection.empty())
           vcrossmanager->setCrossection(crossection);
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
@@ -1944,7 +1944,7 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- setting station:" << vprof_station);
-        if (vprof_station.exists())
+        if (not vprof_station.empty())
           vprofmanager->setStation(vprof_station);
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
@@ -2011,7 +2011,7 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- setting station:" << spectrum_station);
-        if (spectrum_station.exists())
+        if (not spectrum_station.empty())
           spectrummanager->setStation(spectrum_station);
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
@@ -2041,7 +2041,7 @@ static int parseAndProcess(istream &is)
       // --------------------------------------------------------
 
       //expand filename
-      if (priop.fname.contains("%")) {
+      if (miutil::contains(priop.fname, "%")) {
         priop.fname = thetime.format(priop.fname);
       }
 
@@ -2092,7 +2092,7 @@ static int parseAndProcess(istream &is)
             }
 
             if (verbose) {
-              METLIBS_LOG_INFO(" .." << miString(result ? "Ok" : " **FAILED!**"));
+              METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
             } else if (!result) {
               METLIBS_LOG_ERROR(" ERROR, saving image to:" << priop.fname);
             }
@@ -2119,7 +2119,7 @@ static int parseAndProcess(istream &is)
             METLIBS_LOG_INFO("--------- write_png: " << priop.fname);
 
             if (verbose) {
-              METLIBS_LOG_INFO(" .." << miString(result ? "Ok" : " **FAILED!**"));
+              METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
             } else if (!result) {
               METLIBS_LOG_ERROR(" ERROR, saving image to:" << priop.fname);
             }
@@ -2201,7 +2201,7 @@ static int parseAndProcess(istream &is)
 #endif
           }
           if (verbose)
-            METLIBS_LOG_INFO(" .." << miString(result ? "Ok" : " **FAILED!**"));
+            METLIBS_LOG_INFO(" .." << std::string(result ? "Ok" : " **FAILED!**"));
           else if (!result)
             METLIBS_LOG_ERROR(" ERROR, saving PNG-image to:" << img.filename);
           // -------------------------------------------------------------
@@ -2210,7 +2210,7 @@ static int parseAndProcess(istream &is)
 
       } else if (shape) { // Only shape output
 
-          if (priop.fname.contains("tmp_diana")) {
+          if (miutil::contains(priop.fname, "tmp_diana")) {
             METLIBS_LOG_INFO("Using shape option without file name, it will be created automatically");
           } else {
             METLIBS_LOG_INFO("Using shape option with given file name : " << priop.fname);
@@ -2265,13 +2265,13 @@ static int parseAndProcess(istream &is)
           outputFile.write("{\n");
 
           unsigned int i = 0;
-          for (vector<miString>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
+          for (vector<std::string>::iterator iti = outputTextMapOrder.begin(); iti != outputTextMapOrder.end(); ++iti, ++i) {
             outputFile.write("  \"");
             outputFile.write(QString::fromStdString(*iti).toUtf8());
             outputFile.write("\": {\n");
-            map<miString,miString> textMap = outputTextMaps[*iti];
+            map<std::string,std::string> textMap = outputTextMaps[*iti];
             unsigned int j = 0;
-            for (map<miString,miString>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
+            for (map<std::string,std::string>::iterator itj = textMap.begin(); itj != textMap.end(); ++itj, ++j) {
               outputFile.write("    \"");
               outputFile.write(QString::fromStdString(itj->first).toUtf8());
               outputFile.write("\": ");
@@ -2306,7 +2306,7 @@ static int parseAndProcess(istream &is)
         if (toprinter) { // automatic print of each page
           // Note that this option works bad for multi-page output:
           // use PRINT_DOCUMENT instead
-          if (!priop.printer.exists()) {
+          if (priop.printer.empty()) {
             METLIBS_LOG_ERROR(" ERROR, printing document:" << priop.fname
                    << "  Printer not defined!");
             continue;
@@ -2315,7 +2315,7 @@ static int parseAndProcess(istream &is)
           endHardcopy(plot_none);
           multiple_newpage = true;
 
-          miString command = printman->printCommand();
+          std::string command = printman->printCommand();
           priop.numcopies = 1;
 
           printman->expandCommand(command, priop);
@@ -2331,7 +2331,7 @@ static int parseAndProcess(istream &is)
 
       continue;
 
-    } else if (lines[k].downcase() == com_time || lines[k].downcase()
+    } else if (miutil::to_lower(lines[k]) == com_time || miutil::to_lower(lines[k])
         == com_level) {
 
       // read setup
@@ -2348,7 +2348,7 @@ static int parseAndProcess(istream &is)
         MAKE_CONTROLLER
       }
 
-      if (lines[k].downcase() == com_time) {
+      if (miutil::to_lower(lines[k]) == com_time) {
 
         if (verbose)
           METLIBS_LOG_INFO("- finding times");
@@ -2387,14 +2387,14 @@ static int parseAndProcess(istream &is)
         }
         file.close();
 
-      } else if (lines[k].downcase() == com_level) {
+      } else if (miutil::to_lower(lines[k]) == com_level) {
 
         if (verbose)
           METLIBS_LOG_INFO("- finding levels");
 
         //Find ENDLEVEL
-        vector<miString> pcom;
-        for (int i = k + 1; i < linenum && lines[i].downcase() != com_endlevel; i++, k++)
+        vector<std::string> pcom;
+        for (int i = k + 1; i < linenum && miutil::to_lower(lines[i]) != com_endlevel; i++, k++)
           pcom.push_back(lines[i]);
         k++;
 
@@ -2422,7 +2422,7 @@ static int parseAndProcess(istream &is)
 
       continue;
 
-    } else if (lines[k].downcase() == com_time_spectrum) {
+    } else if (miutil::to_lower(lines[k]) == com_time_spectrum) {
 
       // read setup
       if (!setupread) {
@@ -2470,7 +2470,7 @@ static int parseAndProcess(istream &is)
 
       if (verbose)
         METLIBS_LOG_INFO("- setting station:" << spectrum_station);
-      if (spectrum_station.exists())
+      if (not spectrum_station.empty())
         spectrummanager->setStation(spectrum_station);
 
       vector<miTime> okTimes = spectrummanager->getTimeList();
@@ -2496,12 +2496,12 @@ static int parseAndProcess(istream &is)
 
       continue;
 
-    } else if (lines[k].downcase() == com_print_document) {
+    } else if (miutil::to_lower(lines[k]) == com_print_document) {
       if (raster) {
         METLIBS_LOG_ERROR(" ERROR, trying to print raster-image!");
         continue;
       }
-      if (!priop.printer.exists()) {
+      if (priop.printer.empty()) {
         METLIBS_LOG_ERROR(" ERROR, printing document:" << priop.fname
                << "  Printer not defined!");
         continue;
@@ -2510,7 +2510,7 @@ static int parseAndProcess(istream &is)
       endHardcopy(plot_none);
       multiple_newpage = true;
 
-      miString command = printman->printCommand();
+      std::string command = printman->printCommand();
       priop.numcopies = 1;
 
       printman->expandCommand(command, priop);
@@ -2523,14 +2523,14 @@ static int parseAndProcess(istream &is)
 
       continue;
 
-    } else if (lines[k].downcase() == com_wait_for_commands) {
+    } else if (miutil::to_lower(lines[k]) == com_wait_for_commands) {
       /*
        ====================================
        ========= TEST - feed commands from files
        ====================================
        */
 
-      if (!command_path.exists()) {
+      if (command_path.empty()) {
         METLIBS_LOG_ERROR("ERROR, wait_for_commands found, but command_path not set");
         continue;
       }
@@ -2547,9 +2547,9 @@ static int parseAndProcess(istream &is)
       METLIBS_LOG_INFO("================ WAIT FOR COMMANDS, TIME is:" << nowtime
             << ", seconds spent on previous command(s):" << diff);
 
-      miString pattern = command_path;
-      vector<miString> newlines;
-      miString waitline = com_wait_for_commands;
+      std::string pattern = command_path;
+      vector<std::string> newlines;
+      std::string waitline = com_wait_for_commands;
 
       glob_t globBuf;
       int number_of_files = 0;
@@ -2566,20 +2566,20 @@ static int parseAndProcess(istream &is)
       prev_iclock = clock();
       METLIBS_LOG_INFO("================ FOUND COMMAND-FILE(S), TIME is:" << nowtime);
 
-      vector<miString> filenames;
+      vector<std::string> filenames;
 
       //loop over files
       for (int ij = 0; ij < number_of_files; ij++) {
-        miString filename = globBuf.gl_pathv[ij];
+        std::string filename = globBuf.gl_pathv[ij];
         METLIBS_LOG_INFO("==== Reading file:" << filename);
         filenames.push_back(filename);
         ifstream file(filename.c_str());
         while (file) {
-          miString str;
+          std::string str;
           if (getline(file, str)) {
-            str.trim();
+            miutil::trim(str);
             if (str.length() > 0 && str[0] != '#') {
-              if (str.downcase().contains(com_wait_end))
+              if (miutil::contains(miutil::to_lower(str), com_wait_end))
                 waitline = ""; // blank out waitline
               else
                 newlines.push_back(str);
@@ -2614,12 +2614,12 @@ static int parseAndProcess(istream &is)
       continue;
       // =============================================================
 
-    } else if (lines[k].downcase() == com_field_files) {
+    } else if (miutil::to_lower(lines[k]) == com_field_files) {
       // Read lines until </FIELD_FILES> is read.
 
       int kk;
       for (kk = k + 1; kk < linenum; ++kk) {
-        if (lines[kk].downcase() != com_field_files_end)
+        if (miutil::to_lower(lines[kk]) != com_field_files_end)
            extra_field_lines.push_back(lines[kk]);
         else
           break;
@@ -2634,12 +2634,12 @@ static int parseAndProcess(istream &is)
       }
       continue;
 
-    } else if (lines[k].downcase() == com_field_files_end) {
+    } else if (miutil::to_lower(lines[k]) == com_field_files_end) {
       METLIBS_LOG_WARN("WARNING, " << com_field_files_end << " found:" << lines[k]
             << " Linenumber:" << linenumbers[k]);
       continue;
 
-    } else if (lines[k].downcase() == com_describe) {
+    } else if (miutil::to_lower(lines[k]) == com_describe) {
 
       if (verbose)
         METLIBS_LOG_INFO("- finding information about data sources");
@@ -2683,14 +2683,14 @@ static int parseAndProcess(istream &is)
 
           FieldManager* fieldManager = main_controller->getFieldManager();
           for (vector<FieldPlot*>::iterator it = fieldPlots.begin(); it != fieldPlots.end(); ++it) {
-            miutil::miString modelName = (*it)->getModelName();
+            std::string modelName = (*it)->getModelName();
             std::vector<std::string> fileNames = fieldManager->getFileNames(modelName);
             fieldPatterns.insert(fileNames.begin(), fileNames.end());
           }
 
           map<string, map<string,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
-          set<miutil::miString> satPatterns;
-          set<miutil::miString> satFiles;
+          set<std::string> satPatterns;
+          set<std::string> satFiles;
 
           vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
           for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
@@ -2708,8 +2708,8 @@ static int parseAndProcess(istream &is)
           }
 
           map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
-          set<miutil::miString> obsPatterns;
-          set<miutil::miString> obsFiles;
+          set<std::string> obsPatterns;
+          set<std::string> obsFiles;
 
           vector<ObsPlot*> obsPlots = main_controller->getObsPlots();
           for (vector<ObsPlot*>::iterator it = obsPlots.begin(); it != obsPlots.end(); ++it) {
@@ -2732,13 +2732,13 @@ static int parseAndProcess(istream &is)
           file << "FILES" << endl;
           for (std::set<std::string>::iterator it = fieldPatterns.begin(); it != fieldPatterns.end(); ++it)
             file << *it << endl;
-          for (set<miutil::miString>::iterator it = satFiles.begin(); it != satFiles.end(); ++it)
+          for (set<std::string>::iterator it = satFiles.begin(); it != satFiles.end(); ++it)
             file << *it << endl;
-          for (set<miutil::miString>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
+          for (set<std::string>::iterator it = satPatterns.begin(); it != satPatterns.end(); ++it)
             file << *it << endl;
-          for (set<miutil::miString>::iterator it = obsFiles.begin(); it != obsFiles.end(); ++it)
+          for (set<std::string>::iterator it = obsFiles.begin(); it != obsFiles.end(); ++it)
             file << *it << endl;
-          for (set<miutil::miString>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
+          for (set<std::string>::iterator it = obsPatterns.begin(); it != obsPatterns.end(); ++it)
             file << *it << endl;
 
           file.close();
@@ -2746,7 +2746,7 @@ static int parseAndProcess(istream &is)
 
       continue;
 
-    } else if (lines[k].downcase() == com_describe_spectrum) {
+    } else if (miutil::to_lower(lines[k]) == com_describe_spectrum) {
 
       if (verbose)
         METLIBS_LOG_INFO("- finding information about data sources");
@@ -2788,7 +2788,7 @@ static int parseAndProcess(istream &is)
 
       if (verbose)
         METLIBS_LOG_INFO("- setting station:" << spectrum_station);
-      if (spectrum_station.exists())
+      if (not spectrum_station.empty())
         spectrummanager->setStation(spectrum_station);
 
       if (verbose)
@@ -2801,16 +2801,16 @@ static int parseAndProcess(istream &is)
         return 1;
       }
 
-      vector<miutil::miString> modelFiles = spectrummanager->getModelFiles();
+      vector<std::string> modelFiles = spectrummanager->getModelFiles();
       file << "FILES" << endl;
-      for (vector<miutil::miString>::const_iterator it = modelFiles.begin(); it != modelFiles.end(); ++it)
+      for (vector<std::string>::const_iterator it = modelFiles.begin(); it != modelFiles.end(); ++it)
         file << *it << endl;
 
       file.close();
 
       continue;
 
-    } else if (lines[k].downcase() == com_describe_end) {
+    } else if (miutil::to_lower(lines[k]) == com_describe_end) {
       METLIBS_LOG_ERROR("WARNING, " << com_describe_end << " found:" << lines[k]
              << " Linenumber:" << linenumbers[k]);
       continue;
@@ -2818,18 +2818,18 @@ static int parseAndProcess(istream &is)
 
     // all other options on the form KEY=VALUE
 
-    vs = lines[k].split("=");
+    vs = miutil::split(lines[k], "=");
     int nv = vs.size();
     if (nv < 2) {
       METLIBS_LOG_ERROR("ERROR, unknown command:" << lines[k] << " Linenumber:"
              << linenumbers[k]);
       return 1;
     }
-    miString key = vs[0].downcase();
+    std::string key = miutil::to_lower(vs[0]);
     int ieq = lines[k].find_first_of("=");
-    miString value = lines[k].substr(ieq + 1, lines[k].length() - ieq - 1);
-    key.trim();
-    value.trim();
+    std::string value = lines[k].substr(ieq + 1, lines[k].length() - ieq - 1);
+    miutil::trim(key);
+    miutil::trim(value);
 
     if (key == com_setupfile) {
       if (setupread) {
@@ -2852,7 +2852,7 @@ static int parseAndProcess(istream &is)
       fifo_name = value;
 
     } else if (key == com_buffersize) {
-      vvs = value.split("x");
+      vvs = miutil::split(value, "x");
       if (vvs.size() < 2) {
         METLIBS_LOG_ERROR("ERROR, buffersize should be WxH:" << lines[k]
                << " Linenumber:" << linenumbers[k]);
@@ -2998,10 +2998,10 @@ static int parseAndProcess(istream &is)
       buffermade = true;
 
     } else if (key == com_papersize) {
-      vvvs = value.split(","); // could contain both pagesize and papersize
+      vvvs = miutil::split(value, ","); // could contain both pagesize and papersize
       for (unsigned int l = 0; l < vvvs.size(); l++) {
-        if (vvvs[l].contains("x")) {
-          vvs = vvvs[l].split("x");
+        if (miutil::contains(vvvs[l], "x")) {
+          vvs = miutil::split(vvvs[l], "x");
           if (vvs.size() < 2) {
             METLIBS_LOG_ERROR("ERROR, papersize should be WxH or WxH,PAPERTYPE or PAPERTYPE:"
                 << lines[k] << " Linenumber:" << linenumbers[k]);
@@ -3016,7 +3016,7 @@ static int parseAndProcess(istream &is)
       }
 
     } else if (key == com_filename) {
-      if (!value.exists()) {
+      if (value.empty()) {
         METLIBS_LOG_ERROR("ERROR, illegal filename in:" << lines[k] << " Linenumber:"
                << linenumbers[k]);
         return 1;
@@ -3024,13 +3024,13 @@ static int parseAndProcess(istream &is)
         priop.fname = value;
 
     } else if (key == com_toprinter) {
-      toprinter = (value.downcase() == "yes");
+      toprinter = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_printer) {
       priop.printer = value;
 
     } else if (key == com_output) {
-      value = value.downcase();
+      value = miutil::to_lower(value);
       raster = false;
       shape = false;
       json = false;
@@ -3089,16 +3089,16 @@ static int parseAndProcess(istream &is)
       }
 
     } else if (key == com_colour) {
-      if (value.downcase() == "greyscale")
+      if (miutil::to_lower(value) == "greyscale")
         priop.colop = d_print::greyscale;
       else
         priop.colop = d_print::incolour;
 
     } else if (key == com_drawbackground) {
-      priop.drawbackground = (value.downcase() == "yes");
+      priop.drawbackground = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_orientation) {
-      value = value.downcase();
+      value = miutil::to_lower(value);
       if (value == "landscape")
         priop.orientation = d_print::ori_landscape;
       else if (value == "portrait")
@@ -3126,21 +3126,21 @@ static int parseAndProcess(istream &is)
       }
 
     } else if (key == com_archive) {
-      useArchive = (value.downcase() == "on");
+      useArchive = (miutil::to_lower(value) == "on");
 
     } else if (key == com_keepplotarea) {
-      keeparea = (value.downcase() == "yes");
+      keeparea = (miutil::to_lower(value) == "yes");
 
 #if defined(USE_PAINTGL)
     } else if (key == com_plotannotationsonly) {
-      plotAnnotationsOnly = (value.downcase() == "yes");
+      plotAnnotationsOnly = (miutil::to_lower(value) == "yes");
 #endif
 
     } else if (key == com_antialiasing) {
-      antialias = (value.downcase() == "yes");
+      antialias = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_fail_on_missing_data) {
-      failOnMissingData = (value.downcase() == "yes");
+      failOnMissingData = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
       if (raster) {
@@ -3148,7 +3148,7 @@ static int parseAndProcess(istream &is)
             << lines[k] << " Linenumber:" << linenumbers[k]);
         return 1;
       }
-      if (value.downcase() == "off") {
+      if (miutil::to_lower(value) == "off") {
         multiple_newpage = false;
         multiple_plots = false;
 #if defined(USE_PAINTGL)
@@ -3167,7 +3167,7 @@ static int parseAndProcess(istream &is)
           }
 #endif
         }
-        vector<miString> v1 = value.split(",");
+        vector<std::string> v1 = miutil::split(value, ",");
         if (v1.size() < 2) {
           METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k]
                 << " Linenumber:" << linenumbers[k]);
@@ -3223,7 +3223,7 @@ static int parseAndProcess(istream &is)
                << " Linenumber:" << linenumbers[k]);
         return 1;
       } else {
-        vector<miString> v1 = value.split(",");
+        vector<std::string> v1 = miutil::split(value, ",");
         if (v1.size() != 2) {
           METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k]
                 << " Linenumber:" << linenumbers[k]);
@@ -3242,7 +3242,7 @@ static int parseAndProcess(istream &is)
       }
 
     } else if (key == com_trajectory) {
-      if (value.downcase() == "on") {
+      if (miutil::to_lower(value) == "on") {
         plot_trajectory = true;
         trajectory_started = false;
       } else {
@@ -3256,7 +3256,7 @@ static int parseAndProcess(istream &is)
       main_controller->printTrajectoryPositions(value);
 
     } else if (key == com_time_opt) {
-      time_options = value.downcase();
+      time_options = miutil::to_lower(value);
 
     } else if (key == com_time_format) {
       time_format = value;
@@ -3352,8 +3352,8 @@ static int dispatchWork(const std::string &file)
 
 static void doWork()
 {
-  if (!command_path.exists()) {
-          COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
+  if (command_path.empty()) {
+    COMMON_LOG::getInstance("common").errorStream() << "ERROR, trying to scan for commands, but command_path not set!";
     return;
   }
 
@@ -3389,8 +3389,8 @@ static void doWork()
 int diana_init(int _argc, char** _argv)
 {
   diOrderBook *orderbook = NULL;
-  miString xhost = ":0.0"; // default DISPLAY
-  miString sarg;
+  std::string xhost = ":0.0"; // default DISPLAY
+  std::string sarg;
   int port;
   milogger::LogHandler * plog = NULL;
 
@@ -3420,7 +3420,7 @@ int diana_init(int _argc, char** _argv)
     printUsage(false);
   }
 
-  vector<miString> ks;
+  vector<std::string> ks;
   int ac = 1;
   while (ac < argc) {
     sarg = argv[ac].toStdString();
@@ -3502,12 +3502,12 @@ int diana_init(int _argc, char** _argv)
         orderbook = new diOrderBook();
         orderbook->start();
       }
-      ks = sarg.split("=");
+      ks = miutil::split(sarg, "=");
       if (ks.size() == 2) {
-        ks = ks[1].split(":");
+        ks = miutil::split(ks[1], ":");
         if (ks.size() == 2) {
-          if (ks[1].isNumber()) {
-            port = ks[1].toInt();
+          if (miutil::is_number(ks[1])) {
+            port = miutil::to_int(ks[1]);
           } else {
             cerr << "ERROR, " << ks[1] << " is not a valid TCP port number" << endl;
             return 1;
@@ -3528,7 +3528,7 @@ int diana_init(int _argc, char** _argv)
         return 1;
       }
     } else {
-      ks = sarg.split("=");
+      ks = miutil::split(sarg, "=");
       if (ks.size() == 2) {
         keyvalue tmp;
         tmp.key = ks[0];
@@ -3556,7 +3556,7 @@ int diana_init(int _argc, char** _argv)
   // prepare font-pack for display
   FontManager::set_display_name(xhost);
 
-  if (!batchinput.empty() && !batchinput.exists())
+  if (batchinput.empty())
     printUsage(false);
   // Init loghandler with debug level
 /*if (!logfilename.exists()) {

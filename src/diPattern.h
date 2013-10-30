@@ -51,27 +51,27 @@ public:
 
   /// Pattern data as strings
   struct PatternInfo {
-    vector<miutil::miString> pattern;
-    miutil::miString name;
+    vector<std::string> pattern;
+    std::string name;
   };
 
 
 private:
 
-  static map<miutil::miString,PatternInfo> pmap;
+  static map<std::string,PatternInfo> pmap;
 
   // Copy members
   void memberCopy(const Pattern& rhs);
 
 public:
   // Constructor
-  Pattern(const miutil::miString& name, const vector<miutil::miString>& pattern);
+  Pattern(const std::string& name, const vector<std::string>& pattern);
 
   // static functions for static pattern-map
   /// add a new PatternInfo
   static void addPatternInfo(const PatternInfo& pi);
   /// return patterns
-  static vector<miutil::miString> getPatternInfo(const miutil::miString& name);
+  static vector<std::string> getPatternInfo(const std::string& name);
   /// return all PatternInfos
   static vector<PatternInfo> getAllPatternInfo();
 

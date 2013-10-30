@@ -66,7 +66,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   OBS     = tr("Observations").toStdString();
 
   // send translated menunames to manager
-  map<miutil::miString,miutil::miString> textconst;
+  map<std::string,std::string> textconst;
   textconst["ASFIELD"]  = ASFIELD;
   textconst["OBS"]      = OBS;
   vm->setMenuConst(textconst);
@@ -74,7 +74,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   //********** create the various QT widgets to appear in dialog ***********
 
   //**** the three buttons "auto", "tid", "fil" *************
-  vector<miutil::miString> model;
+  vector<std::string> model;
   model.push_back(tr("Model").toStdString());
   model.push_back(tr("File").toStdString());
 
@@ -235,10 +235,10 @@ void SpectrumModelDialog::setSelection(){
     vector<string> models = spectrumm->getSelectedModels();
     int n = models.size();
     for (int i = 0;i<n;i++){
-      miutil::miString model = models[i];
+      std::string model = models[i];
       int m = modelfileList->count();
       for (int j = 0;j<m;j++){
-        miutil::miString listModel =  modelfileList->item(j)->text().toStdString();
+        std::string listModel =  modelfileList->item(j)->text().toStdString();
         if (model==listModel) modelfileList->item(j)->setSelected(true);
       }
     }
@@ -293,17 +293,17 @@ void SpectrumModelDialog::updateModelfileList(){
 
   //want to keep the selected models/files
   int n= modelfileList->count();
-  set<miutil::miString> current;
+  set<std::string> current;
   for (int i=0; i<n; i++)
     if (modelfileList->item(i)->isSelected())
-      current.insert(miutil::miString(modelfileList->item(i)->text().toStdString()));
+      current.insert(std::string(modelfileList->item(i)->text().toStdString()));
 
   //clear box with list of files
   modelfileList->clear();
 
   if (modelButton->isChecked()){
     //make a string list with models to insert into modelfileList
-    vector <miutil::miString> modelnames =spectrumm->getModelNames();
+    vector <std::string> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
     //modelfileList->insertItem(OBS);
     // qt4 fix: Made QString of ASFIELD
@@ -314,16 +314,16 @@ void SpectrumModelDialog::updateModelfileList(){
     //insert into modelfilelist
   } else if (fileButton->isChecked()){
     //make a string list with files to insert into modelfileList
-    vector <miutil::miString> modelfiles =spectrumm->getModelFiles();
+    vector <std::string> modelfiles =spectrumm->getModelFiles();
     int nr_files = modelfiles.size();
     for (int i=0; i<nr_files; i++)
       modelfileList->addItem(QString(modelfiles[i].c_str()));
   }
 
-  set<miutil::miString>::iterator pend= current.end();
+  set<std::string>::iterator pend= current.end();
   n= modelfileList->count();
   for (int i=0; i<n; i++)
-    if (current.find(miutil::miString(modelfileList->item(i)->text().toStdString()))!=pend)
+    if (current.find(std::string(modelfileList->item(i)->text().toStdString()))!=pend)
       modelfileList->item(i)->setSelected(true);
 
 }

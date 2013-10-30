@@ -44,9 +44,9 @@ using namespace::miutil;
 using namespace std;
 
 vector<printerManager::printerExtra> printerManager::printers;
-map<miString,d_print::PageSize> printerManager::pages;
+map<std::string,d_print::PageSize> printerManager::pages;
 map<d_print::PageSize,d_print::PaperSize> printerManager::pagesizes;
-miString printerManager::pcommand;
+std::string printerManager::pcommand;
 
 /*
   MANUAL POSTSCRIPT-COMMANDS
@@ -173,12 +173,13 @@ bool printerManager::expandCommand(std::string& com, const printOptions& po)
 }
 
 
-bool printerManager::readPrinterInfo(const miString fname)
+bool printerManager::readPrinterInfo(const std::string fname)
 {
   //   METLIBS_LOG_DEBUG("Reading printerdef from:" << fname);
   printers.clear();
 
-  if (!fname.exists()) return false;
+  if (fname.empty())
+    return false;
 
   // open filestream
   ifstream file(fname.c_str());
@@ -189,17 +190,18 @@ bool printerManager::readPrinterInfo(const miString fname)
   }
 
   int j=-1;
-  miString s;
+  std::string s;
   string comkey,com;
-  vector<miString> vs, vvs;
+  vector<std::string> vs, vvs;
   bool incom= false;
 
   while (getline(file,s)){
-    s.trim();
-    if (!s.exists() || s[0]=='#') continue;
+    miutil::trim(s);
+    if (s.empty() || s[0]=='#')
+      continue;
 
     if (incom) { // reading command-lines
-      if (s.contains("}}")){ // end of command
+      if (miutil::contains(s, "}}")){ // end of command
 	if (j>=0) printers[j].commands[comkey]= com;
 	incom= false;
 	continue;
@@ -207,23 +209,23 @@ bool printerManager::readPrinterInfo(const miString fname)
       com += (s + "\n");
 
     } else {
-      if (s.contains("{{")){ // start of command
-	vs= s.split("=");
+      if (miutil::contains(s, "{{")){ // start of command
+	vs= miutil::split(s, "=");
 	if (vs.size()>1){
-	  comkey= vs[0].upcase();
+	  comkey= miutil::to_upper(vs[0]);
 	  com= "";
 	  incom= true;
 	}
-      } else if (s.contains("=")){ // start new printer
+      } else if (miutil::contains(s, "=")){ // start new printer
 	printers.push_back(printerExtra());
 	j++;
-	vs= s.split(",");
+	vs= miutil::split(s, ",");
 	int n= vs.size();
 	for (int i=0; i<n; i++){
-	  if (vs[i].contains("=")){
-	    vvs= vs[i].split("=");
+	  if (miutil::contains(vs[i], "=")){
+	    vvs= miutil::split(vs[i], "=");
 	    if (vvs.size() > 1)
-	      printers[j].keys[vvs[0].upcase()]= vvs[1];
+	      printers[j].keys[miutil::to_upper(vvs[0])]= vvs[1];
 	  }
 	}
       }
@@ -233,12 +235,12 @@ bool printerManager::readPrinterInfo(const miString fname)
   return true;
 }
 
-PageSize  printerManager::getPage(const miString s) // page from string
+PageSize  printerManager::getPage(const std::string s) // page from string
 {
   PageSize ps = A4;
 
-  miString us= s.upcase();
-  us.trim();
+  std::string us= miutil::to_upper(s);
+  miutil::trim(us);
 
   if (pages.count(us)>0)
     ps= pages[us];
@@ -281,27 +283,27 @@ bool printerManager::checkSpecial(const printOptions& po,
 
 bool printerManager::parseSetup() {
 
-  miString section="PRINTING";
-  vector<miString> vstr;
+  std::string section="PRINTING";
+  vector<std::string> vstr;
 
-  const miString key_command=   "printcommand";
-  const miString key_manualcom= "manualcommands";
+  const std::string key_command=   "printcommand";
+  const std::string key_manualcom= "manualcommands";
   // default key-values
   pcommand= "lp -c -d {printer} {filename}";
-  miString printerfile= "";
+  std::string printerfile= "";
 
   if (!SetupParser::getSection(section,vstr)){
     METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
     return true;
   }
 
-  miString key,value,error;
+  std::string key,value,error;
   int i,n,nv,nvstr=vstr.size();
 
   for (nv=0; nv<nvstr; nv++) {
-    vector<miString> tokens= vstr[nv].split(',',true);
+    vector<std::string> tokens= miutil::split(vstr[nv], ",", true);
     n= tokens.size();
-    miString name;
+    std::string name;
 
     for (i=0; i<n; i++) {
       SetupParser::splitKeyValue(tokens[i],key,value);
@@ -312,7 +314,8 @@ bool printerManager::parseSetup() {
     }
   }
 
-  if (printerfile.exists()) readPrinterInfo(printerfile);
+  if (not printerfile.empty())
+    readPrinterInfo(printerfile);
   return true;
 }
 

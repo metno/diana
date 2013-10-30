@@ -145,7 +145,7 @@ TimeControl::TimeControl(QWidget* parent)
 
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
-    miutil::miString text(f,2);
+    std::string text(f,2);
     timeoutBox->addItem(text.c_str());
   }
 
@@ -327,7 +327,7 @@ void TimeControl::minmaxSlot(){
 }
 
 
-void TimeControl::useData(miutil::miString type, int id){
+void TimeControl::useData(std::string type, int id){
 
   int n= dataname.size();
   for(int i=0;i<n;i++){
@@ -347,16 +347,16 @@ void TimeControl::useData(miutil::miString type, int id){
 }
 
 
-vector<miutil::miString> TimeControl::deleteType(int id)
+vector<std::string> TimeControl::deleteType(int id)
 {
   //id=-1 means remove all external types
   //  cerr <<"TimeControl::deleteType:"<<id<<endl;
-  vector<miutil::miString>::iterator p = dataname.begin();
-  map<int,miutil::miString>::iterator q = external_id.begin();
-  map<int,miutil::miString>::iterator qend = external_id.end();
+  vector<std::string>::iterator p = dataname.begin();
+  map<int,std::string>::iterator q = external_id.begin();
+  map<int,std::string>::iterator qend = external_id.end();
 
-  vector<miutil::miString> type;
-  miutil::miString currentDataname;
+  vector<std::string> type;
+  std::string currentDataname;
   if (dataBox->currentIndex() >=0) {
     currentDataname = dataname[dataBox->currentIndex()];
   }
@@ -364,7 +364,7 @@ vector<miutil::miString> TimeControl::deleteType(int id)
   for(;q!=qend;q++){
     if(id>-1 && q->first!=id) continue;
     int i=0;
-    vector<miutil::miString>::iterator pend = dataname.end();
+    vector<std::string>::iterator pend = dataname.end();
     while( p!=pend && q->second != *p) {
       p++;
       i++;

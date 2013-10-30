@@ -51,21 +51,21 @@ class VprofData
 {
 
 public:
-  VprofData(const miutil::miString& filename, const miutil::miString& modelname);
+  VprofData(const std::string& filename, const std::string& modelname);
   ~VprofData();
   bool readFile();
-  bool readField(miutil::miString type, FieldManager* fieldm);
-  VprofPlot* getData(const miutil::miString& name, const miutil::miTime& time);
-  vector<miutil::miString> getNames() { return posName; }
+  bool readField(std::string type, FieldManager* fieldm);
+  VprofPlot* getData(const std::string& name, const miutil::miTime& time);
+  vector<std::string> getNames() { return posName; }
   vector <float> getLatitudes() { return posLatitude; }
   vector <float> getLongitudes() { return posLongitude; }
-  vector<miutil::miString> getObsNames() { return obsName; }
+  vector<std::string> getObsNames() { return obsName; }
   vector<miutil::miTime>   getTimes() { return validTime; }
 
 private:
 
-  miutil::miString fileName;
-  miutil::miString modelName;
+  std::string fileName;
+  std::string modelName;
   bool readFromField;
   FieldManager* fieldManager;
 
@@ -75,16 +75,16 @@ private:
   int numLevel;
 
   struct station {
-    miutil::miString id; /**< WMO number */
-    miutil::miString name; /**< name */
+    std::string id; /**< WMO number */
+    std::string name; /**< name */
     float lat; /**< latitude */
     float lon; /**< longitude */
     int height; /**< station height */
     int barHeight; /**< barometer height */
   };
 
-  vector<miutil::miString> posName;
-  vector<miutil::miString> obsName;
+  vector<std::string> posName;
+  vector<std::string> obsName;
   vector<int>      posTemp;
   vector<float>    posLatitude;
   vector<float>    posLongitude;
@@ -92,12 +92,12 @@ private:
   vector<float>    posDeltaLongitude;
   vector<miutil::miTime>   validTime;
   vector<int>      forecastHour;
-  vector<miutil::miString> progText;
-  vector<miutil::miString> mainText;
+  vector<std::string> progText;
+  vector<std::string> mainText;
   vector<int>      paramId;
   vector<float>    paramScale;
   VprofPlot        *vProfPlot;
-  miutil::miString vProfPlotName;
+  std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
 
 

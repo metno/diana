@@ -47,7 +47,7 @@ using namespace std;
 using namespace miutil;
 
 // Default constructor
-VprofData::VprofData(const miString& filename, const miString& modelname)
+VprofData::VprofData(const std::string& filename, const std::string& modelname)
 : fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
   numPos(0), numTime(0), numParam(0), numLevel(0),
   dataBuffer(0)
@@ -67,46 +67,46 @@ VprofData::~VprofData() {
     delete[] dataBuffer;
 }
 
-bool VprofData::readField(miString type, FieldManager* fieldm)
+bool VprofData::readField(std::string type, FieldManager* fieldm)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
 #endif
   FILE *stationfile;
   char line[1024];
-  miString correctFileName = fileName;
-  correctFileName.replace(modelName, "");
+  std::string correctFileName = fileName;
+  miutil::replace(correctFileName, modelName, "");
   if ((stationfile = fopen(correctFileName.c_str(), "rb")) == NULL) {
     METLIBS_LOG_ERROR("Unable to open file!");
     return false;
   }
   fieldManager = fieldm;
 
-  vector<miString> stationVector;
+  vector<std::string> stationVector;
   vector<station> stations;
-  miString miLine;
+  std::string miLine;
   while (fgets(line, 1024, stationfile) != NULL) {
-    miLine = miString(line);
+    miLine = std::string(line);
     // just skip the first line if present.
-    if (miLine.contains("obssource"))
+    if (miutil::contains(miLine, "obssource"))
       continue;
-    if (miLine.contains(";"))
+    if (miutil::contains(miLine, ";"))
     {
       // the new format
-      stationVector = miLine.split(";", false);
+      stationVector = miutil::split(miLine, ";", false);
       if (stationVector.size() == 7) {
         station st;
         char stid[10];
-        int wmo_block = stationVector[0].toInt()*1000;
-        int wmo_number = stationVector[1].toInt();
+        int wmo_block = miutil::to_int(stationVector[0])*1000;
+        int wmo_number = miutil::to_int(stationVector[1]);
         int wmo_id = wmo_block + wmo_number;
         sprintf(stid, "%05d", wmo_id);
         st.id = stid;
         st.name = stationVector[2];
-        st.lat = stationVector[3].toFloat();
-        st.lon = stationVector[4].toFloat();
-        st.height = stationVector[5].toInt(-1);
-        st.barHeight = stationVector[6].toInt(-1);
+        st.lat = miutil::to_double(stationVector[3]);
+        st.lon = miutil::to_double(stationVector[4]);
+        st.height = miutil::to_int(stationVector[5], -1);
+        st.barHeight = miutil::to_int(stationVector[6], -1);
         stations.push_back(st);
       } else {
         if (stationVector.size() == 6)
@@ -114,10 +114,10 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
           station st;
           st.id = stationVector[0];
           st.name = stationVector[1];
-          st.lat = stationVector[2].toFloat();
-          st.lon = stationVector[3].toFloat();
-          st.height = stationVector[4].toInt(-1);
-          st.barHeight = stationVector[5].toInt(-1);
+          st.lat = miutil::to_double(stationVector[2]);
+          st.lon = miutil::to_double(stationVector[3]);
+          st.height = miutil::to_int(stationVector[4], -1);
+          st.barHeight = miutil::to_int(stationVector[5], -1);
           stations.push_back(st);
         }
         else {
@@ -128,15 +128,15 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
     else
     {
       // the old format
-      stationVector = miLine.split(",", false);
+      stationVector = miutil::split(miLine, ",", false);
       if (stationVector.size() == 7) {
         station st;
         st.id = stationVector[0];
         st.name = stationVector[1];
-        st.lat = stationVector[2].toFloat();
-        st.lon = stationVector[3].toFloat();
-        st.height = stationVector[4].toInt(-1);
-        st.barHeight = stationVector[5].toInt(-1);
+        st.lat = miutil::to_double(stationVector[2]);
+        st.lon = miutil::to_double(stationVector[3]);
+        st.height = miutil::to_int(stationVector[4], -1);
+        st.barHeight = miutil::to_int(stationVector[5], -1);
         stations.push_back(st);
       } else {
         METLIBS_LOG_ERROR("Something is wrong with: " << miLine);
@@ -159,7 +159,7 @@ bool VprofData::readField(miString type, FieldManager* fieldm)
   numParam = 6;
   mainText.push_back(modelName);
   for (size_t i = 0; i < forecastHour.size(); i++) {
-    progText.push_back(miString("+" + miString(forecastHour[i])));
+    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
   }
   readFromField = true;
   vProfPlot = 0;
@@ -244,7 +244,7 @@ bool VprofData::readFile() {
         delete[] tmp;  tmp= 0;
         tmp= vfile->getInt(numTime);
         for (int n=0; n<numTime; n++) {
-          miString str= vfile->getString(tmp[n]);
+          std::string str= vfile->getString(tmp[n]);
           progText.push_back(str);
         }
         delete[] tmp;
@@ -256,7 +256,7 @@ bool VprofData::readFile() {
         nlines= vfile->getInt();
         tmp= vfile->getInt(2*nlines);
         for (int n=0; n<nlines; n++) {
-          miString str= vfile->getString(tmp[n*2]);
+          std::string str= vfile->getString(tmp[n*2]);
           mainText.push_back(str);
         }
         delete[] tmp;  tmp= 0;
@@ -267,9 +267,9 @@ bool VprofData::readFile() {
         if (numPos<1) throw VfileError();
         tmp= vfile->getInt(numPos);
         for (int n=0; n<numPos; n++) {
-          miString str= vfile->getString(tmp[n]);
+          std::string str= vfile->getString(tmp[n]);
           // may have one space at the end (n*2 characters stored in file)
-          str.trim(false,true);
+          miutil::trim(str, false, true);
           posName.push_back(str);
         }
         delete[] tmp;  tmp= 0;
@@ -308,7 +308,7 @@ bool VprofData::readFile() {
             if (posTemp[i]>1000 && posTemp[i]<99000) {
               ostringstream ostr;
               ostr << setw(5) << setfill('0') << posTemp[i];
-              obsName.push_back(miString(ostr.str()));
+              obsName.push_back(std::string(ostr.str()));
             } else if (posTemp[i]>=99000 && posTemp[i]<=99999) {
               obsName.push_back("99");
             } else {
@@ -366,7 +366,7 @@ bool VprofData::readFile() {
 }
 
 
-VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
+VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofData::getData  " << name << "  " << time
       << "  " << modelName);
@@ -440,7 +440,7 @@ VprofPlot* VprofData::getData(const miString& name, const miTime& time) {
       if (!success)
         return vp;
       vProfPlotTime = miTime(time);
-      vProfPlotName = miString(name);
+      vProfPlotName = std::string(name);
       if(vProfPlot) delete vProfPlot;
       vProfPlot = new VprofPlot();
       for (k=0; k<vp->ptt.size(); k++)

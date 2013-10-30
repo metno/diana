@@ -78,8 +78,8 @@ namespace d_print {
 
 class printOptions {
 public:
-  miutil::miString fname;                   ///< name of output file
-  miutil::miString printer;                 ///< name of printer
+  std::string fname;                   ///< name of output file
+  std::string printer;                 ///< name of printer
   d_print::Orientation orientation; ///< paper-orientation
   d_print::ColourOption colop;      ///< use of colour
   d_print::PageSize pagesize;       ///< pagesize in standard notation
@@ -115,22 +115,22 @@ public:
 class printerManager {
 private:
   struct printerExtra { // extra commands for postscript
-    std::map<miutil::miString,miutil::miString> keys;// keys for matching..
+    std::map<std::string,std::string> keys;// keys for matching..
     std::map<std::string,std::string> commands;// Extra output-commands
   };
   static std::vector<printerExtra> printers;
-  static std::map<miutil::miString,d_print::PageSize> pages;
+  static std::map<std::string,d_print::PageSize> pages;
   static std::map<d_print::PageSize,d_print::PaperSize> pagesizes;
-  static miutil::miString pcommand; // printercommand
+  static std::string pcommand; // printercommand
 
 public:
   printerManager();
   /// parse the printer section of the setup file
   bool parseSetup();
   /// parse printer-info file
-  bool readPrinterInfo(const miutil::miString fname);
+  bool readPrinterInfo(const std::string fname);
   /// page from string
-  d_print::PageSize  getPage(const miutil::miString s);
+  d_print::PageSize  getPage(const std::string s);
   /// size from page
   d_print::PaperSize getSize(const d_print::PageSize ps);
   /// check if special commands exist for this setup

@@ -65,7 +65,7 @@ public:
   /// set the dialogue elements from a plot info string
   void putOKString(const std::vector<std::string>& vstr);
   /// creates a short name for the current settings (used in quick menues)
-  miutil::miString getShortname();
+  std::string getShortname();
   /// returns all settings in logfile format
   std::vector<std::string> writeLog();
   /// set the dialogue elements from logfile settings
@@ -142,10 +142,10 @@ private:
 
   vector<Colour::ColourInfo> cInfo; // all defined colours
   vector<std::string> linetypes; // all defined linetypes
-  vector<miutil::miString> zorders; // all defined zorders
-  vector<miutil::miString> densities; // latlon densities (degrees)
-  vector<miutil::miString> positions; // all defined positions
-  map<miutil::miString,int> positions_map; // all defined positions
+  vector<std::string> zorders; // all defined zorders
+  vector<std::string> densities; // latlon densities (degrees)
+  vector<std::string> positions; // all defined positions
+  map<std::string,int> positions_map; // all defined positions
   Controller* m_ctrl;
 
   // areas
@@ -168,9 +168,9 @@ private:
   QCheckBox* lon_showvalue;
   QComboBox* lon_valuepos;
   bool lonb;
-  miutil::miString lonc;
-  miutil::miString lonlw;
-  miutil::miString lonlt;
+  std::string lonc;
+  std::string lonlw;
+  std::string lonlt;
   int lonz;
   float lond;
   bool lonshowvalue;
@@ -190,9 +190,9 @@ private:
   QCheckBox* lat_showvalue;
   QComboBox* lat_valuepos;
   bool latb;
-  miutil::miString latc;
-  miutil::miString latlw;
-  miutil::miString latlt;
+  std::string latc;
+  std::string latlw;
+  std::string latlt;
   int latz;
   float latd;
   bool latshowvalue;
@@ -213,9 +213,9 @@ private:
   QComboBox* ff_linetypebox;
   QComboBox* ff_colorcbox;
   QComboBox* ff_zorder;
-  miutil::miString framec;
-  miutil::miString framelw;
-  miutil::miString framelt;
+  std::string framec;
+  std::string framelw;
+  std::string framelt;
   int framez;
 
   // maps and selected maps

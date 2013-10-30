@@ -61,7 +61,7 @@ public slots:
   void ShowValues(const vector<SatValues>& satval);
 
 // signals:
-//   void calibChannel(miutil::miString);
+//   void calibChannel(std::string);
 
 private:
   std::vector<std::string> tooltip;

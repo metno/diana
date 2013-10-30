@@ -70,8 +70,8 @@ UffdaDialog::UffdaDialog( QWidget* parent, Controller* llctrl )
   //********** the list of classes to choose from **************
   classlist = new QListWidget( this );
 
-  vector <miutil::miString> vUffdaClass;
-  vector <miutil::miString> vUffdaClassTip;
+  vector <std::string> vUffdaClass;
+  vector <std::string> vUffdaClassTip;
 
   m_ctrl->getUffdaClasses(vUffdaClass,vUffdaClassTip);
   int n=vUffdaClass.size();
@@ -199,7 +199,7 @@ void UffdaDialog::storeClicked(){
 #ifdef dUffdaDlg
     METLIBS_LOG_DEBUG("UffdaDialog::storeClicked called");
 #endif
-    miutil::miString body=getUffdaString();
+    std::string body=getUffdaString();
     // write to local file (backup)
     ofstream file("uffda.dat");
     bool okfile;
@@ -224,8 +224,8 @@ void UffdaDialog::sendClicked(){
     METLIBS_LOG_DEBUG("UffdaDialog::sendClicked called");
 #endif
     bool okbody=false,okfile=false;
-    miutil::miString subject ="REPLY";
-    miutil::miString body=getUffdaString();
+    std::string subject ="REPLY";
+    std::string body=getUffdaString();
     if (!body.empty()){
       // send mail to uffda user
       okbody=true;
@@ -294,7 +294,7 @@ void UffdaDialog::DeleteAllClicked(){
 #endif
     vector <float> vlat_uffda;
     vector <float> vlon_uffda;
-    vector <miutil::miString> vname_uffda;
+    vector <std::string> vname_uffda;
     //clear uffda deque
     v_uffda.clear();
     //clear listbox
@@ -421,7 +421,7 @@ void UffdaDialog::updatePoslist(uffdaElement &ue,int nr, bool newItem) {
 void UffdaDialog::updateStationPlot(){
   vector <float> vlat_uffda;
   vector <float> vlon_uffda;
-  vector <miutil::miString> vname_uffda;
+  vector <std::string> vname_uffda;
   int n= v_uffda.size();
   for (int i=0;i<n;i++){
     vlat_uffda.push_back(v_uffda[i].lat);
@@ -446,7 +446,7 @@ void UffdaDialog::clearSelection(){
 
 /********************************************/
 
-void UffdaDialog::pointClicked(miutil::miString uffstation){
+void UffdaDialog::pointClicked(std::string uffstation){
    int n= v_uffda.size();
    for (int i=0;i<n;i++){
      if (v_uffda[i].posstring.toStdString()== uffstation){
@@ -458,12 +458,13 @@ void UffdaDialog::pointClicked(miutil::miString uffstation){
 
 /********************************************/
 
-miutil::miString UffdaDialog::getUffdaString(){
-  miutil::miString uffstr;
+std::string UffdaDialog::getUffdaString()
+{
+  std::string uffstr;
   unsigned int n= poslist->count();
   for (unsigned int i=0;i<n;i++){
     if (i<v_uffda.size() && v_uffda[i].ok)
-      uffstr+= poslist->item(i)->text().toStdString() + miutil::miString("\n");
+      uffstr+= poslist->item(i)->text().toStdString() + std::string("\n");
   }
   return uffstr;
 }
@@ -472,8 +473,8 @@ miutil::miString UffdaDialog::getUffdaString(){
 
 // fra Juergen - sendmail rutine
 //
-void UffdaDialog::send(const miutil::miString& to,
-	  const miutil::miString& subject,const miutil::miString& body)
+void UffdaDialog::send(const std::string& to,
+	  const std::string& subject,const std::string& body)
 {
    FILE* sendmail;
    sendmail=popen("/usr/lib/sendmail -t","w");
@@ -487,7 +488,7 @@ void UffdaDialog::send(const miutil::miString& to,
 
 /********************************************/
 
-/*DynamicTip::DynamicTip( QWidget * parent,vector <miutil::miString> tips )
+/*DynamicTip::DynamicTip( QWidget * parent,vector <std::string> tips )
     : QToolTip( parent )
 {
   int i, n=tips.size();

@@ -80,12 +80,12 @@ LegendPlot::LegendPlot(const std::string& str)
   xRatio = 0.01;
   yRatio = 0.01;
 
-  miString sstr(str);
+  std::string sstr(str);
   miutil::replace(sstr, '"',' ');
   miutil::trim(sstr);
-  vector<miString> vstr = sstr.split("=");
+  vector<std::string> vstr = miutil::split(sstr, "=");
   if(vstr.size()==2){
-    vector<miString> tokens = vstr[1].split(";",false);
+    vector<std::string> tokens = miutil::split(vstr[1], ";",false);
     int n=tokens.size();
     if(n>0){
       if (poptions.tableHeader)
@@ -99,7 +99,7 @@ LegendPlot::LegendPlot(const std::string& str)
         //if string start with '|', do not plot colour/pattern box
         if(cc.colourstr.find('|')==1){
           cc.plotBox = false;
-          cc.colourstr.remove('|');
+          miutil::remove(cc.colourstr, '|');
         } else {
           cc.plotBox = true;
         }
@@ -110,7 +110,7 @@ LegendPlot::LegendPlot(const std::string& str)
 }
 
 
-void LegendPlot::setData(const miString& title,
+void LegendPlot::setData(const std::string& title,
     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
@@ -177,13 +177,13 @@ void LegendPlot::memberCopy(const LegendPlot& rhs){
   showplot = rhs.showplot;
 }
 
-void LegendPlot::getStringSize(miString str, float& width, float& height)
+void LegendPlot::getStringSize(std::string str, float& width, float& height)
 {
 
   //Bugfix
   //The postscript size of "-" are underestimated
   if (hardcopy){
-    int n = str.countChar('-');
+    int n = miutil::count_char(str, '-');
     for(int i=0;i<n;i++) str+="-";
   }
 
@@ -221,14 +221,14 @@ bool LegendPlot::plot(float x, float y)
 
   //title
   int ntitle = 0;
-  vector<miString> vtitlestring;
-  if(titlestring.exists()){
+  vector<std::string> vtitlestring;
+  if((not titlestring.empty())){
     getStringSize(titlestring, titlewidth, height);
     if(titlewidth>maxwidth){
-      vector<miString> vs = titlestring.split(" ");
+      vector<std::string> vs = miutil::split(titlestring, " ");
       if (vs.size()>=5) {
         // handle field difference...
-        miString smove;
+        std::string smove;
         int l, n= vs.size();
         for (int i=0; i<n; i++) {
           l= vs[i].length();
@@ -345,7 +345,7 @@ bool LegendPlot::plot(float x, float y)
         glVertex2f(x2box,y2box);
         glVertex2f(x2box,y1box);
         glEnd();
-        if(colourcodes[i].pattern.exists()){
+        if((not colourcodes[i].pattern.empty())){
           GLubyte* p=ig.getPattern(colourcodes[i].pattern);
           if(p==0)
             glPolygonStipple(solid);
@@ -374,7 +374,7 @@ bool LegendPlot::plot(float x, float y)
       }
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
-      miString cstring = colourcodes[i].colourstr;
+      std::string cstring = colourcodes[i].colourstr;
       fp->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
@@ -451,7 +451,7 @@ float LegendPlot::height()
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
-    miString cstring;
+    std::string cstring;
     cstring = colourcodes[i].colourstr;
     getStringSize(cstring, width, height);
     if (height>maxheight) maxheight= height;
@@ -460,11 +460,11 @@ float LegendPlot::height()
 
   //title
   int ntitle=0;
-  if(titlestring.exists()){
+  if((not titlestring.empty())){
     getStringSize(titlestring, titlewidth, height);
-    vector<miString> vtitlestring;
+    vector<std::string> vtitlestring;
     if(titlewidth>maxwidth){
-      vtitlestring = titlestring.split(" ");
+      vtitlestring = miutil::split(titlestring, " ");
     } else {
       vtitlestring.push_back(titlestring);
     }
@@ -497,7 +497,7 @@ float LegendPlot::width()
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
-    miString cstring;
+    std::string cstring;
     cstring = colourcodes[i].colourstr;
     getStringSize(cstring, width, height);
     if (width>maxwidth) maxwidth= width;
@@ -505,9 +505,9 @@ float LegendPlot::width()
 
   //title
   getStringSize(titlestring, titlewidth, height);
-  vector<miString> vtitlestring;
+  vector<std::string> vtitlestring;
   if(titlewidth>maxwidth){
-    vtitlestring = titlestring.split(" ");
+    vtitlestring = miutil::split(titlestring, " ");
   } else {
     vtitlestring.push_back(titlestring);
   }

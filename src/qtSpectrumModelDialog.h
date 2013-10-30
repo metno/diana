@@ -73,8 +73,8 @@ private:
   ToggleButton* fileButton;
   QListWidget * modelfileList;
 
-  miutil::miString ASFIELD;
-  miutil::miString OBS;
+  std::string ASFIELD;
+  std::string OBS;
 
   //functions
   void setModel();

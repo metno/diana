@@ -190,7 +190,7 @@ private Q_SLOTS:
   void catchKeyPress(QKeyEvent*);
   void catchMouseDoubleClick(QMouseEvent*);
   void catchElement(QMouseEvent*);
-  void sendSelectedStations(const miutil::miString& command);
+  void sendSelectedStations(const std::string& command);
   void undo();
   void redo();
   void save();
@@ -201,7 +201,7 @@ private Q_SLOTS:
   void saveRasterImage(QString filename);
   void emailPicture();
   void saveAnimation();
-  void makeEPS(const miutil::miString& filename);
+  void makeEPS(const std::string& filename);
   void TimeSliderMoved();
   void TimeSelected();
   void setPlotTime(miutil::miTime& t);
@@ -263,7 +263,7 @@ private Q_SLOTS:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
-  void getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&);
+  void getFieldPlotOptions(map< std::string, map<std::string,std::string> >&);
 
 private:
   bool enableProfet;
@@ -274,8 +274,8 @@ private:
   bool uffda;
   bool doAutoUpdate;
 
-  miutil::miString version_string;
-  miutil::miString build_string;
+  std::string version_string;
+  std::string build_string;
   int displayWidth,displayHeight;
 
   /// Actions
@@ -422,7 +422,7 @@ private:
   std::vector<std::string> vlabel;
   QButton* mwhelp;
   Controller* contr;
-  miutil::miString lastString;
+  std::string lastString;
 
   // timer types
   int timeron;               ///> timer is turned on
@@ -459,8 +459,8 @@ private:
 
   void writeLogFile();
   void readLogFile();
-  miutil::miString saveDocState();
-  void restoreDocState(miutil::miString logstr);
+  std::string saveDocState();
+  void restoreDocState(std::string logstr);
 
   std::vector<std::string> writeLog(const std::string& thisVersion,
       const std::string& thisBuild);

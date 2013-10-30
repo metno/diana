@@ -84,7 +84,7 @@ void ShowSatValues::SetChannels(const vector<string>& channel)
   //try to remember currentItem
   int index = -1;
   if(tooltip.size( )> 0 && channelbox->count()>0  ){
-    miutil::miString currentText = tooltip[channelbox->currentIndex()];
+    std::string currentText = tooltip[channelbox->currentIndex()];
     int i = 0;
     while(i<nch && channel[i]!=currentText) i++;
     if(i<nch) index=i;
@@ -131,9 +131,9 @@ void ShowSatValues::ShowValues(const vector<SatValues> &satval)
      return;
   }
 
-   if (satval[i].channel.contains("Infrared")
-       || satval[i].channel.contains("IR_CAL")
-       || satval[i].channel.contains("TEMP"))
+   if (miutil::contains(satval[i].channel, "Infrared")
+       || miutil::contains(satval[i].channel, "IR_CAL")
+       || miutil::contains(satval[i].channel, "TEMP"))
      svalue << setprecision(1) << setiosflags(ios::fixed)<< satval[i].value <<"°C";
    else
      svalue << setprecision(2) << setiosflags(ios::fixed)<< satval[i].value;

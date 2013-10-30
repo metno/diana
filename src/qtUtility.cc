@@ -64,17 +64,6 @@ int getIndex(const std::vector<std::string>& vstr, const std::string& def_str)
 }
 
 
-int getIndex(const std::vector<miutil::miString>& vstr, const std::string& def_str)
-{
-  for (unsigned int k=0; k<vstr.size(); k++) {
-    if (def_str == vstr[k]) {
-      return k;
-    }
-  }
-  return -1;
-}
-
-
 int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& def_str)
 {
   for (unsigned int k=0; k<cInfo.size(); k++) {
@@ -145,23 +134,6 @@ QComboBox* ComboBox( QWidget* parent, const std::vector<std::string>& vstr, bool
 
   const int nr_box = vstr.size();
   for(int i=0; i<nr_box; i++)
-    box->addItem(QString::fromStdString(vstr[i]));
-
-  box->setEnabled( Enabled );
-  box->setCurrentIndex(defItem);
-
-  return box;
-}
-
-
-/*********************************************/
-QComboBox* ComboBox( QWidget* parent, const std::vector<miutil::miString>& vstr, bool Enabled, int defItem)
-{
-  QComboBox* box = new QComboBox(parent);
-
-  const int nr_box = vstr.size();
-
-  for (int i=0; i<nr_box; i++)
     box->addItem(QString::fromStdString(vstr[i]));
 
   box->setEnabled( Enabled );
@@ -321,7 +293,7 @@ QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>& patte
   for( int i=0; i<nr_patterns; i++ ){
     int index = patternInfo[i].pattern.size()-1;
     if(index<0) continue;
-    miutil::miString filename = ig.getFilename(patternInfo[i].pattern[index],true);
+    std::string filename = ig.getFilename(patternInfo[i].pattern[index],true);
     QIcon qicon(QString::fromStdString(filename));
     QString qs;
     if (name)
@@ -384,7 +356,7 @@ void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
 }
 
 /*********************************************/
-QComboBox* PixmapBox(QWidget* parent, std::vector<miutil::miString>& markerName)
+QComboBox* PixmapBox(QWidget* parent, std::vector<std::string>& markerName)
 {
   /* Image support in Qt
 BMP Windows Bitmap Read/write 
@@ -403,35 +375,35 @@ XPM X11 Pixmap Read/write
 
   ImageGallery ig;
 
-  vector<miutil::miString> name;
+  vector<std::string> name;
   ig.ImageNames(name,ImageGallery::marker);
 
   int n=name.size();
   for( int i=0;i<n; i++){
-    miutil::miString filename = ig.getFilename(name[i]);
+    std::string filename = ig.getFilename(name[i]);
     markerName.push_back(name[i]);
 
-    miutil::miString format;
+    std::string format;
     // sometimes Qt doesnt understand the format
-    if(filename.contains(".xpm"))
+    if(miutil::contains(filename, ".xpm"))
       format = "XPM";
-    else if(filename.contains(".png"))
+    else if(miutil::contains(filename, ".png"))
       format = "PNG";
-    else if(filename.contains(".jpg"))
+    else if(miutil::contains(filename, ".jpg"))
       format = "JPG";
-    else if(filename.contains(".jpeg"))
+    else if(miutil::contains(filename, ".jpeg"))
       format = "JPEG";
-    else if(filename.contains(".gif"))
+    else if(miutil::contains(filename, ".gif"))
       format = "GIF";
-    else if(filename.contains(".pbm"))
+    else if(miutil::contains(filename, ".pbm"))
       format = "PBM";
-    else if(filename.contains(".pgm"))
+    else if(miutil::contains(filename, ".pgm"))
       format = "PGM";
-    else if(filename.contains(".ppm"))
+    else if(miutil::contains(filename, ".ppm"))
       format = "PPM";
-    else if(filename.contains(".xbm"))
+    else if(miutil::contains(filename, ".xbm"))
       format = "XBM";
-    else if(filename.contains(".bmp"))
+    else if(miutil::contains(filename, ".bmp"))
       format = "BMP";
     QImage image;
     if (!format.empty())
@@ -496,7 +468,7 @@ QSlider* Slider(int minValue, int maxValue, int pageStep, int value,
 
 
 /*********************************************/
-void listWidget(QListWidget* listwidget, const std::vector<miutil::miString>& vstr, int defItem)
+void listWidget(QListWidget* listwidget, const std::vector<std::string>& vstr, int defItem)
 {
   if( listwidget->count() )
     listwidget->clear();
@@ -513,8 +485,8 @@ QPixmap* linePixmap(const std::string& pattern, int linewidth)
 {
   // make a 32x20 pixmap of a linepattern of length 16 (where ' ' is empty)
 
-  miutil::miString xpmEmpty= "################################";
-  miutil::miString xpmLine=  "................................";
+  std::string xpmEmpty= "################################";
+  std::string xpmLine=  "................................";
   int i;
   int lw= linewidth;
   if (lw<1)  lw=1;
