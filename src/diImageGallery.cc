@@ -224,7 +224,7 @@ bool ImageGallery::addImage(const std::string& name,
 
   int size= w*h;
 
-  if (not name.empty()) {
+  if (name.empty()) {
     METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no name");
     return false;
   }
@@ -261,7 +261,7 @@ bool ImageGallery::addPattern(const std::string& name,
 {
 
 
-  if ((not !name.empty())){
+  if ((name.empty())){
     METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no name");
     return false;
   }

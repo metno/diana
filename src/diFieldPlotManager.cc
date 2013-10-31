@@ -167,7 +167,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
           }
           if (i == firstLine) {
             // resplit to keep names with ()
-            vstr = miutil::split(str, '=', false);
+            vstr = miutil::split(str, "=", false);
             if (vstr.size() < 2) {
               std::string errm = "Missing field name";
               SetupParser::errorMsg(sect_name, i, errm);
