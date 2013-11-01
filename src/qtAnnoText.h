@@ -37,16 +37,11 @@
 #include <qvalidator.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <puTools/miString.h>
-
-using namespace std; 
 
 class Controller;
 
 /**
    \brief Dialogue for editing annotation texts
-   
-
 */
 class AnnoText :public QDialog
 {
@@ -64,7 +59,7 @@ public:
 private:
   Controller*    m_ctrl;
 
-  vector <QComboBox*> vSymbolEdit;
+  std::vector <QComboBox*> vSymbolEdit;
   QPushButton* quitb;
 
   std::string productname;
@@ -89,9 +84,3 @@ protected:
 };
 
 #endif
-
-
-
-
-
-

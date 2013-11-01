@@ -33,10 +33,6 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#define MILOGGER_CATEGORY "diana.ObjectManager"
-#include <miLogger/miLogging.h>
-
 #include <diObjectManager.h>
 #include <diPlotModule.h>
 #include <diDrawingTypes.h>
@@ -48,19 +44,23 @@
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
+
 #include <cstdio>
+#include <fstream>
 #include <iomanip>
 
+#define MILOGGER_CATEGORY "diana.ObjectManager"
+#include <miLogger/miLogging.h>
 
+using namespace std;
 using namespace::miutil;
 
 ObjectManager::ObjectManager(PlotModule* pl)
   : plotm(pl), mapmode(normal_mode)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObjectManager constructor");
+  METLIBS_LOG_SCOPE();
 #endif
-
 
   //initialize variables
   doCombine = false;

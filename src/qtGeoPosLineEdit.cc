@@ -33,12 +33,12 @@
 #include "config.h"
 #endif
 
-#include <iostream>
 #include "qtGeoPosLineEdit.h"
 
-QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
-    int& pos) const
-    {
+#include <puTools/miStringFunctions.h>
+
+QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input, int& pos) const
+{
   // accepts:
   // +/-XX.yy +/-ZZ.rr   OR
   // XX.yyS ZZ.rrE OR
@@ -162,7 +162,7 @@ bool GeoPosLineEdit::geovalidator::toFloat(std::string s, float& val,
   }
 
   if (miutil::contains(s, ":")) { // degrees:minutes:seconds
-    vector<std::string> vs = miutil::split(s, ":");
+    std::vector<std::string> vs = miutil::split(s, ":");
     float asign = 1.0;
     for (unsigned int k = 0; k < vs.size(); k++) {
       float tval = atof(vs[k].c_str());
@@ -211,7 +211,7 @@ bool GeoPosLineEdit::getValues(float& lat, float& lng)
 {
   std::string s(text().toStdString());
   miutil::trim(s);
-  vector<std::string> vs = miutil::split(s, " ");
+  std::vector<std::string> vs = miutil::split(s, " ");
   if (vs.size() != 2)
     return false;
 
@@ -220,9 +220,9 @@ bool GeoPosLineEdit::getValues(float& lat, float& lng)
   return gv->toFloat(vs[1], lng, false);
 }
 
-GeoPosLineEdit::GeoPosLineEdit(QWidget* p) :
-  QLineEdit(p)
-  {
+GeoPosLineEdit::GeoPosLineEdit(QWidget* p)
+  : QLineEdit(p)
+{
   gv = new geovalidator(0);
   setValidator(gv);
-  }
+}

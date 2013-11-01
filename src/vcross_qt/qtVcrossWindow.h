@@ -73,18 +73,9 @@ public:
   void mainWindowTimeChanged(const miutil::miTime& t);
   void parseQuickMenuStrings(const std::vector<std::string>& vstr);
 
-  //! parseQuickMenuStrings accepting miString \deprecated
-  void parseQuickMenuStrings(const std::vector<miutil::miString>& m);
-
   void parseSetup();
 
   std::vector<std::string> writeLog(const std::string& logpart);
-
-  //! writeLog returning miString \deprecated
-  std::vector<miutil::miString> writeLogMI(const std::string& lp);
-
-  //! readLog accepting miString \deprecated
-  void readLog(const std::string& lp, const std::vector<miutil::miString>& v, const std::string& tv, const std::string& lv, int dw, int dh);
 
   void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
 	       const std::string& thisVersion, const std::string& logVersion,

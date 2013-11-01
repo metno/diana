@@ -31,19 +31,18 @@
 #ifndef _diFieldEdit_h
 #define _diFieldEdit_h
 
-#include <puTools/miString.h>
-#include <vector>
-#include <set>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
-#include <diField/diGridConverter.h>
 #include <diPlot.h>
-#include <diField/diField.h>
 #include <diFieldPlot.h>
 #include <diEditSpec.h>
 
-using namespace std;
+#include <diField/diField.h>
+#include <diField/diGridConverter.h>
+
+#include <vector>
+#include <set>
 
 class FieldPlotManager;
 
@@ -61,8 +60,8 @@ struct IsoLine {
   float vleft;
   float vright;
   bool  closed;
-  vector<float> x;
-  vector<float> y;
+  std::vector<float> x;
+  std::vector<float> y;
 };
 
 
@@ -124,7 +123,7 @@ private:
   int   metnoFieldFileIdentSpec[8];
   short metnoFieldFileIdent[20];
 
-  vector<UndoField> undofields;
+  std::vector<UndoField> undofields;
   int numundo;
 
   bool  active, editStarted, operationStarted;
@@ -149,14 +148,14 @@ private:
   int   nx,ny,fsize;
   int   i1ed,i2ed,j1ed,j2ed, i1edp,i2edp,j1edp,j2edp;
   int   numUndefReplaced;
-  vector<float> xline, yline;
+  std::vector<float> xline, yline;
   float fline,lineinterval;
   int   numsmooth;
   float brushValue;
   bool  brushReplaceUndef;
   float classLineValue;
   IsoLine isoline;
-  set<float> lockedValue;
+  std::set<float> lockedValue;
   bool discontinuous;
   bool drawIsoline;
 
@@ -181,8 +180,8 @@ private:
   void editSmooth(float px, float py);
   void editBrush(float px, float py);
   void editClassLine();
-  void replaceInsideLine(const vector<float>& vx,
-			 const vector<float>& vy,
+  void replaceInsideLine(const std::vector<float>& vx,
+			 const std::vector<float>& vy,
 			 float replaceValue);
   void editWeight(float px, float py,
 		  int i1, int i2, int j1, int j2, float *weight);
@@ -203,7 +202,7 @@ public:
 
   void setSpec(const EditProduct& ep, int fnum);
 
-  void setData(const vector<Field*>& vf,
+  void setData(const std::vector<Field*>& vf,
                const std::string& fieldname,
 	       const miutil::miTime& tprod);
 
@@ -226,7 +225,7 @@ public:
   void deactivate() { active= false; };
   bool activated() { return active; }
   bool plot(bool showinfluence);
-  bool getAnnotations(vector<std::string>& anno);
+  bool getAnnotations(std::vector<std::string>& anno);
 };
 
 #endif

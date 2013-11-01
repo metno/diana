@@ -41,7 +41,11 @@
 #include <diImageGallery.h>
 #include <diPlotOptions.h>
 #include <diColourShading.h>
+
+#include <puTools/miStringFunctions.h>
+
 #include <GL/gl.h>
+
 #include <algorithm>
 #include <cmath>
 #include <iomanip>

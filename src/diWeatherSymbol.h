@@ -32,19 +32,15 @@
 #include <diObjectPlot.h>
 #include <diComplexSymbolPlot.h>
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
+
+#include <map>
 #include <set>
-
-
-using namespace std;
+#include <string>
+#include <vector>
 
 /**
-
-  \brief A weather symbol that can be plotted and edited
-
-
+   \brief A weather symbol that can be plotted and edited
 */
-
 class WeatherSymbol: public ObjectPlot
 {
 private:
@@ -52,18 +48,18 @@ private:
   std::string symbolString;
   ComplexSymbolPlot * complexSymbol;
 
-  static vector<editToolInfo>  allSymbols;
-  static vector<editToolInfo> allRegions;
-  static map<std::string,int> symbolTypes;  //finds symbol type number from name
-  static map<std::string,int> regionTypes;  //finds region type number from name
-  static map<int,int> indexTypes;  //finds symbol type number 
-  static map<int,int> next;  //finds next symbol type number from number
-  static map<int,int> last;  //finds last symbol type number from number
+  static std::vector<editToolInfo>  allSymbols;
+  static std::vector<editToolInfo> allRegions;
+  static std::map<std::string,int> symbolTypes;  //finds symbol type number from name
+  static std::map<std::string,int> regionTypes;  //finds region type number from name
+  static std::map<int,int> indexTypes;  //finds symbol type number 
+  static std::map<int,int> next;  //finds next symbol type number from number
+  static std::map<int,int> last;  //finds last symbol type number from number
   static float defaultSize;
   static float defaultComplexSize;
   static std::string currentText;
   static Colour::ColourInfo currentColour;
-  static set <std::string> textlist;
+  static std::set<std::string> textlist;
 
 public:
  /// default constructor
@@ -77,9 +73,9 @@ public:
   ~WeatherSymbol();
 
   /// define map to find symbol type number from name
-  static void defineSymbols(vector<editToolInfo> symbols);
+  static void defineSymbols(std::vector<editToolInfo> symbols);
   /// define map to find region type number from name
-  static void defineRegions(vector<editToolInfo>regions);
+  static void defineRegions(std::vector<editToolInfo>regions);
   /// set current text for text symbols
   static void setCurrentText(const std::string &);
   /// set current colour for text symbols
@@ -96,9 +92,9 @@ public:
   static bool isComplexTextColor(std::string edittool);
   /// returns true if symbol is edit text or textbox
   static bool isTextEdit(std::string edittool);
-  /// get vectors with text from complex symbols
+  /// get std::vectors with text from complex symbols
   static void getCurrentComplexText(std::vector<std::string> & symbolText, std::vector<std::string> & xText);
-  /// set vectors with text from complex symbols
+  /// set std::vectors with text from complex symbols
   static void setCurrentComplexText(const std::vector<std::string>& symbolText,
       const std::vector<std::string>& xText); 
   /// initialise text for complex symbols
@@ -108,9 +104,9 @@ public:
   /// get name of region number ir
   static std::string getAllRegions(int ir);
   /// get list of text used in textsymbols (for dialog)
-  static set<std::string> getTextList();
+  static std::set<std::string> getTextList();
   /// get list of complex texts (used in text dialog)
-  static set<std::string> getComplexList();
+  static std::set<std::string> getComplexList();
   /// replace characters like !{ in string
   static void replaceText(std::string& tempString, bool writestring);
   /// set standard size to use for new weathersymbols
@@ -153,9 +149,9 @@ public:
   std::string writeTypeString();
   /// apply filter to hide some symbols
   virtual void applyFilters(const std::vector<std::string>&);
-  /// gets std::string vectors with symboltext or multiline text
+  /// gets std::string std::vectors with symboltext or multiline text
   void getMultilineText(std::vector<std::string>& symbolText);
-  /// gets std::string vectors with symboltext and xText
+  /// gets std::string std::vectors with symboltext and xText
   void getComplexText(std::vector<std::string>& symbolText, std::vector<std::string> & xText);
   /// reads complex text to be plotted from a string (written by readComplexText)
   void readComplexText(std::string s);
@@ -166,9 +162,3 @@ public:
 };
 
 #endif
-
-
-
-
-
-

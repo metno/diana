@@ -33,20 +33,20 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.TrajectoryPlot"
-#include <miLogger/miLogging.h>
-
 #include "diTrajectoryPlot.h"
 #include <diField/diField.h>
+#include <puTools/miStringFunctions.h>
 #include <GL/gl.h>
 #include <cmath>
-#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.TrajectoryPlot"
+#include <miLogger/miLogging.h>
 
+using namespace std;
+using namespace miutil;
 
 TrajectoryPlot::TrajectoryPlot()
 :Plot(){

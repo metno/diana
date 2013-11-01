@@ -38,18 +38,15 @@
 #include "config.h"
 #endif
 
-#include <QVBoxLayout>
-#include <QSplitter>
-#include <QString>
-#include <QTextEdit>
-
-#include <fstream>
-#include <iostream>
-#include <puTools/miString.h>
 #include "qtEditComment.h"
 #include "qtToggleButton.h"
 #include "diController.h"
 #include "diObjectManager.h"
+
+#include <QVBoxLayout>
+#include <QSplitter>
+#include <QString>
+#include <QTextEdit>
 
 
 /*********************************************/
@@ -106,12 +103,12 @@ void EditComment::textChanged()
   setWindowModified(true);
 }
 
-  void EditComment::startComment()
-  {
+void EditComment::startComment()
+{
   //start comments for editing
   if (inComment) return;
   mEdit->clear();
-  miutil::miString comments = m_objm->getComments();
+  std::string comments = m_objm->getComments();
   mEdit->setText(comments.c_str());
   //   mEdit->insertLine("\n");
   //   int n = mEdit->numLines();
@@ -121,13 +118,11 @@ void EditComment::textChanged()
   if (showOld->isChecked()) readComment();
 }
 
-
-
 void EditComment::readComment()
 {
   //read comments only
   mEdit2->clear();
-  miutil::miString comments = m_objm->readComments(inEditSession);
+  std::string comments = m_objm->readComments(inEditSession);
   mEdit2->setText(comments.c_str());
   //   mEdit2->insertLine("\n");
   //   int n = mEdit2->numLines();
@@ -140,7 +135,7 @@ void EditComment::readComment()
 void EditComment::saveComment()
 {
   if (inComment && isWindowModified()){
-    miutil::miString comments = miutil::miString(mEdit->toPlainText().toStdString());
+    std::string comments = std::string(mEdit->toPlainText().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
     setWindowModified(false);

@@ -45,6 +45,7 @@
 #include <GL/gl.h>
 
 using namespace::miutil;
+using namespace std;
 
 //int ImageGallery::numimages= 0;
 //ImageGallery::image ImageGallery::Images[ImageGallery::maximages];
@@ -852,9 +853,5 @@ bool ImageGallery::parseSetup()
     }
     globfree_cache(&globBuf);
   }
-
-
-
   return true;
 }
-

@@ -37,32 +37,34 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofDiagram"
-#include <miLogger/miLogging.h>
-
 #include "diVprofDiagram.h"
 #include "diColour.h"
 #include "diLinetype.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 
 using namespace::miutil;
+using namespace std;
 
-// Default constructor
+#define MILOGGER_CATEGORY "diana.VprofDiagram"
+#include <miLogger/miLogging.h>
+
 VprofDiagram::VprofDiagram(VprofOptions *vpop) :
   VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),
       numprog(0)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::VprofDiagram");
+  METLIBS_LOG_SCOPE();
 #endif
   setDefaults();
   plotw = ploth = 0;
   plotwDiagram = plothDiagram = -1;
 }
 
-// Destructor
 VprofDiagram::~VprofDiagram()
 {
 #ifdef DEBUGPRINT

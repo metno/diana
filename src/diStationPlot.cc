@@ -33,16 +33,16 @@
 #include "config.h"
 #endif
 
+#include <diStationPlot.h>
+#include <diFontManager.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 #define MILOGGER_CATEGORY "diana.StationPlot"
 #include <miLogger/miLogging.h>
 
-#include <diStationPlot.h>
-#include <math.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <diFontManager.h>
-
 using namespace::miutil;
+using namespace std;
 
 //  static members
 std::string StationPlot::ddString[16];

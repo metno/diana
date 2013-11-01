@@ -79,10 +79,10 @@ using namespace road;
 #endif
 
 using namespace std;
-using namespace miutil;
+using miutil::miTime;
 
 namespace {
-inline vector<string> to_vector_string(const vector<miString>& m)
+inline vector<string> to_vector_string(const vector<miutil::miString>& m)
 { return vector<string>(m.begin(), m.end()); }
 }
 
@@ -94,7 +94,7 @@ VprofManager::VprofManager(Controller* co)
   plotw(0), ploth(0), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager constructed");
+  METLIBS_LOG_SCOPE();
 #endif
   fieldm= co->getFieldManager(); // set fieldmanager
 
@@ -106,14 +106,13 @@ VprofManager::VprofManager(Controller* co)
   ztime = miTime(1970,1,1,0,0,0);
 
   plotTime= miTime::nowTime();
-
 }
 
 
 VprofManager::~VprofManager()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager destructor");
+  METLIBS_LOG_SCOPE();
 #endif
 
   if (vpdiag) delete vpdiag;
@@ -127,7 +126,7 @@ VprofManager::~VprofManager()
 void VprofManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 #endif
 
   filenames.clear();
@@ -139,7 +138,7 @@ void VprofManager::parseSetup()
   const std::string section2 = "VERTICAL_PROFILE_FILES";
   vector<std::string> vstr;
 
-  if (SetupParser::getSection(section2,vstr)) {
+  if (miutil::SetupParser::getSection(section2,vstr)) {
 
     set<std::string> uniquefiles;
 

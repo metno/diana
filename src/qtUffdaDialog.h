@@ -34,10 +34,9 @@
 #include <QDialog>
 #include <QToolTip>
 
-#include <deque>
 #include <diController.h>
-
-//using namespace std; 
+#include <deque>
+#include <vector>
 
 class PushButton;
 class QListWidget;
@@ -45,19 +44,16 @@ class QListWidgetItem;
 class QLabel;
 
 /**
-
   \brief Dynamic tooltip
-  
 */
 class DynamicTip: public QToolTip
 {
 public:
-  DynamicTip(QWidget * parent, vector <std::string> tips);
+  DynamicTip(QWidget * parent, std::vector <std::string> tips);
 protected:
   void maybeTip(const QPoint &);
 private:
-  vector <QString> vClasstips;
-
+  std::vector <QString> vClasstips;
 };
 
 /**
@@ -131,7 +127,7 @@ private:
   QPushButton* sendb;
 
   //deques of satellite positions , time,classes etc.
-  deque <uffdaElement> v_uffda; 
+  std::deque <uffdaElement> v_uffda; 
   StationPlot * sp;
 
   std::string mailto; //mailadress to send Uffdastring to
@@ -144,7 +140,7 @@ private:
   int satIndex; //index of sat list
   int classIndex; //index of class list
 
-private slots:
+private Q_SLOTS:
   void DeleteClicked();
   void DeleteAllClicked();
   void helpClicked();
@@ -155,15 +151,10 @@ private slots:
   void poslistSlot(QListWidgetItem*);
 
 
-signals:
+Q_SIGNALS:
   void uffdaHide();
   void showsource(const std::string, const std::string=""); // activate help
   void stationPlotChanged();
 };
 
 #endif
-
-
-
-
-

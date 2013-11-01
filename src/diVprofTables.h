@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -36,12 +34,9 @@
 #include <diFontManager.h>
 #include <diPrintOptions.h>
 #include <diColour.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <vector>
 #include <GL/gl.h>
-
-using namespace std;
+#include <vector>
 
 //=================================================
 // Superclass for VprofDiagram and VprofPlot,
@@ -124,8 +119,8 @@ protected:
 
   // fontpack and sizes
   static FontManager* fp;
-  static vector<float> charsizes;
-  static vector<float> fontsizes;
+  static std::vector<float> charsizes;
+  static std::vector<float> fontsizes;
   static std::string defaultFont;
 
   // PostScript module
@@ -164,9 +159,7 @@ protected:
   static float xztab[mptab];  // x(t.celsius=0)
   static float dx1degree;     // x distance for 1 degree celsius
 
-  static vector<VprofText> vptext; // info for text plotting
-
+  static std::vector<VprofText> vptext; // info for text plotting
 };
 
 #endif
-

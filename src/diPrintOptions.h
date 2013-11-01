@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,8 +29,9 @@
 #ifndef _diPrintOptions_h
 #define _diPrintOptions_h
 
-#include <puTools/miString.h>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace d_print {
 

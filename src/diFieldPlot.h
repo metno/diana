@@ -35,14 +35,10 @@
 #include <diCommonTypes.h>
 #include <diField/diField.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+
 #include <vector>
 
-using namespace std;
-
-
 /**
-
   \brief Plots one field
 
   Holds the (scalar) field(s) after reading and any computations.
@@ -67,13 +63,13 @@ public:
   // check if current has same level
   bool updatePinNeeded(const std::string& pin);
   bool prepare(const std::string& fname, const std::string&);
-  bool setData(const vector<Field*>&, const miutil::miTime&);
+  bool setData(const std::vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();
   bool getRealFieldArea(Area&);
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
   bool getUndefinedPlot() const { return pundefined; }
   void getFieldAnnotation(std::string&, Colour&);
-  vector<Field*> getFields() {return fields; }
+  std::vector<Field*> getFields() {return fields; }
   miutil::miTime getTime() const {return ftime;}
   miutil::miTime getAnalysisTime() const {return analysisTime;}
   bool plotUndefined();
@@ -85,8 +81,8 @@ public:
   void clearFields();
 
 private:
-  vector<Field*> fields; // fields, stored elsewhere
-  vector<Field*> tmpfields; // tmp fields, stored here
+  std::vector<Field*> fields; // fields, stored elsewhere
+  std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
   miutil::miTime analysisTime;   // time of model analysis
 
@@ -101,8 +97,8 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
-  vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
-  vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
+  std::vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
+  std::vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
 		   int maxElementsX, int& step, float& dist);
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);

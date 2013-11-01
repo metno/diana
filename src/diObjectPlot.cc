@@ -33,62 +33,63 @@
 #include "config.h"
 #endif
 
+#include <diObjectPlot.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <math.h>
+#include <sstream>
+
+//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.ObjectPlot"
 #include <miLogger/miLogging.h>
 
-#include <diObjectPlot.h>
-#include <math.h>
-#include <puTools/miString.h>
-#include <sstream>
-//#define DEBUGPRINT
 using namespace::miutil;
+using namespace std;
 
 // static members
 int ObjectPlot::siglinewidth=2;
 map <std::string,std::string> ObjectPlot::editTranslations;
 
-// Default constructor
 ObjectPlot::ObjectPlot()
-: Plot() {
+  : Plot()
+{
   initVariables();
 }
 
-
-// Constructor taking type of object as argument
 ObjectPlot::ObjectPlot(int objTy)
-: Plot(),typeOfObject(objTy){
+  : Plot()
+  , typeOfObject(objTy)
+{
   initVariables();
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("New ObjectPlot made(int)");
+  METLIBS_LOG_SCOPE();
 #endif
 }
 
 
-// Copy constructor
-ObjectPlot::ObjectPlot(const ObjectPlot &rhs){
+ObjectPlot::ObjectPlot(const ObjectPlot &rhs)
+{
   // elementwise copy
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Objectplot-copy constr");
+  METLIBS_LOG_SCOPE();
 #endif
   memberCopy(rhs);
 }
 
-// Destructor
-ObjectPlot::~ObjectPlot(){
+ObjectPlot::~ObjectPlot()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Objectplot- destructor");
+  METLIBS_LOG_SCOPE();
 #endif
   if (x != NULL)  delete[] x;
   if (y != NULL)  delete[] y;
   if (x_s != NULL)  delete[] x_s;
   if (y_s != NULL)  delete[] y_s;
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("end of objectplot- destructor");
-#endif
 }
 
-void ObjectPlot::initVariables(){
+void ObjectPlot::initVariables()
+{
   isVisible=  true;
   isSelected=  false;
   spline=true;
@@ -213,8 +214,6 @@ void ObjectPlot::defineTranslations(){
   editTranslations["Is"]="Ice";
   editTranslations["Sig.vær"]="Significant weather";
   editTranslations["Generisk område"]="Generic area";
-
-
 }
 
 

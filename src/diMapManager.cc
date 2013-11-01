@@ -37,6 +37,7 @@
 #include <puTools/miSetupParser.h>
 
 using namespace::miutil;
+using namespace std;
 
 vector<Area> MapManager::mapareas;
 vector<Area> MapManager::mapareas_Fkeys;

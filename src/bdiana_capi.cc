@@ -65,7 +65,6 @@
 #include <diSatPlot.h>
 
 #include <puCtools/sleep.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <diLocalSetupParser.h>
 #include <diPrintOptions.h>

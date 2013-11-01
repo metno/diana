@@ -31,17 +31,15 @@
 #ifndef _qtQuickMenu_h
 #define _qtQuickMenu_h
 
-#include <QDialog>
-#include <QTimerEvent>
-
-#include <puTools/miString.h>
-#include <vector>
-#include <deque>
 #include <diController.h>
 #include <diQuickMenues.h>
 #include <diCommonTypes.h>
 
-using namespace std; 
+#include <QDialog>
+#include <QTimerEvent>
+
+#include <vector>
+#include <deque>
 
 class QComboBox;
 class QListWidget;
@@ -83,9 +81,9 @@ private:
   bool timeron;       // for demo
   int demoTimer;      // for demo
 
-  vector<quickMenu> qm;        // datastructure for quickmenus
-  vector<quickMenu> orig_qm;   // original copies of static menus
-  vector<quickMenu> chng_qm;   // changed static menus
+  std::vector<quickMenu> qm;        // datastructure for quickmenus
+  std::vector<quickMenu> orig_qm;   // original copies of static menus
+  std::vector<quickMenu> chng_qm;   // changed static menus
 
   bool browsing;       // user is browsing
   int prev_plotindex;  // last plotted command
@@ -152,7 +150,7 @@ public:
   void startBrowsing();
 
   // quick-quick menu methods
-  vector<std::string> getCustomMenus();
+  std::vector<std::string> getCustomMenus();
   bool addMenu(const std::string& name);
   bool addToMenu(const int idx);
   std::string getCurrentName();

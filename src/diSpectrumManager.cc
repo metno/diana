@@ -33,9 +33,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.SpectrumManager"
-#include <miLogger/miLogging.h>
-
 #include <diSpectrumManager.h>
 
 #include <diSpectrumOptions.h>
@@ -47,7 +44,11 @@
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 
+#define MILOGGER_CATEGORY "diana.SpectrumManager"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 SpectrumManager::SpectrumManager()
 : showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)

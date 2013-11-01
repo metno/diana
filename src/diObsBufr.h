@@ -33,8 +33,6 @@
 
 #include <diObsPlot.h>
 
-using namespace std;
-
 // libemos interface (to fortran routines)
 extern "C" {
   extern void pbopen_(int* iunit, const char* bufr_file, const char* rw,
@@ -100,11 +98,11 @@ private:
   miutil::miTime obsTime;
   VprofPlot *vplot;
   ObsPlot   *oplot;
-  map<std::string,int> idmap;
-  vector<std::string> id;
-  vector<miutil::miTime> id_time;
-  vector<float> latitude;
-  vector<float> longitude;
+  std::map<std::string,int> idmap;
+  std::vector<std::string> id;
+  std::vector<miutil::miTime> id_time;
+  std::vector<float> latitude;
+  std::vector<float> longitude;
   int izone;
   int istation;
   int index;
@@ -114,12 +112,12 @@ public:
   ObsBufr(){;}
   bool init(const std::string& filename, const std::string& format);
   bool ObsTime(const std::string& filename,miutil::miTime& time);
-  bool readStationInfo(const vector<std::string>& bufr_file,
-      vector<std::string>& namelist,
-      vector<miutil::miTime>& timelist,
-      vector<float>& latitudelist,
-      vector<float>& longitudelist);
-  VprofPlot* getVprofPlot(const vector<std::string>& bufr_file,
+  bool readStationInfo(const std::vector<std::string>& bufr_file,
+      std::vector<std::string>& namelist,
+      std::vector<miutil::miTime>& timelist,
+      std::vector<float>& latitudelist,
+      std::vector<float>& longitudelist);
+  VprofPlot* getVprofPlot(const std::vector<std::string>& bufr_file,
       const std::string& modelName,
       const std::string& station,
       const miutil::miTime& time);
@@ -128,4 +126,3 @@ public:
 };
 
 #endif
-

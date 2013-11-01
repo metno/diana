@@ -31,6 +31,14 @@
 #include "config.h"
 #endif
 
+#include "qtSatDialog.h"
+#include "qtSatDialogAdvanced.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+#include <puTools/miTime.h>
+
 #include <QApplication>
 #include <QSlider>
 #include <QRadioButton>
@@ -43,33 +51,23 @@
 #include <qmessagebox.h>
 #include <QToolTip>
 #include <QButtonGroup>
-
-#define MILOGGER_CATEGORY "diana.SatDialog"
-#include <miLogger/miLogging.h>
-
-#include "qtSatDialog.h"
-#include "qtSatDialogAdvanced.h"
-#include "qtToggleButton.h"
-#include "qtUtility.h"
 #include <QHBoxLayout>
 #include <QPixmap>
 #include <QVBoxLayout>
 
-#include <puTools/miString.h>
-#include <cstdio>
 #include <iomanip>
-#include <iostream>
-#include <puTools/miTime.h>
 
 #include "up12x12.xpm"
 #include "down12x12.xpm"
 
+#define MILOGGER_CATEGORY "diana.SatDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 #define HEIGHTLISTBOX 45
 
-
 //static
-
 miutil::miTime SatDialog::ztime = miutil::miTime(1970,1,1,0,0,0);
 
 /*********************************************/

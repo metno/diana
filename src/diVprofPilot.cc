@@ -35,26 +35,23 @@
 
 //#ifdef METNOOBS
 
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.VprofPilot"
-#include <miLogger/miLogging.h>
-
 #include <diVprofPilot.h>
 #include <diVprofPlot.h>
 #include <robs/geopos.h>
-#include <math.h>
 
-using namespace::miutil;
+#define MILOGGER_CATEGORY "diana.VprofPilot"
+#include <miLogger/miLogging.h>
+
+using miutil::miTime;
 
 namespace {
-inline vector<miString> to_vector_miString(const vector<string>& s)
-{ return vector<miString>(s.begin(), s.end()); }
+inline vector<miutil::miString> to_vector_miString(const vector<string>& s)
+{ return vector<miutil::miString>(s.begin(), s.end()); }
 }
 
-// Default constructor
 VprofPilot::VprofPilot(void)
 {
-  METLIBS_LOG_DEBUG("++ VprofPilot::VprofPilot()-default");
+  METLIBS_LOG_SCOPE();
 }
 
 

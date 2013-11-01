@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,22 +31,23 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.ShapeObject"
-#include <miLogger/miLogging.h>
+#include <diShapeObject.h>
 
 #include <diColourShading.h>
 #include <diTesselation.h>
-#include <diShapeObject.h>
 #include <diFontManager.h>
-#include <puDatatypes/miCoordinates.h>
-#include <puTools/miString.h>
+
+#include <puTools/miStringFunctions.h>
+
 #include <GL/glu.h>
+
+#define MILOGGER_CATEGORY "diana.ShapeObject"
+#include <miLogger/miLogging.h>
 
 /* Created at Wed Oct 12 15:31:16 2005 */
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 //#define DEBUGPRINT
 
 ShapeObject::ShapeObject() :
@@ -342,8 +341,6 @@ bool ShapeObject::plot(Area area, // current area
 	y1= area.R().y1 -1.;
 	y2= area.R().y2 +1.;
 
-	int npoints = 0;
-
 	float sizeWX, sizeWY;
 
 	sizeWX = x2 - x1;
@@ -512,7 +509,6 @@ bool ShapeObject::plot(Area area, // current area
 		for (int jpart=0; jpart<nparts; jpart++) {
 			visible = false;
 			int nstop, ncount=0;
-			npoints = 0;
 
 			// Get the starting point of this part (shapeobject consists of several parts)
 			int nstart=shapes[i]->panPartStart[jpart];

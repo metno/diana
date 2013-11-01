@@ -30,7 +30,6 @@
 #define diStationManager_h
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
 
 class StationPlot;
 class Station;
@@ -40,7 +39,7 @@ class StationManager
 public:
   StationManager();
 
-  bool init(const vector<std::string>& inp);
+  bool init(const std::vector<std::string>& inp);
   stationDialogInfo initDialog();
   bool parseSetup();
 
@@ -64,42 +63,41 @@ public:
   ///make StationPlot and put it in list of StationPlots
   void makeStationPlot(const std::string& commondesc, const std::string& common,
            const std::string& description, int from,
-           const  vector<std::string>& data);
+           const  std::vector<std::string>& data);
   ///Returns the first station close to position x,y found in the StationPlots
   ///held by this object
   Station* findStation(int x, int y);
   ///Returns all stations close to position x,y found in the StationPlots
   ///held by this object
-  vector<Station*> findStations(int x, int y);
+  std::vector<Station*> findStations(int x, int y);
   ///find station in position x,y in StationPlot with name and id
   std::string findStation(int x, int y,std::string name,int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
-        vector<std::string>& name,vector<int>& id,
-        vector<std::string>& station);
+      std::vector<std::string>& name, std::vector<int>& id,
+      std::vector<std::string>& station);
   ///get editable stations, returns name/id of StationPlot and stations
   bool getEditStation(int step, std::string& name, int& id,
-          vector<std::string>& stations);
-  void getStationData(vector<std::string>& data);
+          std::vector<std::string>& stations);
+  void getStationData(std::vector<std::string>& data);
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
-          const vector<std::string>& data,
+          const std::vector<std::string>& data,
           const std::string& name="", int id=-1,
           const std::string& misc="");
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
           const std::string& name="", int id=-1);
 
-  ///Returns a vector containing the plots held by the manager.
-  vector <StationPlot*> plots();
+  ///Returns a std::vector containing the plots held by the manager.
+  std::vector <StationPlot*> plots();
 
 private:
   stationDialogInfo m_info;
   //stations to be plotted
-  map <std::string,StationPlot*> stationPlots;
+  std::map <std::string,StationPlot*> stationPlots;
 
   Station* parseSMHI(std::string& miLine, std::string& url);
-
 };
 
 #endif

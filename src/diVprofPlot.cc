@@ -72,7 +72,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   METLIBS_LOG_DEBUG("++ VprofPlot::plot " << nplot);
 #endif
 
-  if ((not !text.posName.empty())) return false;
+  if (text.posName.empty())
+    return false;
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::plot start plotting " << text.posName);

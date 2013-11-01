@@ -34,11 +34,9 @@
 #include <QDialog>
 
 #include <diEditSpec.h>
-#include <puTools/miString.h>
+
 #include <vector>
 #include <map>
-
-using namespace std;
 
 class Controller;
 class EditManager;
@@ -48,7 +46,6 @@ class QListWidget;
 class QListWidgetItem;
 class QPushButton;
 class QCheckBox;
-
 
 /**
    \brief Dialogue for selecting fields for editing
@@ -73,11 +70,11 @@ public:
     {return vselectedprod;}
 
 private:
-  vector <std::string> getProductNames();
+  std::vector <std::string> getProductNames();
   void fillList();
   void updateFilenames();
   std::string selectedObjectTypes(); //fronts /symbols/areas ?
-  void setCheckedCbs(map<std::string,bool> useEditobject);
+  void setCheckedCbs(std::map<std::string,bool> useEditobject);
   void initCbs();
 
 private slots:
@@ -118,22 +115,12 @@ private:
   std::vector<std::string> fields;
   int num;
   int selectedProdIndex;
-  map <std::string, vector<savedProduct> > pmap;
+  std::map <std::string, std::vector<savedProduct> > pmap;
   std::string selectedfield;
-  vector <savedProduct> vselectedprod;
-  vector<std::string> productNames;  //list of products in prodnamebox
+  std::vector <savedProduct> vselectedprod;
+  std::vector<std::string> productNames;  //list of products in prodnamebox
 
   std::string MODELFIELDS;
-
 };
 
 #endif
-
-
-
-
-
-
-
-
-

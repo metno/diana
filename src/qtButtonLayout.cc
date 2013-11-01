@@ -33,11 +33,16 @@
 
 #include "qtButtonLayout.h"
 #include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QGridLayout>
 #include <QButtonGroup>
 
 #define MILOGGER_CATEGORY "diana.ButtonLayout"
 #include <miLogger/miLogging.h>
+
+using namespace std;
 
 ButtonLayout::ButtonLayout(QWidget* parent, vector<ObsDialogInfo::Button>& buttons, int nr_col)
   : QWidget(parent)

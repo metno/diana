@@ -35,17 +35,15 @@
 
 #ifdef METNOOBS
 
-#include <iostream>
 #include <diVprofTemp.h>
 #include <diVprofPlot.h>
 #include <robs/geopos.h>
-#include <math.h>
 
-using namespace::miutil;
+using miutil::miTime;
 
 namespace {
-inline vector<miString> to_vector_miString(const vector<string>& s)
-{ return vector<miString>(s.begin(), s.end()); }
+inline vector<miutil::miString> to_vector_miString(const vector<string>& s)
+{ return vector<miutil::miString>(s.begin(), s.end()); }
 }
 
 // Default constructor

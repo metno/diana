@@ -33,9 +33,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.PlotModule"
-#include <miLogger/miLogging.h>
-
 #include <diPlotModule.h>
 #include <diObsPlot.h>
 
@@ -61,17 +58,21 @@
 #include <diField/FieldSpecTranslation.h>
 #include <diFieldPlotManager.h>
 #include <puDatatypes/miCoordinates.h>
+#include <puTools/miStringFunctions.h>
 
 #include <GL/gl.h>
 #include <sstream>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+
 //#define DEBUGPRINT
 //#define DEBUGREDRAW
+#define MILOGGER_CATEGORY "diana.PlotModule"
+#include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace milogger;
+using namespace std;
 
 // static class members
 GridConverter PlotModule::gc; // Projection-converter
@@ -102,7 +103,6 @@ PlotModule::PlotModule() :
   areaSaved = false;
 }
 
-// Destructor
 PlotModule::~PlotModule()
 {
   cleanup();
@@ -188,14 +188,13 @@ void PlotModule::preparePlots(const vector<string>& vpi)
 
 void PlotModule::prepareArea(const vector<string>& inp)
 {
-  MI_LOG & log = MI_LOG::getInstance("diana.PlotModule.prepareArea");
-  log.debugStream() << "++ PlotModule::prepareArea ++";
+  METLIBS_LOG_SCOPE();
 
   MapManager mapm;
 
   if ( !inp.size() ) return;
   if ( inp.size() > 1 )
-    COMMON_LOG::getInstance("common").debugStream() << "More AREA definitions, using: " <<inp[0];
+    METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]);
 
   const std::string key_name=  "name";
   const std::string key_areaname=  "areaname"; //old syntax
@@ -216,19 +215,19 @@ void PlotModule::prepareArea(const vector<string>& inp)
 
       if (key==key_name || key==key_areaname){
         if ( !mapm.getMapAreaByName(stokens[1], requestedarea) ) {
-          COMMON_LOG::getInstance("common").warnStream() << "Unknown AREA definition: "<< inp[0];
+          METLIBS_LOG_WARN("Unknown AREA definition: "<< inp[0]);
         }
       } else if (key==key_proj){
         if ( proj.set_proj_definition(stokens[1]) ) {
           requestedarea.setP(proj);
         } else {
-          COMMON_LOG::getInstance("common").warnStream() << "Unknown proj definition: "<< stokens[1];
+          METLIBS_LOG_WARN("Unknown proj definition: "<< stokens[1]);
         }
       } else if (key==key_rectangle){
         if ( rect.setRectangle(stokens[1],false) ) {
           requestedarea.setR(rect);
         } else {
-          COMMON_LOG::getInstance("common").warnStream() << "Unknown rectangle definition: "<< stokens[1];
+          METLIBS_LOG_WARN("Unknown rectangle definition: "<< stokens[1]);
         }
       }
     }

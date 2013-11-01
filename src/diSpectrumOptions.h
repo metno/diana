@@ -31,10 +31,8 @@
 #ifndef SPECTRUMOPTIONS_H
 #define SPECTRUMOPTIONS_H
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
-
-using namespace std;
 
 /**
   \brief Wave Spectrum diagram settings
@@ -93,8 +91,6 @@ private:
   float    freqMax;
 
   std::string backgroundColour;
-
 };
 
 #endif
-

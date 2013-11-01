@@ -34,14 +34,11 @@
 #include <qslider.h>
 #include <qpalette.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+
 #include <map>
 #include <vector>
 
-using namespace std; 
-
 /**
-
   \brief Main plot time 
 
   The time slider class holds times from all data sources selected,
@@ -69,7 +66,7 @@ public:
   ///Next/previous time
   bool nextTime(const int dir, miutil::miTime& time, bool restricted =false);
   void setLoop(const bool b);
-  vector<miutil::miTime> getTimes(){return times;}
+  std::vector<miutil::miTime> getTimes(){return times;}
   void startAnimation(){startani= true;}
   ///Remove times from data type
   void deleteType(const std::string& type);
@@ -90,7 +87,7 @@ public:
   ///use times from datatype(field, sat, obs ..)
   void useData(std::string datatype);
 
-  signals:
+Q_SIGNALS:
   /// emits smallest timeinterval (in hours)
   void minInterval(int);
   /// emits minimum timesteps
@@ -99,13 +96,13 @@ public:
   void enableSpin(bool);
   void sliderSet();
   /// emits times
-  void newTimes(vector<miutil::miTime>&);
+  void newTimes(std::vector<miutil::miTime>&);
 
 private:
-  map<std::string,vector<miutil::miTime> > tlist; // times
-  map<std::string,bool>  usetlist; // false if only one spesific time is set
-  vector<miutil::miTime> orig_times; // the actual timepoints (all)
-  vector<miutil::miTime> times; // the actual timepoints (min-max)
+  std::map<std::string,std::vector<miutil::miTime> > tlist; // times
+  std::map<std::string,bool>  usetlist; // false if only one spesific time is set
+  std::vector<miutil::miTime> orig_times; // the actual timepoints (all)
+  std::vector<miutil::miTime> times; // the actual timepoints (min-max)
   miutil::miTime prevtime; // previous selected time
   float interval;  // timeinterval in hours
   bool loop;       // time-loop in use

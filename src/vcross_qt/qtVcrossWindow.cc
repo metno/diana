@@ -47,6 +47,8 @@
 #include "qtVcrossSetupDialog.h"
 #include "qtPrintManager.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <qapplication.h>
 #include <QFileDialog>
 #include <QtGui/QHBoxLayout>
@@ -821,12 +823,6 @@ void VcrossWindow::mapPos(float lat, float lon)
   emitQmenuStrings();
 }
 
-void VcrossWindow::parseQuickMenuStrings(const std::vector<miutil::miString>& m)
-{
-    const std::vector<std::string> s(m.begin(), m.end());
-  parseQuickMenuStrings(s);
-}
-
 void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_string)
 {
   vcrossm->parseQuickMenuStrings(qm_string);
@@ -845,12 +841,6 @@ void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_stri
 void VcrossWindow::parseSetup()
 {
   vcrossm->parseSetup();
-}
-
-std::vector<miutil::miString> VcrossWindow::writeLogMI(const std::string& lp)
-{
-  const std::vector<std::string> s(writeLog(lp));
-  return std::vector<miutil::miString>(s.begin(), s.end());
 }
 
 std::vector<std::string> VcrossWindow::writeLog(const std::string& logpart)
@@ -890,13 +880,6 @@ std::vector<std::string> VcrossWindow::writeLog(const std::string& logpart)
   }
 
   return vstr;
-}
-
-void VcrossWindow::readLog(const std::string& lp, const std::vector<miutil::miString>& v,
-                           const std::string& tv, const std::string& lv, int dw, int dh)
-{
-  const std::vector<std::string> s(v.begin(), v.end());
-  readLog(lp, s, tv, lv, dw, dh);
 }
 
 void VcrossWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr,

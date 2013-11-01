@@ -33,18 +33,22 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.ObsAscii"
-#include <miLogger/miLogging.h>
 
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
-#include <vector>
+
+#include <puTools/miStringFunctions.h>
+
 #include <curl/curl.h>
 
-using namespace::miutil;
+#include <fstream>
+
+#define MILOGGER_CATEGORY "diana.ObsAscii"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 ObsAscii::ObsAscii(const string& filename, const string& headerfile,
     const vector<string> headerinfo)

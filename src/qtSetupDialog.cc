@@ -40,7 +40,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <puTools/miString.h>
+#include <puTools/miStringFunctions.h>
 
 using namespace std;
 
@@ -54,7 +54,7 @@ SetupDialog::SetupDialog(QWidget* parent)
 
   //setupfile
   QLabel* setupLabel = new QLabel( tr("Setupfile"), this);
-  miutil::miString setupfile = LocalSetupParser::getSetupFileName();
+  string setupfile = LocalSetupParser::getSetupFileName();
   setupLineEdit = new QLineEdit(setupfile.c_str(), this);
   QHBoxLayout* setuplayout= new QHBoxLayout();
   setuplayout->addWidget(setupLabel);

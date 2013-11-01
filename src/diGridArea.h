@@ -31,25 +31,17 @@
 #ifndef DIGRIDAREA_H_
 #define DIGRIDAREA_H_
 
-
-#include <vector>
-#include <iostream>
 #include <diPlot.h>
+
 #include <diField/diArea.h>
-#include <propoly/AbstractablePolygon.h>
-#include <puTools/miString.h>
-#include <list>
 #include <diField/diProjectablePolygon.h>
+#include <propoly/AbstractablePolygon.h>
 #include <propoly/triangulation.h>
 #include <propoly/Segment.h>
 
-#ifndef NOLOG4CXX
-#include <log4cxx/logger.h>
-#else
-#include <miLogger/logger.h>
-#endif
+#include <list>
+#include <vector>
 
-using namespace std;
 /**
 	\brief A plotable area (polygon) with projection independance
 
@@ -69,9 +61,7 @@ private:
   static GLfloat nodeMarkRadius;
   static GLfloat nodeMarkMaxConstant;
   static double maxNodeSelectDistance;
-#ifndef NOLOG4CXX
-    log4cxx::LoggerPtr logger;
-#endif
+
 	//Selected area
 	ProjectablePolygon polygon;
 	//Displayed polygon
@@ -93,8 +83,8 @@ private:
 	// Display next point flag
 	bool showNextPoint;
 
-  list< ProjectablePolygon >  undobuffer;
-  list< ProjectablePolygon >  redobuffer;
+  std::list< ProjectablePolygon >  undobuffer;
+  std::list< ProjectablePolygon >  redobuffer;
 
 	bool selected;
 	AreaMode mode;
@@ -118,10 +108,10 @@ private:
 
 public:
 	GridArea();
-	GridArea(string id);
-	GridArea(string id, Projection org_proj);
-	GridArea(string id, ProjectablePolygon area);
-//	GridArea(string id, Projection originalProjection, Polygon area);
+	GridArea(std::string id);
+	GridArea(std::string id, Projection org_proj);
+	GridArea(std::string id, ProjectablePolygon area);
+//	GridArea(std::string id, Projection originalProjection, Polygon area);
 
   void setColour(Colour & fc);
   void setStyle(const DrawStyle & ds);
@@ -188,7 +178,7 @@ public:
 	///Forced update to current diana projection
 	void updateCurrentProjection();
   /// set the list of Points which are actually affected by the mask
-  void setActivePoints(list<Point>);
+  void setActivePoints(std::list<Point>);
   /// true if undo is possible (buffer not empty)
   bool isUndoPossible();
   /// Perform undo. Returns true if success

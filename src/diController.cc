@@ -33,9 +33,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.Controller"
-#include <miLogger/miLogging.h>
-
 #include <diController.h>
 #include <diManager.h>
 #include <diPlotModule.h>
@@ -60,16 +57,18 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-using namespace miutil;
+#define MILOGGER_CATEGORY "diana.Controller"
+#include <miLogger/miLogging.h>
 
-// Default constructor
+using namespace miutil;
+using namespace std;
+
 Controller::Controller()
   : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
     objm(0), editm(0), aream(0),editoverride(false)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Controller Constructor");
-#endif
+  METLIBS_LOG_SCOPE();
+
   // data managers
 #ifdef PROFET
   profetController=0;
@@ -91,8 +90,8 @@ Controller::Controller()
 //  profetController = new Profet::ProfetController(fieldm);
 }
 
-// Destructor
-Controller::~Controller(){
+Controller::~Controller()
+{
 #ifdef PROFET
   delete profetController;
 #endif
@@ -108,7 +107,7 @@ Controller::~Controller(){
 }
 
 // hack: indices for colorIndex mode set from gui
-void Controller::setColourIndices(vector<Colour::ColourInfo>& vc){
+void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
   int n= vc.size();
   for (int i=0; i<n; i++){
     Colour::setindex(vc[i].name,vc[i].rgb[0]);
@@ -120,9 +119,9 @@ void  Controller::restartFontManager()
   Plot::restartFontManager();
 }
 
-// parse setup
 bool Controller::parseSetup()
 {
+  METLIBS_LOG_SCOPE();
 
   Plot::initFontManager();
 
@@ -1172,4 +1171,3 @@ Manager *Controller::getManager(const std::string &name)
   else
     return 0;
 }
-

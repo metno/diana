@@ -34,6 +34,7 @@
 #endif
 
 #include "qtTimeControl.h"
+#include "qtUtility.h"
 
 #include <QSlider>
 #include <QPushButton>
@@ -46,10 +47,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "qtUtility.h"
-#include <iostream>
-
-
+using namespace std;
 
 TimeControl::TimeControl(QWidget* parent)
   : QDialog( parent) {
@@ -197,7 +195,6 @@ TimeControl::TimeControl(QWidget* parent)
 
   vector<miutil::miTime> t;
   setTimes( t );
-
 }
 
 void TimeControl::timeoffsetCheckBoxClicked() {

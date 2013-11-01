@@ -31,12 +31,6 @@
 #ifndef _diObjectManager_h
 #define _diObjectManager_h
 
-#include <vector>
-#include <map>
-#include <set>
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <diField/diArea.h>
 #include <diMapMode.h>
 #include <diWeatherObjects.h>
 #include <diEditObjects.h>
@@ -44,20 +38,23 @@
 #include <diAreaBorder.h>
 #include <diCommonTypes.h>
 #include <diUndoFront.h>
+
+#include <puTools/miTime.h>
+#include <diField/diArea.h>
 #include <diField/TimeFilter.h>
 
-using namespace std;
-
+#include <vector>
+#include <map>
+#include <set>
 
 class PlotModule;
 
-
-  /**
-     \brief list of object files
-  */
+/**
+   \brief list of object files
+*/
 struct ObjectList{
   std::string filename;         ///< filename prefix, to be appended with time
-  vector<ObjFileInfo> files; ///< filename and time
+  std::vector<ObjFileInfo> files; ///< filename and time
   bool updated;              ///< true if list updated
   bool archive;              ///< true if list should include archive
   TimeFilter filter;         ///< time filter to apply
@@ -67,11 +64,8 @@ struct ObjectList{
 
 
 /**
-
   \brief Manager for weather objects to be displayed or edited
-
 */
-
 class ObjectManager {
 private:
   PlotModule* plotm;
@@ -84,18 +78,17 @@ private:
   miutil::miTime ztime;
 
   // from diana.setup:
-  vector<std::string> objectNames;
-  map<std::string,ObjectList> objectFiles;
+  std::vector<std::string> objectNames;
+  std::map<std::string, ObjectList> objectFiles;
 
   UndoFront * undoTemp;
 
   mapMode mapmode;
 
-  std::string EditCommentName(const std::string region,
-			   const miutil::miTime& t);
+  std::string EditCommentName(const std::string region, const miutil::miTime& t);
 
   // list object files (for object dialog)
-  vector<ObjFileInfo> listFiles(ObjectList & ol);
+  std::vector<ObjFileInfo> listFiles(ObjectList & ol);
 
   bool autoJoinOn();
 
@@ -131,7 +124,7 @@ public:
   /// parse OBJECTS section of setup file
   bool parseSetup();
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<std::string> getObjectNames(bool archive);
+  std::vector<std::string> getObjectNames(bool archive);
   /// insert name and file into objectList
   bool insertObjectName(const std::string & name, const std::string & file );
   /// sets current weather symbol text
@@ -184,9 +177,9 @@ public:
   /// changes texts of marked complex text object
   void changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// get text list from complex weather symbol
-  set <std::string> getComplexList();
+  std::set <std::string> getComplexList();
   /// decode string with types of objects to plot
-  map <std::string,bool> decodeTypeString(std::string);
+  std::map <std::string,bool> decodeTypeString(std::string);
   /// prepare objects for displaying
   bool prepareObjects(const miutil::miTime& t,
 		      const Area& area,
@@ -319,33 +312,17 @@ public:
   /// get time from a file with name *.yyyymmddhh
   miutil::miTime timeFileName(std::string fileName);
   /// returns list of objectfiles for use in dialog
-  vector <ObjFileInfo> getObjectFiles(const std::string objectname,
-				      bool refresh);
+  std::vector <ObjFileInfo> getObjectFiles(const std::string objectname, bool refresh);
   /// returns list of times
-  vector<miutil::miTime> getObjectTimes(const std::vector<std::string>&pinfos);
-  vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
+  std::vector<miutil::miTime> getObjectTimes(const std::vector<std::string>&pinfos);
+  std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
 			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);
   /// returns plot options for object file with name objectname
   PlotOptions getPlotOptions(std::string objectName);
-
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -35,11 +35,7 @@
 #include <QWidget>
 
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
 #include <profet/fetObject.h>
-
-
-using namespace std;
 
 class ProfetSingleControl : public QFrame {
   Q_OBJECT

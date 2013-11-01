@@ -30,7 +30,6 @@
 #define AreaBorder_h
 
 #include <diObjectPlot.h>
-#include <puTools/miString.h>
 
 /**
   \brief Borders between areas when merging
@@ -71,7 +70,7 @@ public:
   bool isOnObject(float x, float y) {return showLine(x,y);}
   void increaseSize(float val);
   void setType(int ty){}
-  bool setType(miutil::miString tystring){type = 0; return true;}
+  bool setType(std::string tystring){type = 0; return true;}
   /// writes a string with Object and Type
   std::string writeTypeString();
 

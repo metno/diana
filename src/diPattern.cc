@@ -35,6 +35,8 @@
 
 #include <diPattern.h>
 
+using std::vector;
+
 std::map<std::string,Pattern::PatternInfo> Pattern::pmap;
 
 Pattern::Pattern(const std::string& name, const vector<std::string>& pattern)

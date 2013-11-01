@@ -31,37 +31,36 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofData"
-#include <miLogger/miLogging.h>
-
 #include "diVprofData.h"
 #include "diFtnVfile.h"
 
-#include <cmath>
+#include <puTools/miStringFunctions.h>
+
 #include <cstdio>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
+
+#define MILOGGER_CATEGORY "diana.VprofData"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;
 
-// Default constructor
 VprofData::VprofData(const std::string& filename, const std::string& modelname)
 : fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
   numPos(0), numTime(0), numParam(0), numLevel(0),
   dataBuffer(0)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ VprofData::Default Constructor");
+  METLIBS_LOG_SCOPE();
 #endif
 }
 
 
-// Destructor
-VprofData::~VprofData() {
+VprofData::~VprofData()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ VprofData::Destructor");
+  METLIBS_LOG_SCOPE();
 #endif
   if (dataBuffer)
     delete[] dataBuffer;
@@ -306,7 +305,7 @@ bool VprofData::readFile() {
         if (int(posTemp.size())==numPos) {
           for (int i=0; i<numPos; i++) {
             if (posTemp[i]>1000 && posTemp[i]<99000) {
-              ostringstream ostr;
+              std::ostringstream ostr;
               ostr << setw(5) << setfill('0') << posTemp[i];
               obsName.push_back(std::string(ostr.str()));
             } else if (posTemp[i]>=99000 && posTemp[i]<=99999) {

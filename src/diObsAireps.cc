@@ -42,7 +42,7 @@
 
 using namespace::miutil;
 
-ObsAireps::ObsAireps(const miString &file)
+ObsAireps::ObsAireps(const std::string &file)
 :aireps(file){
 }
 

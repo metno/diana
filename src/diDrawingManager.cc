@@ -33,24 +33,21 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.DrawingManager"
-#include <miLogger/miLogging.h>
-
 #include <diDrawingManager.h>
 #include <EditItems/edititembase.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
-#include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
+
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miDirtools.h>
 #include <puTools/miSetupParser.h>
 
-#include <iomanip>
-#include <set>
 #include <cmath>
+#include <iomanip>
+#include <fstream>
+#include <set>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -59,6 +56,10 @@
 #define PLOTM PlotModule::instance()
 
 //#define DEBUGPRINT
+#define MILOGGER_CATEGORY "diana.DrawingManager"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self = 0;

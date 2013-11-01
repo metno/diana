@@ -49,7 +49,7 @@ private:
 
 public:
   // Constructors
-  ObsDribu(const miutil::miString&);
+  ObsDribu(const std::string&);
 
   void init(ObsPlot*);
 };

@@ -34,9 +34,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.WeatherObjects"
-#include <miLogger/miLogging.h>
-
 #include <diWeatherObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
@@ -44,10 +41,16 @@
 #include <diWeatherArea.h>
 #include <diShapeObject.h>
 
+#include <puTools/miStringFunctions.h>
+
 #include <fstream>
 #include <iomanip>
 
+#define MILOGGER_CATEGORY "diana.WeatherObjects"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 //static
 miTime WeatherObjects::ztime = miTime(1970,1,1,0,0,0);

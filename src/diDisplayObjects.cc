@@ -33,30 +33,33 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.DisplayObjects"
-#include <miLogger/miLogging.h>
-
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
-//#define DEBUGPRINT
+
+#include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.DisplayObjects"
+#include <miLogger/miLogging.h>
 
 using namespace::miutil;
+using namespace std;
 
-DisplayObjects::DisplayObjects(){
+DisplayObjects::DisplayObjects()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::DisplayObjects\n");
+  METLIBS_LOG_SCOPE();
 #endif
-
- init();
+  
+  init();
 }
 
-
-void DisplayObjects::init(){
+void DisplayObjects::init()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::init");
+  METLIBS_LOG_SCOPE();
 #endif
   defined=false;
   approved=false;
@@ -75,7 +78,7 @@ void DisplayObjects::init(){
 bool DisplayObjects::define(const std::string& pi)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::define");
+  METLIBS_LOG_SCOPE();
 #endif
 
   init();
@@ -140,7 +143,6 @@ bool DisplayObjects::define(const std::string& pi)
 
 bool DisplayObjects::prepareObjects()
 {
-
   approved = false;
   if (!defined) return false;
 
@@ -183,7 +185,6 @@ bool DisplayObjects::prepareObjects()
 
   approved = true;
   return true;
-
 }
 
 
@@ -191,7 +192,7 @@ bool DisplayObjects::prepareObjects()
 
 void DisplayObjects::getObjAnnotation(string &str, Colour &col)
 {
-  if(approved ){
+  if (approved) {
     str = objectname + " " + itsTime.format("%D %H:%M");
     Colour c("black");
     col = c;
@@ -199,7 +200,6 @@ void DisplayObjects::getObjAnnotation(string &str, Colour &col)
   else
     str.erase();
 }
-
 
 
 bool DisplayObjects::getAnnotations(vector <string>& anno)
@@ -226,11 +226,8 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
       }
     }
   }
-
   return true;
-
 }
-
 
 
 /*********************************************/

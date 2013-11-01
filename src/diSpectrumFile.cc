@@ -33,20 +33,18 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <vector>
-#include <math.h>
-#define MILOGGER_CATEGORY "diana.SpectrumFile"
-#include <miLogger/miLogging.h>
-
 #include <diSpectrumFile.h>
 #include <diSpectrumPlot.h>
 #include <diFtnVfile.h>
 
-#include <math.h>
 #include <puCtools/stat.h>
+#include <puTools/miStringFunctions.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.SpectrumFile"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 // Default constructor
 SpectrumFile::SpectrumFile(const std::string& filename, const std::string& modelname)

@@ -31,21 +31,17 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
-#include <sys/types.h>
-
-#include <map>
-#include <set>
-
-#include <puCtools/stat.h>
-
 #include <diPlot.h>
 #include <diSat.h>
 #include <diSatPlot.h>
 #include <diCommonTypes.h>
+
+#include <puCtools/stat.h>
 #include <diField/TimeFilter.h>
 
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
+#include <map>
+#include <set>
+#include <vector>
 
 //#ifndef HDF5_INC
 //#define HDF5_INC
@@ -75,17 +71,17 @@ class SatManager {
 
 public:
     struct subProdInfo {
-    vector<std::string> pattern;
-    vector<bool> archive;
-    vector<TimeFilter> filter;
+    std::vector<std::string> pattern;
+    std::vector<bool> archive;
+    std::vector<TimeFilter> filter;
     std::string formattype; //holds mitiff or hdf5
     std::string metadata;
     std::string channelinfo;
     std::string paletteinfo;
     int hdf5type;
-    vector<SatFileInfo> file;
-    vector<std::string> channel;
-    vector<Colour> colours;
+    std::vector<SatFileInfo> file;
+    std::vector<std::string> channel;
+    std::vector<Colour> colours;
     // HK variable to tell whether this list has been updated since
     //last time we clicked "refresh"
     bool updated;
@@ -97,12 +93,12 @@ public:
   };
 
 private:
-  map<std::string, map<std::string,subProdInfo> > Prod;
+  std::map<std::string, std::map<std::string,subProdInfo> > Prod;
   SatDialogInfo Dialog;
-  map<std::string,std::string> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
+  std::map<std::string,std::string> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
 
   // needed for getFiles error return
-  const vector<SatFileInfo> emptyfile;
+  const std::vector<SatFileInfo> emptyfile;
   bool useArchive; //read archive files too.
 
 /************************************************************************/
@@ -119,13 +115,13 @@ private:
   void memberCopy(const SatManager& rhs);
   void getMosaicfiles();
   void addMosaicfiles();
-  vector<SatFileInfo> mosaicfiles;
+  std::vector<SatFileInfo> mosaicfiles;
 
   void cutImage(unsigned char*, float, int&, int&);
   void setRGB();
   void setPalette(SatFileInfo &);
   void listFiles(subProdInfo &subp);
-  bool readHeader(SatFileInfo &, vector<std::string> &);
+  bool readHeader(SatFileInfo &, std::vector<std::string> &);
 
   bool _isafile(const std::string name);
   unsigned long _modtime(const std::string fname);
@@ -148,23 +144,23 @@ public:
   // Constructors
   SatManager();
 
-  bool init(vector<SatPlot*>&, const std::vector<std::string>&);
+  bool init(std::vector<SatPlot*>&, const std::vector<std::string>&);
   bool setData(SatPlot *);
-  vector<miutil::miTime> getSatTimes(const std::vector<std::string>&, bool updateFileList=false, bool openFiles=false);
+  std::vector<miutil::miTime> getSatTimes(const std::vector<std::string>&, bool updateFileList=false, bool openFiles=false);
 
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miutil::miTime>& progTimes,
+  void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
 			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);
 
-  const vector<SatFileInfo> & getFiles(const std::string &,
+  const std::vector<SatFileInfo> & getFiles(const std::string &,
 				       const std::string &,
 				       bool =false);
-  const vector<Colour> & getColours(const std::string &,
+  const std::vector<Colour> & getColours(const std::string &,
 				       const std::string &);
 
-  const vector<std::string>& getChannels(const std::string &satellite,
+  const std::vector<std::string>& getChannels(const std::string &satellite,
 				      const std::string & file,
 				      int index=-1);
   bool isMosaic(const std::string &satellite, const std::string & file);
@@ -182,17 +178,17 @@ public:
 
   void archiveMode( bool on ){useArchive=on; updateFiles();}
 
-  vector <std::string> vUffdaClass;
-  vector <std::string> vUffdaClassTip;
+  std::vector <std::string> vUffdaClass;
+  std::vector <std::string> vUffdaClassTip;
   std::string uffdaMailAddress;
   bool uffdaEnabled;
 
   bool fileListChanged;
 
   // Radar echo mesure
-  map<float,float> radarecho;
+  std::map<float,float> radarecho;
 
-  map<std::string, map<std::string,subProdInfo> > getProductsInfo() const;
+  std::map<std::string, std::map<std::string,subProdInfo> > getProductsInfo() const;
 };
 
 #endif

@@ -33,34 +33,31 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <set>
-#include <math.h>
-#include <GL/gl.h>
-
 #include <shapefil.h>
 
-#define MILOGGER_CATEGORY "diana.Contouring"
-#include <miLogger/miLogging.h>
+#include <puTools/miStringFunctions.h>
 
 #include <diFontManager.h>
 #include <diPlotOptions.h>
 #include <diField/diArea.h>
-#if !defined(USE_PAINTGL)
-#include <glp/glpfile.h>
-#endif
 #include <diContouring.h>
 #include <diTesselation.h>
 #include <diImageGallery.h>
 #include <polyStipMasks.h>
 
-const int maxLines=1000000;
+#include <GL/gl.h>
+#include <cmath>
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include <set>
+
+#define MILOGGER_CATEGORY "diana.Contouring"
+#include <miLogger/miLogging.h>
 
 using namespace std; using namespace miutil;
 
+const int maxLines=1000000;
 
 bool contour(int nx, int ny, float z[], float xz[], float yz[],
     const int ipart[], int icxy, float cxy[], float xylim[],

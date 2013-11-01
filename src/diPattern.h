@@ -31,33 +31,25 @@
 #ifndef diPattern_h
 #define diPattern_h
 
-
-#include <puTools/miString.h>
-
 #include <map>
-
-using namespace std;
+#include <string>
+#include <vector>
 
 /**
-
   \brief Pattern type
 
   static list of defined sets of patterns, reachable by name
-
 */
-
 class Pattern {
 public:
 
   /// Pattern data as strings
   struct PatternInfo {
-    vector<std::string> pattern;
+    std::vector<std::string> pattern;
     std::string name;
   };
 
-
 private:
-
   typedef std::map<std::string,PatternInfo> pmap_t;
   static pmap_t pmap;
 
@@ -65,16 +57,15 @@ private:
   void memberCopy(const Pattern& rhs);
 
 public:
-  Pattern(const std::string& name, const vector<std::string>& pattern);
+  Pattern(const std::string& name, const std::vector<std::string>& pattern);
 
   // static functions for static pattern-map
   /// add a new PatternInfo
   static void addPatternInfo(const PatternInfo& pi);
   /// return patterns
-  static vector<std::string> getPatternInfo(const std::string& name);
+  static std::vector<std::string> getPatternInfo(const std::string& name);
   /// return all PatternInfos
-  static vector<PatternInfo> getAllPatternInfo();
-
+  static std::vector<PatternInfo> getAllPatternInfo();
 };
 
 #endif

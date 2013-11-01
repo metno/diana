@@ -33,6 +33,14 @@
 #include "config.h"
 #endif
 
+#include "qtUtility.h"
+#include "diSpectrumManager.h"
+#include "vcross_qt/qtVcrossSetup.h"
+#include "qtSpectrumSetupDialog.h"
+#include "diSpectrumOptions.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QPushButton>
 #include <QLabel>
 #include <QCheckBox>
@@ -41,12 +49,6 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>
-
-#include "qtUtility.h"
-#include "diSpectrumManager.h"
-#include "vcross_qt/qtVcrossSetup.h"
-#include "qtSpectrumSetupDialog.h"
-#include "diSpectrumOptions.h"
 
 #define MILOGGER_CATEGORY "diana.SpectrumSetupDialog"
 #include <miLogger/miLogging.h>

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,19 +29,14 @@
 #ifndef ObjectPlot_h
 #define ObjectPlot_h
 
-#include <vector>
-#include <deque>
-#include <iostream>
 #include <diPlot.h>
-#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diColour.h>
 #include <diObjectPoint.h>
 #include <diLinetype.h>
 
-using namespace std;
-
-
+#include <vector>
+#include <deque>
 
 enum objectType{Anything,wFront,wSymbol,wArea,wText,Border,RegionName,ShapeXXX};
 
@@ -102,13 +95,13 @@ private:
   void initVariables();
 
   //translate norwegian->english in old files
-  static map <std::string,std::string> editTranslations;
+  static std::map<std::string,std::string> editTranslations;
 
   // Copy members
   void memberCopy(const ObjectPlot &rhs);
 
   void drawTest();
-  void drawPoints(vector <float> xdraw, vector <float> ydraw);
+  void drawPoints(std::vector <float> xdraw, std::vector <float> ydraw);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
@@ -135,7 +128,7 @@ protected:
 
   Rectangle boundBox; // smallest boundingbox;
 
-  deque <ObjectPoint> nodePoints;
+  std::deque <ObjectPoint> nodePoints;
   void changeBoundBox(float x, float y);
   //fronts, areas..
   float *x,*y,*x_s,*y_s; // arrays for holding smooth line
@@ -283,16 +276,16 @@ public:
   float getFdeltaw(){return fSense*window_dw*w*0.5;}
 
   virtual int getXYZsize(){return nodePoints.size();}        ///< returns number of nodepoints
-  virtual vector<float> getX();                              ///< returns x-values for all nodepoints
-  virtual vector<float> getY();                              ///< returns y-valyes for all nodepoints
+  virtual std::vector<float> getX();                              ///< returns x-values for all nodepoints
+  virtual std::vector<float> getY();                              ///< returns y-valyes for all nodepoints
   virtual bool getAnnoTable(std::string & str){return false;}
-  vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints
-  vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints
-  vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints
-  vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints
-  vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
-  vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
-  virtual void setXY(vector<float> x,vector <float> y);      ///< sets x and y values for all nodepoints
+  std::vector<float> getXjoined();                                ///< returns x-values for all joined nodepoints
+  std::vector<float> getYjoined();                                ///< returns y-values for all joined nodepoints
+  std::vector<float> getXmarked();                                ///< returns x-values for all marked nodepoints
+  std::vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints
+  std::vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
+  std::vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
+  virtual void setXY(std::vector<float> x, std::vector <float> y);      ///< sets x and y values for all nodepoints
 
   virtual float getLineWidth(){return 0;}
   virtual void setLineWidth(float w){}

@@ -38,13 +38,15 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.VprofModelDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diVprofManager.h"
 #include "qtVprofModelDialog.h"
+
+#define MILOGGER_CATEGORY "diana.VprofModelDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 //#define HEIGHTLISTBOX 100
 

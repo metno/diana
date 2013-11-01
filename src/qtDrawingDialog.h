@@ -49,7 +49,7 @@ public slots:
   void toggleDrawingMode(bool);
   void updateDialog();
   std::vector<std::string> getOKString();
-  void putOKString(const vector<std::string>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
 
 private slots:
   void addItem(EditItemBase *item);

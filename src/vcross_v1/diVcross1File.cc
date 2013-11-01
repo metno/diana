@@ -38,6 +38,7 @@
 #include "diVcross1Plot.h"
 
 #include <puCtools/stat.h>
+#include <puTools/miStringFunctions.h>
 
 #include <cmath>
 #include <set>

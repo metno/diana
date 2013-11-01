@@ -34,18 +34,17 @@
 #endif
 
 #include <diAreaBorder.h>
+
+//#include <cmath>
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.AreaBorder"
 #include <miLogger/miLogging.h>
 
-#include <math.h>
-#include <puTools/miString.h>
-#include <sstream>
-
 using namespace::miutil;
 
-// Default constructor
-
-AreaBorder::AreaBorder() : ObjectPlot(){
+AreaBorder::AreaBorder() : ObjectPlot()
+{
   typeOfObject = Border;
   linewidth=2;    // default linewidth of border
   transitionwidth = 8;// default transitionwidth
@@ -56,9 +55,10 @@ AreaBorder::AreaBorder() : ObjectPlot(){
 #endif
 }
 
-AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs){
+AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("AreaBorder copy constructror");
+  METLIBS_LOG_SCOPE();
 #endif
   linewidth=rhs.linewidth;    // default linewidth of front
   transitionwidth=rhs.transitionwidth;  // default linewidth of transition area
@@ -66,12 +66,13 @@ AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs){
 
 }
 
-// Destructor
-AreaBorder::~AreaBorder(){
+AreaBorder::~AreaBorder()
+{
 }
 
 // draws the area border
-bool AreaBorder::plot(){
+bool AreaBorder::plot()
+{
   if (isVisible){
     int end = nodePoints.size();
     if (0<end){
@@ -166,9 +167,9 @@ void AreaBorder::increaseSize(float val)
 }
 
 
-string AreaBorder::writeTypeString()
+std::string AreaBorder::writeTypeString()
 {
-  string ret ="Object=Border;\n";
+  std::string ret ="Object=Border;\n";
   ret+="Type=AreaBorder";
   ret+=";\n";
   return ret;

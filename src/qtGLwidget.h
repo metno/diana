@@ -43,7 +43,7 @@
 #include <QKeyEvent>
 
 #include <vector>
-#include <puTools/miString.h>
+#include <string>
 #include <map>
 
 #include <diField/diArea.h>
@@ -54,8 +54,6 @@
 #include <GL/gl.h>
 #include "PaintGL/paintgl.h"
 #endif
-
-using namespace std;
 
 class Controller;
 #if defined(USE_PAINTGL)
@@ -86,8 +84,8 @@ public:
   ~GLwidget();
 
   /// save contents of widget as raster image
-  bool saveRasterImage(const miutil::miString fname,
-		       const miutil::miString format,
+  bool saveRasterImage(const std::string fname,
+		       const std::string format,
 		       const int quality = -1);
 
   /// toggles use of underlay
@@ -141,7 +139,7 @@ private:
   Controller* contr;       // gate to main system
   int plotw, ploth;        // size of widget (pixels)
   GLuint *fbuffer;         // fake overlay buffer
-  map<int,KeyType> keymap; // keymap's for keyboardevents
+  std::map<int,KeyType> keymap; // keymap's for keyboardevents
 };
 
 #endif

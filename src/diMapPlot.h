@@ -32,27 +32,23 @@
 #define diMapPlot_h
 
 #include <diPlot.h>
-#include <puTools/miString.h>
-#include <vector>
-#include <map>
-#include <set>
-#include <GL/gl.h>
 #include <diFilledMap.h>
 #include <diShapeObject.h>
 
-using namespace std;
+#include <GL/gl.h>
+
+#include <vector>
+#include <map>
+#include <set>
 
 /**
-
  \brief Map layer plotting
 
  plots the map layer
  - simple coastlines plotting
  - filled land type (precalculated triangles)
  - lat/lon lines
-
  */
-
 class MapPlot : public Plot {
 private:
   /// Lat/Lon Value Annotation with position on map
@@ -75,12 +71,12 @@ private:
   bool isactive[3]; // active data for zorder
   bool usedrawlists; // use OpenGL drawlists
   GLuint drawlist[3]; // openGL drawlists
-  vector<ValueAnno> value_annotations;
+  std::vector<ValueAnno> value_annotations;
 
-  static map<std::string,FilledMap> filledmaps;
-  static set<std::string> usedFilledmaps;
-  static map<std::string,ShapeObject> shapemaps;
-  static map<std::string,Area> shapeareas;
+  static std::map<std::string,FilledMap> filledmaps;
+  static std::set<std::string> usedFilledmaps;
+  static std::map<std::string,ShapeObject> shapemaps;
+  static std::map<std::string,Area> shapeareas;
 
   /**
   * remove large jumps in a set of lines. Calls xyclip

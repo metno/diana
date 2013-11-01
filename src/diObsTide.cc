@@ -39,7 +39,7 @@
 
 using namespace std; using namespace miutil; 
 
-ObsTide::ObsTide(const miString &file)
+ObsTide::ObsTide(const std::string &file)
 :tide(file){
 }
 

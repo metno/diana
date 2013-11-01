@@ -31,14 +31,11 @@
 #ifndef VPROFOPTIONS_H
 #define VPROFOPTIONS_H
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
-
-using namespace std;
 
 /**
    \brief Options/settings/defaults for the Vertical Profile diagram
-
 */
 class VprofOptions
 {
@@ -48,7 +45,7 @@ public:
   void setDefaults();
   void checkValues();
   // read/write setup and log
-  std::vector<string> writeOptions();
+  std::vector<std::string> writeOptions();
   void readOptions(const std::vector<std::string>& vstr);
 
 //...........protected:
@@ -69,9 +66,9 @@ private:
   bool pkindex;   // Kindex
   bool pslwind;   // numbers at significant wind levels
 
-  vector<std::string> dataColour;
-  vector<float>    dataLinewidth;
-  vector<float>    windLinewidth;
+  std::vector<std::string> dataColour;
+  std::vector<float>    dataLinewidth;
+  std::vector<float>    windLinewidth;
 
   bool  windseparate; // separate wind columns when multiple data
   float rvwind;       // range of vertical wind in unit hPa/s (-range to +range)
@@ -99,9 +96,9 @@ private:
 
   bool pplines;   // pressure lines
   bool pplinesfl; // false=at pressure levels  true=at flight levels
-  vector<float> plevels; // pressure
-  vector<int>    flightlevels; // flight levels
-  vector<float> pflightlevels; // pressure at flight levels
+  std::vector<float> plevels; // pressure
+  std::vector<int>    flightlevels; // flight levels
+  std::vector<float> pflightlevels; // pressure at flight levels
   std::string      pColour;
   std::string      pLinetype;
   float         pLinewidth1; // thin lines
@@ -135,7 +132,7 @@ private:
   float    mixingratioLinewidth;
   int      mixingratioPmin;
   int      mixingratioTmin;
-  vector< vector<float> > qtable;
+  std::vector< std::vector<float> > qtable;
 
   bool plabelp; // p labels (numbers)
   bool plabelt; // t labels (numbers)

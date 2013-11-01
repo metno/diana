@@ -68,7 +68,7 @@ QString TimeSpinbox::textFromValue( int value ) const
   miutil::miTime time= ref;
   if (!time.undef()){
     time.addSec(value);
-    miutil::miString s= time.isoTime();
+    std::string s= time.isoTime();
     if (!with_sec) s= s.substr(0,16);
    return QString(s.c_str());
   } else {
@@ -78,7 +78,7 @@ QString TimeSpinbox::textFromValue( int value ) const
 
 int TimeSpinbox::valueFromText( const QString& text ) const 
 {
-  miutil::miString s= text.toStdString();
+  std::string s= text.toStdString();
   if (!with_sec) s+= ":00";
   if (!miutil::miTime::isValid(s)){
     return 0;

@@ -33,16 +33,18 @@
 #include "config.h"
 #endif
 
+#include <diWeatherSymbol.h>
+#include <diFontManager.h>
+#include <diColour.h>
+
+#include <puTools/miStringFunctions.h>
+
+//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.WeatherSymbol"
 #include <miLogger/miLogging.h>
 
-#include <diWeatherSymbol.h>
-#include <diFontManager.h>
-#include <sstream>
-#include <diColour.h>
-#include <math.h>
-//#define DEBUGPRINT
 using namespace::miutil;
+using namespace std;
 
 //static variables
 vector<editToolInfo> WeatherSymbol::allSymbols;

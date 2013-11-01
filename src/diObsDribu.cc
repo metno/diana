@@ -40,7 +40,7 @@
 using namespace std;
 using namespace miutil;
 
-ObsDribu::ObsDribu(const miString &file)
+ObsDribu::ObsDribu(const std::string &file)
 :dribu(file){
 }
 

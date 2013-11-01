@@ -31,6 +31,18 @@
 #include "config.h"
 #endif
 
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "qtSpectrumWindow.h"
+#include "diStationPlot.h"
+#include "qtSpectrumWidget.h"
+#include "qtSpectrumModelDialog.h"
+#include "qtSpectrumSetupDialog.h"
+#include "diSpectrumManager.h"
+#include "qtPrintManager.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
@@ -47,18 +59,10 @@
 #define MILOGGER_CATEGORY "diana.SpectrumWindow"
 #include <miLogger/miLogging.h>
 
-#include "qtToggleButton.h"
-#include "qtUtility.h"
-#include "qtSpectrumWindow.h"
-#include "diStationPlot.h"
-#include "qtSpectrumWidget.h"
-#include "qtSpectrumModelDialog.h"
-#include "qtSpectrumSetupDialog.h"
-#include "diSpectrumManager.h"
-#include "qtPrintManager.h"
 #include "forover.xpm"
 #include "bakover.xpm"
 
+using namespace std;
 
 SpectrumWindow::SpectrumWindow()
 : QMainWindow( 0)

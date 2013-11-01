@@ -36,13 +36,8 @@
 #include <deque>
 #include <diLinetype.h>
 
-using namespace std;
-
-
-
 /**
    \brief plots positions used for distance and velocity measurements
-
 */
 class MeasurementsPlot : public Plot {
 
@@ -51,10 +46,10 @@ private:
   Colour colour;
   int lineWidth;
   Linetype lineType;
-  vector<float> x;
-  vector<float> y;
-  vector<float> lat;
-  vector<float> lon;
+  std::vector<float> x;
+  std::vector<float> y;
+  std::vector<float> lat;
+  std::vector<float> lon;
   Area oldArea;
 
 public:

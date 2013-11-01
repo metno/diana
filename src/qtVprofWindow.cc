@@ -31,6 +31,18 @@
 #include "config.h"
 #endif
 
+#include "qtVprofWindow.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "diStationPlot.h"
+#include "qtVprofWidget.h"
+#include "qtVprofModelDialog.h"
+#include "qtVprofSetupDialog.h"
+#include "diVprofManager.h"
+#include "qtPrintManager.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
@@ -44,26 +56,17 @@
 #include <QPrinter>
 #include <QPixmap>
 
-#define MILOGGER_CATEGORY "diana.VprofWindow"
-#include <miLogger/miLogging.h>
-
-#include "qtVprofWindow.h"
-#include "qtToggleButton.h"
-#include "qtUtility.h"
-#include "diStationPlot.h"
-#include "qtVprofWidget.h"
-#include "qtVprofModelDialog.h"
-#include "qtVprofSetupDialog.h"
-#include "diVprofManager.h"
-#include "qtPrintManager.h"
 #include "forover.xpm"
 #include "bakover.xpm"
 
+#define MILOGGER_CATEGORY "diana.VprofWindow"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 VprofWindow::VprofWindow(Controller *co)
 : QMainWindow( 0)
 {
-
   vprofm = new VprofManager(co);
 
   setWindowTitle( tr("Diana Vertical Profiles") );

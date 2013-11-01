@@ -31,25 +31,26 @@
 #ifndef diObsManager_h
 #define diObsManager_h
 
+#include <diCommonTypes.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
+
 #include <diField/TimeFilter.h>
-#include <diCommonTypes.h>
-#include <puTools/miString.h>
+
+#include <string>
 #include <set>
+#include <vector>
 
 class ObsData;
 struct ObsDialogInfo;
 
 /**
-
   \brief Managing observations
   
   - parse setup
   - send plot info strings to ObsPlot objects
   - managing file/time info
   - read data
-
 */
 class ObsManager {
 
@@ -115,7 +116,7 @@ private:
   std::map<std::string, ProdInfo> Prod;
   std::map<std::string, ObsMetaData*> metaDataMap;
   ObsDialogInfo dialog;
-  vector<ObsDialogInfo::PriorityList> priority;
+  std::vector<ObsDialogInfo::PriorityList> priority;
   //one  criterialist pr plot type
   std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
@@ -156,7 +157,7 @@ private:
 		  const std::vector<std::string>& parameter, 
 		  const std::string& name,
 		  const std::vector<ObsDialogInfo::Button>& b);
-  void getFileName(vector<FileInfo>& finfo,
+  void getFileName(std::vector<FileInfo>& finfo,
 		   miutil::miTime& , std::string dataType, ObsPlot*);
   bool updateTimesfromFile(std::string obsType);
   bool updateTimes(std::string obsType);
@@ -182,7 +183,7 @@ public:
 //return observation times for list of PlotInfo's
   std::vector<miutil::miTime> getTimes(std::vector<std::string> pinfos);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
 			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);

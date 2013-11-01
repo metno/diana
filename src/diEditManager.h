@@ -31,22 +31,20 @@
 #ifndef _diEditManager_h
 #define _diEditManager_h
 
-#include <vector>
-#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
-#include <diField/diGridConverter.h>
 #include <diObjectManager.h>
 #include <diFieldEdit.h>
 #include <diEditSpec.h>
 
+#include <diField/diGridConverter.h>
+
+#include <vector>
+
 #ifdef METNOPRODDB
 #include <diSQL/diProductionGate.h>
 #endif
-
-using namespace std;
-
 
 class PlotModule;
 class ObjectManager;
@@ -57,25 +55,21 @@ class QKeyEvent;
 class QMouseEvent;
 
 /**
-
   \brief Manager for editing fields and objects
-
-
 */
-
 class EditManager {
 private:
   PlotModule* plotm;
   ObjectManager* objm;
   FieldPlotManager* fieldPlotManager;
 
-  vector<FieldEdit*> fedits;
+  std::vector<FieldEdit*> fedits;
 
-  vector<EditProduct> editproducts; //all edit products
+  std::vector<EditProduct> editproducts; //all edit products
   EditProduct EdProd; //production currently in use
   EditProductId EdProdId; //production id info
 
-  vector<mapModeInfo> mapmodeinfo;
+  std::vector<mapModeInfo> mapmodeinfo;
   mapMode mapmode;
   int editmode; // edit mode index
   int edittool; // edit tools index
@@ -95,16 +89,16 @@ private:
   double gridResolutionX;
   double gridResolutionY;
   int *combinematrix;
-  vector< vector<FieldEdit*> > combinefields;
-  vector<EditObjects> combineobjects;
+  std::vector< std::vector<FieldEdit*> > combinefields;
+  std::vector<EditObjects> combineobjects;
   int numregs;
-  vector<std::string> regnames;
+  std::vector<std::string> regnames;
   bool hiddenObjects;
   bool hiddenCombining;
   bool hiddenCombineObjects;
   int  showRegion;
 
-  vector<savedProduct> combineprods; // list of available product elements
+  std::vector<savedProduct> combineprods; // list of available product elements
 
   std::string editFileName(const std::string directory,
                         const std::string region,
@@ -120,11 +114,11 @@ private:
   ProductionGate gate; //database gate
 #endif
 
-  void findSavedProducts(vector<savedProduct>& prods,
+  void findSavedProducts(std::vector<savedProduct>& prods,
 			 const std::string fileString,
 			 dataSource dsource, int element);
 
-  vector<std::string> findAcceptedCombine(int ibegin, int iend,
+  std::vector<std::string> findAcceptedCombine(int ibegin, int iend,
 				       const EditProduct& ep,
 				       const EditProductId& ei);
 
@@ -137,13 +131,13 @@ private:
   void setMapmodeinfo();
 
   // fedit_mode types
-  vector<editToolInfo> eToolFieldStandard;
-  vector<editToolInfo> eToolFieldClasses;
-  vector<editToolInfo> eToolFieldNumbers;
-  vector<editToolInfo> fronts;
-  vector<editToolInfo> symbols;
-  vector<editToolInfo> areas;
-  vector<editToolInfo> sigsymbols;
+  std::vector<editToolInfo> eToolFieldStandard;
+  std::vector<editToolInfo> eToolFieldClasses;
+  std::vector<editToolInfo> eToolFieldNumbers;
+  std::vector<editToolInfo> fronts;
+  std::vector<editToolInfo> symbols;
+  std::vector<editToolInfo> areas;
+  std::vector<editToolInfo> sigsymbols;
 
 public:
   EditManager(PlotModule*, ObjectManager*, FieldPlotManager*);
@@ -154,19 +148,19 @@ public:
   /// reads the command file with OKstrings to be executed when we start an edit session
   void readCommandFile(EditProduct& ep);
   /// return names of existing fields valid for editing
-  vector<std::string> getValidEditFields(const EditProduct& ep,
+  std::vector<std::string> getValidEditFields(const EditProduct& ep,
 				      const int element);
   /// get list of saved products matching pname (and pid)
-  vector<savedProduct> getSavedProducts(const EditProduct& ep,
+  std::vector<savedProduct> getSavedProducts(const EditProduct& ep,
 					int element);
   /// get list of saved products matching pname (and pid)
-  vector<savedProduct> getSavedProducts(const EditProduct& ep,
+  std::vector<savedProduct> getSavedProducts(const EditProduct& ep,
 					std::string fieldname);
-  /// returns miutil::miTime vector of combined products from EditProduct and EditProductId
-  vector<miutil::miTime> getCombineProducts(const EditProduct& ep,
+  /// returns miutil::miTime std::vector of combined products from EditProduct and EditProductId
+  std::vector<miutil::miTime> getCombineProducts(const EditProduct& ep,
   				    const EditProductId & ei);
-  /// returns std::string vector of combined Ids from time,EditProduct and EditProductId
-  vector <std::string> getCombineIds(const miutil::miTime & valid,
+  /// returns std::string std::vector of combined Ids from time,EditProduct and EditProductId
+  std::vector <std::string> getCombineIds(const miutil::miTime & valid,
 				  const EditProduct& ep,
 				  const EditProductId& ei);
   ///find product from name
@@ -186,7 +180,7 @@ public:
   /// returns the current product name
   std::string getProductName();
   /// save edited annotations in EditObjects
-  void saveProductLabels(vector <std::string> labels);
+  void saveProductLabels(std::vector <std::string> labels);
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
@@ -197,7 +191,7 @@ public:
   bool startCombineEdit(const EditProduct& ep,
 			const EditProductId& ei,
 			const miutil::miTime& valid,
-			vector<std::string>& pids);
+			std::vector<std::string>& pids);
   /// stop editing combine product
   void stopCombine();
   /// combine products (when borders or data sources change)
@@ -224,7 +218,7 @@ public:
   /// returns current EditDialogInfo
   EditDialogInfo getEditDialogInfo();
   /// set plotting parameters for EditFields from inp
-  void prepareEditFields(const std::string& plotName, const vector<std::string>& inp);
+  void prepareEditFields(const std::string& plotName, const std::vector<std::string>& inp);
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
@@ -246,7 +240,7 @@ public:
   bool checkProductAvailability(const std::string&,const std::string&,
 				const miutil::miTime&,std::string&);
   /// returns EditProducts defined in setup file
-  vector<EditProduct> getEditProducts();
+  std::vector<EditProduct> getEditProducts();
   /// returns a string with product id, name, time and object types
   std::string savedProductString(savedProduct sp);
   /// get fieldEdit annotations
@@ -266,8 +260,8 @@ editToolInfo newEditToolInfo(const std::string & newName,
 			     const std::string& newLinetype ="solid",
 			     const std::string& newFilltype="");
 editModeInfo newEditModeInfo(const std::string & newmode,
-			     const vector <editToolInfo> newtools);
+			     const std::vector <editToolInfo> newtools);
 mapModeInfo newMapModeInfo(const std::string & newmode,
-			   const vector <editModeInfo> newmodeinfo);
+			   const std::vector <editModeInfo> newmodeinfo);
 
 #endif

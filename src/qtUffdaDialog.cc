@@ -33,6 +33,10 @@
 #include "config.h"
 #endif
 
+#include "qtUtility.h"
+#include "qtUffdaDialog.h"
+#include "diStationPlot.h"
+
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
@@ -42,12 +46,11 @@
 #include <QVBoxLayout>
 
 #include <fstream>
+
 #define MILOGGER_CATEGORY "diana.UffdaDialog"
 #include <miLogger/miLogging.h>
 
-#include "qtUtility.h"
-#include "qtUffdaDialog.h"
-#include "diStationPlot.h"
+using namespace std;
 
 /***************************************************************************/
 

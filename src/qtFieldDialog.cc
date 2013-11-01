@@ -51,21 +51,20 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 
-#define MILOGGER_CATEGORY "diana.FieldDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtFieldDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diController.h"
+
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
 
-#include <iostream>
-#include <math.h>
+#define MILOGGER_CATEGORY "diana.FieldDialog"
+#include <miLogger/miLogging.h>
 
 #include "up12x12.xpm"
 #include "down12x12.xpm"
@@ -73,13 +72,12 @@
 
 //#define DEBUGPRINT
 
+using namespace std;
 
-FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl) :
-QDialog(parent)
+FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
+  : QDialog(parent)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::FieldDialog called");
-
+  METLIBS_LOG_SCOPE();
 
   m_ctrl = lctrl;
 

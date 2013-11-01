@@ -49,12 +49,16 @@
 #include <iomanip>
 #include <sstream>
 
+#define MILOGGER_CATEGORY "diana.MeasurementsDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
 {
 #ifdef DEBUGPRINT
-  cout<<"MeasurementsDialog::MeasurementsDialog called"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
 
   //caption to appear on top of dialog
@@ -281,12 +285,12 @@ double MeasurementsDialog::DistanceInMeters(double lat1, double lon1, double lat
     return EARTH_RADIUS_IN_METERS*ArcInRadians(lat1, lon1, lat2, lon2);
 }
 
-void MeasurementsDialog::calculateVelocity() {
+void MeasurementsDialog::calculateVelocity()
+{
   //this slot is called when start calc. button pressed
 #ifdef DEBUGPRINT
-  cout<<"TrajectoryDialog::startCalcButtonClicked"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
-
 
   speedbox1->clear();
   speedbox2->clear();
@@ -317,18 +321,14 @@ void MeasurementsDialog::calculateVelocity() {
     speedbox3->setText(speedresult3);
     distancebox->setText(distanceresult);
   }
-
   emit updateMeasurements();
-
-
-
 }
 
 
 /*********************************************/
 
-void MeasurementsDialog::quitClicked(){
-
+void MeasurementsDialog::quitClicked()
+{
   vector<string> vstr;
   vstr.push_back("quit");
   contr->measurementsPos(vstr);
@@ -337,7 +337,8 @@ void MeasurementsDialog::quitClicked(){
 }
 /*********************************************/
 
-void MeasurementsDialog::helpClicked(){
+void MeasurementsDialog::helpClicked()
+{
 //  emit showsource("ug_messurements.html");
 }
 
@@ -345,10 +346,10 @@ void MeasurementsDialog::helpClicked(){
 
 /*********************************************/
 
-
-void MeasurementsDialog::mapPos(float lat, float lon) {
+void MeasurementsDialog::mapPos(float lat, float lon)
+{
 #ifdef DEBUGPRINT
-  cout<<"MeasurementsDialog::mapPos"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
 
   //Put this position in vector of positions
@@ -384,16 +385,15 @@ void MeasurementsDialog::mapPos(float lat, float lon) {
   contr->measurementsPos(vstr);
 
   emit updateMeasurements();
-
-
 }
 
 /*********************************************/
 
-void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index) {
+void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index)
+{
 
 #ifdef DEBUGPRINT
-  cout<<"MeasurementsDialog::update_posList"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
 
   int latdeg, latmin, londeg, lonmin;
@@ -442,14 +442,14 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
 
       break;
   }
-
 }
 
 /*********************************************/
 
-void MeasurementsDialog::sendAllPositions(){
+void MeasurementsDialog::sendAllPositions()
+{
 #ifdef DEBUGPRINT
-  cout<<"MeasurementsDialog::sendAllPositions"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
 
   vector<string> vstr;
@@ -468,9 +468,10 @@ void MeasurementsDialog::sendAllPositions(){
 }
 
 
-void MeasurementsDialog::showplus(){
+void MeasurementsDialog::showplus()
+{
 #ifdef DEBUGPRINT
-  cout<<"MeasurementsDialog::showplus"<<endl;
+  METLIBS_LOG_SCOPE();
 #endif
   this->show();
 
@@ -511,7 +512,3 @@ void MeasurementsDialog::focusChanged( QWidget * old, QWidget * now )
         p = p->parentWidget();
     }
 }
-
-
-
-

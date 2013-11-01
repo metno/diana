@@ -31,17 +31,11 @@
 #ifndef _qtTimeSpinbox_h
 #define _qtTimeSpinbox_h
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <QSpinBox>
 
-using namespace std; 
-
 /**
-
   \brief Gui spinbox for setting time
-   
-
 */
 class TimeSpinbox : public QSpinBox {
   Q_OBJECT
@@ -61,7 +55,6 @@ protected:
 
   QString textFromValue(int) const; 
   int valueFromText(const QString& text) const;
-
 };
 
 #endif

@@ -36,7 +36,7 @@
 #include "diVprofDiagram.h"
 #include "diVprofData.h"
 #include "diVprofPlot.h"
-#include <puTools/miString.h>
+
 #include <map>
 
 #if !defined(USE_PAINTGL)
@@ -47,8 +47,6 @@
 #define QGLWidget PaintGLWidget
 #endif
 #include <QKeyEvent>
-
-using namespace std;
 
 class VprofManager;
 

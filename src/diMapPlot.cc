@@ -33,23 +33,22 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <diMapManager.h>
 #include <diMapPlot.h>
-#include <iostream>
-#include <stdio.h>
+
+#include <diMapManager.h>
 #include <diFontManager.h>
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <cfloat>
+#include <fstream>
+
+//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.MapPlot"
 #include <miLogger/miLogging.h>
 
-
-#include <float.h>
-#include <math.h>
-#include <values.h>
-//#define DEBUGPRINT
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 // static members
 map<std::string,FilledMap> MapPlot::filledmaps;

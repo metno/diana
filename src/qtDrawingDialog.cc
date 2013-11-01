@@ -135,7 +135,7 @@ std::vector<std::string> DrawingDialog::getOKString()
   METLIBS_LOG_DEBUG("DrawingDialog::getOKString");
 }
 
-void DrawingDialog::putOKString(const vector<std::string>& vstr)
+void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_DEBUG("DrawingDialog::putOKString");
 }

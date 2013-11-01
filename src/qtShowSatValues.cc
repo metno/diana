@@ -35,21 +35,21 @@
 
 #include "qtShowSatValues.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <QLabel>
 #include <QComboBox>
 #include <QToolTip>
 #include <QHBoxLayout>
 #include <QFrame>
 
-#include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include <string>
 
 ShowSatValues::ShowSatValues(QWidget* parent)
-  : QWidget(parent) {
-
-  // Create horisontal lay1out manager
+  : QWidget(parent)
+{
   QHBoxLayout* thlayout = new QHBoxLayout( this);
   thlayout->setMargin(1);
   thlayout->setSpacing(5);
@@ -64,19 +64,18 @@ ShowSatValues::ShowSatValues(QWidget* parent)
   chlabel->setMinimumSize(chlabel->sizeHint());
   chlabel->setText("    ");
   thlayout->addWidget(chlabel,0);
-
 }
 
 void ShowSatValues::channelChanged(int index)
 {
   if( index < int(tooltip.size()) && index > -1 ){
-    string tip = tooltip[index];
+    std::string tip = tooltip[index];
     miutil::replace(tip, '|',' ');
     channelbox->setToolTip(QString::fromStdString(tip));
   }
 }
 
-void ShowSatValues::SetChannels(const vector<string>& channel)
+void ShowSatValues::SetChannels(const std::vector<std::string>& channel)
 {
   int nch = channel.size();
 
@@ -94,7 +93,7 @@ void ShowSatValues::SetChannels(const vector<string>& channel)
   channelbox->clear();
   for(int i=0;i<nch;i++){
     //    cerr <<"channel:"<<i<<"  "<<channel[i]<<endl;
-    vector<string> token = miutil::split(channel[i], 0, "|");
+    std::vector<std::string> token = miutil::split(channel[i], 0, "|");
     if(token.size()==2){
       channelbox->addItem(QString::fromStdString(token[1]));
       //if no currentItem, use channel"4"
@@ -115,10 +114,12 @@ void ShowSatValues::SetChannels(const vector<string>& channel)
 
 }
 
-void ShowSatValues::ShowValues(const vector<SatValues> &satval)
+void ShowSatValues::ShowValues(const std::vector<SatValues> &satval)
 {
-  if(!channelbox->count()) return;
-  ostringstream svalue;
+  if (not channelbox->count())
+    return;
+
+  std::ostringstream svalue;
   int n = satval.size();
   int i=0;
 //   cerr <<"ShowValues:"<<n<<endl;
@@ -134,29 +135,13 @@ void ShowSatValues::ShowValues(const vector<SatValues> &satval)
    if (miutil::contains(satval[i].channel, "Infrared")
        || miutil::contains(satval[i].channel, "IR_CAL")
        || miutil::contains(satval[i].channel, "TEMP"))
-     svalue << setprecision(1) << setiosflags(ios::fixed)<< satval[i].value <<"°C";
+     svalue << std::setprecision(1) << std::setiosflags(std::ios::fixed)<< satval[i].value <<"°C";
    else
-     svalue << setprecision(2) << setiosflags(ios::fixed)<< satval[i].value;
+     svalue << std::setprecision(2) << std::setiosflags(std::ios::fixed)<< satval[i].value;
    //check values
 //    cerr <<"satval[i].value:"<<satval[i].value<<endl;
    if (satval[i].value < -999)
      chlabel->setText(satval[i].text.c_str());
    else
      chlabel->setText(svalue.str().c_str());
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

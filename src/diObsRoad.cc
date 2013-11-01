@@ -62,7 +62,7 @@ using namespace road;
 using namespace miutil;
 using namespace std;
 
-ObsRoad::ObsRoad(const miString &filename, const miString &databasefile, const miString &stationfile, const miString &headerfile,
+ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, const std::string &stationfile, const std::string &headerfile,
 		   const miTime &filetime, ObsPlot *oplot, bool breadData)
 {
 #ifdef DEBUGPRINT
@@ -85,15 +85,15 @@ void ObsRoad::readHeader(ObsPlot *oplot)
   METLIBS_LOG_DEBUG("++ ObsRoad::readHeader( headerfile: " << headerfile_ << " ) ++");
 #endif
   int n,i;
-  vector<miString> vstr,pstr;
-  miString str;
+  vector<std::string> vstr,pstr;
+  std::string str;
   if (!oplot->roadobsHeader) {
 	int theresult = diParam::initParameters(headerfile_);
     if (theresult)
 	{
 		// take a local copy
 		vector<diParam> * params = NULL;
-		map<miString, vector<diParam> * >::iterator itp = diParam::params_map.find(headerfile_);
+		map<std::string, vector<diParam> * >::iterator itp = diParam::params_map.find(headerfile_);
 		if (itp != diParam::params_map.end())
 		{
 			params = itp->second;
@@ -146,8 +146,8 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 		// the data valu parameters
 		for (i = 0; i < params->size(); i++)
 		{
-			miString name = (*params)[i].diananame();
-			name.trim();
+			std::string name = (*params)[i].diananame();
+miutil::trim(			name);
 			oplot->roadobsColumnName.push_back(name);
 			oplot->roadobsColumnType.push_back("r");
 			oplot->roadobsColumnTooltip.push_back((*params)[i].unit());
@@ -181,39 +181,39 @@ void ObsRoad::readHeader(ObsPlot *oplot)
 			oplot->roadobsColumn["min"] = i;
 		else if (oplot->roadobsColumnType[i]=="sec")
 			oplot->roadobsColumn["sec"] = i;
-		else if (oplot->roadobsColumnType[i].downcase()=="lon")
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lon")
 			oplot->roadobsColumn["x"]= i;
-		else if (oplot->roadobsColumnType[i].downcase()=="lat")
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lat")
 			oplot->roadobsColumn["y"]= i;
-		else if (oplot->roadobsColumnType[i].downcase()=="dd")
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="dd")
 			oplot->roadobsColumn["dd"]= i;
-		else if (oplot->roadobsColumnType[i].downcase()=="ff")    //Wind speed in m/s
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ff")    //Wind speed in m/s
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->roadobsColumnType[i].downcase()=="ffk")   //Wind speed in knots
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk")   //Wind speed in knots
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->roadobsColumnType[i].downcase()=="image")
+		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="image")
 			oplot->roadobsColumn["image"]= i;
-		else if (oplot->roadobsColumnName[i].downcase()=="lon" &&  //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lon" &&  //Obsolete
 				oplot->roadobsColumnType[i]=="r")                
 			oplot->roadobsColumn["x"]= i;                           
-		else if (oplot->roadobsColumnName[i].downcase()=="lat" &&  //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lat" &&  //Obsolete
 				oplot->roadobsColumnType[i]=="r")                
 			oplot->roadobsColumn["y"]= i;                           
-		else if (oplot->roadobsColumnName[i].downcase()=="dd" &&   //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="dd" &&   //Obsolete
 				oplot->roadobsColumnType[i]=="r")                 
 			oplot->roadobsColumn["dd"]= i;
-		else if (oplot->roadobsColumnName[i].downcase()=="ff" &&    //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ff" &&    //Obsolete
 				oplot->roadobsColumnType[i]=="r")
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->roadobsColumnName[i].downcase()=="ffk" &&    //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ffk" &&    //Obsolete
 				oplot->roadobsColumnType[i]=="r")
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->roadobsColumnName[i].downcase()=="image" && //Obsolete
+		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="image" && //Obsolete
 				oplot->roadobsColumnType[i]=="s")
 			oplot->roadobsColumn["image"]= i;
 
-		if (oplot->roadobsColumnType[i].downcase()=="ffk" ||
-			oplot->roadobsColumnName[i].downcase()=="ffk") 
+		if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk" ||
+			oplot->miutil::to_lower(roadobsColumnName[i])=="ffk") 
 			oplot->roadobsKnots=true;  
 
 		}
@@ -253,7 +253,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 
-  vector<miString> vstr,pstr;
+  vector<std::string> vstr,pstr;
 // HERE COMES THE TRICKY PART!
 // First, we must init the oplot...  
   // init the metadata in oplot
@@ -275,7 +275,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
   bool isoDate (allTime && oplot->roadobsColumn.count("date"));
 
   bool first=true, addstr=false, cutstr=false;
-  miString taddstr, tstr, timestr;
+  std::string taddstr, tstr, timestr;
   miTime obstime;
 
   miDate filedate= filetime_.date();
@@ -289,29 +289,29 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
    
 
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, filetime_); 
-  map<miString, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
+  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end())
   {
 	  oplot->stationlist = its->second;
   }
-  //vector<miString> lines;
-  map<int, miString> lines;
+  //vector<std::string> lines;
+  map<int, std::string> lines;
   road.initData(oplot->roadobsColumnName, lines);
 
   int nskip= oplot->roadobsSkipDataLines;
   int nline= 0;
 
-  miString str;
+  std::string str;
   int stnid;
   int i;
-  map<int, miString>::iterator it=lines.begin();	
+  map<int, std::string>::iterator it=lines.begin();	
   for(;it!=lines.end(); it++) {
 	stnid = it->first;
 	str = it->second;
-	str.trim();
+miutil::trim(	str);
     nline++;
-    if (nline>nskip && str.exists() && str[0]!='#') {
-      pstr= str.split('"','"');
+    if (nline>nskip && (not str.empty()) && str[0]!='#') {
+      pstr= miutil::split(str, '"','"');
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {
@@ -326,7 +326,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 	    tstr= pstr[oplot->roadobsColumn["time"]];
 	    if (first) {
 	      // allowed time formats: HH HH:MM HH:MM:SS HH:MM:SSxxx...
-	      vector<miString> tv= tstr.split(':');
+	      vector<std::string> tv= miutil::split(tstr, 0, ":");
 	      if (tv.size()==1) {
 		addstr= true;
 		taddstr= ":00:00";
@@ -378,7 +378,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 //#################################################################
 	  if (oplot->getTimeDiff() <0 
 		  || abs(miTime::minDiff(obstime,tplot))<tdiff){
-			  map<int, vector<miString> >::iterator itc = oplot->roadobsp.find(stnid);
+			  map<int, vector<std::string> >::iterator itc = oplot->roadobsp.find(stnid);
 			  if (itc != oplot->roadobsp.end())
 			  {
 				  // replace the old one
@@ -395,7 +395,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 	  }
 
 	} else {
-		map<int, vector<miString> >::iterator itc = oplot->roadobsp.find(stnid);
+		map<int, vector<std::string> >::iterator itc = oplot->roadobsp.find(stnid);
 		if (itc != oplot->roadobsp.end())
 		{
 			// replace the old one
@@ -488,7 +488,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 	METLIBS_LOG_DEBUG("++ ObsRoad::readRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 
-  vector<miString> vstr,pstr;
+  vector<std::string> vstr,pstr;
 // HERE COMES THE TRICKY PART!
 // First, we must init the oplot...  
   // init the metadata in oplot
@@ -510,7 +510,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   bool isoDate (allTime && oplot->roadobsColumn.count("date"));
 
   bool first=true, addstr=false, cutstr=false;
-  miString taddstr, tstr, timestr;
+  std::string taddstr, tstr, timestr;
   miTime obstime;
 
   miDate filedate= filetime_.date();
@@ -524,7 +524,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
    
 
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, filetime_); 
-  map<miString, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
+  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end())
   {
 	  oplot->stationlist = its->second;
@@ -532,8 +532,8 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   
   road.open();
   
-  //vector<miString> lines;
-  map<int, miString> lines;
+  //vector<std::string> lines;
+  map<int, std::string> lines;
   // Members in the global stationlist that is not in the stations_to_plot list are not read from road
   // This should improve performance
   road.getData(oplot->stations_to_plot, lines);
@@ -541,19 +541,19 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   int nskip= oplot->roadobsSkipDataLines;
   int nline= 0;
 
-  miString str;
+  std::string str;
   int stnid;
   int i;
-  map<int, miString>::iterator it=lines.begin();	
+  map<int, std::string>::iterator it=lines.begin();	
   for(;it!=lines.end(); it++) {
 	stnid = it->first;
 	str = it->second;
-	str.trim();
+miutil::trim(	str);
 	//METLIBS_LOG_DEBUG(str);
 
     nline++;
-    if (nline>nskip && str.exists() && str[0]!='#') {
-      pstr= str.split('"','"');
+    if (nline>nskip && (not str.empty()) && str[0]!='#') {
+      pstr= miutil::split(str, '"','"');
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {
@@ -568,7 +568,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 	    tstr= pstr[oplot->roadobsColumn["time"]];
 	    if (first) {
 	      // allowed time formats: HH HH:MM HH:MM:SS HH:MM:SSxxx...
-	      vector<miString> tv= tstr.split(':');
+	      vector<std::string> tv= miutil::split(tstr, 0, ":");
 	      if (tv.size()==1) {
 		addstr= true;
 		taddstr= ":00:00";
@@ -620,7 +620,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 //#################################################################
 	  if (oplot->getTimeDiff() <0 
 		  || abs(miTime::minDiff(obstime,tplot))<tdiff){
-			  map<int, vector<miString> >::iterator itc = oplot->roadobsp.find(stnid);
+			  map<int, vector<std::string> >::iterator itc = oplot->roadobsp.find(stnid);
 			  if (itc != oplot->roadobsp.end())
 			  {
 				  // replace the old one
@@ -637,7 +637,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 	  }
 
 	} else {
-		map<int, vector<miString> >::iterator itc = oplot->roadobsp.find(stnid);
+		map<int, vector<std::string> >::iterator itc = oplot->roadobsp.find(stnid);
 		if (itc != oplot->roadobsp.end())
 		{
 			// replace the old one
@@ -683,7 +683,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 #endif
 }
 
-void ObsRoad::readFile(const miString &filename, const miString &headerfile,
+void ObsRoad::readFile(const std::string &filename, const std::string &headerfile,
 			const miTime &filetime, ObsPlot *oplot, bool readData)
 {
 
@@ -695,8 +695,8 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 //      <<"   filetime= "<<filetime);
 //####################################################################
   int n,i;
-  vector<miString> vstr,pstr;
-  miString str;
+  vector<std::string> vstr,pstr;
+  std::string str;
 
   // open filestream
   ifstream file;
@@ -726,14 +726,14 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
     size_t p;
 
     while (getline(file,str)) {
-      str.trim();
-      if (str.exists()) {
+      miutil::trim(str);
+      if ((not str.empty())) {
         p= str.find('#');
         if (p==string::npos) {
           if (str=="[DATA]") break;  // end of header, start data
 	  vstr.push_back(str);
         } else if (p>0) {
-          pstr= str.split("#");
+          pstr= miutil::split(str, "#");
           if (pstr[0]=="[DATA]") break;  // end of header, start data
 	  vstr.push_back(pstr[0]);
         }
@@ -773,17 +773,17 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 
     // parse header
 
-//     const miString key_name=      "NAME";
-//     const miString key_mainTime=  "MAINTIME";
-//     const miString key_startTime= "STARTTIME";
-//     const miString key_endTime=   "ENDTIME";
-    const miString key_columns=   "COLUMNS";
-//     const miString key_hide=      "HIDE";
-    const miString key_undefined= "UNDEFINED";
-    const miString key_skiplines= "SKIP_DATA_LINES";
-    const miString key_label=     "LABEL";
-  //const miString key_plot=      "PLOT";
-  //const miString key_format=    "FORMAT";
+//     const std::string key_name=      "NAME";
+//     const std::string key_mainTime=  "MAINTIME";
+//     const std::string key_startTime= "STARTTIME";
+//     const std::string key_endTime=   "ENDTIME";
+    const std::string key_columns=   "COLUMNS";
+//     const std::string key_hide=      "HIDE";
+    const std::string key_undefined= "UNDEFINED";
+    const std::string key_skiplines= "SKIP_DATA_LINES";
+    const std::string key_label=     "LABEL";
+  //const std::string key_plot=      "PLOT";
+  //const std::string key_format=    "FORMAT";
 
     bool ok= true;
     n= vstr.size();
@@ -812,18 +812,18 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 	  break;
         }
         str= str.substr(p1+1,p2-p1-1);
-        pstr= str.split('"','"'," ",true);
+        pstr= miutil::split(str, '"','"'," ",true);
         int j,m= pstr.size();
 
         if (m>1) {
 	    if (pstr[0]==key_columns) {
-	    vector<miString> vs;
+	    vector<std::string> vs;
             for (j=1; j<m; j++) {
-	      pstr[j].remove('"');
-	      vs= pstr[j].split(':');
+	      miutil::remove(pstr[j], '"');
+	      vs= miutil::split(pstr[j], 0, ":");
 	      if (vs.size()>1) {
 	        oplot->roadobsColumnName.push_back(vs[0]);
-	        oplot->roadobsColumnType.push_back(vs[1].downcase());
+	        oplot->roadobsColumnType.push_back(miutil::to_lower(vs[1]));
 		if (vs.size()>2) {
 		  oplot->roadobsColumnTooltip.push_back(vs[2]);
 		}else{
@@ -835,7 +835,7 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 //             for (j=1; j<m; j++)
 // 	      oplot->roadobsColumnHide.push_back(pstr[j]);
 	  } else if (pstr[0]==key_undefined && m>1) {
-	    vector<miString> vs= pstr[1].split(',');
+	    vector<std::string> vs= miutil::split(pstr[1], 0, ",");
 	    int nu= vs.size();
 	    // sort with longest undefined strings first
 	    vector<int> len;
@@ -908,39 +908,39 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
         oplot->roadobsColumn["min"] = i;
       else if (oplot->roadobsColumnType[i]=="sec")
         oplot->roadobsColumn["sec"] = i;
-      else if (oplot->roadobsColumnType[i].downcase()=="lon")
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lon")
         oplot->roadobsColumn["x"]= i;
-      else if (oplot->roadobsColumnType[i].downcase()=="lat")
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lat")
         oplot->roadobsColumn["y"]= i;
-      else if (oplot->roadobsColumnType[i].downcase()=="dd")
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="dd")
         oplot->roadobsColumn["dd"]= i;
-      else if (oplot->roadobsColumnType[i].downcase()=="ff")    //Wind speed in m/s
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ff")    //Wind speed in m/s
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->roadobsColumnType[i].downcase()=="ffk")   //Wind speed in knots
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk")   //Wind speed in knots
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->roadobsColumnType[i].downcase()=="image")
+      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="image")
         oplot->roadobsColumn["image"]= i;
-      else if (oplot->roadobsColumnName[i].downcase()=="lon" &&  //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lon" &&  //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                
         oplot->roadobsColumn["x"]= i;                           
-      else if (oplot->roadobsColumnName[i].downcase()=="lat" &&  //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lat" &&  //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                
         oplot->roadobsColumn["y"]= i;                           
-      else if (oplot->roadobsColumnName[i].downcase()=="dd" &&   //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="dd" &&   //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                 
         oplot->roadobsColumn["dd"]= i;
-      else if (oplot->roadobsColumnName[i].downcase()=="ff" &&    //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ff" &&    //Obsolete
 	       oplot->roadobsColumnType[i]=="r")
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->roadobsColumnName[i].downcase()=="ffk" &&    //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ffk" &&    //Obsolete
 	       oplot->roadobsColumnType[i]=="r")
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->roadobsColumnName[i].downcase()=="image" && //Obsolete
+      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="image" && //Obsolete
 	       oplot->roadobsColumnType[i]=="s")
         oplot->roadobsColumn["image"]= i;
 
-      if (oplot->roadobsColumnType[i].downcase()=="ffk" ||
-	  oplot->roadobsColumnName[i].downcase()=="ffk") 
+      if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk" ||
+	  oplot->miutil::to_lower(roadobsColumnName[i])=="ffk") 
 	oplot->roadobsKnots=true;  
 
     }
@@ -969,7 +969,7 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
     if(!useLabel) //if there are labels, the header must be read each time
       oplot->roadobsHeader = true;
 
-    if (headerfile.exists()) {
+    if ((not headerfile.empty())) {
       file.close();
       file.open(filename.c_str());
       if (file.bad()) {
@@ -1003,7 +1003,7 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
   bool isoDate (allTime && oplot->roadobsColumn.count("date"));
 
   bool first=true, addstr=false, cutstr=false;
-  miString taddstr, tstr, timestr;
+  std::string taddstr, tstr, timestr;
   miTime obstime;
 
   miDate filedate= filetime.date();
@@ -1012,10 +1012,10 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
   int nline= 0;
 
   while (getline(file,str)) {
-    str.trim();
+    miutil::trim(str);
     nline++;
-    if (nline>nskip && str.exists() && str[0]!='#') {
-      pstr= str.split('"','"');
+    if (nline>nskip && (not str.empty()) && str[0]!='#') {
+      pstr= miutil::split(str, '"','"');
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {
@@ -1030,7 +1030,7 @@ void ObsRoad::readFile(const miString &filename, const miString &headerfile,
 	    tstr= pstr[oplot->roadobsColumn["time"]];
 	    if (first) {
 	      // allowed time formats: HH HH:MM HH:MM:SS HH:MM:SSxxx...
-	      vector<miString> tv= tstr.split(':');
+	      vector<std::string> tv= miutil::split(tstr, 0, ":");
 	      if (tv.size()==1) {
 		addstr= true;
 		taddstr= ":00:00";

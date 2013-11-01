@@ -50,14 +50,11 @@
 #endif
 
 #include <puTools/miCommandLine.h>
-#include <puTools/miString.h>
 #include <puTools/miSetupParser.h>
 #include <iostream>
 
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
-#define MILOGGER_CATEGORY "diana.in_gui"
-#include <miLogger/miLogging.h>
 
 
 #ifdef PROFET
@@ -67,7 +64,11 @@
 #include <diBuild.h>
 #include <config.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.main_gui"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 
 void printUsage(){
@@ -235,9 +236,9 @@ int main(int argc, char **argv)
 
     log.infoStream() << "SYSTEM LANGUAGE: " << lang.c_str();
 
-    miString qtlang   = "qt_" +lang;
-    miString dilang   = "diana_"+lang;
-    miString qulang   = "qUtilities_"+lang;
+    string qtlang   = "qt_" +lang;
+    string dilang   = "diana_"+lang;
+    string qulang   = "qUtilities_"+lang;
 
     // translation files for application strings
     vector<string> langpaths = LocalSetupParser::languagePaths();

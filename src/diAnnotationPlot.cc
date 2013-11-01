@@ -33,19 +33,21 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.AnnotationPlot"
-#include <miLogger/miLogging.h>
-
 #include <diAnnotationPlot.h>
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
-#include <iostream>
 #include <GL/gl.h>
 
-#include <math.h>
+#include <puTools/miStringFunctions.h>
 
-using namespace std; using namespace miutil;
+#include <cmath>
+
+#define MILOGGER_CATEGORY "diana.AnnotationPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 // Default constructor
 AnnotationPlot::AnnotationPlot() :

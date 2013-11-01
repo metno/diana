@@ -38,21 +38,15 @@
 
 #include "qtAddtoDialog.h"
 
+#include "diController.h"
+#include "diObjectManager.h"
+
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QString>
-
-#include <fstream>
-#include <puTools/miString.h>
-#include <iostream>
-#include "diController.h"
-#include "diObjectManager.h"
-
-
-
 
 /*********************************************/
 AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
@@ -107,23 +101,23 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
 }
 
 
-miutil::miString AddtoDialog::getName(){
+std::string AddtoDialog::getName()
+{
   return name->text().toStdString();
 }
 
 
-miutil::miString AddtoDialog::getFile(){
+std::string AddtoDialog::getFile()
+{
   return file->text().toStdString();
 }
 
 
-void AddtoDialog::putName(const miutil::miString & namestring){
+void AddtoDialog::putName(const std::string & namestring){
   name->setText(namestring.c_str());
 }
 
 
-void AddtoDialog::putFile(const miutil::miString & filestring){
+void AddtoDialog::putFile(const std::string & filestring){
   file->setText(filestring.c_str());
 }
-
-

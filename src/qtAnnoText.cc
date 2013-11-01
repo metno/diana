@@ -35,25 +35,25 @@
 
 #include "qtAnnoText.h"
 
+#include "qtToggleButton.h"
+#include "diController.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QLabel>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QKeyEvent>
-
-#include <puTools/miString.h>
 #include <qstring.h>
-#include "qtToggleButton.h"
-#include <iostream>
-#include "diController.h"
+
 #include <set>
 #include <fstream>
 
-
 /*********************************************/
 AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
-    vector<string>& symbolText, vector<string>& xText)
+    std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -128,7 +128,7 @@ AnnoText::~AnnoText(){
 }
 
 
-void AnnoText::getAnnoText(vector<string>& symbolText, vector<string>& xText)
+void AnnoText::getAnnoText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 {
   symbolText.clear();
   int ns=vSymbolEdit.size();

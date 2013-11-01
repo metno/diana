@@ -31,25 +31,21 @@
 #ifndef MEASUREMENTSDIALOG_H
 #define MEASUREMENTSDIALOG_H
 
+#include "diController.h"
+
 #include <QDialog>
 #include <QObject>
 
-#include <puTools/miString.h>
 #include <vector>
-#include "diController.h"
-
-using namespace std;
 
 class QPushButton;
 class QLabel;
 class QCheckBox;
 
 /**
-
   \brief Dialogue for speed and distance calculation
    
    -select coords in  different timeslots and calculate speed
-
 */
 class MeasurementsDialog: public QDialog
 {
@@ -105,7 +101,7 @@ private:
     double lat,lon;
     miutil::miTime time;
   };
-  vector<posStruct> positionVector;
+  std::vector<posStruct> positionVector;
 
   //functions
   std::string makeString();

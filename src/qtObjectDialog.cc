@@ -31,6 +31,14 @@
 #include "config.h"
 #endif
 
+#include "qtToggleButton.h"
+#include "qtObjectDialog.h"
+#include "qtEditComment.h"
+#include "diObjectManager.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
@@ -44,16 +52,12 @@
 #include <QButtonGroup>
 #include <QGroupBox>
 
+#include <iomanip>
+
 #define MILOGGER_CATEGORY "diana.ObjectDialog"
 #include <miLogger/miLogging.h>
 
-#include "qtToggleButton.h"
-#include "qtObjectDialog.h"
-#include "qtEditComment.h"
-#include "diObjectManager.h"
-#include "qtUtility.h"
-
-#include <iomanip>
+using namespace std;
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )

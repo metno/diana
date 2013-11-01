@@ -31,22 +31,17 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-
 #include <diPlot.h>
-#include <puTools/miString.h>
+#include <GL/gl.h>
 #include <vector>
 #include <map>
-#include <GL/gl.h>
-
-using namespace std; 
 
 /**
    \brief image cache and OpenGl plotting
 
-   the image gallery is a cache of images used in Diana. Inherits Plot, so is also the plotting engine for generic images
-
+   the image gallery is a cache of images used in Diana. Inherits
+   Plot, so is also the plotting engine for generic images
 */
-
 class ImageGallery : public Plot {
 public:
   /// type of image
@@ -59,8 +54,8 @@ public:
   struct Line {
     int width;
     bool fill;
-    vector<float>x;
-    vector<float>y;
+    std::vector<float>x;
+    std::vector<float>y;
   };
 
   /// Image data (binary)
@@ -72,7 +67,7 @@ public:
     int width;
     int height;
     unsigned char* data;
-    vector<Line> line;
+    std::vector<Line> line;
     int type;
     bool read_error;
     image();
@@ -92,9 +87,9 @@ public:
   };
 
 private:
-  static map<std::string,image> Images;
-  static map<std::string,pattern> Patterns;
-  static map< int, vector<std::string> > Type;
+  static std::map<std::string,image> Images;
+  static std::map<std::string,pattern> Patterns;
+  static std::map< int, std::vector<std::string> > Type;
 
   bool plotImage_(const std::string name,         // OpenGL-plotting
 		  const float& gx, const float& gy,
@@ -151,7 +146,7 @@ public:
 		 const int alpha = 255);
   /// plot several images at gl-positions (different images)
   bool plotImages(const int n,
-		  const vector<std::string>& vn,
+		  const std::vector<std::string>& vn,
 		  const float* x, const float* y,
 		  const bool center = true,
 		  const float scale = 1.0,
@@ -171,7 +166,7 @@ public:
 			const int alpha = 255);
   void printInfo() const;
   /// return all image-names of one type 
-  void ImageNames(vector<std::string>& vnames, int type) const; 
+  void ImageNames(std::vector<std::string>& vnames, int type) const; 
   /// return filename
   std::string getFilename(const std::string& name, bool pattern=false);
   /// return binary pattern by name
@@ -181,4 +176,3 @@ public:
 };
 
 #endif
-

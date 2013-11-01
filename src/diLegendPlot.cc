@@ -35,24 +35,26 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.LegendPlot"
-#include <miLogger/miLogging.h>
-
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
-#include <iostream>
-#include <math.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <cmath>
 #include <polyStipMasks.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.LegendPlot"
+#include <miLogger/miLogging.h>
 
-// Default constructor
+using namespace std;
+using namespace miutil;
+
 LegendPlot::LegendPlot()
 : Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
 #endif
   showplot = true;
   x1title = 0;
@@ -61,7 +63,6 @@ LegendPlot::LegendPlot()
   y2title= 0;
   xRatio = 0.01;
   yRatio = 0.01;
-
 }
 
 
@@ -69,7 +70,7 @@ LegendPlot::LegendPlot(const std::string& str)
 : Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
 #endif
 
   showplot = true;
@@ -114,35 +115,35 @@ void LegendPlot::setData(const std::string& title,
     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::setdata");
+  METLIBS_LOG_SCOPE();
 #endif
 
   // fill the table with colours and textstrings from palette information
   titlestring = title;
   colourcodes = colourcode;
-
 }
 
 // Copy constructor
-LegendPlot::LegendPlot(const LegendPlot &rhs){
+LegendPlot::LegendPlot(const LegendPlot &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Copy constructor");
+  METLIBS_LOG_SCOPE();
 #endif
   // elementwise copy
   memberCopy(rhs);
 }
 
-// Destructor
-LegendPlot::~LegendPlot(){
+LegendPlot::~LegendPlot()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Destructor");
+  METLIBS_LOG_SCOPE();
 #endif
 }
 
-// Assignment operator
-LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
+LegendPlot& LegendPlot::operator=(const LegendPlot &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Assignment operator");
+  METLIBS_LOG_SCOPE();
 #endif
   if (this == &rhs) return *this;
 
@@ -152,17 +153,18 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
   return *this;
 }
 
-// Equality operator
-bool LegendPlot::operator==(const LegendPlot &rhs) const{
+bool LegendPlot::operator==(const LegendPlot &rhs) const
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Equality operator");
+  METLIBS_LOG_SCOPE();
 #endif
   return false;
 }
 
-void LegendPlot::memberCopy(const LegendPlot& rhs){
+void LegendPlot::memberCopy(const LegendPlot& rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::MemberCopy");
+  METLIBS_LOG_SCOPE();
 #endif
   // copy members
   titlestring= rhs.titlestring;
@@ -179,7 +181,6 @@ void LegendPlot::memberCopy(const LegendPlot& rhs){
 
 void LegendPlot::getStringSize(std::string str, float& width, float& height)
 {
-
   //Bugfix
   //The postscript size of "-" are underestimated
   if (hardcopy){
@@ -202,7 +203,7 @@ void LegendPlot::getStringSize(std::string str, float& width, float& height)
 bool LegendPlot::plot(float x, float y)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::plot");
+  METLIBS_LOG_SCOPE();
 #endif
   // fill the table with colours and textstrings from palette information
 

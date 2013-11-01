@@ -35,29 +35,19 @@
 #include <diObsPlot.h>
 
 /**
-
   \brief Reading met.no obs files (aireps)
   
    using the robs library 
-
 */
 class ObsAireps : public aireps {
-
 private:
-
   void putData(int,ObsData &);
   float knots2ms(int ff) {return (float(ff)*1852.0/3600.0);}
 
 public:
-  // Constructors
-  ObsAireps(const miutil::miString&);
+  ObsAireps(const std::string&);
 
-  void init(ObsPlot *, vector<int>&);
-
+  void init(ObsPlot *, std::vector<int>&);
 };
 
 #endif
-
-
-
-

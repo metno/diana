@@ -31,6 +31,13 @@
 #include "config.h"
 #endif
 
+#include "qtObsDialog.h"
+#include "qtObsWidget.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QApplication>
 #include <QComboBox>
 #include <QLabel>
@@ -49,15 +56,10 @@
 #include <QVBoxLayout>
 #include <QButtonGroup>
 
-#include "qtObsDialog.h"
-#include "qtObsWidget.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-
 #include <qpushbutton.h>
 #include <math.h>
 
-
+using namespace std;
 
 ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent)
@@ -165,7 +167,6 @@ ObsDialog::ObsDialog( QWidget* parent, Controller* llctrl )
 
 void ObsDialog::updateDialog()
 {
-
   //save selections
   vector<string> vstr = getOKString();
 
@@ -1160,5 +1161,4 @@ void ObsDialog::numberList( QComboBox* cBox, float number ){
   }
   cBox->setCurrentIndex(nenormal/2-1);
   cBox->setEnabled(true);
-
 }

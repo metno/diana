@@ -32,7 +32,6 @@
 #define diLegendPlot_h
 
 #include <diPlot.h>
-#include <puTools/miString.h>
 
 /**
   \brief Plots a legend with colour and text

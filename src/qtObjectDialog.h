@@ -31,11 +31,9 @@
 #ifndef _objectDialog_h
 #define _objectDialog_h
 
-#include <QDialog>
-
-#include <vector>
-#include <puTools/miString.h>
 #include <diController.h>
+#include <QDialog>
+#include <vector>
 
 class PushButton;
 class QListWidget;
@@ -94,7 +92,7 @@ public:
     std::string file,time;
     int totalminutes;
     float alphanr;
-    map <std::string,bool> useobject;    
+    std::map <std::string,bool> useobject;    
     std::string external;
   };
   
@@ -111,12 +109,12 @@ private:
   float m_alphanr;
 
   bool useArchive;
-  vector<std::string> objectnames;
+  std::vector<std::string> objectnames;
 
   //Emitted to TimeSlider 
-  vector<miutil::miTime> times;  
+  std::vector<miutil::miTime> times;  
   //list of object files currently selected
-  vector <ObjFileInfo> files;
+  std::vector <ObjFileInfo> files;
   //LB: current variables (only used for external)
   PlotVariables plotVariables;
 

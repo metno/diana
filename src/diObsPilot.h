@@ -35,11 +35,9 @@
 #include <diObsPlot.h>
 
 /**
-
   \brief Reading met.no obs files (pilot)
   
    using the robs library 
-
 */
 class ObsPilot : public pilot {
 
@@ -50,15 +48,10 @@ private:
 
 public:
   // Constructors
-  ObsPilot(const miutil::miString&);
+  ObsPilot(const std::string&);
   virtual ~ObsPilot() {}
 
-  void init(ObsPlot *, vector<int>&);
-
+  void init(ObsPlot *, std::vector<int>&);
 };
 
 #endif
-
-
-
-

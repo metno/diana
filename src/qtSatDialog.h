@@ -31,14 +31,11 @@
 #ifndef _satdialog_h
 #define _satdialog_h
 
+#include <diController.h>
 #include <QDialog>
 
-#include <puTools/miString.h>
 #include <vector>
 #include <map>
-#include <diController.h>
-
-using namespace std;
 
 class QSlider;
 class ToggleButton;
@@ -50,12 +47,8 @@ class QListWidgetItem;
 class QLCDNumber;
 class SatDialogAdvanced;
 
-
 /**
-
   \brief Dialogue for plotting satellite and radar pictures 
-   
-
 */
 class SatDialog: public QDialog
 {
@@ -64,10 +57,7 @@ public:
 
 
 /**
-
   \brief struct state describing selected picture
-   
-
 */  
   struct state{
     std::string OKString;
@@ -109,9 +99,9 @@ protected:
 
 private:
 
-  map< std::string,map< std::string,std::string > > satoptions;
-  vector<state> m_state; //pictures to plot
-  vector<miutil::miTime> times;    //emitted to TimeSlider 
+  std::map< std::string, std::map< std::string,std::string > > satoptions;
+  std::vector<state> m_state; //pictures to plot
+  std::vector<miutil::miTime> times;    //emitted to TimeSlider 
   static miutil::miTime ztime;
 
 
@@ -168,7 +158,7 @@ private:
  
   std::string m_channelstr;
   miutil::miTime m_time;  
-  vector<SatFileInfo> files;
+  std::vector<SatFileInfo> files;
   
   float m_scalediff;
 

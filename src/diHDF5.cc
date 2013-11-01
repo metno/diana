@@ -121,12 +121,12 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
     file.time = ginfo.time;
   file.opened = true;
 
-  miString ch=ginfo.channel;
-  file.channel=ch.split(" ");
+  std::string ch=ginfo.channel;
+  file.channel=miutil::split(ch, " ");
   return true;
 }
 
-bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
+bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
 {
 
   //Read HDF5-file using libsatimgh5, HDF5_read_diana returns the images
@@ -223,7 +223,7 @@ bool HDF5::readHDF5(const miString& filename, Sat& sd, int index)
 }
 
 /*
- bool HDF5::day_night(const miString& filename, miString& channels)
+ bool HDF5::day_night(const std::string& filename, std::string& channels)
  {
 
 

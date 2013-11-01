@@ -53,7 +53,7 @@ private:
 
 public:
   // Constructors
-  ObsSynop(const miutil::miString&);
+  ObsSynop(const std::string&);
 
   void init(ObsPlot*);
 

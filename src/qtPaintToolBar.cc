@@ -34,10 +34,11 @@
 #endif
 
 #include "qtPaintToolBar.h"
+
 #include <qpixmap.h>
 #include <qkeysequence.h>
 #include <QActionGroup>
-#include <puTools/miString.h>
+
 #include "paint_select.xpm"
 #include "paint_move.xpm"
 #include "paint_spatial.xpm"

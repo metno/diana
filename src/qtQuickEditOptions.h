@@ -31,14 +31,11 @@
 #ifndef _qtQuickEditOptions_h
 #define _qtQuickEditOptions_h
 
-
 #include <QDialog>
 
 #include <vector>
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
-
-using namespace std; 
 
 class QLabel;
 class QPushButton;
@@ -50,13 +47,11 @@ class QListWidgetItem;
    \brief Administrate option lists for quick menues
    
    Dialogue for creating option lists for use in quick menues
-
 */
-
 class QuickEditOptions : public QDialog {
   Q_OBJECT
 private:
-  vector<quickMenuOption> options;
+  std::vector<quickMenuOption> options;
   QListWidget* list;
   QLineEdit* choices;
   QPushButton* upButton;
@@ -69,9 +64,9 @@ private:
   void updateList();
 
 public:
-  QuickEditOptions(QWidget*,vector<quickMenuOption>& opt);
+  QuickEditOptions(QWidget*, std::vector<quickMenuOption>& opt);
 
-  vector<quickMenuOption> getOptions();
+  std::vector<quickMenuOption> getOptions();
 
   signals:
   void help(const char* );  ///< activate help
@@ -89,7 +84,3 @@ private slots:
 };
 
 #endif
-
-
-
-

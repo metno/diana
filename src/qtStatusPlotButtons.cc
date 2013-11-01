@@ -231,7 +231,7 @@ void StatusPlotButtons::reset()
 }
 
 
-void StatusPlotButtons::setPlotElements(const vector<PlotElement>& vpe)
+void StatusPlotButtons::setPlotElements(const std::vector<PlotElement>& vpe)
 {
   oktoemit= false;
 
@@ -250,11 +250,9 @@ void StatusPlotButtons::setPlotElements(const vector<PlotElement>& vpe)
   }
   numbuttons= n;
   oktoemit= true;
-
 }
 
 void StatusPlotButtons::enabled(PlotElement pe)
 {
   emit toggleElement(pe);
 }
-

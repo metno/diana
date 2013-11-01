@@ -33,31 +33,25 @@
 #include "config.h"
 #endif
 
+#include <diVprofOptions.h>
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.VprofOptions"
 #include <miLogger/miLogging.h>
 
-#include <diVprofOptions.h>
-#include <iostream>
-
-using namespace::miutil;
-
-// default constructor
 VprofOptions::VprofOptions()
 {
   setDefaults();
 }
 
-
-// destructor
 VprofOptions::~VprofOptions()
 {
 }
 
-
 void VprofOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofOptions::setDefaults");
+  METLIBS_LOG_SCOPE();
 #endif
 
   ptttt=    true;   // t
@@ -164,7 +158,7 @@ void VprofOptions::setDefaults()
   float q3[nq3]= { .1,.2,.4,.6,.8,1.,1.5,2.,2.5,3.,4.,5.,6.,7.,8.,9.,
       10.,12.,14.,16.,18.,20.,25.,30.,35.,40.,45.,50. };
   qtable.clear();
-  vector<float> q;
+  std::vector<float> q;
   q.clear();
   for (int i=0; i<nq0; i++) q.push_back(q0[i]);
   qtable.push_back(q);
@@ -258,13 +252,13 @@ void VprofOptions::checkValues()
 }
 
 
-vector<string> VprofOptions::writeOptions()
+std::vector<std::string> VprofOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofOptions::writeOptions");
 #endif
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   std::string str;
 
   str= "tttt=" + std::string(ptttt ? "on" : "off");
@@ -428,13 +422,13 @@ vector<string> VprofOptions::writeOptions()
 }
 
 
-void VprofOptions::readOptions(const vector<string>& vstr)
+void VprofOptions::readOptions(const std::vector<std::string>& vstr)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofOptions::readOptions");
+  METLIBS_LOG_SCOPE();
 #endif
 
-  vector<string> vs,tokens;
+  std::vector<std::string> vs,tokens;
   std::string key,value;
 
   int n= vstr.size();
@@ -566,7 +560,7 @@ void VprofOptions::readOptions(const vector<string>& vstr)
         //	key=   miutil::to_lower(tokens[0]);
         key=   tokens[0];
         value= tokens[1];
-        vector<std::string> vs= miutil::split(value, 0, ",");
+        std::vector<std::string> vs= miutil::split(value, 0, ",");
         int nv= vs.size();
 
         if (nv>0) {

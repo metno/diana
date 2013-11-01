@@ -34,7 +34,6 @@
 #include <QDialog>
 
 #include <qstring.h>
-#include <puTools/miString.h>
 #include <map>
 
 class QTabWidget;
@@ -44,9 +43,7 @@ class QTextEdit;
    \brief text viewer
 
    Text viewer for data from other applications via socket interface
-
 */
-
 class TextWidget : public QWidget
 {
   Q_OBJECT
@@ -56,9 +53,9 @@ private:
 
 public:
   int id;
-  TextWidget(QWidget* parent, const miutil::miString& text, int id_);
+  TextWidget(QWidget* parent, const std::string& text, int id_);
   TextWidget(QWidget* parent);
-  void setText( miutil::miString );
+  void setText( std::string );
 };
 
 /**
@@ -79,7 +76,7 @@ private:
 
 public:
   TextView(QWidget* parent);
-  void setText( int id, const miutil::miString& name, const miutil::miString& text );
+  void setText( int id, const std::string& name, const std::string& text );
   void deleteTab( int id );
   void deleteTab();
 
@@ -92,5 +89,3 @@ void printClicked(int);
 };
 
 #endif
-
-

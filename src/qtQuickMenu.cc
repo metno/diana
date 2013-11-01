@@ -33,12 +33,14 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
-
 #include "qtQuickMenu.h"
 #include "qtQuickAdmin.h"
+#include "qtUtility.h"
+#include "diLocalSetupParser.h"
+
+#include <puCtools/puCglob.h>
+#include <puCtools/glob_cache.h>
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QListWidget>
@@ -54,17 +56,11 @@
 #include <qmessagebox.h>
 #include <qtooltip.h>
 #include <qregexp.h>
-
-#include <puTools/miString.h>
-#include <iostream>
-#include "qtUtility.h"
-#include "diLocalSetupParser.h"
-#define MILOGGER_CATEGORY "diana.QuickMenu"
-#include <miLogger/miLogging.h>
-
-
 #include <QString>
 #include <QStringList>
+
+#define MILOGGER_CATEGORY "diana.QuickMenu"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 
@@ -377,7 +373,7 @@ void QuickMenu::pushPlot(const std::string& name,
 //    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
 //    METLIBS_LOG_DEBUG(timestr);
 //  }
-////  vector<std::string> tokens = miutil::split(pstr[i], ('"', '"');
+////  vector<std::string> tokens = miutil::split_protected(pstr[i], ('"', '"');
 ////  for ( size_t j=0; j<tokens.size(); j++ ) {
 ////    vector<std::string> stokens = miutil::split(tokens[j], "=");
 ////    if ( stokens.size() && stokens[0]="referencetime" ) {

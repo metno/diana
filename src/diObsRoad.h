@@ -30,34 +30,28 @@
 */
 #ifndef diObsRoad_h
 #define diObsRoad_h
+
 // if not defined ROADOBS, just an empty include file
 //#define ROADOBS 1
 #ifdef ROADOBS
-//#include <diObsPlot.h>
-//#include <diStation.h>
-#include <puTools/miString.h>
+
 #include <puTools/miTime.h>
+#include <string>
 
 class ObsPlot;
 
-/*using namespace std;
-using namespace miutil;
-using namespace road;*/
-
 /**
-
   \brief Reading road observation data
   In-house smhi.se format
-
 */
 class ObsRoad {
 private:
-  miutil::miString filename_;
-  miutil::miString databasefile_;
-  miutil::miString stationfile_;
-  miutil::miString headerfile_;
+  std::string filename_;
+  std::string databasefile_;
+  std::string stationfile_;
+  std::string headerfile_;
   miutil::miTime filetime_;
-  void readFile(const miutil::miString &filename, const miutil::miString &headerfile,
+  void readFile(const std::string &filename, const std::string &headerfile,
 		const miutil::miTime &filetime, ObsPlot *oplot, bool readData);
   void readHeader(ObsPlot *oplot);
   void readRoadData(ObsPlot *oplot);
@@ -65,15 +59,11 @@ private:
 
 
 public:
-  ObsRoad(const miutil::miString &filename, const miutil::miString &databasefile,
-	  const miutil::miString &stationfile, const miutil::miString &headerfile,
+  ObsRoad(const std::string &filename, const std::string &databasefile,
+	  const std::string &stationfile, const std::string &headerfile,
 	  const miutil::miTime &filetime, ObsPlot *oplot, bool breadData);
   void readData(ObsPlot *oplot);
   void initData(ObsPlot *oplot);
 };
-#endif
-#endif
-
-
-
-
+#endif // ROADOBS
+#endif // diObsRoad_h

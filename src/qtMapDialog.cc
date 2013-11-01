@@ -33,6 +33,12 @@
 #include "config.h"
 #endif
 
+#include "qtMapDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QComboBox>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -47,13 +53,7 @@
 #define MILOGGER_CATEGORY "diana.MapDialog"
 #include <miLogger/miLogging.h>
 
-#include "qtMapDialog.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-
-#include <puTools/miString.h>
-#include <stdio.h>
-#include <iostream>
+using namespace std;
 
 #define HEIGHTLB 105
 #define HEIGHTLBSMALL 70
@@ -123,7 +123,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   densities.push_back("180");
 
   // positions
-  vector<std::string> positions_tr; // all defined positions
+  std::vector<std::string> positions_tr; // all defined positions
   positions_tr.push_back(tr("left").toStdString());
   positions_tr.push_back(tr("bottom").toStdString());
   positions_tr.push_back(tr("both").toStdString());

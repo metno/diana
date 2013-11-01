@@ -36,6 +36,7 @@
 #include "diPattern.h"
 
 #include <diField/diField.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/foreach.hpp>

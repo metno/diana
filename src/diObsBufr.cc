@@ -33,19 +33,20 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.ObsBufr"
-#include <miLogger/miLogging.h>
-
 #include "diObsBufr.h"
 #include "diObsData.h"
 #include "diVprofPlot.h"
-#include <puTools/miString.h>
+
+#include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
+
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
 #include <map>
 #include <sstream>
+
+#define MILOGGER_CATEGORY "diana.ObsBufr"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;
@@ -1124,7 +1125,6 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
     {
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
-        //miString station;
         for (int k = 0; k < 6; k++) {
           station+= cvals[index][k];
         }

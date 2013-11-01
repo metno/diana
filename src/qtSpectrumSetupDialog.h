@@ -34,9 +34,7 @@
 #include <QDialog>
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
 #include <vector>
-
 
 class QFont;
 class QGridLayout;

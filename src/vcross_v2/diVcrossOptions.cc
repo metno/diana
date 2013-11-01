@@ -33,7 +33,7 @@
 
 #include "diVcrossOptions.h"
 
-#include <puTools/miString.h>
+#include <puTools/miStringFunctions.h>
 #include <puTools/miStringBuilder.h>
 
 #define MILOGGER_CATEGORY "diana.VcrossOptions"

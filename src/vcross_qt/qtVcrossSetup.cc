@@ -33,6 +33,8 @@
 
 #include "qtVcrossSetup.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qcombobox.h>

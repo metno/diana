@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,13 +29,9 @@
 #ifndef _mapdialog_h
 #define _mapdialog_h
 
-#include <QDialog>
-
 #include <diController.h>
+#include <QDialog>
 #include <vector>
-#include <puTools/miString.h>
-
-using namespace std;
 
 class QComboBox;
 class QListWidget;
@@ -47,13 +41,12 @@ class ToggleButton;
 class QCheckBox;
 
 /**
- \brief Map selection dialogue
+   \brief Map selection dialogue
 
- Dialogue for selections of maps, predefined projections/areas and various map-settings
-
- */
-
-class MapDialog: public QDialog {
+   Dialogue for selections of maps, predefined projections/areas and
+   various map-settings
+*/
+class MapDialog : public QDialog {
 Q_OBJECT
 public:
 
@@ -136,16 +129,16 @@ private:
   MapDialogInfo m_MapDI; // all maps and areas
   std::vector<std::string> favorite; // favorite options
   int numMaps; // number of maps
-  vector<int> selectedmaps; // maps selected
+  std::vector<int> selectedmaps; // maps selected
   int activemap; // active selected map
-  vector<int> logmaps; // selected maps ready for logging
+  std::vector<int> logmaps; // selected maps ready for logging
 
-  vector<Colour::ColourInfo> cInfo; // all defined colours
-  vector<std::string> linetypes; // all defined linetypes
-  vector<std::string> zorders; // all defined zorders
-  vector<std::string> densities; // latlon densities (degrees)
-  vector<std::string> positions; // all defined positions
-  map<std::string,int> positions_map; // all defined positions
+  std::vector<Colour::ColourInfo> cInfo; // all defined colours
+  std::vector<std::string> linetypes; // all defined linetypes
+  std::vector<std::string> zorders; // all defined zorders
+  std::vector<std::string> densities; // latlon densities (degrees)
+  std::vector<std::string> positions; // all defined positions
+  std::map<std::string,int> positions_map; // all defined positions
   Controller* m_ctrl;
 
   // areas

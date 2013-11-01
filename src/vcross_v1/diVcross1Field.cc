@@ -38,6 +38,7 @@
 #include <diField/diFieldManager.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringBuilder.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>

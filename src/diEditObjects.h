@@ -30,7 +30,7 @@
 */
 #ifndef _diEditObjects_h
 #define _diEditObjects_h
-#include <vector>
+
 #include <diField/diArea.h>
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
@@ -39,31 +39,26 @@
 #include <diMapMode.h>
 #include <diField/diGridConverter.h>
 
-using namespace std; 
+#include <map>
+#include <set>
+#include <vector>
 
 /**
-
   \brief WeatherObjects to be edited
-
-
 */
-
-
-
-
 class EditObjects:public WeatherObjects{
 public:
   
   EditObjects();
   ~EditObjects(){}
   /// defines object modes and combine modes
-  static void defineModes(map<int,object_modes>,map<int,combine_modes>);
+  static void defineModes(std::map<int,object_modes>, std::map<int,combine_modes>);
   /// initializes class variables to false, clear strings
   void init();
   /// called when a new object plot to be created
   void createNewObject();
   /// called when new edit mode/tool selected in gui (EditDIalog)
-  void setEditMode(const mapMode mmode,const int emode,const std::string etool);
+  void setEditMode(const mapMode mmode,const int emode, const std::string etool);
   /// flags comments as saved
   void commentsAreSaved(){commentsSaved=true;}
   /// flags comments as changed
@@ -131,8 +126,8 @@ private:
 
   object_modes objectmode;
   combine_modes combinemode;
-  static map<int,object_modes> objectModes;
-  static map<int,combine_modes> combineModes;
+  static std::map<int,object_modes> objectModes;
+  static std::map<int,combine_modes> combineModes;
 
   //
   bool createobject;

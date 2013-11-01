@@ -33,13 +33,14 @@
 
 #include <qglobal.h>
 
-#include <puTools/miString.h>
 #if !defined(USE_PAINTGL)
 #include <glText/glText.h>
 #else
 #include "PaintGL/paintgl.h"
 #endif
+
 #include <set>
+#include <string>
 #include <map>
 
 /**
@@ -48,9 +49,7 @@
  The font manager keeps multiple sets of font engines (X, truetype, texture).
  - text managing commands are translated to the different font engines
  - supports plotting and querying on geometry
-
  */
-
 class FontManager {
 private:
   glText * current_engine;

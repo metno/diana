@@ -38,18 +38,18 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.FieldEdit"
-#include <miLogger/miLogging.h>
-
 #include <diFieldEdit.h>
 #include <diField/diMetnoFieldFile.h>
 #include <diPlotModule.h>
 #include <diFieldPlotManager.h>
 //#include <milib/milib.h>
 #include <math.h>
-#include <stdio.h>
+
+#define MILOGGER_CATEGORY "diana.FieldEdit"
+#include <miLogger/miLogging.h>
 
 using namespace miutil;
+using namespace std;
 
 // static class members
 editType FieldEdit::editstate= edit_value;
@@ -68,7 +68,7 @@ posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), od
 numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("FieldEdit constructor");
+  METLIBS_LOG_SCOPE();
 #endif
 }
 
@@ -76,16 +76,16 @@ numUndefReplaced(0), discontinuous(false),drawIsoline(false)
 FieldEdit::~FieldEdit()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("FieldEdit destructor");
+  METLIBS_LOG_SCOPE();
 #endif
   cleanup();
 }
 
 
-// Assignment operator
-FieldEdit& FieldEdit::operator=(const FieldEdit &rhs){
+FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("FieldEdit assignment operator");
+  METLIBS_LOG_SCOPE();
 #endif
   if (this == &rhs) return *this;
 

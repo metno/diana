@@ -31,6 +31,12 @@
 #include "config.h"
 #endif
 
+#include "qtButtonLayout.h"
+#include "qtObsWidget.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QApplication>
 #include <QSlider>
 #include <QComboBox>
@@ -46,16 +52,14 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.ObsWidget"
-#include <miLogger/miLogging.h>
-
-#include "qtButtonLayout.h"
-#include "qtObsWidget.h"
-#include "qtUtility.h"
-
 #include <iomanip>
 #include <sstream>
 #include <cmath>
+
+#define MILOGGER_CATEGORY "diana.ObsWidget"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 /*
   GENERAL DESCRIPTION: This widget takes several datatypes ( that might

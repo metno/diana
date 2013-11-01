@@ -1,7 +1,6 @@
 #ifndef QTPROFETTIMECONTROL_H_
 #define QTPROFETTIMECONTROL_H_
 
-
 /*
   $Id$
 
@@ -29,21 +28,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #include <QLayout>
 
 #include "qtProfetSingleControl.h"
 #include <profet/fetObject.h>
 
+#include <puTools/miTime.h>
+#include <puTools/miRing.h>
+
 #include <map>
 #include <vector>
 #include <set>
-
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <puTools/miRing.h>
-using namespace std;
-
 
 class ProfetTimeControl : public QWidget {
   Q_OBJECT

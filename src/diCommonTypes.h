@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,16 +29,12 @@
 #ifndef _diCommonTypes_h
 #define _diCommonTypes_h
 
+#include <diColour.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+#include <diField/diArea.h>
+
 #include <set>
 #include <vector>
-#include <diColour.h>
-#include <diField/diArea.h>
-#include <miLogger/LogHandler.h>
-
-using namespace std;
-
 
 /**
    \brief GUI slider data
@@ -70,10 +64,10 @@ struct SatFileInfo{
   miutil::miClock clock;
   int day;
   bool opened;
-  vector<std::string> channel;
+  std::vector<std::string> channel;
   std::string default_channel;
   bool palette; //palette or rgb file
-  vector <Colour> col;    //vector of colours used
+  std::vector <Colour> col;    //vector of colours used
   std::string fileformat;
   SatFileInfo() :
     opened(false), palette(false)
@@ -89,7 +83,7 @@ struct SatDialogInfo{
   /// image file info
   struct File {
     std::string name;            ///< filename
-    vector<std::string> channel; ///< channels available
+    std::vector<std::string> channel; ///< channels available
     std::string default_channel; ///< default channel
     std::string fileformat;      ///< file format
   };
@@ -97,11 +91,11 @@ struct SatDialogInfo{
   /// main image info
   struct Image{
     std::string name;           ///< main image name
-    vector<File> file;       ///< files available
+    std::vector<File> file;       ///< files available
     std::string default_file;   ///< default filename
   };
 
-  vector<Image> image;       ///< defined Images
+  std::vector<Image> image;       ///< defined Images
   SliderValues cut;          ///< rgb cutoff value for histogram stretching
   SliderValues alphacut;     ///< rgb cutoff value for alpha blending
   SliderValues alpha;        ///< alpha blending value
@@ -162,7 +156,7 @@ struct MapInfo {
   std::string name;             ///< name of map
   std::string type;             ///< type of mapsource(s)
   bool logok;                ///< ok to log
-  vector<MapFileInfo> mapfiles; ///< the file(s)
+  std::vector<MapFileInfo> mapfiles; ///< the file(s)
   MapElementOption contour;  ///< contourline options
   MapElementOption land;     ///< filled land options
   MapElementOption lon;      ///< lon-lines options
@@ -178,10 +172,10 @@ struct MapInfo {
    \brief GUI data for all maps
 */
 struct MapDialogInfo {
-  vector<std::string> areas; ///< all defined areas (names)
+  std::vector<std::string> areas; ///< all defined areas (names)
   std::string default_area;  ///< default area-name
-  vector<MapInfo> maps;   ///< all defined maps
-  vector<std::string> default_maps; ///< list of default maps (names)
+  std::vector<MapInfo> maps;   ///< all defined maps
+  std::vector<std::string> default_maps; ///< list of default maps (names)
   std::string backcolour;    ///< background colour
 };
 
@@ -199,10 +193,10 @@ struct StationInfo {
    \brief GUI data for all stations
 */
 struct StationDialogInfo {
-  vector<std::string> types; ///< all defined stationtypes (names)
+  std::vector<std::string> types; ///< all defined stationtypes (names)
  // std::string default_type;  ///< default stationtype-name not aloud!
-  vector<StationInfo> stations;   ///< all defined stations
-  vector<std::string> images; ///< list of all images
+  std::vector<StationInfo> stations;   ///< all defined stations
+  std::vector<std::string> images; ///< list of all images
 };//--------------------------------------------------
 // Observation structures
 //--------------------------------------------------
@@ -221,12 +215,12 @@ struct ObsDialogInfo{
   /// list of plotting criterias
   struct CriteriaList{
     std::string name;
-    vector<std::string> criteria;
+    std::vector<std::string> criteria;
   };
   /// observation data type
   struct DataType {
     std::string name;
-    vector<bool> active;///< same length as button
+    std::vector<bool> active;///< same length as button
   };
 
   /// data button info for observation dialogue
@@ -240,15 +234,15 @@ struct ObsDialogInfo{
   /// observation plot type
   struct PlotType {
     std::string name;
-    vector<DataType> datatype;
-    vector<Button> button;
+    std::vector<DataType> datatype;
+    std::vector<Button> button;
     std::string misc;
-    vector<int> pressureLevels; ///<Only used for PlotType "Pressure levels"
-    vector<CriteriaList> criteriaList;
+    std::vector<int> pressureLevels; ///<Only used for PlotType "Pressure levels"
+    std::vector<CriteriaList> criteriaList;
   };
 
-  vector<PlotType> plottype;
-  vector<PriorityList> priority;
+  std::vector<PlotType> plottype;
+  std::vector<PriorityList> priority;
   SliderValues density, size, timediff;
   std::string defValues;
 };
@@ -286,9 +280,9 @@ struct stationSetInfo {
 };
 
 struct stationDialogInfo {
-    vector<stationSetInfo> sets;
-    map<std::string, bool> chosen;
-    std::string selected;
+  std::vector<stationSetInfo> sets;
+  std::map<std::string, bool> chosen;
+  std::string selected;
 };
 
 //--------------------------------------------------
@@ -315,7 +309,7 @@ struct editToolInfo {
 */
 struct editModeInfo {
   std::string editmode;
-  vector<editToolInfo> edittools;
+  std::vector<editToolInfo> edittools;
 };
 
 /**
@@ -323,14 +317,14 @@ struct editModeInfo {
 */
 struct mapModeInfo {
   std::string mapmode;
-  vector<editModeInfo> editmodeinfo;
+  std::vector<editModeInfo> editmodeinfo;
 };
 
 /**
    \brief data for all edititing functions
 */
 struct EditDialogInfo {
-  vector<mapModeInfo> mapmodeinfo;
+  std::vector<mapModeInfo> mapmodeinfo;
 };
 
 

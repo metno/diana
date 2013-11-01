@@ -33,11 +33,11 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.QuickAdmin"
-#include <miLogger/miLogging.h>
-
 #include "qtQuickAdmin.h"
 #include "qtQuickEditOptions.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QTreeWidget>
@@ -63,7 +63,8 @@
 
 #define MILOGGER_CATEGORY "diana.QuickAdmin"
 #include <miLogger/miLogging.h>
-#include "qtUtility.h"
+
+using namespace std;
 
 class QuickTreeWidgetItem: public QTreeWidgetItem {
 private:

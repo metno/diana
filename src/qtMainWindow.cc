@@ -177,7 +177,7 @@
 
 //#define DEBUGREDRAWCATCH 
 
-using namespace milogger;
+using namespace std;
 
 DianaMainWindow::DianaMainWindow(Controller *co,
     const std::string& ver_str,
@@ -190,7 +190,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   vpWindow(0), vcWindow(0), spWindow(0),contr(co),
   timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
-  METLIBS_LOG_INFO("Creating DianaMainWindow");
+  METLIBS_LOG_SCOPE();
 
   version_string = ver_str;
   build_string = build_str;
@@ -752,8 +752,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       tslider, SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
   connect(timecontrol, SIGNAL(clearMinMax()),
       tslider, SLOT(clearMinMax()));
-  connect(tslider, SIGNAL(newTimes(vector<miutil::miTime>&)),
-      timecontrol, SLOT(setTimes(vector<miutil::miTime>&)));
+  connect(tslider, SIGNAL(newTimes(std::vector<miutil::miTime>&)),
+      timecontrol, SLOT(setTimes(std::vector<miutil::miTime>&)));
   connect(timecontrol, SIGNAL(data(std::string)),
       tslider, SLOT(useData(std::string)));
   connect(timecontrol, SIGNAL(timecontrolHide()),

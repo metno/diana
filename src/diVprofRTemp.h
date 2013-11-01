@@ -35,44 +35,39 @@
 #include <puTools/miTime.h>
 #include <diVprofPlot.h>
 
-using namespace std;
-
-
 /**
-
   \brief Reading sounding from met.no obs files (temp)
    using the robs library
-
 */
 class VprofRTemp {
 public:
   // Constructors
   VprofRTemp();
-  VprofRTemp(const miutil::miString& file, bool amdar,
-	     const vector<miutil::miString>& stationList,
-	     const miutil::miString & stationfile,
-	     const miutil::miString & databasefile, const miutil::miTime& time);
-  VprofRTemp(const miutil::miString& file, bool amdar,
+  VprofRTemp(const std::string& file, bool amdar,
+	     const vector<std::string>& stationList,
+	     const std::string & stationfile,
+	     const std::string & databasefile, const miutil::miTime& time);
+  VprofRTemp(const std::string& file, bool amdar,
 	     float latitude, float longitude,
 	     float deltalat, float deltalong,
-	     const miutil::miString & stationfile,
-	     const miutil::miString & databasefile, const miutil::miTime& time);
+	     const std::string & stationfile,
+	     const std::string & databasefile, const miutil::miTime& time);
   // Destructor
   ~VprofRTemp();
 
   miutil::miTime getFileObsTime();
 
-  VprofPlot* getStation(const miutil::miString& station,
+  VprofPlot* getStation(const std::string& station,
 			const miutil::miTime& time);
   int float2int(float f) {return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
   int ms2knots(float ff) {return (float2int(ff*3600.0/1852.0));}
 
 private:
   bool amdartemp;
-  vector<miutil::miString> stationList_;
-  miutil::miString parameterfile_;
-  miutil::miString stationfile_;
-  miutil::miString databasefile_;
+  vector<std::string> stationList_;
+  std::string parameterfile_;
+  std::string stationfile_;
+  std::string databasefile_;
   geopos geoposll;
   geopos geoposur;
   miutil::miTime time_;

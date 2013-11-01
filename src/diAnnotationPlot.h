@@ -32,21 +32,16 @@
 #define diAnnotationPlot_h
 
 #include <diPlot.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <vector>
 #include <map>
 
-using namespace std;
-
 class LegendPlot;
 
 /**
-
  \brief Plotting text, legends etc on the map
 
  Includes: text, symbol, image, input, legend, arrow, box
-
  */
 class AnnotationPlot: public Plot {
 
@@ -63,7 +58,7 @@ class AnnotationPlot: public Plot {
   };
 
   struct element {
-    vector<element> subelement;
+    std::vector<element> subelement;
     elementType eType;
     std::string eText;
     int eCharacter;
@@ -97,12 +92,12 @@ public:
    */
   struct Annotation {
     std::string str;
-    vector<std::string> vstr;
+    std::vector<std::string> vstr;
     Colour col;
     Alignment hAlign;
     polyStyle polystyle;
     Colour bordercolour;
-    vector<element> annoElements;
+    std::vector<element> annoElements;
     bool spaceLine;
     float wid, hei;
     Rectangle rect;
@@ -111,13 +106,13 @@ public:
 
 private:
 
-  vector<Annotation> annotations;
-  vector<Annotation> orig_annotations;
+  std::vector<Annotation> annotations;
+  std::vector<Annotation> orig_annotations;
   annoType atype;
-  vector<Border> borderline;
+  std::vector<Border> borderline;
 
   //for comparing input text
-  map<std::string, std::string> inputText;
+  std::map<std::string, std::string> inputText;
 
   // OKstring variables
   float cmargin;
@@ -145,7 +140,7 @@ private:
   float maxwid;
 
   bool useAnaTime;
-  vector<miutil::miTime> fieldAnaTime;
+  std::vector<miutil::miTime> fieldAnaTime;
   Colour currentColour;
 
   //called from constructor
@@ -153,22 +148,22 @@ private:
   // insert time in text string
   const std::string insertTime(const std::string&, const miutil::miTime&);
   // expand string-variables
-  const vector<std::string> expanded(const vector<std::string>&);
+  const std::vector<std::string> expanded(const std::vector<std::string>&);
   // decode string, put into elements
   void splitAnnotations();
   bool putElements();
-  void addElement2Vector(vector<element>& v_e, const element& e, int index);
+  void addElement2Vector(std::vector<element>& v_e, const element& e, int index);
   bool decodeElement(std::string elementstring, element& el);
   //get size of annotation line
-  void getAnnoSize(vector<element>& annoEl, float& wid, float& hei,
+  void getAnnoSize(std::vector<element>& annoEl, float& wid, float& hei,
       bool horizontal = true);
   void getXYBox();
   void getXYBoxScaled(Rectangle& window);
-  bool plotElements(vector<element>& annoEl, float& x, float& y,
+  bool plotElements(std::vector<element>& annoEl, float& x, float& y,
       float annoHeight, bool horizontal = true);
   float plotArrow(float x, float y, float l, bool feather = false);
   void plotBorders();
-  vector<std::string> split(const std::string, const char, const char);
+  std::vector<std::string> split(const std::string, const char, const char);
   std::string writeElement(element& annoEl);
 
 public:
@@ -186,8 +181,8 @@ public:
   ///decode plot info strings
   bool prepare(const std::string&);
   ///set data annotations
-  bool setData(const vector<Annotation>& a,
-      const vector<miutil::miTime>& fieldAnalysisTime);
+  bool setData(const std::vector<Annotation>& a,
+      const std::vector<miutil::miTime>& fieldAnalysisTime);
   void setfillcolour(std::string colname);
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
@@ -208,18 +203,18 @@ public:
   void editLastAnnoElement();
   /// put info from saved edit labels into new annotation
   void updateInputLabels(const AnnotationPlot * oldAnno, bool newProduct);
-  /// return vector std::strings with edited annotation for product prodname
+  /// return std::vector std::strings with edited annotation for product prodname
   std::string writeAnnotation(std::string prodname);
   void setProductName(std::string prodname)
   {
     productname = prodname;
   }
   //get raw annotation objects
-  const vector<Annotation>& getAnnotations();
+  const std::vector<Annotation>& getAnnotations();
   //get annotations, change them somewhere else, and put them back
-  vector<vector<std::string> > getAnnotationStrings();
+  std::vector<std::vector<std::string> > getAnnotationStrings();
   ///replace annotations
-  bool setAnnotationStrings(vector<vector<std::string> >& vstr);
+  bool setAnnotationStrings(std::vector<std::vector<std::string> >& vstr);
 
   Rectangle getBoundingBox() const {return bbox;}
 };

@@ -34,24 +34,19 @@
 #include <robs/temp.h>
 #include <puTools/miTime.h>
 
-using namespace std;
-
 class VprofPlot;
 
-
 /**
-
   \brief Reading sounding from met.no obs files (temp)
   
    using the robs library 
-
 */
 class VprofTemp : public temp {
 public:
   // Constructors
   VprofTemp();
   VprofTemp(const std::string& file, bool amdar,
-	    const vector<std::string>& stationList);
+      const std::vector<std::string>& stationList);
   VprofTemp(const std::string& file, bool amdar,
 	    float latitude, float longitude,
 	    float deltalat, float deltalong);

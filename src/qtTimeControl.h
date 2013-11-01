@@ -34,12 +34,10 @@
 #include <qdialog.h>
 #include <QLabel>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+
 #include <map>
 #include <vector>
 
-
-using namespace std;
 
 class QLabel;
 class QSlider;
@@ -48,14 +46,12 @@ class QCheckBox;
 class QRadioButton;
 
 /**
-
   \brief Misc plot time settings
 
   Dialogue for selection of
   -animation interval
   -animation speed
   -data basis for main plot time
-
 */
 class TimeControl : public QDialog {
   Q_OBJECT
@@ -66,7 +62,7 @@ public:
   /// Set data basis for time slider
   void useData(std::string type, int id=-1);
   /// Remove one data type
-  vector<std::string> deleteType(int id);
+  std::vector<std::string> deleteType(int id);
 
   signals:
   ///Animation speed (sec)
@@ -81,7 +77,7 @@ public:
 
 public slots:
   /// Set times for start/stop sliders
-  void setTimes( vector<miutil::miTime>& times );
+  void setTimes( std::vector<miutil::miTime>& times );
 
 private slots:
   void timeoffsetCheckBoxClicked();
@@ -95,10 +91,10 @@ private slots:
 
 private:
 
-  vector<std::string> dataname;
-  map<int,std::string> external_id;
+  std::vector<std::string> dataname;
+  std::map<int,std::string> external_id;
 
-  vector<miutil::miTime> m_times;
+  std::vector<miutil::miTime> m_times;
   QFont m_font;
   QCheckBox* timerangeCheckBox;
   QLabel* startTimeLabel;
@@ -106,7 +102,7 @@ private:
   QSlider* startSlider;
   QSlider* stopSlider;
   QComboBox* timeoutBox;
-  vector<float> timeouts;
+  std::vector<float> timeouts;
   QComboBox* dataBox;
   QCheckBox* timeoffsetCheckBox;
   QLabel* offsetTimeLabel;

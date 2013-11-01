@@ -34,19 +34,16 @@
 #include <diSat.h>
 #include <diMItiff/satgeotiff.h>
 
-/**
+#include <vector>
 
+/**
   \brief Reading mitiff files 
   
   - read header from geotiff file
   - read data into class Sat 
   - calc. solar height
-
 */
-
 class GEOtiff {
-
-
 public:
   GEOtiff();
 
@@ -55,14 +52,9 @@ public:
   ///read header info (time, channels)
   static bool readGEOtiffHeader(SatFileInfo& file);
   ///read palette info
-  static bool readGEOtiffPalette(const std::string& filename, vector<Colour>& col);
+  static bool readGEOtiffPalette(const std::string& filename, std::vector<Colour>& col);
   ///set channels depending on solar heigt
   static bool day_night(const std::string& filename, std::string& channels);
-
 };
 
 #endif
-
-
-
-

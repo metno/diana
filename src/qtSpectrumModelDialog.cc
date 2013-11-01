@@ -38,14 +38,15 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.SpectrumModelDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diSpectrumManager.h"
 #include "qtSpectrumModelDialog.h"
 
+#define MILOGGER_CATEGORY "diana.SpectrumModelDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 //#define HEIGHTLISTBOX 100
 

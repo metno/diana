@@ -36,19 +36,15 @@
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qpalette.h>
-#include <puTools/miString.h>
 
 #include "diCommonTypes.h"
 #include "qtToggleButton.h"
+
+#include <string>
 #include <vector>
 
-
-using namespace std;
-
 /**
-
   \brief Grid of buttons
-
 */
 class ButtonLayout : public QWidget
 {
@@ -57,16 +53,16 @@ class ButtonLayout : public QWidget
 public:
 
   ButtonLayout( QWidget* parent,
-		vector<ObsDialogInfo::Button>& button,
+		std::vector<ObsDialogInfo::Button>& button,
 		int nr_col=3            //number of columns
 		);
 
   bool isChecked(int);
   void setEnabled( bool enabled );
   int setButtonOn(std::string buttonName);
-  void enableButtons(vector<bool>);
+  void enableButtons(std::vector<bool>);
 
-  vector<std::string> getOKString(bool forLog=false);
+  std::vector<std::string> getOKString(bool forLog=false);
 
  public slots:
  void setRightClicked(std::string name,bool on);
@@ -91,13 +87,9 @@ private:
   ToggleButton** b;
   QButtonGroup* bgroup;
 
-  vector<bool> buttonOn;
-  vector<bool> buttonRightOn;
-  vector<ObsDialogInfo::Button> buttonList;
-
+  std::vector<bool> buttonOn;
+  std::vector<bool> buttonRightOn;
+  std::vector<ObsDialogInfo::Button> buttonList;
 };
 
-
-
 #endif
-

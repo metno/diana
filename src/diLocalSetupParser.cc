@@ -52,6 +52,8 @@
 #define MILOGGER_CATEGORY "diana.LocalSetupParser"
 #include <miLogger/miLogging.h>
 
+using namespace std;
+
 /// PVERSION is defined due to debian packing using the metno-debuild tool
 #ifndef PVERSION
 #define PVERSION

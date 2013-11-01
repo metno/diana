@@ -30,32 +30,25 @@
 */
 #ifndef _diDisplayObjects_h
 #define _diDisplayObjects_h
-#include <vector>
-#include <diField/diArea.h>
+
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
 #include <diAreaBorder.h>
 #include <diUndoFront.h>
 #include <diMapMode.h>
-#include <diField/diGridConverter.h>
 #include <diColour.h>
-#include <puTools/miString.h>
 
-using namespace std; 
+#include <diField/diArea.h>
+#include <diField/diGridConverter.h>
+
+#include <map>
+#include <vector>
 
 /**
-
   \brief WeatherObjects to be displayed
-
-
 */
-
-
-
-
-class DisplayObjects:public WeatherObjects{
+class DisplayObjects : public WeatherObjects {
 public:
-
   DisplayObjects();
   ~DisplayObjects(){}
 
@@ -81,24 +74,13 @@ public:
   bool defined;
 
 private:
-
-  map<std::string,bool> useobject;
+  std::map<std::string,bool> useobject;
 
   std::string pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;
-  vector <std::string> symbolfilter;
-
-
-
-
-
-
-
-
-
-
+  std::vector <std::string> symbolfilter;
 };
-#endif
 
+#endif

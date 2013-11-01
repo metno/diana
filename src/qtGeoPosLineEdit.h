@@ -33,19 +33,14 @@
 
 #include <qlineedit.h>
 #include <qvalidator.h>
-#include <puTools/miString.h>
 
-using namespace std;
+#include <string>
 
 /**
-
   \brief An input widget for geographical positions
 
-
   A Qt line editor with validator for geographical positions
-
 */
-
 class GeoPosLineEdit : public QLineEdit {
   Q_OBJECT
 private:

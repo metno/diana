@@ -35,6 +35,8 @@
 #include <diLinetype.h>
 #include "diImageGallery.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <qcombobox.h>
 #include <QListWidget>
 #include <qlayout.h>
@@ -52,6 +54,7 @@
 #define MILOGGER_CATEGORY "diana.Utility"
 #include <miLogger/miLogging.h>
 
+using namespace std;
 
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str)
 {

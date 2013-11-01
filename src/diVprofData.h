@@ -33,19 +33,15 @@
 
 #include <diVprofPlot.h>
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <vector>
 #include <diField/diFieldManager.h>
 
-using namespace std;
+#include <vector>
 
 /**
-
   \brief Vertical Profile (sounding) prognostic data from a met.no file
   
    Contains all data and misc information from one file 
-
 */
 class VprofData
 {
@@ -56,11 +52,11 @@ public:
   bool readFile();
   bool readField(std::string type, FieldManager* fieldm);
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
-  vector<std::string> getNames() { return posName; }
-  vector <float> getLatitudes() { return posLatitude; }
-  vector <float> getLongitudes() { return posLongitude; }
-  vector<std::string> getObsNames() { return obsName; }
-  vector<miutil::miTime>   getTimes() { return validTime; }
+  std::vector<std::string> getNames() { return posName; }
+  std::vector <float> getLatitudes() { return posLatitude; }
+  std::vector <float> getLongitudes() { return posLongitude; }
+  std::vector<std::string> getObsNames() { return obsName; }
+  std::vector<miutil::miTime>   getTimes() { return validTime; }
 
 private:
 
@@ -83,19 +79,19 @@ private:
     int barHeight; /**< barometer height */
   };
 
-  vector<std::string> posName;
-  vector<std::string> obsName;
-  vector<int>      posTemp;
-  vector<float>    posLatitude;
-  vector<float>    posLongitude;
-  vector<float>    posDeltaLatitude;
-  vector<float>    posDeltaLongitude;
-  vector<miutil::miTime>   validTime;
-  vector<int>      forecastHour;
-  vector<std::string> progText;
-  vector<std::string> mainText;
-  vector<int>      paramId;
-  vector<float>    paramScale;
+  std::vector<std::string> posName;
+  std::vector<std::string> obsName;
+  std::vector<int>      posTemp;
+  std::vector<float>    posLatitude;
+  std::vector<float>    posLongitude;
+  std::vector<float>    posDeltaLatitude;
+  std::vector<float>    posDeltaLongitude;
+  std::vector<miutil::miTime>   validTime;
+  std::vector<int>      forecastHour;
+  std::vector<std::string> progText;
+  std::vector<std::string> mainText;
+  std::vector<int>      paramId;
+  std::vector<float>    paramScale;
   VprofPlot        *vProfPlot;
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
@@ -103,7 +99,6 @@ private:
 
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
-
 };
 
 #endif

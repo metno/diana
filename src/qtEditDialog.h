@@ -35,12 +35,10 @@
 #include <QDialog>
 #include <qpixmap.h>
 
-#include <puTools/miString.h>
-#include <vector>
 #include <diCommonTypes.h>
 #include <diEditSpec.h>
 
-using namespace std;
+#include <vector>
 
 class QComboBox;
 class QListWidget;
@@ -66,10 +64,7 @@ class TimeStepSpinbox;
 
 /**
    \brief Dialogue for editing fields and weather objects and for combining
-
-
 */
-
 class EditDialog: public QDialog
 {
     Q_OBJECT
@@ -202,7 +197,7 @@ private:
 
   QLabel* ellipsenumber;
   QSlider* ellipseslider;
-  vector<float> ellipsenumbers;
+  std::vector<float> ellipsenumbers;
 
   QButtonGroup* bgroup;
   QPushButton** b;
@@ -235,16 +230,16 @@ private:
 
   int m_FrontcmIndex; // index of m_Frontcm;
   int m_FronteditIndex; // index of m_Fronteditmethods;
-  vector <std::string> m_FronteditList;// items in Frontedit
+  std::vector <std::string> m_FronteditList;// items in Frontedit
 
-  map <std::string,QString> editTranslations;//translate to any language
+  std::map<std::string,QString> editTranslations;//translate to any language
 
   int fieldEditToolGroup;  // 0=standard 1=classes 2=numbers
   int numFieldEditTools;
   int currFieldEditToolIndex;
-  vector<std::string> classNames;
-  vector<float>    classValues;
-  vector<bool>     classValuesLocked;
+  std::vector<std::string> classNames;
+  std::vector<float>    classValues;
+  std::vector<bool>     classValuesLocked;
 
   std::string currMapmode;
   std::string currEditmode;
@@ -271,7 +266,6 @@ private:
   QString TABNAME_FIELD;
   QString TABNAME_OBJECTS;
   QString TABNAME_COMBINE;
-
 };
 
 #endif

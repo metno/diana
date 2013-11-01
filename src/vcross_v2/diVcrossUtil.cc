@@ -5,7 +5,7 @@
 
 #include <diField/diMetConstants.h>
 
-#include <puTools/miString.h>
+#include <puTools/miStringFunctions.h>
 
 #include <GL/gl.h>
 #if !defined(USE_PAINTGL)
@@ -14,6 +14,7 @@
 #endif
 
 #include <cmath>
+#include <ostream>
 
 namespace VcrossUtil {
 

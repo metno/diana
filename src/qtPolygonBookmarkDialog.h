@@ -1,14 +1,13 @@
 #ifndef QPOLYGONBOOKMARKDIALOG_H_
 #define QPOLYGONBOOKMARKDIALOG_H_
 
+#include "qtPolygonBookmarkModel.h"
 #include <QTreeView>
 #include <QMainWindow>
-#include "qtPolygonBookmarkModel.h"
-#include <puTools/miString.h>
-#include <vector>
 #include <QAction>
 #include <QMenu>
 #include <QMenuBar>
+#include <vector>
 
 class PolygonBookmarkDialog : public QMainWindow{
   Q_OBJECT
@@ -35,11 +34,11 @@ protected:
   void closeEvent( QCloseEvent* );
 
 public:
-	PolygonBookmarkDialog(QWidget* w,std::vector<miutil::miString>& s, miutil::miString lastSavedPolygon="");
+	PolygonBookmarkDialog(QWidget* w,std::vector<std::string>& s, std::string lastSavedPolygon="");
 
 public slots:
   void bookmarkClicked(QModelIndex);
-  void warn(miutil::miString);
+  void warn(std::string);
 
 private slots:
   void quit();
@@ -58,8 +57,8 @@ private slots:
 signals:
   void polygonCanceled();                       ///< emitted on cancel ( cast polygon)
   void polygonQuit();                           ///< close dialog but keep the polygon
-  void polygonCopied(miutil::miString, miutil::miString, bool); ///< from - to - move
-  void polygonSelected(miutil::miString);               ///< get from db and use that one
+  void polygonCopied(std::string, std::string, bool); ///< from - to - move
+  void polygonSelected(std::string);               ///< get from db and use that one
 };
 
 #endif /*QPOLYGONBOOKMARKDIALOG_H_*/

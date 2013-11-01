@@ -33,35 +33,36 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#define MILOGGER_CATEGORY "diana.MeasurementsPlot"
-#include <miLogger/miLogging.h>
-
 #include <diMeasurementsPlot.h>
 #include <sstream>
-#include <math.h>
-#include <stdio.h>
 #include <diField/diField.h>
 #include <GL/gl.h>
 
-using namespace std; using namespace miutil;
+#include <puTools/miStringFunctions.h>
 
+#define MILOGGER_CATEGORY "diana.MeasurementsPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 MeasurementsPlot::MeasurementsPlot()
-:Plot(){
+ :Plot()
+{
   oldArea=area;
   lineWidth=1;
 }
 
 
-MeasurementsPlot::~MeasurementsPlot(){
-
+MeasurementsPlot::~MeasurementsPlot()
+{
 }
 
 
-bool MeasurementsPlot::prepare(void){
+bool MeasurementsPlot::prepare(void)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ MeasurementsPlot::prepare() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 
   //Change projection

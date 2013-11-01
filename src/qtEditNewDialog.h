@@ -37,8 +37,6 @@
 #include <diCommonTypes.h>
 #include <diEditSpec.h>
 
-using namespace std;
-
 class QListWidget;
 class QListWidgetItem;
 class QPushButton;
@@ -53,8 +51,6 @@ class EditManager;
 
 /**
    \brief Dialogue for starting a new edit product
-
-
 */
 class EditNewDialog: public QDialog
 {
@@ -144,7 +140,7 @@ private:
   miutil::miTime prodtime; //time for normal analysis
   miutil::miTime combinetime; //time for combined analysis
   // from EditManager
-  vector<EditProduct> products;
+  std::vector<EditProduct> products;
   editDBinfo dbi;
   bool productfree;
   bool isdata;

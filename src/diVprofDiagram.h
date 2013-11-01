@@ -34,17 +34,14 @@
 #include <diVprofTables.h>
 #include <diVprofOptions.h>
 
-#include <vector>
-#include <puTools/miString.h>
 #include <GL/gl.h>
 
-using namespace std;
+#include <vector>
 
 class VprofOptions;
 
 /**
    \brief Plots the Vertical Profile diagram background without data
-
 */
 class VprofDiagram : public VprofTables
 {
@@ -112,12 +109,7 @@ private:
     std::string font;
   };
 
-  vector<fpStrInfo> fpStr;
-
+  std::vector<fpStrInfo> fpStr;
 };
 
 #endif
-
-
-
-

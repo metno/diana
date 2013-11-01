@@ -33,18 +33,19 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofTables"
-#include <miLogger/miLogging.h>
-
 #include <diVprofTables.h>
 #include <diLocalSetupParser.h>
 #if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
-#include <iostream>
 #include <math.h>
 
-using namespace::miutil;
+#define MILOGGER_CATEGORY "diana.VprofTables"
+#include <miLogger/miLogging.h>
+
+using std::map;
+using std::string;
+using std::vector;
 
 // static members
 

@@ -33,14 +33,13 @@
 
 #include <diSpectrumOptions.h>
 #include <diPrintOptions.h>
-#include <diField/diField.h>
 
-#include <puTools/miString.h>
+#include <diField/diField.h>
 #include <puTools/miTime.h>
-#include <vector>
+
 #include <GL/gl.h>
 
-using namespace std;
+#include <vector>
 
 class FontManager;
 class GLPfile;
@@ -54,7 +53,6 @@ class GLPfile;
 */
 class SpectrumPlot
 {
-
   friend class SpectrumFile;
 
 public:
@@ -135,9 +133,9 @@ private:
   int  numDirec;
   int  numFreq;
 
-  vector<float> directions;
-  vector<float> frequences;
-  vector<float> eTotal;
+  std::vector<float> directions;
+  std::vector<float> frequences;
+  std::vector<float> eTotal;
 
   float northRotation;
   float wspeed;
@@ -150,7 +148,6 @@ private:
   float *sdata;
   float *xdata;
   float *ydata;
-
 };
 
 #endif

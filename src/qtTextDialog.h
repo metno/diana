@@ -32,11 +32,8 @@
 #define _textdialog_h
 
 #include <QDialog>
-#include <qfont.h>
-
 #include <diCommonTypes.h>
-
-using namespace std;
+#include <string>
 
 class QPushButton;
 class QCheckBox;
@@ -46,9 +43,7 @@ class QTextBrowser;
    \brief Ascii text viewer
    
    Dialogue for displaying information text from ascii files
-
 */
-
 class TextDialog: public QDialog
 {
   Q_OBJECT
@@ -67,8 +62,6 @@ private:
   QCheckBox* fixedb;
   InfoFile infofile;
   std::string path;
-
 };
-
 
 #endif

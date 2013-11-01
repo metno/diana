@@ -39,7 +39,7 @@
 
 using namespace::miutil;
 
-ObsTemp::ObsTemp(const miString &file)
+ObsTemp::ObsTemp(const std::string &file)
 :temp(file){
 }
 

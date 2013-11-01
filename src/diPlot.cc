@@ -33,15 +33,17 @@
 
 #include "diPlot.h"
 
-#define MILOGGER_CATEGORY "diana.Plot"
-#include <miLogger/miLogging.h>
-
 #include "diFontManager.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <qglobal.h>
 #if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
+
+#define MILOGGER_CATEGORY "diana.Plot"
+#include <miLogger/miLogging.h>
 
 using namespace ::miutil;
 using namespace ::std;

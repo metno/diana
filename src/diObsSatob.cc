@@ -39,7 +39,7 @@
 
 using namespace::miutil;
 
-ObsSatob::ObsSatob(const miString &file)
+ObsSatob::ObsSatob(const std::string &file)
  : satob(file)
 {
 }

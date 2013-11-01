@@ -34,6 +34,12 @@
 #include "config.h"
 #endif
 
+#include "qtTrajectoryDialog.h"
+#include "qtUtility.h"
+#include "qtGeoPosLineEdit.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
@@ -47,22 +53,20 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.TrajectoryDialog"
-#include <miLogger/miLogging.h>
-
-#include "qtUtility.h"
-#include "qtGeoPosLineEdit.h"
-#include "qtTrajectoryDialog.h"
-
 #include <cmath>
 #include <iomanip>
 #include <sstream>
+
+#define MILOGGER_CATEGORY "diana.TrajectoryDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("TrajectoryDialog::TrajectoryDialog called");
+  METLIBS_LOG_SCOPE();
 #endif
 
   //caption to appear on top of dialog

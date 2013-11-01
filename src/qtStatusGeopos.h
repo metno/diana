@@ -33,19 +33,14 @@
 
 #include <qwidget.h>
 #include <QComboBox>
-#include <puTools/miString.h>
 
 class QLabel;
-
-using namespace std;
 
 /**
  \brief Geoposition in status bar
 
  Widget in status bar for displaying the geographical position of the mouse pointer
-
- */
-
+*/
 class StatusGeopos: public QWidget {
   Q_OBJECT
 private:

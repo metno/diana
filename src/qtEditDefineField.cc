@@ -52,7 +52,7 @@
 #include "diController.h"
 #include "diEditManager.h"
 
-
+using namespace std;
 
 /*********************************************/
 EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,

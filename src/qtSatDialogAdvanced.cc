@@ -32,6 +32,12 @@
 #include "config.h"
 #endif
 
+#include "qtSatDialogAdvanced.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QSlider>
 #include <QLabel>
 #include <qcheckbox.h>
@@ -42,12 +48,10 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-#include "qtSatDialogAdvanced.h"
-#include "qtToggleButton.h"
-#include "qtUtility.h"
-#include <puTools/miString.h>
-#include <stdio.h>
-#include <iostream>
+#include <cstdio>
+#include <sstream>
+
+using namespace std;
 
 #define HEIGHTLB 85
 

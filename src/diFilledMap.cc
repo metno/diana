@@ -33,22 +33,15 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <values.h>
-
-#include <fstream>
-#include <iostream>
-
-#define MILOGGER_CATEGORY "diana.FilledMap"
-#include <miLogger/miLogging.h>
-
 #include <diFilledMap.h>
 #include <puCtools/stat.h>
 
-using namespace ::miutil;
+#include <sys/types.h>
+#include <cfloat>
+#include <cstdio>
+
+#define MILOGGER_CATEGORY "diana.FilledMap"
+#include <miLogger/miLogging.h>
 
 #define DEG_TO_RAD  .0174532925199432958
 

@@ -44,11 +44,8 @@
 #include <MovieMaker.h>
 #endif
 
-#include <puTools/miString.h>
 #include <vector>
 #include <deque>
-
-using namespace std;
 
 class QMenuBar;
 class QToolBar;
@@ -174,7 +171,7 @@ private Q_SLOTS:
   void showUrl();
 
   void about();
-  void quickMenuApply(const vector<std::string>&);
+  void quickMenuApply(const std::vector<std::string>&);
   void recallPlot(const std::vector<std::string>&, bool);
   void resetArea();
   void resetAll();
@@ -263,7 +260,7 @@ private Q_SLOTS:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
-  void getFieldPlotOptions(map< std::string, map<std::string,std::string> >&);
+  void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
 private:
   bool enableProfet;
@@ -444,14 +441,14 @@ private:
   // x,y position of last uffda action
   int xlast,ylast;
 
-  vector <selectArea> vselectAreas; //selected areas for rightclickmenu
+  std::vector <selectArea> vselectAreas; //selected areas for rightclickmenu
 
   //QSocket
   int textview_id;
   TextView *textview;
   int hqcTo;
   bool qsocket;
-  map<int,bool> autoredraw;
+  std::map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
   void levelChange(int increment);
@@ -476,7 +473,7 @@ private:
                       std::vector<std::string> &diagstr,
                       std::vector<std::string> &shortnames);
 
-  map<QAction*, DataDialog*> dialogs;
+  std::map<QAction*, DataDialog*> dialogs;
 
 // Profet methods
   bool initProfet();
@@ -485,6 +482,5 @@ private:
   bool ProfetUpdatePlot(const miutil::miTime& t);
   bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 };
-
 
 #endif

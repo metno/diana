@@ -31,22 +31,20 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <vector>
-#include <map>
-#include <set>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diField/TimeFilter.h>
 #include <diController.h>
 
-using namespace std;
+#include <puTools/miTime.h>
+
+#include <vector>
+#include <map>
+#include <set>
 
 class VprofOptions;
 class VprofData;
 class VprofDiagram;
-
 
 /**
    \brief Managing Vertical Profile observation and prognostic sources.
@@ -99,41 +97,41 @@ private:
 
   };
 
-  // map<model,filename>
-  map<std::string,std::string> filenames;
-  map<std::string,std::string> filetypes;
+  // std::map<model,filename>
+  std::map<std::string,std::string> filenames;
+  std::map<std::string,std::string> filetypes;
 
   // for use in dialog (unique lists in setup order)
-  vector<std::string> dialogModelNames;
-  vector<std::string> dialogFileNames;
+  std::vector<std::string> dialogModelNames;
+  std::vector<std::string> dialogFileNames;
 
-  vector<ObsFilePath>   filePaths;
+  std::vector<ObsFilePath>   filePaths;
 
   std::string amdarStationFile;
   bool amdarStationList;
-  vector<float>    amdarLatitude;
-  vector<float>    amdarLongitude;
-  vector<std::string> amdarName;
+  std::vector<float>    amdarLatitude;
+  std::vector<float>    amdarLongitude;
+  std::vector<std::string> amdarName;
 
   FieldManager *fieldm;   // field manager
 
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
-  vector<VprofData*> vpdata;
+  std::vector<VprofData*> vpdata;
   bool showObs;
   bool showObsTemp;
   bool showObsPilot;
   bool showObsAmdar;
   bool asField;
 
-  vector <std::string> nameList;
-  vector <float>    latitudeList;
-  vector <float>    longitudeList;
-  vector <miutil::miTime>   timeList;
-  vector <std::string> obsList;
+  std::vector <std::string> nameList;
+  std::vector <float>    latitudeList;
+  std::vector <float>    longitudeList;
+  std::vector <miutil::miTime>   timeList;
+  std::vector <std::string> obsList;
 
-  vector<ObsFile> obsfiles;
-  vector<miutil::miTime> obsTime;
+  std::vector<ObsFile> obsfiles;
+  std::vector<miutil::miTime> obsTime;
   bool onlyObs;
 
   std::vector<std::string> fieldModels;
@@ -152,7 +150,7 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  map<std::string,std::string> menuConst;
+  std::map<std::string,std::string> menuConst;
 
   std::string getDefaultModel();
   void updateObsFileList();
@@ -161,12 +159,12 @@ private:
   void initTimes();
   void checkObsTime(int hour=-1);
 
-  void renameAmdar(vector<std::string>& namelist,
-		   vector<float>& latitudelist,
-		   vector<float>& longitudelist,
-		   vector<std::string>& obslist,
-		   vector<miutil::miTime>& tlist,
-		   map<std::string,int>& amdarCount);
+  void renameAmdar(std::vector<std::string>& namelist,
+		   std::vector<float>& latitudelist,
+		   std::vector<float>& longitudelist,
+		   std::vector<std::string>& obslist,
+		   std::vector<miutil::miTime>& tlist,
+		   std::map<std::string,int>& amdarCount);
   void readAmdarStationList();
 
 public:
@@ -187,12 +185,12 @@ public:
   const miutil::miTime getTime(){return plotTime;}
   const std::string getStation(){return plotStation;}
   const std::string getLastStation(){return lastStation;}
-  const vector<std::string>& getStationList() { return nameList; }
-  const vector<float>& getLatitudes(){return latitudeList;}
-  const vector<float>& getLongitudes(){return longitudeList;}
-  const vector<miutil::miTime>&   getTimeList()    { return timeList; }
-  vector <std::string> getModelNames();
-  vector <std::string> getModelFiles();
+  const std::vector<std::string>& getStationList() { return nameList; }
+  const std::vector<float>& getLatitudes(){return latitudeList;}
+  const std::vector<float>& getLongitudes(){return longitudeList;}
+  const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
+  std::vector <std::string> getModelNames();
+  std::vector <std::string> getModelFiles();
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void setSelectedModels(const std::vector<std::string>& models,
 			 bool field, bool obsTemp,
@@ -210,8 +208,8 @@ public:
   void updateObs();
   std::string getAnnotationString();
 
-  void setMenuConst(map<std::string,std::string> mc)
-  { menuConst = mc;}
+  void setMenuConst(const std::map<std::string,std::string>& mc)
+    { menuConst = mc;}
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
@@ -219,7 +217,6 @@ public:
   /* Added for debug purposes */
   void printObsFiles(const ObsFile &of);
   void printObsFilePath(const ObsFilePath & ofp);
-
 };
 
 #endif

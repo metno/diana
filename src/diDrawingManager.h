@@ -31,20 +31,20 @@
 #ifndef _diDrawingManager_h
 #define _diDrawingManager_h
 
-#include <vector>
-#include <puTools/miString.h>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
-#include <diField/diGridConverter.h>
 #include "diManager.h"
 #include <diMapMode.h>
+
+#include <diField/diGridConverter.h>
+
 #include <QHash>
 #include <QList>
 #include <QObject>
 #include <QPointF>
 #include <QSet>
 
-using namespace std;
+#include <vector>
 
 class EditItemBase;
 class PlotModule;
@@ -57,7 +57,6 @@ class QMouseEvent;
 /**
   \brief Manager for drawing areas and annotations.
 */
-
 class DrawingManager : public Manager
 {
   Q_OBJECT

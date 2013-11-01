@@ -50,11 +50,6 @@
 #include <QFrame>
 #include <QVBoxLayout>
 
-#include <iostream>
-
-#define MILOGGER_CATEGORY "diana.EditDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtEditDialog.h"
 #include "qtEditNewDialog.h"
 #include "qtEditComment.h"
@@ -72,6 +67,10 @@
 #include <edit_open_value.xpm>
 #include <edit_lock_value.xpm>
 
+#define MILOGGER_CATEGORY "diana.EditDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 /*********************************************/
 #define HEIGHTLISTBOX 120

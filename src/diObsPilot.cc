@@ -39,7 +39,7 @@
 
 using namespace::miutil;
 
-ObsPilot::ObsPilot(const miString &file)
+ObsPilot::ObsPilot(const std::string &file)
 :pilot(file){
 }
 

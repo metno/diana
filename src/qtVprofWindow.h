@@ -31,16 +31,13 @@
 #ifndef _qt_vprofmainwindow_
 #define _qt_vprofmainwindow_
 
-#include <QMainWindow>
 #include <qstring.h>
+#include <diController.h>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
-#include <puTools/miString.h>
-#include <diStationPlot.h>
-#include <vector>
- #include <diController.h>
 
-using namespace std;
+#include <QMainWindow>
+#include <vector>
 
 class QComboBox;
 class QToolBar;
@@ -50,7 +47,6 @@ class VprofManager;
 class VprofModelDialog;
 class VprofSetupDialog;
 class QPrinter;
-
 
 /**
   \brief Window for Vertical Profiles (soundings)

@@ -45,6 +45,8 @@
 #include "diVcrossUtil.h"
 #include "diFontManager.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <qglobal.h>
 
 #include <GL/gl.h>

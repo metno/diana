@@ -31,12 +31,9 @@
 #ifndef _datadialog_h
 #define _datadialog_h
 
+#include <puTools/miTime.h>
 #include <QDialog>
 #include <vector>
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-
-using namespace std;
 
 class Controller;
 class QAction;
@@ -57,7 +54,7 @@ public:
   /// Return a vector of command strings.
   virtual std::vector<std::string> getOKString() = 0;
   /// Set new command strings, representing them in the dialog.
-  virtual void putOKString(const vector<std::string>& vstr) = 0;
+  virtual void putOKString(const std::vector<std::string>& vstr) = 0;
 
 signals:
   void emitTimes(const std::string &, const std::vector<miutil::miTime> &);

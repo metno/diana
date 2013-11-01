@@ -27,6 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <diStationManager.h>
+#include <diStationPlot.h>
+#include <qtStationDialog.h>
+#include "qtUtility.h"
+
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QModelIndex>
@@ -37,11 +42,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "qtUtility.h"
+#include <sstream>
 
-#include <diStationManager.h>
-#include <diStationPlot.h>
-#include <qtStationDialog.h>
+using namespace std;
 
 /**
  * \class StationDialog

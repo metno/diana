@@ -34,23 +34,27 @@
 #endif
 
 #include "qtTimeSlider.h"
-#include <iostream>
 
+using namespace std;
 
-TimeSlider::TimeSlider(QWidget* parent):
-  QSlider(parent), loop(false){
+TimeSlider::TimeSlider(QWidget* parent)
+  : QSlider(parent)
+  , loop(false)
+{
   init();
 }
 
 
-TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent):
-  QSlider(ori, parent), loop(false){
+TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent)
+  : QSlider(ori, parent)
+  , loop(false)
+{
   init();
 }
 
 
-void TimeSlider::init(){
-
+void TimeSlider::init()
+{
   vector<miutil::miTime> tmp;
   tlist["field"]= tmp;
   tlist["sat"]= tmp;

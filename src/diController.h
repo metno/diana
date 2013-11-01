@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,26 +29,25 @@
 #ifndef diController_h
 #define diController_h
 
+#include <diColour.h>
 #include <diCommonTypes.h>
-#include <diField/diCommonFieldTypes.h>
-#include <diMapMode.h>
 #include <diDrawingTypes.h>
-#include <diPrintOptions.h>
-#include <diField/diArea.h>
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
 #include <diLocationPlot.h>
+#include <diMapMode.h>
+#include <diPrintOptions.h>
+
+#include <diField/diArea.h>
+#include <diField/diCommonFieldTypes.h>
+#include <puTools/miTime.h>
+
+#include <map>
 #include <vector>
 #include <set>
-#include <diColour.h>
 
 #ifdef PROFET
-
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #endif
-
-using namespace std;
 
 class AnnotationPlot;
 class PlotModule;
@@ -129,9 +126,9 @@ public:
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
   /// get annotations
-  vector<AnnotationPlot*> getAnnotations();
+  std::vector<AnnotationPlot*> getAnnotations();
   /// plot annotations only
-  vector<Rectangle> plotAnnotations();
+  std::vector<Rectangle> plotAnnotations();
   /// get plotwindow corners in GL-coordinates
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)
@@ -162,7 +159,7 @@ public:
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources=false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
                            std::set<miutil::miTime>& constTimes,
@@ -185,7 +182,7 @@ public:
   /// get current area
   const Area& getCurrentArea();
   /// set colourindices from gui
-  void setColourIndices(vector<Colour::ColourInfo>&);
+  void setColourIndices(std::vector<Colour::ColourInfo>&);
 
   /// get colour wich is visible on the present background
   Colour getContrastColour();
@@ -200,10 +197,10 @@ public:
   void nextObs(bool);
   /// init hqcData from QSocket
   bool initHqcdata(int from, const std::string&, const std::string&,
-                   const std::string&, const vector<std::string>&);
+                   const std::string&, const std::vector<std::string>&);
   /// update hqcData from QSocket
   void updateHqcdata(const std::string&, const std::string&,
-                     const std::string&, const vector<std::string>&);
+                     const std::string&, const std::vector<std::string>&);
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
@@ -261,11 +258,11 @@ public:
 
   // Sat-dialog routines
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  const vector<SatFileInfo>& getSatFiles(const std::string & satellite, const std::string & file,bool update);
+  const std::vector<SatFileInfo>& getSatFiles(const std::string & satellite, const std::string & file,bool update);
   /// returns colour palette for subproduct of class satellite and subclass file
-  const vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
+  const std::vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
   /// returns channels for subproduct of class satellite and subclass file
-  const vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
+  const std::vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
                                          int index=-1);
   /// returns true if satellite picture is a mosaic
   bool isMosaic(const std::string &, const std::string &);
@@ -282,7 +279,7 @@ public:
   /// satellite follows main plot time
   void setSatAuto(bool,const std::string &, const std::string &);
   /// get satellite classes for uffda dialog
-  void getUffdaClasses(vector <std::string> &,vector <std::string> &);
+  void getUffdaClasses(std::vector<std::string>&, std::vector<std::string>&);
   /// returns true if uffda option enables
   bool getUffdaEnabled();
   /// returns adress to send mail from uffda dialog
@@ -302,22 +299,22 @@ public:
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
-  vector<FieldDialogInfo> initFieldDialog();
+  std::vector<FieldDialogInfo> initFieldDialog();
   ///return all reference times for the given model
-  set<std::string> getFieldReferenceTimes(const std::string model);
+  std::set<std::string> getFieldReferenceTimes(const std::string model);
   ///return the reference time given by refOffset and refhour or the last reference time for the given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(vector<std::string>& fieldNames,
-                        set<std::string>& fieldprefixes,
-                        set<std::string>& fieldsuffixes);
+  void getAllFieldNames(std::vector<std::string>& fieldNames,
+                        std::set<std::string>& fieldprefixes,
+                        std::set<std::string>& fieldsuffixes);
   ///return levels
-  vector<std::string> getFieldLevels(const std::string& pinfo);
+  std::vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelNameRequest,
-                      std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
+                      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
-  vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
+  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
 ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
 
@@ -333,33 +330,33 @@ public:
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<std::string> getObjectNames(bool);
+  std::vector<std::string> getObjectNames(bool);
   ///objects follow main plot time
   void setObjAuto(bool autoFile);
   /// returns list of objectfiles for use in dialog
-  vector<ObjFileInfo> getObjectFiles(std::string objectname, bool refresh);
+  std::vector<ObjFileInfo> getObjectFiles(std::string objectname, bool refresh);
   /// decode string with types of objects to plot
-  map <std::string,bool> decodeTypeString(std::string);
+  std::map<std::string,bool> decodeTypeString(std::string);
 
   // various GUI-methods
-  vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
-  bool getQuickMenus(vector<QuickMenuDefs>& qm);
+  std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
+  bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
 
   //stations
   void putStations(StationPlot*);
   void makeStationPlot(const std::string& commondesc, const std::string& common,
                        const std::string& description, int from,
-                       const  vector<std::string>& data);
+                       const  std::vector<std::string>& data);
   void deleteStations(std::string name);
   void deleteStations(int id=-2);
   std::string findStation(int, int,std::string name,int id=-1);
-  void findStations(int, int, bool add, vector<std::string>& name,vector<int>& id,
-                    vector<std::string>& station);
+  void findStations(int, int, bool add, std::vector<std::string>& name, std::vector<int>& id,
+                    std::vector<std::string>& station);
   void getEditStation(int step, std::string& name, int& id,
-                      vector<std::string>& stations);
-  void getStationData(vector<std::string>& data);
+                      std::vector<std::string>& stations);
+  void getStationData(std::vector<std::string>& data);
   void stationCommand(const std::string& Command,
-                      const vector<std::string>& data,
+                      const std::vector<std::string>& data,
                       const std::string& name="", int id=-1,
                       const std::string& misc="");
   void stationCommand(const std::string& Command,
@@ -374,7 +371,7 @@ public:
   void areaCommand(const std::string& command, const std::string& dataSet,
                    const std::string& data, int id );
   ///find areas in position x,y
-  vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);
@@ -386,7 +383,7 @@ public:
 
   std::map<std::string,InfoFile> getInfoFiles();
 
-  vector<PlotElement>& getPlotElements();
+  std::vector<PlotElement>& getPlotElements();
   void enablePlotElement(const PlotElement& pe);
 
 /********************* reading and writing log file *******************/
@@ -407,9 +404,9 @@ public:
   bool useScrollwheelZoom();
 
   // Miscellaneous get methods
-  vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
-  vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  std::vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
+  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif

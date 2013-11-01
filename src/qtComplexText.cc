@@ -36,21 +36,21 @@
 #include "config.h"
 #endif
 
+#include "qtComplexText.h"
+#include "diController.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QPixmap>
 #include <QVBoxLayout>
-
-#include <fstream>
-#include "qtComplexText.h"
-#include "qtUtility.h"
-
-#include <puTools/miString.h>
 #include <qstring.h>
-#include "qtToggleButton.h"
-#include <iostream>
-#include "diController.h"
+
+#include <puTools/miStringFunctions.h>
+
+using namespace std;
 
 QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
 {
@@ -326,19 +326,12 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
 
 
 
-    void ComplexText::textSelected()
-    {
+void ComplexText::textSelected()
+{
 #ifdef DEBUGPRINT
-      cout<<"ComplexText::textSelected called"<<endl;
+  cout<<"ComplexText::textSelected called"<<endl;
 #endif
-      for (unsigned int i =0;i<vSymbolEdit.size();i++){
-        selectText(i);
-      }
-    }
-
-
-
-
-
-
-
+  for (unsigned int i =0;i<vSymbolEdit.size();i++){
+    selectText(i);
+  }
+}

@@ -31,12 +31,9 @@
 #ifndef VPROFSETUPDIALOG_H
 #define VPROFSETUPDIALOG_H
 
-#include <QDialog>
-
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
+#include <QDialog>
 #include <vector>
-
 
 class QComboBox;
 class QCheckBox;
@@ -48,7 +45,6 @@ class VprofOptions;
 
 /**
    \brief Dialogue to select Vertical Profile diagram and data options
-
 */
 class VprofSetupDialog: public QDialog
 {

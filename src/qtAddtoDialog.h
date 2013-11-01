@@ -33,17 +33,14 @@
 
 #include <qdialog.h>
 #include <qlineedit.h>
-#include <puTools/miString.h>
 
-using namespace std; 
+#include <string>
 
 class Controller;
 class ObjectManager;
 
-
 /**
    \brief Dialogue for adding a new choice (name/file)
-   
 */
 class AddtoDialog :public QDialog
 {
@@ -52,13 +49,13 @@ public:
   
   AddtoDialog( QWidget* parent, Controller* llctrl);
   /// get name from dialog
-  miutil::miString getName();
+  std::string getName();
   /// get file from dialog
-  miutil::miString getFile();
+  std::string getFile();
   /// put name in dialog
-  void putName(const miutil::miString &);
+  void putName(const std::string &);
   /// put file in dialog
-  void putFile(const miutil::miString &);
+  void putFile(const std::string &);
     
 private:
   Controller*    m_ctrl;
@@ -66,21 +63,6 @@ private:
 
   QLineEdit *name;
   QLineEdit *file;
-
-signals:
-
-
-private slots:
-
-
-public slots:
-
 };
 
 #endif
-
-
-
-
-
-

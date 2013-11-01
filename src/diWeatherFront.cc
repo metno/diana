@@ -33,18 +33,18 @@
 #include "config.h"
 #endif
 
+#include <diWeatherFront.h>
+#include <puTools/miStringFunctions.h>
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.WeatherFront"
 #include <miLogger/miLogging.h>
 
-#include <diWeatherFront.h>
-#include <math.h>
-#include <puTools/miString.h>
-#include <sstream>
-
 using namespace::miutil;
+using namespace std;
 
 vector<editToolInfo> WeatherFront::allFronts; //info about fronts
-map<miString,int> WeatherFront::frontTypes;   //finds front type number from name
+map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
 float WeatherFront::defaultLineWidth=8;
 
 // Default constructor
@@ -67,10 +67,10 @@ WeatherFront::WeatherFront(int ty) : ObjectPlot(wFront),linewidth(defaultLineWid
   setType(ty);         // fronttype
 }
 
-WeatherFront::WeatherFront(miString tystring) : ObjectPlot(wFront),linewidth(defaultLineWidth)
+WeatherFront::WeatherFront(std::string tystring) : ObjectPlot(wFront),linewidth(defaultLineWidth)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront(miString) constructor: " << defaultLineWidth);
+  METLIBS_LOG_DEBUG("WeatherFront(std::string) constructor: " << defaultLineWidth);
 #endif
   // set correct fronttype
   if (!setType(tystring))
@@ -1230,9 +1230,9 @@ void WeatherFront::setType(int ty){
 
 }
 
-bool WeatherFront::setType(miString tystring){
+bool WeatherFront::setType(std::string tystring){
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherFront::setType(miString)=" << tystring <<  endl);
+  METLIBS_LOG_DEBUG("WeatherFront::setType(std::string)=" << tystring <<  endl);
 #endif
   if (frontTypes.find(tystring)!=frontTypes.end()){
     type = frontTypes[tystring];

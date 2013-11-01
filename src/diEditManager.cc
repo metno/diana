@@ -35,9 +35,6 @@
 #endif
 
 #include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.EditManager"
-#include <miLogger/miLogging.h>
 
 #include <diEditManager.h>
 #include <diPlotModule.h>
@@ -63,8 +60,12 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
+#define MILOGGER_CATEGORY "diana.EditManager"
+#include <miLogger/miLogging.h>
+
 //#define DEBUGPRINT
 using namespace miutil;
+using namespace std;
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
@@ -90,10 +91,10 @@ EditManager::~EditManager()
 {
 }
 
-
-bool EditManager::parseSetup() {
+bool EditManager::parseSetup()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ EditManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 #endif
 
   std::string section="EDIT";

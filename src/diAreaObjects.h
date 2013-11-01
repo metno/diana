@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,63 +28,54 @@
 */
 #ifndef _diAreaObjects_h
 #define _diAreaObjects_h
-#include <vector>
-#include <diField/diArea.h>
-#include <diObjectPlot.h>
+
 #include <diWeatherObjects.h>
-#include <puTools/miString.h>
-#include <diCommonTypes.h>
 
-
-using namespace std; 
+#include <string>
+#include <vector>
 
 /**
-
   \brief WeatherObjects with special commands
 
- The AreaObjects class is designed to hold a vector of WeatherArea objects. Each instance of the class willhave an icon, and specific commands like"show" and "select" can be applied. It is also possible to find which areas a point is inside, with the findAreas function.
-  
-
+ The AreaObjects class is designed to hold a vector of WeatherArea
+ objects. Each instance of the class willhave an icon, and specific
+ commands like"show" and "select" can be applied. It is also possible
+ to find which areas a point is inside, with the findAreas function.
 */
-
-
-class AreaObjects:public WeatherObjects{
+class AreaObjects : public WeatherObjects {
 public:
 
   AreaObjects();
   ~AreaObjects(){}
   /// assign name,icon and id, and read areastring to make WeatherArea objects  
-  void makeAreas(const miutil::miString& name, const miutil::miString& icon, 
-		 const miutil::miString& areastring, int id, const Area& );
+  void makeAreas(const std::string& name, const std::string& icon, 
+		 const std::string& areastring, int id, const Area& );
   /// apply a command
-  bool areaCommand(const miutil::miString& command,const miutil::miString& data);
+  bool areaCommand(const std::string& command,const std::string& data);
   /// returns a vector of selectArea which x and y are inside
-  vector <selectArea> findAreas(float x, float y, bool newArea=false);
+  std::vector<selectArea> findAreas(float x, float y, bool newArea=false);
   /// returns id
   int getId(){return itsId;}
   /// returns name
-  miutil::miString getName(){return itsName;}
+  std::string getName(){return itsName;}
   /// gets name
   void getPlotName(std::string &name){name=itsName;}
   /// gets bounding box of area with name name
-  Rectangle getBoundBox(const miutil::miString& name);
+  Rectangle getBoundBox(const std::string& name);
   /// returns autozoom
   bool autoZoom(){return autozoom;}
   /// sets icon   
-  void setIcon(miutil::miString icon){iconName = icon;}
+  void setIcon(std::string icon){iconName = icon;}
   /// gets icon 
-  miutil::miString getIcon(){return iconName;}
+  std::string getIcon(){return iconName;}
 
 private:
   int itsId;
-  miutil::miString itsName;
-  miutil::miString iconName;
+  std::string itsName;
+  std::string iconName;
   bool clickSelect;
   bool autozoom;
   ObjectPlot* currentArea;
 };
+
 #endif
-
-
-
-

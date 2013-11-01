@@ -33,15 +33,15 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.FieldPlotManager"
-#include <miLogger/miLogging.h>
-
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+
+#define MILOGGER_CATEGORY "diana.FieldPlotManager"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;

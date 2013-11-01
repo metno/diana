@@ -34,11 +34,12 @@
 #include "config.h"
 #endif
 
+#include <diSat.h>
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.Sat"
 #include <miLogger/miLogging.h>
-
-#include <diSat.h>
-#include <iostream>
 
 using namespace::miutil;
 
@@ -99,7 +100,7 @@ Sat::Sat (const std::string &pin) :
   for (int i=0; i<3; i++)
     origimage[i]= NULL;
 
-  vector<std::string> tokens= miutil::split(pin);
+  std::vector<std::string> tokens= miutil::split(pin);
   int n= tokens.size();
   if (n < 4) {
     METLIBS_LOG_WARN("Wrong syntax: "<<pin);
@@ -112,7 +113,7 @@ Sat::Sat (const std::string &pin) :
   std::string key, value;
 
   for (int i=4; i<n; i++) { // search through plotinfo
-    vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
+    std::vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
     if (stokens.size()==2) {
       key = miutil::to_lower(stokens[0]);
       value = stokens[1];
@@ -132,10 +133,10 @@ Sat::Sat (const std::string &pin) :
       else if (key=="table")
         classtable = (atoi(value.c_str())!=0);
       else if (key=="hide") {
-        vector <std::string> stokens=miutil::split(value, 0, ",");
+        std::vector<std::string> stokens = miutil::split(value, 0, ",");
         int m= stokens.size();
         for (int j=0; j<m; j++) {
-          vector <std::string> sstokens=miutil::split(stokens[j], 0, ":");
+          std::vector <std::string> sstokens=miutil::split(stokens[j], 0, ":");
           if(sstokens.size()==1) {
             hideColour[atoi(sstokens[0].c_str())] = 0;
           } else {
@@ -152,21 +153,20 @@ Sat::Sat (const std::string &pin) :
   METLIBS_LOG_DEBUG("maxDiff = " << maxDiff);
   METLIBS_LOG_DEBUG("classtable = " << classtable);
 #endif
-
   }
 
-// Destructor
-Sat::~Sat() {
+Sat::~Sat()
+{
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Sat destructor  nx=" << nx << " ny=" << ny);
 #endif
   cleanup();
 }
 
-// Assignment operato r
-Sat& Sat::operator=(const Sat &rhs) {
+Sat& Sat::operator=(const Sat &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Sat assignment operator  " );
+  METLIBS_LOG_SCOPE();
 #endif
 
   if (this == &rhs) return *this;
@@ -176,7 +176,6 @@ Sat& Sat::operator=(const Sat &rhs) {
   return *this;
 }
 
-// Equality operator
 bool Sat::operator==(const Sat &rhs) const {
   return false;
 }
@@ -267,15 +266,15 @@ void Sat::setDefaultValues(const SatDialogInfo & Dialog)
 /* * PURPOSE:   calculate and print the temperature or the albedo of
  *            the pixel pointed at
  */
-void Sat::values(int x, int y, vector<SatValues>& satval)
+void Sat::values(int x, int y, std::vector<SatValues>& satval)
 {
   if (x>=0 && x<nx && y>=0 && y<ny && approved) { // inside image/legal image
     int index = nx*(ny-y-1) + x;
 
     //return value from  all channels
 
-    map<int,table_cal>::iterator p=calibrationTable.begin();
-    map<int,table_cal>::iterator q=calibrationTable.end();
+    std::map<int,table_cal>::iterator p=calibrationTable.begin();
+    std::map<int,table_cal>::iterator q=calibrationTable.end();
     for (; p!=q && rawimage[p->first]!=NULL; p++) {
       SatValues sv;
       sv.value = -999.99;
@@ -355,7 +354,7 @@ void Sat::setCalibration()
   if (cal_table.size()>0) {
     for (unsigned int i=0; i<cal_table.size(); i++) {
       table_cal ct;
-      vector<std::string> token = miutil::split(cal_table[i], ",");
+      std::vector<std::string> token = miutil::split(cal_table[i], ",");
       if (token.size()!= 5)
         continue;
       int m = vch.size();
@@ -385,7 +384,7 @@ void Sat::setCalibration()
   bool vis=false;
   float AVis = 0.0, BVis = 0.0;
   if (not cal_vis.empty()) {
-    vector<std::string> cal = miutil::split(cal_vis, "+");
+    std::vector<std::string> cal = miutil::split(cal_vis, "+");
     if (cal.size()==2) {
       std::string str = cal[0].substr(cal[0].find_first_of("(")+1);
       BVis = atof(str.c_str());
@@ -403,7 +402,7 @@ void Sat::setCalibration()
   bool ir = false;
   float AIr = 0.0, BIr = 0.0;
   if (not cal_ir.empty()) {
-    vector<std::string> cal = miutil::split(cal_ir, "+");
+    std::vector<std::string> cal = miutil::split(cal_ir, "+");
     if (cal.size()==2) {
       std::string str = cal[0].substr(cal[0].find_first_of("(")+1);
       BIr = atof(str.c_str());

@@ -33,11 +33,12 @@
 #include "config.h"
 #endif
 
+#include <diSpectrumOptions.h>
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.SpectrumOptions"
 #include <miLogger/miLogging.h>
-
-#include <diSpectrumOptions.h>
-#include <iostream>
 
 using namespace::miutil;
 
@@ -99,13 +100,13 @@ void SpectrumOptions::setDefaults()
 }
 
 
-vector<string> SpectrumOptions::writeOptions()
+std::vector<std::string> SpectrumOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumOptions::writeOptions");
+  METLIBS_LOG_SCOPE();
 #endif
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   std::string str;
 
   str=  "text=" + std::string(pText ? "on" : "off");
@@ -158,13 +159,13 @@ vector<string> SpectrumOptions::writeOptions()
 }
 
 
-void SpectrumOptions::readOptions(const vector<string>& vstr)
+void SpectrumOptions::readOptions(const std::vector<std::string>& vstr)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumOptions::readOptions");
+  METLIBS_LOG_SCOPE();
 #endif
 
-  vector<string> vs,tokens;
+  std::vector<std::string> vs,tokens;
   std::string key,value;
 
   int n= vstr.size();

@@ -30,13 +30,10 @@
 */
 #ifndef VPROFMODELDIALOG_H
 #define VPROFMODELDIALOG_H
-#include <QDialog>
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
+#include <QDialog>
 #include <vector>
-
-using namespace std;
 
 class QFont;
 class QPalette;
@@ -50,7 +47,7 @@ class ToggleButton;
 
    Choose between observation types and prognostic models
 */
-class VprofModelDialog: public QDialog
+class VprofModelDialog : public QDialog
 {
   Q_OBJECT
 

@@ -35,27 +35,20 @@
 #include <diObsPlot.h>
 
 /**
-
-  \brief Reading met.no obs files (ocean)
+   \brief Reading met.no obs files (ocean)
   
    using the robs library 
-
-*/class ObsOcea : public ocea {
+*/
+class ObsOcea : public ocea {
 
 private:
   void putData(int,int,miutil::miTime,ObsData &);
-  int getIndex(int, const vector<int16>&, int);
+  int getIndex(int, const std::vector<int16>&, int);
 
 public:
-  // Constructors
-  ObsOcea(const miutil::miString&);
+  ObsOcea(const std::string&);
 
   void init(ObsPlot *);
-
 };
 
 #endif
-
-
-
-

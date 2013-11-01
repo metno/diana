@@ -33,7 +33,6 @@
 
 #include <qglobal.h>
 
-#include <puTools/miString.h>
 #include <map>
 
 #if !defined(USE_PAINTGL)
@@ -44,8 +43,6 @@
 #endif
 #include <QKeyEvent>
 #include <QWidget>
-
-using namespace std;
 
 class SpectrumManager;
 

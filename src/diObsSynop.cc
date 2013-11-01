@@ -39,7 +39,7 @@
 
 using namespace::miutil;
 
-ObsSynop::ObsSynop(const miString &file)
+ObsSynop::ObsSynop(const std::string &file)
 :synop(file){
 }
 

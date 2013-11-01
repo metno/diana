@@ -31,15 +31,20 @@
 #include "config.h"
 #endif
 
+#include "qtImageGallery.h"
+#include "diImageGallery.h"
+
+#include <puCtools/puCglob.h>
+#include <puCtools/glob_cache.h>
+#include <puTools/miStringFunctions.h>
+
+#include <QDataStream>
+#include <QFileInfo>
+
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
 
-#include "qtImageGallery.h"
-#include "diImageGallery.h"
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
-#include <QDataStream>
-#include <QFileInfo>
+using namespace std;
 
 std::map<std::string, QImage> QtImageGallery::Images;
 

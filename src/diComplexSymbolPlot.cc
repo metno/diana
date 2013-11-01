@@ -35,10 +35,13 @@
 #include <diFontManager.h>
 #include <diWeatherSymbol.h>
 
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.ComplexSymbolPlot"
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
+using namespace std;
 
 //Define symbols from font
 #define SIG1SYMBOL 248
@@ -67,6 +70,7 @@ using namespace::miutil;
 
 //static variables
 // text used in new complex symbols
+
 vector <std::string> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
 vector <std::string> ComplexSymbolPlot::currentXStrings; //xtext
 set <std::string> ComplexSymbolPlot::clist; //texts used in combobox

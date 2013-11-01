@@ -32,29 +32,27 @@
 #define diObsAscii_h
 
 #include <diObsData.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
+
 #include <map>
+#include <string>
+#include <vector>
 
 class ObsPlot;
 class ObsMetaData;
 
-using namespace std;
-
 
 /**
-
   \brief Reading ascii observation files 
   
   In-house met.no format
-
 */
 class ObsAscii {
 private:
 
   std::vector<std::string> lines;
-  vector<ObsData> vObsData;
-  map< std::string, ObsData > mObsData;
+  std::vector<ObsData> vObsData;
+  std::map< std::string, ObsData > mObsData;
   std::string separator;
   bool fileOK;
   bool knots;
@@ -62,9 +60,9 @@ private:
   miutil::miTime fileTime;
   int    timeDiff;
 
-  vector<std::string> columnType;
-  vector<std::string> asciiColumnUndefined;
-  map<std::string,int> asciiColumn; //column index(time, x,y,dd,ff etc)
+  std::vector<std::string> columnType;
+  std::vector<std::string> asciiColumnUndefined;
+  std::map<std::string,int> asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
   std::vector<std::string> labels;
 
@@ -79,8 +77,8 @@ private:
   void addStationsToUrl(std::string& filename);
 
 public:
-  vector<std::string> columnName;
-  vector<std::string> columnTooltip;
+  std::vector<std::string> columnName;
+  std::vector<std::string> columnTooltip;
 
   ObsAscii(const std::string& filename, const std::string& headerfile,
       const std::vector<std::string> headerinfo);

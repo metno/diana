@@ -33,21 +33,20 @@
 #include "config.h"
 #endif
 
+#include <diWeatherArea.h>
+#include <diTesselation.h>
+#include <polyStipMasks.h>
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.WeatherArea"
 #include <miLogger/miLogging.h>
 
-#include <diWeatherArea.h>
-#include <polyStipMasks.h>
-#include <math.h>
-#include <sstream>
-#include <set>
-
-#include <diTesselation.h>
-
 using namespace ::miutil;
+using namespace std;
 
 vector<editToolInfo> WeatherArea::allAreas; //info about areas
-map<miString, int> WeatherArea::areaTypes; //finds area type number from name
+map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
 float WeatherArea::defaultLineWidth = 4;
 
 // Default constructor
@@ -71,11 +70,11 @@ WeatherArea::WeatherArea(int ty) :
   setType(ty);
 }
 
-WeatherArea::WeatherArea(miString tystring) :
+WeatherArea::WeatherArea(std::string tystring) :
   ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea(miString) constructor");
+  METLIBS_LOG_DEBUG("WeatherArea(std::string) constructor");
 #endif
   // set correct areatype
   if (!setType(tystring))
@@ -367,10 +366,10 @@ void WeatherArea::setType(int ty)
 
 }
 
-bool WeatherArea::setType(miString tystring)
+bool WeatherArea::setType(std::string tystring)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea::setType(miString)=" << tystring);
+  METLIBS_LOG_DEBUG("WeatherArea::setType(std::string)=" << tystring);
 #endif
   if (areaTypes.find(tystring) != areaTypes.end()) {
     type = areaTypes[tystring];
@@ -392,7 +391,7 @@ bool WeatherArea::setSpline(bool s)
   return false;
 }
 
-void WeatherArea::setFillArea(const miString& filltype)
+void WeatherArea::setFillArea(const std::string& filltype)
 {
   fillArea = false;
   if ( filltype == "diagleft" ) {

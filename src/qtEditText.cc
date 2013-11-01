@@ -32,6 +32,13 @@
   Input for adding complex text
  */
 
+#include "qtEditText.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diController.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -43,17 +50,12 @@
 #include <QString>
 
 #include <fstream>
-#include <iostream>
 
+//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.EditText"
 #include <miLogger/miLogging.h>
 
-#include <puTools/miString.h>
-#include "qtEditText.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-#include "diController.h"
-//#define DEBUGPRINT
+using namespace std;
 
 QValidator::State EditText::complexValidator::validate(QString& inputString, int& pos) const
 {

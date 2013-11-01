@@ -29,10 +29,8 @@
 #ifndef _obsdialog_h
 #define _obsdialog_h
 
-#include <QDialog>
-
 #include <diController.h>
-#include <puTools/miString.h>
+#include <QDialog>
 
 class QComboBox;
 class ObsWidget;
@@ -51,11 +49,9 @@ class QLineEdit;
 class QStackedWidget;
 
 /**
-
   \brief Observation dialogue
 
    Dialogue for selection of plot styles, data types, parameters etc.
-
 */
 class ObsDialog: public QDialog
 {
@@ -121,13 +117,13 @@ private:
 
  //ATTRIBUTES
   int nr_plot;
-  vector<std::string> m_name;
-  vector<std::string> savelog;
+  std::vector<std::string> m_name;
+  std::vector<std::string> savelog;
   int m_selected;
   QColor* colour;
   QComboBox* plotbox;
   QStackedWidget* stackedWidget;
-  vector<ObsWidget*> obsWidget;
+  std::vector<ObsWidget*> obsWidget;
   std::string parameterSelected;
   QLabel * label;
   bool multiplot;
@@ -156,14 +152,10 @@ private:
   QComboBox* colourBox;
   QComboBox* markerBox;
   QLineEdit* lineedit;
-  vector<Colour::ColourInfo> cInfo;
-  vector<std::string> markerName;
+  std::vector<Colour::ColourInfo> cInfo;
+  std::vector<std::string> markerName;
   Controller* m_ctrl;
   bool freeze;
 };
-
-
-
-
 
 #endif

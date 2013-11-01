@@ -30,6 +30,8 @@
 #ifndef diDrawingTypes_h
 #define diDrawingTypes_h
 
+#include <string>
+
 /// edit event types
 enum editType{
   edit_value,               // set change_value

@@ -33,14 +33,17 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.QuickMenues"
-#include <miLogger/miLogging.h>
-
 #include <diQuickMenues.h>
 #include <diLocalSetupParser.h>
 #include <fstream>
 
+#include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.QuickMenues"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 // write a quick-menu to file
 bool writeQuickMenu(const quickMenu& qm, bool newSyntax)

@@ -33,6 +33,9 @@
 #include "config.h"
 #endif
 
+#include "diController.h"
+#include "diEditManager.h"
+
 #include <QComboBox>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -48,20 +51,11 @@
 #include <QFrame>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.EditNewDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtEditNewDialog.h"
 #include "qtUtility.h"
 #include "qtEditDefineField.h"
 #include "qtTimeSpinbox.h"
 
-
-#include <puTools/miString.h>
-#include <iostream>
-
-#include "diController.h"
-#include "diEditManager.h"
 
 #include "kill.xpm"
 
@@ -69,11 +63,14 @@
 #include "qtLoginDialog.h"
 #endif
 
+#define MILOGGER_CATEGORY "diana.EditNewDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+
 EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
-
-
   m_editm= m_ctrl->getEditManager();
 
   TABNAME_NORMAL = tr("Normal");

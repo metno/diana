@@ -43,6 +43,7 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
+using namespace std;
 
 StationManager::StationManager()
 {
@@ -439,10 +440,10 @@ string StationManager::findStation(int x, int y, std::string name, int id)
   return std::string();
 }
 
-void StationManager::findStations(int x, int y, bool add, vector<std::string>& name,
-    vector<int>& id, vector<std::string>& station)
+void StationManager::findStations(int x, int y, bool add, std::vector<std::string>& name,
+    std::vector<int>& id, std::vector<std::string>& station)
 {
-  map <std::string,StationPlot*>::iterator it;
+  std::map <std::string,StationPlot*>::iterator it;
 
   int ii;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {

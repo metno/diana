@@ -34,6 +34,9 @@
 #endif
 
 #include "qtTextDialog.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QTextBrowser>
@@ -44,11 +47,10 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "qtUtility.h"
-#include <iostream>
-
 #include "kill.xpm"
 #include "fileopen.xpm"
+
+using namespace std;
 
 /*********************************************/
 TextDialog::TextDialog( QWidget* parent, const InfoFile ifile)

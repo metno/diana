@@ -33,8 +33,9 @@
 #include "config.h"
 #endif
 
-#include <sys/time.h>
 #include <diSatPlot.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <QtGlobal>
 #if defined(USE_PAINTGL)
@@ -45,11 +46,10 @@
 #include <QtOpenGL>
 #endif
 
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
 #define NO_TEXTTURE
+
 using namespace::miutil;
+using namespace std;
 
 // Default constructor
 SatPlot::SatPlot()
@@ -70,7 +70,7 @@ SatPlot::~SatPlot(){
 }
 
 
-void SatPlot::getSatAnnotation(string &str, Colour &col)
+void SatPlot::getSatAnnotation(std::string &str, Colour &col)
 {
   if (satdata->approved){
     str = satdata->annotation;
@@ -82,10 +82,10 @@ void SatPlot::getSatAnnotation(string &str, Colour &col)
 
 
 
-void SatPlot::getSatName(string &str)
+void SatPlot::getSatName(std::string &str)
 {
   if (satdata->approved){
-    string sat = miutil::trimmed(satdata->satellite_name + satdata->filetype);
+    std::string sat = miutil::trimmed(satdata->satellite_name + satdata->filetype);
     str = sat;
     if (satdata->mosaic)
       str+=" MOSAIKK ";
@@ -118,18 +118,17 @@ void SatPlot::clearData(){
   imagedata = NULL;
 }
 
-void SatPlot::getCalibChannels(vector<string>& channels)
+void SatPlot::getCalibChannels(std::vector<std::string>& channels)
 {
   channels.insert(channels.end(),
       satdata->cal_channels.begin(),
       satdata->cal_channels.end());
 }
 
-void SatPlot::values(float x, float y, vector<SatValues>& satval){
-
-  if (!enabled) {
+void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
+{
+  if (not enabled)
     return;
-  }
 
   if ((satdata == NULL)||
       (satdata->image == NULL)||

@@ -39,7 +39,6 @@
 #include <profet/fetSession.h>
 #include <profet/fetParameter.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
 #include <diColour.h>
 #include <vector>
 #include <map>

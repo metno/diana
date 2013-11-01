@@ -3,7 +3,7 @@
 #endif
 
 #include <diGridAreaManager.h>
-#include <iostream>
+
 #include <propoly/AbstractablePolygon.h>
 #include <propoly/Point.h>
 #include <sstream>
@@ -11,14 +11,16 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
+#define MILOGGER_CATEGORY "diana.GridAreaManager"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 GridAreaManager::GridAreaManager() :
-  mapmode(normal_mode), hasinterpolated(false) {
+  mapmode(normal_mode), hasinterpolated(false)
+{
   paintMode = SELECT_MODE;
-#ifndef NOLOG4CXX
-  logger = log4cxx::Logger::getLogger("diana.GridAreaManager");
-#endif
   overrideMouseEvent = false;
   modeChanged = true;
   currentId = "";
@@ -32,22 +34,27 @@ void GridAreaManager::clear() {
   setCurrentArea("");
 }
 
-ProjectablePolygon GridAreaManager::getCurrentPolygon() {
-  LOG4CXX_DEBUG(logger,"getCurrentPolygon (id ="<<currentId<<")");
+ProjectablePolygon GridAreaManager::getCurrentPolygon()
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG("id =" << currentId);
   if (gridAreas.count(currentId))
     return gridAreas[currentId].getPolygon();
   return ProjectablePolygon();
 }
 
-ProjectablePolygon GridAreaManager::getArea(std::string id) {
-  LOG4CXX_DEBUG(logger,"getArea("<<id<<")");
+ProjectablePolygon GridAreaManager::getArea(std::string id)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG("id =" << id);
   if (gridAreas.count(id))
     return gridAreas[id].getPolygon();
   return ProjectablePolygon();
 }
 
 void GridAreaManager::sendMouseEvent(QMouseEvent* me, EventResult& res,
-    float x, float y) {
+    float x, float y)
+{
   handleModeChanged(me, res);
 
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
@@ -59,7 +66,7 @@ void GridAreaManager::sendMouseEvent(QMouseEvent* me, EventResult& res,
   if (paintMode == SELECT_MODE) {
     handleSelectEvent(me, res, x, y);
   } else if (!gridAreas.count(currentId)) {
-    LOG4CXX_WARN(logger,getModeAsString() << " not possible (no area)");
+    METLIBS_LOG_WARN(getModeAsString() << " not possible (no area)");
     return;
   }
   if (paintMode == DRAW_MODE) {
@@ -80,9 +87,11 @@ void GridAreaManager::sendMouseEvent(QMouseEvent* me, EventResult& res,
 }
 
 
-void GridAreaManager::handleModeChanged(QMouseEvent* me, EventResult& res) {
+void GridAreaManager::handleModeChanged(QMouseEvent* me, EventResult& res)
+{
+  METLIBS_LOG_SCOPE();
   if (modeChanged) {
-    LOG4CXX_DEBUG(logger,"Changing cursor to " << getCurrentCursor());
+    METLIBS_LOG_DEBUG("Changing cursor to " << getCurrentCursor());
     res.newcursor = getCurrentCursor();
     modeChanged = false;
     if (gridAreas.count(currentId) && me->button() == Qt::NoButton) {
@@ -94,8 +103,7 @@ void GridAreaManager::handleModeChanged(QMouseEvent* me, EventResult& res) {
         gridAreas[currentId].setMode(GridArea::NORMAL);
       }
     }
-    LOG4CXX_DEBUG(logger,"Paint mode = " << getModeAsString());
-    LOG4CXX_DEBUG(logger,"Area mode = " << gridAreas[currentId].getMode());
+    METLIBS_LOG_DEBUG("Paint mode = " << getModeAsString() << " Area mode = " << gridAreas[currentId].getMode());
   } else {
     res.newcursor = keep_it;
   }
@@ -109,7 +117,7 @@ void GridAreaManager::handleSelectEvent(QMouseEvent* me, EventResult& res,
   } else if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     std::string prevId = currentId;
     selectArea(Point(x, y));
-    LOG4CXX_DEBUG(logger,"Selected area: " << currentId);
+    METLIBS_LOG_DEBUG("Selected area: " << currentId);
     gridAreas[currentId].setMode(GridArea::NORMAL);
     res.repaint = true;
     res.action=grid_area_changed;
@@ -123,7 +131,7 @@ void GridAreaManager::handleDrawEvent(QMouseEvent* me, EventResult& res,
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
-      LOG4CXX_DEBUG(logger,"Starting draw " << currentId);
+      METLIBS_LOG_DEBUG("Starting draw " << currentId);
       gridAreas[currentId].startDraw(Point(x, y));
     } else if (gridAreas[currentId].getMode() == GridArea::PAINTING) {
       gridAreas[currentId].addPoint(Point(x, y));
@@ -149,7 +157,7 @@ void GridAreaManager::handleEditEvent(QMouseEvent* me, EventResult& res,
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
     if(gridAreas[currentId].getMode() == GridArea::NORMAL) {
-      LOG4CXX_DEBUG(logger,"Starting edit " << currentId);
+      METLIBS_LOG_DEBUG("Starting edit " << currentId);
       gridAreas[currentId].startEdit(Point(x, y));
     } else if (gridAreas[currentId].getMode() == GridArea::EDIT) {
       gridAreas[currentId].addPoint(Point(x, y));
@@ -179,7 +187,7 @@ void GridAreaManager::handleMoveEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
-    LOG4CXX_DEBUG(logger,"Starting move " << currentId);
+    METLIBS_LOG_DEBUG("Starting move " << currentId);
     gridAreas[currentId].startMove();
     res.repaint = true;
   } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
@@ -197,7 +205,7 @@ void GridAreaManager::handleMovePointEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
-    LOG4CXX_DEBUG(logger,"Starting move point " << currentId);
+    METLIBS_LOG_DEBUG("Starting move point " << currentId);
     gridAreas[currentId].startNodeMove();
     res.repaint = true;
   } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
@@ -218,7 +226,7 @@ void GridAreaManager::handleSpatialInterpolationEvent(QMouseEvent* me, EventResu
     const float& x, const float& y, const float& first_x, const float& first_y)
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
-    LOG4CXX_DEBUG(logger,"Starting Spatial Interpolation");
+    METLIBS_LOG_DEBUG("Starting Spatial Interpolation");
     gridAreas[currentId].startMove();
     res.repaint = true;
   } else if (me->type() == QEvent::MouseMove && me->buttons() & Qt::LeftButton) {
@@ -258,7 +266,7 @@ void GridAreaManager::handleRemovePointEvent(QMouseEvent* me, EventResult& res,
     const float& x, const float& y)
 {
   if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton) {
-    LOG4CXX_DEBUG(logger,"Remove point from " << currentId);
+    METLIBS_LOG_DEBUG("Remove point from " << currentId);
     if(gridAreas[currentId].removeFocusedPoint()) {
       res.repaint = true;
       res.action = grid_area_changed;
@@ -290,7 +298,7 @@ void GridAreaManager::doSpatialInterpolation(const std::string & movedId, float 
     ++m;
   }
   if (n == m) {
-    LOG4CXX_ERROR(logger, "doSpatialInterpolation failed - trying to move parent");
+    METLIBS_LOG_ERROR( "doSpatialInterpolation failed - trying to move parent");
     return;
   }
   Point parentCenter = spatialAreas[m].area.getPolygon().getCenterPoint();
@@ -310,7 +318,7 @@ void GridAreaManager::doSpatialInterpolation(const std::string & movedId, float 
 void GridAreaManager::setPaintMode(PaintMode mode) {
   paintMode = mode;
   modeChanged = true;
-  LOG4CXX_DEBUG(logger,"setPaintMode(" << getModeAsString() << ")");
+  METLIBS_LOG_DEBUG("setPaintMode(" << getModeAsString() << ")");
 }
 
 GridAreaManager::PaintMode GridAreaManager::getPaintMode() const {
@@ -349,10 +357,10 @@ void GridAreaManager::addSpatialInterpolateArea(std::string id, std::string pare
 
 
 bool GridAreaManager::addArea(std::string id) {
-  LOG4CXX_DEBUG(logger,"Adding empty area with id " << id);
+  METLIBS_LOG_DEBUG("Adding empty area with id " << id);
   if (gridAreas.count(id)) {
     setCurrentArea(id);
-    LOG4CXX_WARN(logger,"Add area failed. Existing id " << id);
+    METLIBS_LOG_WARN("Add area failed. Existing id " << id);
     return false;
   }
 //  GridArea newArea(id, base_proj);
@@ -361,23 +369,24 @@ bool GridAreaManager::addArea(std::string id) {
   gridAreas[id] = newArea;
   bool foundNewArea = setCurrentArea(id);
   updateSelectedArea();
-  if (!foundNewArea)LOG4CXX_ERROR(logger,"Unable to select added area " << id);
+  if (!foundNewArea)METLIBS_LOG_ERROR("Unable to select added area " << id);
   return foundNewArea;
 }
 
 bool GridAreaManager::addArea(std::string id, ProjectablePolygon area,
     bool overwrite) {
-  LOG4CXX_DEBUG(logger,"Adding " << id << ": " << area.toString());
+  METLIBS_LOG_DEBUG("Adding " << id << ": " << area.toString());
   if (gridAreas.count(id) && !overwrite) {
     setCurrentArea(id);
-    LOG4CXX_WARN(logger,"Add area failed. Existing id " << id);
+    METLIBS_LOG_WARN("Add area failed. Existing id " << id);
     return false;
   }
   GridArea newArea(id, area);
   newArea.updateCurrentProjection();
   gridAreas[id] = newArea;
   bool foundNewArea = setCurrentArea(id);
-  if (!foundNewArea)LOG4CXX_ERROR(logger,"Unable to select added area " << id);
+  if (!foundNewArea)
+    METLIBS_LOG_ERROR("Unable to select added area " << id);
   return foundNewArea;
 }
 

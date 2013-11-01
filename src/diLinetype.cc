@@ -33,9 +33,9 @@
 #include "config.h"
 #endif
 
-#include <diLinetype.h>
+#include "diLinetype.h"
+#include <puTools/miStringFunctions.h>
 
-using namespace miutil;
 using namespace std;
 
 map<std::string,Linetype> Linetype::linetypes;

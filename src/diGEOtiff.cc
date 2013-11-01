@@ -41,10 +41,8 @@
 GEOtiff::GEOtiff(){
 }
 
-bool GEOtiff::readGEOtiffPalette(const std::string& filename,
-				   vector<Colour>& col)
+bool GEOtiff::readGEOtiffPalette(const std::string& filename, std::vector<Colour>& col)
 {
-
   satimg::dihead ginfo;
 
   // if not colour palette image
@@ -152,4 +150,3 @@ bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)
 
   return true;
 }
-

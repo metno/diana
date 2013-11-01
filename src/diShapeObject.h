@@ -28,32 +28,30 @@
  */
 #ifndef _diShapeObject_h
 #define _diShapeObject_h
-#include <diObjectPlot.h>
-#include <puTools/miString.h>
-#include <shapefil.h>
 
-using namespace std;
+#include <diObjectPlot.h>
+#include <shapefil.h>
+#include <map>
+#include <vector>
 
 /**
-
  \brief Plots generic shape data 
-
  */
 class ShapeObject : public ObjectPlot {
 private:
 
-  vector <Colour> colours;
+  std::vector <Colour> colours;
   std::string fname; //field name to colour by
-  map <std::string,Colour> stringcolourmap; //descr, colour
-  map <int,Colour> intcolourmap; //descr, colour
-  map <double,Colour> doublecolourmap; //descr, colour
+  std::map <std::string,Colour> stringcolourmap; //descr, colour
+  std::map <int,Colour> intcolourmap; //descr, colour
+  std::map <double,Colour> doublecolourmap; //descr, colour
   bool colourmapMade; //true if colour map made  
   bool stringcolourmapMade;
   bool intcolourmapMade;
   bool doublecolourmapMade;
-  vector<std::string> dbfStringDescr;
-  vector<int> dbfIntDescr;
-  vector<double> dbfDoubleDescr;
+  std::vector<std::string> dbfStringDescr;
+  std::vector<int> dbfIntDescr;
+  std::vector<double> dbfDoubleDescr;
   GridConverter gc;
 
   void makeColourmap();
@@ -61,19 +59,19 @@ private:
   // Copy members
   void memberCopy(const ShapeObject& rhs);
 
-  vector <SHPObject*> shapes;
-  vector <SHPObject*> orig_shapes;
-  vector<std::string> dbfIntName;
-  vector<std::string> dbfDoubleName;
-  vector<std::string> dbfStringName;
-  vector< vector<int> > dbfIntDesc;
-  vector< vector<double> > dbfDoubleDesc;
-  vector< vector<std::string> > dbfStringDesc;
-  map <std::string, vector<std::string> > dbfPlotDesc;
-  int readDBFfile(const std::string& filename, vector<std::string>& dbfIntName,
-      vector< vector<int> >& dbfIntDesc, vector<std::string>& dbfDoubleName,
-      vector< vector<double> >& dbfDoubleDesc, vector<std::string>& dbfStringName,
-      vector< vector<std::string> >& dbfStringDesc);
+  std::vector <SHPObject*> shapes;
+  std::vector <SHPObject*> orig_shapes;
+  std::vector<std::string> dbfIntName;
+  std::vector<std::string> dbfDoubleName;
+  std::vector<std::string> dbfStringName;
+  std::vector< std::vector<int> > dbfIntDesc;
+  std::vector< std::vector<double> > dbfDoubleDesc;
+  std::vector< std::vector<std::string> > dbfStringDesc;
+  std::map <std::string, std::vector<std::string> > dbfPlotDesc;
+  int readDBFfile(const std::string& filename, std::vector<std::string>& dbfIntName,
+      std::vector< std::vector<int> >& dbfIntDesc, std::vector<std::string>& dbfDoubleName,
+      std::vector< std::vector<double> >& dbfDoubleDesc, std::vector<std::string>& dbfStringName,
+      std::vector< std::vector<std::string> >& dbfStringDesc);
 
 public:
   ShapeObject();
@@ -101,12 +99,10 @@ public:
   virtual bool plot();
 
   virtual int getXYZsize();
-  virtual vector<float> getX();
-  virtual vector<float> getY();
-  virtual void setXY(vector<float> x, vector <float> y);
+  virtual std::vector<float> getX();
+  virtual std::vector<float> getY();
+  virtual void setXY(std::vector<float> x, std::vector <float> y);
   virtual bool getAnnoTable(std::string & str);
-
 };
 
 #endif
-

@@ -33,28 +33,30 @@
 #include "config.h"
 #endif
 
-#include <qglobal.h>
-
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#define MILOGGER_CATEGORY "diana.SpectrumPlot"
-#include <miLogger/miLogging.h>
-
 #include <diSpectrumPlot.h>
 #include <diSpectrumOptions.h>
 #include <diFontManager.h>
 #include <diPlotOptions.h>
 #include <diColour.h>
 #include <diContouring.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <qglobal.h>
+
+#include <iomanip>
+#include <sstream>
+
 #include <GL/gl.h>
 #if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
 
-#include <math.h>
+#define MILOGGER_CATEGORY "diana.SpectrumPlot"
+#include <miLogger/miLogging.h>
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 // static
 FontManager*  SpectrumPlot::fp= 0; // fontpack

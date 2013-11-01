@@ -32,20 +32,11 @@
 #ifndef diSat_h
 #define diSat_h
 
-//#ifndef DEBUGPRINT
-//  #define DEBUGPRINT
-//#endif
-
 #include <diField/diArea.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <diCommonTypes.h>
 
-
-using namespace std;
-
 /**
-
   \brief Satellite and radar data
 
   Contains data neded to plot and manage satellite and radar images
@@ -61,7 +52,7 @@ public:
   std::string channelInfo;
   std::string paletteinfo;
   int hdf5type;
-  vector<std::string> vch; ///< name of channels selected
+  std::vector<std::string> vch; ///< name of channels selected
   std::string filename;    ///< explicit selection of file
   std::string actualfile;  ///< actual filename used
   bool autoFile;        ///< filename from plot time
@@ -102,21 +93,21 @@ public:
   //Strings from file header
   std::string cal_vis;            /// calibration info visible channel
   std::string cal_ir;             /// calibration info ir channel
-  vector<std::string> cal_table;  /// calibration info
+  std::vector<std::string> cal_table;  /// calibration info
 
   struct table_cal{
     std::string channel;
-    vector<std::string> val;
+    std::vector<std::string> val;
     float a,b;
   };
-  map<int,table_cal> calibrationTable; /// calibration of current channels
-  vector<std::string> cal_channels;  /// name++ of current channels
+  std::map<int,table_cal> calibrationTable; /// calibration of current channels
+  std::vector<std::string> cal_channels;  /// name++ of current channels
 
   /// colour palette info
   struct Palette {
     std::string name;           ///< name of palette
     int noofcl;              ///< number of colours
-    vector<std::string> clname; ///< names of colour classes
+    std::vector<std::string> clname; ///< names of colour classes
     int cmap[3][256];        ///< rgb value map
   };
 
@@ -149,7 +140,7 @@ public:
   bool alphaoperchanged;   ///< changes in alpha-operation params
   bool mosaicchanged;      ///< changes in mosaic parameters
 
-  map<int,char> hideColour;   ///< colour values to blend
+  std::map<int,char> hideColour;   ///< colour values to blend
 
   /// set default values from a SatDialogInfo
   static void setDefaultValues(const SatDialogInfo &);
@@ -177,12 +168,11 @@ public:
   bool operator==(const Sat &rhs) const;
 
   void cleanup();
-  void values(int x,int y,vector<SatValues>& satval);
+  void values(int x,int y, std::vector<SatValues>& satval);
   void setCalibration();
   void setAnnotation();
   void setPlotName();
   void setArea();
-
 };
 
 #endif

@@ -37,14 +37,13 @@
 #include <diPrintOptions.h>
 #include <puTools/miTime.h>
 #include <diLocationPlot.h>
-#include <vector>
-#include <set>
-#include <deque>
 #include <diDisplayObjects.h>
 #include <diEditObjects.h>
 #include <diAreaObjects.h>
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
+
+#include <vector>
+#include <set>
+#include <deque>
 
 class ObsPlot;
 class SatPlot;
@@ -68,8 +67,6 @@ class StationPlot;
 
 class QKeyEvent;
 class QMouseEvent;
-
-using namespace std;
 
 /**
 
@@ -98,24 +95,24 @@ private:
 
   Plot splot;             // keep a Plot superclass for static members
 
-  vector<ObsPlot*> vop;   // vector of observation plots
-  vector<SatPlot*> vsp;   // vector of satellite plots
-  vector<FieldPlot*> vfp; // vector of field plots
-  vector<MapPlot*> vmp;   // vector of map plots
-  vector<TrajectoryPlot*>vtp; // vector of trajectory plots
-  vector<MeasurementsPlot*>vMeasurementsPlot; // vector of measurements plots
-  vector<AnnotationPlot*> vap; // vector of annotation plots
-  vector <AnnotationPlot*> obsVap; //display obs annotation
-  vector <AnnotationPlot*> objectVap; //display object label
-  vector <AnnotationPlot*> editVap;   //edit object labels
+  std::vector<ObsPlot*> vop;   // vector of observation plots
+  std::vector<SatPlot*> vsp;   // vector of satellite plots
+  std::vector<FieldPlot*> vfp; // vector of field plots
+  std::vector<MapPlot*> vmp;   // vector of map plots
+  std::vector<TrajectoryPlot*>vtp; // vector of trajectory plots
+  std::vector<MeasurementsPlot*>vMeasurementsPlot; // vector of measurements plots
+  std::vector<AnnotationPlot*> vap; // vector of annotation plots
+  std::vector <AnnotationPlot*> obsVap; //display obs annotation
+  std::vector <AnnotationPlot*> objectVap; //display object label
+  std::vector <AnnotationPlot*> editVap;   //edit object labels
   DisplayObjects objects;             //objects to be displayed
-  vector <AreaObjects> vareaobjects;  //QED areas
+  std::vector <AreaObjects> vareaobjects;  //QED areas
   AnnotationPlot* apEditmessage; // special edit message (region shown,...)
 
   FieldManager *fieldm;   // field manager
   FieldPlotManager *fieldplotm;   // field plot manager
 
-  vector<std::string> annotationStrings;//orig. strings from setup
+  std::vector<std::string> annotationStrings;//orig. strings from setup
 
   bool mapdefined;       // area/projection defined for plot
   bool mapDefinedByUser; // map area set by user
@@ -143,13 +140,13 @@ private:
   EditObjects editobjects;       // fronts,symbols,areas
   EditObjects combiningobjects;  // areaborders and textstrings
 
-  vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
+  std::vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
   float oldx, oldy,xmoved,ymoved;
   float newx, newy;
   Area myArea;
-  deque<Area> areaQ;
+  std::deque<Area> areaQ;
   int areaIndex;
   bool areaSaved;
   bool dorubberband;
@@ -157,9 +154,9 @@ private:
   bool keepcurrentarea;
 
   struct obsOneTime{
-    vector<ObsPlot*> vobsOneTime;// vector of obs plots, same time
+    std::vector<ObsPlot*> vobsOneTime;// vector of obs plots, same time
   };
-  vector<obsOneTime> vobsTimes;   // vector of structs, different times
+  std::vector<obsOneTime> vobsTimes;   // vector of structs, different times
   int obsnr; //which obs time
   int obsTimeStep;
 
@@ -169,7 +166,7 @@ private:
   std::string idnumSpecified;  // for idnum up/down changes (class/type/...)
   std::string idnumCurrent;
 
-  vector<PlotElement> plotelements;
+  std::vector<PlotElement> plotelements;
 
   // static members
   static GridConverter gc;   // gridconverter class
@@ -216,9 +213,9 @@ public:
   /// handles annotation plot info strings
   void prepareAnnotation(const std::vector<std::string>&);
   /// get annotations
-  vector<AnnotationPlot*> getAnnotations();
+  std::vector<AnnotationPlot*> getAnnotations();
   /// plot annotations
-  vector<Rectangle> plotAnnotations();
+  std::vector<Rectangle> plotAnnotations();
 
   /// get annotations from all plots
   void setAnnotations();
@@ -275,10 +272,10 @@ public:
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources=false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(set<miutil::miTime>& okTimes,
-                           set<miutil::miTime>& constTimes,
+  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
+                           std::set<miutil::miTime>& constTimes,
                            const std::vector<std::string>& pinfos,
                            bool allTimes=true,
                            bool updateSources=false);
@@ -309,7 +306,7 @@ public:
   void areaCommand(const std::string& command, const std::string& dataSet,
                    const std::string& data, int id );
   ///find areas in position x,y
-  vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
@@ -337,9 +334,9 @@ public:
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
   ///show pixel values in status bar
-  vector<SatValues> showValues(float x, float y);
+  std::vector<SatValues> showValues(float x, float y);
   ///get satellite name from all SatPlots
-  vector <std::string> getSatnames();
+  std::vector <std::string> getSatnames();
   ///satellite follows main plot time
   void setSatAuto(bool, const std::string&, const std::string&);
 
@@ -383,7 +380,7 @@ public:
 
   // plotelements methods
   /// return PlotElement data (for the speedbuttons)
-  vector<PlotElement>& getPlotElements();
+  std::vector<PlotElement>& getPlotElements();
   /// enable one PlotElement
   void enablePlotElement(const PlotElement& pe);
 
@@ -400,9 +397,9 @@ public:
                const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
-  vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  std::vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
+  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 
   std::map<std::string, Manager*> managers;
 

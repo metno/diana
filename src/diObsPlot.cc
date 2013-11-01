@@ -33,25 +33,20 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
-
-#include <cmath>
-#include <cstdio>
-#include <iomanip>
-#include <string.h>
-
-#include <fstream>
-#include <sstream>
-
-#define MILOGGER_CATEGORY "diana.ObsPlot"
-#include <miLogger/miLogging.h>
-
 #include <diObsPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
 #include <diLocalSetupParser.h>
 
 #include <puCtools/stat.h>
+#include <puTools/miStringFunctions.h>
+
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+
+#define MILOGGER_CATEGORY "diana.ObsPlot"
+#include <miLogger/miLogging.h>
 
 // #define DEBUGPRINT 1
 //#ifndef ROADOBS

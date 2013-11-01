@@ -31,16 +31,14 @@
 #ifndef _qt_spectrummainwindow_
 #define _qt_spectrummainwindow_
 
+#include <diCommonTypes.h>
+#include <diPrintOptions.h>
+#include <diStationPlot.h>
+
 #include <QMainWindow>
 #include <QString>
 
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
-#include <puTools/miString.h>
-#include <diStationPlot.h>
 #include <vector>
-
-using namespace std;
 
 class QComboBox;
 class QToolBar;

@@ -39,7 +39,7 @@
 
 using namespace std; using namespace miutil; 
 
-ObsOcea::ObsOcea(const miString &file)
+ObsOcea::ObsOcea(const std::string &file)
 :ocea(file){
 }
 
