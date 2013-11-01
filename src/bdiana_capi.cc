@@ -3542,8 +3542,9 @@ int diana_init(int _argc, char** _argv)
   // prepare font-pack for display
   FontManager::set_display_name(xhost);
 
-  if (batchinput.empty())
+  if (false and batchinput.empty()) // FIXME removing the 'false' kills perl Metno::Bdiana
     printUsage(false);
+
   // Init loghandler with debug level
 /*if (!logfilename.exists()) {
     // If no log file name is given then use /etc/diana/<major>.<minor>/diana.logger
