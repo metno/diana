@@ -363,14 +363,6 @@ std::string fifo_name;
 
 std::string logfilename = "";
 
-#define MAKE_CONTROLLER \
-    main_controller = new Controller; \
-    if (!main_controller->parseSetup()) { \
-      METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " \
-          << setupfile); \
-      return 99; \
-    }
-
 /*
  clean an input-string: remove preceding and trailing blanks,
  remove comments
@@ -1580,6 +1572,21 @@ void subplot(int margin, int plotcol, int plotrow, int deltax, int deltay, int s
     pcom.push_back(lines[i]); \
   k++;
 
+static bool MAKE_CONTROLLER()
+{
+  if (main_controller)
+    return true;
+
+  main_controller = new Controller;
+  const bool ps = main_controller->parseSetup();
+  if (not ps) {
+    METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " << setupfile);
+    return false;
+  }
+  return true;
+}
+
+
 static int parseAndProcess(istream &is)
 {
 #if defined(USE_PAINTGL)
@@ -1717,17 +1724,8 @@ static int parseAndProcess(istream &is)
         if (!multiple_plots)
           createPaintDevice();
 #endif
-        // Make Controller
-        if (!main_controller) {
-          MAKE_CONTROLLER
-
-          vector<std::string> field_errors;
-//          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
-//            METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
-//            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
-//              METLIBS_LOG_ERROR(field_errors[kk]);
-//          }
-        }
+        if (not MAKE_CONTROLLER())
+          return 99;
 
         // turn on/off archive-mode (observations)
         main_controller->archiveMode(useArchive);
@@ -1835,10 +1833,8 @@ static int parseAndProcess(istream &is)
         if (!multiple_plots)
           createPaintDevice();
 #endif
-        // Make Controller
-        if (!main_controller) {
-          MAKE_CONTROLLER
-        }
+        if (not MAKE_CONTROLLER())
+          return 99;
 
         // -- vcross plot
         if (!vcrossmanager) {
@@ -1904,10 +1900,8 @@ static int parseAndProcess(istream &is)
         if (!multiple_plots)
           createPaintDevice();
 #endif
-        // Make Controller
-        if (!main_controller) {
-          MAKE_CONTROLLER
-        }
+        if (not MAKE_CONTROLLER())
+          return 99;
 
         // -- vprof plot
         if (!vprofmanager) {
@@ -2343,10 +2337,8 @@ static int parseAndProcess(istream &is)
         }
       }
 
-      // Make Controller
-      if (!main_controller) {
-        MAKE_CONTROLLER
-      }
+      if (not MAKE_CONTROLLER())
+        return 99;
 
       if (miutil::to_lower(lines[k]) == com_time) {
 
@@ -2433,10 +2425,8 @@ static int parseAndProcess(istream &is)
         }
       }
 
-      // Make Controller
-      if (!main_controller) {
-        MAKE_CONTROLLER
-      }
+      if (not MAKE_CONTROLLER())
+        return 99;
 
       if (verbose)
         METLIBS_LOG_INFO("- finding times");
@@ -2648,10 +2638,8 @@ static int parseAndProcess(istream &is)
       vector<string> pcom;
       FIND_END_COMMAND(com_describe_end)
 
-      // Make Controller
-      if (!main_controller) {
-        MAKE_CONTROLLER
-      }
+      if (not MAKE_CONTROLLER())
+        return 99;
 
       if (verbose)
         METLIBS_LOG_INFO("- sending plotCommands");
@@ -2755,10 +2743,8 @@ static int parseAndProcess(istream &is)
       vector<string> pcom;
       FIND_END_COMMAND(com_describe_end)
 
-      // Make Controller
-      if (!main_controller) {
-        MAKE_CONTROLLER
-      }
+      if (not MAKE_CONTROLLER())
+        return 99;
 
       if (!spectrummanager)
         spectrummanager = new SpectrumManager;
