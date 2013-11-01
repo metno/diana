@@ -815,11 +815,11 @@ bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
 diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
 CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
-	test -d $(shell dirname $@) || mkdir $(shell dirname $@)
+	@test -d $(shell dirname $@) || mkdir $(shell dirname $@)
 	$(MOC4) -o $@ $<
 
 %.ui.h: %.ui
-	test -d $(shell dirname $@) || mkdir $(shell dirname $@)
+	@test -d $(shell dirname $@) || mkdir $(shell dirname $@)
 	$(UIC4) -o $@ $<
 
 BUILT_SOURCES = $(diana_uic_headers)
