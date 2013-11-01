@@ -45,6 +45,8 @@
 /src/vcross_v2/libdiana_vcross.a
 /src/test-diOrderBook
 /src/test_diOrderBook-*.o
+/src/test-diPlotOptions
+/src/test_diPlotOptions-*.o
 /stamp-h1
 /debian
 /do-configure

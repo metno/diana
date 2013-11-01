@@ -31,9 +31,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.PlotOptions"
-#include <miLogger/miLogging.h>
-
 #include "diPlotOptions.h"
 #include "diColourShading.h"
 #include "diPattern.h"
@@ -41,10 +38,28 @@
 #include <diField/diField.h>
 
 #include <boost/algorithm/string/join.hpp>
+#include <boost/foreach.hpp>
 
-//#define DEBUGPRINT 
+#define MILOGGER_CATEGORY "diana.PlotOptions"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 using namespace miutil;
+
+namespace {
+bool checkFloatVector(const vector<float>& aefv)
+{
+  if (aefv.empty())
+    return false;
+
+  for (size_t j=1; j<aefv.size(); j++) {
+    if (aefv[j-1] >= aefv[j])
+      return false;
+  }
+
+  return true;
+}
+} // namespace
 
 map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
 vector<std::string> PlotOptions::suffix;
@@ -70,7 +85,6 @@ PlotOptions::PlotOptions():
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
   antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
 {
-
   limits.clear();
   values.clear();
   linevalues.clear();
@@ -150,6 +164,7 @@ PlotOptions::PlotOptions():
 // and fill a PlotOptions with appropriate values
 bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool returnMergedOptionString)
 {
+  METLIBS_LOG_SCOPE();
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline
@@ -330,9 +345,6 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
   //------------------------------------------
 
 
-  vector<std::string> tokens,etokens,stokens;
-  std::string key,value;
-  int i,j,n,m,l;
   Colour c;
   Linetype linetype;
 
@@ -344,17 +356,12 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
   //float lw;
   bool result=true;
 
-  tokens= miutil::split_protected(optstr, '"', '"');
-  n= tokens.size();
-
-  for (i=0; i<n; i++){
-
-    etokens= miutil::split(tokens[i], 0, "=");
-    l= etokens.size();
-    if (l>1){
-      key= etokens[0];
-      value= etokens[1];
-//      METLIBS_LOG_DEBUG("Key:"<<key<< " Value:"<<value);
+  const vector<string> tokens= miutil::split_protected(optstr, '"', '"');
+  BOOST_FOREACH(const string& token, tokens) {
+    const vector<string> etokens = miutil::split(token, "=");
+    const size_t l = etokens.size();
+    if (l > 1) {
+      string key = etokens[0], value = etokens[1];
       if (value[0]=='\'' && value[value.length()-1]=='\'')
         value= value.substr(1,value.length()-2);
 
@@ -409,25 +416,21 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         // 	  po.options_1= false;
         // 	} else {
         po.options_1= true;
-        stokens= miutil::split(value, 0, ",");
-        m= stokens.size();
-        for (j=0; j<m; j++){
-          c= Colour(stokens[j]);
-          po.colours.push_back(c);
+        const vector<string> stokens= miutil::split(value, 0, ",");
+        BOOST_FOREACH(const string& c, stokens) {
+          po.colours.push_back(Colour(c));
         }
-        //	}
 
       } else if (key==key_palettecolours){
         po.palettecolours.clear();
         po.palettecolours_cold.clear();
         po.contourShading = ( value != "off");
         po.palettename=value;
-        stokens= miutil::split(value, 0, ",");
-        m= stokens.size();
+        const vector<string> stokens = miutil::split(value, ",");
+        const size_t m= stokens.size();
         if(m>2){
-          for (j=0; j<m; j++){
-            c= Colour(stokens[j]);
-            po.palettecolours.push_back(c);
+          BOOST_FOREACH(const string& c, stokens) {
+            po.palettecolours.push_back(Colour(c));
           }
         } else {
           if(m>0){
@@ -460,10 +463,9 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.linetypes.push_back(Linetype(value));
 
       } else if (key==key_linetypes){
-        stokens= miutil::split(value, 0, ",");
-        m= stokens.size();
-        for (j=0; j<m; j++){
-          po.linetypes.push_back(Linetype(stokens[j]));
+        const vector<string> stokens = miutil::split(value, 0, ",");
+        BOOST_FOREACH(const string& l, stokens) {
+          po.linetypes.push_back(Linetype(l));
         }
 
       } else if (key==key_linewidth){
@@ -494,8 +496,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         if(miutil::contains(value, ","))
           po.patterns = miutil::split(value, 0, ",");
         else {
-          std::vector<std::string> p = Pattern::getPatternInfo(value);
-          po.patterns = std::vector<std::string>(p.begin(), p.end());
+          po.patterns = Pattern::getPatternInfo(value);
         }
 
       } else if (key==key_lineinterval){
@@ -541,35 +542,27 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
           po.colourcut = atoi(value.c_str());
 
       } else if (key==key_linevalues){
-        po.linevalues = po.autoExpandFloatVector(value);
-        m= po.linevalues.size();
-        if (m==0) result= false;
-        for (j=1; j<m; j++)
-          if (po.linevalues[j-1]>=po.linevalues[j]) result= false;
+        po.linevalues = autoExpandFloatVector(value);
+        if (not checkFloatVector(po.linevalues))
+          result = false;
 
       } else if (key==key_linevalues_2){
-        po.linevalues_2 = po.autoExpandFloatVector(value);
-        m= po.linevalues_2.size();
-        if (m==0) result= false;
-        for (j=1; j<m; j++)
-          if (po.linevalues_2[j-1]>=po.linevalues_2[j]) result= false;
+        po.linevalues_2 = autoExpandFloatVector(value);
+        if (not checkFloatVector(po.linevalues_2))
+          result = false;
 
       } else if (key==key_loglinevalues){
         po.loglinevalues = po.floatVector(value);
-        m= po.loglinevalues.size();
-        if (m==0) result= false;
-        for (j=1; j<m; j++)
-          if (po.loglinevalues[j-1]>=po.loglinevalues[j]) result= false;
+        if (not checkFloatVector(po.loglinevalues))
+          result = false;
 
       } else if (key==key_loglinevalues_2){
         po.loglinevalues_2 = po.floatVector(value);
-        m= po.loglinevalues_2.size();
-        if (m==0) result= false;
-        for (j=1; j<m; j++)
-          if (po.loglinevalues_2[j-1]>=po.loglinevalues_2[j]) result= false;
+        if (not checkFloatVector(po.loglinevalues_2))
+          result = false;
 
       } else if (key==key_limits){
-        po.limits = po.autoExpandFloatVector(value);
+        po.limits = autoExpandFloatVector(value);
         if (po.limits.size()==0) result= false;
 
       } else if (key==key_values){
@@ -591,7 +584,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         else result=false;
 
       } else if (key==key_extremeLimits){
-        po.extremeLimits = po.autoExpandFloatVector(value);
+        po.extremeLimits = autoExpandFloatVector(value);
         if (po.extremeLimits.size()==0) result= false;
 
       } else if (key==key_lineSmooth){
@@ -655,12 +648,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         value= miutil::to_lower(value);
         if (value==fpt_contour         || value==fpt_value ||
             value==fpt_contour2 ||
-            value==fpt_alpha_shade     || value==fpt_symbol ||
-            value==fpt_alarm_box       || value==fpt_fill_cell        ||
-            value==fpt_wind            || value==fpt_vector          ||
+            value==fpt_alpha_shade     || value==fpt_symbol     ||
+            value==fpt_alarm_box       || value==fpt_fill_cell  ||
+            value==fpt_wind            || value==fpt_vector     ||
             value==fpt_wind_temp_fl    || value==fpt_wind_value ||
-            value==fpt_direction       || value==fpt_frame ) {
-            po.plottype= value;
+            value==fpt_direction       || value==fpt_frame)
+        {
+          po.plottype= value;
         } else if(value == "wind_colour") {
           po.plottype = fpt_wind;
         } else if(value == "direction_colour") {
@@ -673,10 +667,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
           po.plottype = fpt_wind_value;
         } else  if(value == "number") {
           po.plottype = fpt_value;
-#ifdef DEBUGPRINT
-            METLIBS_LOG_DEBUG("........diPlotOptions::parsePlotOption po.plottype ="<< value);
-
-#endif
+            METLIBS_LOG_DEBUG("po.plottype ="<< value);
         } else {
           result= false;
         }
@@ -865,7 +856,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
 
   }
 
-  if ( returnMergedOptionString ) {
+  if (returnMergedOptionString) {
     optstr = origStr + " " + po.toString();
   }
 
@@ -883,12 +874,8 @@ bool PlotOptions::parsePlotOption(const std::string& optstr, PlotOptions& po)
 bool PlotOptions::updateFieldPlotOptions(const std::string& name,
     const std::string& optstr)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(":::::::::PlotOptions::updateFieldPlotOptions");
-  METLIBS_LOG_DEBUG(":::::::::name: "<< name << "   *******  optstr: "<<optstr);
-#endif
   std::string tmpOpt = optstr;
-  return parsePlotOption(tmpOpt,fieldPlotOptions[name]);
+  return parsePlotOption(tmpOpt, fieldPlotOptions[name]);
 }
 
 // fill a fieldplotoption from static map, and substitute values
@@ -930,54 +917,62 @@ vector<int> PlotOptions::intVector(const std::string& str) const {
 
 
 // fill in values in a float vector
-vector<float> PlotOptions::floatVector(const std::string& str) const {
-  vector<float> v;
-  bool error= false;
-  vector<std::string> stokens= miutil::split(str, 0, ",");
-  int m= stokens.size();
-  for (int j=0; j<m; j++){
-    if (miutil::is_number(stokens[j]))
-      v.push_back(atof(stokens[j].c_str()));
+vector<float> PlotOptions::floatVector(const std::string& str) const
+{
+  vector<float> values;
+  const vector<std::string> tokens= miutil::split(str, ",");
+  BOOST_FOREACH(const string& t, tokens) {
+    if (miutil::is_number(t))
+      values.push_back(miutil::to_double(t));
     else
-      error= true;
+      return vector<float>();
   }
-  if (error) v.clear();
-  return v;
+  return values;
 }
 
 // fill in values and "..." (1,2,3,...10) in a float vector
-vector<float> PlotOptions::autoExpandFloatVector(const std::string& str) const {
-  vector<float> v;
-  bool error= false;
+vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
+{
+  vector<float> values;
 
-  vector<std::string> stokens= miutil::split(str, 0, ",");
-  int m= stokens.size();
-  int k;
-  float val,delta,step;
+  const vector<std::string> stokens = miutil::split(str, ",");
+  BOOST_FOREACH(const string& t, stokens) {
+    if (miutil::is_number(t)) {
+      const double v = miutil::to_double(t);
+      values.push_back(v);
+      continue;
+    }
 
-  for (int j=0; j<m; j++){
-    if (miutil::is_number(stokens[j])){
-      v.push_back(atof(stokens[j].c_str()));
-    } else if (stokens[j].substr(0,2)==".." && v.size()>1){
-      // add a whole interval (10,20,...50)
-      miutil::replace(stokens[j], "."," ");
-      miutil::trim(stokens[j]);
-      if (miutil::is_number(stokens[j])){
-        val= atof(stokens[j].c_str());
-        k= v.size();
-        delta= v[k-1]-v[k-2];
-        // keep previous step, example above: 10,20,30,40,50
-        if (delta>0.0){
-          for (step=v[k-1]+delta; step<=val; step+=delta)
-            v.push_back(step);
-        } else error= true;
-      } else error= true;
-    } else error= true;
+    // try to add a whole interval (10,20,...50)
+
+    if (values.size() < 2) {
+      METLIBS_LOG_DEBUG("need 2 values yet to define step size");
+      return vector<float>();
+    }
+
+    const ssize_t no_dot = t.find_first_not_of(".");
+    if (no_dot < 2) {
+      METLIBS_LOG_DEBUG("not enough dots");
+      return vector<float>();
+    }
+
+    const string after_dots = t.substr(no_dot);
+    if (not miutil::is_number(after_dots)) {
+      METLIBS_LOG_DEBUG("no number after dots (" << after_dots << ")");
+      return vector<float>();
+    }
+
+    const size_t k = values.size();
+    const float stop = miutil::to_double(after_dots);
+    const float last = values[k-1], second_last = values[k-2], delta = last - second_last;
+    // keep previous step, example above: 10,20,30,40,50
+    if (delta > 0) {
+      for (float step = last + delta; step <= stop; step += delta)
+        values.push_back(step);
+    }
   }
 
-  if (error) v.clear();  // v.size()==0 means an error
-
-  return v;
+  return values;
 }
 
 void PlotOptions::removeSuffix(std::string& name)
