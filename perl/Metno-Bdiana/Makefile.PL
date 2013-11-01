@@ -9,9 +9,16 @@ WriteMakefile(
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Metno/Bdiana.pm', # retrieve abstract from module
        AUTHOR         => 'Heiko Klein <heiko.klein@met.no>') : ()),
-    LIBS              => ['-L../../src/ -L/disk1/heiko/local/metlibs/lib -L/usr/lib -ldiana -L/disk1/heiko/local/metlibs/lib/ -ldiField -lfimex -lmic -lpropoly -lmi -lgfortran -ldiMItiff -lproj -ltiff -lpuDatatypes -lrobs -lparameter -lpuTools -lpuCtools -lmiLogger -llog4cpp -lshp -lcurl-gnutls -lpng -L/opt/qt4-qws/lib -lQtSvg -lQtGui -lQtNetwork -lQtCore -lpthread'], # e.g., '-lm'
-    DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I. -I../../src/', # e.g., '-I. -I/usr/include/other'
-	# Un-comment this if you add C files to link with later:
-    # OBJECT            => '$(O_FILES)', # link all the C files too
+    DEFINE            => '-Wall', # e.g., '-DHAVE_SOMETHING'
+    INC               => '',   # set from commandline in perl/Makefile.am
+    LIBS              => [''], # set from commandline in perl/Makefile.am
+    MYEXTLIB          => '../../src/libdiana.a',
 );
+
+
+sub MY::postamble {
+    return <<'MAKE_FRAG';
+$(MYEXTLIB):
+	make -C ../../src all
+MAKE_FRAG
+}
