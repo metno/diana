@@ -5010,7 +5010,7 @@ void FieldDialog::fieldEditUpdate(std::string str)
     int indrm = -1;
     SelectedField sf;
 
-    vector<std::string> vstr = miutil::split(str,' ');
+    vector<std::string> vstr = miutil::split(str, " ");
 
     if (vstr.size() == 1) {
       // In original edit, str=fieldName if the field is not already read
