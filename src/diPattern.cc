@@ -3,7 +3,7 @@
 
   $Id: diPattern.cc 3273 2010-05-18 17:32:21Z dages $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,50 +35,38 @@
 
 #include <diPattern.h>
 
-using namespace miutil;
+std::map<std::string,Pattern::PatternInfo> Pattern::pmap;
 
-map<std::string,Pattern::PatternInfo> Pattern::pmap;
-
-
-Pattern::Pattern( const std::string& name, const vector<std::string>& pattern)
+Pattern::Pattern(const std::string& name, const vector<std::string>& pattern)
 {
-
-  if((not name.empty())){
+  if (not name.empty()) {
     pmap[name].name    = name;
     pmap[name].pattern = pattern;
   }
-
 }
 
 void Pattern::addPatternInfo(const PatternInfo& pi)
 {
-  if ( (not pi.name.empty()) ){
+  if (not pi.name.empty())
     pmap[pi.name] = pi;
-  }
-
 }
 
 vector<std::string> Pattern::getPatternInfo(const std::string& name)
 {
-
-  if(pmap.count(name)>0)
-    return pmap[name].pattern;
-
-  vector<std::string> v;
-  return v;
-
+  const pmap_t::const_iterator it = pmap.find(name);
+  if (it != pmap.end())
+    return it->second.pattern;
+  
+  return vector<std::string>();
 }
 
 vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
 {
-
   vector<PatternInfo> pattern;
 
-  map<std::string,PatternInfo>::iterator p= pmap.begin();
-  for(;p!=pmap.end();p++) {
+  for (pmap_t::const_iterator p = pmap.begin(); p!=pmap.end(); ++p) {
     pattern.push_back(p->second);
   }
 
   return pattern;
-
 }

@@ -58,13 +58,13 @@ public:
 
 private:
 
-  static map<std::string,PatternInfo> pmap;
+  typedef std::map<std::string,PatternInfo> pmap_t;
+  static pmap_t pmap;
 
   // Copy members
   void memberCopy(const Pattern& rhs);
 
 public:
-  // Constructor
   Pattern(const std::string& name, const vector<std::string>& pattern);
 
   // static functions for static pattern-map
@@ -77,6 +77,4 @@ public:
 
 };
 
-
 #endif
-
