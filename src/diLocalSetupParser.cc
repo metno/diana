@@ -94,7 +94,7 @@ bool LocalSetupParser::parse(std::string& mainfilename)
   METLIBS_LOG_INFO("LocalSetupParser::parse:" << mainfilename);
 
   //find $HOME, and make homedir
-  std::string homedir=getenv("HOME");
+  std::string homedir=miutil::from_c_str(getenv("HOME"));
   homedir += "/.diana";
   std::string error;
   if (makeDirectory(homedir,error)) {
