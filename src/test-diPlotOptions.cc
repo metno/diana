@@ -38,6 +38,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -46,7 +47,7 @@ static bool equal_vectors(const vector<float>& a, const vector<float>& b)
   if (a.size() != b.size())
     return false;
   for (size_t i=0; i<a.size(); ++i)
-    if (std::fabs(a[i] - b[i]) > 1e-6)
+    if (fabs(a[i] - b[i]) > 1e-6)
       return false;
   return true;
 }
