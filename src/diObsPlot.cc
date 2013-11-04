@@ -1852,6 +1852,11 @@ bool ObsPlot::plot()
 
   scale = Scale * fullrect.width() / pwidth * 0.7;
 
+  if (poptions.antialiasing)
+    glEnable(GL_MULTISAMPLE);
+  else
+    glDisable(GL_MULTISAMPLE);
+
   //Plot markers only
   if (onlypos) {
     ImageGallery ig;

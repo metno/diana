@@ -74,7 +74,7 @@
 class SatManager {
 
 public:
-    struct subProdInfo {
+  struct subProdInfo {
     vector<miutil::miString> pattern;
     vector<bool> archive;
     vector<TimeFilter> filter;
