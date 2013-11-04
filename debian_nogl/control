@@ -28,7 +28,7 @@ Description: Meteorological visualisation tool
 Package: diana-nogl-dev
 Architecture: any
 Section: libdevel
-Depends: diana-@PVERSION_MAJOR_DOT_MINOR@, ${shlibs:Depends}, ${misc:Depends}
+Depends: diana-nogl-@PVERSION_MAJOR_DOT_MINOR@, ${shlibs:Depends}, ${misc:Depends}
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
  Meteorological Institute) and is distributed under the GPL
