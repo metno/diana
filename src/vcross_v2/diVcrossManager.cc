@@ -719,6 +719,27 @@ void VcrossManager::getCrossections(LocationData& locationdata)
 
 // ------------------------------------------------------------------------
 
+namespace {
+struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
+{
+  bool operator() (const LocationElement& a, const LocationElement& b) const;
+};
+bool lt_LocationElement::operator() (const LocationElement& a, const LocationElement& b) const
+{
+  if (a.name < b.name)
+    return true;
+  if (a.name > b.name)
+    return false;
+  if (a.xpos < b.xpos)
+    return true;
+  if (a.xpos > b.xpos)
+    return false;
+  if (a.ypos < b.ypos)
+    return true;
+  return false;
+}
+} // namespace
+
 void VcrossManager::fillLocationData(LocationData& ld)
 {
   METLIBS_LOG_SCOPE();
@@ -730,9 +751,12 @@ void VcrossManager::fillLocationData(LocationData& ld)
 
   std::ostringstream annot;
   annot << "Vertikalsnitt";
-  
+
+  std::set<LocationElement, lt_LocationElement> cuts;
+
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
+
     annot << ' ' << select.model;
 
     VcrossSource* vcs = getVcrossSource(select.model);
@@ -748,9 +772,10 @@ void VcrossManager::fillLocationData(LocationData& ld)
         el.xpos.push_back(ll.lonDeg());
         el.ypos.push_back(ll.latDeg());
       }
-      ld.elements.push_back(el);
+      cuts.insert(el);
     }
   }
+  ld.elements.insert(ld.elements.end(), cuts.begin(), cuts.end());
 
   ld.name =              "vcross";
   ld.locationType =      location_line;
