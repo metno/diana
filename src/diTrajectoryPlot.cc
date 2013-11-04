@@ -274,7 +274,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
     nlon = lon.size();
     for (int i=0; i<nlon; i++){
       METLIBS_LOG_DEBUG("   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                            <<"    "<<x[i]<<" "<<y[i]);
+                                                                        <<"    "<<x[i]<<" "<<y[i]);
     }
 #endif
 
@@ -286,7 +286,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
         if (lat[i]==lat[j] && lon[i]==lon[j]) ndup++;
       if (ndup>0)
         METLIBS_LOG_DEBUG("   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                                       <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup);
+                                                                                   <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup);
     }
 #endif
   }
@@ -317,10 +317,6 @@ bool TrajectoryPlot::plot(){
     int m = x.size();
     glBegin(GL_LINES);
     for (int i=0; i<m; i++) {
-      //       glVertex2f(pos[i].x-d,pos[i].y-d);
-      //       glVertex2f(pos[i].x+d,pos[i].y+d);
-      //       glVertex2f(pos[i].x-d,pos[i].y+d);
-      //       glVertex2f(pos[i].x+d,pos[i].y-d);
       glVertex2f(x[i]-d,y[i]-d);
       glVertex2f(x[i]+d,y[i]+d);
       glVertex2f(x[i]-d,y[i]+d);
@@ -351,12 +347,12 @@ bool TrajectoryPlot::plot(){
     vector <float> xmark,ymark;
     TrajectoryData *td;
     for (int i=0; i<numTraj; i++) {
-//      METLIBS_LOG_DEBUG("Traj no:"<<i);
+      //      METLIBS_LOG_DEBUG("Traj no:"<<i);
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(lineType.factor,lineType.bmap);
       glBegin(GL_LINE_STRIP);
       for (int n=0; n<vtsize; n++) {
-//        METLIBS_LOG_DEBUG("??:"<<n);
+        //        METLIBS_LOG_DEBUG("??:"<<n);
         td= vtrajdata[n];
         int j1= td->first[i];
         int j2= td->last[i] + 1;
@@ -662,14 +658,14 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     numTraj= 0;
 
     for (int i=0; i<npos; i++) {
-//      METLIBS_LOG_DEBUG("x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]);
+      METLIBS_LOG_DEBUG("x,y,u,v:  "<<sx[i]<<"  "<<sy[i]<<"   "<<su[i]<<"  "<<sv[i]);
       if(su[i]!=fieldUndef && sv[i]!=fieldUndef) {
         sx[numTraj]= sx[i];
         sy[numTraj]= sy[i];
         numTraj++;
       }
     }
-    //METLIBS_LOG_DEBUG("npos,numTraj: "<<npos<<" "<<numTraj);
+    METLIBS_LOG_DEBUG("npos,numTraj: "<<npos<<" "<<numTraj);
 
     delete[] su;
     delete[] sv;
@@ -693,7 +689,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
       fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
       dxgrid, dygrid)) {
     METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
-    <<"  Cannot compute trajectories !");
+        <<"  Cannot compute trajectories !");
     stopComputation();
     return false;
   }
@@ -750,7 +746,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     for (int i=0; i<numTraj; i++) {
       trajdata->x[ndata*i+idata]= xt[i]= sx[i];
       trajdata->y[ndata*i+idata]= yt[i]= sy[i];
-    fu1->convertFromGrid(1, &trajdata->x[ndata*i+idata], &trajdata->y[ndata*i+idata]);
+      fu1->convertFromGrid(1, &trajdata->x[ndata*i+idata], &trajdata->y[ndata*i+idata]);
     }
 
     delete[] sx;
@@ -784,7 +780,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
       // posistions are converted to a different map projection
       if(!gc.getPoints(vtrajdata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
         METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
-        <<"  Trajectory computation stopped !");
+            <<"  Trajectory computation stopped !");
         stopComputation();
         return false;
       }
@@ -814,11 +810,19 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     }
   }
 
+  //stop trajectory if it is more than one grid point outside the field
+  for (int i=0; i<numTraj; i++) {
+    if (xt[i] < -1 || xt[i]>fu1->nx || yt[i] < -1 || yt[i] > fu1->ny) {
+      endnum[i]=  idata - incdata;
+      running[i]=false;
+    }
+  }
+
   float dt= tStep * 0.5;
   float u,v;
 
   for (int istep=0; istep<nstep; istep++) {
-    //METLIBS_LOG_DEBUG("istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep);
+    METLIBS_LOG_DEBUG("istep,nstep,tStep: "<<istep<<" "<<nstep<<" "<<tStep);
 
     float ct1b= float(istep)/float(nstep);
     float ct1a= 1.0 - ct1b;
@@ -828,7 +832,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
     // iteration no. 0 to get a first guess (then the real iterations)
 
     for (int iter=0; iter<=numIterations; iter++) {
-      //METLIBS_LOG_DEBUG("   iter: "<<iter);
+      METLIBS_LOG_DEBUG("   iter: "<<iter);
 
       int interpoltype= 101;
       fu1->interpolate(numTraj, xt, yt, u1, interpoltype);
@@ -838,7 +842,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
       frx->interpolate(numTraj, xt, yt, rx, interpoltype);
       fry->interpolate(numTraj, xt, yt, ry, interpoltype);
 
-      //############# eller kutte ut posisjoner etterhvert med posIndex[] ???
+      //stop trajectory if field is undef
       for (int i=0; i<numTraj; i++) {
         if (running[i]) {
           if (u1[i]==fieldUndef || v1[i]==fieldUndef ||
@@ -851,22 +855,22 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
       if (iter==0) {
         for (int i=0; i<numTraj; i++) {
-          //	  if (running[i]) {
-          u= ct1a * u1[i] + ct1b * u2[i];
-          v= ct1a * v1[i] + ct1b * v2[i];
-          xa[i]= xt[i] + rx[i] * u * dt;
-          ya[i]= yt[i] + ry[i] * v * dt;
-          //	  }
+          if (running[i]) {
+            u= ct1a * u1[i] + ct1b * u2[i];
+            v= ct1a * v1[i] + ct1b * v2[i];
+            xa[i]= xt[i] + rx[i] * u * dt;
+            ya[i]= yt[i] + ry[i] * v * dt;
+          }
         }
       }
 
       for (int i=0; i<numTraj; i++) {
-        //	if (running[i]) {
-        u= ct2a * u1[i] + ct2b * u2[i];
-        v= ct2a * v1[i] + ct2b * v2[i];
-        xt[i]= xa[i] + rx[i] * u * dt;
-        yt[i]= ya[i] + ry[i] * v * dt;
-        //	}
+        if (running[i]) {
+          u= ct2a * u1[i] + ct2b * u2[i];
+          v= ct2a * v1[i] + ct2b * v2[i];
+          xt[i]= xa[i] + rx[i] * u * dt;
+          yt[i]= ya[i] + ry[i] * v * dt;
+        }
       }
 
     }  // end of iteration loop
@@ -876,11 +880,11 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
         trajdata->x[ndata*i+idata]= xt[i];
         trajdata->y[ndata*i+idata]= yt[i];
       } else {
-        trajdata->x[ndata*i+idata]= 0.; // a very legal position !!!
-        trajdata->y[ndata*i+idata]= 0.; // (cannot be checked later)
+        trajdata->x[ndata*i+idata]= HUGE_VAL;
+        trajdata->y[ndata*i+idata]= HUGE_VAL;
       }
       fu1->convertFromGrid(1, &trajdata->x[ndata*i+idata], &trajdata->y[ndata*i+idata]);
-   }
+    }
 
     miTime tnow= t1;
     if (forward)
@@ -934,8 +938,8 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
     int l= 16;
     if (firstTime.min()==0 && lastTime.min()==0) l= 13;
     s= "Trajektorier " + fieldStr
-    + " "   + firstTime.isoTime().substr(0,l)
-    + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
+        + " "   + firstTime.isoTime().substr(0,l)
+        + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
     if (colour==backgroundColour)
       c= backContrastColour;
     else
@@ -959,7 +963,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 
   if(!fs){
     METLIBS_LOG_ERROR("ERROR  printTrajectoryPositions: can't open file: "
-    <<filename);
+        <<filename);
     return false;
   }
 
@@ -996,14 +1000,14 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
     fs.precision(7);
     fs <<(*vtrajdata[0]->time).isoTime()<<"  ";
     fs <<setw(10) <<xxx[i]<<"  "<<
-    setw(10) <<yyy[i]<<"  T"<<i<<endl;
+        setw(10) <<yyy[i]<<"  T"<<i<<endl;
   }
 
   for (int n=0; n<vtsize; n++) {
     for (int i=0;i<numTraj;i++){
       fs <<vtrajdata[n]->time[vtrajdata[n]->ndata-1].isoTime();
       fs <<"  "<<setw(10) <<xxx[(n+1)*numTraj+i]<<"  "<<
-      setw(10) <<yyy[(n+1)*numTraj+i]<<"  T"<< i<<endl;
+          setw(10) <<yyy[(n+1)*numTraj+i]<<"  T"<< i<<endl;
     }
   }
 
