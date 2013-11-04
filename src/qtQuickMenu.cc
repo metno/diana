@@ -33,12 +33,14 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
-
 #include "qtQuickMenu.h"
 #include "qtQuickAdmin.h"
+#include "qtUtility.h"
+#include "diLocalSetupParser.h"
+
+#include <puCtools/puCglob.h>
+#include <puCtools/glob_cache.h>
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QListWidget>
@@ -54,21 +56,15 @@
 #include <qmessagebox.h>
 #include <qtooltip.h>
 #include <qregexp.h>
-
-#include <puTools/miString.h>
-#include <iostream>
-#include "qtUtility.h"
-#include "diLocalSetupParser.h"
-#define MILOGGER_CATEGORY "diana.QuickMenu"
-#include <miLogger/miLogging.h>
-
-
 #include <QString>
 #include <QStringList>
 
+#define MILOGGER_CATEGORY "diana.QuickMenu"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 
-const miutil::miString vprefix= "@";
+const std::string vprefix= "@";
 
 QuickMenu::QuickMenu( QWidget *parent, Controller* c,
     Qt::WFlags f)
@@ -246,9 +242,9 @@ void QuickMenu::startBrowsing()
 
 
 // quick-quick menu methods
-vector<miutil::miString> QuickMenu::getCustomMenus()
+vector<std::string> QuickMenu::getCustomMenus()
 {
-  vector<miutil::miString> vs;
+  vector<std::string> vs;
   if (firstcustom >= 0 && lastcustom>=0){
     for (int i=firstcustom; i<=lastcustom; i++)
       vs.push_back(qm[i].name);
@@ -256,7 +252,7 @@ vector<miutil::miString> QuickMenu::getCustomMenus()
   return vs;
 }
 
-bool QuickMenu::addMenu(const miutil::miString& name)
+bool QuickMenu::addMenu(const std::string& name)
 {
   if (firstcustom<0){
     firstcustom= 1;
@@ -265,10 +261,10 @@ bool QuickMenu::addMenu(const miutil::miString& name)
   lastcustom++;
   quickMenu qtmp;
   qtmp.name= name;
-  qtmp.name.trim();
-  qtmp.name.replace(","," ");
+  miutil::trim(qtmp.name);
+  miutil::replace(qtmp.name, ",", " ");
   qtmp.filename= qtmp.name + ".quick";
-  qtmp.filename.replace(" ","_");
+  miutil::replace(qtmp.filename, " ","_");
   qtmp.plotindex= 0;
 
   qm.insert(qm.begin()+lastcustom, qtmp);
@@ -307,31 +303,33 @@ bool QuickMenu::addToMenu(const int idx)
   return true;
 }
 
-miutil::miString QuickMenu::getCurrentName()
+std::string QuickMenu::getCurrentName()
 {
   if (prev_listindex>=0 && prev_plotindex>=0 &&
       prev_listindex<int(qm.size())){
     return qm[prev_listindex].menuitems[prev_plotindex].name;
   }
-  return miutil::miString();
+  return std::string();
 }
 
 // Push a new command on the history-stack
-void QuickMenu::pushPlot(const miutil::miString& name,
-    vector<miutil::miString> pstr, int index)
+void QuickMenu::pushPlot(const std::string& name,
+    const vector<std::string>& pstr_c, int index)
 {
+  std::vector<string> pstr(pstr_c.begin(), pstr_c.end()); // make copy so that refhour etc can be replaced
 
   //replace reftime by refhour, refoffset must be set manually
   for (size_t i=0; i<pstr.size(); i++){
     if ( pstr[i].find("reftime=") != std::string::npos ) {
-      miutil::miString hourstr = pstr[i].substr(pstr[i].find("reftime=")+19,2);
-      miutil::miString str1 = pstr[i].substr(pstr[i].find("reftime="),27);
-      miutil::miString str2 = "refhour=" + hourstr;
-      pstr[i].replace(str1,str2);
+      std::string hourstr = pstr[i].substr(pstr[i].find("reftime=")+19,2);
+      std::string str1 = pstr[i].substr(pstr[i].find("reftime="),27);
+      std::string str2 = "refhour=" + hourstr;
+      miutil::replace(pstr[i], str1, str2);
     }
   }
 
-  if (qm.size()==0) return;
+  if (qm.empty())
+    return;
   bool goon= true;
   int m= qm[index].menuitems.size();
   if (m > 0){ // check for duplicate
@@ -353,8 +351,8 @@ void QuickMenu::pushPlot(const miutil::miString& name,
     // update pointer
     qm[index].plotindex=0;
     // push plot on stack
-    miutil::miString plotname= name;
-    plotname.trim();
+    std::string plotname= name;
+    miutil::trim(plotname);
     quickMenuItem dummy;
     qm[index].menuitems.push_front(dummy);
     qm[index].menuitems[0].command= pstr;
@@ -367,7 +365,7 @@ void QuickMenu::pushPlot(const miutil::miString& name,
   }
 }
 
-//bool QuickMenu::replacereferencetime( vector<miutil::miString>& pstr ){
+//bool QuickMenu::replacereferencetime( vector<std::string>& pstr ){
 //
 //  for (size_t i=0; i<pstr.size(); i++){
 //  std::string str = pstr[i];
@@ -375,9 +373,9 @@ void QuickMenu::pushPlot(const miutil::miString& name,
 //    std::string timestr = str.substr(str.find_first_of("referencetime=")+14,17);
 //    METLIBS_LOG_DEBUG(timestr);
 //  }
-////  vector<miutil::miString> tokens = pstr[i].split(('"', '"');
+////  vector<std::string> tokens = miutil::split_protected(pstr[i], ('"', '"');
 ////  for ( size_t j=0; j<tokens.size(); j++ ) {
-////    vector<miutil::miString> stokens = tokens[j].split("=");
+////    vector<std::string> stokens = miutil::split(tokens[j], "=");
 ////    if ( stokens.size() && stokens[0]="referencetime" ) {
 ////
 ////    }
@@ -401,7 +399,8 @@ bool QuickMenu::prevQPlot(){
 }
 
 // Go to previous History-plot
-bool QuickMenu::prevHPlot(int index){
+bool QuickMenu::prevHPlot(int index)
+{
   int menu= index;
   if (qm.size()==0 || int(qm.size())<menu+1)
     return false;
@@ -420,7 +419,7 @@ bool QuickMenu::prevHPlot(int index){
       return false;
   }
   // apply plot
-  emit Apply(qm[menu].menuitems[qm[menu].plotindex].command,true);
+  /*emit*/ Apply(qm[menu].menuitems[qm[menu].plotindex].command, true);
   prev_plotindex= qm[menu].plotindex;
   prev_listindex= menu;
 
@@ -462,7 +461,8 @@ bool QuickMenu::nextHPlot(int index){
       return false;
   }
   // apply plot
-  emit Apply(qm[menu].menuitems[qm[menu].plotindex].command,true);
+
+  /*emit*/ Apply(qm[menu].menuitems[qm[menu].plotindex].command, true);
   prev_plotindex= qm[menu].plotindex;
   prev_listindex= menu;
 
@@ -490,8 +490,8 @@ bool QuickMenu::nextList(){
 
 // for Browsing: get menu-details
 void QuickMenu::getDetails(int& plotidx,
-    miutil::miString& listname,
-    miutil::miString& plotname)
+    std::string& listname,
+    std::string& plotname)
 {
   plotidx= 0;
   if (qm.size()>0 && activemenu < int(qm.size())){
@@ -502,7 +502,7 @@ void QuickMenu::getDetails(int& plotidx,
   }
 }
 
-bool QuickMenu::applyItem(const miutil::miString& mlist, const miutil::miString& item)
+bool QuickMenu::applyItem(const std::string& mlist, const std::string& item)
 {
   //find list index
   int n=qm.size();
@@ -586,7 +586,7 @@ void QuickMenu::fillPrivateMenus()
   readQuickMenu(qm[1]);
 
   //Private menus
-  miutil::miString quickfile= LocalSetupParser::basicValue("homedir") + "/*.quick";
+  std::string quickfile= LocalSetupParser::basicValue("homedir") + "/*.quick";
   glob_t globBuf;
   glob_cache(quickfile.c_str(),0,0,&globBuf);
   for(int k=0; k<globBuf.gl_pathc; k++) {
@@ -698,19 +698,18 @@ void QuickMenu::updateButton()
         }
       }
 
-      vector<miutil::miString> vs=
-        qm[prev_listindex].menuitems[prev_plotindex].command;
+      vector<string> vs = qm[prev_listindex].menuitems[prev_plotindex].command;
 
       if (instaticmenu) {
         // set it..
-        if (vs.size()>0){
+        if (not vs.empty()) {
           qm[activemenu].menuitems[idx].command= vs;
           chng_qm[activemenu-i].menuitems[idx].command= vs;
         }
       } else {
         // set it..
-        if (vs.size()>0){
-          replaceDynamicOptions(qm[activemenu].menuitems[idx].command,vs);
+        if (not vs.empty()) {
+          replaceDynamicOptions(qm[activemenu].menuitems[idx].command, vs);
           qm[activemenu].menuitems[idx].command= vs;
           if (changename){
             qm[activemenu].menuitems[idx].name=
@@ -730,29 +729,31 @@ void QuickMenu::updateButton()
   }
 }
 
-void QuickMenu::replaceDynamicOptions(vector<miutil::miString>& oldCommand,
-    vector<miutil::miString>& newCommand)
+void QuickMenu::replaceDynamicOptions(vector<string>& oldCommand, vector<string>& newCommand)
 {
-
   int nold=oldCommand.size();
   int nnew=newCommand.size();
 
   for(int i=0;i<nold && i<nnew;i++){
-    if(!oldCommand[i].contains("@")) continue;
-    vector<miutil::miString> token =oldCommand[i].split(" ");
+    if (not miutil::contains(oldCommand[i], "@"))
+      continue;
+    vector<string> token =miutil::split(oldCommand[i], 0, " ");
     int ntoken = token.size();
     for(int j=0;j<ntoken;j++){
-      if(!token[j].contains("@")) continue;
-      vector<miutil::miString> stoken = token[j].split("=");
-      if(stoken.size()!=2 || !stoken[1].contains("@")) continue;
+      if (not miutil::contains(token[j], "@"))
+        continue;
+      vector<string> stoken = miutil::split(token[j], 0, "=");
+      if(stoken.size()!=2 || not miutil::contains(stoken[1], "@"))
+        continue;
       //found item to replace
-      vector<miutil::miString> newtoken =newCommand[i].split(" ");
+      vector<string> newtoken =miutil::split(newCommand[i], 0, " ");
       int nnewtoken = newtoken.size();
-      if(nnewtoken<2 || token[0]!=newtoken[0]) continue;
+      if(nnewtoken<2 || token[0]!=newtoken[0])
+        continue;
       for(int k=1;k<nnewtoken;k++){
-        vector<miutil::miString> snewtoken = newtoken[k].split("=");
+        vector<string> snewtoken = miutil::split(newtoken[k], "=");
         if(snewtoken.size()==2 && snewtoken[0]==stoken[0]){
-          newCommand[i].replace(newtoken[k],token[j]);
+          miutil::replace(newCommand[i], newtoken[k], token[j]);
         }
       }
     }
@@ -813,19 +814,18 @@ bool QuickMenu::itemChanged(int menu, int item)
 }
 
 
-void QuickMenu::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion,
-    miutil::miString& logVersion) {
+void QuickMenu::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion) {
   // check version
   //   if (logVersion
 
-  miutil::miString line, str;
-  vector<miutil::miString> vs,vvs;
+  std::string line, str;
+  vector<std::string> vs,vvs;
   int n= vstr.size();
   bool skipmenu=true;
   int actidx = -1, oidx = -1;
   unsigned int priIndex = QMENU;
-  miutil::miString key,value;
+  std::string key,value;
 
   quickMenuItem tmpitem;
   vector<quickMenuItem> logitems;
@@ -833,21 +833,21 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
 
   for (int i=0; i<n; i++){
     line = vstr[i];
-    line.trim();
-    if (!line.exists()) continue;
-    if (line[0]=='#') continue;
+    miutil::trim(line);
+    if (line.empty() or line[0]=='#')
+      continue;
 
     if (line[0]=='>'){ // new menu
       skipmenu= false;
-      miutil::miString name, update;
+      std::string name, update;
       if (line.length()>1){
         str= line.substr(1,line.length()-1);
       }
-      vs= str.split(",");
+      vs= miutil::split(str, ",");
       for (unsigned int j=0; j<vs.size(); j++){
-        vvs= vs[j].split("=");
+        vvs= miutil::split(vs[j], "=");
         if (vvs.size()>1){
-          key= vvs[0].upcase();
+          key= miutil::to_upper(vvs[0]);
           value= vvs[1];
           if (key=="NAME")
             name= value;
@@ -856,7 +856,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
         }
       }
 
-      if (update.exists()){ // update of static menu
+      if (not update.empty()) { // update of static menu
         actidx= -1;
         int itmp= (lastcustom >= 0 ? lastcustom+1 : 1);
         for (unsigned int l=0; l<qm.size(); l++){
@@ -872,7 +872,7 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
         // find index to original list
         oidx= actidx-itmp; // in original list
 
-      } else if (name.exists()){ // custom menus, sort according to log
+      } else if (not name.empty()) { // custom menus, sort according to log
         for (unsigned int l=QMENU; l<qm.size(); l++){ //skip History
           if (qm[l].name==name){
             actidx = priIndex;
@@ -890,10 +890,10 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
 
     } else if (line[0]=='%' && !skipmenu){ // dynamic options
       if (line.length()>1 && actidx >= 0 && actidx < int(qm.size())){
-        miutil::miString opt= line.substr(1,line.length()-1);
-        vs= opt.split("=");
+        std::string opt= line.substr(1,line.length()-1);
+        vs= miutil::split(opt, "=");
         if (vs.size()>1){
-          miutil::miString key= vs[0];
+          std::string key= vs[0];
           opt= vs[1];
 
           for (unsigned int l=0; l<qm[actidx].opt.size(); l++){
@@ -953,14 +953,13 @@ void QuickMenu::readLog(const vector<miutil::miString>& vstr,
 }
 
 // write log of plot-commands
-vector<miutil::miString> QuickMenu::writeLog()
+vector<string> QuickMenu::writeLog()
 {
-
   // save any changes to the command
   saveChanges(-1,-1);
 
-  vector<miutil::miString> vstr;
-  miutil::miString str;
+  vector<string> vstr;
+  std::string str;
 
   int n= qm.size();
   int m= orig_qm.size();
@@ -985,7 +984,7 @@ vector<miutil::miString> QuickMenu::writeLog()
       vstr.push_back(str);
       // write defaults for dynamic options
       for (unsigned int k=0; k<qm[j].opt.size(); k++){
-        miutil::miString optline="%"+qm[j].opt[k].key+"="+qm[j].opt[k].def;
+        std::string optline="%"+qm[j].opt[k].key+"="+qm[j].opt[k].def;
         vstr.push_back(optline);
       }
       if (j>=i2){
@@ -1118,7 +1117,7 @@ void QuickMenu::saveChanges(int midx, int lidx){
   if (oldindex!=-1 && (oldindex!=lidx || oldmenu!= midx) &&
       oldmenu<int(qm.size()) && oldindex<int(qm[oldmenu].menuitems.size()) &&
       comset){
-    vector<miutil::miString> s;
+    vector<string> s;
     getCommand(s);
     qm[oldmenu].menuitems[oldindex].command= s;
   }
@@ -1131,12 +1130,12 @@ void QuickMenu::listClicked( QListWidgetItem * item)
   int idx = list->row(item);
 
   saveChanges(activemenu, idx);
-  miutil::miString ts;
+  std::string ts;
   int n= qm[activemenu].menuitems[idx].command.size();
   for (int i=0; i<n; i++){
     ts += qm[activemenu].menuitems[idx].command[i];
-    //     if (i<n-1) ts+= miutil::miString("\n");
-    ts+= miutil::miString("\n");
+    //     if (i<n-1) ts+= std::string("\n");
+    ts+= std::string("\n");
   }
   // set command into command-edit
   comedit->setText(QString(ts.c_str()));
@@ -1148,12 +1147,12 @@ void QuickMenu::listClicked( QListWidgetItem * item)
 
 void QuickMenu::comChanged(){
   //   METLIBS_LOG_DEBUG("Command text changed");
-  miutil::miString ts= comedit->toPlainText().toStdString();
+  std::string ts= comedit->toPlainText().toStdString();
   // check if any variables to set here
   int m= qm[activemenu].opt.size();
   if (m > maxoptions) m= maxoptions;
   for (int i=0; i<m; i++){
-    bool enable= ts.contains(vprefix+qm[activemenu].opt[i].key);
+    bool enable= miutil::contains(ts, vprefix+qm[activemenu].opt[i].key);
     optionmenu[i]->setEnabled(enable);
     optionlabel[i]->setEnabled(enable);
   }
@@ -1167,28 +1166,28 @@ void QuickMenu::listDoubleClicked( QListWidgetItem * item)
   plotButton();
 }
 
-void QuickMenu::getCommand(vector<miutil::miString>& s){
+void QuickMenu::getCommand(vector<string>& s){
 
-  miutil::miString text = comedit->toPlainText().toStdString();
-  s.clear();
-  s = text.split("\n");
+  std::string text = comedit->toPlainText().toStdString();
+  s = miutil::split(text, 0, "\n");
   int ni = s.size();
-  for (int i=0; i<ni; i++){
-    s[i].trim();
+  for (int i=0; i<ni; i++) {
+    miutil::trim(s[i]);
   }
 }
 
 
-void QuickMenu::varExpand(vector<miutil::miString>& com)
+void QuickMenu::varExpand(vector<string>& com)
 {
   int n= com.size();
   int m= qm[activemenu].opt.size();
-  if (m>maxoptions) m= maxoptions;
+  if (m>maxoptions)
+    m= maxoptions;
 
   // sort keys by length - make index-list
   vector<int> keys;
   for (int i=0; i<m; i++){
-    miutil::miString key= qm[activemenu].opt[i].key;
+    std::string key= qm[activemenu].opt[i].key;
     vector<int>::iterator it= keys.begin();
     for (; it!=keys.end() &&
     key.length()<qm[activemenu].opt[*it].key.length();
@@ -1199,9 +1198,9 @@ void QuickMenu::varExpand(vector<miutil::miString>& com)
 
   for (int i=0; i<n; i++){
     for (int j=0; j<m; j++){
-      miutil::miString key= vprefix+qm[activemenu].opt[keys[j]].key;
-      miutil::miString val= optionmenu[keys[j]]->currentText().toStdString();
-      com[i].replace(key,val);
+      std::string key= vprefix+qm[activemenu].opt[keys[j]].key;
+      std::string val= optionmenu[keys[j]]->currentText().toStdString();
+      miutil::replace(com[i], key, val);
       // keep for later default
       qm[activemenu].opt[keys[j]].def= val;
     }
@@ -1210,12 +1209,12 @@ void QuickMenu::varExpand(vector<miutil::miString>& com)
 
 void QuickMenu::plotButton()
 {
-  vector<miutil::miString> com;
+  vector<string> com;
   getCommand(com);
 
   if (com.size()>0){
     if (optionsexist) varExpand(com);
-    emit Apply(com,true);
+    emit Apply(com, true);
     prev_plotindex= qm[activemenu].plotindex;
     prev_listindex= activemenu;
     browsing= false;

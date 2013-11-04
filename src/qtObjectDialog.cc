@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +31,14 @@
 #include "config.h"
 #endif
 
+#include "qtToggleButton.h"
+#include "qtObjectDialog.h"
+#include "qtEditComment.h"
+#include "diObjectManager.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QPushButton>
@@ -46,16 +52,12 @@
 #include <QButtonGroup>
 #include <QGroupBox>
 
+#include <iomanip>
+
 #define MILOGGER_CATEGORY "diana.ObjectDialog"
 #include <miLogger/miLogging.h>
 
-#include "qtToggleButton.h"
-#include "qtObjectDialog.h"
-#include "qtEditComment.h"
-#include "diObjectManager.h"
-#include "qtUtility.h"
-
-#include <iomanip>
+using namespace std;
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
@@ -87,9 +89,9 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //**** the three buttons "auto", "tid", "fil" *************
 
-  autoButton = new ToggleButton(this, tr("Auto").toStdString());
-  timeButton = new ToggleButton(this, tr("Time").toStdString());
-  fileButton = new ToggleButton(this, tr("File").toStdString());
+  autoButton = new ToggleButton(this, tr("Auto"));
+  timeButton = new ToggleButton(this, tr("Time"));
+  fileButton = new ToggleButton(this, tr("File"));
   timefileBut = new QButtonGroup( this );
   timefileBut->addButton(autoButton,0);
   timefileBut->addButton(timeButton,1);
@@ -164,7 +166,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   m_alphascale = 0.01;
 
 
-  alpha = new ToggleButton(this,tr("Alpha").toStdString());
+  alpha = new ToggleButton(this, tr("Alpha"));
   connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
 
 
@@ -195,7 +197,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
   connect(  objhelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
   //toggle button for comments
-  commentbutton = new ToggleButton(this,tr("Comments").toStdString());
+  commentbutton = new ToggleButton(this, tr("Comments"));
   connect(  commentbutton, SIGNAL(toggled(bool)),
 	    SLOT( commentClicked(bool) ));
 
@@ -384,7 +386,7 @@ void ObjectDialog::doubleDisplayDiff( int number ){
     int minutes=m_totalminutes-hours*60;
     ostringstream ostr;
     ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-    miutil::miString str= ostr.str();
+    std::string str= ostr.str();
     diffLcdnum->display( str.c_str() );
 }
 
@@ -515,7 +517,7 @@ void ObjectDialog::updateSelectedFileList()
   //clear box with names of files
   selectedFileList->clear();
 
-  miutil::miString namestr;
+  std::string namestr;
 
   int index= namebox->currentRow();
   if(index<0) return;
@@ -544,15 +546,16 @@ void ObjectDialog::updateSelectedFileList()
 
 /*************************************************************************/
 
-vector<miutil::miString> ObjectDialog::getOKString(){
+vector<string> ObjectDialog::getOKString()
+{
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::getOKstring");
 #endif
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   if (selectedFileList->count()){
-    miutil::miString str;
+    std::string str;
     str = "OBJECTS";
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
@@ -570,7 +573,7 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 	    str+=(" TIME=" + stringFromTime(time));
 	}
 	else if (fileButton->isChecked()){
-	  if (file.name.exists())
+	  if (not file.name.empty())
 	    str+=(" FILE=" + file.name);
 	}
       }
@@ -605,7 +608,7 @@ vector<miutil::miString> ObjectDialog::getOKString(){
 }
 
 
-void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
+void ObjectDialog::putOKString(const vector<string>& vstr)
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::putOKstring");
@@ -623,7 +626,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
   for (int ip=0; ip<npi; ip++){
     //(if there are several plotInfos, only the last one will be
     //used
-    vector<miutil::miString> tokens= vstr[ip].split('"','"');
+    vector<string> tokens = miutil::split_protected(vstr[ip], '"', '"');
     //get info from OKstring into struct PlotVariables
     plotVariables = decodeString(tokens);
   }
@@ -633,7 +636,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
   bool found=false;
   int nc = namebox->count();
   for (int j=0;j<nc;j++ ){
-    miutil::miString listname =  namebox->item(j)->text().toStdString();
+    std::string listname =  namebox->item(j)->text().toStdString();
     if (plotVariables.objectname==listname){
       namebox->setCurrentRow(j);
       namebox->item(j)->setSelected(true);
@@ -647,7 +650,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
     //METLIBS_LOG_DEBUG("time =" << plotVariables.time);
     int nt=files.size();
     for (int j=0;j<nt;j++ ){
-      miutil::miString listtime=stringFromTime(files[j].time);
+      std::string listtime=stringFromTime(files[j].time);
       if (plotVariables.time==listtime){
 	timefileBut->button(1)->setChecked(true);
 	timefileClicked(1);
@@ -658,7 +661,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
     //METLIBS_LOG_DEBUG("file =" << plotVariables.file);
     int nf = files.size();
     for (int j=0;j<nf;j++ ){
-      miutil::miString listfile =  files[j].name;
+      std::string listfile =  files[j].name;
       if (plotVariables.file==listfile){
 	timefileBut->button(2)->setChecked(true);
 	timefileClicked(2);
@@ -702,8 +705,7 @@ void ObjectDialog::putOKString(const vector<miutil::miString>& vstr)
 }
 
 
-ObjectDialog::PlotVariables
-ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
+ObjectDialog::PlotVariables ObjectDialog::decodeString(const vector<string> & tokens)
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
@@ -714,19 +716,19 @@ ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
   okVar.alphanr=1.0;
 
   int n= tokens.size();
-  miutil::miString token;
+  std::string token;
 
   //loop over OKstrings
   for (int i=0; i<n; i++){
     //decode string
-    token= tokens[i].downcase();
-    if (token.contains("types=")){
+    token= miutil::to_lower(tokens[i]);
+    if (miutil::contains(token, "types=")){
       okVar.useobject = m_ctrl->decodeTypeString(token);
     } else {
-      miutil::miString key, value;
-      vector<miutil::miString> stokens= tokens[i].split('=');
+      std::string key, value;
+      vector<string> stokens= miutil::split(tokens[i], 0, "=");
       if ( stokens.size()==2) {
-	key = stokens[0].downcase();
+	key = miutil::to_lower(stokens[0]);
 	value = stokens[1];
 	if ( key=="name") {
 	  if (value[0]=='"')
@@ -755,12 +757,12 @@ ObjectDialog::decodeString(const vector <miutil::miString> & tokens)
 }
 
 
-miutil::miString ObjectDialog::getShortname()
+std::string ObjectDialog::getShortname()
 {
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::getShortname");
 #endif
-  miutil::miString name;
+  std::string name;
 
   int nameboxIndex = namebox->currentRow();
   int timefileListIndex = timefileList->currentRow();
@@ -773,20 +775,21 @@ miutil::miString ObjectDialog::getShortname()
     if (nameboxIndex > -1)
       name += "" + objectnames[nameboxIndex] + " ";
     else
-      name+= (" FILE=") + miutil::miString(selectedFileList->currentItem()->text().toStdString());
+      name+= (" FILE=") + std::string(selectedFileList->currentItem()->text().toStdString());
   }
 
   return name;
 }
 
 
-miutil::miString ObjectDialog::makeOKString(PlotVariables & okVar){
+std::string ObjectDialog::makeOKString(PlotVariables & okVar)
+{
 #ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::makeOKString");
 #endif
 
 
-    miutil::miString str;
+    std::string str;
     str = "OBJECTS";
 
     str+=(" NAME=\"" + okVar.objectname + "\"");
@@ -842,15 +845,14 @@ void ObjectDialog::archiveMode( bool on )
 
 /*************************************************************************/
 
-miutil::miString ObjectDialog::stringFromTime(const miutil::miTime& t){
-
+std::string ObjectDialog::stringFromTime(const miutil::miTime& t)
+{
   ostringstream ostr;
   ostr << setw(4) << setfill('0') << t.year()
        << setw(2) << setfill('0') << t.month()
        << setw(2) << setfill('0') << t.day()
        << setw(2) << setfill('0') << t.hour()
        << setw(2) << setfill('0') << t.min();
-
   return ostr.str();
 }
 

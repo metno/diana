@@ -32,15 +32,9 @@
 #define WeatherFront_h
 
 #include <diObjectPlot.h>
-#include <puTools/miString.h>
-
-using namespace std;
 
 /**
-
   \brief A weather front that can be plotted and edited
-
-
 */
 class WeatherFront: public ObjectPlot
 {
@@ -49,8 +43,8 @@ private:
   float linewidth;
   static float defaultLineWidth;
   float scaledlinewidth;
-  static vector<editToolInfo>  allFronts;
-  static map<miutil::miString,int> frontTypes;  //finds front type number from name
+  static std::vector<editToolInfo>  allFronts;
+  static std::map<std::string,int> frontTypes;  //finds front type number from name
   int npoints;
   float * xplot;
   float * yplot;
@@ -77,13 +71,13 @@ private:
   /// constructor with integer front type as argument
   WeatherFront(int ty);
   /// constructor with name of front type as argument
-  WeatherFront(miutil::miString tystring);
+  WeatherFront(std::string tystring);
   /// copy constructor
   WeatherFront(const WeatherFront &rhs);
   /// Destructor
   ~WeatherFront();
   /// define map to find front type number from name
-  static void defineFronts(vector<editToolInfo> fronts);
+  static void defineFronts(std::vector<editToolInfo> fronts);
   /// set default line width from setup
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation
@@ -95,7 +89,7 @@ private:
   /// set front type
   void setType(int ty);
   /// set front type
-  bool setType(miutil::miString tystring);
+  bool setType(std::string tystring);
   /// turn front
   void flip();
   /// add qfront to front (the two fronts are merged)
@@ -105,7 +99,7 @@ private:
   /// returns true if of x,y on object
   bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
   /// returns x distance from point to line after onLine is called
   float getDistX(){return distX;}
   /// returns y distance from point to line after onLine is called
@@ -113,9 +107,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-

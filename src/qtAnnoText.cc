@@ -35,25 +35,25 @@
 
 #include "qtAnnoText.h"
 
+#include "qtToggleButton.h"
+#include "diController.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QLabel>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
 #include <QKeyEvent>
-
-#include <puTools/miString.h>
 #include <qstring.h>
-#include "qtToggleButton.h"
-#include <iostream>
-#include "diController.h"
+
 #include <set>
 #include <fstream>
 
-
 /*********************************************/
-AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
-    vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText)
+AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
+    std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -62,7 +62,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
 
       setModal(true);
       productname=prodname;
-      miutil::miString caption=productname+tr(":Write text").toStdString();
+      std::string caption=productname+tr(":Write text").toStdString();
       setWindowTitle(caption.c_str());
 
       //horizontal layout for holding grid layouts
@@ -74,7 +74,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
         hglayout->addLayout(glayout, 0);
 
         for (int i=0;i<ns;i++){
-          miutil::miString ltext="Text"+miutil::miString(i+1);
+          std::string ltext="Text"+miutil::from_number(i+1);
           QString labeltext=ltext.c_str();
           QLabel* namelabel= new QLabel(labeltext, this) ;
 
@@ -119,21 +119,22 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
 }
 
 
-    AnnoText::~AnnoText(){
-      int i,n;
-      n= vSymbolEdit.size();
-      for (i = 0;i<n;i++)
-        delete vSymbolEdit[i];
-      vSymbolEdit.clear();
-    }
+AnnoText::~AnnoText(){
+  int i,n;
+  n= vSymbolEdit.size();
+  for (i = 0;i<n;i++)
+    delete vSymbolEdit[i];
+  vSymbolEdit.clear();
+}
 
 
-    void AnnoText::getAnnoText(vector <miutil::miString> & symbolText, vector <miutil::miString>  & xText){
-      symbolText.clear();
-      int ns=vSymbolEdit.size();
-      for (int i =0; i<ns;i++)
-        symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
-    }
+void AnnoText::getAnnoText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
+{
+  symbolText.clear();
+  int ns=vSymbolEdit.size();
+  for (int i =0; i<ns;i++)
+    symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
+}
 
 
     void AnnoText::textChanged(const QString &textstring){
@@ -158,14 +159,14 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodna
         return;
       } else if(e->key()==Qt::Key_PageDown){
         m_ctrl->editNextAnnoElement();
-        miutil::miString text=m_ctrl->getMarkedAnnotation();
+        std::string text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();
         }
       } else if(e->key()==Qt::Key_PageUp){
         m_ctrl->editLastAnnoElement();
-        miutil::miString text=m_ctrl->getMarkedAnnotation();
+        std::string text=m_ctrl->getMarkedAnnotation();
         if (vSymbolEdit.size()) vSymbolEdit[0]->setItemText(0,text.c_str());
         for (unsigned int i =0;i<vSymbolEdit.size();i++){
           vSymbolEdit[i]->lineEdit()->selectAll();

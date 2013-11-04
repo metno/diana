@@ -50,10 +50,10 @@ private:
 
 public:
   // Constructors
-  ObsMetar(const miutil::miString&);
+  ObsMetar(const std::string&);
 
   void init(ObsPlot *);
-  miutil::miString cloud(miutil::miString cl);
+  std::string cloud(std::string cl);
 
 };
 

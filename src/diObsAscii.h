@@ -32,72 +32,69 @@
 #define diObsAscii_h
 
 #include <diObsData.h>
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
+
 #include <map>
+#include <string>
+#include <vector>
 
 class ObsPlot;
 class ObsMetaData;
 
-using namespace std;
-
 
 /**
-
   \brief Reading ascii observation files 
   
   In-house met.no format
-
 */
 class ObsAscii {
 private:
 
-  vector<miutil::miString> lines;
-  vector<ObsData> vObsData;
-  map< miutil::miString, ObsData > mObsData;
-  miutil::miString separator;
+  std::vector<std::string> lines;
+  std::vector<ObsData> vObsData;
+  std::map< std::string, ObsData > mObsData;
+  std::string separator;
   bool fileOK;
   bool knots;
   miutil::miTime plotTime;
   miutil::miTime fileTime;
   int    timeDiff;
 
-  vector<miutil::miString> columnType;
-  vector<miutil::miString> asciiColumnUndefined;
-  map<miutil::miString,int> asciiColumn; //column index(time, x,y,dd,ff etc)
+  std::vector<std::string> columnType;
+  std::vector<std::string> asciiColumnUndefined;
+  std::map<std::string,int> asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
-  vector<miutil::miString> labels;
+  std::vector<std::string> labels;
 
-  void readHeaderInfo(const miutil::miString &filename, const miutil::miString &headerfile,
-      const vector<miutil::miString> headerinfo);
+  void readHeaderInfo(const std::string& filename, const std::string& headerfile,
+      const std::vector<std::string>& headerinfo);
 
-  void readData(const miutil::miString &filename);
+  void readData(const std::string &filename);
 
   void decodeHeader();
   void decodeData();
 
-  void addStationsToUrl(miutil::miString& filename);
+  void addStationsToUrl(std::string& filename);
 
 public:
-  vector<miutil::miString> columnName;
-  vector<miutil::miString> columnTooltip;
+  std::vector<std::string> columnName;
+  std::vector<std::string> columnTooltip;
 
-  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
-     const vector<miutil::miString> headerinfo);
+  ObsAscii(const std::string& filename, const std::string& headerfile,
+      const std::vector<std::string> headerinfo);
 
-  static bool getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines);
-  static bool getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines);
-  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
-     const vector<miutil::miString> headerinfo, const miutil::miTime &filetime,
-     ObsPlot *oplot);
+  static bool getFromFile(const std::string& filename, std::vector<std::string>& lines);
+  static bool getFromHttp(const std::string &url, std::vector<std::string>& lines);
+  ObsAscii(const std::string& filename, const std::string& headerfile,
+      const std::vector<std::string>& headerinfo, const miutil::miTime &filetime,
+      ObsPlot *oplot);
 
-  ObsAscii(const miutil::miString &filename, const miutil::miString &headerfile,
-     const vector<miutil::miString> headerinfo,
-     ObsMetaData *metaData);
+  ObsAscii(const std::string& filename, const std::string& headerfile,
+      const std::vector<std::string>& headerinfo, ObsMetaData *metaData);
 
   bool asciiOK() { return fileOK;}
 
-  bool parameterType(miutil::miString param) { return asciiColumn.count(param); }
+  bool parameterType(std::string param) { return asciiColumn.count(param); }
 };
 
 #endif

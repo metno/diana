@@ -33,22 +33,24 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.QuickMenues"
-#include <miLogger/miLogging.h>
-
 #include <diQuickMenues.h>
 #include <diLocalSetupParser.h>
 #include <fstream>
 
+#include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.QuickMenues"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 // write a quick-menu to file
 bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
 {
+  std::string filename;
 
-  miString filename;
-
-  if( !qm.filename.contains("/") ){
+  if (not miutil::contains(qm.filename, "/")) {
     filename = LocalSetupParser::basicValue("homedir") + "/";
   }
   filename += qm.filename;
@@ -119,11 +121,11 @@ bool readQuickMenu(quickMenu& qm)
 {
   quickMenuItem mi;
   quickMenuOption op;
-  miString value;
-  vector<miString> tokens, stokens;
+  std::string value;
+  vector<std::string> tokens, stokens;
   int updates=0;
 
-  miString filename= qm.filename;
+  std::string filename= qm.filename;
   ifstream menufile(filename.c_str());
   int numitems=0;
   qm.menuitems.clear();
@@ -137,9 +139,9 @@ bool readQuickMenu(quickMenu& qm)
   }
 
 
-  miString line;
+  std::string line;
   while (getline(menufile,line)){
-    line.trim();
+    miutil::trim(line);
     if (line.length()==0) continue;
     if (line[0]=='#') continue;
 
@@ -156,11 +158,11 @@ bool readQuickMenu(quickMenu& qm)
         line = line.substr(1,line.length()-2);
       else
         line = line.substr(1,line.length()-1);
-      tokens= line.split("=");
+      tokens= miutil::split(line, "=");
       if (tokens.size()>1){
         op.key= tokens[0];
         value= tokens[1];
-        op.options= value.split(",",false); //Do not skip blank enteries
+        op.options= miutil::split(value, ",", false); //Do not skip blank enteries
         op.def= (op.options.size()>0 ? op.options[0] : "");
         // add a new option
         qm.opt.push_back(op);
@@ -190,7 +192,7 @@ bool readQuickMenu(quickMenu& qm)
     }
   }
   menufile.close();
-  if (!qm.name.exists())
+  if (qm.name.empty())
     qm.name= "Udefinert navn";
 
   //if old syntax changed, update file
@@ -200,47 +202,43 @@ bool readQuickMenu(quickMenu& qm)
   return true;
 }
 
-int updateSyntax(miString& line)
+int updateSyntax(string& line)
 {
 
-  if( line.contains("_3_farger")){
-    line.replace("_3_farger","");
+  if( miutil::contains(line, "_3_farger")){
+    miutil::replace(line, "_3_farger","");
     return 1;
   }
 
-  if( line.contains("test.contour.shading=1")){
-    line.replace("test.contour.shading=1","palettecolours=standard");
+  if( miutil::contains(line, "test.contour.shading=1")){
+    miutil::replace(line, "test.contour.shading=1","palettecolours=standard");
     return 1;
   }
 
-  if( line.contains("st.nr")){
-    if( line.contains("st.nr("))
-      line.replace("st.nr","st.no");
+  if( miutil::contains(line, "st.nr")){
+    if( miutil::contains(line, "st.nr("))
+      miutil::replace(line, "st.nr","st.no");
     else
-      line.replace("st.nr","st.no(5)");
+      miutil::replace(line, "st.nr","st.no(5)");
     return 1;
   }
 
-  if( line.contains("(74,504)")){
-    line.replace("(74,504)","(uk)");
+  if( miutil::contains(line, "(74,504)")){
+    miutil::replace(line, "(74,504)","(uk)");
     return 1;
   }
-  if( line.contains("(74,533)")){
-    line.replace("(74,533)","(uk)");
+  if( miutil::contains(line, "(74,533)")){
+    miutil::replace(line, "(74,533)","(uk)");
     return 1;
   }
-  if( line.contains("(74,604)")){
-    line.replace("(74,604)","(uk)");
+  if( miutil::contains(line, "(74,604)")){
+    miutil::replace(line, "(74,604)","(uk)");
     return 1;
   }
-  if( line.contains("font=Helvetica")){
-    line.replace("font=Helvetica","font=BITMAPFONT");
+  if( miutil::contains(line, "font=Helvetica")){
+    miutil::replace(line, "font=Helvetica","font=BITMAPFONT");
     return 1;
   }
-
 
   return 0;
-
 }
-
-

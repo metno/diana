@@ -31,18 +31,17 @@
 #ifndef _satdialogadvanced_h
 #define _satdialogadvanced_h
 
-#include <qdialog.h>
-#include <qfont.h>
-#include <puTools/miString.h>
-#include <vector>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <QListWidget>
 #include <diColour.h>
 #include "qtToggleButton.h"
 #include "diController.h"
 
-using namespace std;
+#include <qdialog.h>
+#include <qfont.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <QListWidget>
+
+#include <vector>
 
 class QCheckBox;
 class QSlider;
@@ -50,12 +49,9 @@ class QPushButton;
 class QLCDNumber;
 
 /**
-
   \brief Advanced dialogue for plotting satellite and radar pictures
-
-      displayed when more>> is pressed in satellite dialog. colour cuts, alpha value etc.
-
-
+  
+  displayed when more>> is pressed in satellite dialog. colour cuts, alpha value etc.
 */
 class SatDialogAdvanced: public QWidget
 {
@@ -64,13 +60,13 @@ class SatDialogAdvanced: public QWidget
 public:
    SatDialogAdvanced( QWidget* parent,  SatDialogInfo info);
   /// the plot info strings
-  miutil::miString getOKString();
+  std::string getOKString();
   /// set the dialogue elements from a plot info string
-  miutil::miString putOKString(miutil::miString);
+  std::string putOKString(std::string);
   /// set picture string
-  void setPictures(miutil::miString);
+  void setPictures(std::string);
   /// set colours from palette in colourlist (to hide colours in picture)
-  void setColours(vector <Colour>&);
+  void setColours(std::vector<Colour>&);
   /// disable/enable options according to type of picture
   void greyOptions();
  // true if selected picture is palette file
@@ -138,7 +134,7 @@ private:
 
   QListWidget * colourList;
 
-  miutil::miString picturestring; //string describing selected picture
+  std::string picturestring; //string describing selected picture
 
   void blockSignals(bool b);
 };

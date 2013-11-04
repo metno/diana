@@ -25,18 +25,24 @@ bool Axis::legalData(float d) const
 
 float Axis::function(float x) const
 {
-  if (type == LINEAR)
+  switch (type) {
+  case LINEAR:
     return x;
-  else
+  case EXNER:
     return VcrossUtil::exnerFunction(x);
+  }
+  return x; // not reached
 }
 
 float Axis::functionInverse(float x) const
 {
-  if (type == LINEAR)
+  switch (type) {
+  case LINEAR:
     return x;
-  else
+  case EXNER:
     return VcrossUtil::exnerFunctionInverse(x);
+  }
+  return x; // not reached
 }
 
 void Axis::calculateScale()

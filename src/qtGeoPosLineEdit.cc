@@ -33,12 +33,12 @@
 #include "config.h"
 #endif
 
-#include <iostream>
 #include "qtGeoPosLineEdit.h"
 
-QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
-    int& pos) const
-    {
+#include <puTools/miStringFunctions.h>
+
+QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input, int& pos) const
+{
   // accepts:
   // +/-XX.yy +/-ZZ.rr   OR
   // XX.yyS ZZ.rrE OR
@@ -132,42 +132,42 @@ QValidator::State GeoPosLineEdit::geovalidator::validate(QString& input,
 
 // Convert string to decimal value
 // If string contains ':', deg:min:sec format assumed
-bool GeoPosLineEdit::geovalidator::toFloat(miutil::miString s, float& val,
+bool GeoPosLineEdit::geovalidator::toFloat(std::string s, float& val,
     bool isLat) const
     {
 
   float testval = 0;
   float lettersign = 1.0;
   // check for letters
-  if (s.contains("S")) {
+  if (miutil::contains(s, "S")) {
     if (!isLat)
       return false;
     lettersign = -1.0;
-    s = s.replace('S', ' ');
-  } else if (s.contains("N")) {
+    miutil::replace(s, 'S', ' ');
+  } else if (miutil::contains(s, "N")) {
     if (!isLat)
       return false;
     lettersign = 1.0;
-    s = s.replace('N', ' ');
-  } else if (s.contains("W")) {
+    miutil::replace(s, 'N', ' ');
+  } else if (miutil::contains(s, "W")) {
     if (isLat)
       return false;
     lettersign = -1.0;
-    s = s.replace('W', ' ');
-  } else if (s.contains("E")) {
+    miutil::replace(s, 'W', ' ');
+  } else if (miutil::contains(s, "E")) {
     if (isLat)
       return false;
     lettersign = 1.0;
-    s = s.replace('E', ' ');
+    miutil::replace(s, 'E', ' ');
   }
 
-  if (s.contains(":")) { // degrees:minutes:seconds
-    vector<miutil::miString> vs = s.split(":");
+  if (miutil::contains(s, ":")) { // degrees:minutes:seconds
+    std::vector<std::string> vs = miutil::split(s, ":");
     float asign = 1.0;
     for (unsigned int k = 0; k < vs.size(); k++) {
       float tval = atof(vs[k].c_str());
       if (k == 0) // degrees (determines sign)
-        asign = (vs[k].contains("-") ? -1.0 : 1.0);
+        asign = (miutil::contains(vs[k], "-") ? -1.0 : 1.0);
       else { // minutes or seconds
         if (tval > 59.999999)
           return false;
@@ -209,9 +209,9 @@ void GeoPosLineEdit::geovalidator::fixup(QString& input) const
 // get latitude, longitude from LineEdit-string
 bool GeoPosLineEdit::getValues(float& lat, float& lng)
 {
-  miutil::miString s(text().toStdString());
-  s.trim();
-  vector<miutil::miString> vs = s.split(" ");
+  std::string s(text().toStdString());
+  miutil::trim(s);
+  std::vector<std::string> vs = miutil::split(s, " ");
   if (vs.size() != 2)
     return false;
 
@@ -220,9 +220,9 @@ bool GeoPosLineEdit::getValues(float& lat, float& lng)
   return gv->toFloat(vs[1], lng, false);
 }
 
-GeoPosLineEdit::GeoPosLineEdit(QWidget* p) :
-  QLineEdit(p)
-  {
+GeoPosLineEdit::GeoPosLineEdit(QWidget* p)
+  : QLineEdit(p)
+{
   gv = new geovalidator(0);
   setValidator(gv);
-  }
+}

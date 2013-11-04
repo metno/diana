@@ -33,25 +33,20 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
-
-#include <cmath>
-#include <cstdio>
-#include <iomanip>
-#include <string.h>
-
-#include <fstream>
-#include <sstream>
-
-#define MILOGGER_CATEGORY "diana.ObsPlot"
-#include <miLogger/miLogging.h>
-
 #include <diObsPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
 #include <diLocalSetupParser.h>
 
 #include <puCtools/stat.h>
+#include <puTools/miStringFunctions.h>
+
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+
+#define MILOGGER_CATEGORY "diana.ObsPlot"
+#include <miLogger/miLogging.h>
 
 // #define DEBUGPRINT 1
 //#ifndef ROADOBS
@@ -68,12 +63,12 @@ using namespace road;
 vector<float> ObsPlot::xUsed;
 vector<float> ObsPlot::yUsed;
 vector<ObsPlot::UsedBox> ObsPlot::usedBox;
-map<miString, vector<miString> > ObsPlot::visibleStations;
-map<miString, ObsPlot::metarww> ObsPlot::metarMap;
+map<std::string, vector<std::string> > ObsPlot::visibleStations;
+map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
 map<int, int> ObsPlot::lwwg2;
 
-miString ObsPlot::currentPriorityFile = "";
-vector<miString> ObsPlot::priorityList;
+std::string ObsPlot::currentPriorityFile = "";
+vector<std::string> ObsPlot::priorityList;
 short * ObsPlot::itabSynop = 0;
 short * ObsPlot::iptabSynop = 0;
 short * ObsPlot::itabMetar = 0;
@@ -156,19 +151,18 @@ ObsPlot::~ObsPlot()
   delete[] y;
 }
 
-void ObsPlot::getObsAnnotation(miString &str, Colour &col)
+void ObsPlot::getObsAnnotation(string &str, Colour &col)
 {
   //Append to number of plots to the annotation string
-  if (!annotation.empty()) {
-    int noplot = numPositions();
-    miString anno_str = (" ( " + miString(noplot) + " )");
+  if (not annotation.empty()) {
+    string anno_str = (" ( " + miutil::from_number(numPositions()) + " )");
     str = annotation + anno_str;
   } else
     str = annotation;
   col = origcolour;
 }
 
-bool ObsPlot::getDataAnnotations(vector<miString>& anno)
+bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::getDataAnnotations() ++");
@@ -184,16 +178,16 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
 #endif
 
   float vectorAnnotationSize = 30 * fullrect.width() / pwidth * 0.7;
-  miString vectorAnnotationText = miString(2.5 * current, 2) + "m/s";
+  std::string vectorAnnotationText = std::string(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
-    if (anno[j].contains("arrow")) {
-      if (anno[j].contains("arrow="))
+    if (miutil::contains(anno[j], "arrow")) {
+      if (miutil::contains(anno[j], "arrow="))
         continue;
 
-      miString endString;
-      miString startString;
-      if (anno[j].contains(",")) {
+      std::string endString;
+      std::string startString;
+      if (miutil::contains(anno[j], ",")) {
         size_t nn = anno[j].find_first_of(",");
         endString = anno[j].substr(nn);
         startString = anno[j].substr(0, nn);
@@ -201,8 +195,8 @@ bool ObsPlot::getDataAnnotations(vector<miString>& anno)
         startString = anno[j];
       }
 
-      miString str = "arrow=" + miString(vectorAnnotationSize)
-                                              + ",feather=true,tcolour=" + colour.Name() + endString;
+      std::string str = "arrow=" + miutil::from_number(vectorAnnotationSize)
+          + ",feather=true,tcolour=" + colour.Name() + endString;
       anno.push_back(str);
       str = "text=\" " + vectorAnnotationText + "\"" + ",tcolour="
           + colour.Name() + endString;
@@ -229,7 +223,7 @@ ObsData& ObsPlot::getNextObs()
   return obsp[obsp.size() - 1];
 }
 
-void ObsPlot::mergeMetaData(map<miutil::miString, ObsData>& metaData) {
+void ObsPlot::mergeMetaData(map<std::string, ObsData>& metaData) {
 
   //METLIBS_LOG_DEBUG(__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size());
   for(size_t i=0; i<obsp.size(); ++i ) {
@@ -245,7 +239,7 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
   obsp.insert(obsp.end(),obs.begin(),obs.end());
 }
 
-void ObsPlot::updateLevel(const miString& dataType)
+void ObsPlot::updateLevel(const std::string& dataType)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::updateLevel( dataType: " << dataType << " ) ++");
@@ -316,14 +310,14 @@ void ObsPlot::clearModificationTime()
 #endif
 }
 
-void ObsPlot::setModificationTime(const miString& fname)
+void ObsPlot::setModificationTime(const std::string& fname)
 {
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::setModificationTime( fname: " << fname << " ) ++");
 #endif
 #ifdef ROADOBS
-  if (fname.contains("ROAD"))
+  if (miutil::contains(fname, "ROAD"))
   {
     // A database file, no file system
     long ltime = time(NULL);
@@ -368,7 +362,7 @@ bool ObsPlot::updateObs()
   long ltime = time(NULL);
   int n = fileNames.size();
   for( int i=0; i<n; i++ ) {
-    if (fileNames[i].contains("ROAD"))
+    if (miutil::contains(fileNames[i], "ROAD"))
     {
       if( ltime - modificationTime[i]> 1) {
 #ifdef DEBUGPRINT
@@ -427,7 +421,7 @@ bool ObsPlot::updateObs()
 
 }
 
-bool ObsPlot::prepare(const miString& pin)
+bool ObsPlot::prepare(const std::string& pin)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::prepare( pin: " << pin << " ) ++");
@@ -450,19 +444,19 @@ bool ObsPlot::prepare(const miString& pin)
   poptions.fontname = "BITMAPFONT";
   poptions.fontface = "normal";
 
-  vector<miString> tokens = infostr.split('"', '"');
+  vector<std::string> tokens = miutil::split_protected(infostr, '"', '"');
   int n = tokens.size();
-  vector<miString> parameter;
-  miString value, orig_value, key;
+  vector<std::string> parameter;
+  std::string value, orig_value, key;
 
   for (int i = 0; i < n; i++) {
-    vector<miString> stokens = tokens[i].split('=');
+    vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
     if (stokens.size() > 1) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       orig_value = stokens[1];
-      value = stokens[1].downcase();
+      value = miutil::to_lower(stokens[1]);
       if (key == "plot") {
-        vector<miString> vstr = value.split(":");
+        vector<std::string> vstr = miutil::split(value, ":");
         value = vstr[0];
         if (value == "pressure" || value == "trykk" //"trykk" is obsolete
             || value == "list" || value == "enkel" //"enkel" is obsolete
@@ -487,14 +481,14 @@ bool ObsPlot::prepare(const miString& pin)
         }
         plottype = value;
       } else if (key == "data") {
-        datatypes = value.split(",");
+        datatypes = miutil::split(value, ",");
       } else if (key == "parameter") {
-        parameter = orig_value.split(',');
+        parameter = miutil::split(orig_value, 0, ",");
         numPar = parameter.size();
       } else if (key == "scale")
         Scale = atof(value.c_str());
       else if (key == "density") {
-        if (value.downcase() == "allobs")
+        if (miutil::to_lower(value) == "allobs")
           allObs = true;
         else
           density = atof(value.c_str());
@@ -541,7 +535,7 @@ bool ObsPlot::prepare(const miString& pin)
         else
           allAirepsLevels = false;
       } else if (key == "timediff")
-        if (value.downcase() == "alltimes")
+        if (miutil::to_lower(value) == "alltimes")
           timeDiff = -1;
         else
           timeDiff = atoi(value.c_str());
@@ -585,13 +579,13 @@ bool ObsPlot::prepare(const miString& pin)
     roadobsParameter.clear();
     roadobsWind= false;
     for (int i=0; i<numPar; i++) {
-      roadobsParameter.push_back(parameter[i].downcase());
-      if (parameter[i].downcase()=="wind") roadobsWind= true;
+      roadobsParameter.push_back(miutil::to_lower(parameter[i]));
+      if (miutil::to_lower(parameter[i])=="wind") roadobsWind= true;
     }
   }
 #endif
 
-  miString all = "all";
+  std::string all = "all";
   parameterDecode(all, false);
   for (int i = 0; i < numPar; i++) {
     parameterDecode(parameter[i]);
@@ -601,13 +595,13 @@ bool ObsPlot::prepare(const miString& pin)
 
   // static tables, read once
 
-  miString path = LocalSetupParser::basicValue("obsplotfilepath");
+  std::string path = LocalSetupParser::basicValue("obsplotfilepath");
 
   bool synop_list = (plottype == "synop" || plottype == "list");
 
   if  (synop_list){
     if (!itabSynop || !iptabSynop) {
-      miString filename = path + "/synpltab.dat";
+      std::string filename = path + "/synpltab.dat";
       if (!readTable(plottype, filename)) {
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("++ End ObsPlot prepare(), false ++");
@@ -623,7 +617,7 @@ bool ObsPlot::prepare(const miString& pin)
   } else if (plottype == "metar") {
 
     if (!itabMetar || !iptabMetar) {
-      miString filename = path + "/metpltab.dat";
+      std::string filename = path + "/metpltab.dat";
       if (!readTable(plottype, filename)) {
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("++ End ObsPlot prepare(), false ++");
@@ -641,7 +635,7 @@ bool ObsPlot::prepare(const miString& pin)
   else if (plottype=="roadobs") {
 
     if (!itabSynop || !iptabSynop) {
-      miString filename= path + "/synpltab.dat";
+      std::string filename= path + "/synpltab.dat";
       if (!readTable(plottype,filename))
       {
 #ifdef DEBUGPRINT
@@ -748,7 +742,7 @@ bool ObsPlot::setData(void)
     //  METLIBS_LOG_DEBUG("ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]);
     //######################################################################
     for (int c=0; c<nc; c++) {
-      miString cpar= roadobsColumnName[c].downcase();
+      std::string cpar= miutil::to_lower(roadobsColumnName[c]);
       int p= 0;
       while (p<np && roadobsParameter[p]!=cpar) p++;
       if (p<np) roadobspar.push_back(c);
@@ -1094,7 +1088,7 @@ void ObsPlot::priority_sort(void)
 #ifdef ROADOBS
   bool nameParameterFound = false;
   int nameIndex = 0;
-  for(vector<miutil::miString>::iterator it=roadobsColumnName.begin(); it != roadobsColumnName.end(); ++it) {
+  for(vector<std::string>::iterator it=roadobsColumnName.begin(); it != roadobsColumnName.end(); ++it) {
     if(*it == "Name") {
       nameParameterFound = true;
       break;
@@ -1203,7 +1197,7 @@ void ObsPlot::time_sort(void)
 #endif
 }
 
-void ObsPlot::readPriorityFile(const miString& filename)
+void ObsPlot::readPriorityFile(const std::string& filename)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::readPriorityFile( filename: " << filename << " ) ++");
@@ -1214,7 +1208,7 @@ void ObsPlot::readPriorityFile(const miString& filename)
   currentPriorityFile = filename;
 
   ifstream inFile;
-  miString line;
+  std::string line;
 
   inFile.open(filename.c_str(), ios::in);
   if (inFile.bad()) {
@@ -1227,7 +1221,7 @@ void ObsPlot::readPriorityFile(const miString& filename)
 
   while (getline(inFile, line)) {
     if (line.length() > 0) {
-      line.trim();
+      miutil::trim(line);
       if (line.length() > 0 && line[0] != '#')
         priorityList.push_back(line);
     }
@@ -1409,14 +1403,14 @@ bool ObsPlot::findObs(int xx, int yy)
 
 //***********************************************************************
 
-bool ObsPlot::getObsName(int xx, int yy, miString& name)
+bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++");
 #endif
 
 
-  static miString lastName;
+  static std::string lastName;
   float min_r = 10.0f * fullrect.width() / pwidth;
   min_r = powf(min_r, 2);
   float r;
@@ -2432,7 +2426,7 @@ void ObsPlot::plotList(int index)
   height *= fontsizeScale * 1.2;
   width *= fontsizeScale;
   float yStep = height / scale; //depend on character height
-  miString align;
+  std::string align;
   int num = numPar;
   bool wind = pFlag.count("wind");
 
@@ -2447,10 +2441,10 @@ void ObsPlot::plotList(int index)
     return;
   }
 
-  map<miString, float>::iterator f_p;
-  map<miString, float>::iterator q_p;
-  map<miString, float>::iterator ff_p = dta.fdata.find("ff");
-  map<miString, float>::iterator dd_p = dta.fdata.find("dd");
+  map<string, float>::iterator f_p;
+  map<string, float>::iterator q_p;
+  map<string, float>::iterator ff_p = dta.fdata.find("ff");
+  map<string, float>::iterator dd_p = dta.fdata.find("dd");
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -2459,7 +2453,7 @@ void ObsPlot::plotList(int index)
   if (tccriteria)
     checkTotalColourCriteria(index);
 
-  miString thisImage = image;
+  std::string thisImage = image;
   if (mcriteria)
     thisImage = checkMarkerCriteria(index);
 
@@ -2576,8 +2570,8 @@ void ObsPlot::plotList(int index)
     else
       slon << 'W';
     ypos -= yStep;
-    miString strlat = slat.str();
-    miString strlon = slon.str();
+    std::string strlat = slat.str();
+    std::string strlon = slon.str();
     if (ccriteria)
       checkColourCriteria("Pos", 0);
     printString(strlat.c_str(), xpos, ypos, align);
@@ -2862,7 +2856,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("pwahwa")) {
     ypos -= yStep;
-    map<miString, float>::iterator p;
+    map<string, float>::iterator p;
     if ((f_p = dta.fdata.find("PwaPwa")) != dta.fdata.end() && (p
         = dta.fdata.find("HwaHwa")) != dta.fdata.end()) {
       if (ccriteria)
@@ -2888,7 +2882,7 @@ void ObsPlot::plotList(int index)
   }
   if (pFlag.count("pw1hw1")) {
     ypos -= yStep;
-    map<miString, float>::iterator p;
+    map<string, float>::iterator p;
     if ((f_p = dta.fdata.find("Pw1Pw1")) != dta.fdata.end() && (p
         = dta.fdata.find("Hw1Hw1")) != dta.fdata.end()) {
       if (ccriteria)
@@ -3186,7 +3180,7 @@ void ObsPlot::plotList(int index)
 #endif
 }
 
-void ObsPlot::printUndef(float& xpos, float& ypos, miString align)
+void ObsPlot::printUndef(float& xpos, float& ypos, std::string align)
 {
 
   glColor4ubv(colour.RGBA());
@@ -3212,7 +3206,7 @@ void ObsPlot::printUndef(float& xpos, float& ypos, miString align)
 }
 
 void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
-    miString align, miString opt)
+    std::string align, std::string opt)
 {
   float x = xpos * scale;
   float y = ypos * scale;
@@ -3220,7 +3214,7 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
   ostringstream cs;
   cs.setf(ios::fixed);
   cs.precision(precision);
-  vector<miString> vstr = opt.split(",");
+  vector<std::string> vstr = miutil::split(opt, ",");
   int n = vstr.size();
   for (int i = 0; i < n; i++) {
     if (vstr[i] == "showplus")
@@ -3238,7 +3232,7 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
   else
     cs << "X";
 
-  miString str = cs.str();
+  std::string str = cs.str();
   const char * c = str.c_str();
 
   float w, h;
@@ -3257,7 +3251,7 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
 }
 
 void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
-    miString align)
+    std::string align)
 {
 
   float x = xpos * scale;
@@ -3296,7 +3290,7 @@ void ObsPlot::plotAscii(int index)
   fp->getStringSize("0", w, h);
   h *= fontsizeScale * 1.2;
   float yStep = h / scale; //depend on character height
-  miString align;
+  std::string align;
   int num = numPar;
   bool windOK = pFlag.count("Wind") && dta.fdata.count("dd") && dta.fdata.count("ff");
 
@@ -3307,7 +3301,7 @@ void ObsPlot::plotAscii(int index)
   if (tccriteria)
     checkTotalColourCriteria(index);
 
-  miString thisImage = image;
+  std::string thisImage = image;
   if (mcriteria)
     thisImage = checkMarkerCriteria(index);
 
@@ -3317,7 +3311,7 @@ void ObsPlot::plotAscii(int index)
 
   if (!windOK) {
     if (dta.stringdata.count("image")) {
-      miString thisImage = dta.stringdata["image"];
+      std::string thisImage = dta.stringdata["image"];
       xShift = ig.widthp(thisImage) / 2;
       yShift = ig.heightp(thisImage) / 2;
       ig.plotImage(thisImage, x[index], y[index], true, Scale);
@@ -3333,7 +3327,7 @@ void ObsPlot::plotAscii(int index)
     num--;
   }
 
-  if ( dta.id.exists() && dta.id == selectedStation ) {
+  if ((not dta.id.empty()) && dta.id == selectedStation) {
     Colour c("red");
     glColor4ubv(c.RGBA());
   }
@@ -3396,17 +3390,17 @@ void ObsPlot::plotAscii(int index)
     }
   }
 
-//  map<miutil::miString,bool>::iterator p=pFlag.begin();
+//  map<std::string,bool>::iterator p=pFlag.begin();
 
   int n = columnName.size();
 //  for ( ; p!=pFlag.end();p++ ){
   for (int i = 0; i < n; i++) {
    // int j = asciipar[i];
-    miString param = columnName[i];
+    std::string param = columnName[i];
     if ( pFlag.count(param) ) {
       ypos -= yStep;
-      miString str = dta.stringdata[param];
-      str.remove('"');
+      std::string str = dta.stringdata[param];
+      miutil::remove(str, '"');
       float value = atof(str.c_str());
       if (parameterName)
         str = param + " " + str;
@@ -3430,7 +3424,7 @@ void ObsPlot::plotDBMetar(int index)
   METLIBS_LOG_DEBUG("++ ObsPlot::plotDBMetar( index: " << index << " ) ++");
 #endif
 
-  miString icao_value  = "X";
+  std::string icao_value  = "X";
   int stationid = (*stationlist)[index].stationID();
   int automationcode = (*stationlist)[index].environmentid();
   bool isData = (*stationlist)[index].data();
@@ -3493,245 +3487,245 @@ void ObsPlot::plotDBMetar(int index)
     int j= roadobspar[i];
     if (roadobsColumnName[j] == "St.no(5)")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
 		 icao_value = str;
     }
 	if (roadobsColumnName[j] == "dxdxdx")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         dxdxdx_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "dndndn")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         dndndn_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fmfmk")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         fmfm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fxfx")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         fxfx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "sss")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         sss_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "VV")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         VV_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "N")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         N_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ww")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         ww_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "GWI")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         GWI_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "a")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         a_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TTT")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TTT_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TdTdTd")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TdTdTd_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "PHPHPHPH")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         PHPHPHPH_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ppp")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         ppp_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Nh")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Nh_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "h")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         h_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Ch")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Ch_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cm")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Cm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cl")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Cl_value = atof(str.c_str());
     }
 
     if (roadobsColumnName[j] == "W1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         W1_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "W2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         W2_value = atof(str.c_str());
     }
     // Is the 24 and 12 hour values reported at the same time?
-    if (roadobsColumnName[j].contains("TxTxTx"))
+    if (miutil::contains(roadobsColumnName[j], "TxTxTx"))
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TxTx_value = atof(str.c_str());
     }
-    if (roadobsColumnName[j].contains("TnTnTn"))
+    if (miutil::contains(roadobsColumnName[j], "TnTnTn"))
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TnTn_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from automat stations
 	if (roadobsColumnName[j] == "NS_A1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A4_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from manual stations
 	if (roadobsColumnName[j] == "NS1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS4_value = atof(str.c_str());
     }
@@ -3739,9 +3733,9 @@ void ObsPlot::plotDBMetar(int index)
 
   GLfloat radius = 7.0;
   int lpos = itab[1] + 10;
-  /*const map<miString, float>::iterator fend = dta.fdata.end();
-  map<miString, float>::iterator f2_p;
-  map<miString, float>::iterator f_p;*/
+  /*const map<std::string, float>::iterator fend = dta.fdata.end();
+  map<std::string, float>::iterator f2_p;
+  map<std::string, float>::iterator f_p;*/
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -4048,7 +4042,7 @@ void ObsPlot::plotRoadobs(int index)
   // BEE CAREFULL! This code assumes that the number of entries in
   // stationlist are the same as in the roadobsp map.
   // we must check if its a faked line or a line vith data
-  miString station_type = (*stationlist)[index].station_type();
+  std::string station_type = (*stationlist)[index].station_type();
   // Does this work for ship ?!
   if (station_type == road::diStation::WMO || station_type == road::diStation::SHIP)
 	  plotDBSynop(index);
@@ -4065,9 +4059,9 @@ void ObsPlot::plotDBSynop(int index)
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::plotDBSynop( index: " << index << " ) ++");
 #endif
-  miString station_type = (*stationlist)[index].station_type();
+  std::string station_type = (*stationlist)[index].station_type();
   int stationid_wmo = (*stationlist)[index].wmonr();
-  miString call_sign;
+  std::string call_sign;
   int stationid = (*stationlist)[index].stationID();
   int automationcode = (*stationlist)[index].environmentid();
   bool isData = (*stationlist)[index].data();
@@ -4130,7 +4124,7 @@ void ObsPlot::plotDBSynop(int index)
     int j= roadobspar[i];
     if (roadobsColumnName[j] == "St.no(5)")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
 		 if (station_type == road::diStation::WMO)
 			wmono_value = atof(str.c_str());
@@ -4139,227 +4133,227 @@ void ObsPlot::plotDBSynop(int index)
     }
     if (roadobsColumnName[j] == "911ff")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         f911ff_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "fxfx")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         fxfx_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "sss")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         sss_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "VV")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         VV_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "N")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         N_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ww")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         ww_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "a")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         a_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TTT")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TTT_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "TdTdTd")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TdTdTd_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "PPPP")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         PPPP_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ppp")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         ppp_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Nh")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Nh_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "h")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         h_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Ch")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Ch_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cm")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Cm_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "Cl")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         Cl_value = atof(str.c_str());
     }
 
     if (roadobsColumnName[j] == "W1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         W1_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "W2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         W2_value = atof(str.c_str());
     }
     // Is the 24 and 12 hour values reported at the same time?
-    if (roadobsColumnName[j].contains("TxTxTx"))
+    if (miutil::contains(roadobsColumnName[j], "TxTxTx"))
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TxTx_value = atof(str.c_str());
     }
-    if (roadobsColumnName[j].contains("TnTnTn"))
+    if (miutil::contains(roadobsColumnName[j], "TnTnTn"))
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         TnTn_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from automat stations
 	if (roadobsColumnName[j] == "NS_A1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS_A4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS_A4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS_A4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS_A4_value = atof(str.c_str());
     }
 	// Cload layer 1-4 from manual stations
 	if (roadobsColumnName[j] == "NS1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS1")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS1_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS2")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS2_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS3")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS3_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "NS4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         NS4_value = atof(str.c_str());
     }
 	if (roadobsColumnName[j] == "HS4")
     {
-      miString str = roadobsp[stationid][j];
+      std::string str = roadobsp[stationid][j];
       if (str != "X")
         HS4_value = atof(str.c_str());
     }
     // another special case, the RRR
-    if(roadobsColumnName[j].contains("RRR")) {
-      miString str = roadobsp[stationid][j];
+    if(miutil::contains(roadobsColumnName[j], "RRR")) {
+      std::string str = roadobsp[stationid][j];
       float value = undef;
       if (str != "X")
         value = atof(str.c_str());
@@ -4856,14 +4850,14 @@ void ObsPlot::plotSynop(int index)
   GLfloat radius = 7.0;
   GLfloat x1, x2, x3, y1, y2, y3;
   int lpos;
-  const map<miString, float>::iterator fend = dta.fdata.end();
-  map<miString, float>::iterator f_p;
-  map<miString, float>::iterator h_p;
-  map<miString, float>::iterator ttt_p = dta.fdata.find("TTT");
+  const map<string, float>::iterator fend = dta.fdata.end();
+  map<string, float>::iterator f_p;
+  map<string, float>::iterator h_p;
+  map<string, float>::iterator ttt_p = dta.fdata.find("TTT");
 
   //Some positions depend on wheather the following parameters are plotted or not
   bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count(
-      "st.type") && dta.dataType.exists())));
+                "st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
   bool timeFlag = (pFlag.count("time") && dta.zone == 99);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
@@ -4941,7 +4935,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //characteristics of pressure tendency - a
-  map<miString, float>::iterator ppp_p = dta.fdata.find("ppp");
+  map<string, float>::iterator ppp_p = dta.fdata.find("ppp");
   ;
   if (pFlag.count("a") && (f_p = dta.fdata.find("a")) != fend && f_p->second
       >= 0 && f_p->second < 9) {
@@ -5168,7 +5162,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("id") && dta.zone == 99) {
     if (ccriteria)
       checkColourCriteria("Id", 0);
-    miString kjTegn = dta.id;
+    std::string kjTegn = dta.id;
     if (timeFlag)
       printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
     else
@@ -5179,7 +5173,7 @@ void ObsPlot::plotSynop(int index)
   if ((pFlag.count("st.no(5)") || pFlag.count("st.no(3)")) && dta.zone != 99) {
     if (ccriteria)
       checkColourCriteria("St.no(5)", 0);
-    miString kjTegn = dta.id;
+    std::string kjTegn = dta.id;
     if (!pFlag.count("st.no(5)") && kjTegn.size() > 4) {
       kjTegn = kjTegn.substr(2, 3);
       if (ccriteria)
@@ -5232,7 +5226,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //Flag + red/yellow/green
-  if (pFlag.count("flag") && hqcFlag.exists() && dta.flagColour.count(hqcFlag)) {
+  if (pFlag.count("flag") && not hqcFlag.empty() && dta.flagColour.count(hqcFlag)) {
     glPushMatrix();
     glScalef(scale, scale, 0.0);
     glColor4ubv(dta.flagColour[hqcFlag].RGBA());
@@ -5244,7 +5238,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //Type of station (replace Cl)
-  bool typeFlag = (pFlag.count("st.type") && dta.dataType.exists());
+  bool typeFlag = (pFlag.count("st.type") && (not dta.dataType.empty()));
   if (typeFlag)
     printString(dta.dataType.c_str(), iptab[lpos + 22], iptab[lpos + 23]);
 
@@ -5258,7 +5252,7 @@ void ObsPlot::plotSynop(int index)
   }
 
   //id
-  if (pFlag.count("flag") && hqcFlag.exists() && dta.flag.count(hqcFlag)) {
+  if (pFlag.count("flag") && not hqcFlag.empty() && dta.flag.count(hqcFlag)) {
     glColor4ubv(paramColour["flag"].RGBA());
     int ypos = iptab[lpos + 47];
     if (pFlag.count("id") || typeFlag)
@@ -5300,9 +5294,9 @@ void ObsPlot::plotMetar(int index)
 
   GLfloat radius = 7.0;
   int lpos = itab[1] + 10;
-  const map<miString, float>::iterator fend = dta.fdata.end();
-  map<miString, float>::iterator f2_p;
-  map<miString, float>::iterator f_p;
+  const map<string, float>::iterator fend = dta.fdata.end();
+  map<string, float>::iterator f2_p;
+  map<string, float>::iterator f_p;
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -5377,10 +5371,10 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("ww")) {
     if (ccriteria)
       checkColourCriteria("ww", 0);
-    if (dta.ww.size() > 0 && dta.ww[0].exists()) {
+    if (dta.ww.size() > 0 && not dta.ww[0].empty()) {
       metarSymbol(dta.ww[0], iptab[lpos + 8], iptab[lpos + 9], wwshift);
     }
-    if (dta.ww.size() > 1 && dta.ww[1].exists()) {
+    if (dta.ww.size() > 1 && not dta.ww[1].empty()) {
       metarSymbol(dta.ww[1], iptab[lpos + 10], iptab[lpos + 11], wwshift);
     }
   }
@@ -5389,14 +5383,14 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("reww")) {
     if (ccriteria)
       checkColourCriteria("REww", 0);
-    if (dta.REww.size() > 0 && dta.REww[0].exists()) {
+    if (dta.REww.size() > 0 && not dta.REww[0].empty()) {
       int intREww[5];
       metarString2int(dta.REww[0], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
         symbol(itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
       }
     }
-    if (dta.REww.size() > 1 && dta.REww[1].exists()) {
+    if (dta.REww.size() > 1 && not dta.REww[1].empty()) {
       int intREww[5];
       metarString2int(dta.REww[1], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
@@ -5481,7 +5475,7 @@ void ObsPlot::plotMetar(int index)
 #endif
 }
 
-void ObsPlot::metarSymbol(miString ww, float xpos, float ypos, int &idxm)
+void ObsPlot::metarSymbol(std::string ww, float xpos, float ypos, int &idxm)
 {
 
   int intww[5];
@@ -5558,7 +5552,7 @@ void ObsPlot::metarSymbol(miString ww, float xpos, float ypos, int &idxm)
 
 }
 
-void ObsPlot::metarString2int(miString ww, int intww[])
+void ObsPlot::metarString2int(std::string ww, int intww[])
 {
 
   int size = ww.size();
@@ -5581,7 +5575,7 @@ void ObsPlot::metarString2int(miString ww, int intww[])
 
   vector<metarww> ia;
   for (int i = 0; i < size; i += 2) {
-    miString sub = ww.substr(i, 2);
+    std::string sub = ww.substr(i, 2);
     if (metarMap.find(sub) != metarMap.end())
       ia.push_back(metarMap[sub]);
   }
@@ -5876,7 +5870,7 @@ void ObsPlot::initMetarMap()
   lwwg2[31] = 7;
 }
 
-void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
+void ObsPlot::printNumber(float f, float x, float y, std::string align, bool line,
     bool mark)
 {
 
@@ -5895,7 +5889,7 @@ void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
     }
     cs << f;
     float w, h;
-    miString str = cs.str();
+    std::string str = cs.str();
     const char * c = str.c_str();
     fp->getStringSize(c, w, h);
     w *= fontsizeScale;
@@ -5905,7 +5899,7 @@ void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
   else if (align == "center") {
     float w, h;
     cs << f;
-    miString str = cs.str();
+    std::string str = cs.str();
     const char * c = str.c_str();
     fp->getStringSize(c, w, h);
     w *= fontsizeScale;
@@ -5923,7 +5917,7 @@ void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
     cs.precision(1);
     cs << f;
     float w, h;
-    miString str = cs.str();
+    std::string str = cs.str();
     const char * c = str.c_str();
     fp->getStringSize(c, w, h);
     w *= fontsizeScale;
@@ -5961,7 +5955,7 @@ void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
   } else
     cs << f;
 
-  miString str = cs.str();
+  std::string str = cs.str();
   const char * c = str.c_str();
 
   if (mark) {
@@ -6004,7 +5998,7 @@ void ObsPlot::printNumber(float f, float x, float y, miString align, bool line,
 
 }
 
-void ObsPlot::printAvvik(float f, float x, float y, miString align)
+void ObsPlot::printAvvik(float f, float x, float y, std::string align)
 {
 
   x *= scale;
@@ -6028,7 +6022,7 @@ void ObsPlot::printAvvik(float f, float x, float y, miString align)
     cs << "X";
   }
 
-  miString str = cs.str();
+  std::string str = cs.str();
 
   const char * c = str.c_str();
 
@@ -6045,7 +6039,7 @@ void ObsPlot::printAvvik(float f, float x, float y, miString align)
 
 }
 
-void ObsPlot::printString(const char *c, float x, float y, miString align,
+void ObsPlot::printString(const char *c, float x, float y, std::string align,
     bool line)
 {
 
@@ -6076,8 +6070,8 @@ void ObsPlot::printString(const char *c, float x, float y, miString align,
 
 }
 
-void ObsPlot::printTime(miTime time, float x, float y, miString align,
-    miString format)
+void ObsPlot::printTime(miTime time, float x, float y, std::string align,
+    std::string format)
 {
 
   if (time.undef())
@@ -6086,7 +6080,7 @@ void ObsPlot::printTime(miTime time, float x, float y, miString align,
   x *= scale;
   y *= scale;
 
-  miString s;
+  std::string s;
   if (format == "h.m") {
      s = time.format("%H.%M");
   } else if (format == "dato") {
@@ -6160,7 +6154,7 @@ int ObsPlot::vis_direction(float dv)
 void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
 {
 
-  miString str;
+  std::string str;
   const char * c;
 
   ostringstream ost;
@@ -6194,7 +6188,7 @@ void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
 void ObsPlot::amountOfClouds_1(int16 Nh, int16 h, float x, float y, bool metar)
 {
 
-  miString str;
+  std::string str;
   const char * c;
 
   ostringstream ost;
@@ -6242,7 +6236,7 @@ void ObsPlot::amountOfClouds_1(int16 Nh, int16 h, float x, float y, bool metar)
 void ObsPlot::amountOfClouds_1_4(int16 Ns1, int16 hs1, int16 Ns2, int16 hs2, int16 Ns3, int16 hs3, int16 Ns4, int16 hs4, float x, float y, bool metar)
 {
 
-	miString str;
+	std::string str;
 	const char * c;
 	
 	float x_org = x;
@@ -6542,7 +6536,7 @@ void ObsPlot::zigzagArrow(float& angle, float xpos, float ypos, float scale)
   glPopMatrix();
 }
 
-void ObsPlot::symbol(int n, float xpos, float ypos, float scale, miString align)
+void ObsPlot::symbol(int n, float xpos, float ypos, float scale, std::string align)
 {
 
 #ifdef DEBUGPRINT
@@ -6882,7 +6876,7 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius,
 }
 
 void ObsPlot::weather(int16 ww, float &TTT, int &zone, float xpos, float ypos,
-    float scale, miString align)
+    float scale, std::string align)
 {
 
   const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0,
@@ -6949,7 +6943,7 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone, float xpos, float ypos,
 }
 
 void ObsPlot::pastWeather(int w, float xpos, float ypos, float scale,
-    miString align)
+    std::string align)
 {
 
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
@@ -6965,7 +6959,7 @@ void ObsPlot::pastWeather(int w, float xpos, float ypos, float scale,
 }
 
 void ObsPlot::wave(const float& PwPw, const float& HwHw, float x, float y,
-    miString align)
+    std::string align)
 {
   ostringstream cs;
 
@@ -6987,7 +6981,7 @@ void ObsPlot::wave(const float& PwPw, const float& HwHw, float x, float y,
   } else
     cs << "xx";
 
-  miString str = cs.str();
+  std::string str = cs.str();
   const char * c = str.c_str();
 
   if (align == "right") {
@@ -7001,7 +6995,7 @@ void ObsPlot::wave(const float& PwPw, const float& HwHw, float x, float y,
 
 }
 
-bool ObsPlot::readTable(const miString& type, const miString& filename)
+bool ObsPlot::readTable(const std::string& type, const std::string& filename)
 {
 
   //   Initialize itab and iptab from file.
@@ -7075,40 +7069,40 @@ bool ObsPlot::readTable(const miString& type, const miString& filename)
   return true;
 }
 
-void ObsPlot::decodeCriteria(miString critStr)
+void ObsPlot::decodeCriteria(std::string critStr)
 {
 
   critStr = critStr.substr(critStr.find_first_of("=") + 1, critStr.size() - 1);
-  vector<miString> vstr = critStr.split(";");
+  vector<std::string> vstr = miutil::split(critStr, ";");
   int nvstr = vstr.size();
   for (int i = 0; i < nvstr; i++) {
-    vector<miString> vcrit = vstr[i].split(",");
+    vector<std::string> vcrit = miutil::split(vstr[i], ",");
     if (vcrit.size() < 2)
       continue;
-    miString sep;
+    std::string sep;
     Sign sign;
-    miString parameter;
+    std::string parameter;
     float limit = 0.0;
-    if (vcrit[0].contains(">=")) {
+    if (miutil::contains(vcrit[0], ">=")) {
       sep = ">=";
       sign = more_than_or_equal_to;
-    } else if (vcrit[0].contains(">")) {
+    } else if (miutil::contains(vcrit[0], ">")) {
       sep = ">";
       sign = more_than;
-    } else if (vcrit[0].contains("<=")) {
+    } else if (miutil::contains(vcrit[0], "<=")) {
       sep = "<=";
       sign = less_than_or_equal_to;
-    } else if (vcrit[0].contains("<")) {
+    } else if (miutil::contains(vcrit[0], "<")) {
       sep = "<";
       sign = less_than;
-    } else if (vcrit[0].contains("=")) {
+    } else if (miutil::contains(vcrit[0], "=")) {
       sep = "=";
       sign = equal_to;
     } else {
       sign = no_sign;
     }
-    if (sep.exists()) {
-      vector<miString> sstr = vcrit[0].split(sep);
+    if (not sep.empty()) {
+      vector<std::string> sstr = miutil::split(vcrit[0], sep);
       if (sstr.size() != 2)
         continue;
       parameter = sstr[0];
@@ -7120,14 +7114,14 @@ void ObsPlot::decodeCriteria(miString critStr)
       parameter = vcrit[0];
     }
 
-    if (vcrit[1].downcase() == "plot") {
+    if (miutil::to_lower(vcrit[1]) == "plot") {
       pcriteria = true;
       plotCriteria pc;
       pc.limit = limit;
       pc.sign = sign;
       pc.plot = true;
       plotcriteria[parameter].push_back(pc);
-    } else if (vcrit.size() > 2 && vcrit[2].downcase() == "marker") {
+    } else if (vcrit.size() > 2 && miutil::to_lower(vcrit[2]) == "marker") {
       mcriteria = true;
       markerCriteria mc;
       mc.limit = limit;
@@ -7140,7 +7134,7 @@ void ObsPlot::decodeCriteria(miString critStr)
       cc.limit = limit;
       cc.sign = sign;
       cc.colour = c;
-      if (vcrit.size() == 3 && vcrit[2].downcase() == "total") {
+      if (vcrit.size() == 3 && miutil::to_lower(vcrit[2]) == "total") {
         tccriteria = true;
         totalcolourcriteria[parameter].push_back(cc);
       } else {
@@ -7152,7 +7146,7 @@ void ObsPlot::decodeCriteria(miString critStr)
 
 }
 
-void ObsPlot::checkColourCriteria(const miString& param, float value)
+void ObsPlot::checkColourCriteria(const std::string& param, float value)
 {
 
   //reset colour
@@ -7160,7 +7154,7 @@ void ObsPlot::checkColourCriteria(const miString& param, float value)
 
   bool thiscolour = false;
   Colour col;
-  map<miString, vector<colourCriteria> >::iterator p = colourcriteria.find(
+  map<std::string, vector<colourCriteria> >::iterator p = colourcriteria.find(
       param);
 
   if (p == colourcriteria.end())
@@ -7204,7 +7198,7 @@ bool ObsPlot::checkPlotCriteria(int index)
     return true;
   bool doPlot = false;
 
-  map<miString, vector<plotCriteria> >::iterator p = plotcriteria.begin();
+  map<std::string, vector<plotCriteria> >::iterator p = plotcriteria.begin();
 
   for (; p != plotcriteria.end(); p++) {
     int ncrit = p->second.size();
@@ -7223,7 +7217,7 @@ bool ObsPlot::checkPlotCriteria(int index)
         value = obsp[index].fdata[p->first];
       } else if (obsp[index].stringdata.count(p->first)){
         value = atof(obsp[index].stringdata[p->first].c_str());
-      } else if (p->first.downcase() != obsp[index].dataType) {
+      } else if (miutil::to_lower(p->first) != obsp[index].dataType) {
         continue;
       }
     }
@@ -7263,7 +7257,7 @@ bool ObsPlot::checkPlotCriteria(int index)
 void ObsPlot::checkTotalColourCriteria(int index)
 {
 
-  map<miString, vector<colourCriteria> >::iterator p =
+  map<std::string, vector<colourCriteria> >::iterator p =
       totalcolourcriteria.begin();
 
   for (; p != totalcolourcriteria.end(); p++) {
@@ -7284,7 +7278,7 @@ void ObsPlot::checkTotalColourCriteria(int index)
         value = obsp[index].fdata[p->first];
       } else if (obsp[index].stringdata.count(p->first)) {
         value = atof(obsp[index].stringdata[p->first].c_str());
-      } else if (p->first.downcase() != obsp[index].dataType) {
+      } else if (miutil::to_lower(p->first) != obsp[index].dataType) {
         continue;
       }
     }
@@ -7317,12 +7311,12 @@ void ObsPlot::checkTotalColourCriteria(int index)
 
 }
 
-miString ObsPlot::checkMarkerCriteria(int index)
+std::string ObsPlot::checkMarkerCriteria(int index)
 {
 
-  miString marker = image;
+  std::string marker = image;
 
-  map<miString, vector<markerCriteria> >::iterator p = markercriteria.begin();
+  map<std::string, vector<markerCriteria> >::iterator p = markercriteria.begin();
 
   for (; p != markercriteria.end(); p++) {
     int ncrit = p->second.size();
@@ -7341,7 +7335,7 @@ miString ObsPlot::checkMarkerCriteria(int index)
         value = obsp[index].fdata[p->first];
       } else if (obsp[index].stringdata.count(p->first)) {
         value = atof(obsp[index].stringdata[p->first].c_str());
-      } else if (p->first.downcase() != obsp[index].dataType) {
+      } else if (miutil::to_lower(p->first) != obsp[index].dataType) {
         continue;
       }
     }
@@ -7362,7 +7356,7 @@ miString ObsPlot::checkMarkerCriteria(int index)
   return marker;
 }
 
-void ObsPlot::changeParamColour(const miString& param, bool select)
+void ObsPlot::changeParamColour(const std::string& param, bool select)
 {
 
   ccriteria = select;
@@ -7377,7 +7371,7 @@ void ObsPlot::changeParamColour(const miString& param, bool select)
 
 }
 
-void ObsPlot::parameterDecode(miString parameter, bool add)
+void ObsPlot::parameterDecode(std::string parameter, bool add)
 {
 
   paramColour[parameter] = colour;
@@ -7406,10 +7400,10 @@ void ObsPlot::parameterDecode(miString parameter, bool add)
     parameter = "date";
 
   pFlag[parameter] = add;
-  pFlag[parameter.downcase()] = add;
+  pFlag[miutil::to_lower(parameter)] = add;
 }
 
-vector<miutil::miString> ObsPlot::getFileNames() const
+vector<std::string> ObsPlot::getFileNames() const
 {
   return fileNames;
 }

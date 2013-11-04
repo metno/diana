@@ -31,25 +31,23 @@
 #ifndef StationPlot_h
 #define StationPlot_h
 
-#include <vector>
-#include <deque>
-#include <iostream>
-#include <diPlot.h>
-#include <diPlotOptions.h>
-#include <puTools/miString.h>
-#include <puDatatypes/miCoordinates.h>
 #include <diCommonTypes.h>
 #include <diColour.h>
-#include <diField/diArea.h>
 #include <diImageGallery.h>
+#include <diPlot.h>
+#include <diPlotOptions.h>
 
-using namespace std;
+#include <puDatatypes/miCoordinates.h>
+#include <diField/diArea.h>
 
-  /**
-     \brief text and alignment for one stationPlot point
-  */
+#include <vector>
+#include <deque>
+
+/**
+   \brief text and alignment for one stationPlot point
+*/
 struct stationText{
-  miutil::miString text;
+  std::string text;
   Alignment hAlign;
 };
 
@@ -74,11 +72,11 @@ struct Station {
     visual
   };
 
-  miutil::miString name;
+  std::string name;
   float lat;
   float lon;
-  miutil::miString image;
-  miutil::miString image2;
+  std::string image;
+  std::string image2;
   bool isVisible;
   bool isSelected;
   bool edit;
@@ -88,9 +86,9 @@ struct Station {
   Colour colour;
   int height; /**< station height */
   int barHeight; /**< barometer height */
-  miutil::miString id; /**< WMO or climate number */
-  vector <stationText> vsText;
-  miutil::miString url;
+  std::string id; /**< WMO or climate number */
+  std::vector <stationText> vsText;
+  std::string url;
   Status status;
   Type type;
   miutil::miTime time;
@@ -103,7 +101,7 @@ struct Station {
 class StationArea {
 public:
   StationArea(float minLat, float maxLat, float minLon, float maxLon);
-  vector<Station*> findStations(float lat, float lon) const;
+  std::vector<Station*> findStations(float lat, float lon) const;
   Station* findStation(float lat, float lon) const;
   void addStation(Station* station);
 
@@ -112,8 +110,8 @@ private:
   float maxLat;
   float minLon;
   float maxLon;
-  vector<StationArea> areas;  // subareas of this area
-  vector<Station*> stations;  // pointers to stations are owned by the StationPlot
+  std::vector<StationArea> areas;  // subareas of this area
+  std::vector<Station*> stations;  // pointers to stations are owned by the StationPlot
 };
 
 /**
@@ -130,20 +128,20 @@ public:
   //constructors
   StationPlot(){}
   /// constructor with station longitudes and latitudes
-  StationPlot(const vector <float> & lons, const vector <float> & lats);
+  StationPlot(const std::vector <float> & lons, const std::vector <float> & lats);
   /// constructor with station names,longitudes and latitudes
-  StationPlot(const vector <miutil::miString> & names,const vector <float> & lons,
-	      const vector <float> & lats);
+  StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
+	      const std::vector <float> & lats);
   /// constructor with station names,longitudes,latitudes and images
-  StationPlot(const vector <miutil::miString> & names,const vector <float> & lons,
-        const vector <float> & lats, const vector <miutil::miString> images);
+  StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
+        const std::vector <float> & lats, const std::vector <std::string> images);
   /// constructor with stations
-  StationPlot(const vector <Station*> &stations);
+  StationPlot(const std::vector <Station*> &stations);
   StationPlot(const std::string& commondesc,
 	      const std::string& common,
 	      const std::string& description,
 	      int from,
-	      const  vector<std::string>& data);
+	      const  std::vector<std::string>& data);
   //destructor
   ~StationPlot();
 
@@ -162,17 +160,17 @@ public:
   /// change stationplot projection
   bool changeProjection();
   /// Returns the stations in the plot object
-  vector<Station*> getStations() const;
+  std::vector<Station*> getStations() const;
   /// Returns the station at position x and y
   Station* stationAt(int x, int y);
   /// Returns all stations at position x and y
-  vector<Station*> stationsAt(int x, int y);
-  /// Returns a vector containing the names of the stations at position x and y
-  vector<miutil::miString> findStation(int x, int y, bool add=false);
+  std::vector<Station*> stationsAt(int x, int y);
+  /// Returns a std::vector containing the names of the stations at position x and y
+  std::vector<std::string> findStation(int x, int y, bool add=false);
   /// Returns the selected stations in the plot object
-  vector<Station*> getSelectedStations() const;
+  std::vector<Station*> getSelectedStations() const;
   /// set station with name station to selected<br> if add is false, unselect all stations first
-  int setSelectedStation(miutil::miString station, bool add=false);
+  int setSelectedStation(std::string station, bool add=false);
   /// set station number i to selected<br> if add is false, unselect all stations first
   int setSelectedStation(int i, bool add=false);
   /// get annotation
@@ -182,9 +180,9 @@ public:
   /// set UseImage
   void setUseImage(bool _useImage) { useImage = _useImage;}
   /// set name/plotname
-  void setName(miutil::miString nm);
+  void setName(std::string nm);
   /// return name
-  miutil::miString getName(){return name;}
+  std::string getName(){return name;}
   /// set id to i
   void setId(int i){id = i;}
   /// return id
@@ -197,25 +195,25 @@ public:
    */
   float getImageScale(int i);
   /// set normal and selected image to im1
-  void setImage(miutil::miString im1);
+  void setImage(std::string im1);
   /// set normal image to im1, selected image to im2
-  void setImage(miutil::miString im1,miutil::miString im2);
+  void setImage(std::string im1,std::string im2);
   /// set new scale for all images
   void setImageScale(float new_scale);
   /// clears all text
   void clearText();
   /// if normal=true write name on all plotted stations, if selected=true write name on all selected stations
   void setUseStationName(bool normal, bool selected);
-  void setIcon(miutil::miString icon){iconName = icon;}
-  miutil::miString getIcon(){return iconName;}
-  void setEditStations(const vector<std::string>& );
-  bool getEditStation(int step, miutil::miString& name, int& id,
-		      vector<miutil::miString>& stations, bool& updateArea);
+  void setIcon(std::string icon){iconName = icon;}
+  std::string getIcon(){return iconName;}
+  void setEditStations(const std::vector<std::string>& );
+  bool getEditStation(int step, std::string& name, int& id,
+		      std::vector<std::string>& stations, bool& updateArea);
   bool stationCommand(const std::string& Command,
-		      const vector<std::string>& data,
+		      const std::vector<std::string>& data,
 		      const std::string& misc="");
   bool stationCommand(const std::string& Command);
-  miutil::miString stationRequest(const miutil::miString& Command);
+  std::string stationRequest(const std::string& Command);
 
   friend bool operator==(const StationPlot& lhs, const StationPlot& rhs)
   { return (lhs.stations.size()==rhs.stations.size()) ; }
@@ -227,13 +225,13 @@ public:
 
 private:
 
-  vector<Station*> stations; //stations, name, lon, lat etc...
-  vector<StationArea> stationAreas;  // areas containing stations
+  std::vector<Station*> stations; //stations, name, lon, lat etc...
+  std::vector<StationArea> stationAreas;  // areas containing stations
 
-  //  void addStation(const miutil::miString names);
+  //  void addStation(const std::string names);
   void addStation(const float lon, const float lat,
-		  const miutil::miString name="",
-		  const miutil::miString image="",
+		  const std::string name="",
+		  const std::string image="",
 		  int alpha=255, float scale=1.0);
   void addStation(Station* station);
   void defineCoordinates();
@@ -243,12 +241,12 @@ private:
   void plotWind(int i, float x, float y,
 		bool classic=false, float scale=1);
 
-  vector <float> xplot; //x-positions to plot in current projection
-  vector <float> yplot; //y-positions to plot in current projection
+  std::vector <float> xplot; //x-positions to plot in current projection
+  std::vector <float> yplot; //y-positions to plot in current projection
 
   bool visible;
-  miutil::miString annotation;
-  miutil::miString name; //f.ex. "vprof"
+  std::string annotation;
+  std::string name; //f.ex. "vprof"
   int id;
   int priority;
   bool useImage;
@@ -256,9 +254,9 @@ private:
   bool showText;
   int textSize;
   Colour textColour;
-  miutil::miString textStyle;
-  miutil::miString imageNormal,imageSelected;
-  miutil::miString iconName;
+  std::string textStyle;
+  std::string imageNormal,imageSelected;
+  std::string iconName;
   int editIndex; //last selected editStation
   int index; //last selected
 
@@ -266,8 +264,7 @@ private:
   GLuint circle;
   ImageGallery ig;
 
-
-  static miutil::miString ddString[16]; // NN�,N�,�N�,�,�S� etc.
+  static std::string ddString[16]; // NN�,N�,�N�,�,�S� etc.
  };
 
 #endif

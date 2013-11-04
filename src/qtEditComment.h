@@ -33,19 +33,14 @@
 
 #include <QDialog>
 #include <qsplitter.h>
-#include <puTools/miString.h>
-
-using namespace std;
 
 class QTextEdit;
 class ToggleButton;
 class Controller;
 class ObjectManager;
 
-
 /**
    \brief Dialogue for writing comments to edit products
-
 */
 class EditComment :public QDialog
 {

@@ -34,23 +34,27 @@
 #endif
 
 #include "qtTimeSlider.h"
-#include <iostream>
 
+using namespace std;
 
-TimeSlider::TimeSlider(QWidget* parent):
-  QSlider(parent), loop(false){
+TimeSlider::TimeSlider(QWidget* parent)
+  : QSlider(parent)
+  , loop(false)
+{
   init();
 }
 
 
-TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent):
-  QSlider(ori, parent), loop(false){
+TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent)
+  : QSlider(ori, parent)
+  , loop(false)
+{
   init();
 }
 
 
-void TimeSlider::init(){
-
+void TimeSlider::init()
+{
   vector<miutil::miTime> tmp;
   tlist["field"]= tmp;
   tlist["sat"]= tmp;
@@ -183,7 +187,7 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time, bool restricted){
   return time != current;
 }
 
-void TimeSlider::insert(const miutil::miString& datatype,
+void TimeSlider::insert(const std::string& datatype,
                         const std::vector<miutil::miTime>& vt,
                         bool use)
 {
@@ -244,7 +248,7 @@ void TimeSlider::updateList()
   }
   else {
     // Just use the first list of times in the collection.
-    map<miutil::miString,vector<miutil::miTime> >::iterator it;
+    map<std::string,vector<miutil::miTime> >::iterator it;
     for (it = tlist.begin(); it != tlist.end(); ++it) {
       if (it->second.size() > 0) {
         times = it->second;
@@ -344,8 +348,9 @@ void TimeSlider::setTime(const miutil::miTime& t){
   set(t);
 }
 
-void TimeSlider::setTime(const miutil::miString& datatype, const miutil::miTime& t){
-  if( datatype == dataTypeUsed )
+void TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
+{
+  if (datatype == dataTypeUsed)
     set(t);
 }
 
@@ -433,17 +438,17 @@ void TimeSlider::set(const miutil::miTime& t){
   setSliderValue(v);
 }
 
-void TimeSlider::useData(miutil::miString datatype){
+void TimeSlider::useData(std::string datatype){
   dataType = datatype;
   updateList();
   emit newTimes(orig_times);
 
 }
 
-void TimeSlider::deleteType(const miutil::miString& type)
+void TimeSlider::deleteType(const std::string& type)
 {
-  map< miutil::miString, vector<miutil::miTime> >::iterator p    = tlist.begin();
-  map< miutil::miString, vector<miutil::miTime> >::iterator pend = tlist.end();
+  map< std::string, vector<miutil::miTime> >::iterator p    = tlist.begin();
+  map< std::string, vector<miutil::miTime> >::iterator pend = tlist.end();
 
   while( p!=pend && type!=p->first ) p++;
   if(p!=pend)

@@ -30,10 +30,10 @@
 */
 #ifndef _diUndoFront_h
 #define _diUndoFront_h
+
 #include <vector>
 #include <diObjectPlot.h>
 #include <diField/diArea.h>
-#include <iostream>
 
   //for undo/redo stuff
 enum operation{AddPoint,MoveMarkedPoints,DeleteMarkedPoints,FlipObjects,
@@ -44,10 +44,7 @@ enum operation{AddPoint,MoveMarkedPoints,DeleteMarkedPoints,FlipObjects,
 enum action{Insert,Replace,Erase,Update};
 
 /**
-
   \brief one saved weather object for undo operations
-
-
 */
 struct saveObject{
   ObjectPlot * object; ///<saved weather object
@@ -57,21 +54,16 @@ struct saveObject{
 
 
 /**
-
   \brief Undo information saved after each edit operation
-
-
 */
 class UndoFront {
 public:
-
-
   UndoFront();
   ~UndoFront();
   /// add object to undo buffer
   void undoAdd(action,ObjectPlot*,int);
   /// saved undo objects
-  vector<saveObject> saveobjects;
+  std::vector<saveObject> saveobjects;
 
   /// pointer to last undo
   UndoFront *Last;
@@ -83,18 +75,6 @@ public:
 
   /// operation done
   operation iop; 
-
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

@@ -34,6 +34,10 @@
 #include <vector>
 #include <string>
 
+#if !defined(USE_PAINTGL)
+#include <glp/glpfile.h>
+#endif
+
   /// temporary field contouring info
   struct LinePart {
     int   pfirst,plast;

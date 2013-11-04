@@ -27,6 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <diStationManager.h>
+#include <diStationPlot.h>
+#include <qtStationDialog.h>
+#include "qtUtility.h"
+
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QModelIndex>
@@ -37,11 +42,9 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "qtUtility.h"
+#include <sstream>
 
-#include <diStationManager.h>
-#include <diStationPlot.h>
-#include <qtStationDialog.h>
+using namespace std;
 
 /**
  * \class StationDialog
@@ -192,9 +195,9 @@ void StationDialog::reloadSets()
 {
   QItemSelectionModel* selectionModel = selectedStationPlotList->selectionModel();
   foreach (QModelIndex index, selectionModel->selectedRows(1)) {
-    miutil::miString url = index.data().toString().toStdString();
+    std::string url = index.data().toString().toStdString();
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
-    miutil::miString name = nameIndex.data().toString().toStdString();
+    std::string name = nameIndex.data().toString().toStdString();
 
     if (m_ctrl->getStationManager()->importStations(name, url))
       selectionModel->select(index, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
@@ -205,11 +208,11 @@ void StationDialog::reloadSets()
  * Returns a vector of strings describing each set of stations and the
  * stations themselves.
  */
-vector<miutil::miString> StationDialog::getOKString()
+vector<string> StationDialog::getOKString()
 {
   // Clear the set of chosen sets and add the new chosen sets to it.
   vector<stationSetInfo>::iterator it;
-  vector<miutil::miString> strings;
+  vector<string> strings;
 
   for (it = dialogInfo.sets.begin(); it != dialogInfo.sets.end(); ++it) {
 
@@ -244,12 +247,12 @@ vector<miutil::miString> StationDialog::getOKString()
   return strings;
 }
 
-void StationDialog::putOKString(const vector<miutil::miString>& vstr)
+void StationDialog::putOKString(const vector<string>& vstr)
 {
   return;
 }
 
-miutil::miString StationDialog::getShortname()
+std::string StationDialog::getShortname()
 {
   return "";
 }

@@ -33,39 +33,37 @@
 
 #include <diColour.h>
 #include <puTools/miTime.h>
-
+#include <string>
 
 /**
-
   \brief Observation data
-  
 */
 class ObsData
 {
 public:
   //desc
-  miutil::miString dataType;
-  miutil::miString id;
-  miutil::miString name;
+  std::string dataType;
+  std::string id;
+  std::string name;
   float xpos;
   float ypos;
   int zone;
   miutil::miTime obsTime;
 
   //metar
-  miutil::miString metarId;
+  std::string metarId;
   bool CAVOK;              
-  std::vector<miutil::miString> REww;   ///< Recent weather
-  std::vector<miutil::miString> ww;     ///< Significant weather
-  std::vector<miutil::miString> cloud;  ///< Clouds
-  miutil::miString appendix;       ///< For whatever remains
+  std::vector<std::string> REww;   ///< Recent weather
+  std::vector<std::string> ww;     ///< Significant weather
+  std::vector<std::string> cloud;  ///< Clouds
+  std::string appendix;       ///< For whatever remains
   
-  std::map<miutil::miString,float> fdata;
-  std::map<miutil::miString,miutil::miString> stringdata;
+  std::map<std::string,float> fdata;
+  std::map<std::string,std::string> stringdata;
 
   //Hqc  
-  std::map<miutil::miString,miutil::miString> flag; 
-  std::map<miutil::miString,Colour> flagColour;
+  std::map<std::string,std::string> flag; 
+  std::map<std::string,Colour> flagColour;
 };
 
 #endif

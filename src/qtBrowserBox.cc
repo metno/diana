@@ -74,11 +74,11 @@ BrowserBox::BrowserBox(QWidget* parent)
   resize(550,150);
 }
 
-void BrowserBox::upDate(const miutil::miString& name,
+void BrowserBox::upDate(const std::string& name,
 			const int num,
-			const miutil::miString& item)
+			const std::string& item)
 {
-  miutil::miString caption= "<em><b>" + name + "</b></em>";
+  std::string caption= "<em><b>" + name + "</b></em>";
   listname->setText(caption.c_str());
   numlabel->setNum(num+1);
   label->setText(item.c_str());

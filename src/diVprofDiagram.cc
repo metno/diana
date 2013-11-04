@@ -37,32 +37,34 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofDiagram"
-#include <miLogger/miLogging.h>
-
 #include "diVprofDiagram.h"
 #include "diColour.h"
 #include "diLinetype.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 
 using namespace::miutil;
+using namespace std;
 
-// Default constructor
+#define MILOGGER_CATEGORY "diana.VprofDiagram"
+#include <miLogger/miLogging.h>
+
 VprofDiagram::VprofDiagram(VprofOptions *vpop) :
   VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),
       numprog(0)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofDiagram::VprofDiagram");
+  METLIBS_LOG_SCOPE();
 #endif
   setDefaults();
   plotw = ploth = 0;
   plotwDiagram = plothDiagram = -1;
 }
 
-// Destructor
 VprofDiagram::~VprofDiagram()
 {
 #ifdef DEBUGPRINT
@@ -1031,7 +1033,7 @@ void VprofDiagram::plotDiagram()
             if (vpopt->flightlevels[k] % 50 == 0) {
               ostringstream ostr;
               ostr << setw(3) << setfill('0') << vpopt->flightlevels[k];
-              miString str = ostr.str();
+              std::string str = ostr.str();
               //  	      fp->getStringSize(str.c_str(), cw, ch);
               //            fp->drawStr(str.c_str(),x1-cw,ylev[k]-chylab*0.5,0.0);
               fpInitStr(str, x1, ylev[k] - chylab * 0.5, 0.0, chylab, c, "x-w");
@@ -1059,7 +1061,7 @@ void VprofDiagram::plotDiagram()
             if (ip % ipstep == 0) {
               ostringstream ostr;
               ostr << setw(4) << setfill(' ') << ip;
-              miString str = ostr.str();
+              std::string str = ostr.str();
               //  	      fp->getStringSize(str.c_str(), cw, ch);
               //  	      fp->drawStr(str.c_str(),x1-cw,ylev[k]-chylab*0.5,0.0);
               fpInitStr(str, x1, ylev[k] - chylab * 0.5, 0.0, chylab, c, "x-w");
@@ -1177,7 +1179,7 @@ void VprofDiagram::plotDiagram()
           ostringstream ostr;
           ostr << setw(numwid) << setfill(' ') << setiosflags(ios::showpos)
               << it;
-          miString str = ostr.str();
+          std::string str = ostr.str();
           //           fp->drawStr(str.c_str(),x,y,numrot);
           fpInitStr(str.c_str(), x, y, numrot, chy, c, "", "SCALEFONT");
           xnext = x + dxmin;
@@ -1227,7 +1229,7 @@ void VprofDiagram::plotDiagram()
           ostringstream ostr;
           ostr << setw(numwid) << setfill(' ') << setiosflags(ios::showpos)
               << it;
-          miString str = ostr.str();
+          std::string str = ostr.str();
           //           fp->drawStr(str.c_str(),x,y,numrot);
           fpInitStr(str.c_str(), x, y, numrot, chy, c, "", "SCALEFONT");
           ynext = y - dymin;
@@ -1475,7 +1477,7 @@ void VprofDiagram::plotDiagram()
           if (xqsat[iq] > xnext && xqsat[iq] < xlast) {
             ostringstream ostr;
             ostr << vpopt->qtable[set][iq];
-            miString str = ostr.str();
+            std::string str = ostr.str();
             dx = str.length() * 0.5;
             //             fp->drawStr(str.c_str(),xqsat[iq],y,0.0);
             fpInitStr(str.c_str(), xqsat[iq], y, 0.0, chy, c);
@@ -1574,7 +1576,7 @@ void VprofDiagram::plotDiagram()
           if (y > y1 && y < y2) {
             ostringstream ostr;
             ostr << setw(3) << setfill('0') << vpopt->flightlevels[k];
-            miString str = ostr.str();
+            std::string str = ostr.str();
             // 	    fp->drawStr(str.c_str(),x1,y-chy*0.5,0.);
             fpInitStr(str.c_str(), x1, y - chy * 0.5, 0., chy, c);
             y1 = y + chy * 1.2;
@@ -1718,7 +1720,7 @@ void VprofDiagram::plotDiagram()
     // number showing the x-axis range of omega (+ hpa/s -)
     ostringstream ostr;
     ostr << vpopt->rvwind;
-    miString str = ostr.str();
+    std::string str = ostr.str();
     k = str.length();
     dx = xysize[6][1] - xysize[6][0];
     chx = chxlab;
@@ -1848,8 +1850,8 @@ void VprofDiagram::plotDiagram()
     }
     x = (xysize[8][0] + xysize[8][1]) * 0.5;
     fpInitStr("DUCT", x - chx * 2., ymaxd + 0.25 * chy, 0.0, chy, c);
-    miString str1 = miString(vpopt->ductingMin);
-    miString str3 = miString(vpopt->ductingMax);
+    std::string str1 = miutil::from_number(vpopt->ductingMin);
+    std::string str3 = miutil::from_number(vpopt->ductingMax);
     float ch = chy;
     glColor3ubv(c2.RGB());
     fpInitStr(str1.c_str(), xysize[8][0], ymind - 1.25 * chy, 0.0, ch, c2,
@@ -1884,8 +1886,8 @@ void VprofDiagram::plotDiagram()
   UpdateOutput();
 }
 
-void VprofDiagram::fpInitStr(const miString& str, float x, float y, float z,
-    float size, Colour c, miString format, miString font)
+void VprofDiagram::fpInitStr(const std::string& str, float x, float y, float z,
+    float size, Colour c, std::string format, std::string font)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofDiagram::fpInitStr");
@@ -1912,22 +1914,22 @@ void VprofDiagram::fpDrawStr(bool first)
   float w, h;
   int n = fpStr.size();
   for (int i = 0; i < n; i++) {
-    if (fpStr[i].font.exists()) {
+    if ((not fpStr[i].font.empty())) {
       fp->setFont(fpStr[i].font);
     }
     setFontsize(fpStr[i].size);
     glColor3ubv(fpStr[i].c.RGB());
-    if (first && fpStr[i].format.exists()) {
+    if (first && (not fpStr[i].format.empty())) {
       fp->getStringSize(fpStr[i].str.c_str(), w, h);
       if (fpStr[i].format == "x-w")
         fpStr[i].x -= w;
       if (fpStr[i].format == "x-w*0.5")
         fpStr[i].x -= w * 0.5;
-      if (fpStr[i].format.contains("ducting")) {
-        miString str2 = miString("0");
+      if (miutil::contains(fpStr[i].format, "ducting")) {
+        std::string str2 = std::string("0");
         float w2, h2;
         fp->getStringSize(str2.c_str(), w2, h2);
-        if (fpStr[i].format.contains("min"))
+        if (miutil::contains(fpStr[i].format, "min"))
           fpStr[i].x += w2 * 0.3;
         else
           fpStr[i].x -= w + w2 * 0.3;
@@ -1954,9 +1956,9 @@ void VprofDiagram::plotText()
     float wspace, w, h;
     fp->getStringSize("oo", wspace, h);
 
-    vector<miString> fctext(n);
-    vector<miString> geotext(n);
-    vector<miString> kitext(n);
+    vector<std::string> fctext(n);
+    vector<std::string> geotext(n);
+    vector<std::string> kitext(n);
     float wmod = 0., wpos = 0., wfc = 0., wgeo = 0., wtime = 0.;
 
     for (i = 0; i < n; i++) {
@@ -2027,7 +2029,7 @@ void VprofDiagram::plotText()
       fp->drawStr(vptext[i].posName.c_str(), xpos, y, 0.0);
       if (vptext[i].prognostic)
         fp->drawStr(fctext[i].c_str(), xfc, y, 0.0);
-      miString tstr = vptext[i].validTime.isoTime().substr(0, ltime);
+      std::string tstr = vptext[i].validTime.isoTime().substr(0, ltime);
       fp->drawStr(tstr.c_str(), xtime, y, 0.0);
       if (vpopt->pgeotext)
         fp->drawStr(geotext[i].c_str(), xgeo, y, 0.0);

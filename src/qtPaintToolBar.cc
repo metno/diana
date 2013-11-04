@@ -34,10 +34,11 @@
 #endif
 
 #include "qtPaintToolBar.h"
+
 #include <qpixmap.h>
 #include <qkeysequence.h>
 #include <QActionGroup>
-#include <puTools/miString.h>
+
 #include "paint_select.xpm"
 #include "paint_move.xpm"
 #include "paint_spatial.xpm"
@@ -53,7 +54,7 @@
 #include "paint_move_point.xpm"
 #include "paint_help.xpm"
 
-miutil::miString PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
+std::string PaintToolBar::helpPageName = "ug_profetdrawingtools.html";
 
 PaintToolBar::PaintToolBar(QMainWindow *parent)
 			: QToolBar(tr("Paint Operations"), parent) {

@@ -27,6 +27,9 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#include "qtProfetTimeControl.h"
+
 #include <QMainWindow>
 #include <QAction>
 #include <QScrollArea>
@@ -35,16 +38,11 @@
 #include <QSignalMapper>
 
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+
+#include <QCloseEvent>
 
 #include <vector>
 #include <map>
-#include <QCloseEvent>
-#include "qtProfetTimeControl.h"
-
-
-using namespace std;
-
 
 class ProfetTimeSmoothDialog : public QMainWindow {
 Q_OBJECT

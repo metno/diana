@@ -32,15 +32,9 @@
 #define _qtTimeStepSpinbox_h
 
 #include <qspinbox.h>
-#include <iostream>
-
-using namespace std; 
 
 /**
-
   \brief Step control for main plot time 
-
-
 */
 class TimeStepSpinbox : public QSpinBox {
   Q_OBJECT

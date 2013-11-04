@@ -37,16 +37,11 @@
 #include <qvalidator.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <puTools/miString.h>
-
-using namespace std; 
 
 class Controller;
 
 /**
    \brief Dialogue for editing annotation texts
-   
-
 */
 class AnnoText :public QDialog
 {
@@ -54,21 +49,20 @@ class AnnoText :public QDialog
 public:
 
   /// constructor for annotation text fpr product prodname, symbolText and xText are texts to be edited   
-  AnnoText( QWidget* parent, Controller* llctrl, miutil::miString prodname,
-vector <miutil::miString> & symbolText, vector <miutil::miString> & xText);
+  AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
+      std::vector<std::string> & symbolText, std::vector<std::string>& xText);
   /// get edited annotation text in symbolText and xtext
-  void getAnnoText(vector <miutil::miString> & symbolText, vector <miutil::miString>
-		      & xText);
+  void getAnnoText(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   ~AnnoText();
 
     
 private:
   Controller*    m_ctrl;
 
-  vector <QComboBox*> vSymbolEdit;
+  std::vector <QComboBox*> vSymbolEdit;
   QPushButton* quitb;
 
-  miutil::miString productname;
+  std::string productname;
 
 signals:
   /// redraw (update GL)
@@ -90,9 +84,3 @@ protected:
 };
 
 #endif
-
-
-
-
-
-

@@ -36,7 +36,7 @@
 #include "diVprofDiagram.h"
 #include "diVprofData.h"
 #include "diVprofPlot.h"
-#include <puTools/miString.h>
+
 #include <map>
 
 #if !defined(USE_PAINTGL)
@@ -47,8 +47,6 @@
 #define QGLWidget PaintGLWidget
 #endif
 #include <QKeyEvent>
-
-using namespace std;
 
 class VprofManager;
 
@@ -70,8 +68,8 @@ public:
   VprofWidget(VprofManager *vpm, QWidget* parent = 0);
 #endif
 
-  bool saveRasterImage(const miutil::miString fname,
-  		       const miutil::miString format,
+  bool saveRasterImage(const std::string fname,
+  		       const std::string format,
 		       const int quality = -1);
 
 protected:

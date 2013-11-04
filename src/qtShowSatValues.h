@@ -31,20 +31,16 @@
 #ifndef _qtShowSatValues_h
 #define _qtShowSatValues_h
 
+#include "diCommonTypes.h"
+
 #include <qwidget.h>
 #include <QLabel>
-#include <puTools/miString.h>
-#include "diCommonTypes.h"
 
 class QLabel;
 class QComboBox;
 
-using namespace std; 
 /**
-
   \brief Geo image pixel value in status bar
-   
-
 */
 class ShowSatValues : public QWidget {
   Q_OBJECT
@@ -56,29 +52,18 @@ private slots:
 
 public slots:
   /// set channels in combobox
-  void SetChannels(const vector<miutil::miString>& channel);
+  void SetChannels(const std::vector<std::string>& channel);
   /// show channel and value in status bar
-  void ShowValues(const vector<SatValues>& satval);
+  void ShowValues(const std::vector<SatValues>& satval);
 
 // signals:
-//   void calibChannel(miutil::miString);
+//   void calibChannel(std::string);
 
 private:
-  vector<miutil::miString> tooltip;
+  std::vector<std::string> tooltip;
   QLabel *sylabel;
   QLabel *chlabel;
   QComboBox *channelbox;
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
-

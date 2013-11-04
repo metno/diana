@@ -35,24 +35,20 @@
 #include <puTools/miTime.h>
 #include <diVprofPlot.h>
 
-using namespace std;
-
 //friend class VprofPlot;
 
 /**
-
   \brief Reading sounding from met.no obs files (pilot)
   
    using the robs library 
-
 */
 class VprofPilot : public pilot {
 public:
   // Constructors
   VprofPilot();
-  VprofPilot(const miutil::miString& file,
-	     const vector<miutil::miString>& stationList);
-  VprofPilot(const miutil::miString& file,
+  VprofPilot(const std::string& file,
+      const std::vector<std::string>& stationList);
+  VprofPilot(const std::string& file,
 	     float latitude, float longitude,
 	     float deltalat, float deltalong);
   // Destructor
@@ -60,7 +56,7 @@ public:
 
   miutil::miTime getFileObsTime();
 
-  VprofPlot* getStation(const miutil::miString& station,
+  VprofPlot* getStation(const std::string& station,
 			const miutil::miTime& time);
 };
 

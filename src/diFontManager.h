@@ -33,13 +33,14 @@
 
 #include <qglobal.h>
 
-#include <puTools/miString.h>
 #if !defined(USE_PAINTGL)
 #include <glText/glText.h>
 #else
 #include "PaintGL/paintgl.h"
 #endif
+
 #include <set>
+#include <string>
 #include <map>
 
 /**
@@ -48,29 +49,27 @@
  The font manager keeps multiple sets of font engines (X, truetype, texture).
  - text managing commands are translated to the different font engines
  - supports plotting and querying on geometry
-
  */
-
 class FontManager {
 private:
   glText * current_engine;
 
-  std::map<miutil::miString, glText*> fontengines;
-  std::map<miutil::miString, std::set<miutil::miString> > enginefamilies;
+  std::map<std::string, glText*> fontengines;
+  std::map<std::string, std::set<std::string> > enginefamilies;
 
-  static miutil::miString fontpath;
-  static miutil::miString display_name;
-  static std::map<miutil::miString, miutil::miString> defaults;
+  static std::string fontpath;
+  static std::string display_name;
+  static std::map<std::string, std::string> defaults;
 
-  glText::FontFace fontFace(const miutil::miString&);
-  bool check_family(const miutil::miString& fam, miutil::miString& family);
+  glText::FontFace fontFace(const std::string&);
+  bool check_family(const std::string& fam, std::string& family);
 
 public:
   FontManager();
   ~FontManager();
 
   /// for use in batch - force different display
-  static void set_display_name(const miutil::miString name)
+  static void set_display_name(const std::string name)
   {
     display_name = name;
   }
@@ -81,20 +80,20 @@ public:
   void endHardcopy();
 
   /// for test purposes, sets up a standard set of fonts
-  bool testDefineFonts(miutil::miString path = "fonts");
+  bool testDefineFonts(std::string path = "fonts");
   /// parse fontsection in setup file
   bool parseSetup();
 
   /// choose fonttype, face and size
-  bool set(const miutil::miString, const glText::FontFace, const float);
+  bool set(const std::string, const glText::FontFace, const float);
   /// choose fonttype, face and size
-  bool set(const miutil::miString, const miutil::miString, const float);
+  bool set(const std::string, const std::string, const float);
   /// choose fonttype
-  bool setFont(const miutil::miString);
+  bool setFont(const std::string);
   /// choose fontface from type
   bool setFontFace(const glText::FontFace);
   /// choose fontface from name
-  bool setFontFace(const miutil::miString);
+  bool setFontFace(const std::string);
   /// choose fontsize
   bool setFontSize(const float);
 
@@ -137,7 +136,7 @@ public:
   /// return index of current font size
   int getFontSizeIndex();
   /// return name of font from index
-  miutil::miString getFontName(const int index);
+  std::string getFontName(const int index);
   /// requested-size divided by actual-size
   float getSizeDiv();
 };

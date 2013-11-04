@@ -141,8 +141,8 @@ void SpectrumWidget::keyPressEvent(QKeyEvent *me)
 }
 
 
-bool SpectrumWidget::saveRasterImage(const miutil::miString fname,
-			          const miutil::miString format,
+bool SpectrumWidget::saveRasterImage(const std::string fname,
+			          const std::string format,
 			          const int quality)
 {
 

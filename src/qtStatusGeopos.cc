@@ -39,10 +39,11 @@
 #include <QFrame>
 #include <QHBoxLayout>
 
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <math.h>
+
+using namespace std;
 
 StatusGeopos::StatusGeopos(QWidget* parent) :
   QWidget(parent)

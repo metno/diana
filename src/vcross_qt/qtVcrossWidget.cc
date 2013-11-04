@@ -36,9 +36,9 @@
 #include "qtVcrossWidget.h"
 
 #ifdef USE_VCROSS_V2
-#include "diVcrossManager.h"
+#include "vcross_v2/diVcrossManager.h"
 #else
-#include "diVcross1Manager.h"
+#include "vcross_v1/diVcross1Manager.h"
 #endif
 
 #include <QImage>

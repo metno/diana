@@ -33,20 +33,17 @@
 #include "config.h"
 #endif
 
+#include <diMItiff.h>
+
 #define MILOGGER_CATEGORY "diana.MItiff"
 #include <miLogger/miLogging.h>
 
-#include <diMItiff.h>
-
-using namespace::miutil;
-
-MItiff::MItiff(){
+MItiff::MItiff()
+{
 }
 
-bool MItiff::readMItiffPalette(const miString& filename,
-				   vector<Colour>& col)
+bool MItiff::readMItiffPalette(const std::string& filename, std::vector<Colour>& col)
 {
-
   satimg::dihead ginfo;
 
   // if not colour palette image
@@ -69,12 +66,10 @@ bool MItiff::readMItiffPalette(const miString& filename,
     col.push_back(Colour(colmap[0][j],colmap[1][j],colmap[2][j]));
 
   return true;
-
 }
 
 bool MItiff::readMItiffHeader(SatFileInfo& file)
 {
-
   satimg::dihead ginfo;
 
   int rres =satimg::MITIFF_head_diana(file.name, ginfo);
@@ -91,13 +86,13 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
   file.time = ginfo.time;
   file.opened = true;
 
-  miString ch=ginfo.channel;
-  file.channel=ch.split(" ");
+  std::string ch=ginfo.channel;
+  file.channel=miutil::split(ch, " ");
 
   return true;
 }
 
-bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
+bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
 {
   //Read TIFF-file using libsatimg, MITIFF_read_diana returns the images
   //for each channel (index[i]) in rawimage[i], and  information about the
@@ -154,8 +149,8 @@ bool MItiff::readMItiff(const miString& filename, Sat& sd, int index)
 }
 
 
-bool  MItiff::day_night(SatFileInfo &fInfo, miString& channels) {
-
+bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
+{
   int aa = satimg::day_night(fInfo.name);
 
   if(aa<0) return false;
@@ -167,6 +162,5 @@ bool  MItiff::day_night(SatFileInfo &fInfo, miString& channels) {
   } else if(aa==1){ //night
     channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
   }
-
   return true;
 }

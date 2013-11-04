@@ -36,19 +36,15 @@
 #include <qlayout.h>
 #include <qbuttongroup.h>
 #include <qpalette.h>
-#include <puTools/miString.h>
 
 #include "diCommonTypes.h"
 #include "qtToggleButton.h"
+
+#include <string>
 #include <vector>
 
-
-using namespace std;
-
 /**
-
   \brief Grid of buttons
-
 */
 class ButtonLayout : public QWidget
 {
@@ -57,19 +53,19 @@ class ButtonLayout : public QWidget
 public:
 
   ButtonLayout( QWidget* parent,
-		vector<ObsDialogInfo::Button>& button,
+		std::vector<ObsDialogInfo::Button>& button,
 		int nr_col=3            //number of columns
 		);
 
   bool isChecked(int);
   void setEnabled( bool enabled );
-  int setButtonOn(miutil::miString buttonName);
-  void enableButtons(vector<bool>);
+  int setButtonOn(std::string buttonName);
+  void enableButtons(std::vector<bool>);
 
-  vector<miutil::miString> getOKString(bool forLog=false);
+  std::vector<std::string> getOKString(bool forLog=false);
 
  public slots:
- void setRightClicked(miutil::miString name,bool on);
+ void setRightClicked(std::string name,bool on);
   void ALLClicked();
   void NONEClicked();
   void DEFAULTClicked();
@@ -81,8 +77,8 @@ private slots:
 signals:
   void inGroupClicked( int );
   void outGroupClicked( int );
-  void rightClickedOn( miutil::miString );
-  void rightClickedOff( miutil::miString );
+  void rightClickedOn( std::string );
+  void rightClickedOff( std::string );
 
 private:
 
@@ -91,13 +87,9 @@ private:
   ToggleButton** b;
   QButtonGroup* bgroup;
 
-  vector<bool> buttonOn;
-  vector<bool> buttonRightOn;
-  vector<ObsDialogInfo::Button> buttonList;
-
+  std::vector<bool> buttonOn;
+  std::vector<bool> buttonRightOn;
+  std::vector<ObsDialogInfo::Button> buttonList;
 };
 
-
-
 #endif
-

@@ -33,25 +33,22 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.DrawingManager"
-#include <miLogger/miLogging.h>
-
 #include <diDrawingManager.h>
 #include <EditItems/drawingitembase.h>
 #include <EditItems/drawingweatherarea.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
-#include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
+
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miDirtools.h>
 #include <puTools/miSetupParser.h>
 
-#include <iomanip>
-#include <set>
 #include <cmath>
+#include <iomanip>
+#include <fstream>
+#include <set>
 
 #include <QDateTime>
 #include <QKeyEvent>
@@ -61,6 +58,10 @@
 #define PLOTM PlotModule::instance()
 
 //#define DEBUGPRINT
+#define MILOGGER_CATEGORY "diana.DrawingManager"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self = 0;
@@ -87,12 +88,8 @@ DrawingManager *DrawingManager::instance()
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ DrawingManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 #endif
-
-  miString section="DRAWING";
-  vector<miString> vstr;
-
   return true;
 }
 

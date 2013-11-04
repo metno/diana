@@ -31,13 +31,12 @@
 #ifndef QTPAINTTOOLBAR_H_
 #define QTPAINTTOOLBAR_H_
 
+#include <diGridAreaManager.h>
+
 #include <QToolBar>
 #include <QMainWindow>
 #include <QAction>
 #include <QActionGroup>
-#include <diGridAreaManager.h>
-#include <puTools/miString.h>
-
 
 class PaintToolBar : public QToolBar {
   Q_OBJECT
@@ -54,7 +53,7 @@ public:
   void enableRedo(bool enable);
 	
 private:
-  static miutil::miString helpPageName;
+  static std::string helpPageName;
   QActionGroup *modeActions;
   QAction *selectAction;
   QAction *drawAction;

@@ -32,10 +32,10 @@
 #define diColour_h
 
 
-#include <puTools/miString.h>
 #include <puCtools/porttypes.h>
 
 #include <map>
+#include <string>
 #include <vector>
 
 /**
@@ -64,21 +64,21 @@ public:
   /// 3 component colour data and name
   struct ColourInfo {
     int rgb[3];
-    miutil::miString name;
+    std::string name;
   };
 
 private:
-  miutil::miString name;
+  std::string name;
   values v;
   uchar_t colourindex;
-  static std::map<miutil::miString,Colour> cmap;
+  static std::map<std::string,Colour> cmap;
   static std::vector<ColourInfo> colours;
 
   // Copy members
   void memberCopy(const Colour& rhs);
 public:
   // Constructors
-  Colour(const miutil::miString);
+  Colour(const std::string&);
   Colour(const values&);
   Colour(const uint32 =0);
   Colour(const uchar_t, const uchar_t,
@@ -93,11 +93,11 @@ public:
   bool operator==(const Colour &rhs) const;
 
   // static functions for static colour-map
-  static void define(const miutil::miString, const uchar_t, const uchar_t,
+  static void define(const std::string&, const uchar_t, const uchar_t,
 		     const uchar_t, const uchar_t =maxv);
-  static void define(const miutil::miString, const values&);
-  static void defineColourFromString(const miutil::miString rgba_string);
-  static void setindex(const miutil::miString, const uchar_t);
+  static void define(const std::string, const values&);
+  static void defineColourFromString(const std::string& rgba_string);
+  static void setindex(const std::string&, const uchar_t);
 
   // static functions for static vector <ColourInfo> colours
   static void addColourInfo(const ColourInfo& ci);
@@ -127,9 +127,9 @@ public:
   const uchar_t* RGB()  const {return v.rgba; }
   uchar_t Index() const {return colourindex; }
 
-  const miutil::miString& Name() const {return name;}
+  const std::string& Name() const {return name;}
 
-  void readColourMap(const miutil::miString fname);
+  void readColourMap(const std::string fname);
 
   friend std::ostream& operator<<(std::ostream& out, const Colour& rhs);
 };

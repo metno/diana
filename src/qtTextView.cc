@@ -41,7 +41,7 @@
 #include <QHBoxLayout>
 using namespace std;
 
-TextWidget::TextWidget(QWidget* parent, const miutil::miString& text, int id_)
+TextWidget::TextWidget(QWidget* parent, const std::string& text, int id_)
   : QWidget(parent)
 {
   id = id_;
@@ -54,7 +54,7 @@ TextWidget::TextWidget(QWidget* parent, const miutil::miString& text, int id_)
   vlayout->addWidget(textEdit);
 }
 
-void TextWidget::setText(miutil::miString text)
+void TextWidget::setText(std::string text)
 {
   QString str = text.c_str();
   if(!str.isNull())
@@ -80,8 +80,8 @@ TextView::TextView(QWidget* parent)
   vlayout->addLayout(hlayout);
 }
 
-void TextView::setText(int id, const miutil::miString& name,
-		      const miutil::miString& text)
+void TextView::setText(int id, const std::string& name,
+		      const std::string& text)
 {
 
   if (idmap.count(id) == 0) {

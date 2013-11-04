@@ -68,7 +68,7 @@ SatManager::SatManager()
 
 }
 
-bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
+bool SatManager::init(std::vector<SatPlot*>& vsatp, const std::vector<std::string>& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
@@ -81,7 +81,8 @@ bool SatManager::init(vector<SatPlot*>& vsatp, const vector<miString>& pinfo)
 
   int nsp= vsatp.size();
   // init inuse array
-  vector<bool> inuse;
+  
+  std::vector<bool> inuse;
   if (nsp>0) {
     inuse.insert(inuse.begin(), nsp, false);
   }
@@ -293,7 +294,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   // METEOSAT 1 channel per file
   //   either VIS_RAW(visual) or IR_CAL(infrared)
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.parseChannels");
-  miString channels;
+  std::string channels;
   if (channelmap.count(satdata->plotChannels))
     channels = channelmap[satdata->plotChannels];
   else
@@ -305,7 +306,7 @@ bool SatManager::parseChannels(SatFileInfo &fInfo)
   }
   //name of channels selected
 
-  satdata->vch = channels.split("+");
+  satdata->vch = miutil::split(channels, "+");
 
   //no - is the number of channels to plot
   //index[i] 0,1,2,3,4 -> channel 1,2,3,4,5 NOAA
@@ -504,8 +505,7 @@ void SatManager::setRGB()
             cutImageRGBA(satdata->rawimage[0], satdata->cut, index);
           }
           //remember stretch from first image
-          if (!colourStretchInfo.channels.exists()
-              || satdata->commonColourStretch) {
+          if (colourStretchInfo.channels.empty() || satdata->commonColourStretch) {
             for (k=0; k<3; k++) {
               colourStretchInfo.index1[k]= index[0+k*2];
               colourStretchInfo.index2[k]= index[1+k*2];
@@ -542,8 +542,7 @@ void SatManager::setRGB()
               cutImage(color[k], satdata->cut, index1, index2);
             }
             //remember stretch from first image
-            if (!colourStretchInfo.channels.exists()
-                || satdata->commonColourStretch) {
+            if (colourStretchInfo.channels.empty() || satdata->commonColourStretch) {
               colourStretchInfo.index1[k]= index1;
               colourStretchInfo.index2[k]= index2;
               colourStretchInfo.channels = satdata->plotChannels;
@@ -565,7 +564,7 @@ void SatManager::setRGB()
           }
       }
     } else { // set colourStretchInfo even if cut is off
-      if (!colourStretchInfo.channels.exists()) {
+      if (colourStretchInfo.channels.empty()) {
         for (k=0; k<3; k++) {
           colourStretchInfo.index1[k]= 0;
           colourStretchInfo.index2[k]= 255;
@@ -688,14 +687,14 @@ void SatManager::cutImage(unsigned char *image, float cut, int &index1,
   //tilbake.
 }
 
-int SatManager::getFileName(miString &name)
+int SatManager::getFileName(std::string &name)
 {
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getFileName");
 #ifdef DEBUGPRINT
   log.debugStream()<<"getFileName:"<<name;
 #endif
 
-  vector<SatFileInfo> &ft = Prod[satdata->satellite][satdata->filetype].file;
+  std::vector<SatFileInfo> &ft = Prod[satdata->satellite][satdata->filetype].file;
 
   int fileno=-1;
   int n=ft.size();
@@ -744,7 +743,7 @@ int SatManager::getFileName(const miTime &time)
   } else
     fileListChanged = false;
 
-  vector<SatFileInfo> &ft=subp.file;
+  std::vector<SatFileInfo> &ft=subp.file;
   int n=ft.size();
   for (int i=0; i<n; i++) {
     d = abs(miTime::minDiff(ft[i].time, time));
@@ -877,15 +876,15 @@ void SatManager::getMosaicfiles()
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
   mosaicfiles. clear();
-  vector<int> vdiff;
+  std::vector<int> vdiff;
 
-  vector<SatFileInfo>::iterator p = subp.file.begin();
+  std::vector<SatFileInfo>::iterator p = subp.file.begin();
   while (p!=subp.file.end()) {
     satdiff = abs(miTime::minDiff(p->time, sattime)); //diff from current sat time
     plotdiff = abs(miTime::minDiff(p->time, plottime)); //diff from current plottime
     if (plotdiff<diff && satdiff<diff && satdiff!=0) {
-      vector<SatFileInfo>::iterator q = mosaicfiles.begin();
-      vector<int>::iterator i=vdiff.begin();
+      std::vector<SatFileInfo>::iterator q = mosaicfiles.begin();
+      std::vector<int>::iterator i=vdiff.begin();
       while (q!=mosaicfiles.end() && i!=vdiff.end() && satdiff>=*i) {
         q++;
         i++;
@@ -898,7 +897,7 @@ void SatManager::getMosaicfiles()
 
 }
 
-bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
+bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel)
 {
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.readHeader");
 #ifdef DEBUGPRINT
@@ -935,12 +934,12 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
   //compare channels from setup and channels from file
   for (unsigned int k=0; k<channel.size(); k++) {
     if (channel[k]=="IR+V") {
-      miString name=file.name;
-      if (name.contains("v."))
-        name.replace("v.", "i.");
-      else if (name.contains("i."))
-        name.replace("i.", "v.");
-      ifstream inFile(name.c_str(), ios::in);
+      std::string name=file.name;
+      if (miutil::contains(name, "v."))
+        miutil::replace(name, "v.", "i.");
+      else if (miutil::contains(name, "i."))
+        miutil::replace(name, "i.", "v.");
+      std::ifstream inFile(name.c_str(), std::ios::in);
       if (inFile)
         file.channel.push_back("IR+V");
     }
@@ -954,8 +953,8 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
     else if (channel[k]=="IR") {
       file.channel.push_back("IR");
     }
-    else if (channel[k].contains("+") ) {
-      vector<miString> ch = channel[k].split("+");
+    else if (miutil::contains(channel[k], "+") ) {
+      std::vector<std::string> ch = miutil::split(channel[k], "+");
       bool found =false;
       for (unsigned int l=0; l<ch.size(); l++) {
         found =false;
@@ -976,10 +975,9 @@ bool SatManager::readHeader(SatFileInfo &file, vector<miString> &channel)
   return true;
 }
 
-const vector<miString>& SatManager::getChannels(const miString &satellite,
-    const miString & file, int index)
+const std::vector<std::string>& SatManager::getChannels(const std::string &satellite,
+    const std::string & file, int index)
 {
-
   if (index<0 || index>=int (Prod[satellite][file].file.size()))
     return Prod[satellite][file].channel;
 
@@ -993,7 +991,6 @@ const vector<miString>& SatManager::getChannels(const miString &satellite,
   }
 
   return Prod[satellite][file].channel;
-
 }
 
 void SatManager::listFiles(subProdInfo &subp)
@@ -1039,7 +1036,7 @@ void SatManager::listFiles(subProdInfo &subp)
       bool newfile = true;
 
       //HK ??? forandret kode for at oppdatering skal virke
-      vector<SatFileInfo>::iterator p = subp.file.begin();
+      std::vector<SatFileInfo>::iterator p = subp.file.begin();
       for (; p!=subp.file.end(); p++) {
         if (ft.name == p->name) {
           newfile=false;
@@ -1094,7 +1091,7 @@ void SatManager::listFiles(subProdInfo &subp)
         if (subp.file.empty())
           subp.file.push_back(ft);
         else {
-          vector<SatFileInfo>::iterator p = subp.file.begin();
+          std::vector<SatFileInfo>::iterator p = subp.file.begin();
           while (p!=subp.file.end() && p->time>ft.time)
             p++;
           //skip archive files which are already in list
@@ -1215,8 +1212,8 @@ void SatManager::cutImageRGBA(unsigned char *image, float cut, int *index)
   //tilbake.
 }
 
-const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
-    const miString & file, bool update)
+const std::vector<SatFileInfo> &SatManager::getFiles(const std::string &satellite,
+    const std::string & file, bool update)
 {
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getFiles");
   //check if satellite exists, (name occurs in prod)
@@ -1258,22 +1255,19 @@ const vector<SatFileInfo> &SatManager::getFiles(const miString &satellite,
 
 }
 
-const vector<Colour> & SatManager::getColours(const miString &satellite,
-    const miString & file)
+const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
+    const std::string & file)
 {
-
   //Returns colour palette for this subproduct.
-
   return Prod[satellite][file].colours;
-
 }
 
-bool SatManager::isMosaic(const miString &satellite, const miString & file)
+bool SatManager::isMosaic(const std::string &satellite, const std::string & file)
 {
   return Prod[satellite][file].mosaic;
 }
 
-vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool updateFileList, bool openFiles)
+std::vector<miTime> SatManager::getSatTimes(const std::vector<std::string>& pinfos, bool updateFileList, bool openFiles)
 {
   //  * PURPOSE:   return times for list of PlotInfo's
   MI_LOG & log = MI_LOG::getInstance("diana.SatManager.getSatTimes");
@@ -1281,14 +1275,13 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
   log.debugStream()<<"SatManager----> getSatTimes ";
 #endif
 
-  set<miTime> timeset;
-  vector< miTime> timevec;
+  std::set<miTime> timeset;
+  std::vector< miTime> timevec;
   int m, nn= pinfos.size();
-  vector<miString> tokens;
-  miString satellite, file;
+  std::string satellite, file;
 
   for(int i=0; i<nn; i++) {
-    tokens= pinfos[i].split('"', '"');
+    const std::vector<std::string> tokens = miutil::split_protected(pinfos[i], '"', '"');
     m= tokens.size();
     if (m<3)
       continue;
@@ -1331,7 +1324,7 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
 
   m= timeset.size();
   if (m>0) {
-    set<miTime>::iterator p= timeset.begin();
+    std::set<miTime>::iterator p= timeset.begin();
     for (; p!=timeset.end(); p++)
       timevec.push_back(*p);
   }
@@ -1339,34 +1332,34 @@ vector<miTime> SatManager::getSatTimes(const vector<miString>& pinfos, bool upda
   return timevec;
 }
 
-void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTime, int& timediff, const miString& pinfo)
+void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
+    miTime& constTime, int& timediff, const std::string& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
 
   timediff=0;
 
-  vector<miString> tokens= pinfo.split('"', '"');
+  std::vector<std::string> tokens= miutil::split_protected(pinfo, '"', '"');
   int m= tokens.size();
   if (m<3)
     return;
 
-  miString satellite= tokens[1];
-  miString file = tokens[2];
-  miString filename;
+  std::string satellite= tokens[1];
+  std::string file = tokens[2];
+  std::string filename;
 
   for (unsigned int j=0; j<tokens.size(); j++) {
-    vector<miString> stokens= tokens[j].split("=");
-    if (stokens.size()==2 && stokens[0].downcase()=="file") {
+    std::vector<std::string> stokens= miutil::split(tokens[j], "=");
+    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="file") {
       filename = stokens[1];
     }
-    if (stokens.size()==2 && stokens[0].downcase()=="timediff") {
-      timediff=stokens[1].toInt();
+    if (stokens.size()==2 && miutil::to_lower(stokens[0])=="timediff") {
+      timediff=miutil::to_int(stokens[1]);
     }
   }
 
-  if (filename.exists()) { //Product with const time
+  if (not filename.empty()) { //Product with const time
     SatFileInfo sfi;
     sfi.name = filename;
     MItiff::readMItiffHeader(sfi);
@@ -1374,7 +1367,7 @@ void SatManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 
   } else { //Product with prog times
 
-    vector<SatFileInfo> finfo = getFiles(satellite, file, true);
+    std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
     int nfinfo=finfo.size();
     for (int k=0; k<nfinfo; k++) {
       normalTimes.push_back(finfo[k].time);
@@ -1396,9 +1389,9 @@ void SatManager::updateFiles()
 
   //loop over all satellites and filetypes
 
-  map<miString, map<miString, subProdInfo> >::iterator p = Prod.begin();
+  std::map<std::string, std::map<std::string, subProdInfo> >::iterator p = Prod.begin();
   while (p !=Prod.end()) {
-    map<miString,subProdInfo>::iterator q;
+    std::map<std::string,subProdInfo>::iterator q;
     q= p->second.begin();
     while (q !=p->second.end()) {
       Prod[p->first][q->first].updated=false;
@@ -1422,44 +1415,44 @@ bool SatManager::parseSetup()
   //remove old setup info
   Prod.clear();
 
-  const miString sat_name = "IMAGE";
-  vector<miString> sect_sat;
+  const std::string sat_name = "IMAGE";
+  std::vector<std::string> sect_sat;
 
   if (!SetupParser::getSection(sat_name, sect_sat)) {
     log.debugStream() << "Missing section " << sat_name << " in setupfile.";
     return true;
   }
 
-  miString prod;
-  miString subprod;
-  miString file;
-  miString formattype = "mitiff";
-  miString metadata = "";
-  miString channelinfo = "";
-  miString paletteinfo = "";
+  std::string prod;
+  std::string subprod;
+  std::string file;
+  std::string formattype = "mitiff";
+  std::string metadata = "";
+  std::string channelinfo = "";
+  std::string paletteinfo = "";
   int hdf5type = 0;
-  vector<miString> channels;
-  miString key, value;
+  std::vector<std::string> channels;
+  std::string key, value;
   bool mosaic=true;
   int iprod = 0;
 
   for (unsigned int i=0; i<sect_sat.size(); i++) {
 
-    vector<miString> token = sect_sat[i].split("=");
+    std::vector<std::string> token = miutil::split(sect_sat[i], "=");
     if (token.size() != 2) {
-      miString errmsg="Line must contain '='";
+      std::string errmsg="Line must contain '='";
       SetupParser::errorMsg(sat_name, i, errmsg);
       return false;
     }
-    key = token[0].downcase();
+    key = miutil::to_lower(token[0]);
     value = token[1];
 
     if (key == "channels") {
-      vector<miString> chStr=value.split(" ");
+      std::vector<std::string> chStr=miutil::split(value, " ");
       int nch=chStr.size();
       channels.clear();
       for (int j=0; j<nch; j++) {
-        vector<miString> vstr=chStr[j].split(":");
+        std::vector<std::string> vstr=miutil::split(chStr[j], ":");
         if (vstr.size()==2)
           channelmap[vstr[0]] = vstr[1];
         channels.push_back(vstr[0]);
@@ -1482,55 +1475,55 @@ bool SatManager::parseSetup()
       }
 
     } else if (key == "formattype") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image and sub.type before formattype";
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before formattype";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       formattype = value;
 
     } else if (key == "channelinfo") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image and sub.type before formattype";
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before formattype";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       channelinfo = value;
 
     } else if (key == "paletteinfo") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image and sub.type before palette";
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before palette";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       paletteinfo = value;
 
     } else if (key == "metadata") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image and sub.type before formattype";
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before formattype";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
       metadata = value;
 
     } else if (key == "hdf5type") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image and sub.type before type";
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before type";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
-      if (value.downcase() == "radar") {
+      if (miutil::to_lower(value) == "radar") {
         hdf5type = 0;
-      } else if (value.downcase() == "noaa") {
+      } else if (miutil::to_lower(value) == "noaa") {
         hdf5type = 1;
-      } else if (value.downcase() == "msg") {
+      } else if (miutil::to_lower(value) == "msg") {
         hdf5type = 2;
-      } else if (value.downcase() == "saf") {
+      } else if (miutil::to_lower(value) == "saf") {
         hdf5type = 3;
       }
     } else if (key == "sub.type") {
-      if (!prod.exists()) {
-        miString errmsg="You must give image before sub.type";
+      if (prod.empty()) {
+        std::string errmsg="You must give image before sub.type";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
       }
@@ -1547,8 +1540,8 @@ bool SatManager::parseSetup()
         Dialog.image[iprod].file.push_back(file);
       }
     } else if (key == "file" || key == "archivefile") {
-      if (!subprod.exists() ) {
-        miString errmsg="You must give image and sub.type before file";
+      if (subprod.empty() ) {
+        std::string errmsg="You must give image and sub.type before file";
         SetupParser::errorMsg(sat_name, i, errmsg);
         return false;
       }
@@ -1602,8 +1595,8 @@ bool SatManager::parseSetup()
   Sat::setDefaultValues(Dialog);
 
   //read UFFDA classes
-  const miString section = "UFFDA";
-  vector<miString> vstr;
+  const std::string section = "UFFDA";
+  std::vector<std::string> vstr;
 
   if (!SetupParser::getSection(section, vstr)) {
     uffdaEnabled=false;
@@ -1612,15 +1605,15 @@ bool SatManager::parseSetup()
   }
   int i, n, nv, nvstr=vstr.size();
   for (nv=0; nv<nvstr; nv++) {
-    vector<miString> tokens = vstr[nv].split('\"', '\"', " ", true);
+    std::vector<std::string> tokens = miutil::split_protected(vstr[nv], '\"', '\"', " ", true);
     n=tokens.size();
     for (i=0; i<n; i++) {
-      vector<miString> stokens = tokens[i].split('\"', '\"', "=", true);
+      std::vector<std::string> stokens = miutil::split_protected(tokens[i], '\"', '\"', "=", true);
       if (stokens.size()==2) {
         key=stokens[0];
         value=stokens[1];
-        key.trim();
-        value.trim();
+        miutil::trim(key);
+        miutil::trim(value);
         if (value[0]=='"')
           value= value.substr(1, value.length()-2);
         if (key=="class")
@@ -1636,7 +1629,7 @@ bool SatManager::parseSetup()
 }
 
 /*********************************************************************/
-bool SatManager::_isafile(const miString name)
+bool SatManager::_isafile(const std::string name)
 {
   pu_struct_stat filestat;
   // first check if fname is a proper file
@@ -1654,7 +1647,7 @@ bool SatManager::_isafile(const miString name)
 }
 
 /*********************************************************************/
-unsigned long SatManager::_modtime(const miString fname)
+unsigned long SatManager::_modtime(const std::string fname)
 {
   pu_struct_stat filestat;
   // first check if fname is a proper file
@@ -1666,7 +1659,7 @@ unsigned long SatManager::_modtime(const miString fname)
 }
 
 /*********************************************************************/
-int SatManager::_filestat(const miString fname, pu_struct_stat& filestat)
+int SatManager::_filestat(const std::string fname, pu_struct_stat& filestat)
 {
   return pu_stat(fname.c_str(), &filestat);
 }
@@ -1705,12 +1698,12 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
 
   const int tmpidx= Sat::maxch-1;
 
-  miString name=sd.actualfile;
+  std::string name=sd.actualfile;
   Sat sd2;
-  if (name.contains("v.")) {
-    name.replace("v.", "i.");
-    ifstream inFile(name.c_str(), ios::in);
-    miString cal=sd.cal_vis;
+  if (miutil::contains(name, "v.")) {
+    miutil::replace(name, "v.", "i.");
+    std::ifstream inFile(name.c_str(), std::ios::in);
+    std::string cal=sd.cal_vis;
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
       sd.cal_ir=sd2.cal_ir;
@@ -1726,10 +1719,10 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
     }
     inFile.close();
 
-  } else if (name.contains("i.")) {
-    name.replace("i.", "v.");
-    miString cal=sd.cal_ir;
-    ifstream inFile(name.c_str(), ios::in);
+  } else if (miutil::contains(name, "i.")) {
+    miutil::replace(name, "i.", "v.");
+    std::string cal=sd.cal_ir;
+    std::ifstream inFile(name.c_str(), std::ios::in);
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
       sd.cal_ir=cal;
@@ -1747,7 +1740,7 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   }
 }
 
-map<miutil::miString, map<miutil::miString,SatManager::subProdInfo> > SatManager::getProductsInfo() const
+std::map<std::string, std::map<std::string,SatManager::subProdInfo> > SatManager::getProductsInfo() const
 {
   return Prod;
 }

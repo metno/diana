@@ -31,7 +31,6 @@
 #ifndef _obsWidget_h
 #define _obsWidget_h
 
-
 #include <qcolor.h>
 #include <qdialog.h>
 #include <QLabel>
@@ -39,8 +38,6 @@
 #include "diController.h"
 #include "qtToggleButton.h"
 #include <map>
-
-using namespace std;
 
 class QSlider;
 class QLabel;
@@ -57,11 +54,9 @@ class ButtonLayout;
 class QColor;
 
 /**
-
   \brief Observation settings for one plot style
 
    Widget for selection of data types, parameters etc.
-
 */
 class ObsWidget : public QWidget
 {
@@ -74,27 +69,27 @@ public:
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
-  miutil::miString getOKString(bool forLog= false);
+  std::string getOKString(bool forLog= false);
   ///insert command strings
-  void putOKString(const miutil::miString& str);
+  void putOKString(const std::string& str);
   ///return short name of current commonad
-  miutil::miString getShortname();
-  void readLog(const miutil::miString& str);
+  std::string getShortname();
+  void readLog(const std::string& str);
   void setFalse();
-  void setDatatype(const miutil::miString&);
-  vector<miutil::miString> getDataTypes();
+  void setDatatype(const std::string&);
+  std::vector<std::string> getDataTypes();
   bool moreToggled(){return moreButton->isChecked();}
   //Criteria
   ObsDialogInfo::CriteriaList getSavedCriteria(){return savedCriteria;}
   ObsDialogInfo::CriteriaList getCriteriaList();
   bool setCurrentCriteria(int i);
   int getCurrentCriteria(){return currentCriteria;}
-  vector<miutil::miString> getCriteriaNames();
-  void saveCriteria(const vector<miutil::miString>& criteria);
-  bool saveCriteria(const vector<miutil::miString>& criteria,
-		    const miutil::miString& name);
-  bool getCriteriaLimits(const miutil::miString& name, int& low, int& high);
-  void markButton(const miutil::miString& name, bool on);
+  std::vector<std::string> getCriteriaNames();
+  void saveCriteria(const std::vector<std::string>& criteria);
+  bool saveCriteria(const std::vector<std::string>& criteria,
+		    const std::string& name);
+  bool getCriteriaLimits(const std::string& name, int& low, int& high);
+  void markButton(const std::string& name, bool on);
   bool noButton(){return nobutton;}
 
 private slots:
@@ -109,12 +104,12 @@ private slots:
   void criteriaChecked(bool on );
   void onlyposChecked(bool on );
   void extensionSlot(bool on);
-  void rightClickedSlot(miutil::miString str);
+  void rightClickedSlot(std::string str);
 
 signals:
   void getTimes();
-  void rightClicked(miutil::miString);
-  void setRightClicked(miutil::miString,bool);
+  void rightClicked(std::string);
+  void setRightClicked(std::string,bool);
   void extensionToggled(bool);
   void criteriaOn();
   void newCriteriaList(ObsDialogInfo::CriteriaList);
@@ -124,8 +119,8 @@ private:
 
   bool initOK;
 
-  vector<Colour::ColourInfo> cInfo;
-  vector<miutil::miString> markerName;
+  std::vector<Colour::ColourInfo> cInfo;
+  std::vector<std::string> markerName;
 
   ButtonLayout* datatypeButtons;
   ButtonLayout* parameterButtons;
@@ -166,34 +161,34 @@ private:
   QCheckBox* criteriaCheckBox;
   ToggleButton* moreButton;
 
-  vector<ObsDialogInfo::PriorityList> priorityList;
-  vector<ObsDialogInfo::CriteriaList> criteriaList;
+  std::vector<ObsDialogInfo::PriorityList> priorityList;
+  std::vector<ObsDialogInfo::CriteriaList> criteriaList;
   ObsDialogInfo::CriteriaList savedCriteria;
   int currentCriteria;
 
   int nr_dataTypes;
-  vector<ObsDialogInfo::Button> button;
-  vector<ObsDialogInfo::Button> dataTypeButton;
-  vector<ObsDialogInfo::DataType> datatype;
-  vector<int> time_slider2lcd;
+  std::vector<ObsDialogInfo::Button> button;
+  std::vector<ObsDialogInfo::Button> dataTypeButton;
+  std::vector<ObsDialogInfo::DataType> datatype;
+  std::vector<int> time_slider2lcd;
 
   struct dialogVariables {
-    miutil::miString plotType;
-    vector<miutil::miString> data;
-    vector<miutil::miString> parameter;
-    map<miutil::miString,miutil::miString> misc;
+    std::string plotType;
+    std::vector<std::string> data;
+    std::vector<std::string> parameter;
+    std::map<std::string,std::string> misc;
   };
 
   dialogVariables dVariables;
 
-  void decodeString(const miutil::miString&, dialogVariables&,bool fromLog=false);
+  void decodeString(const std::string&, dialogVariables&,bool fromLog=false);
   void updateDialog(bool setOn);
-  miutil::miString makeString(bool forLog=false);
+  std::string makeString(bool forLog=false);
 
   bool pressureLevels;
-  map<miutil::miString,int> levelMap;
+  std::map<std::string,int> levelMap;
   bool leveldiffs;
-  map<miutil::miString,int> leveldiffMap;
+  std::map<std::string,int> leveldiffMap;
 
   // LCD <-> slider
   float scaledensity;
@@ -205,20 +200,16 @@ private:
   bool markerboxVisible;
   bool allObs;
   int selectedPressure;
-  miutil::miString timediff_minutes;
+  std::string timediff_minutes;
   int pri_selected;     // Wich priority file
-  miutil::miString plotType;
-  miutil::miString shortname;
+  std::string plotType;
+  std::string shortname;
   bool nobutton;
 
   QVBoxLayout *vlayout;
   QVBoxLayout *vcommonlayout;
   QHBoxLayout *parameterlayout;
   QHBoxLayout *datatypelayout;
-
-
 };
-
-
 
 #endif

@@ -72,7 +72,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   METLIBS_LOG_DEBUG("++ VprofPlot::plot " << nplot);
 #endif
 
-  if (!text.posName.exists()) return false;
+  if (text.posName.empty())
+    return false;
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::plot start plotting " << text.posName);
@@ -313,7 +314,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
               ostringstream ostr;
               ostr << setw(2) << setfill('0') << idd << "-"
               << setw(3) << setfill('0') << iff;
-              miString str= ostr.str();
+              std::string str= ostr.str();
               y= yy[k]-chylab*0.5;
               fp->drawStr(str.c_str(),x,y,0.0);
             }

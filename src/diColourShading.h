@@ -3,7 +3,7 @@
 
   $Id: diColourShading.h 3906 2012-08-02 17:35:03Z lisbethb $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,83 +33,64 @@
 
 #include "diColour.h"
 
-#include <puTools/miString.h>
-
+#include <string>
 #include <map>
 
-
-
-using namespace std;
-
 /**
-
   \brief Colour shading type
 
   Colour shading definition, vector of colours.
   - static list of defined colour shadings, reachable by name
-
 */
 class ColourShading {
 public:
 
   ///List of colours and name
 struct ColourShadingInfo {
-  vector<Colour> colour;
-  miutil::miString name;
+  std::vector<Colour> colour;
+  std::string name;
 };
 
 
 private:
-  miutil::miString name;
-  vector<Colour> colours;
-  static map<miutil::miString,ColourShading> pmap;
-  static vector<ColourShadingInfo> colourshadings;
+  std::string name;
+  std::vector<Colour> colours;
+  static std::map<std::string,ColourShading> pmap;
+  static std::vector<ColourShadingInfo> colourshadings;
 
-  void morecols(vector<Colour>& vcol, const Colour& col1,
+  void morecols(std::vector<Colour>& vcol, const Colour& col1,
 		const Colour& col2, int n);
 
   // Copy members
   void memberCopy(const ColourShading& rhs);
 public:
-  // Constructors
   ColourShading(){;}
-  ColourShading(const miutil::miString);
-  ColourShading(const miutil::miString& name, const vector<Colour>&);
+  ColourShading(const std::string&);
+  ColourShading(const std::string& name, const std::vector<Colour>&);
   ColourShading(const ColourShading &rhs);
-  // Destructor
   ~ColourShading();
 
-  // Assignment operator
   ColourShading& operator=(const ColourShading &rhs);
-  // Equality operator
   bool operator==(const ColourShading &rhs) const;
 
   // static function for static palette-map
   ///define new colour shading
-  static void define(const miutil::miString,
-		     const vector<Colour>&);
+  static void define(const std::string&, const std::vector<Colour>&);
 
   ///define new colour shading
   static void addColourShadingInfo(const ColourShadingInfo& csi);
   ///return all colour shadings defined
-  static vector<ColourShadingInfo> getColourShadingInfo(){return colourshadings;}
+  static std::vector<ColourShadingInfo> getColourShadingInfo(){return colourshadings;}
   /// define ColourShading from colour,colour,colour
-  static void defineColourShadingFromString(const miutil::miString str);
+  static void defineColourShadingFromString(const std::string& str);
   ///return the colours of name_
-  static vector<Colour> getColourShading(miutil::miString name_)
-  {return pmap[name_].colours;}
+  static std::vector<Colour> getColourShading(const std::string& name_)
+    {return pmap[name_].colours;}
   ///return n colours, interpolate RGB-values or drop colours if needed
-  vector<Colour> getColourShading(int n);
+  std::vector<Colour> getColourShading(int n);
   ///return all colours
-  vector<Colour> getColourShading() const {return colours;}
-  miutil::miString Name() const {return name;}
-
+  std::vector<Colour> getColourShading() const {return colours;}
+  std::string Name() const {return name;}
 };
 
-
-
 #endif
-
-
-
-

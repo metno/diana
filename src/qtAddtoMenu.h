@@ -33,7 +33,6 @@
 
 #include <qdialog.h>
 
-
 class QuickMenu;
 class QListWidget;
 class QListWidgetItem;
@@ -41,10 +40,7 @@ class QPushButton;
 
 /**
    \brief Add plot to quick menu
-
 */
-
-
 class AddtoMenu : public QDialog {
   Q_OBJECT
 private:
@@ -65,7 +61,3 @@ public:
 };
 
 #endif
-
-
-
-

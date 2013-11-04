@@ -34,17 +34,14 @@
 #include <diVprofTables.h>
 #include <diVprofOptions.h>
 
-#include <vector>
-#include <puTools/miString.h>
 #include <GL/gl.h>
 
-using namespace std;
+#include <vector>
 
 class VprofOptions;
 
 /**
    \brief Plots the Vertical Profile diagram background without data
-
 */
 class VprofDiagram : public VprofTables
 {
@@ -62,12 +59,12 @@ private:
   void prepare();
   void condensationtrails();
   void plotDiagram();
-  void fpInitStr(const miutil::miString& str,
+  void fpInitStr(const std::string& str,
 		 float x, float y, float z,
 		 float size,
 		 Colour c,
-		 miutil::miString format="",
-		 miutil::miString font="");
+		 std::string format="",
+		 std::string font="");
   void fpDrawStr(bool first=false);
 
   //-----------------------------------------------
@@ -104,20 +101,15 @@ private:
   float last_pmax;
 
   struct fpStrInfo{
-    miutil::miString str;
+    std::string str;
     float x,y,z;
     float size;
     Colour c;
-    miutil::miString format;
-    miutil::miString font;
+    std::string format;
+    std::string font;
   };
 
-  vector<fpStrInfo> fpStr;
-
+  std::vector<fpStrInfo> fpStr;
 };
 
 #endif
-
-
-
-

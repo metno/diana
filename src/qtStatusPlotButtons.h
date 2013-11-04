@@ -31,29 +31,24 @@
 #ifndef _qtStatusPlotButtons_h
 #define _qtStatusPlotButtons_h
 
+#include <diCommonTypes.h>
+
 #include <QWidget>
 #include <QToolButton>
 
-#include <diCommonTypes.h>
-#include <puTools/miString.h>
+#include <vector>
 
-//class QScrollArea;
 class QHBoxLayout;
 class QAction;
 class QMenu;
 class QFocusEvent;
 class QKeyEvent;
 
-using namespace std;
-
-
 /**
    \brief Data layer button
 
    One PlotButton for each data layer on the map, for quick toggle of layer
-
 */
-
 class PlotButton : public QToolButton {
   Q_OBJECT
 public:
@@ -93,7 +88,7 @@ public:
 
 public slots:
   /// add several buttons
-  void setPlotElements(const vector<PlotElement>& vpe);
+  void setPlotElements(const std::vector<PlotElement>& vpe);
   void enabled(PlotElement pe);
   void reset();
   void setfocus();
@@ -121,8 +116,3 @@ signals:
 };
 
 #endif
-
-
-
-
-

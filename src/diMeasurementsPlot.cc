@@ -33,35 +33,36 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#define MILOGGER_CATEGORY "diana.MeasurementsPlot"
-#include <miLogger/miLogging.h>
-
 #include <diMeasurementsPlot.h>
 #include <sstream>
-#include <math.h>
-#include <stdio.h>
 #include <diField/diField.h>
 #include <GL/gl.h>
 
-using namespace std; using namespace miutil;
+#include <puTools/miStringFunctions.h>
 
+#define MILOGGER_CATEGORY "diana.MeasurementsPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 MeasurementsPlot::MeasurementsPlot()
-:Plot(){
+ :Plot()
+{
   oldArea=area;
   lineWidth=1;
 }
 
 
-MeasurementsPlot::~MeasurementsPlot(){
-
+MeasurementsPlot::~MeasurementsPlot()
+{
 }
 
 
-bool MeasurementsPlot::prepare(void){
+bool MeasurementsPlot::prepare(void)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ MeasurementsPlot::prepare() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 
   //Change projection
@@ -97,7 +98,7 @@ bool MeasurementsPlot::prepare(void){
   return true;
 }
 
-void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
+void MeasurementsPlot::measurementsPos(vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   for(size_t  i=0;i<vstr.size();i++)
@@ -110,20 +111,20 @@ void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
     vector<float> longitude;
     vector<float> latitude;
 
-    miString value,orig_value,key;
-    miString pin = vstr[k];
-    vector<miString> tokens = pin.split('"','"');
+    std::string value,orig_value,key;
+    std::string pin = vstr[k];
+    vector<std::string> tokens = miutil::split_protected(pin, '"','"');
     int n = tokens.size();
 
     for( int i=0; i<n; i++){
-      vector<miString> stokens = tokens[i].split('=');
+      vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
 #ifdef DEBUGPRINT
       METLIBS_LOG_DEBUG("stokens:");
       for (int j=0; j<stokens.size(); j++)
         METLIBS_LOG_DEBUG("  " << stokens[j]);
 #endif
       if( stokens.size() == 1) {
-        key= stokens[0].downcase();
+        key= miutil::to_lower(stokens[0]);
         if (key == "clear") {
           //          clearData();
         }
@@ -134,18 +135,18 @@ void MeasurementsPlot::measurementsPos(vector<miString>& vstr)
           y.clear();
         }
       } else if( stokens.size() == 2) {
-        key        = stokens[0].downcase();
+        key        = miutil::to_lower(stokens[0]);
         orig_value = stokens[1];
-        value      = stokens[1].downcase();
+        value      = miutil::to_lower(stokens[1]);
         if (key == "longitudelatitude" ) {
-          vector<miString> lonlat = value.split(',');
+          vector<std::string> lonlat = miutil::split(value, 0, ",");
           int npos=lonlat.size()/2;
           for( int i=0; i<npos; i++){
             longitude.push_back(atof(lonlat[2*i].c_str()));
             latitude.push_back(atof(lonlat[2*i+1].c_str()));
           }
         } else if (key == "latitudelongitude" ) {
-          vector<miString> latlon = value.split(',');
+          vector<std::string> latlon = miutil::split(value, 0, ",");
           int npos=latlon.size()/2;
           for( int i=0; i<npos; i++){
             latitude.push_back(atof(latlon[2*i].c_str()));

@@ -31,14 +31,11 @@
 #ifndef _satdialog_h
 #define _satdialog_h
 
+#include <diController.h>
 #include <QDialog>
 
-#include <puTools/miString.h>
 #include <vector>
 #include <map>
-#include <diController.h>
-
-using namespace std;
 
 class QSlider;
 class ToggleButton;
@@ -50,12 +47,8 @@ class QListWidgetItem;
 class QLCDNumber;
 class SatDialogAdvanced;
 
-
 /**
-
   \brief Dialogue for plotting satellite and radar pictures 
-   
-
 */
 class SatDialog: public QDialog
 {
@@ -64,25 +57,22 @@ public:
 
 
 /**
-
   \brief struct state describing selected picture
-   
-
 */  
   struct state{
-    miutil::miString OKString;
+    std::string OKString;
     int iname;
     int iarea;
     int ifiletime;
     int ichannel;
     int iautotimefile;
-    miutil::miString name; ///<satellite name
-    miutil::miString area; ///>filetype
+    std::string name; ///<satellite name
+    std::string area; ///>filetype
     miutil::miTime filetime; ///<time
-    miutil::miString channel; ///<selected channel
-    miutil::miString filename; ///<filename
-    miutil::miString advanced; ///<plotting options
-    miutil::miString external; ///<nothing to do whith the dialog
+    std::string channel; ///<selected channel
+    std::string filename; ///<filename
+    std::string advanced; ///<plotting options
+    std::string external; ///<nothing to do whith the dialog
     bool mosaic; ///<plot mosaic of pictures       
     int totalminutes;///<timediff
   };
@@ -90,28 +80,28 @@ public:
 
   SatDialog( QWidget* parent, Controller* llctrl );
   ///return command strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   ///insert command strings
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current commonad
-  miutil::miString getShortname();
+  std::string getShortname();
   /// refresh list of files in timefilelist
   void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
-  vector<miutil::miString> writeLog() ;
+  std::vector<std::string> writeLog() ;
   /// read log string
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  void readLog(const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion);
   ///called when the dialog is closed by the window manager
 protected:
   void closeEvent( QCloseEvent* );
 
 private:
 
-  map< miutil::miString,map< miutil::miString,miutil::miString > > satoptions;
-  vector<state> m_state; //pictures to plot
-  vector<miutil::miTime> times;    //emitted to TimeSlider 
+  std::map< std::string, std::map< std::string,std::string > > satoptions;
+  std::vector<state> m_state; //pictures to plot
+  std::vector<miutil::miTime> times;    //emitted to TimeSlider 
   static miutil::miTime ztime;
 
 
@@ -122,16 +112,16 @@ private:
   void emitSatTimes(bool update=false);
   int addSelectedPicture();
   //decode part of OK string
-  state decodeString(const vector <miutil::miString> & tokens);
+  state decodeString(const std::vector<std::string> & tokens);
   // make string from state
-  miutil::miString makeOKString(state & okVar);
+  std::string makeOKString(state & okVar);
   void putOptions(const state okVar);
 
-  miutil::miString pictureString(state,bool);  
+  std::string pictureString(state,bool);  
   // get the time string on the form yyyymmddhhmn from time
-  miutil::miString stringFromTime(const miutil::miTime& t);
+  std::string stringFromTime(const miutil::miTime& t);
   //get time from string
-  miutil::miTime timeFromString(const miutil::miString & timeString);
+  miutil::miTime timeFromString(const std::string & timeString);
 
 private slots:
   void DeleteClicked();
@@ -158,7 +148,7 @@ signals:
   void SatApply();
   void SatHide();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&,bool );
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool );
 
 private:
 
@@ -166,9 +156,9 @@ private:
   
   int m_nr_image;
  
-  miutil::miString m_channelstr;
+  std::string m_channelstr;
   miutil::miTime m_time;  
-  vector<SatFileInfo> files;
+  std::vector<SatFileInfo> files;
   
   float m_scalediff;
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +33,18 @@
 #include "config.h"
 #endif
 
+#include "qtVcrossDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#ifdef USE_VCROSS_V2
+#include "vcross_v2/diVcrossManager.h"
+#else
+#include "vcross_v1/diVcross1Manager.h"
+#endif
+
+#include <diField/diMetConstants.h>
+#include <puTools/miStringFunctions.h>
+
 #include <qcombobox.h>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -49,19 +61,6 @@
 #include <QVBoxLayout>
 #include <QApplication>
 
-#define MILOGGER_CATEGORY "diana.VcrossDialog"
-#include <miLogger/miLogging.h>
-
-#include "qtVcrossDialog.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-#ifdef USE_VCROSS_V2
-#include "diVcrossManager.h"
-#else
-#include "diVcross1Manager.h"
-#endif
-#include <diField/diMetConstants.h>
-
 #include <cmath>
 
 #include "up20x20.xpm"
@@ -69,6 +68,8 @@
 #include "up12x12.xpm"
 #include "down12x12.xpm"
 
+#define MILOGGER_CATEGORY "diana.VcrossDialog"
+#include <miLogger/miLogging.h>
 
 VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
 : QDialog(parent), vcrossm(vm)
@@ -371,8 +372,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
   //allTimeStepButton->setChecked(false);
 
   // advanced
-  const std::string more_str[2] = { tr("<<Less").toStdString(), tr("More>>").toStdString() };
-  advanced= new ToggleButton( this, more_str);
+  advanced= new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);
   connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 

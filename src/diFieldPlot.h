@@ -35,14 +35,10 @@
 #include <diCommonTypes.h>
 #include <diField/diField.h>
 #include <puTools/miTime.h>
-#include <puTools/miString.h>
+
 #include <vector>
 
-using namespace std;
-
-
 /**
-
   \brief Plots one field
 
   Holds the (scalar) field(s) after reading and any computations.
@@ -59,50 +55,50 @@ public:
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
-  bool getAnnotations(vector<miutil::miString>& anno);
-  bool getDataAnnotations(vector<miutil::miString>& anno);
+  bool getAnnotations(std::vector<std::string>& anno);
+  bool getDataAnnotations(std::vector<std::string>& anno);
   bool plot();
   bool plot(const int){return false;}
-  bool updateNeeded(miutil::miString&);
+  bool updateNeeded(std::string&);
   // check if current has same level
   bool updatePinNeeded(const std::string& pin);
-  bool prepare(const miutil::miString& fname, const miutil::miString&);
-  bool setData(const vector<Field*>&, const miutil::miTime&);
+  bool prepare(const std::string& fname, const std::string&);
+  bool setData(const std::vector<Field*>&, const miutil::miTime&);
   Area& getFieldArea();
   bool getRealFieldArea(Area&);
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
   bool getUndefinedPlot() const { return pundefined; }
-  void getFieldAnnotation(miutil::miString&, Colour&);
-  vector<Field*> getFields() {return fields; }
+  void getFieldAnnotation(std::string&, Colour&);
+  std::vector<Field*> getFields() {return fields; }
   miutil::miTime getTime() const {return ftime;}
   miutil::miTime getAnalysisTime() const {return analysisTime;}
   bool plotUndefined();
   bool plotNumbers();
-  miutil::miString getModelName();
-  miutil::miString getTrajectoryFieldName();
+  std::string getModelName();
+  std::string getTrajectoryFieldName();
   bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
   void clearFields();
 
 private:
-  vector<Field*> fields; // fields, stored elsewhere
-  vector<Field*> tmpfields; // tmp fields, stored here
+  std::vector<Field*> fields; // fields, stored elsewhere
+  std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
   miutil::miTime analysisTime;   // time of model analysis
 
   bool overlay; //plot in overlay;
 
   // plotting parameters
-  miutil::miString plottype;       // plot-method to use
+  std::string plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
   bool pundefined;      // mark undefined areas/values
 
   // from plotting routines to annotations
   float    vectorAnnotationSize;
-  miutil::miString vectorAnnotationText;
+  std::string vectorAnnotationText;
 
-  vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
-  vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
+  std::vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
+  std::vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
 		   int maxElementsX, int& step, float& dist);
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);

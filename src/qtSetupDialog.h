@@ -39,10 +39,7 @@ class QPushButton;
 
 /**
    \brief Change setup
-
 */
-
-
 class SetupDialog : public QDialog {
   Q_OBJECT
 private:
@@ -63,7 +60,3 @@ public:
 };
 
 #endif
-
-
-
-

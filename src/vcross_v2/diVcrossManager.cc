@@ -69,7 +69,7 @@ VcrossManager::VcrossManager(Controller *co)
   , mSetup(new VcrossSetup())
   , mPlot(new VcrossPlot(mOptions.get()))
   , fieldm(co->getFieldManager())
-  , dataChange(true)
+  , dataChange(CHANGED_SEL)
   , plotCrossection(-1)
   , timeGraphPos(-1)
   , plotTime(-1)
@@ -137,7 +137,7 @@ void VcrossManager::setCrossection(const std::string& crossection)
   }
   
   plotCrossection = (it - nameList.begin());
-  dataChange = true;
+  dataChange |= CHANGED_CS;
 }
 
 bool VcrossManager::setCrossection(float lat, float lon)
@@ -155,7 +155,28 @@ bool VcrossManager::setCrossection(float lat, float lon)
       csnames.insert(n);
   }
   VcrossUtil::from_set(nameList, csnames);
+  dataChange |= CHANGED_CS;
   return true;
+}
+
+std::string VcrossManager::setCrossection(int step)
+{
+  METLIBS_LOG_SCOPE();
+
+  if (nameList.empty())
+    return "";
+
+  if (VcrossUtil::step_index(plotCrossection, step, nameList.size()))
+    dataChange |= CHANGED_CS;
+  return currentCSName();
+}
+
+const std::string& VcrossManager::currentCSName() const
+{
+  if (plotCrossection >= 0 and plotCrossection < (int)nameList.size())
+    return nameList.at(plotCrossection);
+  else
+    return EMPTY_STRING;
 }
 
 void VcrossManager::setTime(const miutil::miTime& time)
@@ -169,28 +190,9 @@ void VcrossManager::setTime(const miutil::miTime& time)
   }
   
   plotTime = (it - timeList.begin());
-  dataChange= true;
+  dataChange |= CHANGED_TIME;
 }
 
-
-std::string VcrossManager::setCrossection(int step)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (nameList.empty())
-    return "";
-
-  dataChange = VcrossUtil::step_index(plotCrossection, step, nameList.size());
-  return currentCSName();
-}
-
-const std::string& VcrossManager::currentCSName() const
-{
-  if (plotCrossection >= 0 and plotCrossection < (int)nameList.size())
-    return nameList.at(plotCrossection);
-  else
-    return EMPTY_STRING;
-}
 
 VcrossManager::vctime_t VcrossManager::setTime(int step)
 {
@@ -200,8 +202,34 @@ VcrossManager::vctime_t VcrossManager::setTime(int step)
   if (timeList.empty())
     return miutil::miTime::nowTime();
 
-  dataChange = VcrossUtil::step_index(plotTime, step, timeList.size());
+  if (VcrossUtil::step_index(plotTime, step, timeList.size()))
+    dataChange |= CHANGED_TIME;
   return currentTime();
+}
+
+// ------------------------------------------------------------------------
+
+void VcrossManager::setTimeToBestMatch(const vctime_t& time)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(time));
+  
+  if (timeList.empty()) {
+    plotTime = -1;
+    return;
+  }
+
+  int bestTime = 0;
+  int bestDiff = std::abs(miutil::miTime::minDiff(timeList.front(), time));
+  for (size_t i=1; i<timeList.size(); i++) {
+    const int diff = std::abs(miutil::miTime::minDiff(timeList[i], time));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestTime = i;
+    }
+  }
+  plotTime = bestTime;
+  dataChange |= CHANGED_TIME;
 }
 
 VcrossManager::vctime_t VcrossManager::currentTime() const
@@ -276,7 +304,7 @@ bool VcrossManager::plot()
   try {
   if (dataChange) {
     preparePlot();
-    dataChange= false;
+    dataChange = CHANGED_NO;
   }
 
   if (hardcopy && !hardcopystarted) {
@@ -306,9 +334,12 @@ void VcrossManager::preparePlot()
     return;
   }
   
-  mPlot->clear();
-  if (selected.empty())
+  if (selected.empty()) {
+    mPlot->clear();
     return;
+  }
+
+  mPlot->clear((dataChange != CHANGED_SEL), (dataChange != CHANGED_SEL));
 
   VcrossData::Cut::lonlat_t csll;
   BOOST_FOREACH(VcrossSelected& select, selected) {
@@ -381,11 +412,6 @@ void VcrossManager::preparePlot()
 
   bool haveZaxis = false;
   VcrossData::ZAxis::Quantity zQuantity = VcrossData::ZAxis::PRESSURE;
-  if (true /*mOptions->plotPressure*/) {
-    zQuantity = VcrossData::ZAxis::PRESSURE;
-    mPlot->setVerticalAxis(zQuantity);
-    haveZaxis = true;
-  }
   BOOST_FOREACH(VcrossSelected& select, selected) {
     VcrossData* data = data4model[select.model];
     if (not data)
@@ -398,24 +424,30 @@ void VcrossManager::preparePlot()
     bool goodZaxis = true;
     const std::string& arg0_name = arguments.front();
     const VcrossData::ParameterData& arg0 = data->parameters[arg0_name];
+    if (not arg0.values) {
+      METLIBS_LOG_WARN("no values for argument0 '" << arg0_name << "'");
+      continue;
+    }
+
     VcrossData::ZAxisPtr zax = arg0.zAxis;
     METLIBS_LOG_DEBUG(LOGVAL(arg0_name) << (zax ? " have zax" : " no zax") << LOGVAL(arg0.unit));
     
-    for (size_t a=1; goodZaxis and a<arguments.size(); ++a) {
-      VcrossData::ZAxisPtr zax1 = data->parameters[arguments[a]].zAxis;
+    for (size_t a=1; a<arguments.size(); ++a) {
+      const VcrossData::ParameterData& arg = data->parameters[arguments[a]];
+      if (not arg.values) {
+        METLIBS_LOG_WARN("no values for argument '" << arguments[a] << "'");
+        goodZaxis = false;
+      }
+
+      VcrossData::ZAxisPtr zax1 = arg.zAxis;
       METLIBS_LOG_DEBUG(LOGVAL(arguments[a]) << (zax1 ? " have zax1" : " no zax1"));
       goodZaxis &= (zax == zax1);
     }
     if (not goodZaxis) {
-      METLIBS_LOG_WARN("zaxis mismatch for plot '" << select.field << "'");
+      METLIBS_LOG_WARN("bad zaxis for plot '" << select.field << "'");
       continue;
     }
 
-    if (zax and not haveZaxis) {
-      zQuantity = zax->quantity;
-      mPlot->setVerticalAxis(zQuantity);
-      haveZaxis = true;
-    }
     if (not zax) {
       METLIBS_LOG_DEBUG("1D data");
       // create "z axis" containing the parameter values, possibly converted to HEIGHT/PRESSURE 
@@ -439,7 +471,7 @@ void VcrossManager::preparePlot()
         zaxc->setValue(0, p, c);
       }
       zax = zaxc;
-    } else if (zax->quantity != zQuantity) {
+    } else if (haveZaxis and zax->quantity != zQuantity) {
       METLIBS_LOG_DEBUG("2D data, convert from " << zax->quantity << " to " << zQuantity);
       // convert z axis to zQuantity (HEIGHT/PRESSURE)
       VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
@@ -462,7 +494,12 @@ void VcrossManager::preparePlot()
       }
       zax = zaxc;
     }
-    METLIBS_LOG_DEBUG("end zax conversion");
+    METLIBS_LOG_DEBUG(LOGVAL(not not zax) << LOGVAL(haveZaxis));
+
+    if (zax and not haveZaxis) {
+      zQuantity = zax->quantity;
+      haveZaxis = true;
+    }
 
     // add plots
     VcrossData::values_t p0, p1;
@@ -473,7 +510,11 @@ void VcrossManager::preparePlot()
     mPlot->addPlot(select.model, select.field, mSetup->getPlotType(select.field), p0, p1, zax, select.plotOptions);
   }
 
-  mPlot->prepare();
+  METLIBS_LOG_DEBUG(LOGVAL(zQuantity) << LOGVAL(haveZaxis));
+  if (haveZaxis) {
+    mPlot->setVerticalAxis(zQuantity);
+    mPlot->prepare();
+  }
 }
 
 // ------------------------------------------------------------------------
@@ -678,6 +719,27 @@ void VcrossManager::getCrossections(LocationData& locationdata)
 
 // ------------------------------------------------------------------------
 
+namespace {
+struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
+{
+  bool operator() (const LocationElement& a, const LocationElement& b) const;
+};
+bool lt_LocationElement::operator() (const LocationElement& a, const LocationElement& b) const
+{
+  if (a.name < b.name)
+    return true;
+  if (a.name > b.name)
+    return false;
+  if (a.xpos < b.xpos)
+    return true;
+  if (a.xpos > b.xpos)
+    return false;
+  if (a.ypos < b.ypos)
+    return true;
+  return false;
+}
+} // namespace
+
 void VcrossManager::fillLocationData(LocationData& ld)
 {
   METLIBS_LOG_SCOPE();
@@ -689,9 +751,12 @@ void VcrossManager::fillLocationData(LocationData& ld)
 
   std::ostringstream annot;
   annot << "Vertikalsnitt";
-  
+
+  std::set<LocationElement, lt_LocationElement> cuts;
+
   BOOST_FOREACH(VcrossSelected& select, selected) {
     METLIBS_LOG_DEBUG(LOGVAL(select.model));
+
     annot << ' ' << select.model;
 
     VcrossSource* vcs = getVcrossSource(select.model);
@@ -707,9 +772,10 @@ void VcrossManager::fillLocationData(LocationData& ld)
         el.xpos.push_back(ll.lonDeg());
         el.ypos.push_back(ll.latDeg());
       }
-      ld.elements.push_back(el);
+      cuts.insert(el);
     }
   }
+  ld.elements.insert(ld.elements.end(), cuts.begin(), cuts.end());
 
   ld.name =              "vcross";
   ld.locationType =      location_line;
@@ -729,30 +795,6 @@ void VcrossManager::mainWindowTimeChanged(const miutil::miTime& mwTime)
 {
   METLIBS_LOG_SCOPE();
   setTimeToBestMatch(mwTime);
-}
-
-// ------------------------------------------------------------------------
-
-void VcrossManager::setTimeToBestMatch(const vctime_t& time)
-{
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(time));
-  
-  if (timeList.empty()) {
-    plotTime = -1;
-    return;
-  }
-
-  int bestTime = 0;
-  int bestDiff = std::abs(miutil::miTime::minDiff(timeList.front(), time));
-  for (size_t i=1; i<timeList.size(); i++) {
-    const int diff = std::abs(miutil::miTime::minDiff(timeList[i], time));
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      bestTime = i;
-    }
-  }
-  plotTime = bestTime;
 }
 
 // ------------------------------------------------------------------------
@@ -812,7 +854,7 @@ bool VcrossManager::setSelection(const std::vector<std::string>& vstr)
     }
   }
 
-  dataChange = true;
+  dataChange |= CHANGED_SEL;
   return setModels();
 }
 
@@ -878,7 +920,7 @@ void VcrossManager::disableTimeGraph()
 {
   METLIBS_LOG_SCOPE();
   timeGraphPos = -1;
-  dataChange = true;
+  dataChange = CHANGED_SEL;
 }
 
 // ------------------------------------------------------------------------
@@ -892,7 +934,7 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
   
   // convert plotx to lonlat
   timeGraphPos = mPlot->getNearestPos(plotx);
-  dataChange = true;
+  dataChange = CHANGED_SEL;
 #if 0
   METLIBS_LOG_SCOPE();
   int n = 0;
@@ -920,7 +962,8 @@ void VcrossManager::setTimeGraphPos(int plotx, int ploty)
 void VcrossManager::setTimeGraphPos(int incr)
 {
   METLIBS_LOG_SCOPE();
-  dataChange = VcrossUtil::step_index(timeGraphPos, incr, timeList.size());
+  if (VcrossUtil::step_index(timeGraphPos, incr, timeList.size()))
+    dataChange |= CHANGED_SEL; // TODO
 }
 
 // ------------------------------------------------------------------------

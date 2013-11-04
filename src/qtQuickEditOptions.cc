@@ -34,6 +34,9 @@
 #endif
 
 #include "qtQuickEditOptions.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QLabel>
@@ -47,11 +50,12 @@
 #include <QVBoxLayout>
 #include <QShortcut>
 
-#include "qtUtility.h"
 #include "up12x12.xpm"
 #include "down12x12.xpm"
 #include "filenew.xpm"
 #include "editcut.xpm"
+
+using namespace std;
 
 QuickEditOptions::QuickEditOptions(QWidget* parent,
     vector<quickMenuOption>& opt)
@@ -229,22 +233,21 @@ void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in lis
   if (keynum>0) upButton->setEnabled(true);
   if (keynum<int(options.size())-1) downButton->setEnabled(true);
 
-  miutil::miString s;
+  string s;
   int n= options[keynum].options.size();
   for (int i=0; i<n; i++){
     s+= options[keynum].options[i];
     if (i!=n-1) s+= ",";
   }
-  choices->setText(s.c_str());
+  choices->setText(QString::fromStdString(s));
 }
 
 void QuickEditOptions::chChanged(const QString& s)
 {
-  if (keynum<0 || keynum>=int(options.size())) return;
-  miutil::miString ms= s.toStdString();
-  vector<miutil::miString> vs= ms.split(",",false); //Do not skip blank enteries
+  if (keynum<0 || keynum>=int(options.size()))
+    return;
 
-  options[keynum].options= vs;
+  options[keynum].options = miutil::split(s.toStdString(), ",", false); //Do not skip blank enteries
 }
 
 void QuickEditOptions::upClicked()    // move item up

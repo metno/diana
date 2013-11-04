@@ -33,19 +33,19 @@
 #include "config.h"
 #endif
 
+#include <diStationPlot.h>
+#include <diFontManager.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 #define MILOGGER_CATEGORY "diana.StationPlot"
 #include <miLogger/miLogging.h>
 
-#include <diStationPlot.h>
-#include <math.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <diFontManager.h>
-
 using namespace::miutil;
+using namespace std;
 
 //  static members
-miString StationPlot::ddString[16];
+std::string StationPlot::ddString[16];
 
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats) :
   Plot()
@@ -60,12 +60,12 @@ StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector<miString> & names,
+StationPlot::StationPlot(const vector<std::string> & names,
     const vector<float> & lons, const vector<float> & lats) :
   Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("StationPlot::StationPlot(miString,float,float)");
+  METLIBS_LOG_DEBUG("StationPlot::StationPlot(std::string,float,float)");
 #endif
   init();
   unsigned int n = names.size();
@@ -79,13 +79,13 @@ StationPlot::StationPlot(const vector<miString> & names,
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector<miString> & names,
+StationPlot::StationPlot(const vector<std::string> & names,
     const vector<float> & lons, const vector<float> & lats, const vector<
-        miString> images) :
+        std::string> images) :
   Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("StationPlot::StationPlot(miString,float,float)");
+  METLIBS_LOG_DEBUG("StationPlot::StationPlot(std::string,float,float)");
 #endif
   init();
   unsigned int n = names.size();
@@ -138,7 +138,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   }
 
   int num = vcommondesc.size();
-  map<miString, int> commonmap;
+  map<std::string, int> commonmap;
   for (int i = 0; i < num; i++)
     commonmap[vcommondesc[i]] = i;
   if (commonmap.count("dataset"))
@@ -169,7 +169,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
 
   //decode data
   int ndata = data.size();
-  map<miString, int> datamap;
+  map<std::string, int> datamap;
   unsigned int ndesc = vdesc.size();
   for (unsigned int i = 0; i < ndesc; i++)
     datamap[vdesc[i]] = i;
@@ -178,7 +178,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
     METLIBS_LOG_ERROR(" positions must contain name:lat:lon");
     return;
   }
-  miString stationname;
+  std::string stationname;
   float lat, lon;
   int alpha = 255;
   for (int i = 0; i < ndata; i++) {
@@ -192,7 +192,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
     if (datamap.count("alpha"))
       alpha = atoi(token[datamap["alpha"]].c_str());
     if (datamap.count("image")) {
-      miString image = token[datamap["image"]];
+      std::string image = token[datamap["image"]];
       addStation(lon, lat, stationname, image, alpha);
       useImage = true;
     } else {
@@ -242,7 +242,7 @@ StationPlot::~StationPlot()
   stationAreas.clear();
 }
 
-// void StationPlot::addStation(const miString newname){
+// void StationPlot::addStation(const std::string newname){
 //   //at the moment, this should only be called from constructor, since
 //   //define coordinates must be called to actually plot stations
 //   Station * newStation = new Station;
@@ -257,12 +257,12 @@ StationPlot::~StationPlot()
 
 
 void StationPlot::addStation(const float lon, const float lat,
-    const miString newname, const miString newimage, int alpha, float scale)
+    const std::string newname, const std::string newimage, int alpha, float scale)
 {
   //at the moment, this should only be called from constructor, since
   //define coordinates must be called to actually plot stations
   Station * newStation = new Station;
-  if (newname.exists()) {
+  if (not newname.empty()) {
     newStation->name = newname;
   } else {
     miCoordinates coordinates(lon, lat);
@@ -459,7 +459,7 @@ void StationPlot::plotStation(int i)
     for (int it = 0; it < nt; it++) {
       float cw, ch;
       glColor4ubv(textColour.RGBA());
-      miString text = stations[i]->vsText[it].text;
+      std::string text = stations[i]->vsText[it].text;
       fp->set("BITMAPFONT", textStyle, textSize);
       fp->getStringSize(text.c_str(), cw, ch);
       if (stations[i]->vsText[it].hAlign == align_center)
@@ -665,9 +665,9 @@ vector<Station*> StationPlot::stationsAt(int x, int y)
   return within;
 }
 
-vector<miString> StationPlot::findStation(int x, int y, bool add)
+vector<std::string> StationPlot::findStation(int x, int y, bool add)
 {
-  vector<miString> stationstring;
+  vector<std::string> stationstring;
 
   if (!visible || !enabled)
     return stationstring;
@@ -702,7 +702,7 @@ vector<Station*> StationPlot::getSelectedStations() const
   return stations;
 }
 
-int StationPlot::setSelectedStation(miString station, bool add)
+int StationPlot::setSelectedStation(std::string station, bool add)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("StationPlot::setSelectedStation" << station);
@@ -768,21 +768,21 @@ void StationPlot::setStationPlotAnnotation(const string &str)
   annotation = str;
 }
 
-void StationPlot::setName(miString nm)
+void StationPlot::setName(std::string nm)
 {
   name = nm;
   if (plotname.empty())
     plotname = name;
 }
 
-void StationPlot::setImage(miString im1)
+void StationPlot::setImage(std::string im1)
 {
   imageNormal = im1;
   imageSelected = im1;
   useImage = true;
 }
 
-void StationPlot::setImage(miString im1, miString im2)
+void StationPlot::setImage(std::string im1, std::string im2)
 {
   imageNormal = im1;
   imageSelected = im2;
@@ -852,8 +852,8 @@ void StationPlot::setEditStations(const vector<string>& st)
 
 }
 
-bool StationPlot::getEditStation(int step, miString& nname, int& iid, vector<
-    miString>& sstations, bool& updateArea)
+bool StationPlot::getEditStation(int step, std::string& nname, int& iid, vector<
+    std::string>& sstations, bool& updateArea)
 {
   //  METLIBS_LOG_DEBUG("getEditStations:"<<step<< "  editIndex:"<<editIndex);
 
@@ -926,7 +926,7 @@ bool StationPlot::stationCommand(const string& command,
     vector<string> description;
     boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
-    map<miString, int> datamap;
+    map<std::string, int> datamap;
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("name")) {
@@ -955,7 +955,7 @@ bool StationPlot::stationCommand(const string& command,
 
     //decode data
     int n = data.size();
-    miString name, image, image2, text, alignment;
+    std::string name, image, image2, text, alignment;
     int dd=0, ff=0, alpha=0;
     Colour colour;
     for (int i = 0; i < n; i++) {
@@ -1025,7 +1025,7 @@ bool StationPlot::stationCommand(const string& command,
 
           if (ch_dd && ch_ff) {
             //init ddString
-            if (!ddString[0].exists()) {
+            if (ddString[0].empty()) {
               ddString[0] = "N";
               ddString[1] = "NN�";
               ddString[2] = "N�";
@@ -1096,7 +1096,7 @@ bool StationPlot::stationCommand(const string& command,
   }
 
   else if (command == "showPositionName" && data.size() > 0) {
-    //    vector<miString> token = data[0].split(":"); //new syntax
+    //    vector<std::string> token = miutil::split(data[0], ":"); //new syntax
     vector<string> token;
     boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     //Obsolete
@@ -1128,7 +1128,7 @@ bool StationPlot::stationCommand(const string& command,
     vector<string> description;
     boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
-    map<miString, int> datamap;
+    map<std::string, int> datamap;
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("showtext")) {
@@ -1178,7 +1178,7 @@ bool StationPlot::stationCommand(const string& command)
   return false;
 }
 
-miString StationPlot::stationRequest(const miString& command)
+std::string StationPlot::stationRequest(const std::string& command)
 {
   ostringstream ost;
 

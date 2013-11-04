@@ -44,11 +44,8 @@
 #include <MovieMaker.h>
 #endif
 
-#include <puTools/miString.h>
 #include <vector>
 #include <deque>
-
-using namespace std;
 
 class QMenuBar;
 class QToolBar;
@@ -111,9 +108,9 @@ class DianaMainWindow: public QMainWindow
   Q_OBJECT
 public:
   DianaMainWindow(Controller*,
-		  const miutil::miString ver_str,
-		  const miutil::miString buils_str,
-		  const miutil::miString dianaTitle="Diana",
+		  const std::string& ver_str,
+		  const std::string& buils_str,
+		  const std::string& dianaTitle="Diana",
 		  bool profetEnabled=false);
   ~DianaMainWindow();
 
@@ -133,11 +130,11 @@ protected:
   bool event(QEvent* event);
 
 
-public slots:
+public Q_SLOTS:
   void toggleToolBar();
   void updateDialog();
 
-private slots:
+private Q_SLOTS:
   void timecontrolslot();
   void timeoutChanged(float value);
   void animation();
@@ -174,13 +171,13 @@ private slots:
   void showUrl();
 
   void about();
-  void quickMenuApply(const vector<miutil::miString>&);
-  void recallPlot(const vector<miutil::miString>&,bool);
+  void quickMenuApply(const std::vector<std::string>&);
+  void recallPlot(const std::vector<std::string>&, bool);
   void resetArea();
   void resetAll();
   void editApply();
   void MenuOK();
-  void updateQuickMenuHistory(const miutil::miString plotname, const vector<miutil::miString>&);
+  void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
   void trajPositions(bool);
   void measurementsPositions(bool);
   void vCrossPositions(bool);
@@ -190,7 +187,7 @@ private slots:
   void catchKeyPress(QKeyEvent*);
   void catchMouseDoubleClick(QMouseEvent*);
   void catchElement(QMouseEvent*);
-  void sendSelectedStations(const miutil::miString& command);
+  void sendSelectedStations(const std::string& command);
   void undo();
   void redo();
   void save();
@@ -201,7 +198,7 @@ private slots:
   void saveRasterImage(QString filename);
   void emailPicture();
   void saveAnimation();
-  void makeEPS(const miutil::miString& filename);
+  void makeEPS(const std::string& filename);
   void TimeSliderMoved();
   void TimeSelected();
   void setPlotTime(miutil::miTime& t);
@@ -263,7 +260,7 @@ private slots:
   void setPaintMode(bool);
   void plotProfetMap(bool objectsOnly);
   void forceProfetDisconnect(bool disableGuiOnly);
-  void getFieldPlotOptions(map< miutil::miString, map<miutil::miString,miutil::miString> >&);
+  void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
 private:
   bool enableProfet;
@@ -274,8 +271,8 @@ private:
   bool uffda;
   bool doAutoUpdate;
 
-  miutil::miString version_string;
-  miutil::miString build_string;
+  std::string version_string;
+  std::string build_string;
   int displayWidth,displayHeight;
 
   /// Actions
@@ -407,7 +404,7 @@ private:
   VprofWindow       * vpWindow;
   VcrossWindow      * vcWindow;
   SpectrumWindow    * spWindow;
-  map<miutil::miString,InfoFile>    infoFiles;
+  std::map<std::string,InfoFile> infoFiles;
 
   // statusbar widgets
   QLabel            * smsg;
@@ -419,10 +416,10 @@ private:
   ClientButton      * pluginB;
   bool                dialogChanged;
 
-  vector<miutil::miString> vlabel;
+  std::vector<std::string> vlabel;
   QButton* mwhelp;
   Controller* contr;
-  miutil::miString lastString;
+  std::string lastString;
 
   // timer types
   int timeron;               ///> timer is turned on
@@ -444,14 +441,14 @@ private:
   // x,y position of last uffda action
   int xlast,ylast;
 
-  vector <selectArea> vselectAreas; //selected areas for rightclickmenu
+  std::vector <selectArea> vselectAreas; //selected areas for rightclickmenu
 
   //QSocket
   int textview_id;
   TextView *textview;
   int hqcTo;
   bool qsocket;
-  map<int,bool> autoredraw;
+  std::map<int,bool> autoredraw;
   StationPlot *stationPlot;
 
   void levelChange(int increment);
@@ -459,25 +456,24 @@ private:
 
   void writeLogFile();
   void readLogFile();
-  miutil::miString saveDocState();
-  void restoreDocState(miutil::miString logstr);
+  std::string saveDocState();
+  void restoreDocState(std::string logstr);
 
-  vector<miutil::miString> writeLog(const miutil::miString& thisVersion,
-			    const miutil::miString& thisBuild);
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion,
-	       miutil::miString& logVersion);
+  std::vector<std::string> writeLog(const std::string& thisVersion,
+      const std::string& thisBuild);
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, std::string& logVersion);
   void getDisplaySize();
   void timeChanged();
   void satFileListUpdate();
   void vprofStartup();
   void vcrossStartup();
   void spectrumStartup();
-  void getPlotStrings(vector<miutil::miString> &pstr,
-                      vector<miutil::miString> &diagstr,
-                      vector<miutil::miString> &shortnames);
+  void getPlotStrings(std::vector<std::string> &pstr,
+                      std::vector<std::string> &diagstr,
+                      std::vector<std::string> &shortnames);
 
-  map<QAction*, DataDialog*> dialogs;
+  std::map<QAction*, DataDialog*> dialogs;
   map<std::string, DataDialog*> dialogNames;
 
 // Profet methods
@@ -487,6 +483,5 @@ private:
   bool ProfetUpdatePlot(const miutil::miTime& t);
   bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 };
-
 
 #endif

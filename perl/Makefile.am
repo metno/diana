@@ -1,6 +1,6 @@
 # automake requires one = before the first +=
-common_ldflags = -L$(top_srcdir)/../src/
-common_ldadd = -ldiana
+common_ldflags =
+common_ldadd =
 
 if WITH_BATCH_ONLY
 common_ldflags += 
@@ -115,32 +115,33 @@ common_ldadd += $(WIN32_LIBS)
 if WITH_PERL
 PERL          = perl
 PERLMAKEFILE  = Metno-Bdiana/Makefile
-PERLDEPEND    = Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
-PERLCONFIG    =   PREFIX="$(prefix)" \
-				  INSTALLDIRS=vendor \
-				  INC="-Wall -I. -I$(top_srcdir)/../src" \
-				  LIBS="-L$(top_srcdir)/../src/ $(common_ldflags) $(common_ldadd) -lboost_thread"
+PERLDEPEND    = $(srcdir)/Metno-Bdiana/Makefile.PL Metno-Bdiana/lib/Metno/Bdiana.pm
+PERLCONFIG    = PREFIX="$(prefix)" \
+                INSTALLDIRS=vendor \
+                INC="-Wall -I. -I$(abs_top_srcdir)/src" \
+                LIBS="$(common_ldflags) $(common_ldadd) -lboost_thread"
 
 #if DEBUG
 #PERLCONFIG    += OPTIMIZE=-g
 #endif
 
-$(PERLMAKEFILE): $(PERLDEPEND) Makefile.am
-	-test ! -d Metno-Bdiana && cp -pr $(srcdir)/Metno-Bdiana . && \\
-	   chmod -R u+w Metno-Bdiana && touch Metno-Bdiana/.distclean
-	cd Metno-Bdiana && $(PERL) Makefile.PL $(PERLCONFIG)
+PERLFILES = Metno-Bdiana/control Metno-Bdiana/Bdiana.xs Metno-Bdiana/ppport.h Metno-Bdiana/Makefile.PL
 
-all-local: $(PERLMAKEFILE)
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS)
+$(PERLMAKEFILE): $(PERLDEPEND) Makefile.am $(PERLFILES:%=$(srcdir)/%)
+	for p in $(PERLFILES); do if test "$(srcdir)/$$p" -nt "$$p"; then cp -vf "$(srcdir)/$$p" "$$p" ; fi ; done
+	cd Metno-Bdiana && $(PERL) $(abs_srcdir)/Metno-Bdiana/Makefile.PL $(PERLCONFIG)
+
+all-local: $(PERLMAKEFILE) $(PERLFILES)
+	make -C Metno-Bdiana $(AM_MAKEFLAGS)
 
 clean-local: $(PERLMAKEFILE)
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) clean
+	make -C Metno-Bdiana $(AM_MAKEFLAGS) clean
 
 check-local: $(PERLMAKEFILE)
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) test
+	make -C Metno-Bdiana $(AM_MAKEFLAGS) test
 
 install-exec-local:
-	cd Metno-Bdiana && $(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
+	make -C Metno-Bdiana $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
 
 uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/Metno/Bdiana.pm
@@ -150,10 +151,6 @@ uninstall-local:
 	rm -f $(DESTDIR)$(prefix)/lib/*/perl5/*/*/auto/Metno/Bdiana/.packlist
 	rm -f $(DESTDIR)$(prefix)/lib/*/*/*/perllocal.pod
 	rm -f $(DESTDIR)$(prefix)/share/man/man3/Metno::Bdiana.3
-
-distclean-local: 
-	test -f Metno-Bdiana/.distclean
-	rm -r Makefile
 
 endif
 

@@ -31,37 +31,33 @@
 #ifndef _addtoDialog_h
 #define _addtODialog_h
 
+#include <diCommonTypes.h>
+
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qvalidator.h>
-#include <puTools/miString.h>
-#include <diCommonTypes.h>
+
 #include <set>
 
-using namespace std;
-
 class Controller;
-
 
 /**
    \brief Dialogue for entering texts for complex symbol
 
    several texts and colours to be entered
 */
-
-class ComplexText :public QDialog
+class ComplexText : public QDialog
 {
   Q_OBJECT
 public:
 
   /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  ComplexText( QWidget* parent, Controller* llctrl, vector <miutil::miString> &
-	       symbolText, vector <miutil::miString> & xText, set <miutil::miString> cList,
+  ComplexText( QWidget* parent, Controller* llctrl, std::vector<std::string> &
+      symbolText, std::vector<std::string>& xText, std::set<std::string> cList,
 	       bool useColour=false);
   /// get text from dialogs input boxes
-  void getComplexText(vector <miutil::miString> & symbolText, vector <miutil::miString>
-		      & xText);
+  void getComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   /// set colourbox colour
   void setColour(Colour::ColourInfo & colour);
   /// get colour from colourbox
@@ -72,18 +68,18 @@ public:
 private:
   Controller*    m_ctrl;
 
-  vector <QComboBox*> vSymbolEdit;
-  vector <QLineEdit*> vXEdit;
+  std::vector <QComboBox*> vSymbolEdit;
+  std::vector <QLineEdit*> vXEdit;
 
   QComboBox * colourbox;
 
   static bool initialized;
-  static vector<Colour::ColourInfo> colourInfo; // all defined colours
+  static std::vector<Colour::ColourInfo> colourInfo; // all defined colours
   //pixmaps for combo boxes
   static int        nr_colors;
   static QColor* pixcolor;
 
-  int getColourIndex(vector <Colour::ColourInfo> & colourInfo,
+  int getColourIndex(std::vector<Colour::ColourInfo>& colourInfo,
 		     Colour::ColourInfo colour);
   class complexValidator:public QValidator{
   public:
@@ -96,21 +92,9 @@ private:
   bool startEdit;
   void selectText(int);
 
-signals:
-
-
-private slots:
+private Q_SLOTS:
   void textActivated(const QString &);
   void textSelected();
-
-public slots:
-
 };
 
 #endif
-
-
-
-
-
-

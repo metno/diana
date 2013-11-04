@@ -67,10 +67,10 @@ VprofRTemp::VprofRTemp()
 
 
 // land or ship station with name
-VprofRTemp::VprofRTemp(const miutil::miString& file, bool amdar,
-		       const vector<miutil::miString>& stationList,
-		       const miutil::miString & stationfile,
-		       const miutil::miString & databasefile,
+VprofRTemp::VprofRTemp(const std::string& file, bool amdar,
+		       const vector<std::string>& stationList,
+		       const std::string & stationfile,
+		       const std::string & databasefile,
 		       const miutil::miTime& time)
   : amdartemp(amdar), parameterfile_(file), stationList_(stationList),
     stationfile_(stationfile), databasefile_(databasefile), time_(time)
@@ -80,11 +80,11 @@ VprofRTemp::VprofRTemp(const miutil::miString& file, bool amdar,
 
 
 // ship station without name
-VprofRTemp::VprofRTemp(const miutil::miString& file, bool amdar,
+VprofRTemp::VprofRTemp(const std::string& file, bool amdar,
 		       float latitude, float longitude,
 		       float deltalat, float deltalong,
-		       const miutil::miString & stationfile,
-		       const miutil::miString & databasefile,
+		       const std::string & stationfile,
+		       const std::string & databasefile,
 		       const miutil::miTime& time)
   : amdartemp(amdar),
     parameterfile_(file), geoposll(latitude-deltalat,longitude-deltalong),
@@ -106,7 +106,7 @@ miutil::miTime VprofRTemp::getFileObsTime(){
 }
 
 
-VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
+VprofPlot* VprofRTemp::getStation(const std::string& station,
 				 const miutil::miTime& time)
 {
   const float rad=3.141592654/180.;
@@ -117,7 +117,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   diStation::initStations(stationfile_);
   // get the pointer to the actual station vector
   vector<diStation> * stations = NULL;
-  map<miutil::miString, vector<diStation> * >::iterator its = diStation::station_map.begin();
+  map<std::string, vector<diStation> * >::iterator its = diStation::station_map.begin();
   its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end())
   {
@@ -134,7 +134,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
   if (nStations<1 || time_!=time) return vp;
   
   int n= 0;
-  while (n<nStations && (*stations)[n].stationID()!=station.toInt()) n++;
+  while (n<nStations && (*stations)[n].stationID()!=miutil::to_int(station)) n++;
   // Return if station not found in station list
   if (n==nStations)
   {
@@ -157,7 +157,7 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 //####  else
 //####    vp->text.posName= contents[n].stationID;
   vp->text.posName= (*stations)[n].name();
-  vp->text.posName.trim();
+  vp->miutil::trim(text.posName);
   vp->text.prognostic= false;
   vp->text.forecastHour= 0;
   vp->text.validTime= time_;
@@ -194,14 +194,14 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 #endif
   // For now, we dont use the surface data!
   vector <diParam> * params = NULL;
-  map<miutil::miString, vector<diParam> * >::iterator itp = diParam::params_map.begin();
+  map<std::string, vector<diParam> * >::iterator itp = diParam::params_map.begin();
   itp = diParam::params_map.find(parameterfile_);
   if (itp != diParam::params_map.end())
   {
 	  params = itp->second;
   }
   /* map the data and sort them */
-  map < miutil::miString, map<float, RDKCOMBINEDROW_2 > > data_map;
+  map < std::string, map<float, RDKCOMBINEDROW_2 > > data_map;
   int no_of_data_rows = raw_data.size();
   for (int k = 0; k < params->size(); k++)
   {
@@ -228,18 +228,18 @@ VprofPlot* VprofRTemp::getStation(const miutil::miString& station,
 
   /* Use TTT + 1 to detrmine no of levels */
 
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator ittt = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator ittd = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itdd = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itff = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittt = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittd = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itdd = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itff = data_map.begin();
 
   /* the surface values */
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator ittts = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator ittds = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itdds = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itffs = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittts = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittds = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itdds = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itffs = data_map.begin();
   /* the ground pressure */
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itpps = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itpps = data_map.begin();
 
   map<float, RDKCOMBINEDROW_2 >::iterator ittp;
   

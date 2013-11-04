@@ -33,9 +33,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.SpectrumManager"
-#include <miLogger/miLogging.h>
-
 #include <diSpectrumManager.h>
 
 #include <diSpectrumOptions.h>
@@ -47,7 +44,11 @@
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 
+#define MILOGGER_CATEGORY "diana.SpectrumManager"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 SpectrumManager::SpectrumManager()
 : showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)
@@ -93,9 +94,9 @@ void SpectrumManager::parseSetup()
   dialogModelNames.clear();
   dialogFileNames.clear();
 
-  //const miString section1 = "SPECTRUM_SETUP";
-  const miString section2 = "SPECTRUM_FILES";
-  vector<miString> vstr;
+  //const std::string section1 = "SPECTRUM_SETUP";
+  const std::string section2 = "SPECTRUM_FILES";
+  vector<std::string> vstr;
 
   //if (!SetupParser::getSection(section1,vstr)) {
   //  METLIBS_LOG_DEBUG("Missing section " << section1 << " in setupfile.");
@@ -107,27 +108,27 @@ void SpectrumManager::parseSetup()
 
     // not many error messages here yet...
 
-    set<miString> uniquefiles;
+    set<std::string> uniquefiles;
 
-    miString model,filename;
-    vector<miString> tokens,tokens1,tokens2;
+    std::string model,filename;
+    vector<std::string> tokens,tokens1,tokens2;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= vstr[i].split('\"','\"'," ",true);
+      tokens= miutil::split_protected(vstr[i], '\"','\"'," ",true);
       if (tokens.size()==1) {
-        tokens1= tokens[0].split("=");
+        tokens1= miutil::split(tokens[0], "=");
         if (tokens1.size()==2) {
-          if (tokens1[0].downcase()=="obs.aaa")
+          if (miutil::to_lower(tokens1[0])=="obs.aaa")
             obsAaaPaths.push_back(tokens1[1]);
-          else if (tokens1[0].downcase()=="obs.bbb")
+          else if (miutil::to_lower(tokens1[0])=="obs.bbb")
             obsBbbPaths.push_back(tokens1[1]);
         }
       } else if (tokens.size()==2) {
-        tokens1= tokens[0].split("=");
-        tokens2= tokens[1].split("=");
+        tokens1= miutil::split(tokens[0], "=");
+        tokens2= miutil::split(tokens[1], "=");
         if (tokens1.size()==2          && tokens2.size()==2  &&
-            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+            miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="f") {
           model= tokens1[1];
           filename= tokens2[1];
           filenames[model]= filename;
@@ -164,8 +165,8 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob_cache(obsAaaPaths[j].c_str(),0,0,&globBuf);
-    for (int i=0; i<globBuf.gl_pathc; i++) {
-      of.filename= miString(globBuf.gl_pathv[i]);
+    for (size_t i=0; i<globBuf.gl_pathc; i++) {
+      of.filename= std::string(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
     globfree_cache(&globBuf);
@@ -178,8 +179,8 @@ void SpectrumManager::updateObsFileList()
     of.modificationTime= 0;
     glob_t globBuf;
     glob_cache(obsBbbPaths[j].c_str(),0,0,&globBuf);
-    for (int i=0; i<globBuf.gl_pathc; i++) {
-      of.filename= miString(globBuf.gl_pathv[i]);
+    for (size_t i=0; i<globBuf.gl_pathc; i++) {
+      of.filename= std::string(globBuf.gl_pathv[i]);
       obsfiles.push_back(of);
     }
     globfree_cache(&globBuf);
@@ -201,9 +202,9 @@ void SpectrumManager::setPlotWindow(int w, int h)
 
 //*************************routines from controller*************************
 
-vector<miString> SpectrumManager::getLineThickness()
+vector<std::string> SpectrumManager::getLineThickness()
 {
-  vector<miString> linethickness;
+  vector<std::string> linethickness;
   linethickness.push_back("1");
   linethickness.push_back("2");
   linethickness.push_back("3");
@@ -232,7 +233,7 @@ void SpectrumManager::setModel()
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
   //     METLIBS_LOG_DEBUG("No model selected");
-  //     miString model = getDefaultModel();
+  //     std::string model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
 
@@ -251,10 +252,10 @@ void SpectrumManager::setModel()
     usemodels.insert(selectedModels[i]);
 
   //define models/files  when "model" chosen in modeldialog
-  set <miString>::iterator p = usemodels.begin();
+  set <std::string>::iterator p = usemodels.begin();
   for (; p!=usemodels.end(); p++) {
-    miString model= *p;
-    map<miString,miString>::iterator pf;
+    std::string model= *p;
+    map<std::string,std::string>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
       METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << model);
@@ -263,14 +264,14 @@ void SpectrumManager::setModel()
   }
 
   //define models/files  when "file" chosen in modeldialog
-  vector <miString>::iterator q = selectedFiles.begin();
+  vector<string>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
-    miString file= *q;
+    std::string file= *q;
     //HK ??? cheating...
-    if (file.contains("obs")) {
+    if (miutil::contains(file, "obs")) {
       showObs = true;
     } else {
-      map<miString,miString>::iterator pf=filenames.begin();
+      map<std::string,std::string>::iterator pf=filenames.begin();
       for (; pf!=filenames.end(); pf++) {
         if (file==pf->second){
           initSpectrumFile(file,pf->first);
@@ -300,7 +301,7 @@ void SpectrumManager::setModel()
 }
 
 
-void SpectrumManager::setStation(const miString& station)
+void SpectrumManager::setStation(const std::string& station)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumManager::setStation  " << station);
@@ -327,7 +328,7 @@ void SpectrumManager::setTime(const miTime& time)
 }
 
 
-miString SpectrumManager::setStation(int step)
+std::string SpectrumManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumManager::setStation   step=" << step);
@@ -437,7 +438,7 @@ bool SpectrumManager::plot()
 
   SpectrumPlot::startPlot(nobs+nmod,plotw,ploth,spopt);
 
-  if (plotStation.exists()) {
+  if (not plotStation.empty()) {
 
     int m= spectrumplots.size();
 
@@ -452,10 +453,10 @@ bool SpectrumManager::plot()
       int i= 0;
       while (i<n && nameList[i]!=plotStation) i++;
 
-      if (i<n && obsList[i].exists()) {
+      if (i<n && not obsList[i].empty()) {
         checkObsTime(plotTime.hour());
 
-        vector<miString> stationList;
+        vector<std::string> stationList;
         stationList.push_back(obsList[i]);
         SpectrumPlot *spp= 0;
         /**********************************************************************
@@ -526,7 +527,7 @@ void SpectrumManager::preparePlot()
 }
 
 
-vector <miString> SpectrumManager::getModelNames()
+vector <std::string> SpectrumManager::getModelNames()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumManager::getModelNames");
@@ -536,12 +537,12 @@ vector <miString> SpectrumManager::getModelNames()
 }
 
 
-vector <miString> SpectrumManager::getModelFiles()
+vector <std::string> SpectrumManager::getModelFiles()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumManager::getModelFiles");
 #endif
-  vector<miString> modelfiles= dialogFileNames;
+  vector<std::string> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
   for (int i=0; i<n; i++)
@@ -551,15 +552,14 @@ vector <miString> SpectrumManager::getModelFiles()
 }
 
 
-void SpectrumManager::setFieldModels(const vector<miString>& fieldmodels)
+void SpectrumManager::setFieldModels(const vector<string>& fieldmodels)
 {
   //called when model selected in field dialog
   fieldModels = fieldmodels;
 }
 
 
-void SpectrumManager::setSelectedModels(const vector<miString>& models ,
-    bool obs ,bool field)
+void SpectrumManager::setSelectedModels(const vector<string>& models, bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -570,8 +570,7 @@ void SpectrumManager::setSelectedModels(const vector<miString>& models ,
 }
 
 
-void SpectrumManager::setSelectedFiles(const vector<miString>& files,
-    bool obs ,bool field)
+void SpectrumManager::setSelectedFiles(const vector<string>& files, bool obs ,bool field)
 {
   //called when model selected in model dialog
   showObs= obs;
@@ -582,25 +581,27 @@ void SpectrumManager::setSelectedFiles(const vector<miString>& files,
 }
 
 
-miString SpectrumManager::getDefaultModel()
+std::string SpectrumManager::getDefaultModel()
 {
   //for now, just the first model in filenames list
-  map<miString,miString>::iterator p = filenames.begin();
-  miString model = p->first;
+  map<std::string,std::string>::iterator p = filenames.begin();
+  std::string model = p->first;
   return model;
 }
 
 
-vector<miString> SpectrumManager::getSelectedModels()
+vector<string> SpectrumManager::getSelectedModels()
 {
-  vector <miString> models = selectedModels;
-  if (showObs) models.push_back(menuConst["OBS"]);
-  if (asField) models.push_back(menuConst["ASFIELD"]);
+  vector <string> models = selectedModels;
+  if (showObs)
+    models.push_back(menuConst["OBS"]);
+  if (asField)
+    models.push_back(menuConst["ASFIELD"]);
   return models;
 }
 
 
-bool SpectrumManager::initSpectrumFile(miString file,miString model)
+bool SpectrumManager::initSpectrumFile(std::string file, std::string model)
 {
   SpectrumFile *spf= new SpectrumFile(file,model);
   //if (spf->readFileHeader()) {
@@ -627,12 +628,12 @@ void SpectrumManager::initStations()
   nameList.clear();
   obsList.clear();
 
-  map<miString,StationPos> stations;
+  map<std::string,StationPos> stations;
 
-  vector<miString> namelist;
+  vector<std::string> namelist;
   vector<float>    latitudelist;
   vector<float>    longitudelist;
-  vector<miString> obslist;
+  vector<std::string> obslist;
 
   for (int i = 0;i<nspfile;i++){
     namelist= spfile[i]->getNames();
@@ -663,9 +664,9 @@ void SpectrumManager::initStations()
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Number of stations" << nstations);
 #endif
-  map<miString,StationPos>::iterator p=stations.begin();
+  map<std::string,StationPos>::iterator p=stations.begin();
   for (; p!=stations.end(); p++) {
-    miString name=p->first;
+    std::string name=p->first;
     StationPos pos = p->second;
 #ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("Station name " << name);
@@ -816,27 +817,26 @@ void SpectrumManager::updateObs()
 }
 
 
-miString SpectrumManager::getAnnotationString()
+std::string SpectrumManager::getAnnotationString()
 {
-  miString str = miString("B�lgespekter ");
+  std::string str = std::string("B�lgespekter ");
   if (onlyObs)
     str += plotTime.isoTime();
   else
-    for (set <miString>::iterator p=usemodels.begin();p!=usemodels.end();p++)
-      str+=*p+miString(" ");
+    for (set <std::string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
+      str+=*p+std::string(" ");
   return str;
 }
 
 
-vector<miString> SpectrumManager::writeLog()
+vector<string> SpectrumManager::writeLog()
 {
   return spopt->writeOptions();
 }
 
 
-void SpectrumManager::readLog(const vector<miString>& vstr,
-    const miString& thisVersion,
-    const miString& logVersion)
+void SpectrumManager::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
 {
   spopt->readOptions(vstr);
 }

@@ -34,38 +34,15 @@
 #include <diField/diArea.h>
 #include <profet/fetCodeExecutor.h>
 
-#include <iostream>
-
-#ifndef NOLOG4CXX
-#include <log4cxx/logger.h>
-#else
-#include <miLogger/logger.h>
-#endif
-
-using namespace std;
-
-
 /**
-
 \brief Makes Profet objects from base objects, and updates them with values from gui
-
 */
-
 class ProfetObjectFactory {
-
 private:
-
-#ifndef NOLOG4CXX
-  log4cxx::LoggerPtr logger;
-#endif
-
   /// outputs responce strings from executor
   void outputExecuteResponce(vector<fetCodeExecutor::responce> & rl);
 
-
-protected:
 public:
-
   ProfetObjectFactory();
 
   /// initialise object factory to a field size and projection
@@ -96,8 +73,6 @@ public:
 
   // process the changes from a time edit..
   bool processTimeValuesOnObject(fetObject& fetObj);
-
-
 };
 
 #endif

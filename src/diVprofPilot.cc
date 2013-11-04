@@ -35,34 +35,35 @@
 
 //#ifdef METNOOBS
 
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.VprofPilot"
-#include <miLogger/miLogging.h>
-
 #include <diVprofPilot.h>
 #include <diVprofPlot.h>
 #include <robs/geopos.h>
-#include <math.h>
 
-using namespace::miutil;
+#define MILOGGER_CATEGORY "diana.VprofPilot"
+#include <miLogger/miLogging.h>
 
-// Default constructor
+using miutil::miTime;
+
+namespace {
+inline vector<miutil::miString> to_vector_miString(const vector<string>& s)
+{ return vector<miutil::miString>(s.begin(), s.end()); }
+}
+
 VprofPilot::VprofPilot(void)
 {
-  METLIBS_LOG_DEBUG("++ VprofPilot::VprofPilot()-default");
+  METLIBS_LOG_SCOPE();
 }
 
 
 // land or ship station with name
-VprofPilot::VprofPilot(const miString& file,
-		       const vector<miString>& stationList)
-  : pilot(file,stationList)
+VprofPilot::VprofPilot(const std::string& file, const vector<std::string>& stationList)
+  : pilot(file, to_vector_miString(stationList))
 {
 }
 
 
 // ship station without name
-VprofPilot::VprofPilot(const miString& file,
+VprofPilot::VprofPilot(const std::string& file,
 		       float latitude, float longitude,
 		       float deltalat, float deltalong)
   : pilot(file,geopos(latitude-deltalat,longitude-deltalong),
@@ -83,7 +84,7 @@ miTime VprofPilot::getFileObsTime(){
 }
 
 
-VprofPlot* VprofPilot::getStation(const miString& station,
+VprofPlot* VprofPilot::getStation(const std::string& station,
 			  	  const miTime& time)
 {
   const float rad=3.141592654/180.;
@@ -111,7 +112,7 @@ VprofPlot* VprofPilot::getStation(const miString& station,
 //####  else
 //####    vp->text.posName= contents[n].stationID;
   vp->text.posName= contents[n].desc.kjennetegn;
-  vp->text.posName.trim();
+  miutil::trim(vp->text.posName);
   vp->text.prognostic= false;
   vp->text.forecastHour= 0;
   vp->text.validTime= miTime(contents[n].desc.aar,contents[n].desc.mnd,

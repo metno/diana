@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -33,22 +31,23 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.ShapeObject"
-#include <miLogger/miLogging.h>
+#include <diShapeObject.h>
 
 #include <diColourShading.h>
 #include <diTesselation.h>
-#include <diShapeObject.h>
 #include <diFontManager.h>
-#include <puDatatypes/miCoordinates.h>
-#include <puTools/miString.h>
+
+#include <puTools/miStringFunctions.h>
+
 #include <GL/glu.h>
+
+#define MILOGGER_CATEGORY "diana.ShapeObject"
+#include <miLogger/miLogging.h>
 
 /* Created at Wed Oct 12 15:31:16 2005 */
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 //#define DEBUGPRINT
 
 ShapeObject::ShapeObject() :
@@ -165,12 +164,12 @@ bool ShapeObject::changeProj(Area fromArea)
   return (success && success2);
 }
 
-bool ShapeObject::read(miutil::miString filename)
+bool ShapeObject::read(std::string filename)
 {
   return read(filename, false);
 }
 
-bool ShapeObject::read(miutil::miString filename, bool convertFromGeo)
+bool ShapeObject::read(std::string filename, bool convertFromGeo)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ShapeObject::read(" << filename << "," << convertFromGeo);
@@ -270,7 +269,7 @@ bool ShapeObject::plot()
       double descr=dbfDoubleDescr[shapes[i]->nShapeId];
       glColor4ubv(doublecolourmap[descr].RGBA());
     } else if (stringcolourmapMade) {
-      miutil::miString descr=dbfStringDescr[shapes[i]->nShapeId];
+      std::string descr=dbfStringDescr[shapes[i]->nShapeId];
       glColor4ubv(stringcolourmap[descr].RGBA());
     }
     //
@@ -314,7 +313,7 @@ bool ShapeObject::plot(Area area, // current area
 		   bool keepcont, // keep contourlines for later
                    bool special, // special case, when plotting symbol instead of a point
                    int symbol, // symbol number to be plottet
-                   miutil::miString dbfcol, // column name in dfb file, text to be plottet
+                   std::string dbfcol, // column name in dfb file, text to be plottet
  		   GLushort linetype, // contour line type
 		   float linewidth, // contour linewidth
 		   const uchar_t* lcolour, // contour linecolour
@@ -341,8 +340,6 @@ bool ShapeObject::plot(Area area, // current area
 	x2= area.R().x2 +1.;
 	y1= area.R().y1 -1.;
 	y2= area.R().y2 +1.;
-
-	int npoints = 0;
 
 	float sizeWX, sizeWY;
 
@@ -404,7 +401,7 @@ bool ShapeObject::plot(Area area, // current area
 #define SHPP_RING       5
 */
         // Retrieving text for plotting from the dbf file and col=dbfcol
-        vector<miutil::miString> tmpDesc=dbfPlotDesc[dbfcol];
+        vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
 
 	int n=shapes.size();
 #ifdef DEBUGPRINT
@@ -452,7 +449,7 @@ bool ShapeObject::plot(Area area, // current area
 			{
                            if (special==true && nv==1){
                                float cw,ch;
-                               miString astring = " "+tmpDesc[i];
+                               std::string astring = " "+tmpDesc[i];
                                fp->set(poptions.fontname,"NORMAL",fontSizeToPlot); //fp->set("Arial","BOLD",8);
                                fp->getStringSize(astring.c_str(),cw,ch);
                                //fp->drawStr(astring.c_str(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
@@ -512,7 +509,6 @@ bool ShapeObject::plot(Area area, // current area
 		for (int jpart=0; jpart<nparts; jpart++) {
 			visible = false;
 			int nstop, ncount=0;
-			npoints = 0;
 
 			// Get the starting point of this part (shapeobject consists of several parts)
 			int nstart=shapes[i]->panPartStart[jpart];
@@ -899,12 +895,12 @@ bool ShapeObject::plot(Area area, // current area
 	return true;
 }
 
-bool ShapeObject::getAnnoTable(miutil::miString & str)
+bool ShapeObject::getAnnoTable(std::string & str)
 {
   makeColourmap();
   str="table=\""+ fname;
   if (stringcolourmapMade) {
-    map <miutil::miString,Colour>::iterator q=stringcolourmap.begin();
+    map <std::string,Colour>::iterator q=stringcolourmap.begin();
     for (; q!=stringcolourmap.end(); q++) {
       Colour col=q->second;
       ostringstream rs;
@@ -966,7 +962,7 @@ void ShapeObject::makeColourmap()
   }
   if (stringcolourmapMade) {
     for (int i=0; i<n; i++) {
-      miutil::miString descr=dbfStringDescr[shapes[i]->nShapeId];
+      std::string descr=dbfStringDescr[shapes[i]->nShapeId];
       if (stringcolourmap.find(descr)==stringcolourmap.end()) {
         stringcolourmap[descr]=colours[ii];
         ii++;
@@ -1064,10 +1060,10 @@ void ShapeObject::setXY(vector<float> x, vector <float> y)
 }
 //#define DEBUGPRINT 1
 
-int ShapeObject::readDBFfile(const miutil::miString& filename,
-    vector<miutil::miString>& dbfIntName, vector< vector<int> >& dbfIntDesc,
-    vector<miutil::miString>& dbfDoubleName, vector< vector<double> >& dbfDoubleDesc,
-    vector<miutil::miString>& dbfStringName, vector< vector<miutil::miString> >& dbfStringDesc)
+int ShapeObject::readDBFfile(const std::string& filename,
+    vector<std::string>& dbfIntName, vector< vector<int> >& dbfIntDesc,
+    vector<std::string>& dbfDoubleName, vector< vector<double> >& dbfDoubleDesc,
+    vector<std::string>& dbfStringName, vector< vector<std::string> >& dbfStringDesc)
 {
   DBFHandle hDBF;
   int i, iRecord;
@@ -1084,7 +1080,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 
   vector<int> dummyint;
   vector<double> dummydouble;
-  vector<miutil::miString> dummystring;
+  vector<std::string> dummystring;
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("readDBFfile: "<<filename);
 #endif
@@ -1118,7 +1114,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 #ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("---> "<<szTitle);
 #endif
-    miutil::miString name= miutil::miString(szTitle).upcase();
+    std::string name= miutil::to_upper(szTitle);
 
     if (eType == FTInteger) {
       //          if (name=="LTEMA" || name=="FTEMA" || name=="VANNBR")  {
@@ -1190,7 +1186,7 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
 
   for (n=0; n<dbfStringName.size(); n++) {
     i= indexString[n];
-    vector<miutil::miString> tempStr;
+    vector<std::string> tempStr;
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("String description:  "<<indexString[n]<<"  "<<dbfStringName[n]);
 #endif
@@ -1198,9 +1194,9 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
       if (DBFIsAttributeNULL(hDBF, iRecord, i) )
         dbfStringDesc[n].push_back("-");
       else {
-        dbfStringDesc[n].push_back(miutil::miString(DBFReadStringAttribute(hDBF,
+        dbfStringDesc[n].push_back(std::string(DBFReadStringAttribute(hDBF,
             iRecord, i) ) );
-        tempStr.push_back(miutil::miString(DBFReadStringAttribute(hDBF,
+        tempStr.push_back(std::string(DBFReadStringAttribute(hDBF,
             iRecord, i) ) );
 #ifdef DEBUGPRINT
           METLIBS_LOG_DEBUG("DBFReadStringAttribute( hDBF, iRecord, i )"
@@ -1214,9 +1210,9 @@ int ShapeObject::readDBFfile(const miutil::miString& filename,
     
 
   }
- /* map <miutil::miString, vector<miutil::miString> >::iterator it=dbfPlotDesc.begin();
+ /* map <std::string, vector<std::string> >::iterator it=dbfPlotDesc.begin();
     for (; it!=dbfPlotDesc.end(); it++) {
-      vector<miutil::miString> temp=it->second;
+      vector<std::string> temp=it->second;
         METLIBS_LOG_DEBUG("*** ID_temp " << it->first);
       for (int ar=0; ar<temp.size(); ar++) {
         METLIBS_LOG_DEBUG("***temp [" << ar <<"] =  " << temp[ar]);

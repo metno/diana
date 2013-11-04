@@ -31,11 +31,9 @@
 #ifndef _objectDialog_h
 #define _objectDialog_h
 
-#include <QDialog>
-
-#include <vector>
-#include <puTools/miString.h>
 #include <diController.h>
+#include <QDialog>
+#include <vector>
 
 class PushButton;
 class QListWidget;
@@ -66,11 +64,11 @@ public:
   //the constructor
   ObjectDialog( QWidget* parent, Controller* llctrl );
   /// the plot info strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   /// creates a short name for the current settings (used in quick menues)
-  miutil::miString getShortname();
+  std::string getShortname();
   /// read comment belonging to objects
   void commentUpdate();
   /// show dialog
@@ -90,12 +88,12 @@ public:
 */
   struct PlotVariables {
     //variables for each plot
-    miutil::miString objectname;
-    miutil::miString file,time;
+    std::string objectname;
+    std::string file,time;
     int totalminutes;
     float alphanr;
-    map <miutil::miString,bool> useobject;    
-    miutil::miString external;
+    std::map <std::string,bool> useobject;    
+    std::string external;
   };
   
 private:
@@ -111,12 +109,12 @@ private:
   float m_alphanr;
 
   bool useArchive;
-  vector<miutil::miString> objectnames;
+  std::vector<std::string> objectnames;
 
   //Emitted to TimeSlider 
-  vector<miutil::miTime> times;  
+  std::vector<miutil::miTime> times;  
   //list of object files currently selected
-  vector <ObjFileInfo> files;
+  std::vector <ObjFileInfo> files;
   //LB: current variables (only used for external)
   PlotVariables plotVariables;
 
@@ -126,11 +124,11 @@ private:
   void updateSelectedFileList();
 
   //decode part of OK string
-  PlotVariables decodeString(const vector <miutil::miString> & tokens);
+  PlotVariables decodeString(const std::vector<std::string> & tokens);
   // make string from plotVariables
-  miutil::miString makeOKString(PlotVariables & okVar);
+  std::string makeOKString(PlotVariables & okVar);
   // get the time string on the form yyyymmddhhmn from time
-  miutil::miString stringFromTime(const miutil::miTime& t);
+  std::string stringFromTime(const miutil::miTime& t);
 
 
 //************** q tWidgets that appear in the dialog  *******************
@@ -194,7 +192,7 @@ signals:
   void ObjHide();
   void ObjApply();
   void showsource(const std::string, const std::string="");
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>& ,bool );
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>& ,bool );
 
 };
 

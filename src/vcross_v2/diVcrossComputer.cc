@@ -5,7 +5,7 @@
 
 #include <diField/diFieldFunctions.h>
 #include <diField/diMetConstants.h>
-#include <puTools/miString.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
 

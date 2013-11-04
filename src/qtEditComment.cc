@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,18 +38,15 @@
 #include "config.h"
 #endif
 
-#include <QVBoxLayout>
-#include <QSplitter>
-#include <QString>
-#include <QTextEdit>
-
-#include <fstream>
-#include <iostream>
-#include <puTools/miString.h>
 #include "qtEditComment.h"
 #include "qtToggleButton.h"
 #include "diController.h"
 #include "diObjectManager.h"
+
+#include <QVBoxLayout>
+#include <QSplitter>
+#include <QString>
+#include <QTextEdit>
 
 
 /*********************************************/
@@ -80,9 +75,9 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     mEdit = new QTextEdit(split);
     mEdit2 = new QTextEdit(split);
     mEdit2->hide();
-    showOld = new ToggleButton(this,tr("Show previous comments").toStdString());
+    showOld = new ToggleButton(this, tr("Show previous comments"));
     showOld->setChecked(false);
-    connect(showOld, SIGNAL( toggled(bool)),SLOT( showOldToggled( bool ) ));
+    connect(showOld, SIGNAL(toggled(bool)), SLOT(showOldToggled(bool)));
     QVBoxLayout * vlayout = new QVBoxLayout( this);
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);
@@ -108,12 +103,12 @@ void EditComment::textChanged()
   setWindowModified(true);
 }
 
-  void EditComment::startComment()
-  {
+void EditComment::startComment()
+{
   //start comments for editing
   if (inComment) return;
   mEdit->clear();
-  miutil::miString comments = m_objm->getComments();
+  std::string comments = m_objm->getComments();
   mEdit->setText(comments.c_str());
   //   mEdit->insertLine("\n");
   //   int n = mEdit->numLines();
@@ -123,13 +118,11 @@ void EditComment::textChanged()
   if (showOld->isChecked()) readComment();
 }
 
-
-
 void EditComment::readComment()
 {
   //read comments only
   mEdit2->clear();
-  miutil::miString comments = m_objm->readComments(inEditSession);
+  std::string comments = m_objm->readComments(inEditSession);
   mEdit2->setText(comments.c_str());
   //   mEdit2->insertLine("\n");
   //   int n = mEdit2->numLines();
@@ -142,7 +135,7 @@ void EditComment::readComment()
 void EditComment::saveComment()
 {
   if (inComment && isWindowModified()){
-    miutil::miString comments = miutil::miString(mEdit->toPlainText().toStdString());
+    std::string comments = std::string(mEdit->toPlainText().toStdString());
     //put comments into plotm->editobjects->comments;
     m_objm->putComments(comments);
     setWindowModified(false);

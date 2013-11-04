@@ -155,7 +155,8 @@ private:
   typedef std::map<std::string, FileContents> filecontents_t;
   filecontents_t vcfilecontents;
 
-  bool dataChange;
+  enum { CHANGED_NO=0, CHANGED_TIME=1, CHANGED_CS=2, CHANGED_SEL=7 };
+  int dataChange;
 
   struct VcrossSelected {
     std::string model;

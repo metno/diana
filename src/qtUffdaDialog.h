@@ -34,10 +34,9 @@
 #include <QDialog>
 #include <QToolTip>
 
-#include <deque>
 #include <diController.h>
-
-//using namespace std; 
+#include <deque>
+#include <vector>
 
 class PushButton;
 class QListWidget;
@@ -45,19 +44,16 @@ class QListWidgetItem;
 class QLabel;
 
 /**
-
   \brief Dynamic tooltip
-  
 */
 class DynamicTip: public QToolTip
 {
 public:
-  DynamicTip(QWidget * parent, vector <miutil::miString> tips);
+  DynamicTip(QWidget * parent, std::vector <std::string> tips);
 protected:
   void maybeTip(const QPoint &);
 private:
-  vector <QString> vClasstips;
-
+  std::vector <QString> vClasstips;
 };
 
 /**
@@ -79,7 +75,7 @@ public:
   /// add position x,y to the list
   void addPosition(float,float);
   /// called when user clicked on uffda station on map
-  void pointClicked(miutil::miString);
+  void pointClicked(std::string);
   /// check if all Uffda data sent before exiting
   bool okToExit();
   /// deselects all items
@@ -131,20 +127,20 @@ private:
   QPushButton* sendb;
 
   //deques of satellite positions , time,classes etc.
-  deque <uffdaElement> v_uffda; 
+  std::deque <uffdaElement> v_uffda; 
   StationPlot * sp;
 
-  miutil::miString mailto; //mailadress to send Uffdastring to
+  std::string mailto; //mailadress to send Uffdastring to
   void updatePoslist(uffdaElement &ue, int, bool);
   void updateStationPlot();
 
-  miutil::miString getUffdaString();
-  void send(const miutil::miString& to, const miutil::miString& subject,const miutil::miString& body);
+  std::string getUffdaString();
+  void send(const std::string& to, const std::string& subject,const std::string& body);
 
   int satIndex; //index of sat list
   int classIndex; //index of class list
 
-private slots:
+private Q_SLOTS:
   void DeleteClicked();
   void DeleteAllClicked();
   void helpClicked();
@@ -155,15 +151,10 @@ private slots:
   void poslistSlot(QListWidgetItem*);
 
 
-signals:
+Q_SIGNALS:
   void uffdaHide();
   void showsource(const std::string, const std::string=""); // activate help
   void stationPlotChanged();
 };
 
 #endif
-
-
-
-
-

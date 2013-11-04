@@ -31,12 +31,8 @@
 #ifndef _qtPrintManager_h
 #define _qtPrintManager_h
 
-
 #include <qprinter.h>
 #include <diPrintOptions.h>
-
-using namespace std; 
-
 
 // conversion from Qt-printing types to diana-types
 d_print::Orientation getOrientation(QPrinter::Orientation ori);

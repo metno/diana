@@ -33,21 +33,16 @@
 
 #include <QDialog>
 
-#include <puTools/miString.h>
+#include <string.h>
 
 class QLabel;
-  class QKeyEvent;
-
-using namespace std; 
+class QKeyEvent;
 
 /**
    \brief Browse through history or quick menues
 
    Pops up a separat window for browsing through the plot history or one of the quick menues
-
 */
-
-
 class BrowserBox : public QDialog {
   Q_OBJECT
 private:
@@ -61,9 +56,9 @@ public:
   BrowserBox(QWidget* parent);
 
 public slots:
-  void upDate(const miutil::miString& name,
+  void upDate(const std::string& name,
 	      const int num,
-	      const miutil::miString& item);
+	      const std::string& item);
 
 signals:
   void selectplot();

@@ -39,12 +39,13 @@
 
 using namespace::miutil;
 
-ObsSatob::ObsSatob(const miString &file)
-:satob(file){
+ObsSatob::ObsSatob(const std::string &file)
+ : satob(file)
+{
 }
 
-void ObsSatob::init(ObsPlot *oplot){
-
+void ObsSatob::init(ObsPlot *oplot)
+{
   //It is assumed that each station has only one entry in the satob
   //file, and that fileObsTime == ObsTime
 
@@ -55,17 +56,13 @@ void ObsSatob::init(ObsPlot *oplot){
       ObsData &d = oplot->getNextObs();
       putData(i,d);
     }
-
 }
 
-
-void
-ObsSatob::putData(int i, ObsData &d){
-
+void ObsSatob::putData(int i, ObsData &d)
+{
   d.dataType = "satob";
     //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.pos.longitude();
   d.ypos = contents[i].desc.pos.latitude();
   d.zone = _IDtoZone(contents[i].stationID);
@@ -80,9 +77,3 @@ ObsSatob::putData(int i, ObsData &d){
 }
 
 #endif
-
-
-
-
-
-

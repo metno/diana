@@ -34,10 +34,10 @@
 #include <diPlot.h>
 #include <diSat.h>
 
+#include <vector>
+
 /**
-
   \brief Plot satellite and radar images
-
 */
 class SatPlot : public Plot {
 private:
@@ -72,17 +72,14 @@ public:
   Area& getSatArea(void){ return satdata->area;}
   double getGridResolutionX(){ return satdata->gridResolutionX;}
   double getGridResolutionY() {return satdata->gridResolutionY;}
-  void getSatAnnotation(miutil::miString &, Colour &);
-  void getSatName(miutil::miString &);
-  void getCalibChannels(vector<miutil::miString>& channels );
+  void getSatAnnotation(std::string &, Colour &);
+  void getSatName(std::string &);
+  void getCalibChannels(std::vector<std::string>& channels );
   ///get pixel value
-  void values(float x,float y, vector<SatValues>& satval);
+  void values(float x,float y, std::vector<SatValues>& satval);
   ///get legend
-  bool getAnnotations(vector<miutil::miString>& anno);
-  void setSatAuto(bool, const miutil::miString&, const miutil::miString&);
+  bool getAnnotations(std::vector<std::string>& anno);
+  void setSatAuto(bool, const std::string&, const std::string&);
 };
 
 #endif
-
-
-

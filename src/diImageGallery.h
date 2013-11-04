@@ -31,22 +31,17 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-
 #include <diPlot.h>
-#include <puTools/miString.h>
+#include <GL/gl.h>
 #include <vector>
 #include <map>
-#include <GL/gl.h>
-
-using namespace std; 
 
 /**
    \brief image cache and OpenGl plotting
 
-   the image gallery is a cache of images used in Diana. Inherits Plot, so is also the plotting engine for generic images
-
+   the image gallery is a cache of images used in Diana. Inherits
+   Plot, so is also the plotting engine for generic images
 */
-
 class ImageGallery : public Plot {
 public:
   /// type of image
@@ -59,20 +54,20 @@ public:
   struct Line {
     int width;
     bool fill;
-    vector<float>x;
-    vector<float>y;
+    std::vector<float>x;
+    std::vector<float>y;
   };
 
   /// Image data (binary)
   struct image {
-    miutil::miString name;
-    miutil::miString filename;
-    miutil::miString markerFilename;
+    std::string name;
+    std::string filename;
+    std::string markerFilename;
     bool alpha;
     int width;
     int height;
     unsigned char* data;
-    vector<Line> line;
+    std::vector<Line> line;
     int type;
     bool read_error;
     image();
@@ -82,8 +77,8 @@ public:
 
   /// Pattern data (binary)
   struct pattern {
-    miutil::miString name;
-    miutil::miString filename;
+    std::string name;
+    std::string filename;
     GLubyte* pattern_data;
     bool read_error;
     pattern();
@@ -92,26 +87,26 @@ public:
   };
 
 private:
-  static map<miutil::miString,image> Images;
-  static map<miutil::miString,pattern> Patterns;
-  static map< int, vector<miutil::miString> > Type;
+  static std::map<std::string,image> Images;
+  static std::map<std::string,pattern> Patterns;
+  static std::map< int, std::vector<std::string> > Type;
 
-  bool plotImage_(const miutil::miString name,         // OpenGL-plotting
+  bool plotImage_(const std::string name,         // OpenGL-plotting
 		  const float& gx, const float& gy,
 		  const float scalex,
 		  const float scaley,
 		  const int alpha);
 
-  bool plotMarker_(const miutil::miString name,         // OpenGL-plotting
+  bool plotMarker_(const std::string name,         // OpenGL-plotting
 		   const float& x, const float& y,
 		   const float scale);
 
-  bool readImage(const miutil::miString& name); //read data from file once
-  bool readPattern(const miutil::miString& name); //read data from file once
+  bool readImage(const std::string& name); //read data from file once
+  bool readPattern(const std::string& name); //read data from file once
 
-  void addImageName(const miutil::miString& filename, int type);
+  void addImageName(const std::string& filename, int type);
 
-  bool readFile(const miutil::miString name, const miutil::miString filename);
+  bool readFile(const std::string name, const std::string filename);
 
   bool addImage(const image& im);    // add image
 
@@ -121,64 +116,63 @@ public:
   static void clear();               ///< clear all images
   
   /// add image
-  bool addImage(const miutil::miString& name,
+  bool addImage(const std::string& name,
 		const int w,
 		const int h,
 		const unsigned char* d,
 		const bool a);
   /// add pattern
-  bool addPattern(const miutil::miString& name,
+  bool addPattern(const std::string& name,
 		  const unsigned char* d);
   /// remove imega
-  bool delImage(const miutil::miString& name);
+  bool delImage(const std::string& name);
   /// remove pattern
-  bool delPattern(const miutil::miString& name);
+  bool delPattern(const std::string& name);
 
   /// image width in GL coor
-  float width(const miutil::miString& name); 
+  float width(const std::string& name); 
   /// image height in GL coor
-  float height(const miutil::miString& name);
+  float height(const std::string& name);
   /// image width in pixels
-  int   widthp(const miutil::miString& name);  
+  int   widthp(const std::string& name);  
   /// image height in pixels
-  int   heightp(const miutil::miString& name);
+  int   heightp(const std::string& name);
 
   /// plot one image at gl-pos
-  bool plotImage(const miutil::miString& name,
+  bool plotImage(const std::string& name,
 		 const float& x, const float& y,
 		 const bool center = true,
 		 const float scale = 1.0,
 		 const int alpha = 255);
   /// plot several images at gl-positions (different images)
   bool plotImages(const int n,
-		  const vector<miutil::miString>& vn,
+		  const std::vector<std::string>& vn,
 		  const float* x, const float* y,
 		  const bool center = true,
 		  const float scale = 1.0,
 		  const int alpha = 255);
   /// plot several images at gl-positions (same image)
   bool plotImages(const int n,
-		  const miutil::miString& name,
+		  const std::string& name,
 		  const float* x, const float* y,
 		  const bool center = true,
 		  const float scale = 1.0,
 		  const int alpha = 255);
   /// plot one image at pixel-pos
-  bool plotImageAtPixel(const miutil::miString& name,
+  bool plotImageAtPixel(const std::string& name,
 			const float& x, const float& y,
 			const bool center = true,
 			const float scale = 1.0,
 			const int alpha = 255);
   void printInfo() const;
   /// return all image-names of one type 
-  void ImageNames(vector<miutil::miString>& vnames, int type) const; 
+  void ImageNames(std::vector<std::string>& vnames, int type) const; 
   /// return filename
-  miutil::miString getFilename(const miutil::miString& name, bool pattern=false);
+  std::string getFilename(const std::string& name, bool pattern=false);
   /// return binary pattern by name
-  GLubyte* getPattern(miutil::miString name);
+  GLubyte* getPattern(std::string name);
   /// parse the images section of the setup file
   bool parseSetup();
 };
 
 #endif
-

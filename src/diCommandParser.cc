@@ -34,12 +34,14 @@
 #endif
 
 #include <diCommandParser.h>
+
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.CommandParser"
 #include <miLogger/miLogging.h>
 
-#include <iostream>
-
 using namespace::miutil;
+using namespace std;
 
 // Default constructor
 CommandParser::CommandParser()

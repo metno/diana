@@ -30,32 +30,25 @@
 */
 #ifndef _diWeatherObjects_h
 #define _diWeatherObjects_h
-#include <vector>
-#include <diField/diArea.h>
-#include <diObjectPlot.h>
+
 #include <diAreaBorder.h>
-#include <diUndoFront.h>
-#include <diMapMode.h>
+
+#include <diField/diArea.h>
 #include <diField/diGridConverter.h>
 
-using namespace std; 
-
+#include <vector>
 
 /**
-
-  \brief WeatherObjects to be edited or displayed
-
-
+   \brief WeatherObjects to be edited or displayed
 */
-
-class WeatherObjects{
+class WeatherObjects {
 public:
 
   WeatherObjects();
   virtual ~WeatherObjects(){}
 
   /// the weather objects to plot
-  vector<ObjectPlot*> objects;
+  std::vector<ObjectPlot*> objects;
   /// clears all variables
   void clear();
   virtual void init(){}
@@ -68,9 +61,9 @@ public:
  /// enable/disable objectplots
   void enable(const bool b);
   /// set prefix for object files
-  void setPrefix(miutil::miString p){prefix=p;}
+  void setPrefix(std::string p){prefix=p;}
   /// sets the object time 
- void setTime(miutil::miTime t){itsTime=t;}
+  void setTime(miutil::miTime t){itsTime=t;}
   /// gets the object time
   miutil::miTime getTime(){if (itsTime.undef()) return ztime; else return itsTime;}
   /// returns number of object plots
@@ -84,67 +77,59 @@ public:
   /// change projection to newAreas projection
   bool changeProjection(const Area& newArea);
   /// read file with comments
-  bool readEditCommentFile(const miutil::miString fn);
+  bool readEditCommentFile(const std::string fn);
   /// returns objects' old comments
-  miutil::miString readComments();
+  std::string readComments();
 
   ///return oldLabels from object file
-  vector <miutil::miString> getObjectLabels();
+  std::vector<std::string> getObjectLabels();
   /// return new edited labels 
-  vector <miutil::miString> getEditLabels(); 
+  std::vector<std::string> getEditLabels(); 
 
   /// read file with weather objects and change projection to newArea
-  bool readEditDrawFile(const miutil::miString ,const Area& newArea );
+  bool readEditDrawFile(const std::string ,const Area& newArea );
   /// read  string with weather objects and change projection to newArea
-  bool readEditDrawString(const miutil::miString ,const Area& newArea, bool replace=false);
+  bool readEditDrawString(const std::string ,const Area& newArea, bool replace=false);
   /// read file with area borders (for combining analyses)
-  bool readAreaBorders(const miutil::miString ,const Area& );
+  bool readAreaBorders(const std::string ,const Area& );
   /// write file with area borders (for combining analyses)
-  bool writeAreaBorders(const miutil::miString);
+  bool writeAreaBorders(const std::string);
   /// writes string with edited objects
-  miutil::miString writeEditDrawString(const miutil::miTime& );
+  std::string writeEditDrawString(const miutil::miTime& );
   /// sets which object types should be plotted
-  void setSelectedObjectTypes(miutil::miString t){useobject = decodeTypeString(t);}
+  void setSelectedObjectTypes(std::string t){useobject = decodeTypeString(t);}
   /// returns number of object of this type
   int objectCount(int type );
   /// add an object 
   void addObject(ObjectPlot * object, bool replace=false);
   /// remove an object
-  vector<ObjectPlot*>::iterator removeObject(vector<ObjectPlot*>::iterator );
+  std::vector<ObjectPlot*>::iterator removeObject(std::vector<ObjectPlot*>::iterator );
  /// the file the objects are read from
-  miutil::miString filename;     
+  std::string filename;     
   /// decode string with types of objects to plot
-  static map <miutil::miString,bool> decodeTypeString(miutil::miString);
+  static std::map <std::string,bool> decodeTypeString(std::string);
   /// x,y for copied objects
   float xcopy,ycopy; 
 
 private:
-
-  map<miutil::miString,bool> useobject;
+  std::map<std::string,bool> useobject;
   static miutil::miTime ztime;
   GridConverter gc;              // gridconverter class
   bool enabled;
 
-
 protected:
-
-  miutil::miString prefix;               //VA,VV,VNN...   
+  std::string prefix;               //VA,VV,VNN...   
   Area itsArea;                  // current object area
   Area geoArea;
 
-
-
   miutil::miTime itsTime;                //plot time 
-  miutil::miString itsOldComments;       // the comment string to edit
-  vector <miutil::miString> itsLabels;            //edited labels
-  vector <miutil::miString> itsOldLabels;         //labels read in from object file
+  std::string itsOldComments;       // the comment string to edit
+  std::vector<std::string> itsLabels;            //edited labels
+  std::vector<std::string> itsOldLabels;         //labels read in from object file
 
   //static members
-  static miutil::miTime timeFromString(miutil::miString timeString);
-  static miutil::miString stringFromTime(const miutil::miTime& t,bool addMinutes);
-
+  static miutil::miTime timeFromString(std::string timeString);
+  static std::string stringFromTime(const miutil::miTime& t,bool addMinutes);
 };
 
-
 #endif
-

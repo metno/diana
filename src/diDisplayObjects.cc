@@ -33,34 +33,37 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.DisplayObjects"
-#include <miLogger/miLogging.h>
-
 #include <diDisplayObjects.h>
 #include <diDrawingTypes.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
-//#define DEBUGPRINT
+
+#include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.DisplayObjects"
+#include <miLogger/miLogging.h>
 
 using namespace::miutil;
+using namespace std;
 
-DisplayObjects::DisplayObjects(){
+DisplayObjects::DisplayObjects()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::DisplayObjects\n");
+  METLIBS_LOG_SCOPE();
 #endif
-
- init();
+  
+  init();
 }
 
-
-void DisplayObjects::init(){
+void DisplayObjects::init()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::init");
+  METLIBS_LOG_SCOPE();
 #endif
   defined=false;
   approved=false;
-  objectname=miString();
+  objectname=std::string();
   alpha = 255;
   newfrontlinewidth=0;  // might be changed by OKString
   fixedsymbolsize=0; // might be changed by OKString
@@ -72,30 +75,30 @@ void DisplayObjects::init(){
 
 /*********************************************/
 
-bool DisplayObjects::define(const miString& pi)
+bool DisplayObjects::define(const std::string& pi)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("DisplayObjects::define");
+  METLIBS_LOG_SCOPE();
 #endif
 
   init();
   pin=pi;
-  vector<miString> tokens= pi.split('"','"');
+  vector<std::string> tokens= miutil::split_protected(pi, '"','"');
   int i,n= tokens.size();
   if (n<2) return false;
 
-  miString token;
-  vector<miString> stokens;
+  std::string token;
+  vector<std::string> stokens;
 
   for (i=0; i<n; i++){
-    token= tokens[i].downcase();
-    if (token.contains("types=")){
+    token= miutil::to_lower(tokens[i]);
+    if (miutil::contains(token, "types=")){
       setSelectedObjectTypes(token);
     } else {
-      miString key, value;
-      vector<miString> stokens= tokens[i].split('=');
+      std::string key, value;
+      vector<std::string> stokens= miutil::split(tokens[i], 0, "=");
       if ( stokens.size()==2) {
-	key = stokens[0].downcase();
+	key = miutil::to_lower(stokens[0]);
 	value = stokens[1];
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("key,value" << key << " " << value);
@@ -103,7 +106,7 @@ bool DisplayObjects::define(const miString& pi)
 	if ( key=="file") {
 	  int l= value.length();
 	  int f= value.rfind('.') + 1;
-	  miString tstr= value.substr(f,l-f);
+	  std::string tstr= value.substr(f,l-f);
 	  itsTime= timeFromString(tstr);
 	  autoFile= false;
 	} else if ( key=="name") {
@@ -124,7 +127,7 @@ bool DisplayObjects::define(const miString& pi)
  	} else if ( key=="fixedsymbolsize") {
  	  fixedsymbolsize= atoi(value.c_str());
  	} else if ( key=="symbolfilter") {
-	  vector <miString> vals=value.split(",");
+	  vector <std::string> vals=miutil::split(value, ",");
 	  for (unsigned int i=0;i<vals.size();i++)
 	    symbolfilter.push_back(vals[i]);
 	}
@@ -140,7 +143,6 @@ bool DisplayObjects::define(const miString& pi)
 
 bool DisplayObjects::prepareObjects()
 {
-
   approved = false;
   if (!defined) return false;
 
@@ -175,22 +177,22 @@ bool DisplayObjects::prepareObjects()
 
   //read comments file (assume commentfile names can be obtained
   //by replacing "draw" with "comm")
-  miString commentfilename = filename;
-  if (commentfilename.contains("draw")){
-    commentfilename.replace("draw","comm");
+  std::string commentfilename = filename;
+  if (miutil::contains(commentfilename, "draw")){
+    miutil::replace(commentfilename, "draw","comm");
     readEditCommentFile(commentfilename);
   }
 
   approved = true;
   return true;
-
 }
 
 
 /*********************************************/
 
-void DisplayObjects::getObjAnnotation(miString &str, Colour &col){
-  if(approved ){
+void DisplayObjects::getObjAnnotation(string &str, Colour &col)
+{
+  if (approved) {
     str = objectname + " " + itsTime.format("%D %H:%M");
     Colour c("black");
     col = c;
@@ -200,23 +202,23 @@ void DisplayObjects::getObjAnnotation(miString &str, Colour &col){
 }
 
 
-
-bool DisplayObjects::getAnnotations(  vector <miString> &anno){
-
+bool DisplayObjects::getAnnotations(vector <string>& anno)
+{
   if (!isEnabled())
     return false;
   int nanno = anno.size();
-    int n= objects.size();
-    if (!n) return false;
-  for(int i=0; i<nanno; i++){
-    if(!anno[i].contains("table") || anno[i].contains("table=")  )
+  int n= objects.size();
+  if (!n)
+    return false;
+  for(int i=0; i<nanno; i++) {
+    if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
       continue;
-    miString endString;
-    if(anno[i].contains(",")){
+    std::string endString;
+    if(miutil::contains(anno[i], ",")) {
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
     }
-    miString str;
+    std::string str;
     for (int i=0; i<n; i++){
       if (objects[i]->getAnnoTable(str)){
 	str+=endString;
@@ -224,19 +226,18 @@ bool DisplayObjects::getAnnotations(  vector <miString> &anno){
       }
     }
   }
-
   return true;
-
 }
-
 
 
 /*********************************************/
 
-void DisplayObjects::getPlotName(miString &name){
-  if(approved ){
+void DisplayObjects::getPlotName(string &name)
+{
+  if (approved) {
     name = objectname;
-    if (!autoFile) name += " " + itsTime.isoTime();
+    if (!autoFile)
+      name += " " + itsTime.isoTime();
   }
   else
     name.erase();

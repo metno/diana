@@ -34,23 +34,25 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.EditObjects"
-#include <miLogger/miLogging.h>
-
 #include <diEditObjects.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
 #include <math.h>
+
 //#define DEBUGPRINT
+#define MILOGGER_CATEGORY "diana.EditObjects"
+#include <miLogger/miLogging.h>
+
 using namespace::miutil;
+using namespace std;
 
 map<int,object_modes> EditObjects::objectModes;
 map<int,combine_modes> EditObjects::combineModes;
 
 EditObjects::EditObjects(){
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects constructor");
+  METLIBS_LOG_SCOPE();
 #endif
   //undo variables
   undoCurrent = new UndoFront( );
@@ -58,18 +60,18 @@ EditObjects::EditObjects(){
   undoTemp=0;
 
   init();
-
 }
 
-void EditObjects::init(){
+void EditObjects::init()
+{
   createobject= false;
   inDrawing= false;
-  filename= miString();
-  itsComments = miString();
+  filename= std::string();
+  itsComments = std::string();
   commentsChanged = false;
   commentsSaved = true;
   labelsSaved=true;
-  prefix= miString();
+  prefix= std::string();
   mapmode = normal_mode;
   clear();
 }
@@ -81,12 +83,11 @@ void EditObjects::defineModes(map<int,object_modes> objModes,
 }
 
 
-void EditObjects::setEditMode(const mapMode mmode,
-    const int emode,
-    const miString etool){
+void EditObjects::setEditMode(const mapMode mmode, const int emode, const std::string etool)
+{
   //called when new edit mode/tool selected in gui (EditDIalog)
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::setEditMode");
+  METLIBS_LOG_SCOPE();
 #endif
   mapmode= mmode;
   editmode= emode;
@@ -102,16 +103,16 @@ void EditObjects::setEditMode(const mapMode mmode,
 /************************************************************
  *  Edit methods called by user via EditManager             *
  ************************************************************/
-
-
-void EditObjects::setMouseCoordinates(const float x,const float y){
+void EditObjects::setMouseCoordinates(const float x,const float y)
+{
   newx = x;
   newy = y;
 }
 
-void EditObjects::createNewObject(){
+void EditObjects::createNewObject()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::createNewObject");
+  METLIBS_LOG_SCOPE();
 #endif
   createobject=true;
   inDrawing=true;
@@ -123,7 +124,8 @@ void EditObjects::createNewObject(){
 }
 
 
-void EditObjects::editStayMarked(){
+void EditObjects::editStayMarked()
+{
   int edsize=objects.size();
   for (int i =0; i < edsize; i++){
     // mark objects
@@ -132,8 +134,8 @@ void EditObjects::editStayMarked(){
   }
 }
 
-void EditObjects::editNotMarked(){
-
+void EditObjects::editNotMarked()
+{
   int edsize=objects.size();
   for (int i =0; i < edsize; i++){
     // unmark objects
@@ -145,9 +147,10 @@ void EditObjects::editNotMarked(){
 }
 
 
-bool EditObjects::editResumeDrawing(const float x, const float y) {
+bool EditObjects::editResumeDrawing(const float x, const float y)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::Edit resume drawing");
+  METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("mapmode = " << mapmode << "editmode = " << editmode);
 #endif
 
@@ -176,15 +179,12 @@ bool EditObjects::editResumeDrawing(const float x, const float y) {
     }
     p++;
   }
-
   return ok;
-
 }
 
 
-
-bool EditObjects::editDeleteMarkedPoints(){
-
+bool EditObjects::editDeleteMarkedPoints()
+{
   bool ok=false;
 
   if (mapmode==draw_mode){
@@ -788,7 +788,7 @@ void EditObjects::editUnHideAll(){
   }
 }
 
-void EditObjects::editHideCombineObjects(miString region){
+void EditObjects::editHideCombineObjects(std::string region){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("editHideCombineObject from " << region);
 #endif
@@ -804,7 +804,7 @@ void EditObjects::editHideCombineObjects(int ir ){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("editHideCombineObject from " << ir);
 #endif
-  miString region = WeatherSymbol::getAllRegions(ir);
+  std::string region = WeatherSymbol::getAllRegions(ir);
   if (!region.empty()){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1442,10 +1442,11 @@ void EditObjects::setScaleToField(float s){
  *  Methods for reading and writing comments                *
  ************************************************************/
 
-void EditObjects::putCommentStartLines(miString name,miString prefix){
+void EditObjects::putCommentStartLines(std::string name,std::string prefix)
+{
   //return the startline of the comments file to read
-  miString startline = prefix + miString(" ") + name +
-  miString(" ") + itsTime.isoTime()+ miString("\n");
+  std::string startline = prefix + std::string(" ") + name +
+  std::string(" ") + itsTime.isoTime()+ std::string("\n");
   itsComments+=
     "*************************************************\n";
   itsComments+=startline;
@@ -1453,7 +1454,7 @@ void EditObjects::putCommentStartLines(miString name,miString prefix){
     "*************************************************\n";
 }
 
-miString EditObjects::getComments(){
+std::string EditObjects::getComments(){
   //return the comments
   commentsChanged = false;
   //HK ???
@@ -1461,7 +1462,7 @@ miString EditObjects::getComments(){
   return itsComments;
 }
 
-void EditObjects::putComments(const miString & comments){
+void EditObjects::putComments(const std::string & comments){
   itsComments = comments;
   commentsChanged = true;
   commentsSaved = false;
@@ -1471,8 +1472,9 @@ void EditObjects::putComments(const miString & comments){
 /************************************************************
  *  Methods for reading and writing labels                *
  ************************************************************/
-void EditObjects::saveEditLabels(vector <miString> labels){
-  itsLabels=labels;
+void EditObjects::saveEditLabels(const vector<string>& labels)
+{
+  itsLabels = labels;
   labelsSaved=false;
 }
 
@@ -1480,7 +1482,7 @@ void EditObjects::saveEditLabels(vector <miString> labels){
  *  Methods for reading and writing text                    *
  ************************************************************/
 
-miString EditObjects::getMarkedText(){
+std::string EditObjects::getMarkedText(){
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1490,7 +1492,7 @@ miString EditObjects::getMarkedText(){
     }
 
   }
-  return miString();
+  return std::string();
 }
 
 Colour::ColourInfo EditObjects::getMarkedTextColour(){
@@ -1522,7 +1524,7 @@ Colour::ColourInfo EditObjects::getMarkedColour(){
   return cinfo;
 }
 
-void EditObjects::changeMarkedText(const miString & newText){
+void EditObjects::changeMarkedText(const std::string & newText){
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1544,7 +1546,8 @@ void EditObjects::changeMarkedTextColour(const Colour::ColourInfo & newColour){
   }
 }
 
-void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
+void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour)
+{
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1555,9 +1558,10 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour){
   }
 }
 
-void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
+void EditObjects::getMarkedMultilineText(vector<string>& symbolText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects:::getMarkedMultilineText called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1570,11 +1574,12 @@ void EditObjects::getMarkedMultilineText(vector <miString> & symbolText){
   }
 }
 
-void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <miString> & xText){
+void EditObjects::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::getMarkedComplex called");
+  METLIBS_LOG_SCOPE();
 #endif
-  vector <miString> xString;
+  vector <std::string> xString;
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1586,9 +1591,10 @@ void EditObjects::getMarkedComplexText(vector <miString> & symbolText, vector <m
   }
 }
 
-void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, vector <miString> & xText){
+void EditObjects::getMarkedComplexTextColored(vector<string> & symbolText, vector<string> & xText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::getMarkedComplexColored called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1601,9 +1607,10 @@ void EditObjects::getMarkedComplexTextColored(vector <miString> & symbolText, ve
   }
 }
 
-void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbolText, const vector <miString> & xText){
+void EditObjects::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1615,9 +1622,10 @@ void EditObjects::changeMarkedComplexTextColored(const vector <miString> & symbo
   }
 }
 
-void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText){
+void EditObjects::changeMarkedMultilineText(const vector<string>& symbolText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::changeMarkedMiltilineText called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1629,9 +1637,10 @@ void EditObjects::changeMarkedMultilineText(const vector <miString> & symbolText
   }
 }
 
-void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, const vector <miString> & xText){
+void EditObjects::changeMarkedComplexText(const vector<string>& symbolText, const vector<string>& xText)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::changeMarkedComplex called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (mapmode==draw_mode){
     int edsize = objects.size();
@@ -1645,9 +1654,10 @@ void EditObjects::changeMarkedComplexText(const vector <miString> & symbolText, 
 
 
 
-bool EditObjects::inTextMode(){
+bool EditObjects::inTextMode()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::inTextMode called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (objectmode==symbol_drawing)
     return WeatherSymbol::isSimpleText(drawingtool);
@@ -1656,9 +1666,10 @@ bool EditObjects::inTextMode(){
 }
 
 
-bool EditObjects::inComplexTextMode(){
+bool EditObjects::inComplexTextMode()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::inComplexTextMode called");
+  METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
@@ -1667,9 +1678,10 @@ bool EditObjects::inComplexTextMode(){
     return false;
 }
 
-bool EditObjects::inComplexTextColorMode(){
+bool EditObjects::inComplexTextColorMode()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::inComplexTextColorMode");
+  METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
@@ -1680,7 +1692,7 @@ bool EditObjects::inComplexTextColorMode(){
 
 bool EditObjects::inEditTextMode(){
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::inEditTextMode");
+  METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG("drawingtool = " << drawingtool);
 #endif
   if (objectmode==symbol_drawing)
@@ -1689,14 +1701,13 @@ bool EditObjects::inEditTextMode(){
     return false;
 }
 
-void EditObjects::initCurrentComplexText(){
+void EditObjects::initCurrentComplexText()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditObjects::initCurrentComplexText called");
+  METLIBS_LOG_SCOPE();
 #endif
   if (objectmode==symbol_drawing)
     WeatherSymbol::initCurrentComplexText(drawingtool);
 }
-
-
 
 /************************************************************/

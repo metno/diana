@@ -34,6 +34,12 @@
 #include "config.h"
 #endif
 
+#include "qtTrajectoryDialog.h"
+#include "qtUtility.h"
+#include "qtGeoPosLineEdit.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
@@ -47,22 +53,20 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.TrajectoryDialog"
-#include <miLogger/miLogging.h>
-
-#include "qtUtility.h"
-#include "qtGeoPosLineEdit.h"
-#include "qtTrajectoryDialog.h"
-
 #include <cmath>
 #include <iomanip>
 #include <sstream>
+
+#define MILOGGER_CATEGORY "diana.TrajectoryDialog"
+#include <miLogger/miLogging.h>
+
+using namespace std;
 
 TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   : QDialog(parent), contr(llctrl)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("TrajectoryDialog::TrajectoryDialog called");
+  METLIBS_LOG_SCOPE();
 #endif
 
   //caption to appear on top of dialog
@@ -213,7 +217,7 @@ void TrajectoryDialog::posButtonToggled(bool b){
   //called when "Select positions om map" is clicked
 
   emit markPos(b);
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("clear"); //delete all trajectories
   contr->trajPos(vstr);
 
@@ -273,7 +277,7 @@ void TrajectoryDialog::posListSlot(){
   else
     numposBox->setCurrentIndex(2);
 
-    vector<miutil::miString> vstr;
+    vector<string> vstr;
     vstr.push_back("clear");//delete all trajectories
     vstr.push_back("delete"); //delete all start positions
     contr->trajPos(vstr);
@@ -285,7 +289,7 @@ void TrajectoryDialog::posListSlot(){
 void TrajectoryDialog::editDone(){
   //this slot is called when return is pressed in the line edit
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("clear"); //delete all trajectories
   contr->trajPos(vstr);
 
@@ -313,7 +317,7 @@ void TrajectoryDialog::deleteClicked(){
     positionVector.erase(p);
     posList->takeItem(posList->currentRow());
 
-    vector<miutil::miString> vstr;
+    vector<string> vstr;
     vstr.push_back("clear");//delete all trajectories
     vstr.push_back("delete"); //delete all start positions
     contr->trajPos(vstr);
@@ -332,7 +336,7 @@ void TrajectoryDialog::deleteAllClicked(){
   posList->clear();
   positionVector.clear();
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("clear");//delete all trajectories
   vstr.push_back("delete"); //delete all start positions
   contr->trajPos(vstr);
@@ -350,9 +354,9 @@ void TrajectoryDialog::startCalcButtonClicked(){
 
 
   //ask for new fields
-  vector<miutil::miString> fields = contr->getTrajectoryFields();
+  vector<string> fields = contr->getTrajectoryFields();
   int nr_fields=fields.size();
-  miutil::miString fName;
+  std::string fName;
   //using first field if there is any field
   if(nr_fields > 0){
     fieldName->setText(QString(fields[0].c_str()));
@@ -362,10 +366,10 @@ void TrajectoryDialog::startCalcButtonClicked(){
     fName ="No field selected";
   }
   //send field name to TrajectoryPlot
-  miutil::miString str = " field=\"";
+  std::string str = " field=\"";
   str+= fName;
   str+= "\"";
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("clear");
   vstr.push_back(str);
   contr->trajPos(vstr);
@@ -378,7 +382,7 @@ void TrajectoryDialog::startCalcButtonClicked(){
 
 void TrajectoryDialog::quitClicked(){
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back("quit");
   contr->trajPos(vstr);
   //   posList->clear();
@@ -409,8 +413,8 @@ void TrajectoryDialog::timeSpinSlot( int i) {
 
   ostringstream ss;
   ss << "timemarker=" << timeSpin->value();
-  miutil::miString str=ss.str();
-  vector<miutil::miString> vstr;
+  std::string str=ss.str();
+  vector<string> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
   emit updateTrajectories();
@@ -419,10 +423,10 @@ void TrajectoryDialog::timeSpinSlot( int i) {
 
 void TrajectoryDialog::colourSlot( int i) {
 
-  miutil::miString str;
+  std::string str;
   str= "colour=";
   str+= colourInfo[i].name;
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
   emit updateTrajectories();
@@ -433,8 +437,8 @@ void TrajectoryDialog::lineWidthSlot( int i) {
 
   ostringstream ss;
   ss << "linewidth=" << i + 1;  // 1,2,3,...
-  miutil::miString str=ss.str();
-  vector<miutil::miString> vstr;
+  std::string str=ss.str();
+  vector<string> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
   emit updateTrajectories();
@@ -444,8 +448,8 @@ void TrajectoryDialog::lineTypeSlot( int i) {
 
   ostringstream ss;
   ss << "linetype=" << linetypes[i];
-  miutil::miString str=ss.str();
-  vector<miutil::miString> vstr;
+  std::string str=ss.str();
+  vector<string> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
   emit updateTrajectories();
@@ -453,17 +457,12 @@ void TrajectoryDialog::lineTypeSlot( int i) {
 
 
 
-miutil::miString TrajectoryDialog::makeString() {
-
-  miutil::miString str;
-
-
+std::string TrajectoryDialog::makeString()
+{
   ostringstream ss;
   ss <<" radius="<<radiusSpin->value();
   ss <<" numpos="<<numposBox->currentText().toStdString();
-  str+= ss.str();
-
-  return str;
+  return ss.str();
 }
 
 /*********************************************/
@@ -491,8 +490,8 @@ void TrajectoryDialog::mapPos(float lat, float lon) {
   str << "latitudelongitude=" << lat << "," << lon;
   str <<" radius="<<radiusSpin->value();
   str <<" numpos="<<pos.numPos;
-  miutil::miString posString = str.str();
-  vector<miutil::miString> vstr;
+  std::string posString = str.str();
+  vector<string> vstr;
   vstr.push_back("clear");
   vstr.push_back(posString);
   contr->trajPos(vstr);
@@ -543,7 +542,7 @@ void TrajectoryDialog::sendAllPositions(){
   METLIBS_LOG_DEBUG("TrajectoryDialog::sendAllPositions");
 #endif
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   int npos=positionVector.size();
   for( int i=0; i<npos; i++){
@@ -553,7 +552,7 @@ void TrajectoryDialog::sendAllPositions(){
     str << positionVector[i].lat << "," << positionVector[i].lon;
     str <<" radius="<<positionVector[i].radius;
     str <<" numpos="<<positionVector[i].numPos;
-    miutil::miString posString = str.str();
+    std::string posString = str.str();
     vstr.push_back(posString);
   }
   contr->trajPos(vstr);
@@ -577,9 +576,9 @@ void TrajectoryDialog::showplus(){
   ss <<" linetype="<< linetypes[lineTypeBox->currentIndex()];  // 1,2,3,...
   ss <<" plot=on";
 
-  miutil::miString str= ss.str();
+  std::string str= ss.str();
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   vstr.push_back(str);
   contr->trajPos(vstr);
 
@@ -591,8 +590,9 @@ void TrajectoryDialog::showplus(){
 /*********************************************/
 
 
-vector<miutil::miString> TrajectoryDialog::writeLog(){
-  vector<miutil::miString> vstr;
+vector<string> TrajectoryDialog::writeLog()
+{
+  vector<string> vstr;
 
   int n=positionVector.size();
   for(int i=0;i<n; i++){
@@ -601,7 +601,7 @@ vector<miutil::miString> TrajectoryDialog::writeLog(){
     ost << positionVector[i].lat << "," << positionVector[i].lon;
     ost <<" radius="<<positionVector[i].radius;
     ost <<" numpos="<<positionVector[i].numPos;
-    miutil::miString str = ost.str();
+    std::string str = ost.str();
     vstr.push_back(str);
   }
 
@@ -615,7 +615,7 @@ vector<miutil::miString> TrajectoryDialog::writeLog(){
   if ( lineTypeBox->currentIndex() > -1 ) {
     ostr <<" linetype="<< linetypes[lineTypeBox->currentIndex()];
   }
-  miutil::miString str = ostr.str() + makeString();
+  std::string str = ostr.str() + makeString();
   vstr.push_back(str);
   vstr.push_back("================");
   return vstr;
@@ -623,26 +623,25 @@ vector<miutil::miString> TrajectoryDialog::writeLog(){
 }
 /*********************************************/
 
-void TrajectoryDialog::readLog(const vector<miutil::miString>& vstr,
-			       const miutil::miString& thisVersion,
-			       const miutil::miString& logVersion){
-
+void TrajectoryDialog::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
+{
   int n=0, nvstr= vstr.size();
   int radius = 0;
-  miutil::miString numPos;
+  std::string numPos;
 
   while (n<nvstr && vstr[n].substr(0,4)!="====") {
 
     posStruct pos;
     bool position=false;
-    vector<miutil::miString> parts= vstr[n].split(' ',true);
+    vector<string> parts= miutil::split(vstr[n], 0, " ", true);
 
     int nr=parts.size();
     for( int i=0; i<nr; i++){
-      vector<miutil::miString> tokens= parts[i].split('=',true);
+      vector<string> tokens = miutil::split(parts[i], 0, "=", true);
       if( tokens.size() == 2) {
-	miutil::miString key = tokens[0].downcase();
-	miutil::miString value = tokens[1].downcase();
+	std::string key = miutil::to_lower(tokens[0]);
+	std::string value = miutil::to_lower(tokens[1]);
 	if (key == "colour" ){
 	  int number= getIndex( colourInfo, value);
 	  if (number>=0) {
@@ -662,7 +661,7 @@ void TrajectoryDialog::readLog(const vector<miutil::miString>& vstr,
 	}else if (key == "numpos" ){
 	  numPos=pos.numPos=value;
 	}else if (key == "latitudelongitude" ){
-	  vector<miutil::miString> latlon = value.split(',');
+	  vector<std::string> latlon = miutil::split(value, 0, ",");
 	  int nr=latlon.size();
 	  if(nr!=2) continue;
 	  pos.lat=atof(latlon[0].c_str());

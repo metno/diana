@@ -45,12 +45,13 @@
 #include <GL/gl.h>
 
 using namespace::miutil;
+using namespace std;
 
 //int ImageGallery::numimages= 0;
 //ImageGallery::image ImageGallery::Images[ImageGallery::maximages];
-map<miString,ImageGallery::image> ImageGallery::Images;
-map<miString,ImageGallery::pattern> ImageGallery::Patterns;
-map<int, vector<miString> > ImageGallery::Type;
+map<std::string,ImageGallery::image> ImageGallery::Images;
+map<std::string,ImageGallery::pattern> ImageGallery::Patterns;
+map<int, vector<std::string> > ImageGallery::Type;
 
 
 ImageGallery::image::image()
@@ -104,12 +105,12 @@ ImageGallery::ImageGallery()
 
 void ImageGallery::clear()
 {
-  map<miString,image>::iterator p= Images.begin();
+  map<std::string,image>::iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
     p->second.erase();
     Images.erase(p->first);
   }
-  map<miString,pattern>::iterator q= Patterns.begin();
+  map<std::string,pattern>::iterator q= Patterns.begin();
   for( ; q!=Patterns.end(); q++){
     q->second.erase();
     Patterns.erase(q->first);
@@ -117,12 +118,12 @@ void ImageGallery::clear()
 }
 
 
-void ImageGallery::addImageName(const miString& filename, int type)
+void ImageGallery::addImageName(const std::string& filename, int type)
 {
 
   int n = filename.find_last_of("/");
   int m = filename.find_last_of(".");
-  miString name = filename.substr(n+1,m-n-1);
+  std::string name = filename.substr(n+1,m-n-1);
 
   if(type == fillpattern){
     if(Patterns.count(name)>0)
@@ -146,11 +147,11 @@ void ImageGallery::addImageName(const miString& filename, int type)
   //marker
   if(type == marker){
     glob_t globBuf;
-    miString markerFilename = filename;
-    if(filename.contains("png"))
-      markerFilename.replace("png","txt");
-    else if(filename.contains("xpm"))
-      markerFilename.replace("xpm","txt");
+    std::string markerFilename = filename;
+    if(miutil::contains(filename, "png"))
+      miutil::replace(markerFilename, "png","txt");
+    else if(miutil::contains(filename, "xpm"))
+      miutil::replace(markerFilename, "xpm","txt");
     glob_cache(markerFilename.c_str(),0,0,&globBuf);
     if(globBuf.gl_pathc == 1){
       Images[name].markerFilename=markerFilename;
@@ -161,7 +162,7 @@ void ImageGallery::addImageName(const miString& filename, int type)
   }
 }
 
-bool ImageGallery::readImage(const miString& name)
+bool ImageGallery::readImage(const std::string& name)
 {
   if(Images[name].data != 0)
     return true; //Image ok
@@ -185,7 +186,7 @@ bool ImageGallery::readImage(const miString& name)
       img.data,img.nchannels>3);
 }
 
-bool ImageGallery::readPattern(const miString& name)
+bool ImageGallery::readPattern(const std::string& name)
 {
 
   if( Patterns[name].pattern_data!=0)
@@ -215,7 +216,7 @@ bool ImageGallery::addImage(const image& im)
   return addImage(im.name,im.width,im.height,im.data,im.alpha);
 }
 
-bool ImageGallery::addImage(const miString& name,
+bool ImageGallery::addImage(const std::string& name,
     const int w,
     const int h,
     const unsigned char* d,
@@ -224,7 +225,7 @@ bool ImageGallery::addImage(const miString& name,
 
   int size= w*h;
 
-  if (!name.exists()){
+  if (name.empty()) {
     METLIBS_LOG_ERROR("ImageGallery::addImage ERROR trying to add image with no name");
     return false;
   }
@@ -256,12 +257,12 @@ bool ImageGallery::addImage(const miString& name,
   return true;
 }
 
-bool ImageGallery::addPattern(const miString& name,
+bool ImageGallery::addPattern(const std::string& name,
     const unsigned char* d)
 {
 
 
-  if (!name.exists()){
+  if ((name.empty())){
     METLIBS_LOG_ERROR("ImageGallery::addPattern ERROR trying to add image with no name");
     return false;
   }
@@ -280,7 +281,7 @@ bool ImageGallery::addPattern(const miString& name,
   return true;
 }
 
-float ImageGallery::width(const miString& name)
+float ImageGallery::width(const std::string& name)
 {
   float w= 0.0;
   if (!Images.count(name)){
@@ -293,7 +294,7 @@ float ImageGallery::width(const miString& name)
   return w;
 }
 
-float ImageGallery::height(const miString& name)
+float ImageGallery::height(const std::string& name)
 {
   float h= 0.0;
   if (!Images.count(name)){
@@ -306,7 +307,7 @@ float ImageGallery::height(const miString& name)
   return h;
 }
 
-int ImageGallery::widthp(const miString& name)
+int ImageGallery::widthp(const std::string& name)
 {
   int w= 0;
   if (!Images.count(name)){
@@ -330,7 +331,7 @@ int ImageGallery::widthp(const miString& name)
   return w;
 }
 
-int ImageGallery::heightp(const miString& name)
+int ImageGallery::heightp(const std::string& name)
 {
   int h= 0;
   if (!Images.count(name)){
@@ -354,7 +355,7 @@ int ImageGallery::heightp(const miString& name)
   return h;
 }
 
-bool ImageGallery::delImage(const miString& name)
+bool ImageGallery::delImage(const std::string& name)
 {
   if (!Images.count(name)){
     METLIBS_LOG_ERROR("ImageGallery::delImage ERROR image not found:"
@@ -365,7 +366,7 @@ bool ImageGallery::delImage(const miString& name)
   return true;
 }
 
-bool ImageGallery::delPattern(const miString& name)
+bool ImageGallery::delPattern(const std::string& name)
 {
   if (!Patterns.count(name)){
     METLIBS_LOG_ERROR("ImageGallery::delPattern ERROR pattern not found:"
@@ -377,7 +378,7 @@ bool ImageGallery::delPattern(const miString& name)
 }
 
 
-bool ImageGallery::plotImage_(const miString name,
+bool ImageGallery::plotImage_(const std::string name,
     const float& gx, const float& gy,
     const float scalex,
     const float scaley,
@@ -452,7 +453,7 @@ bool ImageGallery::plotImage_(const miString name,
   return true;
 }
 
-bool ImageGallery::plotMarker_(const miString name,
+bool ImageGallery::plotMarker_(const std::string name,
     const float& x, const float& y,
     const float scale)
 {
@@ -495,11 +496,11 @@ bool ImageGallery::plotMarker_(const miString name,
   return true;
 }
 
-bool ImageGallery::readFile(const miString name, const miString filename)
+bool ImageGallery::readFile(const std::string name, const std::string filename)
 {
   ifstream inFile;
-  miString line;
-  vector<miString> vline;
+  std::string line;
+  vector<std::string> vline;
 
   inFile.open(filename.c_str(),ios::in);
   if (inFile.bad()) {
@@ -509,7 +510,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
 
   while (getline(inFile,line)) {
     if (line.length()>0) {
-      line.trim();
+      miutil::trim(line);
       if (line.length()>0 && line[0]!='#')
         vline.push_back(line);
     }
@@ -520,7 +521,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
   Line l;
   int nlines = vline.size();
   for( int i=0; i<nlines; i++){
-    vector<miString> tokens = vline[i].split(" ");
+    vector<std::string> tokens = miutil::split(vline[i], " ");
     if( tokens.size() !=2) continue;
     if( (tokens[0] == "mvto" && l.x.size()>0)
         || (tokens[0] == "lw") || tokens[0] == "mode") {
@@ -531,7 +532,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
       l.width=1;
     }
     if( tokens[0] == "lto" || tokens[0] == "mvto" ){
-      vector<miString> coor = tokens[1].split(",");
+      vector<std::string> coor = miutil::split(tokens[1], ",");
       if(coor.size() != 2) continue;
       l.x.push_back(atof(coor[0].c_str()));
       l.y.push_back(atof(coor[1].c_str()));
@@ -552,7 +553,7 @@ bool ImageGallery::readFile(const miString name, const miString filename)
   return true;
 }
 
-bool ImageGallery::plotImage(const miString& name,
+bool ImageGallery::plotImage(const std::string& name,
     const float& x, const float& y,
     const bool center,
     const float scale,
@@ -610,7 +611,7 @@ bool ImageGallery::plotImage(const miString& name,
 
 
 bool ImageGallery::plotImages(const int n,
-    const vector<miString>& vn,
+    const vector<std::string>& vn,
     const float* x, const float* y,
     const bool center,
     const float scale,
@@ -630,7 +631,7 @@ bool ImageGallery::plotImages(const int n,
   int nx = 0;
   int ny = 0;
   float scalex=scale, scaley=scale;
-  miString oldname;
+  std::string oldname;
   float sx= scale*fullrect.width()/(pwidth > 0 ? 2.0*pwidth : 2.0);
   float sy= scale*fullrect.height()/(pheight > 0 ? 2.0*pheight : 2.0);
 
@@ -689,7 +690,7 @@ bool ImageGallery::plotImages(const int n,
 }
 
 bool ImageGallery::plotImages(const int n,
-    const miString& name,
+    const std::string& name,
     const float* x, const float* y,
     const bool center,
     const float scale,
@@ -702,13 +703,13 @@ bool ImageGallery::plotImages(const int n,
     return false;
   }
 
-  vector<miString> vn(n,name);
+  vector<std::string> vn(n,name);
 
   return plotImages(n, vn, x, y, center, scale, alpha);
 }
 
 
-bool ImageGallery::plotImageAtPixel(const miString& name,
+bool ImageGallery::plotImageAtPixel(const std::string& name,
     const float& x, const float& y,
     const bool center,
     const float scale,
@@ -767,7 +768,7 @@ bool ImageGallery::plotImageAtPixel(const miString& name,
   return res;
 }
 
-GLubyte* ImageGallery::getPattern(miString name)
+GLubyte* ImageGallery::getPattern(std::string name)
 {
 
   if(!readPattern(name)) return 0;
@@ -777,7 +778,7 @@ GLubyte* ImageGallery::getPattern(miString name)
 
 void ImageGallery::printInfo() const
 {
-  map<miString,image>::const_iterator p= Images.begin();
+  map<std::string,image>::const_iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
     METLIBS_LOG_INFO("Image: " << p->second.name
     << " W:" << p->second.width
@@ -786,12 +787,12 @@ void ImageGallery::printInfo() const
   }
 }
 
-void ImageGallery::ImageNames(vector<miString>& vnames,
+void ImageGallery::ImageNames(vector<std::string>& vnames,
     int type) const
 {
   vnames.clear();
 
-  //   map<miString,image>::const_iterator p= Images.begin();
+  //   map<std::string,image>::const_iterator p= Images.begin();
 
   //   for (; p!=Images.end(); p++)
   //     vnames.push_back(p->first);
@@ -800,7 +801,7 @@ void ImageGallery::ImageNames(vector<miString>& vnames,
     vnames.push_back(Type[type][i]);
 }
 
-miString ImageGallery::getFilename(const miString& name, bool pattern)
+std::string ImageGallery::getFilename(const std::string& name, bool pattern)
 {
   if(pattern)
     return Patterns[name].filename;
@@ -812,8 +813,8 @@ miString ImageGallery::getFilename(const miString& name, bool pattern)
 bool ImageGallery::parseSetup()
 {
   //  METLIBS_LOG_DEBUG("ImageGallery: parseSetup");
-  const miString ig_name = "IMAGE_GALLERY";
-  vector<miString> sect_ig;
+  const std::string ig_name = "IMAGE_GALLERY";
+  vector<std::string> sect_ig;
 
   if (!SetupParser::getSection(ig_name,sect_ig)){
     METLIBS_LOG_ERROR(ig_name << " section not found");
@@ -821,20 +822,20 @@ bool ImageGallery::parseSetup()
   }
 
   for(unsigned int i=0; i<sect_ig.size(); i++) {
-    vector<miString> token = sect_ig[i].split("=");
+    vector<std::string> token = miutil::split(sect_ig[i], "=");
 
     if(token.size() != 2){
-      miString errmsg="Line must contain '='";
+      std::string errmsg="Line must contain '='";
       SetupParser::errorMsg(ig_name,i,errmsg);
       return false;
     }
 
-    miString key = token[0].downcase();
-    miString value = token[1];
+    std::string key = miutil::to_lower(token[0]);
+    std::string value = token[1];
     //      METLIBS_LOG_DEBUG("key: "<<key);
     //      METLIBS_LOG_DEBUG("Value: "<<value);
-    if(key.contains("path")){
-      key.replace("path","");
+    if(miutil::contains(key, "path")){
+      miutil::replace(key, "path","");
       value += "/*";
     }
     int type;
@@ -845,16 +846,12 @@ bool ImageGallery::parseSetup()
     glob_t globBuf;
     glob_cache(value.c_str(),0,0,&globBuf);
     for( unsigned int k=0; int(k)<globBuf.gl_pathc; k++) {
-      miString fname = globBuf.gl_pathv[k];
-      if((fname.contains(".png") || fname.contains(".xpm"))
-          && !fname.contains("~"))
+      std::string fname = globBuf.gl_pathv[k];
+      if((miutil::contains(fname, ".png") || miutil::contains(fname, ".xpm"))
+          && not miutil::contains(fname, "~"))
         addImageName(fname,type);
     }
     globfree_cache(&globBuf);
   }
-
-
-
   return true;
 }
-

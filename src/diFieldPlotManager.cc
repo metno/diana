@@ -33,15 +33,15 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.FieldPlotManager"
-#include <miLogger/miLogging.h>
-
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+
+#define MILOGGER_CATEGORY "diana.FieldPlotManager"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;
@@ -85,33 +85,33 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
   fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
-  miString sect_name = "FIELD_PLOT";
-  vector<miString> lines;
+  std::string sect_name = "FIELD_PLOT";
+  vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
     METLIBS_LOG_ERROR(sect_name << " section not found");
     return true;
   }
 
-  const miString key_loop = "loop";
-  const miString key_field = "field";
-  const miString key_endfield = "end.field";
-  const miString key_fieldgroup = "fieldgroup";
-  const miString key_plot = "plot";
-  const miString key_plottype = "plottype";
-  const miString key_vcoord = "vcoord";
+  const std::string key_loop = "loop";
+  const std::string key_field = "field";
+  const std::string key_endfield = "end.field";
+  const std::string key_fieldgroup = "fieldgroup";
+  const std::string key_plot = "plot";
+  const std::string key_plottype = "plottype";
+  const std::string key_vcoord = "vcoord";
 
   // parse setup
 
   int nlines = lines.size();
 
-  vector<miString> vstr;
-  miString key, str, str2, option;
-  vector<miString> vpar;
+  vector<std::string> vstr;
+  std::string key, str, str2, option;
+  vector<std::string> vpar;
 
-  vector<miString> loopname;
-  vector<vector<miString> > loopvars;
-  map<miString,int>::const_iterator pfp;
+  vector<std::string> loopname;
+  vector<vector<std::string> > loopvars;
+  map<std::string,int>::const_iterator pfp;
   int firstLine = 0,lastLine,nv;
   bool waiting= true;
 
@@ -119,7 +119,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
     vstr = splitComStr(lines[l], true);
     int n = vstr.size();
-    key = vstr[0].downcase();
+    key = miutil::to_lower(vstr[0]);
 
     if (waiting) {
       if (key == key_loop && n >= 4) {
@@ -155,21 +155,21 @@ bool FieldPlotManager::parseFieldPlotSetup()
       }
 
       for (unsigned int m = 0; m < ml; m++) {
-        miString name;
-        miString fieldgroup;
-        vector<miString> input;
-        set<miString> vcoord;
+        std::string name;
+        std::string fieldgroup;
+        vector<std::string> input;
+        set<std::string> vcoord;
 
         for (int i = firstLine; i < lastLine; i++) {
           str = lines[i];
           for (unsigned int il = 0; il < nl; il++) {
-            str.replace(loopname[il], loopvars[il][m]);
+            miutil::replace(str, loopname[il], loopvars[il][m]);
           }
           if (i == firstLine) {
             // resplit to keep names with ()
-            vstr = str.split('=', false);
+            vstr = miutil::split(str, "=", false);
             if (vstr.size() < 2) {
-              miString errm = "Missing field name";
+              std::string errm = "Missing field name";
               SetupParser::errorMsg(sect_name, i, errm);
               continue;
             }
@@ -182,27 +182,27 @@ bool FieldPlotManager::parseFieldPlotSetup()
             nv = vstr.size();
             int j = 0;
             while (j < nv - 2) {
-              key = vstr[j].downcase();
+              key = miutil::to_lower(vstr[j]);
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
                 option = key_plottype + "=" + vstr[j + 2];
                 if (!PlotOptions::updateFieldPlotOptions(name, option)) {
-                  miString errm = "|Unknown fieldplottype in plotcommand";
+                  std::string errm = "|Unknown fieldplottype in plotcommand";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
                 str2 = vstr[j + 3].substr(1, vstr[j + 3].length()
                     - 2);
-                input = str2.split(',', true);
+                input = miutil::split(str2, ",", true);
                 if (input.size() < 1 || input.size() > 5) {
-                  miString errm = "Bad specification of plot arguments";
+                  std::string errm = "Bad specification of plot arguments";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
 
-                option = "dim=" + miString(int(input.size()));
+                option = "dim=" + miutil::from_number(int(input.size()));
 
                 if (!PlotOptions::PlotOptions::updateFieldPlotOptions(name, option)){
-                  miString errm = "|Unknown fieldplottype in plotcommand";
+                  std::string errm = "|Unknown fieldplottype in plotcommand";
                                     SetupParser::errorMsg(sect_name, i, errm);
                                     break;
                 }
@@ -213,7 +213,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   fieldgroup = fieldgroup.substr(1, fieldgroup.length() - 2);
                 }
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
-                vector<miString> vcoordTokens = vstr[j + 2].split(",");
+                vector<std::string> vcoordTokens = miutil::split(vstr[j+2], ",");
                 for( size_t ii=0; ii<vcoordTokens.size(); ++ii ) {
                   vcoord.insert(vcoordTokens[ii]);
                 }
@@ -222,13 +222,13 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 option = vstr[j] + "=" + vstr[j + 2];
 
                 if (!PlotOptions::updateFieldPlotOptions(name, option)) {
-                  miString errm =
+                  std::string errm =
                       "Something wrong in plotoption specifications";
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
               } else {
-                miString errm = "Unknown keyword in field specifications: "
+                std::string errm = "Unknown keyword in field specifications: "
                     + vstr[0];
                 SetupParser::errorMsg(sect_name, i, errm);
                 break;
@@ -261,26 +261,26 @@ bool FieldPlotManager::parseFieldPlotSetup()
 bool FieldPlotManager::parseFieldGroupSetup()
 {
 
-  miString sect_name = "FIELD_GROUPS";
-  vector<miString> lines;
+  std::string sect_name = "FIELD_GROUPS";
+  vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
     METLIBS_LOG_ERROR(sect_name << " section not found");
     return true;
   }
 
-  const miString key_name = "name";
-  const miString key_group = "group";
+  const std::string key_name = "name";
+  const std::string key_group = "group";
 
   int nlines = lines.size();
 
     for (int l = 0; l < nlines; l++) {
-    vector<miString> tokens= lines[l].split('"','"');
+    vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
     if ( tokens.size()== 2 ) {
-      vector<miString> stokens= tokens[0].split('"','"',"=",true);
+      vector<std::string> stokens= miutil::split_protected(tokens[0], '"','"',"=",true);
       if (stokens.size() == 2 && stokens[0] == key_name ){
-        miString name = stokens[1];
-        stokens= tokens[1].split('"','"',"=",true);
+        std::string name = stokens[1];
+        stokens= miutil::split_protected(tokens[1], '"','"',"=",true);
         if (stokens.size() == 2 && stokens[0] == key_group ){
           groupNames[stokens[1]] = name;
         }
@@ -291,13 +291,13 @@ bool FieldPlotManager::parseFieldGroupSetup()
   return true;
 }
 
-vector<miString> FieldPlotManager::splitComStr(const miString& s, bool splitall)
+vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool splitall)
 {
   // split commandstring into tokens.
   // split on '=', ',' and multiple blanks, keep blocks within () and ""
   // split on ',' only if <splitall> is true
 
-  vector<miString> tmp;
+  vector<std::string> tmp;
 
   int i = 0, j = 0, n = s.size();
   if (n) {
@@ -381,7 +381,7 @@ vector<std::string> FieldPlotManager::getFields()
 
 }
 
-vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
+vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     bool& constTimes, bool updateSources)
 {
   vector<miTime> fieldtime;
@@ -389,12 +389,12 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
   int numf = pinfos.size();
 
   vector<FieldRequest> request;
-  miString modelName, modelName2, fieldName;
+  std::string modelName, modelName2, fieldName;
 
   for (int i = 0; i < numf; i++) {
 
     // if difference, use first field
-    miString fspec1,fspec2;
+    std::string fspec1,fspec2;
     if (!splitDifferenceCommandString(pinfos[i],fspec1,fspec2)) {
       fspec1 = pinfos[i];
     }
@@ -415,26 +415,26 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<miString>& pinfos,
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTimes, int& timediff, const miString& pinfo, bool updateSources)
+    miTime& constTimes, int& timediff, const std::string& pinfo, bool updateSources)
 {
   //Finding times from pinfo
   //TODO: find const time
 
   METLIBS_LOG_INFO(" getCapabilitiesTime: "<<pinfo);
-  vector<miString> pinfos;
+  vector<string> pinfos;
   pinfos.push_back(pinfo);
 
   //finding timediff
   timediff = 0;
-  vector<miString> tokens = pinfo.split('"', '"');
+  vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
   for (unsigned int j = 0; j < tokens.size(); j++) {
-    vector<miString> stokens = tokens[j].split("=");
-    if (stokens.size() == 2 && stokens[0].downcase() == "ignore_times" && stokens[1].downcase() == "true") {
+    vector<std::string> stokens = miutil::split(tokens[j], "=");
+    if (stokens.size() == 2 && miutil::to_lower(stokens[0]) == "ignore_times" && miutil::to_lower(stokens[1]) == "true") {
       normalTimes.clear();
       return;
     }
-    if (stokens.size() == 2 && stokens[0].downcase() == "timediff") {
-      timediff = stokens[1].toInt();
+    if (stokens.size() == 2 && miutil::to_lower(stokens[0]) == "timediff") {
+      timediff = miutil::to_int(stokens[1]);
     }
   }
 
@@ -451,18 +451,18 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
 
-vector<miString> FieldPlotManager::getFieldLevels(const miString& pinfo)
+vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
 {
 
-  vector<miString> levels;
+  vector<std::string> levels;
 
-  vector<miString> tokens = pinfo.split(" ");
+  vector<std::string> tokens = miutil::split(pinfo, " ");
   if (tokens.size() < 3 || tokens[0] != "FIELD") {
     return levels;
   }
 
   vector<FieldGroupInfo> vfgi;
-  miString name;
+  std::string name;
   std::string refTime;
   getFieldGroups(tokens[1], name, refTime, true, vfgi);
   for (unsigned int i = 0; i < vfgi.size(); i++) {
@@ -527,12 +527,12 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 }
 
 
-bool FieldPlotManager::makeFields(const miString& pin_const,
+bool FieldPlotManager::makeFields(const std::string& pin_const,
     const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
 {
 
   // if difference
-  miString fspec1,fspec2;
+  std::string fspec1,fspec2;
   if (splitDifferenceCommandString(pin_const,fspec1,fspec2)) {
     return makeDifferenceField(fspec1, fspec2, const_ptime, vfout);
   }
@@ -580,10 +580,10 @@ bool FieldPlotManager::makeFields(const miString& pin_const,
 
 }
 
-void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
+void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName)
 {
 
-  miString fieldtext = fout->modelName + " " + plotName;
+  std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
     fieldtext += " " + fout->leveltext;
   }
@@ -591,7 +591,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
     fieldtext += " " + fout->idnumtext;
   }
 
-  miString progtext;
+  std::string progtext;
   if( fout->forecastHour != -32767 ) {
     ostringstream ostr;
     if (fout->forecastHour >= 0) {
@@ -602,11 +602,11 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
     progtext = "(" + ostr.str() + ")";
   }
 
-  miString timetext;
+  std::string timetext;
   if( !fout->validFieldTime.undef() ) {
-    miString sclock = fout->validFieldTime.isoClock();
-    miString shour = sclock.substr(0, 2);
-    miString smin = sclock.substr(3, 2);
+    std::string sclock = fout->validFieldTime.isoClock();
+    std::string shour = sclock.substr(0, 2);
+    std::string smin = sclock.substr(3, 2);
     if (smin == "00") {
       timetext = fout->validFieldTime.isoDate() + " " + shour + " UTC";
     } else {
@@ -623,8 +623,8 @@ void FieldPlotManager::makeFieldText(Field* fout, const miString& plotName)
   fout->timetext = timetext;
 }
 
-bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
-    const miString& fspec2, const miTime& const_ptime, vector<Field*>& fv)
+bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
+    const std::string& fspec2, const miTime& const_ptime, vector<Field*>& fv)
 {
 
   fv.clear();
@@ -661,7 +661,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
   Field* f2 = fv2[0];
 
   const int mdiff = 6;
-  miString text1[mdiff], text2[mdiff];
+  std::string text1[mdiff], text2[mdiff];
   bool diff[mdiff];
   text1[0] = f1->modelName;
   text1[1] = f1->name;
@@ -775,7 +775,7 @@ bool FieldPlotManager::makeDifferenceField(const miString& fspec1,
     }
     int nmax[3] =
     { 5, 4, 3 };
-    miString ftext[3];
+    std::string ftext[3];
     for (int t = 0; t < 3; t++) {
       if (nbgn > nmax[t]) {
         nbgn = nmax[t];
@@ -876,18 +876,18 @@ void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
     }
 
     //sort fieldnames and suffixes
-    map<miString, vector<miString> > fieldName_suffix;
-    map<miString, vector<miString> > standardName_suffix;
+    map<std::string, vector<std::string> > fieldName_suffix;
+    map<std::string, vector<std::string> > standardName_suffix;
     for (unsigned int l = 0; l < vfgi[i].fieldNames.size(); l++) {
-      miString suffix;
-      miString fieldName = vfgi[i].fieldNames[l];
+      std::string suffix;
+      std::string fieldName = vfgi[i].fieldNames[l];
       splitSuffix(fieldName, suffix);
       fieldName_suffix[fieldName].push_back(suffix);
     }
 
     for (unsigned int l = 0; l < vfgi[i].standard_names.size(); l++) {
-      miString suffix;
-      miString fieldName = vfgi[i].standard_names[l];
+      std::string suffix;
+      std::string fieldName = vfgi[i].standard_names[l];
       splitSuffix(fieldName, suffix);
       standardName_suffix[fieldName].push_back(suffix);
     }
@@ -895,15 +895,15 @@ void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
     //find plotNames
     vector<std::string> plotNames;
     for (unsigned int j = 0; j < vPlotField.size(); j++) {
-        miString plotName = vPlotField[j].name;
+        std::string plotName = vPlotField[j].name;
         //check that all fields needed exist with same suffix
         map<std::string, unsigned int> suffixmap;
         if (vPlotField[j].vcoord.size() > 0 && !vPlotField[j].vcoord.count(zaxis)  ) {
           continue;
         }
         for (unsigned int k = 0; k < vPlotField[j].input.size(); k++) {
-          miString fieldName = miString(vPlotField[j].input[k]);
-          vector<miString> vstr = fieldName.split(":");
+          std::string fieldName = std::string(vPlotField[j].input[k]);
+          vector<std::string> vstr = miutil::split(fieldName, ":");
           fieldName = vstr[0];
           bool standard_name = false;
           if (vstr.size() == 2 && vstr[1] == "standard_name" ){
@@ -933,7 +933,7 @@ void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
         set<std::string>::iterator p;
         for (p = fieldsuffixes.begin(); p != fieldsuffixes.end(); p++) {
           if (suffixmap[*p] >= vPlotField[j].input.size()) {
-            miString pN = plotName + *p;
+            std::string pN = plotName + *p;
             plotNames.push_back(pN);
           }
         }
@@ -1078,7 +1078,7 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
 
   // if difference
-  miString fspec1,fspec2;
+  std::string fspec1,fspec2;
   if (splitDifferenceCommandString(pin,fspec1,fspec2)) {
     return parsePin(fspec1, vfieldrequest, plotName);
   }
@@ -1130,8 +1130,8 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
   for ( size_t i=0; i<vPlotField.size(); ++i ) {
     if ( vPlotField[i].name == plotName && (vPlotField[i].vcoord.size()==0 || vPlotField[i].vcoord.count(vcoord))) {
       for (size_t j = 0; j < vPlotField[i].input.size(); ++j ) {
-        miString inputName = vPlotField[i].input[j];
-        vector<miString> vstr = inputName.split(":");
+        std::string inputName = vPlotField[i].input[j];
+        vector<std::string> vstr = miutil::split(inputName, ":");
         inputName = vstr[0];
         if (vstr.size() == 2 && vstr[1] == "standard_name" ){
           standard_name = true;
@@ -1154,11 +1154,11 @@ vector<std::string> FieldPlotManager::getParamNames(std::string plotName, std::s
   return paramNames;
 }
 
-bool FieldPlotManager::splitDifferenceCommandString(miString pin, miString& fspec1, miString& fspec2)
+bool FieldPlotManager::splitDifferenceCommandString(std::string pin, std::string& fspec1, std::string& fspec2)
 {
 
   //if difference, split pin and return true
-  if (pin.contains(" ( ") && pin.contains(" - ") && pin.contains(" ) ")) {
+  if (miutil::contains(pin, " ( ") && miutil::contains(pin, " - ") && miutil::contains(pin, " ) ")) {
     size_t p1 = pin.find(" ( ", 0);
     size_t p2 = pin.find(" - ", p1 + 3);
     size_t p3 = pin.find(" ) ", p2 + 3);

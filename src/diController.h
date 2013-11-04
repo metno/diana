@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,26 +29,25 @@
 #ifndef diController_h
 #define diController_h
 
+#include <diColour.h>
 #include <diCommonTypes.h>
-#include <diField/diCommonFieldTypes.h>
-#include <diMapMode.h>
 #include <diDrawingTypes.h>
-#include <diPrintOptions.h>
-#include <diField/diArea.h>
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
 #include <diLocationPlot.h>
+#include <diMapMode.h>
+#include <diPrintOptions.h>
+
+#include <diField/diArea.h>
+#include <diField/diCommonFieldTypes.h>
+#include <puTools/miTime.h>
+
+#include <map>
 #include <vector>
 #include <set>
-#include <diColour.h>
 
 #ifdef PROFET
-
 #include <profet/ProfetController.h>
 #include <profet/ProfetGUI.h>
 #endif
-
-using namespace std;
 
 class AnnotationPlot;
 class PlotModule;
@@ -125,13 +122,13 @@ public:
   /// parse setup
   bool parseSetup();
   /// set new plotcommands
-  void plotCommands(const vector<miutil::miString>&);
+  void plotCommands(const std::vector<std::string>&);
   /// call PlotModule.plot()
   void plot(bool over =true, bool under =true);
   /// get annotations
-  vector<AnnotationPlot*> getAnnotations();
+  std::vector<AnnotationPlot*> getAnnotations();
   /// plot annotations only
-  vector<Rectangle> plotAnnotations();
+  std::vector<Rectangle> plotAnnotations();
   /// get plotwindow corners in GL-coordinates
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)
@@ -158,34 +155,34 @@ public:
   /// end hardcopy plot
   void endHardcopy();
   /// return current plottime
-  void getPlotTime(miutil::miString&);
+  void getPlotTime(std::string&);
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(map<string,vector<miutil::miTime> >& times, bool updateSources=false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(set<miutil::miTime>& okTimes,
-                           set<miutil::miTime>& constTimes,
-                           const vector<miutil::miString>& pinfos,
+  void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
+                           std::set<miutil::miTime>& constTimes,
+                           const std::vector<std::string>& pinfos,
                            bool allTimes=true,
                            bool updateSources=false);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
-  miutil::miString getProductName();
+  std::string getProductName();
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
   /// update plots
   bool updatePlots(bool failOnMissingData=false);
   /// update FieldPlots
-  void updateFieldPlot(const vector<miutil::miString>& pin);
+  void updateFieldPlot(const std::vector<std::string>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
   /// get current area
   const Area& getCurrentArea();
   /// set colourindices from gui
-  void setColourIndices(vector<Colour::ColourInfo>&);
+  void setColourIndices(std::vector<Colour::ColourInfo>&);
 
   /// get colour wich is visible on the present background
   Colour getContrastColour();
@@ -195,37 +192,37 @@ public:
   /// find obs in grid position x,y
   bool findObs(int,int);
   /// find name of obs in grid position x,y
-  bool getObsName(int x,int y, miutil::miString& name);
+  bool getObsName(int x,int y, std::string& name);
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket
   bool initHqcdata(int from, const std::string&, const std::string&,
-                   const std::string&, const vector<std::string>&);
+                   const std::string&, const std::vector<std::string>&);
   /// update hqcData from QSocket
   void updateHqcdata(const std::string&, const std::string&,
-                     const std::string&, const vector<std::string>&);
+                     const std::string&, const std::vector<std::string>&);
   /// select obs parameter to flag from QSocket
-  void processHqcCommand(const miutil::miString&, const miutil::miString& ="");
+  void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
-  void  trajPos(vector<miutil::miString>&);
+  void  trajPos(std::vector<std::string>&);
   /// plot measurements position
-  void  measurementsPos(vector<miutil::miString>&);
+  void  measurementsPos(std::vector<std::string>&);
   /// get trajectory fields
-  vector<miutil::miString> getTrajectoryFields();
+  std::vector<std::string> getTrajectoryFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
 // print trajectory positions to file
-  bool printTrajectoryPositions(const miutil::miString& filename);
+  bool printTrajectoryPositions(const std::string& filename);
   /// get field models used (for Vprof etc.)
-  vector<miutil::miString> getFieldModels();
+  std::vector<std::string> getFieldModels();
   /// obs time step changed
   void obsStepChanged(int);
   /// get name++ of current channels (with calibration)
-  vector<miutil::miString> getCalibChannels();
+  std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar
-  vector<SatValues> showValues(float, float);
+  std::vector<SatValues> showValues(float, float);
   /// get satellite name from all SatPlots
-  vector <miutil::miString> getSatnames();
+  std::vector<std::string> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
   /// toggle scrollwheelzoom
@@ -233,16 +230,16 @@ public:
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
-  miutil::miString getMarkedAnnotation();
+  std::string getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(miutil::miString text,int cursor=0,
+  void changeMarkedAnnotation(std::string text,int cursor=0,
                               int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
   void startEditAnnotation();
   /// stop editing annotations
-  void stopEditAnnotation(miutil::miString prodname);
+  void stopEditAnnotation(std::string prodname);
   /// go to next element in annotation being edited
   void editNextAnnoElement();
   /// go to last element in annotation being edited
@@ -261,16 +258,16 @@ public:
 
   // Sat-dialog routines
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  const vector<SatFileInfo>& getSatFiles(const miutil::miString & satellite, const miutil::miString & file,bool update);
+  const std::vector<SatFileInfo>& getSatFiles(const std::string & satellite, const std::string & file,bool update);
   /// returns colour palette for subproduct of class satellite and subclass file
-  const vector<Colour>& getSatColours(const miutil::miString & satellite, const miutil::miString & file);
+  const std::vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
   /// returns channels for subproduct of class satellite and subclass file
-  const vector<miutil::miString>& getSatChannels(const miutil::miString & satellite, const miutil::miString &file ,
+  const std::vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
                                          int index=-1);
   /// returns true if satellite picture is a mosaic
-  bool isMosaic(const miutil::miString &, const miutil::miString &);
+  bool isMosaic(const std::string &, const std::string &);
   /// refresh list of satellite files
-  void SatRefresh(const miutil::miString &, const miutil::miString &);
+  void SatRefresh(const std::string &, const std::string &);
   /// returns information about whether list of satellite files have changed
   void satFileListUpdated();
   /// called when the dialog and timeSlider updated with info from satellite
@@ -280,13 +277,13 @@ public:
   /// called when the dialog and timeSlider updated with info from obs
   bool obsTimeListChanged();
   /// satellite follows main plot time
-  void setSatAuto(bool,const miutil::miString &, const miutil::miString &);
+  void setSatAuto(bool,const std::string &, const std::string &);
   /// get satellite classes for uffda dialog
-  void getUffdaClasses(vector <miutil::miString> &,vector <miutil::miString> &);
+  void getUffdaClasses(std::vector<std::string>&, std::vector<std::string>&);
   /// returns true if uffda option enables
   bool getUffdaEnabled();
   /// returns adress to send mail from uffda dialog
-  miutil::miString getUffdaMailAddress();
+  std::string getUffdaMailAddress();
   /// return button names for SatDialog
   SatDialogInfo initSatDialog();
 
@@ -296,70 +293,70 @@ public:
   /// return button names for ObsDialog
   ObsDialogInfo initObsDialog();
   /// return button names for ObsDialog ... ascii files (when activated)
-  ObsDialogInfo updateObsDialog(const miutil::miString& name);
+  ObsDialogInfo updateObsDialog(const std::string& name);
   /// get observation times for plot types name
-  vector<miutil::miTime> getObsTimes( vector<miutil::miString> name);
+  std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& name);
 
   // Field-dialog methods
   /// return model/file groups and contents to FieldDialog
-  vector<FieldDialogInfo> initFieldDialog();
+  std::vector<FieldDialogInfo> initFieldDialog();
   ///return all reference times for the given model
-  set<std::string> getFieldReferenceTimes(const std::string model);
+  std::set<std::string> getFieldReferenceTimes(const std::string model);
   ///return the reference time given by refOffset and refhour or the last reference time for the given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(vector<std::string>& fieldNames,
-                        set<std::string>& fieldprefixes,
-                        set<std::string>& fieldsuffixes);
+  void getAllFieldNames(std::vector<std::string>& fieldNames,
+                        std::set<std::string>& fieldprefixes,
+                        std::set<std::string>& fieldsuffixes);
   ///return levels
-  vector<miutil::miString> getFieldLevels(const miutil::miString& pinfo);
+  std::vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelNameRequest,
-                      std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi);
+                      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
-  vector<miutil::miTime> getFieldTime(vector<FieldRequest>& request);
+  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
 ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
 
   // Map-dialog methods
   MapDialogInfo initMapDialog();
-  bool MapInfoParser(miutil::miString& str, MapInfo& mi, bool tostr);
+  bool MapInfoParser(std::string& str, MapInfo& mi, bool tostr);
 
   // Edit-dialog methods --------
   /// returns current EditDialogInfo for gui
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
-  set <miutil::miString> getComplexList();
+  std::set<std::string> getComplexList();
 
   // object-dialog methods
   /// get ObjectNames from setup file to be used in dialog etc.
-  vector<miutil::miString> getObjectNames(bool);
+  std::vector<std::string> getObjectNames(bool);
   ///objects follow main plot time
   void setObjAuto(bool autoFile);
   /// returns list of objectfiles for use in dialog
-  vector<ObjFileInfo> getObjectFiles(miutil::miString objectname, bool refresh);
+  std::vector<ObjFileInfo> getObjectFiles(std::string objectname, bool refresh);
   /// decode string with types of objects to plot
-  map <miutil::miString,bool> decodeTypeString(miutil::miString);
+  std::map<std::string,bool> decodeTypeString(std::string);
 
   // various GUI-methods
-  vector< vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
-  bool getQuickMenus(vector<QuickMenuDefs>& qm);
+  std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
+  bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
 
   //stations
   void putStations(StationPlot*);
   void makeStationPlot(const std::string& commondesc, const std::string& common,
                        const std::string& description, int from,
-                       const  vector<std::string>& data);
-  void deleteStations(miutil::miString name);
+                       const  std::vector<std::string>& data);
+  void deleteStations(std::string name);
   void deleteStations(int id=-2);
-  miutil::miString findStation(int, int,miutil::miString name,int id=-1);
-  void findStations(int, int, bool add, vector<miutil::miString>& name,vector<int>& id,
-                    vector<miutil::miString>& station);
-  void getEditStation(int step, miutil::miString& name, int& id,
-                      vector<miutil::miString>& stations);
-  void getStationData(vector<std::string>& data);
+  std::string findStation(int, int,std::string name,int id=-1);
+  void findStations(int, int, bool add, std::vector<std::string>& name, std::vector<int>& id,
+                    std::vector<std::string>& station);
+  void getEditStation(int step, std::string& name, int& id,
+                      std::vector<std::string>& stations);
+  void getStationData(std::vector<std::string>& data);
   void stationCommand(const std::string& Command,
-                      const vector<std::string>& data,
+                      const std::vector<std::string>& data,
                       const std::string& name="", int id=-1,
                       const std::string& misc="");
   void stationCommand(const std::string& Command,
@@ -369,30 +366,30 @@ public:
 
   //areas
   ///put area into list of area objects
-  void makeAreas(const miutil::miString& name, miutil::miString areaString, int id=-1);
+  void makeAreas(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
-  void areaCommand(const miutil::miString& command, const miutil::miString& dataSet,
-                   const miutil::miString& data, int id );
+  void areaCommand(const std::string& command, const std::string& dataSet,
+                   const std::string& data, int id );
   ///find areas in position x,y
-  vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
   // location (vcross,...)
   void putLocation(const LocationData& locationdata);
   void updateLocation(const LocationData& locationdata);
-  void deleteLocation(const miutil::miString& name);
-  void setSelectedLocation(const miutil::miString& name,
-                         const miutil::miString& elementname);
-  miutil::miString findLocation(int x, int y, const miutil::miString& name);
+  void deleteLocation(const std::string& name);
+  void setSelectedLocation(const std::string& name,
+                         const std::string& elementname);
+  std::string findLocation(int x, int y, const std::string& name);
 
-  map<miutil::miString,InfoFile> getInfoFiles();
+  std::map<std::string,InfoFile> getInfoFiles();
 
-  vector<PlotElement>& getPlotElements();
+  std::vector<PlotElement>& getPlotElements();
   void enablePlotElement(const PlotElement& pe);
 
 /********************* reading and writing log file *******************/
- vector<miutil::miString> writeLog();
- void readLog(const vector<miutil::miString>& vstr,
-              const miutil::miString& thisVersion, const miutil::miString& logVersion);
+ std::vector<std::string> writeLog();
+ void readLog(const std::vector<std::string>& vstr,
+              const std::string& thisVersion, const std::string& logVersion);
 #ifdef PROFET
   bool initProfet();
 //  bool registerProfetUser(const Profet::PodsUser & u);
@@ -406,9 +403,9 @@ public:
   bool useScrollwheelZoom();
 
   // Miscellaneous get methods
-  vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
-  vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  std::vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
+  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
 #endif

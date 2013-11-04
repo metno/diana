@@ -33,8 +33,9 @@
 #include "config.h"
 #endif
 
-#include <sys/time.h>
 #include <diSatPlot.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <QtGlobal>
 #if defined(USE_PAINTGL)
@@ -45,11 +46,10 @@
 #include <QtOpenGL>
 #endif
 
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
 #define NO_TEXTTURE
+
 using namespace::miutil;
+using namespace std;
 
 // Default constructor
 SatPlot::SatPlot()
@@ -70,7 +70,8 @@ SatPlot::~SatPlot(){
 }
 
 
-void SatPlot::getSatAnnotation(miString &str, Colour &col){
+void SatPlot::getSatAnnotation(std::string &str, Colour &col)
+{
   if (satdata->approved){
     str = satdata->annotation;
     Colour c("black");
@@ -81,16 +82,16 @@ void SatPlot::getSatAnnotation(miString &str, Colour &col){
 
 
 
-void SatPlot::getSatName(miString &str){
+void SatPlot::getSatName(std::string &str)
+{
   if (satdata->approved){
-    miString sat = satdata->satellite_name + satdata->filetype;
-    sat.trim();
+    std::string sat = miutil::trimmed(satdata->satellite_name + satdata->filetype);
     str = sat;
     if (satdata->mosaic)
       str+=" MOSAIKK ";
     else
       str+= " ";
-    str+=satdata->time.isoTime() ;
+    str+=satdata->time.isoTime();
   } else
     str.erase();
 }
@@ -117,18 +118,17 @@ void SatPlot::clearData(){
   imagedata = NULL;
 }
 
-void SatPlot::getCalibChannels(vector<miString>& channels )
+void SatPlot::getCalibChannels(std::vector<std::string>& channels)
 {
   channels.insert(channels.end(),
       satdata->cal_channels.begin(),
       satdata->cal_channels.end());
 }
 
-void SatPlot::values(float x, float y, vector<SatValues>& satval){
-
-  if (!enabled) {
+void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
+{
+  if (not enabled)
     return;
-  }
 
   if ((satdata == NULL)||
       (satdata->image == NULL)||
@@ -554,10 +554,10 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
 
 }
 
-bool SatPlot::getAnnotations(vector<miString>& anno){
-
-
-  if (!enabled) return false;
+bool SatPlot::getAnnotations(vector<string>& anno)
+{
+  if (!enabled)
+    return false;
 
   if(satdata == NULL || satdata->image == NULL || !satdata->approved)
     return false;
@@ -565,24 +565,25 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
   int nanno = anno.size();
 
   for(int i=0; i<nanno; i++){
-    if(anno[i].contains("$sat"))
-      anno[i].replace("$sat", satdata->satellite_name);
+    if (miutil::contains(anno[i], "$sat"))
+      miutil::replace(anno[i], "$sat", satdata->satellite_name);
   }
 
   //Colour table
-  if (!satdata->palette || !satdata->classtable) return false;
+  if (!satdata->palette || !satdata->classtable)
+    return false;
 
   for(int i=0; i<nanno; i++){
 
-    if(!anno[i].contains("table"))
+    if(! miutil::contains(anno[i], "table"))
       continue;
 
-    miString satName = satdata->paletteInfo.name;
-    satName.trim();
+    std::string satName = satdata->paletteInfo.name;
+    miutil::trim(satName);
 
-    miString endString;
-    miString startString;
-    if(anno[i].contains(",")){
+    std::string endString;
+    std::string startString;
+    if (miutil::contains(anno[i], ",")){
       size_t nn = anno[i].find_first_of(",");
       endString = anno[i].substr(nn);
       startString =anno[i].substr(0,nn);
@@ -590,24 +591,25 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
       startString =anno[i];
     }
 
-    if(anno[i].contains("table=")){
-      miString name = startString.substr(startString.find_first_of("=")+1);
+    if (miutil::contains(anno[i], "table=")) {
+      std::string name = startString.substr(startString.find_first_of("=")+1);
       if( name[0]=='"' )
-        name.remove('"');
-      name.trim();
-      if(!satName.contains(name)) continue;
+        miutil::remove(name, '"');
+      miutil::trim(name);
+      if (not miutil::contains(satName, name))
+        continue;
     }
 
-    miString str  = "table=\"";
+    std::string str  = "table=\"";
     str += satName;
 
     int n = satdata->paletteInfo.noofcl;
     //NB: better solution: get step from gui
     int step = n/50 +1;
     for (int j = 0;j< n;j+=step){
-      miString rgbstr;
+      std::string rgbstr;
       for( int k=0; k<3; k++){
-        rgbstr+=miString(satdata->paletteInfo.cmap[k][j+1]);
+        rgbstr+=miutil::from_number(satdata->paletteInfo.cmap[k][j+1]);
         if(k<2) rgbstr+=":";
       }
       str +=";";
@@ -626,8 +628,8 @@ bool SatPlot::getAnnotations(vector<miString>& anno){
   return true;
 }
 
-void SatPlot::setSatAuto(bool autoFile,const miString & satellite,
-    const miString & file){
+void SatPlot::setSatAuto(bool autoFile,const string& satellite, const string& file)
+{
   if (satdata->satellite == satellite && satdata->filetype == file)
     satdata->autoFile=autoFile;
 }

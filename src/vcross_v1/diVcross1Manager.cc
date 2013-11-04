@@ -37,18 +37,23 @@
 #include "diVcross1File.h"
 #include "diVcross1Field.h"
 #include "diVcross1Plot.h"
-#include <set>
 
 #include <diLocalSetupParser.h>
+#include <puTools/miSetupParser.h>
+#include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 #include <puCtools/puCglob.h>
 
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
 
+#include <set>
+
 #define MILOGGER_CATEGORY "diana.VcrossManager"
 #include <miLogger/miLogging.h>
 
-using namespace::miutil;
+using namespace std;
+using miutil::miTime;
 
 VcrossManager::VcrossManager(Controller *co)
 : dataChange(true), timeGraphPos(-1) , timeGraphPosMax(-1), hardcopy(false)
@@ -125,7 +130,7 @@ bool VcrossManager::parseSetup()
 
   bool ok= true;
 
-  if (SetupParser::getSection(section1,vstr)) {
+  if (miutil::SetupParser::getSection(section1,vstr)) {
 
     std::string model,filename;
     vector<std::string> tokens,tokens1,tokens2;

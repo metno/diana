@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,13 +29,9 @@
 #ifndef _mapdialog_h
 #define _mapdialog_h
 
-#include <QDialog>
-
 #include <diController.h>
+#include <QDialog>
 #include <vector>
-#include <puTools/miString.h>
-
-using namespace std;
 
 class QComboBox;
 class QListWidget;
@@ -47,13 +41,12 @@ class ToggleButton;
 class QCheckBox;
 
 /**
- \brief Map selection dialogue
+   \brief Map selection dialogue
 
- Dialogue for selections of maps, predefined projections/areas and various map-settings
-
- */
-
-class MapDialog: public QDialog {
+   Dialogue for selections of maps, predefined projections/areas and
+   various map-settings
+*/
+class MapDialog : public QDialog {
 Q_OBJECT
 public:
 
@@ -61,16 +54,16 @@ public:
   MapDialog(QWidget* parent, Controller* llctrl);
 
   /// the plot info strings
-  vector<miutil::miString> getOKString();
+  std::vector<std::string> getOKString();
   /// set the dialogue elements from a plot info string
-  void putOKString(const vector<miutil::miString>& vstr);
+  void putOKString(const std::vector<std::string>& vstr);
   /// creates a short name for the current settings (used in quick menues)
-  miutil::miString getShortname();
+  std::string getShortname();
   /// returns all settings in logfile format
-  vector<miutil::miString> writeLog();
+  std::vector<std::string> writeLog();
   /// set the dialogue elements from logfile settings
-  void readLog(const vector<miutil::miString>& vstr, const miutil::miString& thisVersion,
-      const miutil::miString& logVersion);
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
   /// choose the favorite settings
   void useFavorite();
 
@@ -134,18 +127,18 @@ private slots:
 
 private:
   MapDialogInfo m_MapDI; // all maps and areas
-  vector<miutil::miString> favorite; // favorite options
+  std::vector<std::string> favorite; // favorite options
   int numMaps; // number of maps
-  vector<int> selectedmaps; // maps selected
+  std::vector<int> selectedmaps; // maps selected
   int activemap; // active selected map
-  vector<int> logmaps; // selected maps ready for logging
+  std::vector<int> logmaps; // selected maps ready for logging
 
-  vector<Colour::ColourInfo> cInfo; // all defined colours
-  vector<std::string> linetypes; // all defined linetypes
-  vector<miutil::miString> zorders; // all defined zorders
-  vector<miutil::miString> densities; // latlon densities (degrees)
-  vector<miutil::miString> positions; // all defined positions
-  map<miutil::miString,int> positions_map; // all defined positions
+  std::vector<Colour::ColourInfo> cInfo; // all defined colours
+  std::vector<std::string> linetypes; // all defined linetypes
+  std::vector<std::string> zorders; // all defined zorders
+  std::vector<std::string> densities; // latlon densities (degrees)
+  std::vector<std::string> positions; // all defined positions
+  std::map<std::string,int> positions_map; // all defined positions
   Controller* m_ctrl;
 
   // areas
@@ -168,9 +161,9 @@ private:
   QCheckBox* lon_showvalue;
   QComboBox* lon_valuepos;
   bool lonb;
-  miutil::miString lonc;
-  miutil::miString lonlw;
-  miutil::miString lonlt;
+  std::string lonc;
+  std::string lonlw;
+  std::string lonlt;
   int lonz;
   float lond;
   bool lonshowvalue;
@@ -190,9 +183,9 @@ private:
   QCheckBox* lat_showvalue;
   QComboBox* lat_valuepos;
   bool latb;
-  miutil::miString latc;
-  miutil::miString latlw;
-  miutil::miString latlt;
+  std::string latc;
+  std::string latlw;
+  std::string latlt;
   int latz;
   float latd;
   bool latshowvalue;
@@ -213,9 +206,9 @@ private:
   QComboBox* ff_linetypebox;
   QComboBox* ff_colorcbox;
   QComboBox* ff_zorder;
-  miutil::miString framec;
-  miutil::miString framelw;
-  miutil::miString framelt;
+  std::string framec;
+  std::string framelw;
+  std::string framelt;
   int framez;
 
   // maps and selected maps

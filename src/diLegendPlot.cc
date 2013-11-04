@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,24 +35,26 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.LegendPlot"
-#include <miLogger/miLogging.h>
-
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
-#include <iostream>
-#include <math.h>
+
+#include <puTools/miStringFunctions.h>
+
+#include <cmath>
 #include <polyStipMasks.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.LegendPlot"
+#include <miLogger/miLogging.h>
 
-// Default constructor
+using namespace std;
+using namespace miutil;
+
 LegendPlot::LegendPlot()
 : Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
 #endif
   showplot = true;
   x1title = 0;
@@ -63,15 +63,14 @@ LegendPlot::LegendPlot()
   y2title= 0;
   xRatio = 0.01;
   yRatio = 0.01;
-
 }
 
 
-LegendPlot::LegendPlot(miString& str)
+LegendPlot::LegendPlot(const std::string& str)
 : Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
 #endif
 
   showplot = true;
@@ -82,11 +81,12 @@ LegendPlot::LegendPlot(miString& str)
   xRatio = 0.01;
   yRatio = 0.01;
 
-  miString sstr = str.replace('"',' ');
-  sstr.trim();
-  vector<miString> vstr = sstr.split("=");
+  std::string sstr(str);
+  miutil::replace(sstr, '"',' ');
+  miutil::trim(sstr);
+  vector<std::string> vstr = miutil::split(sstr, "=");
   if(vstr.size()==2){
-    vector<miString> tokens = vstr[1].split(";",false);
+    vector<std::string> tokens = miutil::split(vstr[1], ";",false);
     int n=tokens.size();
     if(n>0){
       if (poptions.tableHeader)
@@ -100,7 +100,7 @@ LegendPlot::LegendPlot(miString& str)
         //if string start with '|', do not plot colour/pattern box
         if(cc.colourstr.find('|')==1){
           cc.plotBox = false;
-          cc.colourstr.remove('|');
+          miutil::remove(cc.colourstr, '|');
         } else {
           cc.plotBox = true;
         }
@@ -111,39 +111,39 @@ LegendPlot::LegendPlot(miString& str)
 }
 
 
-void LegendPlot::setData(const miString& title,
+void LegendPlot::setData(const std::string& title,
     const vector<ColourCode>& colourcode)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::setdata");
+  METLIBS_LOG_SCOPE();
 #endif
 
   // fill the table with colours and textstrings from palette information
   titlestring = title;
   colourcodes = colourcode;
-
 }
 
 // Copy constructor
-LegendPlot::LegendPlot(const LegendPlot &rhs){
+LegendPlot::LegendPlot(const LegendPlot &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Copy constructor");
+  METLIBS_LOG_SCOPE();
 #endif
   // elementwise copy
   memberCopy(rhs);
 }
 
-// Destructor
-LegendPlot::~LegendPlot(){
+LegendPlot::~LegendPlot()
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Destructor");
+  METLIBS_LOG_SCOPE();
 #endif
 }
 
-// Assignment operator
-LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
+LegendPlot& LegendPlot::operator=(const LegendPlot &rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Assignment operator");
+  METLIBS_LOG_SCOPE();
 #endif
   if (this == &rhs) return *this;
 
@@ -153,17 +153,18 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs){
   return *this;
 }
 
-// Equality operator
-bool LegendPlot::operator==(const LegendPlot &rhs) const{
+bool LegendPlot::operator==(const LegendPlot &rhs) const
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::Equality operator");
+  METLIBS_LOG_SCOPE();
 #endif
   return false;
 }
 
-void LegendPlot::memberCopy(const LegendPlot& rhs){
+void LegendPlot::memberCopy(const LegendPlot& rhs)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::MemberCopy");
+  METLIBS_LOG_SCOPE();
 #endif
   // copy members
   titlestring= rhs.titlestring;
@@ -178,13 +179,12 @@ void LegendPlot::memberCopy(const LegendPlot& rhs){
   showplot = rhs.showplot;
 }
 
-void LegendPlot::getStringSize(miString str, float& width, float& height)
+void LegendPlot::getStringSize(std::string str, float& width, float& height)
 {
-
   //Bugfix
   //The postscript size of "-" are underestimated
   if (hardcopy){
-    int n = str.countChar('-');
+    int n = miutil::count_char(str, '-');
     for(int i=0;i<n;i++) str+="-";
   }
 
@@ -203,7 +203,7 @@ void LegendPlot::getStringSize(miString str, float& width, float& height)
 bool LegendPlot::plot(float x, float y)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ LegendPlot::plot");
+  METLIBS_LOG_SCOPE();
 #endif
   // fill the table with colours and textstrings from palette information
 
@@ -222,14 +222,14 @@ bool LegendPlot::plot(float x, float y)
 
   //title
   int ntitle = 0;
-  vector<miString> vtitlestring;
-  if(titlestring.exists()){
+  vector<std::string> vtitlestring;
+  if((not titlestring.empty())){
     getStringSize(titlestring, titlewidth, height);
     if(titlewidth>maxwidth){
-      vector<miString> vs = titlestring.split(" ");
+      vector<std::string> vs = miutil::split(titlestring, " ");
       if (vs.size()>=5) {
         // handle field difference...
-        miString smove;
+        std::string smove;
         int l, n= vs.size();
         for (int i=0; i<n; i++) {
           l= vs[i].length();
@@ -346,7 +346,7 @@ bool LegendPlot::plot(float x, float y)
         glVertex2f(x2box,y2box);
         glVertex2f(x2box,y1box);
         glEnd();
-        if(colourcodes[i].pattern.exists()){
+        if((not colourcodes[i].pattern.empty())){
           GLubyte* p=ig.getPattern(colourcodes[i].pattern);
           if(p==0)
             glPolygonStipple(solid);
@@ -375,7 +375,7 @@ bool LegendPlot::plot(float x, float y)
       }
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
-      miString cstring = colourcodes[i].colourstr;
+      std::string cstring = colourcodes[i].colourstr;
       fp->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
@@ -452,7 +452,7 @@ float LegendPlot::height()
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
-    miString cstring;
+    std::string cstring;
     cstring = colourcodes[i].colourstr;
     getStringSize(cstring, width, height);
     if (height>maxheight) maxheight= height;
@@ -461,11 +461,11 @@ float LegendPlot::height()
 
   //title
   int ntitle=0;
-  if(titlestring.exists()){
+  if((not titlestring.empty())){
     getStringSize(titlestring, titlewidth, height);
-    vector<miString> vtitlestring;
+    vector<std::string> vtitlestring;
     if(titlewidth>maxwidth){
-      vtitlestring = titlestring.split(" ");
+      vtitlestring = miutil::split(titlestring, " ");
     } else {
       vtitlestring.push_back(titlestring);
     }
@@ -498,7 +498,7 @@ float LegendPlot::width()
 
   //colour code strings
   for (int i=0; i<ncolours; i++){
-    miString cstring;
+    std::string cstring;
     cstring = colourcodes[i].colourstr;
     getStringSize(cstring, width, height);
     if (width>maxwidth) maxwidth= width;
@@ -506,9 +506,9 @@ float LegendPlot::width()
 
   //title
   getStringSize(titlestring, titlewidth, height);
-  vector<miString> vtitlestring;
+  vector<std::string> vtitlestring;
   if(titlewidth>maxwidth){
-    vtitlestring = titlestring.split(" ");
+    vtitlestring = miutil::split(titlestring, " ");
   } else {
     vtitlestring.push_back(titlestring);
   }

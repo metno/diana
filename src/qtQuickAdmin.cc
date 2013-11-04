@@ -33,11 +33,11 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.QuickAdmin"
-#include <miLogger/miLogging.h>
-
 #include "qtQuickAdmin.h"
 #include "qtQuickEditOptions.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
 #include <QTreeWidget>
@@ -63,7 +63,8 @@
 
 #define MILOGGER_CATEGORY "diana.QuickAdmin"
 #include <miLogger/miLogging.h>
-#include "qtUtility.h"
+
+using namespace std;
 
 class QuickTreeWidgetItem: public QTreeWidgetItem {
 private:
@@ -448,11 +449,10 @@ void QuickAdmin::newClicked()
     if (ok && !text.isEmpty()) {
       //       METLIBS_LOG_DEBUG("Making a new MENU after menu:" << activeMenu);
       quickMenu tmp;
-      tmp.name = text.toStdString();
-      tmp.name.trim();
-      tmp.name.replace(",", " ");
+      tmp.name = miutil::trimmed(text.toStdString());
+      miutil::replace(tmp.name, ",", " ");
       tmp.filename = tmp.name + ".quick";
-      tmp.filename.replace(" ", "_");
+      miutil::replace(tmp.filename, " ", "_");
       tmp.plotindex = 0;
 
       menus.insert(menus.begin() + activeMenu + 1, tmp);
@@ -492,10 +492,10 @@ void QuickAdmin::newfileClicked()
   tmp.filename = s.toStdString();
   tmp.plotindex = 0;
   if (readQuickMenu(tmp)) {
-    tmp.name.trim();
-    tmp.name.replace(",", " ");
+    miutil::trim(tmp.name);
+    miutil::replace(tmp.name, ",", " ");
     tmp.filename = tmp.name + ".quick";
-    tmp.filename.replace(" ", "_");
+    miutil::replace(tmp.filename, " ", "_");
 
     menus.insert(menus.begin() + activeMenu + 1, tmp);
     if (firstcustom < 0) {
@@ -515,10 +515,10 @@ void QuickAdmin::renameClicked()
         "New name:"), QLineEdit::Normal, menus[activeMenu].name.c_str(), &ok);
     if (ok && !text.isEmpty())
       menus[activeMenu].name = text.toStdString();
-    menus[activeMenu].name.trim();
-    menus[activeMenu].name.replace(",", " ");
+    miutil::trim(menus[activeMenu].name);
+    miutil::replace(menus[activeMenu].name, ",", " ");
     menus[activeMenu].filename = menus[activeMenu].name + ".quick";
-    menus[activeMenu].filename.replace(" ", "_");
+    miutil::replace(menus[activeMenu].filename, " ", "_");
 
   } else {
     QString text = QInputDialog::getText(this, tr("Change plot name"), tr(
@@ -538,7 +538,7 @@ void QuickAdmin::eraseClicked()
     //remove file
     if (system(NULL)) {
       //      if( system( rm menus[activeMenu].fielname)==0){
-      miutil::miString sys = "rm " + menus[activeMenu].filename;
+      std::string sys = "rm " + menus[activeMenu].filename;
       if (system(sys.c_str()) == 0) {
         METLIBS_LOG_INFO("Removing file:" << menus[activeMenu].filename);
       }
@@ -594,10 +594,10 @@ void QuickAdmin::pasteClicked()
   if (copyElement == -1) {
     //     METLIBS_LOG_DEBUG("Paste menu:" << copyMenu << " after menu:" << activeMenu);
     quickMenu tmp = MenuCopy;
-    tmp.name.trim();
-    tmp.name.replace(",", " ");
+    miutil::trim(tmp.name);
+    miutil::replace(tmp.name, ",", " ");
     tmp.filename = tmp.name + "2.quick";
-    tmp.filename.replace(" ", "_");
+    miutil::replace(tmp.filename, " ", "_");
     tmp.plotindex = 0;
 
     menus.insert(menus.begin() + activeMenu + 1, tmp);
@@ -631,11 +631,11 @@ void QuickAdmin::updateCommand()
 {
   autochange = true;
   if (activeMenu >= 0 && activeElement >= 0) {
-    miutil::miString ts;
+    std::string ts;
     int n = menus[activeMenu].menuitems[activeElement].command.size();
     for (int i = 0; i < n; i++) {
       ts += menus[activeMenu].menuitems[activeElement].command[i];
-      ts += miutil::miString("\n");
+      ts += "\n";
     }
     // set command into command-edit
     comedit->setText(ts.c_str());
@@ -652,20 +652,20 @@ void QuickAdmin::comChanged()
     return;
   //   int ni= comedit->numLines();
   //   int ni= comedit->paragraphs();
-  //   vector<miutil::miString> s;
+  //   vector<std::string> s;
   //   for (int i=0; i<ni; i++){
-  // //     miutil::miString str= comedit->textLine(i).toStdString();
-  //     miutil::miString str= comedit->text(i).toStdString();
-  //     str.trim();
-  //     if (str.contains("\n"))
+  // //     std::string str= comedit->textLine(i).toStdString();
+  //     std::string str= comedit->text(i).toStdString();
+  //     miutil::trim(str);
+  //     if (miutil::contains(str, "\n"))
   //       str.erase(str.end()-1);
-  //     if (str.exists()) s.push_back(str);
+  //     if ((not str.empty())) s.push_back(str);
   //   }
 
   //Qt4
-  vector<miutil::miString> s;
-  miutil::miString str = comedit->toPlainText().toStdString();
-  if (str.exists())
+  vector<string> s;
+  string str = comedit->toPlainText().toStdString();
+  if (not str.empty())
     s.push_back(str);
   menus[activeMenu].menuitems[activeElement].command = s;
 }

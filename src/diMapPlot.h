@@ -32,32 +32,28 @@
 #define diMapPlot_h
 
 #include <diPlot.h>
-#include <puTools/miString.h>
-#include <vector>
-#include <map>
-#include <set>
-#include <GL/gl.h>
 #include <diFilledMap.h>
 #include <diShapeObject.h>
 
-using namespace std;
+#include <GL/gl.h>
+
+#include <vector>
+#include <map>
+#include <set>
 
 /**
-
  \brief Map layer plotting
 
  plots the map layer
  - simple coastlines plotting
  - filled land type (precalculated triangles)
  - lat/lon lines
-
  */
-
 class MapPlot : public Plot {
 private:
   /// Lat/Lon Value Annotation with position on map
   struct ValueAnno {
-    miutil::miString t;
+    std::string t;
     float x;
     float y;
   };
@@ -75,12 +71,12 @@ private:
   bool isactive[3]; // active data for zorder
   bool usedrawlists; // use OpenGL drawlists
   GLuint drawlist[3]; // openGL drawlists
-  vector<ValueAnno> value_annotations;
+  std::vector<ValueAnno> value_annotations;
 
-  static map<miutil::miString,FilledMap> filledmaps;
-  static set<miutil::miString> usedFilledmaps;
-  static map<miutil::miString,ShapeObject> shapemaps;
-  static map<miutil::miString,Area> shapeareas;
+  static std::map<std::string,FilledMap> filledmaps;
+  static std::set<std::string> usedFilledmaps;
+  static std::map<std::string,ShapeObject> shapemaps;
+  static std::map<std::string,Area> shapeareas;
 
   /**
   * remove large jumps in a set of lines. Calls xyclip
@@ -95,7 +91,7 @@ private:
   * @param anno
   */
   void clipPrimitiveLines(int npos, float *, float *, float xylim[4],
-      float jumplimit, bool plotanno=false, int anno_position=2, miutil::miString anno="");
+      float jumplimit, bool plotanno=false, int anno_position=2, std::string anno="");
   /**
    * clip a set a lines to the viewport
    * @param npos
@@ -106,7 +102,7 @@ private:
    * @param anno_position
    * @param anno
    */
-  void xyclip(int, float[], float[], float[], bool, int, miutil::miString);
+  void xyclip(int, float[], float[], float[], bool, int, std::string);
   /**
   * plot a map from a Land4 formatted file
   * @param filename
@@ -120,7 +116,7 @@ private:
   //convert position "bottom", left" etc to MapValuePosition
   int convertLatLonPos(const std::string& pos);
 
-  bool plotMapLand4(const miutil::miString&, float[], const Linetype&, float,
+  bool plotMapLand4(const std::string&, float[], const Linetype&, float,
       const Colour&);
   /**
    * Plot Lat/Lon lines with optional numbering
@@ -136,7 +132,7 @@ private:
    * @param filename
    * @return
    */
-  bool plotLinesSimpleText(const miutil::miString& filename);
+  bool plotLinesSimpleText(const std::string& filename);
 
 public:
   MapPlot();
@@ -153,7 +149,7 @@ public:
   /// plot map in a specific zorder layer
   bool plot(const int zorder);
   /// parse plotinfo
-  bool prepare(const miutil::miString&, Area rarea, bool ifequal =true);
+  bool prepare(const std::string&, Area rarea, bool ifequal =true);
   /// return the area asked for
   bool requestedArea(Area& rarea); // return requested area
 };

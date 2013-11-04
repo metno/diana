@@ -33,39 +33,35 @@
 
 #include <diVprofPlot.h>
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <vector>
 #include <diField/diFieldManager.h>
 
-using namespace std;
+#include <vector>
 
 /**
-
   \brief Vertical Profile (sounding) prognostic data from a met.no file
   
    Contains all data and misc information from one file 
-
 */
 class VprofData
 {
 
 public:
-  VprofData(const miutil::miString& filename, const miutil::miString& modelname);
+  VprofData(const std::string& filename, const std::string& modelname);
   ~VprofData();
   bool readFile();
-  bool readField(miutil::miString type, FieldManager* fieldm);
-  VprofPlot* getData(const miutil::miString& name, const miutil::miTime& time);
-  vector<miutil::miString> getNames() { return posName; }
-  vector <float> getLatitudes() { return posLatitude; }
-  vector <float> getLongitudes() { return posLongitude; }
-  vector<miutil::miString> getObsNames() { return obsName; }
-  vector<miutil::miTime>   getTimes() { return validTime; }
+  bool readField(std::string type, FieldManager* fieldm);
+  VprofPlot* getData(const std::string& name, const miutil::miTime& time);
+  std::vector<std::string> getNames() { return posName; }
+  std::vector <float> getLatitudes() { return posLatitude; }
+  std::vector <float> getLongitudes() { return posLongitude; }
+  std::vector<std::string> getObsNames() { return obsName; }
+  std::vector<miutil::miTime>   getTimes() { return validTime; }
 
 private:
 
-  miutil::miString fileName;
-  miutil::miString modelName;
+  std::string fileName;
+  std::string modelName;
   bool readFromField;
   FieldManager* fieldManager;
 
@@ -75,35 +71,34 @@ private:
   int numLevel;
 
   struct station {
-    miutil::miString id; /**< WMO number */
-    miutil::miString name; /**< name */
+    std::string id; /**< WMO number */
+    std::string name; /**< name */
     float lat; /**< latitude */
     float lon; /**< longitude */
     int height; /**< station height */
     int barHeight; /**< barometer height */
   };
 
-  vector<miutil::miString> posName;
-  vector<miutil::miString> obsName;
-  vector<int>      posTemp;
-  vector<float>    posLatitude;
-  vector<float>    posLongitude;
-  vector<float>    posDeltaLatitude;
-  vector<float>    posDeltaLongitude;
-  vector<miutil::miTime>   validTime;
-  vector<int>      forecastHour;
-  vector<miutil::miString> progText;
-  vector<miutil::miString> mainText;
-  vector<int>      paramId;
-  vector<float>    paramScale;
+  std::vector<std::string> posName;
+  std::vector<std::string> obsName;
+  std::vector<int>      posTemp;
+  std::vector<float>    posLatitude;
+  std::vector<float>    posLongitude;
+  std::vector<float>    posDeltaLatitude;
+  std::vector<float>    posDeltaLongitude;
+  std::vector<miutil::miTime>   validTime;
+  std::vector<int>      forecastHour;
+  std::vector<std::string> progText;
+  std::vector<std::string> mainText;
+  std::vector<int>      paramId;
+  std::vector<float>    paramScale;
   VprofPlot        *vProfPlot;
-  miutil::miString vProfPlotName;
+  std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
 
 
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
-
 };
 
 #endif

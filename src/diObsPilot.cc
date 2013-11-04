@@ -39,7 +39,7 @@
 
 using namespace::miutil;
 
-ObsPilot::ObsPilot(const miString &file)
+ObsPilot::ObsPilot(const std::string &file)
 :pilot(file){
 }
 
@@ -136,8 +136,7 @@ ObsPilot::putData(int i, int levelIndex,miTime obsTime, ObsData &d){
 
   d.dataType="pilot";
   //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
   d.xpos =  contents[i].desc.lengde/100.;
   d.ypos = contents[i].desc.bredde/100.;
   d.zone = _IDtoZone(contents[i].stationID);

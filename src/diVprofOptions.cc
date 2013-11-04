@@ -33,31 +33,25 @@
 #include "config.h"
 #endif
 
+#include <diVprofOptions.h>
+#include <puTools/miStringFunctions.h>
+
 #define MILOGGER_CATEGORY "diana.VprofOptions"
 #include <miLogger/miLogging.h>
 
-#include <diVprofOptions.h>
-#include <iostream>
-
-using namespace::miutil;
-
-// default constructor
 VprofOptions::VprofOptions()
 {
   setDefaults();
 }
 
-
-// destructor
 VprofOptions::~VprofOptions()
 {
 }
 
-
 void VprofOptions::setDefaults()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofOptions::setDefaults");
+  METLIBS_LOG_SCOPE();
 #endif
 
   ptttt=    true;   // t
@@ -164,7 +158,7 @@ void VprofOptions::setDefaults()
   float q3[nq3]= { .1,.2,.4,.6,.8,1.,1.5,2.,2.5,3.,4.,5.,6.,7.,8.,9.,
       10.,12.,14.,16.,18.,20.,25.,30.,35.,40.,45.,50. };
   qtable.clear();
-  vector<float> q;
+  std::vector<float> q;
   q.clear();
   for (int i=0; i<nq0; i++) q.push_back(q0[i]);
   qtable.push_back(q);
@@ -258,30 +252,30 @@ void VprofOptions::checkValues()
 }
 
 
-vector<miString> VprofOptions::writeOptions()
+std::vector<std::string> VprofOptions::writeOptions()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofOptions::writeOptions");
 #endif
 
-  vector<miString> vstr;
-  miString str;
+  std::vector<std::string> vstr;
+  std::string str;
 
-  str= "tttt=" + miString(ptttt ? "on" : "off");
+  str= "tttt=" + std::string(ptttt ? "on" : "off");
   vstr.push_back(str);
-  str= "tdtd=" + miString(ptdtd ? "on" : "off");
+  str= "tdtd=" + std::string(ptdtd ? "on" : "off");
   vstr.push_back(str);
-  str= "wind=" + miString(pwind ? "on" : "off");
+  str= "wind=" + std::string(pwind ? "on" : "off");
   vstr.push_back(str);
-  str= "vwind=" + miString(pvwind ? "on" : "off");
+  str= "vwind=" + std::string(pvwind ? "on" : "off");
   vstr.push_back(str);
-  str= "relhum=" + miString(prelhum ? "on" : "off");
+  str= "relhum=" + std::string(prelhum ? "on" : "off");
   vstr.push_back(str);
-  str= "ducting=" + miString(pducting ? "on" : "off");
+  str= "ducting=" + std::string(pducting ? "on" : "off");
   vstr.push_back(str);
-  str= "kindex=" + miString(pkindex ? "on" : "off");
+  str= "kindex=" + std::string(pkindex ? "on" : "off");
   vstr.push_back(str);
-  str= "slwind=" + miString(pslwind ? "on" : "off");
+  str= "slwind=" + std::string(pslwind ? "on" : "off");
   vstr.push_back(str);
 
   if (dataColour.size()) {
@@ -296,7 +290,7 @@ vector<miString> VprofOptions::writeOptions()
     str= "dataLinewidth=";
     for (unsigned int i=1; i<dataLinewidth.size(); i++) {
       if (i>0) str+=",";
-      str+= miString(dataLinewidth[i]);
+      str+= miutil::from_number(dataLinewidth[i]);
     }
     vstr.push_back(str);
   }
@@ -304,170 +298,170 @@ vector<miString> VprofOptions::writeOptions()
     str= "windLinewidth=";
     for (unsigned int i=1; i<windLinewidth.size(); i++) {
       if (i>0) str+=",";
-      str+= miString(windLinewidth[i]);
+      str+= miutil::from_number(windLinewidth[i]);
     }
     vstr.push_back(str);
   }
 
-  str= "windseparate=" + miString(windseparate ? "on" : "off");
-  str+= " text=" + miString(ptext ? "on" : "off");
-  str+= " geotext=" + miString(pgeotext ? "on" : "off");
-  str+= " temptext=" + miString(temptext ? "on" : "off");
+  str= "windseparate=" + std::string(windseparate ? "on" : "off");
+  str+= " text=" + std::string(ptext ? "on" : "off");
+  str+= " geotext=" + std::string(pgeotext ? "on" : "off");
+  str+= " temptext=" + std::string(temptext ? "on" : "off");
   vstr.push_back(str);
 
-  str= "rvwind=" + miString(rvwind);
-  str+= (" ductingMin=" + miString(ductingMin));
-  str+= (" ductingMax=" + miString(ductingMax));
-  str+= (" linetext=" + miString(linetext));
+  str= "rvwind=" + miutil::from_number(rvwind);
+  str+= (" ductingMin=" + miutil::from_number(ductingMin));
+  str+= (" ductingMax=" + miutil::from_number(ductingMax));
+  str+= (" linetext=" + miutil::from_number(linetext));
   vstr.push_back(str);
 
   str= "backgroundColour=" + backgroundColour;
   vstr.push_back(str);
 
-  str= "diagramtype=" + miString(diagramtype);
-  str+= (" tangle=" + miString(tangle));
+  str= "diagramtype=" + miutil::from_number(diagramtype);
+  str+= (" tangle=" + miutil::from_number(tangle));
   vstr.push_back(str);
 
-  str=   "pminDiagram=" + miString(pminDiagram)
-  + " pmaxDiagram=" + miString(pmaxDiagram);
+  str=   "pminDiagram=" + miutil::from_number(pminDiagram)
+  + " pmaxDiagram=" + miutil::from_number(pmaxDiagram);
   vstr.push_back(str);
-  str=   "tminDiagram=" + miString(tminDiagram)
-  + " tmaxDiagram=" + miString(tmaxDiagram)
-  + " trangeDiagram=" + miString(trangeDiagram);
-  vstr.push_back(str);
-
-  str=  "plinesfl=" + miString(pplinesfl ? "on" : "off");
+  str=   "tminDiagram=" + miutil::from_number(tminDiagram)
+  + " tmaxDiagram=" + miutil::from_number(tmaxDiagram)
+  + " trangeDiagram=" + miutil::from_number(trangeDiagram);
   vstr.push_back(str);
 
-  str=  "plines=" + miString(pplines ? "on" : "off");
+  str=  "plinesfl=" + std::string(pplinesfl ? "on" : "off");
+  vstr.push_back(str);
+
+  str=  "plines=" + std::string(pplines ? "on" : "off");
   str+= (" pColour=" + pColour);
   str+= (" pLinetype=" + pLinetype);
-  str+= (" pLinewidth1=" + miString(pLinewidth1));
-  str+= (" pLinewidth2=" + miString(pLinewidth2));
+  str+= (" pLinewidth1=" + miutil::from_number(pLinewidth1));
+  str+= (" pLinewidth2=" + miutil::from_number(pLinewidth2));
   vstr.push_back(str);
 
-  str=  "tlines=" + miString(ptlines ? "on" : "off");
-  str+= (" tStep=" + miString(tStep));
+  str=  "tlines=" + std::string(ptlines ? "on" : "off");
+  str+= (" tStep=" + miutil::from_number(tStep));
   str+= (" tColour=" + tColour);
   str+= (" tLinetype=" + tLinetype);
-  str+= (" tLinewidth1=" + miString(tLinewidth1));
-  str+= (" tLinewidth2=" + miString(tLinewidth2));
+  str+= (" tLinewidth1=" + miutil::from_number(tLinewidth1));
+  str+= (" tLinewidth2=" + miutil::from_number(tLinewidth2));
   vstr.push_back(str);
 
-  str=  "dryadiabat=" + miString(pdryadiabat ? "on" : "off");
-  str+= (" dryadiabatStep=" + miString(dryadiabatStep));
+  str=  "dryadiabat=" + std::string(pdryadiabat ? "on" : "off");
+  str+= (" dryadiabatStep=" + miutil::from_number(dryadiabatStep));
   str+= (" dryadiabatColour=" + dryadiabatColour);
   str+= (" dryadiabatLinetype=" + dryadiabatLinetype);
-  str+= (" dryadiabatLinewidth=" + miString(dryadiabatLinewidth));
+  str+= (" dryadiabatLinewidth=" + miutil::from_number(dryadiabatLinewidth));
   vstr.push_back(str);
 
-  str=  "wetadiabat=" + miString(pwetadiabat ? "on" : "off");
-  str+= (" wetadiabatStep=" + miString(wetadiabatStep));
+  str=  "wetadiabat=" + std::string(pwetadiabat ? "on" : "off");
+  str+= (" wetadiabatStep=" + miutil::from_number(wetadiabatStep));
   str+= (" wetadiabatColour=" + wetadiabatColour);
   str+= (" wetadiabatLinetype=" + wetadiabatLinetype);
-  str+= (" wetadiabatLinewidth=" + miString(wetadiabatLinewidth));
-  str+= (" wetadiabatPmin=" + miString(wetadiabatPmin));
-  str+= (" wetadiabatTmin=" + miString(wetadiabatTmin));
+  str+= (" wetadiabatLinewidth=" + miutil::from_number(wetadiabatLinewidth));
+  str+= (" wetadiabatPmin=" + miutil::from_number(wetadiabatPmin));
+  str+= (" wetadiabatTmin=" + miutil::from_number(wetadiabatTmin));
   vstr.push_back(str);
 
-  str=  "mixingratio=" + miString(pmixingratio ? "on" : "off");
-  str+= (" mixingratioSet=" + miString(mixingratioSet));
+  str=  "mixingratio=" + std::string(pmixingratio ? "on" : "off");
+  str+= (" mixingratioSet=" + miutil::from_number(mixingratioSet));
   str+= (" mixingratioColour=" + mixingratioColour);
   str+= (" mixingratioLinetype=" + mixingratioLinetype);
-  str+= (" mixingratioLinewidth=" + miString(mixingratioLinewidth));
-  str+= (" mixingratioPmin=" + miString(mixingratioPmin));
-  str+= (" mixingratioTmin=" + miString(mixingratioTmin));
+  str+= (" mixingratioLinewidth=" + miutil::from_number(mixingratioLinewidth));
+  str+= (" mixingratioPmin=" + miutil::from_number(mixingratioPmin));
+  str+= (" mixingratioTmin=" + miutil::from_number(mixingratioTmin));
   vstr.push_back(str);
 
-  str=  "labelp=" + miString(plabelp ? "on" : "off");
-  str+= " labelt=" + miString(plabelt ? "on" : "off");
-  str+= " labelq=" + miString(plabelq ? "on" : "off");
+  str=  "labelp=" + std::string(plabelp ? "on" : "off");
+  str+= " labelt=" + std::string(plabelt ? "on" : "off");
+  str+= " labelq=" + std::string(plabelq ? "on" : "off");
   vstr.push_back(str);
 
-  str=  "frame="  + miString(pframe ? "on" : "off");
+  str=  "frame="  + std::string(pframe ? "on" : "off");
   str+= (" frameColour=" + frameColour);
   str+= (" frameLinetype=" + frameLinetype);
-  str+= (" frameLinewidth=" + miString(frameLinewidth));
+  str+= (" frameLinewidth=" + miutil::from_number(frameLinewidth));
   vstr.push_back(str);
 
   str= ("textColour=" + textColour);
   vstr.push_back(str);
 
-  str=  "flevels=" + miString(pflevels ? "on" : "off");
+  str=  "flevels=" + std::string(pflevels ? "on" : "off");
   str+= (" flevelsColour=" + flevelsColour);
   str+= (" flevelsLinetype=" + flevelsLinetype);
-  str+= (" flevelsLinewidth1=" + miString(flevelsLinewidth1));
-  str+= (" flevelsLinewidth2=" + miString(flevelsLinewidth2));
+  str+= (" flevelsLinewidth1=" + miutil::from_number(flevelsLinewidth1));
+  str+= (" flevelsLinewidth2=" + miutil::from_number(flevelsLinewidth2));
   vstr.push_back(str);
 
-  str=  "labelflevels=" + miString(plabelflevels ? "on" : "off");
+  str=  "labelflevels=" + std::string(plabelflevels ? "on" : "off");
   vstr.push_back(str);
 
-  str=   "rsvaxis="   + miString(rsvaxis);
-  str+= " rstext="    + miString(rstext);
-  str+= " rslabels="  + miString(rslabels);
-  str+= " rswind="    + miString(rswind);
-  str+= " rsvwind="   + miString(rsvwind);
-  str+= " rsrelhum="  + miString(rsrelhum);
-  str+= " rsducting=" + miString(rsducting);
+  str=   "rsvaxis="   + miutil::from_number(rsvaxis);
+  str+= " rstext="    + miutil::from_number(rstext);
+  str+= " rslabels="  + miutil::from_number(rslabels);
+  str+= " rswind="    + miutil::from_number(rswind);
+  str+= " rsvwind="   + miutil::from_number(rsvwind);
+  str+= " rsrelhum="  + miutil::from_number(rsrelhum);
+  str+= " rsducting=" + miutil::from_number(rsducting);
   vstr.push_back(str);
 
   str=   "rangeLinetype=" + rangeLinetype;
-  str+= (" rangeLinewidth=" + miString(rangeLinewidth));
+  str+= (" rangeLinewidth=" + miutil::from_number(rangeLinewidth));
   vstr.push_back(str);
 
-  str=  "cotrails="  + miString(pcotrails ? "on" : "off");
+  str=  "cotrails="  + std::string(pcotrails ? "on" : "off");
   str+= (" cotrailsColour=" + cotrailsColour);
   str+= (" cotrailsLinetype=" + cotrailsLinetype);
-  str+= (" cotrailsLinewidth=" + miString(cotrailsLinewidth));
-  str+= (" cotrailsPmin=" + miString(cotrailsPmin));
-  str+= (" cotrailsPmax=" + miString(cotrailsPmax));
+  str+= (" cotrailsLinewidth=" + miutil::from_number(cotrailsLinewidth));
+  str+= (" cotrailsPmin=" + miutil::from_number(cotrailsPmin));
+  str+= (" cotrailsPmax=" + miutil::from_number(cotrailsPmax));
   vstr.push_back(str);
 
   return vstr;
 }
 
 
-void VprofOptions::readOptions(const vector<miString>& vstr)
+void VprofOptions::readOptions(const std::vector<std::string>& vstr)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofOptions::readOptions");
+  METLIBS_LOG_SCOPE();
 #endif
 
-  vector<miString> vs,tokens;
-  miString key,value;
+  std::vector<std::string> vs,tokens;
+  std::string key,value;
 
   int n= vstr.size();
 
   for (int i=0; i<n; i++) {
 
-    vs= vstr[i].split(' ');
+    vs= miutil::split(vstr[i], 0, " ");
 
     int m= vs.size();
 
     for (int j=0; j<m; j++) {
 
-      tokens= vs[j].split('=');
+      tokens= miutil::split(vs[j], 0, "=");
 
       if (tokens.size()==2) {
 
-        //	key=   tokens[0].downcase();
+        //	key=   miutil::to_lower(tokens[0]);
         key=   tokens[0];
         value= tokens[1];
 
-        if      (key=="tttt")       ptttt=    (value.downcase()=="on");
-        else if (key=="tdtd")       ptdtd=    (value.downcase()=="on");
-        else if (key=="wind")       pwind=    (value.downcase()=="on");
-        else if (key=="vwind")      pvwind=   (value.downcase()=="on");
-        else if (key=="relhum")     prelhum=  (value.downcase()=="on");
-        else if (key=="ducting")    pducting= (value.downcase()=="on");
-        else if (key=="kindex")     pkindex=  (value.downcase()=="on");
-        else if (key=="slwind")     pslwind=  (value.downcase()=="on");
+        if      (key=="tttt")       ptttt=    (miutil::to_lower(value)=="on");
+        else if (key=="tdtd")       ptdtd=    (miutil::to_lower(value)=="on");
+        else if (key=="wind")       pwind=    (miutil::to_lower(value)=="on");
+        else if (key=="vwind")      pvwind=   (miutil::to_lower(value)=="on");
+        else if (key=="relhum")     prelhum=  (miutil::to_lower(value)=="on");
+        else if (key=="ducting")    pducting= (miutil::to_lower(value)=="on");
+        else if (key=="kindex")     pkindex=  (miutil::to_lower(value)=="on");
+        else if (key=="slwind")     pslwind=  (miutil::to_lower(value)=="on");
 
-        else if (key=="windseparate") windseparate= (value.downcase()=="on");
-        else if (key=="text")         ptext=        (value.downcase()=="on");
-        else if (key=="geotext")      pgeotext=     (value.downcase()=="on");
-        else if (key=="temptext")     temptext=     (value.downcase()=="on");
+        else if (key=="windseparate") windseparate= (miutil::to_lower(value)=="on");
+        else if (key=="text")         ptext=        (miutil::to_lower(value)=="on");
+        else if (key=="geotext")      pgeotext=     (miutil::to_lower(value)=="on");
+        else if (key=="temptext")     temptext=     (miutil::to_lower(value)=="on");
 
         else if (key=="rvwind")     rvwind=     atof(value.c_str());
         else if (key=="ductingMin") ductingMin= atof(value.c_str());
@@ -485,28 +479,28 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="tmaxDiagram")   tmaxDiagram= atoi(value.c_str());
         else if (key=="trangeDiagram") trangeDiagram= atoi(value.c_str());
 
-        else if (key=="plinesfl")  pplinesfl= (value.downcase()=="on");
+        else if (key=="plinesfl")  pplinesfl= (miutil::to_lower(value)=="on");
 
-        else if (key=="plines")      pplines= (value.downcase()=="on");
+        else if (key=="plines")      pplines= (miutil::to_lower(value)=="on");
         else if (key=="pColour")     pColour= value;
         else if (key=="pLinetype")   pLinetype= value;
         else if (key=="pLinewidth1") pLinewidth2= atof(value.c_str());
         else if (key=="pLinewidth2") pLinewidth2= atof(value.c_str());
 
-        else if (key=="tlines")      ptlines=     (value.downcase()=="on");
+        else if (key=="tlines")      ptlines=     (miutil::to_lower(value)=="on");
         else if (key=="tStep")       tStep=       atoi(value.c_str());
         else if (key=="tColour")     tColour=     value;
         else if (key=="tLinetype")   tLinetype=   value;
         else if (key=="tLinewidth1") tLinewidth2= atof(value.c_str());
         else if (key=="tLinewidth2") tLinewidth2= atof(value.c_str());
 
-        else if (key=="dryadiabat")          pdryadiabat=    (value.downcase()=="on");
+        else if (key=="dryadiabat")          pdryadiabat=    (miutil::to_lower(value)=="on");
         else if (key=="dryadiabatStep")      dryadiabatStep=      atoi(value.c_str());
         else if (key=="dryadiabatColour")    dryadiabatColour=    value;
         else if (key=="dryadiabatLinetype")  dryadiabatLinetype=  value;
         else if (key=="dryadiabatLinewidth") dryadiabatLinewidth= atof(value.c_str());
 
-        else if (key=="wetadiabat")          pwetadiabat=    (value.downcase()=="on");
+        else if (key=="wetadiabat")          pwetadiabat=    (miutil::to_lower(value)=="on");
         else if (key=="wetadiabatStep")      wetadiabatStep=      atoi(value.c_str());
         else if (key=="wetadiabatColour")    wetadiabatColour=    value;
         else if (key=="wetadiabatLinetype")  wetadiabatLinetype=  value;
@@ -514,7 +508,7 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="wetadiabatPmin")      wetadiabatPmin=      atoi(value.c_str());
         else if (key=="wetadiabatTmin")      wetadiabatTmin=      atoi(value.c_str());
 
-        else if (key=="mixingratio")          pmixingratio=    (value.downcase()=="on");
+        else if (key=="mixingratio")          pmixingratio=    (miutil::to_lower(value)=="on");
         else if (key=="mixingratioSet")       mixingratioSet=   atoi(value.c_str());
         else if (key=="mixingratioColour")    mixingratioColour=    value;
         else if (key=="mixingratioLinetype")  mixingratioLinetype=  value;
@@ -522,24 +516,24 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="mixingratioPmin")      mixingratioPmin=      atoi(value.c_str());
         else if (key=="mixingratioTmin")      mixingratioTmin=      atoi(value.c_str());
 
-        else if (key=="labelp") plabelp= (value.downcase()=="on");
-        else if (key=="labelt") plabelt= (value.downcase()=="on");
-        else if (key=="labelq") plabelq= (value.downcase()=="on");
+        else if (key=="labelp") plabelp= (miutil::to_lower(value)=="on");
+        else if (key=="labelt") plabelt= (miutil::to_lower(value)=="on");
+        else if (key=="labelq") plabelq= (miutil::to_lower(value)=="on");
 
-        else if (key=="frame")          pframe= (value.downcase()=="on");
+        else if (key=="frame")          pframe= (miutil::to_lower(value)=="on");
         else if (key=="frameColour")    frameColour= value;
         else if (key=="frameLinetype")  frameLinetype= value;
         else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
 
         else if (key=="textColour") textColour= value;
 
-        else if (key=="flevels")           pflevels= (value.downcase()=="on");
+        else if (key=="flevels")           pflevels= (miutil::to_lower(value)=="on");
         else if (key=="flevelsColour")     flevelsColour= value;
         else if (key=="flevelsLinetype")   flevelsLinetype= value;
         else if (key=="flevelsLinewidth1") flevelsLinewidth1= atof(value.c_str());
         else if (key=="flevelsLinewidth2") flevelsLinewidth2= atof(value.c_str());
 
-        else if (key=="labelflevels") plabelflevels= (value.downcase()=="on");
+        else if (key=="labelflevels") plabelflevels= (miutil::to_lower(value)=="on");
 
         else if (key=="rsvaxis")   rsvaxis=   atof(value.c_str());
         else if (key=="rstext")    rstext=    atof(value.c_str());
@@ -552,7 +546,7 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
         else if (key=="rangeLinetype")  rangeLinetype= value;
         else if (key=="rangeLinewidth") rangeLinewidth= atof(value.c_str());
 
-        else if (key=="cotrails")          pcotrails=    (value.downcase()=="on");
+        else if (key=="cotrails")          pcotrails=    (miutil::to_lower(value)=="on");
         else if (key=="cotrailsColour")    cotrailsColour=    value;
         else if (key=="cotrailsLinetype")  cotrailsLinetype=  value;
         else if (key=="cotrailsLinewidth") cotrailsLinewidth= atof(value.c_str());
@@ -563,10 +557,10 @@ void VprofOptions::readOptions(const vector<miString>& vstr)
 
       if (tokens.size()>=2) {
 
-        //	key=   tokens[0].downcase();
+        //	key=   miutil::to_lower(tokens[0]);
         key=   tokens[0];
         value= tokens[1];
-        vector<miString> vs= value.split(',');
+        std::vector<std::string> vs= miutil::split(value, 0, ",");
         int nv= vs.size();
 
         if (nv>0) {

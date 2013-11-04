@@ -31,13 +31,9 @@
 #ifndef TRAJECTORYDIALOG_H
 #define TRAJECTORYDIALOG_H
 
-#include <QDialog>
-
-#include <puTools/miString.h>
-#include <vector>
 #include <diController.h>
-
-using namespace std;
+#include <QDialog>
+#include <vector>
 
 class QComboBox;
 class QListWidget;
@@ -48,7 +44,6 @@ class GeoPosLineEdit;
 class QCheckBox;
 
 /**
-
   \brief Dialogue for 2D-trajectories
    
    -select of start positions
@@ -69,9 +64,9 @@ public:
   //send all positions to TrajectoryPlotdiObsDi
   void sendAllPositions();
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
 protected:
   void closeEvent( QCloseEvent* );
 
@@ -81,13 +76,13 @@ private:
   struct posStruct {
     double lat,lon;
     int radius;
-    miutil::miString numPos;
+    std::string numPos;
   };
-  vector<posStruct> positionVector;
+  std::vector<posStruct> positionVector;
    
   //init QT stuff
-  vector<Colour::ColourInfo> colourInfo;
-  vector<std::string> linetypes;
+  std::vector<Colour::ColourInfo> colourInfo;
+  std::vector<std::string> linetypes;
 
   //qt widget
   QLabel* fieldName;
@@ -105,7 +100,7 @@ private:
   QComboBox* numposBox;
 
   //functions
-  miutil::miString makeString();
+  std::string makeString();
   void update_posList(float lat, float lon); 
 
 private slots:

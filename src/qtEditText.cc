@@ -32,6 +32,13 @@
   Input for adding complex text
  */
 
+#include "qtEditText.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+#include "diController.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -43,27 +50,21 @@
 #include <QString>
 
 #include <fstream>
-#include <iostream>
 
+//#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.EditText"
 #include <miLogger/miLogging.h>
 
-#include <puTools/miString.h>
-#include "qtEditText.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-#include "diController.h"
-//#define DEBUGPRINT
+using namespace std;
 
-QValidator::State EditText::complexValidator::validate(QString& inputString,
-    int& pos) const
-    {
+QValidator::State EditText::complexValidator::validate(QString& inputString, int& pos) const
+{
   //validator, only used for zero isoterm input !!!
-  if (!inputString.contains("0°:")){
+  if (not inputString.contains("0°:")) {
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
-    }
+}
 
 // initialize static members
 bool               EditText::initialized= false;
@@ -73,7 +74,7 @@ QColor*            EditText::pixcolor=0;
 
 /*********************************************/
 EditText::EditText( QWidget* parent, Controller* llctrl,
-    vector <miutil::miString> & symbolText, set <miutil::miString> cList,bool useColour)
+    vector<string> & symbolText, set<string> cList, bool useColour)
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
@@ -106,8 +107,8 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       int ns = symbolText.size();
       METLIBS_LOG_DEBUG("?????????ns = "<< ns);
      // int nx = xText.size();
-      //set <miutil::miString> complexList = m_ctrl->getEditList();
-      set <miutil::miString> complexList = cList;
+      //set <std::string> complexList = m_ctrl->getEditList();
+      set <string> complexList = cList;
       QTextEdit *edittext = new QTextEdit(this);
       edittext->setLineWrapMode(QTextEdit::WidgetWidth);
       edittext->setFont(QFont("Arial", 10, QFont::Normal));
@@ -180,7 +181,8 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
     }
 
 
-    void EditText::getEditText(vector <miutil::miString> & symbolText){
+    void EditText::getEditText(vector <string> & symbolText)
+    {
 #ifdef DEBUGPRINT
       cout<<"EditText::getEditText called"<<endl;
 #endif
@@ -189,15 +191,15 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       QTextDocument *doc = vSymbolEdit->document();
       // get each line from textedit and put it into vector 
       // line length is max 50 char
-      miutil::miString line;
+      std::string line;
       symbolText.clear();
       for (QTextBlock it = doc->begin(); it!=doc->end(); it = it.next()) {
            line = it.text().toStdString();
            if (line.length()<55){
               symbolText.push_back(line);
            } else {
-               vector<miutil::miString> stokens = line.split(" ", true);
-               miutil::miString token, oldtoken;
+               vector<std::string> stokens = miutil::split(line, " ", true);
+               std::string token, oldtoken;
                int slength;
                int mtokens = stokens.size();
                for (int k = 0; k < mtokens; k++) {

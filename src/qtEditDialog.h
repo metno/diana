@@ -35,12 +35,10 @@
 #include <QDialog>
 #include <qpixmap.h>
 
-#include <puTools/miString.h>
-#include <vector>
 #include <diCommonTypes.h>
 #include <diEditSpec.h>
 
-using namespace std;
+#include <vector>
 
 class QComboBox;
 class QListWidget;
@@ -66,10 +64,7 @@ class TimeStepSpinbox;
 
 /**
    \brief Dialogue for editing fields and weather objects and for combining
-
-
 */
-
 class EditDialog: public QDialog
 {
     Q_OBJECT
@@ -147,7 +142,7 @@ private slots:
   void EditNewCancel();
   void newLogin(editDBinfo&);
 
-public slots:
+public Q_SLOTS:
   ///undo fields or objects depending on mode
   void undoEdit();
   ///redo fields or objects depending on mode
@@ -155,7 +150,7 @@ public slots:
   /// save edits to file
   void saveEdit();
 
-signals:
+Q_SIGNALS:
   /// hide dialog
   void EditHide();
   /// redraw (update GL)
@@ -163,13 +158,13 @@ signals:
   /// apply edit commands
   void editApply();
  /// send plot-commands
-  void Apply(const vector<miutil::miString>& s, bool);
+  void Apply(const std::vector<std::string>& s, bool);
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times
-  void emitTimes(const miutil::miString&, const std::vector<miutil::miTime>&);
+  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
   /// update field dialog
-  void emitFieldEditUpdate(miutil::miString);
+  void emitFieldEditUpdate(std::string);
   /// editing on or off
   void editMode(bool);
   /// resize main window
@@ -202,7 +197,7 @@ private:
 
   QLabel* ellipsenumber;
   QSlider* ellipseslider;
-  vector<float> ellipsenumbers;
+  std::vector<float> ellipsenumbers;
 
   QButtonGroup* bgroup;
   QPushButton** b;
@@ -235,20 +230,20 @@ private:
 
   int m_FrontcmIndex; // index of m_Frontcm;
   int m_FronteditIndex; // index of m_Fronteditmethods;
-  vector <miutil::miString> m_FronteditList;// items in Frontedit
+  std::vector <std::string> m_FronteditList;// items in Frontedit
 
-  map <miutil::miString,QString> editTranslations;//translate to any language
+  std::map<std::string,QString> editTranslations;//translate to any language
 
   int fieldEditToolGroup;  // 0=standard 1=classes 2=numbers
   int numFieldEditTools;
   int currFieldEditToolIndex;
-  vector<miutil::miString> classNames;
-  vector<float>    classValues;
-  vector<bool>     classValuesLocked;
+  std::vector<std::string> classNames;
+  std::vector<float>    classValues;
+  std::vector<bool>     classValuesLocked;
 
-  miutil::miString currMapmode;
-  miutil::miString currEditmode;
-  miutil::miString currEdittool;
+  std::string currMapmode;
+  std::string currEditmode;
+  std::string currEdittool;
   int combineAction;
   bool inEdit;          // editing is active
   bool productApproved; // product has been approved
@@ -262,17 +257,15 @@ private:
   TimeStepSpinbox* timestepspin;
   QLabel* timelabel;
 
-  bool getText(miutil::miString &, Colour::ColourInfo &);
-  bool getEditText(vector <miutil::miString> &);
-  bool getComplexText(vector <miutil::miString> &, vector <miutil::miString> &);
-  bool getComplexColoredText(vector <miutil::miString> &, vector <miutil::miString> &, Colour::ColourInfo &);
+  bool getText(std::string &, Colour::ColourInfo &);
+  bool getEditText(std::vector<std::string> &);
+  bool getComplexText(std::vector<std::string> &, std::vector<std::string> &);
+  bool getComplexColoredText(std::vector<std::string>&, std::vector<std::string>&, Colour::ColourInfo &);
 
 
   QString TABNAME_FIELD;
   QString TABNAME_OBJECTS;
   QString TABNAME_COMBINE;
-
 };
-
 
 #endif

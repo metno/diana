@@ -31,12 +31,9 @@
 #ifndef _datadialog_h
 #define _datadialog_h
 
+#include <puTools/miTime.h>
 #include <QDialog>
 #include <vector>
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-
-using namespace std;
 
 class Controller;
 class QAction;
@@ -57,16 +54,16 @@ public:
   /// Update the dialog after re-reading the setup file.
   virtual void updateDialog() = 0;
   /// Returns the vector of command strings in use.
-  virtual std::vector<miutil::miString> getOKString() = 0;
-  /// Sets new command strings to be represented in the dialog.
-  virtual void putOKString(const std::vector<miutil::miString>& vstr) = 0;
+  virtual std::vector<std::string> getOKString() = 0;
+  /// Set new command strings, representing them in the dialog.
+  virtual void putOKString(const std::vector<std::string>& vstr) = 0;
 
 public slots:
   virtual void updateTimes() = 0;
 
 signals:
-  void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &);
-  void emitTimes(const miutil::miString &, const std::vector<miutil::miTime> &, bool);
+  void emitTimes(const std::string &, const std::vector<miutil::miTime> &);
+  void emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool);
   void applyData();
   void hideData();
   void showsource(const std::string, const std::string="");

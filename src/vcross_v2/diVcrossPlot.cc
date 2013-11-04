@@ -45,6 +45,8 @@
 #include "diVcrossUtil.h"
 #include "diFontManager.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <qglobal.h>
 
 #include <GL/gl.h>
@@ -117,6 +119,8 @@ VcrossPlot::VcrossPlot(VcrossOptions* vcoptions)
   , mTotalSize(100, 100)
   , mFontSize(0)
   , mViewChanged(true)
+  , mKeepX(false)
+  , mKeepY(false)
   , mAxisX(new VcrossPlotDetail::Axis(true))
   , mAxisY(new VcrossPlotDetail::Axis(false))
 {
@@ -252,8 +256,11 @@ void VcrossPlot::viewStandard()
   mViewChanged = true;
 }
 
-void VcrossPlot::clear()
+void VcrossPlot::clear(bool keepX, bool keepY)
 {
+  mKeepX = keepX;
+  mKeepY = keepY;
+
   mPlots.clear();
 
   mCrossectionName.clear();
@@ -301,9 +308,13 @@ void VcrossPlot::setHorizontalTime(const std::vector<miutil::miTime>& times, int
 
 void VcrossPlot::setVerticalAxis(VcrossData::ZAxis::Quantity q)
 {
-  mAxisY->quantity = (q == VcrossData::ZAxis::PRESSURE)
-      ? VcrossPlotDetail::Axis::PRESSURE
-      : VcrossPlotDetail::Axis::HEIGHT;
+  if (q == VcrossData::ZAxis::PRESSURE) {
+    mAxisY->quantity = VcrossPlotDetail::Axis::PRESSURE;
+    //mAxisY->type     = VcrossPlotDetail::Axis::EXNER;
+  } else {
+    mAxisY->quantity = VcrossPlotDetail::Axis::HEIGHT;
+    //mAxisY->type     = VcrossPlotDetail::Axis::LINEAR;
+  }
 }
 
 void VcrossPlot::addPlot(const std::string& mn, const std::string& fn,
@@ -318,11 +329,32 @@ void VcrossPlot::prepare()
 {
   METLIBS_LOG_SCOPE();
 
-  prepareAxes();
+  if (not mKeepX)
+    prepareXAxis();
+  if (not mKeepY)
+    prepareYAxis();
+  if (not (mKeepX or mKeepY))
+    viewStandard();
+  mKeepX = mKeepY = false;
+
   mViewChanged = true;
 }
 
-void VcrossPlot::prepareAxes()
+void VcrossPlot::prepareXAxis()
+{
+  METLIBS_LOG_SCOPE();
+
+  float xax_min = 0, xax_max;
+  if (not isTimeGraph())
+    xax_max = mCrossectionDistances.back();
+  else
+    xax_max = mTimeDistances.back();
+  METLIBS_LOG_DEBUG(LOGVAL(xax_min) << LOGVAL(xax_max));
+    
+  mAxisX->setDataRange (xax_min, xax_max);
+}
+
+void VcrossPlot::prepareYAxis()
 {
   METLIBS_LOG_SCOPE();
 
@@ -366,16 +398,6 @@ void VcrossPlot::prepareAxes()
   METLIBS_LOG_DEBUG(LOGVAL(yax_min) << LOGVAL(yax_max));
   mAxisY->setDataRange(yax_min, yax_max);
   mAxisY->setValueRange(yax_min, yax_max);
-
-  float xax_min = 0, xax_max;
-  if (not timeGraph)
-    xax_max = mCrossectionDistances.back();
-  else
-    xax_max = mTimeDistances.back();
-  METLIBS_LOG_DEBUG(LOGVAL(xax_min) << LOGVAL(xax_max));
-    
-  mAxisX->setDataRange (xax_min, xax_max);
-  viewStandard();
 }
 
 void VcrossPlot::prepareView()

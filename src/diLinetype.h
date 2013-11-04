@@ -31,10 +31,10 @@
 #ifndef diLinetype_h
 #define diLinetype_h
 
-#include <puTools/miString.h>
 #include <puCtools/porttypes.h>
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
 
 /**
    \brief Line stippling for plotting
@@ -44,13 +44,10 @@
 
 class Linetype {
 public:
-  // Constructors
   Linetype();
   Linetype(const std::string& _name);
 
-  // Assignment operator
   Linetype& operator=(const Linetype &rhs);
-  // Equality operator
   bool operator==(const Linetype &rhs) const;
 
   /// clear static data

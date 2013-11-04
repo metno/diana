@@ -140,7 +140,7 @@ void DrawingDialog::updateDialog()
 {
 }
 
-std::vector<miutil::miString> DrawingDialog::getOKString()
+std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<miutil::miString> lines;
 
@@ -169,7 +169,7 @@ std::vector<miutil::miString> DrawingDialog::getOKString()
   return lines;
 }
 
-void DrawingDialog::putOKString(const std::vector<miutil::miString>& vstr)
+void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
   // Submit the lines as new input.
   std::vector<std::string> inp;

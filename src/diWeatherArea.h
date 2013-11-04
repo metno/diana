@@ -32,15 +32,13 @@
 #define WeatherArea_h
 
 #include <diObjectPlot.h>
-#include <puTools/miString.h>
 
-using namespace std;
+#include <map>
+#include <string>
+#include <vector>
 
 /**
-
   \brief A weather area that can be plotted and edited
-
-
 */
 class WeatherArea: public ObjectPlot
 {
@@ -49,8 +47,8 @@ private:
   static float defaultLineWidth;
   bool fillArea;                  // fill area with pattern
   const GLubyte* itsFilltype;
-  static vector<editToolInfo>  allAreas;
-  static map<miutil::miString,int> areaTypes;  //finds area type number from name
+  static std::vector<editToolInfo>  allAreas;
+  static std::map<std::string,int> areaTypes;  //finds area type number from name
 
   void recalculate();
   void drawSigweather();
@@ -63,7 +61,7 @@ private:
   float getLineWidth(){return linewidth;}
   virtual void setLineWidth(float w){linewidth=w;}
   bool setSpline(bool s);     // s=true if you want to spline
-  void setFillArea(const miutil::miString& filltype);   //set fillArea=true if !filltype.empty()
+  void setFillArea(const std::string& filltype);   //set fillArea=true if !filltype.empty()
   void setFilltype(const GLubyte* filltype){itsFilltype = filltype;}
 public:
   /// default constructor
@@ -71,11 +69,11 @@ public:
   /// constructor with integer area type as argument
   WeatherArea(int ty);
   /// constructor with name of area type as argument
-  WeatherArea(miutil::miString tystring);
+  WeatherArea(std::string tystring);
   /// Destructor
   ~WeatherArea();
   /// define map to find area type number from name
-  static void defineAreas(vector<editToolInfo> areas);
+  static void defineAreas(std::vector<editToolInfo> areas);
   /// set default line width from setup
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation and whether area should be filled
@@ -87,13 +85,13 @@ public:
   /// set type of area
   void setType(int ty);
   /// set type of area
-  bool setType(miutil::miString tystring);
+  bool setType(std::string tystring);
   /// turn area
   void flip();
   /// returns true if point x,y on area line
   virtual bool isOnObject(float x, float y) {return showLine(x,y);}
   /// writes a string with Object and Type
-  miutil::miString writeTypeString();
+  std::string writeTypeString();
   /// selects or unselects area
   virtual void setSelected(bool s);
   /// returns true if x,y inside area

@@ -39,7 +39,7 @@
 
 using namespace std; using namespace miutil; 
 
-ObsOcea::ObsOcea(const miString &file)
+ObsOcea::ObsOcea(const std::string &file)
 :ocea(file){
 }
 
@@ -107,11 +107,9 @@ void ObsOcea::putData(int i, int levelIndex,miTime obsTime,ObsData &d){
 
   d.dataType="ocean";
   //Description
-  d.id = contents[i].desc.kjennetegn;
-  d.id.trim();
-  miString tegn = contents[i].data.tegn;
-  d.id += tegn;
-  d.id.trim();
+  d.id = miutil::trimmed(contents[i].desc.kjennetegn);
+  d.id += contents[i].data.tegn;
+  miutil::trim(d.id);
   d.xpos =  contents[i].desc.lengde/100.;
   d.ypos = contents[i].desc.bredde/100.;
   d.zone = _IDtoZone(contents[i].stationID);

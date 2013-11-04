@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,23 +29,20 @@
 #ifndef _diFilledMap_h
 #define _diFilledMap_h
 
-#include <puTools/miString.h>
 #include <diField/diGridConverter.h>
-#include <GL/gl.h>
 #include <puCtools/porttypes.h>
-
-using namespace std;
+#include <GL/gl.h>
+#include <vector>
 
 /**
- \brief Maps with filled land
-
- Data and plotter for maps with filled land (pre-calculated triangles)
-
- */
+   \brief Maps with filled land
+   
+   Data and plotter for maps with filled land (pre-calculated triangles)
+*/
 
 class FilledMap {
 private:
-  miutil::miString filename; // name of map file
+  std::string filename; // name of map file
   long timestamp; // file's change-time
   GridConverter gc;
 
@@ -81,7 +76,7 @@ private:
 
   struct tile_data {
     int np;
-    vector<int> polysize;
+    std::vector<int> polysize;
     float *polyverx;
     float *polyvery;
     tile_data() :
@@ -108,7 +103,7 @@ private:
 public:
 
   FilledMap();
-  FilledMap(const miutil::miString fn);
+  FilledMap(const std::string fn);
   ~FilledMap();
 
   /**

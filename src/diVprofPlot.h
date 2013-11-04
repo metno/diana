@@ -34,12 +34,9 @@
 #include <diVprofTables.h>
 #include <diVprofOptions.h>
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
-#include <vector>
 #include <GL/gl.h>
-
-using namespace std;
+#include <vector>
 
 /**
    \brief Plots observed or prognostic Vertical Profiles (soundings)
@@ -67,7 +64,7 @@ public:
   VprofPlot();
   ~VprofPlot();
   bool plot(VprofOptions *vpopt, int nplot);
-  void setName(const miutil::miString& name) { text.posName=name; }
+  void setName(const std::string& name) { text.posName=name; }
 
 private:
 
@@ -76,24 +73,23 @@ private:
   bool   windInKnots;
   int    maxLevels;
 
-  vector<float> ptt, tt;
-  vector<float> ptd, td;
-  vector<float> puv, uu, vv;
-  vector<float> pom, om;
-  vector<int>   dd, ff, sigwind;
+  std::vector<float> ptt, tt;
+  std::vector<float> ptd, td;
+  std::vector<float> puv, uu, vv;
+  std::vector<float> pom, om;
+  std::vector<int>   dd, ff, sigwind;
 
-  vector<float> pcom, tcom, tdcom; // common T and Td levels
-  vector<float> rhum, duct;
+  std::vector<float> pcom, tcom, tdcom; // common T and Td levels
+  std::vector<float> rhum, duct;
 
-  void  relhum(const vector<float>& tt,
-	       const vector<float>& td);
-  void ducting(const vector<float>& pp,
-	       const vector<float>& tt,
-	       const vector<float>& td);
-  void  kindex(const vector<float>& pp,
-	       const vector<float>& tt,
-	       const vector<float>& td);
-
+  void  relhum(const std::vector<float>& tt,
+	       const std::vector<float>& td);
+  void ducting(const std::vector<float>& pp,
+	       const std::vector<float>& tt,
+	       const std::vector<float>& td);
+  void  kindex(const std::vector<float>& pp,
+	       const std::vector<float>& tt,
+	       const std::vector<float>& td);
 };
 
 #endif

@@ -36,29 +36,23 @@
 #include <deque>
 #include <diLinetype.h>
 
-using namespace std;
-
 class Field;
-
 
 /**
    \brief Computes and plots 2-D trajectories from wind fields shown
-
 */
 class TrajectoryPlot : public Plot {
-
 private:
-
-  miutil::miString fieldStr;
+  std::string fieldStr;
   Colour colour;
   int lineWidth;
   Linetype lineType;
   int numMarker;
   int markerRadius;
-  vector<float> x;
-  vector<float> y;
-  vector<float> lat;
-  vector<float> lon;
+  std::vector<float> x;
+  std::vector<float> y;
+  std::vector<float> lat;
+  std::vector<float> lon;
   Area oldArea;
   bool plot_on;
   int timeMarker;
@@ -93,7 +87,7 @@ private:
   bool* runningForward;
   bool* runningBackward;
 
-  deque<TrajectoryData*> vtrajdata;
+  std::deque<TrajectoryData*> vtrajdata;
 
   TrajectoryPlot(const TrajectoryPlot &rhs){}
 
@@ -108,19 +102,17 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  int  trajPos(vector<miutil::miString>&);
+  int  trajPos(std::vector<std::string>&);
 
-  bool startComputation(vector<Field*> vf);
+  bool startComputation(std::vector<Field*> vf);
   void stopComputation();
   void clearData();
-  bool compute(vector<Field*> vf);
-  void getTrajectoryAnnotation(miutil::miString& s, Colour& c);
+  bool compute(std::vector<Field*> vf);
+  void getTrajectoryAnnotation(std::string& s, Colour& c);
 
   bool inComputation() { return computing; }
-  miutil::miString getFieldName() { return fieldStr; }
-  bool printTrajectoryPositions(const miutil::miString& filename);
-
-
+  std::string getFieldName() { return fieldStr; }
+  bool printTrajectoryPositions(const std::string& filename);
 };
 
 #endif

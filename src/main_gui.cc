@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,13 +50,11 @@
 #endif
 
 #include <puTools/miCommandLine.h>
-#include <puTools/miString.h>
+#include <puTools/miSetupParser.h>
 #include <iostream>
 
 #include <miLogger/logger.h>
 #include <miLogger/LogHandler.h>
-#define MILOGGER_CATEGORY "diana.in_gui"
-#include <miLogger/miLogging.h>
 
 
 #ifdef PROFET
@@ -68,7 +64,11 @@
 #include <diBuild.h>
 #include <config.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.main_gui"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 
 void printUsage(){
@@ -114,15 +114,15 @@ int main(int argc, char **argv)
   PaintGL *ctx = new PaintGL(); // ### Delete this on exit.
 #endif
 
-  miString logfilename;
-  miString ver_str= VERSION;
-  miString build_str= build_string;
-  miString cl_lang;
+  string logfilename;
+  string ver_str= VERSION;
+  string build_str= build_string;
+  string cl_lang;
   bool profetEnabled= false;
-  miString diana_title="diana";
-  miString profetServer;
-  miString setupfile;
-  miString lang;
+  string diana_title="diana";
+  string profetServer;
+  string setupfile;
+  string lang;
   map<std::string, std::string> user_variables;
 
   user_variables["PVERSION"]= PVERSION;
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
     // parsing command line arguments
   int ac= 1;
   while (ac < argc){
-    miString sarg= argv[ac];
+    const string sarg = argv[ac];
 
     if (sarg == "-h" || sarg == "--help"){
       printUsage();
@@ -138,12 +138,14 @@ int main(int argc, char **argv)
 
     } else if (sarg=="-s" || sarg=="--setup") {
       ac++;
-      if (ac >= argc) printUsage();
+      if (ac >= argc)
+        printUsage();
       setupfile= argv[ac];
 
     } else if (sarg=="-l" || sarg=="--lang") {
       ac++;
-      if (ac >= argc) printUsage();
+      if (ac >= argc)
+        printUsage();
       cl_lang= argv[ac];
 
     } else if (sarg=="-L" || sarg=="--logger") {
@@ -160,17 +162,19 @@ int main(int argc, char **argv)
 
     } else if (sarg=="-S" || sarg=="--server") {
       ac++;
-      if (ac >= argc) printUsage();
+      if (ac >= argc)
+        printUsage();
       profetServer= argv[ac];
     } else if (sarg=="-T" || sarg=="--title") {
       ac++;
-      if (ac >= argc) printUsage();
-      diana_title = miString(argv[ac]);
+      if (ac >= argc)
+        printUsage();
+      diana_title = argv[ac];
 
     } else {
-      vector<miString> ks= sarg.split("=");
+      vector<string> ks= miutil::split(sarg, "=");
       if (ks.size()==2) {
-        user_variables[ks[0].upcase()] = ks[1];
+        user_variables[miutil::to_upper(ks[0])] = ks[1];
       } else {
         METLIBS_LOG_WARN("WARNING, unknown argument on commandline:" << sarg);
       }
@@ -180,7 +184,7 @@ int main(int argc, char **argv)
 
   // Fix logger
   // initLogHandler must always be done
-  if (logfilename.exists()) {
+  if (not logfilename.empty()) {
     milogger::LogHandler::initLogHandler(logfilename);
   }
   else {
@@ -215,12 +219,12 @@ int main(int argc, char **argv)
 #endif
 
   // language from setup
-  if(LocalSetupParser::basicValue("language").exists())
-    lang=LocalSetupParser::basicValue("language");
+  if (not LocalSetupParser::basicValue("language").empty())
+    lang = LocalSetupParser::basicValue("language");
 
   // language from command line
-  if(cl_lang.exists())
-    lang=cl_lang;
+  if(not cl_lang.empty())
+    lang = cl_lang;
 
   miTime x; x.setDefaultLanguage(lang.c_str());
 
@@ -228,16 +232,16 @@ int main(int argc, char **argv)
   QTranslator myapp( 0 );
   QTranslator qt( 0 );
 
-  if(lang.exists()) {
+  if(not lang.empty()) {
 
     log.infoStream() << "SYSTEM LANGUAGE: " << lang.c_str();
 
-    miString qtlang   = "qt_" +lang;
-    miString dilang   = "diana_"+lang;
-    miString qulang   = "qUtilities_"+lang;
+    string qtlang   = "qt_" +lang;
+    string dilang   = "diana_"+lang;
+    string qulang   = "qUtilities_"+lang;
 
     // translation files for application strings
-    vector<miString> langpaths = LocalSetupParser::languagePaths();
+    vector<string> langpaths = LocalSetupParser::languagePaths();
 
     for(unsigned int i=0;i<langpaths.size(); i++ )
       if( qt.load(    qtlang.c_str(),langpaths[i].c_str()))

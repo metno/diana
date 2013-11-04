@@ -31,11 +31,8 @@
 #ifndef diSpectrumFile_h
 #define diSpectrumFile_h
 
-#include <puTools/miString.h>
 #include <puTools/miTime.h>
 #include <vector>
-
-using namespace std;
 
 class FtnVfile;
 class SpectrumPlot;
@@ -48,49 +45,47 @@ class SpectrumPlot;
 */
 class SpectrumFile
 {
-
 public:
-  SpectrumFile(const miutil::miString& filename, const miutil::miString& modelname);
+  SpectrumFile(const std::string& filename, const std::string& modelname);
   ~SpectrumFile();
   void cleanup();
   bool update();
   bool readFileHeader();
-  vector<miutil::miString> getNames() { return posName; }
-  vector<float> getLatitudes() { return posLatitude; }
-  vector<float> getLongitudes() { return posLongitude; }
-  vector<miutil::miTime> getTimes() { return validTime; }
+  std::vector<std::string> getNames() { return posName; }
+  std::vector<float> getLatitudes() { return posLatitude; }
+  std::vector<float> getLongitudes() { return posLongitude; }
+  std::vector<miutil::miTime> getTimes() { return validTime; }
 
-  SpectrumPlot* getData(const miutil::miString& name, const miutil::miTime& time);
+  SpectrumPlot* getData(const std::string& name, const miutil::miTime& time);
 
 private:
 
-  miutil::miString fileName;
-  miutil::miString modelName;
+  std::string fileName;
+  std::string modelName;
 
   FtnVfile *vfile;
 
   long int modificationtime;
 
-  miutil::miString modelName2; // from file
+  std::string modelName2; // from file
   int numPos;
   int numTime;
   int numDirec;
   int numFreq;
   int numExtra;
 
-  vector<float> directions;
-  vector<float> frequences;
-  vector<float> extraScale;
+  std::vector<float> directions;
+  std::vector<float> frequences;
+  std::vector<float> extraScale;
 
-  vector<miutil::miString> posName;
-  vector<float>    posLatitude;
-  vector<float>    posLongitude;
-  vector<miutil::miTime>   validTime;
-  vector<int>      forecastHour;
+  std::vector<std::string> posName;
+  std::vector<float>    posLatitude;
+  std::vector<float>    posLongitude;
+  std::vector<miutil::miTime>   validTime;
+  std::vector<int>      forecastHour;
 
   // dataAddress[2][numPos][numTime]
   int *dataAddress;
-
 };
 
 #endif

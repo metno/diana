@@ -31,10 +31,8 @@
 #ifndef SPECTRUMOPTIONS_H
 #define SPECTRUMOPTIONS_H
 
-#include <puTools/miString.h>
+#include <string>
 #include <vector>
-
-using namespace std;
 
 /**
   \brief Wave Spectrum diagram settings
@@ -49,8 +47,8 @@ public:
   void setDefaults();
 
   // log and setup
-  vector<miutil::miString> writeOptions();
-  void readOptions(const vector<miutil::miString>& vstr);
+  std::vector<std::string> writeOptions();
+  void readOptions(const std::vector<std::string>& vstr);
 
 private:
   friend class SpectrumSetupDialog;
@@ -60,41 +58,39 @@ private:
   bool changed;
 
   bool     pText;
-  miutil::miString textColour;
+  std::string textColour;
 
   bool     pFixedText;
-  miutil::miString fixedTextColour;
+  std::string fixedTextColour;
 
   bool     pFrame;
-  miutil::miString frameColour;
+  std::string frameColour;
   float    frameLinewidth;
 
   bool     pSpectrumLines;
-  miutil::miString spectrumLineColour;
+  std::string spectrumLineColour;
   float    spectrumLinewidth;
 
   bool     pSpectrumColoured;
 
   bool     pEnergyLine;
-  miutil::miString energyLineColour;
+  std::string energyLineColour;
   float    energyLinewidth;
 
   bool     pEnergyColoured;
-  miutil::miString energyFillColour;
+  std::string energyFillColour;
 
   bool     pWind;
-  miutil::miString windColour;
+  std::string windColour;
   float    windLinewidth;
 
   bool     pPeakDirection;
-  miutil::miString peakDirectionColour;
+  std::string peakDirectionColour;
   float    peakDirectionLinewidth;
 
   float    freqMax;
 
-  miutil::miString backgroundColour;
-
+  std::string backgroundColour;
 };
 
 #endif
-

@@ -3,13 +3,15 @@
 #endif
 
 #include <diGridArea.h>
-#include <propoly/AbstractablePolygon.h>
-#include <propoly/Point.h>
+
 #include <diTesselation.h>
-#include <polyStipMasks.h>
+
+#include <propoly/Point.h>
 #include <propoly/Segment.h>
-#include <list>
-#include <math.h>
+#include <polyStipMasks.h>
+
+#define MILOGGER_CATEGORY "diana.GridArea"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 using namespace miutil;
@@ -54,10 +56,8 @@ void GridArea::setStyle(const DrawStyle & ds){
   drawstyle = ds;
 }
 
-void GridArea::init(Projection currentProj){
-#ifndef NOLOG4CXX
-	logger = log4cxx::Logger::getLogger("diana.GridArea");
-#endif
+void GridArea::init(Projection currentProj)
+{
 	polygon.setIntersectionsAccepted(false);
 	editPolygon.setIntersectionsAccepted(false);
 	polygon.setCurrentProjection(currentProj);
@@ -454,30 +454,33 @@ void GridArea::doMove(){
 	mode = NORMAL;
 }
 
-void GridArea::startDraw(Point p){
-	LOG4CXX_DEBUG(logger,"startDraw ("<<p.toString()<<")");
-	mode = PAINTING;
-	displayPolygon.clearPoints();
-	polygon.clearPoints();
-	addPoint(p);
+void GridArea::startDraw(Point p)
+{
+  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_DEBUG(LOGVAL(p.toString()));
+  mode = PAINTING;
+  displayPolygon.clearPoints();
+  polygon.clearPoints();
+  addPoint(p);
 }
 
-void GridArea::doDraw(){
-	if(displayPolygon.empty()){
-		polygon.clearPoints();
-	}
-	else{
-		polygon.setCurrentProjectionPoints(displayPolygon);
-		polygon.makeAbstract(true);
-		displayPolygon = polygon.getPolygonInCurrentProjection();
-	}
+void GridArea::doDraw()
+{
+  if (displayPolygon.empty()) {
+    polygon.clearPoints();
+  } else {
+    polygon.setCurrentProjectionPoints(displayPolygon);
+    polygon.makeAbstract(true);
+    displayPolygon = polygon.getPolygonInCurrentProjection();
+  }
   saveChange();
   mode = NORMAL;
 }
 
 
-void GridArea::setSelected(bool s){
-	selected = s;
+void GridArea::setSelected(bool s)
+{
+  selected = s;
 }
 
 bool GridArea::isSelected(){

@@ -31,12 +31,9 @@
 #ifndef VPROFSETUPDIALOG_H
 #define VPROFSETUPDIALOG_H
 
-#include <QDialog>
-
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
+#include <QDialog>
 #include <vector>
-
 
 class QComboBox;
 class QCheckBox;
@@ -48,7 +45,6 @@ class VprofOptions;
 
 /**
    \brief Dialogue to select Vertical Profile diagram and data options
-
 */
 class VprofSetupDialog: public QDialog
 {
@@ -100,31 +96,31 @@ private:
 
   bool isInitialized;
 
-  miutil::miString TEMP;
-  miutil::miString DEWPOINT;
-  miutil::miString WIND;
-  miutil::miString VERTWIND;
-  miutil::miString RELHUM;
-  miutil::miString DUCTING;
-  miutil::miString KINDEX;
-  miutil::miString SIGNWIND;
-  miutil::miString PRESSLINES;
-  miutil::miString LINEFLIGHT;
-  miutil::miString TEMPLINES;
-  miutil::miString DRYADIABATS;
-  miutil::miString WETADIABATS;
-  miutil::miString MIXINGRATIO;
-  miutil::miString PTLABELS;
-  miutil::miString FRAME;
-  miutil::miString TEXT;
-  miutil::miString FLIGHTLEVEL;
-  miutil::miString FLIGHTLABEL;
-  miutil::miString SEPWIND;
-  miutil::miString CONDTRAIL;
-  miutil::miString GEOPOS;
-  miutil::miString PRESSRANGE;
-  miutil::miString TEMPRANGE;
-  miutil::miString BACKCOLOUR;
+  std::string TEMP;
+  std::string DEWPOINT;
+  std::string WIND;
+  std::string VERTWIND;
+  std::string RELHUM;
+  std::string DUCTING;
+  std::string KINDEX;
+  std::string SIGNWIND;
+  std::string PRESSLINES;
+  std::string LINEFLIGHT;
+  std::string TEMPLINES;
+  std::string DRYADIABATS;
+  std::string WETADIABATS;
+  std::string MIXINGRATIO;
+  std::string PTLABELS;
+  std::string FRAME;
+  std::string TEXT;
+  std::string FLIGHTLEVEL;
+  std::string FLIGHTLABEL;
+  std::string SEPWIND;
+  std::string CONDTRAIL;
+  std::string GEOPOS;
+  std::string PRESSRANGE;
+  std::string TEMPRANGE;
+  std::string BACKCOLOUR;
 
 private slots:
   void standardClicked();

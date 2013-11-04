@@ -33,21 +33,25 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-#include <iostream>
-#define MILOGGER_CATEGORY "diana.ObsAscii"
-#include <miLogger/miLogging.h>
 
 #include <diObsAscii.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
-#include <vector>
+
+#include <puTools/miStringFunctions.h>
+
 #include <curl/curl.h>
 
-using namespace::miutil;
+#include <fstream>
 
-ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
-    const vector<miutil::miString> headerinfo)
+#define MILOGGER_CATEGORY "diana.ObsAscii"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
+
+ObsAscii::ObsAscii(const string& filename, const string& headerfile,
+    const vector<string> headerinfo)
 {
   fileOK = false;
   knots = false;
@@ -55,8 +59,8 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   decodeHeader();
 }
 
-ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
-    const vector<miutil::miString> headerinfo, const miTime &filetime,
+ObsAscii::ObsAscii(const string& filename, const string& headerfile,
+    const vector<string>& headerinfo, const miTime &filetime,
     ObsPlot *oplot)
 {
   fileOK = false;
@@ -77,9 +81,8 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   oplot->addObsData(vObsData);
 }
 
-ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
-    const vector<miutil::miString> headerinfo,
-    ObsMetaData *metaData)
+ObsAscii::ObsAscii(const string &filename, const string &headerfile,
+    const vector<string>& headerinfo, ObsMetaData *metaData)
 {
   fileOK = false;
   knots = false;
@@ -94,7 +97,7 @@ ObsAscii::ObsAscii(const miString &filename, const miString &headerfile,
   metaData->setObsData(mObsData);
 }
 
-bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miString>& lines)
+bool ObsAscii::getFromFile(const string& filename, vector<string>& lines)
 {
   cerr <<"getFromFile: "<<filename<<endl;
   // open filestream
@@ -104,7 +107,7 @@ bool ObsAscii::getFromFile(const miutil::miString &filename, vector<miutil::miSt
     return false;
   }
 
-  miString str;
+  std::string str;
   while (getline(file, str)) {
     lines.push_back(str);
   }
@@ -122,7 +125,7 @@ size_t write_dataa(void *buffer, size_t size, size_t nmemb, void *userp)
 
 
 
-bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>& lines)
+bool ObsAscii::getFromHttp(const string &url, vector<string>& lines)
 {
   CURL *curl = NULL;
   string data;
@@ -136,9 +139,9 @@ bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>
 
     curl_easy_cleanup(curl);
 
-    miString mdata=data;
-    vector<miString> result;
-    result = mdata.split("\n");
+    std::string mdata=data;
+    vector<std::string> result;
+    result = miutil::split(mdata, "\n");
     lines.insert(lines.end(),result.begin(),result.end());
 
     return (res == 0);
@@ -147,8 +150,8 @@ bool ObsAscii::getFromHttp(const miutil::miString &url, vector<miutil::miString>
   return false;
 }
 
-void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfile,
-    const vector<miutil::miString> headerinfo)
+void ObsAscii::readHeaderInfo(const string& filename, const string& headerfile,
+    const vector<string>& headerinfo)
 {
 
   //####################################################################
@@ -164,14 +167,14 @@ void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfi
     lines = headerinfo;
   } else {
 
-    miString name;
+    std::string name;
     if ( headerfile.empty()) {
       name = filename;
     } else {
       name = headerfile;
     }
 
-    if (name.contains("http")) {
+    if (miutil::contains(name, "http")) {
       getFromHttp(name, lines);
     } else {
       getFromFile(name, lines);
@@ -181,10 +184,10 @@ void ObsAscii::readHeaderInfo(const miString &filename, const miString &headerfi
 
 }
 
-void ObsAscii::readData(const miString &filename)
+void ObsAscii::readData(const std::string &filename)
 {
 
-  if (filename.contains("http")) {
+  if (miutil::contains(filename, "http")) {
     getFromHttp(filename, lines);
   } else {
     getFromFile(filename, lines);
@@ -195,20 +198,21 @@ void ObsAscii::readData(const miString &filename)
 void ObsAscii::decodeHeader()
 {
 //METLIBS_LOG_DEBUG(__FUNCTION__);
-  vector<miString> vstr,pstr;
-  miString str;
+  vector<string> vstr,pstr;
+  string str;
   size_t p;
 
   for (size_t i = 0; i < lines.size(); ++i ) {
-    lines[i].trim();
-    if (lines[i].exists()) {
+    miutil::trim(lines[i]);
+    if (not lines[i].empty()) {
       p= lines[i].find('#');
       if (p==string::npos) {
         if (lines[i]=="[DATA]") break;  // end of header, start data
         vstr.push_back(lines[i]);
       } else if (p>0) {
-        pstr= lines[i].split("#");
-        if (pstr[0]=="[DATA]") break;  // end of header, start data
+        pstr= miutil::split(lines[i], "#");
+        if (pstr[0]=="[DATA]")
+          break;  // end of header, start data
         vstr.push_back(pstr[0]);
       }
     }
@@ -226,11 +230,11 @@ void ObsAscii::decodeHeader()
 
   // parse header
 
-  const miString key_columns=   "COLUMNS";
-  const miString key_undefined= "UNDEFINED";
-  const miString key_skiplines= "SKIP_DATA_LINES";
-  const miString key_label=     "LABEL";
-  const miString key_splitchar=     "SEPARATOR";
+  const string key_columns=   "COLUMNS";
+  const string key_undefined= "UNDEFINED";
+  const string key_skiplines= "SKIP_DATA_LINES";
+  const string key_label=     "LABEL";
+  const string key_splitchar=     "SEPARATOR";
 
   bool ok= true;
   int n= vstr.size();
@@ -259,22 +263,22 @@ void ObsAscii::decodeHeader()
         break;
       }
       str= str.substr(p1+1,p2-p1-1);
-      pstr= str.split('"','"');
+      pstr= miutil::split_protected(str, '"', '"');
       int j,m= pstr.size();
 
       if (m>1) {
         if (pstr[0]==key_columns) {
-          if ( separator.exists()  ) {
-            pstr= str.split(separator);
+          if (not separator.empty()) {
+            pstr= miutil::split(str, separator);
           }
-          vector<miString> vs;
+          vector<std::string> vs;
           m=pstr.size();
           for (j=1; j<m; j++) {
-            pstr[j].remove('"');
-            vs= pstr[j].split(':');
+            miutil::remove(pstr[j], '"');
+            vs= miutil::split(pstr[j], ":");
             if (vs.size()>1) {
               columnName.push_back(vs[0]);
-              columnType.push_back(vs[1].downcase());
+              columnType.push_back(miutil::to_lower(vs[1]));
               if (vs.size()>2) {
                 columnTooltip.push_back(vs[2]);
               }else{
@@ -283,7 +287,7 @@ void ObsAscii::decodeHeader()
             }
           }
         } else if (pstr[0]==key_undefined ) {
-          vector<miString> vs= pstr[1].split(',');
+          vector<string> vs= miutil::split(pstr[1], ",");
           int nu= vs.size();
           // sort with longest undefined strings first
           vector<int> len;
@@ -349,42 +353,42 @@ void ObsAscii::decodeHeader()
       asciiColumn["min"] = i;
     else if (columnType[i]=="sec")
       asciiColumn["sec"] = i;
-    else if (columnType[i].downcase()=="lon")
+    else if (miutil::to_lower(columnType[i])=="lon")
       asciiColumn["x"]= i;
-    else if (columnType[i].downcase()=="lat")
+    else if (miutil::to_lower(columnType[i])=="lat")
       asciiColumn["y"]= i;
-    else if (columnType[i].downcase()=="dd")
+    else if (miutil::to_lower(columnType[i])=="dd")
       asciiColumn["dd"]= i;
-    else if (columnType[i].downcase()=="ff")    //Wind speed in m/s
+    else if (miutil::to_lower(columnType[i])=="ff")    //Wind speed in m/s
       asciiColumn["ff"]= i;
-    else if (columnType[i].downcase()=="ffk")   //Wind speed in knots
+    else if (miutil::to_lower(columnType[i])=="ffk")   //Wind speed in knots
       asciiColumn["ff"]= i;
-    else if (columnType[i].downcase()=="image")
+    else if (miutil::to_lower(columnType[i])=="image")
       asciiColumn["image"]= i;
-    else if (columnName[i].downcase()=="lon" &&  //Obsolete
+    else if (miutil::to_lower(columnName[i])=="lon" &&  //Obsolete
         columnType[i]=="r")
       asciiColumn["x"]= i;
-    else if (columnName[i].downcase()=="lat" &&  //Obsolete
+    else if (miutil::to_lower(columnName[i])=="lat" &&  //Obsolete
         columnType[i]=="r")
       asciiColumn["y"]= i;
-    else if (columnName[i].downcase()=="dd" &&   //Obsolete
+    else if (miutil::to_lower(columnName[i])=="dd" &&   //Obsolete
         columnType[i]=="r")
       asciiColumn["dd"]= i;
-    else if (columnName[i].downcase()=="ff" &&    //Obsolete
+    else if (miutil::to_lower(columnName[i])=="ff" &&    //Obsolete
         columnType[i]=="r")
       asciiColumn["ff"]= i;
-    else if (columnName[i].downcase()=="ffk" &&    //Obsolete
+    else if (miutil::to_lower(columnName[i])=="ffk" &&    //Obsolete
         columnType[i]=="r")
       asciiColumn["ff"]= i;
-    else if (columnName[i].downcase()=="image" && //Obsolete
+    else if (miutil::to_lower(columnName[i])=="image" && //Obsolete
         columnType[i]=="s")
       asciiColumn["image"]= i;
-    else if (columnName[i].downcase()=="name" ||
+    else if (miutil::to_lower(columnName[i])=="name" ||
         columnType[i]=="id")
       asciiColumn["Name"]= i;
 
-    if (columnType[i].downcase()=="ffk" ||
-        columnName[i].downcase()=="ffk")
+    if (miutil::to_lower(columnType[i])=="ffk" ||
+        miutil::to_lower(columnName[i])=="ffk")
       knots=true;
 
   }
@@ -423,14 +427,14 @@ void ObsAscii::decodeData()
   bool isoDate (allTime && asciiColumn.count("date"));
 
   bool first=true, addstr=false, cutstr=false;
-  miString taddstr, tstr, timestr;
+  std::string taddstr, tstr, timestr;
   miTime obstime;
 
   miDate filedate= fileTime.date();
 
   //skip header
   size_t ii=0;
-  while ( ii < lines.size() && !lines[ii].contains("[DATA]")) {
+  while ( ii < lines.size() && not miutil::contains(lines[ii], "[DATA]")) {
     ++ii;
   }
   ++ii; //skip [DATA] line too
@@ -439,18 +443,18 @@ void ObsAscii::decodeData()
   int nline= 0;
 
   for (size_t ii = 0; ii < lines.size(); ++ii ) {
-    lines[ii].trim();
+    miutil::trim(lines[ii]);
     nline++;
-    if (nline>nskip && lines[ii].exists() && lines[ii][0]!='#') {
+    if (nline>nskip && (not lines[ii].empty()) && lines[ii][0]!='#') {
 
       //data structures
-      vector<miString> pstr;
+      vector<string> pstr;
       ObsData  obsData;
 
-      if ( separator.exists() ) {
-        pstr= lines[ii].split(separator, false);
+      if (not separator.empty()) {
+        pstr= miutil::split(lines[ii], separator, false);
       } else {
-        pstr= lines[ii].split('"','"');
+        pstr= miutil::split_protected(lines[ii], '"', '"');
       }
 
       if ( int(pstr.size()) < nColumn ) {
@@ -498,7 +502,7 @@ void ObsAscii::decodeData()
           tstr= pstr[asciiColumn["time"]];
           if (first) {
             // allowed time formats: HH HH:MM HH:MM:SS HH:MM:SSxxx...
-            vector<miString> tv= tstr.split(':');
+            vector<std::string> tv= miutil::split(tstr, 0, ":");
             if (tv.size()==1) {
               addstr= true;
               taddstr= ":00:00";

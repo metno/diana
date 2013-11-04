@@ -33,19 +33,21 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.AnnotationPlot"
-#include <miLogger/miLogging.h>
-
 #include <diAnnotationPlot.h>
 #include <diLegendPlot.h>
 #include <diFontManager.h>
 #include <diImageGallery.h>
-#include <iostream>
 #include <GL/gl.h>
 
-#include <math.h>
+#include <puTools/miStringFunctions.h>
 
-using namespace std; using namespace miutil;
+#include <cmath>
+
+#define MILOGGER_CATEGORY "diana.AnnotationPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 // Default constructor
 AnnotationPlot::AnnotationPlot() :
@@ -58,7 +60,7 @@ AnnotationPlot::AnnotationPlot() :
 }
 
 // Constructor
-AnnotationPlot::AnnotationPlot(const miString& po) :
+AnnotationPlot::AnnotationPlot(const std::string& po) :
   Plot()
 {
 #ifdef DEBUGPRINT
@@ -86,70 +88,70 @@ void AnnotationPlot::init()
 {
   plotRequested = false;
   isMarked = false;
-  labelstrings = miString();
-  productname = miString();
+  labelstrings = std::string();
+  productname = std::string();
   editable = false;
   useAnaTime = false;
 }
 
-const miString AnnotationPlot::insertTime(const miString& s, const miTime& time)
+const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time)
 {
 
   bool norwegian = true;
-  miString es = s;
-  if (es.contains("$")) {
-    if (es.contains("$dayeng")) {
-      es.replace("$dayeng", "%A");
+  std::string es = s;
+  if (miutil::contains(es, "$")) {
+    if (miutil::contains(es, "$dayeng")) {
+      miutil::replace(es, "$dayeng", "%A");
       norwegian = false;
     }
-    if (es.contains("$daynor")) {
-      es.replace("$daynor", "%A");
+    if (miutil::contains(es, "$daynor")) {
+      miutil::replace(es, "$daynor", "%A");
       norwegian = true;
     }
-    if (es.contains("$day")) {
-      es.replace("$day", "%A");
+    if (miutil::contains(es, "$day")) {
+      miutil::replace(es, "$day", "%A");
       norwegian = true;
     }
-    es.replace("$hour", "%H");
-    es.replace("$min", "%M");
-    es.replace("$sec", "%S");
-    es.replace("$auto", "$miniclock");
+    miutil::replace(es, "$hour", "%H");
+    miutil::replace(es, "$min", "%M");
+    miutil::replace(es, "$sec", "%S");
+    miutil::replace(es, "$auto", "$miniclock");
   }
-  if (es.contains("%")) {
-    if (es.contains("%anor")) {
-      es.replace("%anor", "%a");
+  if (miutil::contains(es, "%")) {
+    if (miutil::contains(es, "%anor")) {
+      miutil::replace(es, "%anor", "%a");
       norwegian = true;
     }
-    if (es.contains("%Anor")) {
-      es.replace("%Anor", "%A");
+    if (miutil::contains(es, "%Anor")) {
+      miutil::replace(es, "%Anor", "%A");
       norwegian = true;
     }
-    if (es.contains("%bnor")) {
-      es.replace("%bnor", "%b");
+    if (miutil::contains(es, "%bnor")) {
+      miutil::replace(es, "%bnor", "%b");
       norwegian = true;
     }
-    if (es.contains("%Bnor")) {
-      es.replace("%Bnor", "%B");
+    if (miutil::contains(es, "%Bnor")) {
+      miutil::replace(es, "%Bnor", "%B");
       norwegian = true;
     }
-    if (es.contains("%aeng")) {
-      es.replace("%aeng", "%a");
+    if (miutil::contains(es, "%aeng")) {
+      miutil::replace(es, "%aeng", "%a");
       norwegian = false;
     }
-    if (es.contains("%Aeng")) {
-      es.replace("%Aeng", "%A");
+    if (miutil::contains(es, "%Aeng")) {
+      miutil::replace(es, "%Aeng", "%A");
       norwegian = false;
     }
-    if (es.contains("%beng")) {
-      es.replace("%beng", "%b");
+    if (miutil::contains(es, "%beng")) {
+      miutil::replace(es, "%beng", "%b");
       norwegian = false;
     }
-    if (es.contains("%Beng")) {
-      es.replace("%Beng", "%B");
+    if (miutil::contains(es, "%Beng")) {
+      miutil::replace(es, "%Beng", "%B");
       norwegian = false;
     }
   }
-  if ((es.contains("%") || es.contains("$")) && !time.undef()) {
+  if ((miutil::contains(es, "%") || miutil::contains(es, "$")) && !time.undef()) {
     if (norwegian)
       es = time.format(es, miDate::Norwegian);
     else
@@ -158,13 +160,13 @@ const miString AnnotationPlot::insertTime(const miString& s, const miTime& time)
   return es;
 }
 
-const vector<miString> AnnotationPlot::expanded(const vector<miString>& vs)
+const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs)
 {
 
-  vector<miString> evs;
+  vector<std::string> evs;
   int nvs = vs.size();
   for (int j = 0; j < nvs; j++) {
-    miString es = insertTime(vs[j], ctime);
+    std::string es = insertTime(vs[j], ctime);
 
     if (useAnaTime) {
       // only using the latest analysis time (yet...)
@@ -176,8 +178,8 @@ const vector<miString> AnnotationPlot::expanded(const vector<miString>& vs)
             anaTime = fieldAnaTime[i];
         }
       }
-      es.replace("@", "$");
-      es.replace("&", "%");
+      miutil::replace(es, "@", "$");
+      miutil::replace(es, "&", "%");
       es = insertTime(es, anaTime);
     }
 
@@ -187,7 +189,7 @@ const vector<miString> AnnotationPlot::expanded(const vector<miString>& vs)
   return evs;
 }
 
-void AnnotationPlot::setfillcolour(miString colname)
+void AnnotationPlot::setfillcolour(std::string colname)
 {
   if (atype == anno_data) {
     Colour c(colname);
@@ -195,7 +197,7 @@ void AnnotationPlot::setfillcolour(miString colname)
   }
 }
 
-bool AnnotationPlot::prepare(const miString& pin)
+bool AnnotationPlot::prepare(const std::string& pin)
 {
 
   pinfo = pin;
@@ -206,8 +208,8 @@ bool AnnotationPlot::prepare(const miString& pin)
   useAnaTime = miutil::contains(pinfo, "@") || miutil::contains(pinfo, "&");
 
   const vector<std::string> tokens = miutil::split_protected(pinfo, '"', '"');
-  vector<miString> stokens;
-  miString key, value;
+  vector<std::string> stokens;
+  std::string key, value;
   int i, n = tokens.size();
   if (n < 2)
     return false;
@@ -221,15 +223,15 @@ bool AnnotationPlot::prepare(const miString& pin)
   cyratio = 0.0;
 
   for (i = 1; i < n; i++) {
-    miString labeltype = tokens[i];
-    stokens = labeltype.split('\"', '\"', "=", true);
+    std::string labeltype = tokens[i], LABELTYPE = miutil::to_upper(labeltype);
+    stokens = miutil::split_protected(labeltype, '\"', '\"', "=", true);
     if (stokens.size() > 1) {
-      key = stokens[0].downcase();
+      key = miutil::to_lower(stokens[0]);
       value = stokens[1];
     }
-    if (labeltype.upcase() == "DATA") {
+    if (LABELTYPE == "DATA") {
       atype = anno_data;
-    } else if (labeltype.upcase().contains("ANNO=")) {
+    } else if (miutil::contains(LABELTYPE, "ANNO=")) {
       //complex annotation with <><>
       atype = anno_text;
       Annotation a;
@@ -239,7 +241,7 @@ bool AnnotationPlot::prepare(const miString& pin)
       a.col = poptions.textcolour;
       a.spaceLine = false;
       annotations.push_back(a);
-    } else if (labeltype.upcase().contains("TEXT=")) {
+    } else if (miutil::contains(LABELTYPE, "TEXT=")) {
       atype = anno_text;
       if (stokens.size() > 1) {
         Annotation a;
@@ -247,8 +249,8 @@ bool AnnotationPlot::prepare(const miString& pin)
         if (a.str[0] == '"')
           a.str = a.str.substr(1, a.str.length() - 2);
         a.col = poptions.textcolour;
-        miString s = a.str;
-        s.trim();
+        std::string s = a.str;
+        miutil::trim(s);
         a.spaceLine = s.length() == 0;
         annotations.push_back(a);
       }
@@ -316,7 +318,7 @@ bool AnnotationPlot::putElements()
 {
   //  METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
   //decode strings, put into elements...
-  vector<miString> stokens, tokens, elementstrings;
+  vector<std::string> stokens, tokens, elementstrings;
   vector<Annotation> anew;
   nothingToDo = true;
 
@@ -341,12 +343,12 @@ bool AnnotationPlot::putElements()
     int nel = elementstrings.size();
     for (int l = 0; l < nel; l++) {
       //      METLIBS_LOG_DEBUG("  elementstrings[l]:"<<elementstrings[l]);
-      if (elementstrings[l].contains("horalign=")) {
+      if (miutil::contains(elementstrings[l], "horalign=")) {
         //sets alignment for the whole annotation !
-        stokens = elementstrings[l].split('\"', '\"', ",", true);
+        stokens = miutil::split_protected(elementstrings[l], '\"', '\"', ",", true);
         int mtokens = stokens.size();
         for (int k = 0; k < mtokens; k++) {
-          vector<miString> subtokens = stokens[k].split('=');
+          vector<std::string> subtokens = miutil::split(stokens[k], 0, "=");
           if (subtokens.size() != 2)
             continue;
           if (subtokens[0] == "horalign") {
@@ -358,14 +360,14 @@ bool AnnotationPlot::putElements()
               annotations[i].hAlign = align_left;
           }
         }
-      } else if (elementstrings[l].contains("bcolour=")) {
-        vector<miString> stokens = elementstrings[l].split('=');
+      } else if (miutil::contains(elementstrings[l], "bcolour=")) {
+        vector<std::string> stokens = miutil::split(elementstrings[l], 0, "=");
         if (stokens.size() != 2)
           continue;
         Colour c = Colour(stokens[1]);
         annotations[i].bordercolour = c;
-      } else if (elementstrings[l].contains("polystyle=")) {
-        vector<miString> stokens = elementstrings[l].split('=');
+      } else if (miutil::contains(elementstrings[l], "polystyle=")) {
+        vector<std::string> stokens = miutil::split(elementstrings[l], 0, "=");
         if (stokens.size() != 2)
           continue;
         if (stokens[1] == "fill")
@@ -431,7 +433,7 @@ void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
   v_e.push_back(e);
 }
 
-bool AnnotationPlot::decodeElement(miString elementstring, element& e)
+bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
 {
   //    METLIBS_LOG_DEBUG("EL:"<<elementstring);
   e.eSize = 1.0;
@@ -446,36 +448,36 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
   e.polystyle = poly_none;
   e.arrowFeather = false;
   e.textcolour = "black";
-  if (elementstring.contains("symbol=")) {
+  if (miutil::contains(elementstring, "symbol=")) {
     e.eType = symbol;
-  } else if (elementstring.contains("arrow=")) {
+  } else if (miutil::contains(elementstring, "arrow=")) {
     e.eType = arrow;
-  } else if (elementstring.contains("image=")) {
+  } else if (miutil::contains(elementstring, "image=")) {
     e.eType = image;
-  } else if (elementstring.contains("text=")) {
+  } else if (miutil::contains(elementstring, "text=")) {
     e.eType = text;
-  } else if (elementstring.contains("input=")) {
+  } else if (miutil::contains(elementstring, "input=")) {
     e.eType = input;
     editable = true;
-  } else if (elementstring.contains("table=") && elementstring.contains(";")) {
+  } else if (miutil::contains(elementstring, "table=") && miutil::contains(elementstring, ";")) {
     e.eType = table;
-    vector<miString> stokens = elementstring.split('\"', '\"', ",", true);
+    vector<std::string> stokens = miutil::split_protected(elementstring, '\"', '\"', ",", true);
     e.classplot = new LegendPlot(stokens[0]);
     e.classplot->setPlotOptions(poptions);
-  } else if (elementstring.contains("box")) {
+  } else if (miutil::contains(elementstring, "box")) {
     e.eType = box;
   } else {
     return false;
   }
 
   //element options
-  vector<miString> stokens = elementstring.split('\"', '\"', ",", true);
+  vector<std::string> stokens = miutil::split_protected(elementstring, '\"', '\"', ",", true);
   int mtokens = stokens.size();
   for (int k = 0; k < mtokens; k++) {
     if (stokens[k] == "vertical") {
       e.horizontal = false;
     } else {
-      vector<miString> subtokens = stokens[k].split('\"', '\"', "=", true);
+      vector<std::string> subtokens = miutil::split_protected(stokens[k], '\"', '\"', "=", true);
       if (subtokens.size() != 2)
         continue;
       if (subtokens[0] == "text" || subtokens[0] == "input") {
@@ -485,7 +487,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
           e.eText = e.eText.substr(1, e.eText.length() - 2);
       }
       if (subtokens[0] == "title" && e.eType == table) {
-        miString title = subtokens[1];
+        std::string title = subtokens[1];
         if (subtokens[1][0] == '"')
           subtokens[1] = subtokens[1].substr(1, subtokens[1].length() - 2);
         e.classplot->setTitle(subtokens[1]);
@@ -530,7 +532,7 @@ bool AnnotationPlot::decodeElement(miString elementstring, element& e)
       } else if (e.eType == table && subtokens[0] == "fcolour") {
         e.classplot->setBackgroundColour(Colour(subtokens[1]));
       } else if (e.eType == table && subtokens[0] == "suffix") {
-        subtokens[1].remove('"');
+        miutil::remove(subtokens[1], '"');
         e.classplot->setSuffix(subtokens[1]);
       }
     }
@@ -726,7 +728,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       borderline.push_back(bl);
     }
 
-    if (annoEl[j].textcolour.exists()) {
+    if (not annoEl[j].textcolour.empty()) {
       Colour c(annoEl[j].textcolour);
       glColor4ubv(c.RGBA());
     }
@@ -758,7 +760,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       }
       fp->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
-      miString astring = annoEl[j].eText;
+      std::string astring = annoEl[j].eText;
       astring += " ";
       fp->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
@@ -775,7 +777,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         //Hvis* editeringstext,tegn strek for mark�r og for
         //markert tekst
         float w, h;
-        miString substring = astring.substr(0, annoEl[j].itsCursor);
+        std::string substring = astring.substr(0, annoEl[j].itsCursor);
         fp->getStringSize(substring.c_str(), w, h);
         glColor4f(0, 0, 0, 1.0);
         glBegin(GL_LINE_STRIP);
@@ -792,7 +794,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       //set back to normal font and draw one blank
       fp->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      miString astring = " ";
+      std::string astring = " ";
       fp->drawStr(astring.c_str(), x, y, 0.0);
       fp->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
@@ -906,7 +908,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
     if (annoEl[j].eType == text || annoEl[j].eType == input) {
       fp->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
-      miString astring = annoEl[j].eText;
+      std::string astring = annoEl[j].eText;
       astring += " ";
       fp->getStringSize(astring.c_str(), w, h);
       if (hardcopy)
@@ -916,7 +918,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
       w *= fontsizeScale;
       h *= fontsizeScale;
     } else if (annoEl[j].eType == image) {
-      miString aimage = annoEl[j].eImage;
+      std::string aimage = annoEl[j].eImage;
       ImageGallery ig;
       float scale = annoEl[j].eSize * scaleFactor;
       h = ig.height(aimage) * scale;
@@ -937,7 +939,7 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
         fontsizeScale = fp->getSizeDiv();
       else
         fontsizeScale = 1.0;
-      miString astring = " ";
+      std::string astring = " ";
       fp->getStringSize(astring.c_str(), w, h);
       w *= fontsizeScale;
       w += w;
@@ -1139,9 +1141,9 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
     return true;
 }
 
-miString AnnotationPlot::getMarkedAnnotation()
+std::string AnnotationPlot::getMarkedAnnotation()
 {
-  miString text;
+  std::string text;
   if (isMarked) {
     int n = annotations.size();
     for (int i = 0; i < n; i++) {
@@ -1150,7 +1152,7 @@ miString AnnotationPlot::getMarkedAnnotation()
         element annoEl = annotations[i].annoElements[j];
         if (annoEl.isInside == true) {
           text = annoEl.eText;
-          //text.trim();
+          //miutil::trim(text);
         }
       }
     }
@@ -1158,7 +1160,7 @@ miString AnnotationPlot::getMarkedAnnotation()
   return text;
 }
 
-void AnnotationPlot::changeMarkedAnnotation(miString text, int cursor,
+void AnnotationPlot::changeMarkedAnnotation(std::string text, int cursor,
     int sel1, int sel2)
 {
   if (isMarked) {
@@ -1298,7 +1300,7 @@ void AnnotationPlot::editLastAnnoElement()
   }
 }
 
-vector<miString> AnnotationPlot::split(const miString eString, const char s1, const char s2)
+vector<std::string> AnnotationPlot::split(const std::string eString, const char s1, const char s2)
 {
   /*finds entries delimited by s1 and s2
    (f.ex. s1=<,s2=>) <"this is the entry">
@@ -1306,7 +1308,7 @@ vector<miString> AnnotationPlot::split(const miString eString, const char s1, co
    f.ex. <"this is also > an entry">
    */
   int stop, start, stop2, start2, len;
-  vector<miString> vec;
+  vector<std::string> vec;
 
   if (eString.empty())
     return vec;
@@ -1339,10 +1341,10 @@ vector<miString> AnnotationPlot::split(const miString eString, const char s1, co
   return vec;
 }
 
-miString AnnotationPlot::writeElement(element& annoEl)
+std::string AnnotationPlot::writeElement(element& annoEl)
 {
 
-  miString str = "<";
+  std::string str = "<";
   switch (annoEl.eType) {
   case (text):
     str += "text=\"" + annoEl.eText + "\"";
@@ -1350,7 +1352,7 @@ miString AnnotationPlot::writeElement(element& annoEl)
       str += ",font=" + annoEl.eFont;
     break;
   case (symbol):
-    str += "symbol=" + miString(annoEl.eCharacter);
+    str += "symbol=" + miutil::from_number(annoEl.eCharacter);
     if (!annoEl.eFont.empty())
       str += ",font=" + annoEl.eFont;
     break;
@@ -1411,10 +1413,10 @@ miString AnnotationPlot::writeElement(element& annoEl)
 
 }
 
-miString AnnotationPlot::writeAnnotation(miString prodname)
+std::string AnnotationPlot::writeAnnotation(std::string prodname)
 {
 
-  miString str;
+  std::string str;
   if (prodname != productname)
     return str;
   str = "LABEL";
@@ -1447,14 +1449,14 @@ void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno,
     int nel = annotations[i].annoElements.size();
     for (int j = 0; j < nel; j++) {
       element & annoEl = annotations[i].annoElements[j];
-      if (annoEl.eType == input && annoEl.eName.exists()) {
-        map<miString, miString> oldInputText = oldAnno->inputText;
-        map<miString, miString>::iterator pf = oldInputText.find(annoEl.eName);
+      if (annoEl.eType == input && not annoEl.eName.empty()) {
+        map<std::string, std::string> oldInputText = oldAnno->inputText;
+        map<std::string, std::string>::iterator pf = oldInputText.find(annoEl.eName);
         if (pf != oldInputText.end()) {
           annoEl.eText = pf->second;
           if (annoEl.eName == "number" && newProduct)
             //increase the number by one if new product !
-            annoEl.eText = miString(atoi(annoEl.eText.c_str()) + 1);
+            annoEl.eText = miutil::from_number(miutil::to_int(annoEl.eText) + 1);
         }
       }
     }
@@ -1466,17 +1468,17 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
   return annotations;
 }
 
-vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
+vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
 {
   //  METLIBS_LOG_DEBUG("AnnotationPlot::getAnnotationStrings():"<<annotations.size());
-  vector<vector<miString> > vvstr;
+  vector<vector<std::string> > vvstr;
   bool orig = false;
 
   int n = annotations.size();
   for (int i = 0; i < n; i++) {
     int m = annotations[i].vstr.size();
     for (int j = 0; j < m; j++) {
-      if (annotations[i].vstr[j].contains("arrow")) {
+      if (miutil::contains(annotations[i].vstr[j], "arrow")) {
         orig = true;
         break;
       }
@@ -1498,7 +1500,7 @@ vector<vector<miString> > AnnotationPlot::getAnnotationStrings()
   return vvstr;
 }
 
-bool AnnotationPlot::setAnnotationStrings(vector<vector<miString> >& vvstr)
+bool AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
 {
   int n = vvstr.size();
   //  METLIBS_LOG_DEBUG("setAnnotationStrings:"<<n);

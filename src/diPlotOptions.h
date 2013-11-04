@@ -211,13 +211,15 @@ public:
   static std::vector< std::vector<std::string> >& getPlotTypes(){return plottypes;}
   static std::map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
 
+public:
+  //! fill in values and "..." in a float vector (error if size==0)
+  static std::vector<float> autoExpandFloatVector(const std::string&);
+
 private:
   // fill in values in an int vector (error if size==0)
   std::vector<int> intVector(const std::string&) const;
   // fill in values in a float vector (error if size==0)
   std::vector<float> floatVector(const std::string&) const;
-  // fill in values and "..." in a float vector (error if size==0)
-  std::vector<float> autoExpandFloatVector(const std::string&) const;
   static void removeSuffix(std::string& name);
 };
 

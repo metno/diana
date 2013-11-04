@@ -46,7 +46,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <puTools/miString.h>
+#include <puTools/miStringFunctions.h>
 #include "filenew.xpm"
 
 using namespace std;
@@ -120,7 +120,7 @@ void AddtoMenu::fillMenu()
 {
   list->clear();
   if (!quick) return;
-  vector<miutil::miString> vs= quick->getCustomMenus();
+  vector<std::string> vs= quick->getCustomMenus();
 
   for (unsigned int i=0; i<vs.size(); i++){
     list->addItem(QString(vs[i].c_str()));

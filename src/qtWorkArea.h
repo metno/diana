@@ -33,9 +33,6 @@
 
 #include <qwidget.h>
 #include "qtGLwidget.h"
-#include <puTools/miString.h>
-
-using namespace std;
 
 class Controller;
 class GLwidget;
@@ -60,6 +57,5 @@ protected:
   GLwidget *glw;
   Controller *contr;
 };
-
 
 #endif

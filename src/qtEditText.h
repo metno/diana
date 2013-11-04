@@ -31,16 +31,15 @@
 #ifndef _addtoDialog_h
 #define _addtODialog_h
 
+#include "diCommonTypes.h"
+
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qtextedit.h>
 #include <qvalidator.h>
-#include <puTools/miString.h>
-#include "diCommonTypes.h"
-#include <set>
 
-using namespace std;
+#include <set>
 
 class Controller;
 
@@ -57,10 +56,10 @@ class EditText :public QDialog
 public:
 
   /// constructor, symboltext and xtext is text to put in input boxes, cList is the list of texts to choose from
-  EditText( QWidget* parent, Controller* llctrl, vector <miutil::miString> &
-	       symbolText, set <miutil::miString> cList,bool useColour=false);
+  EditText( QWidget* parent, Controller* llctrl, std::vector<std::string>& symbolText,
+      std::set<std::string> cList, bool useColour=false);
   /// get text from dialogs input boxes
-  void getEditText(vector <miutil::miString> & symbolText );
+  void getEditText(std::vector<std::string> & symbolText );
   /// set colourbox colour
   void setColour(Colour::ColourInfo & colour);
   /// get colour from colourbox
@@ -76,12 +75,12 @@ private:
   QComboBox * colourbox;
 
   static bool initialized;
-  static vector<Colour::ColourInfo> colourInfo; // all defined colours
+  static std::vector<Colour::ColourInfo> colourInfo; // all defined colours
   //pixmaps for combo boxes
   static int        nr_colors;
   static QColor* pixcolor;
 
-  int getColourIndex(vector <Colour::ColourInfo> & colourInfo,
+  int getColourIndex(std::vector<Colour::ColourInfo> & colourInfo,
 		     Colour::ColourInfo colour);
   class complexValidator:public QValidator{
   public:
@@ -92,20 +91,6 @@ private:
   };
   complexValidator * cv;
   bool startEdit;
-
-signals:
-
-
-private slots:
-
-public slots:
-
 };
 
 #endif
-
-
-
-
-
-

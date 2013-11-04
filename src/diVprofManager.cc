@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,9 +31,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofManager"
-#include <miLogger/miLogging.h>
-
 #include "diVprofManager.h"
 
 #include "diVprofOptions.h"
@@ -64,12 +59,11 @@
 #include "diVprofPilot.h"
 #endif // ROADOBS
 
-#define MILOGGER_CATEGORY "diana.VprofManager"
-#include <miLogger/miLogging.h>
 #include <diField/diFieldManager.h>
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
+#include <puTools/miSetupParser.h>
 
 #include <cmath>
 #include <iomanip>
@@ -77,12 +71,20 @@
 #include <vector>
 #include <map>
 
+#define MILOGGER_CATEGORY "diana.VprofManager"
+#include <miLogger/miLogging.h>
+
 #ifdef ROADOBS
 using namespace road;
 #endif
 
 using namespace std;
-using namespace miutil;
+using miutil::miTime;
+
+namespace {
+inline vector<string> to_vector_string(const vector<miutil::miString>& m)
+{ return vector<string>(m.begin(), m.end()); }
+}
 
 //#define DEBUGPRINT 1
 
@@ -92,7 +94,7 @@ VprofManager::VprofManager(Controller* co)
   plotw(0), ploth(0), hardcopy(false)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager constructed");
+  METLIBS_LOG_SCOPE();
 #endif
   fieldm= co->getFieldManager(); // set fieldmanager
 
@@ -104,14 +106,13 @@ VprofManager::VprofManager(Controller* co)
   ztime = miTime(1970,1,1,0,0,0);
 
   plotTime= miTime::nowTime();
-
 }
 
 
 VprofManager::~VprofManager()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager destructor");
+  METLIBS_LOG_SCOPE();
 #endif
 
   if (vpdiag) delete vpdiag;
@@ -125,7 +126,7 @@ VprofManager::~VprofManager()
 void VprofManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofManager::parseSetup");
+  METLIBS_LOG_SCOPE();
 #endif
 
   filenames.clear();
@@ -134,35 +135,35 @@ void VprofManager::parseSetup()
   dialogFileNames.clear();
   filePaths.clear();
 
-  const miString section2 = "VERTICAL_PROFILE_FILES";
-  vector<miString> vstr;
+  const std::string section2 = "VERTICAL_PROFILE_FILES";
+  vector<std::string> vstr;
 
-  if (SetupParser::getSection(section2,vstr)) {
+  if (miutil::SetupParser::getSection(section2,vstr)) {
 
-    set<miString> uniquefiles;
+    set<std::string> uniquefiles;
 
-    miString model,filename;
-    vector<miString> tokens,tokens1,tokens2, tokens3, tokens4;
+    std::string model,filename;
+    vector<std::string> tokens,tokens1,tokens2, tokens3, tokens4;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= vstr[i].split();
+      tokens= miutil::split(vstr[i]);
       if (tokens.size()==1) {
-        tokens1= tokens[0].split("=");
+        tokens1= miutil::split(tokens[0], "=");
         if (tokens1.size()==2) {
+          const std::string tokens1_0_lc = miutil::to_lower(tokens1[0]);
           ObsFilePath ofp;
-          if (tokens1[0].downcase().contains("metnoobs.") ||
-              tokens1[0].downcase().contains("obs.") )
+          if (miutil::contains(tokens1_0_lc, "metnoobs.") or miutil::contains(tokens1_0_lc, "obs.") )
             ofp.fileformat = metnoobs;
-          else if (tokens1[0].downcase().contains("bufr."))
+          else if (miutil::contains(tokens1_0_lc, "bufr."))
             ofp.fileformat = bufr;
           else
             continue;
-          if (tokens1[0].downcase().contains(".temp")) {
+          if (miutil::contains(tokens1_0_lc, ".temp")) {
             ofp.obstype = temp;
-          } else if (tokens1[0].downcase().contains(".amdar")) {
+          } else if (miutil::contains(tokens1_0_lc, ".amdar")) {
             ofp.obstype = amdar;
-          } else if (tokens1[0].downcase().contains(".pilot")) {
+          } else if (miutil::contains(tokens1_0_lc, ".pilot")) {
             ofp.obstype = pilot;
           } else {
             continue;
@@ -172,10 +173,10 @@ void VprofManager::parseSetup()
           filePaths.push_back(ofp);
         }
       } else if (tokens.size()==2) {
-        tokens1= tokens[0].split("=");
-        tokens2= tokens[1].split("=");
+        tokens1= miutil::split(tokens[0], "=");
+        tokens2= miutil::split(tokens[1], "=");
         if (tokens1.size()==2          && tokens2.size()==2  &&
-            tokens1[0].downcase()=="m" && tokens2[0].downcase()=="f") {
+            miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="f") {
           model= tokens1[1];
           filename= tokens2[1];
           filenames[model]= filename;
@@ -188,14 +189,14 @@ void VprofManager::parseSetup()
         }
       }
       else if (tokens.size()==3) {
-        tokens1= tokens[0].split("=");
-        tokens2= tokens[1].split("=");
-        tokens3= tokens[2].split("=");
+        tokens1= miutil::split(tokens[0], "=");
+        tokens2= miutil::split(tokens[1], "=");
+        tokens3= miutil::split(tokens[2], "=");
         if (tokens1.size()==2 && tokens2.size()==2 && tokens3.size()==2
-            && tokens1[0].downcase()=="m" && tokens2[0].downcase()=="t"
-                && tokens3[0].downcase()=="s") {
+            && miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="t"
+                && miutil::to_lower(tokens3[0])=="s") {
           model= tokens1[1];
-          miString filetype = tokens2[1];
+          std::string filetype = tokens2[1];
           filename= tokens3[1];
           filenames[model]= filename;
           filetypes[filename] = filetype;
@@ -207,30 +208,30 @@ void VprofManager::parseSetup()
 #ifdef ROADOBS
       /* Here we know that it is the extended obs format */
       else if (tokens.size()==4) {
-        tokens1= tokens[0].split("=");
-        tokens2= tokens[1].split("=");
-        tokens3= tokens[2].split("=");
-        tokens4= tokens[3].split("=");
+        tokens1= miutil::split(tokens[0], "=");
+        tokens2= miutil::split(tokens[1], "=");
+        tokens3= miutil::split(tokens[2], "=");
+        tokens4= miutil::split(tokens[3], "=");
         if (tokens1.size()==2 && tokens2.size()==2
             && tokens3.size()==2 && tokens4.size()==2
-            && tokens2[0].downcase()=="p" && tokens3[0].downcase()=="s"
-                && tokens4[0].downcase()=="d") {
+            && miutil::to_lower(tokens2[0])=="p" && miutil::to_lower(tokens3[0])=="s"
+                && miutil::to_lower(tokens4[0])=="d") {
           ObsFilePath ofp;
           /* the check for roadobs must be before the check of metnoobs. or obs. */
-          if (tokens1[0].downcase().contains("roadobs."))
+          if (miutil::to_lower(tokens1[0]).contains("roadobs."))
             ofp.fileformat = roadobs;
-          else if (tokens1[0].downcase().contains("metnoobs.")
-              || tokens1[0].downcase().contains("obs.") )
+          else if (miutil::to_lower(tokens1[0]).contains("metnoobs.")
+              || miutil::to_lower(tokens1[0]).contains("obs.") )
             ofp.fileformat = metnoobs;
-          else if (tokens1[0].downcase().contains("bufr."))
+          else if (miutil::to_lower(tokens1[0]).contains("bufr."))
             ofp.fileformat = bufr;
           else
             continue;
-          if (tokens1[0].downcase().contains(".temp")) {
+          if (miutil::to_lower(tokens1[0]).contains(".temp")) {
             ofp.obstype = temp;
-          } else if (tokens1[0].downcase().contains(".amdar")) {
+          } else if (miutil::to_lower(tokens1[0]).contains(".amdar")) {
             ofp.obstype = amdar;
-          } else if (tokens1[0].downcase().contains(".pilot")) {
+          } else if (miutil::to_lower(tokens1[0]).contains(".pilot")) {
             ofp.obstype = pilot;
           } else {
             continue;
@@ -388,7 +389,7 @@ void VprofManager::updateObsFileList()
       of.time      = miTime(1970,1,1,0,0,0);
       of.modificationTime= 0;
       for (int i=0; i<globBuf.gl_pathc; i++) {
-        of.filename= miString(globBuf.gl_pathv[i]);
+        of.filename= std::string(globBuf.gl_pathv[i]);
         obsfiles.push_back(of);
       }
 #endif
@@ -396,7 +397,7 @@ void VprofManager::updateObsFileList()
 #ifdef BUFROBS
       of.modificationTime= -1; //no need to check later
       for (int i=0; i<globBuf.gl_pathc; i++) {
-        of.filename= miString(globBuf.gl_pathv[i]);
+        of.filename= std::string(globBuf.gl_pathv[i]);
         if(!filePaths[j].tf.ok() ||
             !filePaths[j].tf.getTime(of.filename,of.time)){
           ObsBufr bufr;
@@ -448,7 +449,7 @@ void VprofManager::setModel()
   //   if (!selectedModels.size()&&!selectedFiles.size()
   //       &&(!asField || !fieldModels.size())){
   //     METLIBS_LOG_DEBUG("No model selected");
-  //     miString model = getDefaultModel();
+  //     std::string model = getDefaultModel();
   //     usemodels.insert(model);
   //   }
 
@@ -467,10 +468,10 @@ void VprofManager::setModel()
     usemodels.insert(selectedModels[i]);
 
   //define models/files  when "model" chosen in modeldialog
-  set <miString>::iterator p = usemodels.begin();
+  set<string>::iterator p = usemodels.begin();
   for (; p!=usemodels.end(); p++) {
-    miString model= *p;
-    map<miString,miString>::iterator pf;
+    std::string model= *p;
+    map<std::string,std::string>::iterator pf;
     pf= filenames.find(model);
     if (pf==filenames.end()) {
       METLIBS_LOG_ERROR("NO VPROFDATA for model " << model);
@@ -479,17 +480,17 @@ void VprofManager::setModel()
   }
 
   //define models/files  when "file" chosen in modeldialog
-  vector <miString>::iterator q = selectedFiles.begin();
+  vector<string>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
-    miString file= *q;
-    if (file.contains(menuConst["OBSTEMP"]))
+    std::string file= *q;
+    if (miutil::contains(file, menuConst["OBSTEMP"]))
       showObs= showObsTemp= true;
-    else if (file.contains(menuConst["OBSPILOT"]))
+    else if (miutil::contains(file, menuConst["OBSPILOT"]))
       showObs= showObsPilot= true;
-    else if (file.contains(menuConst["OBSAMDAR"]))
+    else if (miutil::contains(file, menuConst["OBSAMDAR"]))
       showObs= showObsAmdar= true;
     else {
-      map<miString,miString>::iterator pf=filenames.begin();
+      map<std::string,std::string>::iterator pf=filenames.begin();
       for (; pf!=filenames.end(); pf++) {
         if (file==pf->second){
           initVprofData(file,pf->first);
@@ -524,7 +525,7 @@ void VprofManager::setModel()
 }
 
 
-void VprofManager::setStation(const miString& station)
+void VprofManager::setStation(const std::string& station)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofManager::setStation  " << station);
@@ -547,7 +548,7 @@ void VprofManager::setTime(const miTime& time)
 }
 
 
-miString VprofManager::setStation(int step)
+std::string VprofManager::setStation(int step)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofManager::setStation   step=" << step);
@@ -652,7 +653,7 @@ bool VprofManager::plot()
 
   vpdiag->plot();
 
-  if (plotStation.exists()) {
+  if (not plotStation.empty()) {
 
     int m= vpdata.size();
 
@@ -669,10 +670,10 @@ bool VprofManager::plot()
       int i= 0;
       while (i<n && nameList[i]!=plotStation) i++;
 
-      if (i<n && obsList[i].exists()) {
+      if (i<n && not obsList[i].empty()) {
         checkObsTime(plotTime.hour());
 
-        vector<miString> stationList;
+        vector<std::string> stationList;
         stationList.push_back(obsList[i]);
         int nf= obsfiles.size();
         int nn= 0;
@@ -684,8 +685,7 @@ bool VprofManager::plot()
             if(obsfiles[nn].fileformat==metnoobs){
 #ifdef METNOOBS
               try {
-                if (showObsTemp && obsfiles[nn].obstype==temp &&
-                    !nameList[i].contains("Pilot")) {
+                if (showObsTemp && obsfiles[nn].obstype==temp && not miutil::contains(nameList[i], "Pilot")) {
                   if (obsList[i]!="99") {
                     // land or ship station with name
                     VprofTemp vpobs(obsfiles[nn].filename,false,stationList);
@@ -697,7 +697,7 @@ bool VprofManager::plot()
                     vp= vpobs.getStation(obsList[i],plotTime);
                   }
                 } else if (showObsPilot && obsfiles[nn].obstype==pilot &&
-                    nameList[i].contains("Pilot")) {
+                    miutil::contains(nameList[i], "Pilot")) {
                   if (obsList[i]!="99") {
                     // land or ship station with name
                     VprofPilot vpobs(obsfiles[nn].filename,stationList);
@@ -708,8 +708,7 @@ bool VprofManager::plot()
                         latitudeList[i],longitudeList[i],2.0f,2.0f);
                     vp= vpobs.getStation(obsList[i],plotTime);
                   }
-                } else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
-                    !nameList[i].contains("Pilot")) {
+                } else if (showObsAmdar && obsfiles[nn].obstype==amdar && not miutil::contains(nameList[i], "Pilot")) {
                   VprofTemp vpobs(obsfiles[nn].filename,true,
                       latitudeList[i],longitudeList[i],0.3f,0.3f);
                   vp= vpobs.getStation(obsList[i],plotTime);
@@ -721,17 +720,17 @@ bool VprofManager::plot()
               }
 #endif
             } else if(obsfiles[nn].fileformat==bufr &&
-                ((!nameList[i].contains("Pilot") && obsfiles[nn].obstype!=pilot) ||
-                    (nameList[i].contains("Pilot") && obsfiles[nn].obstype==pilot)) ) {
+                ((not miutil::contains(nameList[i], "Pilot") && obsfiles[nn].obstype!=pilot) ||
+                    (miutil::contains(nameList[i], "Pilot") && obsfiles[nn].obstype==pilot)) ) {
 #ifdef BUFROBS
               ObsBufr bufr;
-              vector<miString> vprofFiles;
+              vector<std::string> vprofFiles;
               //TODO: include files with time+-timediff, this is just a hack to include files with time = plottime - 1 hour
               vprofFiles.push_back(obsfiles[nn].filename);
               if (nn>0  && abs(miTime::minDiff(obsfiles[nn-1].time, plotTime)) <= 60 ) {
                 vprofFiles.push_back(obsfiles[nn-1].filename);
               }
-              miString modelName;
+              std::string modelName;
               if ( obsfiles[nn].obstype==amdar ) {
                 modelName="AMDAR";
               } else if (obsfiles[nn].obstype == temp ) {
@@ -749,13 +748,13 @@ bool VprofManager::plot()
             else if (obsfiles[nn].fileformat==roadobs) {
               try {
                 if (showObsTemp && obsfiles[nn].obstype==temp &&
-                    !nameList[i].contains("Pilot")) {
+                    miutil::contains(!nameList[i], "Pilot")) {
                   //land or ship wmo station with name
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,false,stationList,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
                   vp= vpobs.getStation(obsList[i],plotTime);
 
                 } else if (showObsPilot && obsfiles[nn].obstype==pilot &&
-                    nameList[i].contains("Pilot")) {
+                    miutil::contains(nameList[i], "Pilot")) {
                   if (obsList[i]!="99") {
                     // land or ship station with name
                     VprofPilot vpobs(obsfiles[nn].filename,stationList);
@@ -767,7 +766,7 @@ bool VprofManager::plot()
                     vp= vpobs.getStation(obsList[i],plotTime);
                   }
                 } else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
-                    !nameList[i].contains("Pilot")) {
+                    miutil::contains(!nameList[i], "Pilot")) {
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,true,
                       latitudeList[i],longitudeList[i],0.3f,0.3f,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
                   vp= vpobs.getStation(obsList[i],plotTime);
@@ -802,7 +801,7 @@ bool VprofManager::plot()
 
 /***************************************************************************/
 
-vector <miString> VprofManager::getModelNames(){
+vector <std::string> VprofManager::getModelNames(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofManager::getModelNames");
 #endif
@@ -812,11 +811,11 @@ vector <miString> VprofManager::getModelNames(){
 
 /***************************************************************************/
 
-vector <miString> VprofManager::getModelFiles(){
+vector <std::string> VprofManager::getModelFiles(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofManager::getModelFiles");
 #endif
-  vector<miString> modelfiles= dialogFileNames;
+  vector<std::string> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
   for (int i=0; i<n; i++) {
@@ -832,7 +831,8 @@ vector <miString> VprofManager::getModelFiles(){
 
 /***************************************************************************/
 
-void VprofManager::setFieldModels(const vector <miString> & fieldmodels){
+void VprofManager::setFieldModels(const vector<string>& fieldmodels)
+{
   //called when model selected in field dialog
   fieldModels = fieldmodels;
 }
@@ -840,9 +840,10 @@ void VprofManager::setFieldModels(const vector <miString> & fieldmodels){
 
 /***************************************************************************/
 
-void VprofManager::setSelectedModels(const vector <miString>& models ,
+void VprofManager::setSelectedModels(const vector <string>& models,
     bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar){
+    bool obsPilot, bool obsAmdar)
+{
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -857,9 +858,10 @@ void VprofManager::setSelectedModels(const vector <miString>& models ,
 
 /***************************************************************************/
 
-void VprofManager::setSelectedFiles(const vector <miString>& files,
+void VprofManager::setSelectedFiles(const vector<string>& files,
     bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar){
+    bool obsPilot, bool obsAmdar)
+{
   //called when model selected in model dialog
   showObsTemp = obsTemp;
   showObsPilot= obsPilot;
@@ -874,17 +876,19 @@ void VprofManager::setSelectedFiles(const vector <miString>& files,
 
 /***************************************************************************/
 
-miString VprofManager::getDefaultModel(){
+std::string VprofManager::getDefaultModel()
+{
   //for now, just the first model in filenames list
-  map<miString,miString>::iterator p = filenames.begin();
-  miString model = p->first;
+  map<std::string,std::string>::iterator p = filenames.begin();
+  std::string model = p->first;
   return model;
 }
 
 
 /***************************************************************************/
-vector<miString> VprofManager::getSelectedModels(){
-  vector <miString> models = selectedModels;
+vector<string> VprofManager::getSelectedModels()
+{
+  vector<string> models = selectedModels;
   if (showObsTemp)  models.push_back(menuConst["OBSTEMP"]);
   if (showObsPilot) models.push_back(menuConst["OBSPILOT"]);
   if (showObsAmdar) models.push_back(menuConst["OBSAMDAR"]);
@@ -895,7 +899,7 @@ vector<miString> VprofManager::getSelectedModels(){
 
 /***************************************************************************/
 
-bool VprofManager::initVprofData(miString file,miString model){
+bool VprofManager::initVprofData(std::string file,std::string model){
   VprofData *vpd= new VprofData(file,model);
   if(filetypes[file] == "standard") {
     if (vpd->readFile()) {
@@ -936,10 +940,10 @@ void VprofManager::initStations(){
   longitudeList.clear();
   obsList.clear();
 
-  vector <miString> namelist;
+  vector <std::string> namelist;
   vector <float>    latitudelist;
   vector <float>    longitudelist;
-  vector <miString> obslist;
+  vector <std::string> obslist;
   vector<miTime> tlist;
 
   for (int i = 0;i<nvpdata;i++){
@@ -991,7 +995,7 @@ void VprofManager::initStations(){
   }
 
   // using current time until..................
-  map<miString,int> amdarCount;
+  map<std::string,int> amdarCount;
   int n= obsfiles.size();
   for (int i=0; i<n; i++) {
     if (obsfiles[i].time==plotTime &&
@@ -1001,7 +1005,7 @@ void VprofManager::initStations(){
       if(obsfiles[i].fileformat==bufr){
 #ifdef BUFROBS
         ObsBufr bufr;
-        vector<miString> vprofFiles;
+        vector<std::string> vprofFiles;
         vprofFiles.push_back(obsfiles[i].filename);
         //TODO: include files with time+-timediff, this is just a hack to include files with time = plottime - 1 hour
         if (i>0  && abs(miTime::minDiff(obsfiles[i-1].time, plotTime)) <= 60 ) {
@@ -1016,10 +1020,10 @@ void VprofManager::initStations(){
           // until robs' obs class can do the job:
           obs ofile;
           ofile.readStationHeaders(obsfiles[i].filename);
-          namelist=      ofile.getStationIds();
+          namelist=      to_vector_string(ofile.getStationIds());
           latitudelist=  ofile.getStationLatitudes();
           longitudelist= ofile.getStationLongitudes();
-          if (obsfiles[i].obstype==amdar )
+          if (obsfiles[i].obstype==amdar)
             tlist= ofile.getStationTimes();
         }
         catch (...) {
@@ -1036,7 +1040,7 @@ void VprofManager::initStations(){
           diStation::initStations(obsfiles[i].stationfile);
           // get the pointer to the actual station vector
           vector<diStation> * stations = NULL;
-          map<miString, vector<diStation> * >::iterator its = diStation::station_map.find(obsfiles[i].stationfile);
+          map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(obsfiles[i].stationfile);
           if (its != diStation::station_map.end())
           {
             stations = its->second;
@@ -1088,7 +1092,7 @@ void VprofManager::initStations(){
 #ifdef linux
           // until robs (linux swap problem) fixed
           // (note that "obslist" is kept unchanged/wrong for reading)
-          miString callsign=  namelist[j].substr(3,1)
+          std::string callsign=  namelist[j].substr(3,1)
 								        + namelist[j].substr(2,1)
 								        + namelist[j].substr(5,1)
 								        + namelist[j].substr(4,1);
@@ -1327,37 +1331,36 @@ void VprofManager::checkObsTime(int hour) {
   }
 
 
-  miString VprofManager::getAnnotationString(){
-    miString str = miString("Vertikalprofiler ");
+  std::string VprofManager::getAnnotationString(){
+    std::string str = std::string("Vertikalprofiler ");
     if (onlyObs)
       str += plotTime.isoTime();
     else
-      for (set <miString>::iterator p=usemodels.begin();p!=usemodels.end();p++)
-        str+=*p+miString(" ");
+      for (set <string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
+        str+=*p+std::string(" ");
     return str;
   }
 
 
-  vector<miString> VprofManager::writeLog()
+  vector<string> VprofManager::writeLog()
   {
     return vpopt->writeOptions();
   }
 
 
-  void VprofManager::readLog(const vector<miString>& vstr,
-      const miString& thisVersion,
-      const miString& logVersion)
+  void VprofManager::readLog(const vector<string>& vstr,
+      const string& thisVersion, const string& logVersion)
   {
     vpopt->readOptions(vstr);
   }
 
 
-  void VprofManager::renameAmdar(vector<miString>& namelist,
+  void VprofManager::renameAmdar(vector<std::string>& namelist,
       vector<float>& latitudelist,
       vector<float>& longitudelist,
-      vector<miString>& obslist,
+      vector<std::string>& obslist,
       vector<miTime>& tlist,
-      map<miString,int>& amdarCount)
+      map<std::string,int>& amdarCount)
   {
     //should not happen, but ...
     if(namelist.size()!=tlist.size()) return;
@@ -1368,9 +1371,9 @@ void VprofManager::checkObsTime(int hour) {
     int m= amdarName.size();
     int jmin,c;
     float smin,dx,dy,s;
-    miString newname;
+    std::string newname;
 
-    multimap<miString,int> sortlist;
+    multimap<std::string,int> sortlist;
 
     for (int i=0; i<n; i++) {
       jmin=-1;
@@ -1387,10 +1390,10 @@ void VprofManager::checkObsTime(int hour) {
       if (jmin>=0) {
         newname= amdarName[jmin];
       } else {
-        miString slat= miString(fabsf(latitudelist[i]));
+        std::string slat= miutil::from_number(fabsf(latitudelist[i]));
         if (latitudelist[i]>=0.) slat += "N";
         else                     slat += "S";
-        miString slon= miString(fabsf(longitudelist[i]));
+        std::string slon= miutil::from_number(fabsf(longitudelist[i]));
         if (longitudelist[i]>=0.) slon += "E";
         else                      slon += "W";
         newname= slat + "," + slon;
@@ -1399,20 +1402,20 @@ void VprofManager::checkObsTime(int hour) {
 
       ostringstream ostr;
       ostr<<setw(4)<<setfill('0')<<jmin;
-      miString sortname= ostr.str() + newname + tlist[i].isoTime() + namelist[i];
-      sortlist.insert(pair<miString,int>(sortname,i));
+      std::string sortname= ostr.str() + newname + tlist[i].isoTime() + namelist[i];
+      sortlist.insert(pair<std::string,int>(sortname,i));
 
       namelist[i]= newname;
     }
 
-    map<miString,int>::iterator p;
-    multimap<miString,int>::iterator pt, ptend= sortlist.end();
+    map<std::string,int>::iterator p;
+    multimap<std::string,int>::iterator pt, ptend= sortlist.end();
 
     // gather amdars from same stations (in station list sequence)
-    vector<miString> namelist2;
+    vector<std::string> namelist2;
     vector<float>    latitudelist2;
     vector<float>    longitudelist2;
-    vector<miString> obslist2;
+    vector<std::string> obslist2;
 
     for (pt=sortlist.begin(); pt!=ptend; pt++) {
       int i= pt->second;
@@ -1423,7 +1426,7 @@ void VprofManager::checkObsTime(int hour) {
         amdarCount[newname]= c= 1;
       else
         c= ++(p->second);
-      newname+= " (" + miString(c) + ")";
+      newname+= " (" + miutil::from_number(c) + ")";
 
       namelist2.push_back(newname);
       latitudelist2.push_back(latitudelist[i]);
@@ -1453,24 +1456,24 @@ void VprofManager::checkObsTime(int hour) {
     }
 
     const float notFound=9999.;
-    vector<miString> vstr,vstr2;
-    miString str;
+    vector<std::string> vstr,vstr2;
+    std::string str;
     unsigned int i;
 
     while (getline(file,str)) {
       std::string::size_type n= str.find('#');
       if (n!=0) {
         if (n!=string::npos) str= str.substr(0,n);
-        str.trim();
-        if (str.exists()) {
-          vstr= str.split('"', '"');
+        miutil::trim(str);
+        if (not str.empty()) {
+          vstr= miutil::split_protected(str, '"', '"');
           float latitude=notFound, longitude=notFound;
-          miString name;
+          std::string name;
           n=vstr.size();
           for (i=0; i<n; i++) {
-            vstr2= vstr[i].split("=");
+            vstr2= miutil::split(vstr[i], "=");
             if (vstr2.size()==2) {
-              str= vstr2[0].downcase();
+              str= miutil::to_lower(vstr2[0]);
               if (str=="latitude")
                 latitude= atof(vstr2[1].c_str());
               else if (str=="longitude")
@@ -1482,7 +1485,7 @@ void VprofManager::checkObsTime(int hour) {
               }
             }
           }
-          if (latitude!=notFound && longitude!=notFound && name.exists()) {
+          if (latitude!=notFound && longitude!=notFound && not name.empty()) {
             amdarLatitude.push_back(latitude);
             amdarLongitude.push_back(longitude);
             amdarName.push_back(name);
@@ -1500,7 +1503,7 @@ void VprofManager::checkObsTime(int hour) {
   {
     /*
      struct ObsFile { 
-     miString   filename; 
+     std::string   filename; 
      obsType    obstype; 
      FileFormat fileformat; 
      miTime     time; 
@@ -1525,7 +1528,7 @@ void VprofManager::checkObsTime(int hour) {
   {
     /*
      struct ObsFilePath { 
-     miString   filepath; 
+     std::string   filepath; 
      obsType    obstype; 
      FileFormat fileformat; 
      TimeFilter tf; 

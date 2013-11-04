@@ -34,20 +34,16 @@
 #endif
 
 #include <diObsMetaData.h>
-#include <diObsPlot.h>
-#include <vector>
-#include <curl/curl.h>
 
+#include <puTools/miStringFunctions.h>
 
-void ObsMetaData::addStationsToUrl(miutil::miString& filename)
+void ObsMetaData::addStationsToUrl(std::string& filename)
 {
-
-  miutil::miString string;
-  std::map<miutil::miString, ObsData>::iterator p = metaData.begin();
+  std::string txt;
+  std::map<std::string, ObsData>::iterator p = metaData.begin();
   for ( ; p != metaData.end(); ++p ) {
-    string +=("&s=" + p->second.id);
+    txt +=("&s=" + p->second.id);
   }
 
-  filename.replace("STATIONS",string);
+  miutil::replace(filename, "STATIONS", txt);
 }
-

@@ -33,23 +33,21 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <vector>
-#include <math.h>
-#define MILOGGER_CATEGORY "diana.SpectrumFile"
-#include <miLogger/miLogging.h>
-
 #include <diSpectrumFile.h>
 #include <diSpectrumPlot.h>
 #include <diFtnVfile.h>
 
-#include <math.h>
 #include <puCtools/stat.h>
+#include <puTools/miStringFunctions.h>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.SpectrumFile"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 // Default constructor
-SpectrumFile::SpectrumFile(const miString& filename, const miString& modelname)
+SpectrumFile::SpectrumFile(const std::string& filename, const std::string& modelname)
     : fileName(filename), modelName(modelname), vfile(0), modificationtime(0),
       numPos(0), numTime(0), numDirec(0), numFreq(0), numExtra(0),
       dataAddress(0)
@@ -167,17 +165,17 @@ bool SpectrumFile::readFileHeader() {
 
     // position names, first length of each name
     tmp= vfile->getInt(numPos);
-    map<miString, int> namemap;
+    map<std::string, int> namemap;
     for (n=0; n<numPos; n++) {
-      miString str= vfile->getString(tmp[n]);
+      std::string str= vfile->getString(tmp[n]);
       // may have one space at the end (n*2 characters stored in file)
-      str.trim(false,true);
+      miutil::trim(str, false, true);
       if(!namemap.count(str)){
 	namemap[str]=0;
       } else {
 	namemap[str]++;
       }
-      if(namemap[str]>0) str = str + "(" + miString(namemap[str]) + ")";
+      if(namemap[str]>0) str = str + "(" + miutil::from_number(namemap[str]) + ")";
 //###################################################################
 //      METLIBS_LOG_DEBUG("name: "<<n<<" : "<<str);
 //###################################################################
@@ -233,7 +231,7 @@ bool SpectrumFile::readFileHeader() {
 }
 
 
-SpectrumPlot* SpectrumFile::getData(const miString& name, const miTime& time)
+SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ SpectrumFile::getData   "<<name<<"   "<<time);

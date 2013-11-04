@@ -31,27 +31,24 @@
 #ifndef SPECTRUMMANAGER_H
 #define SPECTRUMMANAGER_H
 
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <vector>
-#include <map>
-#include <set>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 
-using namespace std;
+#include <puTools/miTime.h>
+
+#include <vector>
+#include <map>
+#include <set>
 
 class SpectrumOptions;
 class SpectrumFile;
 class SpectrumPlot;
 
-
 /**
    \brief Managing Wave Spectrum data sources and plotting
-
 */
-class SpectrumManager{
-
+class SpectrumManager
+{
 private:
 
   enum obsType {
@@ -60,7 +57,7 @@ private:
   };
 
   struct ObsFile {
-    miutil::miString filename;
+    std::string filename;
     obsType  obstype;
     miutil::miTime   time;
     long     modificationTime;
@@ -69,60 +66,60 @@ private:
   struct StationPos {
     float latitude;
     float longitude;
-    miutil::miString obs;
+    std::string obs;
   };
 
   // map<model,filename>
-  map<miutil::miString,miutil::miString> filenames;
+  std::map<std::string,std::string> filenames;
 
   // for use in dialog (unique lists in setup order)
-  vector<miutil::miString> dialogModelNames;
-  vector<miutil::miString> dialogFileNames;
+  std::vector<std::string> dialogModelNames;
+  std::vector<std::string> dialogFileNames;
 
   // temp file paths  ("/dir/xxxx??.dat*")
-  vector<miutil::miString> obsAaaPaths;
+  std::vector<std::string> obsAaaPaths;
   // pilot file paths ("/dir/xxxx??.dat*")
-  vector<miutil::miString> obsBbbPaths;
+  std::vector<std::string> obsBbbPaths;
 
   SpectrumOptions *spopt;
-  vector<SpectrumFile*> spfile;
+  std::vector<SpectrumFile*> spfile;
   bool showObs;
   bool asField;
 
-  vector<miutil::miString> nameList;
-  vector<float> latitudeList;
-  vector<float> longitudeList;
-  vector<miutil::miString> obsList;
-  vector<miutil::miTime>   timeList;
+  std::vector<std::string> nameList;
+  std::vector<float> latitudeList;
+  std::vector<float> longitudeList;
+  std::vector<std::string> obsList;
+  std::vector<miutil::miTime>   timeList;
 
-  vector<ObsFile> obsfiles;
-  vector<miutil::miTime> obsTime;
+  std::vector<ObsFile> obsfiles;
+  std::vector<miutil::miTime> obsTime;
   bool onlyObs;
 
-  vector<miutil::miString> fieldModels;
-  vector<miutil::miString> selectedModels;
-  vector<miutil::miString> selectedFiles;
-  set<miutil::miString> usemodels;
+  std::vector<std::string> fieldModels;
+  std::vector<std::string> selectedModels;
+  std::vector<std::string> selectedFiles;
+  std::set<std::string> usemodels;
 
   int plotw, ploth;
 
-  miutil::miString plotStation;
-  miutil::miString lastStation;
+  std::string plotStation;
+  std::string lastStation;
   miutil::miTime   plotTime;
   miutil::miTime   ztime;
 
   bool dataChange;
-  vector<SpectrumPlot*> spectrumplots;
+  std::vector<SpectrumPlot*> spectrumplots;
 
   bool hardcopy;
   printOptions printoptions;
   bool hardcopystarted;
 
-  map<miutil::miString,miutil::miString> menuConst;
+  std::map<std::string,std::string> menuConst;
 
-  miutil::miString getDefaultModel();
+  std::string getDefaultModel();
   void updateObsFileList();
-  bool initSpectrumFile(miutil::miString file,miutil::miString model);
+  bool initSpectrumFile(std::string file,std::string model);
   void initStations();
   void initTimes();
   void checkObsTime(int hour=-1);
@@ -139,31 +136,29 @@ public:
   void setPlotWindow(int w, int h);
 
   //routines from controller
-  vector<miutil::miString> getLineThickness();
+  std::vector<std::string> getLineThickness();
 
   void setModel();
-  void setStation(const miutil::miString& station);
+  void setStation(const std::string& station);
   void setTime(const miutil::miTime& time);
-  miutil::miString setStation(int step);
+  std::string setStation(int step);
   miutil::miTime setTime(int step);
 
   const miutil::miTime getTime(){return plotTime;}
-  const miutil::miString getStation() { return plotStation; }
-  const miutil::miString getLastStation() { return lastStation; }
-  const vector<miutil::miString>& getStationList() { return nameList; }
-  const vector<float>& getLatitudes() { return latitudeList; }
-  const vector<float>& getLongitudes() { return longitudeList; }
-  const vector<miutil::miTime>& getTimeList() { return timeList; }
+  const std::string getStation() { return plotStation; }
+  const std::string getLastStation() { return lastStation; }
+  const std::vector<std::string>& getStationList() { return nameList; }
+  const std::vector<float>& getLatitudes() { return latitudeList; }
+  const std::vector<float>& getLongitudes() { return longitudeList; }
+  const std::vector<miutil::miTime>& getTimeList() { return timeList; }
 
-  vector<miutil::miString> getModelNames();
-  vector<miutil::miString> getModelFiles();
-  void setFieldModels(const vector<miutil::miString>& fieldmodels);
-  void setSelectedModels(const vector<miutil::miString>& models,
-			 bool obs, bool field);
-  void setSelectedFiles(const vector<miutil::miString>& files,
-			bool obs, bool field);
+  std::vector<std::string> getModelNames();
+  std::vector<std::string> getModelFiles();
+  void setFieldModels(const std::vector<std::string>& fieldmodels);
+  void setSelectedModels(const std::vector<std::string>& models, bool obs, bool field);
+  void setSelectedFiles(const std::vector<std::string>& files, bool obs, bool field);
 
-  vector<miutil::miString> getSelectedModels();
+  std::vector<std::string> getSelectedModels();
 
   bool plot();
   void startHardcopy(const printOptions& po);
@@ -171,16 +166,14 @@ public:
   bool onlyObsState() { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
   void updateObs();
-  miutil::miString getAnnotationString();
+  std::string getAnnotationString();
 
-  void setMenuConst(map<miutil::miString,miutil::miString> mc)
-  { menuConst = mc;}
+  void setMenuConst(std::map<std::string,std::string> mc)
+    { menuConst = mc;}
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
-
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
 };
-
 
 #endif

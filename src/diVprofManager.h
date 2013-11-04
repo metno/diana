@@ -31,22 +31,20 @@
 #ifndef VPROFMANAGER_H
 #define VPROFMANAGER_H
 
-#include <puTools/miString.h>
-#include <puTools/miTime.h>
-#include <vector>
-#include <map>
-#include <set>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diField/TimeFilter.h>
 #include <diController.h>
 
-using namespace std;
+#include <puTools/miTime.h>
+
+#include <vector>
+#include <map>
+#include <set>
 
 class VprofOptions;
 class VprofData;
 class VprofDiagram;
-
 
 /**
    \brief Managing Vertical Profile observation and prognostic sources.
@@ -74,77 +72,77 @@ private:
   };
 
   struct ObsFile {
-    miutil::miString   filename;
+    std::string   filename;
     obsType    obstype;
     FileFormat fileformat;
     miutil::miTime     time;
     long       modificationTime;
 #ifdef ROADOBS
-    miutil::miString parameterfile;
-    miutil::miString stationfile;
-    miutil::miString databasefile;
+    std::string parameterfile;
+    std::string stationfile;
+    std::string databasefile;
 #endif
   };
 
   struct ObsFilePath {
-    miutil::miString   filepath;
+    std::string   filepath;
     obsType    obstype;
     FileFormat fileformat;
     TimeFilter tf;
 #ifdef ROADOBS
-    miutil::miString parameterfile;
-    miutil::miString stationfile;
-    miutil::miString databasefile;
+    std::string parameterfile;
+    std::string stationfile;
+    std::string databasefile;
 #endif
 
   };
 
-  // map<model,filename>
-  map<miutil::miString,miutil::miString> filenames;
-  map<miutil::miString,miutil::miString> filetypes;
+  // std::map<model,filename>
+  std::map<std::string,std::string> filenames;
+  std::map<std::string,std::string> filetypes;
 
   // for use in dialog (unique lists in setup order)
-  vector<miutil::miString> dialogModelNames;
-  vector<miutil::miString> dialogFileNames;
+  std::vector<std::string> dialogModelNames;
+  std::vector<std::string> dialogFileNames;
 
-  vector<ObsFilePath>   filePaths;
+  std::vector<ObsFilePath>   filePaths;
 
-  miutil::miString amdarStationFile;
+  std::string amdarStationFile;
   bool amdarStationList;
-  vector<float>    amdarLatitude;
-  vector<float>    amdarLongitude;
-  vector<miutil::miString> amdarName;
+  std::vector<float>    amdarLatitude;
+  std::vector<float>    amdarLongitude;
+  std::vector<std::string> amdarName;
 
   FieldManager *fieldm;   // field manager
 
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
-  vector<VprofData*> vpdata;
+  std::vector<VprofData*> vpdata;
   bool showObs;
   bool showObsTemp;
   bool showObsPilot;
   bool showObsAmdar;
   bool asField;
 
-  vector <miutil::miString> nameList;
-  vector <float>    latitudeList;
-  vector <float>    longitudeList;
-  vector <miutil::miTime>   timeList;
-  vector <miutil::miString> obsList;
+  std::vector <std::string> nameList;
+  std::vector <float>    latitudeList;
+  std::vector <float>    longitudeList;
+  std::vector <miutil::miTime>   timeList;
+  std::vector <std::string> obsList;
 
-  vector<ObsFile> obsfiles;
-  vector<miutil::miTime> obsTime;
+  std::vector<ObsFile> obsfiles;
+  std::vector<miutil::miTime> obsTime;
   bool onlyObs;
 
-  vector <miutil::miString> fieldModels;
-  vector <miutil::miString> selectedModels;
-  vector <miutil::miString> selectedFiles;
-  set <miutil::miString> usemodels;
+  std::vector<std::string> fieldModels;
+  std::vector<std::string> selectedModels;
+  std::vector<std::string> selectedFiles;
+  std::set<std::string> usemodels;
 
   int plotw, ploth;
 
-  miutil::miString plotStation;
-  miutil::miString lastStation;
+  std::string plotStation;
+  std::string lastStation;
   miutil::miTime   plotTime;
   miutil::miTime ztime;
 
@@ -152,21 +150,21 @@ private:
   printOptions printoptions;
   bool hardcopystarted;
 
-  map<miutil::miString,miutil::miString> menuConst;
+  std::map<std::string,std::string> menuConst;
 
-  miutil::miString getDefaultModel();
+  std::string getDefaultModel();
   void updateObsFileList();
-  bool initVprofData(miutil::miString file,miutil::miString model);
+  bool initVprofData(std::string file,std::string model);
   void initStations();
   void initTimes();
   void checkObsTime(int hour=-1);
 
-  void renameAmdar(vector<miutil::miString>& namelist,
-		   vector<float>& latitudelist,
-		   vector<float>& longitudelist,
-		   vector<miutil::miString>& obslist,
-		   vector<miutil::miTime>& tlist,
-		   map<miutil::miString,int>& amdarCount);
+  void renameAmdar(std::vector<std::string>& namelist,
+		   std::vector<float>& latitudelist,
+		   std::vector<float>& longitudelist,
+		   std::vector<std::string>& obslist,
+		   std::vector<miutil::miTime>& tlist,
+		   std::map<std::string,int>& amdarCount);
   void readAmdarStationList();
 
 public:
@@ -180,47 +178,45 @@ public:
 
   void parseSetup();
   void setModel();
-  void setStation(const miutil::miString& station);
+  void setStation(const std::string& station);
   void setTime(const miutil::miTime& time);
-  miutil::miString setStation(int step);
+  std::string setStation(int step);
   miutil::miTime setTime(int step);
   const miutil::miTime getTime(){return plotTime;}
-  const miutil::miString getStation(){return plotStation;}
-  const miutil::miString getLastStation(){return lastStation;}
-  const vector<miutil::miString>& getStationList() { return nameList; }
-  const vector<float>& getLatitudes(){return latitudeList;}
-  const vector<float>& getLongitudes(){return longitudeList;}
-  const vector<miutil::miTime>&   getTimeList()    { return timeList; }
-  vector <miutil::miString> getModelNames();
-  vector <miutil::miString> getModelFiles();
-  void setFieldModels(const vector <miutil::miString> & fieldmodels);
-  void setSelectedModels(const vector <miutil::miString>& models,
+  const std::string getStation(){return plotStation;}
+  const std::string getLastStation(){return lastStation;}
+  const std::vector<std::string>& getStationList() { return nameList; }
+  const std::vector<float>& getLatitudes(){return latitudeList;}
+  const std::vector<float>& getLongitudes(){return longitudeList;}
+  const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
+  std::vector <std::string> getModelNames();
+  std::vector <std::string> getModelFiles();
+  void setFieldModels(const std::vector<std::string>& fieldmodels);
+  void setSelectedModels(const std::vector<std::string>& models,
 			 bool field, bool obsTemp,
 			 bool obsPilot, bool obsAmdar);
-  void setSelectedFiles(const vector <miutil::miString>& files,
+  void setSelectedFiles(const std::vector<std::string>& files,
 			bool field, bool obsTemp,
 			bool obsPilot, bool obsAmdar);
 
-  vector<miutil::miString> getSelectedModels();
+  std::vector<std::string> getSelectedModels();
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
   bool onlyObsState() { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
   void updateObs();
-  miutil::miString getAnnotationString();
+  std::string getAnnotationString();
 
-  void setMenuConst(map<miutil::miString,miutil::miString> mc)
-  { menuConst = mc;}
+  void setMenuConst(const std::map<std::string,std::string>& mc)
+    { menuConst = mc;}
 
-  vector<miutil::miString> writeLog();
-  void readLog(const vector<miutil::miString>& vstr,
-	       const miutil::miString& thisVersion, const miutil::miString& logVersion);
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+	       const std::string& thisVersion, const std::string& logVersion);
   /* Added for debug purposes */
   void printObsFiles(const ObsFile &of);
   void printObsFilePath(const ObsFilePath & ofp);
-
 };
-
 
 #endif

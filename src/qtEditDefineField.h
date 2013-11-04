@@ -34,11 +34,9 @@
 #include <QDialog>
 
 #include <diEditSpec.h>
-#include <puTools/miString.h>
+
 #include <vector>
 #include <map>
-
-using namespace std;
 
 class Controller;
 class EditManager;
@@ -48,7 +46,6 @@ class QListWidget;
 class QListWidgetItem;
 class QPushButton;
 class QCheckBox;
-
 
 /**
    \brief Dialogue for selecting fields for editing
@@ -63,18 +60,21 @@ class EditDefineFieldDialog: public QDialog
 public:
   EditDefineFieldDialog(QWidget* parent, Controller*,int n, EditProduct ep);
 
-  bool fieldSelected(){return selectedfield.exists();}
-  bool productSelected(){return (vselectedprod.size()
-				 && vselectedprod[0].filename.exists());}
-  miutil::miString selectedField(){return selectedfield;}
-  vector <savedProduct> vselectedProd(){return vselectedprod;}
+  bool fieldSelected()
+    {return not selectedfield.empty();}
+  bool productSelected()
+    {return (vselectedprod.size() && (not vselectedprod[0].filename.empty()));}
+  const std::string& selectedField()
+    {return selectedfield;}
+  const std::vector<savedProduct>& vselectedProd()
+    {return vselectedprod;}
 
 private:
-  vector <miutil::miString> getProductNames();
+  std::vector <std::string> getProductNames();
   void fillList();
   void updateFilenames();
-  miutil::miString selectedObjectTypes(); //fronts /symbols/areas ?
-  void setCheckedCbs(map<miutil::miString,bool> useEditobject);
+  std::string selectedObjectTypes(); //fronts /symbols/areas ?
+  void setCheckedCbs(std::map<std::string,bool> useEditobject);
   void initCbs();
 
 private slots:
@@ -110,27 +110,17 @@ private:
   QCheckBox *cbs3;
 
   EditProduct EdProd;
-  miutil::miString currentProductName;
-  miutil::miString fieldname;
-  vector<miutil::miString> fields;
+  std::string currentProductName;
+  std::string fieldname;
+  std::vector<std::string> fields;
   int num;
   int selectedProdIndex;
-  map <miutil::miString, vector<savedProduct> > pmap;
-  miutil::miString selectedfield;
-  vector <savedProduct> vselectedprod;
-  vector<miutil::miString> productNames;  //list of products in prodnamebox
+  std::map <std::string, std::vector<savedProduct> > pmap;
+  std::string selectedfield;
+  std::vector <savedProduct> vselectedprod;
+  std::vector<std::string> productNames;  //list of products in prodnamebox
 
-  miutil::miString MODELFIELDS;
-
+  std::string MODELFIELDS;
 };
 
 #endif
-
-
-
-
-
-
-
-
-

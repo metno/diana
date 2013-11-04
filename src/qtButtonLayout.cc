@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,24 +31,22 @@
 #include "config.h"
 #endif
 
+#include "qtButtonLayout.h"
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
+#include <QGridLayout>
+#include <QButtonGroup>
+
 #define MILOGGER_CATEGORY "diana.ButtonLayout"
 #include <miLogger/miLogging.h>
 
-#include "qtButtonLayout.h"
-#include "qtUtility.h"
-#include <QGridLayout>
-#include <stdio.h>
-#include <QButtonGroup>
-#include <iostream>
+using namespace std;
 
-
-ButtonLayout::ButtonLayout( QWidget* parent,
-    vector<ObsDialogInfo::Button>& buttons,
-    int nr_col
-)
-: QWidget(parent)
+ButtonLayout::ButtonLayout(QWidget* parent, vector<ObsDialogInfo::Button>& buttons, int nr_col)
+  : QWidget(parent)
 {
-
   buttonList  =  buttons;
   int nr_buttons = buttonList.size();
 
@@ -65,9 +61,8 @@ ButtonLayout::ButtonLayout( QWidget* parent,
   buttonRightOn.insert(buttonRightOn.end(),nr_buttons,false);
 
   for( int i=0; i< nr_buttons; i++ ){
-    b[i] = new ToggleButton( this, buttonList[i].name.c_str());
-    connect( b[i], SIGNAL(rightButtonClicked(ToggleButton*)),
-        SLOT(rightButtonClicked(ToggleButton* ))  );
+    b[i] = new ToggleButton(this, QString::fromStdString(buttonList[i].name));
+    connect(b[i], SIGNAL(rightButtonClicked(ToggleButton*)), SLOT(rightButtonClicked(ToggleButton*)));
     bgroup->addButton( b[i] ,i);
     if(!buttonList[i].tooltip.empty())
       b[i]->setToolTip(buttonList[i].tooltip.c_str());
@@ -91,8 +86,7 @@ ButtonLayout::ButtonLayout( QWidget* parent,
     }
   }
 
-  connect( bgroup, SIGNAL(buttonClicked(int)), SLOT(groupClicked(int))  );
-
+  connect(bgroup, SIGNAL(buttonClicked(int)), SLOT(groupClicked(int)));
 }
 
 
@@ -175,12 +169,12 @@ void ButtonLayout::DEFAULTClicked(){
 }
 
 
-int ButtonLayout::setButtonOn( miutil::miString buttonName ){
+int ButtonLayout::setButtonOn( std::string buttonName ){
 
   int n = buttonList.size();
 
   for( int j=0; j<n; j++){
-    if(buttonName.downcase()==buttonList[j].name.downcase()){
+    if(miutil::to_lower(buttonName)==miutil::to_lower(buttonList[j].name)){
       if(b[j]->isEnabled()){
         b[j]->setChecked( true );
         buttonOn[j]=true;
@@ -224,9 +218,9 @@ void ButtonLayout::enableButtons(vector<bool> bArr){
 }
 
 
-vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
+vector<std::string> ButtonLayout::getOKString(bool forLog) {
 
-  vector<miutil::miString> str;
+  vector<std::string> str;
   int nr_buttons = buttonList.size();
 
   if(forLog){
@@ -242,7 +236,7 @@ vector<miutil::miString> ButtonLayout::getOKString(bool forLog) {
 }
 
 
-void ButtonLayout::setRightClicked(miutil::miString name,bool on  )
+void ButtonLayout::setRightClicked(std::string name,bool on  )
 {
   //  METLIBS_LOG_DEBUG("setRightClicked:"<<name);
 
@@ -274,7 +268,7 @@ void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 
   unsigned int id = bgroup->id(butto);
   if(buttonList.size() > id){
-    miutil::miString name = buttonList[id].name;
+    std::string name = buttonList[id].name;
     if( !buttonOn[id] ) return;
     emit rightClickedOn(name);
   }
@@ -284,7 +278,6 @@ void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 void ButtonLayout::groupClicked( int id )
 // This function is called when a button is clicked
 {
-
   if(b[id]->isChecked() ){
     buttonOn[id]=true;
     emit inGroupClicked( id );
@@ -293,41 +286,4 @@ void ButtonLayout::groupClicked( int id )
     buttonOn[id]=false;
     emit outGroupClicked( id );
   }
-
-  return;
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

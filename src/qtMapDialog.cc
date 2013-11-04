@@ -33,6 +33,12 @@
 #include "config.h"
 #endif
 
+#include "qtMapDialog.h"
+#include "qtUtility.h"
+#include "qtToggleButton.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QComboBox>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -47,13 +53,7 @@
 #define MILOGGER_CATEGORY "diana.MapDialog"
 #include <miLogger/miLogging.h>
 
-#include "qtMapDialog.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-
-#include <puTools/miString.h>
-#include <stdio.h>
-#include <iostream>
+using namespace std;
 
 #define HEIGHTLB 105
 #define HEIGHTLBSMALL 70
@@ -123,7 +123,7 @@ void MapDialog::ConstructorCernel(const MapDialogInfo mdi)
   densities.push_back("180");
 
   // positions
-  vector<miutil::miString> positions_tr; // all defined positions
+  std::vector<std::string> positions_tr; // all defined positions
   positions_tr.push_back(tr("left").toStdString());
   positions_tr.push_back(tr("bottom").toStdString());
   positions_tr.push_back(tr("both").toStdString());
@@ -714,7 +714,7 @@ void MapDialog::showframe_checkboxActivated(bool on)
 
 void MapDialog::ff_linecboxActivated(int index)
 {
-  framelw = miutil::miString(index + 1);
+  framelw = miutil::from_number(index + 1);
 }
 
 void MapDialog::ff_linetypeboxActivated(int index)
@@ -899,7 +899,7 @@ void MapDialog::cont_linecboxActivated(int index)
     METLIBS_LOG_ERROR("linecboxactivated::Catastrophic: activemap < 0");
     return;
   }
-  m_MapDI.maps[activemap].contour.linewidth = miutil::miString(index + 1);
+  m_MapDI.maps[activemap].contour.linewidth = miutil::from_number(index + 1);
 }
 
 void MapDialog::cont_linetypeboxActivated(int index)
@@ -984,7 +984,7 @@ void MapDialog::lon_checkboxActivated(bool on)
 
 void MapDialog::lon_linecboxActivated(int index)
 {
-  lonlw = miutil::miString(index + 1);
+  lonlw = miutil::from_number(index + 1);
 }
 
 void MapDialog::lon_linetypeboxActivated(int index)
@@ -1027,7 +1027,7 @@ void MapDialog::lat_checkboxActivated(bool on)
 
 void MapDialog::lat_linecboxActivated(int index)
 {
-  latlw = miutil::miString(index + 1);
+  latlw = miutil::from_number(index + 1);
 }
 
 void MapDialog::lat_linetypeboxActivated(int index)
@@ -1117,12 +1117,12 @@ void MapDialog::closeEvent(QCloseEvent* e)
  GetOKString
  */
 
-vector<miutil::miString> MapDialog::getOKString()
+vector<string> MapDialog::getOKString()
 {
 #ifdef dMapDlg
   METLIBS_LOG_DEBUG("MapDialog::getOKString called");
 #endif
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
 //Area string
   ostringstream areastr;
@@ -1175,7 +1175,7 @@ vector<miutil::miString> MapDialog::getOKString()
     mi.frame.linewidth = framelw;
     mi.frame.linetype = framelt;
 
-    miutil::miString mstr;
+    std::string mstr;
     m_ctrl->MapInfoParser(mstr, mi, true);
     ostr << " " << mstr;
 
@@ -1235,7 +1235,7 @@ vector<miutil::miString> MapDialog::getOKString()
         m_MapDI.maps[lindex].frame.ison = false;
       }
 
-      miutil::miString mstr;
+      std::string mstr;
       m_ctrl->MapInfoParser(mstr, m_MapDI.maps[lindex], true);
       ostr << " " << mstr;
 
@@ -1252,42 +1252,41 @@ vector<miutil::miString> MapDialog::getOKString()
  PutOKString
  */
 
-void MapDialog::putOKString(const vector<miutil::miString>& vstr)
+void MapDialog::putOKString(const vector<string>& vstr)
 {
-
   int n = vstr.size();
   vector<int> themaps;
-  vector<miutil::miString> tokens, stokens;
-  miutil::miString bgcolour, area;
+  vector<std::string> tokens, stokens;
+  std::string bgcolour, area;
   int lastmap = -1;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
-    miutil::miString str = vstr[iline];
-    str.trim();
-    if (!str.exists())
+    std::string str = vstr[iline];
+    miutil::trim(str);
+    if (str.empty())
       continue;
     if (str[0] == '#')
       continue;
-    miutil::miString themap = "";
-    tokens = str.split(" ");
+    std::string themap = "";
+    tokens = miutil::split(str, " ");
     int m = tokens.size();
-    if (m > 0 && (tokens[0].upcase() != "MAP" && tokens[0].upcase() != "AREA"))
+    if (m > 0 && (miutil::to_upper(tokens[0]) != "MAP" && miutil::to_upper(tokens[0]) != "AREA"))
       continue;
     for (int j = 0; j < m; j++) {
-      stokens = tokens[j].split('=');
+      stokens = miutil::split(tokens[j], 0, "=");
       if (stokens.size() == 2) {
-        if (stokens[0].upcase() == "BACKCOLOUR")
+        if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
           bgcolour = stokens[1];
-        else if (stokens[0].upcase() == "NAME" || stokens[0].upcase() == "AREANAME" || stokens[0].upcase() == "AREA")
+        else if (miutil::to_upper(stokens[0]) == "NAME" || miutil::to_upper(stokens[0]) == "AREANAME" || miutil::to_upper(stokens[0]) == "AREA")
           area = stokens[1];
-        else if (stokens[0].upcase() == "MAP")
+        else if (miutil::to_upper(stokens[0]) == "MAP")
           themap = stokens[1];
       }
     }
 
     // find the logged map in full list
-    if (themap.exists()) {
+    if (not themap.empty()) {
       int idx = -1;
       for (int k = 0; k < numMaps; k++)
         if (m_MapDI.maps[k].name == themap) {
@@ -1424,21 +1423,21 @@ void MapDialog::putOKString(const vector<miutil::miString>& vstr)
 
 }
 
-miutil::miString MapDialog::getShortname()
+std::string MapDialog::getShortname()
 {
-  miutil::miString name;
+  std::string name;
 
   if ( areabox->count()== 0 ) {
     return name;
   }
 
-  name = areabox->item(areabox->currentRow())->text().toStdString() + miutil::miString(
+  name = areabox->item(areabox->currentRow())->text().toStdString() + std::string(
       " ");
 
   int numselected = selectedmaps.size();
   for (int i = 0; i < numselected; i++) {
     int lindex = selectedmaps[i];
-    name += m_MapDI.maps[lindex].name + miutil::miString(" ");
+    name += m_MapDI.maps[lindex].name + std::string(" ");
   }
 
   name = "<font color=\"#009900\">" + name + "</font>";
@@ -1449,9 +1448,9 @@ miutil::miString MapDialog::getShortname()
 // LOG-FILE read/write methods
 // ------------------------------------------------
 
-vector<miutil::miString> MapDialog::writeLog()
+vector<string> MapDialog::writeLog()
 {
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
 
   // first: write all map-specifications
   int n = m_MapDI.maps.size();
@@ -1499,7 +1498,7 @@ vector<miutil::miString> MapDialog::writeLog()
       m_MapDI.maps[i].frame.ison = false;
     }
 
-    miutil::miString mstr;
+    std::string mstr;
     m_ctrl->MapInfoParser(mstr, m_MapDI.maps[i], true);
     ostr << mstr;
 
@@ -1529,42 +1528,42 @@ vector<miutil::miString> MapDialog::writeLog()
   return vstr;
 }
 
-void MapDialog::readLog(const vector<miutil::miString>& vstr,
-    const miutil::miString& thisVersion, const miutil::miString& logVersion)
+void MapDialog::readLog(const vector<string>& vstr,
+    const string& thisVersion, const string& logVersion)
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");
 
   int n = vstr.size();
   vector<int> themaps;
-  vector<miutil::miString> tokens, stokens;
-  miutil::miString bgcolour, area;
+  vector<std::string> tokens, stokens;
+  std::string bgcolour, area;
   int lastmap = -1;
 
   int iline;
   for (iline = 0; iline < n; iline++) {
-    miutil::miString str = vstr[iline];
-    str.trim();
-    if (str.exists() && str[0] == '-')
+    std::string str = vstr[iline];
+    miutil::trim(str);
+    if (not str.empty() && str[0] == '-')
       continue;
-    if (str.exists() && str[0] == '=')
+    if (not str.empty() && str[0] == '=')
       break;
-    miutil::miString themap = "";
-    tokens = str.split(" ");
+    std::string themap = "";
+    tokens = miutil::split(str, " ");
     int m = tokens.size();
     for (int j = 0; j < m; j++) {
-      stokens = tokens[j].split('=');
+      stokens = miutil::split(tokens[j], 0, "=");
       if (stokens.size() == 2) {
-        if (stokens[0].upcase() == "BACKCOLOUR")
+        if (miutil::to_upper(stokens[0]) == "BACKCOLOUR")
           bgcolour = stokens[1];
-        else if (stokens[0].upcase() == "AREA")
+        else if (miutil::to_upper(stokens[0]) == "AREA")
           area = stokens[1];
-        else if (stokens[0].upcase() == "MAP")
+        else if (miutil::to_upper(stokens[0]) == "MAP")
           themap = stokens[1];
       }
     }
     // find the logged map in full list
-    if (themap.exists()) {
+    if (not themap.empty()) {
       int idx = -1;
       for (int k = 0; k < numMaps; k++)
         if (m_MapDI.maps[k].name == themap) {
@@ -1584,9 +1583,9 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
     themaps.clear();
     iline++;
     for (; iline < n; iline++) {
-      miutil::miString themap = vstr[iline];
-      themap.trim();
-      if (!themap.exists())
+      std::string themap = vstr[iline];
+      miutil::trim(themap);
+      if (themap.empty())
         continue;
       if (themap[0] == '=')
         break;
@@ -1603,9 +1602,9 @@ void MapDialog::readLog(const vector<miutil::miString>& vstr,
   if (iline < n && vstr[iline][0] == '=') {
     iline++;
     for (; iline < n; iline++) {
-      miutil::miString str = vstr[iline];
-      str.trim();
-      if (!str.exists())
+      std::string str = vstr[iline];
+      miutil::trim(str);
+      if (str.empty())
         continue;
       if (str[0] == '=')
         break;

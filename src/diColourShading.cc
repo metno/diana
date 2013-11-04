@@ -3,7 +3,7 @@
 
   $Id: diColourShading.cc 3906 2012-08-02 17:35:03Z lisbethb $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,38 +34,34 @@
 #endif
 
 #include <diColourShading.h>
-#include <iostream>
-#include <stdio.h>
 
-using namespace miutil;
+#include <puTools/miStringFunctions.h>
 
+using namespace std;
 
-map<miString,ColourShading> ColourShading::pmap;
+map<std::string,ColourShading> ColourShading::pmap;
 vector<ColourShading::ColourShadingInfo> ColourShading::colourshadings;
 
-
-ColourShading::ColourShading(const miString name_){
-
-  miString lname = name_.downcase();
+ColourShading::ColourShading(const std::string& name_)
+{
+  std::string lname = miutil::to_lower(name_);
   memberCopy(pmap[lname]);
 }
 
-ColourShading::ColourShading(const miString& name_,
-			     const vector<Colour>& colours_){
-
-  name = name_.downcase();
+ColourShading::ColourShading(const std::string& name_, const vector<Colour>& colours_)
+{
+  name = miutil::to_lower(name_);
   colours = colours_;
 }
 
-
-// Copy constructor
-ColourShading::ColourShading(const ColourShading &rhs){
+ColourShading::ColourShading(const ColourShading &rhs)
+{
   // elementwise copy
   memberCopy(rhs);
 }
 
-// Destructor
-ColourShading::~ColourShading(){
+ColourShading::~ColourShading()
+{
 }
 
 // Assignment operator
@@ -76,38 +72,41 @@ ColourShading& ColourShading::operator=(const ColourShading &rhs){
   return *this;
 }
 
-// Equality operator
-bool ColourShading::operator==(const ColourShading &rhs) const{
+bool ColourShading::operator==(const ColourShading &rhs) const
+{
   int n = colours.size();
   int m = rhs.colours.size();
-  if(n!=m)return false;
+  if (n != m)
+    return false;
   int i=0;
-  while(i<n && colours[i] == rhs.colours[i]) i++;
+  while(i<n && colours[i] == rhs.colours[i])
+    i++;
 
-  if(i==n) return true;
+  if (i==n)
+    return true;
 
   return false;
 }
 
-void ColourShading::memberCopy(const ColourShading& rhs){
+void ColourShading::memberCopy(const ColourShading& rhs)
+{
   // copy members
   colours   = rhs.colours;
   name      = rhs.name;
 }
 
-void ColourShading::define(const miString name_,
-     const vector<Colour>& colours_)
+void ColourShading::define(const std::string& name_, const vector<Colour>& colours_)
 {
-  miString lname= name_.downcase();
+  std::string lname= miutil::to_lower(name_);
   ColourShading p(lname, colours_);
   pmap[lname]= p;
 }
 
-void ColourShading::defineColourShadingFromString(const miString str)
+void ColourShading::defineColourShadingFromString(const std::string& str)
 {
-  miString lname= str;
+  std::string lname= str;
   vector<Colour> colours;
-  vector<miString> token = str.split(",");
+  vector<std::string> token = miutil::split(str, ",");
 
   for(size_t j=0; j<token.size(); j++) {
     colours.push_back(Colour(token[j]));
@@ -120,12 +119,11 @@ vector<Colour> ColourShading::getColourShading(int n)
 {
   int ncol = colours.size();
 
-  if(ncol<2) return colours;
+  if (ncol<2)
+    return colours;
 
   vector<Colour> vcol;
-
-
-  if(n<ncol){ //remove colours
+  if (n < ncol) { //remove colours
 
     int step = ncol/n;
     int ex = ncol - step*n;
@@ -148,15 +146,12 @@ vector<Colour> ColourShading::getColourShading(int n)
     vcol.push_back(colours[ncol-1]);
 
   }
-
   return vcol;
-
 }
 
 void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
-			const Colour& col2, int n)
+    const Colour& col2, int n)
 {
-
   //add (n+1) colours to vcol, including col1
 
   vcol.push_back(col1);
@@ -180,15 +175,13 @@ void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
     Colour c(R,G,B,A);
     vcol.push_back(c);
   }
-
 }
-
 
 void ColourShading::addColourShadingInfo(const ColourShadingInfo& csi)
 {
-  if ( csi.name.exists() ){
-    for ( unsigned int q=0; q<colourshadings.size(); q++ )
-      if ( colourshadings[q].name == csi.name ){
+  if (not csi.name.empty()) {
+    for (unsigned int q=0; q<colourshadings.size(); q++)
+      if (colourshadings[q].name == csi.name) {
 	colourshadings[q] = csi;
 	return;
       }

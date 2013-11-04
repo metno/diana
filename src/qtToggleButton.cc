@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,125 +35,58 @@
 
 #include <QMouseEvent>
 #include <QPixmap>
-#include <iostream>
 
 
-ToggleButton::ToggleButton( QWidget* parent, const miutil::miString& name, QColor* color )
-  : QPushButton( name.c_str(), parent)
+ToggleButton::ToggleButton(QWidget* parent, const QString& name, QColor* color)
+  : QPushButton(name, parent)
+{
+  init(color);
+}
+
+ToggleButton::ToggleButton(QWidget* parent, const QString& nameIn, const QString& nameOut, QColor* color)
+  : QPushButton(nameOut, parent)
+  , m_outName(nameOut)
+  , m_inName(nameIn)
+{
+  init(color);
+  NameChange = true;
+}
+
+ToggleButton::ToggleButton(QWidget* parent, const QPixmap& pixmap, QColor* color)
+  : QPushButton(pixmap, QString(), parent)
+{
+  init(color);
+}
+
+void ToggleButton::init(QColor* color)
 {
   NameChange = false;
 
   if (color && &color[0] && &color[1]) {
-    inPalette = QPalette( color[0], color[1] );
-    outPalette = this->palette();
-    this->setPalette( outPalette );
+    inPalette = QPalette(color[0], color[1]);
+    outPalette = palette();
+    setPalette(outPalette);
     usePalette = true;
   } else {
     usePalette = false;
   }
 
-  this->setCheckable(true);
-
-  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
+  setCheckable(true);
+  connect(this, SIGNAL(toggled(bool)), this, SLOT(Toggled(bool)));
 }
 
-
-ToggleButton::ToggleButton( QWidget* parent,
-    const std::string* name, QColor* color )
-  : QPushButton( (name[1]).c_str(),  parent )
+void ToggleButton::Toggled(bool on)
 {
-  if (color && &color[0] && &color[1]) {
-    inPalette = QPalette( color[0], color[1] );
-    outPalette = this->palette();
-    this->setPalette( outPalette );
-    usePalette = true;
-  } else {
-    usePalette = false;
-  }
-
-  NameChange = true;
-
-  if ( name ) {
-    m_inName  = name[0];
-    m_outName = name[1];
-  }
-
-  this->setCheckable(true);
-
-  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-}
-
-
-ToggleButton::ToggleButton( QWidget* parent, const miutil::miString* name, QColor* color)
-  : QPushButton( (name[1]).c_str(),  parent )
-{
-  if (color && &color[0] && &color[1]) {
-    inPalette = QPalette( color[0], color[1] );
-    outPalette = this->palette();
-    this->setPalette( outPalette );
-    usePalette  = true;
-  } else {
-    usePalette  = false;
-  }
-
-  NameChange = true;
-
-  if ( name ) {
-    m_inName  = name[0];
-    m_outName = name[1];
-  }
-
-  this->setCheckable ( TRUE );
-
-  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-}
-
-
-ToggleButton::ToggleButton( QWidget* parent,
-			    const QPixmap& pixmap,
-			    QColor* color )
-  : QPushButton( pixmap, QString(""), parent)
-{
-  NameChange = false;
-
-  if (color && &color[0] && &color[1]) {
-    inPalette = QPalette( color[0], color[1] );
-    outPalette = this->palette();
-    this->setPalette( outPalette );
-    usePalette  = true;
-  } else {
-    usePalette  = false;
-  }
-
-  this->setCheckable ( TRUE );
-
-  connect( this, SIGNAL( toggled( bool )),this, SLOT(Toggled( bool ) ) );
-
-}
-
-
-void ToggleButton::Toggled( bool on )
-{
-  if( on ){
-    if( usePalette )
-      this->setPalette( inPalette );
-    if( NameChange )
-      this->setText( m_inName.c_str() );
-  } else {
-    if( usePalette )
-      this->setPalette( outPalette );
-    if( NameChange )
-      this->setText( m_outName.c_str() );
-  }
-
+  if (usePalette)
+    setPalette(on ? inPalette : outPalette);
+  if (NameChange)
+    setText(on ? m_inName : m_outName);
 }
 
 void ToggleButton::mouseReleaseEvent( QMouseEvent *e )
 {
-
-  if ( e->button() == Qt::RightButton ){
-    emit rightButtonClicked(this);
+  if (e->button() == Qt::RightButton) {
+    /*emit*/ rightButtonClicked(this);
   }
-
   QPushButton::mouseReleaseEvent(e);
 }

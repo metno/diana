@@ -31,20 +31,18 @@
 #ifndef diCommandParser_h
 #define diCommandParser_h
 
-#include <puTools/miString.h>
-#include <vector>
 #include <map>
-
-using namespace std;
+#include <string>
+#include <vector>
 
 /// one element in CommandParser
 struct ParsedCommand {
   std::string key;
   int      idNumber;
   std::string allValue;
-  vector<std::string> strValue;
-  vector<int>      intValue;
-  vector<float>    floatValue;
+  std::vector<std::string> strValue;
+  std::vector<int>      intValue;
+  std::vector<float>    floatValue;
 };
 
 /**
@@ -86,7 +84,7 @@ private:
   };
 
   // map<key,keyDescription>
-  map<std::string,keyDescription> keyDataBase;
+  std::map<std::string,keyDescription> keyDataBase;
 
   cmdCaseType caseType; // default cmdCaseUndefined, may set this only once,
                         // and before first addKey !
@@ -109,11 +107,11 @@ public:
 
   static bool isFloat(const std::string& s);
 
-  static vector<std::string> parseString(const std::string& str);
+  static std::vector<std::string> parseString(const std::string& str);
 
-  static vector<float> parseFloat(const std::string& str);
+  static std::vector<float> parseFloat(const std::string& str);
 
-  static vector<int> parseInt(const std::string& str);
+  static std::vector<int> parseInt(const std::string& str);
 
   // case (conversion) type for keywords (not values), before first addKey !!!
   bool setCaseType(cmdCaseType casetype);
@@ -126,23 +124,23 @@ public:
 	      int idNumber, cmdValueType valuetype,
 	      bool printError= true );
 
-  vector<ParsedCommand> parse(const std::string& str);
+  std::vector<ParsedCommand> parse(const std::string& str);
 
-  int findKey(vector<ParsedCommand>& vpc,
+  int findKey(std::vector<ParsedCommand>& vpc,
 	      const std::string& key, bool addkey=false) const;
 
 
-  bool removeValue(vector<ParsedCommand>& vpc,
+  bool removeValue(std::vector<ParsedCommand>& vpc,
 		   const std::string& key);
 
-  bool replaceValue(vector<ParsedCommand>& vpc,
+  bool replaceValue(std::vector<ParsedCommand>& vpc,
 		    const std::string& key,
 		    const std::string value, int valueIndex=0) const;
 
   bool replaceValue(ParsedCommand& pc,
 		    const std::string value, int valueIndex=0) const;
 
-  std::string unParse(const vector<ParsedCommand>& vpc) const;
+  std::string unParse(const std::vector<ParsedCommand>& vpc) const;
 };
 
 #endif

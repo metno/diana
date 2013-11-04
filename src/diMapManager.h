@@ -40,21 +40,16 @@
 #include <diPlotOptions.h>
 #include <diCommonTypes.h>
 
-using namespace std;
-
 /**
-
  \brief Manager of maps and predefined areas/projections
 
  Manages datafiles and setup information for maps
-
- */
-
+*/
 class MapManager {
 private:
-  static vector<Area> mapareas;
-  static vector<Area> mapareas_Fkeys;
-  static vector<MapInfo> mapfiles;
+  static std::vector<Area> mapareas;
+  static std::vector<Area> mapareas_Fkeys;
+  static std::vector<MapInfo> mapfiles;
 
   // parse section containing definitions of map-areas
   bool parseMapAreas();
@@ -70,21 +65,21 @@ public:
   bool parseSetup();
 
   /// get list of predefined areas (names)
-  vector<miutil::miString> getMapAreaNames();
+  std::vector<std::string> getMapAreaNames();
   /// get predefined area from name
-  bool getMapAreaByName(const miutil::miString&, Area&);
+  bool getMapAreaByName(const std::string&, Area&);
   /// get predefined area from accelerator
-  bool getMapAreaByFkey(const miutil::miString&, Area&);
+  bool getMapAreaByFkey(const std::string&, Area&);
   /// get list of defined maps
-  vector<MapInfo> getMapInfo();
+  std::vector<MapInfo> getMapInfo();
   /// get information on one specific map
-  bool getMapInfoByName(const miutil::miString&, MapInfo&);
+  bool getMapInfoByName(const std::string&, MapInfo&);
   /// extract plot information from string
-  bool fillMapInfo(const miutil::miString&, MapInfo&, PlotOptions& contopts,
+  bool fillMapInfo(const std::string&, MapInfo&, PlotOptions& contopts,
       PlotOptions& landopts, PlotOptions& lonopts, PlotOptions& latopts,
       PlotOptions& ffopts);
   /// make string representation of one MapInfo
-  miutil::miString MapInfo2str(const MapInfo&);
+  std::string MapInfo2str(const MapInfo&);
   /// get all defined maps and areas for the GUI
   MapDialogInfo getMapDialogInfo();
 

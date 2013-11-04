@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -42,38 +40,42 @@
 #include <fstream>
 #include <list>
 
-#define MILOGGER_CATEGORY "diana.LocalSetupParser"
-#include <miLogger/miLogging.h>
-
-#include <diLocalSetupParser.h>
+#include "diLocalSetupParser.h"
 #include <diColourShading.h>
 #include <diPattern.h>
 #include <diImageGallery.h>
 #include <puCtools/mkdir.h>
 #include <puCtools/stat.h>
 
+#include <puTools/miSetupParser.h>
+
+#define MILOGGER_CATEGORY "diana.LocalSetupParser"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+
 /// PVERSION is defined due to debian packing using the metno-debuild tool
 #ifndef PVERSION
 #define PVERSION
 #endif
 
-const miutil::miString SectColours=     "COLOURS";
-const miutil::miString SectPalettes=    "PALETTES";
-const miutil::miString SectFillPatterns="FILLPATTERNS";
-const miutil::miString SectLineTypes=   "LINETYPES";
-const miutil::miString SectQuickMenus=  "QUICKMENUS";
-const miutil::miString SectBasics=      "BASIC";
-const miutil::miString SectInfoFiles=   "TEXT_INFORMATION_FILES";
+const std::string SectColours=     "COLOURS";
+const std::string SectPalettes=    "PALETTES";
+const std::string SectFillPatterns="FILLPATTERNS";
+const std::string SectLineTypes=   "LINETYPES";
+const std::string SectQuickMenus=  "QUICKMENUS";
+const std::string SectBasics=      "BASIC";
+const std::string SectInfoFiles=   "TEXT_INFORMATION_FILES";
 
 // static members
-miutil::miString LocalSetupParser::setupFilename;
+std::string LocalSetupParser::setupFilename;
 vector<QuickMenuDefs>      LocalSetupParser::quickmenudefs;
-map<miutil::miString,miutil::miString>     LocalSetupParser::basic_values;
-map<miutil::miString,InfoFile>     LocalSetupParser::infoFiles;
-vector<miutil::miString>           LocalSetupParser::langPaths;
+map<std::string,std::string>     LocalSetupParser::basic_values;
+map<std::string,InfoFile>     LocalSetupParser::infoFiles;
+vector<std::string>           LocalSetupParser::langPaths;
 
 
-bool LocalSetupParser::makeDirectory(const miutil::miString& filename, miutil::miString & error)
+bool LocalSetupParser::makeDirectory(const std::string& filename, std::string & error)
 {
   pu_struct_stat buff;
   if (pu_stat(filename.c_str(), &buff) != -1){
@@ -89,16 +91,16 @@ bool LocalSetupParser::makeDirectory(const miutil::miString& filename, miutil::m
   return true;
 }
 
-bool LocalSetupParser::parse(miutil::miString & mainfilename){
-
+bool LocalSetupParser::parse(std::string& mainfilename)
+{
   METLIBS_LOG_INFO("LocalSetupParser::parse:" << mainfilename);
 
   //find $HOME, and make homedir
-  miutil::miString homedir=getenv("HOME");
+  std::string homedir=miutil::from_c_str(getenv("HOME"));
   homedir += "/.diana";
-  miutil::miString error;
+  std::string error;
   if (makeDirectory(homedir,error)) {
-    miutil::miString workdir = homedir + "/work";
+    std::string workdir = homedir + "/work";
     makeDirectory(workdir,error);
   } else {
     homedir=".";
@@ -106,14 +108,13 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
   basic_values["homedir"]    = homedir;
 
   //if no setupfile specified, use previus setupfile
-  if ( mainfilename.exists() ) {
+  if (not mainfilename.empty())
     setupFilename = mainfilename;
-  }
 
   //if no setupfile, use default
-  if (!setupFilename.exists()) {
+  if (setupFilename.empty()) {
     setupFilename = "diana.setup";
-    miutil::miString filename_str = setupFilename;
+    std::string filename_str = setupFilename;
     METLIBS_LOG_INFO("filename:" << setupFilename);
     ifstream file(setupFilename.c_str());
     if (!file) {
@@ -158,20 +159,20 @@ bool LocalSetupParser::parse(miutil::miString & mainfilename){
 
 
 // parse basics-section
-bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
+bool LocalSetupParser::parseBasics(const std::string& sectname){
 
-  const miutil::miString key_fontpath= "fontpath";
-  const miutil::miString key_docpath=  "docpath";
-  const miutil::miString key_obspath=  "obsplotfilepath";
-  const miutil::miString key_qserver=  "qserver";
-  const miutil::miString key_imagepath="imagepath";
-  const miutil::miString key_langpaths="languagepaths";
-  const miutil::miString key_language= "language";
-  const miutil::miString key_setenv= "setenv";
+  const std::string key_fontpath= "fontpath";
+  const std::string key_docpath=  "docpath";
+  const std::string key_obspath=  "obsplotfilepath";
+  const std::string key_qserver=  "qserver";
+  const std::string key_imagepath="imagepath";
+  const std::string key_langpaths="languagepaths";
+  const std::string key_language= "language";
+  const std::string key_setenv= "setenv";
 
   // default values
-  miutil::miString langpaths="lang:/metno/local/translations:${QTDIR}/translations";
-  miutil::miString language="en";
+  std::string langpaths="lang:/metno/local/translations:${QTDIR}/translations";
+  std::string language="en";
   basic_values[key_fontpath]   = "share/diana/" PVERSION "/fonts";
   basic_values[key_docpath]    = "share/doc/diana-" PVERSION;
   basic_values[key_obspath]    = "share/diana/" PVERSION;
@@ -179,8 +180,8 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
   basic_values[key_imagepath]  = "share/diana/" PVERSION "/images";
   basic_values[key_language]   = language;
 
-  vector<miutil::miString> list,tokens;
-  miutil::miString key,value;
+  vector<std::string> list,tokens;
+  std::string key,value;
   int i,n;
 
   if (!miutil::SetupParser::getSection(sectname,list))
@@ -196,14 +197,14 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
     if (key==key_langpaths){
       langpaths= value;
     } else if (key==key_setenv){
-      vector<miutil::miString> part = value.split(",");
+      vector<std::string> part = miutil::split(value, ",");
       if(part.size()==3){
 #ifdef __WIN32__
         //TODO: This is broken, disregards third argument (replace option)
-	miutil::miString envst = part[0] + "=" + part[1];
+	std::string envst = part[0] + "=" + part[1];
 	putenv(envst.c_str());
 #else
-        setenv(part[0].c_str(),part[1].c_str(),part[2].toInt());
+        setenv(part[0].c_str(), part[1].c_str(), miutil::to_int(part[2]));
 #endif
       }
     }
@@ -211,28 +212,28 @@ bool LocalSetupParser::parseBasics(const miutil::miString& sectname){
 
   // fix language paths
   //   checkEnvironment(langpaths);
-  langPaths= langpaths.split(":");
+  langPaths = miutil::split(langpaths, ":");
 
   return true;
 }
 
 
 // parse text-information-files
-bool LocalSetupParser::parseTextInfoFiles(const miutil::miString& sectname)
+bool LocalSetupParser::parseTextInfoFiles(const std::string& sectname)
 {
   infoFiles.clear();
 
-  const miutil::miString key_name= "name";
-  const miutil::miString key_file= "file";
-  const miutil::miString key_type= "type";
-  const miutil::miString key_font= "font";
+  const std::string key_name= "name";
+  const std::string key_file= "file";
+  const std::string key_type= "type";
+  const std::string key_font= "font";
 
-  const miutil::miString def_type= "auto";
-  const miutil::miString def_font= "auto";
+  const std::string def_type= "auto";
+  const std::string def_font= "auto";
 
-  vector<miutil::miString> list,tokens,tokens2;
-  miutil::miString key,value;
-  miutil::miString name,filename, type, font;
+  vector<std::string> list,tokens,tokens2;
+  std::string key,value;
+  std::string name,filename, type, font;
 
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
@@ -240,7 +241,7 @@ bool LocalSetupParser::parseTextInfoFiles(const miutil::miString& sectname)
   int n= list.size();
   for (int i=0; i<n; i++){
     type= def_type; font= def_font;
-    tokens2= list[i].split(' ');
+    tokens2= miutil::split(list[i], " ");
     for (unsigned int j=0; j<tokens2.size(); j++){
       miutil::SetupParser::splitKeyValue(tokens2[j], key, value);
       if (key==key_name)
@@ -252,11 +253,11 @@ bool LocalSetupParser::parseTextInfoFiles(const miutil::miString& sectname)
       else if (key==key_font)
         font= value;
     }
-    name.trim();
-    filename.trim();
-    type.trim();
-    font.trim();
-    if (name.exists() && filename.exists()){
+    miutil::trim(name);
+    miutil::trim(filename);
+    miutil::trim(type);
+    miutil::trim(font);
+    if (not name.empty() && not filename.empty()){
       infoFiles[name].name= name;
       infoFiles[name].filename= filename;
       infoFiles[name].doctype= type;
@@ -269,10 +270,10 @@ bool LocalSetupParser::parseTextInfoFiles(const miutil::miString& sectname)
 
 
 // parse section containing colour definitions
-bool LocalSetupParser::parseColours(const miutil::miString& sectname){
+bool LocalSetupParser::parseColours(const std::string& sectname){
   // default colours
   const int numcols= 21;
-  const miutil::miString colnames[numcols]=
+  const std::string colnames[numcols]=
   {"black","white","red","green","blue","yellow",
       "dark_green","dark_yellow","dark_red","dark_blue",
       "brown","orange","cyan","magenta",
@@ -286,8 +287,8 @@ bool LocalSetupParser::parseColours(const miutil::miString& sectname){
       {64,64,64},{127,127,127},{230,230,230}};
 
 
-  vector<miutil::miString> list,tokens,stokens;
-  miutil::miString key,value,value2;
+  vector<std::string> list,tokens,stokens;
+  std::string key,value,value2;
   int i,n;
   Colour c;
   uchar_t r,g,b,a;
@@ -319,7 +320,7 @@ bool LocalSetupParser::parseColours(const miutil::miString& sectname){
       cinfo.rgb[0]= r;
       cinfo.rgb[1]= g;
       cinfo.rgb[2]= b;
-      cinfo.name= key.downcase();
+      cinfo.name= miutil::to_lower(key);
       Colour::addColourInfo(cinfo);
     }
   }
@@ -329,7 +330,7 @@ bool LocalSetupParser::parseColours(const miutil::miString& sectname){
 
 
 // parse section containing colour-palette definitions
-bool LocalSetupParser::parsePalettes(const miutil::miString& sectname){
+bool LocalSetupParser::parsePalettes(const std::string& sectname){
 
   // first define default types/values
   ColourShading::ColourShadingInfo csinfo;
@@ -382,7 +383,7 @@ bool LocalSetupParser::parsePalettes(const miutil::miString& sectname){
 #endif
 
   for (int j=0; j<nRGBtab; j++) {
-    miutil::miString name= "tmp_contour_fill_" + miutil::miString(j);
+    std::string name= "tmp_contour_fill_" + miutil::from_number(j);
     int red=   int(RGBtab[j][0]*255);
     int green= int(RGBtab[j][1]*255);
     int blue=  int(RGBtab[j][2]*255);
@@ -395,8 +396,8 @@ bool LocalSetupParser::parsePalettes(const miutil::miString& sectname){
   ColourShading::addColourShadingInfo(csinfo);
   ColourShading::define("standard",csinfo.colour);
 
-  vector<miutil::miString> list,tokens,stokens;
-  miutil::miString key,value,value2;
+  vector<std::string> list,tokens,stokens;
+  std::string key,value,value2;
 
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
@@ -421,10 +422,10 @@ bool LocalSetupParser::parsePalettes(const miutil::miString& sectname){
 
 
 // parse section containing fill pattern definitions
-bool LocalSetupParser::parseFillPatterns(const miutil::miString& sectname){
+bool LocalSetupParser::parseFillPatterns(const std::string& sectname){
 
-  vector<miutil::miString> list;
-  miutil::miString key;
+  vector<std::string> list;
+  std::string key;
   int i,n;
 
   // Default pattern
@@ -453,15 +454,15 @@ bool LocalSetupParser::parseFillPatterns(const miutil::miString& sectname){
 
 
 // parse section containing linetype definitions
-bool LocalSetupParser::parseLineTypes(const miutil::miString& sectname){
+bool LocalSetupParser::parseLineTypes(const std::string& sectname){
 
   // linetype bits and bitmask
   const unsigned int numbits= 16;
   const uint16 bmask[numbits]=
   {32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4,2,1};
 
-  vector<miutil::miString> list,tokens,stokens;
-  miutil::miString key,value,value2;
+  vector<std::string> list,tokens,stokens;
+  std::string key,value,value2;
   int i,n;
   uint16 bm;
   int factor;
@@ -475,15 +476,15 @@ bool LocalSetupParser::parseLineTypes(const miutil::miString& sectname){
   n= list.size();
   for (i=0; i<n; i++){
     miutil::SetupParser::splitKeyValue(list[i], key, value);
-    if ( !value.exists() )
+    if (value.empty())
       continue;
     bm= 0;
     factor= 1;
-    stokens= value.split(':');
+    stokens= miutil::split(value, ":");
     if (stokens.size()>1){
       value = stokens[0];
       value2= stokens[1];
-      if (value2.isInt())
+      if (miutil::is_int(value2))
         factor= atoi(value2.c_str());
     }
     if (value.length()==numbits){
@@ -503,12 +504,12 @@ bool LocalSetupParser::parseLineTypes(const miutil::miString& sectname){
 
 
 // parse section containing definitions of quickmenus
-bool LocalSetupParser::parseQuickMenus(const miutil::miString& sectname){
+bool LocalSetupParser::parseQuickMenus(const std::string& sectname){
 
-  const miutil::miString key_file= "file";
+  const std::string key_file= "file";
 
-  vector<miutil::miString> list,tokens,stokens;
-  miutil::miString key,value,file;
+  vector<std::string> list,tokens,stokens;
+  std::string key,value,file;
   QuickMenuDefs qmenu;
   int i,j,m,n;
 
@@ -521,15 +522,15 @@ bool LocalSetupParser::parseQuickMenus(const miutil::miString& sectname){
   for (i=0; i<n; i++){
     file= "";
 
-    tokens= list[i].split(' ');
+    tokens= miutil::split(list[i], " ");
     m= tokens.size();
     for (j=0; j<m; j++){
       miutil::SetupParser::splitKeyValue(tokens[j],key,value);
-      if (key==key_file && value.exists()){
+      if (key==key_file && not value.empty()){
         file= value;
       }
     }
-    if (file.exists()){
+    if (not file.empty()){
       qmenu.filename= file;
       quickmenudefs.push_back(qmenu);
     } else {

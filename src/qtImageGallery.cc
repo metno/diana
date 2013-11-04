@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,28 +31,31 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.ImageGallery"
-#include <miLogger/miLogging.h>
-
 #include "qtImageGallery.h"
 #include "diImageGallery.h"
+
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
+#include <puTools/miStringFunctions.h>
+
 #include <QDataStream>
 #include <QFileInfo>
 
-map<miutil::miString,QImage> QtImageGallery::Images;
+#define MILOGGER_CATEGORY "diana.ImageGallery"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+
+std::map<std::string, QImage> QtImageGallery::Images;
 
 QtImageGallery::QtImageGallery()
 {
 }
 
-bool QtImageGallery::addImageToGallery(const miutil::miString name,
-				       const QImage& image)
+bool QtImageGallery::addImageToGallery(const std::string& name, const QImage& image)
 {
-  if (image.isNull()){
-    METLIBS_LOG_ERROR("qtImageGallery::addImageToGallery ERROR:"
-	   << " invalid image:" << name);
+  if (image.isNull()) {
+    METLIBS_LOG_ERROR("qtImageGallery::addImageToGallery ERROR:" << " invalid image:" << name);
     return false;
   }
   ImageGallery ig;
@@ -94,8 +95,7 @@ bool QtImageGallery::addImageToGallery(const miutil::miString name,
   return true;
 }
 
-bool QtImageGallery::addImageToGallery(const std::string name,
-				       std::string& imageStr)
+bool QtImageGallery::addImageToGallery(const std::string& name, std::string& imageStr)
 {
   vector<string> vs = miutil::split(imageStr," ");
   int n=vs.size();
@@ -112,7 +112,8 @@ bool QtImageGallery::addImageToGallery(const std::string name,
 
 }
 
-void QtImageGallery::addImagesInDirectory(const miutil::miString& dir){
+void QtImageGallery::addImagesInDirectory(const std::string& dir)
+{
 //  METLIBS_LOG_DEBUG("============= globbing in:" << dir);
 /* Image support in Qt
 BMP Windows Bitmap Read/write 
@@ -131,32 +132,32 @@ XPM X11 Pixmap Read/write
   glob_t globBuf;
   glob_cache(dir.c_str(),0,0,&globBuf);
   for( size_t k=0; k<globBuf.gl_pathc; k++) {
-    miutil::miString fname = globBuf.gl_pathv[k];
-    if( !fname.contains("~") ){
+    std::string fname = globBuf.gl_pathv[k];
+    if (not miutil::contains(fname, "~")) {
       QString filename = fname.c_str();
       QFileInfo fileinfo(filename);
       QString name = fileinfo.baseName();
-	  miutil::miString format;
+	  std::string format;
 	  // sometimes Qt doesnt understand the format
-	  if(fname.contains(".xpm"))
+	  if(miutil::contains(fname, ".xpm"))
 		  format = "XPM";
-	  else if(fname.contains(".png"))
+	  else if(miutil::contains(fname, ".png"))
 		  format = "PNG";
-	  else if(fname.contains(".jpg"))
+	  else if(miutil::contains(fname, ".jpg"))
 		  format = "JPG";
-	  else if(fname.contains(".jpeg"))
+	  else if(miutil::contains(fname, ".jpeg"))
 		  format = "JPEG";
-	  else if(fname.contains(".gif"))
+	  else if(miutil::contains(fname, ".gif"))
 		  format = "GIF";
-	  else if(fname.contains(".pbm"))
+	  else if(miutil::contains(fname, ".pbm"))
 		  format = "PBM";
-	  else if(fname.contains(".pgm"))
+	  else if(miutil::contains(fname, ".pgm"))
 		  format = "PGM";
-	  else if(fname.contains(".ppm"))
+	  else if(miutil::contains(fname, ".ppm"))
 		  format = "PPM";
-	  else if(fname.contains(".xbm"))
+	  else if(miutil::contains(fname, ".xbm"))
 		  format = "XBM";
-	  else if(fname.contains(".bmp"))
+	  else if(miutil::contains(fname, ".bmp"))
 		  format = "BMP";
 	  QImage image;
 	  if (!format.empty())
@@ -183,7 +184,7 @@ void QtImageGallery::clear()
 }
 
 
-bool QtImageGallery::delImage(const miutil::miString& name)
+bool QtImageGallery::delImage(const std::string& name)
 {
   ImageGallery ig;
 
@@ -195,18 +196,17 @@ bool QtImageGallery::delImage(const miutil::miString& name)
   return true;
 }
 
-void QtImageGallery::ImageNames(vector<miutil::miString>& vnames) const
+void QtImageGallery::ImageNames(vector<std::string>& vnames) const
 {
   vnames.clear();
 
-  map<miutil::miString,QImage>::const_iterator p= Images.begin();
+  std::map<std::string, QImage>::const_iterator p = Images.begin();
 
   for (; p!=Images.end(); p++)
     vnames.push_back(p->first);
 }
 
-bool QtImageGallery::Image(const miutil::miString& name,
-			   QImage& image) // return QImage
+bool QtImageGallery::Image(const std::string& name, QImage& image) // return QImage
 {
   if (Images.count(name) == 0)
     return false;

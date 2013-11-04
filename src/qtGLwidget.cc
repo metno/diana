@@ -414,7 +414,7 @@ void GLwidget::endHardcopy()
   contr->endHardcopy();
 }
 
-bool GLwidget::saveRasterImage(const miutil::miString fname, const miutil::miString format,
+bool GLwidget::saveRasterImage(const std::string fname, const std::string format,
     const int quality)
 {
 

@@ -34,9 +34,7 @@
 #include <QDialog>
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
 #include <vector>
-
 
 class QFont;
 class QGridLayout;
@@ -75,17 +73,17 @@ private:
 
   bool isInitialized;
 
-  miutil::miString TEXTPLOT;
-  miutil::miString FIXEDTEXT;
-  miutil::miString FRAME;
-  miutil::miString SPECTRUMLINES;
-  miutil::miString SPECTRUMCOLOUR;
-  miutil::miString ENERGYLINE;
-  miutil::miString ENERGYCOLOUR;
-  miutil::miString PLOTWIND;
-  miutil::miString PLOTPEAKDIREC;
-  miutil::miString FREQUENCYMAX;
-  miutil::miString BACKCOLOUR;
+  std::string TEXTPLOT;
+  std::string FIXEDTEXT;
+  std::string FRAME;
+  std::string SPECTRUMLINES;
+  std::string SPECTRUMCOLOUR;
+  std::string ENERGYLINE;
+  std::string ENERGYCOLOUR;
+  std::string PLOTWIND;
+  std::string PLOTPEAKDIREC;
+  std::string FREQUENCYMAX;
+  std::string BACKCOLOUR;
 
 private slots:
   void standardClicked();

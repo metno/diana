@@ -40,7 +40,7 @@
 using namespace std;
 using namespace miutil;
 
-ObsDribu::ObsDribu(const miString &file)
+ObsDribu::ObsDribu(const std::string &file)
 :dribu(file){
 }
 
@@ -94,9 +94,9 @@ void ObsDribu::putData(int i, ObsData &d){
     d.fdata["ppp"] *= -1;
   }
   if(contents[i].data.TwTwTw != undef)
-    d.fdata["TwTwTw"]= contents[i].data.TwTwTw;   	// Sjøtemperatur
-  if(d.id.isNumber() )
-    d.fdata["Id"]= d.id.toInt();   	// Sjøtemperatur
+    d.fdata["TwTwTw"]= contents[i].data.TwTwTw; // Sjøtemperatur
+  if (miutil::is_int(d.id))
+    d.fdata["Id"]= miutil::to_int(d.id);
 }
 
 #endif

@@ -36,16 +36,11 @@
 
 #include <diField/diRectangle.h>
 
-using namespace std; 
-
 /**
-
   \brief One point of an ObjectPlot
 
   can be marked joined etc
-
 */
-
 class ObjectPoint {
 private:
   float x;

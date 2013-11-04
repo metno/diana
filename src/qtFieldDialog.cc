@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -53,21 +51,20 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 
-#define MILOGGER_CATEGORY "diana.FieldDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtFieldDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "diController.h"
+
 #include <diField/diRectangle.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
+#include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
 
-#include <iostream>
-#include <math.h>
+#define MILOGGER_CATEGORY "diana.FieldDialog"
+#include <miLogger/miLogging.h>
 
 #include "up12x12.xpm"
 #include "down12x12.xpm"
@@ -75,13 +72,12 @@
 
 //#define DEBUGPRINT
 
+using namespace std;
 
-FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl) :
-QDialog(parent)
+FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
+  : QDialog(parent)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::FieldDialog called");
-
+  METLIBS_LOG_SCOPE();
 
   m_ctrl = lctrl;
 
@@ -409,7 +405,7 @@ QDialog(parent)
   connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
 
   // minus
-  minusButton = new ToggleButton(this, "Minus");
+  minusButton = new ToggleButton(this, tr("Minus"));
   connect( minusButton, SIGNAL(toggled(bool)), SLOT(minusField(bool)));
 
   // plottype
@@ -462,16 +458,13 @@ QDialog(parent)
   connect(fieldhelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   // allTimeStep
-  allTimeStepButton
-  = new ToggleButton(this, tr("All time steps").toStdString());
+  allTimeStepButton = new ToggleButton(this, tr("All time steps"));
   allTimeStepButton->setCheckable(true);
   allTimeStepButton->setChecked(false);connect( allTimeStepButton, SIGNAL(toggled(bool)),
       SLOT(allTimeStepToggled(bool)));
 
   // advanced
-  std::string more_str[2] =
-  { (tr("<<Less").toStdString()), (tr("More>>").toStdString()) };
-  advanced = new ToggleButton(this, more_str);
+  advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
   advanced->setChecked(false);connect( advanced, SIGNAL(toggled(bool)), SLOT(advancedToggled(bool)));
 
   // hide
@@ -1469,7 +1462,7 @@ void FieldDialog::levelChanged(int index)
   return;
 }
 
-vector<miutil::miString> FieldDialog::changeLevel(int increment, int type)
+vector<string> FieldDialog::changeLevel(int increment, int type)
 {
 
   METLIBS_LOG_DEBUG("FieldDialog::changeLevel called: "<<increment);
@@ -2721,7 +2714,7 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
     if (fabs(e) < ekv / 2)
       cBox->addItem("0");
     else {
-      miutil::miString estr(e);
+      std::string estr = miutil::from_number(e);
       cBox->addItem(estr.c_str());
     }
   }
@@ -3281,10 +3274,9 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
   }
 }
 
-vector<std::string> FieldDialog::getOKString_std( bool resetLevelMove )
+vector<std::string> FieldDialog::getOKString_std(bool resetLevelMove)
 {
-
-  vector<miutil::miString> vstr = getOKString( resetLevelMove );
+  vector<string> vstr = getOKString( resetLevelMove );
   vector<std::string> vstdstr;
   size_t n = vstr.size();
   for ( size_t i = 0; i<n; ++i ) {
@@ -3293,11 +3285,9 @@ vector<std::string> FieldDialog::getOKString_std( bool resetLevelMove )
   return vstdstr;
 
 }
-vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
+vector<string> FieldDialog::getOKString(bool resetLevelMove)
 {
-
   METLIBS_LOG_DEBUG("FieldDialog::getOKString called");
-
 
   if ( resetLevelMove) {
     int n = selectedFields.size();
@@ -3307,7 +3297,7 @@ vector<miutil::miString> FieldDialog::getOKString( bool resetLevelMove )
     }
   }
 
-  vector<miutil::miString> vstr;
+  vector<string> vstr;
   if (selectedFields.size() == 0)
     return vstr;
 
@@ -4087,18 +4077,18 @@ bool FieldDialog::fieldDifference(const std::string& str,
   return false;
 }
 
-void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
-    miutil::miString, miutil::miString> >& po)
+void FieldDialog::getEditPlotOptions(map<std::string, map<
+    std::string, std::string> >& po)
 {
 
   //map<paramater, map <option, value> >
 
-  map<miutil::miString, map<miutil::miString, miutil::miString> >::iterator p =
+  map<std::string, map<std::string, std::string> >::iterator p =
       po.begin();
   //loop through parameters
   for (; p != po.end(); p++) {
-    miutil::miString options;
-    miutil::miString parameter = p->first;
+    std::string options;
+    std::string parameter = p->first;
     if (editFieldOptions.count(parameter)) {
       options = editFieldOptions[parameter];
     } else if (fieldOptions.count(parameter)) {
@@ -4110,10 +4100,10 @@ void FieldDialog::getEditPlotOptions(map<miutil::miString, map<
     }
 
     vector<ParsedCommand> parsedComm = cp->parse(options);
-    map<miutil::miString, miutil::miString>::iterator q = p->second.begin();
+    map<std::string, std::string>::iterator q = p->second.begin();
     //loop through options
     for (; q != p->second.end(); q++) {
-      miutil::miString opt = miutil::to_lower(q->first);
+      std::string opt = miutil::to_lower(q->first);
       unsigned int i = 0;
       while (i < parsedComm.size() && parsedComm[i].key != opt)
         i++;
@@ -4161,7 +4151,7 @@ vector<std::string> FieldDialog::writeLog()
   return vstr;
 }
 
-void FieldDialog::readLog(const vector<miutil::miString>& vstr,
+void FieldDialog::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
 
@@ -4955,7 +4945,7 @@ void FieldDialog::addField(std::string str)
 
 }
 
-void FieldDialog::fieldEditUpdate(miutil::miString str)
+void FieldDialog::fieldEditUpdate(std::string str)
 {
 
 
@@ -5018,7 +5008,7 @@ void FieldDialog::fieldEditUpdate(miutil::miString str)
     int indrm = -1;
     SelectedField sf;
 
-    vector<std::string> vstr = miutil::split(str,' ');
+    vector<std::string> vstr = miutil::split(str, " ");
 
     if (vstr.size() == 1) {
       // In original edit, str=fieldName if the field is not already read

@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,24 +31,23 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.ImageIO"
-#include <miLogger/miLogging.h>
-
 #include <diImageIO.h>
+#include <puTools/miStringFunctions.h>
 #include <png.h>
 #include <map>
 #include <fstream>
-#include <iostream>
+
+#define MILOGGER_CATEGORY "diana.ImageIO"
+#include <miLogger/miLogging.h>
 
 using namespace imageIO;
 using namespace::miutil;
 
-
 bool imageIO::read_image(Image_data& img)
 {
-  if (img.filename.contains(".png"))
+  if (miutil::contains(img.filename, ".png"))
     return read_png(img);
-  else if (img.filename.contains(".xpm"))
+  else if (miutil::contains(img.filename, ".xpm"))
     return read_xpm(img);
 
   return false;
@@ -333,7 +330,8 @@ int chartoint_(const char c)
   return 0;
 }
 
-int hexToInt(const miString& p){
+int hexToInt(const std::string& p)
+{
   int l= p.length(), res=0, fact=1;
   for (int i=l-1; i>=0; i--,fact*=15)
     res += chartoint_(p[i])*fact;
@@ -342,20 +340,17 @@ int hexToInt(const miString& p){
 }
 
 
-bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
-  int xsize=-1,ysize,ncols,nchar;
-  vector<miString> vs;
-  miString buf= xd[0];
-
-  vs= buf.split(" ");
-  if (vs.size() < 4){
-    METLIBS_LOG_ERROR("imageFromXpmdata ERROR too few elements:" << buf);
+bool imageIO::imageFromXpmdata(const char** xd, Image_data& img)
+{
+  const std::vector<std::string> vs = miutil::split(xd[0], 0, " ");
+  if (vs.size() < 4) {
+    METLIBS_LOG_ERROR("imageFromXpmdata ERROR too few elements:" << xd[0]);
     return false;
   }
-  xsize= atoi(vs[0].c_str());
-  ysize= atoi(vs[1].c_str());
-  ncols= atoi(vs[2].c_str());
-  nchar= atoi(vs[3].c_str());
+  const int xsize = miutil::to_int(vs[0]);
+  const int ysize = miutil::to_int(vs[1]);
+  const int ncols = miutil::to_int(vs[2]);
+  const int nchar = miutil::to_int(vs[3]);
 
   if (xsize < 1 || ysize < 1 || ncols < 1 || nchar < 1){
     METLIBS_LOG_ERROR("imageFromXpmdata ERROR Illegal numbers "
@@ -365,22 +360,18 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
     return false;
   }
 
-  map<miString,int> redmap;
-  map<miString,int> greenmap;
-  map<miString,int> bluemap;
-  map<miString,int> alphamap;
+  std::map<std::string, int> redmap, greenmap, bluemap, alphamap;
 
   for (int i=0; i<ncols; i++){
-    buf = xd[1+i];
+    const std::string buf = xd[1+i];
     int j= buf.find_last_of("c");
     if (j < 0){
       METLIBS_LOG_ERROR("imageFromXpmdata ERROR Illegal colourdefinition:"
 	   << buf);
       return false;
     }
-    miString key=    buf.substr(0,nchar);
-    miString colour= buf.substr(j+1,buf.length()-j-1);
-    colour.trim();
+    const std::string key = buf.substr(0,nchar);
+    std::string colour = miutil::trimmed(buf.substr(j+1,buf.length()-j-1));
     if (colour == "None"){
       redmap[key]  = 255;
       greenmap[key]= 255;
@@ -392,7 +383,7 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
 	     << buf);
 	return false;
       }
-      colour= colour.substr(1,colour.length()-1);
+      colour = colour.substr(1,colour.length()-1);
       int numcomp = colour.length()/3;
       redmap[key]  = hexToInt(colour.substr(0,numcomp));
       greenmap[key]= hexToInt(colour.substr(numcomp,numcomp));
@@ -408,9 +399,9 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
   img.data= new unsigned char [img.width*img.height*img.nchannels];
   int pp= 0;
   for (int y=ysize-1; y>=0; y--){
-    miString line= xd[y+ncols+1];
+    const std::string line = xd[y+ncols+1];
     for (int x=0; x<xsize*nchar; x+=nchar){
-      miString pixel= line.substr(x,nchar);
+      const std::string pixel = line.substr(x,nchar);
       img.data[pp+0]= redmap[pixel];
       img.data[pp+1]= greenmap[pixel];
       img.data[pp+2]= bluemap[pixel];
@@ -422,20 +413,17 @@ bool imageIO::imageFromXpmdata(const char** xd, Image_data& img){
   return true;
 }
 
-bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
-  int xsize=-1,ysize,ncols,nchar;
-  vector<miString> vs;
-  miString buf= xd[0];
-
-  vs= buf.split(" ");
-  if (vs.size() < 4){
-    METLIBS_LOG_ERROR("imageFromXpmdata ERROR too few elements:" << buf);
+bool imageIO::patternFromXpmdata(const char** xd, Image_data& img)
+{
+  const std::vector<std::string> vs = miutil::split(xd[0], 0, " ");
+  if (vs.size() < 4) {
+    METLIBS_LOG_ERROR("imageFromXpmdata ERROR too few elements:" << xd[0]);
     return false;
   }
-  xsize= atoi(vs[0].c_str());
-  ysize= atoi(vs[1].c_str());
-  ncols= atoi(vs[2].c_str());
-  nchar= atoi(vs[3].c_str());
+  int xsize = miutil::to_int(vs[0]);
+  int ysize = miutil::to_int(vs[1]);
+  const int ncols = miutil::to_int(vs[2]);
+  const int nchar = miutil::to_int(vs[3]);
 
   if (xsize < 32 || ysize < 32 || ncols < 2 || nchar < 1){
     METLIBS_LOG_ERROR("patternFromXpmdata ERROR Illegal numbers "
@@ -451,39 +439,38 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
   //Colour
   //  noneKey is first colour key, or key with colour "None" -> bit=0
   // all other keys -> bit=1
-  miString noneKey;
+  std::string noneKey;
   for (int i=0; i<ncols; i++){
-    buf = xd[1+i];
+    const std::string buf = xd[1+i];
     int j= buf.find_last_of("c");
     if (j < 0){
       METLIBS_LOG_ERROR("imageFromXpmdata ERROR Illegal colourdefinition:"
 	   << buf);
       return false;
     }
-    miString colour= buf.substr(j+1,buf.length()-j-1);
-    colour.trim();
+    const std::string colour = miutil::trimmed(buf.substr(j+1,buf.length()-j-1));
     if (colour == "None"){
-      noneKey=    buf.substr(0,nchar);
+      noneKey = buf.substr(0, nchar);
       break;
     }
-    if(i==0)
-      noneKey = buf.substr(0,nchar);
+    if (i==0)
+      noneKey = buf.substr(0, nchar);
   }
 
   // data
   img.width = xsize;
-  img.height= ysize;
-  img.data= new unsigned char [128];
+  img.height = ysize;
+  img.data = new unsigned char [128];
 
   for (int i=0; i<128; i++) img.data[i]=0;
 
   int ii=0;
-  for (int y=31; y>=0; y--){
-    miString line= xd[y+ncols+1];
-    for (int x=0; x<32*nchar; ){
-      for (int i=0; i<8; i++,x+=nchar){
-	miString pixel= line.substr(x,nchar);
-	if(pixel != noneKey){
+  for (int y=31; y>=0; y--) {
+    const std::string line = xd[y+ncols+1];
+    for (int x=0; x<32*nchar;) {
+      for (int i=0; i<8; i++, x+=nchar) {
+	std::string pixel = line.substr(x, nchar);
+	if (pixel != noneKey) {
 	  ii=(31-y)*4 + x/8;
 	  img.data[ii] = img.data[ii] | (0x01 << (7-i));
 	}
@@ -497,22 +484,22 @@ bool imageIO::patternFromXpmdata(const char** xd, Image_data& img){
 
 
 
-bool imageIO::read_xpm(Image_data& img){
+bool imageIO::read_xpm(Image_data& img)
+{
   METLIBS_LOG_INFO("--------- read_xpm: " << img.filename);
 
-  ifstream file(img.filename.c_str());
+  std::ifstream file(img.filename.c_str());
 
-  if (!file){
-    METLIBS_LOG_ERROR("readXpmFile ERROR: Unable to open file:"
-	 << img.filename);
+  if (!file) {
+    METLIBS_LOG_ERROR("readXpmFile ERROR: Unable to open file:" << img.filename);
     return false;
   }
 
-  miString buf;
-  vector<miString> vs, vs2;
+  std::string buf;
+  std::vector<std::string> vs;
 
   while(getline(file,buf)){
-    buf.trim();
+    miutil::trim(buf);
     if (buf.length() == 0)
       continue;
     if (buf[0]!='\"')
@@ -521,7 +508,7 @@ bool imageIO::read_xpm(Image_data& img){
     buf= buf.substr(1,i-1);
     vs.push_back(buf);
   }
-  if (vs.size() == 0)
+  if (vs.empty())
     return false;
 
   //   METLIBS_LOG_DEBUG("RESULTING DATA:");
@@ -543,6 +530,3 @@ bool imageIO::read_xpm(Image_data& img){
 
   return res;
 }
-
-
-

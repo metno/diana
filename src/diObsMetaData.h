@@ -31,31 +31,24 @@
 #ifndef diObsMetaData_h
 #define diObsMetaData_h
 
-#include <puTools/miString.h>
 #include <diObsData.h>
 #include <diObsPlot.h>
 
 #include <map>
+#include <string>
 
 /**
-
   \brief Observation metadata
-  
 */
 struct ObsMetaData
 {
-
 public:
-  void setObsData(const std::map< miutil::miString, ObsData>& obs) { metaData = obs; }
-  void addStationsToUrl(miutil::miString& url);
-  std::map<miutil::miString, ObsData > metaData;
+  void setObsData(const std::map< std::string, ObsData>& obs) { metaData = obs; }
+  void addStationsToUrl(std::string& url);
+  std::map<std::string, ObsData > metaData;
 
 private:
-  miutil::miString stationString;
+  std::string stationString;
 };
 
 #endif
-
-
-
-

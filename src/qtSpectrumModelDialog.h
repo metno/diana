@@ -34,10 +34,7 @@
 #include <QDialog>
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
 #include <vector>
-
-using namespace std;
 
 class QFont;
 class QPalette;
@@ -48,7 +45,6 @@ class ToggleButton;
 
 /**
    \brief Dialogue to selecet Wave Spectrum data sources
-
 */
 class SpectrumModelDialog: public QDialog
 {
@@ -73,8 +69,8 @@ private:
   ToggleButton* fileButton;
   QListWidget * modelfileList;
 
-  miutil::miString ASFIELD;
-  miutil::miString OBS;
+  std::string ASFIELD;
+  std::string OBS;
 
   //functions
   void setModel();
@@ -94,4 +90,3 @@ signals:
 };
 
 #endif
-

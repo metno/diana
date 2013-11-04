@@ -31,25 +31,26 @@
 #ifndef diObsManager_h
 #define diObsManager_h
 
+#include <diCommonTypes.h>
 #include <diObsPlot.h>
 #include <diObsMetaData.h>
+
 #include <diField/TimeFilter.h>
-#include <diCommonTypes.h>
-#include <puTools/miString.h>
+
+#include <string>
 #include <set>
+#include <vector>
 
 class ObsData;
 struct ObsDialogInfo;
 
 /**
-
   \brief Managing observations
   
   - parse setup
   - send plot info strings to ObsPlot objects
   - managing file/time info
   - read data
-
 */
 class ObsManager {
 
@@ -77,56 +78,56 @@ private:
 public:
   struct patternInfo {
     TimeFilter filter;
-    miutil::miString pattern;
+    std::string pattern;
     bool archive;
-    miutil::miString fileType;  //bufr,miobs...
+    std::string fileType;  //bufr,miobs...
   };
 
   struct FileInfo {
-    miutil::miString filename;
+    std::string filename;
     miutil::miTime   time;
-    miutil::miString filetype; //bufr,miobs...
+    std::string filetype; //bufr,miobs...
   };
 
   struct ProdInfo {
     ObsFormat obsformat;
-    miutil::miString dialogName; // mixedcase, always Prod[lowercase]
-    miutil::miString plotFormat;
-    vector<patternInfo> pattern;
-    vector<FileInfo> fileInfo;
-    vector<miutil::miString> headerinfo;
-    miutil::miString timeInfo;// noTime or timeInfo from setup: from=;to=;interval
+    std::string dialogName; // mixedcase, always Prod[lowercase]
+    std::string plotFormat;
+    std::vector<patternInfo> pattern;
+    std::vector<FileInfo> fileInfo;
+    std::vector<std::string> headerinfo;
+    std::string timeInfo;// noTime or timeInfo from setup: from=;to=;interval
     int timeRangeMin;
     int timeRangeMax;
     float current;
     bool synoptic;
-    miutil::miString headerfile;
-    miutil::miString metaData;
+    std::string headerfile;
+    std::string metaData;
 #ifdef ROADOBS
-    miutil::miString stationfile;
-    miutil::miString databasefile;
+    std::string stationfile;
+    std::string databasefile;
     int daysback;
 #endif
     bool useFileTime;
-    vector<miutil::miString> parameter;
+    std::vector<std::string> parameter;
   };
 
 private:
-  map<miutil::miString,ProdInfo> Prod;
-  map< miutil::miString, ObsMetaData*> metaDataMap;
+  std::map<std::string, ProdInfo> Prod;
+  std::map<std::string, ObsMetaData*> metaDataMap;
   ObsDialogInfo dialog;
-  vector<ObsDialogInfo::PriorityList> priority;
+  std::vector<ObsDialogInfo::PriorityList> priority;
   //one  criterialist pr plot type
-  map<miutil::miString, vector<ObsDialogInfo::CriteriaList> > criteriaList;
+  std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
-  vector<int> levels;
+  std::vector<int> levels;
 
-  //  set<miutil::miString> dataTypesListed;
+  //  set<std::string> dataTypesListed;
 
 
   //Used to find files
   bool firstTry; //false if times can't be found from filename
-  vector<miutil::miTime> termin; //list of times from all files used
+  std::vector<miutil::miTime> termin; //list of times from all files used
   miutil::miTime timeRangeMin;
   miutil::miTime timeRangeMax;
 
@@ -144,28 +145,28 @@ private:
   std::string selectedStation;
   //--------------------------------------
 
-  bool addStationsAndTimeFromMetaData( const miutil::miString& metaData, miutil::miString& url, const miutil::miTime& time);
-  ObsDialogInfo::Button addButton(const miutil::miString& name, const miutil::miString& tip, 
+  bool addStationsAndTimeFromMetaData( const std::string& metaData, std::string& url, const miutil::miTime& time);
+  ObsDialogInfo::Button addButton(const std::string& name, const std::string& tip, 
 				  int low=-50, int high=50, bool def=true);
   void addType(ObsDialogInfo::PlotType& dialogInfo,
-	       const vector<ObsFormat>& obsformat);
-  void setActive(const vector<miutil::miString>& name, bool on, 
-		 vector<bool>& active, 
-		 const vector<ObsDialogInfo::Button>& b);
-void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
-		  const vector<miutil::miString>& parameter, 
-		  const miutil::miString& name,
-		  const vector<ObsDialogInfo::Button>& b);
-  void getFileName(vector<FileInfo>& finfo,
-		   miutil::miTime& , miutil::miString dataType, ObsPlot*);
-  bool updateTimesfromFile(miutil::miString obsType);
-  bool updateTimes(miutil::miString obsType);
+	       const std::vector<ObsFormat>& obsformat);
+  void setActive(const std::vector<std::string>& name, bool on, 
+		 std::vector<bool>& active, 
+		 const std::vector<ObsDialogInfo::Button>& b);
+  void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
+		  const std::vector<std::string>& parameter, 
+		  const std::string& name,
+		  const std::vector<ObsDialogInfo::Button>& b);
+  void getFileName(std::vector<FileInfo>& finfo,
+		   miutil::miTime& , std::string dataType, ObsPlot*);
+  bool updateTimesfromFile(std::string obsType);
+  bool updateTimes(std::string obsType);
 
 
 //  HQC
-  bool changeHqcdata(ObsData&, const vector<std::string>& param,
-			const vector<std::string>& data);
-  Colour flag2colour(const miutil::miString& flag);
+  bool changeHqcdata(ObsData&, const std::vector<std::string>& param,
+			const std::vector<std::string>& data);
+  Colour flag2colour(const std::string& flag);
 
   void printProdInfo(const ProdInfo & pinfo);
 
@@ -173,26 +174,26 @@ public:
   ObsManager();
 
   //parse PlotInfo
-  bool init(ObsPlot *, const miutil::miString&);
+  bool init(ObsPlot *, const std::string&);
   //read data
   bool prepare(ObsPlot *,miutil::miTime);
   ObsDialogInfo initDialog(void);
-  ObsDialogInfo updateDialog(const miutil::miString& name);
+  ObsDialogInfo updateDialog(const std::string& name);
   bool parseSetup();
 //return observation times for list of PlotInfo's
-  vector<miutil::miTime> getTimes( vector<miutil::miString> pinfos);
+  std::vector<miutil::miTime> getTimes(std::vector<std::string> pinfos);
   ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(vector<miutil::miTime>& normalTimes,
+  void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
 			   miutil::miTime& constTime,
 			   int& timediff,
-			   const miutil::miString& pinfo);
+			   const std::string& pinfo);
 // return observation times for list of obsTypes
-  vector<miutil::miTime> getObsTimes(const vector<miutil::miString>& obsTypes);
+  std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
   bool obs_mslp(){return mslp;}
-  void updateObsPositions(const vector<ObsPlot*> oplot);
+  void updateObsPositions(const std::vector<ObsPlot*> oplot);
   ObsPositions& getObsPositions(){  return obsPositions;}
   void clearObsPositions();
-  void calc_obs_mslp(const vector<ObsPlot*> oplot);
+  void calc_obs_mslp(const std::vector<ObsPlot*> oplot);
   void archiveMode( bool on ){useArchive=on;}
 //  HQC
   ObsDialogInfo updateHqcDialog(const std::string& plotType);
@@ -206,7 +207,7 @@ public:
   // Added for automatic updates
   bool timeListChanged;
 
-  std::map<miutil::miString,ProdInfo> getProductsInfo() const;
+  std::map<std::string, ProdInfo> getProductsInfo() const;
 };
 
 #endif

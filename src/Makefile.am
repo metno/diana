@@ -153,7 +153,6 @@ diana_qt_sources = \
 	EditItems/weatherarea.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
-	qtAdvancedButton.cc \
 	qtAnnoText.cc \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
@@ -337,7 +336,6 @@ noinst_HEADERS = \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
-	qtAdvancedButton.h \
 	qtAnnoText.h \
 	qtBrowserBox.h \
 	qtButtonLayout.h \
@@ -818,9 +816,11 @@ bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
 diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
 CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
+	@test -d $(shell dirname $@) || mkdir $(shell dirname $@)
 	$(MOC4) -o $@ $<
 
 %.ui.h: %.ui
+	@test -d $(shell dirname $@) || mkdir $(shell dirname $@)
 	$(UIC4) -o $@ $<
 
 BUILT_SOURCES = $(diana_uic_headers)
@@ -921,8 +921,12 @@ diBuild.h:
 
 CLEANFILES += diBuild.h
 
-noinst_PROGRAMS = \
-	test-diOrderBook
+check_PROGRAMS = \
+       test-diOrderBook \
+       test-diPlotOptions
+
+TESTS = \
+       test-diPlotOptions
 
 test_diOrderBook_qt_sources = \
 	diOrderBook.cc \
@@ -937,6 +941,12 @@ test_diOrderBook_SOURCES = \
 test_diOrderBook_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
 test_diOrderBook_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
 test_diOrderBook_LDADD = $(QT4_LIBS) $(MILOGGER_LIBS)
+
+test_diPlotOptions_SOURCES = \
+       test-diPlotOptions.cc
+test_diPlotOptions_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
+test_diPlotOptions_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
+test_diPlotOptions_LDADD = $(common_ldadd) $(MILOGGER_LIBS)
 
 if WITH_EMBEDDED
 # A shared library target for language binding experiments

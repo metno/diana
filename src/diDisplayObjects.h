@@ -30,75 +30,57 @@
 */
 #ifndef _diDisplayObjects_h
 #define _diDisplayObjects_h
-#include <vector>
-#include <diField/diArea.h>
+
 #include <diObjectPlot.h>
 #include <diWeatherObjects.h>
 #include <diAreaBorder.h>
 #include <diUndoFront.h>
 #include <diMapMode.h>
-#include <diField/diGridConverter.h>
 #include <diColour.h>
-#include <puTools/miString.h>
 
-using namespace std; 
+#include <diField/diArea.h>
+#include <diField/diGridConverter.h>
+
+#include <map>
+#include <vector>
 
 /**
-
   \brief WeatherObjects to be displayed
-
-
 */
-
-
-
-
-class DisplayObjects:public WeatherObjects{
+class DisplayObjects : public WeatherObjects {
 public:
-
   DisplayObjects();
   ~DisplayObjects(){}
 
   /// initialize class variables to false/zero
   void init();
-  /// parse miutil::miString pi to define what objects to display
-  bool define(const miutil::miString& pi);
+  /// parse std::string pi to define what objects to display
+  bool define(const std::string& pi);
   /// prepares object plots by setting colour and alpha value, apply symbolfilter etc.
   bool prepareObjects();
   /// returns a string with objectname and time
-  void getObjAnnotation(miutil::miString &str, Colour &col);
+  void getObjAnnotation(std::string &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
-  bool getAnnotations(vector <miutil::miString> &);
+  bool getAnnotations(std::vector<std::string>&);
   /// returns a string with object name and possibly time
-  void getPlotName(miutil::miString& name);
+  void getPlotName(std::string& name);
   /// returns plotInfo string
-  miutil::miString getPlotInfo() const {return pin;}
+  const std::string& getPlotInfo() const {return pin;}
 
   bool autoFile; // read new files
   bool approved;          //objects approved for plotting
   int timeDiff; 
-  miutil::miString objectname;
+  std::string objectname;
   bool defined;
 
 private:
+  std::map<std::string,bool> useobject;
 
-  map<miutil::miString,bool> useobject;
-
-  miutil::miString pin;
+  std::string pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;
-  vector <miutil::miString> symbolfilter;
-
-
-
-
-
-
-
-
-
-
+  std::vector <std::string> symbolfilter;
 };
-#endif
 
+#endif

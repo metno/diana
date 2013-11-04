@@ -35,29 +35,21 @@
 #include <diObsPlot.h>
 
 /**
-
   \brief Reading met.no obs files (temp)
   
    using the robs library 
-
 */
 class ObsTemp : public temp {
 private:
-
   void putData(int,int,miutil::miTime,ObsData &);
   int getIndex(int& level,float& pmin, float& pmax, vector<float>& PPPP);
   float knots2ms(int ff) {return (float(ff)*1852.0/3600.0);}
 
 public:
   // Constructors
-  ObsTemp(const miutil::miString&);
+  ObsTemp(const std::string&);
 
-  void init(ObsPlot *, vector<int>&);
-
+  void init(ObsPlot *, std::vector<int>&);
 };
 
 #endif
-
-
-
-

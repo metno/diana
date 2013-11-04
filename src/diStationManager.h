@@ -30,7 +30,6 @@
 #define diStationManager_h
 
 #include <diCommonTypes.h>
-#include <puTools/miString.h>
 
 class StationPlot;
 class Station;
@@ -40,11 +39,11 @@ class StationManager
 public:
   StationManager();
 
-  bool init(const vector<miutil::miString>& inp);
+  bool init(const std::vector<std::string>& inp);
   stationDialogInfo initDialog();
   bool parseSetup();
 
-  StationPlot* importStations(miutil::miString& name, miutil::miString& url);
+  StationPlot* importStations(std::string& name, std::string& url);
 
   // Stations
   /**
@@ -64,42 +63,41 @@ public:
   ///make StationPlot and put it in list of StationPlots
   void makeStationPlot(const std::string& commondesc, const std::string& common,
            const std::string& description, int from,
-           const  vector<std::string>& data);
+           const  std::vector<std::string>& data);
   ///Returns the first station close to position x,y found in the StationPlots
   ///held by this object
   Station* findStation(int x, int y);
   ///Returns all stations close to position x,y found in the StationPlots
   ///held by this object
-  vector<Station*> findStations(int x, int y);
+  std::vector<Station*> findStations(int x, int y);
   ///find station in position x,y in StationPlot with name and id
-  miutil::miString findStation(int x, int y,miutil::miString name,int id=-1);
+  std::string findStation(int x, int y,std::string name,int id=-1);
   ///look for station in position x,y in all StationPlots
   void findStations(int x, int y, bool add,
-        vector<miutil::miString>& name,vector<int>& id,
-        vector<miutil::miString>& station);
+      std::vector<std::string>& name, std::vector<int>& id,
+      std::vector<std::string>& station);
   ///get editable stations, returns name/id of StationPlot and stations
-  bool getEditStation(int step, miutil::miString& name, int& id,
-          vector<miutil::miString>& stations);
-  void getStationData(vector<std::string>& data);
+  bool getEditStation(int step, std::string& name, int& id,
+          std::vector<std::string>& stations);
+  void getStationData(std::vector<std::string>& data);
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
-          const vector<std::string>& data,
+          const std::vector<std::string>& data,
           const std::string& name="", int id=-1,
           const std::string& misc="");
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
           const std::string& name="", int id=-1);
 
-  ///Returns a vector containing the plots held by the manager.
-  vector <StationPlot*> plots();
+  ///Returns a std::vector containing the plots held by the manager.
+  std::vector <StationPlot*> plots();
 
 private:
   stationDialogInfo m_info;
   //stations to be plotted
-  map <miutil::miString,StationPlot*> stationPlots;
+  std::map <std::string,StationPlot*> stationPlots;
 
-  Station* parseSMHI(miutil::miString& miLine, miutil::miString& url);
-
+  Station* parseSMHI(std::string& miLine, std::string& url);
 };
 
 #endif

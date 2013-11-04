@@ -32,17 +32,10 @@
 #define diLegendPlot_h
 
 #include <diPlot.h>
-#include <puTools/miString.h>
-
-using namespace std;
 
 /**
-
   \brief Plots a legend with colour and text
-
-
 */
-
 
 class LegendPlot : public Plot {
 
@@ -50,14 +43,14 @@ public:
   /// Legend text with colour and pattern
   struct ColourCode{
     Colour colour;
-    miutil::miString pattern;
-    miutil::miString colourstr;
+    std::string pattern;
+    std::string colourstr;
     bool plotBox; //if false, do not plot colour/pattern box
   };
 
 private:
-  miutil::miString titlestring;
-  vector<ColourCode> colourcodes;
+  std::string titlestring;
+  std::vector<ColourCode> colourcodes;
 
   // x,y coordinates of the titlebar... if we click inside this area,
   //change value of showplot;
@@ -68,7 +61,7 @@ private:
   float xRatio,yRatio;
   // if showplot = true: show the whole table. if false: only title bar
   bool showplot;
-  miutil::miString suffix;
+  std::string suffix;
   static float xUsed; 
 
   // Copy members
@@ -80,16 +73,16 @@ public:
   /// Constructor
   LegendPlot();
   /// Constructor which reads string to get title and make vector of ColourCode
-  LegendPlot(miutil::miString& str);
+  LegendPlot(const std::string& str);
   LegendPlot(const LegendPlot &rhs);
   /// Destructor
   ~LegendPlot();
   /// Assignment operator
   LegendPlot& operator=(const LegendPlot &rhs);
   /// sets title and ColourCode vector
-  void setData(const miutil::miString& title, const vector<ColourCode>& colourcode);
+  void setData(const std::string& title, const std::vector<ColourCode>& colourcode);
   /// get width and height of string str with current font
-  void getStringSize(miutil::miString str, float& width, float& height);
+  void getStringSize(std::string str, float& width, float& height);
   /// plots the legend plot with top left corner at x,y
   bool plot(float x=0.0, float y=0.0);
   bool plot(const int){return false;}
@@ -102,7 +95,7 @@ public:
   /// sets background colour
   void setBackgroundColour(Colour c){poptions.fillcolour=c;}
   ///sets suffix, usually unit (hPa, mm)
-  void setSuffix(const miutil::miString& suffix_){suffix = suffix_;}
+  void setSuffix(const std::string& suffix_){suffix = suffix_;}
   /// sets alignment
   void setAlignment(Alignment a){poptions.h_align=a;}
   /// calculates and returns total table height
@@ -112,7 +105,7 @@ public:
   /// sets plot options
   void setPlotOptions(const PlotOptions& po){poptions=po;}
   // sets title
-  void setTitle(miutil::miString t){titlestring=t;}
+  void setTitle(std::string t){titlestring=t;}
 };
 
 

@@ -37,13 +37,10 @@
 #include <diCommonTypes.h>
 #include <diQuickMenues.h>
 
-using namespace std;
-
 class QTreeWidget;
 class QTreeWidgetItem;
 class QPushButton;
 class QTextEdit;
-
 
 /**
    \brief Administration of quick menus
@@ -51,13 +48,11 @@ class QTextEdit;
    Dialogue for administration of quick menus:
    - copy, delete menu-trees
    - read quick menus from file
-
 */
-
 class QuickAdmin : public QDialog {
   Q_OBJECT
 private:
-  vector<quickMenu> menus; // datastructure for quickmenus
+  std::vector<quickMenu> menus; // datastructure for quickmenus
 
   QPushButton* upButton;
   QPushButton* downButton;
@@ -87,10 +82,10 @@ private:
   void updateCommand();
 
 public:
-  QuickAdmin(QWidget*, vector<quickMenu>& qm,
+  QuickAdmin(QWidget*, std::vector<quickMenu>& qm,
 	     int fc, int lc);
 
-  vector<quickMenu> getMenus() const;
+  std::vector<quickMenu> getMenus() const;
   int FirstCustom() const {return firstcustom;}
   int LastCustom() const {return lastcustom;}
 
@@ -113,8 +108,3 @@ private slots:
 };
 
 #endif
-
-
-
-
-
