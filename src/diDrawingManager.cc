@@ -3,7 +3,7 @@
 
   $Id$
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,7 +34,8 @@
 #endif
 
 #include <diDrawingManager.h>
-#include <EditItems/edititembase.h>
+#include <EditItems/drawingitembase.h>
+#include <EditItems/drawingweatherarea.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <diAnnotationPlot.h>
@@ -49,6 +50,7 @@
 #include <fstream>
 #include <set>
 
+#include <QDateTime>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QFileDialog>
@@ -93,13 +95,128 @@ bool DrawingManager::parseSetup()
 
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
+  // New input has been submitted, so remove the items from the set.
+  // This will automatically cause items to be removed from the editing
+  // dialog in interactive mode.
+  foreach (DrawingItemBase *item, items_.values())
+    removeItem_(item);
+
   vector<string>::const_iterator it;
-  for (it = inp.begin(); it != inp.end(); ++it)
-    cerr << "*** " << *it << endl;
+  for (it = inp.begin(); it != inp.end(); ++it) {
+
+    // Split each input line into a collection of "words".
+    QStringList pieces = QString::fromStdString(*it).split(" ", QString::SkipEmptyParts);
+    // Skip the first piece ("DRAWING").
+    pieces.pop_front();
+
+    QVariantMap properties;
+    QVariantList points;
+
+    foreach (QString piece, pieces) {
+      // Split each word into a key=value pair.
+      QStringList wordPieces = piece.split("=");
+      if (wordPieces.size() != 2) {
+        METLIBS_LOG_WARN("Invalid key=value pair: " << piece.toStdString());
+        return false;
+      }
+      QString key = wordPieces[0];
+      QString value = wordPieces[1];
+      if (key == "file") {
+        loadItemsFromFile(value);
+        break;
+      } else if (key == "type") {
+        properties["type"] = value;
+      } else if (key == "time") {
+        properties["time"] = QDateTime::fromString(value, "yyyy-MM-ddThh:mm:ss");
+      } else if (key == "group") {
+        properties["groupId"] = value.toInt();
+      } else if (key == "points") {
+        QStringList pieces = value.split(":");
+        foreach (QString piece, pieces) {
+          QStringList coordinates = piece.split(",");
+          if (coordinates.size() != 2)
+            METLIBS_LOG_WARN("Invalid point in coordinate list for object: " << piece.toStdString());
+          else
+            points.append(QPointF(coordinates[0].toDouble(), coordinates[1].toDouble()));
+        }
+        properties["points"] = points;
+      }
+    }
+
+    if (!points.isEmpty()) {
+      QString error;
+      DrawingItemBase *item = createItemFromVarMap(properties, &error);
+      if (item) {
+        addItem_(item);
+      } else
+        METLIBS_LOG_WARN(error.toStdString());
+    }
+  }
+
+  setEnabled(!items_.empty());
   return true;
 }
 
-QList<QPointF> DrawingManager::getLatLonPoints(EditItemBase* item) const
+void DrawingManager::addItem_(DrawingItemBase *item)
+{
+    items_.insert(item);
+}
+
+DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  DrawingItemBase *item = 0;
+  *error = QString();
+  if (vmap.value("type").toString().endsWith("WeatherArea")) {
+    DrawingItemBase *area = new DrawingItem_WeatherArea::WeatherArea();
+    item = area;
+  } else {
+    *error = QString("unsupported item type: %1, expected %2")
+        .arg(vmap.value("type").toString()).arg("WeatherArea");
+  }
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(item, item->getLatLonPoints());
+  }
+  return item;
+}
+
+void DrawingManager::loadItemsFromFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        METLIBS_LOG_WARN("Failed to open file " << fileName.toStdString() << " for reading.");
+        return;
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    QString error;
+    QList<DrawingItem_WeatherArea::WeatherArea *> areas;
+    areas = DrawingItem_WeatherArea::createFromKML<DrawingItem_WeatherArea::WeatherArea>(data, fileName, &error);
+
+    if (!areas.isEmpty()) {
+        foreach (DrawingItem_WeatherArea::WeatherArea *area, areas) {
+            // Set the screen coordinates from the latitude and longitude values.
+            setFromLatLonPoints(area, area->getLatLonPoints());
+            items_.insert(Drawing(area));
+        }
+    } else {
+        METLIBS_LOG_WARN("Failed to create areas from file " << fileName.toStdString() << ": "
+            << (!error.isEmpty() ? error.toStdString() : "<error msg not set>"));
+        return;
+    }
+}
+
+void DrawingManager::removeItem_(DrawingItemBase *item)
+{
+  items_.remove(item);
+}
+
+QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const
 {
   QList<QPointF> points = item->getPoints();
   return PhysToGeo(points);
@@ -109,8 +226,8 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
-  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
+  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
 
   int n = points.size();
 
@@ -127,7 +244,7 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setLatLonPoints(EditItemBase* item, const QList<QPointF> &latLonPoints)
+void DrawingManager::setFromLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints)
 {
   QList<QPointF> points = GeoToPhys(latLonPoints);
   item->setPoints(points);
@@ -137,8 +254,8 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
-  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
+  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
 
   QList<QPointF> points;
   int n = latLonPoints.size();
@@ -162,7 +279,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::set<miutil::miTime> times;
 
-  foreach (EditItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
     std::string time_str = p.value("time").toString().toStdString();
     if (!time_str.empty())
@@ -186,14 +303,14 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 {
   // Change the visibility of items in the editor.
 
-  foreach (EditItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
     if (p.contains("time")) {
-      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-dd hh:mm:ss");
-      p["visible"] = (time_str.isEmpty() | (time.isoTime() == time_str.toStdString()));
+      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-ddThh:mm:ss");
+      bool visible = (time_str.isEmpty() | (time.isoTime("T") == time_str.toStdString()));
+      item->setProperty("visible", visible);
     } else
-      p["visible"] = true;
-    item->setProperties(p);
+      item->setProperty("visible", true);
   }
 
   return true;
@@ -201,10 +318,10 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
 bool DrawingManager::changeProjection(const Area& newArea)
 {
+  // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
   plotRect = editRect = PLOTM->getPlotSize();
   currentArea = newArea;
-
   return true;
 }
 
@@ -222,19 +339,17 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  foreach (EditItemBase *item, items_) {
-      EditItemBase::DrawModes modes = EditItemBase::Normal;
-      if (item->properties().value("visible", true).toBool()) {
-          setLatLonPoints(item, item->getLatLonPoints());
-          item->draw(modes, false);
-      }
+  foreach (DrawingItemBase *item, items_) {
+    if (item->property("visible", true).toBool()) {
+      setFromLatLonPoints(item, item->getLatLonPoints());
+      item->draw();
+    }
   }
 
   glPopMatrix();
 }
 
-void DrawingManager::initNewItem(EditItemBase *item)
+QSet<DrawingItemBase *> DrawingManager::getItems() const
 {
-  // Let other components know about any changes to item times.
-  emit timesUpdated();
+  return items_;
 }

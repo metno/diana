@@ -31,6 +31,7 @@
 #ifndef _drawingdialog_h
 #define _drawingdialog_h
 
+#include <qnamespace.h>
 #include "EditItems/edititembase.h"
 #include "qtDataDialog.h"
 
@@ -39,28 +40,34 @@ class DrawingDialog : public DataDialog
   Q_OBJECT
 
 public:
+  enum ItemRoles {
+    IdRole = Qt::UserRole,
+  };
+
   DrawingDialog(QWidget *parent, Controller *ctrl);
   ~DrawingDialog();
 
   std::string name() const;
+  std::vector<std::string> getOKString();
+  void putOKString(const std::vector<std::string>& vstr);
 
 public slots:
   void updateTimes();
   void toggleDrawingMode(bool);
   void updateDialog();
-  std::vector<std::string> getOKString();
-  void putOKString(const std::vector<std::string>& vstr);
 
 private slots:
-  void addItem(EditItemBase *item);
-  void removeItem(EditItemBase *item);
-  void updateItem(EditItemBase *item);
+  void addItem(DrawingItemBase *item);
+  void removeItem(DrawingItemBase *item);
+  void updateItem(DrawingItemBase *item);
   void updateItemList();
   void updateSelection();
 
 private:
   Controller *ctrl;
   QTreeWidget *itemList;
+  QHash<int, QTreeWidgetItem *> listItemHash;
+  QHash<int, DrawingItemBase *> itemHash;
 };
 
 #endif

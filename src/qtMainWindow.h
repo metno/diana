@@ -474,6 +474,7 @@ private:
                       std::vector<std::string> &shortnames);
 
   std::map<QAction*, DataDialog*> dialogs;
+  std::map<std::string, DataDialog*> dialogNames;
 
 // Profet methods
   bool initProfet();

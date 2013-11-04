@@ -1644,7 +1644,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
     ROUTINE:   FieldPlot::plotValues
     PURPOSE:   plot the values of three, four or five fields:
     field1  |       field1      |         field1  field4
-    field3  | field3     filed4 |  field3  -----
+    field3  | field3     field4 |  field3  -----
     field2  |      field2       |          field2 field5
     colours are set by poptions.textcolour or poptions.colours
     minvalue and maxvalue refer to field1

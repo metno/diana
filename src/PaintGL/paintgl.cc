@@ -98,8 +98,9 @@ void PaintGLContext::makeCurrent()
     stack.clear();
     renderStack.clear();
     transformStack.clear();
-
     transform = QTransform();
+
+    printing = false;
 }
 
 void PaintGLContext::begin(QPainter *painter)

@@ -3,7 +3,7 @@
 
   $Id: diController.cc 3685 2013-09-11 17:19:09Z davidb $
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -63,12 +63,15 @@ public:
 
   virtual bool isEnabled() const;
   virtual void setEnabled(bool enable);
+  virtual bool isEditing() const;
+  virtual void setEditing(bool enable);
 
 signals:
   void timesUpdated();
 
 private:
   bool enabled;
+  bool editing;
 };
 
 #endif

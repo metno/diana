@@ -1284,6 +1284,7 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 
     // strings for each dialog
     vector<string> mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
+    map<std::string, vector<std::string> > dialog_com;
     int n= vstr.size();
     // sort strings..
     for (int i=0; i<n; i++){
@@ -1301,6 +1302,9 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
       else if (pre=="STATION") statcom.push_back(s);
       else if (pre=="OBJECTS") objcom.push_back(s);
       else if (pre=="LABEL") labelcom.push_back(s);
+      else if (dialogNames.find(pre) != dialogNames.end()) {
+        dialog_com[pre].push_back(s);
+      }
     }
 
     vector<string> tmplabel = vlabel;
@@ -1312,6 +1316,13 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     if (replace || statcom.size()) stm->putOKString(statcom);
     if (replace || objcom.size()) objm->putOKString(objcom);
     if (replace ) vlabel=labelcom;
+
+    // Other data sources
+    map<std::string, vector<std::string> >::iterator it;
+    for (it = dialog_com.begin(); it != dialog_com.end(); ++it) {
+      DataDialog *dialog = dialogNames.at(it->first);
+      dialog->putOKString(it->second);
+    }
 
     // call full plot
     push_command= false; // do not push this command on stack
@@ -1392,6 +1403,13 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
   diagstr = mm->getOKString();
   pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
   shortnames.push_back(mm->getShortname());
+
+  // Other data sources
+  map<QAction*, DataDialog*>::iterator it;
+  for (it = dialogs.begin(); it != dialogs.end(); ++it) {
+    diagstr = it->second->getOKString();
+    pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
+  }
 
   // label
   bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
@@ -4611,6 +4629,7 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 {
   QAction *action = dialog->action();
   dialogs[action] = dialog;
+  dialogNames[dialog->name()] = dialog;
   connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
   connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));

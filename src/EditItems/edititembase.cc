@@ -35,35 +35,20 @@
 EditItemBase::EditItemBase()
     : moving_(false)
     , resizing_(false)
-    , id_(nextId())
 {}
-
-int EditItemBase::id() const { return id_; }
-
-int EditItemBase::nextId()
-{
-    return nextId_++; // ### not thread safe; use a mutex for that
-}
-
-int EditItemBase::groupId() const
-{
-    const QVariant vgid = properties_.value("groupId");
-    int gid = -1;
-    if (vgid.isValid()) {
-        bool ok;
-        gid = vgid.toInt(&ok);
-        if (!ok)
-            gid = -1;
-    }
-    return gid;
-}
 
 void EditItemBase::repaint()
 {
     emit repaintNeeded();
 }
 
-int EditItemBase::nextId_ = 0;
+/**
+ * The default draw method only draws normal, unselected, non-hovered, complete items.
+ */
+void EditItemBase::draw()
+{
+    draw(Normal, false);
+}
 
 /**
  * Handles a mouse press event for an item in its normal state.
@@ -97,8 +82,8 @@ int EditItemBase::nextId_ = 0;
  */
 void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit,
-    QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems, bool *multiItemOp)
+    QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
+    QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
@@ -134,8 +119,9 @@ void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<Q
     Q_UNUSED(event);
     Q_UNUSED(repaintNeeded); // no need to set this
     Q_ASSERT(undoCommands);
-    if ((moving_ || resizing_) && (getPoints() != getBasePoints()))
-        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), getPoints()));
+    DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
+    if ((moving_ || resizing_) && (ditem->getPoints() != getBasePoints()))
+        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
     moving_ = resizing_ = false;
 }
 
@@ -159,10 +145,10 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
 
 void EditItemBase::keyPress(
         QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<EditItemBase *> *items, const QSet<EditItemBase *> *selItems)
+        QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
 {
     if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        items->remove(this);
+        items->remove(Drawing(this));
     } else if (
                (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
                ((event->key() == Qt::Key_Left)
@@ -176,7 +162,8 @@ void EditItemBase::keyPress(
         else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
         else pos += QPointF(0, nudgeVal); // Key_Up
         moveBy(pos);
-        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), getPoints()));
+        DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
+        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
         repaintNeeded = true;
     }
 }
@@ -235,31 +222,6 @@ void EditItemBase::moveBy(const QPointF &pos)
     Q_UNUSED(pos);
 }
 
-QList<QPointF> EditItemBase::getLatLonPoints() const
-{
-    return latLonPoints;
-}
-
-void EditItemBase::setLatLonPoints(const QList<QPointF> &points)
-{
-    latLonPoints = points;
-}
-
-QVariantMap EditItemBase::properties() const
-{
-  return properties_;
-}
-
-QVariantMap &EditItemBase::propertiesRef()
-{
-  return properties_;
-}
-
-void EditItemBase::setProperties(const QVariantMap &properties)
-{
-  properties_ = properties;
-}
-
 QVariantMap EditItemBase::clipboardVarMap() const
 {
   QVariantMap vmap;
@@ -272,22 +234,3 @@ QString EditItemBase::clipboardPlainText() const
   return QString();
 }
 
-EditItemBase *EditItemBase::createItemFromVarMap(const QVariantMap &vmap, QString *error)
-{
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
-  EditItemBase *item = 0;
-  *error = QString();
-  if (vmap.value("type").toString() == "EditItem_WeatherArea::WeatherArea") {
-    EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea(vmap, error);
-    if (!error->isEmpty())
-      delete area;
-    else
-      item = area;
-  } else {
-    *error = QString("unsupported item type: %1, expected %2")
-        .arg(vmap.value("type").toString()).arg("EditItem_WeatherArea::WeatherArea");
-  }
-  return item;
-}

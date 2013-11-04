@@ -70,7 +70,7 @@
 class SatManager {
 
 public:
-    struct subProdInfo {
+  struct subProdInfo {
     std::vector<std::string> pattern;
     std::vector<bool> archive;
     std::vector<TimeFilter> filter;

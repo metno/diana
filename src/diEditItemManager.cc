@@ -29,13 +29,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <fstream>
+#include <iostream>
+#define MILOGGER_CATEGORY "diana.EditItemManager"
+#include <miLogger/miLogging.h>
+
 #include <QtGui>
 
 #include <diEditItemManager.h>
 #include <diPlotModule.h>
 #include <EditItems/edititembase.h>
 #include <EditItems/weatherarea.h>
-#include <EditItems/weatherfront.h>
 
 #define PLOTM PlotModule::instance()
 
@@ -101,8 +105,7 @@ static QWidget * createEditor(const QString &propertyName, const QVariant &val)
   } else if (val.type() == QVariant::DateTime) {
     editor = new QDateTimeEdit(val.toDateTime());
   } else {
-    qDebug() << "WARNING: unsupported type:" << val.typeName();
-    editor = new QLabel(QString("UNSUPPORTED TYPE: %1").arg(val.typeName()));
+    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
   }
   return editor;
 }
@@ -121,48 +124,31 @@ VarMapEditor *VarMapEditor::instance()
 QVariantMap VarMapEditor::edit(const QVariantMap &values)
 {
     // clear old content
-    if (glayout_->columnCount() == 2) {
-        Q_ASSERT((glayout_->rowCount() > 0));
-        for (int i = 0; i < glayout_->rowCount(); ++i) {
-            QLayoutItem *keyItem = glayout_->itemAtPosition(i, 0);
-            Q_ASSERT(keyItem);
-            Q_ASSERT(keyItem->widget());
-            Q_ASSERT(qobject_cast<QLabel *>(keyItem->widget()));
-            delete keyItem->widget();
-            // delete keyItem; ???
-
-            QLayoutItem *valItem = glayout_->itemAtPosition(i, 1);
-            Q_ASSERT(valItem);
-            Q_ASSERT(valItem->widget());
-            delete valItem->widget();
-            // delete valItem; ???
-        }
-    }
+    qDeleteAll(formWidget_->children());
 
     // set new content and initial values
-    int row = 0;
+    QFormLayout *formLayout = new QFormLayout(formWidget_);
     foreach (const QString key, values.keys()) {
-        QLabel *label = new QLabel(key);
-        //label->setStyleSheet("QLabel { background-color:#ff0 }");
-        label->setAlignment(Qt::AlignRight);
-        glayout_->addWidget(label, row, 0);
         QWidget *editor = createEditor(key, values.value(key));
-        glayout_->addWidget(editor, row, 1);
-        row++;
+        if (editor)
+            formLayout->addRow(key, editor);
     }
 
     // open dialog
     if (exec() == QDialog::Accepted) {
         // return edited values
         QVariantMap newValues;
-        for (int i = 0; i < glayout_->rowCount(); ++i) {
-            const QString key = qobject_cast<const QLabel *>(glayout_->itemAtPosition(i, 0)->widget())->text();
-            QWidget *editor = glayout_->itemAtPosition(i, 1)->widget();
-            if (qobject_cast<QLineEdit *>(editor)) {
-                newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-            } else if (qobject_cast<QDateTimeEdit *>(editor)) {
-                QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
-                newValues.insert(key, ed->dateTime());
+        for (int i = 0; i < formLayout->rowCount(); ++i) {
+            QLayoutItem *item = formLayout->itemAt(i, QFormLayout::LabelRole);
+            if (item) {
+                const QString key = qobject_cast<const QLabel *>(item->widget())->text();
+                QWidget *editor = formLayout->itemAt(i, QFormLayout::FieldRole)->widget();
+                if (qobject_cast<QLineEdit *>(editor)) {
+                    newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
+                } else if (qobject_cast<QDateTimeEdit *>(editor)) {
+                    QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
+                    newValues.insert(key, ed->dateTime());
+                }
             }
         }
         return newValues;
@@ -175,16 +161,14 @@ VarMapEditor::VarMapEditor()
 {
     setWindowTitle(tr("Item Properties"));
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    glayout_ = new QGridLayout;
-    layout->addLayout(glayout_);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    formWidget_ = new QWidget();
+    layout->addWidget(formWidget_);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
     layout->addWidget(buttonBox);
-
-    setLayout(layout);
 }
 
 VarMapEditor *VarMapEditor::instance_ = 0;
@@ -212,7 +196,7 @@ EditItemManager::EditItemManager()
 {
     self = this;
 
-    connect(this, SIGNAL(itemAdded(EditItemBase *)), SLOT(initNewItem(EditItemBase *)));
+    connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
     connect(this, SIGNAL(selectionChanged()), SLOT(updateActions()));
 
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
@@ -236,7 +220,7 @@ EditItemManager::EditItemManager()
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
     connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
-    connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
+    connect(loadAction, SIGNAL(triggered()), SLOT(loadItems()));
 }
 
 EditItemManager::~EditItemManager()
@@ -251,6 +235,11 @@ EditItemManager *EditItemManager::instance()
   return EditItemManager::self;
 }
 
+bool EditItemManager::isEnabled() const
+{
+  return isEditing() | DrawingManager::isEnabled();
+}
+
 QUndoView *EditItemManager::getUndoView()
 {
     if (!undoView_)
@@ -262,77 +251,102 @@ QUndoView *EditItemManager::getUndoView()
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
 void EditItemManager::addItem(EditItemBase *item, bool incomplete)
 {
+    addItem(Drawing(item), incomplete);
+}
+
+void EditItemManager::addItem(DrawingItemBase *item, bool incomplete)
+{
     if (incomplete) {
         // set this item as the incomplete item
         if (incompleteItem_) {
             // issue warning?
         }
-        incompleteItem_ = item;
+        incompleteItem_ = Editing(item);
         emit incompleteEditing(true);
     } else {
         // create undo command
-        QSet<EditItemBase *> addedItems;
-        addedItems.insert(item);
-        QSet<EditItemBase *> removedItems;
+        QSet<DrawingItemBase *> addedItems;
+        addedItems.insert(Drawing(item));
+        QSet<DrawingItemBase *> removedItems;
         AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, removedItems);
         undoStack_.push(arCmd);
     }
 
 //    qDebug() << "   ###### addItem()" << item << ", incomplete:" << incomplete << ", item infos:";
-//    foreach (EditItemBase *item, items_)
+//    foreach (DrawingItemBase *item, items_)
 //        qDebug() << "   ###### - " << item->infoString().toLatin1().data();
 
     repaint();
 }
 
-void EditItemManager::addItem_(EditItemBase *item)
+void EditItemManager::addItem_(DrawingItemBase *item)
 {
-    items_.insert(item);
-    connect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
+    DrawingManager::addItem_(item);
+
+    connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
     item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
-void EditItemManager::removeItem(EditItemBase *item)
+void EditItemManager::removeItem(DrawingItemBase *item)
 {
     // create undo command
-    QSet<EditItemBase *> addedItems;
-    QSet<EditItemBase *> removedItems;
-    removedItems.insert(item);
+    QSet<DrawingItemBase *> addedItems;
+    QSet<DrawingItemBase *> removedItems;
+    removedItems.insert(Drawing(item));
     AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, removedItems);
     undoStack_.push(arCmd);
 }
 
-void EditItemManager::removeItem_(EditItemBase *item)
+void EditItemManager::removeItem_(DrawingItemBase *item)
 {
-    items_.remove(item);
-    disconnect(item, SIGNAL(repaintNeeded()), this, SLOT(repaint()));
+    DrawingManager::removeItem_(item);
+    if (Drawing(hoverItem_) == item)
+      hoverItem_ = 0;
+    disconnect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     deselectItem(item);
     emit itemRemoved(item);
 }
 
-void EditItemManager::storeItems(const QSet<EditItemBase *> &items)
+void EditItemManager::initNewItem(DrawingItemBase *item)
 {
-    foreach (EditItemBase *item, items) {
+/*
+  // Use the current time for the new item.
+  miutil::miTime time;
+  PLOTM->getPlotTime(time);
+
+  QVariantMap p = item->propertiesRef();
+  if (!p.contains("time"))
+    p["time"] = QDateTime::fromString(QString::fromStdString(time.isoTime()), "yyyy-MM-dd hh:mm:ss");
+
+  item->setProperties(p);
+*/
+  // Let other components know about any changes to item times.
+  emit timesUpdated();
+}
+
+void EditItemManager::storeItems(const QSet<DrawingItemBase *> &items)
+{
+    foreach (DrawingItemBase *item, items) {
         // Convert the item's screen coordinates to geographic coordinates.
         item->setLatLonPoints(getLatLonPoints(item));
         removeItem_(item);
     }
 }
 
-void EditItemManager::retrieveItems(const QSet<EditItemBase *> &items)
+void EditItemManager::retrieveItems(const QSet<DrawingItemBase *> &items)
 {
-    foreach (EditItemBase *item, items) {
+    foreach (DrawingItemBase *item, items) {
         // The items stored on the undo stack have been given geographic
         // coordinates, so we use those to obtain screen coordinates.
         if (!item->getLatLonPoints().isEmpty())
-            setLatLonPoints(item, item->getLatLonPoints());
+            setFromLatLonPoints(item, item->getLatLonPoints());
         addItem_(item);
     }
 }
 
-void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
+void EditItemManager::editItemProperties(const QSet<DrawingItemBase *> &items)
 {
   Q_ASSERT(items.size() > 0);
   if (items.size() > 1) {
@@ -340,7 +354,7 @@ void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
     return;
   }
 
-  EditItemBase *item = items.values().first();
+  DrawingItemBase *item = items.values().first();
   if (item->properties().size() == 0) {
     QMessageBox::information(0, "info", "No properties to edit!");
   } else {
@@ -357,10 +371,7 @@ void EditItemManager::editItemProperties(const QSet<EditItemBase *> &items)
 
 void EditItemManager::reset()
 {
-    // FIXME: We need to make certain that this is how we want to handle the undo stack.
-    QSet<EditItemBase *> addedItems;
-    AddOrRemoveItemsCommand *arCmd = new AddOrRemoveItemsCommand(addedItems, items_);
-    undoStack_.push(arCmd);
+    undoStack_.clear();
 }
 
 QUndoStack * EditItemManager::undoStack()
@@ -368,25 +379,20 @@ QUndoStack * EditItemManager::undoStack()
     return &undoStack_;
 }
 
-QSet<EditItemBase *> EditItemManager::getItems() const
-{
-    return items_;
-}
-
-QSet<EditItemBase *> EditItemManager::getSelectedItems() const
+QSet<DrawingItemBase *> EditItemManager::getSelectedItems() const
 {
     return selItems_;
 }
 
-void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *itemsToCopy, QSet<EditItemBase *> *itemsToEdit)
+void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit)
 {
     if (incompleteItem_) {
         incompleteMousePress(event);
         return;
     }
 
-    const QSet<EditItemBase *> hitItems = findHitItems(event->pos());
-    EditItemBase *hitItem = // consider only this item to be hit
+    const QSet<DrawingItemBase *> hitItems = findHitItems(event->pos());
+    DrawingItemBase *hitItem = // consider only this item to be hit
         hitItems.empty()
         ? 0
         : *(hitItems.begin()); // for now; eventually use the one with higher z-value etc. ... 2 B DONE
@@ -395,7 +401,7 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
 
     repaintNeeded_ = false;
 
-    QSet<EditItemBase *> origSelItems(selItems_);
+    QSet<DrawingItemBase *> origSelItems(selItems_);
 
     // update selection and hit status
     if (!(hitSelItem || (hitItem && selectMulti))) {
@@ -406,8 +412,8 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
         hitItem = 0;
     }
 
-    QSet<EditItemBase *> addedItems;
-    QSet<EditItemBase *> removedItems;
+    QSet<DrawingItemBase *> addedItems;
+    QSet<DrawingItemBase *> removedItems;
     QList<QUndoCommand *> undoCommands;
 
     if (hitItem) { // an item is still considered hit
@@ -415,10 +421,10 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
 
         // send mouse press to the hit item
         bool multiItemOp = false;
-        QSet<EditItemBase *> eventItems(items_);
+        QSet<DrawingItemBase *> eventItems(items_);
 
         bool rpn = false;
-        hitItem->mousePress(event, rpn, &undoCommands, itemsToCopy, itemsToEdit, &eventItems, &selItems_, &multiItemOp);
+        Editing(hitItem)->mousePress(event, rpn, &undoCommands, itemsToCopy, itemsToEdit, &eventItems, &selItems_, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
         addedItems = eventItems - items_;
         removedItems = items_ - eventItems;
@@ -429,10 +435,10 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<EditItemBase *> *items
                 // send the mouse press to other selected items
                 // (note that these are not allowed to modify item sets, nor requesting items to be copied,
                 // nor does it make sense for them to flag the event as the beginning of a potential multi-item operation)
-                foreach (EditItemBase *item, selItems_)
+                foreach (DrawingItemBase *item, selItems_)
                     if (item != hitItem) {
                         rpn = false;
-                        item->mousePress(event, rpn, &undoCommands);
+                        Editing(item)->mousePress(event, rpn, &undoCommands);
                         if (rpn)
                             repaintNeeded_ = true;
                     }
@@ -483,18 +489,16 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
     QList<QUndoCommand *> undoCommands;
 
     // send to selected items
-    foreach (EditItemBase *item, selItems_)
-        item->mouseRelease(event, repaintNeeded_, &undoCommands);
+    foreach (DrawingItemBase *item, selItems_)
+        Editing(item)->mouseRelease(event, repaintNeeded_, &undoCommands);
 
     const bool modifiedItems = !undoCommands.empty();
     if (modifiedItems) {
-        // combine the aggregated effect of the operation into one undo command
-        undoStack_.beginMacro(undoCommandText(0, 0, undoCommands.size()));
         skipRepaint_ = true; // temporarily prevent redo() calls from repainting
         // push sub-commands representing individual item modifications
         foreach (QUndoCommand *undoCmd, undoCommands)
             undoStack_.push(undoCmd);
-        undoStack_.endMacro();
+
         skipRepaint_ = false;
         repaintNeeded_ = true;
     }
@@ -540,23 +544,25 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     bool rpn = false;
 
     if (hover) {
-        const QSet<EditItemBase *> hitItems = findHitItems(event->pos());
+        const QSet<DrawingItemBase *> hitItems = findHitItems(event->pos());
         if (!hitItems.empty()) {
             // consider only the topmost item that was hit ... 2 B DONE
             // for now, consider only the first that was found
-            hoverItem_ = *(hitItems.begin());
+            hoverItem_ = Editing(*(hitItems.begin()));
             
             // send mouse hover event to the hover item
             hoverItem_->mouseHover(event, rpn);
             if (rpn) repaintNeeded_ = true;
         } else if (origHoverItem) {
-            origHoverItem->mouseHover(event, rpn);
+            Editing(origHoverItem)->mouseHover(event, rpn);
             if (rpn) repaintNeeded_ = true;
         }
     } else {
         // send move event to all selected items
-        foreach (EditItemBase *item, selItems_) {
-            item->mouseMove(event, rpn);
+        foreach (DrawingItemBase *item, selItems_) {
+            Editing(item)->mouseMove(event, rpn);
+            item->setLatLonPoints(getLatLonPoints(item));
+            item->setLatLonPoints(getLatLonPoints(item));
             item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
         }
@@ -617,11 +623,12 @@ void EditItemManager::incompleteMouseDoubleClick(QMouseEvent *event)
     }
 }
 
-static EditItemBase *idToItem(const QSet<EditItemBase *> &items, int id)
+static EditItemBase *idToItem(const QSet<DrawingItemBase *> &items, int id)
 {
-    foreach (EditItemBase *item, items)
+    foreach (DrawingItemBase *item, items) {
         if (id == item->id())
-            return item;
+            return Editing(item);
+    }
     return 0;
 }
 
@@ -635,11 +642,12 @@ void EditItemManager::keyPress(QKeyEvent *event)
     repaintNeeded_ = false;
 
     QSet<int> origSelIds; // IDs of the originally selected items
-    foreach (EditItemBase *item, selItems_)
+    foreach (DrawingItemBase *item, selItems_) {
         origSelIds.insert(item->id());
+    }
 
-    QSet<EditItemBase *> addedItems;
-    QSet<EditItemBase *> removedItems;
+    QSet<DrawingItemBase *> addedItems;
+    QSet<DrawingItemBase *> removedItems;
     QList<QUndoCommand *> undoCommands;
 
     // process each of the originally selected items
@@ -650,7 +658,7 @@ void EditItemManager::keyPress(QKeyEvent *event)
         EditItemBase *origSelItem = idToItem(items_, origSelId);
         if (origSelItem) {
             // it still exists, so pass the event
-            QSet<EditItemBase *> eventItems(items_);
+            QSet<DrawingItemBase *> eventItems(items_);
             bool rpn = false;
             origSelItem->keyPress(event, rpn, &undoCommands, &eventItems, &selItems_);
             if (rpn) repaintNeeded_ = true;
@@ -698,9 +706,9 @@ void EditItemManager::keyRelease(QKeyEvent *event)
     repaintNeeded_ = false; // whether at least one item needs to be repainted after processing the event
 
     // send to selected items
-    foreach (EditItemBase *item, selItems_) {
+    foreach (DrawingItemBase *item, selItems_) {
         bool rpn = false;
-        item->keyRelease(event, rpn);
+        Editing(item)->keyRelease(event, rpn);
         if (rpn)
             repaintNeeded_ = true;
     }
@@ -719,37 +727,47 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
         repaint();
 }
 
+bool EditItemManager::changeProjection(const Area& newArea)
+{
+  return DrawingManager::changeProjection(newArea);
+
+    glPopMatrix();
+}
+
 void EditItemManager::plot(bool under, bool over)
 {
     if (!under)
         return;
 
-    // Apply a transformation so that the items can be plotted with screen coordinates
-    // while everything else is plotted in map coordinates.
-    glPushMatrix();
-    plotRect = PLOTM->getPlotSize();
-    int w, h;
-    PLOTM->getPlotWindow(w, h);
-    glTranslatef(editRect.x1, editRect.y1, 0.0);
-    glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+    if (isEditing()) {
+        // Apply a transformation so that the items can be plotted with screen coordinates
+        // while everything else is plotted in map coordinates.
+        glPushMatrix();
+        plotRect = PLOTM->getPlotSize();
+        int w, h;
+        PLOTM->getPlotWindow(w, h);
+        glTranslatef(editRect.x1, editRect.y1, 0.0);
+        glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-    Q_ASSERT(!items_.contains(incompleteItem_));
-    foreach (EditItemBase *item, items_) {
-        EditItemBase::DrawModes modes = EditItemBase::Normal;
-        if (selItems_.contains(item))
-            modes |= EditItemBase::Selected;
-        if (item == hoverItem_)
-            modes |= EditItemBase::Hovered;
-        if (item->properties().value("visible", true).toBool()) {
-            setLatLonPoints(item, item->getLatLonPoints());
-            item->draw(modes, false);
+        Q_ASSERT(!items_.contains(incompleteItem_));
+        foreach (DrawingItemBase *item, items_) {
+            EditItemBase::DrawModes modes = EditItemBase::Normal;
+            if (selItems_.contains(item))
+                modes |= EditItemBase::Selected;
+            if (item == Drawing(hoverItem_))
+                modes |= EditItemBase::Hovered;
+            if (item->property("visible", true).toBool()) {
+                setFromLatLonPoints(item, item->getLatLonPoints());
+                Editing(item)->draw(modes, false);
+            }
         }
-    }
-    if (incompleteItem_) // note that only complete items may be selected
-        incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
-    emit paintDone();
+        if (incompleteItem_) // note that only complete items may be selected
+            incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
+        emit paintDone();
 
-    glPopMatrix();
+        glPopMatrix();
+    } else
+        DrawingManager::plot(under, over);
 }
 
 void EditItemManager::undo()
@@ -788,14 +806,13 @@ bool EditItemManager::canRedo() const
     return undoStack_.canRedo();
 }
 
-QSet<EditItemBase *> EditItemManager::findHitItems(const QPointF &pos) const
+QSet<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos) const
 {
-    QSet<EditItemBase *> hitItems;
-    foreach (EditItemBase *item, items_) {
-        QVariantMap p = item->properties();
-        if (!p.contains("visible") || p.value("visible").toBool() == false)
+    QSet<DrawingItemBase *> hitItems;
+    foreach (DrawingItemBase *item, items_) {
+        if (item->property("visible", false).toBool() == false)
             continue;
-        if (item->hit(pos, selItems_.contains(item)))
+        if (Editing(item)->hit(pos, selItems_.contains(item)))
             hitItems.insert(item);
     }
     return hitItems;
@@ -819,8 +836,8 @@ void EditItemManager::completeEditing()
     }
 }
 
-void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
-                                   QSet<EditItemBase *> removedItems,
+void EditItemManager::pushCommands(QSet<DrawingItemBase *> addedItems,
+                                   QSet<DrawingItemBase *> removedItems,
                                    QList<QUndoCommand *> undoCommands)
 {
     const bool addedOrRemovedItems = (!addedItems.empty()) || (!removedItems.empty());
@@ -843,15 +860,15 @@ void EditItemManager::pushCommands(QSet<EditItemBase *> addedItems,
     repaintNeeded_ = true; // ###
 }
 
-void EditItemManager::selectItem(EditItemBase *item)
+void EditItemManager::selectItem(DrawingItemBase *item)
 {
-  selItems_.insert(item);
+  selItems_.insert(Drawing(item));
   emit selectionChanged();
 }
 
-void EditItemManager::deselectItem(EditItemBase *item)
+void EditItemManager::deselectItem(DrawingItemBase *item)
 {
-  selItems_.remove(item);
+  selItems_.remove(Drawing(item));
   emit selectionChanged();
 }
 
@@ -875,30 +892,56 @@ void EditItemManager::editItems()
     editItemProperties(getSelectedItems());
 }
 
-void EditItemManager::loadItemsFromFile()
+DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+  DrawingItemBase *item = 0;
+  *error = QString();
+  if (vmap.value("type").toString().endsWith("WeatherArea")) {
+    DrawingItemBase *area = new EditItem_WeatherArea::WeatherArea();
+    item = area;
+  } else {
+    *error = QString("unsupported item type: %1, expected %2")
+        .arg(vmap.value("type").toString()).arg("WeatherArea");
+  }
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(item, item->getLatLonPoints());
+  }
+  return item;
+}
+
+void EditItemManager::loadItems()
 {
     // open file and read content
     const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC messages (*.kml)"));
     if (fileName.isNull())
         return; // operation cancelled
+
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(0, "Error", QString("failed to open file %1 for reading").arg(fileName));
+        QMessageBox::warning(0, tr("Diana - Open File Error"), tr("Failed to open file %1 for reading.").arg(fileName));
         return;
     }
+
     QByteArray data = file.readAll();
     file.close();
 
     QString error;
-    const QList<EditItem_WeatherArea::WeatherArea *> areas = EditItem_WeatherArea::WeatherArea::createFromKML(data, fileName, &error);
+    QList<EditItem_WeatherArea::WeatherArea *> areas;
+    areas = DrawingItem_WeatherArea::createFromKML<EditItem_WeatherArea::WeatherArea>(data, fileName, &error);
+
     if (!areas.isEmpty()) {
         foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
-            setLatLonPoints(area, area->getLatLonPoints());
-            addItem(area, false);
+            // Convert the item's latitude and longitude values into screen coordinates.
+            setFromLatLonPoints(area, area->getLatLonPoints());
+            addItem(Drawing(area), false);
         }
     } else {
-        QMessageBox::warning(
-            0, "Error", QString("failed to create areas from file %1: %2")
+        QMessageBox::warning(0, tr("Diana - Open File Error"),
+            tr("Failed to create areas from file %1: %2.")
             .arg(fileName).arg(!error.isEmpty() ? error : "<error msg not set>"));
     }
 
@@ -923,7 +966,7 @@ void EditItemManager::updateActions()
 
 // Clipboard operations
 
-void EditItemManager::copyItems(const QSet<EditItemBase *> &items)
+void EditItemManager::copyItems(const QSet<DrawingItemBase *> &items)
 {
   QByteArray bytes;
   QDataStream stream(&bytes, QIODevice::WriteOnly);
@@ -932,9 +975,9 @@ void EditItemManager::copyItems(const QSet<EditItemBase *> &items)
   text += QString("Number of items: %1\n").arg(items.size());
   QVariantList cbItems;
 
-  foreach (EditItemBase *item, items) {
-    cbItems.append(item->clipboardVarMap());
-    text += QString("%1\n").arg(item->clipboardPlainText());
+  foreach (DrawingItemBase *item, items) {
+    cbItems.append(Editing(item)->clipboardVarMap());
+    text += QString("%1\n").arg(Editing(item)->clipboardPlainText());
   }
 
   stream << cbItems;
@@ -954,9 +997,9 @@ void EditItemManager::copySelectedItems()
 
 void EditItemManager::cutSelectedItems()
 {
-  QSet<EditItemBase*> items = getSelectedItems();
+  QSet<DrawingItemBase*> items = getSelectedItems();
   copyItems(items);
-  foreach (EditItemBase* item, items)
+  foreach (DrawingItemBase* item, items)
     removeItem(item);
 
   updateActions();
@@ -975,7 +1018,7 @@ void EditItemManager::pasteItems()
 
     foreach (QVariant cbItem, cbItems) {
       QString error;
-      EditItemBase *item = EditItemBase::createItemFromVarMap(cbItem.toMap(), &error);
+      EditItemBase *item = Editing(createItemFromVarMap(cbItem.toMap(), &error));
       if (item)
         addItem(item, false);
       else
@@ -1035,9 +1078,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         contextMenu.exec(me2.globalPos());
 
     } else {
-      // Send the mouse press to the edit item manager.
-      QSet<EditItemBase *> itemsToCopy; // items to be copied
-      QSet<EditItemBase *> itemsToEdit; // items to be edited
+      QSet<DrawingItemBase *> itemsToCopy; // items to be copied
+      QSet<DrawingItemBase *> itemsToEdit; // items to be edited
       mousePress(&me2, &itemsToCopy, &itemsToEdit);
 
       if (itemsToCopy.size() > 0) {
@@ -1047,32 +1089,35 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       } else if (getSelectedItems().size() == 0 && !hasIncompleteItem()) {
         // Nothing was changed or interacted with, so create a new area and repeat the mouse click.
         EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-        addItem(area, true);
+        addItem(Drawing(area), true);
         mousePress(&me2);
       }
     }
+    event->setAccepted(true);
 
-  } else if (event->type() == QEvent::MouseMove)
+  } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
+    event->setAccepted(false);
+  }
 
-  else if (event->type() == QEvent::MouseButtonRelease)
+  else if (event->type() == QEvent::MouseButtonRelease) {
     mouseRelease(&me2);
+    event->setAccepted(true);
+  }
 
-  else if (event->type() == QEvent::MouseButtonDblClick)
+  else if (event->type() == QEvent::MouseButtonDblClick) {
     mouseDoubleClick(&me2);
+    event->setAccepted(true);
+  }
 
   res.repaint = needsRepaint();
   res.action = canUndo() ? objects_changed : no_action;
-  event->setAccepted(true);
 
   updateActions();
 }
 
 void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
 {
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("EditItemManager::sendKeyboardEvent");
-#endif
   event->accept();
   res.savebackground= true;
   res.background= false;
@@ -1088,7 +1133,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
     else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       editItems();
     else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      loadItemsFromFile();
+      loadItems();
     else
       event->ignore();
   }
@@ -1110,7 +1155,7 @@ EditItemCommand::EditItemCommand(const QString &text, QUndoCommand *parent)
 {}
 
 AddOrRemoveItemsCommand::AddOrRemoveItemsCommand(
-    const QSet<EditItemBase *> &addedItems, const QSet<EditItemBase *> &removedItems)
+    const QSet<DrawingItemBase *> &addedItems, const QSet<DrawingItemBase *> &removedItems)
     : EditItemCommand(undoCommandText(addedItems.size(), removedItems.size(), 0))
     , addedItems_(addedItems)
     , removedItems_(removedItems)
@@ -1136,14 +1181,44 @@ SetGeometryCommand::SetGeometryCommand(
 {
     oldLatLonPoints_ = EditItemManager::instance()->PhysToGeo(oldGeometry);
     newLatLonPoints_ = EditItemManager::instance()->PhysToGeo(newGeometry);
+    setText(EditItemManager::tr("Item moved"));
+}
+
+EditItemBase *SetGeometryCommand::item() const
+{
+    return item_;
+}
+
+QList<QPointF> SetGeometryCommand::newLatLonPoints() const
+{
+    return newLatLonPoints_;
 }
 
 void SetGeometryCommand::undo()
 {
-    item_->setLatLonPoints(oldLatLonPoints_);
+    Drawing(item_)->setLatLonPoints(oldLatLonPoints_);
 }
 
 void SetGeometryCommand::redo()
 {
-    item_->setLatLonPoints(newLatLonPoints_);
+    Drawing(item_)->setLatLonPoints(newLatLonPoints_);
+}
+
+int SetGeometryCommand::id() const
+{
+    return 0x53657447;  // "SetG"
+}
+
+bool SetGeometryCommand::mergeWith(const QUndoCommand *command)
+{
+    if (command->id() != id())
+        return false;
+
+    const SetGeometryCommand *setgeo = static_cast<const SetGeometryCommand *>(command);
+
+    if (setgeo->item() != item_)
+        return false;
+
+    newLatLonPoints_ = setgeo->newLatLonPoints();
+    return true;
 }

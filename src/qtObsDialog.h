@@ -65,7 +65,7 @@ public:
   std::vector<std::string> getOKString();
   ///insert command strings
   void putOKString(const std::vector<std::string>& vstr);
-  ///return short name of current commonad
+  ///return short name of current command
   std::string getShortname();
   ///change plottype
   bool setPlottype(const std::string& name, bool on);

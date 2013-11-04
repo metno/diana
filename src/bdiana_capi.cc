@@ -58,6 +58,7 @@
 
 #include <diAnnotationPlot.h>
 #include <diController.h>
+#include <diDrawingManager.h>
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
@@ -1582,6 +1583,7 @@ static bool MAKE_CONTROLLER()
     METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " << setupfile);
     return false;
   }
+  main_controller->addManager("DRAWING", DrawingManager::instance());
   return true;
 }
 

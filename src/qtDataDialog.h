@@ -47,14 +47,19 @@ public:
   virtual ~DataDialog();
 
   virtual QAction *action() const;
+  /// Returns the name of the data source that the dialog displays. This should
+  /// be the same as the name used by the corresponding manager.
   virtual std::string name() const = 0;
 
   /// Update the dialog after re-reading the setup file.
   virtual void updateDialog() = 0;
-  /// Return a vector of command strings.
+  /// Returns the vector of command strings in use.
   virtual std::vector<std::string> getOKString() = 0;
   /// Set new command strings, representing them in the dialog.
   virtual void putOKString(const std::vector<std::string>& vstr) = 0;
+
+public slots:
+  virtual void updateTimes() = 0;
 
 signals:
   void emitTimes(const std::string &, const std::vector<miutil::miTime> &);
@@ -64,8 +69,16 @@ signals:
   void showsource(const std::string, const std::string="");
 
 protected:
+  virtual void closeEvent(QCloseEvent *event);
+  QLayout *createStandardButtons();
+
   Controller *m_ctrl;
   QAction *m_action;
+  std::string helpFileName;
+
+private slots:
+  void applyhideClicked();
+  void helpClicked();
 };
 
 #endif

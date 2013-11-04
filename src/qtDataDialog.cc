@@ -29,7 +29,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <QLayout>
+#include <QPushButton>
+
 #include "qtDataDialog.h"
+#include "qtUtility.h"
 
 DataDialog::DataDialog(QWidget *parent, Controller *ctrl)
   : QDialog(parent), m_ctrl(ctrl)
@@ -43,4 +47,52 @@ DataDialog::~DataDialog()
 QAction *DataDialog::action() const
 {
   return m_action;
+}
+
+void DataDialog::closeEvent(QCloseEvent *event)
+{
+  emit hideData();
+}
+
+QLayout *DataDialog::createStandardButtons()
+{
+  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
+  QPushButton *refreshButton = NormalPushButton(tr("Refresh"), this);
+  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
+  QPushButton *applyhideButton = NormalPushButton(tr("Apply + Hide"), this);
+  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+  applyButton->setDefault(true);
+
+  connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
+  connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
+  connect(refreshButton, SIGNAL(clicked()), SLOT(getTimes()));
+  connect(applyhideButton, SIGNAL(clicked()), SLOT(applyhideClicked()));
+  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
+
+  QHBoxLayout* helplayout = new QHBoxLayout();
+  helplayout->addWidget(helpButton);
+  helplayout->addWidget(refreshButton);
+
+  QHBoxLayout* applylayout = new QHBoxLayout();
+  applylayout->addWidget(hideButton);
+  applylayout->addWidget(applyhideButton);
+  applylayout->addWidget(applyButton);
+
+  QVBoxLayout* vlayout = new QVBoxLayout();
+  vlayout->setSpacing(1);
+  vlayout->addLayout(helplayout);
+  vlayout->addLayout(applylayout);
+
+  return vlayout;
+}
+
+void DataDialog::applyhideClicked()
+{
+  emit applyData();
+  emit hideData();
+}
+
+void DataDialog::helpClicked()
+{
+  emit showsource(helpFileName);
 }

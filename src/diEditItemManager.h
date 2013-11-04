@@ -33,7 +33,6 @@
 #define EDITITEMMANAGER_H
 
 #include <QDialog>
-#include <QGridLayout>
 #include <QObject>
 #include <QPointF>
 #include <QSet>
@@ -86,7 +85,7 @@ private:
   VarMapEditor();
 
   static VarMapEditor *instance_;
-  QGridLayout *glayout_;
+  QWidget *formWidget_;
 };
 
 class EditItemManager : public DrawingManager
@@ -103,8 +102,9 @@ public:
 
     // Registers a new item with the manager.
     // \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
+    void addItem(DrawingItemBase *item, bool incomplete = false);
     void addItem(EditItemBase *item, bool incomplete = false);
-    void removeItem(EditItemBase *item);
+    void removeItem(DrawingItemBase *item);
 
     // Returns the undo stack.
     QUndoStack *undoStack();
@@ -114,20 +114,21 @@ public:
     bool hasIncompleteItem() const;
     bool needsRepaint() const;
 
-    QSet<EditItemBase *> getItems() const;
-    QSet<EditItemBase *> getSelectedItems() const;
-    QSet<EditItemBase *> findHitItems(const QPointF &) const;
+    QSet<DrawingItemBase *> getSelectedItems() const;
+    QSet<DrawingItemBase *> findHitItems(const QPointF &) const;
 
+    bool changeProjection(const Area& newArea);
     void plot(bool under, bool over);
-    void storeItems(const QSet<EditItemBase *> &);
-    void retrieveItems(const QSet<EditItemBase *> &);
+    void storeItems(const QSet<DrawingItemBase *> &);
+    void retrieveItems(const QSet<DrawingItemBase *> &);
 
     static EditItemManager *instance();
+    virtual bool isEnabled() const;
 
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
     void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
-    void editItemProperties(const QSet<EditItemBase *> &);
+    void editItemProperties(const QSet<DrawingItemBase *> &);
 
     QHash<Action, QAction*> actions();
     QUndoView *getUndoView();
@@ -137,20 +138,20 @@ public slots:
     void completeEditing();
     void copySelectedItems();
     void cutSelectedItems();
-    void deselectItem(EditItemBase *);
+    void deselectItem(DrawingItemBase *);
     void editItems();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
-    void loadItemsFromFile();
+    void loadItems();
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
-    void mousePress(QMouseEvent *, QSet<EditItemBase *> * = 0, QSet<EditItemBase *> * = 0);
+    void mousePress(QMouseEvent *, QSet<DrawingItemBase *> * = 0, QSet<DrawingItemBase *> * = 0);
     void mouseRelease(QMouseEvent *);
     void pasteItems();
     void redo();
     void repaint();
     void reset();
-    void selectItem(EditItemBase *);
+    void selectItem(DrawingItemBase *);
     void undo();
     void updateActions();
 
@@ -161,14 +162,21 @@ signals:
     void canUndoChanged(bool);
     void canRedoChanged(bool);
     void incompleteEditing(bool);
-    void itemAdded(EditItemBase *);
-    void itemChanged(EditItemBase *);
-    void itemRemoved(EditItemBase *);
+    void itemAdded(DrawingItemBase *);
+    void itemChanged(DrawingItemBase *);
+    void itemRemoved(DrawingItemBase *);
     void timesUpdated();
 
+protected:
+    virtual void addItem_(DrawingItemBase *);
+    virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &, QString *);
+    virtual void removeItem_(DrawingItemBase *item);
+
+private slots:
+    void initNewItem(DrawingItemBase *item);
+
 private:
-    QSet<EditItemBase *> selItems_;
-    QSet<EditItemBase *> copiedItems_;
+    QSet<DrawingItemBase *> selItems_;
     EditItemBase *hoverItem_;
     EditItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
     bool repaintNeeded_;
@@ -184,20 +192,18 @@ private:
     QAction* undoAction;
     QAction* redoAction;
 
-    void addItem_(EditItemBase *);
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
     void incompleteMouseMove(QMouseEvent *);
     void incompleteMouseDoubleClick(QMouseEvent *);
     void incompleteKeyPress(QKeyEvent *);
     void incompleteKeyRelease(QKeyEvent *);
-    void pushCommands(QSet<EditItemBase *> addedItems,
-                      QSet<EditItemBase *> removedItems,
+    void pushCommands(QSet<DrawingItemBase *> addedItems,
+                      QSet<DrawingItemBase *> removedItems,
                       QList<QUndoCommand *> undoCommands);
-    void removeItem_(EditItemBase *item);
 
     // Clipboard operations
-    void copyItems(const QSet<EditItemBase *> &);
+    void copyItems(const QSet<DrawingItemBase *> &);
 
     static EditItemManager *self;   // singleton instance pointer
 };
@@ -213,12 +219,12 @@ public:
 class AddOrRemoveItemsCommand : public EditItemCommand
 {
 public:
-    AddOrRemoveItemsCommand(const QSet<EditItemBase *> &, const QSet<EditItemBase *> &);
+    AddOrRemoveItemsCommand(const QSet<DrawingItemBase *> &, const QSet<DrawingItemBase *> &);
     virtual ~AddOrRemoveItemsCommand() {}
 
 private:
-    QSet<EditItemBase *> addedItems_;
-    QSet<EditItemBase *> removedItems_;
+    QSet<DrawingItemBase *> addedItems_;
+    QSet<DrawingItemBase *> removedItems_;
     virtual void undo();
     virtual void redo();
 };
@@ -228,6 +234,11 @@ class SetGeometryCommand : public EditItemCommand
 public:
     SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
     virtual ~SetGeometryCommand() {}
+    virtual int id() const;
+    virtual bool mergeWith(const QUndoCommand *command);
+
+    EditItemBase *item() const;
+    QList<QPointF> newLatLonPoints() const;
 
 private:
     EditItemBase *item_;

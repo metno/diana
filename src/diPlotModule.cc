@@ -151,8 +151,9 @@ void PlotModule::preparePlots(const vector<string>& vpi)
         labelpi.push_back(vpi[i]);
       else if (type == "EDITFIELD")
         editfieldpi.push_back(vpi[i]);
-      else if (managers.find(type) != managers.end())
+      else if (managers.find(type) != managers.end()) {
         manager_pi[type].push_back(vpi[i]);
+      }
     }
   }
 
@@ -177,8 +178,10 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   // Send the commands to the other managers.
   map<std::string, vector<std::string> >::iterator it;
   for (it = manager_pi.begin(); it != manager_pi.end(); ++it) {
-    Manager *manager = managers.at(it->first);
-    manager->processInput(it->second);
+    for (unsigned int i = 0; i < it->second.size(); ++i) {
+      Manager *manager = managers.at(it->first);
+      manager->processInput(it->second);
+    }
   }
 
 #ifdef DEBUGPRINT
