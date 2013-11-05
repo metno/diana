@@ -11,6 +11,7 @@ do-configure: configure-stamp
 configure-stamp:
 	./autogen.sh
 	./configure --enable-proddb \
+	    --disable-silent-rules \
 	    --enable-obs-bufr --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)

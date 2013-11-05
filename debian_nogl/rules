@@ -15,6 +15,7 @@ export DH_VERBOSE=1
 do-configure:
 	./autogen.sh
 	./configure $(confflags) \
+	    --disable-silent-rules \
 	    --prefix=/usr \
 	    --enable-obs-bufr \
 	    --enable-video-export \
