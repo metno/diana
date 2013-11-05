@@ -9,7 +9,8 @@ Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
  metlibs-pudatatypes-dev, metlibs-robs-dev,
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
  libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
- libavformat-dev
+ libavformat-dev,
+ cmake, libgtest-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 

@@ -1,5 +1,6 @@
 # $Id$
 
+SUBDIRS = . test/gtest test
 
 if WITH_BATCH_ONLY
 bin_PROGRAMS = bdiana
@@ -920,33 +921,6 @@ diBuild.h:
 	fi
 
 CLEANFILES += diBuild.h
-
-check_PROGRAMS = \
-       test-diOrderBook \
-       test-diPlotOptions
-
-TESTS = \
-       test-diPlotOptions
-
-test_diOrderBook_qt_sources = \
-	diOrderBook.cc \
-	diOrderClient.cc \
-	diOrderListener.cc \
-	diOrderQueue.cc \
-	diWorkOrder.cc
-test_diOrderBook_SOURCES = \
-	$(test_diOrderBook_qt_sources) \
-	$(test_diOrderBook_qt_sources:.cc=.moc.cc) \
-	test-diOrderBook.cc
-test_diOrderBook_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
-test_diOrderBook_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
-test_diOrderBook_LDADD = $(QT4_LIBS) $(MILOGGER_LIBS)
-
-test_diPlotOptions_SOURCES = \
-       test-diPlotOptions.cc
-test_diPlotOptions_CPPFLAGS = $(common_cppflags) $(MILOGGER_CPPFLAGS)
-test_diPlotOptions_LDFLAGS = $(common_ldflags) $(MILOGGER_LDFLAGS)
-test_diPlotOptions_LDADD = $(common_ldadd) $(MILOGGER_LIBS)
 
 if WITH_EMBEDDED
 # A shared library target for language binding experiments

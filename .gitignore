@@ -38,6 +38,8 @@
 /src/.libs/
 /src/Makefile
 /src/Makefile.in
+/src/test/Makefile.in
+/src/test/gtest/Makefile.in
 /src/*.moc.cc
 /src/*.moc.o
 /src/*/*.moc.cc

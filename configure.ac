@@ -230,6 +230,9 @@ AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_C_LIBRARY([EMOS], [emos], [], [pbopen])
 ])
 
+AC_PATH_PROG(CMAKE, cmake, false)
+GMOCK_DIST_CHECK([src/test/gtest])
+
 #
 # Output
 #
@@ -241,7 +244,7 @@ AC_CONFIG_FILES([etc/diana/diana.setup])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([src/Makefile src/test/Makefile src/test/gtest/Makefile])
 AC_CONFIG_FILES([perl/Makefile perl/Metno-Bdiana/lib/Metno/Bdiana.pm])
 AC_CONFIG_FILES([share/applications/metno-diana-versioned.desktop])
 AC_OUTPUT

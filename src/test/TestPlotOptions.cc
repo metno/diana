@@ -34,11 +34,12 @@
 #include <diPlotOptions.h>
 
 #include <boost/range/end.hpp>
-#include <algorithm>
-#include <iostream>
-#include <iterator>
+//#include <algorithm>
+//#include <iterator>
 #include <vector>
 #include <cmath>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 
@@ -56,35 +57,29 @@ static bool test_autoExpandFloatVector(const string& text, const vector<float>& 
 {
   const vector<float> actual = PlotOptions::autoExpandFloatVector(text);
   if (not equal_vectors(actual, expected)) {
-    cout << "error with '" << text << "', unexpected result ";
-    copy(actual.begin(), actual.end(), ostream_iterator<float>(cout, ","));
-    cout << " size=" << actual.size() << endl;
+    //cout << "error with '" << text << "', unexpected result ";
+    //copy(actual.begin(), actual.end(), ostream_iterator<float>(cout, ","));
+    //cout << " size=" << actual.size() << endl;
     return false;
   }
   return true;
 }
 
-int main(int argc, char *argv[])
+TEST(TestPlotOptions, AutoExpand)
 {
   const float expected1_f[] = { 0.1, 0.2, 0.5, 1, 2, 4, 6, 10, 15, 20, 25, 30, 35, 40 };
-  if (not test_autoExpandFloatVector("0.1,0.2,0.5,1,2,4,6,10,15,...40",
-          vector<float>(expected1_f, boost::end(expected1_f))))
-    return 1;
+  ASSERT_TRUE(test_autoExpandFloatVector("0.1,0.2,0.5,1,2,4,6,10,15,...40",
+          vector<float>(expected1_f, boost::end(expected1_f))));
 
   const float expected2_f[] = { 0.01, 0.02, 0.04, 0.06, 0.10, 0.15, 0.20, 0.25, 0.3, 0.4, 0.5, 1, 2, 5 };
-  if (not test_autoExpandFloatVector("0.01,0.02,0.04,0.06,0.10,0.15,0.20,0.25,0.3,0.4,0.5,1.,2.,5.",
-          vector<float>(expected2_f, boost::end(expected2_f))))
-    return 1;
+  ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.02,0.04,0.06,0.10,0.15,0.20,0.25,0.3,0.4,0.5,1.,2.,5.",
+          vector<float>(expected2_f, boost::end(expected2_f))));
 
   const float expected3_f[] = { 0.01, 0.03 };
-  if (not test_autoExpandFloatVector("0.01,0.03",
-          vector<float>(expected3_f, boost::end(expected3_f))))
-    return 1;
+  ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03",
+          vector<float>(expected3_f, boost::end(expected3_f))));
 
   const float expected4_f[] = { 0.01, 0.03, 0.05, 0.07 };
-  if (not test_autoExpandFloatVector("0.01,0.03,...0.07",
-          vector<float>(expected4_f, boost::end(expected4_f))))
-    return 1;
-
-  return 0;
+  ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03,...0.07",
+          vector<float>(expected4_f, boost::end(expected4_f))));
 }
