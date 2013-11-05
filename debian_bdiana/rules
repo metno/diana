@@ -23,6 +23,7 @@ confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread"
 do-configure:
 	./autogen.sh
 	./configure $(confflags) \
+	    --disable-silent-rules \
 	    --prefix=/usr \
 	    --enable-obs-bufr \
 	    --disable-proddb \
