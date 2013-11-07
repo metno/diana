@@ -65,7 +65,7 @@ QLayout *DataDialog::createStandardButtons()
 
   connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
-  connect(refreshButton, SIGNAL(clicked()), SLOT(getTimes()));
+  connect(refreshButton, SIGNAL(clicked()), SLOT(updateTimes()));
   connect(applyhideButton, SIGNAL(clicked()), SLOT(applyhideClicked()));
   connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
 
