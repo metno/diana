@@ -69,6 +69,7 @@
 
 #define MILOGGER_CATEGORY "diana.EditDialog"
 #include <miLogger/miLogging.h>
+#include <puTools/miStringFunctions.h>
 
 using namespace std;
 
