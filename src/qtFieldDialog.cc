@@ -1694,7 +1694,7 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.indexM = indexM;
       sf.modelName = vfgi[indexFGR].modelName;
       sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
-      sf.levelOptions = vfgi[indexFGR].levelNames;
+      sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
       sf.idnumOptions = vfgi[indexFGR].idnumNames;
       if ( refTimeComboBox->count() > 1 ) {
         sf.refTime = vfgi[indexFGR].refTime;
@@ -1709,28 +1709,32 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.plotDefinition = fieldGroupCheckBox->isChecked();
       sf.minus = false;
 
-      if (!vfgi[indexFGR].defaultLevel.empty()) {
-        n = vfgi[indexFGR].levelNames.size();
-        i = 0;
-        while (i < n && vfgi[indexFGR].levelNames[i] != lastLevel)
-          i++;
-        if (i < n)
-          sf.level = lastLevel;
-        else
+      n = sf.levelOptions.size();
+      i = 0;
+      while (i < n && sf.levelOptions[i] != lastLevel)
+        i++;
+      if (i < n) {
+        sf.level = lastLevel;
+      } else {
+        if (!vfgi[indexFGR].defaultLevel.empty()) {
           sf.level = vfgi[indexFGR].defaultLevel;
+        } else if (sf.levelOptions.size() ) {
+          sf.level = sf.levelOptions[sf.levelOptions.size()-1];
+        }
       }
-
-      if (!vfgi[indexFGR].defaultIdnum.empty()) {
-        n = vfgi[indexFGR].idnumNames.size();
-        i = 0;
-        while (i < n && vfgi[indexFGR].idnumNames[i] != lastIdnum)
-          i++;
-        if (i < n)
-          sf.idnum = lastIdnum;
-        else
+      n = vfgi[indexFGR].idnumNames.size();
+      i = 0;
+      while (i < n && vfgi[indexFGR].idnumNames[i] != lastIdnum)
+        i++;
+      if (i < n) {
+        sf.idnum = lastIdnum;
+      } else {
+        if (!vfgi[indexFGR].defaultIdnum.empty()) {
           sf.idnum = vfgi[indexFGR].defaultIdnum;
+        } else if (sf.idnumOptions.size() ) {
+          sf.idnum = sf.idnumOptions[0];
+        }
       }
-
       sf.hourOffset = 0;
       sf.hourDiff = 0;
 
