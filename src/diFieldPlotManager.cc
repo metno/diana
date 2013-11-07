@@ -506,6 +506,7 @@ vector<miTime> FieldPlotManager::getFieldTime(
       vector<FieldRequest> fr = getParamNames(request[i].paramName,request[i]);
       if ( fr.size()>0 ) {
         request[i].paramName = fr[0].paramName;
+        request[i].standard_name = fr[0].standard_name;
       }
     }
   }
