@@ -1,4 +1,4 @@
 #!/bin/sh
 
 set -e
-exec update-alternatives --remove diana@METNO_SUFFIX@ /usr/bin/diana-@METNO_VERSION@
+exec update-alternatives --remove diana.bin@METNO_SUFFIX@ /usr/bin/diana.bin-@METNO_VERSION@

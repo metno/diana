@@ -1,7 +1,8 @@
 diana (3.34.0~a1-1) unstable; urgency=low
 
-  * Vertical crossections: New verion TEST
+  * Vertical crossections: New version TEST
   * Fields Using vertical type, not name of vertical axis, to sort fields
+  * Using metlibs 4.12.2
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 07 Nov 2013 13:46:39 +0100
 

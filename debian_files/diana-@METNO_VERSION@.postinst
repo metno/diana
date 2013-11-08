@@ -1,5 +1,4 @@
 #!/bin/sh
 
 set -e
-exec update-alternatives --install /usr/bin/diana@METNO_SUFFIX@ diana@METNO_SUFFIX@ /usr/bin/diana-@METNO_VERSION@ @PVERSION_NUMBER_MAJOR_MINOR@ \
-    --slave /usr/bin/diana.bin@METNO_SUFFIX@ diana.bin@METNO_SUFFIX@ /usr/bin/diana.bin-@METNO_VERSION@
+exec update-alternatives --install /usr/bin/diana.bin@METNO_SUFFIX@ diana.bin@METNO_SUFFIX@ /usr/bin/diana.bin-@METNO_VERSION@ @PVERSION_NUMBER_MAJOR_MINOR@
