@@ -3,6 +3,7 @@
 #define VCROSS_DIVCROSSCONTOUR_HH 1
 
 #include "PolyContouring.h"
+#include "diPlotOptions.h"
 
 #include <diField/diVcrossData.h>
 
@@ -66,11 +67,12 @@ private:
 
 class VCContouring : public contouring::PolyContouring {
 public:
-  VCContouring(contouring::Field* field, FontManager* fm);
+  VCContouring(contouring::Field* field, FontManager* fm, const PlotOptions& poptions);
   ~VCContouring();
   virtual void emitLine(int li, contouring::Polyline& points, bool close);
 private:
   FontManager* mFM;
+  const PlotOptions& mPlotOptions;
 };
 
 } // namespace VcrossPlotDetail

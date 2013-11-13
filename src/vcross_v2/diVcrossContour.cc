@@ -115,9 +115,10 @@ int VCContourField::level_value(float value) const
 
 // ########################################################################
 
-VCContouring::VCContouring(contouring::Field* field, FontManager* fm)
+VCContouring::VCContouring(contouring::Field* field, FontManager* fm, const PlotOptions& poptions)
   : PolyContouring(field)
   , mFM(fm)
+  , mPlotOptions(poptions)
 {
   glShadeModel(GL_FLAT);
   glDisable(GL_LINE_STIPPLE);
@@ -129,18 +130,16 @@ VCContouring::~VCContouring()
 
 void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
 {
-  { // set some colour
-    float fraction = 0.5;
-    const int MAXLEVEL = 50;
-    if (li >= 0 and li < MAXLEVEL) { // FIXME
-      fraction = li / float(MAXLEVEL);
-    }
-    unsigned char rgb[3] = { (unsigned char)(0xFF*fraction), 0, (unsigned char)(0x80*(1-fraction)) };
-    glColor3ubv(rgb);
-  }
+  const bool highlight = ((li % 5) == 0);
+
+  glColor3ubv(mPlotOptions.linecolour.RGB());
+  int lw = mPlotOptions.linewidth;
+  if (highlight)
+    lw += 1;
+
   VCContourField* vcf = static_cast<VCContourField*>(mField);;
   { // draw line
-    glLineWidth((li % 5) == 0 ? 2 : 1);
+    glLineWidth(lw);
     glBegin(GL_LINE_STRIP);
     BOOST_FOREACH(const contouring::Point& p, points) {
       glVertex2f(p.x, p.y);
@@ -149,7 +148,7 @@ void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
       glVertex2f(points.front().x, points.front().y);
     glEnd();
   }
-  if ((li % 5) == 0) { // draw label
+  if (highlight) { // draw label
     const int idx = int(0.1*(1 + (li % 5))) * points.size();
     contouring::Polyline::const_iterator it = points.begin();
     std::advance(it, idx);

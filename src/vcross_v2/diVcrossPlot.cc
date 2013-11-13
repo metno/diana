@@ -1531,7 +1531,7 @@ void VcrossPlot::plotDataContour(const Plot& plot)
 
   VcrossPlotDetail::VCContourField con_field(plot.p0, mAxisX, mAxisY, mCrossectionDistances, plot.zax);
   con_field.setLevels(plot.poptions.lineinterval);
-  VcrossPlotDetail::VCContouring con(&con_field, fp.get());
+  VcrossPlotDetail::VCContouring con(&con_field, fp.get(), plot.poptions);
   con.makeLines();
 }
 
