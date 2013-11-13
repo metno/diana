@@ -196,8 +196,7 @@ void VcrossWidget::paintGL()
 //  Set up the OpenGL view port, matrix mode, etc.
 void VcrossWidget::resizeGL(int w, int h)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("w=" << w << " h=" << h);
+  METLIBS_LOG_SCOPE("w=" << w << " h=" << h);
 
   vcrossm->setPlotWindow(w,h);
 
@@ -340,8 +339,7 @@ void VcrossWidget::mouseReleaseEvent(QMouseEvent* me)
 
 void VcrossWidget::enableTimeGraph(bool on)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("on=" << on);
+  METLIBS_LOG_SCOPE("on=" << on);
 
   timeGraph= false;
   startTimeGraph= on;

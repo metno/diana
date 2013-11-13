@@ -551,8 +551,7 @@ void VcrossWindow::setupClicked(bool on){
 void VcrossWindow::timeGraphClicked(bool on)
 {
   // called when the timeGraph button is clicked
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("on=" << on);
+  METLIBS_LOG_SCOPE("on=" << on);
 
   if (on && vcrossm->timeGraphOK()) {
     vcrossw->enableTimeGraph(true);
@@ -788,8 +787,7 @@ void VcrossWindow::mainWindowTimeChanged(const miutil::miTime& t)
 
 void VcrossWindow::startUp(const miutil::miTime& t)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("t= " << t);
+  METLIBS_LOG_SCOPE("t= " << t);
 
   active = true;
   //do something first time we start Vertical crossections
@@ -811,8 +809,7 @@ void VcrossWindow::startUp(const miutil::miTime& t)
  */
 void VcrossWindow::mapPos(float lat, float lon)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+  METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
 
   if(vcrossm->setCrossection(lat,lon)) {
     // If the return is true (field) update the crossection box and

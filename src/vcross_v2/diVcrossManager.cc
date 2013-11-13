@@ -142,8 +142,7 @@ void VcrossManager::setCrossection(const std::string& crossection)
 
 bool VcrossManager::setCrossection(float lat, float lon)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+  METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
 
   if (vcfields.empty())
     return false;
@@ -196,8 +195,7 @@ void VcrossManager::setTime(const miutil::miTime& time)
 
 VcrossManager::vctime_t VcrossManager::setTime(int step)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(step));
+  METLIBS_LOG_SCOPE(LOGVAL(step));
 
   if (timeList.empty())
     return miutil::miTime::nowTime();
@@ -211,8 +209,7 @@ VcrossManager::vctime_t VcrossManager::setTime(int step)
 
 void VcrossManager::setTimeToBestMatch(const vctime_t& time)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(time));
+  METLIBS_LOG_SCOPE(LOGVAL(time));
   
   if (timeList.empty()) {
     plotTime = -1;
@@ -626,8 +623,7 @@ std::map<std::string,std::string> VcrossManager::getAllFieldOptions()
 
 std::vector<std::string> VcrossManager::getFieldNames(const std::string& model)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(model));
+  METLIBS_LOG_SCOPE(LOGVAL(model));
 
   // make sure that we searched for a source for this model
   getVcrossSource(model);

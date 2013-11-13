@@ -78,8 +78,7 @@ VcrossFile::~VcrossFile()
 
 void VcrossFile::cleanup()
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(fileName));
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
 
   delete[] xposmap;
   delete[] yposmap;
@@ -95,8 +94,7 @@ void VcrossFile::cleanup()
 
 bool VcrossFile::update()
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(fileName));
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
 
   bool ok= true;
 
@@ -123,8 +121,7 @@ bool VcrossFile::update()
 
 bool VcrossFile::readFileHeader()
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(fileName));
+  METLIBS_LOG_SCOPE(LOGVAL(fileName));
 
   // reading and storing information, not data
 

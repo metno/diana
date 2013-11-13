@@ -210,8 +210,7 @@ bool VcrossSetup::parseModels()
 
 std::string VcrossSetup::parseOneModel(const std::string& mdlLine)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(mdlLine));
+  METLIBS_LOG_SCOPE(LOGVAL(mdlLine));
 
   const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(mdlLine, true);
   if (kvs.size() !=2 or kvs[0].key != "m" or (kvs[1].key != "t" and kvs[1].key != "f"))
@@ -262,8 +261,7 @@ bool VcrossSetup::parseParameters()
 
 std::string VcrossSetup::parseOneParameter(const KeyValue& kv)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(kv.key) << LOGVAL(kv.value));
+  METLIBS_LOG_SCOPE(LOGVAL(kv.key) << LOGVAL(kv.value));
 
   std::string parname = kv.key;
   string_s models;
@@ -318,8 +316,7 @@ bool VcrossSetup::parseComputations()
 
 std::string VcrossSetup::parseOneComputation(const KeyValue& kv)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(kv.key) << LOGVAL(kv.value));
+  METLIBS_LOG_SCOPE(LOGVAL(kv.key) << LOGVAL(kv.value));
 
   if (kv.value.empty())
     return "Empty computation definition";
@@ -389,8 +386,7 @@ bool VcrossSetup::parsePlots()
 
 std::string VcrossSetup::parseOnePlot(const std::string& plotLine)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(plotLine));
+  METLIBS_LOG_SCOPE(LOGVAL(plotLine));
 
   vcPlot vcp;
 
@@ -469,8 +465,7 @@ std::string VcrossSetup::parseOnePlot(const std::string& plotLine)
 
 const VcrossSetup::string_s& VcrossSetup::getPlotParameterNames(const std::string& plotname) const
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(plotname));
+  METLIBS_LOG_SCOPE(LOGVAL(plotname));
 
   const Plots_t::const_iterator p_it = mPlots.find(plotname);
   if (p_it == mPlots.end()) {
@@ -483,8 +478,7 @@ const VcrossSetup::string_s& VcrossSetup::getPlotParameterNames(const std::strin
 
 FileContents VcrossSetup::makeContents(const std::string& model, const string_s& paramIds) const
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(model));
+  METLIBS_LOG_SCOPE(LOGVAL(model));
 
   FileContents fco;
 

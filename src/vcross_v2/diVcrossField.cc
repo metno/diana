@@ -62,8 +62,7 @@ VcrossField::~VcrossField()
 
 void VcrossField::cleanup()
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(modelName()));
+  METLIBS_LOG_SCOPE(LOGVAL(modelName()));
 
   mCrossections.clear();
   startLatitude=stopLatitude=startLongitude=stopLongitude=-9999.0;
@@ -71,8 +70,7 @@ void VcrossField::cleanup()
 
 bool VcrossField::update()
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(modelName()));
+  METLIBS_LOG_SCOPE(LOGVAL(modelName()));
 
   std::vector<VcrossData::Cut> predefinedCrossSections;
   if (not fieldManager->invVCross(modelName(), validTime, forecastHour, params, predefinedCrossSections))
@@ -100,8 +98,7 @@ bool VcrossField::update()
  */
 std::string VcrossField::setLatLon(float lat, float lon)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+  METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
 
   if ((startLatitude>-9999) && (startLongitude>-9999) && (stopLatitude<=-9999) && (stopLongitude<=-9999)) {
     // If start already set, compute the crossection

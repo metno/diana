@@ -1935,8 +1935,7 @@ void VcrossDialog::max1ComboBoxToggled(int index)
 void VcrossDialog::updateFieldOptions(const std::string& name,
     const std::string& value, int valueIndex)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("name= " << name << "  value= " << value);
+  METLIBS_LOG_SCOPE("name= " << name << "  value= " << value);
 
   if (currentFieldOpts.empty()) return;
 
