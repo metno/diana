@@ -6,8 +6,7 @@ Build-Depends: metno-devscripts (>= 0.5.2), autotools-dev, g++,
  metlibs-dimitiff-dev, metlibs-difield-dev, metlibs-gltext-dev,
  metlibs-parameter-dev, metlibs-qutilities-dev, metlibs-pusql-dev,
  metlibs-robs-dev, metlibs-disql-dev,
- libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev,
- cmake, libgtest-dev
+ libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.7.2
 
@@ -15,7 +14,7 @@ Package: diana-@METNO_VERSION@
 Architecture: any
 Depends: diana-@METNO_VERSION@-common,
  ${shlibs:Depends}, ${misc:Depends}
-Conflicts: diana-3.33 (<< 3.33.2), diana-3.32, diana-3.31, diana-3.30
+Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30
 Provides: diana@METNO_SUFFIX@
 Description: Meteorological visualisation tool
  Diana is the core visualisation tool from met.no (Norwegian
