@@ -1,3 +1,9 @@
+diana (3.34.0~a2-1) unstable; urgency=low
+
+  * QuickMenus: Bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 07:00:10 +0100
+
 diana (3.34.0~a1-1) unstable; urgency=low
 
   * Vertical crossections: New version TEST
