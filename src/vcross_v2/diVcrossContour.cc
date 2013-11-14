@@ -133,12 +133,17 @@ void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
   const bool highlight = ((li % 5) == 0);
 
   glColor3ubv(mPlotOptions.linecolour.RGB());
-  int lw = mPlotOptions.linewidth;
-  if (highlight)
-    lw += 1;
 
   VCContourField* vcf = static_cast<VCContourField*>(mField);;
   { // draw line
+    if (mPlotOptions.linetype.stipple) {
+      glEnable(GL_LINE_STIPPLE);
+      glLineStipple(mPlotOptions.linetype.factor, mPlotOptions.linetype.bmap);
+    }
+    
+    int lw = mPlotOptions.linewidth;
+    if (highlight)
+      lw += 1;
     glLineWidth(lw);
     glBegin(GL_LINE_STRIP);
     BOOST_FOREACH(const contouring::Point& p, points) {
@@ -147,6 +152,8 @@ void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
     if (close)
       glVertex2f(points.front().x, points.front().y);
     glEnd();
+    if (mPlotOptions.linetype.stipple)
+      glDisable(GL_LINE_STIPPLE);
   }
   if (highlight) { // draw label
     const int idx = int(0.1*(1 + (li % 5))) * points.size();
