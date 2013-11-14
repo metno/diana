@@ -3230,12 +3230,14 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
     int& indexM, bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
 
-
   std::string modelName;
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
+
+  modelName = model;
+
 
   QApplication::restoreOverrideCursor();
 
@@ -3396,7 +3398,7 @@ std::string FieldDialog::getParamString(int i)
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (!selectedFields[i].idnum.empty()) {
-      ostr << " ecoord="<< selectedFields[i].extraaxis;
+//      ostr << " ecoord="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     if (selectedFields[i].hourOffset != 0)
@@ -3848,14 +3850,13 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
   int nvfg = vfg.size();
   int indexFGR = 0;
   while (indexFGR < nvfg) {
-    //         cout << "Searching for correct fieldgroup: "<< sf.zaxis<< " : "<<vfg[indexFGR].zaxis;
-    if (sf.zaxis == vfg[indexFGR].zaxis
-        && sf.extraaxis == vfg[indexFGR].extraaxis ) {
-      //&& sf.grid == vfg[indexFGR].grid ) {
+    if (((sf.level.empty() && !vfg[indexFGR].levels[sf.fieldName].size())
+        || sf.zaxis == vfg[indexFGR].zaxis)
+        && sf.idnum.empty() == (vfg[indexFGR].idnumNames.size()==0) ) {
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
-        //                  cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF];
+//                          cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF]<<endl;
         indexF++;
       }
 
@@ -3872,7 +3873,7 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
 
     sf.indexMGR = indexMGR;
     sf.indexM = indexM;
-    sf.levelOptions = vfg[indexFGR].levelNames;
+    sf.levelOptions = vfg[indexFGR].levels[sf.fieldName];
     sf.idnumOptions = vfg[indexFGR].idnumNames;
     sf.minus = false;
     return true;
