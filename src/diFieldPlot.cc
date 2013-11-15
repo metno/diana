@@ -441,13 +441,29 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
 
 bool FieldPlot::getDataAnnotations(vector<string>& anno)
 {
-  //  METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
+    METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
 
   if (fields.size()==0 || !fields[0] || !fields[0]->data)
     return false;
 
   int nanno = anno.size();
   for(int j=0; j<nanno; j++){
+    if (miutil::contains(anno[j], "$referencetime")) {
+      std::string refString = analysisTime.format("%Y%m%d %H");
+      miutil::replace(anno[j],"$referencetime",refString);
+    }
+    if (miutil::contains(anno[j], "$forecasthour")) {
+      if ( fields.size() && fields[0] ) {
+        ostringstream ost;
+        ost <<fields[0]->forecastHour;
+        miutil::replace(anno[j],"$forecasthour",ost.str());
+      }
+    }
+    if (miutil::contains(anno[j], "$model")) {
+      if ( fields.size() && fields[0] ) {
+        miutil::replace(anno[j],"$model",fields[0]->modelName);
+      }
+    }
     if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize>0. && not vectorAnnotationText.empty()) {
       if (miutil::contains(anno[j], "arrow="))
         continue;

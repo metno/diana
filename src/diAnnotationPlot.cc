@@ -106,11 +106,9 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
     }
     if (miutil::contains(es, "$daynor")) {
       miutil::replace(es, "$daynor", "%A");
-      norwegian = true;
     }
     if (miutil::contains(es, "$day")) {
       miutil::replace(es, "$day", "%A");
-      norwegian = true;
     }
     miutil::replace(es, "$hour", "%H");
     miutil::replace(es, "$min", "%M");
@@ -120,19 +118,15 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
   if (miutil::contains(es, "%")) {
     if (miutil::contains(es, "%anor")) {
       miutil::replace(es, "%anor", "%a");
-      norwegian = true;
     }
     if (miutil::contains(es, "%Anor")) {
       miutil::replace(es, "%Anor", "%A");
-      norwegian = true;
     }
     if (miutil::contains(es, "%bnor")) {
       miutil::replace(es, "%bnor", "%b");
-      norwegian = true;
     }
     if (miutil::contains(es, "%Bnor")) {
       miutil::replace(es, "%Bnor", "%B");
-      norwegian = true;
     }
     if (miutil::contains(es, "%aeng")) {
       miutil::replace(es, "%aeng", "%a");
@@ -152,10 +146,9 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
     }
   }
   if ((miutil::contains(es, "%") || miutil::contains(es, "$")) && !time.undef()) {
-    if (norwegian)
-      es = time.format(es, miDate::Norwegian);
-    else
-      es = time.format(es, miDate::English);
+    if (!norwegian)
+      es += " $lg=eng ";
+    es = time.format(es);
   }
   return es;
 }
