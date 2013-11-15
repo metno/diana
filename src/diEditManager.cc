@@ -3207,12 +3207,13 @@ bool EditManager::getAnnotations(vector<string>& anno)
 
 const std::string EditManager::insertTime(const std::string& s, const miTime& time) {
 
-  bool norwegian= true;
+  bool english  = false;
+  bool norwegian= false;
   std::string es= s;
   if (miutil::contains(es, "$")) {
-    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); norwegian= false; }
+    if (miutil::contains(es, "$dayeng")) { miutil::replace(es, "$dayeng","%A"); english= true; }
     if (miutil::contains(es, "$daynor")) { miutil::replace(es, "$daynor","%A"); norwegian= true; }
-    if (miutil::contains(es, "$day"   )) { miutil::replace(es, "$day",   "%A"); norwegian= true; }
+    miutil::replace(es, "$day", "%A");
     miutil::replace(es, "$hour","%H");
     miutil::replace(es, "$min", "%M");
     miutil::replace(es, "$sec", "%S");
@@ -3223,20 +3224,18 @@ const std::string EditManager::insertTime(const std::string& s, const miTime& ti
     if (miutil::contains(es, "%Anor")) { miutil::replace(es, "%Anor","%A"); norwegian= true; }
     if (miutil::contains(es, "%bnor")) { miutil::replace(es, "%bnor","%b"); norwegian= true; }
     if (miutil::contains(es, "%Bnor")) { miutil::replace(es, "%Bnor","%B"); norwegian= true; }
-    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng","%a"); norwegian= false; }
-    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng","%A"); norwegian= false; }
-    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng","%b"); norwegian= false; }
-    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng","%B"); norwegian= false; }
+    if (miutil::contains(es, "%aeng")) { miutil::replace(es, "%aeng","%a"); english= true; }
+    if (miutil::contains(es, "%Aeng")) { miutil::replace(es, "%Aeng","%A"); english= true; }
+    if (miutil::contains(es, "%beng")) { miutil::replace(es, "%beng","%b"); english= true; }
+    if (miutil::contains(es, "%Beng")) { miutil::replace(es, "%Beng","%B"); english= true; }
   }
 
   if ((miutil::contains(es, "%") || miutil::contains(es, "$"))  && !time.undef()) {
     if (norwegian)
-      es= time.format(es,miDate::Norwegian);
-    else
+      es= time.format(es,"no");
+    else if (english)
       es= time.format(es,"en");
   }
-
-  //miDate::English doesn't work due to bug in miTime
 
   return es;
 }
