@@ -213,22 +213,22 @@ std::string VcrossSetup::parseOneModel(const std::string& mdlLine)
   METLIBS_LOG_SCOPE(LOGVAL(mdlLine));
 
   const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(mdlLine, true);
-  if (kvs.size() !=2 or kvs[0].key != "m" or (kvs[1].key != "t" and kvs[1].key != "f"))
+  if (kvs.size() !=2 or kvs[0].key() != "m" or (kvs[1].key() != "t" and kvs[1].key() != "f"))
     return "need exactly m=... and f/t=...";
 
   const miutil::KeyValue& modelKV = kvs[0];
   const miutil::KeyValue& fileKV = kvs[1];
 
   Model m;
-  const std::string& model = modelKV.value;
+  const std::string& model = modelKV.value();
 
-  if (fileKV.key == "f") {
+  if (fileKV.key() == "f") {
     m.type = VCFILE;
-    m.filename = fileKV.value;
-  } else if (fileKV.value == "GribFile")
+    m.filename = fileKV.value();
+  } else if (fileKV.value() == "GribFile")
     m.type = VCFIELD;
   else
-    return "unknown type '" + fileKV.value + "' for model '" + model + "'";
+    return "unknown type '" + fileKV.value() + "' for model '" + model + "'";
 
   mModels.insert(std::make_pair(model, m));
   METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(m.type));
@@ -261,16 +261,16 @@ bool VcrossSetup::parseParameters()
 
 std::string VcrossSetup::parseOneParameter(const KeyValue& kv)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(kv.key) << LOGVAL(kv.value));
+  METLIBS_LOG_SCOPE(LOGVAL(kv.key()) << LOGVAL(kv.value()));
 
-  std::string parname = kv.key;
+  std::string parname = kv.key();
   string_s models;
   {
-    const size_t open = kv.key.find('[');
+    const size_t open = kv.key().find('[');
     if (open != std::string::npos) {
-      if (kv.key.at(kv.key.size()-1) != ']') // cannot be empty if it contains '['
+      if (kv.key().at(kv.key().size()-1) != ']') // cannot be empty if it contains '['
         return "model specification for parameter must end with ']'";
-      VcrossUtil::set_insert(models, miutil::split(kv.key.substr(open+1, kv.key.size()-open-2), ","));
+      VcrossUtil::set_insert(models, miutil::split(kv.key().substr(open+1, kv.key().size()-open-2), ","));
       BOOST_FOREACH(const std::string& m, models) {
         if (m.empty())
           return "empty model name specified for parameter";
@@ -281,11 +281,11 @@ std::string VcrossSetup::parseOneParameter(const KeyValue& kv)
     }
   }
 
-  if (parname.empty() or kv.value.empty())
+  if (parname.empty() or kv.value().empty())
     return "Empty parameter definition";
 
   METLIBS_LOG_DEBUG(LOGVAL(parname));
-  mParameters[parname].addId(kv.value, models);
+  mParameters[parname].addId(kv.value(), models);
   return "";
 }
 
@@ -316,19 +316,19 @@ bool VcrossSetup::parseComputations()
 
 std::string VcrossSetup::parseOneComputation(const KeyValue& kv)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(kv.key) << LOGVAL(kv.value));
+  METLIBS_LOG_SCOPE(LOGVAL(kv.key()) << LOGVAL(kv.value()));
 
-  if (kv.value.empty())
+  if (kv.value().empty())
     return "Empty computation definition";
 
-  const std::string& name = kv.key;
+  const std::string& name = kv.key();
   if (isDefinedName(name))
     return "Name '" + name + "' already defined";
 
   std::string fname;
   std::vector<std::string> fargs;
-  if (not VcrossUtil::parseNameAndArgs(miutil::to_lower(kv.value), fname, fargs))
-    return "Error parsing computation definition '" + kv.value + "'";
+  if (not VcrossUtil::parseNameAndArgs(miutil::to_lower(kv.value()), fname, fargs))
+    return "Error parsing computation definition '" + kv.value() + "'";
 
   const VcrossComputer::FunctionLike* cf = VcrossComputer::findFunction(fname);
   if (not cf or (cf->id < VcrossComputer::vcf_add) or (cf->id >= VcrossComputer::vcf_no_function))
@@ -395,15 +395,15 @@ std::string VcrossSetup::parseOnePlot(const std::string& plotLine)
 
   const std::vector<KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(plotLine);
   BOOST_FOREACH(const KeyValue& kv, kvs) {
-    const std::string value = miutil::to_lower(kv.value);
-    if (not kv.value.empty()) {
-      if (kv.key == "name") {
+    const std::string value = miutil::to_lower(kv.value());
+    if (not kv.value().empty()) {
+      if (kv.key() == "name") {
         if (mPlots.find(value) != mPlots.end())
           return "Plot name '" + value + "' already used";
         
-        vcp.name = kv.value; // not in lower case
+        vcp.name = kv.value(); // not in lower case
         have = HAVE_NAME;
-      } else if (kv.key == "plot") {
+      } else if (kv.key() == "plot") {
         std::string ptype;
         std::vector<std::string> pargs;
         if (not VcrossUtil::parseNameAndArgs(value, ptype, pargs))
@@ -446,11 +446,11 @@ std::string VcrossSetup::parseOnePlot(const std::string& plotLine)
         have |= HAVE_PLOTTYPE;
       } else {
         // can only hope this is a sensible plot option...
-        miutil::appendTo(vcp.plotOpts, " ", kv.key);
+        miutil::appendTo(vcp.plotOpts, " ", kv.key());
       }
     } else {
-      // any plot options without key=value syntax ?????
-      miutil::appendTo(vcp.plotOpts, " ", kv.key);
+      // any plot options without key()=value syntax ?????
+      miutil::appendTo(vcp.plotOpts, " ", kv.key());
     }
   }
 
