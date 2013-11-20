@@ -285,7 +285,6 @@ void EditItemManager::addItem_(DrawingItemBase *item)
 
     connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
-    item->setLatLonPoints(getLatLonPoints(item));
     emit itemAdded(item);
 }
 
@@ -467,6 +466,8 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
     bool completed = false;
     bool aborted = false;
     incompleteItem_->incompleteMousePress(event, rpn, completed, aborted);
+    // Record geographic coordinates for the item as they are added to it.
+    Drawing(incompleteItem_)->setLatLonPoints(getLatLonPoints(Drawing(incompleteItem_)));
     if (completed)
         completeEditing();
     else {
@@ -561,8 +562,6 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         // send move event to all selected items
         foreach (DrawingItemBase *item, selItems_) {
             Editing(item)->mouseMove(event, rpn);
-            item->setLatLonPoints(getLatLonPoints(item));
-            item->setLatLonPoints(getLatLonPoints(item));
             item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
         }
@@ -761,8 +760,10 @@ void EditItemManager::plot(bool under, bool over)
                 Editing(item)->draw(modes, false);
             }
         }
-        if (incompleteItem_) // note that only complete items may be selected
+        if (incompleteItem_) { // note that only complete items may be selected
+            setFromLatLonPoints(Drawing(incompleteItem_), Drawing(incompleteItem_)->getLatLonPoints());
             incompleteItem_->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
+        }
         emit paintDone();
 
         glPopMatrix();
