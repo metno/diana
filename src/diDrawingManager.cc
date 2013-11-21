@@ -146,7 +146,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     if (!points.isEmpty()) {
       QString error;
-      DrawingItemBase *item = createItemFromVarMap<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, &error);
+      DrawingItemBase *item = createItemFromVarMap(properties, &error);
       if (item) {
         addItem_(item);
       } else
@@ -156,6 +156,11 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
   setEnabled(!items_.empty());
   return true;
+}
+
+DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
+{
+    return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, error);
 }
 
 void DrawingManager::addItem_(DrawingItemBase *item)

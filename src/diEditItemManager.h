@@ -106,6 +106,8 @@ public:
     void addItem(EditItemBase *item, bool incomplete = false, bool skipRepaint = false);
     void removeItem(DrawingItemBase *item);
 
+    virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+
     // Returns the undo stack.
     QUndoStack *undoStack();
 

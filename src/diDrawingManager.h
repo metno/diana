@@ -87,8 +87,10 @@ public:
 
   QSet<DrawingItemBase *> getItems() const;
 
+  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+
   template<typename BaseType, typename PolyLineType, typename SymbolType>
-  inline BaseType *createItemFromVarMap(const QVariantMap &vmap, QString *error)
+  inline BaseType *createItemFromVarMap_(const QVariantMap &vmap, QString *error)
   {
     Q_ASSERT(!vmap.empty());
     Q_ASSERT(vmap.contains("type"));

@@ -285,6 +285,11 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipR
       repaint();
 }
 
+DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+    return createItemFromVarMap_<DrawingItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol>(vmap, error);
+}
+
 void EditItemManager::addItem_(DrawingItemBase *item)
 {
     DrawingManager::addItem_(item);
@@ -1019,7 +1024,7 @@ void EditItemManager::pasteItems()
 
     foreach (QVariant cbItem, cbItems) {
       QString error;
-      EditItemBase *item = DrawingManager::instance()->createItemFromVarMap<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol>(cbItem.toMap(), &error);
+      DrawingItemBase *item = createItemFromVarMap(cbItem.toMap(), &error);
       if (item)
         addItem(item, false);
       else
