@@ -30,16 +30,128 @@
 */
 
 #include "edititembase.h"
-#include "weatherarea.h"
+#include <GL/gl.h>
 
 EditItemBase::EditItemBase()
     : moving_(false)
     , resizing_(false)
 {}
 
+void EditItemBase::init()
+{
+  moving_ = false;
+  resizing_ = false;
+  pressedCtrlPointIndex_ = -1;
+  hoveredCtrlPointIndex_ = -1;
+  placementPos_ = 0;
+}
+
+qreal EditItemBase::sqr(qreal x) { return x * x; }
+
+QList<QPointF> EditItemBase::geometry() const
+{
+  return ConstDrawing(this)->points_;
+}
+
+void EditItemBase::setGeometry(const QList<QPointF> &points)
+{
+    Drawing(this)->points_ = points;
+    updateControlPoints();
+}
+
+QList<QPointF> EditItemBase::baseGeometry() const
+{
+    return basePoints_;
+}
+
+QList<QPointF> EditItemBase::getBasePoints() const
+{
+    return baseGeometry();
+}
+
+// Returns the index (>= 0)  of the control point hit by \a pos, or -1 if no
+// control point was hit.
+int EditItemBase::hitControlPoint(const QPointF &pos) const
+{
+    for (int i = 0; i < controlPoints_.size(); ++i)
+        if (controlPoints_.at(i).contains(pos))
+            return i;
+    return -1;
+}
+
+// Moves the item by the specified amount (i.e. \a pos is relative to the item's current position).
+void EditItemBase::moveBy(const QPointF &pos)
+{
+    baseMousePos_ = QPointF();
+    basePoints_ = Drawing(this)->points_;
+    move(pos);
+}
+
+void EditItemBase::move(const QPointF &pos)
+{
+    const QPointF delta = pos - baseMousePos_;
+    Q_ASSERT(basePoints_.size() == points_.size());
+    for (int i = 0; i < Drawing(this)->points_.size(); ++i)
+        Drawing(this)->points_[i] = basePoints_.at(i) + delta;
+    updateControlPoints();
+}
+
+void EditItemBase::drawControlPoints() const
+{
+    glColor3ub(0, 0, 0);
+    foreach (QRectF c, controlPoints_) {
+        glBegin(GL_POLYGON);
+        glVertex3i(c.left(),  c.bottom(), 1);
+        glVertex3i(c.right(), c.bottom(), 1);
+        glVertex3i(c.right(), c.top(),    1);
+        glVertex3i(c.left(),  c.top(),    1);
+        glEnd();
+    }
+}
+
+// Highlight the hovered control point.
+void EditItemBase::drawHoveredControlPoint() const
+{
+  Q_ASSERT(hoveredCtrlPointIndex_ >= 0);
+
+  const QRectF *r = &controlPoints_.at(hoveredCtrlPointIndex_);
+  glPushAttrib(GL_LINE_BIT);
+  glLineWidth(2);
+  const int pad = 1;
+  glBegin(GL_LINE_LOOP);
+  glVertex3i(r->left() - pad,  r->bottom() + pad, 1);
+  glVertex3i(r->right() + pad, r->bottom() + pad, 1);
+  glVertex3i(r->right() + pad, r->top() - pad, 1);
+  glVertex3i(r->left() - pad,  r->top() - pad, 1);
+  glEnd();
+  glPopAttrib();
+}
+
 void EditItemBase::repaint()
 {
     emit repaintNeeded();
+}
+
+// Draws the item.
+// \a modes indicates whether the item is selected, hovered, both, or neither.
+// \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
+void EditItemBase::draw(DrawModes modes, bool incomplete)
+{
+  if (incomplete) {
+    if (placementPos_ == 0)
+      return;
+    drawIncomplete();
+  }
+
+  Drawing(this)->draw();
+
+  // draw highlighting if hovered
+  if (modes & Hovered)
+    drawHoverHighlighting(incomplete);
+
+  // draw control points if selected
+  if (modes & Selected)
+    drawControlPoints();
 }
 
 /**
@@ -127,14 +239,19 @@ void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<Q
 
 void EditItemBase::mouseMove(QMouseEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  if (moving_) {
+    move(event->pos());
+    repaintNeeded = true;
+  } else if (resizing_) {
+    resize(event->pos());
+    repaintNeeded = true;
+  }
 }
 
 void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  hoveredCtrlPointIndex_ = hitControlPoint(event->pos());
+  repaintNeeded = true;
 }
 
 void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
@@ -217,20 +334,22 @@ void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
     Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::moveBy(const QPointF &pos)
-{
-    Q_UNUSED(pos);
-}
-
 QVariantMap EditItemBase::clipboardVarMap() const
 {
   QVariantMap vmap;
   vmap.insert("type", metaObject()->className());
+  QVariantList vpoints;
+  foreach (QPointF p, DrawingManager::instance()->PhysToGeo(ConstDrawing(this)->getPoints()))
+    vpoints.append(p);
+  vmap.insert("points", vpoints);
+  vmap.insert("properties", ConstDrawing(this)->properties());
   return vmap;
 }
 
 QString EditItemBase::clipboardPlainText() const
 {
-  return QString();
+  QString s;
+  foreach (QPointF p, DrawingManager::instance()->PhysToGeo(ConstDrawing(this)->getPoints()))
+    s.append(QString("(%1, %2) ").arg(p.x()).arg(p.y()));
+  return s;
 }
-

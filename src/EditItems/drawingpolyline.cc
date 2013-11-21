@@ -31,19 +31,19 @@
 
 #include "GL/gl.h"
 #include <diTesselation.h>
-#include "drawingweatherarea.h"
+#include "drawingpolyline.h"
 
-namespace DrawingItem_WeatherArea {
+namespace DrawingItem_PolyLine {
 
-WeatherArea::WeatherArea()
+PolyLine::PolyLine()
 {
 }
 
-WeatherArea::~WeatherArea()
+PolyLine::~PolyLine()
 {
 }
 
-void WeatherArea::draw()
+void PolyLine::draw()
 {
     // draw the interior
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -68,6 +68,11 @@ void WeatherArea::draw()
     foreach (QPointF p, points_)
         glVertex2i(p.x(), p.y());
     glEnd();
+}
+
+QDomNode PolyLine::toKML() const
+{
+  return DrawingItemBase::toKML(); // call base implementation for now
 }
 
 } // namespace

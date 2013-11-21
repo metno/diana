@@ -31,6 +31,8 @@
 #ifndef _diDrawingManager_h
 #define _diDrawingManager_h
 
+#include <EditItems/drawingitembase.h>
+
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include "diManager.h"
@@ -85,6 +87,29 @@ public:
 
   QSet<DrawingItemBase *> getItems() const;
 
+  template<typename BaseType, typename PolyLineType, typename SymbolType>
+  inline BaseType *createItemFromVarMap(const QVariantMap &vmap, QString *error)
+  {
+    Q_ASSERT(!vmap.empty());
+    Q_ASSERT(vmap.contains("type"));
+    Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+    BaseType *item = 0;
+    *error = QString();
+    if (vmap.value("type").toString().endsWith("PolyLine")) {
+      item = new PolyLineType();
+    } else if (vmap.value("type").toString().endsWith("Symbol")) {
+      item = new SymbolType();
+    } else {
+      *error = QString("unsupported item type: %1, expected %2 or %3")
+          .arg(vmap.value("type").toString()).arg("*PolyLine").arg("*Symbol");
+    }
+    if (item) {
+      Drawing(item)->setProperties(vmap);
+      setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
+    }
+    return item;
+  }
+
   static DrawingManager *instance();
 
 public slots:
@@ -92,7 +117,6 @@ public slots:
 
 protected:
   virtual void addItem_(DrawingItemBase *);
-  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &, QString *);
   virtual void loadItemsFromFile(const QString &fileName);
   virtual void removeItem_(DrawingItemBase *item);
 

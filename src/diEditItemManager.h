@@ -102,8 +102,8 @@ public:
 
     // Registers a new item with the manager.
     // \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
-    void addItem(DrawingItemBase *item, bool incomplete = false);
-    void addItem(EditItemBase *item, bool incomplete = false);
+    void addItem(DrawingItemBase *item, bool incomplete = false, bool skipRepaint = false);
+    void addItem(EditItemBase *item, bool incomplete = false, bool skipRepaint = false);
     void removeItem(DrawingItemBase *item);
 
     // Returns the undo stack.
@@ -142,7 +142,6 @@ public slots:
     void editItems();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
-    void loadItems();
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
     void mousePress(QMouseEvent *, QSet<DrawingItemBase *> * = 0, QSet<DrawingItemBase *> * = 0);
@@ -154,6 +153,10 @@ public slots:
     void selectItem(DrawingItemBase *);
     void undo();
     void updateActions();
+    void saveItemsToFile();
+
+private slots:
+    void loadItemsFromFile();
 
 signals:
     void selectionChanged();
@@ -169,7 +172,6 @@ signals:
 
 protected:
     virtual void addItem_(DrawingItemBase *);
-    virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &, QString *);
     virtual void removeItem_(DrawingItemBase *item);
 
 private slots:
@@ -189,6 +191,7 @@ private:
     QAction* pasteAction;
     QAction* editAction;
     QAction* loadAction;
+    QAction* saveAction;
     QAction* undoAction;
     QAction* redoAction;
 

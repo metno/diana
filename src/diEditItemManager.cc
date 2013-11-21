@@ -39,7 +39,9 @@
 #include <diEditItemManager.h>
 #include <diPlotModule.h>
 #include <EditItems/edititembase.h>
-#include <EditItems/weatherarea.h>
+#include <EditItems/editpolyline.h>
+#include <EditItems/editsymbol.h>
+#include <EditItems/kml.h>
 
 #define PLOTM PlotModule::instance()
 
@@ -213,6 +215,8 @@ EditItemManager::EditItemManager()
     editAction->setShortcut(tr("Ctrl+R"));
     loadAction = new QAction(tr("&Load..."), this);
     loadAction->setShortcut(tr("Ctrl+L"));
+    saveAction = new QAction(tr("&Save..."), this);
+    saveAction->setShortcut(tr("Ctrl+S"));
     undoAction = undoStack_.createUndoAction(this);
     redoAction = undoStack_.createRedoAction(this);
 
@@ -220,7 +224,8 @@ EditItemManager::EditItemManager()
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
     connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
-    connect(loadAction, SIGNAL(triggered()), SLOT(loadItems()));
+    connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
+    connect(saveAction, SIGNAL(triggered()), SLOT(saveItemsToFile()));
 }
 
 EditItemManager::~EditItemManager()
@@ -249,12 +254,12 @@ QUndoView *EditItemManager::getUndoView()
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
-void EditItemManager::addItem(EditItemBase *item, bool incomplete)
+void EditItemManager::addItem(EditItemBase *item, bool incomplete, bool skipRepaint)
 {
-    addItem(Drawing(item), incomplete);
+    addItem(Drawing(item), incomplete, skipRepaint);
 }
 
-void EditItemManager::addItem(DrawingItemBase *item, bool incomplete)
+void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipRepaint)
 {
     if (incomplete) {
         // set this item as the incomplete item
@@ -276,7 +281,8 @@ void EditItemManager::addItem(DrawingItemBase *item, bool incomplete)
 //    foreach (DrawingItemBase *item, items_)
 //        qDebug() << "   ###### - " << item->infoString().toLatin1().data();
 
-    repaint();
+    if (!skipRepaint)
+      repaint();
 }
 
 void EditItemManager::addItem_(DrawingItemBase *item)
@@ -729,8 +735,7 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
 bool EditItemManager::changeProjection(const Area& newArea)
 {
   return DrawingManager::changeProjection(newArea);
-
-    glPopMatrix();
+  glPopMatrix();
 }
 
 void EditItemManager::plot(bool under, bool over)
@@ -883,6 +888,7 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   a[Paste] = pasteAction;
   a[Edit] = editAction;
   a[Load] = loadAction;
+  a[Save] = saveAction;
   a[Undo] = undoAction;
   a[Redo] = redoAction;
   return a;
@@ -893,60 +899,54 @@ void EditItemManager::editItems()
     editItemProperties(getSelectedItems());
 }
 
-DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+void EditItemManager::loadItemsFromFile()
 {
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
-  DrawingItemBase *item = 0;
-  *error = QString();
-  if (vmap.value("type").toString().endsWith("WeatherArea")) {
-    DrawingItemBase *area = new EditItem_WeatherArea::WeatherArea();
-    item = area;
-  } else {
-    *error = QString("unsupported item type: %1, expected %2")
-        .arg(vmap.value("type").toString()).arg("WeatherArea");
-  }
-  if (item) {
-    item->setProperties(vmap);
-    setFromLatLonPoints(item, item->getLatLonPoints());
-  }
-  return item;
-}
-
-void EditItemManager::loadItems()
-{
-    // open file and read content
-    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("VAAC messages (*.kml)"));
+    // select file
+    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("KML files (*.kml)"));
     if (fileName.isNull())
         return; // operation cancelled
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(0, tr("Diana - Open File Error"), tr("Failed to open file %1 for reading.").arg(fileName));
-        return;
+    // parse file and create items
+    QString error;
+    const QSet<EditItemBase *> items = KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol>(fileName, &error);
+    if (!error.isEmpty()) {
+      QMessageBox::warning(
+          0, "Error", QString("failed to create items from file %1: %2")
+          .arg(fileName).arg(error));
+      return;
+    }
+    if (items.isEmpty()) {
+      QMessageBox::warning(
+          0, "Warning", QString("file contained no items: %1")
+          .arg(fileName));
+      return;
     }
 
-    QByteArray data = file.readAll();
-    file.close();
-
-    QString error;
-    QList<EditItem_WeatherArea::WeatherArea *> areas;
-    areas = DrawingItem_WeatherArea::createFromKML<EditItem_WeatherArea::WeatherArea>(data, fileName, &error);
-
-    if (!areas.isEmpty()) {
-        foreach (EditItem_WeatherArea::WeatherArea *area, areas) {
-            // Convert the item's latitude and longitude values into screen coordinates.
-            setFromLatLonPoints(area, area->getLatLonPoints());
-            addItem(Drawing(area), false);
-        }
-    } else {
-        QMessageBox::warning(0, tr("Diana - Open File Error"),
-            tr("Failed to create areas from file %1: %2.")
-            .arg(fileName).arg(!error.isEmpty() ? error : "<error msg not set>"));
+    // add items
+    int i = 0;
+    foreach (EditItemBase *item, items) {
+      setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints()); // convert lat/lon values into screen coordinates
+      addItem(item, false, ++i == items.size());
     }
 
     updateActions();
+}
+
+void EditItemManager::saveItemsToFile()
+{
+    // select file
+    const QString fileName = QFileDialog::getSaveFileName(0, tr("Open File"), "/disk1/", tr("KML files (*.kml)"));
+    if (fileName.isNull())
+        return; // operation cancelled
+
+    QString error;
+    KML::saveToFile(fileName, getItems(), getSelectedItems(), &error);
+    if (!error.isEmpty()) {
+      QMessageBox::warning(
+          0, "Error", QString("failed to save items to file %1: %2")
+          .arg(fileName).arg(error));
+      return;
+    }
 }
 
 void EditItemManager::updateActions()
@@ -1019,7 +1019,7 @@ void EditItemManager::pasteItems()
 
     foreach (QVariant cbItem, cbItems) {
       QString error;
-      EditItemBase *item = Editing(createItemFromVarMap(cbItem.toMap(), &error));
+      EditItemBase *item = DrawingManager::instance()->createItemFromVarMap<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol>(cbItem.toMap(), &error);
       if (item)
         addItem(item, false);
       else
@@ -1070,9 +1070,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
       contextMenu.addSeparator();
       contextMenu.addAction(editAction);
+      editAction->setEnabled(getSelectedItems().size() > 0);
       contextMenu.addSeparator();
       contextMenu.addAction(loadAction);
-      editAction->setEnabled(getSelectedItems().size() > 0);
+      contextMenu.addAction(saveAction);
+      saveAction->setEnabled(getSelectedItems().size() > 0);
 
       // Simply execute the menu since all of the actions are connected to slots.
       if (!contextMenu.isEmpty())
@@ -1088,9 +1090,9 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
       } else if (itemsToEdit.size() > 0) {
         editItemProperties(itemsToEdit);
       } else if (getSelectedItems().size() == 0 && !hasIncompleteItem()) {
-        // Nothing was changed or interacted with, so create a new area and repeat the mouse click.
-        EditItem_WeatherArea::WeatherArea *area = new EditItem_WeatherArea::WeatherArea();
-        addItem(Drawing(area), true);
+        // Nothing was changed or interacted with, so create a new item and repeat the mouse click.
+        EditItem_PolyLine::PolyLine *item = new EditItem_PolyLine::PolyLine();
+        addItem(Drawing(item), true);
         mousePress(&me2);
       }
     }
@@ -1134,7 +1136,9 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
     else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       editItems();
     else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      loadItems();
+      loadItemsFromFile();
+    else if (saveAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      saveItemsToFile();
     else
       event->ignore();
   }

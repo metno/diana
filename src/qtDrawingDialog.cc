@@ -39,7 +39,7 @@
 #include "diEditItemManager.h"
 #include "qtDrawingDialog.h"
 #include "EditItems/edititembase.h"
-#include "EditItems/weatherarea.h"
+#include "EditItems/editpolyline.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
 
 #include <QAction>
@@ -182,11 +182,20 @@ void DrawingDialog::toggleDrawingMode(bool enable)
   EditItemManager::instance()->setEditing(enable);
 }
 
+static QString shortClassName(const QString &className)
+{
+  const int separatorPos = className.lastIndexOf("::");
+  return separatorPos == -1
+      ? className
+      : className.mid(separatorPos + 2);
+}
+
 void DrawingDialog::addItem(DrawingItemBase *item)
 {
   QTreeWidgetItem *listItem = new QTreeWidgetItem();
-  if (static_cast<EditItem_WeatherArea::WeatherArea*>(item))
-      listItem->setText(0, tr("WeatherArea"));
+  EditItemBase *editItem = dynamic_cast<EditItemBase *>(item);
+  if (editItem)
+      listItem->setText(0, shortClassName(editItem->metaObject()->className()));
   else
       listItem->setText(0, tr("Unknown"));
   listItem->setData(0, IdRole, item->id());

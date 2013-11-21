@@ -34,8 +34,9 @@
 #endif
 
 #include <diDrawingManager.h>
-#include <EditItems/drawingitembase.h>
-#include <EditItems/drawingweatherarea.h>
+#include <EditItems/drawingpolyline.h>
+#include <EditItems/drawingsymbol.h>
+#include <EditItems/kml.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <diAnnotationPlot.h>
@@ -145,7 +146,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     if (!points.isEmpty()) {
       QString error;
-      DrawingItemBase *item = createItemFromVarMap(properties, &error);
+      DrawingItemBase *item = createItemFromVarMap<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, &error);
       if (item) {
         addItem_(item);
       } else
@@ -162,27 +163,6 @@ void DrawingManager::addItem_(DrawingItemBase *item)
     items_.insert(item);
 }
 
-DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
-{
-  Q_ASSERT(!vmap.empty());
-  Q_ASSERT(vmap.contains("type"));
-  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
-  DrawingItemBase *item = 0;
-  *error = QString();
-  if (vmap.value("type").toString().endsWith("WeatherArea")) {
-    DrawingItemBase *area = new DrawingItem_WeatherArea::WeatherArea();
-    item = area;
-  } else {
-    *error = QString("unsupported item type: %1, expected %2")
-        .arg(vmap.value("type").toString()).arg("WeatherArea");
-  }
-  if (item) {
-    item->setProperties(vmap);
-    setFromLatLonPoints(item, item->getLatLonPoints());
-  }
-  return item;
-}
-
 void DrawingManager::loadItemsFromFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -195,19 +175,17 @@ void DrawingManager::loadItemsFromFile(const QString &fileName)
     file.close();
 
     QString error;
-    QList<DrawingItem_WeatherArea::WeatherArea *> areas;
-    areas = DrawingItem_WeatherArea::createFromKML<DrawingItem_WeatherArea::WeatherArea>(data, fileName, &error);
-
-    if (!areas.isEmpty()) {
-        foreach (DrawingItem_WeatherArea::WeatherArea *area, areas) {
+    QSet<DrawingItemBase *> items = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(fileName, &error);
+    if (!error.isEmpty()) {
+      METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
+    } else if (!items.isEmpty()) {
+        foreach (DrawingItemBase *item, items) {
             // Set the screen coordinates from the latitude and longitude values.
-            setFromLatLonPoints(area, area->getLatLonPoints());
-            items_.insert(Drawing(area));
+            setFromLatLonPoints(item, item->getLatLonPoints());
+            items_.insert(Drawing(item)); // ### Drawing() required here?
         }
     } else {
-        METLIBS_LOG_WARN("Failed to create areas from file " << fileName.toStdString() << ": "
-            << (!error.isEmpty() ? error.toStdString() : "<error msg not set>"));
-        return;
+        METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
     }
 }
 

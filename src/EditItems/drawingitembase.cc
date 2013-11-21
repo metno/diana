@@ -46,20 +46,18 @@ int DrawingItemBase::id() const { return id_; }
 
 int DrawingItemBase::nextId()
 {
-    return nextId_++; // ### not thread safe; use a mutex for that
+  return nextId_++; // ### not thread safe; use a mutex for that
 }
 
 int DrawingItemBase::groupId() const
 {
-    const QVariant vgid = properties_.value("groupId");
-    int gid = -1;
-    if (vgid.isValid()) {
-        bool ok;
-        gid = vgid.toInt(&ok);
-        if (!ok)
-            gid = -1;
-    }
-    return gid;
+  if (!properties_.contains("groupId"))
+      properties_.insert("groupId", id()); // note that properties_ is declared as mutable
+  const QVariant vgid = properties_.value("groupId");
+  bool ok;
+  const int gid = vgid.toInt(&ok);
+  Q_ASSERT(ok);
+  return gid;
 }
 
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const
@@ -85,15 +83,20 @@ QVariantMap &DrawingItemBase::propertiesRef()
   return properties_;
 }
 
+const QVariantMap &DrawingItemBase::propertiesRef() const
+{
+  return properties_;
+}
+
 void DrawingItemBase::setProperties(const QVariantMap &properties)
 {
   properties_ = properties;
   if (properties.contains("points")) {
     QVariantList points = properties.value("points").toList();
     points_.clear();
-    latLonPoints.clear();
+    latLonPoints_.clear();
     foreach (QVariant v, points) {
-      latLonPoints.append(v.toPointF());
+      latLonPoints_.append(v.toPointF());
     }
   }
 }
@@ -110,10 +113,112 @@ void DrawingItemBase::setPoints(const QList<QPointF> &points)
 
 QList<QPointF> DrawingItemBase::getLatLonPoints() const
 {
-    return latLonPoints;
+    return latLonPoints_;
 }
 
 void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
 {
-    latLonPoints = points;
+    latLonPoints_ = points;
+}
+
+// Returns a new <ExtendedData> element.
+QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc) const
+{
+  QDomElement valueElem = doc.createElement("value");
+  valueElem.appendChild(doc.createTextNode(QString::number(groupId())));
+  QDomElement dataElem = doc.createElement("Data");
+  dataElem.setAttribute("name", "met:groupId");
+  dataElem.appendChild(valueElem);
+  QDomElement extDataElem = doc.createElement("ExtendedData");
+  extDataElem.appendChild(dataElem);
+  return extDataElem;
+}
+
+// Returns a new <Point> or <Polygon> element (depending on whether points_.size() == 1 or > 1 respectively).
+QDomElement DrawingItemBase::createPointOrPolygonElement(QDomDocument &doc) const
+{
+  Q_ASSERT(points_.size() > 0);
+
+  // create the <coordinates> element
+  QString coords;
+  foreach (QPointF point, getLatLonPoints())
+    coords.append(QString("%1,%2,0\n").arg(point.y()).arg(point.x())); // note lon,lat order
+  QDomElement coordsElem = doc.createElement("coordinates");
+  coordsElem.appendChild(doc.createTextNode(coords));
+
+  // create a <Point> or <Polygon> element
+  QDomElement popElem;
+  if (points_.size() == 1) {
+    popElem = doc.createElement("Point");
+    popElem.appendChild(coordsElem);
+  } else {
+    QDomElement linearRingElem = doc.createElement("LinearRing");
+    linearRingElem.appendChild(coordsElem);
+    QDomElement outerBoundaryIsElem = doc.createElement("outerBoundaryIs");
+    outerBoundaryIsElem.appendChild(linearRingElem);
+    QDomElement tessellateElem = doc.createElement("tessellate");
+    tessellateElem.appendChild(doc.createTextNode("1"));
+    popElem = doc.createElement("Polygon");
+    popElem.appendChild(tessellateElem);
+    popElem.appendChild(outerBoundaryIsElem);
+  }
+
+  return popElem;
+}
+
+// Returns a new <TimeSpan> element.
+QDomElement DrawingItemBase::createTimeSpanElement(QDomDocument &doc) const
+{
+  Q_ASSERT(propertiesRef().contains("TimeSpan:begin"));
+  Q_ASSERT(propertiesRef().contains("TimeSpan:end"));
+  QDomElement beginTimeElem = doc.createElement("begin");
+  beginTimeElem.appendChild(doc.createTextNode(propertiesRef().value("TimeSpan:begin").toString()));
+  QDomElement endTimeElem = doc.createElement("end");
+  endTimeElem.appendChild(doc.createTextNode(propertiesRef().value("TimeSpan:end").toString()));
+  QDomElement timeSpanElem = doc.createElement("TimeSpan");
+  timeSpanElem.appendChild(beginTimeElem);
+  timeSpanElem.appendChild(endTimeElem);
+  return timeSpanElem;
+}
+
+// Returns a new <Placemark> element.
+QDomElement DrawingItemBase::createPlacemarkElement(QDomDocument &doc) const
+{
+  QDomElement nameElem = doc.createElement("name");
+  const QString name = propertiesRef().contains("Placemark:name")
+      ? propertiesRef().value("Placemark:name").toString()
+      : QString("anonymous placemark %1").arg(id());
+  nameElem.appendChild(doc.createTextNode(name));
+  QDomElement placemarkElem = doc.createElement("Placemark");
+  placemarkElem.appendChild(nameElem);
+  return placemarkElem;
+}
+
+QDomNode DrawingItemBase::toKML() const
+{
+  QDomDocument doc;
+  QDomElement extDataElem = createExtDataElement(doc);
+  QDomElement popElem = createPointOrPolygonElement(doc);
+  QDomElement finalElem;
+
+  if (propertiesRef().contains("Folder:name")) {
+    QDomElement nameElem = doc.createElement("name");
+    nameElem.appendChild(doc.createTextNode(propertiesRef().value("Folder:name").toString()));
+    QDomElement timeSpanElem = createTimeSpanElement(doc);
+    QDomElement placemarkElem = createPlacemarkElement(doc);
+    placemarkElem.appendChild(popElem);
+    QDomElement folderElem = doc.createElement("Folder");
+    folderElem.appendChild(nameElem);
+    folderElem.appendChild(timeSpanElem);
+    folderElem.appendChild(extDataElem);
+    folderElem.appendChild(placemarkElem);
+    finalElem = folderElem;
+  } else {
+    QDomElement placemarkElem = createPlacemarkElement(doc);
+    placemarkElem.appendChild(extDataElem);
+    placemarkElem.appendChild(popElem);
+    finalElem = placemarkElem;
+  }
+
+  return finalElem;
 }

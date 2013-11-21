@@ -197,6 +197,7 @@ METNO_REQUIRE_QT4([
     Network
     Svg
     Xml
+    XmlPatterns
 ])
 
 AS_IF([test x$enable_embedded != xyes], [

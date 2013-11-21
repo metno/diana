@@ -111,7 +111,8 @@ common_cxx_sources = \
 	diWeatherObjects.cc \
 	diWeatherSymbol.cc \
 	EditItems/drawingitembase.cc \
-	EditItems/drawingweatherarea.cc \
+	EditItems/drawingpolyline.cc \
+	EditItems/drawingsymbol.cc \
 	PolyContouring.cc
 
 if WITH_VCROSS_V2
@@ -143,7 +144,8 @@ endif
 
 # Qt sources
 common_qt_sources = diManager.cc \
-	diDrawingManager.cc
+	diDrawingManager.cc \
+	EditItems/kml.cc
 
 if WITH_BATCH_ONLY
 diana_qt_sources =
@@ -151,7 +153,8 @@ else
 diana_qt_sources = \
 	diEditItemManager.cc \
 	EditItems/edititembase.cc \
-	EditItems/weatherarea.cc \
+	EditItems/editpolyline.cc \
+	EditItems/editsymbol.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -250,9 +253,12 @@ noinst_HEADERS = \
 	diDrawingTypes.h \
 	diEditItemManager.h \
 	EditItems/drawingitembase.h \
-	EditItems/drawingweatherarea.h \
+	EditItems/drawingpolyline.h \
+	EditItems/drawingsymbol.h \
 	EditItems/edititembase.h \
-	EditItems/weatherarea.h \
+	EditItems/editpolyline.h \
+	EditItems/editsymbol.h \
+	EditItems/kml.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \

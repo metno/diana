@@ -29,94 +29,55 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef WEATHERAREA_H
-#define WEATHERAREA_H
+#ifndef EDITITEM_POLYLINE_H
+#define EDITITEM_POLYLINE_H
 
 #include <QtGui>
-#include "drawingweatherarea.h"
 #include "edititembase.h"
-#include <diCommonTypes.h>
+#include "drawingpolyline.h"
 
-#define nwarmflag 19
+namespace EditItem_PolyLine {
 
-namespace EditItem_WeatherArea {
-
-class WeatherArea : public EditItemBase, public DrawingItem_WeatherArea::WeatherArea
+class PolyLine : public EditItemBase, public DrawingItem_PolyLine::PolyLine
 {
     Q_OBJECT
     friend class SetGeometryCommand;
 public:
-    WeatherArea();
-    virtual ~WeatherArea();
-
-    EditItemBase *copy() const;
-    
-    // Sets the points for the area and updates any control points.
-    void setPoints(const QList<QPointF> &points);
-
-    void draw(DrawModes, bool);
+    PolyLine();
+    virtual ~PolyLine();
 
 private:
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 
-    void init();
-
-    virtual void mouseHover(QMouseEvent *, bool &);
     virtual void mousePress(
         QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, QSet<DrawingItemBase *> *,
         QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
-    virtual void mouseMove(QMouseEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-    virtual void moveBy(const QPointF &);
-
     virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(DrawingItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
 
-    bool saveAsSimpleAreas(QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, QString *error);
-    bool saveAsVAACGroup(QSet<DrawingItemBase *> *items, QString *error);
+    virtual void drawIncomplete() const;
+    virtual void drawHoverHighlighting(bool) const;
 
-    virtual QVariantMap clipboardVarMap() const;
-    virtual QString clipboardPlainText() const;
-
-    void drawControlPoints();
-    void drawHoverHighlighting(bool);
-
-    int hitControlPoint(const QPointF &) const;
-    void move(const QPointF &);
-    void resize(const QPointF &);
-    void updateControlPoints();
+    virtual void resize(const QPointF &);
+    virtual void updateControlPoints();
+    virtual void setPoints(const QList<QPointF> &);
 
     void addPoint(bool &repaintNeeded, int index, const QPointF &point);
     void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
     void removePoint(bool &repaintNeeded, int index, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
 
-    QList<QPointF> geometry() const { return points_; }
-    void setGeometry(const QList<QPointF> &);
-    virtual QList<QPointF> baseGeometry() const;
-    virtual QList<QPointF> getBasePoints() const;
+    static qreal dist2(const QPointF &, const QPointF &);
+    static qreal distance2(const QPointF &, const QPointF &, const QPointF &);
     qreal distance(const QPointF &) const;
+
     int hitLine(const QPointF &) const;
-
-    QList<QRectF> controlPoints_;
-    QList<QPointF> basePoints_;
-
-    QPointF baseMousePos_;
-    int pressedCtrlPointIndex_;
-    int hoveredCtrlPointIndex_;
-
-    QPointF *placementPos_;
-
-    QAction *addPoint_;
-    QAction *remove_;
-    QAction *removePoint_;
-    QAction *copyItems_;
-    QAction *editItems_;
 };
 
-} // namespace EditItem_WeatherArea
+} // namespace EditItem_PolyLine
 
-#endif // WEATHERAREA_H
+#endif // EDITITEM_POLYLINE_H

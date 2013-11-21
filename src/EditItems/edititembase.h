@@ -91,32 +91,54 @@ public:
     virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
     virtual void incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded);
 
-    // Moves the item by the specified amount (i.e. \a pos is relative to the item's current position).
-    virtual void moveBy(const QPointF &pos);
-
-    // Draws the item.
-    // \a modes indicates whether the item is selected, hovered, both, or neither.
-    // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
-    virtual void draw(DrawModes modes, bool incomplete) = 0;
-    virtual void draw();
+    void draw(DrawModes, bool);
+    void draw();
 
     // Emits the repaintNeeded() signal.
     void repaint();
 
-    // Returns a duplicate of the item.
-    virtual EditItemBase *copy() const = 0;
-
-    virtual QVariantMap clipboardVarMap() const;
-    virtual QString clipboardPlainText() const;
+    QVariantMap clipboardVarMap() const;
+    QString clipboardPlainText() const;
 
 protected:
     EditItemBase();
 
+    void init();
+
+    static qreal sqr(qreal);
+
+    QList<QPointF> geometry() const;
+    void setGeometry(const QList<QPointF> &);
+    virtual QList<QPointF> baseGeometry() const;
+
     // Returns the item's base points (representing the start of a move operation etc.).
-    virtual QList<QPointF> getBasePoints() const = 0;
+    virtual QList<QPointF> getBasePoints() const;
+
+    int hitControlPoint(const QPointF &) const;
+    void moveBy(const QPointF &);
+    void move(const QPointF &);
+    virtual void resize(const QPointF &) = 0;
+    virtual void updateControlPoints() = 0;
+
+    // Draws graphics to indicate the incomplete state of the item (if applicable).
+    virtual void drawIncomplete() const {}
+
+    virtual void drawHoverHighlighting(bool) const = 0;
+
+    void drawControlPoints() const;
+    void drawHoveredControlPoint() const;
 
     bool moving_;
     bool resizing_;
+
+    QList<QRectF> controlPoints_;
+    QList<QPointF> basePoints_;
+
+    QPointF baseMousePos_;
+    int pressedCtrlPointIndex_;
+    int hoveredCtrlPointIndex_;
+
+    QPointF *placementPos_;
 
 signals:
     void repaintNeeded();

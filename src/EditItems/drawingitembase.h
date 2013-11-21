@@ -35,11 +35,16 @@
 #include <QList>
 #include <QPointF>
 #include <QVariant>
+#include <QDomNode>
 
 #define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
+#define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
+
+class QDomDocumentFragment;
 
 class DrawingItemBase
 {
+  friend class EditItemBase;
 public:
   DrawingItemBase();
   virtual ~DrawingItemBase();
@@ -57,6 +62,7 @@ public:
   // Returns the item's properties.
   QVariantMap properties() const;
   QVariantMap &propertiesRef();
+  const QVariantMap &propertiesRef() const;
   // Sets the item's properties.
   void setProperties(const QVariantMap &);
 
@@ -71,19 +77,25 @@ public:
   virtual void setLatLonPoints(const QList<QPointF> &points);
 
   // Draws the item.
-  // \a modes indicates whether the item is selected, hovered, both, or neither.
-  // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
   virtual void draw() = 0;
 
+  // Returns the item's KML representation.
+  virtual QDomNode toKML() const;
+
 protected:
-  QVariantMap properties_;
+  mutable QVariantMap properties_;
   QList<QPointF> points_;
-  QList<QPointF> latLonPoints;
+  QList<QPointF> latLonPoints_;
 
 private:
   int id_;
   static int nextId_;
   int nextId();
+
+  QDomElement createExtDataElement(QDomDocument &) const;
+  QDomElement createPointOrPolygonElement(QDomDocument &) const;
+  QDomElement createTimeSpanElement(QDomDocument &) const;
+  QDomElement createPlacemarkElement(QDomDocument &) const;
 };
 
 #endif
