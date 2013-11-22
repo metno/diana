@@ -33,8 +33,11 @@
 
 #include "diVcrossOptions.h"
 
+#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/miStringBuilder.h>
+
+#include <boost/foreach.hpp>
 
 #define MILOGGER_CATEGORY "diana.VcrossOptions"
 #include <miLogger/miLogging.h>
@@ -165,6 +168,10 @@ void VcrossOptions::setDefaults()
   changed= true;
 }
 
+static const char* asBool(bool b)
+{
+  return (b ? "on" : "off");
+}
 
 std::vector<std::string> VcrossOptions::writeOptions()
 {
@@ -174,100 +181,100 @@ std::vector<std::string> VcrossOptions::writeOptions()
 
   std::vector<std::string> vstr;
   vstr.push_back((StringBuilder()
-          << "text=" << (pText ? "on" : "off")
+          << "text=" << asBool(pText)
           << " textColour=" << textColour));
 
   vstr.push_back((StringBuilder()
-          << "PositionNames=" << (pPositionNames ? "on" : "off")
+          << "PositionNames=" << asBool(pPositionNames)
           << " positionNamesColour=" << positionNamesColour));
 
   vstr.push_back((StringBuilder()
-          << "frame=" << (pFrame ? "on" : "off")
+          << "frame=" << asBool(pFrame)
           << " frameColour=" << frameColour
           << " frameLinetype=" << frameLinetype
           << " frameLinewidth=" << frameLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "LevelNumbers=" << (pLevelNumbers ? "on" : "off")));
+          << "LevelNumbers=" << asBool(pLevelNumbers)));
 
   vstr.push_back((StringBuilder()
-          << "UpperLevel=" << (pUpperLevel ? "on" : "off")
+          << "UpperLevel=" << asBool(pUpperLevel)
           << " upperLevelColour=" << upperLevelColour
           << " upperLevelLinetype=" << upperLevelLinetype
           << " upperLevelLinewidth=" << upperLevelLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "LowerLevel=" << (pLowerLevel ? "on" : "off")
+          << "LowerLevel=" << asBool(pLowerLevel)
           << " lowerLevelColour=" << lowerLevelColour
           << " lowerLevelLinetype=" << lowerLevelLinetype
           << " lowerLevelLinewidth=" << lowerLevelLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "OtherLevels=" << (pOtherLevels ? "on" : "off")
+          << "OtherLevels=" << asBool(pOtherLevels)
           << " otherLevelsColour=" << otherLevelsColour
           << " otherLevelsLinetype=" << otherLevelsLinetype
           << " otherLevelsLinewidth=" << otherLevelsLinewidth));
       
   vstr.push_back((StringBuilder()
-          << "Surface=" << (pSurface ? "on" : "off")
+          << "Surface=" << asBool(pSurface)
           << " surfaceColour=" << surfaceColour
           << " surfaceLinetype=" << surfaceLinetype
           << " surfaceLinewidth=" << surfaceLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "Distance=" << (pDistance ? "on" : "off")
+          << "Distance=" << asBool(pDistance)
           << " distanceColour=" << distanceColour
           << " distanceUnit=" << distanceUnit));
 
   vstr.push_back((StringBuilder()
-          << "XYpos=" << std::string(pXYpos ? "on" : "off")
+          << "XYpos=" << asBool(pXYpos)
           << " xyposColour=" << xyposColour));
   
   vstr.push_back((StringBuilder()
-          << "GeoPos=" << std::string(pGeoPos ? "on" : "off")
+          << "GeoPos=" << asBool(pGeoPos)
           << " geoposColour=" << geoposColour));
           
   vstr.push_back((StringBuilder()
-          << "VerticalGridLines=" << (pVerticalGridLines ? "on" : "off")
+          << "VerticalGridLines=" << asBool(pVerticalGridLines)
           << " vergridColour=" << vergridColour
           << " vergridLinetype=" << vergridLinetype
           << " vergridLinewidth=" << vergridLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "Markerlines=" << (pMarkerlines ? "on" : "off")
+          << "Markerlines=" << asBool(pMarkerlines)
           << " markerlinesColour=" << markerlinesColour
           << " markerlinesLinetype=" << markerlinesLinetype
           << " markerlinesLinewidth=" << markerlinesLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "VerticalMarker=" << (pVerticalMarker ? "on" : "off")
+          << "VerticalMarker=" << asBool(pVerticalMarker)
           << " verticalMarkerColour=" << verticalMarkerColour
           << " verticalMarkerLinetype=" << verticalMarkerLinetype
           << " verticalMarkerLinewidth=" << verticalMarkerLinewidth
           << " verticalMarkerLimit=" << verticalMarkerLimit));
 
   vstr.push_back((StringBuilder()
-          << "extrapolateFixedLevels=" << (extrapolateFixedLevels ? "on" : "off")));
+          << "extrapolateFixedLevels=" << asBool(extrapolateFixedLevels)));
   vstr.push_back((StringBuilder()
-          << "extrapolateToBottom=" << (extrapolateToBottom ? "on" : "off")));
+          << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
 
   vstr.push_back((StringBuilder()
-          << "thinArrows=" << (thinArrows ? "on" : "off")));
+          << "thinArrows=" << asBool(thinArrows)));
 
   vstr.push_back((StringBuilder()
           << "Vertical=" << verticalType));
 
   vstr.push_back((StringBuilder()
-          << "keepVerHorRatio=" << (keepVerHorRatio ? "on" : "off")
+          << "keepVerHorRatio=" << asBool(keepVerHorRatio)
           << " verHorRatio=" << verHorRatio));
 
   vstr.push_back((StringBuilder()
-          << "stdVerticalArea=" << (stdVerticalArea ? "on" : "off")
+          << "stdVerticalArea=" << asBool(stdVerticalArea)
           << " minVerticalArea=" << minVerticalArea
           << " maxVerticalArea=" << maxVerticalArea));
 
   vstr.push_back((StringBuilder()
-          << "stdHorizontalArea=" << (stdHorizontalArea ? "on" : "off")
+          << "stdHorizontalArea=" << asBool(stdHorizontalArea)
           << " minHorizontalArea=" << minHorizontalArea
           << " maxHorizontalArea=" << maxHorizontalArea));
 
@@ -292,121 +299,105 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
-  std::vector<std::string> vs,tokens;
-  std::string key,value;
+  BOOST_FOREACH(const std::string& line, vstr) {
+    const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(line, true);
+    BOOST_FOREACH(const miutil::KeyValue& kv, kvs) {
+      const std::string& key = kv.key(), value = kv.value();
+      if (value.empty())
+        continue;
 
-  int n= vstr.size();
+      if      (key=="text")       pText = kv.toBool();
+      else if (key=="textColour") textColour= value;
+      
+      else if (key=="PositionNames")       pPositionNames = kv.toBool();
+      else if (key=="positionNamesColour") positionNamesColour= value;
 
-  for (int i=0; i<n; i++) {
+      else if (key=="frame")          pFrame = kv.toBool();
+      else if (key=="frameColour")    frameColour= value;
+      else if (key=="frameLinetype")  frameLinetype= value;
+      else if (key=="frameLinewidth") frameLinewidth = kv.toDouble();
 
-    vs= miutil::split(vstr[i], 0, " ");
+      else if (key=="LevelNumbers") pLevelNumbers = kv.toBool();
 
-    int m= vs.size();
+      else if (key=="UpperLevel")          pUpperLevel = kv.toBool();
+      else if (key=="upperLevelColour")    upperLevelColour= value;
+      else if (key=="upperLevelLinetype")  upperLevelLinetype= value;
+      else if (key=="upperLevelLinewidth") upperLevelLinewidth = kv.toDouble();
 
-    for (int j=0; j<m; j++) {
+      else if (key=="LowerLevel")          pLowerLevel = kv.toBool();
+      else if (key=="lowerLevelColour")    lowerLevelColour= value;
+      else if (key=="lowerLevelLinetype")  lowerLevelLinetype= value;
+      else if (key=="lowerLevelLinewidth") lowerLevelLinewidth = kv.toDouble();
 
-      tokens= miutil::split(vs[j], 0, "=");
+      else if (key=="OtherLevels")          pOtherLevels = kv.toBool();
+      else if (key=="otherLevelsColour")    otherLevelsColour= value;
+      else if (key=="otherLevelsLinetype")  otherLevelsLinetype= value;
+      else if (key=="otherLevelsLinewidth") otherLevelsLinewidth = kv.toDouble();
 
-      if (tokens.size()==2) {
+      else if (key=="Surface")          pSurface = kv.toBool();
+      else if (key=="surfaceColour")    surfaceColour= value;
+      else if (key=="surfaceLinetype")  surfaceLinetype= value;
+      else if (key=="surfaceLinewidth") surfaceLinewidth= kv.toDouble();
 
-//	key=   miutil::to_lower(tokens[0]);
-	key=   tokens[0];
-	value= tokens[1];
+      else if (key=="Distance")       pDistance = kv.toBool();
+      else if (key=="distanceColour") distanceColour= value;
+      else if (key=="distanceUnit")   distanceUnit= value;
+      else if (key=="distanceStep")   distanceStep= value;
 
-	if      (key=="text")       pText= (miutil::to_lower(value)=="on");
-	else if (key=="textColour") textColour= value;
+      else if (key=="XYpos")          pXYpos = kv.toBool();
+      else if (key=="xyposColour")    xyposColour= value;
 
-	else if (key=="PositionNames")       pPositionNames= (miutil::to_lower(value)=="on");
-	else if (key=="positionNamesColour") positionNamesColour= value;
+      else if (key=="GeoPos")         pGeoPos = kv.toBool();
+      else if (key=="geoposColour")   geoposColour= value;
 
-	else if (key=="frame")          pFrame= (miutil::to_lower(value)=="on");
-	else if (key=="frameColour")    frameColour= value;
-	else if (key=="frameLinetype")  frameLinetype= value;
-	else if (key=="frameLinewidth") frameLinewidth= atof(value.c_str());
+      else if (key=="VerticalGridLines") pVerticalGridLines = kv.toBool();
+      else if (key=="vergridColour")     vergridColour= value;
+      else if (key=="vergridLinetype")   vergridLinetype= value;
+      else if (key=="vergridLinewidth")  vergridLinewidth= kv.toDouble();
 
-	else if (key=="LevelNumbers") pLevelNumbers= (miutil::to_lower(value)=="on");
+      else if (key=="Markerlines")           pMarkerlines = kv.toBool();
+      else if (key=="markerlinesColour")     markerlinesColour= value;
+      else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
+      else if (key=="markerlinesLinewidth")  markerlinesLinewidth= kv.toDouble();
 
-	else if (key=="UpperLevel")          pUpperLevel= (miutil::to_lower(value)=="on");
-	else if (key=="upperLevelColour")    upperLevelColour= value;
-	else if (key=="upperLevelLinetype")  upperLevelLinetype= value;
-	else if (key=="upperLevelLinewidth") upperLevelLinewidth= atof(value.c_str());
+      else if (key=="VerticalMarker")
+        pVerticalMarker = kv.toBool();
+      else if (key=="verticalMarkerColour")
+        verticalMarkerColour= value;
+      else if (key=="verticalMarkerLinetype")
+        verticalMarkerLinetype= value;
+      else if (key=="verticalMarkerLinewidth")
+        verticalMarkerLinewidth= kv.toDouble();
+      else if (key=="verticalMarkerLimit")
+        verticalMarkerLimit= kv.toDouble();
 
-	else if (key=="LowerLevel")          pLowerLevel= (miutil::to_lower(value)=="on");
-	else if (key=="lowerLevelColour")    lowerLevelColour= value;
-	else if (key=="lowerLevelLinetype")  lowerLevelLinetype= value;
-	else if (key=="lowerLevelLinewidth") lowerLevelLinewidth= atof(value.c_str());
+      else if (key=="extrapolateFixedLevels") extrapolateFixedLevels = kv.toBool();
+      else if (key=="extrapolateToBottom")    extrapolateToBottom = kv.toBool();
 
-	else if (key=="OtherLevels")          pOtherLevels= (miutil::to_lower(value)=="on");
-	else if (key=="otherLevelsColour")    otherLevelsColour= value;
-	else if (key=="otherLevelsLinetype")  otherLevelsLinetype= value;
-	else if (key=="otherLevelsLinewidth") otherLevelsLinewidth= atof(value.c_str());
+      else if (key=="thinArrows")    thinArrows = kv.toBool();
 
-	else if (key=="Surface")          pSurface= (miutil::to_lower(value)=="on");
-	else if (key=="surfaceColour")    surfaceColour= value;
-	else if (key=="surfaceLinetype")  surfaceLinetype= value;
-	else if (key=="surfaceLinewidth") surfaceLinewidth= atof(value.c_str());
+      else if (key=="Vertical")               verticalType= value;
 
-	else if (key=="Distance")       pDistance= (miutil::to_lower(value)=="on");
-	else if (key=="distanceColour") distanceColour= value;
-	else if (key=="distanceUnit")   distanceUnit= value;
-	else if (key=="distanceStep")   distanceStep= value;
+      else if (key=="keepVerHorRatio") keepVerHorRatio = kv.toBool();
+      else if (key=="verHorRatio")     verHorRatio= kv.toInt();
 
-	else if (key=="XYpos")          pXYpos= (miutil::to_lower(value)=="on");
-	else if (key=="xyposColour")    xyposColour= value;
+      else if (key=="stdVerticalArea") stdVerticalArea = kv.toBool();
+      else if (key=="minVerticalArea") minVerticalArea= kv.toInt();
+      else if (key=="maxVerticalArea") maxVerticalArea= kv.toInt();
 
-	else if (key=="GeoPos")         pGeoPos= (miutil::to_lower(value)=="on");
-	else if (key=="geoposColour")   geoposColour= value;
+      else if (key=="stdHorizontalArea") stdHorizontalArea = kv.toBool();
+      else if (key=="minHorizontalArea") minHorizontalArea= kv.toInt();
+      else if (key=="maxHorizontalArea") maxHorizontalArea= kv.toInt();
 
-	else if (key=="VerticalGridLines") pVerticalGridLines= (miutil::to_lower(value)=="on");
-	else if (key=="vergridColour")     vergridColour= value;
-	else if (key=="vergridLinetype")   vergridLinetype= value;
-	else if (key=="vergridLinewidth")  vergridLinewidth= atof(value.c_str());
+      else if (key=="backgroundColour") backgroundColour= value;
 
-	else if (key=="Markerlines")           pMarkerlines= (miutil::to_lower(value)=="on");
-	else if (key=="markerlinesColour")     markerlinesColour= value;
-	else if (key=="markerlinesLinetype")   markerlinesLinetype= value;
-	else if (key=="markerlinesLinewidth")  markerlinesLinewidth= atof(value.c_str());
+      else if (key=="OnMapColour")    vcOnMapColour= value;
+      else if (key=="OnMapLinetype")  vcOnMapLinetype= value;
+      else if (key=="OnMapLinewidth") vcOnMapLinewidth= kv.toDouble();
 
-	else if (key=="VerticalMarker")
-	  pVerticalMarker= (miutil::to_lower(value)=="on");
-	else if (key=="verticalMarkerColour")
-	  verticalMarkerColour= value;
-	else if (key=="verticalMarkerLinetype")
-	  verticalMarkerLinetype= value;
-	else if (key=="verticalMarkerLinewidth")
-	  verticalMarkerLinewidth= atof(value.c_str());
-	else if (key=="verticalMarkerLimit")
-	  verticalMarkerLimit= atof(value.c_str());
-
-	else if (key=="extrapolateFixedLevels") extrapolateFixedLevels= (miutil::to_lower(value)=="on");
-	else if (key=="extrapolateToBottom")    extrapolateToBottom= (miutil::to_lower(value)=="on");
-
-	else if (key=="thinArrows")    thinArrows= (miutil::to_lower(value)=="on");
-
-	else if (key=="Vertical")               verticalType= value;
-
-	else if (key=="keepVerHorRatio") keepVerHorRatio= (miutil::to_lower(value)=="on");
-	else if (key=="verHorRatio")     verHorRatio= atoi(value.c_str());
-
-	else if (key=="stdVerticalArea") stdVerticalArea= (miutil::to_lower(value)=="on");
-	else if (key=="minVerticalArea") minVerticalArea= atoi(value.c_str());
-	else if (key=="maxVerticalArea") maxVerticalArea= atoi(value.c_str());
-
-	else if (key=="stdHorizontalArea") stdHorizontalArea= (miutil::to_lower(value)=="on");
-	else if (key=="minHorizontalArea") minHorizontalArea= atoi(value.c_str());
-	else if (key=="maxHorizontalArea") maxHorizontalArea= atoi(value.c_str());
-
-	else if (key=="backgroundColour") backgroundColour= value;
-
-	else if (key=="OnMapColour")    vcOnMapColour= value;
-	else if (key=="OnMapLinetype")  vcOnMapLinetype= value;
-	else if (key=="OnMapLinewidth") vcOnMapLinewidth= atof(value.c_str());
-
-	else if (key=="SelectedOnMapColour")    vcSelectedOnMapColour= value;
-	else if (key=="SelectedOnMapLinetype")  vcSelectedOnMapLinetype= value;
-	else if (key=="SelectedOnMapLinewidth") vcSelectedOnMapLinewidth= atof(value.c_str());
-
-      }
+      else if (key=="SelectedOnMapColour")    vcSelectedOnMapColour= value;
+      else if (key=="SelectedOnMapLinetype")  vcSelectedOnMapLinetype= value;
+      else if (key=="SelectedOnMapLinewidth") vcSelectedOnMapLinewidth= kv.toDouble();
     }
   }
 }

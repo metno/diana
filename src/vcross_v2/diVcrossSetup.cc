@@ -266,11 +266,11 @@ std::string VcrossSetup::parseOneParameter(const KeyValue& kv)
   std::string parname = kv.key();
   string_s models;
   {
-    const size_t open = kv.key().find('[');
+    const size_t open = parname.find('[');
     if (open != std::string::npos) {
-      if (kv.key().at(kv.key().size()-1) != ']') // cannot be empty if it contains '['
+      if (parname.at(parname.size()-1) != ']') // cannot be empty if it contains '['
         return "model specification for parameter must end with ']'";
-      VcrossUtil::set_insert(models, miutil::split(kv.key().substr(open+1, kv.key().size()-open-2), ","));
+      VcrossUtil::set_insert(models, miutil::split(parname.substr(open+1, parname.size()-open-2), ","));
       BOOST_FOREACH(const std::string& m, models) {
         if (m.empty())
           return "empty model name specified for parameter";
@@ -449,7 +449,7 @@ std::string VcrossSetup::parseOnePlot(const std::string& plotLine)
         miutil::appendTo(vcp.plotOpts, " ", kv.key());
       }
     } else {
-      // any plot options without key()=value syntax ?????
+      // any plot options without key=value syntax ?????
       miutil::appendTo(vcp.plotOpts, " ", kv.key());
     }
   }
