@@ -3376,7 +3376,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   }
 
   QString stationsText = contr->getStationManager()->getStationsText(mev->x(), mev->y());
-  if ( !stationsText.empty() ) {
+  if ( !stationsText.isEmpty() ) {
     QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
   }
 
@@ -3602,7 +3602,9 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   vector<std::string> names;
   vector<int> ids;
   vector<std::string> stations;
+  cerr <<"// Perform general station selection, independent of tool-specific checks."<<endl;
   contr->findStations(x, y, false, names, ids, stations);
+  cerr <<names.size()<<" : "<<ids.size()<<" :  "<<stations.size()<<endl;
 
   if (needupdate) w->updateGL();
 }
