@@ -145,8 +145,6 @@ std::vector<std::string> DrawingDialog::getOKString()
   std::vector<std::string> lines;
 
   DrawingManager *drawm = DrawingManager::instance();
-  //if (!drawm->isEnabled())
-  //  return lines;
 
   for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
 

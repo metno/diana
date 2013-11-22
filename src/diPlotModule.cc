@@ -176,12 +176,19 @@ void PlotModule::preparePlots(const vector<string>& vpi)
   }
 
   // Send the commands to the other managers.
-  map<std::string, vector<std::string> >::iterator it;
-  for (it = manager_pi.begin(); it != manager_pi.end(); ++it) {
-    for (unsigned int i = 0; i < it->second.size(); ++i) {
-      Manager *manager = managers.at(it->first);
-      manager->processInput(it->second);
-    }
+  std::map<std::string, Manager*>::iterator it;
+  for (it = managers.begin(); it != managers.end(); ++it) {
+
+    // Find the plot commands for each manager.
+    map<std::string, vector<std::string> >::iterator itp = manager_pi.find(it->first);
+    vector<std::string> pi;
+
+    if (itp != manager_pi.end())
+      pi = itp->second;
+
+    // Send any plot commands to the relevant manager.
+    Manager *manager = managers.at(it->first);
+    manager->processInput(pi);
   }
 
 #ifdef DEBUGPRINT
