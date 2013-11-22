@@ -113,6 +113,7 @@ common_cxx_sources = \
 	EditItems/drawingitembase.cc \
 	EditItems/drawingpolyline.cc \
 	EditItems/drawingsymbol.cc \
+	EditItems/kml.cc \
 	PolyContouring.cc
 
 if WITH_VCROSS_V2
@@ -144,8 +145,7 @@ endif
 
 # Qt sources
 common_qt_sources = diManager.cc \
-	diDrawingManager.cc \
-	EditItems/kml.cc
+	diDrawingManager.cc
 
 if WITH_BATCH_ONLY
 diana_qt_sources =
