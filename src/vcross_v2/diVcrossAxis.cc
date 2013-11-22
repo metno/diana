@@ -86,10 +86,16 @@ float Axis::paint2value(float p, bool check) const
 
 bool Axis::zoomIn(float paint0, float paint1)
 {
+  METLIBS_LOG_SCOPE();
   if ((horizontal and paint0 > paint1) or (not horizontal and paint0 < paint1))
     std::swap(paint0, paint1);
-  const float v0 = paint2value(paint0), v1 = paint2value(paint1);
-  if (legalData(v0) and legalData(v1)) {
+  float v0 = paint2value(paint0), v1 = paint2value(paint1);
+  const bool l0 = legalData(v0), l1 = legalData(v1);
+  if (l0 or l1) {
+    if (not l0)
+      v0 = valueMin;
+    if (not l1)
+      v1 = valueMax;
     setValueRange(v0, v1);
     return true;
   } else {

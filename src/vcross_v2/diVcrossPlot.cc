@@ -212,8 +212,15 @@ void VcrossPlot::viewZoomIn(int px1, int py1, int px2, int py2)
   py1 = mTotalSize.height() - py1;
   py2 = mTotalSize.height() - py2;
 
-  const bool zx = mAxisX->zoomIn(px1, px2);
-  const bool zy = mAxisY->zoomIn(py1, py2);
+  // only zoom an axis if at least one point is inside this axis'
+  // paint range
+  const bool lx1 = mAxisX->legalPaint(px1), ly1 = mAxisY->legalPaint(py1),
+      lx2 = mAxisX->legalPaint(px2), ly2 = mAxisY->legalPaint(py2);
+  bool zx = false, zy = false;
+  if (lx1 or lx2)
+    zx = mAxisX->zoomIn(px1, px2);
+  if (ly1 or ly2)
+    zy = mAxisY->zoomIn(py1, py2);
   mViewChanged |= (zx or zy);
 }
 
