@@ -72,7 +72,7 @@ void PaintWindArrow::paint(float u, float v, float gx, float gy) const
       unitY = -v / ff; // -v because v is up, y coordinate increases down
 
   const float flagDX = fStep * unitX, flagDY = fStep * unitY;
-  const float flagEndDX = -fSize * unitY - flagDX, flagEndDY = fSize * unitX - flagDY;
+  const float flagEndDX = fSize * unitY - flagDX, flagEndDY = -fSize * unitX - flagDY;
 
   std::vector<float> trianglePointsX, trianglePointsY;
   if (mWithArrowHead) {
