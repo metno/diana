@@ -1544,13 +1544,21 @@ void VcrossPlot::plotDataContour(const Plot& plot)
 
 void VcrossPlot::plotDataWind(const Plot& plot)
 {
-  METLIBS_LOG_SCOPE();
-
-  glLineWidth(plot.poptions.linewidth + 0.1); // +0.1 to avoid MesaGL coredump
-  glColor3ubv(plot.poptions.linecolour.RGB());
-
   PaintWindArrow pw;
   pw.mWithArrowHead = (plot.poptions.arrowstyle == arrow_wind_arrow);
+  plotDataArrow(plot, pw);
+}
+
+void VcrossPlot::plotDataVector(const Plot& plot)
+{
+  PaintVector pv;
+  plotDataArrow(plot, pv);
+}
+
+void VcrossPlot::plotDataArrow(const Plot& plot, const PaintArrow& pa)
+{
+  glLineWidth(plot.poptions.linewidth);
+  glColor3ubv(plot.poptions.linecolour.RGB());
 
   METLIBS_LOG_DEBUG(LOGVAL(plot.poptions.density));
   const int xStep = std::max(plot.poptions.density, 1);
@@ -1564,7 +1572,7 @@ void VcrossPlot::plotDataWind(const Plot& plot)
     const float px = mAxisX->value2paint(vx);
     
     const bool paintThisX = mAxisX->legalPaint(px)
-        and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= 2*pw.mSize));
+        and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= 2*pa.size()));
     if (not paintThisX)
       continue;
 
@@ -1574,14 +1582,14 @@ void VcrossPlot::plotDataWind(const Plot& plot)
       const float vy = plot.zax->value(iy, ix);
       const float py = mAxisY->value2paint(vy);
       const bool paintThisY = mAxisY->legalPaint(py)
-          and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= 2*pw.mSize));
+          and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= 2*pa.size()));
       if (paintThisY) {
         const int idx = iy*nx + ix;
         const float WIND_SCALE = 3600.0 / 1852.0;
 
         const float wx = plot.p0[idx], wy = plot.p1[idx];
         if (not (isnan(wx) or isnan(wy))) {
-          pw.paint(WIND_SCALE * wx, WIND_SCALE * wy, px, py);
+          pa.paint(WIND_SCALE * wx, WIND_SCALE * wy, px, py);
           lastY = py;
           paintedY = true;
         }
@@ -1590,37 +1598,6 @@ void VcrossPlot::plotDataWind(const Plot& plot)
     if (paintedY) {
       lastX = px;
       paintedX = true;
-    }
-  }
-}
-
-void VcrossPlot::plotDataVector(const Plot& plot)
-{
-  METLIBS_LOG_SCOPE();
-
-  glLineWidth(plot.poptions.linewidth + 0.1); // +0.1 to avoid MesaGL coredump
-  glColor3ubv(plot.poptions.linecolour.RGB());
-
-  PaintVector pv;
-  pv.mScaleX = pv.mScaleY = 0.5;
-  pv.mWithArrowHead = (plot.poptions.arrowstyle == arrow_wind_arrow);
-
-  const int nx = plot.zax->mPoints, ny = plot.zax->mLevels;
-  for (int ix=0; ix<nx; ++ix) {
-    const float vx = mCrossectionDistances.at(ix);
-    const float px = mAxisX->value2paint(vx);
-    if (not mAxisX->legalPaint(px))
-      continue;
-    for (int iy=0; iy<ny; ++iy) {
-      const float vy = plot.zax->value(iy, ix);
-      const float py = mAxisY->value2paint(vy);
-      if (mAxisY->legalPaint(py)) {
-        const int idx = iy*nx + ix;
-
-        const float u = plot.p0[idx], v = plot.p1[idx];
-        if (not (isnan(u) or isnan(v)))
-          pv.paint(u, v, px, py);
-      }
     }
   }
 }

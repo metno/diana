@@ -149,8 +149,7 @@ void PaintWindArrow::paint(float u, float v, float gx, float gy) const
 // ########################################################################
 
 PaintVector::PaintVector()
-  : mWithArrowHead(true)
-  , mScaleX(0.1)
+  : mScaleX(1)
   , mScaleY(mScaleX)
 {
   METLIBS_LOG_SCOPE();
@@ -180,12 +179,10 @@ void PaintVector::paint(float u, float v, float px, float py) const
   py += dy;
   glVertex2f(px, py);
   
-  if (mWithArrowHead) {
-    // arrow (drawn as two lines)
-    const float a = -1/3., s = a / 2;
-    glVertex2f(px, py);
-    glVertex2f(px + a*dx + s*dy, py + a*dy - s*dx);
-    glVertex2f(px, py);
-    glVertex2f(px + a*dx - s*dy, py + a*dy + s*dx);
-  }
+  // arrow (drawn as two lines)
+  const float a = -1/3., s = a / 2;
+  glVertex2f(px, py);
+  glVertex2f(px + a*dx + s*dy, py + a*dy - s*dx);
+  glVertex2f(px, py);
+  glVertex2f(px + a*dx - s*dy, py + a*dy + s*dx);
 }

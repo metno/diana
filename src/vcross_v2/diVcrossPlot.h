@@ -34,6 +34,7 @@
 #include "diColour.h"
 #include "diPlotOptions.h"
 #include "diPrintOptions.h"
+#include "diVcrossPaint.h"
 
 #include <diField/diVcrossData.h>
 #include <diField/diField.h>
@@ -147,6 +148,7 @@ private:
 
   void plotData();
   void plotDataContour(const Plot& plot);
+  void plotDataArrow(const Plot& plot, const PaintArrow& pa);
   void plotDataWind(const Plot& plot);
   void plotDataVector(const Plot& plot);
   void plotDataLine(const Plot& plot);
