@@ -5,7 +5,8 @@ check_PROGRAMS = dianaUnitTests \
 	SvgContouring
 
 dianaUnitTests_SOURCES = \
-    TestPlotOptions.cc
+    TestPlotOptions.cc \
+    TestReversibleList.cc
 
 dianaUnitTests_LDFLAGS = -L.. \
     $(DIFIELD_LDFLAGS)
