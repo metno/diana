@@ -1557,29 +1557,40 @@ void VcrossPlot::plotDataWind(const Plot& plot)
   const bool xStepAuto = (plot.poptions.density < 1);
 
   const int nx = plot.zax->mPoints, ny = plot.zax->mLevels;
-  float nextX = mAxisX->getPaintMin() - 1;
+  float lastX = - 1;
+  bool paintedX = false;
   for (int ix=0; ix<nx; ix += xStep) {
     const float vx = mCrossectionDistances.at(ix);
     const float px = mAxisX->value2paint(vx);
-    if (not mAxisX->legalPaint(px) or (xStepAuto and px < nextX))
+    
+    const bool paintThisX = mAxisX->legalPaint(px)
+        and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= 2*pw.mSize));
+    if (not paintThisX)
       continue;
-    bool painted = false;
-    for (int iy=0; iy<ny; ++iy) {
+
+    bool paintedY = false;
+    float lastY = - 1;
+    for (int iy=0; iy<ny; iy += xStep) {
       const float vy = plot.zax->value(iy, ix);
       const float py = mAxisY->value2paint(vy);
-      if (mAxisY->legalPaint(py)) {
+      const bool paintThisY = mAxisY->legalPaint(py)
+          and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= 2*pw.mSize));
+      if (paintThisY) {
         const int idx = iy*nx + ix;
         const float WIND_SCALE = 3600.0 / 1852.0;
 
         const float wx = plot.p0[idx], wy = plot.p1[idx];
         if (not (isnan(wx) or isnan(wy))) {
           pw.paint(WIND_SCALE * wx, WIND_SCALE * wy, px, py);
-          painted = true;
+          lastY = py;
+          paintedY = true;
         }
       }
     }
-    if (painted)
-      nextX = px + 2*pw.mSize;
+    if (paintedY) {
+      lastX = px;
+      paintedX = true;
+    }
   }
 }
 
