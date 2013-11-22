@@ -1,0 +1,10 @@
+# one square in the middle at level 1
+level-list 1
+nx 5
+ny 5
+data
+0 0 0 0 0
+0 2 2 2 0
+0 2 2 2 0
+0 2 2 2 0
+0 0 0 0 0

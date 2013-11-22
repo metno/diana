@@ -1,0 +1,10 @@
+# horizontal lines with turn up
+level-list 1
+nx 5
+ny 5
+data
+0 0 0 0 0
+2 2 2 0 0
+2 2 2 0 0
+2 2 2 0 0
+2 2 2 2 2
