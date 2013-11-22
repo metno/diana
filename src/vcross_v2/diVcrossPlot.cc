@@ -422,7 +422,7 @@ void VcrossPlot::prepareAxesForAspectRatio()
 {
   METLIBS_LOG_SCOPE();
   float v2h = mOptions->verHorRatio;
-  if (isTimeGraph() or v2h <= 0) {
+  if (isTimeGraph() or (not mOptions->keepVerHorRatio) or v2h <= 0) {
     METLIBS_LOG_DEBUG("no aspect ratio");
     // horizontal axis has time unit, vertical axis pressure or height; aspect ratio is meaningless
     mAxisX->setPaintRange(mPlotAreaMax.left(),   mPlotAreaMax.right());

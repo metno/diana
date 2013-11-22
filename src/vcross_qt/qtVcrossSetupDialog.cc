@@ -540,6 +540,7 @@ void VcrossSetupDialog::applySetup()
     }
 
   }
+  vcrossm->standardPart();
 }
 
 
