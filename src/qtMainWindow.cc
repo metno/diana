@@ -1431,9 +1431,7 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
 
 void DianaMainWindow::MenuOK()
 {
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DianaMainWindow::MenuOK");
-#endif
   METLIBS_LOG_SCOPE();
 
   QApplication::setOverrideCursor( Qt::WaitCursor );
@@ -3377,78 +3375,11 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     sendLetter(letter);
   }
 
-  vector<Station*> allStations = contr->getStationManager()->findStations(mev->x(), mev->y());
-  vector<Station*> stations;
-  for (unsigned int i = 0; i < allStations.size(); ++i) {
-    if (allStations[i]->status != Station::noStatus)
-      stations.push_back(allStations[i]);
-  }
-
-  if (stations.size() > 0) {
-
-    // Count the number of times each station name appears in the list.
-    // This is used later to decide whether or not to show the "auto" or
-    // "vis" text.
-    map<std::string, unsigned int> stationNames;
-    for (unsigned int i = 0; i < stations.size(); ++i) {
-      unsigned int number = stationNames.count(stations[i]->name);
-      stationNames[stations[i]->name] = number + 1;
-    }
-
-    QString stationsText = "<table>";
-    for (unsigned int i = 0; i < stations.size(); ++i) {
-      if (!stations[i]->isVisible)
-        continue;
-
-      stationsText += "<tr>";
-      stationsText += "<td>";
-      switch (stations[i]->status) {
-      case Station::failed:
-        stationsText += tr("<span style=\"background: red; color: red\">X</span>");
-        break;
-      case Station::underRepair:
-        stationsText += tr("<span style=\"background: yellow; color: yellow\">X</span>");
-        break;
-      case Station::working:
-        stationsText += tr("<span style=\"background: lightgreen; color: lightgreen\">X</span>");
-        break;
-      default:
-        ;
-      }
-      stationsText += "</td>";
-
-      stationsText += "<td>";
-      stationsText += QString("<a href=\"%1\">%2</a>").arg(
-          QString::fromStdString(stations[i]->url)).arg(QString::fromStdString(stations[i]->name));
-      if (stationNames[stations[i]->name] > 1) {
-        if (stations[i]->type == Station::automatic)
-          stationsText += tr("&nbsp;auto");
-        else
-          stationsText += tr("&nbsp;vis");
-      }
-      stationsText += "</td>";
-
-      stationsText += "<td>";
-      if (stations[i]->lat >= 0)
-        stationsText += tr("%1&nbsp;N,&nbsp;").arg(stations[i]->lat);
-      else
-        stationsText += tr("%1&nbsp;S,&nbsp;").arg(-stations[i]->lat);
-      if (stations[i]->lon >= 0)
-        stationsText += tr("%1&nbsp;E").arg(stations[i]->lon);
-      else
-        stationsText += tr("%1&nbsp;W").arg(-stations[i]->lon);
-      stationsText += "</td>";
-
-      stationsText += "<td>";
-      stationsText += tr("%1&nbsp;m").arg(stations[i]->height);
-      stationsText += "</td>";
-
-      stationsText += "</tr>";
-    }
-    stationsText += "</table>";
-
+  QString stationsText = contr->getStationManager()->getStationsText(mev->x(), mev->y());
+  if ( !stationsText.empty() ) {
     QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
   }
+
 }
 
 

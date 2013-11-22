@@ -30,6 +30,7 @@
 #define diStationManager_h
 
 #include <diCommonTypes.h>
+#include <QString>
 
 class StationPlot;
 class Station;
@@ -91,6 +92,7 @@ public:
 
   ///Returns a std::vector containing the plots held by the manager.
   std::vector <StationPlot*> plots();
+  QString getStationsText(int x, int y);
 
 private:
   stationDialogInfo m_info;

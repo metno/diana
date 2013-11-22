@@ -535,3 +535,81 @@ vector <StationPlot*> StationManager::plots()
 
   return values;
 }
+
+QString StationManager::getStationsText(int x, int y)
+{
+  QString stationsText;
+  vector<Station*> allStations = findStations(x, y);
+  vector<Station*> stations;
+  for (unsigned int i = 0; i < allStations.size(); ++i) {
+    if (allStations[i]->status != Station::noStatus)
+      stations.push_back(allStations[i]);
+  }
+
+  if (stations.size() > 0) {
+
+    // Count the number of times each station name appears in the list.
+    // This is used later to decide whether or not to show the "auto" or
+    // "vis" text.
+    map<std::string, unsigned int> stationNames;
+    for (unsigned int i = 0; i < stations.size(); ++i) {
+      unsigned int number = stationNames.count(stations[i]->name);
+      stationNames[stations[i]->name] = number + 1;
+    }
+
+    stationsText = "<table>";
+    for (unsigned int i = 0; i < stations.size(); ++i) {
+      if (!stations[i]->isVisible)
+        continue;
+
+      stationsText += "<tr>";
+      stationsText += "<td>";
+      switch (stations[i]->status) {
+      case Station::failed:
+        stationsText += "<span style=\"background: red; color: red\">X</span>";
+        break;
+      case Station::underRepair:
+        stationsText += "<span style=\"background: yellow; color: yellow\">X</span>";
+        break;
+      case Station::working:
+        stationsText += "<span style=\"background: lightgreen; color: lightgreen\">X</span>";
+        break;
+      default:
+        ;
+      }
+      stationsText += "</td>";
+
+      stationsText += "<td>";
+      stationsText += QString("<a href=\"%1\">%2</a>").arg(
+          QString::fromStdString(stations[i]->url)).arg(QString::fromStdString(stations[i]->name));
+      if (stationNames[stations[i]->name] > 1) {
+        if (stations[i]->type == Station::automatic)
+          stationsText += "&nbsp;auto";
+        else
+          stationsText += "&nbsp;vis";
+      }
+      stationsText += "</td>";
+
+      stationsText += "<td>";
+      if (stations[i]->lat >= 0)
+        stationsText += QString("%1&nbsp;N,&nbsp;").arg(stations[i]->lat);
+      else
+        stationsText += QString("%1&nbsp;S,&nbsp;").arg(-stations[i]->lat);
+      if (stations[i]->lon >= 0)
+        stationsText += QString("%1&nbsp;E").arg(stations[i]->lon);
+      else
+        stationsText += QString("%1&nbsp;W").arg(-stations[i]->lon);
+      stationsText += "</td>";
+
+      stationsText += "<td>";
+      stationsText += QString("%1&nbsp;m").arg(stations[i]->height);
+      stationsText += "</td>";
+
+      stationsText += "</tr>";
+    }
+    stationsText += "</table>";
+
+  }
+
+  return stationsText;
+}
