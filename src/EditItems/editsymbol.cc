@@ -64,7 +64,7 @@ bool Symbol::hit(const QRectF &rect) const
 }
 
 
-// ### very similar to PolyLine::mousePress - move common code to base class?
+// ### similar to PolyLine::mousePress - move common code to base class?
 void Symbol::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
@@ -126,7 +126,6 @@ void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool 
   if (event->button() == Qt::LeftButton) {
     Q_ASSERT(points_.isEmpty());
     points_.append(QPointF(event->pos()));
-    updateControlPoints();
     complete = true; // causes repaint
   }
 }
@@ -152,7 +151,7 @@ void Symbol::resize(const QPointF &pos)
 void Symbol::updateControlPoints()
 {
     controlPoints_.clear();
-    const int size = 10, size_2 = size / 2;
+    const int size = controlPointSize(), size_2 = size / 2;
     foreach (QPointF p, boundingSquare())
         controlPoints_.append(QRectF(p.x() - size_2, p.y() - size_2, size, size));
 }
@@ -185,7 +184,7 @@ void Symbol::drawHoverHighlighting(bool incomplete) const
   } else {
     // highlight the bounding box
     glPushAttrib(GL_LINE_BIT);
-    glLineWidth(4);
+    glLineWidth(2);
     glBegin(GL_LINE_LOOP);
     foreach (QPointF p, boundingSquare())
       glVertex3i(p.x(), p.y(), 1);

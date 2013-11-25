@@ -43,7 +43,6 @@ void EditItemBase::init()
   resizing_ = false;
   pressedCtrlPointIndex_ = -1;
   hoveredCtrlPointIndex_ = -1;
-  placementPos_ = 0;
 }
 
 qreal EditItemBase::sqr(qreal x) { return x * x; }
@@ -137,11 +136,8 @@ void EditItemBase::repaint()
 // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
 void EditItemBase::draw(DrawModes modes, bool incomplete)
 {
-  if (incomplete) {
-    if (placementPos_ == 0)
-      return;
+  if (incomplete)
     drawIncomplete();
-  }
 
   Drawing(this)->draw();
 

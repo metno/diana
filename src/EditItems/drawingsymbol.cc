@@ -64,6 +64,9 @@ QList<QPointF> Symbol::boundingSquare() const
 
 void Symbol::draw()
 {
+  if (points_.isEmpty())
+    return;
+
   const QList<QPointF> bbox = boundingSquare();
 
   // draw the interior

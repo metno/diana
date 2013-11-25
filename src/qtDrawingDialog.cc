@@ -58,7 +58,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
-  // Add buttons for each of the actions exposed by the editor.
+  // Add buttons for actions exposed by the editor.
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
   QToolButton *cutButton = new QToolButton();
   cutButton->setDefaultAction(actions[EditItemManager::Cut]);
@@ -116,6 +116,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   layout->setMargin(4);
   layout->addLayout(controlsLayout);
   //layout->addWidget(editor->getUndoView());
+  layout->addWidget(new ToolPanel);
   layout->addLayout(createStandardButtons());
 
   setWindowTitle(tr("Drawing"));
@@ -249,6 +250,16 @@ void DrawingDialog::updateItemList()
   }
 }
 
+void DrawingDialog::keyPressEvent(QKeyEvent *event)
+{
+  if (event->key() == Qt::Key_Escape) {
+    EditItemManager::instance()->setSelectMode();
+    event->accept();
+  } else {
+    DataDialog::keyPressEvent(event);
+  }
+}
+
 /**
  * Updates an item in the item list with properties from an item in the editor.
  */
@@ -257,4 +268,30 @@ void DrawingDialog::updateItem(DrawingItemBase *item)
   // Refresh the columns for the corresponding list item.
   QTreeWidgetItem *listItem = listItemHash[item->id()];
   listItem->setData(1, Qt::DisplayRole, item->property("time", ""));
+}
+
+ToolPanel::ToolPanel(QWidget *parent)
+  : QWidget(parent)
+{
+  QHBoxLayout *layout = new QHBoxLayout(this);
+  layout->setSizeConstraint(QLayout::SetFixedSize);
+  layout->setMargin(0);
+
+  QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
+
+  QToolButton *selectButton = new QToolButton();
+  selectButton->setDefaultAction(actions[EditItemManager::Select]);
+  layout->addWidget(selectButton);
+
+  QToolButton *polyLineButton = new QToolButton();
+  polyLineButton->setDefaultAction(actions[EditItemManager::CreatePolyLine]);
+  layout->addWidget(polyLineButton);
+
+  QToolButton *symbolButton = new QToolButton();
+  symbolButton->setDefaultAction(actions[EditItemManager::CreateSymbol]);
+  layout->addWidget(symbolButton);
+}
+
+ToolPanel::~ToolPanel()
+{
 }

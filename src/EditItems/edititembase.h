@@ -138,7 +138,7 @@ protected:
     int pressedCtrlPointIndex_;
     int hoveredCtrlPointIndex_;
 
-    QPointF *placementPos_;
+    static int controlPointSize() { return 8; }
 
 signals:
     void repaintNeeded();

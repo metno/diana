@@ -94,7 +94,7 @@ class EditItemManager : public DrawingManager
 
 public:
     enum Action {
-      Cut, Copy, Paste, Edit, Load, Save, Undo, Redo
+      Cut, Copy, Paste, Edit, Load, Save, Undo, Redo, Select, CreatePolyLine, CreateSymbol
     };
 
     EditItemManager();
@@ -156,9 +156,12 @@ public slots:
     void undo();
     void updateActions();
     void saveItemsToFile();
+    void setSelectMode();
 
 private slots:
     void loadItemsFromFile();
+    void setCreatePolyLineMode();
+    void setCreateSymbolMode();
 
 signals:
     void selectionChanged();
@@ -196,6 +199,13 @@ private:
     QAction* saveAction;
     QAction* undoAction;
     QAction* redoAction;
+    QAction* selectAction;
+    QAction* createPolyLineAction;
+    QAction* createSymbolAction;
+
+    enum Mode {
+      SelectMode, CreatePolyLineMode, CreateSymbolMode
+    } mode_;
 
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);

@@ -168,67 +168,43 @@ void PolyLine::mousePress(
 
 void PolyLine::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-    Q_UNUSED(complete);
-    Q_UNUSED(aborted);
-
-    if (event->button() == Qt::LeftButton) {
-
-        if (!placementPos_)
-            placementPos_ = new QPointF(event->pos());
-        points_.append(QPointF(event->pos()));
-        updateControlPoints();
-        repaintNeeded = true;
-
-    } else if (event->button() == Qt::RightButton) {
-
-        if (points_.size() < 1) {
-            // There must be at least one point in the multiline.
-            aborted = true;
-            repaintNeeded = true;
-        }
-
-        Q_ASSERT(placementPos_);
-        delete placementPos_;
-        placementPos_ = 0;
-
-        if (points_.size() >= 2) {
-            complete = true; // causes repaint
-        } else {
-            aborted = true; // not a complete multiline
-            repaintNeeded = true;
-        }
+  if (event->button() == Qt::LeftButton) {
+    if (points_.size() == 0)
+      points_.append(QPointF(event->pos()));
+    points_.append(QPointF(event->pos()));
+    repaintNeeded = true;
+  } else if (event->button() == Qt::RightButton) {
+    if (points_.size() >= 2) {
+      complete = true; // causes repaint
+    } else {
+      aborted = true; // not a complete multiline
+      repaintNeeded = true;
     }
+  }
 }
 
 void PolyLine::incompleteMouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-    if (placementPos_) {
-        *placementPos_ = event->pos();
-        repaintNeeded = true;
-    }
+  if (points_.size() > 0) {
+    points_.last() = QPointF(event->pos());
+    repaintNeeded = true;
+  }
 }
 
 void PolyLine::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-    Q_UNUSED(repaintNeeded);
-    Q_UNUSED(complete);
-    if (placementPos_ && ((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter))) {
-        if (points_.size() >= 2) {
-            complete = true; // causes repaint
-        } else {
-            aborted = true; // not a complete multiline
-            repaintNeeded = true;
-        }
-        delete placementPos_;
-        placementPos_ = 0;
-    } else if (event->key() == Qt::Key_Escape) {
-        aborted = true;
-        if (placementPos_) {
-            delete placementPos_;
-            placementPos_ = 0;
-            repaintNeeded = true;
-        }
+  if ((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)) {
+    if (points_.size() >= 2) {
+      complete = true; // causes repaint
+    } else {
+      aborted = true; // not a complete multiline
+      repaintNeeded = true;
     }
+  } else if (event->key() == Qt::Key_Escape) {
+    aborted = true;
+    if (points_.size() > 0)
+      repaintNeeded = true;
+  }
 }
 
 void PolyLine::resize(const QPointF &pos)
@@ -244,7 +220,7 @@ void PolyLine::resize(const QPointF &pos)
 void PolyLine::updateControlPoints()
 {
     controlPoints_.clear();
-    const int size = 10, size_2 = size / 2;
+    const int size = controlPointSize(), size_2 = size / 2;
     foreach (QPointF p, points_)
         controlPoints_.append(QRectF(p.x() - size_2, p.y() - size_2, size, size));
 }
@@ -326,27 +302,21 @@ qreal PolyLine::distance(const QPointF &p) const
 
 void PolyLine::drawIncomplete() const
 {
-  // draw the line from the end of the multiline to the current placement position
-  glBegin(GL_LINES);
-  glColor3ub(0, 0, 255);
-  glVertex2i(points_.last().x(), points_.last().y());
-  glVertex2i(placementPos_->x(), placementPos_->y());
-  glEnd();
 }
 
 void PolyLine::drawHoverHighlighting(bool incomplete) const
 {
   if (incomplete)
-      glColor3ub(0, 200, 0);
-  else
-      glColor3ub(255, 0, 0);
+    return;
+
+  glColor3ub(255, 0, 0);
 
   if (hoveredCtrlPointIndex_ >= 0) {
     EditItemBase::drawHoveredControlPoint();
   } else {
     // highlight the polyline
     glPushAttrib(GL_LINE_BIT);
-    glLineWidth(4);
+    glLineWidth(2);
     glBegin(GL_LINE_LOOP);
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), 1);

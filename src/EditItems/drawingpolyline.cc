@@ -45,29 +45,32 @@ PolyLine::~PolyLine()
 
 void PolyLine::draw()
 {
-    // draw the interior
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glEnable( GL_BLEND );
-    GLdouble *gldata = new GLdouble[points_.size() * 3];
-    for (int i = 0; i < points_.size(); ++i) {
-        const QPointF p = points_.at(i);
-        gldata[3 * i] = p.x();
-        gldata[3 * i + 1] = p.y();
-        gldata[3 * i + 2] = 0.0;
-    }
-    glColor4ub(128, 128, 128, 50);
-    beginTesselation();
-    int npoints = points_.size();
-    tesselation(gldata, 1, &npoints);
-    endTesselation();
-    delete[] gldata;
+  if (points_.isEmpty())
+    return;
 
-    // draw the outline
-    glBegin(GL_LINE_LOOP);
-    glColor3ub(color_.red(), color_.green(), color_.blue());
-    foreach (QPointF p, points_)
-        glVertex2i(p.x(), p.y());
-    glEnd();
+  // draw the interior
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  glEnable( GL_BLEND );
+  GLdouble *gldata = new GLdouble[points_.size() * 3];
+  for (int i = 0; i < points_.size(); ++i) {
+    const QPointF p = points_.at(i);
+    gldata[3 * i] = p.x();
+    gldata[3 * i + 1] = p.y();
+    gldata[3 * i + 2] = 0.0;
+  }
+  glColor4ub(128, 128, 128, 50);
+  beginTesselation();
+  int npoints = points_.size();
+  tesselation(gldata, 1, &npoints);
+  endTesselation();
+  delete[] gldata;
+
+  // draw the outline
+  glBegin(GL_LINE_LOOP);
+  glColor3ub(color_.red(), color_.green(), color_.blue());
+  foreach (QPointF p, points_)
+    glVertex2i(p.x(), p.y());
+  glEnd();
 }
 
 QDomNode PolyLine::toKML() const

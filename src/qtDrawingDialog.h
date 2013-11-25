@@ -68,6 +68,15 @@ private:
   QTreeWidget *itemList;
   QHash<int, QTreeWidgetItem *> listItemHash;
   QHash<int, DrawingItemBase *> itemHash;
+  void keyPressEvent(QKeyEvent *);
+};
+
+class ToolPanel : public QWidget
+{
+  Q_OBJECT
+public:
+  ToolPanel(QWidget *parent = 0);
+  ~ToolPanel();
 };
 
 #endif

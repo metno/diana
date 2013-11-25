@@ -42,6 +42,7 @@
 #include <EditItems/editpolyline.h>
 #include <EditItems/editsymbol.h>
 #include <EditItems/kml.h>
+#include <paint_select.xpm>
 
 #define PLOTM PlotModule::instance()
 
@@ -195,6 +196,7 @@ EditItemManager::EditItemManager()
     , repaintNeeded_(false)
     , skipRepaint_(false)
     , undoView_(0)
+    , mode_(SelectMode)
 {
     self = this;
 
@@ -219,6 +221,12 @@ EditItemManager::EditItemManager()
     saveAction->setShortcut(tr("Ctrl+S"));
     undoAction = undoStack_.createUndoAction(this);
     redoAction = undoStack_.createRedoAction(this);
+    selectAction = new QAction(QIcon(QPixmap(paint_select_xpm)), "", this);
+    //selectAction->setShortcut(tr("Ctrl+???"));
+    createPolyLineAction = new QAction(tr("PolyLine"), this);
+    //createPolyLineAction->setShortcut(tr("Ctrl+???"));
+    createSymbolAction = new QAction(tr("Symbol"), this);
+    //createSymbolAction->setShortcut(tr("Ctrl+???"));
 
     connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
@@ -226,6 +234,9 @@ EditItemManager::EditItemManager()
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
     connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
     connect(saveAction, SIGNAL(triggered()), SLOT(saveItemsToFile()));
+    connect(selectAction, SIGNAL(triggered()), SLOT(setSelectMode()));
+    connect(createPolyLineAction, SIGNAL(triggered()), SLOT(setCreatePolyLineMode()));
+    connect(createSymbolAction, SIGNAL(triggered()), SLOT(setCreateSymbolMode()));
 }
 
 EditItemManager::~EditItemManager()
@@ -561,7 +572,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
             // consider only the topmost item that was hit ... 2 B DONE
             // for now, consider only the first that was found
             hoverItem_ = Editing(*(hitItems.begin()));
-            
+
             // send mouse hover event to the hover item
             hoverItem_->mouseHover(event, rpn);
             if (rpn) repaintNeeded_ = true;
@@ -593,6 +604,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     if (hover) {
         bool rpn = false;
         incompleteItem_->incompleteMouseHover(event, rpn);
+        Drawing(incompleteItem_)->setLatLonPoints(getLatLonPoints(Drawing(incompleteItem_)));
         if (rpn) repaintNeeded_ = true;
         if (incompleteItem_->hit(event->pos(), false))
             hoverItem_ = incompleteItem_;
@@ -834,6 +846,8 @@ void EditItemManager::abortEditing()
     if (incompleteItem_) {
         delete incompleteItem_; // or leave it to someone else?
         incompleteItem_ = 0;
+        hoverItem_ = 0;
+        setSelectMode(); // restore default mode
         emit incompleteEditing(false);
     }
 }
@@ -844,6 +858,7 @@ void EditItemManager::completeEditing()
         addItem(incompleteItem_); // causes repaint
         emit incompleteEditing(false);
         incompleteItem_ = 0;
+        setSelectMode(); // restore default mode
     }
 }
 
@@ -896,6 +911,9 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   a[Save] = saveAction;
   a[Undo] = undoAction;
   a[Redo] = redoAction;
+  a[Select] = selectAction;
+  a[CreatePolyLine] = createPolyLineAction;
+  a[CreateSymbol] = createSymbolAction;
   return a;
 }
 
@@ -1035,6 +1053,24 @@ void EditItemManager::pasteItems()
   updateActions();
 }
 
+void EditItemManager::setSelectMode()
+{
+  mode_ = SelectMode;
+  qApp->setOverrideCursor(Qt::ArrowCursor); // FOR NOW
+}
+
+void EditItemManager::setCreatePolyLineMode()
+{
+  mode_ = CreatePolyLineMode;
+  qApp->setOverrideCursor(Qt::CrossCursor); // FOR NOW
+}
+
+void EditItemManager::setCreateSymbolMode()
+{
+  mode_ = CreateSymbolMode;
+  qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
+}
+
 // Manager API
 
 void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
@@ -1086,6 +1122,14 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         contextMenu.exec(me2.globalPos());
 
     } else {
+
+      if (!hasIncompleteItem()) {
+        if (mode_ == CreatePolyLineMode)
+          addItem(Drawing(new EditItem_PolyLine::PolyLine()), true);
+        else if (mode_ == CreateSymbolMode)
+          addItem(Drawing(new EditItem_Symbol::Symbol()), true);
+      }
+
       QSet<DrawingItemBase *> itemsToCopy; // items to be copied
       QSet<DrawingItemBase *> itemsToEdit; // items to be edited
       mousePress(&me2, &itemsToCopy, &itemsToEdit);
@@ -1094,11 +1138,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
         copyItems(itemsToCopy);
       } else if (itemsToEdit.size() > 0) {
         editItemProperties(itemsToEdit);
-      } else if (getSelectedItems().size() == 0 && !hasIncompleteItem()) {
-        // Nothing was changed or interacted with, so create a new item and repeat the mouse click.
-        EditItem_PolyLine::PolyLine *item = new EditItem_PolyLine::PolyLine();
-        addItem(Drawing(item), true);
-        mousePress(&me2);
       }
     }
     event->setAccepted(true);
