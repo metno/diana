@@ -3598,14 +3598,6 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     }
   }
 
-  // Perform general station selection, independent of tool-specific checks.
-  vector<std::string> names;
-  vector<int> ids;
-  vector<std::string> stations;
-  cerr <<"// Perform general station selection, independent of tool-specific checks."<<endl;
-  contr->findStations(x, y, false, names, ids, stations);
-  cerr <<names.size()<<" : "<<ids.size()<<" :  "<<stations.size()<<endl;
-
   if (needupdate) w->updateGL();
 }
 
