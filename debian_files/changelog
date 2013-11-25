@@ -1,3 +1,15 @@
+diana (3.34.0~a2-3) unstable; urgency=low
+
+  * postinst fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 12:03:25 +0100
+
+diana (3.34.0~a2-2) unstable; urgency=low
+
+  * postinst fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Nov 2013 11:02:13 +0100
+
 diana (3.34.0~a2-1) unstable; urgency=low
 
   * QuickMenus: Bugfix
