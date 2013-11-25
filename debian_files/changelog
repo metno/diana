@@ -1,3 +1,9 @@
+diana (3.34.0~rc1-2) unstable; urgency=low
+
+  * Remove cerr
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 25 Nov 2013 09:57:32 +0100
+
 diana (3.34.0~rc1-1) unstable; urgency=low
 
   * New vertical crossections
