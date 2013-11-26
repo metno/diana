@@ -32,6 +32,7 @@
 #define _drawingdialog_h
 
 #include <qnamespace.h>
+#include <QStandardItemModel>
 #include "EditItems/edititembase.h"
 #include "qtDataDialog.h"
 
@@ -56,19 +57,22 @@ public slots:
   void toggleDrawingMode(bool);
   void updateDialog();
 
+protected:
+  void keyPressEvent(QKeyEvent *);
+
 private slots:
   void addItem(DrawingItemBase *item);
   void removeItem(DrawingItemBase *item);
-  void updateItem(DrawingItemBase *item);
-  void updateItemList();
-  void updateSelection();
+  void chooseDrawing();
+  void selectDrawing(const QItemSelection& current);
 
 private:
   Controller *ctrl;
-  QTreeWidget *itemList;
-  QHash<int, QTreeWidgetItem *> listItemHash;
+  QSet<int> itemIds;
   QHash<int, DrawingItemBase *> itemHash;
-  void keyPressEvent(QKeyEvent *);
+  QListView *drawingList;
+  QListView *chosenDrawingList;
+  QStandardItemModel chosenDrawingModel;
 };
 
 class ToolPanel : public QWidget

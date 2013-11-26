@@ -929,6 +929,11 @@ void EditItemManager::loadItemsFromFile()
     if (fileName.isNull())
         return; // operation cancelled
 
+    loadItems(fileName);
+}
+
+bool EditItemManager::loadItems(const QString &fileName)
+{
     // parse file and create items
     QString error;
     const QSet<EditItemBase *> items = KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol>(fileName, &error);
@@ -936,13 +941,13 @@ void EditItemManager::loadItemsFromFile()
       QMessageBox::warning(
           0, "Error", QString("failed to create items from file %1: %2")
           .arg(fileName).arg(error));
-      return;
+      return false;
     }
     if (items.isEmpty()) {
       QMessageBox::warning(
           0, "Warning", QString("file contained no items: %1")
           .arg(fileName));
-      return;
+      return false;
     }
 
     // add items
@@ -953,6 +958,7 @@ void EditItemManager::loadItemsFromFile()
     }
 
     updateActions();
+    return true;
 }
 
 void EditItemManager::saveItemsToFile()

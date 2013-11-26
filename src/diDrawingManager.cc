@@ -91,6 +91,36 @@ bool DrawingManager::parseSetup()
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
+
+  // Store a list of file names in the internal drawing model for use by the dialog.
+  vector<string> section;
+
+  // Return true if there is no DRAWING section.
+  if (!SetupParser::getSection("DRAWING", section)) {
+    METLIBS_LOG_SCOPE("No DRAWING section.");
+    return true;
+  }
+
+  drawingModel.clear();
+
+  for (unsigned int i = 0; i < section.size(); ++i) {
+
+    // Split the line into tokens.
+    vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+
+    for (unsigned int j = 0; j < tokens.size(); ++j) {
+
+      string key, value;
+      SetupParser::splitKeyValue(tokens[j], key, value);
+
+      if (key == "file") {
+        QStandardItem *item = new QStandardItem(QString::fromStdString(value));
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        drawingModel.appendRow(item);
+      }
+    }
+  }
+
   return true;
 }
 
@@ -335,4 +365,9 @@ void DrawingManager::plot(bool under, bool over)
 QSet<DrawingItemBase *> DrawingManager::getItems() const
 {
   return items_;
+}
+
+QAbstractItemModel *DrawingManager::model()
+{
+  return &drawingModel;
 }

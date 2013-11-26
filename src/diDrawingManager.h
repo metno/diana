@@ -45,6 +45,7 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
+#include <QStandardItemModel>
 #include <QString>
 #include <QVariantMap>
 
@@ -114,6 +115,9 @@ public:
 
   static DrawingManager *instance();
 
+  // Dialog-related methods
+  QAbstractItemModel *model();
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
@@ -129,7 +133,8 @@ protected:
   QSet<DrawingItemBase *> items_;
 
 private:
-  GridConverter gc;   // gridconverter class
+  GridConverter gc;
+  QStandardItemModel drawingModel;
 
   static DrawingManager *self;  // singleton instance pointer
 };

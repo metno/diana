@@ -38,6 +38,7 @@
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
 #include "qtDrawingDialog.h"
+#include "qtUtility.h"
 #include "EditItems/edititembase.h"
 #include "EditItems/editpolyline.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
@@ -46,6 +47,14 @@
 #include <QPushButton>
 #include <QToolBar>
 #include <QVBoxLayout>
+
+static QString shortClassName(const QString &className)
+{
+  const int separatorPos = className.lastIndexOf("::");
+  return separatorPos == -1
+      ? className
+      : className.mid(separatorPos + 2);
+}
 
 DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
@@ -58,47 +67,29 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
-  // Add buttons for actions exposed by the editor.
-  QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
-  QToolButton *cutButton = new QToolButton();
-  cutButton->setDefaultAction(actions[EditItemManager::Cut]);
-  QToolButton *copyButton = new QToolButton();
-  copyButton->setDefaultAction(actions[EditItemManager::Copy]);
-  QToolButton *pasteButton = new QToolButton();
-  pasteButton->setDefaultAction(actions[EditItemManager::Paste]);
-  QToolButton *editButton = new QToolButton();
-  editButton->setDefaultAction(actions[EditItemManager::Edit]);
-  QToolButton *loadButton = new QToolButton();
-  loadButton->setDefaultAction(actions[EditItemManager::Load]);
-
-  QToolButton *undoButton = new QToolButton();
-  undoButton->setDefaultAction(actions[EditItemManager::Undo]);
-  QToolButton *redoButton = new QToolButton();
-  redoButton->setDefaultAction(actions[EditItemManager::Redo]);
-
   // When the apply, hide or apply & hide buttons are pressed, we reset the undo stack.
   connect(this, SIGNAL(applyData()), EditItemManager::instance(), SLOT(reset()));
   connect(this, SIGNAL(hideData()), EditItemManager::instance(), SLOT(reset()));
 
-  QVBoxLayout *buttonLayout = new QVBoxLayout();
-  buttonLayout->addWidget(cutButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(copyButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(pasteButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(editButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(loadButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(undoButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addWidget(redoButton, 0, Qt::AlignJustify | Qt::AlignVCenter);
-  buttonLayout->addStretch();
+  QLabel *drawingListLabel = TitleLabel(tr("Drawings"), this);
+  drawingList = new QListView();
+  drawingList->setModel(DrawingManager::instance()->model());
+  drawingList->setSelectionMode(QAbstractItemView::MultiSelection);
+  drawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  itemList = new QTreeWidget();
-  itemList->setColumnCount(2);
-  //itemList->setHeaderHidden(true);
-  itemList->setHeaderLabels(QStringList() << tr("Object") << tr("Time"));
-  itemList->setRootIsDecorated(false);
-  itemList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  itemList->setSortingEnabled(true);
+  QLabel *chosenDrawingListLabel = TitleLabel(tr("Chosen Drawings"), this);
+  chosenDrawingList = new QListView();
+  chosenDrawingList->setModel(&chosenDrawingModel);
+  chosenDrawingList->setSelectionMode(QAbstractItemView::MultiSelection);
+  chosenDrawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  connect(itemList, SIGNAL(itemSelectionChanged()), SLOT(updateSelection()));
+  connect(drawingList->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          this, SLOT(chooseDrawing()));
+
+  connect(chosenDrawingList->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          this, SLOT(selectDrawing(const QItemSelection &)));
 
   EditItemManager *editor = EditItemManager::instance();
   connect(editor, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
@@ -109,12 +100,14 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QHBoxLayout *controlsLayout = new QHBoxLayout();
   controlsLayout->setMargin(0);
-  controlsLayout->addWidget(itemList, 1);
-  controlsLayout->addLayout(buttonLayout);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(4);
-  layout->addLayout(controlsLayout);
+  layout->addWidget(drawingListLabel);
+  layout->addWidget(drawingList);
+  layout->addWidget(chosenDrawingListLabel);
+  layout->addWidget(chosenDrawingList);
+  //layout->addWidget(itemList);
   //layout->addWidget(editor->getUndoView());
   layout->addWidget(new ToolPanel);
   layout->addLayout(createStandardButtons());
@@ -145,15 +138,14 @@ std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<std::string> lines;
 
-  DrawingManager *drawm = DrawingManager::instance();
+  QSet<int>::const_iterator it;
 
-  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
+  for (it = itemIds.begin(); it != itemIds.end(); ++it) {
 
-    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
-    int id = listItem->data(0, IdRole).toInt();
+    int id = *it;
     DrawingItemBase *item = itemHash[id];
 
-    QString type = listItem->data(0, Qt::DisplayRole).toString();
+    QString type = shortClassName(Editing(item)->metaObject()->className());
     int group = item->groupId();
     QString time = item->property("time", "").toString();
     QStringList points;
@@ -181,93 +173,60 @@ void DrawingDialog::toggleDrawingMode(bool enable)
   EditItemManager::instance()->setEditing(enable);
 }
 
-static QString shortClassName(const QString &className)
-{
-  const int separatorPos = className.lastIndexOf("::");
-  return separatorPos == -1
-      ? className
-      : className.mid(separatorPos + 2);
-}
-
 void DrawingDialog::addItem(DrawingItemBase *item)
 {
-  QTreeWidgetItem *listItem = new QTreeWidgetItem();
-  EditItemBase *editItem = dynamic_cast<EditItemBase *>(item);
-  if (editItem)
-      listItem->setText(0, shortClassName(editItem->metaObject()->className()));
-  else
-      listItem->setText(0, tr("Unknown"));
-  listItem->setData(0, IdRole, item->id());
-  listItem->setData(1, Qt::DisplayRole, item->property("time", ""));
-  itemList->addTopLevelItem(listItem);
-  listItemHash[item->id()] = listItem;
+  itemIds.insert(item->id());
   itemHash[item->id()] = item;
 }
 
 void DrawingDialog::removeItem(DrawingItemBase *item)
 {
-  int i = itemList->indexOfTopLevelItem(listItemHash[item->id()]);
-  delete itemList->takeTopLevelItem(i);
-  listItemHash.remove(item->id());
   itemHash.remove(item->id());
+  itemIds.remove(item->id());
 }
 
 /**
- * Updates the selection in the editor from the selection in the item list.
+ * Populates the selected drawing model with the selected items from the drawing model.
+ *
+ * This is performed whenever the selection changes in the drawing list.
  */
-void DrawingDialog::updateSelection()
+void DrawingDialog::chooseDrawing()
 {
-  QSet<int> ids;
-  foreach (QTreeWidgetItem *listItem, itemList->selectedItems()) {
-    ids.insert(listItem->data(0, IdRole).toInt());
-  }
+  chosenDrawingModel.clear();
 
-  EditItemManager *eim = EditItemManager::instance();
-  foreach (DrawingItemBase *item, eim->getItems()) {
-    if (ids.contains(item->id()))
-      eim->selectItem(item);
-    else
-      eim->deselectItem(item);
-  }
+  foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
+    if (index.column() != 0)
+      continue;
 
-  eim->repaint();
+    QString fileName = drawingList->model()->data(index).toString();
+    QStandardItem *item = new QStandardItem(fileName);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+
+    // Append the file name to the list of chosen files. If the file is not
+    // loaded successfully then disable it in the chosen list.
+    chosenDrawingModel.appendRow(item);
+    if (!EditItemManager::instance()->loadItems(fileName))
+      item->setEnabled(false);
+  }
 }
 
 /**
- * Updates the selection in the item list from the selection in the editor.
+ * Handles the change to the selection in the chosen list of drawings.
  */
-void DrawingDialog::updateItemList()
+void DrawingDialog::selectDrawing(const QItemSelection& current)
 {
-  EditItemManager *eim = EditItemManager::instance();
-  QSet<int> ids;
-  foreach (DrawingItemBase *item, eim->getSelectedItems())
-    ids.insert(item->id());
-
-  for (int i = 0; i < itemList->topLevelItemCount(); ++i) {
-    // Select the item in the list to match the corresponding item on the map.
-    QTreeWidgetItem *listItem = itemList->topLevelItem(i);
-    listItem->setSelected(ids.contains(listItem->data(0, IdRole).toInt()));
-  }
 }
 
 void DrawingDialog::keyPressEvent(QKeyEvent *event)
 {
   if (event->key() == Qt::Key_Escape) {
+    // Escape resets the drawing mode to selection mode. Note that this prevents
+    // the dialog from being cancelled.
     EditItemManager::instance()->setSelectMode();
     event->accept();
   } else {
     DataDialog::keyPressEvent(event);
   }
-}
-
-/**
- * Updates an item in the item list with properties from an item in the editor.
- */
-void DrawingDialog::updateItem(DrawingItemBase *item)
-{
-  // Refresh the columns for the corresponding list item.
-  QTreeWidgetItem *listItem = listItemHash[item->id()];
-  listItem->setData(1, Qt::DisplayRole, item->property("time", ""));
 }
 
 ToolPanel::ToolPanel(QWidget *parent)
