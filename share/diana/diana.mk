@@ -258,5 +258,6 @@ dist_div_DATA= share/diana/VNNsynop.list \
 	share/diana/priList.txt \
 	share/diana/obsflag.html \
 	share/diana/amdar.stations \
-	share/diana/ogckml22.xsd
+	share/diana/ogckml22.xsd \
+	share/diana/atom-author-link.xsd
 
