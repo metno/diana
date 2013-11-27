@@ -314,8 +314,6 @@ public:
   bool findObs(int,int);
   bool getObsName(int xx,int yy, std::string& station);
   void nextObs(bool);
-  std::vector<std::string> getStations();
-  void putStations(std::vector<std::string>);
   std::string getInfoStr(){return infostr;}
   bool mslp(){return devfield;}
   static int float2int(float f){return (int)(f > 0.0 ? f + 0.5 : f - 0.5);}
