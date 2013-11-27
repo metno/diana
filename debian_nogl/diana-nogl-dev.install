@@ -1,5 +1,6 @@
 src/di*.h usr/include/diana
 src/qt*.h usr/include/diana
+src/EditItems/*.h usr/include/diana/EditItems
 src/MovieMaker.h usr/include/diana
 src/PaintGL/paintgl.h usr/include/diana/PaintGL
 src/PaintGL/GL/gl.h usr/include/diana/PaintGL/GL
