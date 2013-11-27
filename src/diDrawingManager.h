@@ -45,7 +45,6 @@
 #include <QObject>
 #include <QPointF>
 #include <QSet>
-#include <QStandardItemModel>
 #include <QString>
 #include <QVariantMap>
 
@@ -74,6 +73,7 @@ public:
   bool parseSetup();
 
   virtual bool changeProjection(const Area& newArea);
+  virtual bool loadItems(const QString &fileName);
   bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
@@ -116,14 +116,13 @@ public:
   static DrawingManager *instance();
 
   // Dialog-related methods
-  QAbstractItemModel *model();
+  QSet<QString> &drawings();
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 protected:
   virtual void addItem_(DrawingItemBase *);
-  virtual void loadItemsFromFile(const QString &fileName);
   virtual void removeItem_(DrawingItemBase *item);
 
   Rectangle plotRect;
@@ -134,7 +133,7 @@ protected:
 
 private:
   GridConverter gc;
-  QStandardItemModel drawingModel;
+  QSet<QString> drawings_;
 
   static DrawingManager *self;  // singleton instance pointer
 };

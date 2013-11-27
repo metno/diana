@@ -1124,7 +1124,9 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   // prepare item stored in miscellaneous managers
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
-    it->second->prepare(splot.getTime());
+    // If the preparation fails then return false to indicate an error.
+    if (!it->second->prepare(splot.getTime()))
+      return false;
     ++it;
   }
 

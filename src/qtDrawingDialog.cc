@@ -73,7 +73,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   QLabel *drawingListLabel = TitleLabel(tr("Drawings"), this);
   drawingList = new QListView();
-  drawingList->setModel(DrawingManager::instance()->model());
+  drawingList->setModel(&drawingModel);
   drawingList->setSelectionMode(QAbstractItemView::MultiSelection);
   drawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -111,6 +111,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   //layout->addWidget(editor->getUndoView());
   layout->addWidget(new ToolPanel);
   layout->addLayout(createStandardButtons());
+
+  // Populate the drawing model with data from the drawing manager.
+  updateModel();
 
   setWindowTitle(tr("Drawing"));
 }
@@ -215,6 +218,20 @@ void DrawingDialog::chooseDrawing()
  */
 void DrawingDialog::selectDrawing(const QItemSelection& current)
 {
+}
+
+/**
+ * Updates the drawing model with data from the drawing manager.
+ */
+void DrawingDialog::updateModel()
+{
+  drawingModel.clear();
+
+  foreach (QString fileName, DrawingManager::instance()->drawings()) {
+    QStandardItem *item = new QStandardItem(fileName);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    drawingModel.appendRow(item);
+  }
 }
 
 void DrawingDialog::keyPressEvent(QKeyEvent *event)

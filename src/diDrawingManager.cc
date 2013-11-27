@@ -101,7 +101,7 @@ bool DrawingManager::parseSetup()
     return true;
   }
 
-  drawingModel.clear();
+  drawings_.clear();
 
   for (unsigned int i = 0; i < section.size(); ++i) {
 
@@ -113,11 +113,8 @@ bool DrawingManager::parseSetup()
       string key, value;
       SetupParser::splitKeyValue(tokens[j], key, value);
 
-      if (key == "file") {
-        QStandardItem *item = new QStandardItem(QString::fromStdString(value));
-        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        drawingModel.appendRow(item);
-      }
+      if (key == "file")
+        drawings_.insert(QString::fromStdString(value));
     }
   }
 
@@ -153,8 +150,12 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       QString key = wordPieces[0];
       QString value = wordPieces[1];
       if (key == "file") {
-        loadItemsFromFile(value);
-        break;
+        // Read the specified file, skipping to the next line if successful,
+        // but returning false to indicate an error if unsuccessful.
+        if (loadItems(value))
+          break;
+        else
+          return false;
       } else if (key == "type") {
         properties["type"] = value;
       } else if (key == "time") {
@@ -190,38 +191,42 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
 DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
 {
-    return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, error);
+  return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, error);
 }
 
 void DrawingManager::addItem_(DrawingItemBase *item)
 {
-    items_.insert(item);
+  items_.insert(item);
 }
 
-void DrawingManager::loadItemsFromFile(const QString &fileName)
+bool DrawingManager::loadItems(const QString &fileName)
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        METLIBS_LOG_WARN("Failed to open file " << fileName.toStdString() << " for reading.");
-        return;
-    }
+  QFile file(fileName);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    METLIBS_LOG_WARN("Failed to open file " << fileName.toStdString() << " for reading.");
+    return false;
+  }
 
-    QByteArray data = file.readAll();
-    file.close();
+  QByteArray data = file.readAll();
+  file.close();
 
-    QString error;
-    QSet<DrawingItemBase *> items = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(fileName, &error);
-    if (!error.isEmpty()) {
-      METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
-    } else if (!items.isEmpty()) {
-        foreach (DrawingItemBase *item, items) {
-            // Set the screen coordinates from the latitude and longitude values.
-            setFromLatLonPoints(item, item->getLatLonPoints());
-            items_.insert(Drawing(item)); // ### Drawing() required here?
-        }
-    } else {
-        METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
+  QString error;
+  QSet<DrawingItemBase *> items = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(fileName, &error);
+  if (!error.isEmpty()) {
+    METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
+    return false;
+  } else if (!items.isEmpty()) {
+    foreach (DrawingItemBase *item, items) {
+      // Set the screen coordinates from the latitude and longitude values.
+      setFromLatLonPoints(item, item->getLatLonPoints());
+      items_.insert(Drawing(item)); // ### Drawing() required here?
     }
+  } else {
+    METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
+    return false;
+  }
+
+  return true;
 }
 
 void DrawingManager::removeItem_(DrawingItemBase *item)
@@ -314,6 +319,18 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 */
 bool DrawingManager::prepare(const miutil::miTime &time)
 {
+  // Check the requested time against the available times.
+  bool found = false;
+  std::vector<miutil::miTime>::const_iterator it;
+  std::vector<miutil::miTime> times = getTimes();
+
+  for (it = times.begin(); it != times.end(); ++it) {
+    if (*it == time) {
+      found = true;
+      break;
+    }
+  }
+
   // Change the visibility of items in the editor.
 
   foreach (DrawingItemBase *item, items_) {
@@ -326,7 +343,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
       item->setProperty("visible", true);
   }
 
-  return true;
+  return found;
 }
 
 bool DrawingManager::changeProjection(const Area& newArea)
@@ -367,7 +384,7 @@ QSet<DrawingItemBase *> DrawingManager::getItems() const
   return items_;
 }
 
-QAbstractItemModel *DrawingManager::model()
+QSet<QString> &DrawingManager::drawings()
 {
-  return &drawingModel;
+  return drawings_;
 }

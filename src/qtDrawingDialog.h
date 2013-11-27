@@ -65,6 +65,7 @@ private slots:
   void removeItem(DrawingItemBase *item);
   void chooseDrawing();
   void selectDrawing(const QItemSelection& current);
+  void updateModel();
 
 private:
   Controller *ctrl;
@@ -72,6 +73,7 @@ private:
   QHash<int, DrawingItemBase *> itemHash;
   QListView *drawingList;
   QListView *chosenDrawingList;
+  QStandardItemModel drawingModel;
   QStandardItemModel chosenDrawingModel;
 };
 
