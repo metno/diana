@@ -296,12 +296,16 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::set<miutil::miTime> times;
+  static const char* timeProps[2] = {"time", "TimeSpan:begin"};
 
   foreach (DrawingItemBase *item, items_) {
     QVariantMap p = item->propertiesRef();
-    std::string time_str = p.value("time").toString().toStdString();
-    if (!time_str.empty())
+    std::string time_str;
+    for (unsigned int i = 0; i < 2; ++i) {
+      time_str = p.value(timeProps[i]).toString().toStdString();
+      if (!time_str.empty())
         times.insert(miutil::miTime(time_str));
+    }
   }
 
   std::vector<miutil::miTime> output;

@@ -119,7 +119,7 @@ static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *
   // open the schema file from a list of candidates in prioritized order
   const QString schemaBaseFileName("ogckml22.xsd");
   QStringList candSchemaFileNames;
-  candSchemaFileNames.append(QString("/usr/share/diana/%1/%2").arg(PVERSION).arg(schemaBaseFileName));
+  candSchemaFileNames.append(QString("/usr/share/diana/%1/%2").arg(PVERSION_MAJOR_DOT_MINOR).arg(schemaBaseFileName));
   candSchemaFileNames.append(QString("%1/%2").arg(qgetenv("KMLSCHEMADIR").constData()).arg(schemaBaseFileName));
   QXmlSchema schema;
   QStringList candSchemaErrors;
