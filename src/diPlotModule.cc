@@ -1135,7 +1135,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   while (it != managers.end()) {
     // If the preparation fails then return false to indicate an error.
     if (it->second->isEnabled() && !it->second->prepare(splot.getTime()))
-      return false;
+      nodata = false;
     ++it;
   }
 
