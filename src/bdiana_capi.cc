@@ -1756,6 +1756,11 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
         main_controller->setPlotTime(thetime);
 
+        //expand filename
+        if (miutil::contains(priop.fname, "%")) {
+          priop.fname = thetime.format(priop.fname);
+        }
+
         if (verbose)
           METLIBS_LOG_INFO("- updatePlots");
         if (!main_controller->updatePlots(failOnMissingData)) {
@@ -1868,6 +1873,11 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
         vcrossmanager->setTime(thetime);
 
+        //expand filename
+        if (miutil::contains(priop.fname, "%")) {
+          priop.fname = thetime.format(priop.fname);
+        }
+
         if (verbose)
           METLIBS_LOG_INFO("- setting cross-section:" << crossection);
         if (not crossection.empty())
@@ -1937,6 +1947,11 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
         vprofmanager->setTime(thetime);
 
+        //expand filename
+        if (miutil::contains(priop.fname, "%")) {
+          priop.fname = thetime.format(priop.fname);
+        }
+
         if (verbose)
           METLIBS_LOG_INFO("- setting station:" << vprof_station);
         if (not vprof_station.empty())
@@ -2004,6 +2019,11 @@ static int parseAndProcess(istream &is)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
         spectrummanager->setTime(thetime);
 
+        //expand filename
+        if (miutil::contains(priop.fname, "%")) {
+          priop.fname = thetime.format(priop.fname);
+        }
+
         if (verbose)
           METLIBS_LOG_INFO("- setting station:" << spectrum_station);
         if (not spectrum_station.empty())
@@ -2035,11 +2055,6 @@ static int parseAndProcess(istream &is)
       // Write output to a file.
       // --------------------------------------------------------
 
-      //expand filename
-      if (miutil::contains(priop.fname, "%")) {
-        priop.fname = thetime.format(priop.fname);
-      }
-
       if (use_double_buffer) {
         // Double-buffering
         if (canvasType == x_pixmap) {
@@ -2053,7 +2068,7 @@ static int parseAndProcess(istream &is)
 #endif
 #endif
         } else if (canvasType == qt_glpixelbuffer) {
-          METLIBS_LOG_ERROR("WARNING! double buffer swapping not implemented for qt_glpixelbuffer");
+          //METLIBS_LOG_ERROR("WARNING! double buffer swapping not implemented for qt_glpixelbuffer");
         }
       }
 
