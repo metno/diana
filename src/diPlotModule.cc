@@ -342,6 +342,15 @@ void PlotModule::prepareFields(const vector<string>& inp)
   }
   vfp.clear();
 
+  // NOTE: If we use the fieldCache, we must clear it here
+  // to avoid memory consumption!
+  if (npi == 0) {
+	  // No fields will be used any more...
+	  fieldm->fieldcache->flush();
+	  return;
+  }
+
+
   int n;
   for (int i = 0; i < npi; i++) {
     FieldPlot *fp;

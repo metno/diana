@@ -179,25 +179,8 @@ struct MapDialogInfo {
   std::string backcolour;    ///< background colour
 };
 
-/**
-   \brief GUI data for one station
-*/
-struct StationInfo {
-  std::string name;             ///< name of station type
-  bool logok;                ///< ok to log
-  std::string stationfile; ///< the file(s)
-  std::string image;     ///file name to image, if none then just a black spot
-};
 
-/**
-   \brief GUI data for all stations
-*/
-struct StationDialogInfo {
-  std::vector<std::string> types; ///< all defined stationtypes (names)
- // std::string default_type;  ///< default stationtype-name not aloud!
-  std::vector<StationInfo> stations;   ///< all defined stations
-  std::vector<std::string> images; ///< list of all images
-};//--------------------------------------------------
+//--------------------------------------------------
 // Observation structures
 //--------------------------------------------------
 
@@ -277,6 +260,7 @@ struct stationSetInfo {
     std::string name;
     std::string url;
     std::string image;
+    bool showvalue;
 };
 
 struct stationDialogInfo {

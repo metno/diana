@@ -122,6 +122,7 @@ protected:
   bool isSelected;       // is the object to be drawn on screen ?
   float rotation;        // Rotation around center of object;
   Colour objectColour;           // colour used
+  Colour objectBorderColour;     // colour used for areas borderlines
   Linetype itsLinetype;  // linetype used
   int currentState;              // holds current state
   float fSense;
@@ -173,6 +174,7 @@ public:
   void   setBasisColor(std::string);                 ///< sets basis color of object
   void   setObjectColor(std::string);                /// < sets actual color of object
   void   setObjectColor(Colour::ColourInfo);      ///< sets actual color of object
+  void   setObjectBorderColor(std::string);  /// < sets actual color of object
   void   setObjectRGBColor(std::string);             /// < sets actual color of object from rgb
   /// set alpha value of object colour
   void   setColorAlpha(int alpha){ objectColour.set(Colour::alpha,alpha);}

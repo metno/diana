@@ -2713,7 +2713,7 @@ bool FieldPlot::plotContour(int version)
   }
 
   const std::string pexu = miutil::to_upper(poptions.extremeType);
-  if (pexu=="L+H" || pexu=="C+W" || pexu=="VALUE")
+  if (pexu=="L+H" || pexu=="L+H+VALUE" || pexu=="C+W" || pexu=="VALUE")
     markExtreme();
 
   UpdateOutput();
@@ -3554,12 +3554,17 @@ bool FieldPlot::markExtreme()
   std::string pmarks[2];
   float chrx[2], chry[2];
   bool plotValue = false;
+  bool plotLHValue = false;
 
   const std::string pexu = miutil::to_upper(poptions.extremeType);
   if (pexu=="C+W") {
     marks[0]= 'C';  pmarks[0]= "C";
     marks[1]= 'W';  pmarks[1]= "W";
   } else if (pexu=="L+H") {
+    marks[0]= 'L';  pmarks[0]= "L";
+    marks[1]= 'H';  pmarks[1]= "H";
+   } else if (pexu=="L+H+VALUE") {
+    plotLHValue = true;
     marks[0]= 'L';  pmarks[0]= "L";
     marks[1]= 'H';  pmarks[1]= "H";
   } else {
@@ -3744,12 +3749,23 @@ bool FieldPlot::markExtreme()
               // mark extreme point
               if ( plotValue ) {
                 int prec = log10(fabs(fpos));
-                std::string fposStr(fpos,prec+2);
+                std::string fposStr = miutil::from_number(fpos,prec+2);
                 fp->drawStr(fposStr.c_str(),
                     gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
               } else {
                 fp->drawStr(pmarks[etype].c_str(),
                     gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+                if ( plotLHValue ) {
+                   float fontsize= 18. * poptions.extremeSize;
+                   fp->set(poptions.fontname,poptions.fontface,fontsize);
+                   int prec = log10(fabs(fpos));
+                   std::string fposStr = miutil::from_number(fpos,prec+1);
+                   fp->drawStr(fposStr.c_str(),
+                     gx-chrx[etype]*(-0.6),gy-chry[etype]*0.8,0.0);
+                }
+                float fontsize=28. * poptions.extremeSize;
+                fp->set(poptions.fontname,poptions.fontface,fontsize);
+
               }
 
               //#######################################################################

@@ -114,6 +114,8 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
   // get the stationlist
   VprofPlot *vp= NULL;
   // This creates the stationlist
+  // We must also init the connect string to mora db
+  Roaddata::initRoaddata(databasefile_);
   diStation::initStations(stationfile_);
   // get the pointer to the actual station vector
   vector<diStation> * stations = NULL;
@@ -232,6 +234,12 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittd = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itdd = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itff = data_map.begin();
+  /* Siginifcant wind levels */
+  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_4 = data_map.begin();
+  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_7 = data_map.begin();
+  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_12 = data_map.begin();
+  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_13 = data_map.begin();
+  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_14 = data_map.begin();
 
   /* the surface values */
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittts = data_map.begin();
@@ -342,6 +350,33 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 	 return vp;
   }
 
+  /* Significant vind levels */
+  /* These may be or may be not in telegram */
+  itsig_4 = data_map.find("sig_4");
+  itsig_7 = data_map.find("sig_7");
+  itsig_12 = data_map.find("sig_12");
+  itsig_13 = data_map.find("sig_13");
+  itsig_14 = data_map.find("sig_14");
+  /* allocate temporary maps */
+  map<float, RDKCOMBINEDROW_2 > sig_4;
+  map<float, RDKCOMBINEDROW_2 > sig_7;
+  map<float, RDKCOMBINEDROW_2 > sig_12;
+  map<float, RDKCOMBINEDROW_2 > sig_13;
+  map<float, RDKCOMBINEDROW_2 > sig_14;
+
+  /* fill them with data if data present */
+  if (itsig_4 != data_map.end())
+	sig_4 = itsig_4->second;
+  if (itsig_7 != data_map.end())
+	sig_7 = itsig_7->second;
+  if (itsig_12 != data_map.end())
+	sig_12 = itsig_12->second;
+  if (itsig_13 != data_map.end())
+	sig_13 = itsig_13->second;
+  if (itsig_14 != data_map.end())
+	sig_14 = itsig_14->second;
+
+
   float p,tt,td,fff,ddd;
   int   dd,ff,bpart;
   int   ffmax= -1, kmax= -1;
@@ -372,7 +407,7 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 	  // insert altitudefrom in the set
       keys.insert(ittp->second.altitudefrom);
   }
-
+  int siglevels = sig_4.size() + sig_7.size() + sig_12.size() + sig_13.size() + sig_14.size();
   // Iterate over the sorted set */
   int d = 0;
   std::set<float>::iterator it=keys.begin();
@@ -412,31 +447,93 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 		  }
 		  else
 		  {
-			dd= int(itdd->second[key].floatvalue);
-			ff= int(itff->second[key].floatvalue);
+			  dd= int(itdd->second[key].floatvalue);
+			  ff= int(itff->second[key].floatvalue);
 		  }
 		  /* Wind should always be plotted in knots,
-		     convert from m/s as they are stored in road */
-                  ff = ms2knots(ff);
+		  convert from m/s as they are stored in road */
+		  ff = ms2knots(ff);
 		  if (dd>=0 && dd<=360 && ff>=0) {
-			  vp->puv.push_back(p);
-			  vp->dd.push_back(dd);
-			  vp->ff.push_back(ff);
-			  // convert to east/west and north/south component
-			  fff= float(ff);
-			  ddd= (float(dd)+90.)*rad;
-			  vp->uu.push_back( fff*cosf(ddd));
-			  vp->vv.push_back(-fff*sinf(ddd));
-			  vp->sigwind.push_back(0);
-			  if (ff>ffmax) {
-				  ffmax= ff;
-				  kmax = d;
+			  // Only plot the significant winds
+			  bpart = 0;
+			  // SHOULD it always be 1 ?
+			  if (sig_4.count(key) != 0)
+			  {
+				  bpart = 1;
 			  }
-			  d++;
+			  else if (sig_7.count(key) != 0)
+			  {
+				  bpart = 1;
+			  }
+			  else if (sig_12.count(key) != 0)
+			  {
+				  bpart = 1;
+			  }
+			  else if (sig_13.count(key) != 0)
+			  {
+				  bpart = 1;
+			  }
+			  else if (sig_14.count(key) != 0)
+			  {
+				  bpart = 1;
+			  }
+			  // reduce wind plots only if there are some siglevels!
+			  if (siglevels > 5)
+			  {
+				  if (bpart > 0)
+				  {
+					  vp->sigwind.push_back(bpart);
+					  vp->puv.push_back(p);
+					  vp->dd.push_back(dd);
+					  vp->ff.push_back(ff);
+					  // convert to east/west and north/south component
+					  fff= float(ff);
+					  ddd= (float(dd)+90.)*rad;
+					  vp->uu.push_back( fff*cosf(ddd));
+					  vp->vv.push_back(-fff*sinf(ddd));
+					  // check B-part flag (significant level)
+					  /*bpart= (contents[n].data.flags1[k] >> 14) & 1;
+					  vp->sigwind.push_back(bpart);
+					  if (ff>ffmax) {
+					  ffmax= ff;
+					  kmax= vp->sigwind.size() - 1;
+					  }*/
+
+					  if (ff>ffmax) {
+						  ffmax= ff;
+						  kmax = vp->sigwind.size() - 1;
+					  }
+				  }
+			  }
+			  else
+			  {
+				  // plot all the winds!
+				  vp->sigwind.push_back(bpart);
+				  vp->puv.push_back(p);
+				  vp->dd.push_back(dd);
+				  vp->ff.push_back(ff);
+				  // convert to east/west and north/south component
+				  fff= float(ff);
+				  ddd= (float(dd)+90.)*rad;
+				  vp->uu.push_back( fff*cosf(ddd));
+				  vp->vv.push_back(-fff*sinf(ddd));
+				  // check B-part flag (significant level)
+				  /*bpart= (contents[n].data.flags1[k] >> 14) & 1;
+				  vp->sigwind.push_back(bpart);
+				  if (ff>ffmax) {
+				  ffmax= ff;
+				  kmax= vp->sigwind.size() - 1;
+				  }*/
+
+				  if (ff>ffmax) {
+					  ffmax= ff;
+					  kmax = vp->sigwind.size() - 1;
+				  }
+			  }
 		  }
 	  }
   } /* End for */
-
+  if (kmax>=0) vp->sigwind[kmax]= 3;
   vp->prognostic= false;
   int l1= vp->ptt.size();
   int l2= vp->puv.size();

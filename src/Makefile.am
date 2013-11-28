@@ -160,6 +160,7 @@ diana_qt_sources = \
 	qtAnnoText.cc \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
+	qtComplexPressureText.cc \
 	qtComplexText.cc \
 	qtDataDialog.cc \
 	qtDrawingDialog.cc \
@@ -346,6 +347,7 @@ noinst_HEADERS = \
 	qtAnnoText.h \
 	qtBrowserBox.h \
 	qtButtonLayout.h \
+	qtComplexPressureText.h \
 	qtComplexText.h \
 	qtDataDialog.h \
 	qtDrawingDialog.h \

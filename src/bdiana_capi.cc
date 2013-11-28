@@ -247,14 +247,14 @@ static int dblBuf[] = {GLX_DOUBLEBUFFER, GLX_RGBA, GLX_DEPTH_SIZE, 16,
   //GLX_TRANSPARENT_TYPE, GLX_TRANSPARENT_RGB,
   GLX_STENCIL_SIZE, 1, None};
 static int *snglBuf = &dblBuf[1];
-
-Display* dpy;
-XVisualInfo* pdvi; // X visual
-GLXContext cx; // GL drawing context
-Pixmap pixmap; // X pixmap
-GLXPixmap pix; // GLX pixmap
+// Init the global variables...
+Display* dpy = 0;
+XVisualInfo* pdvi = 0; // X visual
+GLXContext cx = 0; // GL drawing context
+Pixmap pixmap = 0; // X pixmap
+GLXPixmap pix = 0; // GLX pixmap
 #ifdef GLX_VERSION_1_3
-GLXPbuffer pbuf; // GLX Pixel Buffer
+GLXPbuffer pbuf = 0; // GLX Pixel Buffer
 #endif
 #endif
 
@@ -688,9 +688,9 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     }
 
     printer->setFullPage(true);
-    
+
     QSizeF size = printer->paperSize(QPrinter::DevicePixel);
-    
+
     double xscale = size.width()/xsize;
     double yscale = size.height()/ysize;
     double scale = qMin(qMin(xscale, yscale), 1.0);
@@ -1418,7 +1418,7 @@ void createJsonAnnotation()
           legend = legend.substr(at, end - at);
 
           map<std::string,std::string> textMap;
-          
+
           std::string title;
           vector<std::string> colors;
           vector<std::string> labels;
@@ -2917,7 +2917,7 @@ static int parseAndProcess(istream &is)
 
         if (nelements == 0) {
           METLIBS_LOG_ERROR("ERROR, glXChooseFBConfig returned no configurations");
-          exit(1);
+          return 1;
         }
 
         static int pbufAttr[5];
@@ -3607,11 +3607,13 @@ int diana_init(int _argc, char** _argv)
     METLIBS_LOG_INFO("qt_glpixelbuffer");
     if (!QGLFormat::hasOpenGL() || !QGLPixelBuffer::hasOpenGLPbuffers()) {
       COMMON_LOG::getInstance("common").errorStream() << "This system does not support OpenGL pbuffers.";
+      diana_dealloc();
       return 1;
     }
   } else if (canvasType == qt_glframebuffer) {
     if (!QGLFormat::hasOpenGL() || !QGLFramebufferObject::hasOpenGLFramebufferObjects()) {
       METLIBS_LOG_ERROR("This system does not support OpenGL framebuffers.");
+      diana_dealloc();
       return 1;
     } else {
       //Create QGL widget as a rendering context
@@ -3632,11 +3634,21 @@ int diana_init(int _argc, char** _argv)
 
   if (canvasType == x_pixmap || canvasType == glx_pixelbuffer) {
 #ifdef USE_XLIB
-
-    dpy = XOpenDisplay(xhost.c_str());
-    if (!dpy) {
+    // Try 5 times until give up
+    int tries = 0;
+    dpy = 0;
+    while ((tries < 5)&&(!dpy)) {
+      dpy = XOpenDisplay(xhost.cStr());
+      if (!dpy) {
         COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not open X-display:" << xhost;
-      return 1;
+        if (tries == 4)
+        {
+          cerr << "ERROR, could not open X-display:" << xhost << " giving up!" << endl;
+          return 1;
+        }
+        sleep(2);
+        tries++;
+      }
     }
 #endif
   }
@@ -3647,7 +3659,8 @@ int diana_init(int _argc, char** _argv)
     pdvi = glXChooseVisual(dpy, DefaultScreen(dpy),
         (use_double_buffer ? dblBuf : snglBuf));
     if (!pdvi) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
+      COMMON_LOG::getInstance("common").errorStream() << "ERROR, no RGB visual with depth buffer";
+      diana_dealloc();
       return 1;
     }
 
@@ -3655,7 +3668,8 @@ int diana_init(int _argc, char** _argv)
     cx = glXCreateContext(dpy, pdvi,// display and visual
         0, 0); // sharing and direct rendering
     if (!cx) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
+      COMMON_LOG::getInstance("common").errorStream() << "ERROR, could not create rendering context";
+      diana_dealloc();
       return 1;
     }
 #endif
@@ -3688,7 +3702,8 @@ int diana_init(int _argc, char** _argv)
   if (setupfilegiven) {
     setupread = readSetup(setupfile, *printman);
     if (!setupread) {
-        COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
+      COMMON_LOG::getInstance("common").errorStream() << "ERROR, unable to read setup:" << setupfile;
+      diana_dealloc();
       return 99;
     }
   }
@@ -3727,7 +3742,8 @@ int diana_init(int _argc, char** _argv)
     fs.open("bdiana.pid");
 
     if (!fs) {
-        COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
+      COMMON_LOG::getInstance("common").errorStream()<< "ERROR, can't open file <bdiana.pid>!";
+      diana_dealloc();
       return 1;
     }
 
@@ -3799,6 +3815,22 @@ int diana_dealloc()
   if (pixmap) {
     XFreePixmap(dpy, pixmap);
   }
+  if (cx) {
+	  glXDestroyContext(dpy, cx);
+  }
+  // Should we destroy the XVisualInfo also ? Yes!
+  if (pdvi)
+	  XFree(pdvi);
+#ifdef GLX_VERSION_1_3
+
+  if (buffermade && pbuf) {
+      glXDestroyPbuffer(dpy, pbuf);
+  }
+
+#endif
+  // Added 2013-03-20 : YE
+  int result = XCloseDisplay(dpy);
+  cerr << "XCloseDisplay returns: " << result << endl;
 #endif
 
 #if !defined(USE_PAINTGL)

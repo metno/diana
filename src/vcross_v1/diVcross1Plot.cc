@@ -1559,16 +1559,26 @@ void VcrossPlot::prepareVertical()
     LOG_2D(cdata2d[ny], nTotal, nPoint, "cdata2d[ny]");
 
     if (npy1 >= 0) {
-      if (nps >= 0 && vcoordPlot == vcv_exner) {
+      if ((nps >= 0 || ntopo >= 0) && vcoordPlot == vcv_exner) {
         for (int i = 0; i < nPoint; i++) {
-          p = cdata1d[nps][i];
+          if (ntopo >= 0 && nps >= 0) {
+            // we must compute the pressure on the actual heigth from heigth
+            p = cdata1d[nps][i] - (cdata1d[ntopo][i]/10.);
+          } else {
+            p = cdata1d[nps][i];
+          }
           pi = cp * powf(p * p0inv, kappa);
           cdata1d[npy1][i] = yconst + yscale * pi;
         }
-      } else if (nps >= 0 && vcoordPlot == vcv_pressure) {
+      } else if ((nps >= 0 || ntopo >= 0) && vcoordPlot == vcv_pressure) {
         for (int i = 0; i < nPoint; i++) {
-          p = cdata1d[nps][i];
-          cdata1d[npy1][i] = yconst + yscale * p;
+          if (ntopo >= 0 && nps >= 0) {
+            // we must compute the pressure from heigth
+            p = cdata1d[nps][i] - (cdata1d[ntopo][i]/10.);
+          } else {
+            p = cdata1d[nps][i];
+            cdata1d[npy1][i] = yconst + yscale * p;
+          }
         }
       } else if (ntopo >= 0 && vcoordPlot == vcv_height) {
         for (int i = 0; i < nPoint; i++) {
@@ -4029,6 +4039,8 @@ bool VcrossPlot::plotData(const std::string& fieldname, PlotOptions& poptions)
 
   // extrapolation and line removal needs existing bottom
   bool bottomext = (vcoord == 5 && vcopt->extrapolateToBottom && npy1 >= 0);
+  // if vcoord == 10 we vill have topography and no lines below
+  bottomext = ((vcoord == 10) && vcopt->extrapolateToBottom && npy1 >= 0);
 
   // if bottom extrapolation, then lines below bottom are hidden
   // by an OpenGL stencil (all scalar fields)

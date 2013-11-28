@@ -182,16 +182,31 @@ void VprofDiagram::plot()
     plotDiagram();
     fpDrawStr(true);
   } else if (redraw) {
+    // YE: Should we check for existing list ?!
+    // Yes, I think so!
+
+#if !defined(USE_PAINTGL)
+    if (drawlist != 0) {
+      if (glIsList(drawlist))
+        glDeleteLists(drawlist, 1);
+    }
     drawlist = glGenLists(1);
-#if !defined(USE_PAINTGL)
-    glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
+    if (drawlist != 0)
+      glNewList(drawlist, GL_COMPILE_AND_EXECUTE);
+    else
+      METLIBS_LOG_WARN("VprofDiagram::plot(): Unable to create new displaylist, glGenLists(1) returns 0");
 #endif
+
     plotDiagram();
+
 #if !defined(USE_PAINTGL)
-    glEndList();
+    if (drawlist != 0)
+      glEndList();
 #endif
+
     fpDrawStr(true);
-    diagramInList = true;
+    if (drawlist != 0)
+      diagramInList = true;
   } else if (glIsList(drawlist)) {
 #if !defined(USE_PAINTGL)
     glCallList(drawlist);

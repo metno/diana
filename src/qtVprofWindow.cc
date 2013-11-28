@@ -510,6 +510,9 @@ void VprofWindow::quitClicked(){
   tsToolbar->hide();
   modelButton->setChecked(false);
   setupButton->setChecked(false);
+  // NOTE: flush the fieldCache...
+  vprofm->cleanup();
+  
   active = false;
   emit VprofHide();
   vector<miutil::miTime> t;
@@ -768,6 +771,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
     emit modelChanged();
     //update combobox lists of stations and time
     updateStationBox();
+	updateTimeBox();
   }
   //get correct selection in comboboxes
   stationChangedSlot(0);

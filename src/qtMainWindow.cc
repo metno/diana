@@ -3223,78 +3223,86 @@ void DianaMainWindow::parseSetup()
 
 void DianaMainWindow::hardcopy()
 {
-  //METLIBS_LOG_DEBUG("DianaMainWindow::hardcopy()");
+  METLIBS_LOG_DEBUG("DianaMainWindow::hardcopy()");
+
   QPrinter qprt;
 
-  std::string command= pman.printCommand();
+  // save the old printer name if user prints to file
+  miutil::miString oldprinter = priop.printer;
+
+  miutil::miString command= pman.printCommand();
 
   fromPrintOption(qprt,priop);
 
   QPrintDialog printerDialog(&qprt, this);
-  if (printerDialog.exec()) {
-    if (!qprt.outputFileName().isNull()) {
-      priop.fname= qprt.outputFileName().toStdString();
-    } else {
-      priop.fname="/tmp/";
-      if (getenv("TMP") != NULL) {
-        priop.fname=getenv("TMP");
+  if (printerDialog.exec()==QDialog::Accepted) {
+    if (qprt.isValid()) {
+      if (!qprt.outputFileName().isNull()) {
+        priop.fname= qprt.outputFileName().toStdString();
+      } else {
+        priop.fname="/tmp/";
+        if (getenv("TMP") != NULL) {
+          priop.fname=getenv("TMP");
+        }
+        priop.fname+= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
+        miutil::replace(priop.fname, ' ', '_');
       }
-      priop.fname+= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
-      miutil::replace(priop.fname, ' ', '_');
-    }
+      // fill printOption from qprinter-selections
+      toPrintOption(qprt, priop);
 
-    // fill printOption from qprinter-selections
-    toPrintOption(qprt, priop);
+      // set printername
+      if (qprt.outputFileName().isNull())
+        priop.printer= qprt.printerName().toStdString();
 
-    // set printername
-    if (qprt.outputFileName().isNull())
-      priop.printer= qprt.printerName().toStdString();
-
-    // start the postscript production
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    //     contr->startHardcopy(priop);
+      // start the postscript production
+      QApplication::setOverrideCursor( Qt::WaitCursor );
+      //     contr->startHardcopy(priop);
 #if !defined(USE_PAINTGL)
-    w->Glw()->startHardcopy(priop);
-    w->updateGL();
-    w->Glw()->endHardcopy();
+      w->Glw()->startHardcopy(priop);
+      w->updateGL();
+      w->Glw()->endHardcopy();
 #else
-    w->Glw()->print(&qprt);
+      w->Glw()->print(&qprt);
 #endif
-    w->updateGL();
+      w->updateGL();
 
-    // if output to printer: call appropriate command
-    if (qprt.outputFileName().isNull()){
-      //From Qt:On Windows, Mac OS X and X11 systems that support CUPS,
-      //this will always return 1 as these operating systems can internally
-      //handle the number of copies. (Doesn't work)
-      priop.numcopies= qprt.numCopies();
+      // if output to printer: call appropriate command
+      if (qprt.outputFileName().isNull()){
+        //From Qt:On Windows, Mac OS X and X11 systems that support CUPS,
+        //this will always return 1 as these operating systems can internally
+        //handle the number of copies. (Doesn't work)
+        priop.numcopies= qprt.numCopies();
 
-      // expand command-variables
-      pman.expandCommand(command, priop);
+        // expand command-variables
+        pman.expandCommand(command, priop);
 
-      //########################################################################
-      METLIBS_LOG_DEBUG("PRINT: "<< command);
-      //########################################################################
-      int res = system(command.c_str());
+        //########################################################################
+        METLIBS_LOG_DEBUG("PRINT: "<< command);
+        //########################################################################
+        int res = system(command.c_str());
 
-      if (res != 0){
-        METLIBS_LOG_ERROR("Print command:" << command << " failed");
+        if (res != 0){
+           METLIBS_LOG_ERROR("Print command:" << command << " failed");
+         }
+
+      }  else {
+        // Reset printer name
+        priop.printer= oldprinter;
       }
 
-    }
-    QApplication::restoreOverrideCursor();
+      QApplication::restoreOverrideCursor();
 
-    //     // reset number of copies (saves a lot of paper)
-    //     qprt.setNumCopies(1);
+      //     // reset number of copies (saves a lot of paper)
+      //     qprt.setNumCopies(1);
+    }
   }
 }
-
-void DianaMainWindow::previewHardcopy()
-{
+  void DianaMainWindow::previewHardcopy()
+  {
 #if defined(USE_PAINTGL)
-  QPrinter qprt;
-  QPrintPreviewDialog previewDialog(&qprt, this);
-  connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
+    QPrinter qprt;
+    QPrintPreviewDialog previewDialog(&qprt, this);
+    connect(&previewDialog, SIGNAL(paintRequested(QPrinter*)),
           w->Glw(), SLOT(print(QPrinter*)));
   previewDialog.exec();
 #endif

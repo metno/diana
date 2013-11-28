@@ -434,10 +434,14 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
     } else {
       bool success = fieldManager->makeVProf(modelName,validTime[iTime],posLatitude[iPos],posLongitude[iPos],
           vp->tt,vp->ptt,vp->td,vp->ptd,vp->uu,vp->vv,vp->puv,vp->om,vp->pom);
-      numLevel = vp->tt.size();
+      if (!success) {
+        delete vp;
+        return NULL;
+      }
+
+	  numLevel = vp->tt.size();
       vp->maxLevels = numLevel;
-      if (!success)
-        return vp;
+
       vProfPlotTime = miTime(time);
       vProfPlotName = std::string(name);
       if(vProfPlot) delete vProfPlot;

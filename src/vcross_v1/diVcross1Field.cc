@@ -695,9 +695,9 @@ VcrossPlot* VcrossField::getCrossection(const std::string& name,
   METLIBS_LOG_DEBUG("parameters: ");
   for(int i=0;i<params.size();i++) {
     METLIBS_LOG_DEBUG(params[i]);
-    /*if(multiLevel[i] == false)
+    if(multiLevel[i] == false)
       for(int j=0;j<vcp->nPoint;j++)
-        METLIBS_LOG_DEBUG("["<<j<<"]: " << crossData[i][j]);*/
+        METLIBS_LOG_DEBUG("["<<j<<"]: " << crossData[i][j]);
   }
 #endif
 

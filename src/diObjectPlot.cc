@@ -180,16 +180,16 @@ void ObjectPlot::defineTranslations(){
   editTranslations["Okklusjon"]="Occlusion";
   editTranslations["KaldOkklusjon"]="Cold occlusion";
   editTranslations["VarmOkklusjon"]="Warm occlusion";
-  editTranslations["Stasjonær front"]="Stationary front";
-  editTranslations["Tråg"]="Trough";
+  editTranslations["Stasjonï¿½r front"]="Stationary front";
+  editTranslations["Trï¿½g"]="Trough";
   editTranslations["Bygelinje"]="Squall line";
-  editTranslations["Sig.vær"]="Significant weather";
+  editTranslations["Sig.vï¿½r"]="Significant weather";
 
   editTranslations["Lavtrykk"]="Low pressure";
-  editTranslations["Høytrykk"]="High pressure";
+  editTranslations["Hï¿½ytrykk"]="High pressure";
   editTranslations["Kald"]="Cold";
   editTranslations["Varm"]="Warm";
-  editTranslations["Tåke"]="Fog";
+  editTranslations["Tï¿½ke"]="Fog";
   editTranslations["Yr"]="Drizzle";
   editTranslations["Yr som fryser"]="Freezing drizzle";
   editTranslations["Regn som fryser"]="Freezing rain";
@@ -197,23 +197,23 @@ void ObjectPlot::defineTranslations(){
   editTranslations["Regnbyger"]="Rain showers";
   editTranslations["Sluddbyger"]="Sleet showers";
   editTranslations["Haglbyger"]="Hail showers";
-  editTranslations["Snøbyger"]="Snow showers";
-  editTranslations["Tordenvær"]="Thunderstorm";
-  editTranslations["Tordenvær m/hagl"]="Thunderstorm with hail";
-  editTranslations["Snøstjerne"]="Snow";
+  editTranslations["Snï¿½byger"]="Snow showers";
+  editTranslations["Tordenvï¿½r"]="Thunderstorm";
+  editTranslations["Tordenvï¿½r m/hagl"]="Thunderstorm with hail";
+  editTranslations["Snï¿½stjerne"]="Snow";
   editTranslations["Tropisk orkan"]="Hurricane";
   editTranslations["Disk"]="Disk";
   editTranslations["Sirkel"]="Circle";
   editTranslations["Kryss"]="Cross";
   editTranslations["Tekster"]="Text";
 
-  editTranslations["Nedbør"]="Precipitation";
+  editTranslations["Nedbï¿½r"]="Precipitation";
   editTranslations["Byger"]="Showers";
   editTranslations["Skyer"]="Clouds";
-  editTranslations["Tåke"]="Fog";
+  editTranslations["Tï¿½ke"]="Fog";
   editTranslations["Is"]="Ice";
-  editTranslations["Sig.vær"]="Significant weather";
-  editTranslations["Generisk område"]="Generic area";
+  editTranslations["Sig.vï¿½r"]="Significant weather";
+  editTranslations["Generisk omrï¿½de"]="Generic area";
 }
 
 
@@ -855,6 +855,10 @@ void  ObjectPlot::setBasisColor(std::string colour) {
 
 void  ObjectPlot::setObjectColor(std::string colour) {
   objectColour = Colour(colour);
+}
+
+void  ObjectPlot::setObjectBorderColor(std::string colour) {
+  objectBorderColour = Colour(colour);
 }
 
 void  ObjectPlot::setObjectColor(Colour::ColourInfo colour) {

@@ -2915,7 +2915,7 @@ void EditManager::initEditTools(){
 
 
 #ifdef SMHI
-  symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
+  symbols.push_back(newEditToolInfo("Duggregn",180,"green4"));
   symbols.push_back(newEditToolInfo( "Sn�",254,"green4"));
   //symbols.push_back(newEditToolInfo( "Regnskurar",1044,"green4","green4",4));
   symbols.push_back(newEditToolInfo( "Regnskurar",109,"green4"));
@@ -2940,6 +2940,8 @@ void EditManager::initEditTools(){
   //symbols.push_back(newEditToolInfo( "H�gtryck",1020,"black","black",1));
   symbols.push_back(newEditToolInfo( "H�gtryck",243,"black","black",1));
   symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
+  symbols.push_back(newEditToolInfo( "Fall",900,"red"));
+  symbols.push_back(newEditToolInfo( "Stig",900,"blue"));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
@@ -2967,9 +2969,9 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo("Text",0,"black"));
 
 #ifdef SMHI
-  areas.push_back(newEditToolInfo("Dis",Genericarea_constline,"red"));
-  areas.push_back(newEditToolInfo("Dimma",Genericarea_constline,"red"));
-  areas.push_back(newEditToolInfo("Regnomr�de",Genericarea_constline,"green4"));
+  areas.push_back(newEditToolInfo("Dis",Genericarea_constline,"red", "red", 0, true, "solid", "vdiagleft"));
+  areas.push_back(newEditToolInfo("Dimma",Genericarea_constline,"red", "red", 0, true, "solid", "vldiagcross_little"));
+  areas.push_back(newEditToolInfo("Regnomr�de",Genericarea_constline,"green4","blank", 0, true, "solid", "ldiagleft2"));
   sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));

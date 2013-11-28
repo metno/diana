@@ -663,6 +663,7 @@ void FieldDialog::CreateAdvanced()
   QLabel* extremeTypeLabel = TitleLabel(tr("Min,max"), advFrame);
   extremeType.push_back("None");
   extremeType.push_back("L+H");
+  extremeType.push_back("L+H+Value");
   extremeType.push_back("C+W");
   extremeType.push_back("Value");
   extremeTypeCbox = ComboBox(advFrame, extremeType);
@@ -1198,9 +1199,9 @@ void FieldDialog::modelGRboxActivated(int index)
 
 void FieldDialog::modelboxClicked(QListWidgetItem * item)
 {
-
   METLIBS_LOG_DEBUG("FieldDialog::modelboxClicked called");
 
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 
   refTimeComboBox->clear();
   fieldGRbox->clear();
@@ -1221,6 +1222,8 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
     refTimeComboBox->setCurrentIndex(refTimeComboBox->count()-1);
   }
   updateFieldGroups();
+
+  QApplication::restoreOverrideCursor();
 
   METLIBS_LOG_DEBUG("FieldDialog::modelboxClicked returned");
 
@@ -2046,10 +2049,6 @@ void FieldDialog::enableFieldOptions()
     } else {
       vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
       vector<std::string> stokens = miutil::split(tokens[0],";");
-      if (stokens.size() == 2)
-        shadingSpinBox->setValue(atoi(stokens[1].c_str()));
-      else
-        shadingSpinBox->setValue(0);
       int nr_cs = csInfo.size();
       std::string str;
       i = 0;
@@ -2066,6 +2065,12 @@ void FieldDialog::enableFieldOptions()
       str = vpcopt[nc].allValue;//tokens[0];
       shadingComboBox->setCurrentIndex(i + 1);
       updateFieldOptions("palettecolours", str, -1);
+      // Need to set this here otherwise the signal is changing
+      // the vpcopt[nc].allValue variable to off
+      if (stokens.size() == 2)
+        shadingSpinBox->setValue(::atoi(stokens[1].c_str()));
+      else
+        shadingSpinBox->setValue(0);
     }
   }
   //pattern

@@ -52,7 +52,8 @@
 #ifdef ROADOBS
 #ifdef NEWARK_INC
 #include <newarkAPI/diStation.h>
-#else // !NEWARK_INC
+#include <newarkAPI/diRoaddata.h>
+#else
 #include <roadAPI/diStation.h>
 #endif // !NEWARK_INC
 #include "diVprofRTemp.h"
@@ -118,8 +119,19 @@ VprofManager::~VprofManager()
   if (vpdiag) delete vpdiag;
   if (vpopt)  delete vpopt;
 
+  // clean up vpdata...
+  cleanup();
+}
+
+
+void VprofManager::cleanup()
+{
+// clean up vpdata...
   for (unsigned int i=0; i<vpdata.size(); i++)
     delete vpdata[i];
+  vpdata.clear();
+// NOTE: Flush the field cache
+  fieldm->fieldcache->flush();
 }
 
 
@@ -342,7 +354,7 @@ void VprofManager::updateObsFileList()
       of.stationfile= filePaths[j].stationfile;
       of.databasefile= filePaths[j].databasefile;
       of.time = time;
-      of.modificationTime= 0;
+      of.modificationTime= ::time(NULL);
       if (filePaths[j].obstype == temp)
         of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true);
       else if (filePaths[j].obstype == pilot)
@@ -358,7 +370,7 @@ void VprofManager::updateObsFileList()
         of.stationfile= filePaths[j].stationfile;
         of.databasefile= filePaths[j].databasefile;
         of.time = time;
-        of.modificationTime= 0;
+        of.modificationTime= ::time(NULL);
         if (filePaths[j].obstype == temp)
           of.filename = "ROADOBSTEMP_" + time.isoDate() + "_" + time.isoClock(true, true);
         else if (filePaths[j].obstype == pilot)
@@ -440,10 +452,7 @@ void VprofManager::setModel()
 #endif
 
   // should not clear all data, possibly needed again...
-
-  for (unsigned int i=0; i<vpdata.size(); i++)
-    delete vpdata[i];
-  vpdata.clear();
+  cleanup();
 
   //check if there are any selected models, if not use default
   //   if (!selectedModels.size()&&!selectedFiles.size()
@@ -1037,6 +1046,8 @@ void VprofManager::initStations(){
         {
           // TBD!
           // This creates the stationlist
+          // we must also intit the connect string to mora
+          Roaddata::initRoaddata(obsfiles[i].databasefile);
           diStation::initStations(obsfiles[i].stationfile);
           // get the pointer to the actual station vector
           vector<diStation> * stations = NULL;
@@ -1226,13 +1237,8 @@ void VprofManager::checkObsTime(int hour) {
 #ifdef ROADOBS
     if (obsfiles[i].fileformat == roadobs)
     {
-      /* always read data from road */
-      //if (obsfiles[i].modificationTime==0 || hour<0 ||
-      //    obsfiles[i].time.hour()==hour) {
-      //  obsfiles[i].modificationTime = time(NULL);
-      //  newtime= true;
-      //}
-      obsfiles[i].modificationTime = time(NULL);
+	  // Set to nowtime just in case.
+	  obsfiles[i].modificationTime = time(NULL);
       newtime= true;
     }
     else

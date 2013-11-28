@@ -57,6 +57,7 @@
 #include "qtToggleButton.h"
 #include "qtTimeStepSpinbox.h"
 #include "qtComplexText.h"
+#include "qtComplexPressureText.h"
 #include "qtEditText.h"
 #include "qtAnnoText.h"
 #include "diLocalSetupParser.h"
@@ -960,7 +961,17 @@ bool EditDialog::getComplexColoredText(vector<string>& symbolText,
   bool ok=false;
   if (symbolText.size() && xText.size()){
     set<string> complexList = m_ctrl->getComplexList();
-    ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText, complexList,true);
+ /*   ComplexText * cText =new ComplexText(this,
+    		m_ctrl,
+    		symbolText,xText,
+    		complexList,true);*/
+    ComplexPressureText * cText =new ComplexPressureText(this,
+    		m_ctrl,
+    		symbolText,
+    		xText,
+    		complexList,
+    		currEdittool,
+    		true);
     cText->setColour(colour);
     if (cText->exec()){
       cText->getComplexText(symbolText,xText);

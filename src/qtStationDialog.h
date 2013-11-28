@@ -43,6 +43,7 @@
 class QPushButton;
 class QShowEvent;
 class QTreeView;
+class QCheckBox;
 
 class StationDialog : public QDialog
 {
@@ -59,7 +60,7 @@ public:
   void putOKString(const std::vector<std::string>& vstr);
   ///return short name of current command
   std::string getShortname();
-
+  bool show_names;
   class Model : public QAbstractItemModel
   {
   public:
@@ -95,6 +96,7 @@ private slots:
   void selectSet(const QItemSelection& current);
   void reloadSets();
 
+  void showStationNamesActivated(bool);
   void applyClicked();
   void applyHideClicked();
   void helpClicked();
@@ -111,6 +113,7 @@ private:
 
   QTreeView* selectedStationPlotList;
   QTreeView* stationPlotList;
+  QCheckBox* showStationNames;
   QPushButton* fieldApply;
   QPushButton* fieldApplyHide;
   QPushButton* fieldHide;

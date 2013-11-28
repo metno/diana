@@ -173,6 +173,9 @@ public:
   // destructor
   ~VprofManager();
 
+  // clenans up vhen user closes the vprof window
+  void cleanup();
+
   VprofOptions* getOptions() { return vpopt; }
   void setPlotWindow(int w, int h);
 

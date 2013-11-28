@@ -227,6 +227,7 @@ void StationPlot::init()
   priority = 1;
   index = -1;
   editIndex = -1;
+  circle = 0;
 }
 
 StationPlot::~StationPlot()
@@ -311,8 +312,19 @@ bool StationPlot::plot()
   //Circle
   GLfloat xc, yc;
   GLfloat radius = 0.3;
+  // YE: Should we check for existing list ?!
+  // Yes, I think so!
+  if (circle != 0) {
+    if (glIsList(circle))
+      glDeleteLists(circle, 1);
+  }
   circle = glGenLists(1);
-  glNewList(circle, GL_COMPILE);
+  if (circle != 0) {
+    // Why is this created, its not used anymore ?
+    glNewList(circle, GL_COMPILE);
+  } else {
+    METLIBS_LOG_WARN("WARNING: StationPlot::plot(): Unable to create new displaylist, glGenLists(1) returns 0");
+  }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glBegin(GL_POLYGON);
   for (int i = 0; i < 100; i++) {
@@ -321,7 +333,8 @@ bool StationPlot::plot()
     glVertex2f(xc, yc);
   }
   glEnd();
-  glEndList();
+  if (circle != 0)
+    glEndList();
 
   map<Station::Status, vector<int> > selected; //index of selected stations for each status
   map<Station::Status, vector<int> > unselected; //index of unselected stations for each status
@@ -348,7 +361,9 @@ bool StationPlot::plot()
       plotStation(*it);
     }
   }
-
+  if (glIsList(circle))
+    glDeleteLists(circle, 1);
+  circle = 0;
   return true;
 }
 
@@ -379,8 +394,6 @@ void StationPlot::plotStation(int i)
       } else {
         h = ig.height(stations[i]->image);
         w = ig.width(stations[i]->image);
-        // 	if(stations[i]->edit)
-        // 	  glPlot(Station::redCircle,x,y,h,w);
         if (!ig.plotImage(stations[i]->image, x, y, true, stations[i]->scale,
             stations[i]->alpha))
           plotted = false;
@@ -1172,6 +1185,11 @@ bool StationPlot::stationCommand(const string& command)
 
   else if (command == "unselect") {
     unselect();
+    return true;
+  }
+  else if (command == "showPositionName" ) {
+    setUseStationName(true, true);
+
     return true;
   }
 

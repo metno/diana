@@ -311,7 +311,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 miutil::trim(	str);
     nline++;
     if (nline>nskip && (not str.empty()) && str[0]!='#') {
-      pstr= miutil::split(str, '"','"');
+      pstr= miutil::split(str, "|");
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {
@@ -553,7 +553,7 @@ miutil::trim(	str);
 
     nline++;
     if (nline>nskip && (not str.empty()) && str[0]!='#') {
-      pstr= miutil::split(str, '"','"');
+      pstr= miutil::split(str, "|");
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {

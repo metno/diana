@@ -105,6 +105,8 @@ public:
     viewport_x0(0),viewport_y0(0),
     viewport_width(0),viewport_height(0)
   {}
+
+  void printPrintOptions();
 };
   
 /**

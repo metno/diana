@@ -606,7 +606,40 @@ QString StationManager::getStationsText(int x, int y)
       stationsText += "</td>";
 
       stationsText += "</tr>";
-    }
+   
+//Here comes stations info for climate number, wmo number and nationalid.
+      // stationsText += "<tr>";
+      // stationsText += "<td>";
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText += QString(tr("ClimateNr:  "));
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText +=  tr("%1&nbsp;").arg(stations[i]->height);
+      // stationsText += "</td>";
+      // stationsText += "</tr>";
+
+      // stationsText += "<tr>";
+      // stationsText += "<td>";
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText += QString(tr("WMO Nr  :"));
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText +=  tr("%1&nbsp;").arg(stations[i]->barHeight);
+      // stationsText += "</td>";
+      // stationsText += "</tr>";
+      // stationsText += "<tr>";
+      // stationsText += "<td>";
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText += QString(tr("NationalId:"));
+      // stationsText += "</td>";
+      // stationsText += "<td>";
+      // stationsText +=  tr("%1&nbsp;").arg(QString::fromStdString(stations[i]->id));
+      // stationsText += "</td>";
+      // stationsText += "</tr>";
+   }
     stationsText += "</table>";
 
   }

@@ -273,6 +273,8 @@ int main(int argc, char **argv)
   mw->showFullScreen();
 #else
   mw->show();
+  mw->resize(mw->width()-1, mw->height()-1);
+  mw->resize(mw->width()+1, mw->height()+1);
 #endif
 
   // news ?

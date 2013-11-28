@@ -204,7 +204,7 @@ bool WeatherArea::plot()
     //enable blending and set colour
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
+    glColor4ub(objectBorderColour.R(),objectBorderColour.G(),objectBorderColour.B(),objectBorderColour.A());
 
     if (itsLinetype.stipple) {
       glEnable(GL_LINE_STIPPLE);
@@ -256,6 +256,7 @@ bool WeatherArea::plot()
 
       glShadeModel(GL_FLAT);
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
       if ( itsFilltype != NULL ) {
         glEnable(GL_POLYGON_STIPPLE);
         glPolygonStipple(itsFilltype);
@@ -402,6 +403,15 @@ void WeatherArea::setFillArea(const std::string& filltype)
     fillArea = true;
   } else if( filltype == "paralyse" ) {
     itsFilltype = paralyse;
+    fillArea = true;
+  } else if ( filltype == "ldiagleft2" ) {
+    itsFilltype = ldiagleft2;
+    fillArea = true;
+  } else if( filltype == "vdiagleft" ) {
+    itsFilltype = vdiagleft;
+    fillArea = true;
+  } else if( filltype == "vldiagcross_little" ) {
+    itsFilltype = vldiagcross_little;
     fillArea = true;
   }
 }

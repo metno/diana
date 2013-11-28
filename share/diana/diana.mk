@@ -233,6 +233,10 @@ dist_patterns_DATA= share/diana/images/patterns/vertical.xpm \
 	share/diana/images/patterns/dot-0.15.xpm \
 	share/diana/images/patterns/dot-0.05.xpm \
 	share/diana/images/patterns/diag.xpm \
+	share/diana/images/patterns/diag_visibility_thick.xpm \
+	share/diana/images/patterns/diag_visibility_thin.xpm \
+	share/diana/images/patterns/crosslines.xpm \
+	share/diana/images/patterns/crosslines_visibility.xpm \
 	share/diana/images/patterns/diagthick.xpm \
 	share/diana/images/patterns/diagthick1.xpm \
 	share/diana/images/patterns/snowflake.xpm \

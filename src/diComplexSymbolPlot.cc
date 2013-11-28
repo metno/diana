@@ -439,7 +439,7 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
     drawSig1(0,0,FZRASYMBOL);
     break;
   case 900:
-    symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
+    symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
     drawColoredSigText(0,0);
     break;
   case 2000:

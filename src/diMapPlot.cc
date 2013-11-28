@@ -252,6 +252,12 @@ bool MapPlot::plot(const int zorder)
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ MapPlot::plot() ++");
 #endif
+  // check zorder
+  if (zorder < 0 || zorder > 2)
+  {
+    METLIBS_LOG_WARN("MapPlot::plot(): Invalid zorder!");
+    return false;
+  }
   if (!enabled || !isactive[zorder])
     return false;
 
@@ -275,7 +281,13 @@ bool MapPlot::plot(const int zorder)
     if (glIsList(drawlist[zorder]))
       glDeleteLists(drawlist[zorder], 1);
     drawlist[zorder] = glGenLists(1);
-    glNewList(drawlist[zorder], GL_COMPILE_AND_EXECUTE);
+    if (drawlist[zorder] != 0) {
+      glNewList(drawlist[zorder], GL_COMPILE_AND_EXECUTE);
+    } else {
+      METLIBS_LOG_WARN("WARNING: MapPlot::plot(): Unable to create new displaylist, glGenLists(1) returns 0");
+      makelist = false;
+    }
+
     makenew= true;
 
     if (mapchanged) {

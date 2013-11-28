@@ -43,6 +43,7 @@
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puCtools/puCglob.h>
+#include <diField/diFieldManager.h>
 
 #include <boost/foreach.hpp>
 #include <boost/range/adaptor/map.hpp>
@@ -110,6 +111,10 @@ void VcrossManager::cleanup()
   BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields))
       delete f;
   vcfields.clear();
+
+  // NOTE: Flush the field cache
+  fieldm->fieldcache->flush();
+
 }
 
 void VcrossManager::cleanupDynamicCrossSections()

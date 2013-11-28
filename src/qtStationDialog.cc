@@ -41,6 +41,7 @@
 #include <QVariant>
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QCheckBox>
 
 #include <sstream>
 
@@ -89,6 +90,11 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
   selectedStationPlotList->setSelectionMode(QAbstractItemView::MultiSelection);
   selectedStationPlotList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+  showStationNames= new QCheckBox(tr("Show station names"));
+  showStationNames->setToolTip(tr("Show station names on the map") );
+  connect( showStationNames, SIGNAL( toggled(bool) ),SLOT( showStationNamesActivated(bool) ) );
+  showStationNames->setChecked(show_names);
+ 
   QPushButton *helpButton = NormalPushButton(tr("Help"), this);
 
   fieldHide = NormalPushButton(tr("Hide"), this);
@@ -114,6 +120,7 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl) :
   connect(reloadButton, SIGNAL(clicked()), SLOT(reloadSets()));
 
   QGridLayout* buttonLayout = new QGridLayout();
+  buttonLayout->addWidget(showStationNames, 0, 1);
   buttonLayout->addWidget(reloadButton, 0, 2);
   buttonLayout->addWidget(helpButton, 1, 0);
   buttonLayout->addWidget(fieldHide, 2, 0);
@@ -178,6 +185,18 @@ void StationDialog::chooseSet()
 
   chosenModel->updateData(info);
 }
+/**
+ * Populates the selected set model with the selected items from the set model.
+ *
+ * This is performed whenever the selection changes in the station set view.
+ */
+void StationDialog::showStationNamesActivated(bool on)
+{
+  if (showStationNames->isChecked()) 
+      show_names = true;
+  else 
+      show_names = false;
+}
 
 /**
  * Handles the change to a new set of stations.
@@ -198,6 +217,8 @@ void StationDialog::reloadSets()
     std::string url = index.data().toString().toStdString();
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
     std::string name = nameIndex.data().toString().toStdString();
+    if (show_names)
+        m_ctrl->getStationManager()->stationCommand("showPositionName",name,-1);
 
     if (m_ctrl->getStationManager()->importStations(name, url))
       selectionModel->select(index, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
