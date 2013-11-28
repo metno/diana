@@ -554,6 +554,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
 #endif
     }
   } else {
+    // Send the event to the other managers to see if one of them will handle it.
     bool handled = false;
     if (!(me->modifiers() & Qt::ShiftModifier)) {
       map<string,Manager*>::iterator it = plotm->managers.begin();
