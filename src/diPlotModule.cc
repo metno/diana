@@ -1134,7 +1134,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
     // If the preparation fails then return false to indicate an error.
-    if (!it->second->prepare(splot.getTime()))
+    if (it->second->isEnabled() && !it->second->prepare(splot.getTime()))
       return false;
     ++it;
   }
@@ -1410,8 +1410,10 @@ void PlotModule::plotUnder()
   // plot drawing items
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
-    if (it->second->isEnabled())
+    if (it->second->isEnabled()) {
+      it->second->changeProjection(splot.getMapArea());
       it->second->plot(true, false);
+    }
     ++it;
   }
 
@@ -1533,8 +1535,10 @@ void PlotModule::plotOver()
 
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {
-    if (it->second->isEnabled())
+    if (it->second->isEnabled()) {
+      it->second->changeProjection(splot.getMapArea());
       it->second->plot(false, true);
+    }
     ++it;
   }
 
