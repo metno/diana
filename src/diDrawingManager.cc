@@ -219,7 +219,7 @@ bool DrawingManager::loadItems(const QString &fileName)
     foreach (DrawingItemBase *item, items) {
       // Set the screen coordinates from the latitude and longitude values.
       setFromLatLonPoints(item, item->getLatLonPoints());
-      items_.insert(Drawing(item)); // ### Drawing() required here?
+      items_.insert(item);
     }
   } else {
     METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");

@@ -737,7 +737,6 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
 bool EditItemManager::changeProjection(const Area& newArea)
 {
   return DrawingManager::changeProjection(newArea);
-  glPopMatrix();
 }
 
 void EditItemManager::plot(bool under, bool over)
