@@ -94,9 +94,6 @@ public:
     void draw(DrawModes, bool);
     void draw();
 
-    // Emits the repaintNeeded() signal.
-    void repaint();
-
     QVariantMap clipboardVarMap() const;
     QString clipboardPlainText() const;
 
@@ -139,9 +136,6 @@ protected:
     int hoveredCtrlPointIndex_;
 
     static int controlPointSize() { return 8; }
-
-signals:
-    void repaintNeeded();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(EditItemBase::DrawModes)

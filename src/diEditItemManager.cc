@@ -304,8 +304,6 @@ DrawingItemBase *EditItemManager::createItemFromVarMap(const QVariantMap &vmap, 
 void EditItemManager::addItem_(DrawingItemBase *item)
 {
     DrawingManager::addItem_(item);
-
-    connect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     if (false) selectItem(item); // for now, don't pre-select new items
     emit itemAdded(item);
 }
@@ -325,7 +323,6 @@ void EditItemManager::removeItem_(DrawingItemBase *item)
     DrawingManager::removeItem_(item);
     if (Drawing(hoverItem_) == item)
       hoverItem_ = 0;
-    disconnect(Editing(item), SIGNAL(repaintNeeded()), this, SLOT(repaint()));
     deselectItem(item);
     emit itemRemoved(item);
 }
@@ -474,10 +471,6 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *it
     const bool modifiedItems = !undoCommands.empty();
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
-
-    // repaint if necessary
-    if (repaintNeeded_ || (selItems_ != origSelItems))
-        repaint();
 }
 
 // Handles a mouse press event for an item in the process of being completed.
@@ -496,7 +489,8 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
         if (aborted)
             abortEditing();
         if (rpn)
-            repaint();
+            repaintNeeded_ = true;
+
     }
 }
 
@@ -525,9 +519,6 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
         skipRepaint_ = false;
         repaintNeeded_ = true;
     }
-
-    if (repaintNeeded_)
-        repaint();
 }
 
 // Handles a mouse release event for an item in the process of being completed.
@@ -544,7 +535,7 @@ void EditItemManager::incompleteMouseRelease(QMouseEvent *event)
         if (aborted)
             abortEditing();
         if (rpn)
-            repaint();
+            repaintNeeded_ = true;
     }
 }
 
@@ -589,8 +580,8 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         }
     }
 
-    if (repaintNeeded_ || (hoverItem_ != origHoverItem))
-        repaint();
+    if (hoverItem_ != origHoverItem)
+        repaintNeeded_ = true;
 }
 
 // Handles a mouse move event for an item in the process of being completed.
@@ -614,8 +605,8 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
         if (rpn) repaintNeeded_ = true;
     }
 
-    if (repaintNeeded_ || (hoverItem_ != origHoverItem))
-        repaint();
+    if (hoverItem_ != origHoverItem)
+        repaintNeeded_ = true;
 }
 
 void EditItemManager::mouseDoubleClick(QMouseEvent *event)
@@ -641,7 +632,7 @@ void EditItemManager::incompleteMouseDoubleClick(QMouseEvent *event)
         if (aborted)
             abortEditing();
         if (rpn)
-            repaint();
+            repaintNeeded_ = true;
     }
 }
 
@@ -695,9 +686,6 @@ void EditItemManager::keyPress(QKeyEvent *event)
     const bool modifiedItems = !undoCommands.empty();
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
-
-    if (repaintNeeded_)
-        repaint();
 }
 
 // Handles a key press event for an item in the process of being completed.
@@ -714,7 +702,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
         if (aborted)
             abortEditing();
         if (rpn)
-            repaint();
+            repaintNeeded_ = true;
     }
 }
 
@@ -734,9 +722,6 @@ void EditItemManager::keyRelease(QKeyEvent *event)
         if (rpn)
             repaintNeeded_ = true;
     }
-
-    if (repaintNeeded_)
-        repaint();
 }
 
 // Handles a key release event for an item in the process of being completed.
@@ -746,7 +731,7 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
     bool rpn = false;
     incompleteItem_->incompleteKeyRelease(event, rpn);
     if (rpn)
-        repaint();
+        repaintNeeded_ = true;
 }
 
 bool EditItemManager::changeProjection(const Area& newArea)
@@ -757,7 +742,7 @@ bool EditItemManager::changeProjection(const Area& newArea)
 
 void EditItemManager::plot(bool under, bool over)
 {
-    if (!under)
+    if (!over)
         return;
 
     if (isEditing()) {
@@ -1079,7 +1064,7 @@ void EditItemManager::setCreateSymbolMode()
 
 // Manager API
 
-void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
+void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
   res.savebackground= true;
   res.background= false;
@@ -1166,10 +1151,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
   res.repaint = needsRepaint();
   res.action = canUndo() ? objects_changed : no_action;
 
-  updateActions();
+  if (event->type() != QEvent::MouseMove)
+    updateActions();
 }
 
-void EditItemManager::sendKeyboardEvent(QKeyEvent* event, EventResult& res)
+void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->accept();
   res.savebackground= true;

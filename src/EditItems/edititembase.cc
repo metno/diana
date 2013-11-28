@@ -126,11 +126,6 @@ void EditItemBase::drawHoveredControlPoint() const
   glPopAttrib();
 }
 
-void EditItemBase::repaint()
-{
-    emit repaintNeeded();
-}
-
 // Draws the item.
 // \a modes indicates whether the item is selected, hovered, both, or neither.
 // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).

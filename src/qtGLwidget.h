@@ -117,7 +117,6 @@ protected:
 
   void initializeGL();
   void paintGL();
-  void editPaint(bool drawb= true);
   void resizeGL(int width, int height);
 
   void changeCursor(const cursortype);
@@ -140,6 +139,9 @@ private:
   int plotw, ploth;        // size of widget (pixels)
   GLuint *fbuffer;         // fake overlay buffer
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
+
+protected slots:
+  void editPaint(bool drawb= true);
 };
 
 #endif

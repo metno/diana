@@ -361,7 +361,7 @@ bool DrawingManager::changeProjection(const Area& newArea)
 
 void DrawingManager::plot(bool under, bool over)
 {
-  if (!under)
+  if (!over)
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
