@@ -373,7 +373,10 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  foreach (DrawingItemBase *item, items_) {
+  QList<DrawingItemBase *> items = items_.values();
+  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+
+  foreach (DrawingItemBase *item, items) {
     if (item->property("visible", true).toBool()) {
       setFromLatLonPoints(item, item->getLatLonPoints());
       item->draw();
