@@ -99,6 +99,7 @@ void PaintGLContext::makeCurrent()
     renderStack.clear();
     transformStack.clear();
     transform = QTransform();
+    attributesStack.clear();
 
     printing = false;
 }
@@ -1011,10 +1012,15 @@ void glPopMatrix()
 
 void glPopAttrib(void)
 {
+    ENSURE_CTX
+    ctx->attributes = ctx->attributesStack.pop();
 }
 
 void glPushAttrib(GLbitfield mask)
 {
+    ENSURE_CTX
+    if (mask & GL_LINE_BIT)
+      ctx->attributesStack.push(ctx->attributes);
 }
 
 void glPushMatrix()

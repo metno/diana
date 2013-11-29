@@ -70,6 +70,7 @@ public:
     QStack<GLenum> stack;
     QStack<RenderItem> renderStack;
     QStack<QTransform> transformStack;
+    QStack<PaintAttributes> attributesStack;
 
     bool blend;
     QPainter::CompositionMode blendMode;
