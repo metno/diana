@@ -651,13 +651,6 @@ common_ldadd += \
 	${NEWARKAPI_LIBS}
 endif
 
-if WITH_GRIBFILE
-common_ldflags += \
-	${GRIBAPI_LDFLAGS}
-common_ldadd += \
-	${GRIBAPI_LIBS} ${GRIBAPI_LIBS}
-endif
-
 # Additional source code for RoadOBS support
 if WITH_GEOTIFF
 common_cppflags += -DGEOTIFF
