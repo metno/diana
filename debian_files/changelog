@@ -1,3 +1,10 @@
+diana (3.34.0~rc2-1) unstable; urgency=low
+
+  * Merge from SMHI
+  * drawing mode
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 29 Nov 2013 14:16:17 +0100
+
 diana (3.34.0~rc1-2) unstable; urgency=low
 
   * Remove cerr
