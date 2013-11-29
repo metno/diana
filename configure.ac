@@ -39,9 +39,9 @@ METNO_WIN32_WINSOCK
 AC_LANG_PUSH([C])
 
 METNO_WIN32_IFELSE([DEBUG_FLAGS=-gstabs], [DEBUG_FLAGS=-g])
-CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra -fPIC"
+CFLAGS="$CFLAGS -O2 -pipe $DEBUG_FLAGS -Wall -Wextra -fPIC -fopenmp "
 METNO_WIN32_IFELSE([OPT_FLAGS="-msse2 -march=pentium4"], [OPT_FLAGS="-msse2 -march=core2"])
-CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall -fPIC"
+CXXFLAGS="$CXXFLAGS ${OPT_FLAGS} -Wall -fPIC -fopenmp "
 AC_SYS_LARGEFILE
 
 AC_LANG_POP([C])
@@ -73,11 +73,6 @@ AC_ARG_ENABLE([newarkobs],
     [AS_HELP_STRING([--enable-newarkobs], [enable NEWARK observations])],
     [], [enable_newarkobs=no])
 AM_CONDITIONAL([WITH_NEWARKOBS], [test x$enable_newarkobs = xyes])
-
-AC_ARG_ENABLE([gribfile],
-    [AS_HELP_STRING([--enable-gribfile], [enable Gribfile support])],
-    [], [enable_gribfile=no])
-AM_CONDITIONAL([WITH_GRIBFILE], [test x$enable_gribfile = xyes])
 
 AC_ARG_ENABLE([geotiff],
     [AS_HELP_STRING([--enable-geotiff], [enable GeoTiff support])],
