@@ -754,8 +754,11 @@ void EditItemManager::plot(bool under, bool over)
         glTranslatef(editRect.x1, editRect.y1, 0.0);
         glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
+        QList<DrawingItemBase *> items = items_.values();
+        qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+
         Q_ASSERT(!items_.contains(incompleteItem_));
-        foreach (DrawingItemBase *item, items_) {
+        foreach (DrawingItemBase *item, items) {
             EditItemBase::DrawModes modes = EditItemBase::Normal;
             if (selItems_.contains(item))
                 modes |= EditItemBase::Selected;

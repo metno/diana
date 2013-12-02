@@ -69,8 +69,7 @@ private slots:
 
 private:
   Controller *ctrl;
-  QSet<int> itemIds;
-  QHash<int, DrawingItemBase *> itemHash;
+  QMap<int, DrawingItemBase *> itemMap;
   QListView *drawingList;
   QListView *chosenDrawingList;
   QStandardItemModel drawingModel;

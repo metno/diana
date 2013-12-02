@@ -141,12 +141,11 @@ std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<std::string> lines;
 
-  QSet<int>::const_iterator it;
+  QMap<int, DrawingItemBase *>::const_iterator it;
 
-  for (it = itemIds.begin(); it != itemIds.end(); ++it) {
+  for (it = itemMap.begin(); it != itemMap.end(); ++it) {
 
-    int id = *it;
-    DrawingItemBase *item = itemHash[id];
+    DrawingItemBase *item = it.value();
 
     QString type = shortClassName(Editing(item)->metaObject()->className());
     int group = item->groupId();
@@ -178,14 +177,12 @@ void DrawingDialog::toggleDrawingMode(bool enable)
 
 void DrawingDialog::addItem(DrawingItemBase *item)
 {
-  itemIds.insert(item->id());
-  itemHash[item->id()] = item;
+  itemMap[item->id()] = item;
 }
 
 void DrawingDialog::removeItem(DrawingItemBase *item)
 {
-  itemHash.remove(item->id());
-  itemIds.remove(item->id());
+  itemMap.remove(item->id());
 }
 
 /**
@@ -195,7 +192,14 @@ void DrawingDialog::removeItem(DrawingItemBase *item)
  */
 void DrawingDialog::chooseDrawing()
 {
+  // Clear the list of chosen drawings and reconstruct it from the selection in the
+  // list of available drawings. Remove all objects from the edit manager and load
+  // those in the list of chosen drawings.
   chosenDrawingModel.clear();
+
+  EditItemManager *editm = EditItemManager::instance();
+  foreach (DrawingItemBase *item, editm->getItems())
+    editm->removeItem(item);
 
   foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
     if (index.column() != 0)
