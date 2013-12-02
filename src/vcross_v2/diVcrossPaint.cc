@@ -186,3 +186,11 @@ void PaintVector::paint(float u, float v, float px, float py) const
   glVertex2f(px, py);
   glVertex2f(px + a*dx - s*dy, py + a*dy + s*dx);
 }
+
+// ------------------------------------------------------------------------
+
+void PaintVector::setScale(float sx, float sy)
+{
+  mScaleX = sx;
+  mScaleY = sy;
+}

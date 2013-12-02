@@ -71,6 +71,11 @@ struct PaintVector : public PaintArrow {
    */
   virtual void paint(float u, float v, float px, float py) const;
 
+  void setScale(float sx, float sy);
+
+  inline void setScale(float sxy)
+    { setScale(sxy, sxy); }
+
   float mScaleX, mScaleY;
 };
 

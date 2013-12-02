@@ -1552,6 +1552,11 @@ void VcrossPlot::plotDataWind(const Plot& plot)
 void VcrossPlot::plotDataVector(const Plot& plot)
 {
   PaintVector pv;
+
+  const float vu = plot.poptions.vectorunit;
+  if (vu > 0)
+    pv.setScale(vu);
+
   plotDataArrow(plot, pv);
 }
 
