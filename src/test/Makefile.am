@@ -1,7 +1,8 @@
 
-TESTS = dianaUnitTests
+TESTS = dianaUnitTests TestSvgContouring
 
-check_PROGRAMS = dianaUnitTests
+check_PROGRAMS = dianaUnitTests \
+	SvgContouring
 
 dianaUnitTests_SOURCES = \
     TestPlotOptions.cc
@@ -18,3 +19,17 @@ dianaUnitTests_LDADD = \
     -lgtest_main -ldiana \
     $(DIFIELD_LIBS) \
     $(gtest_LIBS)
+
+SvgContouring_SOURCES = \
+    SvgContouring.cc
+
+SvgContouring_LDFLAGS = -L.. \
+    $(MILOGGER_LDFLAGS)
+
+SvgContouring_CPPFLAGS = \
+    $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
+    $(MILOGGER_CPPFLAGS)
+
+SvgContouring_LDADD = \
+    -ldiana \
+    $(MILOGGER_LIBS)
