@@ -100,8 +100,10 @@ public:
     EditItemManager();
     virtual ~EditItemManager();
 
-    // Registers a new item with the manager.
-    // \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
+    bool processInput(const std::vector<std::string>& inp);
+
+    /// Registers a new item with the manager.
+    /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
     void addItem(DrawingItemBase *item, bool incomplete = false, bool skipRepaint = false);
     void addItem(EditItemBase *item, bool incomplete = false, bool skipRepaint = false);
     void removeItem(DrawingItemBase *item);
@@ -135,6 +137,9 @@ public:
     QHash<Action, QAction*> actions();
     QUndoView *getUndoView();
 
+    bool isProduct() const { return product; }
+    void setProduct(bool enable) { product = enable; }
+
 public slots:
     void abortEditing();
     void completeEditing();
@@ -153,11 +158,11 @@ public slots:
     void redo();
     void repaint();
     void reset();
+    void saveItemsToFile();
     void selectItem(DrawingItemBase *);
+    void setSelectMode();
     void undo();
     void updateActions();
-    void saveItemsToFile();
-    void setSelectMode();
 
 private slots:
     void loadItemsFromFile();
@@ -191,6 +196,9 @@ private:
     bool skipRepaint_;
     QUndoStack undoStack_;
     QUndoView *undoView_;
+
+    /// Indicates whether the current drawing is to be displayed outside editing mode.
+    bool product;
 
     QAction* cutAction;
     QAction* copyAction;

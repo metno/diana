@@ -197,6 +197,7 @@ EditItemManager::EditItemManager()
     , skipRepaint_(false)
     , undoView_(0)
     , mode_(SelectMode)
+    , product(false)
 {
     self = this;
 
@@ -262,6 +263,15 @@ QUndoView *EditItemManager::getUndoView()
         undoView_ = new QUndoView(&undoStack_);
 
     return undoView_;
+}
+
+bool EditItemManager::processInput(const std::vector<std::string>& inp)
+{
+  // Do not accept input and process plot commands if a product has not been made.
+  if (isProduct())
+    return DrawingManager::processInput(inp);
+
+  return true;
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.

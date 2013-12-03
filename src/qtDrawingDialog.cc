@@ -71,6 +71,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(this, SIGNAL(applyData()), EditItemManager::instance(), SLOT(reset()));
   connect(this, SIGNAL(hideData()), EditItemManager::instance(), SLOT(reset()));
 
+  connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
+
   QLabel *drawingListLabel = TitleLabel(tr("Drawings"), this);
   drawingList = new QListView();
   drawingList->setModel(&drawingModel);
@@ -95,7 +97,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(editor, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
   connect(editor, SIGNAL(itemChanged(DrawingItemBase*)), SLOT(updateItem(DrawingItemBase*)));
   connect(editor, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
-  connect(editor, SIGNAL(selectionChanged()), SLOT(updateItemList()));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
   QHBoxLayout *controlsLayout = new QHBoxLayout();
@@ -129,7 +130,9 @@ std::string DrawingDialog::name() const
 
 void DrawingDialog::updateTimes()
 {
-  std::vector<miutil::miTime> times = DrawingManager::instance()->getTimes();
+  std::vector<miutil::miTime> times;
+  if (EditItemManager::instance()->isProduct())
+    times = DrawingManager::instance()->getTimes();
   emit emitTimes("DRAWING", times);
 }
 
@@ -141,8 +144,10 @@ std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<std::string> lines;
 
-  QMap<int, DrawingItemBase *>::const_iterator it;
+  if (!EditItemManager::instance()->isProduct())
+    return lines;
 
+  QMap<int, DrawingItemBase *>::const_iterator it;
   for (it = itemMap.begin(); it != itemMap.end(); ++it) {
 
     DrawingItemBase *item = it.value();
@@ -164,6 +169,11 @@ std::vector<std::string> DrawingDialog::getOKString()
 
 void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
+  // If the current drawing has not been produced, ignore any plot commands
+  // that are sent to the dialog.
+  if (!EditItemManager::instance()->isProduct())
+    return;
+
   // Submit the lines as new input.
   std::vector<std::string> inp;
   inp.insert(inp.begin(), vstr.begin(), vstr.end());
@@ -215,6 +225,9 @@ void DrawingDialog::chooseDrawing()
     if (!EditItemManager::instance()->loadItems(fileName))
       item->setEnabled(false);
   }
+
+  editm->setProduct(false);
+  updateTimes();
 }
 
 /**
@@ -236,6 +249,15 @@ void DrawingDialog::updateModel()
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     drawingModel.appendRow(item);
   }
+}
+
+/**
+ * Makes the current drawing a product that is visible outside editing mode.
+ */
+void DrawingDialog::makeProduct()
+{
+  EditItemManager::instance()->setProduct(true);
+  updateTimes();
 }
 
 void DrawingDialog::keyPressEvent(QKeyEvent *event)

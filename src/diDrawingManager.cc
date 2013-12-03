@@ -121,6 +121,10 @@ bool DrawingManager::parseSetup()
   return true;
 }
 
+/**
+ * Processes the plot commands passed as a vector of strings, creating items
+ * as required.
+ */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   // New input has been submitted, so remove the items from the set.

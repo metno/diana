@@ -66,10 +66,15 @@ private slots:
   void chooseDrawing();
   void selectDrawing(const QItemSelection& current);
   void updateModel();
+  void makeProduct();
 
 private:
   Controller *ctrl;
+
+  /// Records the items being edited in ID order for serialisation.
   QMap<int, DrawingItemBase *> itemMap;
+
+  /// Lists of available drawings and those chosen for display/editing.
   QListView *drawingList;
   QListView *chosenDrawingList;
   QStandardItemModel drawingModel;
