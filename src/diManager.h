@@ -70,7 +70,9 @@ signals:
   void timesUpdated();
 
 private:
+  // Whether the manager has a finished product to show.
   bool enabled;
+  // Whether the manager is being used to edit a product interactively.
   bool editing;
 };
 

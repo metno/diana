@@ -251,9 +251,22 @@ EditItemManager *EditItemManager::instance()
   return EditItemManager::self;
 }
 
+/**
+ * Returns true if working or finished products are available.
+ */
 bool EditItemManager::isEnabled() const
 {
-  return isEditing() | DrawingManager::isEnabled();
+  return hasWorking() | (DrawingManager::isEnabled() && !items_.empty());
+}
+
+bool EditItemManager::hasWorking() const
+{
+  return working;
+}
+
+void EditItemManager::setWorking(bool enable)
+{
+  working = enable;
 }
 
 QUndoView *EditItemManager::getUndoView()
@@ -266,8 +279,8 @@ QUndoView *EditItemManager::getUndoView()
 
 bool EditItemManager::processInput(const std::vector<std::string>& inp)
 {
-  // Do not accept input and process plot commands if a product has not been made.
-  if (isEnabled())
+  // Only accept input and process plot commands if we are not working on a product.
+  if (!hasWorking())
     return DrawingManager::processInput(inp);
 
   return true;
@@ -753,7 +766,7 @@ void EditItemManager::plot(bool under, bool over)
     if (!over)
         return;
 
-    if (isEditing()) {
+    if (hasWorking()) {
         // Apply a transformation so that the items can be plotted with screen coordinates
         // while everything else is plotted in map coordinates.
         glPushMatrix();

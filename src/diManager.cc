@@ -59,4 +59,3 @@ void Manager::setEditing(bool enable)
 {
   editing = enable;
 }
-

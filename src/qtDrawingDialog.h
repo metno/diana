@@ -53,9 +53,10 @@ public:
   void putOKString(const std::vector<std::string>& vstr);
 
 public slots:
-  void updateTimes();
   void toggleDrawingMode(bool);
+  void toggleEditingMode(bool);
   void updateDialog();
+  void updateTimes();
 
 protected:
   void keyPressEvent(QKeyEvent *);
@@ -69,16 +70,24 @@ private slots:
   void makeProduct();
 
 private:
+  void loadChosenFiles();
+
   Controller *ctrl;
+  EditItemManager *editm;
 
   /// Records the items being edited in ID order for serialisation.
   QMap<int, DrawingItemBase *> itemMap;
+  /// Records which items belong to each file.
+  QHash<QString, QSet<int> > fileMap;
+  /// The current file being loaded.
+  QString currentFile;
 
   /// Lists of available drawings and those chosen for display/editing.
   QListView *drawingList;
   QListView *chosenDrawingList;
   QStandardItemModel drawingModel;
   QStandardItemModel chosenDrawingModel;
+  QToolButton *editButton;
 };
 
 class ToolPanel : public QWidget

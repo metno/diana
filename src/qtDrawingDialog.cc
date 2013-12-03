@@ -66,9 +66,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
+  // Record the editor in use.
+  editm = EditItemManager::instance();
+
   // When the apply, hide or apply & hide buttons are pressed, we reset the undo stack.
-  connect(this, SIGNAL(applyData()), EditItemManager::instance(), SLOT(reset()));
-  connect(this, SIGNAL(hideData()), EditItemManager::instance(), SLOT(reset()));
+  connect(this, SIGNAL(applyData()), editm, SLOT(reset()));
+  connect(this, SIGNAL(hideData()), editm, SLOT(reset()));
 
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
@@ -92,14 +95,25 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(selectDrawing(const QItemSelection &)));
 
-  EditItemManager *editor = EditItemManager::instance();
-  connect(editor, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
-  connect(editor, SIGNAL(itemChanged(DrawingItemBase*)), SLOT(updateItem(DrawingItemBase*)));
-  connect(editor, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
+  connect(editm, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
+  connect(editm, SIGNAL(itemChanged(DrawingItemBase*)), SLOT(updateItem(DrawingItemBase*)));
+  connect(editm, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
-  QHBoxLayout *controlsLayout = new QHBoxLayout();
-  controlsLayout->setMargin(0);
+  editButton = new QToolButton();
+  editButton->setText(tr("Edit"));
+  editButton->setCheckable(true);
+  ToolPanel *tools = new ToolPanel();
+  tools->setEnabled(false);
+
+  connect(editButton, SIGNAL(toggled(bool)), tools, SLOT(setEnabled(bool)));
+  connect(editButton, SIGNAL(toggled(bool)), SLOT(toggleEditingMode(bool)));
+  connect(editButton, SIGNAL(toggled(bool)), drawingList, SLOT(setDisabled(bool)));
+  connect(editButton, SIGNAL(toggled(bool)), chosenDrawingList, SLOT(setDisabled(bool)));
+
+  QHBoxLayout *editLayout = new QHBoxLayout();
+  editLayout->setMargin(0);
+  editLayout->addWidget(editButton);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(4);
@@ -107,9 +121,9 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   layout->addWidget(drawingList);
   layout->addWidget(chosenDrawingListLabel);
   layout->addWidget(chosenDrawingList);
-  //layout->addWidget(itemList);
+  layout->addLayout(editLayout);
   //layout->addWidget(editor->getUndoView());
-  layout->addWidget(new ToolPanel);
+  layout->addWidget(tools);
   layout->addLayout(createStandardButtons());
 
   // Populate the drawing model with data from the drawing manager.
@@ -130,7 +144,7 @@ std::string DrawingDialog::name() const
 void DrawingDialog::updateTimes()
 {
   std::vector<miutil::miTime> times;
-  if (EditItemManager::instance()->isEnabled())
+  if (editm->isEnabled())
     times = DrawingManager::instance()->getTimes();
   emit emitTimes("DRAWING", times);
 }
@@ -143,7 +157,7 @@ std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<std::string> lines;
 
-  if (!EditItemManager::instance()->isEnabled())
+  if (!editm->isEnabled())
     return lines;
 
   QMap<int, DrawingItemBase *>::const_iterator it;
@@ -170,7 +184,7 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
   // If the current drawing has not been produced, ignore any plot commands
   // that are sent to the dialog.
-  if (!EditItemManager::instance()->isEnabled())
+  if (!editm->isEnabled())
     return;
 
   // Submit the lines as new input.
@@ -181,17 +195,37 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 
 void DrawingDialog::toggleDrawingMode(bool enable)
 {
-  EditItemManager::instance()->setEditing(enable);
+  // Enabling drawing mode (opening the dialog) causes the manager to enter
+  // working mode. This makes it possible to show objects that have not been
+  // serialised as plot commands.
+  editm->setWorking(enable);
+}
+
+void DrawingDialog::toggleEditingMode(bool enable)
+{
+  // When editing starts, remove any existing items and load the chosen
+  // files. Mark the product as unfinished by disabling it.
+  if (enable) {
+    loadChosenFiles();
+    editm->setEnabled(false);
+  }
+
+  editm->setEditing(enable);
 }
 
 void DrawingDialog::addItem(DrawingItemBase *item)
 {
   itemMap[item->id()] = item;
+  fileMap[currentFile].insert(item->id());
+  item->setProperty("file", currentFile);
 }
 
 void DrawingDialog::removeItem(DrawingItemBase *item)
 {
   itemMap.remove(item->id());
+  QString file = item->property("file").toString();
+  if (fileMap.contains(file))
+    fileMap[file].remove(item->id());
 }
 
 /**
@@ -206,27 +240,20 @@ void DrawingDialog::chooseDrawing()
   // those in the list of chosen drawings.
   chosenDrawingModel.clear();
 
-  EditItemManager *editm = EditItemManager::instance();
-  foreach (DrawingItemBase *item, editm->getItems())
-    editm->removeItem(item);
-
   foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
     if (index.column() != 0)
       continue;
 
-    QString fileName = drawingList->model()->data(index).toString();
+    QString filePath = drawingList->model()->data(index, Qt::UserRole).toString();
+    QString fileName = QFileInfo(filePath).fileName();
     QStandardItem *item = new QStandardItem(fileName);
+    item->setData(filePath, Qt::UserRole);
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     // Append the file name to the list of chosen files. If the file is not
     // loaded successfully then disable it in the chosen list.
     chosenDrawingModel.appendRow(item);
-    if (!EditItemManager::instance()->loadItems(fileName))
-      item->setEnabled(false);
   }
-
-  editm->setEnabled(false);
-  updateTimes();
 }
 
 /**
@@ -243,8 +270,10 @@ void DrawingDialog::updateModel()
 {
   drawingModel.clear();
 
-  foreach (QString fileName, DrawingManager::instance()->drawings()) {
+  foreach (QString filePath, DrawingManager::instance()->drawings()) {
+    QString fileName = QFileInfo(filePath).fileName();
     QStandardItem *item = new QStandardItem(fileName);
+    item->setData(filePath, Qt::UserRole);
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     drawingModel.appendRow(item);
   }
@@ -255,8 +284,61 @@ void DrawingDialog::updateModel()
  */
 void DrawingDialog::makeProduct()
 {
-  EditItemManager::instance()->setEnabled(true);
+  // Leave editing mode, if necessary.
+  editButton->setChecked(false);
+
+  // Load any chosen files in case the user has not already done so by
+  // editing them.
+  loadChosenFiles();
+
+  // Enable the product and update the available times.
+  editm->setEnabled(true);
   updateTimes();
+}
+
+/**
+ * Loads the files in the list of chosen models.
+ */
+void DrawingDialog::loadChosenFiles()
+{
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  QSet<QString> loaded;
+  for (int row = 0; row < chosenDrawingModel.rowCount(); ++row) {
+
+    QModelIndex index = chosenDrawingModel.index(row, 0);
+    QString filePath = index.data(Qt::UserRole).toString();
+
+    if (fileMap.contains(filePath)) {
+      // Note that the file has already been loaded.
+      loaded.insert(filePath);
+    } else {
+      // If the file has not been loaded then load it.
+      currentFile = filePath;
+
+      if (editm->loadItems(filePath)) {
+        loaded.insert(filePath);
+      } else {
+        // Disable the item to indicate that it is not loaded.
+        QStandardItem *item = chosenDrawingModel.itemFromIndex(index);
+        item->setEnabled(false);
+      }
+    }
+  }
+  currentFile = QString();
+
+  // Remove any items from files that are no longer in the chosen list.
+  foreach (QString filePath, fileMap.keys()) {
+    if (!filePath.isEmpty() && !loaded.contains(filePath)) {
+      foreach (int id, fileMap[filePath]) {
+        DrawingItemBase *item = itemMap[id];
+        editm->removeItem(item);
+      }
+      fileMap.remove(filePath);
+    }
+  }
+
+  QApplication::restoreOverrideCursor();
 }
 
 void DrawingDialog::keyPressEvent(QKeyEvent *event)
@@ -264,7 +346,7 @@ void DrawingDialog::keyPressEvent(QKeyEvent *event)
   if (event->key() == Qt::Key_Escape) {
     // Escape resets the drawing mode to selection mode. Note that this prevents
     // the dialog from being cancelled.
-    EditItemManager::instance()->setSelectMode();
+    editm->setSelectMode();
     event->accept();
   } else {
     DataDialog::keyPressEvent(event);

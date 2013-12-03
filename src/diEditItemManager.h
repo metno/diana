@@ -137,9 +137,6 @@ public:
     QHash<Action, QAction*> actions();
     QUndoView *getUndoView();
 
-    bool isProduct() const { return product; }
-    void setProduct(bool enable) { product = enable; }
-
 public slots:
     void abortEditing();
     void completeEditing();
@@ -163,6 +160,9 @@ public slots:
     void setSelectMode();
     void undo();
     void updateActions();
+
+    virtual bool hasWorking() const;
+    virtual void setWorking(bool enable);
 
 private slots:
     void loadItemsFromFile();
@@ -212,6 +212,10 @@ private:
     enum Mode {
       SelectMode, CreatePolyLineMode, CreateSymbolMode
     } mode_;
+
+    // Define a variable to allow working (temporary) objects to be shown without
+    // having to create plot commands.
+    bool working;
 
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);
