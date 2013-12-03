@@ -44,10 +44,11 @@ class PolyLine : public DrawingItemBase
 public:
   PolyLine();
   virtual ~PolyLine();
-  virtual void draw();
   virtual QDomNode toKML() const;
 protected:
   QColor color_;
+private:
+  virtual void draw();
 };
 
 } // namespace
