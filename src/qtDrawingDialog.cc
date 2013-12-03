@@ -40,7 +40,6 @@
 #include "qtDrawingDialog.h"
 #include "qtUtility.h"
 #include "EditItems/edititembase.h"
-#include "EditItems/editpolyline.h"
 #include <paint_mode.xpm>       // reused for area drawing functionality
 
 #include <QAction>
