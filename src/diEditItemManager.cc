@@ -197,7 +197,6 @@ EditItemManager::EditItemManager()
     , skipRepaint_(false)
     , undoView_(0)
     , mode_(SelectMode)
-    , product(false)
 {
     self = this;
 
@@ -268,7 +267,7 @@ QUndoView *EditItemManager::getUndoView()
 bool EditItemManager::processInput(const std::vector<std::string>& inp)
 {
   // Do not accept input and process plot commands if a product has not been made.
-  if (isProduct())
+  if (isEnabled())
     return DrawingManager::processInput(inp);
 
   return true;

@@ -130,7 +130,7 @@ std::string DrawingDialog::name() const
 void DrawingDialog::updateTimes()
 {
   std::vector<miutil::miTime> times;
-  if (EditItemManager::instance()->isProduct())
+  if (EditItemManager::instance()->isEnabled())
     times = DrawingManager::instance()->getTimes();
   emit emitTimes("DRAWING", times);
 }
@@ -143,7 +143,7 @@ std::vector<std::string> DrawingDialog::getOKString()
 {
   std::vector<std::string> lines;
 
-  if (!EditItemManager::instance()->isProduct())
+  if (!EditItemManager::instance()->isEnabled())
     return lines;
 
   QMap<int, DrawingItemBase *>::const_iterator it;
@@ -170,7 +170,7 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
   // If the current drawing has not been produced, ignore any plot commands
   // that are sent to the dialog.
-  if (!EditItemManager::instance()->isProduct())
+  if (!EditItemManager::instance()->isEnabled())
     return;
 
   // Submit the lines as new input.
@@ -225,7 +225,7 @@ void DrawingDialog::chooseDrawing()
       item->setEnabled(false);
   }
 
-  editm->setProduct(false);
+  editm->setEnabled(false);
   updateTimes();
 }
 
@@ -255,7 +255,7 @@ void DrawingDialog::updateModel()
  */
 void DrawingDialog::makeProduct()
 {
-  EditItemManager::instance()->setProduct(true);
+  EditItemManager::instance()->setEnabled(true);
   updateTimes();
 }
 

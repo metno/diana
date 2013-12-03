@@ -197,9 +197,6 @@ private:
     QUndoStack undoStack_;
     QUndoView *undoView_;
 
-    /// Indicates whether the current drawing is to be displayed outside editing mode.
-    bool product;
-
     QAction* cutAction;
     QAction* copyAction;
     QAction* pasteAction;
