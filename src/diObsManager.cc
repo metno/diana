@@ -564,7 +564,7 @@ bool ObsManager::updateTimes(std::string obsType)
 	{
 		if (oldfileInfo[i].time == now)
 		{
-			// restor the old fileinfo
+      // restore the old fileinfo
 			Prod[obsType].fileInfo = oldfileInfo;
 			return false;
 		}
@@ -694,7 +694,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
 	{
 		if (oldfileInfo[i].time == now)
 		{
-			// restor the old fileinfo
+      // restore the old fileinfo
 			Prod[obsType].fileInfo = oldfileInfo;
 			return false;
 		}
@@ -1712,7 +1712,6 @@ bool ObsManager::parseSetup()
 
 
   // defaults for all observation types
-  map<std::string,ProdInfo> defProd;
   std::string parameter;
   defProd["synop"].obsformat= ofmt_synop;
   defProd["synop"].timeRangeMin=-30;
@@ -1796,7 +1795,6 @@ bool ObsManager::parseSetup()
     }
 
     key = miutil::to_lower(token[0]);
-    value = token[0];
     if( key == "prod" ){
       vector<std::string> stoken= miutil::split(token[1], ":");
       std::string plotFormat;
@@ -1827,10 +1825,10 @@ bool ObsManager::parseSetup()
       }
 #ifdef ROADOBS
       if (Prod[prod].obsformat == ofmt_roadobs) {
-	Prod[prod].plotFormat= "roadobs";
+  Prod[prod].plotFormat= "roadobs";
       }
       else {
-	Prod[prod].plotFormat= plotFormat;
+  Prod[prod].plotFormat= plotFormat;
       }
 #else
       Prod[prod].plotFormat= plotFormat;
@@ -1841,16 +1839,16 @@ bool ObsManager::parseSetup()
         || key == "ascii"
         || key == "archive_ascii"
 #ifdef METNOOBS
-	       || key == "metnoobs"
-	       || key == "archive_metnoobs"
+         || key == "metnoobs"
+         || key == "archive_metnoobs"
 #endif
 #ifdef BUFROBS
-	       || key == "bufr"
-	       || key == "archive_bufr"
+         || key == "bufr"
+         || key == "archive_bufr"
 #endif
 #ifdef ROADOBS
-	       || key == "roadobs"
-	       || key == "archive_roadobs"
+         || key == "roadobs"
+         || key == "archive_roadobs"
 #endif
     ){
       if(prod.empty() ){
@@ -1882,7 +1880,7 @@ bool ObsManager::parseSetup()
       }
 #ifdef ROADOBS
       else if(key == "roadobs" || key == "archive_roadobs")
-	pf.fileType="roadobs";
+        pf.fileType="roadobs";
 #endif
       if( miutil::contains(key, "archive") )
         pf.archive = true;
@@ -1904,23 +1902,23 @@ bool ObsManager::parseSetup()
 #ifdef ROADOBS
     else if( key == "databasefile"){
       if(prod.empty() ){
-	std::string errmsg="You must give prod before file/databasefile";
-	SetupParser::errorMsg(obs_name,i,errmsg);
-	continue;
+  std::string errmsg="You must give prod before file/databasefile";
+  SetupParser::errorMsg(obs_name,i,errmsg);
+  continue;
       }
       Prod[prod].databasefile= token[1];
     }else if( key == "stationfile"){
       if(prod.empty() ){
-	std::string errmsg="You must give prod before file/stationfile";
-	SetupParser::errorMsg(obs_name,i,errmsg);
-	continue;
+  std::string errmsg="You must give prod before file/stationfile";
+  SetupParser::errorMsg(obs_name,i,errmsg);
+  continue;
       }
       Prod[prod].stationfile= token[1];
     }else if( key == "daysback"){
       if(prod.empty() ){
-	std::string errmsg="You must give prod before file/stationfile";
-	SetupParser::errorMsg(obs_name,i,errmsg);
-	continue;
+  std::string errmsg="You must give prod before file/stationfile";
+  SetupParser::errorMsg(obs_name,i,errmsg);
+  continue;
       }
       Prod[prod].daysback= miutil::to_int(token[1]);
     }

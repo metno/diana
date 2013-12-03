@@ -113,6 +113,7 @@ public:
   };
 
 private:
+  std::map<std::string, ProdInfo> defProd;
   std::map<std::string, ProdInfo> Prod;
   std::map<std::string, ObsMetaData*> metaDataMap;
   ObsDialogInfo dialog;
