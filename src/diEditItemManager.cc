@@ -493,6 +493,9 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *it
     const bool modifiedItems = !undoCommands.empty();
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
+
+    if (selItems_ != origSelItems)
+        repaintNeeded_ = true;
 }
 
 // Handles a mouse press event for an item in the process of being completed.
