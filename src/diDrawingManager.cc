@@ -189,6 +189,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
+  setEnabled(!items_.empty());
   return true;
 }
 
