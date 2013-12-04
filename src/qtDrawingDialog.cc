@@ -96,7 +96,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           this, SLOT(selectDrawing(const QItemSelection &)));
 
   connect(editm, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
-  connect(editm, SIGNAL(itemChanged(DrawingItemBase*)), SLOT(updateItem(DrawingItemBase*)));
   connect(editm, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
