@@ -40,9 +40,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#define MILOGGER_CATEGORY "diana.MainWindow"
-#include <miLogger/miLogging.h>
-
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
 #include "qtTimeStepSpinbox.h"
@@ -134,12 +131,13 @@
 #include <profet/LoginDialog.h>
 #include <profet/ProfetCommon.h>
 #endif
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
 #include <qUtilities/miLogFile.h>
 #include <puTools/miSetupParser.h>
 
 #include <iomanip>
+
+#define MILOGGER_CATEGORY "diana.MainWindow"
+#include <miLogger/miLogging.h>
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -1236,9 +1234,7 @@ void DianaMainWindow::editUpdate()
 
 void DianaMainWindow::quickMenuApply(const vector<string>& s)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("quickMenuApply:");
-#endif
+  METLIBS_LOG_SCOPE();
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->plotCommands(s);
 
@@ -1431,7 +1427,6 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
 
 void DianaMainWindow::MenuOK()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::MenuOK");
   METLIBS_LOG_SCOPE();
 
   QApplication::setOverrideCursor( Qt::WaitCursor );

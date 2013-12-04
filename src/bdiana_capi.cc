@@ -103,8 +103,6 @@
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
 
 #include <diOrderBook.h>
 
@@ -117,7 +115,8 @@
 
 /* Created at Wed May 23 15:28:41 2001 */
 
-using namespace std; using namespace miutil;
+using namespace std;
+using namespace miutil;
 
 bool verbose = false;
 

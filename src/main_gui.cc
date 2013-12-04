@@ -53,16 +53,11 @@
 #include <puTools/miSetupParser.h>
 #include <iostream>
 
-#include <miLogger/logger.h>
-#include <miLogger/LogHandler.h>
-
-
 #ifdef PROFET
 #include <profet/ProfetController.h>
 #endif
 
 #include <diBuild.h>
-#include <config.h>
 
 #define MILOGGER_CATEGORY "diana.main_gui"
 #include <miLogger/miLogging.h>
@@ -70,9 +65,8 @@
 using namespace std;
 using namespace miutil;
 
-
-void printUsage(){
-
+void printUsage()
+{
   cout << "----------------------------------------------------------" << endl
        << "Diana - a 2D presentation system for meteorological data, " <<endl
        << "including fields, observations, satellite- and radarimages, "<<endl
@@ -91,9 +85,7 @@ void printUsage(){
       << "  -S <server>   :  profet server host                     " << endl
       << "  -T <title>    :  Change Main window title "               << endl
        << "----------------------------------------------------------"<<endl;
-
 }
-
 
 int main(int argc, char **argv)
 {
@@ -182,24 +174,16 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
-  // Fix logger
-  // initLogHandler must always be done
-  if (not logfilename.empty()) {
-    milogger::LogHandler::initLogHandler(logfilename);
-  }
-  else {
-    milogger::LogHandler::initLogHandler( 2, "");
-  }
-  MI_LOG & log = MI_LOG::getInstance("diana.main_gui");
+  milogger::LoggingConfig log4cpp(logfilename);
 
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
+    METLIBS_LOG_ERROR("An error occured while reading setup: " << setupfile);
     return 99;
   }
   printerManager printman;
-  if (!printman.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
+  if (!printman.parseSetup()) {
+    METLIBS_LOG_ERROR("An error occured while reading print setup: " << setupfile);
     return 99;
   }
 
@@ -208,7 +192,7 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-    log.errorStream() << "An error occured while reading setup: " << setupfile.c_str();
+    METLIBS_LOG_ERROR("An error occured while reading setup: " << setupfile);
     return 99;
   }
 #ifdef PROFET
@@ -223,18 +207,18 @@ int main(int argc, char **argv)
     lang = LocalSetupParser::basicValue("language");
 
   // language from command line
-  if(not cl_lang.empty())
+  if (not cl_lang.empty())
     lang = cl_lang;
 
-  miTime x; x.setDefaultLanguage(lang.c_str());
+  { miTime x; x.setDefaultLanguage(lang.c_str()); }
 
   QTranslator qutil( 0 );
   QTranslator myapp( 0 );
   QTranslator qt( 0 );
 
-  if(not lang.empty()) {
+  if (not lang.empty()) {
 
-    log.infoStream() << "SYSTEM LANGUAGE: " << lang.c_str();
+    METLIBS_LOG_INFO("SYSTEM LANGUAGE: " << lang);
 
     string qtlang   = "qt_" +lang;
     string dilang   = "diana_"+lang;

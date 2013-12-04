@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2013 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,14 +44,16 @@
 #include <QtOpenGL>
 #endif
 
+#define MILOGGER_CATEGORY "diana.MainWindow"
+#include <miLogger/miLogging.h>
+
 #define NO_TEXTTURE
 
 using namespace::miutil;
 using namespace std;
 
-// Default constructor
 SatPlot::SatPlot()
-:Plot(), imagedata(0), previrs(1), satdata(0)
+ :Plot(), imagedata(0), previrs(1), satdata(0)
 {
     texture = 0;
     hasTexture = false;
@@ -99,10 +99,7 @@ void SatPlot::getSatName(std::string &str)
 
 
 void SatPlot::setData(Sat *data){
-#ifdef DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.setData");
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::setData() ++";
-#endif
+  METLIBS_LOG_SCOPE();
   delete imagedata;
   imagedata = NULL;
   delete satdata;
@@ -110,10 +107,7 @@ void SatPlot::setData(Sat *data){
   satdata = data;
 }
 void SatPlot::clearData(){
-#ifdef DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.clearData");
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::clearData() ++";
-#endif
+  METLIBS_LOG_SCOPE();
   delete imagedata;
   imagedata = NULL;
 }
@@ -149,17 +143,7 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
 }
 
 bool SatPlot::plot(){
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
-
-#ifdef DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plot");
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::plot() ++";
-#endif
-
+  METLIBS_LOG_TIME();
   if (!enabled)
     return false;
 
@@ -468,17 +452,6 @@ bool SatPlot::plotPixmap()
     // for postscript output
     UpdateOutput();
   }
-
-#ifdef DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
-  COMMON_LOG::getInstance("common").debugStream() << "++ Returning from SatPlot::plot() ++";
-#endif
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.plotPixmap");
-  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::plot(): " << s1;
-#endif
   return true;
 }
 
@@ -486,15 +459,7 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
     int& bmStartx, int& bmStarty,
     float& scalex, float& scaley,int& nx, int& ny)
 {
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
-#ifdef DEBUGPRINT
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
-  COMMON_LOG::getInstance("common").debugStream() << "++ SatPlot::resampleImage() ++  " <<scalex<<" :" <<scaley;
-#endif
+  METLIBS_LOG_TIME(LOGVAL(scalex));
   unsigned char * cimage;
   int irs= 1;            // resample-size
 
@@ -543,12 +508,6 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
     // No resampling: use original image
     cimage = satdata->image;
   }
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s1 = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  milogger::LogHandler::getInstance()->setObjectName("diana.SatPlot.resampleImage");
-  COMMON_LOG::getInstance("common").debugStream() << "SatPlot::resampleImage(): " << s1;
-#endif
 
   return cimage;
 
