@@ -857,6 +857,13 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
 
   }
 
+  if (po.linetypes.size() == 0 ) {
+    po.linetypes.push_back(po.linetype);
+  }
+  if (po.linewidths.size() == 0 ) {
+    po.linewidths.push_back(po.linewidth);
+  }
+
   if (returnMergedOptionString) {
     optstr = origStr + " " + po.toString();
   }
@@ -1081,8 +1088,7 @@ std::string PlotOptions::toString()
 
   if(plottype == fpt_vector || plottype == fpt_direction || plottype == fpt_wind
       || plottype == fpt_wind_temp_fl || plottype == fpt_wind_value ) {
-    ostr << " vector.unit="<< vectorunit
-        << " vector.unit.name="<< vectorunitname;
+    ostr << " vector.unit="<< vectorunit;
   }
 
   if (discontinuous==0) {
