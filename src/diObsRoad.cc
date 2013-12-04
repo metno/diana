@@ -54,6 +54,7 @@
 #include <roadAPI/diStation.h>
 #include <roadAPI/diRoaddata.h>
 #endif
+#include <puTools/miStringFunctions.h>
 #include <vector>
 
 //#define DEBUGPRINT 1
@@ -181,39 +182,39 @@ miutil::trim(			name);
 			oplot->roadobsColumn["min"] = i;
 		else if (oplot->roadobsColumnType[i]=="sec")
 			oplot->roadobsColumn["sec"] = i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lon")
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="lon")
 			oplot->roadobsColumn["x"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lat")
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="lat")
 			oplot->roadobsColumn["y"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="dd")
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="dd")
 			oplot->roadobsColumn["dd"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ff")    //Wind speed in m/s
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="ff")    //Wind speed in m/s
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk")   //Wind speed in knots
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="ffk")   //Wind speed in knots
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnType[i])=="image")
+		else if (miutil::to_lower(oplot->roadobsColumnType[i])=="image")
 			oplot->roadobsColumn["image"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lon" &&  //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="lon" &&  //Obsolete
 				oplot->roadobsColumnType[i]=="r")                
 			oplot->roadobsColumn["x"]= i;                           
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lat" &&  //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="lat" &&  //Obsolete
 				oplot->roadobsColumnType[i]=="r")                
 			oplot->roadobsColumn["y"]= i;                           
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="dd" &&   //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="dd" &&   //Obsolete
 				oplot->roadobsColumnType[i]=="r")                 
 			oplot->roadobsColumn["dd"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ff" &&    //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="ff" &&    //Obsolete
 				oplot->roadobsColumnType[i]=="r")
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ffk" &&    //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="ffk" &&    //Obsolete
 				oplot->roadobsColumnType[i]=="r")
 			oplot->roadobsColumn["ff"]= i;
-		else if (oplot->miutil::to_lower(roadobsColumnName[i])=="image" && //Obsolete
+		else if (miutil::to_lower(oplot->roadobsColumnName[i])=="image" && //Obsolete
 				oplot->roadobsColumnType[i]=="s")
 			oplot->roadobsColumn["image"]= i;
 
-		if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk" ||
-			oplot->miutil::to_lower(roadobsColumnName[i])=="ffk") 
+		if (miutil::to_lower(oplot->roadobsColumnType[i])=="ffk" ||
+			miutil::to_lower(oplot->roadobsColumnName[i])=="ffk") 
 			oplot->roadobsKnots=true;  
 
 		}
@@ -812,7 +813,7 @@ void ObsRoad::readFile(const std::string &filename, const std::string &headerfil
 	  break;
         }
         str= str.substr(p1+1,p2-p1-1);
-        pstr= miutil::split(str, '"','"'," ",true);
+        pstr= miutil::split_protected(str, '"','"'," ",true);
         int j,m= pstr.size();
 
         if (m>1) {
@@ -908,39 +909,39 @@ void ObsRoad::readFile(const std::string &filename, const std::string &headerfil
         oplot->roadobsColumn["min"] = i;
       else if (oplot->roadobsColumnType[i]=="sec")
         oplot->roadobsColumn["sec"] = i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lon")
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="lon")
         oplot->roadobsColumn["x"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="lat")
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="lat")
         oplot->roadobsColumn["y"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="dd")
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="dd")
         oplot->roadobsColumn["dd"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ff")    //Wind speed in m/s
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="ff")    //Wind speed in m/s
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk")   //Wind speed in knots
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="ffk")   //Wind speed in knots
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnType[i])=="image")
+      else if (miutil::to_lower(oplot->roadobsColumnType[i])=="image")
         oplot->roadobsColumn["image"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lon" &&  //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="lon" &&  //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                
         oplot->roadobsColumn["x"]= i;                           
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="lat" &&  //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="lat" &&  //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                
         oplot->roadobsColumn["y"]= i;                           
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="dd" &&   //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="dd" &&   //Obsolete
 	       oplot->roadobsColumnType[i]=="r")                 
         oplot->roadobsColumn["dd"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ff" &&    //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="ff" &&    //Obsolete
 	       oplot->roadobsColumnType[i]=="r")
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="ffk" &&    //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="ffk" &&    //Obsolete
 	       oplot->roadobsColumnType[i]=="r")
         oplot->roadobsColumn["ff"]= i;
-      else if (oplot->miutil::to_lower(roadobsColumnName[i])=="image" && //Obsolete
+      else if (miutil::to_lower(oplot->roadobsColumnName[i])=="image" && //Obsolete
 	       oplot->roadobsColumnType[i]=="s")
         oplot->roadobsColumn["image"]= i;
 
-      if (oplot->miutil::to_lower(roadobsColumnType[i])=="ffk" ||
-	  oplot->miutil::to_lower(roadobsColumnName[i])=="ffk") 
+      if (miutil::to_lower(oplot->roadobsColumnType[i])=="ffk" ||
+	  miutil::to_lower(oplot->roadobsColumnName[i])=="ffk") 
 	oplot->roadobsKnots=true;  
 
     }
@@ -1015,7 +1016,7 @@ void ObsRoad::readFile(const std::string &filename, const std::string &headerfil
     miutil::trim(str);
     nline++;
     if (nline>nskip && (not str.empty()) && str[0]!='#') {
-      pstr= miutil::split(str, '"','"');
+      pstr= miutil::split_protected(str, '"','"');
       if (pstr.size()>=n) {
 	if (nu>0) {
 	  for (i=0; i<n; i++) {

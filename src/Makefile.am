@@ -624,7 +624,7 @@ common_ldadd += \
 
 # Additional source code for SMHI support
 if WITH_SMHI
-common_cppflags += -DSMHI
+common_cppflags += -DSMHI -DNO_BOOST_ADAPTOR -DNO_BOOST_FINDIF -DNO_QT_47
 endif
 
 # Additional source code for RoadOBS support
@@ -649,6 +649,13 @@ common_ldflags += \
 	${NEWARKAPI_LDFLAGS}
 common_ldadd += \
 	${NEWARKAPI_LIBS}
+endif
+
+if WITH_GRIBFILE
+common_ldflags += \
+	${GRIBAPI_LDFLAGS}
+common_ldadd += \
+	${GRIBAPI_LIBS} ${GRIBAPI_LIBS}
 endif
 
 # Additional source code for RoadOBS support

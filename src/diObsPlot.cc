@@ -41,9 +41,10 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
-#include <cstring>
+#include <string>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>
@@ -4290,20 +4291,20 @@ void ObsPlot::plotDBSynop(int index)
     {
       std::string str = roadobsp[stationid][j];
       if (str != "X")
-        W2_value = atof(str.cStr());
+        W2_value = atof(str.c_str());
     }
     // direction an dspeed of ship.
     if (roadobsColumnName[j] == "vs")
     {
       std::string str = roadobsp[stationid][j];
       if (str != "X")
-        VS_value = atof(str.cStr());
+        VS_value = atof(str.c_str());
     }
     if (roadobsColumnName[j] == "ds")
     {
       std::string str = roadobsp[stationid][j];
       if (str != "X")
-        DS_value = atof(str.cStr());
+        DS_value = atof(str.c_str());
     }
     // Is the 24 and 12 hour values reported at the same time?
     if (miutil::contains(roadobsColumnName[j], "TxTxTx"))
@@ -4613,14 +4614,12 @@ void ObsPlot::plotDBSynop(int index)
     if(ccriteria) checkColourCriteria("W2",W2_value);
     pastWeather((int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
   }
-  /* Currently not used
    // Direction of ship movement - ds
   if (DS_value != undef && VS_value != undef)
    {
    if(ccriteria) checkColourCriteria("ds",DS_value);
    arrow(DS_value, iptab[lpos+32], iptab[lpos+33]);
    }
-
     /* Currently not used
    // Direction of swell waves - dw1dw1
    if(  pFlag.count("dw1dw1")
@@ -4863,8 +4862,8 @@ void ObsPlot::plotDBSynop(int index)
 
   // Maximum wind speed
   //METLIBS_LOG_DEBUG("Maximum wind speed: value " << fxfx_value);
-  if( fxfx_value != undef
-      && !(zone>1 && zone < 99)) {
+  if( fxfx_value != undef)
+  {
     if(ccriteria) checkColourCriteria("fxfx",fxfx_value);
     if(TxTnFlag)
       printNumber(ms2knots(fxfx_value),

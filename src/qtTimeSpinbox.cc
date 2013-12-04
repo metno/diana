@@ -34,6 +34,7 @@
 #endif
 
 #include <iostream>
+#include <climits>
 #include "qtTimeSpinbox.h"
 
 

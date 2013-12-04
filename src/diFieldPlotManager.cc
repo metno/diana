@@ -39,6 +39,7 @@
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <iostream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
 #include <miLogger/miLogging.h>
@@ -559,7 +560,7 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
       vfieldrequest[i].ptime.addHour(vfieldrequest[i].hourOffset);
       vfieldrequest[i].ptime.addMin(vfieldrequest[i].minOffset);
     }
-    Field* fout;
+    Field* fout = NULL;
     // we must try to use the cache, if specified...
     int cacheoptions = FieldManager::READ_ALL;
     if (toCache) {
@@ -1065,7 +1066,6 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 {
 
   METLIBS_LOG_DEBUG("parsePin - PIN: "<<pin);
-
 
   // if difference
   std::string fspec1,fspec2;

@@ -43,6 +43,7 @@
 #include <curl/curl.h>
 
 #include <fstream>
+#include <iostream>
 
 #define MILOGGER_CATEGORY "diana.ObsAscii"
 #include <miLogger/miLogging.h>

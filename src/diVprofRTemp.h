@@ -34,6 +34,8 @@
 #include <robs/geopos.h>
 #include <puTools/miTime.h>
 #include <diVprofPlot.h>
+#include <string>
+#include <vector>
 
 /**
   \brief Reading sounding from met.no obs files (temp)
@@ -44,7 +46,7 @@ public:
   // Constructors
   VprofRTemp();
   VprofRTemp(const std::string& file, bool amdar,
-	     const vector<std::string>& stationList,
+	     const std::vector<std::string>& stationList,
 	     const std::string & stationfile,
 	     const std::string & databasefile, const miutil::miTime& time);
   VprofRTemp(const std::string& file, bool amdar,
@@ -64,7 +66,7 @@ public:
 
 private:
   bool amdartemp;
-  vector<std::string> stationList_;
+  std::vector<std::string> stationList_;
   std::string parameterfile_;
   std::string stationfile_;
   std::string databasefile_;

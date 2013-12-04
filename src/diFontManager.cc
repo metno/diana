@@ -83,7 +83,7 @@ FontManager::FontManager() :
 #else
 #ifdef USE_XLIB
   glTextX * xfonts;
-  if (display_name.exists()) // do not use environment-var DISPLAY
+  if (!display_name.empty()) // do not use environment-var DISPLAY
   xfonts = new glTextX(display_name);
   else
   xfonts = new glTextX();

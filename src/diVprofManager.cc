@@ -65,6 +65,7 @@
 #include <puCtools/glob_cache.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
 
 #include <cmath>
 #include <iomanip>
@@ -230,20 +231,20 @@ void VprofManager::parseSetup()
                 && miutil::to_lower(tokens4[0])=="d") {
           ObsFilePath ofp;
           /* the check for roadobs must be before the check of metnoobs. or obs. */
-          if (miutil::to_lower(tokens1[0]).contains("roadobs."))
+          if (miutil::contains(tokens1[0],miutil::to_lower("roadobs.")))
             ofp.fileformat = roadobs;
-          else if (miutil::to_lower(tokens1[0]).contains("metnoobs.")
-              || miutil::to_lower(tokens1[0]).contains("obs.") )
+          else if (miutil::contains(tokens1[0],miutil::to_lower("metnoobs."))
+              || miutil::contains(tokens1[0],miutil::to_lower("obs.")))
             ofp.fileformat = metnoobs;
-          else if (miutil::to_lower(tokens1[0]).contains("bufr."))
+          else if (miutil::contains(tokens1[0],miutil::to_lower("bufr.")))
             ofp.fileformat = bufr;
           else
             continue;
-          if (miutil::to_lower(tokens1[0]).contains(".temp")) {
+          if (miutil::contains(tokens1[0],miutil::to_lower(".temp"))) {
             ofp.obstype = temp;
-          } else if (miutil::to_lower(tokens1[0]).contains(".amdar")) {
+          } else if (miutil::contains(tokens1[0],miutil::to_lower(".amdar"))) {
             ofp.obstype = amdar;
-          } else if (miutil::to_lower(tokens1[0]).contains(".pilot")) {
+          } else if (miutil::contains(tokens1[0],miutil::to_lower(".pilot"))) {
             ofp.obstype = pilot;
           } else {
             continue;
@@ -757,7 +758,7 @@ bool VprofManager::plot()
             else if (obsfiles[nn].fileformat==roadobs) {
               try {
                 if (showObsTemp && obsfiles[nn].obstype==temp &&
-                    miutil::contains(!nameList[i], "Pilot")) {
+                    !miutil::contains(nameList[i], "Pilot")) {
                   //land or ship wmo station with name
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,false,stationList,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
                   vp= vpobs.getStation(obsList[i],plotTime);
@@ -775,7 +776,7 @@ bool VprofManager::plot()
                     vp= vpobs.getStation(obsList[i],plotTime);
                   }
                 } else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
-                    miutil::contains(!nameList[i], "Pilot")) {
+                    !miutil::contains(nameList[i], "Pilot")) {
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,true,
                       latitudeList[i],longitudeList[i],0.3f,0.3f,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
                   vp= vpobs.getStation(obsList[i],plotTime);

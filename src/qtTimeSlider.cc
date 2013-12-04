@@ -34,6 +34,7 @@
 #endif
 
 #include "qtTimeSlider.h"
+#include <climits>
 
 using namespace std;
 

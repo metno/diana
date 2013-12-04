@@ -159,7 +159,7 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 //####  else
 //####    vp->text.posName= contents[n].stationID;
   vp->text.posName= (*stations)[n].name();
-  vp->miutil::trim(text.posName);
+  miutil::trim(vp->text.posName);
   vp->text.prognostic= false;
   vp->text.forecastHour= 0;
   vp->text.validTime= time_;
@@ -235,11 +235,11 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itdd = data_map.begin();
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itff = data_map.begin();
   /* Siginifcant wind levels */
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_4 = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_7 = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_12 = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_13 = data_map.begin();
-  map< miutil::miString, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_14 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_4 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_7 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_12 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_13 = data_map.begin();
+  map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator itsig_14 = data_map.begin();
 
   /* the surface values */
   map< std::string, map<float, RDKCOMBINEDROW_2 > >::iterator ittts = data_map.begin();

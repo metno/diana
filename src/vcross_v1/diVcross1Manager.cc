@@ -46,7 +46,9 @@
 #include <diField/diFieldManager.h>
 
 #include <boost/foreach.hpp>
+#ifndef NO_BOOST_ADAPTOR
 #include <boost/range/adaptor/map.hpp>
+#endif
 
 #include <set>
 
@@ -103,13 +105,27 @@ void VcrossManager::cleanup()
       delete d.vcplot;
   vcdata.clear();
 
+#ifndef NO_BOOST_ADAPTOR
   BOOST_FOREACH(VcrossFile*& f, boost::adaptors::values(vcfiles)) {
+#else
+  map<std::string,VcrossFile*>::iterator vf,vfend= vcfiles.end();
+  for (vf=vcfiles.begin(); vf!=vfend; vf++) {
+    VcrossFile* f = vf->second;
+	if (f != NULL)
+#endif
       delete f;
       f = 0;
   }
-
-  BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields))
+#ifndef NO_BOOST_ADAPTOR
+  BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields)) {
+#else
+  map<std::string, VcrossField*>::iterator vfi, vfiend = vcfields.end();
+  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
+    VcrossField* f = vfi->second;
+	if (f != NULL)
+#endif
       delete f;
+  }
   vcfields.clear();
 
   // NOTE: Flush the field cache
@@ -120,9 +136,16 @@ void VcrossManager::cleanup()
 void VcrossManager::cleanupDynamicCrossSections()
 {
   METLIBS_LOG_SCOPE();
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields))
+#ifndef NO_BOOST_ADAPTOR
+  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+#else
+  map<std::string, VcrossField*>::iterator vfi, vfiend = vcfields.end();
+  for (vfi = vcfields.begin(); vfi != vfiend; vfi++) {
+	  VcrossField * f = vfi->second;
+#endif
       if (f)
         f->cleanup();
+  }
 }
 
 bool VcrossManager::parseSetup()
@@ -198,18 +221,27 @@ void VcrossManager::setCrossection(const std::string& crossection)
 
 bool VcrossManager::setCrossection(float lat, float lon)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
+	METLIBS_LOG_SCOPE();
+	METLIBS_LOG_DEBUG(LOGVAL(lat) << LOGVAL(lon));
 
-  if (vcfields.empty())
-    return false;
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
-    f->setLatLon(lat, lon);
-    // Get the new namelist with the crossections
-    nameList = f->getNames();
-    timeList = f->getTimes();
-  }
-  return true;
+	if (vcfields.empty())
+		return false;
+#ifndef NO_BOOST_ADAPTOR
+	BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+#else
+	map<std::string, VcrossField*>::iterator vfi;
+	for (vfi=vcfields.begin(); vfi != vcfields.end(); vfi++) {
+		VcrossField* f = vfi->second; 
+#endif
+		if (f != NULL)
+		{
+			f->setLatLon(lat, lon);
+			// Get the new namelist with the crossections
+			nameList = f->getNames();
+			timeList = f->getTimes();
+		}
+	}
+	return true;
 }
 
 void VcrossManager::setTime(const miTime& time)
