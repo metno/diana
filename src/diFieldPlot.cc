@@ -531,16 +531,16 @@ bool FieldPlot::plot()
   for (unsigned int i=0; i<poptions.colours.size(); i++)
     if (poptions.colours[i]==backgroundColour)
       poptions.colours[i]= backContrastColour;
-  
+
   if (poptions.antialiasing)
     glEnable(GL_MULTISAMPLE);
   else
     glDisable(GL_MULTISAMPLE);
-  
+
   // should be below all real fields
   if (poptions.gridLines>0) plotGridLines();
   if (poptions.gridValue>0) plotNumbers();
-  
+
   if (poptions.use_stencil || poptions.update_stencil) {
     // Enable the stencil test for masking the field to be plotted or
     // updating the stencil.
@@ -553,8 +553,9 @@ bool FieldPlot::plot()
       glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
   }
-  
+
   bool ok = false;
+
   if      (plottype==fpt_contour)          ok = plotContour(1);
   else if (plottype==fpt_contour2)         ok = plotContour(2);
   else if (plottype==fpt_wind)             ok = plotWind();
@@ -568,7 +569,7 @@ bool FieldPlot::plot()
   else if (plottype==fpt_alarm_box)        ok = plotAlarmBox();
   else if (plottype==fpt_fill_cell)        ok = plotFillCell();
   else if (plottype==fpt_frame)            ok = plotFrameOnly();
- 
+
   if (poptions.use_stencil || poptions.update_stencil)
     glDisable(GL_STENCIL_TEST);
 
@@ -2422,7 +2423,6 @@ bool FieldPlot::plotContour(int version)
 
   const int nx= fields[0]->nx;
   const int ny= fields[0]->ny;
-  
   int rnx, rny;
 
   int ipart[4];
@@ -2460,8 +2460,7 @@ bool FieldPlot::plotContour(int version)
       area, maprect, false,
       rnx, rny, &x, &y, ix1, ix2, iy1, iy2)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
-
-	return false;
+    return false;
   }
 
   // Create a resampled data array to pass to the contour function.

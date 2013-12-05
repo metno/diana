@@ -568,11 +568,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         ee.x= newx;
         ee.y= newy;
         res.repaint= notifyEditEvent(ee);
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+      } else if (me->button() == Qt::MiddleButton){
         EditEvent ee;                     // send an edit-event
         ee.type= edit_inspection;         // ..type edit_inspection
         ee.order= start_event;
@@ -603,11 +599,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         ee.x= newx;
         ee.y= newy;
         res.repaint= notifyEditEvent(ee);
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+      } else if (me->buttons() & Qt::MiddleButton){
         EditEvent ee;                     // send an edit-event
         ee.type= edit_inspection;         // ..type edit_inspection
         ee.order= normal_event;
@@ -662,11 +654,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
           first_y= newy;
           moved = false;
         }
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+      } else if (me->button() == Qt::MiddleButton){         // MIDDLE MOUSE-BUTTON
         objm->editPrepareChange(RotateLine);
         first_x= newx;
         first_y= newy;
@@ -699,11 +687,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
               editCombine();
           }
         }
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+      } else if (me->buttons() & Qt::MiddleButton){  // MIDDLE MOUSE-BUTTON
         if (!objm->inDrawing()) {  // rotate "line"
           moved = objm->editRotateLine(newx-first_x,newy-first_y);
           first_x= newx;
@@ -716,11 +700,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
         }
       }
     } else if (me->type() == QEvent::MouseButtonRelease){
-#ifdef NO_QT_47
-      if (me->button() == Qt::LeftButton || me->button() == Qt::MidButton){
-#else
-	  if (me->button() == Qt::LeftButton || me->button() == Qt::MiddleButton){
-#endif
+      if (me->button() == Qt::LeftButton || me->button() == Qt::MiddleButton){
         if (!objm->inDrawing())
           objm->editMouseRelease(moved);
         if(mapmode==combine_mode){

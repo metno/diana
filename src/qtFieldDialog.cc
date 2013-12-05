@@ -1157,7 +1157,7 @@ void FieldDialog::updateModelBoxes()
   modelGRboxActivated(0);
 
   //replace old plots
-  putOKString(vstr,true,false);
+  putOKString(vstr);
 }
 
 void FieldDialog::updateModels()
@@ -1695,9 +1695,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.forecastSpec = false;
       sf.indexMGR = indexMGR;
       sf.indexM = indexM;
-	  //sf.modelName = vfgi[indexFGR].modelName;
-      std::string model = m_modelgroup[indexMGR].modelNames[indexM];
-      sf.modelName = model;
       sf.modelName = vfgi[indexFGR].modelName;
       sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
       sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
@@ -4954,7 +4951,7 @@ void FieldDialog::addField(std::string str)
   if (!remove) {
     vstr.push_back(str);
   }
-  putOKString(vstr,true,false);
+  putOKString(vstr);
 
 }
 

@@ -41,9 +41,8 @@
 #include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
-#ifndef NO_BOOST_ADAPTOR
 #include <boost/range/adaptor/map.hpp>
-#endif
+
 #include <cmath>
 #include <set>
 
@@ -114,13 +113,8 @@ void VcrossField::cleanupCache()
   BOOST_FOREACH(VcrossPlot* vcp, VcrossPlotVector)
       delete vcp;
   VcrossPlotVector.clear();
-#ifndef NO_BOOST_ADAPTOR
+
   BOOST_FOREACH(vector<float*>& vcd, boost::adaptors::values(VcrossDataMap)) {
-#else
-  map<int, vector<float*> >::iterator vd, vdend = VcrossDataMap.end();
-  for (vd = VcrossDataMap.begin(); vd != vdend; vd++) {
-	std::vector<float*> vcd = vd->second;
-#endif
     BOOST_FOREACH(float* d, vcd)
         delete[] d;
   }

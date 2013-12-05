@@ -2899,11 +2899,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
       return;
 
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+    } else if (me->button() == Qt::MiddleButton) {
       areaInsert(splot.getMapArea(), true); // Save last area
       dopanning = true;
       splot.panPlot(true);
@@ -2990,11 +2986,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
 
       dorubberband = false;
 
-#ifdef NO_QT_47
-      } else if (me->button() == Qt::MidButton){
-#else
-	  } else if (me->button() == Qt::MiddleButton){
-#endif
+    } else if (me->button() == Qt::MiddleButton) {
       dopanning = false;
       splot.panPlot(false);
       res.repaint = true;

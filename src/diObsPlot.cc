@@ -41,7 +41,7 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
-#include <string>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
