@@ -360,7 +360,7 @@ bool wait_for_input = false; // if running as lib
 
 std::string fifo_name;
 
-std::string logfilename = "";
+std::string logfilename;
 
 /*
  clean an input-string: remove preceding and trailing blanks,
@@ -3567,6 +3567,11 @@ int diana_init(int _argc, char** _argv)
     logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
   }*/
 
+  if ( logfilename.empty() ){
+    logfilename = "/etc/diana/";
+    logfilename += PVERSION;
+    logfilename += "/log4cpp.properties";
+  }
   if (QFileInfo(QString::fromStdString(logfilename)).exists()) {
     cerr << "Using properties file: " << logfilename << endl;
     plog = milogger::LogHandler::initLogHandler(logfilename);

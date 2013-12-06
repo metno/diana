@@ -174,6 +174,11 @@ int main(int argc, char **argv)
     ac++;
   } // command line parameters
 
+  if ( logfilename.empty() ){
+    logfilename = "/etc/diana/";
+    logfilename += PVERSION;
+    logfilename += "/log4cpp.properties";
+  }
   milogger::LoggingConfig log4cpp(logfilename);
 
   SetupParser::setUserVariables(user_variables);
