@@ -13,4 +13,4 @@ usr/share/diana/@METNO_VERSION@/amdar.stations
 usr/share/diana/@METNO_VERSION@/synpltab.dat
 usr/share/diana/@METNO_VERSION@/ogckml22.xsd
 usr/share/diana/@METNO_VERSION@/atom-author-link.xsd
-etc/diana/@METNO_VERSION@/diana.logger
+etc/diana/@METNO_VERSION@/log4cpp.properties
