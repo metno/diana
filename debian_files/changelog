@@ -1,3 +1,11 @@
+diana (3.34.0-1) unstable; urgency=low
+
+  * Logger: default properties file added
+  * Merge from SMHI
+  * drawing mode
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 06 Dec 2013 13:16:11 +0100
+
 diana (3.34.0~rc2-1) unstable; urgency=low
 
   * Merge from SMHI
