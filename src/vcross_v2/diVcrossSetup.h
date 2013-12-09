@@ -147,7 +147,7 @@ public:
   /** Find a parameter's name as defined in the setup
    * @return parameter name, or an empty string if not found
    */
-  const std::string& findParameterName(const std::string& name, const std::string& id) const;
+  const std::string& findParameterName(const std::string& model, const std::string& id) const;
 
   /** Get plotoptions, as parsed in parseSetup, for a given plot name
    * @return plot options, or an empty string if plot is not known*/

@@ -41,12 +41,14 @@
 #include "diVcrossUtil.h"
 #include "diCommandParser.h"
 
+#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringBuilder.h>
 
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/regex.hpp>
 
 #include <set>
 
@@ -270,12 +272,27 @@ std::string VcrossSetup::parseOneParameter(const KeyValue& kv)
     if (open != std::string::npos) {
       if (parname.at(parname.size()-1) != ']') // cannot be empty if it contains '['
         return "model specification for parameter must end with ']'";
-      VcrossUtil::set_insert(models, miutil::split(parname.substr(open+1, parname.size()-open-2), ","));
-      BOOST_FOREACH(const std::string& m, models) {
-        if (m.empty())
-          return "empty model name specified for parameter";
-        if (mModels.find(m) == mModels.end())
-          return "unknown model name '" + m + "' specified for parameter";
+      const string_v model_patterns = miutil::split(parname.substr(open+1, parname.size()-open-2), ",");
+      const boost::regex re_escape("([.+{}()^$]|\\[|\\])");
+      BOOST_FOREACH(const std::string& mp, model_patterns) {
+        std::string mpr = boost::regex_replace(mp, re_escape, "\\\\$&");
+        boost::replace_all(mpr, "?", ".");
+        boost::replace_all(mpr, "*", ".*");
+        try {
+          const boost::regex re_mp(mpr);
+          int match_count = 0;
+          BOOST_FOREACH(const std::string& m, miutil::adaptors::keys(mModels)) {
+            if (boost::regex_match(m, re_mp)) {
+              models.insert(m);
+              match_count += 1;
+            }
+          }
+          if (match_count == 0) {
+            METLIBS_LOG_WARN("pattern '" << mp << "' does not match any model names");
+          }
+        } catch (std::exception& ex) {
+          METLIBS_LOG_WARN("problem with pattern '" << mp << "' (regex '" << mpr << "'): " << ex.what());
+        }
       }
       parname = parname.substr(0, open);
     }
