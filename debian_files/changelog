@@ -1,3 +1,9 @@
+diana (3.34.0-2) unstable; urgency=low
+
+  * Bugfix: colours of WeatherAreas
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Dec 2013 11:12:03 +0100
+
 diana (3.34.0-1) unstable; urgency=low
 
   * Logger: default properties file added

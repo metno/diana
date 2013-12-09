@@ -360,6 +360,7 @@ void WeatherArea::setType(int ty)
     return;
   setIndex(allAreas[type].index);
   setBasisColor(allAreas[type].colour);
+  setObjectBorderColor(allAreas[type].borderColour);
   setSpline(allAreas[type].spline);
   setLineType(allAreas[type].linetype);
   setLineWidth(defaultLineWidth + allAreas[type].sizeIncrement);
