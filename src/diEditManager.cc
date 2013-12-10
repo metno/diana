@@ -2974,21 +2974,21 @@ void EditManager::initEditTools(){
   areas.push_back(newEditToolInfo("Regnomr�de",Genericarea_constline,"green4","blank", 0, true, "solid", "ldiagleft2"));
   sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
 #else
-  areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4"));
+  areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4","green4"));
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"dash2","zigzag"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
-  areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red"));
-  areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue"));
+  areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red","red"));
+  areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue","blue"));
   areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange",0,true,"solid","diagleft"));
   areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
   areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
   areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
-  areas.push_back(newEditToolInfo("Red smooth area",Genericarea,"red"));
+  areas.push_back(newEditToolInfo("Red smooth area",Genericarea,"red","red"));
   areas.push_back(newEditToolInfo("Blue sharp area",Genericarea,"blue","blue",0,false));
-  areas.push_back(newEditToolInfo("Blue smooth area",Genericarea,"blue"));
+  areas.push_back(newEditToolInfo("Blue smooth area",Genericarea,"blue","blue"));
   areas.push_back(newEditToolInfo("Black sharp area stipple",Genericarea,"black","black",0,false,"dash2"));
   areas.push_back(newEditToolInfo("Black smooth area stipple",Genericarea,"black","black",0,true,"dash2"));
   areas.push_back(newEditToolInfo("Red sharp area stipple",Genericarea,"red","red",0,false,"dash2"));
