@@ -1,8 +1,14 @@
-diana (3.34.0-3) unstable; urgency=low
+diana (3.34.0-4) unstable; urgency=low
 
   * Bugfix: colours of WeatherAreas
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 10 Dec 2013 10:35:29 +0100
+
+diana (3.34.0-3) unstable; urgency=low
+
+  * new debian revision
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 09 Dec 2013 11:14:32 +0100
 
 diana (3.34.0-2) unstable; urgency=low
 
