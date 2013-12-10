@@ -206,6 +206,9 @@ AS_IF([test x$enable_batch_only != xyes], [
     ])
 ])
 
+METNO_REQUIRE_BOOST_MT
+METNO_REQUIRE_BOOST_FEATURE([regex])
+
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
     METNO_REQUIRE_C_LIBRARY([ZLIB], [z], [zlib.h], [zlibVersion])

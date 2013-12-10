@@ -133,6 +133,8 @@ common_cxx_sources += \
 	vcross_v2/diVcrossSetup.cc \
 	vcross_v2/diVcrossSource.cc \
 	vcross_v2/diVcrossUtil.cc
+common_ldadd += \
+	$(BOOST_REGEX_LIBS)
 else
 common_cppflags += -Ivcross_v1 -Ivcross_qt
 common_cxx_sources += \
