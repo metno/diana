@@ -179,7 +179,7 @@ bool WeatherFront::plot(){
 
       //recalculate();
 
-      if (drawIndex>=SigweatherFront)
+      if (drawIndex == SigweatherFront)
         scaledlinewidth=siglinewidth*2;
       else {
         //change the linewidth according to great circle distance
