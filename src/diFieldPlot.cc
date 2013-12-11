@@ -2688,8 +2688,8 @@ bool FieldPlot::plotContour(int version)
         ityp[0] =0;
         ityp2[0]=1;
       } else {      // one set of plot options, different lines
-        if ( ntyp > mmmUsed ) ntyp = mmmUsed;
         ntyp=poptions.linetypes.size();
+        if ( ntyp > mmmUsed ) ntyp = mmmUsed;
         for (int i=0; i<ntyp; ++i) ityp[i]= i;
       }
     }
