@@ -97,7 +97,7 @@ DrawingManager *DrawingManager::instance()
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE("DrawingManager::parseSetup");
 #endif
 
   // Store a list of file names in the internal drawing model for use by the dialog.
@@ -105,11 +105,9 @@ bool DrawingManager::parseSetup()
 
   // Return true if there is no DRAWING section.
   if (!SetupParser::getSection("DRAWING", section)) {
-    METLIBS_LOG_SCOPE("No DRAWING section.");
+    METLIBS_LOG_WARN("No DRAWING section.");
     return true;
   }
-
-  drawings_.clear();
 
   for (unsigned int i = 0; i < section.size(); ++i) {
 
@@ -138,8 +136,8 @@ bool DrawingManager::parseSetup()
       if (f.open(QFile::ReadOnly)) {
         symbols[symbol] = f.readAll();
         f.close();
-        METLIBS_LOG_SCOPE("Failed to load symbol file:" << fileName.toStdString());
-      }
+      } else
+        METLIBS_LOG_WARN("Failed to load symbol file: " << fileName.toStdString());
     } else
       drawings_.insert(fileName);
   }

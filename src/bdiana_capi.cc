@@ -1577,12 +1577,13 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
+  main_controller->addManager("DRAWING", DrawingManager::instance());
+
   const bool ps = main_controller->parseSetup();
   if (not ps) {
     METLIBS_LOG_ERROR("ERROR, an error occured while main_controller parsed setup: " << setupfile);
     return false;
   }
-  main_controller->addManager("DRAWING", DrawingManager::instance());
   return true;
 }
 
