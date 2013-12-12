@@ -59,6 +59,11 @@ PaintGLContext::~PaintGLContext()
         ctx = 0;
 }
 
+PaintGLContext *PaintGLContext::currentContext()
+{
+    return ctx;
+}
+
 void PaintGLContext::makeCurrent()
 {
     // Make this context the current one.
@@ -416,8 +421,8 @@ void PaintGLContext::renderPrimitive()
             newPath.addPolygon(poly);
             newPath.closeSubpath();
 
-            newPath = newPath.united(newPath.translated(-ctx->attributes.width, -ctx->attributes.width));
-            ctx->stencil.path += newPath.translated(0.5*ctx->attributes.width, 0.5*ctx->attributes.width);
+            newPath = newPath.united(newPath.translated(-attributes.width, -attributes.width));
+            stencil.path += newPath.translated(0.5*attributes.width, 0.5*attributes.width);
         }
 
         break;
@@ -446,18 +451,44 @@ void PaintGLContext::setViewportTransform()
 
 void PaintGLContext::setClipPath()
 {
-    if (ctx->stencil.enabled && ctx->stencil.clip && !ctx->stencil.path.isEmpty()) {
+    if (stencil.enabled && stencil.clip && !stencil.path.isEmpty()) {
         QPainterPath p;
-        p.addRect(ctx->viewport);
-        QPainterPath clipPath = p - ctx->stencil.path;
-        ctx->painter->setClipPath(clipPath);
+        p.addRect(viewport);
+        QPainterPath clipPath = p - stencil.path;
+        painter->setClipPath(clipPath);
     }
 }
 
 void PaintGLContext::unsetClipPath()
 {
-    if (ctx->stencil.enabled && ctx->stencil.clip)
-        ctx->painter->setClipRect(ctx->viewport);
+    if (stencil.enabled && stencil.clip)
+        painter->setClipRect(viewport);
+}
+
+GLuint PaintGLContext::bindTexture(const QImage &image)
+{
+    qint64 key = image.cacheKey();
+    if (textureCache.contains(key))
+        return textureCache.value(key);
+
+    QImage image2 = image.mirrored();
+    GLuint t;
+    glGenTextures(1, &t);
+    textures[t] = image2;
+    textureCache[key] = t;
+    return t;
+}
+
+void PaintGLContext::drawTexture(const QPointF &pos, GLuint texture)
+{
+    float y = painter->device()->height() - pos.y();
+    QImage image = textures.value(texture);
+
+    painter->save();
+    // It seems that we need to explicitly set the composition mode.
+    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter->drawImage(pos.x(), y - image.height(), image);
+    painter->restore();
 }
 
 #define ENSURE_CTX if (!globalGL || !ctx) return;
@@ -1020,6 +1051,8 @@ void glPushAttrib(GLbitfield mask)
 {
     ENSURE_CTX
     if (mask & GL_LINE_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_COLOR_BUFFER_BIT)
       ctx->attributesStack.push(ctx->attributes);
 }
 

@@ -265,3 +265,5 @@ dist_div_DATA= share/diana/VNNsynop.list \
 	share/diana/ogckml22.xsd \
 	share/diana/atom-author-link.xsd
 
+symbolsdir= $(datarootdir)/diana/@PVERSION@/images/symbols
+dist_symbols_DATA= share/diana/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg

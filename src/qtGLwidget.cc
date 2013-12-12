@@ -130,11 +130,19 @@ void GLwidget::paintGL()
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
   }
 
+#ifndef USE_PAINTGL
   editPaint(false);
+#else
+  if (contr)
+    contr->plot(false, true); // draw overlay
+#endif
 }
 
 void GLwidget::editPaint(bool drawb)
 {
+#ifdef USE_PAINTGL
+  updateGL();
+#else
   makeCurrent();
 
   if (drawb && fbuffer) {
@@ -165,6 +173,7 @@ void GLwidget::editPaint(bool drawb)
   }
 
   swapBuffers();
+#endif
 }
 
 //  Set up the OpenGL rendering state

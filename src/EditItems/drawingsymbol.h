@@ -46,6 +46,7 @@ protected:
   QList<QPointF> boundingSquare() const;
 private:
   virtual void draw();
+  QString name;
 };
 
 } // namespace

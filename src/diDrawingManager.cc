@@ -52,9 +52,17 @@
 #include <set>
 
 #include <QDateTime>
+#include <QImage>
 #include <QKeyEvent>
 #include <QMouseEvent>
-#include <QFileDialog>
+#include <QPainter>
+#include <QSvgRenderer>
+
+#if defined(USE_PAINTGL)
+#include "PaintGL/paintgl.h"
+#else
+#include <QGLContext>
+#endif
 
 #define PLOTM PlotModule::instance()
 
@@ -107,6 +115,8 @@ bool DrawingManager::parseSetup()
 
     // Split the line into tokens.
     vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+    QString fileName;
+    QString symbol;
 
     for (unsigned int j = 0; j < tokens.size(); ++j) {
 
@@ -114,8 +124,24 @@ bool DrawingManager::parseSetup()
       SetupParser::splitKeyValue(tokens[j], key, value);
 
       if (key == "file")
-        drawings_.insert(QString::fromStdString(value));
+        fileName = QString::fromStdString(value);
+
+      if (key == "symbol")
+        symbol = QString::fromStdString(value);
     }
+
+    if (fileName.isEmpty())
+      continue;
+
+    if (!symbol.isEmpty()) {
+      QFile f(fileName);
+      if (f.open(QFile::ReadOnly)) {
+        symbols[symbol] = f.readAll();
+        f.close();
+        METLIBS_LOG_SCOPE("Failed to load symbol file:" << fileName.toStdString());
+      }
+    } else
+      drawings_.insert(fileName);
   }
 
   return true;
@@ -398,4 +424,45 @@ QSet<DrawingItemBase *> DrawingManager::getItems() const
 QSet<QString> &DrawingManager::drawings()
 {
   return drawings_;
+}
+
+void DrawingManager::drawSymbol(const QString &name, float x, float y, int width, int height)
+{
+  if (!symbols.contains(name))
+    return;
+
+  GLuint texture = 0;
+  QGLContext *glctx = const_cast<QGLContext *>(QGLContext::currentContext());
+  QImage image(width, height, QImage::Format_ARGB32);
+
+  // If an existing image is cached then delete the texture and prepare to
+  // create another.
+  bool found = false;
+
+  if (imageCache.contains(name)) {
+    image = imageCache[name];
+    if (image.width() == width || image.height() == height) {
+      texture = symbolTextures[name];
+      found = true;
+    }
+  }
+
+  if (!found) {
+    QSvgRenderer renderer(symbols.value(name));
+    image = QImage(width, height, QImage::Format_ARGB32);
+    image.fill(QColor(0, 0, 0, 0));
+    QPainter painter;
+    painter.begin(&image);
+    renderer.render(&painter);
+    painter.end();
+
+    texture = glctx->bindTexture(image.mirrored());
+    symbolTextures[name] = texture;
+    imageCache[name] = image;
+  }
+
+  glPushAttrib(GL_COLOR_BUFFER_BIT);
+  glEnable(GL_BLEND);
+  glctx->drawTexture(QPointF(x, y), texture);
+  glPopAttrib();
 }

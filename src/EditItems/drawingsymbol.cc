@@ -32,11 +32,12 @@
 
 #include "GL/gl.h"
 #include "drawingsymbol.h"
+#include "diDrawingManager.h"
 
 namespace DrawingItem_Symbol {
 
 Symbol::Symbol()
-  : size_(20)
+  : size_(32)
 {
 }
 
@@ -69,35 +70,9 @@ void Symbol::draw()
 
   const QList<QPointF> bbox = boundingSquare();
 
-  // draw the interior
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable( GL_BLEND );
-  glBegin(GL_POLYGON);
-  glColor4ub(255, 255, 0, 200);
-  foreach (QPointF p, bbox)
-    glVertex2i(p.x(), p.y());
-  glEnd();
-
-  glPushAttrib(GL_LINE_BIT);
-  glLineWidth(3);
-
-  // draw the outline
-  glBegin(GL_LINE_LOOP);
-  glColor4ub(0, 0, 255, 255);
-  foreach (QPointF p, bbox)
-    glVertex2i(p.x(), p.y());
-  glEnd();
-
-  // draw an X
-  glBegin(GL_LINES);
-  glColor4ub(255, 0, 255, 255);
-  glVertex2i(bbox.at(0).x(), bbox.at(0).y());
-  glVertex2i(bbox.at(2).x(), bbox.at(2).y());
-  glVertex2i(bbox.at(1).x(), bbox.at(1).y());
-  glVertex2i(bbox.at(3).x(), bbox.at(3).y());
-  glEnd();
-
-  glPopAttrib();
+  DrawingManager::instance()->drawSymbol("Default",
+    bbox.at(0).x(), bbox.at(0).y(),
+    bbox.at(2).x() - bbox.at(0).x(), bbox.at(2).y() - bbox.at(0).y());
 }
 
 QDomNode Symbol::toKML() const

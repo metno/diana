@@ -1,8 +1,8 @@
 
 #=========================================
 DIANA
-Version: 3.32.0
-(Using metlibs Version 3.9.7)
+Version: 3.34.0
+(Using metlibs Version 4.12.4)
 #=========================================
 
 Norwegian Meteorological Institute (met.no)
@@ -20,6 +20,7 @@ Contents:
 3. Running Diana
 4. Configuration
 5. File formats
+6. Resource files
 
 #-------------------------------------------
 # 1. About Diana
@@ -110,7 +111,7 @@ put the following inside the <FIELD_FILES>
  #-----------------------------------------------
 
  If you need to add a new field parameter, the
- <METNOFIELDFILE_PARAMETERS> section is the correct place . You will also
+ <METNOFIELDFILE_PARAMETERS> section is the correct place. You will also
  need to add a PLOT comand for your new parameter, see the
  <FIELD_PLOT> section.
 
@@ -137,13 +138,14 @@ Maps:                  shape
                        metno-format   (documentation available)
 
 
+#-------------------------------------------
+# 6 Resource files
+#-------------------------------------------
 
+Some files included with Diana are obtained from third parties and are made
+available under distinct licenses.
 
-
-
-
-
-
-
-
-
+The weather symbol files in share/diana/images/symbols were obtained from
+https://github.com/OGCMetOceanDWG/WorldWeatherSymbols and are licensed under
+the Creative Commons Attribution 3.0 Unported (CC BY 3.0) license. See the
+http://creativecommons.org/licenses/by/3.0/ page for the license terms.

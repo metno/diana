@@ -49,7 +49,8 @@ struct RenderItem {
     GLuint list;
 };
 
-class PaintGLContext {
+class PaintGLContext
+{
 public:
     PaintGLContext();
     virtual ~PaintGLContext();
@@ -64,6 +65,10 @@ public:
 
     void setClipPath();
     void unsetClipPath();
+
+    static PaintGLContext *currentContext();
+    GLuint bindTexture(const QImage &image);
+    void drawTexture(const QPointF &pos, GLuint texture);
 
     QPainter *painter;
 
@@ -101,6 +106,7 @@ public:
     QHash<GLuint,QPicture> lists;
     QHash<GLuint,QTransform> listTransforms;
     QHash<GLuint,QImage> textures;
+    QHash<qint64,GLuint> textureCache;
 
     QRect viewport;
     QRectF window;

@@ -31,6 +31,8 @@
 #ifndef _diDrawingManager_h
 #define _diDrawingManager_h
 
+#include "GL/gl.h"
+
 #include <EditItems/drawingitembase.h>
 
 #include <diCommonTypes.h>
@@ -57,6 +59,11 @@ class ObjectManager;
 class QAction;
 class QKeyEvent;
 class QMouseEvent;
+
+#if defined(USE_PAINTGL)
+#include "PaintGL/paintgl.h"
+#define QGLContext PaintGLContext
+#endif
 
 /**
   \brief Manager for drawing areas and annotations.
@@ -124,6 +131,9 @@ public:
 
   static DrawingManager *instance();
 
+  // Resource handling
+  void drawSymbol(const QString &name, float x, float y, int width, int height);
+
   // Dialog-related methods
   QSet<QString> &drawings();
 
@@ -143,6 +153,10 @@ protected:
 private:
   GridConverter gc;
   QSet<QString> drawings_;
+
+  QHash<QString, QByteArray> symbols;
+  QHash<QString, GLuint> symbolTextures;
+  QHash<QString, QImage> imageCache;
 
   static DrawingManager *self;  // singleton instance pointer
 };

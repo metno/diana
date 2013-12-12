@@ -53,14 +53,12 @@
 #if defined(USE_PAINTGL)
 #include <GL/gl.h>
 #include "PaintGL/paintgl.h"
-#endif
-
-class Controller;
-#if defined(USE_PAINTGL)
 class PaintGLContext;
 class QPrinter;
 #define QGLWidget PaintGLWidget
 #endif
+
+class Controller;
 
 /**
    \brief the map OpenGL widget
