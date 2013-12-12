@@ -39,7 +39,6 @@
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
 
-#include <boost/range/adaptor/map.hpp>
 #include <boost/foreach.hpp>
 
 #include <cmath>

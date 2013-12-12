@@ -45,6 +45,7 @@
 #include "diVcrossUtil.h"
 #include "diFontManager.h"
 
+#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
 
 #include <qglobal.h>
@@ -55,7 +56,6 @@
 #endif
 
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
 
 #include <cmath>
 #include <iterator>

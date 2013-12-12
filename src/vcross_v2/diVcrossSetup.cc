@@ -555,7 +555,7 @@ FileContents VcrossSetup::makeContents(const std::string& model, const string_s&
     }
   }
 
-  BOOST_FOREACH(const vcPlot& vcf, boost::adaptors::values(mPlots)) {
+  BOOST_FOREACH(const vcPlot& vcf, miutil::adaptors::values(mPlots)) {
     METLIBS_LOG_DEBUG("plot '" << vcf.name << "'");
     bool allVarsFound = true;
     BOOST_FOREACH(const std::string& var, vcf.vars) {
@@ -586,7 +586,7 @@ VcrossSetup::PlotOptions_t VcrossSetup::getAllPlotOptions()
 
   PlotOptions_t plotopts;
 
-  BOOST_FOREACH(vcPlot& vcf, boost::adaptors::values(mPlots)) {
+  BOOST_FOREACH(vcPlot& vcf, miutil::adaptors::values(mPlots)) {
     PlotOptions po;
     PlotOptions::parsePlotOption(vcf.plotOpts, po);
 
@@ -685,7 +685,7 @@ VcrossSetup::string_v VcrossSetup::getAllModelNames() const
   METLIBS_LOG_SCOPE();
 
   std::vector<std::string> modelnames;
-  boost::copy(boost::adaptors::keys(mModels), std::back_inserter(modelnames));
+  boost::copy(miutil::adaptors::keys(mModels), std::back_inserter(modelnames));
   return modelnames;
 }
 

@@ -39,6 +39,7 @@
 #include "diVcross1Plot.h"
 
 #include <diLocalSetupParser.h>
+#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
@@ -46,7 +47,6 @@
 #include <diField/diFieldManager.h>
 
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
 
 #include <set>
 
@@ -103,12 +103,12 @@ void VcrossManager::cleanup()
       delete d.vcplot;
   vcdata.clear();
 
-  BOOST_FOREACH(VcrossFile*& f, boost::adaptors::values(vcfiles)) {
+  BOOST_FOREACH(VcrossFile*& f, miutil::adaptors::values(vcfiles)) {
       delete f;
       f = 0;
   }
 
-  BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields))
+  BOOST_FOREACH(VcrossField*& f, miutil::adaptors::values(vcfields))
       delete f;
   vcfields.clear();
 
@@ -120,7 +120,7 @@ void VcrossManager::cleanup()
 void VcrossManager::cleanupDynamicCrossSections()
 {
   METLIBS_LOG_SCOPE();
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields))
+  BOOST_FOREACH(VcrossField* f, miutil::adaptors::values(vcfields))
       if (f)
         f->cleanup();
 }
@@ -203,7 +203,7 @@ bool VcrossManager::setCrossection(float lat, float lon)
 
   if (vcfields.empty())
     return false;
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+  BOOST_FOREACH(VcrossField* f, miutil::adaptors::values(vcfields)) {
     f->setLatLon(lat, lon);
     // Get the new namelist with the crossections
     nameList = f->getNames();

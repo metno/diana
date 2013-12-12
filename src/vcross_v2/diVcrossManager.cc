@@ -44,11 +44,10 @@
 #include "diVcrossSetup.h"
 #include "diVcrossUtil.h"
 
+#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
 
 #include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm.hpp>
 
 #define MILOGGER_CATEGORY "diana.VcrossManager"
@@ -106,12 +105,12 @@ void VcrossManager::cleanup()
   selected.clear();
   selectedLabel.clear();
 
-  BOOST_FOREACH(VcrossFile*& f, boost::adaptors::values(vcfiles)) {
+  BOOST_FOREACH(VcrossFile*& f, miutil::adaptors::values(vcfiles)) {
     delete f;
   }
   vcfiles.clear();
 
-  BOOST_FOREACH(VcrossField*& f, boost::adaptors::values(vcfields)) {
+  BOOST_FOREACH(VcrossField*& f, miutil::adaptors::values(vcfields)) {
     delete f;
   }
   vcfields.clear();
@@ -120,7 +119,7 @@ void VcrossManager::cleanup()
 void VcrossManager::cleanupDynamicCrossSections()
 {
   METLIBS_LOG_SCOPE();
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+  BOOST_FOREACH(VcrossField* f, miutil::adaptors::values(vcfields)) {
     if (f)
       f->cleanup();
   }
@@ -148,7 +147,7 @@ bool VcrossManager::setCrossection(float lat, float lon)
     return false;
 
   std::set<std::string> csnames(nameList.begin(), nameList.end());
-  BOOST_FOREACH(VcrossField* f, boost::adaptors::values(vcfields)) {
+  BOOST_FOREACH(VcrossField* f, miutil::adaptors::values(vcfields)) {
     const std::string n = f->setLatLon(lat, lon);
     if (not n.empty())
       csnames.insert(n);
@@ -448,7 +447,7 @@ void VcrossManager::preparePlot()
     if (not zax) {
       METLIBS_LOG_DEBUG("1D data");
       // create "z axis" containing the parameter values, possibly converted to HEIGHT/PRESSURE 
-      VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
+      VcrossData::ZAxisPtr zaxc = miutil::make_shared<VcrossData::ZAxis>();
       zaxc->quantity = zQuantity;
       zaxc->name = arg0_name + ":1d";
       zaxc->mPoints = arg0.mPoints;
@@ -471,7 +470,7 @@ void VcrossManager::preparePlot()
     } else if (haveZaxis and zax->quantity != zQuantity) {
       METLIBS_LOG_DEBUG("2D data, convert from " << zax->quantity << " to " << zQuantity);
       // convert z axis to zQuantity (HEIGHT/PRESSURE)
-      VcrossData::ZAxisPtr zaxc = boost::make_shared<VcrossData::ZAxis>();
+      VcrossData::ZAxisPtr zaxc = miutil::make_shared<VcrossData::ZAxis>();
       zaxc->quantity = zQuantity;
       zaxc->name = zax->name + ":converted";
       zaxc->mPoints = zax->mPoints;

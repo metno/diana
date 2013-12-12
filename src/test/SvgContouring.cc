@@ -1,9 +1,10 @@
 
 #include "PolyContouring.h"
 
+#include <puTools/mi_boost_compatibility.hh>
+
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
-#include <boost/make_shared.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -281,9 +282,9 @@ int main(int argc, char* argv[])
 
   const std::string infile = argv[1], outfile = argv[2];
 
-  boost::shared_ptr<ArrayField> field = boost::make_shared<ArrayField>(infile);
+  boost::shared_ptr<ArrayField> field = miutil::make_shared<ArrayField>(infile);
 
-  boost::shared_ptr<SVG> svg = boost::make_shared<SVG>(outfile);
+  boost::shared_ptr<SVG> svg = miutil::make_shared<SVG>(outfile);
   svg->rect_corners(0, 0, field->scale()*(field->nx()-1), field->scale()*(field->ny()-1));
 
   LevelLineContouring llc(field.get());

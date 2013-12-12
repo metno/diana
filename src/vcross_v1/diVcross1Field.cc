@@ -37,11 +37,11 @@
 
 #include <diField/diFieldManager.h>
 #include <puDatatypes/miCoordinates.h>
+#include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
 #include <puTools/miStringFunctions.h>
 
 #include <boost/foreach.hpp>
-#include <boost/range/adaptor/map.hpp>
 
 #include <cmath>
 #include <set>
@@ -114,7 +114,7 @@ void VcrossField::cleanupCache()
       delete vcp;
   VcrossPlotVector.clear();
 
-  BOOST_FOREACH(vector<float*>& vcd, boost::adaptors::values(VcrossDataMap)) {
+  BOOST_FOREACH(vector<float*>& vcd, miutil::adaptors::values(VcrossDataMap)) {
     BOOST_FOREACH(float* d, vcd)
         delete[] d;
   }
