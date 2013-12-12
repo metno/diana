@@ -1426,7 +1426,7 @@ bool VcrossPlot::prepareData(const std::string& fileName)
     for (int n = 0; n < nTotal; n++) {
       float p = cdata2d[npp][n], pi;
       if (iundef == 0 or p != fieldUndef) {
-        pi = cp * powf(p * p0inv, kappa);
+        pi = MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
       } else {
         pi = fieldUndef;
       }
@@ -1514,8 +1514,8 @@ void VcrossPlot::prepareVertical()
     METLIBS_LOG_DEBUG(LOGVAL(pmin) << LOGVAL(pmax) << LOGVAL(yDatamin) << LOGVAL(yDatamax) << LOGVAL(v2hRatio));
     // compute output y in all data points (copy x for contouring routine)
     // exner function,   pi = 1004.*(p/1000.)**(287./1004.)
-    pimax = cp * powf(pmax * p0inv, kappa);
-    pimin = cp * powf(pmin * p0inv, kappa);
+    pimax = MetNo::Constants::cp * powf(pmax * MetNo::Constants::p0inv, MetNo::Constants::kappa);
+    pimin = MetNo::Constants::cp * powf(pmin * MetNo::Constants::p0inv, MetNo::Constants::kappa);
 
     int npc = -1;
 
@@ -1567,7 +1567,7 @@ void VcrossPlot::prepareVertical()
           } else {
             p = cdata1d[nps][i];
           }
-          pi = cp * powf(p * p0inv, kappa);
+          pi = MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
           cdata1d[npy1][i] = yconst + yscale * pi;
         }
       } else if ((nps >= 0 || ntopo >= 0) && vcoordPlot == vcv_pressure) {
@@ -1975,11 +1975,11 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const ve
             if (cdata2d[ntk][n] != fieldUndef && cdata2d[ntk][n + nPoint]
                                                               != fieldUndef && cdata2d[no][n] != fieldUndef && cdata2d[no][n
                                                                                                                            + nPoint] != fieldUndef) {
-              th1 = cp * cdata2d[ntk][n] / cdata2d[npi][n];
-              th2 = cp * cdata2d[ntk][n + nPoint] / cdata2d[npi][n + nPoint];
+              th1 = MetNo::Constants::cp * cdata2d[ntk][n] / cdata2d[npi][n];
+              th2 = MetNo::Constants::cp * cdata2d[ntk][n + nPoint] / cdata2d[npi][n + nPoint];
               pi1 = cdata2d[npi][n];
               pi2 = cdata2d[npi][n + nPoint];
-              dz = (th1 + th2) * 0.5 * (pi1 - pi2) * ginv;
+              dz = (th1 + th2) * 0.5 * (pi1 - pi2) * MetNo::Constants::ginv;
               fv1 = cdata2d[no][n];
               fv2 = cdata2d[no][n + nPoint];
               cdata2d[no][n] = (fv2 - fv1) / (dz * 0.001);
@@ -2000,7 +2000,7 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const ve
               th2 = cdata2d[nth][n + nPoint];
               pi1 = cdata2d[npi][n];
               pi2 = cdata2d[npi][n + nPoint];
-              dz = (th1 + th2) * 0.5 * (pi1 - pi2) * ginv;
+              dz = (th1 + th2) * 0.5 * (pi1 - pi2) * MetNo::Constants::ginv;
               fv1 = cdata2d[no][n];
               fv2 = cdata2d[no][n + nPoint];
               cdata2d[no][n] = (fv2 - fv1) / (dz * 0.001);
@@ -2161,7 +2161,7 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const ve
     dthdpi, pifull, thhalf;
     int km, kp;
     for (i = 0; i < nPoint; i++)
-      cwork2[i] = cp * powf(cdata1d[nps][i] * p0inv, kappa);
+      cwork2[i] = MetNo::Constants::cp * powf(cdata1d[nps][i] * MetNo::Constants::p0inv, MetNo::Constants::kappa);
     alvl2 = 0.;
     blvl2 = 1.;
     for (k = 0; k < numLev; k++) {
@@ -2178,8 +2178,8 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const ve
       for (i = 0, n = nPoint * k; i < nPoint; i++, n++) {
         // pressure and exner function (pi) at sigma1 level above
         p2 = alvl2 + blvl2 * cdata1d[nps][i];
-        pi2 = cp * powf(p2 * p0inv, kappa);
-        dz = cdata2d[nth][n] * (cwork2[i] - pi2) * ginv;
+        pi2 = MetNo::Constants::cp * powf(p2 * MetNo::Constants::p0inv, MetNo::Constants::kappa);
+        dz = cdata2d[nth][n] * (cwork2[i] - pi2) * MetNo::Constants::ginv;
         z1 = cdata2d[no][i];
         pi1 = cwork2[i];
         cwork1[i] += dz;
@@ -2188,18 +2188,18 @@ int VcrossPlot::computer(const std::string& var, VcrossFunction vcfunc, const ve
         // linear interpolation of height is not good (=> T=const. in layer),
         // so we make a first guess of a temperature profile to comp. height
         px = alevel[km] + blevel[km] * cdata1d[nps][i];
-        pim1 = cp * powf(px * p0inv, kappa);
+        pim1 = MetNo::Constants::cp * powf(px * MetNo::Constants::p0inv, MetNo::Constants::kappa);
         px = alevel[kp] + blevel[kp] * cdata1d[nps][i];
-        pip1 = cp * powf(px * p0inv, kappa);
+        pip1 = MetNo::Constants::cp * powf(px * MetNo::Constants::p0inv, MetNo::Constants::kappa);
         dthdpi
         = (cdata2d[nth][km * nPoint + i] - cdata2d[nth][kp * nPoint + i])
         / (pim1 - pip1);
         // get temperature at half level (bottom of layer)
         px = alevel[k] + blevel[k] * cdata1d[nps][i];
-        pifull = cp * powf(px * p0inv, kappa);
+        pifull = MetNo::Constants::cp * powf(px * MetNo::Constants::p0inv, MetNo::Constants::kappa);
         thhalf = cdata2d[nth][n] + dthdpi * (pi1 - pifull);
         // thickness from half level to full level
-        dz = (thhalf + cdata2d[nth][n]) * 0.5 * (pi1 - pifull) * ginv;
+        dz = (thhalf + cdata2d[nth][n]) * 0.5 * (pi1 - pifull) * MetNo::Constants::ginv;
         // height at full level
         cdata2d[no][n] = z1 + dz;
       }
@@ -3352,7 +3352,7 @@ void VcrossPlot::plotMarkerLines()
           if (vcoordPlot == vcv_exner) {
             for (int j = ibgn; j < iend; j++) {
               float p = cdata1d[n][j];
-              float pi = cp * powf(p * p0inv, kappa);
+              float pi = MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
               y1d[j] = yconst + yscale * pi;
             }
           } else {
@@ -3604,7 +3604,7 @@ void VcrossPlot::plotFrame()
         ypfixed = new float[npfixed];
         for (int k = 0; k < npfixed; k++) {
           float p =pfixed[k] = pfixed1[k];
-          float pi =cp * powf(p * p0inv, kappa);
+          float pi =MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
           ypfixed[k] = yconst + yscale * pi;
         }
       } else if (verticalAxis == "FL") {
@@ -3614,7 +3614,7 @@ void VcrossPlot::plotFrame()
         for (int k = 0; k < npfixed; k++) {
           pfixed[k] = flevels[k];
           float p =plevels[k];
-          float pi =cp * powf(p * p0inv, kappa);
+          float pi =MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
           ypfixed[k] = yconst + yscale * pi;
         }
       }
@@ -3945,7 +3945,7 @@ bool VcrossPlot::plotData(const std::string& fieldname, PlotOptions& poptions)
       ypfixed = new float[npfixed];
       for (k = 0; k < npfixed; k++) {
         p =pfixed[k];
-        pi =cp * powf(p * p0inv, kappa);
+        pi =MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
         ypfixed[k] = yconst + yscale * pi;
       }
     } else if (vcoordPlot == vcv_pressure) {
@@ -5129,7 +5129,7 @@ bool VcrossPlot::vcMovement(float *vt, float *wom, float *p, float *x,
           } else if (vcoordPlot == vcv_exner) {
             // exner function as output vertical coordinate
             p2 = p[n] + dt * wom[n];
-            pi2 = cp * powf(p2 * p0inv, kappa);
+            pi2 = MetNo::Constants::cp * powf(p2 * MetNo::Constants::p0inv, MetNo::Constants::kappa);
             yend = yconst + yscale * pi2;
             // vertical component
             dy = yend - y0;
