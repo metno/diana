@@ -21,12 +21,14 @@ namespace VcrossUtil {
 float exnerFunction(float p)
 {
   // cp, p0inv, and kappa are defined in metlibs/diField/diMetConstants.h
+  using namespace MetNo::Constants;
   return cp * std::pow(p * p0inv, kappa);
 }
 
 float exnerFunctionInverse(float e)
 {
   // invert e=cp*exp(kappa*log(p*p0inv))
+  using namespace MetNo::Constants;
   return std::exp(std::log(e/cp)/kappa)/p0inv;
 }
 

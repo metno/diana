@@ -295,10 +295,10 @@ VcrossData::ParameterData compute(const VcrossData::Parameters_t& csPar, int vcf
             const float pi2 = VcrossUtil::exnerFunction(par_pp[n + out.mPoints]);
             float th1 = par_tk_th[n], th2 = par_tk_th[n + out.mPoints];
             if (compddz == 5 || compddz == 7) {
-              th1 *= cp / pi1;
-              th2 *= cp / pi2;
+              th1 *= MetNo::Constants::cp / pi1;
+              th2 *= MetNo::Constants::cp / pi2;
             }
-            const float dz = (th1 + th2) * 0.5 * (pi1 - pi2) * ginv;
+            const float dz = (th1 + th2) * 0.5 * (pi1 - pi2) * MetNo::Constants::ginv;
             const float fv1 = out.values.get()[n];
             const float fv2 = out.values.get()[n + out.mPoints];
             out.values.get()[n] = (fv2 - fv1) / (dz * 0.001);

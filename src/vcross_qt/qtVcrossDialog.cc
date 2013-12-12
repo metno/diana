@@ -546,8 +546,8 @@ void VcrossDialog::CreateAdvanced()
 
   extremeLimits<<"Off";
   QString qstr;
-  for (int i=0; i<nLevelTable; i++) {
-    qstr.setNum(pLevelTable[i]);
+  for (int i=0; i<MetNo::Constants::nLevelTable; i++) {
+    qstr.setNum(MetNo::Constants::pLevelTable[i]);
     extremeLimits<<qstr;
   }
 
