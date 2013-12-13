@@ -3223,9 +3223,9 @@ void DianaMainWindow::hardcopy()
   QPrinter qprt;
 
   // save the old printer name if user prints to file
-  miutil::miString oldprinter = priop.printer;
+  std::string oldprinter = priop.printer;
 
-  miutil::miString command= pman.printCommand();
+  std::string command= pman.printCommand();
 
   fromPrintOption(qprt,priop);
 

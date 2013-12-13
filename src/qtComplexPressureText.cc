@@ -46,7 +46,6 @@
 #include "qtComplexPressureText.h"
 #include "qtUtility.h"
 
-#include <puTools/miString.h>
 #include <qstring.h>
 #include "qtToggleButton.h"
 #include <iostream>
