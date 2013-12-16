@@ -1,3 +1,9 @@
+diana (3.34.2-1) unstable; urgency=low
+
+  * Bugfix: qsocket - negative lat/lon values crashed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Dec 2013 09:04:32 +0100
+
 diana (3.34.1-1) unstable; urgency=low
 
   * Bugfixes
