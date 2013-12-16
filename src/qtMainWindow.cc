@@ -1223,9 +1223,8 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
 
 void DianaMainWindow::editUpdate()
 {
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("DianaMainWindow::editUpdate");
-#endif
+
   w->Glw()->forceUnderlay(true);
   w->updateGL();
 }
@@ -2088,9 +2087,7 @@ void DianaMainWindow::spectrumStartup()
 
 void DianaMainWindow::hideVprofWindow()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("hideVprofWindow called !");
-#endif
   if ( !vpWindow ) return;
   vpWindow->hide();
   // delete stations
@@ -2101,9 +2098,7 @@ void DianaMainWindow::hideVprofWindow()
 
 void DianaMainWindow::hideVcrossWindow()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("hideVcrossWindow called !");
-#endif
   if ( !vcWindow ) return;
   // vcWindow hidden and locationPlots deleted
   vcWindow->hide();
@@ -2114,9 +2109,7 @@ void DianaMainWindow::hideVcrossWindow()
 
 void DianaMainWindow::hideSpectrumWindow()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("hideSpectrumWindow called !");
-#endif
   if ( !spWindow ) return;
   // spWindow and stations only hidden, should also be possible to
   //delete all !
@@ -2129,10 +2122,8 @@ void DianaMainWindow::hideSpectrumWindow()
 
 void DianaMainWindow::stationChangedSlot(const QString& station)
 {
-#ifdef DEBUGPRINT
   //METLIBS_LOG_DEBUG("DianaMainWindow::stationChangedSlot to " << station);
   METLIBS_LOG_DEBUG("DianaMainWindow::stationChangedSlot");
-#endif
   string s =station.toStdString();
   vector<string> data;
   data.push_back(s);
@@ -2143,9 +2134,7 @@ void DianaMainWindow::stationChangedSlot(const QString& station)
 
 void DianaMainWindow::modelChangedSlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::modelChangedSlot()");
-#endif
   if ( !vpWindow ) return;
   StationPlot * sp = vpWindow->getStations() ;
   sp->setName("vprof");
@@ -2158,10 +2147,8 @@ void DianaMainWindow::modelChangedSlot()
 
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot to " << name.toStdString());
   //METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot ");
-#endif
   std::string s= name.toStdString();
   contr->setSelectedLocation("vcross", s);
   w->updateGL();
@@ -2170,9 +2157,7 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
 
 void DianaMainWindow::crossectionSetChangedSlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionSetChangedSlot()");
-#endif
   if ( !vcWindow ) return;
   LocationData ed;
   vcWindow->getCrossections(ed);
@@ -2187,9 +2172,7 @@ void DianaMainWindow::crossectionSetChangedSlot()
 
 void DianaMainWindow::crossectionSetUpdateSlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionSetUpdateSlot()");
-#endif
   if ( !vcWindow ) return;
   LocationData ed;
   vcWindow->getCrossectionOptions(ed);
@@ -2201,10 +2184,8 @@ void DianaMainWindow::crossectionSetUpdateSlot()
 
 void DianaMainWindow::spectrumChangedSlot(const QString& station)
 {
-#ifdef DEBUGPRINT
   //METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot to " << name);
   METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot");
-#endif
   string s =station.toStdString();
   vector<string> data;
   data.push_back(s);
@@ -2216,9 +2197,7 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
 
 void DianaMainWindow::spectrumSetChangedSlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::spectrumSetChangedSlot()");
-#endif
   if ( !spWindow ) return;
   StationPlot * stp = spWindow->getStations() ;
   stp->setName("spectrum");
@@ -2651,9 +2630,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   // If autoupdate is active, reread sat/radarfiles and
   // show the latest timestep
   else if (letter.command == qmstrings::directory_changed) {
-#ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG(letter.command <<" received");
-#endif
 
     if (doAutoUpdate) {
       // running animation
@@ -2698,9 +2675,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   // If autoupdate is active, do the same thing as
   // when the user presses the updateObs button.
   else if (letter.command == qmstrings::file_changed) {
-#ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG(letter.command <<" received");
-#endif
     if (doAutoUpdate) {
       // Just a call to update obs will work fine
       updateObs();
@@ -2740,9 +2715,7 @@ void DianaMainWindow::sendLetter(miMessage& letter)
 
 void DianaMainWindow::updateObs()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::obsUpdate()");
-#endif
   QApplication::setOverrideCursor( Qt::WaitCursor );
   contr->updateObs();
   w->updateGL();
@@ -2753,9 +2726,7 @@ void DianaMainWindow::updateObs()
 void DianaMainWindow::autoUpdate()
 {
   doAutoUpdate = !doAutoUpdate;
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DianaMainWindow::autoUpdate(): " << doAutoUpdate);
-#endif
   autoUpdateAction->setChecked(doAutoUpdate);
 }
 
@@ -3322,9 +3293,7 @@ void DianaMainWindow::measurementsPositions(bool b)
 
 void DianaMainWindow::vCrossPositions(bool b)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("vCrossPositions b=" << b);
-#endif
   markMeasurementsPos = false;
   markTrajPos = false;
   markVcross = b;
@@ -3366,8 +3335,8 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   }
   //send position to all clients
   if(qsocket){
-    std::string latstr(lat,6);
-    std::string lonstr(lon,6);
+    std::string latstr = miutil::from_number(lat,6);
+    std::string lonstr = miutil::from_number(lon,6);
     miMessage letter;
     letter.command     = qmstrings::positions;
     letter.commondesc  =  "dataset";
@@ -3389,7 +3358,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 // picks up a single click on position x,y
 void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 {
-  //  METLIBS_LOG_DEBUG("void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)");
+  METLIBS_LOG_DEBUG("void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)");
 
   int x = mev->x();
   int y = mev->y();
@@ -3432,9 +3401,7 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 // picks up mousemovements (without buttonclicks)
 void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
 {
-#ifdef DEBUGREDRAWCATCH
   METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev->x()<<" "<<mev->y());
-#endif
   int x = mev->x();
   int y = mev->y();
 
@@ -3489,9 +3456,8 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
 
-#ifdef DEBUGREDRAWCATCH
   METLIBS_LOG_DEBUG("DianaMainWindow::catchElement x,y: "<<mev->x()<<" "<<mev->y());
-#endif
+
   int x = mev->x();
   int y = mev->y();
 
