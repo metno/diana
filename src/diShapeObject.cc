@@ -316,9 +316,9 @@ bool ShapeObject::plot(Area area, // current area
                    std::string dbfcol, // column name in dfb file, text to be plottet
  		   GLushort linetype, // contour line type
 		   float linewidth, // contour linewidth
-		   const uchar_t* lcolour, // contour linecolour
-		   const uchar_t* fcolour, // triangles fill colour
-		   const uchar_t* bcolour)
+		   const unsigned char* lcolour, // contour linecolour
+		   const unsigned char* fcolour, // triangles fill colour
+		   const unsigned char* bcolour)
 {
 	float x1, y1, x2, y2;
         int symbol_rad = 0; 

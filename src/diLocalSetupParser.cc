@@ -279,7 +279,7 @@ bool LocalSetupParser::parseColours(const std::string& sectname){
       "brown","orange","cyan","magenta",
       "purple","lightblue","dnmi_green","dnmi_blue",
       "grey25","grey50","grey90"};
-  const uchar_t cols[numcols][3]=
+  const unsigned char cols[numcols][3]=
   { {0,0,0},{255,255,255},{255,0,0},{0,255,0},{0,0,255},{255,255,0},
       {0,127,127},{178,178,0},{178,0,0},{0,0,178},
       {178,51,0},{255,89,0},{0,255,255},{255,0,255},
@@ -291,7 +291,7 @@ bool LocalSetupParser::parseColours(const std::string& sectname){
   std::string key,value,value2;
   int i,n;
   Colour c;
-  uchar_t r,g,b,a;
+  unsigned char r,g,b,a;
   Colour::ColourInfo cinfo;
 
   // -- default colours
@@ -458,13 +458,13 @@ bool LocalSetupParser::parseLineTypes(const std::string& sectname){
 
   // linetype bits and bitmask
   const unsigned int numbits= 16;
-  const uint16 bmask[numbits]=
+  const unsigned short int bmask[numbits]=
   {32768,16384,8192,4096,2048,1024,512,256,128,64,32,16,8,4,2,1};
 
   vector<std::string> list,tokens,stokens;
   std::string key,value,value2;
   int i,n;
-  uint16 bm;
+  unsigned short int bm;
   int factor;
 
   // first define default types/values

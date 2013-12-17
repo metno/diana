@@ -92,9 +92,9 @@ public:
             std::string dbfcol, // text in dfb file to be plottet for that column
             GLushort linetype, // contour line type
             float linewidth, // contour linewidth
-            const uchar_t* lcolour, // contour linecolour
-            const uchar_t* fcolour, // triangles fill colour
-            const uchar_t* bcolour);
+            const unsigned char* lcolour, // contour linecolour
+            const unsigned char* fcolour, // triangles fill colour
+            const unsigned char* bcolour);
 
   virtual bool plot();
 

@@ -250,7 +250,7 @@ private:
   void cloudCoverAuto(const float& fN, const float &radius);
   void plotWind(int dd,float ff_ms, bool ddvar,float &radius,float current=-1);
   //  void plotArrow(int,int, bool,float &);
-  void weather(int16 ww, float & TTT, int& zone,
+  void weather(short int ww, float & TTT, int& zone,
 	       float x, float y, float scale=1, std::string align="left");
   void pastWeather(int w, float x, float y,
 		   float scale=1, std::string align="left");
@@ -258,9 +258,9 @@ private:
 	    float x, float y, std::string align="left");
   int visibility(float vv, bool ship);
   int vis_direction(float dv);
-  void amountOfClouds(int16, int16, float,float);
-  void amountOfClouds_1(int16 Nh, int16 h, float x, float y, bool metar=false);
-  void amountOfClouds_1_4(int16 Ns1, int16 hs1, int16 Ns2, int16 hs2, int16 Ns3, int16 hs3, int16 Ns4, int16 hs4, float x, float y, bool metar=false);
+  void amountOfClouds(short int, short int, float,float);
+  void amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar=false);
+  void amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y, bool metar=false);
   void checkAccumulationTime(ObsData &dta);
   void checkGustTime(ObsData &dta);
   void checkMaxWindTime(ObsData &dta);

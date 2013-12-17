@@ -31,7 +31,6 @@
 #ifndef diLinetype_h
 #define diLinetype_h
 
-#include <puCtools/porttypes.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -54,7 +53,7 @@ public:
   static void init();
   /// define a new lint type from name, bitmap and repeat factor
   static void define(const std::string& _name,
-		     uint16 _bmap= 0xFFFF, int _factor= 1);
+		     short int _bmap= 0xFFFF, int _factor= 1);
 
   /// return default line type
   static Linetype getDefaultLinetype() { return defaultLinetype; }
@@ -69,7 +68,7 @@ public:
 
   std::string name;     ///< name of line type
   bool     stipple;  ///< not solid
-  uint16   bmap;     ///< bitmap defing stipple pattern
+  short int   bmap;     ///< bitmap defing stipple pattern
   int      factor;   ///< repeat factor
 
 private:

@@ -271,12 +271,12 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
       aTable table;
       vector<aTable> vtable;
 
-      int ncolours  = poptions.palettecolours.size();
-      int ncold     = poptions.palettecolours_cold.size();
-      int npatterns = poptions.patterns.size();
-      int nlines    = poptions.linevalues.size();
-      int nloglines = poptions.loglinevalues.size();
-      int ncodes = (ncolours>npatterns ? ncolours : npatterns);
+      size_t ncolours  = poptions.palettecolours.size();
+      size_t ncold     = poptions.palettecolours_cold.size();
+      size_t npatterns = poptions.patterns.size();
+      size_t nlines    = poptions.linevalues.size();
+      size_t nloglines = poptions.loglinevalues.size();
+      size_t ncodes = (ncolours>npatterns ? ncolours : npatterns);
 
       if(cmin>poptions.base) ncold=0;
 
@@ -301,7 +301,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
         vtable.push_back(table);
       }
 
-      for (int i=0; i<ncodes; i++){
+      for (size_t i=0; i<ncodes; i++){
         if(ncolours>0){
           int ii = i%ncolours;
           table.colour = poptions.palettecolours[ii].Name();
@@ -317,7 +317,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
 
       if(poptions.discontinuous == 1 && classSpec.size() &&
           poptions.lineinterval>0.99 && poptions.lineinterval<1.01){
-        for (int i=0; i<ncodes; i++){
+        for (size_t i=0; i<ncodes; i++){
           vector<std::string> tstr = miutil::split(classSpec[i], ":");
           if(tstr.size()>1) {
             vtable[i].text = tstr[1];
@@ -328,7 +328,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
 
       } else if(nlines>0){
         if ( !classSpec.size() ) {
-          for(int i=0; i<ncodes-1; i++){
+          for(size_t i=0; i<ncodes-1; i++){
             float min = poptions.linevalues[i];
             float max = poptions.linevalues[i+1];
             ostringstream ostr;
@@ -340,7 +340,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
           ostr <<">"<<min << unit;
           vtable[ncodes-1].text = ostr.str();
         } else {
-          for(int i=0; i<ncodes; i++){
+          for(size_t i=0; i<ncodes; i++){
             ostringstream ostr;
             ostr <<classSpec[i];
             vtable[i].text = ostr.str();
@@ -350,13 +350,13 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
       } else if(nloglines>0){
         if ( !classSpec.size() ) {
           vector<float> vlog;
-          for (int n=0; n<ncodes; n++) {
+          for (size_t n=0; n<ncodes; n++) {
             float slog= powf(10.0,n);
-            for (int i=0; i<nloglines; i++) {
+            for (size_t i=0; i<nloglines; i++) {
               vlog.push_back(slog*poptions.loglinevalues[i]);
             }
           }
-          for(int i=0; i<ncodes-1; i++){
+          for(size_t i=0; i<ncodes-1; i++){
             float min = vlog[i];
             float max = vlog[i+1];
             ostringstream ostr;
@@ -368,7 +368,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
           ostr <<">"<<min << unit;
           vtable[ncodes-1].text = ostr.str();
         } else {
-          for(int i=0; i<ncodes; i++){
+          for(size_t i=0; i<ncodes; i++){
             ostringstream ostr;
             ostr <<classSpec[i];
             vtable[i].text = ostr.str();
@@ -405,7 +405,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
         }else{
           min=poptions.base;
         }
-        for(int i=ncold; i<ncodes+ncold; i++){
+        for(size_t i=ncold; i<ncodes+ncold; i++){
           max = min + poptions.lineinterval;
           ostringstream ostr;
           ostr <<min<<" - "<< max << unit;
@@ -3165,7 +3165,7 @@ bool FieldPlot::plotFillCell()
 
   if(poptions.alpha<255){
     for(size_t  i=0;i<poptions.palettecolours.size();i++) {
-      poptions.palettecolours[i].set(Colour::alpha,uchar_t(poptions.alpha));
+      poptions.palettecolours[i].set(Colour::alpha,(unsigned char)poptions.alpha);
     }
   }
 
@@ -3327,7 +3327,6 @@ bool FieldPlot::plotFrameOnly()
 
   if (!fields[0]->data) return false;
 
-  int ix,iy;
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
 

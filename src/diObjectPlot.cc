@@ -872,7 +872,7 @@ void  ObjectPlot::setObjectRGBColor(std::string rgbstring) {
   for (int cc=0; cc < nColours; cc++){
     //METLIBS_LOG_DEBUG("cc = " << cc);
     //METLIBS_LOG_DEBUG("The colour string to be added is\n ");
-    uchar_t cadd[4];
+    unsigned char cadd[4];
     for (int i = 0;i<4;i++){
       //METLIBS_LOG_DEBUG(colours2add[cc*4+i]);
       cadd[i] = atoi(colours2add[cc*4+i].c_str());

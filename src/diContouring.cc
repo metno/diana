@@ -4034,9 +4034,9 @@ void fillContours(vector<ContourLine*>& contourlines,
   // set alpha shading
   if(poptions.alpha<255){
     for(int i=0;i<ncolours;i++)
-      colours[i].set(Colour::alpha,uchar_t(poptions.alpha));
+      colours[i].set(Colour::alpha,(unsigned char)poptions.alpha);
     for(int i=0;i<ncolours_cold;i++)
-      colours_cold[i].set(Colour::alpha,uchar_t(poptions.alpha));
+      colours_cold[i].set(Colour::alpha,(unsigned char)poptions.alpha);
   }
 
   int ncl= contourlines.size();

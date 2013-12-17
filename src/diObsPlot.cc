@@ -2782,7 +2782,7 @@ void ObsPlot::plotList(int index)
         = dta.fdata.find("TTT")) != dta.fdata.end()) {
       if (ccriteria)
         checkColourCriteria("ww", f_p->second);
-      weather((int16) f_p->second, q_p->second, dta.zone,
+      weather((short int) f_p->second, q_p->second, dta.zone,
           xpos * scale - xshift, (ypos - 0.2 * yStep) * scale, scale * 0.6,
           align);
       if (!vertical_orientation)
@@ -3900,7 +3900,7 @@ void ObsPlot::plotDBMetar(int index)
   //if( ww_value != undef &&
   //    ww_value>3) {//1-3 skal ikke plottes
   //  if(ccriteria) checkColourCriteria("ww",ww_value);
-  //  weather((int16)(int)ww_value,TTT_value,zone,
+  //  weather((short int)(int)ww_value,TTT_value,zone,
   //      iptab[lpos+12],iptab[lpos+13]);
   //  
 
@@ -3961,17 +3961,17 @@ void ObsPlot::plotDBMetar(int index)
       HS4_value = (HS4_value*3.2808399)/100.0;
     if( ClFlag ) {
       amountOfClouds_1_4(
-          (int16)(int)NS1_value, (int16)(int)HS1_value,
-          (int16)(int)NS2_value, (int16)(int)HS2_value,
-          (int16)(int)NS3_value, (int16)(int)HS3_value,
-          (int16)(int)NS4_value, (int16)(int)HS4_value,
+          (short int)(int)NS1_value, (short int)(int)HS1_value,
+          (short int)(int)NS2_value, (short int)(int)HS2_value,
+          (short int)(int)NS3_value, (short int)(int)HS3_value,
+          (short int)(int)NS4_value, (short int)(int)HS4_value,
           iptab[lpos+24]+2,iptab[lpos+25]+2,true);
     } else {
       amountOfClouds_1_4(
-          (int16)(int)NS1_value, (int16)(int)HS1_value,
-          (int16)(int)NS2_value, (int16)(int)HS2_value,
-          (int16)(int)NS3_value, (int16)(int)HS3_value,
-          (int16)(int)NS4_value, (int16)(int)HS4_value,
+          (short int)(int)NS1_value, (short int)(int)HS1_value,
+          (short int)(int)NS2_value, (short int)(int)HS2_value,
+          (short int)(int)NS3_value, (short int)(int)HS3_value,
+          (short int)(int)NS4_value, (short int)(int)HS4_value,
           iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
     }
   }
@@ -3992,9 +3992,9 @@ void ObsPlot::plotDBMetar(int index)
       if(ccriteria && Nh!=undef) checkColourCriteria("Nh",Nh);
       if(ccriteria && h!=undef) checkColourCriteria("h",h);
       if( ClFlag ) {
-        amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2,true);
+        amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2,true);
       } else {
-        amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
+        amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10,true);
       }
     }
   }
@@ -4550,7 +4550,7 @@ void ObsPlot::plotDBSynop(int index)
   if( ww_value != undef &&
       ww_value>3) {//1-3 skal ikke plottes
     if(ccriteria) checkColourCriteria("ww",ww_value);
-    weather((int16)(int)ww_value,TTT_value,zone,
+    weather((short int)(int)ww_value,TTT_value,zone,
         iptab[lpos+12],iptab[lpos+13]);
     VVxpos = iptab[lpos+12] -18;
   }
@@ -4667,17 +4667,17 @@ void ObsPlot::plotDBSynop(int index)
         HS_A4_value = (HS_A4_value*3.2808399)/100.0;
       if( ClFlag ) {
         amountOfClouds_1_4(
-            (int16)(int)NS_A1_value, (int16)(int)HS_A1_value,
-            (int16)(int)NS_A2_value, (int16)(int)HS_A2_value,
-            (int16)(int)NS_A3_value, (int16)(int)HS_A3_value,
-            (int16)(int)NS_A4_value, (int16)(int)HS_A4_value,
+            (short int)(int)NS_A1_value, (short int)(int)HS_A1_value,
+            (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
+            (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
+            (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
             iptab[lpos+24]+2,iptab[lpos+25]+2);
       } else {
         amountOfClouds_1_4(
-            (int16)(int)NS_A1_value, (int16)(int)HS_A1_value,
-            (int16)(int)NS_A2_value, (int16)(int)HS_A2_value,
-            (int16)(int)NS_A3_value, (int16)(int)HS_A3_value,
-            (int16)(int)NS_A4_value, (int16)(int)HS_A4_value,
+            (short int)(int)NS_A1_value, (short int)(int)HS_A1_value,
+            (short int)(int)NS_A2_value, (short int)(int)HS_A2_value,
+            (short int)(int)NS_A3_value, (short int)(int)HS_A3_value,
+            (short int)(int)NS_A4_value, (short int)(int)HS_A4_value,
             iptab[lpos+24]+2,iptab[lpos+25]+2+10);
       }
     }
@@ -4698,9 +4698,9 @@ void ObsPlot::plotDBSynop(int index)
         if(ccriteria && Nh!=undef) checkColourCriteria("Nh",Nh);
         if(ccriteria && h!=undef) checkColourCriteria("h",h);
         if( ClFlag ) {
-          amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
+          amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
         } else {
-          amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+          amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
         }
       }
     }
@@ -4721,17 +4721,17 @@ void ObsPlot::plotDBSynop(int index)
         HS4_value = (HS4_value*3.2808399)/100.0;
       if( ClFlag ) {
         amountOfClouds_1_4(
-            (int16)(int)NS1_value, (int16)(int)HS1_value,
-            (int16)(int)NS2_value, (int16)(int)HS2_value,
-            (int16)(int)NS3_value, (int16)(int)HS3_value,
-            (int16)(int)NS4_value, (int16)(int)HS4_value,
+            (short int)(int)NS1_value, (short int)(int)HS1_value,
+            (short int)(int)NS2_value, (short int)(int)HS2_value,
+            (short int)(int)NS3_value, (short int)(int)HS3_value,
+            (short int)(int)NS4_value, (short int)(int)HS4_value,
             iptab[lpos+24]+2,iptab[lpos+25]+2);
       } else {
         amountOfClouds_1_4(
-            (int16)(int)NS1_value, (int16)(int)HS1_value,
-            (int16)(int)NS2_value, (int16)(int)HS2_value,
-            (int16)(int)NS3_value, (int16)(int)HS3_value,
-            (int16)(int)NS4_value, (int16)(int)HS4_value,
+            (short int)(int)NS1_value, (short int)(int)HS1_value,
+            (short int)(int)NS2_value, (short int)(int)HS2_value,
+            (short int)(int)NS3_value, (short int)(int)HS3_value,
+            (short int)(int)NS4_value, (short int)(int)HS4_value,
             iptab[lpos+24]+2,iptab[lpos+25]+2+10);
       }
     }
@@ -4752,9 +4752,9 @@ void ObsPlot::plotDBSynop(int index)
         if(ccriteria && Nh!=undef) checkColourCriteria("Nh",Nh);
         if(ccriteria && h!=undef) checkColourCriteria("h",h);
         if( ClFlag ) {
-          amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
+          amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
         } else {
-          amountOfClouds_1((int16)(int)Nh, (int16)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
+          amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2+10);
         }
       }
     }
@@ -4995,7 +4995,7 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("ww") && (f_p = dta.fdata.find("ww")) != fend) {
     if (ccriteria)
       checkColourCriteria("ww", dta.fdata["ww"]);
-    weather((int16) f_p->second, ttt_p->second, dta.zone, iptab[lpos + 12],
+    weather((short int) f_p->second, ttt_p->second, dta.zone, iptab[lpos + 12],
         iptab[lpos + 13]);
     VVxpos = iptab[lpos + 12] - 20;
   }
@@ -5108,10 +5108,10 @@ void ObsPlot::plotSynop(int index)
       if (ccriteria && h != undef)
         checkColourCriteria("h", h);
       if (ClFlag) {
-        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] , iptab[lpos
+        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24] , iptab[lpos
                                                                        + 25] );
       } else {
-        amountOfClouds((int16) Nh, (int16) h, iptab[lpos + 24] , iptab[lpos
+        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24] , iptab[lpos
                                                                        + 25]  + 10);
       }
     }
@@ -6217,7 +6217,7 @@ int ObsPlot::vis_direction(float dv)
   return int(dv) / 45;
 }
 
-void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
+void ObsPlot::amountOfClouds(short int Nh, short int h, float x, float y)
 {
 
   std::string str;
@@ -6251,7 +6251,7 @@ void ObsPlot::amountOfClouds(int16 Nh, int16 h, float x, float y)
 
 }
 
-void ObsPlot::amountOfClouds_1(int16 Nh, int16 h, float x, float y, bool metar)
+void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar)
 {
 
   std::string str;
@@ -6299,7 +6299,7 @@ void ObsPlot::amountOfClouds_1(int16 Nh, int16 h, float x, float y, bool metar)
 
 }
 
-void ObsPlot::amountOfClouds_1_4(int16 Ns1, int16 hs1, int16 Ns2, int16 hs2, int16 Ns3, int16 hs3, int16 Ns4, int16 hs4, float x, float y, bool metar)
+void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y, bool metar)
 {
 
   std::string str;
@@ -6941,7 +6941,7 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius,
 
 }
 
-void ObsPlot::weather(int16 ww, float &TTT, int &zone, float xpos, float ypos,
+void ObsPlot::weather(short int ww, float &TTT, int &zone, float xpos, float ypos,
     float scale, std::string align)
 {
 
@@ -6953,7 +6953,7 @@ void ObsPlot::weather(int16 ww, float &TTT, int &zone, float xpos, float ypos,
       95, 96, 17, 97, 99, 0, 0, 0 };
 
 #ifdef ROADOBS
-  int16 wwTmp;
+  short int wwTmp;
   if (ww == 508) ww = 0;
   if(ww>99)
   {
