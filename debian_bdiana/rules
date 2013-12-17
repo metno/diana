@@ -16,9 +16,9 @@ endif
 %:
 	dh $@ --parallel
 
-# Ensure that the executable searches for libraries under the /opt/qt4-headless prefix
+# Ensure that the executable searches for libraries under the /usr/lib/qt4-headless prefix
 # and work around missing linkage to the Boost threading library in metlibs.
-confflags += LDFLAGS="-Wl,-rpath=/opt/qt4-headless/lib -Wl,-lboost_thread"
+confflags += LDFLAGS="-Wl,-rpath=/usr/lib/qt4-headless -Wl,-lboost_thread"
 
 do-configure:
 	./autogen.sh
@@ -30,15 +30,15 @@ do-configure:
 	    --disable-profet \
 	    --enable-video-export \
 	    --enable-geotiff \
-	    --with-qt4=/opt/qt4-headless \
-	    --with-qt4-includedir=/opt/qt4-headless/include \
-	    --with-qt4-libdir=/opt/qt4-headless/lib \
-	    --with-qmake=/opt/qt4-headless/bin/qmake \
-	    --with-moc=/opt/qt4-headless/bin/moc \
-	    --with-rcc=/opt/qt4-headless/bin/rcc \
-	    --with-uic=/opt/qt4-headless/bin/uic \
-	    --with-lupdate=/opt/qt4-headless/bin/lupdate \
-	    --with-lrelease=/opt/qt4-headless/bin/lrelease \
+	    --with-qt4=/usr/lib/qt4-headless \
+	    --with-qt4-includedir=/usr/include/qt4-headless \
+	    --with-qt4-libdir=/usr/lib/qt4-headless \
+	    --with-qmake=/usr/bin/qmake-qt4-headless \
+	    --with-moc=/usr/bin/moc-qt4-headless \
+	    --with-rcc=/usr/bin/rcc-qt4-headless \
+	    --with-uic=/usr/bin/uic-qt4-headless \
+	    --with-lupdate=/usr/bin/lupdate-qt4-headless \
+	    --with-lrelease=/usr/bin/lrelease-qt4-headless \
 	    --enable-embedded \
 		--enable-perl \
 	    --enable-batch-only
