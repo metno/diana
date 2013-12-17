@@ -31,9 +31,6 @@
 #ifndef diColour_h
 #define diColour_h
 
-
-#include <puCtools/porttypes.h>
-
 #include <map>
 #include <string>
 #include <vector>
@@ -56,7 +53,7 @@ public:
   enum {maxv= 255};
   /// 4 component colour data
   struct values{
-    uchar_t rgba[4];
+    unsigned char rgba[4];
     inline values();
     inline values& operator=(const values &rhs);
     inline bool operator==(const values &rhs) const ;
@@ -70,7 +67,7 @@ public:
 private:
   std::string name;
   values v;
-  uchar_t colourindex;
+  unsigned char colourindex;
   static std::map<std::string,Colour> cmap;
   static std::vector<ColourInfo> colours;
 
@@ -80,9 +77,9 @@ public:
   // Constructors
   Colour(const std::string&);
   Colour(const values&);
-  Colour(const uint32 =0);
-  Colour(const uchar_t, const uchar_t,
-	 const uchar_t, const uchar_t =maxv);
+  Colour(const unsigned long int =0);
+  Colour(const unsigned char, const unsigned char,
+	 const unsigned char, const unsigned char =maxv);
   Colour(const Colour &rhs);
   // Destructor
   ~Colour();
@@ -93,39 +90,39 @@ public:
   bool operator==(const Colour &rhs) const;
 
   // static functions for static colour-map
-  static void define(const std::string&, const uchar_t, const uchar_t,
-		     const uchar_t, const uchar_t =maxv);
+  static void define(const std::string&, const unsigned char, const unsigned char,
+		     const unsigned char, const unsigned char =maxv);
   static void define(const std::string, const values&);
   static void defineColourFromString(const std::string& rgba_string);
-  static void setindex(const std::string&, const uchar_t);
+  static void setindex(const std::string&, const unsigned char);
 
   // static functions for static vector <ColourInfo> colours
   static void addColourInfo(const ColourInfo& ci);
   static std::vector<ColourInfo> getColourInfo(){return colours;}
 
-  void set(const uchar_t r, const uchar_t g,
-	   const uchar_t b, const uchar_t a =maxv){
+  void set(const unsigned char r, const unsigned char g,
+	   const unsigned char b, const unsigned char a =maxv){
     v.rgba[red]=r; v.rgba[green]=g;
     v.rgba[blue]=b; v.rgba[alpha]=a;}
 
   void set(const values& va)
   {v= va;}
 
-  void set(const cIndex i,const uchar_t b){v.rgba[i]=b;}
+  void set(const cIndex i,const unsigned char b){v.rgba[i]=b;}
 
-  uchar_t R() const {return v.rgba[red];   }
-  uchar_t G() const {return v.rgba[green]; }
-  uchar_t B() const {return v.rgba[blue];  }
-  uchar_t A() const {return v.rgba[alpha]; }
+  unsigned char R() const {return v.rgba[red];   }
+  unsigned char G() const {return v.rgba[green]; }
+  unsigned char B() const {return v.rgba[blue];  }
+  unsigned char A() const {return v.rgba[alpha]; }
 
   float fR() const {return 1.0*v.rgba[red]/maxv;  }
   float fG() const {return 1.0*v.rgba[green]/maxv;}
   float fB() const {return 1.0*v.rgba[blue]/maxv; }
   float fA() const {return 1.0*v.rgba[alpha]/maxv;}
 
-  const uchar_t* RGBA() const {return v.rgba; }
-  const uchar_t* RGB()  const {return v.rgba; }
-  uchar_t Index() const {return colourindex; }
+  const unsigned char* RGBA() const {return v.rgba; }
+  const unsigned char* RGB()  const {return v.rgba; }
+  unsigned char Index() const {return colourindex; }
 
   const std::string& Name() const {return name;}
 

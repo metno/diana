@@ -54,16 +54,16 @@ vector<Colour::ColourInfo> Colour::colours;
 Colour::Colour(const values& va) : v(va){
 }
 
-Colour::Colour(const uint32 hexv){
-  uint32 h= hexv;
+Colour::Colour(const unsigned long int hexv){
+  unsigned long int h= hexv;
 
-  uchar_t a= 255;
+  unsigned char a= 255;
   if (h>0xFFFFFF){
     a= (h & 0xFF); h = (h >> 8);
   }
-  uchar_t b= (h & 0xFF); h = (h >> 8);
-  uchar_t g= (h & 0xFF); h = (h >> 8);
-  uchar_t r= (h & 0xFF);
+  unsigned char b= (h & 0xFF); h = (h >> 8);
+  unsigned char g= (h & 0xFF); h = (h >> 8);
+  unsigned char r= (h & 0xFF);
 
   set(r,g,b,a);
 }
@@ -96,8 +96,8 @@ Colour::Colour(const std::string& name_)
   }
 }
 
-Colour::Colour(const uchar_t r, const uchar_t g,
-	       const uchar_t b, const uchar_t a){
+Colour::Colour(const unsigned char r, const unsigned char g,
+	       const unsigned char b, const unsigned char a){
   set(r,g,b,a);
   name =miutil::from_number(int(r)) +":";
   name+=miutil::from_number(int(g)) +":";
@@ -137,8 +137,8 @@ void Colour::memberCopy(const Colour& rhs){
 }
 
 void Colour::define(const std::string& name_,
-		    const uchar_t r, const uchar_t g,
-		    const uchar_t b, const uchar_t a){
+		    const unsigned char r, const unsigned char g,
+		    const unsigned char b, const unsigned char a){
   Colour c(r,g,b,a);
   std::string lname= miutil::to_lower(name_);
   c.name= lname;
@@ -155,7 +155,7 @@ void Colour::define(const std::string name_, const values& va){
 void Colour::defineColourFromString(const std::string& rgba_string)
 {
 
-  uchar_t r,g,b,a;
+  unsigned char r,g,b,a;
   vector<std::string> stokens = miutil::split(rgba_string, ":");
   if (stokens.size()>2 ) {
     r= atoi(stokens[0].c_str());
@@ -172,7 +172,7 @@ void Colour::defineColourFromString(const std::string& rgba_string)
 }
 
 // hack: colourindex is platform-dependent
-void Colour::setindex(const std::string& name_, const uchar_t index)
+void Colour::setindex(const std::string& name_, const unsigned char index)
 {
   std::string lname= miutil::to_lower(name_);
   cmap[lname].colourindex= index;

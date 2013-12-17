@@ -162,10 +162,10 @@ void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
   int deltaG = (col1.G()-col2.G())/(n+1);
   int deltaB = (col1.B()-col2.B())/(n+1);
 
-  uchar_t R=col1.R();
-  uchar_t G=col1.G();
-  uchar_t B=col1.B();
-  uchar_t A=col1.A();
+  unsigned char R=col1.R();
+  unsigned char G=col1.G();
+  unsigned char B=col1.B();
+  unsigned char A=col1.A();
 
   for(int i=0;i<n;i++){
     R -= deltaR;

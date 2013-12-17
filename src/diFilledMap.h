@@ -30,7 +30,6 @@
 #define _diFilledMap_h
 
 #include <diField/diGridConverter.h>
-#include <puCtools/porttypes.h>
 #include <GL/gl.h>
 #include <vector>
 
@@ -123,7 +122,7 @@ public:
    */
   bool plot(Area area, Rectangle maprect, double gcd, bool land, bool cont,
       bool keepcont, GLushort linetype, float linewidth,
-      const uchar_t* lcolour, const uchar_t* fcolour, const uchar_t* bcolour);
+      const unsigned char* lcolour, const unsigned char* fcolour, const unsigned char* bcolour);
 
 };
 

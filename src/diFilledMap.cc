@@ -321,9 +321,9 @@ bool FilledMap::plot(Area area, // current area
     bool keepcont, // keep contourlines for later
     GLushort linetype, // contour line type
     float linewidth, // contour linewidth
-    const uchar_t* lcolour, // contour linecolour
-    const uchar_t* fcolour, // triangles fill colour
-    const uchar_t* bcolour)
+    const unsigned char* lcolour, // contour linecolour
+    const unsigned char* fcolour, // triangles fill colour
+    const unsigned char* bcolour)
 { // background color
 
 
