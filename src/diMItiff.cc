@@ -37,6 +37,7 @@
 
 #define MILOGGER_CATEGORY "diana.MItiff"
 #include <miLogger/miLogging.h>
+#include <puTools/miStringFunctions.h>
 
 MItiff::MItiff()
 {
