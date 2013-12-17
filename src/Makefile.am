@@ -93,7 +93,6 @@ common_cxx_sources = \
 	diVprofDiagram.cc \
 	diVprofManager.cc \
 	diVprofOptions.cc \
-	diVprofPilot.cc \
 	diVprofPlot.cc \
 	diVprofTables.cc \
 	diWeatherArea.cc \
@@ -313,7 +312,6 @@ noinst_HEADERS = \
 	diVprofDiagram.h \
 	diVprofManager.h \
 	diVprofOptions.h \
-	diVprofPilot.h \
 	diVprofPlot.h \
 	diVprofTables.h \
 	diWeatherArea.h \
