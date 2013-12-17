@@ -37,7 +37,6 @@
 
 #include <diVprofPilot.h>
 #include <diVprofPlot.h>
-#include <robs/geopos.h>
 
 #define MILOGGER_CATEGORY "diana.VprofPilot"
 #include <miLogger/miLogging.h>

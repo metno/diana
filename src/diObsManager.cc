@@ -41,17 +41,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/foreach.hpp>
 
-#ifdef METNOOBS
-#include <diObsSynop.h>
-#include <diObsDribu.h>
-#include <diObsMetar.h>
-#include <diObsTemp.h>
-#include <diObsOcea.h>
-#include <diObsTide.h>
-#include <diObsPilot.h>
-#include <diObsAireps.h>
-#include <diObsSatob.h>
-#endif
 #ifdef ROADOBS
 // includes for road specific implementation
 #include <diObsRoad.h>
@@ -249,47 +238,6 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
 	obsRoad.readData(oplot);
       }
 #endif
-      else {
-#ifdef METNOOBS
-        try {
-          if ( obsformat == ofmt_synop ){
-            ObsSynop Synop(finfo[j].filename);
-            Synop.init(oplot);
-          } else if ( obsformat == ofmt_dribu ){
-            ObsDribu Dribu = ObsDribu(finfo[j].filename);
-            Dribu.init(oplot);
-          } else if ( obsformat == ofmt_metar ){
-            ObsMetar Metar(finfo[j].filename);
-            Metar.init(oplot);
-          } else if ( obsformat == ofmt_temp ){
-            ObsTemp Temp = ObsTemp(finfo[j].filename);
-            Temp.init(oplot,levels);
-          } else if ( obsformat == ofmt_ocea ){
-            ObsOcea Ocea = ObsOcea(finfo[j].filename);
-            Ocea.init(oplot);
-          } else if ( obsformat == ofmt_tide ){
-            ObsTide Tide = ObsTide(finfo[j].filename);
-            Tide.init(oplot);
-          } else if ( obsformat == ofmt_pilot ){
-            ObsPilot Pilot = ObsPilot(finfo[j].filename);
-            Pilot.init(oplot,levels);
-          } else if ( obsformat == ofmt_aireps ){
-            ObsAireps Aireps = ObsAireps(finfo[j].filename);
-            Aireps.init(oplot,levels);
-          } else if ( obsformat == ofmt_satob ){
-            ObsSatob Satob = ObsSatob(finfo[j].filename);
-            Satob.init(oplot);
-          }
-        }  // end of try
-
-        catch (...){
-          METLIBS_LOG_WARN("Exception in "<<dataType[i]<<": " <<finfo[j].filename);
-          //reset oplot
-          oplot->resetObs(num);
-          continue;
-        }
-#endif
-      }
 
     }
 
@@ -485,45 +433,6 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
   }
 
 
-  //Check if time in file-time list == time written in file (only metnoobs)
-#ifdef METNOOBS
-  bool timeOK=true;
-  int nrFiles = finfo.size();
-  for( int i=0; i<nrFiles; i++ ){
-    if (finfo[i].filetype == "metnoobs") {
-      miTime tt;
-      obs Obs;
-      try{
-        Obs.readFileHeader(finfo[i].filename);
-        tt = Obs.fileObsTime();
-      }
-      catch (...){
-        METLIBS_LOG_WARN("Exception in: " <<finfo[i].filename);
-        continue;
-      }
-      if(tt!=finfo[i].time){
-        timeOK=false;
-        break;
-      }
-    }
-  }
-
-  if(!timeOK){ //Wrong time, update file-time list
-    if(firstTry){           // try to find times from filename
-      firstTry=false;
-      if(updateTimes(obsType))
-		  timeListChanged = true;
-    }else {                 //if that did not work, open all files
-      if (updateTimesfromFile(obsType))
-		  timeListChanged = true;
-      //timefilter did not work, turn it off
-      std::string offstr("OFF");
-      for(unsigned  int j=0;j<Prod[obsType].pattern.size(); j++)
-        Prod[obsType].pattern[j].filter.initFilter(offstr);
-    }
-    getFileName(finfo,time,obsType,oplot);
-  }
-#endif
 
 }
 
@@ -616,20 +525,7 @@ bool ObsManager::updateTimes(std::string obsType)
           //time from file name
         } else {
           //time not found from filename, open file
-          if (Prod[obsType].pattern[j].fileType == "metnoobs") {
-#ifdef METNOOBS
-            //read time from metnoobs-file
-            obs Obs;
-            try{
-              Obs.readFileHeader(finfo.filename);
-              finfo.time = Obs.fileObsTime();
-            }
-            catch (...){
-              METLIBS_LOG_WARN("Exception in: " <<finfo.filename);
-              continue;
-            }
-#endif
-          } else if (Prod[obsType].pattern[j].fileType == "bufr") {
+          if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
             //read time from bufr-file
             ObsBufr bufr;
@@ -734,19 +630,7 @@ if (Prod[obsType].obsformat == ofmt_roadobs)
       for (__size_t k=0; k < globBuf.gl_pathc; k++) {
         FileInfo finfo;
         finfo.filename = globBuf.gl_pathv[k];
-        if (Prod[obsType].pattern[j].fileType == "metnoobs") {
-#ifdef METNOOBS
-          obs Obs;
-          try{
-            Obs.readFileHeader(finfo.filename);
-            finfo.time = Obs.fileObsTime();
-          }
-          catch (...){
-            METLIBS_LOG_WARN("Exception in: " <<finfo.filename);
-            continue;
-          }
-#endif
-        } else if (Prod[obsType].pattern[j].fileType == "bufr") {
+        if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
           //read time from bufr-file
           ObsBufr bufr;
@@ -1838,10 +1722,6 @@ bool ObsManager::parseSetup()
         || key == "url"
         || key == "ascii"
         || key == "archive_ascii"
-#ifdef METNOOBS
-         || key == "metnoobs"
-         || key == "archive_metnoobs"
-#endif
 #ifdef BUFROBS
          || key == "bufr"
          || key == "archive_bufr"
@@ -1864,14 +1744,7 @@ bool ObsManager::parseSetup()
       pf.filter=tf;
       pf.pattern=token[1];
       // obsolete
-      if(key == "file" || key == "archivefile") //obsolete
-        if(Prod[prod].obsformat == ofmt_ascii)
-          pf.fileType="ascii";
-        else
-          pf.fileType="metnoobs";
-      else if(key == "metnoobs" || key == "archive_metnoobs")
-        pf.fileType="metnoobs";
-      else if(key == "ascii" || key == "archive_ascii")
+      if(key == "ascii" || key == "archive_ascii")
         pf.fileType="ascii";
       else if(key == "bufr" || key == "archive_bufr")
         pf.fileType="bufr";

@@ -159,7 +159,6 @@ METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 AS_IF([test x$enable_batch_only != xyes], [
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
 ])
-METNO_REQUIRE_PKG([ROBS], [robs])
 
 
 AS_IF([test x$enable_proddb = xyes], [

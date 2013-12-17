@@ -38,13 +38,6 @@
 #include "diVprofDiagram.h"
 #include "diLocalSetupParser.h"
 
-#ifdef METNOOBS
-#include "diVprofPlot.h"
-#include "diVprofTemp.h"
-#include "diVprofPilot.h"
-#include <robs/obs.h>
-#endif // METNOOBS
-
 #ifdef BUFROBS
 #include "diObsBufr.h"
 #endif // BUFROBS
@@ -166,9 +159,7 @@ void VprofManager::parseSetup()
         if (tokens1.size()==2) {
           const std::string tokens1_0_lc = miutil::to_lower(tokens1[0]);
           ObsFilePath ofp;
-          if (miutil::contains(tokens1_0_lc, "metnoobs.") or miutil::contains(tokens1_0_lc, "obs.") )
-            ofp.fileformat = metnoobs;
-          else if (miutil::contains(tokens1_0_lc, "bufr."))
+          if (miutil::contains(tokens1_0_lc, "bufr."))
             ofp.fileformat = bufr;
           else
             continue;
@@ -397,16 +388,7 @@ void VprofManager::updateObsFileList()
     ObsFile of;
     of.obstype   = filePaths[j].obstype;
     of.fileformat= filePaths[j].fileformat;
-    if(of.fileformat == metnoobs){
-#ifdef METNOOBS
-      of.time      = miTime(1970,1,1,0,0,0);
-      of.modificationTime= 0;
-      for (int i=0; i<globBuf.gl_pathc; i++) {
-        of.filename= std::string(globBuf.gl_pathv[i]);
-        obsfiles.push_back(of);
-      }
-#endif
-    } else if(of.fileformat == bufr){
+    if(of.fileformat == bufr){
 #ifdef BUFROBS
       of.modificationTime= -1; //no need to check later
       for (int i=0; i<globBuf.gl_pathc; i++) {
@@ -692,44 +674,7 @@ bool VprofManager::plot()
         while (vp==0 && nn<nf) {
           if (obsfiles[nn].modificationTime &&
               obsfiles[nn].time==plotTime) {
-            if(obsfiles[nn].fileformat==metnoobs){
-#ifdef METNOOBS
-              try {
-                if (showObsTemp && obsfiles[nn].obstype==temp && not miutil::contains(nameList[i], "Pilot")) {
-                  if (obsList[i]!="99") {
-                    // land or ship station with name
-                    VprofTemp vpobs(obsfiles[nn].filename,false,stationList);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  } else {
-                    // ship station without name
-                    VprofTemp vpobs(obsfiles[nn].filename,false,
-                        latitudeList[i],longitudeList[i],2.0f,2.0f);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  }
-                } else if (showObsPilot && obsfiles[nn].obstype==pilot &&
-                    miutil::contains(nameList[i], "Pilot")) {
-                  if (obsList[i]!="99") {
-                    // land or ship station with name
-                    VprofPilot vpobs(obsfiles[nn].filename,stationList);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  } else {
-                    // ship station without name
-                    VprofPilot vpobs(obsfiles[nn].filename,
-                        latitudeList[i],longitudeList[i],2.0f,2.0f);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  }
-                } else if (showObsAmdar && obsfiles[nn].obstype==amdar && not miutil::contains(nameList[i], "Pilot")) {
-                  VprofTemp vpobs(obsfiles[nn].filename,true,
-                      latitudeList[i],longitudeList[i],0.3f,0.3f);
-                  vp= vpobs.getStation(obsList[i],plotTime);
-                  if (vp!=0) vp->setName(nameList[i]);
-                }
-              }
-              catch (...) {
-                METLIBS_LOG_ERROR("Exception in: " <<obsfiles[nn].filename);
-              }
-#endif
-            } else if(obsfiles[nn].fileformat==bufr &&
+            if(obsfiles[nn].fileformat==bufr &&
                 ((not miutil::contains(nameList[i], "Pilot") && obsfiles[nn].obstype!=pilot) ||
                     (miutil::contains(nameList[i], "Pilot") && obsfiles[nn].obstype==pilot)) ) {
 #ifdef BUFROBS
@@ -1024,22 +969,6 @@ void VprofManager::initStations(){
         bufr.readStationInfo(vprofFiles,
             namelist, tlist, latitudelist, longitudelist);
 #endif
-      } else if(obsfiles[i].fileformat==metnoobs){
-#ifdef METNOOBS
-        try {
-          // until robs' obs class can do the job:
-          obs ofile;
-          ofile.readStationHeaders(obsfiles[i].filename);
-          namelist=      to_vector_string(ofile.getStationIds());
-          latitudelist=  ofile.getStationLatitudes();
-          longitudelist= ofile.getStationLongitudes();
-          if (obsfiles[i].obstype==amdar)
-            tlist= ofile.getStationTimes();
-        }
-        catch (...) {
-          METLIBS_LOG_ERROR("Exception in: " <<obsfiles[i].filename);
-        }
-#endif
 #ifdef ROADOBS
       } else if (obsfiles[i].fileformat==roadobs) {
         // TDB: Construct stationlist from temp, pilot or amdar stationlist
@@ -1242,49 +1171,6 @@ void VprofManager::checkObsTime(int hour) {
 	  obsfiles[i].modificationTime = time(NULL);
       newtime= true;
     }
-    else
-    {
-#ifdef METNOOBS
-      if (obsfiles[i].modificationTime==0 || hour<0 ||
-          obsfiles[i].time.hour()==hour) {
-        if (pu_stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
-          if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
-            obsfiles[i].modificationTime= statbuf.st_mtime;
-            try {
-              obs ofile;
-              ofile.readFileHeader(obsfiles[i].filename);
-              if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
-              obsfiles[i].time= ofile.fileObsTime();
-            }
-            catch (...) {
-              METLIBS_LOG_ERROR("Exception in: "<<obsfiles[i].filename);
-            }
-          }
-        }
-      }
-#endif
-    } /* end if fileformat == roadobs */
-#else
-    /* no roadobs support, use the old code */
-#ifdef METNOOBS
-    if (obsfiles[i].modificationTime==0 || hour<0 ||
-        obsfiles[i].time.hour()==hour) {
-      if (pu_stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
-        if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
-          obsfiles[i].modificationTime= statbuf.st_mtime;
-          try {
-            obs ofile;
-            ofile.readFileHeader(obsfiles[i].filename);
-            if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
-            obsfiles[i].time= ofile.fileObsTime();
-          }
-          catch (...) {
-            METLIBS_LOG_ERROR("Exception in: "<<obsfiles[i].filename);
-          }
-        }
-      }
-    }
-#endif
 #endif
   }
   /* TDB: is this correct for observations from ROAD also ? */

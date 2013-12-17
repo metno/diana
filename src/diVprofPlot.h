@@ -48,10 +48,7 @@ class VprofPlot : public VprofTables
 {
 
   friend class VprofData;
-#ifdef METNOOBS
-  friend class VprofTemp;
   friend class VprofPilot;
-#endif
 #ifdef BUFROBS
   friend class ObsBufr;
 #endif

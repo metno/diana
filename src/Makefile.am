@@ -25,7 +25,7 @@ common_cppflags += -DNOLOG4CXX
 # hard coded in old Makefile
 # XXX should be optional
 # XXX XXX should be in config.h
-common_cppflags += -DMETNOFIELDFILE -DMETNOOBS
+common_cppflags += -DMETNOFIELDFILE
 
 # C source code common to diana and bdiana
 common_c_sources = \
@@ -67,19 +67,10 @@ common_cxx_sources = \
 	diObjectManager.cc \
 	diObjectPlot.cc \
 	diObjectPoint.cc \
-	diObsAireps.cc \
 	diObsAscii.cc \
-	diObsDribu.cc \
 	diObsManager.cc \
 	diObsMetaData.cc \
-	diObsMetar.cc \
-	diObsOcea.cc \
-	diObsPilot.cc \
 	diObsPlot.cc \
-	diObsSatob.cc \
-	diObsSynop.cc \
-	diObsTemp.cc \
-	diObsTide.cc \
 	diPattern.cc \
 	diPlot.cc \
 	diPlotModule.cc \
@@ -105,7 +96,6 @@ common_cxx_sources = \
 	diVprofPilot.cc \
 	diVprofPlot.cc \
 	diVprofTables.cc \
-	diVprofTemp.cc \
 	diWeatherArea.cc \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
@@ -290,21 +280,12 @@ noinst_HEADERS = \
 	diObjectManager.h \
 	diObjectPlot.h \
 	diObjectPoint.h \
-	diObsAireps.h \
 	diObsAscii.h \
 	diObsBufr.h \
 	diObsData.h \
-	diObsDribu.h \
 	diObsManager.h \
 	diObsMetaData.h \
-	diObsMetar.h \
-	diObsOcea.h \
-	diObsPilot.h \
 	diObsPlot.h \
-	diObsSatob.h \
-	diObsSynop.h \
-	diObsTemp.h \
-	diObsTide.h \
 	diOrderBook.h \
 	diOrderClient.h \
 	diOrderListener.h \
@@ -335,7 +316,6 @@ noinst_HEADERS = \
 	diVprofPilot.h \
 	diVprofPlot.h \
 	diVprofTables.h \
-	diVprofTemp.h \
 	diWeatherArea.h \
 	diWeatherFront.h \
 	diWeatherObjects.h \
@@ -594,7 +574,6 @@ common_cppflags += \
 	$(PUCTOOLS_CPPFLAGS) \
 	$(EMOS_CPPFLAGS) \
 	$(PUDATATYPES_CPPFLAGS) \
-	$(ROBS_CPPFLAGS) \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
@@ -606,7 +585,6 @@ common_ldflags += \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
-	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
@@ -618,7 +596,6 @@ common_ldadd += \
 	$(PUCTOOLS_LIBS) \
 	$(EMOS_LIBS) \
 	$(PUDATATYPES_LIBS) \
-	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
@@ -832,12 +809,13 @@ BUILT_SOURCES = $(diana_uic_headers)
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \
 	$(top_srcdir)/share/diana/lang/diana_ru.ts \
+	$(top_srcdir)/share/diana/lang/diana_vi.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
 languagedir= $(datarootdir)/diana/@PVERSION@/lang
-nodist_language_DATA=$(language_sources:.ts=.qm)
+#nodist_language_DATA=$(language_sources:.ts=.qm)
 
-CLEANFILES += $(nodist_language_DATA)
+#CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
 	$(LUPDATE4) $(diana_qt_sources) -ts $(language_sources)
