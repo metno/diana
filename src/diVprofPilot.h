@@ -31,7 +31,6 @@
 #ifndef diVprofPilot_h
 #define diVprofPilot_h
 
-#include <robs/pilot.h>
 #include <puTools/miTime.h>
 #include <diVprofPlot.h>
 
