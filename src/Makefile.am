@@ -810,9 +810,9 @@ language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
 languagedir= $(datarootdir)/diana/@PVERSION@/lang
-#nodist_language_DATA=$(language_sources:.ts=.qm)
+nodist_language_DATA=$(language_sources:.ts=.qm)
 
-#CLEANFILES += $(nodist_language_DATA)
+CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
 	$(LUPDATE4) $(diana_qt_sources) -ts $(language_sources)
