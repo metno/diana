@@ -807,7 +807,6 @@ BUILT_SOURCES = $(diana_uic_headers)
 language_sources=$(top_srcdir)/share/diana/lang/diana_no.ts \
 	$(top_srcdir)/share/diana/lang/diana_es.ts \
 	$(top_srcdir)/share/diana/lang/diana_ru.ts \
-	$(top_srcdir)/share/diana/lang/diana_vi.ts \
 	$(top_srcdir)/share/diana/lang/diana_sv.ts
 
 languagedir= $(datarootdir)/diana/@PVERSION@/lang
