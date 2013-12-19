@@ -759,11 +759,6 @@ void EditItemManager::incompleteKeyRelease(QKeyEvent *event)
         repaintNeeded_ = true;
 }
 
-bool EditItemManager::changeProjection(const Area& newArea)
-{
-  return DrawingManager::changeProjection(newArea);
-}
-
 void EditItemManager::plot(bool under, bool over)
 {
     if (!over)

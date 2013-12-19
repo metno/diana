@@ -324,16 +324,13 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::set<miutil::miTime> times;
-  static const char* timeProps[2] = {"time", "TimeSpan:begin"};
 
   foreach (DrawingItemBase *item, items_) {
-    QVariantMap p = item->propertiesRef();
+
     std::string time_str;
-    for (unsigned int i = 0; i < 2; ++i) {
-      time_str = p.value(timeProps[i]).toString().toStdString();
-      if (!time_str.empty())
-        times.insert(miutil::miTime(time_str));
-    }
+    std::string prop_str = timeProperty(item->propertiesRef(), time_str);
+    if (!time_str.empty())
+      times.insert(miutil::miTime(time_str));
   }
 
   std::vector<miutil::miTime> output;
@@ -343,6 +340,25 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::sort(output.begin(), output.end());
 
   return output;
+}
+
+/**
+ * Returns the property name used to find the time for an item, or an empty
+ * string if no suitable property name was found. The associated time string
+ * is also updated with the time obtained from the property, if found.
+*/
+
+std::string DrawingManager::timeProperty(const QVariantMap &properties, std::string &time_str) const
+{
+  static const char* timeProps[2] = {"time", "TimeSpan:begin"};
+
+  for (unsigned int i = 0; i < 2; ++i) {
+    time_str = properties.value(timeProps[i]).toString().toStdString();
+    if (!time_str.empty())
+      return timeProps[i];
+  }
+
+  return std::string();
 }
 
 /**
@@ -366,13 +382,14 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   // Change the visibility of items in the editor.
 
   foreach (DrawingItemBase *item, items_) {
-    QVariantMap p = item->propertiesRef();
-    if (p.contains("time")) {
-      QString time_str = p.value("time").toDateTime().toString("yyyy-MM-ddThh:mm:ss");
-      bool visible = (time_str.isEmpty() | (time.isoTime("T") == time_str.toStdString()));
-      item->setProperty("visible", visible);
-    } else
+    std::string time_str;
+    std::string time_prop = timeProperty(item->propertiesRef(), time_str);
+    if (time_prop.empty() || isEditing())
       item->setProperty("visible", true);
+    else {
+      bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
+      item->setProperty("visible", visible);
+    }
   }
 
   return found;

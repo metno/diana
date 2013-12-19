@@ -86,7 +86,6 @@ void Symbol::mousePress(
         if (selItems) {
             // open a context menu and perform the selected action
             QMenu contextMenu;
-            QPointF position = event->pos();
             QAction remove_act(tr("&Remove"), 0);
             QAction copyItems_act(tr("&Copy"), 0);
             QAction editItems_act(tr("P&roperties..."), 0);

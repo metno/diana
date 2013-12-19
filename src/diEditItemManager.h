@@ -121,7 +121,6 @@ public:
     QSet<DrawingItemBase *> getSelectedItems() const;
     QSet<DrawingItemBase *> findHitItems(const QPointF &) const;
 
-    bool changeProjection(const Area& newArea);
     void plot(bool under, bool over);
     void storeItems(const QSet<DrawingItemBase *> &);
     void retrieveItems(const QSet<DrawingItemBase *> &);

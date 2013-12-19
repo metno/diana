@@ -90,7 +90,7 @@ public:
 
   virtual bool changeProjection(const Area& newArea);
   virtual bool loadItems(const QString &fileName);
-  bool prepare(const miutil::miTime &time);
+  virtual bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
 
@@ -151,6 +151,8 @@ protected:
   QSet<DrawingItemBase *> items_;
 
 private:
+  std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
+
   GridConverter gc;
   QSet<QString> drawings_;
 
