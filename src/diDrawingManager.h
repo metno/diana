@@ -159,6 +159,7 @@ private:
   QHash<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
+  QHash<QString, PolygonStyle> polygonStyles;
 
   static DrawingManager *self;  // singleton instance pointer
 };

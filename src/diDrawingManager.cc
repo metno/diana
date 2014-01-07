@@ -113,33 +113,31 @@ bool DrawingManager::parseSetup()
 
     // Split the line into tokens.
     vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
-    QString fileName;
-    QString symbol;
+    QHash<QString, QString> items;
 
     for (unsigned int j = 0; j < tokens.size(); ++j) {
 
       string key, value;
       SetupParser::splitKeyValue(tokens[j], key, value);
-
-      if (key == "file")
-        fileName = QString::fromStdString(value);
-
-      if (key == "symbol")
-        symbol = QString::fromStdString(value);
+      items[QString::fromStdString(key)] = QString::fromStdString(value);
     }
 
-    if (fileName.isEmpty())
-      continue;
-
-    if (!symbol.isEmpty()) {
-      QFile f(fileName);
-      if (f.open(QFile::ReadOnly)) {
-        symbols[symbol] = f.readAll();
-        f.close();
+    if (items.contains("file")) {
+      if (items.contains("symbol")) {
+        QFile f(items["file"]);
+        if (f.open(QFile::ReadOnly)) {
+          symbols[items["symbol"]] = f.readAll();
+          f.close();
+        } else
+          METLIBS_LOG_WARN("Failed to load symbol file: " << items["file"].toStdString());
       } else
-        METLIBS_LOG_WARN("Failed to load symbol file: " << fileName.toStdString());
-    } else
-      drawings_.insert(fileName);
+        drawings_.insert(items["file"]);
+
+    } else if (items.contains("style")) {
+      PolygonStyle style;
+      style.parse(items);
+      polygonStyles[items["style"]] = style;
+    }
   }
 
   return true;

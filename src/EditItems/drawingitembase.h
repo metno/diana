@@ -32,6 +32,7 @@
 #ifndef DRAWINGITEMBASE_H
 #define DRAWINGITEMBASE_H
 
+#include <QColor>
 #include <QList>
 #include <QPointF>
 #include <QVariant>
@@ -41,6 +42,22 @@
 #define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
 
 class QDomDocumentFragment;
+
+class PolygonStyle
+{
+public:
+  PolygonStyle();
+  void parse(const QHash<QString, QString> &definition);
+  virtual ~PolygonStyle();
+
+private:
+  QColor borderColour;
+  float borderWidth;
+  bool dashed;
+  QColor fillColour;
+  bool smooth;
+  bool shaped;
+};
 
 class DrawingItemBase
 {

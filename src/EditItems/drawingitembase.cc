@@ -31,6 +31,55 @@
 
 #include "drawingitembase.h"
 
+PolygonStyle::PolygonStyle()
+{
+  borderColour = Qt::black;
+  borderWidth = 1.0;
+  dashed = false;
+  fillColour = Qt::transparent;
+  smooth = false;
+  shaped = false;
+}
+
+void PolygonStyle::parse(const QHash<QString, QString> &definition)
+{
+  // Parse the definition and set the private members.
+  if (definition.contains("border")) {
+
+    foreach (QString piece, definition["border"].split(",")) {
+      if (piece == "thick")
+        borderWidth = 2;
+      else if (piece == "thin")
+        borderWidth = 1;
+      else if (piece == "dashed")
+        dashed = true;
+      else if (piece == "solid")
+        dashed = false;
+      else if (piece == "smooth")
+        smooth = true;
+      else if (piece == "shaped")
+        shaped = true;
+      else {
+        // Treat the string as a colour name;
+        borderColour = QColor(piece);
+      }
+    }
+  }
+
+  if (definition.contains("fill")) {
+
+    foreach (QString piece, definition["fill"].split(",")) {
+      // Treat the string as a colour name;
+      fillColour = QColor(piece);
+    }
+  }
+}
+
+PolygonStyle::~PolygonStyle()
+{
+}
+
+
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
 {
