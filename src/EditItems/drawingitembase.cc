@@ -30,6 +30,7 @@
 */
 
 #include "drawingitembase.h"
+#include <GL/gl.h>
 
 PolygonStyle::PolygonStyle()
 {
@@ -76,6 +77,32 @@ void PolygonStyle::parse(const QHash<QString, QString> &definition)
 }
 
 PolygonStyle::~PolygonStyle()
+{
+}
+
+void PolygonStyle::beginLine()
+{
+  if (dashed) {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(2, 0xf0f0);
+  }
+
+  glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
+}
+
+void PolygonStyle::endLine()
+{
+  if (dashed)
+    glDisable(GL_LINE_STIPPLE);
+}
+
+void PolygonStyle::beginFill()
+{
+  glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
+             fillColour.alpha());
+}
+
+void PolygonStyle::endFill()
 {
 }
 

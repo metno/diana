@@ -50,6 +50,12 @@ public:
   void parse(const QHash<QString, QString> &definition);
   virtual ~PolygonStyle();
 
+  void beginLine();
+  void endLine();
+  void beginFill();
+  void endFill();
+
+private:
   QColor borderColour;
   float borderWidth;
   bool dashed;

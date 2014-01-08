@@ -50,7 +50,7 @@ void PolyLine::draw()
     return;
 
   // Find the polygon style to use, if one exists.
-  QString styleName = property("Style:Type").toString();
+  QString styleName = property("Style:Type", QVariant("Fog")).toString();
   PolygonStyle style = DrawingManager::instance()->getPolygonStyle(styleName);
 
   // draw the interior
@@ -65,21 +65,26 @@ void PolyLine::draw()
   }
 
   // Use the fill colour defined in the style.
-  glColor4ub(style.fillColour.red(), style.fillColour.green(),
-             style.fillColour.blue(), style.fillColour.alpha());
+  style.beginFill();
+
   beginTesselation();
   int npoints = points_.size();
   tesselation(gldata, 1, &npoints);
   endTesselation();
   delete[] gldata;
 
-  // Draw the outline using the border colour defined in the style.
+  style.endFill();
+
+  // Draw the outline using the border colour and line pattern defined in
+  // the style.
+  style.beginLine();
   glBegin(GL_LINE_LOOP);
-  glColor3ub(style.borderColour.red(), style.borderColour.green(),
-             style.borderColour.blue());
+
   foreach (QPointF p, points_)
     glVertex2i(p.x(), p.y());
-  glEnd();
+
+  glEnd(); // GL_LINE_LOOP
+  style.endLine();
 }
 
 QDomNode PolyLine::toKML() const
