@@ -134,6 +134,8 @@ public:
   // Resource handling
   void drawSymbol(const QString &name, float x, float y, int width, int height);
 
+  PolygonStyle getPolygonStyle(const QString &name) { return polygonStyles.value(name); }
+
   // Dialog-related methods
   QSet<QString> &drawings();
 

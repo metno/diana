@@ -30,6 +30,7 @@
 */
 
 #include "GL/gl.h"
+#include <diDrawingManager.h>
 #include <diTesselation.h>
 #include "drawingpolyline.h"
 
@@ -48,6 +49,10 @@ void PolyLine::draw()
   if (points_.isEmpty())
     return;
 
+  // Find the polygon style to use, if one exists.
+  QString styleName = property("Style:Type").toString();
+  PolygonStyle style = DrawingManager::instance()->getPolygonStyle(styleName);
+
   // draw the interior
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glEnable( GL_BLEND );
@@ -58,16 +63,20 @@ void PolyLine::draw()
     gldata[3 * i + 1] = p.y();
     gldata[3 * i + 2] = 0.0;
   }
-  glColor4ub(128, 128, 128, 50);
+
+  // Use the fill colour defined in the style.
+  glColor4ub(style.fillColour.red(), style.fillColour.green(),
+             style.fillColour.blue(), style.fillColour.alpha());
   beginTesselation();
   int npoints = points_.size();
   tesselation(gldata, 1, &npoints);
   endTesselation();
   delete[] gldata;
 
-  // draw the outline
+  // Draw the outline using the border colour defined in the style.
   glBegin(GL_LINE_LOOP);
-  glColor3ub(color_.red(), color_.green(), color_.blue());
+  glColor3ub(style.borderColour.red(), style.borderColour.green(),
+             style.borderColour.blue());
   foreach (QPointF p, points_)
     glVertex2i(p.x(), p.y());
   glEnd();
