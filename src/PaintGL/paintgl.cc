@@ -94,7 +94,8 @@ void PaintGLContext::makeCurrent()
     attributes.width = 1.0;
     attributes.polygonMode[GL_FRONT] = GL_FILL;
     attributes.polygonMode[GL_BACK] = GL_FILL;
-    attributes.stipple = false;
+    attributes.lineStipple = false;
+    attributes.polygonStipple = false;
     attributes.antialiasing = false;
 
     points.clear();
@@ -145,7 +146,7 @@ void PaintGLContext::setPen()
     QPen pen = QPen(QColor::fromRgba(attributes.color), width);
     pen.setCapStyle(Qt::FlatCap);
     pen.setCosmetic(true);
-    if (attributes.stipple && !attributes.dashes.isEmpty()) {
+    if (attributes.lineStipple && !attributes.dashes.isEmpty()) {
         /* Set the dash pattern on the pen if defined, adjusting
            the length of each element to compensate for the line
            width. */
@@ -172,7 +173,10 @@ void PaintGLContext::setPolygonColor(const QRgb &color)
     switch (attributes.polygonMode[GL_FRONT]) {
     case GL_FILL:
         painter->setPen(Qt::NoPen);
-        painter->setBrush(QColor::fromRgba(color));
+        if (attributes.polygonStipple && !attributes.mask.isNull())
+            painter->setBrush(attributes.mask);
+        else
+            painter->setBrush(QColor::fromRgba(color));
         break;
     case GL_LINE: {
         setPen();
@@ -710,10 +714,13 @@ void glDisable(GLenum cap)
         ctx->useTexture = false;
         break;
     case GL_LINE_STIPPLE:
-        ctx->attributes.stipple = false;
+        ctx->attributes.lineStipple = false;
         break;
     case GL_MULTISAMPLE:
         ctx->attributes.antialiasing = false;
+        break;
+    case GL_POLYGON_STIPPLE:
+        ctx->attributes.polygonStipple = false;
         break;
     case GL_STENCIL_TEST:
         ctx->stencil.enabled = false;
@@ -781,10 +788,13 @@ void glEnable(GLenum cap)
         ctx->useTexture = true;
         break;
     case GL_LINE_STIPPLE:
-        ctx->attributes.stipple = true;
+        ctx->attributes.lineStipple = true;
         break;
     case GL_MULTISAMPLE:
         ctx->attributes.antialiasing = true;
+        break;
+    case GL_POLYGON_STIPPLE:
+        ctx->attributes.polygonStipple = true;
         break;
     case GL_STENCIL_TEST:
         ctx->stencil.enabled = true;
@@ -1063,6 +1073,12 @@ void glPolygonMode(GLenum face, GLenum mode)
 
 void glPolygonStipple(const GLubyte *mask)
 {
+    ENSURE_CTX
+
+    ctx->attributes.mask = QImage(mask, 32, 32, QImage::Format_MonoLSB);
+    QVector<QRgb> colours;
+    colours << qRgba(0, 0, 0, 0) << ctx->attributes.color;
+    ctx->attributes.mask.setColorTable(colours);
 }
 
 void glPopMatrix()

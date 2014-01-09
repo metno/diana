@@ -23,8 +23,10 @@ struct PaintAttributes {
     float width;
     QHash<GLenum,GLenum> polygonMode;
     QVector<qreal> dashes;
+    QImage mask;
     qreal dashOffset;
-    bool stipple;
+    bool lineStipple;
+    bool polygonStipple;
     bool antialiasing;
 };
 
