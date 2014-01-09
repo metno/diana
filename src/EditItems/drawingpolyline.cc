@@ -50,7 +50,7 @@ void PolyLine::draw()
     return;
 
   // Find the polygon style to use, if one exists.
-  QString styleName = property("Style:Type", QVariant("Fog")).toString();
+  QString styleName = property("Style:Type").toString();
   PolygonStyle style = DrawingManager::instance()->getPolygonStyle(styleName);
 
   // draw the interior
