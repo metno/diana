@@ -1075,7 +1075,7 @@ void glPolygonStipple(const GLubyte *mask)
 {
     ENSURE_CTX
 
-    ctx->attributes.mask = QImage(mask, 32, 32, QImage::Format_MonoLSB);
+    ctx->attributes.mask = QImage(mask, 32, 32, QImage::Format_Mono);
     QVector<QRgb> colours;
     colours << qRgba(0, 0, 0, 0) << ctx->attributes.color;
     ctx->attributes.mask.setColorTable(colours);
