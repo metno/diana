@@ -30,7 +30,7 @@
 */
 
 #include "drawingitembase.h"
-#include <GL/gl.h>
+#include "polyStipMasks.h"
 
 PolygonStyle::PolygonStyle()
 {
@@ -40,6 +40,7 @@ PolygonStyle::PolygonStyle()
   fillColour = Qt::transparent;
   smooth = false;
   shaped = false;
+  fillPattern = 0;
 }
 
 void PolygonStyle::parse(const QHash<QString, QString> &definition)
@@ -74,6 +75,23 @@ void PolygonStyle::parse(const QHash<QString, QString> &definition)
       fillColour = QColor(piece);
     }
   }
+
+  if (definition.contains("fillpattern")) {
+
+    QString filltype = definition["fillpattern"];
+    if (filltype == "diagleft")
+      fillPattern = diagleft;
+    else if (filltype == "zigzag")
+      fillPattern = zigzag;
+    else if (filltype == "paralyse")
+      fillPattern = paralyse;
+    else if (filltype == "ldiagleft2")
+      fillPattern = ldiagleft2;
+    else if (filltype == "vdiagleft")
+      fillPattern = vdiagleft;
+    else if (filltype == "vldiagcross_little")
+      fillPattern = vldiagcross_little;
+  }
 }
 
 PolygonStyle::~PolygonStyle()
@@ -100,10 +118,17 @@ void PolygonStyle::beginFill()
 {
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
              fillColour.alpha());
+
+  if (fillPattern) {
+    glEnable(GL_POLYGON_STIPPLE);
+    glPolygonStipple(fillPattern);
+  }
 }
 
 void PolygonStyle::endFill()
 {
+  if (fillPattern)
+    glDisable(GL_POLYGON_STIPPLE);
 }
 
 

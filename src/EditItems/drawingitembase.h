@@ -37,6 +37,7 @@
 #include <QPointF>
 #include <QVariant>
 #include <QDomNode>
+#include <GL/gl.h>
 
 #define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
 #define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
@@ -62,6 +63,7 @@ private:
   QColor fillColour;
   bool smooth;
   bool shaped;
+  const GLubyte *fillPattern;
 };
 
 class DrawingItemBase
