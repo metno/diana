@@ -173,6 +173,14 @@ std::vector<std::string> DrawingDialog::getOKString()
 
     QString line = QString("DRAWING type=%1 group=%2 time=%3 points=%4").arg(type)
         .arg(group).arg(time).arg(points.join(":"));
+
+    // Add any style information to the string.
+    QVariantMap properties = item->propertiesRef();
+    foreach (QString key, properties.keys()) {
+      if (key.startsWith("Style:"))
+        line += " " + key + "=\"" + properties.value(key).toString() + "\"";
+    }
+
     lines.push_back(line.toStdString());
   }
 

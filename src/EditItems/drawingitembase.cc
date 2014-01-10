@@ -62,7 +62,9 @@ void PolygonStyle::parse(const QHash<QString, QString> &definition)
       else if (piece == "shaped")
         shaped = true;
       else {
-        // Treat the string as a colour name;
+        // Treat the string as a colour name or RGBA value.
+        if (piece.contains("@"))
+          piece.replace("@", "#");
         borderColour = QColor(piece);
       }
     }
@@ -71,7 +73,9 @@ void PolygonStyle::parse(const QHash<QString, QString> &definition)
   if (definition.contains("fill")) {
 
     foreach (QString piece, definition["fill"].split(",")) {
-      // Treat the string as a colour name;
+      // Treat the string as a colour name or RGBA value.
+      if (piece.contains("@"))
+        piece.replace("@", "#");
       fillColour = QColor(piece);
     }
   }

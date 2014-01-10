@@ -159,22 +159,28 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   for (it = inp.begin(); it != inp.end(); ++it) {
 
     // Split each input line into a collection of "words".
-    QStringList pieces = QString::fromStdString(*it).split(" ", QString::SkipEmptyParts);
+    vector<string> pieces = miutil::split_protected(*it, '"', '"');
     // Skip the first piece ("DRAWING").
-    pieces.pop_front();
+    pieces.erase(pieces.begin());
 
     QVariantMap properties;
     QVariantList points;
+    vector<string>::const_iterator it;
 
-    foreach (QString piece, pieces) {
+    for (it = pieces.begin(); it != pieces.end(); ++it) {
+
       // Split each word into a key=value pair.
-      QStringList wordPieces = piece.split("=");
-      if (wordPieces.size() != 2) {
-        METLIBS_LOG_WARN("Invalid key=value pair: " << piece.toStdString());
-        return false;
-      }
-      QString key = wordPieces[0];
-      QString value = wordPieces[1];
+      vector<string> wordPieces = miutil::split_protected(*it, '"', '"', "=");
+      if (wordPieces.size() == 0 || wordPieces.size() > 2)
+        continue;
+      else if (wordPieces.size() == 1)
+        wordPieces.push_back("");
+
+      QString key = QString::fromStdString(wordPieces[0]);
+      QString value = QString::fromStdString(wordPieces[1]);
+      if (value.startsWith('"') && value.endsWith('"') && value.size() >= 2)
+        value = value.mid(1, value.size() - 2);
+
       if (key == "file") {
         // Read the specified file, skipping to the next line if successful,
         // but returning false to indicate an error if unsuccessful.
@@ -198,6 +204,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
             points.append(QPointF(coordinates[0].toDouble(), coordinates[1].toDouble()));
         }
         properties["points"] = points;
+      } else if (key.startsWith("Style:")) {
+        properties[key] = value;
       }
     }
 
