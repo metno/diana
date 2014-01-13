@@ -56,7 +56,7 @@ class QString;
   Contains a crossection window, toolbars and menues.
   Receives and sends "events" from/to DianaMainWindow.
 */
-class VcrossWindow: public QDialog
+class VcrossWindow: public QWidget
 {
   Q_OBJECT
 

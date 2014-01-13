@@ -130,7 +130,7 @@ typedef VectorModel<MiTimeExtract> MiTimeModel;
 } // namespace anonymous
 
 VcrossWindow::VcrossWindow(Controller *co)
-  : QDialog(0)
+  : QWidget(0)
 {
   METLIBS_LOG_SCOPE();
 
