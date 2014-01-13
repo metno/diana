@@ -143,7 +143,7 @@ ObjectDialog::ObjectDialog( QWidget* parent, Controller* llctrl )
 
   //values for slider as in SatDialog
   int   timediff_minValue=0;
-  int   timediff_maxValue=12;
+  int   timediff_maxValue=24;
   int   timediff_value=4;
   m_scalediff= 15;
 
