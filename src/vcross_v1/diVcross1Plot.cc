@@ -1562,7 +1562,7 @@ void VcrossPlot::prepareVertical()
       if (nps >= 0 && vcoordPlot == vcv_exner) {
         for (int i = 0; i < nPoint; i++) {
           p = cdata1d[nps][i];
-          pi = cp * powf(p * p0inv, kappa);
+          pi = MetNo::Constants::cp * powf(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
           cdata1d[npy1][i] = yconst + yscale * pi;
         }
       } else if (nps >= 0 && vcoordPlot == vcv_pressure) {
