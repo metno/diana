@@ -33,6 +33,8 @@
 #include <diDrawingManager.h>
 #include <diTesselation.h>
 #include "drawingpolyline.h"
+#include <miLogger/miLogging.h>
+#include <QDebug>
 
 namespace DrawingItem_PolyLine {
 
@@ -50,8 +52,7 @@ void PolyLine::draw()
     return;
 
   // Find the polygon style to use, if one exists.
-  QString styleName = property("Style:Type").toString();
-  PolygonStyle style = DrawingManager::instance()->getPolygonStyle(styleName);
+  PolygonStyle *style = static_cast<PolygonStyle *>(getStyle());
 
   // draw the interior
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -65,7 +66,7 @@ void PolyLine::draw()
   }
 
   // Use the fill colour defined in the style.
-  style.beginFill();
+  style->beginFill();
 
   beginTesselation();
   int npoints = points_.size();
@@ -73,18 +74,18 @@ void PolyLine::draw()
   endTesselation();
   delete[] gldata;
 
-  style.endFill();
+  style->endFill();
 
   // Draw the outline using the border colour and line pattern defined in
   // the style.
-  style.beginLine();
+  style->beginLine();
   glBegin(GL_LINE_LOOP);
 
   foreach (QPointF p, points_)
     glVertex2i(p.x(), p.y());
 
   glEnd(); // GL_LINE_LOOP
-  style.endLine();
+  style->endLine();
 }
 
 QDomNode PolyLine::toKML() const

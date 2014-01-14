@@ -31,70 +31,56 @@
 
 #include "drawingitembase.h"
 #include "polyStipMasks.h"
+#include "diDrawingManager.h"
 
-PolygonStyle::PolygonStyle()
+PolygonStyle::PolygonStyle(bool readOnly)
+  : DrawingStyle(readOnly)
 {
-  borderColour = Qt::black;
-  borderWidth = 1.0;
-  dashed = false;
-  fillColour = Qt::transparent;
-  smooth = false;
-  shaped = false;
-  fillPattern = 0;
 }
 
 void PolygonStyle::parse(const QHash<QString, QString> &definition)
 {
   // Parse the definition and set the private members.
-  if (definition.contains("border")) {
+  typeName = definition.value("type");
 
-    foreach (QString piece, definition["border"].split(",")) {
-      if (piece == "thick")
-        borderWidth = 2;
-      else if (piece == "thin")
-        borderWidth = 1;
-      else if (piece == "dashed")
-        dashed = true;
-      else if (piece == "solid")
-        dashed = false;
-      else if (piece == "smooth")
-        smooth = true;
-      else if (piece == "shaped")
-        shaped = true;
-      else {
-        // Treat the string as a colour name or RGBA value.
-        if (piece.contains("@"))
-          piece.replace("@", "#");
-        borderColour = QColor(piece);
-      }
-    }
+  QString lineColour = definition.value("linecolour", "black");
+  if (lineColour.startsWith("@")) {
+    // Treat the string as a colour name or RGBA value.
+    lineColour.replace("@", "#");
   }
+  borderColour = QColor(lineColour);
 
-  if (definition.contains("fill")) {
+  borderWidth = definition.value("linewidth", "1.0").toFloat();
+  linePattern = definition.value("linepattern", "solid");
+  smooth = definition.value("linesmooth", "true") == "true";
+  lineShape = definition.value("lineshape", "normal");
 
-    foreach (QString piece, definition["fill"].split(",")) {
-      // Treat the string as a colour name or RGBA value.
-      if (piece.contains("@"))
-        piece.replace("@", "#");
-      fillColour = QColor(piece);
-    }
+  QString colour = definition.value("fillcolour");
+  if (colour.startsWith("@")) {
+    // Treat the string as a colour name or RGBA value.
+    colour.replace("@", "#");
   }
+  if (colour.isEmpty())
+    fillColour = QColor(0, 0, 0, 0);
+  else
+    fillColour = QColor(colour);
 
-  if (definition.contains("fillpattern")) {
+  fillPatternData = 0;
+  fillPattern = definition.value("fillpattern");
 
-    QString filltype = definition["fillpattern"];
-    if (filltype == "diagleft")
-      fillPattern = diagleft;
-    else if (filltype == "zigzag")
-      fillPattern = zigzag;
-    else if (filltype == "paralyse")
-      fillPattern = paralyse;
-    else if (filltype == "ldiagleft2")
-      fillPattern = ldiagleft2;
-    else if (filltype == "vdiagleft")
-      fillPattern = vdiagleft;
-    else if (filltype == "vldiagcross_little")
-      fillPattern = vldiagcross_little;
+  if (!fillPattern.isEmpty()) {
+    if (fillPattern == "diagleft")
+      fillPatternData = diagleft;
+    else if (fillPattern == "zigzag")
+      fillPatternData = zigzag;
+    else if (fillPattern == "paralyse")
+      fillPatternData = paralyse;
+    else if (fillPattern == "ldiagleft2")
+      fillPatternData = ldiagleft2;
+    else if (fillPattern == "vdiagleft")
+      fillPatternData = vdiagleft;
+    else if (fillPattern == "vldiagcross_little")
+      fillPatternData = vldiagcross_little;
   }
 }
 
@@ -104,7 +90,7 @@ PolygonStyle::~PolygonStyle()
 
 void PolygonStyle::beginLine()
 {
-  if (dashed) {
+  if (linePattern == "dashed") {
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(2, 0xf0f0);
   }
@@ -114,7 +100,7 @@ void PolygonStyle::beginLine()
 
 void PolygonStyle::endLine()
 {
-  if (dashed)
+  if (linePattern == "dashed")
     glDisable(GL_LINE_STIPPLE);
 }
 
@@ -123,26 +109,41 @@ void PolygonStyle::beginFill()
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
              fillColour.alpha());
 
-  if (fillPattern) {
+  if (fillPatternData) {
     glEnable(GL_POLYGON_STIPPLE);
-    glPolygonStipple(fillPattern);
+    glPolygonStipple(fillPatternData);
   }
 }
 
 void PolygonStyle::endFill()
 {
-  if (fillPattern)
+  if (fillPatternData)
     glDisable(GL_POLYGON_STIPPLE);
 }
 
+QVariantMap PolygonStyle::properties() const
+{
+  QVariantMap p;
+  p["Style:Type"] = typeName;
+  p["Style:LineColour"] = borderColour.name();
+  p["Style:LineWidth"] = QString::number(borderWidth);
+  p["Style:LinePattern"] = linePattern;
+  p["Style:FillColour"] = fillColour.name();
+  p["Style:LineSmooth"] = QString(smooth);
+  p["Style:LineShape"] = lineShape;
+  p["Style:FillPattern"] = fillPattern;
+  return p;
+}
 
 DrawingItemBase::DrawingItemBase()
-    : id_(nextId())
+    : id_(nextId()), style(0)
 {
 }
 
 DrawingItemBase::~DrawingItemBase()
 {
+  if (style && !style->readOnly)
+    delete style;
 }
 
 int DrawingItemBase::nextId_ = 0;
@@ -225,6 +226,20 @@ void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
 {
     latLonPoints_ = points;
 }
+
+DrawingStyle *DrawingItemBase::getStyle() const
+{
+  if (!style)
+    return DrawingManager::instance()->getPolygonStyle();
+  else
+    return style;
+}
+
+void DrawingItemBase::setStyle(DrawingStyle *style)
+{
+  this->style = style;
+}
+
 
 // Returns a new <ExtendedData> element.
 QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc) const

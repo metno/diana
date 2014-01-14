@@ -126,6 +126,33 @@ public:
       Drawing(item)->setProperties(vmap);
       setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
     }
+
+    QString typeName = vmap.value("Style:Type").toString();
+    PolygonStyle *style = 0;
+
+    if (typeName.isEmpty())
+      typeName = "Default";
+
+    // If the style is not a custom style, try to find it and use it as the item's style.
+
+    if (typeName != "Custom") {
+      if (polygonStyles.contains(typeName))
+        style = &polygonStyles[typeName];
+    }
+
+    // Create a style for each item if the style is a custom style, or if the named type was not found.
+
+    if (!style) {
+      PolygonStyle *style = new PolygonStyle();
+      QHash<QString, QString> definition;
+      foreach (QString key, vmap.keys()) {
+        if (key.startsWith("Style:"))
+          definition[key.mid(6)] = vmap[key].toString();
+      }
+      style->parse(definition);
+    }
+    item->setStyle(style);
+
     return item;
   }
 
@@ -134,7 +161,7 @@ public:
   // Resource handling
   void drawSymbol(const QString &name, float x, float y, int width, int height);
 
-  PolygonStyle getPolygonStyle(const QString &name) { return polygonStyles.value(name); }
+  PolygonStyle *getPolygonStyle(const QString &name = QString());
 
   // Dialog-related methods
   QSet<QString> &drawings();

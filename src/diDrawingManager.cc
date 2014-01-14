@@ -116,30 +116,42 @@ bool DrawingManager::parseSetup()
     QHash<QString, QString> items;
 
     for (unsigned int j = 0; j < tokens.size(); ++j) {
-
       string key, value;
       SetupParser::splitKeyValue(tokens[j], key, value);
       items[QString::fromStdString(key)] = QString::fromStdString(value);
     }
 
+    // Check for different types of definition.
     if (items.contains("file")) {
       if (items.contains("symbol")) {
+
+        // Symbol definitions
         QFile f(items["file"]);
         if (f.open(QFile::ReadOnly)) {
           symbols[items["symbol"]] = f.readAll();
           f.close();
         } else
           METLIBS_LOG_WARN("Failed to load symbol file: " << items["file"].toStdString());
-      } else
-        drawings_.insert(items["file"]);
+      } else {
 
-    } else if (items.contains("style")) {
-      PolygonStyle style;
+        // Drawing definitions
+        drawings_.insert(items["file"]);
+      }
+    } else if (items.contains("type")) {
+
+      // Read-only style definitions
+      PolygonStyle style(true);
       style.parse(items);
-      polygonStyles[items["style"]] = style;
+      polygonStyles[items["type"]] = style;
     }
   }
 
+  if (!polygonStyles.contains("Default")) {
+    PolygonStyle style(true);
+    QHash<QString, QString> items;
+    style.parse(items);
+    polygonStyles["Default"] = style;
+  }
   return true;
 }
 
@@ -486,4 +498,12 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   glEnable(GL_BLEND);
   glctx->drawTexture(QPointF(x, y), texture);
   glPopAttrib();
+}
+
+PolygonStyle *DrawingManager::getPolygonStyle(const QString &name)
+{
+  if (name.isEmpty())
+    return &polygonStyles["Default"];
+  else
+    return &polygonStyles[name];
 }
