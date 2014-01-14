@@ -40,6 +40,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <iostream>
+#include <iomanip>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
 #include <miLogger/miLogging.h>
@@ -597,6 +598,9 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName)
   std::string progtext;
   if( fout->forecastHour != -32767 ) {
     ostringstream ostr;
+    ostr.width(2);
+    ostr.fill('0');
+    ostr << fout->analysisTime.hour()<<" ";
     if (fout->forecastHour >= 0) {
       ostr << "+" << fout->forecastHour;
     } else {

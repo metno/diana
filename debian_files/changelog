@@ -1,3 +1,22 @@
+diana (3.34.4-1) unstable; urgency=low
+
+  * Bugfixes: vcross version 1
+  * ObjectDialog: timediff increased
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 13 Jan 2014 10:40:16 +0100
+
+diana (3.34.3-1) unstable; urgency=low
+
+  * Bugfix: diField - updating ReferenceTimes of sources with wildcards
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 08 Jan 2014 14:23:21 +0100
+
+diana (3.34.2-2) unstable; urgency=low
+
+  * news
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Dec 2013 10:10:49 +0100
+
 diana (3.34.2-1) unstable; urgency=low
 
   * Bugfix: qsocket - negative lat/lon values crashed
