@@ -1,3 +1,10 @@
+diana (3.34.5-1) unstable; urgency=low
+
+  * Fields - Bugfix - file changed check
+  * Time control - Bugfix: update time label
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 15 Jan 2014 15:31:02 +0100
+
 diana (3.34.4-1) unstable; urgency=low
 
   * Bugfixes: vcross version 1
