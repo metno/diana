@@ -2918,9 +2918,9 @@ void DianaMainWindow::setPlotTime(miutil::miTime& t)
 
 void DianaMainWindow::timeChanged(){
   //to be done whenever time changes (step back/forward, MenuOK etc.)
+  setTimeLabel();
   objm->commentUpdate();
   satFileListUpdate();
-  setTimeLabel();
   miutil::miTime t;
   contr->getPlotTime(t);
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
