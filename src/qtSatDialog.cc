@@ -272,9 +272,8 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 
   times.clear();
 
-#ifdef dSatDlg
+
   METLIBS_LOG_DEBUG("SatDialog::ConstructorCernel returned");
-#endif
 
   return;
 }
@@ -283,9 +282,7 @@ SatDialog::SatDialog( QWidget* parent, Controller* llctrl )
 /*********************************************/
 void SatDialog::nameActivated(int in)
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::nameActivated called");
-#endif
 
   //insert in fileListWidget the list of files for selected satellite
   //but no file is selected, takes to much time
@@ -295,9 +292,7 @@ void SatDialog::nameActivated(int in)
   timefileList->clear();
   channelbox->clear();
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::nameActivated returned");
-#endif
 
   return;
 }
@@ -305,9 +300,7 @@ void SatDialog::nameActivated(int in)
 /*********************************************/
 void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::fileListWidgetClicked called");
-#endif
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -332,9 +325,7 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
 
   QApplication::restoreOverrideCursor();
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("fileListWidgetClicked returned");
-#endif
   return;
 }
 
@@ -346,9 +337,7 @@ void SatDialog::timefileClicked(int tt)
    selected, and is returned without doing anything if the new value
    selected is equal to the old one
    */
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG(" SatDialog::timefileClicked called:"<<tt);
-#endif
 
   if (fileListWidget->currentRow() == -1)
     return;
@@ -376,9 +365,7 @@ void SatDialog::timefileClicked(int tt)
     timefileListSlot(timefileList->currentItem());
   }
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG(" SatDialog::timefileClicked returned");
-#endif
   return;
 }
 
@@ -388,9 +375,7 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
   /* DESCRIPTION: This function is called when the signal highlighted() is
    sent from the list of time/file and a new list item is highlighted
    */
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::timefileListSlot called");
-#endif
 
   int index = timefileList->currentRow();
 
@@ -409,9 +394,7 @@ void SatDialog::timefileListSlot(QListWidgetItem *)
 
   updateChannelBox(true);
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::timefileListSlot returned");
-#endif
   return;
 }
 
@@ -424,9 +407,7 @@ void SatDialog::channelboxSlot(QListWidgetItem * item)
    update pictures box accordingly
    */
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("channelboxSlot called");
-#endif
 
   //currently selected channel
   //  if(channelbox->currentRow() == -1) return;
@@ -444,9 +425,7 @@ void SatDialog::channelboxSlot(QListWidgetItem * item)
 
   updatePictures(newIndex, false);
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("channelboxSlot returned");
-#endif
   return;
 }
 
@@ -461,9 +440,7 @@ int SatDialog::addSelectedPicture()
    else add a new one.
    return index for this picture...
    */
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::addSelectedPicture");
-#endif
 
   if (!files.size())
     return -2;
@@ -545,9 +522,7 @@ int SatDialog::addSelectedPicture()
     newIndex = m_state.size() - 1;
   }
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("returning from addSelectedPicture");
-#endif
 
   return newIndex;
 
@@ -557,9 +532,8 @@ int SatDialog::addSelectedPicture()
 std::string SatDialog::pictureString(state i_state, bool timefile)
 {
   /* make a string of the picture in m_state[i]*/
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::picturesString");
-#endif
+
   std::string str = i_state.name;
   if (i_state.mosaic)
     str += " MOSAIKK ";
@@ -572,10 +546,8 @@ std::string SatDialog::pictureString(state i_state, bool timefile)
 /*********************************************/
 void SatDialog::picturesSlot(QListWidgetItem * item)
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::picturesSlot");
   METLIBS_LOG_DEBUG("m_state.size:"<<m_state.size());
-#endif
 
   std::string str, advanced;
   vector<Colour> colours;
@@ -649,9 +621,7 @@ void SatDialog::picturesSlot(QListWidgetItem * item)
 /*********************************************/
 void SatDialog::RefreshList()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::RefreshList() called");
-#endif
   // update the dialog and timeslider
   int old_picturesIndex = pictures->currentRow();
   updateTimefileList();
@@ -685,9 +655,7 @@ void SatDialog::RefreshList()
 
   emitSatTimes();
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("Returning from refreshList");
-#endif
 
   return;
 }
@@ -696,9 +664,7 @@ void SatDialog::RefreshList()
 
 void SatDialog::Refresh()
 {
-#ifdef dSatDlg
-  METLIBS_LOG_DEBUG("SatDialog::Refresh() called); Filene blir hentet nytt fra disken";
-#endif
+  METLIBS_LOG_DEBUG("SatDialog::Refresh() called); Reading files from disk");
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
@@ -783,9 +749,7 @@ void SatDialog::doubleDisplayDiff(int number)
 /*********************************************/
 void SatDialog::DeleteAllClicked()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::DeleteAllClicked called");
-#endif
 
   fileListWidget->clearSelection();
   timefileList->clear();
@@ -809,18 +773,14 @@ void SatDialog::DeleteAllClicked()
   times.clear();emit
   emitTimes("sat", times, false);
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::DeleteAllClicked returned");
-#endif
   return;
 }
 
 /*********************************************/
 void SatDialog::DeleteClicked()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::DeleteClicked called");
-#endif
 
   if (m_state.size() == 1) {
     // check needed when empty list was found
@@ -843,9 +803,7 @@ void SatDialog::DeleteClicked()
 /*********************************************/
 vector<string> SatDialog::getOKString()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::getOKString() called");
-#endif
 
   vector<string> vstr;
   if (pictures->count()) {
@@ -864,9 +822,7 @@ std::string SatDialog::makeOKString(state & okVar)
 {
   /* This function is called by getOKString,
    makes the part of OK string corresponding to state okVar  */
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::makeOKString");
-#endif
 
   std::string str = "SAT ";
   str += okVar.name;
@@ -905,9 +861,7 @@ std::string SatDialog::makeOKString(state & okVar)
 void SatDialog::putOKString(const vector<string>& vstr)
 {
   /* Called from MainWindow to put vstr values into dialog  */
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::putOKstring");
-#endif
 
   //update dialog
   DeleteAllClicked();
@@ -1034,9 +988,7 @@ SatDialog::state SatDialog::decodeString(const vector<string> & tokens)
   /* This function is called by putOKstring.
    It decodes tokens, and puts plot variables into struct state */
 
-#ifdef dObjectDlg
   METLIBS_LOG_DEBUG("ObjectDialog::decodeString");
-#endif
 
   state okVar;
   okVar.name = "";
@@ -1147,9 +1099,7 @@ void SatDialog::updateFileListWidget(int in)
 
 void SatDialog::updateTimefileList()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("satDialog::updateTimefileList called");
-#endif
 
   //if no file group selected, nothing to do
   if (fileListWidget->currentRow() == -1)
@@ -1220,9 +1170,7 @@ void SatDialog::updateChannelBox(bool select)
    Selected channel is set to the same as before, if possible
    */
 
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("satDialog::updateChannelBox called");
-#endif
 
   channelbox->clear();
 
@@ -1278,9 +1226,7 @@ void SatDialog::updateChannelBox(bool select)
 /**********************************************/
 void SatDialog::updatePictures(int index, bool updateAbove)
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::updatePictures called:" <<index);
-#endif
   /* DESCRIPTION: This function updates the list of selected pictures
    send new list of times to timeslider
    */
@@ -1329,15 +1275,13 @@ void SatDialog::updatePictures(int index, bool updateAbove)
   }
 
   emitSatTimes();
-  //  METLIBS_LOG_DEBUG("returning from updatePictures");
+  METLIBS_LOG_DEBUG("returning from updatePictures");
 }
 
 /**********************************************/
 void SatDialog::updateColours()
 {
-#ifdef dSatDlg
   METLIBS_LOG_DEBUG("SatDialog::updateColours called");
-#endif
 
   int index = pictures->currentRow();
   if (index > -1) {
@@ -1351,7 +1295,7 @@ void SatDialog::updateColours()
 void SatDialog::emitSatTimes(bool update)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  //    METLIBS_LOG_DEBUG("emitSatTimes");
+  METLIBS_LOG_DEBUG("emitSatTimes");
   times.clear();
   set<miutil::miTime> timeset;
 
