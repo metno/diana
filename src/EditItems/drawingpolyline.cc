@@ -31,12 +31,13 @@
 
 #include "GL/gl.h"
 #include "drawingpolyline.h"
+#include "diDrawingManager.h"
 
 namespace DrawingItem_PolyLine {
 
 PolyLine::PolyLine()
 { 
-  // ### FOR TESTING:
+#if 0
   propertiesRef().insert("style:type", "custom");
   propertiesRef().insert("style:lineType", QVariant());
   static int nn = 0;
@@ -45,6 +46,7 @@ PolyLine::PolyLine()
   else
     propertiesRef().insert("style:lineWidth", 1);
   propertiesRef().insert("style:lineColor", QColor(0, 0, 0));
+#endif
 }
 
 PolyLine::~PolyLine()

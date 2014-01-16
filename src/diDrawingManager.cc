@@ -569,6 +569,9 @@ void DrawingStyleManager::beginLine(const QString &name)
     glLineStipple(2, 0xf0f0);
   }
 
+  float lineWidth = styles.value(name).value("linewidth").toFloat();
+  glLineWidth(lineWidth);
+
   QColor borderColour = styles.value(name).value("linecolour").value<QColor>();
   glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
 }
