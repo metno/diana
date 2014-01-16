@@ -57,6 +57,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSvgRenderer>
+#include <QVector2D>
 
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -138,20 +139,19 @@ bool DrawingManager::parseSetup()
         drawings_.insert(items["file"]);
       }
     } else if (items.contains("type")) {
-
       // Read-only style definitions
-      PolygonStyle style(true);
-      style.parse(items);
-      polygonStyles[items["type"]] = style;
+      styleManager.parse(items);
     }
   }
 
-  if (!polygonStyles.contains("Default")) {
-    PolygonStyle style(true);
+  // Add a default style.
+  if (!styleManager.contains("Default")) {
     QHash<QString, QString> items;
-    style.parse(items);
-    polygonStyles["Default"] = style;
+    items["type"] = "Default";
+    items["linesmooth"] = "false";
+    styleManager.parse(items);
   }
+
   return true;
 }
 
@@ -216,7 +216,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
             points.append(QPointF(coordinates[0].toDouble(), coordinates[1].toDouble()));
         }
         properties["points"] = points;
-      } else if (key.startsWith("Style:")) {
+      } else if (key.startsWith("style:")) {
         properties[key] = value;
       }
     }
@@ -500,10 +500,214 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   glPopAttrib();
 }
 
-PolygonStyle *DrawingManager::getPolygonStyle(const QString &name)
+
+// Use the predefined fill patterns already defined for the existing editing and objects modes.
+#include "polyStipMasks.h"
+#include <diTesselation.h>
+
+// Enable support for QColor in QVariant objects.
+Q_DECLARE_METATYPE(QColor)
+
+DrawingStyleManager *DrawingStyleManager::self = 0;
+
+DrawingStyleManager::DrawingStyleManager()
 {
-  if (name.isEmpty())
-    return &polygonStyles["Default"];
+  self = this;
+}
+
+DrawingStyleManager::~DrawingStyleManager()
+{
+}
+
+DrawingStyleManager *DrawingStyleManager::instance()
+{
+  if (!DrawingStyleManager::self)
+    DrawingStyleManager::self = new DrawingStyleManager();
+
+  return DrawingStyleManager::self;
+}
+
+void DrawingStyleManager::parse(const QHash<QString, QString> &definition)
+{
+  QVariantMap style;
+
+  // Parse the definition and set the private members.
+  QString typeName = definition.value("type");
+
+  QString lineColour = definition.value("linecolour", "black");
+  if (lineColour.startsWith("@")) {
+    // Treat the string as a colour name or RGBA value.
+    lineColour.replace("@", "#");
+  }
+  style["linecolour"] = QColor(lineColour);
+
+  style["linewidth"] = definition.value("linewidth", "1.0").toFloat();
+  style["linepattern"] = definition.value("linepattern", "solid");
+  style["linesmooth"] = definition.value("linesmooth", "true") == "true";
+  style["lineshape"] = definition.value("lineshape", "normal");
+
+  QString colour = definition.value("fillcolour");
+  if (colour.startsWith("@")) {
+    // Treat the string as a colour name or RGBA value.
+    colour.replace("@", "#");
+  }
+  if (colour.isEmpty())
+    style["fillcolour"] = QColor(0, 0, 0, 0);
   else
-    return &polygonStyles[name];
+    style["fillcolour"] = QColor(colour);
+
+  style["fillpattern"] = definition.value("fillpattern");
+
+  styles[typeName] = style;
+}
+
+void DrawingStyleManager::beginLine(const QString &name)
+{
+  QString linePattern = styles.value(name).value("linepattern").toString();
+  if (linePattern == "dashed") {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(2, 0xf0f0);
+  }
+
+  QColor borderColour = styles.value(name).value("linecolour").value<QColor>();
+  glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
+}
+
+void DrawingStyleManager::endLine(const QString &name)
+{
+  if (glIsEnabled(GL_LINE_STIPPLE))
+    glDisable(GL_LINE_STIPPLE);
+}
+
+void DrawingStyleManager::beginFill(const QString &name)
+{
+  QColor fillColour = styles.value(name).value("fillcolour").value<QColor>();
+  glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
+             fillColour.alpha());
+
+  QString fillPattern = styles.value(name).value("fillpattern").toString();
+
+  if (!fillPattern.isEmpty()) {
+    const GLubyte *fillPatternData = 0;
+
+    if (fillPattern == "diagleft")
+      fillPatternData = diagleft;
+    else if (fillPattern == "zigzag")
+      fillPatternData = zigzag;
+    else if (fillPattern == "paralyse")
+      fillPatternData = paralyse;
+    else if (fillPattern == "ldiagleft2")
+      fillPatternData = ldiagleft2;
+    else if (fillPattern == "vdiagleft")
+      fillPatternData = vdiagleft;
+    else if (fillPattern == "vldiagcross_little")
+      fillPatternData = vldiagcross_little;
+
+    if (fillPatternData) {
+      glEnable(GL_POLYGON_STIPPLE);
+      glPolygonStipple(fillPatternData);
+    }
+  }
+}
+
+void DrawingStyleManager::endFill(const QString &name)
+{
+  if (glIsEnabled(GL_POLYGON_STIPPLE))
+    glDisable(GL_POLYGON_STIPPLE);
+}
+
+bool DrawingStyleManager::contains(const QString &name) const
+{
+  return styles.contains(name);
+}
+
+QVariantMap DrawingStyleManager::properties(const QString &name) const
+{
+  return styles.value(name);
+}
+
+void DrawingStyleManager::drawLoop(const QString &name, const QList<QPointF> &points) const
+{
+  if (styles.value(name).value("linesmooth").toBool()) {
+    foreach (QPointF p, interpolate(points))
+      glVertex2i(p.x(), p.y());
+  } else {
+    foreach (QPointF p, points)
+      glVertex2i(p.x(), p.y());
+  }
+}
+
+void DrawingStyleManager::fillLoop(const QString &name, const QList<QPointF> &points_) const
+{
+  QList<QPointF> points;
+  if (styles.value(name).value("linesmooth").toBool())
+    points = interpolate(points_);
+  else
+    points = points_;
+
+  // draw the interior
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+  glEnable( GL_BLEND );
+  GLdouble *gldata = new GLdouble[points.size() * 3];
+  for (int i = 0; i < points.size(); ++i) {
+    const QPointF p = points.at(i);
+    gldata[3 * i] = p.x();
+    gldata[3 * i + 1] = p.y();
+    gldata[3 * i + 2] = 0.0;
+  }
+
+  beginTesselation();
+  int npoints = points.size();
+  tesselation(gldata, 1, &npoints);
+  endTesselation();
+  delete[] gldata;
+}
+
+QList<QPointF> DrawingStyleManager::interpolate(const QList<QPointF> &points)
+{
+  int size = points.size();
+  if (size < 2)
+    return points;
+
+  QList<QPointF> new_points;
+
+  for (int i = 0; i < size; ++i) {
+
+    int j = i - 1;
+    if (j < 0) j += size;
+    QVector2D previous(points.at(j));
+    QVector2D p(points.at(i));
+    QVector2D next(points.at((i + 1) % size));
+
+    QVector2D previous_v = previous - p;
+    QVector2D next_v = next - p;
+    qreal prev_l = previous_v.length();
+    qreal next_l = next_v.length();
+    qreal l = qMin(prev_l, next_l);
+    QVector2D new_previous = p + previous_v.normalized() * l;
+    QVector2D new_next = p + next_v.normalized() * l;
+
+    QVector2D gradient = (new_next - new_previous).normalized();
+    prev_l = qMin(QVector2D::dotProduct(p - previous, gradient), l)/4.0;
+    next_l = qMin(QVector2D::dotProduct(next - p, gradient), l)/4.0;
+
+    QVector2D p0 = p - prev_l * gradient;
+    QVector2D p1 = p + next_l * gradient;
+
+    new_points << p0.toPointF() << p1.toPointF();
+  }
+
+  new_points.append(new_points.takeFirst());
+
+  QPainterPath path;
+  path.moveTo(points.at(0));
+  for (int i = 0; i < size; ++i)
+    path.cubicTo(new_points.at(i*2), new_points.at((i*2)+1), points.at((i+1) % size));
+
+  new_points.clear();
+
+  foreach (QPolygonF polygon, path.toSubpathPolygons())
+    new_points << polygon.toList();
+
+  return new_points;
 }

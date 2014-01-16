@@ -176,14 +176,14 @@ std::vector<std::string> DrawingDialog::getOKString()
 
     // Add any style information to the string.
     QVariantMap properties = item->propertiesRef();
-    QString typeName = properties.value("Style:Type").toString();
+    QString typeName = properties.value("style:type").toString();
     if (typeName.isEmpty()) {
       foreach (QString key, properties.keys()) {
-        if (key.startsWith("Style:"))
+        if (key.startsWith("style:"))
           line += " " + key + "=\"" + properties.value(key).toString() + "\"";
       }
     } else
-      line += " Style:Type=\"" + typeName + "\"";
+      line += " style:type=\"" + typeName + "\"";
 
     lines.push_back(line.toStdString());
   }

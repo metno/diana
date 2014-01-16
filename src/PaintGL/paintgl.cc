@@ -935,6 +935,26 @@ void glIndexi(GLint c)
     // Unimplemented
 }
 
+GLboolean glIsEnabled(GLenum cap)
+{
+    switch (cap) {
+    case GL_BLEND:
+        return ctx->blend;
+    case GL_TEXTURE_2D:
+        return ctx->useTexture;
+    case GL_LINE_STIPPLE:
+        return ctx->attributes.lineStipple;
+    case GL_MULTISAMPLE:
+        return ctx->attributes.antialiasing;
+    case GL_POLYGON_STIPPLE:
+        return ctx->attributes.polygonStipple;
+    case GL_STENCIL_TEST:
+        return ctx->stencil.enabled;
+    default:
+        return false;
+    }
+}
+
 GLboolean glIsList(GLuint list)
 {
     ENSURE_CTX_INT

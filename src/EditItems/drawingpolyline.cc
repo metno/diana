@@ -30,7 +30,6 @@
 */
 
 #include "GL/gl.h"
-#include <diTesselation.h>
 #include "drawingpolyline.h"
 
 namespace DrawingItem_PolyLine {
@@ -58,49 +57,25 @@ void PolyLine::draw()
     return;
 
   // Find the polygon style to use, if one exists.
-  PolygonStyle *style = static_cast<PolygonStyle *>(getStyle());
-
-  // draw the interior
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable( GL_BLEND );
-  GLdouble *gldata = new GLdouble[points_.size() * 3];
-  for (int i = 0; i < points_.size(); ++i) {
-    const QPointF p = points_.at(i);
-    gldata[3 * i] = p.x();
-    gldata[3 * i + 1] = p.y();
-    gldata[3 * i + 2] = 0.0;
-  }
+  QString style = property("style:type").toString();
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
   // Use the fill colour defined in the style.
-  style->beginFill();
+  styleManager->beginFill(style);
 
-  beginTesselation();
-  int npoints = points_.size();
-  tesselation(gldata, 1, &npoints);
-  endTesselation();
-  delete[] gldata;
+  styleManager->fillLoop(style, points_);
 
-  style->endFill();
+  styleManager->endFill(style);
 
-  // draw the outline
-  QColor color = properties().value("style:lineColor").value<QColor>();
-  if (!color.isValid())
-    color = QColor(0, 0, 0);
-  glColor3ub(color.red(), color.green(), color.blue());
-  //
-  glPushAttrib(GL_LINE_BIT);
-  bool ok = false;
-  const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
-  glLineWidth(ok ? lineWidth : 1);
-
-  //
+  // Draw the outline using the border colour and line pattern defined in
+  // the style.
+  styleManager->beginLine(style);
   glBegin(GL_LINE_LOOP);
-  foreach (QPointF p, points_)
-    glVertex2i(p.x(), p.y());
-  glEnd(); // GL_LINE_LOOP
 
-  //
-  glPopAttrib();
+  styleManager->drawLoop(style, points_);
+
+  glEnd(); // GL_LINE_LOOP
+  styleManager->endLine(style);
 }
 
 QDomNode PolyLine::toKML() const

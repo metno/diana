@@ -30,120 +30,15 @@
 */
 
 #include "drawingitembase.h"
-#include "polyStipMasks.h"
-#include "diDrawingManager.h"
-
-PolygonStyle::PolygonStyle(bool readOnly)
-  : DrawingStyle(readOnly)
-{
-}
-
-void PolygonStyle::parse(const QHash<QString, QString> &definition)
-{
-  // Parse the definition and set the private members.
-  typeName = definition.value("type");
-
-  QString lineColour = definition.value("linecolour", "black");
-  if (lineColour.startsWith("@")) {
-    // Treat the string as a colour name or RGBA value.
-    lineColour.replace("@", "#");
-  }
-  borderColour = QColor(lineColour);
-
-  borderWidth = definition.value("linewidth", "1.0").toFloat();
-  linePattern = definition.value("linepattern", "solid");
-  smooth = definition.value("linesmooth", "true") == "true";
-  lineShape = definition.value("lineshape", "normal");
-
-  QString colour = definition.value("fillcolour");
-  if (colour.startsWith("@")) {
-    // Treat the string as a colour name or RGBA value.
-    colour.replace("@", "#");
-  }
-  if (colour.isEmpty())
-    fillColour = QColor(0, 0, 0, 0);
-  else
-    fillColour = QColor(colour);
-
-  fillPatternData = 0;
-  fillPattern = definition.value("fillpattern");
-
-  if (!fillPattern.isEmpty()) {
-    if (fillPattern == "diagleft")
-      fillPatternData = diagleft;
-    else if (fillPattern == "zigzag")
-      fillPatternData = zigzag;
-    else if (fillPattern == "paralyse")
-      fillPatternData = paralyse;
-    else if (fillPattern == "ldiagleft2")
-      fillPatternData = ldiagleft2;
-    else if (fillPattern == "vdiagleft")
-      fillPatternData = vdiagleft;
-    else if (fillPattern == "vldiagcross_little")
-      fillPatternData = vldiagcross_little;
-  }
-}
-
-PolygonStyle::~PolygonStyle()
-{
-}
-
-void PolygonStyle::beginLine()
-{
-  if (linePattern == "dashed") {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(2, 0xf0f0);
-  }
-
-  glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
-}
-
-void PolygonStyle::endLine()
-{
-  if (linePattern == "dashed")
-    glDisable(GL_LINE_STIPPLE);
-}
-
-void PolygonStyle::beginFill()
-{
-  glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
-             fillColour.alpha());
-
-  if (fillPatternData) {
-    glEnable(GL_POLYGON_STIPPLE);
-    glPolygonStipple(fillPatternData);
-  }
-}
-
-void PolygonStyle::endFill()
-{
-  if (fillPatternData)
-    glDisable(GL_POLYGON_STIPPLE);
-}
-
-QVariantMap PolygonStyle::properties() const
-{
-  QVariantMap p;
-  p["Style:Type"] = typeName;
-  p["Style:LineColour"] = borderColour.name();
-  p["Style:LineWidth"] = QString::number(borderWidth);
-  p["Style:LinePattern"] = linePattern;
-  p["Style:FillColour"] = fillColour.name();
-  p["Style:LineSmooth"] = QString(smooth);
-  p["Style:LineShape"] = lineShape;
-  p["Style:FillPattern"] = fillPattern;
-  return p;
-}
 
 DrawingItemBase::DrawingItemBase()
-    : id_(nextId()), style(0)
+    : id_(nextId())
 {
+  setProperty("style:type", QVariant("Default"));
 }
 
 DrawingItemBase::~DrawingItemBase()
 {
-  if (style && !style->readOnly)
-    delete style;
 }
 
 int DrawingItemBase::nextId_ = 0;
@@ -225,19 +120,6 @@ QList<QPointF> DrawingItemBase::getLatLonPoints() const
 void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
 {
     latLonPoints_ = points;
-}
-
-DrawingStyle *DrawingItemBase::getStyle() const
-{
-  if (!style)
-    return DrawingManager::instance()->getPolygonStyle();
-  else
-    return style;
-}
-
-void DrawingItemBase::setStyle(DrawingStyle *style)
-{
-  this->style = style;
 }
 
 

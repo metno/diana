@@ -242,6 +242,7 @@ void glEnableClientState(GLenum cap);  /* 1.1 */
 void glFlush(void);
 void glGetFloatv(GLenum pname, GLfloat *params);
 void glGetIntegerv(GLenum pname, GLint *params);
+GLboolean glIsEnabled(GLenum cap);
 void glLineStipple(GLint factor, GLushort pattern);
 void glLineWidth(GLfloat width);
 void glPointSize(GLfloat size);

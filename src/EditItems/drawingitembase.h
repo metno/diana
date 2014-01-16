@@ -44,43 +44,6 @@
 
 class QDomDocumentFragment;
 
-class DrawingStyle
-{
-public:
-  DrawingStyle(bool readOnly = false) : readOnly(readOnly) {};
-  virtual ~DrawingStyle() {}
-
-  bool readOnly;
-};
-
-class PolygonStyle : public DrawingStyle
-{
-public:
-  PolygonStyle(bool readOnly = false);
-  void parse(const QHash<QString, QString> &definition);
-  virtual ~PolygonStyle();
-
-  void beginLine();
-  void endLine();
-  void beginFill();
-  void endFill();
-
-  QVariantMap properties() const;
-
-private:
-  QString typeName;
-
-  QColor borderColour;
-  float borderWidth;
-  QString linePattern;
-  bool smooth;
-  QString lineShape;
-
-  QColor fillColour;
-  QString fillPattern;
-  const GLubyte *fillPatternData;
-};
-
 class DrawingItemBase
 {
   friend class EditItemBase;
@@ -121,9 +84,6 @@ public:
   // Returns the item's KML representation.
   virtual QDomNode toKML() const;
 
-  DrawingStyle *getStyle() const;
-  void setStyle(DrawingStyle *style);
-
 protected:
   mutable QVariantMap properties_;
   QList<QPointF> points_;
@@ -133,7 +93,6 @@ private:
   int id_;
   static int nextId_;
   int nextId();
-  DrawingStyle *style;
 
   QDomElement createExtDataElement(QDomDocument &) const;
   QDomElement createPointOrPolygonElement(QDomDocument &) const;

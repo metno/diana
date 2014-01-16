@@ -31,7 +31,7 @@
 #ifndef _diDrawingManager_h
 #define _diDrawingManager_h
 
-#include "GL/gl.h"
+#include <GL/gl.h>
 
 #include <EditItems/drawingitembase.h>
 
@@ -64,6 +64,36 @@ class QMouseEvent;
 #include "PaintGL/paintgl.h"
 #define QGLContext PaintGLContext
 #endif
+
+/**
+  \brief Manager for drawing styles.
+*/
+class DrawingStyleManager
+{
+public:
+  DrawingStyleManager();
+  virtual ~DrawingStyleManager();
+  void parse(const QHash<QString, QString> &definition);
+
+  void beginLine(const QString &name);
+  void endLine(const QString &name);
+  void beginFill(const QString &name);
+  void endFill(const QString &name);
+
+  void drawLoop(const QString &name, const QList<QPointF> &points) const;
+  void fillLoop(const QString &name, const QList<QPointF> &points) const;
+
+  static QList<QPointF> interpolate(const QList<QPointF> &points);
+
+  bool contains(const QString &name) const;
+  QVariantMap properties(const QString &name) const;
+
+  static DrawingStyleManager *instance();
+
+private:
+  QHash<QString, QVariantMap> styles;
+  static DrawingStyleManager *self;  // singleton instance pointer
+};
 
 /**
   \brief Manager for drawing areas and annotations.
@@ -121,37 +151,22 @@ public:
     } else {
       *error = QString("unsupported item type: %1, expected %2 or %3")
           .arg(vmap.value("type").toString()).arg("*PolyLine").arg("*Symbol");
-    }
-    if (item) {
-      Drawing(item)->setProperties(vmap);
-      setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
+      return 0;
     }
 
-    QString typeName = vmap.value("Style:Type").toString();
-    PolygonStyle *style = 0;
+    QVariantMap newMap = vmap;
+    QString typeName = vmap.value("style:type").toString();
 
     if (typeName.isEmpty())
       typeName = "Default";
+    else if (typeName != "Custom" && !styleManager.contains(typeName))
+      typeName = "Custom";
 
-    // If the style is not a custom style, try to find it and use it as the item's style.
+    // Update the type name in the item's properties.
+    newMap["style:type"] = typeName;
 
-    if (typeName != "Custom") {
-      if (polygonStyles.contains(typeName))
-        style = &polygonStyles[typeName];
-    }
-
-    // Create a style for each item if the style is a custom style, or if the named type was not found.
-
-    if (!style) {
-      PolygonStyle *style = new PolygonStyle();
-      QHash<QString, QString> definition;
-      foreach (QString key, vmap.keys()) {
-        if (key.startsWith("Style:"))
-          definition[key.mid(6)] = vmap[key].toString();
-      }
-      style->parse(definition);
-    }
-    item->setStyle(style);
+    item->setProperties(newMap);
+    setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
 
     return item;
   }
@@ -160,8 +175,6 @@ public:
 
   // Resource handling
   void drawSymbol(const QString &name, float x, float y, int width, int height);
-
-  PolygonStyle *getPolygonStyle(const QString &name = QString());
 
   // Dialog-related methods
   QSet<QString> &drawings();
@@ -188,7 +201,7 @@ private:
   QHash<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
-  QHash<QString, PolygonStyle> polygonStyles;
+  DrawingStyleManager styleManager;
 
   static DrawingManager *self;  // singleton instance pointer
 };
