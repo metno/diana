@@ -43,6 +43,9 @@ Symbol::Symbol()
 {
     init();
     updateControlPoints();
+
+    // ### FOR TESTING:
+    propertiesRef().insert("style:type", "custom");
 }
 
 Symbol::~Symbol()
@@ -67,7 +70,6 @@ bool Symbol::hit(const QRectF &rect) const
 // ### similar to PolyLine::mousePress - move common code to base class?
 void Symbol::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
     QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
@@ -87,35 +89,12 @@ void Symbol::mousePress(
             // open a context menu and perform the selected action
             QMenu contextMenu;
             QAction remove_act(tr("&Remove"), 0);
-            QAction copyItems_act(tr("&Copy"), 0);
-            QAction editItems_act(tr("P&roperties..."), 0);
-            QAction save_act(tr("Save ..."), 0);
 
             // add actions
             contextMenu.addAction(&remove_act);
-            if (itemsToCopy)
-              contextMenu.addAction(&copyItems_act);
-            if (itemsToEdit)
-              contextMenu.addAction(&editItems_act);
-            contextMenu.addAction(&save_act);
             QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
             if (action == &remove_act)
                 remove(repaintNeeded, items, selItems);
-            else if (action == &copyItems_act) {
-                Q_ASSERT(itemsToCopy);
-                QSet<DrawingItemBase *>::const_iterator it;
-                for (it = selItems->begin(); it != selItems->end(); ++it) {
-                    Symbol *symbol = qobject_cast<Symbol *>(Editing(*it));
-                    if (symbol)
-                        itemsToCopy->insert(symbol);
-                }
-            } else if (action == &editItems_act) {
-                Q_ASSERT(itemsToEdit);
-                //Q_ASSERT(items->contains(this));
-                itemsToEdit->insert(this);
-            } else if (action == &save_act) {
-              EditItemManager::instance()->saveItemsToFile();
-            }
         }
     }
 }

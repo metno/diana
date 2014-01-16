@@ -30,16 +30,22 @@
 */
 
 #include "GL/gl.h"
-#include <diDrawingManager.h>
 #include <diTesselation.h>
 #include "drawingpolyline.h"
-#include <miLogger/miLogging.h>
-#include <QDebug>
 
 namespace DrawingItem_PolyLine {
 
 PolyLine::PolyLine()
-{
+{ 
+  // ### FOR TESTING:
+  propertiesRef().insert("style:type", "custom");
+  propertiesRef().insert("style:lineType", QVariant());
+  static int nn = 0;
+  if (nn++ % 2)
+    propertiesRef().insert("style:lineWidth", 2);
+  else
+    propertiesRef().insert("style:lineWidth", 1);
+  propertiesRef().insert("style:lineColor", QColor(0, 0, 0));
 }
 
 PolyLine::~PolyLine()
@@ -76,16 +82,25 @@ void PolyLine::draw()
 
   style->endFill();
 
-  // Draw the outline using the border colour and line pattern defined in
-  // the style.
-  style->beginLine();
-  glBegin(GL_LINE_LOOP);
+  // draw the outline
+  QColor color = properties().value("style:lineColor").value<QColor>();
+  if (!color.isValid())
+    color = QColor(0, 0, 0);
+  glColor3ub(color.red(), color.green(), color.blue());
+  //
+  glPushAttrib(GL_LINE_BIT);
+  bool ok = false;
+  const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
+  glLineWidth(ok ? lineWidth : 1);
 
+  //
+  glBegin(GL_LINE_LOOP);
   foreach (QPointF p, points_)
     glVertex2i(p.x(), p.y());
-
   glEnd(); // GL_LINE_LOOP
-  style->endLine();
+
+  //
+  glPopAttrib();
 }
 
 QDomNode PolyLine::toKML() const

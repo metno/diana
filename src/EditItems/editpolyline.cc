@@ -39,12 +39,19 @@
 namespace EditItem_PolyLine {
 
 PolyLine::PolyLine()
+  : addPoint_act_(new QAction(tr("Add point"), this))
+  , removePoint_act_(new QAction(tr("Remove point"), this))
+  , hitPointIndex_(-1)
+  , hitLineIndex_(-1)
 {
     init();
     updateControlPoints();
     color_.setRed(0);
     color_.setGreen(0);
     color_.setBlue(0);
+
+    QObject::connect(addPoint_act_, SIGNAL(triggered()), SLOT(addPoint()));
+    QObject::connect(removePoint_act_, SIGNAL(triggered()), SLOT(removePoint()));
 }
 
 PolyLine::~PolyLine()
@@ -87,20 +94,36 @@ int PolyLine::hitLine(const QPointF &position) const
             minDist = dist;
             minIndex = i;
         }
-    }
-    
+    }    
     if (minDist > proximityTolerance)
         return -1;
 
     return minIndex;
 }
 
+QList<QAction *> PolyLine::actions(const QPoint &pos) const
+{
+  hitPointIndex_ = hitControlPoint(pos);
+  hitLineIndex_ = hitLine(pos);
+  hitLinePos_ = pos;
+
+  QList<QAction *> acts;
+  if (hitPointIndex_ != -1) {
+    if (points_.size() > 3)
+      acts.append(removePoint_act_);
+  } else if (hitLineIndex_ != -1) {
+    acts.append(addPoint_act_);
+  }
+
+  return acts;
+}
+
 void PolyLine::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
     QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
     Q_ASSERT(undoCommands);
+    Q_UNUSED(selItems);
 
     if (event->button() == Qt::LeftButton) {
         pressedCtrlPointIndex_ = hitControlPoint(event->pos());
@@ -112,57 +135,6 @@ void PolyLine::mousePress(
         if (multiItemOp)
             *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
 
-    } else if (event->button() == Qt::RightButton) {
-        if (selItems) {
-            // open a context menu and perform the selected action
-            QMenu contextMenu;
-            QPointF position = event->pos();
-            QAction addPoint_act(tr("&Add point"), 0);
-            QAction remove_act(tr("&Remove"), 0);
-            QAction removePoint_act(tr("Remove &point"), 0);
-            QAction copyItems_act(tr("&Copy"), 0);
-            QAction editItems_act(tr("P&roperties..."), 0);
-            QAction save_act(tr("Save ..."), 0);
-
-            // Add actions, checking for a click on a line or a point.
-            const int lineIndex = hitLine(position);
-            const int pointIndex = hitControlPoint(position);
-            if (pointIndex != -1) {
-                if (points_.size() <= 3)
-                    return; // an area needs at least three points
-                contextMenu.addAction(&removePoint_act);
-            } else if (lineIndex != -1) {
-                contextMenu.addAction(&addPoint_act);
-            }
-            contextMenu.addAction(&remove_act);
-            if (itemsToCopy)
-              contextMenu.addAction(&copyItems_act);
-            if (itemsToEdit)
-              contextMenu.addAction(&editItems_act);
-            contextMenu.addAction(&save_act);
-            QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
-            if (action == &remove_act)
-                remove(repaintNeeded, items, selItems);
-            else if (action == &removePoint_act)
-                removePoint(repaintNeeded, pointIndex, items, selItems);
-            else if (action == &addPoint_act)
-                addPoint(repaintNeeded, lineIndex, position);
-            else if (action == &copyItems_act) {
-                Q_ASSERT(itemsToCopy);
-                QSet<DrawingItemBase *>::const_iterator it;
-                for (it = selItems->begin(); it != selItems->end(); ++it) {
-                    PolyLine *polyLine = qobject_cast<PolyLine *>(Editing(*it));
-                    if (polyLine)
-                        itemsToCopy->insert(polyLine);
-                }
-            } else if (action == &editItems_act) {
-                Q_ASSERT(itemsToEdit);
-                //Q_ASSERT(items->contains(this));
-                itemsToEdit->insert(this);
-            } else if (action == &save_act) {
-              EditItemManager::instance()->saveItemsToFile();
-            }
-        }
     }
 }
 
@@ -230,38 +202,23 @@ void PolyLine::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void PolyLine::addPoint(bool &repaintNeeded, int index, const QPointF &point)
+void PolyLine::addPoint()
 {
-    points_.insert(index + 1, point);
+    points_.insert(hitLineIndex_ + 1, hitLinePos_);
     setLatLonPoints(DrawingManager::instance()->getLatLonPoints(this));
 
     updateControlPoints();
-    repaintNeeded = true;
 }
 
-void PolyLine::remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
+void PolyLine::removePoint()
 {
-    // Option 1: remove this item only:
-    // items->remove(this);
-
-    // Option 2: remove all selected items:
-    items->subtract(*selItems);
-
-    repaintNeeded = true;
-}
-
-void PolyLine::removePoint(bool &repaintNeeded, int index, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
-{
-    if (points_.size() <= 3)
-        items->remove(this);
-
-    if (index >= 0 && index < points_.size()) {
-        points_.removeAt(index);
-        latLonPoints_.removeAt(index);
+    if ((hitPointIndex_ >= 0) && (hitPointIndex_ < points_.size())) {
+        points_.removeAt(hitPointIndex_);
+        latLonPoints_.removeAt(hitPointIndex_);
+        hoveredCtrlPointIndex_ = -1;
     }
 
     updateControlPoints();
-    repaintNeeded = true;
 }
 
 qreal PolyLine::dist2(const QPointF &v, const QPointF &w)
@@ -316,7 +273,9 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
   } else {
     // highlight the polyline
     glPushAttrib(GL_LINE_BIT);
-    glLineWidth(2);
+    bool ok = false;
+    const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
+    glLineWidth(ok ? lineWidth : 2);
     glBegin(GL_LINE_LOOP);
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), 1);

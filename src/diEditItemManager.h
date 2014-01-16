@@ -49,52 +49,13 @@ class QMouseEvent;
 class QTextEdit;
 class QUndoStack;
 
-class TextEditor : public QDialog
-{
-public:
-  TextEditor(const QString &text);
-  virtual ~TextEditor();
-
-  QString text() const;
-
-private:
-  QTextEdit *textEdit_;
-};
-
-// ### move this class declaration to a private header file?
-class SpecialLineEdit : public QLineEdit
-{
-  Q_OBJECT
-public:
-  SpecialLineEdit(const QString &);
-private:
-  QString propertyName_;
-  QString propertyName() const;
-  void contextMenuEvent(QContextMenuEvent *);
-private slots:
-  void openTextEdit();
-};
-
-class VarMapEditor : public QDialog
-{
-public:
-  static VarMapEditor *instance();
-  QVariantMap edit(const QVariantMap &values);
-
-private:
-  VarMapEditor();
-
-  static VarMapEditor *instance_;
-  QWidget *formWidget_;
-};
-
 class EditItemManager : public DrawingManager
 {
     Q_OBJECT
 
 public:
     enum Action {
-      Cut, Copy, Paste, Edit, Load, Save, Undo, Redo, Select, CreatePolyLine, CreateSymbol
+      Cut, Copy, Paste, EditProperties, EditStyle, Load, Save, Undo, Redo, Select, CreatePolyLine, CreateSymbol
     };
 
     EditItemManager();
@@ -131,8 +92,6 @@ public:
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
     void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
-    void editItemProperties(const QSet<DrawingItemBase *> &);
-
     QHash<Action, QAction*> actions();
     QUndoView *getUndoView();
 
@@ -142,13 +101,14 @@ public slots:
     void copySelectedItems();
     void cutSelectedItems();
     void deselectItem(DrawingItemBase *);
-    void editItems();
+    void editProperties();
+    void editStyle();
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
     bool loadItems(const QString &fileName);
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
-    void mousePress(QMouseEvent *, QSet<DrawingItemBase *> * = 0, QSet<DrawingItemBase *> * = 0);
+    void mousePress(QMouseEvent *);
     void mouseRelease(QMouseEvent *);
     void pasteItems();
     void redo();
@@ -158,7 +118,6 @@ public slots:
     void selectItem(DrawingItemBase *);
     void setSelectMode();
     void undo();
-    void updateActions();
 
     virtual bool hasWorking() const;
     virtual void setWorking(bool enable);
@@ -167,6 +126,7 @@ private slots:
     void loadItemsFromFile();
     void setCreatePolyLineMode();
     void setCreateSymbolMode();
+    void handleSelectionChange();
 
 signals:
     void selectionChanged();
@@ -199,7 +159,8 @@ private:
     QAction* cutAction;
     QAction* copyAction;
     QAction* pasteAction;
-    QAction* editAction;
+    QAction* editPropertiesAction;
+    QAction* editStyleAction;
     QAction* loadAction;
     QAction* saveAction;
     QAction* undoAction;
@@ -228,6 +189,10 @@ private:
 
     // Clipboard operations
     void copyItems(const QSet<DrawingItemBase *> &);
+
+    void updateActions();
+    void updateTimes();
+    void updateActionsAndTimes();
 
     static EditItemManager *self;   // singleton instance pointer
 };

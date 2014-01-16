@@ -50,9 +50,7 @@ private:
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 
-    virtual void mousePress(
-        QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, QSet<DrawingItemBase *> *,
-        QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
+    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);

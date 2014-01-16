@@ -42,139 +42,11 @@
 #include <EditItems/editpolyline.h>
 #include <EditItems/editsymbol.h>
 #include <EditItems/kml.h>
+#include <EditItems/properties.h>
+#include <EditItems/style.h>
 #include <paint_select.xpm>
 
 #define PLOTM PlotModule::instance()
-
-TextEditor::TextEditor(const QString &text)
-{
-    setWindowTitle("Text Editor");
-
-    QVBoxLayout *layout = new QVBoxLayout;
-    textEdit_ = new QTextEdit;
-    textEdit_->setPlainText(text);
-    layout->addWidget(textEdit_);
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
-    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-    connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(accept()));
-    layout->addWidget(buttonBox);
-
-    setLayout(layout);
-}
-
-TextEditor::~TextEditor()
-{
-    delete textEdit_;
-}
-
-QString TextEditor::text() const
-{
-    return textEdit_->toPlainText();
-}
-
-SpecialLineEdit::SpecialLineEdit(const QString &pname)
-  : propertyName_(pname)
-{
-}
-
-QString SpecialLineEdit::propertyName() const { return propertyName_; }
-
-void SpecialLineEdit::contextMenuEvent(QContextMenuEvent *event)
-{
-  QMenu *menu = createStandardContextMenu();
-  QAction action(tr("&Edit"), 0);
-  connect(&action, SIGNAL(triggered()), this, SLOT(openTextEdit()));
-  menu->addAction(&action);
-  menu->exec(event->globalPos());
-  delete menu;
-}
-
-void SpecialLineEdit::openTextEdit()
-{
-  TextEditor textEditor(text());
-  textEditor.setWindowTitle(propertyName());
-  if (textEditor.exec() == QDialog::Accepted)
-    setText(textEditor.text());
-}
-
-static QWidget * createEditor(const QString &propertyName, const QVariant &val)
-{
-  QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) ||
-      (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
-    editor = new SpecialLineEdit(propertyName);
-    qobject_cast<QLineEdit *>(editor)->setText(val.toString());
-  } else if (val.type() == QVariant::DateTime) {
-    editor = new QDateTimeEdit(val.toDateTime());
-  } else {
-    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
-  }
-  return editor;
-}
-
-VarMapEditor *VarMapEditor::instance()
-{
-    if (!instance_)
-        instance_ = new VarMapEditor;
-    return instance_;
-}
-
-/**
- * Opens the editor panel with initial values.
- * Returns the edited values (always unchanged when the dialog is cancelled).
- */
-QVariantMap VarMapEditor::edit(const QVariantMap &values)
-{
-    // clear old content
-    qDeleteAll(formWidget_->children());
-
-    // set new content and initial values
-    QFormLayout *formLayout = new QFormLayout(formWidget_);
-    foreach (const QString key, values.keys()) {
-        QWidget *editor = createEditor(key, values.value(key));
-        if (editor)
-            formLayout->addRow(key, editor);
-    }
-
-    // open dialog
-    if (exec() == QDialog::Accepted) {
-        // return edited values
-        QVariantMap newValues;
-        for (int i = 0; i < formLayout->rowCount(); ++i) {
-            QLayoutItem *item = formLayout->itemAt(i, QFormLayout::LabelRole);
-            if (item) {
-                const QString key = qobject_cast<const QLabel *>(item->widget())->text();
-                QWidget *editor = formLayout->itemAt(i, QFormLayout::FieldRole)->widget();
-                if (qobject_cast<QLineEdit *>(editor)) {
-                    newValues.insert(key, qobject_cast<const QLineEdit *>(editor)->text());
-                } else if (qobject_cast<QDateTimeEdit *>(editor)) {
-                    QDateTimeEdit *ed = qobject_cast<QDateTimeEdit *>(editor);
-                    newValues.insert(key, ed->dateTime());
-                }
-            }
-        }
-        return newValues;
-    }
-
-    return values; // return original values
-}
-
-VarMapEditor::VarMapEditor()
-{
-    setWindowTitle(tr("Item Properties"));
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    formWidget_ = new QWidget();
-    layout->addWidget(formWidget_);
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-    connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-    layout->addWidget(buttonBox);
-}
-
-VarMapEditor *VarMapEditor::instance_ = 0;
 
 static QString undoCommandText(int nadded, int nremoved, int nmodified)
 {
@@ -201,7 +73,7 @@ EditItemManager::EditItemManager()
     self = this;
 
     connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
-    connect(this, SIGNAL(selectionChanged()), SLOT(updateActions()));
+    connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
 
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
@@ -213,8 +85,10 @@ EditItemManager::EditItemManager()
     copyAction->setShortcut(QKeySequence::Copy);
     pasteAction = new QAction(tr("&Paste"), this);
     pasteAction->setShortcut(QKeySequence::Paste);
-    editAction = new QAction(tr("P&roperties..."), this);
-    editAction->setShortcut(tr("Ctrl+R"));
+    editPropertiesAction = new QAction(tr("Edit P&roperties..."), this);
+    editPropertiesAction->setShortcut(tr("Ctrl+R"));
+    editStyleAction = new QAction(tr("Edit Style..."), this);
+    //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
     loadAction = new QAction(tr("&Load..."), this);
     loadAction->setShortcut(tr("Ctrl+L"));
     saveAction = new QAction(tr("&Save..."), this);
@@ -230,7 +104,8 @@ EditItemManager::EditItemManager()
 
     connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
-    connect(editAction, SIGNAL(triggered()), SLOT(editItems()));
+    connect(editPropertiesAction, SIGNAL(triggered()), SLOT(editProperties()));
+    connect(editStyleAction, SIGNAL(triggered()), SLOT(editStyle()));
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
     connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
     connect(saveAction, SIGNAL(triggered()), SLOT(saveItemsToFile()));
@@ -386,29 +261,6 @@ void EditItemManager::retrieveItems(const QSet<DrawingItemBase *> &items)
     }
 }
 
-void EditItemManager::editItemProperties(const QSet<DrawingItemBase *> &items)
-{
-  Q_ASSERT(items.size() > 0);
-  if (items.size() > 1) {
-    QMessageBox::warning(0, "Warning", "Simultaneously editing multiple items is not yet supported");
-    return;
-  }
-
-  DrawingItemBase *item = items.values().first();
-  if (item->properties().size() == 0) {
-    QMessageBox::information(0, "info", "No properties to edit!");
-  } else {
-    const QVariantMap newProperties = VarMapEditor::instance()->edit(item->properties());
-    if (newProperties != item->properties()) {
-      item->setProperties(newProperties);
-      emit itemChanged(item);
-      //QMessageBox::information(0, "info", "Values changed!");
-    } else {
-      //QMessageBox::information(0, "info", "Values unchanged");
-    }
-  }
-}
-
 void EditItemManager::reset()
 {
     undoStack_.clear();
@@ -424,9 +276,9 @@ QSet<DrawingItemBase *> EditItemManager::getSelectedItems() const
     return selItems_;
 }
 
-void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit)
+void EditItemManager::mousePress(QMouseEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteMousePress(event);
         return;
     }
@@ -441,12 +293,11 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *it
 
     repaintNeeded_ = false;
 
-    QSet<DrawingItemBase *> origSelItems(selItems_);
+    const QSet<DrawingItemBase *> origSelItems(selItems_);
 
     // update selection and hit status
     if (!(hitSelItem || (hitItem && selectMulti))) {
         selItems_.clear();
-        emit selectionChanged();
     } else if (selectMulti && hitSelItem && (selItems_.size() > 1)) {
         deselectItem(hitItem);
         hitItem = 0;
@@ -464,7 +315,7 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *it
         QSet<DrawingItemBase *> eventItems(items_);
 
         bool rpn = false;
-        Editing(hitItem)->mousePress(event, rpn, &undoCommands, itemsToCopy, itemsToEdit, &eventItems, &selItems_, &multiItemOp);
+        Editing(hitItem)->mousePress(event, rpn, &undoCommands, &eventItems, &selItems_, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
         addedItems = eventItems - items_;
         removedItems = items_ - eventItems;
@@ -494,8 +345,10 @@ void EditItemManager::mousePress(QMouseEvent *event, QSet<DrawingItemBase *> *it
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
 
-    if (selItems_ != origSelItems)
+    if (selItems_ != origSelItems) {
+        emit selectionChanged();
         repaintNeeded_ = true;
+    }
 }
 
 // Handles a mouse press event for an item in the process of being completed.
@@ -521,7 +374,7 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
 
 void EditItemManager::mouseRelease(QMouseEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteMouseRelease(event);
         return;
     }
@@ -566,7 +419,7 @@ void EditItemManager::incompleteMouseRelease(QMouseEvent *event)
 
 void EditItemManager::mouseMove(QMouseEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteMouseMove(event);
         return;
     }
@@ -636,7 +489,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
 
 void EditItemManager::mouseDoubleClick(QMouseEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteMouseDoubleClick(event);
         return;
     }
@@ -672,17 +525,17 @@ static EditItemBase *idToItem(const QSet<DrawingItemBase *> &items, int id)
 
 void EditItemManager::keyPress(QKeyEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteKeyPress(event);
         return;
     }
 
     repaintNeeded_ = false;
 
-    QSet<int> origSelIds; // IDs of the originally selected items
-    foreach (DrawingItemBase *item, selItems_) {
+    const QSet<DrawingItemBase *> origSelItems(selItems_);
+    QSet<int> origSelIds;
+    foreach (DrawingItemBase *item, origSelItems)
         origSelIds.insert(item->id());
-    }
 
     QSet<DrawingItemBase *> addedItems;
     QSet<DrawingItemBase *> removedItems;
@@ -703,7 +556,6 @@ void EditItemManager::keyPress(QKeyEvent *event)
             addedItems.unite(eventItems - items_);
             removedItems.unite(items_ - eventItems);
             selItems_.subtract(removedItems);
-            emit selectionChanged();
         }
     }
 
@@ -711,6 +563,11 @@ void EditItemManager::keyPress(QKeyEvent *event)
     const bool modifiedItems = !undoCommands.empty();
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
+
+    if (selItems_ != origSelItems) {
+        emit selectionChanged();
+        repaintNeeded_ = true;
+    }
 }
 
 // Handles a key press event for an item in the process of being completed.
@@ -733,7 +590,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
 
 void EditItemManager::keyRelease(QKeyEvent *event)
 {
-    if (incompleteItem_) {
+    if (hasIncompleteItem()) {
         incompleteKeyRelease(event);
         return;
     }
@@ -786,7 +643,7 @@ void EditItemManager::plot(bool under, bool over)
                 modes |= EditItemBase::Hovered;
             if (item->property("visible", true).toBool()) {
                 setFromLatLonPoints(item, item->getLatLonPoints());
-                Editing(item)->draw(modes, false);
+                Editing(item)->draw(modes, false, Style::StyleEditor::instance()->isVisible());
             }
         }
         if (incompleteItem_) { // note that only complete items may be selected
@@ -913,7 +770,8 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   a[Cut] = cutAction;
   a[Copy] = copyAction;
   a[Paste] = pasteAction;
-  a[Edit] = editAction;
+  a[EditProperties] = editPropertiesAction;
+  a[EditStyle] = editStyleAction;
   a[Load] = loadAction;
   a[Save] = saveAction;
   a[Undo] = undoAction;
@@ -924,9 +782,20 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   return a;
 }
 
-void EditItemManager::editItems()
+void EditItemManager::editProperties()
 {
-    editItemProperties(getSelectedItems());
+  // NOTE: we only support editing properties for one item at a time for now
+  Q_ASSERT(getSelectedItems().size() == 1);
+  DrawingItemBase *item = *(getSelectedItems().begin());
+  if (Properties::PropertiesEditor::instance()->edit(item)) {
+    emit itemChanged(item);
+    repaint();
+  }
+}
+
+void EditItemManager::editStyle()
+{
+  Style::StyleEditor::instance()->edit(getSelectedItems());
 }
 
 void EditItemManager::loadItemsFromFile()
@@ -964,7 +833,7 @@ bool EditItemManager::loadItems(const QString &fileName)
       addItem(item, false, ++i == items.size());
     }
 
-    updateActions();
+    updateActionsAndTimes();
     return true;
 }
 
@@ -990,8 +859,12 @@ void EditItemManager::updateActions()
     cutAction->setEnabled(getSelectedItems().size() > 0);
     copyAction->setEnabled(getSelectedItems().size() > 0);
     pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
-    editAction->setEnabled(getSelectedItems().size() > 0);
+    editPropertiesAction->setEnabled(getSelectedItems().size() == 1);
+    editStyleAction->setEnabled(getSelectedItems().size() > 0);
+}
 
+void EditItemManager::updateTimes()
+{
     // Let other components know about any changes to item times.
     emit timesUpdated();
 
@@ -999,6 +872,12 @@ void EditItemManager::updateActions()
     miutil::miTime time;
     PLOTM->getPlotTime(time);
     prepare(time);
+}
+
+void EditItemManager::updateActionsAndTimes()
+{
+  updateActions();
+  updateTimes();
 }
 
 // Clipboard operations
@@ -1024,7 +903,7 @@ void EditItemManager::copyItems(const QSet<DrawingItemBase *> &items)
   data->setData("text/plain", text.toUtf8());
 
   QApplication::clipboard()->setMimeData(data);
-  updateActions();
+  updateActionsAndTimes();
 }
 
 void EditItemManager::copySelectedItems()
@@ -1039,7 +918,7 @@ void EditItemManager::cutSelectedItems()
   foreach (DrawingItemBase* item, items)
     removeItem(item);
 
-  updateActions();
+  updateActionsAndTimes();
 }
 
 void EditItemManager::pasteItems()
@@ -1063,7 +942,7 @@ void EditItemManager::pasteItems()
     }
   }
 
-  updateActions();
+  updateActionsAndTimes();
 }
 
 void EditItemManager::setSelectMode()
@@ -1082,6 +961,11 @@ void EditItemManager::setCreateSymbolMode()
 {
   mode_ = CreateSymbolMode;
   qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
+}
+
+void EditItemManager::handleSelectionChange()
+{
+  updateActions();
 }
 
 // Manager API
@@ -1112,52 +996,64 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
   if (event->type() == QEvent::MouseButtonPress) {
+    if ((me2.button() == Qt::RightButton) && !hasIncompleteItem()) {
+      // open a context menu
 
-    if ((me2.button() == Qt::RightButton)
-        && (findHitItems(me2.pos()).size() == 0)
-        && !hasIncompleteItem()) {
-      // Handle the event via a global context menu only; don't delegate to items via edit item manager.
+      // get actions contributed by a hit item (if any)
+      const QSet<DrawingItemBase *> hitItems = findHitItems(me2.pos());
+      DrawingItemBase *hitItem = // consider only this item to be hit
+          hitItems.empty()
+          ? 0
+          : *(hitItems.begin()); // for now; eventually use the one with higher z-value etc. ... 2 B DONE
+      QList<QAction *> hitItemActions;
+      if (hitItem) {
+        selectItem(hitItem);
+        emit repaintNeeded();
+        hitItemActions = Editing(hitItem)->actions(me2.pos());
+      }
+
+      // populate the menu
       QMenu contextMenu;
       contextMenu.addAction(cutAction);
       contextMenu.addAction(copyAction);
       contextMenu.addAction(pasteAction);
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
       contextMenu.addSeparator();
-      contextMenu.addAction(editAction);
-      editAction->setEnabled(getSelectedItems().size() > 0);
+      contextMenu.addAction(editPropertiesAction);
+      editPropertiesAction->setEnabled(getSelectedItems().size() == 1);
+      contextMenu.addAction(editStyleAction);
+      editStyleAction->setEnabled(getSelectedItems().size() > 0);
       contextMenu.addSeparator();
       contextMenu.addAction(loadAction);
       contextMenu.addAction(saveAction);
       saveAction->setEnabled(getSelectedItems().size() > 0);
+      if (!hitItemActions.isEmpty()) {
+        contextMenu.addSeparator();
+        foreach (QAction *action, hitItemActions)
+          contextMenu.addAction(action);
+      }
 
-      // Simply execute the menu since all of the actions are connected to slots.
+      // execute the menu (assuming all its actions are connected to slots)
       if (!contextMenu.isEmpty())
         contextMenu.exec(me2.globalPos());
 
     } else {
 
-      if (!hasIncompleteItem()) {
+      // create a new item if necessary
+      if ((me2.button() == Qt::LeftButton) && !hasIncompleteItem()) {
         if (mode_ == CreatePolyLineMode)
           addItem(Drawing(new EditItem_PolyLine::PolyLine()), true);
         else if (mode_ == CreateSymbolMode)
           addItem(Drawing(new EditItem_Symbol::Symbol()), true);
       }
 
-      QSet<DrawingItemBase *> itemsToCopy; // items to be copied
-      QSet<DrawingItemBase *> itemsToEdit; // items to be edited
-      mousePress(&me2, &itemsToCopy, &itemsToEdit);
-
-      if (itemsToCopy.size() > 0) {
-        copyItems(itemsToCopy);
-      } else if (itemsToEdit.size() > 0) {
-        editItemProperties(itemsToEdit);
-      }
+      // process the event further (delegating it to relevant items etc.)
+      mousePress(&me2);
     }
     event->setAccepted(true);
-
   } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
-    event->setAccepted(false);
+    event->setAccepted(false); // ### WHAT DOES THIS MEAN? WHY NOT SET TO true IN OTHER CASES???
   }
 
   else if (event->type() == QEvent::MouseButtonRelease) {
@@ -1174,7 +1070,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   res.action = canUndo() ? objects_changed : no_action;
 
   if (event->type() != QEvent::MouseMove)
-    updateActions();
+    updateActionsAndTimes();
 }
 
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
@@ -1191,8 +1087,8 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       copySelectedItems();
     else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       pasteItems();
-    else if (editAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      editItems();
+    else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
+      editProperties();
     else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       loadItemsFromFile();
     else if (saveAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
@@ -1208,7 +1104,7 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
   keyPress(event);
 
-  updateActions();
+  updateActionsAndTimes();
 }
 
 // Command classes

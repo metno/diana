@@ -66,7 +66,6 @@ public:
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<DrawingItemBase *> *itemsToCopy = 0, QSet<DrawingItemBase *> *itemsToEdit = 0,
         QSet<DrawingItemBase *> *items = 0, const QSet<DrawingItemBase *> *selItems = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
@@ -91,11 +90,14 @@ public:
     virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
     virtual void incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded);
 
-    void draw(DrawModes, bool);
+    void draw(DrawModes, bool, bool = false);
     void draw();
 
     QVariantMap clipboardVarMap() const;
     QString clipboardPlainText() const;
+
+    // Returns actions that are applicable to this item at screen position \a pos. Examples include adding or deleting control points.
+    virtual QList<QAction *> actions(const QPoint &pos) const;
 
 protected:
     EditItemBase();

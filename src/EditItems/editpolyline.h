@@ -50,9 +50,7 @@ private:
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 
-    virtual void mousePress(
-        QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, QSet<DrawingItemBase *> *,
-        QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
+    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
@@ -67,15 +65,23 @@ private:
     virtual void updateControlPoints();
     virtual void setPoints(const QList<QPointF> &);
 
-    void addPoint(bool &repaintNeeded, int index, const QPointF &point);
-    void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
-    void removePoint(bool &repaintNeeded, int index, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
-
     static qreal dist2(const QPointF &, const QPointF &);
     static qreal distance2(const QPointF &, const QPointF &, const QPointF &);
     qreal distance(const QPointF &) const;
 
     int hitLine(const QPointF &) const;
+
+    virtual QList<QAction *> actions(const QPoint &) const;
+
+    QAction *addPoint_act_;
+    QAction *removePoint_act_;
+    mutable int hitPointIndex_;
+    mutable int hitLineIndex_;
+    mutable QPoint hitLinePos_;
+
+private slots:
+    void addPoint();
+    void removePoint();
 };
 
 } // namespace EditItem_PolyLine

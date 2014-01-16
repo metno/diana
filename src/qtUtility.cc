@@ -174,7 +174,7 @@ static void ExpandColourBox(QComboBox* box, const QColor& pixcolor, const QStrin
   QPixmap pmap(20, 20);
   pmap.fill(pixcolor);
   QIcon qicon(pmap);
-  box->addItem(qicon, name);
+  box->addItem(qicon, name, pixcolor);
 }
 
 QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
@@ -340,7 +340,7 @@ QComboBox* LinewidthBox(QWidget* parent, bool Enabled, int nr_linewidths, int de
 
   for( int i=0; i < nr_linewidths; i++){
     std::auto_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
-    box->addItem(*pmapLinewidth, QString("  %1").arg(i+1));
+    box->addItem(*pmapLinewidth, QString("  %1").arg(i+1), i + 1);
   }
   box->setEnabled(Enabled);
 
@@ -354,7 +354,7 @@ void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
   for (int i=current_nr_linewidths; i < new_nr_linewidths; i++) {
     std::auto_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
     QString label = QString("  %1").arg(i+1);
-    box->addItem(*pmapLinewidth, label);
+    box->addItem(*pmapLinewidth, label, i + 1);
   }
 }
 

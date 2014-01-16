@@ -112,7 +112,6 @@ void EditItemBase::drawControlPoints() const
 void EditItemBase::drawHoveredControlPoint() const
 {
   Q_ASSERT(hoveredCtrlPointIndex_ >= 0);
-
   const QRectF *r = &controlPoints_.at(hoveredCtrlPointIndex_);
   glPushAttrib(GL_LINE_BIT);
   glLineWidth(2);
@@ -129,15 +128,16 @@ void EditItemBase::drawHoveredControlPoint() const
 // Draws the item.
 // \a modes indicates whether the item is selected, hovered, both, or neither.
 // \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
-void EditItemBase::draw(DrawModes modes, bool incomplete)
+// \a editingStyle is true iff the item's style is currently being edited.
+void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
 {
   if (incomplete)
     drawIncomplete();
 
   Drawing(this)->draw();
 
-  // draw highlighting if hovered
-  if (modes & Hovered)
+  // draw highlighting if hovered, unless we're editing the style (since then the highlighting would be in the way)
+  if ((modes & Hovered) && !editingStyle)
     drawHoverHighlighting(incomplete);
 
   // draw control points if selected
@@ -165,12 +165,6 @@ void EditItemBase::draw()
  * NOTE: commands must not be removed from this container (it may contain commands from other
  * items as well).
  *
- * If \a itemsToCopy is non-null, then items that should be copied (typically to the clipboard)
- * as a result of the event should be inserted into \a itemsToCopy.
- *
- * If \a itemsToEdit is non-null, then items that should be edited as a result of the event should
- * be inserted into \a itemsToEdit.
- *
  * \a items is, if non-null, a set of items that may potentially be operated on by the event
  * (always including this item).
  * Items may be inserted into or removed from this container to reflect how items were inserted or
@@ -185,14 +179,11 @@ void EditItemBase::draw()
  */
 void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *itemsToCopy, QSet<DrawingItemBase *> *itemsToEdit,
     QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
     Q_UNUSED(undoCommands)
-    Q_UNUSED(itemsToCopy)
-    Q_UNUSED(itemsToEdit)
     Q_UNUSED(items)
     Q_UNUSED(selItems)
     Q_UNUSED(multiItemOp)
@@ -343,4 +334,9 @@ QString EditItemBase::clipboardPlainText() const
   foreach (QPointF p, DrawingManager::instance()->PhysToGeo(ConstDrawing(this)->getPoints()))
     s.append(QString("(%1, %2) ").arg(p.x()).arg(p.y()));
   return s;
+}
+
+QList<QAction *> EditItemBase::actions(const QPoint &) const
+{
+  return QList<QAction *>();
 }

@@ -146,6 +146,8 @@ diana_qt_sources = \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
+	EditItems/properties.cc \
+	EditItems/style.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -251,6 +253,8 @@ noinst_HEADERS = \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \
 	EditItems/kml.h \
+	EditItems/properties.h \
+	EditItems/style.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \
