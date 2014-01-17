@@ -568,7 +568,7 @@ void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
-  QVariantMap style = useStyle(item);
+  QVariantMap style = getStyle(item);
 
   QString linePattern = style.value("linepattern").toString();
   if (linePattern == "dashed") {
@@ -593,7 +593,7 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
-  QVariantMap style = useStyle(item);
+  QVariantMap style = getStyle(item);
 
   QColor fillColour = style.value("fillcolour").value<QColor>();
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
@@ -642,7 +642,12 @@ QVariantMap DrawingStyleManager::getStyle(const QString &name) const
   return styles.value(name);
 }
 
-QVariantMap DrawingStyleManager::useStyle(DrawingItemBase *item) const
+QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
+{
+  return getStyle(const_cast<const DrawingItemBase *>(item));
+}
+
+QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
   // Find the polygon style to use, if one exists.
   QString typeName = item->property("style:type").toString();
@@ -659,26 +664,29 @@ QVariantMap DrawingStyleManager::useStyle(DrawingItemBase *item) const
     return styles.value(typeName);
 }
 
-void DrawingStyleManager::drawLoop(DrawingItemBase *item, const QList<QPointF> &points) const
+void DrawingStyleManager::drawLoop(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
 {
-  QVariantMap style = useStyle(item);
+  QVariantMap style = getStyle(item);
+
+  glBegin(GL_LINE_LOOP);
 
   if (style.value("linesmooth").toBool()) {
-    foreach (QPointF p, interpolate(points))
+    foreach (QPointF p, interpolateToPoints(points))
       glVertex2i(p.x(), p.y());
   } else {
     foreach (QPointF p, points)
       glVertex2i(p.x(), p.y());
   }
+  glEnd(); // GL_LINE_LOOP
 }
 
-void DrawingStyleManager::fillLoop(DrawingItemBase *item, const QList<QPointF> &points_) const
+void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points_) const
 {
-  QVariantMap style = useStyle(item);
+  QVariantMap style = getStyle(item);
 
   QList<QPointF> points;
   if (style.value("linesmooth").toBool())
-    points = interpolate(points_);
+    points = interpolateToPoints(points_);
   else
     points = points_;
 
@@ -700,11 +708,19 @@ void DrawingStyleManager::fillLoop(DrawingItemBase *item, const QList<QPointF> &
   delete[] gldata;
 }
 
-QList<QPointF> DrawingStyleManager::interpolate(const QList<QPointF> &points)
+const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &points)
 {
   int size = points.size();
-  if (size < 2)
-    return points;
+  if (size <= 2) {
+    QPainterPath path;
+    if (size == 0)
+      return path;
+    path.moveTo(points.at(0));
+    if (size == 1)
+      return path;
+    path.lineTo(points.at(1));
+    return path;
+  }
 
   QList<QPointF> new_points;
 
@@ -741,7 +757,13 @@ QList<QPointF> DrawingStyleManager::interpolate(const QList<QPointF> &points)
   for (int i = 0; i < size; ++i)
     path.cubicTo(new_points.at(i*2), new_points.at((i*2)+1), points.at((i+1) % size));
 
-  new_points.clear();
+  return path;
+}
+
+const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPointF> &points)
+{
+  QList<QPointF> new_points;
+  QPainterPath path = interpolateToPath(points);
 
   foreach (QPolygonF polygon, path.toSubpathPolygons())
     new_points << polygon.toList();

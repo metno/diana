@@ -52,19 +52,13 @@ void PolyLine::draw()
 
   // Use the fill colour defined in the style.
   styleManager->beginFill(this);
-
   styleManager->fillLoop(this, points_);
-
   styleManager->endFill(this);
 
   // Draw the outline using the border colour and line pattern defined in
   // the style.
   styleManager->beginLine(this);
-  glBegin(GL_LINE_LOOP);
-
   styleManager->drawLoop(this, points_);
-
-  glEnd(); // GL_LINE_LOOP
   styleManager->endLine(this);
 }
 

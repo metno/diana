@@ -35,6 +35,7 @@
 #include <QDomDocument>
 #include <QFileDialog>
 #include <diTesselation.h>
+#include "diDrawingManager.h"
 
 namespace EditItem_PolyLine {
 
@@ -63,8 +64,17 @@ bool PolyLine::hit(const QPointF &pos, bool selected) const
     const qreal proximityTolerance = 3.0;
     const bool hitEdge = (points_.size() >= 2) && (distance(pos) < proximityTolerance);
     const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
-    const QPolygonF polygon(points_.toVector());
-    const bool hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
+    bool hitInterior;
+
+    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+    const QVariantMap style = styleManager->getStyle(this);
+    if (style.value("linesmooth").toBool()) {
+        const QPainterPath path = styleManager->interpolateToPath(points_);
+        hitInterior = path.contains(pos);
+    } else {
+        const QPolygonF polygon(points_.toVector());
+        hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
+    }
     return hitEdge || hitSelectedControlPoint || hitInterior;
 }
 
@@ -271,15 +281,14 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
   if (hoveredCtrlPointIndex_ >= 0) {
     EditItemBase::drawHoveredControlPoint();
   } else {
+    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+
     // highlight the polyline
     glPushAttrib(GL_LINE_BIT);
     bool ok = false;
     const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
     glLineWidth(ok ? lineWidth : 2);
-    glBegin(GL_LINE_LOOP);
-    foreach (QPointF p, points_)
-      glVertex3i(p.x(), p.y(), 1);
-    glEnd();
+    styleManager->drawLoop(this, points_, 1);
     glPopAttrib();
   }
 }

@@ -80,13 +80,15 @@ public:
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
 
-  void drawLoop(DrawingItemBase *item, const QList<QPointF> &points) const;
-  void fillLoop(DrawingItemBase *item, const QList<QPointF> &points) const;
+  void drawLoop(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
+  void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
 
-  static QList<QPointF> interpolate(const QList<QPointF> &points);
+  static const QPainterPath interpolateToPath(const QList<QPointF> &points);
+  static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points);
 
   bool contains(const QString &name) const;
-  QVariantMap useStyle(DrawingItemBase *item) const;
+  QVariantMap getStyle(DrawingItemBase *item) const;
+  QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const QString &name) const;
 
   static DrawingStyleManager *instance();
