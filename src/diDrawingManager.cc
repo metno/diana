@@ -140,7 +140,7 @@ bool DrawingManager::parseSetup()
       }
     } else if (items.contains("type")) {
       // Read-only style definitions
-      styleManager.parse(items);
+      styleManager.addStyle(items);
     }
   }
 
@@ -149,7 +149,7 @@ bool DrawingManager::parseSetup()
     QHash<QString, QString> items;
     items["type"] = "Default";
     items["linesmooth"] = "false";
-    styleManager.parse(items);
+    styleManager.addStyle(items);
   }
 
   return true;
@@ -527,12 +527,9 @@ DrawingStyleManager *DrawingStyleManager::instance()
   return DrawingStyleManager::self;
 }
 
-void DrawingStyleManager::parse(const QHash<QString, QString> &definition)
+QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition) const
 {
   QVariantMap style;
-
-  // Parse the definition and set the private members.
-  QString typeName = definition.value("type");
 
   QString lineColour = definition.value("linecolour", "black");
   if (lineColour.startsWith("@")) {
@@ -558,37 +555,51 @@ void DrawingStyleManager::parse(const QHash<QString, QString> &definition)
 
   style["fillpattern"] = definition.value("fillpattern");
 
-  styles[typeName] = style;
+  return style;
 }
 
-void DrawingStyleManager::beginLine(const QString &name)
+void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
 {
-  QString linePattern = styles.value(name).value("linepattern").toString();
+  // Parse the definition and set the private members.
+  QString typeName = definition.value("type");
+
+  styles[typeName] = parse(definition);
+}
+
+void DrawingStyleManager::beginLine(DrawingItemBase *item)
+{
+  QVariantMap style = useStyle(item);
+
+  QString linePattern = style.value("linepattern").toString();
   if (linePattern == "dashed") {
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(2, 0xf0f0);
   }
 
-  float lineWidth = styles.value(name).value("linewidth").toFloat();
+  float lineWidth = style.value("linewidth").toFloat();
   glLineWidth(lineWidth);
 
-  QColor borderColour = styles.value(name).value("linecolour").value<QColor>();
+  QColor borderColour = style.value("linecolour").value<QColor>();
   glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
 }
 
-void DrawingStyleManager::endLine(const QString &name)
+void DrawingStyleManager::endLine(DrawingItemBase *item)
 {
+  Q_UNUSED(item)
+
   if (glIsEnabled(GL_LINE_STIPPLE))
     glDisable(GL_LINE_STIPPLE);
 }
 
-void DrawingStyleManager::beginFill(const QString &name)
+void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
-  QColor fillColour = styles.value(name).value("fillcolour").value<QColor>();
+  QVariantMap style = useStyle(item);
+
+  QColor fillColour = style.value("fillcolour").value<QColor>();
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(),
              fillColour.alpha());
 
-  QString fillPattern = styles.value(name).value("fillpattern").toString();
+  QString fillPattern = style.value("fillpattern").toString();
 
   if (!fillPattern.isEmpty()) {
     const GLubyte *fillPatternData = 0;
@@ -613,8 +624,10 @@ void DrawingStyleManager::beginFill(const QString &name)
   }
 }
 
-void DrawingStyleManager::endFill(const QString &name)
+void DrawingStyleManager::endFill(DrawingItemBase *item)
 {
+  Q_UNUSED(item)
+
   if (glIsEnabled(GL_POLYGON_STIPPLE))
     glDisable(GL_POLYGON_STIPPLE);
 }
@@ -624,14 +637,33 @@ bool DrawingStyleManager::contains(const QString &name) const
   return styles.contains(name);
 }
 
-QVariantMap DrawingStyleManager::properties(const QString &name) const
+QVariantMap DrawingStyleManager::getStyle(const QString &name) const
 {
   return styles.value(name);
 }
 
-void DrawingStyleManager::drawLoop(const QString &name, const QList<QPointF> &points) const
+QVariantMap DrawingStyleManager::useStyle(DrawingItemBase *item) const
 {
-  if (styles.value(name).value("linesmooth").toBool()) {
+  // Find the polygon style to use, if one exists.
+  QString typeName = item->property("style:type").toString();
+
+  // If the style is a custom style then use the properties stored in the item itself.
+  if (typeName == "Custom") {
+    QHash<QString, QString> styleProperties;
+    foreach (QString key, item->propertiesRef().keys()) {
+      if (key.startsWith("style:"))
+        styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
+    }
+    return parse(styleProperties);
+  } else
+    return styles.value(typeName);
+}
+
+void DrawingStyleManager::drawLoop(DrawingItemBase *item, const QList<QPointF> &points) const
+{
+  QVariantMap style = useStyle(item);
+
+  if (style.value("linesmooth").toBool()) {
     foreach (QPointF p, interpolate(points))
       glVertex2i(p.x(), p.y());
   } else {
@@ -640,10 +672,12 @@ void DrawingStyleManager::drawLoop(const QString &name, const QList<QPointF> &po
   }
 }
 
-void DrawingStyleManager::fillLoop(const QString &name, const QList<QPointF> &points_) const
+void DrawingStyleManager::fillLoop(DrawingItemBase *item, const QList<QPointF> &points_) const
 {
+  QVariantMap style = useStyle(item);
+
   QList<QPointF> points;
-  if (styles.value(name).value("linesmooth").toBool())
+  if (style.value("linesmooth").toBool())
     points = interpolate(points_);
   else
     points = points_;

@@ -177,13 +177,14 @@ std::vector<std::string> DrawingDialog::getOKString()
     // Add any style information to the string.
     QVariantMap properties = item->propertiesRef();
     QString typeName = properties.value("style:type").toString();
-    if (typeName.isEmpty()) {
+    if (!DrawingStyleManager::instance()->contains(typeName)) {
       foreach (QString key, properties.keys()) {
-        if (key.startsWith("style:"))
-          line += " " + key + "=\"" + properties.value(key).toString() + "\"";
+        if (key.startsWith("style:") && key != "style:type")
+          line += " " + key + "=" + properties.value(key).toString();
       }
-    } else
-      line += " style:type=\"" + typeName + "\"";
+    }
+
+    line += " style:type=\"" + typeName + "\"";
 
     lines.push_back(line.toStdString());
   }
@@ -194,7 +195,8 @@ std::vector<std::string> DrawingDialog::getOKString()
 void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 {
   // If the current drawing has not been produced, ignore any plot commands
-  // that are sent to the dialog.
+  // that are sent to the dialog. This blocks any strings that are sent
+  // while the drawing dialog is open.
   if (!editm->isEnabled())
     return;
 

@@ -30,6 +30,7 @@
 */
 
 #include "drawingitembase.h"
+#include "diDrawingManager.h"
 
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
@@ -96,8 +97,30 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
     QVariantList points = properties.value("points").toList();
     points_.clear();
     latLonPoints_.clear();
-    foreach (QVariant v, points) {
+    foreach (QVariant v, points)
       latLonPoints_.append(v.toPointF());
+  }
+
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  QString styleType = properties_.value("style:type").toString();
+
+  if (styleType.isEmpty())
+    styleType = "Default";
+
+  if (styleType != "Custom" && !styleManager->contains(styleType))
+      styleType = "Default";
+
+  // Update the type name in the item's properties.
+  properties_["style:type"] = styleType;
+
+  // If the style is a custom style then update the properties using the
+  // Default style as a template.
+  if (styleType == "Custom") {
+    QVariantMap style = styleManager->getStyle("Default");
+    foreach (QString key, style.keys()) {
+      if (!properties_.contains("style:" + key)) {
+        properties_["style:" + key] = style.value(key);
+      }
     }
   }
 }

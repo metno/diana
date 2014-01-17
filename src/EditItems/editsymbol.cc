@@ -45,7 +45,7 @@ Symbol::Symbol()
     updateControlPoints();
 
     // ### FOR TESTING:
-    propertiesRef().insert("style:type", "custom");
+    propertiesRef().insert("style:type", "Custom");
 }
 
 Symbol::~Symbol()

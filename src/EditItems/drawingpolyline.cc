@@ -37,16 +37,6 @@ namespace DrawingItem_PolyLine {
 
 PolyLine::PolyLine()
 { 
-#if 0
-  propertiesRef().insert("style:type", "custom");
-  propertiesRef().insert("style:lineType", QVariant());
-  static int nn = 0;
-  if (nn++ % 2)
-    propertiesRef().insert("style:lineWidth", 2);
-  else
-    propertiesRef().insert("style:lineWidth", 1);
-  propertiesRef().insert("style:lineColor", QColor(0, 0, 0));
-#endif
 }
 
 PolyLine::~PolyLine()
@@ -58,26 +48,24 @@ void PolyLine::draw()
   if (points_.isEmpty())
     return;
 
-  // Find the polygon style to use, if one exists.
-  QString style = property("style:type").toString();
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
   // Use the fill colour defined in the style.
-  styleManager->beginFill(style);
+  styleManager->beginFill(this);
 
-  styleManager->fillLoop(style, points_);
+  styleManager->fillLoop(this, points_);
 
-  styleManager->endFill(style);
+  styleManager->endFill(this);
 
   // Draw the outline using the border colour and line pattern defined in
   // the style.
-  styleManager->beginLine(style);
+  styleManager->beginLine(this);
   glBegin(GL_LINE_LOOP);
 
-  styleManager->drawLoop(style, points_);
+  styleManager->drawLoop(this, points_);
 
   glEnd(); // GL_LINE_LOOP
-  styleManager->endLine(style);
+  styleManager->endLine(this);
 }
 
 QDomNode PolyLine::toKML() const

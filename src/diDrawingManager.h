@@ -73,24 +73,27 @@ class DrawingStyleManager
 public:
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
-  void parse(const QHash<QString, QString> &definition);
+  void addStyle(const QHash<QString, QString> &definition);
 
-  void beginLine(const QString &name);
-  void endLine(const QString &name);
-  void beginFill(const QString &name);
-  void endFill(const QString &name);
+  void beginLine(DrawingItemBase *item);
+  void endLine(DrawingItemBase *item);
+  void beginFill(DrawingItemBase *item);
+  void endFill(DrawingItemBase *item);
 
-  void drawLoop(const QString &name, const QList<QPointF> &points) const;
-  void fillLoop(const QString &name, const QList<QPointF> &points) const;
+  void drawLoop(DrawingItemBase *item, const QList<QPointF> &points) const;
+  void fillLoop(DrawingItemBase *item, const QList<QPointF> &points) const;
 
   static QList<QPointF> interpolate(const QList<QPointF> &points);
 
   bool contains(const QString &name) const;
-  QVariantMap properties(const QString &name) const;
+  QVariantMap useStyle(DrawingItemBase *item) const;
+  QVariantMap getStyle(const QString &name) const;
 
   static DrawingStyleManager *instance();
 
 private:
+  QVariantMap parse(const QHash<QString, QString> &definition) const;
+
   QHash<QString, QVariantMap> styles;
   static DrawingStyleManager *self;  // singleton instance pointer
 };
@@ -154,20 +157,8 @@ public:
       return 0;
     }
 
-    QVariantMap newMap = vmap;
-    QString typeName = vmap.value("style:type").toString();
-
-    if (typeName.isEmpty())
-      typeName = "Default";
-    else if (typeName != "Custom" && !styleManager.contains(typeName))
-      typeName = "Custom";
-
-    // Update the type name in the item's properties.
-    newMap["style:type"] = typeName;
-
-    item->setProperties(newMap);
+    item->setProperties(vmap);
     setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
-
     return item;
   }
 
