@@ -45,6 +45,7 @@
 #include <QHash>
 #include <QList>
 #include <QObject>
+#include <QPainterPath>
 #include <QPointF>
 #include <QSet>
 #include <QString>
