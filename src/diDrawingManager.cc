@@ -181,17 +181,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
     for (it = pieces.begin(); it != pieces.end(); ++it) {
 
-      // Split each word into a key=value pair.
-      vector<string> wordPieces = miutil::split_protected(*it, '"', '"', "=");
-      if (wordPieces.size() == 0 || wordPieces.size() > 2)
+      QString key, value;
+      if (!parseKeyValue(*it, key, value))
         continue;
-      else if (wordPieces.size() == 1)
-        wordPieces.push_back("");
-
-      QString key = QString::fromStdString(wordPieces[0]);
-      QString value = QString::fromStdString(wordPieces[1]);
-      if (value.startsWith('"') && value.endsWith('"') && value.size() >= 2)
-        value = value.mid(1, value.size() - 2);
 
       if (key == "file") {
         // Read the specified file, skipping to the next line if successful,
@@ -200,34 +192,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
           break;
         else
           return false;
-      } else if (key == "type") {
-        properties["type"] = value;
-      } else if (key == "time") {
-        properties["time"] = QDateTime::fromString(value, "yyyy-MM-ddThh:mm:ss");
-      } else if (key == "group") {
-        properties["groupId"] = value.toInt();
-      } else if (key == "points") {
-        QStringList pieces = value.split(":");
-        foreach (QString piece, pieces) {
-          QStringList coordinates = piece.split(",");
-          if (coordinates.size() != 2)
-            METLIBS_LOG_WARN("Invalid point in coordinate list for object: " << piece.toStdString());
-          else
-            points.append(QPointF(coordinates[0].toDouble(), coordinates[1].toDouble()));
-        }
-        properties["points"] = points;
-      } else if (key.startsWith("style:")) {
-        properties[key] = value;
       }
-    }
-
-    if (!points.isEmpty()) {
-      QString error;
-      DrawingItemBase *item = createItemFromVarMap(properties, &error);
-      if (item) {
-        addItem_(item);
-      } else
-        METLIBS_LOG_WARN(error.toStdString());
     }
   }
 

@@ -62,8 +62,6 @@ protected:
   void keyPressEvent(QKeyEvent *);
 
 private slots:
-  void addItem(DrawingItemBase *item);
-  void removeItem(DrawingItemBase *item);
   void chooseDrawing();
   void selectDrawing(const QItemSelection& current);
   void updateModel();
@@ -78,9 +76,7 @@ private:
   /// Records the items being edited in ID order for serialisation.
   QMap<int, DrawingItemBase *> itemMap;
   /// Records which items belong to each file.
-  QHash<QString, QSet<int> > fileMap;
-  /// The current file being loaded.
-  QString currentFile;
+  QStringList loaded;
 
   /// Lists of available drawings and those chosen for display/editing.
   QListView *drawingList;

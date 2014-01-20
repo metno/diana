@@ -61,8 +61,6 @@ public:
     EditItemManager();
     virtual ~EditItemManager();
 
-    bool processInput(const std::vector<std::string>& inp);
-
     /// Registers a new item with the manager.
     /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
     void addItem(DrawingItemBase *item, bool incomplete = false, bool skipRepaint = false);

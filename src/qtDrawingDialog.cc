@@ -95,8 +95,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(selectDrawing(const QItemSelection &)));
 
-  connect(editm, SIGNAL(itemAdded(DrawingItemBase*)), SLOT(addItem(DrawingItemBase*)));
-  connect(editm, SIGNAL(itemRemoved(DrawingItemBase*)), SLOT(removeItem(DrawingItemBase*)));
   connect(DrawingManager::instance(), SIGNAL(timesUpdated()), SLOT(updateTimes()));
 
   editButton = new QToolButton();
@@ -159,33 +157,8 @@ std::vector<std::string> DrawingDialog::getOKString()
   if (!editm->isEnabled())
     return lines;
 
-  QMap<int, DrawingItemBase *>::const_iterator it;
-  for (it = itemMap.begin(); it != itemMap.end(); ++it) {
-
-    DrawingItemBase *item = it.value();
-
-    QString type = shortClassName(Editing(item)->metaObject()->className());
-    int group = item->groupId();
-    QString time = item->property("time", "").toString();
-    QStringList points;
-    foreach (QPointF p, item->getLatLonPoints())
-      points.append(QString("%1,%2").arg(p.x()).arg(p.y()));
-
-    QString line = QString("DRAWING type=%1 group=%2 time=%3 points=%4").arg(type)
-        .arg(group).arg(time).arg(points.join(":"));
-
-    // Add any style information to the string.
-    QVariantMap properties = item->propertiesRef();
-    QString typeName = properties.value("style:type").toString();
-    if (!DrawingStyleManager::instance()->contains(typeName)) {
-      foreach (QString key, properties.keys()) {
-        if (key.startsWith("style:") && key != "style:type")
-          line += " " + key + "=" + properties.value(key).toString();
-      }
-    }
-
-    line += " style:type=\"" + typeName + "\"";
-
+  foreach (QString filePath, loaded) {
+    QString line = "DRAWING file=\"" + filePath + "\"";
     lines.push_back(line.toStdString());
   }
 
@@ -224,21 +197,6 @@ void DrawingDialog::toggleEditingMode(bool enable)
   }
 
   editm->setEditing(enable);
-}
-
-void DrawingDialog::addItem(DrawingItemBase *item)
-{
-  itemMap[item->id()] = item;
-  fileMap[currentFile].insert(item->id());
-  item->setProperty("file", currentFile);
-}
-
-void DrawingDialog::removeItem(DrawingItemBase *item)
-{
-  itemMap.remove(item->id());
-  QString file = item->property("file").toString();
-  if (fileMap.contains(file))
-    fileMap[file].remove(item->id());
 }
 
 /**
@@ -316,38 +274,24 @@ void DrawingDialog::loadChosenFiles()
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  QSet<QString> loaded;
+  QSet<QString> wasLoaded = loaded.toSet();
+  loaded.clear();
+
   for (int row = 0; row < chosenDrawingModel.rowCount(); ++row) {
 
     QModelIndex index = chosenDrawingModel.index(row, 0);
     QString filePath = index.data(Qt::UserRole).toString();
 
-    if (fileMap.contains(filePath)) {
-      // Note that the file has already been loaded.
-      loaded.insert(filePath);
+    if (wasLoaded.contains(filePath)) {
+      loaded.append(filePath);
     } else {
-      // If the file has not been loaded then load it.
-      currentFile = filePath;
-
-      if (editm->loadItems(filePath)) {
-        loaded.insert(filePath);
-      } else {
+      if (editm->loadItems(filePath))
+        loaded.append(filePath);
+      else {
         // Disable the item to indicate that it is not loaded.
         QStandardItem *item = chosenDrawingModel.itemFromIndex(index);
         item->setEnabled(false);
       }
-    }
-  }
-  currentFile = QString();
-
-  // Remove any items from files that are no longer in the chosen list.
-  foreach (QString filePath, fileMap.keys()) {
-    if (!filePath.isEmpty() && !loaded.contains(filePath)) {
-      foreach (int id, fileMap[filePath]) {
-        DrawingItemBase *item = itemMap[id];
-        editm->removeItem(item);
-      }
-      fileMap.remove(filePath);
     }
   }
 

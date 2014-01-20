@@ -191,6 +191,7 @@ private:
 
   GridConverter gc;
   QSet<QString> drawings_;
+  QHash<QString, QSet<DrawingItemBase *> > loaded;
 
   QHash<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;

@@ -152,15 +152,6 @@ QUndoView *EditItemManager::getUndoView()
     return undoView_;
 }
 
-bool EditItemManager::processInput(const std::vector<std::string>& inp)
-{
-  // Only accept input and process plot commands if we are not working on a product.
-  if (!hasWorking())
-    return DrawingManager::processInput(inp);
-
-  return true;
-}
-
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
 void EditItemManager::addItem(EditItemBase *item, bool incomplete, bool skipRepaint)
 {

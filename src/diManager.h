@@ -32,6 +32,7 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
+#include <string>
 #include <vector>
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
@@ -68,6 +69,9 @@ public:
 
 signals:
   void timesUpdated();
+
+protected:
+  virtual bool parseKeyValue(const std::string &string, QString &key, QString &value);
 
 private:
   // Whether the manager has a finished product to show.
