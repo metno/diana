@@ -82,10 +82,13 @@ public:
   void endFill(DrawingItemBase *item);
 
   void drawLoop(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
+  void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
+  void drawDecoration(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points);
+  static const QList<QPointF> significantWeather(const QList<QPointF> &points);
 
   bool contains(const QString &name) const;
   QVariantMap getStyle(DrawingItemBase *item) const;
@@ -96,6 +99,7 @@ public:
 
 private:
   QVariantMap parse(const QHash<QString, QString> &definition) const;
+  QColor parseColour(const QString &text) const;
 
   QHash<QString, QVariantMap> styles;
   static DrawingStyleManager *self;  // singleton instance pointer

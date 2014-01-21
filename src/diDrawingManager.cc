@@ -103,11 +103,12 @@ bool DrawingManager::parseSetup()
 
   // Store a list of file names in the internal drawing model for use by the dialog.
   vector<string> section;
+  bool failedToReadSection = false;
 
-  // Return true if there is no DRAWING section.
+  // Return true if there is no DRAWING section, but always define default styles.
   if (!SetupParser::getSection("DRAWING", section)) {
     METLIBS_LOG_WARN("No DRAWING section.");
-    return true;
+    failedToReadSection = true;
   }
 
   for (unsigned int i = 0; i < section.size(); ++i) {
@@ -149,10 +150,11 @@ bool DrawingManager::parseSetup()
     QHash<QString, QString> items;
     items["type"] = "Default";
     items["linesmooth"] = "false";
+    items["fillcolour"] = "128:128:128:50";
     styleManager.addStyle(items);
   }
 
-  return true;
+  return failedToReadSection;
 }
 
 /**
@@ -496,31 +498,35 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
 {
   QVariantMap style;
 
-  QString lineColour = definition.value("linecolour", "black");
-  if (lineColour.startsWith("@")) {
-    // Treat the string as a colour name or RGBA value.
-    lineColour.replace("@", "#");
-  }
-  style["linecolour"] = QColor(lineColour);
-
+  style["linecolour"] = parseColour(definition.value("linecolour", "black"));
   style["linewidth"] = definition.value("linewidth", "1.0").toFloat();
   style["linepattern"] = definition.value("linepattern", "solid");
   style["linesmooth"] = definition.value("linesmooth", "true") == "true";
   style["lineshape"] = definition.value("lineshape", "normal");
-
-  QString colour = definition.value("fillcolour");
-  if (colour.startsWith("@")) {
-    // Treat the string as a colour name or RGBA value.
-    colour.replace("@", "#");
-  }
-  if (colour.isEmpty())
-    style["fillcolour"] = QColor(0, 0, 0, 0);
-  else
-    style["fillcolour"] = QColor(colour);
-
+  style["fillcolour"] = parseColour(definition.value("fillcolour"));
   style["fillpattern"] = definition.value("fillpattern");
 
   return style;
+}
+
+QColor DrawingStyleManager::parseColour(const QString &text) const
+{
+  if (text.isEmpty() || text.contains(":")) {
+    // Treat the string as an RGBA value.
+    int r = 0, g = 0, b = 0, a = 0;
+    QStringList pieces = text.split(":");
+    if (pieces.size() >= 3) {
+      r = pieces.at(0).toInt();
+      g = pieces.at(1).toInt();
+      b = pieces.at(2).toInt();
+      if (pieces.size() == 4)
+        a = pieces.at(3).toInt();
+    }
+    return QColor(r, g, b, a);
+  } else {
+    // Treat the string as a colour name.
+    return QColor(text);
+  }
 }
 
 void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
@@ -634,40 +640,74 @@ void DrawingStyleManager::drawLoop(const DrawingItemBase *item, const QList<QPoi
   QVariantMap style = getStyle(item);
 
   glBegin(GL_LINE_LOOP);
+  QList<QPointF> points_;
 
-  if (style.value("linesmooth").toBool()) {
-    foreach (QPointF p, interpolateToPoints(points))
-      glVertex2i(p.x(), p.y());
-  } else {
-    foreach (QPointF p, points)
-      glVertex2i(p.x(), p.y());
-  }
+  if (style.value("linesmooth").toBool())
+    points_ = interpolateToPoints(points);
+  else
+    points_ = points;
+
+  if (style.value("lineshape").toString() == "SIGWX")
+    points_ = significantWeather(points_);
+
+  foreach (QPointF p, points_)
+    glVertex2i(p.x(), p.y());
+
   glEnd(); // GL_LINE_LOOP
 }
 
-void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points_) const
+void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
 {
   QVariantMap style = getStyle(item);
 
-  QList<QPointF> points;
+  glBegin(GL_LINE_STRIP);
+
+  QList<QPointF> points_;
+
   if (style.value("linesmooth").toBool())
-    points = interpolateToPoints(points_);
+    points_ = interpolateToPoints(points);
   else
-    points = points_;
+    points_ = points;
+
+  if (style.value("lineshape").toString() == "SIGWX")
+    points_ = significantWeather(points_);
+
+  foreach (QPointF p, points)
+    glVertex2i(p.x(), p.y());
+
+  glEnd(); // GL_LINE_STRIP
+}
+
+void DrawingStyleManager::drawDecoration(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
+{
+  QVariantMap style = getStyle(item);
+
+  // ### TODO: Draw the different kinds of front decorations.
+}
+
+void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const
+{
+  QVariantMap style = getStyle(item);
+
+  QList<QPointF> points_;
+  if (style.value("linesmooth").toBool())
+    points_ = interpolateToPoints(points);
+  else
+    points_ = points;
 
   // draw the interior
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
   glEnable( GL_BLEND );
-  GLdouble *gldata = new GLdouble[points.size() * 3];
-  for (int i = 0; i < points.size(); ++i) {
-    const QPointF p = points.at(i);
+  GLdouble *gldata = new GLdouble[points_.size() * 3];
+  for (int i = 0; i < points_.size(); ++i) {
+    const QPointF p = points_.at(i);
     gldata[3 * i] = p.x();
     gldata[3 * i + 1] = p.y();
     gldata[3 * i + 2] = 0.0;
   }
 
   beginTesselation();
-  int npoints = points.size();
+  int npoints = points_.size();
   tesselation(gldata, 1, &npoints);
   endTesselation();
   delete[] gldata;
@@ -693,28 +733,42 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
 
     int j = i - 1;
     if (j < 0) j += size;
+
+    // Take the previous, current and next points in the list.
     QVector2D previous(points.at(j));
     QVector2D p(points.at(i));
     QVector2D next(points.at((i + 1) % size));
 
+    // Calculate the vectors from the current to the previous and next points.
     QVector2D previous_v = previous - p;
     QVector2D next_v = next - p;
+
+    // Take the minimum length of the two vectors.
     qreal prev_l = previous_v.length();
     qreal next_l = next_v.length();
     qreal l = qMin(prev_l, next_l);
+
+    // Adjust the previous and next points to lie the same distance away from
+    // the current point.
     QVector2D new_previous = p + previous_v.normalized() * l;
     QVector2D new_next = p + next_v.normalized() * l;
 
+    // The line between the adjusted previous and next points is used as a
+    // tangent or gradient that we extend from the current point to position
+    // control points.
     QVector2D gradient = (new_next - new_previous).normalized();
     prev_l = qMin(QVector2D::dotProduct(p - previous, gradient), l)/4.0;
     next_l = qMin(QVector2D::dotProduct(next - p, gradient), l)/4.0;
 
+    // Construct two control points on either side of the current point.
     QVector2D p0 = p - prev_l * gradient;
     QVector2D p1 = p + next_l * gradient;
 
     new_points << p0.toPointF() << p1.toPointF();
   }
 
+  // The first control point in the list belongs to the last point, so move
+  // it to the end of the list.
   new_points.append(new_points.takeFirst());
 
   QPainterPath path;
@@ -734,4 +788,12 @@ const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPoint
     new_points << polygon.toList();
 
   return new_points;
+}
+
+const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF> &points)
+{
+  if (points.size() < 2)
+    return points;
+  else
+    return points;
 }

@@ -75,13 +75,13 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
-  QLabel *drawingListLabel = TitleLabel(tr("Drawings"), this);
+  QLabel *drawingListLabel = TitleLabel(tr("Available Products"), this);
   drawingList = new QListView();
   drawingList->setModel(&drawingModel);
   drawingList->setSelectionMode(QAbstractItemView::MultiSelection);
   drawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  QLabel *chosenDrawingListLabel = TitleLabel(tr("Chosen Drawings"), this);
+  QLabel *chosenDrawingListLabel = TitleLabel(tr("Chosen Products"), this);
   chosenDrawingList = new QListView();
   chosenDrawingList->setModel(&chosenDrawingModel);
   chosenDrawingList->setSelectionMode(QAbstractItemView::MultiSelection);
