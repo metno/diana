@@ -1,5 +1,6 @@
 usr/share/diana/@METNO_VERSION@/products
 usr/share/diana/@METNO_VERSION@/images
+usr/share/diana/@METNO_VERSION@/images/symbols
 usr/share/diana/@METNO_VERSION@/fonts
 usr/share/diana/@METNO_VERSION@/UK_lyn.header
 usr/share/diana/@METNO_VERSION@/UALF_diana.header
