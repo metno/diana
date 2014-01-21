@@ -58,6 +58,7 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QVector2D>
+#include <qmath.h>
 
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -786,10 +787,53 @@ const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPoint
   return new_points;
 }
 
+#define RADIUS 8
+#define DIAMETER 16
+#define NPOINTS 20
+
 const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF> &points)
 {
   if (points.size() < 2)
     return points;
-  else
-    return points;
+
+  qreal l = 0;
+  QList<QPointF> new_points;
+  QPointF last = points.at(0);
+  QPointF start = last;
+
+  for (int i = 1; i < points.size(); ++i) {
+
+    l += QLineF(last, points.at(i)).length();
+
+    if (l >= DIAMETER) {
+      QLineF line(start, points.at(i));
+      qreal start_angle = qAtan2(-line.dy(), -line.dx());
+      qreal finish_angle = qAtan2(line.dy(), line.dx());
+
+      while (l >= DIAMETER) {
+        QLineF r = line;
+        r.setLength(DIAMETER);
+        QPointF midpoint = (r.p1() + r.p2())/2;
+
+        qreal astep = qAbs(finish_angle - start_angle)/NPOINTS;
+
+        // Create an arc using points on the circle with the predefined radius.
+        // The direction we go around the circle is chosen to be consistent with
+        // previous behaviour.
+        for (int j = 0; j < NPOINTS; ++j)
+          new_points << midpoint + QPointF(RADIUS * qCos(start_angle - j*astep),
+                                           RADIUS * qSin(start_angle - j*astep));
+
+        // Start the next curve at the end of this one.
+        start = last = r.p2();
+        line.setP1(r.p2());
+        l -= DIAMETER;
+      }
+    } else
+      last = points.at(i);
+  }
+  if (start != last)
+    new_points << last;
+
+  return new_points;
 }
