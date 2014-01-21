@@ -103,13 +103,9 @@ bool DrawingManager::parseSetup()
 
   // Store a list of file names in the internal drawing model for use by the dialog.
   vector<string> section;
-  bool failedToReadSection = false;
 
-  // Return true if there is no DRAWING section, but always define default styles.
-  if (!SetupParser::getSection("DRAWING", section)) {
+  if (!SetupParser::getSection("DRAWING", section))
     METLIBS_LOG_WARN("No DRAWING section.");
-    failedToReadSection = true;
-  }
 
   for (unsigned int i = 0; i < section.size(); ++i) {
 
@@ -154,7 +150,7 @@ bool DrawingManager::parseSetup()
     styleManager.addStyle(items);
   }
 
-  return failedToReadSection;
+  return true;
 }
 
 /**
