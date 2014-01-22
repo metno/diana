@@ -150,6 +150,7 @@ void ObjectPlot::memberCopy(const ObjectPlot &rhs){
   rotation= rhs.rotation;
   basisColor = rhs.basisColor;
   objectColour = rhs.objectColour;
+  objectBorderColour = rhs.objectBorderColour;
   itsLinetype = rhs.itsLinetype;
   drawIndex = rhs.drawIndex;
   currentState = rhs.currentState;

@@ -36,6 +36,8 @@
 #include "qtTimeControl.h"
 #include "qtUtility.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <QSlider>
 #include <QPushButton>
 #include <QLabel>
@@ -143,7 +145,7 @@ TimeControl::TimeControl(QWidget* parent)
 
   timeoutBox= new QComboBox(this);
   for(float f=0.2; f<2.1; f+=0.1){
-    std::string text(f,2);
+	std::string text = miutil::from_number(f,2);
     timeoutBox->addItem(text.c_str());
   }
 

@@ -75,7 +75,7 @@
 using namespace std;
 
 FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
-  : QDialog(parent)
+: QDialog(parent)
 {
   METLIBS_LOG_SCOPE();
 
@@ -118,8 +118,8 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   vector<std::string> fieldNames;
   m_ctrl->getAllFieldNames(fieldNames, fieldPrefixes, fieldSuffixes);
   { std::map<std::string, std::string> sfu;
-    PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
-    setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
+  PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
+  setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
 
   //#################################################################
   //  map<std::string,std::string>::iterator pfopt, pfend= setupFieldOptions.end();
@@ -133,9 +133,9 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   patternInfo = Pattern::getAllPatternInfo();
   map<std::string, std::string> enabledOptions = PlotOptions::getEnabledOptions();
   { const std::vector< std::vector<std::string> > ptd = PlotOptions::getPlotTypes();
-    plottypes_dim.clear();
-    BOOST_FOREACH(const std::vector<std::string>& v, ptd)
-        plottypes_dim.push_back(std::vector<std::string>(v.begin(), v.end())); }
+  plottypes_dim.clear();
+  BOOST_FOREACH(const std::vector<std::string>& v, ptd)
+  plottypes_dim.push_back(std::vector<std::string>(v.begin(), v.end())); }
   if ( plottypes_dim.size() > 1 ) {
     plottypes = plottypes_dim[1];
   }
@@ -1697,7 +1697,11 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       sf.indexM = indexM;
       sf.modelName = vfgi[indexFGR].modelName;
       sf.fieldName = vfgi[indexFGR].fieldNames[indexF];
-      sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
+      if(vfgi[indexFGR].levels[sf.fieldName].size() > 0 ) {
+        sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
+      } else {
+        sf.levelOptions = vfgi[indexFGR].levelNames;
+      }
       sf.idnumOptions = vfgi[indexFGR].idnumNames;
       if ( refTimeComboBox->count() > 1 ) {
         sf.refTime = vfgi[indexFGR].refTime;
@@ -2041,27 +2045,48 @@ void FieldDialog::enableFieldOptions()
     }
   }
 
-  //contour shading
+  //contour shading updating FieldOptions
   if ((nc = cp->findKey(vpcopt, "palettecolours")) >= 0) {
     if (miutil::to_lower(vpcopt[nc].allValue) == "off" ) {
       updateFieldOptions("palettecolours", "off");
       shadingComboBox->setCurrentIndex(0);
+      shadingcoldComboBox->setCurrentIndex(0);
     } else {
-      vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
-      vector<std::string> stokens = miutil::split(tokens[0],";");
+      //vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,","); //MC
+      //vector<std::string> stokens = miutil::split(tokens[0],";");
+      vector<std::string> stokens = miutil::split(vpcopt[nc].strValue[0],";");
+
       int nr_cs = csInfo.size();
       std::string str;
       i = 0;
-      while (i < nr_cs && stokens[0] != csInfo[i].name)
+
+      int j = 0;
+      bool updateClodshading = false;
+      vector<std::string> coldStokens;
+
+      while (i < nr_cs && stokens[0] != csInfo[i].name) {
         i++;
+      }
+
       if (i == nr_cs) {
         ColourShading::defineColourShadingFromString(vpcopt[nc].allValue);
         ExpandPaletteBox(shadingComboBox,ColourShading(vpcopt[nc].allValue));
+        ExpandPaletteBox(shadingcoldComboBox,ColourShading(vpcopt[nc].allValue)); //MC
         ColourShading::ColourShadingInfo info;
         info.name=vpcopt[nc].allValue;
         info.colour=ColourShading::getColourShading(vpcopt[nc].allValue);
         csInfo.push_back(info);
+      } else if(vpcopt[nc].strValue.size() == 2) {
+        coldStokens = miutil::split(vpcopt[nc].strValue[1],";");
+
+        while (j < nr_cs && coldStokens[0] != csInfo[j].name) {
+          j++;
+        }
+
+        if (j < nr_cs)
+          updateClodshading = true;
       }
+
       str = vpcopt[nc].allValue;//tokens[0];
       shadingComboBox->setCurrentIndex(i + 1);
       updateFieldOptions("palettecolours", str, -1);
@@ -2071,6 +2096,15 @@ void FieldDialog::enableFieldOptions()
         shadingSpinBox->setValue(::atoi(stokens[1].c_str()));
       else
         shadingSpinBox->setValue(0);
+
+      if(updateClodshading) {
+        shadingcoldComboBox->setCurrentIndex(j + 1);
+
+        if (stokens.size() == 2)
+          shadingcoldSpinBox->setValue(::atoi(coldStokens[1].c_str()));
+        else
+          shadingcoldSpinBox->setValue(0);
+      }
     }
   }
   //pattern
@@ -3403,7 +3437,7 @@ std::string FieldDialog::getParamString(int i)
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (!selectedFields[i].idnum.empty()) {
-//      ostr << " ecoord="<< selectedFields[i].extraaxis;
+      //      ostr << " ecoord="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     if (selectedFields[i].hourOffset != 0)
@@ -3861,7 +3895,7 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
       int m = vfg[indexFGR].fieldNames.size();
       int indexF = 0;
       while (indexF < m && vfg[indexFGR].fieldNames[indexF] != sf.fieldName){
-//                          cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF]<<endl;
+        //                          cout << " .. skipping field:" << vfg[indexFGR].fieldNames[indexF]<<endl;
         indexF++;
       }
 
@@ -3878,7 +3912,11 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
 
     sf.indexMGR = indexMGR;
     sf.indexM = indexM;
-    sf.levelOptions = vfg[indexFGR].levels[sf.fieldName];
+    if(vfgi[indexFGR].levels[sf.fieldName].size() > 0 ) {
+      sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
+    } else {
+      sf.levelOptions = vfgi[indexFGR].levelNames;
+    }
     sf.idnumOptions = vfg[indexFGR].idnumNames;
     sf.minus = false;
     return true;
@@ -4037,7 +4075,11 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
     sf.indexM = indexM;
     sf.modelName = vfg2[indexFGR].modelName;
     sf.fieldName = vfg2[indexFGR].fieldNames[indexF];
-    sf.levelOptions = vfg2[indexFGR].levelNames;
+    if(vfg2[indexFGR].levels[sf.fieldName].size() > 0 ) {
+      sf.levelOptions = vfg2[indexFGR].levels[sf.fieldName];
+    } else {
+      sf.levelOptions = vfg2[indexFGR].levelNames;
+    }
     sf.idnumOptions = vfg2[indexFGR].idnumNames;
     sf.level = level;
     sf.idnum = idnum;
@@ -4072,7 +4114,7 @@ bool FieldDialog::fieldDifference(const std::string& str,
               - oper - 2);
         } else if (endOper < end - 2) {
           field1 = str.substr(beginOper + 2, oper - beginOper - 2)
-                          + str.substr(endOper + 2, end - endOper - 1);
+                              + str.substr(endOper + 2, end - endOper - 1);
           field2 = str.substr(oper + 3, endOper - oper - 3);
         } else {
           field1 = str.substr(0, beginOper) + str.substr(beginOper + 2, oper

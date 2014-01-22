@@ -76,7 +76,7 @@ bool VprofData::readField(std::string type, FieldManager* fieldm)
   std::string correctFileName = fileName;
   miutil::replace(correctFileName, modelName, "");
   if ((stationfile = fopen(correctFileName.c_str(), "rb")) == NULL) {
-    METLIBS_LOG_ERROR("Unable to open file!");
+    METLIBS_LOG_ERROR("Unable to open file! " << correctFileName);
     return false;
   }
   fieldManager = fieldm;
