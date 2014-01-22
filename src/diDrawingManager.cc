@@ -536,6 +536,8 @@ void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
+  glPushAttrib(GL_LINE_BIT);
+
   QVariantMap style = getStyle(item);
 
   QString linePattern = style.value("linepattern").toString();
@@ -557,6 +559,8 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 
   if (glIsEnabled(GL_LINE_STIPPLE))
     glDisable(GL_LINE_STIPPLE);
+
+  glPopAttrib(); // GL_LINE_BIT
 }
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
