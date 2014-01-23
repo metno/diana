@@ -44,11 +44,6 @@
 #include <vector>
 #include <set>
 
-#ifdef PROFET
-#include <profet/ProfetController.h>
-#include <profet/ProfetGUI.h>
-#endif
-
 class AnnotationPlot;
 class PlotModule;
 class FieldManager;
@@ -57,7 +52,6 @@ class ObsManager;
 class SatManager;
 class DrawingManager;
 class EditManager;
-class GridAreaManager;
 class Manager;
 class ObjectManager;
 class StationManager;
@@ -93,11 +87,6 @@ private:
   ObjectManager *objm;
   EditManager   *editm;
   DrawingManager   *drawm;
-#ifdef PROFET
-  Profet::ProfetController * profetController;
-#endif
-
-  GridAreaManager *aream;
 
   bool editoverride; // do not route mouse/key-events to editmanager
   bool paintModeEnabled;
@@ -390,13 +379,6 @@ public:
  std::vector<std::string> writeLog();
  void readLog(const std::vector<std::string>& vstr,
               const std::string& thisVersion, const std::string& logVersion);
-#ifdef PROFET
-  bool initProfet();
-//  bool registerProfetUser(const Profet::PodsUser & u);
-  Profet::ProfetController * getProfetController();
-//  bool setProfetGUI(Profet::ProfetGUI * gui);
-  GridAreaManager * getAreaManager() { return aream; }
-#endif
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
 

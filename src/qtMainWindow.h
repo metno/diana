@@ -68,7 +68,6 @@ class TrajectoryDialog;
 class MeasurementsDialog;
 class UffdaDialog;
 class MailDialog;
-class DianaProfetGUI;
 class PaintToolBar;
 
 class DataDialog;
@@ -110,8 +109,7 @@ public:
   DianaMainWindow(Controller*,
 		  const std::string& ver_str,
 		  const std::string& buils_str,
-		  const std::string& dianaTitle="Diana",
-		  bool profetEnabled=false);
+		  const std::string& dianaTitle="Diana");
   ~DianaMainWindow();
 
   /// check if news file has changed since last startup
@@ -163,7 +161,6 @@ private Q_SLOTS:
   void trajMenu();
   void measurementsMenu();
   void quickMenu();
-  void toggleProfetGUI();
 
   void showHelp();
   void showAccels();
@@ -258,12 +255,9 @@ private Q_SLOTS:
   void sendPrintClicked(int);
   void togglePaintMode();
   void setPaintMode(bool);
-  void plotProfetMap(bool objectsOnly);
-  void forceProfetDisconnect(bool disableGuiOnly);
   void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
 private:
-  bool enableProfet;
   bool push_command;   // push current plot on stack
   bool browsing;       // user browsing through plot-stack
   BrowserBox* browser; // shows plot-stack
@@ -316,7 +310,6 @@ private:
   QShortcut * uffdaAction;
 
 //  QAction * togglePaintModeAction;
-  QAction * toggleProfetGUIAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
@@ -376,8 +369,6 @@ private:
   printOptions priop;
 
   QToolButton * infoB;
-  // Error dialog for profet login
-  QErrorMessage * profetLoginError;
 
   WorkArea          * w;
   QuickMenu         * qm;
@@ -394,7 +385,6 @@ private:
   MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
-  DianaProfetGUI    * profetGUI;
   PaintToolBar      * paintToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
@@ -476,12 +466,6 @@ private:
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
 
-// Profet methods
-  bool initProfet();
-  bool profetConnect();
-  void profetDisconnect();
-  bool ProfetUpdatePlot(const miutil::miTime& t);
-  bool ProfetRightMouseClicked(float map_x, float map_y, int globalX, int globalY);
 };
 
 #endif

@@ -149,75 +149,75 @@ void PaintToolBar::enableButtons(PaintToolBarButtons buttons){
   removePointAction->setEnabled(false);
   movePointAction->setEnabled(false);
 
-  if(buttons == PaintToolBar::SELECT_ONLY){
-    setPaintMode(GridAreaManager::SELECT_MODE);
-    selectAction->setEnabled(true);
-    enableUndo(false);
-    enableRedo(false);
-  }
-  else if(buttons == PaintToolBar::PAINT_ONLY){
-    setPaintMode(GridAreaManager::DRAW_MODE);
-    drawAction->setEnabled(true);
-  }
-  else if(buttons == PaintToolBar::PAINT_AND_MODIFY){
-    if(getPaintMode() == GridAreaManager::SELECT_MODE){
-      setPaintMode(GridAreaManager::DRAW_MODE);
-    }
-    drawAction->setEnabled(true);
-    includeAction->setEnabled(true);
-    cutAction->setEnabled(true);
-    moveAction->setEnabled(true);
-    spatialAction->setEnabled(true);
-    addPointAction->setEnabled(true);
-    removePointAction->setEnabled(true);
-    movePointAction->setEnabled(true);
-  }
-  else if(buttons == PaintToolBar::ALL){
-    drawAction->setEnabled(true);
-    includeAction->setEnabled(true);
-    cutAction->setEnabled(true);
-    moveAction->setEnabled(true);
-    spatialAction->setEnabled(true);
-    addPointAction->setEnabled(true);
-    removePointAction->setEnabled(true);
-    movePointAction->setEnabled(true);
-    selectAction->setEnabled(true);
-  }
+//  if(buttons == PaintToolBar::SELECT_ONLY){
+//    setPaintMode(GridAreaManager::SELECT_MODE);
+//    selectAction->setEnabled(true);
+//    enableUndo(false);
+//    enableRedo(false);
+//  }
+//  else if(buttons == PaintToolBar::PAINT_ONLY){
+//    setPaintMode(GridAreaManager::DRAW_MODE);
+//    drawAction->setEnabled(true);
+//  }
+//  else if(buttons == PaintToolBar::PAINT_AND_MODIFY){
+//    if(getPaintMode() == GridAreaManager::SELECT_MODE){
+//      setPaintMode(GridAreaManager::DRAW_MODE);
+//    }
+//    drawAction->setEnabled(true);
+//    includeAction->setEnabled(true);
+//    cutAction->setEnabled(true);
+//    moveAction->setEnabled(true);
+//    spatialAction->setEnabled(true);
+//    addPointAction->setEnabled(true);
+//    removePointAction->setEnabled(true);
+//    movePointAction->setEnabled(true);
+//  }
+//  else if(buttons == PaintToolBar::ALL){
+//    drawAction->setEnabled(true);
+//    includeAction->setEnabled(true);
+//    cutAction->setEnabled(true);
+//    moveAction->setEnabled(true);
+//    spatialAction->setEnabled(true);
+//    addPointAction->setEnabled(true);
+//    removePointAction->setEnabled(true);
+//    movePointAction->setEnabled(true);
+//    selectAction->setEnabled(true);
+//  }
 }
 
-void PaintToolBar::setPaintMode(GridAreaManager::PaintMode newMode){
-	if(newMode == GridAreaManager::DRAW_MODE)
-		drawAction->setChecked(true);
-	else if(newMode == GridAreaManager::INCLUDE_MODE)
-		includeAction->setChecked(true);
-	else if(newMode == GridAreaManager::CUT_MODE)
-		cutAction->setChecked(true);
-	else if(newMode == GridAreaManager::MOVE_MODE)
-		moveAction->setChecked(true);
-  else if(newMode == GridAreaManager::SPATIAL_INTERPOLATION)
-    spatialAction->setChecked(true);
-	else if(newMode == GridAreaManager::SELECT_MODE)
-		selectAction->setChecked(true);
-  else if(newMode == GridAreaManager::ADD_POINT)
-    addPointAction->setChecked(true);
-  else if(newMode == GridAreaManager::REMOVE_POINT)
-    removePointAction->setChecked(true);
-  else if(newMode == GridAreaManager::MOVE_POINT)
-    movePointAction->setChecked(true);
-	sendPaintModeChanged();
-}
+//void PaintToolBar::setPaintMode(GridAreaManager::PaintMode newMode){
+//	if(newMode == GridAreaManager::DRAW_MODE)
+//		drawAction->setChecked(true);
+//	else if(newMode == GridAreaManager::INCLUDE_MODE)
+//		includeAction->setChecked(true);
+//	else if(newMode == GridAreaManager::CUT_MODE)
+//		cutAction->setChecked(true);
+//	else if(newMode == GridAreaManager::MOVE_MODE)
+//		moveAction->setChecked(true);
+//  else if(newMode == GridAreaManager::SPATIAL_INTERPOLATION)
+//    spatialAction->setChecked(true);
+//	else if(newMode == GridAreaManager::SELECT_MODE)
+//		selectAction->setChecked(true);
+//  else if(newMode == GridAreaManager::ADD_POINT)
+//    addPointAction->setChecked(true);
+//  else if(newMode == GridAreaManager::REMOVE_POINT)
+//    removePointAction->setChecked(true);
+//  else if(newMode == GridAreaManager::MOVE_POINT)
+//    movePointAction->setChecked(true);
+//	sendPaintModeChanged();
+//}
 
-GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
-	if(includeAction->isChecked()) return GridAreaManager::INCLUDE_MODE;
-	else if(cutAction->isChecked()) return GridAreaManager::CUT_MODE;
-	else if(moveAction->isChecked()) return GridAreaManager::MOVE_MODE;
-	else if(spatialAction->isChecked()) return GridAreaManager::SPATIAL_INTERPOLATION;
-	else if(selectAction->isChecked()) return GridAreaManager::SELECT_MODE;
-	else if(addPointAction->isChecked()) return GridAreaManager::ADD_POINT;
-  else if(removePointAction->isChecked()) return GridAreaManager::REMOVE_POINT;
-  else if(movePointAction->isChecked()) return GridAreaManager::MOVE_POINT;
-	else return GridAreaManager::DRAW_MODE;
-}
+//GridAreaManager::PaintMode PaintToolBar::getPaintMode(){
+//	if(includeAction->isChecked()) return GridAreaManager::INCLUDE_MODE;
+//	else if(cutAction->isChecked()) return GridAreaManager::CUT_MODE;
+//	else if(moveAction->isChecked()) return GridAreaManager::MOVE_MODE;
+//	else if(spatialAction->isChecked()) return GridAreaManager::SPATIAL_INTERPOLATION;
+//	else if(selectAction->isChecked()) return GridAreaManager::SELECT_MODE;
+//	else if(addPointAction->isChecked()) return GridAreaManager::ADD_POINT;
+//  else if(removePointAction->isChecked()) return GridAreaManager::REMOVE_POINT;
+//  else if(movePointAction->isChecked()) return GridAreaManager::MOVE_POINT;
+//	else return GridAreaManager::DRAW_MODE;
+//}
 
 bool PaintToolBar::isPaintEnabled() {
   // Painting is possible whenever draw action is enabled
@@ -225,7 +225,7 @@ bool PaintToolBar::isPaintEnabled() {
 }
 
 void PaintToolBar::sendPaintModeChanged(){
-  emit paintModeChanged(getPaintMode());
+// emit paintModeChanged(getPaintMode());
 }
 
 void PaintToolBar::enableUndo(bool enable){

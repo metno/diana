@@ -102,8 +102,6 @@ signals:
   void mouseRightPos(QMouseEvent* me);
   /// mouse movement, no buttons
   void mouseMovePos(QMouseEvent* me, bool quick);
-  /// profet grid objects changed
-  void gridAreaChanged();
   void objectsChanged();
   void fieldsChanged();
   /// key press

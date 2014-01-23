@@ -150,7 +150,7 @@ bool LocalSetupParser::parse(std::string& mainfilename)
   if (!parseQuickMenus(SectQuickMenus)) return false;
   if (!parseTextInfoFiles(SectInfoFiles)) return false;
 
-  // return the setupFilename (for profet setup parser)
+  // return the setupFilename
   mainfilename=setupFilename;
 
   return true;

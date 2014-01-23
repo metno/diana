@@ -290,9 +290,6 @@ void GLwidget::handleMouseEvents(QMouseEvent* me)
     case fields_changed:
       emit fieldsChanged();
       break;
-    case grid_area_changed:
-      emit gridAreaChanged();
-      break;
     case doubleclick:
       emit mouseDoubleClick(&me2);
       break;

@@ -121,16 +121,10 @@
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miCommandLine.h>
 #include "qtPaintToolBar.h"
-#include "diGridAreaManager.h"
 #include <QErrorMessage>
 
 #include "qtMailDialog.h"
 
-#ifdef PROFET
-#include "qtDianaProfetGUI.h"
-#include <profet/LoginDialog.h>
-#include <profet/ProfetCommon.h>
-#endif
 #include <qUtilities/miLogFile.h>
 #include <puTools/miSetupParser.h>
 
@@ -170,7 +164,6 @@
 #include <traj.xpm>
 #include <ruler.xpm>
 #include <info.xpm>
-#include <profet.xpm>
 #include <autoupdate.xpm>
 
 //#define DEBUGREDRAWCATCH 
@@ -180,11 +173,10 @@ using namespace std;
 DianaMainWindow::DianaMainWindow(Controller *co,
     const std::string& ver_str,
     const std::string& build_str,
-    const std::string& dianaTitle,
-    bool ep)
+    const std::string& dianaTitle)
 : QMainWindow(),
-  enableProfet(ep), push_command(true),browsing(false),
-  profetGUI(0),markTrajPos(false), markMeasurementsPos(false), markVcross(false),
+  push_command(true),browsing(false),
+  markTrajPos(false), markMeasurementsPos(false), markVcross(false),
   vpWindow(0), vcWindow(0), spWindow(0),contr(co),
   timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
@@ -411,33 +403,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //uffdaAction = new QShortcut(Qt::CTRL+Qt::Key_X,this );
   //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
-
-  profetLoginError = new QErrorMessage(this);
-  /* Paint mode not implemented
-  if(enableProfet){
-    togglePaintModeAction = new QAction( QPixmap(paint_mode_xpm),tr("&Paint"), this );
-  } else {
-    togglePaintModeAction = new QAction( tr("&Paint"), this );
-  }
-  togglePaintModeAction->setShortcutContext(Qt::ApplicationShortcut);
-  togglePaintModeAction->setShortcut(Qt::ALT+Qt::Key_P);
-  togglePaintModeAction->setCheckable(true);
-  connect( togglePaintModeAction, SIGNAL( toggled(bool) ), SLOT( togglePaintMode() ) );
-   */
-  // ----------------------------------------------------------------
-
-  if(enableProfet) {
-    toggleProfetGUIAction = new QAction(QIcon( QPixmap(profet_xpm )),tr("Field E&dit"), this );  
-    toggleProfetGUIAction->setShortcut(Qt::ALT + Qt::Key_D);
-  } else {
-    toggleProfetGUIAction = new QAction(QIcon( QPixmap()),tr("Field E&dit"), this );
-  }
-  toggleProfetGUIAction->setShortcutContext(Qt::ApplicationShortcut);
-  toggleProfetGUIAction->setCheckable(true);
-  toggleProfetGUIAction->setIconVisibleInMenu(true);
-  connect( toggleProfetGUIAction, SIGNAL( triggered() ), SLOT( toggleProfetGUI()));
-
-  // --------------------------------------------------------------------
 
 
   // help ======================
@@ -690,10 +655,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showmenu->addAction( showCrossSectionDialogAction );
   showmenu->addAction( showWaveSpectrumDialogAction );
 
-  if(enableProfet){
-    showmenu->addAction(  toggleProfetGUIAction );
-    //showmenu->addAction( togglePaintModeAction );
-  }
   if (uffda){
     showmenu->addAction( showUffdaDialogAction );
   }
@@ -810,10 +771,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   mainToolbar->addAction( showProfilesDialogAction    );
   mainToolbar->addAction( showCrossSectionDialogAction);
   mainToolbar->addAction( showWaveSpectrumDialogAction);
-  if(enableProfet){
-    mainToolbar->addAction( toggleProfetGUIAction       );
-    //mainToolbar->addAction( togglePaintModeAction   );
-  }
 
   mainToolbar->addSeparator();
   mainToolbar->addAction( showEditDialogAction );
@@ -1448,13 +1405,12 @@ void DianaMainWindow::MenuOK()
     logstr += pstr[i] + "\n";
 
   METLIBS_LOG_DEBUG(logstr);
-  //METLIBS_LOG_INFO(logstr[i]);
 
   miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
   contr->setPlotTime(t);
   contr->updatePlots();
-  cout <<contr->getMapArea()<<endl;
+  METLIBS_LOG_INFO(contr->getMapArea());
 
   //find current field models and send to vprofwindow..
   vector<string> fieldmodels = contr->getFieldModels();
@@ -1720,243 +1676,6 @@ void DianaMainWindow::editMenu()
   showEditDialogAction->setChecked( b );
 }
 
-bool DianaMainWindow::initProfet(){
-#ifdef PROFET
-  std::string error = "";
-  if(!w || !w->Glw()) error += "GLwidget is NULL. ";
-  if(!tslider) error += "TimeSlider is NULL. ";
-  if(!contr) error += "diController is NULL. ";
-  if(!paintToolBar) error += "PaintToolBar is NULL. ";
-  if(!contr->getAreaManager()) error += "AreaManager is NULL. ";
-  if(error.exists()){
-    QMessageBox::critical(0,"Init profet failed",error.c_str());
-    return false;
-  }
-
-  try{
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    contr->initProfet(); //ProfetController created if not exist
-    if(contr->getProfetController()) {
-      profetGUI = new DianaProfetGUI(*contr->getProfetController(),
-          paintToolBar, contr->getAreaManager(), this);
-      contr->getProfetController()->setGUI(profetGUI);
-    }else{
-      QMessageBox::warning(0,"Init profet failed",
-          "ProfetController is null");
-      QApplication::restoreOverrideCursor();
-      return false;
-    }
-    connect(w->Glw(), SIGNAL(gridAreaChanged()),
-        profetGUI, SLOT(gridAreaChanged()));
-    connect(profetGUI, SIGNAL(toggleProfetGui()),
-        this,SLOT(toggleProfetGUI()));
-    connect(profetGUI, SIGNAL(setPaintMode(bool)),
-        this, SLOT(setPaintMode(bool)));
-    connect(profetGUI, SIGNAL(showProfetField(std::string)),
-        fm, SLOT(fieldEditUpdate(std::string)));
-    connect(profetGUI, SIGNAL(prepareAndPlot()),
-        SLOT(MenuOK()));
-    connect( profetGUI, SIGNAL(repaintMap(bool)),
-        SLOT(plotProfetMap(bool)));
-    connect( profetGUI ,
-        SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-        tslider,
-        SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-    connect( profetGUI, SIGNAL(setTime(const miutil::miTime&)),
-        tslider, SLOT(setTime(const miutil::miTime&)));
-    connect( profetGUI, SIGNAL(updateModelDefinitions()),
-        fm,SLOT(updateModels()) );
-    connect( profetGUI, SIGNAL(forceDisconnect(bool)),
-        this, SLOT(forceProfetDisconnect(bool)));
-    connect( profetGUI, SIGNAL(getFieldPlotOptions(map< std::string, map<std::string,std::string> >&)),
-        this,SLOT(getFieldPlotOptions(map< std::string, map<std::string,std::string> >&)));
-    connect( profetGUI, SIGNAL(zoomTo(Rectangle)), this, SLOT(zoomTo(Rectangle)));
-
-    QApplication::restoreOverrideCursor();
-    return true;
-  }catch(Profet::ServerException & se){
-    profetLoginError->showMessage(se.what());
-  }
-  QApplication::restoreOverrideCursor();
-
-#endif
-  return false;
-}
-
-
-bool DianaMainWindow::profetConnect(){
-#ifdef PROFET
-  std::string error = "";
-  bool offerForcedConnection = false;
-  bool useForcedConnection = false;
-  bool retry = true;
-  Profet::LoginDialog loginDialog;
-  loginDialog.setUsername(QString(getenv("USER")));
-  loginDialog.setRoles((QStringList() << "forecast" << "observer"));
-
-  if(loginDialog.exec()){ // OK button pressed
-    if ( loginDialog.test() ) {
-      Profet::ProfetController::SERVER_HOST = "profet-test";
-    }
-    while(retry) {
-      retry = false;
-      if(loginDialog.username().isEmpty())
-        error += "Username not provided. ";
-      Profet::PodsUser u(miutil::miTime::nowTime(),
-          getenv("HOSTNAME"),
-          loginDialog.username().toStdString().data(),
-          loginDialog.role().toStdString().data(),
-          "",miutil::miTime::nowTime(),"");
-      std::string password = loginDialog.password().toStdString();
-      //TODO option for file manager
-      Profet::DataManagerType perferredType = Profet::DISTRIBUTED_MANAGER;
-      if(contr->getProfetController() && !error.exists() ) {
-        try{
-          QApplication::setOverrideCursor( Qt::WaitCursor );
-          Profet::DataManagerType dmt =
-              contr->getProfetController()->connect(u,perferredType,password, useForcedConnection);
-          QApplication::restoreOverrideCursor();
-          if(dmt != perferredType)
-            QMessageBox::warning(0,"Running disconnected mode",
-                "Distributed field editing system is not available.");
-          profetGUI->setHostname(Profet::ProfetController::SERVER_HOST);
-          return true;
-        }catch(Profet::ServerException & se){
-          contr->getProfetController()->disconnect();
-          offerForcedConnection =
-              (se.getType() == Profet::ServerException::CONNECTION_ERROR &&
-                  se.getMinorCode() == Profet::ServerException::DUPLICATE_CONNECTION);
-          bool withMailToLink = true;
-          error += se.getHtmlMessage(withMailToLink);
-          QApplication::restoreOverrideCursor();
-        }
-      }
-      if(error.exists()) {
-        if(offerForcedConnection) {
-          error += "<br><b>Do you want to connect anyway?<br>(Existing user will be disconnected)</b>";
-          int i = QMessageBox::warning(0,"Profet", error.c_str(), QMessageBox::Yes, QMessageBox::No);
-          if (i == QMessageBox::Yes){
-            error = "";
-            retry = true;
-            useForcedConnection = true;
-          }
-        } else {
-          QMessageBox::critical(0,"Profet",error.c_str());
-        }
-      } // end error handling
-    } // end while retry
-  }
-  profetDisconnect();
-#endif
-  return false;
-}
-
-void DianaMainWindow::profetDisconnect(){
-#ifdef PROFET
-  if(contr->getProfetController())
-    contr->getProfetController()->disconnect();
-#endif
-}
-
-void DianaMainWindow::plotProfetMap(bool objectsOnly){
-
-  w->updateGL();
-
-  //   if(objectsOnly) contr->plot(false,true); // Objects in overlay
-  //   else MenuOK();
-  //   MenuOK();
-}
-
-void DianaMainWindow::toggleProfetGUI(){
-#ifdef PROFET
-  // get status
-  bool inited = (contr->getProfetController() && profetGUI);
-  bool connected = false;
-  if(inited) connected = contr->getProfetController()->isConnected();
-  bool turnOn = false;
-  // check turn on / off
-  if(profetGUI && profetGUI->isVisible()){
-    int i = (QMessageBox::question(this, tr("End Profet"),
-        tr("Do you want to stay connected to profet?"),
-        tr("Quit and disconnect"), tr("Quit and stay connected "), tr("&Cancel"),
-        0,      // Enter == button 0
-        2 ) ); // Escape == button 2
-
-    if(i==2 ){ // cancel: still connected
-      toggleProfetGUIAction->setChecked(true); // might have been unchecked
-      return;
-    }
-
-    if(i == 0){
-      profetDisconnect();
-      profetGUI->resetStatus();
-    }
-  }
-  else if(inited && connected){
-    turnOn = !(profetGUI->isVisible());
-  }
-  else if(inited){ // not connected
-    turnOn = profetConnect();
-  }else {
-    if( initProfet() && profetConnect() ) turnOn = true;
-    else turnOn = false;
-  }
-  // do turn on / off
-  toggleProfetGUIAction->setChecked(turnOn);
-  profetGUI->setVisible(turnOn);
-  profetGUI->setParamColours();
-#endif
-}
-
-void DianaMainWindow::forceProfetDisconnect(bool disableGuiOnly){
-#ifdef PROFET
-  if (disableGuiOnly) {
-    profetGUI->resetStatus();
-    toggleProfetGUIAction->setChecked(false);
-    profetGUI->setVisible(false);
-    //togglePaintModeAction->setEnabled(true);
-    return;
-  }
-  // Disconnect
-  bool inited = (contr->getProfetController() && profetGUI);
-  bool connected = false;
-  if(inited) connected = contr->getProfetController()->isConnected();
-  if(connected){
-    profetDisconnect();
-    profetGUI->resetStatus();
-    toggleProfetGUIAction->setChecked(false);
-    profetGUI->setVisible(false);
-    //togglePaintModeAction->setEnabled(true);
-  }
-  // Re-connect
-  toggleProfetGUI();
-#endif
-}
-
-bool DianaMainWindow::ProfetUpdatePlot(const miutil::miTime& t){
-#ifdef PROFET
-  if(profetGUI){
-    if( profetGUI->selectTime(t)) {
-      return true;
-    }
-  }
-#endif
-  return false;
-}
-
-bool DianaMainWindow::ProfetRightMouseClicked(float map_x,
-    float map_y,
-    int globalX,
-    int globalY){
-#ifdef PROFET
-//if(togglePaintModeAction->isChecked()){
-  if (paintToolBar->isVisible()) {
-    profetGUI->rightMouseClicked(map_x,map_y,globalX,globalY);
-    return true;
-  }
-#endif
-  return false;
-}
 
 void DianaMainWindow::getFieldPlotOptions(map< std::string, map<std::string,std::string> >& options)
 {
@@ -2900,9 +2619,7 @@ void DianaMainWindow::setPlotTime(miutil::miTime& t)
 #endif
   if (contr->setPlotTime(t)) {
     contr->updatePlots();
-    if( !ProfetUpdatePlot(t)){
-      w->updateGL();
-    }
+    w->updateGL();
   }
 #ifdef M_TIME
   gettimeofday(&post, NULL);
@@ -3369,11 +3086,6 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
   float map_x,map_y;
   contr->PhysToMap(mev->x(),mev->y(),map_x,map_y);
 
-  if (!(mev->modifiers() & Qt::ShiftModifier) &&
-      ProfetRightMouseClicked(map_x,map_y,globalX,globalY)) {
-    return;
-  }
-
   xclick=x; yclick=y;
 
   for (int i=0; i<MaxSelectedAreas; i++){
@@ -3811,7 +3523,6 @@ void DianaMainWindow::filequit()
 
   if (em->cleanupForExit() && uffm->okToExit()){
     writeLogFile();
-    profetDisconnect();
     qApp->quit();
   }
 
@@ -3974,11 +3685,6 @@ void DianaMainWindow::writeLogFile()
     file << endl;
   }
 
-  file << "[PROFET.LOG]" << endl
-      << milogfile.writeString("PROFET.LOG") << endl
-      << "[/PROFET.LOG]" << endl;
-
-
   file.close();
   METLIBS_LOG_INFO("Finished writing " << logfile);
 }
@@ -4064,10 +3770,6 @@ void DianaMainWindow::readLogFile()
       else if (spWindow && beginStr=="[SPECTRUM.SETUP.LOG]")
         spWindow->readLog("setup",vstr,thisVersion,logVersion,
             displayWidth,displayHeight);
-      else if ( beginStr=="[PROFET.LOG]") {
-        milogfile.setSection("PROFET.LOG");
-        milogfile.readStrings(vstr,beginStr);
-      }
 
       //else
       //	METLIBS_LOG_DEBUG("Unhandled log section: " << beginStr);

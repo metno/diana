@@ -52,8 +52,6 @@ common_cxx_sources = \
 	diFilledMap.cc \
 	diFontManager.cc \
 	diFtnVfile.cc \
-	diGridArea.cc \
-	diGridAreaManager.cc \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
@@ -265,8 +263,6 @@ noinst_HEADERS = \
 	diFilledMap.h \
 	diFontManager.h \
 	diFtnVfile.h \
-	diGridArea.h \
-	diGridAreaManager.h \
 	diHDF5.h \
 	diImageGallery.h \
 	diImageIO.h \
@@ -672,47 +668,6 @@ if WITH_OBS_BUFR
 common_cxx_sources += \
 	diObsBufr.cc
 common_cppflags += -DBUFROBS
-endif
-
-# Additional source code for Profet
-if WITH_PROFET
-common_cxx_sources += \
-	diProfetObjectFactory.cc
-noinst_HEADERS += \
-	qtPolygonBookmarkDialog.h \
-	qtPolygonBookmarkModel.h \
-	diProfetObjectFactory.h \
-	qtDianaProfetGUI.h \
-	qtProfetChatWidget.h \
-	qtProfetDataModels.h \
-	qtProfetEvents.h \
-	qtProfetObjectDialog.h \
-	qtProfetSessionDialog.h \
-	qtProfetSingleControl.h \
-	qtProfetTimeControl.h \
-	qtProfetTimeSmoothDialog.h \
-	qtProfetWaitDialog.h
-common_xpm_sources += \
-	profet.xpm
-diana_qt_sources += \
-	qtProfetSessionDialog.cc \
-	qtProfetObjectDialog.cc \
-	qtDianaProfetGUI.cc \
-	qtProfetChatWidget.cc \
-	qtProfetDataModels.cc \
-	qtProfetSingleControl.cc \
-	qtProfetTimeControl.cc \
-	qtProfetTimeSmoothDialog.cc \
-	qtPolygonBookmarkDialog.cc \
-	qtPolygonBookmarkModel.cc \
-	qtProfetWaitDialog.cc 
-common_cppflags += \
-	$(PROFET_CPPFLAGS) \
-	-DPROFET
-common_ldflags += \
-	$(PROFET_LDFLAGS)
-common_ldadd += \
-	$(PROFET_LIBS)
 endif
 
 # Additional source code for video export feature

@@ -59,7 +59,6 @@ class StationManager;
 class ObjectManager;
 class EditManager;
 class DrawingManager;
-class GridAreaManager;
 class Field;
 class TrajectoryPlot;
 class MeasurementsPlot;
@@ -87,7 +86,6 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-  GridAreaManager *aream; // Polygon edit manager for continuous drwaing/editing
 
   friend class EditManager;   // editing and drawing
 
@@ -264,8 +262,7 @@ public:
                    SatManager*,
                    StationManager*,
                    ObjectManager*,
-                   EditManager*,
-                   GridAreaManager*);
+                   EditManager*);
 
   /// return current plottime
   void getPlotTime(std::string&);

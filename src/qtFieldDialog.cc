@@ -86,7 +86,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   setWindowTitle(tr("Fields"));
 
   useArchive = false;
-  profetEnabled = false;
 
   numEditFields = 0;
   currentFieldOptsInEdit = false;
@@ -1126,14 +1125,6 @@ void FieldDialog::updateModelBoxes()
   if (nr_m == 0)
     return;
 
-  if (profetEnabled) {
-    for (int i = 0; i < nr_m; i++) {
-      if (m_modelgroup[i].groupType == "profetfilegroup") {
-        indexMGRtable.push_back(i);
-        modelGRbox->addItem(QString(m_modelgroup[i].groupName.c_str()));
-      }
-    }
-  }
   if (useArchive) {
     for (int i = 0; i < nr_m; i++) {
       if (m_modelgroup[i].groupType == "archivefilegroup") {
@@ -3255,12 +3246,7 @@ void FieldDialog::updateFieldOptions(const std::string& name,
 
   // not update private settings if external/QuickMenu command...
   if (!selectedFields[n].external) {
-    if (selectedFields[n].inEdit && !selectedFields[n].editPlot) {
-      editFieldOptions[selectedFields[n].fieldName]
-                       = currentFieldOpts;
-    } else {
-      fieldOptions[selectedFields[n].fieldName] = currentFieldOpts;
-    }
+    fieldOptions[selectedFields[n].fieldName] = currentFieldOpts;
   }
 
 }
@@ -3353,7 +3339,7 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
   for (int i = 0; i < n; i++) {
 
     //Skip edit strings when the strings are used to change level
-    if (!resetLevelMove && selectedFields[i].inEdit && selectedFields[i].editPlot) {
+    if (!resetLevelMove && selectedFields[i].inEdit) {
       continue;
     }
 
@@ -3379,17 +3365,13 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
     if (allTimeSteps)
       ostr << " allTimeSteps=on";
 
-    if (selectedFields[i].inEdit && !selectedFields[i].editPlot) {
-      ostr << " overlay=1";
-    }
-
     if (!selectedFields[i].time.empty()) {
       ostr << " time=" << selectedFields[i].time;
     }
 
     std::string str;
 
-    if (selectedFields[i].inEdit && selectedFields[i].editPlot) {
+    if (selectedFields[i].inEdit) {
 
       str = "EDITFIELD " + ostr.str();
 
@@ -3414,7 +3396,7 @@ std::string FieldDialog::getParamString(int i)
   ostringstream ostr;
 
   if( selectedFields[i].cdmSyntax ) {
-    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
+    if (selectedFields[i].inEdit)
       ostr << " model="<< editName;
     else
       ostr <<" model="<< selectedFields[i].modelName;
@@ -3448,7 +3430,7 @@ std::string FieldDialog::getParamString(int i)
 
   } else {
 
-    if (selectedFields[i].inEdit && selectedFields[i].editPlot)
+    if (selectedFields[i].inEdit)
       ostr << editName;
     else
       ostr << selectedFields[i].modelName;
@@ -4185,7 +4167,7 @@ vector<std::string> FieldDialog::writeLog()
       vstr.push_back(pfopt->first + " " + pfopt->second);
   }
 
-  //write edit/profet field options
+  //write edit field options
   if (editFieldOptions.size() > 0) {
     vstr.push_back("--- EDIT ---");
     pfend = editFieldOptions.end();
@@ -4813,12 +4795,6 @@ std::string FieldDialog::getFieldOptions(
   map<std::string, std::string>::const_iterator pfopt;
 
   if (!reset) {
-    if (edit) {
-      // try private profet options
-      pfopt = editFieldOptions.find(fieldname);
-      if (pfopt != editFieldOptions.end())
-        return pfopt->second;
-    }
 
     // try private options used
     pfopt = fieldOptions.find(fieldname);
@@ -5069,7 +5045,6 @@ void FieldDialog::fieldEditUpdate(std::string str)
       std::string modelName;
       std::string fieldName;
       if ( miutil::contains(str,"model=") ) {
-        //edit field from profet
         bool allTimeSteps;
         decodeString_cdmSyntax(str, sf, allTimeSteps);
       } else if (vstr.size() >= 2) {
@@ -5102,20 +5077,6 @@ void FieldDialog::fieldEditUpdate(std::string str)
     } else if ((pfo = setupFieldOptions.find(sf.fieldName))
         != setupFieldOptions.end()) {
       sf.fieldOpts = pfo->second;
-    }
-
-    // Searching for time=
-    unsigned int j = 0;
-    while (j < vstr.size() && !miutil::contains(miutil::to_lower(vstr[j]),"time="))
-      j++;
-    if (j < vstr.size()) {
-      vector<std::string> stokens = miutil::split(vstr[j],"=");
-      if (stokens.size() == 2) { //Profet edit, using FieldPlot
-        sf.time = stokens[1];
-        sf.editPlot = false;
-      }
-    } else { //Orig edit, using EditManager
-      sf.editPlot = true;
     }
 
     sf.inEdit = true;
@@ -5153,11 +5114,6 @@ void FieldDialog::fieldEditUpdate(std::string str)
     std::string text = editName + " " + sf.fieldName;
     selectedFieldbox->insertItem(numEditFields, QString(text.c_str()));
     selectedFieldbox->setCurrentRow(numEditFields);
-    if (!sf.editPlot) {
-      selectedFields[numEditFields].fieldOpts = getFieldOptions(
-          selectedFields[numEditFields].fieldName, false,
-          selectedFields[numEditFields].inEdit);
-    }
     numEditFields++;
 
     updateTime();

@@ -31,7 +31,7 @@
 #ifndef QTPAINTTOOLBAR_H_
 #define QTPAINTTOOLBAR_H_
 
-#include <diGridAreaManager.h>
+//#include <diGridAreaManager.h>
 
 #include <QToolBar>
 #include <QMainWindow>
@@ -46,7 +46,7 @@ public:
   
 public:
   PaintToolBar(QMainWindow *parent);
-	GridAreaManager::PaintMode getPaintMode();
+//	GridAreaManager::PaintMode getPaintMode();
 	void enableButtons(PaintToolBarButtons);
 	bool isPaintEnabled();
 	void enableUndo(bool enable);
@@ -73,10 +73,10 @@ private slots:
   void helpPressed();
   
 public slots:
-	void setPaintMode(GridAreaManager::PaintMode);
+//	void setPaintMode(GridAreaManager::PaintMode);
 	  	
 signals:
-  void paintModeChanged(GridAreaManager::PaintMode mode);
+//  void paintModeChanged(GridAreaManager::PaintMode mode);
   void undoPressed();
   void redoPressed();
   // display help (using existing name convention)

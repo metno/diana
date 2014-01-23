@@ -80,7 +80,6 @@ private:
     bool inEdit;
     bool external;     // from QuickMenu,...
     bool forecastSpec; // yet only if external
-    bool editPlot; //true: old field edit/false: profet
     int indexMGR; //index model group
     int indexM;   //index model
     int indexRefTime; //index reference time
@@ -106,7 +105,7 @@ private:
     bool plotDefinition;
     bool levelmove;
     bool idnummove;
-    SelectedField() : inEdit(false), external(false), forecastSpec(false), editPlot(false),
+    SelectedField() : inEdit(false), external(false), forecastSpec(false),
         hourOffset(0), hourDiff(0), minus(false),
         cdmSyntax(true), plotDefinition(true), levelmove(true), idnummove(true)
     {
@@ -190,7 +189,6 @@ private:
   Controller* m_ctrl;
 
   bool useArchive;
-  bool profetEnabled;
 
   bool levelInMotion;
   bool idnumInMotion;

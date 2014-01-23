@@ -47,7 +47,6 @@
 #include <diStationManager.h>
 #include <diObjectManager.h>
 #include <diEditManager.h>
-#include <diGridAreaManager.h>
 #include <diAnnotationPlot.h>
 #include <diWeatherArea.h>
 #include <diStationPlot.h>
@@ -1493,10 +1492,6 @@ void PlotModule::plotOver()
 
   Rectangle plotr = splot.getPlotSize();
 
-  // plot GridAreas (polygons)
-  if (aream)
-    aream->plot();
-
   // Check this!!!
   n = vfp.size();
   for (i = 0; i < n; i++) {
@@ -1985,8 +1980,7 @@ float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float 
 
 // set managers
 void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
-    ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm,
-    GridAreaManager* gam)
+    ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
 {
   fieldm = fm;
   fieldplotm = fpm;
@@ -1995,7 +1989,6 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
   stam = stm;
   objm = obm;
   editm = edm;
-  aream = gam;
 
   if (!fieldm)
     METLIBS_LOG_ERROR("PlotModule::ERROR fieldmanager==0");
@@ -2011,8 +2004,6 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR objectmanager==0");
   if (!editm)
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
-  if (!aream)
-    METLIBS_LOG_ERROR("PlotModule::ERROR gridareamanager==0");
 }
 
 // return current plottime
@@ -2889,10 +2880,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
     oldy = me->y();
 
     if (me->button() == Qt::LeftButton) {
-      if (aream)
-        dorubberband = !aream->overrideMouseEvent;
-      else
-        dorubberband = true;
+      dorubberband = true;
       res.savebackground = true;
       res.background = true;
       res.repaint = true;

@@ -53,10 +53,6 @@
 #include <puTools/miSetupParser.h>
 #include <iostream>
 
-#ifdef PROFET
-#include <profet/ProfetController.h>
-#endif
-
 #include <diBuild.h>
 
 #define MILOGGER_CATEGORY "diana.main_gui"
@@ -81,8 +77,6 @@ void printUsage()
       << "  -s <filename> :  name of setupfile (def. diana.setup)   " << endl
       << "  -l <language> :  language used in dialogs                               " << endl
       << "  -L <logger>   :  loggerFile for debugging               " << endl
-      << "  -p <profet>   :  profet test version                    " << endl
-      << "  -S <server>   :  profet server host                     " << endl
       << "  -T <title>    :  Change Main window title "               << endl
        << "----------------------------------------------------------"<<endl;
 }
@@ -110,9 +104,7 @@ int main(int argc, char **argv)
   string ver_str= VERSION;
   string build_str= build_string;
   string cl_lang;
-  bool profetEnabled= false;
   string diana_title="diana";
-  string profetServer;
   string setupfile;
   string lang;
   map<std::string, std::string> user_variables;
@@ -149,14 +141,6 @@ int main(int argc, char **argv)
       //METLIBS_LOG_DEBUG(argv[0] << " : DIANA version: " << version_string << "  build: "<<build_string);
       return 0;
 
-    } else if (sarg=="-p" || sarg=="--profet") {
-      profetEnabled = true;
-
-    } else if (sarg=="-S" || sarg=="--server") {
-      ac++;
-      if (ac >= argc)
-        printUsage();
-      profetServer= argv[ac];
     } else if (sarg=="-T" || sarg=="--title") {
       ac++;
       if (ac >= argc)
@@ -200,12 +184,6 @@ int main(int argc, char **argv)
     METLIBS_LOG_ERROR("An error occured while reading setup: " << setupfile);
     return 99;
   }
-#ifdef PROFET
-  Profet::ProfetController::SETUP_FILE = setupfile;
-  if (profetEnabled && profetServer.exists()) {
-    Profet::ProfetController::SERVER_HOST = profetServer;
-  }
-#endif
 
   // language from setup
   if (not LocalSetupParser::basicValue("language").empty())
@@ -249,7 +227,7 @@ int main(int argc, char **argv)
     a.installTranslator( &qutil );
   }
 
-  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title, profetEnabled);
+  DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title);
 
   DrawingDialog *drawingDialog = new DrawingDialog(mw, &contr);
   drawingDialog->hide();

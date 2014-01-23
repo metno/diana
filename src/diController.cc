@@ -45,7 +45,6 @@
 #include <diObjectManager.h>
 #include <diDrawingManager.h>
 #include <diEditManager.h>
-#include <diGridAreaManager.h>
 #include <diStationManager.h>
 #include <diStationPlot.h>
 #include <diImageGallery.h>
@@ -65,14 +64,11 @@ using namespace std;
 
 Controller::Controller()
   : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
-    objm(0), editm(0), aream(0),editoverride(false)
+    objm(0), editm(0),editoverride(false)
 {
   METLIBS_LOG_SCOPE();
 
   // data managers
-#ifdef PROFET
-  profetController=0;
-#endif
   fieldm=     new FieldManager;
   fieldplotm= new FieldPlotManager(fieldm);
   obsm=       new ObsManager;
@@ -83,18 +79,13 @@ Controller::Controller()
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
-  aream = new GridAreaManager();
   paintModeEnabled = false;
   scrollwheelZoom = false;
-  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm,aream);
-//  profetController = new Profet::ProfetController(fieldm);
+  plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
 }
 
 Controller::~Controller()
 {
-#ifdef PROFET
-  delete profetController;
-#endif
   delete plotm;
   delete fieldm;
   delete fieldplotm;
@@ -103,7 +94,6 @@ Controller::~Controller()
   delete stam;
   delete objm;
   delete editm;
-  delete aream;
 }
 
 // hack: indices for colorIndex mode set from gui
@@ -542,7 +532,6 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
         // Area
         float map_x,map_y;
         plotm->PhysToMap(me->x(), me->y(), map_x, map_y);
-        aream->sendMouseEvent(me,res,map_x,map_y);
       }
     } else if (inEdit){
 
@@ -1099,42 +1088,6 @@ void Controller::setPaintModeEnabled(bool pm_enabled)
 bool Controller::useScrollwheelZoom() {
   return scrollwheelZoom;
 }
-
-#ifdef PROFET
-bool Controller::initProfet(){
-  if(!fieldm) return false;
-  if(!profetController){
-    profetController = new Profet::ProfetController(fieldm);
-  }
-  return true;
-}
-/*
-bool Controller::setProfetGUI(Profet::ProfetGUI * gui){
-        if(profetController){
-                profetController->setGUI(gui);
-                return true;
-        }
-        return false;
-}
-
-bool Controller::profetConnect(const Profet::PodsUser & user,
-    Profet::DataManagerType & type){
-  if(profetController){
-    type = profetController->registerUser(user,type); // throws Profet::ServerException
-    return true;
-  }
-  return false;
-}
-
-void Controller::profetDisconnect(){
-  if(profetController){
-}
-*/
-Profet::ProfetController * Controller::getProfetController(){
-        return profetController;
-}
-
-#endif
 
 // Miscellaneous get methods
 vector<SatPlot*> Controller::getSatellitePlots() const

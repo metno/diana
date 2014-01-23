@@ -80,7 +80,6 @@ enum actiontype {
   objects_changed,
   fields_changed,
   keypressed,
-  grid_area_changed,
   doubleclick
 };
 

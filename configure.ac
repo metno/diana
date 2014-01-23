@@ -79,11 +79,6 @@ AC_ARG_ENABLE([geotiff],
     [], [enable_geotiff=no])
 AM_CONDITIONAL([WITH_GEOTIFF], [test x$enable_geotiff = xyes])
 
-AC_ARG_ENABLE([profet],
-    [AS_HELP_STRING([--enable-profet], [enable Profet])],
-    [], [enable_profet=no])
-AM_CONDITIONAL([WITH_PROFET], [test x$enable_profet = xyes])
-
 AC_ARG_ENABLE([hdf5],
     [AS_HELP_STRING([--enable-hdf5], [enable HDF5 support])],
     [], [enable_hdf5=no])
@@ -152,7 +147,6 @@ AS_IF([test x$enable_embedded != xyes], [
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
 METNO_REQUIRE_PKG([MILIB], [milib])
 METNO_REQUIRE_PKG([PARAMETER], [parameter])
-METNO_REQUIRE_PKG([PROPOLY],[propoly])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
@@ -174,12 +168,6 @@ AS_IF([test x$enable_roadobs = xyes], [
 AS_IF([test x$enable_newarkobs = xyes], [
     METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
     METNO_REQUIRE_PKG([PGCONPOOL], [pgconpool])
-])
-
-AS_IF([test x$enable_profet = xyes], [
-    METNO_REQUIRE_PKG([PODS], [pods])
-    METNO_REQUIRE_PKG([PROFET], [profet])
-    METNO_REQUIRE_PKG([PROFUNCTIONS], [proFunctions])
 ])
 
 #
