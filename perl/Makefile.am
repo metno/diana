@@ -66,13 +66,6 @@ common_ldadd += \
 	$(DISQL_LIBS)
 endif
 
-if WITH_PROFET
-common_ldflags += \
-	$(PROFET_LDFLAGS)
-common_ldadd += \
-	$(PROFET_LIBS)
-endif
-
 # Additional source code for video export feature
 if WITH_VIDEO_EXPORT
 common_ldflags += $(AVFORMAT_LDFLAGS)
