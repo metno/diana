@@ -405,6 +405,7 @@ void DrawingManager::plot(bool under, bool over)
 
   foreach (DrawingItemBase *item, items) {
     if (item->property("visible", true).toBool()) {
+      applyPlotOptions(item);
       setFromLatLonPoints(item, item->getLatLonPoints());
       item->draw();
     }
@@ -462,6 +463,15 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   glEnable(GL_BLEND);
   glctx->drawTexture(QPointF(x, y), texture);
   glPopAttrib();
+}
+
+void DrawingManager::applyPlotOptions(DrawingItemBase *item) const
+{
+  bool antialiasing = item->property("antialiasing", true).toBool();
+  if (antialiasing)
+    glEnable(GL_MULTISAMPLE);
+  else
+    glDisable(GL_MULTISAMPLE);
 }
 
 
@@ -647,7 +657,7 @@ void DrawingStyleManager::drawLoop(const DrawingItemBase *item, const QList<QPoi
     points_ = points;
 
   if (style.value("lineshape").toString() == "SIGWX")
-    points_ = significantWeather(points_);
+    points_ = significantWeather(points_, style.value("linewidth").toInt());
 
   foreach (QPointF p, points_)
     glVertex2i(p.x(), p.y());
@@ -669,7 +679,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     points_ = points;
 
   if (style.value("lineshape").toString() == "SIGWX")
-    points_ = significantWeather(points_);
+    points_ = significantWeather(points_, style.value("linewidth").toInt());
 
   foreach (QPointF p, points)
     glVertex2i(p.x(), p.y());
@@ -789,14 +799,16 @@ const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPoint
   return new_points;
 }
 
-#define RADIUS 8
-#define DIAMETER 16
 #define NPOINTS 20
 
-const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF> &points)
+const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF> &points, qreal lineWidth)
 {
   if (points.size() < 2)
     return points;
+
+  qreal radius = lineWidth * 4;
+  qreal diameter = radius * 2;
+  int npoints = int(3 * radius);
 
   qreal l = 0;
   QList<QPointF> new_points;
@@ -807,29 +819,29 @@ const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF
 
     l += QLineF(last, points.at(i)).length();
 
-    if (l >= DIAMETER) {
+    if (l >= diameter) {
       QLineF line(start, points.at(i));
       qreal start_angle = qAtan2(-line.dy(), -line.dx());
       qreal finish_angle = qAtan2(line.dy(), line.dx());
 
-      while (l >= DIAMETER) {
+      while (l >= diameter) {
         QLineF r = line;
-        r.setLength(DIAMETER);
+        r.setLength(diameter);
         QPointF midpoint = (r.p1() + r.p2())/2;
 
-        qreal astep = qAbs(finish_angle - start_angle)/NPOINTS;
+        qreal astep = qAbs(finish_angle - start_angle)/npoints;
 
         // Create an arc using points on the circle with the predefined radius.
         // The direction we go around the circle is chosen to be consistent with
         // previous behaviour.
-        for (int j = 0; j < NPOINTS; ++j)
-          new_points << midpoint + QPointF(RADIUS * qCos(start_angle - j*astep),
-                                           RADIUS * qSin(start_angle - j*astep));
+        for (int j = 0; j < npoints; ++j)
+          new_points << midpoint + QPointF(radius * qCos(start_angle - j*astep),
+                                           radius * qSin(start_angle - j*astep));
 
         // Start the next curve at the end of this one.
         start = last = r.p2();
         line.setP1(r.p2());
-        l -= DIAMETER;
+        l -= diameter;
       }
     } else
       last = points.at(i);

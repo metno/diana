@@ -633,6 +633,7 @@ void EditItemManager::plot(bool under, bool over)
             if (item == Drawing(hoverItem_))
                 modes |= EditItemBase::Hovered;
             if (item->property("visible", true).toBool()) {
+                applyPlotOptions(item);
                 setFromLatLonPoints(item, item->getLatLonPoints());
                 Editing(item)->draw(modes, false, Style::StyleEditor::instance()->isVisible());
             }

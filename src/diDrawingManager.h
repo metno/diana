@@ -88,7 +88,7 @@ public:
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points);
-  static const QList<QPointF> significantWeather(const QList<QPointF> &points);
+  static const QList<QPointF> significantWeather(const QList<QPointF> &points, qreal lineWidth);
 
   bool contains(const QString &name) const;
   QVariantMap getStyle(DrawingItemBase *item) const;
@@ -183,6 +183,7 @@ public slots:
 protected:
   virtual void addItem_(DrawingItemBase *);
   virtual void removeItem_(DrawingItemBase *item);
+  void applyPlotOptions(DrawingItemBase *item) const;
 
   Rectangle plotRect;
   Rectangle editRect;
