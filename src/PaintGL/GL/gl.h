@@ -61,6 +61,7 @@ typedef double          GLclampd;   /* double precision float in [0,1] */
 
 /* Attribute bits */
 #define GL_LINE_BIT             0x00000004
+#define GL_POLYGON_BIT          0x00000008
 
 /* Buffers, Pixel Drawing/Reading */
 #define GL_ALPHA                0x1906

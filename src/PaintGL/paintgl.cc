@@ -990,22 +990,29 @@ void glLineStipple(GLint factor, GLushort pattern)
     if (number > 0)
         dashes << number * factor;
 
-    // Ensure that the pattern has an even number of elements by inserting
-    // a zero-size element if necessary.
-    if (dashes.size() % 2 == 1)
-        dashes << 0;
+    // If there is only one element then discard it and use an empty vector.
+    // This will result in a solid line being plotted.
+    if (dashes.size() == 1)
+        dashes.clear();
+    else {
+        // Ensure that the pattern has an even number of elements by inserting
+        // a zero-size element if necessary.
+        if (dashes.size() % 2 == 1)
+            dashes << 0;
 
-    /* If the pattern starts with a gap then move it to the end of the
-       vector and adjust the starting offset to its location to ensure
-       that it appears at the start of the pattern. (This is because
-       QPainter's dash pattern rendering assumes that the first element
-       is a line. */
-    if (gapStart) {
-        dashes << dashes.first();
-        dashes.pop_front();
-        ctx->attributes.dashOffset = total - dashes.last();
-    } else
-        ctx->attributes.dashOffset = 0;
+        /* If the pattern starts with a gap then move it to the end of the
+           vector and adjust the starting offset to its location to ensure
+           that it appears at the start of the pattern. (This is because
+           QPainter's dash pattern rendering assumes that the first element
+           is a line. */
+        if (gapStart) {
+            dashes << dashes.first();
+            dashes.pop_front();
+            ctx->attributes.dashOffset = total - dashes.last();
+        } else
+            ctx->attributes.dashOffset = 0;
+    }
+
     ctx->attributes.dashes = dashes;
 }
 
@@ -1117,6 +1124,8 @@ void glPushAttrib(GLbitfield mask)
 {
     ENSURE_CTX
     if (mask & GL_LINE_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_POLYGON_BIT)
       ctx->attributesStack.push(ctx->attributes);
     else if (mask & GL_COLOR_BUFFER_BIT)
       ctx->attributesStack.push(ctx->attributes);

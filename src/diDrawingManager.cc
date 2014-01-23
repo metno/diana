@@ -557,14 +557,13 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  if (glIsEnabled(GL_LINE_STIPPLE))
-    glDisable(GL_LINE_STIPPLE);
-
   glPopAttrib(); // GL_LINE_BIT
 }
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
+  glPushAttrib(GL_POLYGON_BIT);
+
   QVariantMap style = getStyle(item);
 
   QColor fillColour = style.value("fillcolour").value<QColor>();
@@ -600,8 +599,7 @@ void DrawingStyleManager::endFill(DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  if (glIsEnabled(GL_POLYGON_STIPPLE))
-    glDisable(GL_POLYGON_STIPPLE);
+  glPopAttrib(); // GL_POLYGON_BIT
 }
 
 bool DrawingStyleManager::contains(const QString &name) const
