@@ -69,7 +69,8 @@ bool PolyLine::hit(const QPointF &pos, bool selected) const
     DrawingStyleManager *styleManager = DrawingStyleManager::instance();
     const QVariantMap style = styleManager->getStyle(this);
     if (style.value("linesmooth").toBool()) {
-        const QPainterPath path = styleManager->interpolateToPath(points_);
+        bool closed = style.value("closed").toBool();
+        const QPainterPath path = styleManager->interpolateToPath(points_, closed);
         hitInterior = path.contains(pos);
     } else {
         const QPolygonF polygon(points_.toVector());
@@ -288,7 +289,7 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
     bool ok = false;
     const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
     glLineWidth(ok ? lineWidth : 2);
-    styleManager->drawLoop(this, points_, 1);
+    styleManager->drawLines(this, points_, 1);
     glPopAttrib();
   }
 }

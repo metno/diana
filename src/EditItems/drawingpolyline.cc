@@ -58,7 +58,7 @@ void PolyLine::draw()
   // Draw the outline using the border colour and line pattern defined in
   // the style.
   styleManager->beginLine(this);
-  styleManager->drawLoop(this, points_);
+  styleManager->drawLines(this, points_);
   styleManager->endLine(this);
 }
 

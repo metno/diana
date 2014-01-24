@@ -136,7 +136,7 @@ bool DrawingManager::parseSetup()
         // Drawing definitions
         drawings_.insert(items["file"]);
       }
-    } else if (items.contains("type")) {
+    } else if (items.contains("style")) {
       // Read-only style definitions
       styleManager.addStyle(items);
     }
@@ -145,9 +145,10 @@ bool DrawingManager::parseSetup()
   // Add a default style.
   if (!styleManager.contains("Default")) {
     QHash<QString, QString> items;
-    items["type"] = "Default";
+    items["style"] = "Default";
     items["linesmooth"] = "false";
     items["fillcolour"] = "128:128:128:50";
+    items["closed"] = "true";
     styleManager.addStyle(items);
   }
 
@@ -467,7 +468,7 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
 
 void DrawingManager::applyPlotOptions(DrawingItemBase *item) const
 {
-  bool antialiasing = item->property("antialiasing", true).toBool();
+  bool antialiasing = item->property("antialiasing", false).toBool();
   if (antialiasing)
     glEnable(GL_MULTISAMPLE);
   else
@@ -512,6 +513,11 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
   style["lineshape"] = definition.value("lineshape", "normal");
   style["fillcolour"] = parseColour(definition.value("fillcolour"));
   style["fillpattern"] = definition.value("fillpattern");
+  style["closed"] = definition.value("closed") == "true";
+  style["decoration1"] = definition.value("decoration1").split(",");
+  style["decorationcolour1"] = parseColour(definition.value("decorationcolour1"));
+  style["decoration2"] = definition.value("decoration2").split(",");
+  style["decorationcolour2"] = parseColour(definition.value("decorationcolour2"));
 
   return style;
 }
@@ -539,9 +545,9 @@ QColor DrawingStyleManager::parseColour(const QString &text) const
 void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
 {
   // Parse the definition and set the private members.
-  QString typeName = definition.value("type");
+  QString styleName = definition.value("style");
 
-  styles[typeName] = parse(definition);
+  styles[styleName] = parse(definition);
 }
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
@@ -644,54 +650,171 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
     return styles.value(typeName);
 }
 
-void DrawingStyleManager::drawLoop(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
-{
-  QVariantMap style = getStyle(item);
-
-  glBegin(GL_LINE_LOOP);
-  QList<QPointF> points_;
-
-  if (style.value("linesmooth").toBool())
-    points_ = interpolateToPoints(points);
-  else
-    points_ = points;
-
-  if (style.value("lineshape").toString() == "SIGWX")
-    points_ = significantWeather(points_, style.value("linewidth").toInt());
-
-  foreach (QPointF p, points_)
-    glVertex2i(p.x(), p.y());
-
-  glEnd(); // GL_LINE_LOOP
-}
-
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
 {
   QVariantMap style = getStyle(item);
+  bool closed = style.value("closed").toBool();
 
-  glBegin(GL_LINE_STRIP);
+  if (closed)
+    glBegin(GL_LINE_LOOP);
+  else
+    glBegin(GL_LINE_STRIP);
 
   QList<QPointF> points_;
 
   if (style.value("linesmooth").toBool())
-    points_ = interpolateToPoints(points);
+    points_ = interpolateToPoints(points, closed);
   else
     points_ = points;
 
   if (style.value("lineshape").toString() == "SIGWX")
-    points_ = significantWeather(points_, style.value("linewidth").toInt());
+    drawDecoration(style, "SIGWX", closed, points_, z);
+  else {
+    foreach (QPointF p, points_)
+      glVertex3i(p.x(), p.y(), z);
+  }
 
-  foreach (QPointF p, points)
-    glVertex2i(p.x(), p.y());
+  glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
 
-  glEnd(); // GL_LINE_STRIP
+  if (style.value("decoration1").isValid()) {
+    foreach (QVariant v, style.value("decoration1").toList()) {
+      QString decor = v.toString();
+      drawDecoration(style, decor, closed, points_, z);
+    }
+  }
+
+  if (style.value("decoration2").isValid()) {
+    foreach (QVariant v, style.value("decoration2").toList()) {
+      QString decor = v.toString();
+      drawDecoration(style, decor, closed, points_, z);
+    }
+  }
 }
 
-void DrawingStyleManager::drawDecoration(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
+void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
+                                         const QList<QPointF> &points, int z) const
 {
-  QVariantMap style = getStyle(item);
+  int di = closed ? 0 : -1;
 
-  // ### TODO: Draw the different kinds of front decorations.
+  if (decoration == "triangles") {
+
+    int lineLength = style.value("linewidth").toInt() * 12;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    qreal size = lineLength/2.5;
+
+    glBegin(GL_TRIANGLES);
+
+    for (int i = 0; i < points_.size() + di; i += 3) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      if (line.length() < lineLength*0.75)
+        continue;
+
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                               line.normalVector().unitVector().dy());
+
+      QPointF p = midpoint - (size * normal);
+      glVertex3f(p.x(), p.y(), z);
+      glVertex3f(line.p1().x(), line.p1().y(), z);
+      glVertex3f(line.p2().x(), line.p2().y(), z);
+    }
+
+    glEnd(); // GL_TRIANGLES
+
+  } else if (decoration == "arches") {
+
+    int lineLength = style.value("linewidth").toInt() * 12;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    qreal radius = lineLength/2.5;
+    int npoints = (lineLength * 3)/2;
+
+    for (int i = 0; i < points_.size() + di; i += 3) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      if (line.length() < lineLength*0.75)
+        continue;
+
+      qreal start_angle = qAtan2(-line.dy(), -line.dx());
+      qreal finish_angle = qAtan2(line.dy(), line.dx());
+
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      qreal astep = qAbs(finish_angle - start_angle)/npoints;
+
+      // Create an arc using points on the circle with the predefined radius.
+      // The direction we go around the circle is chosen to be consistent with
+      // previous behaviour.
+      glBegin(GL_POLYGON);
+
+      for (int j = 0; j < npoints; ++j) {
+        QPointF p = midpoint + QPointF(radius * qCos(start_angle - j*astep),
+                                       radius * qSin(start_angle - j*astep));
+        glVertex3f(p.x(), p.y(), z);
+      }
+
+      glEnd(); // GL_POLYGON
+    }
+
+  } else if (decoration == "crosses") {
+
+    int lineLength = style.value("linewidth").toInt() * 8;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    qreal size = lineLength/3.0;
+
+    glBegin(GL_LINES);
+
+    for (int i = 0; i < points_.size() + di; ++i) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      QPointF tangent = QPointF(line.unitVector().dx(), line.unitVector().dy());
+      QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                               line.normalVector().unitVector().dy());
+
+      QPointF p = midpoint + (size * normal) + (size * tangent);
+      glVertex3f(p.x(), p.y(), z);
+      p = midpoint - (size * normal) - (size * tangent);
+      glVertex3f(p.x(), p.y(), z);
+      p = midpoint - (size * normal) + (size * tangent);
+      glVertex3f(p.x(), p.y(), z);
+      p = midpoint + (size * normal) - (size * tangent);
+      glVertex3f(p.x(), p.y(), z);
+    }
+
+    glEnd(); // GL_LINES
+
+  } else if (decoration == "arrow") {
+
+  } else if (decoration == "SIGWX") {
+
+    int lineLength = style.value("linewidth").toInt() * 8;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+    int npoints = (lineLength * 3)/2;
+
+    glBegin(GL_LINE_STRIP);
+
+    for (int i = 0; i < points_.size() + di; ++i) {
+
+      QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
+      qreal start_angle = qAtan2(-line.dy(), -line.dx());
+      qreal finish_angle = qAtan2(line.dy(), line.dx());
+
+      QPointF midpoint = (line.p1() + line.p2())/2;
+      qreal radius = line.length()/2;
+      qreal astep = qAbs(finish_angle - start_angle)/npoints;
+
+      // Create an arc using points on the circle with the predefined radius.
+      // The direction we go around the circle is chosen to be consistent with
+      // previous behaviour.
+      for (int j = 0; j < npoints; ++j) {
+        QPointF p = midpoint + QPointF(radius * qCos(start_angle - j*astep),
+                                       radius * qSin(start_angle - j*astep));
+        glVertex3f(p.x(), p.y(), z);
+      }
+    }
+    glEnd(); // GL_LINE_STRIP
+
+  }
 }
 
 void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const
@@ -700,7 +823,7 @@ void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPoi
 
   QList<QPointF> points_;
   if (style.value("linesmooth").toBool())
-    points_ = interpolateToPoints(points);
+    points_ = interpolateToPoints(points, true);
   else
     points_ = points;
 
@@ -722,7 +845,7 @@ void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPoi
   delete[] gldata;
 }
 
-const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &points)
+const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &points, bool closed)
 {
   int size = points.size();
   if (size <= 2) {
@@ -740,13 +863,25 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
 
   for (int i = 0; i < size; ++i) {
 
-    int j = i - 1;
-    if (j < 0) j += size;
+    int j = i - 1;    // Find the index of the previous point.
+    if (j < 0) {
+      if (closed)
+        j += size;    // Closed polylines use the last point.
+      else
+        j = 0;        // Open polylines use the first point.
+    }
+    int k = i + 1;    // Find the index of the next point.
+    if (k == size) {
+      if (closed)
+        k = 0;        // Closed polylines use the first point.
+      else
+        k = i;        // Open polylines use the last point.
+    }
 
     // Take the previous, current and next points in the list.
     QVector2D previous(points.at(j));
     QVector2D p(points.at(i));
-    QVector2D next(points.at((i + 1) % size));
+    QVector2D next(points.at(k));
 
     // Calculate the vectors from the current to the previous and next points.
     QVector2D previous_v = previous - p;
@@ -766,8 +901,8 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
     // tangent or gradient that we extend from the current point to position
     // control points.
     QVector2D gradient = (new_next - new_previous).normalized();
-    prev_l = qMin(QVector2D::dotProduct(p - previous, gradient), l)/4.0;
-    next_l = qMin(QVector2D::dotProduct(next - p, gradient), l)/4.0;
+    prev_l = qMin(QVector2D::dotProduct(p - previous, gradient), l)/3.0;
+    next_l = qMin(QVector2D::dotProduct(next - p, gradient), l)/3.0;
 
     // Construct two control points on either side of the current point.
     QVector2D p0 = p - prev_l * gradient;
@@ -780,18 +915,21 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
   // it to the end of the list.
   new_points.append(new_points.takeFirst());
 
+  // For open paths, do not include the segment from the last point to the first.
+  int end = (closed ? size : size - 1);
+
   QPainterPath path;
   path.moveTo(points.at(0));
-  for (int i = 0; i < size; ++i)
+  for (int i = 0; i < end; ++i)
     path.cubicTo(new_points.at(i*2), new_points.at((i*2)+1), points.at((i+1) % size));
 
   return path;
 }
 
-const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPointF> &points)
+const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPointF> &points, bool closed)
 {
   QList<QPointF> new_points;
-  QPainterPath path = interpolateToPath(points);
+  QPainterPath path = interpolateToPath(points, closed);
 
   foreach (QPolygonF polygon, path.toSubpathPolygons())
     new_points << polygon.toList();
@@ -799,54 +937,44 @@ const QList<QPointF> DrawingStyleManager::interpolateToPoints(const QList<QPoint
   return new_points;
 }
 
-#define NPOINTS 20
-
-const QList<QPointF> DrawingStyleManager::significantWeather(const QList<QPointF> &points, qreal lineWidth)
+const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF> &points, qreal lineLength)
 {
   if (points.size() < 2)
     return points;
 
-  qreal radius = lineWidth * 4;
-  qreal diameter = radius * 2;
-  int npoints = int(3 * radius);
-
-  qreal l = 0;
   QList<QPointF> new_points;
   QPointF last = points.at(0);
-  QPointF start = last;
+  qreal l = 0;
+  qreal last_length = 0;
+
+  new_points << last;
 
   for (int i = 1; i < points.size(); ++i) {
 
-    l += QLineF(last, points.at(i)).length();
+    QLineF this_line = QLineF(last, points.at(i));
+    l += this_line.length();
 
-    if (l >= diameter) {
-      QLineF line(start, points.at(i));
-      qreal start_angle = qAtan2(-line.dy(), -line.dx());
-      qreal finish_angle = qAtan2(line.dy(), line.dx());
+    if (l >= lineLength) {
 
-      while (l >= diameter) {
-        QLineF r = line;
-        r.setLength(diameter);
-        QPointF midpoint = (r.p1() + r.p2())/2;
+      // Find the point on the current line that corresponds to the required line length.
+      while (l >= lineLength) {
+        QLineF line = this_line;
+        line.setLength(lineLength - last_length);
+        new_points << line.p2();
 
-        qreal astep = qAbs(finish_angle - start_angle)/npoints;
-
-        // Create an arc using points on the circle with the predefined radius.
-        // The direction we go around the circle is chosen to be consistent with
-        // previous behaviour.
-        for (int j = 0; j < npoints; ++j)
-          new_points << midpoint + QPointF(radius * qCos(start_angle - j*astep),
-                                           radius * qSin(start_angle - j*astep));
-
-        // Start the next curve at the end of this one.
-        start = last = r.p2();
-        line.setP1(r.p2());
-        l -= diameter;
+        // Remove the part of the line already handled.
+        this_line.setP1(line.p2());
+        l -= lineLength;
+        last_length = 0;
       }
+
+      last_length = this_line.length();
     } else
-      last = points.at(i);
+      last_length = l;
+
+    last = points.at(i);
   }
-  if (start != last)
+  if (new_points.last() != last)
     new_points << last;
 
   return new_points;

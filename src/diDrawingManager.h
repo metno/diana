@@ -81,14 +81,12 @@ public:
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
 
-  void drawLoop(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
-  void drawDecoration(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
 
-  static const QPainterPath interpolateToPath(const QList<QPointF> &points);
-  static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points);
-  static const QList<QPointF> significantWeather(const QList<QPointF> &points, qreal lineWidth);
+  static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
+  static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
+  static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
 
   bool contains(const QString &name) const;
   QVariantMap getStyle(DrawingItemBase *item) const;
@@ -98,6 +96,7 @@ public:
   static DrawingStyleManager *instance();
 
 private:
+  void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed, const QList<QPointF> &points, int z) const;
   QVariantMap parse(const QHash<QString, QString> &definition) const;
   QColor parseColour(const QString &text) const;
 
