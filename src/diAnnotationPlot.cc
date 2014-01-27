@@ -53,9 +53,7 @@ using namespace miutil;
 AnnotationPlot::AnnotationPlot() :
   Plot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ AnnotationPlot::Default Constructor");
-#endif
   init();
 }
 
@@ -63,9 +61,7 @@ AnnotationPlot::AnnotationPlot() :
 AnnotationPlot::AnnotationPlot(const std::string& po) :
   Plot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ AnnotationPlot::Constructor: " << po);
-#endif
   init();
   prepare(po);
 }
@@ -309,7 +305,7 @@ void AnnotationPlot::splitAnnotations()
 
 bool AnnotationPlot::putElements()
 {
-  //  METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
+    METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
   //decode strings, put into elements...
   vector<std::string> stokens, tokens, elementstrings;
   vector<Annotation> anew;
@@ -428,7 +424,7 @@ void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
 
 bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
 {
-  //    METLIBS_LOG_DEBUG("EL:"<<elementstring);
+  METLIBS_LOG_DEBUG("EL:"<<elementstring);
   e.eSize = 1.0;
   e.eFace = poptions.fontface;
   e.eHalign = align_left;
@@ -447,7 +443,7 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
     e.eType = arrow;
   } else if (miutil::contains(elementstring, "image=")) {
     e.eType = image;
-  } else if (miutil::contains(elementstring, "text=")) {
+  } else if (miutil::contains(elementstring, "text=") && !miutil::contains(elementstring,"$")) {
     e.eType = text;
   } else if (miutil::contains(elementstring, "input=")) {
     e.eType = input;
@@ -535,9 +531,7 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
 
 bool AnnotationPlot::plot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ AnnotationPlot::plot() ++");
-#endif
   if (!enabled || !annotations.size() || nothingToDo)
     return false;
 
@@ -670,7 +664,7 @@ bool AnnotationPlot::plot()
 bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
-  //  METLIBS_LOG_DEBUG("plotElements:"<<annoEl.size());
+  METLIBS_LOG_DEBUG("plotElements:"<<annoEl.size());
   float fontsizeScale;
   float wid, hei;
   int nel = annoEl.size();
@@ -889,9 +883,8 @@ void AnnotationPlot::plotBorders()
 void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ AnnotationPlot::getAnnoSize:" <<annoEl.size());
-#endif
+
   float fontsizeScale;
 
   float width = 0, height = 0;
@@ -1463,7 +1456,7 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 
 vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
 {
-  //  METLIBS_LOG_DEBUG("AnnotationPlot::getAnnotationStrings():"<<annotations.size());
+  METLIBS_LOG_DEBUG("AnnotationPlot::getAnnotationStrings():"<<annotations.size());
   vector<vector<std::string> > vvstr;
   bool orig = false;
 
@@ -1496,7 +1489,7 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
 bool AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
 {
   int n = vvstr.size();
-  //  METLIBS_LOG_DEBUG("setAnnotationStrings:"<<n);
+  METLIBS_LOG_DEBUG("setAnnotationStrings:"<<n);
   if (n == 0)
     return false;
 

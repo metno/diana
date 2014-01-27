@@ -460,6 +460,11 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
         miutil::replace(anno[j],"$forecasthour",ost.str());
       }
     }
+    if (miutil::contains(anno[j], "$currenttime")) {
+      if ( fields.size() && fields[0] ) {
+        miutil::replace(anno[j],"$currenttime",fields[0]->timetext);
+      }
+    }
     if (miutil::contains(anno[j], "$model")) {
       if ( fields.size() && fields[0] ) {
         miutil::replace(anno[j],"$model",fields[0]->modelName);
