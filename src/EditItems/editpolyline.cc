@@ -68,6 +68,7 @@ bool PolyLine::hit(const QPointF &pos, bool selected) const
 
     DrawingStyleManager *styleManager = DrawingStyleManager::instance();
     const QVariantMap style = styleManager->getStyle(this);
+
     if (style.value("linesmooth").toBool()) {
         bool closed = style.value("closed").toBool();
         const QPainterPath path = styleManager->interpolateToPath(points_, closed);
@@ -94,21 +95,82 @@ int PolyLine::hitLine(const QPointF &position) const
     if (points_.size() < 2)
         return -1;
 
-    const qreal proximityTolerance = 3.0;
-    qreal minDist = distance2(position, points_[0], points_[1]);
     int minIndex = 0;
-    int n = points_.size();
+    const qreal proximityTolerance = 3.0;
 
-    for (int i = 1; i < n; ++i) {
-        const qreal dist = distance2(QPointF(position), QPointF(points_.at(i)), QPointF(points_.at((i + 1) % n)));
-        if (dist < minDist) {
-            minDist = dist;
-            minIndex = i;
+    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+    const QVariantMap style = styleManager->getStyle(this);
+
+    if (style.value("linesmooth").toBool()) {
+
+      bool closed = style.value("closed").toBool();
+      const QPainterPath path = styleManager->interpolateToPath(points_, closed);
+
+      // Examine each element in the path in turn, checking for an intersection
+      // between a rectangle around the given position and the element. Note that
+      // this approach relies on the order of the elements for each curve to match
+      // the order of the points passed to the cubicTo() method.
+
+      QRectF testRect(position.x() - proximityTolerance/2, position.y() - proximityTolerance/2,
+                      proximityTolerance, proximityTolerance);
+
+      QPointF p(path.elementAt(0));
+      int i = 1;                    // The index into the list of elements.
+      int n = 0;                    // The index of the point (not including control points).
+
+      while (i < path.elementCount()) {
+        int next;                   // The index of the next element.
+
+        QPainterPath subpath;
+        subpath.moveTo(p);
+
+        QPainterPath::Element e = path.elementAt(i);
+
+        switch (e.type) {
+          case QPainterPath::LineToElement:
+            p = QPointF(e.x, e.y);
+            subpath.lineTo(p);
+            next = i + 1;
+            break;
+          case QPainterPath::CurveToElement: {
+            QPointF c1 = QPointF(e);
+            // The two following elements are the control points.
+            QPointF c2(path.elementAt(i + 1));
+            p = QPointF(path.elementAt(i + 2));
+            subpath.cubicTo(c1, c2, p);
+            next = i + 3;
+            break;
+          }
+          default:
+            p = QPointF(e); // Unhandled element type - just use the point.
+            next = i + 1;
+            break;
         }
-    }    
-    if (minDist > proximityTolerance)
-        return -1;
 
+        if (subpath.intersects(testRect))
+          return n;
+
+        i = next;
+        n += 1;
+      }
+
+      // Return -1 to indicate that no intersection occurred.
+      return -1;
+
+    } else {
+      qreal minDist = distance2(position, points_[0], points_[1]);
+      int n = points_.size();
+
+      for (int i = 1; i < n; ++i) {
+          const qreal dist = distance2(QPointF(position), QPointF(points_.at(i)), QPointF(points_.at((i + 1) % n)));
+          if (dist < minDist) {
+              minDist = dist;
+              minIndex = i;
+          }
+      }
+      if (minDist > proximityTolerance)
+          return -1;
+    }
     return minIndex;
 }
 
