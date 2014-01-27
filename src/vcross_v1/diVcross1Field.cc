@@ -114,7 +114,7 @@ void VcrossField::cleanupCache()
       delete vcp;
   VcrossPlotVector.clear();
 
-  BOOST_FOREACH(vector<float*>& vcd, miutil::adaptors::values(VcrossDataMap)) {
+  BOOST_FOREACH(const vector<float*>& vcd, miutil::adaptors::values(VcrossDataMap)) {
     BOOST_FOREACH(float* d, vcd)
         delete[] d;
   }

@@ -31,7 +31,7 @@
 #ifndef diVprofRTemp_h
 #define diVprofRTemp_h
 
-#include <robs/geopos.h>
+//#include <robs/geopos.h>
 #include <puTools/miTime.h>
 #include <diVprofPlot.h>
 #include <string>
@@ -70,8 +70,8 @@ private:
   std::string parameterfile_;
   std::string stationfile_;
   std::string databasefile_;
-  geopos geoposll;
-  geopos geoposur;
+  //geopos geoposll;
+  //geopos geoposur;
   miutil::miTime time_;
 };
 

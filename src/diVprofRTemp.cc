@@ -43,7 +43,7 @@
 
 #include <diVprofRTemp.h>
 #include <diVprofPlot.h>
-#include <robs/geopos.h>
+//#include <robs/geopos.h>
 #include <math.h>
 #include <vector>
 #include <map>
@@ -87,8 +87,8 @@ VprofRTemp::VprofRTemp(const std::string& file, bool amdar,
 		       const std::string & databasefile,
 		       const miutil::miTime& time)
   : amdartemp(amdar),
-    parameterfile_(file), geoposll(latitude-deltalat,longitude-deltalong),
-    geoposur(latitude+deltalat,longitude+deltalong), stationfile_(stationfile),
+    parameterfile_(file),
+    stationfile_(stationfile),
     databasefile_(databasefile), time_(time)
     // unfortunately this request cannot be limited to the ship zone (99)
 {

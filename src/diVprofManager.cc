@@ -50,7 +50,6 @@
 #include <roadAPI/diStation.h>
 #endif // !NEWARK_INC
 #include "diVprofRTemp.h"
-#include "diVprofPilot.h"
 #endif // ROADOBS
 
 #include <diField/diFieldManager.h>
@@ -707,19 +706,6 @@ bool VprofManager::plot()
                   //land or ship wmo station with name
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,false,stationList,obsfiles[nn].stationfile,obsfiles[nn].databasefile,plotTime);
                   vp= vpobs.getStation(obsList[i],plotTime);
-
-                } else if (showObsPilot && obsfiles[nn].obstype==pilot &&
-                    miutil::contains(nameList[i], "Pilot")) {
-                  if (obsList[i]!="99") {
-                    // land or ship station with name
-                    VprofPilot vpobs(obsfiles[nn].filename,stationList);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  } else {
-                    // ship station without name
-                    VprofPilot vpobs(obsfiles[nn].filename,
-                        latitudeList[i],longitudeList[i],2.0f,2.0f);
-                    vp= vpobs.getStation(obsList[i],plotTime);
-                  }
                 } else if (showObsAmdar && obsfiles[nn].obstype==amdar &&
                     !miutil::contains(nameList[i], "Pilot")) {
                   VprofRTemp vpobs(obsfiles[nn].parameterfile,true,

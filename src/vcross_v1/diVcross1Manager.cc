@@ -103,12 +103,12 @@ void VcrossManager::cleanup()
       delete d.vcplot;
   vcdata.clear();
 
-  BOOST_FOREACH(VcrossFile*& f, miutil::adaptors::values(vcfiles)) {
+  BOOST_FOREACH(VcrossFile* const & f, miutil::adaptors::values(vcfiles)) {
       delete f;
-      f = 0;
+      //f = 0;
   }
 
-  BOOST_FOREACH(VcrossField*& f, miutil::adaptors::values(vcfields))
+  BOOST_FOREACH(VcrossField* const & f, miutil::adaptors::values(vcfields))
       delete f;
   vcfields.clear();
 

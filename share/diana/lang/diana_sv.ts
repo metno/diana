@@ -1507,11 +1507,11 @@ Kan inte starta produktion</translation>
     <name>EditTimeDialog</name>
     <message>
         <source>Hide</source>
-        <translation type="obsolete">Skjul</translation>
+        <translation type="obsolete">Dölj</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="obsolete">Avslutt</translation>
+        <translation type="obsolete">Avsluta</translation>
     </message>
 </context>
 <context>
@@ -2072,7 +2072,7 @@ Kan inte starta produktion</translation>
     <name>GridEditDialog</name>
     <message>
         <source>Hide</source>
-        <translation type="obsolete">Skjul</translation>
+        <translation type="obsolete">Dölj</translation>
     </message>
 </context>
 <context>
@@ -2441,7 +2441,7 @@ Kan inte starta produktion</translation>
     <message>
         <location filename="../../../src/qtObjectDialog.cc" line="117"/>
         <source>Fronts</source>
-        <translation>Fronter</translation>
+        <translation>Linjer</translation>
     </message>
     <message>
         <location filename="../../../src/qtObjectDialog.cc" line="118"/>
@@ -2834,7 +2834,7 @@ Kan inte starta produktion</translation>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="280"/>
         <source>All observations (mixing different times)</source>
-        <translation>Alla observasioner (blandade tider)</translation>
+        <translation>Alla observationer (blandade tider)</translation>
     </message>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="491"/>
@@ -2884,12 +2884,12 @@ Kan inte starta produktion</translation>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="496"/>
         <source>Show only observations in the priority list</source>
-        <translation>Visa bara observasioner från prioritetslistan</translation>
+        <translation>Visa bara observationer från prioritetslistan</translation>
     </message>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="497"/>
         <source>Colour of the observations</source>
-        <translation>Färg på observasionen</translation>
+        <translation>Färg på observationen</translation>
     </message>
 </context>
 <context>
@@ -2921,7 +2921,7 @@ Kan inte starta produktion</translation>
     </message>
     <message>
         <source>&amp;Hide</source>
-        <translation type="obsolete">&amp;Skjul</translation>
+        <translation type="obsolete">&amp;Dölj</translation>
     </message>
     <message>
         <location filename="../../../src/qtPaintToolBar.cc" line="61"/>
@@ -3842,11 +3842,11 @@ Vil du kjøre dine endringer først?</translation>
     </message>
     <message>
         <source>Hide</source>
-        <translation type="obsolete">Skjul</translation>
+        <translation type="obsolete">Dölj</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="obsolete">Avslutt</translation>
+        <translation type="obsolete">Avsluta</translation>
     </message>
 </context>
 <context>
@@ -4000,7 +4000,7 @@ Vil du kjøre dine endringer først?</translation>
     </message>
     <message>
         <source>Hide colours</source>
-        <translation type="obsolete">Skjul farger</translation>
+        <translation type="obsolete">Dölj färger</translation>
     </message>
     <message>
         <location filename="../../../src/qtSatDialogAdvanced.cc" line="68"/>
@@ -4469,7 +4469,7 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location filename="../../../src/qtTimeControl.cc" line="169"/>
         <source>Observations</source>
-        <translation>Observasioner</translation>
+        <translation>Observationer</translation>
     </message>
     <message>
         <location filename="../../../src/qtTimeControl.cc" line="170"/>
@@ -4595,7 +4595,7 @@ Vil du kjøre dine endringer først?</translation>
     <message>
         <location filename="../../../src/qtTrajectoryDialog.cc" line="162"/>
         <source>Hide</source>
-        <translation>Skjul</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
         <location filename="../../../src/qtTrajectoryDialog.cc" line="166"/>
@@ -4735,7 +4735,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="76"/>
         <source>Vertical Crossections</source>
-        <translation>Vertikale Tverrsnitt</translation>
+        <translation>Vertikala Tvärsnitt</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="174"/>
@@ -4745,27 +4745,27 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="195"/>
         <source>Fields</source>
-        <translation>Felt</translation>
+        <translation>Fält</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="212"/>
         <source>Selected Fields</source>
-        <translation>Valgte felt</translation>
+        <translation>Valda Fält</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="229"/>
         <source>Delete</source>
-        <translation>Slett</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="238"/>
         <source>Copy</source>
-        <translation>Kopier</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="244"/>
         <source>Delete All</source>
-        <translation>Slett alle</translation>
+        <translation>Ta bort allt</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="250"/>
@@ -4785,12 +4785,12 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="320"/>
         <source>Colour</source>
-        <translation>Farge</translation>
+        <translation>Färg</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="329"/>
         <source>Line width</source>
-        <translation>Linjetykkelse</translation>
+        <translation>Linjebredd</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="337"/>
@@ -4800,12 +4800,12 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="345"/>
         <source>Line interval</source>
-        <translation>Ekvidistanse</translation>
+        <translation>Linjeintervall</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="353"/>
         <source>Density</source>
-        <translation>Tetthet</translation>
+        <translation>Täthet</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="361"/>
@@ -4815,7 +4815,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="369"/>
         <source>Help</source>
-        <translation>Hjelp</translation>
+        <translation>Hjälp</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="379"/>
@@ -4830,12 +4830,12 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="385"/>
         <source>Hide</source>
-        <translation>Skjul</translation>
+        <translation>Dölj</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="393"/>
         <source>Apply</source>
-        <translation>Utfør</translation>
+        <translation>Utför</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="502"/>
@@ -4850,42 +4850,42 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="504"/>
         <source>remove selected field</source>
-        <translation>slett valgt felt</translation>
+        <translation>Ta bort valt fält</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="505"/>
         <source>remove all selected fields</source>
-        <translation>slett alle valgte felt</translation>
+        <translation>Ta bort alle valda fält</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="506"/>
         <source>copy field</source>
-        <translation>kopier felt</translation>
+        <translation>kopiera fält</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="507"/>
         <source>reset plot layout</source>
-        <translation>reset plotteoppsett</translation>
+        <translation>reset plott</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="508"/>
         <source>change model/modeltime</source>
-        <translation>endre modell/termin</translation>
+        <translation>ändra modell/tid</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="509"/>
         <source>history backward</source>
-        <translation>historie tilbake</translation>
+        <translation>historia tilbaka</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="510"/>
         <source>history forward</source>
-        <translation>historie fram</translation>
+        <translation>historia fram</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="511"/>
         <source>use current history</source>
-        <translation>bruk vist historie</translation>
+        <translation>Använd visad historia</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="512"/>
@@ -4915,37 +4915,37 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="584"/>
         <source>Smooth lines</source>
-        <translation>Glatte linjer</translation>
+        <translation>Utjämna linjer</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="595"/>
         <source>Digit size</source>
-        <translation>Tallstørrelse</translation>
+        <translation>Sifferstorlek</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="666"/>
         <source>Basis value</source>
-        <translation>Basisverdi</translation>
+        <translation>Basvärde</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="607"/>
         <source>Time offset</source>
-        <translation>Tidsavvik</translation>
+        <translation>Tidsavvikelse</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="611"/>
         <source> hour(s)</source>
-        <translation> time(r)</translation>
+        <translation> tid(r)</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="649"/>
         <source>Zero-line</source>
-        <translation>Null-linje</translation>
+        <translation>Noll-linje</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="656"/>
         <source>Number on line</source>
-        <translation>Tall på linje</translation>
+        <translation>Siffror på linje</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="589"/>
@@ -4959,7 +4959,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="389"/>
         <source>Apply+Hide</source>
-        <translation>Utfør+Skjul</translation>
+        <translation>Utför+Dölj</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="543"/>
@@ -4984,7 +4984,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="664"/>
         <source>Pattern</source>
-        <translation>Mønster</translation>
+        <translation>Mönster</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="665"/>
@@ -5008,7 +5008,7 @@ Vil du sende før du avslutter?</translation>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="676"/>
         <source>Repeat</source>
-        <translation>Repetere</translation>
+        <translation>Repetera</translation>
     </message>
     <message>
         <location filename="../../../src/qtVcrossDialog.cc" line="689"/>

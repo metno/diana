@@ -449,7 +449,7 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   if (!found) {
     QSvgRenderer renderer(symbols.value(name));
     image = QImage(width, height, QImage::Format_ARGB32);
-    image.fill(QColor(0, 0, 0, 0));
+    image.fill(QColor(0, 0, 0, 0).rgba());
     QPainter painter;
     painter.begin(&image);
     renderer.render(&painter);

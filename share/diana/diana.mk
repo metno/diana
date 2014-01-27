@@ -15,6 +15,7 @@ dist_products_DATA= share/diana/products/swikart.txt \
 
 fontsdir= $(datarootdir)/diana/@PVERSION@/fonts
 dist_fonts_DATA= share/diana/fonts/metsymbols.ttf \
+	share/diana/fonts/metsymbols_2.ttf \
 	share/diana/fonts/Linedraw.ttf \
 	share/diana/fonts/dnmimet.ttf \
 	share/diana/fonts/Cour.ttf \

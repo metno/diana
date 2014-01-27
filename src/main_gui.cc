@@ -92,7 +92,9 @@ int main(int argc, char **argv)
   #if defined(USE_PAINTGL) // either QPA or X11 without OpenGL
     QApplication a(argc, argv);
   #else
+  #if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 0))
     QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+  #endif
     QApplication a( argc, argv );
   #endif
 #endif
