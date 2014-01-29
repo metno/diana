@@ -278,6 +278,7 @@ void PaintGLContext::renderPrimitive()
     }
     case GL_TRIANGLES: {
         setPolygonColor(attributes.color);
+        painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
 
         for (int i = 0; i < points.size() - 2; i += 3) {
             if (validPoints.at(i) && validPoints.at(i + 1) && validPoints.at(i + 2)) {
@@ -414,6 +415,8 @@ void PaintGLContext::renderPrimitive()
     }
     case GL_POLYGON: {
         setPolygonColor(attributes.color);
+        painter->setRenderHint(QPainter::Antialiasing, attributes.antialiasing);
+
         QPolygonF poly;
         for (int i = 0; i < points.size(); ++i) {
             if (validPoints.at(i))
