@@ -468,7 +468,7 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
 
 void DrawingManager::applyPlotOptions(DrawingItemBase *item) const
 {
-  bool antialiasing = item->property("antialiasing", false).toBool();
+  bool antialiasing = item->property("antialiasing", true).toBool();
   if (antialiasing)
     glEnable(GL_MULTISAMPLE);
   else
@@ -506,7 +506,8 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
 {
   QVariantMap style;
 
-  style["linecolour"] = parseColour(definition.value("linecolour", "black"));
+  QString lineColour = definition.value("linecolour");
+  style["linecolour"] = parseColour(lineColour);
   style["linewidth"] = definition.value("linewidth", "1.0").toFloat();
   style["linepattern"] = definition.value("linepattern", "solid");
   style["linesmooth"] = definition.value("linesmooth", "true") == "true";
@@ -515,18 +516,22 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
   style["fillpattern"] = definition.value("fillpattern");
   style["closed"] = definition.value("closed") == "true";
   style["decoration1"] = definition.value("decoration1").split(",");
-  style["decorationcolour1"] = parseColour(definition.value("decorationcolour1"));
+  style["decoration1.colour"] = parseColour(definition.value("decoration1.colour", lineColour));
+  style["decoration1.offset"] = definition.value("decoration1.offset", "0").toInt();
   style["decoration2"] = definition.value("decoration2").split(",");
-  style["decorationcolour2"] = parseColour(definition.value("decorationcolour2"));
+  style["decoration2.colour"] = parseColour(definition.value("decoration2.colour", lineColour));
+  style["decoration2.offset"] = definition.value("decoration2.offset", "0").toInt();
 
   return style;
 }
 
 QColor DrawingStyleManager::parseColour(const QString &text) const
 {
-  if (text.isEmpty() || text.contains(":")) {
+  if (text.isEmpty())
+    return QColor(0, 0, 0, 0);
+  else if (text.contains(":")) {
     // Treat the string as an RGBA value.
-    int r = 0, g = 0, b = 0, a = 0;
+    int r = 0, g = 0, b = 0, a = 255;
     QStringList pieces = text.split(":");
     if (pieces.size() >= 3) {
       r = pieces.at(0).toInt();
@@ -566,7 +571,9 @@ void DrawingStyleManager::beginLine(DrawingItemBase *item)
   glLineWidth(lineWidth);
 
   QColor borderColour = style.value("linecolour").value<QColor>();
-  glColor3ub(borderColour.red(), borderColour.green(), borderColour.blue());
+  if (borderColour.isValid())
+    glColor4ub(borderColour.red(), borderColour.green(), borderColour.blue(),
+               borderColour.alpha());
 }
 
 void DrawingStyleManager::endLine(DrawingItemBase *item)
@@ -667,9 +674,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
   else
     points_ = points;
 
-  if (style.value("lineshape").toString() == "SIGWX")
-    drawDecoration(style, "SIGWX", closed, points_, z);
-  else {
+  if (style.value("linecolour").value<QColor>().alpha() != 0) {
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), z);
   }
@@ -677,34 +682,47 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
   glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
 
   if (style.value("decoration1").isValid()) {
+    QColor colour = style.value("decoration1.colour").value<QColor>();
+    glColor4ub(colour.red(), colour.green(), colour.blue(), colour.alpha());
+
+    unsigned int offset = style.value("decoration1.offset").toInt();
     foreach (QVariant v, style.value("decoration1").toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, points_, z);
+      drawDecoration(style, decor, closed, Outside, points_, z, offset);
+      offset += 1;
     }
   }
 
   if (style.value("decoration2").isValid()) {
+    QColor colour = style.value("decoration2.colour").value<QColor>();
+    glColor4ub(colour.red(), colour.green(), colour.blue(), colour.alpha());
+
+    unsigned int offset = style.value("decoration2.offset").toInt();
     foreach (QVariant v, style.value("decoration2").toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, points_, z);
+      drawDecoration(style, decor, closed, Inside, points_, z, offset);
+      offset += 1;
     }
   }
 }
 
 void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
-                                         const QList<QPointF> &points, int z) const
+                                         const Side &side, const QList<QPointF> &points, int z,
+                                         unsigned int offset) const
 {
   int di = closed ? 0 : -1;
+  int sidef = (side == Inside) ? 1 : -1;
 
   if (decoration == "triangles") {
 
-    int lineLength = style.value("linewidth").toInt() * 12;
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
-    qreal size = lineLength/2.5;
+    qreal size = lineWidth * 5;
 
     glBegin(GL_TRIANGLES);
 
-    for (int i = 0; i < points_.size() + di; i += 3) {
+    for (int i = offset; i < points_.size() + di; i += 4) {
 
       QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
       if (line.length() < lineLength*0.75)
@@ -714,7 +732,7 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       QPointF normal = QPointF(line.normalVector().unitVector().dx(),
                                line.normalVector().unitVector().dy());
 
-      QPointF p = midpoint - (size * normal);
+      QPointF p = midpoint + (sidef * size * normal);
       glVertex3f(p.x(), p.y(), z);
       glVertex3f(line.p1().x(), line.p1().y(), z);
       glVertex3f(line.p2().x(), line.p2().y(), z);
@@ -724,12 +742,13 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
 
   } else if (decoration == "arches") {
 
-    int lineLength = style.value("linewidth").toInt() * 12;
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
-    qreal radius = lineLength/2.5;
-    int npoints = (lineLength * 3)/2;
+    qreal radius = lineWidth * 5;
+    int npoints = lineWidth * 20;
 
-    for (int i = 0; i < points_.size() + di; i += 3) {
+    for (int i = offset; i < points_.size() + di; i += 4) {
 
       QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
       if (line.length() < lineLength*0.75)
@@ -747,8 +766,8 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       glBegin(GL_POLYGON);
 
       for (int j = 0; j < npoints; ++j) {
-        QPointF p = midpoint + QPointF(radius * qCos(start_angle - j*astep),
-                                       radius * qSin(start_angle - j*astep));
+        QPointF p = midpoint + QPointF(radius * qCos(start_angle + sidef * j*astep),
+                                       radius * qSin(start_angle + sidef * j*astep));
         glVertex3f(p.x(), p.y(), z);
       }
 
@@ -757,13 +776,14 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
 
   } else if (decoration == "crosses") {
 
-    int lineLength = style.value("linewidth").toInt() * 8;
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 9;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
-    qreal size = lineLength/3.0;
+    qreal size = lineWidth * 3;
 
     glBegin(GL_LINES);
 
-    for (int i = 0; i < points_.size() + di; ++i) {
+    for (int i = offset; i < points_.size() + di; i += 2) {
 
       QLineF line(points_.at(i), points_.at((i + 1) % points_.size()));
       QPointF midpoint = (line.p1() + line.p2())/2;
@@ -787,9 +807,10 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
 
   } else if (decoration == "SIGWX") {
 
-    int lineLength = style.value("linewidth").toInt() * 8;
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 8;
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
-    int npoints = (lineLength * 3)/2;
+    int npoints = lineWidth * 12;
 
     glBegin(GL_LINE_STRIP);
 
@@ -807,8 +828,8 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       // The direction we go around the circle is chosen to be consistent with
       // previous behaviour.
       for (int j = 0; j < npoints; ++j) {
-        QPointF p = midpoint + QPointF(radius * qCos(start_angle - j*astep),
-                                       radius * qSin(start_angle - j*astep));
+        QPointF p = midpoint + QPointF(radius * qCos(start_angle + sidef * j*astep),
+                                       radius * qSin(start_angle + sidef * j*astep));
         glVertex3f(p.x(), p.y(), z);
       }
     }

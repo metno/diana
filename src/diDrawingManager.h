@@ -72,6 +72,8 @@ class QMouseEvent;
 class DrawingStyleManager
 {
 public:
+  enum Side { Inside, Outside };
+
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
   void addStyle(const QHash<QString, QString> &definition);
@@ -96,7 +98,9 @@ public:
   static DrawingStyleManager *instance();
 
 private:
-  void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed, const QList<QPointF> &points, int z) const;
+  void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
+                      const Side &side, const QList<QPointF> &points, int z,
+                      unsigned int offset = 0) const;
   QVariantMap parse(const QHash<QString, QString> &definition) const;
   QColor parseColour(const QString &text) const;
 
