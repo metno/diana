@@ -170,11 +170,15 @@ int main(int argc, char **argv)
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
     METLIBS_LOG_ERROR("An error occured while reading setup: " << setupfile);
+    QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
+      QString("An error occured while reading setup: %1").arg(QString::fromStdString(setupfile)));
     return 99;
   }
   printerManager printman;
   if (!printman.parseSetup()) {
     METLIBS_LOG_ERROR("An error occured while reading print setup: " << setupfile);
+    QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
+      QString("An error occured while reading print setup: %1").arg(QString::fromStdString(setupfile)));
     return 99;
   }
 
@@ -184,6 +188,8 @@ int main(int argc, char **argv)
   // read setup
   if (!contr.parseSetup()){
     METLIBS_LOG_ERROR("An error occured while reading setup: " << setupfile);
+    QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
+      QString("An error occured while reading setup: %1").arg(QString::fromStdString(setupfile)));
     return 99;
   }
 
