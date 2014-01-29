@@ -318,13 +318,12 @@ void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
 
 QVariantMap EditItemBase::clipboardVarMap() const
 {
-  QVariantMap vmap;
+  QVariantMap vmap = ConstDrawing(this)->properties();
   vmap.insert("type", metaObject()->className());
   QVariantList vpoints;
   foreach (QPointF p, DrawingManager::instance()->PhysToGeo(ConstDrawing(this)->getPoints()))
     vpoints.append(p);
   vmap.insert("points", vpoints);
-  vmap.insert("properties", ConstDrawing(this)->properties());
   return vmap;
 }
 

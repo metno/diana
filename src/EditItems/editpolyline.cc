@@ -61,23 +61,29 @@ PolyLine::~PolyLine()
 
 bool PolyLine::hit(const QPointF &pos, bool selected) const
 {
-    const qreal proximityTolerance = 3.0;
-    const bool hitEdge = (points_.size() >= 2) && (distance(pos) < proximityTolerance);
-    const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
-    bool hitInterior;
+    // Have we hit a control point?
+    if (selected && (hitControlPoint(pos) >= 0))
+      return true;
 
-    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-    const QVariantMap style = styleManager->getStyle(this);
+    // Have we hit the edge?
+    if (points_.size() >= 2 && hitLine(pos) != -1)
+        return true;
 
-    if (style.value("linesmooth").toBool()) {
-        bool closed = style.value("closed").toBool();
-        const QPainterPath path = styleManager->interpolateToPath(points_, closed);
-        hitInterior = path.contains(pos);
-    } else {
-        const QPolygonF polygon(points_.toVector());
-        hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
+    const QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
+
+    bool closed = style.value("closed").toBool();
+    if (closed) {
+      if (style.value("linesmooth").toBool()) {
+          const QPainterPath path = DrawingStyleManager::interpolateToPath(points_, closed);
+          if (path.contains(pos))
+              return true;
+      } else {
+          const QPolygonF polygon(points_.toVector());
+          if (polygon.containsPoint(pos, Qt::OddEvenFill))
+              return true;
+      }
     }
-    return hitEdge || hitSelectedControlPoint || hitInterior;
+    return false;
 }
 
 bool PolyLine::hit(const QRectF &rect) const
@@ -98,13 +104,12 @@ int PolyLine::hitLine(const QPointF &position) const
     int minIndex = 0;
     const qreal proximityTolerance = 3.0;
 
-    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-    const QVariantMap style = styleManager->getStyle(this);
+    const QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
 
     if (style.value("linesmooth").toBool()) {
 
       bool closed = style.value("closed").toBool();
-      const QPainterPath path = styleManager->interpolateToPath(points_, closed);
+      const QPainterPath path = DrawingStyleManager::interpolateToPath(points_, closed);
 
       // Examine each element in the path in turn, checking for an intersection
       // between a rectangle around the given position and the element. Note that
@@ -182,7 +187,8 @@ QList<QAction *> PolyLine::actions(const QPoint &pos) const
 
   QList<QAction *> acts;
   if (hitPointIndex_ != -1) {
-    if (points_.size() > 3)
+    const QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
+    if (points_.size() > 3 || (!style.value("closed").toBool() && points_.size() > 2))
       acts.append(removePoint_act_);
   } else if (hitLineIndex_ != -1) {
     acts.append(addPoint_act_);
@@ -312,8 +318,11 @@ qreal PolyLine::distance2(const QPointF &p, const QPointF &v, const QPointF &w)
     return sqrt(dist2(p, p2));
 }
 
-// Returns the distance between \a p and the multiline (i.e. the mimimum distance between \a p and any of the line segments).
-// If the multiline contains fewer than two points, the function returns -1.
+/**
+ * Returns the distance between \a p and the multiline (i.e. the minimum
+ * distance between \a p and any of the line segments).
+ * If the multiline contains fewer than two points, the function returns -1.
+ */
 qreal PolyLine::distance(const QPointF &p) const
 {
     if (points_.size() < 2)
