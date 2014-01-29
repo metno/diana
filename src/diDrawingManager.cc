@@ -146,6 +146,7 @@ bool DrawingManager::parseSetup()
   if (!styleManager.contains("Default")) {
     QHash<QString, QString> items;
     items["style"] = "Default";
+    items["linecolour"] = "black";
     items["linesmooth"] = "false";
     items["fillcolour"] = "128:128:128:50";
     items["closed"] = "true";
@@ -804,6 +805,30 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     glEnd(); // GL_LINES
 
   } else if (decoration == "arrow") {
+
+    if (points.size() < 2)
+      return;
+
+    // Draw a triangle with the forward point the at the end of the last
+    // line segment.
+    int lineWidth = style.value("linewidth").toInt();
+    int lineLength = lineWidth * 8;
+    QList<QPointF> points_ = getDecorationLines(points, lineLength);
+
+    QPointF p = points_.at(points_.size() - 2);
+    QLineF line(p, points_.last());
+    QPointF tangent = QPointF(line.unitVector().dx(), line.unitVector().dy());
+    QPointF normal = QPointF(line.normalVector().unitVector().dx(),
+                             line.normalVector().unitVector().dy());
+    QPointF dp = normal * lineWidth * 3;
+    QPointF p1 = points_.last() - (lineLength * 2 * tangent) - dp;
+    QPointF p2 = points_.last() - (lineLength * 2 * tangent) + dp;
+
+    glBegin(GL_TRIANGLES);
+    glVertex3f(points_.last().x(), points_.last().y(), z);
+    glVertex3f(p1.x(), p1.y(), z);
+    glVertex3f(p2.x(), p2.y(), z);
+    glEnd(); // GL_TRIANGLES
 
   } else if (decoration == "SIGWX") {
 
