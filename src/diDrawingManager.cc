@@ -526,7 +526,7 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
   style["linecolour"] = parseColour(lineColour);
   style["linewidth"] = definition.value("linewidth", "1.0").toFloat();
   style["linepattern"] = definition.value("linepattern", "solid");
-  style["linesmooth"] = definition.value("linesmooth", "true") == "true";
+  style["linesmooth"] = definition.value("linesmooth", "false") == "true";
   style["lineshape"] = definition.value("lineshape", "normal");
   style["fillcolour"] = parseColour(definition.value("fillcolour"));
   style["fillpattern"] = definition.value("fillpattern");
