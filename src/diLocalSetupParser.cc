@@ -102,6 +102,7 @@ bool LocalSetupParser::parse(std::string& mainfilename)
   if (makeDirectory(homedir,error)) {
     std::string workdir = homedir + "/work";
     makeDirectory(workdir,error);
+    basic_values["workdir"]    = workdir;
   } else {
     homedir=".";
   }

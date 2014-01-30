@@ -793,7 +793,7 @@ void EditItemManager::editStyle()
 void EditItemManager::loadItemsFromFile()
 {
     // select file
-    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), "/disk1/", tr("KML files (*.kml)"));
+    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml)"));
     if (fileName.isNull())
         return; // operation cancelled
 
@@ -832,7 +832,7 @@ bool EditItemManager::loadItems(const QString &fileName)
 void EditItemManager::saveItemsToFile()
 {
     // select file
-    const QString fileName = QFileDialog::getSaveFileName(0, tr("Open File"), "/disk1/", tr("KML files (*.kml)"));
+    const QString fileName = QFileDialog::getSaveFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml)"));
     if (fileName.isNull())
         return; // operation cancelled
 

@@ -67,6 +67,8 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
 
 int findGroupId(const QDomNode &, bool &, QString *);
 
+QHash<QString, QString> getExtendedData(const QDomNode &);
+
 QList<QPointF> getPoints(const QDomNode &, QString *);
 
 void findAncestorElements(const QDomNode &, QMap<QString, QDomElement> *, QString *);
@@ -192,6 +194,10 @@ static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *
       if (!finalGroupId.contains(groupId))
           finalGroupId.insert(groupId, Drawing(item)->id()); // NOTE: item is just created, and its ID is globally unique!
       Drawing(item)->setProperty("groupId", finalGroupId.value(groupId));
+
+      QHash<QString, QString> extdata = getExtendedData(coordsNode);
+      if (extdata.contains("met:style"))
+        Drawing(item)->setProperty("style:type", extdata.value("met:style"));
 
       QMap<QString, QDomElement> ancElems;
       findAncestorElements(coordsNode, &ancElems, error);

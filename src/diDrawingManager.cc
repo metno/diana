@@ -40,6 +40,7 @@
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <diAnnotationPlot.h>
+#include <diLocalSetupParser.h>
 
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
@@ -131,15 +132,24 @@ bool DrawingManager::parseSetup()
           f.close();
         } else
           METLIBS_LOG_WARN("Failed to load symbol file: " << items["file"].toStdString());
-      } else {
 
+      } else {
         // Drawing definitions
         drawings_.insert(items["file"]);
       }
     } else if (items.contains("style")) {
       // Read-only style definitions
       styleManager.addStyle(items);
+    } else if (items.contains("workdir")) {
+      workDir = items["workdir"];
     }
+  }
+
+  if (workDir.isNull()) {
+    std::string workdir = LocalSetupParser::basicValue("workdir");
+    if (workdir.empty())
+      workdir = LocalSetupParser::basicValue("homedir");
+    workDir = QString::fromStdString(workdir);
   }
 
   // Add a default style.
@@ -424,6 +434,11 @@ QSet<DrawingItemBase *> DrawingManager::getItems() const
 QSet<QString> &DrawingManager::drawings()
 {
   return drawings_;
+}
+
+QString DrawingManager::getWorkDir() const
+{
+  return workDir;
 }
 
 void DrawingManager::drawSymbol(const QString &name, float x, float y, int width, int height)

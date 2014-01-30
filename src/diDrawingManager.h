@@ -180,6 +180,8 @@ public:
   // Dialog-related methods
   QSet<QString> &drawings();
 
+  QString getWorkDir() const;
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
@@ -200,6 +202,7 @@ private:
   GridConverter gc;
   QSet<QString> drawings_;
   QHash<QString, QSet<DrawingItemBase *> > loaded;
+  QString workDir;
 
   QHash<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;

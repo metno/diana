@@ -154,8 +154,16 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc) const
   QDomElement dataElem = doc.createElement("Data");
   dataElem.setAttribute("name", "met:groupId");
   dataElem.appendChild(valueElem);
+
+  QDomElement valueStyleElem = doc.createElement("value");
+  valueStyleElem.appendChild(doc.createTextNode(properties_.value("style:type", QVariant("Default")).toString()));
+  QDomElement dataStyleElem = doc.createElement("Data");
+  dataStyleElem.setAttribute("name", "met:style");
+  dataStyleElem.appendChild(valueStyleElem);
+
   QDomElement extDataElem = doc.createElement("ExtendedData");
   extDataElem.appendChild(dataElem);
+  extDataElem.appendChild(dataStyleElem);
   return extDataElem;
 }
 

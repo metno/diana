@@ -96,7 +96,7 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
 
   // NOTE: We don't support styling for now, so styling elements will not be written to the file!
 
-  // compress itmesFrag if necessary (so represent identical <Folder> elements as one <Folder> element etc.) ... TBD
+  // compress itemsFrag if necessary (so represent identical <Folder> elements as one <Folder> element etc.) ... TBD
 
   // add structures of individual items
   docElem.appendChild(itemsFrag);
@@ -122,8 +122,28 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
 // Leaves \a error empty iff no errors occurs.
 int findGroupId(const QDomNode &node, bool &found, QString *error)
 {
-  found = false;
-  *error = QString();
+  QHash<QString, QString> extdata = getExtendedData(node);
+  if (extdata.isEmpty() || !error->isEmpty()) {
+    *error = QString("No extended data available");
+    found = false;
+    return -1;
+  }
+
+  bool ok;
+  int groupId = extdata.value("met:groupId").toInt(&ok);
+  if (!ok) {
+    *error = QString("failed to extract met:groupId as integer: %1").arg(groupId);
+    found = false;
+    return -1;
+  } else {
+    found = true;
+    return groupId;
+  }
+}
+
+QHash<QString, QString> getExtendedData(const QDomNode &node)
+{
+  QHash<QString, QString> extdata;
 
   // find the first ancestor (including \a node itself) with met:groupId in an <ExtendedData> child:
 
@@ -131,31 +151,19 @@ int findGroupId(const QDomNode &node, bool &found, QString *error)
     const QDomElement extDataElem = n.firstChildElement("ExtendedData");
     if (!extDataElem.isNull()) {
       const QDomNodeList dataNodes = extDataElem.elementsByTagName("Data");
-      for (int i = 0; error->isEmpty() && (i < dataNodes.size()); ++i) {
+      for (int i = 0; i < dataNodes.size(); ++i) {
         const QDomElement dataElem = dataNodes.item(i).toElement();
-        if (dataElem.attribute("name") == "met:groupId") {
-          const QDomNodeList valueNodes = dataElem.elementsByTagName("value");
-          for (int j = 0; error->isEmpty() && (j < valueNodes.size()); ++j) {
-            const QDomElement valueElem = valueNodes.item(j).toElement();
-            const QString id_s = valueElem.firstChild().nodeValue();
-            bool ok;
-            const int groupId = id_s.toInt(&ok);
-            if (!ok) {
-              found = false;
-              *error = QString("failed to extract met:groupId as integer: %1").arg(id_s);
-              return -1;
-            } else {
-              found = true;
-              return groupId;
-            }
-          }
+        const QDomNodeList valueNodes = dataElem.elementsByTagName("value");
+        for (int j = 0; j < valueNodes.size(); ++j) {
+          const QDomElement valueElem = valueNodes.item(j).toElement();
+          const QString value = valueElem.firstChild().nodeValue();
+          extdata[dataElem.attribute("name")] = value;
         }
       }
     }
   }
 
-  found = false;
-  return -1;
+  return extdata;
 }
 
 // Returns the sequence of (lat, lon) points of a <cooordinates> element.
