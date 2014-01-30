@@ -40,30 +40,31 @@ namespace EditItem_Symbol {
 
 class Symbol : public EditItemBase, public DrawingItem_Symbol::Symbol
 {
-    Q_OBJECT
-    friend class SetGeometryCommand;
+  Q_OBJECT
+  friend class SetGeometryCommand;
+
 public:
-    Symbol();
-    virtual ~Symbol();
+  Symbol();
+  virtual ~Symbol();
 
 private:
-    virtual bool hit(const QPointF &, bool) const;
-    virtual bool hit(const QRectF &) const;
+  virtual bool hit(const QPointF &, bool) const;
+  virtual bool hit(const QRectF &) const;
 
-    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
+  virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
 
-    virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
-    virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
+  virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
+  virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
-    virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }
+  virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }
 
-    virtual void drawHoverHighlighting(bool) const;
+  virtual void drawHoverHighlighting(bool) const;
 
-    virtual void resize(const QPointF &);
-    virtual void updateControlPoints();
-    virtual void setPoints(const QList<QPointF> &);
+  virtual void resize(const QPointF &);
+  virtual void updateControlPoints();
+  virtual void setPoints(const QList<QPointF> &);
 
-    void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
+  void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
 };
 
 } // namespace EditItem_Symbol

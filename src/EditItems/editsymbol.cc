@@ -41,8 +41,8 @@ namespace EditItem_Symbol {
 
 Symbol::Symbol()
 {
-    init();
-    updateControlPoints();
+  init();
+  updateControlPoints();
 }
 
 Symbol::~Symbol()
@@ -51,16 +51,16 @@ Symbol::~Symbol()
 
 bool Symbol::hit(const QPointF &pos, bool selected) const
 {
-    const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
-    const QPolygonF polygon(boundingSquare().toVector());
-    const bool hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
-    return hitSelectedControlPoint || hitInterior;
+  const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
+  const QPolygonF polygon(boundingSquare().toVector());
+  const bool hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
+  return hitSelectedControlPoint || hitInterior;
 }
 
 bool Symbol::hit(const QRectF &rect) const
 {
-    Q_UNUSED(rect);
-    return false; // for now
+  Q_UNUSED(rect);
+  return false; // for now
 }
 
 
@@ -69,31 +69,31 @@ void Symbol::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
 {
-    Q_ASSERT(undoCommands);
+  Q_ASSERT(undoCommands);
 
-    if (event->button() == Qt::LeftButton) {
-        pressedCtrlPointIndex_ = hitControlPoint(event->pos());
-        resizing_ = (pressedCtrlPointIndex_ >= 0);
-        moving_ = !resizing_;
-        basePoints_ = points_;
-        baseMousePos_ = event->pos();
+  if (event->button() == Qt::LeftButton) {
+    pressedCtrlPointIndex_ = hitControlPoint(event->pos());
+    resizing_ = (pressedCtrlPointIndex_ >= 0);
+    moving_ = !resizing_;
+    basePoints_ = points_;
+    baseMousePos_ = event->pos();
 
-        if (multiItemOp)
-            *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
+    if (multiItemOp)
+      *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
 
-    } else if (event->button() == Qt::RightButton) {
-        if (selItems) {
-            // open a context menu and perform the selected action
-            QMenu contextMenu;
-            QAction remove_act(tr("&Remove"), 0);
+  } else if (event->button() == Qt::RightButton) {
+    if (selItems) {
+      // open a context menu and perform the selected action
+      QMenu contextMenu;
+      QAction remove_act(tr("&Remove"), 0);
 
-            // add actions
-            contextMenu.addAction(&remove_act);
-            QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
-            if (action == &remove_act)
-                remove(repaintNeeded, items, selItems);
-        }
+      // add actions
+      contextMenu.addAction(&remove_act);
+      QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
+      if (action == &remove_act)
+        remove(repaintNeeded, items, selItems);
     }
+  }
 }
 
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -125,10 +125,10 @@ void Symbol::resize(const QPointF &pos)
 
 void Symbol::updateControlPoints()
 {
-    controlPoints_.clear();
-    const int size = controlPointSize(), size_2 = size / 2;
-    foreach (QPointF p, boundingSquare())
-        controlPoints_.append(QRectF(p.x() - size_2, p.y() - size_2, size, size));
+  controlPoints_.clear();
+  const int size = controlPointSize(), size_2 = size / 2;
+  foreach (QPointF p, boundingSquare())
+    controlPoints_.append(QRectF(p.x() - size_2, p.y() - size_2, size, size));
 }
 
 void Symbol::setPoints(const QList<QPointF> &points)
@@ -138,13 +138,13 @@ void Symbol::setPoints(const QList<QPointF> &points)
 
 void Symbol::remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
 {
-    // Option 1: remove this item only:
-    // items->remove(this);
+  // Option 1: remove this item only:
+  // items->remove(this);
 
-    // Option 2: remove all selected items:
-    items->subtract(*selItems);
+  // Option 2: remove all selected items:
+  items->subtract(*selItems);
 
-    repaintNeeded = true;
+  repaintNeeded = true;
 }
 
 void Symbol::drawHoverHighlighting(bool incomplete) const
