@@ -70,7 +70,7 @@ void Symbol::draw()
 
   const QList<QPointF> bbox = boundingSquare();
 
-  DrawingManager::instance()->drawSymbol("Default",
+  DrawingManager::instance()->drawSymbol(property("style:type", "Default").toString(),
     bbox.at(0).x(), bbox.at(0).y(),
     bbox.at(2).x() - bbox.at(0).x(), bbox.at(2).y() - bbox.at(0).y());
 }

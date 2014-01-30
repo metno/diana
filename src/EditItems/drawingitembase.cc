@@ -104,12 +104,6 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
   QString styleType = properties_.value("style:type").toString();
 
-  if (styleType.isEmpty())
-    styleType = "Default";
-
-  if (styleType != "Custom" && !styleManager->contains(styleType))
-      styleType = "Default";
-
   // Update the type name in the item's properties.
   properties_["style:type"] = styleType;
 
