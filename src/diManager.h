@@ -62,6 +62,8 @@ public:
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
 
+  virtual std::vector<std::string> getAnnotations() const = 0;
+
   virtual bool isEnabled() const;
   virtual void setEnabled(bool enable);
   virtual bool isEditing() const;

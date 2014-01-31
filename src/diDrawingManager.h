@@ -136,6 +136,7 @@ public:
   virtual bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
+  virtual std::vector<std::string> getAnnotations() const;
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
@@ -195,13 +196,13 @@ protected:
   Area currentArea;
 
   QSet<DrawingItemBase *> items_;
+  QSet<QString> loaded;
 
 private:
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
   GridConverter gc;
   QSet<QString> drawings_;
-  QHash<QString, QSet<DrawingItemBase *> > loaded;
   QString workDir;
 
   QHash<QString, QByteArray> symbols;

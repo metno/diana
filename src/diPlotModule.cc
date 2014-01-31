@@ -854,6 +854,22 @@ void PlotModule::setAnnotations()
     annotations.push_back(ann);
   }
 
+  // Miscellaneous managers
+  map<string,Manager*>::iterator it = managers.begin();
+  while (it != managers.end()) {
+    // Obtain the annotations for enabled managers.
+    if (it->second->isEnabled()) {
+      vector<string> plotAnnotations = it->second->getAnnotations();
+      vector<string>::const_iterator iti;
+      for (iti = plotAnnotations.begin(); iti != plotAnnotations.end(); ++iti) {
+        ann.str = *iti;
+        ann.col = Colour(0, 0, 0);
+        annotations.push_back(ann);
+      }
+    }
+    ++it;
+  }
+
   for (int i = 0; i < n; i++) {
     vap[i]->setData(annotations, fieldAnalysisTime);
     vap[i]->setfillcolour(splot.getBgColour());
@@ -900,7 +916,6 @@ void PlotModule::setAnnotations()
     AnnotationPlot* ap = new AnnotationPlot(objLabelstring[i]);
     vap.push_back(ap);
   }
-
 }
 
 

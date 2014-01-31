@@ -178,6 +178,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   foreach (DrawingItemBase *item, items_.values())
     removeItem_(item);
 
+  loaded.clear();
+
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
 
@@ -209,6 +211,14 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 
   setEnabled(!items_.empty());
   return true;
+}
+
+std::vector<std::string> DrawingManager::getAnnotations() const
+{
+  vector<string> output;
+  foreach (QString drawing, loaded)
+    output.push_back(drawing.toStdString());
+  return output;
 }
 
 DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
@@ -248,6 +258,7 @@ bool DrawingManager::loadItems(const QString &fileName)
     return false;
   }
 
+  loaded.insert(fileName);
   return true;
 }
 

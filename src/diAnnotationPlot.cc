@@ -188,7 +188,6 @@ void AnnotationPlot::setfillcolour(std::string colname)
 
 bool AnnotationPlot::prepare(const std::string& pin)
 {
-
   pinfo = pin;
   poptions.fontname = "BITMAPFONT"; //default
   poptions.textcolour = Colour("black");
