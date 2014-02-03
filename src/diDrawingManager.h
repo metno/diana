@@ -179,7 +179,8 @@ public:
   void drawSymbol(const QString &name, float x, float y, int width, int height);
 
   // Dialog-related methods
-  QSet<QString> &drawings();
+  QSet<QString> &getDrawings();
+  QSet<QString> &getLoaded();
 
   QString getWorkDir() const;
 
@@ -196,13 +197,13 @@ protected:
   Area currentArea;
 
   QSet<DrawingItemBase *> items_;
-  QSet<QString> loaded;
+  QSet<QString> drawings_;
+  QSet<QString> loaded_;
 
 private:
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
   GridConverter gc;
-  QSet<QString> drawings_;
   QString workDir;
 
   QHash<QString, QByteArray> symbols;

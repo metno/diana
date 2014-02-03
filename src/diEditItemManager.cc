@@ -825,7 +825,8 @@ bool EditItemManager::loadItems(const QString &fileName)
       addItem(item, false, ++i == items.size());
     }
 
-    loaded.insert(fileName);
+    drawings_.insert(fileName);
+    loaded_.insert(fileName);
     updateActionsAndTimes();
     return true;
 }

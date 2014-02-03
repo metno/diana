@@ -178,7 +178,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   foreach (DrawingItemBase *item, items_.values())
     removeItem_(item);
 
-  loaded.clear();
+  loaded_.clear();
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
@@ -216,7 +216,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 std::vector<std::string> DrawingManager::getAnnotations() const
 {
   vector<string> output;
-  foreach (QString drawing, loaded)
+  foreach (QString drawing, loaded_)
     output.push_back(drawing.toStdString());
   return output;
 }
@@ -258,7 +258,8 @@ bool DrawingManager::loadItems(const QString &fileName)
     return false;
   }
 
-  loaded.insert(fileName);
+  drawings_.insert(fileName);
+  loaded_.insert(fileName);
   return true;
 }
 
@@ -442,9 +443,14 @@ QSet<DrawingItemBase *> DrawingManager::getItems() const
   return items_;
 }
 
-QSet<QString> &DrawingManager::drawings()
+QSet<QString> &DrawingManager::getDrawings()
 {
   return drawings_;
+}
+
+QSet<QString> &DrawingManager::getLoaded()
+{
+  return loaded_;
 }
 
 QString DrawingManager::getWorkDir() const

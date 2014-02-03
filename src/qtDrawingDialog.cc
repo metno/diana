@@ -157,7 +157,7 @@ std::vector<std::string> DrawingDialog::getOKString()
   if (!editm->isEnabled())
     return lines;
 
-  foreach (QString filePath, loaded) {
+  foreach (QString filePath, editm->getLoaded()) {
     QString line = "DRAWING file=\"" + filePath + "\"";
     lines.push_back(line.toStdString());
   }
@@ -241,7 +241,7 @@ void DrawingDialog::updateModel()
 {
   drawingModel.clear();
 
-  foreach (QString filePath, DrawingManager::instance()->drawings()) {
+  foreach (QString filePath, DrawingManager::instance()->getDrawings()) {
     QString fileName = QFileInfo(filePath).fileName();
     QStandardItem *item = new QStandardItem(fileName);
     item->setData(filePath, Qt::UserRole);
