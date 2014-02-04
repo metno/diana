@@ -114,10 +114,10 @@
 #include "qtBrowserBox.h"
 #include "qtAddtoMenu.h"
 #include "qtUffdaDialog.h"
-#include <qUtilities/ClientButton.h>
+#include <coserver/ClientButton.h>
 #include "qtTextView.h"
-#include <qUtilities/miMessage.h>
-#include <qUtilities/QLetterCommands.h>
+#include <coserver/miMessage.h>
+#include <coserver/QLetterCommands.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miCommandLine.h>
 #include "qtPaintToolBar.h"

@@ -84,11 +84,6 @@ AC_ARG_ENABLE([hdf5],
     [], [enable_hdf5=no])
 AM_CONDITIONAL([WITH_HDF5], [test x$enable_hdf5 = xyes])
 
-AC_ARG_ENABLE([proddb],
-    [AS_HELP_STRING([--enable-proddb], [enable met.no production database])],
-    [], [enable_proddb=no])
-AM_CONDITIONAL([WITH_PRODDB], [test x$enable_proddb = xyes])
-
 AC_ARG_ENABLE([obs-bufr],
     [AS_HELP_STRING([--disable-obs-bufr], [disable observation buffers])],
     [], [enable_obs_bufr=no])
@@ -130,7 +125,7 @@ AM_CONDITIONAL([WITH_PERL], [test x$enable_perl = xyes])
 #
 # there must be a more elegant way to do this
 METNO_REQUIRE_PKG([DIFIELD], [diField])
-METNO_REQUIRE_PKG([DIMITIFF], [diMItiff])
+METNO_REQUIRE_PKG([MIRASTER], [miRaster])
 
 AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_PKG([GLTEXT], [glText])
@@ -138,26 +133,17 @@ AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_PKG([GLU],[glu])
 ])
 
-METNO_REQUIRE_PKG([LIBMI], [libmi])
-
 AS_IF([test x$enable_embedded != xyes], [
     METNO_REQUIRE_PKG([MIFTGL], [miFTGL])
 ])
 
 METNO_REQUIRE_PKG([MILOGGER], [miLogger])
-METNO_REQUIRE_PKG([MILIB], [milib])
-METNO_REQUIRE_PKG([PARAMETER], [parameter])
 METNO_REQUIRE_PKG([PUCTOOLS], [puCtools])
 METNO_REQUIRE_PKG([PUDATATYPES], [puDatatypes])
 METNO_REQUIRE_PKG([PUTOOLS], [puTools])
 AS_IF([test x$enable_batch_only != xyes], [
     METNO_REQUIRE_PKG([QUTILITIES], [qUtilities])
-])
-
-
-AS_IF([test x$enable_proddb = xyes], [
-    METNO_REQUIRE_PKG([DISQL], [diSQL])
-    METNO_REQUIRE_PKG([PUSQL], [puSQL])
+    METNO_REQUIRE_PKG([COSERVER], [coserver])
 ])
 
 AS_IF([test x$enable_roadobs = xyes], [

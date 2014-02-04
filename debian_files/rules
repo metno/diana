@@ -10,9 +10,9 @@ do-configure: configure-stamp
 	@true
 configure-stamp:
 	./autogen.sh
-	./configure --enable-proddb \
+	./configure  \
 	    --disable-silent-rules --enable-vcross-v2 \
-	    --enable-obs-bufr --enable-geotiff \
+	    --enable-geotiff \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 	    --program-suffix=$(METNO_SUFFIX)
 	touch $@

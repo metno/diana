@@ -32,7 +32,7 @@
 #define diGEOtiff_h
 
 #include <diSat.h>
-#include <diMItiff/satgeotiff.h>
+#include <miRaster/satgeotiff.h>
 
 #include <vector>
 

@@ -32,7 +32,7 @@
 #define diHDF5_h
 
 #include <diSat.h>
-#include <diMItiff/satimgh5.h>
+#include <miRaster/satimgh5.h>
 
 
 /**
