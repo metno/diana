@@ -56,16 +56,6 @@ common_ldadd += \
 	${ROADAPI_LIBS} ${GRIBAPI_LIBS}
 endif
 
-# Additional source code for met.no prod db
-if WITH_PRODDB
-common_ldflags += \
-	$(PUSQL_LDFLAGS) \
-	$(DISQL_LDFLAGS)
-common_ldadd += \
-	$(PUSQL_LIBS) \
-	$(DISQL_LIBS)
-endif
-
 # Additional source code for video export feature
 if WITH_VIDEO_EXPORT
 common_ldflags += $(AVFORMAT_LDFLAGS)
