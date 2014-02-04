@@ -593,7 +593,7 @@ common_ldadd += \
 	$(DIFIELD_LIBS) \
 	$(MIRASTER_LIBS) \
 	$(PUCTOOLS_LIBS) \
-	$(EMOS_LIBS) \
+	$(EMOS_LIBS) $(FORTRAN_LIBS) \
 	$(PUDATATYPES_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
