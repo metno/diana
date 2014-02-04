@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
  qt4-qmake-headless, libqt4-headless-dev, libemos-dev,
- metlibs-difield-dev, metlibs-miraster-dev, metlibs-milib-dev,
+ metlibs-difield-dev, metlibs-miraster-dev,
  metlibs-milogger-dev, metlibs-puctools-dev,
  metlibs-pudatatypes-dev,
  libboost-date-time-dev, libboost-regex-dev,
