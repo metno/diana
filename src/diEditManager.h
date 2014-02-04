@@ -41,10 +41,7 @@
 #include <diField/diGridConverter.h>
 
 #include <vector>
-
-#ifdef METNOPRODDB
-#include <diSQL/diProductionGate.h>
-#endif
+#include <QString>
 
 class PlotModule;
 class ObjectManager;
@@ -109,10 +106,6 @@ private:
   bool combineFields(float zoneWidth);
 
   void cleanCombineData(bool cleanData);
-
-#ifdef METNOPRODDB
-  ProductionGate gate; //database gate
-#endif
 
   void findSavedProducts(std::vector<savedProduct>& prods,
 			 const std::string fileString,
@@ -181,6 +174,9 @@ public:
   std::string getProductName();
   /// save edited annotations in EditObjects
   void saveProductLabels(std::vector <std::string> labels);
+  bool fileExists(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
+  bool removeFile(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
+  bool makeNewFile(int fnum, bool local);
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
@@ -227,18 +223,6 @@ public:
   bool obs_mslp(ObsPositions& obsPositions);
   /// shows all hidden edit objects
   bool showAllObjects();
-  /// login to the database
-  bool loginDatabase(editDBinfo& db, std::string& message);
-  /// logout of the database
-  bool logoutDatabase(editDBinfo& db);
-  /// terminate one production
-  bool killProduction(const std::string&,const std::string&,
-		      const miutil::miTime&,std::string&);
-  /// check if OK to start editing this product.
-  /** If production already started return false, else return true,
-      in: prodname,pid,prodtime out: message */
-  bool checkProductAvailability(const std::string&,const std::string&,
-				const miutil::miTime&,std::string&);
   /// returns EditProducts defined in setup file
   std::vector<EditProduct> getEditProducts();
   /// returns a string with product id, name, time and object types

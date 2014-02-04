@@ -75,7 +75,6 @@
 using namespace std;
 
 /*********************************************/
-#define HEIGHTLISTBOX 120
 #define FIELD_INDEX 0
 #define OBJECT_INDEX 1
 
@@ -83,16 +82,12 @@ using namespace std;
 #define SYMBOL_INDEX 1
 #define AREA_INDEX 2
 #define SIGMAP_INDEX 3
-//#define dEditDlg
-//#define DEBUGPRINT
 
 /*********************************************/
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
-#ifdef dEditDlg
   METLIBS_LOG_DEBUG("EditDialog::EditDialog called");
-#endif
 
   TABNAME_FIELD= tr("Field");
   TABNAME_OBJECTS= tr("Objects");
@@ -118,18 +113,18 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Occlusion"]=tr("Occlusion"); //Okklusjon
   editTranslations["Cold occlusion"]=tr("Cold occlusion"); //Kald okklusjon
   editTranslations["Warm occlusion"]=tr("Warm occlusion"); //Varm okklusjon
-  editTranslations["Stationary front"]=tr("Stationary front"); //Stasjonær front
-  editTranslations["Trough"]=tr("Trough"); //Tråg
+  editTranslations["Stationary front"]=tr("Stationary front"); //Stasjonï¿½r front
+  editTranslations["Trough"]=tr("Trough"); //Trï¿½g
   editTranslations["Squall line"]=tr("Squall line"); //Bygelinje
-  editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vær
-  editTranslations["Significant weather TURB/VA/RC"]=tr("Significant weather TURB/VA/RC"); //Sig.vær
-  editTranslations["Significant weather ICE/TCU/CB"]=tr("Significant weather ICE/TCU/CB"); //Sig.vær
+  editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vï¿½r
+  editTranslations["Significant weather TURB/VA/RC"]=tr("Significant weather TURB/VA/RC"); //Sig.vï¿½r
+  editTranslations["Significant weather ICE/TCU/CB"]=tr("Significant weather ICE/TCU/CB"); //Sig.vï¿½r
 
   editTranslations["Low pressure"]=tr("Low pressure"); //Lavtrykk
-  editTranslations["High pressure"]=tr("High pressure"); //Høytrykk
+  editTranslations["High pressure"]=tr("High pressure"); //Hï¿½ytrykk
   editTranslations["Cold"]=tr("Cold"); //Kald
   editTranslations["Warm"]=tr("Warm"); //Varm
-  editTranslations["Fog"]=tr("Fog"); //Tåke
+  editTranslations["Fog"]=tr("Fog"); //Tï¿½ke
   editTranslations["Drizzle"]=tr("Drizzle "); //yr
   editTranslations["Freezing drizzle"]=tr("Freezing drizzle"); //Yr som fryser
   editTranslations["Freezing rain"]=tr("Freezing rain"); //Regn som fryser
@@ -138,9 +133,9 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Sleet showers"]=tr("Sleet showers"); //Sluddbyger ??
   editTranslations["Hail showers"]=tr("Hail showers"); //Haglbyger
   editTranslations["Snow showers"]=tr("Snow showers"); //Haglbyger
-  editTranslations["Thunderstorm"]=tr("Thunderstorm"); //Tordenvær
-  editTranslations["Thunderstorm with hail"]=tr("Thunderstorm with hail"); //Tordenvær m/hagl
-  editTranslations["Snow"]=tr("Snow"); //Snø(stjerne)    ??
+  editTranslations["Thunderstorm"]=tr("Thunderstorm"); //Tordenvï¿½r
+  editTranslations["Thunderstorm with hail"]=tr("Thunderstorm with hail"); //Tordenvï¿½r m/hagl
+  editTranslations["Snow"]=tr("Snow"); //Snï¿½(stjerne)    ??
   editTranslations["Rain"]=tr("Rain"); //Regn
   editTranslations["Sleet"]=tr("Sleet"); //Sludd
 
@@ -153,13 +148,13 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["EditText"]=tr("EditText");   //Tekster
 
 
-  editTranslations["Precipitation"]=tr("Precipitation"); //Nedbør ??
+  editTranslations["Precipitation"]=tr("Precipitation"); //Nedbï¿½r ??
   editTranslations["Showers"]=tr("Showers"); //Byger
   editTranslations["Clouds"]=tr("Clouds"); //Skyer
-  editTranslations["Fog"]=tr("Fog"); //Tåke
+  editTranslations["Fog"]=tr("Fog"); //Tï¿½ke
   editTranslations["Ice"]=tr("Ice"); //Is
-  editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vær
-  editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.vær
+  editTranslations["Significant weather"]=tr("Significant weather"); //Sig.vï¿½r
+  editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.vï¿½r
   editTranslations["Generic area"]=tr("Generic area"); //
 
   // --------------------------------------------------------------------
@@ -186,9 +181,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 /*********************************************/
 void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 {
-#ifdef dEditDlg
   METLIBS_LOG_DEBUG("EditDialog::ConstructorCernel called");
-#endif
 
   m_editm= m_ctrl->getEditManager();
   m_objm=  m_ctrl->getObjectManager();
@@ -206,27 +199,20 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   openValuePixmap= QPixmap(edit_open_value_xpm);
   lockValuePixmap= QPixmap(edit_lock_value_xpm);
 
-  bgroup = new QButtonGroup( this );
+
+  saveButton = NormalPushButton(tr("Save"), this);
+  connect( saveButton, SIGNAL(clicked()), SLOT(saveClicked())  );
+  sendButton = NormalPushButton(tr("Send"), this);
+  connect( sendButton, SIGNAL(clicked()), SLOT(sendClicked())  );
+  sendButton->setEnabled(false);
+  approveButton = NormalPushButton(tr("Approve"), this);
+  connect( approveButton, SIGNAL(clicked()), SLOT(approveClicked( ))  );
+  approveButton->setEnabled(false);
   QHBoxLayout* bgroupLayout = new QHBoxLayout();
-  int m_nr_buttons=3;
-  b = new QPushButton*[m_nr_buttons];
-  vector<std::string> vstr(3);
-  vstr[prodb]=tr("Product").toStdString();
-  vstr[saveb]=tr("Save").toStdString();
-  vstr[sendb]=tr("Send").toStdString();
+  bgroupLayout->addWidget(saveButton);
+  bgroupLayout->addWidget(sendButton);
+  bgroupLayout->addWidget(approveButton);
 
-  int i;
-
-  for( i=0; i< m_nr_buttons; i++ ){
-    b[i] = NormalPushButton( vstr[i].c_str(), this );
-    bgroup->addButton(b[i],i);
-    b[i]->setFocusPolicy(Qt::ClickFocus);
-    bgroupLayout->addWidget(b[i]);
-  }
-
-  b[prodb]->setFocusPolicy(Qt::StrongFocus);
-  b[saveb]->setEnabled(false);
-  b[sendb]->setEnabled(false);
 
   // ********** TAB
   twd = new QTabWidget( this );
@@ -275,7 +261,6 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   edithelp = NormalPushButton(tr("Help"), this );
   connect(  edithelp, SIGNAL(clicked()), SLOT( helpClicked() ));
 
-  connect( bgroup, SIGNAL(buttonClicked(int)), SLOT(groupClicked( int ))  );
 
   prodlabel = new QLabel("" , this);
   prodlabel->setMaximumHeight(40);
@@ -312,7 +297,6 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
       SLOT(EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&)));
   connect(enew, SIGNAL(EditNewHelp()), SLOT(helpClicked()));
   connect(enew, SIGNAL(EditNewCancel()), SLOT(EditNewCancel()));
-  connect(enew, SIGNAL(newLogin(editDBinfo&)), SLOT(newLogin(editDBinfo&)));
 
   ecomment = new EditComment( this, m_ctrl,true );
   connect(ecomment,SIGNAL(CommentHide()),SLOT(hideComment()));
@@ -351,9 +335,6 @@ void  EditDialog::FieldTab()
 
   for (int i=0; i<maxfields; i++) {
     fbutton[i]= new QPushButton( "    ", fieldtab );
-    int height = fbutton[i]->sizeHint().height();
-    fbutton[i]->setMinimumHeight( height );
-    fbutton[i]->setMaximumHeight( height );
     fgroup->addButton(fbutton[i],i);
     fbutton[i]->setEnabled(false);
     hLayout->addWidget(fbutton[i]);
@@ -362,7 +343,7 @@ void  EditDialog::FieldTab()
   connect( fgroup, SIGNAL(buttonClicked(int)), SLOT(fgroupClicked(int)) );
 
   m_Fieldeditmethods = new QListWidget(fieldtab);
-  m_Fieldeditmethods->setMinimumHeight(HEIGHTLISTBOX);
+  //m_Fieldeditmethods->setMinimumHeight(HEIGHTLISTBOX);
 
   connect( m_Fieldeditmethods, SIGNAL( itemClicked ( QListWidgetItem * ) ),
       SLOT( FieldEditMethods(QListWidgetItem * ) ) );
@@ -573,9 +554,7 @@ void EditDialog::exlineCheckBoxToggled(bool on)
 
 void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 {
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::FieldEditMethods(index)  index= "<<m_Fieldeditmethods->currentRow());
-#endif
 
   if(m_Fieldeditmethods->count()==0) return;
 
@@ -1071,10 +1050,8 @@ void EditDialog::stopCombine()
   twd->setCurrentIndex(0);
   twd->setTabEnabled(2, false);
   //not possible to save or send until combine stopped
-  b[saveb]->setEnabled(true);
-#ifdef METNOPRODDB
-  b[sendb]->setEnabled(true);
-#endif
+  sendButton->setEnabled(true);
+  approveButton->setEnabled(true);
   m_editm->stopCombine();
 }
 
@@ -1135,17 +1112,14 @@ void EditDialog::CombineEditMethods()
 
 void EditDialog::tabSelected( int tabindex)
 {
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::tabSelected:"<<tabindex);
-#endif
+
   QString tabname = twd->tabText(tabindex);
 
   if (tabname == TABNAME_FIELD) {
     //unmark all objects when changing mapMode
     m_objm->editNotMarked();
-#ifdef DEBUGREDRAW
     if (!inEdit) METLIBS_LOG_DEBUG("EditDialog::tabSelected emit editUpdate()...(1)");
-#endif
     if (!inEdit) emit editUpdate();
     if (m_EditDI.mapmodeinfo.size()>0){
       currMapmode= m_EditDI.mapmodeinfo[0].mapmode;
@@ -1164,9 +1138,8 @@ void EditDialog::tabSelected( int tabindex)
     }
   }
   // do a complete redraw - with underlay saving
-#ifdef DEBUGREDRAW
   if (inEdit) METLIBS_LOG_DEBUG("EditDialog::tabSelected emit editUpdate()...(2)");
-#endif
+
   if (inEdit) emit editUpdate();
 }
 
@@ -1180,9 +1153,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
     std::string etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
-#ifdef DEBUGPRINT
   if (inEdit) METLIBS_LOG_DEBUG("ListWidgetData etool = "<< etool);
-#endif
     vstr.push_back(etool);
     QString dialog_etool;
     //find translation
@@ -1233,30 +1204,8 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 }
 
 
-bool EditDialog::saveEverything(bool send)
+bool EditDialog::saveEverything(bool send, bool approved)
 {
-  bool approved= false;
-
-  if (send){
-    switch(QMessageBox::information(this, tr("Send product"),
-        tr("Start distribution of product to all regions.\n Use \"Approve produkt\" to give product official status\n as approved and ready."),
-        tr("&Distribution only"), tr("&Approve product"), tr("&Cancel"),
-        0,      // Enter == button 0
-        2 ) ) { // Escape == button 2
-
-
-    case 0: // "Kun distribusjon" clicked, Enter pressed.
-      approved= false;
-      break;
-    case 1: // "Godkjenn produkt" clicked
-      approved= true;
-      break;
-    case 2: // Cancel clicked, Escape pressed
-      return false;
-      break;
-    }
-  }
-
   ecomment->saveComment();
   std::string message;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
@@ -1290,43 +1239,26 @@ bool EditDialog::saveEverything(bool send)
   return true;
 }
 
-
-void  EditDialog::groupClicked( int id )
+void  EditDialog::saveClicked()
 {
-  switch (id){
-  case 0:
-    // start new product
-    if (m_editm->unsavedEditChanges()){
-      switch( mb->exec() ) { // ask if discard changes
-      case QMessageBox::Cancel:
-        return;
-        break;
-      }
-    }
-    // get productdefinitions etc. from Controller
-    //if new-product-dialog already active, do nothing
-    if (!enew->newActive)      {
-      enew->load(dbi);
-      // show start-new-product dialog
-      enew->show();
-    }
-    break;
-  case 1:
-    // Save all
-    saveEverything(false);
-    // show all objects if any hidden
-    if (m_editm->showAllObjects()) emit editUpdate();
-    break;
 
-  case 2:
-    // Send all
-    saveEverything(true);
-    // show all objects if any hidden
-    if (m_editm->showAllObjects()) emit editUpdate();
-    break;
-  };
+  saveEverything(false,false);
+  if (m_editm->showAllObjects()) emit editUpdate();
 }
 
+void  EditDialog::sendClicked()
+{
+
+  saveEverything(true,false);
+  if (m_editm->showAllObjects()) emit editUpdate();
+}
+
+void  EditDialog::approveClicked()
+{
+
+  saveEverything(true,true);
+  if (m_editm->showAllObjects()) emit editUpdate();
+}
 
 void  EditDialog::stepchanged(int step)
 {
@@ -1367,7 +1299,7 @@ void EditDialog::showAll()
       ecomment->show();
   } else{
     //load and start EditNewDialog
-    enew->load(dbi);
+    enew->load();
     enew->show();
   }
 }
@@ -1384,6 +1316,7 @@ void EditDialog::hideAll()
 
 bool EditDialog::okToExit()
 {
+
   //save comments to plotm->editObjects struct
   ecomment->saveComment();
   if (m_editm->unsavedEditChanges()){
@@ -1396,7 +1329,7 @@ bool EditDialog::okToExit()
 
 
     case 0: // save clicked
-      saveEverything(false);
+      saveEverything(false,false);
       break;
     case 1: // don't save, but exit
       break;
@@ -1411,7 +1344,7 @@ bool EditDialog::okToExit()
         tr("Send last saved analysis to the database?"),
         tr("&Send"), tr("&Don't send"),0,1)){
     case 0: // send clicked
-      saveEverything(true);
+      saveEverything(true,false);
       break;
     case 1: // don't send, but exit
       break;
@@ -1426,7 +1359,7 @@ bool EditDialog::cleanupForExit()
   if (!okToExit()) return false;
   ecomment->stopComment();
   m_editm->stopEdit();
-  m_editm->logoutDatabase(dbi);
+  //m_editm->logoutDatabase(dbi);
 
   return true;
 }
@@ -1434,19 +1367,15 @@ bool EditDialog::cleanupForExit()
 
 void EditDialog::exitClicked()
 {
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::exitClicked....................");
-#endif
   if (!cleanupForExit()) return;
   commentbutton->setChecked(false);
   // update field dialog
   emit emitFieldEditUpdate("");
   m_editm->setEditMode("normal_mode","","");
   twd->setEnabled(false); // disable tab-widget
-  b[saveb]->setEnabled(false);
-#ifdef METNOPRODDB
-  b[sendb]->setEnabled(false);
-#endif
+  sendButton->setEnabled(false);
+  approveButton->setEnabled(false);
   emit EditHide();
   emit editApply();
   // empty timeslider producttime
@@ -1495,7 +1424,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-//   METLIBS_LOG_DEBUG("EditDialog::EditNewOk called................");
+  METLIBS_LOG_DEBUG("EditDialog::EditNewOk called................");
   emit editMode(true);
 
   // Turn off Undo-buttons
@@ -1523,9 +1452,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   fgroupClicked( 0 );
 
   // update field dialog
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate(empty)");
-#endif
   emit emitFieldEditUpdate("");
 
   if (!m_editm->startEdit(ep,ci,time)) {
@@ -1538,7 +1465,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   currid= ci;
   prodtime= time;
   inEdit= true;
-  
+
   // Resize main window, depending on the map selected for sigkarta
   if (currprod.winX>0 && currprod.winY>0)
      emit emitResize(currprod.winX,currprod.winY);
@@ -1675,10 +1602,8 @@ void EditDialog::EditNewOk(EditProduct& ep,
   twd->setTabEnabled(2, false);
   if (twd->currentIndex()!=mm) twd->setCurrentIndex(mm);
 
-  b[saveb]->setEnabled(true);
-#ifdef METNOPRODDB
-  b[sendb]->setEnabled(true);
-#endif
+  sendButton->setEnabled(true);
+  approveButton->setEnabled(true);
 
   commentbutton->setEnabled(not currprod.commentFilenamePart.empty() );
 
@@ -1688,24 +1613,18 @@ void EditDialog::EditNewOk(EditProduct& ep,
   m_editm->getProductTime(t);
   vector<miutil::miTime> Times;
   Times.push_back(t);
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitTimes(product): "<<Times[0]);
-#endif
   emit emitTimes("product",Times);
 
   // update field dialog
   for (unsigned int i=0; i<currprod.fields.size(); i++){
     if (currprod.fields[i].fromfield){
       // this will remove the original field in the field dialog
-#ifdef DEBUGREDRAW
       METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate");
-#endif
       emit emitFieldEditUpdate(currprod.fields[i].fromfname);
     } else {
       // add a new selected field in the field dialog
-#ifdef DEBUGREDRAW
       METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate...new");
-#endif
       emit emitFieldEditUpdate(currprod.fields[i].name);
     }
   }
@@ -1719,30 +1638,22 @@ void EditDialog::EditNewOk(EditProduct& ep,
   pausebutton->setChecked(false);
 
   if (ep.OKstrings.size()){
-#ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit Apply(ep.OKstrings)");
-#endif
     //apply commands for this EditProduct (probably MAP)
     m_ctrl->keepCurrentArea(false); // unset area conservatism
     /*emit*/ Apply(ep.OKstrings, false);
     m_ctrl->keepCurrentArea(true); // reset area conservatism
   } else {
     //  m_ctrl->keepCurrentArea(true); // reset area conservatism
-#ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit editApply()");
-#endif
     /*emit*/ editApply();
     //  m_ctrl->keepCurrentArea(false); // reset area conservatism
   }
 
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("REMOVED EditDialog::EditNewOk emit editUpdate()");
-#endif
   //emit editUpdate();
 
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("EditDialog::EditNewOk finished....................");
-#endif
 }
 
 
@@ -2002,8 +1913,9 @@ void EditDialog::redoEdit()
 
 void EditDialog::saveEdit()
 {
+
   //called from shortcut ctrl-s in main window
-  if (inEdit) saveEverything(false);
+  if (inEdit) saveEverything(false,false);
 }
 
 bool EditDialog::inedit()

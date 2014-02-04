@@ -1112,6 +1112,11 @@ bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldr
 
 }
 
+bool FieldPlotManager::writeField(FieldRequest fieldrequest, const Field* field)
+{
+  return fieldManager->writeField(fieldrequest, field);
+}
+
 vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
 {
 

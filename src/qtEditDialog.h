@@ -97,7 +97,7 @@ private:
   void CombineEditMethods();
   void ListWidgetData( QListWidget* list, int mindex, int index);
   void ComboBoxData( QComboBox* box, int mindex);
-  bool saveEverything(bool send);
+  bool saveEverything(bool send, bool approved);
   void updateLabels();
 
 private slots:
@@ -129,8 +129,10 @@ private slots:
   void combine_action(int);
   void selectAreas(QListWidgetItem * );
   // Common slots
+  void saveClicked();
+  void sendClicked();
+  void approveClicked();
   void tabSelected( int );
-  void groupClicked( int );
   void stepchanged( int );
   void commentClicked(bool);
   void pauseClicked(bool);
@@ -199,8 +201,9 @@ private:
   QSlider* ellipseslider;
   std::vector<float> ellipsenumbers;
 
-  QButtonGroup* bgroup;
-  QPushButton** b;
+  QPushButton*  saveButton;
+  QPushButton*  sendButton;
+  QPushButton*  approveButton;
   ToggleButton* commentbutton;
   ToggleButton* pausebutton;
   QPushButton* editexit;

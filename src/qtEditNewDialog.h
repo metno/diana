@@ -58,7 +58,7 @@ class EditNewDialog: public QDialog
 public:
   EditNewDialog( QWidget* parent, Controller* llctrl );
   /// load info about edit products
-  bool load(editDBinfo& edbi);
+  bool load();
   /// true if defining a new product
   bool newActive;
   ///called when the dialog is closed by the window manager
@@ -73,12 +73,10 @@ private:
   void handleObjectButton(int);
   void handleFieldButton(int);
   bool checkProductFree();
-  void setLoginLabel();
   std::string savedProd2Str(const savedProduct& sp,
 			 const std::string undef = "udefinert");
 
 private slots:
-  void login_clicked();
 
   void ok_clicked();
   void help_clicked();
@@ -92,7 +90,6 @@ private slots:
   void prodtimechanged(int);
   void combineSelect(QListWidgetItem * );
   void tabSelected(int);
-  void kill_clicked();
 
 signals:
   /// emitted when starting new product
@@ -103,8 +100,6 @@ signals:
   void EditNewHelp();
   /// emitted when cancel clicked
   void EditNewCancel();
-  /// emitted when login clicked
-  void newLogin(editDBinfo&);
 
 private:
   enum { maxelements=4 };
@@ -117,10 +112,6 @@ private:
   QComboBox* prodbox;
   QLabel* idlabel;
   QComboBox* idbox;
-  QPushButton* loginb;
-  QPushButton* killb;
-  QLabel* loginlabel;
-  QLabel* availlabel;
   QTabWidget* twd;
   QWidget* combinetab;
   QListWidget *cBox; // list of combine times

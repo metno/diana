@@ -90,6 +90,9 @@ struct EditProductId {
 struct EditProductField {
   // gui <--> controller
   std::string name;                    ///< field-name
+  std::string filename;
+  std::string localFilename;
+  std::string prodFilename;
   // gui --> controller
   bool fromfield;                   ///< make from field
   std::string fromfname;               ///< from-field: model,name,..
@@ -111,14 +114,12 @@ struct EditProductField {
 struct EditProduct {
   // gui <--> controller
   std::string name;                    ///< productname
-  std::string db_name;                 ///< productname in database
   std::vector<std::string> drawtools;       ///< tools to use
   std::vector<EditProductId> pids;       ///< legal product-id's
   std::vector <savedProduct> objectprods;///< products to fetch objects from
   std::vector<EditProductField> fields;  ///< required fields
-  editDBinfo dbi;                   ///< Database info
-  // only used by EditManager
-  std::string savedir;                 ///< directory for saved product
+  std::string local_savedir;                 ///< directory for saved product
+  std::string prod_savedir;                 ///< directory for saved product
   std::vector<std::string> inputdirs;       ///< savedir is always the first ???
   std::string inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
   std::string inputFieldConfig;        ///< fimex xml-config
@@ -130,7 +131,6 @@ struct EditProduct {
   std::vector <std::string> labels;         ///< annotations
   std::vector <std::string> OKstrings;      ///< define map background and area and other OKStrings
   std::string commandFilename;         ///< file to read okstrings...
-  int   producer, gridnum;          ///< common field idents
   Area  area;                       ///< area/projection if gridnum>0 !
   double gridResolutionX;
   double gridResolutionY;
@@ -147,6 +147,7 @@ struct EditProduct {
   bool  startLate;                  ///< latest   start time set, or not
   int   minutesStartEarly;          ///< earliest start time offset (+/-minutes)
   int   minutesStartLate;           ///< latest   start time offset (+/-minutes)
+  std::string templateFilename;
 };
 
 #endif

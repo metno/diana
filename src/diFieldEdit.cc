@@ -39,10 +39,8 @@
 #endif
 
 #include <diFieldEdit.h>
-#include <diField/diMetnoFieldFile.h>
 #include <diPlotModule.h>
 #include <diFieldPlotManager.h>
-//#include <milib/milib.h>
 #include <math.h>
 
 #define MILOGGER_CATEGORY "diana.FieldEdit"
@@ -132,9 +130,6 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   maxValue=rhs.maxValue;
 
   lastFileWritten=rhs.lastFileWritten;
-
-  for (int i=0; i<8; i++) metnoFieldFileIdentSpec[i]=rhs.metnoFieldFileIdentSpec[i];
-  for (int i=0; i<20; i++) metnoFieldFileIdent[i]=rhs.metnoFieldFileIdent[i];
 
   undofields.clear();
   numundo=0;
@@ -249,16 +244,8 @@ void FieldEdit::getFieldSize(int &nx, int &ny) {
 }
 
 
-void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
+void FieldEdit::setSpec( EditProduct& ep, int fnum) {
 
-  metnoFieldFileIdentSpec[0]= ep.producer;
-  metnoFieldFileIdentSpec[1]= ep.gridnum;
-  metnoFieldFileIdentSpec[2]= 1;
-  metnoFieldFileIdentSpec[3]= 0;
-  metnoFieldFileIdentSpec[4]= ep.fields[fnum].vcoord;
-  metnoFieldFileIdentSpec[5]= ep.fields[fnum].param;
-  metnoFieldFileIdentSpec[6]= ep.fields[fnum].level;
-  metnoFieldFileIdentSpec[7]= ep.fields[fnum].level2;
   areaspec=     ep.area;
   gridResolutionX = ep.gridResolutionX;
   gridResolutionY = ep.gridResolutionY;
@@ -273,6 +260,7 @@ void FieldEdit::setSpec(const EditProduct& ep, int fnum) {
   vcoord = ep.fields[fnum].vcoord_cdm;
   vlevel = ep.fields[fnum].vlevel_cdm;
   specset= true;
+
 }
 
 
@@ -285,24 +273,6 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
   editfield->validFieldTime = tprod;
   editfield->analysisTime = tprod;
-
-  metnoFieldFileIdent[0]= editfield->producer;
-  metnoFieldFileIdent[1]= editfield->gridnum;
-
-  if (specset) {
-    for (int i=0; i<2; i++)
-      if (metnoFieldFileIdentSpec[i]>0)
-        metnoFieldFileIdent[i]= metnoFieldFileIdentSpec[i];
-    for (int i=2; i<8; i++)
-      metnoFieldFileIdent[i]= metnoFieldFileIdentSpec[i];
-  } else {
-    metnoFieldFileIdent[2]= 1;  // analysis (datatype=1 forecastHour=0(
-    metnoFieldFileIdent[3]= 0;
-  }
-
-  metnoFieldFileIdent[11]= tprod.year();
-  metnoFieldFileIdent[12]= tprod.month()*100 + tprod.day();
-  metnoFieldFileIdent[13]= tprod.hour() *100 + tprod.min();
 
   // text for plot etc.
   std::string text, fulltext;
@@ -321,7 +291,6 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-  editfield->producer = metnoFieldFileIdent[0];
   vector<Field*> vf;
   vf.push_back(editfield);
 
@@ -446,10 +415,10 @@ void FieldEdit::makeWorkfield()
 
 void FieldEdit::changeGrid()
 {
-  int gridnum= metnoFieldFileIdentSpec[1];
+//  cerr <<"==== changeGrid "<<areaspec<< ": "<<gridResolutionX<<endl;
   std::string demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
-  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,gridnum)) {
+  if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,0)) {
     METLIBS_LOG_WARN("   specification/interpolation failure!!!!");
   }
 }
@@ -457,31 +426,41 @@ void FieldEdit::changeGrid()
 bool FieldEdit::readEditfield(const std::string& filename,
     const std::string& fieldname)
 {
+  METLIBS_LOG_SCOPE();
 
   std::string fileType = "fimex";
-  std::string modelName = filename;
   std::vector<std::string> filenames;
+  std::vector<std::string> format;
+  std::vector<std::string> config;
+  std::vector<std::string> option;
+
+
+  //read input file
+  std::string modelName = filename;
+  filenames.clear();
   filenames.push_back(filename);
 
-  std::vector<std::string> format;
+  format.clear();
   if ( !inputFieldFormat.empty() ) {
     format.push_back(inputFieldFormat);
+  } else if (filename.find(".nc") != string::npos ){
+    format.push_back("netcdf");
   } else {
     format.push_back("felt");
   }
 
-  std::vector<std::string> config;
-  if ( !inputFieldConfig.empty() ) {
+  if ( format[0] == "felt" && !inputFieldConfig.empty() ) {
     config.push_back(inputFieldConfig);
   }
 
-  std::vector<std::string> option;
-
+  option.clear();
+//  std::string opt = "writeable=true";
+//  option.push_back(opt);
   fieldPlotManager->addGridCollection(fileType, modelName, filenames,
       format,config, option);
 
-  vector<FieldGroupInfo> fgi;
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
+  vector<FieldGroupInfo> fgi;
   fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
   vector<Field*> vfout;
   std::string pin = "FIELD model=" + modelName + " plot=" + plotName;
@@ -494,7 +473,15 @@ bool FieldEdit::readEditfield(const std::string& filename,
   if ( !fieldUnit.empty() ) {
     pin +=  (" unit=" + fieldUnit);
   }
-  if (fieldPlotManager->makeFields(pin, miTime(), vfout) && vfout.size() ) {
+  std::vector<std::string> vpin;
+  vpin.push_back(pin);
+  bool dummy;
+  vector<miTime> times = fieldPlotManager->getFieldTime(vpin,dummy);
+  miTime time;
+  if (times.size()) {
+    time= times[0];
+  }
+  if (fieldPlotManager->makeFields(pin, time, vfout) && vfout.size() ) {
     editfield = vfout[0];
     return true;
   }
@@ -516,7 +503,7 @@ void FieldEdit::setData(const vector<Field*>& vf,
   // copy the Field object
   *(editfield)= *(vf[0]);
 
-  if (specset && metnoFieldFileIdentSpec[1]>0) {
+  if ( specset ) {
     changeGrid();
   }
 
@@ -551,73 +538,20 @@ bool FieldEdit::readEditFieldFile(const std::string& filename,
 
 }
 
-bool FieldEdit::writeEditFieldFile(const std::string& filename,
-    bool returndata,
-    short int** fdata, int& fdatalength) {
-
-  // create and write a DNMI field file,
-  // and possibly return data for database
+bool FieldEdit::writeEditFieldFile(const std::string& filename) {
 
   if (!editfield) return false;
   if (!editfield->data) return false;
 
-  editfield->gridnum = metnoFieldFileIdentSpec[1];
-  editfield->dtype = metnoFieldFileIdentSpec[2];
-  editfield->forecastHour = metnoFieldFileIdentSpec[3];
-  editfield->vcoord = metnoFieldFileIdentSpec[4];
-  editfield->level = metnoFieldFileIdentSpec[6];
-  editfield->idnum = metnoFieldFileIdentSpec[7];
+  FieldRequest fieldrequest;
 
+  fieldrequest.modelName = filename;
+  fieldrequest.paramName = editfield->paramName;
+//  fieldrequest.ptime = editfield->validFieldTime;
+  fieldrequest.unit = editfield->unit;
+  //fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  return fieldPlotManager->writeField(fieldrequest,editfield);
 
-  FortranUnit funit;
-  short int *idata = NULL;
-
-  //create file
-  if (filename != lastFileWritten) {
-    if (!MetnoFieldFile::createFile(editfield, 1, filename)) {
-      METLIBS_LOG_ERROR("Error creating file:" << filename);
-      return false;
-    }
-    lastFileWritten= filename;
-  }
-
-
-  if (!MetnoFieldFile::openFile(filename,funit)) {
-    METLIBS_LOG_ERROR("Error opening file:" << filename);
-    return false;
-  }
-  if ( !MetnoFieldFile::writeFieldAndReturnData(editfield,filename, funit, &idata, metnoFieldFileIdentSpec[5] )) {
-      METLIBS_LOG_ERROR("Error writing file:" << filename);
-      return false;
-    }
-  if (!MetnoFieldFile::closeFile(filename,funit)) {
-    METLIBS_LOG_ERROR("Error closing file:" << filename);
-    return false;
-  }
-
-  nx= editfield->nx;
-  ny= editfield->ny;
-
-  int n= undofields.size();
-  for (int i=0; i<n; i++) {
-    delete[] undofields[i].data[0];
-    delete[] undofields[i].data[1];
-  }
-  undofields.clear();
-  numundo=0;
-
-  if (returndata) {
-    *fdata= idata;
-    // correct used datalength (gridpar/mwfelt)
-    int lgeom= 0;
-    int gtype= idata[8];
-    if (gtype>1000) lgeom= gtype%1000;
-    fdatalength= 20 + nx*ny + lgeom;
-  } else {
-    delete[] idata;
-  }
-
-  return true;
 }
 
 
@@ -2767,15 +2701,6 @@ void FieldEdit::editBrush(float px, float py)
       float c = 2.*sqrtf(a*a-b*b);
       float ecos= axellipse/a;
       float esin= ayellipse/a;
-      float ex,ey,fx1,fy1,fx2,fy2;
-      ex= -c*0.5;
-      ey= 0.;
-      fx1= px + ex*ecos - ey*esin;
-      fy1= py + ex*esin + ey*ecos;
-      ex= c*0.5;
-      ey= 0.;
-      fx2= px + ex*ecos - ey*esin;
-      fy2= py + ex*esin + ey*ecos;
 
       float dx,dy,dy2,s2,s,gcos,gsin,rcos,smax2;
       float en= 0.5*c/a;

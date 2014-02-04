@@ -400,15 +400,21 @@ miTime ObjectManager::timeFileName(std::string fileName)
   int nparts= parts.size();
   //if (parts.size() != 2) {
   //if (parts.size() < 2) {
-    //return ztime ;
+  //return ztime ;
   //}
-  if (parts[nparts-1].length() < 10) 
- // if (parts[1].length() < 10) 
-    return ztime;
-  
-  return timeFromString(parts[nparts-1]);
-}
+  if (parts[nparts-1].length() < 10) {
 
+    size_t pos1 = fileName.find_last_of("_");
+    size_t pos2 = fileName.find_last_of(".");
+    if ( pos1 != string::npos && pos2 != string::npos && pos2 > pos1 ) {
+      std::string tStr = fileName.substr(pos1+1,pos2-pos1-1);
+      miutil::replace(tStr,"t","T");
+      miTime time(tStr);
+      return time;
+    }
+  }
+    return timeFromString(parts[nparts-1]);
+}
 miTime ObjectManager::timeFromString(std::string timeString)
 {
   //get time from a string with yyyymmddhhmm

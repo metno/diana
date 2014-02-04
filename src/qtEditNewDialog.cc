@@ -59,10 +59,6 @@
 
 #include "kill.xpm"
 
-#ifdef METNOPRODDB
-#include "qtLoginDialog.h"
-#endif
-
 #define MILOGGER_CATEGORY "diana.EditNewDialog"
 #include <miLogger/miLogging.h>
 
@@ -77,7 +73,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
   normal= true;
   currprod= -1;
-  dbi.loggedin= false;
+  //dbi.loggedin= false;
   productfree= false;
 
   setWindowTitle(tr("New product"));
@@ -97,29 +93,12 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
   idbox->setEnabled(false);
   connect(idbox, SIGNAL(activated(int)), SLOT(idBox(int)));
 
-  loginb= new QPushButton(tr("Log in"), pframe);
-  connect(loginb, SIGNAL(clicked()),  SLOT(login_clicked()) );
-  loginlabel= new QLabel("--------------", pframe );
-  loginb->setEnabled(false);
-
-  availlabel= new QLabel(pframe);
-  availlabel->setText("<font color=\"#009900\"> ---------- </font>");
-
-  killb= new QPushButton(QPixmap(kill_xpm),"", pframe);
-  killb->setMaximumSize(30,30);
-  killb->setEnabled(false);
-  connect(killb, SIGNAL(clicked()),  SLOT(kill_clicked()) );
-
   QGridLayout* gridlayout = new QGridLayout(pframe);
 
   gridlayout->addWidget( prodlabel,0,0 );
   gridlayout->addWidget( prodbox,0,1 );
   gridlayout->addWidget( idlabel,1,0 );
   gridlayout->addWidget( idbox,1,1 );
-  gridlayout->addWidget( loginb,2,0 );
-  gridlayout->addWidget( loginlabel,2,1 );
-  gridlayout->addWidget( availlabel,3,0,1,2);
-  gridlayout->addWidget( killb,3,2);
 
   // TAB-widget
   twd = new QTabWidget( this );
@@ -243,7 +222,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
 void EditNewDialog::tabSelected(int tabindex)
 {
-  //  METLIBS_LOG_DEBUG("EditNewDialog::Selected tab:" <<tabindex);
+    METLIBS_LOG_DEBUG("EditNewDialog::Selected tab:" <<tabindex);
   normal= (tabindex == 0);
 
   if (normal)
@@ -269,7 +248,7 @@ void EditNewDialog::tabSelected(int tabindex)
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
   std::string s= item->text().toStdString();
-  //  METLIBS_LOG_DEBUG("EditNewDialog::Combineselect:" << s);
+    METLIBS_LOG_DEBUG("EditNewDialog::Combineselect:" << s);
   if (miutil::miTime::isValid(s)){
     combinetime= miutil::miTime(s);
   }
@@ -278,6 +257,7 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
   vector <string> pids =
     m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
+  cerr <<"pids:"<<n<<endl;
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
   if ( n > 0 ) {
     tmp+=pids[n-1];
@@ -295,7 +275,7 @@ void EditNewDialog::combineClear(){
 void EditNewDialog::prodtimechanged(int v)
 {
   prodtime= timespin->Time();
-  //  METLIBS_LOG_DEBUG("EditNewDialog::Prodtime changed:" << prodtime);
+    METLIBS_LOG_DEBUG("EditNewDialog::Prodtime changed:" << prodtime);
   productfree= checkProductFree();
 }
 
@@ -305,21 +285,6 @@ bool EditNewDialog::checkStatus()
   ok->setEnabled(false);
   if (currprod<0) return false;
 
-  // first normal-area
-  bool enable= normal
-  && (currprod>=0)
-  && (!pid.sendable || dbi.loggedin)
-  && (!pid.sendable || productfree);
-
-  for (int i=0; i<maxelements; i++){
-    ebut[i]->setEnabled(enable);
-  }
-
-  // then check if ok to start
-  if (pid.sendable && !dbi.loggedin)
-    return false;
-  if (pid.sendable && !productfree)
-    return false;
   if (!normal){
     // combine products
     if (!isdata)
@@ -340,7 +305,7 @@ bool EditNewDialog::checkStatus()
 
 void EditNewDialog::prodBox(int idx)
 {
-  //METLIBS_LOG_DEBUG("EditNewDialog::prodBox called");
+  METLIBS_LOG_DEBUG("EditNewDialog::prodBox called");
   int n= products.size();
   if (n==0 || idx<0 || idx>=n) return;
 
@@ -350,7 +315,7 @@ void EditNewDialog::prodBox(int idx)
     ok->setText(tr("OK Combine") + " " + prodbox->currentText());
 
   currprod= idx;
-  //METLIBS_LOG_DEBUG("....Selected Product:" << products[idx].name);
+  METLIBS_LOG_DEBUG("....Selected Product:" << products[idx].name);
 
   idbox->clear();
   int m= products[currprod].pids.size();
@@ -370,13 +335,6 @@ void EditNewDialog::prodBox(int idx)
     productfree= false;
   }
 
-  if (dbi.host!=products[currprod].dbi.host){
-    dbi= products[currprod].dbi;
-    dbi.loggedin= false;
-    // set login-label
-    setLoginLabel();
-  }
-
   // make list of fields etc.
   setNormal();
 
@@ -389,20 +347,17 @@ void EditNewDialog::prodBox(int idx)
 
 void EditNewDialog::idBox(int idx)
 {
-  //METLIBS_LOG_DEBUG("EditNewDialog::idBox");
+  METLIBS_LOG_DEBUG("EditNewDialog::idBox");
   int n= products.size();
   if (n==0 || currprod<0) return;
   int m= products[currprod].pids.size();
   if (idx<0 || idx>=m) return;
 
   pid= products[currprod].pids[idx];
-#ifdef METNOPRODDB
-  loginb->setEnabled(pid.sendable);
-#endif
 
   productfree= checkProductFree();
 
-  //METLIBS_LOG_DEBUG("....Selected Pid:" << products[currprod].pids[idx].name);
+  METLIBS_LOG_DEBUG("....Selected Pid:" << products[currprod].pids[idx].name);
 
   if(!pid.combinable){
     if (twd->currentIndex()!=0) twd->setCurrentIndex(0);
@@ -416,19 +371,19 @@ void EditNewDialog::idBox(int idx)
 }
 
 
-bool EditNewDialog::load(editDBinfo& edbi){
-  //METLIBS_LOG_DEBUG("EditNewDialog::load");
+bool EditNewDialog::load(){
+  METLIBS_LOG_DEBUG("EditNewDialog::load");
   isdata= false;
   productfree= false;
   newActive=true;
-  dbi= edbi;
-  setLoginLabel();
 
   if( m_ctrl && m_editm ){
     products= m_editm->getEditProducts();
     prodbox->clear();
-    int n= products.size();
-    for (int i=0; i<n; i++){
+    size_t n = products.size();
+    if ( n == 0 ) return false;
+
+    for (size_t i=0; i<n; i++){
       prodbox->addItem(products[i].name.c_str());
       int m= products[i].fields.size();
       products[i].objectprods.clear();
@@ -443,11 +398,11 @@ bool EditNewDialog::load(editDBinfo& edbi){
           products[i].fields[j].fromfname.clear();
       }
     }
-    if (n>0) {
-      prodbox->setEnabled(true);
-      prodbox->setCurrentIndex(0);
-      prodBox(0);
-    }
+
+    prodbox->setEnabled(true);
+    prodbox->setCurrentIndex(0);
+    prodBox(0);
+
     m_ctrl->getPlotTime(prodtime);
     //set to closest hour
     miutil::miTime t= prodtime;
@@ -458,7 +413,7 @@ bool EditNewDialog::load(editDBinfo& edbi){
     timespin->setTime(prodtime);
 
   } else {
-    //METLIBS_LOG_DEBUG("EditNewDialog::load - No controller!");
+    METLIBS_LOG_DEBUG("EditNewDialog::load - No controller!");
     checkStatus();
     return false;
   }
@@ -479,7 +434,8 @@ std::string EditNewDialog::savedProd2Str(const savedProduct& sp, const std::stri
 
 bool EditNewDialog::setNormal()
 {
-  //METLIBS_LOG_DEBUG("EditNewDialog::setNormal called");
+  METLIBS_LOG_SCOPE();
+
   isdata= false;
   for (int i=1; i<maxelements; i++){
     ebut[i]->hide();
@@ -595,7 +551,7 @@ void EditNewDialog::handleFieldButton(int num)
     }
 
   } else {
-    //METLIBS_LOG_DEBUG("EditNewDialog::handleelementButton - No controller!");
+    METLIBS_LOG_DEBUG("EditNewDialog::handleelementButton - No controller!");
   }
   setFieldLabel();
   checkStatus();
@@ -622,12 +578,8 @@ void EditNewDialog::ebutton3()
 }
 
 bool EditNewDialog::load_combine(){
-  //METLIBS_LOG_DEBUG("EditNewDialog::Load-combine");
+  METLIBS_LOG_DEBUG("EditNewDialog::Load-combine");
   isdata= false;
-  if (pid.sendable && !dbi.loggedin) {
-    checkStatus();
-    return false;
-  }
   if( m_editm ){
     vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
     int n= vt.size();
@@ -649,7 +601,7 @@ bool EditNewDialog::load_combine(){
     }
 
   } else {
-    //METLIBS_LOG_DEBUG("EditNewDialog::load - No controller!");
+    METLIBS_LOG_DEBUG("EditNewDialog::load - No controller!");
     checkStatus();
     return false;
   }
@@ -662,148 +614,26 @@ bool EditNewDialog::load_combine(){
 
 bool EditNewDialog::checkProductFree()
 {
-  killb->setEnabled(false);
 
-  if (!pid.sendable){
-    availlabel->setText("<font color=\"#009900\"> ---------- </font>");
-    return true;
-  }
+  QString message;
 
-  if (!dbi.loggedin || (currprod<0)){
-    availlabel->setText("<font color=\"red\"> ---------- </font>");
-    return false;
-  }
-
-  // send request to controller
-  std::string message;
-  bool res= m_editm->checkProductAvailability(products[currprod].db_name,
-      pid.name,
-      prodtime,
-      message);
-  if (res){
-    availlabel->setText("<font color=\"#009900\">" + tr("product free") +"</font>");
-    return true;
-  } else {
-    killb->setEnabled(true);
-    availlabel->setText(message.c_str());
-    return false;
-  }
-}
-
-void EditNewDialog::kill_clicked()
-{
-  std::string message=tr("Are you sure you want to take over this product?\n").toStdString();
-
-  QMessageBox *mb= new QMessageBox(tr("Warning!"),
-      message.c_str(),
-      QMessageBox::Warning,
-      QMessageBox::Yes,
-      QMessageBox::Cancel | QMessageBox::Default,
-      Qt::NoButton,
-      this);
-  mb->setButtonText( QMessageBox::Yes, tr("Yes") );
-  mb->setButtonText( QMessageBox::Cancel, tr("Cancel"));
-
-  switch( mb->exec() ) {
-  case QMessageBox::Cancel:
-    return;
-    break;
-  }
-
-  bool res= m_editm->killProduction(products[currprod].db_name,
-      pid.name,
-      prodtime,
-      message);
-
-
-  if (res) productfree= checkProductFree();
-  checkStatus();
-}
-
-
-void EditNewDialog::setLoginLabel()
-{
-  if (dbi.loggedin){
-    std::string ltext;
-    int i= dbi.host.find_first_of(".");
-    if (i>0) ltext= dbi.host.substr(0, i);
-    else ltext= dbi.host;
-    ltext+= std::string(" - ") + dbi.user;
-    loginlabel->setText(QString(ltext.c_str()));
-  } else {
-    loginlabel->setText("--------------");
-  }
-}
-
-
-void EditNewDialog::login_clicked()
-{
-#ifdef METNOPRODDB
-  LoginDialog db(dbi,this);
-  while (1) {
-    if (!db.exec()) {
-      emit newLogin(dbi);
-      checkStatus();
-      return;
-    } else {
-      dbi= db.getDbInfo();
-    }
-
-    std::string message;
-    if (dbi.user.empty() || dbi.host.empty()){
-      message= tr("Username and server required").toStdString();
-      dbi.loggedin= false;
-    } else {
-      //       METLIBS_LOG_DEBUG("Trying host:" << dbi.host << " User:" << dbi.user << " Pass:"
-      // 	   << dbi.pass);
-      dbi.loggedin= m_editm->loginDatabase(dbi,message);
-    }
-    if (dbi.loggedin) {
-      //       METLIBS_LOG_DEBUG("Success...logged in");
-      emit newLogin(dbi);
-
-      setLoginLabel();
-
-      // check if product free
-      productfree= checkProductFree();
-
-      if (!normal) load_combine();
-      // check if enable any widgets
-      checkStatus();
-
-      return;
-    } else {
-      message= std::string(tr("Can not log in. Message from server:\n").toStdString()) +message;
-      QMessageBox::warning( this, "Diana database message",
-          message.c_str());
-
-      setLoginLabel();
+  bool ok = m_editm->fileExists(products[currprod],pid,prodtime,message);
+  if (!ok) {
+    bool cancel =  QMessageBox::warning( this, tr("Product time"),message,
+        tr("Continue"),tr("Cancel"));
+    if ( !cancel ) {
+      ok = m_editm->removeFile(products[currprod],pid,prodtime,message);
     }
   }
-#endif
+  return ok;
+
 }
 
 void EditNewDialog::ok_clicked(){
-  productfree= checkProductFree();
-
   miutil::miTime ptime;
   if (normal) ptime= prodtime;
   else        ptime= combinetime;
   int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
-  //   std::string msg;
-  //   if ((products[currprod].startEarly &&
-  //        products[currprod].minutesStartEarly>minutes))
-  //     msg= "Produktet lages nå tidligere enn normalt!";
-  //   if ((products[currprod].startLate &&
-  //        products[currprod].minutesStartLate<minutes))
-  //     msg= "Produktet lages nå seinere enn normalt!";
-  //   if (msg.exists()) {
-  //     std::string pname= prodbox->currentText().toStdString();
-  //     std::string message= pname + "\n" + msg;
-  //     if (QMessageBox::warning( this, "Tid for produkt",message.c_str(),
-  //     			     "Fortsett","Avbryt") != 0) return;
-  //   }
-
 
   QString msg;
   if ((products[currprod].startEarly &&
@@ -820,11 +650,11 @@ void EditNewDialog::ok_clicked(){
   }
 
 
+  productfree= checkProductFree();
   if (!productfree){
     // give error
-    //miutil::std::string message= "Produktet er ikke tilgjengelig.\n Kan ikke starte produksjon";
-    QMessageBox::warning( this, tr("Diana database message"),
-        tr("Product not available.\n Can not start production"));
+//    QMessageBox::warning( this, tr("Diana database message"),
+//        tr("Product not available.\n Can not start production"));
     return;
   }
   this->hide();

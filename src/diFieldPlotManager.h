@@ -112,6 +112,9 @@ public:
   /// Parse plotInfo string into FieldReqests and plotName
   bool parsePin(std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
 
+  /// Write field to file
+  bool writeField(FieldRequest fieldrequest, const Field* field);
+
 private:
 
   std::vector<PlotField> vPlotField;

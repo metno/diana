@@ -117,11 +117,8 @@ private:
   std::string fieldUnit;
   std::string vcoord;
   std::string vlevel;
-
+  std::string outputFilename;
   std::string lastFileWritten;
-
-  int   metnoFieldFileIdentSpec[8];
-  short metnoFieldFileIdent[20];
 
   std::vector<UndoField> undofields;
   int numundo;
@@ -200,7 +197,7 @@ public:
   // Assignment operator
   FieldEdit& operator=(const FieldEdit &rhs);
 
-  void setSpec(const EditProduct& ep, int fnum);
+  void setSpec( EditProduct& ep, int fnum);
 
   void setData(const std::vector<Field*>& vf,
                const std::string& fieldname,
@@ -219,8 +216,7 @@ public:
 			 const miutil::miTime& tprod);
   bool readEditfield(const std::string& filename,
       const std::string& fieldname);
-  bool writeEditFieldFile(const std::string& filename, bool returndata,
-			  short int** fdata, int& fdatalength);
+  bool writeEditFieldFile(const std::string& filename);
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }

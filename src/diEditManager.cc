@@ -59,6 +59,8 @@
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QFile>
+#include <QDir>
 
 #define MILOGGER_CATEGORY "diana.EditManager"
 #include <miLogger/miLogging.h>
@@ -81,10 +83,6 @@ hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
   unsentProduct = false;
   moved=false;
 
-#ifdef METNOPRODDB
-  // init database-gate: logout after each request
-  gate.setLogoutPolicy(true);
-#endif
 }
 
 EditManager::~EditManager()
@@ -93,11 +91,9 @@ EditManager::~EditManager()
 
 bool EditManager::parseSetup()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
-  std::string section="EDIT";
+  std::string section="EDIT_NEW";
   vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
@@ -117,8 +113,6 @@ bool EditManager::parseSetup()
 
     // yet only products in this setup section...
     EditProduct ep;
-    ep.producer= 88;
-    ep.gridnum=  0;
     ep.areaminimize= false;
     ep.standardSymbolSize=60;
     ep.complexSymbolSize=6;
@@ -141,7 +135,6 @@ bool EditManager::parseSetup()
 
     if (key=="product" && nval==1) {
       ep.name= values[0];
-      ep.db_name= ep.name; // database-name defaults to name
       nv++;
     } else {
       ok= false;
@@ -151,7 +144,6 @@ bool EditManager::parseSetup()
 
       SetupParser::splitKeyValue(vstr[nv],key,values);
       nval= values.size();
-
       if (key=="end.product") {
         nv++;
         break;
@@ -164,8 +156,11 @@ bool EditManager::parseSetup()
           ep.areaminimize= true;
         else
           ok= false;
-      } else if (key=="save_dir" && nval==1) {
-        ep.savedir = values[0];
+      } else if (key=="local_save_dir" && nval==1) {
+        ep.local_savedir = values[0];
+
+      } else if (key=="prod_save_dir" && nval==1) {
+        ep.prod_savedir = values[0];
 
       } else if (key=="input_dir") {
         ep.inputdirs.insert(ep.inputdirs.end(),
@@ -236,7 +231,7 @@ bool EditManager::parseSetup()
           ep.pids.push_back(pid);
         }
 
-      } else if (key=="database_idents") {
+      } else if (key=="prod_idents") {
         for (i=0; i<nval; i++) {
           EditProductId pid;
           pid.name= values[i];
@@ -260,17 +255,12 @@ bool EditManager::parseSetup()
 
       } else if (key=="grid" && nval==5+Projection::speclen) {
         //obsolete
-        ep.producer= atoi(values[0].c_str());
-        ep.gridnum=  atoi(values[1].c_str());
         nx=          atoi(values[2].c_str());
         ny=          atoi(values[3].c_str());
         gridtype=    atoi(values[4].c_str());
         for (i=0; i<Projection::speclen; i++)
           gridspec[i]= atof(values[5+i].c_str());
 
-      } else if (key=="field_id" && nval>1) {
-        ep.producer= atoi(values[0].c_str());
-        ep.gridnum=  atoi(values[1].c_str());
       } else if (key=="nx" && nval==1) {
         ep.nx =  miutil::to_int(values[0]);
       } else if (key=="ny" && nval==1) {
@@ -279,17 +269,6 @@ bool EditManager::parseSetup()
         proj.set_proj_definition(values[0]);
       } else if (key=="rectangle" && nval==1) {
         rect.setRectangle(values[0]);
-      } else if (key=="database" && nval==1) {
-        vector<std::string> vs= miutil::split(values[0], 0, " ", true);
-        if (vs.size()==3) {
-          ep.dbi.host= vs[0];
-          ep.dbi.base= vs[1];
-          ep.dbi.port= atoi(vs[2].c_str());
-        } else {
-          ok= false;
-        }
-      } else if (key=="name_in_database" && nval==1) {
-        ep.db_name= values[0];
       } else if (key=="commandfile" && nval==1) {
         ep.commandFilename= values[0];
       } else if (key=="standard_symbolsize" && nval==1){
@@ -330,6 +309,8 @@ bool EditManager::parseSetup()
         } else {
           ok= false;
         }
+      } else if (key=="template_file" && nval==1 ){
+        ep.templateFilename = values[0];
       } else {
         ok= false;
       }
@@ -342,7 +323,7 @@ bool EditManager::parseSetup()
       ep.gridResolutionX =rect.x2/ep.nx;
       ep.gridResolutionY =rect.y2/ep.ny;
       //obsolete
-      if (ep.gridnum>0 && nx>1 && ny>1 && gridtype>0) {
+      if ( nx>1 && ny>1 ) {
         Projection p;
         double gridResolutionX;
         double gridResolutionY;
@@ -353,11 +334,11 @@ bool EditManager::parseSetup()
         ep.gridResolutionY = gridResolutionY;
       }
       //
-      if (ep.savedir.empty()) ep.savedir= ".";
+      if (ep.local_savedir.empty()) ep.local_savedir= ".";
       // insert savedir as the last inputdir and the last combinedir,
       // this sequence is also kept when timesorting
-      ep.inputdirs.push_back(ep.savedir);
-      ep.combinedirs.push_back(ep.savedir);
+      ep.inputdirs.push_back(ep.local_savedir);
+      ep.combinedirs.push_back(ep.local_savedir);
       //HK !!! important ! default drawtools if not specified in setup
       if (ep.drawtools.empty()) ep.drawtools.push_back(OBJECTS_ANALYSIS);
       //read commands(OKstrings) from commandfile
@@ -379,7 +360,7 @@ bool EditManager::parseSetup()
   if (!ok) {
     error="Error in edit product definition";
     SetupParser::errorMsg(section,nv,error);
-    return false;
+    return true;
   }
 
   return true;
@@ -389,9 +370,7 @@ bool EditManager::parseSetup()
 
 void EditManager::readCommandFile(EditProduct & ep)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile");
-#endif
   // the commands OKstrings to be exectuted when we start an
   // edit session, for the time being called from parseSeup
   // and the OKstrings stored for each product
@@ -438,12 +417,10 @@ void EditManager::readCommandFile(EditProduct & ep)
       commands.push_back(s);
   }
   ep.labels = labcom;
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
   for (int ari=0; ari<ep.labels.size(); ari++)
        METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
-#endif
 
   ep.OKstrings = commands;
 }
@@ -543,9 +520,7 @@ mapMode EditManager::getMapMode(){
 
 void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
-  //#ifdef DEBUGREDRAW
   //  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent");
-  //#endif
   res.savebackground= true;
   res.background= false;
   res.repaint= false;
@@ -720,17 +695,14 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
       res.repaint= true;
     }
   }
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent return res.repaint= "<<res.repaint);
-#endif
+
+//  METLIBS_LOG_DEBUG("EditManager::sendMouseEvent return res.repaint= "<<res.repaint);
 }
 
 
 void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 {
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("EditManager::sendKeyboardEvent");
-#endif
+//  METLIBS_LOG_DEBUG("EditManager::sendKeyboardEvent");
   res.savebackground= true;
   res.background= false;
   res.repaint= false;
@@ -1048,75 +1020,143 @@ std::string EditManager::editFileName(const std::string directory,
 functions to start and end editing, reading and writing to database
  -----------------------------------------------------------------------*/
 
-
-
-bool EditManager::checkProductAvailability(const std::string& prodname,
-    const std::string& pid,
-    const miTime& valid,
-    std::string& message)
-
+bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
+    const miutil::miTime& time, QString& message)
 {
+  METLIBS_LOG_SCOPE();
 
-  //check if OK to start editing this product. If production already
-  //started return false, else return true
+  for (size_t j=0; j<ep.fields.size(); j++) {
 
-#ifdef METNOPRODDB
-  std::string mess;
-  if (gate.okToStart(prodname, pid, valid, mess))
-    return true;
+    std::string outputFilename;
 
-  message= mess;
-  return false;
-#else
-  return true;
-#endif
-}
+    std::string time_string = time.format("%Y%m%dt%H%M%S");
 
+    outputFilename = ep.local_savedir + "/";
+    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+    outputFilename += filename;
 
-bool EditManager::loginDatabase(editDBinfo& db, std::string& message)
-{
-#ifdef METNOPRODDB
-  //login to the database
-  puSQLwarning w;
-  ProductionGate::dbInfo dbi(db.host, db.user, db.pass, db.base, db.port);
+    QFile qfile(outputFilename.c_str());
+    if ( qfile.exists() ) {
+      qfile.remove();
+    }
 
-  if (!gate.login(dbi, w)){
-    METLIBS_LOG_ERROR("Could not log in");
-    message= w.w2cStr();
-    return false;
+    if (ci.sendable ) {
+      outputFilename = ep.prod_savedir + "/work/";
+      std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+      outputFilename += filename;
+      QString qs(outputFilename.c_str());
+      QFile qfile(qs);
+      if ( qfile.exists() ) {
+        message = qs + " allready exists, do you want to overwrite?";
+        return false;
+      }
+    }
   }
   return true;
-#else
-  message="DB not available";
-  return false;
-#endif
 }
 
-
-bool EditManager::logoutDatabase(editDBinfo& db)
+bool EditManager::removeFile(const EditProduct& ep, const EditProductId& ci,
+    const miutil::miTime& time, QString& message)
 {
-  db.loggedin= false;
+  METLIBS_LOG_SCOPE();
+
+  if (ci.sendable ) {
+    for (size_t j=0; j<ep.fields.size(); j++) {
+
+      std::string outputFilename;
+
+      std::string time_string = time.format("%Y%m%dt%H%M%S");
+
+
+      outputFilename = ep.prod_savedir + "/work/";
+      std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+      outputFilename += filename;
+      QString qs(outputFilename.c_str());
+      QFile qfile(qs);
+      if ( qfile.exists() ) {
+        if ( !qfile.remove() ) {
+          message = " Can't remove file " + qs;
+          return false;
+        }
+      }
+    }
+  }
   return true;
 }
 
-// terminate one production
-bool EditManager::killProduction(const std::string& prodname,
-    const std::string& pid,
-    const miTime& valid,
-    std::string& message)
+//Read template file
+bool EditManager::makeNewFile(int fnum, bool local)
 {
-#ifdef METNOPRODDB
-  std::string mess;
-  if (gate.killProd(prodname,pid,valid,mess))
-    return true;
+  METLIBS_LOG_SCOPE();
 
-  message= mess;
-  return false;
-#else
-  message="DB not available";
-  return false;
-#endif
+  QFile qfile(EdProd.templateFilename.c_str());
+  std::string outputFilename;
+
+  std::string time_string = plotm->producttime.format("%Y%m%dt%H%M%S");
+
+  if ( local ) {
+    outputFilename = EdProd.local_savedir + "/";
+  } else {
+    QDir qdir(EdProd.prod_savedir.c_str());
+    if ( !qdir.exists() ) {
+      if ( !qdir.mkdir(EdProd.prod_savedir.c_str())) {
+        METLIBS_LOG_DEBUG("could not make:" <<EdProd.prod_savedir);
+      }
+    }
+      if ( !qdir.mkdir("work")) {
+        METLIBS_LOG_DEBUG("could not make:" <<"work");
+      }
+      if ( !qdir.mkdir("products")) {
+        METLIBS_LOG_DEBUG("could not make:" <<"products");
+      }
+
+    outputFilename = EdProd.prod_savedir + "/work/";
+  }
+
+  EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + "_" + time_string + ".nc";
+  outputFilename += EdProd.fields[fnum].filename;
+  if ( qfile.exists(outputFilename.c_str()) && !qfile.remove(outputFilename.c_str()) ){
+    METLIBS_LOG_DEBUG("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed. (File exsists, but can't be overwritten.)");
+    return false;
+  }
+  if (!qfile.copy(outputFilename.c_str())){
+    METLIBS_LOG_DEBUG("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed");
+    return false;
+  }
+  if ( local ) {
+    EdProd.fields[fnum].localFilename = outputFilename;
+  } else {
+    EdProd.fields[fnum].prodFilename = outputFilename;
+
+  }
+
+  std::string fileType = "fimex";
+
+  std::vector<std::string> filenames;
+  std::string modelName = outputFilename;
+  filenames.push_back(outputFilename);
+
+  std::vector<std::string> format;
+  format.push_back("netcdf");
+
+  std::vector<std::string> config;
+
+  std::vector<std::string> option;
+  std::string opt = "writeable=true";
+  option.push_back(opt);
+
+  fieldPlotManager->addGridCollection(fileType, modelName, filenames,
+      format,config, option);
+
+  vector<FieldGroupInfo> fgi;
+  std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
+  fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
+
+  return true;
+
 }
+
+//todo: if prod, make another copy
 
 
 
@@ -1124,15 +1164,12 @@ bool EditManager::startEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("EditManager::startEdit()");
-#endif
+  METLIBS_LOG_SCOPE();
 
   //this routine starts an Edit session
   //If EditProductId is sendable check that OK to start
   // then startProduction.
 
-  numregs= 0;
 
   //EdProd and EdProdId contains information about production
   EdProd = ep;
@@ -1144,6 +1181,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   // just in case
   combineprods.clear();
   cleanCombineData(true);
+  numregs= 0;
 
   for (unsigned int i=0; i<fedits.size(); i++)
     delete fedits[i];
@@ -1156,7 +1194,22 @@ bool EditManager::startEdit(const EditProduct& ep,
 
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
 
-    std::string fieldname= EdProd.fields[j].name;
+    //make new local file from template
+    if (!makeNewFile(j,true)){
+      return false;
+    }
+    if (EdProdId.sendable) {
+      //make new prd file from template
+      if (!makeNewFile(j,false)){
+        return false;
+      }
+    }
+    // spec. used when reading and writing field
+    FieldEdit *fed= new FieldEdit( fieldPlotManager );
+    fed->setSpec(EdProd, j);
+
+      std::string fieldname= EdProd.fields[j].name;
+
 
     if (EdProd.fields[j].fromfield) {
 
@@ -1172,28 +1225,21 @@ bool EditManager::startEdit(const EditProduct& ep,
       }
       if (i==n) return false;
 
-      FieldEdit *fed= new FieldEdit( fieldPlotManager );
-      // spec. used when writing field
-      fed->setSpec(EdProd, j);
       fed->setData(vf, fieldname, plotm->producttime);
       fedits.push_back(fed);
 
     } else {
 
       // get field from a saved product
-
-      std::string filename = EdProd.fields[j].fromprod.filename;
-
       //METLIBS_LOG_INFO("filename for saved field file to open:" << filename);
-
-      FieldEdit *fed= new FieldEdit( fieldPlotManager );
-      // spec. used when reading and writing field
-      fed->setSpec(EdProd, j);
+      std::string filename = EdProd.fields[j].fromprod.filename;
       if(!fed->readEditFieldFile(filename,fieldname,plotm->producttime))
         return false;
       fedits.push_back(fed);
 
     }
+
+
 
   }
 
@@ -1219,8 +1265,7 @@ bool EditManager::startEdit(const EditProduct& ep,
       const std::string commentstring = "Objects from:\n" + savedProductString(objectProd) + "\n";
       plotm->editobjects.addComments(commentstring);
       //open the comments file
-      //miutil::replace(filename, EdProd.objectsFilenamePart,EdProd.commentFilenamePart);
-      miutil::replace(filename, "draw", "comm"); //simpler, sure, IF names are draw and comm!
+      miutil::replace(filename, "draw", "comm");
       objm->editCommandReadCommentFile(filename);
 
       if (objectProd.productName==EdProd.name && objectProd.ptime==valid)
@@ -1240,26 +1285,6 @@ bool EditManager::startEdit(const EditProduct& ep,
 
   if (fedits.size()>0) fedits[0]->activate();
 
-  if (EdProdId.sendable) {
-#ifdef METNOPRODDB
-    // messages from ProductionGate
-    std::string message;
-    if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-      //METLIBS_LOG_INFO("We are allowed to start production");
-      // start production
-      if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-        METLIBS_LOG_INFO("We are in production");
-      else{
-        METLIBS_LOG_ERROR("We could not start production");
-        return false;
-      }
-    } else{
-      METLIBS_LOG_ERROR("We are NOT allowed to start production");
-      return false;
-    }
-    METLIBS_LOG_INFO("Message:" << message);
-#endif
-  }
   return true;
 }
 
@@ -1270,9 +1295,7 @@ bool EditManager::writeEditProduct(std::string&  message,
     const bool send,
     const bool isapproved){
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::writeEditProduct");
-#endif
 
   bool res= true;
   message = "";
@@ -1280,28 +1303,37 @@ bool EditManager::writeEditProduct(std::string&  message,
 
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
-      //METLIBS_LOG_INFO("Writing field:" << i);
-      std::string filenamePart =EdProd.fields[i].filenamePart;
-      std::string filename= editFileName(EdProd.savedir,EdProdId.name,
-          filenamePart,t);
-      short int *fdata= 0;
-      int fdatalength= 0;
-      if(fedits[i]->writeEditFieldFile(filename, EdProdId.sendable && send,
-          &fdata, fdatalength)) {
-        if (EdProdId.sendable && send) {
-#ifdef METNOPRODDB
-          //save field to database !
-          std::string mess;
-          if (!gate.saveField(filenamePart, fdata, fdatalength, mess)){
-            res= false;
-            message += "Could not store field to database:" + mess + "\n";
-          }
-#endif
-        }
-        if (fdatalength>0 && fdata) delete[] fdata;
+      METLIBS_LOG_INFO("Writing field:" << i);
+      if(fedits[i]->writeEditFieldFile(EdProd.fields[i].localFilename) ) {
       } else {
         res= false;
-        message += "Could not store field to file:" + filename + "\n";
+        message += "Could not store field to file:" + EdProd.fields[i].localFilename + "\n";
+      }
+      if(EdProdId.sendable ) {
+        if ( send ) {
+          if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename) ) {
+          } else {
+            res= false;
+            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+          }
+        }
+        if( isapproved ) {
+          QString workFile = EdProd.fields[i].prodFilename.c_str();
+          QFile qfile(workFile);
+          QString prodFile = workFile.replace("work","products");
+          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+            res = false;
+            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+          }
+
+          if (!qfile.copy(prodFile) ) {
+            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+            res = false;
+            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+          }
+
+        }
       }
     }
   }
@@ -1315,7 +1347,7 @@ bool EditManager::writeEditProduct(std::string&  message,
     if (not editObjectsString.empty()) {
       //first save to local file
       objectsFilenamePart= EdProd.objectsFilenamePart;
-      objectsFilename= editFileName(EdProd.savedir,EdProdId.name,
+      objectsFilename= editFileName(EdProd.local_savedir,EdProdId.name,
           objectsFilenamePart,t);
 
       if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
@@ -1324,17 +1356,36 @@ bool EditManager::writeEditProduct(std::string&  message,
         message += "Could not store objects to file:" + objectsFilename + "\n";
       }
 
-      if (EdProdId.sendable && send) {
-#ifdef METNOPRODDB
-        std::string mess;
-        //filer blir skrevet ut fra databasen som "ANAdraw.yyyymmhhmn"
-        if (!gate.saveString(objectsFilenamePart,editObjectsString,mess)){
-          res= false;
-          saveok= false;
-          message += "Could not store objects to database:" + mess + "\n";
+      if (EdProdId.sendable ) {
+        if ( send ) {
+          objectsFilename = editFileName(EdProd.prod_savedir + "/work",EdProdId.name,
+              objectsFilenamePart,t);
+
+          if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
+            res= false;
+            saveok= false;
+            message += "Could not store objects to file:" + objectsFilename + "\n";
+          }
         }
-#endif
+        if( isapproved ) {
+          QString workFile = objectsFilename.c_str();
+          QFile qfile(workFile);
+          QString prodFile = workFile.replace("work","products");
+          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+            res = false;
+            message += "Could not store field to file:" + prodFile.toStdString() + "\n";
+          }
+
+          if (!qfile.copy(prodFile) ) {
+            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+            res = false;
+            message += "Could not store field to file:" +  prodFile.toStdString()+ "\n";
+          }
+          qfile.copy(prodFile);
+        }
       }
+
     }
 
     objm->setObjectsSaved(saveok);
@@ -1352,7 +1403,7 @@ bool EditManager::writeEditProduct(std::string&  message,
     if (not editCommentString.empty()) {
       //first save to local file
       commentFilenamePart= EdProd.commentFilenamePart;
-      commentFilename= editFileName(EdProd.savedir,EdProdId.name,
+      commentFilename= editFileName(EdProd.local_savedir,EdProdId.name,
           commentFilenamePart,t);
 
       if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
@@ -1362,43 +1413,37 @@ bool EditManager::writeEditProduct(std::string&  message,
       }
 
       if (EdProdId.sendable && send) {
-#ifdef METNOPRODDB
-        std::string mess;
-        if (!gate.saveString(commentFilenamePart,editCommentString,mess)){
+        commentFilename= editFileName(EdProd.prod_savedir,EdProdId.name,
+            commentFilenamePart,t);
+
+        if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
           res= false;
           saveok= false;
-          message += "Could not store comments to database:" + mess + "\n";
+          message += "Could not store comments to file:" + commentFilename + "\n";
         }
-#endif
       }
     }
     if (saveok) plotm->editobjects.commentsAreSaved();
   }
 
 
-  if (EdProdId.sendable) {
-    if(send){
-#ifdef METNOPRODDB
-      std::string mess;
-      bool saveok=true;
-      //send message to database that data has been saved
-      if (!gate.reportSave(mess,isapproved)){
-        res= false;
-        saveok= false;
-        message += "Kan ikke sluttf�re database-lagring:" + mess + "\n";
-      }
-      // remember that saved product is sent -
-      // but only if approved!
-      unsentProduct = (!isapproved || !saveok);
-#else
-      unsentProduct = false;
-#endif
+  if ( EdProdId.sendable ) {
+    std::string text =t.isoTime("t") + "\n" +miutil::miTime::nowTime().isoTime("t");
+    if( send ) {
+      std::string filename = EdProd.prod_savedir + "lastsaved." + EdProdId.name;
+      QFile lastsaved(filename.c_str());
+      lastsaved.open(QIODevice::WriteOnly);
+      lastsaved.write(text.c_str());
+      lastsaved.close();
     }
-    else
-      //remember that product is saved but not sent
-      unsentProduct = true;
+    if ( isapproved ) {
+      std::string filename = EdProd.prod_savedir + "lastfinneshed." + EdProdId.name;
+      QFile lastfinnished(filename.c_str());
+      lastfinnished.open(QIODevice::WriteOnly);
+      lastfinnished.write(text.c_str());
+      lastfinnished.close();
+    }
   }
-
   return res;
 }
 
@@ -1460,7 +1505,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     // directory to search
     dir= ep.inputdirs[i];
     // filestring to search
-    fileString = dir + "/" + pid + "_" + filenamePart+ ".*";
+    fileString = dir + "/" + pid + "_" + filenamePart+ "*";
     //datasource info for dialog (inputdirs[n-1]==savedir)
     if (i==n-1) dsource= data_local;
     else        dsource= data_server;
@@ -1502,7 +1547,7 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   // loop over directories
   for (int i=0; i<ncombdirs; i++) {
     dir = ep.combinedirs[i];
-    dataSource dsource= (dir==ep.savedir) ? data_local : data_server;
+    dataSource dsource= (dir==ep.local_savedir) ? data_local : data_server;
     //METLIBS_LOG_DEBUG("Looking in directory " << dir);
     for (int j=-1; j<numfields; j++) {
       if (j == -1) filenamePart= ep.objectsFilenamePart;
@@ -1542,6 +1587,9 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
 vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     const EditProduct& ep,
     const EditProductId& ei){
+
+  METLIBS_LOG_SCOPE();
+
   vector<std::string> okpids;
 
   // a "table" of found pids and object/fields
@@ -1558,7 +1606,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     while (ip<np && combineprods[i].pid!=ei.combineids[ip]) ip++;
     if (ip<np) {
       j= combineprods[i].element + 1;
-      if (j>=0 && j<mf) table[ip*mf+j]= true;
+    if (j>=0 && j<mf) table[ip*mf+j]= true;
     }
   }
 
@@ -1581,6 +1629,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
 void EditManager::findSavedProducts(vector <savedProduct> & prods,
     const std::string fileString,
     dataSource dsource, int element){
+
 
   //get files matching fileString
   glob_t globBuf;
@@ -1637,9 +1686,7 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
 // close edit-session
 void EditManager::stopEdit()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::stopEdit");
-#endif
 
   plotm->prodtimedefined= false;
 
@@ -1662,16 +1709,6 @@ void EditManager::stopEdit()
 
   unsentProduct = false;
 
-  if (EdProdId.sendable){
-#ifdef METNOPRODDB
-    std::string message;
-    if (gate.endProd(message)){
-      METLIBS_LOG_INFO("We are no longer in production, " << message);
-
-    } else
-      METLIBS_LOG_INFO("We could not stop production");
-#endif
-  }
 }
 
 vector<EditProduct> EditManager::getEditProducts(){
@@ -1726,6 +1763,8 @@ void EditManager::cleanCombineData(bool cleanData){
 vector <std::string> EditManager::getCombineIds(const miTime & valid,
     const EditProduct& ep,
     const EditProductId& ei){
+  METLIBS_LOG_SCOPE();
+
   vector <std::string> pids;
   int ipc=0, npc=combineprods.size();
   while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
@@ -1746,9 +1785,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid,
     vector<std::string>& pids){
-#ifdef DEBUGPRINT
 METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
-#endif
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
@@ -1830,9 +1867,12 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
       if (ipc<ipcend) {
         FieldEdit *fed= new FieldEdit( fieldPlotManager );
         // spec. used when reading field
+        if (!makeNewFile(j,true)){
+          return false;
+        }
         fed->setSpec(EdProd, j);
         std::string filename = combineprods[ipc].filename;
-        //METLIBS_LOG_DEBUG("Read field file " << filename);
+        METLIBS_LOG_DEBUG("Read field file " << filename);
         if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
           int nx,ny;
           fed->getFieldSize(nx,ny);
@@ -1872,6 +1912,13 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
     *(fed)= *(combinefields[j][0]);
     fed->setConstantValue(fieldUndef);
     fedits.push_back(fed);
+    if (EdProdId.sendable) {
+      //make new prd file from template
+      if (!makeNewFile(j,false)){
+        return false;
+      }
+    }
+
   }
 
   plotm->combiningobjects.changeProjection(newarea);
@@ -1925,26 +1972,6 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
   saveProductLabels(labels);
   plotm->editobjects.labelsAreSaved();
 
-  if (EdProdId.sendable) {
-#ifdef METNOPRODDB
-    // messages from ProductionGate
-    std::string message;
-    if (gate.okToStart(EdProd.db_name,EdProdId.name,valid,message)){
-      METLIBS_LOG_INFO("We are allowed to start production");
-      // start production
-      if (gate.startProd(EdProd.db_name,EdProdId.name,valid,message))
-        METLIBS_LOG_INFO("We are in production");
-      else{
-        METLIBS_LOG_ERROR("We could not start production");
-        return false;
-      }
-    } else{
-      METLIBS_LOG_ERROR("We are NOT allowed to start production");
-      return false;
-    }
-    METLIBS_LOG_INFO("Message:" << message);
-#endif
-  }
 
   objm->setAllPassive();
 
@@ -1956,9 +1983,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
 
 bool EditManager::editCombine()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::editCombine.......................");
-#endif
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
@@ -2084,9 +2109,7 @@ bool EditManager::editCombine()
 
 void EditManager::stopCombine()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::stopCombine");
-#endif
 
   objm->undofrontClear();
 
@@ -2595,9 +2618,7 @@ bool EditManager::recalcCombineMatrix(){
 
 void EditManager::prepareEditFields(const std::string& plotName, const vector<std::string>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ EditManager::prepareEditFields ++");
-#endif
 
   // setting plot options
 
@@ -2622,9 +2643,7 @@ void EditManager::prepareEditFields(const std::string& plotName, const vector<st
     }
   }
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ Returning from EditManager::prepareEditFields ++");
-#endif
 }
 
 
@@ -2643,10 +2662,8 @@ bool EditManager::getFieldArea(Area& a)
 
 void EditManager::plot(bool under, bool over)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
   <<"  showRegion="<<showRegion);
-#endif
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2678,13 +2695,11 @@ void EditManager::plot(bool under, bool over)
 
   bool plotinfluence= (mapmode==fedit_mode);
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG(" plototherfield="<<plototherfield
   <<" plotactivefield="<<plotactivefield
   <<" plotobjects="<<plotobjects
   <<" plotinfluence="<<plotinfluence
   <<" plotregion="<<plotregion);
-#endif
 
   if (plotcombine && under){
     int n= plotm->combiningobjects.objects.size();
@@ -2763,9 +2778,7 @@ void EditManager::plot(bool under, bool over)
 
 void EditManager::plotSingleRegion()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::plotSingleRegion");
-#endif
 
   if (showRegion<0 || showRegion>=numregs) return;
 
@@ -2825,9 +2838,7 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
 void EditManager::initEditTools(){
   /* called from EditManager constructor. Defines edit tools used
      for editing fields, and displaying and editing objects  */
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::initEditTools");
-#endif
   //defines edit and drawing tools
 
   eToolFieldStandard.push_back(newEditToolInfo("Change value",      edit_value));
@@ -2976,13 +2987,13 @@ void EditManager::initEditTools(){
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4","green4"));
   areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"dash2","zigzag"));
+  areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"empty","zigzag"));
   areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
   areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red","red"));
   areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue","blue"));
   areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange",0,true,"solid","diagleft"));
-  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow",0,true,"solid","paralyse"));
+  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange:0",0,true,"solid","diagleft"));
+  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow:255",0,true,"solid","paralyse"));
   areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
   areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
   areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
@@ -3127,9 +3138,7 @@ void EditManager::setMapmodeinfo(){
   /* Called when a new edit sessions starts. Defines edit tools used in this
   edit session, which will appear in the edit dialog
   drawtools used for EditProducts are defined in setup-file */
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("EditManager::setMapmodeinfo()");
-#endif
 
   mapmodeinfo.clear();
 
