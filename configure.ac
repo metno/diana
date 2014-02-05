@@ -19,6 +19,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_CXX
+AC_PROG_F77([gfortran, g77])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PROG_LN_S
@@ -55,6 +56,26 @@ AC_CXX_HAVE_STD
 AC_CXX_HAVE_STL
 
 AC_LANG_POP([C++])
+
+#
+# Fortran
+#
+AC_LANG_PUSH([Fortran 77])
+
+FFLAGS="$FFLAGS -pipe -x f77-cpp-input -fPIC -fopenmp "
+
+AS_CASE([$F77],
+[g77], [
+    # If the g77 compiler is used, preprocess with -DG77
+    AC_DEFINE([G77], [], [using g77])
+    FFLAGS="$FFLAGS -DG77"
+    AC_SUBST([FORTRAN_LIBS], [-lg2c])
+],
+[gfortran], [
+    AC_SUBST([FORTRAN_LIBS], [-lgfortran])
+])
+
+AC_LANG_POP([Fortran 77])
 
 #
 # Features
@@ -202,8 +223,7 @@ AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_C_LIBRARY([EMOS], [emos], [], [pbopen])
 ])
 
-AC_PATH_PROG(CMAKE, cmake, false)
-GMOCK_DIST_CHECK([src/test/gtest])
+GTEST_CHECK([src/test/gtest])
 
 #
 # Output

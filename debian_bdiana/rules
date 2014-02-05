@@ -26,8 +26,6 @@ do-configure:
 	    --disable-silent-rules \
 	    --prefix=/usr \
 	    --enable-obs-bufr \
-	    --disable-proddb \
-	    --disable-profet \
 	    --enable-video-export \
 	    --enable-geotiff \
 	    --with-qt4=/opt/qt4-headless \
