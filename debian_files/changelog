@@ -1,3 +1,9 @@
+diana (3.34.6-1) unstable; urgency=low
+
+  * Time control -  Bugfix: animation speed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Feb 2014 10:04:08 +0100
+
 diana (3.34.5-1) unstable; urgency=low
 
   * Fields - Bugfix - file changed check
