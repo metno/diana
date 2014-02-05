@@ -11,7 +11,7 @@ do-configure: configure-stamp
 configure-stamp:
 	./autogen.sh
 	./configure  \
-	    --disable-silent-rules 
+	    --disable-silent-rules \
             --enable-vcross-v2 \
 	    --enable-geotiff \
             --enable-obs-bufr \
