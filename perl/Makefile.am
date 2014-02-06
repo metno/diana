@@ -14,11 +14,10 @@ endif
 
 common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
-	$(DIMITIFF_LDFLAGS) \
+	$(MIRASTER_LDFLAGS) \
 	$(PUCTOOLS_LDFLAGS) \
 	$(EMOS_LDFLAGS) \
 	$(PUDATATYPES_LDFLAGS) \
-	$(ROBS_LDFLAGS) \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
@@ -26,11 +25,10 @@ common_ldflags += \
 
 common_ldadd += \
 	$(DIFIELD_LIBS) \
-	$(DIMITIFF_LIBS) \
+	$(MIRASTER_LIBS) \
 	$(PUCTOOLS_LIBS) \
-	$(EMOS_LIBS) \
+	$(EMOS_LIBS)  $(FORTRAN_LIBS)\
 	$(PUDATATYPES_LIBS) \
-	$(ROBS_LIBS) \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
