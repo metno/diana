@@ -2,11 +2,11 @@ Source: diana
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
+Build-Depends: debhelper (>= 7.4.15), autotools-dev, g++, perl,
  qt4-qmake, libqt4-dev, libemos-dev,
- metlibs-difield-dev, metlibs-dimitiff-dev, metlibs-milib-dev,
- metlibs-milogger-dev, metlibs-propoly-dev, metlibs-puctools-dev,
- metlibs-pudatatypes-dev, metlibs-robs-dev,
+ metno-devscripts (>= 0.5.2),
+ metlibs-miraster-dev, metlibs-difield-dev,
+ metlibs-pudatatypes-dev, metlibs-qutilities-dev, metlibs-coserver-dev,
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
  libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
  libavformat-dev,
