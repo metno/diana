@@ -3894,10 +3894,10 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
 
     sf.indexMGR = indexMGR;
     sf.indexM = indexM;
-    if(vfgi[indexFGR].levels[sf.fieldName].size() > 0 ) {
-      sf.levelOptions = vfgi[indexFGR].levels[sf.fieldName];
+    if(vfg[indexFGR].levels.count(sf.fieldName) && vfg[indexFGR].levels[sf.fieldName].size() > 0 ) {
+      sf.levelOptions = vfg[indexFGR].levels[sf.fieldName];
     } else {
-      sf.levelOptions = vfgi[indexFGR].levelNames;
+      sf.levelOptions = vfg[indexFGR].levelNames;
     }
     sf.idnumOptions = vfg[indexFGR].idnumNames;
     sf.minus = false;
