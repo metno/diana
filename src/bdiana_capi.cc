@@ -1508,6 +1508,8 @@ void createJsonAnnotation()
 
 static void ensureNewContext()
 {
+  bool was_printing = context.printing;
+
   if (!multiple_plots) {
     if (context.isPainting())
       context.end();
@@ -1516,6 +1518,7 @@ static void ensureNewContext()
   }
 
   context.makeCurrent();
+  context.printing = was_printing;
 }
 
 static void printPage(int ox, int oy)
