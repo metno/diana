@@ -1,3 +1,10 @@
+diana (3.34.7-1) unstable; urgency=low
+
+  * Bugfix: reference time
+  * Error dialog
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 11 Feb 2014 13:22:08 +0100
+
 diana (3.34.6-1) unstable; urgency=low
 
   * Time control -  Bugfix: animation speed

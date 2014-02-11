@@ -135,7 +135,8 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/yr_snow.png \
 	share/diana/images/yr_snowshowers.png \
 	share/diana/images/yr_snowthunder.png \
-	share/diana/images/yr_sun.png               
+	share/diana/images/yr_sun.png \
+	share/diana/images/Met_RGB_Horisontal.png
 
 
 markersdir= $(datarootdir)/diana/@PVERSION@/images/markers
