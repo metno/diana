@@ -1,3 +1,9 @@
+diana (3.34.8-1) unstable; urgency=low
+
+  * Bugfix: FieldFunctions::sumFields (Removed pragma omp parallel)
+	
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 14 Feb 2014 15:04:46 +0100
+
 diana (3.34.7-1) unstable; urgency=low
 
   * Bugfix: reference time
