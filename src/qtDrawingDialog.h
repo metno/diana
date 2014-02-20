@@ -34,6 +34,7 @@
 #include <qnamespace.h>
 #include <QStandardItemModel>
 #include "EditItems/edititembase.h"
+#include "EditItems/dialog.h"
 #include "qtDataDialog.h"
 
 class DrawingDialog : public DataDialog
@@ -72,7 +73,7 @@ private:
 
   Controller *ctrl;
   EditItemManager *editm;
-
+  EditItems::Dialog *editItemsDialog_;
   /// Records the items being edited in ID order for serialisation.
   QMap<int, DrawingItemBase *> itemMap;
   /// Records which items belong to each file.
@@ -86,12 +87,4 @@ private:
   QToolButton *editButton;
 };
 
-class ToolPanel : public QWidget
-{
-  Q_OBJECT
-public:
-  ToolPanel(QWidget *parent = 0);
-  ~ToolPanel();
-};
-
-#endif
+#endif // _drawingdialog_h

@@ -100,13 +100,14 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   editButton = new QToolButton();
   editButton->setText(tr("Edit"));
   editButton->setCheckable(true);
-  ToolPanel *tools = new ToolPanel();
-  tools->setEnabled(false);
 
-  connect(editButton, SIGNAL(toggled(bool)), tools, SLOT(setEnabled(bool)));
   connect(editButton, SIGNAL(toggled(bool)), SLOT(toggleEditingMode(bool)));
   connect(editButton, SIGNAL(toggled(bool)), drawingList, SLOT(setDisabled(bool)));
   connect(editButton, SIGNAL(toggled(bool)), chosenDrawingList, SLOT(setDisabled(bool)));
+
+  editItemsDialog_ = new EditItems::Dialog(this);
+  connect(editButton, SIGNAL(toggled(bool)), editItemsDialog_, SLOT(setVisible(bool)));
+  connect(editItemsDialog_, SIGNAL(visible(bool)), editButton, SLOT(setChecked(bool)));
 
   QHBoxLayout *editLayout = new QHBoxLayout();
   editLayout->setMargin(0);
@@ -120,7 +121,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   layout->addWidget(chosenDrawingList);
   layout->addLayout(editLayout);
   //layout->addWidget(editor->getUndoView());
-  layout->addWidget(tools);
+  // layout->addWidget(tools); OBSOLETE
   layout->addLayout(createStandardButtons());
 
   // Populate the drawing model with data from the drawing manager.
@@ -308,30 +309,4 @@ void DrawingDialog::keyPressEvent(QKeyEvent *event)
   } else {
     DataDialog::keyPressEvent(event);
   }
-}
-
-ToolPanel::ToolPanel(QWidget *parent)
-  : QWidget(parent)
-{
-  QHBoxLayout *layout = new QHBoxLayout(this);
-  layout->setSizeConstraint(QLayout::SetFixedSize);
-  layout->setMargin(0);
-
-  QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
-
-  QToolButton *selectButton = new QToolButton();
-  selectButton->setDefaultAction(actions[EditItemManager::Select]);
-  layout->addWidget(selectButton);
-
-  QToolButton *polyLineButton = new QToolButton();
-  polyLineButton->setDefaultAction(actions[EditItemManager::CreatePolyLine]);
-  layout->addWidget(polyLineButton);
-
-  QToolButton *symbolButton = new QToolButton();
-  symbolButton->setDefaultAction(actions[EditItemManager::CreateSymbol]);
-  layout->addWidget(symbolButton);
-}
-
-ToolPanel::~ToolPanel()
-{
 }

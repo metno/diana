@@ -257,6 +257,9 @@ private Q_SLOTS:
   void setPaintMode(bool);
   void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
+  void setWorkAreaCursor(const QCursor &);
+  void unsetWorkAreaCursor();
+
 private:
   bool push_command;   // push current plot on stack
   bool browsing;       // user browsing through plot-stack

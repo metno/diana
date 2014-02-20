@@ -136,8 +136,11 @@ diana_qt_sources = \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
+	EditItems/layers.cc \
 	EditItems/properties.cc \
 	EditItems/style.cc \
+	EditItems/toolbar.cc \
+	EditItems/dialog.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -146,7 +149,6 @@ diana_qt_sources = \
 	qtComplexPressureText.cc \
 	qtComplexText.cc \
 	qtDataDialog.cc \
-	qtDrawingDialog.cc \
 	qtEditComment.cc \
 	qtEditDefineField.cc \
 	qtEditDialog.cc \
@@ -251,9 +253,12 @@ noinst_HEADERS = \
 	EditItems/edititembase.h \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \
+	EditItems/layers.h \
 	EditItems/kml.h \
 	EditItems/properties.h \
 	EditItems/style.h \
+	EditItems/toolbar.h \
+	EditItems/dialog.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \
@@ -331,7 +336,6 @@ noinst_HEADERS = \
 	qtComplexPressureText.h \
 	qtComplexText.h \
 	qtDataDialog.h \
-	qtDrawingDialog.h \
 	qtEditComment.h \
 	qtEditText.h \
 	qtEditDefineField.h \
@@ -499,6 +503,8 @@ common_xpm_sources= active_object.xpm \
 	paint_add_crusor.xpm \
 	paint_add_point.xpm \
 	paint_color.xpm \
+	paint_create_polyline.xpm \
+	paint_create_symbol.xpm \
 	paint_cursor.xpm \
 	paint_cut.xpm \
 	paint_delete.xpm \
@@ -515,6 +521,7 @@ common_xpm_sources= active_object.xpm \
 	paint_remove_crusor.xpm \
 	paint_remove_point.xpm \
 	paint_select.xpm \
+	paint_select2.xpm \
 	paint_spatial.xpm \
 	paint_undo.xpm \
 	parent_object.xpm \

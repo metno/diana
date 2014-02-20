@@ -137,6 +137,8 @@ signals:
     void itemChanged(DrawingItemBase *);
     void itemRemoved(DrawingItemBase *);
     void timesUpdated();
+    void setWorkAreaCursor(const QCursor &);
+    void unsetWorkAreaCursor();
 
 protected:
     virtual void addItem_(DrawingItemBase *);
@@ -146,7 +148,7 @@ private slots:
     void initNewItem(DrawingItemBase *item);
 
 private:
-    QSet<DrawingItemBase *> selItems_;
+    QSet<DrawingItemBase *> selItems_; // ### >>> move to layers.h
     EditItemBase *hoverItem_;
     EditItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
     bool repaintNeeded_;

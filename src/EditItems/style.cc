@@ -37,7 +37,7 @@
 #include <EditItems/style.h>
 #include "qtUtility.h"
 
-namespace Style {
+namespace EditItemsStyle {
 
 QComboBox * StylePropertyEditor::comboBox() { return comboBox_; }
 

@@ -175,7 +175,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
   // New input has been submitted, so remove the items from the set.
   // This will automatically cause items to be removed from the editing
   // dialog in interactive mode.
-  foreach (DrawingItemBase *item, items_.values())
+  foreach (DrawingItemBase *item, items_.values()) // ### handle layers ... TBD
     removeItem_(item);
 
   loaded_.clear();
@@ -209,7 +209,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  setEnabled(!items_.empty());
+  setEnabled(!items_.empty()); // ### handle layers ... TBD
   return true;
 }
 
@@ -228,7 +228,7 @@ DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &propert
 
 void DrawingManager::addItem_(DrawingItemBase *item)
 {
-  items_.insert(item);
+  items_.insert(item); // ### handle layers ... TBD
 }
 
 bool DrawingManager::loadItems(const QString &fileName)
@@ -251,7 +251,7 @@ bool DrawingManager::loadItems(const QString &fileName)
     foreach (DrawingItemBase *item, items) {
       // Set the screen coordinates from the latitude and longitude values.
       setFromLatLonPoints(item, item->getLatLonPoints());
-      items_.insert(item);
+      items_.insert(item); // ### handle layers ... TBD
     }
   } else {
     METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
@@ -265,7 +265,7 @@ bool DrawingManager::loadItems(const QString &fileName)
 
 void DrawingManager::removeItem_(DrawingItemBase *item)
 {
-  items_.remove(item);
+  items_.remove(item); // ### handle layers ... TBD
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const
@@ -331,7 +331,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::set<miutil::miTime> times;
 
-  foreach (DrawingItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) { // ### handle layers ... TBD
 
     std::string time_str;
     std::string prop_str = timeProperty(item->propertiesRef(), time_str);
@@ -387,7 +387,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
   // Change the visibility of items in the editor.
 
-  foreach (DrawingItemBase *item, items_) {
+  foreach (DrawingItemBase *item, items_) { // ### handle layers ... TBD
     std::string time_str;
     std::string time_prop = timeProperty(item->propertiesRef(), time_str);
     if (time_prop.empty() || isEditing())
@@ -424,7 +424,7 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  QList<DrawingItemBase *> items = items_.values();
+  QList<DrawingItemBase *> items = items_.values(); // ### handle layers ... TBD
   qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
   foreach (DrawingItemBase *item, items) {
@@ -440,7 +440,7 @@ void DrawingManager::plot(bool under, bool over)
 
 QSet<DrawingItemBase *> DrawingManager::getItems() const
 {
-  return items_;
+  return items_; // ### handle layers ... TBD
 }
 
 QSet<QString> &DrawingManager::getDrawings()

@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef STYLE_H
-#define STYLE_H
+#ifndef EDITITEMSSTYLE_H
+#define EDITITEMSSTYLE_H
 
 #include <QDialog>
 #include <QComboBox>
@@ -40,7 +40,7 @@
 class DrawingItemBase;
 class QWidget;
 
-namespace Style {
+namespace EditItemsStyle {
 
 class StylePropertyEditor : public QObject
 {
@@ -110,4 +110,4 @@ private slots:
 
 } // namespace
 
-#endif // STYLE_H
+#endif // EDITITEMSSTYLE_H

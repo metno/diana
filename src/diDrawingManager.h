@@ -196,7 +196,7 @@ protected:
   Rectangle editRect;
   Area currentArea;
 
-  QSet<DrawingItemBase *> items_;
+  QSet<DrawingItemBase *> items_; // ### >>> move to layers.h
   QSet<QString> drawings_;
   QSet<QString> loaded_;
 

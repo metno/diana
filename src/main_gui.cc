@@ -36,6 +36,7 @@
 
 #include <QApplication>
 #include <QTranslator>
+#include <QMessageBox>
 
 #include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
@@ -43,7 +44,7 @@
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
 
-#include "qtDrawingDialog.h"
+#include "EditItems/dialog.h"
 #include "qtMainWindow.h"
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -237,9 +238,9 @@ int main(int argc, char **argv)
 
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title);
 
-  DrawingDialog *drawingDialog = new DrawingDialog(mw, &contr);
-  drawingDialog->hide();
-  mw->addDialog(drawingDialog);
+  EditItems::Dialog *editItemsDialog = new EditItems::Dialog(mw, &contr);
+  editItemsDialog->hide();
+  mw->addDialog(editItemsDialog);
 
   mw->start();
 

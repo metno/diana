@@ -96,6 +96,7 @@
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
 #include "diDrawingManager.h"
+#include "diEditItemManager.h"
 
 #include "qtDataDialog.h"
 #include "qtQuickMenu.h"
@@ -124,6 +125,8 @@
 #include <QErrorMessage>
 
 #include "qtMailDialog.h"
+
+#include <EditItems/toolbar.h>
 
 #include <qUtilities/miLogFile.h>
 #include <puTools/miSetupParser.h>
@@ -909,8 +912,15 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   paintToolBar = new PaintToolBar(this);
   paintToolBar->setObjectName("PaintToolBar");
-  addToolBar(Qt::BottomToolBarArea,paintToolBar);
+  addToolBar(Qt::BottomToolBarArea, paintToolBar);
   paintToolBar->hide();
+
+  EditItems::ToolBar::instance()->setObjectName("EditItemsToolBar");
+  addToolBar(Qt::BottomToolBarArea, EditItems::ToolBar::instance());
+  EditItems::ToolBar::instance()->hide();
+  EditItems::ToolBar::instance()->setEnabled(false);
+  connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
+  connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -3909,7 +3919,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
     tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
     if (paintToolBar != 0) {
-      paintToolBar->hide();
+      // paintToolBar->hide();
     }
 
     if (tokens.size()==3) {
@@ -4253,4 +4263,14 @@ void DianaMainWindow::updateDialog()
     return;
 
   action->setChecked(!action->isChecked());
+}
+
+void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)
+{
+    w->Glw()->setCursor(cursor);
+}
+
+void DianaMainWindow::unsetWorkAreaCursor()
+{
+    w->Glw()->unsetCursor();
 }
