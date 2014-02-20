@@ -262,11 +262,11 @@ QWidget *Dialog::createActiveLayersPane()
   bottomLayout->addWidget(mergeVisibleButton_ = createToolButton(QPixmap(mergevisible_xpm), "Merge visible layers", SLOT(mergeVisible())));
   bottomLayout->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", SLOT(showAll())));
   bottomLayout->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", SLOT(hideAll())));
-  bottomLayout->addWidget(duplicateCurrentButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate the selected layer", SLOT(duplicateCurrent())));
-  bottomLayout->addWidget(removeCurrentButton_ = createToolButton(QPixmap(remove_xpm), "Remove the selected layer", SLOT(removeCurrent())));
-  bottomLayout->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the selected layer up", SLOT(moveCurrentUp())));
-  bottomLayout->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the selected layer down", SLOT(moveCurrentDown())));
-  bottomLayout->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the selected layer", SLOT(editCurrent())));
+  bottomLayout->addWidget(duplicateCurrentButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate the current layer", SLOT(duplicateCurrent())));
+  bottomLayout->addWidget(removeCurrentButton_ = createToolButton(QPixmap(remove_xpm), "Remove the current layer", SLOT(removeCurrent())));
+  bottomLayout->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", SLOT(moveCurrentUp())));
+  bottomLayout->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", SLOT(moveCurrentDown())));
+  bottomLayout->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the current layer", SLOT(editCurrent())));
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   mainLayout->addLayout(bottomLayout);
