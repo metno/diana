@@ -35,32 +35,36 @@
 #include <EditItems/toolbar.h>
 
 #include <paint_mode.xpm> // ### for now
+#include "addempty.xpm"
+#include "duplicate.xpm"
+#include "edit.xpm"
 #include "empty.xpm"
+#include "fileopen.xpm"
+#include "hideall.xpm"
+#include "mergevisible.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "remove.xpm"
+#include "showall.xpm"
 #include "visible.xpm"
 #include "unsavedchanges.xpm"
-#include "addempty.xpm"
-#include "mergevisible.xpm"
-#include "showall.xpm"
-#include "hideall.xpm"
-#include "duplicate.xpm"
-#include "remove.xpm"
-#include "moveup.xpm"
-#include "movedown.xpm"
-#include "edit.xpm"
 
-#include <QMouseEvent>
-#include <QGroupBox>
-#include <QSplitter>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QInputDialog>
-#include <QToolButton>
-#include <QDialogButtonBox>
 #include <QAction>
 #include <QApplication>
-#include <QMessageBox>
+#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QListView>
 #include <QMenu>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QSplitter>
 #include <QTimer>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 #include <QDebug>
 
@@ -235,14 +239,33 @@ void ScrollArea::keyPressEvent(QKeyEvent *event)
 
 QWidget *Dialog::createAvailableLayersPane()
 {
-  QGroupBox *groupBox = new QGroupBox("Available Layers");
-  // ...
+  QGroupBox *groupBox = new QGroupBox(tr("Available Layers"));
+
+  drawingList = new QListView();
+  drawingList->setModel(&drawingModel);
+  drawingList->setSelectionMode(QAbstractItemView::MultiSelection);
+  drawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+  connect(drawingList->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          this, SLOT(updateButtons()));
+
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  bottomLayout->addWidget(importFilesButton_ = createToolButton(QPixmap(movedown_xpm), "Import files as layer", SLOT(importChosenFiles())));
+  bottomLayout->addWidget(loadFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Open file", SLOT(loadFile())));
+
+  QVBoxLayout *layout = new QVBoxLayout(groupBox);
+  layout->setContentsMargins(0, 2, 0, 2);
+  layout->addWidget(drawingList);
+  layout->addLayout(bottomLayout);
+
   return groupBox;
 }
 
 QWidget *Dialog::createActiveLayersPane()
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
+  mainLayout->setContentsMargins(0, 2, 0, 2);
 
   QWidget *activeLayersWidget = new QWidget;
   activeLayersWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -287,7 +310,6 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   setWindowTitle("Drawing Layers");
   setFocusPolicy(Qt::StrongFocus);
   QSplitter *splitter = new QSplitter(Qt::Vertical);
-  splitter->setStyleSheet("QSplitter::handle { background: yellow; color: red; }");
   splitter->addWidget(createAvailableLayersPane());
   splitter->addWidget(createActiveLayersPane());
   splitter->setSizes(QList<int>() << 500 << 500);
@@ -313,6 +335,9 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
 //  for (int i = 0; i < 4; ++i)
 //    addEmpty();
 //  setCurrentIndex(0);
+
+  // Populate the drawing model with data from the drawing manager.
+  updateModel();
 
   updateButtons();
 }
@@ -378,10 +403,8 @@ void Dialog::toggleEditingMode(bool enable)
 {
   // When editing starts, remove any existing items and load the chosen
   // files. Mark the product as unfinished by disabling it.
-  if (enable) {
-    //loadChosenFiles();
+  if (enable)
     editm_->setEnabled(false);
-  }
 
   editm_->setEditing(enable);
   ToolBar::instance()->setVisible(enable);
@@ -721,12 +744,78 @@ void Dialog::updateButtons()
   moveCurrentUpButton_->setEnabled(currentPos() > 0);
   moveCurrentDownButton_->setEnabled(currentPos() < (allSize - 1));
   editCurrentButton_->setEnabled(current());
+  importFilesButton_->setEnabled(drawingList->selectionModel()->selection().size() != 0);
 }
 
 void Dialog::handleLayersStateUpdate()
 {
   updateButtons();
   Layers::instance()->update();
+}
+
+/**
+ * Updates the drawing model with data from the drawing manager.
+ */
+void Dialog::updateModel()
+{
+  drawingModel.clear();
+
+  foreach (QString filePath, DrawingManager::instance()->getDrawings()) {
+    QString fileName = QFileInfo(filePath).fileName();
+    QStandardItem *item = new QStandardItem(fileName);
+    item->setData(filePath, Qt::UserRole);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    drawingModel.appendRow(item);
+  }
+}
+
+/**
+ * Adds new layers to the stack containing the items from the selected items in
+ * the drawing model.
+ *
+ * This is performed whenever the selection changes in the drawing list.
+ */
+void Dialog::importChosenFiles()
+{
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  // Add a new empty layer.
+  addEmpty();
+
+  foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
+    if (index.column() != 0)
+      continue;
+
+    QString filePath = index.data(Qt::UserRole).toString();
+
+    if (!EditItemManager::instance()->loadItems(filePath)) {
+      // Disable the item to indicate that it is not loaded.
+      QStandardItem *item = drawingModel.itemFromIndex(index);
+      item->setEnabled(false);
+    }
+  }
+
+  QApplication::restoreOverrideCursor();
+}
+
+void Dialog::loadFile()
+{
+  const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"),
+    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml)"));
+  if (fileName.isNull())
+    return;
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+
+  // Add a new empty layer.
+  addEmpty();
+
+  if (!EditItemManager::instance()->loadItems(fileName)) {
+    // Remove the new layer if loading fails.
+    removeCurrent();
+  }
+
+  QApplication::restoreOverrideCursor();
 }
 
 } // namespace

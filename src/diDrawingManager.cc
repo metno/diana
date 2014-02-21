@@ -34,9 +34,12 @@
 #endif
 
 #include <diDrawingManager.h>
+#include <EditItems/drawingcomposite.h>
 #include <EditItems/drawingpolyline.h>
 #include <EditItems/drawingsymbol.h>
+#include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
+#include <EditItems/layers.h>
 #include <diPlotModule.h>
 #include <diObjectManager.h>
 #include <diAnnotationPlot.h>
@@ -172,44 +175,49 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-  // New input has been submitted, so remove the items from the set.
-  // This will automatically cause items to be removed from the editing
-  // dialog in interactive mode.
-  foreach (DrawingItemBase *item, items_.values()) // ### handle layers ... TBD
-    removeItem_(item);
+  EditItems::Layer *layer = CurrentLayer;
+  if (layer) {
 
-  loaded_.clear();
+    // New input has been submitted, so remove the items from the set.
+    // This will automatically cause items to be removed from the editing
+    // dialog in interactive mode.
+    QSet<DrawingItemBase *> items = layer->items();
+    foreach (DrawingItemBase *item, items.values())
+      removeItem_(item);
 
-  vector<string>::const_iterator it;
-  for (it = inp.begin(); it != inp.end(); ++it) {
+    loaded_.clear();
 
-    // Split each input line into a collection of "words".
-    vector<string> pieces = miutil::split_protected(*it, '"', '"');
-    // Skip the first piece ("DRAWING").
-    pieces.erase(pieces.begin());
-
-    QVariantMap properties;
-    QVariantList points;
     vector<string>::const_iterator it;
+    for (it = inp.begin(); it != inp.end(); ++it) {
 
-    for (it = pieces.begin(); it != pieces.end(); ++it) {
+      // Split each input line into a collection of "words".
+      vector<string> pieces = miutil::split_protected(*it, '"', '"');
+      // Skip the first piece ("DRAWING").
+      pieces.erase(pieces.begin());
 
-      QString key, value;
-      if (!parseKeyValue(*it, key, value))
-        continue;
+      QVariantMap properties;
+      QVariantList points;
+      vector<string>::const_iterator it;
 
-      if (key == "file") {
-        // Read the specified file, skipping to the next line if successful,
-        // but returning false to indicate an error if unsuccessful.
-        if (loadItems(value))
-          break;
-        else
-          return false;
+      for (it = pieces.begin(); it != pieces.end(); ++it) {
+
+        QString key, value;
+        if (!parseKeyValue(*it, key, value))
+          continue;
+
+        if (key == "file") {
+          // Read the specified file, skipping to the next line if successful,
+          // but returning false to indicate an error if unsuccessful.
+          if (loadItems(value))
+            break;
+          else
+            return false;
+        }
       }
     }
-  }
 
-  setEnabled(!items_.empty()); // ### handle layers ... TBD
+    setEnabled(!CurrentLayer->items().empty());
+  }
   return true;
 }
 
@@ -223,12 +231,13 @@ std::vector<std::string> DrawingManager::getAnnotations() const
 
 DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
 {
-  return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(properties, error);
+  return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+                               DrawingItem_Text::Text, DrawingItem_Composite::Composite>(properties, error);
 }
 
 void DrawingManager::addItem_(DrawingItemBase *item)
 {
-  items_.insert(item); // ### handle layers ... TBD
+  CurrentLayer->items().insert(item);
 }
 
 bool DrawingManager::loadItems(const QString &fileName)
@@ -243,7 +252,10 @@ bool DrawingManager::loadItems(const QString &fileName)
   file.close();
 
   QString error;
-  QSet<DrawingItemBase *> items = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol>(fileName, &error);
+  QSet<DrawingItemBase *> items = \
+    KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+                        DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
+
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
     return false;
@@ -251,7 +263,7 @@ bool DrawingManager::loadItems(const QString &fileName)
     foreach (DrawingItemBase *item, items) {
       // Set the screen coordinates from the latitude and longitude values.
       setFromLatLonPoints(item, item->getLatLonPoints());
-      items_.insert(item); // ### handle layers ... TBD
+      CurrentLayer->items().insert(item);
     }
   } else {
     METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
@@ -265,7 +277,7 @@ bool DrawingManager::loadItems(const QString &fileName)
 
 void DrawingManager::removeItem_(DrawingItemBase *item)
 {
-  items_.remove(item); // ### handle layers ... TBD
+  CurrentLayer->items().remove(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const
@@ -329,21 +341,24 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 */
 std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
-  std::set<miutil::miTime> times;
-
-  foreach (DrawingItemBase *item, items_) { // ### handle layers ... TBD
-
-    std::string time_str;
-    std::string prop_str = timeProperty(item->propertiesRef(), time_str);
-    if (!time_str.empty())
-      times.insert(miutil::miTime(time_str));
-  }
-
   std::vector<miutil::miTime> output;
-  output.assign(times.begin(), times.end());
 
-  // Sort the times.
-  std::sort(output.begin(), output.end());
+  if (CurrentLayer) {
+    std::set<miutil::miTime> times;
+
+    foreach (DrawingItemBase *item, CurrentLayer->items()) {
+
+      std::string time_str;
+      std::string prop_str = timeProperty(item->propertiesRef(), time_str);
+      if (!time_str.empty())
+        times.insert(miutil::miTime(time_str));
+    }
+
+    output.assign(times.begin(), times.end());
+
+    // Sort the times.
+    std::sort(output.begin(), output.end());
+  }
 
   return output;
 }
@@ -373,28 +388,32 @@ std::string DrawingManager::timeProperty(const QVariantMap &properties, std::str
 */
 bool DrawingManager::prepare(const miutil::miTime &time)
 {
-  // Check the requested time against the available times.
   bool found = false;
-  std::vector<miutil::miTime>::const_iterator it;
-  std::vector<miutil::miTime> times = getTimes();
 
-  for (it = times.begin(); it != times.end(); ++it) {
-    if (*it == time) {
-      found = true;
-      break;
+  if (CurrentLayer) {
+
+    // Check the requested time against the available times.
+    std::vector<miutil::miTime>::const_iterator it;
+    std::vector<miutil::miTime> times = getTimes();
+
+    for (it = times.begin(); it != times.end(); ++it) {
+      if (*it == time) {
+        found = true;
+        break;
+      }
     }
-  }
 
-  // Change the visibility of items in the editor.
+    // Change the visibility of items in the editor.
 
-  foreach (DrawingItemBase *item, items_) { // ### handle layers ... TBD
-    std::string time_str;
-    std::string time_prop = timeProperty(item->propertiesRef(), time_str);
-    if (time_prop.empty() || isEditing())
-      item->setProperty("visible", true);
-    else {
-      bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
-      item->setProperty("visible", visible);
+    foreach (DrawingItemBase *item, CurrentLayer->items()) {
+      std::string time_str;
+      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
+      if (time_prop.empty() || isEditing())
+        item->setProperty("visible", true);
+      else {
+        bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
+        item->setProperty("visible", visible);
+      }
     }
   }
 
@@ -415,32 +434,37 @@ void DrawingManager::plot(bool under, bool over)
   if (!over)
     return;
 
-  // Apply a transformation so that the items can be plotted with screen coordinates
-  // while everything else is plotted in map coordinates.
-  glPushMatrix();
-  plotRect = PLOTM->getPlotSize();
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-  glTranslatef(editRect.x1, editRect.y1, 0.0);
-  glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+  if (CurrentLayer) {
+    // Apply a transformation so that the items can be plotted with screen coordinates
+    // while everything else is plotted in map coordinates.
+    glPushMatrix();
+    plotRect = PLOTM->getPlotSize();
+    int w, h;
+    PLOTM->getPlotWindow(w, h);
+    glTranslatef(editRect.x1, editRect.y1, 0.0);
+    glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  QList<DrawingItemBase *> items = items_.values(); // ### handle layers ... TBD
-  qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+    QList<DrawingItemBase *> items = CurrentLayer->items().values();
+    qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
-  foreach (DrawingItemBase *item, items) {
-    if (item->property("visible", true).toBool()) {
-      applyPlotOptions(item);
-      setFromLatLonPoints(item, item->getLatLonPoints());
-      item->draw();
+    foreach (DrawingItemBase *item, items) {
+      if (item->property("visible", true).toBool()) {
+        applyPlotOptions(item);
+        setFromLatLonPoints(item, item->getLatLonPoints());
+        item->draw();
+      }
     }
-  }
 
-  glPopMatrix();
+    glPopMatrix();
+  }
 }
 
 QSet<DrawingItemBase *> DrawingManager::getItems() const
 {
-  return items_; // ### handle layers ... TBD
+  if (!CurrentLayer)
+    return QSet<DrawingItemBase *>();
+  else
+    return CurrentLayer->items();
 }
 
 QSet<QString> &DrawingManager::getDrawings()
@@ -1056,4 +1080,20 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
     new_points << last;
 
   return new_points;
+}
+
+void DrawingStyleManager::beginText(DrawingItemBase *item)
+{
+  QVariantMap style = getStyle(item);
+  QColor textColour = style.value("textcolour").value<QColor>();
+  if (textColour.isValid())
+    glColor4ub(textColour.red(), textColour.green(), textColour.blue(),
+               textColour.alpha());
+  else
+    glColor3f(0.0, 0.0, 0.0);
+}
+
+void DrawingStyleManager::endText(DrawingItemBase *item)
+{
+  Q_UNUSED(item)
 }

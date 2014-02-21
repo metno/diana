@@ -89,9 +89,11 @@ common_cxx_sources = \
 	diWeatherFront.cc \
 	diWeatherObjects.cc \
 	diWeatherSymbol.cc \
+	EditItems/drawingcomposite.cc \
 	EditItems/drawingitembase.cc \
 	EditItems/drawingpolyline.cc \
 	EditItems/drawingsymbol.cc \
+	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
 	PolyContouring.cc
 
@@ -133,10 +135,11 @@ diana_qt_sources =
 else
 diana_qt_sources = \
 	diEditItemManager.cc \
+	EditItems/editcomposite.cc \
 	EditItems/edititembase.cc \
 	EditItems/editpolyline.cc \
 	EditItems/editsymbol.cc \
-	EditItems/layers.cc \
+	EditItems/edittext.cc \
 	EditItems/properties.cc \
 	EditItems/style.cc \
 	EditItems/toolbar.cc \
@@ -226,7 +229,8 @@ bdiana_qt_sources = \
 	diOrderClient.cc \
 	diOrderListener.cc \
 	diOrderQueue.cc \
-	diWorkOrder.cc
+	diWorkOrder.cc \
+	EditItems/layers.cc
 
 if WITH_EMBEDDED
 bdiana_qt_sources += \
@@ -247,12 +251,16 @@ noinst_HEADERS = \
 	diDisplayObjects.h \
 	diDrawingTypes.h \
 	diEditItemManager.h \
+	EditItems/drawingcomposite.h \
 	EditItems/drawingitembase.h \
 	EditItems/drawingpolyline.h \
 	EditItems/drawingsymbol.h \
+	EditItems/drawingtext.h \
+	EditItems/editcomposite.h \
 	EditItems/edititembase.h \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \
+	EditItems/edittext.h \
 	EditItems/layers.h \
 	EditItems/kml.h \
 	EditItems/properties.h \

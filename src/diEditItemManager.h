@@ -55,7 +55,8 @@ class EditItemManager : public DrawingManager
 
 public:
     enum Action {
-      Cut, Copy, Paste, EditProperties, EditStyle, Load, Save, Undo, Redo, Select, CreatePolyLine, CreateSymbol
+      Cut, Copy, Paste, EditProperties, EditStyle, Load, Save, Undo, Redo, Select,
+      CreatePolyLine, CreateSymbol, CreateText, CreateComposite
     };
 
     EditItemManager();
@@ -124,6 +125,8 @@ private slots:
     void loadItemsFromFile();
     void setCreatePolyLineMode();
     void setCreateSymbolMode();
+    void setCreateTextMode();
+    void setCreateCompositeMode();
     void handleSelectionChange();
 
 signals:
@@ -148,7 +151,6 @@ private slots:
     void initNewItem(DrawingItemBase *item);
 
 private:
-    QSet<DrawingItemBase *> selItems_; // ### >>> move to layers.h
     EditItemBase *hoverItem_;
     EditItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
     bool repaintNeeded_;
@@ -168,9 +170,11 @@ private:
     QAction* selectAction;
     QAction* createPolyLineAction;
     QAction* createSymbolAction;
+    QAction* createTextAction;
+    QAction* createCompositeAction;
 
     enum Mode {
-      SelectMode, CreatePolyLineMode, CreateSymbolMode
+      SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
     } mode_;
 
     // Define a variable to allow working (temporary) objects to be shown without

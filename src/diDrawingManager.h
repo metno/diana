@@ -34,6 +34,7 @@
 #include <GL/gl.h>
 
 #include <EditItems/drawingitembase.h>
+#include <EditItems/layers.h>
 
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
@@ -82,6 +83,8 @@ public:
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
+  void beginText(DrawingItemBase *item);
+  void endText(DrawingItemBase *item);
 
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
@@ -150,7 +153,8 @@ public:
 
   virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
-  template<typename BaseType, typename PolyLineType, typename SymbolType>
+  template<typename BaseType, typename PolyLineType, typename SymbolType,
+           typename Text, typename Composite>
   inline BaseType *createItemFromVarMap_(const QVariantMap &vmap, QString *error)
   {
     Q_ASSERT(!vmap.empty());
@@ -196,7 +200,6 @@ protected:
   Rectangle editRect;
   Area currentArea;
 
-  QSet<DrawingItemBase *> items_; // ### >>> move to layers.h
   QSet<QString> drawings_;
   QSet<QString> loaded_;
 

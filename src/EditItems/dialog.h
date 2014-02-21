@@ -34,9 +34,11 @@
 
 #include <QLabel>
 #include <QScrollArea>
+#include <QStandardItemModel>
 #include "qtDataDialog.h"
 #include "EditItems/layers.h"
 
+class QListView;
 class QVBoxLayout;
 class QToolButton;
 class EditItemManager;
@@ -135,6 +137,8 @@ private:
   QToolButton *moveCurrentUpButton_;
   QToolButton *moveCurrentDownButton_;
   QToolButton *editCurrentButton_;
+  QToolButton *importFilesButton_;
+  QToolButton *loadFileButton_;
   QToolButton *createToolButton(const QIcon &, const QString &, const char *) const;
   EditItemManager *editm_;
   QWidget *createAvailableLayersPane();
@@ -162,9 +166,10 @@ private:
   QList<LayerWidget *> allLayerWidgets();
   QList<Layer *> layers(const QList<LayerWidget *> &);
   void toggleEditingMode(bool);
-  void updateButtons();
 
 private slots:
+  void updateButtons();
+  void updateModel();
   virtual void updateTimes();
   void toggleDrawingMode(bool);
   void mouseClicked(QMouseEvent *);
@@ -180,6 +185,13 @@ private slots:
   void moveCurrentDown();
   void editCurrent();
   void handleLayersStateUpdate();
+  void importChosenFiles();
+  void loadFile();
+
+private:
+  /// List of available drawings from the setup file.
+  QListView *drawingList;
+  QStandardItemModel drawingModel;
 };
 
 } // namespace

@@ -68,14 +68,14 @@ int Layer::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-QSet<QSharedPointer<DrawingItemBase> > *Layer::items()
+QSet<DrawingItemBase *> &Layer::items()
 {
-  return &items_;
+  return items_;
 }
 
-QSet<QSharedPointer<DrawingItemBase> > *Layer::selectedItems()
+QSet<DrawingItemBase *> &Layer::selectedItems()
 {
-  return &selItems_;
+  return selItems_;
 }
 
 bool Layer::isVisible() const
@@ -188,6 +188,8 @@ Layer *Layers::addDuplicate(Layer *srcLayer)
 void Layers::remove(Layer *layer)
 {
   layers_.removeAt(layers_.indexOf(layer));
+  if (currLayer_ == layer)
+    currLayer_ = 0;
   delete layer;
 }
 

@@ -36,6 +36,8 @@
 #include <QSet>
 #include <QSharedPointer>
 
+#define CurrentLayer EditItems::Layers::instance()->current()
+
 class DrawingItemBase;
 
 namespace EditItems {
@@ -46,8 +48,8 @@ public:
   Layer(const Layer &);
   ~Layer();
   int id() const;
-  QSet<QSharedPointer<DrawingItemBase> > *items();
-  QSet<QSharedPointer<DrawingItemBase> > *selectedItems();
+  QSet<DrawingItemBase *> &items();
+  QSet<DrawingItemBase *> &selectedItems();
   bool isVisible() const;
   void setVisible(bool);
   bool hasUnsavedChanges() const;
@@ -58,8 +60,8 @@ private:
   int id_;
   static int nextId_;
   static int nextId();
-  QSet<QSharedPointer<DrawingItemBase> > items_; // ### >>> moved from diDrawingManager.h
-  QSet<QSharedPointer<DrawingItemBase> > selItems_; // ### >>> moved from diEditItemManager.h
+  QSet<DrawingItemBase *> items_;
+  QSet<DrawingItemBase *> selItems_;
   bool visible_;
   bool unsavedChanges_;
   QString name_;

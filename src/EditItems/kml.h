@@ -101,7 +101,8 @@ static inline SymbolType *createSymbol(const QPointF &point, const QDomNode &coo
 
 // Returns a set of items extracted from \a fileName.
 // The function leaves \a error empty iff it succeeds.
-template<typename BaseType, typename PolyLineType, typename SymbolType>
+template<typename BaseType, typename PolyLineType, typename SymbolType,
+         typename TextType, typename CompositeType>
 static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *error)
 {
   *error = QString();
