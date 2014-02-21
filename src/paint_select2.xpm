@@ -1,5 +1,5 @@
 /* XPM */
-static char * paint_select2_xpm[] = {
+static const char * paint_select2_xpm[] = {
 "24 24 86 1",
 " 	c None",
 ".	c #FEFEFE",

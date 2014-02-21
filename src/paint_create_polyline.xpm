@@ -1,5 +1,5 @@
 /* XPM */
-static char * paint_create_polyline_xpm[] = {
+static const char * paint_create_polyline_xpm[] = {
 "24 24 215 2",
 "  	c None",
 ". 	c #C3C3C2",
