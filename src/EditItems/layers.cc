@@ -78,6 +78,11 @@ QSet<DrawingItemBase *> &Layer::selectedItems()
   return selItems_;
 }
 
+bool Layer::isEmpty() const
+{
+  return items_.isEmpty();
+}
+
 bool Layer::isVisible() const
 {
   return visible_;

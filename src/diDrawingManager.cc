@@ -434,29 +434,35 @@ void DrawingManager::plot(bool under, bool over)
   if (!over)
     return;
 
-  if (CurrentLayer) {
-    // Apply a transformation so that the items can be plotted with screen coordinates
-    // while everything else is plotted in map coordinates.
-    glPushMatrix();
-    plotRect = PLOTM->getPlotSize();
-    int w, h;
-    PLOTM->getPlotWindow(w, h);
-    glTranslatef(editRect.x1, editRect.y1, 0.0);
-    glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+  // Apply a transformation so that the items can be plotted with screen coordinates
+  // while everything else is plotted in map coordinates.
+  glPushMatrix();
+  plotRect = PLOTM->getPlotSize();
+  int w, h;
+  PLOTM->getPlotWindow(w, h);
+  glTranslatef(editRect.x1, editRect.y1, 0.0);
+  glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-    QList<DrawingItemBase *> items = CurrentLayer->items().values();
-    qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+  EditItems::Layers *layers = EditItems::Layers::instance();
+  for (int i = 0; i < layers->size(); ++i) {
 
-    foreach (DrawingItemBase *item, items) {
-      if (item->property("visible", true).toBool()) {
-        applyPlotOptions(item);
-        setFromLatLonPoints(item, item->getLatLonPoints());
-        item->draw();
+    EditItems::Layer *layer = layers->at(i);
+    if (layer->isVisible()) {
+
+      QList<DrawingItemBase *> items = layer->items().values();
+      qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+
+      foreach (DrawingItemBase *item, items) {
+        if (item->property("visible", true).toBool()) {
+          applyPlotOptions(item);
+          setFromLatLonPoints(item, item->getLatLonPoints());
+          item->draw();
+        }
       }
     }
 
-    glPopMatrix();
   }
+  glPopMatrix();
 }
 
 QSet<DrawingItemBase *> DrawingManager::getItems() const

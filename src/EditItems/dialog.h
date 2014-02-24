@@ -140,6 +140,7 @@ private:
   QToolButton *importFilesButton_;
   QToolButton *loadFileButton_;
   QToolButton *createToolButton(const QIcon &, const QString &, const char *) const;
+
   EditItemManager *editm_;
   QWidget *createAvailableLayersPane();
   QWidget *createActiveLayersPane();

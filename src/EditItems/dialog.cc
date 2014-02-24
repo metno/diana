@@ -510,7 +510,7 @@ void Dialog::remove(LayerWidget *layerWidget, bool implicit)
   if ((!layerWidget) || (activeLayersLayout_->count() == 0))
     return;
 
-  if ((!implicit) && (QMessageBox::warning(
+  if (!layerWidget->layer()->isEmpty() && (!implicit) && (QMessageBox::warning(
                     this, "Remove layer", "Really remove layer?",
                     QMessageBox::Yes | QMessageBox::No) == QMessageBox::No))
     return;

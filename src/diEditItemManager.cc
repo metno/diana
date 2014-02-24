@@ -648,20 +648,26 @@ void EditItemManager::plot(bool under, bool over)
         glTranslatef(editRect.x1, editRect.y1, 0.0);
         glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-        QList<DrawingItemBase *> items = CurrentLayer->items().values();
-        qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+        EditItems::Layers *layers = EditItems::Layers::instance();
+        for (int i = 0; i < layers->size(); ++i) {
 
-        Q_ASSERT(!CurrentLayer->items().contains(incompleteItem_));
-        foreach (DrawingItemBase *item, items) {
-            EditItemBase::DrawModes modes = EditItemBase::Normal;
-            if (CurrentLayer->selectedItems().contains(item))
-                modes |= EditItemBase::Selected;
-            if (item == Drawing(hoverItem_))
-                modes |= EditItemBase::Hovered;
-            if (item->property("visible", true).toBool()) {
-                applyPlotOptions(item);
-                setFromLatLonPoints(item, item->getLatLonPoints());
-                Editing(item)->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
+            EditItems::Layer *layer = layers->at(i);
+            if (layer->isVisible()) {
+                QList<DrawingItemBase *> items = layer->items().values();
+                qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
+
+                foreach (DrawingItemBase *item, items) {
+                    EditItemBase::DrawModes modes = EditItemBase::Normal;
+                    if (CurrentLayer->selectedItems().contains(item))
+                        modes |= EditItemBase::Selected;
+                    if (item == Drawing(hoverItem_))
+                        modes |= EditItemBase::Hovered;
+                    if (item->property("visible", true).toBool()) {
+                        applyPlotOptions(item);
+                        setFromLatLonPoints(item, item->getLatLonPoints());
+                        Editing(item)->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
+                    }
+                }
             }
         }
         if (incompleteItem_) { // note that only complete items may be selected

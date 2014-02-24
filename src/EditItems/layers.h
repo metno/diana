@@ -50,6 +50,7 @@ public:
   int id() const;
   QSet<DrawingItemBase *> &items();
   QSet<DrawingItemBase *> &selectedItems();
+  bool isEmpty() const;
   bool isVisible() const;
   void setVisible(bool);
   bool hasUnsavedChanges() const;
