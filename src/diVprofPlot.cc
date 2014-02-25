@@ -52,32 +52,24 @@ using namespace std; using namespace miutil;
 VprofPlot::VprofPlot()
 : VprofTables(), windInKnots(true)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::Default Constructor");
-#endif
 }
 
 
 // Destructor
 VprofPlot::~VprofPlot() {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::Destructor");
-#endif
 }
 
 
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::plot " << nplot);
-#endif
 
   if (text.posName.empty())
     return false;
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::plot start plotting " << text.posName);
-#endif
 
   const float dptab=idptab;
   const float dpinv=1./dptab;
@@ -106,13 +98,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for T (always)
   if (ptt.size()>0) {
     nlevel= ptt.size();
-#ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("ptt.size()," << nlevel);
-#endif
 	for (unsigned int k=0; k<nlevel; k++) {
-#ifdef DEBUGPRINT
-	  METLIBS_LOG_DEBUG(ptt[k]);
-#endif
+	  METLIBS_LOG_DEBUG("ptt:"<<ptt[k]);
       x= ptt[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
@@ -131,13 +119,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for Td (if not same as T levels)
   if (vpopt->ptdtd && ptd.size()>0) {
     nlevel= ptd.size();
-#ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("ptd.size()," << nlevel);
-#endif
     for (unsigned int k=0; k<nlevel; k++) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG(ptd[k]);
-#endif
+      METLIBS_LOG_DEBUG("ptd:"<<ptd[k]);
       x= ptd[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
@@ -161,13 +145,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   // levels for wind and significant levels (if not same as T levels)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
     nlevel= puv.size();
-#ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("puv.size()," << nlevel);
-#endif
     for (unsigned int k=0; k<nlevel; k++) {
-#ifdef DEBUGPRINT
 	  METLIBS_LOG_DEBUG(puv[k]);
-#endif
       x= puv[k]*dpinv;
       i= int(x);
       yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
@@ -448,9 +428,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
 void VprofPlot::relhum(const vector<float>& tt,
     const vector<float>& td) {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::relhum(...)");
-#endif
 
   int nlev= tt.size();
   rhum.resize(nlev);
@@ -479,9 +457,7 @@ void VprofPlot::relhum(const vector<float>& tt,
 void VprofPlot::ducting(const vector<float>& pp,
     const vector<float>& tt,
     const vector<float>& td) {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::ducting(...)");
-#endif
 
   // p,t,td -> ducting index
   //
@@ -555,9 +531,7 @@ void VprofPlot::kindex(const vector<float>& pp,
 
   // K-index = (t+td)850 - (t-td)700 - (t)500
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofPlot::kindex(...)");
-#endif
 
   const float dptab=idptab;
   const float dpinv=1./dptab;

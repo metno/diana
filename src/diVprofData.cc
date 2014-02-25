@@ -51,26 +51,20 @@ VprofData::VprofData(const std::string& filename, const std::string& modelname)
   numPos(0), numTime(0), numParam(0), numLevel(0),
   dataBuffer(0)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 }
 
 
 VprofData::~VprofData()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   if (dataBuffer)
     delete[] dataBuffer;
 }
 
 bool VprofData::readField(std::string type, FieldManager* fieldm)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
-#endif
   FILE *stationfile;
   char line[1024];
   std::string correctFileName = fileName;
@@ -169,9 +163,7 @@ bool VprofData::readField(std::string type, FieldManager* fieldm)
 
 
 bool VprofData::readFile() {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofData::readFile  fileName= " << fileName);
-#endif
 
   // reading and storing all information and unpacked data
 
@@ -366,10 +358,8 @@ bool VprofData::readFile() {
 
 
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ VprofData::getData  " << name << "  " << time
       << "  " << modelName);
-#endif
 
 
 
@@ -410,9 +400,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
   if (readFromField) {
     vp->windInKnots = false;
     if((name == vProfPlotName) && (time == vProfPlotTime)) {
-#ifdef DEBUGPRINT
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
-#endif
       for (k=0; k<vProfPlot->ptt.size(); k++)
         vp->ptt.push_back(vProfPlot->ptt[k]);
       for (k=0; k<vProfPlot->tt.size(); k++)
@@ -467,7 +455,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
     }
     //iPos = 0;
     //iTime = 0;
-#ifdef DEBUGPRINT
     for (k=0; k<vp->ptt.size(); k++)
       METLIBS_LOG_DEBUG("ptt["<<k<<"]: " <<vp->ptt[k]);
     for (k=0; k<vp->tt.size(); k++)
@@ -486,7 +473,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
       METLIBS_LOG_DEBUG("om["<<k<<"]: " <<vp->om[k]);
     for (k=0; k<vp->pom.size(); k++)
       METLIBS_LOG_DEBUG("pom["<<k<<"]: " <<vp->pom[k]);
-#endif
   } else {
 
     int j,k,n;
@@ -515,7 +501,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
           vp->om.push_back(scale*dataBuffer[j++]);
       }
     }
-#ifdef DEBUGPRINT
     for (k=0; k<numLevel; k++) {
       METLIBS_LOG_DEBUG("ptt["<<k<<"]" <<vp->ptt[k]);
       METLIBS_LOG_DEBUG("tt["<<k<<"]" <<vp->tt[k]);
@@ -524,7 +509,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
       METLIBS_LOG_DEBUG("vv["<<k<<"]" <<vp->vv[k]);
       METLIBS_LOG_DEBUG("om["<<k<<"]" <<vp->om[k]);
     }
-#endif
   }
 
 

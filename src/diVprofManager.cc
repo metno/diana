@@ -87,9 +87,9 @@ VprofManager::VprofManager(Controller* co)
   showObsTemp(false), showObsPilot(false), showObsAmdar(false),
   plotw(0), ploth(0), hardcopy(false)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_SCOPE();
-#endif
+
   fieldm= co->getFieldManager(); // set fieldmanager
 
   vpopt= new VprofOptions();  // defaults are set
@@ -105,9 +105,9 @@ VprofManager::VprofManager(Controller* co)
 
 VprofManager::~VprofManager()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_SCOPE();
-#endif
+
 
   if (vpdiag) delete vpdiag;
   if (vpopt)  delete vpopt;
@@ -130,9 +130,9 @@ void VprofManager::cleanup()
 
 void VprofManager::parseSetup()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_SCOPE();
-#endif
+
 
   filenames.clear();
   filetypes.clear();
@@ -273,9 +273,9 @@ void VprofManager::parseSetup()
 
 void VprofManager::updateObsFileList()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::updateObsFileList");
-#endif
+
   obsfiles.clear();
   int n= filePaths.size();
   glob_t globBuf;
@@ -416,9 +416,9 @@ void VprofManager::updateObsFileList()
 
 void VprofManager::setPlotWindow(int w, int h)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setPlotWindow:" << w << " " << h);
-#endif
+
   plotw= w;
   ploth= h;
   if (vpdiag) vpdiag->setPlotWindow(plotw,ploth);
@@ -429,9 +429,9 @@ void VprofManager::setPlotWindow(int w, int h)
 
 void VprofManager::setModel()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setModel");
-#endif
+
 
   // should not clear all data, possibly needed again...
   cleanup();
@@ -510,17 +510,17 @@ void VprofManager::setModel()
     vpdiag->changeNumber(nobs,nmod);
   }
 
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setModels finished");
-#endif
+
 }
 
 
 void VprofManager::setStation(const std::string& station)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setStation  " << station);
-#endif
+
 
   plotStation= station;
 }
@@ -528,9 +528,9 @@ void VprofManager::setStation(const std::string& station)
 
 void VprofManager::setTime(const miTime& time)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setTime  " << time);
-#endif
+
 
   plotTime= time;
 
@@ -541,9 +541,9 @@ void VprofManager::setTime(const miTime& time)
 
 std::string VprofManager::setStation(int step)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setStation   step=" << step);
-#endif
+
 
   if (nameList.size()==0)
     return "";
@@ -568,9 +568,9 @@ std::string VprofManager::setStation(int step)
 
 miTime VprofManager::setTime(int step)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::setTime   step=" << step);
-#endif
+
 
   if (timeList.size()==0)
     return miTime::nowTime();
@@ -623,9 +623,9 @@ void VprofManager::endHardcopy(){
 
 bool VprofManager::plot()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::plot  " << plotStation << "  " << plotTime);
-#endif
+
 
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt);
@@ -733,9 +733,9 @@ bool VprofManager::plot()
     vpdiag->plotText();
   }
 
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::plot finished");
-#endif
+
   return true;
 }
 
@@ -743,9 +743,9 @@ bool VprofManager::plot()
 /***************************************************************************/
 
 vector <std::string> VprofManager::getModelNames(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::getModelNames");
-#endif
+
   updateObsFileList();
   return dialogModelNames;
 }
@@ -753,9 +753,9 @@ vector <std::string> VprofManager::getModelNames(){
 /***************************************************************************/
 
 vector <std::string> VprofManager::getModelFiles(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::getModelFiles");
-#endif
+
   vector<std::string> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
@@ -841,6 +841,9 @@ vector<string> VprofManager::getSelectedModels()
 /***************************************************************************/
 
 bool VprofManager::initVprofData(std::string file,std::string model){
+
+  METLIBS_LOG_SCOPE();
+
   VprofData *vpd= new VprofData(file,model);
   if(filetypes[file] == "standard") {
     if (vpd->readFile()) {
@@ -872,9 +875,9 @@ bool VprofManager::initVprofData(std::string file,std::string model){
 void VprofManager::initStations(){
   //merge lists from all models
   int nvpdata = vpdata.size();
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::initStations-size of vpdata " << nvpdata);
-#endif
+
 
   nameList.clear();
   latitudeList.clear();
@@ -1076,9 +1079,9 @@ void VprofManager::initStations(){
 
 // remember station
 if (!plotStation.empty()) lastStation = plotStation;
-#ifdef DEBUGPRINT
+
 METLIBS_LOG_DEBUG("lastStation"  << lastStation);
-#endif
+
 //if it's the first time, plotStation is first in list
 if (lastStation.empty() && nameList.size())
   plotStation=nameList[0];
@@ -1094,18 +1097,18 @@ else{
   }
   if (!found) plotStation.clear();
 }
-#ifdef DEBUGPRINT
+
 METLIBS_LOG_DEBUG("plotStation" << plotStation);
-#endif
+
 }
 
 
 /***************************************************************************/
 
 void VprofManager::initTimes(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::initTimes:" << plotTime.isoTime());
-#endif
+
 
   timeList.clear();
 
@@ -1130,9 +1133,9 @@ void VprofManager::initTimes(){
 /***************************************************************************/
 
 void VprofManager::checkObsTime(int hour) {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("VprofManager::checkObsTime  hour= " << hour);
-#endif
+
 
   // use hour=-1 to check all files
   // hour otherwise used to spread checking of many files (with plotTime.hour)
@@ -1180,9 +1183,9 @@ void VprofManager::checkObsTime(int hour) {
 
   void VprofManager::mainWindowTimeChanged(const miTime& time)
   {
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("VprofManager::mainWindowTimeChanged  " << time);
-#endif
+
 
     miTime mainWindowTime = time;
     //change plotTime
@@ -1202,9 +1205,9 @@ void VprofManager::checkObsTime(int hour) {
 
   void VprofManager::updateObs()
   {
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("VprofManager::updateObs");
-#endif
+
     updateObsFileList();
     checkObsTime();
   }
