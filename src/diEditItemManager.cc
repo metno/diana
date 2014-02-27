@@ -827,7 +827,7 @@ void EditItemManager::editStyle()
 void EditItemManager::loadItemsFromFile()
 {
     // select file
-    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml)"));
+    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml);; All files (*)"));
     if (fileName.isNull())
         return; // operation cancelled
 

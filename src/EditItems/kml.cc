@@ -31,29 +31,42 @@
 
 #include "kml.h"
 #include "drawingitembase.h"
+#include "drawingpolyline.h"
+#include "drawingsymbol.h"
 #include <cmath>
+#include <QAbstractMessageHandler>
+#include <QXmlSchemaValidator>
+#include <QRegExp>
+#include <QDateTime>
 
 namespace KML {
 
-void MessageHandler::handleMessage(QtMsgType type, const QString &descr, const QUrl &id, const QSourceLocation &srcLoc)
+// Finalizes KML document \a doc and returns a textual representation of it.
+static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &itemsFrag)
 {
-  n_++;
-  type_ = type;
-  descr_ = descr;
-  id_ = id;
-  srcLoc_ = srcLoc;
+  // add <kml> root element
+  QDomElement kmlElem = doc.createElement("kml");
+  kmlElem.setAttribute("xmlns", "http://www.opengis.net/kml/2.2"); // required to match schema
+  doc.appendChild(kmlElem);
+
+  // add <Document> element
+  QDomElement docElem = doc.createElement("Document");
+  kmlElem.appendChild(docElem);
+
+  // NOTE: We don't support styling for now, so styling elements will not be written
+
+  // compress itemsFrag if necessary (so represent identical <Folder> elements as one <Folder> element etc.) ... TBD
+
+  // add structures of individual items
+  docElem.appendChild(itemsFrag);
+
+  QByteArray kml;
+  kml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"); // XML declaration
+  kml.append(doc.toByteArray(2)); // DOM structure
+
+  return kml;
 }
 
-MessageHandler::MessageHandler() : n_(0) {}
-
-void MessageHandler::reset() { n_ = 0; }
-
-QString MessageHandler::lastMessage() const
-{
-  if (n_ == 0)
-    return "<no message>";
-  return QString("%1 (line %2, column %3)").arg(descr_).arg(srcLoc_.line()).arg(srcLoc_.column());
-}
 
 // Saves selected items \a selItems to \a fileName.
 //
@@ -85,32 +98,15 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
     itemsFrag.appendChild(item->toKML());
   }
 
-  // add <kml> root element
-  QDomElement kmlElem = doc.createElement("kml");
-  kmlElem.setAttribute("xmlns", "http://www.opengis.net/kml/2.2"); // required to match schema
-  doc.appendChild(kmlElem);
+  const QByteArray kmlText = createKMLText(doc, itemsFrag);
 
-  // add <Document> element
-  QDomElement docElem = doc.createElement("Document");
-  kmlElem.appendChild(docElem);
-
-  // NOTE: We don't support styling for now, so styling elements will not be written to the file!
-
-  // compress itemsFrag if necessary (so represent identical <Folder> elements as one <Folder> element etc.) ... TBD
-
-  // add structures of individual items
-  docElem.appendChild(itemsFrag);
-
-  // save DOM document to file
+  // save KML text to file
   QFile file(fileName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       *error = QString("failed to open %1 for writing").arg(fileName);
       return;
   }
-  QByteArray final;
-  final.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"); // XML declaration
-  final.append(doc.toByteArray(2)); // DOM structure
-  if (file.write(final) == -1) {
+  if (file.write(kmlText) == -1) {
     *error = QString("failed to write to %1: %2").arg(fileName).arg(file.errorString());
     return;
   }
@@ -255,22 +251,306 @@ QPair<QString, QString> getTimeSpan(const QDomElement &elem, QString *error)
   return qMakePair(beginTimeElem.firstChild().nodeValue(), endTimeElem.firstChild().nodeValue());
 }
 
-// Attempts to load \a fileName as a valid XML schema into \a schema.
-// Returns true and leaves \a error empty upon success. Otherwise returns false and puts the reason in \a error.
-bool loadSchema(const QString &fileName, QXmlSchema &schema, MessageHandler *msgHandler, QString *error)
+class MessageHandler : public QAbstractMessageHandler
+{
+  virtual void handleMessage(QtMsgType, const QString &, const QUrl &, const QSourceLocation &);
+  int n_;
+  QtMsgType type_;
+  QString descr_;
+  QUrl id_;
+  QSourceLocation srcLoc_;
+public:
+  MessageHandler();
+  void reset();
+  QString lastMessage() const;
+};
+
+void MessageHandler::handleMessage(QtMsgType type, const QString &descr, const QUrl &id, const QSourceLocation &srcLoc)
+{
+  n_++;
+  type_ = type;
+  descr_ = descr;
+  id_ = id;
+  srcLoc_ = srcLoc;
+}
+
+MessageHandler::MessageHandler() : n_(0) {}
+
+void MessageHandler::reset() { n_ = 0; }
+
+QString MessageHandler::lastMessage() const
+{
+  if (n_ == 0)
+    return "<no message>";
+  return QString("%1 (line %2, column %3)").arg(descr_).arg(srcLoc_.line()).arg(srcLoc_.column());
+}
+
+// Attempts to load \a fileName as a valid XML schema.
+// Returns true upon success, or false and a reason in \a error upon failure.
+static bool loadSchemaFromFile(QXmlSchema &schema, const QString &fileName, QString *error)
 {
   *error = QString();
+
   QUrl schemaUrl(QUrl(QString("file://%1").arg(fileName)));
   if (!schemaUrl.isValid()) {
     *error = QString("invalid schema: %1, reason: %2").arg(schemaUrl.path()).arg(schemaUrl.errorString());
     return false;
   }
-  schema.setMessageHandler(msgHandler);
-  msgHandler->reset();
+
+  MessageHandler msgHandler;
+  schema.setMessageHandler(&msgHandler);
+  msgHandler.reset();
   if (!schema.load(schemaUrl)) {
-    *error = QString("failed to load schema: %1, reason: %2").arg(schemaUrl.path()).arg(msgHandler->lastMessage());
+    Q_ASSERT(!schema.isValid());
+    *error = QString("failed to load schema: %1, reason: %2").arg(schemaUrl.path()).arg(msgHandler.lastMessage());
     return false;
   }
+
+  Q_ASSERT(schema.isValid());
+  return true;
+}
+
+// Loads the KML schema from pre-defined candidate files in prioritized order.
+// Upon success, the function returns true and a valid schema in \a schema.
+// Otherwise, the function returns false and the failure reason for each candidate file in \a error.
+bool loadSchema(QXmlSchema &schema, QString *error)
+{
+  *error = QString();
+
+  // open the schema file from a list of candidates in prioritized order
+  const QString schemaBaseFileName("ogckml22.xsd");
+  QStringList candSchemaFileNames;
+  candSchemaFileNames.append(QString("/usr/share/diana/%1/%2").arg(PVERSION_MAJOR_DOT_MINOR).arg(schemaBaseFileName));
+  candSchemaFileNames.append(QString("%1/%2").arg(qgetenv("KMLSCHEMADIR").constData()).arg(schemaBaseFileName));
+  QStringList candSchemaErrors;
+  int i = 0;
+  foreach (const QString schemaFileName, candSchemaFileNames) {
+    i++;
+    QString schemaLoadError;
+    if (loadSchemaFromFile(schema, schemaFileName, &schemaLoadError)) {
+      Q_ASSERT(schema.isValid());
+      Q_ASSERT(schemaLoadError.isEmpty());
+      break;
+    }
+    Q_ASSERT(!schema.isValid());
+    Q_ASSERT(!schemaLoadError.isEmpty());
+    candSchemaErrors.append(QString("error opening schema from candidate file %1:%2 (%3): %4")
+                            .arg(i).arg(candSchemaFileNames.size()).arg(schemaFileName).arg(schemaLoadError));
+  }
+
+  if (!schema.isValid()) {
+    *error = QString(candSchemaErrors.join(", "));
+    return false;
+  }
+
+  return true;
+}
+
+// Creates a DOM document from the KML structure in \a data, validating against \a schema.
+// Returns a non-null document upon success, or a null document and a failure reason in \a error upon failure.
+QDomDocument createDomDocument(const QByteArray &data, const QXmlSchema &schema, const QUrl &docUri, QString *error)
+{
+  Q_ASSERT(schema.isValid());
+  *error = QString();
+  MessageHandler msgHandler;
+
+  // validate against schema
+  QXmlSchemaValidator validator(schema);
+  validator.setMessageHandler(&msgHandler);
+  msgHandler.reset();
+  if (!validator.validate(data, docUri)) {
+    *error = QString("failed to validate against schema: %1, reason: %2").arg(schema.documentUri().path()).arg(msgHandler.lastMessage());
+    return QDomDocument();
+  }
+
+  // create DOM document
+  int line;
+  int col;
+  QString err;
+  QDomDocument doc;
+  if (doc.setContent(data, &err, &line, &col) == false) {
+    *error = QString("parse error at line %1, column %2: %3").arg(line).arg(col).arg(err);
+    return QDomDocument();
+  }
+
+  Q_ASSERT(!doc.isNull());
+  return doc;
+}
+
+// Returns a property map from \a s assumed to be in old format.
+// Sets \a error to a non-empty reason iff a failure occurs.
+static QMap<QString, QString> extractOldProperties(const QString &s, QString *error)
+{
+  *error = QString();
+
+  QRegExp rx("^([^=;]+)=([^=;]*);");
+  int pos = 0;
+  QMap<QString, QString> props;
+
+  while (true) {
+    int pos2;
+    if ((pos2 = rx.indexIn(s.mid(pos))) >= 0) {
+      props.insert(rx.cap(1).trimmed(), rx.cap(2).trimmed());
+      pos += (pos2 + rx.matchedLength());
+    } else {
+      break; // property list exhausted
+    }
+  }
+
+  return props;
+}
+
+// Upon success, the function returns a non-empty list of (lat,lon) points from a text of (lon,lat) points (note the order!).
+// Otherwise, the function puts a reason in \a error and returns an empty list.
+static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString *error)
+{
+  *error = QString();
+  QList<QPointF> points;
+
+  QStringList plist = lonLatPoints.split(QRegExp("[,\\s]+"), QString::SkipEmptyParts);
+  if (plist.isEmpty()) {
+    *error = QString("no points found: %1").arg(lonLatPoints);
+    return QList<QPointF>();
+  }
+  if (plist.size() % 2) {
+    *error = QString("found %1 points, which is not an even number: %2").arg(plist.size()).arg(lonLatPoints);
+    return QList<QPointF>();
+  }
+
+  bool ok;
+  for (int i = 0; i < plist.size() / 2; ++i) {
+    const qreal lon = plist.at(2 * i).toDouble(&ok);
+    if (!ok) {
+      *error = QString("failed to extract longitude component of point %1: %2").arg(i).arg(plist.at(2 * i));
+      return QList<QPointF>();
+    }
+    const qreal lat = plist.at(2 * i + 1).toDouble(&ok);
+    if (!ok) {
+      *error = QString("failed to extract latitude component of point %1: %2").arg(i).arg(plist.at(2 * i + 1));
+      return QList<QPointF>();
+    }
+
+    points.append(QPointF(lat, lon)); // note order
+  }
+
+  return points;
+}
+
+// Creates a DrawingItemBase item of the right type from \a props.
+// Upon success, the function leaves \a error empty and returns the new item wrapped in a shared pointer.
+// Upon failure, the function puts a non-empty failure reason in \a error, but may still return an item (invalid in that case).
+QSharedPointer<DrawingItemBase> createItemFromOldProperties(QMap<QString, QString> props, QString *error)
+{
+  *error = QString();
+  DrawingItemBase *item = 0;
+
+  // ensure that mandatory properties exist:
+  if (!props.contains("Object")) {
+    *error = "no 'Object' property found";
+    return QSharedPointer<DrawingItemBase>();
+  }
+  if (!props.contains("LongitudeLatitude")) {
+    *error = "no 'LongitudeLatitude' property found";
+    return QSharedPointer<DrawingItemBase>();
+  }
+
+  // extract geographic point(s):
+  const QList<QPointF> points = getOldLatLonPoints(props.value("LongitudeLatitude"), error);
+  if (points.isEmpty()) {
+    *error = QString("failed to extract point(s): %1").arg(*error);
+    return QSharedPointer<DrawingItemBase>();
+  }
+  if ((props.value("Object") == "Symbol") && (points.size() != 1)) {
+    *error = QString("invalid number of points for symbol: %1 (expected 1)").arg(points.size());
+    return QSharedPointer<DrawingItemBase>();
+  } else if ((props.value("Object") != "Symbol") && (points.size() < 2)) {
+    *error = QString("invalid number of points for non-symbol: %1 (expected at least 2)").arg(points.size());
+    return QSharedPointer<DrawingItemBase>();
+  }
+
+  // create item based on value of 'Object' property:
+  if (props.value("Object") == "Symbol")
+    item = new DrawingItem_Symbol::Symbol;
+  else
+    item = new DrawingItem_PolyLine::PolyLine;
+
+  // set geographic point(s):
+  item->setLatLonPoints(points);
+
+  // set optional properties ...
+
+  if (props.contains("Type")) {
+    item->propertiesRef().insert("style:type", "Default"); // ### for now
+  }
+
+  if (props.contains("LineWidth")) {
+    bool ok;
+    const float lineWidth = props.value("LineWidth").toFloat(&ok);
+    if (ok)
+      item->propertiesRef().insert("style:linewidth", lineWidth);
+  }
+
+  if (props.contains("RGBA")) {
+    const QString col = QString(props.value("RGBA")).replace(',', ':');
+    item->propertiesRef().insert("style:linecolour", col);
+  }
+
+  return QSharedPointer<DrawingItemBase>(item);
+}
+
+// Converts \a data from old format to new KML format. Upon success, the function replaces \a data with the converted data and returns true.
+// Otherwise, the function leaves \a data unchanged, passes a failure reason in \a error, and returns false.
+bool convertFromOldFormat(QByteArray &data, QString *error)
+{
+  *error = QString();
+  const QString in(data);
+  QRegExp rx;
+  int pos = 0;
+
+  // read date
+  rx = QRegExp("^\\s*Date\\s*=\\s*(\\d+);");
+  QDateTime dt;
+  if ((pos = rx.indexIn(in.mid(pos))) >= 0) {
+    dt = QDateTime::fromString(rx.cap(1), "yyyyMMddhhmm");
+    pos += rx.matchedLength();
+  } else {
+    *error = "failed to extract date";
+    return false;
+  }
+  // ### dt unused for now
+
+  QDomDocument doc;
+
+  // document fragment to keep structures of individual items:
+  QDomDocumentFragment itemsFrag = doc.createDocumentFragment();
+
+  // read objects
+  rx = QRegExp("^\\s*([^!]+)!");
+  while (true) {
+    int pos2;
+    if ((pos2 = rx.indexIn(in.mid(pos))) >= 0) {
+      QMap<QString, QString> props = extractOldProperties(rx.cap(1), error);
+      if (!error->isEmpty()) {
+        *error = QString("failed to extract object properties in old format: %1").arg(*error);
+        return false;
+      }
+
+      const QSharedPointer<DrawingItemBase> item = createItemFromOldProperties(props, error);
+      if (!error->isEmpty()) {
+        *error = QString("failed to create tmp item from properties in old format: %1").arg(*error);
+        return false;
+      }
+
+      // append structure of this item:
+      itemsFrag.appendChild(item->toKML());
+
+      pos += (pos2 + rx.matchedLength());
+    } else {
+      break; // object list exhausted
+    }
+  }
+
+  data = createKMLText(doc, itemsFrag);
 
   return true;
 }

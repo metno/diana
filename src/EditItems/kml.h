@@ -34,7 +34,6 @@
 
 #include "config.h"
 
-#include <QAbstractMessageHandler>
 #include <QSet>
 #include <QString>
 #include <QStringList>
@@ -42,26 +41,12 @@
 #include <QMap>
 #include <QDomElement>
 #include <QXmlSchema>
-#include <QXmlSchemaValidator>
+#include <QPointF>
 
 class DrawingItemBase;
 
 // API for saving/loading to/from KML files.
 namespace KML {
-
-class MessageHandler : public QAbstractMessageHandler
-{
-  virtual void handleMessage(QtMsgType, const QString &, const QUrl &, const QSourceLocation &);
-  int n_;
-  QtMsgType type_;
-  QString descr_;
-  QUrl id_;
-  QSourceLocation srcLoc_;
-public:
-  MessageHandler();
-  void reset();
-  QString lastMessage() const;
-};
 
 void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, const QSet<DrawingItemBase *> &selItems, QString *error);
 
@@ -77,7 +62,9 @@ QString getName(const QDomElement &, QString *);
 
 QPair<QString, QString> getTimeSpan(const QDomElement &, QString *);
 
-bool loadSchema(const QString &, QXmlSchema &, MessageHandler *, QString *);
+bool loadSchema(QXmlSchema &, QString *);
+QDomDocument createDomDocument(const QByteArray &, const QXmlSchema &, const QUrl &, QString *);
+bool convertFromOldFormat(QByteArray &, QString *);
 
 // Creates and returns a new PolyLine.
 template<typename PolyLineType>
@@ -99,68 +86,17 @@ static inline SymbolType *createSymbol(const QPointF &point, const QDomNode &coo
   return symbol;
 }
 
-// Returns a set of items extracted from \a fileName.
-// The function leaves \a error empty iff it succeeds.
+// Returns a set of items extracted from DOM document \a doc.
+// Upon success, the function returns a non-empty set of items and leaves \a error empty.
+// Otherwise, the function returns an empty set of items and a failure reason in \a error.
 template<typename BaseType, typename PolyLineType, typename SymbolType,
          typename TextType, typename CompositeType>
-static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *error)
+static inline QSet<BaseType *> createFromDomDocument(const QDomDocument &doc, QString *error)
 {
   *error = QString();
+
   QSet<BaseType *> items;
   QMap<int, int> finalGroupId;
-
-  // open file
-  QFile file(fileName);
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    *error = QString("failed to open file %1 for reading").arg(fileName);
-    return QSet<BaseType *>();
-  }
-
-  const QByteArray data = file.readAll();
-  MessageHandler msgHandler;
-
-  // open the schema file from a list of candidates in prioritized order
-  const QString schemaBaseFileName("ogckml22.xsd");
-  QStringList candSchemaFileNames;
-  candSchemaFileNames.append(QString("/usr/share/diana/%1/%2").arg(PVERSION_MAJOR_DOT_MINOR).arg(schemaBaseFileName));
-  candSchemaFileNames.append(QString("%1/%2").arg(qgetenv("KMLSCHEMADIR").constData()).arg(schemaBaseFileName));
-  QXmlSchema schema;
-  QStringList candSchemaErrors;
-  foreach (const QString schemaFileName, candSchemaFileNames) {
-    QString schemaLoadError;
-    if (loadSchema(schemaFileName, schema, &msgHandler, &schemaLoadError)) {
-      Q_ASSERT(schema.isValid());
-      Q_ASSERT(schemaLoadError.isEmpty());
-      break;
-    }
-    Q_ASSERT(!schema.isValid());
-    Q_ASSERT(!schemaLoadError.isEmpty());
-    candSchemaErrors.append(schemaLoadError);
-  }
-  if (!schema.isValid()) {
-    *error = QString("failed to open a valid KML schema file among the candidates; reasons: %1").arg(candSchemaErrors.join(", "));
-    return QSet<BaseType *>();
-  }
-
-  // validate against schema
-  // Q_ASSERT(schema.isValid());
-  QXmlSchemaValidator validator(schema);
-  validator.setMessageHandler(&msgHandler);
-  msgHandler.reset();
-  if (!validator.validate(data, QUrl::fromLocalFile(fileName))) {
-    *error = QString("failed to validate against schema: %1, reason: %2").arg(schema.documentUri().path()).arg(msgHandler.lastMessage());
-    return QSet<BaseType *>();
-  }
-
-  // create DOM document
-  int line;
-  int col;
-  QString err;
-  QDomDocument doc;
-  if (doc.setContent(data, &err, &line, &col) == false) {
-    *error = QString("parse error at line %1, column %2: %3").arg(line).arg(col).arg(err);
-    return QSet<BaseType *>();
-  }
 
   // loop over <coordinates> elements
   QDomNodeList coordsNodes = doc.elementsByTagName("coordinates");
@@ -235,9 +171,59 @@ static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *
     foreach (BaseType *item, items)
       delete item;
     return QSet<BaseType *>();
+  } else if (items.isEmpty()) {
+    *error = "no items found";
   }
 
   return items;
+}
+
+// Returns a set of items extracted from \a fileName.
+// Upon success, the function returns a non-empty set of items and leaves \a error empty.
+// Otherwise, the function returns an empty set of items and a failure reason in \a error.
+template<typename BaseType, typename PolyLineType, typename SymbolType,
+         typename TextType, typename CompositeType>
+static inline QSet<BaseType *> createFromFile(const QString &fileName, QString *error)
+{
+  *error = QString();
+
+  // load schema
+  QXmlSchema schema;
+  if (!loadSchema(schema, error)) {
+    *error = QString("failed to load KML schema: %1").arg(*error);
+    return QSet<BaseType *>();
+  }
+
+  // load data
+  QFile file(fileName);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    *error = QString("failed to open file %1 for reading").arg(fileName);
+    return QSet<BaseType *>();
+  }
+  QByteArray data = file.readAll();
+
+  // create document from data validated against schema
+  const QUrl docUri(QUrl::fromLocalFile(fileName));
+  QDomDocument doc = createDomDocument(data, schema, docUri, error);
+  if (doc.isNull()) {
+    // assume that the failure was caused by data being in old format
+    QString old2newError;
+    if (!convertFromOldFormat(data, &old2newError)) {
+      *error = QString("failed to create DOM document:<br/>%1<br/><br/>also failed to convert from old format:<br/>%2").arg(*error).arg(old2newError);
+      return QSet<BaseType *>();
+    }
+
+    doc = createDomDocument(data, schema, docUri, error);
+    if (doc.isNull()) {
+      *error = QString("failed to create DOM document after successfully converting from old format: %1").arg(*error);
+      return QSet<BaseType *>();
+    }
+  }
+
+  // at this point, a document is successfully created from either the new or the old format
+
+  // parse document and create items
+  return createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(doc, error);
 }
 
 } // namespace
