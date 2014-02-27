@@ -801,7 +801,7 @@ void Dialog::importChosenFiles()
 void Dialog::loadFile()
 {
   const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"),
-    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml)"));
+    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml);; All files (*)"));
   if (fileName.isNull())
     return;
 
