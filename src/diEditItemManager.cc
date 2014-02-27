@@ -297,6 +297,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
     }
 
     QSet<DrawingItemBase *> selItems = getSelectedItems();
+    const QSet<DrawingItemBase *> origSelItems(selItems);
 
     const QSet<DrawingItemBase *> hitItems = findHitItems(event->pos());
     DrawingItemBase *hitItem = // consider only this item to be hit
@@ -308,7 +309,6 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
     repaintNeeded_ = false;
 
-    const QSet<DrawingItemBase *> origSelItems(selItems);
 
     // update selection and hit status
     if (!(hitSelItem || (hitItem && selectMulti))) {
@@ -330,7 +330,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
         QSet<DrawingItemBase *> eventItems(CurrentLayer->items());
 
         bool rpn = false;
-        Editing(hitItem)->mousePress(event, rpn, &undoCommands, &eventItems, &selItems, &multiItemOp); // ### handle layers ... TBD
+        Editing(hitItem)->mousePress(event, rpn, &undoCommands, &eventItems, &selItems, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
         addedItems = eventItems - CurrentLayer->items();
         removedItems = CurrentLayer->items() - eventItems;
@@ -360,7 +360,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
     if (addedOrRemovedItems || modifiedItems)
         pushCommands(addedItems, removedItems, undoCommands);
 
-    if (selItems != origSelItems) {
+    if (getSelectedItems() != origSelItems) {
         emit selectionChanged();
         repaintNeeded_ = true;
     }
