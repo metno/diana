@@ -100,6 +100,7 @@ public slots:
     void copySelectedItems();
     void cutSelectedItems();
     void deselectItem(DrawingItemBase *);
+    void deselectAllItems();
     void editProperties();
     void editStyle();
     void keyPress(QKeyEvent *);

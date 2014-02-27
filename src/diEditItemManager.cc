@@ -312,7 +312,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
     // update selection and hit status
     if (!(hitSelItem || (hitItem && selectMulti))) {
-        selItems.clear(); // ### handle layers ... TBD
+        deselectAllItems();
     } else if (selectMulti && hitSelItem && (selItems.size() > 1)) {
         deselectItem(hitItem);
         hitItem = 0;
@@ -783,6 +783,12 @@ void EditItemManager::selectItem(DrawingItemBase *item)
 void EditItemManager::deselectItem(DrawingItemBase *item)
 {
   CurrentLayer->selectedItems().remove(Drawing(item));
+  emit selectionChanged();
+}
+
+void EditItemManager::deselectAllItems()
+{
+  CurrentLayer->selectedItems().clear();
   emit selectionChanged();
 }
 
