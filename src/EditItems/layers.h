@@ -48,8 +48,8 @@ public:
   Layer(const Layer &);
   ~Layer();
   int id() const;
-  QSet<DrawingItemBase *> &items();
-  QSet<DrawingItemBase *> &selectedItems();
+  QSet<DrawingItemBase *> &itemsRef();
+  QSet<DrawingItemBase *> &selectedItemsRef();
   bool isEmpty() const;
   bool isVisible() const;
   void setVisible(bool);
@@ -85,7 +85,7 @@ public:
   // Layer *addFromName(const QString &); // from setup (indirectly from KML file)
   void remove(Layer *);
   void reorder(QList<Layer *>);
-  void mergeIntoFirst(QList<Layer *>);
+  void mergeIntoFirst(const QList<Layer *> &);
   void update();
 private:
   Layers();

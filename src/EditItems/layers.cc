@@ -68,12 +68,12 @@ int Layer::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-QSet<DrawingItemBase *> &Layer::items()
+QSet<DrawingItemBase *> &Layer::itemsRef()
 {
   return items_;
 }
 
-QSet<DrawingItemBase *> &Layer::selectedItems()
+QSet<DrawingItemBase *> &Layer::selectedItemsRef()
 {
   return selItems_;
 }
@@ -215,7 +215,7 @@ void Layers::reorder(QList<Layer *>layers)
   layers_ = layers;
 }
 
-void Layers::mergeIntoFirst(QList<Layer *>layers)
+void Layers::mergeIntoFirst(const QList<Layer *> &layers)
 {
   // verify that layers is a subset of layers_
   foreach (Layer *layer, layers)
@@ -226,10 +226,12 @@ void Layers::mergeIntoFirst(QList<Layer *>layers)
 
   // merge
   for (int i = 1; i < layers.size(); ++i) {
-    // copy contents of layers.at(i) into layers.at(0) ... TBD
-    // NOTE: do not remove layers.at(i) - this is done by the client!
+    Q_ASSERT((layers.first()->itemsRef() & layers.at(i)->itemsRef().isEmpty())); // ensure empty intersection
+    layers.first()->itemsRef().unite(layers.at(i)->itemsRef());
+    Q_ASSERT((layers.first()->selectedItemsRef() & layers.at(i)->selectedItemsRef().isEmpty())); // ensure empty intersection
+    layers.first()->selectedItemsRef().unite(layers.at(i)->selectedItemsRef());
+    // NOTE: layers.at(i) is assumed to be removed by the client
   }
-
 }
 
 void Layers::update()

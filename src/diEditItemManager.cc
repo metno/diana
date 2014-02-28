@@ -149,7 +149,7 @@ EditItemManager *EditItemManager::instance()
  */
 bool EditItemManager::isEnabled() const
 {
-  return hasWorking() | (DrawingManager::isEnabled() && CurrentLayer && !CurrentLayer->items().isEmpty());
+  return hasWorking() | (DrawingManager::isEnabled() && CurrentLayer && !CurrentLayer->itemsRef().isEmpty());
 }
 
 bool EditItemManager::hasWorking() const
@@ -288,7 +288,7 @@ QSet<DrawingItemBase *> EditItemManager::getSelectedItems() const
   if (!CurrentLayer)
     return QSet<DrawingItemBase *>();
   else
-    return CurrentLayer->selectedItems();
+    return CurrentLayer->selectedItemsRef();
 }
 
 void EditItemManager::mousePress(QMouseEvent *event)
@@ -329,15 +329,15 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
         // send mouse press to the hit item
         bool multiItemOp = false;
-        QSet<DrawingItemBase *> eventItems(CurrentLayer->items());
+        QSet<DrawingItemBase *> eventItems(CurrentLayer->itemsRef());
 
         bool rpn = false;
         Editing(hitItem)->mousePress(event, rpn, &undoCommands, &eventItems, &selItems, &multiItemOp);
         if (rpn) repaintNeeded_ = true;
-        addedItems = eventItems - CurrentLayer->items();
-        removedItems = CurrentLayer->items() - eventItems;
+        addedItems = eventItems - CurrentLayer->itemsRef();
+        removedItems = CurrentLayer->itemsRef() - eventItems;
 
-        if (CurrentLayer->items().contains(hitItem)) {
+        if (CurrentLayer->itemsRef().contains(hitItem)) {
             // the hit item is still there
             if (multiItemOp) {
                 // send the mouse press to other selected items
@@ -401,7 +401,7 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
     QList<QUndoCommand *> undoCommands;
 
     // send to selected items
-    foreach (DrawingItemBase *item, CurrentLayer->selectedItems())
+    foreach (DrawingItemBase *item, CurrentLayer->selectedItemsRef())
         Editing(item)->mouseRelease(event, repaintNeeded_, &undoCommands);
 
     const bool modifiedItems = !undoCommands.empty();
@@ -468,7 +468,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
         }
     } else {
         // send move event to all selected items
-        foreach (DrawingItemBase *item, CurrentLayer->selectedItems()) {
+        foreach (DrawingItemBase *item, CurrentLayer->selectedItemsRef()) {
             Editing(item)->mouseMove(event, rpn);
             item->setLatLonPoints(getLatLonPoints(item));
             if (rpn) repaintNeeded_ = true;
@@ -548,8 +548,8 @@ void EditItemManager::keyPress(QKeyEvent *event)
     }
 
     repaintNeeded_ = false;
-    QSet<DrawingItemBase *> items = CurrentLayer->items();
-    QSet<DrawingItemBase *> selItems = CurrentLayer->selectedItems();
+    QSet<DrawingItemBase *> items = CurrentLayer->itemsRef();
+    QSet<DrawingItemBase *> selItems = CurrentLayer->selectedItemsRef();
 
     const QSet<DrawingItemBase *> origSelItems(selItems);
     QSet<int> origSelIds;
@@ -617,7 +617,7 @@ void EditItemManager::keyRelease(QKeyEvent *event)
     repaintNeeded_ = false; // whether at least one item needs to be repainted after processing the event
 
     // send to selected items
-    foreach (DrawingItemBase *item, CurrentLayer->selectedItems()) {
+    foreach (DrawingItemBase *item, CurrentLayer->selectedItemsRef()) {
         bool rpn = false;
         Editing(item)->keyRelease(event, rpn);
         if (rpn)
@@ -655,12 +655,12 @@ void EditItemManager::plot(bool under, bool over)
 
             EditItems::Layer *layer = layers->at(i);
             if (layer->isVisible()) {
-                QList<DrawingItemBase *> items = layer->items().values();
+                QList<DrawingItemBase *> items = layer->itemsRef().values();
                 qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
                 foreach (DrawingItemBase *item, items) {
                     EditItemBase::DrawModes modes = EditItemBase::Normal;
-                    if (CurrentLayer->selectedItems().contains(item))
+                    if (CurrentLayer->selectedItemsRef().contains(item))
                         modes |= EditItemBase::Selected;
                     if (item == Drawing(hoverItem_))
                         modes |= EditItemBase::Hovered;
@@ -722,10 +722,10 @@ bool EditItemManager::canRedo() const
 QSet<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos) const
 {
     QSet<DrawingItemBase *> hitItems;
-    foreach (DrawingItemBase *item, CurrentLayer->items()) {
+    foreach (DrawingItemBase *item, CurrentLayer->itemsRef()) {
         if (item->property("visible", false).toBool() == false)
             continue;
-        if (Editing(item)->hit(pos, CurrentLayer->selectedItems().contains(item)))
+        if (Editing(item)->hit(pos, CurrentLayer->selectedItemsRef().contains(item)))
             hitItems.insert(item);
     }
     return hitItems;
@@ -778,19 +778,19 @@ void EditItemManager::pushCommands(QSet<DrawingItemBase *> addedItems,
 
 void EditItemManager::selectItem(DrawingItemBase *item)
 {
-  CurrentLayer->selectedItems().insert(Drawing(item));
+  CurrentLayer->selectedItemsRef().insert(Drawing(item));
   emit selectionChanged();
 }
 
 void EditItemManager::deselectItem(DrawingItemBase *item)
 {
-  CurrentLayer->selectedItems().remove(Drawing(item));
+  CurrentLayer->selectedItemsRef().remove(Drawing(item));
   emit selectionChanged();
 }
 
 void EditItemManager::deselectAllItems()
 {
-  CurrentLayer->selectedItems().clear();
+  CurrentLayer->selectedItemsRef().clear();
   emit selectionChanged();
 }
 
