@@ -36,6 +36,7 @@
 #include <png.h>
 #include <map>
 #include <fstream>
+#include <string.h>
 
 #define MILOGGER_CATEGORY "diana.ImageIO"
 #include <miLogger/miLogging.h>

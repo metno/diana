@@ -200,7 +200,7 @@ AS_IF([test x$enable_batch_only != xyes], [
     ])
 ])
 
-METNO_REQUIRE_BOOST_MT
+METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([regex])
 
 # libavformat for video production
