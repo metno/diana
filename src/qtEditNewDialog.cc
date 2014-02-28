@@ -33,6 +33,8 @@
 #include "config.h"
 #endif
 
+#include <iostream>
+
 #include "diController.h"
 #include "diEditManager.h"
 
