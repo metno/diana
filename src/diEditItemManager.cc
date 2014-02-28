@@ -127,6 +127,8 @@ EditItemManager::EditItemManager()
     connect(createTextAction, SIGNAL(triggered()), SLOT(setCreateTextMode()));
     connect(createCompositeAction, SIGNAL(triggered()), SLOT(setCreateCompositeMode()));
 
+    connect(EditItems::Layers::instance(), SIGNAL(updated()), SLOT(repaint()));
+
     setSelectMode();
 }
 
