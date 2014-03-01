@@ -124,9 +124,6 @@ static inline QSet<BaseType *> createFromDomDocument(const QDomDocument &doc, QS
       Q_ASSERT(item);
       items.insert(item);
 
-      if (!error->isEmpty())
-        break;
-
       // set general properties
       if (!finalGroupId.contains(groupId))
           finalGroupId.insert(groupId, Drawing(item)->id()); // NOTE: item is just created, and its ID is globally unique!
