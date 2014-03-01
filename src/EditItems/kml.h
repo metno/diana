@@ -132,6 +132,18 @@ static inline QSet<BaseType *> createFromDomDocument(const QDomDocument &doc, QS
       QHash<QString, QString> extdata = getExtendedData(coordsNode);
       if (extdata.contains("met:style"))
         Drawing(item)->setProperty("style:type", extdata.value("met:style"));
+      if (extdata.contains("met:style:closed"))
+        Drawing(item)->setProperty("style:closed", extdata.value("met:style:closed"));
+      if (extdata.contains("met:style:linewidth"))
+        Drawing(item)->setProperty("style:linewidth", extdata.value("met:style:linewidth"));
+      if (extdata.contains("met:style:linecolour"))
+        Drawing(item)->setProperty("style:linecolour", extdata.value("met:style:linecolour"));
+      if (extdata.contains("met:style:linesmooth"))
+        Drawing(item)->setProperty("style:linesmooth", extdata.value("met:style:linesmooth"));
+      if (extdata.contains("met:style:fillcolour"))
+        Drawing(item)->setProperty("style:fillcolour", extdata.value("met:style:fillcolour"));
+      if (extdata.contains("met:style:fillpattern"))
+        Drawing(item)->setProperty("style:fillpattern", extdata.value("met:style:fillpattern"));
 
       QMap<QString, QDomElement> ancElems;
       findAncestorElements(coordsNode, &ancElems, error);
