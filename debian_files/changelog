@@ -1,3 +1,11 @@
+diana (3.35.0-1) unstable; urgency=low
+
+  * Vertical_profiles: Reading data from NetCDF
+  * Products: Diana no longer use dianadb to save products 
+  * FieldEdit: Fields are saved in the NetCDF format
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 03 Mar 2014 14:56:52 +0100
+
 diana (3.34.8-1) unstable; urgency=low
 
   * Bugfix: FieldFunctions::sumFields (Removed pragma omp parallel)

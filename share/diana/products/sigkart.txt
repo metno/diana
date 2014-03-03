@@ -1,18 +1,21 @@
 LABEL \
-anno=<image=wwwmet7,size=0.5><horalign=center> \
-anno=<text="SIG-WX"><horalign=center> \
-anno=<text="Low-Level"><horalign=center> \
-anno=<text="SFC - FL 150"><horalign=center> \
-anno=<text="Fixed time",size=0.8><horalign=center> \
-anno=<text="Prognostic chart",size=0.8><horalign=center> \
-anno=<text=" ______________"><horalign=center> \
-anno=<text="VALID %H UTC"><horalign=center> \
-anno=<text="%d %Beng %Y"><horalign=center> \
+anno=<text=" ",size=0.5><horalign=center> \
+anno=<image=Met_RGB_Horisontal,size=1><horalign=center> \
+anno=<text="SIG-WX",size=7><horalign=center> \
+anno=<text="Low-Level",size=7><horalign=center> \
+anno=<text="SFC - FL 150",size=7><horalign=center> \
+anno=<text="Fixed time",size=6><horalign=center> \
+anno=<text="Prognostic chart",size=6><horalign=center> \
+anno=<text=" ______________",size=7><horalign=center> \
+anno=<text="VALID %H UTC",size=7><horalign=center> \
+anno=<text="%d %Beng %Y",size=7><horalign=center> \
 anno=<text=" ",size=0.5><horalign=center> \
 plotrequested=true \
 tcolour=black bcolour=black fcolour=white polystyle=both \
-halign=left valign=top xoffset=0.00002 yoffset=0.00002 \
+halign=left valign=top xoffset=0.00001 yoffset=0.002 \
 font=BITMAPFONT fontsize=10 \
+
+
 margin=0.001 xratio=0.25 yratio=0.25
 
 
