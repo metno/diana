@@ -19,6 +19,8 @@ do-configure:
 	    --prefix=/usr \
 	    --enable-obs-bufr \
 	    --enable-video-export \
+	    --disable-silent-rules \
+	    --enable-vcross-v2 \
 	    --enable-geotiff \
 	    --enable-embedded \
 	    --program-suffix=-nogl \

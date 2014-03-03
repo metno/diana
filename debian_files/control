@@ -3,6 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: metno-devscripts (>= 0.5.2), autotools-dev, g++,
+ lsb-release, autoconf (>=2.61), automake (>= 1.10), libtool (>= 1.5),
  metlibs-miraster-dev, metlibs-difield-dev, metlibs-gltext-dev,
  metlibs-pudatatypes-dev, metlibs-qutilities-dev, metlibs-coserver-dev,
  libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev
