@@ -225,6 +225,8 @@ public:
   bool showAllObjects();
   /// returns EditProducts defined in setup file
   std::vector<EditProduct> getEditProducts();
+  /// returns name of all EditProducts defined in setup file
+  std::vector<std::string> getEditProductNames();
   /// returns a string with product id, name, time and object types
   std::string savedProductString(savedProduct sp);
   /// get fieldEdit annotations

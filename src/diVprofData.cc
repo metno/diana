@@ -35,6 +35,7 @@
 #include "diFtnVfile.h"
 
 #include <puTools/miStringFunctions.h>
+#include <diField/diVcrossData.h>
 
 #include <cstdio>
 #include <iomanip>
@@ -47,7 +48,7 @@ using namespace std;
 using namespace miutil;
 
 VprofData::VprofData(const std::string& filename, const std::string& modelname)
-: fileName(filename), modelName(modelname),readFromField(false), fieldManager(NULL),
+: fileName(filename), modelName(modelname),readFromFimex(false), readFromField(false), fieldManager(NULL),
   numPos(0), numTime(0), numParam(0), numLevel(0),
   dataBuffer(0)
 {
@@ -61,6 +62,58 @@ VprofData::~VprofData()
   if (dataBuffer)
     delete[] dataBuffer;
 }
+
+bool VprofData::readFimex(FieldManager* fieldm)
+{
+  fieldManager = fieldm;
+
+  bool ok;
+  std::vector<std::string> params;
+  std::vector<VcrossData::Cut> positions;
+  ok = fieldm->invVCross(fileName,validTime, forecastHour, params, positions);
+
+  METLIBS_LOG_DEBUG("++ VprofData::readFimex  model= " << modelName << " file=" << fileName);
+
+  vector<station> stations;
+  for ( size_t i = 0; i < positions.size(); ++i) {
+    if ( positions[i].lonlat.size() != 1 ) continue;
+    station st;
+    st.id = "id";
+    st.name = positions[i].name;
+    st.lat = positions[i].lonlat[0].latDeg();
+    st.lon = positions[i].lonlat[0].lonDeg();
+    st.height = 0;
+    st.barHeight = 0;
+    stations.push_back(st);
+    cerr <<st.name<<" : "<<st.lat<<endl;
+  }
+  for (size_t i = 0; i < stations.size(); i++) {
+    posName.push_back(stations[i].name);
+    obsName.push_back(stations[i].id);
+    posLatitude.push_back(stations[i].lat);
+    posLongitude.push_back(stations[i].lon);
+    posDeltaLatitude.push_back(0.0);
+    posDeltaLongitude.push_back(0.0);
+    posTemp.push_back(0);
+  }
+
+  numPos = posName.size();
+  numTime = validTime.size();
+  numParam = 6;
+  mainText.push_back(modelName);
+
+  miTime t = validTime[0];
+  for (size_t i = 0; i < validTime.size(); i++) {
+    forecastHour.push_back(miTime::hourDiff(validTime[i],t));
+    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
+  }
+  readFromFimex = true;
+  vProfPlot = 0;
+
+  //return success;
+  return ok;
+}
+
 
 bool VprofData::readField(std::string type, FieldManager* fieldm)
 {
@@ -397,8 +450,49 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
   //####	   + ostr.str() + validTime[iTime].isoTime();
 
   size_t k;
-  if (readFromField) {
+
+  if (readFromFimex) {
+    VcrossData::Cut cut;
+    LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
+    cut.lonlat.push_back(pos);
+    cut.name = name;
+    std::vector<std::string> params;
+    params.push_back("air_temperature_ml");
+    params.push_back("x_wind_ml");
+    params.push_back("y_wind_ml");
+    //    params.push_back("dew_point_temperature_ml");
+    int cacheOptions = FieldManager::READ_ALL;
+
+    VcrossData* vcrossdata = fieldManager->makeVCross( fileName, time, cut,  params, cacheOptions);
+
+    if ( vcrossdata->zAxes.size() ) {
+      for ( int i = 0; i<vcrossdata->zAxes[0]->mLevels;i++){
+        vp->ptt.push_back(vcrossdata->zAxes[0]->mValues[i]);
+      }
+    }
+    if(vcrossdata->parameters.count("air_temperature_ml")) {
+      for (int i=0; i<vcrossdata->parameters["air_temperature_ml"].mLevels; ++i){
+        vp->tt.push_back(vcrossdata->parameters["air_temperature_ml"].values[i]-273.15);  //TODO: ask for temperature in celsius
+        vp->td.push_back(vcrossdata->parameters["air_temperature_ml"].values[i]-273.15);  //TODO: ask for dew_point_temp
+      }
+    }
+    if(vcrossdata->parameters.count("x_wind_ml")) {
+      for (int i=0; i<vcrossdata->parameters["x_wind_ml"].mLevels; ++i){
+        vp->uu.push_back(vcrossdata->parameters["x_wind_ml"].values[i]);
+      }
+    }
+    if(vcrossdata->parameters.count("y_wind_ml")) {
+      for (int i=0; i<vcrossdata->parameters["y_wind_ml"].mLevels; ++i){
+        vp->vv.push_back(vcrossdata->parameters["y_wind_ml"].values[i]);
+      }
+    }
+
     vp->windInKnots = false;
+    numLevel = vp->tt.size();
+    vp->maxLevels= numLevel;
+
+  } else if (readFromField) {
+
     if((name == vProfPlotName) && (time == vProfPlotTime)) {
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
       for (k=0; k<vProfPlot->ptt.size(); k++)
@@ -427,7 +521,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
         return NULL;
       }
 
-	  numLevel = vp->tt.size();
+      numLevel = vp->tt.size();
       vp->maxLevels = numLevel;
 
       vProfPlotTime = miTime(time);

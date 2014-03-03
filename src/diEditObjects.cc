@@ -1445,20 +1445,24 @@ void EditObjects::setScaleToField(float s){
 void EditObjects::putCommentStartLines(std::string name,std::string prefix)
 {
   //return the startline of the comments file to read
-  std::string startline = prefix + std::string(" ") + name +
+  startlines = prefix + std::string(" ") + name +
   std::string(" ") + itsTime.isoTime()+ std::string("\n");
   itsComments+=
     "*************************************************\n";
-  itsComments+=startline;
+  itsComments+=startlines;
   itsComments+=
     "*************************************************\n";
+  startlines = itsComments;
+}
+
+bool EditObjects::hasComments(){
+  return ( itsComments != startlines );
 }
 
 std::string EditObjects::getComments(){
-  //return the comments
   commentsChanged = false;
-  //HK ???
   commentsSaved = true;
+
   return itsComments;
 }
 

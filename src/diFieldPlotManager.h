@@ -93,6 +93,9 @@ public:
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
 
+  ///return grid info from model
+  gridinventory::Grid getFieldGrid(const std::string& model);
+
   /// Returns the available times for the selected models and fields.
   std::vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
       bool& constTimes, bool updateSources=false);

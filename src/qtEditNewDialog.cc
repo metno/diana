@@ -278,7 +278,6 @@ void EditNewDialog::prodtimechanged(int v)
 {
   prodtime= timespin->Time();
     METLIBS_LOG_DEBUG("EditNewDialog::Prodtime changed:" << prodtime);
-  productfree= checkProductFree();
 }
 
 
@@ -356,8 +355,6 @@ void EditNewDialog::idBox(int idx)
   if (idx<0 || idx>=m) return;
 
   pid= products[currprod].pids[idx];
-
-  productfree= checkProductFree();
 
   METLIBS_LOG_DEBUG("....Selected Pid:" << products[currprod].pids[idx].name);
 
@@ -632,6 +629,7 @@ bool EditNewDialog::checkProductFree()
 }
 
 void EditNewDialog::ok_clicked(){
+  METLIBS_LOG_SCOPE();
   miutil::miTime ptime;
   if (normal) ptime= prodtime;
   else        ptime= combinetime;
@@ -654,9 +652,6 @@ void EditNewDialog::ok_clicked(){
 
   productfree= checkProductFree();
   if (!productfree){
-    // give error
-//    QMessageBox::warning( this, tr("Diana database message"),
-//        tr("Product not available.\n Can not start production"));
     return;
   }
   this->hide();

@@ -122,6 +122,7 @@ private:
 
   std::vector<UndoField> undofields;
   int numundo;
+  bool unsavedChanges;
 
   bool  active, editStarted, operationStarted;
 
@@ -214,8 +215,7 @@ public:
   bool readEditFieldFile(const std::string& filename,
                          const std::string& fieldname,
 			 const miutil::miTime& tprod);
-  bool readEditfield(const std::string& filename,
-      const std::string& fieldname);
+  bool readEditfield(const std::string& filename);
   bool writeEditFieldFile(const std::string& filename);
   void activate();
   void deactivate() { active= false; };

@@ -51,6 +51,7 @@ public:
   ~VprofData();
   bool readFile();
   bool readField(std::string type, FieldManager* fieldm);
+  bool readFimex(FieldManager* fieldm);
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   std::vector<std::string> getNames() { return posName; }
   std::vector <float> getLatitudes() { return posLatitude; }
@@ -62,6 +63,7 @@ private:
 
   std::string fileName;
   std::string modelName;
+  bool readFromFimex;
   bool readFromField;
   FieldManager* fieldManager;
 

@@ -93,7 +93,7 @@ bool EditManager::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  std::string section="EDIT_NEW";
+  std::string section="EDIT";
   vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
@@ -125,13 +125,6 @@ bool EditManager::parseSetup()
     ep.combineBorders="./ANAborders.";  // default as old version
     ep.winX=  0;
     ep.winY=  0;
-
-    Projection proj;
-    Rectangle rect;
-
-    //obsolete
-    int gridtype=0, nx=0, ny=0;          // no edit grid defined
-    float gridspec[Projection::speclen]= { 0. };
 
     if (key=="product" && nval==1) {
       ep.name= values[0];
@@ -179,26 +172,20 @@ bool EditManager::parseSetup()
       } else if (key=="combine_borders") {
         ep.combineBorders= values[0];
 
-      } else if (key=="input_products") {
-        ep.inputproducts.insert(ep.inputproducts.end(),
-            values.begin(),values.end());
-
-      } else if (key=="field" && nval>=6) {
+      } else if (key=="field") {
         EditProductField epf;
-        epf.filenamePart= values[0];
-        epf.name= values[1];
         epf.fromfield= false;
-        epf.vcoord= atoi(values[2].c_str());
-        epf.param=  atoi(values[3].c_str());
-        epf.level=  atoi(values[4].c_str());
-        epf.level2= atoi(values[5].c_str());
         epf.minValue= fieldUndef;
         epf.maxValue= fieldUndef;
         epf.editTools.push_back("standard");
-        for (int j=6; j<nval; j++) {
+        for (int j=0; j<nval; j++) {
           vsub= miutil::split(values[j], 0, ":");
           if (vsub.size()==2) {
-            if (vsub[0]=="min") {
+            if (vsub[0]=="filenamepart") {
+              epf.filenamePart= vsub[1];
+            } else if (vsub[0]=="plot") {
+              epf.name= vsub[1];
+            } else if (vsub[0]=="min") {
               epf.minValue= atof(vsub[1].c_str());
             } else if (vsub[0]=="max") {
               epf.maxValue= atof(vsub[1].c_str());
@@ -253,22 +240,6 @@ bool EditManager::parseSetup()
           ok= false;
         }
 
-      } else if (key=="grid" && nval==5+Projection::speclen) {
-        //obsolete
-        nx=          atoi(values[2].c_str());
-        ny=          atoi(values[3].c_str());
-        gridtype=    atoi(values[4].c_str());
-        for (i=0; i<Projection::speclen; i++)
-          gridspec[i]= atof(values[5+i].c_str());
-
-      } else if (key=="nx" && nval==1) {
-        ep.nx =  miutil::to_int(values[0]);
-      } else if (key=="ny" && nval==1) {
-        ep.ny =  miutil::to_int(values[0]);
-      } else if (key=="proj4string" && nval==1) {
-        proj.set_proj_definition(values[0]);
-      } else if (key=="rectangle" && nval==1) {
-        rect.setRectangle(values[0]);
       } else if (key=="commandfile" && nval==1) {
         ep.commandFilename= values[0];
       } else if (key=="standard_symbolsize" && nval==1){
@@ -319,20 +290,6 @@ bool EditManager::parseSetup()
     }
 
     if (ok) {
-      ep.area=Area(proj,rect);
-      ep.gridResolutionX =rect.x2/ep.nx;
-      ep.gridResolutionY =rect.y2/ep.ny;
-      //obsolete
-      if ( nx>1 && ny>1 ) {
-        Projection p;
-        double gridResolutionX;
-        double gridResolutionY;
-        p.set_mi_gridspec(gridtype, gridspec, gridResolutionX, gridResolutionY);
-        Rectangle  r(0.,0.,float(nx-1)*gridResolutionX,float(ny-1)*gridResolutionY); // as usual dimensions as rectangle...
-        ep.area= Area(p,r);
-        ep.gridResolutionX = gridResolutionX;
-        ep.gridResolutionY = gridResolutionY;
-      }
       //
       if (ep.local_savedir.empty()) ep.local_savedir= ".";
       // insert savedir as the last inputdir and the last combinedir,
@@ -340,7 +297,10 @@ bool EditManager::parseSetup()
       ep.inputdirs.push_back(ep.local_savedir);
       ep.combinedirs.push_back(ep.local_savedir);
       //HK !!! important ! default drawtools if not specified in setup
-      if (ep.drawtools.empty()) ep.drawtools.push_back(OBJECTS_ANALYSIS);
+      if (ep.drawtools.empty()) {
+        ep.drawtools.push_back(OBJECTS_ANALYSIS);
+        ep.drawtools.push_back(OBJECTS_SIGMAPS);
+      }
       //read commands(OKstrings) from commandfile
       if (not ep.commandFilename.empty())
         readCommandFile(ep);
@@ -418,7 +378,7 @@ void EditManager::readCommandFile(EditProduct & ep)
   }
   ep.labels = labcom;
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile start reading --------");
-  for (int ari=0; ari<ep.labels.size(); ari++)
+  for (size_t ari=0; ari<ep.labels.size(); ari++)
        METLIBS_LOG_DEBUG("   " << ep.labels[ari ] << "  ");
   METLIBS_LOG_DEBUG("++ EditManager::readCommandFile finish reading ------------");
 
@@ -1063,19 +1023,15 @@ bool EditManager::removeFile(const EditProduct& ep, const EditProductId& ci,
   if (ci.sendable ) {
     for (size_t j=0; j<ep.fields.size(); j++) {
 
-      std::string outputFilename;
-
       std::string time_string = time.format("%Y%m%dt%H%M%S");
-
-
-      outputFilename = ep.prod_savedir + "/work/";
       std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+
+      std::string outputFilename = ep.prod_savedir + "/work/";
       outputFilename += filename;
-      QString qs(outputFilename.c_str());
-      QFile qfile(qs);
-      if ( qfile.exists() ) {
-        if ( !qfile.remove() ) {
-          message = " Can't remove file " + qs;
+      QFile qfile2(outputFilename.c_str());
+      if ( qfile2.exists() ) {
+        if ( !qfile2.remove() ) {
+          message = " Can't remove file " + QString(outputFilename.c_str());
           return false;
         }
       }
@@ -1099,14 +1055,14 @@ bool EditManager::makeNewFile(int fnum, bool local)
   } else {
     QDir qdir(EdProd.prod_savedir.c_str());
     if ( !qdir.exists() ) {
-      if ( !qdir.mkdir(EdProd.prod_savedir.c_str())) {
+      if ( !qdir.mkpath(EdProd.prod_savedir.c_str())) {
         METLIBS_LOG_DEBUG("could not make:" <<EdProd.prod_savedir);
       }
     }
-      if ( !qdir.mkdir("work")) {
+      if ( !qdir.mkpath("work")) {
         METLIBS_LOG_DEBUG("could not make:" <<"work");
       }
-      if ( !qdir.mkdir("products")) {
+      if ( !qdir.mkpath("products")) {
         METLIBS_LOG_DEBUG("could not make:" <<"products");
       }
 
@@ -1303,34 +1259,36 @@ bool EditManager::writeEditProduct(std::string&  message,
 
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
-      METLIBS_LOG_INFO("Writing field:" << i);
       if(fedits[i]->writeEditFieldFile(EdProd.fields[i].localFilename) ) {
+      METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].localFilename);
       } else {
         res= false;
-        message += "Could not store field to file:" + EdProd.fields[i].localFilename + "\n";
+        message += "Could not write field to file:" + EdProd.fields[i].localFilename + "\n";
       }
       if(EdProdId.sendable ) {
         if ( send ) {
+          METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].prodFilename);
           if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename) ) {
           } else {
             res= false;
-            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+            message += "Could not write field to file:" + EdProd.fields[i].prodFilename + "\n";
           }
         }
         if( isapproved ) {
           QString workFile = EdProd.fields[i].prodFilename.c_str();
           QFile qfile(workFile);
           QString prodFile = workFile.replace("work","products");
+          METLIBS_LOG_INFO("Writing field:" << prodFile.toStdString());
           if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
             METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
             res = false;
-            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+            message += "Could not write field to file:" + EdProd.fields[i].prodFilename + "\n";
           }
 
           if (!qfile.copy(prodFile) ) {
             METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
             res = false;
-            message += "Could not store field to file:" + EdProd.fields[i].prodFilename + "\n";
+            message += "Could not write field to file:" + EdProd.fields[i].prodFilename + "\n";
           }
 
         }
@@ -1353,7 +1311,7 @@ bool EditManager::writeEditProduct(std::string&  message,
       if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
         res= false;
         saveok= false;
-        message += "Could not store objects to file:" + objectsFilename + "\n";
+        message += "Could not write objects to file:" + objectsFilename + "\n";
       }
 
       if (EdProdId.sendable ) {
@@ -1364,7 +1322,7 @@ bool EditManager::writeEditProduct(std::string&  message,
           if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
             res= false;
             saveok= false;
-            message += "Could not store objects to file:" + objectsFilename + "\n";
+            message += "Could not write objects to file:" + objectsFilename + "\n";
           }
         }
         if( isapproved ) {
@@ -1374,13 +1332,13 @@ bool EditManager::writeEditProduct(std::string&  message,
           if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
             METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
             res = false;
-            message += "Could not store field to file:" + prodFile.toStdString() + "\n";
+            message += "Could not write field to file:" + prodFile.toStdString() + "\n";
           }
 
           if (!qfile.copy(prodFile) ) {
             METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
             res = false;
-            message += "Could not store field to file:" +  prodFile.toStdString()+ "\n";
+            message += "Could not write field to file:" +  prodFile.toStdString()+ "\n";
           }
           qfile.copy(prodFile);
         }
@@ -1392,7 +1350,7 @@ bool EditManager::writeEditProduct(std::string&  message,
     if (saveok) plotm->editobjects.labelsAreSaved();
   }
 
-  if( plotm->editobjects.haveCommentsChanged()){
+  if ( plotm->editobjects.hasComments() ) {
     bool saveok= true;
     //get comment string from objm to put in database and local files
     //only do this if comments have changed !
@@ -1409,17 +1367,37 @@ bool EditManager::writeEditProduct(std::string&  message,
       if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
         res= false;
         saveok= false;
-        message += "Could not store comments to file:" + commentFilename + "\n";
+        message += "Could not write comments to file:" + commentFilename + "\n";
       }
 
-      if (EdProdId.sendable && send) {
-        commentFilename= editFileName(EdProd.prod_savedir,EdProdId.name,
-            commentFilenamePart,t);
+      if (EdProdId.sendable ) {
+        if ( send ) {
 
-        if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
-          res= false;
-          saveok= false;
-          message += "Could not store comments to file:" + commentFilename + "\n";
+          commentFilename= editFileName(EdProd.prod_savedir + "/work",EdProdId.name,
+              commentFilenamePart,t);
+
+          if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
+            res= false;
+            saveok= false;
+            message += "Could not write comments to file:" + commentFilename + "\n";
+          }
+        }
+        if( isapproved ) {
+          QString workFile = commentFilename.c_str();
+          QFile qfile(workFile);
+          QString prodFile = workFile.replace("work","products");
+          if ( qfile.exists(prodFile) && !qfile.remove(prodFile) ) {
+            METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
+            res = false;
+            message += "Could not write field to file:" + prodFile.toStdString() + "\n";
+          }
+
+          if (!qfile.copy(prodFile) ) {
+            METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
+            res = false;
+            message += "Could not write field to file:" +  prodFile.toStdString()+ "\n";
+          }
+          qfile.copy(prodFile);
         }
       }
     }
@@ -1430,14 +1408,14 @@ bool EditManager::writeEditProduct(std::string&  message,
   if ( EdProdId.sendable ) {
     std::string text =t.isoTime("t") + "\n" +miutil::miTime::nowTime().isoTime("t");
     if( send ) {
-      std::string filename = EdProd.prod_savedir + "lastsaved." + EdProdId.name;
+      std::string filename = EdProd.prod_savedir + "/lastsaved." + EdProdId.name;
       QFile lastsaved(filename.c_str());
       lastsaved.open(QIODevice::WriteOnly);
       lastsaved.write(text.c_str());
       lastsaved.close();
     }
     if ( isapproved ) {
-      std::string filename = EdProd.prod_savedir + "lastfinneshed." + EdProdId.name;
+      std::string filename = EdProd.prod_savedir + "/lastfinneshed." + EdProdId.name;
       QFile lastfinnished(filename.c_str());
       lastfinnished.open(QIODevice::WriteOnly);
       lastfinnished.write(text.c_str());
@@ -1524,7 +1502,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
     const EditProductId& ei)
 {
-  //METLIBS_LOG_DEBUG("getCombineProducts");
+  METLIBS_LOG_DEBUG("getCombineProducts");
 
   vector<miTime> ctime;
 
@@ -1548,12 +1526,12 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   for (int i=0; i<ncombdirs; i++) {
     dir = ep.combinedirs[i];
     dataSource dsource= (dir==ep.local_savedir) ? data_local : data_server;
-    //METLIBS_LOG_DEBUG("Looking in directory " << dir);
+    METLIBS_LOG_DEBUG("Looking in directory " << dir);
     for (int j=-1; j<numfields; j++) {
       if (j == -1) filenamePart= ep.objectsFilenamePart;
       else         filenamePart= ep.fields[j].filenamePart;
-      fileString = dir + "/" + pid + "_" + filenamePart+ ".*";
-      //METLIBS_LOG_DEBUG("    find " << fileString);
+      fileString = dir + "/" + pid + "_" + filenamePart+ "*";
+      METLIBS_LOG_DEBUG("    find " << fileString);
       findSavedProducts(combineprods,fileString,dsource,j);
     }
   }
@@ -1637,7 +1615,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 
   for (size_t i=0; i<globBuf.gl_pathc; i++) {
     std::string name = globBuf.gl_pathv[i];
-    //METLIBS_LOG_DEBUG("Found a file " << name);
+    METLIBS_LOG_DEBUG("Found a file " << name);
     savedProduct savedprod;
     savedprod.pid= objm->prefixFileName(name);
     savedprod.ptime= objm->timeFileName(name);
@@ -1709,6 +1687,14 @@ void EditManager::stopEdit()
 
   unsentProduct = false;
 
+}
+
+vector<std::string> EditManager::getEditProductNames(){
+  vector<std::string> names;
+  for ( size_t i = 0; i<editproducts.size(); ++i ) {
+    names.push_back(editproducts[i].name);
+  }
+  return names;
 }
 
 vector<EditProduct> EditManager::getEditProducts(){
@@ -2662,8 +2648,8 @@ bool EditManager::getFieldArea(Area& a)
 
 void EditManager::plot(bool under, bool over)
 {
-  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
-  <<"  showRegion="<<showRegion);
+//  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
+//  <<"  showRegion="<<showRegion);
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2695,11 +2681,11 @@ void EditManager::plot(bool under, bool over)
 
   bool plotinfluence= (mapmode==fedit_mode);
 
-  METLIBS_LOG_DEBUG(" plototherfield="<<plototherfield
-  <<" plotactivefield="<<plotactivefield
-  <<" plotobjects="<<plotobjects
-  <<" plotinfluence="<<plotinfluence
-  <<" plotregion="<<plotregion);
+//  METLIBS_LOG_DEBUG(" plototherfield="<<plototherfield
+//  <<" plotactivefield="<<plotactivefield
+//  <<" plotobjects="<<plotobjects
+//  <<" plotinfluence="<<plotinfluence
+//  <<" plotregion="<<plotregion);
 
   if (plotcombine && under){
     int n= plotm->combiningobjects.objects.size();

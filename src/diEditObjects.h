@@ -139,6 +139,7 @@ private:
   bool commentsSaved;     // true if comments saved since last edit
   bool labelsSaved;     // true if comments saved since last edit
   std::string itsComments;   // old comment string
+  std::string startlines;   // start comment string
 
   WeatherObjects copyObjects;
 
@@ -224,6 +225,8 @@ public:
   void checkJoinPoints();
   /// put prefix, name and time at start of comments
   void putCommentStartLines(std::string name,std::string prefix);
+  ///returns true if comment differ from startlines
+  bool hasComments();
   /// returns the comments
   std::string getComments();
   /// set comments

@@ -865,6 +865,16 @@ bool VprofManager::initVprofData(std::string file,std::string model){
       METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
       return false;
     }
+  } else if (filetypes[file] == "fimex") {
+    //    METLIBS_LOG_DEBUG("Model is a fimex source");
+    if (vpd->readFimex(fieldm)) {
+      METLIBS_LOG_INFO("VPROFDATA READTEST OK for model " << model);
+      vpdata.push_back(vpd);
+      return true;
+    } else {
+      METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
+      return false;
+    }
   }
 
   return false;

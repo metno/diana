@@ -99,7 +99,6 @@ struct EditProductField {
   savedProduct fromprod;            ///< from-product
   // only used by EditManager
   std::string filenamePart;            ///< "ANAmslp"
-  int vcoord,param,level,level2;    ///< fieldfile identification
   float minValue,maxValue;          ///< check min,max value if not fieldUndef
   std::vector<std::string> editTools;       ///< standard/classes/numbers
   std::string vcoord_cdm;       ///< vertical coordinat -  cdm syntax
@@ -123,7 +122,6 @@ struct EditProduct {
   std::vector<std::string> inputdirs;       ///< savedir is always the first ???
   std::string inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
   std::string inputFieldConfig;        ///< fimex xml-config
-  std::vector<std::string> inputproducts;   ///< products for input objects/fields
   std::vector<std::string> combinedirs;     ///< directory for combined product
   std::string combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
   std::string objectsFilenamePart;     ///< "ANAdraw"
@@ -131,11 +129,6 @@ struct EditProduct {
   std::vector <std::string> labels;         ///< annotations
   std::vector <std::string> OKstrings;      ///< define map background and area and other OKStrings
   std::string commandFilename;         ///< file to read okstrings...
-  Area  area;                       ///< area/projection if gridnum>0 !
-  double gridResolutionX;
-  double gridResolutionY;
-  int nx;
-  int ny;
   bool  areaminimize;               ///< minimize area due to undef. values
   int standardSymbolSize;           ///< default symbol size for this product
   int complexSymbolSize;            ///< default complex symbol size

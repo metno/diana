@@ -60,7 +60,7 @@ FieldEdit::FieldEdit(FieldPlotManager* fm)
 : fieldPlotManager(fm), workfield(0), editfield(0), editfieldplot(0),
 showNumbers(false), numbersDisplayed(false),
 specset(false),minValue(fieldUndef), maxValue(fieldUndef),
-lastFileWritten(""), numundo(0), active(false),
+lastFileWritten(""), numundo(0), unsavedChanges(false), active(false),
 editStarted(false), operationStarted(false),
 posx(0),posy(0),showArrow(false), convertpos(false), justDoneUndoRedo(false), odata(0),
 numUndefReplaced(0), discontinuous(false),drawIsoline(false)
@@ -82,9 +82,8 @@ FieldEdit::~FieldEdit()
 
 FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
+
   if (this == &rhs) return *this;
 
   // first delete
@@ -133,6 +132,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
 
   undofields.clear();
   numundo=0;
+  unsavedChanges=false;
 
   active=rhs.active;
   editStarted=rhs.editStarted;
@@ -200,6 +200,8 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
 
 void FieldEdit::cleanup()
 {
+  METLIBS_LOG_SCOPE();
+
   if (editfieldplot) delete editfieldplot;
   editfieldplot= 0;
 
@@ -214,6 +216,7 @@ void FieldEdit::cleanup()
   }
   undofields.clear();
   numundo= 0;
+  unsavedChanges=false;
 
   // annet (odata,xline,yline,isoline,.....) ????????????????
   if (odata) delete[] odata;
@@ -227,7 +230,7 @@ bool FieldEdit::changedEditField(){
 
   if (!editfield) return false;
   if (!editfield->data) return false;
-  if (numundo==0) return false;
+  if (!unsavedChanges) return false;
 
   return true;
 }
@@ -246,9 +249,22 @@ void FieldEdit::getFieldSize(int &nx, int &ny) {
 
 void FieldEdit::setSpec( EditProduct& ep, int fnum) {
 
-  areaspec=     ep.area;
-  gridResolutionX = ep.gridResolutionX;
-  gridResolutionY = ep.gridResolutionY;
+  //read template file and extract grid info
+  vector<std::string> filenames;
+  filenames.push_back(ep.templateFilename);
+  vector<std::string> format;
+  format.push_back("netcdf");
+  vector<std::string> option;
+  vector<std::string> config;
+  fieldPlotManager->addGridCollection("fimex",ep.templateFilename , filenames,
+      format,config, option);
+  gridinventory::Grid grid = fieldPlotManager->getFieldGrid(ep.templateFilename);
+  Rectangle r(0,0,(grid.nx-1)*grid.x_resolution,(grid.ny-1)*grid.y_resolution);
+  Projection p(grid.projection,grid.x_resolution,grid.y_resolution);
+  areaspec = Area(p,r);
+  gridResolutionX = grid.x_resolution;
+  gridResolutionY = grid.y_resolution;
+
   areaminimize= ep.areaminimize;
   minValue=     ep.fields[fnum].minValue;
   maxValue=     ep.fields[fnum].maxValue;
@@ -423,8 +439,7 @@ void FieldEdit::changeGrid()
   }
 }
 
-bool FieldEdit::readEditfield(const std::string& filename,
-    const std::string& fieldname)
+bool FieldEdit::readEditfield(const std::string& filename)
 {
   METLIBS_LOG_SCOPE();
 
@@ -454,8 +469,11 @@ bool FieldEdit::readEditfield(const std::string& filename,
   }
 
   option.clear();
-//  std::string opt = "writeable=true";
-//  option.push_back(opt);
+  if ( format[0] == "netcdf" )  {
+    std::string opt = "writeable=true";
+    option.push_back(opt);
+  }
+
   fieldPlotManager->addGridCollection(fileType, modelName, filenames,
       format,config, option);
 
@@ -528,7 +546,7 @@ bool FieldEdit::readEditFieldFile(const std::string& filename,
 
   cleanup();
 
-  if (!readEditfield(filename, fieldname)) {
+  if (!readEditfield(filename)) {
     return false;
   }
 
@@ -540,11 +558,15 @@ bool FieldEdit::readEditFieldFile(const std::string& filename,
 
 bool FieldEdit::writeEditFieldFile(const std::string& filename) {
 
+  METLIBS_LOG_SCOPE(LOGVAL(filename));
+
   if (!editfield) return false;
   if (!editfield->data) return false;
 
+  unsavedChanges = false;
   FieldRequest fieldrequest;
 
+  fieldrequest.checkSourceChanged = false;
   fieldrequest.modelName = filename;
   fieldrequest.paramName = editfield->paramName;
 //  fieldrequest.ptime = editfield->validFieldTime;
@@ -605,10 +627,8 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
   //
   // Return true if repaint (of overlay) is needed
   //
-#ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("FieldEdit::notifyEditEvent  type,order: "
   <<ee.type<<" "<<ee.order);
-#endif
 
   // do not exit if only setup/default information from dialog
   bool existing= true;
@@ -778,6 +798,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (numundo>0) {
         uindex= --numundo;
         pindex= 0;
+        unsavedChanges=true;
       }
       // return true if there are more undo cases left
       if (numundo==0) repaint= false;
@@ -787,6 +808,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (numundo<int(undofields.size())) {
         uindex= numundo++;
         pindex= 1;
+        unsavedChanges=true;
       }
       // return true if there are more redo cases left
       if (numundo==int(undofields.size())) repaint= false;
@@ -1125,6 +1147,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           uf.influence= getFieldInfluence(true);
           undofields.push_back(uf);
           numundo++;
+          unsavedChanges=true;
 
         }
       } else {

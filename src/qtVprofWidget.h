@@ -34,7 +34,6 @@
 #include <qglobal.h>
 
 #include "diVprofDiagram.h"
-#include "diVprofData.h"
 #include "diVprofPlot.h"
 
 #include <map>

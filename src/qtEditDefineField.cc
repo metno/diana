@@ -217,11 +217,12 @@ vector <std::string> EditDefineFieldDialog::getProductNames(){
   vector<savedProduct> sp=
     m_editm->getSavedProducts(EdProd,num);
   pmap[EdProd.name]=sp;
-  int n = EdProd.inputproducts.size();
+  vector<std::string> products = m_editm->getEditProductNames();
+  int n = products.size();
   for (int i =0;i<n;i++){
-    if (EdProd.inputproducts[i]==EdProd.name) continue;
+    if (products[i]==EdProd.name) continue;
     EditProduct epin;
-    if (m_editm->findProduct(epin,EdProd.inputproducts[i])){
+    if (m_editm->findProduct(epin,products[i])){
       vector<savedProduct> spin;
       if (num>-1)
         spin = m_editm->getSavedProducts(epin,EdProd.fields[num].name);

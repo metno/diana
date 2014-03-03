@@ -956,6 +956,11 @@ std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model
   return fieldManager->getBestReferenceTime(model, refOffset, refHour);
 }
 
+gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
+{
+  return fieldManager->getGrid(model);
+}
+
 
 void FieldPlotManager::getAllFieldNames(vector<std::string> & fieldNames,
     set<std::string>& fprefixes, set<std::string>& fsuffixes)
