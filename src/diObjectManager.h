@@ -300,7 +300,7 @@ public:
   /// set comments
   void putComments(const std::string & comments);
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(std::string name,std::string prefix);
+  void putCommentStartLines(const std::string name,const std::string prefix, const std::string lines);
   /// called when new edit mode/tool selected in gui (EditDIalog)
   void setEditMode(const mapMode mmode,const int emode,const std::string etool);
   // stop drawing objects

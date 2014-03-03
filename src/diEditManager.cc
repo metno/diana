@@ -1203,12 +1203,12 @@ bool EditManager::startEdit(const EditProduct& ep,
   plotm->editobjects.init();
   plotm->editobjects.setPrefix(EdProdId.name);
   plotm->editobjects.setTime(plotm->producttime);
-  objm->putCommentStartLines(EdProd.name,EdProdId.name);
 
   bool newProduct=true;
 
   //objectproducts to read
   int nprods=EdProd.objectprods.size();
+  std::string commentstring;
 
   for (int i=0;i<nprods;i++){
 
@@ -1218,16 +1218,17 @@ bool EditManager::startEdit(const EditProduct& ep,
       //METLIBS_LOG_INFO("filename for saved objects file to open:" << filename);
       plotm->editobjects.setSelectedObjectTypes(objectProd.selectObjectTypes);
       objm->editCommandReadDrawFile(filename);
-      const std::string commentstring = "Objects from:\n" + savedProductString(objectProd) + "\n";
-      plotm->editobjects.addComments(commentstring);
+      commentstring += "Objects from:\n" + savedProductString(objectProd) + "\n";
       //open the comments file
       miutil::replace(filename, "draw", "comm");
       objm->editCommandReadCommentFile(filename);
+
 
       if (objectProd.productName==EdProd.name && objectProd.ptime==valid)
         newProduct=false;
     }
   }
+  objm->putCommentStartLines(EdProd.name,EdProdId.name, commentstring);
 
   // set correct time for labels
   for (vector<std::string>::iterator p=EdProd.labels.begin(); p!=EdProd.labels.end(); p++)
@@ -1934,7 +1935,9 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
   }
 
   plotm->editobjects.setTime(plotm->producttime);
-  objm->putCommentStartLines(EdProd.name,EdProdId.name);
+  
+  std::string lines;
+  objm->putCommentStartLines(EdProd.name,EdProdId.name,lines);
 
   // the list is needed later (editmanager or editdialog)
   combineprods.clear();

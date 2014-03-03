@@ -496,13 +496,13 @@ bool ObjectManager::readEditCommentFile(const std::string filename,
   return wObjects.readEditCommentFile(filename);
 }
 
-void ObjectManager::putCommentStartLines(std::string name,std::string prefix){
+void ObjectManager::putCommentStartLines(const std::string name, const std::string prefix, const std::string lines){
   //return the startline of the comments file
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::putCommentStartLines");
 #endif
 
-  plotm->editobjects.putCommentStartLines(name,prefix);
+  plotm->editobjects.putCommentStartLines(name,prefix,lines);
 }
 
 std::string ObjectManager::getComments(){

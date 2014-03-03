@@ -1442,7 +1442,7 @@ void EditObjects::setScaleToField(float s){
  *  Methods for reading and writing comments                *
  ************************************************************/
 
-void EditObjects::putCommentStartLines(std::string name,std::string prefix)
+void EditObjects::putCommentStartLines(const std::string name, const std::string prefix, const std::string lines)
 {
   //return the startline of the comments file to read
   startlines = prefix + std::string(" ") + name +
@@ -1452,6 +1452,7 @@ void EditObjects::putCommentStartLines(std::string name,std::string prefix)
   itsComments+=startlines;
   itsComments+=
     "*************************************************\n";
+  itsComments+=lines;
   startlines = itsComments;
 }
 

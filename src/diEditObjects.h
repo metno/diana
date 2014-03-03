@@ -224,15 +224,13 @@ public:
   /// check all fronts for join points...
   void checkJoinPoints();
   /// put prefix, name and time at start of comments
-  void putCommentStartLines(std::string name,std::string prefix);
+  void putCommentStartLines(const std::string name, const std::string prefix, const std::string lines);
   ///returns true if comment differ from startlines
   bool hasComments();
   /// returns the comments
   std::string getComments();
   /// set comments
   void putComments(const std::string & comments);
-  /// add comments
-  void addComments(const std::string & comments){itsComments+=comments;}
   /// save labels
   void saveEditLabels(const std::vector<std::string>& labels);
 
