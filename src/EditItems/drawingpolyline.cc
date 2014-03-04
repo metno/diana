@@ -31,7 +31,7 @@
 
 #include "GL/gl.h"
 #include "drawingpolyline.h"
-#include "diDrawingManager.h"
+#include "EditItems/drawingstylemanager.h"
 
 namespace DrawingItem_PolyLine {
 

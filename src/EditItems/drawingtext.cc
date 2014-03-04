@@ -31,7 +31,7 @@
 
 #include "GL/gl.h"
 #include "drawingtext.h"
-#include "diDrawingManager.h"
+#include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
 #include <QDebug>
 

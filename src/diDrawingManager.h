@@ -31,85 +31,24 @@
 #ifndef _diDrawingManager_h
 #define _diDrawingManager_h
 
-#include <GL/gl.h>
-
-#include <EditItems/drawingitembase.h>
-#include <EditItems/layers.h>
-
-#include <diCommonTypes.h>
-#include <diDrawingTypes.h>
 #include "diManager.h"
-#include <diMapMode.h>
-
 #include <diField/diGridConverter.h>
-
+#include <EditItems/drawingitembase.h>
 #include <QHash>
 #include <QList>
-#include <QObject>
-#include <QPainterPath>
 #include <QPointF>
 #include <QSet>
 #include <QString>
 #include <QVariantMap>
-
 #include <vector>
 
-class DrawingItemBase;
 class PlotModule;
 class ObjectManager;
 
-class QAction;
 class QKeyEvent;
 class QMouseEvent;
 
-#if defined(USE_PAINTGL)
-#include "PaintGL/paintgl.h"
-#define QGLContext PaintGLContext
-#endif
-
-/**
-  \brief Manager for drawing styles.
-*/
-class DrawingStyleManager
-{
-public:
-  enum Side { Inside, Outside };
-
-  DrawingStyleManager();
-  virtual ~DrawingStyleManager();
-  void addStyle(const QHash<QString, QString> &definition);
-
-  void beginLine(DrawingItemBase *item);
-  void endLine(DrawingItemBase *item);
-  void beginFill(DrawingItemBase *item);
-  void endFill(DrawingItemBase *item);
-  void beginText(DrawingItemBase *item);
-  void endText(DrawingItemBase *item);
-
-  void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
-  void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
-
-  static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
-  static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
-  static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
-
-  bool contains(const QString &name) const;
-  QVariantMap getStyle(DrawingItemBase *item) const;
-  QVariantMap getStyle(const DrawingItemBase *item) const;
-  QVariantMap getStyle(const QString &name) const;
-
-  static DrawingStyleManager *instance();
-
-private:
-  void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
-                      const Side &side, const QList<QPointF> &points, int z,
-                      unsigned int offset = 0) const;
-  QVariantMap parse(const QHash<QString, QString> &definition) const;
-  QColor parseColour(const QString &text) const;
-
-  QHash<QString, QVariantMap> styles;
-  static DrawingStyleManager *self;  // singleton instance pointer
-};
+class DrawingStyleManager;
 
 /**
   \brief Manager for drawing areas and annotations.
@@ -212,9 +151,9 @@ private:
   QHash<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
-  DrawingStyleManager styleManager;
+  DrawingStyleManager *styleManager;
 
   static DrawingManager *self;  // singleton instance pointer
 };
 
-#endif
+#endif // _diDrawingManager_h

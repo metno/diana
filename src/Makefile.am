@@ -92,6 +92,7 @@ common_cxx_sources = \
 	EditItems/drawingcomposite.cc \
 	EditItems/drawingitembase.cc \
 	EditItems/drawingpolyline.cc \
+	EditItems/drawingstylemanager.cc \
 	EditItems/drawingsymbol.cc \
 	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
@@ -254,6 +255,7 @@ noinst_HEADERS = \
 	EditItems/drawingcomposite.h \
 	EditItems/drawingitembase.h \
 	EditItems/drawingpolyline.h \
+	EditItems/drawingstylemanager.h \
 	EditItems/drawingsymbol.h \
 	EditItems/drawingtext.h \
 	EditItems/editcomposite.h \

@@ -36,6 +36,7 @@
 #include <QFileDialog>
 #include <diTesselation.h>
 #include <diDrawingManager.h>
+#include <EditItems/drawingstylemanager.h>
 
 namespace EditItem_PolyLine {
 

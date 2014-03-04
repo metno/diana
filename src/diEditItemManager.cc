@@ -46,6 +46,7 @@
 #include <EditItems/kml.h>
 #include <EditItems/properties.h>
 #include <EditItems/style.h>
+#include <EditItems/layers.h>
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
 #include "paint_create_symbol.xpm"

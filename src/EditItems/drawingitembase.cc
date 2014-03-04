@@ -29,8 +29,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "drawingitembase.h"
-#include "diDrawingManager.h"
+#include <EditItems/drawingitembase.h>
+#include <diDrawingManager.h>
+#include <EditItems/drawingstylemanager.h>
 
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
@@ -109,7 +110,6 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
       latLonPoints_.append(v.toPointF());
   }
 
-  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
   QString styleType = properties_.value("style:type").toString();
 
   // Update the type name in the item's properties.
@@ -118,7 +118,7 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
   // If the style is a custom style then update the properties using the
   // Default style as a template.
   if (styleType == "Custom") {
-    QVariantMap style = styleManager->getStyle("Default");
+    QVariantMap style = DrawingStyleManager::instance()->getStyle("Default");
     foreach (QString key, style.keys()) {
       if (!properties_.contains("style:" + key)) {
         properties_["style:" + key] = style.value(key);
