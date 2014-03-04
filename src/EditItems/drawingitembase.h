@@ -54,6 +54,9 @@ public:
   // Returns the item's globally unique ID.
   int id() const;
 
+  // Returns a deep copy of this item.
+  DrawingItemBase *clone() const;
+
   // Returns the item's group ID if set, or -1 otherwise.
   int groupId() const;
 
@@ -85,6 +88,7 @@ public:
   virtual QDomNode toKML() const;
 
 protected:
+  virtual DrawingItemBase *cloneSpecial() const = 0;
   mutable QVariantMap properties_;
   QList<QPointF> points_;
   QList<QPointF> latLonPoints_;

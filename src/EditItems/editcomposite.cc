@@ -41,6 +41,14 @@ Composite::~Composite()
 {
 }
 
+DrawingItemBase *Composite::cloneSpecial() const
+{
+  Composite *item = new Composite;
+  copyBaseData(item);
+  // ### copy special data from this into item ... TBD
+  return item;
+}
+
 bool Composite::hit(const QPointF &pos, bool selected) const
 {
   return false;

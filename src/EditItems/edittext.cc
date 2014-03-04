@@ -45,6 +45,14 @@ Text::~Text()
 {
 }
 
+DrawingItemBase *Text::cloneSpecial() const
+{
+  Text *item = new Text;
+  copyBaseData(item);
+  // ### copy special data from this into item ... TBD
+  return item;
+}
+
 bool Text::hit(const QPointF &pos, bool selected) const
 {
   if (points_.isEmpty())

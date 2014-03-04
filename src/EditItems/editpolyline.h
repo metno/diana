@@ -33,8 +33,9 @@
 #define EDITITEM_POLYLINE_H
 
 #include <QtGui>
-#include "edititembase.h"
-#include "drawingpolyline.h"
+#include <diDrawingManager.h>
+#include "EditItems/edititembase.h"
+#include "EditItems/drawingpolyline.h"
 
 namespace EditItem_PolyLine {
 
@@ -47,6 +48,8 @@ public:
     virtual ~PolyLine();
 
 private:
+    virtual DrawingItemBase *cloneSpecial() const;
+
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 

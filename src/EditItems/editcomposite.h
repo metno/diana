@@ -50,6 +50,8 @@ protected:
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
   virtual void drawHoverHighlighting(bool) const;
+private:
+  virtual DrawingItemBase *cloneSpecial() const;
 };
 
 } // namespace EditItem_Composite

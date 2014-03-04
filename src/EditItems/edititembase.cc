@@ -45,6 +45,12 @@ void EditItemBase::init()
   hoveredCtrlPointIndex_ = -1;
 }
 
+void EditItemBase::copyBaseData(EditItemBase *item) const
+{
+  item->setGeometry(geometry());
+}
+
+
 qreal EditItemBase::sqr(qreal x) { return x * x; }
 
 QList<QPointF> EditItemBase::geometry() const

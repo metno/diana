@@ -35,7 +35,7 @@
 #include <QDomDocument>
 #include <QFileDialog>
 #include <diTesselation.h>
-#include "diDrawingManager.h"
+#include <diDrawingManager.h>
 
 namespace EditItem_PolyLine {
 
@@ -57,6 +57,13 @@ PolyLine::PolyLine()
 
 PolyLine::~PolyLine()
 {
+}
+
+DrawingItemBase *PolyLine::cloneSpecial() const
+{
+  PolyLine *item = new PolyLine;
+  copyBaseData(item);
+  return item;
 }
 
 bool PolyLine::hit(const QPointF &pos, bool selected) const

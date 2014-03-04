@@ -48,6 +48,8 @@ public:
   virtual ~Symbol();
 
 private:
+  virtual DrawingItemBase *cloneSpecial() const;
+
   virtual bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
 

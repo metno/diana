@@ -103,6 +103,7 @@ protected:
     EditItemBase();
 
     void init();
+    void copyBaseData(EditItemBase *) const;
 
     static qreal sqr(qreal);
 

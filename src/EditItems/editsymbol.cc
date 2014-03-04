@@ -49,6 +49,13 @@ Symbol::~Symbol()
 {
 }
 
+DrawingItemBase *Symbol::cloneSpecial() const
+{
+  Symbol *item = new Symbol;
+  copyBaseData(item);
+  return item;
+}
+
 bool Symbol::hit(const QPointF &pos, bool selected) const
 {
   const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);

@@ -51,6 +51,14 @@ int DrawingItemBase::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
+DrawingItemBase *DrawingItemBase::clone() const
+{
+  DrawingItemBase *item = cloneSpecial();
+  item->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(item));
+  item->setProperties(properties());
+  return item;
+}
+
 int DrawingItemBase::groupId() const
 {
   if (!properties_.contains("groupId"))

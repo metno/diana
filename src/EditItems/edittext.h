@@ -62,6 +62,8 @@ protected:
   virtual void drawIncomplete() const;
 
 private:
+  virtual DrawingItemBase *cloneSpecial() const;
+
   QSizeF getStringSize() const;
 
   int cursor_;

@@ -30,6 +30,8 @@
 */
 
 #include <EditItems/layers.h>
+#include <EditItems/drawingitembase.h>
+
 #include <QDebug>
 
 namespace EditItems {
@@ -48,8 +50,8 @@ Layer::Layer(const Layer &other)
   , unsavedChanges_(false)
   , name_(QString("copy of %1 (%2)").arg(other.name()).arg(id_))
 {
-  items_ = other.items_; // ### this is not enough - the items should be copyed properly, not shared ... TBD
-  // selItems_ = other.selItems_; ??? or just clear the selection in the copy?
+  foreach (DrawingItemBase *item, other.items_)
+    items_.insert(item->clone());
 }
 
 Layer::~ Layer()
