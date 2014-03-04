@@ -479,7 +479,11 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
     return;
 
   GLuint texture = 0;
+#if defined(USE_PAINTGL)
+  PaintGLContext *glctx = const_cast<PaintGLContext *>(PaintGLContext::currentContext());
+#else
   QGLContext *glctx = const_cast<QGLContext *>(QGLContext::currentContext());
+#endif
   QImage image(width, height, QImage::Format_ARGB32);
 
   // If an existing image is cached then delete the texture and prepare to
