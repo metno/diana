@@ -36,7 +36,7 @@
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
 {
-  setProperty("style:type", QVariant("Default"));
+  DrawingStyleManager::instance()->setDefaultStyle(this);
 }
 
 DrawingItemBase::~DrawingItemBase()
@@ -151,21 +151,28 @@ void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
 // Returns a new <ExtendedData> element.
 QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc) const
 {
-  QDomElement valueElem = doc.createElement("value");
-  valueElem.appendChild(doc.createTextNode(QString::number(groupId())));
-  QDomElement dataElem = doc.createElement("Data");
-  dataElem.setAttribute("name", "met:groupId");
-  dataElem.appendChild(valueElem);
-
-  QDomElement valueStyleElem = doc.createElement("value");
-  valueStyleElem.appendChild(doc.createTextNode(properties_.value("style:type", QVariant("Default")).toString()));
-  QDomElement dataStyleElem = doc.createElement("Data");
-  dataStyleElem.setAttribute("name", "met:style");
-  dataStyleElem.appendChild(valueStyleElem);
-
   QDomElement extDataElem = doc.createElement("ExtendedData");
-  extDataElem.appendChild(dataElem);
-  extDataElem.appendChild(dataStyleElem);
+
+  {
+    QDomElement valueElem = doc.createElement("value");
+    valueElem.appendChild(doc.createTextNode(QString::number(groupId())));
+    QDomElement dataElem = doc.createElement("Data");
+    dataElem.setAttribute("name", "met:groupId");
+    dataElem.appendChild(valueElem);
+    extDataElem.appendChild(dataElem);
+  }
+
+  foreach (QString key, properties_.keys()) {
+    if (key.startsWith("style:")) {
+      QDomElement valueElem = doc.createElement("value");
+      valueElem.appendChild(doc.createTextNode(properties_.value(key).toString()));
+      QDomElement dataElem = doc.createElement("Data");
+      dataElem.setAttribute("name", QString("met:%1").arg(key));
+      dataElem.appendChild(valueElem);
+      extDataElem.appendChild(dataElem);
+    }
+  }
+
   return extDataElem;
 }
 

@@ -477,23 +477,15 @@ QSharedPointer<DrawingItemBase> createItemFromOldProperties(QMap<QString, QStrin
   // set geographic point(s):
   item->setLatLonPoints(points);
 
-  // set optional properties ...
-
-  if (props.contains("Type")) {
-    item->propertiesRef().insert("style:type", "Default"); // ### for now
-  }
-
-  if (props.contains("LineWidth")) {
-    bool ok;
-    const float lineWidth = props.value("LineWidth").toFloat(&ok);
-    if (ok)
-      item->propertiesRef().insert("style:linewidth", lineWidth);
-  }
-
-  if (props.contains("RGBA")) {
-    const QString col = QString(props.value("RGBA")).replace(',', ':');
-    item->propertiesRef().insert("style:linecolour", col);
-  }
+  // set style properties ...
+  QHash<QString, QString> styleProps;
+  if (props.contains("Type"))
+    styleProps.insert("type", "Custom"); // ### for now
+  if (props.contains("LineWidth"))
+    styleProps.insert("linewidth", props.value("LineWidth"));
+  if (props.contains("RGBA"))
+    styleProps.insert("linecolour", QString(props.value("RGBA")).replace(',', ':'));
+  DrawingStyleManager::instance()->setStyle(Drawing(item), styleProps);
 
   return QSharedPointer<DrawingItemBase>(item);
 }

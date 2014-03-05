@@ -58,18 +58,17 @@ DrawingStyleManager *DrawingStyleManager::instance()
 }
 
 QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition) const
-{
-  QVariantMap style;
+{  QVariantMap style;
 
-  QString lineColour = definition.value("linecolour");
+  QString lineColour = definition.value("linecolour", "black");
   style["linecolour"] = parseColour(lineColour);
   style["linewidth"] = definition.value("linewidth", "1.0").toFloat();
   style["linepattern"] = definition.value("linepattern", "solid");
   style["linesmooth"] = definition.value("linesmooth", "false") == "true";
   style["lineshape"] = definition.value("lineshape", "normal");
-  style["fillcolour"] = parseColour(definition.value("fillcolour"));
+  style["fillcolour"] = parseColour(definition.value("fillcolour", "128:128:128:50"));
   style["fillpattern"] = definition.value("fillpattern");
-  style["closed"] = definition.value("closed") == "true";
+  style["closed"] = definition.value("closed", "true") == "true";
   style["decoration1"] = definition.value("decoration1").split(",");
   style["decoration1.colour"] = parseColour(definition.value("decoration1.colour", lineColour));
   style["decoration1.offset"] = definition.value("decoration1.offset", "0").toInt();
@@ -82,24 +81,40 @@ QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition
 
 QColor DrawingStyleManager::parseColour(const QString &text) const
 {
-  if (text.isEmpty())
-    return QColor(0, 0, 0, 0);
-  else if (text.contains(":")) {
-    // Treat the string as an RGBA value.
-    int r = 0, g = 0, b = 0, a = 255;
-    QStringList pieces = text.split(":");
-    if (pieces.size() >= 3) {
-      r = pieces.at(0).toInt();
-      g = pieces.at(1).toInt();
-      b = pieces.at(2).toInt();
-      if (pieces.size() == 4)
-        a = pieces.at(3).toInt();
-    }
-    return QColor(r, g, b, a);
-  } else {
-    // Treat the string as a colour name.
-    return QColor(text);
+  const QColor defaultColour(text);
+
+  if (text.startsWith('#')) {
+    // assume format #RGBA with hexadecimal components in range [0, 255] (i.e. two-digit) and optional alpha
+    bool ok;
+    const int r = text.mid(1, 2).toInt(&ok, 16);
+    if (!ok) return defaultColour;
+    const int g = text.mid(3, 2).toInt(&ok, 16);
+    if (!ok) return defaultColour;
+    const int b = text.mid(5, 2).toInt(&ok, 16);
+    if (!ok) return defaultColour;
+    QColor colour(r, g, b);
+    const int a = text.mid(7, 2).toInt(&ok, 16);
+    if (ok)
+      colour.setAlpha(a);
+    return colour;
+  } else if (text.contains(":")) {
+    // assume format R:G:B:A with decimal components in range [0, 255] and optional alpha
+    const QStringList pieces = text.split(":");
+    bool ok;
+    const int r = pieces.value(0).toInt(&ok);
+    if (!ok) return defaultColour;
+    const int g = pieces.value(1).toInt(&ok);
+    if (!ok) return defaultColour;
+    const int b = pieces.value(2).toInt(&ok);
+    if (!ok) return defaultColour;
+    QColor colour(r, g, b);
+    const int a = pieces.value(3).toInt(&ok);
+    if (ok)
+      colour.setAlpha(a);
+    return colour;
   }
+
+  return defaultColour;
 }
 
 void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
@@ -107,14 +122,48 @@ void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
   // Parse the definition and set the private members.
   QString styleName = definition.value("style");
 
+  if (styleName == "Custom") {
+    // ### This doesn't make sense unless we want to have special default values for the custom style.
+    // ### For now the custom style can just use the standard default values, so just skip (possibly give a warning?).
+    return;
+  }
+
   styles[styleName] = parse(definition);
+}
+
+void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, QString> &style, const QString &prefix) const
+{
+  foreach (QString key, style.keys()) {
+    if (key.startsWith(prefix)) {
+      const QString name = key.mid(prefix.size());
+      item->setProperty(QString("style:%1").arg(name), style.value(key));
+    }
+  }
+}
+
+void DrawingStyleManager::setDefaultStyle(DrawingItemBase *item) const
+{
+  item->setProperty("style:type", "Custom");
+  const QVariantMap vstyle = getStyle(item);
+  QHash<QString, QString> style;
+  foreach (QString key, vstyle.keys()) {
+    const QVariant var = vstyle.value(key);
+    if (var.type() == QVariant::Color) {
+      // append the alpha component explicitly (var.toString() returns only "#rrggbb")
+      const QColor col = var.value<QColor>();
+      style.insert(key, QString("%1%2").arg(col.name()).arg(col.alpha(), 2, 16, QLatin1Char('0')));
+    } else {
+      style.insert(key, var.toString());
+    }
+  }
+  setStyle(item, style);
 }
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
   glPushAttrib(GL_LINE_BIT);
 
-  QVariantMap style = getStyle(item);
+  const QVariantMap style = getStyle(item);
 
   QString linePattern = style.value("linepattern").toString();
   if (linePattern == "dashed") {
@@ -197,19 +246,20 @@ QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
 
 QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
-  // Find the polygon style to use, if one exists.
-  QString typeName = item->property("style:type").toString();
+  const QString styleName = item->property("style:type").toString();
 
-  // If the style is a custom style then use the properties stored in the item itself.
-  if (typeName == "Custom") {
+  if (styleName == "Custom" || (!contains(styleName))) {
+    // use default values, but override with values stored directly in the item
     QHash<QString, QString> styleProperties;
     foreach (QString key, item->propertiesRef().keys()) {
       if (key.startsWith("style:"))
         styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
     }
     return parse(styleProperties);
-  } else
-    return styles.value(typeName);
+  } else {
+    // use fixed values for this style
+    return styles.value(styleName);
+  }
 }
 
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const

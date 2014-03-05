@@ -54,6 +54,9 @@ public:
   virtual ~DrawingStyleManager();
   void addStyle(const QHash<QString, QString> &definition);
 
+  void setStyle(DrawingItemBase *, const QHash<QString, QString> &, const QString & = QString()) const;
+  void setDefaultStyle(DrawingItemBase *) const;
+
   void beginLine(DrawingItemBase *item);
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);

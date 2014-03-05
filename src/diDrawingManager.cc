@@ -140,17 +140,6 @@ bool DrawingManager::parseSetup()
     workDir = QString::fromStdString(workdir);
   }
 
-  // Add a default style.
-  if (!styleManager->contains("Default")) {
-    QHash<QString, QString> items;
-    items["style"] = "Default";
-    items["linecolour"] = "black";
-    items["linesmooth"] = "false";
-    items["fillcolour"] = "128:128:128:50";
-    items["closed"] = "true";
-    styleManager->addStyle(items);
-  }
-
   return true;
 }
 
