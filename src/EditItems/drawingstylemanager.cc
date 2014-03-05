@@ -38,6 +38,16 @@
 #include "polyStipMasks.h"
 #include <diTesselation.h>
 
+/*
+
+  - implement Edit Style dialog (this should include the style type combo box. The style type is always editable, while the other style props are
+    editable (otherwise read-only - maybe with effective values provided by the style mgr!) iff the type is Custom.)
+  - -.-..-.-.-.-.-.-.-.
+
+
+
+ */
+
 DrawingStyleManager *DrawingStyleManager::self = 0;
 
 DrawingStyleManager::DrawingStyleManager()
@@ -58,7 +68,8 @@ DrawingStyleManager *DrawingStyleManager::instance()
 }
 
 QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition) const
-{  QVariantMap style;
+{
+  QVariantMap style;
 
   QString lineColour = definition.value("linecolour", "black");
   style["linecolour"] = parseColour(lineColour);
