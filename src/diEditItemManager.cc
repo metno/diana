@@ -1154,8 +1154,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       // create a new item if necessary
       if ((me2.button() == Qt::LeftButton) && !hasIncompleteItem()) {
-        if (mode_ == CreatePolyLineMode)
-          addItem(Drawing(new EditItem_PolyLine::PolyLine()), true);
+        if (mode_ == CreatePolyLineMode) {
+          EditItemBase *item = new EditItem_PolyLine::PolyLine();
+          addItem(Drawing(item), true);
+          Drawing(item)->setProperty("style:type", createPolyLineAction->data().toString());
+        }
         else if (mode_ == CreateSymbolMode)
           addItem(Drawing(new EditItem_Symbol::Symbol()), true);
         else if (mode_ == CreateCompositeMode)
