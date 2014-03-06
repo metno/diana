@@ -147,16 +147,8 @@ void DrawingStyleManager::setDefaultStyle(DrawingItemBase *item) const
   item->setProperty("style:type", "Custom");
   const QVariantMap vstyle = getStyle(item);
   QHash<QString, QString> style;
-  foreach (QString key, vstyle.keys()) {
-    const QVariant var = vstyle.value(key);
-    if (var.type() == QVariant::Color) {
-      // append the alpha component explicitly (var.toString() returns only "#rrggbb")
-      const QColor col = var.value<QColor>();
-      style.insert(key, QString("%1%2").arg(col.name()).arg(col.alpha(), 2, 16, QLatin1Char('0')));
-    } else {
-      style.insert(key, var.toString());
-    }
-  }
+  foreach (QString key, vstyle.keys())
+    style.insert(key, variantToString(vstyle.value(key)));
   setStyle(item, style);
 }
 
@@ -267,6 +259,17 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
     return styles.value(styleName);
   }
 }
+
+QString DrawingStyleManager::variantToString(const QVariant &var)
+{
+  if (var.type() == QVariant::Color) {
+    // append the alpha component explicitly (var.toString() returns only "#rrggbb")
+    const QColor col = var.value<QColor>();
+    return QString("%1%2").arg(col.name()).arg(col.alpha(), 2, 16, QLatin1Char('0'));
+  }
+  return var.toString();
+}
+
 
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
 {

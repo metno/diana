@@ -35,6 +35,7 @@
 #include <QVariantMap>
 #include <EditItems/edititembase.h>
 #include <EditItems/style.h>
+#include <EditItems/drawingstylemanager.h>
 #include "qtUtility.h"
 
 namespace EditItemsStyle {
@@ -64,9 +65,10 @@ void StylePropertyEditor::init(bool applicable, const QSet<DrawingItemBase *> &i
 void StylePropertyEditor::setCurrentIndex(const QVariant &val)
 {
   if (val.isValid()) {
+    const QString valS = DrawingStyleManager::variantToString(val);
     for (int i = 0; i < comboBox_->count(); ++i) {
       const QVariant itemData = comboBox_->itemData(i);
-      if (itemData == val) {
+      if (DrawingStyleManager::variantToString(itemData) == valS) {
         comboBox_->setCurrentIndex(i);
         return;
       }
@@ -83,14 +85,16 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
     return;
   }
 
-  const QVariant userData = cbox->itemData(index);
-  if (!userData.isValid())
+  const QVariant userDataVar = cbox->itemData(index);
+  if (!userDataVar.isValid())
     return;
+  const QString userData = DrawingStyleManager::variantToString(userDataVar);
 
   const QString fullName = QString("style:%1").arg(name());
 
-  foreach (DrawingItemBase *item, items_)
+  foreach (DrawingItemBase *item, items_) {
     item->propertiesRef().insert(fullName, userData);
+  }
   EditItemManager::instance()->repaint();
 }
 
@@ -149,7 +153,7 @@ static QVariantMap getCustomStylePropsUnion(const QSet<DrawingItemBase *> &items
   // loop over customizable items
   foreach (DrawingItemBase *item, items) {
     const QVariantMap &props = item->propertiesRef();
-    if (props.value("style:type") != "custom")
+    if (props.value("style:type") != "Custom")
       continue;
 
     // loop over style properties
@@ -182,7 +186,7 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<Drawi
   // loop over customizable items
   foreach (DrawingItemBase *item, items) {
     const QVariantMap &props = item->propertiesRef();
-    if (props.value("style:type") != "custom")
+    if (props.value("style:type") != "Custom")
       continue;
 
     QVariantMap sprops;
@@ -202,6 +206,18 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<Drawi
 // Opens a modal dialog to edit the style properties of \a items.
 void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
 {
+  // only allow editing for items with style type 'Custom'
+  foreach (DrawingItemBase *item, items) {
+    const QString typeName = item->propertiesRef().value("style:type").toString();
+    if (typeName != "Custom") {
+      QMessageBox::warning(
+            0, "Warning", QString(
+              "At least one non-custom style type found: %1.\n"
+              "Please convert to custom style type.").arg(typeName));
+      return;
+    }
+  }
+
   // get initial values
   savedProps_ = getCustomStyleProps(items);
   QVariantMap sprops = getCustomStylePropsUnion(items);
@@ -212,7 +228,7 @@ void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
 
   // set new content and initial values for the properties that we would like to support
   QFormLayout *formLayout = new QFormLayout(formWidget_);
-  QStringList names = QStringList() << "lineType"<< "lineWidth" << "lineColor";
+  QStringList names = QStringList() << "lineType"<< "linewidth" << "linecolour";
   foreach (QString name, names) {
     QSharedPointer<StylePropertyEditor> editor(StylePropertyEditor::create(name, items, sprops));
     editors_.append(editor);

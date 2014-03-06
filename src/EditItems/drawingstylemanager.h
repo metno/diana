@@ -77,6 +77,8 @@ public:
   QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const QString &name) const;
 
+  static QString variantToString(const QVariant &);
+
   static DrawingStyleManager *instance();
 
 private:

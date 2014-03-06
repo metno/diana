@@ -76,7 +76,7 @@ private:
 class LineWidthEditor : public StylePropertyEditor
 {
 public:
-  virtual QString name() const { return "lineWidth"; }
+  virtual QString name() const { return "linewidth"; }
 private:
   virtual QString labelText() const { return "line width"; }
   virtual QComboBox *createComboBox();
@@ -85,9 +85,9 @@ private:
 class LineColorEditor : public StylePropertyEditor
 {
 public:
-  virtual QString name() const { return "lineColor"; }
+  virtual QString name() const { return "linecolour"; }
 private:
-  virtual QString labelText() const { return "line color"; }
+  virtual QString labelText() const { return "line colour"; }
   virtual QComboBox *createComboBox();
 };
 
