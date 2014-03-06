@@ -72,6 +72,7 @@ public:
   static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
 
   bool contains(const QString &name) const;
+  QStringList names() const;
   QVariantMap getStyle(DrawingItemBase *item) const;
   QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const QString &name) const;

@@ -235,6 +235,11 @@ bool DrawingStyleManager::contains(const QString &name) const
   return styles.contains(name);
 }
 
+QStringList DrawingStyleManager::names() const
+{
+  return styles.keys();
+}
+
 QVariantMap DrawingStyleManager::getStyle(const QString &name) const
 {
   return styles.value(name);

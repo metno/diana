@@ -103,6 +103,7 @@ public slots:
     void deselectAllItems();
     void editProperties();
     void editStyle();
+    void setStyleType() const;
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
     bool loadItems(const QString &fileName);

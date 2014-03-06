@@ -833,6 +833,18 @@ void EditItemManager::editStyle()
   EditItemsStyle::StyleEditor::instance()->edit(getSelectedItems());
 }
 
+void EditItemManager::setStyleType() const
+{
+  const QAction *action = qobject_cast<QAction *>(sender());
+  const QVariantList data = action->data().toList();
+  const QVariantList styleItems = data.at(0).toList();
+  const QString styleName = data.at(1).toString();
+  foreach (QVariant styleItem, styleItems) {
+    DrawingItemBase *item = static_cast<DrawingItemBase *>(styleItem.value<void *>());
+    item->setProperty("style:type", styleName);
+  }
+}
+
 void EditItemManager::loadItemsFromFile()
 {
     // select file
@@ -1093,11 +1105,37 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       contextMenu.addAction(copyAction);
       contextMenu.addAction(pasteAction);
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction);
       editPropertiesAction->setEnabled(getSelectedItems().size() == 1);
       contextMenu.addAction(editStyleAction);
       editStyleAction->setEnabled(getSelectedItems().size() > 0);
+
+      QMenu styleTypeMenu;
+      styleTypeMenu.setTitle("Convert");
+      QList<QSharedPointer<QAction> > styleTypeActions;
+      QStringList styleNames = DrawingStyleManager::instance()->names();
+      qSort(styleNames);
+      Q_ASSERT(!styleNames.contains("Custom"));
+      styleNames.append("Custom");
+      foreach (QString styleName, styleNames) {
+        if (styleName == "Custom")
+          styleTypeMenu.addSeparator();
+        QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
+        QVariantList data;
+        QVariantList styleItems;
+        foreach (DrawingItemBase *styleItem, getSelectedItems())
+          styleItems.append(QVariant::fromValue((void *)styleItem));
+        data.append(QVariant(styleItems));
+        data.append(styleName);
+        action->setData(data);
+        connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
+        styleTypeActions.append(QSharedPointer<QAction>(action));
+        styleTypeMenu.addAction(action);
+      }
+      contextMenu.addMenu(&styleTypeMenu);
+
       contextMenu.addSeparator();
       contextMenu.addAction(loadAction);
       contextMenu.addAction(saveAction);
