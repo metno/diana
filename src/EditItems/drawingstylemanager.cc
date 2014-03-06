@@ -654,3 +654,8 @@ void DrawingStyleManager::endText(DrawingItemBase *item)
 {
   Q_UNUSED(item)
 }
+
+QList<QString> DrawingStyleManager::styleNames() const
+{
+  return styles.keys();
+}

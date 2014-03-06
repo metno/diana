@@ -77,6 +77,8 @@ public:
   QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const QString &name) const;
 
+  QList<QString> styleNames() const;
+
   static QString variantToString(const QVariant &);
 
   static DrawingStyleManager *instance();
@@ -88,7 +90,7 @@ private:
   QVariantMap parse(const QHash<QString, QString> &definition) const;
   QColor parseColour(const QString &text) const;
 
-  QHash<QString, QVariantMap> styles;
+  QMap<QString, QVariantMap> styles;
   static DrawingStyleManager *self;  // singleton instance pointer
 };
 

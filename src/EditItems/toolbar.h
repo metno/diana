@@ -38,12 +38,18 @@ namespace EditItems {
 
 class ToolBar : public QToolBar
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    static ToolBar *instance();
+  static ToolBar *instance();
+
+private slots:
+  void setPolyLineType(QAction *action);
+
 private:
-    ToolBar(QWidget * = 0);
-    static ToolBar *self; // singleton instance pointer
+  ToolBar(QWidget * = 0);
+  static ToolBar *self; // singleton instance pointer
+
+  QAction *polyLineAction;
 };
 
 } // namespace
