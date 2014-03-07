@@ -135,6 +135,7 @@
 
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <miLogger/miLogging.h>
+#include <diField/diFieldManager.h>
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -1140,9 +1141,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     vlabel.push_back(sect_label[i]);
   }
 
+  setAcceptDrops(true);
 
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
-
 }
 
 
@@ -4273,4 +4274,46 @@ void DianaMainWindow::setWorkAreaCursor(const QCursor &cursor)
 void DianaMainWindow::unsetWorkAreaCursor()
 {
     w->Glw()->unsetCursor();
+}
+
+void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (event->mimeData()->hasUrls()) {
+    foreach (QUrl url, event->mimeData()->urls()) {
+      if (!url.isLocalFile() || QFileInfo(url.toLocalFile()).suffix() != "nc")
+        return;
+    }
+
+    event->accept();
+  }
+}
+
+void DianaMainWindow::dropEvent(QDropEvent *event)
+{
+  // ### TODO: Open a dialog to configure the options for the FIELD_FILES section of the
+  // user's setup file.
+  QString filegroup = tr("imported files");
+
+  std::vector<std::string> extra_field_lines;
+  extra_field_lines.push_back("filegroup=\"" + filegroup.toStdString() + "\"");
+
+  if (event->mimeData()->hasUrls()) {
+    foreach (QUrl url, event->mimeData()->urls()) {
+      if (url.isLocalFile() || QFileInfo(url.toLocalFile()).suffix() == "nc") {
+        QFileInfo fi(url.toLocalFile());
+        QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
+        extra_field_lines.push_back(s.toStdString());
+      }
+    }
+  }
+
+  std::vector<std::string> field_errors;
+  if (!contr->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+    METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
+    for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+      METLIBS_LOG_ERROR(field_errors[kk]);
+  }
+
+  fm->updateModels();
+  statusBar()->showMessage(tr("Added model data to \"%1\" field group.").arg(filegroup), 2000);
 }

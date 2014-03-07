@@ -124,6 +124,8 @@ protected:
   void stopAnimation();
   void focusInEvent ( QFocusEvent * );
   void closeEvent( QCloseEvent* );
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dropEvent(QDropEvent *event);
 
   bool event(QEvent* event);
 
