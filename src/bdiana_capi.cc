@@ -1730,6 +1730,15 @@ static int parseAndProcess(istream &is)
 #endif
         if (not MAKE_CONTROLLER())
           return 99;
+        else {
+          vector<std::string> field_errors;
+          if (!main_controller->getFieldManager()->updateFileSetup(extra_field_lines, field_errors)) {
+            METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
+            for (unsigned int kk = 0; kk < field_errors.size(); ++kk)
+              METLIBS_LOG_ERROR(field_errors[kk]);
+          }
+          extra_field_lines.clear();
+        }
 
         // turn on/off archive-mode (observations)
         main_controller->archiveMode(useArchive);
