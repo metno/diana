@@ -33,6 +33,8 @@
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/toolbar.h"
 #include <QActionGroup>
+#include <QApplication>
+#include <QComboBox>
 #include <QMenu>
 
 namespace EditItems {
@@ -47,7 +49,7 @@ ToolBar *ToolBar::instance()
 ToolBar *ToolBar::self = 0;
 
 ToolBar::ToolBar(QWidget *parent)
-    : QToolBar(QString("%1").arg("Paint Operations (NEW)"), parent) // ### TBD: use tr() properly
+    : QToolBar(QApplication::translate("EditItems::ToolBar", "Paint Operations") + " (NEW)", parent)
 {
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
@@ -59,44 +61,32 @@ ToolBar::ToolBar(QWidget *parent)
   // *** create polyline ***
   polyLineAction = actions[EditItemManager::CreatePolyLine];
   addAction(polyLineAction);
+  actionGroup->addAction(polyLineAction);
 
-  // Create a menu containing specific polyline types.
-  QMenu *polyLineMenu = new QMenu(this);
-  actions[EditItemManager::CreatePolyLine]->setMenu(polyLineMenu);
-  actionGroup->addAction(actions[EditItemManager::CreatePolyLine]);
-
-  QActionGroup *polyLineGroup = new QActionGroup(this);
-  connect(polyLineGroup, SIGNAL(triggered(QAction *)), this, SLOT(setPolyLineType(QAction *)));
+  // Create a combo box containing specific polyline types.
+  polyLineCombo = new QComboBox();
+  connect(polyLineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setPolyLineType(int)));
+  addWidget(polyLineCombo);
 
   DrawingStyleManager *dsm = DrawingStyleManager::instance();
-  bool first = true;
 
-  foreach (QString name, dsm->styleNames()) {
+  // Create an entry for each style. Use the name as an internal identifier
+  // since we may decide to use tr() on the visible name at some point.
+  foreach (QString name, dsm->styleNames())
+    polyLineCombo->addItem(name, name);
 
-    // Create an action for each style. Use the name as an internal identifier
-    // since we may decide to use tr() on the visible name at some point.
-    QAction *polyLineMenuAction = new QAction(name, polyLineGroup);
-    polyLineMenuAction->setData(name);
-
-    polyLineMenuAction->setCheckable(true);
-    if (first) {
-      polyLineMenuAction->setChecked(true);
-      setPolyLineType(polyLineMenuAction);
-      first = false;
-    }
-    polyLineMenu->addAction(polyLineMenuAction);
-  }
+  polyLineCombo->setCurrentIndex(0);
 
   // *** create symbol ***
   addAction(actions[EditItemManager::CreateSymbol]);
   actionGroup->addAction(actions[EditItemManager::CreateSymbol]);
 }
 
-void ToolBar::setPolyLineType(QAction *action)
+void ToolBar::setPolyLineType(int index)
 {
   // Obtain the style identifier from the style action and store it in the
   // main polyline action.
-  polyLineAction->setData(action->data());
+  polyLineAction->setData(polyLineCombo->itemData(index));
 }
 
 } // namespace

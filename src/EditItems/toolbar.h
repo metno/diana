@@ -34,6 +34,8 @@
 
 #include <QToolBar>
 
+class QComboBox;
+
 namespace EditItems {
 
 class ToolBar : public QToolBar
@@ -43,13 +45,14 @@ public:
   static ToolBar *instance();
 
 private slots:
-  void setPolyLineType(QAction *action);
+  void setPolyLineType(int index);
 
 private:
   ToolBar(QWidget * = 0);
   static ToolBar *self; // singleton instance pointer
 
   QAction *polyLineAction;
+  QComboBox *polyLineCombo;
 };
 
 } // namespace
