@@ -1045,6 +1045,10 @@ bool EditManager::makeNewFile(int fnum, bool local)
 {
   METLIBS_LOG_SCOPE();
 
+  if ( !QFile::exists ( EdProd.templateFilename.c_str() ) ) {
+    METLIBS_LOG_WARN("Template file: "<<EdProd.templateFilename<<" do not exist");
+    return false;
+  }
   QFile qfile(EdProd.templateFilename.c_str());
   std::string outputFilename;
 
@@ -1056,14 +1060,14 @@ bool EditManager::makeNewFile(int fnum, bool local)
     QDir qdir(EdProd.prod_savedir.c_str());
     if ( !qdir.exists() ) {
       if ( !qdir.mkpath(EdProd.prod_savedir.c_str())) {
-        METLIBS_LOG_DEBUG("could not make:" <<EdProd.prod_savedir);
+        METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedir);
       }
     }
       if ( !qdir.mkpath("work")) {
-        METLIBS_LOG_DEBUG("could not make:" <<"work");
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"work");
       }
       if ( !qdir.mkpath("products")) {
-        METLIBS_LOG_DEBUG("could not make:" <<"products");
+        METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"products");
       }
 
     outputFilename = EdProd.prod_savedir + "/work/";
@@ -1072,11 +1076,11 @@ bool EditManager::makeNewFile(int fnum, bool local)
   EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + "_" + time_string + ".nc";
   outputFilename += EdProd.fields[fnum].filename;
   if ( qfile.exists(outputFilename.c_str()) && !qfile.remove(outputFilename.c_str()) ){
-    METLIBS_LOG_DEBUG("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed. (File exsists, but can't be overwritten.)");
+    METLIBS_LOG_WARN("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed. (File exsists, but can't be overwritten.)");
     return false;
   }
   if (!qfile.copy(outputFilename.c_str())){
-    METLIBS_LOG_DEBUG("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed");
+    METLIBS_LOG_WARN("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed");
     return false;
   }
   if ( local ) {
@@ -1253,6 +1257,28 @@ bool EditManager::writeEditProduct(std::string&  message,
     const bool isapproved){
 
   METLIBS_LOG_DEBUG("EditManager::writeEditProduct");
+
+  //
+  QDir qdir(EdProd.local_savedir.c_str());
+  if ( !qdir.exists() ) {
+    if ( !qdir.mkpath(EdProd.local_savedir.c_str())) {
+      METLIBS_LOG_WARN("could not make:" <<EdProd.local_savedir);
+    }
+  }
+  if( EdProdId.sendable && send ) {
+  QDir qdir(EdProd.prod_savedir.c_str());
+  if ( !qdir.exists() ) {
+    if ( !qdir.mkpath(EdProd.prod_savedir.c_str())) {
+      METLIBS_LOG_WARN("could not make:" <<EdProd.prod_savedir);
+    }
+  }
+    if ( !qdir.mkpath("work")) {
+      METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"/work");
+    }
+    if ( !qdir.mkpath("products")) {
+      METLIBS_LOG_WARN("could not make dir:" <<EdProd.prod_savedir<<"/products");
+    }
+  }
 
   bool res= true;
   message = "";

@@ -1,3 +1,9 @@
+diana (3.35.0-3) unstable; urgency=low
+
+  * Bugfix: Editmanager
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 07 Mar 2014 14:32:24 +0100
+
 diana (3.35.0-2) unstable; urgency=low
 
   * Bugfix: typo edit control file

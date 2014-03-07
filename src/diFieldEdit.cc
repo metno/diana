@@ -571,7 +571,7 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename) {
   fieldrequest.paramName = editfield->paramName;
 //  fieldrequest.ptime = editfield->validFieldTime;
   fieldrequest.unit = editfield->unit;
-  //fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  fieldrequest.output_time = editfield->validFieldTime.isoTime();
   return fieldPlotManager->writeField(fieldrequest,editfield);
 
 }
