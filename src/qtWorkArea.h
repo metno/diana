@@ -36,6 +36,7 @@
 
 class Controller;
 class GLwidget;
+
 /** 
     \brief the main workarea
 

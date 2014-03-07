@@ -33,12 +33,13 @@
 #include "config.h"
 #endif
 
+// Qt
 #include <QVBoxLayout>
 
+// Diana
 #include "qtGLwidget.h"
 #include "qtWorkArea.h"
 #include "diController.h"
-
 #include "diEditManager.h"
 #include "diDrawingManager.h"
 #include "diEditItemManager.h"
@@ -79,7 +80,6 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
   vlayout->addWidget(glw,1);
   vlayout->activate();
 }
-
 
 void WorkArea::updateGL(){
   glw->updateGL();
