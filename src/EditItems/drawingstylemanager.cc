@@ -479,10 +479,11 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
 void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const
 {
   QVariantMap style = getStyle(item);
+  bool closed = style.value("closed").toBool();
 
   QList<QPointF> points_;
   if (style.value("linesmooth").toBool())
-    points_ = interpolateToPoints(points, true);
+    points_ = interpolateToPoints(points, closed);
   else
     points_ = points;
 
