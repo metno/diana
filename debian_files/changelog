@@ -1,3 +1,9 @@
+diana (3.35.0-2) unstable; urgency=low
+
+  * Bugfix: typo edit control file
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Mar 2014 10:07:56 +0100
+
 diana (3.35.0-1) unstable; urgency=low
 
   * Vertical_profiles: Reading data from NetCDF

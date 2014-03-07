@@ -1416,7 +1416,7 @@ bool EditManager::writeEditProduct(std::string&  message,
       lastsaved.close();
     }
     if ( isapproved ) {
-      std::string filename = EdProd.prod_savedir + "/lastfinneshed." + EdProdId.name;
+      std::string filename = EdProd.prod_savedir + "/lastfinished." + EdProdId.name;
       QFile lastfinnished(filename.c_str());
       lastfinnished.open(QIODevice::WriteOnly);
       lastfinnished.write(text.c_str());
