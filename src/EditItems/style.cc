@@ -33,62 +33,136 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QVariantMap>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QSpinBox>
 #include <EditItems/edititembase.h>
 #include <EditItems/style.h>
-#include <EditItems/drawingstylemanager.h>
 #include "qtUtility.h"
 
 namespace EditItemsStyle {
 
-QComboBox * StylePropertyEditor::comboBox() { return comboBox_; }
+ComboBoxEditor::ComboBoxEditor(QComboBox *comboBox) : comboBox_(comboBox)
+{
+  connect(comboBox_, SIGNAL(currentIndexChanged(int)), SIGNAL(currentIndexChanged(int)));
+}
+
+ComboBoxEditor::~ComboBoxEditor()
+{
+  delete comboBox_;
+}
+
+QWidget *ComboBoxEditor::widget() { return comboBox_; }
+
+int ComboBoxEditor::count() const { return comboBox_->count(); }
+
+QVariant ComboBoxEditor::itemData(int i) const { return comboBox_->itemData(i); }
+
+void ComboBoxEditor::setCurrentIndex(int i) { comboBox_->setCurrentIndex(i); }
+
+
+CheckBoxEditor::CheckBoxEditor() : checkBox_(new QCheckBox)
+{
+  connect(checkBox_, SIGNAL(clicked(bool)), SLOT(handleClicked(bool)));
+}
+
+CheckBoxEditor::~CheckBoxEditor()
+{
+  delete checkBox_;
+}
+
+QWidget *CheckBoxEditor::CheckBoxEditor::widget() { return checkBox_; }
+
+int CheckBoxEditor::count() const { return 2; }
+
+QVariant CheckBoxEditor::itemData(int i) const { return QVariant(i == 1); }
+
+void CheckBoxEditor::setCurrentIndex(int i) { checkBox_->setChecked(i == 1); }
+
+void CheckBoxEditor::handleClicked(bool checked) { emit currentIndexChanged(checked ? 1 : 0); }
+
+
+IntRangeEditor::IntRangeEditor(int lo, int hi) : spinBox_(new QSpinBox)
+{
+  spinBox_->setRange(lo, hi);
+  connect(spinBox_, SIGNAL(valueChanged(int)), SLOT(handleValueChanged(int)));
+}
+
+IntRangeEditor::~IntRangeEditor()
+{
+  delete spinBox_;
+}
+
+QWidget *IntRangeEditor::IntRangeEditor::widget() { return spinBox_; }
+
+int IntRangeEditor::count() const { return (spinBox_->maximum() - spinBox_->minimum()) + 1; }
+
+QVariant IntRangeEditor::itemData(int i) const { return QVariant(spinBox_->minimum() + i); }
+
+void IntRangeEditor::setCurrentIndex(int i) { spinBox_->setValue(spinBox_->minimum() + i); }
+
+void IntRangeEditor::handleValueChanged(int val) { emit currentIndexChanged(val - spinBox_->minimum()); }
+
+
+StylePropertyEditor::StylePropertyEditor()
+  : editor_(0)
+{
+}
+
+StylePropertyEditor::~StylePropertyEditor()
+{
+  if (editor_)
+    delete editor_;
+}
+
+QWidget * StylePropertyEditor::widget() { return editor_ ? editor_->widget() : 0; }
 
 void StylePropertyEditor::reset()
 {
-  if (comboBox_)
+  if (editor_)
     setCurrentIndex(origInitVal_);
 }
-
-StylePropertyEditor::StylePropertyEditor() : comboBox_(0) { }
 
 void StylePropertyEditor::init(bool applicable, const QSet<DrawingItemBase *> &items, const QVariant &initVal)
 {
   items_ = items;
   if (applicable) {
-    comboBox_ = createComboBox();
-    connect(comboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(handleCurrentIndexChanged(int)));
+    editor_ = createEditor();
+    connect(editor_, SIGNAL(currentIndexChanged(int)), SLOT(handleCurrentIndexChanged(int)));
     setCurrentIndex(initVal);
     origInitVal_ = initVal;
   }
 }
 
-// Sets the current index of the combo box to the one matching valid user data \a val, or to -1 otherwise.
+// Sets the current index of the editor to the one matching valid user data \a val, or to -1 otherwise.
 void StylePropertyEditor::setCurrentIndex(const QVariant &val)
 {
+  Q_ASSERT(editor_);
   if (val.isValid()) {
-    const QString valS = DrawingStyleManager::variantToString(val);
-    for (int i = 0; i < comboBox_->count(); ++i) {
-      const QVariant itemData = comboBox_->itemData(i);
-      if (DrawingStyleManager::variantToString(itemData) == valS) {
-        comboBox_->setCurrentIndex(i);
+    const QString valS = val.toString();
+    for (int i = 0; i < editor_->count(); ++i) {
+      const QVariant itemData = editor_->itemData(i);
+      if (itemData.toString() == valS) {
+        editor_->setCurrentIndex(i);
         return;
       }
     }
   }
-  comboBox_->setCurrentIndex(-1);
+  editor_->setCurrentIndex(-1);
 }
 
 void StylePropertyEditor::handleCurrentIndexChanged(int index)
 {
-  QComboBox *cbox = qobject_cast<QComboBox *>(sender());
-  if (!cbox) {
-    qWarning() << "StylePropertyEditor::handleCurrentIndexChanged(): sender() not a QComboBox";
+  IndexedEditor *editor = qobject_cast<IndexedEditor *>(sender());
+  if (!editor) {
+    qWarning() << "StylePropertyEditor::handleCurrentIndexChanged(): sender() not an IndexedEditor";
     return;
   }
 
-  const QVariant userDataVar = cbox->itemData(index);
+  const QVariant userDataVar = editor->itemData(index);
   if (!userDataVar.isValid())
     return;
-  const QString userData = DrawingStyleManager::variantToString(userDataVar);
+  const QString userData = userDataVar.toString();
 
   const QString fullName = QString("style:%1").arg(name());
 
@@ -98,33 +172,149 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
   EditItemManager::instance()->repaint();
 }
 
-QComboBox *LineTypeEditor::createComboBox() { return LinetypeBox(0, true); }
-QComboBox *LineWidthEditor::createComboBox() { return LinewidthBox(0, true); }
-QComboBox *LineColorEditor::createComboBox() { return ColourBox(0, true, 0, tr("off").toStdString(),true); }
-
-StylePropertyEditor * StylePropertyEditor::create(const QString &name, const QSet<DrawingItemBase *> &items, const QVariantMap &sprops)
+class SPE_linecolour : public StylePropertyEditor
 {
-  StylePropertyEditor *editor = 0;
+public:
+  virtual QString name() const { return DSP_linecolour::name(); }
+private:
+  virtual QString labelText() const { return "line colour"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
+};
 
-  if (name == LineTypeEditor().name())
-    editor = new LineTypeEditor;
-  else if (name == LineWidthEditor().name())
-    editor = new LineWidthEditor;
-  else if (name == LineColorEditor().name())
-    editor = new LineColorEditor;
+class SPE_linetransparency : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_linetransparency::name(); }
+private:
+  virtual QString labelText() const { return "line transparency"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
+};
 
-  if (editor)
-    editor->init(sprops.contains(name), items, sprops.value(name));
+class SPE_linewidth : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_linewidth::name(); }
+private:
+  virtual QString labelText() const { return "line width"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(LinewidthBox(0, true)); }
+};
 
-  return editor;
-}
+class SPE_linepattern : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_linepattern::name(); }
+private:
+  virtual QString labelText() const { return "line pattern"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(LinetypeBox(0, true)); }
+};
+
+class SPE_linesmooth : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_linesmooth::name(); }
+private:
+  virtual QString labelText() const { return "line smooth"; }
+  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
+};
+
+class SPE_fillcolour : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_fillcolour::name(); }
+private:
+  virtual QString labelText() const { return "fill colour"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
+};
+
+class SPE_filltransparency : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_filltransparency::name(); }
+private:
+  virtual QString labelText() const { return "fill transparency"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
+};
+
+class SPE_closed : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_closed::name(); }
+private:
+  virtual QString labelText() const { return "closed"; }
+  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
+};
+
+// ... editors for more subtypes
+
+class EditStyleProperty
+{
+public:
+  StylePropertyEditor *createEditor(const QString &propName, const QSet<DrawingItemBase *> &items, const QVariantMap &sprops)
+  {
+    StylePropertyEditor *editor = createSpecialEditor();
+    if (editor)
+      editor->init(sprops.contains(propName), items, sprops.value(propName));
+    return editor;
+  }
+
+protected:
+  virtual StylePropertyEditor *createSpecialEditor() const = 0;
+};
+
+class ESP_linecolour : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linecolour; }
+};
+
+class ESP_linetransparency : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linetransparency; }
+};
+
+class ESP_linewidth : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linewidth; }
+};
+
+class ESP_linepattern : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linepattern; }
+};
+
+class ESP_linesmooth : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linesmooth; }
+};
+
+class ESP_fillcolour : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillcolour; }
+};
+
+class ESP_filltransparency : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_filltransparency; }
+};
+
+class ESP_closed : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_closed; }
+};
 
 StyleEditor::StyleEditor()
 {
   setWindowTitle(tr("Item Style"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
-  formWidget_ = new QWidget();
+  formWidget_ = new QWidget;
   layout->addWidget(formWidget_);
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Reset | QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
@@ -132,6 +322,24 @@ StyleEditor::StyleEditor()
   connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
   connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
   layout->addWidget(buttonBox);
+
+  // define editors for supported style properties
+  properties_.insert(DSP_linecolour::name(), new ESP_linecolour);
+  properties_.insert(DSP_linetransparency::name(), new ESP_linetransparency);
+  properties_.insert(DSP_linewidth::name(), new ESP_linewidth);
+  properties_.insert(DSP_linepattern::name(), new ESP_linepattern);
+  properties_.insert(DSP_linesmooth::name(), new ESP_linesmooth);
+  // lineshape ... TBD
+  properties_.insert(DSP_fillcolour::name(), new ESP_fillcolour);
+  properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
+  // fillpattern ... TBD
+  properties_.insert(DSP_closed::name(), new ESP_closed);
+  // decoration1 ... TBD
+  // decoration1.colour ... TBD
+  // decoration1.offset ... TBD
+  // decoration2 ... TBD
+  // decoration2.colour ... TBD
+  // decoration2.offset ... TBD
 }
 
 StyleEditor *StyleEditor::instance()
@@ -223,24 +431,39 @@ void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
   QVariantMap sprops = getCustomStylePropsUnion(items);
 
   // clear old content
-  qDeleteAll(formWidget_->children());
   editors_.clear();
+  formLabels_.clear();
+  if (formWidget_->layout())
+    delete formWidget_->layout();
 
   // set new content and initial values for the properties that we would like to support
-  QFormLayout *formLayout = new QFormLayout(formWidget_);
-  QStringList names = QStringList() << "lineType"<< "linewidth" << "linecolour";
-  foreach (QString name, names) {
-    QSharedPointer<StylePropertyEditor> editor(StylePropertyEditor::create(name, items, sprops));
-    editors_.append(editor);
-    if (!editor.isNull()) {
-      QWidget *editorWidget = editor->comboBox();
-      if (!editorWidget)
+  QGridLayout *gridLayout = new QGridLayout;
+  formWidget_->setLayout(gridLayout);
+  QStringList propNames = DrawingStyleManager::instance()->properties();
+  qSort(propNames);
+  int row = 0;
+  foreach (QString propName, propNames) {
+    StylePropertyEditor *editor = 0;
+    if (properties_.contains(propName))
+      editor = properties_.value(propName)->createEditor(propName, items, sprops);
+    if (editor) {
+      editors_.append(QSharedPointer<StylePropertyEditor>(editor));
+      QWidget *editorWidget = editor->widget();
+      if (!editorWidget) {
         editorWidget = new QLabel("n/a"); // i.e. not found in any of the selected items
-      formLayout->addRow(editor->labelText(), editorWidget);
+        formLabels_.append(QSharedPointer<QLabel>(qobject_cast<QLabel *>(editorWidget)));
+      }
+      QLabel *label = new QLabel(editor->labelText());
+      formLabels_.append(QSharedPointer<QLabel>(label));
+      gridLayout->addWidget(label, row, 0);
+      gridLayout->addWidget(editorWidget, row, 1);
     } else { // property name not recognized at all
-      const QString errMsg = QString("%1: UNSUPPORTED").arg(name);
-      formLayout->addRow(errMsg, new QLabel(errMsg));
+      QLabel *label = new QLabel(QString("%1: UNSUPPORTED").arg(propName));
+      formLabels_.append(QSharedPointer<QLabel>(label));
+      gridLayout->addWidget(label, row, 0, 1, -1);
     }
+
+    row++;
   }
 
   // open dialog
@@ -255,7 +478,8 @@ void StyleEditor::reset()
   if (isVisible()) {
     // reset editors
     foreach (QSharedPointer<StylePropertyEditor> editor, editors_) {
-      editor->reset();
+      if (!editor.isNull())
+        editor->reset();
     }
   }
 

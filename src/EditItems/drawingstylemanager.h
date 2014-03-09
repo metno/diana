@@ -31,6 +31,7 @@
 #ifndef _diDrawingStyleManager_h
 #define _diDrawingStyleManager_h
 
+#include <QObject>
 #include <QHash>
 #include <QList>
 #include <QPainterPath>
@@ -41,6 +42,143 @@
 #include <QColor>
 
 class DrawingItemBase;
+
+class DrawingStyleProperty
+{
+public:
+  virtual QVariant parse(const QHash<QString, QString> &) const = 0;
+protected:
+  static QString lineColour(const QHash<QString, QString> &);
+  static QString fillColour(const QHash<QString, QString> &);
+};
+
+class DSP_linecolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linetransparency : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linewidth : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linepattern : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linesmooth : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_lineshape : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fillcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_filltransparency : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fillpattern : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_closed : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1 : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1_colour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2 : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2_colour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
 
 /**
   \brief Manager for drawing styles.
@@ -71,15 +209,12 @@ public:
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
 
-  bool contains(const QString &name) const;
-  QStringList names() const;
+  bool containsStyle(const QString &name) const;
+  QStringList styles() const;
+  QStringList properties() const;
   QVariantMap getStyle(DrawingItemBase *item) const;
   QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const QString &name) const;
-
-  QList<QString> styleNames() const;
-
-  static QString variantToString(const QVariant &);
 
   static DrawingStyleManager *instance();
 
@@ -88,9 +223,10 @@ private:
                       const Side &side, const QList<QPointF> &points, int z,
                       unsigned int offset = 0) const;
   QVariantMap parse(const QHash<QString, QString> &definition) const;
-  QColor parseColour(const QString &text) const;
+  //QColor parseColour(const QString &text) const;
 
-  QMap<QString, QVariantMap> styles;
+  QHash<QString, QVariantMap> styles_;
+  QHash<QString, DrawingStyleProperty *> properties_;
   static DrawingStyleManager *self;  // singleton instance pointer
 };
 
