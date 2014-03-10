@@ -72,7 +72,9 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
-  foreach (QString name, dsm->styles())
+  QStringList styles = dsm->styles();
+  styles.sort();
+  foreach (QString name, styles)
     polyLineCombo->addItem(name, name);
 
   polyLineCombo->setCurrentIndex(0);
