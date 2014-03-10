@@ -202,6 +202,7 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 
   saveButton = NormalPushButton(tr("Save"), this);
   connect( saveButton, SIGNAL(clicked()), SLOT(saveClicked())  );
+  saveButton->setEnabled(false);
   sendButton = NormalPushButton(tr("Send"), this);
   connect( sendButton, SIGNAL(clicked()), SLOT(sendClicked())  );
   sendButton->setEnabled(false);
@@ -1050,8 +1051,9 @@ void EditDialog::stopCombine()
   twd->setCurrentIndex(0);
   twd->setTabEnabled(2, false);
   //not possible to save or send until combine stopped
-  sendButton->setEnabled(true);
-  approveButton->setEnabled(true);
+  saveButton->setEnabled(true);
+  sendButton->setEnabled(currid.sendable);
+  approveButton->setEnabled(currid.sendable);
   m_editm->stopCombine();
 }
 
@@ -1374,6 +1376,7 @@ void EditDialog::exitClicked()
   emit emitFieldEditUpdate("");
   m_editm->setEditMode("normal_mode","","");
   twd->setEnabled(false); // disable tab-widget
+  saveButton->setEnabled(false);
   sendButton->setEnabled(false);
   approveButton->setEnabled(false);
   emit EditHide();
@@ -1603,7 +1606,8 @@ void EditDialog::EditNewOk(EditProduct& ep,
   if (twd->currentIndex()!=mm) twd->setCurrentIndex(mm);
 
   sendButton->setEnabled(true);
-  approveButton->setEnabled(true);
+  sendButton->setEnabled(currid.sendable);
+  approveButton->setEnabled(currid.sendable);
 
   commentbutton->setEnabled(not currprod.commentFilenamePart.empty() );
 
