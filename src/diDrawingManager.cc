@@ -150,48 +150,49 @@ bool DrawingManager::parseSetup()
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
   EditItems::Layer *layer = CurrentLayer;
-  if (layer) {
+  if (!layer)
+    layer = EditItems::Layers::instance()->addEmpty();
 
-    // New input has been submitted, so remove the items from the set.
-    // This will automatically cause items to be removed from the editing
-    // dialog in interactive mode.
-    QSet<DrawingItemBase *> items = layer->itemsRef();
-    foreach (DrawingItemBase *item, items.values())
-      removeItem_(item);
+  // New input has been submitted, so remove the items from the set.
+  // This will automatically cause items to be removed from the editing
+  // dialog in interactive mode.
+  QSet<DrawingItemBase *> items = layer->itemsRef();
+  foreach (DrawingItemBase *item, items.values())
+    removeItem_(item);
 
-    loaded_.clear();
+  loaded_.clear();
 
+  vector<string>::const_iterator it;
+  for (it = inp.begin(); it != inp.end(); ++it) {
+
+    // Split each input line into a collection of "words".
+    vector<string> pieces = miutil::split_protected(*it, '"', '"');
+    // Skip the first piece ("DRAWING").
+    pieces.erase(pieces.begin());
+
+    QVariantMap properties;
+    QVariantList points;
     vector<string>::const_iterator it;
-    for (it = inp.begin(); it != inp.end(); ++it) {
 
-      // Split each input line into a collection of "words".
-      vector<string> pieces = miutil::split_protected(*it, '"', '"');
-      // Skip the first piece ("DRAWING").
-      pieces.erase(pieces.begin());
+    for (it = pieces.begin(); it != pieces.end(); ++it) {
 
-      QVariantMap properties;
-      QVariantList points;
-      vector<string>::const_iterator it;
+      QString key, value;
+      if (!parseKeyValue(*it, key, value))
+        continue;
 
-      for (it = pieces.begin(); it != pieces.end(); ++it) {
-
-        QString key, value;
-        if (!parseKeyValue(*it, key, value))
-          continue;
-
-        if (key == "file") {
-          // Read the specified file, skipping to the next line if successful,
-          // but returning false to indicate an error if unsuccessful.
-          if (loadItems(value))
-            break;
-          else
-            return false;
-        }
+      if (key == "file") {
+        // Read the specified file, skipping to the next line if successful,
+        // but returning false to indicate an error if unsuccessful.
+        if (loadItems(value))
+          break;
+        else
+          return false;
       }
     }
-
-    setEnabled(!CurrentLayer->itemsRef().empty());
   }
+
+  setEnabled(!CurrentLayer->itemsRef().empty());
+
   return true;
 }
 
