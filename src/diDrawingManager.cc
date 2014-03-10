@@ -216,15 +216,6 @@ void DrawingManager::addItem_(DrawingItemBase *item)
 
 bool DrawingManager::loadItems(const QString &fileName)
 {
-  QFile file(fileName);
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    METLIBS_LOG_WARN("Failed to open file " << fileName.toStdString() << " for reading.");
-    return false;
-  }
-
-  QByteArray data = file.readAll();
-  file.close();
-
   QString error;
   QSet<DrawingItemBase *> items = \
     KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
