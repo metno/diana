@@ -833,15 +833,25 @@ void EditItemManager::editStyle()
   EditItemsStyle::StyleEditor::instance()->edit(getSelectedItems());
 }
 
+// Sets the style type of the currently selected items.
 void EditItemManager::setStyleType() const
 {
   const QAction *action = qobject_cast<QAction *>(sender());
   const QVariantList data = action->data().toList();
   const QVariantList styleItems = data.at(0).toList();
-  const QString styleName = data.at(1).toString();
+  const QString tgtType = data.at(1).toString();
+
   foreach (QVariant styleItem, styleItems) {
     DrawingItemBase *item = static_cast<DrawingItemBase *>(styleItem.value<void *>());
-    item->setProperty("style:type", styleName);
+
+    // copy all style properties if converting from non-custom to custom
+    if (tgtType == "Custom") {
+      const QString srcType = item->propertiesRef().value("style:type").toString();
+      if (srcType != "Custom")
+        DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(srcType));
+    }
+
+    item->setProperty("style:type", tgtType); // set type regardless
   }
 }
 

@@ -193,6 +193,7 @@ public:
   void addStyle(const QHash<QString, QString> &definition);
 
   void setStyle(DrawingItemBase *, const QHash<QString, QString> &, const QString & = QString()) const;
+  void setStyle(DrawingItemBase *, const QVariantMap &, const QString & = QString()) const;
   void setDefaultStyle(DrawingItemBase *) const;
 
   void beginLine(DrawingItemBase *item);

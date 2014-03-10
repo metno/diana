@@ -197,14 +197,18 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, Q
   }
 }
 
-void DrawingStyleManager::setDefaultStyle(DrawingItemBase *item) const
+void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vstyle, const QString &prefix) const
 {
-  item->setProperty("style:type", "Custom");
-  const QVariantMap vstyle = getStyle(item);
   QHash<QString, QString> style;
   foreach (QString key, vstyle.keys())
     style.insert(key, vstyle.value(key).toString());
-  setStyle(item, style);
+  setStyle(item, style, prefix);
+}
+
+void DrawingStyleManager::setDefaultStyle(DrawingItemBase *item) const
+{
+  item->setProperty("style:type", "Custom");
+  setStyle(item, getStyle(item));
 }
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
