@@ -255,7 +255,6 @@ QWidget *Dialog::createAvailableLayersPane()
   bottomLayout->addWidget(loadFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Open file", SLOT(loadFile())));
 
   QVBoxLayout *layout = new QVBoxLayout(groupBox);
-  layout->setContentsMargins(0, 2, 0, 2);
   layout->addWidget(drawingList);
   layout->addLayout(bottomLayout);
 
@@ -265,12 +264,10 @@ QWidget *Dialog::createAvailableLayersPane()
 QWidget *Dialog::createActiveLayersPane()
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
-  mainLayout->setContentsMargins(0, 2, 0, 2);
 
   QWidget *activeLayersWidget = new QWidget;
   activeLayersWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   activeLayersLayout_ = new QVBoxLayout(activeLayersWidget);
-  activeLayersLayout_->setContentsMargins(0, 0, 0, 0);
   activeLayersLayout_->setSpacing(0);
   activeLayersLayout_->setMargin(0);
 
