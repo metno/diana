@@ -64,7 +64,7 @@ protected:
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
-  QSizeF getStringSize() const;
+  QSizeF getStringSize(int index = -1) const;
 
   int cursor_;
 };

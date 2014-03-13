@@ -82,6 +82,10 @@ ToolBar::ToolBar(QWidget *parent)
   // *** create symbol ***
   addAction(actions[EditItemManager::CreateSymbol]);
   actionGroup->addAction(actions[EditItemManager::CreateSymbol]);
+
+  // *** create text ***
+  addAction(actions[EditItemManager::CreateText]);
+  actionGroup->addAction(actions[EditItemManager::CreateText]);
 }
 
 void ToolBar::setPolyLineType(int index)

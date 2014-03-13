@@ -111,7 +111,10 @@ EditItemManager::EditItemManager()
     createSymbolAction->setCheckable(true);
 
     createTextAction = new QAction(tr("Text"), this);
+    createTextAction->setCheckable(true);
+
     createCompositeAction = new QAction(tr("Composite"), this);
+    createCompositeAction->setCheckable(true);
 
     connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
     connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));

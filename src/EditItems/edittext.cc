@@ -32,13 +32,13 @@
 #include "edittext.h"
 #include "diPlot.h"
 #include "diFontManager.h"
-#include <QDebug>
 
 namespace EditItem_Text {
 
 Text::Text()
 {
   cursor_ = 0;
+  updateControlPoints();
 }
 
 Text::~Text()
@@ -85,8 +85,11 @@ void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &c
 {
   repaintNeeded = true;
 
-  points_.clear();
-  points_.append(QPointF(event->pos()));
+  if (points_.isEmpty()) {
+    points_.append(QPointF(event->pos()));
+    updateControlPoints();
+  } else
+    complete = true;
 }
 
 void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -109,16 +112,25 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
       text_ = text_.left(cursor_) + text_.mid(cursor_ + 1);
     break;
   case Qt::Key_Left:
-    cursor_ -= 1;
+    if (cursor_ > 0)
+      cursor_ -= 1;
     break;
   case Qt::Key_Right:
-    cursor_ += 1;
+    if (cursor_ < text_.size() - 1)
+      cursor_ += 1;
+    break;
+  case Qt::Key_Home:
+    cursor_ -= 0;
+    break;
+  case Qt::Key_End:
+    cursor_ -= text_.size();
     break;
   default:
     text_.insert(cursor_, event->text());
-    cursor_ += 1;
+    cursor_ += event->text().size();
   }
 
+  updateControlPoints();
   event->accept();
 }
 
@@ -150,7 +162,10 @@ void Text::drawHoverHighlighting(bool) const
   size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
   QRectF textbox(points_.at(0), size);
 
-  glColor4ub(255, 0, 0, 0);
+  //if (hoveredCtrlPointIndex_ >= 0)
+  //  EditItemBase::drawHoveredControlPoint();
+
+  glColor3ub(255, 0, 0);
   glBegin(GL_LINE_LOOP);
   glVertex2f(textbox.left(), textbox.top());
   glVertex2f(textbox.right(), textbox.top());
@@ -166,23 +181,39 @@ void Text::drawIncomplete() const
 
   const int margin = 4;
 
-  QSizeF size = getStringSize();
+  if (!text_.isEmpty()) {
+    glColor3ub(128, 128, 128);
+    glLineStipple(1, 0x5555);
+    glEnable(GL_LINE_STIPPLE);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(controlPoints_[0].center().x() - margin, controlPoints_[0].center().y() - margin);
+    glVertex2f(controlPoints_[1].center().x() + margin, controlPoints_[1].center().y() - margin);
+    glVertex2f(controlPoints_[2].center().x() + margin, controlPoints_[2].center().y() + margin);
+    glVertex2f(controlPoints_[3].center().x() - margin, controlPoints_[3].center().y() + margin);
+    glEnd();
+    glDisable(GL_LINE_STIPPLE);
+  }
+
+  QSizeF size = getStringSize(cursor_);
   size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
 
   // Draw a caret.
-  glColor3f(1.0, 0.0, 0.0);
+  glColor3ub(255, 0, 0);
   glBegin(GL_LINES);
   glVertex2f(points_.at(0).x() + size.width(), points_.at(0).y() - margin);
   glVertex2f(points_.at(0).x() + size.width(), points_.at(0).y() + size.height() + margin);
   glEnd();
 }
 
-QSizeF Text::getStringSize() const
+QSizeF Text::getStringSize(int index) const
 {
+  if (index == -1)
+    index = text_.size();
+
   float width, height;
   GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
   fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
-  fp->getStringSize(text_.left(cursor_).toStdString().c_str(), width, height);
+  fp->getStringSize(text_.left(index).toStdString().c_str(), width, height);
 
   return QSizeF(width, height);
 }

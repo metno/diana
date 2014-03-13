@@ -599,9 +599,23 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
   if (ke->key() == Qt::Key_unknown) return;
 
+  // Old editing checks to override normal keypress behaviour.
   mapMode mm = editm->getMapMode();
   bool inEdit = (mm != normal_mode);
 
+  // A more general way to override normal keypress behaviour is to query
+  // the managers to find any that are in editing mode.
+  map<string,Manager*>::iterator it = plotm->managers.begin();
+  while (it != plotm->managers.end()) {
+    if (it->second->isEditing()) {
+      it->second->sendKeyboardEvent(ke, res);
+      return;
+    }
+    ++it;
+  }
+
+  // Access to normal keypress behaviour is obtained by holding down the Shift key
+  // when in the old editing mode, or when editing is paused.
   if ((ke->type() == QEvent::KeyPress && ke->modifiers() & Qt::ShiftModifier) ||editm->getEditPause()) {
     keyoverride= true;
   }
@@ -675,15 +689,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   //-------------------------------------
   if (inEdit ){
     editm->sendKeyboardEvent(ke,res);
-  } else {
-    map<string,Manager*>::iterator it = plotm->managers.begin();
-    while (it != plotm->managers.end()) {
-      if (it->second->isEditing()) {
-        it->second->sendKeyboardEvent(ke, res);
-        break;
-      }
-      ++it;
-    }
   }
 
   // catch events to PlotModule

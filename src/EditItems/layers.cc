@@ -31,8 +31,6 @@
 
 #include <EditItems/layers.h>
 
-#include <QDebug>
-
 namespace EditItems {
 
 Layer::Layer()
