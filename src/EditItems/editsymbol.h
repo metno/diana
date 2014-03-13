@@ -53,7 +53,7 @@ private:
   virtual bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
 
-  virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
+  virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
 
   virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
@@ -66,7 +66,7 @@ private:
   virtual void updateControlPoints();
   virtual void setPoints(const QList<QPointF> &);
 
-  void remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems);
+  void remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems);
 };
 
 } // namespace EditItem_Symbol

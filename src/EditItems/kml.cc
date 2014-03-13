@@ -74,7 +74,7 @@ static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &i
 // (A group is a set of items with a common value for the "groupId" property.)
 //
 // The function leaves \a error empty iff it succeeds.
-void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, const QSet<DrawingItemBase *> &selItems, QString *error)
+void saveToFile(const QString &fileName, const QSet<QSharedPointer<DrawingItemBase> > &items, const QSet<QSharedPointer<DrawingItemBase> > &selItems, QString *error)
 {
   Q_ASSERT(false);
 
@@ -83,14 +83,14 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
 
   // find selected groups (groups for which at least one member is in \a selItems)
   QSet<int> selGroups;
-  foreach (const DrawingItemBase *selItem, selItems)
+  foreach (const QSharedPointer<DrawingItemBase> selItem, selItems)
     selGroups.insert(selItem->groupId());
 
   // document fragment to keep structures of individual items:
   QDomDocumentFragment itemsFrag = doc.createDocumentFragment();
 
   // loop over \a items and insert the KML for each item that is a member of a selected group
-  foreach (const DrawingItemBase *item, items) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
     if (!selGroups.contains(item->groupId()))
       continue; // skip this item since its group is not represented among the selected items
 
@@ -118,7 +118,7 @@ void saveToFile(const QString &fileName, const QSet<DrawingItemBase *> &items, c
 // Leaves \a error empty iff no errors occurs.
 int findGroupId(const QDomNode &node, bool &found, QString *error)
 {
-  QHash<QString, QString> extdata = getExtendedData(node);
+  QHash<QString, QString> extdata = getExtendedData(node, "Placemark");
   if (extdata.isEmpty() || !error->isEmpty()) {
     *error = QString("No extended data available");
     found = false;
@@ -137,29 +137,33 @@ int findGroupId(const QDomNode &node, bool &found, QString *error)
   }
 }
 
-QHash<QString, QString> getExtendedData(const QDomNode &node)
+// Returns any extended data map located as a child of the nearest node
+// with tag \a parentTag along the ancestor chain from (and including) \a node.
+QHash<QString, QString> getExtendedData(const QDomNode &node, const QString &parentTag)
 {
-  QHash<QString, QString> extdata;
-
-  // find the first ancestor (including \a node itself) with met:groupId in an <ExtendedData> child:
+  QHash<QString, QString> extData;
 
   for (QDomNode n = node; !n.isNull(); n = n.parentNode()) {
-    const QDomElement extDataElem = n.firstChildElement("ExtendedData");
-    if (!extDataElem.isNull()) {
-      const QDomNodeList dataNodes = extDataElem.elementsByTagName("Data");
-      for (int i = 0; i < dataNodes.size(); ++i) {
-        const QDomElement dataElem = dataNodes.item(i).toElement();
-        const QDomNodeList valueNodes = dataElem.elementsByTagName("value");
-        for (int j = 0; j < valueNodes.size(); ++j) {
-          const QDomElement valueElem = valueNodes.item(j).toElement();
-          const QString value = valueElem.firstChild().nodeValue();
-          extdata[dataElem.attribute("name")] = value;
+    const QDomElement e = n.toElement();
+    if ((!e.isNull()) && (e.tagName() == parentTag)) {
+      const QDomElement extDataElem = n.firstChildElement("ExtendedData");
+      if (!extDataElem.isNull()) {
+        const QDomNodeList dataNodes = extDataElem.elementsByTagName("Data");
+        for (int i = 0; i < dataNodes.size(); ++i) {
+          const QDomElement dataElem = dataNodes.item(i).toElement();
+          const QDomNodeList valueNodes = dataElem.elementsByTagName("value");
+          for (int j = 0; j < valueNodes.size(); ++j) {
+            const QDomElement valueElem = valueNodes.item(j).toElement();
+            const QString value = valueElem.firstChild().nodeValue();
+            extData[dataElem.attribute("name").trimmed()] = value;
+          }
         }
       }
+      break; // at nearest matching parent node, so stop searching
     }
   }
 
-  return extdata;
+  return extData;
 }
 
 // Returns the sequence of (lat, lon) points of a <cooordinates> element.

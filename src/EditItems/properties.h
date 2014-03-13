@@ -73,7 +73,7 @@ class PropertiesEditor : public QDialog
 {
 public:
   static PropertiesEditor *instance();
-  bool edit(DrawingItemBase *);
+  bool edit(QSharedPointer<DrawingItemBase> &);
 
 private:
   PropertiesEditor();

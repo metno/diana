@@ -30,7 +30,6 @@
 */
 
 #include <EditItems/layers.h>
-#include <EditItems/drawingitembase.h>
 
 #include <QDebug>
 
@@ -40,7 +39,7 @@ Layer::Layer()
   : id_(nextId())
   , visible_(true)
   , unsavedChanges_(false)
-  , name_(QString("<default name> (%1)").arg(id_))
+  , name_()
 {
 }
 
@@ -48,13 +47,13 @@ Layer::Layer(const Layer &other)
   : id_(nextId())
   , visible_(other.isVisible())
   , unsavedChanges_(false)
-  , name_(QString("copy of %1 (%2)").arg(other.name()).arg(id_))
+  , name_(QString("copy of %1").arg(other.name()))
 {
-  foreach (DrawingItemBase *item, other.items_)
-    items_.insert(item->clone());
+  foreach (QSharedPointer<DrawingItemBase> item, other.items_)
+    items_.insert(QSharedPointer<DrawingItemBase>(item->clone()));
 }
 
-Layer::~ Layer()
+Layer::~Layer()
 {
 }
 
@@ -70,12 +69,12 @@ int Layer::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-QSet<DrawingItemBase *> &Layer::itemsRef()
+QSet<QSharedPointer<DrawingItemBase> > &Layer::itemsRef()
 {
   return items_;
 }
 
-QSet<DrawingItemBase *> &Layer::selectedItemsRef()
+QSet<QSharedPointer<DrawingItemBase> > &Layer::selectedItemsRef()
 {
   return selItems_;
 }
@@ -134,14 +133,14 @@ int Layers::size() const
   return layers_.size();
 }
 
-Layer *Layers::at(int pos)
+QSharedPointer<Layer> Layers::at(int pos)
 {
   if ((pos >= 0) && (pos < layers_.size()))
     return layers_.at(pos);
-  return 0;
+  return QSharedPointer<Layer>();
 }
 
-Layer *Layers::current()
+QSharedPointer<Layer> Layers::current() const
 {
   return currLayer_;
 }
@@ -151,89 +150,89 @@ int Layers::currentPos() const
   return posFromLayer(currLayer_);
 }
 
-void Layers::setCurrent(Layer *layer)
+void Layers::setCurrent(const QSharedPointer<Layer> &layer)
 {
-  if (!layers_.contains(layer)) {
-    Q_ASSERT(false);
-    return;
+  for (int i = 0; i < layers_.size(); ++i) {
+    if (layers_.at(i) == layer) {
+      currLayer_ = layer;
+      return;
+    }
   }
-  currLayer_ = layer;
 }
 
-Layer *Layers::layerFromName(const QString &name)
+QSharedPointer<Layer> Layers::layerFromName(const QString &name) const
 {
-  foreach (Layer *layer, layers_)
+  foreach (QSharedPointer<Layer> layer, layers_) {
     if (layer->name() == name)
       return layer;
-  return 0;
+  }
+  return QSharedPointer<Layer>();
+}
+
+QString Layers::createUniqueName(const QString &baseName) const
+{
+  QString name = baseName;
+  for (int i = 0; !layerFromName(name).isNull(); ++i)
+    name = QString("%1 (%2)").arg(baseName).arg(i);
+  return name;
 }
 
 // Adds an empty layer and returns a pointer to it.
-Layer *Layers::addEmpty()
+QSharedPointer<Layer> Layers::addEmpty(bool notify)
 {
-  Layer *layer = new Layer;
+  QSharedPointer<Layer> layer(new Layer);
+  layer->setName(createUniqueName(QString("new layer (%1)").arg(layer->id())));
   layers_.append(layer);
   currLayer_ = layer;
+  if (notify)
+    emit addedLayer();
   return layer;
 }
 
 // Adds a duplicate of an existing layer and returns a pointer to the duplicate,
 // or 0 if not found.
-Layer *Layers::addDuplicate(Layer *srcLayer)
+QSharedPointer<Layer> Layers::addDuplicate(const QSharedPointer<Layer> &srcLayer)
 {
-  if (!srcLayer) {
+  if (srcLayer.isNull()) {
     Q_ASSERT(false);
-    return 0;
+    return QSharedPointer<Layer>();
   }
 
-  Layer *layer = new Layer(*srcLayer);
+  QSharedPointer<Layer> layer(new Layer(*(srcLayer.data())));
   layers_.append(layer);
   currLayer_ = layer;
   return layer;
 }
 
-void Layers::remove(Layer *layer)
+void Layers::remove(const QSharedPointer<Layer> &layer)
 {
-  layers_.removeAt(layers_.indexOf(layer));
-  if (currLayer_ == layer)
-    currLayer_ = 0;
-  delete layer;
-}
-
-void Layers::reorder(QList<Layer *>layers)
-{
-  // verify that layers is a permutation of layers_
-  if (layers.size() != layers_.size()) {
-    Q_ASSERT(false);
-    return;
+  for (int i = 0; i < layers_.size(); ++i) {
+    if (layers_.at(i) == layer) {
+      layers_.removeAt(i);
+      if (currLayer_ == layer)
+        currLayer_.clear();
+      break;
+    }
   }
-  foreach (Layer *layer, layers)
-    if (layers_.count(layer) != 1) {
-      Q_ASSERT(false);
-      return;
-    }
-
-  // reorder
-  layers_ = layers;
 }
 
-void Layers::mergeIntoFirst(const QList<Layer *> &layers)
+void Layers::mergeIntoFirst(const QList<QSharedPointer<Layer> > &layers)
 {
-  // verify that layers is a subset of layers_
-  foreach (Layer *layer, layers)
-    if (layers_.count(layer) != 1) {
-      Q_ASSERT(false);
-      return;
-    }
-
   // merge
   for (int i = 1; i < layers.size(); ++i) {
-    Q_ASSERT((layers.first()->itemsRef() & layers.at(i)->itemsRef().isEmpty())); // ensure empty intersection
+    Q_ASSERT((layers.first()->itemsRef() & layers.at(i)->itemsRef()).isEmpty()); // ensure empty intersection
     layers.first()->itemsRef().unite(layers.at(i)->itemsRef());
-    Q_ASSERT((layers.first()->selectedItemsRef() & layers.at(i)->selectedItemsRef().isEmpty())); // ensure empty intersection
+    Q_ASSERT((layers.first()->selectedItemsRef() & layers.at(i)->selectedItemsRef()).isEmpty()); // ensure empty intersection
     layers.first()->selectedItemsRef().unite(layers.at(i)->selectedItemsRef());
     // NOTE: layers.at(i) is assumed to be removed by the client
   }
+}
+
+void Layers::set(const QList<QSharedPointer<Layer> > &layers, bool notify)
+{
+  layers_ = layers;
+  if (notify)
+    emit replacedLayers();
 }
 
 void Layers::update()
@@ -251,9 +250,12 @@ void Layers::setCurrentPos(int pos)
 }
 
 // Returns non-negative pos from layer if found, otherwise -1.
-int Layers::posFromLayer(Layer *layer) const
+int Layers::posFromLayer(const QSharedPointer<Layer> &layer) const
 {
-  return layers_.indexOf(layer);
+  for (int i = 0; i < layers_.size(); ++i)
+    if (layers_.at(i) == layer)
+      return i;
+  return -1;
 }
 
 } // namespace

@@ -123,7 +123,7 @@ void StylePropertyEditor::reset()
     setCurrentIndex(origInitVal_);
 }
 
-void StylePropertyEditor::init(bool applicable, const QSet<DrawingItemBase *> &items, const QVariant &initVal)
+void StylePropertyEditor::init(bool applicable, const QSet<QSharedPointer<DrawingItemBase> > &items, const QVariant &initVal)
 {
   items_ = items;
   if (applicable) {
@@ -166,7 +166,7 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
 
   const QString fullName = QString("style:%1").arg(name());
 
-  foreach (DrawingItemBase *item, items_) {
+  foreach (QSharedPointer<DrawingItemBase> item, items_) {
     item->propertiesRef().insert(fullName, userData);
   }
   EditItemManager::instance()->repaint();
@@ -249,7 +249,7 @@ private:
 class EditStyleProperty
 {
 public:
-  StylePropertyEditor *createEditor(const QString &propName, const QSet<DrawingItemBase *> &items, const QVariantMap &sprops)
+  StylePropertyEditor *createEditor(const QString &propName, const QSet<QSharedPointer<DrawingItemBase> > &items, const QVariantMap &sprops)
   {
     StylePropertyEditor *editor = createSpecialEditor();
     if (editor)
@@ -353,13 +353,13 @@ StyleEditor *StyleEditor::instance_ = 0;
 
 // Returns the union of all style properties of customizable items in \a items.
 // Style properties that differ in at least two items will be indicated as invalid (i.e. a default QVariant).
-static QVariantMap getCustomStylePropsUnion(const QSet<DrawingItemBase *> &items)
+static QVariantMap getCustomStylePropsUnion(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
   QVariantMap sprops;
   QRegExp rx("style:(.+)");
 
   // loop over customizable items
-  foreach (DrawingItemBase *item, items) {
+  foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QVariantMap &props = item->propertiesRef();
     if (props.value("style:type") != "Custom")
       continue;
@@ -386,13 +386,13 @@ static QVariantMap getCustomStylePropsUnion(const QSet<DrawingItemBase *> &items
 }
 
 // Returns the style properties of customizable items in \a items.
-static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<DrawingItemBase *> &items)
+static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
   QMap<DrawingItemBase *, QVariantMap> spropsMap;
   QRegExp rx("style:(.+)");
 
   // loop over customizable items
-  foreach (DrawingItemBase *item, items) {
+  foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QVariantMap &props = item->propertiesRef();
     if (props.value("style:type") != "Custom")
       continue;
@@ -405,17 +405,17 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<Drawi
         sprops.insert(key, props.value(key));
     }
 
-    spropsMap.insert(item, sprops);
+    spropsMap.insert(item.data(), sprops);
   }
 
   return spropsMap;
 }
 
 // Opens a modal dialog to edit the style properties of \a items.
-void StyleEditor::edit(const QSet<DrawingItemBase *> &items)
+void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
   // only allow editing for items with style type 'Custom'
-  foreach (DrawingItemBase *item, items) {
+  foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QString typeName = item->propertiesRef().value("style:type").toString();
     if (typeName != "Custom") {
       QMessageBox::warning(

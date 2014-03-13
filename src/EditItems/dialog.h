@@ -81,9 +81,9 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(Layer *, QWidget * = 0);
+  LayerWidget(const QSharedPointer<Layer> &, QWidget * = 0);
   ~LayerWidget();
-  Layer *layer();
+  QSharedPointer<Layer> layer();
   QString name() const;
   void setName(const QString &);
   bool isLayerVisible() const; // Note that isVisible() and setVisible() are already used in QWidget!
@@ -93,7 +93,7 @@ public:
   void setCurrent(bool);
   void editName();
 private:
-  Layer *layer_;
+  QSharedPointer<Layer> layer_;
   CheckableLabel *visibleLabel_;
   CheckableLabel *unsavedChangesLabel_;
   NameLabel *nameLabel_;
@@ -154,6 +154,7 @@ private:
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
   void ensureCurrentVisible();
+  void add(const QSharedPointer<Layer> &, bool = false);
   void duplicate(LayerWidget *);
   void remove(LayerWidget *, bool = false);
   void remove(int);
@@ -165,7 +166,7 @@ private:
   void setAllVisible(bool);
   QList<LayerWidget *> visibleLayerWidgets();
   QList<LayerWidget *> allLayerWidgets();
-  QList<Layer *> layers(const QList<LayerWidget *> &);
+  QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &);
   void toggleEditingMode(bool);
 
 private slots:
@@ -188,6 +189,7 @@ private slots:
   void handleLayersStateUpdate();
   void importChosenFiles();
   void loadFile();
+  void handleLayersUpdated();
 
 private:
   /// List of available drawings from the setup file.

@@ -139,7 +139,7 @@ PropertiesEditor *PropertiesEditor::instance()
 PropertiesEditor *PropertiesEditor::instance_ = 0;
 
 // Opens a modal dialog to edit the properties of \a item. Returns true iff the properties were changed.
-bool PropertiesEditor::edit(DrawingItemBase *item)
+bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item)
 {
   const QVariantMap origProps = item->properties();
   if (origProps.isEmpty()) {

@@ -32,7 +32,7 @@
 #ifndef EDITITEM_POLYLINE_H
 #define EDITITEM_POLYLINE_H
 
-#include <QtGui>
+#include <QtGui> // ### include only relevant headers ... TBD
 #include <diDrawingManager.h>
 #include "EditItems/edititembase.h"
 #include "EditItems/drawingpolyline.h"
@@ -53,7 +53,7 @@ private:
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 
-    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<DrawingItemBase *> *, const QSet<DrawingItemBase *> *, bool *);
+    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);

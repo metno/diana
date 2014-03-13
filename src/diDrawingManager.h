@@ -40,6 +40,7 @@
 #include <QSet>
 #include <QString>
 #include <QVariantMap>
+#include <QSharedPointer>
 #include <vector>
 
 class PlotModule;
@@ -61,7 +62,7 @@ public:
   class itemCompare
   {
   public:
-      inline bool operator()(const DrawingItemBase* t1, const DrawingItemBase* t2) const
+      inline bool operator()(const QSharedPointer<DrawingItemBase> t1, const QSharedPointer<DrawingItemBase> t2) const
       {
           return (t1->id() < t2->id());
       }
@@ -88,9 +89,9 @@ public:
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
-  QSet<DrawingItemBase *> getItems() const;
+  QSet<QSharedPointer<DrawingItemBase> > getItems() const;
 
-  virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
   template<typename BaseType, typename PolyLineType, typename SymbolType,
            typename Text, typename Composite>
@@ -131,9 +132,9 @@ public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 protected:
-  virtual void addItem_(DrawingItemBase *);
-  virtual void removeItem_(DrawingItemBase *item);
-  void applyPlotOptions(DrawingItemBase *item) const;
+  virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
+  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
+  void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
 
   Rectangle plotRect;
   Rectangle editRect;

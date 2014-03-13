@@ -207,22 +207,24 @@ QList<QAction *> PolyLine::actions(const QPoint &pos) const
 
 void PolyLine::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
+    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
 {
-    Q_ASSERT(undoCommands);
-    Q_UNUSED(selItems);
+  Q_ASSERT(undoCommands);
+  Q_UNUSED(repaintNeeded);
+  Q_UNUSED(undoCommands);
+  Q_UNUSED(items);
+  Q_UNUSED(selItems);
 
-    if (event->button() == Qt::LeftButton) {
-        pressedCtrlPointIndex_ = hitControlPoint(event->pos());
-        resizing_ = (pressedCtrlPointIndex_ >= 0);
-        moving_ = !resizing_;
-        basePoints_ = points_;
-        baseMousePos_ = event->pos();
+  if (event->button() == Qt::LeftButton) {
+    pressedCtrlPointIndex_ = hitControlPoint(event->pos());
+    resizing_ = (pressedCtrlPointIndex_ >= 0);
+    moving_ = !resizing_;
+    basePoints_ = points_;
+    baseMousePos_ = event->pos();
 
-        if (multiItemOp)
-            *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
-
-    }
+    if (multiItemOp)
+      *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
+  }
 }
 
 void PolyLine::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)

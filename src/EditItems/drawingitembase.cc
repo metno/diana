@@ -39,9 +39,7 @@ DrawingItemBase::DrawingItemBase()
   DrawingStyleManager::instance()->setDefaultStyle(this);
 }
 
-DrawingItemBase::~DrawingItemBase()
-{
-}
+DrawingItemBase::~DrawingItemBase() {}
 
 int DrawingItemBase::nextId_ = 0;
 

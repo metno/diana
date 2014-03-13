@@ -66,8 +66,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 namespace EditItems {
 
 CheckableLabel::CheckableLabel(bool checked, const QPixmap &pixmap, const QString &checkedToolTip, const QString &uncheckedToolTip, bool clickable)
@@ -117,7 +115,7 @@ void NameLabel::mouseDoubleClickEvent(QMouseEvent *event)
   emit mouseDoubleClicked(event);
 }
 
-LayerWidget::LayerWidget(Layer *layer, QWidget *parent)
+LayerWidget::LayerWidget(const QSharedPointer<Layer> &layer, QWidget *parent)
   : QWidget(parent)
   , layer_(layer)
 {
@@ -151,7 +149,7 @@ LayerWidget::~LayerWidget()
   Layers::instance()->remove(layer_);
 }
 
-Layer *LayerWidget::layer()
+QSharedPointer<Layer> LayerWidget::layer()
 {
   return layer_;
 }
@@ -205,8 +203,8 @@ void LayerWidget::editName()
     bool ok;
     name = QInputDialog::getText(this, "Edit layer name", "Layer name:", QLineEdit::Normal, name, &ok).trimmed();
     if (ok) {
-      Layer *existingLayer = Layers::instance()->layerFromName(name);
-      if (!existingLayer) {
+      const QSharedPointer<Layer> existingLayer = Layers::instance()->layerFromName(name);
+      if (existingLayer.isNull()) {
         setName(name);
         break; // ok (changed)
       } else if (existingLayer == layer()) {
@@ -255,6 +253,7 @@ QWidget *Dialog::createAvailableLayersPane()
   bottomLayout->addWidget(loadFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Open file", SLOT(loadFile())));
 
   QVBoxLayout *layout = new QVBoxLayout(groupBox);
+  layout->setContentsMargins(0, 2, 0, 2);
   layout->addWidget(drawingList);
   layout->addLayout(bottomLayout);
 
@@ -264,10 +263,12 @@ QWidget *Dialog::createAvailableLayersPane()
 QWidget *Dialog::createActiveLayersPane()
 {
   QVBoxLayout *mainLayout = new QVBoxLayout;
+  mainLayout->setContentsMargins(0, 2, 0, 2);
 
   QWidget *activeLayersWidget = new QWidget;
   activeLayersWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   activeLayersLayout_ = new QVBoxLayout(activeLayersWidget);
+  activeLayersLayout_->setContentsMargins(0, 0, 0, 0);
   activeLayersLayout_->setSpacing(0);
   activeLayersLayout_->setMargin(0);
 
@@ -328,10 +329,8 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   m_action->setIconVisibleInMenu(true);
   connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
 
-//  // add a few test layers for now:
-//  for (int i = 0; i < 4; ++i)
-//    addEmpty();
-//  setCurrentIndex(0);
+  connect(EditItems::Layers::instance(), SIGNAL(replacedLayers()), SLOT(handleLayersUpdated()));
+  connect(EditItems::Layers::instance(), SIGNAL(addedLayer()), SLOT(handleLayersUpdated()));
 
   // Populate the drawing model with data from the drawing manager.
   updateModel();
@@ -487,7 +486,7 @@ LayerWidget *Dialog::atPos(int pos)
 
 void Dialog::duplicate(LayerWidget *srcLayerWidget)
 {
-  Layer *newLayer = Layers::instance()->addDuplicate(srcLayerWidget->layer());
+  const QSharedPointer<Layer> newLayer = Layers::instance()->addDuplicate(srcLayerWidget->layer());
   const int srcIndex = activeLayersLayout_->indexOf(srcLayerWidget);
   LayerWidget *newLayerWidget = new LayerWidget(newLayer);
   activeLayersLayout_->insertWidget(srcIndex + 1, newLayerWidget);
@@ -541,7 +540,7 @@ void Dialog::move(LayerWidget *layerWidget, bool up)
   activeLayersLayout_->removeWidget(layerWidget);
   activeLayersLayout_->insertWidget(index + (up ? -1 : 1), layerWidget);
   updateCurrent();
-  Layers::instance()->reorder(layers(allLayerWidgets()));
+  Layers::instance()->set(layers(allLayerWidgets()), false);
   if (layerWidget == current())
     ensureCurrentVisible();
   handleLayersStateUpdate();
@@ -651,21 +650,26 @@ void Dialog::ensureCurrentVisible()
   QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
 }
 
+void Dialog::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
+{
+  LayerWidget *layerWidget = new LayerWidget(layer);
+  activeLayersLayout_->addWidget(layerWidget);
+  initialize(layerWidget);
+  if (!skipUpdate) {
+    setCurrent(layerWidget);
+    ensureCurrentVisible();
+    handleLayersStateUpdate();
+  }
+}
+
 void Dialog::addEmpty()
 {
-  Layer *newLayer = Layers::instance()->addEmpty();
-  LayerWidget *newLayerWidget = new LayerWidget(newLayer);
-  activeLayersLayout_->addWidget(newLayerWidget);
-  initialize(newLayerWidget);
-  setCurrent(newLayerWidget);
-  ensureCurrentVisible();
-  handleLayersStateUpdate();
+  add(Layers::instance()->addEmpty(false));
 }
 
 void Dialog::mergeVisible()
 {
-  QList<LayerWidget *> visLayerWidgets = visibleLayerWidgets();
-  qDebug() << "visLayerWidgets.size():" << visLayerWidgets.size();
+  const QList<LayerWidget *> visLayerWidgets = visibleLayerWidgets();
 
   if (visLayerWidgets.size() > 1) {
     if (QMessageBox::warning(
@@ -721,9 +725,9 @@ QList<LayerWidget *> Dialog::allLayerWidgets()
   return allLayerWidgets;
 }
 
-QList<Layer *> Dialog::layers(const QList<LayerWidget *> &layerWidgets)
+QList<QSharedPointer<Layer> > Dialog::layers(const QList<LayerWidget *> &layerWidgets)
 {
-  QList<Layer *> layers_;
+  QList<QSharedPointer<Layer> > layers_;
   foreach (LayerWidget *layerWidget, layerWidgets)
     layers_.append(layerWidget->layer());
   return layers_;
@@ -776,9 +780,6 @@ void Dialog::importChosenFiles()
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  // Add a new empty layer.
-  addEmpty();
-
   foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
     if (index.column() != 0)
       continue;
@@ -803,16 +804,21 @@ void Dialog::loadFile()
     return;
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-
-  // Add a new empty layer.
-  addEmpty();
-
-  if (!EditItemManager::instance()->loadItems(fileName)) {
-    // Remove the new layer if loading fails.
-    removeCurrent();
-  }
-
+  EditItemManager::instance()->loadItems(fileName);
   QApplication::restoreOverrideCursor();
+}
+
+void Dialog::handleLayersUpdated()
+{
+  // clear existing widgets
+  QList<LayerWidget *> layerWidgets = allLayerWidgets();
+  for (int i = 0; i < layerWidgets.size(); ++i)
+    remove(layerWidgets.at(i), true);
+
+  // insert widgets for current layers
+  for (int i = 0; i < Layers::instance()->size(); ++i)
+    add(Layers::instance()->at(i), true);
+  setCurrentIndex(0);
 }
 
 } // namespace

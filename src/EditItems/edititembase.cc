@@ -185,7 +185,7 @@ void EditItemBase::draw()
  */
 void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
+    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
 {
     Q_UNUSED(event)
     Q_UNUSED(repaintNeeded)
@@ -250,10 +250,10 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
 
 void EditItemBase::keyPress(
         QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
+        QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
 {
     if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        items->remove(Drawing(this));
+        items->remove(QSharedPointer<DrawingItemBase>(Drawing(this)));
     } else if (
                (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
                ((event->key() == Qt::Key_Left)
@@ -267,7 +267,7 @@ void EditItemBase::keyPress(
         else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
         else pos += QPointF(0, nudgeVal); // Key_Up
         moveBy(pos);
-        DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
+        DrawingItemBase *ditem = Drawing(this);
         undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
         repaintNeeded = true;
     }

@@ -149,16 +149,18 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-  EditItems::Layer *layer = CurrentLayer;
-  if (!layer)
-    layer = EditItems::Layers::instance()->addEmpty();
+  const QSharedPointer<EditItems::Layer> layer = CurrentLayer;
+  if (!layer.isNull()) {
 
-  // New input has been submitted, so remove the items from the set.
-  // This will automatically cause items to be removed from the editing
-  // dialog in interactive mode.
-  QSet<DrawingItemBase *> items = layer->itemsRef();
-  foreach (DrawingItemBase *item, items.values())
-    removeItem_(item);
+    // New input has been submitted, so remove the items from the set.
+    // This will automatically cause items to be removed from the editing
+    // dialog in interactive mode.
+    QSet<QSharedPointer<DrawingItemBase> > items = layer->itemsRef();
+    foreach (QSharedPointer<DrawingItemBase> item, items.values())
+      removeItem_(item);
+  } else {
+    EditItems::Layers::instance()->addEmpty();
+  }
 
   loaded_.clear();
 
@@ -204,44 +206,54 @@ std::vector<std::string> DrawingManager::getAnnotations() const
   return output;
 }
 
-DrawingItemBase *DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
+QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
 {
-  return createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-                               DrawingItem_Text::Text, DrawingItem_Composite::Composite>(properties, error);
+  return QSharedPointer<DrawingItemBase>(
+        createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+        DrawingItem_Text::Text, DrawingItem_Composite::Composite>(properties, error));
 }
 
-void DrawingManager::addItem_(DrawingItemBase *item)
+void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
   CurrentLayer->itemsRef().insert(item);
 }
 
 bool DrawingManager::loadItems(const QString &fileName)
 {
+  // parse file and create item layers
   QString error;
-  QSet<DrawingItemBase *> items = \
-    KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-                        DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
+  QList<QSharedPointer<EditItems::Layer> > layers = \
+      KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
 
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
     return false;
-  } else if (!items.isEmpty()) {
-    foreach (DrawingItemBase *item, items) {
-      // Set the screen coordinates from the latitude and longitude values.
-      setFromLatLonPoints(item, item->getLatLonPoints());
-      CurrentLayer->itemsRef().insert(item);
-    }
-  } else {
+  }
+  if (layers.isEmpty()) {
     METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
     return false;
   }
 
+  // initialize screen coordinates from lat/lon
+  foreach (QSharedPointer<EditItems::Layer> layer, layers) {
+    foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
+      setFromLatLonPoints(item.data(), item->getLatLonPoints());
+    }
+  }
+
+  // set layers (replacing any existing ones)
+  EditItems::Layers::instance()->set(layers);
+
   drawings_.insert(fileName);
   loaded_.insert(fileName);
+
+
+
   return true;
 }
 
-void DrawingManager::removeItem_(DrawingItemBase *item)
+void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
 {
   CurrentLayer->itemsRef().remove(item);
 }
@@ -312,8 +324,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   if (CurrentLayer) {
     std::set<miutil::miTime> times;
 
-    foreach (DrawingItemBase *item, CurrentLayer->itemsRef()) {
-
+    foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
       std::string time_str;
       std::string prop_str = timeProperty(item->propertiesRef(), time_str);
       if (!time_str.empty())
@@ -371,7 +382,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 
     // Change the visibility of items in the editor.
 
-    foreach (DrawingItemBase *item, CurrentLayer->itemsRef()) {
+    foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
       std::string time_str;
       std::string time_prop = timeProperty(item->propertiesRef(), time_str);
       if (time_prop.empty() || isEditing())
@@ -412,16 +423,16 @@ void DrawingManager::plot(bool under, bool over)
   EditItems::Layers *layers = EditItems::Layers::instance();
   for (int i = 0; i < layers->size(); ++i) {
 
-    EditItems::Layer *layer = layers->at(i);
+    const QSharedPointer<EditItems::Layer> layer = layers->at(i);
     if (layer->isVisible()) {
 
-      QList<DrawingItemBase *> items = layer->itemsRef().values();
+      QList<QSharedPointer<DrawingItemBase> > items = layer->itemsRef().values();
       qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
-      foreach (DrawingItemBase *item, items) {
+      foreach (const QSharedPointer<DrawingItemBase> item, items) {
         if (item->property("visible", true).toBool()) {
           applyPlotOptions(item);
-          setFromLatLonPoints(item, item->getLatLonPoints());
+          setFromLatLonPoints(item.data(), item->getLatLonPoints());
           item->draw();
         }
       }
@@ -431,10 +442,10 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-QSet<DrawingItemBase *> DrawingManager::getItems() const
+QSet<QSharedPointer<DrawingItemBase> > DrawingManager::getItems() const
 {
   if (!CurrentLayer)
-    return QSet<DrawingItemBase *>();
+    return QSet<QSharedPointer<DrawingItemBase> >();
   else
     return CurrentLayer->itemsRef();
 }
@@ -499,9 +510,9 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   glPopAttrib();
 }
 
-void DrawingManager::applyPlotOptions(DrawingItemBase *item) const
+void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &item) const
 {
-  bool antialiasing = item->property("antialiasing", true).toBool();
+  const bool antialiasing = item->property("antialiasing", true).toBool();
   if (antialiasing)
     glEnable(GL_MULTISAMPLE);
   else

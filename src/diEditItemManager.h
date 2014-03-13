@@ -64,11 +64,10 @@ public:
 
     /// Registers a new item with the manager.
     /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
-    void addItem(DrawingItemBase *item, bool incomplete = false, bool skipRepaint = false);
-    void addItem(EditItemBase *item, bool incomplete = false, bool skipRepaint = false);
-    void removeItem(DrawingItemBase *item);
+    void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
+    void removeItem(const QSharedPointer<DrawingItemBase> &item);
 
-    virtual DrawingItemBase *createItemFromVarMap(const QVariantMap &vmap, QString *error);
+    virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
     // Returns the undo stack.
     QUndoStack *undoStack();
@@ -78,12 +77,12 @@ public:
     bool hasIncompleteItem() const;
     bool needsRepaint() const;
 
-    QSet<DrawingItemBase *> getSelectedItems() const;
-    QSet<DrawingItemBase *> findHitItems(const QPointF &) const;
+    QSet<QSharedPointer<DrawingItemBase> > getSelectedItems() const;
+    QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
 
     void plot(bool under, bool over);
-    void storeItems(const QSet<DrawingItemBase *> &);
-    void retrieveItems(const QSet<DrawingItemBase *> &);
+    void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+    void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
     static EditItemManager *instance();
     virtual bool isEnabled() const;
@@ -99,7 +98,7 @@ public slots:
     void completeEditing();
     void copySelectedItems();
     void cutSelectedItems();
-    void deselectItem(DrawingItemBase *);
+    void deselectItem(const QSharedPointer<DrawingItemBase> &);
     void deselectAllItems();
     void editProperties();
     void editStyle();
@@ -116,7 +115,7 @@ public slots:
     void repaint();
     void reset();
     void saveItemsToFile();
-    void selectItem(DrawingItemBase *);
+    void selectItem(const QSharedPointer<DrawingItemBase> &);
     void setSelectMode();
     void undo();
 
@@ -146,15 +145,15 @@ signals:
     void unsetWorkAreaCursor();
 
 protected:
-    virtual void addItem_(DrawingItemBase *);
-    virtual void removeItem_(DrawingItemBase *item);
+    virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
+    virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
 
 private slots:
     void initNewItem(DrawingItemBase *item);
 
 private:
-    EditItemBase *hoverItem_;
-    EditItemBase *incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
+    QSharedPointer<DrawingItemBase> hoverItem_;
+    QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
     bool repaintNeeded_;
     bool skipRepaint_;
     QUndoStack undoStack_;
@@ -189,12 +188,12 @@ private:
     void incompleteMouseDoubleClick(QMouseEvent *);
     void incompleteKeyPress(QKeyEvent *);
     void incompleteKeyRelease(QKeyEvent *);
-    void pushCommands(QSet<DrawingItemBase *> addedItems,
-                      QSet<DrawingItemBase *> removedItems,
-                      QList<QUndoCommand *> undoCommands);
+    void pushCommands(const QSet<QSharedPointer<DrawingItemBase> > &addedItems,
+                      const QSet<QSharedPointer<DrawingItemBase> > &removedItems,
+                      const QList<QUndoCommand *> &undoCommands);
 
     // Clipboard operations
-    void copyItems(const QSet<DrawingItemBase *> &);
+    void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
     void updateActions();
     void updateTimes();
@@ -214,12 +213,12 @@ public:
 class AddOrRemoveItemsCommand : public EditItemCommand
 {
 public:
-    AddOrRemoveItemsCommand(const QSet<DrawingItemBase *> &, const QSet<DrawingItemBase *> &);
+    AddOrRemoveItemsCommand(const QSet<QSharedPointer<DrawingItemBase> > &, const QSet<QSharedPointer<DrawingItemBase> > &);
     virtual ~AddOrRemoveItemsCommand() {}
 
 private:
-    QSet<DrawingItemBase *> addedItems_;
-    QSet<DrawingItemBase *> removedItems_;
+    QSet<QSharedPointer<DrawingItemBase> > addedItems_;
+    QSet<QSharedPointer<DrawingItemBase> > removedItems_;
     virtual void undo();
     virtual void redo();
 };

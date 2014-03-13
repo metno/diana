@@ -34,11 +34,10 @@
 
 #include <QObject>
 #include <QSet>
+#include <EditItems/drawingitembase.h>
 #include <QSharedPointer>
 
 #define CurrentLayer EditItems::Layers::instance()->current()
-
-class DrawingItemBase;
 
 namespace EditItems {
 
@@ -48,8 +47,8 @@ public:
   Layer(const Layer &);
   ~Layer();
   int id() const;
-  QSet<DrawingItemBase *> &itemsRef();
-  QSet<DrawingItemBase *> &selectedItemsRef();
+  QSet<QSharedPointer<DrawingItemBase> > &itemsRef();
+  QSet<QSharedPointer<DrawingItemBase> > &selectedItemsRef();
   bool isEmpty() const;
   bool isVisible() const;
   void setVisible(bool);
@@ -61,8 +60,8 @@ private:
   int id_;
   static int nextId_;
   static int nextId();
-  QSet<DrawingItemBase *> items_;
-  QSet<DrawingItemBase *> selItems_;
+  QSet<QSharedPointer<DrawingItemBase> > items_;
+  QSet<QSharedPointer<DrawingItemBase> > selItems_;
   bool visible_;
   bool unsavedChanges_;
   QString name_;
@@ -74,32 +73,35 @@ class Layers : public QObject
 public:
   static Layers *instance();
   int size() const;
-  Layer *at(int);
-  Layer *current();
+  QSharedPointer<Layer> at(int);
+  QSharedPointer<Layer> current() const;
   int currentPos() const;
-  void setCurrent(Layer *);
-  Layer *layerFromName(const QString &);
-  Layer *addEmpty();
-  Layer *addDuplicate(Layer *);
-  // Layer *addFromFile(const QString &); // directly from KML file
-  // Layer *addFromName(const QString &); // from setup (indirectly from KML file)
-  void remove(Layer *);
-  void reorder(QList<Layer *>);
-  void mergeIntoFirst(const QList<Layer *> &);
+  void setCurrent(const QSharedPointer<Layer> &);
+  QSharedPointer<Layer> layerFromName(const QString &) const;
+  QString createUniqueName(const QString &) const;
+  QSharedPointer<Layer> addEmpty(bool = true);
+  QSharedPointer<Layer> addDuplicate(const QSharedPointer<Layer> &);
+  // QSharedPointer<Layer> addFromFile(const QString &); // directly from KML file
+  // QSharedPointer<Layer> addFromName(const QString &); // from setup (indirectly from KML file)
+  void remove(const QSharedPointer<Layer> &);
+  void mergeIntoFirst(const QList<QSharedPointer<Layer> > &);
+  void set(const QList<QSharedPointer<Layer> > &, bool = true);
   void update();
 private:
   Layers();
   static Layers *self; // singleton instance pointer
 
-  QList<Layer *> layers_;
-  Layer *currLayer_;
+  QList<QSharedPointer<Layer> > layers_;
+  QSharedPointer<Layer> currLayer_;
 
   void setCurrentPos(int);
 
-  int posFromLayer(Layer *) const;
-  Layer *layerFromId(int);
+  int posFromLayer(const QSharedPointer<Layer> &) const;
+
 signals:
   void updated();
+  void replacedLayers();
+  void addedLayer();
 };
 
 } // namespace

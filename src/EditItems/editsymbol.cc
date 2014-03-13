@@ -74,7 +74,7 @@ bool Symbol::hit(const QRectF &rect) const
 // ### similar to PolyLine::mousePress - move common code to base class?
 void Symbol::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems, bool *multiItemOp)
+    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
 {
   Q_ASSERT(undoCommands);
 
@@ -143,7 +143,7 @@ void Symbol::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void Symbol::remove(bool &repaintNeeded, QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems)
+void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
 {
   // Option 1: remove this item only:
   // items->remove(this);

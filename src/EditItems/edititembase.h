@@ -66,7 +66,7 @@ public:
 
     virtual void mousePress(
         QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<DrawingItemBase *> *items = 0, const QSet<DrawingItemBase *> *selItems = 0, bool *multiItemOp = 0);
+        QSet<QSharedPointer<DrawingItemBase> > *items = 0, const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
@@ -78,7 +78,7 @@ public:
     virtual void mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded);
     virtual void keyPress(
         QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<DrawingItemBase *> *items = 0, const QSet<DrawingItemBase *> *selItems = 0);
+        QSet<QSharedPointer<DrawingItemBase> > *items = 0, const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0);
     virtual void keyRelease(QKeyEvent *event, bool &repaintNeeded);
 
     // Handles other events for an item in the process of being completed (i.e. during manual placement of a new item).
