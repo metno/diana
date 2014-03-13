@@ -3758,9 +3758,11 @@ bool FieldPlot::markExtreme()
             if (ibest==ix && jbest==iy) {
               // mark extreme point
               if ( plotValue ) {
-                int prec = log10(fabs(fpos));
-                std::string fposStr = miutil::from_number(fpos,prec+2);
-                fp->drawStr(fposStr.c_str(),
+                ostringstream ostr;
+                ostr.setf(ios::fixed);
+                ostr.precision( poptions.precision );
+                ostr<<fpos;
+                fp->drawStr(ostr.str().c_str(),
                     gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
               } else {
                 fp->drawStr(pmarks[etype].c_str(),
@@ -3768,9 +3770,11 @@ bool FieldPlot::markExtreme()
                 if ( plotLHValue ) {
                    float fontsize= 18. * poptions.extremeSize;
                    fp->set(poptions.fontname,poptions.fontface,fontsize);
-                   int prec = log10(fabs(fpos));
-                   std::string fposStr = miutil::from_number(fpos,prec+1);
-                   fp->drawStr(fposStr.c_str(),
+                   ostringstream ostr;
+                   ostr.setf(ios::fixed);
+                   ostr.precision( poptions.precision );
+                   ostr<<fpos;
+                   fp->drawStr(ostr.str().c_str(),
                      gx-chrx[etype]*(-0.6),gy-chry[etype]*0.8,0.0);
                 }
                 float fontsize=28. * poptions.extremeSize;
