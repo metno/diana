@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 7.4.15), g++, gfortran,
  metlibs-miraster-dev (>= 5.0.0), metlibs-difield-dev (>= 5.0.0),
  metlibs-pudatatypes-dev (>= 5.0.0),
  metlibs-milogger-dev (>= 5.0.0), metlibs-puctools-dev (>= 5.0.0),
- libboost-date-time-dev, libboost-regex-dev,
+ libboost-date-time-dev, libboost-regex-dev, libboost-thread-dev,
  libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
  libavformat-dev,
  cmake, libgtest-dev
