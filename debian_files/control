@@ -10,7 +10,7 @@ Build-Depends: lsb-release, autoconf (>=2.61), automake (>= 1.10),
  metlibs-qutilities-dev (>= 5.0.0), metlibs-coserver-dev (>= 1.1.0),
  libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev,
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
- libboost-system-dev, libgeotiff-dev, libpng-dev,
+ libboost-system-dev, libboost-thread-dev, libgeotiff-dev, libpng-dev,
  cmake, libgtest-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.7.2
