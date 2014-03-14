@@ -2,7 +2,9 @@ Source: diana
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: debhelper (>= 7.4.15), autotools-dev, perl,
+Build-Depends: debhelper (>= 7.4.15), g++, gfortran,
+ perl, lsb-release, autoconf (>=2.61), automake (>= 1.10),
+ libtool (>= 1.5),
  qt4-qmake-headless, libqt4-headless-dev, libemos-dev,
  metlibs-miraster-dev (>= 5.0.0), metlibs-difield-dev (>= 5.0.0),
  metlibs-pudatatypes-dev (>= 5.0.0),
