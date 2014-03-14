@@ -441,36 +441,37 @@ static QList<QPointF> getOldLatLonPoints(const QString &lonLatPoints, QString *e
 }
 
 // Creates a DrawingItemBase item of the right type from \a props.
-// Upon success, the function leaves \a error empty and returns the new item wrapped in a shared pointer.
-// Upon failure, the function puts a non-empty failure reason in \a error, but may still return an item (invalid in that case).
-QSharedPointer<DrawingItemBase> createItemFromOldProperties(QMap<QString, QString> props, QString *error)
+// Upon success, the function leaves \a error empty and returns a pointer to the new item.
+// Upon failure, the function puts a non-empty failure reason in \a error and returns 0.
+DrawingItemBase *createItemFromOldProperties(QMap<QString, QString> props, QString *error)
 {
   *error = QString();
-  DrawingItemBase *item = 0;
 
   // ensure that mandatory properties exist:
   if (!props.contains("Object")) {
     *error = "no 'Object' property found";
-    return QSharedPointer<DrawingItemBase>();
+    return 0;
   }
   if (!props.contains("LongitudeLatitude")) {
     *error = "no 'LongitudeLatitude' property found";
-    return QSharedPointer<DrawingItemBase>();
+    return 0;
   }
 
   // extract geographic point(s):
   const QList<QPointF> points = getOldLatLonPoints(props.value("LongitudeLatitude"), error);
   if (points.isEmpty()) {
     *error = QString("failed to extract point(s): %1").arg(*error);
-    return QSharedPointer<DrawingItemBase>();
+    return 0;
   }
   if ((props.value("Object") == "Symbol") && (points.size() != 1)) {
     *error = QString("invalid number of points for symbol: %1 (expected 1)").arg(points.size());
-    return QSharedPointer<DrawingItemBase>();
+    return 0;
   } else if ((props.value("Object") != "Symbol") && (points.size() < 2)) {
     *error = QString("invalid number of points for non-symbol: %1 (expected at least 2)").arg(points.size());
-    return QSharedPointer<DrawingItemBase>();
+    return 0;
   }
+
+  DrawingItemBase *item = 0;
 
   // create item based on value of 'Object' property:
   if (props.value("Object") == "Symbol")
@@ -491,7 +492,7 @@ QSharedPointer<DrawingItemBase> createItemFromOldProperties(QMap<QString, QStrin
     styleProps.insert("linecolour", QString(props.value("RGBA")).replace(',', ':'));
   DrawingStyleManager::instance()->setStyle(Drawing(item), styleProps);
 
-  return QSharedPointer<DrawingItemBase>(item);
+  return item;
 }
 
 // Converts \a data from old format to new KML format. Upon success, the function replaces \a data with the converted data and returns true.
@@ -531,7 +532,7 @@ bool convertFromOldFormat(QByteArray &data, QString *error)
         return false;
       }
 
-      const QSharedPointer<DrawingItemBase> item = createItemFromOldProperties(props, error);
+      const QSharedPointer<DrawingItemBase> item(createItemFromOldProperties(props, error));
       if (!error->isEmpty()) {
         *error = QString("failed to create tmp item from properties in old format: %1").arg(*error);
         return false;

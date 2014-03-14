@@ -53,7 +53,7 @@ int DrawingItemBase::nextId()
 DrawingItemBase *DrawingItemBase::clone() const
 {
   DrawingItemBase *item = cloneSpecial();
-  item->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(item));
+  item->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*item));
   item->setProperties(properties());
   return item;
 }

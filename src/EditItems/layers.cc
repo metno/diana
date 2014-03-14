@@ -47,7 +47,7 @@ Layer::Layer(const Layer &other)
   , unsavedChanges_(false)
   , name_(QString("copy of %1").arg(other.name()))
 {
-  foreach (QSharedPointer<DrawingItemBase> item, other.items_)
+  foreach (const QSharedPointer<DrawingItemBase> item, other.items_)
     items_.insert(QSharedPointer<DrawingItemBase>(item->clone()));
 }
 

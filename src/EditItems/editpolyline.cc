@@ -294,7 +294,7 @@ void PolyLine::setPoints(const QList<QPointF> &points)
 void PolyLine::addPoint()
 {
     points_.insert(hitLineIndex_ + 1, hitLinePos_);
-    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(this));
+    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
 
     updateControlPoints();
 }

@@ -84,8 +84,8 @@ public:
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
-  QList<QPointF> getLatLonPoints(DrawingItemBase* item) const;
-  void setFromLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints);
+  QList<QPointF> getLatLonPoints(const DrawingItemBase &item) const;
+  void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
@@ -113,7 +113,7 @@ public:
     }
 
     item->setProperties(vmap);
-    setFromLatLonPoints(Drawing(item), Drawing(item)->getLatLonPoints());
+    setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
     return item;
   }
 

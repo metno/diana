@@ -238,7 +238,7 @@ bool DrawingManager::loadItems(const QString &fileName)
   // initialize screen coordinates from lat/lon
   foreach (QSharedPointer<EditItems::Layer> layer, layers) {
     foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
-      setFromLatLonPoints(item.data(), item->getLatLonPoints());
+      setFromLatLonPoints(*item, item->getLatLonPoints());
     }
   }
 
@@ -258,9 +258,9 @@ void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
   CurrentLayer->itemsRef().remove(item);
 }
 
-QList<QPointF> DrawingManager::getLatLonPoints(DrawingItemBase* item) const
+QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
 {
-  QList<QPointF> points = item->getPoints();
+  const QList<QPointF> points = item.getPoints();
   return PhysToGeo(points);
 }
 
@@ -286,10 +286,10 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setFromLatLonPoints(DrawingItemBase* item, const QList<QPointF> &latLonPoints)
+void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints)
 {
   QList<QPointF> points = GeoToPhys(latLonPoints);
-  item->setPoints(points);
+  item.setPoints(points);
 }
 
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
@@ -432,7 +432,7 @@ void DrawingManager::plot(bool under, bool over)
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
         if (item->property("visible", true).toBool()) {
           applyPlotOptions(item);
-          setFromLatLonPoints(item.data(), item->getLatLonPoints());
+          setFromLatLonPoints(*item, item->getLatLonPoints());
           item->draw();
         }
       }

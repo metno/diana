@@ -253,20 +253,20 @@ void EditItemManager::initNewItem(DrawingItemBase *item)
 
 void EditItemManager::storeItems(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
     // Convert the item's screen coordinates to geographic coordinates.
-    item->setLatLonPoints(getLatLonPoints(item.data()));
+    item->setLatLonPoints(getLatLonPoints(*item));
     removeItem_(item);
   }
 }
 
 void EditItemManager::retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
     // The items stored on the undo stack have been given geographic
     // coordinates, so we use those to obtain screen coordinates.
     if (!item->getLatLonPoints().isEmpty())
-      setFromLatLonPoints(item.data(), item->getLatLonPoints());
+      setFromLatLonPoints(*item, item->getLatLonPoints());
     addItem_(item);
   }
 }
@@ -341,7 +341,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
         // send the mouse press to other selected items
         // (note that these are not allowed to modify item sets, nor requesting items to be copied,
         // nor does it make sense for them to flag the event as the beginning of a potential multi-item operation)
-        foreach (QSharedPointer<DrawingItemBase> item, selItems)
+        foreach (const QSharedPointer<DrawingItemBase> item, selItems)
           if (item != hitItem) {
             rpn = false;
             Editing(item.data())->mousePress(event, rpn, &undoCommands);
@@ -375,7 +375,7 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
   bool aborted = false;
   Editing(incompleteItem_.data())->incompleteMousePress(event, rpn, completed, aborted);
   // Record geographic coordinates for the item as they are added to it.
-  incompleteItem_->setLatLonPoints(getLatLonPoints(incompleteItem_.data()));
+  incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
   if (completed)
     completeEditing();
   else {
@@ -399,7 +399,7 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
   QList<QUndoCommand *> undoCommands;
 
   // send to selected items
-  foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef())
+  foreach (const QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef())
     Editing(item.data())->mouseRelease(event, repaintNeeded_, &undoCommands);
 
   const bool modifiedItems = !undoCommands.empty();
@@ -466,9 +466,9 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     }
   } else {
     // send move event to all selected items
-    foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef()) {
+    foreach (const QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef()) {
       Editing(item.data())->mouseMove(event, rpn);
-      item->setLatLonPoints(getLatLonPoints(item.data()));
+      item->setLatLonPoints(getLatLonPoints(*item));
       if (rpn) repaintNeeded_ = true;
     }
   }
@@ -488,7 +488,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
   if (hover) {
     bool rpn = false;
     Editing(incompleteItem_.data())->incompleteMouseHover(event, rpn);
-    incompleteItem_->setLatLonPoints(getLatLonPoints(incompleteItem_.data()));
+    incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
     if (rpn) repaintNeeded_ = true;
     if (Editing(incompleteItem_.data())->hit(event->pos(), false))
       hoverItem_ = incompleteItem_;
@@ -531,7 +531,7 @@ void EditItemManager::incompleteMouseDoubleClick(QMouseEvent *event)
 
 static QSharedPointer<DrawingItemBase> idToItem(const QSet<QSharedPointer<DrawingItemBase> > &items, int id)
 {
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
     if (id == item->id())
       return item;
   }
@@ -551,7 +551,7 @@ void EditItemManager::keyPress(QKeyEvent *event)
 
   const QSet<QSharedPointer<DrawingItemBase> > origSelItems(selItems);
   QSet<int> origSelIds;
-  foreach (QSharedPointer<DrawingItemBase> item, origSelItems)
+  foreach (const QSharedPointer<DrawingItemBase> item, origSelItems)
     origSelIds.insert(item->id());
 
   QSet<QSharedPointer<DrawingItemBase> > addedItems;
@@ -615,7 +615,7 @@ void EditItemManager::keyRelease(QKeyEvent *event)
   repaintNeeded_ = false; // whether at least one item needs to be repainted after processing the event
 
   // send to selected items
-  foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef()) {
+  foreach (const QSharedPointer<DrawingItemBase> item, CurrentLayer->selectedItemsRef()) {
     bool rpn = false;
     Editing(item.data())->keyRelease(event, rpn);
     if (rpn)
@@ -665,14 +665,14 @@ void EditItemManager::plot(bool under, bool over)
             modes |= EditItemBase::Hovered;
           if (item->property("visible", true).toBool()) {
             applyPlotOptions(item);
-            setFromLatLonPoints(item.data(), item->getLatLonPoints());
+            setFromLatLonPoints(*item, item->getLatLonPoints());
             Editing(item.data())->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
           }
         }
       }
     }
     if (hasIncompleteItem()) { // note that only complete items may be selected
-      setFromLatLonPoints(incompleteItem_.data(), incompleteItem_->getLatLonPoints());
+      setFromLatLonPoints(*incompleteItem_, incompleteItem_->getLatLonPoints());
       Editing(incompleteItem_.data())->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
     }
     emit paintDone();
@@ -721,7 +721,7 @@ bool EditItemManager::canRedo() const
 QSet<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPointF &pos) const
 {
   QSet<QSharedPointer<DrawingItemBase> > hitItems;
-  foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
+  foreach (const QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
     if (item->property("visible", false).toBool() == false)
       continue;
     if (Editing(item.data())->hit(pos, CurrentLayer->selectedItemsRef().contains(item)))
@@ -884,9 +884,9 @@ bool EditItemManager::loadItems(const QString &fileName)
   }
 
   // initialize screen coordinates from lat/lon
-  foreach (QSharedPointer<EditItems::Layer> layer, layers) {
-    foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
-      setFromLatLonPoints(item.data(), item->getLatLonPoints());
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    foreach(const QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
+      setFromLatLonPoints(*item, item->getLatLonPoints());
     }
   }
 
@@ -956,7 +956,7 @@ void EditItemManager::copyItems(const QSet<QSharedPointer<DrawingItemBase> > &it
   text += QString("Number of items: %1\n").arg(items.size());
   QVariantList cbItems;
 
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items) {
     cbItems.append(Editing(item.data())->clipboardVarMap());
     text += QString("%1\n").arg(Editing(item.data())->clipboardPlainText());
   }
@@ -1138,7 +1138,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
         QVariantList data;
         QVariantList styleItems;
-        foreach (QSharedPointer<DrawingItemBase> styleItem, getSelectedItems())
+        foreach (const QSharedPointer<DrawingItemBase> styleItem, getSelectedItems())
           styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
         data.append(QVariant(styleItems));
         data.append(styleName);

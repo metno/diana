@@ -253,7 +253,14 @@ void EditItemBase::keyPress(
         QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
 {
     if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        items->remove(QSharedPointer<DrawingItemBase>(Drawing(this)));
+        QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
+        while (it != items->end()) {
+            if ((*it).data() == Drawing(this)) {
+                it = items->erase(it);
+            } else {
+                ++it;
+            }
+        }
     } else if (
                (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
                ((event->key() == Qt::Key_Left)
