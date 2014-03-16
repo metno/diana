@@ -368,7 +368,7 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
     // highlight the polyline
     glPushAttrib(GL_LINE_BIT);
     bool ok = false;
-    const int lineWidth = properties().value("style:lineWidth").toInt(&ok);
+    const int lineWidth = properties().value("style:linewidth").toInt(&ok);
     glLineWidth(ok ? lineWidth : 2);
     styleManager->drawLines(this, points_, 1);
     glPopAttrib();
