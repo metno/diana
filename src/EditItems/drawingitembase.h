@@ -85,7 +85,7 @@ public:
   virtual void draw() = 0;
 
   // Returns the item's KML representation.
-  virtual QDomNode toKML() const;
+  virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
 
 protected:
   virtual DrawingItemBase *cloneSpecial() const = 0;
@@ -98,7 +98,7 @@ private:
   static int nextId_;
   int nextId();
 
-  QDomElement createExtDataElement(QDomDocument &) const;
+  QDomElement createExtDataElement(QDomDocument &, const QHash<QString, QString> &) const;
   QDomElement createPointOrPolygonElement(QDomDocument &) const;
   QDomElement createTimeSpanElement(QDomDocument &) const;
   QDomElement createPlacemarkElement(QDomDocument &) const;

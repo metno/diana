@@ -226,6 +226,11 @@ void Layers::mergeIntoFirst(const QList<QSharedPointer<Layer> > &layers)
   }
 }
 
+QList<QSharedPointer<Layer> > Layers::layers() const
+{
+  return layers_;
+}
+
 void Layers::set(const QList<QSharedPointer<Layer> > &layers, bool notify)
 {
   layers_ = layers;

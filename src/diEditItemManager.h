@@ -55,7 +55,7 @@ class EditItemManager : public DrawingManager
 
 public:
     enum Action {
-      Cut, Copy, Paste, EditProperties, EditStyle, Load, Save, Undo, Redo, Select,
+      Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
       CreatePolyLine, CreateSymbol, CreateText, CreateComposite
     };
 
@@ -105,7 +105,6 @@ public slots:
     void setStyleType() const;
     void keyPress(QKeyEvent *);
     void keyRelease(QKeyEvent *);
-    bool loadItems(const QString &fileName);
     void mouseDoubleClick(QMouseEvent *);
     void mouseMove(QMouseEvent *);
     void mousePress(QMouseEvent *);
@@ -114,7 +113,6 @@ public slots:
     void redo();
     void repaint();
     void reset();
-    void saveItemsToFile();
     void selectItem(const QSharedPointer<DrawingItemBase> &);
     void setSelectMode();
     void undo();
@@ -123,7 +121,6 @@ public slots:
     virtual void setWorking(bool enable);
 
 private slots:
-    void loadItemsFromFile();
     void setCreatePolyLineMode();
     void setCreateSymbolMode();
     void setCreateTextMode();
@@ -150,6 +147,7 @@ protected:
 
 private slots:
     void initNewItem(DrawingItemBase *item);
+    void handleLayersUpdate();
 
 private:
     QSharedPointer<DrawingItemBase> hoverItem_;
@@ -164,8 +162,6 @@ private:
     QAction* pasteAction;
     QAction* editPropertiesAction;
     QAction* editStyleAction;
-    QAction* loadAction;
-    QAction* saveAction;
     QAction* undoAction;
     QAction* redoAction;
     QAction* selectAction;

@@ -49,7 +49,9 @@
 // API for saving/loading to/from KML files.
 namespace KML {
 
-void saveToFile(const QString &fileName, const QSet<QSharedPointer<DrawingItemBase> > &items, const QSet<QSharedPointer<DrawingItemBase> > &selItems, QString *error);
+void saveToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error);
+
+QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
 
 int findGroupId(const QDomNode &, bool &, QString *);
 
@@ -182,11 +184,6 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
       *error = "found <coordinates> element not associated with a met:groupId";
       return QList<QSharedPointer<EditItems::Layer> >();
     }
-  }
-
-  if (items.isEmpty()) {
-    *error = "no items found";
-    return QList<QSharedPointer<EditItems::Layer> >();
   }
 
 

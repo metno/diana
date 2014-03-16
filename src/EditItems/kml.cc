@@ -42,7 +42,7 @@
 namespace KML {
 
 // Finalizes KML document \a doc and returns a textual representation of it.
-static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &itemsFrag)
+static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &innerStruct)
 {
   // add <kml> root element
   QDomElement kmlElem = doc.createElement("kml");
@@ -53,12 +53,10 @@ static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &i
   QDomElement docElem = doc.createElement("Document");
   kmlElem.appendChild(docElem);
 
-  // NOTE: We don't support styling for now, so styling elements will not be written
+  // compress innerStruct if necessary (so represent identical <Folder> elements as one <Folder> element for items etc.) ... TBD
 
-  // compress itemsFrag if necessary (so represent identical <Folder> elements as one <Folder> element etc.) ... TBD
-
-  // add structures of individual items
-  docElem.appendChild(itemsFrag);
+  // add inner structure
+  docElem.appendChild(innerStruct);
 
   QByteArray kml;
   kml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"); // XML declaration
@@ -67,38 +65,37 @@ static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &i
   return kml;
 }
 
-
-// Saves selected items \a selItems to \a fileName.
-//
-// NOTE: All members of the selected groups (i.e. groups represented by at least one selected item) will be saved.
-// (A group is a set of items with a common value for the "groupId" property.)
-//
+// Saves a list of \a layers to \a fileName.
 // The function leaves \a error empty iff it succeeds.
-void saveToFile(const QString &fileName, const QSet<QSharedPointer<DrawingItemBase> > &items, const QSet<QSharedPointer<DrawingItemBase> > &selItems, QString *error)
+void saveToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error)
 {
-  Q_ASSERT(false);
-
-  *error = QString(); // ### use error in this function instead of all the Q_ASSERTs!
+  *error = QString();
   QDomDocument doc;
 
-  // find selected groups (groups for which at least one member is in \a selItems)
-  QSet<int> selGroups;
-  foreach (const QSharedPointer<DrawingItemBase> selItem, selItems)
-    selGroups.insert(selItem->groupId());
+  QDomDocumentFragment innerStruct = doc.createDocumentFragment();
 
-  // document fragment to keep structures of individual items:
-  QDomDocumentFragment itemsFrag = doc.createDocumentFragment();
+  // insert layers
+  QDomElement layersElem = doc.createElement("ExtendedData");
+  int layerIndex = 0;
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    layersElem.appendChild(KML::createExtDataDataElement(doc, QString("met:layer:%1:name").arg(layerIndex), layer->name()));
+    layersElem.appendChild(KML::createExtDataDataElement(doc, QString("met:layer:%1:visible").arg(layerIndex), layer->isVisible() ? "true" : "false"));
+    layerIndex++;
+  }
+  innerStruct.appendChild(layersElem);
 
-  // loop over \a items and insert the KML for each item that is a member of a selected group
-  foreach (const QSharedPointer<DrawingItemBase> item, items) {
-    if (!selGroups.contains(item->groupId()))
-      continue; // skip this item since its group is not represented among the selected items
-
-    // append structure of this item:
-    itemsFrag.appendChild(item->toKML());
+  // insert items
+  layerIndex = 0;
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    foreach (const QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
+      QHash<QString, QString> extraExtData;
+      extraExtData.insert("layerId", QString::number(layerIndex));
+      innerStruct.appendChild(item->toKML(extraExtData));
+    }
+    layerIndex++;
   }
 
-  const QByteArray kmlText = createKMLText(doc, itemsFrag);
+  const QByteArray kmlText = createKMLText(doc, innerStruct);
 
   // save KML text to file
   QFile file(fileName);
@@ -113,6 +110,15 @@ void saveToFile(const QString &fileName, const QSet<QSharedPointer<DrawingItemBa
   file.close();
 }
 
+QDomElement createExtDataDataElement(QDomDocument &doc, const QString &name, const QString &value)
+{
+  QDomElement valueElem = doc.createElement("value");
+  valueElem.appendChild(doc.createTextNode(value));
+  QDomElement dataElem = doc.createElement("Data");
+  dataElem.setAttribute("name", name);
+  dataElem.appendChild(valueElem);
+  return dataElem;
+}
 
 // Returns the met:groupId value associated with \a node. Sets \a found to true iff a value is found.
 // Leaves \a error empty iff no errors occurs.

@@ -85,6 +85,7 @@ public:
   // QSharedPointer<Layer> addFromName(const QString &); // from setup (indirectly from KML file)
   void remove(const QSharedPointer<Layer> &);
   void mergeIntoFirst(const QList<QSharedPointer<Layer> > &);
+  QList<QSharedPointer<Layer> > layers() const;
   void set(const QList<QSharedPointer<Layer> > &, bool = true);
   void update();
 private:

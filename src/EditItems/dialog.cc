@@ -33,6 +33,11 @@
 #include "diController.h"
 #include <EditItems/dialog.h>
 #include <EditItems/toolbar.h>
+#include <EditItems/kml.h>
+#include <EditItems/editpolyline.h>
+#include <EditItems/editsymbol.h>
+#include <EditItems/edittext.h>
+#include <EditItems/editcomposite.h>
 
 #include <paint_mode.xpm> // ### for now
 #include "addempty.xpm"
@@ -40,6 +45,7 @@
 #include "edit.xpm"
 #include "empty.xpm"
 #include "fileopen.xpm"
+#include "filesave.xpm"
 #include "hideall.xpm"
 #include "mergevisible.xpm"
 #include "movedown.xpm"
@@ -250,7 +256,7 @@ QWidget *Dialog::createAvailableLayersPane()
 
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   bottomLayout->addWidget(importFilesButton_ = createToolButton(QPixmap(movedown_xpm), "Import files as layer", SLOT(importChosenFiles())));
-  bottomLayout->addWidget(loadFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Open file", SLOT(loadFile())));
+  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   QVBoxLayout *layout = new QVBoxLayout(groupBox);
   layout->setContentsMargins(0, 2, 0, 2);
@@ -288,6 +294,8 @@ QWidget *Dialog::createActiveLayersPane()
   bottomLayout->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", SLOT(moveCurrentUp())));
   bottomLayout->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", SLOT(moveCurrentDown())));
   bottomLayout->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the current layer", SLOT(editCurrent())));
+  bottomLayout->addWidget(replaceAllFromFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Replace all layers from file", SLOT(replaceAllLayersFromFile())));
+  bottomLayout->addWidget(saveAllToFileButton_ = createToolButton(QPixmap(filesave), "Save all layers to file", SLOT(saveAllLayersToFile())));
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   mainLayout->addLayout(bottomLayout);
@@ -796,16 +804,70 @@ void Dialog::importChosenFiles()
   QApplication::restoreOverrideCursor();
 }
 
-void Dialog::loadFile()
+void Dialog::replaceAllLayersFromFile()
 {
   const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"),
     DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isNull())
+  if (fileName.isEmpty())
     return;
 
+  QString error;
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  EditItemManager::instance()->loadItems(fileName);
+  replaceAllLayersFromFile(fileName, &error);
   QApplication::restoreOverrideCursor();
+
+  if (!error.isEmpty())
+    QMessageBox::warning(0, "Error", QString("failed to replace layers from file %1: %2").arg(fileName).arg(error));
+}
+
+void Dialog::saveAllLayersToFile() const
+{
+  const QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
+    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml);; All files (*)"));
+  if (fileName.isEmpty())
+    return;
+
+  QString error;
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  saveAllLayersToFile(fileName, &error);
+  QApplication::restoreOverrideCursor();
+
+  if (!error.isEmpty())
+    QMessageBox::warning(0, "Error", QString("failed to save layers to file %1: %2").arg(fileName).arg(error));
+}
+
+// Replaces all existing layers from file. Passes a non-empty reason in \a error iff the operation fails.
+void Dialog::replaceAllLayersFromFile(const QString &fileName, QString *error)
+{
+  *error = QString();
+
+  // parse file and create item layers
+  const QList<QSharedPointer<Layer> > layers = \
+      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, error);
+
+  if (!error->isEmpty())
+    return;
+
+  // initialize screen coordinates from lat/lon
+  foreach (const QSharedPointer<Layer> layer, layers) {
+    foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
+      DrawingManager::instance()->setFromLatLonPoints(*item, item->getLatLonPoints());
+    }
+  }
+
+  // set layers (replacing any existing ones)
+  Layers::instance()->set(layers);
+
+//  drawings_.insert(fileName);
+//  loaded_.insert(fileName);
+}
+
+// Saves all existing layers to file. Passes a non-empty reason in \a error iff the operation fails.
+void Dialog::saveAllLayersToFile(const QString &fileName, QString *error) const
+{
+  *error = QString();
+  KML::saveToFile(fileName, Layers::instance()->layers(), error);
 }
 
 void Dialog::handleLayersUpdated()

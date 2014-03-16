@@ -138,7 +138,8 @@ private:
   QToolButton *moveCurrentDownButton_;
   QToolButton *editCurrentButton_;
   QToolButton *importFilesButton_;
-  QToolButton *loadFileButton_;
+  QToolButton *replaceAllFromFileButton_;
+  QToolButton *saveAllToFileButton_;
   QToolButton *createToolButton(const QIcon &, const QString &, const char *) const;
 
   EditItemManager *editm_;
@@ -168,6 +169,8 @@ private:
   QList<LayerWidget *> allLayerWidgets();
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &);
   void toggleEditingMode(bool);
+  void replaceAllLayersFromFile(const QString &, QString *);
+  void saveAllLayersToFile(const QString &, QString *) const;
 
 private slots:
   void updateButtons();
@@ -188,7 +191,8 @@ private slots:
   void editCurrent();
   void handleLayersStateUpdate();
   void importChosenFiles();
-  void loadFile();
+  void replaceAllLayersFromFile();
+  void saveAllLayersToFile() const;
   void handleLayersUpdated();
 
 private:

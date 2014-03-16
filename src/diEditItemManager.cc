@@ -91,10 +91,6 @@ EditItemManager::EditItemManager()
     editPropertiesAction->setShortcut(tr("Ctrl+R"));
     editStyleAction = new QAction(tr("Edit Style..."), this);
     //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
-    loadAction = new QAction(tr("&Load..."), this);
-    loadAction->setShortcut(tr("Ctrl+L"));
-    saveAction = new QAction(tr("&Save..."), this);
-    saveAction->setShortcut(tr("Ctrl+S"));
     undoAction = undoStack_.createUndoAction(this);
     redoAction = undoStack_.createRedoAction(this);
 
@@ -121,15 +117,13 @@ EditItemManager::EditItemManager()
     connect(editPropertiesAction, SIGNAL(triggered()), SLOT(editProperties()));
     connect(editStyleAction, SIGNAL(triggered()), SLOT(editStyle()));
     connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
-    connect(loadAction, SIGNAL(triggered()), SLOT(loadItemsFromFile()));
-    connect(saveAction, SIGNAL(triggered()), SLOT(saveItemsToFile()));
     connect(selectAction, SIGNAL(triggered()), SLOT(setSelectMode()));
     connect(createPolyLineAction, SIGNAL(triggered()), SLOT(setCreatePolyLineMode()));
     connect(createSymbolAction, SIGNAL(triggered()), SLOT(setCreateSymbolMode()));
     connect(createTextAction, SIGNAL(triggered()), SLOT(setCreateTextMode()));
     connect(createCompositeAction, SIGNAL(triggered()), SLOT(setCreateCompositeMode()));
 
-    connect(EditItems::Layers::instance(), SIGNAL(updated()), SLOT(repaint()));
+    connect(EditItems::Layers::instance(), SIGNAL(updated()), SLOT(handleLayersUpdate()));
 
     setSelectMode();
 }
@@ -802,8 +796,6 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
   a[Paste] = pasteAction;
   a[EditProperties] = editPropertiesAction;
   a[EditStyle] = editStyleAction;
-  a[Load] = loadAction;
-  a[Save] = saveAction;
   a[Undo] = undoAction;
   a[Redo] = redoAction;
   a[Select] = selectAction;
@@ -852,73 +844,6 @@ void EditItemManager::setStyleType() const
   }
 }
 
-void EditItemManager::loadItemsFromFile()
-{
-    // select file
-    const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml);; All files (*)"));
-    if (fileName.isNull())
-        return; // operation cancelled
-
-    loadItems(fileName);
-}
-
-bool EditItemManager::loadItems(const QString &fileName)
-{
-  // parse file and create item layers
-  QString error;
-  QList<QSharedPointer<EditItems::Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
-
-  if (!error.isEmpty()) {
-    QMessageBox::warning(
-          0, "Error", QString("failed to create items from file %1: %2")
-          .arg(fileName).arg(error));
-    return false;
-  }
-  if (layers.isEmpty()) {
-    QMessageBox::warning(
-          0, "Warning", QString("file contained no items: %1")
-          .arg(fileName));
-    return false;
-  }
-
-  // initialize screen coordinates from lat/lon
-  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    foreach(const QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
-      setFromLatLonPoints(*item, item->getLatLonPoints());
-    }
-  }
-
-  // set layers (replacing any existing ones)
-  EditItems::Layers::instance()->set(layers);
-
-  drawings_.insert(fileName);
-  loaded_.insert(fileName);
-
-  updateActionsAndTimes();
-  repaint();
-
-  return true;
-}
-
-void EditItemManager::saveItemsToFile()
-{
-    // select file
-    const QString fileName = QFileDialog::getSaveFileName(0, tr("Open File"), getWorkDir(), tr("KML files (*.kml)"));
-    if (fileName.isNull())
-        return; // operation cancelled
-
-    QString error;
-    KML::saveToFile(fileName, getItems(), getSelectedItems(), &error);
-    if (!error.isEmpty()) {
-      QMessageBox::warning(
-          0, "Error", QString("failed to save items to file %1: %2")
-          .arg(fileName).arg(error));
-      return;
-    }
-}
-
 void EditItemManager::updateActions()
 {
     cutAction->setEnabled(getSelectedItems().size() > 0);
@@ -943,6 +868,12 @@ void EditItemManager::updateActionsAndTimes()
 {
   updateActions();
   updateTimes();
+}
+
+void EditItemManager::handleLayersUpdate()
+{
+  updateActionsAndTimes();
+  repaint();
 }
 
 // Clipboard operations
@@ -1150,9 +1081,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       contextMenu.addMenu(&styleTypeMenu);
 
       contextMenu.addSeparator();
-      contextMenu.addAction(loadAction);
-      contextMenu.addAction(saveAction);
-      saveAction->setEnabled(getSelectedItems().size() > 0);
       if (!hitItemActions.isEmpty()) {
         contextMenu.addSeparator();
         foreach (QAction *action, hitItemActions)
@@ -1227,10 +1155,6 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       pasteItems();
     else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
       editProperties();
-    else if (loadAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      loadItemsFromFile();
-    else if (saveAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      saveItemsToFile();
     else
       event->ignore();
   }

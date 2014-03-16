@@ -32,6 +32,7 @@
 #include <EditItems/drawingitembase.h>
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
+#include <EditItems/kml.h>
 
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
@@ -145,30 +146,23 @@ void DrawingItemBase::setLatLonPoints(const QList<QPointF> &points)
     latLonPoints_ = points;
 }
 
-
 // Returns a new <ExtendedData> element.
-QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc) const
+QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash<QString, QString> &extra) const
 {
   QDomElement extDataElem = doc.createElement("ExtendedData");
 
-  {
-    QDomElement valueElem = doc.createElement("value");
-    valueElem.appendChild(doc.createTextNode(QString::number(groupId())));
-    QDomElement dataElem = doc.createElement("Data");
-    dataElem.setAttribute("name", "met:groupId");
-    dataElem.appendChild(valueElem);
-    extDataElem.appendChild(dataElem);
+  // group ID
+  extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:groupId", QString::number(groupId())));
+
+  // style properties
+  foreach (const QString key, properties_.keys()) {
+    if (key.startsWith("style:"))
+      extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), properties_.value(key).toString()));
   }
 
-  foreach (QString key, properties_.keys()) {
-    if (key.startsWith("style:")) {
-      QDomElement valueElem = doc.createElement("value");
-      valueElem.appendChild(doc.createTextNode(properties_.value(key).toString()));
-      QDomElement dataElem = doc.createElement("Data");
-      dataElem.setAttribute("name", QString("met:%1").arg(key));
-      dataElem.appendChild(valueElem);
-      extDataElem.appendChild(dataElem);
-    }
+  // extra data
+  foreach (const QString key, extra.keys()) {
+    extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), extra.value(key)));
   }
 
   return extDataElem;
@@ -234,10 +228,10 @@ QDomElement DrawingItemBase::createPlacemarkElement(QDomDocument &doc) const
   return placemarkElem;
 }
 
-QDomNode DrawingItemBase::toKML() const
+QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QDomDocument doc;
-  QDomElement extDataElem = createExtDataElement(doc);
+  QDomElement extDataElem = createExtDataElement(doc, extraExtData);
   QDomElement popElem = createPointOrPolygonElement(doc);
   QDomElement finalElem;
 
