@@ -41,9 +41,12 @@ public:
   Symbol();
   virtual ~Symbol();
   virtual QDomNode toKML() const;
+
 protected:
   int size_; // length (in pixels) of each side in the bounding square
   QList<QPointF> boundingSquare() const;
+  virtual void draw();
+
 private:
   virtual DrawingItemBase *cloneSpecial() const
   {
@@ -51,7 +54,6 @@ private:
     Q_ASSERT(false);
     return 0;
   }
-  virtual void draw();
   QString name;
 };
 

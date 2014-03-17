@@ -491,13 +491,7 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   }
 
   if (!found) {
-    QSvgRenderer renderer(symbols.value(name));
-    image = QImage(width, height, QImage::Format_ARGB32);
-    image.fill(QColor(0, 0, 0, 0).rgba());
-    QPainter painter;
-    painter.begin(&image);
-    renderer.render(&painter);
-    painter.end();
+    image = getSymbolImage(name, width, height);
 
     texture = glctx->bindTexture(image.mirrored());
     symbolTextures[name] = texture;
@@ -508,6 +502,24 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   glEnable(GL_BLEND);
   glctx->drawTexture(QPointF(x, y), texture);
   glPopAttrib();
+}
+
+QStringList DrawingManager::symbolNames() const
+{
+  return symbols.keys();
+}
+
+QImage DrawingManager::getSymbolImage(const QString &name, int width, int height)
+{
+  QSvgRenderer renderer(symbols.value(name));
+  QImage image(width, height, QImage::Format_ARGB32);
+  image.fill(QColor(0, 0, 0, 0).rgba());
+  QPainter painter;
+  painter.begin(&image);
+  renderer.render(&painter);
+  painter.end();
+
+  return image;
 }
 
 void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &item) const

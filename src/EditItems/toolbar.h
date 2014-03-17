@@ -53,6 +53,8 @@ private:
 
   QAction *polyLineAction;
   QComboBox *polyLineCombo;
+  QAction *symbolAction;
+  QComboBox *symbolCombo;
 };
 
 } // namespace

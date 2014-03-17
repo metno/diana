@@ -121,6 +121,8 @@ public:
 
   // Resource handling
   void drawSymbol(const QString &name, float x, float y, int width, int height);
+  QStringList symbolNames() const;
+  QImage getSymbolImage(const QString &name, int width, int height);
 
   // Dialog-related methods
   QSet<QString> &getDrawings();
@@ -149,7 +151,7 @@ private:
   GridConverter gc;
   QString workDir;
 
-  QHash<QString, QByteArray> symbols;
+  QMap<QString, QByteArray> symbols;
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;

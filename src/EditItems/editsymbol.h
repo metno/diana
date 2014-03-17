@@ -47,6 +47,9 @@ public:
   Symbol();
   virtual ~Symbol();
 
+protected:
+  virtual void draw();
+
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
@@ -54,6 +57,7 @@ private:
   virtual bool hit(const QRectF &) const;
 
   virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
+  virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands);
 
   virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);

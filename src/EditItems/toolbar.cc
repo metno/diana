@@ -66,6 +66,7 @@ ToolBar::ToolBar(QWidget *parent)
   // Create a combo box containing specific polyline types.
   polyLineCombo = new QComboBox();
   connect(polyLineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setPolyLineType(int)));
+  connect(polyLineCombo, SIGNAL(currentIndexChanged(int)), polyLineAction, SLOT(trigger()));
   addWidget(polyLineCombo);
 
   DrawingStyleManager *dsm = DrawingStyleManager::instance();
@@ -80,12 +81,34 @@ ToolBar::ToolBar(QWidget *parent)
   polyLineCombo->setCurrentIndex(0);
 
   // *** create symbol ***
-  addAction(actions[EditItemManager::CreateSymbol]);
+  symbolAction = actions[EditItemManager::CreateSymbol];
+  addAction(symbolAction);
   actionGroup->addAction(actions[EditItemManager::CreateSymbol]);
+
+  // Create a combo box containing specific symbols.
+  symbolCombo = new QComboBox();
+  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setsymbolType(int)));
+  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), symbolAction, SLOT(trigger()));
+  addWidget(symbolCombo);
+
+  DrawingManager *dm = DrawingManager::instance();
+
+  // Create an entry for each style. Use the name as an internal identifier
+  // since we may decide to use tr() on the visible name at some point.
+
+  foreach (QString name, dm->symbolNames()) {
+    QIcon icon(QPixmap::fromImage(dm->getSymbolImage(name, 32, 32)));
+    symbolCombo->addItem(icon, name, name);
+  }
+
+  symbolCombo->setCurrentIndex(0);
 
   // *** create text ***
   addAction(actions[EditItemManager::CreateText]);
   actionGroup->addAction(actions[EditItemManager::CreateText]);
+
+  // Select the first action in the group by default.
+  actionGroup->actions().at(0)->trigger();
 }
 
 void ToolBar::setPolyLineType(int index)

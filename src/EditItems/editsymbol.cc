@@ -103,6 +103,14 @@ void Symbol::mousePress(
   }
 }
 
+void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+{
+  if (resizing_)
+    repaintNeeded = true;
+
+  EditItemBase::mouseRelease(event, repaintNeeded, undoCommands);
+}
+
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   if (event->button() == Qt::LeftButton) {
@@ -173,6 +181,34 @@ void Symbol::drawHoverHighlighting(bool incomplete) const
     glEnd();
     glPopAttrib();
   }
+}
+
+/**
+ * Override the draw method in the corresponding drawing class to only draw
+ * the bounding rectangle when resizing.
+ */
+void Symbol::draw()
+{
+  if (points_.isEmpty())
+    return;
+
+  if (resizing_) {
+    // Draw the bounding box instead of the symbol because it can be expensive
+    // to render the SVG for every single intermediate size during the
+    // resizing process.
+    const QList<QPointF> bbox = boundingSquare();
+
+    glColor3ub(255, 0, 0);
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(2);
+    glBegin(GL_LINE_LOOP);
+    foreach (QPointF p, boundingSquare())
+      glVertex3i(p.x(), p.y(), 1);
+    glEnd();
+    glPopAttrib();
+
+  } else
+    DrawingItem_Symbol::Symbol::draw();
 }
 
 } // namespace EditItem_Symbol
