@@ -114,11 +114,25 @@ common_cxx_sources += \
 	vcross_v2/diVcrossPlot.cc \
 	vcross_v2/diVcrossSetup.cc \
 	vcross_v2/diVcrossSource.cc \
-	vcross_v2/diVcrossUtil.cc
+	vcross_v2/diVcrossUtil.cc \
+	vcross_v2/VcrossSetup.cc \
+	vcross_v2/VcrossComputer.cc \
+	vcross_v2/VcrossCollector.cc \
+	vcross_v2/VcrossEvaluate.cc \
+	vcross_v2/VcrossResolver.cc \
+	vcross_v2/VcrossOptions.cc \
+	vcross_v2/VcrossQtContour.cc \
+	vcross_v2/VcrossQtManager.cc \
+	vcross_v2/VcrossQtPaint.cc \
+	vcross_v2/VcrossQtPlot.cc \
+	vcross_v2/VcrossQtUtil.cc \
+	vcross_v2/VcrossQtAxis.cc 
+
 common_ldadd += \
 	$(BOOST_REGEX_LIBS)
 else
 common_cppflags += -Ivcross_v1 -Ivcross_qt
+
 common_cxx_sources += \
 	vcross_v1/diVcross1Field.cc \
 	vcross_v1/diVcross1File.cc \
@@ -197,14 +211,16 @@ diana_qt_sources = \
 	qtVprofSetupDialog.cc \
 	qtVprofWidget.cc \
 	qtVprofWindow.cc \
-	qtWorkArea.cc
+	qtWorkArea.cc 
+
 
 diana_qt_sources += \
 	vcross_qt/qtVcrossDialog.cc \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWidget.cc \
-	vcross_qt/qtVcrossWindow.cc
+	vcross_qt/qtVcrossWindow.cc \
+	vcross_qt/VcrossQtWidget.cc
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)
@@ -394,8 +410,8 @@ noinst_HEADERS = \
 	qtVprofWidget.h \
 	qtVprofWindow.h \
 	qtWorkArea.h \
-    signalhelper.h \
-    bdiana_capi.h
+	signalhelper.h \
+	bdiana_capi.h 
 
 if WITH_VCROSS_V2
 noinst_HEADERS += \
@@ -412,7 +428,20 @@ noinst_HEADERS += \
 	vcross_v2/diVcrossPlot.h \
 	vcross_v2/diVcrossSetup.h \
 	vcross_v2/diVcrossSource.h \
-	vcross_v2/diVcrossUtil.h
+	vcross_v2/diVcrossUtil.h \
+	vcross_v2/VcrossSetup.h \
+	vcross_v2/VcrossComputer.h \
+	vcross_v2/VcrossCollector.h \
+	vcross_v2/VcrossEvaluate.h \
+	vcross_v2/VcrossResolver.h \
+	vcross_v2/VcrossOptions.h \
+	vcross_v2/VcrossQtContour.h \
+	vcross_v2/VcrossQtManager.h \
+	vcross_v2/VcrossQtPaint.h \
+	vcross_v2/VcrossQtPlot.h \
+	vcross_v2/VcrossQtUtil.h \
+	vcross_v2/VcrossQtAxis.h 
+
 else
 	vcross_v1/diVcross1Field.h \
 	vcross_v1/diVcross1File.h \
@@ -425,7 +454,8 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossSetup.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/qtVcrossWidget.h \
-	vcross_qt/qtVcrossWindow.h
+	vcross_qt/qtVcrossWindow.h \
+	vcross_qt/VcrossQtWidget.h
 
 if WITH_EMBEDDED
 if WITH_BATCH_ONLY
