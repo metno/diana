@@ -136,6 +136,7 @@ void VprofManager::parseSetup()
 
   filenames.clear();
   filetypes.clear();
+  filesetup.clear();
   dialogModelNames.clear();
   dialogFileNames.clear();
   filePaths.clear();
@@ -175,39 +176,29 @@ void VprofManager::parseSetup()
           ofp.filepath = tokens1[1];
           filePaths.push_back(ofp);
         }
-      } else if (tokens.size()==2) {
-        tokens1= miutil::split(tokens[0], "=");
-        tokens2= miutil::split(tokens[1], "=");
-        if (tokens1.size()==2          && tokens2.size()==2  &&
-            miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="f") {
-          model= tokens1[1];
-          filename= tokens2[1];
-          filenames[model]= filename;
-          filetypes[filename] = "standard";
-          if (uniquefiles.find(filename)==uniquefiles.end()) {
-            uniquefiles.insert(filename);
-            dialogModelNames.push_back(model);
-            dialogFileNames.push_back(filename);
+      } else {
+        std::string filetype="standard",fileformat,fileconfig;
+        for ( size_t j=0; j<tokens.size(); ++j) {
+          tokens1= miutil::split(tokens[j], "=");
+          if ( tokens1.size() != 2 ) continue;
+          if ( tokens1[0] == miutil::to_lower("m") ) {
+            model = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("f") ) {
+            filename = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("s") ) {
+            filename = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("t") ) {
+            filetype = tokens1[1];
           }
         }
+        filenames[model]= filename;
+        filetypes[filename] = filetype;
+        filesetup[filename] = vstr[i];
+        uniquefiles.insert(filename);
+        dialogModelNames.push_back(model);
+        dialogFileNames.push_back(filename);
       }
-      else if (tokens.size()==3) {
-        tokens1= miutil::split(tokens[0], "=");
-        tokens2= miutil::split(tokens[1], "=");
-        tokens3= miutil::split(tokens[2], "=");
-        if (tokens1.size()==2 && tokens2.size()==2 && tokens3.size()==2
-            && miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="t"
-                && miutil::to_lower(tokens3[0])=="s") {
-          model= tokens1[1];
-          std::string filetype = tokens2[1];
-          filename= tokens3[1];
-          filenames[model]= filename;
-          filetypes[filename] = filetype;
-          uniquefiles.insert(filename);
-          dialogModelNames.push_back(model);
-          dialogFileNames.push_back(filename);
-        }
-      }
+
 #ifdef ROADOBS
       /* Here we know that it is the extended obs format */
       else if (tokens.size()==4) {
@@ -865,9 +856,9 @@ bool VprofManager::initVprofData(std::string file,std::string model){
       METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
       return false;
     }
-  } else if (filetypes[file] == "fimex") {
+  } else if (filetypes[file] == "netcdf") {
     //    METLIBS_LOG_DEBUG("Model is a fimex source");
-    if (vpd->readFimex(fieldm)) {
+    if (vpd->readFimex(filesetup[file])) {
       METLIBS_LOG_INFO("VPROFDATA READTEST OK for model " << model);
       vpdata.push_back(vpd);
       return true;
