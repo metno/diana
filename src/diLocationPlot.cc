@@ -98,6 +98,11 @@ bool LocationPlot::setData(const LocationData& locationdata)
   std::set<std::string> nameset;
 
   for (int i = 0; i < nelem; i++) {
+    if (locationdata.elements[i].xpos.size() < 2) {
+      METLIBS_LOG_DEBUG(i << " locationdata.elements[i].xpos.size()<2!"
+          << locationdata.elements[i].xpos.size());
+      continue;
+    }
     if (locationdata.elements[i].name.empty()) {
       METLIBS_LOG_INFO("i=" << i << " locationdata.elements[i].name.empty()!");
       return false;
@@ -106,11 +111,6 @@ bool LocationPlot::setData(const LocationData& locationdata)
     else {
       METLIBS_LOG_INFO("duplicate name: " << i
           << " locationdata.elements[i].name!" << locationdata.elements[i].name);
-      return false;
-    }
-    if (locationdata.elements[i].xpos.size() < 2) {
-      METLIBS_LOG_INFO(i << " locationdata.elements[i].xpos.size()<2!"
-          << locationdata.elements[i].xpos.size());
       return false;
     }
     if (locationdata.elements[i].xpos.size()
