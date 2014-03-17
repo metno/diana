@@ -267,4 +267,31 @@ dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/atom-author-link.xsd
 
 symbolsdir= $(datarootdir)/diana/@PVERSION@/images/symbols
-dist_symbols_DATA= share/diana/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg
+dist_symbols_DATA= \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Drizzle.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Hail.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_MoutainObscuration.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Rain.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_SevereAircraftIcing.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_SevereSandOrDustHaze.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_SevereTurbulence.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Shower.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Snow.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Thunderstorms.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_TropicalCyclone.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_VisibleVolcanicAshCloud.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
+
