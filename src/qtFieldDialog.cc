@@ -665,6 +665,8 @@ void FieldDialog::CreateAdvanced()
   extremeType.push_back("L+H+Value");
   extremeType.push_back("C+W");
   extremeType.push_back("Value");
+  extremeType.push_back("Minvalue");
+  extremeType.push_back("Maxvalue");
   extremeTypeCbox = ComboBox(advFrame, extremeType);
   connect( extremeTypeCbox, SIGNAL( activated(int) ),
       SLOT( extremeTypeActivated(int) ) );

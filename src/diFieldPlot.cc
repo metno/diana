@@ -2723,9 +2723,9 @@ bool FieldPlot::plotContour(int version)
     poptions.contourShading = contourShading;
   }
 
-  const std::string pexu = miutil::to_upper(poptions.extremeType);
-  if (pexu=="L+H" || pexu=="L+H+VALUE" || pexu=="C+W" || pexu=="VALUE")
+  if (  poptions.extremeType !="None" && !poptions.extremeType.empty() ) {
     markExtreme();
+  }
 
   UpdateOutput();
 
@@ -3529,7 +3529,7 @@ bool FieldPlot::markExtreme()
   int   ix,iy,n,i,j,k;
   float dx,dy,avgdist;
 
-  //#### lag metode i GridConverter for dette (her + wind/vector) #########
+  //find avg. dist. between grid points
   int i1= (ix1>1)    ? ix1 : 1;
   int i2= (ix2<nx-2) ? ix2 : nx-2;
   int j1= (iy1>1)    ? iy1 : 1;
@@ -3553,6 +3553,7 @@ bool FieldPlot::markExtreme()
   if (n>0) avgdist= avgdist/float(n);
   else     avgdist= 1.;
 
+  //
   if (ix1<1)    ix1= 1;
   if (ix2>nx-2) ix2= nx-2;
   if (iy1<1)    iy1= 1;
@@ -3560,46 +3561,40 @@ bool FieldPlot::markExtreme()
   ix2++;
   iy2++;
 
-  char marks[2];
   std::string pmarks[2];
-  float chrx[2], chry[2];
-  bool plotValue = false;
-  bool plotLHValue = false;
-
-  const std::string pexu = miutil::to_upper(poptions.extremeType);
-  if (pexu=="C+W") {
-    marks[0]= 'C';  pmarks[0]= "C";
-    marks[1]= 'W';  pmarks[1]= "W";
-  } else if (pexu=="L+H") {
-    marks[0]= 'L';  pmarks[0]= "L";
-    marks[1]= 'H';  pmarks[1]= "H";
-   } else if (pexu=="L+H+VALUE") {
-    plotLHValue = true;
-    marks[0]= 'L';  pmarks[0]= "L";
-    marks[1]= 'H';  pmarks[1]= "H";
-  } else {
-    plotValue = true;
-    //todo: works, but ...
-    marks[0]= 'L';  pmarks[0]= "L";
-    marks[1]= 'H';  pmarks[1]= "H";
+  //int bextremevalue=0;
+  bool extremeString = false;
+  std::string extremeValue = "none";
+  std::string extremeType = miutil::to_upper(poptions.extremeType);
+  vector<std::string> vextremetype = miutil::split(extremeType,"+");
+  if ( vextremetype.size() > 0 && !miutil::contains(vextremetype[0],"VALUE") ) {
+    pmarks[0] = vextremetype[0];
+    extremeString = true;
   }
-
+  if ( vextremetype.size() > 1 && !miutil::contains(vextremetype[1],"VALUE") ) {
+    pmarks[1] = vextremetype[1];
+    extremeString = true;
+  }
+  if ( vextremetype.size() > 0 && vextremetype[vextremetype.size()-1] == "MINVALUE" ) {
+    extremeValue = "min";
+  } else if ( vextremetype.size() > 0 && vextremetype[vextremetype.size()-1] == "MAXVALUE" ) {
+    extremeValue = "max";
+    pmarks[1] = pmarks[0];
+  } else if ( vextremetype.size() > 0 && vextremetype[vextremetype.size()-1] == "VALUE" ) {
+    extremeValue = "both";
+  }
 
   float fontsize= 28. * poptions.extremeSize;
   fp->set(poptions.fontname,poptions.fontface,fontsize);
 
-  float size= 0.;
 
-  for (i=0; i<2; i++) {
-    fp->getCharSize(marks[i],chrx[i],chry[i]);
-    // approx. real height for the character (width is ok)
-    chry[i]*= 0.75;
-    if (size<chrx[i]) size= chrx[i];
-    if (size<chry[i]) size= chry[i];
-  }
+  float chrx, chry;
+  fp->getCharSize('L',chrx,chry);
+  // approx. real height for the character (width is ok)
+  chry *= 0.75;
+  float size = chry<chrx ? chrx : chry;
 
   float radius= 3.0 * size * poptions.extremeRadius;
-
   //int nscan = int(radius/avgdist+0.9);
   int nscan = int(radius/avgdist);
   if (nscan<2) nscan=2;
@@ -3664,9 +3659,9 @@ bool FieldPlot::markExtreme()
           if (fmax<f) fmax=f;
         }
 
-        if (fmax!=fieldUndef && (fmin>=fpos || fmax<=fpos)
-            && fmin!=fmax) {
-
+        if (fmax!=fieldUndef &&
+            ((fmin>=fpos && extremeValue!="max")|| (fmax<=fpos && extremeValue!="min") )
+            && fmin!=fmax  ) {
           // scan a larger area
 
           j=    (iy-nscan>0)    ? iy-nscan   : 0;
@@ -3755,19 +3750,19 @@ bool FieldPlot::markExtreme()
               }
             }
 
-            if (ibest==ix && jbest==iy) {
+            if (ibest==ix && jbest==iy ) {
               // mark extreme point
-              if ( plotValue ) {
+              if ( !extremeString) {
                 ostringstream ostr;
                 ostr.setf(ios::fixed);
                 ostr.precision( poptions.precision );
                 ostr<<fpos;
                 fp->drawStr(ostr.str().c_str(),
-                    gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
+                    gx-chrx*0.5,gy-chry*0.5,0.0);
               } else {
                 fp->drawStr(pmarks[etype].c_str(),
-                    gx-chrx[etype]*0.5,gy-chry[etype]*0.5,0.0);
-                if ( plotLHValue ) {
+                    gx-chrx*0.5,gy-chry*0.5,0.0);
+                if ( extremeValue != "none" ) {
                    float fontsize= 18. * poptions.extremeSize;
                    fp->set(poptions.fontname,poptions.fontface,fontsize);
                    ostringstream ostr;
@@ -3775,7 +3770,7 @@ bool FieldPlot::markExtreme()
                    ostr.precision( poptions.precision );
                    ostr<<fpos;
                    fp->drawStr(ostr.str().c_str(),
-                     gx-chrx[etype]*(-0.6),gy-chry[etype]*0.8,0.0);
+                     gx-chrx*(-0.6),gy-chry*0.8,0.0);
                 }
                 float fontsize=28. * poptions.extremeSize;
                 fp->set(poptions.fontname,poptions.fontface,fontsize);
