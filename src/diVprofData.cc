@@ -37,6 +37,7 @@
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
+#include "VcrossEvaluate.h"
 
 //#include <boost/make_shared.hpp>
 #include <cstdio>
