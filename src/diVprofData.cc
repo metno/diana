@@ -38,9 +38,6 @@
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
 
-#include "vcross_v2/VcrossEvaluate.h"
-#include "vcross_v2/VcrossSetup.h"
-
 //#include <boost/make_shared.hpp>
 #include <cstdio>
 #include <iomanip>
@@ -72,6 +69,7 @@ VprofData::~VprofData()
 
 bool VprofData::readFimex(const std::string& setup_line)
 {
+#ifdef USE_VCROSS_V2
   METLIBS_LOG_SCOPE();
 
   //parameters and computations should be defined in setup
@@ -150,6 +148,7 @@ bool VprofData::readFimex(const std::string& setup_line)
   vProfPlot = 0;
 
   //return success;
+#endif
   return true;
 }
 
@@ -491,6 +490,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
   size_t k;
 
   if (readFromFimex) {
+#ifdef USE_VCROSS_V2
 
     LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
@@ -542,7 +542,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
     vp->windInKnots = false;
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
-
+#endif
   } else if (readFromField) {
 
     if((name == vProfPlotName) && (time == vProfPlotTime)) {

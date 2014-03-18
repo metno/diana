@@ -28,7 +28,6 @@ do-configure:
 	    --enable-obs-bufr \
 	    --enable-video-export \
 	    --enable-geotiff \
-	    --enable-vcross-v2 \
 	    --with-qt4=/opt/qt4-headless \
 	    --with-qt4-includedir=/opt/qt4-headless/include \
 	    --with-qt4-libdir=/opt/qt4-headless/lib \
