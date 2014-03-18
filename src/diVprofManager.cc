@@ -381,7 +381,7 @@ void VprofManager::updateObsFileList()
     if(of.fileformat == bufr){
 #ifdef BUFROBS
       of.modificationTime= -1; //no need to check later
-      for (int i=0; i<globBuf.gl_pathc; i++) {
+      for (size_t i=0; i<globBuf.gl_pathc; i++) {
         of.filename= std::string(globBuf.gl_pathv[i]);
         if(!filePaths[j].tf.ok() ||
             !filePaths[j].tf.getTime(of.filename,of.time)){
@@ -906,10 +906,10 @@ void VprofManager::initStations(){
       // all lists must be equal in size
       if (namelist.size() == obslist.size() && namelist.size() == latitudelist.size() && namelist.size() == longitudelist.size())
       {
-        for (int index = 0; index < namelist.size(); index++)
+        for (size_t index = 0; index < namelist.size(); index++)
         {
           bool found = false;
-          for (int j = 0; j < nameList.size(); j++)
+          for (size_t j = 0; j < nameList.size(); j++)
           {
             if (nameList[j] == namelist[index])
             {
@@ -1045,10 +1045,10 @@ void VprofManager::initStations(){
       // all lists must be equal in size
       if (namelist.size() == obslist.size() && namelist.size() == latitudelist.size() && namelist.size() == longitudelist.size())
       {
-        for (int index = 0; index < namelist.size(); index++)
+        for (size_t index = 0; index < namelist.size(); index++)
         {
           bool found = false;
-          for (int j = 0; j < nameList.size(); j++)
+          for (size_t j = 0; j < nameList.size(); j++)
           {
             if (nameList[j] == namelist[index])
             {

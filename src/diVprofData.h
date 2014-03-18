@@ -35,7 +35,7 @@
 
 #include <puTools/miTime.h>
 #include <diField/diFieldManager.h>
-#include "VcrossCollector.h"
+#include "vcross_v2/VcrossCollector.h"
 
 #include <vector>
 
