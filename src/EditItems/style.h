@@ -40,8 +40,8 @@
 #include <QLabel>
 #include <QSharedPointer>
 #include <EditItems/drawingstylemanager.h>
+#include <EditItems/drawingitembase.h>
 
-class DrawingItemBase;
 class QWidget;
 class QComboBox;
 class QCheckBox;
