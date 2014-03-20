@@ -11,7 +11,7 @@ Build-Depends: lsb-release, autoconf (>=2.61), automake (>= 1.10),
  libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev,
  libboost-date-time-dev, libboost-filesystem-dev, libboost-regex-dev,
  libboost-system-dev, libboost-thread-dev, libgeotiff-dev, libpng-dev,
- cmake, libgtest-dev
+ cmake, libgtest-dev, libudunits2-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.7.2
 
