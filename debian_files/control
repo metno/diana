@@ -5,7 +5,7 @@ Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: lsb-release, autoconf (>=2.61), automake (>= 1.10),
  libtool (>= 1.5), metno-devscripts (>= 0.5.2), g++, gfortran,
  qt4-qmake, libqt4-dev, libqt4-opengl-dev, libemos-dev,
- metlibs-miraster-dev (>= 5.0.0), metlibs-difield-dev (>= 5.0.0),
+ metlibs-miraster-dev (>= 5.0.0), metlibs-difield-dev (>= 5.1.0),
  metlibs-gltext-dev (>= 5.0.0), metlibs-pudatatypes-dev (>= 5.0.0),
  metlibs-qutilities-dev (>= 5.0.0), metlibs-coserver-dev (>= 1.1.0),
  libavformat-dev, libshp-dev, libgl1-mesa-dev, libglu1-mesa-dev,
