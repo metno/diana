@@ -106,7 +106,7 @@ private:
  
 #if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))
 #include <QSharedPointer>
-uint qHash(const QSharedPointer<DrawingItemBase> &key)
+inline uint qHash(const QSharedPointer<DrawingItemBase> &key)
 {
   return qHash(key.data());
 }
