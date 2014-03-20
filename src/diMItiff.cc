@@ -84,7 +84,9 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
     return false;
   }
 
-  file.time = ginfo.time;
+  if ( !ginfo.time.undef()) {
+    file.time = ginfo.time;
+  }
   file.opened = true;
 
   std::string ch=ginfo.channel;
