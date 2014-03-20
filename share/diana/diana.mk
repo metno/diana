@@ -274,7 +274,7 @@ dist_symbols_DATA= \
 	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg \
-	share/diana/images/symbols/WeatherSymbol_ICAO_MoutainObscuration.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_MountainObscuration.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Rain.svg \
