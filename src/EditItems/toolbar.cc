@@ -87,7 +87,7 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create a combo box containing specific symbols.
   symbolCombo = new QComboBox();
-  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setsymbolType(int)));
+  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setSymbolType(int)));
   connect(symbolCombo, SIGNAL(currentIndexChanged(int)), symbolAction, SLOT(trigger()));
   addWidget(symbolCombo);
 
@@ -114,8 +114,15 @@ ToolBar::ToolBar(QWidget *parent)
 void ToolBar::setPolyLineType(int index)
 {
   // Obtain the style identifier from the style action and store it in the
-  // main polyline action.
+  // main polyline action for later retrieval by the EditItemManager.
   polyLineAction->setData(polyLineCombo->itemData(index));
+}
+
+void ToolBar::setSymbolType(int index)
+{
+  // Obtain the style identifier from the style action and store it in the
+  // main symbol action for later retrieval by the EditItemManager.
+  symbolAction->setData(symbolCombo->itemData(index));
 }
 
 } // namespace

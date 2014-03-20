@@ -46,6 +46,7 @@ public:
 
 private slots:
   void setPolyLineType(int index);
+  void setSymbolType(int index);
 
 private:
   ToolBar(QWidget * = 0);

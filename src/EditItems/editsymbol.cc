@@ -32,10 +32,6 @@
 #include <GL/gl.h>
 #include "drawingsymbol.h"
 #include "editsymbol.h"
-#include <QDomDocument>
-#include <QFileDialog>
-
-#include <QMessageBox>
 
 namespace EditItem_Symbol {
 

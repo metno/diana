@@ -1100,9 +1100,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           addItem(item, true);
           item->setProperty("style:type", createPolyLineAction->data().toString());
         }
-        else if (mode_ == CreateSymbolMode)
-          addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Symbol::Symbol())), true);
-        else if (mode_ == CreateCompositeMode)
+        else if (mode_ == CreateSymbolMode) {
+          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Symbol::Symbol()));
+          addItem(item, true);
+          item->setProperty("style:type", createSymbolAction->data().toString());
+        } else if (mode_ == CreateCompositeMode)
           addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Composite::Composite())), true);
         else if (mode_ == CreateTextMode) {
           addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Text::Text())), true);
