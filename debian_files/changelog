@@ -1,3 +1,10 @@
+diana (3.35.0-4) unstable; urgency=low
+
+  * Vprof - using new vcross files
+  * Geotiff - support geographic projection
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 20 Mar 2014 12:50:40 +0100
+
 diana (3.35.0-3) unstable; urgency=low
 
   * Bugfix: Editmanager
