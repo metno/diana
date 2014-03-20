@@ -223,6 +223,11 @@ AS_IF([test x$enable_obs_bufr = xyes], [
     METNO_REQUIRE_C_LIBRARY([EMOS], [emos], [], [pbopen])
 ])
 
+# udunits2
+AS_IF([test x$enable_vcross_v2 = xyes], [
+    METNO_REQUIRE_C_LIBRARY([UU], [udunits2], [udunits2.h], [ut_new_system])
+])
+
 GTEST_CHECK([src/test/gtest])
 
 #
