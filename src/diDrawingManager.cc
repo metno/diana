@@ -481,21 +481,20 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   // If an existing image is cached then delete the texture and prepare to
   // create another.
   bool found = false;
+  QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
 
-  if (imageCache.contains(name)) {
-    image = imageCache[name];
-    if (image.width() == width || image.height() == height) {
-      texture = symbolTextures[name];
-      found = true;
-    }
+  if (imageCache.contains(key)) {
+    image = imageCache[key];
+    texture = symbolTextures[key];
+    found = true;
   }
 
   if (!found) {
     image = getSymbolImage(name, width, height);
 
     texture = glctx->bindTexture(image.mirrored());
-    symbolTextures[name] = texture;
-    imageCache[name] = image;
+    symbolTextures[key] = texture;
+    imageCache[key] = image;
   }
 
   glPushAttrib(GL_COLOR_BUFFER_BIT);
