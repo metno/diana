@@ -4280,7 +4280,7 @@ void DianaMainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
     foreach (QUrl url, event->mimeData()->urls()) {
-      if (!url.isLocalFile() || QFileInfo(url.toLocalFile()).suffix() != "nc")
+      if (!(url.scheme() == "file") || QFileInfo(url.toLocalFile()).suffix() != "nc")
         return;
     }
 
