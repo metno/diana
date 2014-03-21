@@ -4299,7 +4299,7 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
 
   if (event->mimeData()->hasUrls()) {
     foreach (QUrl url, event->mimeData()->urls()) {
-      if (url.scheme() == "file" || QFileInfo(url.toLocalFile()).suffix() == "nc") {
+      if (url.scheme() == "file" && QFileInfo(url.toLocalFile()).suffix() == "nc") {
         QFileInfo fi(url.toLocalFile());
         QString s = QString("m=%1 t=fimex f=%2 format=netcdf").arg(fi.baseName()).arg(url.toLocalFile());
         extra_field_lines.push_back(s.toStdString());
