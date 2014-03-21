@@ -85,11 +85,6 @@ AC_ARG_ENABLE([smhi],
     [], [enable_smhi=no])
 AM_CONDITIONAL([WITH_SMHI], [test x$enable_smhi = xyes])
 
-AC_ARG_ENABLE([roadobs],
-    [AS_HELP_STRING([--enable-roadobs], [enable ROAD observations])],
-    [], [enable_roadobs=no])
-AM_CONDITIONAL([WITH_ROADOBS], [test x$enable_roadobs = xyes])
-
 AC_ARG_ENABLE([newarkobs],
     [AS_HELP_STRING([--enable-newarkobs], [enable NEWARK observations])],
     [], [enable_newarkobs=no])
@@ -167,14 +162,8 @@ AS_IF([test x$enable_batch_only != xyes], [
     METNO_REQUIRE_PKG([COSERVER], [coserver])
 ])
 
-AS_IF([test x$enable_roadobs = xyes], [
-    METNO_REQUIRE_PKG([RDKAPI], [rdkAPI])
-    METNO_REQUIRE_PKG([ROADAPI], [roadAPI])
-])
-
 AS_IF([test x$enable_newarkobs = xyes], [
     METNO_REQUIRE_PKG([NEWARKAPI], [newarkAPI])
-    METNO_REQUIRE_PKG([PGCONPOOL], [pgconpool])
 ])
 
 #
