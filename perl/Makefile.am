@@ -34,13 +34,6 @@ common_ldadd += \
 	$(PNG_LIBS) \
         $(UU_LIBS)
 
-if WITH_ROADOBS
-common_ldflags += \
-	${ROADAPI_LDFLAGS}
-common_ldadd += \
-	${ROADAPI_LIBS}
-endif
-
 if WITH_NEWARKOBS
 common_ldflags += \
 	${NEWARKAPI_LDFLAGS}

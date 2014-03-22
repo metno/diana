@@ -653,20 +653,10 @@ common_cppflags += -DSMHI
 endif
 
 # Additional source code for RoadOBS support
-if WITH_ROADOBS
-common_cppflags += -DROADOBS
-common_cxx_sources += \
-	diObsRoad.cc \
-	diVprofRTemp.cc
-common_ldflags += \
-	${ROADAPI_LDFLAGS}
-common_ldadd += \
-	${ROADAPI_LIBS}
-endif
 
 # Additional source code for RoadOBS support
 if WITH_NEWARKOBS
-common_cppflags += -DROADOBS -DNEWARK_INC
+common_cppflags += -DNEWARK_INC
 common_cxx_sources += \
 	diObsRoad.cc \
 	diVprofRTemp.cc
