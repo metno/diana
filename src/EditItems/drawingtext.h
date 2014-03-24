@@ -45,7 +45,10 @@ public:
   virtual void draw();
 
 protected:
+  QSizeF getStringSize(int index = -1) const;
+
   QString text_;
+  int margin_;
 };
 
 } // namespace

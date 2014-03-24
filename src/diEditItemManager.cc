@@ -731,6 +731,7 @@ void EditItemManager::abortEditing()
     hoverItem_.clear();
     //setSelectMode(); // restore default mode
     emit incompleteEditing(false);
+    emit repaintNeeded();
   }
 }
 
@@ -949,6 +950,8 @@ void EditItemManager::pasteItems()
 
 void EditItemManager::setSelectMode()
 {
+  abortEditing();
+
   mode_ = SelectMode;
   selectAction->setChecked(true);
   //clearCursorStack();
@@ -957,6 +960,8 @@ void EditItemManager::setSelectMode()
 
 void EditItemManager::setCreatePolyLineMode()
 {
+  abortEditing();
+
   mode_ = CreatePolyLineMode;
   createPolyLineAction->setChecked(true);
   //clearCursorStack();
@@ -968,6 +973,8 @@ void EditItemManager::setCreatePolyLineMode()
 
 void EditItemManager::setCreateSymbolMode()
 {
+  abortEditing();
+
   mode_ = CreateSymbolMode;
   createSymbolAction->setChecked(true);
   //clearCursorStack();
@@ -979,12 +986,16 @@ void EditItemManager::setCreateSymbolMode()
 
 void EditItemManager::setCreateTextMode()
 {
+  abortEditing();
+
   mode_ = CreateTextMode;
   qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
 }
 
 void EditItemManager::setCreateCompositeMode()
 {
+  abortEditing();
+
   mode_ = CreateCompositeMode;
   qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
 }

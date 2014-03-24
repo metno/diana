@@ -38,6 +38,7 @@ namespace DrawingItem_Text {
 
 Text::Text()
 {
+  margin_ = 4;
 }
 
 Text::~Text()
@@ -54,7 +55,10 @@ void Text::draw()
 
   GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
   fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
-  fp->drawStr(text_.toStdString().c_str(), points_.at(0).x(), points_.at(0).y(), 0);
+
+  QSizeF size = getStringSize();
+  size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
+  fp->drawStr(text_.toStdString().c_str(), points_.at(0).x(), points_.at(0).y() - size.height(), 0);
 
   styleManager->endText(this);
 }
@@ -62,6 +66,19 @@ void Text::draw()
 QDomNode Text::toKML() const
 {
   return DrawingItemBase::toKML(); // call base implementation for now
+}
+
+QSizeF Text::getStringSize(int index) const
+{
+  if (index == -1)
+    index = text_.size();
+
+  float width, height;
+  GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
+  fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
+  fp->getStringSize(text_.left(index).toStdString().c_str(), width, height);
+
+  return QSizeF(width, height);
 }
 
 } // namespace

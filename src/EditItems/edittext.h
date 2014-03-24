@@ -53,18 +53,20 @@ public:
                           bool *multiItemOp = 0);
 
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
+  virtual void incompleteMouseMove(QMouseEvent *event, bool &repaintNeeded);
+  virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
 protected:
-  virtual void resize(const QPointF &);
-  virtual void updateControlPoints();
   virtual void drawHoverHighlighting(bool) const;
   virtual void drawIncomplete() const;
 
+  virtual void resize(const QPointF &);
+  virtual void updateControlPoints();
+  virtual void setPoints(const QList<QPointF> &points);
+
 private:
   virtual DrawingItemBase *cloneSpecial() const;
-
-  QSizeF getStringSize(int index = -1) const;
 
   int cursor_;
 };

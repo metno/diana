@@ -32,9 +32,7 @@
 #include <GL/gl.h>
 #include "drawingpolyline.h"
 #include "editpolyline.h"
-#include <QDomDocument>
-#include <QFileDialog>
-#include <diTesselation.h>
+
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 
