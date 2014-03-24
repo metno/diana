@@ -38,6 +38,7 @@ namespace EditItem_Text {
 Text::Text()
 {
   cursor_ = -1;
+  line_ = -1;
   updateControlPoints();
 }
 
@@ -62,9 +63,7 @@ bool Text::hit(const QPointF &pos, bool selected) const
   if (selected && (hitControlPoint(pos) >= 0))
     return true;
 
-  QSizeF size = getStringSize();
-  QRectF textbox(points_.at(0), size);
-
+  QRectF textbox(points_.at(0), points_.at(1));
   return textbox.contains(pos);
 }
 
@@ -73,9 +72,7 @@ bool Text::hit(const QRectF &bbox) const
   if (points_.size() < 2)
     return false;
 
-  QSizeF size = getStringSize();
-  QRectF textbox(points_.at(0), size);
-
+  QRectF textbox(points_.at(0), points_.at(1));
   return textbox.intersects(bbox);
 }
 
@@ -133,6 +130,8 @@ void Text::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool 
 
   // Make the text area editable by using a valid index.
   cursor_ = 0;
+  line_ = 0;
+  lines_.append(QString());
 }
 
 void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -147,34 +146,66 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
     aborted = true;
     break;
   case Qt::Key_Return:
-    complete = true;
+    if (event->modifiers() & Qt::ShiftModifier)
+      complete = true;
+    else {
+      lines_.insert(line_ + 1, lines_.at(line_).mid(cursor_));
+      lines_[line_] = lines_.at(line_).left(cursor_);
+      line_ += 1;
+      cursor_ = 0;
+    }
     break;
   case Qt::Key_Backspace:
     if (cursor_ > 0) {
-      text_ = text_.left(cursor_ - 1) + text_.mid(cursor_);
+      lines_[line_] = lines_[line_].left(cursor_ - 1) + lines_[line_].mid(cursor_);
       cursor_ -= 1;
+    } else if (line_ > 0) {
+      cursor_ = lines_.at(line_ - 1).size();
+      lines_[line_ - 1] += lines_[line_];
+      lines_.removeAt(line_);
+      line_ -= 1;
     }
     break;
   case Qt::Key_Delete:
-    if (cursor_ <= text_.size() - 1)
-      text_ = text_.left(cursor_) + text_.mid(cursor_ + 1);
+    if (cursor_ <= lines_[line_].size() - 1)
+      lines_[line_] = lines_[line_].left(cursor_) + lines_[line_].mid(cursor_ + 1);
+    else if (line_ < lines_.size() - 1) {
+      lines_[line_] += lines_[line_ + 1];
+      lines_.removeAt(line_ + 1);
+    }
     break;
   case Qt::Key_Left:
     if (cursor_ > 0)
       cursor_ -= 1;
+    else if (line_ > 0) {
+      line_ -= 1;
+      cursor_ = lines_.at(line_).size();
+    }
     break;
   case Qt::Key_Right:
-    if (cursor_ < text_.size() - 1)
+    if (cursor_ < lines_[line_].size())
       cursor_ += 1;
+    else if (line_ < lines_.size() - 1) {
+      line_ += 1;
+      cursor_ = 0;
+    }
+    break;
+  case Qt::Key_Up:
+    if (line_ > 0)
+      line_ -= 1;
+    break;
+  case Qt::Key_Down:
+    if (line_ < lines_.size() - 1)
+      line_ += 1;
     break;
   case Qt::Key_Home:
-    cursor_ -= 0;
+    cursor_ = 0;
     break;
   case Qt::Key_End:
-    cursor_ -= text_.size();
+    cursor_ = lines_[line_].size();
     break;
   default:
-    text_.insert(cursor_, event->text());
+    lines_[line_].insert(cursor_, event->text());
     cursor_ += event->text().size();
   }
 
@@ -223,7 +254,7 @@ void Text::drawIncomplete() const
   if (points_.size() < 2)
     return;
 
-  if (text_.isEmpty())
+  if (lines_.isEmpty())
     glColor3ub(128, 128, 128);
   else {
     glLineStipple(1, 0x5555);
@@ -237,18 +268,29 @@ void Text::drawIncomplete() const
   glVertex2f(points_[0].x() - margin_, points_[1].y() - margin_);
   glEnd();
 
-  if (!text_.isEmpty())
+  if (!lines_.isEmpty())
     glDisable(GL_LINE_STIPPLE);
 
-  QSizeF size = getStringSize(cursor_);
-  size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
+  float x = points_.at(0).x();
+  float y = points_.at(0).y();
+  QSizeF size;
+
+  for (int line = 0; line <= line_; ++line) {
+    if (line < line_)
+      size = getStringSize(lines_.at(line));
+    else
+      size = getStringSize(lines_.at(line), cursor_);
+
+    y -= size.height() * (1.0 + spacing_);
+  }
 
   if (cursor_ != -1) {
+    size = getStringSize(lines_.at(line_), cursor_);
     // Draw a caret.
     glColor3ub(255, 0, 0);
     glBegin(GL_LINES);
-    glVertex2f(points_.at(0).x() + size.width(), points_.at(0).y() + margin_);
-    glVertex2f(points_.at(0).x() + size.width(), points_.at(0).y() - size.height() - margin_);
+    glVertex2f(x + size.width(), y + size.height() + margin_);
+    glVertex2f(x + size.width(), y + size.height() * spacing_ - margin_);
     glEnd();
   }
 }

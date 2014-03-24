@@ -68,6 +68,7 @@ protected:
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
+  int line_;
   int cursor_;
 };
 
