@@ -39,7 +39,6 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QPicture>
 
 #define MILOGGER_CATEGORY "diana.GLwidget"
 #include <miLogger/miLogging.h>
