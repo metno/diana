@@ -115,6 +115,7 @@ public slots:
     void reset();
     void selectItem(const QSharedPointer<DrawingItemBase> &);
     void setSelectMode();
+    void startStopEditing(bool start);
     void undo();
 
     virtual bool hasWorking() const;

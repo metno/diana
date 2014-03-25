@@ -174,6 +174,8 @@
 
 using namespace std;
 
+DianaMainWindow *DianaMainWindow::self = 0;
+
 DianaMainWindow::DianaMainWindow(Controller *co,
     const std::string& ver_str,
     const std::string& build_str,
@@ -192,6 +194,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   setWindowIcon(QIcon(diana_icon_xpm));
   setWindowTitle(tr(dianaTitle.c_str()));
 
+  self = this;
 
   //-------- The Actions ---------------------------------
 
@@ -4316,4 +4319,9 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
 
   fm->updateModels();
   statusBar()->showMessage(tr("Added model data to \"%1\" field group.").arg(filegroup), 2000);
+}
+
+DianaMainWindow *DianaMainWindow::instance()
+{
+  return DianaMainWindow::self;
 }

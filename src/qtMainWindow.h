@@ -116,7 +116,11 @@ public:
   void checkNews();
   void start();
 
+  /// Adds a dialog for use with a manager.
   void addDialog(DataDialog *dialog);
+
+  /// Returns the application's main window instance.
+  static DianaMainWindow *instance();
 
 protected:
   void timerEvent(QTimerEvent*);
@@ -471,6 +475,7 @@ private:
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
 
+  static DianaMainWindow *self;   // singleton instance pointer
 };
 
 #endif

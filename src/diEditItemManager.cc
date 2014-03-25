@@ -47,6 +47,7 @@
 #include <EditItems/properties.h>
 #include <EditItems/style.h>
 #include <EditItems/layers.h>
+#include <qtMainWindow.h>
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
 #include "paint_create_symbol.xpm"
@@ -76,6 +77,7 @@ EditItemManager::EditItemManager()
 
     connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
     connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
+    connect(this, SIGNAL(incompleteEditing(bool)), SLOT(startStopEditing(bool)));
 
     connect(&undoStack_, SIGNAL(canUndoChanged(bool)), this, SIGNAL(canUndoChanged(bool)));
     connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
@@ -178,6 +180,7 @@ void EditItemManager::addItem(const QSharedPointer<DrawingItemBase> &item, bool 
     }
     incompleteItem_ = item;
     emit incompleteEditing(true);
+
   } else {
     // create undo command
     QSet<QSharedPointer<DrawingItemBase> > addedItems;
@@ -724,8 +727,22 @@ QSet<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPoin
   return hitItems;
 }
 
+void EditItemManager::startStopEditing(bool start)
+{
+  bool enable = !start;
+
+  // Find any actions that conflict with keyboard input.
+  foreach (QAction *action, DianaMainWindow::instance()->findChildren<QAction *>()) {
+    if (action->shortcut() == QKeySequence(Qt::Key_Space))
+      action->setEnabled(enable);
+    else if (action->shortcut() == QKeySequence(Qt::Key_End))
+      action->setEnabled(enable);
+  }
+}
+
 void EditItemManager::abortEditing()
 {
+  qDebug() << "abort";
   if (incompleteItem_) {
     incompleteItem_.clear();
     hoverItem_.clear();
@@ -1128,7 +1145,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     event->setAccepted(true);
   } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
-    event->setAccepted(false); // ### WHAT DOES THIS MEAN? WHY NOT SET TO true IN OTHER CASES???
+    event->setAccepted(true);
   }
 
   else if (event->type() == QEvent::MouseButtonRelease) {
