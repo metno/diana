@@ -57,8 +57,8 @@ void Text::draw()
   GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
   fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
 
-  float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float x = points_.at(0).x() + margin_;
+  float y = points_.at(0).y() - margin_;
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);

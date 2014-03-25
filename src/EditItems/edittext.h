@@ -48,8 +48,8 @@ public:
 
   virtual void mousePress(QMouseEvent *event, bool &repaintNeeded,
                           QList<QUndoCommand *> *undoCommands,
-                          QSet<DrawingItemBase *> *items = 0,
-                          const QSet<DrawingItemBase *> *selItems = 0,
+                          QSet<QSharedPointer<DrawingItemBase> > *items = 0,
+                          const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0,
                           bool *multiItemOp = 0);
 
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);

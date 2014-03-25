@@ -77,7 +77,8 @@ bool Text::hit(const QRectF &bbox) const
 }
 
 void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                      QSet<DrawingItemBase *> *items, const QSet<DrawingItemBase *> *selItems,
+                      QSet<QSharedPointer<DrawingItemBase> > *items,
+                      const QSet<QSharedPointer<DrawingItemBase> > *selItems,
                       bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
@@ -215,6 +216,28 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
 
 void Text::resize(const QPointF &pos)
 {
+  const int size = controlPointSize(), size_2 = size / 2;
+
+  switch (pressedCtrlPointIndex_) {
+  case 0:
+    points_[0] = QPointF(pos.x(), pos.y());
+    break;
+  case 1:
+    points_[0] = QPointF(points_.at(0).x(), pos.y());
+    points_[1] = QPointF(pos.x(), points_.at(1).y());
+    break;
+  case 2:
+    points_[1] = QPointF(pos.x(), pos.y());
+    break;
+  case 3:
+    points_[0] = QPointF(pos.x(), points_.at(0).y());
+    points_[1] = QPointF(points_.at(1).x(), pos.y());
+    break;
+  default:
+    ;
+  }
+
+  updateControlPoints();
 }
 
 void Text::updateControlPoints()
@@ -242,10 +265,10 @@ void Text::drawHoverHighlighting(bool) const
 {
   glColor3ub(255, 0, 0);
   glBegin(GL_LINE_LOOP);
-  glVertex2f(points_[0].x() - margin_, points_[0].y() + margin_);
-  glVertex2f(points_[1].x() + margin_, points_[0].y() + margin_);
-  glVertex2f(points_[1].x() + margin_, points_[1].y() - margin_);
-  glVertex2f(points_[0].x() - margin_, points_[1].y() - margin_);
+  glVertex2f(points_[0].x(), points_[0].y());
+  glVertex2f(points_[1].x(), points_[0].y());
+  glVertex2f(points_[1].x(), points_[1].y());
+  glVertex2f(points_[0].x(), points_[1].y());
   glEnd();
 }
 
@@ -262,17 +285,17 @@ void Text::drawIncomplete() const
   }
 
   glBegin(GL_LINE_LOOP);
-  glVertex2f(points_[0].x() - margin_, points_[0].y() + margin_);
-  glVertex2f(points_[1].x() + margin_, points_[0].y() + margin_);
-  glVertex2f(points_[1].x() + margin_, points_[1].y() - margin_);
-  glVertex2f(points_[0].x() - margin_, points_[1].y() - margin_);
+  glVertex2f(points_[0].x(), points_[0].y());
+  glVertex2f(points_[1].x(), points_[0].y());
+  glVertex2f(points_[1].x(), points_[1].y());
+  glVertex2f(points_[0].x(), points_[1].y());
   glEnd();
 
   if (!lines_.isEmpty())
     glDisable(GL_LINE_STIPPLE);
 
-  float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float x = points_.at(0).x() + margin_;
+  float y = points_.at(0).y() - margin_;
   QSizeF size;
 
   for (int line = 0; line <= line_; ++line) {

@@ -742,7 +742,6 @@ void EditItemManager::startStopEditing(bool start)
 
 void EditItemManager::abortEditing()
 {
-  qDebug() << "abort";
   if (incompleteItem_) {
     incompleteItem_.clear();
     hoverItem_.clear();
