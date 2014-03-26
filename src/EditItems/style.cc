@@ -414,16 +414,16 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<QShar
 // Opens a modal dialog to edit the style properties of \a items.
 void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
+  bool readOnly = false;
+  DrawingItemBase::Category category = items.begin()->data()->category();
+
   // only allow editing for items with style type 'Custom'
   foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QString typeName = item->propertiesRef().value("style:type").toString();
-    if (typeName != "Custom") {
-      QMessageBox::warning(
-            0, "Warning", QString(
-              "At least one non-custom style type found: %1.\n"
-              "Please convert to custom style type.").arg(typeName));
+    if (typeName != "Custom")
+      readOnly = true;
+    if (item.data()->category() != category)
       return;
-    }
   }
 
   // get initial values
@@ -439,7 +439,7 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
   // set new content and initial values for the properties that we would like to support
   QGridLayout *gridLayout = new QGridLayout;
   formWidget_->setLayout(gridLayout);
-  QStringList propNames = DrawingStyleManager::instance()->properties();
+  QStringList propNames = DrawingStyleManager::instance()->properties(category);
   qSort(propNames);
   int row = 0;
   foreach (QString propName, propNames) {

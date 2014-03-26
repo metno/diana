@@ -35,7 +35,6 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
-#include <QMenu>
 
 namespace EditItems {
 
@@ -51,6 +50,8 @@ ToolBar *ToolBar::self = 0;
 ToolBar::ToolBar(QWidget *parent)
     : QToolBar(QApplication::translate("EditItems::ToolBar", "Paint Operations") + " (NEW)", parent)
 {
+  DrawingStyleManager *dsm = DrawingStyleManager::instance();
+
   QActionGroup *actionGroup = new QActionGroup(this);
   QHash<EditItemManager::Action, QAction *> actions = EditItemManager::instance()->actions();
 
@@ -65,20 +66,19 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create a combo box containing specific polyline types.
   polyLineCombo = new QComboBox();
-  connect(polyLineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setPolyLineType(int)));
-  connect(polyLineCombo, SIGNAL(currentIndexChanged(int)), polyLineAction, SLOT(trigger()));
+  connect(polyLineCombo, SIGNAL(activated(int)), this, SLOT(setPolyLineType(int)));
+  connect(polyLineCombo, SIGNAL(activated(int)), polyLineAction, SLOT(trigger()));
   addWidget(polyLineCombo);
-
-  DrawingStyleManager *dsm = DrawingStyleManager::instance();
 
   // Create an entry for each style. Use the name as an internal identifier
   // since we may decide to use tr() on the visible name at some point.
-  QStringList styles = dsm->styles();
+  QStringList styles = dsm->styles(DrawingItemBase::PolyLine);
   styles.sort();
   foreach (QString name, styles)
     polyLineCombo->addItem(name, name);
 
   polyLineCombo->setCurrentIndex(0);
+  setPolyLineType(0);
 
   // *** create symbol ***
   symbolAction = actions[EditItemManager::CreateSymbol];
@@ -87,8 +87,8 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create a combo box containing specific symbols.
   symbolCombo = new QComboBox();
-  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setSymbolType(int)));
-  connect(symbolCombo, SIGNAL(currentIndexChanged(int)), symbolAction, SLOT(trigger()));
+  connect(symbolCombo, SIGNAL(activated(int)), this, SLOT(setSymbolType(int)));
+  connect(symbolCombo, SIGNAL(activated(int)), symbolAction, SLOT(trigger()));
   addWidget(symbolCombo);
 
   DrawingManager *dm = DrawingManager::instance();
@@ -102,10 +102,28 @@ ToolBar::ToolBar(QWidget *parent)
   }
 
   symbolCombo->setCurrentIndex(0);
+  setSymbolType(0);
 
   // *** create text ***
-  addAction(actions[EditItemManager::CreateText]);
-  actionGroup->addAction(actions[EditItemManager::CreateText]);
+  textAction = actions[EditItemManager::CreateText];
+  addAction(textAction);
+  actionGroup->addAction(textAction);
+
+  // Create a combo box containing specific text types.
+  textCombo = new QComboBox();
+  connect(textCombo, SIGNAL(activated(int)), this, SLOT(setTextType(int)));
+  connect(textCombo, SIGNAL(activated(int)), textAction, SLOT(trigger()));
+  addWidget(textCombo);
+
+  // Create an entry for each style. Use the name as an internal identifier
+  // since we may decide to use tr() on the visible name at some point.
+  styles = dsm->styles(DrawingItemBase::Text);
+  styles.sort();
+  foreach (QString name, styles)
+    textCombo->addItem(name, name);
+
+  textCombo->setCurrentIndex(0);
+  setTextType(0);
 
   // Select the first action in the group by default.
   actionGroup->actions().at(0)->trigger();
@@ -123,6 +141,13 @@ void ToolBar::setSymbolType(int index)
   // Obtain the style identifier from the style action and store it in the
   // main symbol action for later retrieval by the EditItemManager.
   symbolAction->setData(symbolCombo->itemData(index));
+}
+
+void ToolBar::setTextType(int index)
+{
+  // Obtain the style identifier from the style action and store it in the
+  // main text action for later retrieval by the EditItemManager.
+  textAction->setData(textCombo->itemData(index));
 }
 
 } // namespace

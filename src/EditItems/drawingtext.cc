@@ -40,6 +40,10 @@ Text::Text()
 {
   margin_ = 4;
   spacing_ = 0.5;
+
+  properties_["style:fontname"] = QString::fromStdString(poptions.fontname);
+  properties_["style:fontface"] = QString::fromStdString(poptions.fontface);
+  properties_["style:fontsize"] = poptions.fontsize;
 }
 
 Text::~Text()
@@ -52,13 +56,36 @@ void Text::draw()
     return;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  styleManager->beginText(this);
 
-  GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
-  fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
+  // Use the fill colour defined in the style to fill the text area.
+  QRectF bbox(points_.at(0), points_.at(1));
+  bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
 
-  float x = points_.at(0).x() + margin_;
-  float y = points_.at(0).y() - margin_;
+  QList<QPointF> points;
+  points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
+
+  styleManager->beginFill(this);
+  styleManager->fillLoop(this, points);
+  styleManager->endFill(this);
+
+  // Draw the outline using the border colour and line pattern defined in
+  // the style.
+  styleManager->beginLine(this);
+  styleManager->drawLines(this, points);
+  styleManager->endLine(this);
+
+  // Fill in the default font settings from the plot options object. These
+  // will be overridden if equivalent properties are found.
+  QString fontName;
+  QString fontFace;
+  float fontSize;
+  styleManager->beginText(this, fontName, fontFace, fontSize);
+
+  GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
+  fp->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
+
+  float x = points_.at(0).x();
+  float y = points_.at(0).y();
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);
@@ -88,6 +115,11 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   height = qMax(height, poptions.fontsize);
 
   return QSizeF(width, height);
+}
+
+DrawingItemBase::Category Text::category() const
+{
+  return DrawingItemBase::Text;
 }
 
 } // namespace

@@ -854,7 +854,7 @@ void EditItemManager::setStyleType() const
     if (tgtType == "Custom") {
       const QString srcType = item->propertiesRef().value("style:type").toString();
       if (srcType != "Custom")
-        DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(srcType));
+        DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(item->category(), srcType));
     }
 
     item->setProperty("style:type", tgtType); // set type regardless
@@ -1086,7 +1086,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
       QList<QSharedPointer<QAction> > styleTypeActions;
-      QStringList styleNames = DrawingStyleManager::instance()->styles();
+      QStringList styleNames = DrawingStyleManager::instance()->styles(hitItem.data()->category());
       qSort(styleNames);
       Q_ASSERT(!styleNames.contains("Custom"));
       styleNames.append("Custom");
@@ -1134,7 +1134,9 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         } else if (mode_ == CreateCompositeMode)
           addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Composite::Composite())), true);
         else if (mode_ == CreateTextMode) {
-          addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Text::Text())), true);
+        QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Text::Text()));
+          addItem(item, true);
+          item->setProperty("style:type", createTextAction->data().toString());
         }
       }
 

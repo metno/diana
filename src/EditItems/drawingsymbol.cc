@@ -80,4 +80,9 @@ QDomNode Symbol::toKML() const
   return DrawingItemBase::toKML(); // call base implementation for now
 }
 
+DrawingItemBase::Category Symbol::category() const
+{
+  return DrawingItemBase::Symbol;
+}
+
 } // namespace

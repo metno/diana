@@ -42,6 +42,9 @@ public:
   virtual ~Composite();
   virtual QDomNode toKML() const;
 
+  // Returns the category of the item as required by the style manager.
+  virtual Category category() const;
+
 private:
   virtual void draw();
   QList<DrawingItemBase *> children;

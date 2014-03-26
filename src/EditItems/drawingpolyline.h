@@ -45,8 +45,13 @@ public:
   PolyLine();
   virtual ~PolyLine();
   virtual QDomNode toKML() const;
+
+  // Returns the category of the item as required by the style manager.
+  virtual Category category() const;
+
 protected:
   QColor color_;
+
 private:
   virtual DrawingItemBase *cloneSpecial() const
   {

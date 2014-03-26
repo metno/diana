@@ -127,9 +127,11 @@ bool DrawingManager::parseSetup()
       }
     } else if (items.contains("style")) {
       // Read-only style definitions
-      styleManager->addStyle(items);
+      styleManager->addStyle(DrawingItemBase::PolyLine, items);
     } else if (items.contains("workdir")) {
       workDir = items["workdir"];
+    } else if (items.contains("textstyle")) {
+      styleManager->addStyle(DrawingItemBase::Text, items);
     }
   }
 

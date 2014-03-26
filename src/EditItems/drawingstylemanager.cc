@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <EditItems/drawingstylemanager.h>
-#include <EditItems/drawingitembase.h>
+#include "EditItems/drawingstylemanager.h"
+#include "EditItems/drawingitembase.h"
 #include <QVector2D>
 #include <QComboBox>
 #include <qmath.h>
@@ -104,6 +104,9 @@ QVariant DSP_filltransparency::parse(const QHash<QString, QString> &def) const {
 QString DSP_fillpattern::name() { return "fillpattern"; }
 QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
 
+QString DSP_textcolour::name() { return "textcolour"; }
+QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
+
 QString DSP_closed::name() { return "closed"; }
 QVariant DSP_closed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "true") == "true"; }
 
@@ -127,6 +130,7 @@ QVariant DSP_decoration2_offset::parse(const QHash<QString, QString> &def) const
 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
+QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 
 DrawingStyleManager *DrawingStyleManager::self = 0;
 
@@ -134,23 +138,32 @@ DrawingStyleManager::DrawingStyleManager()
 {
   self = this;
 
-  // define supported style properties
-  properties_.insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_.insert(DSP_linetransparency::name(), new DSP_linetransparency);
-  properties_.insert(DSP_linewidth::name(), new DSP_linewidth);
-  properties_.insert(DSP_linepattern::name(), new DSP_linepattern);
-  properties_.insert(DSP_linesmooth::name(), new DSP_linesmooth);
-  properties_.insert(DSP_lineshape::name(), new DSP_lineshape);
-  properties_.insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_.insert(DSP_filltransparency::name(), new DSP_filltransparency);
-  properties_.insert(DSP_fillpattern::name(), new DSP_fillpattern);
-  properties_.insert(DSP_closed::name(), new DSP_closed);
-  properties_.insert(DSP_decoration1::name(), new DSP_decoration1);
-  properties_.insert(DSP_decoration1_colour::name(), new DSP_decoration1_colour);
-  properties_.insert(DSP_decoration1_offset::name(), new DSP_decoration1_offset);
-  properties_.insert(DSP_decoration2::name(), new DSP_decoration2);
-  properties_.insert(DSP_decoration2_colour::name(), new DSP_decoration2_colour);
-  properties_.insert(DSP_decoration2_offset::name(), new DSP_decoration2_offset);
+  // Define the supported polyline style properties.
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linecolour::name(), new DSP_linecolour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linetransparency::name(), new DSP_linetransparency);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linewidth::name(), new DSP_linewidth);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linepattern::name(), new DSP_linepattern);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linesmooth::name(), new DSP_linesmooth);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_lineshape::name(), new DSP_lineshape);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_fillcolour::name(), new DSP_fillcolour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_fillpattern::name(), new DSP_fillpattern);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_closed::name(), new DSP_closed);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1::name(), new DSP_decoration1);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_colour::name(), new DSP_decoration1_colour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_offset::name(), new DSP_decoration1_offset);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2::name(), new DSP_decoration2);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_colour::name(), new DSP_decoration2_colour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_offset::name(), new DSP_decoration2_offset);
+
+  // Define the supported text style properties.
+  properties_[DrawingItemBase::Text].insert(DSP_linecolour::name(), new DSP_linecolour);
+  properties_[DrawingItemBase::Text].insert(DSP_linetransparency::name(), new DSP_linetransparency);
+  properties_[DrawingItemBase::Text].insert(DSP_linewidth::name(), new DSP_linewidth);
+  properties_[DrawingItemBase::Text].insert(DSP_linepattern::name(), new DSP_linepattern);
+  properties_[DrawingItemBase::Text].insert(DSP_fillcolour::name(), new DSP_fillcolour);
+  properties_[DrawingItemBase::Text].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::Text].insert(DSP_textcolour::name(), new DSP_textcolour);
 }
 
 DrawingStyleManager::~DrawingStyleManager()
@@ -165,26 +178,31 @@ DrawingStyleManager *DrawingStyleManager::instance()
   return DrawingStyleManager::self;
 }
 
-QVariantMap DrawingStyleManager::parse(const QHash<QString, QString> &definition) const
+QVariantMap DrawingStyleManager::parse(const DrawingItemBase::Category &category,
+                                       const QHash<QString, QString> &definition) const
 {
   QVariantMap style;
-  foreach (QString propName, properties_.keys())
-    style[propName] = properties_.value(propName)->parse(definition);
+  foreach (QString propName, properties_[category].keys())
+    style[propName] = properties_[category].value(propName)->parse(definition);
   return style;
 }
 
-void DrawingStyleManager::addStyle(const QHash<QString, QString> &definition)
+void DrawingStyleManager::addStyle(const DrawingItemBase::Category &category, const QHash<QString, QString> &definition)
 {
   // Parse the definition and set the private members.
-  QString styleName = definition.value("style");
+  QString styleName;
+  if (definition.contains("textstyle"))
+    styleName = definition.value("textstyle");
+  else
+    styleName = definition.value("style");
 
-  if (styleName == "Custom") {
+  if (styleName.isEmpty() || styleName == "Custom") {
     // ### This doesn't make sense unless we want to have special default values for the custom style.
     // ### For now the custom style can just use the standard default values, so just skip (possibly give a warning?).
     return;
   }
 
-  styles_[styleName] = parse(definition);
+  styles_[category][styleName] = parse(category, definition);
 }
 
 void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, QString> &style, const QString &prefix) const
@@ -283,24 +301,24 @@ void DrawingStyleManager::endFill(DrawingItemBase *item)
   glPopAttrib(); // GL_POLYGON_BIT
 }
 
-bool DrawingStyleManager::containsStyle(const QString &name) const
+bool DrawingStyleManager::containsStyle(const DrawingItemBase::Category &category, const QString &name) const
 {
-  return styles_.contains(name);
+  return styles_[category].contains(name);
 }
 
-QStringList DrawingStyleManager::styles() const
+QStringList DrawingStyleManager::styles(const DrawingItemBase::Category &category) const
 {
-  return styles_.keys();
+  return styles_[category].keys();
 }
 
-QStringList DrawingStyleManager::properties() const
+QStringList DrawingStyleManager::properties(const DrawingItemBase::Category &category) const
 {
-  return properties_.keys();
+  return properties_[category].keys();
 }
 
-QVariantMap DrawingStyleManager::getStyle(const QString &name) const
+QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase::Category &category, const QString &name) const
 {
-  return styles_.value(name);
+  return styles_[category].value(name);
 }
 
 QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
@@ -312,17 +330,17 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
   const QString styleName = item->property("style:type").toString();
 
-  if (styleName == "Custom" || (!containsStyle(styleName))) {
+  if (styleName == "Custom" || (!containsStyle(item->category(), styleName))) {
     // use default values, but override with values stored directly in the item
     QHash<QString, QString> styleProperties;
     foreach (QString key, item->propertiesRef().keys()) {
       if (key.startsWith("style:"))
         styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
     }
-    return parse(styleProperties);
+    return parse(item->category(), styleProperties);
   } else {
     // use fixed values for this style
-    return styles_.value(styleName);
+    return styles_[item->category()].value(styleName);
   }
 }
 
@@ -697,7 +715,7 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
   return new_points;
 }
 
-void DrawingStyleManager::beginText(DrawingItemBase *item)
+void DrawingStyleManager::beginText(DrawingItemBase *item, QString &fontName, QString &fontFace, float &fontSize)
 {
   QVariantMap style = getStyle(item);
   QColor textColour = style.value("textcolour").value<QColor>();
@@ -706,6 +724,10 @@ void DrawingStyleManager::beginText(DrawingItemBase *item)
                textColour.alpha());
   else
     glColor3f(0.0, 0.0, 0.0);
+
+  fontName = style.value("fontname", item->property("style:fontname")).toString();
+  fontFace = style.value("fontface", item->property("style:fontface")).toString();
+  fontSize = style.value("fontsize", item->property("style:fontsize")).toFloat();
 }
 
 void DrawingStyleManager::endText(DrawingItemBase *item)

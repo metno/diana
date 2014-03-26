@@ -54,4 +54,9 @@ QDomNode Composite::toKML() const
   return DrawingItemBase::toKML(); // call base implementation for now
 }
 
+DrawingItemBase::Category Composite::category() const
+{
+  return DrawingItemBase::Composite;
+}
+
 } // namespace

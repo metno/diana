@@ -47,7 +47,10 @@ class QDomDocumentFragment;
 class DrawingItemBase
 {
   friend class EditItemBase;
+
 public:
+  enum Category { PolyLine, Symbol, Text, Composite };
+
   DrawingItemBase();
   virtual ~DrawingItemBase();
 
@@ -83,6 +86,9 @@ public:
 
   // Draws the item.
   virtual void draw() = 0;
+
+  // Returns the category of the item as required by the style manager.
+  virtual Category category() const = 0;
 
   // Returns the item's KML representation.
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;

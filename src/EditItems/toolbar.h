@@ -47,6 +47,7 @@ public:
 private slots:
   void setPolyLineType(int index);
   void setSymbolType(int index);
+  void setTextType(int index);
 
 private:
   ToolBar(QWidget * = 0);
@@ -56,6 +57,8 @@ private:
   QComboBox *polyLineCombo;
   QAction *symbolAction;
   QComboBox *symbolCombo;
+  QAction *textAction;
+  QComboBox *textCombo;
 };
 
 } // namespace

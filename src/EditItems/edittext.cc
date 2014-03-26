@@ -39,7 +39,6 @@ Text::Text()
 {
   cursor_ = -1;
   line_ = -1;
-  updateControlPoints();
 }
 
 Text::~Text()
@@ -56,13 +55,6 @@ DrawingItemBase *Text::cloneSpecial() const
 
 bool Text::hit(const QPointF &pos, bool selected) const
 {
-  if (points_.size() < 2)
-    return false;
-
-  // Have we hit a control point?
-  if (selected && (hitControlPoint(pos) >= 0))
-    return true;
-
   QRectF textbox(points_.at(0), points_.at(1));
   return textbox.contains(pos);
 }
@@ -82,7 +74,7 @@ void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoComman
                       bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
-    pressedCtrlPointIndex_ = hitControlPoint(event->pos());
+    pressedCtrlPointIndex_ = -1;
     resizing_ = (pressedCtrlPointIndex_ >= 0);
     moving_ = !resizing_;
     basePoints_ = points_;
@@ -105,15 +97,6 @@ void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &c
     cursor_ = -1;
   } else
     complete = true;
-}
-
-void Text::incompleteMouseMove(QMouseEvent *event, bool &repaintNeeded)
-{
-  // Set the second point, ensure that there is a corresponding geographic point.
-  points_[1] = QPointF(event->pos());
-  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
-
-  repaintNeeded = true;
 }
 
 void Text::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -214,30 +197,8 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
   event->accept();
 }
 
-void Text::resize(const QPointF &pos)
+void Text::resize(const QPointF &)
 {
-  const int size = controlPointSize(), size_2 = size / 2;
-
-  switch (pressedCtrlPointIndex_) {
-  case 0:
-    points_[0] = QPointF(pos.x(), pos.y());
-    break;
-  case 1:
-    points_[0] = QPointF(points_.at(0).x(), pos.y());
-    points_[1] = QPointF(pos.x(), points_.at(1).y());
-    break;
-  case 2:
-    points_[1] = QPointF(pos.x(), pos.y());
-    break;
-  case 3:
-    points_[0] = QPointF(pos.x(), points_.at(0).y());
-    points_[1] = QPointF(points_.at(1).x(), pos.y());
-    break;
-  default:
-    ;
-  }
-
-  updateControlPoints();
 }
 
 void Text::updateControlPoints()
@@ -245,15 +206,21 @@ void Text::updateControlPoints()
   if (points_.size() < 2)
     return;
 
-  const int size = controlPointSize(), size_2 = size / 2;
-  QRectF bbox(points_.at(0), points_.at(1));
-  bbox.adjust(-size_2, -size_2, -size_2, -size_2);
+  float x = points_.at(0).x();
+  float y = points_.at(0).y();
+  qreal width = 0;
 
-  controlPoints_.clear();
-  controlPoints_.append(QRectF(bbox.left(), bbox.top(), size, size));
-  controlPoints_.append(QRectF(bbox.right(), bbox.top(), size, size));
-  controlPoints_.append(QRectF(bbox.right(), bbox.bottom(), size, size));
-  controlPoints_.append(QRectF(bbox.left(), bbox.bottom(), size, size));
+  for (int i = 0; i < lines_.size(); ++i) {
+    QString text = lines_.at(i);
+    QSizeF size = getStringSize(text);
+    width = qMax(width, size.width());
+    size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
+    y -= size.height();
+    if (i < lines_.size() - 1)
+      y -= size.height() * spacing_;
+  }
+
+  points_[1] = QPointF(x + width, y);
 }
 
 void Text::setPoints(const QList<QPointF> &points)
@@ -263,12 +230,15 @@ void Text::setPoints(const QList<QPointF> &points)
 
 void Text::drawHoverHighlighting(bool) const
 {
+  QRectF bbox(points_.at(0), points_.at(1));
+  bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
+
   glColor3ub(255, 0, 0);
   glBegin(GL_LINE_LOOP);
-  glVertex2f(points_[0].x(), points_[0].y());
-  glVertex2f(points_[1].x(), points_[0].y());
-  glVertex2f(points_[1].x(), points_[1].y());
-  glVertex2f(points_[0].x(), points_[1].y());
+  glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+  glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+  glVertex2f(bbox.topRight().x(), bbox.topRight().y());
+  glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
   glEnd();
 }
 
@@ -277,25 +247,23 @@ void Text::drawIncomplete() const
   if (points_.size() < 2)
     return;
 
-  if (lines_.isEmpty())
-    glColor3ub(128, 128, 128);
-  else {
+  if (!lines_.isEmpty()) {
+    QRectF bbox(points_.at(0), points_.at(1));
+    bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
+
     glLineStipple(1, 0x5555);
     glEnable(GL_LINE_STIPPLE);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+    glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+    glVertex2f(bbox.topRight().x(), bbox.topRight().y());
+    glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
+    glEnd();
+    glDisable(GL_LINE_STIPPLE);
   }
 
-  glBegin(GL_LINE_LOOP);
-  glVertex2f(points_[0].x(), points_[0].y());
-  glVertex2f(points_[1].x(), points_[0].y());
-  glVertex2f(points_[1].x(), points_[1].y());
-  glVertex2f(points_[0].x(), points_[1].y());
-  glEnd();
-
-  if (!lines_.isEmpty())
-    glDisable(GL_LINE_STIPPLE);
-
-  float x = points_.at(0).x() + margin_;
-  float y = points_.at(0).y() - margin_;
+  float x = points_.at(0).x();
+  float y = points_.at(0).y();
   QSizeF size;
 
   for (int line = 0; line <= line_; ++line) {

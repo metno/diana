@@ -47,6 +47,9 @@ protected:
   QList<QPointF> boundingSquare() const;
   virtual void draw();
 
+  // Returns the category of the item as required by the style manager.
+  virtual Category category() const;
+
 private:
   virtual DrawingItemBase *cloneSpecial() const
   {

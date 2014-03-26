@@ -37,7 +37,6 @@
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
 {
-  DrawingStyleManager::instance()->setDefaultStyle(this);
 }
 
 DrawingItemBase::~DrawingItemBase() {}
@@ -117,7 +116,7 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
   // If the style is a custom style then update the properties using the
   // Default style as a template.
   if (styleType == "Custom") {
-    QVariantMap style = DrawingStyleManager::instance()->getStyle("Default");
+    QVariantMap style = DrawingStyleManager::instance()->getStyle(category(), "Default");
     foreach (QString key, style.keys()) {
       if (!properties_.contains("style:" + key)) {
         properties_["style:" + key] = style.value(key);

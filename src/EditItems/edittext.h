@@ -53,7 +53,6 @@ public:
                           bool *multiItemOp = 0);
 
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
-  virtual void incompleteMouseMove(QMouseEvent *event, bool &repaintNeeded);
   virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 

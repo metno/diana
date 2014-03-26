@@ -41,6 +41,8 @@
 #include <QVariantMap>
 #include <QColor>
 
+#include "EditItems/drawingitembase.h"
+
 class DrawingItemBase;
 
 class DrawingStyleProperty
@@ -50,6 +52,7 @@ public:
 protected:
   static QString lineColour(const QHash<QString, QString> &);
   static QString fillColour(const QHash<QString, QString> &);
+  static QString textColour(const QHash<QString, QString> &);
 };
 
 class DSP_linecolour : public DrawingStyleProperty
@@ -124,6 +127,14 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_textcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 class DSP_closed : public DrawingStyleProperty
 {
 public:
@@ -190,7 +201,7 @@ public:
 
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
-  void addStyle(const QHash<QString, QString> &definition);
+  void addStyle(const DrawingItemBase::Category &category, const QHash<QString, QString> &definition);
 
   void setStyle(DrawingItemBase *, const QHash<QString, QString> &, const QString & = QString()) const;
   void setStyle(DrawingItemBase *, const QVariantMap &, const QString & = QString()) const;
@@ -200,7 +211,7 @@ public:
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
-  void beginText(DrawingItemBase *item);
+  void beginText(DrawingItemBase *item, QString &fontName, QString &fontFace, float &fontSize);
   void endText(DrawingItemBase *item);
 
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
@@ -210,12 +221,12 @@ public:
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
 
-  bool containsStyle(const QString &name) const;
-  QStringList styles() const;
-  QStringList properties() const;
+  bool containsStyle(const DrawingItemBase::Category &category, const QString &name) const;
+  QStringList styles(const DrawingItemBase::Category &category) const;
+  QStringList properties(const DrawingItemBase::Category &category) const;
   QVariantMap getStyle(DrawingItemBase *item) const;
   QVariantMap getStyle(const DrawingItemBase *item) const;
-  QVariantMap getStyle(const QString &name) const;
+  QVariantMap getStyle(const DrawingItemBase::Category &category, const QString &name) const;
 
   static DrawingStyleManager *instance();
 
@@ -223,11 +234,12 @@ private:
   void drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
                       const Side &side, const QList<QPointF> &points, int z,
                       unsigned int offset = 0) const;
-  QVariantMap parse(const QHash<QString, QString> &definition) const;
-  //QColor parseColour(const QString &text) const;
+  QVariantMap parse(const DrawingItemBase::Category &category,
+                    const QHash<QString, QString> &definition) const;
 
-  QHash<QString, QVariantMap> styles_;
-  QHash<QString, DrawingStyleProperty *> properties_;
+  // Record the style maps for each category of object.
+  QHash<DrawingItemBase::Category, QHash<QString, QVariantMap> > styles_;
+  QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
   static DrawingStyleManager *self;  // singleton instance pointer
 };
 

@@ -32,8 +32,8 @@
 #ifndef DRAWINGTEXT_H
 #define DRAWINGTEXT_H
 
-#include "drawingitembase.h"
 #include "diPlot.h"
+#include "drawingitembase.h"
 
 namespace DrawingItem_Text {
 class Text : public Plot, public DrawingItemBase
@@ -43,6 +43,9 @@ public:
   virtual ~Text();
   virtual QDomNode toKML() const;
   virtual void draw();
+
+  // Returns the category of the item as required by the style manager.
+  virtual Category category() const;
 
 protected:
   QSizeF getStringSize(const QString &text, int index = -1) const;

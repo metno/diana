@@ -67,4 +67,9 @@ QDomNode PolyLine::toKML() const
   return DrawingItemBase::toKML(); // call base implementation for now
 }
 
+DrawingItemBase::Category PolyLine::category() const
+{
+  return DrawingItemBase::PolyLine;
+}
+
 } // namespace
