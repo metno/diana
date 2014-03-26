@@ -2723,7 +2723,7 @@ bool FieldPlot::plotContour(int version)
     poptions.contourShading = contourShading;
   }
 
-  if (  poptions.extremeType !="None" && !poptions.extremeType.empty() ) {
+  if (  poptions.extremeType !="None" && poptions.extremeType !="Ingen" && !poptions.extremeType.empty() ) {
     markExtreme();
   }
 
