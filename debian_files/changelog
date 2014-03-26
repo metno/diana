@@ -1,3 +1,10 @@
+diana (3.35.0-5) unstable; urgency=low
+
+  * New vessel_icing method
+  * EditDialog - fixed save buttons
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 26 Mar 2014 15:20:40 +0100
+
 diana (3.35.0-4) unstable; urgency=low
 
   * Vprof - using new vcross files
