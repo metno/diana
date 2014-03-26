@@ -49,6 +49,7 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QVBoxLayout>
+#include <QToolTip>
 
 #include "qtEditDialog.h"
 #include "qtEditNewDialog.h"
@@ -200,13 +201,16 @@ void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
   lockValuePixmap= QPixmap(edit_lock_value_xpm);
 
 
-  saveButton = NormalPushButton(tr("Save"), this);
+  saveButton = NormalPushButton(tr("Save (local)"), this);
+  saveButton->setToolTip(tr("Save product to local disk"));
   connect( saveButton, SIGNAL(clicked()), SLOT(saveClicked())  );
   saveButton->setEnabled(false);
-  sendButton = NormalPushButton(tr("Send"), this);
+  sendButton = NormalPushButton(tr("Save (common work disk)"), this);
+  sendButton->setToolTip(tr("Save product to common work disk, available to other users as input in edit mode"));
   connect( sendButton, SIGNAL(clicked()), SLOT(sendClicked())  );
   sendButton->setEnabled(false);
   approveButton = NormalPushButton(tr("Approve"), this);
+  approveButton->setToolTip(tr("Approve product (makes the product available for other users and trigger production)"));
   connect( approveButton, SIGNAL(clicked()), SLOT(approveClicked( ))  );
   approveButton->setEnabled(false);
   QHBoxLayout* bgroupLayout = new QHBoxLayout();
@@ -1605,7 +1609,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   twd->setTabEnabled(2, false);
   if (twd->currentIndex()!=mm) twd->setCurrentIndex(mm);
 
-  sendButton->setEnabled(true);
+  saveButton->setEnabled(true);
   sendButton->setEnabled(currid.sendable);
   approveButton->setEnabled(currid.sendable);
 
