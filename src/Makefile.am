@@ -652,11 +652,9 @@ if WITH_SMHI
 common_cppflags += -DSMHI
 endif
 
-# Additional source code for RoadOBS support
-
-# Additional source code for RoadOBS support
+# Additional source code for mora support
 if WITH_NEWARKOBS
-common_cppflags += -DNEWARK_INC
+common_cppflags += -DROADOBS -DNEWARK_INC
 common_cxx_sources += \
 	diObsRoad.cc \
 	diVprofRTemp.cc
@@ -666,18 +664,13 @@ common_ldadd += \
 	${NEWARKAPI_LIBS}
 endif
 
-# Additional source code for RoadOBS support
+# Additional source code for Geotiff support
 if WITH_GEOTIFF
 common_cppflags += -DGEOTIFF
 common_cxx_sources += \
 	diGEOtiff.cc
 noinst_HEADERS += \
 	diGEOtiff.h
-#common_ldflags += \
-#	${ROADAPI_LDFLAGS}
-common_ldadd += \
-	${ROADAPI_LIBS} ${GRIBAPI_LIBS}
-
 endif
 
 # Additional source code for HDF5 support
@@ -685,6 +678,8 @@ if WITH_HDF5
 common_cppflags += -DHDF5FILE
 common_cxx_sources += \
 	diHDF5.cc
+noinst_HEADERS += \
+	diHDF5.h
 endif
 
 # Additional source code for observation buffers
