@@ -50,7 +50,6 @@
 #include "PaintGL/paintgl.h"
 #endif
 
-#include <puTools/miCommandLine.h>
 #include <puTools/miSetupParser.h>
 #include <iostream>
 

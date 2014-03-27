@@ -120,7 +120,6 @@
 #include <coserver/miMessage.h>
 #include <coserver/QLetterCommands.h>
 #include <puDatatypes/miCoordinates.h>
-#include <puTools/miCommandLine.h>
 #include "qtPaintToolBar.h"
 #include <QErrorMessage>
 
