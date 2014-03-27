@@ -30,6 +30,7 @@
 */
 
 #include "edittext.h"
+#include "diEditItemManager.h"
 #include "diPlot.h"
 #include "diFontManager.h"
 
@@ -39,10 +40,19 @@ Text::Text()
 {
   cursor_ = -1;
   line_ = -1;
+  editAction = new QAction(tr("Edit text"), this);
+  connect(editAction, SIGNAL(triggered()), SLOT(editItem()));
 }
 
 Text::~Text()
 {
+}
+
+QList<QAction *> Text::actions(const QPoint &pos) const
+{
+  QList<QAction *> acts;
+  acts << editAction;
+  return acts;
 }
 
 DrawingItemBase *Text::cloneSpecial() const
@@ -266,12 +276,8 @@ void Text::drawIncomplete() const
   float y = points_.at(0).y();
   QSizeF size;
 
-  for (int line = 0; line <= line_; ++line) {
-    if (line < line_)
-      size = getStringSize(lines_.at(line));
-    else
-      size = getStringSize(lines_.at(line), cursor_);
-
+  for (int line = 0; line < line_; ++line) {
+    size = getStringSize(lines_.at(line));
     y -= size.height() * (1.0 + spacing_);
   }
 
@@ -280,10 +286,15 @@ void Text::drawIncomplete() const
     // Draw a caret.
     glColor3ub(255, 0, 0);
     glBegin(GL_LINES);
-    glVertex2f(x + size.width(), y + size.height() + margin_);
-    glVertex2f(x + size.width(), y + size.height() * spacing_ - margin_);
+    glVertex2f(x + size.width(), y - size.height() - margin_);
+    glVertex2f(x + size.width(), y + margin_);
     glEnd();
   }
+}
+
+void Text::editItem()
+{
+  EditItemManager::instance()->editItem(this);
 }
 
 } // namespace EditItem_Text

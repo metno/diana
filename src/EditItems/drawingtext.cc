@@ -43,7 +43,7 @@ Text::Text()
 
   properties_["style:fontname"] = QString::fromStdString(poptions.fontname);
   properties_["style:fontface"] = QString::fromStdString(poptions.fontface);
-  properties_["style:fontsize"] = poptions.fontsize;
+  properties_["style:fontsize"] = int(poptions.fontsize);
 }
 
 Text::~Text()

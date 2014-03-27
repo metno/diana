@@ -137,10 +137,10 @@ void EditItemBase::drawHoveredControlPoint() const
 // \a editingStyle is true iff the item's style is currently being edited.
 void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
 {
+  Drawing(this)->draw();
+
   if (incomplete)
     drawIncomplete();
-
-  Drawing(this)->draw();
 
   // draw highlighting if hovered, unless we're editing the style (since then the highlighting would be in the way)
   if ((modes & Hovered) && !editingStyle)

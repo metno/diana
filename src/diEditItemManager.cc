@@ -178,8 +178,8 @@ void EditItemManager::addItem(const QSharedPointer<DrawingItemBase> &item, bool 
     if (hasIncompleteItem()) {
       // issue warning?
     }
-    incompleteItem_ = item;
-    emit incompleteEditing(true);
+    // Start editing the item.
+    editItem(item);
 
   } else {
     // create undo command
@@ -210,6 +210,18 @@ void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
     DrawingManager::addItem_(item);
     if (false) selectItem(item); // for now, don't pre-select new items
     emit itemAdded(item.data());
+}
+
+void EditItemManager::editItem(const QSharedPointer<DrawingItemBase> &item)
+{
+    incompleteItem_ = item;
+    emit incompleteEditing(true);
+}
+
+void EditItemManager::editItem(DrawingItemBase *item)
+{
+    incompleteItem_ = QSharedPointer<DrawingItemBase>(item);
+    emit incompleteEditing(true);
 }
 
 void EditItemManager::removeItem(const QSharedPointer<DrawingItemBase> &item)
@@ -1085,25 +1097,29 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
-      QList<QSharedPointer<QAction> > styleTypeActions;
-      QStringList styleNames = DrawingStyleManager::instance()->styles(hitItem.data()->category());
-      qSort(styleNames);
-      Q_ASSERT(!styleNames.contains("Custom"));
-      styleNames.append("Custom");
-      foreach (QString styleName, styleNames) {
-        if (styleName == "Custom")
-          styleTypeMenu.addSeparator();
-        QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
-        QVariantList data;
-        QVariantList styleItems;
-        foreach (const QSharedPointer<DrawingItemBase> styleItem, getSelectedItems())
-          styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
-        data.append(QVariant(styleItems));
-        data.append(styleName);
-        action->setData(data);
-        connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
-        styleTypeActions.append(QSharedPointer<QAction>(action));
-        styleTypeMenu.addAction(action);
+      styleTypeMenu.setEnabled(!hitItem.isNull());
+
+      if (!hitItem.isNull()) {
+        QList<QSharedPointer<QAction> > styleTypeActions;
+        QStringList styleNames = DrawingStyleManager::instance()->styles(hitItem.data()->category());
+        qSort(styleNames);
+        Q_ASSERT(!styleNames.contains("Custom"));
+        styleNames.append("Custom");
+        foreach (QString styleName, styleNames) {
+          if (styleName == "Custom")
+            styleTypeMenu.addSeparator();
+          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
+          QVariantList data;
+          QVariantList styleItems;
+          foreach (const QSharedPointer<DrawingItemBase> styleItem, getSelectedItems())
+            styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
+          data.append(QVariant(styleItems));
+          data.append(styleName);
+          action->setData(data);
+          connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
+          styleTypeActions.append(QSharedPointer<QAction>(action));
+          styleTypeMenu.addAction(action);
+        }
       }
       contextMenu.addMenu(&styleTypeMenu);
 

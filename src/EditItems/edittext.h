@@ -39,6 +39,8 @@ namespace EditItem_Text {
 
 class Text : public EditItemBase, public DrawingItem_Text::Text
 {
+  Q_OBJECT
+
 public:
   Text();
   virtual ~Text();
@@ -56,6 +58,8 @@ public:
   virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
+  virtual QList<QAction *> actions(const QPoint &) const;
+
 protected:
   virtual void drawHoverHighlighting(bool) const;
   virtual void drawIncomplete() const;
@@ -64,11 +68,15 @@ protected:
   virtual void updateControlPoints();
   virtual void setPoints(const QList<QPointF> &points);
 
+private slots:
+  void editItem();
+
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
   int line_;
   int cursor_;
+  QAction *editAction;
 };
 
 } // namespace EditItem_Text

@@ -65,6 +65,8 @@ public:
     /// Registers a new item with the manager.
     /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
     void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
+    void editItem(const QSharedPointer<DrawingItemBase> &item);
+    void editItem(DrawingItemBase *item);
     void removeItem(const QSharedPointer<DrawingItemBase> &item);
 
     virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
