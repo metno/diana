@@ -53,12 +53,6 @@ protected:
   QColor color_;
 
 private:
-  virtual DrawingItemBase *cloneSpecial() const
-  {
-    // assume this implementation is never called
-    Q_ASSERT(false);
-    return 0;
-  }
   virtual void draw();
 };
 

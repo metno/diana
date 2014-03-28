@@ -150,6 +150,27 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
 {
   QDomElement extDataElem = doc.createElement("ExtendedData");
 
+  // Explictly encode the object type in the extended data.
+  QString objectType;
+  switch (category()) {
+  case PolyLine:
+    objectType = "PolyLine";
+    break;
+  case Symbol:
+    objectType = "Symbol";
+    break;
+  case Text:
+    objectType = "Text";
+    break;
+  case Composite:
+    objectType = "Composite";
+    break;
+  default:
+    objectType = "Undefined";
+    break;
+  }
+  extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:objectType", objectType));
+
   // group ID
   extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:groupId", QString::number(groupId())));
 
@@ -254,4 +275,8 @@ QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) con
   }
 
   return finalElem;
+}
+
+void DrawingItemBase::fromKML(const QHash<QString, QString> &extraExtData)
+{
 }

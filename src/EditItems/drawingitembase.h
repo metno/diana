@@ -93,8 +93,16 @@ public:
   // Returns the item's KML representation.
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
 
+  // Handles conversion of the item's KML representation to internal properties.
+  virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
+
 protected:
-  virtual DrawingItemBase *cloneSpecial() const = 0;
+  virtual DrawingItemBase *cloneSpecial() const
+  {
+    // assume this implementation is never called
+    Q_ASSERT(false);
+    return 0;
+  }
   mutable QVariantMap properties_;
   QList<QPointF> points_;
   QList<QPointF> latLonPoints_;

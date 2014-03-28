@@ -51,12 +51,6 @@ protected:
   virtual Category category() const;
 
 private:
-  virtual DrawingItemBase *cloneSpecial() const
-  {
-    // assume this implementation is never called
-    Q_ASSERT(false);
-    return 0;
-  }
   QString name;
 };
 

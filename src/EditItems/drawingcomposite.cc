@@ -49,7 +49,7 @@ void Composite::draw()
     return;
 }
 
-QDomNode Composite::toKML() const
+QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
   return DrawingItemBase::toKML(); // call base implementation for now
 }

@@ -89,6 +89,30 @@ static inline SymbolType *createSymbol(const QPointF &point, const QDomNode &coo
   return symbol;
 }
 
+// Creates and returns a new Text item.
+template<typename TextType>
+static inline TextType *createText(const QList<QPointF> &points, const QDomNode &coordsNode,
+                                   const QHash<QString, QString> &extData)
+{
+  Q_UNUSED(coordsNode); // might be needed later
+  TextType *item = new TextType();
+  item->setLatLonPoints(points);
+  item->fromKML(extData);
+  return item;
+}
+
+// Creates and returns a new Composite item.
+template<typename CompositeType>
+static inline CompositeType *createComposite(const QList<QPointF> &points, const QDomNode &coordsNode,
+                                             const QHash<QString, QString> &extData)
+{
+  Q_UNUSED(coordsNode); // might be needed later
+  CompositeType *item = new CompositeType();
+  item->setLatLonPoints(points);
+  item->fromKML(extData);
+  return item;
+}
+
 // Returns a list of item layers extracted from DOM document \a doc.
 // Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
 // Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
@@ -117,14 +141,29 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
       const QList<QPointF> points = getPoints(coordsNode, error);
       if (!error->isEmpty())
         return QList<QSharedPointer<EditItems::Layer> >();
+
+      // Find the extended data associated with the coordinates.
+
+      const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
+      if (pmExtData.isEmpty()) {
+        *error = "<Placemark> element without <ExtendedData> element found";
+        return QList<QSharedPointer<EditItems::Layer> >();
+      }
+
+      // Create a suitable item for this KML structure.
+
       BaseType *itemObj = 0;
-      // create either a PolyLine or a Symbol based on the number of points alone
-      if (points.size() > 1) {
+      QString objectType = pmExtData.value("met:objectType");
+      if (objectType == "PolyLine") {
         itemObj = createPolyLine<PolyLineType>(points, coordsNode);
-      } else if (points.size() == 1) {
+      } else if (objectType == "Symbol") {
         itemObj = createSymbol<SymbolType>(points.first(), coordsNode);
+      } else if (objectType == "Text") {
+        itemObj = createText<TextType>(points, coordsNode, pmExtData);
+      } else if (objectType == "Composite") {
+        itemObj = createComposite<CompositeType>(points, coordsNode, pmExtData);
       } else {
-        *error = QString("empty <coordinates> element found");
+        *error = QString("unknown element found");
         return QList<QSharedPointer<EditItems::Layer> >();
       }
       Q_ASSERT(itemObj);
@@ -137,11 +176,6 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
         finalGroupId.insert(groupId, ditem->id()); // NOTE: item->data() is just created, and its ID is globally unique!
       ditem->setProperty("groupId", finalGroupId.value(groupId));
 
-      const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
-      if (pmExtData.isEmpty()) {
-        *error = "<Placemark> element without <ExtendedData> element found";
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
       DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
 
       if (pmExtData.contains("met:layerId"))  {

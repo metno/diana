@@ -40,7 +40,7 @@ class Composite : public DrawingItemBase
 public:
   Composite();
   virtual ~Composite();
-  virtual QDomNode toKML() const;
+  virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
 
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;

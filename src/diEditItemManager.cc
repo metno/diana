@@ -1018,7 +1018,8 @@ void EditItemManager::setCreateTextMode()
   abortEditing();
 
   mode_ = CreateTextMode;
-  qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
+  const QCursor cursor(Qt::PointingHandCursor);
+  emit setWorkAreaCursor(cursor);
 }
 
 void EditItemManager::setCreateCompositeMode()
@@ -1026,7 +1027,8 @@ void EditItemManager::setCreateCompositeMode()
   abortEditing();
 
   mode_ = CreateCompositeMode;
-  qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
+  const QCursor cursor(Qt::PointingHandCursor);
+  emit setWorkAreaCursor(cursor);
 }
 
 void EditItemManager::handleSelectionChange()

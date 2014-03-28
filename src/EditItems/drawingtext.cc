@@ -94,11 +94,6 @@ void Text::draw()
   styleManager->endText(this);
 }
 
-QDomNode Text::toKML() const
-{
-  return DrawingItemBase::toKML(); // call base implementation for now
-}
-
 QSizeF Text::getStringSize(const QString &text, int index) const
 {
   if (index == -1)
@@ -117,6 +112,22 @@ QSizeF Text::getStringSize(const QString &text, int index) const
 DrawingItemBase::Category Text::category() const
 {
   return DrawingItemBase::Text;
+}
+
+QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
+{
+  QHash<QString, QString> extra;
+  extra["text"] = lines_.join("\n");
+  extra["margin"] = QString::number(margin_);
+  extra["spacing"] = QString::number(spacing_);
+  return DrawingItemBase::toKML(extra.unite(extraExtData));
+}
+
+void Text::fromKML(const QHash<QString, QString> &extraExtData)
+{
+  lines_ = extraExtData.value("met:text", "").split("\n");
+  margin_ = extraExtData.value("met:margin", "4").toInt();
+  spacing_ = extraExtData.value("met:spacing", "0.5").toFloat();
 }
 
 } // namespace
