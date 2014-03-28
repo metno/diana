@@ -40,10 +40,6 @@ Text::Text()
 {
   margin_ = 4;
   spacing_ = 0.5;
-
-  properties_["style:fontname"] = QString::fromStdString(poptions.fontname);
-  properties_["style:fontface"] = QString::fromStdString(poptions.fontface);
-  properties_["style:fontsize"] = int(poptions.fontsize);
 }
 
 Text::~Text()
@@ -76,9 +72,10 @@ void Text::draw()
 
   // Fill in the default font settings from the plot options object. These
   // will be overridden if equivalent properties are found.
-  QString fontName;
-  QString fontFace;
-  float fontSize;
+  QString fontName = QString::fromStdString(poptions.fontname);
+  QString fontFace = QString::fromStdString(poptions.fontface);
+  float fontSize = poptions.fontsize;
+
   styleManager->beginText(this, fontName, fontFace, fontSize);
 
   GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());

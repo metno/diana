@@ -104,9 +104,6 @@ QVariant DSP_filltransparency::parse(const QHash<QString, QString> &def) const {
 QString DSP_fillpattern::name() { return "fillpattern"; }
 QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
 
-QString DSP_textcolour::name() { return "textcolour"; }
-QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
-
 QString DSP_closed::name() { return "closed"; }
 QVariant DSP_closed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "true") == "true"; }
 
@@ -127,6 +124,18 @@ QVariant DSP_decoration2_colour::parse(const QHash<QString, QString> &def) const
 
 QString DSP_decoration2_offset::name() { return "decoration2.offset"; }
 QVariant DSP_decoration2_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
+
+QString DSP_textcolour::name() { return "textcolour"; }
+QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
+
+QString DSP_fontname::name() { return "fontname"; }
+QVariant DSP_fontname::parse(const QHash<QString, QString> &def) const { return def.value(name(), "SCALEFONT"); }
+
+QString DSP_fontface::name() { return "fontface"; }
+QVariant DSP_fontface::parse(const QHash<QString, QString> &def) const { return def.value(name(), "NORMAL"); }
+
+QString DSP_fontsize::name() { return "fontsize"; }
+QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), "10"); }
 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
@@ -164,6 +173,9 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Text].insert(DSP_fillcolour::name(), new DSP_fillcolour);
   properties_[DrawingItemBase::Text].insert(DSP_filltransparency::name(), new DSP_filltransparency);
   properties_[DrawingItemBase::Text].insert(DSP_textcolour::name(), new DSP_textcolour);
+  properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
+  properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
+  properties_[DrawingItemBase::Text].insert(DSP_fontsize::name(), new DSP_fontsize);
 }
 
 DrawingStyleManager::~DrawingStyleManager()
@@ -725,9 +737,9 @@ void DrawingStyleManager::beginText(DrawingItemBase *item, QString &fontName, QS
   else
     glColor3f(0.0, 0.0, 0.0);
 
-  fontName = style.value("fontname", item->property("style:fontname")).toString();
-  fontFace = style.value("fontface", item->property("style:fontface")).toString();
-  fontSize = style.value("fontsize", item->property("style:fontsize")).toFloat();
+  fontName = style.value("fontname", fontName).toString();
+  fontFace = style.value("fontface", fontFace).toString();
+  fontSize = style.value("fontsize", fontSize).toFloat();
 }
 
 void DrawingStyleManager::endText(DrawingItemBase *item)

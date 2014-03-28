@@ -127,14 +127,6 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
-class DSP_textcolour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
 class DSP_closed : public DrawingStyleProperty
 {
 public:
@@ -184,6 +176,38 @@ private:
 };
 
 class DSP_decoration2_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_textcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontname : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontface : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontsize : public DrawingStyleProperty
 {
 public:
   static QString name();

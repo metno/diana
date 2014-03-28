@@ -51,6 +51,7 @@
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
 #include "paint_create_symbol.xpm"
+#include "paint_create_text.xpm"
 
 #define PLOTM PlotModule::instance()
 
@@ -108,7 +109,7 @@ EditItemManager::EditItemManager()
     //createSymbolAction->setShortcut(tr("Ctrl+???"));
     createSymbolAction->setCheckable(true);
 
-    createTextAction = new QAction(tr("Text"), this);
+    createTextAction = new QAction(QPixmap(paint_create_text_xpm), tr("Text"), this);
     createTextAction->setCheckable(true);
 
     createCompositeAction = new QAction(tr("Composite"), this);
