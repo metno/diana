@@ -158,12 +158,36 @@ bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
 
   if(aa<0) return false;
 
+  //ex: channelinfo=twilight:4;day:1+2+4;night:3+4+5
+  std::vector<std::string> vchannels = miutil::split(fInfo.channelinfo,";");
+
+  if ( vchannels.size()==3 ) {
+
+    std::map< std::string, std::string > mchannels;
+    for ( int i=0; i<3 ;++i ) {
+      std::vector<std::string> token = miutil::split(vchannels[i],":");
+      if ( token.size() == 2 ) {
+        mchannels[token[0]] = token[1];
+      }
+    }
+    if ( aa==0 ){       //twilight
+      channels = mchannels["twilight"];
+    } else if ( aa==2 ) { //day
+      channels = mchannels["day"];
+    } else if ( aa==1 ) { //night
+      channels = mchannels["night"];
+    }
+  } else {
+
     if(aa==0){       //twilight
       channels = fInfo.channel.at(4-1); //"4"
-  } else if(aa==2){ //day
-    channels = fInfo.channel.at(1-1) + "+" + fInfo.channel.at(2-1) + "+" + fInfo.channel.at(4-1); //"1+2+4";
-  } else if(aa==1){ //night
-    channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
+    } else if(aa==2){ //day
+      channels = fInfo.channel.at(1-1) + "+" + fInfo.channel.at(2-1) + "+" + fInfo.channel.at(4-1); //"1+2+4";
+    } else if(aa==1){ //night
+      channels = fInfo.channel.at(3-1) + "+" + fInfo.channel.at(4-1) + "+" + fInfo.channel.at(5-1); //"3+4+5";
+    }
+
   }
+
   return true;
 }
