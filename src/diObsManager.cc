@@ -1549,7 +1549,7 @@ void ObsManager::printProdInfo(const ProdInfo & pinfo)
 bool ObsManager::parseSetup()
 {
 
-  //  METLIBS_LOG_DEBUG("Obs: parseSetup");
+  METLIBS_LOG_DEBUG("Obs: parseSetup");
   const std::string obs_name = "OBSERVATION_FILES";
   vector<std::string> sect_obs;
 
@@ -1808,7 +1808,7 @@ bool ObsManager::parseSetup()
       miutil::remove(Prod[prod].timeInfo, '"');
 
     }
-    printProdInfo(Prod[prod]);
+    //printProdInfo(Prod[prod]);
   }
   // *******  Priority List ********************
 
