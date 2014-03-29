@@ -38,6 +38,7 @@
 #include <puTools/miTime.h>
 
 #include <boost/bimap/bimap.hpp>
+#include <boost/foreach.hpp>
 
 #include <map>
 #include <set>
