@@ -264,7 +264,8 @@ dist_div_DATA= share/diana/UK_lyn.header \
 	share/diana/obsflag.html \
 	share/diana/amdar.stations \
 	share/diana/ogckml22.xsd \
-	share/diana/atom-author-link.xsd
+	share/diana/atom-author-link.xsd \
+	share/diana/xAL.xsd
 
 symbolsdir= $(datarootdir)/diana/@PVERSION@/images/symbols
 dist_symbols_DATA= \
