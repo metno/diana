@@ -1033,5 +1033,6 @@ style="Jet stream"                              linecolour=black linewidth=3 lin
                                                 closed=false filltransparency=0
 
 # Text styles
-textstyle="Default" linecolour=black linetransparency=0 fillcolour=white filltransparency=255 textcolour=black
+textstyle="Label" linecolour=black linetransparency=0 fillcolour=white filltransparency=255 textcolour=black fontsize=10
+textstyle="Large text" linecolour=black linetransparency=0 fillcolour=white filltransparency=255 textcolour=black fontsize=20
 </DRAWING>
