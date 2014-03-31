@@ -93,9 +93,14 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   float width, height;
   fp->getStringSize(text.left(index).toStdString().c_str(), width, height);
 
-  height = qMax(height, poptions.fontsize);
+  QSizeF size(width, height);
 
-  return QSizeF(width, height);
+  if (height == 0) {
+    fp->getStringSize("X", width, height);
+    size.setHeight(qMax(height, poptions.fontsize));
+  }
+
+  return size;
 }
 
 DrawingItemBase::Category Text::category() const
