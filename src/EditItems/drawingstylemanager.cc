@@ -368,6 +368,10 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   QList<QPointF> points_;
 
+  // For smooth lines, we try to fit a smooth curve through the points defined
+  // for the existing lines. The list of points obtained contains enough
+  // points to show a smooth line.
+
   if (style.value(DSP_linesmooth::name()).toBool())
     points_ = interpolateToPoints(points, closed);
   else
@@ -407,6 +411,17 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
   }
 }
 
+/**
+ * Draws the given \a decoration using the \a style specified on the polyline
+ * described by the list of \a points.
+ *
+ * The \a closed argument describes whether the decoration is being applied
+ * to a closed polyline, \a side determines which side of the polyline the
+ * decoration will appear, and \a offset describes the spacing from the start
+ * of the polyline to the first decoration.
+ *
+ * The \a z argument specifies the z coordinate of the decorations.
+ */
 void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString &decoration, bool closed,
                                          const Side &side, const QList<QPointF> &points, int z,
                                          unsigned int offset) const
@@ -727,7 +742,7 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
   return new_points;
 }
 
-void DrawingStyleManager::beginText(DrawingItemBase *item, QString &fontName, QString &fontFace, float &fontSize)
+void DrawingStyleManager::beginText(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions)
 {
   QVariantMap style = getStyle(item);
   QColor textColour = style.value("textcolour").value<QColor>();
@@ -737,12 +752,16 @@ void DrawingStyleManager::beginText(DrawingItemBase *item, QString &fontName, QS
   else
     glColor3f(0.0, 0.0, 0.0);
 
-  fontName = style.value("fontname", fontName).toString();
-  fontFace = style.value("fontface", fontFace).toString();
-  fontSize = style.value("fontsize", fontSize).toFloat();
+  // Fill in the default font settings from the plot options object. These
+  // will be overridden if equivalent properties are found.
+  QString fontName = style.value("fontname", QString::fromStdString(poptions.fontname)).toString();
+  QString fontFace = style.value("fontface", QString::fromStdString(poptions.fontface)).toString();
+  float fontSize = style.value("fontsize", poptions.fontsize).toFloat();
+
+  fp->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
 }
 
-void DrawingStyleManager::endText(DrawingItemBase *item)
+void DrawingStyleManager::endText(const DrawingItemBase *item)
 {
   Q_UNUSED(item)
 }

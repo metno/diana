@@ -41,6 +41,8 @@
 #include <QVariantMap>
 #include <QColor>
 
+#include "diFontManager.h"
+#include "diPlotOptions.h"
 #include "EditItems/drawingitembase.h"
 
 class DrawingItemBase;
@@ -235,8 +237,8 @@ public:
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
-  void beginText(DrawingItemBase *item, QString &fontName, QString &fontFace, float &fontSize);
-  void endText(DrawingItemBase *item);
+  void beginText(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions);
+  void endText(const DrawingItemBase *item);
 
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;

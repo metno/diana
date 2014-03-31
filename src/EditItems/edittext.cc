@@ -33,6 +33,7 @@
 #include "diEditItemManager.h"
 #include "diPlot.h"
 #include "diFontManager.h"
+#include "EditItems/drawingstylemanager.h"
 
 namespace EditItem_Text {
 
@@ -220,6 +221,10 @@ void Text::updateControlPoints()
   float y = points_.at(0).y();
   qreal width = 0;
 
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
+  styleManager->beginText(this, fp, scale, poptions);
+
   for (int i = 0; i < lines_.size(); ++i) {
     QString text = lines_.at(i);
     QSizeF size = getStringSize(text);
@@ -275,6 +280,10 @@ void Text::drawIncomplete() const
   float x = points_.at(0).x();
   float y = points_.at(0).y();
   QSizeF size;
+
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
+  styleManager->beginText(this, fp, scale, poptions);
 
   for (int line = 0; line < line_; ++line) {
     size = getStringSize(lines_.at(line));

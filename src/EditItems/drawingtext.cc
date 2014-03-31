@@ -70,23 +70,14 @@ void Text::draw()
   styleManager->drawLines(this, points);
   styleManager->endLine(this);
 
-  // Fill in the default font settings from the plot options object. These
-  // will be overridden if equivalent properties are found.
-  QString fontName = QString::fromStdString(poptions.fontname);
-  QString fontFace = QString::fromStdString(poptions.fontface);
-  float fontSize = poptions.fontsize;
-
-  styleManager->beginText(this, fontName, fontFace, fontSize);
-
   GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
-  fp->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
+  styleManager->beginText(this, fp, scale, poptions);
 
   float x = points_.at(0).x();
   float y = points_.at(0).y();
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);
-    size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
     fp->drawStr(text.toStdString().c_str(), x, y - size.height(), 0);
     y -= size.height() * (1.0 + spacing_);
   }
@@ -100,8 +91,6 @@ QSizeF Text::getStringSize(const QString &text, int index) const
     index = text.size();
 
   float width, height;
-  GLfloat s = qMax(pwidth/maprect.width(), pheight/maprect.height());
-  fp->set(poptions.fontname, poptions.fontface, poptions.fontsize * s);
   fp->getStringSize(text.left(index).toStdString().c_str(), width, height);
 
   height = qMax(height, poptions.fontsize);
