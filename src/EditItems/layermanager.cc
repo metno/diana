@@ -96,11 +96,11 @@ void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const
              existingLayerGroup->name().toLatin1().data());
 
     ensureUniqueLayerName(layer);
+    orderedLayers_.append(layer);
     layer->layerGroup_ = layerGroup;
   }
 
   layerGroup->layers_.append(layers);
-  orderedLayers_.append(layers);
 }
 
 void LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers)
