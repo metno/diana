@@ -50,7 +50,7 @@ class LayerManager : public QObject
   Q_OBJECT
 public:
   static LayerManager *instance();
-  void reset();
+  void resetFirstDefaultLayer();
   QSharedPointer<Layer> currentLayer(bool = false) const;
   void setCurrentLayer(const QSharedPointer<Layer> &);
   QSharedPointer<LayerGroup> &defaultLayerGroup();

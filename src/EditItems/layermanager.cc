@@ -57,15 +57,11 @@ LayerManager *LayerManager::instance()
 
 LayerManager *LayerManager::self = 0;
 
-// Clear everything, and keep just the default (empty) layer in the default group.
-void LayerManager::reset()
+// Clears the first layer in the default layer group and set this as the current layer.
+void LayerManager::resetFirstDefaultLayer()
 {
-  while (layerGroups_.size() > 1)
-    layerGroups_.removeAt(layerGroups_.size() - 1);
-  while (orderedLayers_.size() > 1)
-    orderedLayers_.removeAt(orderedLayers_.size() - 1);
-  orderedLayers_.first()->clearItems(false);
-  currLayer_ = orderedLayers_.first();
+  currLayer_ = defaultLayerGroup()->layersRef().first();
+  currLayer_->clearItems();
 }
 
 QSharedPointer<Layer> LayerManager::currentLayer(bool editableOnly) const

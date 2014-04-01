@@ -152,7 +152,7 @@ bool DrawingManager::parseSetup()
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
 #if 1
-  EditItems::LayerManager::instance()->reset();
+  EditItems::LayerManager::instance()->resetFirstDefaultLayer();
 #else
   const QSharedPointer<EditItems::Layer> layer = CurrentLayer;
   if (!layer.isNull()) {

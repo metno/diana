@@ -149,6 +149,18 @@ LayerGroupsPane::LayerGroupsPane()
   mainLayout->addWidget(groupBox);
   setLayout(mainLayout);
 
+  // add additional example layer groups
+  foreach (const QString &fileName, DrawingManager::instance()->getDrawings()) {
+    QString error;
+    const QList<QSharedPointer<Layer> > layers =
+        KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+        EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
+    if (error.isEmpty())
+      LayerManager::instance()->addToNewLayerGroup(layers);
+    else
+      qDebug() << QString("failed to load additional example layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
+  }
+
   updateWidgetStructure();
 
 #if 0 // disabled for now
