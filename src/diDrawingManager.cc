@@ -35,7 +35,7 @@
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
-#include <EditItems/layers.h>
+#include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
@@ -151,18 +151,22 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
+#if 1
+  EditItems::LayerManager::instance()->reset();
+#else
   const QSharedPointer<EditItems::Layer> layer = CurrentLayer;
   if (!layer.isNull()) {
 
     // New input has been submitted, so remove the items from the set.
     // This will automatically cause items to be removed from the editing
     // dialog in interactive mode.
-    QSet<QSharedPointer<DrawingItemBase> > items = layer->itemsRef();
+    const QSet<QSharedPointer<DrawingItemBase> > items = layer->itemSet();
     foreach (QSharedPointer<DrawingItemBase> item, items.values())
-      removeItem_(item);
+      removeItem_(item);    
   } else {
     EditItems::Layers::instance()->addEmpty();
   }
+#endif
 
   loaded_.clear();
 
@@ -195,7 +199,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  setEnabled(!CurrentLayer->itemsRef().empty());
+  Q_ASSERT(CurrEditLayer);
+  setEnabled(CurrEditLayer->itemCount() > 0);
 
   return true;
 }
@@ -217,7 +222,8 @@ QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVari
 
 void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  CurrentLayer->itemsRef().insert(item);
+  Q_ASSERT(CurrEditLayer);
+  CurrEditLayer->insertItem(item);
 }
 
 bool DrawingManager::loadItems(const QString &fileName)
@@ -239,25 +245,22 @@ bool DrawingManager::loadItems(const QString &fileName)
 
   // initialize screen coordinates from lat/lon
   foreach (QSharedPointer<EditItems::Layer> layer, layers) {
-    foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
-      setFromLatLonPoints(*item, item->getLatLonPoints());
-    }
+    for (int i = 0; i < layer->itemCount(); ++i)
+      setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  // set layers (replacing any existing ones)
-  EditItems::Layers::instance()->set(layers);
+  EditItems::LayerManager::instance()->replaceInDefaultLayerGroup(layers);
 
   drawings_.insert(fileName);
   loaded_.insert(fileName);
-
-
 
   return true;
 }
 
 void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  CurrentLayer->itemsRef().remove(item);
+  Q_ASSERT(CurrEditLayer);
+  CurrEditLayer->removeItem(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
@@ -323,12 +326,12 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::vector<miutil::miTime> output;
 
-  if (CurrentLayer) {
+  if (CurrLayer) {
     std::set<miutil::miTime> times;
 
-    foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
+    for (int i = 0; i < CurrLayer->itemCount(); ++i) {
       std::string time_str;
-      std::string prop_str = timeProperty(item->propertiesRef(), time_str);
+      std::string prop_str = timeProperty(CurrLayer->item(i)->propertiesRef(), time_str);
       if (!time_str.empty())
         times.insert(miutil::miTime(time_str));
     }
@@ -369,7 +372,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 {
   bool found = false;
 
-  if (CurrentLayer) {
+  if (CurrLayer) {
 
     // Check the requested time against the available times.
     std::vector<miutil::miTime>::const_iterator it;
@@ -383,15 +386,14 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     }
 
     // Change the visibility of items in the editor.
-
-    foreach (QSharedPointer<DrawingItemBase> item, CurrentLayer->itemsRef()) {
+    for (int i = 0; i < CurrLayer->itemCount(); ++i) {
       std::string time_str;
-      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
+      std::string time_prop = timeProperty(CurrLayer->item(i)->propertiesRef(), time_str);
       if (time_prop.empty() || isEditing())
-        item->setProperty("visible", true);
+        CurrLayer->item(i)->setProperty("visible", true);
       else {
         bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
-        item->setProperty("visible", visible);
+        CurrLayer->item(i)->setProperty("visible", visible);
       }
     }
   }
@@ -422,13 +424,13 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  EditItems::Layers *layers = EditItems::Layers::instance();
-  for (int i = 0; i < layers->size(); ++i) {
+  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
 
-    const QSharedPointer<EditItems::Layer> layer = layers->at(i);
-    if (layer->isVisible()) {
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+    if (layer->isActive() && layer->isVisible()) {
 
-      QList<QSharedPointer<DrawingItemBase> > items = layer->itemsRef().values();
+      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
       qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
@@ -444,12 +446,9 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-QSet<QSharedPointer<DrawingItemBase> > DrawingManager::getItems() const
+int DrawingManager::itemCount() const
 {
-  if (!CurrentLayer)
-    return QSet<QSharedPointer<DrawingItemBase> >();
-  else
-    return CurrentLayer->itemsRef();
+  return CurrLayer ? CurrLayer->itemCount() : 0;
 }
 
 QSet<QString> &DrawingManager::getDrawings()

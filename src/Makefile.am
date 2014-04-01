@@ -159,6 +159,9 @@ diana_qt_sources = \
 	EditItems/style.cc \
 	EditItems/toolbar.cc \
 	EditItems/dialog.cc \
+	EditItems/layergroupspane.cc \
+	EditItems/activelayerspane.cc \
+	EditItems/dialogcommon.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -247,7 +250,9 @@ bdiana_qt_sources = \
 	diOrderListener.cc \
 	diOrderQueue.cc \
 	diWorkOrder.cc \
-	EditItems/layers.cc
+	EditItems/layer.cc \
+	EditItems/layergroup.cc \
+	EditItems/layermanager.cc
 
 if WITH_EMBEDDED
 bdiana_qt_sources += \
@@ -279,12 +284,17 @@ noinst_HEADERS = \
 	EditItems/editpolyline.h \
 	EditItems/editsymbol.h \
 	EditItems/edittext.h \
-	EditItems/layers.h \
+	EditItems/layer.h \
+	EditItems/layergroup.h \
+	EditItems/layermanager.h \
 	EditItems/kml.h \
 	EditItems/properties.h \
 	EditItems/style.h \
 	EditItems/toolbar.h \
 	EditItems/dialog.h \
+	EditItems/layergroupspane.h \
+	EditItems/activelayerspane.h \
+	EditItems/dialogcommon.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \

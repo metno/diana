@@ -89,7 +89,7 @@ public:
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
 
-  QSet<QSharedPointer<DrawingItemBase> > getItems() const;
+  int itemCount() const;
 
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 

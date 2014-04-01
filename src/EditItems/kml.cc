@@ -87,10 +87,10 @@ void saveToFile(const QString &fileName, const QList<QSharedPointer<EditItems::L
   // insert items
   layerIndex = 0;
   foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
-    foreach (const QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
+    for (int i = 0; i < layer->itemCount(); ++i) {
       QHash<QString, QString> extraExtData;
       extraExtData.insert("layerId", QString::number(layerIndex));
-      innerStruct.appendChild(item->toKML(extraExtData));
+      innerStruct.appendChild(layer->item(i)->toKML(extraExtData));
     }
     layerIndex++;
   }

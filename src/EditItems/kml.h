@@ -42,9 +42,11 @@
 #include <QDomElement>
 #include <QXmlSchema>
 #include <QPointF>
+#include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
-#include <EditItems/layers.h>
+#include <EditItems/layer.h>
+#include <EditItems/layermanager.h>
 
 // API for saving/loading to/from KML files.
 namespace KML {
@@ -115,7 +117,7 @@ static inline CompositeType *createComposite(const QList<QPointF> &points, const
 
 // Returns a list of item layers extracted from DOM document \a doc.
 // Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
-// Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
+// Upon failure, the function returns an empty list of item layers and a failure reason in \a error.
 // If the document contains no layer information, the items are returned in a single layer with default properties.
 template<typename BaseType, typename PolyLineType, typename SymbolType,
          typename TextType, typename CompositeType>
@@ -245,7 +247,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
         return QList<QSharedPointer<EditItems::Layer> >();
       }
       if (!idToLayer.contains(id))
-        idToLayer.insert(id, QSharedPointer<EditItems::Layer>(new EditItems::Layer));
+        idToLayer.insert(id, EditItems::LayerManager::instance()->createNewLayer());
       QSharedPointer<EditItems::Layer> layer = idToLayer.value(id);
       if (rx.cap(2) == "name") {
         // register the layer name
@@ -295,13 +297,13 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
         *error = QString("item with layer ID outside valid range ([0, %1]): %2").arg(layers.size() - 1).arg(layerId);
         return QList<QSharedPointer<EditItems::Layer> >();
       }
-      layers.at(layerId)->itemsRef().insert(item);
+      layers.at(layerId)->insertItem(item, false);
     } else {
       // item does not have a layer ID, so insert in default layer
       if (defaultLayer.isNull())
         // create default layer with empty name (note: none of the other layers may have an empty name)
-        defaultLayer = QSharedPointer<EditItems::Layer>(new EditItems::Layer);
-      defaultLayer->itemsRef().insert(item);
+        defaultLayer = EditItems::LayerManager::instance()->createNewLayer();
+      defaultLayer->insertItem(item);
     }
   }
 
@@ -357,7 +359,15 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(const QStr
   // at this point, a document is successfully created from either the new or the old format
 
   // parse document and create items
-  return createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(doc, error);
+  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(doc, error);
+
+  // initialize screen coordinates from lat/lon
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    for (int i = 0; i < layer->itemCount(); ++i)
+      DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
+  }
+
+  return layers;
 }
 
 } // namespace

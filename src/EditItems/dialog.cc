@@ -29,282 +29,28 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diEditItemManager.h"
-#include "diController.h"
+#include <diEditItemManager.h>
+#include <diController.h>
 #include <EditItems/dialog.h>
 #include <EditItems/toolbar.h>
-#include <EditItems/kml.h>
-#include <EditItems/editpolyline.h>
-#include <EditItems/editsymbol.h>
-#include <EditItems/edittext.h>
-#include <EditItems/editcomposite.h>
-
+#include <EditItems/layergroupspane.h>
+#include <EditItems/activelayerspane.h>
 #include <paint_mode.xpm> // ### for now
-#include "addempty.xpm"
-#include "duplicate.xpm"
-#include "edit.xpm"
-#include "empty.xpm"
-#include "fileopen.xpm"
-#include "filesave.xpm"
-#include "hideall.xpm"
-#include "mergevisible.xpm"
-#include "movedown.xpm"
-#include "moveup.xpm"
-#include "remove.xpm"
-#include "showall.xpm"
-#include "visible.xpm"
-#include "unsavedchanges.xpm"
-
 #include <QAction>
 #include <QApplication>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QFileInfo>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QInputDialog>
-#include <QListView>
-#include <QMenu>
-#include <QMessageBox>
-#include <QMouseEvent>
 #include <QSplitter>
-#include <QTimer>
-#include <QToolButton>
 #include <QVBoxLayout>
 
+#include <EditItems/layer.h>
+#include <EditItems/layergroup.h>
+#include <EditItems/layermanager.h>
+#include <QPushButton> // ### FOR TESTING
+#include <QCheckBox> // ### FOR TESTING
+#include <QDebug>
+
 namespace EditItems {
-
-CheckableLabel::CheckableLabel(bool checked, const QPixmap &pixmap, const QString &checkedToolTip, const QString &uncheckedToolTip, bool clickable)
-  : checked_(checked)
-  , pixmap_(pixmap)
-  , checkedToolTip_(checkedToolTip)
-  , uncheckedToolTip_(uncheckedToolTip)
-  , clickable_(clickable)
-{
-  setMargin(0);
-  setChecked(checked_);
-}
-
-void CheckableLabel::setChecked(bool enabled)
-{
-  checked_ = enabled;
-  if (checked_) {
-    setPixmap(pixmap_);
-    setToolTip(checkedToolTip_);
-  } else {
-    setPixmap(empty_xpm);
-    setToolTip(uncheckedToolTip_);
-  }
-}
-
-void CheckableLabel::mousePressEvent(QMouseEvent *event)
-{
-  if (clickable_ && (event->button() & Qt::LeftButton))
-    setChecked(!checked_);
-  emit mouseClicked(event);
-  emit checked(checked_);
-}
-
-NameLabel::NameLabel(const QString &name)
-  : QLabel(name)
-{
-  setMargin(0);
-}
-
-void NameLabel::mousePressEvent(QMouseEvent *event)
-{
-  emit mouseClicked(event);
-}
-
-void NameLabel::mouseDoubleClickEvent(QMouseEvent *event)
-{
-  emit mouseDoubleClicked(event);
-}
-
-LayerWidget::LayerWidget(const QSharedPointer<Layer> &layer, QWidget *parent)
-  : QWidget(parent)
-  , layer_(layer)
-{
-  setContentsMargins(0, 0, 0, 0);
-
-  QHBoxLayout *mainLayout = new QHBoxLayout(this);
-  mainLayout->setContentsMargins(0, 0, 0, 0);
-  mainLayout->setMargin(0);
-  mainLayout->setSpacing(0);
-
-  visibleLabel_ = new CheckableLabel(
-        layer_->isVisible(), visible_xpm, "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
-  connect(visibleLabel_, SIGNAL(checked(bool)), SLOT(handleVisibilityChanged(bool)));
-  mainLayout->addWidget(visibleLabel_);
-
-  static int nn = 0;
-  unsavedChangesLabel_ = new CheckableLabel(
-        nn++ % 2, unsavedchanges_xpm, "the layer has unsaved changes\n(do ??? to save them)", "the layer does not have any unsaved changes", false);
-  connect(unsavedChangesLabel_, SIGNAL(mouseClicked(QMouseEvent *)), SIGNAL(mouseClicked(QMouseEvent *)));
-  mainLayout->addWidget(unsavedChangesLabel_);
-
-  nameLabel_ = new NameLabel(layer_->name());
-  nameLabel_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-  connect(nameLabel_, SIGNAL(mouseClicked(QMouseEvent *)), SIGNAL(mouseClicked(QMouseEvent *)));
-  connect(nameLabel_, SIGNAL(mouseDoubleClicked(QMouseEvent *)), SIGNAL(mouseDoubleClicked(QMouseEvent *)));
-  mainLayout->addWidget(nameLabel_);
-}
-
-LayerWidget::~LayerWidget()
-{
-  Layers::instance()->remove(layer_);
-}
-
-QSharedPointer<Layer> LayerWidget::layer()
-{
-  return layer_;
-}
-
-QString LayerWidget::name() const
-{
-  return layer_->name();
-}
-
-void LayerWidget::setName(const QString &name)
-{
-  const QString trimmedName = name.trimmed();
-  nameLabel_->setText(trimmedName);
-  layer_->setName(trimmedName);
-}
-
-bool LayerWidget::isLayerVisible() const
-{
-  return layer_->isVisible();
-}
-
-void LayerWidget::setLayerVisible(bool visible)
-{
-  visibleLabel_->setChecked(visible);
-  layer_->setVisible(visible);
-}
-
-bool LayerWidget::hasUnsavedChanges() const
-{
-  return layer_->hasUnsavedChanges();
-}
-
-void LayerWidget::setUnsavedChanges(bool unsavedChanges)
-{
-  unsavedChangesLabel_->setChecked(unsavedChanges);
-}
-
-void LayerWidget::setCurrent(bool current)
-{
-  const QString ssheet(current ? "QLabel { background-color : #f27b4b; color : black; }" : "");
-  visibleLabel_->setStyleSheet(ssheet);
-  unsavedChangesLabel_->setStyleSheet(ssheet);
-  nameLabel_->setStyleSheet(ssheet);
-}
-
-void LayerWidget::editName()
-{
-  QString name = nameLabel_->text();
-
-  while (true) {
-    bool ok;
-    name = QInputDialog::getText(this, "Edit layer name", "Layer name:", QLineEdit::Normal, name, &ok).trimmed();
-    if (ok) {
-      const QSharedPointer<Layer> existingLayer = Layers::instance()->layerFromName(name);
-      if (existingLayer.isNull()) {
-        setName(name);
-        break; // ok (changed)
-      } else if (existingLayer == layer()) {
-        break; // ok (unchanged)
-      } else {
-        QMessageBox::warning(this, "Name exists", "Another layer with this name already exists!", QMessageBox::Ok);
-        // try again
-      }
-    } else {
-      break; // cancel
-    }
-  }
-}
-
-void LayerWidget::handleVisibilityChanged(bool visible)
-{
-  layer_->setVisible(visible);
-  emit visibilityChanged(visible);
-}
-
-ScrollArea::ScrollArea(QWidget *parent)
-  : QScrollArea(parent)
-{
-}
-
-void ScrollArea::keyPressEvent(QKeyEvent *event)
-{
-  event->ignore();
-}
-
-QWidget *Dialog::createAvailableLayersPane()
-{
-  QGroupBox *groupBox = new QGroupBox(tr("Available Layers"));
-
-  drawingList = new QListView();
-  drawingList->setModel(&drawingModel);
-  drawingList->setSelectionMode(QAbstractItemView::MultiSelection);
-  drawingList->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-  connect(drawingList->selectionModel(),
-          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          this, SLOT(updateButtons()));
-
-  QHBoxLayout *bottomLayout = new QHBoxLayout;
-  bottomLayout->addWidget(importFilesButton_ = createToolButton(QPixmap(movedown_xpm), "Import files as layer", SLOT(importChosenFiles())));
-  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
-
-  QVBoxLayout *layout = new QVBoxLayout(groupBox);
-  layout->setContentsMargins(0, 2, 0, 2);
-  layout->addWidget(drawingList);
-  layout->addLayout(bottomLayout);
-
-  return groupBox;
-}
-
-QWidget *Dialog::createActiveLayersPane()
-{
-  QVBoxLayout *mainLayout = new QVBoxLayout;
-  mainLayout->setContentsMargins(0, 2, 0, 2);
-
-  QWidget *activeLayersWidget = new QWidget;
-  activeLayersWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  activeLayersLayout_ = new QVBoxLayout(activeLayersWidget);
-  activeLayersLayout_->setContentsMargins(0, 0, 0, 0);
-  activeLayersLayout_->setSpacing(0);
-  activeLayersLayout_->setMargin(0);
-
-  activeLayersScrollArea_ = new ScrollArea;
-  activeLayersScrollArea_->setWidget(activeLayersWidget);
-  activeLayersScrollArea_->setWidgetResizable(true);
-
-  mainLayout->addWidget(activeLayersScrollArea_);
-
-  QHBoxLayout *bottomLayout = new QHBoxLayout;
-  bottomLayout->addWidget(addEmptyButton_ = createToolButton(QPixmap(addempty_xpm), "Add an empty layer", SLOT(addEmpty())));
-  bottomLayout->addWidget(mergeVisibleButton_ = createToolButton(QPixmap(mergevisible_xpm), "Merge visible layers", SLOT(mergeVisible())));
-  bottomLayout->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", SLOT(showAll())));
-  bottomLayout->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", SLOT(hideAll())));
-  bottomLayout->addWidget(duplicateCurrentButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate the current layer", SLOT(duplicateCurrent())));
-  bottomLayout->addWidget(removeCurrentButton_ = createToolButton(QPixmap(remove_xpm), "Remove the current layer", SLOT(removeCurrent())));
-  bottomLayout->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", SLOT(moveCurrentUp())));
-  bottomLayout->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", SLOT(moveCurrentDown())));
-  bottomLayout->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the current layer", SLOT(editCurrent())));
-  bottomLayout->addWidget(replaceAllFromFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Replace all layers from file", SLOT(replaceAllLayersFromFile())));
-  bottomLayout->addWidget(saveAllToFileButton_ = createToolButton(QPixmap(filesave), "Save all layers to file", SLOT(saveAllLayersToFile())));
-  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
-
-  mainLayout->addLayout(bottomLayout);
-
-  QGroupBox *groupBox = new QGroupBox("Active Layers");
-  groupBox->setLayout(mainLayout);
-
-  return groupBox;
-}
 
 Dialog::Dialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
@@ -312,13 +58,33 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   // record the editor in use
   editm_ = EditItemManager::instance();
 
+  // create an action that can be used to open the dialog from within a menu or toolbar
+  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
+  m_action->setShortcutContext(Qt::ApplicationShortcut);
+  m_action->setShortcut(Qt::ALT + Qt::Key_B);
+  m_action->setCheckable(true);
+  m_action->setIconVisibleInMenu(true);
+  connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
+
+#if 0 // disabled for now
+  // Populate the drawing model with data from the drawing manager.
+  updateModel();
+#endif
+
   // create the GUI
   setWindowTitle("Drawing Layers");
   setFocusPolicy(Qt::StrongFocus);
   QSplitter *splitter = new QSplitter(Qt::Vertical);
-  splitter->addWidget(createAvailableLayersPane());
-  splitter->addWidget(createActiveLayersPane());
+  layerGroupsPane_ = new LayerGroupsPane;
+  splitter->addWidget(layerGroupsPane_);
+  activeLayersPane_ = new ActiveLayersPane;
+  splitter->addWidget(activeLayersPane_);
   splitter->setSizes(QList<int>() << 500 << 500);
+  //
+  connect(layerGroupsPane_, SIGNAL(updated()), activeLayersPane_, SLOT(updateWidgetStructure()));
+  connect(activeLayersPane_, SIGNAL(updated()), layerGroupsPane_, SLOT(updateWidgetContents()));
+  connect(layerGroupsPane_, SIGNAL(updated()), EditItemManager::instance(), SLOT(handleLayersUpdate()));
+  connect(activeLayersPane_, SIGNAL(updated()), EditItemManager::instance(), SLOT(handleLayersUpdate()));
   //
   QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
   connect(buttonBox, SIGNAL(clicked(QAbstractButton *)), this, SLOT(close()));
@@ -329,21 +95,76 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   //
   mainLayout->addWidget(buttonBox);
 
-  // create an action that can be used to open the dialog from within a menu or toolbar
-  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
-  m_action->setShortcutContext(Qt::ApplicationShortcut);
-  m_action->setShortcut(Qt::ALT + Qt::Key_B);
-  m_action->setCheckable(true);
-  m_action->setIconVisibleInMenu(true);
-  connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
+  // ### FOR TESTING
+  QHBoxLayout *bottomLayout = new QHBoxLayout;
+  //
+  QPushButton *dsButton = new QPushButton("dump structure");
+  connect(dsButton, SIGNAL(clicked()), SLOT(dumpStructure()));
+  dsButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+  bottomLayout->addWidget(dsButton);
+  //
+  QCheckBox *infoCBox = new QCheckBox("show info");
+  connect(infoCBox, SIGNAL(toggled(bool)), SLOT(showInfo(bool)));
+  infoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+  bottomLayout->addWidget(infoCBox);
+  //
+  bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
+  mainLayout->addLayout(bottomLayout);
+}
 
-  connect(EditItems::Layers::instance(), SIGNAL(replacedLayers()), SLOT(handleLayersUpdated()));
-  connect(EditItems::Layers::instance(), SIGNAL(addedLayer()), SLOT(handleLayersUpdated()));
+void Dialog::dumpStructure()
+{
+  qDebug() << "";
+  const QList<QSharedPointer<LayerGroup> > &layerGroups = LayerManager::instance()->layerGroups();
+  qDebug() << QString("LAYER GROUPS (%1):").arg(layerGroups.size()).toLatin1().data();
+  int i = 0;
+  foreach (const QSharedPointer<LayerGroup> &lg, layerGroups) {
+    QString layers_s;
+    const QList<QSharedPointer<Layer> > layers = lg->layersRef();
+    foreach (QSharedPointer<Layer> layer, layers)
+      layers_s.append(QString("%1 ").arg((long)(layer.data()), 0, 16));
+    qDebug()
+        <<
+           QString("  %1:%2  %3  >%4<  [%5]  editable=%6  active=%7  layers: %8")
+           .arg(i + 1)
+           .arg(layerGroups.size())
+           .arg((long)(lg.data()), 0, 16)
+           .arg(lg->name(), 30)
+           .arg((lg == LayerManager::instance()->defaultLayerGroup()) ? "default" : "       ")
+           .arg(lg->isEditable() ? 1 : 0)
+           .arg(lg->isActive() ? 1 : 0)
+           .arg(layers_s)
+           .toLatin1().data();
+    i++;
+  }
 
-  // Populate the drawing model with data from the drawing manager.
-  updateModel();
+  const QList<QSharedPointer<Layer> > &layers = LayerManager::instance()->orderedLayers();
+  qDebug() << QString("ORDERED LAYERS (%1):").arg(layers.size()).toLatin1().data();
+  i = 0;
+  foreach (const QSharedPointer<Layer> &layer, layers) {
+    qDebug()
+        <<
+           QString("  %1:%2  %3  >%4<  [%5]  LG:%6  editable:%7  active:%8  visible:%9  nItems:%10  nSelItems:%11")
+           .arg(i + 1)
+           .arg(layers.size())
+           .arg((long)(layer.data()), 0, 16)
+           .arg(layer->name(), 30)
+           .arg(layer == LayerManager::instance()->currentLayer() ? "curr" : "    ")
+           .arg((long)(layer->layerGroupRef().data()), 0, 16)
+           .arg(layer->isEditable() ? 1 : 0)
+           .arg(layer->isActive() ? 1 : 0)
+           .arg(layer->isVisible() ? 1 : 0)
+           .arg(layer->itemCount())
+           .arg(layer->selectedItemCount())
+           .toLatin1().data();
+    i++;
+  }
+}
 
-  updateButtons();
+void Dialog::showInfo(bool checked)
+{
+  layerGroupsPane_->showInfo(checked);
+  activeLayersPane_->showInfo(checked);
 }
 
 std::string Dialog::name() const
@@ -415,353 +236,7 @@ void Dialog::toggleEditingMode(bool enable)
   ToolBar::instance()->setEnabled(enable);
 }
 
-QToolButton *Dialog::createToolButton(const QIcon &icon, const QString &toolTip, const char *method) const
-{
-  QToolButton *button = new QToolButton;
-  button->setIcon(icon);
-  button->setToolTip(toolTip);
-  connect(button, SIGNAL(clicked()), this, method);
-  return button;
-}
-
-void Dialog::initialize(LayerWidget *layerWidget)
-{
-  connect(layerWidget, SIGNAL(mouseClicked(QMouseEvent *)), SLOT(mouseClicked(QMouseEvent *)));
-  connect(layerWidget, SIGNAL(mouseDoubleClicked(QMouseEvent *)), SLOT(mouseDoubleClicked(QMouseEvent *)));
-  connect(layerWidget, SIGNAL(visibilityChanged(bool)), SLOT(handleLayersStateUpdate()));
-}
-
-void Dialog::keyPressEvent(QKeyEvent *event)
-{
-  if (event->matches(QKeySequence::Quit)) {
-    qApp->quit();
-  } else if (event->key() == Qt::Key_Up) {
-    if (event->modifiers() & Qt::ControlModifier)
-      moveCurrentUp();
-    else
-      setCurrentIndex(currentPos() - 1);
-  } else if (event->key() == Qt::Key_Down) {
-    if (event->modifiers() & Qt::ControlModifier)
-      moveCurrentDown();
-    else
-      setCurrentIndex(currentPos() + 1);
-  } else if ((event->key() == Qt::Key_Delete) || (event->key() == Qt::Key_Backspace)) {
-    removeCurrent();
-  } else {
-    QDialog::keyPressEvent(event);
-  }
-}
-
-void Dialog::setCurrentIndex(int index)
-{
-  setCurrent(atPos(index));
-}
-
-void Dialog::setCurrent(LayerWidget *layerWidget)
-{
-  if (!layerWidget)
-    return;
-  Layers::instance()->setCurrent(layerWidget->layer());
-  updateCurrent();
-  ensureVisible(layerWidget);
-  handleLayersStateUpdate();
-}
-
-void Dialog::updateCurrent()
-{
-  for (int i = 0; i < activeLayersLayout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(activeLayersLayout_->itemAt(i)->widget());
-    layerWidget->setCurrent(layerWidget->layer() == Layers::instance()->current());
-  }
-}
-
-int Dialog::currentPos() const
-{
-  return Layers::instance()->currentPos();
-}
-
-LayerWidget *Dialog::current()
-{
-  return atPos(currentPos());
-}
-
-LayerWidget *Dialog::atPos(int pos)
-{
-  if (pos >= 0 && pos < activeLayersLayout_->count())
-    return qobject_cast<LayerWidget *>(activeLayersLayout_->itemAt(pos)->widget());
-  return 0;
-}
-
-void Dialog::duplicate(LayerWidget *srcLayerWidget)
-{
-  const QSharedPointer<Layer> newLayer = Layers::instance()->addDuplicate(srcLayerWidget->layer());
-  const int srcIndex = activeLayersLayout_->indexOf(srcLayerWidget);
-  LayerWidget *newLayerWidget = new LayerWidget(newLayer);
-  activeLayersLayout_->insertWidget(srcIndex + 1, newLayerWidget);
-  initialize(newLayerWidget);
-  setCurrent(newLayerWidget);
-  ensureCurrentVisible();
-  handleLayersStateUpdate();
-}
-
-void Dialog::duplicateCurrent()
-{
-  duplicate(current());
-}
-
-void Dialog::remove(LayerWidget *layerWidget, bool implicit)
-{
-  if ((!layerWidget) || (activeLayersLayout_->count() == 0))
-    return;
-
-  if (!layerWidget->layer()->isEmpty() && (!implicit) && (QMessageBox::warning(
-                    this, "Remove layer", "Really remove layer?",
-                    QMessageBox::Yes | QMessageBox::No) == QMessageBox::No))
-    return;
-
-  const int index = activeLayersLayout_->indexOf(layerWidget);
-  activeLayersLayout_->removeWidget(layerWidget);
-  delete layerWidget;
-  if (activeLayersLayout_->count() > 0)
-    setCurrentIndex(qMin(index, activeLayersLayout_->count() - 1));
-
-  if (!implicit)
-    handleLayersStateUpdate();
-}
-
-void Dialog::remove(int index)
-{
-  remove(atPos(index));
-}
-
-void Dialog::removeCurrent()
-{
-  remove(current());
-}
-
-void Dialog::move(LayerWidget *layerWidget, bool up)
-{
-  const int index = activeLayersLayout_->indexOf(layerWidget);
-  if ((up && (index <= 0)) ||
-      (!up && (index >= (activeLayersLayout_->count() - 1))))
-    return;
-  activeLayersLayout_->removeWidget(layerWidget);
-  activeLayersLayout_->insertWidget(index + (up ? -1 : 1), layerWidget);
-  updateCurrent();
-  Layers::instance()->set(layers(allLayerWidgets()), false);
-  if (layerWidget == current())
-    ensureCurrentVisible();
-  handleLayersStateUpdate();
-}
-
-void Dialog::moveUp(LayerWidget *layerWidget)
-{
-  move(layerWidget, true);
-}
-
-void Dialog::moveUp(int index)
-{
-  moveUp(atPos(index));
-}
-
-void Dialog::moveCurrentUp()
-{
-  moveUp(current());
-}
-
-void Dialog::moveDown(LayerWidget *layerWidget)
-{
-  move(layerWidget, false);
-}
-
-void Dialog::moveDown(int index)
-{
-  moveDown(atPos(index));
-}
-
-void Dialog::moveCurrentDown()
-{
-  moveDown(current());
-}
-
-void Dialog::editCurrent()
-{
-  current()->editName(); // ### only the name for now
-}
-
-void Dialog::mouseClicked(QMouseEvent *event)
-{
-  LayerWidget *layerWidget = qobject_cast<LayerWidget *>(sender());
-  Q_ASSERT(layerWidget);
-  setCurrent(layerWidget);
-  if (event->button() & Qt::RightButton) {
-    QMenu contextMenu;
-    QAction duplicate_act(QPixmap(duplicate_xpm), tr("Duplicate"), 0);
-    duplicate_act.setIconVisibleInMenu(true);
-    duplicate_act.setEnabled(duplicateCurrentButton_->isEnabled());
-    //
-    QAction remove_act(QPixmap(remove_xpm), tr("Remove"), 0);
-    remove_act.setIconVisibleInMenu(true);
-    remove_act.setEnabled(removeCurrentButton_->isEnabled());
-    //
-    QAction moveUp_act(QPixmap(moveup_xpm), tr("Move Up"), 0);
-    moveUp_act.setIconVisibleInMenu(true);
-    moveUp_act.setEnabled(moveCurrentUpButton_->isEnabled());
-    //
-    QAction moveDown_act(QPixmap(movedown_xpm), tr("Move Down"), 0);
-    moveDown_act.setIconVisibleInMenu(true);
-    moveDown_act.setEnabled(moveCurrentDownButton_->isEnabled());
-    //
-    QAction editName_act(QPixmap(edit_xpm), tr("Edit Name"), 0);
-    editName_act.setIconVisibleInMenu(true);
-
-    // add actions
-    contextMenu.addAction(&duplicate_act);
-    contextMenu.addAction(&remove_act);
-    contextMenu.addAction(&moveUp_act);
-    contextMenu.addAction(&moveDown_act);
-    contextMenu.addAction(&editName_act);
-    QAction *action = contextMenu.exec(event->globalPos(), &duplicate_act);
-    if (action == &duplicate_act) {
-      duplicate(layerWidget);
-    } else if (action == &remove_act) {
-      remove(layerWidget);
-    } else if (action == &moveUp_act) {
-      moveUp(layerWidget);
-    } else if (action == &moveDown_act) {
-      moveDown(layerWidget);
-    } else if (action == &editName_act) {
-      layerWidget->editName();
-    }
-  }
-}
-
-void Dialog::mouseDoubleClicked(QMouseEvent *event)
-{
-  if (event->button() & Qt::LeftButton)
-    current()->editName();
-}
-
-void Dialog::ensureVisible(LayerWidget *layer)
-{
-  qApp->processEvents();
-  activeLayersScrollArea_->ensureWidgetVisible(layer);
-}
-
-void Dialog::ensureCurrentVisibleTimeout()
-{
-  ensureVisible(current());
-}
-
-void Dialog::ensureCurrentVisible()
-{
-  QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
-}
-
-void Dialog::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
-{
-  LayerWidget *layerWidget = new LayerWidget(layer);
-  activeLayersLayout_->addWidget(layerWidget);
-  initialize(layerWidget);
-  if (!skipUpdate) {
-    setCurrent(layerWidget);
-    ensureCurrentVisible();
-    handleLayersStateUpdate();
-  }
-}
-
-void Dialog::addEmpty()
-{
-  add(Layers::instance()->addEmpty(false));
-}
-
-void Dialog::mergeVisible()
-{
-  const QList<LayerWidget *> visLayerWidgets = visibleLayerWidgets();
-
-  if (visLayerWidgets.size() > 1) {
-    if (QMessageBox::warning(
-          this, "Merge visible layers", "Really merge visible layers?",
-          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-      return;
-
-    Layers::instance()->mergeIntoFirst(layers(visLayerWidgets));
-
-    for (int i = 1; i < visLayerWidgets.size(); ++i)
-      remove(visLayerWidgets.at(i), true);
-    setCurrent(visLayerWidgets.first());
-  }
-
-  handleLayersStateUpdate();
-}
-
-void Dialog::setAllVisible(bool visible)
-{
-  for (int i = 0; i < activeLayersLayout_->count(); ++i)
-    qobject_cast<LayerWidget *>(activeLayersLayout_->itemAt(i)->widget())->setLayerVisible(visible);
-  handleLayersStateUpdate();
-}
-
-void Dialog::showAll()
-{
-  setAllVisible(true);
-}
-
-void Dialog::hideAll()
-{
-  setAllVisible(false);
-}
-
-QList<LayerWidget *> Dialog::visibleLayerWidgets()
-{
-  QList<LayerWidget *> visLayerWidgets;
-  for (int i = 0; i < activeLayersLayout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(activeLayersLayout_->itemAt(i)->widget());
-    if (layerWidget->isLayerVisible())
-      visLayerWidgets.append(layerWidget);
-  }
-  return visLayerWidgets;
-}
-
-QList<LayerWidget *> Dialog::allLayerWidgets()
-{
-  QList<LayerWidget *> allLayerWidgets;
-  for (int i = 0; i < activeLayersLayout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(activeLayersLayout_->itemAt(i)->widget());
-    allLayerWidgets.append(layerWidget);
-  }
-  return allLayerWidgets;
-}
-
-QList<QSharedPointer<Layer> > Dialog::layers(const QList<LayerWidget *> &layerWidgets)
-{
-  QList<QSharedPointer<Layer> > layers_;
-  foreach (LayerWidget *layerWidget, layerWidgets)
-    layers_.append(layerWidget->layer());
-  return layers_;
-}
-
-void Dialog::updateButtons()
-{
-  const int visSize = visibleLayerWidgets().size();
-  const int allSize = activeLayersLayout_->count();
-  mergeVisibleButton_->setEnabled(visSize > 1);
-  showAllButton_->setEnabled(visSize < allSize);
-  hideAllButton_->setEnabled(visSize > 0);
-  duplicateCurrentButton_->setEnabled(current());
-  removeCurrentButton_->setEnabled(current());
-  moveCurrentUpButton_->setEnabled(currentPos() > 0);
-  moveCurrentDownButton_->setEnabled(currentPos() < (allSize - 1));
-  editCurrentButton_->setEnabled(current());
-  importFilesButton_->setEnabled(drawingList->selectionModel()->selection().size() != 0);
-}
-
-void Dialog::handleLayersStateUpdate()
-{
-  updateButtons();
-  Layers::instance()->update();
-}
-
+#if 0 // disabled for now
 /**
  * Updates the drawing model with data from the drawing manager.
  */
@@ -803,84 +278,6 @@ void Dialog::importChosenFiles()
 
   QApplication::restoreOverrideCursor();
 }
-
-void Dialog::replaceAllLayersFromFile()
-{
-  const QString fileName = QFileDialog::getOpenFileName(0, tr("Open File"),
-    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
-    return;
-
-  QString error;
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  replaceAllLayersFromFile(fileName, &error);
-  QApplication::restoreOverrideCursor();
-
-  if (!error.isEmpty())
-    QMessageBox::warning(0, "Error", QString("failed to replace layers from file %1: %2").arg(fileName).arg(error));
-}
-
-void Dialog::saveAllLayersToFile() const
-{
-  const QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
-    DrawingManager::instance()->getWorkDir(), tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
-    return;
-
-  QString error;
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  saveAllLayersToFile(fileName, &error);
-  QApplication::restoreOverrideCursor();
-
-  if (!error.isEmpty())
-    QMessageBox::warning(0, "Error", QString("failed to save layers to file %1: %2").arg(fileName).arg(error));
-}
-
-// Replaces all existing layers from file. Passes a non-empty reason in \a error iff the operation fails.
-void Dialog::replaceAllLayersFromFile(const QString &fileName, QString *error)
-{
-  *error = QString();
-
-  // parse file and create item layers
-  const QList<QSharedPointer<Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, error);
-
-  if (!error->isEmpty())
-    return;
-
-  // initialize screen coordinates from lat/lon
-  foreach (const QSharedPointer<Layer> layer, layers) {
-    foreach(QSharedPointer<DrawingItemBase> item, layer->itemsRef()) {
-      DrawingManager::instance()->setFromLatLonPoints(*item, item->getLatLonPoints());
-    }
-  }
-
-  // set layers (replacing any existing ones)
-  Layers::instance()->set(layers);
-
-//  drawings_.insert(fileName);
-//  loaded_.insert(fileName);
-}
-
-// Saves all existing layers to file. Passes a non-empty reason in \a error iff the operation fails.
-void Dialog::saveAllLayersToFile(const QString &fileName, QString *error) const
-{
-  *error = QString();
-  KML::saveToFile(fileName, Layers::instance()->layers(), error);
-}
-
-void Dialog::handleLayersUpdated()
-{
-  // clear existing widgets
-  QList<LayerWidget *> layerWidgets = allLayerWidgets();
-  for (int i = 0; i < layerWidgets.size(); ++i)
-    remove(layerWidgets.at(i), true);
-
-  // insert widgets for current layers
-  for (int i = 0; i < Layers::instance()->size(); ++i)
-    add(Layers::instance()->at(i), true);
-  setCurrentIndex(0);
-}
+#endif
 
 } // namespace

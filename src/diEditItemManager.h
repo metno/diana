@@ -123,6 +123,8 @@ public slots:
     virtual bool hasWorking() const;
     virtual void setWorking(bool enable);
 
+    void handleLayersUpdate();
+
 private slots:
     void setCreatePolyLineMode();
     void setCreateSymbolMode();
@@ -138,8 +140,8 @@ signals:
     void canRedoChanged(bool);
     void incompleteEditing(bool);
     void itemAdded(DrawingItemBase *);
-    void itemChanged(DrawingItemBase *);
-    void itemRemoved(DrawingItemBase *);
+    void itemChanged(DrawingItemBase *); // ### anybody connected to this?
+    void itemRemoved(DrawingItemBase *); // ### anybody connected to this?
     void timesUpdated();
     void setWorkAreaCursor(const QCursor &);
     void unsetWorkAreaCursor();
@@ -150,7 +152,6 @@ protected:
 
 private slots:
     void initNewItem(DrawingItemBase *item);
-    void handleLayersUpdate();
 
 private:
     QSharedPointer<DrawingItemBase> hoverItem_;
