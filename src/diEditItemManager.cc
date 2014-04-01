@@ -1123,8 +1123,9 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       styleTypeMenu.setTitle("Convert");
       styleTypeMenu.setEnabled(!hitItem.isNull());
 
+      QList<QSharedPointer<QAction> > styleTypeActions;
+
       if (!hitItem.isNull()) {
-        QList<QSharedPointer<QAction> > styleTypeActions;
         QStringList styleNames = DrawingStyleManager::instance()->styles(hitItem.data()->category());
         qSort(styleNames);
         Q_ASSERT(!styleNames.contains("Custom"));
