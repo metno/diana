@@ -35,6 +35,8 @@
 
 namespace EditItem_Symbol {
 
+const unsigned int defaultSize = 32;
+
 Symbol::Symbol()
 {
   init();
@@ -110,10 +112,21 @@ void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCo
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   if (event->button() == Qt::LeftButton) {
-    Q_ASSERT(points_.isEmpty());
-    points_.append(QPointF(event->pos()));
-    complete = true; // causes repaint
+    if (points_.size() < 2) {
+      points_.append(QPointF(event->pos().x() - defaultSize/2, event->pos().y() - defaultSize/2));
+      points_.append(QPointF(event->pos().x() + defaultSize/2, event->pos().y() + defaultSize/2));
+      complete = true; // causes repaint
+    }
   }
+}
+
+void Symbol::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
+{
+  // Update the geographic points and the control points.
+  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
+  updateControlPoints();
+
+  repaintNeeded = true;
 }
 
 void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -127,10 +140,11 @@ void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &com
 
 void Symbol::resize(const QPointF &pos)
 {
-  Q_ASSERT(points_.size() == 1);
-  const QPointF delta = pos - points_.first();
+  const QPointF midpoint = (points_.first() + points_.last())/2.0;
+  const QPointF delta = pos - midpoint;
   const qreal radius = sqrt(sqr(delta.x()) + sqr(delta.y()));
-  size_ = (2 / sqrt(2)) * radius;
+  points_[0] = midpoint - QPointF(radius / sqrt(2), radius / sqrt(2));
+  points_[1] = midpoint + QPointF(radius / sqrt(2), radius / sqrt(2));
   updateControlPoints();
 }
 

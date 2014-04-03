@@ -83,11 +83,11 @@ static inline PolyLineType *createPolyLine(const QList<QPointF> &points, const Q
 
 // Creates and returns a new Symbol.
 template<typename SymbolType>
-static inline SymbolType *createSymbol(const QPointF &point, const QDomNode &coordsNode)
+static inline SymbolType *createSymbol(const QList<QPointF> &points, const QDomNode &coordsNode)
 {
   Q_UNUSED(coordsNode); // might be needed later
   SymbolType *symbol = new SymbolType();
-  symbol->setLatLonPoints(QList<QPointF>() << point);
+  symbol->setLatLonPoints(points);
   return symbol;
 }
 
@@ -159,7 +159,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
       if (objectType == "PolyLine") {
         itemObj = createPolyLine<PolyLineType>(points, coordsNode);
       } else if (objectType == "Symbol") {
-        itemObj = createSymbol<SymbolType>(points.first(), coordsNode);
+        itemObj = createSymbol<SymbolType>(points, coordsNode);
       } else if (objectType == "Text") {
         itemObj = createText<TextType>(points, coordsNode, pmExtData);
       } else if (objectType == "Composite") {

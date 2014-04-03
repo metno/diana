@@ -43,7 +43,6 @@ public:
   virtual QDomNode toKML() const;
 
 protected:
-  int size_; // length (in pixels) of each side in the bounding square
   QList<QPointF> boundingSquare() const;
   virtual void draw();
 

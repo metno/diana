@@ -37,7 +37,6 @@
 namespace DrawingItem_Symbol {
 
 Symbol::Symbol()
-  : size_(32)
 {
 }
 
@@ -47,32 +46,25 @@ Symbol::~Symbol()
 
 QList<QPointF> Symbol::boundingSquare() const
 {
-  if (points_.isEmpty())
+  if (points_.size() < 2)
     return QList<QPointF>();
 
-  Q_ASSERT(points_.size() == 1);
-
-  const int w_2 = size_ / 2;
   QList<QPointF> points;
-  const int x = points_.first().x();
-  const int y = points_.first().y();
-  points.append(QPointF(x - w_2, y - w_2));
-  points.append(QPointF(x - w_2, y + w_2));
-  points.append(QPointF(x + w_2, y + w_2));
-  points.append(QPointF(x + w_2, y - w_2));
+  points.append(points_.at(0));
+  points.append(QPointF(points_.at(1).x(), points_.at(0).y()));
+  points.append(points_.at(1));
+  points.append(QPointF(points_.at(0).x(), points_.at(1).y()));
   return points;
 }
 
 void Symbol::draw()
 {
-  if (points_.isEmpty())
+  if (points_.size() < 2)
     return;
 
-  const QList<QPointF> bbox = boundingSquare();
-
   DrawingManager::instance()->drawSymbol(property("style:type", "Default").toString(),
-    bbox.at(0).x(), bbox.at(0).y(),
-    bbox.at(2).x() - bbox.at(0).x(), bbox.at(2).y() - bbox.at(0).y());
+    points_.at(0).x(), points_.at(0).y(),
+    points_.at(1).x() - points_.at(0).x(), points_.at(1).y() - points_.at(0).y());
 }
 
 QDomNode Symbol::toKML() const

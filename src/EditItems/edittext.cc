@@ -100,23 +100,20 @@ void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &c
 {
   repaintNeeded = true;
 
-  if (points_.size() < 2) {
-    // Create two points: one for the current mouse position and another to be
-    // updated during the following move events.
-    points_.append(QPointF(event->pos()));
-    points_.append(QPointF(event->pos()));
-    cursor_ = -1;
-  } else
-    complete = true;
+  if (event->button() == Qt::LeftButton) {
+    if (points_.size() < 2) {
+      // Create two points: one for the current mouse position and another to be
+      // updated during the following move events.
+      points_.append(QPointF(event->pos()));
+      points_.append(QPointF(event->pos()));
+      cursor_ = -1;
+    } else
+      complete = true;
+  }
 }
 
 void Text::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  // Ensure that the first points is above and to the left of the second.
-  QRectF rect = QRectF(points_[0], points_[1]).normalized();
-  points_[0] = rect.bottomLeft();
-  points_[1] = rect.topRight();
-
   // Update the geographic points and the control points.
   setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
   updateControlPoints();

@@ -60,6 +60,7 @@ private:
   virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands);
 
   virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
+  virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
   virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }

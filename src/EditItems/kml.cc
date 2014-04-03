@@ -126,7 +126,7 @@ int findGroupId(const QDomNode &node, bool &found, QString *error)
 {
   QHash<QString, QString> extdata = getExtendedData(node, "Placemark");
   if (extdata.isEmpty() || !error->isEmpty()) {
-    *error = QString("No extended data available");
+    *error = QString("No extended data available for coordinates node on line %1").arg(node.lineNumber());
     found = false;
     return -1;
   }

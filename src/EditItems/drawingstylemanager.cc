@@ -205,6 +205,8 @@ void DrawingStyleManager::addStyle(const DrawingItemBase::Category &category, co
   QString styleName;
   if (definition.contains("textstyle"))
     styleName = definition.value("textstyle");
+  else if (definition.contains("symbol"))
+    styleName = definition.value("symbol");
   else
     styleName = definition.value("style");
 

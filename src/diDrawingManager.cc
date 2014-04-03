@@ -125,6 +125,7 @@ bool DrawingManager::parseSetup()
         // Drawing definitions
         drawings_.insert(items["file"]);
       }
+      styleManager->addStyle(DrawingItemBase::Symbol, items);
     } else if (items.contains("style")) {
       // Read-only style definitions
       styleManager->addStyle(DrawingItemBase::PolyLine, items);
@@ -511,8 +512,11 @@ QStringList DrawingManager::symbolNames() const
 
 QImage DrawingManager::getSymbolImage(const QString &name, int width, int height)
 {
-  QSvgRenderer renderer(symbols.value(name));
   QImage image(width, height, QImage::Format_ARGB32);
+  if (width == 0 || height == 0)
+    return image;
+
+  QSvgRenderer renderer(symbols.value(name));
   image.fill(QColor(0, 0, 0, 0).rgba());
   QPainter painter;
   painter.begin(&image);
