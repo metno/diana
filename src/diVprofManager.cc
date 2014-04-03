@@ -176,29 +176,7 @@ void VprofManager::parseSetup()
           ofp.filepath = tokens1[1];
           filePaths.push_back(ofp);
         }
-      } else {
-        std::string filetype="standard",fileformat,fileconfig;
-        for ( size_t j=0; j<tokens.size(); ++j) {
-          tokens1= miutil::split(tokens[j], "=");
-          if ( tokens1.size() != 2 ) continue;
-          if ( tokens1[0] == miutil::to_lower("m") ) {
-            model = tokens1[1];
-          } else if( tokens1[0] == miutil::to_lower("f") ) {
-            filename = tokens1[1];
-          } else if( tokens1[0] == miutil::to_lower("s") ) {
-            filename = tokens1[1];
-          } else if( tokens1[0] == miutil::to_lower("t") ) {
-            filetype = tokens1[1];
-          }
-        }
-        filenames[model]= filename;
-        filetypes[filename] = filetype;
-        filesetup[filename] = vstr[i];
-        uniquefiles.insert(filename);
-        dialogModelNames.push_back(model);
-        dialogFileNames.push_back(filename);
-      }
-
+      } 
 #ifdef ROADOBS
       /* Here we know that it is the extended obs format */
       else if (tokens.size()==4) {
@@ -240,6 +218,30 @@ void VprofManager::parseSetup()
         }
       }
 #endif
+	  else {
+        std::string filetype="standard",fileformat,fileconfig;
+        for ( size_t j=0; j<tokens.size(); ++j) {
+          tokens1= miutil::split(tokens[j], "=");
+          if ( tokens1.size() != 2 ) continue;
+          if ( tokens1[0] == miutil::to_lower("m") ) {
+            model = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("f") ) {
+            filename = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("s") ) {
+            filename = tokens1[1];
+          } else if( tokens1[0] == miutil::to_lower("t") ) {
+            filetype = tokens1[1];
+          }
+        }
+        filenames[model]= filename;
+        filetypes[filename] = filetype;
+        filesetup[filename] = vstr[i];
+        uniquefiles.insert(filename);
+        dialogModelNames.push_back(model);
+        dialogFileNames.push_back(filename);
+      }
+
+
     }
 
     vstr.clear();
