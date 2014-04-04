@@ -222,8 +222,12 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWidget.cc \
-	vcross_qt/qtVcrossWindow.cc \
+	vcross_qt/qtVcrossWindow.cc 
+
+if WITH_VCROSS_V2
+diana_qt_sources += \
 	vcross_qt/VcrossQtWidget.cc
+endif
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)
@@ -464,8 +468,12 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossSetup.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/qtVcrossWidget.h \
-	vcross_qt/qtVcrossWindow.h \
+	vcross_qt/qtVcrossWindow.h 
+
+if WITH_VCROSS_V2
+noinst_HEADERS += \
 	vcross_qt/VcrossQtWidget.h
+endif
 
 if WITH_EMBEDDED
 if WITH_BATCH_ONLY
