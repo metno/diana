@@ -3168,15 +3168,15 @@ void EditManager::setMapmodeinfo(){
   int m=EdProd.drawtools.size();
   for (int i=0;i<m;i++){
     if (EdProd.drawtools[i]==OBJECTS_ANALYSIS){
-      dMode.push_back(newEditModeInfo("Fronter",fronts));
+      dMode.push_back(newEditModeInfo("Fronts",fronts));
       objectModes[emidx++]=front_drawing;
-      dMode.push_back(newEditModeInfo("Symboler",symbols));
+      dMode.push_back(newEditModeInfo("Symbols",symbols));
       objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(newEditModeInfo("Område",areas));
+      dMode.push_back(newEditModeInfo("Areas",areas));
       objectModes[emidx++]=area_drawing;
     }
     if (EdProd.drawtools[i]==OBJECTS_SIGMAPS){
-      dMode.push_back(newEditModeInfo("Sigkart",sigsymbols));
+      dMode.push_back(newEditModeInfo("Symbols(SIGWX)",sigsymbols));
       objectModes[emidx++]=symbol_drawing;
     }
   }
