@@ -566,9 +566,6 @@ void ActiveLayersPane::addEmpty()
 
 void ActiveLayersPane::mergeVisible()
 {
-  qDebug() << "merging visible layers into a new layer in the default layer group ... TBD";
-  QMessageBox::information(this, "Not implemented", "Merging of visible layers is not yet implemented.", QMessageBox::Ok);
-#if 0
   const QList<LayerWidget *> visLayerWidgets = visibleWidgets();
 
   if (visLayerWidgets.size() > 1) {
@@ -577,15 +574,22 @@ void ActiveLayersPane::mergeVisible()
           QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
 
-    Layers::instance()->mergeIntoFirst(layers(visLayerWidgets));
+    const QSharedPointer<Layer> newLayer = LayerManager::instance()->createNewLayer("merged layer");
+    LayerManager::instance()->addToDefaultLayerGroup(newLayer);
 
-    for (int i = 1; i < visLayerWidgets.size(); ++i)
-      remove(visLayerWidgets.at(i), true);
-    setCurrent(visLayerWidgets.first());
+    LayerManager::instance()->mergeLayers(layers(visLayerWidgets), newLayer);
+
+    LayerWidget *newLayerWidget = new LayerWidget(newLayer, showInfo_);
+    layout_->insertWidget(layout_->count(), newLayerWidget);
+    initialize(newLayerWidget);
+    setCurrent(newLayerWidget);
+    ensureCurrentVisible();
+    handleWidgetsUpdate();
+
+    // ### remove source layers (i.e. those associated with visLayerWidgets) ... TBD
   }
 
   handleWidgetsUpdate();
-#endif
 }
 
 void ActiveLayersPane::setAllVisible(bool visible)

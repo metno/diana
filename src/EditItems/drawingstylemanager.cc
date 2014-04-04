@@ -381,7 +381,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   bool alphaOk;
   const int alpha = style.value(DSP_linetransparency::name()).toInt(&alphaOk);
-  if ((!alphaOk) || (alpha > 0)) {
+  if ((!alphaOk) || (alpha >= 0)) {
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), z);
   }

@@ -99,9 +99,9 @@ void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const
   layerGroup->layers_.append(layers);
 }
 
-void LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers)
+void LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name)
 {
-  QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup();
+  QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name);
   layerGroups_.append(layerGroup);
   addToLayerGroup(layerGroup, layers);
 }
@@ -125,16 +125,16 @@ void LayerManager::replaceInDefaultLayerGroup(const QList<QSharedPointer<Layer> 
   addToDefaultLayerGroup(layers);
 }
 
-QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup() const
+QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name) const
 {
-  QSharedPointer<LayerGroup> layerGroup(new LayerGroup("new layer group"));
+  QSharedPointer<LayerGroup> layerGroup(new LayerGroup(name.isEmpty() ? "new layer group" : name));
   ensureUniqueLayerGroupName(layerGroup);
   return layerGroup;
 }
 
-QSharedPointer<Layer> LayerManager::createNewLayer() const
+QSharedPointer<Layer> LayerManager::createNewLayer(const QString &name) const
 {
-  QSharedPointer<Layer> layer(new Layer("new layer"));
+  QSharedPointer<Layer> layer(new Layer(name.isEmpty() ? "new layer" : name));
   ensureUniqueLayerName(layer);
   return layer;
 }
@@ -149,6 +149,17 @@ QSharedPointer<Layer> LayerManager::createDuplicateLayer(const QSharedPointer<La
   QSharedPointer<Layer> layer(new Layer(*(srcLayer.data())));
   ensureUniqueLayerName(layer);
   return layer;
+}
+
+// Copies all items and selected item of \a srcLayers into \a dstLayer.
+void LayerManager::mergeLayers(const QList<QSharedPointer<Layer> > &srcLayers, const QSharedPointer<Layer> &dstLayer) const
+{
+  for (int i = 0; i < srcLayers.size(); ++i) {
+    for (int j = 0; j < srcLayers.at(i)->itemCount(); ++j)
+      dstLayer->insertItem(srcLayers.at(i)->itemRef(j));
+    for (int j = 0; j < srcLayers.at(i)->selectedItemCount(); ++j)
+      dstLayer->insertSelectedItem(srcLayers.at(i)->selectedItemRef(j));
+  }
 }
 
 const QList<QSharedPointer<LayerGroup> > &LayerManager::layerGroups() const

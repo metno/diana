@@ -54,13 +54,14 @@ public:
   QSharedPointer<Layer> currentLayer(bool = false) const;
   void setCurrentLayer(const QSharedPointer<Layer> &);
   QSharedPointer<LayerGroup> &defaultLayerGroup();
-  void addToNewLayerGroup(const QList<QSharedPointer<Layer> > &);
+  void addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
   void addToDefaultLayerGroup(const QList<QSharedPointer<Layer> > &);
   void addToDefaultLayerGroup(const QSharedPointer<Layer> &);
   void replaceInDefaultLayerGroup(const QList<QSharedPointer<Layer> > &);
-  QSharedPointer<LayerGroup> createNewLayerGroup() const;
-  QSharedPointer<Layer> createNewLayer() const;
+  QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
+  QSharedPointer<Layer> createNewLayer(const QString & = QString()) const;
   QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &) const;
+  void mergeLayers(const QList<QSharedPointer<Layer> > &, const QSharedPointer<Layer> &) const;
   const QList<QSharedPointer<LayerGroup> > &layerGroups() const;
   const QList<QSharedPointer<Layer> > &orderedLayers() const;
   QSharedPointer<LayerGroup> findLayerGroup(const QString &) const;

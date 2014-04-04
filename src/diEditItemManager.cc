@@ -870,6 +870,17 @@ void EditItemManager::editProperties()
 
 void EditItemManager::editStyle()
 {
+  foreach (const QSharedPointer<DrawingItemBase> &item, getSelectedItems()) {
+    const QString styleType = item->propertiesRef().value("style:type").toString();
+    if (styleType != "Custom") {
+      QMessageBox::warning(0, "Warning", QString(
+                             "At least one non-custom item selected:\n\n    %1"
+                             "\n\nPlease convert all selected items to custom type before editing style.")
+                           .arg(styleType));
+      return;
+    }
+  }
+
   EditItemsStyle::StyleEditor::instance()->edit(getSelectedItems());
 }
 

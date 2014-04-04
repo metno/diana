@@ -156,7 +156,7 @@ LayerGroupsPane::LayerGroupsPane()
         KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
         EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
     if (error.isEmpty())
-      LayerManager::instance()->addToNewLayerGroup(layers);
+      LayerManager::instance()->addToNewLayerGroup(layers, fileName);
     else
       qDebug() << QString("failed to load additional example layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
   }

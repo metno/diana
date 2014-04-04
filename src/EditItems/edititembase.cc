@@ -151,10 +151,8 @@ void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
     drawHoverHighlighting(incomplete);
 
   // draw control points and hover highlighting if selected
-  if (modes & Selected) {
-    drawHoverHighlighting(incomplete);
+  if (modes & Selected)
     drawControlPoints();
-  }
 }
 
 /**
