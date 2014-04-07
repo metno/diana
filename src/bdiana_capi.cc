@@ -74,10 +74,12 @@
 #include <puCtools/puCglob.h>
 #include <puCtools/glob_cache.h>
 #include <puTools/miSetupParser.h>
+#include <puTools/mi_boost_compatibility.hh>
+
 
 #ifdef USE_VCROSS_V2
-#include "vcross_v2/diVcrossManager.h"
-#include "vcross_v2/diVcrossOptions.h"
+#include "vcross_v2/VcrossQtManager.h"
+#include "vcross_v2/VcrossOptions.h"
 #else // !USE_VCROSS_V2
 #include "vcross_v1/diVcross1Manager.h"
 #include "vcross_v1/diVcross1Plot.h"
@@ -236,7 +238,9 @@ bool hardcopy_started[5]; // has startHardcopy been called
 // the Controller and Managers
 Controller* main_controller = 0;
 VprofManager* vprofmanager = 0;
+#ifndef USE_VCROSS_V2
 VcrossManager* vcrossmanager = 0;
+#endif
 SpectrumManager* spectrummanager = 0;
 
 #ifdef USE_XLIB
@@ -645,10 +649,12 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy (standard)");
     main_controller->startHardcopy(priop);
+#ifndef USE_VCROSS_V2
   } else if (pt == plot_vcross && vcrossmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy (vcross)");
     vcrossmanager->startHardcopy(priop);
+#endif
   } else if (pt == plot_vprof && vprofmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy (vprof)");
@@ -718,10 +724,12 @@ void endHardcopy(const plot_type pt)
     if (verbose)
       METLIBS_LOG_INFO("- endHardcopy (standard)");
     main_controller->endHardcopy();
+#ifndef USE_VCROSS_V2
   } else if (pt == plot_vcross && hardcopy_started[pt] && vcrossmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- endHardcopy (vcross)");
     vcrossmanager->endHardcopy();
+#endif
   } else if (pt == plot_vprof && hardcopy_started[pt] && vprofmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- endHardcopy (vprof)");
@@ -1846,6 +1854,7 @@ static int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
+#ifndef USE_VCROSS_V2
 
 #if defined(USE_PAINTGL)
         if (!multiple_plots)
@@ -1926,6 +1935,7 @@ static int parseAndProcess(istream &is)
         if (not MAKE_CONTROLLER())
           return 99;
 
+#endif
         // -- vprof plot
         if (!vprofmanager) {
           vprofmanager = new VprofManager(main_controller);
@@ -3862,8 +3872,10 @@ int diana_dealloc()
   }
 #endif
 
+#ifndef USE_VCROSS_V2
   if (vcrossmanager)
     delete vcrossmanager;
+#endif
   if (vprofmanager)
     delete vprofmanager;
   if (spectrummanager)
