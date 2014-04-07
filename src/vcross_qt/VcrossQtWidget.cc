@@ -49,6 +49,7 @@ QtWidget::QtWidget(QtManager_p vcm, QWidget* parent)
   , vcrossm(vcm), arrowKeyDirection(1)
   , timeGraph(false), startTimeGraph(false)
 {
+  METLIBS_LOG_SCOPE();
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(false);
 

@@ -35,14 +35,15 @@
 
 #include "diController.h"
 #include "diLocationPlot.h"
+#include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miSetupParser.h>
 #ifdef USE_VCROSS_V2
-#include "vcross_v2/diVcrossManager.h"
+
 #else
 #include "vcross_v1/diVcross1Manager.h"
 #endif
 #include "qtUtility.h"
 #include "qtToggleButton.h"
-#include "qtVcrossWidget.h"
 #include "qtVcrossDialog.h"
 #include "qtVcrossSetupDialog.h"
 #include "qtPrintManager.h"
@@ -71,6 +72,8 @@
 
 #include "forover.xpm"
 #include "bakover.xpm"
+
+using namespace vcross;
 
 namespace /* anonymous */ {
 
@@ -134,12 +137,13 @@ VcrossWindow::VcrossWindow(Controller *co)
 {
   METLIBS_LOG_SCOPE();
 
-  vcrossm = new VcrossManager(co);
+  
+  vcrossm =  miutil::make_shared<QtManager>();
 
   setWindowTitle( tr("Diana Vertical Crossections") );
 
   //central widget
-  vcrossw = new VcrossWidget(vcrossm, this);
+  vcrossw = new QtWidget(vcrossm,this);
   connect(vcrossw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
   connect(vcrossw, SIGNAL(crossectionChanged(int)),SLOT(crossectionChangedSlot(int)));
 
@@ -461,7 +465,7 @@ void VcrossWindow::printClicked()
     // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
 
-    vcrossw->print(&qprt, priop);
+//    vcrossw->print(&qprt, priop);
 
     // if output to printer: call appropriate command
     if (qprt.outputFileName().isNull()){
@@ -530,7 +534,7 @@ void VcrossWindow::makeEPS(const std::string& filename)
   priop.drawbackground= true;
   priop.doEPS= true;
 
-  vcrossw->print(priop);
+//  vcrossw->print(priop);
   QApplication::restoreOverrideCursor();
 }
 
@@ -604,7 +608,7 @@ void VcrossWindow::dynCrossClicked()
   METLIBS_LOG_SCOPE();
 
   // Clean up the current dynamic crossections
-  vcrossm->cleanupDynamicCrossSections();
+//  vcrossm->cleanupDynamicCrossSections();
   updateCrossectionBox();
   /*emit*/ crossectionSetChanged();
 
@@ -695,7 +699,7 @@ void VcrossWindow::getCrossections(LocationData& locationdata)
 {
   METLIBS_LOG_SCOPE();
 
-  vcrossm->getCrossections(locationdata);
+//  vcrossm->getCrossections(locationdata);
 }
 
 /***************************************************************************/
@@ -811,12 +815,12 @@ void VcrossWindow::mapPos(float lat, float lon)
 {
   METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
 
-  if(vcrossm->setCrossection(lat,lon)) {
-    // If the return is true (field) update the crossection box and
-    // tell mainWindow to reread the crossections.
-    updateCrossectionBox();
-    /*emit*/ crossectionSetChanged();
-  }
+//  if(vcrossm->setCrossection(lat,lon)) {
+//    // If the return is true (field) update the crossection box and
+//    // tell mainWindow to reread the crossections.
+//    updateCrossectionBox();
+//    /*emit*/ crossectionSetChanged();
+//  }
   emitQmenuStrings();
 }
 
@@ -837,7 +841,14 @@ void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_stri
 /***************************************************************************/
 void VcrossWindow::parseSetup()
 {
-  vcrossm->parseSetup();
+  METLIBS_LOG_SCOPE();
+  string_v sources;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_FILES", sources);
+  string_v computations;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_COMPUTATIONS", computations);
+  string_v plots;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_PLOTS", plots);
+  vcrossm->parseSetup(sources,computations,plots);
 }
 
 std::vector<std::string> VcrossWindow::writeLog(const std::string& logpart)

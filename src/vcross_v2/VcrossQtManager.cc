@@ -66,6 +66,14 @@ QtManager::QtManager()
   , mPlotTime(-1)
 {
   METLIBS_LOG_SCOPE();
+  string_v sources;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_FILES", sources);
+  string_v computations;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_COMPUTATIONS", computations);
+  string_v plots;
+  miutil::SetupParser::getSection("VERTICAL_CROSSECTION_PLOTS", plots);
+  parseSetup(sources,computations,plots);
+
 }
 
 QtManager::~QtManager()

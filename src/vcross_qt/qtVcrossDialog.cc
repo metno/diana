@@ -37,7 +37,6 @@
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #ifdef USE_VCROSS_V2
-#include "vcross_v2/diVcrossManager.h"
 #else
 #include "vcross_v1/diVcross1Manager.h"
 #endif
@@ -71,7 +70,7 @@
 #define MILOGGER_CATEGORY "diana.VcrossDialog"
 #include <miLogger/miLogging.h>
 
-VcrossDialog::VcrossDialog( QWidget* parent, VcrossManager* vm )
+VcrossDialog::VcrossDialog( QWidget* parent, vcross::QtManager_p vm )
 : QDialog(parent), vcrossm(vm)
 {
   METLIBS_LOG_SCOPE();

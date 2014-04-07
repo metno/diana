@@ -30,6 +30,8 @@
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
+#include "VcrossQtManager.h"
+#include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
 #include <QtGui/QDialog>
 #include <vector>
@@ -40,8 +42,6 @@ class miTime;
 class Controller;
 class LocationData;
 class ToggleButton;
-class VcrossWidget;
-class VcrossManager;
 class VcrossDialog;
 class VcrossSetupDialog;
 
@@ -92,8 +92,8 @@ protected:
   void closeEvent( QCloseEvent* );
 
 private:
-  VcrossManager * vcrossm;
-  VcrossWidget * vcrossw;
+  vcross::QtManager_p vcrossm;
+  vcross::QtWidget * vcrossw;
   VcrossDialog * vcDialog;
   VcrossSetupDialog * vcSetupDialog;
 

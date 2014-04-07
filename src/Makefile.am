@@ -101,20 +101,6 @@ common_cxx_sources = \
 if WITH_VCROSS_V2
 common_cppflags += -Ivcross_v2 -Ivcross_qt -DUSE_VCROSS_V2
 common_cxx_sources += \
-	vcross_v2/diVcrossAxis.cc \
-	vcross_v2/diVcrossComputer.cc \
-	vcross_v2/diVcrossContour.cc \
-	vcross_v2/diVcrossComputer.cc \
-	vcross_v2/diVcrossField.cc \
-	vcross_v2/diVcrossFile.cc \
-	vcross_v2/diVcrossHardcopy.cc \
-	vcross_v2/diVcrossManager.cc \
-	vcross_v2/diVcrossOptions.cc \
-	vcross_v2/diVcrossPaint.cc \
-	vcross_v2/diVcrossPlot.cc \
-	vcross_v2/diVcrossSetup.cc \
-	vcross_v2/diVcrossSource.cc \
-	vcross_v2/diVcrossUtil.cc \
 	vcross_v2/VcrossSetup.cc \
 	vcross_v2/VcrossComputer.cc \
 	vcross_v2/VcrossCollector.cc \
@@ -221,7 +207,6 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossDialog.cc \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
-	vcross_qt/qtVcrossWidget.cc \
 	vcross_qt/qtVcrossWindow.cc 
 
 if WITH_VCROSS_V2
@@ -429,20 +414,6 @@ noinst_HEADERS = \
 
 if WITH_VCROSS_V2
 noinst_HEADERS += \
-	vcross_v2/diVcrossAxis.h \
-	vcross_v2/diVcrossComputer.h \
-	vcross_v2/diVcrossContour.h \
-	vcross_v2/diVcrossComputer.h \
-	vcross_v2/diVcrossField.h \
-	vcross_v2/diVcrossFile.h \
-	vcross_v2/diVcrossHardcopy.h \
-	vcross_v2/diVcrossManager.h \
-	vcross_v2/diVcrossOptions.h \
-	vcross_v2/diVcrossPaint.h \
-	vcross_v2/diVcrossPlot.h \
-	vcross_v2/diVcrossSetup.h \
-	vcross_v2/diVcrossSource.h \
-	vcross_v2/diVcrossUtil.h \
 	vcross_v2/VcrossSetup.h \
 	vcross_v2/VcrossComputer.h \
 	vcross_v2/VcrossCollector.h \
@@ -467,7 +438,6 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossDialog.h \
 	vcross_qt/qtVcrossSetup.h \
 	vcross_qt/qtVcrossSetupDialog.h \
-	vcross_qt/qtVcrossWidget.h \
 	vcross_qt/qtVcrossWindow.h 
 
 if WITH_VCROSS_V2

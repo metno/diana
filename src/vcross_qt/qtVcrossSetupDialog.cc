@@ -45,17 +45,16 @@
 
 #include "qtUtility.h"
 #ifdef USE_VCROSS_V2
-#include "vcross_v2/diVcrossManager.h"
-#include "vcross_v2/diVcrossOptions.h"
+#include "vcross_v2/VcrossOptions.h"
 #else
 #include "vcross_v1/diVcross1Manager.h"
 #include "vcross_v1/diVcross1Options.h"
 #endif
 #include "qtVcrossSetup.h"
 #include "qtVcrossSetupDialog.h"
-
-
-VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
+#include <boost/make_shared.hpp>
+#include <puTools/mi_boost_compatibility.hh>
+VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   : QDialog(parent), vcrossm(vm)
 {
   METLIBS_LOG_SCOPE();
@@ -268,7 +267,7 @@ void VcrossSetupDialog::standardClicked()
   //this slot is called when standard button pressed
   METLIBS_LOG_SCOPE();
 
-  VcrossOptions * vcopt= new VcrossOptions; // diana defaults
+  vcross::VcrossOptions * vcopt= new vcross::VcrossOptions(); // diana defaults
   setup(vcopt);
   delete vcopt;
   //emit SetupApply();
@@ -279,14 +278,14 @@ void VcrossSetupDialog::start()
 {
   if (!isInitialized){
     // pointer to logged options (the first time)
-    VcrossOptions * vcopt= vcrossm->getOptions();
+    vcross::VcrossOptions * vcopt= vcrossm->getOptions();
     setup(vcopt);
     isInitialized=true;
   }
 }
 
 
-void VcrossSetupDialog::setup(VcrossOptions *vcopt)
+void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
 {
   METLIBS_LOG_SCOPE();
 
@@ -417,7 +416,7 @@ void VcrossSetupDialog::applySetup()
 {
   METLIBS_LOG_SCOPE();
 
-  VcrossOptions * vcopt= vcrossm->getOptions();
+  vcross::VcrossOptions * vcopt= vcrossm->getOptions();
 
   int n= vcSetups.size();
 

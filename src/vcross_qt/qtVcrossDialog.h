@@ -33,6 +33,7 @@
 #include "diCommandParser.h"
 #include "diColourShading.h"
 #include "diPattern.h"
+#include "VcrossQtManager.h"
 
 #include <QDialog>
 
@@ -40,7 +41,6 @@
 #include <vector>
 
 class ToggleButton;
-class VcrossManager;
 
 class QPushButton;
 class QComboBox;
@@ -64,7 +64,7 @@ class VcrossDialog: public QDialog
   Q_OBJECT
 
 public:
-  VcrossDialog( QWidget* parent, VcrossManager* vm);
+  VcrossDialog( QWidget* parent, vcross::QtManager_p vm);
 
   std::vector<std::string> getOKString();
   /// returns a short text for quickmenue
@@ -142,7 +142,7 @@ Q_SIGNALS:
 private:
   void toolTips();
 
-  VcrossManager* vcrossm;
+  vcross::QtManager_p vcrossm;
 
   bool m_advanced;
 
