@@ -771,6 +771,9 @@ void EditItemManager::startStopEditing(bool start)
 void EditItemManager::abortEditing()
 {
   if (incompleteItem_) {
+    // Release the keyboard focus.
+    setFocus(false);
+
     incompleteItem_.clear();
     hoverItem_.clear();
     //setSelectMode(); // restore default mode
@@ -782,6 +785,9 @@ void EditItemManager::abortEditing()
 void EditItemManager::completeEditing()
 {
   if (incompleteItem_) {
+    // Release the keyboard focus.
+    setFocus(false);
+
     addItem(incompleteItem_); // causes repaint
     incompleteItem_.clear();
     //setSelectMode(); // restore default mode

@@ -68,6 +68,8 @@ public:
   virtual void setEnabled(bool enable);
   virtual bool isEditing() const;
   virtual void setEditing(bool enable);
+  virtual bool hasFocus() const;
+  virtual void setFocus(bool enable);
 
 signals:
   void timesUpdated();
@@ -80,6 +82,8 @@ private:
   bool enabled;
   // Whether the manager is being used to edit a product interactively.
   bool editing;
+  // Whether the manager should accept key events instead of other components.
+  bool focus;
 };
 
 #endif

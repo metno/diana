@@ -107,6 +107,10 @@ void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &c
       points_.append(QPointF(event->pos()));
       points_.append(QPointF(event->pos()));
       cursor_ = -1;
+
+      // Ensure that the manager gets the keyboard focus so that key events are
+      // delivered to this item.
+      EditItemManager::instance()->setFocus(true);
     } else
       complete = true;
   }

@@ -607,7 +607,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   // the managers to find any that are in editing mode.
   map<string,Manager*>::iterator it = plotm->managers.begin();
   while (it != plotm->managers.end()) {
-    if (it->second->isEditing()) {
+    if (it->second->hasFocus()) {
       it->second->sendKeyboardEvent(ke, res);
       return;
     }

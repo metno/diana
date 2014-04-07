@@ -33,7 +33,7 @@
 #include <puTools/miStringFunctions.h>
 
 Manager::Manager()
-    : enabled(false), editing(false)
+    : enabled(false), editing(false), focus(false)
 {
 }
 
@@ -59,6 +59,16 @@ bool Manager::isEditing() const
 void Manager::setEditing(bool enable)
 {
   editing = enable;
+}
+
+bool Manager::hasFocus() const
+{
+  return focus;
+}
+
+void Manager::setFocus(bool enable)
+{
+  focus = enable;
 }
 
 bool Manager::parseKeyValue(const std::string &str, QString &key, QString &value)
