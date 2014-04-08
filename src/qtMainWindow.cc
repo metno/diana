@@ -87,7 +87,11 @@
 #include "qtMainWindow.h"
 #include "qtWorkArea.h"
 #include "qtVprofWindow.h"
+#ifdef USE_VCROSS_V2
 #include "vcross_qt/qtVcrossWindow.h"
+#else
+#include "vcross_qt/qtVcross1Window.h"
+#endif
 #include "qtSpectrumWindow.h"
 #include "diController.h"
 #include "diPrintOptions.h"
