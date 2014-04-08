@@ -30,7 +30,7 @@
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
-#include "VcrossQtManager.h"
+#include "vcross_v2/VcrossQtManager.h"
 #include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
 #include <QtGui/QDialog>

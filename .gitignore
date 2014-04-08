@@ -81,3 +81,13 @@
 /.cproject
 /.project
 /compile
+/src/test/.deps
+/src/test/Makefile
+/src/test/SvgContouring
+/src/test/SvgContouring-*.o
+/src/test/contour_data/actual_*.svg
+/src/test/dianaUnitTests
+/src/test/dianaUnitTests-*.o
+/src/test/gtest/Makefile
+/src/test/gtest/gtest*.o
+/src/test/gtest/libgtest*.a

@@ -1,9 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- $Id$
-
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2014 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,7 +29,7 @@
 #ifndef diAnnotationPlot_h
 #define diAnnotationPlot_h
 
-#include <diPlot.h>
+#include "diPlot.h"
 #include <puTools/miTime.h>
 #include <vector>
 #include <map>

@@ -1,5 +1,5 @@
 
-diana_lib = $(top_srcdir)/src/libdiana.a
+diana_lib = $(top_builddir)/src/libdiana.a
 
 TESTS = TestSvgContouring
 

@@ -33,10 +33,11 @@
 #include "config.h"
 #endif
 
-#include "qtVcrossDialog.h"
+#include "vcross_qt/qtVcrossDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #ifdef USE_VCROSS_V2
+#include "vcross_v2/VcrossQtManager.h"
 #else
 #include "vcross_v1/diVcross1Manager.h"
 #endif

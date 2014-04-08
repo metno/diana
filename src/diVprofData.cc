@@ -38,7 +38,7 @@
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
 #ifdef USE_VCROSS_V2
-#include "VcrossEvaluate.h"
+#include "vcross_v2/VcrossEvaluate.h"
 #endif
 //#include <boost/make_shared.hpp>
 #include <cstdio>

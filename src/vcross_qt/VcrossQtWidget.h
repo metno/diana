@@ -30,7 +30,7 @@
 #define VCROSSQTWIDGET_H
 
 #include "diColour.h"
-#include "VcrossQtManager.h"
+#include "vcross_v2/VcrossQtManager.h"
 
 //#define VCROSS_GLWIDGET 1
 #ifdef VCROSS_GLWIDGET
