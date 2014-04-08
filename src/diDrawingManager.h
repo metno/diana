@@ -129,6 +129,7 @@ public:
   QSet<QString> &getLoaded();
 
   QString getWorkDir() const;
+  void setWorkDir(const QString &dir);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;

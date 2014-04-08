@@ -66,7 +66,7 @@ void LayerManager::resetFirstDefaultLayer()
 
 QSharedPointer<Layer> LayerManager::currentLayer(bool editableOnly) const
 {
-  return (editableOnly && (!currLayer_->isEditable())) ? QSharedPointer<Layer>() : currLayer_;
+  return (editableOnly && currLayer_ && (!currLayer_->isEditable())) ? QSharedPointer<Layer>() : currLayer_;
 }
 
 void LayerManager::setCurrentLayer(const QSharedPointer<Layer> &layer)

@@ -200,8 +200,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  Q_ASSERT(CurrEditLayer);
-  setEnabled(CurrEditLayer->itemCount() > 0);
+  if (!CurrEditLayer.isNull())
+    setEnabled(CurrEditLayer->itemCount() > 0);
 
   return true;
 }
@@ -435,6 +435,7 @@ void DrawingManager::plot(bool under, bool over)
       qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());
 
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
+
         if (item->property("visible", true).toBool()) {
           applyPlotOptions(item);
           setFromLatLonPoints(*item, item->getLatLonPoints());
@@ -465,6 +466,11 @@ QSet<QString> &DrawingManager::getLoaded()
 QString DrawingManager::getWorkDir() const
 {
   return workDir;
+}
+
+void DrawingManager::setWorkDir(const QString &dir)
+{
+  workDir = dir;
 }
 
 void DrawingManager::drawSymbol(const QString &name, float x, float y, int width, int height)

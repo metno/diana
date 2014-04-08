@@ -157,8 +157,6 @@ bool EditItemManager::hasWorking() const
 void EditItemManager::setWorking(bool enable)
 {
   working = enable;
-
-  // open layer dialog and toolbar ... 2 B DONE!
 }
 
 QUndoView *EditItemManager::getUndoView()

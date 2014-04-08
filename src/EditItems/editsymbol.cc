@@ -35,8 +35,6 @@
 
 namespace EditItem_Symbol {
 
-const unsigned int defaultSize = 32;
-
 Symbol::Symbol()
 {
   init();
@@ -112,9 +110,8 @@ void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCo
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   if (event->button() == Qt::LeftButton) {
-    if (points_.size() < 2) {
-      points_.append(QPointF(event->pos().x() - defaultSize/2, event->pos().y() - defaultSize/2));
-      points_.append(QPointF(event->pos().x() + defaultSize/2, event->pos().y() + defaultSize/2));
+    if (points_.isEmpty()) {
+      points_.append(QPointF(event->pos().x(), event->pos().y()));
       complete = true; // causes repaint
     }
   }
@@ -140,11 +137,8 @@ void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &com
 
 void Symbol::resize(const QPointF &pos)
 {
-  const QPointF midpoint = (points_.first() + points_.last())/2.0;
-  const QPointF delta = pos - midpoint;
-  const qreal radius = sqrt(sqr(delta.x()) + sqr(delta.y()));
-  points_[0] = midpoint - QPointF(radius / sqrt(2), radius / sqrt(2));
-  points_[1] = midpoint + QPointF(radius / sqrt(2), radius / sqrt(2));
+  const QPointF delta = pos - points_.at(0);
+  size_ = sqrt(sqr(delta.x()) + sqr(delta.y()));
   updateControlPoints();
 }
 

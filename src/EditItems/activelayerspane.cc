@@ -461,7 +461,7 @@ void ActiveLayersPane::editCurrent()
 
 void ActiveLayersPane::saveVisible() const
 {
-  const QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Open File"),
+  const QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
     DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
   if (fileName.isEmpty())
     return;

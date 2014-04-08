@@ -218,6 +218,9 @@ static QList<QSharedPointer<Layer> > createLayersFromFile(QString *error)
       EditItem_Text::Text, EditItem_Composite::Composite>(fileName, error);
   QApplication::restoreOverrideCursor();
 
+  QFileInfo fi(fileName);
+  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+
   return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
 }
 

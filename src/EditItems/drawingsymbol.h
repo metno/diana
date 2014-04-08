@@ -40,7 +40,8 @@ class Symbol : public DrawingItemBase
 public:
   Symbol();
   virtual ~Symbol();
-  virtual QDomNode toKML() const;
+  virtual QDomNode toKML(const QHash<QString, QString> &extraExtData) const;
+  virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
 
 protected:
   QList<QPointF> boundingSquare() const;
@@ -48,6 +49,7 @@ protected:
 
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
+  int size_;
 
 private:
   QString name;
