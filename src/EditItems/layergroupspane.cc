@@ -232,6 +232,9 @@ void LayerGroupsPane::addToLGFromFile(bool default_)
     return;
   }
 
+  if (layers.isEmpty())
+      return;
+
   if (default_)
     LayerManager::instance()->addToDefaultLayerGroup(layers);
   else
