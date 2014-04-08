@@ -52,7 +52,7 @@
 #include "vcross_v1/diVcross1Options.h"
 #endif
 #include "qtVcrossSetup.h"
-#include "qtVcrossSetupDialog.h"
+#include "qtVcross1SetupDialog.h"
 
 
 VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, VcrossManager* vm )
