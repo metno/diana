@@ -138,7 +138,7 @@ void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &com
 void Symbol::resize(const QPointF &pos)
 {
   const QPointF delta = pos - points_.at(0);
-  size_ = sqrt(sqr(delta.x()) + sqr(delta.y()));
+  properties_["size"] = sqrt(sqr(delta.x()) + sqr(delta.y()));
   updateControlPoints();
 }
 

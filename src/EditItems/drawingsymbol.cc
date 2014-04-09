@@ -38,7 +38,7 @@ namespace DrawingItem_Symbol {
 
 Symbol::Symbol()
 {
-  size_ = 32;
+  properties_["size"] = 32;
 }
 
 Symbol::~Symbol()
@@ -50,11 +50,13 @@ QList<QPointF> Symbol::boundingSquare() const
   if (points_.isEmpty())
     return QList<QPointF>();
 
+  int size = properties_.value("size", 32).toInt();
+
   QList<QPointF> points;
-  points.append(points_.at(0) + QPointF(-size_/2, -size_/2));
-  points.append(points_.at(0) + QPointF(size_/2, -size_/2));
-  points.append(points_.at(0) + QPointF(size_/2, size_/2));
-  points.append(points_.at(0) + QPointF(-size_/2, size_/2));
+  points.append(points_.at(0) + QPointF(-size/2, -size/2));
+  points.append(points_.at(0) + QPointF(size/2, -size/2));
+  points.append(points_.at(0) + QPointF(size/2, size/2));
+  points.append(points_.at(0) + QPointF(-size/2, size/2));
   return points;
 }
 
@@ -63,20 +65,22 @@ void Symbol::draw()
   if (points_.isEmpty())
     return;
 
+  int size = properties_.value("size", 32).toInt();
+
   DrawingManager::instance()->drawSymbol(property("style:type", "Default").toString(),
-    points_.at(0).x() - size_/2, points_.at(0).y() - size_/2, size_, size_);
+    points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
 }
 
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["size"] = QString::number(size_);
+  extra["size"] = QString::number(properties_.value("size", 32).toInt());
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
 void Symbol::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  size_ = extraExtData.value("met:size", "32").toInt();
+  properties_["size"] = extraExtData.value("met:size", "32").toInt();
 }
 
 DrawingItemBase::Category Symbol::category() const

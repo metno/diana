@@ -49,7 +49,6 @@ protected:
 
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
-  int size_;
 
 private:
   QString name;
