@@ -608,6 +608,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   map<string,Manager*>::iterator it = plotm->managers.begin();
   while (it != plotm->managers.end()) {
     if (it->second->isEditing()) {
+      res.savebackground = true;
       it->second->sendKeyboardEvent(ke, res);
       if (it->second->hasFocus())
         return;
