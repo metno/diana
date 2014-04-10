@@ -35,6 +35,7 @@
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
+#include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
@@ -200,8 +201,8 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  if (!CurrEditLayer.isNull())
-    setEnabled(CurrEditLayer->itemCount() > 0);
+  if (!CurrLayer.isNull())
+    setEnabled(CurrLayer->itemCount() > 0);
 
   return true;
 }
@@ -250,7 +251,9 @@ bool DrawingManager::loadItems(const QString &fileName)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  EditItems::LayerManager::instance()->replaceInDefaultLayerGroup(layers);
+  EditItems::LayerManager *lm = EditItems::LayerManager::instance();
+  lm->replaceInDefaultLayerGroup(layers);
+  lm->setCurrentLayer(lm->defaultLayerGroup()->layersRef().first());
 
   drawings_.insert(fileName);
   loaded_.insert(fileName);
