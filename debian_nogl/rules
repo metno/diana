@@ -12,6 +12,9 @@ export DH_VERBOSE=1
 %:
 	dh $@ --parallel
 
+#confflags = "CXX='ccache g++'"
+confflags =
+
 do-configure:
 	./autogen.sh
 	./configure $(confflags) \
@@ -20,7 +23,6 @@ do-configure:
 	    --enable-obs-bufr \
 	    --enable-video-export \
 	    --disable-silent-rules \
-	    --enable-vcross-v2 \
 	    --enable-geotiff \
 	    --enable-embedded \
 	    --program-suffix=-nogl \
