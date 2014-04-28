@@ -60,7 +60,7 @@ QtManager::QtManager()
   : mCollector(new Collector(miutil::make_shared<Setup>()))
   , mOptions(new VcrossOptions())
   , mPlot(new QtPlot(mOptions))
-  , dataChange(CHANGED_SEL)
+  , dataChange(0)
   , mCrossectionCurrent(-1)
   , mTimeGraphPos(-1)
   , mPlotTime(-1)
@@ -379,6 +379,7 @@ void QtManager::preparePlot()
     METLIBS_LOG_WARN("no crossection chosen");
     return;
   }
+
   updateCSPoints();
 
   if (mCollector->getSelectedPlots().empty()) {

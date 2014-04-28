@@ -87,7 +87,7 @@ bool VprofData::readFimex(const std::string& setup_line)
   string_v plot_defs;
   for ( size_t i = 0; i < fields.size(); ++i ) {
     plots.push_back(std::string("name=") + fields[i] + std::string(" plot=CONTOUR(") + fields[i] + std::string(")"));
-    plot_defs.push_back(modelName + std::string(" ") + fields[i]);
+    plot_defs.push_back("VCROSS " + std::string(" model=") + modelName + std::string(" field=") + fields[i]);
   }
 
   string_v computations;
@@ -112,7 +112,7 @@ bool VprofData::readFimex(const std::string& setup_line)
     if ( cs->points.size() != 1 ) continue;
     csLabels.insert(cs->label);
     station st;
-    st.id = "id";
+    st.id = "";
     st.name = cs->label;
     st.lat = cs->points[0].latDeg();
     st.lon = cs->points[0].lonDeg();

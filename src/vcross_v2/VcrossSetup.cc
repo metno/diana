@@ -140,7 +140,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
       errors.push_back(SyntaxError(l, "name '" + name + "' already used"));
     } else {
       mSources.insert(std::make_pair(name, miutil::make_shared<FimexSource>(filename, filetype, fileconfig)));
-      METLIBS_LOG_INFO("added source '" << name << "' => '" << filename << "'");
+      METLIBS_LOG_DEBUG("added source '" << name << "' => '" << filename << "'");
     }
   }
   
