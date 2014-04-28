@@ -6,6 +6,7 @@
 #include <puTools/miStringFunctions.h>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/algorithm/string.hpp>
 
 #define MILOGGER_CATEGORY "vcross.Collector"
 #include "miLogger/miLogging.h"
@@ -86,18 +87,27 @@ void vc_select_plots(Collector_p collector, const string_v& to_plot)
   BOOST_FOREACH(const std::string& line, to_plot) {
     if (util::isCommentLine(line))
       continue;
+    METLIBS_LOG_DEBUG(LOGVAL(line) );
 
-    string_v m_p_o = miutil::split(line, 2);
-    if (m_p_o.size() < 2) {
-      METLIBS_LOG_DEBUG(LOGVAL(line) << " split to " << m_p_o.size());
-      continue;
+    string_v m_p_o = miutil::split(line);
+    string_v poptions;
+    std::string model, plotname;
+
+    BOOST_FOREACH(const std::string& token, m_p_o) {
+      string_v stoken = miutil::split(token,"=");
+      if ( stoken.size() != 2 )
+        continue;
+      std::string key = boost::algorithm::to_lower_copy(stoken[0]);
+      if (key == "model" ) {
+        model = stoken[1];
+      } else if ( key == "field" ) {
+        plotname = stoken[1];
+      } else {
+        poptions.push_back(token);
+      }
     }
-
-    string_v::iterator it = m_p_o.begin();
-    const std::string model = *it++, plotname = *it++;
-    m_p_o.erase(m_p_o.begin(), it);
     
-    if (not collector->selectPlot(model, plotname, m_p_o))
+    if (not collector->selectPlot(model, plotname, poptions))
       METLIBS_LOG_WARN("could not select plot '" << plotname << "' for model '" << model << "'");
   }
 }

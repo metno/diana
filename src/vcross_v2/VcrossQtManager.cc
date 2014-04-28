@@ -50,7 +50,7 @@ namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
 
-const vcross::Z_AXIS_TYPE Z_TYPE = vcross::Z_TYPE_HEIGHT;
+const vcross::Z_AXIS_TYPE Z_TYPE = vcross::Z_TYPE_PRESSURE;
 
 } // namespace anonymous
 
@@ -124,9 +124,8 @@ void QtManager::setCrossection(const std::string& csLabel)
     METLIBS_LOG_WARN("crossection '" << csLabel << "' not found");
     return;
   }
-  
+
   mCrossectionCurrent = (it - mCrossectionLabels.begin());
-  updateCSPoints();
   dataChange |= CHANGED_CS;
 }
 
@@ -156,7 +155,6 @@ std::string QtManager::setCrossection(int step)
 
   if (vcross::util::step_index(mCrossectionCurrent, step, mCrossectionLabels.size())) {
     dataChange |= CHANGED_CS;
-    updateCSPoints();
   }
 
   return currentCSName();
@@ -195,6 +193,63 @@ void QtManager::updateCSPoints()
   mTimeGraphPos = -1;
 }
 
+
+// ------------------------------------------------------------------------
+
+void QtManager::getCrossections(LocationData& locationdata)
+{
+  METLIBS_LOG_SCOPE();
+  locationdata = locationData;
+}
+
+// ------------------------------------------------------------------------
+
+namespace {
+struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
+{
+  bool operator() (const LocationElement& a, const LocationElement& b) const;
+};
+bool lt_LocationElement::operator() (const LocationElement& a, const LocationElement& b) const
+{
+  if (a.name < b.name)
+    return true;
+  if (a.name > b.name)
+    return false;
+  if (a.xpos < b.xpos)
+    return true;
+  if (a.xpos > b.xpos)
+    return false;
+  if (a.ypos < b.ypos)
+    return true;
+  return false;
+}
+} // namespace
+
+void QtManager::fillLocationData(LocationData& ld)
+{
+
+  METLIBS_LOG_SCOPE();
+
+  Projection pgeo;
+  pgeo.setGeographic();
+  const Rectangle rgeo(0, 0, 90, 360);
+  const Area geoArea(pgeo, rgeo);
+
+  std::ostringstream annot;
+  annot << "Vertikalsnitt";
+  ld.name =              "vcross";
+  ld.locationType =      location_line;
+  ld.area =              geoArea;
+  ld.annotation =        annot.str();
+  ld.colour =            mOptions->vcOnMapColour;
+  ld.linetype =          mOptions->vcOnMapLinetype;
+  ld.linewidth =         mOptions->vcOnMapLinewidth;
+  ld.colourSelected =    mOptions->vcSelectedOnMapColour;
+  ld.linetypeSelected =  mOptions->vcSelectedOnMapLinetype;
+  ld.linewidthSelected = mOptions->vcSelectedOnMapLinewidth;
+}
+
+
 void QtManager::setTime(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
@@ -204,7 +259,7 @@ void QtManager::setTime(const miutil::miTime& time)
     METLIBS_LOG_WARN("time " << time << " not found");
     return;
   }
-  
+
   mPlotTime = (it - mCrossectionTimes.begin());
   dataChange |= CHANGED_TIME;
 }
@@ -227,7 +282,7 @@ QtManager::vctime_t QtManager::setTime(int step)
 void QtManager::setTimeToBestMatch(const vctime_t& time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(time));
-  
+
   if (mCrossectionTimes.empty()) {
     mPlotTime = -1;
     return;
@@ -302,7 +357,7 @@ bool QtManager::plot(QPainter& painter)
       preparePlot();
       dataChange = CHANGED_NO;
     }
-    
+
     mPlot->plot(painter);
     return true;
   } catch (std::exception& e) {
@@ -324,7 +379,8 @@ void QtManager::preparePlot()
     METLIBS_LOG_WARN("no crossection chosen");
     return;
   }
-  
+  updateCSPoints();
+
   if (mCollector->getSelectedPlots().empty()) {
     mPlot->clear();
     return;
@@ -387,7 +443,7 @@ std::vector<std::string> QtManager::getAllModels()
 std::map<std::string,std::string> QtManager::getAllFieldOptions()
 {
   METLIBS_LOG_SCOPE();
-  return std::map<std::string,std::string>(); // TODO mCollector->getSetup()->getAllPlotOptions();
+  return  mCollector->getSetup()->getAllPlotOptions();
 }
 
 // ------------------------------------------------------------------------
@@ -448,6 +504,7 @@ bool QtManager::setModels()
   BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots()) {
     models.insert(sp->model);
   }
+  std::set<LocationElement, lt_LocationElement> le;
 
   std::set<std::string> csLabels;
   std::set<miutil::miTime> times;
@@ -457,6 +514,18 @@ bool QtManager::setModels()
     if (Source_p src = mCollector->getSetup()->findSource(m)) {
       if (Inventory_cp inv = src->getInventory()) {
         BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
+
+          LonLat_v  crossectionPoints = cs->points;
+          if ( crossectionPoints.size() < 2 )
+            continue;
+          LocationElement el;
+          el.name = cs->label;
+          BOOST_FOREACH(const LonLat& ll, crossectionPoints) {
+            el.xpos.push_back(ll.lonDeg());
+            el.ypos.push_back(ll.latDeg());
+          }
+          le.insert(el);
+
           csLabels.insert(cs->label);
         }
 
@@ -468,6 +537,9 @@ bool QtManager::setModels()
   }
   util::from_set(mCrossectionLabels, csLabels);
   util::from_set(mCrossectionTimes, times);
+
+  locationData.elements.insert(locationData.elements.end(), le.begin(), le.end());
+  fillLocationData(locationData);
 
   if (mCrossectionLabels.empty() or mCrossectionTimes.empty()) {
     METLIBS_LOG_DEBUG("no times or crossections");
@@ -513,7 +585,7 @@ void QtManager::setTimeGraphPos(int plotx, int /*ploty*/)
 
   if (mCollector->getSelectedPlots().empty())
     return;
-  
+
   mTimeGraphPos = mPlot->getNearestPos(plotx);
   dataChange = CHANGED_SEL;
 }

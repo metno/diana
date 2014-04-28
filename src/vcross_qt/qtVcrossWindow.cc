@@ -37,11 +37,6 @@
 #include "diLocationPlot.h"
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
-#ifdef USE_VCROSS_V2
-
-#else
-#include "vcross_v1/diVcross1Manager.h"
-#endif
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "qtVcrossDialog.h"
@@ -699,7 +694,7 @@ void VcrossWindow::getCrossections(LocationData& locationdata)
 {
   METLIBS_LOG_SCOPE();
 
-//  vcrossm->getCrossections(locationdata);
+  vcrossm->getCrossections(locationdata);
 }
 
 /***************************************************************************/

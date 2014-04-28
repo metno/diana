@@ -33,6 +33,7 @@
 #include "VcrossOptions.h"
 #include "VcrossSetup.h"
 #include "VcrossQtPlot.h"
+#include "diLocationPlot.h"
 
 #include <puTools/miTime.h>
 #include <vector>
@@ -72,7 +73,7 @@ public:
     { return currentCSName(); }
   const string_v& getCrossectionList() const
     { return mCrossectionLabels; }
-  //void getCrossections(LocationData& locationdata);
+  void getCrossections(LocationData& locationdata);
   std::vector<std::string> getQuickMenuStrings();
   vctime_t getTime() const
     { return currentTime(); }
@@ -119,7 +120,7 @@ public:
 private:
   void preparePlot();
 
-  //void fillLocationData(LocationData& locationdata);
+  void fillLocationData(LocationData& locationdata);
 
   void setTimeToBestMatch(const vctime_t& time);
 
@@ -143,7 +144,7 @@ private:
   LonLat_v mCrossectionPoints;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
   int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
-
+  LocationData locationData;
   typedef std::vector<vctime_t> times_t;
   times_t mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time

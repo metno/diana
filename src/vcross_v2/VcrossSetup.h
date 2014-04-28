@@ -92,6 +92,9 @@ public:
   const ConfiguredPlot_cpv& getPlots() const
     { return mPlots; }
 
+
+  std::map<std::string,std::string> getAllPlotOptions();
+
 private:
   typedef std::map<std::string, Source_p> Source_p_m;
   Source_p_m mSources;
