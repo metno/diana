@@ -995,9 +995,11 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
     outputFilename += filename;
 
-    QFile qfile(outputFilename.c_str());
+    QString qs(outputFilename.c_str());
+    QFile qfile(qs);
     if ( qfile.exists() ) {
-      qfile.remove();
+      message = qs + " already exists, do you want to overwrite?";
+      return false;
     }
 
     if (ci.sendable ) {
@@ -1007,7 +1009,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       QString qs(outputFilename.c_str());
       QFile qfile(qs);
       if ( qfile.exists() ) {
-        message = qs + " allready exists, do you want to overwrite?";
+        message = qs + " already exists, do you want to overwrite?";
         return false;
       }
     }
