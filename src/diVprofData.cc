@@ -670,6 +670,8 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
       uew= vp->uu[k];
       vns= vp->vv[k];
       ff= int(sqrtf(uew*uew+vns*vns) + 0.5);
+      if(!vp->windInKnots)
+        ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
       dd= int(270.-degr*atan2f(vns,uew) + 0.5);
       if (dd>360)
         dd-=360;
