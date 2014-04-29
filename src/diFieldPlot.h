@@ -98,7 +98,7 @@ private:
   std::string vectorAnnotationText;
 
   std::vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
-  std::vector<float*> prepareDirectionVectors(float* x, float* y, bool rotateVectors);
+  std::vector<float*> prepareDirectionVectors(float* x, float* y);
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
 		   int maxElementsX, int& step, float& dist);
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);

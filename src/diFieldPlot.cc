@@ -628,7 +628,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 }
 
 
-vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotateVectors )
+vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
 {
   METLIBS_LOG_SCOPE();
 
@@ -639,9 +639,9 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
   //tmpfields: fields in current projection
   int nf= tmpfields.size();
 
-  if ( !rotateVectors || (nf==2 &&
+  if ( nf==2 &&
       tmpfields[0]->numSmoothed == fields[0]->numSmoothed &&
-      tmpfields[0]->area.P() == area.P()) ) {
+      tmpfields[0]->area.P() == area.P() ) {
     //use fields in current projection
     u= tmpfields[0]->data;
     v= tmpfields[1]->data;
@@ -661,14 +661,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y, bool rotat
     for (int i=0; i<npos; i++)
       v[i]= 1.0f;
 
-    //##################################################################
-    // some ugly hardcoding until...
-    // for ECMWF wave directions as "meteorological from-direction",
-    // data interpolated to polarstereographic grids are usually turned
-    // met.no WAM wave directions are "oceanographic to-direction".
     bool turn= fields[0]->turnWaveDirection;
-    //    //##################################################################
-
     if( !gc.getDirectionVectors(area,turn,npos,x,y,u,v) ) {
       return uv;
     }
@@ -2144,7 +2137,7 @@ bool FieldPlot::plotDirection()
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareDirectionVectors(x,y);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
@@ -2247,7 +2240,7 @@ bool FieldPlot::plotDirectionColour()
   if (ix1>ix2 || iy1>iy2) return false;
 
   // convert directions to vectors in correct projection
-  vector<float*> uv= prepareDirectionVectors(x,y, poptions.rotateVectors);
+  vector<float*> uv= prepareDirectionVectors(x,y);
   if (uv.size()!=2) return false;
   float *u= uv[0];
   float *v= uv[1];
