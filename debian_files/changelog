@@ -1,8 +1,20 @@
+diana (3.35.0-8) unstable; urgency=low
+
+  * Vertical crossections -  New version, do not work with old vcdata-files
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 29 Apr 2014 09:13:10 +0200
+
+diana (3.35.0-7) unstable; urgency=low
+
+  * Warnig about no production in EditNewDialog
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 07 Apr 2014 09:18:36 +0200
+
 diana (3.35.0-6) unstable; urgency=low
 
-  * Vertical crossections -  New version, do not work with old vcdata-files 
+  * drawing
 
- -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 29 Apr 2014 09:05:11 +0200
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 01 Apr 2014 14:36:59 +0200
 
 diana (3.35.0-5) unstable; urgency=low
 
