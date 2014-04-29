@@ -583,21 +583,6 @@ bool AnnotationPlot::plot()
   }
   glDisable(GL_BLEND);
 
-  // draw outline
-  if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
-    if (rgbmode)
-      glColor4ubv(poptions.bordercolour.RGBA());
-    else
-      glIndexi(poptions.bordercolour.Index());
-
-    glLineWidth(clinewidth);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(bbox.x1, bbox.y1);
-    glVertex2f(bbox.x1, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y2);
-    glVertex2f(bbox.x2, bbox.y1);
-    glEnd();
-  }
 
   UpdateOutput();
 
@@ -637,6 +622,22 @@ bool AnnotationPlot::plot()
     }
   }
   UpdateOutput();
+
+  // draw outline
+  if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
+    if (rgbmode)
+      glColor4ubv(poptions.bordercolour.RGBA());
+    else
+      glIndexi(poptions.bordercolour.Index());
+
+    glLineWidth(clinewidth);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(bbox.x1, bbox.y1);
+    glVertex2f(bbox.x1, bbox.y2);
+    glVertex2f(bbox.x2, bbox.y2);
+    glVertex2f(bbox.x2, bbox.y1);
+    glEnd();
+  }
 
   //draw borders
   for (int i = 0; i < n; i++) {
