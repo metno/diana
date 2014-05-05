@@ -50,6 +50,9 @@ class LayerManager : public QObject
   Q_OBJECT
 public:
   static LayerManager *instance();
+
+  bool isEmpty() const;
+
   void resetFirstDefaultLayer();
   QSharedPointer<Layer> currentLayer(bool = false) const;
   void setCurrentLayer(const QSharedPointer<Layer> &);
@@ -87,93 +90,6 @@ private:
   QString createUniqueLayerName(const QString &) const;
   void ensureUniqueLayerName(const QSharedPointer<Layer> &) const;
 };
-
-#if 0 // obsolete
-class Layers : public QObject
-{
-  Q_OBJECT
-public:
-  static Layers *instance();
-  int size() const;
-  QSharedPointer<Layer> at(int);
-  QSharedPointer<Layer> current() const;
-  void setCurrent(const QSharedPointer<Layer> &);
-  QSharedPointer<Layer> find(const QString &) const;
-  QString createUniqueName(const QString &) const;
-  QSharedPointer<Layer> addEmpty(bool = true);
-  QSharedPointer<Layer> addDuplicate(const QSharedPointer<Layer> &);
-  void add(const QSharedPointer<Layer> &);
-  void add(const QList<QSharedPointer<Layer> > &);
-  void remove(const QSharedPointer<Layer> &);
-#if 0 // disabled for now
-  void mergeIntoFirst(const QList<QSharedPointer<Layer> > &);
-#endif
-  QList<QSharedPointer<Layer> > layers() const;
-  void set(const QList<QSharedPointer<Layer> > &, bool = true); // ### is this used by anyone?
-  void move(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
-private:
-  Layers();
-  static Layers *self; // singleton instance pointer
-  QList<QSharedPointer<Layer> > layers_;
-  QSharedPointer<Layer> currLayer_;
-  void setCurrentPos(int);
-  void ensureUniqueName(const QSharedPointer<Layer> &) const;
-signals:
-  void layersUpdated(); // structure of layer list
-  void layerUpdated(); // contents of single layer
-};
-
-class LayerCollection : public QObject
-{
-  Q_OBJECT
-public:
-  LayerCollection(const QString & = QString(), bool = true);
-  ~LayerCollection();
-  int id() const;
-  QString name() const;
-  QList<QSharedPointer<Layer> > &layersRef();
-  void set(const QList<QSharedPointer<Layer> > &, bool = true);
-  void add(const QSharedPointer<Layer> &, bool = true);
-  void add(const QList<QSharedPointer<Layer> > &, bool = true);
-  void remove(const QSharedPointer<Layer> &, bool = true);
-  bool isActive() const;
-  void setActive(bool);
-  QSharedPointer<Layer> find(const Layer *) const;
-private:
-  int id_;
-  static int nextId_;
-  static int nextId();
-  QString name_;
-  QList<QSharedPointer<Layer> > layers_;
-  bool active_;
-  void initialize(const QSharedPointer<Layer> &) const;
-  void initialize(const QList<QSharedPointer<Layer> > &) const;
-signals:
-  void updated();
-};
-
-class LayerCollections : public QObject
-{
-  Q_OBJECT
-public:
-  static LayerCollections *instance();
-  int size() const;
-  QSharedPointer<LayerCollection> at(int) const;
-  QSharedPointer<LayerCollection> &default_();
-  void add(const QSharedPointer<LayerCollection> &);
-  QSharedPointer<Layer> addEmptyLayer(const QSharedPointer<LayerCollection> &);
-  QString createUniqueName(const QString &) const;
-  void notify();
-private:
-  LayerCollections();
-  static LayerCollections *self; // singleton instance pointer
-  QList<QSharedPointer<LayerCollection> > layerCollections_;
-  QSharedPointer<LayerCollection> find(const QString &) const;
-signals:
-  void layersUpdated(); // structure of layer list
-  void layerUpdated(); // contents of single layer (i.e. should not require clearing and rebuilding a layout etc.)
-};
-#endif // obsolete
 
 } // namespace
 

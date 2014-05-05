@@ -146,17 +146,7 @@ EditItemManager *EditItemManager::instance()
  */
 bool EditItemManager::isEnabled() const
 {
-  return hasWorking() | (DrawingManager::isEnabled() && (CurrLayer->itemCount() > 0)); // ### s/CurrLayer/CurrEditLayer ?
-}
-
-bool EditItemManager::hasWorking() const
-{
-  return CurrLayer && working; // ### s/CurrLayer/CurrEditLayer ?
-}
-
-void EditItemManager::setWorking(bool enable)
-{
-  working = enable;
+  return isEditing() | DrawingManager::isEnabled();
 }
 
 QUndoView *EditItemManager::getUndoView()
@@ -165,6 +155,17 @@ QUndoView *EditItemManager::getUndoView()
         undoView_ = new QUndoView(&undoStack_);
 
     return undoView_;
+}
+
+bool EditItemManager::loadItems(const QString &fileName)
+{
+  // parse file and create item layers
+  QString error;
+  QList<QSharedPointer<EditItems::Layer> > layers = \
+      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
+
+  return finishLoadingItems(fileName, error, layers);
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
@@ -659,7 +660,7 @@ void EditItemManager::plot(bool under, bool over)
   if (!over)
     return;
 
-  if (hasWorking()) {
+  if (isEditing()) {
     // Apply a transformation so that the items can be plotted with screen coordinates
     // while everything else is plotted in map coordinates.
     glPushMatrix();

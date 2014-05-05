@@ -61,30 +61,17 @@ public:
 
 private:
   EditItemManager *editm_;
-  void toggleEditingMode(bool);
   LayerGroupsPane *layerGroupsPane_;
   ActiveLayersPane *activeLayersPane_;
 
 private slots:
-#if 0 // disabled for now
-  void updateModel();
-#endif
   virtual void updateTimes();
-  void toggleDrawingMode(bool);
-#if 0 // disabled for now
-  void importChosenFiles();
-#endif
+  void toggleEditingMode(bool);
+  void makeProduct();
 
   // ### FOR TESTING:
   void dumpStructure();
   void showInfo(bool);
-
-#if 0 // disabled for now
-private:
-  /// List of available drawings from the setup file.
-  QListView *drawingList;
-  QStandardItemModel drawingModel;
-#endif
 };
 
 } // namespace

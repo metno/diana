@@ -34,6 +34,7 @@
 #include "diManager.h"
 #include <diField/diGridConverter.h>
 #include <EditItems/drawingitembase.h>
+#include <EditItems/layermanager.h>
 #include <QHash>
 #include <QList>
 #include <QPointF>
@@ -135,6 +136,8 @@ public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 protected:
+  virtual bool finishLoadingItems(const QString &fileName, const QString &error,
+                                  QList<QSharedPointer<EditItems::Layer> > &layers);
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;

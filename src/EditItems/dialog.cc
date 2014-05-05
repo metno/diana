@@ -48,6 +48,7 @@
 #include <EditItems/layermanager.h>
 #include <QPushButton> // ### FOR TESTING
 #include <QCheckBox> // ### FOR TESTING
+#include <QDir>
 #include <QDebug>
 
 namespace EditItems {
@@ -64,7 +65,7 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
-  connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleDrawingMode(bool)));
+  connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleEditingMode(bool)));
 
 #if 0 // disabled for now
   // Populate the drawing model with data from the drawing manager.
@@ -94,6 +95,12 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   mainLayout->addWidget(splitter);
   //
   mainLayout->addWidget(buttonBox);
+
+  mainLayout->addLayout(createStandardButtons());
+
+  // Connect the signal associated with product creation (applyData) to a slot
+  // that publishes it outside editing mode.
+  connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 
   // ### FOR TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
@@ -175,8 +182,10 @@ std::string Dialog::name() const
 void Dialog::updateTimes()
 {
   std::vector<miutil::miTime> times;
-  if (editm_->isEnabled())
+
+  if (editm_->isEnabled() && !editm_->isEditing())
     times = DrawingManager::instance()->getTimes();
+
   emit emitTimes("DRAWING", times);
 }
 
@@ -210,30 +219,43 @@ void Dialog::putOKString(const std::vector<std::string>& vstr)
   // Submit the lines as new input.
   std::vector<std::string> inp;
   inp.insert(inp.begin(), vstr.begin(), vstr.end());
-  DrawingManager::instance()->processInput(inp);
-}
-
-void Dialog::toggleDrawingMode(bool enable)
-{
-  // Enabling drawing mode (opening the dialog) causes the manager to enter
-  // working mode. This makes it possible to show objects that have not been
-  // serialised as plot commands.
-  editm_->setWorking(enable);
-
-  // ### for now, toggle editing mode as well:
-  toggleEditingMode(enable);
+  editm_->processInput(inp);
 }
 
 void Dialog::toggleEditingMode(bool enable)
 {
+  // Enabling editing mode (opening the dialog) causes the manager to enter
+  // working mode. This makes it possible to show objects that have not been
+  // serialised as plot commands.
+  editm_->setEditing(enable);
+
   // When editing starts, remove any existing items and load the chosen
   // files. Mark the product as unfinished by disabling it.
   if (enable)
     editm_->setEnabled(false);
 
-  editm_->setEditing(enable);
   ToolBar::instance()->setVisible(enable);
   ToolBar::instance()->setEnabled(enable);
+}
+
+/**
+ * Makes the current drawing a product that is visible outside editing mode.
+ */
+void Dialog::makeProduct()
+{
+  // Write the layers to temporary files in the working directory.
+  QDir dir(editm_->getWorkDir());
+  QString filePath = dir.absoluteFilePath("temp.kml");
+  activeLayersPane_->saveVisible(filePath);
+  std::cerr << "makeProduct " << filePath.toStdString() << std::endl;
+
+  std::vector<std::string> inp;
+  inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");
+
+  putOKString(inp);
+
+  // Update the available times.
+  //updateTimes();
 }
 
 #if 0 // disabled for now

@@ -88,6 +88,7 @@ class ActiveLayersPane : public QWidget
 public:
   ActiveLayersPane();
   void showInfo(bool);
+  QString saveVisible(const QString &fileName) const;
 
 private:
   QVBoxLayout *layout_;

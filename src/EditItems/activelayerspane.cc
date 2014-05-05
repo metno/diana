@@ -466,14 +466,21 @@ void ActiveLayersPane::saveVisible() const
   if (fileName.isEmpty())
     return;
 
+  QString error = saveVisible(fileName);
+
+  if (!error.isEmpty())
+    QMessageBox::warning(0, "Error", QString("failed to save visible layers to file: %1").arg(error));
+}
+
+QString ActiveLayersPane::saveVisible(const QString &fileName) const
+{
   QApplication::setOverrideCursor(Qt::WaitCursor);
   const QList<QSharedPointer<Layer> > visLayers = layers(visibleWidgets());
   QString error;
   KML::saveToFile(fileName, visLayers, &error);
   QApplication::restoreOverrideCursor();
 
-  if (!error.isEmpty())
-    QMessageBox::warning(0, "Error", QString("failed to save visible layers to file: %1").arg(error));
+  return error;
 }
 
 void ActiveLayersPane::mouseClicked(QMouseEvent *event)

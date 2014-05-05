@@ -59,8 +59,12 @@ public:
       CreatePolyLine, CreateSymbol, CreateText, CreateComposite
     };
 
+    static EditItemManager *instance();
+
     EditItemManager();
     virtual ~EditItemManager();
+
+    virtual bool loadItems(const QString &fileName);
 
     /// Registers a new item with the manager.
     /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
@@ -86,7 +90,6 @@ public:
     void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
     void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
-    static EditItemManager *instance();
     virtual bool isEnabled() const;
 
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
@@ -119,9 +122,6 @@ public slots:
     void setSelectMode();
     void startStopEditing(bool start);
     void undo();
-
-    virtual bool hasWorking() const;
-    virtual void setWorking(bool enable);
 
     void handleLayersUpdate();
 
@@ -177,10 +177,6 @@ private:
     enum Mode {
       SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
     } mode_;
-
-    // Define a variable to allow working (temporary) objects to be shown without
-    // having to create plot commands.
-    bool working;
 
     void incompleteMousePress(QMouseEvent *);
     void incompleteMouseRelease(QMouseEvent *);

@@ -36,7 +36,6 @@
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
 #include <EditItems/layergroup.h>
-#include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
@@ -153,22 +152,7 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-#if 1
   EditItems::LayerManager::instance()->resetFirstDefaultLayer();
-#else
-  const QSharedPointer<EditItems::Layer> layer = CurrentLayer;
-  if (!layer.isNull()) {
-
-    // New input has been submitted, so remove the items from the set.
-    // This will automatically cause items to be removed from the editing
-    // dialog in interactive mode.
-    const QSet<QSharedPointer<DrawingItemBase> > items = layer->itemSet();
-    foreach (QSharedPointer<DrawingItemBase> item, items.values())
-      removeItem_(item);    
-  } else {
-    EditItems::Layers::instance()->addEmpty();
-  }
-#endif
 
   loaded_.clear();
 
@@ -201,8 +185,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
     }
   }
 
-  if (!CurrLayer.isNull())
-    setEnabled(CurrLayer->itemCount() > 0);
+  // Only enable this manager if there are specific files loaded, not just
+  // if there are items in the layers.
+  setEnabled(!loaded_.isEmpty());
 
   return true;
 }
@@ -236,6 +221,12 @@ bool DrawingManager::loadItems(const QString &fileName)
       KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
       DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
 
+  return finishLoadingItems(fileName, error, layers);
+}
+
+bool DrawingManager::finishLoadingItems(const QString &fileName, const QString &error,
+                                        QList<QSharedPointer<EditItems::Layer> > &layers)
+{
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
     return false;
@@ -329,22 +320,29 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
 std::vector<miutil::miTime> DrawingManager::getTimes() const
 {
   std::vector<miutil::miTime> output;
+  std::set<miutil::miTime> times;
 
-  if (CurrLayer) {
-    std::set<miutil::miTime> times;
+  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
 
-    for (int i = 0; i < CurrLayer->itemCount(); ++i) {
-      std::string time_str;
-      std::string prop_str = timeProperty(CurrLayer->item(i)->propertiesRef(), time_str);
-      if (!time_str.empty())
-        times.insert(miutil::miTime(time_str));
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+    if (layer->isActive() && layer->isVisible()) {
+
+      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
+      foreach (const QSharedPointer<DrawingItemBase> item, items) {
+
+        std::string time_str;
+        std::string prop_str = timeProperty(item->propertiesRef(), time_str);
+        if (!time_str.empty())
+          times.insert(miutil::miTime(time_str));
+      }
     }
-
-    output.assign(times.begin(), times.end());
-
-    // Sort the times.
-    std::sort(output.begin(), output.end());
   }
+
+  output.assign(times.begin(), times.end());
+
+  // Sort the times.
+  std::sort(output.begin(), output.end());
 
   return output;
 }
@@ -376,28 +374,32 @@ bool DrawingManager::prepare(const miutil::miTime &time)
 {
   bool found = false;
 
-  if (CurrLayer) {
+  // Check the requested time against the available times.
+  std::vector<miutil::miTime>::const_iterator it;
+  std::vector<miutil::miTime> times = getTimes();
 
-    // Check the requested time against the available times.
-    std::vector<miutil::miTime>::const_iterator it;
-    std::vector<miutil::miTime> times = getTimes();
-
-    for (it = times.begin(); it != times.end(); ++it) {
-      if (*it == time) {
-        found = true;
-        break;
-      }
+  for (it = times.begin(); it != times.end(); ++it) {
+    if (*it == time) {
+      found = true;
+      break;
     }
+  }
 
-    // Change the visibility of items in the editor.
-    for (int i = 0; i < CurrLayer->itemCount(); ++i) {
+  // Change the visibility of items in the editor.
+  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
+
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+    QList<QSharedPointer<DrawingItemBase> > items = layer->items();
+
+    foreach (const QSharedPointer<DrawingItemBase> item, items) {
       std::string time_str;
-      std::string time_prop = timeProperty(CurrLayer->item(i)->propertiesRef(), time_str);
+      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
       if (time_prop.empty() || isEditing())
-        CurrLayer->item(i)->setProperty("visible", true);
+        item->setProperty("visible", true);
       else {
         bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
-        CurrLayer->item(i)->setProperty("visible", visible);
+        item->setProperty("visible", visible);
       }
     }
   }
