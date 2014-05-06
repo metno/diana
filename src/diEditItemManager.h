@@ -64,8 +64,6 @@ public:
     EditItemManager();
     virtual ~EditItemManager();
 
-    virtual bool loadItems(const QString &fileName);
-
     /// Registers a new item with the manager.
     /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
     void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
@@ -91,6 +89,9 @@ public:
     void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
     virtual bool isEnabled() const;
+    virtual void setEditing(bool enable);
+    virtual bool prepare(const miutil::miTime &time);
+    std::vector<miutil::miTime> getTimes() const;
 
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
     void sendKeyboardEvent(QKeyEvent* event, EventResult& res);

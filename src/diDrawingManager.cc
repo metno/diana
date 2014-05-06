@@ -44,6 +44,7 @@
 
 #include <set>
 
+#include <EditItems/layer.h>
 #include <QImage>
 #include <QPainter>
 #include <QSvgRenderer>
@@ -152,8 +153,6 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-  EditItems::LayerManager::instance()->resetFirstDefaultLayer();
-
   loaded_.clear();
 
   vector<string>::const_iterator it;
@@ -217,16 +216,9 @@ bool DrawingManager::loadItems(const QString &fileName)
 {
   // parse file and create item layers
   QString error;
-  QList<QSharedPointer<EditItems::Layer> > layers = \
-      KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+  layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
       DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
 
-  return finishLoadingItems(fileName, error, layers);
-}
-
-bool DrawingManager::finishLoadingItems(const QString &fileName, const QString &error,
-                                        QList<QSharedPointer<EditItems::Layer> > &layers)
-{
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
     return false;
@@ -242,13 +234,7 @@ bool DrawingManager::finishLoadingItems(const QString &fileName, const QString &
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  EditItems::LayerManager *lm = EditItems::LayerManager::instance();
-  lm->replaceInDefaultLayerGroup(layers);
-  lm->setCurrentLayer(lm->defaultLayerGroup()->layersRef().first());
-
-  drawings_.insert(fileName);
   loaded_.insert(fileName);
-
   return true;
 }
 
@@ -322,11 +308,10 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
-  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isActive() && layer->isVisible()) {
+    if (layer->isVisible()) {
 
       QList<QSharedPointer<DrawingItemBase> > items = layer->items();
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
@@ -385,8 +370,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     }
   }
 
-  // Change the visibility of items in the editor.
-  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  // Change the visibility of items.
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -430,11 +414,10 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isActive() && layer->isVisible()) {
+    if (layer->isVisible()) {
 
       QList<QSharedPointer<DrawingItemBase> > items = layer->items();
       qStableSort(items.begin(), items.end(), DrawingManager::itemCompare());

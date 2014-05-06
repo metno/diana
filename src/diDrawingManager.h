@@ -35,6 +35,7 @@
 #include <diField/diGridConverter.h>
 #include <EditItems/drawingitembase.h>
 #include <EditItems/layermanager.h>
+#include <EditItems/layer.h>
 #include <QHash>
 #include <QList>
 #include <QPointF>
@@ -136,11 +137,10 @@ public slots:
   std::vector<miutil::miTime> getTimes() const;
 
 protected:
-  virtual bool finishLoadingItems(const QString &fileName, const QString &error,
-                                  QList<QSharedPointer<EditItems::Layer> > &layers);
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
+  std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
   Rectangle plotRect;
   Rectangle editRect;
@@ -150,7 +150,6 @@ protected:
   QSet<QString> loaded_;
 
 private:
-  std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
   GridConverter gc;
   QString workDir;
@@ -159,6 +158,8 @@ private:
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
+
+  QList<QSharedPointer<EditItems::Layer> > layers;
 
   static DrawingManager *self;  // singleton instance pointer
 };

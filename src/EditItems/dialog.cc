@@ -247,7 +247,6 @@ void Dialog::makeProduct()
   QDir dir(editm_->getWorkDir());
   QString filePath = dir.absoluteFilePath("temp.kml");
   activeLayersPane_->saveVisible(filePath);
-  std::cerr << "makeProduct " << filePath.toStdString() << std::endl;
 
   std::vector<std::string> inp;
   inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");

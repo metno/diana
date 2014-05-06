@@ -47,6 +47,7 @@
 #include <EditItems/properties.h>
 #include <EditItems/style.h>
 #include <EditItems/layermanager.h>
+#include <EditItems/layergroup.h>
 #include <qtMainWindow.h>
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
@@ -149,23 +150,93 @@ bool EditItemManager::isEnabled() const
   return isEditing() | DrawingManager::isEnabled();
 }
 
+void EditItemManager::setEditing(bool enable)
+{
+  Manager::setEditing(enable);
+  if (!enable)
+    emit unsetWorkAreaCursor();
+}
+
+/**
+ * Prepares the manager for display of, and interaction with, items that
+ * correspond to the given \a time.
+*/
+bool EditItemManager::prepare(const miutil::miTime &time)
+{
+  bool found = false;
+
+  // Check the requested time against the available times.
+  std::vector<miutil::miTime>::const_iterator it;
+  std::vector<miutil::miTime> times = getTimes();
+
+  for (it = times.begin(); it != times.end(); ++it) {
+    if (*it == time) {
+      found = true;
+      break;
+    }
+  }
+
+  // Change the visibility of items.
+  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
+
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+    QList<QSharedPointer<DrawingItemBase> > items = layer->items();
+
+    foreach (const QSharedPointer<DrawingItemBase> item, items) {
+      std::string time_str;
+      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
+      if (time_prop.empty() || isEditing())
+        item->setProperty("visible", true);
+      else {
+        bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
+        item->setProperty("visible", visible);
+      }
+    }
+  }
+
+  return found;
+}
+
+/**
+ * Returns a vector containing the times for which the manager has data.
+*/
+std::vector<miutil::miTime> EditItemManager::getTimes() const
+{
+  std::vector<miutil::miTime> output;
+  std::set<miutil::miTime> times;
+
+  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
+
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+    if (layer->isVisible()) {
+
+      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
+      foreach (const QSharedPointer<DrawingItemBase> item, items) {
+
+        std::string time_str;
+        std::string prop_str = timeProperty(item->propertiesRef(), time_str);
+        if (!time_str.empty())
+          times.insert(miutil::miTime(time_str));
+      }
+    }
+  }
+
+  output.assign(times.begin(), times.end());
+
+  // Sort the times.
+  std::sort(output.begin(), output.end());
+
+  return output;
+}
+
 QUndoView *EditItemManager::getUndoView()
 {
     if (!undoView_)
         undoView_ = new QUndoView(&undoStack_);
 
     return undoView_;
-}
-
-bool EditItemManager::loadItems(const QString &fileName)
-{
-  // parse file and create item layers
-  QString error;
-  QList<QSharedPointer<EditItems::Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
-
-  return finishLoadingItems(fileName, error, layers);
 }
 
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
