@@ -356,7 +356,7 @@ noinst_HEADERS = \
 	diWeatherObjects.h \
 	diWeatherSymbol.h \
 	diWorkOrder.h \
-	PolyContouring.h \
+	poly_contouring.hh \
 	reversible_list.hh \
 	polyStipMasks.h \
 	qtAddtoDialog.h \

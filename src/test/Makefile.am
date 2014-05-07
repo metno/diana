@@ -1,23 +1,9 @@
 
 diana_lib = $(top_builddir)/src/libdiana.a
 
-TESTS = TestSvgContouring
+TESTS = 
 
-check_PROGRAMS = SvgContouring
-
-SvgContouring_SOURCES = \
-    SvgContouring.cc
-
-SvgContouring_LDFLAGS = -L.. \
-    $(MILOGGER_LDFLAGS)
-
-SvgContouring_CPPFLAGS = \
-    $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
-    $(MILOGGER_CPPFLAGS)
-
-SvgContouring_LDADD = \
-    $(diana_lib) \
-    $(MILOGGER_LIBS)
+check_PROGRAMS = 
 
 if HAVE_GTEST
 TESTS += dianaUnitTests
