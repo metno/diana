@@ -19,6 +19,7 @@ namespace vcross {
 namespace detail {
 
 const float UNDEF_VALUE = 1e30;
+const contouring::level_t VCContourField::UNDEF_LEVEL;
 
 inline bool isUndefined(float v)
 {
@@ -28,8 +29,8 @@ inline bool isUndefined(float v)
 void VCContourField::setLevels(float lstep)
 {
   float vMin = UNDEF_VALUE, vMax = UNDEF_VALUE;
-  for (int ix=0; ix<nx(); ++ix) {
-    for (int iy=0; iy<ny(); ++iy) {
+  for (size_t ix=0; ix<nx(); ++ix) {
+    for (size_t iy=0; iy<ny(); ++iy) {
       const float v = mData->value(ix, iy);
       if (isUndefined(v))
         continue;
@@ -55,54 +56,44 @@ void VCContourField::setLevels(float lstart, float lstop, float lstep)
     mLevels.push_back(l);
 }
 
-float VCContourField::value(int ix, int iy) const
+float VCContourField::value(size_t ix, size_t iy) const
 {
-  const contouring::Point p = position(ix, iy);
+  const contouring::point_t p = position(ix, iy);
   if (not (mXpos->legalPaint(p.x) and mYpos->legalPaint(p.y)))
     return UNDEF_VALUE;
   return mData->value(ix, iy);
 }
 
-contouring::Point VCContourField::position(int ix, int iy) const
+contouring::point_t VCContourField::position(size_t ix, size_t iy) const
 {
   const float vx = mXval[ix], vy = mYval->value(ix, iy);
-  return contouring::Point(mXpos->value2paint(vx), mYpos->value2paint(vy));
+  return contouring::point_t(mXpos->value2paint(vx), mYpos->value2paint(vy));
 }
 
-contouring::Point VCContourField::point(int levelIndex, int x0, int y0, int x1, int y1) const
+contouring::point_t VCContourField::line_point(int levelIndex, size_t x0, size_t y0, size_t x1, size_t y1) const
 {
   const float v0 = value(x0, y0);
   const float v1 = value(x1, y1);
   const float c = (mLevels[levelIndex]-v0)/(v1-v0);
   
-  const contouring::Point p0 = position(x0, y0);
-  const contouring::Point p1 = position(x1, y1);
+  const contouring::point_t p0 = position(x0, y0);
+  const contouring::point_t p1 = position(x1, y1);
   const float x = (1-c)*p0.x + c*p1.x; // FIXME interpolate before calling position?
   const float y = (1-c)*p0.y + c*p1.y;
-  return contouring::Point(x, y);
+  return contouring::point_t(x, y);
 }
 
-int VCContourField::level_point(int ix, int iy) const
+contouring::level_t VCContourField::grid_level(size_t ix, size_t iy) const
 {
   const float v = value(ix, iy);
   if (isUndefined(v))
-    return Field::UNDEFINED;
+    return VCContourField::UNDEF_LEVEL;
   return level_value(v);
 }
 
-int VCContourField::level_center(int cx, int cy) const
+contouring::level_t VCContourField::level_value(float value) const
 {
-  const float v_00 = value(cx, cy), v_10 = value(cx+1, cy), v_01 = value(cx, cy+1), v_11 = value(cx+1, cy+1);
-  if (isUndefined(v_00) or isUndefined(v_01) or isUndefined(v_10) or isUndefined(v_11))
-    return Field::UNDEFINED;
-
-  const float avg = 0.25*(v_00 + v_01 + v_10 + v_11);
-  return level_value(avg);
-}
-
-int VCContourField::level_value(float value) const
-{
-#if 1
+#if 0
   if (value < mLevels.front())
     return 0;
   if (value >= mLevels.back())
@@ -115,20 +106,9 @@ int VCContourField::level_value(float value) const
 
 // ########################################################################
 
-VCContouring::VCContouring(contouring::Field* field, QPainter& painter, const PlotOptions& poptions)
-  : PolyContouring(field)
-  , mPainter(painter)
-  , mPlotOptions(poptions)
+void VCLines::add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed)
 {
-}
-
-VCContouring::~VCContouring()
-{
-}
-
-void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
-{
-  const bool highlight = ((li % 5) == 0);
+  const bool highlight = ((level % 5) == 0);
   const bool label = highlight;
 
   QPen pen(vcross::util::QC(mPlotOptions.linecolour));
@@ -137,31 +117,31 @@ void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
     lw += 1;
   pen.setWidth(lw);
 
-  VCContourField* vcf = static_cast<VCContourField*>(mField);;
-  { // draw line
-    if (mPlotOptions.linetype.stipple)
-      vcross::util::setDash(pen, mPlotOptions.linetype.factor, mPlotOptions.linetype.bmap);
-    mPainter.setPen(pen);
-    
-    QPolygonF line;
-    BOOST_FOREACH(const contouring::Point& p, points) {
-      line << QPointF(p.x, p.y);
-    }
-    if (close)
-      mPainter.drawPolygon(line);
-    else
-      mPainter.drawPolyline(line);
-  }
+  if (mPlotOptions.linetype.stipple)
+    vcross::util::setDash(pen, mPlotOptions.linetype.factor, mPlotOptions.linetype.bmap);
+
+  mPainter.setPen(pen);
+  mPainter.setBrush(Qt::NoBrush);
+
+  QPolygonF line;
+  for (contouring::points_t::const_iterator it = points.begin(); it != points.end(); ++it)
+    line << QPointF(it->x, it->y);
+
+  if (closed)
+    mPainter.drawPolygon(line);
+  else
+    mPainter.drawPolyline(line);
+
   if (label) { // draw label
-    size_t idx = 2 + 5*(li % 5), step = idx;
-    contouring::Polyline::const_iterator it = points.begin();
+    size_t idx = 2 + 5*(level % 5), step = idx;
+    contouring::points_t::const_iterator it = points.begin();
     while (idx+2 < points.size()) {
       std::advance(it, step);
-      const contouring::Point &p0 = *it, &p1 = *(++it);
+      const contouring::point_t &p0 = *it, &p1 = *(++it);
       step = 60;
       idx += step+1;
       
-      const QString qtxt = QString::number(vcf->getLevel(li));
+      const QString qtxt = QString::number(mField.getLevel(level));
       float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180/M_PI;
       if (angle > 90)
         angle  -= 180;
@@ -181,6 +161,34 @@ void VCContouring::emitLine(int li, contouring::Polyline& points, bool close)
       mPainter.restore();
     }
   }
+}
+
+void VCLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& points)
+{
+  QBrush brush;
+  if (level != mField.undefined_level()) {
+    const size_t npalette = mPlotOptions.palettecolours.size();
+    if (npalette > 0) {
+      brush = vcross::util::QC(mPlotOptions.palettecolours[level % npalette]);
+    } else if (false) {
+      const size_t nlevels = mField.levels().size();
+      float fraction = 0.5;
+      if (nlevels > 0 and level >= 0 and level <= (int)nlevels)
+        fraction = float(level)/nlevels;
+      brush = QColor(int(255*fraction), 0, (0x80-int(0x80*fraction)), 64);
+    }
+  } else {
+    brush = Qt::green;
+  }
+
+  mPainter.setPen(Qt::NoPen);
+  mPainter.setBrush(brush);
+
+  QPolygonF line;
+  for (contouring::points_t::const_iterator it = points.begin(); it != points.end(); ++it)
+    line << QPointF(it->x, it->y);
+
+  mPainter.drawPolygon(line);
 }
 
 } // namespace vcross

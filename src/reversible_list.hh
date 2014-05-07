@@ -158,20 +158,28 @@ public:
         { return *begin(); }
     reference back()
         { return *rbegin(); }
+    reference front_or_back(bool front)
+        { return front ? *begin() : *rbegin(); }
     const_reference front() const
         { return *begin(); }
     const_reference back() const
         { return *rbegin(); }
+    const_reference front_or_back(bool front) const
+        { return front ? *begin() : *rbegin(); }
 
     void push_front(const T& t)
         { push_any(head, t); }
     void push_back(const T& t)
         { push_any(tail, t); }
+    void push_front_or_back(bool front, const T& t)
+        { push_any(front ? head : tail, t); }
 
     void pop_front()
         { pop_any(head); }
     void pop_back()
         { pop_any(tail); }
+    void pop_front_or_back(bool front)
+        { pop_any(front ? head : tail); }
 
     void clear();
 
@@ -296,6 +304,7 @@ void reversible_list<T,A>::move_back(reversible_list& other)
     tail = other.tail;
     other.head = other.tail = 0;
     count += other.count;
+    other.count = 0;
 }
 
 #endif // REVERSIBLE_LIST_HH

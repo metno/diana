@@ -96,7 +96,7 @@ common_cxx_sources = \
 	EditItems/drawingsymbol.cc \
 	EditItems/drawingtext.cc \
 	EditItems/kml.cc \
-	PolyContouring.cc
+	poly_contouring.cc
 
 if WITH_VCROSS_V2
 common_cppflags += -Ivcross_v2 -Ivcross_qt -DUSE_VCROSS_V2

@@ -2,11 +2,12 @@
 #ifndef VCROSS_DIVCROSSCONTOUR_H
 #define VCROSS_DIVCROSSCONTOUR_H 1
 
-#include "PolyContouring.h"
 #include <diField/VcrossData.h>
+#include "poly_contouring.hh"
 
 class QPainter;
 class PlotOptions;
+#include <QtCore/QPointF>
 
 namespace vcross {
 namespace detail {
@@ -14,27 +15,34 @@ namespace detail {
 struct Axis;
 typedef boost::shared_ptr<Axis> AxisPtr;
 
-class VCContourField : public contouring::Field {
+class VCContourField : public contouring::field_t
+{
 public:
+  static const contouring::level_t UNDEF_LEVEL = -1;
+
   VCContourField(Values_cp data, AxisPtr xaxis, AxisPtr yaxis,
       const std::vector<float>& xvalues, Values_cp zvalues)
     : mData(data), mXpos(xaxis), mYpos(yaxis), mXval(xvalues), mYval(zvalues) { }
   
-  virtual ~VCContourField() { }
+  ~VCContourField() { }
 
-  virtual int nx() const
+  size_t nx() const
     { return mData->npoint(); }
   
-  virtual int ny() const
+  size_t ny() const
     { return mData->nlevel(); }
 
-  virtual int nlevels() const
+  int nlevels() const
     { return mLevels.size(); }
 
-  virtual int level_point(int ix, int iy) const;
-  virtual int level_center(int cx, int cy) const;
+  contouring::level_t grid_level(size_t ix, size_t iy) const;
 
-  virtual contouring::Point point(int levelIndex, int x0, int y0, int x1, int y1) const;
+  contouring::point_t grid_point(size_t x, size_t y) const
+    { return position(x, y); }
+  contouring::point_t line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const;
+
+  contouring::level_t undefined_level() const
+    { return UNDEF_LEVEL; }
 
   void setLevels(float lstep);
   void setLevels(float lstart, float lstop, float lstep);
@@ -45,9 +53,9 @@ public:
     { return mLevels[idx]; }
   
 private:
-  float value(int ix, int iy) const;
+  float value(size_t ix, size_t iy) const;
   
-  contouring::Point position(int ix, int iy) const;
+  contouring::point_t position(size_t ix, size_t iy) const;
   
   int level_value(float value) const;
 
@@ -63,12 +71,17 @@ private:
 
 // ########################################################################
 
-class VCContouring : public contouring::PolyContouring {
+class VCLines : public contouring::lines_t {
 public:
-  VCContouring(contouring::Field* field, QPainter& p, const PlotOptions& poptions);
-  ~VCContouring();
-  virtual void emitLine(int li, contouring::Polyline& points, bool close);
+  VCLines(const VCContourField& field, QPainter& painter, const PlotOptions& poptions)
+    : mField(field), mPainter(painter), mPlotOptions(poptions) { }
+  
+  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
+
+  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+
 private:
+  const VCContourField& mField;
   QPainter& mPainter;
   const PlotOptions& mPlotOptions;
 };

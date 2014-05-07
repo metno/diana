@@ -3,7 +3,7 @@
 
 #include "diContouring.h"
 #include "diFontManager.h"
-#include "PolyContouring.h"
+#include "poly_contouring.hh"
 
 #include <GL/gl.h>
 #if !defined(USE_PAINTGL)
@@ -15,18 +15,18 @@
 #include <cmath>
 #include <vector>
 
-#define M_TIME
 #define MILOGGER_CATEGORY "diana.PolyContouring"
 #include <miLogger/miLogging.h>
 
 const float UNDEF_VALUE = 1e30;
+const contouring::level_t UNDEFINED = -1000000;
 
 inline bool isUndefined(float v)
 {
   return v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
-class DianaField : public contouring::Field {
+class DianaField : public contouring::field_t {
 public:
   DianaField(int nx, int ny, const int ipar[], const float* data, const float* xpos, const float* ypos)
     : mNX(nx), mNY(ny), mX0(ipar[0]), mX1(ipar[1]), mY0(ipar[2]), mY1(ipar[3])
@@ -34,19 +34,19 @@ public:
     
   virtual ~DianaField() { }
 
-  virtual int nx() const
+  virtual size_t nx() const
     { return mX1-mX0; }
   
-  virtual int ny() const
+  virtual size_t ny() const
     { return mY1-mY0; }
 
   virtual int nlevels() const
     { return mLevels.size(); }
 
-  virtual int level_point(int ix, int iy) const;
-  virtual int level_center(int cx, int cy) const;
-
-  virtual contouring::Point point(int levelIndex, int x0, int y0, int x1, int y1) const;
+  virtual contouring::level_t grid_level(size_t ix, size_t iy) const;
+  virtual contouring::point_t line_point(int levelIndex, size_t x0, size_t y0, size_t x1, size_t y1) const;
+  virtual contouring::point_t grid_point(size_t ix, size_t iy) const
+    { return position(ix, iy); }
 
   void setLevels(float lstart, float lstop, float lstep);
   const std::vector<float>& levels() const
@@ -56,16 +56,19 @@ public:
     { return mLevels[idx]; }
   
 private:
-  int index(int ix, int iy) const
+  size_t index(size_t ix, size_t iy) const
     {  return (mY0 + iy)*mNX + (mX0+ix); }
 
-  float value(int ix, int iy) const
+  float value(size_t ix, size_t iy) const
     { return mData[index(ix, iy)]; }
 
-  contouring::Point position(int ix, int iy) const
-    { int i = index(ix, iy); return contouring::Point(mXpos[i], mYpos[i]); }
+  contouring::point_t position(size_t ix, size_t iy) const
+    { size_t i = index(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
 
-  int level_value(float value) const;
+  contouring::level_t level_value(float value) const;
+
+  contouring::level_t undefined_level() const
+    { return UNDEFINED; }
 
 private:
   std::vector<float> mLevels;
@@ -83,83 +86,61 @@ void DianaField::setLevels(float lstart, float lstop, float lstep)
     mLevels.push_back(l);
 }
 
-contouring::Point DianaField::point(int levelIndex, int x0, int y0, int x1, int y1) const
+contouring::point_t DianaField::line_point(contouring::level_t levelIndex, size_t x0, size_t y0, size_t x1, size_t y1) const
 {
     const float v0 = value(x0, y0);
     const float v1 = value(x1, y1);
     const float c = (mLevels[levelIndex]-v0)/(v1-v0);
 
-    const contouring::Point p0 = position(x0, y0);
-    const contouring::Point p1 = position(x1, y1);
+    const contouring::point_t p0 = position(x0, y0);
+    const contouring::point_t p1 = position(x1, y1);
     const float x = (1-c)*p0.x + c*p1.x;
     const float y = (1-c)*p0.y + c*p1.y;
-    return contouring::Point(x, y);
+    return contouring::point_t(x, y);
 }
 
-int DianaField::level_point(int ix, int iy) const
+contouring::level_t DianaField::grid_level(size_t ix, size_t iy) const
 {
   const float v = value(ix, iy);
   if (isUndefined(v))
-    return Field::UNDEFINED;
+    return UNDEFINED;
   return level_value(v);
 }
 
-int DianaField::level_center(int cx, int cy) const
+contouring::level_t DianaField::level_value(float value) const
 {
-  const float v_00 = value(cx, cy), v_10 = value(cx+1, cy), v_01 = value(cx, cy+1), v_11 = value(cx+1, cy+1);
-  if (isUndefined(v_00) or isUndefined(v_01) or isUndefined(v_10) or isUndefined(v_11))
-    return Field::UNDEFINED;
-
-  const float avg = 0.25*(v_00 + v_01 + v_10 + v_11);
-  return level_value(avg);
-}
-
-int DianaField::level_value(float value) const
-{
-#if 1
-  if (value < mLevels.front())
-    return 0;
-  if (value >= mLevels.back())
-    return mLevels.size();
-  return (int)((value-mLevels.front()) * mLstepInv - 1000) + 1000;
-#else
   return std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin();
-#endif
 }
 
 // ########################################################################
 
-class DianaContouring : public contouring::PolyContouring {
+class DianaLines : public contouring::lines_t {
 public:
-  DianaContouring(DianaField* field, FontManager* fm);
-  ~DianaContouring();
-  virtual void emitLine(int li, contouring::Polyline& points, bool close);
+  DianaLines(DianaField* field, FontManager* fm);
+  virtual void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
+  virtual void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
 private:
+  DianaField* mField;
   FontManager* mFM;
 };
 
-DianaContouring::DianaContouring(DianaField* field, FontManager* fm)
-  : PolyContouring(field)
+DianaLines::DianaLines(DianaField* field, FontManager* fm)
+  : mField(field)
   , mFM(fm)
 {
   glShadeModel(GL_FLAT);
   glDisable(GL_LINE_STIPPLE);
 }
 
-DianaContouring::~DianaContouring()
+void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& points, bool closed)
 {
-}
-
-void DianaContouring::emitLine(int li, contouring::Polyline& points, bool close)
-{
-  DianaField* df = static_cast<DianaField*>(mField);
   { // set some colour
 #if 1
     float fraction = 0.5;
-    if (df->nlevels() >= 2) {
-      const float l0 = df->levels().front(), l1 = df->levels().back();
+    if (mField->nlevels() >= 2) {
+      const float l0 = mField->levels().front(), l1 = mField->levels().back();
       if (abs(l1 - l0) >= 1e-3)
-        fraction = (df->levels()[li] - l0)/(l1 - l0);
+        fraction = (mField->levels()[li] - l0)/(l1 - l0);
     }
     unsigned char rgb[3] = { (unsigned char)(0xFF*fraction), 0, (unsigned char)(0x80*(1-fraction)) };
 #else
@@ -171,26 +152,29 @@ void DianaContouring::emitLine(int li, contouring::Polyline& points, bool close)
   { // draw line
     glLineWidth((li % 5) == 0 ? 2 : 1);
     glBegin(GL_LINE_STRIP);
-    BOOST_FOREACH(const contouring::Point& p, points)
+    BOOST_FOREACH(const contouring::point_t& p, points)
         glVertex2f(p.x, p.y);
-    if (close)
+    if (closed)
       glVertex2f(points.front().x, points.front().y);
     glEnd();
   }
   { // draw label
     const int idx = int(0.1*(1 + (li % 5))) * points.size();
-    contouring::Polyline::const_iterator it = points.begin();
+    contouring::points_t::const_iterator it = points.begin();
     std::advance(it, idx);
-    const contouring::Point& p0 = *it;
+    const contouring::point_t& p0 = *it;
     ++it;
-    const contouring::Point& p1 = *it;
+    const contouring::point_t& p1 = *it;
     const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / 3.141592654;
     std::ostringstream o;
-    o << static_cast<DianaField*>(mField)->getLevel(li);
+    o << mField->getLevel(li);
     mFM->drawStr(o.str().c_str(), p0.x, p0.y, angle);
   }
 }
 
+void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& points)
+{
+}
 
 // ########################################################################
 
@@ -261,7 +245,7 @@ bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
   }
   METLIBS_LOG_DEBUG(LOGVAL(lstart) << LOGVAL(lstop) << LOGVAL(zstep));
   df.setLevels(lstart, lstop, zstep);
-  DianaContouring dc(&df, fp);
-  dc.makeLines();
+  DianaLines dl(&df, fp);
+  contouring::run(df, dl);
   return true;
 }

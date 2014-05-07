@@ -874,11 +874,14 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
   
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
+
   vcross::detail::VCContourField con_field(plot->evaluated->values(0), mAxisX, mAxisY,
       distances, plot->evaluated->z_values);
   con_field.setLevels(plot->poptions.lineinterval);
-  vcross::detail::VCContouring con(&con_field, painter, plot->poptions);
-  con.makeLines();
+
+  vcross::detail::VCLines con_lines(con_field, painter, plot->poptions);
+
+  contouring::run(con_field, con_lines);
 }
 
 void QtPlot::plotDataWind(QPainter& painter, OptionPlot_cp plot)
