@@ -347,7 +347,7 @@ void DianaLines::paint_coloured_lines(int linewidth, const Colour& colour,
     
       // draw label
     if (label and points.size() > 10) {
-      const size_t idx = int(0.1*(1 + (li % 5))) * points.size();
+      const size_t idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
       if (idx + 1 < points.size()) {
         const contouring::point_t p0 = points.at(idx), p1 = points.at(idx+1);
         const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
