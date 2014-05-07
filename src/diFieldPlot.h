@@ -112,7 +112,8 @@ private:
   bool plotVectorColour();
   bool plotDirection();
   bool plotDirectionColour();
-  bool plotContour(int version=1);
+  bool plotContour();
+  bool plotContour2();
   bool plotBox_pattern();
   bool plotBox_alpha_shade();
   bool plotAlarmBox();

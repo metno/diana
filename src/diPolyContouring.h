@@ -68,23 +68,8 @@ private:
 inline int find_index(bool repeat, int available, int i)
 { if (repeat) return i % available; else return std::min(i, available-1); }
 
-bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
-    const int ipart[], int icxy, float cxy[], float xylim[],
-    int idraw, float zrange[], float zstep, float zoff,
-    int nlines, float rlines[],
-    int ncol, int icol[], int ntyp, int ityp[],
-    int nwid, int iwid[], int nlim, float rlim[],
-    int idraw2, float zrange2[], float zstep2, float zoff2,
-    int nlines2, float rlines2[],
-    int ncol2, int icol2[], int ntyp2, int ityp2[],
-    int nwid2, int iwid2[], int nlim2, float rlim2[],
-    int ismooth, const int labfmt[], float chxlab, float chylab,
-    int ibcol,
-    int ibmap, int lbmap, int kbmap[],
-    int nxbmap, int nybmap, float rbmap[],
-    FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
-    const Area& fieldArea, const float& fieldUndef,
-    const std::string& modelName, const std::string& paramName,
-    const int& fhour);
+bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
+    const float z[], const float xz[], const float yz[],
+    FontManager* fp, const PlotOptions& poptions, float fieldUndef);
 
 #endif // diPolyContouring_hh

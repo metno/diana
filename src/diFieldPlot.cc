@@ -159,6 +159,7 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 
 #ifdef DEBUGPRINT
   if      (plottype==fpt_contour)          METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour");
+  else if (plottype==fpt_contour2)         METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotContour2");
   else if (plottype==fpt_wind)             METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWind");
   else if (plottype==fpt_wind_temp_fl)      METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
   else if (plottype==fpt_wind_value)      METLIBS_LOG_DEBUG("FieldPlot "<<fname<<" : "<<"plotWindAndValue");
@@ -561,8 +562,8 @@ bool FieldPlot::plot()
 
   bool ok = false;
 
-  if      (plottype==fpt_contour)          ok = plotContour(1);
-  else if (plottype==fpt_contour2)         ok = plotContour(2);
+  if      (plottype==fpt_contour)          ok = plotContour();
+  else if (plottype==fpt_contour2)         ok = plotContour2();
   else if (plottype==fpt_wind)             ok = plotWind();
   else if (plottype==fpt_wind_temp_fl)     ok = plotWindAndValue(true);
   else if (plottype==fpt_wind_value)       ok = plotWindAndValue(false);
@@ -2384,7 +2385,7 @@ bool FieldPlot::plotDirectionColour()
 
 
 //  plot scalar field as contour lines
-bool FieldPlot::plotContour(int version)
+bool FieldPlot::plotContour()
 {
   METLIBS_LOG_SCOPE();
 
@@ -2402,18 +2403,6 @@ bool FieldPlot::plotContour(int version)
 	  cerr << "Fields->data == NULL" << endl;
 	  return false;
   }
-
-  bool (*contour_function)(int, int, float[], float[], float[],
-      const int[], int, float[], float[], int, float[], float, float,
-      int, float[], int, int[], int, int[], int, int[], int, float[],
-      int, float[], float , float, int, float[], int, int[], int, int[],
-      int, int[], int, float[], int, const int[], float, float, int,
-      int, int, int[], int, int, float[], FontManager*, const PlotOptions&, GLPfile*,
-      const Area&, const float&, const std::string&, const std::string&, const int&);
-  if (version == 2)
-    contour_function = poly_contour;
-  else
-    contour_function = contour;
 
   const int nx= fields[0]->nx;
   const int ny= fields[0]->ny;
@@ -2582,8 +2571,8 @@ bool FieldPlot::plotContour(int version)
 
     int idraw2=0;
 
-    METLIBS_LOG_TIME("contour_function");
-    res = contour_function(rnx, rny, data, x, y,
+    METLIBS_LOG_TIME("contour");
+    res = contour(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
@@ -2695,7 +2684,7 @@ bool FieldPlot::plotContour(int version)
     bool contourShading = poptions.contourShading;
     poptions.contourShading = 0;
 
-    res = contour_function(rnx, rny, data, x, y,
+    res = contour(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
         nlines, rlines,
@@ -2733,6 +2722,58 @@ bool FieldPlot::plotContour(int version)
 
   if (factor != 1)
     delete[] data;
+
+  return true;
+}
+
+//  plot scalar field as contour lines using new contour algorithm
+bool FieldPlot::plotContour2()
+{
+  METLIBS_LOG_SCOPE();
+
+  if (fields.empty() or not fields[0] or not fields[0]->data) {
+    METLIBS_LOG_ERROR("no fields or no field data");
+    return false;
+  }
+
+  const int nx= fields[0]->nx;
+  const int ny= fields[0]->ny;
+
+  // convert gridpoints to correct projection
+  int   ix1, ix2, iy1, iy2;
+  float *x=0, *y=0;
+  if (!gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX, fields[0]->gridResolutionY,
+          area, maprect, false, nx, ny, &x, &y, ix1, ix2, iy1, iy2))
+  {
+    METLIBS_LOG_ERROR("getGridPoints returned false");
+    return false;
+  }
+
+  if (ix1>=ix2 || iy1>=iy2)
+    return false;
+  if (ix1>=nx || ix2<0 || iy1>=ny || iy2<0)
+    return false;
+
+  if (rgbmode && poptions.frame)
+    plotFrame(nx, ny, x, y);
+
+  if (poptions.valueLabel)
+    fp->set(poptions.fontname, poptions.fontface, 10 * poptions.labelSize);
+
+  { METLIBS_LOG_TIME("contour2");
+    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2,
+            fields[0]->data, x, y, fp, poptions, fieldUndef))
+      METLIBS_LOG_ERROR("contour2 error");
+  }
+  if (poptions.extremeType !="None" && poptions.extremeType !="Ingen" && !poptions.extremeType.empty())
+    markExtreme();
+  
+  UpdateOutput();
+
+  glDisable(GL_LINE_STIPPLE);
+
+  if (poptions.update_stencil)
+    plotFrameStencil(nx, ny, x, y);
 
   return true;
 }

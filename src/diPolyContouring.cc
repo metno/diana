@@ -216,7 +216,7 @@ private:
 
 class DianaLines : public contouring::lines_t {
 public:
-  DianaLines(const std::vector<int>& colours, const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm);
+  DianaLines(const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm);
 
   void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
   void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
@@ -242,7 +242,6 @@ private:
       const Linetype& linetype, const point_vv& lines, contouring::level_t li, bool label);
 
 private:
-  const std::vector<int> mColours;
   const PlotOptions& mPlotOptions;
   const DianaLevels& mLevels;
   FontManager* mFM;
@@ -251,8 +250,8 @@ private:
   polygons_m m_polygons;
 };
 
-DianaLines::DianaLines(const std::vector<int>& colours, const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm)
-  : mColours(colours), mPlotOptions(poptions), mLevels(levels), mFM(fm)
+DianaLines::DianaLines(const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm)
+  : mPlotOptions(poptions), mLevels(levels), mFM(fm)
 {
 }
 
@@ -416,33 +415,17 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
 // ########################################################################
 
 // same parameters as diContouring::contour, most of them ignored
-bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
-    const int ipart[], int icxy, float cxy[], float xylim[],
-    int idraw, float zrange[], float zstep, float zoff, int nlines, float rlines[], int ncol, int icol[],
-    int ntyp, int ityp[], int nwid, int iwid[], int nlim, float rlim[],
-    int idraw2, float zrange2[], float zstep2, float zoff2, int nlines2, float rlines2[], int ncol2, int icol2[],
-    int ntyp2, int ityp2[], int nwid2, int iwid2[], int nlim2, float rlim2[],
-    int ismooth, const int labfmt[], float chxlab, float chylab,
-    int ibcol, int ibmap, int lbmap, int kbmap[], int nxbmap, int nybmap, float rbmap[],
-    FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
-    const Area& fieldArea, const float& fieldUndef, const std::string& modelName, const std::string& paramName, const int& fhour)
+bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
+    const float z[], const float xz[], const float yz[],
+    FontManager* fp, const PlotOptions& poptions, float fieldUndef)
 {
   DianaLevels_p levels = dianaLevelsForPlotOptions(poptions, fieldUndef);
 
-  const DianaArrayIndex index(nx, ipart[0], ipart[2], ipart[1], ipart[3], poptions.lineSmooth);
-  DianaPositions_p positions;
-  if (icxy == 0) { // map and field coordinates are equal
-    positions = boost::make_shared<DianaPositionsSimple>();
-  } else if (icxy == 1) { // using cxy to position field on map
-    positions = boost::make_shared<DianaPositionsFormula>(cxy);
-  } else if (icxy == 2) { // using x and y to position field on map
-    positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
-  } else {
-    return false;
-  }
+  const DianaArrayIndex index(nx, ix0, iy0, ix1, iy1, poptions.lineSmooth);
+  DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
 
   const DianaField df(index, z, *levels, *positions);
-  DianaLines dl(std::vector<int>(icol, icol+ncol), poptions, *levels, fp);
+  DianaLines dl(poptions, *levels, fp);
 
   { METLIBS_LOG_TIME("contouring");
     contouring::run(df, dl);
