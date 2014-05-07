@@ -207,7 +207,7 @@ void endTesselation()
 }
 
 
-void tesselation(GLdouble *gldata, int ncontours, int *count)
+void tesselation(GLdouble *gldata, int ncontours, const int *count)
 {
   int n,i,npos,j;
   j= 0;
@@ -229,7 +229,7 @@ void tesselation(GLdouble *gldata, int ncontours, int *count)
   gluTessEndPolygon(tess);
 }
 
-void optimized_tesselation(GLdouble *gldata, int ncontours, int *count, int *to_small)
+void optimized_tesselation(GLdouble *gldata, int ncontours, const int *count, int *to_small)
 {
   int n,i,npos,j;
 

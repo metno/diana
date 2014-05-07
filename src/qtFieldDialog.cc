@@ -131,26 +131,20 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
   map<std::string, std::string> enabledOptions = PlotOptions::getEnabledOptions();
-  { const std::vector< std::vector<std::string> > ptd = PlotOptions::getPlotTypes();
-  plottypes_dim.clear();
-  BOOST_FOREACH(const std::vector<std::string>& v, ptd)
-  plottypes_dim.push_back(std::vector<std::string>(v.begin(), v.end())); }
-  if ( plottypes_dim.size() > 1 ) {
+  plottypes_dim = PlotOptions::getPlotTypes();
+  if (plottypes_dim.size() > 1) {
     plottypes = plottypes_dim[1];
-  }
-
-
-  if ( plottypes_dim.size() > 1 ) {
-    for ( size_t i = 0; i< plottypes_dim[0].size(); i++ ) {
-      if(enabledOptions.count(plottypes_dim[0][i])) {
+    for (size_t i = 0; i < plottypes_dim[0].size(); i++) {
+      const std::string& ptd0i = plottypes_dim[0][i];
+      if (enabledOptions.count(ptd0i)) {
         const std::string& op = enabledOptions[plottypes_dim[0][i]];
-        enableMap[plottypes_dim[0][i]].contourWidgets = miutil::contains(op, "contour");
-        enableMap[plottypes_dim[0][i]].extremeWidgets = miutil::contains(op, "extreme");
-        enableMap[plottypes_dim[0][i]].shadingWidgets = miutil::contains(op, "shading");
-        enableMap[plottypes_dim[0][i]].lineWidgets = miutil::contains(op, "line");
-        enableMap[plottypes_dim[0][i]].fontWidgets = miutil::contains(op, "font");
-        enableMap[plottypes_dim[0][i]].densityWidgets = miutil::contains(op, "density");
-        enableMap[plottypes_dim[0][i]].unitWidgets = miutil::contains(op, "unit");
+        enableMap[ptd0i].contourWidgets = miutil::contains(op, "contour");
+        enableMap[ptd0i].extremeWidgets = miutil::contains(op, "extreme");
+        enableMap[ptd0i].shadingWidgets = miutil::contains(op, "shading");
+        enableMap[ptd0i].lineWidgets = miutil::contains(op, "line");
+        enableMap[ptd0i].fontWidgets = miutil::contains(op, "font");
+        enableMap[ptd0i].densityWidgets = miutil::contains(op, "density");
+        enableMap[ptd0i].unitWidgets = miutil::contains(op, "unit");
       }
     }
   }

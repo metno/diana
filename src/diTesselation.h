@@ -44,8 +44,8 @@ extern "C" {
 
 void beginTesselation();
 void endTesselation();
-void tesselation(GLdouble *gldata, int ncontours, int *count);
-void optimized_tesselation(GLdouble *gldata, int ncontours, int *count, int *to_small);
+void tesselation(GLdouble *gldata, int ncontours, const int *count);
+void optimized_tesselation(GLdouble *gldata, int ncontours, const int *count, int *to_small);
 
 #ifdef __cplusplus
 }

@@ -2582,6 +2582,7 @@ bool FieldPlot::plotContour(int version)
 
     int idraw2=0;
 
+    METLIBS_LOG_TIME("contour_function");
     res = contour_function(rnx, rny, data, x, y,
         ipart, 2, NULL, xylim,
         idraw, zrange, zstep, zoff,
