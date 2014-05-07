@@ -2,68 +2,31 @@
 #ifndef VCROSS_DIVCROSSCONTOUR_H
 #define VCROSS_DIVCROSSCONTOUR_H 1
 
+#include "diPolyContouring.h"
+#include "diPlotOptions.h"
 #include <diField/VcrossData.h>
 #include "poly_contouring.hh"
 
-class QPainter;
-class PlotOptions;
 #include <QtCore/QPointF>
+#include <QtGui/QPainter>
+#include <QtGui/QPolygonF>
 
 namespace vcross {
 namespace detail {
 
+extern const float UNDEF_VALUE;
+
 struct Axis;
 typedef boost::shared_ptr<Axis> AxisPtr;
 
-class VCContourField : public contouring::field_t
-{
+class VCAxisPositions : public DianaPositions {
 public:
-  static const contouring::level_t UNDEF_LEVEL = -1;
-
-  VCContourField(Values_cp data, AxisPtr xaxis, AxisPtr yaxis,
+  VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis,
       const std::vector<float>& xvalues, Values_cp zvalues)
-    : mData(data), mXpos(xaxis), mYpos(yaxis), mXval(xvalues), mYval(zvalues) { }
-  
-  ~VCContourField() { }
+    : mXpos(xaxis), mYpos(yaxis), mXval(xvalues), mYval(zvalues) { }
 
-  size_t nx() const
-    { return mData->npoint(); }
-  
-  size_t ny() const
-    { return mData->nlevel(); }
+  virtual contouring::point_t position(size_t ix, size_t iy) const;
 
-  int nlevels() const
-    { return mLevels.size(); }
-
-  contouring::level_t grid_level(size_t ix, size_t iy) const;
-
-  contouring::point_t grid_point(size_t x, size_t y) const
-    { return position(x, y); }
-  contouring::point_t line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const;
-
-  contouring::level_t undefined_level() const
-    { return UNDEF_LEVEL; }
-
-  void setLevels(float lstep);
-  void setLevels(float lstart, float lstop, float lstep);
-  const std::vector<float>& levels() const
-    { return mLevels; }
-
-  float getLevel(int idx) const
-    { return mLevels[idx]; }
-  
-private:
-  float value(size_t ix, size_t iy) const;
-  
-  contouring::point_t position(size_t ix, size_t iy) const;
-  
-  int level_value(float value) const;
-
-private:
-  std::vector<float> mLevels;
-  float mLstepInv;
-  
-  Values_cp mData;
   AxisPtr mXpos, mYpos;
   std::vector<float> mXval;
   Values_cp mYval;
@@ -71,19 +34,59 @@ private:
 
 // ########################################################################
 
+class VCContourField : public DianaFieldBase
+{
+public:
+  VCContourField(Values_cp data, const DianaLevels& levels, const VCAxisPositions& positions)
+    : DianaFieldBase(levels, positions), mData(data) { }
+  
+  size_t nx() const
+    { return mData->npoint(); }
+  
+  size_t ny() const
+    { return mData->nlevel(); }
+
+protected:
+  virtual float value(size_t ix, size_t iy) const;
+  
+private:
+  Values_cp mData;
+};
+
+// ########################################################################
+
 class VCLines : public contouring::lines_t {
 public:
-  VCLines(const VCContourField& field, QPainter& painter, const PlotOptions& poptions)
-    : mField(field), mPainter(painter), mPlotOptions(poptions) { }
+  VCLines(const DianaLevels& levels, const PlotOptions& poptions)
+    : mLevels(levels), mPlotOptions(poptions) { }
   
   void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
 
   void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
 
+  void paint(QPainter& painter);
+
 private:
-  const VCContourField& mField;
-  QPainter& mPainter;
+  struct contour_t {
+    QPolygonF line;
+    bool polygon;
+    contour_t(const QPolygonF& l, bool p)
+      : line(l), polygon(p) { }
+  };
+  typedef std::vector<contour_t> contour_v;
+  typedef std::map<contouring::level_t, contour_v> contour_m;
+
+private:
+  QPolygonF make_polygon(const contouring::points_t& cpoints);
+  void paint_polygons(QPainter& painter);
+  void paint_lines(QPainter& painter);
+  void paint_coloured_lines(QPainter& painter, int linewidth, const Colour& colour,
+      const Linetype& linetype, const contour_v& contours, contouring::level_t li, bool label);
+
+private:
+  const DianaLevels& mLevels;
   const PlotOptions& mPlotOptions;
+  contour_m m_lines, m_polygons;
 };
 
 } // namespace detail
