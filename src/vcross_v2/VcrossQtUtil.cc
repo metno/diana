@@ -13,8 +13,16 @@ void updateMaxStringWidth(QPainter& painter, float& w, const std::string& txt)
   maximize(w, txt_w);
 }
 
-void setDash(QPen& pen, int factor, unsigned short pattern)
+void setDash(QPen& pen, bool stipple, int factor, unsigned short pattern)
 {
+  if (factor <= 0 or pattern == 0xFFFF or pattern == 0)
+    stipple = false;
+
+  if (not stipple) {
+    pen.setStyle(Qt::SolidLine);
+    return;
+  }
+
   // adapted from glLineStipple in PaintGL/paintgl.cc 
 
   QVector<qreal> dashes;
@@ -57,6 +65,11 @@ void setDash(QPen& pen, int factor, unsigned short pattern)
   
   pen.setDashPattern(dashes);
   pen.setDashOffset(dashOffset);
+}
+
+void setDash(QPen& pen, const Linetype& linetype)
+{
+  vcross::util::setDash(pen, linetype.stipple, linetype.factor, linetype.bmap);
 }
 
 } // namespace util

@@ -62,11 +62,8 @@ void VCLines::paint_lines(QPainter& painter)
 void VCLines::paint_coloured_lines(QPainter& painter, int linewidth, const Colour& colour,
     const Linetype& linetype, const contour_v& contours, contouring::level_t level, bool label)
 {
-  QPen pen(vcross::util::QC(colour));
-  pen.setWidth(linewidth);
-
-  if (linetype.stipple)
-    vcross::util::setDash(pen, linetype.factor, linetype.bmap);
+  QPen pen(vcross::util::QC(colour), linewidth);
+  vcross::util::setDash(pen, linetype);
 
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);

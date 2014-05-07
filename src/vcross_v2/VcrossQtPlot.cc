@@ -717,9 +717,7 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
     return;
 
   QPen pen(vcross::util::QC(colourOrContrast(mOptions->vergridColour)), mOptions->vergridLinewidth);
-  const Linetype linetype(mOptions->vergridLinetype);
-  if (linetype.stipple)
-    vcross::util::setDash(pen, linetype.factor, linetype.bmap);
+  vcross::util::setDash(pen, mOptions->vergridLinetype);
   painter.setPen(pen);
 
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
@@ -736,6 +734,10 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
 void QtPlot::plotFrame(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
+
+  if (not mOptions->pFrame)
+    return;
+
   const int nzsteps = 14;
   const float zsteps[nzsteps] =
       { 5., 10., 25., 50., 100., 250., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000 };
@@ -785,14 +787,9 @@ void QtPlot::plotFrame(QPainter& painter)
   const float tickRightStart = mAxisX->getPaintMax(), tickRightEnd = tickRightStart + 0.5*mCharSize.width();
   METLIBS_LOG_DEBUG(LOGVAL(tickLeftStart) << LOGVAL(tickLeftEnd) << LOGVAL(tickRightStart) << LOGVAL(tickRightEnd));
 
-  if (not mOptions->pFrame)
-    return;
-
   // colour etc. for frame etc.
   QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)), mOptions->frameLinewidth), penFrame(pen);
-  Linetype linetype(mOptions->frameLinetype);
-  if (linetype.stipple)
-    vcross::util::setDash(penFrame, linetype.factor, linetype.bmap);
+  vcross::util::setDash(penFrame, mOptions->frameLinetype);
   painter.setPen(penFrame);
 
   // paint frame
