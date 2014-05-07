@@ -21,7 +21,6 @@
 #include <miLogger/miLogging.h>
 
 const float UNDEF_VALUE = 1e30;
-const contouring::level_t UNDEFINED = -1000000;
 
 inline bool isUndefined(float v)
 {
@@ -90,32 +89,51 @@ public:
   enum { UNDEF_LEVEL = -10000000, OMIT_LEVEL = -10000001 };
 };
 
-static const int dl = 200;
 class DianaLevelList : public DianaLevels {
 public:
   DianaLevelList(const std::vector<float>& levels)
     : mLevels(levels) { }
   DianaLevelList(float lstart, float lstop, float lstep)
     { for (float l=lstart; l<=lstop; l+=lstep) mLevels.push_back(l); }
-  virtual contouring::level_t level_for_value(float value) const
-    { return (std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin()) - dl; }
+  virtual contouring::level_t level_for_value(float value) const;
   virtual float value_for_level(contouring::level_t l) const
-    { return mLevels[l+dl]; }
+    { return l != UNDEF_LEVEL ? mLevels[l] : UNDEF_VALUE; }
   size_t nlevels() const
     { return mLevels.size(); }
 protected:
   std::vector<float> mLevels;
 };
 
+contouring::level_t DianaLevelList::level_for_value(float value) const
+{
+  if (isUndefined(value))
+    return UNDEF_LEVEL;
+  return std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin();
+}
+
 class DianaLevelList10 : public DianaLevelList {
 public:
   DianaLevelList10(const std::vector<float>& levels)
     : DianaLevelList(levels) { }
-  virtual contouring::level_t level_for_value(float value) const
-    { float v = log(value)/log(10); const contouring::level_t l = DianaLevelList::level_for_value(v-int(v)); return int(v)*nlevels() + l; }
-  virtual float value_for_level(contouring::level_t l) const
-    { return std::pow(10, l / nlevels()) + mLevels[l % nlevels()]; }
+  virtual contouring::level_t level_for_value(float value) const;
+  virtual float value_for_level(contouring::level_t l) const;
 };
+
+contouring::level_t DianaLevelList10::level_for_value(float value) const
+{
+  if (isUndefined(value) )
+    return UNDEF_LEVEL;
+  const float v = log(std::abs(value))/log(10);
+  const contouring::level_t l = DianaLevelList::level_for_value(v-int(v));
+  return int(v)*nlevels() + l;
+}
+
+float DianaLevelList10::value_for_level(contouring::level_t l) const
+{
+  if (l == UNDEF_LEVEL)
+    return UNDEF_VALUE;
+  return std::pow(10, l / nlevels()) + mLevels[l % nlevels()];
+}
 
 class DianaLevelStep : public DianaLevels {
 public:
@@ -125,13 +143,15 @@ public:
     { mMin = mini; mMax = maxi; }
   virtual contouring::level_t level_for_value(float value) const;
   virtual float value_for_level(contouring::level_t l) const
-    { return l*mStep + mOff; }
+    { return l != UNDEF_LEVEL ? l*mStep + mOff : UNDEF_VALUE; }
 protected:
   float mStep, mOff, mMin, mMax;
 };
 
 contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
+  if (isUndefined(value))
+    return UNDEF_LEVEL;
   if (mMin < mMax) {
     if (value < mMin)
       value = mMin;
@@ -212,82 +232,176 @@ public:
   void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
   void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
 
+  void paint();
+
 private:
-  void set_colour(contouring::level_t l) const;
+  typedef std::vector<contouring::point_t> point_v;
+  typedef std::vector<point_v> point_vv;
+  typedef std::map<contouring::level_t, point_vv> lines_m;
+  struct polygons_t {
+    int count() const
+      { return lengths.size(); }
+    std::vector<int> lengths;
+    std::vector<GLdouble> points; // x, y, 0
+  };
+  typedef std::map<contouring::level_t, polygons_t> polygons_m;
+
+private:
+  void paint_polygons();
+  void paint_lines();
+  void paint_coloured_lines(int linewidth, const Colour& colour,
+      const Linetype& linetype, const point_vv& lines, contouring::level_t li, bool label);
 
 private:
   const std::vector<int> mColours;
   const PlotOptions& mPoptions;
   const DianaLevels& mLevels;
   FontManager* mFM;
+
+  lines_m m_lines;
+  polygons_m m_polygons;
 };
 
 DianaLines::DianaLines(const std::vector<int>& colours, const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm)
   : mColours(colours), mPoptions(poptions), mLevels(levels), mFM(fm)
 {
-  glShadeModel(GL_FLAT);
-  glDisable(GL_LINE_STIPPLE);
 }
 
-void DianaLines::set_colour(contouring::level_t l) const
+void DianaLines::paint()
 {
-  const int idx = std::min(l % mColours.size(), mPoptions.colours.size());
-  glColor3ubv(mPoptions.colours[idx].RGB());
+  paint_polygons();
+  paint_lines();
 }
 
-void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& points, bool closed)
+static inline int find_index(bool repeat, int available, int i)
 {
-  set_colour(li);
-
-  { // draw line
-    glLineWidth(mPoptions.linewidth);
-    glBegin(GL_LINE_STRIP);
-    BOOST_FOREACH(const contouring::point_t& p, points)
-        glVertex2f(p.x, p.y);
-    if (closed)
-      glVertex2f(points.front().x, points.front().y);
-    glEnd();
-  }
-  if (1) { // draw label
-    const int idx = int(0.1*(1 + (li % 5))) * points.size();
-    contouring::points_t::const_iterator it = points.begin();
-    std::advance(it, idx);
-    const contouring::point_t& p0 = *it;
-    ++it;
-    const contouring::point_t& p1 = *it;
-    const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / 3.141592654;
-    std::ostringstream o;
-    o << mLevels.value_for_level(li);
-    mFM->drawStr(o.str().c_str(), p0.x, p0.y, angle);
-  }
+  if (repeat)
+    return i % available;
+  else
+    return std::min(i, available-1);
 }
 
-void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& points)
+void DianaLines::paint_polygons()
 {
-#if 0
-  set_colour(level);
-
-  beginTesselation();
-
+  METLIBS_LOG_TIME(LOGVAL(mPoptions.undefMasking));
   glShadeModel(GL_FLAT);
   glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  int j = 0, countpos = points.size();
-  GLdouble *gldata= new GLdouble[3*countpos];
-  BOOST_FOREACH(const contouring::point_t& p, points) {
-    gldata[j++] = p.x;
-    gldata[j++] = p.y;
-    gldata[j++] = 0;
+  const int ncolours = mPoptions.palettecolours.size();
+  const int ncolours_cold = mPoptions.palettecolours_cold.size();
+
+  for (polygons_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
+    contouring::level_t li = it->first;
+    const polygons_t& p = it->second;
+    METLIBS_LOG_TIME(LOGVAL(li));
+    
+    if (li == DianaLevels::UNDEF_LEVEL) {
+      if (mPoptions.undefMasking != 1)
+        continue;
+      glColor3ubv(mPoptions.undefColour.RGB());
+    } else if (li <= 0 and ncolours_cold) {
+      const int idx = find_index(mPoptions.repeat, ncolours_cold, -li);
+      glColor3ubv(mPoptions.palettecolours_cold[idx].RGB());
+    } else {
+      const int idx = find_index(mPoptions.repeat, ncolours, std::max(li - 1, 0));
+      glColor3ubv(mPoptions.palettecolours[idx].RGB());
+    }
+
+    { //METLIBS_LOG_TIME("tesselation");
+      beginTesselation();
+      GLdouble* gldata = const_cast<GLdouble*>(&p.points[0]);
+      tesselation(gldata, p.count(), &p.lengths[0]);
+      endTesselation();
+    }
   }
-  tesselation(gldata, 1, &countpos);
 
   glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
   glDisable(GL_BLEND);
   glShadeModel(GL_FLAT);
   glEdgeFlag(GL_TRUE);
-#endif
+}
+
+void DianaLines::paint_lines()
+{
+  glShadeModel(GL_FLAT);
+
+  for (lines_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
+    if (it->first == DianaLevels::UNDEF_LEVEL) {
+      if (mPoptions.undefMasking)
+        paint_coloured_lines(mPoptions.undefLinewidth, mPoptions.undefColour, mPoptions.undefLinetype,
+            it->second, it->first, false);
+    } else {
+      paint_coloured_lines(mPoptions.linewidth, mPoptions.linecolour, mPoptions.linetype,
+          it->second, it->first, mPoptions.valueLabel);
+    }
+  }
+}
+
+void DianaLines::paint_coloured_lines(int linewidth, const Colour& colour,
+    const Linetype& linetype, const point_vv& lines, contouring::level_t li, bool label)
+{
+  if (linewidth <= 0)
+    return;
+
+  if (linetype.stipple) {
+    glLineStipple(linetype.factor, linetype.bmap);
+    glEnable(GL_LINE_STIPPLE);
+  } else {
+    glDisable(GL_LINE_STIPPLE);
+  }
+  glLineWidth(linewidth);
+
+  glColor3ubv(colour.RGB());
+
+  for (point_vv::const_iterator itP = lines.begin(); itP != lines.end(); ++itP) {
+    const point_v& points = *itP;
+      
+    // draw line
+    glBegin(GL_LINE_STRIP);
+    for (point_v::const_iterator it = points.begin(); it != points.end(); ++it)
+      glVertex2f(it->x, it->y);
+    glEnd();
+    
+      // draw label
+    if (label) {
+      const int idx = int(0.1*(1 + (li % 5))) * points.size();
+      point_v::const_iterator it = points.begin();
+      std::advance(it, idx);
+      const contouring::point_t& p0 = *it;
+      ++it;
+      const contouring::point_t& p1 = *it;
+      const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / 3.141592654;
+      std::ostringstream o;
+      o << mLevels.value_for_level(li);
+      mFM->drawStr(o.str().c_str(), p0.x, p0.y, angle);
+    }
+  }
+}
+
+void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& cpoints, bool closed)
+{
+  point_v points(cpoints.begin(), cpoints.end());
+  if (closed)
+    points.push_back(cpoints.front());
+  m_lines[li].push_back(points);
+}
+
+void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
+{
+  if (level == DianaLevels::UNDEF_LEVEL and mPoptions.undefMasking != 1)
+    return;
+  if (level != DianaLevels::UNDEF_LEVEL and mPoptions.palettecolours_cold.empty() and mPoptions.palettecolours_cold.empty())
+    return;
+
+  polygons_t& polygons = m_polygons[level];
+  polygons.lengths.push_back(cpoints.size());
+  BOOST_FOREACH(const contouring::point_t& p, cpoints) {
+    polygons.points.push_back(p.x);
+    polygons.points.push_back(p.y);
+    polygons.points.push_back(0);
+  }
 }
 
 // ########################################################################
@@ -340,10 +454,15 @@ bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
 
   const DianaField df(nx, ny, ipart, z, *levels, *positions);
 
-  METLIBS_LOG_TIME();
   DianaLines dl(std::vector<int>(icol, icol+ncol), poptions, *levels, fp);
 
-  contouring::run(df, dl);
+  { METLIBS_LOG_TIME("contouring");
+    contouring::run(df, dl);
+  }
+
+  { METLIBS_LOG_TIME("painting");
+    dl.paint();
+  }
 
   delete positions;
   delete levels;
