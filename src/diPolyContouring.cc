@@ -1,8 +1,10 @@
 
 #include "diPolyContouring.h"
 
-#include "diContouring.h"
+#include "diPlotOptions.h"
 #include "diFontManager.h"
+#include <diTesselation.h>
+
 #include "poly_contouring.hh"
 
 #include <GL/gl.h>
@@ -26,34 +28,149 @@ inline bool isUndefined(float v)
   return v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
+static inline int rounded_div(float value, float unit)
+{
+    const int i = int(value / unit);
+    if (value >= 0)
+        return i+1;
+    else
+        return i;
+}
+
+class DianaPositions {
+public:
+  virtual ~DianaPositions() { }
+  virtual contouring::point_t position(size_t ix, size_t iy) const = 0;
+};
+
+class DianaPositionsSimple : public DianaPositions {
+public:
+  virtual contouring::point_t position(size_t ix, size_t iy) const
+    { return contouring::point_t(ix, iy); }
+};
+
+class DianaPositionsList : public DianaPositions {
+public:
+  DianaPositionsList(int nx, int ny, const int ipart[], const float* xpos, const float* ypos)
+    : mNX(nx), mNY(ny), mX0(ipart[0]), mY0(ipart[2]) , mXpos(xpos), mYpos(ypos) { }
+  
+  size_t index(size_t ix, size_t iy) const
+    {  return (mY0 + iy)*mNX + (mX0+ix); }
+
+  contouring::point_t position(size_t ix, size_t iy) const
+    { const size_t i = index(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
+
+private:
+  int mNX, mNY, mX0, mY0;
+  const float *mXpos, *mYpos;
+};
+
+class DianaPositionsFormula : public DianaPositions {
+public:
+  DianaPositionsFormula(const float* coeff)
+    : cxy(coeff) { }
+  
+  contouring::point_t position(size_t ix, size_t iy) const
+    { const float x = cxy[0]+cxy[1]*ix+cxy[2]*iy;
+      const float y = cxy[3]+cxy[4]*ix+cxy[5]*iy;
+      return contouring::point_t(x, y); }
+
+private:
+  const float *cxy;
+};
+
+// ========================================================================
+
+class DianaLevels {
+public:
+  virtual ~DianaLevels() { }
+  virtual contouring::level_t level_for_value(float value) const = 0;
+  virtual float value_for_level(contouring::level_t l) const = 0;
+  bool omit(contouring::level_t l) const { return l == OMIT_LEVEL; }
+  enum { UNDEF_LEVEL = -10000000, OMIT_LEVEL = -10000001 };
+};
+
+static const int dl = 200;
+class DianaLevelList : public DianaLevels {
+public:
+  DianaLevelList(const std::vector<float>& levels)
+    : mLevels(levels) { }
+  DianaLevelList(float lstart, float lstop, float lstep)
+    { for (float l=lstart; l<=lstop; l+=lstep) mLevels.push_back(l); }
+  virtual contouring::level_t level_for_value(float value) const
+    { return (std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin()) - dl; }
+  virtual float value_for_level(contouring::level_t l) const
+    { return mLevels[l+dl]; }
+  size_t nlevels() const
+    { return mLevels.size(); }
+protected:
+  std::vector<float> mLevels;
+};
+
+class DianaLevelList10 : public DianaLevelList {
+public:
+  DianaLevelList10(const std::vector<float>& levels)
+    : DianaLevelList(levels) { }
+  virtual contouring::level_t level_for_value(float value) const
+    { float v = log(value)/log(10); const contouring::level_t l = DianaLevelList::level_for_value(v-int(v)); return int(v)*nlevels() + l; }
+  virtual float value_for_level(contouring::level_t l) const
+    { return std::pow(10, l / nlevels()) + mLevels[l % nlevels()]; }
+};
+
+class DianaLevelStep : public DianaLevels {
+public:
+  DianaLevelStep(float step, float off)
+    : mStep(step), mOff(off), mMin(1), mMax(0) { }
+  void set_limits(float mini, float maxi)
+    { mMin = mini; mMax = maxi; }
+  virtual contouring::level_t level_for_value(float value) const;
+  virtual float value_for_level(contouring::level_t l) const
+    { return l*mStep + mOff; }
+protected:
+  float mStep, mOff, mMin, mMax;
+};
+
+contouring::level_t DianaLevelStep::level_for_value(float value) const
+{
+  if (mMin < mMax) {
+    if (value < mMin)
+      value = mMin;
+    else if (value > mMax)
+      value = mMax;
+  }
+  return rounded_div(value - mOff, mStep);
+}
+
+class DianaLevelStepOmit : public DianaLevelStep {
+public:
+  DianaLevelStepOmit(float step, float off)
+    : DianaLevelStep(step, off) { }
+  virtual contouring::level_t level_for_value(float value) const
+    { if (value == mOff) return OMIT_LEVEL; else return DianaLevelStep::level_for_value(value); }
+};
+
+// ========================================================================
+
 class DianaField : public contouring::field_t {
 public:
-  DianaField(int nx, int ny, const int ipar[], const float* data, const float* xpos, const float* ypos)
-    : mNX(nx), mNY(ny), mX0(ipar[0]), mX1(ipar[1]), mY0(ipar[2]), mY1(ipar[3])
-    , mData(data), mXpos(xpos), mYpos(ypos) { }
-    
-  virtual ~DianaField() { }
-
+  DianaField(int nx, int ny, const int ipart[], const float* data, const DianaLevels& levels, const DianaPositions& positions)
+    : mNX(nx), mNY(ny), mX0(ipart[0]), mX1(ipart[1]), mY0(ipart[2]), mY1(ipart[3])
+    , mData(data), mLevels(levels), mPositions(positions) { }
+  
   virtual size_t nx() const
     { return mX1-mX0; }
   
   virtual size_t ny() const
     { return mY1-mY0; }
 
-  virtual int nlevels() const
-    { return mLevels.size(); }
+  virtual contouring::level_t grid_level(size_t ix, size_t iy) const
+    { return mLevels.level_for_value(value(ix, iy)); }
+  virtual contouring::point_t line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const;
+  virtual contouring::point_t grid_point(size_t x, size_t y) const
+    { return position(x, y); }
 
-  virtual contouring::level_t grid_level(size_t ix, size_t iy) const;
-  virtual contouring::point_t line_point(int levelIndex, size_t x0, size_t y0, size_t x1, size_t y1) const;
-  virtual contouring::point_t grid_point(size_t ix, size_t iy) const
-    { return position(ix, iy); }
-
-  void setLevels(float lstart, float lstop, float lstep);
-  const std::vector<float>& levels() const
-    { return mLevels; }
-
-  float getLevel(int idx) const
-    { return mLevels[idx]; }
+  contouring::level_t undefined_level() const
+    { return DianaLevels::UNDEF_LEVEL; }
   
 private:
   size_t index(size_t ix, size_t iy) const
@@ -63,34 +180,21 @@ private:
     { return mData[index(ix, iy)]; }
 
   contouring::point_t position(size_t ix, size_t iy) const
-    { size_t i = index(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
-
-  contouring::level_t level_value(float value) const;
-
-  contouring::level_t undefined_level() const
-    { return UNDEFINED; }
+    { return mPositions.position(ix, iy); }
 
 private:
-  std::vector<float> mLevels;
-  
   int mNX, mNY, mX0, mX1, mY0, mY1;
-  const float *mData, *mXpos, *mYpos;
-  float mLstepInv;
+  const float *mData;
+  const DianaLevels& mLevels;
+  const DianaPositions& mPositions;
 };
 
-void DianaField::setLevels(float lstart, float lstop, float lstep)
-{
-  mLstepInv  = 1/lstep;
-  mLevels.clear();
-  for (float l=lstart; l<=lstop; l+=lstep)
-    mLevels.push_back(l);
-}
-
-contouring::point_t DianaField::line_point(contouring::level_t levelIndex, size_t x0, size_t y0, size_t x1, size_t y1) const
+contouring::point_t DianaField::line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const
 {
     const float v0 = value(x0, y0);
     const float v1 = value(x1, y1);
-    const float c = (mLevels[levelIndex]-v0)/(v1-v0);
+    const float vl = mLevels.value_for_level(level);
+    const float c = (vl-v0)/(v1-v0);
 
     const contouring::point_t p0 = position(x0, y0);
     const contouring::point_t p1 = position(x1, y1);
@@ -99,58 +203,44 @@ contouring::point_t DianaField::line_point(contouring::level_t levelIndex, size_
     return contouring::point_t(x, y);
 }
 
-contouring::level_t DianaField::grid_level(size_t ix, size_t iy) const
-{
-  const float v = value(ix, iy);
-  if (isUndefined(v))
-    return UNDEFINED;
-  return level_value(v);
-}
-
-contouring::level_t DianaField::level_value(float value) const
-{
-  return std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin();
-}
-
 // ########################################################################
 
 class DianaLines : public contouring::lines_t {
 public:
-  DianaLines(DianaField* field, FontManager* fm);
-  virtual void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
-  virtual void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+  DianaLines(const std::vector<int>& colours, const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm);
+
+  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
+  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+
 private:
-  DianaField* mField;
+  void set_colour(contouring::level_t l) const;
+
+private:
+  const std::vector<int> mColours;
+  const PlotOptions& mPoptions;
+  const DianaLevels& mLevels;
   FontManager* mFM;
 };
 
-DianaLines::DianaLines(DianaField* field, FontManager* fm)
-  : mField(field)
-  , mFM(fm)
+DianaLines::DianaLines(const std::vector<int>& colours, const PlotOptions& poptions, const DianaLevels& levels, FontManager* fm)
+  : mColours(colours), mPoptions(poptions), mLevels(levels), mFM(fm)
 {
   glShadeModel(GL_FLAT);
   glDisable(GL_LINE_STIPPLE);
 }
 
+void DianaLines::set_colour(contouring::level_t l) const
+{
+  const int idx = std::min(l % mColours.size(), mPoptions.colours.size());
+  glColor3ubv(mPoptions.colours[idx].RGB());
+}
+
 void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& points, bool closed)
 {
-  { // set some colour
-#if 1
-    float fraction = 0.5;
-    if (mField->nlevels() >= 2) {
-      const float l0 = mField->levels().front(), l1 = mField->levels().back();
-      if (abs(l1 - l0) >= 1e-3)
-        fraction = (mField->levels()[li] - l0)/(l1 - l0);
-    }
-    unsigned char rgb[3] = { (unsigned char)(0xFF*fraction), 0, (unsigned char)(0x80*(1-fraction)) };
-#else
-    unsigned char rgb[3] = { 0, 0, 0xff };
-#endif
-    glColor3ubv(rgb);
-  }
+  set_colour(li);
 
   { // draw line
-    glLineWidth((li % 5) == 0 ? 2 : 1);
+    glLineWidth(mPoptions.linewidth);
     glBegin(GL_LINE_STRIP);
     BOOST_FOREACH(const contouring::point_t& p, points)
         glVertex2f(p.x, p.y);
@@ -158,7 +248,7 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
       glVertex2f(points.front().x, points.front().y);
     glEnd();
   }
-  { // draw label
+  if (1) { // draw label
     const int idx = int(0.1*(1 + (li % 5))) * points.size();
     contouring::points_t::const_iterator it = points.begin();
     std::advance(it, idx);
@@ -167,22 +257,40 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
     const contouring::point_t& p1 = *it;
     const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / 3.141592654;
     std::ostringstream o;
-    o << mField->getLevel(li);
+    o << mLevels.value_for_level(li);
     mFM->drawStr(o.str().c_str(), p0.x, p0.y, angle);
   }
 }
 
 void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& points)
 {
+#if 0
+  set_colour(level);
+
+  beginTesselation();
+
+  glShadeModel(GL_FLAT);
+  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  int j = 0, countpos = points.size();
+  GLdouble *gldata= new GLdouble[3*countpos];
+  BOOST_FOREACH(const contouring::point_t& p, points) {
+    gldata[j++] = p.x;
+    gldata[j++] = p.y;
+    gldata[j++] = 0;
+  }
+  tesselation(gldata, 1, &countpos);
+
+  glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+  glDisable(GL_BLEND);
+  glShadeModel(GL_FLAT);
+  glEdgeFlag(GL_TRUE);
+#endif
 }
 
 // ########################################################################
-
-static inline float rounded(float value, float unit)
-{
-  float r = (value>=0) ? 0.5 : -0.5;
-  return int(value / unit + r) * unit;
-}
 
 // same parameters as diContouring::contour, most of them ignored
 bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
@@ -196,56 +304,49 @@ bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
     FontManager* fp, const PlotOptions& poptions, GLPfile* psoutput,
     const Area& fieldArea, const float& fieldUndef, const std::string& modelName, const std::string& paramName, const int& fhour)
 {
-  bool supported = (idraw == 1) and (icxy == 2);
-  if (not supported) {
-    return contour(nx, ny, z, xz, yz, ipart, icxy, cxy, xylim,
-        idraw,  zrange,  zstep,  zoff,  nlines,  rlines,  ncol,  icol,  ntyp,  ityp,  nwid,  iwid,  nlim,  rlim,
-        idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2, ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2,
-        ismooth, labfmt, chxlab, chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap,
-        fp, poptions, psoutput, fieldArea, fieldUndef, modelName, paramName, fhour);
+  DianaLevels* levels;
+  if (idraw == 1 or idraw == 2) {
+    DianaLevelStep* ls;
+    if (idraw == 1) // equally spaced lines (value)
+      ls = new DianaLevelStep(zstep, zoff);
+    else // idraw ==  2,  equally spaced lines, but not drawing the 0 line
+      ls = new DianaLevelStepOmit(zstep, zoff);
+    ls->set_limits(zrange[0], zrange[1]);
+    levels = ls;
+  } else if (idraw == 3) { // selected line values (in rlines) drawn
+    levels = new DianaLevelList(std::vector<float>(rlines, rlines + nlines));
+  } else if (idraw == 4) {
+    // selected line values (the first values in rlines)
+    // are drawn, the following vales drawn are the
+    // previous multiplied by 10 and so on
+    // (nlines=2 rlines=0.1,0.3 => 0.1,0.3,1,3,10,30,...)
+    // (or the line at value=zoff)
+    levels = new DianaLevelList10(std::vector<float>(rlines, rlines + nlines));
+  } else {
+    return false;
   }
 
-#if 0
-  {
-    std::ofstream dump(("/tmp/field_dump/" + modelName + "_" + paramName + ".dat").c_str());
-    dump << "# model " << modelName << " param " << paramName << std::endl;
-    dump << "level-range 0 0 " << zstep << std::endl;
-    dump << "nx " << (ipart[1] - ipart[0]) << std::endl;
-    dump << "ny " << (ipart[3] - ipart[2]) << std::endl;
-    dump << "data" << std::endl;
-    for (int iy=ipart[2]; iy<ipart[3]; ++iy)
-      for (int ix=ipart[0]; ix<ipart[1]; ++ix)
-        dump << z[iy*nx + ix] << ' ';
-    dump.close();
+  DianaPositions* positions;
+  if (icxy == 0) { // map and field coordinates are equal
+    positions = new DianaPositionsSimple();
+  } else if (icxy == 1) { // using cxy to position field on map
+    positions = new DianaPositionsFormula(cxy);
+  } else if (icxy == 2) { // using x and y to position field on map
+    positions = new DianaPositionsList(nx, ny, ipart, xz, yz);
+  } else {
+    delete levels;
+    return false;
   }
-#endif
+
+  const DianaField df(nx, ny, ipart, z, *levels, *positions);
 
   METLIBS_LOG_TIME();
-  METLIBS_LOG_DEBUG(LOGVAL(icxy));
-  DianaField df(nx, ny, ipart, z, xz, yz);
-  float lstart = zrange[0], lstop = zrange[1];
-  if (zrange[1] < zrange[0]) {
-    METLIBS_LOG_TIME();
-    METLIBS_LOG_DEBUG("find min/max" << LOGVAL(zstep));
-    bool have_defined = false;
-    for (int i=0; i<nx*ny; ++i) {
-      if (z[i] > UNDEF_VALUE or z[i] < -UNDEF_VALUE)
-        continue;
-      float zi = rounded(z[i], zstep);
-      if (have_defined) {
-        lstart = std::min(zi, lstart);
-        lstop  = std::max(zi, lstop);
-      } else {
-        lstart = lstop = zi;
-      }
-      have_defined = true;
-    }
-    if (not have_defined)
-      return true; // TODO only undefined values
-  }
-  METLIBS_LOG_DEBUG(LOGVAL(lstart) << LOGVAL(lstop) << LOGVAL(zstep));
-  df.setLevels(lstart, lstop, zstep);
-  DianaLines dl(&df, fp);
+  DianaLines dl(std::vector<int>(icol, icol+ncol), poptions, *levels, fp);
+
   contouring::run(df, dl);
+
+  delete positions;
+  delete levels;
+
   return true;
 }
