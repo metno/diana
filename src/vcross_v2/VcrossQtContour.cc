@@ -77,13 +77,9 @@ void VCLines::paint_coloured_lines(QPainter& painter, int linewidth, const Colou
     
     if (label) { // draw label
       const int step_spacing = 10;
-      int idx = step_spacing/2 + step_spacing*(level % step_spacing);
+      int idx = step_spacing/2 + step_spacing*(std::abs(level+100000) % step_spacing);
       for (; idx+1 < line.size(); idx += 5) {
         const QPointF p0 = line[idx], p1 = line[idx+1];
-        if (p0.x() == p1.x() or p0.y() == p1.y())
-          continue;
-        if (p0.x() < 0 or p1.x() < 0 or p0.y() < 0 or p1.y() < 0)
-          continue;
 
         float angle = atan2f(p1.y() - p0.y(), p1.x() - p0.x()) * 180/M_PI;
         if (angle > 90)
