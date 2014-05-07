@@ -34,6 +34,27 @@ static inline int rounded_div(float value, float unit)
         return i;
 }
 
+class DianaArrayIndex {
+public:
+  DianaArrayIndex(size_t nx, size_t x0, size_t y0, size_t x1, size_t y1, size_t step=0)
+    : mNX(nx), mX0(x0), mY0(y0), mStep(std::max((size_t)1, step)), mSX((x1-x0)/mStep), mSY((y1-y0)/mStep) { }
+
+  size_t size_x() const
+    { return mSX; }
+
+  size_t size_y() const
+    { return mSY; }
+
+  size_t index(size_t ix, size_t iy) const
+    {  return (mY0 + iy*mStep)*mNX + (mX0+ix*mStep); }
+
+  size_t operator()(size_t ix, size_t iy) const
+    { return index(ix, iy); }
+
+private:
+  size_t mNX, mX0, mY0, mStep, mSX, mSY;
+};
+
 // ########################################################################
 
 class DianaPositionsSimple : public DianaPositions {
@@ -44,17 +65,14 @@ public:
 
 class DianaPositionsList : public DianaPositions {
 public:
-  DianaPositionsList(int nx, int ny, const int ipart[], const float* xpos, const float* ypos)
-    : mNX(nx), mNY(ny), mX0(ipart[0]), mY0(ipart[2]) , mXpos(xpos), mYpos(ypos) { }
+  DianaPositionsList(const DianaArrayIndex& index, const float* xpos, const float* ypos)
+    : mIndex(index), mXpos(xpos), mYpos(ypos) { }
   
-  size_t index(size_t ix, size_t iy) const
-    {  return (mY0 + iy)*mNX + (mX0+ix); }
-
   contouring::point_t position(size_t ix, size_t iy) const
-    { const size_t i = index(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
+    { const size_t i = mIndex(ix, iy); return contouring::point_t(mXpos[i], mYpos[i]); }
 
 private:
-  int mNX, mNY, mX0, mY0;
+  const DianaArrayIndex& mIndex;
   const float *mXpos, *mYpos;
 };
 
@@ -174,27 +192,23 @@ contouring::point_t DianaFieldBase::line_point(contouring::level_t level, size_t
 
 class DianaField : public DianaFieldBase {
 public:
-  DianaField(int nx, int ny, const int ipart[], const float* data, const DianaLevels& levels, const DianaPositions& positions)
+  DianaField(const DianaArrayIndex& index, const float* data, const DianaLevels& levels, const DianaPositions& positions)
     : DianaFieldBase(levels, positions)
-    , mNX(nx), mNY(ny), mX0(ipart[0]), mX1(ipart[1]), mY0(ipart[2]), mY1(ipart[3]) , mData(data)
+    , mIndex(index), mData(data)
     { }
   
   virtual size_t nx() const
-    { return mX1-mX0; }
+    { return mIndex.size_x(); }
   
   virtual size_t ny() const
-    { return mY1-mY0; }
+    { return mIndex.size_y(); }
 
 protected:
   virtual float value(size_t ix, size_t iy) const
-    { return mData[index(ix, iy)]; }
+    { return mData[mIndex(ix, iy)]; }
 
 private:
-  size_t index(size_t ix, size_t iy) const
-    {  return (mY0 + iy)*mNX + (mX0+ix); }
-
-private:
-  int mNX, mNY, mX0, mX1, mY0, mY1;
+  const DianaArrayIndex& mIndex;
   const float *mData;
 };
 
@@ -415,19 +429,19 @@ bool poly_contour(int nx, int ny, float z[], float xz[], float yz[],
 {
   DianaLevels_p levels = dianaLevelsForPlotOptions(poptions, fieldUndef);
 
+  const DianaArrayIndex index(nx, ipart[0], ipart[2], ipart[1], ipart[3], poptions.lineSmooth);
   DianaPositions_p positions;
   if (icxy == 0) { // map and field coordinates are equal
     positions = boost::make_shared<DianaPositionsSimple>();
   } else if (icxy == 1) { // using cxy to position field on map
     positions = boost::make_shared<DianaPositionsFormula>(cxy);
   } else if (icxy == 2) { // using x and y to position field on map
-    positions = boost::make_shared<DianaPositionsList>(nx, ny, ipart, xz, yz);
+    positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
   } else {
     return false;
   }
 
-  const DianaField df(nx, ny, ipart, z, *levels, *positions);
-
+  const DianaField df(index, z, *levels, *positions);
   DianaLines dl(std::vector<int>(icol, icol+ncol), poptions, *levels, fp);
 
   { METLIBS_LOG_TIME("contouring");
