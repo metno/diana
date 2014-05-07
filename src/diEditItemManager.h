@@ -91,7 +91,6 @@ public:
     virtual bool isEnabled() const;
     virtual void setEditing(bool enable);
     virtual bool prepare(const miutil::miTime &time);
-    std::vector<miutil::miTime> getTimes() const;
 
     void sendMouseEvent(QMouseEvent* event, EventResult& res);
     void sendKeyboardEvent(QKeyEvent* event, EventResult& res);

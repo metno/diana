@@ -163,6 +163,9 @@ void EditItemManager::setEditing(bool enable)
 */
 bool EditItemManager::prepare(const miutil::miTime &time)
 {
+  if (!isEditing())
+    return DrawingManager::prepare(time);
+
   bool found = false;
 
   // Check the requested time against the available times.
@@ -196,39 +199,6 @@ bool EditItemManager::prepare(const miutil::miTime &time)
   }
 
   return found;
-}
-
-/**
- * Returns a vector containing the times for which the manager has data.
-*/
-std::vector<miutil::miTime> EditItemManager::getTimes() const
-{
-  std::vector<miutil::miTime> output;
-  std::set<miutil::miTime> times;
-
-  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
-
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isVisible()) {
-
-      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-      foreach (const QSharedPointer<DrawingItemBase> item, items) {
-
-        std::string time_str;
-        std::string prop_str = timeProperty(item->propertiesRef(), time_str);
-        if (!time_str.empty())
-          times.insert(miutil::miTime(time_str));
-      }
-    }
-  }
-
-  output.assign(times.begin(), times.end());
-
-  // Sort the times.
-  std::sort(output.begin(), output.end());
-
-  return output;
 }
 
 QUndoView *EditItemManager::getUndoView()

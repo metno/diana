@@ -260,11 +260,11 @@ QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) con
     nameElem.appendChild(doc.createTextNode(propertiesRef().value("Folder:name").toString()));
     QDomElement timeSpanElem = createTimeSpanElement(doc);
     QDomElement placemarkElem = createPlacemarkElement(doc);
+    placemarkElem.appendChild(extDataElem);
     placemarkElem.appendChild(popElem);
     QDomElement folderElem = doc.createElement("Folder");
     folderElem.appendChild(nameElem);
     folderElem.appendChild(timeSpanElem);
-    folderElem.appendChild(extDataElem);
     folderElem.appendChild(placemarkElem);
     finalElem = folderElem;
   } else {

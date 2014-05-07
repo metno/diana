@@ -182,10 +182,7 @@ std::string Dialog::name() const
 void Dialog::updateTimes()
 {
   std::vector<miutil::miTime> times;
-
-  if (editm_->isEnabled() && !editm_->isEditing())
-    times = DrawingManager::instance()->getTimes();
-
+  times = DrawingManager::instance()->getTimes();
   emit emitTimes("DRAWING", times);
 }
 
@@ -254,7 +251,7 @@ void Dialog::makeProduct()
   putOKString(inp);
 
   // Update the available times.
-  //updateTimes();
+  updateTimes();
 }
 
 #if 0 // disabled for now
