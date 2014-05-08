@@ -166,9 +166,9 @@ public:
   void setBackContrastColour(const Colour& c){backContrastColour= c;}
 
   /// return the current background colour
-  Colour getBackgroundColour() const { return backgroundColour; }
+  const Colour& getBackgroundColour() const { return backgroundColour; }
   /// return colour with good contrast to background
-  Colour getBackContrastColour() const { return backContrastColour; }
+  const Colour& getBackContrastColour() const { return backContrastColour; }
 
   /// set the plot info string
   void setPlotInfo(const std::string& pin);

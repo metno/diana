@@ -64,8 +64,10 @@ const int MaxArrowsAuto=55;
 
 
 FieldPlot::FieldPlot()
-:Plot(), overlay(false),
- pshade(false), pundefined(false),vectorAnnotationSize(0.)
+ : overlay(false)
+ , pshade(false)
+ , pundefined(false)
+ , vectorAnnotationSize(0)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -80,17 +82,16 @@ FieldPlot::~FieldPlot()
 void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
-  int n= tmpfields.size();
-  for (int i=0; i<n; i++) {
+  for (size_t i=0; i<tmpfields.size(); i++)
     delete tmpfields[i];
-  }
   tmpfields.clear();
 
   fields.clear();
 }
 
 
-Area& FieldPlot::getFieldArea(){
+Area& FieldPlot::getFieldArea()
+{
   if (fields.size() && fields[0])
     return fields[0]->area;
   else
@@ -99,12 +100,12 @@ Area& FieldPlot::getFieldArea(){
 
 
 //  return area for existing field
-bool FieldPlot::getRealFieldArea(Area& a){
-  if (fields.size() && fields[0] && fields[0]->data) {
-    a= fields[0]->area;
-    return true;
-  }
-  return false;
+bool FieldPlot::getRealFieldArea(Area& a)
+{
+  if (not checkFields(1))
+    return false;
+  a = fields[0]->area;
+  return true;
 }
 
 
@@ -123,9 +124,8 @@ bool FieldPlot::updateNeeded(string& pin)
 // check if current has same level
 bool FieldPlot::updatePinNeeded(const std::string& pin)
 {
-  if (pinfo == pin ) {
+  if (pinfo == pin)
     return false;
-  }
 
   pinfo = pin;
   return true;
@@ -180,28 +180,27 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
   if (plottype==fpt_contour && poptions.contourShading>0)
     pshade= true;
 
-  pundefined= (poptions.undefMasking>0);
+  pundefined= (poptions.undefMasking>0 and plottype!=fpt_contour2);
 
   return true;
 }
 
 //  set list of field-pointers, update datatime
-bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t){
-  METLIBS_LOG_DEBUG(" FieldPlot::setData:"<<vf.size()<<"   "<<t.isoTime());
+bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
+{
+  METLIBS_LOG_DEBUG(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
   clearFields();
 
-  int n= vf.size();
-  for (int i=0; i<n; i++) fields.push_back(vf[i]);
-  ftime= t;
+  fields = vf;
+  ftime = t;
 
-  if (n>0) {
+  if (fields.empty()) {
+    plotname= "";
+  } else {
     plotname= fields[0]->fulltext;
     analysisTime= fields[0]->analysisTime;
-  } else {
-    plotname= "";
   }
-
   return true;
 }
 
@@ -215,7 +214,7 @@ bool FieldPlot::getAnnotations(vector<string>& anno)
 {
   //  METLIBS_LOG_DEBUG("getAnnotations:"<<anno.size());
 
-  if (fields.size()==0 || !fields[0] || !fields[0]->data)
+  if (not checkFields(1))
     return false;
 
   int nanno = anno.size();
@@ -445,7 +444,7 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
 {
     METLIBS_LOG_DEBUG("getDataAnnotations:"<<anno.size());
 
-  if (fields.size()==0 || !fields[0] || !fields[0]->data)
+  if (not checkFields(1))
     return false;
 
   int nanno = anno.size();
@@ -824,15 +823,10 @@ bool FieldPlot::plotWind()
 {
   METLIBS_LOG_SCOPE();
 
-  const int n = fields.size();
-  if (n<2)
+  if (not checkFields(2))
     return false;
-  const bool colourwind = (n == 3);
+  const bool colourwind = (fields.size() == 3);
   const float* colourdata = 0;
-  if (!fields[0] || !fields[1] )
-    return false;
-  if (!fields[0]->data || !fields[1]->data)
-    return false;
   if (colourwind) {
     if (not fields[2] or not fields[2]->data)
       return false;
@@ -1110,15 +1104,11 @@ bool FieldPlot::plotValue()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-
-  if ( n>1 ) {
+  if (fields.size() > 1)
     return plotValues();
-  }
 
-  if (n<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   // plot symbol
   ImageGallery ig;
@@ -1256,12 +1246,8 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
+  if (not checkFields(3))
+    return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1410,7 +1396,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
 
           // 50-knot flags, store for plot below
           if (n50>0) {
-            for (n=0; n<n50; n++) {
+            for (int n=0; n<n50; n++) {
               xb[nb][0]= gx;
               yb[nb][0]= gy;
               vx.push_back(gx);
@@ -1431,7 +1417,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
           }
 
           // 10-knot flags
-          for (n=0; n<n10; n++) {
+          for (int n=0; n<n10; n++) {
             glVertex2f(gx,gy);
             glVertex2f(gx+dxf,gy+dyf);
             xb[nb][0]= gx;
@@ -1452,7 +1438,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
           }
 
           // mark used space (lines) in bitmap
-          for (n=0; n<nb; n++) {
+          for (int n=0; n<nb; n++) {
             dx= xb[n][1] - xb[n][0];
             dy= yb[n][1] - yb[n][0];
             if (fabsf(dx)>fabsf(dy))
@@ -1665,13 +1651,10 @@ bool FieldPlot::plotValues()
 {
   METLIBS_LOG_SCOPE();
 
-  size_t nfields= fields.size();
+  if (not checkFields(0))
+    return false;
 
-  for(size_t i=0; i<nfields; i++) {
-    if (nfields < i+1 || !fields[i] || !fields[i]->data) {
-      return false;
-    }
-  }
+  const size_t nfields = fields.size();
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -1839,15 +1822,11 @@ bool FieldPlot::plotVector()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if ( n==3) {
+  if (fields.size() == 3)
     return plotVectorColour();
-  }
 
-  if (n<2) return false;
-  if (!fields[0] || !fields[1]) return false;
-
-  if (!fields[0]->data || !fields[1]->data) return false;
+  if (not checkFields(2))
+    return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -1948,12 +1927,8 @@ bool FieldPlot::plotVectorColour()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<3) return false;
-  if (!fields[0] || !fields[1] || !fields[2]) return false;
-
-  if (!fields[0]->data || !fields[1]->data
-      || !fields[2]->data) return false;
+  if (not checkFields(3))
+    return false;
 
   int i,ix,iy,l;
   int nx= fields[0]->nx;
@@ -2115,15 +2090,11 @@ bool FieldPlot::plotDirection()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n==2) {
+  if (fields.size() ==2 )
     return plotDirectionColour();
-  }
 
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -2222,11 +2193,8 @@ bool FieldPlot::plotDirectionColour()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<2) return false;
-  if (!fields[0] || !fields[1]) return false;
-
-  if (!fields[0]->data || !fields[1]->data) return false;
+  if (not checkFields(2))
+    return false;
 
   int i,ix,iy,l;
   int nx= fields[0]->nx;
@@ -2389,20 +2357,8 @@ bool FieldPlot::plotContour()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<1) { 
-	  cerr << "No Fields" << endl;
-	  return false;
-  }
-  if (!fields[0]) { 
-	  cerr << "Fields == NULL" << endl;
-	  return false;
-  }
-
-  if (!fields[0]->data) {
-	  cerr << "Fields->data == NULL" << endl;
-	  return false;
-  }
+  if (not checkFields(1))
+    return false;
 
   const int nx= fields[0]->nx;
   const int ny= fields[0]->ny;
@@ -2731,7 +2687,7 @@ bool FieldPlot::plotContour2()
 {
   METLIBS_LOG_SCOPE();
 
-  if (fields.empty() or not fields[0] or not fields[0]->data) {
+  if (not checkFields(1)) {
     METLIBS_LOG_ERROR("no fields or no field data");
     return false;
   }
@@ -2784,11 +2740,8 @@ bool FieldPlot::plotBox_pattern()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int i, ix, iy, i1, i2;
 
@@ -2819,7 +2772,7 @@ bool FieldPlot::plotBox_pattern()
   int   istart, jstart, j, b, w;
   float cmin, cmax;
 
-  for (n=0; n<npattern; n++) {
+  for (int n=0; n<npattern; n++) {
     for (i=0; i<128; i++) pattern[n][i]=0;
     for (jstart=0; jstart<mark[n]; jstart++) {
       for (istart=0; istart<mark[n]; istart++) {
@@ -2856,7 +2809,7 @@ bool FieldPlot::plotBox_pattern()
                                                        || fields[0]->data[iy*nx+i1]==fieldUndef)) i1++;
       if (i1<ix2) {
 
-        n=1;
+        int n=1;
         while (n<npattern && fields[0]->data[iy*nx+i1]>clim[n]) n++;
         n--;
         cmin = clim[n];
@@ -2899,11 +2852,8 @@ bool FieldPlot::plotBox_alpha_shade()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int ix, iy, i1, i2;
 
@@ -3010,11 +2960,8 @@ bool FieldPlot::plotAlarmBox()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int ix, iy, i1, i2;
 
@@ -3148,11 +3095,8 @@ bool FieldPlot::plotFillCell()
 {
   METLIBS_LOG_TIME();
 
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   vector<Colour> palette;
 
@@ -3274,11 +3218,8 @@ bool FieldPlot::plotAlpha_shade()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int ix,iy;
   int nx= fields[0]->nx;
@@ -3357,11 +3298,8 @@ bool FieldPlot::plotAlpha_shade()
 
 bool FieldPlot::plotFrameOnly()
 {
-  int n= fields.size();
-  if (n<1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -3544,9 +3482,8 @@ bool FieldPlot::markExtreme()
 {
   METLIBS_LOG_SCOPE();
 
-  if (fields.size()<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -3837,9 +3774,8 @@ bool FieldPlot::plotGridLines()
 {
   METLIBS_LOG_SCOPE();
 
-  if (fields.size()<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
+  if (not checkFields(1))
+    return false;
 
   int nx= fields[0]->nx;
 
@@ -3900,9 +3836,10 @@ bool FieldPlot::plotUndefined()
 {
   METLIBS_LOG_SCOPE();
 
-  if (!enabled || fields.size()<1) return false;
-  if (!fields[0]) return false;
-  if (!fields[0]->data) return false;
+  if (not enabled)
+    return false;
+  if (not checkFields(1))
+    return false;
 
   int nx= fields[0]->nx;
   int ny= fields[0]->ny;
@@ -4034,11 +3971,10 @@ bool FieldPlot::plotNumbers()
 {
   METLIBS_LOG_SCOPE();
 
-  int n= fields.size();
-  if (n!=1) return false;
-  if (!fields[0]) return false;
-
-  if (!fields[0]->data) return false;
+  if (fields.size() != 1)
+    return false;
+  if (not checkFields(1))
+    return false;
 
   int i,ix,iy;
   int nx= fields[0]->nx;
@@ -4148,12 +4084,10 @@ bool FieldPlot::plotNumbers()
 
 std::string FieldPlot::getModelName()
 {
-  std::string str;
-  if (fields.size()>0)
-    if (fields[0])
-      if (fields[0]->data)
-        str=fields[0]->modelName;
-  return str;
+  if (checkFields(1))
+    return fields[0]->modelName;
+  else
+    return std::string();
 }
 
 
@@ -4179,13 +4113,13 @@ std::string FieldPlot::getTrajectoryFieldName()
 
 bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
 
-  if (!enabled || fields.size()!=1) return false;
+  if (not enabled)
+    return false;
+  if (fields.size() != 1 or not checkFields(1))
+    return false;
 
-  if ( !fields[0] ) return false;
-
-  if (miutil::to_lower(fields[0]->name) != "mslp") return false;
-
-  if (!fields[0]->data) return false;
+  if (miutil::to_lower(fields[0]->name) != "mslp")
+    return false;
 
   //change projection if needed
   if ( obsPositions.obsArea.P() != fields[0]->area.P() ){
@@ -4210,15 +4144,25 @@ bool FieldPlot::obs_mslp(ObsPositions& obsPositions) {
   return true;
 }
 
+bool FieldPlot::checkFields(size_t count) const
+{
+  if (count == 0) {
+    if (fields.empty())
+      return false;
+    count = fields.size();
+  } else if (fields.size() < count) {
+    return false;
+  }
+  for (size_t i = 0; i < count; ++i) {
+    if (not (fields[i] and fields[i]->data))
+      return false;
+  }
+  return true;
+}
+
 bool FieldPlot::fieldsOK()
 {
-
-  int n= fields.size();
-  if( n==0) return false;
-  for(int i=0; i<n;i++)
-    if(!fields[i] || !fields[i]->data) return false;
-  return true;
-
+  return checkFields(0);
 }
 
 int FieldPlot::resamplingFactor(int nx, int ny) const
