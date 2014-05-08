@@ -4259,6 +4259,11 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
 #endif
 }
 
+/**
+ * Updates the dialog associated with the action or dialog that sent the
+ * signal connected to this slot. We toggle the relevant action to hide the
+ * dialog.
+ */
 void DianaMainWindow::updateDialog()
 {
   QAction *action = qobject_cast<QAction *>(sender());
