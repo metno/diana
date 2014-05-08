@@ -379,7 +379,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     foreach (const QSharedPointer<DrawingItemBase> item, items) {
       std::string time_str;
       std::string time_prop = timeProperty(item->propertiesRef(), time_str);
-      if (time_prop.empty() || isEditing())
+      if (time_prop.empty())
         item->setProperty("visible", true);
       else {
         bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));

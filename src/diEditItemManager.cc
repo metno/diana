@@ -163,8 +163,8 @@ void EditItemManager::setEditing(bool enable)
 */
 bool EditItemManager::prepare(const miutil::miTime &time)
 {
-  if (!isEditing())
-    return DrawingManager::prepare(time);
+  // Prepare any published objects in addition to ones in the editor.
+  DrawingManager::prepare(time);
 
   bool found = false;
 
