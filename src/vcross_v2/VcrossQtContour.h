@@ -82,6 +82,7 @@ private:
   void paint_lines(QPainter& painter);
   void paint_coloured_lines(QPainter& painter, int linewidth, const Colour& colour,
       const Linetype& linetype, const contour_v& contours, contouring::level_t li, bool label);
+  void paint_labels(QPainter& painter, const QPolygonF& points, contouring::level_t li);
 
 private:
   const DianaLevels& mLevels;

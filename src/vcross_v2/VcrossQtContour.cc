@@ -75,38 +75,64 @@ void VCLines::paint_coloured_lines(QPainter& painter, int linewidth, const Colou
     else
       painter.drawPolyline(line);
     
-    if (label) { // draw label
-      const int step_spacing = 10;
-      int idx = step_spacing/2 + step_spacing*(std::abs(level+100000) % step_spacing);
-      for (; idx+1 < line.size(); idx += 5) {
-        const QPointF p0 = line[idx], p1 = line[idx+1];
+    if (label)
+      paint_labels(painter, line, level);
+  }
+}
 
-        float angle = atan2f(p1.y() - p0.y(), p1.x() - p0.x()) * 180/M_PI;
-        if (angle > 90)
-          angle  -= 180;
-        else if(angle < -90)
-          angle  += 180;
-        if (angle < -45 or angle > 45)
-          continue;
+void VCLines::paint_labels(QPainter& painter, const QPolygonF& points, contouring::level_t li)
+{
+  if (points.size() < 10)
+    return;
 
-        if (angle >= -10 and angle <= 10)
-          angle = 0;
+  const QString lbl = QString::number(mLevels.value_for_level(li));
 
-        const QString qtxt = QString::number(mLevels.value_for_level(level));
-        const float w = painter.fontMetrics().width(qtxt), h = painter.fontMetrics().height();
+  const float lbl_w = painter.fontMetrics().width(lbl), lbl_h = painter.fontMetrics().height();
+  if (lbl_h <= 0 or lbl_w <= 0)
+    return;
+  const float lbl_w2 = lbl_w * lbl_w;
 
-        painter.save();
-        painter.translate(p0.x(), p0.y());
-        painter.rotate(angle);
-        
-        const QRectF rtext(-w/2, -h/2, w, h);
-        painter.fillRect(rtext, Qt::white); // FIXME adapt to plot background color
-        painter.drawText(rtext, Qt::AlignCenter, qtxt);
-        painter.restore();
-
-        idx += 55;
-      }
+  int idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
+  for (; idx + 1 < points.size(); idx += 5) {
+    QPointF p0 = points.at(idx), p1;
+    const int idx0 = idx;
+    for (idx += 1; idx < points.size(); ++idx) {
+      p1 = points.at(idx);
+      const float dy = p1.y() - p0.y(), dx = p1.x() - p0.x();
+      if (dx*dx + dy*dy >= lbl_w2)
+        break;
     }
+    if (idx >= points.size())
+      break;
+
+    if (p1.x() < p0.x())
+      std::swap(p0, p1);
+    const float angle_deg = atan2f(p1.y() - p0.y(), p1.x() - p0.x()) * 180. / M_PI;
+    if (angle_deg < -45 or angle_deg > 45)
+      continue;
+
+    // check that line is somewhat straight under label
+    int idx2 = idx0 + 1;
+    for (; idx2 < idx; ++idx2) {
+      const QPointF p2 = points.at(idx2);
+      const float a = atan2f(p2.y() - p0.y(), p2.x() - p0.x()) * 180. / M_PI;
+      if (std::abs(a - angle_deg) > 15)
+        break;
+    }
+    if (idx2 < idx)
+      continue;
+
+    // label angle seems ok, find position
+    painter.save();
+    painter.translate(p0.x(), p0.y());
+    painter.rotate(angle_deg);
+    
+    const QRectF rtext(-lbl_w/2, -lbl_h/2, lbl_w, lbl_h);
+    painter.fillRect(rtext, Qt::white); // FIXME adapt to plot background color
+    painter.drawText(rtext, Qt::AlignCenter, lbl);
+    painter.restore();
+
+    idx += 10*(idx - idx0);
   }
 }
 

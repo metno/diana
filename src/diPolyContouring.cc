@@ -240,6 +240,7 @@ private:
   void paint_lines();
   void paint_coloured_lines(int linewidth, const Colour& colour,
       const Linetype& linetype, const point_vv& lines, contouring::level_t li, bool label);
+  void paint_labels(const point_v& points, contouring::level_t li);
 
 private:
   const PlotOptions& mPlotOptions;
@@ -344,17 +345,67 @@ void DianaLines::paint_coloured_lines(int linewidth, const Colour& colour,
       glVertex2f(it->x, it->y);
     glEnd();
     
-      // draw label
-    if (label and points.size() > 10) {
-      const size_t idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
-      if (idx + 1 < points.size()) {
-        const contouring::point_t p0 = points.at(idx), p1 = points.at(idx+1);
-        const float angle = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
-        std::ostringstream o;
-        o << mLevels.value_for_level(li);
-        mFM->drawStr(o.str().c_str(), p0.x, p0.y, angle);
-      }
+    if (label)
+      paint_labels(points, li);
+  }
+}
+
+void DianaLines::paint_labels(const point_v& points, contouring::level_t li)
+{
+  if (points.size() < 10)
+    return;
+
+  std::ostringstream o;
+  o << mLevels.value_for_level(li);
+  const std::string lbl = o.str();
+
+  float lbl_w = 0, lbl_h = 0;
+  if (not mFM->getStringSize(lbl.c_str(), lbl_w, lbl_h))
+    return;
+  if (lbl_h <= 0 or lbl_w <= 0)
+    return;
+  const float lbl_w2 = lbl_w * lbl_w;
+
+  size_t idx = int(0.1*(1 + (std::abs(li+100000) % 5))) * points.size();
+  for (; idx + 1 < points.size(); idx += 5) {
+    contouring::point_t p0 = points.at(idx), p1;
+    const int idx0 = idx;
+    for (idx += 1; idx < points.size(); ++idx) {
+      p1 = points.at(idx);
+      const float dy = p1.y - p0.y, dx = p1.x - p0.x;
+      if (dx*dx + dy*dy >= lbl_w2)
+        break;
     }
+    if (idx >= points.size())
+      break;
+
+    if (p1.x < p0.x)
+      std::swap(p0, p1);
+    const float angle_deg = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
+    if (angle_deg < -45 or angle_deg > 45)
+      continue;
+
+    // check that line is somewhat straight under label
+    size_t idx2 = idx0 + 1;
+    for (; idx2 < idx; ++idx2) {
+      const contouring::point_t p2 = points.at(idx2);
+      const float a = atan2f(p2.y - p0.y, p2.x - p0.x) * 180. / M_PI;
+      if (std::abs(a - angle_deg) > 15)
+        break;
+    }
+    if (idx2 < idx)
+      continue;
+
+    // label angle seems ok, find position
+#if 0
+    // centered on line
+    const float f = lbl_h/(2*lbl_w), tx = p0.x + (p1.y-p0.y)*f, ty = p0.y - (p1.x-p0.x)*f;
+#else
+    // sitting on top of line
+    const float tx = p0.x, ty = p0.y;
+#endif
+    mFM->drawStr(lbl.c_str(), tx, ty, angle_deg);
+    idx += 10*(idx - idx0);
   }
 }
 
