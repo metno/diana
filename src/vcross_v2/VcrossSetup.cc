@@ -273,18 +273,12 @@ std::map<std::string,std::string> Setup::getAllPlotOptions()
         ostr << " maxvalue=" << po.maxvalue;
       else
         ostr << " maxvalue=off";
-      if (!usebase) {
-        int n = po.palettecolours.size();
-        if (n > 0) {
-          ostr << " palettecolours=" << po.palettecolours[0];
-          for (int j = 1; j < n; j++)
-            ostr << "," << po.palettecolours[j].Name();
-        } else {
-          ostr << " palettecolours=off";
-        }
-        ostr << " table=" << po.table;
-        ostr << " repeat=" << po.repeat;
-      }
+
+      if (not po.palettecolours.empty())
+        ostr << " palettecolours=" << po.palettename;
+      ostr << " table=" << po.table;
+      ostr << " repeat=" << po.repeat;
+
     } else if (cp->type == ConfiguredPlot::T_WIND) {
       ostr << "colour=" << po.linecolour.Name() << " linewidth="
           << po.linewidth << " density=" << po.density;
