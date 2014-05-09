@@ -35,6 +35,7 @@
 #include <EditItems/drawingsymbol.h>
 #include <EditItems/drawingtext.h>
 #include <EditItems/kml.h>
+#include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
@@ -44,7 +45,6 @@
 
 #include <set>
 
-#include <EditItems/layer.h>
 #include <QImage>
 #include <QPainter>
 #include <QSvgRenderer>
