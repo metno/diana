@@ -378,7 +378,7 @@ private:
 };
 
 typedef std::list<line_triplet_x> triplet_l;
-typedef typename triplet_l::iterator triplet_li;
+typedef triplet_l::iterator triplet_li;
 typedef std::pair<line_triplet_x, line_triplet_x> triplet_pair;
 typedef std::pair<line_end_x,line_end_x> connect_up_t;
  
