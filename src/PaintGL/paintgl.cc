@@ -510,13 +510,14 @@ GLuint PaintGLContext::bindTexture(const QImage &image)
 
 void PaintGLContext::drawTexture(const QPointF &pos, GLuint texture)
 {
-    float y = painter->device()->height() - pos.y();
+    float x = transform.dx() + pos.x();
+    float y = transform.dy() - pos.y();
     QImage image = textures.value(texture);
 
     painter->save();
     // It seems that we need to explicitly set the composition mode.
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter->drawImage(pos.x(), y - image.height(), image);
+    painter->drawImage(x, y - image.height(), image);
     painter->restore();
 }
 

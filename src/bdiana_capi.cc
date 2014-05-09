@@ -667,7 +667,7 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy failure (missing manager)");
   }
-#else
+#else // USE_PAINTGL
   if (!printer) {
     printer = new QPrinter();
     printer->setOutputFileName(QString::fromStdString(priop.fname));
@@ -748,7 +748,7 @@ void endHardcopy(const plot_type pt)
 #else
   // Guard against this function being called before printing occurs
   // or in cases where it is unnecessary.
-  if (!painter.isActive() || svg || shape || raster)
+  if (!painter.isActive() || shape)
     return;
 
   // If we have printed then we can no longer be making multiple plots.
@@ -1713,7 +1713,7 @@ static int parseAndProcess(istream &is)
         if (shape ) {
                 if ( (miutil::contains(lines[i], "OBS") || miutil::contains(lines[i], "SAT") || miutil::contains(lines[i], "OBJECTS") ||
                         miutil::contains(lines[i], "EDITFIELD") || miutil::contains(lines[i], "TRAJECTORY"))) {
-                        METLIBS_LOG_ERROR("Error, Shape option can not be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
+                        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
                         return 1;
                 }
                 if ( miutil::contains(lines[i], "FIELD") ) {
@@ -3102,11 +3102,13 @@ static int parseAndProcess(istream &is)
         return 1;
       }
 
+#if !defined(USE_PAINTGL)
       if (raster && multiple_plots) {
-        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output can not be used together: "
+        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output cannot be used together: "
             << lines[k] << " Linenumber:" << linenumbers[k]);
         return 1;
       }
+#endif
       if (raster || shape) {
         // first stop ongoing postscript sessions
         endHardcopy(plot_none);
@@ -3167,11 +3169,13 @@ static int parseAndProcess(istream &is)
       failOnMissingData = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
+#if !defined(USE_PAINTGL)
       if (raster) {
-        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output can not be used together: "
+        METLIBS_LOG_ERROR("ERROR, multiple plots and raster-output cannot be used together: "
             << lines[k] << " Linenumber:" << linenumbers[k]);
         return 1;
       }
+#endif
       if (miutil::to_lower(value) == "off") {
         multiple_newpage = false;
         multiple_plots = false;
@@ -3885,4 +3889,3 @@ int diana_dealloc()
 
   return DIANA_OK;
 }
-
