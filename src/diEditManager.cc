@@ -983,24 +983,13 @@ functions to start and end editing, reading and writing to database
 bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     const miutil::miTime& time, QString& message)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(EdProd.name) <<LOGVAL(EdProdId.name));
 
   for (size_t j=0; j<ep.fields.size(); j++) {
 
     std::string outputFilename;
 
     std::string time_string = time.format("%Y%m%dt%H%M%S");
-
-    outputFilename = ep.local_savedir + "/";
-    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
-    outputFilename += filename;
-
-    QString qs(outputFilename.c_str());
-    QFile qfile(qs);
-    if ( qfile.exists() ) {
-      message = qs + " already exists, do you want to overwrite?";
-      return false;
-    }
 
     if (ci.sendable ) {
       outputFilename = ep.prod_savedir + "/work/";
@@ -1013,7 +1002,40 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
         return false;
       }
     }
+
+    outputFilename = ep.local_savedir + "/";
+    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+    outputFilename += filename;
+    QString qs(outputFilename.c_str());
+    QFile qfile(qs);
+    if ( qfile.exists() ) {
+      message = qs + " already exists, do you want to overwrite?";
+      return false;
+    }
+
   }
+
+
+  if (ci.sendable ) {
+    std::string outputFilename = ep.prod_savedir + "/work/";
+    std::string objectsFilename= editFileName(outputFilename,ci.name,
+        ep.objectsFilenamePart,time);
+    QString qstr(objectsFilename.c_str());
+    QFile qfile(qstr);
+    if ( qfile.exists() ) {
+      message = qstr + " already exists, do you want to overwrite?";
+      return false;
+    }
+  }
+  std::string objectsFilename= editFileName(ep.local_savedir,ci.name,
+      ep.objectsFilenamePart,time);
+  QString qstr(objectsFilename.c_str());
+  QFile qfile(qstr);
+  if ( qfile.exists() ) {
+    message = qstr + " already exists, do you want to overwrite?";
+    return false;
+  }
+
   return true;
 }
 
@@ -1161,7 +1183,7 @@ bool EditManager::startEdit(const EditProduct& ep,
       return false;
     }
     if (EdProdId.sendable) {
-      //make new prd file from template
+      //make new prod file from template
       if (!makeNewFile(j,false)){
         return false;
       }
