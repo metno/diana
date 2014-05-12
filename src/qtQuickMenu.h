@@ -91,6 +91,7 @@ private:
 
   int firstcustom;     // first and last custom menus
   int lastcustom;
+  int firststatic;     // first static menu
   bool instaticmenu;   // inside static menu
 
   void setCurrentMenu(int i);           // set active menu

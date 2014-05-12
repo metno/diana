@@ -48,21 +48,16 @@ using namespace std;
 // write a quick-menu to file
 bool writeQuickMenu(const quickMenu& qm, bool newSyntax)
 {
-  std::string filename;
 
-  if (not miutil::contains(qm.filename, "/")) {
-    filename = LocalSetupParser::basicValue("homedir") + "/";
-  }
-  filename += qm.filename;
-  ofstream menufile(filename.c_str());
+  ofstream menufile(qm.filename.c_str());
 
   if (!menufile){
     if(newSyntax){
       METLIBS_LOG_WARN("QuickMenu Warning: Old syntax in quick-menu file:"
-          << filename);
+          << qm.filename);
     }else {
       METLIBS_LOG_WARN("QuickMenu Error: Could not write quick-menu file:"
-          << filename);
+          << qm.filename);
     }
     return false;
   }
