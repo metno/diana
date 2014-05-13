@@ -1,3 +1,12 @@
+diana (3.35.0-9) unstable; urgency=low
+
+  * Vcross - several improvements
+  * Drawing 
+  * QuickMenus - bugfixing
+  * Edit - more warings
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 13 May 2014 07:24:49 +0200
+
 diana (3.35.0-8) unstable; urgency=low
 
   * Vertical crossections -  New version, do not work with old vcdata-files
