@@ -928,6 +928,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   EditItems::ToolBar::instance()->setEnabled(false);
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
+  connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(editUpdate(bool)));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1195,11 +1196,11 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
   w->Glw()->setFocus();
 }
 
-void DianaMainWindow::editUpdate()
+void DianaMainWindow::editUpdate(bool enabled)
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::editUpdate");
 
-  w->Glw()->forceUnderlay(true);
+  w->Glw()->forceUnderlay(enabled);
   w->updateGL();
 }
 

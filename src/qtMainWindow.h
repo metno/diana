@@ -206,7 +206,7 @@ private Q_SLOTS:
   void TimeSelected();
   void setPlotTime(miutil::miTime& t);
   void SliderSet();
-  void editUpdate();
+  void editUpdate(bool = true);
 
   void toggleDialogs();
   void toggleStatusBar();

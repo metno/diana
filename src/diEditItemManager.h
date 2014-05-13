@@ -145,6 +145,7 @@ signals:
     void timesUpdated();
     void setWorkAreaCursor(const QCursor &);
     void unsetWorkAreaCursor();
+    void editing(bool);
 
 protected:
     virtual void addItem_(const QSharedPointer<DrawingItemBase> &);

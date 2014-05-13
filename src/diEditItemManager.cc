@@ -153,6 +153,7 @@ bool EditItemManager::isEnabled() const
 void EditItemManager::setEditing(bool enable)
 {
   Manager::setEditing(enable);
+  emit editing(enable);
   if (!enable)
     emit unsetWorkAreaCursor();
 }
