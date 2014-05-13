@@ -976,7 +976,7 @@ void VcrossDialog::enableFieldOptions()
   Delete->setEnabled( true );
   copyField->setEnabled( true );
   //###############################################################################
-  //  METLIBS_LOG_DEBUG("fieldOpts: "<<selectedFields[index].fieldOpts);
+    METLIBS_LOG_DEBUG("fieldOpts: "<<selectedFields[index].fieldOpts);
   //###############################################################################
 
   if (selectedFields[index].fieldOpts==currentFieldOpts) return;
@@ -984,9 +984,7 @@ void VcrossDialog::enableFieldOptions()
   currentFieldOpts= selectedFields[index].fieldOpts;
 
   //###############################################################################
-  //  METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions: "
-  //       << fieldnames[selectedFields[index].fieldnumber]);
-  //  METLIBS_LOG_DEBUG("             " << selectedFields[index].fieldOpts);
+    METLIBS_LOG_DEBUG("VcrossDialog::enableFieldOptions: " << selectedFields[index].fieldOpts);
   //###############################################################################
 
   deleteAll->setEnabled( true );
@@ -2003,7 +2001,7 @@ std::vector<std::string> VcrossDialog::getOKString()
     vstr.push_back(str);
 
     //#############################################################
-    //METLIBS_LOG_DEBUG("OK: " << str);
+    METLIBS_LOG_DEBUG("OK: " << str);
     //#############################################################
   }
 
@@ -2372,11 +2370,11 @@ void VcrossDialog::readLog(const std::vector<std::string>& vstr,
                 vplog[j].strValue.size()==vpopt[i].strValue.size()) {
               //###########################################################
               //METLIBS_LOG_DEBUG("    D.CH: " << fieldname << " "
-              //                     << vpopt[j].key << " "
-              //                     << vpopt[j].allValue << " -> "
-              //                     << vplog[i].allValue);
+              //                     << vpopt[i].key << " "
+              //                     << vpopt[i].allValue << " -> "
+              //                     << vplog[j].allValue);
               //###########################################################
-              cp->replaceValue(vpopt[j],vplog[i].allValue,-1);
+              cp->replaceValue(vpopt[i],vplog[j].allValue,-1);
               changed= true;
             }
           }

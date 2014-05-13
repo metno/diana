@@ -274,8 +274,7 @@ std::map<std::string,std::string> Setup::getAllPlotOptions()
       else
         ostr << " maxvalue=off";
 
-      if (not po.palettecolours.empty())
-        ostr << " palettecolours=" << po.palettename;
+      ostr << " palettecolours=" << po.palettename;
       ostr << " table=" << po.table;
       ostr << " repeat=" << po.repeat;
 

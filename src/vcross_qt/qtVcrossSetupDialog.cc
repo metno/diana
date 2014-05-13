@@ -54,6 +54,7 @@
 #include "qtVcrossSetupDialog.h"
 #include <boost/make_shared.hpp>
 #include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miStringFunctions.h>
 VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   : QDialog(parent), vcrossm(vm)
 {
@@ -216,9 +217,9 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   opts= VcrossSetupUI::useTextChoice;
   vcSetups.push_back(new VcrossSetupUI(parent,VERTICALTYPE,glayout,nrow++,opts));
   std::vector<std::string> vchoice;
-  vchoice.push_back("Standard/P");
-  vchoice.push_back("Standard/FL");
-  vchoice.push_back("Pressure/P");
+//  vchoice.push_back("Standard/hPa");
+//  vchoice.push_back("Standard/FL");
+  vchoice.push_back("Pressure/hPa");
   vchoice.push_back("Pressure/FL");
   vchoice.push_back("Height/m");
   vchoice.push_back("Height/Ft");
@@ -506,6 +507,18 @@ void VcrossSetupDialog::applySetup()
 
     } else if (vcSetups[i]->name== VERTICALTYPE) {
       vcopt->verticalType= vcSetups[i]->getTextChoice();
+      //tmp
+      std::vector<std::string> tokens = miutil::split(vcopt->verticalType,"/");
+      if ( tokens.size() == 2 ) {
+        if ( tokens[0] == "Standard" ) {
+          vcopt->verticalScale = "exner";
+          vcopt->verticalCoordinate = "Pressure";
+        } else {
+          vcopt->verticalScale = "linear";
+          vcopt->verticalCoordinate = tokens[0];
+        }
+        vcopt->verticalUnit = tokens[1];
+      }
 
     } else if (vcSetups[i]->name== VHSCALE) {
       vcopt->keepVerHorRatio= vcSetups[i]->isChecked();
