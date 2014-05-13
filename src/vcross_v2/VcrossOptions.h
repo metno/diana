@@ -119,7 +119,10 @@ public:
 
   bool     thinArrows;
 
-  std::string verticalType;
+  std::string verticalType;      // obsolete
+  std::string verticalScale;     // linear/exner
+  std::string verticalCoordinate; // pressure/height
+  std::string verticalUnit;      // hPa/FL/m/ft
 
   bool keepVerHorRatio;
   int  verHorRatio;

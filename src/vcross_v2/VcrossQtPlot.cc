@@ -281,15 +281,12 @@ void QtPlot::setHorizontalTime(const LonLat& tgPosition, const std::vector<miuti
   }
 }
 
-void QtPlot::setVerticalAxis(Z_AXIS_TYPE zt)
+void QtPlot::setVerticalAxis()
 {
-  if (zt == vcross::Z_TYPE_PRESSURE) {
-    mAxisY->quantity = vcross::detail::Axis::PRESSURE;
-    //mAxisY->type     = vcross::detail::Axis::EXNER;
-  } else {
-    mAxisY->quantity = vcross::detail::Axis::HEIGHT;
-    //mAxisY->type     = vcross::detail::Axis::LINEAR;
-  }
+//  mAxisY->setType(mOptions->verticalScale);
+  mAxisY->setQuantity(mOptions->verticalCoordinate);
+  mAxisY->label = mOptions->verticalUnit;
+
 }
 
 QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)
@@ -341,23 +338,6 @@ void QtPlot::prepareYAxis()
 {
   METLIBS_LOG_SCOPE();
 
-  std::vector<std::string> vs = miutil::split(miutil::to_lower(mOptions->verticalType), 0, "/");
-  if (vs.size() == 1) {
-    vs.push_back("x");
-  } else if (vs.empty()) {
-    vs.push_back("standard");
-    vs.push_back("x");
-  }
-
-  if (mAxisY->quantity == vcross::detail::Axis::PRESSURE) {
-    mAxisY->label = "hPa";
-    if (vs[1] == "fl")
-      mAxisY->label = "FL";
-  } else if (mAxisY->quantity == vcross::detail::Axis::HEIGHT) {
-    mAxisY->label = "m";
-    if (vs[1] == "fl" || vs[1] == "ft")
-      mAxisY->label = "Ft";
-  }
   prepareYAxisRange();
 }
 
@@ -738,17 +718,13 @@ void QtPlot::plotFrame(QPainter& painter)
   if (not mOptions->pFrame)
     return;
 
-  const int nzsteps = 14;
+  const int nzsteps = 9;
   const float zsteps[nzsteps] =
-      { 5., 10., 25., 50., 100., 250., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000 };
+      { 10., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000 };
 
-  const int nflsteps = 8;
-  const float flsteps[nflsteps] =
-  { 1., 2., 5., 10., 50., 100., 200., 500. };
-
-  const int npfixed1 = 17;
-  const float pfixed1[npfixed1]
-      = { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 10, 5 };
+  const int nftsteps = 7;
+  const float ftsteps[nftsteps] =
+  { 1500., 3000., 8000., 15000., 30000., 50000, 60000 };
 
   // P -> FlightLevels (used for remapping fields from P to FL)
   const int mfl = 16;
@@ -756,19 +732,19 @@ void QtPlot::plotFrame(QPainter& painter)
       = { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 10 };
   const float flevels[mfl]
       = { 0, 25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 530, 600, 700, 800, 999 };
-  const float fl2m = 1. / 3.2808399; // flightlevel (100 feet unit) to meter
+
+  const float fl2m = 3.2808399; // flightlevel (100 feet unit) to meter
 
   int nticks = 0;
   const float *tickValues = 0, *tickLabels = 0;
   float scale = 1;
 
   if (mAxisY->quantity == vcross::detail::Axis::PRESSURE) {
+    tickValues = plevels;
+    nticks = mfl;
     if (mAxisY->label == "hPa") {
-      nticks = npfixed1;
-      tickValues = tickLabels = pfixed1;
+      tickLabels = plevels;
     } else if (mAxisY->label == "FL") {
-      nticks = mfl;
-      tickValues = plevels;
       tickLabels = flevels;
     }
   } else if (mAxisY->quantity == vcross::detail::Axis::HEIGHT) {
@@ -776,9 +752,9 @@ void QtPlot::plotFrame(QPainter& painter)
       nticks = nzsteps;
       tickValues = tickLabels = zsteps;
     } else if (mAxisY->label == "Ft") {
-      scale = fl2m;
-      tickValues = tickLabels = flsteps;
-      nticks = nflsteps;
+        scale = fl2m;
+        nticks = nftsteps;
+        tickValues = tickLabels = ftsteps;
     }
   }
   METLIBS_LOG_DEBUG(LOGVAL(nticks));
@@ -801,7 +777,7 @@ void QtPlot::plotFrame(QPainter& painter)
 
   // paint tick marks
   for (int i=0; i<nticks; ++i) {
-    const float tickValue = tickValues[i];
+    const float tickValue = tickValues[i]/scale;
     const float tickY = mAxisY->value2paint(tickValue);
     if (mAxisY->legalPaint(tickY)) {
       painter.drawLine(QLineF(tickLeftStart,  tickY, tickLeftEnd,    tickY));
@@ -814,10 +790,10 @@ void QtPlot::plotFrame(QPainter& painter)
     const float labelLeftEnd = tickLeftEnd - mCharSize.width();
     const float labelRightStart = tickRightStart + mCharSize.width();
     for (int i=0; i<nticks; ++i) {
-      const float tickValue = tickValues[i];
+      const float tickValue = tickValues[i]/scale;
       const float tickY = mAxisY->value2paint(tickValue);
       if (mAxisY->legalPaint(tickY)) {
-        const float tickLabel = tickLabels[i] * scale;
+        const float tickLabel = tickLabels[i];
         std::ostringstream ostr;
         ostr << int(tickLabel) << mAxisY->label;
         const std::string txt = ostr.str();

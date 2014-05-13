@@ -50,8 +50,6 @@ namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
 
-const vcross::Z_AXIS_TYPE Z_TYPE = vcross::Z_TYPE_PRESSURE;
-
 } // namespace anonymous
 
 namespace vcross {
@@ -406,6 +404,11 @@ void QtManager::preparePlot()
       mPlot->setHorizontalTime(ll, mCrossectionTimes);
     }
   }
+  vcross::Z_AXIS_TYPE Z_TYPE;
+  if(mOptions->verticalCoordinate == "Pressure")
+    Z_TYPE = vcross::Z_TYPE_PRESSURE;
+  else
+    Z_TYPE = vcross::Z_TYPE_HEIGHT;
 
   const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, Z_TYPE);
   BOOST_FOREACH(EvaluatedPlot_cp ep, evaluated_plots) {
@@ -416,7 +419,7 @@ void QtManager::preparePlot()
   const std::string& model1 = mCollector->getSelectedPlots().front()->model;
   vc_evaluate_surface(mCollector, model_values, model1);
 
-  mPlot->setVerticalAxis(Z_TYPE);
+  mPlot->setVerticalAxis();
   if (Z_TYPE == vcross::Z_TYPE_PRESSURE or Z_TYPE == vcross::Z_TYPE_HEIGHT) {
     const std::string surface = (Z_TYPE == vcross::Z_TYPE_PRESSURE) ?
         VC_SURFACE_PRESSURE : VC_SURFACE_HEIGHT;

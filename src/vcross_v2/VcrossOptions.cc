@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -124,7 +124,10 @@ void VcrossOptions::setDefaults()
 
   thinArrows= false;
 
-  verticalType= "standard";
+  verticalType= "Pressure/hPa";
+  verticalScale= "linear";
+  verticalCoordinate= "Pressure";
+  verticalUnit= "hPa";
 
   keepVerHorRatio= true;
   verHorRatio= 150;
@@ -183,117 +186,122 @@ std::vector<std::string> VcrossOptions::writeOptions()
 
   std::vector<std::string> vstr;
   vstr.push_back((StringBuilder()
-          << "text=" << asBool(pText)
-          << " textColour=" << textColour));
+      << "text=" << asBool(pText)
+      << " textColour=" << textColour));
 
   vstr.push_back((StringBuilder()
-          << "PositionNames=" << asBool(pPositionNames)
-          << " positionNamesColour=" << positionNamesColour));
+      << "PositionNames=" << asBool(pPositionNames)
+      << " positionNamesColour=" << positionNamesColour));
 
   vstr.push_back((StringBuilder()
-          << "frame=" << asBool(pFrame)
-          << " frameColour=" << frameColour
-          << " frameLinetype=" << frameLinetype
-          << " frameLinewidth=" << frameLinewidth));
+      << "frame=" << asBool(pFrame)
+      << " frameColour=" << frameColour
+      << " frameLinetype=" << frameLinetype
+      << " frameLinewidth=" << frameLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "LevelNumbers=" << asBool(pLevelNumbers)));
+      << "LevelNumbers=" << asBool(pLevelNumbers)));
 
   vstr.push_back((StringBuilder()
-          << "UpperLevel=" << asBool(pUpperLevel)
-          << " upperLevelColour=" << upperLevelColour
-          << " upperLevelLinetype=" << upperLevelLinetype
-          << " upperLevelLinewidth=" << upperLevelLinewidth));
+      << "UpperLevel=" << asBool(pUpperLevel)
+      << " upperLevelColour=" << upperLevelColour
+      << " upperLevelLinetype=" << upperLevelLinetype
+      << " upperLevelLinewidth=" << upperLevelLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "LowerLevel=" << asBool(pLowerLevel)
-          << " lowerLevelColour=" << lowerLevelColour
-          << " lowerLevelLinetype=" << lowerLevelLinetype
-          << " lowerLevelLinewidth=" << lowerLevelLinewidth));
+      << "LowerLevel=" << asBool(pLowerLevel)
+      << " lowerLevelColour=" << lowerLevelColour
+      << " lowerLevelLinetype=" << lowerLevelLinetype
+      << " lowerLevelLinewidth=" << lowerLevelLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "OtherLevels=" << asBool(pOtherLevels)
-          << " otherLevelsColour=" << otherLevelsColour
-          << " otherLevelsLinetype=" << otherLevelsLinetype
-          << " otherLevelsLinewidth=" << otherLevelsLinewidth));
-      
-  vstr.push_back((StringBuilder()
-          << "Surface=" << asBool(pSurface)
-          << " surfaceColour=" << surfaceColour
-          << " surfaceLinetype=" << surfaceLinetype
-          << " surfaceLinewidth=" << surfaceLinewidth));
+      << "OtherLevels=" << asBool(pOtherLevels)
+      << " otherLevelsColour=" << otherLevelsColour
+      << " otherLevelsLinetype=" << otherLevelsLinetype
+      << " otherLevelsLinewidth=" << otherLevelsLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "Distance=" << asBool(pDistance)
-          << " distanceColour=" << distanceColour
-          << " distanceUnit=" << distanceUnit));
+      << "Surface=" << asBool(pSurface)
+      << " surfaceColour=" << surfaceColour
+      << " surfaceLinetype=" << surfaceLinetype
+      << " surfaceLinewidth=" << surfaceLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "XYpos=" << asBool(pXYpos)
-          << " xyposColour=" << xyposColour));
-  
-  vstr.push_back((StringBuilder()
-          << "GeoPos=" << asBool(pGeoPos)
-          << " geoposColour=" << geoposColour));
-          
-  vstr.push_back((StringBuilder()
-          << "VerticalGridLines=" << asBool(pVerticalGridLines)
-          << " vergridColour=" << vergridColour
-          << " vergridLinetype=" << vergridLinetype
-          << " vergridLinewidth=" << vergridLinewidth));
+      << "Distance=" << asBool(pDistance)
+      << " distanceColour=" << distanceColour
+      << " distanceUnit=" << distanceUnit));
 
   vstr.push_back((StringBuilder()
-          << "Markerlines=" << asBool(pMarkerlines)
-          << " markerlinesColour=" << markerlinesColour
-          << " markerlinesLinetype=" << markerlinesLinetype
-          << " markerlinesLinewidth=" << markerlinesLinewidth));
+      << "XYpos=" << asBool(pXYpos)
+      << " xyposColour=" << xyposColour));
 
   vstr.push_back((StringBuilder()
-          << "VerticalMarker=" << asBool(pVerticalMarker)
-          << " verticalMarkerColour=" << verticalMarkerColour
-          << " verticalMarkerLinetype=" << verticalMarkerLinetype
-          << " verticalMarkerLinewidth=" << verticalMarkerLinewidth
-          << " verticalMarkerLimit=" << verticalMarkerLimit));
+      << "GeoPos=" << asBool(pGeoPos)
+      << " geoposColour=" << geoposColour));
 
   vstr.push_back((StringBuilder()
-          << "extrapolateFixedLevels=" << asBool(extrapolateFixedLevels)));
-  vstr.push_back((StringBuilder()
-          << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
+      << "VerticalGridLines=" << asBool(pVerticalGridLines)
+      << " vergridColour=" << vergridColour
+      << " vergridLinetype=" << vergridLinetype
+      << " vergridLinewidth=" << vergridLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "thinArrows=" << asBool(thinArrows)));
+      << "Markerlines=" << asBool(pMarkerlines)
+      << " markerlinesColour=" << markerlinesColour
+      << " markerlinesLinetype=" << markerlinesLinetype
+      << " markerlinesLinewidth=" << markerlinesLinewidth));
 
   vstr.push_back((StringBuilder()
-          << "Vertical=" << verticalType));
+      << "VerticalMarker=" << asBool(pVerticalMarker)
+      << " verticalMarkerColour=" << verticalMarkerColour
+      << " verticalMarkerLinetype=" << verticalMarkerLinetype
+      << " verticalMarkerLinewidth=" << verticalMarkerLinewidth
+      << " verticalMarkerLimit=" << verticalMarkerLimit));
 
   vstr.push_back((StringBuilder()
-          << "keepVerHorRatio=" << asBool(keepVerHorRatio)
-          << " verHorRatio=" << verHorRatio));
+      << "extrapolateFixedLevels=" << asBool(extrapolateFixedLevels)));
+  vstr.push_back((StringBuilder()
+      << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
 
   vstr.push_back((StringBuilder()
-          << "stdVerticalArea=" << asBool(stdVerticalArea)
-          << " minVerticalArea=" << minVerticalArea
-          << " maxVerticalArea=" << maxVerticalArea));
+      << "thinArrows=" << asBool(thinArrows)));
 
   vstr.push_back((StringBuilder()
-          << "stdHorizontalArea=" << asBool(stdHorizontalArea)
-          << " minHorizontalArea=" << minHorizontalArea
-          << " maxHorizontalArea=" << maxHorizontalArea));
+      << "Vertical=" << verticalType));
 
   vstr.push_back((StringBuilder()
-          << "backgroundColour=" << backgroundColour));
+      << "verticalScale=" << verticalScale
+      << " verticalCoordinate=" << verticalCoordinate
+      << " verticalUnit=" << verticalUnit));
 
-  vstr.push_back((StringBuilder()
-          << "OnMapColour=" << vcOnMapColour
-          << " OnMapLinetype=" << vcOnMapLinetype
-          << " OnMapLinewidth=" << vcOnMapLinewidth));
+    vstr.push_back((StringBuilder()
+        << "keepVerHorRatio=" << asBool(keepVerHorRatio)
+        << " verHorRatio=" << verHorRatio));
 
-  vstr.push_back((StringBuilder()
-          <<  "SelectedOnMapColour=" << vcSelectedOnMapColour
-          << " SelectedOnMapLinetype=" << vcSelectedOnMapLinetype
-          << " SelectedOnMapLinewidth=" << vcSelectedOnMapLinewidth));
+    vstr.push_back((StringBuilder()
+        << "stdVerticalArea=" << asBool(stdVerticalArea)
+        << " minVerticalArea=" << minVerticalArea
+        << " maxVerticalArea=" << maxVerticalArea));
 
-  return vstr;
+    vstr.push_back((StringBuilder()
+        << "stdHorizontalArea=" << asBool(stdHorizontalArea)
+        << " minHorizontalArea=" << minHorizontalArea
+        << " maxHorizontalArea=" << maxHorizontalArea));
+
+    vstr.push_back((StringBuilder()
+        << "backgroundColour=" << backgroundColour));
+
+    vstr.push_back((StringBuilder()
+        << "OnMapColour=" << vcOnMapColour
+        << " OnMapLinetype=" << vcOnMapLinetype
+        << " OnMapLinewidth=" << vcOnMapLinewidth));
+
+    vstr.push_back((StringBuilder()
+        <<  "SelectedOnMapColour=" << vcSelectedOnMapColour
+        << " SelectedOnMapLinetype=" << vcSelectedOnMapLinetype
+        << " SelectedOnMapLinewidth=" << vcSelectedOnMapLinewidth));
+
+    return vstr;
 }
 
 
@@ -310,7 +318,7 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
 
       if      (key=="text")       pText = kv.toBool();
       else if (key=="textColour") textColour= value;
-      
+
       else if (key=="PositionNames")       pPositionNames = kv.toBool();
       else if (key=="positionNamesColour") positionNamesColour= value;
 
@@ -379,6 +387,9 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
       else if (key=="thinArrows")    thinArrows = kv.toBool();
 
       else if (key=="Vertical")               verticalType= value;
+      else if (key=="verticalScale")               verticalScale= value;
+      else if (key=="verticalCoordinate")               verticalCoordinate= value;
+      else if (key=="verticalUnit")               verticalUnit= value;
 
       else if (key=="keepVerHorRatio") keepVerHorRatio = kv.toBool();
       else if (key=="verHorRatio")     verHorRatio= kv.toInt();

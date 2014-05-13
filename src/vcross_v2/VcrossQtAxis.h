@@ -45,6 +45,9 @@ struct Axis {
   bool legalValue(float v) const;
   bool legalData(float d) const;
 
+  bool setType( std::string t);
+  bool setQuantity( std::string q);
+
   bool horizontal;
   Type type;
   Quantity quantity;

@@ -133,4 +133,46 @@ bool Axis::pan(float delta)
   }
 }
 
+bool Axis::setType( std::string t)
+{
+
+  if ( t == "exner" ) {
+    type = EXNER;
+    return true;
+  }
+
+  if (t == "linear" ) {
+    type = LINEAR;
+    return true;
+  }
+
+  return false;
+}
+
+bool Axis::setQuantity( std::string q)
+{
+
+  if (q == "time" ) {
+    quantity = TIME;
+    return true;
+  }
+
+  if (q == "distance" ) {
+    quantity = DISTANCE;
+    return true;
+  }
+
+  if (q == "Height" ) {
+    quantity = HEIGHT;
+    return true;
+  }
+
+  if (q == "Pressure" ) {
+    quantity = PRESSURE;
+    return true;
+  }
+
+  return false;
+}
+
 } /*namespace detail*/ } /*namespace vcross*/

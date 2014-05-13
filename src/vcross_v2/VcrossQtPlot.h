@@ -95,7 +95,7 @@ public:
   void clear(bool keepX=false, bool keepY=false);
   void setHorizontalCross(std::string csLabel, const LonLat_v& csPoints);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
-  void setVerticalAxis(Z_AXIS_TYPE zt);
+  void setVerticalAxis();
   void setSurface(Values_cp s)
     { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);
