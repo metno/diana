@@ -661,6 +661,9 @@ void QtPlot::plotSurface(QPainter& painter)
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
+  const float vYMin = mAxisY->getValueMin(), vYMax = mAxisY->getValueMax();
+  const bool up = vYMin < vYMax;
+
   painter.save();
   painter.setBrush(Qt::black);
 
@@ -668,9 +671,16 @@ void QtPlot::plotSurface(QPainter& painter)
   const int nx = mSurface->npoint();
   for (int ix=0; ix<nx; ++ix) {
     const float vx = distances.at(ix), p0 = mSurface->value(ix, 0);
-    const float px = mAxisX->value2paint(vx), py = mAxisY->value2paint(p0);
-    //METLIBS_LOG_DEBUG(LOGVAL(ix) << LOGVAL(vx) << LOGVAL(px) << LOGVAL(p0) << LOGVAL(py));
-    if (mAxisX->legalPaint(px) and mAxisY->legalPaint(py)) {
+    const float px = mAxisX->value2paint(vx);
+    float py = mAxisY->value2paint(p0);
+    bool this_ok = mAxisX->legalPaint(px);
+    if (this_ok and not mAxisY->legalPaint(py)) {
+      if ((up and p0 > vYMax) or (not up and p0 < vYMin))
+        py = mAxisY->getPaintMax();
+      else
+        this_ok = false;
+    }
+    if (this_ok) {
       if (not last_ok)
         polygon << QPointF(px, mAxisY->getPaintMin());
       polygon << QPointF(px, py);
