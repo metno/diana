@@ -310,6 +310,7 @@ public:
   bool getPositions(std::vector<float>&, std::vector<float>&);
   int  getPositions(float*,float*,int);
   int  numPositions();
+  int  numVisiblePositions();
   void obs_mslp(float *);
   bool findObs(int,int);
   bool getObsName(int xx,int yy, std::string& station);

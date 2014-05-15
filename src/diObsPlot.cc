@@ -157,7 +157,7 @@ void ObsPlot::getObsAnnotation(string &str, Colour &col)
 {
   //Append to number of plots to the annotation string
   if (not annotation.empty()) {
-    string anno_str = (" ( " + miutil::from_number(numPositions()) + " )");
+    string anno_str = (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(numPositions()) +" )");
     str = annotation + anno_str;
   } else
     str = annotation;
@@ -274,6 +274,61 @@ void ObsPlot::updateLevel(const std::string& dataType)
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsPlot::updateLevel() done ++");
 #endif
+}
+
+int ObsPlot::numVisiblePositions()
+{
+#ifdef DEBUGPRINT
+  METLIBS_LOG_DEBUG("++ ObsPlot::numVisiblePositions() ++");
+#endif
+  if (obsp.size() > 0) {
+    int npos =  obsp.size();
+    int count = 0;
+
+    for(int i = 0; i < npos; i++) {
+      if(x[i] < maprect.x1)
+        continue;
+      if(x[i] > maprect.x2)
+        continue;
+      if(y[i] < maprect.y1)
+        continue;
+      if(y[i] > maprect.y2)
+        continue;
+
+      count++;
+    }
+
+#ifdef DEBUGPRINT
+    METLIBS_LOG_DEBUG("++ ObsPlot::numVisiblePositions() done, obsp ++");
+#endif
+
+    return count;
+  }
+
+#ifdef ROADOBS
+  if(roadobsp.size()>0)
+  {
+    int npos =  roadobsp.size();
+    int count = 0;
+
+    for(int i = 0; i < npos; i++) {
+      if(x[i] < maprect.x1)
+        continue;
+      if(x[i] > maprect.x2)
+        continue;
+      if(y[i] < maprect.y1)
+        continue;
+      if(y[i] > maprect.y2)
+        continue;
+      count++;
+    }
+#ifdef DEBUGPRINT
+    METLIBS_LOG_DEBUG("++ ObsPlot::numVisiblePositions() done, roadobsp ++");
+#endif
+    return count;
+  }
+#endif
+  return 0;
 }
 
 int ObsPlot::numPositions()
