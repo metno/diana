@@ -596,7 +596,7 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName)
   }
 
   std::string progtext;
-  if( fout->forecastHour != -32767 ) {
+  if( !fout->analysisTime.undef() && fout->forecastHour != -32767 ) {
     ostringstream ostr;
     ostr.width(2);
     ostr.fill('0');
