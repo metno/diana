@@ -542,7 +542,9 @@ bool QtManager::setModels()
   util::from_set(mCrossectionLabels, csLabels);
   util::from_set(mCrossectionTimes, times);
 
+  locationData.elements.clear();
   locationData.elements.insert(locationData.elements.end(), le.begin(), le.end());
+
   fillLocationData(locationData);
 
   if (mCrossectionLabels.empty() or mCrossectionTimes.empty()) {
