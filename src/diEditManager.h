@@ -175,19 +175,20 @@ public:
   /// save edited annotations in EditObjects
   void saveProductLabels(std::vector <std::string> labels);
   bool fileExists(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
-  bool removeFile(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
-  bool makeNewFile(int fnum, bool local);
+  bool makeNewFile(int fnum, bool local, QString& message);
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
-		 const miutil::miTime& valid);
+		 const miutil::miTime& valid,
+		 QString& message);
   /// stop editing product
   void stopEdit();
   /// start editing combine product
   bool startCombineEdit(const EditProduct& ep,
 			const EditProductId& ei,
 			const miutil::miTime& valid,
-			std::vector<std::string>& pids);
+			std::vector<std::string>& pids,
+			QString& message);
   /// stop editing combine product
   void stopCombine();
   /// combine products (when borders or data sources change)

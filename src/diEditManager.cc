@@ -977,7 +977,7 @@ std::string EditManager::editFileName(const std::string directory,
 
 
 /*----------------------------------------------------------------------
-functions to start and end editing, reading and writing to database
+functions to start and end editing
  -----------------------------------------------------------------------*/
 
 bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
@@ -998,7 +998,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
       QString qs(outputFilename.c_str());
       QFile qfile(qs);
       if ( qfile.exists() ) {
-        message = qs + " already exists, do you want to overwrite?";
+        message = qs + " already exists, do you want to continue?";
         return false;
       }
     }
@@ -1009,7 +1009,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     QString qs(outputFilename.c_str());
     QFile qfile(qs);
     if ( qfile.exists() ) {
-      message = qs + " already exists, do you want to overwrite?";
+      message = qs + " already exists, do you want to continue?";
       return false;
     }
 
@@ -1023,7 +1023,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     QString qstr(objectsFilename.c_str());
     QFile qfile(qstr);
     if ( qfile.exists() ) {
-      message = qstr + " already exists, do you want to overwrite?";
+      message = qstr + " already exists, do you want to continue?";
       return false;
     }
   }
@@ -1032,48 +1032,25 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
   QString qstr(objectsFilename.c_str());
   QFile qfile(qstr);
   if ( qfile.exists() ) {
-    message = qstr + " already exists, do you want to overwrite?";
+    message = qstr + " already exists, do you want to continue?";
     return false;
   }
 
-  return true;
-}
-
-bool EditManager::removeFile(const EditProduct& ep, const EditProductId& ci,
-    const miutil::miTime& time, QString& message)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (ci.sendable ) {
-    for (size_t j=0; j<ep.fields.size(); j++) {
-
-      std::string time_string = time.format("%Y%m%dt%H%M%S");
-      std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
-
-      std::string outputFilename = ep.prod_savedir + "/work/";
-      outputFilename += filename;
-      QFile qfile2(outputFilename.c_str());
-      if ( qfile2.exists() ) {
-        if ( !qfile2.remove() ) {
-          message = " Can't remove file " + QString(outputFilename.c_str());
-          return false;
-        }
-      }
-    }
-  }
   return true;
 }
 
 //Read template file
-bool EditManager::makeNewFile(int fnum, bool local)
+bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 {
   METLIBS_LOG_SCOPE();
 
-  if ( !QFile::exists ( EdProd.templateFilename.c_str() ) ) {
-    METLIBS_LOG_WARN("Template file: "<<EdProd.templateFilename<<" do not exist");
+  QString templateFilename = EdProd.templateFilename.c_str();
+  if ( !QFile::exists ( templateFilename ) ) {
+    message = "Template file: " + templateFilename + " do not exist";
     return false;
   }
   QFile qfile(EdProd.templateFilename.c_str());
+
   std::string outputFilename;
 
   std::string time_string = plotm->producttime.format("%Y%m%dt%H%M%S");
@@ -1100,18 +1077,17 @@ bool EditManager::makeNewFile(int fnum, bool local)
   EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + "_" + time_string + ".nc";
   outputFilename += EdProd.fields[fnum].filename;
   if ( qfile.exists(outputFilename.c_str()) && !qfile.remove(outputFilename.c_str()) ){
-    METLIBS_LOG_WARN("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed. (File exsists, but can't be overwritten.)");
+    message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilename.c_str()) + "  failed. (File exsists, but can't be overwritten.)";
     return false;
   }
   if (!qfile.copy(outputFilename.c_str())){
-    METLIBS_LOG_WARN("Copy from " <<EdProd.templateFilename<<" to "<<outputFilename<<"  failed");
+    message = "Copy from "  + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilename.c_str()) + "  failed";
     return false;
   }
   if ( local ) {
     EdProd.fields[fnum].localFilename = outputFilename;
   } else {
     EdProd.fields[fnum].prodFilename = outputFilename;
-
   }
 
   std::string fileType = "fimex";
@@ -1146,7 +1122,8 @@ bool EditManager::makeNewFile(int fnum, bool local)
 
 bool EditManager::startEdit(const EditProduct& ep,
     const EditProductId& ei,
-    const miTime& valid)
+    const miTime& valid,
+    QString& message)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1179,12 +1156,12 @@ bool EditManager::startEdit(const EditProduct& ep,
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
 
     //make new local file from template
-    if (!makeNewFile(j,true)){
+    if (!makeNewFile(j,true, message)){
       return false;
     }
     if (EdProdId.sendable) {
       //make new prod file from template
-      if (!makeNewFile(j,false)){
+      if (!makeNewFile(j,false, message)){
         return false;
       }
     }
@@ -1215,8 +1192,8 @@ bool EditManager::startEdit(const EditProduct& ep,
     } else {
 
       // get field from a saved product
-      //METLIBS_LOG_INFO("filename for saved field file to open:" << filename);
       std::string filename = EdProd.fields[j].fromprod.filename;
+      METLIBS_LOG_DEBUG("filename for saved field file to open:" << filename);
       if(!fed->readEditFieldFile(filename,fieldname,plotm->producttime))
         return false;
       fedits.push_back(fed);
@@ -1821,8 +1798,10 @@ vector <std::string> EditManager::getCombineIds(const miTime & valid,
 bool EditManager::startCombineEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid,
-    vector<std::string>& pids){
-METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
+    vector<std::string>& pids,
+    QString& message){
+
+  METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
@@ -1874,7 +1853,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
   std::string filename = EdProd.combineBorders + EdProdId.name;
   //read AreaBorders
   if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
-    METLIBS_LOG_ERROR("EditManager::startCombineEdit  error reading borders");
+    message = "EditManager::startCombineEdit  error reading borders";
     return false;
   }
 
@@ -1904,7 +1883,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
       if (ipc<ipcend) {
         FieldEdit *fed= new FieldEdit( fieldPlotManager );
         // spec. used when reading field
-        if (!makeNewFile(j,true)){
+        if (!makeNewFile(j, true, message)){
           return false;
         }
         fed->setSpec(EdProd, j);
@@ -1951,7 +1930,7 @@ METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
     fedits.push_back(fed);
     if (EdProdId.sendable) {
       //make new prd file from template
-      if (!makeNewFile(j,false)){
+      if (!makeNewFile(j, false, message)){
         return false;
       }
     }

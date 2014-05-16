@@ -620,9 +620,7 @@ bool EditNewDialog::checkProductFree()
   if (!ok) {
     bool cancel =  QMessageBox::warning( this, tr("Product time"),message,
         tr("Continue"),tr("Cancel"));
-    if ( !cancel ) {
-      ok = m_editm->removeFile(products[currprod],pid,prodtime,message);
-    }
+    return !cancel;
   }
   return ok;
 

@@ -1462,8 +1462,9 @@ void EditDialog::EditNewOk(EditProduct& ep,
   METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitFieldEditUpdate(empty)");
   emit emitFieldEditUpdate("");
 
-  if (!m_editm->startEdit(ep,ci,time)) {
-    METLIBS_LOG_ERROR("Error starting edit");
+  QString message;
+  if (!m_editm->startEdit(ep,ci,time, message)) {
+    QMessageBox::warning( this, tr("Error starting edit"),message);
     emit editApply();
     return;
   }
@@ -1703,7 +1704,8 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
   vector<string> combids;
   // try to start combine
-  if (!m_editm->startCombineEdit(ep,ci,time,combids)){
+  QString message;
+  if (!m_editm->startCombineEdit(ep,ci,time,combids, message)){
     METLIBS_LOG_ERROR("Error starting combine");
     emit editApply();
     return;
