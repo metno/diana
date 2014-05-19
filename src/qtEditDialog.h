@@ -142,7 +142,6 @@ private slots:
   void EditNewOk(EditProduct&, EditProductId&, miutil::miTime&);
   void EditNewCombineOk(EditProduct&, EditProductId&, miutil::miTime&);
   void EditNewCancel();
-  void newLogin(editDBinfo&);
 
 public Q_SLOTS:
   ///undo fields or objects depending on mode
@@ -254,8 +253,6 @@ private:
   EditProduct currprod;
   EditProductId currid;
   miutil::miTime prodtime;
-  // database info
-  editDBinfo dbi;
 
   TimeStepSpinbox* timestepspin;
   QLabel* timelabel;

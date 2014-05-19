@@ -164,7 +164,6 @@ diana_qt_sources = \
 	qtFieldDialog.cc \
 	qtGLwidget.cc \
 	qtGeoPosLineEdit.cc \
-	qtLoginDialog.cc \
 	qtMailDialog.cc \
 	qtMainWindow.cc \
 	qtMapDialog.cc \
@@ -376,7 +375,6 @@ noinst_HEADERS = \
 	qtGLwidget.h \
 	qtGeoPosLineEdit.h \
 	qtImageGallery.h \
-	qtLoginDialog.h \
 	qtMailDialog.h \
 	qtMainWindow.h \
 	qtMapDialog.h \

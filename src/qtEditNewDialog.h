@@ -132,7 +132,6 @@ private:
   miutil::miTime combinetime; //time for combined analysis
   // from EditManager
   std::vector<EditProduct> products;
-  editDBinfo dbi;
   bool productfree;
   bool isdata;
   TimeSpinbox* timespin;

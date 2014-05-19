@@ -1733,7 +1733,7 @@ vector<EditProduct> EditManager::getEditProducts(){
 std::string EditManager::savedProductString(savedProduct sp)
 {
   return sp.pid + " " + sp.productName + " "
-      + sp.ptime.isoTime() + " " + sp.selectObjectTypes;
+      + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
 }
 
 

@@ -38,26 +38,13 @@ const std::string OBJECTS_ANALYSIS= "Analyse";
 const std::string OBJECTS_SIGMAPS=  "Sigkart";
 
 
-  /**
-     \brief Database info
-  */
-struct editDBinfo {
-  std::string host;
-  std::string user;
-  std::string pass;
-  std::string base;
-  unsigned int port;
-  bool loggedin;
-};
-
 
   /**
      \brief saved product source
   */
 enum dataSource {
   data_local,
-  data_server,
-  data_db
+  data_server
 };
 
   /**

@@ -1218,8 +1218,7 @@ bool EditDialog::saveEverything(bool send, bool approved)
 
   if (!res){
     message= std::string(tr("Problem saving/sending product\n").toStdString()) +
-    std::string(tr("Message from server:\n").toStdString())
-    + message;
+        message;
     QMessageBox::warning( this, tr("Save error:"),
         message.c_str());
 
@@ -1418,12 +1417,6 @@ void EditDialog::updateLabels()
     s= "";
 
   prodlabel->setText(s.c_str());
-}
-
-void EditDialog::newLogin(editDBinfo& d)
-{
-  dbi= d;
-  updateLabels();
 }
 
 

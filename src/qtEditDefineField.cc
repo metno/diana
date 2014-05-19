@@ -266,7 +266,7 @@ void EditDefineFieldDialog::fillList()
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
-      std::string str = splist[i].pid + std::string(" - ") +splist[i].ptime.isoTime();
+      std::string str = splist[i].pid + std::string(" - ") +splist[i].ptime.isoTime()+ " - " +splist[i].filename;
       QListWidgetItem* item = new QListWidgetItem(QString(str.c_str()));
       bool italic= (splist[i].source==data_local);
       QFont font = item->font();
