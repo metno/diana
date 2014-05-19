@@ -102,6 +102,7 @@ void QtManager::cleanup()
   mTimeGraphPos = -1;
 
   mCollector->clear();
+  mPlot->clear();
 }
 
 //void QtManager::cleanupDynamicCrossSections()
