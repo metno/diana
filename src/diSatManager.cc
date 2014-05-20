@@ -81,7 +81,7 @@ bool SatManager::init(std::vector<SatPlot*>& vsatp, const std::vector<std::strin
 
   int nsp= vsatp.size();
   // init inuse array
-  
+
   std::vector<bool> inuse;
   if (nsp>0) {
     inuse.insert(inuse.begin(), nsp, false);
@@ -103,7 +103,7 @@ bool SatManager::init(std::vector<SatPlot*>& vsatp, const std::vector<std::strin
           sdp= vsatp[j]->satdata;
           if (sdp->satellite != satdata->satellite || sdp->filetype
               != satdata->filetype || sdp->formatType != satdata->formatType
-              || sdp->metadata != satdata->metadata || sdp->channelInfo
+              || sdp->metadata != satdata->metadata || sdp->proj_string != satdata->proj_string || sdp->channelInfo
               != satdata->channelInfo || sdp->paletteinfo
               != satdata->paletteinfo || sdp->hdf5type != satdata->hdf5type
               || sdp->plotChannels != satdata->plotChannels || sdp->mosaic
@@ -137,6 +137,7 @@ bool SatManager::init(std::vector<SatPlot*>& vsatp, const std::vector<std::strin
           sdp->filename= satdata->filename;
           sdp->formatType= satdata->formatType;
           sdp->metadata = satdata->metadata;
+          sdp->proj_string = satdata->proj_string;
           sdp->channelInfo = satdata->channelInfo;
           sdp->paletteinfo = satdata->paletteinfo;
           sdp->hdf5type = satdata->hdf5type;
@@ -239,6 +240,7 @@ bool SatManager::setData(SatPlot *satp)
   satdata->time = fInfo.time;
   satdata->formatType = fInfo.formattype;
   satdata->metadata = fInfo.metadata;
+  satdata->proj_string = fInfo.proj4string;
   satdata->channelInfo = fInfo.channelinfo;
   satdata->paletteinfo = fInfo.paletteinfo;
   satdata->hdf5type = fInfo.hdf5type;
@@ -1029,6 +1031,7 @@ void SatManager::listFiles(subProdInfo &subp)
       ft.name = globBuf.gl_pathv[i];
       ft.formattype= subp.formattype;
       ft.metadata = subp.metadata;
+      ft.proj4string = subp.proj4string;
       ft.channelinfo = subp.channelinfo;
       ft.paletteinfo = subp.paletteinfo;
       ft.hdf5type = subp.hdf5type;
@@ -1048,6 +1051,7 @@ void SatManager::listFiles(subProdInfo &subp)
             //	     METLIBS_LOG_DEBUG("SPECIAL CASE"<<ft.name);
             ft.formattype= subp.formattype;
             ft.metadata = subp.metadata;
+            ft.proj4string = subp.proj4string;
             ft.channelinfo = subp.channelinfo;
             ft.paletteinfo = subp.paletteinfo;
             ft.hdf5type = subp.hdf5type;
@@ -1069,22 +1073,23 @@ void SatManager::listFiles(subProdInfo &subp)
         fileListChanged = true;
 
         //try to find time from filename
-	log.debugStream()<< ft.name << " " << ft.time;
+        log.debugStream()<< ft.name << " " << ft.time;
         if (subp.filter[j].getTime(ft.name, ft.time) || true) {
-	  log.debugStream()<< ft.name << " Failed";
+          log.debugStream()<< ft.name << " Failed";
 
           ft.opened = false;
         } else {
           //Open file if time not found from filename
           ft.formattype= subp.formattype;
           ft.metadata = subp.metadata;
+          ft.proj4string = subp.proj4string;
           ft.channelinfo = subp.channelinfo;
           ft.paletteinfo = subp.paletteinfo;
           ft.hdf5type = subp.hdf5type;
           readHeader(ft, subp.channel);
           ft.opened=true;
         }
-	log.debugStream()<< ft.time << " time";
+        log.debugStream()<< ft.time << " time";
 
         //put it in the sorted list
         //Check if filelist is empty
@@ -1428,6 +1433,7 @@ bool SatManager::parseSetup()
   std::string file;
   std::string formattype = "mitiff";
   std::string metadata = "";
+  std::string proj4string = "";
   std::string channelinfo = "";
   std::string paletteinfo = "";
   int hdf5type = 0;
@@ -1438,7 +1444,7 @@ bool SatManager::parseSetup()
 
   for (unsigned int i=0; i<sect_sat.size(); i++) {
 
-    std::vector<std::string> token = miutil::split(sect_sat[i], "=");
+    std::vector<std::string> token = miutil::split(sect_sat[i],1, "=");
     if (token.size() != 2) {
       std::string errmsg="Line must contain '='";
       SetupParser::errorMsg(sat_name, i, errmsg);
@@ -1506,7 +1512,16 @@ bool SatManager::parseSetup()
       }
       metadata = value;
 
-    } else if (key == "hdf5type") {
+    }
+    else if (key == "proj4string") {
+      if (prod.empty()) {
+        std::string errmsg="You must give image and sub.type before proj4string";
+        SetupParser::errorMsg(sat_name, i, errmsg);
+        continue;
+      }
+      proj4string = value;
+    }
+    else if (key == "hdf5type") {
       if (prod.empty()) {
         std::string errmsg="You must give image and sub.type before type";
         SetupParser::errorMsg(sat_name, i, errmsg);
@@ -1558,12 +1573,14 @@ bool SatManager::parseSetup()
       Prod[prod][subprod].updateTime = 0;
       Prod[prod][subprod].formattype = formattype;
       Prod[prod][subprod].metadata = metadata;
+      Prod[prod][subprod].proj4string = proj4string;
       Prod[prod][subprod].channelinfo = channelinfo;
       Prod[prod][subprod].paletteinfo = paletteinfo;
 
       Prod[prod][subprod].hdf5type = hdf5type;
       hdf5type = 0; //> reset type
       metadata = ""; //> reset metadata
+      proj4string = ""; //> reset proj4string
       paletteinfo = ""; //> reset palette
       channelinfo = ""; //> reset channelinfo
     }

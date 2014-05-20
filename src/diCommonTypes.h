@@ -57,6 +57,7 @@ struct SatFileInfo{
   std::string name;
   std::string formattype; //mitiff or hdf5
   std::string metadata;
+  std::string proj4string;
   std::string channelinfo;
   std::string paletteinfo;
   int hdf5type;

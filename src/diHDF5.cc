@@ -211,7 +211,10 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
 
   //Projection
   sd.projection = ginfo.projection;
-  sd.proj_string = ginfo.proj_string;
+  // Use proj4string from setupfile if present
+  if ( sd.proj_string.empty() ) {
+    sd.proj_string = ginfo.proj_string;
+  }
 
   // Calibration
   sd.cal_vis = ginfo.cal_vis;
