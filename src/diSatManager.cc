@@ -222,9 +222,11 @@ bool SatManager::setData(SatPlot *satp)
   }
 
   //Read header if not opened
-  if (!Prod[satdata->satellite][satdata->filetype].file[index].opened)
+  if (!Prod[satdata->satellite][satdata->filetype].file[index].opened) {
     readHeader(Prod[satdata->satellite][satdata->filetype].file[index],
         Prod[satdata->satellite][satdata->filetype].channel);
+    Prod[satdata->satellite][satdata->filetype].file[index].opened = true;
+  }
 
   SatFileInfo & fInfo = Prod[satdata->satellite][satdata->filetype].file[index];
 
@@ -985,7 +987,6 @@ const std::vector<std::string>& SatManager::getChannels(const std::string &satel
 
   if (Prod[satellite][file].file[index].opened)
     return Prod[satellite][file].file[index].channel;
-
   if (readHeader(Prod[satellite][file].file[index],
       Prod[satellite][file].channel)) {
     Prod[satellite][file].file[index].opened=true;
@@ -1055,7 +1056,6 @@ void SatManager::listFiles(subProdInfo &subp)
             ft.channelinfo = subp.channelinfo;
             ft.paletteinfo = subp.paletteinfo;
             ft.hdf5type = subp.hdf5type;
-
             readHeader(ft, subp.channel);
             ft.opened = true;
             //has time changed in header since last update ?
@@ -1515,6 +1515,7 @@ bool SatManager::parseSetup()
     }
     else if (key == "proj4string") {
       if (prod.empty()) {
+
         std::string errmsg="You must give image and sub.type before proj4string";
         SetupParser::errorMsg(sat_name, i, errmsg);
         continue;
