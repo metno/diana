@@ -171,7 +171,6 @@ diana_qt_sources = \
 	qtObjectDialog.cc \
 	qtObsDialog.cc \
 	qtObsWidget.cc \
-	qtPaintToolBar.cc \
 	qtQuickAdmin.cc \
 	qtQuickEditOptions.cc \
 	qtQuickMenu.cc \
@@ -382,7 +381,6 @@ noinst_HEADERS = \
 	qtObjectDialog.h \
 	qtObsDialog.h \
 	qtObsWidget.h \
-	qtPaintToolBar.h \
 	qtPrintManager.h \
 	qtQuickAdmin.h \
 	qtQuickEditOptions.h \

@@ -79,7 +79,6 @@ Controller::Controller()
   // edit- and drawing-manager
   objm=  new ObjectManager(plotm);
   editm= new EditManager(plotm,objm,fieldplotm);
-  paintModeEnabled = false;
   scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
 }
@@ -518,23 +517,9 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   }
   // catch events to editmanager
   //-------------------------------------
-  if ( (paintModeEnabled || inEdit) && !editoverride && !editpause){
+  if (inEdit && !editoverride && !editpause){
 
-    if(paintModeEnabled){
-
-      if (me->type() == QEvent::MouseMove && me->modifiers() & Qt::ShiftModifier){
-        // shift + mouse move
-        res.action=browsing;
-      } else if (me->button() == Qt::LeftButton && me->type() == QEvent::MouseButtonPress && me->modifiers() & Qt::ShiftModifier){
-        // shift + mouse click
-        res.action=pointclick;
-      } else {
-        // Area
-        float map_x,map_y;
-        plotm->PhysToMap(me->x(), me->y(), map_x, map_y);
-      }
-    } else if (inEdit){
-
+    if (inEdit){
       editm->sendMouseEvent(me,res);
 #ifdef DEBUGREDRAW
       METLIBS_LOG_DEBUG("Controller::sendMouseEvent editm res.repaint,bg,savebg,action: "
@@ -573,7 +558,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     res.newcursor= normal_cursor;
   }
 
-  if (inEdit || paintModeEnabled) // always use underlay when in edit-mode
+  if (inEdit) // always use underlay when in edit-mode
     res.savebackground= true;
 
   return;
@@ -632,13 +617,13 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       plotm->nextObs(false);  // browse through observations, backwards
       res.repaint= true;
       res.background= true;
-      if (inEdit || paintModeEnabled) res.savebackground= true;
+      if (inEdit) res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_PageDown){
       plotm->nextObs(true);  // browse through observations, forwards
       res.repaint= true;
       res.background= true;
-      if (inEdit || paintModeEnabled) res.savebackground= true;
+      if (inEdit) res.savebackground= true;
       return;
     } else if (!(ke->modifiers() & Qt::AltModifier) &&
                (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
@@ -648,7 +633,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       plotm->changeArea(ke);
       res.repaint= true;
       res.background= true;
-      if (inEdit || paintModeEnabled) res.savebackground= true;
+      if (inEdit) res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_F9){
 //    METLIBS_LOG_WARN("F9 - not defined");
@@ -665,7 +650,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       plotm->obsTime(ke,res);  // change observation time only
       res.repaint= true;
       res.background= true;
-      if (inEdit || paintModeEnabled) res.savebackground= true;
+      if (inEdit) res.savebackground= true;
       return;
       //####################################################################
      } else if (!(ke->modifiers() & Qt::ControlModifier) &&
@@ -679,7 +664,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       plotm->sendKeyboardEvent(ke,res);
       res.repaint= true;
       res.background= true;
-      if (inEdit || paintModeEnabled) res.savebackground= true;
+      if (inEdit) res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_R) {
       plotm->sendKeyboardEvent(ke,res);
@@ -701,7 +686,7 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       res.action = keypressed;
   }
 
-  if (inEdit || paintModeEnabled) // always use underlay when in edit-mode
+  if (inEdit) // always use underlay when in edit-mode
     res.savebackground= true;
 
   return;
@@ -1085,11 +1070,6 @@ void Controller::readLog(const vector<string>& vstr,
                          const string& logVersion)
 {
   plotm->readLog(vstr,thisVersion,logVersion);
-}
-
-void Controller::setPaintModeEnabled(bool pm_enabled)
-{
-  paintModeEnabled = pm_enabled;
 }
 
 bool Controller::useScrollwheelZoom() {

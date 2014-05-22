@@ -59,6 +59,12 @@ private:
   QComboBox *symbolCombo;
   QAction *textAction;
   QComboBox *textCombo;
+
+  void showEvent(QShowEvent *);
+  void hideEvent(QHideEvent *);
+
+signals:
+  void visible(bool);
 };
 
 } // namespace

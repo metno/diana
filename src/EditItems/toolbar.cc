@@ -150,4 +150,16 @@ void ToolBar::setTextType(int index)
   textAction->setData(textCombo->itemData(index));
 }
 
+void ToolBar::showEvent(QShowEvent *event)
+{
+  emit visible(true);
+  QWidget::showEvent(event);
+}
+
+void ToolBar::hideEvent(QHideEvent *event)
+{
+  emit visible(false);
+  QWidget::hideEvent(event);
+}
+
 } // namespace

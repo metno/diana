@@ -228,7 +228,7 @@ bool DrawingManager::loadItems(const QString &fileName)
     return false;
   }
 
-  // initialize screen coordinates from lat/lon
+  // initialize screen coordinates from lat/lon         ### already done in KML::createFromFile() ???
   foreach (QSharedPointer<EditItems::Layer> layer, layers) {
     for (int i = 0; i < layer->itemCount(); ++i)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());

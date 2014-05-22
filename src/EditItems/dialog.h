@@ -66,7 +66,6 @@ private:
 
 private slots:
   virtual void updateTimes();
-  void toggleEditingMode(bool);
   void makeProduct();
 
   // ### FOR TESTING:

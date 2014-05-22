@@ -124,12 +124,9 @@
 #include <coserver/miMessage.h>
 #include <coserver/QLetterCommands.h>
 #include <puDatatypes/miCoordinates.h>
-#include "qtPaintToolBar.h"
 #include <QErrorMessage>
 
 #include "qtMailDialog.h"
-
-#include <EditItems/toolbar.h>
 
 #include <qUtilities/miLogFile.h>
 #include <puTools/miSetupParser.h>
@@ -414,6 +411,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
 
+  togglePaintModeAction = new QAction( tr("Painting mode"), this );
+  togglePaintModeAction->setShortcutContext(Qt::ApplicationShortcut);
+  togglePaintModeAction->setShortcut(Qt::CTRL+Qt::Key_B);
+  connect(togglePaintModeAction, SIGNAL(triggered()), SLOT(togglePaintMode()));
 
   // help ======================
   // --------------------------------------------------------------------
@@ -670,6 +671,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   }
   showmenu->addMenu( infomenu );
 
+  showmenu->addAction(togglePaintModeAction);
 
   //   //-------Help menu
   helpmenu = menuBar()->addMenu(tr("&Help"));
@@ -917,15 +919,17 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   mailm = new MailDialog(this,contr);
   mailm->hide();
 
-  paintToolBar = new PaintToolBar(this);
+//  paintToolBar = new PaintToolBar(this);
+//  paintToolBar->setObjectName("PaintToolBar");
+//  addToolBar(Qt::BottomToolBarArea, paintToolBar);
+//  paintToolBar->hide();
+
+  paintToolBar = EditItems::ToolBar::instance();
   paintToolBar->setObjectName("PaintToolBar");
   addToolBar(Qt::BottomToolBarArea, paintToolBar);
   paintToolBar->hide();
-
-  EditItems::ToolBar::instance()->setObjectName("EditItemsToolBar");
-  addToolBar(Qt::BottomToolBarArea, EditItems::ToolBar::instance());
-  EditItems::ToolBar::instance()->hide();
-  EditItems::ToolBar::instance()->setEnabled(false);
+  //paintToolBar->setEnabled(false); obsolete?
+  connect(paintToolBar, SIGNAL(visible(bool)), SLOT(paintToolBarVisible(bool)));
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(editUpdate(bool)));
@@ -1034,8 +1038,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       help,SLOT(showsource(const std::string, const std::string)));
   connect( uffm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
-  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
+//  connect( paintToolBar, SIGNAL(showsource(const std::string, const std::string)),
+//      help,SLOT(showsource(const std::string, const std::string)));
 
   connect(w->Glw(),SIGNAL(objectsChanged()),em, SLOT(undoFrontsEnable()));
   connect(w->Glw(),SIGNAL(fieldsChanged()), em, SLOT(undoFieldsEnable()));
@@ -1157,7 +1161,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 void DianaMainWindow::start()
 {
   // read the log file
-  readLogFile();
+  readLogFile();  
+
+  // init paint mode
+  setPaintMode(paintToolBar->isVisible());
 
   // init quickmenus
   qm->start();
@@ -1305,18 +1312,28 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 
 void DianaMainWindow::togglePaintMode()
 {
-  if (paintToolBar == 0) return;
   if (paintToolBar->isVisible()) paintToolBar->hide();
   else paintToolBar->show();
   METLIBS_LOG_DEBUG("DianaMainWindow::togglePaintMode enabled " << paintToolBar->isVisible());
-  contr->setPaintModeEnabled(paintToolBar->isVisible());
 }
+
 void DianaMainWindow::setPaintMode(bool enabled)
 {
-  if (paintToolBar == 0) return;
   if (enabled) paintToolBar->show();
   else paintToolBar->hide();
-  contr->setPaintModeEnabled(enabled);
+}
+
+void DianaMainWindow::paintToolBarVisible(bool visible)
+{
+  // Enabling editing mode (opening the dialog) causes the manager to enter
+  // working mode. This makes it possible to show objects that have not been
+  // serialised as plot commands.
+  EditItemManager::instance()->setEditing(visible);
+
+  // When editing starts, remove any existing items and load the chosen
+  // files. Mark the product as unfinished by disabling it.
+  if (visible)
+    EditItemManager::instance()->setEnabled(false);
 }
 
 void DianaMainWindow::winResize(int w, int h)
@@ -3926,9 +3943,6 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
     if (vstr[ivstr].substr(0,4)=="====") break;
     tokens= miutil::split(vstr[ivstr], 0, " ");
     if (tokens[0]=="DocState") restoreDocState(vstr[ivstr]);
-    if (paintToolBar != 0) {
-      // paintToolBar->hide();
-    }
 
     if (tokens.size()==3) {
       x= atoi(tokens[1].c_str());

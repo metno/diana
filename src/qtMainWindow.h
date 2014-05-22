@@ -39,6 +39,7 @@
 #include <diPrintOptions.h>
 #include <diMapMode.h>
 #include <diField/diRectangle.h>
+#include <EditItems/toolbar.h>
 
 #ifdef VIDEO_EXPORT
 #include <MovieMaker.h>
@@ -68,7 +69,6 @@ class TrajectoryDialog;
 class MeasurementsDialog;
 class UffdaDialog;
 class MailDialog;
-class PaintToolBar;
 
 class DataDialog;
 class EditDialog;
@@ -261,6 +261,7 @@ private Q_SLOTS:
   void sendPrintClicked(int);
   void togglePaintMode();
   void setPaintMode(bool);
+  void paintToolBarVisible(bool);
   void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
   void setWorkAreaCursor(const QCursor &);
@@ -318,7 +319,7 @@ private:
   QAction * showUffdaDialogAction;
   QShortcut * uffdaAction;
 
-//  QAction * togglePaintModeAction;
+  QAction * togglePaintModeAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
@@ -394,7 +395,7 @@ private:
   MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
-  PaintToolBar      * paintToolBar;
+  EditItems::ToolBar * paintToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markMeasurementsPos; //left mouse click -> mark measurement position

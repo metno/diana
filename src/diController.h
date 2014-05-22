@@ -89,7 +89,6 @@ private:
   DrawingManager   *drawm;
 
   bool editoverride; // do not route mouse/key-events to editmanager
-  bool paintModeEnabled;
   bool scrollwheelZoom;
 
 public:

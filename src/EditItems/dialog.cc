@@ -65,12 +65,6 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
-  connect(m_action, SIGNAL(toggled(bool)), SLOT(toggleEditingMode(bool)));
-
-#if 0 // disabled for now
-  // Populate the drawing model with data from the drawing manager.
-  updateModel();
-#endif
 
   // create the GUI
   setWindowTitle("Drawing Layers");
@@ -219,22 +213,6 @@ void Dialog::putOKString(const std::vector<std::string>& vstr)
   editm_->processInput(inp);
 }
 
-void Dialog::toggleEditingMode(bool enable)
-{
-  // Enabling editing mode (opening the dialog) causes the manager to enter
-  // working mode. This makes it possible to show objects that have not been
-  // serialised as plot commands.
-  editm_->setEditing(enable);
-
-  // When editing starts, remove any existing items and load the chosen
-  // files. Mark the product as unfinished by disabling it.
-  if (enable)
-    editm_->setEnabled(false);
-
-  ToolBar::instance()->setVisible(enable);
-  ToolBar::instance()->setEnabled(enable);
-}
-
 /**
  * Makes the current drawing a product that is visible outside editing mode.
  */
@@ -253,49 +231,5 @@ void Dialog::makeProduct()
   // Update the available times.
   updateTimes();
 }
-
-#if 0 // disabled for now
-/**
- * Updates the drawing model with data from the drawing manager.
- */
-void Dialog::updateModel()
-{
-  drawingModel.clear();
-
-  foreach (QString filePath, DrawingManager::instance()->getDrawings()) {
-    QString fileName = QFileInfo(filePath).fileName();
-    QStandardItem *item = new QStandardItem(fileName);
-    item->setData(filePath, Qt::UserRole);
-    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    drawingModel.appendRow(item);
-  }
-}
-
-/**
- * Adds new layers to the stack containing the items from the selected items in
- * the drawing model.
- *
- * This is performed whenever the selection changes in the drawing list.
- */
-void Dialog::importChosenFiles()
-{
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-
-  foreach (QModelIndex index, drawingList->selectionModel()->selection().indexes()) {
-    if (index.column() != 0)
-      continue;
-
-    QString filePath = index.data(Qt::UserRole).toString();
-
-    if (!EditItemManager::instance()->loadItems(filePath)) {
-      // Disable the item to indicate that it is not loaded.
-      QStandardItem *item = drawingModel.itemFromIndex(index);
-      item->setEnabled(false);
-    }
-  }
-
-  QApplication::restoreOverrideCursor();
-}
-#endif
 
 } // namespace
