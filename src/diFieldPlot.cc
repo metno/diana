@@ -449,9 +449,18 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
 
   int nanno = anno.size();
   for(int j=0; j<nanno; j++){
+
+    std::string lg = "";
+    int k;
+    if ( (k=anno[j].find("$lg=")) != string::npos) {
+      lg = anno[j].substr(k,7) + " ";
+    }
+
     if (miutil::contains(anno[j], "$referencetime")) {
-      std::string refString = analysisTime.format("%Y%m%d %H");
-      miutil::replace(anno[j],"$referencetime",refString);
+      if ( fields.size() && fields[0] ) {
+        std::string refString = analysisTime.format("%Y%m%d %H");
+        miutil::replace(anno[j],"$referencetime",refString);
+      }
     }
     if (miutil::contains(anno[j], "$forecasthour")) {
       if ( fields.size() && fields[0] ) {
@@ -463,6 +472,11 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
     if (miutil::contains(anno[j], "$currenttime")) {
       if ( fields.size() && fields[0] ) {
         miutil::replace(anno[j],"$currenttime",fields[0]->timetext);
+      }
+    }
+    if (miutil::contains(anno[j], "$validtime")) {
+      if ( fields.size() && fields[0] ) {
+        miutil::replace(anno[j],"$validtime",fields[0]->validFieldTime.format("%Y%m%d %A %H"+ lg));
       }
     }
     if (miutil::contains(anno[j], "$model")) {
