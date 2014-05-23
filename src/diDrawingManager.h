@@ -129,6 +129,7 @@ public:
   // Dialog-related methods
   QSet<QString> &getDrawings();
   QSet<QString> &getLoaded();
+  EditItems::LayerManager *getLayerManager();
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
@@ -149,6 +150,8 @@ protected:
   QSet<QString> drawings_;
   QSet<QString> loaded_;
 
+  EditItems::LayerManager *layerManager;
+
 private:
 
   GridConverter gc;
@@ -158,8 +161,6 @@ private:
   QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
-
-  QList<QSharedPointer<EditItems::Layer> > layers;
 
   static DrawingManager *self;  // singleton instance pointer
 };

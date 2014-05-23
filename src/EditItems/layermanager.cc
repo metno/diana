@@ -49,15 +49,6 @@ LayerManager::LayerManager()
   orderedLayers_.append(layer);
 }
 
-LayerManager *LayerManager::instance()
-{
-  if (!LayerManager::self)
-    LayerManager::self = new LayerManager();
-  return LayerManager::self;
-}
-
-LayerManager *LayerManager::self = 0;
-
 bool LayerManager::isEmpty() const
 {
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_) {

@@ -114,8 +114,9 @@ const QSharedPointer<LayerGroup> LayerGroupWidget::layerGroup() const
   return layerGroup_;
 }
 
-LayerGroupsPane::LayerGroupsPane()
+LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
   : showInfo_(false)
+  , layerManager(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -154,9 +155,9 @@ LayerGroupsPane::LayerGroupsPane()
     QString error;
     const QList<QSharedPointer<Layer> > layers =
         KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(fileName, &error);
+        EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, &error);
     if (error.isEmpty())
-      LayerManager::instance()->addToNewLayerGroup(layers, fileName);
+      layerManager->addToNewLayerGroup(layers, fileName);
     else
       qDebug() << QString("failed to load additional example layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
   }
@@ -203,7 +204,7 @@ void LayerGroupsPane::addWidgetForLG(const QSharedPointer<LayerGroup> &layerGrou
 }
 
 // Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
-static QList<QSharedPointer<Layer> > createLayersFromFile(QString *error)
+static QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, QString *error)
 {
   *error = QString();
 
@@ -215,7 +216,7 @@ static QList<QSharedPointer<Layer> > createLayersFromFile(QString *error)
   QApplication::setOverrideCursor(Qt::WaitCursor);
   const QList<QSharedPointer<Layer> > layers = \
       KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(fileName, error);
+      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
   QApplication::restoreOverrideCursor();
 
   QFileInfo fi(fileName);
@@ -229,7 +230,7 @@ void LayerGroupsPane::addToLGFromFile(bool default_)
   const QString type(default_ ? "default" : "new");
 
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(&error);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerManager, &error);
   if (!error.isEmpty()) {
     QMessageBox::warning(0, "Error", QString("failed to add to %1 layer group from file (1): %2").arg(type).arg(error));
     return;
@@ -239,9 +240,9 @@ void LayerGroupsPane::addToLGFromFile(bool default_)
       return;
 
   if (default_)
-    LayerManager::instance()->addToDefaultLayerGroup(layers);
+    layerManager->addToDefaultLayerGroup(layers);
   else
-    LayerManager::instance()->addToNewLayerGroup(layers);
+    layerManager->addToNewLayerGroup(layers);
 
   emit updated();
   updateWidgetContents();
@@ -263,7 +264,7 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 {
   LayerGroupWidget *lgWidget = qobject_cast<LayerGroupWidget *>(sender());
   Q_ASSERT(lgWidget);
-  if (lgWidget->layerGroup() == LayerManager::instance()->defaultLayerGroup())
+  if (lgWidget->layerGroup() == layerManager->defaultLayerGroup())
     return; // the default layer group should always be active
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
@@ -308,7 +309,7 @@ void LayerGroupsPane::updateWidgetStructure()
     removeWidget(lgWidgets.at(i));
 
   // insert widgets for existing layer groups
-  foreach (const QSharedPointer<LayerGroup> &layerGroup, LayerManager::instance()->layerGroups())
+  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerManager->layerGroups())
     addWidgetForLG(layerGroup);
 }
 

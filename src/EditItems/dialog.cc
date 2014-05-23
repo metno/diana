@@ -70,9 +70,9 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   setWindowTitle("Drawing Layers");
   setFocusPolicy(Qt::StrongFocus);
   QSplitter *splitter = new QSplitter(Qt::Vertical);
-  layerGroupsPane_ = new LayerGroupsPane;
+  layerGroupsPane_ = new LayerGroupsPane(editm_->getLayerManager());
   splitter->addWidget(layerGroupsPane_);
-  activeLayersPane_ = new ActiveLayersPane;
+  activeLayersPane_ = new ActiveLayersPane(editm_->getLayerManager());
   splitter->addWidget(activeLayersPane_);
   splitter->setSizes(QList<int>() << 500 << 500);
   //
@@ -116,7 +116,7 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
 void Dialog::dumpStructure()
 {
   qDebug() << "";
-  const QList<QSharedPointer<LayerGroup> > &layerGroups = LayerManager::instance()->layerGroups();
+  const QList<QSharedPointer<LayerGroup> > &layerGroups = editm_->getLayerManager()->layerGroups();
   qDebug() << QString("LAYER GROUPS (%1):").arg(layerGroups.size()).toLatin1().data();
   int i = 0;
   foreach (const QSharedPointer<LayerGroup> &lg, layerGroups) {
@@ -131,7 +131,7 @@ void Dialog::dumpStructure()
            .arg(layerGroups.size())
            .arg((long)(lg.data()), 0, 16)
            .arg(lg->name(), 30)
-           .arg((lg == LayerManager::instance()->defaultLayerGroup()) ? "default" : "       ")
+           .arg((lg == editm_->getLayerManager()->defaultLayerGroup()) ? "default" : "       ")
            .arg(lg->isEditable() ? 1 : 0)
            .arg(lg->isActive() ? 1 : 0)
            .arg(layers_s)
@@ -139,7 +139,7 @@ void Dialog::dumpStructure()
     i++;
   }
 
-  const QList<QSharedPointer<Layer> > &layers = LayerManager::instance()->orderedLayers();
+  const QList<QSharedPointer<Layer> > &layers = editm_->getLayerManager()->orderedLayers();
   qDebug() << QString("ORDERED LAYERS (%1):").arg(layers.size()).toLatin1().data();
   i = 0;
   foreach (const QSharedPointer<Layer> &layer, layers) {
@@ -150,7 +150,7 @@ void Dialog::dumpStructure()
            .arg(layers.size())
            .arg((long)(layer.data()), 0, 16)
            .arg(layer->name(), 30)
-           .arg(layer == LayerManager::instance()->currentLayer() ? "curr" : "    ")
+           .arg(layer == editm_->getLayerManager()->currentLayer() ? "curr" : "    ")
            .arg((long)(layer->layerGroupRef().data()), 0, 16)
            .arg(layer->isEditable() ? 1 : 0)
            .arg(layer->isActive() ? 1 : 0)

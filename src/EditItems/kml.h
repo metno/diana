@@ -123,7 +123,8 @@ static inline CompositeType *createComposite(const QList<QPointF> &points, const
 // If the document contains no layer information, the items are returned in a single layer with default properties.
 template<typename BaseType, typename PolyLineType, typename SymbolType,
          typename TextType, typename CompositeType>
-static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(const QDomDocument &doc, QString *error)
+static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(EditItems::LayerManager *layerManager,
+                                                                             const QDomDocument &doc, QString *error)
 {
   *error = QString();
 
@@ -249,7 +250,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
         return QList<QSharedPointer<EditItems::Layer> >();
       }
       if (!idToLayer.contains(id))
-        idToLayer.insert(id, EditItems::LayerManager::instance()->createNewLayer());
+        idToLayer.insert(id, layerManager->createNewLayer());
       QSharedPointer<EditItems::Layer> layer = idToLayer.value(id);
       if (rx.cap(2) == "name") {
         // register the layer name
@@ -304,7 +305,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
       // item does not have a layer ID, so insert in default layer
       if (defaultLayer.isNull())
         // create default layer with empty name (note: none of the other layers may have an empty name)
-        defaultLayer = EditItems::LayerManager::instance()->createNewLayer();
+        defaultLayer = layerManager->createNewLayer();
       defaultLayer->insertItem(item);
     }
   }
@@ -321,7 +322,8 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(con
 // If the file contains no layer information, the items are returned in a single layer with default properties.
 template<typename BaseType, typename PolyLineType, typename SymbolType,
          typename TextType, typename CompositeType>
-static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(const QString &fileName, QString *error)
+static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager *layerManager,
+                                                                      const QString &fileName, QString *error)
 {
   *error = QString();
 
@@ -361,7 +363,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(const QStr
   // at this point, a document is successfully created from either the new or the old format
 
   // parse document and create items
-  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(doc, error);
+  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(layerManager, doc, error);
 
   // initialize screen coordinates from lat/lon
   foreach (const QSharedPointer<EditItems::Layer> layer, layers) {

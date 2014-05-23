@@ -37,8 +37,8 @@
 #include <QList>
 #include <EditItems/drawingitembase.h>
 
-#define CurrLayer EditItems::LayerManager::instance()->currentLayer()
-#define CurrEditLayer EditItems::LayerManager::instance()->currentLayer(true)
+#define CurrLayer layerManager->currentLayer()
+#define CurrEditLayer layerManager->currentLayer(true)
 
 namespace EditItems {
 
@@ -49,8 +49,7 @@ class LayerManager : public QObject
 {
   Q_OBJECT
 public:
-  static LayerManager *instance();
-
+  LayerManager();
   bool isEmpty() const;
 
   void resetFirstDefaultLayer();
@@ -74,9 +73,6 @@ public:
   void moveLayer(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
 
 private:
-  LayerManager();
-  static LayerManager *self; // singleton instance pointer
-
   QList<QSharedPointer<LayerGroup> > layerGroups_;
   // the layers of all layer groups organized in a single, ordered list:
   QList<QSharedPointer<Layer> > orderedLayers_;

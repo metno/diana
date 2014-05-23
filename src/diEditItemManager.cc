@@ -147,7 +147,7 @@ EditItemManager *EditItemManager::instance()
  */
 bool EditItemManager::isEnabled() const
 {
-  return isEditing() | DrawingManager::isEnabled();
+  return isEditing();
 }
 
 void EditItemManager::setEditing(bool enable)
@@ -156,50 +156,6 @@ void EditItemManager::setEditing(bool enable)
   emit editing(enable);
   if (!enable)
     emit unsetWorkAreaCursor();
-}
-
-/**
- * Prepares the manager for display of, and interaction with, items that
- * correspond to the given \a time.
-*/
-bool EditItemManager::prepare(const miutil::miTime &time)
-{
-  // Prepare any published objects in addition to ones in the editor.
-  DrawingManager::prepare(time);
-
-  bool found = false;
-
-  // Check the requested time against the available times.
-  std::vector<miutil::miTime>::const_iterator it;
-  std::vector<miutil::miTime> times = getTimes();
-
-  for (it = times.begin(); it != times.end(); ++it) {
-    if (*it == time) {
-      found = true;
-      break;
-    }
-  }
-
-  // Change the visibility of items.
-  const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
-
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-
-    foreach (const QSharedPointer<DrawingItemBase> item, items) {
-      std::string time_str;
-      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
-      if (time_prop.empty() || isEditing())
-        item->setProperty("visible", true);
-      else {
-        bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
-        item->setProperty("visible", visible);
-      }
-    }
-  }
-
-  return found;
 }
 
 QUndoView *EditItemManager::getUndoView()
@@ -712,7 +668,7 @@ void EditItemManager::plot(bool under, bool over)
     glTranslatef(editRect.x1, editRect.y1, 0.0);
     glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-    const QList<QSharedPointer<EditItems::Layer> > &layers = EditItems::LayerManager::instance()->orderedLayers();
+    const QList<QSharedPointer<EditItems::Layer> > &layers = layerManager->orderedLayers();
     for (int i = layers.size() - 1; i >= 0; --i) {
 
       const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -742,8 +698,7 @@ void EditItemManager::plot(bool under, bool over)
     emit paintDone();
 
     glPopMatrix();
-  } else
-    DrawingManager::plot(under, over);
+  }
 }
 
 void EditItemManager::undo()
@@ -1119,8 +1074,8 @@ void EditItemManager::handleSelectionChange()
 
 void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
-  res.savebackground= true;
-  res.background= false;
+  res.savebackground= true;   // Save the background after painting.
+  res.background= false;      // Don't paint the background.
   res.repaint= false;
   //res.newcursor= edit_cursor;
   res.newcursor= keep_it;
@@ -1268,8 +1223,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->accept();
-  res.savebackground= true;
-  res.background= false;
+  res.savebackground= true;   // Save the background after painting.
+  res.background= false;      // Don't paint the background.
   res.repaint= false;
 
   // Do not process the event if there is no current edit layer.

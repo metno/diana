@@ -37,6 +37,7 @@
 #include <EditItems/kml.h>
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
+#include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
@@ -72,6 +73,7 @@ DrawingManager::DrawingManager()
   editRect = PLOTM->getPlotSize();
   currentArea = PLOTM->getCurrentArea();
   styleManager = DrawingStyleManager::instance();
+  layerManager = new EditItems::LayerManager();
 }
 
 DrawingManager::~DrawingManager()
@@ -216,8 +218,8 @@ bool DrawingManager::loadItems(const QString &fileName)
 {
   // parse file and create item layers
   QString error;
-  layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(fileName, &error);
+  QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
+      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(layerManager, fileName, &error);
 
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
@@ -233,6 +235,8 @@ bool DrawingManager::loadItems(const QString &fileName)
     for (int i = 0; i < layer->itemCount(); ++i)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
+
+  layerManager->addToNewLayerGroup(layers);
 
   loaded_.insert(fileName);
   return true;
@@ -308,6 +312,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
+  QList<QSharedPointer<EditItems::Layer> > layers = layerManager->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -371,6 +376,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   }
 
   // Change the visibility of items.
+  const QList<QSharedPointer<EditItems::Layer> > &layers = layerManager->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -402,7 +408,7 @@ bool DrawingManager::changeProjection(const Area& newArea)
 
 void DrawingManager::plot(bool under, bool over)
 {
-  if (!over)
+  if (!under)
     return;
 
   // Apply a transformation so that the items can be plotted with screen coordinates
@@ -414,6 +420,7 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
+  QList<QSharedPointer<EditItems::Layer> > layers = layerManager->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -527,4 +534,9 @@ void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &ite
     glEnable(GL_MULTISAMPLE);
   else
     glDisable(GL_MULTISAMPLE);
+}
+
+EditItems::LayerManager *DrawingManager::getLayerManager()
+{
+  return layerManager;
 }

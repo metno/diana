@@ -41,6 +41,7 @@ class QToolButton;
 namespace EditItems {
 
 class LayerGroup;
+class LayerManager;
 class ScrollArea;
 class ClickableLabel;
 
@@ -65,7 +66,7 @@ class LayerGroupsPane : public QWidget
 {
   Q_OBJECT
 public:
-  LayerGroupsPane();
+  LayerGroupsPane(LayerManager *layerManager);
   void showInfo(bool);
 private:
   QVBoxLayout *layout_;
@@ -78,6 +79,8 @@ private:
   void removeWidget(LayerGroupWidget *);
   void addToLGFromFile(bool);
   void updateWidgetStructure();
+  LayerManager *layerManager;
+
 private slots:
   void addToDefaultLGFromFile();
   void addToNewLGFromFile();

@@ -68,7 +68,7 @@
 
 namespace EditItems {
 
-LayerWidget::LayerWidget(const QSharedPointer<Layer> &layer, bool showInfo, QWidget *parent)
+LayerWidget::LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, QWidget *parent)
   : QWidget(parent)
   , layer_(layer)
 {
@@ -169,7 +169,7 @@ void LayerWidget::editName()
     bool ok;
     name = QInputDialog::getText(this, "Edit layer name", "Layer name:", QLineEdit::Normal, name, &ok).trimmed();
     if (ok) {
-      const QSharedPointer<Layer> existingLayer = LayerManager::instance()->findLayer(name);
+      const QSharedPointer<Layer> existingLayer = layerManager->findLayer(name);
       if (!existingLayer) {
         setName(name);
         break; // ok (changed)
@@ -224,8 +224,9 @@ void LayerWidget::handleVisibilityChanged(bool visible)
   emit visibilityChanged(visible);
 }
 
-ActiveLayersPane::ActiveLayersPane()
+ActiveLayersPane::ActiveLayersPane(EditItems::LayerManager *layerManager)
   : showInfo_(false)
+  , layerManager(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -320,7 +321,7 @@ void ActiveLayersPane::setCurrent(LayerWidget *layerWidget)
 {
   if (!layerWidget)
     return;
-  LayerManager::instance()->setCurrentLayer(layerWidget->layer());
+  layerManager->setCurrentLayer(layerWidget->layer());
   updateCurrent();
   ensureVisible(layerWidget);
   handleWidgetsUpdate();
@@ -330,7 +331,7 @@ void ActiveLayersPane::updateCurrent()
 {
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    layerWidget->setCurrent(layerWidget->layer() == LayerManager::instance()->currentLayer());
+    layerWidget->setCurrent(layerWidget->layer() == layerManager->currentLayer());
   }
 }
 
@@ -339,7 +340,7 @@ int ActiveLayersPane::currentPos() const
 {
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    if (layerWidget->layer() == LayerManager::instance()->currentLayer())
+    if (layerWidget->layer() == layerManager->currentLayer())
       return i;
   }
   return -1;
@@ -359,10 +360,10 @@ LayerWidget *ActiveLayersPane::atPos(int pos)
 
 void ActiveLayersPane::duplicate(LayerWidget *srcLayerWidget)
 {
-  const QSharedPointer<Layer> newLayer = LayerManager::instance()->createDuplicateLayer(srcLayerWidget->layer());
-  LayerManager::instance()->addToDefaultLayerGroup(newLayer);
+  const QSharedPointer<Layer> newLayer = layerManager->createDuplicateLayer(srcLayerWidget->layer());
+  layerManager->addToDefaultLayerGroup(newLayer);
   const int srcIndex = layout_->indexOf(srcLayerWidget);
-  LayerWidget *newLayerWidget = new LayerWidget(newLayer, showInfo_);
+  LayerWidget *newLayerWidget = new LayerWidget(layerManager, newLayer, showInfo_);
   layout_->insertWidget(srcIndex + 1, newLayerWidget);
   initialize(newLayerWidget);
   setCurrent(newLayerWidget);
@@ -389,7 +390,7 @@ void ActiveLayersPane::remove(LayerWidget *layerWidget, bool widgetOnly)
   const int index = layout_->indexOf(layerWidget);
   layout_->removeWidget(layerWidget);
   if (!widgetOnly)
-    LayerManager::instance()->removeLayer(layerWidget->layer());
+    layerManager->removeLayer(layerWidget->layer());
   delete layerWidget;
   if (layout_->count() > 0)
     setCurrentIndex(qMin(index, layout_->count() - 1));
@@ -418,7 +419,7 @@ void ActiveLayersPane::move(LayerWidget *layerWidget, bool up)
   layout_->removeWidget(layerWidget);
   layout_->insertWidget(dstIndex, layerWidget);
   updateCurrent();
-  LayerManager::instance()->moveLayer(layerWidget->layer(), dstLayer);
+  layerManager->moveLayer(layerWidget->layer(), dstLayer);
   if (layerWidget == current())
     ensureCurrentVisible();
   handleWidgetsUpdate();
@@ -554,7 +555,7 @@ void ActiveLayersPane::ensureCurrentVisible()
 
 void ActiveLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
 {
-  LayerWidget *layerWidget = new LayerWidget(layer, showInfo_);
+  LayerWidget *layerWidget = new LayerWidget(layerManager, layer, showInfo_);
   layout_->addWidget(layerWidget);
   initialize(layerWidget);
   if (!skipUpdate) {
@@ -566,8 +567,8 @@ void ActiveLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
 
 void ActiveLayersPane::addEmpty()
 {
-  const QSharedPointer<Layer> newLayer = LayerManager::instance()->createNewLayer();
-  LayerManager::instance()->addToDefaultLayerGroup(newLayer);
+  const QSharedPointer<Layer> newLayer = layerManager->createNewLayer();
+  layerManager->addToDefaultLayerGroup(newLayer);
   add(newLayer);
 }
 
@@ -581,12 +582,12 @@ void ActiveLayersPane::mergeVisible()
           QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
 
-    const QSharedPointer<Layer> newLayer = LayerManager::instance()->createNewLayer("merged layer");
-    LayerManager::instance()->addToDefaultLayerGroup(newLayer);
+    const QSharedPointer<Layer> newLayer = layerManager->createNewLayer("merged layer");
+    layerManager->addToDefaultLayerGroup(newLayer);
 
-    LayerManager::instance()->mergeLayers(layers(visLayerWidgets), newLayer);
+    layerManager->mergeLayers(layers(visLayerWidgets), newLayer);
 
-    LayerWidget *newLayerWidget = new LayerWidget(newLayer, showInfo_);
+    LayerWidget *newLayerWidget = new LayerWidget(layerManager, newLayer, showInfo_);
     layout_->insertWidget(layout_->count(), newLayerWidget);
     initialize(newLayerWidget);
     setCurrent(newLayerWidget);
@@ -657,8 +658,8 @@ void ActiveLayersPane::updateButtons()
   // the layer may be removed iff it is 1) current, 2) editable, and 3) not the last layer in the default layer group
   removeCurrentButton_->setEnabled(
         current() && current()->layer()->isEditable()
-        && !((current()->layer()->layerGroupRef() == LayerManager::instance()->defaultLayerGroup())
-            && (LayerManager::instance()->defaultLayerGroup()->layersRef().size() == 1)));
+        && !((current()->layer()->layerGroupRef() == layerManager->defaultLayerGroup())
+            && (layerManager->defaultLayerGroup()->layersRef().size() == 1)));
 
   moveCurrentUpButton_->setEnabled(currentPos() > 0);
   moveCurrentDownButton_->setEnabled(currentPos() < (allSize - 1));
@@ -679,7 +680,7 @@ void ActiveLayersPane::handleWidgetsUpdate()
 void ActiveLayersPane::updateWidgetStructure()
 {
   QList<QSharedPointer<Layer> > activeLayers;
-  foreach (const QSharedPointer<Layer> &layer, LayerManager::instance()->orderedLayers()) {
+  foreach (const QSharedPointer<Layer> &layer, layerManager->orderedLayers()) {
     if (layer->isActive())
       activeLayers.append(layer);
   }
@@ -688,7 +689,7 @@ void ActiveLayersPane::updateWidgetStructure()
   const int diff = layout_->count() - activeLayers.size();
   if (diff < 0) {
     for (int i = 0; i < -diff; ++i) {
-      LayerWidget *layerWidget = new LayerWidget(QSharedPointer<Layer>(), showInfo_);
+      LayerWidget *layerWidget = new LayerWidget(layerManager, QSharedPointer<Layer>(), showInfo_);
       layout_->insertWidget(0, layerWidget);
     }
   } else if (diff > 0) {
@@ -708,7 +709,7 @@ void ActiveLayersPane::updateWidgetStructure()
     QSharedPointer<Layer> layer = activeLayers.at(i);
     layerWidget->setState(layer);
     initialize(layerWidget);
-    if (activeLayers.at(i) == LayerManager::instance()->currentLayer())
+    if (activeLayers.at(i) == layerManager->currentLayer())
       currIndex = i;
   }
   Q_ASSERT(currIndex >= 0);

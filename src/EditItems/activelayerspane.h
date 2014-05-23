@@ -45,6 +45,7 @@ class QLabel;
 namespace EditItems {
 
 class Layer;
+class LayerManager;
 class ScrollArea;
 class CheckableLabel;
 class ClickableLabel;
@@ -53,7 +54,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(const QSharedPointer<Layer> &, bool, QWidget * = 0);
+  LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &, bool, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -72,6 +73,7 @@ private:
   CheckableLabel *unsavedChangesLabel_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
+  LayerManager *layerManager;
 public slots:
   void updateLabels();
 private slots:
@@ -86,7 +88,7 @@ class ActiveLayersPane : public QWidget
 {
   Q_OBJECT
 public:
-  ActiveLayersPane();
+  ActiveLayersPane(LayerManager *layerManager);
   void showInfo(bool);
   QString saveVisible(const QString &fileName) const;
 
@@ -129,6 +131,7 @@ private:
   QList<LayerWidget *> visibleWidgets() const;
   QList<LayerWidget *> allWidgets() const;
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &) const;
+  LayerManager *layerManager;
 
 private slots:
   void updateButtons();
