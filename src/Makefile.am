@@ -209,7 +209,8 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossDialog.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
-	vcross_qt/VcrossQtWidget.cc
+	vcross_qt/VcrossQtWidget.cc \
+	vcross_qt/qtDynVcrossDialog.cc 
 else
 diana_qt_sources += \
 	vcross_qt/qtVcross1Dialog.cc \
@@ -431,7 +432,8 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossDialog.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/VcrossQtWidget.h \
-	vcross_qt/qtVcrossWindow.h 
+	vcross_qt/qtVcrossWindow.h \
+	vcross_qt/qtDynVcrossDialog.h 
 
 
 else

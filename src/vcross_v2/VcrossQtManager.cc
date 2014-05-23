@@ -128,20 +128,26 @@ void QtManager::setCrossection(const std::string& csLabel)
   dataChange |= CHANGED_CS;
 }
 
-//bool QtManager::setCrossection(float lat, float lon)
-//{
-//  METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
-//
-//  std::set<std::string> csnames(nameList.begin(), nameList.end());
-//  BOOST_FOREACH(VcrossField* f, miutil::adaptors::values(vcfields)) {
-//    const std::string n = f->setLatLon(lat, lon);
-//    if (not n.empty())
-//      csnames.insert(n);
-//  }
-//  VcrossUtil::from_set(nameList, csnames);
-//  dataChange |= CHANGED_CS;
-//  return true;
-//}
+void QtManager::setDynamicCrossection(const std::string& csLabel, const LonLat_v& points)
+{
+  METLIBS_LOG_SCOPE();
+
+  typedef std::set<Source_p> Source_ps;
+  Source_ps dynSources;
+  BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots()) {
+    if (Source_p src = mCollector->getSetup()->findSource(sp->model)) {
+      if (src->supportsDynamicCrossections())
+        dynSources.insert(src);
+    }
+  }
+
+  BOOST_FOREACH(Source_p src, dynSources) {
+    src->addDynamicCrossection(csLabel, points);
+  }
+
+  dataChange |= CHANGED_CS;
+  setModels();
+}
 
 std::string QtManager::setCrossection(int step)
 {
@@ -518,6 +524,7 @@ bool QtManager::setModels()
 
     if (Source_p src = mCollector->getSetup()->findSource(m)) {
       if (Inventory_cp inv = src->getInventory()) {
+        METLIBS_LOG_DEBUG(LOGVAL(inv->crossections.size()));
         BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
 
           LonLat_v  crossectionPoints = cs->points;
@@ -532,6 +539,7 @@ bool QtManager::setModels()
           le.insert(el);
 
           csLabels.insert(cs->label);
+          METLIBS_LOG_DEBUG(LOGVAL(cs->label));
         }
 
         BOOST_FOREACH(Time::timevalue_t time, inv->times.values) {

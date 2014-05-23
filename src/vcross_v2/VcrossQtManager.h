@@ -84,7 +84,8 @@ public:
   void parseSetup(const string_v& sources, const string_v&computations, const string_v&plots);
   void readLog(const std::vector<std::string>& vstr,
 	       const std::string& thisVersion, const std::string& logVersion);
-  bool setCrossection(float lat, float lon);
+  //! Add or replace a dynamic cross section
+  void setDynamicCrossection(const std::string& crossection, const LonLat_v& points);
   void setCrossection(const std::string& crossection);
   void setTime(const vctime_t& time);
   void setTimeGraph(const LonLat& position);

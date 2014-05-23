@@ -41,6 +41,9 @@
 #include "qtToggleButton.h"
 #include "qtVcrossDialog.h"
 #include "qtVcrossSetupDialog.h"
+#ifdef USE_VCROSS_V2
+#include "qtDynVcrossDialog.h"
+#endif
 #include "qtPrintManager.h"
 
 #include <puTools/miStringFunctions.h>
@@ -602,16 +605,22 @@ void VcrossWindow::dynCrossClicked()
 {
   METLIBS_LOG_SCOPE();
 
-  // Clean up the current dynamic crossections
-//  vcrossm->cleanupDynamicCrossSections();
-  updateCrossectionBox();
-  /*emit*/ crossectionSetChanged();
+#ifdef USE_VCROSS_V2
+  DynVcrossDialog dd(this);
+  if (dd.exec() == QDialog::Accepted) {
+    typedef DynVcrossDialog::LabelledCrossection_v lcs_v;
+    const lcs_v lcs = dd.extractCrossections();
+    for (lcs_v::const_iterator it = lcs.begin(); it != lcs.end(); ++it)
+      vcrossm->setDynamicCrossection(it->label.toStdString(), it->points);
+    if (not lcs.empty())
+      vcrossm->setCrossection(lcs.back().label.toStdString());
+  }
 
-  // Tell mainWindow to start receiving notifications
-  // about mouse presses on the map
-  /*emit*/ updateCrossSectionPos(true);
-  // Redraw to remove any old crossections
+  Q_EMIT crossectionSetChanged();
+  updateCrossectionBox();
+
   vcrossw->update();
+#endif
 }
 
 /***************************************************************************/
@@ -705,12 +714,10 @@ void VcrossWindow::updateCrossectionBox()
   METLIBS_LOG_SCOPE();
 
   crossectionBox->clear();
-  std::vector<std::string> crossections= vcrossm->getCrossectionList();
+  const std::vector<std::string>& crossections = vcrossm->getCrossectionList();
 
-  int n =crossections.size();
-  for (int i=0; i<n; i++){
-    crossectionBox->addItem(QString(crossections[i].c_str()));
-  }
+  for (size_t i=0; i<crossections.size(); i++)
+    crossectionBox->addItem(QString::fromStdString(crossections[i]));
 }
 
 /***************************************************************************/
