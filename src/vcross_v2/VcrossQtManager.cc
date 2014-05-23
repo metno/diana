@@ -145,8 +145,8 @@ void QtManager::setDynamicCrossection(const std::string& csLabel, const LonLat_v
     src->addDynamicCrossection(csLabel, points);
   }
 
-  dataChange |= CHANGED_CS;
   setModels();
+  dataChange |= CHANGED_SEL;
 }
 
 std::string QtManager::setCrossection(int step)
