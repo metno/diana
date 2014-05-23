@@ -84,6 +84,7 @@ public:
     QSet<QSharedPointer<DrawingItemBase> > getSelectedItems() const;
     QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
 
+    bool processInput(const std::vector<std::string>& inp);
     void plot(bool under, bool over);
     void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
     void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);

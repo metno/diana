@@ -158,6 +158,14 @@ void EditItemManager::setEditing(bool enable)
     emit unsetWorkAreaCursor();
 }
 
+/**
+ * Ignores any plot commands passed as a vector of strings.
+ */
+bool EditItemManager::processInput(const std::vector<std::string>& inp)
+{
+  return false;
+}
+
 QUndoView *EditItemManager::getUndoView()
 {
     if (!undoView_)
