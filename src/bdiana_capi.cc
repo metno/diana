@@ -3594,11 +3594,11 @@ int diana_init(int _argc, char** _argv)
     logfilename = "/etc/diana/" + versionPieces[0] + "." + versionPieces[1] + "/diana.logger";
   }*/
 
-//  if ( logfilename.empty() ){
-//    logfilename = "/etc/diana/";
-//    logfilename += PVERSION;
-//    logfilename += "/log4cpp.properties";
-//  }
+  if ( logfilename.empty() ){
+    logfilename = "/etc/diana/";
+    logfilename += PVERSION;
+    logfilename += "/log4cpp.properties";
+  }
   if (QFileInfo(QString::fromStdString(logfilename)).exists()) {
     cerr << "Using properties file: " << logfilename << endl;
     plog = milogger::LogHandler::initLogHandler(logfilename);
