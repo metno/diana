@@ -324,7 +324,7 @@ private:
   QAction * helpDocAction;
   QAction * helpAccelAction;
   QAction * helpNewsAction;
-  QAction * helpBugAction;
+  QAction * helpTestAction;
   QAction * helpAboutAction;
 
   QAction * timeBackwardAction;

@@ -434,10 +434,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   helpNewsAction->setCheckable(false);
   connect( helpNewsAction, SIGNAL( triggered() ) ,  SLOT( showNews() ) );
   // --------------------------------------------------------------------
-  helpBugAction = new QAction( tr("&Report bug"), this );
-  helpBugAction->setShortcutContext(Qt::ApplicationShortcut);
-  helpBugAction->setCheckable(false);
-  connect( helpBugAction, SIGNAL( triggered() ) ,  SLOT( showUrl() ) );
+  helpTestAction = new QAction( tr("Test &results"), this );
+  helpTestAction->setShortcutContext(Qt::ApplicationShortcut);
+  helpTestAction->setCheckable(false);
+  connect( helpTestAction, SIGNAL( triggered() ) ,  SLOT( showUrl() ) );
   // --------------------------------------------------------------------
   helpAboutAction = new QAction( tr("About Diana"), this );
   helpAboutAction->setShortcutContext(Qt::ApplicationShortcut);
@@ -679,7 +679,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAccelAction );
   helpmenu->addAction ( helpNewsAction );
-  helpmenu->addAction ( helpBugAction );
+  helpmenu->addAction ( helpTestAction );
   helpmenu->addSeparator();
   helpmenu->addAction ( helpAboutAction );
 
@@ -2513,7 +2513,7 @@ void DianaMainWindow::showNews()
 
 void DianaMainWindow::showUrl()
 {
-  QDesktopServices::openUrl(QUrl(LocalSetupParser::basicValue("bugzilla").c_str()));
+  QDesktopServices::openUrl(QUrl(LocalSetupParser::basicValue("testresults").c_str()));
 }
 
 void DianaMainWindow::about()
