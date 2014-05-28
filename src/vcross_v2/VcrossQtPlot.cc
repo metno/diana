@@ -530,15 +530,14 @@ void QtPlot::plot(QPainter& painter)
 
   updateCharSize(painter);
 
+  plotVerticalGridLines(painter);
+  plotSurface(painter);
+  plotData(painter);
+
   plotFrame(painter);
   plotText(painter);
   plotXLabels(painter);
   plotTitle(painter);
-
-  plotSurface(painter);
-  plotVerticalGridLines(painter);
-
-  plotData(painter);
 }
 
 void QtPlot::plotTitle(QPainter& painter)
@@ -863,7 +862,10 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
   vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions);
   vcross::detail::VCLines con_lines(*levels, plot->poptions);
   contouring::run(con_field, con_lines);
-  con_lines.paint(painter);
+
+  const QRect area(QPoint(mAxisX->getPaintMin(), mAxisY->getPaintMax()),
+      QPoint(mAxisX->getPaintMax(), mAxisY->getPaintMin()));
+  con_lines.paint(painter, area);
 }
 
 void QtPlot::plotDataWind(QPainter& painter, OptionPlot_cp plot)

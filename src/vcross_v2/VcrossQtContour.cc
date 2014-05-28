@@ -24,25 +24,27 @@ inline bool isUndefined(float v)
 
 float VCContourField::value(size_t ix, size_t iy) const
 {
-  const contouring::point_t p = position(ix, iy);
-  const VCAxisPositions& ax = static_cast<const VCAxisPositions&>(positions());
-  if (not (ax.mXpos->legalPaint(p.x) and ax.mYpos->legalPaint(p.y)))
-    return UNDEF_VALUE;
   return mData->value(ix, iy);
 }
 
 contouring::point_t VCAxisPositions::position(size_t ix, size_t iy) const
 {
   const float vx = mXval[ix], vy = mYval->value(ix, iy);
-  return contouring::point_t(mXpos->value2paint(vx), mYpos->value2paint(vy));
+  return contouring::point_t(mXpos->value2paint(vx, false), mYpos->value2paint(vy, false));
 }
 
 // ########################################################################
 
-void VCLines::paint(QPainter& painter)
+void VCLines::paint(QPainter& painter, const QRect& area)
 {
+  painter.save();
+  painter.setClipRegion(area);
   paint_polygons(painter);
   paint_lines(painter);
+  painter.restore();
+
+  paint_all_labels(painter, mPlotOptions.linewidth, mPlotOptions.linecolour,
+      mPlotOptions.linetype, area);
 }
 
 void VCLines::paint_lines(QPainter& painter)
@@ -51,16 +53,34 @@ void VCLines::paint_lines(QPainter& painter)
     if (it->first == DianaLevels::UNDEF_LEVEL) {
       if (mPlotOptions.undefMasking)
         paint_coloured_lines(painter, mPlotOptions.undefLinewidth, mPlotOptions.undefColour, mPlotOptions.undefLinetype,
-            it->second, it->first, false);
+            it->second, it->first);
     } else {
       paint_coloured_lines(painter, mPlotOptions.linewidth, mPlotOptions.linecolour, mPlotOptions.linetype,
-          it->second, it->first, true);//mPlotOptions.valueLabel);
+          it->second, it->first);//mPlotOptions.valueLabel);
     }
   }
 }
 
 void VCLines::paint_coloured_lines(QPainter& painter, int linewidth, const Colour& colour,
-    const Linetype& linetype, const contour_v& contours, contouring::level_t level, bool label)
+    const Linetype& linetype, const contour_v& contours, contouring::level_t level)
+{
+  QPen pen(vcross::util::QC(colour), linewidth);
+  vcross::util::setDash(pen, linetype);
+  
+  painter.setPen(pen);
+  painter.setBrush(Qt::NoBrush);
+  
+  for (contour_v::const_iterator itC = contours.begin(); itC != contours.end(); ++itC) {
+    const QPolygonF& line = itC->line;
+    if (itC->polygon)
+      painter.drawPolygon(line);
+    else
+      painter.drawPolyline(line);
+  }
+}
+
+void VCLines::paint_all_labels(QPainter& painter, int linewidth, const Colour& colour,
+    const Linetype& linetype, const QRect& area)
 {
   QPen pen(vcross::util::QC(colour), linewidth);
   vcross::util::setDash(pen, linetype);
@@ -68,19 +88,20 @@ void VCLines::paint_coloured_lines(QPainter& painter, int linewidth, const Colou
   painter.setPen(pen);
   painter.setBrush(Qt::NoBrush);
 
-  for (contour_v::const_iterator itC = contours.begin(); itC != contours.end(); ++itC) {
-    const QPolygonF& line = itC->line;
-    if (itC->polygon)
-      painter.drawPolygon(line);
-    else
-      painter.drawPolyline(line);
-    
-    if (label)
-      paint_labels(painter, line, level);
+  for (contour_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
+    if (it->first != DianaLevels::UNDEF_LEVEL) {
+      
+      const contour_v& contours = it->second;
+      for (contour_v::const_iterator itC = contours.begin(); itC != contours.end(); ++itC) {
+        const QPolygonF& line = itC->line;
+        paint_line_labels(painter, line, it->first, area);
+      }
+    }
   }
 }
 
-void VCLines::paint_labels(QPainter& painter, const QPolygonF& points, contouring::level_t li)
+void VCLines::paint_line_labels(QPainter& painter, const QPolygonF& points, contouring::level_t li,
+    const QRect& area)
 {
   if (points.size() < 10)
     return;
@@ -104,6 +125,11 @@ void VCLines::paint_labels(QPainter& painter, const QPolygonF& points, contourin
     }
     if (idx >= points.size())
       break;
+
+    if (not (area.contains(p0.x(), p0.y()) and area.contains(p1.x(), p1.y()))) {
+      idx += 20;
+      continue;
+    }
 
     if (p1.x() < p0.x())
       std::swap(p0, p1);
