@@ -458,11 +458,10 @@ void ObsAscii::decodeData()
         pstr= miutil::split_protected(lines[ii], '"', '"');
       }
 
-      if ( int(pstr.size()) < nColumn ) {
-        continue;
-      }
+      int tmp_nColumn =  (int(pstr.size()) < nColumn) ? int(pstr.size()) : nColumn;
+
       //put data in obsData
-      for (int i=0; i<nColumn; i++) {
+      for (int i=0; i<tmp_nColumn; i++) {
 
         //check if undefined value
         if (nu>0) {
