@@ -1,3 +1,9 @@
+diana (3.35.0-15) unstable; urgency=low
+
+  * Vcross: clipping fixed
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 01 Jun 2014 20:53:12 +0200
+
 diana (3.35.0-14) unstable; urgency=low
 
   * Bugfixes
