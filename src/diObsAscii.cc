@@ -156,11 +156,11 @@ void ObsAscii::readHeaderInfo(const string& filename, const string& headerfile,
 {
 
   //####################################################################
-//  METLIBS_LOG_DEBUG("ObsAscii::readFile  filename= "<<filename);
-//  METLIBS_LOG_DEBUG("Headerfiles:"<<headerfile);
-//  for(size_t i = 0; i < headerinfo.size(); i++) {
-//      METLIBS_LOG_DEBUG("headerinfo: " << headerinfo[i]);
-//    }
+  METLIBS_LOG_DEBUG("ObsAscii::readFile  filename= "<<filename);
+  METLIBS_LOG_DEBUG("Headerfiles:"<<headerfile);
+  for(size_t i = 0; i < headerinfo.size(); i++) {
+    METLIBS_LOG_DEBUG("headerinfo: " << headerinfo[i]);
+  }
   //####################################################################
 
 
@@ -198,7 +198,6 @@ void ObsAscii::readData(const std::string &filename)
 
 void ObsAscii::decodeHeader()
 {
-//METLIBS_LOG_DEBUG(__FUNCTION__);
   vector<string> vstr,pstr;
   string str;
   size_t p;
@@ -240,10 +239,10 @@ void ObsAscii::decodeHeader()
   bool ok= true;
   int n= vstr.size();
   //####################################################################
-//  METLIBS_LOG_DEBUG("HEADER:");
-//  for (int  j=0; j<n; j++)
-//    METLIBS_LOG_DEBUG(vstr[j]);
-//  METLIBS_LOG_DEBUG("-----------------");
+  METLIBS_LOG_DEBUG("HEADER:");
+  for (int  j=0; j<n; j++)
+    METLIBS_LOG_DEBUG(vstr[j]);
+  METLIBS_LOG_DEBUG("-----------------");
   //####################################################################
   size_t p1,p2;
   int i= 0;
@@ -329,14 +328,14 @@ void ObsAscii::decodeHeader()
 
   n= columnType.size();
   //####################################################################
-//  METLIBS_LOG_DEBUG("     coloumns= "<<n);
+  METLIBS_LOG_DEBUG("     coloumns= "<<n);
   //####################################################################
 
   knots=false;
   for (i=0; i<n; i++) {
     //####################################################################
-//    METLIBS_LOG_DEBUG("   column "<<i<<" : "<<columnName[i]<<"  "
-//        <<columnType[i]);
+    METLIBS_LOG_DEBUG("   column "<<i<<" : "<<columnName[i]<<"  "
+        <<columnType[i]);
     //####################################################################
     if      (columnType[i]=="d")
       asciiColumn["date"]= i;
@@ -394,12 +393,12 @@ void ObsAscii::decodeHeader()
 
   }
 
-//  if (!asciiColumn.count("x") || !asciiColumn.count("y")) {
-//    //####################################################################
-//    METLIBS_LOG_DEBUG("   bad header, missing lat,lon !!!!!!!!!");
-//    //####################################################################
-//    return;
-//  }
+  //  if (!asciiColumn.count("x") || !asciiColumn.count("y")) {
+  //    //####################################################################
+  //    METLIBS_LOG_DEBUG("   bad header, missing lat,lon !!!!!!!!!");
+  //    //####################################################################
+  //    return;
+  //  }
 
   fileOK= true;
   return;
@@ -409,7 +408,7 @@ void ObsAscii::decodeHeader()
 
 void ObsAscii::decodeData()
 {
-//  METLIBS_LOG_DEBUG(__FUNCTION__);
+  //  METLIBS_LOG_DEBUG(__FUNCTION__);
   // read data....................................................
 
 
@@ -427,8 +426,6 @@ void ObsAscii::decodeData()
               asciiColumn.count("day"))));
   bool isoDate (allTime && asciiColumn.count("date"));
 
-  bool first=true, addstr=false, cutstr=false;
-  std::string taddstr, tstr, timestr;
   miTime obstime;
 
   miDate filedate= fileTime.date();
@@ -498,71 +495,53 @@ void ObsAscii::decodeData()
       }
 
       if (useTime) {
+        miClock clock;
+        miDate date;
         if(isoTime) {
-          tstr= pstr[asciiColumn["time"]];
-          if (first) {
-            // allowed time formats: HH HH:MM HH:MM:SS HH:MM:SSxxx...
-            vector<std::string> tv= miutil::split(tstr, 0, ":");
-            if (tv.size()==1) {
-              addstr= true;
-              taddstr= ":00:00";
-            } else if (tv.size()==2) {
-              addstr= true;
-              taddstr= ":00";
-            } else if (tv.size()>=3 && tstr.length()>8) {
-              cutstr= true;
-            }
-            first= false;
-          }
-          if (addstr)
-            tstr+=taddstr;
-          else if (cutstr)
-            tstr= tstr.substr(0,8);
+          clock = miClock(pstr[asciiColumn["time"]]);
         } else {
-          tstr = pstr[asciiColumn["hour"]] + ":";
-          if(asciiColumn.count("min"))
-            tstr += pstr[asciiColumn["min"]] + ":";
-          else
-            tstr += "00:";
-          if(asciiColumn.count("sec"))
-            tstr += pstr[asciiColumn["sec"]] ;
-          else
-            tstr += "00";
+          int hour=0, min=0, sec=0;
+          if ( asciiColumn.count("hour") )
+            hour = atoi(pstr[asciiColumn["hour"]].c_str());
+          if ( asciiColumn.count("min") )
+            min = atoi(pstr[asciiColumn["min"]].c_str());
+          if ( asciiColumn.count("sec") )
+            sec= atoi(pstr[asciiColumn["sec"]].c_str());
+          clock =miClock(hour,min,sec);
         }
+        if (isoDate)
+          date = miDate(pstr[asciiColumn["date"]]);
+        else if (allTime ) {
+          int year=0,month=0,day=0;
+          year = atoi(pstr[asciiColumn["year"]].c_str());
+          month = atoi(pstr[asciiColumn["month"]].c_str());
+          day = atoi(pstr[asciiColumn["day"]].c_str());
+          date = miDate(year,month,day);
+        } else  {
+          date = filedate;
+        }
+        obstime= miTime(date,clock);
 
-        if (allTime) {
-          if (isoDate)
-            timestr= pstr[asciiColumn["date"]] +" "+ tstr;
-          else
-            timestr= pstr[asciiColumn["year"]] + "-"
-            + pstr[asciiColumn["month"]] + "-"
-            + pstr[asciiColumn["day"]] + " "+ tstr;
-          obstime= miTime(timestr);
-        } else {
-          miClock clock= miClock(tstr);
-          obstime= miTime(filedate,clock);
+        if ( !allTime) {
           int mdiff= miTime::minDiff(obstime,fileTime);
           if      (mdiff<-12*60) obstime.addHour(24);
           else if (mdiff> 12*60) obstime.addHour(-24);
         }
 
         //#################################################################
-//                  METLIBS_LOG_DEBUG("obstime:"<<obstime);
-//                 METLIBS_LOG_DEBUG("plotTime:"<<plotTime);
-//                 METLIBS_LOG_DEBUG("timeDiff"<<timeDiff);
-//                  if (timeDiff < 0 || abs(miTime::minDiff(obstime,plotTime))<timeDiff)
-//                    METLIBS_LOG_DEBUG(obstime<<" ok");
-//                  else
-//                    METLIBS_LOG_DEBUG(obstime<<" not ok");
+        METLIBS_LOG_DEBUG("obstime:"<<obstime);
+        METLIBS_LOG_DEBUG("plotTime:"<<plotTime);
+        METLIBS_LOG_DEBUG("timeDiff"<<timeDiff);
+        if (timeDiff < 0 || abs(miTime::minDiff(obstime,plotTime))<timeDiff)
+          METLIBS_LOG_DEBUG(obstime<<" ok");
+        else
+          METLIBS_LOG_DEBUG(obstime<<" not ok");
         //#################################################################
         if (timeDiff <0
             || abs(miTime::minDiff(obstime,plotTime))<timeDiff){
-          //            oplot->asciip.push_back(pstr);
           obsData.obsTime = obstime;
           vObsData.push_back(obsData);
           mObsData[obsData.id] = obsData;
-        } else {
-          //oplot->removeObs();
         }
 
 
@@ -572,13 +551,12 @@ void ObsAscii::decodeData()
       }
     }
     //####################################################################
-    //    METLIBS_LOG_DEBUG("----------- at end -----------------------------");
-    //    METLIBS_LOG_DEBUG("     columnName.size()= "<<columnName.size());
-    //    METLIBS_LOG_DEBUG("     columnType.size()= "<<columnType.size());
-    //    METLIBS_LOG_DEBUG("------------------------------------------------");
+    METLIBS_LOG_DEBUG("----------- at end -----------------------------");
+    METLIBS_LOG_DEBUG("     columnName.size()= "<<columnName.size());
+    METLIBS_LOG_DEBUG("     columnType.size()= "<<columnType.size());
+    METLIBS_LOG_DEBUG("------------------------------------------------");
     //####################################################################
 
 
-//    fileOK = (oplot->numPositions()>0);
   }
 }
