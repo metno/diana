@@ -3408,14 +3408,12 @@ std::string FieldDialog::getParamString(int i)
     }
 
     if (!selectedFields[i].level.empty() ) {
-      if ( selectedFields[i].zaxis.empty() ) {
-        selectedFields[i].zaxis = FieldSpecTranslation::getVcoorFromLevel(selectedFields[i].level);
+      if ( !selectedFields[i].zaxis.empty() ) {
+        ostr << " vcoord=" << selectedFields[i].zaxis;
       }
-      ostr << " vcoord=" << selectedFields[i].zaxis;
       ostr << " vlevel=" << selectedFields[i].level;
     }
     if (!selectedFields[i].idnum.empty()) {
-      //      ostr << " ecoord="<< selectedFields[i].extraaxis;
       ostr << " elevel=" << selectedFields[i].idnum;
     }
     if (selectedFields[i].hourOffset != 0)
