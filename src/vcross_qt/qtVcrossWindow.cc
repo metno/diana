@@ -212,6 +212,7 @@ VcrossWindow::VcrossWindow(Controller *co)
 
   QVBoxLayout* vlayout = new QVBoxLayout;
   vlayout->setSpacing(2);
+  vlayout->setMargin(2);
 
   QHBoxLayout* vclayout = new QHBoxLayout;
   vclayout->setSpacing(2);
