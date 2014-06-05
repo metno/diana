@@ -392,7 +392,7 @@ void QtManager::preparePlot()
     return;
   }
 
-  mPlot->clear((dataChange != CHANGED_SEL), (dataChange != CHANGED_SEL));
+  mPlot->clear((dataChange == CHANGED_NO or dataChange == CHANGED_TIME), (dataChange != CHANGED_SEL));
 
   model_values_m model_values;
   if (not isTimeGraph()) {

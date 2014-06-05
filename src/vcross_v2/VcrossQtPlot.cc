@@ -332,6 +332,7 @@ void QtPlot::prepareXAxis()
   METLIBS_LOG_DEBUG(LOGVAL(xax_min) << LOGVAL(xax_max));
     
   mAxisX->setDataRange (xax_min, xax_max);
+  mAxisX->setValueRange (xax_min, xax_max);
 }
 
 void QtPlot::prepareYAxis()
