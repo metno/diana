@@ -80,7 +80,7 @@ GLwidget::GLwidget(Controller* c, QWidget* parent) :
   // sets default cursor in widget
   changeCursor(normal_cursor);
 
-  EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("DRAWING"));
+  EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("EDITDRAWING"));
   if (editm)
     connect(editm, SIGNAL(repaintNeeded()), this, SLOT(editPaint())); // e.g. during undo/redo
 }
