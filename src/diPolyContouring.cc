@@ -22,7 +22,7 @@ const float UNDEF_VALUE = 1e30;
 
 inline bool isUndefined(float v)
 {
-  return v >= UNDEF_VALUE or v < -UNDEF_VALUE;
+  return isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
 static inline int rounded_div(float value, float unit)
