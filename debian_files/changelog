@@ -1,3 +1,12 @@
+diana (3.35.1-1) unstable; urgency=low
+
+  * vcross: reduce margin in vcross window
+  * vcross: reset horizontal zoom when changing cs
+  * ObsAscii: accepting data lines with missing data, bugfix date/time
+  * vprof: bugfix
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sat, 07 Jun 2014 09:43:16 +0200
+
 diana (3.35.0-15) unstable; urgency=low
 
   * Vcross: clipping fixed
