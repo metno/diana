@@ -897,6 +897,13 @@ static bool readSetup(const std::string& constSetupfile, printerManager& printma
     METLIBS_LOG_ERROR("ERROR, an error occured while reading setup: " << setupfile);
     return false;
   }
+
+  // language from setup
+  if (not LocalSetupParser::basicValue("language").empty()) {
+    std::string lang = LocalSetupParser::basicValue("language");
+    { miTime x; x.setDefaultLanguage(lang.c_str()); }
+  }
+
   return true;
 }
 
