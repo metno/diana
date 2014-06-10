@@ -1,3 +1,9 @@
+diana (3.35.1-2) unstable; urgency=low
+
+  * bdiana: Init miTime with default language from setup
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 10 Jun 2014 15:22:26 +0200
+
 diana (3.35.1-1) unstable; urgency=low
 
   * vcross: reduce margin in vcross window
