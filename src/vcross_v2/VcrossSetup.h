@@ -96,6 +96,10 @@ public:
   std::map<std::string,std::string> getAllPlotOptions();
 
 private:
+  void addFimexSource(const std::string& name, const std::string& filename,
+      const std::string& filetype, const std::string& fileconfig);
+
+private:
   typedef std::map<std::string, Source_p> Source_p_m;
   Source_p_m mSources;
   NameItem_v mComputations;

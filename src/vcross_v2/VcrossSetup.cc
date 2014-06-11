@@ -3,10 +3,13 @@
 
 #include "diPlotOptions.h"
 #include <diField/FimexSource.h>
+#include <diField/TimeFilter.h>
 
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
+
+#include <puCtools/puCglob.h>
 
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -139,12 +142,44 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     } else if (mSources.find(name) != mSources.end()) {
       errors.push_back(SyntaxError(l, "name '" + name + "' already used"));
     } else {
-      mSources.insert(std::make_pair(name, miutil::make_shared<FimexSource>(filename, filetype, fileconfig)));
-      METLIBS_LOG_DEBUG("added source '" << name << "' => '" << filename << "'");
+
+      // init time filter and replace yyyy etc. with ????
+      TimeFilter tf;
+      std::string before_slash, after_slash;
+      const size_t last_slash = filename.find_last_of("/");
+      if (last_slash != std::string::npos) {
+        before_slash = filename.substr(0, last_slash+1);
+        after_slash = filename.substr(last_slash+1, filename.size());
+      } else {
+        after_slash = filename;
+      }
+      tf.initFilter(after_slash, true);
+      filename = before_slash + after_slash;
+
+      // check for wild cards - expand filenames if necessary
+      if (filename.find_first_of("*?") != std::string::npos) {
+        glob_t globBuf;
+        glob(filename.c_str(), GLOB_BRACE, 0, &globBuf);
+        for (size_t k = 0; k < globBuf.gl_pathc; k++) {
+          const std::string path = globBuf.gl_pathv[k];
+          const std::string reftime_from_filename = tf.getTimeStr(path);
+          addFimexSource(name + "@" + reftime_from_filename, path, filetype, fileconfig);
+        }
+        globfree(&globBuf);
+      } else {
+        addFimexSource(name, filename, filetype, fileconfig);
+      }
     }
   }
   
   return errors;
+}
+
+void Setup::addFimexSource(const std::string& name, const std::string& filename,
+    const std::string& filetype, const std::string& fileconfig)
+{
+  METLIBS_LOG_SCOPE("adding source '" << name << "' => '" << filename << "'");
+  mSources.insert(std::make_pair(name, miutil::make_shared<FimexSource>(filename, filetype, fileconfig)));
 }
 
 SyntaxError_v Setup::configureComputations(const string_v& lines)
