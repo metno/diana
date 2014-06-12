@@ -64,14 +64,11 @@ QtManager::QtManager()
   , mPlotTime(-1)
 {
   METLIBS_LOG_SCOPE();
-  string_v sources;
+  string_v sources, computations, plots;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_FILES", sources);
-  string_v computations;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_COMPUTATIONS", computations);
-  string_v plots;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_PLOTS", plots);
-  parseSetup(sources,computations,plots);
-
+  parseSetup(sources, computations, plots);
 }
 
 QtManager::~QtManager()
@@ -341,6 +338,7 @@ void QtManager::increasePart()
 
 void QtManager::standardPart()
 {
+  mPlot->setVerticalAxis();
   mPlot->viewStandard();
 }
 
@@ -411,13 +409,14 @@ void QtManager::preparePlot()
       mPlot->setHorizontalTime(ll, mCrossectionTimes);
     }
   }
-  vcross::Z_AXIS_TYPE Z_TYPE;
+  vcross::Z_AXIS_TYPE zType;
   if(mOptions->verticalCoordinate == "Pressure")
-    Z_TYPE = vcross::Z_TYPE_PRESSURE;
+    zType = vcross::Z_TYPE_PRESSURE;
   else
-    Z_TYPE = vcross::Z_TYPE_HEIGHT;
+    zType = vcross::Z_TYPE_HEIGHT;
+  mPlot->setVerticalAxis();
 
-  const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, Z_TYPE);
+  const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, zType);
   BOOST_FOREACH(EvaluatedPlot_cp ep, evaluated_plots) {
     mPlot->addPlot(ep);
   }
@@ -426,18 +425,20 @@ void QtManager::preparePlot()
   const std::string& model1 = mCollector->getSelectedPlots().front()->model;
   vc_evaluate_surface(mCollector, model_values, model1);
 
-  mPlot->setVerticalAxis();
-  if (Z_TYPE == vcross::Z_TYPE_PRESSURE or Z_TYPE == vcross::Z_TYPE_HEIGHT) {
-    const std::string surface = (Z_TYPE == vcross::Z_TYPE_PRESSURE) ?
-        VC_SURFACE_PRESSURE : VC_SURFACE_HEIGHT;
-    const std::string surface_unit = (Z_TYPE == vcross::Z_TYPE_PRESSURE) ?
-        "hPa" : "m";
-    InventoryBase_cp s1 = mCollector->getResolvedField(model1, surface);
-    if (s1)
-      mPlot->setSurface(util::unitConversion(model_values.at(model1).at(surface), s1->unit(), surface_unit));
+  { std::string surface_id, surface_unit;
+    if (zType == vcross::Z_TYPE_PRESSURE) {
+      surface_id = VC_SURFACE_PRESSURE;
+      surface_unit = "hPa";
+    } else if (zType == vcross::Z_TYPE_HEIGHT) {
+      surface_id = VC_SURFACE_HEIGHT;
+      surface_unit = "m";
+    }
+    if (not surface_id.empty()) {
+      if (InventoryBase_cp surface = mCollector->getResolvedField(model1, surface_id))
+        mPlot->setSurface(util::unitConversion(model_values.at(model1).at(surface_id),
+                surface->unit(), surface_unit));
+    }
   }
-
-  //mPlot->setVerticalAxis(zQuantity);
   mPlot->prepare();
 }
 
@@ -702,7 +703,7 @@ std::vector<std::string> QtManager::writeLog()
 void QtManager::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  mOptions->readOptions(vstr);
+  readOptions(vstr);
 }
 
 } // namespace vcross

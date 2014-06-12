@@ -50,7 +50,7 @@
 #include <iterator>
 #include <iomanip>
 
-#define MILOGGER_CATEGORY "diana.QtPlot"
+#define MILOGGER_CATEGORY "vcross.QtPlot"
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
@@ -283,10 +283,10 @@ void QtPlot::setHorizontalTime(const LonLat& tgPosition, const std::vector<miuti
 
 void QtPlot::setVerticalAxis()
 {
-//  mAxisY->setType(mOptions->verticalScale);
+  mAxisY->setType(mOptions->verticalScale);
   mAxisY->setQuantity(mOptions->verticalCoordinate);
-  mAxisY->label = mOptions->verticalUnit;
-
+  mAxisY->setLabel(mOptions->verticalUnit);
+  mViewChanged = true;
 }
 
 QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)
@@ -362,7 +362,7 @@ void QtPlot::prepareYAxisRange()
   }
   if (not have_z)
     return;
-  if (mAxisY->quantity == vcross::detail::Axis::PRESSURE)
+  if (not mAxisY->increasing())
     std::swap(yax_min, yax_max);
   METLIBS_LOG_DEBUG(LOGVAL(yax_min) << LOGVAL(yax_max));
   mAxisY->setDataRange(yax_min, yax_max);
@@ -394,7 +394,7 @@ void QtPlot::prepareAxesForAspectRatio()
 
   const float rangeX = std::abs(mAxisX->getValueMax() - mAxisX->getValueMin());
   float rangeY = v2h * std::abs(mAxisY->getValueMax() - mAxisY->getValueMin());
-  if (mAxisY->quantity == vcross::detail::Axis::PRESSURE)
+  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
     rangeY *= 10; // approximately 10m/hPa
 
   // m/pixel on x and y axis
@@ -749,23 +749,33 @@ void QtPlot::plotFrame(QPainter& painter)
   const float *tickValues = 0, *tickLabels = 0;
   float scale = 1;
 
-  if (mAxisY->quantity == vcross::detail::Axis::PRESSURE) {
+  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
     tickValues = plevels;
     nticks = mfl;
-    if (mAxisY->label == "hPa") {
+    if (mAxisY->label() == "hPa") {
       tickLabels = plevels;
-    } else if (mAxisY->label == "FL") {
+    } else if (mAxisY->label() == "FL") {
       tickLabels = flevels;
+    } else {
+      METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
+      return;
     }
-  } else if (mAxisY->quantity == vcross::detail::Axis::HEIGHT) {
-    if (mAxisY->label == "m") {
+  } else if (mAxisY->quantity() == vcross::detail::Axis::HEIGHT) {
+    if (mAxisY->label() == "m") {
       nticks = nzsteps;
       tickValues = tickLabels = zsteps;
-    } else if (mAxisY->label == "Ft") {
+    } else if (mAxisY->label() == "Ft") {
         scale = fl2m;
         nticks = nftsteps;
         tickValues = tickLabels = ftsteps;
+    } else {
+      METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
+      return;
     }
+  }
+  if (nticks == 0 or not tickValues or not tickLabels) {
+    METLIBS_LOG_WARN("missing y axis ticks or labels");
+    return;
   }
   METLIBS_LOG_DEBUG(LOGVAL(nticks));
 
@@ -805,7 +815,7 @@ void QtPlot::plotFrame(QPainter& painter)
       if (mAxisY->legalPaint(tickY)) {
         const float tickLabel = tickLabels[i];
         std::ostringstream ostr;
-        ostr << int(tickLabel) << mAxisY->label;
+        ostr << int(tickLabel) << mAxisY->label();
         const std::string txt = ostr.str();
         const QString c_str = QString::fromStdString(txt);
         const float labelW = painter.fontMetrics().width(c_str), labelH = painter.fontMetrics().height();

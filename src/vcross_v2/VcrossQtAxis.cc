@@ -3,10 +3,23 @@
 
 #include <diField/VcrossUtil.h>
 
-#define MILOGGER_CATEGORY "diana.VcrossAxis"
+#define MILOGGER_CATEGORY "vcross.Axis"
 #include <miLogger/miLogging.h>
 
-namespace vcross { namespace detail {
+namespace vcross {
+namespace detail {
+
+Axis::Axis(bool h)
+  : horizontal(h)
+  , type(LINEAR)
+  , mQuantity(h ? DISTANCE : PRESSURE)
+  , valueMin(0)
+  , valueMax(1)
+  , paintMin(0)
+  , paintMax(1)
+  , mScale(1)
+{
+}
 
 bool Axis::legalPaint(float p) const
 {
@@ -25,63 +38,45 @@ bool Axis::legalData(float d) const
 
 float Axis::function(float x) const
 {
-  switch (type) {
-  case LINEAR:
-    return x;
-  case EXNER:
+  if (type == EXNER and mQuantity == PRESSURE)
     return vcross::util::exnerFunction(x);
-  }
-  return x; // not reached
+  return x; // LINEAR
 }
 
 float Axis::functionInverse(float x) const
 {
-  switch (type) {
-  case LINEAR:
-    return x;
-  case EXNER:
+  if (type == EXNER and mQuantity == PRESSURE)
     return vcross::util::exnerFunctionInverse(x);
-  }
-  return x; // not reached
+  return x; // LINEAR
 }
 
 void Axis::calculateScale()
 {
-  //METLIBS_LOG_SCOPE();
   const float dp = (paintMax - paintMin),
-      dv = (valueMax-valueMin),
-      fdv = function(dv);
-  scale = dp / fdv;
-  //METLIBS_LOG_DEBUG(LOGVAL(dp) << LOGVAL(dv) << LOGVAL(fdv) << LOGVAL(scale) << LOGVAL(valueMin) << LOGVAL(valueMax));
+      dv = fValueMax()-fValueMin();
+  mScale = dp / dv;
 }
-
 
 float Axis::value2paint(float v, bool check) const
 {
-  //METLIBS_LOG_SCOPE();
   if (check and not legalValue(v))
     return -1e35;
-  const float vv = (v-valueMin),
-      fvv = function(vv),
-      sfvv = scale * fvv;
-  //METLIBS_LOG_DEBUG(LOGVAL(vv) << LOGVAL(fvv) << LOGVAL(sfvv) << LOGVAL(scale));
-  return sfvv + paintMin;
+
+  const float vv = function(v)-fValueMin(),
+      sfvv = mScale * vv,
+      p = sfvv + paintMin;
+  return p;
 }
 
 float Axis::paint2value(float p, bool check) const
 {
-  METLIBS_LOG_SCOPE();
   if (check and not legalPaint(p))
     return -1e35;
 
   const float pp = (p-paintMin),
-      spp = pp/scale,
-      ispp = functionInverse(spp),
-      v = ispp + valueMin;
-  METLIBS_LOG_DEBUG(LOGVAL(p) << LOGVAL(pp) << LOGVAL(spp) << LOGVAL(ispp) << LOGVAL(v));
+      spp = pp/mScale + fValueMin(),
+      v = functionInverse(spp);
   return v;
-
-  return functionInverse((p-paintMin)/scale) + valueMin;
 }
 
 bool Axis::zoomIn(float paint0, float paint1)
@@ -133,46 +128,41 @@ bool Axis::pan(float delta)
   }
 }
 
-bool Axis::setType( std::string t)
+bool Axis::setType(const std::string& t)
 {
-
-  if ( t == "exner" ) {
+  METLIBS_LOG_SCOPE(LOGVAL(t));
+  if (t == "exner")
     type = EXNER;
-    return true;
-  }
-
-  if (t == "linear" ) {
+  else if (t == "linear")
     type = LINEAR;
-    return true;
-  }
+  else
+    return false;
 
-  return false;
+  calculateScale();
+  return true;
 }
 
-bool Axis::setQuantity( std::string q)
+bool Axis::setQuantity(const std::string& q)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(q));
+  if (q == "time")
+    mQuantity = TIME;
+  else if (q == "distance")
+    mQuantity = DISTANCE;
+  else if (q == "Height")
+    mQuantity = HEIGHT;
+  else if (q == "Pressure")
+    mQuantity = PRESSURE;
+  else
+    return false;
 
-  if (q == "time" ) {
-    quantity = TIME;
-    return true;
-  }
-
-  if (q == "distance" ) {
-    quantity = DISTANCE;
-    return true;
-  }
-
-  if (q == "Height" ) {
-    quantity = HEIGHT;
-    return true;
-  }
-
-  if (q == "Pressure" ) {
-    quantity = PRESSURE;
-    return true;
-  }
-
-  return false;
+  return true;
 }
 
-} /*namespace detail*/ } /*namespace vcross*/
+bool Axis::increasing() const
+{
+  return mQuantity != PRESSURE; // FIXME
+}
+
+} /*namespace detail*/
+} /*namespace vcross*/

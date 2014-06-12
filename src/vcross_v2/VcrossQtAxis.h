@@ -15,6 +15,8 @@ struct Axis {
   enum Type { LINEAR, EXNER };
   enum Quantity { TIME, DISTANCE, HEIGHT, PRESSURE };
   
+  Axis(bool h);
+
   void setDataRange(float mi, float ma)
     { dataMin = mi; dataMax = ma; }
   void setValueRange(float mi, float ma)
@@ -45,28 +47,42 @@ struct Axis {
   bool legalValue(float v) const;
   bool legalData(float d) const;
 
-  bool setType( std::string t);
-  bool setQuantity( std::string q);
+  void setLabel(const std::string& l)
+    { mLabel = l; }
+  const std::string& label() const
+    { return mLabel; }
 
-  bool horizontal;
-  Type type;
-  Quantity quantity;
-  std::string label;
+  bool setType(const std::string& t);
+  bool setQuantity(const std::string& q);
+  Quantity quantity() const
+    { return mQuantity; }
 
-  Axis(bool h)
-    : horizontal(h), type(LINEAR), quantity(h ? DISTANCE : PRESSURE), valueMin(0), valueMax(1), paintMin(0), paintMax(1), scale(1) { }
+  bool increasing() const;
 
 private:
+  float fDataMin() const
+    { return function(dataMin); }
+  float fDataMax() const
+    { return function(dataMax); }
+  float fValueMin() const
+    { return function(valueMin); }
+  float fValueMax() const
+    { return function(valueMax); }
   void calculateScale();
 
   float function(float x) const;
   float functionInverse(float x) const;
 
 private:
+  bool horizontal;
+  Type type;
+  Quantity mQuantity;
+  std::string mLabel;
+
   float dataMin, dataMax;
   float valueMin, valueMax;
   float paintMin, paintMax;
-  float scale;
+  float mScale;
 };
 
 typedef boost::shared_ptr<Axis> AxisPtr;

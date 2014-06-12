@@ -217,8 +217,8 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   opts= VcrossSetupUI::useTextChoice;
   vcSetups.push_back(new VcrossSetupUI(parent,VERTICALTYPE,glayout,nrow++,opts));
   std::vector<std::string> vchoice;
-//  vchoice.push_back("Standard/hPa");
-//  vchoice.push_back("Standard/FL");
+  vchoice.push_back("Standard/hPa");
+  vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/hPa");
   vchoice.push_back("Pressure/FL");
   vchoice.push_back("Height/m");
