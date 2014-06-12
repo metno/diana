@@ -3263,7 +3263,8 @@ bool FieldPlot::plotFillCell()
     return false;
 
   vector<Colour> palette;
-
+  // How to deal with palettecolours_cold
+  // For now, dont create one
   if (poptions.palettecolours.size() == 0) {
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
@@ -3287,7 +3288,7 @@ bool FieldPlot::plotFillCell()
       fields[0]->gridResolutionY * factor, area, maprect, true, rnx, rny, &x,
       &y, ix1, ix2, iy1, iy2, false);
 
-// Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
+  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
   if (ix2 == nx - 1) {
     ix2--;
   }
@@ -3311,6 +3312,10 @@ bool FieldPlot::plotFillCell()
   if (poptions.alpha < 255) {
     for (size_t i = 0; i < poptions.palettecolours.size(); i++) {
       poptions.palettecolours[i].set(Colour::alpha,
+          (unsigned char) poptions.alpha);
+    }
+    for (size_t i = 0; i < poptions.palettecolours_cold.size(); i++) {
+      poptions.palettecolours_cold[i].set(Colour::alpha,
           (unsigned char) poptions.alpha);
     }
   }
@@ -3337,17 +3342,42 @@ bool FieldPlot::plotFillCell()
         float y4 = y[(iy + 1) * (rnx + 1) + (ix)];
 
         // set fillcolor of cell
+        // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
           size_t index = 0;
-          if (poptions.repeat || value > poptions.base)
-            index = int((value - poptions.base) / poptions.lineinterval)
-                % poptions.palettecolours.size();
-
-          if (index > poptions.palettecolours.size() - 1)
-            index = poptions.palettecolours.size() - 1;
-          if (index < 0)
-            index = 0;
-          glColor4ubv(poptions.palettecolours[index].RGBA());
+          if ((poptions.repeat && value > poptions.base)
+              || value > poptions.base) {
+            if (poptions.repeat) {
+              index = int((value - poptions.base) / poptions.lineinterval)
+                  % poptions.palettecolours.size();
+            } else {
+              // Just divide by lineintervall...
+              index = int((value - poptions.base) / poptions.lineinterval);
+            }
+            if (index > poptions.palettecolours.size() - 1)
+              index = poptions.palettecolours.size() - 1;
+            if (index < 0)
+              index = 0;
+            glColor4ubv(poptions.palettecolours[index].RGBA());
+          } else if (poptions.palettecolours_cold.size() != 0) {
+            float base = poptions.lineinterval
+                * poptions.palettecolours_cold.size() - poptions.base;
+            if (poptions.repeat) {
+              index = int((value + base) / poptions.lineinterval)
+                  % poptions.palettecolours_cold.size();
+            } else {
+              index = int((value + base) / poptions.lineinterval);
+            }
+            index = poptions.palettecolours_cold.size() - 1 - index;
+            if (index > poptions.palettecolours_cold.size() - 1)
+              index = poptions.palettecolours_cold.size() - 1;
+            if (index < 0)
+              index = 0;
+            glColor4ubv(poptions.palettecolours_cold[index].RGBA());
+          } else {
+            // Use index 0...
+            glColor4ubv(poptions.palettecolours_cold[index].RGBA());
+          }
         } else {
           std::vector<float>::const_iterator it = poptions.linevalues.begin();
           while (*it < value && it != poptions.linevalues.end()) {
