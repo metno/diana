@@ -214,7 +214,7 @@ SyntaxError_v Setup::configurePlots(const string_v& lines)
 
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
     ConfiguredPlot_cp ps = parsePlotLine(lines[l]);
-    if (ps->valid())
+    if (ps and ps->valid())
       mPlots.push_back(ps);
     else
       errors.push_back(SyntaxError(l, "parse error for plot"));
