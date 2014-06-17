@@ -305,6 +305,7 @@ void Text::drawIncomplete() const
 void Text::editItem()
 {
   EditItemManager::instance()->editItem(this);
+  EditItemManager::instance()->setFocus(true);
 }
 
 } // namespace EditItem_Text
