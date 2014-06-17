@@ -616,16 +616,15 @@ void VprofManager::endHardcopy(){
 
 bool VprofManager::plot()
 {
-
-  METLIBS_LOG_DEBUG("VprofManager::plot  " << plotStation << "  " << plotTime);
-
+  METLIBS_LOG_SCOPE(LOGVAL(plotStation) << LOGVAL(plotTime));
 
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt);
     vpdiag->setPlotWindow(plotw,ploth);
     int nobs= (showObs) ? 1 : 0;
     int nmod= vpdata.size();
-    if (nobs+nmod==0) nobs= 1;
+    if (nobs+nmod==0)
+      nobs= 1;
     vpdiag->changeNumber(nobs,nmod);
   }
 
@@ -639,20 +638,17 @@ bool VprofManager::plot()
 
   if (not plotStation.empty()) {
 
-    int m= vpdata.size();
-
-    for (int i=0; i<m; i++) {
-      VprofPlot *vp= vpdata[i]->getData(plotStation,plotTime);
-      if (vp) {
-        vp->plot(vpopt,i);
-        delete vp;
-      }
+    for (size_t i=0; i<vpdata.size(); i++) {
+      std::auto_ptr<VprofPlot> vp(vpdata[i]->getData(plotStation,plotTime));
+      if (vp.get())
+        vp->plot(vpopt, i);
     }
 
     if (showObs) {
       int n= nameList.size();
       int i= 0;
-      while (i<n && nameList[i]!=plotStation) i++;
+      while (i<n && nameList[i]!=plotStation)
+        i++;
 
       if (i<n && not obsList[i].empty()) {
         checkObsTime(plotTime.hour());
@@ -717,7 +713,7 @@ bool VprofManager::plot()
           nn++;
         }
         if (vp) {
-          vp->plot(vpopt,m);
+          vp->plot(vpopt, vpdata.size());
           delete vp;
         }
       }
