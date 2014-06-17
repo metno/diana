@@ -451,7 +451,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
 
 
   //read input file
-  std::string modelName = filename;
+  std::string modelName = "SOURCE_" + filename;
   filenames.clear();
   filenames.push_back(filename);
 
@@ -466,12 +466,6 @@ bool FieldEdit::readEditfield(const std::string& filename)
 
   if ( format[0] == "felt" && !inputFieldConfig.empty() ) {
     config.push_back(inputFieldConfig);
-  }
-
-  option.clear();
-  if ( format[0] == "netcdf" )  {
-    std::string opt = "writeable=true";
-    option.push_back(opt);
   }
 
   fieldPlotManager->addGridCollection(fileType, modelName, filenames,
