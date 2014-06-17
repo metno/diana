@@ -33,9 +33,6 @@
 #include "config.h"
 #endif
 
-#define MILOGGER_CATEGORY "diana.VprofPlot"
-#include <miLogger/miLogging.h>
-
 #include "diVprofPlot.h"
 #include "diColour.h"
 
@@ -44,72 +41,80 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std; using namespace miutil;
+#define MILOGGER_CATEGORY "diana.VprofPlot"
+#include <miLogger/miLogging.h>
+
+using namespace std;
+using namespace miutil;
 
 //#define DEBUGPRINT 1
 
-// Default constructor
 VprofPlot::VprofPlot()
-: VprofTables(), windInKnots(true)
+  : VprofTables()
+  , windInKnots(true)
 {
-  METLIBS_LOG_DEBUG("++ VprofPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
 }
 
-
-// Destructor
 VprofPlot::~VprofPlot() {
-  METLIBS_LOG_DEBUG("++ VprofPlot::Destructor");
+  METLIBS_LOG_SCOPE();
 }
 
+bool VprofPlot::idxForValue(float& v, int& i) const
+{
+  if (isnan(v) or v <= -1e35 or v >= 1e35)
+    return false;
+  v /= idptab;
+  i = int(v); // FIXME this will probably not work correctly if v < 0
+  return (i>=0 and i+1<mptab);
+}
+
+float VprofPlot::tabForValue(const float* tab, float x) const
+{
+  int i = 0;
+  if (not idxForValue(x, i))
+    return 0;
+  return tab[i]+(tab[i+1]-tab[i])*(x-i);
+}
 
 bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 {
-  METLIBS_LOG_DEBUG("++ VprofPlot::plot " << nplot);
+  METLIBS_LOG_SCOPE(LOGVAL(nplot));
 
   if (text.posName.empty())
     return false;
 
-  METLIBS_LOG_DEBUG("++ VprofPlot::plot start plotting " << text.posName);
+  METLIBS_LOG_DEBUG("start plotting " << text.posName);
 
-  const float dptab=idptab;
-  const float dpinv=1./dptab;
-  //const float rad=3.141592654/180.;
-  //const float undef=+1.e+35;
   const float dx1deg= dx1degree;
 
-  unsigned int i, nlevel=0;
-  float x,y;
+  // VprofPlot::maxLevels is set in VprofData::getData (VprofData is a friend)
   float *xx= new float[maxLevels];
   float *xz= new float[maxLevels];
   float *yy= new float[maxLevels];
 
-  i= vpopt->dataColour.size();
-  if (i>vpopt->dataLinewidth.size()) i= vpopt->dataLinewidth.size();
-  if (i>vpopt->windLinewidth.size()) i= vpopt->windLinewidth.size();
-  i= nplot%i;
+  const int nstyles = std::min(vpopt->dataColour.size(),
+      std::min(vpopt->dataLinewidth.size(), vpopt->windLinewidth.size()));
+  const int istyle = nplot % nstyles;
 
-  Colour c= Colour(vpopt->dataColour[i]);
+  const Colour c(vpopt->dataColour[istyle]);
   glColor3ubv(c.RGB());
-
-  float dataWidth= vpopt->dataLinewidth[i];
-  float windWidth= vpopt->windLinewidth[i];
+  const float dataWidth= vpopt->dataLinewidth[istyle];
+  const float windWidth= vpopt->windLinewidth[istyle];
   glLineWidth(dataWidth);
 
   // levels for T (always)
   if (ptt.size()>0) {
-    nlevel= ptt.size();
-	METLIBS_LOG_DEBUG("ptt.size()," << nlevel);
-	for (unsigned int k=0; k<nlevel; k++) {
-	  METLIBS_LOG_DEBUG("ptt:"<<ptt[k]);
-      x= ptt[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-      xz[k]= xztab[i]+(xztab[i+1]-xztab[i])*(x-i);
+    const size_t nlevel = std::min(maxLevels, ptt.size());
+    for (unsigned int k=0; k<nlevel; k++) {
+      yy[k] = tabForValue(yptab, ptt[k]);
+      xz[k] = tabForValue(xztab, ptt[k]);
     }
   }
 
   // T
-  if (vpopt->ptttt) {
+  if (vpopt->ptttt and tt.size() >= ptt.size()) {
+    const size_t nlevel = std::min(maxLevels, tt.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*tt[k];
     xyclip(nlevel,xx,yy,&xysize[1][0]);
@@ -118,14 +123,10 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
   // levels for Td (if not same as T levels)
   if (vpopt->ptdtd && ptd.size()>0) {
-    nlevel= ptd.size();
-	METLIBS_LOG_DEBUG("ptd.size()," << nlevel);
+    const size_t nlevel = std::min(maxLevels, ptd.size());
     for (unsigned int k=0; k<nlevel; k++) {
-      METLIBS_LOG_DEBUG("ptd:"<<ptd[k]);
-      x= ptd[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-      xz[k]= xztab[i]+(xztab[i+1]-xztab[i])*(x-i);
+      yy[k] = tabForValue(yptab, ptd[k]);
+      xz[k] = tabForValue(xztab, ptd[k]);
     }
   }
 
@@ -133,6 +134,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   if (vpopt->ptdtd && td.size()>0) {
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1,0xFFC0);
+    const size_t nlevel = std::min(maxLevels, td.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*td[k];
     xyclip(nlevel,xx,yy,&xysize[1][0]);
@@ -140,18 +142,11 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     glDisable(GL_LINE_STIPPLE);
   }
 
-
-
   // levels for wind and significant levels (if not same as T levels)
   if ((vpopt->pwind || vpopt->pslwind) && puv.size()>0) {
-    nlevel= puv.size();
-	METLIBS_LOG_DEBUG("puv.size()," << nlevel);
-    for (unsigned int k=0; k<nlevel; k++) {
-	  METLIBS_LOG_DEBUG(puv[k]);
-      x= puv[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-    }
+    const size_t nlevel = std::min(maxLevels, puv.size());
+    for (unsigned int k=0; k<nlevel; k++)
+      yy[k] = tabForValue(yptab, puv[k]);
   }
 
   // wind (u(e/w) and v(n/s)in unit knots)
@@ -174,6 +169,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     glLineWidth(windWidth);
     glBegin(GL_LINES);
 
+    const size_t nlevel = std::min(maxLevels, std::min(uu.size(), vv.size()));
     for (unsigned int k=0; k<nlevel; k++) {
       if (yy[k]>=ylim1 && yy[k]<=ylim2) {
         gx= x0;
@@ -250,7 +246,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       // draw 50-knot flags
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       glBegin(GL_TRIANGLES);
-      for (i=0; i<vi; i++)
+      for (size_t i=0; i<vi; i++)
         glVertex2f(vx[i],vy[i]);
       glEnd();
       UpdateOutput();
@@ -266,6 +262,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     float ylim2= xysize[4][3]-dchy*0.5;
     int k1= -1;
     int k2= -1;
+    const size_t nlevel = std::min(maxLevels, puv.size());
     for (unsigned int k=0; k<nlevel; k++) {
       if (yy[k]>ylim1 && yy[k]<ylim2) {
         if (k1==-1) k1= k;
@@ -275,8 +272,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
     if (k1>=0) {
       float *used= new float[nlevel];
-      unsigned int nused=0;
-      x= xysize[4][0]+(xysize[4][1]-xysize[4][0])*nplot+chxlab*0.5;
+      size_t nused = 0;
+      const float x= xysize[4][0]+(xysize[4][1]-xysize[4][0])*nplot+chxlab*0.5;
       setFontsize(chylab);
 
       for (int sig=3; sig>=0; sig--) {
@@ -284,7 +281,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
           if (sigwind[k]==sig) {
             ylim1= yy[k]-dchy;
             ylim2= yy[k]+dchy;
-            i= 0;
+            size_t i= 0;
             while (i<nused && (used[i]<ylim1 || used[i]>ylim2)) i++;
             if (i==nused) {
               used[nused++]= yy[k];
@@ -295,7 +292,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
               ostr << setw(2) << setfill('0') << idd << "-"
               << setw(3) << setfill('0') << iff;
               std::string str= ostr.str();
-              y= yy[k]-chylab*0.5;
+              const float y= yy[k]-chylab*0.5;
               fp->drawStr(str.c_str(),x,y,0.0);
             }
           }
@@ -308,12 +305,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
   // levels for vertical wind, omega (if not same as T levels)
   if (vpopt->pvwind && pom.size()>0) {
-    nlevel= pom.size();
-    for (unsigned int k=0; k<nlevel; k++) {
-      x= pom[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-    }
+    const size_t nlevel = std::min(maxLevels, pom.size());
+    for (unsigned int k=0; k<nlevel; k++)
+      yy[k] = tabForValue(yptab, pom[k]);
   }
 
   float xylimit[4] = { 0., 0., xysize[1][2], xysize[1][3] };
@@ -323,6 +317,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     float dx= xysize[6][1] - xysize[6][0];
     float x0= xysize[6][0] + dx*0.5;
     float scale= -dx/vpopt->rvwind;
+    const size_t nlevel = std::min(maxLevels, om.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= x0 + scale*om[k];
     xylimit[0]= xysize[6][0];
@@ -332,22 +327,16 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
   }
 
   if (!prognostic && (vpopt->prelhum || vpopt->pducting)) {
-    nlevel= pcom.size();
-    for (unsigned int k=0; k<nlevel; k++) {
-      x= pcom[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-    }
+    const size_t nlevel = std::min(maxLevels, pcom.size());
+    for (unsigned int k=0; k<nlevel; k++)
+      yy[k] = tabForValue(yptab, pcom[k]);
   }
 
   // levels for relative humidity (same as T levels)
   if (vpopt->prelhum && ptt.size()>0 && (ptt.size() == ptd.size())) {
-    nlevel= ptt.size();
-    for (unsigned int k=0; k<nlevel; k++) {
-      x= ptt[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-    }
+    const size_t nlevel = std::min(maxLevels, ptt.size());
+    for (unsigned int k=0; k<nlevel; k++)
+      yy[k] = tabForValue(yptab, ptt[k]);
   }
 
   // relative humidity
@@ -361,7 +350,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       else
         relhum(tcom,tdcom);
     }
-    if (rhum.size()==nlevel) {
+    if (rhum.size() == ptt.size()) {
+      const size_t nlevel = std::min(maxLevels, rhum.size());
       for (unsigned int k=0; k<nlevel; k++)
         xx[k]= x0 + scale*rhum[k];
       xylimit[0]= xysize[7][0];
@@ -373,12 +363,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 
   // levels for ducting (same as T levels)
   if (vpopt->pducting && ptt.size()>0 && (ptt.size() == ptd.size())) {
-    nlevel= ptt.size();
-    for (unsigned int k=0; k<nlevel; k++) {
-      x= ptt[k]*dpinv;
-      i= int(x);
-      yy[k]= yptab[i]+(yptab[i+1]-yptab[i])*(x-i);
-    }
+    const size_t nlevel = std::min(maxLevels, ptt.size());
+    for (unsigned int k=0; k<nlevel; k++)
+      yy[k] = tabForValue(yptab, ptt[k]);
   }
 
   // ducting
@@ -393,7 +380,8 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       else
         ducting(pcom,tcom,tdcom);
     }
-    if (duct.size()==nlevel) {
+    if (duct.size()==ptt.size()) {
+      const size_t nlevel = std::min(maxLevels, duct.size());
       for (unsigned int k=0; k<nlevel; k++)
         xx[k]= x0 + scale*duct[k];
       xylimit[0]= xysize[8][0];
@@ -426,9 +414,9 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 }
 
 
-void VprofPlot::relhum(const vector<float>& tt,
-    const vector<float>& td) {
-  METLIBS_LOG_DEBUG("++ VprofPlot::relhum(...)");
+void VprofPlot::relhum(const vector<float>& tt, const vector<float>& td)
+{
+  METLIBS_LOG_SCOPE();
 
   int nlev= tt.size();
   rhum.resize(nlev);
@@ -526,52 +514,44 @@ void VprofPlot::ducting(const vector<float>& pp,
 
 
 void VprofPlot::kindex(const vector<float>& pp,
-    const vector<float>& tt,
-    const vector<float>& td) {
+    const vector<float>& tt, const vector<float>& td)
+{
+  METLIBS_LOG_SCOPE();
 
   // K-index = (t+td)850 - (t-td)700 - (t)500
 
-  METLIBS_LOG_DEBUG("++ VprofPlot::kindex(...)");
-
-  const float dptab=idptab;
-  const float dpinv=1./dptab;
-  const float pfind[3]= { 850., 700., 500. };
-
-  float tfind[3], tdfind[3];
-
   text.kindexFound= false;
 
-  int nlev= pp.size();
-  if (nlev<2) return;
+  const int nlev= pp.size();
+  if (nlev<2)
+    return;
 
-  bool pIncreasing= (pp[0]<pp[nlev-1]);
+  const bool pIncreasing= (pp[0]<pp[nlev-1]);
   if (pIncreasing) {
     if (pp[0]>500. || pp[nlev-1]<850.) return;
   } else {
     if (pp[0]<850. || pp[nlev-1]>500.) return;
   }
 
-  float x,pi,pi1,pi2;
-  int   i,k,n;
+  const int NP = 3;
+  const float pfind[NP]= { 850., 700., 500. };
+  float tfind[NP], tdfind[NP];
 
-  for (n=0; n<3; n++) {
-    k= 1;
+  for (int n=0; n<NP; n++) {
+    int k= 1;
     if (pIncreasing)
-      while (k<nlev && pfind[n]>pp[k]) k++;
+      while (k<nlev && pfind[n]>pp[k])
+        k++;
     else
-      while (k<nlev && pfind[n]<pp[k]) k++;
-    if (k==nlev) k--;
+      while (k<nlev && pfind[n]<pp[k])
+        k++;
+    if (k==nlev)
+      k--;
 
     // linear interpolation in exner function
-    x= pp[k-1]*dpinv;
-    i= int(x);
-    pi1= pitab[i]+(pitab[i+1]-pitab[i])*(x-i);
-    x= pp[k]*dpinv;
-    i= int(x);
-    pi2= pitab[i]+(pitab[i+1]-pitab[i])*(x-i);
-    x= pfind[n]*dpinv;
-    i= int(x);
-    pi= pitab[i]+(pitab[i+1]-pitab[i])*(x-i);
+    const float pi1 = tabForValue(pitab, pp[k-1]);
+    const float pi2 = tabForValue(pitab, pp[k]);
+    const float pi = tabForValue(pitab, pfind[n]);
 
     tfind[n]=  tt[k-1] + (tt[k]-tt[k-1])*(pi-pi1)/(pi2-pi1);
     tdfind[n]= td[k-1] + (td[k]-td[k-1])*(pi-pi1)/(pi2-pi1);

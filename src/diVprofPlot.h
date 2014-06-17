@@ -64,11 +64,14 @@ public:
   void setName(const std::string& name) { text.posName=name; }
 
 private:
+  bool idxForValue(float& v, int& i) const;
+  float tabForValue(const float* tab, float x) const;
 
+private:
   VprofText text;
   bool   prognostic;
   bool   windInKnots;
-  int    maxLevels;
+  size_t maxLevels;
 
   std::vector<float> ptt, tt;
   std::vector<float> ptd, td;
