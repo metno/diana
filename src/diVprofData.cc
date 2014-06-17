@@ -104,12 +104,14 @@ bool VprofData::readFimex(const std::string& setup_line)
   vc_select_plots(collector, plot_defs);
 
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
+  if (not inv)
+    return false;
 
   std::set<std::string> csLabels;
   vector<station> stations;
   BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
-
-    if ( cs->points.size() != 1 ) continue;
+    if (cs->points.size() != 1)
+      continue;
     csLabels.insert(cs->label);
     station st;
     st.id = "";
