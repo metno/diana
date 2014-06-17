@@ -833,44 +833,33 @@ vector<string> VprofManager::getSelectedModels()
 
 /***************************************************************************/
 
-bool VprofManager::initVprofData(std::string file,std::string model){
-
+bool VprofManager::initVprofData(std::string file, std::string model)
+{
   METLIBS_LOG_SCOPE();
 
-  VprofData *vpd= new VprofData(file,model);
-  if(filetypes[file] == "standard") {
-    if (vpd->readFile()) {
-      METLIBS_LOG_INFO("VPROFDATA READFILE OK for model " << model);
-      vpdata.push_back(vpd);
-      return true;
-    } else {
-      METLIBS_LOG_ERROR("VPROFDATA READFILE ERROR file " << file);
-      delete vpd;
-      return false;
-    }
-  } else if (filetypes[file] == "GribFile") {
-    //    METLIBS_LOG_DEBUG("Model is a gribfile");
-    if (vpd->readField(filetypes[file],fieldm)) {
-      METLIBS_LOG_INFO("VPROFDATA READFIELD OK for model " << model);
-      vpdata.push_back(vpd);
-      return true;
-    } else {
-      METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
-      return false;
-    }
+  std::auto_ptr<VprofData> vpd(new VprofData(file, model));
+  const std::string filetype = filetypes[file];
+  bool ok = false;
+  if (filetype == "standard") {
+    ok = vpd->readFile();
+  } else if (filetype == "GribFile") {
+    ok = vpd->readField(filetypes[file], fieldm);
   } else if (filetypes[file] == "netcdf") {
-    //    METLIBS_LOG_DEBUG("Model is a fimex source");
-    if (vpd->readFimex(filesetup[file])) {
-      METLIBS_LOG_INFO("VPROFDATA READTEST OK for model " << model);
-      vpdata.push_back(vpd);
-      return true;
-    } else {
-      METLIBS_LOG_ERROR("VPROFDATA READFIELD ERROR: " << file);
-      return false;
-    }
+    ok = vpd->readFimex(filesetup[file]);
+  } else {
+    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << file << "' model '"
+        << model << "' has unknown filetype '" << filetype << "'");
+    return false;
   }
-
-  return false;
+  if (ok) {
+    METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << model << "' filetype '"
+        << filetype << "'");
+    vpdata.push_back(vpd.release());
+  } else {
+    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << file << "' model '"
+        << model << "' filetype '" << filetype << "'");
+  }
+  return ok;
 }
 
 /***************************************************************************/
