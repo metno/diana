@@ -1394,27 +1394,23 @@ bool glText::drawChar(const int c, const float x, const float y,
     ENSURE_CTX_AND_PAINTER_BOOL
     if (!ctx->colorMask) return true;
 
-    QPointF sp = ctx->transform * QPointF(x, y);
-
-    float rot = a;
-    if (ctx->transform.isRotating()) {
-      QTransform t = ctx->transform;
-      t = t.scale(1/t.m11(), 1/t.m22());
-      QPointF p = t * QPointF(1.0, 0);
-      rot += -90.0 + (qAtan2(p.y(), p.x()) * 180.0 / M_PI);
-    }
-
     ctx->painter->save();
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
 
-    ctx->painter->setFont(ctx->font);
+    QFont f = QFont(ctx->font);
+    f.setPointSizeF(f.pointSizeF()/(0.5*(qAbs(ctx->transform.m11()) + qAbs(ctx->transform.m22()))));
+    ctx->painter->setFont(f);
     // No need to record this transformation.
-    ctx->painter->resetTransform();
-    ctx->painter->translate(sp);
-    ctx->painter->rotate(rot);
+    ctx->painter->setTransform(ctx->transform);
     ctx->painter->setPen(QPen(ctx->attributes.color));
-    ctx->painter->drawText(0, 0, QChar::fromLatin1(c));
+    QChar ch = QChar::fromLatin1(c);
+    QFontMetricsF fm(f);
+    float h = fm.boundingRect(ch).height();
+    ctx->painter->translate(x, y);
+    ctx->painter->translate(0, -h/2);
+    ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
+    ctx->painter->drawText(0, -h/2, ch);
     ctx->painter->restore();
     return true;
 }
