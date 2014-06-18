@@ -1396,6 +1396,14 @@ bool glText::drawChar(const int c, const float x, const float y,
 
     QPointF sp = ctx->transform * QPointF(x, y);
 
+    float rot = a;
+    if (ctx->transform.isRotating()) {
+      QTransform t = ctx->transform;
+      t = t.scale(1/t.m11(), 1/t.m22());
+      QPointF p = t * QPointF(1.0, 0);
+      rot += -90.0 + (qAtan2(p.y(), p.x()) * 180.0 / M_PI);
+    }
+
     ctx->painter->save();
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
@@ -1404,9 +1412,9 @@ bool glText::drawChar(const int c, const float x, const float y,
     // No need to record this transformation.
     ctx->painter->resetTransform();
     ctx->painter->translate(sp);
-    ctx->painter->rotate(a);
+    ctx->painter->rotate(rot);
     ctx->painter->setPen(QPen(ctx->attributes.color));
-    ctx->painter->drawText(0, 0, QChar(c));
+    ctx->painter->drawText(0, 0, QChar::fromLatin1(c));
     ctx->painter->restore();
     return true;
 }
@@ -1429,7 +1437,7 @@ bool glText::drawStr(const char* s, const float x, const float y,
     ctx->painter->translate(sp);
     ctx->painter->rotate(-a);
     ctx->painter->setPen(QPen(ctx->attributes.color));
-    ctx->painter->drawText(0, 0, s);
+    ctx->painter->drawText(0, 0, QString::fromLatin1(s));
     ctx->painter->restore();
     return true;
 }
