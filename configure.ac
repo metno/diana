@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.35.1], [diana@met.no])
+AC_INIT([diana], [3.35.4], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])
@@ -127,7 +127,7 @@ AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
 
 AC_ARG_ENABLE([vcross-v2],
     [AS_HELP_STRING([--enable-vcross-v2], [compile version 2 of vertical cross sections])],
-        [], [enable_vcross_v2=no])
+        [], [enable_vcross_v2=yes])
 AM_CONDITIONAL([WITH_VCROSS_V2], [test x$enable_vcross_v2 = xyes])
 
 AC_ARG_ENABLE([perl],

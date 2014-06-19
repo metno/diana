@@ -117,10 +117,6 @@
 	  <td>system specific print commands</td></tr>
 	<tr><td><a href="#QUICKMENUES">QUICKMENUES</a></td>
 	  <td>lists common (for all users) quick menues</td></tr>
-	<tr><td><a href="#METNOFIELDFILE_PARAMETERS">METNOFIELDFILE_PARAMETERS</a></td>
-	  <td>Defines field parameters used in the met.no field file format</td></tr>
-	<tr><td><a href="#NETCDF_PARAMETERS">NETCDF_PARAMETERS</a></td>
-	  <td>NetCDF field parameters used in the NetCDF files</td></tr>
 	<tr><td><a href="#FIELD_COMPUTE">FIELD_COMPUTE</a></td>
 	  <td>defines common (for all sources) field computations </td></tr>
 	<tr><td><a href="#FIELD_PLOT">FIELD_PLOT</a></td>
@@ -276,35 +272,6 @@
     </table>
     <p>
 
-      <!-- PAGEBREAK -->
-
-    <a name="METNOFIELDFILE_PARAMETERS"></a><h3>Section METNOFIELDFILE_PARAMETERS</h3>
-    met.no specific: field parameters used in met.no field file format.
-
-<br>met.no FIELD FILE parameters
-<pre>
- Syntax:
-   Multilevel:               param_name=param_number
-   Surface and single level: param_name=param_number,vertical_coord,level
-   Additinal parameters for both types:
-        prod= produce_number
-        grid= grid_number
-        dtype= data_type  ..... usually:  1=analysis
-                                          2=forecast
-                                          3=initialized analysis
-                                          4=parameter fields (constant during forecast)
-        level= level_value
-        idnum= idnum_value   (level2 in met.no FieldFile descriptions)
-    </pre>
-    <p>
-
-    <br>Example:
-    <pre>
-    mslp=58,2,1000
-    z=1  u=2  v=3
-    </pre>
-    <p>
-
 
     <a name="FIELD_COMPUTE"></a><h3>Section FIELD_COMPUTE</h3>
     defines common (for all sources) field computations.
@@ -391,51 +358,55 @@ end.field
 
     <table border="1" cellpadding="1" cellspacing="0" >
 	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
-	<tr><td>Default_Filetype=</td><td>MetnoFieldFile, fimex, etc.</td><td>Type of field
+	<tr><td>Default_Filetype=</td><td>fimex, etc.</td><td>Type of field
 	source</td></tr>
 	<tr><td>filegroup=</td><td>group name</td><td></td></tr>
 	<tr><td>archivefilegroup=</td><td>group name</td><td>Only used
 	in archive mode</td></tr>
 	<tr><td>m=</td><td>name</td><td>Model name</td></td></tr>
-	<tr><td>t=</td><td>MetnoFieldFile, fimex, etc.</td><td>Type of field source</td></tr>
-	<tr><td>format=</td><td>MetnoFieldFile, netcdf, ncml, grib, etc.</td><td>Used by fimex </td></tr>
+	<tr><td>t=</td><td>fimex, etc.</td><td>Type of field source</td></tr>
+	<tr><td>format=</td><td>felt, netcdf, ncml, grib, etc.</td><td>Used by fimex </td></tr>
 	<tr><td>config=</td><td>/usr/share/fimex/cdmGribReaderConfig.xml </td><td>Parameter and axis definitions, used by fimex</td></tr>
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
-	<tr><td>g=</td><td>88:1234:Name</td><td>for MetnoFieldfiles: prod:grid:Name</td></tr>
 	<tr><td>proj4string=</td><td>"+proj=stere +lat_ts=60 ..."</td><td>This projection overwrites the projection in the datasource</td></tr>
+	<tr><td>turnwavedirection</td><td>true/false</td><td>Different models define wave direction different, possible to turn the direction</td></tr>
 	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
 	file group</td></tr>
 	<tr><td>CLEAR_FILEGROUP</td><td></td><td>Delete current file group</td></tr>
     </table>
 
-    <br>Example:
+    <br>
+<b>Examples:</b>
     <pre>
-filegroup=HIRLAM20km
-m=HIRLAM.20KM.00  t=MetnoFieldFile f=/opdata/hirlam20/grdn00.dat  f=/opdata/hirlam20/grdnm00.dat  f=/opdata/hirlam20/grdni00.dat
-
-filegroup=HIRLAM4km
-m=HIRLAM.4KM.00  t=MetnoFieldFile f=/opdata/explam/grdqh00.dat
-m=HIRLAM.4KM.12  t=MetnoFieldFile f=/opdata/explam/grdqh12.dat
+filegroup=HIRLAM8km
+m=HIRLAM.8KM.00 t=fimex format=felt f=/opdata/hirlam8/h8km00.dat config=$(share_diana_dir)/fimex/fimex_atmos.xml
 
 filegroup=NetCDF
 m=ice_sst t=fimex f=/disk1/tmp/iceSST.nc format=netcdf 
     </pre>
+
+With reference time in filename:
+    <pre>
+filegroup=AROME-MetCoOp
+m=AROME-MetCoOp.2.5KM    t=fimex format=netcdf f=/opdata/arome2_5/arome_metcoop2_5km_[yyyymmdd_HH].nc
+    </pre>
+
 Redefine models:
     <pre>
-FileGroup=HIRLAM4km
-m=HIRLAM.4KM.00  t=MetnoFieldFile f=/disk1/grdqh00.dat
-m=HIRLAM.4KM.12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+FileGroup=HIRLAM8km
+m=HIRLAM.8KM.00 t=fimex format=felt f=/disk1/h8km00.dat config=/usr/share/diana/3.35/fimex/fimex_atmos.xml
     </pre>
+
 Define new models in existing file group:
     <pre>
 FileGroup=HIRLAM4km
 CLEAR_FILES
-m=MY_MODEL_00  t=MetnoFieldFile f=/disk1/grdqh00.dat
-m=MY_MODEL_12  t=MetnoFieldFile f=/disk1/grdqh12.dat
+m=MY_MODEL   t=fimex f=/disk1/myfile.nc format=netcdf 
+
     </pre>
 Delete file group:
     <pre>
-FileGroup=HIRLAM4km
+FileGroup=HIRLAM8km
 CLEAR_FILEGROUP
     </pre>
 

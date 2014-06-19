@@ -1,3 +1,29 @@
+diana (3.35.4-2) unstable; urgency=low
+
+  * bdiana: bugfix rotate symbols
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 18 Jun 2014 19:49:39 +0200
+
+diana (3.35.4-1) unstable; urgency=low
+
+  * Vertical profiles: bugfix significant wind
+  * bdiana: bugfix rotate symbols
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 18 Jun 2014 15:04:14 +0200
+
+diana (3.35.3-1) unstable; urgency=low
+
+  * Vertical profiles: bugfix, now accepting point outside the model area
+  * FieldEdit: Bugfix write permissions
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 17 Jun 2014 14:41:33 +0200
+
+diana (3.35.2-1) unstable; urgency=low
+
+  * Bugfix vcross
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 13 Jun 2014 22:00:46 +0200
+
 diana (3.35.1-2) unstable; urgency=low
 
   * bdiana: Init miTime with default language from setup
