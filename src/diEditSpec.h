@@ -128,6 +128,7 @@ struct EditProduct {
   int   minutesStartEarly;          ///< earliest start time offset (+/-minutes)
   int   minutesStartLate;           ///< latest   start time offset (+/-minutes)
   std::string templateFilename;
+  int autoremove;
 };
 
 #endif

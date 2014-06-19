@@ -125,6 +125,7 @@ bool EditManager::parseSetup()
     ep.combineBorders="./ANAborders.";  // default as old version
     ep.winX=  0;
     ep.winY=  0;
+    ep.autoremove= -1;
 
     if (key=="product" && nval==1) {
       ep.name= values[0];
@@ -282,6 +283,8 @@ bool EditManager::parseSetup()
         }
       } else if (key=="template_file" && nval==1 ){
         ep.templateFilename = values[0];
+      } else if (key=="autoremove" && nval==1 ){
+        ep.autoremove = atoi(values[0].c_str());
       } else {
         ok= false;
       }
@@ -1515,7 +1518,7 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     //datasource info for dialog (inputdirs[n-1]==savedir)
     if (i==n-1) dsource= data_local;
     else        dsource= data_server;
-    findSavedProducts(prods,fileString,dsource,element);
+    findSavedProducts(prods,fileString,dsource,element,ep.autoremove);
   }
 
   //give correct product name
@@ -1560,7 +1563,7 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
       else         filenamePart= ep.fields[j].filenamePart;
       fileString = dir + "/" + pid + "_" + filenamePart+ "*";
       METLIBS_LOG_DEBUG("    find " << fileString);
-      findSavedProducts(combineprods,fileString,dsource,j);
+      findSavedProducts(combineprods,fileString,dsource,j,ep.autoremove);
     }
   }
 
@@ -1634,19 +1637,27 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
 
 void EditManager::findSavedProducts(vector <savedProduct> & prods,
     const std::string fileString,
-    dataSource dsource, int element){
+    dataSource dsource, int element, int autoremove){
 
 
   //get files matching fileString
   glob_t globBuf;
   glob_cache(fileString.c_str(),0,0,&globBuf);
 
+  miTime now = miTime::nowTime();
+
   for (size_t i=0; i<globBuf.gl_pathc; i++) {
     std::string name = globBuf.gl_pathv[i];
     METLIBS_LOG_DEBUG("Found a file " << name);
     savedProduct savedprod;
-    savedprod.pid= objm->prefixFileName(name);
     savedprod.ptime= objm->timeFileName(name);
+    // remove files older than autoremove
+    if (autoremove > 0 && miTime::hourDiff(now,savedprod.ptime) > autoremove ) {
+      METLIBS_LOG_DEBUG("Removing file: "<<name );
+      QFile::remove(name.c_str());
+      continue;
+    }
+    savedprod.pid= objm->prefixFileName(name);
     savedprod.filename = name;
     savedprod.source = dsource;
     savedprod.element= element;
@@ -1658,6 +1669,20 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
       // test >= to keep directory sequence for each time too
       while (p!=prods.end() && p->ptime>=savedprod.ptime) p++;
       prods.insert(p,savedprod);
+    }
+  }
+
+  // remove files older than autoremove from the products dir
+  std::string prod_str = fileString;
+  miutil::replace(prod_str,"work","products");
+  glob_cache(prod_str.c_str(),0,0,&globBuf);
+  for (size_t i=0; i<globBuf.gl_pathc; i++) {
+    std::string name = globBuf.gl_pathv[i];
+    METLIBS_LOG_DEBUG("Found a file " << name);
+    miTime ptime= objm->timeFileName(name);
+    if (autoremove > 0 && miTime::hourDiff(now,ptime) > autoremove ) {
+      METLIBS_LOG_DEBUG("Removing file: "<<name );
+      QFile::remove(name.c_str());
     }
   }
   globfree_cache(&globBuf);
