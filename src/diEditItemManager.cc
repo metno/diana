@@ -394,13 +394,11 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
   incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
   if (completed)
     completeEditing();
-  else {
-    if (aborted)
-      abortEditing();
-    if (rpn)
-      repaintNeeded_ = true;
+  else if (aborted)
+    abortEditing();
 
-  }
+  if (rpn)
+    repaintNeeded_ = true;
 }
 
 void EditItemManager::mouseRelease(QMouseEvent *event)
