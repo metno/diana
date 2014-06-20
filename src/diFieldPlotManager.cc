@@ -95,6 +95,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
     return true;
   }
 
+  vPlotField.clear();
   const std::string key_loop = "loop";
   const std::string key_field = "field";
   const std::string key_endfield = "end.field";
