@@ -10,19 +10,27 @@ TESTS += dianaUnitTests
 check_PROGRAMS += dianaUnitTests
 
 dianaUnitTests_SOURCES = \
-    TestPlotOptions.cc
+    TestPlotOptions.cc \
+    TestDianaLevels.cc
 
 dianaUnitTests_LDFLAGS = -L.. \
-    $(DIFIELD_LDFLAGS) $(gtest_LDFLAGS)
+    $(DIFIELD_LDFLAGS) \
+    $(GLTEXT_LDFLAGS) \
+    $(GLU_LDFLAGS) \
+    $(gtest_LDFLAGS)
 
 dianaUnitTests_CPPFLAGS = \
     $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
     $(DIFIELD_CPPFLAGS) \
+    $(GLTEXT_CPPFLAGS) \
+    $(GLU_CPPFLAGS) \
     $(gtest_CFLAGS)
 
 dianaUnitTests_LDADD = \
     -lgtest_main $(diana_lib) \
     $(DIFIELD_LIBS) \
+    $(GLTEXT_LIBS) \
+    $(GLU_LIBS) \
     $(gtest_LIBS)
 
 endif # HAVE_GTEST

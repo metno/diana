@@ -13,7 +13,6 @@
 #include <boost/make_shared.hpp>
 
 #include <cmath>
-#include <vector>
 
 #define MILOGGER_CATEGORY "diana.PolyContouring"
 #include <miLogger/miLogging.h>
@@ -92,20 +91,25 @@ private:
 
 // ########################################################################
 
-class DianaLevelList : public DianaLevels {
-public:
-  DianaLevelList(const std::vector<float>& levels)
-    : mLevels(levels) { }
-  DianaLevelList(float lstart, float lstop, float lstep)
-    { for (float l=lstart; l<=lstop; l+=lstep) mLevels.push_back(l); }
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const
-    { return l != UNDEF_LEVEL ? mLevels[l] : UNDEF_VALUE; }
-  size_t nlevels() const
-    { return mLevels.size(); }
-protected:
-  std::vector<float> mLevels;
-};
+DianaLevelList::DianaLevelList(const std::vector<float>& levels)
+  : mLevels(levels)
+{
+}
+
+DianaLevelList::DianaLevelList()
+{
+}
+
+DianaLevelList::DianaLevelList(float lstart, float lstop, float lstep)
+{
+  for (float l=lstart; l<=lstop; l+=lstep)
+    mLevels.push_back(l);
+}
+
+float DianaLevelList::value_for_level(contouring::level_t l) const
+{
+  return l != UNDEF_LEVEL ? mLevels[l] : UNDEF_VALUE;
+}
 
 contouring::level_t DianaLevelList::level_for_value(float value) const
 {
@@ -114,42 +118,44 @@ contouring::level_t DianaLevelList::level_for_value(float value) const
   return std::lower_bound(mLevels.begin(), mLevels.end(), value) - mLevels.begin();
 }
 
-class DianaLevelList10 : public DianaLevelList {
-public:
-  DianaLevelList10(const std::vector<float>& levels)
-    : DianaLevelList(levels) { }
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const;
-};
+// ------------------------------------------------------------------------
+
+DianaLevelList10::DianaLevelList10(const std::vector<float>& levels)
+{
+  for (size_t i=0; i<levels.size(); ++i) {
+    float l = levels[i];
+    if (l > BASE or (l>0 and l<1)) {
+      const float logBl = log(l) / log(BASE), flogBl = logBl - floor(logBl);
+      l = pow(BASE, flogBl);
+    }
+    if (l >= 1 and l < BASE and (mLevels.empty() or l > mLevels.back()))
+      mLevels.push_back(l);
+    else
+      METLIBS_LOG_WARN("illegal log.line.values element @" << i << '=' << levels[i]);
+  }
+}
 
 contouring::level_t DianaLevelList10::level_for_value(float value) const
 {
-  if (isUndefined(value) )
+  if (isUndefined(value) or value < 0 or mLevels.empty())
     return UNDEF_LEVEL;
-  const float v = log(std::abs(value))/log(10);
-  const contouring::level_t l = DianaLevelList::level_for_value(v-int(v));
-  return int(v)*nlevels() + l;
+  if (value == 0)
+    return UNDEF_LEVEL;
+  const double logBv = log(value)/log(BASE), ilogBv = floor(logBv);
+  const double v_0_B = std::pow(BASE, logBv - ilogBv);
+  const contouring::level_t l = DianaLevelList::level_for_value(v_0_B);
+  return ilogBv*nlevels() + l;
 }
 
 float DianaLevelList10::value_for_level(contouring::level_t l) const
 {
   if (l == UNDEF_LEVEL)
     return UNDEF_VALUE;
-  return std::pow(10, l / nlevels()) + mLevels[l % nlevels()];
+  const int ilogBv = floor(l / double(nlevels())), lvl = abs(l) % nlevels();
+  return std::pow(double(BASE), ilogBv) * mLevels[lvl];
 }
 
-class DianaLevelStep : public DianaLevels {
-public:
-  DianaLevelStep(float step, float off)
-    : mStep(step), mOff(off), mMin(1), mMax(0) { }
-  void set_limits(float mini, float maxi)
-    { mMin = mini; mMax = maxi; }
-  virtual contouring::level_t level_for_value(float value) const;
-  virtual float value_for_level(contouring::level_t l) const
-    { return l != UNDEF_LEVEL ? l*mStep + mOff : UNDEF_VALUE; }
-protected:
-  float mStep, mOff, mMin, mMax;
-};
+//------------------------------------------------------------------------
 
 contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
@@ -164,13 +170,20 @@ contouring::level_t DianaLevelStep::level_for_value(float value) const
   return rounded_div(value - mOff, mStep);
 }
 
-class DianaLevelStepOmit : public DianaLevelStep {
-public:
-  DianaLevelStepOmit(float step, float off)
-    : DianaLevelStep(step, off) { }
-  virtual contouring::level_t level_for_value(float value) const
-    { if (value == mOff) return OMIT_LEVEL; else return DianaLevelStep::level_for_value(value); }
-};
+float DianaLevelStep::value_for_level(contouring::level_t l) const
+{
+  return l != UNDEF_LEVEL ? l*mStep + mOff : UNDEF_VALUE;
+}
+
+//------------------------------------------------------------------------
+
+contouring::level_t DianaLevelStepOmit::level_for_value(float value) const
+{
+  if (value == mOff)
+    return UNDEF_LEVEL;
+  else
+    return DianaLevelStep::level_for_value(value);
+}
 
 // ########################################################################
 

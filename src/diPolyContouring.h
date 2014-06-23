@@ -3,6 +3,7 @@
 #define diPolyContouring_hh 1
 
 #include <string>
+#include <vector>
 
 #include "poly_contouring.hh"
 
@@ -16,12 +17,60 @@ public:
   virtual ~DianaLevels() { }
   virtual contouring::level_t level_for_value(float value) const = 0;
   virtual float value_for_level(contouring::level_t l) const = 0;
-  bool omit(contouring::level_t l) const { return l == OMIT_LEVEL; }
-  enum { UNDEF_LEVEL = -10000000, OMIT_LEVEL = -10000001 };
+  enum { UNDEF_LEVEL = -10000000 };
 };
 typedef boost::shared_ptr<DianaLevels> DianaLevels_p;
 
 DianaLevels_p dianaLevelsForPlotOptions(const PlotOptions& mPoptions, float fieldUndef);
+
+//------------------------------------------------------------------------
+
+class DianaLevelList : public DianaLevels {
+public:
+  DianaLevelList(const std::vector<float>& levels);
+  DianaLevelList(float lstart, float lstop, float lstep);
+  virtual contouring::level_t level_for_value(float value) const;
+  virtual float value_for_level(contouring::level_t l) const;
+  size_t nlevels() const
+    { return mLevels.size(); }
+protected:
+  DianaLevelList();
+protected:
+  std::vector<float> mLevels;
+};
+
+// ------------------------------------------------------------------------
+
+class DianaLevelList10 : public DianaLevelList {
+public:
+  DianaLevelList10(const std::vector<float>& levels);
+  virtual contouring::level_t level_for_value(float value) const;
+  virtual float value_for_level(contouring::level_t l) const;
+  enum { BASE = 10 };
+};
+
+//------------------------------------------------------------------------
+
+class DianaLevelStep : public DianaLevels {
+public:
+  DianaLevelStep(float step, float off)
+    : mStep(step), mOff(off), mMin(1), mMax(0) { }
+  void set_limits(float mini, float maxi)
+    { mMin = mini; mMax = maxi; }
+  virtual contouring::level_t level_for_value(float value) const;
+  virtual float value_for_level(contouring::level_t l) const;
+protected:
+  float mStep, mOff, mMin, mMax;
+};
+
+//------------------------------------------------------------------------
+
+class DianaLevelStepOmit : public DianaLevelStep {
+public:
+  DianaLevelStepOmit(float step, float off)
+    : DianaLevelStep(step, off) { }
+  contouring::level_t level_for_value(float value) const;
+};
 
 // ########################################################################
 
