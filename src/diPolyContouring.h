@@ -114,8 +114,7 @@ private:
 
 // ########################################################################
 
-inline int find_index(bool repeat, int available, int i)
-{ if (repeat) return i % available; else return std::min(i, available-1); }
+int find_index(bool repeat, int available, int i);
 
 bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
     const float z[], const float xz[], const float yz[],

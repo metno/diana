@@ -180,7 +180,7 @@ void VCLines::paint_polygons(QPainter& painter)
       const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -level);
       brush = vcross::util::QC(mPlotOptions.palettecolours_cold[idx]);
     } else {
-      const int idx = find_index(mPlotOptions.repeat, ncolours, std::max(level - 1, 0));
+      const int idx = find_index(mPlotOptions.repeat, ncolours, level - 1);
       brush = vcross::util::QC(mPlotOptions.palettecolours[idx]);
     }
     

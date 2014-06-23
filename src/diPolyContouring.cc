@@ -33,6 +33,23 @@ static inline int rounded_div(float value, float unit)
         return i;
 }
 
+int find_index(bool repeat, int available, int i)
+{
+  if (repeat) {
+    i %= available;
+    if (i<0)
+      i += available;
+    return i;
+  }
+  else if (i<=0)
+    return 0;
+  else if (i<available)
+    return i;
+  else
+    return available-1;
+}
+
+
 class DianaArrayIndex {
 public:
   DianaArrayIndex(size_t nx, size_t x0, size_t y0, size_t x1, size_t y1, size_t step=0)
@@ -299,7 +316,7 @@ void DianaLines::paint_polygons()
       const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -li);
       glColor3ubv(mPlotOptions.palettecolours_cold[idx].RGB());
     } else {
-      const int idx = find_index(mPlotOptions.repeat, ncolours, std::max(li - 1, 0));
+      const int idx = find_index(mPlotOptions.repeat, ncolours, li - 1);
       glColor3ubv(mPlotOptions.palettecolours[idx].RGB());
     }
 
