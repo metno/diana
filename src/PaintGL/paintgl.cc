@@ -1398,16 +1398,20 @@ bool glText::drawChar(const int c, const float x, const float y,
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
 
-    QFont f = QFont(ctx->font);
-    f.setPointSizeF(f.pointSizeF()/(0.5*(qAbs(ctx->transform.m11()) + qAbs(ctx->transform.m22()))));
-    ctx->painter->setFont(f);
+    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
+    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
+
+    ctx->painter->setFont(ctx->font);
+    QChar ch = QChar::fromLatin1(c);
+    QFontMetricsF fm(ctx->font);
+    float h = fm.boundingRect(ch).height();
+
     // No need to record this transformation.
     ctx->painter->setTransform(ctx->transform);
     ctx->painter->setPen(QPen(ctx->attributes.color));
-    QChar ch = QChar::fromLatin1(c);
-    QFontMetricsF fm(f);
-    float h = fm.boundingRect(ch).height();
     ctx->painter->translate(x, y);
+    ctx->painter->rotate(a);
+    ctx->painter->scale(1.0/xscale, 1.0/yscale);
     ctx->painter->translate(0, -h/2);
     ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
     ctx->painter->drawText(0, -h/2, ch);
@@ -1421,19 +1425,27 @@ bool glText::drawStr(const char* s, const float x, const float y,
     ENSURE_CTX_AND_PAINTER_BOOL
     if (!ctx->colorMask) return true;
 
-    QPointF sp = ctx->transform * QPointF(x, y);
-
     ctx->painter->save();
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
 
+    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
+    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
+
     ctx->painter->setFont(ctx->font);
+    QString str = QString::fromLatin1(s);
+    QFontMetricsF fm(ctx->font);
+    float h = fm.boundingRect(str).height();
+
     // No need to record this transformation.
-    ctx->painter->resetTransform();
-    ctx->painter->translate(sp);
-    ctx->painter->rotate(-a);
+    ctx->painter->setTransform(ctx->transform);
     ctx->painter->setPen(QPen(ctx->attributes.color));
-    ctx->painter->drawText(0, 0, QString::fromLatin1(s));
+    ctx->painter->translate(x, y);
+    ctx->painter->rotate(a);
+    ctx->painter->scale(1.0/xscale, 1.0/yscale);
+    ctx->painter->translate(0, -h/2);
+    ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
+    ctx->painter->drawText(0, -h/2, str);
     ctx->painter->restore();
     return true;
 }
@@ -1442,10 +1454,14 @@ bool glText::getCharSize(const int c, float& w, float& h)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
+    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
+    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
+
     QFontMetricsF fm(ctx->font);
-    QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(QChar(c)));
-    w = rect.width();
-    h = rect.height();
+    //QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(QChar(c)));
+    QRectF rect = fm.boundingRect(QChar(c));
+    w = rect.width() / xscale;
+    h = rect.height() / yscale;
     return true;
 }
 
@@ -1453,10 +1469,13 @@ bool glText::getMaxCharSize(float& w, float& h)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
+    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
+    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
+
     QFontMetricsF fm(ctx->font);
-    QPointF p = QPointF(fm.maxWidth(), fm.height()) * ctx->transform.inverted();
-    w = p.x();
-    h = p.y();
+    QPointF p = QPointF(fm.maxWidth(), fm.height()); // * ctx->transform.inverted();
+    w = p.x() / xscale;
+    h = p.y() / yscale;
     return true;
 }
 
@@ -1464,10 +1483,14 @@ bool glText::getStringSize(const char* s, float& w, float& h)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
+    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
+    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
+
     QFontMetricsF fm(ctx->font);
-    QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
-    w = rect.width();
-    h = rect.height() * 0.8;
+    //QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
+    QRectF rect = fm.boundingRect(QString::fromLatin1(s));
+    w = rect.width() / xscale;
+    h = rect.height() * 0.8 / yscale;
     return true;
 }
 
