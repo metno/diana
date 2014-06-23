@@ -137,10 +137,31 @@ contouring::level_t DianaLevelList::level_for_value(float value) const
 
 // ------------------------------------------------------------------------
 
-DianaLevelList10::DianaLevelList10(const std::vector<float>& levels)
+DianaLevelList10::DianaLevelList10(const std::vector<float>& levels, size_t count)
+{
+  for (size_t i = 0; i<std::min(count, levels.size()); ++i) {
+    float l = levels[i];
+    if (l <= 0)
+      continue;
+    if (not mLevels.empty() and (l >= BASE*mLevels.front() or l <= mLevels.back()))
+      break;
+    mLevels.push_back(l);
+  }
+  const size_t nLevels = mLevels.size(); // remember number of specified levels
+  if (nLevels > 0) {
+    for (size_t f=BASE; mLevels.size()<count; f *= BASE) {
+      for (size_t i=0; i<nLevels && mLevels.size()<count; ++i)
+        mLevels.push_back(f * mLevels[i]);
+    }
+  }
+}
+
+//------------------------------------------------------------------------
+
+DianaLevelLog::DianaLevelLog(const std::vector<float>& levels)
 {
   for (size_t i=0; i<levels.size(); ++i) {
-    float l = levels[i];
+     float l = levels[i];
     if (l > BASE or (l>0 and l<1)) {
       const float logBl = log(l) / log(BASE), flogBl = logBl - floor(logBl);
       l = pow(BASE, flogBl);
@@ -152,7 +173,7 @@ DianaLevelList10::DianaLevelList10(const std::vector<float>& levels)
   }
 }
 
-contouring::level_t DianaLevelList10::level_for_value(float value) const
+contouring::level_t DianaLevelLog::level_for_value(float value) const
 {
   if (isUndefined(value) or value < 0 or mLevels.empty())
     return UNDEF_LEVEL;
@@ -164,7 +185,7 @@ contouring::level_t DianaLevelList10::level_for_value(float value) const
   return ilogBv*nlevels() + l;
 }
 
-float DianaLevelList10::value_for_level(contouring::level_t l) const
+float DianaLevelLog::value_for_level(contouring::level_t l) const
 {
   if (l == UNDEF_LEVEL)
     return UNDEF_VALUE;
@@ -480,7 +501,7 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
     // previous multiplied by 10 and so on
     // (nlines=2 rlines=0.1,0.3 => 0.1,0.3,1,3,10,30,...)
     // (or the line at value=zoff)
-    return boost::make_shared<DianaLevelList10>(poptions.loglinevalues);
+    return boost::make_shared<DianaLevelList10>(poptions.loglinevalues, poptions.palettecolours.size());
   } else {
     boost::shared_ptr<DianaLevelStep> ls;
     if (poptions.zeroLine) // equally spaced lines (value)

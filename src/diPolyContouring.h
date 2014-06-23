@@ -43,7 +43,15 @@ protected:
 
 class DianaLevelList10 : public DianaLevelList {
 public:
-  DianaLevelList10(const std::vector<float>& levels);
+  DianaLevelList10(const std::vector<float>& levels, size_t count);
+  enum { BASE = 10 };
+};
+
+// ------------------------------------------------------------------------
+
+class DianaLevelLog : public DianaLevelList {
+public:
+  DianaLevelLog(const std::vector<float>& levels);
   virtual contouring::level_t level_for_value(float value) const;
   virtual float value_for_level(contouring::level_t l) const;
   enum { BASE = 10 };

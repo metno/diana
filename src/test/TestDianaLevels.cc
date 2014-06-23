@@ -14,11 +14,11 @@
 
 using namespace std;
 
-TEST(TestDianaLevels, List10)
+TEST(TestDianaLevels, Log)
 {
   const float a_loglinevalues[] = { 1, 3 };
   const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
-  const DianaLevelList10 ll(v_loglinevalues);
+  const DianaLevelLog ll(v_loglinevalues);
 
   EXPECT_EQ(-10, ll.level_for_value(0.9e-5));
   EXPECT_EQ( -5, ll.level_for_value(2.5e-3));
@@ -44,4 +44,20 @@ TEST(TestDianaLevels, List10)
   EXPECT_FLOAT_EQ(1e-42, ll.value_for_level(-84));
   EXPECT_FLOAT_EQ(3e-43, ll.value_for_level(-85));
   EXPECT_FLOAT_EQ(3e-44, ll.value_for_level(-87));
+}
+
+TEST(TestDianaLevels, List10)
+{
+  const float a_loglinevalues[] = { 1, 3 };
+  const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
+  const DianaLevelList10 ll(v_loglinevalues, 10);
+
+  EXPECT_EQ(0, ll.level_for_value(0.1));
+  EXPECT_EQ(1, ll.level_for_value(2));
+  EXPECT_EQ(10, ll.level_for_value(1e11));
+
+  EXPECT_FLOAT_EQ(1, ll.value_for_level(0));
+  EXPECT_FLOAT_EQ(3, ll.value_for_level(1));
+  EXPECT_FLOAT_EQ(10, ll.value_for_level(2));
+  EXPECT_FLOAT_EQ(3e4, ll.value_for_level(9));
 }
