@@ -919,6 +919,16 @@ void FieldDialog::CreateAdvanced()
   max1ComboBox = new QComboBox(advFrame);
   max2ComboBox = new QComboBox(advFrame);
 
+  //line values
+  linevaluesField = new QLineEdit(advFrame);
+  connect(linevaluesField, SIGNAL(returnPressed()),
+      SLOT(linevaluesFieldEdited()));
+  // log line values
+  linevaluesLogCheckBox = new QCheckBox(QString(tr("Log")), advFrame);
+  linevaluesLogCheckBox->setChecked(false);
+  connect(linevaluesLogCheckBox, SIGNAL(toggled(bool)),
+      SLOT(linevaluesLogCheckBoxToggled(bool)));
+
   connect( min1ComboBox, SIGNAL( activated(int) ),
       SLOT( min1ComboBoxToggled(int) ) );
   connect( max1ComboBox, SIGNAL( activated(int) ),
@@ -1054,6 +1064,10 @@ void FieldDialog::CreateAdvanced()
   advLayout->addWidget( zero1ComboBox, line, 0 );
   advLayout->addWidget( min1ComboBox, line, 1 );
   advLayout->addWidget( max1ComboBox, line, 2 );
+  line++;
+  advLayout->addWidget( new QLabel(tr("Values"), this), line, 0 );
+  advLayout->addWidget( linevaluesField, line, 1 );
+  advLayout->addWidget( linevaluesLogCheckBox, line, 2 );
   line++;
   advLayout->setRowStretch(line,5);;
   advLayout->addWidget(line3, line,0,1,3 );
@@ -2201,13 +2215,24 @@ void FieldDialog::enableFieldOptions()
 
 
   // line interval (isoline contouring)
-  if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0 || (nc = cp->findKey(
-      vpcopt, "line.values")) >= 0) {
-    if ((nc = cp->findKey(vpcopt, "line.interval")) >= 0
-        && (!vpcopt[nc].floatValue.empty())) {
-      float ekv = vpcopt[nc].floatValue[0];
-      lineintervals = numberList(lineintervalCbox, ekv,true);
-      numberList(interval2ComboBox, ekv,true);
+  { const int nci = cp->findKey(vpcopt, "line.interval"),
+        ncv = cp->findKey(vpcopt, "line.values"),
+        nclv = cp->findKey(vpcopt, "log.line.values");
+    if (nci  >= 0 or ncv >= 0 or nclv >= 0) {
+      if (nci >= 0 && (!vpcopt[nc].floatValue.empty())) {
+        float ekv = vpcopt[nc].floatValue[0];
+        lineintervals = numberList(lineintervalCbox, ekv,true);
+        numberList(interval2ComboBox, ekv,true);
+      }
+      if (ncv >= 0) {
+        linevaluesField->setText(QString::fromStdString(vpcopt[ncv].allValue));
+        linevaluesLogCheckBox->setChecked(false);
+      } else if (nclv >= 0) {
+        linevaluesField->setText(QString::fromStdString(vpcopt[nclv].allValue));
+        linevaluesLogCheckBox->setChecked(true);
+      }
+      linevaluesField->setEnabled(nci<0);
+      linevaluesLogCheckBox->setEnabled(nci<0);
     }
     if ((nc = cp->findKey(vpcopt, "line.interval_2")) >= 0
         && (!vpcopt[nc].floatValue.empty())) {
@@ -2805,11 +2830,18 @@ void FieldDialog::lineintervalCboxActivated(int index)
 {
   if (index == 0) {
     updateFieldOptions("line.interval", "remove");
+    linevaluesField->setEnabled(true);
+    linevaluesLogCheckBox->setEnabled(true);
+    linevaluesFieldEdited();
   } else {
     updateFieldOptions("line.interval", lineintervals[index]);
     // update the list (with selected value in the middle)
     float a = atof(lineintervals[index].c_str());
     lineintervals = numberList(lineintervalCbox, a, true);
+    linevaluesField->setEnabled(false);
+    linevaluesLogCheckBox->setEnabled(false);
+    updateFieldOptions("line.values", "remove");
+    updateFieldOptions("log.line.values", "remove");
   }
 }
 
@@ -3152,6 +3184,23 @@ void FieldDialog::max2ComboBoxToggled(int index)
     baseList(max2ComboBox, a, true);
     updateFieldOptions("maxvalue_2", max2ComboBox->currentText().toStdString());
   }
+}
+
+void FieldDialog::linevaluesFieldEdited()
+{
+  const std::string line_values = linevaluesField->text().toStdString();
+  if (linevaluesLogCheckBox->isChecked()) {
+    updateFieldOptions("line.values", "remove");
+    updateFieldOptions("log.line.values", line_values);
+  } else {
+    updateFieldOptions("log.line.values", "remove");
+    updateFieldOptions("line.values", line_values);
+  }
+}
+
+void FieldDialog::linevaluesLogCheckBoxToggled(bool)
+{
+  linevaluesFieldEdited();
 }
 
 void FieldDialog::linewidth1ComboBoxToggled(int index)

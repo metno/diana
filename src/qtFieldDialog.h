@@ -379,6 +379,8 @@ private slots:
   void max1ComboBoxToggled(int index);
   void min2ComboBoxToggled(int index);
   void max2ComboBoxToggled(int index);
+  void linevaluesFieldEdited();
+  void linevaluesLogCheckBoxToggled(bool);
   void linewidth1ComboBoxToggled(int index);
   void linewidth2ComboBoxToggled(int index);
   void linetype1ComboBoxToggled(int index);
@@ -419,6 +421,8 @@ private:
   QComboBox* zero1ComboBox;
   QComboBox* min1ComboBox;
   QComboBox* max1ComboBox;
+  QLineEdit* linevaluesField;
+  QCheckBox* linevaluesLogCheckBox;
   QComboBox* interval2ComboBox;
   QComboBox* zero2ComboBox;
   QComboBox* min2ComboBox;
