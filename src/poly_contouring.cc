@@ -5,6 +5,10 @@
 #include <list>
 #include <vector>
 
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
 //#define LENGTH_STATS 1
 
 //#define CONTOURING_ENABLE_DEBUG 1
@@ -100,6 +104,22 @@ static void dump_join_size()
 
 namespace contouring {
 namespace detail {
+
+const int MAX_LEVELS = 100;
+
+class too_many_levels : public std::overflow_error
+{
+public:
+  too_many_levels(int ix, int iy, int lbl, int lbr, int ltr, int ltl)
+    : overflow_error(fmt_many_levels(ix, iy, lbl, lbr, ltr, ltl)) { }
+
+private:
+  static std::string fmt_many_levels(int ix, int iy, int lbl, int lbr, int ltr, int ltl)
+    { std::ostringstream out;
+      out << "too many levels @" << ix << ':' << iy << " bl=" << lbl
+          << " br=" << lbr << " tr=" << ltr << " tl=" << ltl;
+      return out.str(); }
+};
 
 class line_end;
 typedef line_end* line_end_x;
@@ -1017,6 +1037,9 @@ void runner::prepare_left_border()
         const point_t point_tl = m_field.grid_point(0, iy+1);
 
         if (not (undef_bl or undef_tl)) {
+          if (abs(level_bl - level_tl) > MAX_LEVELS)
+            throw too_many_levels(-1, iy, level_bl, 0, 0, level_tl);
+
             point_generator border(m_field, 0, iy, false/*vertical*/, level_bl, level_tl);
             for (; not border.done(); border.next()) {
                 const level_t level_c = border.level();
@@ -1061,6 +1084,9 @@ void runner::prepare_column_bottom(size_t ix)
     const point_t point_br = m_field.grid_point(ix+1, 0); // lower right corner of bottom cell
 
     if (not (undef_bl or undef_br)) {
+        if (abs(level_bl - m_level_br) > MAX_LEVELS)
+            throw too_many_levels(ix, -1, level_bl, m_level_br, 0, 0);
+
         // new points at bottom of grid, from left to right -- need to insert in bmts such that it ends right-to-left
         point_generator bottom(m_field, ix, 0, true/*horizontal*/, level_bl, m_level_br);
         for (; not bottom.done(); bottom.next()) {
@@ -1113,8 +1139,14 @@ void runner::handle_inner_cell(size_t ix, size_t iy)
     if (undef_any)
         handle_undef_inner(ix, iy, undef_bl, undef_tl, undef_br, undef_tr,
                            level_bl, level_tl, level_tr);
-    else
-        handle_def_inner(ix, iy, level_bl, level_tl, level_tr);
+    else {
+      if (abs(level_bl - m_level_br) > MAX_LEVELS
+          or abs(m_level_br - level_tr) > MAX_LEVELS
+          or abs(level_tr - level_tl) > MAX_LEVELS
+          or abs(level_tl - level_bl) > MAX_LEVELS)
+        throw too_many_levels(ix, iy, level_bl, m_level_br, level_tr, level_tl);
+      handle_def_inner(ix, iy, level_bl, level_tl, level_tr);
+    }
 }
 
 void runner::finish_column_top(size_t ix)
@@ -1272,8 +1304,12 @@ void run(const field_t& field, lines_t& lines)
 #ifdef LENGTH_STATS
     clear_join_size();
 #endif
-    detail::runner r(field, lines);
-    r.run();
+    try {
+      detail::runner r(field, lines);
+      r.run();
+    } catch (detail::too_many_levels& tml) {
+      std::cerr << tml.what() << std::endl;
+    }
 #ifdef LENGTH_STATS
     dump_join_size();
 #endif
