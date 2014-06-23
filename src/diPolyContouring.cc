@@ -337,6 +337,8 @@ void DianaLines::paint_polygons()
       const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -li);
       glColor3ubv(mPlotOptions.palettecolours_cold[idx].RGB());
     } else {
+      if (not ncolours_cold and li <= 0)
+        continue;
       const int idx = find_index(mPlotOptions.repeat, ncolours, li - 1);
       glColor3ubv(mPlotOptions.palettecolours[idx].RGB());
     }
