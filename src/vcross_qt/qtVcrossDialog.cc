@@ -68,8 +68,22 @@
 #include "up12x12.xpm"
 #include "down12x12.xpm"
 
+#define DISABLE_EXTREMES 1
+#define DISABLE_PATTERNS 1
+#define DISABLE_LINE_SMOOTHING 1
+
 #define MILOGGER_CATEGORY "diana.VcrossDialog"
 #include <miLogger/miLogging.h>
+
+namespace {
+QWidget* makeSeparator(QWidget* parent, bool horizontal)
+{
+  QFrame* line = new QFrame(parent);
+  line->setFrameShape(horizontal ? QFrame::HLine : QFrame::VLine);
+  line->setFrameShadow(QFrame::Sunken);
+  return line;
+}
+} // namespace
 
 VcrossDialog::VcrossDialog( QWidget* parent, vcross::QtManager_p vm )
 : QDialog(parent), vcrossm(vm)
@@ -504,9 +518,11 @@ void VcrossDialog::toolTips()
   historyBackButton->setToolTip(tr("history backward"));
   historyForwardButton->setToolTip(tr("history forward"));
   historyOkButton->setToolTip(tr("use current history"));
+#ifndef DISABLE_EXTREMES
   extremeSizeSpinBox->setToolTip(tr("Size of min/max marker"));
   extremeLimitMinComboBox->setToolTip(tr("Find min/max value above this vertical level (unit hPa)"));
   extremeLimitMaxComboBox->setToolTip(tr("Find min/max value below this vertical level (unit hPa)"));
+#endif
   //allTimeStepButton,    tr("all times / union of times") );
 }
 
@@ -525,6 +541,7 @@ void VcrossDialog::CreateAdvanced()
   advFrame= new QWidget(this);
 
   // mark min/max values
+#ifndef DISABLE_EXTREMES
   extremeValueCheckBox= new QCheckBox(tr("Min/max values"), advFrame);
   extremeValueCheckBox->setChecked( false );
   extremeValueCheckBox->setEnabled( false );
@@ -571,7 +588,9 @@ void VcrossDialog::CreateAdvanced()
   extremeLayout->addWidget(extremeSizeSpinBox,      1, 0);
   extremeLayout->addWidget(extremeLimitMinComboBox, 1, 1);
   extremeLayout->addWidget(extremeLimitMaxComboBox, 1,2);
+#endif
 
+#ifndef DISABLE_LINE_SMOOTHING
   // line smoothing
   QLabel* lineSmoothLabel= new QLabel( tr("Smooth lines"), advFrame );
   lineSmoothSpinBox= new QSpinBox( advFrame );
@@ -583,6 +602,7 @@ void VcrossDialog::CreateAdvanced()
   lineSmoothSpinBox->setEnabled( false );
   connect( lineSmoothSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( lineSmoothChanged(int) ) );
+#endif
 
   QLabel* labelSizeLabel= new QLabel( tr("Digit size"),  advFrame );
   labelSizeSpinBox= new QSpinBox( advFrame );
@@ -596,6 +616,7 @@ void VcrossDialog::CreateAdvanced()
   connect( labelSizeSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( labelSizeChanged(int) ) );
 
+#ifndef DISABLE_HOUROFFSET
   QLabel* hourOffsetLabel= new QLabel( tr("Time offset"),  advFrame );
   hourOffsetSpinBox= new QSpinBox( advFrame );
   hourOffsetSpinBox->setMinimum(-72);
@@ -605,6 +626,7 @@ void VcrossDialog::CreateAdvanced()
   hourOffsetSpinBox->setEnabled( false );
   connect( hourOffsetSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( hourOffsetChanged(int) ) );
+#endif
 
   // Undefined masking
   ////QLabel* undefMaskingLabel= new QLabel( "Udefinert", advFrame );
@@ -653,7 +675,9 @@ void VcrossDialog::CreateAdvanced()
 
   QLabel* shadingLabel    = new QLabel( tr("Palette"),            advFrame );
   QLabel* shadingcoldLabel= new QLabel( tr("Palette (-)"),        advFrame );
+#ifndef DISABLE_PATTERNS
   QLabel* patternLabel    = new QLabel( tr("Pattern"),            advFrame );
+#endif
   QLabel* alphaLabel      = new QLabel( tr("Alpha"),              advFrame );
   QLabel* baseLabel       = new QLabel( tr("Basis value"),        advFrame);
   QLabel* minLabel        = new QLabel( tr("Min"),                advFrame);
@@ -695,6 +719,7 @@ void VcrossDialog::CreateAdvanced()
   connect( shadingcoldSpinBox, SIGNAL( valueChanged(int) ),
       SLOT( shadingChanged() ) );
 
+#ifndef DISABLE_PATTERNS
   //pattern
   patternComboBox = PatternBox( advFrame,patternInfo,false,0,tr("Off").toStdString() );
   connect( patternComboBox, SIGNAL( activated(int) ),
@@ -704,6 +729,7 @@ void VcrossDialog::CreateAdvanced()
   patternColourBox = ColourBox(advFrame,colourInfo,false,0,tr("Auto").toStdString());
   connect( patternColourBox, SIGNAL( activated(int) ),
       SLOT( patternColourBoxToggled(int) ) );
+#endif
 
   //alpha blending
   alphaSpinBox = new QSpinBox(advFrame);
@@ -734,71 +760,73 @@ void VcrossDialog::CreateAdvanced()
       SLOT( max1ComboBoxToggled(int) ) );
 
 
-  // layout......................................................
-  // a separator
-  QFrame* advSep= new QFrame( advFrame );
-  advSep->setFrameStyle( QFrame::VLine | QFrame::Raised );
-  advSep->setLineWidth( 5 );
-  QFrame* advSep3= new QFrame( advFrame );
-  advSep3->setFrameStyle( QFrame::HLine | QFrame::Raised );
-  advSep3->setLineWidth( 5 );
-
   QVBoxLayout *adv1Layout = new QVBoxLayout();
   int space= 6;
   adv1Layout->addStretch();
+#ifndef DISABLE_EXTREMES
   adv1Layout->addWidget(extremeValueCheckBox);
   adv1Layout->addSpacing(space);
-  adv1Layout->addLayout(extremeLayout );
+  adv1Layout->addLayout(extremeLayout);
   adv1Layout->addSpacing(space);
-  adv1Layout->addWidget(advSep3);
+  adv1Layout->addWidget(makeSeparator(advFrame, true));
   adv1Layout->addSpacing(space);
+#endif // DISABLE_EXTREMES
+#ifndef DISABLE_LINE_SMOOTHING
   adv1Layout->addWidget(lineSmoothLabel);
   adv1Layout->addWidget(lineSmoothSpinBox);
   adv1Layout->addSpacing(space);
+#endif
   adv1Layout->addWidget(labelSizeLabel);
   adv1Layout->addWidget(labelSizeSpinBox);
   adv1Layout->addSpacing(space);
+#ifndef DISABLE_HOUROFFSET
   adv1Layout->addWidget(hourOffsetLabel);
   adv1Layout->addWidget(hourOffsetSpinBox);
   adv1Layout->addSpacing(space);
+#endif
   adv1Layout->addWidget(zeroLineCheckBox);
   adv1Layout->addWidget(valueLabelCheckBox);
   adv1Layout->addSpacing(space);
 
-
-  QFrame* advSep2= new QFrame( advFrame );
-  advSep2->setFrameStyle( QFrame::HLine | QFrame::Raised );
-  advSep2->setLineWidth( 5 );
-
   QGridLayout* adv2Layout = new QGridLayout();
-  adv2Layout->addWidget(advSep2,               0, 0,1,3);
-  //  adv2Layout->addWidget( tableCheckBox,      1, 0 );
-  adv2Layout->addWidget( repeatCheckBox,  1, 0 );
-  adv2Layout->addWidget( shadingLabel,       2, 0 );
-  adv2Layout->addWidget( shadingComboBox,    2, 1 );
-  adv2Layout->addWidget( shadingSpinBox,     2, 2 );
-  adv2Layout->addWidget( shadingcoldLabel,   3, 0 );
-  adv2Layout->addWidget( shadingcoldComboBox,3, 1 );
-  adv2Layout->addWidget( shadingcoldSpinBox, 3, 2 );
-  adv2Layout->addWidget( patternLabel,       4, 0 );
-  adv2Layout->addWidget( patternComboBox,    4, 1 );
-  adv2Layout->addWidget( patternColourBox,   4, 2 );
-  adv2Layout->addWidget( alphaLabel,         5, 0 );
-  adv2Layout->addWidget( alphaSpinBox,       5, 1 );
-  adv2Layout->addWidget( baseLabel,          6, 0 );
-  adv2Layout->addWidget( zero1ComboBox,      6, 1 );
-  adv2Layout->addWidget( minLabel,           7, 0 );
-  adv2Layout->addWidget( min1ComboBox,       7, 1 );
-  adv2Layout->addWidget( maxLabel,           8, 0 );
-  adv2Layout->addWidget( max1ComboBox,       8, 1 );
-
+  { int row = 0;
+    adv2Layout->addWidget(makeSeparator(advFrame, true), row, 0,1,3);
+    //  adv2Layout->addWidget( tableCheckBox,      1, 0 );
+    row += 1;
+    adv2Layout->addWidget( repeatCheckBox,     row, 0 );
+    row += 1;
+    adv2Layout->addWidget( shadingLabel,       row, 0 );
+    adv2Layout->addWidget( shadingComboBox,    row, 1 );
+    adv2Layout->addWidget( shadingSpinBox,     row, 2 );
+    row += 1;
+    adv2Layout->addWidget( shadingcoldLabel,   row, 0 );
+    adv2Layout->addWidget( shadingcoldComboBox,row, 1 );
+    adv2Layout->addWidget( shadingcoldSpinBox, row, 2 );
+#ifndef DISABLE_PATTERNS
+    row += 1;
+    adv2Layout->addWidget( patternLabel,       row, 0 );
+    adv2Layout->addWidget( patternComboBox,    row, 1 );
+    adv2Layout->addWidget( patternColourBox,   row, 2 );
+#endif
+    row += 1;
+    adv2Layout->addWidget( alphaLabel,         row, 0 );
+    adv2Layout->addWidget( alphaSpinBox,       row, 1 );
+    row += 1;
+    adv2Layout->addWidget( baseLabel,          row, 0 );
+    adv2Layout->addWidget( zero1ComboBox,      row, 1 );
+    row += 1;
+    adv2Layout->addWidget( minLabel,           row, 0 );
+    adv2Layout->addWidget( min1ComboBox,       row, 1 );
+    row += 1;
+    adv2Layout->addWidget( maxLabel,           row, 0 );
+    adv2Layout->addWidget( max1ComboBox,       row, 1 );
+  }
   QVBoxLayout *advLayout = new QVBoxLayout();
   advLayout->addLayout(adv1Layout);
   advLayout->addLayout(adv2Layout);
 
   QHBoxLayout *hLayout = new QHBoxLayout( advFrame);
-
-  hLayout->addWidget(advSep);
+  hLayout->addWidget(makeSeparator(advFrame, false));
   hLayout->addLayout(advLayout);
 }
 
@@ -1048,7 +1076,9 @@ void VcrossDialog::enableFieldOptions()
     shadingcoldComboBox->setEnabled(true);
     shadingcoldSpinBox->setEnabled(true);
     //    tableCheckBox->setEnabled(true);
+#ifndef DISABLE_PATTERNS
     patternComboBox->setEnabled(true);
+#endif
     repeatCheckBox->setEnabled(true);
     alphaSpinBox->setEnabled(true);
     std::vector<std::string> tokens = miutil::split(vpcopt[nc].allValue,",");
@@ -1094,8 +1124,10 @@ void VcrossDialog::enableFieldOptions()
     shadingcoldComboBox->setEnabled(false);
     //    tableCheckBox->setEnabled(false);
     //    updateFieldOptions("table","remove");
+#ifndef DISABLE_PATTERNS
     patternComboBox->setEnabled(false);
     updateFieldOptions("patterns","remove");
+#endif
     repeatCheckBox->setEnabled(false);
     updateFieldOptions("repeat","remove");
     alphaSpinBox->setEnabled(false);
@@ -1103,6 +1135,7 @@ void VcrossDialog::enableFieldOptions()
   }
 
   //pattern
+#ifndef DISABLE_PATTERNS
   if ((nc=cp->findKey(vpcopt,"patterns"))>=0) {
     patternComboBox->setEnabled(true);
     patternColourBox->setEnabled(true);
@@ -1137,6 +1170,7 @@ void VcrossDialog::enableFieldOptions()
       patternColourBox->setCurrentIndex(i+1);
     }
   }
+#endif
 
   //table
   //  nc=cp->findKey(vpcopt,"table");
@@ -1245,6 +1279,7 @@ void VcrossDialog::enableFieldOptions()
     vectorunitCbox->clear();
   }
 
+#ifndef DISABLE_EXTREMES
   if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
     else e=1.0;
@@ -1296,7 +1331,9 @@ void VcrossDialog::enableFieldOptions()
     extremeRadiusSpinBox->setEnabled(false);
   }
    *************************************************************************/
+#endif // DISABLE_EXTREMES
 
+#ifndef DISABLE_LINE_SMOOTHING
   if ((nc=cp->findKey(vpcopt,"line.smooth"))>=0) {
     if (vpcopt[nc].intValue.size()>0) i=vpcopt[nc].intValue[0];
     else i=0;
@@ -1306,6 +1343,7 @@ void VcrossDialog::enableFieldOptions()
     lineSmoothSpinBox->setValue(0);
     lineSmoothSpinBox->setEnabled(false);
   }
+#endif // DISABLE_LINE_SMOOTHING
 
   if ((nc=cp->findKey(vpcopt,"label.size"))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
@@ -1335,9 +1373,11 @@ void VcrossDialog::enableFieldOptions()
     zero1ComboBox->setEnabled(false);
   }
 
+#ifndef DISABLE_HOUROFFSET
   i= selectedFields[index].hourOffset;
   hourOffsetSpinBox->setValue(i);
   hourOffsetSpinBox->setEnabled(true);
+#endif
 
   /*************************************************************************
   // undefined masking
@@ -1506,8 +1546,10 @@ void VcrossDialog::disableFieldOptions()
   shadingcoldSpinBox->setValue(0);
   shadingcoldSpinBox->setEnabled( false );
   //  tableCheckBox->setEnabled(false);
+#ifndef DISABLE_PATTERNS
   patternComboBox->setEnabled(false);
   patternColourBox->setEnabled(false);
+#endif
   repeatCheckBox->setEnabled(false);
   alphaSpinBox->setValue(255);
   alphaSpinBox->setEnabled(false);
@@ -1524,6 +1566,7 @@ void VcrossDialog::disableFieldOptions()
 
   vectorunitCbox->clear();
 
+#ifndef DISABLE_EXTREMES
   extremeValueCheckBox->setChecked( false );
   extremeValueCheckBox->setEnabled( false );
 
@@ -1537,9 +1580,12 @@ void VcrossDialog::disableFieldOptions()
 
   //extremeRadiusSpinBox->setValue(100);
   //extremeRadiusSpinBox->setEnabled( false );
+#endif // DISABLE_EXTREMES
 
+#ifndef DISABLE_LINE_SMOOTHING
   lineSmoothSpinBox->setValue(0);
   lineSmoothSpinBox->setEnabled( false );
+#endif
 
   zeroLineCheckBox->setChecked( true );
   zeroLineCheckBox->setEnabled( false );
@@ -1556,8 +1602,10 @@ void VcrossDialog::disableFieldOptions()
   min1ComboBox->setEnabled(false);
   max1ComboBox->setEnabled(false);
 
+#ifndef DISABLE_HOUROFFSET
   hourOffsetSpinBox->setValue(0);
   hourOffsetSpinBox->setEnabled(false);
+#endif
 
   //undefMaskingCbox->clear();
   //undefMaskingCbox->setEnabled(false);
@@ -1728,6 +1776,7 @@ void VcrossDialog::vectorunitCboxActivated(int index)
 
 void VcrossDialog::extremeValueCheckBoxToggled(bool on)
 {
+#ifndef DISABLE_EXTREMES
   if (on) {
     updateFieldOptions("extreme.type","Value");
     extremeLimitMinComboBox->setEnabled(true);
@@ -1740,10 +1789,12 @@ void VcrossDialog::extremeValueCheckBoxToggled(bool on)
     extremeSizeSpinBox->setEnabled(false);
   }
   extremeLimitsChanged();
+#endif
 }
 
 void VcrossDialog::extremeLimitsChanged()
 {
+#ifndef DISABLE_EXTREMES
   std::string extremeString = "remove";
   std::ostringstream ost;
   if (extremeLimitMinComboBox->isEnabled() && extremeLimitMinComboBox->currentIndex() > 0 ) {
@@ -1754,19 +1805,24 @@ void VcrossDialog::extremeLimitsChanged()
     extremeString = ost.str();
   }
   updateFieldOptions("extreme.limits",extremeString);
+#endif
 }
 
 void VcrossDialog::extremeSizeChanged(int value)
 {
+#ifndef DISABLE_EXTREMES
   const std::string str = miutil::from_number(float(value)*0.01);
   updateFieldOptions("extreme.size", str);
+#endif
 }
 
 
 void VcrossDialog::lineSmoothChanged(int value)
 {
+#ifndef DISABLE_LINE_SMOOTHING
   const std::string str = miutil::from_number(value);
   updateFieldOptions("line.smooth",str);
+#endif
 }
 
 
@@ -1779,8 +1835,10 @@ void VcrossDialog::labelSizeChanged(int value)
 
 void VcrossDialog::hourOffsetChanged(int value)
 {
+#ifndef DISABLE_HOUROFFSET
   const int n = selectedFieldbox->currentRow();
   selectedFields[n].hourOffset = value;
+#endif
 }
 
 
@@ -1823,21 +1881,25 @@ void VcrossDialog::tableCheckBoxToggled(bool on)
 
 void VcrossDialog::patternComboBoxToggled(int index)
 {
+#ifndef DISABLE_PATTERNS
   if(index == 0){
     updateFieldOptions("patterns","off");
   } else {
     updateFieldOptions("patterns", patternInfo[index-1].name);
   }
+#endif
   updatePaletteString();
 }
 
 void VcrossDialog::patternColourBoxToggled(int index)
 {
+#ifndef DISABLE_PATTERNS
   if(index == 0){
     updateFieldOptions("patterncolour","remove");
   } else {
     updateFieldOptions("patterncolour",colourInfo[index-1].name);
   }
+#endif
   updatePaletteString();
 }
 
@@ -1854,10 +1916,12 @@ void VcrossDialog::shadingChanged()
 
 void VcrossDialog::updatePaletteString(){
 
+#ifndef DISABLE_PATTERNS
   if(patternComboBox->currentIndex()>0 && patternColourBox->currentIndex()>0){
     updateFieldOptions("palettecolours","off",-1);
     return;
   }
+#endif
 
   int index1 = shadingComboBox->currentIndex();
   int index2 = shadingcoldComboBox->currentIndex();

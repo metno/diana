@@ -73,7 +73,6 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   OTHERLEVELS    =  tr("Other levels").toStdString();
   SURFACE        =  tr("Ground pressure").toStdString();
   DISTANCE       =  tr("Distance").toStdString();
-  GRIDPOS        =  tr("Grid x,y positions").toStdString();
   GEOPOS         =  tr("Geographical positions").toStdString();
   VERTGRID       =  tr("Vertical gridlines").toStdString();
   MARKERLINES    =  tr("Marker lines").toStdString();
@@ -205,7 +204,6 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups[n]->defineTextChoice2(diststep,0);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
-  vcSetups.push_back(new VcrossSetupUI(parent,GRIDPOS,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetupUI(parent,GEOPOS,glayout,nrow++,opts));
   opts= VcrossSetupUI::useOnOff;
   vcSetups.push_back(new VcrossSetupUI(parent,EXTRAPOLP,glayout,nrow++,opts));
@@ -341,10 +339,6 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setTextChoice (vcopt->distanceUnit);
       vcSetups[i]->setTextChoice2(vcopt->distanceStep);
 
-    } else if (vcSetups[i]->name== GRIDPOS) {
-      vcSetups[i]->setChecked    (vcopt->pXYpos);
-      vcSetups[i]->setColour(vcopt->xyposColour);
-
     } else if (vcSetups[i]->name== GEOPOS) {
       vcSetups[i]->setChecked    (vcopt->pGeoPos);
       vcSetups[i]->setColour(vcopt->geoposColour);
@@ -469,10 +463,6 @@ void VcrossSetupDialog::applySetup()
       vcopt->distanceColour= vcSetups[i]->getColour().name;
       vcopt->distanceUnit=   vcSetups[i]->getTextChoice();
       vcopt->distanceStep=   vcSetups[i]->getTextChoice2();
-
-    } else if (vcSetups[i]->name== GRIDPOS) {
-      vcopt->pXYpos=      vcSetups[i]->isChecked();
-      vcopt->xyposColour= vcSetups[i]->getColour().name;
 
     } else if (vcSetups[i]->name== GEOPOS) {
       vcopt->pGeoPos=      vcSetups[i]->isChecked();

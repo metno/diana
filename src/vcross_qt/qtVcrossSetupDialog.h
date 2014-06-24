@@ -80,7 +80,6 @@ private:
   std::string OTHERLEVELS;
   std::string SURFACE;
   std::string DISTANCE;
-  std::string GRIDPOS;
   std::string GEOPOS;
   std::string VERTGRID;
   std::string MARKERLINES;
