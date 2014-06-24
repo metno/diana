@@ -85,7 +85,7 @@ LayerGroupWidget::~LayerGroupWidget()
 
 void LayerGroupWidget::updateLabels()
 {
-  const QString nameText = QString("%1").arg((layerGroup_->name() == "default") ? QString("<b>%1</b>").arg(layerGroup_->name()) : layerGroup_->name());
+  const QString nameText = QString("%1").arg(layerGroup_->name());
   nameLabel_->setText(nameText);
 
   int nitems = 0;
@@ -116,7 +116,7 @@ const QSharedPointer<LayerGroup> LayerGroupWidget::layerGroup() const
 
 LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
   : showInfo_(false)
-  , layerManager(layerManager)
+  , layerManager_(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -135,8 +135,6 @@ LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
   vboxLayout1->addWidget(scrollArea_);
 
   QHBoxLayout *bottomLayout = new QHBoxLayout;
-  bottomLayout->addWidget(addToDefaultLGFromFileButton_ = createToolButton(
-        QPixmap(fileopen_xpm), "Load layers from file and add them to the default layer group", this, SLOT(addToDefaultLGFromFile())));
   bottomLayout->addWidget(addToNewLGFromFileButton_ = createToolButton(
         QPixmap(fileopen_xpm), "Load layers from file into a new layer group", this, SLOT(addToNewLGFromFile())));
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
@@ -149,18 +147,6 @@ LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->addWidget(groupBox);
   setLayout(mainLayout);
-
-  // add additional example layer groups
-  foreach (const QString &fileName, DrawingManager::instance()->getDrawings()) {
-    QString error;
-    const QList<QSharedPointer<Layer> > layers =
-        KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, &error);
-    if (error.isEmpty())
-      layerManager->addToNewLayerGroup(layers, fileName);
-    else
-      qDebug() << QString("failed to load additional example layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
-  }
 
   updateWidgetStructure();
 
@@ -225,47 +211,35 @@ static QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerMan
   return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
 }
 
-void LayerGroupsPane::addToLGFromFile(bool default_)
+void LayerGroupsPane::addToLGFromFile()
 {
-  const QString type(default_ ? "default" : "new");
-
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerManager, &error);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerManager_, &error);
   if (!error.isEmpty()) {
-    QMessageBox::warning(0, "Error", QString("failed to add to %1 layer group from file (1): %2").arg(type).arg(error));
+    QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
     return;
   }
 
   if (layers.isEmpty())
       return;
 
-  if (default_)
-    layerManager->addToDefaultLayerGroup(layers);
-  else
-    layerManager->addToNewLayerGroup(layers);
+  layerManager_->addToNewLayerGroup(layers);
 
   emit updated();
   updateWidgetContents();
-  if (!default_)
-    updateWidgetStructure(); // add widget for the new layer group
-}
-
-void LayerGroupsPane::addToDefaultLGFromFile()
-{
-  addToLGFromFile(true);
+  updateWidgetStructure(); // add widget for the new layer group
 }
 
 void LayerGroupsPane::addToNewLGFromFile()
 {
-  addToLGFromFile(false);
+  addToLGFromFile();
 }
 
 void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 {
   LayerGroupWidget *lgWidget = qobject_cast<LayerGroupWidget *>(sender());
   Q_ASSERT(lgWidget);
-  if (lgWidget->layerGroup() == layerManager->defaultLayerGroup())
-    return; // the default layer group should always be active
+  Q_ASSERT(lgWidget->layerGroup() != layerManager_->defaultLayerGroup());
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
   lgWidget->updateLabels();
@@ -309,7 +283,7 @@ void LayerGroupsPane::updateWidgetStructure()
     removeWidget(lgWidgets.at(i));
 
   // insert widgets for existing layer groups
-  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerManager->layerGroups())
+  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerManager_->layerGroups())
     addWidgetForLG(layerGroup);
 }
 

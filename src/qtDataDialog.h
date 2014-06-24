@@ -68,9 +68,14 @@ signals:
   void hideData();
   void showsource(const std::string, const std::string="");
 
+private:
+  QPushButton *applyhideButton;
+  QPushButton *applyButton;
+
 protected:
   virtual void closeEvent(QCloseEvent *event);
   QLayout *createStandardButtons();
+  void indicateUnappliedChanges(bool);
 
   Controller *m_ctrl;
   QAction *m_action;

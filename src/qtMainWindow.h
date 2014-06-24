@@ -207,6 +207,7 @@ private Q_SLOTS:
   void setPlotTime(miutil::miTime& t);
   void SliderSet();
   void editUpdate(bool = true);
+  void handleEIMEditing(bool);
 
   void toggleDialogs();
   void toggleStatusBar();
@@ -259,9 +260,9 @@ private Q_SLOTS:
   void winResize(int, int);
   void inEdit(bool);
   void sendPrintClicked(int);
-  void togglePaintMode();
-  void setPaintMode(bool);
-  void paintToolBarVisible(bool);
+  void toggleEditDrawingMode();
+  void setEditDrawingMode(bool);
+  void editDrawingToolBarVisible(bool);
   void getFieldPlotOptions(std::map< std::string, std::map<std::string,std::string> >&);
 
   void setWorkAreaCursor(const QCursor &);
@@ -319,7 +320,7 @@ private:
   QAction * showUffdaDialogAction;
   QShortcut * uffdaAction;
 
-  QAction * togglePaintModeAction;
+  QAction * toggleEditDrawingModeAction;
 
   QAction * helpDocAction;
   QAction * helpAccelAction;
@@ -395,7 +396,7 @@ private:
   MailDialog        * mailm;
   HelpDialog        * help;
 //  EditTimeDialog    * editTimeDialog;
-  EditItems::ToolBar * paintToolBar;
+  EditItems::ToolBar * editDrawingToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markMeasurementsPos; //left mouse click -> mark measurement position

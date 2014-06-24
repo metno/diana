@@ -31,16 +31,15 @@
 
 #include <diEditItemManager.h>
 #include <diController.h>
-#include <EditItems/dialog.h>
+#include <EditItems/editdrawingdialog.h>
 #include <EditItems/toolbar.h>
 #include <EditItems/layergroupspane.h>
-#include <EditItems/activelayerspane.h>
+#include <EditItems/editdrawinglayerspane.h>
 #include <paint_mode.xpm> // ### for now
 #include <QAction>
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QFileInfo>
-#include <QSplitter>
 #include <QVBoxLayout>
 
 #include <EditItems/layer.h>
@@ -49,52 +48,39 @@
 #include <QPushButton> // ### FOR TESTING
 #include <QCheckBox> // ### FOR TESTING
 #include <QDir>
+#include <qtUtility.h>
+
 #include <QDebug>
 
 namespace EditItems {
 
-Dialog::Dialog(QWidget *parent, Controller *ctrl)
+EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
 {
-  // record the editor in use
   editm_ = EditItemManager::instance();
 
   // create an action that can be used to open the dialog from within a menu or toolbar
-  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Painting tools"), this);
+  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Edit Drawing Dialog"), this);
   m_action->setShortcutContext(Qt::ApplicationShortcut);
-  m_action->setShortcut(Qt::ALT + Qt::Key_B);
+  m_action->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_B);
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
 
   // create the GUI
-  setWindowTitle("Drawing Layers");
+  setWindowTitle("Edit Drawing Dialog");
   setFocusPolicy(Qt::StrongFocus);
-  QSplitter *splitter = new QSplitter(Qt::Vertical);
-  layerGroupsPane_ = new LayerGroupsPane(editm_->getLayerManager());
-  splitter->addWidget(layerGroupsPane_);
-  activeLayersPane_ = new ActiveLayersPane(editm_->getLayerManager());
-  splitter->addWidget(activeLayersPane_);
-  splitter->setSizes(QList<int>() << 500 << 500);
-  //
-  connect(layerGroupsPane_, SIGNAL(updated()), activeLayersPane_, SLOT(updateWidgetStructure()));
-  connect(activeLayersPane_, SIGNAL(updated()), layerGroupsPane_, SLOT(updateWidgetContents()));
-  connect(layerGroupsPane_, SIGNAL(updated()), EditItemManager::instance(), SLOT(handleLayersUpdate()));
-  connect(activeLayersPane_, SIGNAL(updated()), EditItemManager::instance(), SLOT(handleLayersUpdate()));
-  //
-  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(buttonBox, SIGNAL(clicked(QAbstractButton *)), this, SLOT(close()));
+  layersPane_ = new EditDrawingLayersPane(editm_->getLayerManager(), "Active Layers");
+  layersPane_->init();
   //
   QVBoxLayout *mainLayout = new QVBoxLayout;
   setLayout(mainLayout);
-  mainLayout->addWidget(splitter);
-  //
-  mainLayout->addWidget(buttonBox);
+  mainLayout->addWidget(layersPane_);
 
-  mainLayout->addLayout(createStandardButtons());
-
-  // Connect the signal associated with product creation (applyData) to a slot
-  // that publishes it outside editing mode.
-  connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
+  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
+  connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
+  QHBoxLayout* hideLayout = new QHBoxLayout();
+  hideLayout->addWidget(hideButton);
+  mainLayout->addLayout(hideLayout);
 
   // ### FOR TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
@@ -111,12 +97,19 @@ Dialog::Dialog(QWidget *parent, Controller *ctrl)
   //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
+
+  connect(layersPane_, SIGNAL(updated()), editm_, SLOT(handleLayersUpdate()));
 }
 
-void Dialog::dumpStructure()
+std::string EditDrawingDialog::name() const
 {
-  qDebug() << "";
-  const QList<QSharedPointer<LayerGroup> > &layerGroups = editm_->getLayerManager()->layerGroups();
+  return "EDITDRAWING";
+}
+
+// ### FOR TESTING:
+static void dumpLayerManagerStructure(const LayerManager *lm)
+{
+  const QList<QSharedPointer<LayerGroup> > &layerGroups = lm->layerGroups();
   qDebug() << QString("LAYER GROUPS (%1):").arg(layerGroups.size()).toLatin1().data();
   int i = 0;
   foreach (const QSharedPointer<LayerGroup> &lg, layerGroups) {
@@ -126,12 +119,11 @@ void Dialog::dumpStructure()
       layers_s.append(QString("%1 ").arg((long)(layer.data()), 0, 16));
     qDebug()
         <<
-           QString("  %1:%2  %3  >%4<  [%5]  editable=%6  active=%7  layers: %8")
+           QString("  %1:%2  %3  >%4<  editable=%5  active=%6  layers: %7")
            .arg(i + 1)
            .arg(layerGroups.size())
            .arg((long)(lg.data()), 0, 16)
            .arg(lg->name(), 30)
-           .arg((lg == editm_->getLayerManager()->defaultLayerGroup()) ? "default" : "       ")
            .arg(lg->isEditable() ? 1 : 0)
            .arg(lg->isActive() ? 1 : 0)
            .arg(layers_s)
@@ -139,7 +131,7 @@ void Dialog::dumpStructure()
     i++;
   }
 
-  const QList<QSharedPointer<Layer> > &layers = editm_->getLayerManager()->orderedLayers();
+  const QList<QSharedPointer<Layer> > &layers = lm->orderedLayers();
   qDebug() << QString("ORDERED LAYERS (%1):").arg(layers.size()).toLatin1().data();
   i = 0;
   foreach (const QSharedPointer<Layer> &layer, layers) {
@@ -150,7 +142,7 @@ void Dialog::dumpStructure()
            .arg(layers.size())
            .arg((long)(layer.data()), 0, 16)
            .arg(layer->name(), 30)
-           .arg(layer == editm_->getLayerManager()->currentLayer() ? "curr" : "    ")
+           .arg(layer == lm->currentLayer() ? "curr" : "    ")
            .arg((long)(layer->layerGroupRef().data()), 0, 16)
            .arg(layer->isEditable() ? 1 : 0)
            .arg(layer->isActive() ? 1 : 0)
@@ -162,74 +154,17 @@ void Dialog::dumpStructure()
   }
 }
 
-void Dialog::showInfo(bool checked)
+// ### FOR TESTING:
+void EditDrawingDialog::dumpStructure()
 {
-  layerGroupsPane_->showInfo(checked);
-  activeLayersPane_->showInfo(checked);
+  qDebug() << "\nLAYER MANAGERS:";
+  qDebug() << "\n1: In EditDrawingManager: =====================================";
+  dumpLayerManagerStructure(editm_->getLayerManager());
 }
 
-std::string Dialog::name() const
+void EditDrawingDialog::showInfo(bool checked)
 {
-  return "DRAWING";
-}
-
-void Dialog::updateTimes()
-{
-  std::vector<miutil::miTime> times;
-  times = DrawingManager::instance()->getTimes();
-  emit emitTimes("DRAWING", times);
-}
-
-void Dialog::updateDialog()
-{
-}
-
-std::vector<std::string> Dialog::getOKString()
-{
-  std::vector<std::string> lines;
-
-  if (!editm_->isEnabled())
-    return lines;
-
-  foreach (QString filePath, editm_->getLoaded()) {
-    QString line = "DRAWING file=\"" + filePath + "\"";
-    lines.push_back(line.toStdString());
-  }
-
-  return lines;
-}
-
-void Dialog::putOKString(const std::vector<std::string>& vstr)
-{
-  // If the current drawing has not been produced, ignore any plot commands
-  // that are sent to the dialog. This blocks any strings that are sent
-  // while the drawing dialog is open.
-  if (!editm_->isEnabled())
-    return;
-
-  // Submit the lines as new input.
-  std::vector<std::string> inp;
-  inp.insert(inp.begin(), vstr.begin(), vstr.end());
-  editm_->processInput(inp);
-}
-
-/**
- * Makes the current drawing a product that is visible outside editing mode.
- */
-void Dialog::makeProduct()
-{
-  // Write the layers to temporary files in the working directory.
-  QDir dir(editm_->getWorkDir());
-  QString filePath = dir.absoluteFilePath("temp.kml");
-  activeLayersPane_->saveVisible(filePath);
-
-  std::vector<std::string> inp;
-  inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");
-
-  putOKString(inp);
-
-  // Update the available times.
-  updateTimes();
+  layersPane_->showInfo(checked);
 }
 
 } // namespace

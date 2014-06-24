@@ -29,8 +29,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSACTIVELAYERSPANE_H
-#define EDITITEMSACTIVELAYERSPANE_H
+#ifndef LAYERSPANEBASE_H
+#define LAYERSPANEBASE_H
 
 #include <QWidget>
 #include <QSharedPointer>
@@ -38,7 +38,21 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
+#include "addempty.xpm"
+#include "duplicate.xpm"
+#include "edit.xpm"
+#include "hideall.xpm"
+#include "mergevisible.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "remove.xpm"
+#include "showall.xpm"
+#include "visible.xpm"
+#include "unsavedchanges.xpm"
+#include "filesave.xpm"
+
 class QVBoxLayout;
+class QHBoxLayout;
 class QToolButton;
 class QLabel;
 
@@ -54,7 +68,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &, bool, QWidget * = 0);
+  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -68,12 +82,12 @@ public:
   void setState(const QSharedPointer<Layer> &);
   void showInfo(bool);
 private:
+  LayerManager *layerManager_;
   QSharedPointer<Layer> layer_;
   CheckableLabel *visibleLabel_;
   CheckableLabel *unsavedChangesLabel_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
-  LayerManager *layerManager;
 public slots:
   void updateLabels();
 private slots:
@@ -84,15 +98,18 @@ signals:
   void visibilityChanged(bool);
 };
 
-class ActiveLayersPane : public QWidget
+class LayersPaneBase : public QWidget
 {
   Q_OBJECT
 public:
-  ActiveLayersPane(LayerManager *layerManager);
   void showInfo(bool);
-  QString saveVisible(const QString &fileName) const;
+  void init();
+  QString saveVisible(const QString &) const;
 
-private:
+protected:
+  LayersPaneBase(LayerManager *, const QString &);
+
+protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_;
   QToolButton *addEmptyButton_;
@@ -108,7 +125,7 @@ private:
   QToolButton *importFilesButton_;
   bool showInfo_;
 
-  void initialize(LayerWidget *);
+  void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);
   int currentPos() const;
   LayerWidget *current();
@@ -131,10 +148,13 @@ private:
   QList<LayerWidget *> visibleWidgets() const;
   QList<LayerWidget *> allWidgets() const;
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &) const;
-  LayerManager *layerManager;
 
-private slots:
-  void updateButtons();
+protected:
+  LayerManager *layerManager_;
+  QHBoxLayout *bottomLayout_; // populated by subclass
+  virtual void updateButtons();
+
+protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
   void mouseDoubleClicked(QMouseEvent *);
   void ensureCurrentVisibleTimeout();
@@ -157,4 +177,4 @@ signals:
 
 } // namespace
 
-#endif // EDITITEMSACTIVELAYERSPANE_H
+#endif // LAYERSPANEBASE_H

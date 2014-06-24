@@ -73,11 +73,11 @@ public:
   DrawingManager();
   ~DrawingManager();
 
-  /// parse DRAWING section of setup file (defines Drawing products)
-  bool parseSetup();
+  // parse DRAWING section of setup file (defines Drawing products)
+  virtual bool parseSetup();
 
   virtual bool changeProjection(const Area& newArea);
-  virtual bool loadItems(const QString &fileName);
+  virtual bool loadDrawing(const QString &fileName);
   virtual bool prepare(const miutil::miTime &time);
   virtual void plot(bool under, bool over);
   virtual bool processInput(const std::vector<std::string>& inp);
@@ -130,6 +130,7 @@ public:
   QSet<QString> &getDrawings();
   QSet<QString> &getLoaded();
   EditItems::LayerManager *getLayerManager();
+  EditItems::LayerManager *getAuxLayerManager();
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
@@ -147,10 +148,11 @@ protected:
   Rectangle editRect;
   Area currentArea;
 
+  // ### are these needed any longer?
   QSet<QString> drawings_;
   QSet<QString> loaded_;
 
-  EditItems::LayerManager *layerManager;
+  EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
 
 private:
 

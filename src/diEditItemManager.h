@@ -51,192 +51,193 @@ class QUndoStack;
 
 class EditItemManager : public DrawingManager
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    enum Action {
-      Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
-      CreatePolyLine, CreateSymbol, CreateText, CreateComposite
-    };
+  enum Action {
+    Cut, Copy, Paste, EditProperties, EditStyle, Undo, Redo, Select,
+    CreatePolyLine, CreateSymbol, CreateText, CreateComposite
+  };
 
-    static EditItemManager *instance();
+  static EditItemManager *instance();
 
-    EditItemManager();
-    virtual ~EditItemManager();
+  EditItemManager();
+  virtual ~EditItemManager();
 
-    /// Registers a new item with the manager.
-    /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
-    void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
-    void editItem(const QSharedPointer<DrawingItemBase> &item);
-    void editItem(DrawingItemBase *item);
-    void removeItem(const QSharedPointer<DrawingItemBase> &item);
+  /// Registers a new item with the manager.
+  /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
+  void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
+  void editItem(const QSharedPointer<DrawingItemBase> &item);
+  void editItem(DrawingItemBase *item);
+  void removeItem(const QSharedPointer<DrawingItemBase> &item);
 
-    virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
+  virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
-    // Returns the undo stack.
-    QUndoStack *undoStack();
+  // Returns the undo stack.
+  QUndoStack *undoStack();
 
-    bool canRedo() const;
-    bool canUndo() const;
-    bool hasIncompleteItem() const;
-    bool needsRepaint() const;
+  bool canRedo() const;
+  bool canUndo() const;
+  bool hasIncompleteItem() const;
+  bool needsRepaint() const;
 
-    QSet<QSharedPointer<DrawingItemBase> > getSelectedItems() const;
-    QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
+  QSet<QSharedPointer<DrawingItemBase> > getSelectedItems() const;
+  QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
 
-    bool processInput(const std::vector<std::string>& inp);
-    void plot(bool under, bool over);
-    void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
-    void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  bool processInput(const std::vector<std::string>& inp);
+  void plot(bool under, bool over);
+  void storeItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  void retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
-    virtual bool isEnabled() const;
-    virtual void setEditing(bool enable);
+  //virtual bool isEnabled() const;
+  virtual void setEditing(bool enable);
 
-    void sendMouseEvent(QMouseEvent* event, EventResult& res);
-    void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
+  void sendMouseEvent(QMouseEvent* event, EventResult& res);
+  void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
 
-    QHash<Action, QAction*> actions();
-    QUndoView *getUndoView();
+  QHash<Action, QAction*> actions();
+  QUndoView *getUndoView();
 
 public slots:
-    void abortEditing();
-    void completeEditing();
-    void copySelectedItems();
-    void cutSelectedItems();
-    void deselectItem(const QSharedPointer<DrawingItemBase> &);
-    void deselectAllItems();
-    void editProperties();
-    void editStyle();
-    void setStyleType() const;
-    void keyPress(QKeyEvent *);
-    void keyRelease(QKeyEvent *);
-    void mouseDoubleClick(QMouseEvent *);
-    void mouseMove(QMouseEvent *);
-    void mousePress(QMouseEvent *);
-    void mouseRelease(QMouseEvent *);
-    void pasteItems();
-    void redo();
-    void repaint();
-    void reset();
-    void selectItem(const QSharedPointer<DrawingItemBase> &);
-    void setSelectMode();
-    void startStopEditing(bool start);
-    void undo();
+  void abortEditing();
+  void completeEditing();
+  void copySelectedItems();
+  void cutSelectedItems();
+  void deselectItem(const QSharedPointer<DrawingItemBase> &);
+  void deselectAllItems();
+  void editProperties();
+  void editStyle();
+  void setStyleType() const;
+  void keyPress(QKeyEvent *);
+  void keyRelease(QKeyEvent *);
+  void mouseDoubleClick(QMouseEvent *);
+  void mouseMove(QMouseEvent *);
+  void mousePress(QMouseEvent *);
+  void mouseRelease(QMouseEvent *);
+  void pasteItems();
+  void redo();
+  void repaint();
+  void reset();
+  void selectItem(const QSharedPointer<DrawingItemBase> &);
+  void setSelectMode();
+  void startStopEditing(bool start);
+  void undo();
 
-    void handleLayersUpdate();
+  void handleLayersUpdate();
 
 private slots:
-    void setCreatePolyLineMode();
-    void setCreateSymbolMode();
-    void setCreateTextMode();
-    void setCreateCompositeMode();
-    void handleSelectionChange();
+  void setCreatePolyLineMode();
+  void setCreateSymbolMode();
+  void setCreateTextMode();
+  void setCreateCompositeMode();
+  void handleSelectionChange();
 
 signals:
-    void selectionChanged();
-    void paintDone();
-    void repaintNeeded();
-    void canUndoChanged(bool);
-    void canRedoChanged(bool);
-    void incompleteEditing(bool);
-    void itemAdded(DrawingItemBase *);
-    void itemChanged(DrawingItemBase *); // ### anybody connected to this?
-    void itemRemoved(DrawingItemBase *); // ### anybody connected to this?
-    void timesUpdated();
-    void setWorkAreaCursor(const QCursor &);
-    void unsetWorkAreaCursor();
-    void editing(bool);
+  void selectionChanged();
+  void repaintNeeded();
+  void canUndoChanged(bool);
+  void canRedoChanged(bool);
+  void incompleteEditing(bool);
+  void itemAdded(DrawingItemBase *);
+  void itemChanged(DrawingItemBase *); // ### anybody connected to this?
+  void itemRemoved(DrawingItemBase *); // ### anybody connected to this?
+  void timesUpdated();
+  void setWorkAreaCursor(const QCursor &);
+  void unsetWorkAreaCursor();
+  void editing(bool);
 
 protected:
-    virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
-    virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
+  virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
+  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
 
 private slots:
-    void initNewItem(DrawingItemBase *item);
+  void initNewItem(DrawingItemBase *item);
 
 private:
-    QSharedPointer<DrawingItemBase> hoverItem_;
-    QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
-    bool repaintNeeded_;
-    bool skipRepaint_;
-    QUndoStack undoStack_;
-    QUndoView *undoView_;
+  QSharedPointer<DrawingItemBase> hoverItem_;
+  QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
+  bool repaintNeeded_;
+  bool skipRepaint_;
+  QUndoStack undoStack_;
+  QUndoView *undoView_;
 
-    QAction* cutAction;
-    QAction* copyAction;
-    QAction* pasteAction;
-    QAction* editPropertiesAction;
-    QAction* editStyleAction;
-    QAction* undoAction;
-    QAction* redoAction;
-    QAction* selectAction;
-    QAction* createPolyLineAction;
-    QAction* createSymbolAction;
-    QAction* createTextAction;
-    QAction* createCompositeAction;
+  QAction* cutAction;
+  QAction* copyAction;
+  QAction* pasteAction;
+  QAction* editPropertiesAction;
+  QAction* editStyleAction;
+  QAction* undoAction;
+  QAction* redoAction;
+  QAction* selectAction;
+  QAction* createPolyLineAction;
+  QAction* createSymbolAction;
+  QAction* createTextAction;
+  QAction* createCompositeAction;
 
-    enum Mode {
-      SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
-    } mode_;
+  enum Mode {
+    SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
+  } mode_;
 
-    void incompleteMousePress(QMouseEvent *);
-    void incompleteMouseRelease(QMouseEvent *);
-    void incompleteMouseMove(QMouseEvent *);
-    void incompleteMouseDoubleClick(QMouseEvent *);
-    void incompleteKeyPress(QKeyEvent *);
-    void incompleteKeyRelease(QKeyEvent *);
-    void pushCommands(const QSet<QSharedPointer<DrawingItemBase> > &addedItems,
-                      const QSet<QSharedPointer<DrawingItemBase> > &removedItems,
-                      const QList<QUndoCommand *> &undoCommands);
+  void incompleteMousePress(QMouseEvent *);
+  void incompleteMouseRelease(QMouseEvent *);
+  void incompleteMouseMove(QMouseEvent *);
+  void incompleteMouseDoubleClick(QMouseEvent *);
+  void incompleteKeyPress(QKeyEvent *);
+  void incompleteKeyRelease(QKeyEvent *);
+  void pushCommands(const QSet<QSharedPointer<DrawingItemBase> > &addedItems,
+                    const QSet<QSharedPointer<DrawingItemBase> > &removedItems,
+                    const QList<QUndoCommand *> &undoCommands);
 
-    // Clipboard operations
-    void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  // Clipboard operations
+  void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
 
-    void updateActions();
-    void updateTimes();
-    void updateActionsAndTimes();
+  void updateActions();
+  void updateTimes();
+  void updateActionsAndTimes();
 
-    static EditItemManager *self;   // singleton instance pointer
+  virtual bool parseSetup() { return true; } // n/a
+
+  static EditItemManager *self;   // singleton instance pointer
 };
 
 class EditItemCommand : public QUndoCommand
 {
 public:
-    EditItemCommand(const QString &text, QUndoCommand *parent = 0);
-    EditItemCommand() {}
-    virtual ~EditItemCommand() {}
+  EditItemCommand(const QString &text, QUndoCommand *parent = 0);
+  EditItemCommand() {}
+  virtual ~EditItemCommand() {}
 };
 
 class AddOrRemoveItemsCommand : public EditItemCommand
 {
 public:
-    AddOrRemoveItemsCommand(const QSet<QSharedPointer<DrawingItemBase> > &, const QSet<QSharedPointer<DrawingItemBase> > &);
-    virtual ~AddOrRemoveItemsCommand() {}
+  AddOrRemoveItemsCommand(const QSet<QSharedPointer<DrawingItemBase> > &, const QSet<QSharedPointer<DrawingItemBase> > &);
+  virtual ~AddOrRemoveItemsCommand() {}
 
 private:
-    QSet<QSharedPointer<DrawingItemBase> > addedItems_;
-    QSet<QSharedPointer<DrawingItemBase> > removedItems_;
-    virtual void undo();
-    virtual void redo();
+  QSet<QSharedPointer<DrawingItemBase> > addedItems_;
+  QSet<QSharedPointer<DrawingItemBase> > removedItems_;
+  virtual void undo();
+  virtual void redo();
 };
 
 class SetGeometryCommand : public EditItemCommand
 {
 public:
-    SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
-    virtual ~SetGeometryCommand() {}
-    virtual int id() const;
-    virtual bool mergeWith(const QUndoCommand *command);
+  SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
+  virtual ~SetGeometryCommand() {}
+  virtual int id() const;
+  virtual bool mergeWith(const QUndoCommand *command);
 
-    EditItemBase *item() const;
-    QList<QPointF> newLatLonPoints() const;
+  EditItemBase *item() const;
+  QList<QPointF> newLatLonPoints() const;
 
 private:
-    EditItemBase *item_;
-    QList<QPointF> oldLatLonPoints_;
-    QList<QPointF> newLatLonPoints_;
-    virtual void undo();
-    virtual void redo();
+  EditItemBase *item_;
+  QList<QPointF> oldLatLonPoints_;
+  QList<QPointF> newLatLonPoints_;
+  virtual void undo();
+  virtual void redo();
 };
 
 #endif // EDITITEMMANAGER_H

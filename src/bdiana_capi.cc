@@ -1595,7 +1595,6 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
-  main_controller->addManager("DRAWING", DrawingManager::instance());
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {

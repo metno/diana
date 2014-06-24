@@ -69,11 +69,10 @@ DrawingManager *DrawingManager::self = 0;
 
 DrawingManager::DrawingManager()
 {
-  self = this;
   editRect = PLOTM->getPlotSize();
   currentArea = PLOTM->getCurrentArea();
   styleManager = DrawingStyleManager::instance();
-  layerManager = new EditItems::LayerManager();
+  layerMgr_ = new EditItems::LayerManager();
 }
 
 DrawingManager::~DrawingManager()
@@ -155,11 +154,14 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
+  if (inp.empty())
+    return false;
+
   loaded_.clear();
+  layerMgr_->clear();
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
-
     // Split each input line into a collection of "words".
     vector<string> pieces = miutil::split_protected(*it, '"', '"');
     // Skip the first piece ("DRAWING").
@@ -178,7 +180,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       if (key == "file") {
         // Read the specified file, skipping to the next line if successful,
         // but returning false to indicate an error if unsuccessful.
-        if (loadItems(value))
+        if (loadDrawing(value))
           break;
         else
           return false;
@@ -210,16 +212,16 @@ QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVari
 
 void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  Q_ASSERT(CurrEditLayer);
-  CurrEditLayer->insertItem(item);
+  Q_ASSERT(CurrLayer);
+  CurrLayer->insertItem(item);
 }
 
-bool DrawingManager::loadItems(const QString &fileName)
+bool DrawingManager::loadDrawing(const QString &fileName)
 {
   // parse file and create item layers
   QString error;
   QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(layerManager, fileName, &error);
+      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(layerMgr_, fileName, &error);
 
   if (!error.isEmpty()) {
     METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
@@ -236,7 +238,7 @@ bool DrawingManager::loadItems(const QString &fileName)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  layerManager->addToNewLayerGroup(layers);
+  layerMgr_->addToNewLayerGroup(layers, fileName);
 
   loaded_.insert(fileName);
   return true;
@@ -244,8 +246,8 @@ bool DrawingManager::loadItems(const QString &fileName)
 
 void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  Q_ASSERT(CurrEditLayer);
-  CurrEditLayer->removeItem(item);
+  Q_ASSERT(CurrLayer);
+  CurrLayer->removeItem(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
@@ -312,7 +314,7 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerManager->orderedLayers();
+  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -376,7 +378,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   }
 
   // Change the visibility of items.
-  const QList<QSharedPointer<EditItems::Layer> > &layers = layerManager->orderedLayers();
+  const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -420,7 +422,7 @@ void DrawingManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerManager->orderedLayers();
+  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
     const QSharedPointer<EditItems::Layer> layer = layers.at(i);
@@ -538,5 +540,5 @@ void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &ite
 
 EditItems::LayerManager *DrawingManager::getLayerManager()
 {
-  return layerManager;
+  return layerMgr_;
 }

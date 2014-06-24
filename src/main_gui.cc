@@ -41,10 +41,8 @@
 #include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
 #include "diController.h"
-#include "diDrawingManager.h"
 #include "diEditItemManager.h"
 
-#include "EditItems/dialog.h"
 #include "qtMainWindow.h"
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -189,8 +187,7 @@ int main(int argc, char **argv)
   }
 
   Controller contr;
-  contr.addManager("DRAWING", DrawingManager::instance());
-  contr.addManager("EDITING", EditItemManager::instance());
+  contr.addManager("EDITDRAWING", EditItemManager::instance());
 
   // read setup
   if (!contr.parseSetup()){
@@ -243,11 +240,6 @@ int main(int argc, char **argv)
   }
 
   DianaMainWindow * mw = new DianaMainWindow(&contr, ver_str,build_str,diana_title);
-
-  EditItems::Dialog *editItemsDialog = new EditItems::Dialog(mw, &contr);
-  editItemsDialog->hide();
-  mw->addDialog(editItemsDialog);
-
   mw->start();
 
 //  a.setMainWidget(mw);

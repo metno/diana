@@ -29,42 +29,42 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSLAYERGROUP_H
-#define EDITITEMSLAYERGROUP_H
+#ifndef EDITDRAWINGDIALOG_H
+#define EDITDRAWINGDIALOG_H
 
-#include <QObject>
-#include <QString>
-#include <QList>
-#include <QSharedPointer>
+#include "qtDataDialog.h"
+
+class EditItemManager;
 
 namespace EditItems {
 
-class Layer;
+class LayerGroupsPane;
+class EditDrawingLayersPane;
 
-class LayerGroup : public QObject
+class EditDrawingDialog : public DataDialog
 {
   Q_OBJECT
-  friend class LayerManager;
+
 public:
-  LayerGroup(const QString &, bool = true, bool = false);
-  ~LayerGroup();
-  int id() const;
-  QString name() const;
-  void setName(const QString &);
-  bool isEditable() const;
-  bool isActive() const;
-  void setActive(bool);
-  const QList<QSharedPointer<Layer> > &layersRef() const;
+  EditDrawingDialog(QWidget *, Controller *);
+
+  virtual std::string name() const;
+  virtual void updateDialog() {} // n/a
+  virtual std::vector<std::string> getOKString() { return std::vector<std::string>(); } // n/a
+  virtual void putOKString(const std::vector<std::string> &) {} // n/a
+
 private:
-  int id_;
-  static int nextId_;
-  static int nextId();
-  QString name_;
-  bool editable_;
-  bool active_;
-  QList<QSharedPointer<Layer> > layers_;
+  EditItemManager *editm_;
+  EditDrawingLayersPane *layersPane_;
+
+private slots:
+  virtual void updateTimes() {} // n/a
+
+  // ### FOR TESTING:
+  void dumpStructure();
+  void showInfo(bool);
 };
 
 } // namespace
 
-#endif // EDITITEMSLAYERGROUP_H
+#endif // EDITDRAWINGDIALOG_H

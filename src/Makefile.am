@@ -144,9 +144,12 @@ diana_qt_sources = \
 	EditItems/properties.cc \
 	EditItems/style.cc \
 	EditItems/toolbar.cc \
-	EditItems/dialog.cc \
+	EditItems/drawingdialog.cc \
+	EditItems/editdrawingdialog.cc \
 	EditItems/layergroupspane.cc \
-	EditItems/activelayerspane.cc \
+	EditItems/layerspanebase.cc \
+	EditItems/drawinglayerspane.cc \
+	EditItems/editdrawinglayerspane.cc \
 	EditItems/dialogcommon.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
@@ -285,9 +288,12 @@ noinst_HEADERS = \
 	EditItems/properties.h \
 	EditItems/style.h \
 	EditItems/toolbar.h \
-	EditItems/dialog.h \
+	EditItems/drawingdialog.h \
+	EditItems/editdrawingdialog.h \
 	EditItems/layergroupspane.h \
-	EditItems/activelayerspane.h \
+	EditItems/layerspanebase.h \
+	EditItems/drawinglayerspane.h \
+	EditItems/editdrawinglayerspane.h \
 	EditItems/dialogcommon.h \
 	diDrawingManager.h \
 	diEditManager.h \

@@ -66,26 +66,25 @@ class LayerGroupsPane : public QWidget
 {
   Q_OBJECT
 public:
-  LayerGroupsPane(LayerManager *layerManager);
+  LayerGroupsPane(LayerManager *);
   void showInfo(bool);
+  void updateWidgetStructure();
 private:
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_; // ### necessary to keep as a member? (cf. activeLayersScrollArea_)
-  QToolButton *addToDefaultLGFromFileButton_;
   QToolButton *addToNewLGFromFileButton_;
   bool showInfo_;
   void addWidgetForLG(const QSharedPointer<LayerGroup> &);
   QList<LayerGroupWidget *> allWidgets();
   void removeWidget(LayerGroupWidget *);
-  void addToLGFromFile(bool);
-  void updateWidgetStructure();
-  LayerManager *layerManager;
+  void addToLGFromFile();
+  LayerManager *layerManager_;
 
 private slots:
-  void addToDefaultLGFromFile();
   void addToNewLGFromFile();
   void mouseClicked(QMouseEvent *);
   void updateWidgetContents();
+
 signals:
   void updated();
 };

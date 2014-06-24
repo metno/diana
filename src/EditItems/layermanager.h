@@ -37,8 +37,7 @@
 #include <QList>
 #include <EditItems/drawingitembase.h>
 
-#define CurrLayer layerManager->currentLayer()
-#define CurrEditLayer layerManager->currentLayer(true)
+#define CurrLayer layerMgr_->currentLayer()
 
 namespace EditItems {
 
@@ -50,16 +49,13 @@ class LayerManager : public QObject
   Q_OBJECT
 public:
   LayerManager();
+  ~LayerManager();
   bool isEmpty() const;
-
-  void resetFirstDefaultLayer();
-  QSharedPointer<Layer> currentLayer(bool = false) const;
+  void clear();
+  QSharedPointer<Layer> currentLayer() const;
   void setCurrentLayer(const QSharedPointer<Layer> &);
-  QSharedPointer<LayerGroup> &defaultLayerGroup();
-  void addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
-  void addToDefaultLayerGroup(const QList<QSharedPointer<Layer> > &);
-  void addToDefaultLayerGroup(const QSharedPointer<Layer> &);
-  void replaceInDefaultLayerGroup(const QList<QSharedPointer<Layer> > &);
+  QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
+  QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
   QSharedPointer<Layer> createNewLayer(const QString & = QString()) const;
   QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &) const;

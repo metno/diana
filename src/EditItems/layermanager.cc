@@ -32,21 +32,15 @@
 #include <EditItems/layermanager.h>
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
-#include <QDebug>
 
 namespace EditItems {
 
 LayerManager::LayerManager()
 {
-  // Create a default layer group at index 0.
-  // The default layer group is editable and must always contain at least one layer.
-  QSharedPointer<LayerGroup> layerGroup(new LayerGroup("default"));
-  QSharedPointer<Layer> layer(new Layer("new layer"));
-  layer->layerGroup_ = layerGroup;
-  layerGroup->layers_.append(layer);
-  currLayer_ = layer;
-  layerGroups_.append(layerGroup);
-  orderedLayers_.append(layer);
+}
+
+LayerManager::~LayerManager()
+{
 }
 
 bool LayerManager::isEmpty() const
@@ -59,16 +53,16 @@ bool LayerManager::isEmpty() const
   return true;
 }
 
-// Clears the first layer in the default layer group and set this as the current layer.
-void LayerManager::resetFirstDefaultLayer()
+void LayerManager::clear()
 {
-  currLayer_ = defaultLayerGroup()->layersRef().first();
-  currLayer_->clearItems();
+  layerGroups_.clear();
+  orderedLayers_.clear();
+  currLayer_.clear();
 }
 
-QSharedPointer<Layer> LayerManager::currentLayer(bool editableOnly) const
+QSharedPointer<Layer> LayerManager::currentLayer() const
 {
-  return (editableOnly && currLayer_ && (!currLayer_->isEditable())) ? QSharedPointer<Layer>() : currLayer_;
+  return currLayer_;
 }
 
 void LayerManager::setCurrentLayer(const QSharedPointer<Layer> &layer)
@@ -76,11 +70,6 @@ void LayerManager::setCurrentLayer(const QSharedPointer<Layer> &layer)
   if (!orderedLayers_.contains(layer))
     qFatal("LayerManager::setCurrentLayer(): layer %p not found in orderedLayers_", (void *)(layer.data()));
   currLayer_ = layer;
-}
-
-QSharedPointer<LayerGroup> &LayerManager::defaultLayerGroup()
-{
-  return layerGroups_.first(); // by definition (see this ctor)
 }
 
 void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const QList<QSharedPointer<Layer> > &layers)
@@ -101,30 +90,17 @@ void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const
   layerGroup->layers_.append(layers);
 }
 
-void LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name)
+QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name)
 {
   QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name);
   layerGroups_.append(layerGroup);
   addToLayerGroup(layerGroup, layers);
+  return layerGroup;
 }
 
-void LayerManager::addToDefaultLayerGroup(const QList<QSharedPointer<Layer> > &layers)
+QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QSharedPointer<Layer> &layer, const QString &name)
 {
-  addToLayerGroup(defaultLayerGroup(), layers);
-}
-
-void LayerManager::addToDefaultLayerGroup(const QSharedPointer<Layer> &layer)
-{
-  addToDefaultLayerGroup(QList<QSharedPointer<Layer> >() << layer);
-}
-
-void LayerManager::replaceInDefaultLayerGroup(const QList<QSharedPointer<Layer> > &layers)
-{
-  // remove existing layers
-  foreach (const QSharedPointer<Layer> layer, defaultLayerGroup()->layers_)
-    removeLayer(layer);
-
-  addToDefaultLayerGroup(layers);
+  return addToNewLayerGroup(QList<QSharedPointer<Layer> >() << layer, name);
 }
 
 QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name) const

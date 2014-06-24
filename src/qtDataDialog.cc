@@ -36,7 +36,7 @@
 #include "qtUtility.h"
 
 DataDialog::DataDialog(QWidget *parent, Controller *ctrl)
-  : QDialog(parent), m_ctrl(ctrl)
+  : QDialog(parent), applyhideButton(0), applyButton(0), m_ctrl(ctrl), m_action(0)
 {
 }
 
@@ -59,8 +59,11 @@ QLayout *DataDialog::createStandardButtons()
   QPushButton *helpButton = NormalPushButton(tr("Help"), this);
   QPushButton *refreshButton = NormalPushButton(tr("Refresh"), this);
   QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
-  QPushButton *applyhideButton = NormalPushButton(tr("Apply + Hide"), this);
-  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+
+  applyhideButton = NormalPushButton("", this);
+  applyButton = NormalPushButton("", this);
+  indicateUnappliedChanges(false);
+
   applyButton->setDefault(true);
 
   connect(hideButton, SIGNAL(clicked()), SIGNAL(hideData()));
@@ -84,6 +87,20 @@ QLayout *DataDialog::createStandardButtons()
   vlayout->addLayout(applylayout);
 
   return vlayout;
+}
+
+void DataDialog::indicateUnappliedChanges(bool on)
+{
+  if ((!applyhideButton) || (!applyButton))
+    return;
+
+  if (on) {
+    applyhideButton->setText(tr("Apply* + Hide"));
+    applyButton->setText(tr("Apply*"));
+  } else {
+    applyhideButton->setText(tr("Apply + Hide"));
+    applyButton->setText(tr("Apply"));
+  }
 }
 
 void DataDialog::applyhideClicked()

@@ -81,6 +81,8 @@ Controller::Controller()
   editm= new EditManager(plotm,objm,fieldplotm);
   scrollwheelZoom = false;
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
+
+  addManager("DRAWING", DrawingManager::instance());
 }
 
 Controller::~Controller()

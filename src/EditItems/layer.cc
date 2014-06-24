@@ -53,7 +53,7 @@ Layer::Layer(const Layer &other)
 }
 
 Layer::~Layer()
-{ 
+{
 }
 
 int Layer::id() const

@@ -414,7 +414,7 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<QShar
 // Opens a modal dialog to edit the style properties of \a items.
 void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
-  bool readOnly = false;
+  bool readOnly = false; // ### set but not used!
   DrawingItemBase::Category category = items.begin()->data()->category();
 
   // only allow editing for items with style type 'Custom'

@@ -29,42 +29,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSLAYERGROUP_H
-#define EDITITEMSLAYERGROUP_H
+#ifndef EDITDRAWINGLAYERSPANE_H
+#define EDITDRAWINGLAYERSPANE_H
 
-#include <QObject>
-#include <QString>
-#include <QList>
-#include <QSharedPointer>
+#include <EditItems/layerspanebase.h>
 
 namespace EditItems {
 
-class Layer;
+class LayerManager;
 
-class LayerGroup : public QObject
+class EditDrawingLayersPane : public LayersPaneBase
 {
-  Q_OBJECT
-  friend class LayerManager;
 public:
-  LayerGroup(const QString &, bool = true, bool = false);
-  ~LayerGroup();
-  int id() const;
-  QString name() const;
-  void setName(const QString &);
-  bool isEditable() const;
-  bool isActive() const;
-  void setActive(bool);
-  const QList<QSharedPointer<Layer> > &layersRef() const;
+  EditDrawingLayersPane(LayerManager *, const QString &);
 private:
-  int id_;
-  static int nextId_;
-  static int nextId();
-  QString name_;
-  bool editable_;
-  bool active_;
-  QList<QSharedPointer<Layer> > layers_;
+  virtual void updateButtons();
 };
 
 } // namespace
 
-#endif // EDITITEMSLAYERGROUP_H
+#endif // EDITDRAWINGLAYERSPANE_H

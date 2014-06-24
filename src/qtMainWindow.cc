@@ -99,8 +99,6 @@
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
-#include "diDrawingManager.h"
-#include "diEditItemManager.h"
 
 #include "qtDataDialog.h"
 #include "qtQuickMenu.h"
@@ -136,6 +134,10 @@
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <miLogger/miLogging.h>
 #include <diField/diFieldManager.h>
+
+#include "diEditItemManager.h"
+#include "EditItems/drawingdialog.h"
+#include "EditItems/editdrawingdialog.h"
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -411,10 +413,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   //connect( uffdaAction, SIGNAL( activated() ), SLOT( showUffda() ) );
   // ----------------------------------------------------------------
 
-  togglePaintModeAction = new QAction( tr("Painting mode"), this );
-  togglePaintModeAction->setShortcutContext(Qt::ApplicationShortcut);
-  togglePaintModeAction->setShortcut(Qt::CTRL+Qt::Key_B);
-  connect(togglePaintModeAction, SIGNAL(triggered()), SLOT(togglePaintMode()));
+  toggleEditDrawingModeAction = new QAction( tr("Edit Drawing Mode"), this );
+  toggleEditDrawingModeAction->setShortcutContext(Qt::ApplicationShortcut);
+  toggleEditDrawingModeAction->setShortcut(Qt::CTRL+Qt::Key_B);
+  connect(toggleEditDrawingModeAction, SIGNAL(triggered()), SLOT(toggleEditDrawingMode()));
 
   // help ======================
   // --------------------------------------------------------------------
@@ -671,7 +673,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   }
   showmenu->addMenu( infomenu );
 
-  showmenu->addAction(togglePaintModeAction);
+  showmenu->addAction(toggleEditDrawingModeAction);
 
   //   //-------Help menu
   helpmenu = menuBar()->addMenu(tr("&Help"));
@@ -919,20 +921,28 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   mailm = new MailDialog(this,contr);
   mailm->hide();
 
+  EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
+  drawingDialog->hide();
+  addDialog(drawingDialog);
+
+  EditItems::EditDrawingDialog *editDrawingDialog = new EditItems::EditDrawingDialog(this, contr);
+  editDrawingDialog->hide();
+  addDialog(editDrawingDialog);
+
 //  paintToolBar = new PaintToolBar(this);
 //  paintToolBar->setObjectName("PaintToolBar");
 //  addToolBar(Qt::BottomToolBarArea, paintToolBar);
 //  paintToolBar->hide();
 
-  paintToolBar = EditItems::ToolBar::instance();
-  paintToolBar->setObjectName("PaintToolBar");
-  addToolBar(Qt::BottomToolBarArea, paintToolBar);
-  paintToolBar->hide();
+  editDrawingToolBar = EditItems::ToolBar::instance();
+  editDrawingToolBar->setObjectName("PaintToolBar");
+  addToolBar(Qt::BottomToolBarArea, editDrawingToolBar);
+  editDrawingToolBar->hide();
   //paintToolBar->setEnabled(false); obsolete?
-  connect(paintToolBar, SIGNAL(visible(bool)), SLOT(paintToolBarVisible(bool)));
+  connect(editDrawingToolBar, SIGNAL(visible(bool)), SLOT(editDrawingToolBarVisible(bool)));
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
-  connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(editUpdate(bool)));
+  connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(handleEIMEditing(bool)));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1164,7 +1174,7 @@ void DianaMainWindow::start()
   readLogFile();  
 
   // init paint mode
-  setPaintMode(paintToolBar->isVisible());
+  setEditDrawingMode(editDrawingToolBar->isVisible());
 
   // init quickmenus
   qm->start();
@@ -1206,12 +1216,16 @@ void DianaMainWindow::focusInEvent( QFocusEvent * )
 void DianaMainWindow::editUpdate(bool enabled)
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::editUpdate");
-
   w->Glw()->forceUnderlay(enabled);
   w->updateGL();
 }
 
-
+void DianaMainWindow::handleEIMEditing(bool enabled)
+{
+  if (enabled)
+    setEditDrawingMode(true);
+  editUpdate(enabled);
+}
 
 void DianaMainWindow::quickMenuApply(const vector<string>& s)
 {
@@ -1310,30 +1324,22 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
   QApplication::restoreOverrideCursor();
 }
 
-void DianaMainWindow::togglePaintMode()
+void DianaMainWindow::toggleEditDrawingMode()
 {
-  if (paintToolBar->isVisible()) paintToolBar->hide();
-  else paintToolBar->show();
-  METLIBS_LOG_DEBUG("DianaMainWindow::togglePaintMode enabled " << paintToolBar->isVisible());
+  if (editDrawingToolBar->isVisible()) editDrawingToolBar->hide();
+  else editDrawingToolBar->show();
+  METLIBS_LOG_DEBUG("DianaMainWindow::toggleEditDrawingMode enabled " << editDrawingToolBar->isVisible());
 }
 
-void DianaMainWindow::setPaintMode(bool enabled)
+void DianaMainWindow::setEditDrawingMode(bool enabled)
 {
-  if (enabled) paintToolBar->show();
-  else paintToolBar->hide();
+  if (enabled) editDrawingToolBar->show();
+  else editDrawingToolBar->hide();
 }
 
-void DianaMainWindow::paintToolBarVisible(bool visible)
+void DianaMainWindow::editDrawingToolBarVisible(bool visible)
 {
-  // Enabling editing mode (opening the dialog) causes the manager to enter
-  // working mode. This makes it possible to show objects that have not been
-  // serialised as plot commands.
   EditItemManager::instance()->setEditing(visible);
-
-  // When editing starts, remove any existing items and load the chosen
-  // files. Mark the product as unfinished by disabling it.
-  if (visible)
-    EditItemManager::instance()->setEnabled(false);
 }
 
 void DianaMainWindow::winResize(int w, int h)

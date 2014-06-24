@@ -1421,6 +1421,8 @@ void PlotModule::plotUnder()
     editm->plot(true, false);
   }
 
+  static int nn = 0; nn++;
+
   // plot other objects, including drawing items
   map<string,Manager*>::iterator it = managers.begin();
   while (it != managers.end()) {

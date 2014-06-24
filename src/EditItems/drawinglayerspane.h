@@ -29,50 +29,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSDIALOG_H
-#define EDITITEMSDIALOG_H
+#ifndef DRAWINGLAYERSPANE_H
+#define DRAWINGLAYERSPANE_H
 
-#if 0 // disabled for now
-#include <QStandardItemModel>
-#endif
-#include "qtDataDialog.h"
-
-#if 0 // disabled for now
-class QListView;
-#endif
-class EditItemManager;
+#include <EditItems/layerspanebase.h>
 
 namespace EditItems {
 
-class LayerGroupsPane;
-class ActiveLayersPane;
+class LayerManager;
 
-class Dialog : public DataDialog
+class DrawingLayersPane : public LayersPaneBase
 {
-  Q_OBJECT
-
 public:
-  Dialog(QWidget *, Controller *);
-
-  virtual std::string name() const;
-  virtual void updateDialog();
-  virtual std::vector<std::string> getOKString();
-  virtual void putOKString(const std::vector<std::string> &);
-
+  DrawingLayersPane(LayerManager *, const QString &);
 private:
-  EditItemManager *editm_;
-  LayerGroupsPane *layerGroupsPane_;
-  ActiveLayersPane *activeLayersPane_;
-
-private slots:
-  virtual void updateTimes();
-  void makeProduct();
-
-  // ### FOR TESTING:
-  void dumpStructure();
-  void showInfo(bool);
+  virtual void updateButtons();
 };
 
 } // namespace
 
-#endif // EDITITEMSDIALOG_H
+#endif // DRAWINGLAYERSPANE_H

@@ -45,7 +45,7 @@
 
 #include "qtGLwidget.h"
 #include "diController.h"
-#include "diDrawingManager.h"
+//#include "diDrawingManager.h"
 #include "diEditItemManager.h"
 
 #if defined(USE_PAINTGL)
@@ -105,11 +105,13 @@ void GLwidget::paintGL()
     contr->plot(true, false); // draw underlay
   }
 
-  DrawingManager *drawm = static_cast<DrawingManager *>(contr->getManager("DRAWING"));
-  if (drawm && drawm->isEnabled()) {
+  EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("EDITDRAWING"));
+  if (editm && editm->isEditing()) {
     glColor3ub(128, 0, 0);
     renderText(10, height() - 10, "new painting mode (experimental)");
   }
+
+  static int nn = 0; nn++;
 
   if (savebackground) {
 #ifdef DEBUGREDRAW
@@ -144,6 +146,8 @@ void GLwidget::editPaint(bool drawb)
 #else
   makeCurrent();
 
+  static int nn = 0; nn++;
+
   if (drawb && fbuffer) {
 #ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("GLwidget::editPaint ... drawbackground");
@@ -161,15 +165,13 @@ void GLwidget::editPaint(bool drawb)
 
     glDrawPixels(plotw, ploth, GL_RGBA, GL_UNSIGNED_BYTE, fbuffer);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
   }
 
 #ifdef DEBUGREDRAW
   METLIBS_LOG_DEBUG("GLwidget::editPaint ... plot over");
 #endif
-  if (contr) {
+  if (contr)
     contr->plot(false, true); // draw overlay
-  }
 
   swapBuffers();
 #endif

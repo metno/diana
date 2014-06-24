@@ -29,42 +29,48 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSLAYERGROUP_H
-#define EDITITEMSLAYERGROUP_H
+#ifndef DRAWINGDIALOG_H
+#define DRAWINGDIALOG_H
 
-#include <QObject>
-#include <QString>
-#include <QList>
-#include <QSharedPointer>
+#include "qtDataDialog.h"
+
+class DrawingManager;
+class LayerManager;
 
 namespace EditItems {
 
-class Layer;
+class LayerGroupsPane;
+class DrawingLayersPane;
 
-class LayerGroup : public QObject
+class DrawingDialog : public DataDialog
 {
   Q_OBJECT
-  friend class LayerManager;
+
 public:
-  LayerGroup(const QString &, bool = true, bool = false);
-  ~LayerGroup();
-  int id() const;
-  QString name() const;
-  void setName(const QString &);
-  bool isEditable() const;
-  bool isActive() const;
-  void setActive(bool);
-  const QList<QSharedPointer<Layer> > &layersRef() const;
+  DrawingDialog(QWidget *, Controller *);
+
+  virtual std::string name() const;
+  virtual void updateDialog();
+  virtual std::vector<std::string> getOKString();
+  virtual void putOKString(const std::vector<std::string> &);
+
 private:
-  int id_;
-  static int nextId_;
-  static int nextId();
-  QString name_;
-  bool editable_;
-  bool active_;
-  QList<QSharedPointer<Layer> > layers_;
+  DrawingManager *drawm_;
+  LayerGroupsPane *layerGroupsPane_;
+  DrawingLayersPane *layersPane_; // keeps the active layers
+  LayerManager *layerMgr_; // Read/written by DrawingDialog.
+                           // The Apply operation clears the deep-copies the active layers of this->layerMgr_ into DrawingManager::layerMgr_.
+
+private slots:
+  virtual void updateTimes();
+  void makeProduct();
+  void handleDialogUpdated();
+
+  // ### FOR TESTING:
+  void dumpStructure();
+  void showInfo(bool);
 };
 
 } // namespace
 
-#endif // EDITITEMSLAYERGROUP_H
+#endif // DRAWINGDIALOG_H
