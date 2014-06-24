@@ -600,10 +600,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   updateModelBoxes();
   setDefaultFieldOptions();
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::ConstructorCernel returned");
-
 }
 
 void FieldDialog::toolTips()
@@ -636,19 +632,14 @@ void FieldDialog::toolTips()
 
 void FieldDialog::advancedToggled(bool on)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::advancedToggled  on= " << on);
-
+  METLIBS_LOG_SCOPE("on= " << on);
 
   this->showExtension(on);
-
 }
 
 void FieldDialog::CreateAdvanced()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::CreateAdvanced");
-
+  METLIBS_LOG_SCOPE();
 
   advFrame = new QWidget(this);
 
@@ -1115,18 +1106,14 @@ void FieldDialog::CreateAdvanced()
 
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
-
-  return;
 }
 
 void FieldDialog::updateModelBoxes()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateModelBoxes called");
-
+  METLIBS_LOG_SCOPE();
 
   //keep old plots
-  vector<std::string> vstr = getOKString_std();
+  vector<std::string> vstr = getOKString();
 
   modelGRbox->clear();
   indexMGRtable.clear();
@@ -1175,9 +1162,7 @@ void FieldDialog::archiveMode(bool on)
 
 void FieldDialog::modelGRboxActivated(int index)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::modelGRboxActivated called");
-
+  METLIBS_LOG_SCOPE();
 
   if (index < 0 || index >= int(indexMGRtable.size()))
     return;
@@ -1192,15 +1177,11 @@ void FieldDialog::modelGRboxActivated(int index)
   for (int i = 0; i < nr_model; i++) {
     modelbox->addItem(QString(m_modelgroup[indexMGR].modelNames[i].c_str()));
   }
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::modelGRboxActivated returned");
-
 }
 
 void FieldDialog::modelboxClicked(QListWidgetItem * item)
 {
-  METLIBS_LOG_DEBUG("FieldDialog::modelboxClicked called");
+  METLIBS_LOG_SCOPE();
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -1225,16 +1206,11 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
   updateFieldGroups();
 
   QApplication::restoreOverrideCursor();
-
-  METLIBS_LOG_DEBUG("FieldDialog::modelboxClicked returned");
-
 }
 
 void FieldDialog::updateFieldGroups()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateFieldGroups called");
-
+  METLIBS_LOG_SCOPE();
 
   fieldGRbox->clear();
   fieldbox->clear();
@@ -1302,14 +1278,11 @@ void FieldDialog::updateFieldGroups()
   }
 
   updateTime();
-
 }
 
 void FieldDialog::fieldGRboxActivated(int index)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::fieldGRboxActivated called");
-
+  METLIBS_LOG_SCOPE();
 
   fieldbox->clear();
   fieldbox->blockSignals(true);
@@ -1389,17 +1362,11 @@ void FieldDialog::fieldGRboxActivated(int index)
   }
 
   fieldbox->blockSignals(false);
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::fieldGRboxActivated returned");
-
 }
 
 void FieldDialog::setLevel()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::setLevel called");
-
+  METLIBS_LOG_SCOPE();
 
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
@@ -1432,11 +1399,6 @@ void FieldDialog::setLevel()
   }
 
   levelSlider->blockSignals(false);
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::setLevel returned");
-
-  return;
 }
 
 void FieldDialog::levelPressed()
@@ -1446,9 +1408,7 @@ void FieldDialog::levelPressed()
 
 void FieldDialog::levelChanged(int index)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::levelChanged called: "<<index);
-
+  METLIBS_LOG_SCOPE("index="<<index);
 
   int n = currentLevels.size();
   if (index >= 0 && index < n) {
@@ -1459,17 +1419,11 @@ void FieldDialog::levelChanged(int index)
 
   if (!levelInMotion)
     updateLevel();
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::levelChanged returned");
-
-  return;
 }
 
 vector<string> FieldDialog::changeLevel(int increment, int type)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::changeLevel called: "<<increment);
+  METLIBS_LOG_SCOPE("increment="<<increment);
 
   // called from MainWindow levelUp/levelDown
 
@@ -1542,7 +1496,6 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
         }
       }
     }
-
   }
 
   return getOKString(false);
@@ -1550,9 +1503,7 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
 
 void FieldDialog::updateLevel()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateLevel called");
-
+  METLIBS_LOG_SCOPE();
 
   int i = selectedFieldbox->currentRow();
 
@@ -1562,18 +1513,11 @@ void FieldDialog::updateLevel()
   }
 
   levelInMotion = false;
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateLevel returned");
-
-  return;
 }
 
 void FieldDialog::setIdnum()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::setIdnum called");
-
+  METLIBS_LOG_SCOPE();
 
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
@@ -1606,11 +1550,6 @@ void FieldDialog::setIdnum()
   }
 
   idnumSlider->blockSignals(false);
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::setIdnum returned");
-
-  return;
 }
 
 void FieldDialog::idnumPressed()
@@ -1620,9 +1559,7 @@ void FieldDialog::idnumPressed()
 
 void FieldDialog::idnumChanged(int index)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::idnumChanged called");
-
+  METLIBS_LOG_SCOPE();
 
   int n = currentIdnums.size();
   if (index >= 0 && index < n) {
@@ -1633,19 +1570,12 @@ void FieldDialog::idnumChanged(int index)
 
   if (!idnumInMotion)
     updateIdnum();
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::idnumChanged returned");
-
-  return;
 }
 
 
 void FieldDialog::updateIdnum()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateIdnum called");
-
+  METLIBS_LOG_SCOPE();
 
   if (selectedFieldbox->currentRow() >= 0) {
     unsigned int i = selectedFieldbox->currentRow();
@@ -1656,18 +1586,11 @@ void FieldDialog::updateIdnum()
   }
 
   idnumInMotion = false;
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateIdnum returned");
-
-  return;
 }
 
 void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::fieldboxChanged called:"<<fieldbox->count());
-
+  METLIBS_LOG_SCOPE(LOGVAL(fieldbox->count()));
 
   if (!fieldGRbox->count())
     return;
@@ -1818,18 +1741,11 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
   if (selectedFieldbox->count() > 0 && selectedFields[0].minus) {
     minusButton->setChecked(false);
   }
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::fieldboxChanged returned");
-
-  return;
 }
 
 void FieldDialog::enableFieldOptions()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::enableFieldOptions called");
-
+  METLIBS_LOG_SCOPE();
 
   setDefaultFieldOptions();
 
@@ -2491,18 +2407,11 @@ void FieldDialog::enableFieldOptions()
       baseList(max2ComboBox, value, true);
     }
   }
-
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::enableFieldOptions returned");
-
 }
 
 void FieldDialog::setDefaultFieldOptions()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::setDefaultFieldOptions called");
-
+  METLIBS_LOG_SCOPE();
 
   // show levels for the current field group
   //  setLevel();
@@ -2589,18 +2498,11 @@ void FieldDialog::setDefaultFieldOptions()
   hourDiffSpinBox->blockSignals(true);
   hourDiffSpinBox->setValue(0);
   hourDiffSpinBox->blockSignals(false);
-
-
-
-
-  METLIBS_LOG_DEBUG("Leaving FieldDialog::setDefaultFieldOptions");
-
 }
 
 void FieldDialog::enableWidgets(std::string plottype)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::enableWidgets called:"<<plottype);
+  METLIBS_LOG_SCOPE("plottype="<<plottype);
 
   bool enable = (plottype != "none");
 
@@ -2667,18 +2569,11 @@ void FieldDialog::enableWidgets(std::string plottype)
 
   enable = enableMap[plottype].unitWidgets;
   vectorunitCbox->setEnabled(enable);
-
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::enableWidgets returned");
-
 }
 
 vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool onoff)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::numberList called: "<<number);
-
+  METLIBS_LOG_SCOPE("number="<<number);
 
   cBox->clear();
 
@@ -2778,7 +2673,6 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
     cBox->setCurrentIndex(k + 1);
   else
     cBox->setCurrentIndex(k);
-
 }
 
 void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
@@ -2790,11 +2684,6 @@ void FieldDialog::selectedFieldboxClicked(QListWidgetItem * item)
     return;
 
   enableFieldOptions();
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::selectedFieldboxClicked returned");
-
-  return;
 }
 
 void FieldDialog::unitEditingFinished()
@@ -3271,10 +3160,7 @@ void FieldDialog::enableType2Options(bool on)
 void FieldDialog::updateFieldOptions(const std::string& name,
     const std::string& value, int valueIndex)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::updateFieldOptions  name= " << name
-      << "  value= " << value);
-
+  METLIBS_LOG_SCOPE("name='" << name << "' value='" << value << "'");
 
   if (currentFieldOpts.empty())
     return;
@@ -3293,7 +3179,6 @@ void FieldDialog::updateFieldOptions(const std::string& name,
   if (!selectedFields[n].external) {
     fieldOptions[selectedFields[n].fieldName] = currentFieldOpts;
   }
-
 }
 
 void FieldDialog::getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR,
@@ -3350,20 +3235,9 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
   }
 }
 
-vector<std::string> FieldDialog::getOKString_std(bool resetLevelMove)
-{
-  vector<string> vstr = getOKString( resetLevelMove );
-  vector<std::string> vstdstr;
-  size_t n = vstr.size();
-  for ( size_t i = 0; i<n; ++i ) {
-    vstdstr.push_back(vstr[i]);
-  }
-  return vstdstr;
-
-}
 vector<string> FieldDialog::getOKString(bool resetLevelMove)
 {
-  METLIBS_LOG_DEBUG("FieldDialog::getOKString called");
+  METLIBS_LOG_SCOPE();
 
   if ( resetLevelMove) {
     int n = selectedFields.size();
@@ -3415,15 +3289,10 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
     }
 
     std::string str;
-
     if (selectedFields[i].inEdit) {
-
       str = "EDITFIELD " + ostr.str();
-
     } else {
-
       str = "FIELD " + ostr.str();
-
     }
 
     // the OK string
@@ -3437,7 +3306,6 @@ vector<string> FieldDialog::getOKString(bool resetLevelMove)
 
 std::string FieldDialog::getParamString(int i)
 {
-
   ostringstream ostr;
 
   if( selectedFields[i].cdmSyntax ) {
@@ -3494,7 +3362,6 @@ std::string FieldDialog::getParamString(int i)
   }
 
   return ostr.str();
-
 }
 
 std::string FieldDialog::getShortname()
@@ -3638,18 +3505,15 @@ bool FieldDialog::levelsExists(bool up, int type)
         return ( selectedFields[i].idnum != selectedFields[i].idnumOptions[0]);
       }
     }
-
   }
 
   return false;
-
 }
 
 void FieldDialog::putOKString(const vector<std::string>& vstr,
     bool checkOptions, bool external)
 {
-
-
+  METLIBS_LOG_SCOPE();
 
   deleteAllSelected();
 
@@ -3824,15 +3688,10 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
   } else {
     updateTime();
   }
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::putOKString finished");
-
 }
 
 bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
 {
-
   vector<ParsedCommand> vpc;
 
   vpc = cp->parse(fieldString);
@@ -3956,7 +3815,6 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
 
 bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, SelectedField& sf, bool& allTimeSteps )
 {
-
   std::string vfg2_model, model, field, level, idnum, fOpts;
   int hourOffset, hourDiff;
   int indexMGR, indexM, indexFGR, indexF;
@@ -4118,7 +3976,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
   //     else METLIBS_LOG_DEBUG("  error");
   //############################################################################
   return false;
-
 }
 
 
@@ -4157,11 +4014,7 @@ bool FieldDialog::fieldDifference(const std::string& str,
 void FieldDialog::getEditPlotOptions(map<std::string, map<
     std::string, std::string> >& po)
 {
-
-  //map<paramater, map <option, value> >
-
-  map<std::string, map<std::string, std::string> >::iterator p =
-      po.begin();
+  map<std::string, map<std::string, std::string> >::iterator p = po.begin();
   //loop through parameters
   for (; p != po.end(); p++) {
     std::string options;
@@ -4190,12 +4043,10 @@ void FieldDialog::getEditPlotOptions(map<std::string, map<
       }
     }
   }
-
 }
 
 vector<std::string> FieldDialog::writeLog()
 {
-
   vector<std::string> vstr;
 
   // write used field options
@@ -4231,7 +4082,6 @@ vector<std::string> FieldDialog::writeLog()
 void FieldDialog::readLog(const std::vector<std::string>& vstr,
     const std::string& thisVersion, const std::string& logVersion)
 {
-
   std::string str, fieldname, fopts, sopts;
   size_t pos, end;
 
@@ -4301,14 +4151,11 @@ void FieldDialog::readLog(const std::vector<std::string>& vstr,
     }
   }
   ivstr++;
-
 }
 
 std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSyntax)
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::checkFieldOptions:"<<str);
-
+  METLIBS_LOG_SCOPE("str="<<str);
 
   //merging fieldOptions from str whith current fieldOptions from same field
 
@@ -4396,9 +4243,7 @@ std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSynta
 
 void FieldDialog::deleteSelected()
 {
-
-  METLIBS_LOG_DEBUG("FieldDialog::deleteSelected called");
-
+  METLIBS_LOG_SCOPE();
 
   int index = selectedFieldbox->currentRow();
 
@@ -4476,18 +4321,11 @@ void FieldDialog::deleteSelected()
   //first field can't be minus
   if (selectedFieldbox->count() > 0 && selectedFields[0].minus)
     minusButton->setChecked(false);
-
-
-  METLIBS_LOG_DEBUG("FieldDialog::deleteSelected returned");
-
-  return;
 }
 
 void FieldDialog::deleteAllSelected()
 {
-
-  METLIBS_LOG_DEBUG(" FieldDialog::deleteAllSelected() called");
-
+  METLIBS_LOG_SCOPE();
 
   int n = fieldbox->count();
   for (int i = 0; i < n; i++)
@@ -4521,18 +4359,11 @@ void FieldDialog::deleteAllSelected()
   }
 
   updateTime();
-
-
-  METLIBS_LOG_DEBUG(" FieldDialog::deleteAllSelected() returned");
-
-  return;
 }
 
 void FieldDialog::copySelectedField()
 {
-
-  METLIBS_LOG_DEBUG(" FieldDialog::copySelectedField called");
-
+  METLIBS_LOG_SCOPE();
 
   if (selectedFieldbox->count() == 0)
     return;
@@ -4590,18 +4421,11 @@ void FieldDialog::copySelectedField()
   selectedFieldbox->setCurrentRow(n);
   selectedFieldbox->item(n)->setSelected(true);
   enableFieldOptions();
-
-
-  METLIBS_LOG_DEBUG(" FieldDialog::copySelectedField returned");
-
-  return;
 }
 
 void FieldDialog::changeModel()
 {
-
-  METLIBS_LOG_DEBUG(" FieldDialog::changeModel called");
-
+  METLIBS_LOG_SCOPE();
 
   if (selectedFieldbox->count() == 0)
     return;
@@ -4726,16 +4550,10 @@ void FieldDialog::changeModel()
   enableFieldOptions();
 
   updateTime();
-
-
-  METLIBS_LOG_DEBUG(" FieldDialog::changeModel returned");
-
-  return;
 }
 
 void FieldDialog::upField()
 {
-
   if (selectedFieldbox->count() == 0)
     return;
   int n = selectedFields.size();
@@ -4766,12 +4584,10 @@ void FieldDialog::upField()
   selectedFieldbox->setCurrentRow(index);
   upFieldButton->setEnabled((index > numEditFields));
   downFieldButton->setEnabled((index < (n-1)));
-
 }
 
 void FieldDialog::downField()
 {
-
   if (selectedFieldbox->count() == 0)
     return;
   int n = selectedFields.size();
@@ -4802,7 +4618,6 @@ void FieldDialog::downField()
   selectedFieldbox->setCurrentRow(index);
   upFieldButton->setEnabled((index > numEditFields));
   downFieldButton->setEnabled((index < (n-1)));
-
 }
 
 void FieldDialog::resetOptions()
@@ -4888,7 +4703,6 @@ std::string FieldDialog::getFieldOptions(
 
 void FieldDialog::minusField(bool on)
 {
-
   int i = selectedFieldbox->currentRow();
 
   if (i < 0 || i >= selectedFieldbox->count())
@@ -4920,12 +4734,10 @@ void FieldDialog::minusField(bool on)
       enableFieldOptions();
     }
   }
-
 }
 
 void FieldDialog::updateTime()
 {
-
   vector<miutil::miTime> fieldtime;
   int m;
 
@@ -4974,7 +4786,6 @@ void FieldDialog::updateTime()
     }
   }
 
-
   METLIBS_LOG_DEBUG("FieldDialog::updateTime emit emitTimes  fieldtime.size="
       <<fieldtime.size());
 
@@ -4993,7 +4804,7 @@ void FieldDialog::addField(std::string str)
     remove = true;
   }
 
-  vector<std::string> vstr = getOKString_std();
+  vector<std::string> vstr = getOKString();
 
   //remove option overlay=1 from all strings
   //(should be a more general setOption()
@@ -5013,16 +4824,15 @@ void FieldDialog::addField(std::string str)
     vstr.push_back(str);
   }
   putOKString(vstr);
-
 }
 
 void FieldDialog::fieldEditUpdate(std::string str)
 {
-
-
-  if (str.empty()) METLIBS_LOG_DEBUG("FieldDialog::fieldEditUpdate STOP");
-  else METLIBS_LOG_DEBUG("FieldDialog::fieldEditUpdate START "<<str);
-
+  METLIBS_LOG_SCOPE();
+  if (str.empty())
+    METLIBS_LOG_DEBUG("STOP");
+  else
+    METLIBS_LOG_DEBUG("START "<<str);
 
   int i, j, m, n = selectedFields.size();
 
@@ -5171,7 +4981,6 @@ void FieldDialog::fieldEditUpdate(std::string str)
 void FieldDialog::allTimeStepToggled(bool on)
 {
   updateTime();
-
 }
 
 void FieldDialog::applyClicked()
@@ -5199,5 +5008,3 @@ void FieldDialog::closeEvent(QCloseEvent* e)
 {
   emit FieldHide();
 }
-
-

@@ -132,7 +132,6 @@ public:
   void archiveMode(bool on);
   /// returns fiels command strings, one for each field
   std::vector<std::string> getOKString(bool resetLevelMove=true);
-  std::vector<std::string> getOKString_std(bool resetLevelMove=true);
   /// return a short text for quickmenue
   std::string getShortname();
   bool levelsExists(bool up, int type=0);
