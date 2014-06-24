@@ -213,16 +213,6 @@ float DianaLevelStep::value_for_level(contouring::level_t l) const
   return l != UNDEF_LEVEL ? l*mStep + mOff : UNDEF_VALUE;
 }
 
-//------------------------------------------------------------------------
-
-contouring::level_t DianaLevelStepOmit::level_for_value(float value) const
-{
-  if (value == mOff)
-    return UNDEF_LEVEL;
-  else
-    return DianaLevelStep::level_for_value(value);
-}
-
 // ########################################################################
 
 contouring::point_t DianaFieldBase::line_point(contouring::level_t level, size_t x0, size_t y0, size_t x1, size_t y1) const
@@ -321,6 +311,9 @@ void DianaLines::paint_polygons()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  const contouring::level_t level_min = mLevels.level_for_value(mPlotOptions.minvalue),
+      level_max = mLevels.level_for_value(mPlotOptions.maxvalue);
+
   const int ncolours = mPlotOptions.palettecolours.size();
   const int ncolours_cold = mPlotOptions.palettecolours_cold.size();
 
@@ -333,14 +326,20 @@ void DianaLines::paint_polygons()
       if (mPlotOptions.undefMasking != 1)
         continue;
       glColor3ubv(mPlotOptions.undefColour.RGB());
-    } else if (li <= 0 and ncolours_cold) {
-      const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -li);
-      glColor3ubv(mPlotOptions.palettecolours_cold[idx].RGB());
     } else {
-      if (not ncolours_cold and li <= 0)
+      if ((level_min != DianaLevels::UNDEF_LEVEL and li <= level_min)
+          or (level_max != DianaLevels::UNDEF_LEVEL and li >= level_max)
+          or (not mPlotOptions.zeroLine and li == 0))
+      {
         continue;
-      const int idx = find_index(mPlotOptions.repeat, ncolours, li - 1);
-      glColor3ubv(mPlotOptions.palettecolours[idx].RGB());
+      }
+      if (li <= 0 and ncolours_cold) {
+        const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -li);
+        glColor3ubv(mPlotOptions.palettecolours_cold[idx].RGB());
+      } else {
+        const int idx = find_index(mPlotOptions.repeat, ncolours, li - 1);
+        glColor3ubv(mPlotOptions.palettecolours[idx].RGB());
+      }
     }
 
     { //METLIBS_LOG_TIME("tesselation");
@@ -505,11 +504,9 @@ boost::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& popt
     // (or the line at value=zoff)
     return boost::make_shared<DianaLevelList10>(poptions.loglinevalues, poptions.palettecolours.size());
   } else {
-    boost::shared_ptr<DianaLevelStep> ls;
-    if (poptions.zeroLine) // equally spaced lines (value)
-      ls = boost::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
-    else // idraw ==  2,  equally spaced lines, but not drawing the 0 line
-      ls = boost::make_shared<DianaLevelStepOmit>(poptions.lineinterval, poptions.base);
+    // equally spaced lines (value)
+    boost::shared_ptr<DianaLevelStep> ls
+        = boost::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
     if (poptions.minvalue > -fieldUndef or poptions.maxvalue < fieldUndef)
       ls->set_limits(poptions.minvalue, poptions.maxvalue);
     return ls;

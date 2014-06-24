@@ -170,6 +170,9 @@ void VCLines::paint_polygons(QPainter& painter)
   const int ncolours = mPlotOptions.palettecolours.size();
   const int ncolours_cold = mPlotOptions.palettecolours_cold.size();
 
+  const contouring::level_t level_min = mLevels.level_for_value(mPlotOptions.minvalue),
+      level_max = mLevels.level_for_value(mPlotOptions.maxvalue);
+
   for (contour_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
     contouring::level_t level = it->first;
     const contour_v& contours = it->second;
@@ -177,14 +180,20 @@ void VCLines::paint_polygons(QPainter& painter)
       if (mPlotOptions.undefMasking != 1)
         continue;
       brush = vcross::util::QC(mPlotOptions.undefColour);
-    } else if (level <= 0 and ncolours_cold) {
-      const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -level);
-      brush = vcross::util::QC(mPlotOptions.palettecolours_cold[idx]);
     } else {
-      if (not ncolours_cold and level <= 0)
+      if ((level_min != DianaLevels::UNDEF_LEVEL and level <= level_min)
+          or (level_max != DianaLevels::UNDEF_LEVEL and level >= level_max)
+          or (not mPlotOptions.zeroLine and level == 0))
+      {
         continue;
-      const int idx = find_index(mPlotOptions.repeat, ncolours, level - 1);
-      brush = vcross::util::QC(mPlotOptions.palettecolours[idx]);
+      }
+      if (level <= 0 and ncolours_cold) {
+        const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -level);
+        brush = vcross::util::QC(mPlotOptions.palettecolours_cold[idx]);
+      } else {
+        const int idx = find_index(mPlotOptions.repeat, ncolours, level - 1);
+        brush = vcross::util::QC(mPlotOptions.palettecolours[idx]);
+      }
     }
     
     painter.setPen(Qt::NoPen);

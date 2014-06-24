@@ -71,15 +71,6 @@ protected:
   float mStep, mOff, mMin, mMax;
 };
 
-//------------------------------------------------------------------------
-
-class DianaLevelStepOmit : public DianaLevelStep {
-public:
-  DianaLevelStepOmit(float step, float off)
-    : DianaLevelStep(step, off) { }
-  contouring::level_t level_for_value(float value) const;
-};
-
 // ########################################################################
 
 class DianaPositions {
