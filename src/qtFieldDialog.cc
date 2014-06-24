@@ -2017,7 +2017,7 @@ void FieldDialog::enableFieldOptions()
       if(updateClodshading) {
         shadingcoldComboBox->setCurrentIndex(j + 1);
 
-        if (stokens.size() == 2)
+        if (coldStokens.size() == 2)
           shadingcoldSpinBox->setValue(::atoi(coldStokens[1].c_str()));
         else
           shadingcoldSpinBox->setValue(0);
