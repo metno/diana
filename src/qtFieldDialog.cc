@@ -2219,8 +2219,8 @@ void FieldDialog::enableFieldOptions()
         ncv = cp->findKey(vpcopt, "line.values"),
         nclv = cp->findKey(vpcopt, "log.line.values");
     if (nci  >= 0 or ncv >= 0 or nclv >= 0) {
-      if (nci >= 0 && (!vpcopt[nc].floatValue.empty())) {
-        float ekv = vpcopt[nc].floatValue[0];
+      if (nci >= 0 && (!vpcopt[nci].floatValue.empty())) {
+        float ekv = vpcopt[nci].floatValue[0];
         lineintervals = numberList(lineintervalCbox, ekv,true);
         numberList(interval2ComboBox, ekv,true);
       }
@@ -3191,10 +3191,10 @@ void FieldDialog::linevaluesFieldEdited()
   const std::string line_values = linevaluesField->text().toStdString();
   if (linevaluesLogCheckBox->isChecked()) {
     updateFieldOptions("line.values", "remove");
-    updateFieldOptions("log.line.values", line_values);
+    updateFieldOptions("log.line.values", line_values, -1);
   } else {
     updateFieldOptions("log.line.values", "remove");
-    updateFieldOptions("line.values", line_values);
+    updateFieldOptions("line.values", line_values, -1);
   }
 }
 
