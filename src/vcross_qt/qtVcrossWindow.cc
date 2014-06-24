@@ -57,6 +57,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qfont.h>
+#include <QMessageBox>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
@@ -443,43 +444,15 @@ void VcrossWindow::printClicked()
   std::string command = pman.printCommand();
 
   QPrinter qprt;
-  fromPrintOption(qprt,priop);
+  fromPrintOption(qprt, priop);
 
   QPrintDialog printerDialog(&qprt, this);
   if (printerDialog.exec()) {
-    if (!qprt.outputFileName().isNull()) {
-      priop.fname= qprt.outputFileName().toStdString();
-    } else {
-      priop.fname= "prt_" + miutil::miTime::nowTime().isoTime() + ".ps";
-      miutil::replace(priop.fname, ' ', '_');
-    }
-
     // fill printOption from qprinter-selections
     toPrintOption(qprt, priop);
 
-    // set printername
-    if (qprt.outputFileName().isNull())
-      priop.printer= qprt.printerName().toStdString();
-
-    // start the postscript production
     QApplication::setOverrideCursor( Qt::WaitCursor );
-
-//    vcrossw->print(&qprt, priop);
-
-    // if output to printer: call appropriate command
-    if (qprt.outputFileName().isNull()){
-      priop.numcopies= qprt.numCopies();
-
-      // expand command-variables
-      pman.expandCommand(command, priop);
-
-      int res = system(command.c_str());
-
-      if (res != 0){
-        METLIBS_LOG_WARN("Print command:" << command << " failed");
-      }
-
-    }
+    vcrossw->print(qprt);
     QApplication::restoreOverrideCursor();
   }
 }
@@ -488,33 +461,16 @@ void VcrossWindow::printClicked()
 
 void VcrossWindow::saveClicked()
 {
-  static QString fname = "./"; // keep users preferred image-path for later
-  QString s = QFileDialog::getSaveFileName(this,
+  QString filename = QFileDialog::getSaveFileName(this,
       tr("Save plot as image"),
-      fname,
-      tr("Images (*.png *.xpm *.bmp *.eps);;All (*.*)"));
-
-
-  if (!s.isNull()) {// got a filename
-    fname= s;
-    std::string filename= s.toStdString();
-    std::string format= "PNG";
-    int quality= -1; // default quality
-
-    // find format
-    if (miutil::contains(filename, ".xpm") || miutil::contains(filename, ".XPM"))
-      format= "XPM";
-    else if (miutil::contains(filename, ".bmp") || miutil::contains(filename, ".BMP"))
-      format= "BMP";
-    else if (miutil::contains(filename, ".eps") || miutil::contains(filename, ".epsf")){
-      // make encapsulated postscript
-      // NB: not screendump!
-      makeEPS(filename);
-      return;
-    }
-
-    // do the save
-    vcrossw->saveRasterImage(filename, format, quality);
+      mRasterFilename,
+      tr("Images (*.png *.xpm *.bmp);;All (*.*)"));
+  
+  if (not filename.isNull()) {// got a filename
+    mRasterFilename = filename;
+    if (not vcrossw->saveRasterImage(filename))
+      QMessageBox::warning(this, tr("Save image failed"),
+          tr("Saveing the vertical cross section plot as '%1' failed. Sorry.").arg(filename));
   }
 }
 

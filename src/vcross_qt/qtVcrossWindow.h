@@ -111,6 +111,7 @@ private:
 
   // printerdefinitions
   printOptions priop;
+  QString mRasterFilename;
 
   void makeEPS(const std::string& filename);
   void emitQmenuStrings();

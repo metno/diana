@@ -43,6 +43,7 @@
 
 class QKeyEvent;
 class QMouseEvent;
+class QPrinter;
 
 namespace vcross {
 
@@ -66,7 +67,8 @@ public:
 
   void enableTimeGraph(bool on);
 
-  bool saveRasterImage(const std::string& fname, const std::string& format, const int quality = -1);
+  void print(QPrinter& printer);
+  bool saveRasterImage(const QString& fname);
 
   /** print using either given QPrinter (if USE_PAINTGL) or using the given printOptions */
   //void print(QPrinter* qprt, const printOptions& priop);

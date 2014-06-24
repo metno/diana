@@ -31,7 +31,8 @@
 
 #include "vcross_v2/VcrossQtManager.h"
 
-#include <QtGui/QPainter>
+#include <QPainter>
+#include <QPrinter>
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -83,7 +84,6 @@ void QtWidget::resizeEvent(QResizeEvent* event)
 {
   const int w = event->size().width(), h = event->size().height();
   vcrossm->setPlotWindow(w,h);
-  saveRasterImage("/tmp/vcross.png", "png");
 }
 
 // ---------------------- event callbacks -----------------
@@ -225,9 +225,20 @@ void QtWidget::enableTimeGraph(bool on)
   startTimeGraph= on;
 }
 
+void QtWidget::print(QPrinter& printer)
+{
+  const float scale_w = printer.pageRect().width() / float(width());
+  const float scale_h = printer.pageRect().height() / float(height());
+  const float scale = std::min(scale_w, scale_h);
 
-bool QtWidget::saveRasterImage(const std::string& fname,
-    const std::string& format, const int quality)
+  QPainter painter;
+  painter.begin(&printer);
+  painter.scale(scale, scale);
+  vcrossm->plot(painter);
+  painter.end();
+}
+
+bool QtWidget::saveRasterImage(const QString& fname)
 {
   QImage image(width(), height(), QImage::Format_ARGB32);
 
@@ -236,9 +247,7 @@ bool QtWidget::saveRasterImage(const std::string& fname,
   vcrossm->plot(painter);
   painter.end();
 
-  image.save(QString::fromStdString(fname), format.c_str(), quality);
-
-  return true;
+  return image.save(fname);
 }
 
 } // namespace vcross
