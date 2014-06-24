@@ -43,8 +43,9 @@ void VCLines::paint(QPainter& painter, const QRect& area)
   paint_lines(painter);
   painter.restore();
 
-  paint_all_labels(painter, mPlotOptions.linewidth, mPlotOptions.linecolour,
-      mPlotOptions.linetype, area);
+  if (mPlotOptions.valueLabel)
+    paint_all_labels(painter, mPlotOptions.linewidth, mPlotOptions.linecolour,
+        mPlotOptions.linetype, area);
 }
 
 void VCLines::paint_lines(QPainter& painter)
