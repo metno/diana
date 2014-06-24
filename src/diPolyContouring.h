@@ -2,6 +2,9 @@
 #ifndef diPolyContouring_hh
 #define diPolyContouring_hh 1
 
+#include "diPlotOptions.h"
+
+#include <map>
 #include <string>
 #include <vector>
 
@@ -10,7 +13,6 @@
 class Area;
 class FontManager;
 class GLPfile;
-class PlotOptions;
 
 class DianaLevels {
 public:
@@ -109,6 +111,43 @@ protected:
 private:
   const DianaLevels& mLevels;
   const DianaPositions& mPositions;
+};
+
+// ########################################################################
+
+class DianaLines : public contouring::lines_t {
+public:
+  DianaLines(const PlotOptions& poptions, const DianaLevels& levels);
+  virtual ~DianaLines();
+
+  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
+  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+
+  virtual void paint();
+
+protected:
+  typedef std::vector<contouring::point_t> point_v;
+  typedef std::vector<point_v> point_vv;
+  typedef std::map<contouring::level_t, point_vv> level_points_m;
+
+protected:
+  virtual void paint_polygons();
+  virtual void paint_lines();
+  virtual void paint_labels();
+
+  virtual void setLine(const Colour& colour, const Linetype& linetype, int linewidth) = 0;
+  virtual void setFillColour(const Colour& colour) = 0;
+  virtual void drawLine(const point_v& lines) = 0;
+  virtual void drawPolygons(const point_vv& polygons) = 0;
+  virtual void drawLabels(const point_v& points, contouring::level_t li) = 0;
+
+protected:
+  const PlotOptions& mPlotOptions;
+  const DianaLevels& mLevels;
+
+private:
+  level_points_m m_lines;
+  level_points_m m_polygons;
 };
 
 // ########################################################################

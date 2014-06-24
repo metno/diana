@@ -868,15 +868,15 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
+  const QRect area(QPoint(mAxisX->getPaintMin(), mAxisY->getPaintMax()),
+      QPoint(mAxisX->getPaintMax(), mAxisY->getPaintMin()));
+
   DianaLevels_p levels = dianaLevelsForPlotOptions(plot->poptions, detail::UNDEF_VALUE);
   const detail::VCAxisPositions positions(mAxisX, mAxisY, distances, plot->evaluated->z_values);
   vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions);
-  vcross::detail::VCLines con_lines(*levels, plot->poptions);
+  vcross::detail::VCLines con_lines(plot->poptions, *levels, painter, area);
   contouring::run(con_field, con_lines);
-
-  const QRect area(QPoint(mAxisX->getPaintMin(), mAxisY->getPaintMax()),
-      QPoint(mAxisX->getPaintMax(), mAxisY->getPaintMin()));
-  con_lines.paint(painter, area);
+  con_lines.paint();
 }
 
 void QtPlot::plotDataWind(QPainter& painter, OptionPlot_cp plot)

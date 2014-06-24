@@ -55,42 +55,30 @@ private:
 
 // ########################################################################
 
-class VCLines : public contouring::lines_t {
+class VCLines : public DianaLines
+{
 public:
-  VCLines(const DianaLevels& levels, const PlotOptions& poptions)
-    : mLevels(levels), mPlotOptions(poptions) { }
-  
-  void add_contour_line(contouring::level_t level, const contouring::points_t& points, bool closed);
+  VCLines(const PlotOptions& poptions, const DianaLevels& levels, QPainter& painter, const QRect& area);
 
-  void add_contour_polygon(contouring::level_t level, const contouring::points_t& points);
+protected:
+  void paint_polygons();
+  void paint_lines();
 
-  void paint(QPainter& painter, const QRect& area);
-
-private:
-  struct contour_t {
-    QPolygonF line;
-    bool polygon;
-    contour_t(const QPolygonF& l, bool p)
-      : line(l), polygon(p) { }
-  };
-  typedef std::vector<contour_t> contour_v;
-  typedef std::map<contouring::level_t, contour_v> contour_m;
+  void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
+  void setFillColour(const Colour& colour);
+  void drawLine(const point_v& lines);
+  void drawPolygons(const point_vv& polygons);
+  void drawLabels(const point_v& points, contouring::level_t li);
 
 private:
-  QPolygonF make_polygon(const contouring::points_t& cpoints);
-  void paint_polygons(QPainter& painter);
-  void paint_lines(QPainter& painter);
-  void paint_coloured_lines(QPainter& painter, int linewidth, const Colour& colour,
-      const Linetype& linetype, const contour_v& contours, contouring::level_t li);
-  void paint_all_labels(QPainter& painter, int linewidth, const Colour& colour,
-      const Linetype& linetype, const QRect& area);
-  void paint_line_labels(QPainter& painter, const QPolygonF& points, contouring::level_t li,
-      const QRect& area);
+  void clip();
+  void restore();
+  QPolygonF make_polygon(const point_v& cpoints);
+  QColor QCa(const Colour& colour);
 
 private:
-  const DianaLevels& mLevels;
-  const PlotOptions& mPlotOptions;
-  contour_m m_lines, m_polygons;
+  QPainter& mPainter;
+  QRect mArea;
 };
 
 } // namespace detail
