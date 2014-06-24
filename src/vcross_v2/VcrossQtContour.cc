@@ -175,14 +175,14 @@ void VCLines::paint_polygons(QPainter& painter)
     const contour_v& contours = it->second;
     if (level == DianaLevels::UNDEF_LEVEL) {
       if (mPlotOptions.undefMasking != 1)
-        return;
+        continue;
       brush = vcross::util::QC(mPlotOptions.undefColour);
     } else if (level <= 0 and ncolours_cold) {
       const int idx = find_index(mPlotOptions.repeat, ncolours_cold, -level);
       brush = vcross::util::QC(mPlotOptions.palettecolours_cold[idx]);
     } else {
       if (not ncolours_cold and level <= 0)
-        return;
+        continue;
       const int idx = find_index(mPlotOptions.repeat, ncolours, level - 1);
       brush = vcross::util::QC(mPlotOptions.palettecolours[idx]);
     }
