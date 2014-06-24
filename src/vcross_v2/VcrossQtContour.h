@@ -63,6 +63,7 @@ public:
 protected:
   void paint_polygons();
   void paint_lines();
+  void paint_labels();
 
   void setLine(const Colour& colour, const Linetype& linetype, int linewidth);
   void setFillColour(const Colour& colour);

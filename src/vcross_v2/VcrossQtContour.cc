@@ -54,6 +54,30 @@ void VCLines::paint_lines()
   restore();
 }
 
+void VCLines::paint_labels()
+{
+  const float scale = mPlotOptions.labelSize;
+  if (scale < 0.05)
+    return;
+
+  QFont origFont;
+  const bool changeFont = (scale <= 0.95 or scale >= 1.05);
+  if (changeFont) {
+    origFont = mPainter.font();
+    QFont scaledFont(origFont);
+    if (scaledFont.pointSizeF() > 0)
+      scaledFont.setPointSizeF(scaledFont.pointSizeF() * scale);
+    else
+      scaledFont.setPointSize((int)(scaledFont.pointSize() * scale));
+    mPainter.setFont(scaledFont);
+  }
+
+  DianaLines::paint_labels();
+
+  if (changeFont)
+    mPainter.setFont(origFont);
+}
+
 void VCLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)
 {
   QPen pen(vcross::util::QC(colour), linewidth);
