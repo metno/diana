@@ -53,10 +53,11 @@
 
 namespace EditItems {
 
-LayerWidget::LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, QWidget *parent)
+LayerWidget::LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool removable, QWidget *parent)
   : QWidget(parent)
   , layerManager_(layerManager)
   , layer_(layer)
+  , removable_(removable)
 {
   setContentsMargins(0, 0, 0, 0);
 
@@ -183,6 +184,11 @@ void LayerWidget::showInfo(bool checked)
 {
   infoLabel_->setVisible(checked);
   updateLabels();
+}
+
+bool LayerWidget::isRemovable() const
+{
+  return removable_;
 }
 
 void LayerWidget::updateLabels()
@@ -368,6 +374,9 @@ void LayersPaneBase::duplicateCurrent()
 
 void LayersPaneBase::remove(LayerWidget *layerWidget, bool widgetOnly)
 {
+  if (!layerWidget->isRemovable())
+    return;
+
   if ((!layerWidget) || (layout_->count() == 0))
     return;
 
@@ -552,9 +561,9 @@ void LayersPaneBase::ensureCurrentVisible()
   QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
 }
 
-void LayersPaneBase::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
+void LayersPaneBase::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable)
 {
-  LayerWidget *layerWidget = new LayerWidget(layerManager_, layer, showInfo_);
+  LayerWidget *layerWidget = new LayerWidget(layerManager_, layer, showInfo_, removable);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
   if (!skipUpdate) {

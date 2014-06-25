@@ -60,7 +60,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
   QSharedPointer<LayerGroup> scratchLayerGroup = layerManager->addToNewLayerGroup(scratchLayer, "SCRATCH_LAYER_GROUP");
   scratchLayerGroup->setActive(true);
-  add(scratchLayer);
+  add(scratchLayer, false, false);
 }
 
 void EditDrawingLayersPane::updateButtons()
@@ -71,8 +71,8 @@ void EditDrawingLayersPane::updateButtons()
   mergeVisibleButton_->setEnabled(visSize > 1);
   duplicateCurrentButton_->setEnabled(current());
 
-  // the layer may be removed iff it is current and editable
-  removeCurrentButton_->setEnabled(current() && current()->layer()->isEditable());
+  // the layer may be removed iff it is current, editable, and belongs to a removable widget
+  removeCurrentButton_->setEnabled(current() && current()->layer()->isEditable() && current()->isRemovable());
 
   saveVisibleButton_->setEnabled(visSize > 0);
 }

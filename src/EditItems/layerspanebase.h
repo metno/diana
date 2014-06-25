@@ -68,7 +68,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, QWidget * = 0);
+  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, bool = true, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -81,6 +81,7 @@ public:
   void editName();
   void setState(const QSharedPointer<Layer> &);
   void showInfo(bool);
+  bool isRemovable() const;
 private:
   LayerManager *layerManager_;
   QSharedPointer<Layer> layer_;
@@ -88,6 +89,7 @@ private:
   CheckableLabel *unsavedChangesLabel_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
+  bool removable_;
 public slots:
   void updateLabels();
 private slots:
@@ -135,7 +137,7 @@ protected: // ### some of these may be private ... TBD
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
   void ensureCurrentVisible();
-  void add(const QSharedPointer<Layer> &, bool = false);
+  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
   void duplicate(LayerWidget *);
   void remove(LayerWidget *, bool = false);
   void remove(int);
