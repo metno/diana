@@ -11,7 +11,11 @@ check_PROGRAMS += dianaUnitTests
 
 dianaUnitTests_SOURCES = \
     TestPlotOptions.cc
-#    TestDianaLevels.cc
+
+if !WITH_EMBEDDED
+dianaUnitTests_SOURCES += \
+    TestDianaLevels.cc
+endif
 
 dianaUnitTests_LDFLAGS = -L.. \
     $(DIFIELD_LDFLAGS) \
