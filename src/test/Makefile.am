@@ -10,8 +10,8 @@ TESTS += dianaUnitTests
 check_PROGRAMS += dianaUnitTests
 
 dianaUnitTests_SOURCES = \
-    TestPlotOptions.cc \
-    TestDianaLevels.cc
+    TestPlotOptions.cc
+#    TestDianaLevels.cc
 
 dianaUnitTests_LDFLAGS = -L.. \
     $(DIFIELD_LDFLAGS) \
