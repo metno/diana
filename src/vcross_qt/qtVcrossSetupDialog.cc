@@ -40,21 +40,24 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#define MILOGGER_CATEGORY "diana.VcrossSetupDialog"
-#include <miLogger/miLogging.h>
-
 #include "qtUtility.h"
 #ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossOptions.h"
+#define DISABLE_UNUSED_OPTIONS 1
 #else
 #include "vcross_v1/diVcross1Manager.h"
 #include "vcross_v1/diVcross1Options.h"
 #endif
+
 #include "qtVcrossSetup.h"
 #include "qtVcrossSetupDialog.h"
 #include <boost/make_shared.hpp>
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
+
+#define MILOGGER_CATEGORY "diana.VcrossSetupDialog"
+#include <miLogger/miLogging.h>
+
 VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   : QDialog(parent), vcrossm(vm)
 {
@@ -66,27 +69,37 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   // text constants
   TEXTPLOT       =  tr("Text").toStdString();
   FRAME          =  tr("Frame").toStdString();
+#ifndef DISABLE_UNUSED_OPTIONS
   POSNAMES       =  tr("Position names").toStdString();
+#endif
   LEVELNUMBERS   =  tr("Number for level").toStdString();
+#ifndef DISABLE_UNUSED_OPTIONS
   UPPERLEVEL     =  tr("Top level").toStdString();
   LOWERLEVEL     =  tr("Bottom level").toStdString();
   OTHERLEVELS    =  tr("Other levels").toStdString();
+#endif
   SURFACE        =  tr("Ground pressure").toStdString();
   DISTANCE       =  tr("Distance").toStdString();
   GEOPOS         =  tr("Geographical positions").toStdString();
   VERTGRID       =  tr("Vertical gridlines").toStdString();
+#ifndef DISABLE_UNUSED_OPTIONS
   MARKERLINES    =  tr("Marker lines").toStdString();
   VERTICALMARKER =  tr("Vertical markers").toStdString();
   EXTRAPOLP      =  tr("Extrapolate to fixed P").toStdString();
   BOTTOMEXT      =  tr("Extrapolate to ocean floor").toStdString();
+#endif
   THINARROWS     =  tr("Thin arrows").toStdString();
   VERTICALTYPE   =  tr("Vertical type").toStdString();
   VHSCALE        =  tr("Fixed vertical/horizontal scaling:").toStdString();
   STDVERAREA     =  tr("Default area vertically:").toStdString();
+#ifndef DISABLE_UNUSED_OPTIONS
   STDHORAREA     =  tr("Default area horizontally:").toStdString();
+#endif
   BACKCOLOUR     =  tr("Background colour").toStdString();
+#ifndef DISABLE_UNUSED_OPTIONS
   ONMAPDRAW      =  tr("Crossections on map").toStdString();
   HITMAPDRAW     =  tr("Selected crossection on map").toStdString();
+#endif
 
   //******** create the various QT widgets to appear in dialog *****
 
@@ -169,7 +182,9 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
   vcSetups.push_back(new VcrossSetupUI(parent,TEXTPLOT,glayout,nrow++,opts));
+#ifndef DISABLE_UNUSED_OPTIONS
   vcSetups.push_back(new VcrossSetupUI(parent,POSNAMES,glayout,nrow++,opts));
+#endif
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
@@ -180,34 +195,51 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+#ifndef DISABLE_UNUSED_OPTIONS
   vcSetups.push_back(new VcrossSetupUI(parent,UPPERLEVEL,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetupUI(parent,LOWERLEVEL,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetupUI(parent,OTHERLEVELS,glayout,nrow++,opts));
+#endif
+
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
   vcSetups.push_back(new VcrossSetupUI(parent,SURFACE,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetupUI(parent,VERTGRID,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetupUI(parent,MARKERLINES,glayout,nrow++,opts));
-  vcSetups.push_back(new VcrossSetupUI(parent,VERTICALMARKER,glayout,nrow++,opts));
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
-	 VcrossSetupUI::useTextChoice | VcrossSetupUI::useTextChoice2);
+	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+  vcSetups.push_back(new VcrossSetupUI(parent,VERTGRID,glayout,nrow++,opts));
+#ifndef DISABLE_UNUSED_OPTIONS
+  vcSetups.push_back(new VcrossSetupUI(parent,MARKERLINES,glayout,nrow++,opts));
+  vcSetups.push_back(new VcrossSetupUI(parent,VERTICALMARKER,glayout,nrow++,opts));
+#endif
+
+  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
+	 VcrossSetupUI::useTextChoice
+#ifndef DISABLE_UNUSED_OPTIONS
+      | VcrossSetupUI::useTextChoice2
+#endif
+);
   vcSetups.push_back(new VcrossSetupUI(parent,DISTANCE,glayout,nrow++,opts));
   std::vector<std::string> distunit;
   distunit.push_back("km");
   distunit.push_back("nm");
   n= vcSetups.size()-1;
   vcSetups[n]->defineTextChoice(distunit,0);
+#ifndef DISABLE_UNUSED_OPTIONS
   std::vector<std::string> diststep;
   diststep.push_back("grid");
   diststep.push_back("1");
   diststep.push_back("10");
   diststep.push_back("100");
   vcSetups[n]->defineTextChoice2(diststep,0);
+#endif
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
   vcSetups.push_back(new VcrossSetupUI(parent,GEOPOS,glayout,nrow++,opts));
+#ifndef DISABLE_UNUSED_OPTIONS
   opts= VcrossSetupUI::useOnOff;
   vcSetups.push_back(new VcrossSetupUI(parent,EXTRAPOLP,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetupUI(parent,BOTTOMEXT,glayout,nrow++,opts));
+#endif
 
   vcSetups.push_back(new VcrossSetupUI(parent,THINARROWS,glayout,nrow++,opts));
 
@@ -237,20 +269,24 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
+#ifndef DISABLE_UNUSED_OPTIONS
   vcSetups.push_back(new VcrossSetupUI(parent,STDHORAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
+#endif
 
   nrow++;
   opts= VcrossSetupUI::useColour;
   vcSetups.push_back(new VcrossSetupUI(parent,BACKCOLOUR,glayout,nrow++,opts));
 
+#ifndef DISABLE_UNUSED_OPTIONS
   nrow++;
   opts= (VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   vcSetups.push_back(new VcrossSetupUI(parent, ONMAPDRAW,glayout,nrow++,opts));
   vcSetups.push_back(new VcrossSetupUI(parent,HITMAPDRAW,glayout,nrow++,opts));
+#endif
 
   if (nrow!=numrows) {
     METLIBS_LOG_DEBUG("==================================================");
@@ -296,9 +332,11 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setChecked    (vcopt->pText);
       vcSetups[i]->setColour(vcopt->textColour);
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== POSNAMES) {
       vcSetups[i]->setChecked    (vcopt->pPositionNames);
       vcSetups[i]->setColour(vcopt->positionNamesColour);
+#endif
 
     } else if (vcSetups[i]->name== FRAME) {
       vcSetups[i]->setChecked       (vcopt->pFrame);
@@ -309,6 +347,7 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
     } else if (vcSetups[i]->name== LEVELNUMBERS) {
       vcSetups[i]->setChecked(vcopt->pLevelNumbers);
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== UPPERLEVEL) {
       vcSetups[i]->setChecked       (vcopt->pUpperLevel);
       vcSetups[i]->setColour   (vcopt->upperLevelColour);
@@ -326,12 +365,15 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setColour   (vcopt->otherLevelsColour);
       vcSetups[i]->setLinewidth(vcopt->otherLevelsLinewidth);
       vcSetups[i]->setLinetype (vcopt->otherLevelsLinetype);
+#endif
 
     } else if (vcSetups[i]->name== SURFACE) {
       vcSetups[i]->setChecked       (vcopt->pSurface);
       vcSetups[i]->setColour   (vcopt->surfaceColour);
+#ifndef DISABLE_UNUSED_OPTIONS
       vcSetups[i]->setLinewidth(vcopt->surfaceLinewidth);
       vcSetups[i]->setLinetype (vcopt->surfaceLinetype);
+#endif
 
     } else if (vcSetups[i]->name== DISTANCE) {
       vcSetups[i]->setChecked         (vcopt->pDistance);
@@ -349,6 +391,7 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setLinewidth(vcopt->vergridLinewidth);
       vcSetups[i]->setLinetype (vcopt->vergridLinetype);
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== MARKERLINES) {
       vcSetups[i]->setChecked       (vcopt->pMarkerlines);
       vcSetups[i]->setColour   (vcopt->markerlinesColour);
@@ -366,6 +409,7 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
 
     } else if (vcSetups[i]->name== BOTTOMEXT) {
       vcSetups[i]->setChecked(vcopt->extrapolateToBottom);
+#endif
 
     } else if (vcSetups[i]->name== THINARROWS) {
       vcSetups[i]->setChecked(vcopt->thinArrows);
@@ -382,14 +426,17 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setMinValue(vcopt->minVerticalArea);
       vcSetups[i]->setMaxValue(vcopt->maxVerticalArea);
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== STDHORAREA) {
       vcSetups[i]->setChecked      (vcopt->stdHorizontalArea);
       vcSetups[i]->setMinValue(vcopt->minHorizontalArea);
       vcSetups[i]->setMaxValue(vcopt->maxHorizontalArea);
+#endif
 
     } else if (vcSetups[i]->name== BACKCOLOUR) {
       vcSetups[i]->setColour(vcopt->backgroundColour);
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== ONMAPDRAW) {
       vcSetups[i]->setColour   (vcopt->vcOnMapColour);
       vcSetups[i]->setLinewidth(vcopt->vcOnMapLinewidth);
@@ -399,6 +446,7 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setColour   (vcopt->vcSelectedOnMapColour);
       vcSetups[i]->setLinewidth(vcopt->vcSelectedOnMapLinewidth);
       vcSetups[i]->setLinetype (vcopt->vcSelectedOnMapLinetype);
+#endif
 
     } else {
       METLIBS_LOG_ERROR("VcrossSetupDialog::setup ERROR : " <<vcSetups[i]->name);
@@ -421,9 +469,11 @@ void VcrossSetupDialog::applySetup()
       vcopt->pText=      vcSetups[i]->isChecked();
       vcopt->textColour= vcSetups[i]->getColour().name;
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== POSNAMES) {
       vcopt->pPositionNames=      vcSetups[i]->isChecked();
       vcopt->positionNamesColour= vcSetups[i]->getColour().name;
+#endif
 
     } else if (vcSetups[i]->name== FRAME) {
       vcopt->pFrame=         vcSetups[i]->isChecked();
@@ -434,6 +484,7 @@ void VcrossSetupDialog::applySetup()
     } else if (vcSetups[i]->name== LEVELNUMBERS) {
       vcopt->pLevelNumbers= vcSetups[i]->isChecked();
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== UPPERLEVEL) {
       vcopt->pUpperLevel=         vcSetups[i]->isChecked();
       vcopt->upperLevelColour=    vcSetups[i]->getColour().name;
@@ -451,18 +502,23 @@ void VcrossSetupDialog::applySetup()
       vcopt->otherLevelsColour=    vcSetups[i]->getColour().name;
       vcopt->otherLevelsLinewidth= vcSetups[i]->getLinewidth();
       vcopt->otherLevelsLinetype=  vcSetups[i]->getLinetype();
+#endif
 
     } else if (vcSetups[i]->name== SURFACE) {
       vcopt->pSurface=         vcSetups[i]->isChecked();
       vcopt->surfaceColour=    vcSetups[i]->getColour().name;
+#ifndef DISABLE_UNUSED_OPTIONS
       vcopt->surfaceLinewidth= vcSetups[i]->getLinewidth();
       vcopt->surfaceLinetype=  vcSetups[i]->getLinetype ();
+#endif
 
     } else if (vcSetups[i]->name== DISTANCE) {
       vcopt->pDistance=      vcSetups[i]->isChecked();
       vcopt->distanceColour= vcSetups[i]->getColour().name;
       vcopt->distanceUnit=   vcSetups[i]->getTextChoice();
+#ifndef DISABLE_UNUSED_OPTIONS
       vcopt->distanceStep=   vcSetups[i]->getTextChoice2();
+#endif
 
     } else if (vcSetups[i]->name== GEOPOS) {
       vcopt->pGeoPos=      vcSetups[i]->isChecked();
@@ -474,6 +530,7 @@ void VcrossSetupDialog::applySetup()
       vcopt->vergridLinewidth=   vcSetups[i]->getLinewidth();
       vcopt->vergridLinetype=    vcSetups[i]->getLinetype ();
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== MARKERLINES) {
       vcopt->pMarkerlines=         vcSetups[i]->isChecked();
       vcopt->markerlinesColour=    vcSetups[i]->getColour().name;
@@ -491,6 +548,7 @@ void VcrossSetupDialog::applySetup()
 
     } else if (vcSetups[i]->name== BOTTOMEXT) {
       vcopt->extrapolateToBottom= vcSetups[i]->isChecked();
+#endif
 
     } else if (vcSetups[i]->name== THINARROWS) {
       vcopt->thinArrows= vcSetups[i]->isChecked();
@@ -519,14 +577,17 @@ void VcrossSetupDialog::applySetup()
       vcopt->minVerticalArea= vcSetups[i]->getMinValue();
       vcopt->maxVerticalArea= vcSetups[i]->getMaxValue();
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== STDHORAREA) {
       vcopt->stdHorizontalArea= vcSetups[i]->isChecked();
       vcopt->minHorizontalArea= vcSetups[i]->getMinValue();
       vcopt->maxHorizontalArea= vcSetups[i]->getMaxValue();
+#endif
 
     } else if (vcSetups[i]->name== BACKCOLOUR) {
       vcopt->backgroundColour= vcSetups[i]->getColour().name;
 
+#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== ONMAPDRAW) {
       vcopt->vcOnMapColour=    vcSetups[i]->getColour().name;
       vcopt->vcOnMapLinewidth= vcSetups[i]->getLinewidth();
@@ -536,6 +597,7 @@ void VcrossSetupDialog::applySetup()
       vcopt->vcSelectedOnMapColour=    vcSetups[i]->getColour().name;
       vcopt->vcSelectedOnMapLinewidth= vcSetups[i]->getLinewidth();
       vcopt->vcSelectedOnMapLinetype=  vcSetups[i]->getLinetype();
+#endif
 
     } else {
       METLIBS_LOG_ERROR("VcrossSetupDialog::applySetup ERROR : " <<vcSetups[i]->name);

@@ -128,7 +128,10 @@ void QtPlot::plotText(QPainter& painter)
   const float yCSName = yPlot, yStep = mCharSize.height() * LINES_1;
 
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
-    painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
+    if (plot->poptions.options_1)
+      painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
+    else
+      painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
     painter.drawText(QPointF(xModel, yPlot), QString::fromStdString(plot->model()));
     painter.drawText(QPointF(xField, yPlot), QString::fromStdString(plot->name()));
     yPlot -= yStep;
@@ -145,7 +148,7 @@ void QtPlot::plotText(QPainter& painter)
     label = QString::fromStdString(oposition.str());
   }
   const float label_w = painter.fontMetrics().width(label);
-  painter.setPen(util::QC(colourOrContrast(mOptions->frameColour)));
+  painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
   painter.drawText(QPointF(mTotalSize.width() - label_w - mCharSize.width(), yCSName), label);
 }
 
@@ -622,8 +625,8 @@ void QtPlot::plotXLabels(QPainter& painter)
     }
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
-    if (mOptions->pText) {
-      painter.setPen(vcross::util::QC(colourOrContrast(mOptions->textColour)));
+    if (mOptions->pDistance) {
+      painter.setPen(vcross::util::QC(colourOrContrast(mOptions->distanceColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mTimeDistances.size(); ++i) {
         const float minutes = mTimeDistances.at(i); 
@@ -648,8 +651,9 @@ void QtPlot::plotXLabels(QPainter& painter)
 void QtPlot::plotSurface(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
-  //if (not mOptions->pSurface)
-  //  return;
+  if (not mOptions->pSurface)
+    return;
+
   if (not mSurface) {
     METLIBS_LOG_DEBUG("surface plot enabled, but surface data missing");
     return;
@@ -665,7 +669,8 @@ void QtPlot::plotSurface(QPainter& painter)
   const bool up = vYMin < vYMax;
 
   painter.save();
-  painter.setBrush(Qt::black);
+  painter.setPen(Qt::NoPen);
+  painter.setBrush(vcross::util::QC(mOptions->surfaceColour));
 
   QPolygonF polygon; // TODO set pen etc
   const int nx = mSurface->npoint();
@@ -724,9 +729,6 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
 void QtPlot::plotFrame(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
-
-  if (not mOptions->pFrame)
-    return;
 
   const int nzsteps = 9;
   const float zsteps[nzsteps] =
@@ -788,25 +790,27 @@ void QtPlot::plotFrame(QPainter& painter)
   vcross::util::setDash(penFrame, mOptions->frameLinetype);
   painter.setPen(penFrame);
 
-  // paint frame
-  const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()), max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
-  painter.drawRect(QRectF(min, max));
+  if (mOptions->pFrame) {
+    // paint frame
+    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()), max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
+    painter.drawRect(QRectF(min, max));
 
-  // no stipple for ticks
-  painter.setPen(pen);
-
-  // paint tick marks
-  for (int i=0; i<nticks; ++i) {
-    const float tickValue = tickValues[i]/scale;
-    const float tickY = mAxisY->value2paint(tickValue);
-    if (mAxisY->legalPaint(tickY)) {
-      painter.drawLine(QLineF(tickLeftStart,  tickY, tickLeftEnd,    tickY));
-      painter.drawLine(QLineF(tickRightStart, tickY, tickRightEnd,   tickY));
-    }
+    // no stipple for ticks
+    painter.setPen(pen);
   }
 
-  // paint tick labels
   if (mOptions->pLevelNumbers) {
+    // paint tick marks
+    for (int i=0; i<nticks; ++i) {
+      const float tickValue = tickValues[i]/scale;
+      const float tickY = mAxisY->value2paint(tickValue);
+      if (mAxisY->legalPaint(tickY)) {
+        painter.drawLine(QLineF(tickLeftStart,  tickY, tickLeftEnd,    tickY));
+        painter.drawLine(QLineF(tickRightStart, tickY, tickRightEnd,   tickY));
+      }
+    }
+
+    // paint tick labels
     const float labelLeftEnd = tickLeftEnd - mCharSize.width();
     const float labelRightStart = tickRightStart + mCharSize.width();
     for (int i=0; i<nticks; ++i) {
