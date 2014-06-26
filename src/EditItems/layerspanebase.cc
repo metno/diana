@@ -215,8 +215,7 @@ void LayerWidget::handleVisibilityChanged(bool visible)
 }
 
 LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title)
-  : addEmptyButton_(0)
-  , mergeVisibleButton_(0)
+  : mergeVisibleButton_(0)
   , showAllButton_(0)
   , hideAllButton_(0)
   , duplicateCurrentButton_(0)
@@ -559,29 +558,6 @@ void LayersPaneBase::ensureCurrentVisibleTimeout()
 void LayersPaneBase::ensureCurrentVisible()
 {
   QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
-}
-
-void LayersPaneBase::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable)
-{
-  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable);
-  layout_->addWidget(layerWidget);
-  initLayerWidget(layerWidget);
-  if (!skipUpdate) {
-    setCurrent(layerWidget);
-    ensureCurrentVisible();
-    handleWidgetsUpdate();
-  }
-}
-
-void LayersPaneBase::addEmpty()
-{
-#if 0
-  const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer();
-  layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
-  add(newLayer);
-#else
-  QMessageBox::warning(this, "tmp disabled", "adding empty is temporarily disabled!", QMessageBox::Ok);
-#endif
 }
 
 void LayersPaneBase::mergeVisible()

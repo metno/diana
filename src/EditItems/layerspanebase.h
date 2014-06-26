@@ -38,7 +38,6 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
-#include "addempty.xpm"
 #include "duplicate.xpm"
 #include "edit.xpm"
 #include "hideall.xpm"
@@ -114,7 +113,6 @@ protected:
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_;
-  QToolButton *addEmptyButton_;
   QToolButton *mergeVisibleButton_;
   QToolButton *showAllButton_;
   QToolButton *hideAllButton_;
@@ -137,7 +135,6 @@ protected: // ### some of these may be private ... TBD
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
   void ensureCurrentVisible();
-  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
   void duplicate(LayerWidget *);
   void remove(LayerWidget *, bool = false);
   void remove(int);
@@ -160,7 +157,6 @@ protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
   void mouseDoubleClicked(QMouseEvent *);
   void ensureCurrentVisibleTimeout();
-  void addEmpty();
   void mergeVisible();
   void showAll();
   void hideAll();

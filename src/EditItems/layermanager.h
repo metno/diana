@@ -54,6 +54,8 @@ public:
   void clear();
   QSharedPointer<Layer> currentLayer() const;
   void setCurrentLayer(const QSharedPointer<Layer> &);
+  void addToLayerGroup(QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
+  void addToLayerGroup(QSharedPointer<LayerGroup> &, const QSharedPointer<Layer> &);
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
@@ -73,8 +75,6 @@ private:
   // the layers of all layer groups organized in a single, ordered list:
   QList<QSharedPointer<Layer> > orderedLayers_;
   QSharedPointer<Layer> currLayer_;
-
-  void addToLayerGroup(QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
 
   QString createUniqueLayerGroupName(const QString &) const;
   void ensureUniqueLayerGroupName(const QSharedPointer<LayerGroup> &) const;

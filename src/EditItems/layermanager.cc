@@ -90,6 +90,11 @@ void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const
   layerGroup->layers_.append(layers);
 }
 
+void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const QSharedPointer<Layer> &layer)
+{
+  addToLayerGroup(layerGroup, QList<QSharedPointer<Layer> >() << layer);
+}
+
 QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name)
 {
   QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name);

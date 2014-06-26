@@ -39,10 +39,13 @@
 #include <QHBoxLayout>
 #include <QSpacerItem>
 
+#include "addempty.xpm"
+
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
   : LayersPaneBase(layerManager, title)
+  , addEmptyButton_(0)
 {
   bottomLayout_->addWidget(addEmptyButton_ = createToolButton(QPixmap(addempty_xpm), "Add an empty layer", this, SLOT(addEmpty())));
   bottomLayout_->addWidget(mergeVisibleButton_ = createToolButton(QPixmap(mergevisible_xpm), "Merge visible layers into a new layer", this, SLOT(mergeVisible())));
@@ -58,8 +61,8 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
 
   // add scratch layer
   const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
-  QSharedPointer<LayerGroup> scratchLayerGroup = layerManager->addToNewLayerGroup(scratchLayer, "SCRATCH_LAYER_GROUP");
-  scratchLayerGroup->setActive(true);
+  layerGroup_ = layerManager->addToNewLayerGroup(scratchLayer, "");
+  layerGroup_->setActive(true);
   add(scratchLayer, false, false);
 }
 
@@ -75,6 +78,26 @@ void EditDrawingLayersPane::updateButtons()
   removeCurrentButton_->setEnabled(current() && current()->layer()->isEditable() && current()->isRemovable());
 
   saveVisibleButton_->setEnabled(visSize > 0);
+}
+
+
+void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable)
+{
+  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable);
+  layout_->addWidget(layerWidget);
+  initLayerWidget(layerWidget);
+  if (!skipUpdate) {
+    setCurrent(layerWidget);
+    ensureCurrentVisible();
+    handleWidgetsUpdate();
+  }
+}
+
+void EditDrawingLayersPane::addEmpty()
+{
+  const QSharedPointer<Layer> layer = layerMgr_->createNewLayer();
+  layerMgr_->addToLayerGroup(layerGroup_, layer);
+  add(layer);
 }
 
 } // namespace

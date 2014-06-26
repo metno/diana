@@ -37,13 +37,20 @@
 namespace EditItems {
 
 class LayerManager;
+class LayerGroup;
 
 class EditDrawingLayersPane : public LayersPaneBase
 {
+  Q_OBJECT
 public:
   EditDrawingLayersPane(LayerManager *, const QString &);
 private:
   virtual void updateButtons();
+  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
+  QToolButton *addEmptyButton_;
+  QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
+protected slots:
+  void addEmpty();
 };
 
 } // namespace
