@@ -92,9 +92,7 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   VERTICALTYPE   =  tr("Vertical type").toStdString();
   VHSCALE        =  tr("Fixed vertical/horizontal scaling:").toStdString();
   STDVERAREA     =  tr("Default area vertically:").toStdString();
-#ifndef DISABLE_UNUSED_OPTIONS
   STDHORAREA     =  tr("Default area horizontally:").toStdString();
-#endif
   BACKCOLOUR     =  tr("Background colour").toStdString();
 #ifndef DISABLE_UNUSED_OPTIONS
   ONMAPDRAW      =  tr("Crossections on map").toStdString();
@@ -269,12 +267,10 @@ void VcrossSetupDialog::initOptions(QWidget* parent)
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
 
-#ifndef DISABLE_UNUSED_OPTIONS
   vcSetups.push_back(new VcrossSetupUI(parent,STDHORAREA,glayout,nrow++,opts));
   n= vcSetups.size()-1;
   vcSetups[n]->defineMinValue(0,100,5,  0,"","%");
   vcSetups[n]->defineMaxValue(0,100,5,100,"","%");
-#endif
 
   nrow++;
   opts= VcrossSetupUI::useColour;
@@ -426,12 +422,10 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
       vcSetups[i]->setMinValue(vcopt->minVerticalArea);
       vcSetups[i]->setMaxValue(vcopt->maxVerticalArea);
 
-#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== STDHORAREA) {
       vcSetups[i]->setChecked      (vcopt->stdHorizontalArea);
       vcSetups[i]->setMinValue(vcopt->minHorizontalArea);
       vcSetups[i]->setMaxValue(vcopt->maxHorizontalArea);
-#endif
 
     } else if (vcSetups[i]->name== BACKCOLOUR) {
       vcSetups[i]->setColour(vcopt->backgroundColour);
@@ -577,12 +571,10 @@ void VcrossSetupDialog::applySetup()
       vcopt->minVerticalArea= vcSetups[i]->getMinValue();
       vcopt->maxVerticalArea= vcSetups[i]->getMaxValue();
 
-#ifndef DISABLE_UNUSED_OPTIONS
     } else if (vcSetups[i]->name== STDHORAREA) {
       vcopt->stdHorizontalArea= vcSetups[i]->isChecked();
       vcopt->minHorizontalArea= vcSetups[i]->getMinValue();
       vcopt->maxHorizontalArea= vcSetups[i]->getMaxValue();
-#endif
 
     } else if (vcSetups[i]->name== BACKCOLOUR) {
       vcopt->backgroundColour= vcSetups[i]->getColour().name;

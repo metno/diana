@@ -217,7 +217,7 @@ void QtPlot::viewStandard()
   if (mOptions->stdHorizontalArea) {
     const float range = (xMax - xMin) * 0.01;
     xMin += range * mOptions->minHorizontalArea;
-    xMax = xMin + range * mOptions->maxHorizontalArea;
+    xMax -= range * (100-mOptions->maxHorizontalArea);
   }
   mAxisX->setValueRange(xMin, xMax);
 
@@ -225,7 +225,7 @@ void QtPlot::viewStandard()
   if (mOptions->stdVerticalArea) {
     const float range = (yMax - yMin) * 0.01;
     yMin += range * mOptions->minVerticalArea;
-    yMax = yMin + range * mOptions->maxVerticalArea;
+    yMax -= range * (100-mOptions->maxVerticalArea);
   }
   mAxisY->setValueRange(yMin, yMax);
 
