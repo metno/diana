@@ -116,7 +116,7 @@ const QSharedPointer<LayerGroup> LayerGroupWidget::layerGroup() const
 
 LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
   : showInfo_(false)
-  , layerManager_(layerManager)
+  , layerMgr_(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -214,7 +214,7 @@ static QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerMan
 void LayerGroupsPane::addToLGFromFile()
 {
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerManager_, &error);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, &error);
   if (!error.isEmpty()) {
     QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
     return;
@@ -223,7 +223,7 @@ void LayerGroupsPane::addToLGFromFile()
   if (layers.isEmpty())
       return;
 
-  layerManager_->addToNewLayerGroup(layers);
+  layerMgr_->addToNewLayerGroup(layers);
 
   emit updated();
   updateWidgetContents();
@@ -239,7 +239,7 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 {
   LayerGroupWidget *lgWidget = qobject_cast<LayerGroupWidget *>(sender());
   Q_ASSERT(lgWidget);
-  Q_ASSERT(lgWidget->layerGroup() != layerManager_->defaultLayerGroup());
+  Q_ASSERT(lgWidget->layerGroup() != layerMgr_->defaultLayerGroup());
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
   lgWidget->updateLabels();
@@ -283,7 +283,7 @@ void LayerGroupsPane::updateWidgetStructure()
     removeWidget(lgWidgets.at(i));
 
   // insert widgets for existing layer groups
-  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerManager_->layerGroups())
+  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerMgr_->layerGroups())
     addWidgetForLG(layerGroup);
 }
 

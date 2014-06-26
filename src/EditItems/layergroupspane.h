@@ -78,7 +78,7 @@ private:
   QList<LayerGroupWidget *> allWidgets();
   void removeWidget(LayerGroupWidget *);
   void addToLGFromFile();
-  LayerManager *layerManager_;
+  LayerManager *layerMgr_;
 
 private slots:
   void addToNewLGFromFile();

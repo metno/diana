@@ -83,7 +83,7 @@ public:
   void showInfo(bool);
   bool isRemovable() const;
 private:
-  LayerManager *layerManager_;
+  LayerManager *layerMgr_;
   QSharedPointer<Layer> layer_;
   CheckableLabel *visibleLabel_;
   CheckableLabel *unsavedChangesLabel_;
@@ -152,7 +152,7 @@ protected: // ### some of these may be private ... TBD
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &) const;
 
 protected:
-  LayerManager *layerManager_;
+  LayerManager *layerMgr_;
   QHBoxLayout *bottomLayout_; // populated by subclass
   virtual void updateButtons();
 

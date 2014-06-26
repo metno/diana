@@ -55,7 +55,7 @@ namespace EditItems {
 
 LayerWidget::LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool removable, QWidget *parent)
   : QWidget(parent)
-  , layerManager_(layerManager)
+  , layerMgr_(layerManager)
   , layer_(layer)
   , removable_(removable)
 {
@@ -156,7 +156,7 @@ void LayerWidget::editName()
     bool ok;
     name = QInputDialog::getText(this, "Edit layer name", "Layer name:", QLineEdit::Normal, name, &ok).trimmed();
     if (ok) {
-      const QSharedPointer<Layer> existingLayer = layerManager_->findLayer(name);
+      const QSharedPointer<Layer> existingLayer = layerMgr_->findLayer(name);
       if (!existingLayer) {
         setName(name);
         break; // ok (changed)
@@ -227,7 +227,7 @@ LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QStr
   , saveVisibleButton_(0)
   , importFilesButton_(0)
   , showInfo_(false)
-  , layerManager_(layerManager)
+  , layerMgr_(layerManager)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -313,7 +313,7 @@ void LayersPaneBase::setCurrent(LayerWidget *layerWidget)
 {
   if (!layerWidget)
     return;
-  layerManager_->setCurrentLayer(layerWidget->layer());
+  layerMgr_->setCurrentLayer(layerWidget->layer());
   updateCurrent();
   ensureVisible(layerWidget);
   handleWidgetsUpdate();
@@ -323,7 +323,7 @@ void LayersPaneBase::updateCurrent()
 {
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    layerWidget->setCurrent(layerWidget->layer() == layerManager_->currentLayer());
+    layerWidget->setCurrent(layerWidget->layer() == layerMgr_->currentLayer());
   }
 }
 
@@ -332,7 +332,7 @@ int LayersPaneBase::currentPos() const
 {
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    if (layerWidget->layer() == layerManager_->currentLayer())
+    if (layerWidget->layer() == layerMgr_->currentLayer())
       return i;
   }
   return -1;
@@ -353,10 +353,10 @@ LayerWidget *LayersPaneBase::atPos(int pos)
 void LayersPaneBase::duplicate(LayerWidget *srcLayerWidget)
 {
 #if 0
-  const QSharedPointer<Layer> newLayer = layerManager_->createDuplicateLayer(srcLayerWidget->layer());
-  layerManager_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
+  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(srcLayerWidget->layer());
+  layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
   const int srcIndex = layout_->indexOf(srcLayerWidget);
-  LayerWidget *newLayerWidget = new LayerWidget(layerManager_, newLayer, showInfo_);
+  LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
   layout_->insertWidget(srcIndex + 1, newLayerWidget);
   initialize(newLayerWidget);
   setCurrent(newLayerWidget);
@@ -389,7 +389,7 @@ void LayersPaneBase::remove(LayerWidget *layerWidget, bool widgetOnly)
   const int index = layout_->indexOf(layerWidget);
   layout_->removeWidget(layerWidget);
   if (!widgetOnly)
-    layerManager_->removeLayer(layerWidget->layer());
+    layerMgr_->removeLayer(layerWidget->layer());
   delete layerWidget;
   if (layout_->count() > 0)
     setCurrentIndex(qMin(index, layout_->count() - 1));
@@ -418,7 +418,7 @@ void LayersPaneBase::move(LayerWidget *layerWidget, bool up)
   layout_->removeWidget(layerWidget);
   layout_->insertWidget(dstIndex, layerWidget);
   updateCurrent();
-  layerManager_->moveLayer(layerWidget->layer(), dstLayer);
+  layerMgr_->moveLayer(layerWidget->layer(), dstLayer);
   if (layerWidget == current())
     ensureCurrentVisible();
   handleWidgetsUpdate();
@@ -563,7 +563,7 @@ void LayersPaneBase::ensureCurrentVisible()
 
 void LayersPaneBase::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable)
 {
-  LayerWidget *layerWidget = new LayerWidget(layerManager_, layer, showInfo_, removable);
+  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
   if (!skipUpdate) {
@@ -576,8 +576,8 @@ void LayersPaneBase::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bo
 void LayersPaneBase::addEmpty()
 {
 #if 0
-  const QSharedPointer<Layer> newLayer = layerManager_->createNewLayer();
-  layerManager_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
+  const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer();
+  layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
   add(newLayer);
 #else
   QMessageBox::warning(this, "tmp disabled", "adding empty is temporarily disabled!", QMessageBox::Ok);
@@ -595,12 +595,12 @@ void LayersPaneBase::mergeVisible()
           QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
 
-    const QSharedPointer<Layer> newLayer = layerManager_->createNewLayer("merged layer");
-    layerManager_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
+    const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer("merged layer");
+    layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
 
-    layerManager_->mergeLayers(layers(visLayerWidgets), newLayer);
+    layerMgr_->mergeLayers(layers(visLayerWidgets), newLayer);
 
-    LayerWidget *newLayerWidget = new LayerWidget(layerManager_, newLayer, showInfo_);
+    LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
     layout_->insertWidget(layout_->count(), newLayerWidget);
     initialize(newLayerWidget);
     setCurrent(newLayerWidget);
@@ -684,7 +684,7 @@ void LayersPaneBase::handleWidgetsUpdate()
 void LayersPaneBase::updateWidgetStructure()
 {
   QList<QSharedPointer<Layer> > activeLayers;
-  foreach (const QSharedPointer<Layer> &layer, layerManager_->orderedLayers()) {
+  foreach (const QSharedPointer<Layer> &layer, layerMgr_->orderedLayers()) {
     if (layer->isActive())
       activeLayers.append(layer);
   }
@@ -693,7 +693,7 @@ void LayersPaneBase::updateWidgetStructure()
   const int diff = layout_->count() - activeLayers.size();
   if (diff < 0) {
     for (int i = 0; i < -diff; ++i) {
-      LayerWidget *layerWidget = new LayerWidget(layerManager_, QSharedPointer<Layer>(), showInfo_);
+      LayerWidget *layerWidget = new LayerWidget(layerMgr_, QSharedPointer<Layer>(), showInfo_);
       layout_->insertWidget(0, layerWidget);
     }
   } else if (diff > 0) {
@@ -713,7 +713,7 @@ void LayersPaneBase::updateWidgetStructure()
     QSharedPointer<Layer> layer = activeLayers.at(i);
     layerWidget->setState(layer);
     initLayerWidget(layerWidget);
-    if (activeLayers.at(i) == layerManager_->currentLayer())
+    if (activeLayers.at(i) == layerMgr_->currentLayer())
       currIndex = i;
   }
   Q_ASSERT(currIndex >= 0);
