@@ -125,6 +125,14 @@ private:
    * @return Returns true on success
    */
   bool plotFillCell();
+  bool plotFillCellExt();
+  unsigned char * createRGBAImage(Field * field);
+  unsigned char * resampleImage(int& currwid, int& currhei,
+    int& bmStartx, int& bmStarty,
+    float& scalex, float& scaley,int& nx, int& ny);
+  bool plotPixmap();
+  unsigned char * imagedata; // dataarray for resampling and transforming field to RGBA image
+  int previrs;               // previous resampling coeff.
 
   bool plotAlpha_shade();
   bool plotFrameOnly();

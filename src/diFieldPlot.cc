@@ -38,6 +38,7 @@
 #include "diContouring.h"
 #include "diPolyContouring.h"
 #include "diFontManager.h"
+#include "diColour.h"
 #include <diImageGallery.h>
 #include <diPlotOptions.h>
 #include <diColourShading.h>
@@ -63,7 +64,8 @@ const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 
 FieldPlot::FieldPlot() :
-    overlay(false), pshade(false), pundefined(false), vectorAnnotationSize(0)
+    overlay(false), pshade(false), pundefined(false), vectorAnnotationSize(0), imagedata(
+        NULL), previrs(1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -77,6 +79,9 @@ FieldPlot::~FieldPlot()
 void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
+  if (imagedata)
+    delete[] imagedata;
+  imagedata = NULL;
   for (size_t i = 0; i < tmpfields.size(); i++)
     delete tmpfields[i];
   tmpfields.clear();
@@ -599,7 +604,7 @@ bool FieldPlot::plot()
   else if (plottype == fpt_alarm_box)
     ok = plotAlarmBox();
   else if (plottype == fpt_fill_cell)
-    ok = plotFillCell();
+    ok = plotFillCellExt();
   else if (plottype == fpt_frame)
     ok = plotFrameOnly();
 
@@ -3255,15 +3260,377 @@ bool FieldPlot::plotAlarmBox()
   return true;
 }
 
+bool FieldPlot::plotFillCellExt()
+{
+  METLIBS_LOG_SCOPE();
+
+  if (not checkFields(1))
+    return false;
+  // projection is not equal...
+  if (!area.P().isAlmostEqual(fields[0]->area.P())) {
+    return plotFillCell();
+  }
+  // plotPixmap does not work when plotting fields
+  // in geographic projection....
+  if (fields[0]->area.P().isGeographic()) {
+    return plotFillCell();
+  }
+
+  return plotPixmap();
+}
+
+unsigned char * FieldPlot::createRGBAImage(Field * field)
+{
+  METLIBS_LOG_SCOPE();
+
+  int nx = field->nx;
+  int ny = field->ny;
+  Colour pixelColor;
+  unsigned char * cimage = new unsigned char[4 * nx * ny];
+  for (int iy = 0; iy < ny; iy++)
+    for (int ix = 0; ix < nx; ix++) {
+      // The index for bitmap
+      int newi = (iy * nx + ix) * 4;
+      // Index in field
+      int oldi = ix + (iy * nx);
+      float value = field->data[oldi];
+      if (value == fieldUndef)
+        continue;
+      if (value >= poptions.minvalue && value <= poptions.maxvalue) {
+
+        // set pixel value
+        // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
+        size_t index = 0;
+        if (poptions.linevalues.size() == 0) {
+
+          if ((poptions.repeat && value > poptions.base)
+              || value > poptions.base) {
+            if (poptions.repeat) {
+              index = int((value - poptions.base) / poptions.lineinterval)
+                  % poptions.palettecolours.size();
+            } else {
+              // Just divide by lineintervall...
+              index = int((value - poptions.base) / poptions.lineinterval);
+            }
+            if (index > poptions.palettecolours.size() - 1)
+              index = poptions.palettecolours.size() - 1;
+            if (index < 0)
+              index = 0;
+            pixelColor.set(poptions.palettecolours[index].R(),
+                poptions.palettecolours[index].G(),
+                poptions.palettecolours[index].B(),
+                poptions.palettecolours[index].A());
+          } else if (poptions.palettecolours_cold.size() != 0) {
+            float base = poptions.lineinterval
+                * poptions.palettecolours_cold.size() - poptions.base;
+            if (poptions.repeat) {
+              index = int((value + base) / poptions.lineinterval)
+                  % poptions.palettecolours_cold.size();
+            } else {
+              index = int((value + base) / poptions.lineinterval);
+            }
+            index = poptions.palettecolours_cold.size() - 1 - index;
+            if (index > poptions.palettecolours_cold.size() - 1)
+              index = poptions.palettecolours_cold.size() - 1;
+            if (index < 0)
+              index = 0;
+            pixelColor.set(poptions.palettecolours_cold[index].R(),
+                poptions.palettecolours_cold[index].G(),
+                poptions.palettecolours_cold[index].B(),
+                poptions.palettecolours_cold[index].A());
+          } else {
+            // Use index 0...
+            pixelColor.set(poptions.palettecolours[index].R(),
+                poptions.palettecolours[index].G(),
+                poptions.palettecolours[index].B(),
+                poptions.palettecolours[index].A());
+          }
+        } else {
+          std::vector<float>::const_iterator it = poptions.linevalues.begin();
+          while (*it < value && it != poptions.linevalues.end()) {
+            it++;
+          }
+          if (it == poptions.linevalues.begin())
+            continue; //less than first limit
+          index = it - poptions.linevalues.begin() - 1;
+          pixelColor.set(poptions.palettecolours[index].R(),
+              poptions.palettecolours[index].G(),
+              poptions.palettecolours[index].B(),
+              poptions.palettecolours[index].A());
+        }
+        cimage[newi + 0] = pixelColor.R();
+        cimage[newi + 1] = pixelColor.G();
+        cimage[newi + 2] = pixelColor.B();
+        cimage[newi + 3] = pixelColor.A();
+      }
+
+    }
+  return cimage;
+}
+
+unsigned char * FieldPlot::resampleImage(int& currwid, int& currhei,
+    int& bmStartx, int& bmStarty, float& scalex, float& scaley, int& nx,
+    int& ny)
+{
+
+  METLIBS_LOG_SCOPE(LOGVAL(scalex));
+
+  unsigned char * cimage;
+  int irs = 1;            // resample-size
+
+  GLint maxdims[2];      // find OpenGL maximums
+  glGetIntegerv(GL_MAX_VIEWPORT_DIMS, maxdims);
+  int maxww = maxdims[0];
+  int maxhh = maxdims[1];
+  int orignx = nx;
+  if (currwid > maxww || currhei > maxhh) {
+
+    if ((currwid - maxww) > (currhei - maxhh)) {
+      irs = (currwid / maxww) + 1;
+    } else {
+      irs = (currhei / maxhh) + 1;
+    }
+
+    currwid /= irs;
+    currhei /= irs;
+    bmStartx /= irs;
+    bmStarty /= irs;
+    nx /= irs;
+    ny /= irs;
+    scalex *= irs;
+    scaley *= irs;
+
+    // check if correct resampling already available..
+    if (irs != previrs) {
+      METLIBS_LOG_DEBUG(" resampling image:" << irs);
+
+      previrs = irs;
+      cimage = new unsigned char[4 * nx * ny];
+      for (int iy = 0; iy < ny; iy++)
+        for (int ix = 0; ix < nx; ix++) {
+          int newi = (iy * nx + ix) * 4;
+          int oldi = (irs * iy * orignx + irs * ix) * 4;
+          cimage[newi + 0] = imagedata[oldi + 0];
+          cimage[newi + 1] = imagedata[oldi + 1];
+          cimage[newi + 2] = imagedata[oldi + 2];
+          cimage[newi + 3] = imagedata[oldi + 3];
+        }
+      if (imagedata) {
+        delete[] imagedata;
+        imagedata = cimage;
+      }
+    }
+    // Point to resampled data
+    cimage = imagedata;
+  } else {
+    // No resampling: use original image
+    cimage = imagedata;
+  }
+
+  return cimage;
+
+}
+
+bool FieldPlot::plotPixmap()
+{
+
+  METLIBS_LOG_SCOPE();
+
+  if (not checkFields(1))
+    return false;
+
+  // How to deal with palettecolours_cold
+  // For now, dont create one
+  if (poptions.palettecolours.size() == 0) {
+    poptions.palettecolours = ColourShading::getColourShading("standard");
+  }
+
+  int nx = fields[0]->nx;
+  int ny = fields[0]->ny;
+
+  // From plotFillCell
+  int rnx, rny;
+
+  // convert gridbox corners to correct projection
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+
+  int factor = resamplingFactor(nx, ny);
+
+  if (factor < 2)
+    factor = 1;
+
+  rnx = nx / factor;
+  rny = ny / factor;
+  gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
+      fields[0]->gridResolutionY * factor, area, maprect, true, rnx, rny, &x,
+      &y, ix1, ix2, iy1, iy2, false);
+
+  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
+  if (ix2 == nx - 1) {
+    ix2--;
+  }
+
+  if (ix1 > ix2 || iy1 > iy2)
+    return false;
+
+  glLineWidth(poptions.linewidth);
+  glColor3ubv(poptions.bordercolour.RGB());
+  if (poptions.frame) {
+    if (factor >= 2)
+      plotFrame(rnx + 1, rny + 1, x, y);
+    else
+      plotFrame(nx + 1, ny + 1, x, y);
+  }
+
+  if (poptions.alpha < 255) {
+    for (size_t i = 0; i < poptions.palettecolours.size(); i++) {
+      poptions.palettecolours[i].set(Colour::alpha,
+          (unsigned char) poptions.alpha);
+    }
+    for (size_t i = 0; i < poptions.palettecolours_cold.size(); i++) {
+      poptions.palettecolours_cold[i].set(Colour::alpha,
+          (unsigned char) poptions.alpha);
+    }
+  }
+
+  // From plotFillCell ends.
+
+  int npos = 1;
+
+  //Member variables, used in values().
+  //Corners of total image (map coordinates)
+  float xmin = 0.;
+  float ymin = 0.;
+  if (!gc.getPoints(fields[0]->area.P(), area.P(), npos, &xmin, &ymin))
+    return false;
+  float xmax = nx * fields[0]->gridResolutionX;
+  float ymax = ny * fields[0]->gridResolutionY;
+
+  if (!gc.getPoints(fields[0]->area.P(), area.P(), npos, &xmax, &ymax))
+    return false;
+
+  // scaling
+  float scalex = float(pwidth) / fullrect.width();
+  float scaley = float(pheight) / fullrect.height();
+
+  // Corners of image shown (map coordinates)
+  // special care of lat/lon projection global
+  // xmin is wrong for these projections...
+  // handled in plotfillcellext.
+
+  float grStartx = (maprect.x1 > xmin) ? maprect.x1 : xmin;
+  float grStarty = (maprect.y1 > ymin) ? maprect.y1 : ymin;
+
+  // Corners of total image (image coordinates)
+  float x1 = maprect.x1;
+  float y1 = maprect.y1;
+  if (!gc.getPoints(area.P(), fields[0]->area.P(), npos, &x1, &y1))
+    return false;
+  float x2 = maprect.x2;
+  float y2 = maprect.y2;
+  if (!gc.getPoints(area.P(), fields[0]->area.P(), npos, &x2, &y2))
+    return false;
+  x1 /= fields[0]->gridResolutionX;
+  x2 /= fields[0]->gridResolutionX;
+  y1 /= fields[0]->gridResolutionY;
+  y2 /= fields[0]->gridResolutionY;
+
+  // Corners of image shown (image coordinates)
+  int bmStartx = (maprect.x1 > xmin) ? int(x1) : 0;
+  int bmStarty = (maprect.y1 > ymin) ? int(y1) : 0;
+  int bmStopx = (maprect.x2 < xmax) ? int(x2) : nx - 1;
+  int bmStopy = (maprect.y2 < ymax) ? int(y2) : ny - 1;
+
+  // lower left corner of displayed image part, in map coordinates
+  // (part of lower left pixel may well be outside screen)
+  float xstart = bmStartx * fields[0]->gridResolutionX;
+  float ystart = bmStarty * fields[0]->gridResolutionY;
+  if (!gc.getPoints(fields[0]->area.P(), area.P(), npos, &xstart, &ystart))
+    return false;
+
+  //Strange, but needed
+  float bmxmove = (maprect.x1 > xmin) ? (xstart - grStartx) * scalex : 0;
+  float bmymove = (maprect.y1 > ymin) ? (ystart - grStarty) * scaley : 0;
+
+  // for hardcopy
+  float pxstart = (xstart - maprect.x1) * scalex;
+  float pystart = (ystart - maprect.y1) * scaley;
+
+  // update scaling with ratio image to map (was map to screen pixels)
+  scalex *= fields[0]->gridResolutionX;
+  scaley *= fields[0]->gridResolutionY;
+
+  // width of image (pixels)
+  int currwid = bmStopx - bmStartx + 1;  // use pixels in image
+  int currhei = bmStopy - bmStarty + 1;  // use pixels in image
+
+  /*
+   create an original image from the field if not created before...
+   */
+
+  if (imagedata == NULL) {
+    // Create image from field
+    imagedata = createRGBAImage(fields[0]);
+  }
+
+  /*
+   If rasterimage wider than OpenGL-maxsizes: For now, temporarily resample image..
+   cImage: Pointer to imagedata, either sat_image or resampled data
+   */
+  unsigned char * cimage = resampleImage(currwid, currhei, bmStartx, bmStarty,
+      scalex, scaley, nx, ny);
+
+  // always needed (if not, slow oper...) ??????????????
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // assure valid raster position after OpenGL transformations
+  grStartx += fullrect.width() * 0.0001;
+  grStarty += fullrect.height() * 0.0001;
+
+  glPixelZoom(scalex, scaley);
+  glPixelStorei(GL_UNPACK_SKIP_ROWS, bmStarty); //pixels
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS, bmStartx); //pixels
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, nx); //pixels on image
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glRasterPos2f(grStartx, grStarty); //glcoord.
+
+  //Strange, but needed
+  //if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
+  glBitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
+  glDrawPixels((GLint) currwid, (GLint) currhei, GL_RGBA, GL_UNSIGNED_BYTE,
+      imagedata);
+  //Reset gl
+  glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  glDisable(GL_BLEND);
+
+  UpdateOutput();
+  //From plotFillCell
+  if (poptions.update_stencil) {
+    if (factor >= 2)
+      plotFrameStencil(rnx + 1, rny + 1, x, y);
+    else
+      plotFrameStencil(nx + 1, ny + 1, x, y);
+  }
+  // From plotFillCell ends.
+
+  return true;
+}
+
 bool FieldPlot::plotFillCell()
 {
-  METLIBS_LOG_TIME();
+  METLIBS_LOG_SCOP();
 
   if (not checkFields(1))
     return false;
 
   vector<Colour> palette;
-
+  // How to deal with palettecolours_cold
+  // For now, dont create one
   if (poptions.palettecolours.size() == 0) {
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
@@ -3287,7 +3654,7 @@ bool FieldPlot::plotFillCell()
       fields[0]->gridResolutionY * factor, area, maprect, true, rnx, rny, &x,
       &y, ix1, ix2, iy1, iy2, false);
 
-// Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
+  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
   if (ix2 == nx - 1) {
     ix2--;
   }
@@ -3311,6 +3678,10 @@ bool FieldPlot::plotFillCell()
   if (poptions.alpha < 255) {
     for (size_t i = 0; i < poptions.palettecolours.size(); i++) {
       poptions.palettecolours[i].set(Colour::alpha,
+          (unsigned char) poptions.alpha);
+    }
+    for (size_t i = 0; i < poptions.palettecolours_cold.size(); i++) {
+      poptions.palettecolours_cold[i].set(Colour::alpha,
           (unsigned char) poptions.alpha);
     }
   }
@@ -3337,17 +3708,42 @@ bool FieldPlot::plotFillCell()
         float y4 = y[(iy + 1) * (rnx + 1) + (ix)];
 
         // set fillcolor of cell
+        // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
           size_t index = 0;
-          if (poptions.repeat || value > poptions.base)
-            index = int((value - poptions.base) / poptions.lineinterval)
-                % poptions.palettecolours.size();
-
-          if (index > poptions.palettecolours.size() - 1)
-            index = poptions.palettecolours.size() - 1;
-          if (index < 0)
-            index = 0;
-          glColor4ubv(poptions.palettecolours[index].RGBA());
+          if ((poptions.repeat && value > poptions.base)
+              || value > poptions.base) {
+            if (poptions.repeat) {
+              index = int((value - poptions.base) / poptions.lineinterval)
+                  % poptions.palettecolours.size();
+            } else {
+              // Just divide by lineintervall...
+              index = int((value - poptions.base) / poptions.lineinterval);
+            }
+            if (index > poptions.palettecolours.size() - 1)
+              index = poptions.palettecolours.size() - 1;
+            if (index < 0)
+              index = 0;
+            glColor4ubv(poptions.palettecolours[index].RGBA());
+          } else if (poptions.palettecolours_cold.size() != 0) {
+            float base = poptions.lineinterval
+                * poptions.palettecolours_cold.size() - poptions.base;
+            if (poptions.repeat) {
+              index = int((value + base) / poptions.lineinterval)
+                  % poptions.palettecolours_cold.size();
+            } else {
+              index = int((value + base) / poptions.lineinterval);
+            }
+            index = poptions.palettecolours_cold.size() - 1 - index;
+            if (index > poptions.palettecolours_cold.size() - 1)
+              index = poptions.palettecolours_cold.size() - 1;
+            if (index < 0)
+              index = 0;
+            glColor4ubv(poptions.palettecolours_cold[index].RGBA());
+          } else {
+            // Use index 0...
+            glColor4ubv(poptions.palettecolours[index].RGBA());
+          }
         } else {
           std::vector<float>::const_iterator it = poptions.linevalues.begin();
           while (*it < value && it != poptions.linevalues.end()) {
