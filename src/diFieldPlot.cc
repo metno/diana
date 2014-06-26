@@ -3623,7 +3623,7 @@ bool FieldPlot::plotPixmap()
 
 bool FieldPlot::plotFillCell()
 {
-  METLIBS_LOG_SCOP();
+  METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
     return false;
