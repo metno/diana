@@ -209,6 +209,8 @@ void QtPlot::viewPan(int pxmove, int pymove)
 void QtPlot::viewStandard()
 {
   METLIBS_LOG_SCOPE();
+  if (mPlots.empty())
+    return;
 
   prepareXAxis();
   prepareYAxisRange();
@@ -247,6 +249,7 @@ void QtPlot::clear(bool keepX, bool keepY)
   mTimeDistances.clear();
 
   mSurface = Values_cp();
+  mViewChanged = true;
 }
 
 void QtPlot::setHorizontalCross(std::string csLabel, const LonLat_v& csPoints)
@@ -312,6 +315,10 @@ void QtPlot::prepare()
 {
   METLIBS_LOG_SCOPE();
 
+  mViewChanged = true;
+  if (mPlots.empty())
+    return;
+
   if (not mKeepX)
     prepareXAxis();
   if (not mKeepY)
@@ -319,8 +326,6 @@ void QtPlot::prepare()
   if (not (mKeepX or mKeepY))
     viewStandard();
   mKeepX = mKeepY = false;
-
-  mViewChanged = true;
 }
 
 void QtPlot::prepareXAxis()
@@ -334,8 +339,8 @@ void QtPlot::prepareXAxis()
     xax_max = mTimeDistances.back();
   METLIBS_LOG_DEBUG(LOGVAL(xax_min) << LOGVAL(xax_max));
     
-  mAxisX->setDataRange (xax_min, xax_max);
-  mAxisX->setValueRange (xax_min, xax_max);
+  mAxisX->setDataRange(xax_min, xax_max);
+  mAxisX->setValueRange(xax_min, xax_max);
 }
 
 void QtPlot::prepareYAxis()
@@ -377,8 +382,10 @@ void QtPlot::prepareView(QPainter& painter)
   METLIBS_LOG_SCOPE();
 
   calculateContrastColour();
-  computeMaxPlotArea(painter);
-  prepareAxesForAspectRatio();
+  if (not mPlots.empty()) {
+    computeMaxPlotArea(painter);
+    prepareAxesForAspectRatio();
+  }
 
   mViewChanged = false;
 }
@@ -531,6 +538,8 @@ void QtPlot::plot(QPainter& painter)
     prepareView(painter);
 
   painter.fillRect(QRect(QPoint(0,0), mTotalSize), vcross::util::QC(mBackColour));
+  if (mPlots.empty())
+    return;
 
   updateCharSize(painter);
 
