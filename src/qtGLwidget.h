@@ -137,7 +137,7 @@ private:
   std::map<int,KeyType> keymap; // keymap's for keyboardevents
 
 protected slots:
-  void editPaint(bool drawb= true);
+  void editPaint(bool drawb = false);
 };
 
 #endif
