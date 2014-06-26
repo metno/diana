@@ -144,13 +144,6 @@ VcrossSetupUI::VcrossSetupUI( QWidget* parent, const std::string& text,
   } else
     maxvaluespinbox= 0;
 
-  if (minvaluespinbox && maxvaluespinbox) {
-    connect( minvaluespinbox, SIGNAL(valueChanged(int)),
-	                      SLOT( forceMaxValue(int)));
-    connect( maxvaluespinbox, SIGNAL(valueChanged(int)),
-	                      SLOT( forceMinValue(int)));
-  }
-
   if (options & useTextChoice) {
     textchoicebox = new QComboBox(parent);
     //    if (ncol<2) ncol=2;
@@ -314,10 +307,14 @@ void VcrossSetupUI::setMinValue(int value)
 
 int VcrossSetupUI::getMinValue()
 {
-  if (minvaluespinbox)
-    return minvaluespinbox->value();
-  else
+  if (not minvaluespinbox)
     return 0;
+
+  const int mi = minvaluespinbox->value();
+  if (not maxvaluespinbox or mi < maxvaluespinbox->value())
+    return mi;
+  else
+    return minvaluespinbox->minimum();
 }
 
 
@@ -348,32 +345,14 @@ void VcrossSetupUI::setMaxValue(int value)
 
 int VcrossSetupUI::getMaxValue()
 {
-  if (maxvaluespinbox)
-    return maxvaluespinbox->value();
-  else
+  if (not maxvaluespinbox)
     return 0;
-}
 
-
-void VcrossSetupUI::forceMaxValue(int minvalue)
-{
-  if (maxvaluespinbox) {
-    const int step  = maxvaluespinbox->singleStep();
-    const int value = maxvaluespinbox->value();
-    if (minvalue > value - step)
-      maxvaluespinbox->setValue(value+step);
-  }
-}
-
-
-void VcrossSetupUI::forceMinValue(int maxvalue)
-{
-  if (minvaluespinbox) {
-    int step=  minvaluespinbox->singleStep();
-    int value= minvaluespinbox->value();
-    if (maxvalue < value + step)
-      minvaluespinbox->setValue(value-step);
-  }
+  const int ma = maxvaluespinbox->value();
+  if (not minvaluespinbox or ma > minvaluespinbox->value())
+    return ma;
+  else
+    return maxvaluespinbox->maximum();
 }
 
 

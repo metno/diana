@@ -100,12 +100,8 @@ public:
 
   std::string name;
 
-public slots:
+public Q_SLOTS:
   void setChecked(bool on);
-
-private slots:
-  void forceMaxValue(int minvalue);
-  void forceMinValue(int maxvalue);
 
 private:
   VcrossManager * vcrossm;
