@@ -59,7 +59,7 @@ protected:
 private:
   vcross::QtManager_p vcrossm;
 
-  void initOptions(QWidget* parent);
+  void initOptions();
 
   void setup(vcross::VcrossOptions * vcopt);
   void printSetup();
@@ -67,33 +67,31 @@ private:
 
   QGridLayout* glayout;
 
-  std::vector<VcrossSetupUI*> vcSetups;
-
   bool isInitialized;
 
-  std::string TEXTPLOT;
-  std::string FRAME;
-  std::string POSNAMES;
-  std::string LEVELNUMBERS;
-  std::string UPPERLEVEL;
-  std::string LOWERLEVEL;
-  std::string OTHERLEVELS;
-  std::string SURFACE;
-  std::string DISTANCE;
-  std::string GEOPOS;
-  std::string VERTGRID;
-  std::string MARKERLINES;
-  std::string VERTICALMARKER;
-  std::string EXTRAPOLP;
-  std::string BOTTOMEXT;
-  std::string THINARROWS;
-  std::string VERTICALTYPE;
-  std::string VHSCALE;
-  std::string STDVERAREA;
-  std::string STDHORAREA;
-  std::string BACKCOLOUR;
-  std::string ONMAPDRAW;
-  std::string HITMAPDRAW;
+  VcrossSetupUI* mSetupTEXTPLOT;
+  VcrossSetupUI* mSetupFRAME;
+  VcrossSetupUI* mSetupPOSNAMES;
+  VcrossSetupUI* mSetupLEVELNUMBERS;
+  VcrossSetupUI* mSetupUPPERLEVEL;
+  VcrossSetupUI* mSetupLOWERLEVEL;
+  VcrossSetupUI* mSetupOTHERLEVELS;
+  VcrossSetupUI* mSetupSURFACE;
+  VcrossSetupUI* mSetupDISTANCE;
+  VcrossSetupUI* mSetupGEOPOS;
+  VcrossSetupUI* mSetupVERTGRID;
+  VcrossSetupUI* mSetupMARKERLINES;
+  VcrossSetupUI* mSetupVERTICALMARKER;
+  VcrossSetupUI* mSetupEXTRAPOLP;
+  VcrossSetupUI* mSetupBOTTOMEXT;
+  VcrossSetupUI* mSetupTHINARROWS;
+  VcrossSetupUI* mSetupVERTICALTYPE;
+  VcrossSetupUI* mSetupVHSCALE;
+  VcrossSetupUI* mSetupSTDVERAREA;
+  VcrossSetupUI* mSetupSTDHORAREA;
+  VcrossSetupUI* mSetupBACKCOLOUR;
+  VcrossSetupUI* mSetupONMAPDRAW;
+  VcrossSetupUI* mSetupHITMAPDRAW;
 
 private Q_SLOTS:
   void standardClicked();

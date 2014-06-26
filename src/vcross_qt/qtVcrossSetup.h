@@ -67,7 +67,7 @@ public:
     useTextChoice2=0x0100
   };
 
-  VcrossSetupUI(QWidget* parent, const std::string& text,
+  VcrossSetupUI(QWidget* parent, const QString& name,
       QGridLayout* glayout, int row, int options);
 
   bool isChecked();
@@ -97,8 +97,6 @@ public:
   void  defineTextChoice2(const std::vector<std::string>& vchoice, int ndefault=0);
   void     setTextChoice2(const std::string& choice);
   std::string getTextChoice2();
-
-  std::string name;
 
 public Q_SLOTS:
   void setChecked(bool on);

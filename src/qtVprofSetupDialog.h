@@ -51,9 +51,8 @@ class VprofSetupDialog: public QDialog
   Q_OBJECT
 
 public:
+  VprofSetupDialog(QWidget* parent, VprofManager * vm);
 
-  //the constructor
-  VprofSetupDialog( QWidget* parent, VprofManager * vm );
   void start();
 protected:
   void closeEvent( QCloseEvent* );
@@ -67,7 +66,6 @@ private:
   void initColourtab();
 
   void setup(VprofOptions *vpopt);
-  void printSetup();
   void applySetup();
 
   //QT tab widgets
@@ -92,37 +90,36 @@ private:
   int temperatureMin;
   int temperatureMax;
 
-  std::vector<VcrossSetupUI*> vpSetups;
-
   bool isInitialized;
 
-  std::string TEMP;
-  std::string DEWPOINT;
-  std::string WIND;
-  std::string VERTWIND;
-  std::string RELHUM;
-  std::string DUCTING;
-  std::string KINDEX;
-  std::string SIGNWIND;
-  std::string PRESSLINES;
-  std::string LINEFLIGHT;
-  std::string TEMPLINES;
-  std::string DRYADIABATS;
-  std::string WETADIABATS;
-  std::string MIXINGRATIO;
-  std::string PTLABELS;
-  std::string FRAME;
-  std::string TEXT;
-  std::string FLIGHTLEVEL;
-  std::string FLIGHTLABEL;
-  std::string SEPWIND;
-  std::string CONDTRAIL;
-  std::string GEOPOS;
-  std::string PRESSRANGE;
-  std::string TEMPRANGE;
-  std::string BACKCOLOUR;
+  VcrossSetupUI* mSetupTEMP;
+  VcrossSetupUI* mSetupDEWPOINT;
+  VcrossSetupUI* mSetupWIND;
+  VcrossSetupUI* mSetupVERTWIND;
+  VcrossSetupUI* mSetupRELHUM;
+  VcrossSetupUI* mSetupDUCTING;
+  VcrossSetupUI* mSetupKINDEX;
+  VcrossSetupUI* mSetupSIGNWIND;
+  VcrossSetupUI* mSetupPRESSLINES;
+  VcrossSetupUI* mSetupLINEFLIGHT;
+  VcrossSetupUI* mSetupTEMPLINES;
+  VcrossSetupUI* mSetupDRYADIABATS;
+  VcrossSetupUI* mSetupWETADIABATS;
+  VcrossSetupUI* mSetupMIXINGRATIO;
+  VcrossSetupUI* mSetupPTLABELS;
+  VcrossSetupUI* mSetupFRAME;
+  VcrossSetupUI* mSetupTEXT;
+  VcrossSetupUI* mSetupFLIGHTLEVEL;
+  VcrossSetupUI* mSetupFLIGHTLABEL;
+  VcrossSetupUI* mSetupSEPWIND;
+  VcrossSetupUI* mSetupCONDTRAIL;
+  VcrossSetupUI* mSetupGEOPOS;
+  VcrossSetupUI* mSetupPRESSRANGE;
+  VcrossSetupUI* mSetupTEMPRANGE;
+  VcrossSetupUI* mSetupBACKCOLOUR;
+  std::vector<VcrossSetupUI*> mSetupData;
 
-private slots:
+private Q_SLOTS:
   void standardClicked();
   void helpClicked();
   void applyClicked();
@@ -132,7 +129,7 @@ private slots:
   void setTemperatureMin(int);
   void setTemperatureMax(int);
 
-signals:
+Q_SIGNALS:
   void SetupHide();
   void SetupApply();
   void showsource(const std::string&, const std::string& = "");

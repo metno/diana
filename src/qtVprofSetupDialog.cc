@@ -61,51 +61,16 @@ const int tStep= 5;
 VprofSetupDialog::VprofSetupDialog( QWidget* parent,VprofManager * vm )
   : QDialog(parent),vprofm(vm)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetUpDialog::VprofSetUpDialog called");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  //caption to appear on top of dialog
   setWindowTitle(tr("Diana Vertical Profiles - settings"));
-
-
-  //********** String constants
-
-  TEMP          =  tr("Temperature").toStdString();
-  DEWPOINT      =  tr("Dewpoint").toStdString();
-  WIND          =  tr("Wind").toStdString();
-  VERTWIND      =  tr("Vertical wind (model)").toStdString();
-  RELHUM        =  tr("Relative humidity").toStdString();
-  DUCTING       =  tr("Refraction index").toStdString();
-  KINDEX        =  tr("K-index").toStdString();
-  SIGNWIND      =  tr("Significant wind (dd-ff)").toStdString();
-  PRESSLINES    =  tr("Pressure lines").toStdString();
-  LINEFLIGHT    =  tr("Lines in flight levels").toStdString();
-  TEMPLINES     =  tr("Temperature lines").toStdString();
-  DRYADIABATS   =  tr("Dry adiabatic").toStdString();
-  WETADIABATS   =  tr("Wet adiabatic").toStdString();
-  MIXINGRATIO   =  tr("Mixing rate").toStdString();
-  PTLABELS      =  tr("P and T units").toStdString();
-  FRAME         =  tr("Frame").toStdString();
-  TEXT          =  tr("Text").toStdString();
-  FLIGHTLEVEL   =  tr("Flight levels").toStdString();
-  FLIGHTLABEL   =  tr("FL units").toStdString();
-  SEPWIND       =  tr("Separate wind columns").toStdString();
-  CONDTRAIL     =  tr("Lines for condensation trails").toStdString();
-  GEOPOS        =  tr("Geographical position in text").toStdString();
-  PRESSRANGE    =  tr("Pressure range").toStdString();
-  TEMPRANGE     =  tr("Temperature range").toStdString();
-  BACKCOLOUR    =  tr("Background colour").toStdString();
 
   //********** create the various QT widgets to appear in dialog ***********
 
   twd = new QTabWidget( this );
-
-  vpSetups.clear();
   initDatatab();
   initDiagramtab();
   initColourtab();
-
 
   // standard buttons *******************************************
 
@@ -206,137 +171,74 @@ void VprofSetupDialog::start(){
 
 /*********************************************/
 
-void VprofSetupDialog::setup(VprofOptions *vpopt){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetupDialog::setup()");
-#endif
+void VprofSetupDialog::setup(VprofOptions *vpopt)
+{
+  METLIBS_LOG_SCOPE();
 
-  int j, n = vpSetups.size();
+  mSetupTEMP->setChecked(vpopt->ptttt);
+  mSetupDEWPOINT->setChecked(vpopt->ptdtd);
+  mSetupWIND->setChecked(vpopt->pwind);
+  mSetupVERTWIND->setChecked(vpopt->pvwind);
+  mSetupRELHUM->setChecked(vpopt->prelhum);
+  mSetupDUCTING->setChecked(vpopt->pducting);
+  mSetupKINDEX->setChecked(vpopt->pkindex);
+  mSetupSIGNWIND->setChecked(vpopt->pslwind);
+  mSetupTEXT->setChecked(vpopt->ptext);
+  mSetupGEOPOS->setChecked(vpopt->pgeotext);
 
-  for (int i = 0;i<n;i++){
-    if (vpSetups[i]->name== TEMP)
-      vpSetups[i]->setChecked(vpopt->ptttt);
-    else if (vpSetups[i]->name== DEWPOINT)
-      vpSetups[i]->setChecked(vpopt->ptdtd);
-    else if (vpSetups[i]->name== WIND)
-      vpSetups[i]->setChecked(vpopt->pwind);
-    else if (vpSetups[i]->name== VERTWIND)
-      vpSetups[i]->setChecked(vpopt->pvwind);
-    else if (vpSetups[i]->name== RELHUM)
-      vpSetups[i]->setChecked(vpopt->prelhum);
-    else if (vpSetups[i]->name== DUCTING)
-      vpSetups[i]->setChecked(vpopt->pducting);
-    else if (vpSetups[i]->name== KINDEX)
-      vpSetups[i]->setChecked(vpopt->pkindex);
-    else if (vpSetups[i]->name== SIGNWIND)
-     vpSetups[i]->setChecked(vpopt->pslwind);
-    else if (vpSetups[i]->name== TEXT)
-      vpSetups[i]->setChecked(vpopt->ptext);
-    else if (vpSetups[i]->name== GEOPOS)
-      vpSetups[i]->setChecked(vpopt->pgeotext);
-    else if (vpSetups[i]->name== PRESSLINES){
-      vpSetups[i]->setChecked(vpopt->pplines);
-      vpSetups[i]->setColour(vpopt->pColour);
-      vpSetups[i]->setLinewidth(vpopt->pLinewidth1);
-      vpSetups[i]->setLinetype(vpopt->pLinetype);
-    }
-    else if (vpSetups[i]->name== LINEFLIGHT){
-      vpSetups[i]->setChecked(vpopt->pplinesfl);
-    }
-    else if (vpSetups[i]->name== TEMPLINES){
-      vpSetups[i]->setChecked(vpopt->ptlines);
-      vpSetups[i]->setColour(vpopt->tColour);
-      vpSetups[i]->setLinewidth(vpopt->tLinewidth1);
-      vpSetups[i]->setLinetype(vpopt->tLinetype);
-    }
-    else if (vpSetups[i]->name== DRYADIABATS){
-      vpSetups[i]->setChecked(vpopt->pdryadiabat);
-      vpSetups[i]->setColour(vpopt->dryadiabatColour);
-      vpSetups[i]->setLinewidth(vpopt->dryadiabatLinewidth);
-      vpSetups[i]->setLinetype(vpopt->dryadiabatLinetype);
-    }
-    else if (vpSetups[i]->name== WETADIABATS){
-      vpSetups[i]->setChecked(vpopt->pwetadiabat);
-      vpSetups[i]->setColour(vpopt->wetadiabatColour);
-      vpSetups[i]->setLinewidth(vpopt->wetadiabatLinewidth);
-      vpSetups[i]->setLinetype(vpopt->wetadiabatLinetype);
-    }
-    else if (vpSetups[i]->name== MIXINGRATIO){
-      vpSetups[i]->setChecked(vpopt->pmixingratio);
-      vpSetups[i]->setColour(vpopt->mixingratioColour);
-      vpSetups[i]->setLinewidth(vpopt->mixingratioLinewidth);
-      vpSetups[i]->setLinetype(vpopt->mixingratioLinetype);
-    }
-    else if (vpSetups[i]->name== PTLABELS){
-      vpSetups[i]->setChecked(vpopt->plabelp);
-    }
-    else if (vpSetups[i]->name== FRAME){
-      vpSetups[i]->setChecked(vpopt->pframe);
-      vpSetups[i]->setColour(vpopt->frameColour);
-      vpSetups[i]->setLinewidth(vpopt->frameLinewidth);
-      vpSetups[i]->setLinetype(vpopt->frameLinetype);
-    }
-    else if (vpSetups[i]->name== FLIGHTLEVEL){
-      vpSetups[i]->setChecked(vpopt->pflevels);
-      vpSetups[i]->setColour(vpopt->flevelsColour);
-      vpSetups[i]->setLinewidth(vpopt->flevelsLinewidth1);
-      vpSetups[i]->setLinetype(vpopt->flevelsLinetype);
-    }
-    else if (vpSetups[i]->name== FLIGHTLABEL){
-      vpSetups[i]->setChecked(vpopt->plabelflevels);
-    }
-    else if (vpSetups[i]->name== CONDTRAIL){
-      vpSetups[i]->setChecked(vpopt->pcotrails);
-      vpSetups[i]->setColour(vpopt->cotrailsColour);
-      vpSetups[i]->setLinewidth(vpopt->cotrailsLinewidth);
-      vpSetups[i]->setLinetype(vpopt->cotrailsLinetype);
-    }
-    else if (vpSetups[i]->name== SEPWIND){
-      vpSetups[i]->setChecked(vpopt->windseparate);
-    }
-    else if (vpSetups[i]->name== BACKCOLOUR){
-      vpSetups[i]->setColour(vpopt->backgroundColour);
-    }
-    else if (vpSetups[i]->name== "Data1"){
-      j= 0;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data2"){
-      j= 1;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data3"){
-      j= 2;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data4"){
-      j= 3;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data5"){
-      j= 4;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data6"){
-      j= 5;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data7"){
-      j= 6;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
-    else if (vpSetups[i]->name== "Data8"){
-      j= 7;
-      vpSetups[i]->setColour(vpopt->dataColour[j]);
-      vpSetups[i]->setLinewidth(vpopt->dataLinewidth[j]);
-    }
+  mSetupPRESSLINES->setChecked(vpopt->pplines);
+  mSetupPRESSLINES->setColour(vpopt->pColour);
+  mSetupPRESSLINES->setLinewidth(vpopt->pLinewidth1);
+  mSetupPRESSLINES->setLinetype(vpopt->pLinetype);
+  
+  mSetupLINEFLIGHT->setChecked(vpopt->pplinesfl);
+
+  mSetupTEMPLINES->setChecked(vpopt->ptlines);
+  mSetupTEMPLINES->setColour(vpopt->tColour);
+  mSetupTEMPLINES->setLinewidth(vpopt->tLinewidth1);
+  mSetupTEMPLINES->setLinetype(vpopt->tLinetype);
+
+  mSetupDRYADIABATS->setChecked(vpopt->pdryadiabat);
+  mSetupDRYADIABATS->setColour(vpopt->dryadiabatColour);
+  mSetupDRYADIABATS->setLinewidth(vpopt->dryadiabatLinewidth);
+  mSetupDRYADIABATS->setLinetype(vpopt->dryadiabatLinetype);
+
+  mSetupWETADIABATS->setChecked(vpopt->pwetadiabat);
+  mSetupWETADIABATS->setColour(vpopt->wetadiabatColour);
+  mSetupWETADIABATS->setLinewidth(vpopt->wetadiabatLinewidth);
+  mSetupWETADIABATS->setLinetype(vpopt->wetadiabatLinetype);
+
+  mSetupMIXINGRATIO->setChecked(vpopt->pmixingratio);
+  mSetupMIXINGRATIO->setColour(vpopt->mixingratioColour);
+  mSetupMIXINGRATIO->setLinewidth(vpopt->mixingratioLinewidth);
+  mSetupMIXINGRATIO->setLinetype(vpopt->mixingratioLinetype);
+
+  mSetupPTLABELS->setChecked(vpopt->plabelp);
+
+  mSetupFRAME->setChecked(vpopt->pframe);
+  mSetupFRAME->setColour(vpopt->frameColour);
+  mSetupFRAME->setLinewidth(vpopt->frameLinewidth);
+  mSetupFRAME->setLinetype(vpopt->frameLinetype);
+
+  mSetupFLIGHTLEVEL->setChecked(vpopt->pflevels);
+  mSetupFLIGHTLEVEL->setColour(vpopt->flevelsColour);
+  mSetupFLIGHTLEVEL->setLinewidth(vpopt->flevelsLinewidth1);
+  mSetupFLIGHTLEVEL->setLinetype(vpopt->flevelsLinetype);
+
+  mSetupFLIGHTLABEL->setChecked(vpopt->plabelflevels);
+
+  mSetupCONDTRAIL->setChecked(vpopt->pcotrails);
+  mSetupCONDTRAIL->setColour(vpopt->cotrailsColour);
+  mSetupCONDTRAIL->setLinewidth(vpopt->cotrailsLinewidth);
+  mSetupCONDTRAIL->setLinetype(vpopt->cotrailsLinetype);
+
+  mSetupSEPWIND->setChecked(vpopt->windseparate);
+
+  mSetupBACKCOLOUR->setColour(vpopt->backgroundColour);
+
+  for (size_t j=0; j<mSetupData.size(); ++j) {
+    mSetupData[j]->setColour(vpopt->dataColour[j]);
+    mSetupData[j]->setLinewidth(vpopt->dataLinewidth[j]);
   }
 
   int pmin=  (vpopt->pminDiagram/pStep) * pStep;
@@ -360,139 +262,76 @@ void VprofSetupDialog::setup(VprofOptions *vpopt){
 
 /*********************************************/
 
-void VprofSetupDialog::applySetup(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetupDialog::applySetup()");
-#endif
+void VprofSetupDialog::applySetup()
+{
+  METLIBS_LOG_SCOPE();
   VprofOptions * vpopt= vprofm->getOptions();
 
-  int j, n = vpSetups.size();
-  for (int i = 0;i<n;i++){
-    if (vpSetups[i]->name== TEMP)
-      vpopt->ptttt=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== DEWPOINT)
-      vpopt->ptdtd=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== WIND)
-      vpopt->pwind=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== VERTWIND)
-      vpopt->pvwind=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== RELHUM)
-      vpopt->prelhum=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== DUCTING)
-      vpopt->pducting=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== KINDEX)
-      vpopt->pkindex=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== SIGNWIND)
-      vpopt->pslwind=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== TEXT)
-      vpopt->ptext=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== GEOPOS)
-      vpopt->pgeotext=vpSetups[i]->isChecked();
-    else if (vpSetups[i]->name== PRESSLINES){
-      vpopt->pplines=vpSetups[i]->isChecked();
-      vpopt->pColour=vpSetups[i]->getColour().name;
-      vpopt->pLinewidth1=vpSetups[i]->getLinewidth();
-      vpopt->pLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== LINEFLIGHT){
-      vpopt->pplinesfl=vpSetups[i]->isChecked();
-    }
-    else if (vpSetups[i]->name== TEMPLINES){
-      vpopt->ptlines=vpSetups[i]->isChecked();
-      vpopt->tColour=vpSetups[i]->getColour().name;
-      vpopt->tLinewidth1=vpSetups[i]->getLinewidth();
-      vpopt->tLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== DRYADIABATS){
-      vpopt->pdryadiabat=vpSetups[i]->isChecked();
-      vpopt->dryadiabatColour=vpSetups[i]->getColour().name;
-      vpopt->dryadiabatLinewidth=vpSetups[i]->getLinewidth();
-      vpopt->dryadiabatLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== WETADIABATS){
-      vpopt->pwetadiabat=vpSetups[i]->isChecked();
-      vpopt->wetadiabatColour=vpSetups[i]->getColour().name;
-      vpopt->wetadiabatLinewidth=vpSetups[i]->getLinewidth();
-      vpopt->wetadiabatLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== MIXINGRATIO){
-      vpopt->pmixingratio=vpSetups[i]->isChecked();
-      vpopt->mixingratioColour=vpSetups[i]->getColour().name;
-      vpopt->mixingratioLinewidth=vpSetups[i]->getLinewidth();
-      vpopt->mixingratioLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== PTLABELS){
-      vpopt->plabelp=vpSetups[i]->isChecked();
-      vpopt->plabelt=vpSetups[i]->isChecked();
-    }
-    else if (vpSetups[i]->name== FRAME){
-      vpopt->pframe=vpSetups[i]->isChecked();
-      vpopt->frameColour=vpSetups[i]->getColour().name;
-      vpopt->frameLinewidth=vpSetups[i]->getLinewidth();
-      vpopt->frameLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== FLIGHTLEVEL){
-      vpopt->pflevels=vpSetups[i]->isChecked();
-      vpopt->flevelsColour=vpSetups[i]->getColour().name;
-      vpopt->flevelsLinewidth1=vpSetups[i]->getLinewidth();
-      vpopt->flevelsLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== FLIGHTLABEL){
-      vpopt->plabelflevels=vpSetups[i]->isChecked();
-    }
-    else if (vpSetups[i]->name== CONDTRAIL){
-      vpopt->pcotrails=vpSetups[i]->isChecked();
-      vpopt->cotrailsColour=vpSetups[i]->getColour().name;
-      vpopt->cotrailsLinewidth=vpSetups[i]->getLinewidth();
-      vpopt->cotrailsLinetype=vpSetups[i]->getLinetype();
-    }
-    else if (vpSetups[i]->name== SEPWIND){
-      vpopt->windseparate=vpSetups[i]->isChecked();
-    }
-    else if (vpSetups[i]->name== BACKCOLOUR){
-      vpopt->backgroundColour=vpSetups[i]->getColour().name;
-    }
-    else if (vpSetups[i]->name== "Data1"){
-      j= 0;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data2"){
-      j= 1;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data3"){
-      j= 2;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data4"){
-      j= 3;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data5"){
-      j= 4;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data6"){
-      j= 5;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data7"){
-      j= 6;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
-    else if (vpSetups[i]->name== "Data8"){
-      j= 7;
-      vpopt->dataColour[j]=    vpSetups[i]->getColour().name;
-      vpopt->dataLinewidth[j]= vpSetups[i]->getLinewidth();
-    }
+  vpopt->ptttt=mSetupTEMP->isChecked();
+  vpopt->ptdtd=mSetupDEWPOINT->isChecked();
+  vpopt->pwind=mSetupWIND->isChecked();
+  vpopt->pvwind=mSetupVERTWIND->isChecked();
+  vpopt->prelhum=mSetupRELHUM->isChecked();
+  vpopt->pducting=mSetupDUCTING->isChecked();
+  vpopt->pkindex=mSetupKINDEX->isChecked();
+  vpopt->pslwind=mSetupSIGNWIND->isChecked();
+  vpopt->ptext=mSetupTEXT->isChecked();
+  vpopt->pgeotext=mSetupGEOPOS->isChecked();
 
+  vpopt->pplines=mSetupPRESSLINES->isChecked();
+  vpopt->pColour=mSetupPRESSLINES->getColour().name;
+  vpopt->pLinewidth1=mSetupPRESSLINES->getLinewidth();
+  vpopt->pLinetype=mSetupPRESSLINES->getLinetype();
+
+  vpopt->pplinesfl=mSetupLINEFLIGHT->isChecked();
+
+  vpopt->ptlines=mSetupTEMPLINES->isChecked();
+  vpopt->tColour=mSetupTEMPLINES->getColour().name;
+  vpopt->tLinewidth1=mSetupTEMPLINES->getLinewidth();
+  vpopt->tLinetype=mSetupTEMPLINES->getLinetype();
+  
+  vpopt->pdryadiabat=mSetupDRYADIABATS->isChecked();
+  vpopt->dryadiabatColour=mSetupDRYADIABATS->getColour().name;
+  vpopt->dryadiabatLinewidth=mSetupDRYADIABATS->getLinewidth();
+  vpopt->dryadiabatLinetype=mSetupDRYADIABATS->getLinetype();
+
+  vpopt->pwetadiabat=mSetupWETADIABATS->isChecked();
+  vpopt->wetadiabatColour=mSetupWETADIABATS->getColour().name;
+  vpopt->wetadiabatLinewidth=mSetupWETADIABATS->getLinewidth();
+  vpopt->wetadiabatLinetype=mSetupWETADIABATS->getLinetype();
+
+  vpopt->pmixingratio=mSetupMIXINGRATIO->isChecked();
+  vpopt->mixingratioColour=mSetupMIXINGRATIO->getColour().name;
+  vpopt->mixingratioLinewidth=mSetupMIXINGRATIO->getLinewidth();
+  vpopt->mixingratioLinetype=mSetupMIXINGRATIO->getLinetype();
+
+  vpopt->plabelp=mSetupPTLABELS->isChecked();
+  vpopt->plabelt=mSetupPTLABELS->isChecked();
+
+  vpopt->pframe=mSetupFRAME->isChecked();
+  vpopt->frameColour=mSetupFRAME->getColour().name;
+  vpopt->frameLinewidth=mSetupFRAME->getLinewidth();
+  vpopt->frameLinetype=mSetupFRAME->getLinetype();
+  
+  vpopt->pflevels=mSetupFLIGHTLEVEL->isChecked();
+  vpopt->flevelsColour=mSetupFLIGHTLEVEL->getColour().name;
+  vpopt->flevelsLinewidth1=mSetupFLIGHTLEVEL->getLinewidth();
+  vpopt->flevelsLinetype=mSetupFLIGHTLEVEL->getLinetype();
+
+  vpopt->plabelflevels=mSetupFLIGHTLABEL->isChecked();
+
+  vpopt->pcotrails=mSetupCONDTRAIL->isChecked();
+  vpopt->cotrailsColour=mSetupCONDTRAIL->getColour().name;
+  vpopt->cotrailsLinewidth=mSetupCONDTRAIL->getLinewidth();
+  vpopt->cotrailsLinetype=mSetupCONDTRAIL->getLinetype();
+
+  vpopt->windseparate=mSetupSEPWIND->isChecked();
+
+  vpopt->backgroundColour=mSetupBACKCOLOUR->getColour().name;
+
+  for (size_t j=0; j<mSetupData.size(); ++j) {
+    vpopt->dataColour[j]=    mSetupData[j]->getColour().name;
+    vpopt->dataLinewidth[j]= mSetupData[j]->getLinewidth();
   }
 
   //min/max pressure
@@ -506,74 +345,34 @@ void VprofSetupDialog::applySetup(){
   vpopt->changed= true;
 }
 
-
 /*********************************************/
 
-void VprofSetupDialog::printSetup(){
-/*
-  #ifdef DEBUGPRINT
-  //HK, used for debugging...
-  METLIBS_LOG_DEBUG("VprofSetupDialog::printSetup()");
-
-  int n = vpSetups.size();
-  METLIBS_LOG_DEBUG("Number of setups =" << n);
-  for (int i = 0;i<n;i++){
-    METLIBS_LOG_DEBUG("Name =" << vpSetups[i]->name);
-    if (vpSetups[i]->isChecked()){
-      METLIBS_LOG_DEBUG(" is on !");
-      ColourInfo sColour = vpSetups[i]->getColour();
-      METLIBS_LOG_DEBUG("    Colour = " << sColour.name);
-      METLIBS_LOG_DEBUG("    linethickness = " << vpSetups[i]->getLinewidth());
-      METLIBS_LOG_DEBUG("    linetype = " << vpSetups[i]->getLinetype());
-    }else
-      METLIBS_LOG_DEBUG(" is off !");
-  }
-#endif
-*/
-}
-
-
-/*********************************************/
-
-void VprofSetupDialog::helpClicked(){
-  //this slot is called when help button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetupDialog::helpClicked()");
-#endif
-  emit showsource("ug_verticalprofiles.html");
+void VprofSetupDialog::helpClicked()
+{
+  Q_EMIT showsource("ug_verticalprofiles.html");
 }
 
 /*********************************************/
 
-void VprofSetupDialog::applyClicked(){
-  //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetupDialog::applyClicked(int tt)");
-#endif
+void VprofSetupDialog::applyClicked()
+{
   applySetup();
-  //printSetup();
-  emit SetupApply();
-
+  Q_EMIT SetupApply();
 }
 
 /*********************************************/
 
-void VprofSetupDialog::applyhideClicked(){
-  //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofSetupDialog::applyhideClicked(int tt)");
-#endif
+void VprofSetupDialog::applyhideClicked()
+{
   applySetup();
-  //printSetup();
-  emit SetupHide();
-  emit SetupApply();
-
+  Q_EMIT SetupHide();
+  Q_EMIT SetupApply();
 }
 
 /*********************************************/
 
-void VprofSetupDialog::initDatatab(){
-
+void VprofSetupDialog::initDatatab()
+{
   datatab = new QWidget(twd);
   twd->addTab( datatab, tr("Diagram") );
 
@@ -588,7 +387,6 @@ void VprofSetupDialog::initDatatab(){
 
   int nrow=0;
 
-
   QLabel * label1 = new QLabel(tr("On/off"),datatab);
 
   glayout->addWidget(label1,nrow,0);
@@ -596,23 +394,23 @@ void VprofSetupDialog::initDatatab(){
 
   int opts= VcrossSetupUI::useOnOff;
 
-  vpSetups.push_back(new VcrossSetupUI(datatab,TEMP,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,DEWPOINT,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,WIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,VERTWIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,RELHUM,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,DUCTING,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,SIGNWIND,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,TEXT,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,KINDEX,glayout,nrow++,opts));
-  vpSetups.push_back(new VcrossSetupUI(datatab,GEOPOS,glayout,nrow++,opts));
+  mSetupTEMP = new VcrossSetupUI(datatab, tr("Temperature"), glayout, nrow++, opts);
+  mSetupDEWPOINT = new VcrossSetupUI(datatab, tr("Dewpoint"), glayout, nrow++, opts);
+  mSetupWIND = new VcrossSetupUI(datatab, tr("Wind"), glayout, nrow++, opts);
+  mSetupVERTWIND = new VcrossSetupUI(datatab, tr("Vertical wind (model)"), glayout, nrow++, opts);
+  mSetupRELHUM = new VcrossSetupUI(datatab, tr("Relative humidity"), glayout, nrow++, opts);
+  mSetupDUCTING = new VcrossSetupUI(datatab, tr("Refraction index"), glayout, nrow++, opts);
+  mSetupSIGNWIND = new VcrossSetupUI(datatab, tr("Significant wind (dd-ff)"), glayout, nrow++, opts);
+  mSetupTEXT = new VcrossSetupUI(datatab, tr("Text"), glayout, nrow++, opts);
+  mSetupKINDEX = new VcrossSetupUI(datatab, tr("K-index"), glayout, nrow++, opts);
+  mSetupGEOPOS = new VcrossSetupUI(datatab, tr("Geographical position in text"), glayout, nrow++, opts);
 
 
   //spinbox for pressure and temperature range
   //value of spinLow must not exceed value of spinHigh
 
-  QLabel * pressurelabel = new QLabel(QString(PRESSRANGE.c_str()),datatab);
-  QLabel * templabel = new QLabel(QString(TEMPRANGE.c_str()),datatab);
+  QLabel * pressurelabel = new QLabel(tr("Pressure range"),datatab);
+  QLabel * templabel = new QLabel(tr("Temperature range"),datatab);
   pressurelabel->setAlignment(Qt::AlignLeft);
   templabel->setAlignment(Qt::AlignLeft);
   //pressure range 10-1200, steps of 50, init value 100-1050
@@ -669,13 +467,11 @@ void VprofSetupDialog::initDatatab(){
   glayout->addWidget(temperatureSpinLow,nrow,1);
   glayout->addWidget(temperatureSpinHigh,nrow,2);
   nrow++;
-
-  //end datatab
 }
 
 
-void VprofSetupDialog::initDiagramtab(){
-  //diagram tab
+void VprofSetupDialog::initDiagramtab()
+{
   diagramtab = new QWidget(twd);
   twd->addTab( diagramtab, tr("Diagram") );
 
@@ -704,60 +500,43 @@ void VprofSetupDialog::initDiagramtab(){
   int nrow = 0;
   int opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,PRESSLINES,glayout,++nrow,opts));
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,TEMPLINES,glayout,++nrow,opts));
+  mSetupPRESSLINES = new VcrossSetupUI(diagramtab, tr("Pressure lines"), glayout,++nrow,opts);
+  mSetupTEMPLINES = new VcrossSetupUI(diagramtab,tr("Temperature lines"),glayout,++nrow,opts);
 
   opts= VcrossSetupUI::useOnOff;
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,LINEFLIGHT,glayout,++nrow,opts));
+  mSetupLINEFLIGHT = new VcrossSetupUI(diagramtab,tr("Lines in flight levels"),glayout,++nrow,opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,DRYADIABATS,glayout,++nrow,opts));
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,WETADIABATS,glayout,++nrow,opts));
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,MIXINGRATIO,glayout,++nrow,opts));
+  mSetupDRYADIABATS = new VcrossSetupUI(diagramtab, tr("Dry adiabatic"),glayout,++nrow,opts);
+  mSetupWETADIABATS = new VcrossSetupUI(diagramtab,tr("Wet adiabatic"),glayout,++nrow,opts);
+  mSetupMIXINGRATIO = new VcrossSetupUI(diagramtab,tr("Mixing rate"),glayout,++nrow,opts);
 
   opts= VcrossSetupUI::useOnOff;
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,PTLABELS,glayout,++nrow,opts));
+  mSetupPTLABELS = new VcrossSetupUI(diagramtab,tr("P and T units"),glayout,++nrow,opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,FRAME,glayout,++nrow,opts));
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,FLIGHTLEVEL,glayout,++nrow,opts));
+  mSetupFRAME = new VcrossSetupUI(diagramtab, tr("Frame"),glayout,++nrow,opts);
+  mSetupFLIGHTLEVEL = new VcrossSetupUI(diagramtab, tr("Flight levels"),glayout,++nrow,opts);
 
   opts= VcrossSetupUI::useOnOff;
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,FLIGHTLABEL,glayout,++nrow,opts));
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,SEPWIND,glayout,++nrow,opts));
+  mSetupFLIGHTLABEL = new VcrossSetupUI(diagramtab,tr("FL units"),glayout,++nrow,opts);
+  mSetupSEPWIND = new VcrossSetupUI(diagramtab,tr("Separate wind columns"),glayout,++nrow,opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,CONDTRAIL,glayout,++nrow,opts));
+  mSetupCONDTRAIL = new VcrossSetupUI(diagramtab,tr("Lines for condensation trails"),glayout,++nrow,opts);
 
   opts= (VcrossSetupUI::useColour);
-  vpSetups.push_back
-    (new VcrossSetupUI(diagramtab,BACKCOLOUR,glayout,++nrow,opts));
-
-  //end diagramtab
-
+  mSetupBACKCOLOUR = new VcrossSetupUI(diagramtab,tr("Background colour"),glayout,++nrow,opts);
 }
 
 
-void VprofSetupDialog::initColourtab(){
-  //colour tab
+void VprofSetupDialog::initColourtab()
+{
   colourtab = new QWidget(twd);
   twd->addTab( colourtab, tr("Colours") );
-
 
   int mymargin=5;
   int myspacing=5;
@@ -778,16 +557,11 @@ void VprofSetupDialog::initColourtab(){
   int nrow = 0;
   int opts= (VcrossSetupUI::useColour | VcrossSetupUI::useLineWidth);
 
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data1",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data2",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data3",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data4",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data5",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data6",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data7",glayout,++nrow,opts));
-  vpSetups.push_back(new VcrossSetupUI(colourtab,"Data8",glayout,++nrow,opts));
+  for (int j=0; j<8; ++j)
+    mSetupData.push_back(new VcrossSetupUI(colourtab,tr("Data%1").arg(j+1), glayout, ++nrow, opts));
 }
 
-void VprofSetupDialog::closeEvent( QCloseEvent* e) {
-  emit SetupHide();
+void VprofSetupDialog::closeEvent(QCloseEvent* e)
+{
+  Q_EMIT SetupHide();
 }

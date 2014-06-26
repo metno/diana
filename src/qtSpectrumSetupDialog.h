@@ -58,43 +58,41 @@ public:
 protected:
   void closeEvent( QCloseEvent* );
 
-private:
-  SpectrumManager * spectrumm;
-
-  void initOptions(QWidget* parent);
-
-  void setup(SpectrumOptions *spopt);
-  void printSetup();
-  void applySetup();
-
-  QGridLayout* glayout;
-
-  std::vector<VcrossSetupUI*> spSetups;
-
-  bool isInitialized;
-
-  std::string TEXTPLOT;
-  std::string FIXEDTEXT;
-  std::string FRAME;
-  std::string SPECTRUMLINES;
-  std::string SPECTRUMCOLOUR;
-  std::string ENERGYLINE;
-  std::string ENERGYCOLOUR;
-  std::string PLOTWIND;
-  std::string PLOTPEAKDIREC;
-  std::string FREQUENCYMAX;
-  std::string BACKCOLOUR;
-
-private slots:
+private Q_SLOTS:
   void standardClicked();
   void helpClicked();
   void applyClicked();
   void applyhideClicked();
 
-signals:
+Q_SIGNALS:
   void SetupHide();
   void SetupApply();
   void showsource(const std::string&, const std::string& = ""); // activate help
+
+private:
+  void initOptions();
+  void setup(SpectrumOptions *spopt);
+  void printSetup();
+  void applySetup();
+
+private:
+  SpectrumManager * spectrumm;
+
+  QGridLayout* glayout;
+
+  bool isInitialized;
+
+  VcrossSetupUI* mSetupTEXTPLOT;
+  VcrossSetupUI* mSetupFIXEDTEXT;
+  VcrossSetupUI* mSetupFRAME;
+  VcrossSetupUI* mSetupSPECTRUMLINES;
+  VcrossSetupUI* mSetupSPECTRUMCOLOUR;
+  VcrossSetupUI* mSetupENERGYLINE;
+  VcrossSetupUI* mSetupENERGYCOLOUR;
+  VcrossSetupUI* mSetupPLOTWIND;
+  VcrossSetupUI* mSetupPLOTPEAKDIREC;
+  VcrossSetupUI* mSetupFREQUENCYMAX;
+  VcrossSetupUI* mSetupBACKCOLOUR;
 };
 
 #endif

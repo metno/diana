@@ -54,33 +54,17 @@
 #include <miLogger/miLogging.h>
 
 SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
-  : QDialog(parent), spectrumm(vm)
+  : QDialog(parent)
+  , spectrumm(vm)
+  , isInitialized(false)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::SpectrumSetupDialog called");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  //caption to appear on top of dialog
   setWindowTitle( tr("Diana Wavespectrum - settings") );
-
-  // text constants
- TEXTPLOT         =  tr("Text").toStdString();
- FIXEDTEXT        =  tr("Fixed text").toStdString();
- FRAME            =  tr("Frame").toStdString();
- SPECTRUMLINES    =  tr("Spectrum lines").toStdString();
- SPECTRUMCOLOUR   =  tr("Spectrum coloured").toStdString();
- ENERGYLINE       =  tr("Graph line").toStdString();
- ENERGYCOLOUR     =  tr("Graph coloured").toStdString();
- PLOTWIND         =  tr("Wind").toStdString();
- PLOTPEAKDIREC    =  tr("Max direction").toStdString();
- FREQUENCYMAX     =  tr("Max frequency").toStdString();
- BACKCOLOUR       =  tr("Background colour").toStdString();
 
   //******** create the various QT widgets to appear in dialog *****
 
-  spSetups.clear();
-  initOptions( this );
-
+  initOptions();
 
   //******** standard buttons **************************************
 
@@ -123,7 +107,6 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   vlayout->addLayout( hlayout1 );
   vlayout->addLayout( hlayout2 );
 
-  isInitialized=false;
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumSetupDialog::SpectrumSetupDialog finished");
@@ -131,7 +114,7 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
 }
 
 
-void SpectrumSetupDialog::initOptions(QWidget* parent)
+void SpectrumSetupDialog::initOptions()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("SpectrumSetupDialog::initOptions");
@@ -147,9 +130,9 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
 
   int nrow=0;
 
-  QLabel* label1= new QLabel(tr("On/off"),parent);
-  QLabel* label2= new QLabel(tr("Colour"),parent);
-  QLabel* label3= new QLabel(tr("Line thickness"),parent);
+  QLabel* label1= new QLabel(tr("On/off"), this);
+  QLabel* label2= new QLabel(tr("Colour"), this);
+  QLabel* label3= new QLabel(tr("Line thickness"), this);
 //QLabel* label4= new QLabel(tr("Line type"),parent);
   glayout->addWidget(label1,nrow,0);
   glayout->addWidget(label2,nrow,1);
@@ -157,30 +140,28 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
 //glayout->addWidget(label4,nrow,3);
   nrow++;
 
-  int n,opts;
-
-  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
-  spSetups.push_back(new VcrossSetupUI(parent,TEXTPLOT,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetupUI(parent,FIXEDTEXT,glayout,nrow++,opts));
+  int opts = (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
+  mSetupTEXTPLOT = new VcrossSetupUI(this, tr("Text"), glayout, nrow++, opts);
+  mSetupFIXEDTEXT = new VcrossSetupUI(this, tr("Fixed text"), glayout, nrow++, opts);
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth);
-  spSetups.push_back(new VcrossSetupUI(parent,FRAME,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetupUI(parent,SPECTRUMLINES,glayout,nrow++,opts));
+  mSetupFRAME = new VcrossSetupUI(this,tr("Frame"), glayout, nrow++, opts);
+  mSetupSPECTRUMLINES = new VcrossSetupUI(this,tr("Spectrum lines"), glayout, nrow++, opts);
   opts= (VcrossSetupUI::useOnOff);
-  spSetups.push_back(new VcrossSetupUI(parent,SPECTRUMCOLOUR,glayout,nrow++,opts));
+  mSetupSPECTRUMCOLOUR = new VcrossSetupUI(this, tr("Spectrum coloured"), glayout, nrow++, opts);
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth);
-  spSetups.push_back(new VcrossSetupUI(parent,ENERGYLINE,glayout,nrow++,opts));
+  mSetupENERGYLINE = new VcrossSetupUI(this, tr("Graph line"), glayout, nrow++, opts);
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
-  spSetups.push_back(new VcrossSetupUI(parent,ENERGYCOLOUR,glayout,nrow++,opts));
+  mSetupENERGYCOLOUR = new VcrossSetupUI(this, tr("Graph coloured"),glayout, nrow++, opts);
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth);
-  spSetups.push_back(new VcrossSetupUI(parent,PLOTWIND,glayout,nrow++,opts));
-  spSetups.push_back(new VcrossSetupUI(parent,PLOTPEAKDIREC,glayout,nrow++,opts));
+  mSetupPLOTWIND = new VcrossSetupUI(this, tr("Wind"), glayout, nrow++, opts);
+  mSetupPLOTPEAKDIREC = new VcrossSetupUI(this, tr("Max direction"), glayout, nrow++, opts);
 
   nrow++;
   opts= VcrossSetupUI::useTextChoice;
-  spSetups.push_back(new VcrossSetupUI(parent,FREQUENCYMAX,glayout,nrow++,opts));
+  mSetupFREQUENCYMAX = new VcrossSetupUI(this, tr("Max frequency"), glayout, nrow++, opts);
   std::vector<std::string> vfreq;
   vfreq.push_back(miutil::from_number(0.50));
   vfreq.push_back(miutil::from_number(0.45));
@@ -191,12 +172,11 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
   vfreq.push_back(miutil::from_number(0.20));
   vfreq.push_back(miutil::from_number(0.15));
   vfreq.push_back(miutil::from_number(0.10));
-  n= spSetups.size()-1;
-  spSetups[n]->defineTextChoice(vfreq,4);
+  mSetupFREQUENCYMAX->defineTextChoice(vfreq,4);
 
   nrow++;
   opts= VcrossSetupUI::useColour;
-  spSetups.push_back(new VcrossSetupUI(parent,BACKCOLOUR,glayout,nrow++,opts));
+  mSetupBACKCOLOUR = new VcrossSetupUI(this, tr("Background colour"), glayout, nrow++, opts);
 
   if (nrow!=numrows) {
     METLIBS_LOG_DEBUG("==================================================");
@@ -209,10 +189,7 @@ void SpectrumSetupDialog::initOptions(QWidget* parent)
 
 void SpectrumSetupDialog::standardClicked()
 {
-  //this slot is called when standard button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::standardClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
   SpectrumOptions * spopt= new SpectrumOptions; // diana defaults
   setup(spopt);
   delete spopt;
@@ -233,66 +210,42 @@ void SpectrumSetupDialog::start()
 
 void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::setup()");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  int n= spSetups.size();
+  mSetupTEXTPLOT->setChecked    (spopt->pText);
+  mSetupTEXTPLOT->setColour(spopt->textColour);
 
-  for (int i=0; i<n; i++) {
+  mSetupFIXEDTEXT->setChecked    (spopt->pFixedText);
+  mSetupFIXEDTEXT->setColour(spopt->fixedTextColour);
 
-    if (spSetups[i]->name== TEXTPLOT) {
-      spSetups[i]->setChecked    (spopt->pText);
-      spSetups[i]->setColour(spopt->textColour);
+  mSetupFRAME->setChecked       (spopt->pFrame);
+  mSetupFRAME->setColour   (spopt->frameColour);
+  mSetupFRAME->setLinewidth(spopt->frameLinewidth);
 
-    } else if (spSetups[i]->name== FIXEDTEXT) {
-      spSetups[i]->setChecked    (spopt->pFixedText);
-      spSetups[i]->setColour(spopt->fixedTextColour);
+  mSetupSPECTRUMLINES->setChecked       (spopt->pSpectrumLines);
+  mSetupSPECTRUMLINES->setColour   (spopt->spectrumLineColour);
+  mSetupSPECTRUMLINES->setLinewidth(spopt->spectrumLinewidth);
 
-    } else if (spSetups[i]->name== FRAME) {
-      spSetups[i]->setChecked       (spopt->pFrame);
-      spSetups[i]->setColour   (spopt->frameColour);
-      spSetups[i]->setLinewidth(spopt->frameLinewidth);
+  mSetupSPECTRUMCOLOUR->setChecked(spopt->pSpectrumColoured);
 
-    } else if (spSetups[i]->name== SPECTRUMLINES) {
-      spSetups[i]->setChecked       (spopt->pSpectrumLines);
-      spSetups[i]->setColour   (spopt->spectrumLineColour);
-      spSetups[i]->setLinewidth(spopt->spectrumLinewidth);
+  mSetupENERGYLINE->setChecked       (spopt->pEnergyLine);
+  mSetupENERGYLINE->setColour   (spopt->energyLineColour);
+  mSetupENERGYLINE->setLinewidth(spopt->energyLinewidth);
 
-    } else if (spSetups[i]->name== SPECTRUMCOLOUR) {
-      spSetups[i]->setChecked(spopt->pSpectrumColoured);
+  mSetupENERGYCOLOUR->setChecked       (spopt->pEnergyColoured);
+  mSetupENERGYCOLOUR->setColour   (spopt->energyFillColour);
 
-    } else if (spSetups[i]->name== ENERGYLINE) {
-      spSetups[i]->setChecked       (spopt->pEnergyLine);
-      spSetups[i]->setColour   (spopt->energyLineColour);
-      spSetups[i]->setLinewidth(spopt->energyLinewidth);
+  mSetupPLOTWIND->setChecked       (spopt->pWind);
+  mSetupPLOTWIND->setColour   (spopt->windColour);
+  mSetupPLOTWIND->setLinewidth(spopt->windLinewidth);
 
-    } else if (spSetups[i]->name== ENERGYCOLOUR) {
-      spSetups[i]->setChecked       (spopt->pEnergyColoured);
-      spSetups[i]->setColour   (spopt->energyFillColour);
+  mSetupPLOTPEAKDIREC->setChecked       (spopt->pPeakDirection);
+  mSetupPLOTPEAKDIREC->setColour   (spopt->peakDirectionColour);
+  mSetupPLOTPEAKDIREC->setLinewidth(spopt->peakDirectionLinewidth);
 
-    } else if (spSetups[i]->name== PLOTWIND) {
-      spSetups[i]->setChecked       (spopt->pWind);
-      spSetups[i]->setColour   (spopt->windColour);
-      spSetups[i]->setLinewidth(spopt->windLinewidth);
+  mSetupFREQUENCYMAX->setTextChoice(miutil::from_number(spopt->freqMax));
 
-    } else if (spSetups[i]->name== PLOTPEAKDIREC) {
-      spSetups[i]->setChecked       (spopt->pPeakDirection);
-      spSetups[i]->setColour   (spopt->peakDirectionColour);
-      spSetups[i]->setLinewidth(spopt->peakDirectionLinewidth);
-
-    } else if (spSetups[i]->name== FREQUENCYMAX) {
-      spSetups[i]->setTextChoice(miutil::from_number(spopt->freqMax));
-
-    } else if (spSetups[i]->name== BACKCOLOUR) {
-      spSetups[i]->setColour(spopt->backgroundColour);
-
-    } else {
-      METLIBS_LOG_ERROR("SpectrumSetupDialog::setup ERROR : "
-	  <<spSetups[i]->name);
-    }
-
-  }
+  mSetupBACKCOLOUR->setColour(spopt->backgroundColour);
 }
 
 
@@ -303,100 +256,68 @@ void SpectrumSetupDialog::applySetup()
 #endif
   SpectrumOptions * spopt= spectrumm->getOptions();
 
-  int n= spSetups.size();
+  spopt->pText=      mSetupTEXTPLOT->isChecked();
+  spopt->textColour= mSetupTEXTPLOT->getColour().name;
 
-  for (int i=0; i<n; i++) {
+  spopt->pFixedText=      mSetupFIXEDTEXT->isChecked();
+  spopt->fixedTextColour= mSetupFIXEDTEXT->getColour().name;
 
-    if (spSetups[i]->name== TEXTPLOT) {
-      spopt->pText=      spSetups[i]->isChecked();
-      spopt->textColour= spSetups[i]->getColour().name;
+  spopt->pFrame=         mSetupFRAME->isChecked();
+  spopt->frameColour=    mSetupFRAME->getColour().name;
+  spopt->frameLinewidth= mSetupFRAME->getLinewidth();
 
-    } else if (spSetups[i]->name== FIXEDTEXT) {
-      spopt->pFixedText=      spSetups[i]->isChecked();
-      spopt->fixedTextColour= spSetups[i]->getColour().name;
+  spopt->pSpectrumLines=     mSetupSPECTRUMLINES->isChecked();
+  spopt->spectrumLineColour= mSetupSPECTRUMLINES->getColour().name;
+  spopt->spectrumLinewidth=  mSetupSPECTRUMLINES->getLinewidth();
 
-    } else if (spSetups[i]->name== FRAME) {
-      spopt->pFrame=         spSetups[i]->isChecked();
-      spopt->frameColour=    spSetups[i]->getColour().name;
-      spopt->frameLinewidth= spSetups[i]->getLinewidth();
+  spopt->pSpectrumColoured= mSetupSPECTRUMCOLOUR->isChecked();
 
-    } else if (spSetups[i]->name== SPECTRUMLINES) {
-      spopt->pSpectrumLines=     spSetups[i]->isChecked();
-      spopt->spectrumLineColour= spSetups[i]->getColour().name;
-      spopt->spectrumLinewidth=  spSetups[i]->getLinewidth();
+  spopt->pEnergyLine=      mSetupENERGYLINE->isChecked();
+  spopt->energyLineColour= mSetupENERGYLINE->getColour().name;
+  spopt->energyLinewidth=  mSetupENERGYLINE->getLinewidth();
 
-    } else if (spSetups[i]->name== SPECTRUMCOLOUR) {
-      spopt->pSpectrumColoured= spSetups[i]->isChecked();
+  spopt->pEnergyColoured=  mSetupENERGYCOLOUR->isChecked();
+  spopt->energyFillColour= mSetupENERGYCOLOUR->getColour().name;
 
-    } else if (spSetups[i]->name== ENERGYLINE) {
-      spopt->pEnergyLine=      spSetups[i]->isChecked();
-      spopt->energyLineColour= spSetups[i]->getColour().name;
-      spopt->energyLinewidth=  spSetups[i]->getLinewidth();
+  spopt->pWind=         mSetupPLOTWIND->isChecked();
+  spopt->windColour=    mSetupPLOTWIND->getColour().name;
+  spopt->windLinewidth= mSetupPLOTWIND->getLinewidth();
 
-    } else if (spSetups[i]->name== ENERGYCOLOUR) {
-      spopt->pEnergyColoured=  spSetups[i]->isChecked();
-      spopt->energyFillColour= spSetups[i]->getColour().name;
+  spopt->pPeakDirection=         mSetupPLOTPEAKDIREC->isChecked();
+  spopt->peakDirectionColour=    mSetupPLOTPEAKDIREC->getColour().name;
+  spopt->peakDirectionLinewidth= mSetupPLOTPEAKDIREC->getLinewidth();
 
-    } else if (spSetups[i]->name== PLOTWIND) {
-      spopt->pWind=         spSetups[i]->isChecked();
-      spopt->windColour=    spSetups[i]->getColour().name;
-      spopt->windLinewidth= spSetups[i]->getLinewidth();
+  std::string str= mSetupFREQUENCYMAX->getTextChoice();
+  spopt->freqMax= atof(str.c_str());
 
-    } else if (spSetups[i]->name== PLOTPEAKDIREC) {
-      spopt->pPeakDirection=         spSetups[i]->isChecked();
-      spopt->peakDirectionColour=    spSetups[i]->getColour().name;
-      spopt->peakDirectionLinewidth= spSetups[i]->getLinewidth();
-
-    } else if (spSetups[i]->name== FREQUENCYMAX) {
-      std::string str= spSetups[i]->getTextChoice();
-      spopt->freqMax= atof(str.c_str());
-
-    } else if (spSetups[i]->name== BACKCOLOUR) {
-      spopt->backgroundColour= spSetups[i]->getColour().name;
-
-    } else {
-      METLIBS_LOG_ERROR("SpectrumSetupDialog::applySetup ERROR : "
-	  <<spSetups[i]->name);
-    }
-
-  }
+  spopt->backgroundColour= mSetupBACKCOLOUR->getColour().name;
 }
 
 
 void SpectrumSetupDialog::helpClicked()
 {
-  //this slot is called when help button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::helpClicked()");
-#endif
-  emit showsource("ug_spectrum.html");
+  Q_EMIT showsource("ug_spectrum.html");
 }
 
 
 void SpectrumSetupDialog::applyClicked()
 {
-  //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::applyClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
   applySetup();
-  emit SetupApply();
+  Q_EMIT SetupApply();
 }
 
 
 void SpectrumSetupDialog::applyhideClicked()
 {
-  //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("SpectrumSetupDialog::applyhideClicked()");
-#endif
+  METLIBS_LOG_SCOPE();
   applySetup();
-  emit SetupHide();
-  emit SetupApply();
+  Q_EMIT SetupHide();
+  Q_EMIT SetupApply();
 }
 
 
-void SpectrumSetupDialog::closeEvent( QCloseEvent* e)
+void SpectrumSetupDialog::closeEvent(QCloseEvent* e)
 {
-  emit SetupHide();
+  Q_EMIT SetupHide();
 }

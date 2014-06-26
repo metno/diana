@@ -56,9 +56,9 @@ int                VcrossSetupUI::nr_linewidths=0;
 int                VcrossSetupUI::nr_linetypes=0;
 std::vector<std::string>   VcrossSetupUI::linetypes;
 
-VcrossSetupUI::VcrossSetupUI( QWidget* parent, const std::string& text,
+VcrossSetupUI::VcrossSetupUI(QWidget* parent, const QString& name,
     QGridLayout * glayout, int row, int options)
-  : QObject(parent),name(text)
+  : QObject(parent)
 {
   METLIBS_LOG_SCOPE();
 
@@ -90,15 +90,15 @@ VcrossSetupUI::VcrossSetupUI( QWidget* parent, const std::string& text,
   int ncol = 0;
 
   if (options & useOnOff) {
-    checkbox = new QCheckBox(QString::fromStdString(text),parent);
+    checkbox = new QCheckBox(name, parent);
     label= 0;
     glayout->addWidget(checkbox,row,ncol);
     connect( checkbox, SIGNAL( toggled(bool)), SLOT( setChecked( bool) ));
     ncol++;
   } else{
     checkbox= 0;
-    label = new QLabel(QString::fromStdString(text),parent);
-    glayout->addWidget(label,row,ncol,Qt::AlignLeft);
+    label = new QLabel(name, parent);
+    glayout->addWidget(label, row,ncol,Qt::AlignLeft);
     ncol++;
   }
 
@@ -110,14 +110,14 @@ VcrossSetupUI::VcrossSetupUI( QWidget* parent, const std::string& text,
     colourbox=0;
 
   if (options & useLineWidth) {
-    linewidthbox =  LinewidthBox( parent, true);
+    linewidthbox =  LinewidthBox(parent, true);
     glayout->addWidget(linewidthbox,row,ncol);
     ncol++;
   } else
     linewidthbox=0;
 
   if (options & useLineType) {
-    linetypebox = LinetypeBox( parent,true );
+    linetypebox = LinetypeBox(parent,true );
     glayout->addWidget(linetypebox,row,ncol);
     ncol++;
   } else

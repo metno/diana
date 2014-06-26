@@ -2782,8 +2782,6 @@ void VcrossDialog::resetOptions()
 
 void VcrossDialog::applyClicked()
 {
-  if (historyOkButton->isEnabled())
-    historyOk();
   const std::vector<std::string> vstr = getOKString();
   bool modelChange = vcrossm->setSelection(vstr);
   /*emit*/ VcrossDialogApply(modelChange);
