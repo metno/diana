@@ -488,7 +488,7 @@ bool QtManager::setSelection(const string_v& vstr)
 
   // save plotStrings
   mPlotStrings = vstr;
-
+  mPlot->clear();
   vc_select_plots(mCollector, vstr);
 
   if (not mCollector->getSelectedPlots().empty()) {
