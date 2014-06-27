@@ -174,7 +174,7 @@ void GLwidget::editPaint(bool drawb)
     contr->plot(false, true); // draw overlay
 
   swapBuffers();
-#endif // USE_PAINTGL
+#endif
 }
 
 //  Set up the OpenGL rendering state
@@ -306,7 +306,7 @@ void GLwidget::handleMouseEvents(QMouseEvent* me)
     if (res.background) {
       updateGL(); // full paint
     } else {
-      editPaint(true); // only editPaint
+      editPaint(); // only editPaint
     }
   }
 }
@@ -343,7 +343,7 @@ void GLwidget::handleKeyEvents(QKeyEvent* ke)
     if (res.background) {
       updateGL(); // full paint
     } else {
-      editPaint(true); // ..only editPaint
+      editPaint(); // ..only editPaint
     }
   }
 }
