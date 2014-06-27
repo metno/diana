@@ -82,7 +82,7 @@ GLwidget::GLwidget(Controller* c, QWidget* parent) :
 
   EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("EDITDRAWING"));
   if (editm)
-    connect(editm, SIGNAL(repaintNeeded()), this, SLOT(editPaint())); // e.g. during undo/redo
+    connect(editm, SIGNAL(repaintNeeded()), this, SLOT(updateGL())); // e.g. during undo/redo
 }
 
 //  Release allocated resources
