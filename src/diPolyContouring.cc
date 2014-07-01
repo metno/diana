@@ -51,8 +51,7 @@ int find_index(bool repeat, int available, int i)
 
 class DianaArrayIndex {
 public:
-  DianaArrayIndex(size_t nx, size_t x0, size_t y0, size_t x1, size_t y1, size_t step=0)
-    : mNX(nx), mX0(x0), mY0(y0), mStep(std::max((size_t)1, step)), mSX((x1-x0)/mStep), mSY((y1-y0)/mStep) { }
+  DianaArrayIndex(size_t nx, size_t ny, size_t x0, size_t y0, size_t x1, size_t y1, size_t step=1);
 
   size_t size_x() const
     { return mSX; }
@@ -67,8 +66,19 @@ public:
     { return index(ix, iy); }
 
 private:
-  size_t mNX, mX0, mY0, mStep, mSX, mSY;
+  size_t mNX, mNY, mStep, mX0, mY0, mSX, mSY;
 };
+
+DianaArrayIndex::DianaArrayIndex(size_t nx, size_t ny, size_t x0, size_t y0, size_t x1, size_t y1, size_t step)
+  : mNX(nx)
+  , mNY(ny)
+  , mStep(std::max((size_t)1, step))
+  , mX0(mStep * (x0/mStep))
+  , mY0(mStep * (y0/mStep))
+  , mSX((std::min(x1+mStep-1, mNX)-mX0)/mStep)
+  , mSY((std::min(y1+mStep-1, mNY)-mY0)/mStep)
+{
+}
 
 // ########################################################################
 
@@ -542,7 +552,7 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
 {
   DianaLevels_p levels = dianaLevelsForPlotOptions(poptions, fieldUndef);
 
-  const DianaArrayIndex index(nx, ix0, iy0, ix1, iy1, poptions.lineSmooth);
+  const DianaArrayIndex index(nx, ny, ix0, iy0, ix1, iy1, poptions.lineSmooth);
   DianaPositions_p positions = boost::make_shared<DianaPositionsList>(index, xz, yz);
 
   const DianaField df(index, z, *levels, *positions);
