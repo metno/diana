@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #ifndef diObsPlot_h
 #define diObsPlot_h
 
@@ -50,7 +50,7 @@
   - metar plot
   - list plot
 
-*/
+ */
 class ObsPlot : public Plot {
 
 private:
@@ -147,11 +147,11 @@ private:
   bool ccriteria;
   bool tccriteria;
   bool mcriteria;
-
+  std::map<std::string,bool > sortcriteria;
   //which parameters to plot
   std::map<std::string,bool> pFlag;
 
-//Positions of plotted observations
+  //Positions of plotted observations
   struct UsedBox {
     float x1,x2,y1,y2;
   };
@@ -218,6 +218,7 @@ private:
   void readPriorityFile(const std::string& filename);
 
   void decodeCriteria(std::string critStr);
+  void decodeSort(std::string sortStr);
   bool checkPlotCriteria(int index);
   void checkTotalColourCriteria(int index);
   std::string checkMarkerCriteria(int index);
@@ -227,14 +228,14 @@ private:
   bool positionFree(const float&, const float&, float);
   bool positionFree(float,float, float,float);
   void areaFreeSetup(float scale, float space, int num,
-		     float xdist, float ydist);
+      float xdist, float ydist);
   bool areaFree(int idx);
 
   void printUndef(float& , float&, std::string ="left");
   void printList(float f, float& xpos, float& ypos,
-		   int precision, std::string align="left", std::string opt="");
+      int precision, std::string align="left", std::string opt="");
   void printNumber(float, float, float, std::string ="left",
-		   bool =false, bool =false);
+      bool =false, bool =false);
   void printAvvik(float, float, float, std::string ="left");
   void printTime(miutil::miTime, float, float, std::string ="left", std::string ="");
   void printListString(const char *, float&, float& ,std::string ="left");
@@ -251,17 +252,18 @@ private:
   void plotWind(int dd,float ff_ms, bool ddvar,float &radius,float current=-1);
   //  void plotArrow(int,int, bool,float &);
   void weather(short int ww, float & TTT, int& zone,
-	       float x, float y, float scale=1, std::string align="left");
+      float x, float y, float scale=1, std::string align="left");
   void pastWeather(int w, float x, float y,
-		   float scale=1, std::string align="left");
+      float scale=1, std::string align="left");
   void wave(const float& PwPw, const float& HwHw,
-	    float x, float y, std::string align="left");
+      float x, float y, std::string align="left");
   int visibility(float vv, bool ship);
   int vis_direction(float dv);
   void amountOfClouds(short int, short int, float,float);
   void amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar=false);
   void amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y, bool metar=false);
   void checkAccumulationTime(ObsData &dta);
+  bool updateDeltaTime(ObsData &dta, miutil::miTime nowTime);
   void checkGustTime(ObsData &dta);
   void checkMaxWindTime(ObsData &dta);
   void plotSynop(int index);
@@ -273,6 +275,7 @@ private:
   void plotDBSynop(int index);
   void plotDBMetar(int index);
 #endif
+  void parameter_sort(std::string parameter, bool minValue);
   void priority_sort(void);
   void time_sort(void);
 
@@ -394,7 +397,7 @@ public:
   static int ucount;
 #endif
 
-//Hqc
+  //Hqc
   bool flagInfo(){return flaginfo;}
   void setHqcFlag(const std::string& flag){hqcFlag=flag;}
   void setSelectedStation(const std::string& station){selectedStation=station;}

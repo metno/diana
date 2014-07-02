@@ -51,6 +51,8 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 #include <iomanip>
 #include <sstream>
@@ -100,6 +102,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
     datatype.push_back(dialogInfo.datatype[i]);
   }
   button = dialogInfo.button;
+
 
   // Info about sliders, check boxes etc.
   pressureLevels = dialogInfo.pressureLevels.size();
@@ -390,10 +393,23 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   QLabel *priLabel = new QLabel( tr("Priority "), this);
   pricheckbox = new QCheckBox(tr("Prioritized only"), this);
 
+  //Parameter sort
+  std::vector<std::string> buttonNames;
+  for(unsigned int i=0; i<button.size(); i++)
+    buttonNames.push_back(button[i].name);
+
+  QLabel *sortLabel = new QLabel( tr("Sort "), this);
+  sortBox = ComboBox( this,buttonNames,true);
+  sortBox->insertItem(0,tr("No sort criteria"));
+  sortRadiogroup = new QButtonGroup( this );
+  ascsortButton = new QRadioButton(tr("Asc"), this);
+  descsortButton = new QRadioButton(tr("Desc"), this);
+  sortRadiogroup->addButton(ascsortButton);
+  sortRadiogroup->addButton(descsortButton);
+
   //Colour
   QLabel *colourLabel = new QLabel( tr("Colour"), this);
   colourBox = ColourBox( this, cInfo, true, colIndex );
-
 
   // CONNECT
   connect( densitySlider,SIGNAL( valueChanged(int)),SLOT(displayDensity(int)));
@@ -402,17 +418,22 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   connect( diffComboBox,SIGNAL(activated(int)),SLOT(diffComboBoxSlot(int)));
   connect( pribox, SIGNAL( activated(int) ), SLOT( priSelected(int) ) );
 
-  // Layout for priority list, colours, criteria and extension
+  // Layout for priority list, sort, colours, criteria and extension
   QGridLayout* prilayout = new QGridLayout();
 
   prilayout->addWidget( priLabel, 0, 0 );
   prilayout->addWidget( pribox, 0, 1 );
   prilayout->addWidget( pricheckbox, 0, 2 );
 
+  prilayout->addWidget( sortLabel, 1, 0 );
+  prilayout->addWidget( sortBox, 1, 1 );
+  prilayout->addWidget( ascsortButton, 1, 2 );
+  prilayout->addWidget( descsortButton, 1, 3 );
+
 
   //QHBoxLayout* colourlayout = new QHBoxLayout();
-  prilayout->addWidget( colourLabel, 1, 0 );
-  prilayout->addWidget( colourBox, 1, 1 );
+  prilayout->addWidget( colourLabel, 2, 0 );
+  prilayout->addWidget( colourBox, 2, 1 );
 
   // layout
   datatypelayout = new QHBoxLayout();
@@ -822,7 +843,6 @@ std::string ObsWidget::getOKString(bool forLog)
     dVariables.misc["density"]= tmp;
   }
 
-
   std::string sc = miutil::from_number(sizeLcdnum->value());
   dVariables.misc["scale"] = sc;
 
@@ -860,8 +880,7 @@ std::string ObsWidget::getOKString(bool forLog)
         if(j<m-1) str += ";";
       }
     }
-  } else{
-    if(!criteriaCheckBox->isChecked()) return str;
+  } else if(criteriaCheckBox->isChecked()) {
     int m = savedCriteria.criteria.size();
     if( m==0 ) return str;
     str+= " criteria=";
@@ -876,7 +895,12 @@ std::string ObsWidget::getOKString(bool forLog)
     }
   }
 
-
+  if(sortBox->currentIndex() > 0 && !sortBox->currentText().isEmpty()) {
+    str+= " sort=";
+    str+= sortBox->currentText().toStdString();
+    str+=",";
+    str+= descsortButton->isChecked() ? "desc" : "asc";
+  }
   return str;
 }
 
@@ -952,6 +976,7 @@ void ObsWidget::updateDialog(bool setChecked){
       parameterButtons->setButtonOn(dVariables.parameter[j]);
     }
   }
+
   //temp precision
   if (dVariables.misc.count("tempprecision") &&
       dVariables.misc["tempprecision"] == "true"){
@@ -1144,6 +1169,31 @@ void ObsWidget::updateDialog(bool setChecked){
     pricheckbox->setChecked(true);
   }
 
+  //Sort Criteria
+  if(dVariables.misc.count("sort")){
+    std::vector<std::string> sc = miutil::split(dVariables.misc["sort"], 0, ",");
+    int index = -1;
+    for(unsigned int i=0; i<button.size(); i++) {
+      if (sc[0]== button[i].name) {
+        index = i+1;
+        break;
+      }
+    }
+    if ( index != -1 ) { // -1 for not found
+      sortBox->setCurrentIndex(index);
+    } else {
+      sortBox->setCurrentIndex(0);
+    }
+    if(sc.size() > 1 && sc[1] == "desc") {
+      descsortButton->setChecked(true);
+    } else {
+      ascsortButton->setChecked(true);
+    }
+  } else {
+    sortBox->setCurrentIndex(0);
+    ascsortButton->setChecked(true);
+  }
+
   //colour
   if (dVariables.misc.count("colour") ){
     number= getIndex( cInfo, dVariables.misc["colour"]);
@@ -1169,9 +1219,9 @@ void ObsWidget::decodeString(const std::string& str, dialogVariables& var,
         var.plotType = tokens[1];
       } else if (tokens[0]=="data" ){
         var.data = miutil::split(tokens[1], 0, ",");
-      }else if (tokens[0]=="parameter" ){
+      } else if (tokens[0]=="parameter" ){
         var.parameter = miutil::split(tokens[1], 0, ",");
-      }else if (tokens[0]=="criteria" ){
+      } else if (tokens[0]=="criteria" ){
         if(!fromLog){
           var.misc[tokens[0]]="true";
           std::string ss = tokens[1];

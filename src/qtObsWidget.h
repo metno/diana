@@ -48,6 +48,8 @@ class QHBoxLayout;
 class QGridLayout;
 class QCheckBox;
 class QLCDNumber;
+class QRadioButton;
+class QButtonGroup;
 
 class ButtonLayout;
 
@@ -160,6 +162,11 @@ private:
 
   QCheckBox* criteriaCheckBox;
   ToggleButton* moreButton;
+
+  QComboBox* sortBox;
+  QButtonGroup* sortRadiogroup;
+  QRadioButton* ascsortButton;
+  QRadioButton* descsortButton;
 
   std::vector<ObsDialogInfo::PriorityList> priorityList;
   std::vector<ObsDialogInfo::CriteriaList> criteriaList;

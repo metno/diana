@@ -586,6 +586,8 @@ bool ObsPlot::prepare(const std::string& pin)
           moretimes = true;
         else
           moretimes = false;
+       } else if (key == "sort") {
+         decodeSort(tokens[i]);
       } else if (key == "allairepslevels") {
         if (value == "true")
           allAirepsLevels = true;
@@ -815,7 +817,17 @@ bool ObsPlot::setData(void)
       x[i] = obsp[i].xpos;
       y[i] = obsp[i].ypos;
     }
+
   }
+
+   // Set deltaTime
+   bool setDeltaTime = std::find(columnName.begin(), columnName.end(), "DeltaTime")!=columnName.end();
+   if(setDeltaTime) {
+     miutil::miTime nowTime = miutil::miTime::nowTime();
+     for (i = 0; i < numObs; i++)
+         updateDeltaTime(obsp[i], nowTime);
+  }
+
 
   // convert points to correct projection
   gc.geo2xy(area, numObs, x, y);
@@ -923,9 +935,17 @@ bool ObsPlot::setData(void)
   //sort stations according to time
   if (moretimes)
     time_sort();
+	// sort according to parameter
+  for(std::map<string,bool>::iterator iter = sortcriteria.begin(); iter != sortcriteria.end(); ++iter)
+  {
+    parameter_sort(iter->first, iter->second);
+  }
+ 
 
   if (plottype == "metar" && metarMap.size() == 0)
     initMetarMap();
+
+
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Number of stations: "<<numObs);
@@ -1285,6 +1305,110 @@ void ObsPlot::time_sort(void)
   METLIBS_LOG_DEBUG("++ End ObsPlot::time_sort() ++");
 #endif
 }
+
+  void ObsPlot::parameter_sort(std::string parameter, bool minValue)
+  {
+  
+  #ifdef DEBUGPRINT
+    METLIBS_LOG_DEBUG("++ ObsPlot::parameter_sort() ++");
+  #endif
+    //sort the observations according to priority list
+    if (obsp.size() == 0) {
+      return;
+    }
+  
+    int numObs = obsp.size();
+  
+    vector<int> tmpFileList = all_from_file;
+    vector<int> tmpStnList = all_stations;
+  
+    multimap<string, int> stringFileSortmap;
+    multimap<string, int> stringStnSortmap;
+    multimap<double, int> numFileSortmap;
+    multimap<double, int> numStnSortmap;
+  
+    // Fill the observation with parameter
+    // and mark them in tmpList
+    int index;
+    for (int i = 0; i < tmpFileList.size(); i++ ){
+      index = all_stations[i];
+      if(obsp[index].stringdata.count(parameter)) {
+        string stringkey = obsp[index].stringdata[parameter];
+        if(miutil::is_number(stringkey))
+        {
+          double numberkey = miutil::to_double(stringkey);
+          numFileSortmap.insert(pair<double, int> (numberkey, index));
+        }
+        else {
+          stringFileSortmap.insert(pair<string, int> (stringkey, index));
+        }
+        tmpFileList[i] = -1;
+  
+      }
+    }
+  
+    for (int i = 0; i < tmpStnList.size(); i++ ){
+      index = all_stations[i];
+      if(obsp[index].stringdata.count(parameter)) {
+        string stringkey = obsp[index].stringdata[parameter];
+        if(miutil::is_number(stringkey))
+        {
+          double numberkey = miutil::to_double(stringkey);
+          numStnSortmap.insert(pair<double, int> (numberkey, index));
+        }
+        else {
+          stringStnSortmap.insert(pair<string, int> (stringkey, index));
+        }
+        tmpStnList[i] = -1;
+  
+      }
+    }
+  
+    all_from_file.clear();
+    all_stations.clear();
+    if(!minValue) {
+      for(multimap<double, int>::iterator p = numFileSortmap.begin(); p != numFileSortmap.end(); p++) {
+        all_from_file.push_back(p->second);
+      }
+      for(multimap<string, int>::iterator p = stringFileSortmap.begin(); p != stringFileSortmap.end(); p++) {
+        all_from_file.push_back(p->second);
+      }
+  
+      for(multimap<double, int>::iterator p = numStnSortmap.begin(); p != numStnSortmap.end(); p++) {
+        all_stations.push_back(p->second);
+     }
+     for(multimap<string, int>::iterator p = stringStnSortmap.begin(); p != stringStnSortmap.end(); p++) {
+       all_stations.push_back(p->second);
+     }
+   }
+   else {
+     for(multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin(); p != stringFileSortmap.rend(); p++) {
+       all_from_file.push_back(p->second);
+     }
+     for(multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin(); p != numFileSortmap.rend(); p++) {
+       all_from_file.push_back(p->second);
+     }
+     for(multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin(); p != stringStnSortmap.rend(); p++) {
+       all_stations.push_back(p->second);
+     }
+     for(multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin(); p != numStnSortmap.rend(); p++) {
+       all_stations.push_back(p->second);
+     }
+   }
+ 
+   if (!showOnlyPrioritized) {
+     for (int i = 0; i < tmpFileList.size(); i++)
+       if (tmpFileList[i] != -1) {
+         all_from_file.push_back(tmpFileList[i]);
+       }
+ 
+     for (int i = 0; i < tmpStnList.size(); i++)
+       if (tmpStnList[i] != -1) {
+         all_stations.push_back(tmpStnList[i]);
+       }
+   }
+ }
+ 
 
 void ObsPlot::readPriorityFile(const std::string& filename)
 {
@@ -1911,6 +2035,15 @@ bool ObsPlot::plot()
     METLIBS_LOG_DEBUG("++ Returning from ObsPlot::plot(), Nothing to plot ++");
 #endif
     return false;
+  }
+
+	  // Update observation delta time before checkPlotCriteria
+  if (plottype == "ascii" && std::find(columnName.begin(), columnName.end(), "DeltaTime")!=columnName.end()) {
+    miutil::miTime nowTime = miutil::miTime::nowTime();
+    for (int i = 0; i < numObs; i++) {
+      if( updateDeltaTime(obsp[i], nowTime) )
+        dirty = true;
+    }
   }
 
   Colour selectedColour = origcolour;
@@ -6578,6 +6711,15 @@ void ObsPlot::checkGustTime(ObsData &dta)
   }
 }
 
+bool ObsPlot::updateDeltaTime(ObsData &dta, miutil::miTime nowTime)
+{
+  if(dta.obsTime.undef())
+    return false;
+
+  dta.stringdata["DeltaTime"] = miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime));
+  return true;
+}
+
 void ObsPlot::checkMaxWindTime(ObsData &dta)
 {
 
@@ -7188,6 +7330,23 @@ bool ObsPlot::readTable(const std::string& type, const std::string& filename)
   delete[] table;
 
   return true;
+}
+
+void ObsPlot::decodeSort(std::string sortStr) {
+  sortStr = sortStr.substr(sortStr.find_first_of("=") + 1, sortStr.size() - 1);
+  vector<std::string> vstr = miutil::split(sortStr, ";");
+  int nvstr = vstr.size();
+  sortcriteria.clear();
+
+  for (int i = 0; i < nvstr; i++) {
+    vector<std::string> vcrit = miutil::split(vstr[i], ",");
+    if (vcrit.size() > 1 && miutil::to_lower(vcrit[1]) == "desc") {
+      sortcriteria[vcrit[0]] = false;
+    }
+    else {
+      sortcriteria[vcrit[0]] = true;
+    }
+  }
 }
 
 void ObsPlot::decodeCriteria(std::string critStr)
