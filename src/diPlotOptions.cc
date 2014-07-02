@@ -192,6 +192,8 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
   const std::string key_colours= "colours";
   // colours:    list of colours in palette
   const std::string key_palettecolours= "palettecolours";
+  // colours:    list of colours in palette
+  const std::string key_filepalette= "file.palette";
   // linetype:   linetype
   const std::string key_linetype= "linetype";
   // linetype:   linetype
@@ -453,6 +455,9 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
               po.palettecolours_cold = cs.getColourShading();
           }
         }
+
+      } else if (key==key_filepalette){
+        po.filePalette = value;
 
       } else if (key==key_linetype){
         po.linetype = Linetype(value);
@@ -1073,6 +1078,10 @@ std::string PlotOptions::toString()
       ostr << " palettecolours="<<palettename;
     } else {
       ostr << " palettecolours=off";
+    }
+
+    if( !filePalette.empty() ) {
+      ostr << " file.palette=" <<filePalette;
     }
 
     if (patterns.size() >0 ) {

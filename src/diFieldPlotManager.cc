@@ -534,7 +534,7 @@ bool FieldPlotManager::addGridCollection(const std::string fileType,
 bool FieldPlotManager::makeFields(const std::string& pin_const,
     const miTime& const_ptime, vector<Field*>& vfout, bool toCache)
 {
-  METLIBS_LOG_DEBUG("makeFields pin: "<<pin_const);
+  METLIBS_LOG_SCOPE(LOGVAL(pin_const));
 
   // if difference
   std::string fspec1,fspec2;
@@ -1049,6 +1049,8 @@ void FieldPlotManager::parseString( std::string& pin,
         if (vtoken[1] == "1" || vtoken[1] == "on" || vtoken[1] == "true") {
           fieldrequest.allTimeSteps = true;
         }
+      } else if (key == "file.palette") {
+        fieldrequest.palette = vtoken[1];
       } else if (key == "forecast.hour") {
        std::vector<std::string> values;
        boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));

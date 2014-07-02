@@ -191,14 +191,33 @@ bool FieldPlot::setData(const vector<Field*>& vf, const miTime& t)
   fields = vf;
   ftime = t;
 
+
+
+
   if (fields.empty()) {
     plotname = "";
   } else {
     plotname = fields[0]->fulltext;
     analysisTime = fields[0]->analysisTime;
+    if ( fields[0]->palette && fields[0]->palette->npoint() > 2) {
+      vector<Colour> palette;
+      bool alpha = (fields[0]->palette->npoint() == 4);
+      for ( size_t i = 0; i<fields[0]->palette->nlevel(); ++i ) {
+        unsigned char r = fields[0]->palette->value(0,i);
+        unsigned char g = fields[0]->palette->value(1,i);
+        unsigned char b = fields[0]->palette->value(2,i);
+        unsigned char a = 255;
+        if ( alpha )
+          a = fields[0]->palette->value(3,i);
+        Colour c1= Colour(r,g,b,a);
+        palette.push_back(c1);
+      }
+      poptions.palettecolours = palette;
+    }
   }
   return true;
 }
+
 
 struct aTable {
   std::string colour;

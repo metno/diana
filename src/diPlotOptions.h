@@ -103,6 +103,7 @@ public:
   std::vector<Colour> colours;
   std::vector<Colour> palettecolours;
   std::vector<Colour> palettecolours_cold;
+  std::string filePalette;
   std::string palettename;
   std::string patternname;
   int table;
