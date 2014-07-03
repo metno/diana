@@ -122,14 +122,14 @@ QSharedPointer<Layer> LayerManager::createNewLayer(const QString &name) const
   return layer;
 }
 
-QSharedPointer<Layer> LayerManager::createDuplicateLayer(const QSharedPointer<Layer> &srcLayer) const
+QSharedPointer<Layer> LayerManager::createDuplicateLayer(const QSharedPointer<Layer> &srcLayer, const DrawingManager *dm) const
 {
   if (!srcLayer) {
     Q_ASSERT(false);
     return QSharedPointer<Layer>();
   }
 
-  QSharedPointer<Layer> layer(new Layer(*(srcLayer.data())));
+  QSharedPointer<Layer> layer(new Layer(*(srcLayer.data()), dm));
   ensureUniqueLayerName(layer);
   return layer;
 }

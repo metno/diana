@@ -38,22 +38,20 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
-#include "duplicate.xpm"
 #include "edit.xpm"
 #include "hideall.xpm"
-#include "mergevisible.xpm"
 #include "movedown.xpm"
 #include "moveup.xpm"
-#include "remove.xpm"
 #include "showall.xpm"
 #include "visible.xpm"
 #include "unsavedchanges.xpm"
-#include "filesave.xpm"
 
 class QVBoxLayout;
 class QHBoxLayout;
 class QToolButton;
 class QLabel;
+class QMenu;
+class QAction;
 
 namespace EditItems {
 
@@ -113,15 +111,11 @@ protected:
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_;
-  QToolButton *mergeVisibleButton_;
   QToolButton *showAllButton_;
   QToolButton *hideAllButton_;
-  QToolButton *duplicateCurrentButton_;
-  QToolButton *removeCurrentButton_;
   QToolButton *moveCurrentUpButton_;
   QToolButton *moveCurrentDownButton_;
   QToolButton *editCurrentButton_;
-  QToolButton *saveVisibleButton_;
   QToolButton *importFilesButton_;
   bool showInfo_;
 
@@ -135,9 +129,7 @@ protected: // ### some of these may be private ... TBD
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
   void ensureCurrentVisible();
-  void duplicate(LayerWidget *);
   void remove(LayerWidget *, bool = false);
-  void remove(int);
   void move(LayerWidget *, bool);
   void moveUp(LayerWidget *);
   void moveUp(int);
@@ -152,20 +144,19 @@ protected:
   LayerManager *layerMgr_;
   QHBoxLayout *bottomLayout_; // populated by subclass
   virtual void updateButtons();
+  virtual void addContextMenuActions(QMenu &) const {}
+  virtual bool handleContextMenuAction(const QAction *, LayerWidget *) { return false; }
+  virtual bool handleKeyPressEvent(QKeyEvent *) { return false; }
 
 protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
   void mouseDoubleClicked(QMouseEvent *);
   void ensureCurrentVisibleTimeout();
-  void mergeVisible();
   void showAll();
   void hideAll();
-  void duplicateCurrent();
-  void removeCurrent();
   void moveCurrentUp();
   void moveCurrentDown();
   void editCurrent();
-  void saveVisible() const;
   void handleWidgetsUpdate();
   void updateWidgetStructure();
 

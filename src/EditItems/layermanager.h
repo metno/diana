@@ -39,6 +39,8 @@
 
 #define CurrLayer layerMgr_->currentLayer()
 
+class DrawingManager;
+
 namespace EditItems {
 
 class LayerGroup;
@@ -60,7 +62,7 @@ public:
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
   QSharedPointer<Layer> createNewLayer(const QString & = QString()) const;
-  QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &) const;
+  QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &, const DrawingManager *) const;
   void mergeLayers(const QList<QSharedPointer<Layer> > &, const QSharedPointer<Layer> &) const;
   const QList<QSharedPointer<LayerGroup> > &layerGroups() const;
   const QList<QSharedPointer<Layer> > &orderedLayers() const;

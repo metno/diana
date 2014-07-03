@@ -42,14 +42,14 @@ Layer::Layer(const QString &name)
 {
 }
 
-Layer::Layer(const Layer &other)
+Layer::Layer(const Layer &other, const DrawingManager *dm)
   : id_(nextId())
   , visible_(other.visible_)
   , unsavedChanges_(false)
   , name_(QString("copy of %1").arg(other.name()))
 {
   foreach (const QSharedPointer<DrawingItemBase> item, other.items_)
-    insertItem(QSharedPointer<DrawingItemBase>(item->clone()), false);
+    insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
 }
 
 Layer::~Layer()

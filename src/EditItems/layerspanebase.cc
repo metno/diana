@@ -35,10 +35,8 @@
 #include <EditItems/layermanager.h>
 #include <EditItems/kml.h>
 #include <EditItems/dialogcommon.h>
-#include <diEditItemManager.h>
 
 #include <QApplication>
-#include <QFileDialog>
 #include <QAction>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -215,15 +213,11 @@ void LayerWidget::handleVisibilityChanged(bool visible)
 }
 
 LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title)
-  : mergeVisibleButton_(0)
-  , showAllButton_(0)
+  : showAllButton_(0)
   , hideAllButton_(0)
-  , duplicateCurrentButton_(0)
-  , removeCurrentButton_(0)
   , moveCurrentUpButton_(0)
   , moveCurrentDownButton_(0)
   , editCurrentButton_(0)
-  , saveVisibleButton_(0)
   , importFilesButton_(0)
   , showInfo_(false)
   , layerMgr_(layerManager)
@@ -284,6 +278,11 @@ void LayersPaneBase::initLayerWidget(LayerWidget *layerWidget)
 
 void LayersPaneBase::keyPressEvent(QKeyEvent *event)
 {
+  // try special handling
+  if (handleKeyPressEvent(event))
+    return;
+
+  // try common handling
   if (event->matches(QKeySequence::Quit)) {
     qApp->quit();
   } else if (event->key() == Qt::Key_Up) {
@@ -296,8 +295,6 @@ void LayersPaneBase::keyPressEvent(QKeyEvent *event)
       moveCurrentDown();
     else
       setCurrentIndex(currentPos() + 1);
-  } else if ((event->key() == Qt::Key_Delete) || (event->key() == Qt::Key_Backspace)) {
-    removeCurrent();
   } else {
     QWidget::keyPressEvent(event);
   }
@@ -349,28 +346,6 @@ LayerWidget *LayersPaneBase::atPos(int pos)
   return 0;
 }
 
-void LayersPaneBase::duplicate(LayerWidget *srcLayerWidget)
-{
-#if 0
-  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(srcLayerWidget->layer());
-  layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
-  const int srcIndex = layout_->indexOf(srcLayerWidget);
-  LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
-  layout_->insertWidget(srcIndex + 1, newLayerWidget);
-  initialize(newLayerWidget);
-  setCurrent(newLayerWidget);
-  ensureCurrentVisible();
-  handleWidgetsUpdate();
-#else
-  QMessageBox::warning(this, "tmp disabled", "duplication is temporarily disabled!", QMessageBox::Ok);
-#endif
-}
-
-void LayersPaneBase::duplicateCurrent()
-{
-  duplicate(current());
-}
-
 void LayersPaneBase::remove(LayerWidget *layerWidget, bool widgetOnly)
 {
   if (!layerWidget->isRemovable())
@@ -395,16 +370,6 @@ void LayersPaneBase::remove(LayerWidget *layerWidget, bool widgetOnly)
 
   if (!widgetOnly)
     handleWidgetsUpdate();
-}
-
-void LayersPaneBase::remove(int index)
-{
-  remove(atPos(index));
-}
-
-void LayersPaneBase::removeCurrent()
-{
-  remove(current());
 }
 
 void LayersPaneBase::move(LayerWidget *layerWidget, bool up)
@@ -458,19 +423,6 @@ void LayersPaneBase::editCurrent()
   current()->editName(); // ### only the name for now
 }
 
-void LayersPaneBase::saveVisible() const
-{
-  const QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
-    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
-    return;
-
-  QString error = saveVisible(fileName);
-
-  if (!error.isEmpty())
-    QMessageBox::warning(0, "Error", QString("failed to save visible layers to file: %1").arg(error));
-}
-
 QString LayersPaneBase::saveVisible(const QString &fileName) const
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -491,20 +443,7 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
 
     QMenu contextMenu;
 
-    QAction duplicate_act(QPixmap(duplicate_xpm), tr("Duplicate"), 0);
-    if (duplicateCurrentButton_) {
-      duplicate_act.setIconVisibleInMenu(true);
-      duplicate_act.setEnabled(duplicateCurrentButton_->isEnabled());
-      contextMenu.addAction(&duplicate_act);
-    }
-
-    QAction remove_act(QPixmap(remove_xpm), tr("Remove"), 0);
-    if (removeCurrentButton_) {
-      remove_act.setIconVisibleInMenu(true);
-      remove_act.setEnabled(removeCurrentButton_->isEnabled());
-      contextMenu.addAction(&remove_act);
-    }
-
+    // add common actions
     QAction moveUp_act(QPixmap(moveup_xpm), tr("Move Up"), 0);
     if (moveCurrentUpButton_) {
       moveUp_act.setIconVisibleInMenu(true);
@@ -521,14 +460,18 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
 
     QAction editName_act(QPixmap(edit_xpm), tr("Edit Name"), 0);
     editName_act.setIconVisibleInMenu(true);
-    contextMenu.addAction(&editName_act);    
+    contextMenu.addAction(&editName_act);
 
-    QAction *action = contextMenu.exec(event->globalPos(), &duplicate_act);
-    if (action == &duplicate_act) {
-      duplicate(layerWidget);
-    } else if (action == &remove_act) {
-      remove(layerWidget);
-    } else if (action == &moveUp_act) {
+    addContextMenuActions(contextMenu); // add special actions
+
+    QAction *action = contextMenu.exec(event->globalPos(), &moveUp_act);
+
+    // try to match a special action
+    if (handleContextMenuAction(action, layerWidget))
+      return;
+
+    // try to match a common action
+    if (action == &moveUp_act) {
       moveUp(layerWidget);
     } else if (action == &moveDown_act) {
       moveDown(layerWidget);
@@ -558,38 +501,6 @@ void LayersPaneBase::ensureCurrentVisibleTimeout()
 void LayersPaneBase::ensureCurrentVisible()
 {
   QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
-}
-
-void LayersPaneBase::mergeVisible()
-{
-#if 0
-  const QList<LayerWidget *> visLayerWidgets = visibleWidgets();
-
-  if (visLayerWidgets.size() > 1) {
-    if (QMessageBox::warning(
-          this, "Merge visible layers", "Really merge visible layers?",
-          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-      return;
-
-    const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer("merged layer");
-    layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
-
-    layerMgr_->mergeLayers(layers(visLayerWidgets), newLayer);
-
-    LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
-    layout_->insertWidget(layout_->count(), newLayerWidget);
-    initialize(newLayerWidget);
-    setCurrent(newLayerWidget);
-    ensureCurrentVisible();
-    handleWidgetsUpdate();
-
-    // ### remove source layers (i.e. those associated with visLayerWidgets) ... TBD
-  }
-
-  handleWidgetsUpdate();
-#else
-  QMessageBox::warning(this, "tmp disabled", "merging visible is temporarily disabled!", QMessageBox::Ok);
-#endif
 }
 
 void LayersPaneBase::setAllVisible(bool visible)

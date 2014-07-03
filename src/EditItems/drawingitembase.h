@@ -43,6 +43,7 @@
 #define ConstDrawing(i) dynamic_cast<const DrawingItemBase *>(i)
 
 class QDomDocumentFragment;
+class DrawingManager;
 
 class DrawingItemBase
 {
@@ -58,7 +59,7 @@ public:
   int id() const;
 
   // Returns a deep copy of this item.
-  DrawingItemBase *clone() const;
+  DrawingItemBase *clone(const DrawingManager *) const;
 
   // Returns the item's group ID if set, or -1 otherwise.
   int groupId() const;
@@ -117,7 +118,7 @@ private:
   QDomElement createTimeSpanElement(QDomDocument &) const;
   QDomElement createPlacemarkElement(QDomDocument &) const;
 };
- 
+
 #if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))
 #include <QSharedPointer>
 inline uint qHash(const QSharedPointer<DrawingItemBase> &key)

@@ -46,11 +46,26 @@ public:
   EditDrawingLayersPane(LayerManager *, const QString &);
 private:
   virtual void updateButtons();
+  virtual void addContextMenuActions(QMenu &) const;
+  virtual bool handleContextMenuAction(const QAction *, LayerWidget *);
+  virtual bool handleKeyPressEvent(QKeyEvent *);
   void add(const QSharedPointer<Layer> &, bool = false, bool = true);
+  void duplicate(LayerWidget *);
+  void initialize(LayerWidget *);
   QToolButton *addEmptyButton_;
+  QToolButton *mergeVisibleButton_;
+  QToolButton *duplicateCurrentButton_;
+  QToolButton *removeCurrentButton_;
+  QToolButton *saveVisibleButton_;
+  QAction *duplicate_act_;
+  QAction *remove_act_;
   QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
-protected slots:
+private slots:
   void addEmpty();
+  void mergeVisible();
+  void duplicateCurrent();
+  void removeCurrent();
+  void saveVisible() const;
 };
 
 } // namespace

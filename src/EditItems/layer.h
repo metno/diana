@@ -39,6 +39,8 @@
 #include <QString>
 #include <EditItems/drawingitembase.h>
 
+class DrawingManager;
+
 namespace EditItems {
 
 class LayerGroup;
@@ -48,7 +50,7 @@ class Layer : public QObject {
   friend class LayerManager;
 public:
   Layer(const QString &);
-  Layer(const Layer &);
+  Layer(const Layer &, const DrawingManager *);
   ~Layer();
   int id() const;
   int itemCount() const;
