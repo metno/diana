@@ -107,14 +107,14 @@ void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
 
 void  Controller::restartFontManager()
 {
-  Plot::restartFontManager();
+  StaticPlot::restartFontManager();
 }
 
 bool Controller::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  Plot::initFontManager();
+  StaticPlot::initFontManager();
 
   //Parse field sections
   vector<std::string> fieldSubSect = fieldm->subsections();
@@ -147,12 +147,9 @@ bool Controller::parseSetup()
   if (!editm->parseSetup()) return false;
   if (!stam->parseSetup()) return false;
 
-  map<string,Manager*>::iterator it = plotm->managers.begin();
-
-  while (it != plotm->managers.end()) {
+  for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
     if (!it->second->parseSetup())
       return false;
-    ++it;
   }
 
   MapManager mapm;
@@ -166,23 +163,19 @@ bool Controller::parseSetup()
 
 void Controller::plotCommands(const vector<string>& inp){
 #ifdef DEBUGPRINT
+  METLIBS_LOG_SCOPE();
   for (int q = 0; q < inp.size(); q++)
-  METLIBS_LOG_DEBUG("++ Controller::plotCommands:" << inp[q]);
+    METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
 #endif
   plotm->preparePlots(inp);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Returning from Controller::plotCommands ++");
-#endif
 }
 
-void Controller::plot(bool under, bool over){
+void Controller::plot(bool under, bool over)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Controller::plot() ++");
+  METLIBS_LOG_SCOPE();
 #endif
   plotm->plot(under, over);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Returning from Controller::plot() ++");
-#endif
 }
 
 vector<AnnotationPlot*> Controller::getAnnotations()
@@ -407,12 +400,12 @@ void Controller::obsStepChanged(int step){
 // get name++ of current channels (with calibration)
 vector<string> Controller::getCalibChannels()
 {
-  return plotm->getCalibChannels();
+  return satm->getCalibChannels();
 }
 
 // show values in grid position x,y
 vector<SatValues> Controller::showValues(float x, float y){
-  return plotm->showValues(x,y);
+  return satm->showValues(x,y);
 }
 
 // show or hide satelitte classificiation table
@@ -426,7 +419,7 @@ vector<SatValues> Controller::showValues(float x, float y){
 
 vector<string> Controller::getSatnames()
 {
-  return plotm->getSatnames();
+  return satm->getSatnames();
 }
 
 void Controller::showAnnotations(bool on){
@@ -533,15 +526,13 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     // Send the event to the other managers to see if one of them will handle it.
     bool handled = false;
     if (!(me->modifiers() & Qt::ShiftModifier)) {
-      map<string,Manager*>::iterator it = plotm->managers.begin();
-      while (it != plotm->managers.end()) {
+      for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
         if (it->second->isEditing()) {
           it->second->sendMouseEvent(me, res);
           if (me->isAccepted())
             handled = true;
           break;
         }
-        ++it;
       }
     }
     if (!handled) {
@@ -592,15 +583,13 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
   // A more general way to override normal keypress behaviour is to query
   // the managers to find any that are in editing mode.
-  map<string,Manager*>::iterator it = plotm->managers.begin();
-  while (it != plotm->managers.end()) {
+  for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
     if (it->second->isEditing()) {
       res.savebackground = true;
       it->second->sendKeyboardEvent(ke, res);
       if (it->second->hasFocus())
         return;
     }
-    ++it;
   }
 
   // Access to normal keypress behaviour is obtained by holding down the Shift key
@@ -755,13 +744,13 @@ void Controller::SatRefresh(const std::string& satellite, const std::string& fil
 bool Controller::satFileListChanged(){
   // returns information about whether list of satellite files have changed
   //hence dialog and timeSlider times should change as well
-  return satm->fileListChanged;
+  return satm->isFileListChanged();
 }
 
 void Controller::satFileListUpdated(){
   //called when the dialog and timeSlider updated with info from satellite
   //file list
-  satm->fileListChanged = false;
+  satm->setFileListChanged(false);
 }
 
 bool Controller::obsTimeListChanged(){
@@ -778,8 +767,9 @@ void Controller::obsTimeListUpdated(){
 
 
 void Controller::setSatAuto(bool autoFile,const std::string& satellite,
-                            const std::string& file){
-  plotm->setSatAuto(autoFile,satellite,file);
+                            const std::string& file)
+{
+  satm->setSatAuto(autoFile,satellite,file);
 }
 
 
@@ -1050,7 +1040,7 @@ map<string,InfoFile> Controller::getInfoFiles()
 }
 
 
-vector<PlotElement>& Controller::getPlotElements()
+vector<PlotElement> Controller::getPlotElements()
 {
   return plotm->getPlotElements();
 }
@@ -1079,9 +1069,9 @@ bool Controller::useScrollwheelZoom() {
 }
 
 // Miscellaneous get methods
-vector<SatPlot*> Controller::getSatellitePlots() const
+const vector<SatPlot*>& Controller::getSatellitePlots() const
 {
-  return plotm->getSatellitePlots();
+  return satm->getSatellitePlots();
 }
 
 vector<FieldPlot*> Controller::getFieldPlots() const
@@ -1101,9 +1091,9 @@ void Controller::addManager(const std::string &name, Manager *man)
 
 Manager *Controller::getManager(const std::string &name)
 {
-  map<string,Manager*>::iterator it = plotm->managers.find(name);
+  PlotModule::managers_t::iterator it = plotm->managers.find(name);
   if (it != plotm->managers.end())
-    return plotm->managers[name];
+    return it->second;
   else
     return 0;
 }

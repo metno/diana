@@ -31,8 +31,9 @@
 #ifndef diMapPlot_h
 #define diMapPlot_h
 
-#include <diPlot.h>
-#include <diFilledMap.h>
+#include "diUtilities.h"
+#include "diPlot.h"
+#include "diFilledMap.h"
 #include <diShapeObject.h>
 
 #include <GL/gl.h>
@@ -51,13 +52,6 @@
  */
 class MapPlot : public Plot {
 private:
-  /// Lat/Lon Value Annotation with position on map
-  struct ValueAnno {
-    std::string t;
-    float x;
-    float y;
-  };
-private:
   bool mapchanged; // redraw needed
   bool haspanned;
   MapInfo mapinfo;
@@ -71,7 +65,7 @@ private:
   bool isactive[3]; // active data for zorder
   bool usedrawlists; // use OpenGL drawlists
   GLuint drawlist[3]; // openGL drawlists
-  std::vector<ValueAnno> value_annotations;
+  diutil::MapValueAnno_v value_annotations;
 
   static std::map<std::string,FilledMap> filledmaps;
   static std::set<std::string> usedFilledmaps;
@@ -91,18 +85,8 @@ private:
   * @param anno
   */
   void clipPrimitiveLines(int npos, float *, float *, float xylim[4],
-      float jumplimit, bool plotanno=false, int anno_position=2, std::string anno="");
-  /**
-   * clip a set a lines to the viewport
-   * @param npos
-   * @param x
-   * @param y
-   * @param xylim
-   * @param plotanno
-   * @param anno_position
-   * @param anno
-   */
-  void xyclip(int, float[], float[], float[], bool, int, std::string);
+      float jumplimit, bool plotanno=false,
+      diutil::MapValuePosition anno_position = diutil::map_right, const std::string& anno="");
   /**
   * plot a map from a Land4 formatted file
   * @param filename
@@ -112,9 +96,6 @@ private:
   * @param
   * @return
   */
-
-  //convert position "bottom", left" etc to MapValuePosition
-  int convertLatLonPos(const std::string& pos);
 
   bool plotMapLand4(const std::string&, float[], const Linetype&, float,
       const Colour&);
@@ -142,12 +123,9 @@ public:
   static bool checkFiles(bool);
   void markFiles();
 
-  bool plot()
-  {
-    return false;
-  }
   /// plot map in a specific zorder layer
-  bool plot(const int zorder);
+  bool plot(int zorder);
+
   /// parse plotinfo
   bool prepare(const std::string&, Area rarea, bool ifequal =true);
   /// return the area asked for

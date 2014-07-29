@@ -34,7 +34,6 @@
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
-#include <diPlot.h>
 #include <diFieldPlot.h>
 #include <diEditSpec.h>
 
@@ -92,8 +91,6 @@ private:
   static bool     drawExtraLines;
 
   GridConverter gc;   // gridconverter class
-
-  Plot splot;         // keep a Plot superclass for static members
 
   FieldPlotManager* fieldPlotManager;
 

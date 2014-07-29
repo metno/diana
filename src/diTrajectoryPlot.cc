@@ -50,7 +50,7 @@ using namespace miutil;
 
 TrajectoryPlot::TrajectoryPlot()
 :Plot(){
-  oldArea=area;
+  oldArea=StaticPlot::getMapArea();
   lineWidth=1;
   numMarker=1;
   markerRadius=50;
@@ -78,7 +78,7 @@ bool TrajectoryPlot::prepare(void){
 
   //Change projection
 
-  if (oldArea.P() == area.P()) //nothing to do
+  if (oldArea.P() == StaticPlot::getMapArea().P()) //nothing to do
     return true;
 
   int npos = x.size();
@@ -95,7 +95,7 @@ bool TrajectoryPlot::prepare(void){
 
 
   // convert points to correct projection
-  gc.getPoints(oldArea.P(),area.P(),npos,xpos,ypos);//) {
+  StaticPlot::gc.getPoints(oldArea.P(),StaticPlot::getMapArea().P(),npos,xpos,ypos);//) {
 
   for (int i=0; i<npos; i++){
     x[i] = xpos[i];
@@ -105,7 +105,7 @@ bool TrajectoryPlot::prepare(void){
   delete[] xpos;
   delete[] ypos;
 
-  oldArea = area;
+  oldArea = StaticPlot::getMapArea();
   return true;
 }
 
@@ -210,7 +210,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
       ypos[i] = latitude[i];
     }
 
-    area.P().convertFromGeographic(nlon,xpos,ypos);
+    StaticPlot::getMapArea().P().convertFromGeographic(nlon,xpos,ypos);
 
     if (numMarker==5 || numMarker==9){
 
@@ -225,14 +225,14 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
       for (int i=0; i<nlon; i++) {
 
         float dlat,dlon;
-        area.P().getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
+        StaticPlot::getMapArea().P().getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
         float lat1 = latitude[i];
         float lon1 = float(markerRadius)*1000*dlon + longitude[i];
         float lat2 = float(markerRadius)*1000*dlat + latitude[i];
         float lon2 = longitude[i];
         int one=1;
-        area.P().convertFromGeographic(one,&lon1,&lat1);
-        area.P().convertFromGeographic(one,&lon2,&lat2);
+        StaticPlot::getMapArea().P().convertFromGeographic(one,&lon1,&lat1);
+        StaticPlot::getMapArea().P().convertFromGeographic(one,&lon2,&lat2);
         float dx=lon1 - xpos[i];
         float dy=lat2-ypos[i];
         for (int j=0; j<numMarker; j++, n++) {
@@ -246,7 +246,7 @@ int TrajectoryPlot::trajPos(vector<string>& vstr)
         y.push_back(ynew[i]);
       }
 
-      area.P().convertToGeographic(n,xnew,ynew);
+      StaticPlot::getMapArea().P().convertToGeographic(n,xnew,ynew);
 
       for (int i=0; i<n; i++) {
         lon.push_back(xnew[i]);
@@ -300,15 +300,15 @@ bool TrajectoryPlot::plot(){
   METLIBS_LOG_DEBUG("++ TrajectoryPlot::plot() ++");
 #endif
 
-  if (!plot_on || !enabled)
+  if (!plot_on || !isEnabled())
     return false;
 
-  if (colour==backgroundColour)
-    colour= backContrastColour;
+  if (colour==StaticPlot::getBackgroundColour())
+    colour= StaticPlot::getBackContrastColour();
   glColor4ubv(colour.RGBA());
   glLineWidth(float(lineWidth)+0.1f);
 
-  float d= 5*fullrect.width()/pwidth;
+  float d= 5*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth();
 
   if (vtrajdata.size()==0) {
 
@@ -332,14 +332,14 @@ bool TrajectoryPlot::plot(){
     int vtsize= vtrajdata.size();
 
     for (int n=0; n<vtsize; n++) {
-      if (vtrajdata[n]->area.P() != area.P()) {
+      if (vtrajdata[n]->area.P() != StaticPlot::getMapArea().P()) {
         int npos= numTraj * vtrajdata[n]->ndata;
-        if (!gc.getPoints(vtrajdata[n]->area.P(), area.P(),
+        if (!StaticPlot::gc.getPoints(vtrajdata[n]->area.P(), StaticPlot::getMapArea().P(),
             npos, vtrajdata[n]->x, vtrajdata[n]->y)) {
           METLIBS_LOG_ERROR("TrajectoryPlot::plot  getPoints ERROR");
           return false;
         }
-        vtrajdata[n]->area= area;
+        vtrajdata[n]->area= StaticPlot::getMapArea();
       }
     }
 
@@ -451,7 +451,7 @@ bool TrajectoryPlot::plot(){
     glEnd();
 
     // mark current time (not at first and last time)
-    if (ctime>firstTime && ctime<lastTime) {
+    if (StaticPlot::getTime()>firstTime && StaticPlot::getTime()<lastTime) {
 
       r= d*1.4;
       const int nc= 16;
@@ -470,7 +470,7 @@ bool TrajectoryPlot::plot(){
         td= vtrajdata[n];
         ndata= td->ndata;
         it= 0;
-        while (it<ndata && ctime > td->time[it]) it++;
+        while (it<ndata && StaticPlot::getTime() > td->time[it]) it++;
         if (it<ndata) nt= n;
         n++;
       }
@@ -685,10 +685,10 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
   int imapr=2;  // xmapratio/dxgrid and ymapratio/dygrid
   // mapratios in Norlam style (inverse of Hirlam style)
   int icori=0;
-  if (!gc.getMapFields(fu1->area, imapr, icori,
+  if (!StaticPlot::gc.getMapFields(fu1->area, imapr, icori,
       fu1->nx, fu1->ny, &xmapr, &ymapr, &coriolis,
       dxgrid, dygrid)) {
-    METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
+    METLIBS_LOG_ERROR("TrajectoryPlot::compute : StaticPlot::gc.getMapFields ERROR."
         <<"  Cannot compute trajectories !");
     stopComputation();
     return false;
@@ -778,8 +778,8 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
     if (vtrajdata[n]->area.P() != fieldArea.P()) {
       // posistions are converted to a different map projection
-      if(!gc.getPoints(vtrajdata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
-        METLIBS_LOG_ERROR("TrajectoryPlot::compute : gc.getMapFields ERROR."
+      if(!StaticPlot::gc.getPoints(vtrajdata[n]->area.P(),fieldArea.P(),numTraj,xt,yt)) {
+        METLIBS_LOG_ERROR("TrajectoryPlot::compute : StaticPlot::gc.getMapFields ERROR."
             <<"  Trajectory computation stopped !");
         stopComputation();
         return false;
@@ -940,8 +940,8 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
     s= "Trajektorier " + fieldStr
         + " "   + firstTime.isoTime().substr(0,l)
         + " - " +  lastTime.isoTime().substr(0,l) + " UTC";
-    if (colour==backgroundColour)
-      c= backContrastColour;
+    if (colour==StaticPlot::getBackgroundColour())
+      c= StaticPlot::getBackContrastColour();
     else
       c= colour;
   } else {
@@ -949,7 +949,7 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
   }
 
   // ADC temporary hack
-  plotname= s;
+  setPlotName(s);
 }
 
 
@@ -988,7 +988,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
       yyy[(n+1)*numTraj+i]=vtrajdata[n]->y[(i+1)*(vtrajdata[n]->ndata)-1];
     }
   }
-  area.P().convertToGeographic(npos,xxx,yyy);
+  StaticPlot::getMapArea().P().convertToGeographic(npos,xxx,yyy);
 
   //print to file
   fs <<"[NAME TRAJECTORY]"<<endl;

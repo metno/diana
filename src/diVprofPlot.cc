@@ -35,6 +35,7 @@
 
 #include "diVprofPlot.h"
 #include "diColour.h"
+#include "diUtilities.h"
 
 #include <cmath>
 #include <iomanip>
@@ -117,7 +118,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     const size_t nlevel = std::min(maxLevels, tt.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*tt[k];
-    xyclip(nlevel,xx,yy,&xysize[1][0]);
+    diutil::xyclip(nlevel,xx,yy,&xysize[1][0]);
     UpdateOutput();
   }
 
@@ -137,7 +138,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
     const size_t nlevel = std::min(maxLevels, td.size());
     for (unsigned int k=0; k<nlevel; k++)
       xx[k]= xz[k]+dx1deg*td[k];
-    xyclip(nlevel,xx,yy,&xysize[1][0]);
+    diutil::xyclip(nlevel,xx,yy,&xysize[1][0]);
     UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
   }
@@ -322,7 +323,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
       xx[k]= x0 + scale*om[k];
     xylimit[0]= xysize[6][0];
     xylimit[1]= xysize[6][1];
-    xyclip(nlevel,xx,yy,xylimit);
+    diutil::xyclip(nlevel,xx,yy,xylimit);
     UpdateOutput();
   }
 
@@ -356,7 +357,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
         xx[k]= x0 + scale*rhum[k];
       xylimit[0]= xysize[7][0];
       xylimit[1]= xysize[7][1];
-      xyclip(nlevel,xx,yy,xylimit);
+      diutil::xyclip(nlevel,xx,yy,xylimit);
     }
     UpdateOutput();
   }
@@ -386,7 +387,7 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
         xx[k]= x0 + scale*duct[k];
       xylimit[0]= xysize[8][0];
       xylimit[1]= xysize[8][1];
-      xyclip(nlevel,xx,yy,xylimit);
+      diutil::xyclip(nlevel,xx,yy,xylimit);
     }
     UpdateOutput();
   }

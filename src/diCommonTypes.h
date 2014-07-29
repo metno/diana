@@ -121,10 +121,6 @@ struct ObjFileInfo{
 // Map structures
 //--------------------------------------------------
 
-enum MapValuePosition {
-  map_left, map_bottom, map_right, map_top, map_all
-};
-
 /**
    \brief GUI data for one map file
 */

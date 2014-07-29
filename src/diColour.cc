@@ -208,6 +208,14 @@ void Colour::readColourMap(const std::string fname){
   }
 }
 
+Colour Colour::contrastColour() const
+{
+  const int sum = R() + G() + B();
+  if (sum > 255 * 3 / 2)
+    return Colour(0, 0, 0);
+  else
+    return Colour(255, 255, 255);
+}
 
 ostream& operator<<(ostream& out, const Colour& rhs){
   return out <<

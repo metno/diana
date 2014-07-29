@@ -110,6 +110,11 @@ void printOptions::printPrintOptions()
 
 printerManager::printerManager()
 {
+}
+
+//static
+void printerManager::initialize()
+{
   if (pages.size()==0){
     pages["A4"]= A4;
     pages["B5"]= B5;
@@ -261,6 +266,7 @@ PageSize  printerManager::getPage(const std::string s) // page from string
   std::string us= miutil::to_upper(s);
   miutil::trim(us);
 
+  initialize();
   if (pages.count(us)>0)
     ps= pages[us];
 
@@ -271,6 +277,7 @@ PaperSize printerManager::getSize(const PageSize ps)// size from page
 {
   PaperSize prs;
 
+  initialize();
   if (pagesizes.count(ps)>0)
     prs= pagesizes[ps];
 

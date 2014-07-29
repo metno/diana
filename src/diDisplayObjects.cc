@@ -204,13 +204,9 @@ void DisplayObjects::getObjAnnotation(string &str, Colour &col)
 
 bool DisplayObjects::getAnnotations(vector <string>& anno)
 {
-  if (!isEnabled())
+  if (!isEnabled() or objects.empty())
     return false;
-  int nanno = anno.size();
-  int n= objects.size();
-  if (!n)
-    return false;
-  for(int i=0; i<nanno; i++) {
+  for (size_t i=0; i<anno.size(); i++) {
     if (!miutil::contains(anno[i], "table") || miutil::contains(anno[i], "table="))
       continue;
     std::string endString;
@@ -219,8 +215,8 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
       endString = anno[i].substr(nn);
     }
     std::string str;
-    for (int i=0; i<n; i++){
-      if (objects[i]->getAnnoTable(str)){
+    for (size_t j=0; j<objects.size(); j++) {
+      if (objects[j]->getAnnoTable(str)){
 	str+=endString;
 	anno.push_back(str);
       }
@@ -232,13 +228,13 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
 
 /*********************************************/
 
-void DisplayObjects::getPlotName(string &name)
+std::string DisplayObjects::getName() const
 {
+  std::string name;
   if (approved) {
     name = objectname;
     if (!autoFile)
       name += " " + itsTime.isoTime();
   }
-  else
-    name.erase();
+  return name;
 }

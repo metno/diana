@@ -62,18 +62,43 @@ public:
   void getObjAnnotation(std::string &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
   bool getAnnotations(std::vector<std::string>&);
-  /// returns a string with object name and possibly time
-  void getPlotName(std::string& name);
-  /// returns plotInfo string
-  const std::string& getPlotInfo() const {return pin;}
 
+  /// returns a string with object name and possibly time
+  std::string getName() const;
+
+  /// return the object name
+  const std::string& getObjectName() const
+    { return objectname; }
+
+  /// returns plotInfo string
+  const std::string& getPlotInfo() const
+    { return pin; }
+
+  bool isDefined() const
+    { return defined; }
+
+  bool isAutoFile() const
+    { return autoFile; }
+
+  void setAutoFile(bool a)
+    { autoFile = a; }
+
+  bool isApproved() const
+    { return approved; }
+
+  void setApproved(bool a)
+    { approved = a; }
+
+  int getTimeDiff() const
+    { return timeDiff; }
+
+private:
   bool autoFile; // read new files
   bool approved;          //objects approved for plotting
   int timeDiff; 
   std::string objectname;
   bool defined;
 
-private:
   std::map<std::string,bool> useobject;
 
   std::string pin;

@@ -34,8 +34,7 @@
 #include "qtImageGallery.h"
 #include "diImageGallery.h"
 
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
+#include "diUtilities.h"
 #include <puTools/miStringFunctions.h>
 
 #include <QDataStream>
@@ -129,12 +128,11 @@ XPM X11 Pixmap Read/write
 */
 
 
-  glob_t globBuf;
-  glob_cache(dir.c_str(),0,0,&globBuf);
-  for( size_t k=0; k<globBuf.gl_pathc; k++) {
-    std::string fname = globBuf.gl_pathv[k];
+  const diutil::string_v matches = diutil::glob(dir);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const std::string& fname = *it;
     if (not miutil::contains(fname, "~")) {
-      QString filename = fname.c_str();
+      QString filename = QString::fromStdString(fname);
       QFileInfo fileinfo(filename);
       QString name = fileinfo.baseName();
 	  std::string format;
@@ -172,7 +170,6 @@ XPM X11 Pixmap Read/write
 	  addImageToGallery(name.toStdString(),image);
     }
   }
-  globfree_cache(&globBuf);
 }
 
 void QtImageGallery::clear()

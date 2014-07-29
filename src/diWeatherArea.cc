@@ -194,7 +194,7 @@ void WeatherArea::setState(const state s)
 
 bool WeatherArea::plot()
 {
-  if (!enabled)
+  if (!isEnabled())
     return false;
 
   // if this object is visible
@@ -214,7 +214,7 @@ bool WeatherArea::plot()
     float lwidth = 1.0;
     //change the linewidth of generricarea according to great circle distance
     if (drawIndex == Genericarea ) {
-      float scalefactor = gcd / 7000000;
+      float scalefactor = StaticPlot::getGcd() / 7000000;
       if (scalefactor <= 1)
         lwidth = linewidth;
       else if (scalefactor > 1.0 && scalefactor < 4)
@@ -289,7 +289,7 @@ bool WeatherArea::plot()
     }
 
     // for PostScript generation
-    UpdateOutput();
+    StaticPlot::UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDisable(GL_POLYGON_STIPPLE);
@@ -297,7 +297,7 @@ bool WeatherArea::plot()
 
     // draws the edge rectangles / points that defines marking and moving
     drawNodePoints();
-    UpdateOutput();
+    StaticPlot::UpdateOutput();
   }
   return true;
 }
@@ -326,8 +326,8 @@ bool WeatherArea::showLine(float x, float y)
 
   // for very small areas - select the whole thing..
   if (boundBox.isinside(x, y)) {
-    if (boundBox.width() / fullrect.width() < 0.07 || boundBox.height()
-        / fullrect.height() < 0.07) {
+    if (boundBox.width() / StaticPlot::getPlotSize().width() < 0.07 || boundBox.height()
+        / StaticPlot::getPlotSize().height() < 0.07) {
       markAllPoints();
       return true;
     }

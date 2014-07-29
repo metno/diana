@@ -87,7 +87,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   if (this == &rhs) return *this;
 
   // first delete
-  if (editfield) delete editfield;
+  if (editfield) delete editfield; // FIXME what if editfield == workfield?
   if (workfield) delete workfield;
   if (editfieldplot) delete editfieldplot;
   if (odata) delete[] odata;
@@ -207,7 +207,7 @@ void FieldEdit::cleanup()
 
   if (workfield && workfield!=editfield) delete workfield;
   workfield= 0;
-  editfield= 0;
+  editfield= 0; // FIXME editfield is not always deleted
 
   int n= undofields.size();
   for (int i=0; i<n; i++) {
@@ -581,9 +581,9 @@ void FieldEdit::activate() {
   if (!editStarted) {
 
     // set a small default influence size
-    Rectangle fr= splot.getPlotSize();
+    Rectangle fr= StaticPlot::getPlotSize();
     float pwidth,pheight;
-    splot.getPhysSize(pwidth,pheight);
+    StaticPlot::getPhysSize(pwidth,pheight);
     float d= 20. * (fr.x2-fr.x1)/pwidth/editfield->gridResolutionX;
 
     def_rcircle=   d;
@@ -672,7 +672,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       // middle mouse button pressed
       float gx= ee.x;
       float gy= ee.y;
-      maparea = splot.getMapArea();
+      maparea = StaticPlot::getMapArea();
       if (maparea.P()!=editfield->area.P()) {
         int npos= 1;
         if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,&gx,&gy)) {
@@ -923,7 +923,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       ayellipsePlot= ayellipse * editfield->gridResolutionY;
       showArrow=     false;
 
-      maparea = splot.getMapArea();
+      maparea = StaticPlot::getMapArea();
 
       convertpos= (maparea.P() != editfield->area.P());
 
@@ -1371,7 +1371,7 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
   float ry[2] = { fi.posy, fi.posy + fi.ayellipse * editfield->gridResolutionY};
   if (geo) {
     int npos= 2;
-    Area maparea = splot.getMapArea();
+    Area maparea = StaticPlot::getMapArea();
     gc.geo2xy(maparea,npos,rx,ry);
   }
   float dx= rx[1]/editfield->gridResolutionX - rx[0]/editfield->gridResolutionX;
@@ -1410,7 +1410,7 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
       posy + dy*0.5* editfield->gridResolutionY };
   if (geo) {
     int npos=3;
-    Area maparea = splot.getMapArea();
+    Area maparea = StaticPlot::getMapArea();
     gc.xy2geo(maparea,npos,rx,ry);
   }
 
@@ -3385,9 +3385,9 @@ void FieldEdit::drawInfluence()
   int   i;
 
   // draw centre box
-  Rectangle fr= splot.getPlotSize();
+  Rectangle fr= StaticPlot::getPlotSize();
   float pwidth,pheight;
-  splot.getPhysSize(pwidth,pheight);
+  StaticPlot::getPhysSize(pwidth,pheight);
   d= 5.0 * (fr.x2-fr.x1)/pwidth;
 
   glColor4f(0.0,1.0,1.0,0.5);
@@ -3399,7 +3399,7 @@ void FieldEdit::drawInfluence()
   glVertex2f(posx-d,posy+d);
   glEnd();
 
-  Colour col= splot.getBackContrastColour();
+  Colour col= StaticPlot::getBackContrastColour();
   glColor3ubv(col.RGB());
   glLineWidth(2.0);
 

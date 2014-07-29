@@ -31,31 +31,29 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
+#include <diObsManager.h>
+#include <diObsAscii.h>
+#include "diUtilities.h"
 
-#include <math.h>
-
-#include <algorithm>
-#include <set>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/foreach.hpp>
+#include <puTools/miSetupParser.h>
 
 #ifdef ROADOBS
 // includes for road specific implementation
 #include <diObsRoad.h>
 #endif
 
-#include <diObsAscii.h>
-
 #ifdef BUFROBS
 #include <diObsBufr.h>
 #endif
 
-#include <diObsManager.h>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
-#include <puTools/miSetupParser.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/foreach.hpp>
+#include <algorithm>
+#include <set>
+
+#include <sys/types.h>
+#include <math.h>
 
 #define MILOGGER_CATEGORY "diana.ObsManager"
 #include <miLogger/miLogging.h>
@@ -507,13 +505,11 @@ bool ObsManager::updateTimes(std::string obsType)
           (Prod[obsType].pattern[j].archive && useArchive)  ){
         bool ok = Prod[obsType].pattern[j].filter.ok();
 
-        glob_t globBuf;
-        glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-        for (__size_t k=0; k < globBuf.gl_pathc; k++) {
+        const diutil::string_v matches = diutil::glob(Prod[obsType].pattern[j].pattern);
+        for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
           FileInfo finfo;
-          finfo.filename = globBuf.gl_pathv[k];
-          if(ok &&
-              Prod[obsType].pattern[j].filter.getTime(finfo.filename,finfo.time)){
+          finfo.filename = *it;
+          if(ok && Prod[obsType].pattern[j].filter.getTime(finfo.filename,finfo.time)){
             //time from file name
           } else {
             //time not found from filename, open file
@@ -529,7 +525,6 @@ bool ObsManager::updateTimes(std::string obsType)
           finfo.filetype = Prod[obsType].pattern[j].fileType;
           Prod[obsType].fileInfo.push_back(finfo);
         }
-        globfree_cache(&globBuf);
       }
     }
 #ifdef ROADOBS
@@ -617,11 +612,11 @@ bool ObsManager::updateTimesfromFile(std::string obsType)
     for(unsigned int j=0;j<Prod[obsType].pattern.size(); j++) {
       if( (!Prod[obsType].pattern[j].archive && !useArchive ) ||
           ( Prod[obsType].pattern[j].archive && useArchive ) ){
-        glob_t globBuf;
-        glob_cache(Prod[obsType].pattern[j].pattern.c_str(),0,0,&globBuf);
-        for (__size_t k=0; k < globBuf.gl_pathc; k++) {
+
+        const diutil::string_v matches = diutil::glob(Prod[obsType].pattern[j].pattern);
+        for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
           FileInfo finfo;
-          finfo.filename = globBuf.gl_pathv[k];
+          finfo.filename = *it;
           if (Prod[obsType].pattern[j].fileType == "bufr") {
 #ifdef BUFROBS
             //read time from bufr-file
@@ -633,7 +628,6 @@ bool ObsManager::updateTimesfromFile(std::string obsType)
           finfo.filetype = Prod[obsType].pattern[j].fileType;
           Prod[obsType].fileInfo.push_back(finfo);
         }
-        globfree_cache(&globBuf);
       }
     }
 #ifdef ROADOBS
@@ -797,7 +791,7 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
   }
 
   if(oplot.size()){
-    obsPositions.obsArea = oplot[0]->getMapArea();
+    obsPositions.obsArea = StaticPlot::getMapArea();
   }
 
   //new conversion  needed
@@ -1382,30 +1376,25 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
       } else {
 
         bool found= false;
-        glob_t globBuf;
-        glob_cache(Prod[oname].pattern[j].pattern.c_str(),0,0,&globBuf);
-        __size_t k= 0;
-        while (!found && k < globBuf.gl_pathc) {
-          std::string filename = globBuf.gl_pathv[k];
+
+        const diutil::string_v matches = diutil::glob(Prod[oname].pattern[j].pattern);
+        for (diutil::string_v::const_iterator it = matches.begin(); !found && it != matches.end(); ++it) {
+          const std::string& filename = *it;
           ObsAscii obsAscii = ObsAscii(filename, headerfile, Prod[oname].headerinfo);
           found= obsAscii.asciiOK();
           if (obsAscii.asciiOK() && obsAscii.parameterType("time")
               && !obsAscii.parameterType("date"))
             Prod[oname].useFileTime= true;
-          k++;
           if (obsAscii.parameterType("dd") && obsAscii.parameterType("ff")) {
             dialog.plottype[id].button.push_back(addButton("Wind",""));
             dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
           }
-          int nc= obsAscii.columnName.size();
-          for (int c=0; c<nc; c++) {
+          for (size_t c=0; c<obsAscii.columnName.size(); c++) {
             dialog.plottype[id].button.push_back
             (addButton(obsAscii.columnName[c], obsAscii.columnTooltip[c], -100,100,true));
             dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
           }
         }
-
-        globfree_cache(&globBuf);
       }
     }
     j++;

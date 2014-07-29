@@ -40,6 +40,7 @@
 #include "diVprofDiagram.h"
 #include "diColour.h"
 #include "diLinetype.h"
+#include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -1301,7 +1302,7 @@ void VprofDiagram::plotDiagram()
           t = th * cpinv * pitab[k] - t0;
           xline[k] = xztab[k] + dx1deg * t;
         }
-        xyclip(kpmax - k1 + 1, &xline[k1], &yline[k1], xylimit);
+        diutil::xyclip(kpmax - k1 + 1, &xline[k1], &yline[k1], xylimit);
       }
     } else {
       // exner function as vertical coordinate, th is a straight line
@@ -1314,7 +1315,7 @@ void VprofDiagram::plotDiagram()
         xl[0] = xztab[kpmin] + dx1deg * t;
         t = th * cpinv * pitab[kpmax];
         xl[1] = xztab[kpmax] + dx1deg * t;
-        xyclip(2, xl, yl, xylimit);
+        diutil::xyclip(2, xl, yl, xylimit);
       }
     }
     UpdateOutput();
@@ -1411,7 +1412,7 @@ void VprofDiagram::plotDiagram()
             xline[k] = xline[k + 1] + (xline[k] - xline[k + 1]) * x;
             yline[k] = yline[k + 1] + (yline[k] - yline[k + 1]) * x;
           }
-          xyclip(kpmax - k + 1, &xline[k], &yline[k], xylimit);
+          diutil::xyclip(kpmax - k + 1, &xline[k], &yline[k], xylimit);
           yline[k] = ytmp;
         }
       }
@@ -1476,7 +1477,7 @@ void VprofDiagram::plotDiagram()
           ytmp = yline[kstop];
         }
         if (kpmax - kstop + 1 > 1)
-          xyclip(kpmax - kstop + 1, &xline[kstop], &yline[kstop], xylimit);
+          diutil::xyclip(kpmax - kstop + 1, &xline[kstop], &yline[kstop], xylimit);
         yline[kstop] = ytmp;
         xqsat.push_back(xline[kpmax]);
       }
@@ -1527,7 +1528,7 @@ void VprofDiagram::plotDiagram()
         xline[k] = xztab[k] + dx1deg * cotrails[n][k];
         yline[k] = yptab[k];
       }
-      xyclip(kmax - kmin + 1, &xline[kmin], &yline[kmin], xylimit);
+      diutil::xyclip(kmax - kmin + 1, &xline[kmin], &yline[kmin], xylimit);
     }
     UpdateOutput();
     glDisable(GL_LINE_STIPPLE);

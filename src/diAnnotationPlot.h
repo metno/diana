@@ -81,6 +81,7 @@ class AnnotationPlot: public Plot {
     {
     }
   };
+  typedef std::vector<element> element_v;
 
 public:
   /**
@@ -104,8 +105,9 @@ public:
 
 private:
 
-  std::vector<Annotation> annotations;
-  std::vector<Annotation> orig_annotations;
+  typedef std::vector<Annotation> Annotation_v;
+  Annotation_v annotations;
+  Annotation_v orig_annotations;
   annoType atype;
   std::vector<Border> borderline;
 

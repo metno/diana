@@ -142,6 +142,9 @@ public:
   void setPrintCommand(const std::string& pc){ pcommand = pc; }
   /// return current print command
   const std::string& printCommand() const { return pcommand; }
+
+private:
+  static void initialize();
 };
 
 #endif

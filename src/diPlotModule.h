@@ -38,7 +38,6 @@
 #include <puTools/miTime.h>
 #include <diLocationPlot.h>
 #include <diDisplayObjects.h>
-#include <diEditObjects.h>
 #include <diAreaObjects.h>
 
 #include <vector>
@@ -46,7 +45,6 @@
 #include <deque>
 
 class ObsPlot;
-class SatPlot;
 class MapPlot;
 class AnnotationPlot;
 class FieldManager;
@@ -86,15 +84,10 @@ private:
   StationManager *stam;       // raster-data manager
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
-
-  friend class EditManager;   // editing and drawing
-
-  friend class ObjectManager; // editing and drawing
-
-  Plot splot;             // keep a Plot superclass for static members
+  FieldManager *fieldm;   // field manager
+  FieldPlotManager *fieldplotm;   // field plot manager
 
   std::vector<ObsPlot*> vop;   // vector of observation plots
-  std::vector<SatPlot*> vsp;   // vector of satellite plots
   std::vector<FieldPlot*> vfp; // vector of field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*>vtp; // vector of trajectory plots
@@ -103,12 +96,8 @@ private:
   std::vector <AnnotationPlot*> obsVap; //display obs annotation
   std::vector <AnnotationPlot*> objectVap; //display object label
   std::vector <AnnotationPlot*> editVap;   //edit object labels
-  DisplayObjects objects;             //objects to be displayed
-  std::vector <AreaObjects> vareaobjects;  //QED areas
-  AnnotationPlot* apEditmessage; // special edit message (region shown,...)
-
-  FieldManager *fieldm;   // field manager
-  FieldPlotManager *fieldplotm;   // field plot manager
+  typedef std::vector<AreaObjects> areaobjects_v;
+  areaobjects_v vareaobjects;  //QED areas
 
   std::vector<std::string> annotationStrings;//orig. strings from setup
 
@@ -121,22 +110,11 @@ private:
   Area previousrequestedarea;
 
   float plotw, ploth;     // width and height of plotwindow (pixels)
-  bool resizezoom;      // should resizing zoom splot.area?
   bool showanno;        // show standard annotations
 
   // postscript production members
   printOptions printoptions;
   bool hardcopy;
-  std::string bgcolourname;
-
-  // drawing and edit members
-  bool inEdit;                 // edit in progress
-  mapMode mapmode;             // current mapmode
-  bool prodtimedefined;        // producttime is set
-  miutil::miTime producttime;          // proper product time
-
-  EditObjects editobjects;       // fronts,symbols,areas
-  EditObjects combiningobjects;  // areaborders and textstrings
 
   std::vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
@@ -158,18 +136,11 @@ private:
   int obsnr; //which obs time
   int obsTimeStep;
 
-  std::string levelSpecified;  // for level up/down changes
-  std::string levelCurrent;
-
-  std::string idnumSpecified;  // for idnum up/down changes (class/type/...)
-  std::string idnumCurrent;
-
   std::vector<PlotElement> plotelements;
 
   // static members
   static GridConverter gc;   // gridconverter class
 
-  void setEditMessage(const std::string&); // special Edit message (shown region,...)
   //Plot underlay
   void plotUnder();
   //Plot overlay
@@ -180,18 +151,9 @@ private:
 
   static PlotModule *self;
 
-public:
-  // Constructor
-  PlotModule();
-  // Destructor
-  ~PlotModule();
+  /// delete all data vectors
+  void cleanup();
 
-  void PlotAreaSetup();
-
-  /// the main plot routine (plot for underlay, plot for overlay)
-  void plot(bool under =true, bool over =true);
-  /// split plot info strings and reroute them to appropriate handlers
-  void preparePlots(const std::vector<std::string>&);
   /// handles fields plot info strings
   void prepareFields(const std::vector<std::string>&);
   /// handles observations plot info strings
@@ -200,25 +162,36 @@ public:
   void prepareArea(const std::vector<std::string>&);
   /// handles map plot info strings
   void prepareMap(const std::vector<std::string>&);
-  /// handles images plot info strings
-  void prepareSat(const std::vector<std::string>&);
   /// handles stations plot info strings
   void prepareStations(const std::vector<std::string>&);
-  /// handles met. objects plot info strings
-  void prepareObjects(const std::vector<std::string>&);
   /// handles trajectory plot info strings
   void prepareTrajectory(const std::vector<std::string>&);
   /// handles annotation plot info strings
   void prepareAnnotation(const std::vector<std::string>&);
+
+  /// calculate distance between two points
+  static float GreatCircleDistance(float lat1,float lat2,float lon1 ,float lon2);
+
+public:
+  PlotModule();
+  ~PlotModule();
+
+  void PlotAreaSetup();
+
+  /// the main plot routine (plot for underlay, plot for overlay)
+  void plot(bool under =true, bool over =true);
+  /// split plot info strings and reroute them to appropriate handlers
+  void preparePlots(const std::vector<std::string>&);
+
   /// get annotations
-  std::vector<AnnotationPlot*> getAnnotations();
+  const std::vector<AnnotationPlot*>& getAnnotations();
   /// plot annotations
   std::vector<Rectangle> plotAnnotations();
 
   /// get annotations from all plots
   void setAnnotations();
   /// get current Area
-  const Area& getCurrentArea(){return splot.getMapArea();}
+  const Area& getCurrentArea(){return StaticPlot::getMapArea();}
 
   /// update FieldPlots
   bool updateFieldPlot(const std::vector<std::string>& pin);
@@ -227,12 +200,10 @@ public:
   /// toggle conservative map area
   void keepCurrentArea(bool b){keepcurrentarea= b;}
 
-  /// delete all data vectors
-  void cleanup();
   /// get static maparea in plot superclass
-  Area& getMapArea(){return splot.getMapArea();}
+  const Area& getMapArea() {return StaticPlot::getMapArea();}
   /// get plotwindow rectangle
-  Rectangle& getPlotSize(){return splot.getPlotSize();}
+  const Rectangle& getPlotSize(){return StaticPlot::getPlotSize();}
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
@@ -249,8 +220,6 @@ public:
   void PhysToMap(const float,const float,float&,float&);
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float,const float,float&,float&);
-  /// calculate distance between two points
-  float GreatCircleDistance(float lat1,float lat2,float lon1 ,float lon2);
   /// start hardcopy plot
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
@@ -327,16 +296,6 @@ public:
   // Measurements (distance, velocity)
   void measurementsPos(std::vector<std::string>&);
 
-  //Satellite and radar
-  /// get name++ of current channels (with calibration)
-  std::vector<std::string> getCalibChannels();
-  ///show pixel values in status bar
-  std::vector<SatValues> showValues(float x, float y);
-  ///get satellite name from all SatPlots
-  std::vector <std::string> getSatnames();
-  ///satellite follows main plot time
-  void setSatAuto(bool, const std::string&, const std::string&);
-
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool on){showanno=on;}
   /// mark editable annotationPlot if x,y inside plot
@@ -361,6 +320,8 @@ public:
   /// put info from saved edit labels into new annotation
   void updateEditLabels(const std::vector<std::string>& productLabelstrings,
       const std::string& productName, bool newProduct);
+  
+  void deleteAllEditAnnotations();
 
   //Objects
   ///objects follow main plot time
@@ -377,7 +338,7 @@ public:
 
   // plotelements methods
   /// return PlotElement data (for the speedbuttons)
-  std::vector<PlotElement>& getPlotElements();
+  std::vector<PlotElement> getPlotElements();
   /// enable one PlotElement
   void enablePlotElement(const PlotElement& pe);
 
@@ -394,11 +355,11 @@ public:
                const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  std::vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
-  std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+  const std::vector<FieldPlot*>& getFieldPlots() const;     // Returns a vector of defined field plots.
+  const std::vector<ObsPlot*>& getObsPlots() const;         // Returns a vector of defined observation plots.
 
-  std::map<std::string, Manager*> managers;
+  typedef std::map<std::string, Manager*> managers_t;
+  managers_t managers;
 
   static PlotModule *instance() { return self; }
 };

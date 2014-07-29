@@ -79,6 +79,7 @@ common_cxx_sources = \
 	diStationPlot.cc \
 	diTrajectoryPlot.cc \
 	diUndoFront.cc \
+	diUtilities.cc \
 	diVprofData.cc \
 	diVprofDiagram.cc \
 	diVprofManager.cc \
@@ -350,6 +351,7 @@ noinst_HEADERS = \
 	diTesselation.h \
 	diTrajectoryPlot.h \
 	diUndoFront.h \
+	diUtilities.h \
 	diVprofData.h \
 	diVprofDiagram.h \
 	diVprofManager.h \

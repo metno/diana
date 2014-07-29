@@ -41,8 +41,7 @@
 #include <diEditObjects.h>
 #include <diDisplayObjects.h>
 #include <diWeatherSymbol.h>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
+#include "diUtilities.h"
 #include <puTools/miSetupParser.h>
 
 #include <cstdio>
@@ -76,6 +75,11 @@ ObjectManager::~ObjectManager()
 {
 }
 
+void ObjectManager::changeProjection(const Area& newArea)
+{
+  editobjects.changeProjection(newArea);
+  combiningobjects.changeProjection(newArea);
+}
 
 bool ObjectManager::parseSetup() {
 
@@ -160,13 +164,14 @@ vector<std::string> ObjectManager::getObjectNames(bool archive) {
   return objNames;
 }
 
-vector<miTime> ObjectManager::getObjectTimes(const vector<string>& pinfos)
+vector<miTime> ObjectManager::getObjectTimes()
 //  * PURPOSE:   return times for list of PlotInfo's
 {
 #ifdef DEBUGPRINT
-   METLIBS_LOG_DEBUG("ObjectManager----> getTimes ");
+  METLIBS_LOG_SCOPE();
 #endif
 
+  const std::vector<std::string> pinfos(1, objects.getPlotInfo());
   set<miTime> timeset;
 
   int nn= pinfos.size();
@@ -255,9 +260,10 @@ PlotOptions ObjectManager::getPlotOptions(std::string objectName){
 
 
 bool ObjectManager::insertObjectName(const std::string & name,
-				     const std::string & file){
+				     const std::string & file)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObjectManager::insertObjectName " << name << " " << file);
+  METLIBS_LOG_SCOPE(name << " " << file);
 #endif
   bool ok=false;
   ObjectList olist;
@@ -267,7 +273,7 @@ bool ObjectManager::insertObjectName(const std::string & name,
     objectNames.push_back(name);
     objectFiles[name]= olist;
     ok=true;
-}
+  }
   return ok;
 }
 
@@ -277,34 +283,48 @@ bool ObjectManager::insertObjectName(const std::string & name,
 -----------  methods for finding and showing objectfiles ----------------
  -----------------------------------------------------------------------*/
 
-bool ObjectManager::prepareObjects(const miTime& t,
-				   const Area& area,
-				   DisplayObjects& wObjects){
+void ObjectManager::prepareObjects(const vector<string>& inp)
+{
+  METLIBS_LOG_SCOPE();
 
+  const std::string old_plotinfo = objects.getPlotInfo();
+  const bool old_enabled = objects.isEnabled();
+
+  objects.init();
+
+  for (size_t i = 0; i < inp.size(); i++)
+    objects.define(inp[i]);
+
+  const std::string new_plotinfo = objects.getPlotInfo();
+  objects.enable((new_plotinfo != old_plotinfo) or old_enabled);
+}
+
+
+bool ObjectManager::prepareObjects(const miTime& t,
+				   const Area& area)
+{
   //are objects defined (in objects.define() if not return false)
-    if (!wObjects.defined) return false;
+  if (!objects.isDefined()) return false;
 
   //if autoFile or wrong time, set correct time
-  if (wObjects.autoFile || wObjects.getTime() ==ztime)
-    wObjects.setTime(t);
+  if (objects.isAutoFile() || objects.getTime() ==ztime)
+    objects.setTime(t);
 
-  if (wObjects.autoFile || wObjects.filename.empty()){
+  if (objects.isAutoFile() || objects.filename.empty()){
     //not approved, we have to read new objects
-    wObjects.approved=false;
+    objects.setApproved(false);
     //clear objects !
-    wObjects.clear();
+    objects.clear();
     //get new filename
-    if (!getFileName(wObjects)) return false;
+    if (!getFileName(objects)) return false;
   }
 
-  if (!wObjects.approved){
-    if (!wObjects.readEditDrawFile(wObjects.filename,area))
+  if (!objects.isApproved()){
+    if (!objects.readEditDrawFile(objects.filename,area))
       return false;
   }
 
-
-  return wObjects.prepareObjects();
-
+  return objects.prepareObjects();
 }
 
 
@@ -335,23 +355,22 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string objectname,
 }
 
 
-vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
-
-  glob_t globBuf;
+vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
+{
+  METLIBS_LOG_SCOPE();
   std::string fileString= ol.filename + "*";
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObjectManager::listFiles, search string " << fileString);
+  METLIBS_LOG_DEBUG("search string " << fileString);
 #endif
 
   vector<ObjFileInfo> files;
 
-  glob_cache(fileString.c_str(),0,0,&globBuf);
-
-  for (unsigned int i=0; int(i)<globBuf.gl_pathc; i++) {
-    ObjFileInfo info;
-    std::string name = globBuf.gl_pathv[i];
+  const diutil::string_v matches = diutil::glob(fileString);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const std::string& name = *it;
     miTime time = timeFilterFileName(name,ol.filter);
     if(!time.undef() && time!=ztime){
+      ObjFileInfo info;
       info.name = name;
       info.time = time;
       //sort files with the newest files first !
@@ -364,8 +383,6 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol) {
       }
     }
   }
-
-  globfree_cache(&globBuf);
 
   return files;
 }
@@ -415,6 +432,7 @@ miTime ObjectManager::timeFileName(std::string fileName)
   }
     return timeFromString(parts[nparts-1]);
 }
+
 miTime ObjectManager::timeFromString(std::string timeString)
 {
   //get time from a string with yyyymmddhhmm
@@ -430,19 +448,18 @@ miTime ObjectManager::timeFromString(std::string timeString)
 }
 
 
-
-bool ObjectManager::getFileName(DisplayObjects& wObjects){
+bool ObjectManager::getFileName(DisplayObjects& wObjects)
+{
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObjectManager::getFileName");
+  METLIBS_LOG_SCOPE();
 #endif
 
-
-  if (wObjects.objectname.empty() || wObjects.getTime()==ztime)
+  if (wObjects.getObjectName().empty() || wObjects.getTime()==ztime)
     return false;
 
 
   map<std::string,ObjectList>::iterator po;
-  po= objectFiles.find(wObjects.objectname);
+  po= objectFiles.find(wObjects.getObjectName());
   if (po==objectFiles.end()) return false;
 
   if (!po->second.updated || !po->second.files.size()) {
@@ -453,7 +470,7 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects){
   int n= po->second.files.size();
 
   int fileno=-1;
-  int d, diff=wObjects.timeDiff+1;
+  int d, diff=wObjects.getTimeDiff() + 1;
 
   miTime t = wObjects.getTime();
   for (int i=0; i<n; i++) {
@@ -471,6 +488,38 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects){
   return true;
 }
 
+void ObjectManager::addPlotElements(std::vector<PlotElement>& pel)
+{ std::string str = objects.getName();
+  if (not str.empty()) {
+    str += "# 0";
+    bool enabled = objects.isEnabled();
+    pel.push_back(PlotElement("OBJECTS", str, "OBJECTS", enabled));
+  }
+}
+
+void ObjectManager::enablePlotElement(const PlotElement& pe)
+{
+  if (pe.type != "OBJECTS")
+    return;
+  std::string str = objects.getName() += "# 0" ;
+  if (str == pe.str)
+    objects.enable(pe.enabled);
+}
+
+void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
+{
+  if (objects.isEnabled())
+    objects.getObjAnnotation(str, col);
+  else
+    str.clear();
+}
+
+void ObjectManager::plotObjects()
+{
+  objects.changeProjection(StaticPlot::getMapArea());
+  objects.plot();
+}
+
 /*----------------------------------------------------------------------
 -----------  end of methods for finding and showing objectfiles ---------
  -----------------------------------------------------------------------*/
@@ -481,7 +530,7 @@ bool ObjectManager::editCommandReadCommentFile(const std::string filename)
 #endif
 
   //read file with comments
-  readEditCommentFile(filename,plotm->editobjects);
+  readEditCommentFile(filename,editobjects);
 
   return true;
 }
@@ -502,24 +551,23 @@ void ObjectManager::putCommentStartLines(const std::string name, const std::stri
   METLIBS_LOG_DEBUG("ObjectManager::putCommentStartLines");
 #endif
 
-  plotm->editobjects.putCommentStartLines(name,prefix,lines);
+  editobjects.putCommentStartLines(name,prefix,lines);
 }
 
 std::string ObjectManager::getComments(){
   //return the comments
-  return plotm->editobjects.getComments();
+  return editobjects.getComments();
 }
 
 void ObjectManager::putComments(const std::string & comments){
-  plotm->editobjects.putComments(comments);
+  editobjects.putComments(comments);
 }
 
 std::string ObjectManager::readComments(bool inEditSession){
   if (inEditSession)
-    return plotm->editobjects.readComments();
+    return editobjects.readComments();
   else
-    return plotm->objects.readComments();
-
+    return objects.readComments();
 }
 
 /*----------------------------------------------------------------------
@@ -534,16 +582,16 @@ bool ObjectManager::editCommandReadDrawFile(const std::string filename)
 #endif
 
   //size of objects to start with
-  int edSize = plotm->editobjects.getSize();
+  int edSize = editobjects.getSize();
 
-  readEditDrawFile(filename,plotm->getMapArea(),plotm->editobjects);
+  readEditDrawFile(filename,plotm->getMapArea(),editobjects);
 
   editNewObjectsAdded(edSize);
 
   // set symbol default size to size of last read object !
-  plotm->editobjects.changeDefaultSize();
+  editobjects.changeDefaultSize();
 
-  if (autoJoinOn()) plotm->editobjects.editJoinFronts(true, true,false);
+  if (autoJoinOn()) editobjects.editJoinFronts(true, true,false);
 
   setAllPassive();
 
@@ -632,22 +680,22 @@ Colour::ColourInfo ObjectManager::getCurrentColour(){
 
 
 std::string ObjectManager::getMarkedText(){
-  return plotm->editobjects.getMarkedText();
+  return editobjects.getMarkedText();
 }
 
 Colour::ColourInfo ObjectManager::getMarkedTextColour(){
-  return plotm->editobjects.getMarkedTextColour();
+  return editobjects.getMarkedTextColour();
 }
 
 Colour::ColourInfo ObjectManager::getMarkedColour(){
-  return plotm->editobjects.getMarkedColour();
+  return editobjects.getMarkedColour();
 }
 
 
 void ObjectManager::changeMarkedText(const std::string & newText){
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedText(newText);
+    editobjects.changeMarkedText(newText);
     editPostOperation();
   }
 }
@@ -655,7 +703,7 @@ void ObjectManager::changeMarkedText(const std::string & newText){
 void ObjectManager::changeMarkedTextColour(const Colour::ColourInfo & newColour){
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedTextColour(newColour);
+    editobjects.changeMarkedTextColour(newColour);
     editPostOperation();
   }
 }
@@ -663,7 +711,7 @@ void ObjectManager::changeMarkedTextColour(const Colour::ColourInfo & newColour)
 void ObjectManager::changeMarkedColour(const Colour::ColourInfo & newColour){
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedColour(newColour);
+    editobjects.changeMarkedColour(newColour);
     editPostOperation();
   }
 }
@@ -677,25 +725,25 @@ set<string> ObjectManager::getTextList()
 
 void ObjectManager::getMarkedMultilineText(vector<string>& symbolText)
 {
-  plotm->editobjects.getMarkedMultilineText(symbolText);
+  editobjects.getMarkedMultilineText(symbolText);
 }
 
 
 void ObjectManager::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
 {
-  plotm->editobjects.getMarkedComplexText(symbolText,xText);
+  editobjects.getMarkedComplexText(symbolText,xText);
 }
 
 void ObjectManager::getMarkedComplexTextColored(vector <string> & symbolText, vector <string> & xText)
 {
-  plotm->editobjects.getMarkedComplexTextColored(symbolText,xText);
+  editobjects.getMarkedComplexTextColored(symbolText,xText);
 }
 
 void ObjectManager::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedComplexTextColored(symbolText,xText);
+    editobjects.changeMarkedComplexTextColored(symbolText,xText);
     editPostOperation();
   }
 }
@@ -703,7 +751,7 @@ void ObjectManager::changeMarkedMultilineText(const vector<string>& symbolText)
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedMultilineText(symbolText);
+    editobjects.changeMarkedMultilineText(symbolText);
     editPostOperation();
   }
 }
@@ -712,26 +760,26 @@ void ObjectManager::changeMarkedComplexText(const vector<string>& symbolText, co
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
-    plotm->editobjects.changeMarkedComplexText(symbolText,xText);
+    editobjects.changeMarkedComplexText(symbolText,xText);
     editPostOperation();
   }
 }
 
 bool ObjectManager::inTextMode(){
-  return plotm->editobjects.inTextMode();
+  return editobjects.inTextMode();
 }
 
 
 bool ObjectManager::inComplexTextColorMode(){
-  return plotm->editobjects.inComplexTextColorMode();
+  return editobjects.inComplexTextColorMode();
 }
 
 bool ObjectManager::inComplexTextMode(){
-  return plotm->editobjects.inComplexTextMode();
+  return editobjects.inComplexTextMode();
 }
 
 bool ObjectManager::inEditTextMode(){
-  return plotm->editobjects.inEditTextMode();
+  return editobjects.inEditTextMode();
 }
 
 void ObjectManager::getCurrentComplexText(vector<string> & symbolText, vector<string> & xText)
@@ -746,7 +794,7 @@ void ObjectManager::setCurrentComplexText(const vector<string>& symbolText, cons
 
 void ObjectManager::initCurrentComplexText()
 {
-  plotm->editobjects.initCurrentComplexText();
+  editobjects.initCurrentComplexText();
 }
 
 set<string> ObjectManager::getComplexList()
@@ -766,20 +814,20 @@ void ObjectManager::autoJoinToggled(bool on){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("autoJoinToggled is called");
 #endif
-  plotm->editobjects.setAutoJoinOn(on);
-  if (autoJoinOn()) plotm->editobjects.editJoinFronts(true,true,false);
+  editobjects.setAutoJoinOn(on);
+  if (autoJoinOn()) editobjects.editJoinFronts(true,true,false);
 }
 
 
 bool ObjectManager::autoJoinOn(){
-  return plotm->editobjects.isAutoJoinOn();
+  return editobjects.isAutoJoinOn();
 }
 
 bool ObjectManager::inDrawing(){
   if (mapmode==draw_mode)
-    return plotm->editobjects.inDrawing;
+    return editobjects.inDrawing;
   else if (mapmode==combine_mode)
-    return plotm->combiningobjects.inDrawing;
+    return combiningobjects.inDrawing;
 
   return false;
 }
@@ -795,15 +843,15 @@ void ObjectManager::createNewObject()
 #endif
   editStopDrawing();
   if (mapmode==draw_mode)
-    plotm->editobjects.createNewObject();
+    editobjects.createNewObject();
   else if (mapmode==combine_mode)
-    plotm->combiningobjects.createNewObject();
+    combiningobjects.createNewObject();
 }
 
 
 
 void ObjectManager::editTestFront(){
-  plotm->editobjects.editTestFront();
+  editobjects.editTestFront();
 }
 
 
@@ -814,8 +862,8 @@ void ObjectManager::editSplitFront(const float x, const float y){
 #endif
   if (mapmode==draw_mode){
     editPrepareChange(SplitFronts);
-    if (plotm->editobjects.editSplitFront(x,y)){
-      if (autoJoinOn()) plotm->editobjects.editJoinFronts(false,true,false);
+    if (editobjects.editSplitFront(x,y)){
+      if (autoJoinOn()) editobjects.editJoinFronts(false,true,false);
     } else
       objectsChanged= false;
     setAllPassive();
@@ -832,10 +880,10 @@ void ObjectManager::editResumeDrawing(const float x, const float y) {
   if (mapmode==draw_mode){
 
     editPrepareChange(ResumeDrawing);
-    objectsChanged = plotm->editobjects.editResumeDrawing(x,y);
+    objectsChanged = editobjects.editResumeDrawing(x,y);
     editPostOperation();
   } else if (mapmode == combine_mode)
-    doCombine=plotm->combiningobjects.editResumeDrawing(x,y);
+    doCombine=combiningobjects.editResumeDrawing(x,y);
 }
 
 
@@ -849,13 +897,13 @@ bool ObjectManager::editCheckPosition(const float x, const float y){
   //returns true if marked nodepoints changed
 
   if (mapmode == draw_mode){
-    changed = plotm->editobjects.editCheckPosition(x,y);
+    changed = editobjects.editCheckPosition(x,y);
   }else if (mapmode == combine_mode){
-    changed=plotm->combiningobjects.editCheckPosition(x,y);
+    changed=combiningobjects.editCheckPosition(x,y);
   }else {
-    plotm->editobjects.unmarkAllPoints();
+    editobjects.unmarkAllPoints();
     setRubber(false,0,0);
-    plotm->combiningobjects.unmarkAllPoints();
+    combiningobjects.unmarkAllPoints();
     changed=true;
   }
 
@@ -868,8 +916,8 @@ void ObjectManager::setAllPassive(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::setAllPassive()");
 #endif
-  plotm->editobjects.setAllPassive();
-  plotm->combiningobjects.setAllPassive();
+  editobjects.setAllPassive();
+  combiningobjects.setAllPassive();
   setRubber(false,0,0);
 }
 
@@ -877,7 +925,7 @@ bool ObjectManager::setRubber(bool rubber, const float x, const float y){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::setRubber called");
 #endif
-  return plotm->editobjects.setRubber(rubber,x,y);
+  return editobjects.setRubber(rubber,x,y);
 }
 
 
@@ -893,7 +941,7 @@ void ObjectManager::editPrepareChange(const operation op)
   //temporary undo buffer, in case changes occur
   undoTemp = new UndoFront( );
   if (mapmode!=combine_mode){
-    objectsChanged = plotm->editobjects.saveCurrentFronts(op, undoTemp);
+    objectsChanged = editobjects.saveCurrentFronts(op, undoTemp);
   }else
     objectsChanged=false;
 }
@@ -905,7 +953,7 @@ void ObjectManager::editMouseRelease(bool moved)
 #endif
   if (moved)objectsChanged = true;
   editPostOperation();
-  if (moved && autoJoinOn()) plotm->editobjects.editJoinFronts(false,true,false);
+  if (moved && autoJoinOn()) editobjects.editJoinFronts(false,true,false);
 
 }
 
@@ -915,7 +963,7 @@ void ObjectManager::editPostOperation(){
   METLIBS_LOG_DEBUG("!! editPostOperation");
 #endif
   if (objectsChanged && undoTemp!=0){
-    plotm->editobjects.newUndoCurrent(undoTemp);
+    editobjects.newUndoCurrent(undoTemp);
     objectsSaved = false;
   } else if (undoTemp!=0){
     delete undoTemp;
@@ -929,10 +977,10 @@ void ObjectManager::editNewObjectsAdded(int edSize){
 #endif
 
   //for undo buffer
-  int diffedSize=plotm->editobjects.getSize()-edSize;
+  int diffedSize=editobjects.getSize()-edSize;
   undoTemp = new UndoFront();
-  if (plotm->editobjects.saveCurrentFronts(diffedSize,undoTemp))
-    plotm->editobjects.newUndoCurrent(undoTemp);
+  if (editobjects.saveCurrentFronts(diffedSize,undoTemp))
+    editobjects.newUndoCurrent(undoTemp);
   else{
     delete undoTemp;
     undoTemp = NULL;
@@ -942,7 +990,7 @@ void ObjectManager::editNewObjectsAdded(int edSize){
 void ObjectManager::editCommandJoinFronts(bool joinAll,bool movePoints,bool joinOnLine){
   if(mapmode== draw_mode){
     editPrepareChange(JoinFronts);
-    objectsChanged=plotm->editobjects.editJoinFronts(joinAll,movePoints,joinOnLine);
+    objectsChanged=editobjects.editJoinFronts(joinAll,movePoints,joinOnLine);
     editPostOperation();
   }
 }
@@ -952,8 +1000,8 @@ void ObjectManager::setEditMode(const mapMode mmode,
 				const std::string etool){
   mapmode= mmode;
 
-  plotm->editobjects.setEditMode(mmode,emode,etool);
-  plotm->combiningobjects.setEditMode(mmode,emode,etool);
+  editobjects.setEditMode(mmode,emode,etool);
+  combiningobjects.setEditMode(mmode,emode,etool);
 
 }
 
@@ -966,7 +1014,7 @@ void ObjectManager::setEditMode(const mapMode mmode,
 void ObjectManager::editStopDrawing(){
   if (mapmode==draw_mode){
         setRubber(false,0,0);
-    if (autoJoinOn()) plotm->editobjects.editJoinFronts(false,true,false);
+    if (autoJoinOn()) editobjects.editJoinFronts(false,true,false);
   }
   setAllPassive();
 }
@@ -980,14 +1028,14 @@ void ObjectManager::editDeleteMarkedPoints(){
   if (mapmode==draw_mode){
 
     editPrepareChange(DeleteMarkedPoints);
-    plotm->editobjects.editDeleteMarkedPoints();
+    editobjects.editDeleteMarkedPoints();
     editPostOperation();
     //remove fronts with only one point...
     cleanUp();
-    if (autoJoinOn()) plotm->editobjects.editJoinFronts(false,true,false);
+    if (autoJoinOn()) editobjects.editJoinFronts(false,true,false);
 
   } else if (mapmode==combine_mode)
-    doCombine = plotm->combiningobjects.editDeleteMarkedPoints();
+    doCombine = combiningobjects.editDeleteMarkedPoints();
 
 }
 
@@ -999,23 +1047,23 @@ void ObjectManager::editAddPoint(const float x, const float y){
 
   if(mapmode== draw_mode){
     editPrepareChange(AddPoint);
-    plotm->editobjects.editAddPoint(x,y);
+    editobjects.editAddPoint(x,y);
     editPostOperation();
   } else if (mapmode==combine_mode)
-    doCombine=plotm->combiningobjects.editAddPoint(x,y);
+    doCombine=combiningobjects.editAddPoint(x,y);
 }
 
 
 void ObjectManager::editStayMarked(){
-  plotm->editobjects.editStayMarked();
+  editobjects.editStayMarked();
 
 }
 
 void ObjectManager::editNotMarked(){
   if(mapmode== draw_mode){
-    plotm->editobjects.editNotMarked();
+    editobjects.editNotMarked();
   } else if(mapmode== combine_mode){
-    plotm->combiningobjects.editNotMarked();
+    combiningobjects.editNotMarked();
   }
   setAllPassive();
 }
@@ -1031,7 +1079,7 @@ ObjectManager::editMergeFronts(bool mergeAll){
 #endif
   if(mapmode== draw_mode){
     editPrepareChange(JoinFronts);
-    objectsChanged =plotm->editobjects.editMergeFronts(mergeAll);
+    objectsChanged =editobjects.editMergeFronts(mergeAll);
     editPostOperation();
   }
 }
@@ -1040,7 +1088,7 @@ ObjectManager::editMergeFronts(bool mergeAll){
 void ObjectManager::editUnJoinPoints(){
 
   if (mapmode==draw_mode){
-    plotm->editobjects.editUnJoinPoints();
+    editobjects.editUnJoinPoints();
     checkJoinPoints();
   }
 }
@@ -1050,14 +1098,14 @@ bool ObjectManager::editMoveMarkedPoints(const float x, const float y)
 {
   bool changed = false;
   if (mapmode==draw_mode){
-    changed = plotm->editobjects.editMoveMarkedPoints(x,y);
+    changed = editobjects.editMoveMarkedPoints(x,y);
     if (changed){
       checkJoinPoints();
       //Join points but don't move
-      if (autoJoinOn()) plotm->editobjects.editJoinFronts(false,false,false);
+      if (autoJoinOn()) editobjects.editJoinFronts(false,false,false);
     }
   } else if (mapmode == combine_mode){
-    changed = plotm->combiningobjects.editMoveMarkedPoints(x,y);
+    changed = combiningobjects.editMoveMarkedPoints(x,y);
     if (changed) doCombine = true;
   }
   return changed;
@@ -1066,14 +1114,14 @@ bool ObjectManager::editMoveMarkedPoints(const float x, const float y)
 bool ObjectManager::editRotateLine(const float x, const float y){
   bool changed = false;
   if (mapmode==draw_mode){
-    changed = plotm->editobjects.editRotateLine(x,y);
+    changed = editobjects.editRotateLine(x,y);
     if (changed){
       checkJoinPoints();
       //Join points but don't move
-      if (autoJoinOn()) plotm->editobjects.editJoinFronts(false,false,false);
+      if (autoJoinOn()) editobjects.editJoinFronts(false,false,false);
     }
   } else if (mapmode == combine_mode){
-    changed = plotm->combiningobjects.editRotateLine(x,y);
+    changed = combiningobjects.editRotateLine(x,y);
     if (changed) doCombine = true;
   }
   return changed;
@@ -1082,7 +1130,7 @@ bool ObjectManager::editRotateLine(const float x, const float y){
 
 void ObjectManager::editCopyObjects(){
   if (mapmode==draw_mode){
-    plotm->editobjects.editCopyObjects();
+    editobjects.editCopyObjects();
   }
 }
 
@@ -1090,7 +1138,7 @@ void ObjectManager::editCopyObjects(){
 void ObjectManager::editPasteObjects(){
   if (mapmode==draw_mode){
     editPrepareChange(PasteObjects);
-    plotm->editobjects.editPasteObjects();
+    editobjects.editPasteObjects();
     editPostOperation();
   }
 }
@@ -1099,23 +1147,23 @@ void ObjectManager::editPasteObjects(){
 void ObjectManager::editFlipObjects(){
   if (mapmode==draw_mode){
     editPrepareChange(FlipObjects);
-    plotm->editobjects.editFlipObjects();
+    editobjects.editFlipObjects();
     editPostOperation();
   }
 }
 
 
 void ObjectManager::editUnmarkAllPoints(){
-  plotm->editobjects.unmarkAllPoints();
+  editobjects.unmarkAllPoints();
 }
 
 void ObjectManager::editIncreaseSize(float val){
   if (mapmode==draw_mode){
     editPrepareChange(IncreaseSize);
-    plotm->editobjects.editIncreaseSize(val);
+    editobjects.editIncreaseSize(val);
     editPostOperation();
   } else if (mapmode==combine_mode){
-    bool changed = plotm->combiningobjects.editIncreaseSize(val);
+    bool changed = combiningobjects.editIncreaseSize(val);
     if (changed) doCombine = true;
   }
 }
@@ -1123,10 +1171,10 @@ void ObjectManager::editIncreaseSize(float val){
 void ObjectManager::editDefaultSize(){
   if (mapmode==draw_mode){
     editPrepareChange(DefaultSize);
-    plotm->editobjects.editDefaultSize();
+    editobjects.editDefaultSize();
     editPostOperation();
   }  else if (mapmode==combine_mode){
-    plotm->combiningobjects.editDefaultSize();
+    combiningobjects.editDefaultSize();
   }
 }
 
@@ -1134,10 +1182,10 @@ void ObjectManager::editDefaultSize(){
 void ObjectManager::editDefaultSizeAll(){
   if (mapmode==draw_mode){
     editPrepareChange(DefaultSizeAll);
-    plotm->editobjects.editDefaultSizeAll();
+    editobjects.editDefaultSizeAll();
     editPostOperation();
   } else if (mapmode == combine_mode){
-    plotm->combiningobjects.editDefaultSizeAll();
+    combiningobjects.editDefaultSizeAll();
   }
 }
 
@@ -1146,7 +1194,7 @@ void ObjectManager::editDefaultSizeAll(){
 void ObjectManager::editRotateObjects(float val){
   if (mapmode==draw_mode){
     editPrepareChange(RotateObjects);
-    plotm->editobjects.editRotateObjects(val);
+    editobjects.editRotateObjects(val);
     editPostOperation();
   }
 }
@@ -1154,54 +1202,54 @@ void ObjectManager::editRotateObjects(float val){
 void ObjectManager::editHideBox(){
   if (mapmode==draw_mode){
     editPrepareChange(HideBox);
-    plotm->editobjects.editHideBox();
+    editobjects.editHideBox();
     editPostOperation();
   }
 }
 
 void ObjectManager::editHideAll(){
-    plotm->editobjects.editHideAll();
+    editobjects.editHideAll();
 }
 
 
 void ObjectManager::editHideCombineObjects(int ir){
-  plotm->editobjects.editHideCombineObjects(ir);
+  editobjects.editHideCombineObjects(ir);
 }
 
 void ObjectManager::editUnHideAll(){
-  plotm->editobjects.editUnHideAll();
+  editobjects.editUnHideAll();
 }
 
 
 void ObjectManager::editHideCombining(){
   if (mapmode == combine_mode) return;
-  plotm->combiningobjects.editHideAll();
+  combiningobjects.editHideAll();
 }
 
 void ObjectManager::editUnHideCombining(){
   if (mapmode == combine_mode) return;
-  plotm->combiningobjects.editUnHideAll();
+  combiningobjects.editUnHideAll();
 }
 
 
 void ObjectManager::editChangeObjectType(int val){
   if (mapmode == draw_mode){
     editPrepareChange(ChangeObjectType);
-    plotm->editobjects.editChangeObjectType(val);
+    editobjects.editChangeObjectType(val);
     editPostOperation();
   } else if (mapmode == combine_mode)
-    doCombine=plotm->combiningobjects.editChangeObjectType(val);
+    doCombine=combiningobjects.editChangeObjectType(val);
 }
 
 void ObjectManager::cleanUp(){
   editPrepareChange(CleanUp);
-  plotm->editobjects.cleanUp();
+  editobjects.cleanUp();
   editPostOperation();
 }
 
 
 void ObjectManager::checkJoinPoints(){
-  plotm->editobjects.checkJoinPoints();
+  editobjects.checkJoinPoints();
 }
 
 
@@ -1209,7 +1257,7 @@ bool ObjectManager::redofront(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::redofront");
 #endif
-  return plotm->editobjects.redofront();
+  return editobjects.redofront();
 }
 
 
@@ -1217,11 +1265,11 @@ bool ObjectManager::undofront(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::undofront");
 #endif
-  return plotm->editobjects.undofront();
+  return editobjects.undofront();
 }
 
 void ObjectManager::undofrontClear(){
-  plotm->editobjects.undofrontClear();
+  editobjects.undofrontClear();
 }
 
 

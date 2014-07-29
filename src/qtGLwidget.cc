@@ -93,13 +93,12 @@ GLwidget::~GLwidget()
 
 void GLwidget::paintGL()
 {
-
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("paintGL()");
+  METLIBS_LOG_SCOPE();
 #endif
 
 #ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("GLwidget::paintGL ... plot under");
+  METLIBS_LOG_DEBUG("plot under");
 #endif
   if (contr) {
     contr->plot(true, false); // draw underlay
@@ -111,11 +110,9 @@ void GLwidget::paintGL()
     renderText(10, height() - 10, "new painting mode (experimental)");
   }
 
-  static int nn = 0; nn++;
-
   if (savebackground) {
 #ifdef DEBUGREDRAW
-    METLIBS_LOG_DEBUG("GLwidget::paintGL ... savebackground");
+    METLIBS_LOG_DEBUG("savebackground");
 #endif
     if (!fbuffer) {
       fbuffer = new GLuint[4 * plotw * ploth];
@@ -145,8 +142,6 @@ void GLwidget::editPaint(bool drawb)
   updateGL();
 #else
   makeCurrent();
-
-  static int nn = 0; nn++;
 
   if (drawb && fbuffer) {
 #ifdef DEBUGREDRAW
@@ -188,7 +183,7 @@ void GLwidget::initializeGL()
 void GLwidget::resizeGL(int w, int h)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("resizeGL");
+  METLIBS_LOG_SCOPE();
 #endif
   if (contr) {
     contr->setPlotWindow(w, h);

@@ -502,13 +502,8 @@ void QtPlot::updateCharSize(QPainter& painter)
 
 void QtPlot::calculateContrastColour()
 {
-  // contrast colour
   mBackColour = Colour(mOptions->backgroundColour);
-  const int sum = mBackColour.R() + mBackColour.G() + mBackColour.B();
-  if (sum > 255 * 3 / 2)
-    mContrastColour.set(0, 0, 0);
-  else
-    mContrastColour.set(255, 255, 255);
+  mContrastColour = mBackColour.contrastColour();
 }
 
 int QtPlot::getNearestPos(int px)

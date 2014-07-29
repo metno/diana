@@ -47,35 +47,27 @@
 using namespace std;
 using namespace miutil;
 
-// Default constructor
-AnnotationPlot::AnnotationPlot() :
-  Plot()
+AnnotationPlot::AnnotationPlot()
 {
-  METLIBS_LOG_DEBUG("++ AnnotationPlot::Default Constructor");
+  METLIBS_LOG_SCOPE();
   init();
 }
 
-// Constructor
-AnnotationPlot::AnnotationPlot(const std::string& po) :
-  Plot()
+AnnotationPlot::AnnotationPlot(const std::string& po)
 {
-  METLIBS_LOG_DEBUG("++ AnnotationPlot::Constructor: " << po);
+  METLIBS_LOG_SCOPE(LOGVAL(po));
   init();
   prepare(po);
 }
 
-// Destructor
 AnnotationPlot::~AnnotationPlot()
 {
-  size_t n = annotations.size();
-  for ( size_t i = 0; i < n; ++i ) {
-    size_t m = annotations[i].annoElements.size();
-    for ( size_t j = 0; j < m; ++j ) {
-      delete annotations[i].annoElements[j].classplot;
-      annotations[i].annoElements[j].classplot = NULL;
+  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
+    for (element_v::iterator ite = ita->annoElements.begin(); ite != ita->annoElements.end(); ++ite) {
+      delete ite->classplot;
+      ite->classplot = 0;
     }
   }
-
 }
 
 void AnnotationPlot::init()
@@ -90,7 +82,6 @@ void AnnotationPlot::init()
 
 const std::string AnnotationPlot::insertTime(const std::string& s, const miTime& time)
 {
-
   bool norwegian = true;
   std::string es = s;
   if (miutil::contains(es, "$")) {
@@ -149,11 +140,9 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
 
 const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs)
 {
-
   vector<std::string> evs;
-  int nvs = vs.size();
-  for (int j = 0; j < nvs; j++) {
-    std::string es = insertTime(vs[j], ctime);
+  for (size_t j = 0; j < vs.size(); j++) {
+    std::string es = insertTime(vs[j], StaticPlot::getTime());
 
     if (useAnaTime) {
       // only using the latest analysis time (yet...)
@@ -286,15 +275,13 @@ bool AnnotationPlot::setData(const vector<Annotation>& a,
 
 void AnnotationPlot::splitAnnotations()
 {
-
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    annotations[i].oldFormat = false;
-    annotations[i].vstr = split(annotations[i].str, '<', '>');
+  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
+    ita->oldFormat = false;
+    ita->vstr = split(ita->str, '<', '>');
     //use the whole string if no <> delimiters found - old text format
-    if (!annotations[i].vstr.size()) {
-      annotations[i].vstr.push_back(annotations[i].str);
-      annotations[i].oldFormat = true;
+    if (ita->vstr.empty()) {
+      ita->vstr.push_back(ita->str);
+      ita->oldFormat = true;
     }
   }
   orig_annotations = annotations;
@@ -302,48 +289,41 @@ void AnnotationPlot::splitAnnotations()
 
 bool AnnotationPlot::putElements()
 {
-    METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
+  METLIBS_LOG_DEBUG("AnnotationPlot::putElements");
   //decode strings, put into elements...
-  vector<std::string> stokens, tokens, elementstrings;
+  vector<std::string> tokens, elementstrings;
   vector<Annotation> anew;
   nothingToDo = true;
 
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    int subel = 0;
-    size_t m = annotations[i].annoElements.size();
-    for ( size_t j = 0; j < m; ++j ) {
-      delete annotations[i].annoElements[j].classplot;
-      annotations[i].annoElements[j].classplot = NULL;
-    }
-    annotations[i].annoElements.clear();
-    annotations[i].hAlign = align_left;//default
-    annotations[i].polystyle = poly_none;//default
-    annotations[i].spaceLine = false;
-    annotations[i].wid = 0;
-    annotations[i].hei = 0;
-    if (annotations[i].str.empty())
+  for (Annotation_v::iterator ita = annotations.begin(); ita != annotations.end(); ++ita) {
+    for (element_v::iterator ite = ita->annoElements.begin(); ite != ita->annoElements.end(); ++ite)
+      delete ite->classplot;
+    ita->annoElements.clear();
+    ita->hAlign = align_left;//default
+    ita->polystyle = poly_none;//default
+    ita->spaceLine = false;
+    ita->wid = 0;
+    ita->hei = 0;
+    if (ita->str.empty())
       continue;
-    elementstrings.clear();
-    elementstrings = expanded(annotations[i].vstr);
-    int nel = elementstrings.size();
-    for (int l = 0; l < nel; l++) {
+    int subel = 0;
+    const vector<std::string> elementstrings = expanded(ita->vstr);
+    for (size_t l = 0; l < elementstrings.size(); l++) {
       //      METLIBS_LOG_DEBUG("  elementstrings[l]:"<<elementstrings[l]);
       if (miutil::contains(elementstrings[l], "horalign=")) {
         //sets alignment for the whole annotation !
-        stokens = miutil::split_protected(elementstrings[l], '\"', '\"', ",", true);
-        int mtokens = stokens.size();
-        for (int k = 0; k < mtokens; k++) {
-          vector<std::string> subtokens = miutil::split(stokens[k], 0, "=");
+        const vector<std::string> stokens = miutil::split_protected(elementstrings[l], '\"', '\"', ",", true);
+        for (size_t k = 0; k < stokens.size(); k++) {
+          const vector<std::string> subtokens = miutil::split(stokens[k], 0, "=");
           if (subtokens.size() != 2)
             continue;
           if (subtokens[0] == "horalign") {
             if (subtokens[1] == "center")
-              annotations[i].hAlign = align_center;
+              ita->hAlign = align_center;
             if (subtokens[1] == "right")
-              annotations[i].hAlign = align_right;
+              ita->hAlign = align_right;
             if (subtokens[1] == "left")
-              annotations[i].hAlign = align_left;
+              ita->hAlign = align_left;
           }
         }
       } else if (miutil::contains(elementstrings[l], "bcolour=")) {
@@ -351,25 +331,25 @@ bool AnnotationPlot::putElements()
         if (stokens.size() != 2)
           continue;
         Colour c = Colour(stokens[1]);
-        annotations[i].bordercolour = c;
+        ita->bordercolour = c;
       } else if (miutil::contains(elementstrings[l], "polystyle=")) {
         vector<std::string> stokens = miutil::split(elementstrings[l], 0, "=");
         if (stokens.size() != 2)
           continue;
         if (stokens[1] == "fill")
-          annotations[i].polystyle = poly_fill;
+          ita->polystyle = poly_fill;
         else if (stokens[1] == "border")
-          annotations[i].polystyle = poly_border;
+          ita->polystyle = poly_border;
         else if (stokens[1] == "both")
-          annotations[i].polystyle = poly_both;
+          ita->polystyle = poly_both;
         else if (stokens[1] == "none")
-          annotations[i].polystyle = poly_none;
+          ita->polystyle = poly_none;
 
       } else if (elementstrings[l] == "\\box") {
         subel--;
       } else {
         element e;
-        if (annotations[i].oldFormat) {
+        if (ita->oldFormat) {
           e.eSize = 1.0;
           e.eFace = poptions.fontface;
           e.eHalign = align_left;
@@ -386,18 +366,18 @@ bool AnnotationPlot::putElements()
           e.arrowFeather = false;
           //	  e.textcolour="black";
           nothingToDo = false;
-          annotations[i].annoElements.push_back(e);
+          ita->annoElements.push_back(e);
         } else {
           if (decodeElement(elementstrings[l], e)) {
             nothingToDo = false;
-            addElement2Vector(annotations[i].annoElements, e, subel);
+            addElement2Vector(ita->annoElements, e, subel);
           }
           if (elementstrings[l].compare(0, 3, "box") == 0)
             subel++;
         }
       }
     }
-    anew.push_back(annotations[i]);
+    anew.push_back(*ita);
   }
   annotations = anew;
 
@@ -407,7 +387,6 @@ bool AnnotationPlot::putElements()
 void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
     int index)
 {
-
   if (index > 0) {
     index--;
     int n = v_e.size();
@@ -421,7 +400,8 @@ void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e,
 
 bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
 {
-  METLIBS_LOG_DEBUG("EL:"<<elementstring);
+  METLIBS_LOG_SCOPE(LOGVAL(elementstring));
+
   e.eSize = 1.0;
   e.eFace = poptions.fontface;
   e.eHalign = align_left;
@@ -528,8 +508,8 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
 
 bool AnnotationPlot::plot()
 {
-  METLIBS_LOG_DEBUG("++ AnnotationPlot::plot() ++");
-  if (!enabled || !annotations.size() || nothingToDo)
+  METLIBS_LOG_SCOPE();
+  if (!isEnabled() || annotations.empty() || nothingToDo)
     return false;
 
   borderline.clear();
@@ -537,14 +517,14 @@ bool AnnotationPlot::plot()
   plotAnno = true;
 
   Rectangle window;
-  if (plotRequested && requestedarea.P() == area.P()) {
-    window = requestedarea.R();
+  if (plotRequested && StaticPlot::getRequestedarea().P() == StaticPlot::getMapArea().P()) {
+    window = StaticPlot::getRequestedarea().R();
     if (window.x1 == window.x2 || window.y1 == window.y2)
-      window = fullrect;
+      window = StaticPlot::getPlotSize();
     if (cxratio > 0 && cyratio > 0)
       scaleAnno = true;
   } else
-    window = fullrect;
+    window = StaticPlot::getPlotSize();
 
   fontsizeToPlot = int(poptions.fontsize);
 
@@ -563,12 +543,12 @@ bool AnnotationPlot::plot()
 
   // draw filled area
   Colour fc = poptions.fillcolour;
-  if (fc.A() < Colour::maxv && rgbmode) {
+  if (fc.A() < Colour::maxv && getColourMode()) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
   if (poptions.polystyle != poly_border && poptions.polystyle != poly_none) {
-    if (rgbmode)
+    if (getColourMode())
       glColor4ubv(fc.RGBA());
     else
       glIndexi(fc.Index());
@@ -584,7 +564,7 @@ bool AnnotationPlot::plot()
   glDisable(GL_BLEND);
 
 
-  UpdateOutput();
+  StaticPlot::UpdateOutput();
 
   //plotAnno could be false if annotations too big for box
   // return here after plotted box only
@@ -610,10 +590,10 @@ bool AnnotationPlot::plot()
         x += (maxwid - anno.wid);
       //draw one annotation - one line
       Colour c = anno.col;
-      if (c == backgroundColour)
-        c = backContrastColour;
+      if (c == StaticPlot::getBackgroundColour())
+        c = StaticPlot::getBackContrastColour();
       currentColour = c;
-      if (rgbmode)
+      if (getColourMode())
         glColor4ubv(c.RGBA());
       else
         glIndexi(c.Index());
@@ -621,11 +601,11 @@ bool AnnotationPlot::plot()
       y -= spacing;
     }
   }
-  UpdateOutput();
+  StaticPlot::UpdateOutput();
 
   // draw outline
   if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
-    if (rgbmode)
+    if (getColourMode())
       glColor4ubv(poptions.bordercolour.RGBA());
     else
       glIndexi(poptions.bordercolour.Index());
@@ -654,7 +634,7 @@ bool AnnotationPlot::plot()
     plotBorders();
   }
 
-  UpdateOutput();
+  StaticPlot::UpdateOutput();
 
   return true;
 }
@@ -662,21 +642,21 @@ bool AnnotationPlot::plot()
 bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
-  METLIBS_LOG_DEBUG("plotElements:"<<annoEl.size());
+  METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
+
   float fontsizeScale;
   float wid, hei;
-  int nel = annoEl.size();
-  if (hardcopy)
-    fontsizeScale = fp->getSizeDiv();
+  if (StaticPlot::hardcopy)
+    fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
   //    METLIBS_LOG_DEBUG("fontsizeScale:"<<fontsizeScale);
-  for (int j = 0; j < nel; j++) {
+  for (size_t j = 0; j < annoEl.size(); j++) {
     if (!horizontal && j != 0)
       y -= annoEl[j].height;
 
-    if (rgbmode)
+    if (getColourMode())
       glColor4ubv(currentColour.RGBA());
     else
       glIndexi(currentColour.Index());
@@ -684,11 +664,11 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     if (annoEl[j].polystyle == poly_fill || annoEl[j].polystyle == poly_both) {
 
       Colour fc = poptions.fillcolour;
-      if (fc.A() < Colour::maxv && rgbmode) {
+      if (fc.A() < Colour::maxv && getColourMode()) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       }
-      if (rgbmode)
+      if (getColourMode())
         glColor4ubv(fc.RGBA());
       else
         glIndexi(fc.Index());
@@ -701,7 +681,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       glEnd();
       glDisable(GL_BLEND);
     }
-    UpdateOutput();
+    StaticPlot::UpdateOutput();
 
     // get coordinates of border, draw later
     if (annoEl[j].polystyle == poly_border || annoEl[j].polystyle == poly_both) {
@@ -743,16 +723,16 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
           glColor4f(0, 0, 1, 1.0);
         }
       }
-      fp->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+      StaticPlot::getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      fp->getStringSize(astring.c_str(), wid, hei);
+      StaticPlot::getFontPack()->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       hei *= fontsizeScale;
-      if (annoEl[j].eHalign == align_right && j + 1 == nel)
+      if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
-      fp->drawStr(astring.c_str(), x, y, 0.0);
+      StaticPlot::getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
       //remember corners of box around text for marking and editing
       annoEl[j].x1 = x;
       annoEl[j].y1 = y;
@@ -763,7 +743,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         //markert tekst
         float w, h;
         std::string substring = astring.substr(0, annoEl[j].itsCursor);
-        fp->getStringSize(substring.c_str(), w, h);
+        StaticPlot::getFontPack()->getStringSize(substring.c_str(), w, h);
         glColor4f(0, 0, 0, 1.0);
         glBegin(GL_LINE_STRIP);
         glVertex2f(annoEl[j].x1 + w, annoEl[j].y1);
@@ -771,17 +751,17 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         glEnd();
       }
     } else if (annoEl[j].eType == symbol) {
-      fp->set(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
+      StaticPlot::getFontPack()->set(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       float tmpwid;
-      fp->getCharSize(annoEl[j].eCharacter, tmpwid, hei);
-      fp->drawChar(annoEl[j].eCharacter, x, y, 0.0);
+      StaticPlot::getFontPack()->getCharSize(annoEl[j].eCharacter, tmpwid, hei);
+      StaticPlot::getFontPack()->drawChar(annoEl[j].eCharacter, x, y, 0.0);
       //set back to normal font and draw one blank
-      fp->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = " ";
-      fp->drawStr(astring.c_str(), x, y, 0.0);
-      fp->getStringSize(astring.c_str(), wid, hei);
+      StaticPlot::getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
+      StaticPlot::getFontPack()->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       wid += tmpwid;
       hei *= fontsizeScale;
@@ -812,7 +792,6 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
 
 float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
 {
-
   if (feather) {
     x += 0.1 * l;
   }
@@ -859,8 +838,7 @@ float AnnotationPlot::plotArrow(float x, float y, float l, bool feather)
 
 void AnnotationPlot::plotBorders()
 {
-
-  if (rgbmode)
+  if (getColourMode())
     glColor4ubv(poptions.bordercolour.RGBA());
   else
     glIndexi(poptions.bordercolour.Index());
@@ -881,22 +859,21 @@ void AnnotationPlot::plotBorders()
 void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
-  METLIBS_LOG_DEBUG("++ AnnotationPlot::getAnnoSize:" <<annoEl.size());
+  METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
   float fontsizeScale;
 
   float width = 0, height = 0;
-  int nel = annoEl.size();
-  for (int j = 0; j < nel; j++) {
+  for (size_t j = 0; j < annoEl.size(); j++) {
     float w = 0.0, h = 0.0;
     if (annoEl[j].eType == text || annoEl[j].eType == input) {
-      fp->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+      StaticPlot::getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      fp->getStringSize(astring.c_str(), w, h);
-      if (hardcopy)
-        fontsizeScale = fp->getSizeDiv();
+      StaticPlot::getFontPack()->getStringSize(astring.c_str(), w, h);
+      if (StaticPlot::hardcopy)
+        fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
       else
         fontsizeScale = 1.0;
       w *= fontsizeScale;
@@ -914,17 +891,17 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
       h = annoEl[j].arrowLength / 2.;
       w = annoEl[j].arrowLength;
     } else if (annoEl[j].eType == symbol) {
-      fp->set(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
+      StaticPlot::getFontPack()->set(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      fp->getCharSize(annoEl[j].eCharacter, w, h);
-      fp->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      StaticPlot::getFontPack()->getCharSize(annoEl[j].eCharacter, w, h);
+      StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      if (hardcopy)
-        fontsizeScale = fp->getSizeDiv();
+      if (StaticPlot::hardcopy)
+        fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
       else
         fontsizeScale = 1.0;
       std::string astring = " ";
-      fp->getStringSize(astring.c_str(), w, h);
+      StaticPlot::getFontPack()->getStringSize(astring.c_str(), w, h);
       w *= fontsizeScale;
       w += w;
       h *= fontsizeScale;
@@ -947,7 +924,6 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
   }
   wid = width;
   hei = height;
-
 }
 
 void AnnotationPlot::getXYBox()
@@ -1034,7 +1010,6 @@ void AnnotationPlot::getXYBox()
     y1 = y2;
     y2 -= annotations[i + 1].hei;
   }
-
 }
 
 void AnnotationPlot::getXYBoxScaled(Rectangle& window)
@@ -1087,7 +1062,6 @@ void AnnotationPlot::getXYBoxScaled(Rectangle& window)
     annotations[i].hei *= bbox.height() / bboxOld.height();
   }
   spacing *= bbox.height() / bboxOld.height();
-
 }
 
 bool AnnotationPlot::markAnnotationPlot(int x, int y)
@@ -1098,8 +1072,8 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
   bool wasMarked = isMarked;
   isMarked = false;
   //convert x and y...
-  float xpos = x * fullrect.width() / pwidth + fullrect.x1;
-  float ypos = y * fullrect.height() / pheight + fullrect.y1;
+  float xpos = x * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = y * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
   if (xpos > bbox.x1 && xpos < bbox.x2 && ypos > bbox.y1 && ypos < bbox.y2) {
     isMarked = true;
     //loop over elements
@@ -1327,7 +1301,6 @@ vector<std::string> AnnotationPlot::split(const std::string eString, const char 
 
 std::string AnnotationPlot::writeElement(element& annoEl)
 {
-
   std::string str = "<";
   switch (annoEl.eType) {
   case (text):
@@ -1394,12 +1367,10 @@ std::string AnnotationPlot::writeElement(element& annoEl)
   }
 
   return str;
-
 }
 
 std::string AnnotationPlot::writeAnnotation(std::string prodname)
 {
-
   std::string str;
   if (prodname != productname)
     return str;
@@ -1454,8 +1425,7 @@ const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 
 vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
 {
-  METLIBS_LOG_DEBUG("AnnotationPlot::getAnnotationStrings():"<<annotations.size());
-  vector<vector<std::string> > vvstr;
+  METLIBS_LOG_SCOPE(LOGVAL(annotations.size()));
   bool orig = false;
 
   int n = annotations.size();
@@ -1471,6 +1441,7 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
       break;
   }
 
+  vector<vector<std::string> > vvstr;
   if (orig) {
     int m = orig_annotations.size();
     for (int i = 0; i < m; i++)
@@ -1480,24 +1451,22 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
     for (int i = 0; i < m; i++)
       vvstr.push_back(annotations[i].vstr);
   }
-
   return vvstr;
 }
 
 bool AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
 {
-  int n = vvstr.size();
-  METLIBS_LOG_DEBUG("setAnnotationStrings:"<<n);
-  if (n == 0)
+  METLIBS_LOG_SCOPE(LOGVAL(vvstr.size()));
+  if (vvstr.empty())
     return false;
 
-  int m = annotations.size();
+  const size_t m = annotations.size();
 
-  if (n != m)
+  if (vvstr.size() != m)
     return false;
 
   bool keep = false;
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < vvstr.size(); i++) {
     if (vvstr[i].size())
       keep = true;
     annotations[i].vstr = vvstr[i];

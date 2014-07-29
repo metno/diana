@@ -54,20 +54,28 @@ public:
   bool areaCommand(const std::string& command,const std::string& data);
   /// returns a vector of selectArea which x and y are inside
   std::vector<selectArea> findAreas(float x, float y, bool newArea=false);
+
   /// returns id
   int getId(){return itsId;}
+
   /// returns name
-  std::string getName(){return itsName;}
-  /// gets name
-  void getPlotName(std::string &name){name=itsName;}
+  const std::string& getName() const
+    { return itsName; }
+
   /// gets bounding box of area with name name
   Rectangle getBoundBox(const std::string& name);
+
   /// returns autozoom
-  bool autoZoom(){return autozoom;}
+  bool autoZoom() const
+    { return autozoom; }
+
   /// sets icon   
-  void setIcon(std::string icon){iconName = icon;}
+  void setIcon(const std::string& icon)
+    { iconName = icon; }
+
   /// gets icon 
-  std::string getIcon(){return iconName;}
+  const std::string& getIcon()
+    { return iconName; }
 
 private:
   int itsId;

@@ -1619,62 +1619,38 @@ void DianaMainWindow::toggleDialogs()
   }
 }
 
-void DianaMainWindow::quickMenu()
+static void toggleDialogVisibility(QDialog* dialog, QAction* dialogAction)
 {
-  bool b = qm->isVisible();
-  if (b){
-    qm->hide();
-  } else {
-    qm->show();
-  }
-  showQuickmenuAction->setChecked(!b);
+  bool visible = dialog->isVisible();
+  dialog->setVisible(!visible);
+  dialogAction->setChecked(!visible);
 }
 
+void DianaMainWindow::quickMenu()
+{
+  toggleDialogVisibility(qm, showQuickmenuAction);
+}
 
 void DianaMainWindow::fieldMenu()
 {
-  bool b = fm->isVisible();
-  if (b){
-    fm->hide();
-  }
-  else {
-    fm->show();
-  }
-  showFieldDialogAction->setChecked(!b);
+  toggleDialogVisibility(fm, showFieldDialogAction);
 }
-
 
 void DianaMainWindow::obsMenu()
 {
-  bool b = om->isVisible();
-  if (b){
-    om->hide();
-  } else {
-    om->show();
-  }
-  showObsDialogAction->setChecked( !b );
+  toggleDialogVisibility(om, showObsDialogAction);
 }
-
 
 void DianaMainWindow::satMenu()
 {
-  bool b = sm->isVisible();
-  if (b){
-    sm->hide();
-  } else {
-    sm->show();
-  }
-  showSatDialogAction->setChecked( !b );
+  toggleDialogVisibility(sm, showSatDialogAction);
 }
 
 
 void DianaMainWindow::stationMenu()
 {
-  bool visible = stm->isVisible();
-  stm->setVisible(!visible);
-  showStationDialogAction->setChecked(!visible);
+  toggleDialogVisibility(stm, showStationDialogAction);
 }
-
 
 void DianaMainWindow::uffMenu()
 {
@@ -1694,13 +1670,7 @@ void DianaMainWindow::uffMenu()
 
 void DianaMainWindow::mapMenu()
 {
-  bool b = mm->isVisible();
-  if( b ){
-    mm->hide();
-  } else {
-    mm->show();
-  }
-  showMapDialogAction->setChecked( !b );
+  toggleDialogVisibility(mm, showMapDialogAction);
 }
 
 void DianaMainWindow::editMenu()
@@ -1728,13 +1698,7 @@ void DianaMainWindow::getFieldPlotOptions(map< std::string, map<std::string,std:
 
 void DianaMainWindow::objMenu()
 {
-  bool b = objm->isVisible();
-  if (b){
-    objm->hideAll();
-  } else {
-    objm->showAll();
-  }
-  showObjectDialogAction->setChecked( !b );
+  toggleDialogVisibility(objm, showObjectDialogAction);
 }
 
 void DianaMainWindow::trajMenu()
@@ -3552,21 +3516,15 @@ void DianaMainWindow::toggleToolBar()
 
 void DianaMainWindow::toggleStatusBar()
 {
-  if ( statusBar()->isVisible() ) {
-    statusBar()->hide();
-  } else {
-    statusBar()->show();
-  }
+  statusBar()->setVisible(not statusBar()->isVisible());
 }
 
 void DianaMainWindow::filequit()
 {
-
   if (em->cleanupForExit() && uffm->okToExit()){
     writeLogFile();
     qApp->quit();
   }
-
 }
 
 

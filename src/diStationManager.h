@@ -91,7 +91,7 @@ public:
           const std::string& name="", int id=-1);
 
   ///Returns a std::vector containing the plots held by the manager.
-  std::vector <StationPlot*> plots();
+  std::vector<StationPlot*> plots();
   QString getStationsText(int x, int y);
 
 private:

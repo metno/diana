@@ -43,7 +43,6 @@
  */
 class FieldPlotManager {
 
-  // Constructor
 public:
   struct PlotField {
     std::string name; ///< the field name in dialog etc.

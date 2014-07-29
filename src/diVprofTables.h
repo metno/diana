@@ -96,8 +96,6 @@ public:
   VprofTables();
   ~VprofTables();
 
-  static void xyclip(int npos, float *x, float *y, float xylim[4]);
-
   // postscript output
   bool startPSoutput(const printOptions& po);
   void addHCStencil(const int& size,

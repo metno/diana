@@ -371,7 +371,7 @@ public:
 
   std::map<std::string,InfoFile> getInfoFiles();
 
-  std::vector<PlotElement>& getPlotElements();
+  std::vector<PlotElement> getPlotElements();
   void enablePlotElement(const PlotElement& pe);
 
 /********************* reading and writing log file *******************/
@@ -384,7 +384,7 @@ public:
   bool useScrollwheelZoom();
 
   // Miscellaneous get methods
-  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
+  const std::vector<SatPlot*>& getSatellitePlots() const;   // Returns a vector of defined satellite plots.
   std::vector<FieldPlot*> getFieldPlots() const;      // Returns a vector of defined field plots.
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };

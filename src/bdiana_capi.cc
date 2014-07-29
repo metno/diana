@@ -71,10 +71,11 @@
 #include <diPrintOptions.h>
 #include <diFontManager.h>
 #include <diImageIO.h>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
+#include "diUtilities.h"
 #include <puTools/miSetupParser.h>
 #include <puTools/mi_boost_compatibility.hh>
+#include <miLogger/logger.h>
+#include <miLogger/LogHandler.h>
 
 
 #ifdef USE_VCROSS_V2
@@ -2585,16 +2586,9 @@ static int parseAndProcess(istream &is)
       vector<std::string> newlines;
       std::string waitline = com_wait_for_commands;
 
-      glob_t globBuf;
-      int number_of_files = 0;
-      while (number_of_files == 0) {
-        glob(pattern.c_str(), 0, 0, &globBuf);
-        number_of_files = globBuf.gl_pathc;
-        if (number_of_files == 0) {
-          globfree_cache(&globBuf);
-          pu_sleep(1);
-        }
-      }
+      diutil::string_v matches;
+      while ((matches = diutil::glob(pattern)).empty())
+        pu_sleep(1);
 
       nowtime = miTime::nowTime();
       prev_iclock = clock();
@@ -2603,8 +2597,8 @@ static int parseAndProcess(istream &is)
       vector<std::string> filenames;
 
       //loop over files
-      for (int ij = 0; ij < number_of_files; ij++) {
-        std::string filename = globBuf.gl_pathv[ij];
+      for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+        const std::string& filename = *it;
         METLIBS_LOG_INFO("==== Reading file:" << filename);
         filenames.push_back(filename);
         ifstream file(filename.c_str());
@@ -2621,7 +2615,6 @@ static int parseAndProcess(istream &is)
           }
         }
       }
-      globfree_cache(&globBuf);
       // remove processed files
       for (unsigned int ik = 0; ik < filenames.size(); ik++) {
         ostringstream ost;
@@ -2720,23 +2713,27 @@ static int parseAndProcess(istream &is)
             fieldPatterns.insert(fileNames.begin(), fileNames.end());
           }
 
-          map<string, map<string,SatManager::subProdInfo> > satProducts = main_controller->getSatelliteManager()->getProductsInfo();
+          const SatManager::Prod_t& satProducts = main_controller->getSatelliteManager()->getProductsInfo();
           set<std::string> satPatterns;
           set<std::string> satFiles;
 
-          vector<SatPlot*> satellitePlots = main_controller->getSatellitePlots();
-          for (vector<SatPlot*>::iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
-              Sat* sat = (*it)->satdata;
-              if (satProducts.find(sat->satellite) != satProducts.end() && satProducts[sat->satellite].find(sat->filetype) != satProducts[sat->satellite].end()) {
-                  SatManager::subProdInfo satInfo = satProducts[sat->satellite][sat->filetype];
-                  for (vector<SatFileInfo>::iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
-                    satFiles.insert(itsf->name);
-                    if (itsf->name == sat->actualfile) {
-                        for (vector<string>::iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
-                            satPatterns.insert(*itp);
-                    }
+          const vector<SatPlot*>& satellitePlots = main_controller->getSatellitePlots();
+          for (vector<SatPlot*>::const_iterator it = satellitePlots.begin(); it != satellitePlots.end(); ++it) {
+            Sat* sat = (*it)->satdata;
+            const SatManager::Prod_t::const_iterator itp = satProducts.find(sat->satellite);
+            if (itp != satProducts.end()) {
+              const SatManager::SubProd_t::const_iterator itsp = itp->second.find(sat->satellite);
+              if (itsp != itp->second.end()) {
+                const SatManager::subProdInfo& satInfo = itsp->second;
+                for (vector<SatFileInfo>::const_iterator itsf = satInfo.file.begin(); itsf != satInfo.file.end(); ++itsf) {
+                  satFiles.insert(itsf->name);
+                  if (itsf->name == sat->actualfile) {
+                    for (vector<string>::const_iterator itp = satInfo.pattern.begin(); itp != satInfo.pattern.end(); ++itp)
+                      satPatterns.insert(*itp);
                   }
+                }
               }
+            }
           }
 
           map<string,ObsManager::ProdInfo> obsProducts = main_controller->getObservationManager()->getProductsInfo();
@@ -3391,26 +3388,15 @@ static void doWork()
     return;
   }
 
-  string pattern = command_path;
-  glob_t globBuf;
-  int number_of_files = 0;
-
-  glob(pattern.c_str(), 0, 0, &globBuf);
-  number_of_files = globBuf.gl_pathc;
-
-  if (number_of_files == 0) {
-          COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
-    globfree_cache(&globBuf);
+  const diutil::string_v matches = diutil::glob(command_path);
+  if (matches.empty()) {
+    COMMON_LOG::getInstance("common").warnStream() << "WARNING, scan for commands returned nothing";
     return;
   }
 
   // loop over files
-  for (int i = 0; i < number_of_files; i++) {
-    string filename = globBuf.gl_pathv[i];
-    dispatchWork(filename);
-  }
-
-  globfree_cache(&globBuf);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it)
+    dispatchWork(*it);
 }
 
 

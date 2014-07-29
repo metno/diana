@@ -121,7 +121,7 @@ void SatPlot::getCalibChannels(std::vector<std::string>& channels)
 
 void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
 {
-  if (not enabled)
+  if (not isEnabled())
     return;
 
   if ((satdata == NULL)||
@@ -133,7 +133,7 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   //x, y in map coordinates
   int npos =1;
   //Convert to satellite proj coordiantes
-  gc.getPoints(area.P(), satdata->area.P(), npos    , &x, &y);
+  StaticPlot::gc.getPoints(StaticPlot::getMapArea().P(), satdata->area.P(), npos    , &x, &y);
   // convert to satellite pixel
   int xpos = x/satdata->gridResolutionX;
   int ypos = y/satdata->gridResolutionY;
@@ -144,7 +144,7 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
 
 bool SatPlot::plot(){
   METLIBS_LOG_TIME();
-  if (!enabled)
+  if (!isEnabled())
     return false;
 
   if ((satdata == NULL)||
@@ -152,7 +152,7 @@ bool SatPlot::plot(){
       (!satdata->approved))
     return false;
 
-  if(!area.P().isAlmostEqual(satdata->area.P()) ){
+  if(!StaticPlot::getMapArea().P().isAlmostEqual(satdata->area.P()) ){
    return plotFillcell();
   }
 
@@ -170,7 +170,7 @@ bool SatPlot::plotFillcell()
   float *x, *y;
 
   //todo: reduce resolution when zooming out
-//  int factor = fullrect.width()/nx/2000;
+//  int factor = StaticPlot::getPlotSize().width()/nx/2000;
   int factor = 1;
   int rnx = nx;
   int rny = ny;
@@ -181,27 +181,27 @@ bool SatPlot::plotFillcell()
   cx[1] = satdata->area.R().x2;
   cy[1] = satdata->area.R().y2;
   int npos = 2;
-  gc.getPoints(satdata->area.P(), area.P(), npos, cx, cy);
+  StaticPlot::gc.getPoints(satdata->area.P(), StaticPlot::getMapArea().P(), npos, cx, cy);
 
-  double gridW = nx*fullrect.width()/double(cx[1] - cx[0]);
-  double gridH = ny*fullrect.height()/double(cy[1] - cy[0]);
-  double resamplingF = min(gridW/pwidth, gridH/pheight);
+  double gridW = nx*StaticPlot::getPlotSize().width()/double(cx[1] - cx[0]);
+  double gridH = ny*StaticPlot::getPlotSize().height()/double(cy[1] - cy[0]);
+  double resamplingF = min(gridW/StaticPlot::getPhysWidth(), gridH/StaticPlot::getPhysHeight());
   factor = int(resamplingF);
 
   if (factor >= 2) {
     rnx = nx/factor;
     rny = ny/factor;
-    gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
-        area, maprect, true,
+    StaticPlot::gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
+        StaticPlot::getMapArea(), StaticPlot::getMapSize(), true,
         rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
   } else {
     factor = 1;
-    gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
-        area, maprect, true,
+    StaticPlot::gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
+        StaticPlot::getMapArea(), StaticPlot::getMapSize(), true,
         nx, ny, &x, &y, ix1, ix2, iy1, iy2);
   }
   if (ix1>ix2 || iy1>iy2) return false;
-
+  
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -226,27 +226,24 @@ bool SatPlot::plotFillcell()
         continue;
       }
       glColor4ub(f1,f2,f3,f4);
-        glVertex2f(x1, y1);
-        // lower-right corner of gridcell
-        glVertex2f(x2, y2);
-        // upper-right corner of gridcell
-        glVertex2f(x3, y3);
-        // upper-left corner of gridcell
-        glVertex2f(x4, y4);
-
-      }
+      glVertex2f(x1, y1);
+      // lower-right corner of gridcell
+      glVertex2f(x2, y2);
+      // upper-right corner of gridcell
+      glVertex2f(x3, y3);
+      // upper-left corner of gridcell
+      glVertex2f(x4, y4);
     }
-
+  }
+  
   glEnd();
   glDisable(GL_BLEND);
 
   return true;
-
-
 }
+
 bool SatPlot::plotPixmap()
 {
-
   int nx = satdata->nx;
   int ny = satdata->ny;
 
@@ -256,36 +253,36 @@ bool SatPlot::plotPixmap()
   //Corners of total image (map coordinates)
   xmin = 0.;
   ymin = 0.;
-  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xmin, &ymin))
+  if (!StaticPlot::gc.getPoints(satdata->area.P(), StaticPlot::getMapArea().P(), npos, &xmin, &ymin))
     return false;
   xmax = nx* satdata->gridResolutionX;
   ymax = ny* satdata->gridResolutionY;
 
-  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xmax, &ymax))
+  if (!StaticPlot::gc.getPoints(satdata->area.P(), StaticPlot::getMapArea().P(), npos, &xmax, &ymax))
     return false;
 
   // exit if image is outside map area
-  if (maprect.x1 >= xmax || maprect.x2 <= xmin ||
-      maprect.y1 >= ymax || maprect.y2 <= ymin) return true;
+  if (StaticPlot::getMapSize().x1 >= xmax || StaticPlot::getMapSize().x2 <= xmin ||
+      StaticPlot::getMapSize().y1 >= ymax || StaticPlot::getMapSize().y2 <= ymin) return true;
 
   // scaling
-  float scalex = float(pwidth) /fullrect.width();
-  float scaley = float(pheight)/fullrect.height();
+  float scalex = StaticPlot::getPhysWidth() /StaticPlot::getPlotSize().width();
+  float scaley = StaticPlot::getPhysHeight()/StaticPlot::getPlotSize().height();
 
   // Corners of image shown (map coordinates)
-  float grStartx = (maprect.x1>xmin) ? maprect.x1 : xmin;
-  float grStarty = (maprect.y1>ymin) ? maprect.y1 : ymin;
+  float grStartx = (StaticPlot::getMapSize().x1>xmin) ? StaticPlot::getMapSize().x1 : xmin;
+  float grStarty = (StaticPlot::getMapSize().y1>ymin) ? StaticPlot::getMapSize().y1 : ymin;
 //  float grStopx = (maprect.x2<xmin) ? maprect.x2 : xmax;
 //  float grStopy = (maprect.y2<ymin) ? maprect.y2 : ymax;
 
   // Corners of total image (image coordinates)
-  float x1= maprect.x1;
-  float y1= maprect.y1;
-  if (!gc.getPoints(area.P(), satdata->area.P(), npos, &x1, &y1))
+  float x1= StaticPlot::getMapSize().x1;
+  float y1= StaticPlot::getMapSize().y1;
+  if (!StaticPlot::gc.getPoints(StaticPlot::getMapArea().P(), satdata->area.P(), npos, &x1, &y1))
     return false;
-  float x2= maprect.x2;
-  float y2= maprect.y2;
-  if (!gc.getPoints(area.P(), satdata->area.P(), npos, &x2, &y2))
+  float x2= StaticPlot::getMapSize().x2;
+  float y2= StaticPlot::getMapSize().y2;
+  if (!StaticPlot::gc.getPoints(StaticPlot::getMapArea().P(), satdata->area.P(), npos, &x2, &y2))
     return false;
   x1/=satdata->gridResolutionX;
   x2/=satdata->gridResolutionX;
@@ -293,25 +290,25 @@ bool SatPlot::plotPixmap()
   y2/=satdata->gridResolutionY;
 
   // Corners of image shown (image coordinates)
-  int bmStartx= (maprect.x1>xmin) ? int(x1) : 0;
-  int bmStarty= (maprect.y1>ymin) ? int(y1) : 0;
-  int bmStopx=  (maprect.x2<xmax) ? int(x2) : nx-1;
-  int bmStopy=  (maprect.y2<ymax) ? int(y2) : ny-1;
+  int bmStartx= (StaticPlot::getMapSize().x1>xmin) ? int(x1) : 0;
+  int bmStarty= (StaticPlot::getMapSize().y1>ymin) ? int(y1) : 0;
+  int bmStopx=  (StaticPlot::getMapSize().x2<xmax) ? int(x2) : nx-1;
+  int bmStopy=  (StaticPlot::getMapSize().y2<ymax) ? int(y2) : ny-1;
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
   float xstart = bmStartx*satdata->gridResolutionX;
   float ystart = bmStarty*satdata->gridResolutionY;
-  if (!gc.getPoints(satdata->area.P(), area.P(), npos, &xstart, &ystart))
+  if (!StaticPlot::gc.getPoints(satdata->area.P(), StaticPlot::getMapArea().P(), npos, &xstart, &ystart))
     return false;
 
   //Strange, but needed
-  float bmxmove= (maprect.x1>xmin) ? (xstart-grStartx)*scalex : 0;
-  float bmymove= (maprect.y1>ymin) ? (ystart-grStarty)*scaley : 0;
+  float bmxmove= (StaticPlot::getMapSize().x1>xmin) ? (xstart-grStartx)*scalex : 0;
+  float bmymove= (StaticPlot::getMapSize().y1>ymin) ? (ystart-grStarty)*scaley : 0;
 
   // for hardcopy
-  float pxstart= (xstart-maprect.x1)*scalex;
-  float pystart= (ystart-maprect.y1)*scaley;
+  float pxstart= (xstart-StaticPlot::getMapSize().x1)*scalex;
+  float pystart= (ystart-StaticPlot::getMapSize().y1)*scaley;
 
   // update scaling with ratio image to map (was map to screen pixels)
   scalex*= satdata->gridResolutionX;
@@ -344,8 +341,8 @@ bool SatPlot::plotPixmap()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // assure valid raster position after OpenGL transformations
-  grStartx += fullrect.width() *0.0001;
-  grStarty += fullrect.height()*0.0001;
+  grStartx += StaticPlot::getPlotSize().width() *0.0001;
+  grStarty += StaticPlot::getPlotSize().height()*0.0001;
 
   glPixelZoom(scalex,scaley);
   glPixelStorei(GL_UNPACK_SKIP_ROWS,bmStarty); //pixels
@@ -441,16 +438,16 @@ bool SatPlot::plotPixmap()
 #endif
 
   // for postscript output, add imagedata to glpfile
-  if (hardcopy){
+  if (StaticPlot::hardcopy){
 
-    psAddImage(satdata->image,
+    StaticPlot::psAddImage(satdata->image,
         4*orignx*origny, orignx, origny,
         origpxstart, origpystart, origscalex, origscaley,
         origbmStartx, origbmStarty, bmStopx, bmStopy,
         GL_RGBA, GL_UNSIGNED_BYTE);
 
     // for postscript output
-    UpdateOutput();
+    StaticPlot::UpdateOutput();
   }
   return true;
 }
@@ -515,7 +512,7 @@ unsigned char * SatPlot::resampleImage(int& currwid, int& currhei,
 
 bool SatPlot::getAnnotations(vector<string>& anno)
 {
-  if (!enabled)
+  if (!isEnabled())
     return false;
 
   if(satdata == NULL || satdata->image == NULL || !satdata->approved)

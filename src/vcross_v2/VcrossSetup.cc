@@ -2,6 +2,8 @@
 #include "VcrossSetup.h"
 
 #include "diPlotOptions.h"
+#include "diUtilities.h"
+
 #include <diField/FimexSource.h>
 #include <diField/TimeFilter.h>
 
@@ -158,14 +160,13 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
 
       // check for wild cards - expand filenames if necessary
       if (filename.find_first_of("*?") != std::string::npos) {
-        glob_t globBuf;
-        glob(filename.c_str(), GLOB_BRACE, 0, &globBuf);
-        for (size_t k = 0; k < globBuf.gl_pathc; k++) {
-          const std::string path = globBuf.gl_pathv[k];
+
+        const diutil::string_v matches = diutil::glob(filename, GLOB_BRACE);
+        for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+          const std::string& path = *it;
           const std::string reftime_from_filename = tf.getTimeStr(path);
           addFimexSource(name + "@" + reftime_from_filename, path, filetype, fileconfig);
         }
-        globfree(&globBuf);
       } else {
         addFimexSource(name, filename, filetype, fileconfig);
       }

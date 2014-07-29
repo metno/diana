@@ -37,9 +37,8 @@
 #include "qtQuickAdmin.h"
 #include "qtUtility.h"
 #include "diLocalSetupParser.h"
+#include "diUtilities.h"
 
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QPushButton>
@@ -593,12 +592,11 @@ void QuickMenu::fillPrivateMenus()
   readQuickMenu(qm[1]);
 
   //Private menus
-  std::string quickfile= LocalSetupParser::basicValue("homedir") + "/*.quick";
-  glob_t globBuf;
-  glob_cache(quickfile.c_str(),0,0,&globBuf);
-  for(size_t k=0; k<globBuf.gl_pathc; k++) {
+  const std::string quickfile= LocalSetupParser::basicValue("homedir") + "/*.quick";
+  const diutil::string_v matches = diutil::glob(quickfile);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
     qtmp.name= "";
-    qtmp.filename= globBuf.gl_pathv[k];
+    qtmp.filename= *it;
     int i = 0;
     while ( i<QMENU &&  qtmp.filename != qm[i].filename ) i++;
     if ( i<QMENU ) continue; //History

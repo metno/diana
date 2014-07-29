@@ -64,7 +64,7 @@ public:
   bool updatePinNeeded(const std::string& pin);
   bool prepare(const std::string& fname, const std::string&);
   bool setData(const std::vector<Field*>&, const miutil::miTime&);
-  Area& getFieldArea();
+  const Area& getFieldArea();
   bool getRealFieldArea(Area&);
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
   bool getUndefinedPlot() const { return pundefined; }

@@ -102,12 +102,20 @@ private:
   //test to check whether file exist
   bool _isafile(const std::string name);
 
-
+  DisplayObjects objects;             //objects to be displayed
+  EditObjects editobjects;       // fronts,symbols,areas
+  EditObjects combiningobjects;  // areaborders and textstrings
 
 
 public:
   ObjectManager(PlotModule*);
   ~ObjectManager();
+
+  void changeProjection(const Area& newArea);
+  EditObjects& getEditObjects()
+    { return editobjects; }
+  EditObjects& getCombiningObjects()
+    { return combiningobjects; }
 
   /// returns true if currently drawing objects
   bool inDrawing();
@@ -180,10 +188,26 @@ public:
   std::set <std::string> getComplexList();
   /// decode string with types of objects to plot
   std::map <std::string,bool> decodeTypeString(std::string);
+
+  /// handles met. objects plot info strings
+  void prepareObjects(const std::vector<std::string>& inp);
+
+  void addPlotElements(std::vector<PlotElement>& pel);
+  void enablePlotElement(const PlotElement& pe);
+  void getObjAnnotation(std::string &str, Colour &col);
+  void getObjectsAnnotations(std::vector<std::string>& anno)
+    { objects.getAnnotations(anno); }
+  std::vector<std::string> getObjectLabels()
+    { return objects.getObjectLabels(); }
+  void plotObjects();
+  void clearObjects()
+    { objects.clear(); }
+  void setObjAuto(bool autoF)
+    { objects.setAutoFile(autoF); }
+
   /// prepare objects for displaying
   bool prepareObjects(const miutil::miTime& t,
-		      const Area& area,
-		      DisplayObjects& objects);
+		      const Area& area);
   /// reads the file with weather objectPlots
   bool readEditDrawFile(const std::string file,
 			const Area& area,
@@ -314,7 +338,7 @@ public:
   /// returns list of objectfiles for use in dialog
   std::vector <ObjFileInfo> getObjectFiles(const std::string objectname, bool refresh);
   /// returns list of times
-  std::vector<miutil::miTime> getObjectTimes(const std::vector<std::string>&pinfos);
+  std::vector<miutil::miTime> getObjectTimes();
   std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,

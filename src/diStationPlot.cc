@@ -141,8 +141,10 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   map<std::string, int> commonmap;
   for (int i = 0; i < num; i++)
     commonmap[vcommondesc[i]] = i;
-  if (commonmap.count("dataset"))
-    name = plotname = vcommon[commonmap["dataset"]];
+  if (commonmap.count("dataset")) {
+    name = vcommon[commonmap["dataset"]];
+    setPlotName(name);
+  }
   if (commonmap.count("showname")) {
     useStationNameNormal = (vcommon[commonmap["showname"]] == "true");
     useStationNameSelected = (vcommon[commonmap["showname"]] == "true"
@@ -306,7 +308,7 @@ bool StationPlot::plot()
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("StationPlot::plot "<< name);
 #endif
-  if (!enabled || !visible)
+  if (!isEnabled() || !visible)
     return false;
 
   //Circle
@@ -384,10 +386,10 @@ void StationPlot::plotStation(int i)
     if (!stations[i]->image.empty() && stations[i]->image2.empty()) {
       if (stations[i]->image == "wind") {
         if (stations[i]->isSelected)
-          h = 40 * fullrect.height() / (pheight > 0 ? pheight * 1.0 : 1.0);
+          h = 40 * StaticPlot::getPlotSize().height() / (StaticPlot::getPhysHeight() > 0 ? StaticPlot::getPhysHeight() * 1.0 : 1.0);
         else
-          h = 30 * fullrect.height() / (pheight > 0 ? pheight * 1.0 : 1.0);
-        w = 30 * fullrect.width() / (pwidth > 0 ? pwidth * 1.0 : 1.0);
+          h = 30 * StaticPlot::getPlotSize().height() / (StaticPlot::getPhysHeight() > 0 ? StaticPlot::getPhysHeight() * 1.0 : 1.0);
+        w = 30 * StaticPlot::getPlotSize().width() / (StaticPlot::getPhysWidth() > 0 ? StaticPlot::getPhysWidth() * 1.0 : 1.0);
         //  	if(stations[i]->edit)
         //  	  glPlot(Station::redCircle,x,y,h,w);
         plotWind(i, x, y);
@@ -453,17 +455,17 @@ void StationPlot::plotStation(int i)
   if (useStationNameNormal && !stations[i]->isSelected) {
     float cw, ch;
     glColor3ub(0, 0, 0); //black
-    fp->set("BITMAPFONT", "normal", 10);
-    fp->getStringSize(stations[i]->name.c_str(), cw, ch);
-    fp->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2, 0.0);
+    StaticPlot::getFontPack()->set("BITMAPFONT", "normal", 10);
+    StaticPlot::getFontPack()->getStringSize(stations[i]->name.c_str(), cw, ch);
+    StaticPlot::getFontPack()->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2, 0.0);
   } else if (useStationNameSelected && stations[i]->isSelected) {
     float cw, ch;
-    fp->set("BITMAPFONT", "normal", 10);
-    fp->getStringSize(stations[i]->name.c_str(), cw, ch);
+    StaticPlot::getFontPack()->set("BITMAPFONT", "normal", 10);
+    StaticPlot::getFontPack()->getStringSize(stations[i]->name.c_str(), cw, ch);
     glColor3ub(255, 255, 255); //white
     glPlot(Station::noStatus, x, y + h / 2 + ch * 0.1, cw * 0.6, ch * 1.1);
     glColor3ub(0, 0, 0); //black
-    fp->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2 + ch * 0.35,
+    StaticPlot::getFontPack()->drawStr(stations[i]->name.c_str(), x - cw / 2, y + h / 2 + ch * 0.35,
         0.0);
   }
 
@@ -473,19 +475,19 @@ void StationPlot::plotStation(int i)
       float cw, ch;
       glColor4ubv(textColour.RGBA());
       std::string text = stations[i]->vsText[it].text;
-      fp->set("BITMAPFONT", textStyle, textSize);
-      fp->getStringSize(text.c_str(), cw, ch);
+      StaticPlot::getFontPack()->set("BITMAPFONT", textStyle, textSize);
+      StaticPlot::getFontPack()->getStringSize(text.c_str(), cw, ch);
       if (stations[i]->vsText[it].hAlign == align_center)
-        fp->drawStr(text.c_str(), x - cw / 2, y - ch / 4, 0.0);
+        StaticPlot::getFontPack()->drawStr(text.c_str(), x - cw / 2, y - ch / 4, 0.0);
       else if (stations[i]->vsText[it].hAlign == align_top)
-        fp->drawStr(text.c_str(), x - cw / 2, y + h / 2, 0.0);
+        StaticPlot::getFontPack()->drawStr(text.c_str(), x - cw / 2, y + h / 2, 0.0);
       else if (stations[i]->vsText[it].hAlign == align_bottom) {
         if (stations[i]->isSelected)
           glColor3ub(255, 255, 255); //white
           glPlot(Station::noStatus, x, y - h / 1.9 - ch * 1.0, cw * 0.5 + 0.2 * w,
               ch);
         glColor4ubv(textColour.RGBA());
-        fp->drawStr(text.c_str(), x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
+        StaticPlot::getFontPack()->drawStr(text.c_str(), x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
       }
     }
   }
@@ -567,7 +569,7 @@ bool StationPlot::changeProjection()
     ypos[i] = stations[i]->lat;
   }
 
-  if (area.P().convertFromGeographic(npos, xpos, ypos) != 0 ) {
+  if (StaticPlot::getMapArea().P().convertFromGeographic(npos, xpos, ypos) != 0 ) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     delete[] xpos;
     delete[] ypos;
@@ -586,7 +588,7 @@ bool StationPlot::changeProjection()
     v[i] = 10;
   }
 //TODO: crashes, but why? Only do this if "wind"-image exists
-//  gc.getVectors(oldarea, area, npos, xpos, ypos, u, v);
+//  StaticPlot::gc.getVectors(oldarea, area, npos, xpos, ypos, u, v);
 
   for (int i = 0; i < npos; i++) {
     if (stations[i]->image == "wind") {
@@ -624,17 +626,17 @@ Station* StationPlot::stationAt(int x, int y)
   vector<Station*> found = stationsAt(x, y);
 
   if (found.size() > 0) {
-    float xpos = x * fullrect.width() / pwidth + fullrect.x1;
-    float ypos = y * fullrect.height() / pheight + fullrect.y1;
+    float xpos = x * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+    float ypos = y * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
-    float min_r = 10.0f * fullrect.width() / pwidth;
+    float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
     min_r = powf(min_r, 2);
     int min_i = 0;
 
     // Find the closest station to the point within a given radius.
     for (unsigned int i = 0; i < found.size(); ++i) {
       float sx = found[i]->lon, sy = found[i]->lat;
-      if (area.P().convertFromGeographic(1, &sx, &sy) == 0) {
+      if (StaticPlot::getMapArea().P().convertFromGeographic(1, &sx, &sy) == 0) {
         float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
         if (r < min_r) {
           min_r = r;
@@ -651,22 +653,22 @@ Station* StationPlot::stationAt(int x, int y)
 
 vector<Station*> StationPlot::stationsAt(int x, int y)
 {
-  float xpos = x * fullrect.width() / pwidth + fullrect.x1;
-  float ypos = y * fullrect.height() / pheight + fullrect.y1;
+  float xpos = x * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = y * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
-  float min_r = 10.0f * fullrect.width() / pwidth;
+  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
 
   vector<Station*> within;
 
   float gx = xpos, gy = ypos;
-  if (!area.P().convertToGeographic(1, &gx, &gy)) {
+  if (!StaticPlot::getMapArea().P().convertToGeographic(1, &gx, &gy)) {
     vector<Station*> found = stationAreas[0].findStations(gy, gx);
 
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
         float sx = found[i]->lon, sy = found[i]->lat;
-        if (area.P().convertFromGeographic(1, &sx, &sy) == 0) {
+        if (StaticPlot::getMapArea().P().convertFromGeographic(1, &sx, &sy) == 0) {
           float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
           if (r < min_r)
             within.push_back(found[i]);
@@ -682,7 +684,7 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
 {
   vector<std::string> stationstring;
 
-  if (!visible || !enabled)
+  if (!visible || !isEnabled())
     return stationstring;
 
   Station* found = stationAt(x, y);
@@ -784,8 +786,8 @@ void StationPlot::setStationPlotAnnotation(const string &str)
 void StationPlot::setName(std::string nm)
 {
   name = nm;
-  if (plotname.empty())
-    plotname = name;
+  if (getPlotName().empty())
+    setPlotName(name);
 }
 
 void StationPlot::setImage(std::string im1)
@@ -913,10 +915,12 @@ bool StationPlot::getEditStation(int step, std::string& nname, int& iid, vector<
     setSelectedStation(i, add);
 
     //if stations[i] isn't on the map, pan the map
-    Rectangle r = area.R();
+    Rectangle r = StaticPlot::getMapArea().R();
     if (!r.isinside(xplot[i], yplot[i])) {
       r.putinside(xplot[i], yplot[i]);
-      area.setR(r);
+      Area a = StaticPlot::getMapArea();
+      a.setR(r);
+      StaticPlot::setMapArea(a, false);
       updateArea = true;; //area need update
     }
 
@@ -1070,7 +1074,7 @@ bool StationPlot::stationCommand(const string& command,
             yy[0] = yplot[i];
             u[0] = 0;
             v[0] = 10;
-            gc.geov2xy(area, num, xx, yy, u, v);
+            StaticPlot::gc.geov2xy(StaticPlot::getMapArea(), num, xx, yy, u, v);
             int angle = (int) (atan2f(u[0], v[0]) * 180 / pi);
             dd += angle;
             if (dd < 1)
@@ -1220,7 +1224,7 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   switch (tp) {
   case Station::unknown:
     linewidth = 2;
-    scale = fullrect.width() / pwidth * 1.5;
+    scale = StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 1.5;
     r = linewidth * scale;
     //plot grey transparent square
     glColor4ub(100, 100, 100, 50);
@@ -1238,7 +1242,7 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::failed:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = fullrect.width() / pwidth * 1.5;
+    scale = StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1253,7 +1257,7 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::underRepair:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = fullrect.width() / pwidth * 1.5;
+    scale = StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1268,7 +1272,7 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::working:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = fullrect.width() / pwidth * 1.5;
+    scale = StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1289,7 +1293,7 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   if (selected) {
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = fullrect.width() / pwidth * 1.5;
+    scale = StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 1.5;
     r = linewidth * scale;
     radius = 1.5 * r;
     glColor3ub(255, 255, 0);
@@ -1313,7 +1317,7 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
 
   int dd = stations[ii]->dd;
   int ff = stations[ii]->ff;
-  float radius = scale * 14 * fullrect.width() / (pwidth > 0 ? pwidth * 1.0
+  float radius = scale * 14 * StaticPlot::getPlotSize().width() / (StaticPlot::getPhysWidth() > 0 ? StaticPlot::getPhysWidth() * 1.0
       : 1.0);
 
   glPushMatrix();
@@ -1459,20 +1463,20 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
   glPopMatrix();
 
   if (ff > 0 && !classic) {
-    fp->set("BITMAPFONT", "normal", 10);
+    StaticPlot::getFontPack()->set("BITMAPFONT", "normal", 10);
     float sW, sH;
     ostringstream ost;
     ost << ff;
-    fp->getStringSize(ost.str().c_str(), sW, sH);
+    StaticPlot::getFontPack()->getStringSize(ost.str().c_str(), sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 0.35 * sH;
     glColor4f(1.0, 1.0, 1.0, 1.0); //white
-    fp->drawStr(ost.str().c_str(), sx, sy);
+    StaticPlot::getFontPack()->drawStr(ost.str().c_str(), sx, sy);
   }
 
   if (stations[ii]->isSelected) {
     //wind direction
-    fp->set("BITMAPFONT", "normal", 10);
+    StaticPlot::getFontPack()->set("BITMAPFONT", "normal", 10);
     float sW, sH;
     dd = (dd - stations[ii]->north);
     float df = dd;
@@ -1483,13 +1487,13 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
       dd += 16;
     if (dd > 15)
       dd -= 16;
-    fp->getStringSize(ddString[dd].c_str(), sW, sH);
+    StaticPlot::getFontPack()->getStringSize(ddString[dd].c_str(), sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 2.35 * sH;
     glColor3ub(255, 255, 255); //white
     glPlot(Station::noStatus, x, y - 2.5 * sH, sW * 0.6, sH * 1.1);
     glColor4f(0.0, 0.0, 0.0, 1.0); //black
-    fp->drawStr(ddString[dd].c_str(), sx, sy);
+    StaticPlot::getFontPack()->drawStr(ddString[dd].c_str(), sx, sy);
   }
 
   glDisable(GL_BLEND);

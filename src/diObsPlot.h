@@ -225,7 +225,6 @@ private:
   void checkColourCriteria(const std::string& param, float value);
   void parameterDecode(std::string , bool =true);
 
-  bool positionFree(const float&, const float&, float);
   bool positionFree(float,float, float,float);
   void areaFreeSetup(float scale, float space, int num,
       float xdist, float ydist);
@@ -311,7 +310,6 @@ public:
   void setLabel(const std::string& pin){labels.push_back(pin);}
   void setLabels(const std::vector<std::string>& l){labels = l;}
   bool getPositions(std::vector<float>&, std::vector<float>&);
-  int  getPositions(float*,float*,int);
   int  numPositions();
   int  numVisiblePositions();
   void obs_mslp(float *);

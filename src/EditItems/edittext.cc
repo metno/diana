@@ -223,8 +223,8 @@ void Text::updateControlPoints()
   qreal width = 0;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
-  styleManager->beginText(this, fp, scale, poptions);
+  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
+  styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
 
   for (int i = 0; i < lines_.size(); ++i) {
     QString text = lines_.at(i);
@@ -283,8 +283,8 @@ void Text::drawIncomplete() const
   QSizeF size;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(pwidth/maprect.width(), pheight/maprect.height());
-  styleManager->beginText(this, fp, scale, poptions);
+  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
+  styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
 
   for (int line = 0; line < line_; ++line) {
     size = getStringSize(lines_.at(line));

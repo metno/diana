@@ -85,7 +85,7 @@ bool AreaBorder::plot()
 
 
       // for PostScript generation
-      UpdateOutput();
+      StaticPlot::UpdateOutput();
 
       glPushMatrix();
 
@@ -125,7 +125,7 @@ bool AreaBorder::plot()
 
       glPopMatrix();
       drawNodePoints();
-      UpdateOutput();
+      StaticPlot::UpdateOutput();
 
 
     }

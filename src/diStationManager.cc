@@ -376,7 +376,7 @@ void StationManager::putStations(StationPlot* stationPlot)
   if (p != pend) {
     if (!((*p).second->isVisible()))
       stationPlot->hide();
-    stationPlot->enable((*p).second->Enabled());
+    stationPlot->setEnabled((*p).second->isEnabled());
     delete (*p).second;
     stationPlots.erase(p);
   }
@@ -531,7 +531,7 @@ vector <StationPlot*> StationManager::plots()
   vector <StationPlot*> values;
   map <std::string,StationPlot*>::iterator it;
   for (it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    values.push_back((*it).second);
+    values.push_back(it->second);
 
   return values;
 }

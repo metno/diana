@@ -130,7 +130,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[j] = -179.999;
       ty[j] = orig_shapes[i]->padfY[j];
     }
-	success = gc.geo2xy(area, nVertices, tx, ty);
+	success = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
 
     for (int k=0; k<nVertices; k++) {
       shapes[i]->padfX[k] = tx[k];
@@ -149,7 +149,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[1] = -179.999;
     ty[0] = orig_shapes[i]->dfYMin;
     ty[1] = orig_shapes[i]->dfYMax;
-	success2 = gc.geo2xy(area, nVertices, tx, ty);
+	success2 = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
 
     shapes[i]->dfXMin = tx[0];
     shapes[i]->dfXMax = tx[1];
@@ -205,7 +205,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
 			tx[j] = -179.999;
         ty[j] = psShape->padfY[j];
       }
-      gc.geo2xy(area, nVertices, tx, ty);
+      StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
       for (int j=0; j<nVertices; j++) {
         psShape->padfX[j] = tx[j];
         psShape->padfY[j] = ty[j];
@@ -223,7 +223,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
       ty[0] = psShape->dfYMin;
       ty[1] = psShape->dfYMax;
       nVertices = 2;
-      gc.geo2xy(area, nVertices, tx, ty);
+      StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
       psShape->dfXMin = tx[0];
       psShape->dfXMax = tx[1];
       psShape->dfYMin = ty[0];
@@ -328,7 +328,7 @@ bool ShapeObject::plot(Area area, // current area
 	int fontSizeToPlot = int(2/scalefactor);
 
         //also scale according to windowheight and width (standard is 500)
-        scalefactor = sqrtf(pheight*pheight+pwidth*pwidth)/500;
+        scalefactor = sqrtf(StaticPlot::getPhysHeight()*StaticPlot::getPhysHeight()+StaticPlot::getPhysWidth()*StaticPlot::getPhysWidth())/500;
 //METLIBS_LOG_DEBUG("scalefactor =" <<scalefactor); 
         fontSizeToPlot = int(fontSizeToPlot*scalefactor);
         //symbol_rad = int(symbol * scalefactor);
@@ -450,10 +450,10 @@ bool ShapeObject::plot(Area area, // current area
                            if (special==true && nv==1){
                                float cw,ch;
                                std::string astring = " "+tmpDesc[i];
-                               fp->set(poptions.fontname,"NORMAL",fontSizeToPlot); //fp->set("Arial","BOLD",8);
-                               fp->getStringSize(astring.c_str(),cw,ch);
-                               //fp->drawStr(astring.c_str(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
-                               fp->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
+                               StaticPlot::getFontPack()->set(poptions.fontname,"NORMAL",fontSizeToPlot); //StaticPlot::getFontPack()->set("Arial","BOLD",8);
+                               StaticPlot::getFontPack()->getStringSize(astring.c_str(),cw,ch);
+                               //StaticPlot::getFontPack()->drawStr(astring.c_str(),shapes[i]->padfX[0]-cw/2, shapes[i]->padfY[0]+ch/2,0.0);
+                               StaticPlot::getFontPack()->drawStr("SSS",shapes[i]->padfX[0], shapes[i]->padfY[0],0.0);
                                //glDrawPixels((GLint)10, (GLint)10,GL_RGBA, GL_UNSIGNED_BYTE,cimage);
 
                                glLineWidth(2);

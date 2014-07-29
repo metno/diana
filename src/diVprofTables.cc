@@ -128,7 +128,7 @@ void VprofTables::setFontsize(float chy)
   if (near>=0) fp->setFontSize(fontsizes[near]);
 //###########################################################################
 //if (near>=0) METLIBS_LOG_DEBUG("setfont "<<near<<" "<<chy<<" "<<fontsizes[near]);
-//###########################################################################//###########################################################################
+//###########################################################################
 }
 
 
@@ -149,120 +149,6 @@ void VprofTables::makeFontsizes(float wx, float wy, int vx, int vy)
     fontsizes.push_back(size);
   }
 }
-
-
-void VprofTables::xyclip(int npos, float *x, float *y, float xylim[4])
-{
-  //  plotter del(er) av sammenhengende linje som er innenfor gitt
-  //  omraade, ogsaa linjestykker mellom 'nabopunkt' som begge er
-  //  utenfor omraadet.
-  //  (farge, linje-type og -tykkelse maa vaere satt paa forhaand)
-  //
-  //  grafikk: OpenGL
-  //
-  //  input:
-  //  ------
-  //  x(npos),y(npos): linje med 'npos' punkt (npos>1)
-  //  xylim(1-4):      x1,x2,y1,y2 for aktuelt omraade
-
-  int   nint, nc, n, i, k1, k2;
-  float xa, xb, ya, yb, xint = 0.0, yint = 0.0, x1, x2, y1, y2;
-  float xc[4], yc[4];
-
-  if (npos<2) return;
-
-  xa= xylim[0];
-  xb= xylim[1];
-  ya= xylim[2];
-  yb= xylim[3];
-
-  if (x[0]<xa || x[0]>xb || y[0]<ya || y[0]>yb) {
-    k2= 0;
-  } else {
-    k2= 1;
-    nint= 0;
-    xint= x[0];
-    yint= y[0];
-  }
-
-  for (n=1; n<npos; ++n) {
-    k1= k2;
-    k2= 1;
-
-    if (x[n]<xa || x[n]>xb || y[n]<ya || y[n]>yb) k2=0;
-
-    // sjekk om 'n' og 'n-1' er innenfor
-    if (k1+k2==2) continue;
-
-    // k1+k2=1: punkt 'n' eller 'n-1' er utenfor
-    // k1+k2=0: sjekker om 2 nabopunkt som begge er utenfor omraadet
-    //          likevel har en del av linja innenfor.
-
-    x1= x[n-1];
-    y1= y[n-1];
-    x2= x[n];
-    y2= y[n];
-
-    // sjekker om 'n-1' og 'n' er utenfor paa samme side
-    if (k1+k2==0  &&
-	((x1<xa && x2<xa) || (x1>xb && x2>xb) ||
-	 (y1<ya && y2<ya) || (y1>yb && y2>yb))) continue;
-
-    // sjekker alle skjaerings-muligheter
-    nc = -1;
-    if (x1!=x2) {
-      nc++;
-      xc[nc]= xa;
-      yc[nc]= y1+(y2-y1)*(xa-x1)/(x2-x1);
-      if (yc[nc]<ya || yc[nc]>yb || (xa-x1)*(xa-x2)>0.) nc--;
-      nc++;
-      xc[nc]= xb;
-      yc[nc]= y1+(y2-y1)*(xb-x1)/(x2-x1);
-      if (yc[nc]<ya || yc[nc]>yb || (xb-x1)*(xb-x2)>0.) nc--;
-    }
-    if (y1!=y2) {
-      nc++;
-      yc[nc]= ya;
-      xc[nc]= x1+(x2-x1)*(ya-y1)/(y2-y1);
-      if (xc[nc]<xa || xc[nc]>xb || (ya-y1)*(ya-y2)>0.) nc--;
-      nc++;
-      yc[nc]= yb;
-      xc[nc]= x1+(x2-x1)*(yb-y1)/(y2-y1);
-      if (xc[nc]<xa || xc[nc]>xb || (yb-y1)*(yb-y2)>0.) nc--;
-    }
-
-    if (k2==1) {
-      // foerste punkt paa linjestykke innenfor
-      nint= n-1;
-      xint= xc[0];
-      yint= yc[0];
-    } else if (k1==1) {
-      // siste punkt paa linjestykke innenfor
-      glBegin(GL_LINE_STRIP);
-      glVertex2f(xint, yint);
-      for (i=nint+1; i<n; i++)
-	glVertex2f(x[i], y[i]);
-      glVertex2f(xc[0], yc[0]);
-      glEnd();
-    } else if (nc>0) {
-      // to 'nabopunkt' utenfor, men del av linja innenfor
-      glBegin(GL_LINE_STRIP);
-      glVertex2f(xc[0], yc[0]);
-      glVertex2f(xc[1], yc[1]);
-      glEnd();
-    }
-  }
-
-  if (k2==1) {
-    // siste punkt er innenfor omraadet
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(xint, yint);
-    for (i=nint+1; i<npos; i++)
-      glVertex2f(x[i], y[i]);
-    glEnd();
-  }
-}
-
 
 bool VprofTables::startPSoutput(const printOptions& po){
   if (hardcopy) return false;

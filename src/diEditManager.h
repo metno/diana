@@ -43,6 +43,7 @@
 #include <vector>
 #include <QString>
 
+class AnnotationPlot;
 class PlotModule;
 class ObjectManager;
 class FieldPlotManager;
@@ -95,7 +96,15 @@ private:
   bool hiddenCombineObjects;
   int  showRegion;
 
+  AnnotationPlot* apEditmessage; // special edit message (region shown,...)
+
+  bool inEdit;                      //! edit in progress
+  bool producttimedefined;          //! producttime is set
+  miutil::miTime producttime;       //! proper product time
+
   std::vector<savedProduct> combineprods; // list of available product elements
+
+  void setEditMessage(const std::string&); // special Edit message (shown region,...)
 
   std::string editFileName(const std::string directory,
                         const std::string region,
@@ -136,6 +145,9 @@ private:
 public:
   EditManager(PlotModule*, ObjectManager*, FieldPlotManager*);
   ~EditManager();
+
+  bool isInEdit() const
+    { return inEdit; }
 
   /// parse EDIT section of setup file. (defines Edit products)
   bool parseSetup();

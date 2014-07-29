@@ -126,6 +126,8 @@ public:
 
   const std::string& Name() const {return name;}
 
+  Colour contrastColour() const;
+
   void readColourMap(const std::string fname);
 
   friend std::ostream& operator<<(std::ostream& out, const Colour& rhs);

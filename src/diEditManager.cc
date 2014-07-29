@@ -47,10 +47,9 @@
 #include <diFieldPlot.h>
 #include <diUndoFront.h>
 #include <diFieldEdit.h>
-#include <puTools/miDirtools.h>
 #include <diAnnotationPlot.h>
-#include <puCtools/puCglob.h>
-#include <puCtools/glob_cache.h>
+#include "diUtilities.h"
+#include <puTools/miDirtools.h>
 #include <puTools/miSetupParser.h>
 
 #include <iomanip>
@@ -73,6 +72,9 @@ EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm
 : plotm(pm), objm(om), fieldPlotManager(fm), mapmode(normal_mode), edittool(0), editpause(false),
 combinematrix(0),numregs(0), hiddenObjects(false),
 hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
+, apEditmessage(0)
+, inEdit(false)
+, producttimedefined(false)
 {
   if (plotm==0 || objm==0){
     METLIBS_LOG_WARN("Catastrophic error: plotm or objm == 0");
@@ -87,6 +89,8 @@ hiddenCombining(false), hiddenCombineObjects(false), showRegion(-1)
 
 EditManager::~EditManager()
 {
+  delete apEditmessage;
+  apEditmessage = 0;
 }
 
 bool EditManager::parseSetup()
@@ -409,6 +413,7 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
     const std::string emode,  // editmode
     const std::string etool){ // edittool
 
+  const mapMode oldMapMode = mapmode;
   if (mmode=="fedit_mode")
     mapmode= fedit_mode;
   else if (mmode=="draw_mode")
@@ -422,16 +427,14 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
     return;
   }
 
-  bool modeChange= (plotm->mapmode!=mapmode);
-
-  plotm->mapmode= mapmode;
+  bool modeChange= (oldMapMode!=mapmode);
 
   if (mapmode==normal_mode){
     editmode= edittool= 0;
-    plotm->inEdit = false;
+    inEdit = false;
     return;
   } else {
-    plotm->inEdit = true;
+    inEdit = true;
   }
 
   int n= mapmodeinfo.size();
@@ -462,13 +465,11 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
   if (modeChange) showAllObjects();
 
   objm->setEditMode(mapmode, editmode, etool);
-
 }
 
 
-
-
-mapMode EditManager::getMapMode(){
+mapMode EditManager::getMapMode()
+{
   return mapmode;
 }
 
@@ -493,7 +494,7 @@ void EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
     return;
 
   plotm->PhysToMap(me->x(),me->y(),newx,newy);
-  plotm->editobjects.setMouseCoordinates(newx,newy);
+  objm->getEditObjects().setMouseCoordinates(newx,newy);
 
   if (mapmode== fedit_mode){
 
@@ -694,7 +695,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       }
       hiddenCombineObjects= false;
       res.background= (mapmode==fedit_mode);
-      plotm->setEditMessage("");
+      setEditMessage("");
     }
     else if (ke->key() == Qt::Key_L) {
       //hide/show all combining objects.
@@ -716,7 +717,7 @@ void EditManager::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         showRegion= -1;
       }
       res.background= true;
-      plotm->setEditMessage(msg);
+      setEditMessage(msg);
     }
     res.repaint= true;
   }
@@ -877,7 +878,7 @@ bool EditManager::showAllObjects() {
     objm->editUnHideAll();
     hiddenObjects= hiddenCombineObjects= false;
     showRegion= -1;
-    plotm->setEditMessage("");
+    setEditMessage("");
     return true;
   } else {
     return false;
@@ -894,9 +895,9 @@ bool EditManager::unsavedEditChanges(){
 
   bool drawc = !objm->areObjectsSaved();
 
-  bool commentc = !plotm->editobjects.areCommentsSaved();
+  bool commentc = !objm->getEditObjects().areCommentsSaved();
 
-  bool labelc = !plotm->editobjects.areLabelsSaved();
+  bool labelc = !objm->getEditObjects().areLabelsSaved();
 
 
 
@@ -915,8 +916,8 @@ bool EditManager::unsentEditChanges(){
 bool EditManager::getProductTime(miTime& t){
   //METLIBS_LOG_DEBUG("EditManager::getProductTime");
   //returns the current product time
-  if (plotm->prodtimedefined){
-    t= plotm->producttime;
+  if (producttimedefined){
+    t = producttime;
     return true;
   } else
     return false;
@@ -932,7 +933,7 @@ std::string EditManager::getProductName(){
 
 void EditManager::saveProductLabels(vector <std::string> labels)
 {
-  plotm->editobjects.saveEditLabels(labels);
+  objm->getEditObjects().saveEditLabels(labels);
 }
 
 
@@ -1056,7 +1057,9 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
   std::string outputFilename;
 
-  std::string time_string = plotm->producttime.format("%Y%m%dt%H%M%S");
+  if (not producttimedefined)
+    return false;
+  std::string time_string = producttime.format("%Y%m%dt%H%M%S");
 
   if ( local ) {
     outputFilename = EdProd.local_savedir + "/";
@@ -1147,14 +1150,10 @@ bool EditManager::startEdit(const EditProduct& ep,
   cleanCombineData(true);
   numregs= 0;
 
-  for (unsigned int i=0; i<fedits.size(); i++)
-    delete fedits[i];
-  fedits.clear();
+  diutil::delete_all_and_clear(fedits);
 
-  // set product time
-  plotm->producttime = valid;
-  plotm->prodtimedefined= true;
-
+  producttime = valid;
+  producttimedefined = true;
 
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
 
@@ -1172,24 +1171,26 @@ bool EditManager::startEdit(const EditProduct& ep,
     FieldEdit *fed= new FieldEdit( fieldPlotManager );
     fed->setSpec(EdProd, j);
 
-      std::string fieldname= EdProd.fields[j].name;
+    const std::string& fieldname= EdProd.fields[j].name;
 
 
     if (EdProd.fields[j].fromfield) {
 
       // edit field from existing field, find correct fieldplot
 
+      const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
       vector<Field*> vf;
-      int i,n= plotm->vfp.size();
-      for (i=0; i<n; i++){
-        vf=  plotm->vfp[i]->getFields();
+      size_t i=0;
+      for (; i<vfp.size(); i++){
+        vf = vfp[i]->getFields();
         // for now, only accept scalar fields
-        if (vf.size()==1 &&
-            vf[0]->fieldText==EdProd.fields[j].fromfname) break;
+        if (vf.size()==1 && vf[0]->fieldText==EdProd.fields[j].fromfname)
+          break;
       }
-      if (i==n) return false;
+      if (i==vfp.size())
+        return false;
 
-      fed->setData(vf, fieldname, plotm->producttime);
+      fed->setData(vf, fieldname, producttime);
       fedits.push_back(fed);
 
     } else {
@@ -1197,20 +1198,17 @@ bool EditManager::startEdit(const EditProduct& ep,
       // get field from a saved product
       std::string filename = EdProd.fields[j].fromprod.filename;
       METLIBS_LOG_DEBUG("filename for saved field file to open:" << filename);
-      if(!fed->readEditFieldFile(filename,fieldname,plotm->producttime))
+      if(!fed->readEditFieldFile(filename, fieldname, producttime))
         return false;
       fedits.push_back(fed);
 
     }
-
-
-
   }
 
   // delete all previous objects
-  plotm->editobjects.init();
-  plotm->editobjects.setPrefix(EdProdId.name);
-  plotm->editobjects.setTime(plotm->producttime);
+  objm->getEditObjects().init();
+  objm->getEditObjects().setPrefix(EdProdId.name);
+  objm->getEditObjects().setTime(producttime);
 
   bool newProduct=true;
 
@@ -1224,7 +1222,7 @@ bool EditManager::startEdit(const EditProduct& ep,
     std::string filename =  objectProd.filename;
     if (!filename.empty()){
       //METLIBS_LOG_INFO("filename for saved objects file to open:" << filename);
-      plotm->editobjects.setSelectedObjectTypes(objectProd.selectObjectTypes);
+      objm->getEditObjects().setSelectedObjectTypes(objectProd.selectObjectTypes);
       objm->editCommandReadDrawFile(filename);
       commentstring += "Objects from:\n" + savedProductString(objectProd) + "\n";
       //open the comments file
@@ -1246,7 +1244,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   //save merged labels in editobjects
   vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
-  plotm->editobjects.labelsAreSaved();
+  objm->getEditObjects().labelsAreSaved();
 
   if (fedits.size()>0) fedits[0]->activate();
 
@@ -1286,7 +1284,7 @@ bool EditManager::writeEditProduct(std::string&  message,
 
   bool res= true;
   message = "";
-  miTime t = plotm->producttime;
+  miTime t = producttime;
 
   if (wfield) {
     for (unsigned int i=0; i<fedits.size(); i++) {
@@ -1331,7 +1329,7 @@ bool EditManager::writeEditProduct(std::string&  message,
     bool saveok = true;
     //get object string from objm to put in database and local files
     std::string objectsFilename, objectsFilenamePart,editObjectsString;
-    editObjectsString = objm->writeEditDrawString(t,plotm->editobjects);
+    editObjectsString = objm->writeEditDrawString(t,objm->getEditObjects());
 
     if (not editObjectsString.empty()) {
       //first save to local file
@@ -1378,10 +1376,10 @@ bool EditManager::writeEditProduct(std::string&  message,
     }
 
     objm->setObjectsSaved(saveok);
-    if (saveok) plotm->editobjects.labelsAreSaved();
+    if (saveok) objm->getEditObjects().labelsAreSaved();
   }
 
-  if ( plotm->editobjects.hasComments() ) {
+  if ( objm->getEditObjects().hasComments() ) {
     bool saveok= true;
     //get comment string from objm to put in database and local files
     //only do this if comments have changed !
@@ -1432,7 +1430,7 @@ bool EditManager::writeEditProduct(std::string&  message,
         }
       }
     }
-    if (saveok) plotm->editobjects.commentsAreSaved();
+    if (saveok) objm->getEditObjects().commentsAreSaved();
   }
 
 
@@ -1639,15 +1637,11 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
     const std::string fileString,
     dataSource dsource, int element, int autoremove){
 
-
-  //get files matching fileString
-  glob_t globBuf;
-  glob_cache(fileString.c_str(),0,0,&globBuf);
-
   miTime now = miTime::nowTime();
 
-  for (size_t i=0; i<globBuf.gl_pathc; i++) {
-    std::string name = globBuf.gl_pathv[i];
+  diutil::string_v matches = diutil::glob(fileString);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const std::string& name = *it;
     METLIBS_LOG_DEBUG("Found a file " << name);
     savedProduct savedprod;
     savedprod.ptime= objm->timeFileName(name);
@@ -1675,9 +1669,9 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
   // remove files older than autoremove from the products dir
   std::string prod_str = fileString;
   miutil::replace(prod_str,"work","products");
-  glob_cache(prod_str.c_str(),0,0,&globBuf);
-  for (size_t i=0; i<globBuf.gl_pathc; i++) {
-    std::string name = globBuf.gl_pathv[i];
+  matches = diutil::glob(prod_str);
+  for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    const std::string& name = *it;
     METLIBS_LOG_DEBUG("Found a file " << name);
     miTime ptime= objm->timeFileName(name);
     if (autoremove > 0 && miTime::hourDiff(now,ptime) > autoremove ) {
@@ -1685,7 +1679,6 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
       QFile::remove(name.c_str());
     }
   }
-  globfree_cache(&globBuf);
 }
 
 
@@ -1695,11 +1688,10 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
   // return names of existing fields valid for editing
   vector<std::string> vstr;
   std::string fname= miutil::to_lower(ep.fields[element].name);
-  int n= plotm->vfp.size();
-  vector<Field*> vf;
 
-  for (int i=0; i<n; i++){
-    vf=  plotm->vfp[i]->getFields();
+  const std::vector<FieldPlot*>& vfp = plotm->getFieldPlots();
+  for (size_t i=0; i<vfp.size(); i++){
+    vector<Field*> vf = vfp[i]->getFields();
     // for now, only accept scalar fields
     if (vf.size() == 1) {
       std::string s= miutil::to_lower(vf[0]->name);
@@ -1717,29 +1709,24 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
 // close edit-session
 void EditManager::stopEdit()
 {
-  METLIBS_LOG_DEBUG("EditManager::stopEdit");
+  METLIBS_LOG_SCOPE();
 
-  plotm->prodtimedefined= false;
+  producttimedefined = false;
 
-  if (!plotm->inEdit) return;
+  if (!inEdit)
+    return;
 
   cleanCombineData(true);
 
-  for (unsigned int i=0; i<fedits.size(); i++)
-    delete fedits[i];
-  fedits.clear();
-
-  plotm->editobjects.clear();
-  for (unsigned int i=0; i<plotm->editVap.size(); i++)
-    delete plotm->editVap[i];
-  plotm->editVap.clear();
-  plotm->combiningobjects.clear();
+  diutil::delete_all_and_clear(fedits);
+  plotm->deleteAllEditAnnotations();
+  objm->getEditObjects().clear();
+  objm->getCombiningObjects().clear();
 
   objm->setObjectsSaved(true);
   objm->undofrontClear();
 
   unsentProduct = false;
-
 }
 
 vector<std::string> EditManager::getEditProductNames(){
@@ -1786,11 +1773,11 @@ void EditManager::cleanCombineData(bool cleanData){
   }
 
   //delete all combiningobjects except borders
-  vector <ObjectPlot*>::iterator p = plotm->combiningobjects.objects.begin();
-  while (p!=plotm->combiningobjects.objects.end()){
+  vector <ObjectPlot*>::iterator p = objm->getCombiningObjects().objects.begin();
+  while (p!=objm->getCombiningObjects().objects.end()){
     ObjectPlot * pobject = *p;
     if (!pobject->objectIs(Border)){
-      p = plotm->combiningobjects.objects.erase(p);
+      p = objm->getCombiningObjects().objects.erase(p);
       delete pobject;
     }
     else p++;
@@ -1824,9 +1811,9 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid,
     vector<std::string>& pids,
-    QString& message){
-
-  METLIBS_LOG_DEBUG("EditManager::startCombineEdit()  Time = " << valid);
+    QString& message)
+{
+  METLIBS_LOG_SCOPE("Time = " << valid);
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
@@ -1841,26 +1828,28 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   EdProdId = ei;
 
   // delete editfields
-  for (unsigned int i=0; i<fedits.size(); i++)
-    delete fedits[i];
-  fedits.clear();
+  diutil::delete_all_and_clear(fedits);
 
   // delete all previous objects
-  plotm->editobjects.init();
-  plotm->combiningobjects.init();
+  objm->getEditObjects().init();
+  objm->getCombiningObjects().init();
 
   int ipc=0, npc=combineprods.size();
-  while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
-  if (ipc==npc) return false;
+  while (ipc<npc && combineprods[ipc].ptime!=valid)
+    ipc++;
+  if (ipc==npc)
+    return false;
 
   int ipcbegin= ipc;
   ipc++;
-  while (ipc<npc && combineprods[ipc].ptime==valid) ipc++;
+  while (ipc<npc && combineprods[ipc].ptime==valid)
+    ipc++;
   int ipcend= ipc;
 
   regnames= findAcceptedCombine(ipcbegin,ipcend,EdProd,EdProdId);
 
-  if (regnames.size()<2) return false;
+  if (regnames.size()<2)
+    return false;
 
   // pids is returned to dialog!
   pids= regnames;
@@ -1870,20 +1859,19 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   //get edit tools for this product (updates "region" stuff )
   setMapmodeinfo();
 
-  // set product time
-  plotm->producttime= valid;
-  plotm->prodtimedefined= true;
+  producttime = valid;
+  producttimedefined = true;
 
 
   std::string filename = EdProd.combineBorders + EdProdId.name;
   //read AreaBorders
-  if(!plotm->combiningobjects.readAreaBorders(filename,plotm->getMapArea())){
+  if(!objm->getCombiningObjects().readAreaBorders(filename,plotm->getMapArea())){
     message = "EditManager::startCombineEdit  error reading borders";
     return false;
   }
 
 
-  plotm->editobjects.setPrefix(EdProdId.name);
+  objm->getEditObjects().setPrefix(EdProdId.name);
 
   // read fields
 
@@ -1914,7 +1902,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
         fed->setSpec(EdProd, j);
         std::string filename = combineprods[ipc].filename;
         METLIBS_LOG_DEBUG("Read field file " << filename);
-        if(fed->readEditFieldFile(filename,fieldname,plotm->producttime)){
+        if(fed->readEditFieldFile(filename, fieldname, producttime)){
           int nx,ny;
           fed->getFieldSize(nx,ny);
           if (matrix_nx==0 && matrix_ny==0) {
@@ -1962,7 +1950,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
   }
 
-  plotm->combiningobjects.changeProjection(newarea);
+  objm->getCombiningObjects().changeProjection(newarea);
 
   combineobjects.clear();
 
@@ -1988,7 +1976,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
     i++;
   }
 
-  plotm->editobjects.setTime(plotm->producttime);
+  objm->getEditObjects().setTime(producttime);
   
   std::string lines;
   objm->putCommentStartLines(EdProd.name,EdProdId.name,lines);
@@ -2013,7 +2001,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   //save merged labels in editobjects
   vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
-  plotm->editobjects.labelsAreSaved();
+  objm->getEditObjects().labelsAreSaved();
 
 
   objm->setAllPassive();
@@ -2026,7 +2014,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
 bool EditManager::editCombine()
 {
-  METLIBS_LOG_DEBUG("EditManager::editCombine.......................");
+  METLIBS_LOG_SCOPE();
 
   int nfe = fedits.size();
   Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
@@ -2037,22 +2025,22 @@ bool EditManager::editCombine()
   int fsize= matrix_nx*matrix_ny;
 
   // delete all previous objects (not borders etc)
-  plotm->editobjects.clear();
+  objm->getEditObjects().clear();
 
   //check if recalcCombinematrix
   //(need to store the original one to avoid it!)
   if (!recalcCombineMatrix())
     return false;
 
-  int cosize = plotm->combiningobjects.objects.size();
+  int cosize = objm->getCombiningObjects().objects.size();
 
-  int nparts= plotm->combiningobjects.objectCount(Border);
+  int nparts= objm->getCombiningObjects().objectCount(Border);
   //the following should be done whenever combinematrix is changed
   //or regions changed
 
   // first convert all remaining objects to editfield area
-  plotm->editobjects.changeProjection(newarea);
-  plotm->combiningobjects.changeProjection(newarea);
+  objm->getEditObjects().changeProjection(newarea);
+  objm->getCombiningObjects().changeProjection(newarea);
 
   // projection may have been changed when showing single region data
   for (int i=0; i<numregs; i++)
@@ -2068,7 +2056,7 @@ bool EditManager::editCombine()
   // check each region textstring's position
   // allow duplicates and avoid the impossible
   for (int j=0; j<cosize; j++){
-    ObjectPlot * pobject = plotm->combiningobjects.objects[j];
+    ObjectPlot * pobject = objm->getCombiningObjects().objects[j];
     if (!pobject->objectIs(RegionName)) continue;
     int idxold= pobject->combIndex(matrix_nx,matrix_ny,gridResolutionX,gridResolutionY,combinematrix);
     int idxnew= pobject->getType();
@@ -2087,8 +2075,8 @@ bool EditManager::editCombine()
   if (error) {
     delete[] regindex;
     // convert all objects to map area again
-    plotm->combiningobjects.changeProjection(plotm->getMapArea());
-    plotm->editobjects.changeProjection(plotm->getMapArea());
+    objm->getCombiningObjects().changeProjection(plotm->getMapArea());
+    objm->getEditObjects().changeProjection(plotm->getMapArea());
 
     return false;
   }
@@ -2114,7 +2102,7 @@ bool EditManager::editCombine()
           newobject = new WeatherSymbol(*((WeatherSymbol*)(pobject)));
         else if (pobject->objectIs(wArea))
           newobject = new WeatherArea(*((WeatherArea*)(pobject)));
-        plotm->editobjects.objects.push_back(newobject);
+        objm->getEditObjects().objects.push_back(newobject);
       }
     }
   }
@@ -2126,18 +2114,18 @@ bool EditManager::editCombine()
     objm->editHideCombineObjects(showRegion);
 
   // then convert all objects to map area again
-  plotm->combiningobjects.changeProjection(plotm->getMapArea());
-  plotm->editobjects.changeProjection(plotm->getMapArea());
+  objm->getCombiningObjects().changeProjection(plotm->getMapArea());
+  objm->getEditObjects().changeProjection(plotm->getMapArea());
 
-  plotm->combiningobjects.updateObjects();
-  plotm->editobjects.updateObjects();
+  objm->getCombiningObjects().updateObjects();
+  objm->getEditObjects().updateObjects();
 
 
   float zoneWidth= 8.;
   for (int i=0; i<cosize; i++){
     //check if objects are borders
-    if (plotm->combiningobjects.objects[i]->objectIs(Border)){
-      zoneWidth= plotm->combiningobjects.objects[i]->getTransitionWidth();
+    if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
+      zoneWidth= objm->getCombiningObjects().objects[i]->getTransitionWidth();
       break;
     }
   }
@@ -2152,7 +2140,7 @@ bool EditManager::editCombine()
 
 void EditManager::stopCombine()
 {
-  METLIBS_LOG_DEBUG("EditManager::stopCombine");
+  METLIBS_LOG_SCOPE();
 
   objm->undofrontClear();
 
@@ -2163,7 +2151,7 @@ void EditManager::stopCombine()
 
   vector <std::string> labels = plotm->writeAnnotations(EdProd.name);
   saveProductLabels(labels);
-  plotm->editobjects.labelsAreSaved();
+  objm->getEditObjects().labelsAreSaved();
 
   cleanCombineData(false);
 
@@ -2349,7 +2337,7 @@ struct polygon{
 bool EditManager::recalcCombineMatrix(){
 
   //METLIBS_LOG_DEBUG("recalcCombineMatrix");
-  int cosize= plotm->combiningobjects.objects.size();
+  int cosize= objm->getCombiningObjects().objects.size();
   int nf= fedits.size();
 
   if ( nf < 1 ){
@@ -2363,8 +2351,8 @@ bool EditManager::recalcCombineMatrix(){
   int *startv= new int[cosize];
   for (int i=0; i<cosize; i++){
     //check if objects are borders
-    if (plotm->combiningobjects.objects[i]->objectIs(Border)){
-      numv[n]= plotm->combiningobjects.objects[i]->getXYZsize();
+    if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
+      numv[n]= objm->getCombiningObjects().objects[i]->getXYZsize();
       startv[n]= npos;
       npos+= numv[n];
       n++;
@@ -2377,9 +2365,9 @@ bool EditManager::recalcCombineMatrix(){
   int nborders = 0;
   int nposition=0;
   for (int i=0; i<cosize; i++){
-    if (plotm->combiningobjects.objects[i]->objectIs(Border)){
-      vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
-      vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
+    if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
+      vector <float> xborder=objm->getCombiningObjects().objects[i]->getX();
+      vector <float> yborder=objm->getCombiningObjects().objects[i]->getY();
       for (int j=0; j<numv[nborders]; j++) {
         xposis[nposition]=xborder[j];
         yposis[nposition]=yborder[j];
@@ -2661,7 +2649,7 @@ bool EditManager::recalcCombineMatrix(){
 
 void EditManager::prepareEditFields(const std::string& plotName, const vector<std::string>& inp)
 {
-  METLIBS_LOG_DEBUG("++ EditManager::prepareEditFields ++");
+  METLIBS_LOG_SCOPE();
 
   // setting plot options
 
@@ -2685,8 +2673,6 @@ void EditManager::prepareEditFields(const std::string& plotName, const vector<st
       combinefields[i][r]->editfieldplot->prepare(plotName, vip[i]);
     }
   }
-
-  METLIBS_LOG_DEBUG("++ Returning from EditManager::prepareEditFields ++");
 }
 
 
@@ -2702,11 +2688,37 @@ bool EditManager::getFieldArea(Area& a)
   return false;
 }
 
+void EditManager::setEditMessage(const string& str)
+{
+  // set or remove (if empty string) an edit message
+
+  if (apEditmessage) {
+    delete apEditmessage;
+    apEditmessage = 0;
+  }
+
+  if (not str.empty()) {
+    string labelstr;
+    labelstr = "LABEL text=\"" + str + "\"";
+    labelstr += " tcolour=blue bcolour=red fcolour=red:128";
+    labelstr += " polystyle=both halign=left valign=top";
+    labelstr += " xoffset=0.01 yoffset=0.1 fontsize=30";
+    apEditmessage = new AnnotationPlot();
+    if (!apEditmessage->prepare(labelstr)) {
+      delete apEditmessage;
+      apEditmessage = 0;
+    }
+  }
+}
+
 
 void EditManager::plot(bool under, bool over)
 {
 //  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
 //  <<"  showRegion="<<showRegion);
+
+  if (apEditmessage)
+    apEditmessage->plot();
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2745,9 +2757,9 @@ void EditManager::plot(bool under, bool over)
 //  <<" plotregion="<<plotregion);
 
   if (plotcombine && under){
-    int n= plotm->combiningobjects.objects.size();
+    int n= objm->getCombiningObjects().objects.size();
     for (int i=0; i<n; i++)
-      plotm->combiningobjects.objects[i]->plot();
+      objm->getCombiningObjects().objects[i]->plot();
   }
 
   if (plototherfield || plotactivefield) {
@@ -2763,30 +2775,30 @@ void EditManager::plot(bool under, bool over)
   }
 
   if (plotobjects) {
-    plotm->editobjects.plot();
+    objm->getEditObjects().plot();
     if (over) {
-      plotm->editobjects.drawJoinPoints();
+      objm->getEditObjects().drawJoinPoints();
     }
   }
 
   if (plotregion) plotSingleRegion();
 
   if (plotcombine && over){
-    int n= plotm->combiningobjects.objects.size();
+    int n= objm->getCombiningObjects().objects.size();
     float scale= gridResolutionX;
     if (nf > 0 && plotm->getMapArea().P() != fedits[0]->editfield->area.P() ) {
       int npos= 0;
       for (int i=0; i<n; i++)
-        if (plotm->combiningobjects.objects[i]->objectIs(Border))
-          npos+=plotm->combiningobjects.objects[i]->getXYZsize();
+        if (objm->getCombiningObjects().objects[i]->objectIs(Border))
+          npos+=objm->getCombiningObjects().objects[i]->getXYZsize();
       float *x= new float[npos*2];
       float *y= new float[npos*2];
       npos= 0;
       for (int i=0; i<n; i++) {
-        if (plotm->combiningobjects.objects[i]->objectIs(Border)){
-          vector <float> xborder=plotm->combiningobjects.objects[i]->getX();
-          vector <float> yborder=plotm->combiningobjects.objects[i]->getY();
-          int np= plotm->combiningobjects.objects[i]->getXYZsize();
+        if (objm->getCombiningObjects().objects[i]->objectIs(Border)){
+          vector <float> xborder=objm->getCombiningObjects().objects[i]->getX();
+          vector <float> yborder=objm->getCombiningObjects().objects[i]->getY();
+          int np= objm->getCombiningObjects().objects[i]->getXYZsize();
           for (int j=0; j<np; j++) {
             x[npos]  = xborder[j];
             y[npos++]= yborder[j];
@@ -2810,20 +2822,21 @@ void EditManager::plot(bool under, bool over)
       delete[] y;
     }
 
-    plotm->combiningobjects.setScaleToField(scale);
+    objm->getCombiningObjects().setScaleToField(scale);
 
-    plotm->combiningobjects.plot();
+    objm->getCombiningObjects().plot();
 
-    plotm->combiningobjects.drawJoinPoints();
+    objm->getCombiningObjects().drawJoinPoints();
   }
 }
 
 
 void EditManager::plotSingleRegion()
 {
-  METLIBS_LOG_DEBUG("EditManager::plotSingleRegion");
+  METLIBS_LOG_SCOPE();
 
-  if (showRegion<0 || showRegion>=numregs) return;
+  if (showRegion<0 || showRegion>=numregs)
+    return;
 
   int nf= combinefields.size();
 
@@ -2841,7 +2854,6 @@ void EditManager::plotSingleRegion()
 
     combineobjects[showRegion].plot();
   }
-
 }
 
 
@@ -2881,7 +2893,7 @@ bool EditManager::obs_mslp(ObsPositions& obsPositions) {
 void EditManager::initEditTools(){
   /* called from EditManager constructor. Defines edit tools used
      for editing fields, and displaying and editing objects  */
-  METLIBS_LOG_DEBUG("EditManager::initEditTools");
+  METLIBS_LOG_SCOPE();
   //defines edit and drawing tools
 
   eToolFieldStandard.push_back(newEditToolInfo("Change value",      edit_value));
@@ -3173,7 +3185,6 @@ void EditManager::initEditTools(){
   WeatherSymbol::initComplexList();
 
   WeatherArea::defineAreas(areas);
-
 }
 
 
@@ -3181,7 +3192,7 @@ void EditManager::setMapmodeinfo(){
   /* Called when a new edit sessions starts. Defines edit tools used in this
   edit session, which will appear in the edit dialog
   drawtools used for EditProducts are defined in setup-file */
-  METLIBS_LOG_DEBUG("EditManager::setMapmodeinfo()");
+  METLIBS_LOG_SCOPE();
 
   mapmodeinfo.clear();
 
@@ -3245,17 +3256,12 @@ void EditManager::setMapmodeinfo(){
       EdProd.complexSymbolSize);
   WeatherFront::setDefaultLineWidth(EdProd.frontLineWidth);
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
-
 }
 
 bool EditManager::getAnnotations(vector<string>& anno)
 {
-  int nf= fedits.size();
-
-  for (int i=0; i<nf; i++) {
+  for (size_t i=0; i<fedits.size(); i++)
     fedits[i]->getAnnotations(anno);
-  }
-
   return true;
 }
 
@@ -3332,4 +3338,3 @@ mapModeInfo newMapModeInfo(const std::string & newmode,
   mModeInfo.editmodeinfo= newmodeinfo;
   return mModeInfo;
 }
-

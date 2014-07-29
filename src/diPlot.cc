@@ -50,60 +50,63 @@ using namespace ::std;
 using namespace d_print;
 
 // static class members
-Area Plot::area;           // chosen projec./area in gridcoordinates
-Area Plot::requestedarea;  // requested projec./area in gridcoordinates
-Rectangle Plot::maprect;   // legal plotarea for maps in gc
-Rectangle Plot::fullrect;  // full plotarea in gc
-GridConverter Plot::gc;    // Projection-converter
-miTime Plot::ctime;        // current time
-float Plot::pwidth=0;      // physical plotwidth
-float Plot::pheight=0;     // physical plotheight
-float Plot::gcd=0;         // great circle distance (corner to corner)
-FontManager* Plot::fp=0;   // master fontpack
-bool Plot::dirty=true;     // plotsize has changed
-GLPfile* Plot::psoutput=0; // PostScript module
-bool Plot::hardcopy=false; // producing postscript
-int Plot::pressureLevel=-1;// current pressure level
-int Plot::oceandepth=-1;   // current ocean depth
-std::string Plot::bgcolour="";// name of background colour
-Colour Plot::backgroundColour;
-Colour Plot::backContrastColour;
-bool Plot::panning=false;  // panning in progress
-vector<float> Plot::xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-vector<float> Plot::xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
+Area StaticPlot::area;           // chosen projec./area in gridcoordinates
+Area StaticPlot::requestedarea;  // requested projec./area in gridcoordinates
+Rectangle StaticPlot::maprect;   // legal plotarea for maps in gc
+Rectangle StaticPlot::fullrect;  // full plotarea in gc
+GridConverter StaticPlot::gc;    // Projection-converter
+miTime StaticPlot::ctime;        // current time
+float StaticPlot::pwidth=0;      // physical plotwidth
+float StaticPlot::pheight=0;     // physical plotheight
+float StaticPlot::gcd=0;         // great circle distance (corner to corner)
+FontManager* StaticPlot::fp=0;   // master fontpack
+bool StaticPlot::dirty=true;     // plotsize has changed
+GLPfile* StaticPlot::psoutput=0; // PostScript module
+bool StaticPlot::hardcopy=false; // producing postscript
+int StaticPlot::pressureLevel=-1;// current pressure level
+int StaticPlot::oceandepth=-1;   // current ocean depth
+std::string StaticPlot::bgcolour="";// name of background colour
+Colour StaticPlot::backgroundColour;
+Colour StaticPlot::backContrastColour;
+bool StaticPlot::panning=false;  // panning in progress
+vector<float> StaticPlot::xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
+vector<float> StaticPlot::xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
+printerManager StaticPlot::printman;   // printer manager
 
-// Default constructor
 Plot::Plot()
-  : enabled(true),datachanged(true),rgbmode(true){
-  if (!fp) fp= new FontManager();
+  : enabled(true)
+  , rgbmode(true)
+{
+  METLIBS_LOG_SCOPE();
+  if (not StaticPlot::getFontPack())
+    StaticPlot::restartFontManager();
 }
 
-// Equality operator
 bool Plot::operator==(const Plot &rhs) const{
   return false;
 }
 
-void Plot::initFontManager(){
-
-  if (fp) fp->parseSetup();
-
+void StaticPlot::initFontManager()
+{
+  METLIBS_LOG_SCOPE();
+  if (fp)
+    fp->parseSetup();
 }
 
-void Plot::restartFontManager(){
-
-  if (fp) {
-    delete fp;
-  }
+void StaticPlot::restartFontManager()
+{
+  METLIBS_LOG_SCOPE();
+  delete fp;
   fp = new FontManager();
-  if (fp) fp->parseSetup();
-
+  initFontManager();
 }
 
-void Plot::enable(const bool f){
-  enabled= f;
+void Plot::setEnabled(bool e)
+{
+  enabled = e;
 }
 
-bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
+bool StaticPlot::setMapArea(const Area& a, bool keepcurrentarea){
 
   if (a.P().isDefined()){
     // change plot-Area
@@ -139,7 +142,7 @@ bool Plot::setMapArea(const Area& a, bool keepcurrentarea){
 }
 
 
-void Plot::setPlotSize(const Rectangle& r){
+void StaticPlot::setPlotSize(const Rectangle& r){
   if (fullrect==r) return;
   fullrect= r;
   setDirty(true);
@@ -149,35 +152,31 @@ void Plot::setPlotSize(const Rectangle& r){
 }
 
 
-void Plot::setMapSize(const Rectangle& r){
+void StaticPlot::setMapSize(const Rectangle& r){
   if (maprect==r) return;
   maprect= r;
   setDirty(true);
 }
 
-void Plot::setPhysSize(const float w, const float h){
+void StaticPlot::setPhysSize(float w, float h){
   pwidth= w;
   pheight= h;
   if (fp) fp->setVpSize(w, h);
   setDirty(true);
 }
 
-void Plot::getPhysSize(float& w, float& h){
+void StaticPlot::getPhysSize(float& w, float& h){
   w= pwidth;
   h= pheight;
 }
 
-Area Plot::findBestMatch(const Area& newa){
-
-  Area a= newa;
+Area StaticPlot::findBestMatch(const Area& newa){
 
   if (!area.P().isDefined())
-    return a;
+    return newa;
 
-  int npos= 4;
-  float *xpos = new float[npos];
-  float *ypos = new float[npos];
-
+  const int npos= 4;
+  float xpos[npos], ypos[npos];
   xpos[0]= area.R().x1;
   ypos[0]= area.R().y1;
   xpos[1]= area.R().x1;
@@ -189,9 +188,7 @@ Area Plot::findBestMatch(const Area& newa){
 
   if (!gc.getPoints(area.P(),newa.P(),npos,xpos,ypos)) {
     METLIBS_LOG_ERROR("findBestMatch: getPoints error");
-    delete[] xpos;
-    delete[] ypos;
-    return a;
+    return newa;
   }
 
   const float MAX=100000000;
@@ -200,42 +197,40 @@ Area Plot::findBestMatch(const Area& newa){
   for (int i=0; i<npos; i++){
     // check for impossible numbers
     if (xpos[i] < -MAX || xpos[i] > MAX){
-      delete[] xpos;
-      delete[] ypos;
-      return a;
+      return newa;
     }
     if (xpos[i] < minx) minx= xpos[i];
     if (ypos[i] < miny) miny= ypos[i];
     if (xpos[i] > maxx) maxx= xpos[i];
     if (ypos[i] > maxy) maxy= ypos[i];
   }
-  a.setR(Rectangle(minx,miny,maxx,maxy));
 
-  delete[] xpos;
-  delete[] ypos;
+  Area a = newa;
+  a.setR(Rectangle(minx,miny,maxx,maxy));
   return a;
 }
 
 
-void Plot::setDirty(const bool f){
-  //METLIBS_LOG_DEBUG("SetDirty " << (f ? "true" : "false"));
+void StaticPlot::setDirty(bool f)
+{
+  //METLIBS_LOG_SCOPE(LOGVAL(f));
   dirty= f;
-
 }
 
 
-void Plot::setGcd(const float dist){
+void StaticPlot::setGcd(float dist){
   gcd = dist;
 
 }
 
-void Plot::setColourMode(const bool isrgb){
+void Plot::setColourMode(bool isrgb){
   rgbmode= isrgb;
 //   if (rgbmode) fp= std_fp;
 //   else fp= ovr_fp;
 }
 
-void Plot::xyClear(){
+// static method
+void StaticPlot::xyClear(){
   xyLimit.clear();
   xyPart.clear();
 }
@@ -249,7 +244,7 @@ void Plot::setPlotInfo(const std::string& pin)
   enabled= poptions.enabled;
 }
 
-std::string Plot::getPlotInfo(int n)
+std::string Plot::getPlotInfo(int n) const
 {
   //return current plot info string
   if(n==0) return pinfo;
@@ -264,7 +259,7 @@ std::string Plot::getPlotInfo(int n)
   }
   return str;
 }
-std::string Plot::getPlotInfo(std::string return_tokens)
+std::string Plot::getPlotInfo(const std::string& return_tokens) const
 {
   //return n elements of current plot info string
   vector<std::string> return_token = miutil::split(return_tokens, 0, ",");
@@ -274,8 +269,9 @@ std::string Plot::getPlotInfo(std::string return_tokens)
   for(unsigned int i=0;i<token.size();i++){
     vector<std::string> stoken = miutil::split(token[i], 0, "=");
     if( stoken.size() == 2 ) {
-      int j=0;
-      while ( j<return_token.size() && return_token[j] != stoken[0] ) ++j;
+      size_t j=0;
+      while ( j<return_token.size() && return_token[j] != stoken[0] )
+        ++j;
       if ( j < return_token.size() ) {
         str += token[i] + " ";
       }
@@ -290,7 +286,7 @@ std::string Plot::getPlotInfo(std::string return_tokens)
   return str;
 }
 
-bool Plot::startPSoutput(const printOptions& po){
+bool StaticPlot::startPSoutput(const printOptions& po){
   if (hardcopy) return false;
 
   printOptions pro= po;
@@ -368,11 +364,11 @@ bool Plot::startPSoutput(const printOptions& po){
 }
 
 // for postscript output
-void Plot::UpdateOutput(){
+void StaticPlot::UpdateOutput(){
   if (psoutput) psoutput->UpdatePage(true);
 }
 
-bool Plot::startPSnewpage()
+bool StaticPlot::startPSnewpage()
 {
   if (!hardcopy || !psoutput) return false;
   glFlush();
@@ -383,7 +379,7 @@ bool Plot::startPSnewpage()
   return true;
 }
 
-bool Plot::endPSoutput(){
+bool StaticPlot::endPSoutput(){
   if (!hardcopy || !psoutput) return false;
   glFlush();
   if (psoutput->EndPage() == 0) {
@@ -397,7 +393,7 @@ bool Plot::endPSoutput(){
 }
 
 
-void Plot::psAddImage(const GLvoid* data,GLint size,GLint nx,GLint ny,
+void StaticPlot::psAddImage(const GLvoid* data,GLint size,GLint nx,GLint ny,
 		      GLfloat x,GLfloat y,GLfloat sx,GLfloat sy,
 		      GLint x1,GLint y1,GLint x2,GLint y2,
 		      GLenum format,GLenum type){
@@ -408,7 +404,7 @@ void Plot::psAddImage(const GLvoid* data,GLint size,GLint nx,GLint ny,
 }
 
 
-void Plot::addHCStencil(const int& size, const float* x, const float* y)
+void StaticPlot::addHCStencil(int size, const float* x, const float* y)
 {
   if (!psoutput)
     return;
@@ -416,8 +412,8 @@ void Plot::addHCStencil(const int& size, const float* x, const float* y)
 }
 
 // Scissoring in GL coordinates
-void Plot::addHCScissor(const double x0, const double y0,
-			const double  w, const double  h)
+void StaticPlot::addHCScissor(double x0, double y0,
+			      double  w, double  h)
 {
   if (!psoutput)
     return;
@@ -425,22 +421,22 @@ void Plot::addHCScissor(const double x0, const double y0,
 }
 
 // Scissoring in pixel coordinates
-void Plot::addHCScissor(const int x0, const int y0,
-			const int  w, const int  h)
+void StaticPlot::addHCScissor(int x0, int y0,
+			      int  w, int  h)
 {
   if (!psoutput)
     return;
   psoutput->addScissor(x0,y0,w,h);
 }
 
-void Plot::removeHCClipping()
+void StaticPlot::removeHCClipping()
 {
   if (!psoutput)
     return;
   psoutput->removeClipping();
 }
 
-void Plot::resetPage()
+void StaticPlot::resetPage()
 {
   if (!psoutput)
     return;
@@ -448,7 +444,7 @@ void Plot::resetPage()
 }
 
 // panning in progress
-void Plot::panPlot(const bool b)
+void StaticPlot::panPlot(bool b)
 {
   panning= b;
 }

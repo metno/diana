@@ -97,7 +97,6 @@ private:
       float jumplimit);
   void clipPrimitiveLines(int i1, int i2, float *, float *, float xylim[4],
       float jumplimit);
-  void xyclip(int npos, float *x, float *y, float xylim[4]);
 
 public:
 

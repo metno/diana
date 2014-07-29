@@ -31,7 +31,7 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
-#include <diPlot.h>
+#include <diAnnotationPlot.h>
 #include <diSat.h>
 #include <diSatPlot.h>
 #include <diCommonTypes.h>
@@ -93,43 +93,40 @@ public:
     bool mosaic; //ok to make mosaic
   };
 
-private:
-  std::map<std::string, std::map<std::string,subProdInfo> > Prod;
-  SatDialogInfo Dialog;
-  std::map<std::string,std::string> channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
+  typedef std::map<std::string, subProdInfo> SubProd_t;
+  typedef std::map<std::string, SubProd_t> Prod_t;
 
-  // needed for getFiles error return
-  const std::vector<SatFileInfo> emptyfile;
+private:
+  Prod_t Prod;
+  SatDialogInfo Dialog;
+
+  typedef std::map<std::string,std::string> channelmap_t;
+  channelmap_t channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
+
   bool useArchive; //read archive files too.
 
 /************************************************************************/
 
-//current sat image and plot
-  Sat *satdata;
-  SatPlot * sp;
-
   int updateFreq;   //Max time between filelist updates in seconds
   miutil::miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
-  int timeDiff;
 
-  // Copy members
-  void memberCopy(const SatManager& rhs);
-  void getMosaicfiles();
-  void addMosaicfiles();
+  void getMosaicfiles(Sat* satdata);
+  void addMosaicfiles(Sat* satdata);
   std::vector<SatFileInfo> mosaicfiles;
 
-  void cutImage(unsigned char*, float, int&, int&);
-  void setRGB();
-  void setPalette(SatFileInfo &);
+  void cutImage(Sat* satdata, unsigned char*, float, int&, int&);
+  void setRGB(Sat* satdata);
+  void setPalette(Sat* satdata, SatFileInfo &);
   void listFiles(subProdInfo &subp);
   bool readHeader(SatFileInfo &, std::vector<std::string> &);
 
   bool _isafile(const std::string name);
   unsigned long _modtime(const std::string fname);
   int _filestat(const std::string fname, pu_struct_stat& filestat);
-  bool parseChannels(SatFileInfo &info);
-  bool readSatFile();
+  bool parseChannels(Sat* satdata, SatFileInfo &info);
+  bool readSatFile(Sat* satdata);
 
+  bool init(const std::vector<std::string>&);
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
 
@@ -141,13 +138,49 @@ private:
   };
   ColourStretchInfo colourStretchInfo;
 
+  typedef std::vector<SatPlot*> SatPlot_xv;
+  SatPlot_xv vsp;   // vector of satellite plots
+
+  bool fileListChanged;
+
+  bool setData(SatPlot *satp);
+  void cutImageRGBA(Sat* satdata, unsigned char *image, float cut, int *index);
+  int getFileName(Sat* satdata, std::string &);
+  int getFileName(Sat* satdata, const miutil::miTime&);
+
 public:
-  // Constructors
   SatManager();
 
-  bool init(std::vector<SatPlot*>&, const std::vector<std::string>&);
-  bool setData(SatPlot *);
-  std::vector<miutil::miTime> getSatTimes(const std::vector<std::string>&, bool updateFileList=false, bool openFiles=false);
+  /// handles images plot info strings
+  void prepareSat(const std::vector<std::string>& inp);
+
+  void addPlotElements(std::vector<PlotElement>& pel);
+  void enablePlotElement(const PlotElement& pe);
+  void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
+  void getSatAnnotations(std::vector<std::string>& anno);
+  void plot();
+  void clear();
+  bool getGridResolution(float& rx, float& ry);
+
+  bool setData();
+  bool getSatArea(Area& a) const
+    { if (vsp.empty()) return false; a = vsp.front()->getSatArea(); return true; }
+
+  bool isFileListChanged() const
+    { return fileListChanged; }
+  void setFileListChanged(bool flc)
+    { fileListChanged = flc; }
+
+  std::vector<miutil::miTime> getSatTimes(bool updateFileList=false, bool openFiles=false);
+
+  /// get name++ of current channels (with calibration)
+  std::vector<std::string> getCalibChannels();
+  ///show pixel values in status bar
+  std::vector<SatValues> showValues(float x, float y);
+  ///get satellite name from all SatPlots
+  std::vector <std::string> getSatnames();
+  ///satellite follows main plot time
+  void setSatAuto(bool, const std::string&, const std::string&);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
@@ -166,30 +199,25 @@ public:
 				      int index=-1);
   bool isMosaic(const std::string &satellite, const std::string & file);
 
-  void cutImageRGBA(unsigned char *image, float cut, int *index);
-  int getFileName(std::string &);
-  int getFileName(const miutil::miTime&);
-
-  SatDialogInfo initDialog(void){ return Dialog;}
+  SatDialogInfo initDialog()
+    { return Dialog; }
   bool parseSetup();
 
   //  Sat * findSatdata(const std::string & filename);//search vsatdata
   void updateFiles();
-  void setSatAuto(bool,const std::string &, const std::string &);
 
-  void archiveMode( bool on ){useArchive=on; updateFiles();}
+  void archiveMode(bool on)
+    { useArchive = on; updateFiles(); }
 
   std::vector <std::string> vUffdaClass;
   std::vector <std::string> vUffdaClassTip;
   std::string uffdaMailAddress;
   bool uffdaEnabled;
 
-  bool fileListChanged;
+  const Prod_t& getProductsInfo() const;
 
-  // Radar echo mesure
-  std::map<float,float> radarecho;
-
-  std::map<std::string, std::map<std::string,subProdInfo> > getProductsInfo() const;
+  const std::vector<SatPlot*>& getSatellitePlots() const
+    { return vsp; }
 };
 
 #endif

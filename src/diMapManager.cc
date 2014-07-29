@@ -58,7 +58,6 @@ bool MapManager::parseSetup()
 // parse section containing definitions of map-areas
 bool MapManager::parseMapAreas()
 {
-
   mapareas.clear();
 
   vector<std::string> setuplist;
@@ -66,9 +65,7 @@ bool MapManager::parseMapAreas()
     return true;
   }
 
-  unsigned int q;
-  unsigned int n = setuplist. size();
-  for (unsigned int i = 0; i < n; i++) {
+  for (size_t i = 0; i < setuplist. size(); i++) {
     Area area;
 
     if (area.setAreaFromString(setuplist[i])) {
@@ -84,7 +81,8 @@ bool MapManager::parseMapAreas()
         area.setName(name);;
 
         // find duplicate
-        for (q = 0; q < mapareas_Fkeys.size(); q++) {
+        size_t q = 0;
+        for (; q < mapareas_Fkeys.size(); q++) {
           if (mapareas_Fkeys[q].Name() == Fkey)
             break;
         }
@@ -96,6 +94,7 @@ bool MapManager::parseMapAreas()
       }
 
       // find duplicate
+      size_t q = 0;
       for (q = 0; q < mapareas.size(); q++) {
         if (mapareas[q].Name() == name)
           break;
@@ -118,27 +117,25 @@ bool MapManager::parseMapAreas()
 
 bool MapManager::parseMapTypes()
 {
-
   const std::string key_name = "map=";
 
-  vector<std::string> strlist;
   MapInfo mapinfo;
-  unsigned int i, n, q;
 
   PlotOptions a, b, c, d, e;
 
   mapfiles.clear();
 
+  vector<std::string> strlist;
   if (!SetupParser::getSection(SectMapTypes, strlist))
     return true;
 
-  n = strlist.size();
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < strlist.size(); i++) {
     if (miutil::contains(strlist[i], key_name)) {
       // save previous map and set defaults
       if (not mapinfo.name.empty()) {
         // find duplicate
-        for (q = 0; q < mapfiles.size(); q++)
+        size_t q = 0;
+        for (; q < mapfiles.size(); q++)
           if (mapfiles[q].name == mapinfo.name)
             break;
         if (q != mapfiles.size())
@@ -197,7 +194,8 @@ bool MapManager::parseMapTypes()
   // add final map to list
   if (not mapinfo.name.empty()) {
     // find duplicate
-    for (q = 0; q < mapfiles.size(); q++)
+    size_t q = 0;
+    for (; q < mapfiles.size(); q++)
       if (mapfiles[q].name == mapinfo.name)
         break;
     if (q != mapfiles.size())
@@ -212,8 +210,7 @@ bool MapManager::parseMapTypes()
 vector<std::string> MapManager::getMapAreaNames()
 {
   vector<std::string> areanames;
-  int i, n = mapareas.size();
-  for (i = 0; i < n; i++)
+  for (size_t i = 0; i < mapareas.size(); i++)
     areanames.push_back(mapareas[i].Name());
 
   return areanames;
@@ -221,13 +218,12 @@ vector<std::string> MapManager::getMapAreaNames()
 
 bool MapManager::getMapAreaByName(const std::string& name, Area& a)
 {
-  int i, n = mapareas.size();
   //return first map
-  if (miutil::to_lower(name) == "default" && n > 0) {
+  if (miutil::to_lower(name) == "default" and not mapareas.empty()) {
     a = mapareas[0];
     return true;
   }
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < mapareas.size(); i++) {
     if (name == mapareas[i].Name()) {
       a = mapareas[i];
       return true;
@@ -239,8 +235,7 @@ bool MapManager::getMapAreaByName(const std::string& name, Area& a)
 bool MapManager::getMapAreaByFkey(const std::string& name, Area& a)
 {
   //     cerr<<"getMapAreaByFkey:"<<name<<endl;
-  int i, n = mapareas_Fkeys.size();
-  for (i = 0; i < n; i++) {
+  for (size_t i = 0; i < mapareas_Fkeys.size(); i++) {
     if (name == mapareas_Fkeys[i].Name()) {
       a = mapareas_Fkeys[i];
       return true;
@@ -256,10 +251,9 @@ vector<MapInfo> MapManager::getMapInfo()
 
 bool MapManager::getMapInfoByName(const std::string& name, MapInfo& mapinfo)
 {
-  int n = mapfiles.size();
-  for (int i = 0; i < n; i++) {
-    std::string mname = mapfiles[i].name;
-    if (miutil::to_lower(mname) == miutil::to_lower(name)) {
+  const std::string lname = miutil::to_lower(name);
+  for (size_t i = 0; i < mapfiles.size(); i++) {
+    if (miutil::to_lower(mapfiles[i].name) == lname) {
       mapinfo = mapfiles[i];
       return true;
     }

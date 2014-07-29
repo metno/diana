@@ -78,15 +78,14 @@ short * ObsPlot::iptabMetar = 0;
 int ObsPlot::ucount = 0;
 #endif
 
-// Default constructor
 ObsPlot::ObsPlot() : Plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::ObsPlot() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 #ifdef ROADOBS
   ucount++;
-  METLIBS_LOG_DEBUG("++ ObsPlot::ObsPlot(), ucount: " << ucount << " ++");
+  METLIBS_LOG_DEBUG(LOGVAL(ucount));
 #endif
   x = NULL;
   y = NULL;
@@ -174,12 +173,12 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
     return false;
   }
 #else
-  if (!enabled || obsp.size() == 0 || current < 0) {
+  if (!isEnabled() || obsp.size() == 0 || current < 0) {
     return false;
   }
 #endif
 
-  float vectorAnnotationSize = 30 * fullrect.width() / pwidth * 0.7;
+  float vectorAnnotationSize = 30 * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 0.7;
   std::string vectorAnnotationText = std::string(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
@@ -255,14 +254,14 @@ void ObsPlot::updateLevel(const std::string& dataType)
 
   if (dataType == "ocea") { //ocean
     if (levelAsField) //from field
-      level = getOceanDepth();
+      level = StaticPlot::getOceanDepth();
     if (level == -1) {
       level = 0; //default!!
       //METLIBS_LOG_DEBUG("No sea level, using 0m");
     }
   } else { //temp, pilot,aireps
     if (levelAsField) //from field
-      level = getPressureLevel();
+      level = StaticPlot::getPressureLevel();
     if (level == -1) {
       if (dataType == "aireps")
         level = 500; //default!!
@@ -286,13 +285,13 @@ int ObsPlot::numVisiblePositions()
     int count = 0;
 
     for(int i = 0; i < npos; i++) {
-      if(x[i] < maprect.x1)
+      if(x[i] < StaticPlot::getMapSize().x1)
         continue;
-      if(x[i] > maprect.x2)
+      if(x[i] > StaticPlot::getMapSize().x2)
         continue;
-      if(y[i] < maprect.y1)
+      if(y[i] < StaticPlot::getMapSize().y1)
         continue;
-      if(y[i] > maprect.y2)
+      if(y[i] > StaticPlot::getMapSize().y2)
         continue;
 
       count++;
@@ -312,13 +311,13 @@ int ObsPlot::numVisiblePositions()
     int count = 0;
 
     for(int i = 0; i < npos; i++) {
-      if(x[i] < maprect.x1)
+      if(x[i] < StaticPlot::getMapSize().x1)
         continue;
-      if(x[i] > maprect.x2)
+      if(x[i] > StaticPlot::getMapSize().x2)
         continue;
-      if(y[i] < maprect.y1)
+      if(y[i] < StaticPlot::getMapSize().y1)
         continue;
-      if(y[i] > maprect.y2)
+      if(y[i] > StaticPlot::getMapSize().y2)
         continue;
       count++;
     }
@@ -727,10 +726,10 @@ bool ObsPlot::prepare(const std::string& pin)
   return true;
 }
 
-bool ObsPlot::setData(void)
+bool ObsPlot::setData()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::setData() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 
   int i;
@@ -758,7 +757,7 @@ bool ObsPlot::setData(void)
 #endif
 
   if (numObs < 1) {
-    METLIBS_LOG_WARN("ObsPlot::setData: no data");
+    METLIBS_LOG_WARN("no data");
 #ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("Number of stations: "<<numObs);
     METLIBS_LOG_DEBUG("++ End ObsPlot setData(), false ++");
@@ -830,7 +829,7 @@ bool ObsPlot::setData(void)
 
 
   // convert points to correct projection
-  gc.geo2xy(area, numObs, x, y);
+  StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), numObs, x, y);
 
   bool ddff = true;
 
@@ -851,7 +850,7 @@ bool ObsPlot::setData(void)
       v[i] = 10;
     }
 
-    gc.geov2xy(area, numObs, x, y, u, v);
+    StaticPlot::gc.geov2xy(StaticPlot::getMapArea(), numObs, x, y, u, v);
 
     if (roadobsData) {
 #ifdef ROADOBS
@@ -1078,7 +1077,7 @@ void ObsPlot::clear()
   roadobsp.clear();
 #endif
   annotation.clear();
-  plotname.clear();
+  setPlotName("");
   labels.clear();
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ End ObsPlot::clear() ++");
@@ -1306,114 +1305,111 @@ void ObsPlot::time_sort(void)
 #endif
 }
 
-  void ObsPlot::parameter_sort(std::string parameter, bool minValue)
-  {
+void ObsPlot::parameter_sort(std::string parameter, bool minValue)
+{
+#ifdef DEBUGPRINT
+  METLIBS_LOG_SCOPE();
+#endif
+  //sort the observations according to priority list
+  if (obsp.size() == 0) {
+    return;
+  }
   
-  #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ ObsPlot::parameter_sort() ++");
-  #endif
-    //sort the observations according to priority list
-    if (obsp.size() == 0) {
-      return;
+  vector<int> tmpFileList = all_from_file;
+  vector<int> tmpStnList = all_stations;
+  
+  multimap<string, int> stringFileSortmap;
+  multimap<string, int> stringStnSortmap;
+  multimap<double, int> numFileSortmap;
+  multimap<double, int> numStnSortmap;
+  
+  // Fill the observation with parameter
+  // and mark them in tmpList
+  int index;
+  for (size_t i = 0; i < tmpFileList.size(); i++ ){
+    index = all_stations[i];
+    if(obsp[index].stringdata.count(parameter)) {
+      string stringkey = obsp[index].stringdata[parameter];
+      if(miutil::is_number(stringkey))
+      {
+        double numberkey = miutil::to_double(stringkey);
+        numFileSortmap.insert(pair<double, int> (numberkey, index));
+      }
+      else {
+        stringFileSortmap.insert(pair<string, int> (stringkey, index));
+      }
+      tmpFileList[i] = -1;
+      
     }
+  }
   
-    int numObs = obsp.size();
-  
-    vector<int> tmpFileList = all_from_file;
-    vector<int> tmpStnList = all_stations;
-  
-    multimap<string, int> stringFileSortmap;
-    multimap<string, int> stringStnSortmap;
-    multimap<double, int> numFileSortmap;
-    multimap<double, int> numStnSortmap;
-  
-    // Fill the observation with parameter
-    // and mark them in tmpList
-    int index;
-    for (int i = 0; i < tmpFileList.size(); i++ ){
-      index = all_stations[i];
-      if(obsp[index].stringdata.count(parameter)) {
-        string stringkey = obsp[index].stringdata[parameter];
-        if(miutil::is_number(stringkey))
-        {
-          double numberkey = miutil::to_double(stringkey);
-          numFileSortmap.insert(pair<double, int> (numberkey, index));
-        }
-        else {
-          stringFileSortmap.insert(pair<string, int> (stringkey, index));
-        }
-        tmpFileList[i] = -1;
-  
+  for (size_t i = 0; i < tmpStnList.size(); i++ ){
+    index = all_stations[i];
+    if(obsp[index].stringdata.count(parameter)) {
+      string stringkey = obsp[index].stringdata[parameter];
+      if(miutil::is_number(stringkey))
+      {
+        double numberkey = miutil::to_double(stringkey);
+        numStnSortmap.insert(pair<double, int> (numberkey, index));
       }
+      else {
+        stringStnSortmap.insert(pair<string, int> (stringkey, index));
+      }
+      tmpStnList[i] = -1;
+      
     }
+  }
   
-    for (int i = 0; i < tmpStnList.size(); i++ ){
-      index = all_stations[i];
-      if(obsp[index].stringdata.count(parameter)) {
-        string stringkey = obsp[index].stringdata[parameter];
-        if(miutil::is_number(stringkey))
-        {
-          double numberkey = miutil::to_double(stringkey);
-          numStnSortmap.insert(pair<double, int> (numberkey, index));
-        }
-        else {
-          stringStnSortmap.insert(pair<string, int> (stringkey, index));
-        }
-        tmpStnList[i] = -1;
-  
-      }
+  all_from_file.clear();
+  all_stations.clear();
+  if(!minValue) {
+    for(multimap<double, int>::iterator p = numFileSortmap.begin(); p != numFileSortmap.end(); p++) {
+      all_from_file.push_back(p->second);
     }
+    for(multimap<string, int>::iterator p = stringFileSortmap.begin(); p != stringFileSortmap.end(); p++) {
+      all_from_file.push_back(p->second);
+    }
+    
+    for(multimap<double, int>::iterator p = numStnSortmap.begin(); p != numStnSortmap.end(); p++) {
+      all_stations.push_back(p->second);
+    }
+    for(multimap<string, int>::iterator p = stringStnSortmap.begin(); p != stringStnSortmap.end(); p++) {
+      all_stations.push_back(p->second);
+    }
+  }
+  else {
+    for(multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin(); p != stringFileSortmap.rend(); p++) {
+      all_from_file.push_back(p->second);
+    }
+    for(multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin(); p != numFileSortmap.rend(); p++) {
+      all_from_file.push_back(p->second);
+    }
+    for(multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin(); p != stringStnSortmap.rend(); p++) {
+      all_stations.push_back(p->second);
+    }
+    for(multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin(); p != numStnSortmap.rend(); p++) {
+      all_stations.push_back(p->second);
+    }
+  }
   
-    all_from_file.clear();
-    all_stations.clear();
-    if(!minValue) {
-      for(multimap<double, int>::iterator p = numFileSortmap.begin(); p != numFileSortmap.end(); p++) {
-        all_from_file.push_back(p->second);
+  if (!showOnlyPrioritized) {
+    for (size_t i = 0; i < tmpFileList.size(); i++)
+      if (tmpFileList[i] != -1) {
+        all_from_file.push_back(tmpFileList[i]);
       }
-      for(multimap<string, int>::iterator p = stringFileSortmap.begin(); p != stringFileSortmap.end(); p++) {
-        all_from_file.push_back(p->second);
+    
+    for (size_t i = 0; i < tmpStnList.size(); i++)
+      if (tmpStnList[i] != -1) {
+        all_stations.push_back(tmpStnList[i]);
       }
-  
-      for(multimap<double, int>::iterator p = numStnSortmap.begin(); p != numStnSortmap.end(); p++) {
-        all_stations.push_back(p->second);
-     }
-     for(multimap<string, int>::iterator p = stringStnSortmap.begin(); p != stringStnSortmap.end(); p++) {
-       all_stations.push_back(p->second);
-     }
-   }
-   else {
-     for(multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin(); p != stringFileSortmap.rend(); p++) {
-       all_from_file.push_back(p->second);
-     }
-     for(multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin(); p != numFileSortmap.rend(); p++) {
-       all_from_file.push_back(p->second);
-     }
-     for(multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin(); p != stringStnSortmap.rend(); p++) {
-       all_stations.push_back(p->second);
-     }
-     for(multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin(); p != numStnSortmap.rend(); p++) {
-       all_stations.push_back(p->second);
-     }
-   }
- 
-   if (!showOnlyPrioritized) {
-     for (int i = 0; i < tmpFileList.size(); i++)
-       if (tmpFileList[i] != -1) {
-         all_from_file.push_back(tmpFileList[i]);
-       }
- 
-     for (int i = 0; i < tmpStnList.size(); i++)
-       if (tmpStnList[i] != -1) {
-         all_stations.push_back(tmpStnList[i]);
-       }
-   }
- }
- 
+  }
+}
+
 
 void ObsPlot::readPriorityFile(const std::string& filename)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::readPriorityFile( filename: " << filename << " ) ++");
+  METLIBS_LOG_SCOPE("filename: " << filename);
 #endif
   priorityList.clear();
 
@@ -1441,9 +1437,6 @@ void ObsPlot::readPriorityFile(const std::string& filename)
   }
 
   inFile.close();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::readPriorityFile() ++");
-#endif
 }
 
 //***********************************************************************
@@ -1451,11 +1444,11 @@ void ObsPlot::readPriorityFile(const std::string& filename)
 bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::getPositions() ++");
+  METLIBS_LOG_SCOPE();
 #endif
   if (!devfield) {
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::getPositions(), !devfield ++");
+    METLIBS_LOG_DEBUG("!devfield");
 #endif
     return false;
   }
@@ -1474,44 +1467,7 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
     ypos.push_back(y[i]);
   }
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::getPositions() ++");
-#endif
   return true;
-}
-
-int ObsPlot::getPositions(float *xpos, float *ypos, int n)
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::getPositions() ++");
-#endif
-  if (!devfield) {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::getPositions(), !devfield ++");
-#endif
-    return false;
-  }
-
-  startxy = n;
-
-  int numObs = obsp.size();
-
-#ifdef ROADOBS
-  if(roadobsp.size()>0)
-    numObs = roadobsp.size();
-#endif
-
-  //   METLIBS_LOG_DEBUG("n:"<<n);
-  //   METLIBS_LOG_DEBUG("numObs:"<<numObs);
-
-  for (int i = 0; i < numObs; i++) {
-    xpos[i + n] = x[i];
-    ypos[i + n] = y[i];
-  }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::getPositions() ++");
-#endif
-  return (n + numObs);
 }
 
 //***********************************************************************
@@ -1519,13 +1475,13 @@ int ObsPlot::getPositions(float *xpos, float *ypos, int n)
 void ObsPlot::obs_mslp(float *values)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::obs_mslp() ++");
+  METLIBS_LOG_SCOPE();
 #endif
   //PPPP-mslp
   if (!devfield) {
     plot();
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::obs_mslp(), !devfield ++");
+    METLIBS_LOG_DEBUG("!devfield");
 #endif
     return;
   }
@@ -1542,9 +1498,6 @@ void ObsPlot::obs_mslp(float *values)
 
   for (int i = 0; i < numObs; i++)
     obsp[i].fdata.erase("PPPP_mslp");
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::obs_mslp() ++");
-#endif
 }
 
 //***********************************************************************
@@ -1553,11 +1506,11 @@ void ObsPlot::obs_mslp(float *values)
 bool ObsPlot::findObs(int xx, int yy)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::findObs( xx: " << " yy: " << yy << " ) ++");
+  METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
 #endif
   if (!showpos) {
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::findObs(), !showpos ++");
+    METLIBS_LOG_DEBUG("!showpos");
 #endif
     return false;
   }
@@ -1566,13 +1519,13 @@ bool ObsPlot::findObs(int xx, int yy)
   vector<int>::iterator p = notplot.begin();
   ;
   vector<int>::iterator min_p;
-  float min_r = 10.0f * fullrect.width() / pwidth;
+  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
   float r;
   int min_i = -1;
 
-  float xpos = xx * fullrect.width() / pwidth + fullrect.x1;
-  float ypos = yy * fullrect.height() / pheight + fullrect.y1;
+  float xpos = xx * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = yy * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
   //find closest station, closer than min_r, from list of stations not plotted
   for (int i = 0; i < n; i++, p++) {
@@ -1585,9 +1538,6 @@ bool ObsPlot::findObs(int xx, int yy)
   }
 
   if (min_i < 0) {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::findObs(), min_i<0 ++");
-#endif
     return false;
   }
 
@@ -1596,7 +1546,7 @@ bool ObsPlot::findObs(int xx, int yy)
     r = powf(xpos - x[nextplot[0]], 2) + powf(ypos - y[nextplot[0]], 2);
     if (r < min_r) {
 #ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("++ End ObsPlot::findObs(), r<min_r ++");
+      METLIBS_LOG_DEBUG("r<min_r");
 #endif
       return false;
     }
@@ -1607,11 +1557,7 @@ bool ObsPlot::findObs(int xx, int yy)
   nextplot.insert(nextplot.begin(), notplot[min_i]);
   notplot.erase(min_p);
   thisObs = true;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::findObs() ++");
-#endif
   return true;
-
 }
 
 //***********************************************************************
@@ -1619,18 +1565,16 @@ bool ObsPlot::findObs(int xx, int yy)
 bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::getObsName( xx: " << " yy: " << yy << " ) ++");
+  METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
 #endif
 
-
-  static std::string lastName;
-  float min_r = 10.0f * fullrect.width() / pwidth;
+  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
   float r;
   int min_i = -1;
 
-  float xpos = xx * fullrect.width() / pwidth + fullrect.x1;
-  float ypos = yy * fullrect.height() / pheight + fullrect.y1;
+  float xpos = xx * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = yy * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
   int numObs = obsp.size();
 
@@ -1649,7 +1593,7 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
     }
     if (min_i < 0) {
 #ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("++ End ObsPlot::getObsName(), min_i < 0, onlypos ++");
+      METLIBS_LOG_DEBUG("min_i < 0, onlypos");
 #endif
       return false;
     }
@@ -1664,7 +1608,7 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
     }
     if (min_i < 0) {
 #ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("++ End ObsPlot::getObsName(), min_i < 0 ++");
+      METLIBS_LOG_DEBUG("min_i < 0");
 #endif
       return false;
     }
@@ -1683,20 +1627,18 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
     name = obsp[min_i].id;
   }
 
-  if (name == lastName)
+  static std::string lastName;
+  if (name == lastName) {
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ End ObsPlot::getObsName(), name == lastName ++");
+    METLIBS_LOG_DEBUG("name == lastName");
 #endif
-  return false;
+    return false;
+  }
 
   lastName = name;
 
   selectedStation = name;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::getObsName() ++");
-#endif
   return true;
-
 }
 
 //***********************************************************************
@@ -1704,7 +1646,7 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
 void ObsPlot::nextObs(bool Next)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::nextObs() ++");
+  METLIBS_LOG_SCOPE();
 #endif
   thisObs = false;
 
@@ -1715,9 +1657,6 @@ void ObsPlot::nextObs(bool Next)
     previous = true;
     plotnr--;
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::nextObs() ++");
-#endif
 }
 
 #ifdef ROADOBS
@@ -1727,21 +1666,22 @@ void ObsPlot::nextObs(bool Next)
 
 bool ObsPlot::preparePlot() {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::preparePlot() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 
   if (!enabled) {
     // make sure plot-densities etc are recalc. next time
-    if (dirty) beendisabled= true;
+    if (StaticPlot::getDirty())
+      beendisabled= true;
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ Returning from ObsPlot::preparePlot(), !enabled ++");
+    METLIBS_LOG_DEBUG("!enabled");
 #endif
     return false;
   }
   if(obsp.size()==0 && roadobsp.size() == 0) {
 
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ Returning from ObsPlot::preparePlot(), Nothing to plot ++");
+    METLIBS_LOG_DEBUG("Nothing to plot");
 #endif
     return false;
   }
@@ -1751,14 +1691,14 @@ bool ObsPlot::preparePlot() {
   if(roadobsp.size()>0)
     numObs = roadobsp.size();
 
-  fp->set(poptions.fontname,poptions.fontface, 8 * Scale);
+  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface, 8 * Scale);
   // fontsizeScale != 1 when postscript font size != X font size
   if (hardcopy)
-    fontsizeScale = fp->getSizeDiv();
+    fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
-  scale= Scale*fullrect.width()/pwidth*0.7;
+  scale= Scale*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth()*0.7;
 
   int num=numPar;
   // I think we should check for roadobsWind here also
@@ -1807,14 +1747,14 @@ bool ObsPlot::preparePlot() {
   vector<int> ptmp;
   vector<int>::iterator p,pbegin,pend;
 
-  if (dirty || firstplot || beendisabled) { //new area
+  if (StaticPlot::getDirty() || firstplot || beendisabled) { //new area
 
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here
     // OBS!******************************************
     if (plottype=="list" || plottype=="ascii") {
       float w,h;
-      fp->getStringSize("0",w,h);
+      StaticPlot::getFontPack()->getStringSize("0",w,h);
       w*=fontsizeScale;
       float space= w*0.5;
       areaFreeSetup(scale,space,num,xdist,ydist);
@@ -1827,7 +1767,7 @@ bool ObsPlot::preparePlot() {
     int nn=all_stations.size();
     for (int j=0; j<nn; j++) {
       int i = all_stations[j];
-      if (maprect.isinside(x[i],y[i])) {
+      if (StaticPlot::getMapSize().isinside(x[i],y[i])) {
         all_this_area.push_back(i);
       }
     }
@@ -1896,7 +1836,7 @@ bool ObsPlot::preparePlot() {
       all_this_area.clear();
       for (int j=0; j<numObs; j++) {
         int i = all_from_file[j];
-        if (maprect.isinside(x[i],y[i]))
+        if (StaticPlot::getMapSize().isinside(x[i],y[i]))
           all_this_area.push_back(i);
       }
       all_stations=all_from_file;
@@ -1999,9 +1939,6 @@ bool ObsPlot::preparePlot() {
   firstplot = false;
   beendisabled = false;
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Returning from ObsPlot::preparePlot() ++");
-#endif
   return true;
 }
 #endif
@@ -2009,19 +1946,18 @@ bool ObsPlot::preparePlot() {
 bool ObsPlot::plot()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plot() ++");
+  METLIBS_LOG_SCOPE();
 #endif
 
-  if (!enabled) {
+  if (!isEnabled()) {
     // make sure plot-densities etc are recalc. next time
-    if (dirty)
+    if (StaticPlot::getDirty())
       beendisabled = true;
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ Returning from ObsPlot::plot(), !enabled ++");
+    METLIBS_LOG_DEBUG("!enabled");
 #endif
     return false;
   }
-
 
   int numObs = obsp.size();
 
@@ -2032,23 +1968,23 @@ bool ObsPlot::plot()
 
   if (numObs == 0) {
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ Returning from ObsPlot::plot(), Nothing to plot ++");
+    METLIBS_LOG_DEBUG("Nothing to plot");
 #endif
     return false;
   }
-
-	  // Update observation delta time before checkPlotCriteria
+  
+  // Update observation delta time before checkPlotCriteria
   if (plottype == "ascii" && std::find(columnName.begin(), columnName.end(), "DeltaTime")!=columnName.end()) {
     miutil::miTime nowTime = miutil::miTime::nowTime();
     for (int i = 0; i < numObs; i++) {
       if( updateDeltaTime(obsp[i], nowTime) )
-        dirty = true;
+        StaticPlot::setDirty(true);
     }
   }
 
   Colour selectedColour = origcolour;
-  if (origcolour == backgroundColour)
-    origcolour = backContrastColour;
+  if (origcolour == StaticPlot::getBackgroundColour())
+    origcolour = StaticPlot::getBackContrastColour();
   glColor4ubv(origcolour.RGBA());
 
   if (Scale < 1.75)
@@ -2058,15 +1994,15 @@ bool ObsPlot::plot()
   else
     glLineWidth(3);
 
-  fp->set(poptions.fontname, poptions.fontface, 8 * Scale);
+  StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, 8 * Scale);
 
   // fontsizeScale != 1 when postscript font size != X font size
-  if (hardcopy)
-    fontsizeScale = fp->getSizeDiv();
+  if (StaticPlot::hardcopy)
+    fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
-  scale = Scale * fullrect.width() / pwidth * 0.7;
+  scale = Scale * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 0.7;
 
   if (poptions.antialiasing)
     glEnable(GL_MULTISAMPLE);
@@ -2078,7 +2014,7 @@ bool ObsPlot::plot()
     ImageGallery ig;
     ig.plotImages(numObs, image, x, y, true, Scale);
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("++ Returning from ObsPlot::plot(), onlypos ++");
+    METLIBS_LOG_DEBUG("onlypos");
 #endif
     return true;
   }
@@ -2175,14 +2111,14 @@ bool ObsPlot::plot()
   vector<int> ptmp;
   vector<int>::iterator p, pbegin, pend;
 
-  if (dirty || firstplot || beendisabled) { //new area
+  if (StaticPlot::getDirty() || firstplot || beendisabled) { //new area
 
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here
     // OBS!******************************************
     if (plottype == "list" || plottype == "ascii") {
       float w, h;
-      fp->getStringSize("0", w, h);
+      StaticPlot::getFontPack()->getStringSize("0", w, h);
       w *= fontsizeScale;
       float space = w * 0.5;
       areaFreeSetup(scale, space, num, xdist, ydist);
@@ -2195,7 +2131,7 @@ bool ObsPlot::plot()
     int nn = all_stations.size();
     for (int j = 0; j < nn; j++) {
       int i = all_stations[j];
-      if (maprect.isinside(x[i], y[i])) {
+      if (StaticPlot::getMapSize().isinside(x[i], y[i])) {
         all_this_area.push_back(i);
       }
     }
@@ -2264,7 +2200,7 @@ bool ObsPlot::plot()
       all_this_area.clear();
       for (int j = 0; j < numObs; j++) {
         int i = all_from_file[j];
-        if (maprect.isinside(x[i], y[i]))
+        if (StaticPlot::getMapSize().isinside(x[i], y[i]))
           all_this_area.push_back(i);
       }
       all_stations = all_from_file;
@@ -2378,8 +2314,8 @@ bool ObsPlot::plot()
     Colour col("red");
     if (col == colour)
       col = Colour("blue");
-    if (col == backgroundColour)
-      col = backContrastColour;
+    if (col == StaticPlot::getBackgroundColour())
+      col = StaticPlot::getBackContrastColour();
     glColor4ubv(col.RGBA());
     int m = notplot.size();
     float d = 4.5 * scale;
@@ -2401,28 +2337,28 @@ bool ObsPlot::plot()
     for (int i = 0; i < n; i++) {
       plotSynop(nextplot[i]);
       if (i % 50 == 0)
-        UpdateOutput();
+        StaticPlot::UpdateOutput();
     }
 
   } else if (plottype == "metar") {
     for (int i = 0; i < n; i++) {
       plotMetar(nextplot[i]);
       if (i % 50 == 0)
-        UpdateOutput();
+        StaticPlot::UpdateOutput();
     }
 
   } else if (plottype == "list") {
     for (int i = 0; i < n; i++) {
       plotList(nextplot[i]);
       if (i % 50 == 0)
-        UpdateOutput();
+        StaticPlot::UpdateOutput();
     }
 
   } else if (plottype == "ascii") {
     for (int i = 0; i < n; i++) {
       plotAscii(nextplot[i]);
       if (i % 50 == 0)
-        UpdateOutput();
+        StaticPlot::UpdateOutput();
     }
   }
 #ifdef ROADOBS
@@ -2430,12 +2366,12 @@ bool ObsPlot::plot()
     for (int i=0; i<n; i++) {
       //METLIBS_LOG_DEBUG(i << ", " << nextplot[i]);
       plotRoadobs(nextplot[i]);
-      if (i % 50 == 0) UpdateOutput();
+      if (i % 50 == 0) StaticPlot::UpdateOutput();
     }
   }
 #endif
 
-  UpdateOutput();
+  StaticPlot::UpdateOutput();
 
   //reset
   glDeleteLists(circle, 1);
@@ -2448,61 +2384,33 @@ bool ObsPlot::plot()
   origcolour = selectedColour; // reset in case a background contrast colour was used
   firstplot = false;
   beendisabled = false;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Returning from ObsPlot::plot() ++");
-#endif
-  return true;
-}
-
-bool ObsPlot::positionFree(const float& x, const float& y, float dist)
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::positionFree( x: " << x << " y: " << y << " dist: " << dist << " ) ++");
-#endif
-  int n = xUsed.size();
-  for (int i = 0; i < n; i++)
-    if ((pow(x - xUsed[i], 2) + pow(y - yUsed[i], 2)) < dist) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("++ End ObsPlot::positionFree(), false ++");
-#endif
-      return false;
-    }
-  xUsed.push_back(x);
-  yUsed.push_back(y);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::positionFree(), true ++");
-#endif
   return true;
 }
 
 bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::positionFree( x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist << " ) ++");
+  METLIBS_LOG_SCOPE("x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist);
 #endif
   int n = xUsed.size();
   for (int i = 0; i < n; i++)
     if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist) {
 #ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("++ End ObsPlot::positionFree(), false ++");
+      METLIBS_LOG_DEBUG("false");
 #endif
       return false;
     }
   xUsed.push_back(x);
   yUsed.push_back(y);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::positionFree(), true ++");
-#endif
   return true;
 }
 
 void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
     float ydist)
 {
-
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::areaFreeSetup( scale: "
-      << scale << " space: " << space << " num: " << num << " xdist: " << xdist << " ydist: " << ydist << " ) ++");
+  METLIBS_LOG_SCOPE("scale: " << scale << " space: " << space << " num: "
+      << num << " xdist: " << xdist << " ydist: " << ydist);
 #endif
   areaFreeSpace = space;
 
@@ -2534,16 +2442,12 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
     areaFreeXsize = 0.0;
     areaFreeYsize = 0.0;
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::areaFreeSetup() ++");
-#endif
 }
 
 bool ObsPlot::areaFree(int idx)
 {
-
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::areaFree( idx: " << idx << " ) ++");
+  METLIBS_LOG_SCOPE("idx: " << idx);
 #endif
 
   float xc = x[idx];
@@ -2621,35 +2525,26 @@ bool ObsPlot::areaFree(int idx)
     for (ib = 0; ib < nb; ib++)
       usedBox.push_back(ub[ib]);
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::areaFree() ++");
-#endif
   return result;
 }
 
 void ObsPlot::clearPos()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::clearPos() ++");
-  METLIBS_LOG_DEBUG("clearPos " << xUsed.size());
+  METLIBS_LOG_SCOPE("clearPos " << xUsed.size());
 #endif
 
   //Reset before new plot
   xUsed.clear();
   yUsed.clear();
   usedBox.clear();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::clearPos() ++");
-#endif
 }
 
 void ObsPlot::plotList(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotList( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
-
-
 
   GLfloat radius = 3.0;
   int printPos = -1;
@@ -2658,7 +2553,7 @@ void ObsPlot::plotList(int index)
   float ypos = 0;
   float xshift = 0;
   float width, height;
-  fp->getStringSize("0", width, height);
+  StaticPlot::getFontPack()->getStringSize("0", width, height);
   height *= fontsizeScale * 1.2;
   width *= fontsizeScale;
   float yStep = height / scale; //depend on character height
@@ -2815,7 +2710,7 @@ void ObsPlot::plotList(int index)
     if (!vertical_orientation) {
       const char * c = strlat.c_str();
       float w, h;
-      fp->getStringSize(c, w, h);
+      StaticPlot::getFontPack()->getStringSize(c, w, h);
       w *= fontsizeScale;
       xpos += w / scale + 5;
     }
@@ -2825,7 +2720,7 @@ void ObsPlot::plotList(int index)
     if (!vertical_orientation) {
       const char * c = strlon.c_str();
       float w, h;
-      fp->getStringSize(c, w, h);
+      StaticPlot::getFontPack()->getStringSize(c, w, h);
       w *= fontsizeScale;
       xpos += w / scale + 5;
     }
@@ -3411,14 +3306,10 @@ void ObsPlot::plotList(int index)
   }
 
   glPopMatrix();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotList() ++");
-#endif
 }
 
 void ObsPlot::printUndef(float& xpos, float& ypos, std::string align)
 {
-
   glColor4ubv(colour.RGBA());
 
   float x = xpos * scale;
@@ -3427,7 +3318,7 @@ void ObsPlot::printUndef(float& xpos, float& ypos, std::string align)
   const char * c = "X";
 
   float w, h;
-  fp->getStringSize(c, w, h);
+  StaticPlot::getFontPack()->getStringSize(c, w, h);
   w *= fontsizeScale;
 
   if (!vertical_orientation)
@@ -3437,7 +3328,7 @@ void ObsPlot::printUndef(float& xpos, float& ypos, std::string align)
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 
 }
 
@@ -3472,7 +3363,7 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
   const char * c = str.c_str();
 
   float w, h;
-  fp->getStringSize(c, w, h);
+  StaticPlot::getFontPack()->getStringSize(c, w, h);
   w *= fontsizeScale;
 
   if (!vertical_orientation)
@@ -3482,19 +3373,17 @@ void ObsPlot::printList(float f, float& xpos, float& ypos, int precision,
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 }
 
 void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
     std::string align)
 {
-
   float x = xpos * scale;
   float y = ypos * scale;
 
   float w, h;
-  fp->getStringSize(c, w, h);
+  StaticPlot::getFontPack()->getStringSize(c, w, h);
   w *= fontsizeScale;
 
   if (!vertical_orientation)
@@ -3504,18 +3393,16 @@ void ObsPlot::printListString(const char *c, float& xpos, float& ypos,
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 }
 
 
 void ObsPlot::plotAscii(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotAscii( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
   ObsData &dta = obsp[index];
-
 
   GLfloat radius = 3.0;
   int printPos=-1;
@@ -3523,7 +3410,7 @@ void ObsPlot::plotAscii(int index)
   float xpos = 0;
   float ypos = 0;
   float w, h;
-  fp->getStringSize("0", w, h);
+  StaticPlot::getFontPack()->getStringSize("0", w, h);
   h *= fontsizeScale * 1.2;
   float yStep = h / scale; //depend on character height
   std::string align;
@@ -3657,7 +3544,7 @@ void ObsPlot::plotAscii(int index)
 void ObsPlot::plotDBMetar(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotDBMetar( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
 
   std::string icao_value  = "X";
@@ -4255,9 +4142,6 @@ void ObsPlot::plotDBMetar(int index)
   }
 
   glPopMatrix();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotDBMetar() ++");
-#endif
 }
 
 /*
@@ -4271,7 +4155,7 @@ void ObsPlot::plotDBMetar(int index)
 void ObsPlot::plotRoadobs(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotRoadobs( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
 
   // EXTRACT the data
@@ -4285,16 +4169,12 @@ void ObsPlot::plotRoadobs(int index)
     plotDBSynop(index);
   else
     plotDBMetar(index);
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotRoadobs() ++");
-#endif
 }
 
 void ObsPlot::plotDBSynop(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotDBSynop( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
   std::string station_type = (*stationlist)[index].station_type();
   int stationid_wmo = (*stationlist)[index].wmonr();
@@ -5079,16 +4959,13 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   glPopMatrix();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotDBSynop() ++");
-#endif
 }
 #endif
 
 void ObsPlot::plotSynop(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotSynop( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
   ObsData &dta = obsp[index];
 
@@ -5534,15 +5411,12 @@ void ObsPlot::plotSynop(int index)
   //----------------- end HQC only ----------------------------------------
 
   glPopMatrix();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotSynop() ++");
-#endif
 }
 
 void ObsPlot::plotMetar(int index)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::plotMetar( index: " << index << " ) ++");
+  METLIBS_LOG_SCOPE("index: " << index);
 #endif
   ObsData &dta = obsp[index];
 
@@ -5724,14 +5598,10 @@ void ObsPlot::plotMetar(int index)
   }
 
   glPopMatrix();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ End ObsPlot::plotMetar() ++");
-#endif
 }
 
 void ObsPlot::metarSymbol(std::string ww, float xpos, float ypos, int &idxm)
 {
-
   int intww[5];
 
   metarString2int(ww, intww);
@@ -5803,12 +5673,10 @@ void ObsPlot::metarSymbol(std::string ww, float xpos, float ypos, int &idxm)
     symbol(itab[40 + lww1], dx, dy);
     dx += 20;
   }
-
 }
 
 void ObsPlot::metarString2int(std::string ww, int intww[])
 {
-
   int size = ww.size();
 
   if (size == 0) {
@@ -5914,12 +5782,10 @@ void ObsPlot::metarString2int(std::string ww, int intww[])
   for (; i < 4; i++)
     intww[i] = undef;
   intww[4] = sign;
-
-  return;
 }
+
 void ObsPlot::metarWind(int dd, int ff, float & radius, int &lpos)
 {
-
   GLfloat x1, x2, x3, y1, y2, y3, x4, y4;
   //METLIBS_LOG_DEBUG("metarWind: " << dd << "," << ff);
 
@@ -6052,7 +5918,6 @@ void ObsPlot::metarWind(int dd, int ff, float & radius, int &lpos)
   }
 
   glPopMatrix();
-
 }
 
 void ObsPlot::initMetarMap()
@@ -6127,7 +5992,6 @@ void ObsPlot::initMetarMap()
 void ObsPlot::printNumber(float f, float x, float y, std::string align, bool line,
     bool mark)
 {
-
   x *= scale;
   y *= scale;
 
@@ -6145,7 +6009,7 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
     float w, h;
     std::string str = cs.str();
     const char * c = str.c_str();
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w - 30 * scale;
   }
@@ -6155,7 +6019,7 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
     cs << f;
     std::string str = cs.str();
     const char * c = str.c_str();
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w / 2;
   }
@@ -6173,7 +6037,7 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
     float w, h;
     std::string str = cs.str();
     const char * c = str.c_str();
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w - 30 * scale;
   }
@@ -6219,7 +6083,7 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
       glColor4ubv(col.RGBA()); //white
     else
       glColor3ub(0, 0, 0); //black
-    fp->getStringSize(c, cw, ch);
+    StaticPlot::getFontPack()->getStringSize(c, cw, ch);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
     glVertex2f(x, y - 0.2 * ch);
@@ -6237,11 +6101,11 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
     glColor4ubv(colour.RGBA());
   }
 
-  fp->drawStr(c, x, y, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 
   if (line) {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     h *= fontsizeScale;
     glBegin(GL_LINES);
@@ -6254,7 +6118,6 @@ void ObsPlot::printNumber(float f, float x, float y, std::string align, bool lin
 
 void ObsPlot::printAvvik(float f, float x, float y, std::string align)
 {
-
   x *= scale;
   y *= scale;
 
@@ -6282,36 +6145,34 @@ void ObsPlot::printAvvik(float f, float x, float y, std::string align)
 
   if (align == "right") {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 
   glColor4ubv(colour.RGBA());
-
 }
 
 void ObsPlot::printString(const char *c, float x, float y, std::string align,
     bool line)
 {
-
   x *= scale;
   y *= scale;
 
   if (align == "right") {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 
   if (line) {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     h *= fontsizeScale;
     glBegin(GL_LINES);
@@ -6321,13 +6182,11 @@ void ObsPlot::printString(const char *c, float x, float y, std::string align,
   }
 
   //  glColor4ubv(colour.RGBA());
-
 }
 
 void ObsPlot::printTime(miTime time, float x, float y, std::string align,
     std::string format)
 {
-
   if (time.undef())
     return;
 
@@ -6348,13 +6207,12 @@ void ObsPlot::printTime(miTime time, float x, float y, std::string align,
 
   if (align == "right") {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 }
 
 int ObsPlot::visibility(float VV, bool ship)
@@ -6407,7 +6265,6 @@ int ObsPlot::vis_direction(float dv)
 
 void ObsPlot::amountOfClouds(short int Nh, short int h, float x, float y)
 {
-
   std::string str;
   const char * c;
 
@@ -6419,11 +6276,11 @@ void ObsPlot::amountOfClouds(short int Nh, short int h, float x, float y)
 
   str = ost.str();
   c = str.c_str();
-  fp->drawStr(c, x * scale, y * scale, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
   x += 8;
   y -= 3;
-  fp->drawStr("/", x * scale, y * scale, 0.0);
+  StaticPlot::getFontPack()->drawStr("/", x * scale, y * scale, 0.0);
 
   ostringstream ostr;
   x += 6; // += 8;
@@ -6435,13 +6292,11 @@ void ObsPlot::amountOfClouds(short int Nh, short int h, float x, float y)
 
   str = ostr.str();
   c = str.c_str();
-  fp->drawStr(c, x * scale, y * scale, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 }
 
 void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar)
 {
-
   std::string str;
   const char * c;
 
@@ -6467,11 +6322,11 @@ void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool
 
   str = ost.str();
   c = str.c_str();
-  fp->drawStr(c, x * scale, y * scale, 0.0);
+  StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
   x += 8;
   y -= 2;
-  fp->drawStr("/", x * scale, y * scale, 0.0);
+  StaticPlot::getFontPack()->drawStr("/", x * scale, y * scale, 0.0);
 
   ostringstream ostr;
   x += 6; // += 8;
@@ -6483,13 +6338,11 @@ void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool
 
   str = ostr.str();
   c = str.c_str();
-  fp->drawStr(c, x * scale, y * scale, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 }
 
 void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y, bool metar)
 {
-
   std::string str;
   const char * c;
 
@@ -6520,9 +6373,9 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ost.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
     x += 10*strlen(c);
-    fp->drawStr("-", x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
     x += 8;
@@ -6533,7 +6386,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ostr.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
     y-=12;
   }
   if (Ns3 != undef || hs3 != undef)
@@ -6561,10 +6414,10 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ost.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
     x += 10*strlen(c);
-    fp->drawStr("-", x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
     x += 8;
@@ -6575,7 +6428,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ostr.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
     y-=12;
   }
   if (Ns2 != undef || hs2 != undef)
@@ -6603,10 +6456,10 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ost.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
     x += 10*strlen(c);
-    fp->drawStr("-", x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
     x += 8;
@@ -6617,7 +6470,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ostr.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
     y-=12;
   }
   if (Ns1 != undef || hs1 != undef)
@@ -6645,10 +6498,10 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ost.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
     x += 10*strlen(c);
-    fp->drawStr("-", x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
     x += 8;
@@ -6659,7 +6512,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
 
     str = ostr.str();
     c = str.c_str();
-    fp->drawStr(c, x * scale, y * scale, 0.0);
+    StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
     y-=12;
   }
 }
@@ -6688,7 +6541,6 @@ void ObsPlot::checkAccumulationTime(ObsData &dta)
 
 void ObsPlot::checkGustTime(ObsData &dta)
 {
-
   // todo: include this if all data sources reports time info
   //  if (dta.fdata.find("911ff")!= dta.fdata.end()){
   //    dta.fdata.erase(dta.fdata.find("911ff"));
@@ -6722,7 +6574,6 @@ bool ObsPlot::updateDeltaTime(ObsData &dta, miutil::miTime nowTime)
 
 void ObsPlot::checkMaxWindTime(ObsData &dta)
 {
-
   // todo: include this if all data sources reports time info
   //  if (dta.fdata.find("fxfx")!= dta.fdata.end()){
   //    dta.fdata.erase(dta.fdata.find("fxfx"));
@@ -6801,9 +6652,8 @@ void ObsPlot::zigzagArrow(float& angle, float xpos, float ypos, float scale)
 
 void ObsPlot::symbol(int n, float xpos, float ypos, float scale, std::string align)
 {
-
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObsPlot::symbol(n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align: " << align << " ) ++ ");
+  METLIBS_LOG_SCOPE("n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align: " << align);
 #endif
 
   int npos, nstep, k1, k2, k = 0;
@@ -6854,16 +6704,10 @@ void ObsPlot::symbol(int n, float xpos, float ypos, float scale, std::string ali
   }
 
   glPopMatrix();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ObsPlot::symbol() done ++ ");
-#endif
-
 }
 
 void ObsPlot::cloudCover(const float& fN, const float &radius)
 {
-
   int N = float2int(fN);
 
   int i;
@@ -6934,12 +6778,10 @@ void ObsPlot::cloudCover(const float& fN, const float &radius)
     glVertex2f(0, 0);
     glEnd();
   }
-
 }
 
 void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
 {
-
   int N = float2int(fN);
 
   float x;
@@ -7005,7 +6847,6 @@ void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
 void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius,
     float current)
 {
-
   //full feather = current
   if (current > 0)
     ff_ms = ff_ms * 10.0 / current;
@@ -7135,13 +6976,11 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float &radius,
   }
 
   glPopMatrix();
-
 }
 
 void ObsPlot::weather(short int ww, float &TTT, int &zone, float xpos, float ypos,
     float scale, std::string align)
 {
-
   const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0,
       0, 0, 0, 18, 0, 28, 21, 20, 21, 22, 24, 29, 38, 38, 37, 41, 41, 43, 45,
       47, 49, 0, 0, 0, 0, 63, 63, 65, 63, 65, 74, 75, 66, 67, 0, 53, 51, 53,
@@ -7202,13 +7041,11 @@ void ObsPlot::weather(short int ww, float &TTT, int &zone, float xpos, float ypo
   }
 
   symbol(n, xpos, ypos, 0.8 * scale, align);
-
 }
 
 void ObsPlot::pastWeather(int w, float xpos, float ypos, float scale,
     std::string align)
 {
-
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
 
   if (w > 9)
@@ -7218,7 +7055,6 @@ void ObsPlot::pastWeather(int w, float xpos, float ypos, float scale,
     return;
 
   symbol(itab[158 + w], xpos, ypos, scale);
-
 }
 
 void ObsPlot::wave(const float& PwPw, const float& HwHw, float x, float y,
@@ -7249,21 +7085,19 @@ void ObsPlot::wave(const float& PwPw, const float& HwHw, float x, float y,
 
   if (align == "right") {
     float w, h;
-    fp->getStringSize(c, w, h);
+    StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w;
   }
 
-  fp->drawStr(c, x, y, 0.0);
-
+  StaticPlot::getFontPack()->drawStr(c, x, y, 0.0);
 }
 
 bool ObsPlot::readTable(const std::string& type, const std::string& filename)
 {
-
   //   Initialize itab and iptab from file.
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ ObsPlot::readTable( type: " << type << " filename: " << filename << " ++");
+  METLIBS_LOG_SCOPE("type: " << type << " filename: " << filename);
 #endif
 
   const int ITAB = 380;
@@ -7351,7 +7185,6 @@ void ObsPlot::decodeSort(std::string sortStr) {
 
 void ObsPlot::decodeCriteria(std::string critStr)
 {
-
   critStr = critStr.substr(critStr.find_first_of("=") + 1, critStr.size() - 1);
   vector<std::string> vstr = miutil::split(critStr, ";");
   int nvstr = vstr.size();
@@ -7423,12 +7256,10 @@ void ObsPlot::decodeCriteria(std::string critStr)
       }
     }
   }
-
 }
 
 void ObsPlot::checkColourCriteria(const std::string& param, float value)
 {
-
   //reset colour
   glColor4ubv(colour.RGBA());
 
@@ -7468,12 +7299,10 @@ void ObsPlot::checkColourCriteria(const std::string& param, float value)
   if (thiscolour) {
     glColor4ubv(col.RGBA());
   }
-
 }
 
 bool ObsPlot::checkPlotCriteria(int index)
 {
-
   if (!pcriteria)
     return true;
   bool doPlot = false;
@@ -7536,7 +7365,6 @@ bool ObsPlot::checkPlotCriteria(int index)
 
 void ObsPlot::checkTotalColourCriteria(int index)
 {
-
   map<std::string, vector<colourCriteria> >::iterator p =
       totalcolourcriteria.begin();
 
@@ -7588,12 +7416,10 @@ void ObsPlot::checkTotalColourCriteria(int index)
   }
 
   glColor4ubv(colour.RGBA());
-
 }
 
 std::string ObsPlot::checkMarkerCriteria(int index)
 {
-
   std::string marker = image;
 
   map<std::string, vector<markerCriteria> >::iterator p = markercriteria.begin();
@@ -7638,7 +7464,6 @@ std::string ObsPlot::checkMarkerCriteria(int index)
 
 void ObsPlot::changeParamColour(const std::string& param, bool select)
 {
-
   ccriteria = select;
   if (select) {
     colourCriteria cc;
@@ -7653,7 +7478,6 @@ void ObsPlot::changeParamColour(const std::string& param, bool select)
 
 void ObsPlot::parameterDecode(std::string parameter, bool add)
 {
-
   paramColour[parameter] = colour;
   if (parameter == "txtxtx")
     paramColour["tntntn"] = colour;
