@@ -32,7 +32,6 @@
 #define diObsMetaData_h
 
 #include <diObsData.h>
-#include <diObsPlot.h>
 
 #include <map>
 #include <string>
@@ -40,15 +39,20 @@
 /**
   \brief Observation metadata
 */
-struct ObsMetaData
+class ObsMetaData
 {
 public:
-  void setObsData(const std::map< std::string, ObsData>& obs) { metaData = obs; }
-  void addStationsToUrl(std::string& url);
-  std::map<std::string, ObsData > metaData;
+  typedef std::map<std::string, ObsData > string_ObsData_m;
+  
+  void setMetaData(const string_ObsData_m& obs)
+    { metaData = obs; }
+  const string_ObsData_m& getMetaData() const
+    { return metaData; }
+
+  void addStationsToUrl(std::string& url) const;
 
 private:
-  std::string stationString;
+  string_ObsData_m metaData;
 };
 
 #endif

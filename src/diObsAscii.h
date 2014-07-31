@@ -35,20 +35,22 @@
 #include <puTools/miTime.h>
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 class ObsPlot;
 class ObsMetaData;
 
-
 /**
   \brief Reading ascii observation files 
-  
+
   In-house met.no format
 */
 class ObsAscii {
 private:
+  bool m_needDataRead;
+  std::string m_filename;
 
   std::vector<std::string> lines;
   std::vector<ObsData> vObsData;
@@ -60,45 +62,49 @@ private:
   miutil::miTime fileTime;
   int    timeDiff;
 
-  std::vector<std::string> columnType;
-  std::vector<std::string> asciiColumnUndefined;
-  std::map<std::string,int> asciiColumn; //column index(time, x,y,dd,ff etc)
+  std::set<std::string> asciiColumnUndefined;
+  typedef std::map<std::string, size_t> string_size_m;
+  string_size_m asciiColumn; //column index(time, x,y,dd,ff etc)
   int  asciiSkipDataLines;
   std::vector<std::string> labels;
 
+  std::vector<std::string> m_columnType;
+  std::vector<std::string> m_columnName;
+  std::vector<std::string> m_columnTooltip;
+
+  void readDecodeData();
+  void readData(const std::string &filename);
+  void decodeData();
+  string_size_m::const_iterator getColumn(const std::string& cn, const std::vector<std::string>& cv) const;
+  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value) const;
+  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, int& value) const;
+  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, std::string& value) const;
+
   void readHeaderInfo(const std::string& filename, const std::string& headerfile,
       const std::vector<std::string>& headerinfo);
-
-  void readData(const std::string &filename);
-
   void decodeHeader();
-  void decodeData();
+  bool bracketContents(std::vector<std::string>& in_out);
+  void parseHeaderBrackets(const std::string& str);
 
   void addStationsToUrl(std::string& filename);
 
 public:
-  std::vector<std::string> columnName;
-  std::vector<std::string> columnTooltip;
-
   ObsAscii(const std::string& filename, const std::string& headerfile,
-      const std::vector<std::string> headerinfo);
+      const std::vector<std::string>& headerinfo);
 
-  static bool getFromFile(const std::string& filename, std::vector<std::string>& lines);
-  static bool getFromHttp(const std::string &url, std::vector<std::string>& lines);
-  ObsAscii(const std::string& filename, const std::string& headerfile,
-      const std::vector<std::string>& headerinfo, const miutil::miTime &filetime,
-      ObsPlot *oplot);
+  void yoyoPlot(const miutil::miTime &filetime, ObsPlot *oplot);
+  void yoyoMetadata(ObsMetaData *metaData);
 
-  ObsAscii(const std::string& filename, const std::string& headerfile,
-      const std::vector<std::string>& headerinfo, ObsMetaData *metaData);
-
-  bool asciiOK() { return fileOK;}
-
-  bool parameterType(std::string param) { return asciiColumn.count(param); }
+  bool asciiOK() const
+    { return fileOK; }
+  bool parameterType(const std::string& param) const
+    { return asciiColumn.count(param); }
+  size_t columnCount() const
+    { return m_columnName.size(); }
+  std::string columnName(int idx) const
+    { return m_columnName.at(idx); }
+  std::string columnTooltip(int idx) const
+    { return m_columnTooltip.at(idx); }
 };
 
 #endif
-
-
-
-

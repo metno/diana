@@ -33,7 +33,7 @@
 
 #include <diStationManager.h>
 #include <diStationPlot.h>
-#include <diObsAscii.h>
+#include "diUtilities.h"
 
 #include <puTools/miSetupParser.h>
 #include <puTools/miTime.h>
@@ -203,16 +203,7 @@ bool StationManager::parseSetup()
 StationPlot* StationManager::importStations(std::string& name, std::string& url)
 {
   vector<std::string> lines;
-  bool success = false;
-
-  if (url.find("http://") == 0)
-    success = ObsAscii::getFromHttp(url, lines);
-  else if (url.find("file://") == 0)
-    success = ObsAscii::getFromFile(url.substr(7), lines);
-  else
-    success = ObsAscii::getFromFile(url, lines);
-
-  if (!success) {
+  if (not diutil::getFromAny(url, lines)) {
 #ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("*** Failed to open " << url);
 #endif

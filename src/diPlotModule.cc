@@ -351,12 +351,10 @@ void PlotModule::prepareObs(const vector<string>& inp)
   vobsTimes.clear();
 
   for (size_t i = 0; i < inp.size(); i++) {
-    ObsPlot *op = new ObsPlot();
-    if (!obsm->init(op, inp[i])) {
-      delete op;
-    } else {
+    ObsPlot *op = obsm->createObsPlot(inp[i]);
+    if (op) {
       plotenabled.restore(op, op->getPlotInfo(3));
-
+      
       if (vobsTimes.empty()) {
         obsOneTime ot;
         vobsTimes.push_back(ot);
@@ -2066,14 +2064,12 @@ void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
 
     obsOneTime ot;
     for (size_t i = 0; i < vop.size(); i++) {
-      ObsPlot *op = new ObsPlot();
-      std::string pin = vop[i]->getInfoStr();
-      if (!obsm->init(op, pin)) {
-        delete op;
-        op = 0;
-      } else if (!obsm->prepare(op, newTime))
-        METLIBS_LOG_WARN("ObsManager returned false from prepare");
-
+      const std::string& pin = vop[i]->getInfoStr();
+      ObsPlot *op = obsm->createObsPlot(pin);
+      if (op) {
+        if (!obsm->prepare(op, newTime))
+          METLIBS_LOG_WARN("ObsManager returned false from prepare");
+      }
       ot.vobsOneTime.push_back(op);
     }
     vobsTimes.push_back(ot);

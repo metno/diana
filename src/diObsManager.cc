@@ -73,155 +73,122 @@ std::vector<std::string> split_on_comma(const std::string& txt, const char* comm
 // #define DEBUGPRINT 1
 
 
-// Default constructor
-ObsManager::ObsManager(){
+ObsManager::ObsManager()
+{
   useArchive=false;
   mslp = false;
   timeListChanged = false;
-  levels.push_back(10);
-  levels.push_back(30);
-  levels.push_back(50);
-  levels.push_back(70);
-  levels.push_back(100);
-  levels.push_back(150);
-  levels.push_back(200);
-  levels.push_back(250);
-  levels.push_back(300);
-  levels.push_back(400);
-  levels.push_back(500);
-  levels.push_back(700);
-  levels.push_back(850);
-  levels.push_back(925);
-  levels.push_back(1000);
 }
 
-bool ObsManager::init(ObsPlot *oplot,const std::string& pin){
-  METLIBS_LOG_DEBUG("++ ObsManager::init() ++");
+ObsPlot* ObsManager::createObsPlot(const std::string& pin)
+{
+  METLIBS_LOG_SCOPE();
 
+  mslp = false;
 
-  //sending PlotInfo to obsPlot
-  if(!oplot->prepare(pin)){
-    METLIBS_LOG_ERROR("++ Returning false from ObsManager::init() ++");
-    return false;
-  }
-
-  mslp=false;
-
-  METLIBS_LOG_DEBUG("++ Returning from ObsManager::init() ++");
-
-  return true;
+  std::auto_ptr<ObsPlot> op(new ObsPlot);
+  if (op->prepare(pin))
+    return op.release();
+  else
+    return 0;
 }
 
 
-bool ObsManager::prepare(ObsPlot * oplot, miTime time){
-  METLIBS_LOG_DEBUG("++ ObsManager::prepare() ++");
+bool ObsManager::prepare(ObsPlot * oplot, miTime time)
+{
+  METLIBS_LOG_SCOPE();
 
   oplot->clear();
 
   mslp = mslp || oplot->mslp();
 
-  if( oplot->flagInfo()){
+  if (oplot->flagInfo()) {
     METLIBS_LOG_INFO("ObsManager::prepare HQC");
     METLIBS_LOG_INFO("hqcTime:"<<hqcTime);
     METLIBS_LOG_INFO("Time:"<<time);
     int d = abs(miTime::minDiff(time, hqcTime));
-    if( oplot->getTimeDiff()>-1 && d>oplot->getTimeDiff() ) return false;
-    if( sendHqcdata(oplot))
-      return true;
-    return false;
+    if (oplot->getTimeDiff()>-1 && d>oplot->getTimeDiff())
+      return false;
+    return sendHqcdata(oplot);
   }
 
-  termin.clear();
+  std::vector<miutil::miTime> termin;
   std::string anno_str;
 
   //false if any asynoptic data or moreTimes,  used for annotation
   bool anno_synoptic=!oplot->moreTimes();
-  timeRangeMin=time;
-  timeRangeMax=time;
+  miutil::miTime timeRangeMin = time, timeRangeMax=time;
 
-  oplot->clearModificationTime();
+  const diutil::string_v &dataTypes = oplot->dataTypes();
+  for (diutil::string_v::const_iterator itD = dataTypes.begin(); itD != dataTypes.end(); ++itD) {
+    const std::string& dataType = *itD;
+    string_ProdInfo_m::const_iterator itP = Prod.find(dataType);
+#if 0
+    if (itP == Prod.end())
+      itP = Prod.insert(std::make_pair(dataType, ProdInfo())).first; // TODO check if this really was the intention
+#else
+    if (itP == Prod.end())
+      continue; // TODO assuming that this was the intention; ProdInfo is empty
+#endif
+    const ProdInfo& pi = itP->second;
 
-  const vector<std::string> &dataType = oplot->dataTypes();
+    // only a little hack to avoid copying ...
+    const bool finfo_fromproduct = (not pi.timeInfo.empty() || pi.obsformat == ofmt_url);
+    std::vector<FileInfo> finfo_fromfile;
+    if (not finfo_fromproduct)
+      finfo_fromfile = getFileName(time, pi, termin, timeRangeMin, timeRangeMax, oplot->moreTimes(), oplot->getTimeDiff());
+    const std::vector<FileInfo>& finfo = finfo_fromproduct ? pi.fileInfo : finfo_fromfile;
 
-  for(unsigned int i=0; i<dataType.size(); i++){
-
-    firstTry=true; //false if times can't be found from filename
-
-    vector<FileInfo> finfo;
-    if(!Prod[dataType[i]].timeInfo.empty() || Prod[dataType[i]].obsformat == ofmt_url){
-      finfo = Prod[dataType[i]].fileInfo;
-    } else {
-      getFileName(finfo,time,dataType[i],oplot);
-    }
-
-    //Plot current not wind if current > 0
-    oplot->setCurrent( Prod[dataType[i]].current);
+    // Plot current not wind if current > 0
+    oplot->setCurrent(pi.current);
 
     // Set modification time
-    int nFiles = finfo.size();
-    for( int j=0; j<nFiles; j++ )
+    for (size_t j=0; j<finfo.size(); j++ )
       oplot->setModificationTime(finfo[j].filename);
 
     oplot->setObsTime(time);
 
     //Annotations
-    if( nFiles>0 ){  //if there are any files of this dataType
-      anno_str += miutil::to_upper(dataType[i]);
+    if (not finfo.empty()) { // if there are any files of this dataType
+      anno_str += miutil::to_upper(dataType);
       anno_str += " ";
       // this will be used in the annnotation
-      if (!Prod[dataType[i]].synoptic) {
+      if (!pi.synoptic)
         anno_synoptic=false;
-      }
     }
 
-    ObsFormat obsformat= ofmt_unknown;
-    std::string headerfile;
-#ifdef ROADOBS
-    std::string stationfile, databasefile;
-#endif
-    if (Prod.find(dataType[i])!=Prod.end()) {
-      obsformat= Prod[dataType[i]].obsformat;
-      headerfile= Prod[dataType[i]].headerfile;
-#ifdef ROADOBS
-      stationfile= Prod[dataType[i]].stationfile;
-      databasefile= Prod[dataType[i]].databasefile;
-#endif
-    }
     //get get pressure level etc from field (if needed)
-    oplot->updateLevel(dataType[i]);
+    oplot->updateLevel(dataType);
 
+    for (size_t j=0; j<finfo.size(); j++) {
+      const std::string& filetype = finfo[j].filetype;
+      std::string filename = finfo[j].filename;
 
-
-
-    for(int j=0; j<nFiles; j++){
-      //Add stations and time to url
-      if ( !Prod[dataType[i]].metaData.empty() ) {
-        if ( !addStationsAndTimeFromMetaData( Prod[dataType[i]].metaData, finfo[j].filename, time) ) {
+      // add stations and time to url
+      if (not pi.metaData.empty()) {
+        if (not addStationsAndTimeFromMetaData(pi.metaData, filename, time))
           break;
-        }
       }
 
-      int num=oplot->numPositions();
-
-      if(finfo[j].filetype =="bufr"){
+      if (filetype == "bufr") {
 #ifdef BUFROBS
+        const int num = oplot->numPositions();
         ObsBufr bufr;
-        oplot->setDataType(dataType[i]);
+        oplot->setDataType(dataType);
         bufr.setObsPlot(oplot);
-        if(!bufr.init(finfo[j].filename,"obsplot")){
+        if (not bufr.init(filename, "obsplot")) {
           //reset oplot
           oplot->resetObs(num);
         }
 #endif
-      } else if(finfo[j].filetype =="ascii" || finfo[j].filetype =="url"){
-        ObsAscii obsAscii =
-          ObsAscii(finfo[j].filename, headerfile, Prod[dataType[i]].headerinfo,
-              finfo[j].time, oplot);
+      } else if (filetype =="ascii" || filetype =="url") {
+        // FIXME this adds values to oplot
+        ObsAscii obsAscii(filename, pi.headerfile, pi.headerinfo);
+        obsAscii.yoyoPlot(finfo[j].time, oplot);
       }
 #ifdef ROADOBS
-      else if(finfo[j].filetype =="roadobs"){
-        ObsRoad obsRoad =
-            ObsRoad(finfo[j].filename,databasefile, stationfile, headerfile,finfo[j].time,oplot,false);
+      else if (filetype =="roadobs") {
+        ObsRoad obsRoad(filename, pi.databasefile, pi.stationfile, pi.headerfile, finfo[j].time, oplot, false);
         // initData inits the internal data structures in oplot, eg the roadobsp and stationlist.
         obsRoad.initData(oplot);
         // readData reads the data from road.
@@ -230,115 +197,103 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time){
         obsRoad.readData(oplot);
       }
 #endif
-
     }
 
-    //Add metadata
-    if ( !Prod[dataType[i]].metaData.empty() ) {
-      oplot->mergeMetaData( metaDataMap[Prod[dataType[i]].metaData]->metaData );
+    if (not pi.metaData.empty()) {
+      string_ObsMetaData_m::const_iterator it = metaDataMap.find(pi.metaData);
+      if (it != metaDataMap.end() and it->second)
+        oplot->mergeMetaData(it->second->getMetaData());
     }
   }
 
-
-  if(oplot->setData()){
-
-    //   if (!oplot->setData())
-    //     METLIBS_LOG_DEBUG("ObsPlot::setData returned false (no data)");;
-
-    //minTime - maxTime are used in the annotation
-    //minTime/maxTime is time -/+ timeDiff (from dialog) unless
-    //there are only synoptic data, and timeRange < timeDiff.
-    //Then timeRange is used.
-    std::string timeInterval;
-    if(oplot->getTimeDiff()<0 && !anno_synoptic){
-      timeInterval = " (alle tider)";
-    }
-    else {
-      miTime minTime=time;
-      miTime maxTime=time;
-      minTime.addMin(-1*oplot->getTimeDiff());
-      maxTime.addMin(oplot->getTimeDiff());
-      if( anno_synoptic){
-        if(timeRangeMin > minTime || oplot->getTimeDiff()<0)
-          minTime = timeRangeMin;
-        if(timeRangeMax < maxTime || oplot->getTimeDiff()<0)
-          maxTime = timeRangeMax;
-      }
-      timeInterval = " (" + minTime.format("%H:%M")
-      + " - " + maxTime.format("%H:%M") + " ) ";
-    }
-
-    // The vector termin contains the "file time" from each file
-    // used. bestTermin is the time closest to the time asked for
-
-    miTime bestTermin;
-    int m=termin.size();
-    if(m>0){
-      int best = abs(miTime::minDiff(time,termin[0]));
-      int bestIndex=0;
-      for(unsigned int i=1; i<termin.size(); i++){
-        int d = abs(miTime::minDiff(time,termin[i]));
-        if( d < best){
-          best=d;
-          bestIndex=i;
-        }
-      }
-      bestTermin = termin[bestIndex];
-    }
-
-    //Annotation
-
+  if (oplot->setData()) {
     if (!anno_str.empty()) {
       if (oplot->getLevel()>0){
         anno_str += miutil::from_number(oplot->getLevel());
-        if (dataType.size()>0 && dataType[0] == "ocean") {
+        if (not dataTypes.empty() && dataTypes.front() == "ocean") {
           anno_str += "m ";
         } else {
           anno_str += "hPa ";
         }
       }
-      if (!bestTermin.undef())
+
+      // The vector termin contains the "file time" from each file
+      // used. bestTermin is the time closest to the time asked for
+      miTime bestTermin;
+      if (not termin.empty()) {
+        int best = abs(miTime::minDiff(time, termin.front()));
+        int bestIndex=0;
+        for (size_t i=1; i<termin.size(); i++) {
+          int d = abs(miTime::minDiff(time,termin[i]));
+          if (d < best) {
+            best = d;
+            bestIndex = i;
+          }
+        }
+        bestTermin = termin[bestIndex];
+      }
+
+      if (!bestTermin.undef()) {
+        //minTime - maxTime are used in the annotation
+        //minTime/maxTime is time -/+ timeDiff (from dialog) unless
+        //there are only synoptic data, and timeRange < timeDiff.
+        //Then timeRange is used.
+        std::string timeInterval;
+        if (oplot->getTimeDiff()<0 && !anno_synoptic) {
+          timeInterval = " (alle tider)";
+        } else {
+          miTime minTime=time;
+          miTime maxTime=time;
+          minTime.addMin(-1*oplot->getTimeDiff());
+          maxTime.addMin(oplot->getTimeDiff());
+          if (anno_synoptic) {
+            if (timeRangeMin > minTime || oplot->getTimeDiff()<0)
+              minTime = timeRangeMin;
+            if(timeRangeMax < maxTime || oplot->getTimeDiff()<0)
+              maxTime = timeRangeMax;
+          }
+          timeInterval = " (" + minTime.format("%H:%M")
+              + " - " + maxTime.format("%H:%M") + " ) ";
+        }
+        
         anno_str += bestTermin.format("%D %H:%M") + timeInterval;
+      }
     }
 
   } else { // no data
-
     anno_str.clear();
-
   }
-
   oplot->setObsAnnotation(anno_str);
-
-  // Set plotname - ADC
   oplot->setPlotName(anno_str);
-
-  METLIBS_LOG_DEBUG("++ End ObsManager prepare() ++");
-
   return true;
 }
-bool ObsManager::addStationsAndTimeFromMetaData( const std::string& metaData,
+
+bool ObsManager::addStationsAndTimeFromMetaData(const std::string& metaData,
     std::string& url, const miutil::miTime& time)
 {
-  //METLIBS_LOG_DEBUG(__FUNCTION__);
-  //read metadata
-  if ( !metaDataMap.count(metaData) ) {
+  METLIBS_LOG_SCOPE();
 
-    ObsMetaData* pMetaData = new ObsMetaData();
-    if ( !Prod.count(metaData) || !Prod[metaData].pattern.size()) {
-      METLIBS_LOG_WARN("WARNING: ObsManager::prepare:  meatdata "<<metaData<<" not available");
+  //read metadata
+  string_ObsMetaData_m::const_iterator itM = metaDataMap.find(metaData);
+  if (itM == metaDataMap.end()) {
+
+    const string_ProdInfo_m::const_iterator itP = Prod.find(metaData);
+    if (itP == Prod.end() || itP->second.pattern.empty()) {
+      METLIBS_LOG_WARN("metadata '" << metaData << "' not available");
       return false;
     }
-
+    
     //read metaData
-    std::string fileName = Prod[metaData].pattern[0].pattern;
-    std::string headerfile = Prod[metaData].headerfile;
-    vector<std::string> headerinfo = Prod[metaData].headerinfo;
-    ObsAscii obsAscii(fileName, headerfile, headerinfo, pMetaData);
-    metaDataMap[metaData] = pMetaData;
+    ObsAscii obsAscii(itP->second.pattern[0].pattern, itP->second.headerfile,
+        itP->second.headerinfo);
+
+    ObsMetaData* pMetaData = new ObsMetaData();
+    obsAscii.yoyoMetadata(pMetaData);
+    itM = metaDataMap.insert(std::make_pair(metaData, pMetaData)).first;
   }
 
   //add stations
-  metaDataMap[metaData]->addStationsToUrl(url);
+  itM->second->addStationsToUrl(url);
 
   //add time
   std::string timeString = time.format("fd=%d.%m.%Y&td=%d.%m.%Y&h=%H");
@@ -348,46 +303,39 @@ bool ObsManager::addStationsAndTimeFromMetaData( const std::string& metaData,
   miutil::replace(url, "MONTH", timeString);
 
   return true;
-
 }
 
-void ObsManager::getFileName(vector<FileInfo>& finfo,
-    miTime &time, std::string obsType,
-    ObsPlot* oplot){
-  METLIBS_LOG_DEBUG("getFileName:"<<time.isoTime());
-  METLIBS_LOG_DEBUG("getFileName:"<<obsType);
+std::vector<ObsManager::FileInfo> ObsManager::getFileName(const miutil::miTime &time, const ProdInfo& pi,
+    std::vector<miutil::miTime>& termin, 
+    miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff)
+{
+  METLIBS_LOG_SCOPE("getFileName:"<<time.isoTime());
 
+  std::vector<FileInfo> finfo;
 
-  finfo.clear();
-  obsType = miutil::to_lower(obsType);
-
-  if (Prod.find(obsType)==Prod.end())
-    return;
-
-  int rangeMin = Prod[obsType].timeRangeMin;
-  int rangeMax = Prod[obsType].timeRangeMax;
-  int n=Prod[obsType].fileInfo.size();
+  const int rangeMin = pi.timeRangeMin;
+  const int rangeMax = pi.timeRangeMax;
   int found = -1;
 
   //Find file where time is within filetime +/- timeRange (from setup)
-  for( int i=0; i<n; i++ ){
-    miTime t=Prod[obsType].fileInfo[i].time;
-    if (t.undef()){
-      METLIBS_LOG_WARN("No time defined:"<<Prod[obsType].fileInfo[i].filename);
+  for (size_t i=0; i<pi.fileInfo.size(); i++) {
+    miTime t = pi.fileInfo[i].time;
+    if (t.undef()) {
+      METLIBS_LOG_WARN("No time defined:"<<pi.fileInfo[i].filename);
       continue;
     }
-    int d = (miTime::minDiff(time, t));
-    if( d > rangeMin && d < rangeMax+1){   //file found
+    const int d = miTime::minDiff(time, t);
+    if (d > rangeMin && d < rangeMax+1) { // file found
       found = i;
-      finfo.push_back(Prod[obsType].fileInfo[i]);
+      finfo.push_back(pi.fileInfo[i]);
       termin.push_back(t);
       //find time range for annotation
-      if( Prod[obsType].synoptic && !oplot->moreTimes()){
+      if (pi.synoptic && !moretimes) {
         t.addMin(rangeMin);
-        if( t<timeRangeMin )
+        if (t < timeRangeMin)
           timeRangeMin = t;
         t.addMin(rangeMax - rangeMin);
-        if( t>timeRangeMax )
+        if (t > timeRangeMax)
           timeRangeMax = t;
       }
       break;
@@ -396,34 +344,34 @@ void ObsManager::getFileName(vector<FileInfo>& finfo,
 
   //If the file is synoptic and not "moreTimes" , only one file is returned.
   // If not, all files with time range within time+-timeDiff are returned.
-  if(!Prod[obsType].synoptic || oplot->moreTimes()) {
-    bool ok;
-    int timeDiff=oplot->getTimeDiff();
-    for( int i=0; i<n; i++ ){
-      if( i==found ) continue; // in list already
-      if(timeDiff == -1) ok=true; // use all times
+  if (!pi.synoptic || moretimes) {
+    for (size_t i=0; i<pi.fileInfo.size(); i++) {
+      if (found >= 0 and i == (size_t)found)
+        continue; // in list already
+      bool ok = false;
+      if (timeDiff == -1)
+        ok=true; // use all times
       else {
-        ok=false;
-        miTime thisTime=Prod[obsType].fileInfo[i].time;
-        if(time<thisTime){
+        miTime thisTime=pi.fileInfo[i].time;
+        if (time < thisTime) {
           thisTime.addMin(-1*(timeDiff-rangeMin));
-          if(time>thisTime) ok=true;
-        } else if( time > thisTime){
+          if (time > thisTime)
+            ok=true;
+        } else if (time > thisTime) {
           thisTime.addMin((timeDiff+rangeMax+1));
-          if(time<thisTime) ok=true;
-        } else if( time == thisTime ){ //could happend if timerange overlap
+          if (time < thisTime)
+            ok=true;
+        } else if (time == thisTime) { //could happend if timerange overlap
           ok=true;
         }
       }
-      if(ok){
-        finfo.push_back(Prod[obsType].fileInfo[i]);
-        termin.push_back(Prod[obsType].fileInfo[i].time);
+      if (ok) {
+        finfo.push_back(pi.fileInfo[i]);
+        termin.push_back(pi.fileInfo[i].time);
       }
     }
   }
-
-
-
+  return finfo;
 }
 
 
@@ -770,8 +718,8 @@ vector<miTime> ObsManager::getTimes( vector<std::string> obsTypes)
 
 void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
 {
-
-  if(!mslp) return;
+  if (!mslp)
+    return;
 
   clearObsPositions();
 
@@ -796,12 +744,10 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
 
   //new conversion  needed
   obsPositions.convertToGrid = true;
-
 }
 
 void ObsManager::clearObsPositions()
 {
-
   obsPositions.numObs=0;
   delete[] obsPositions.xpos;
   obsPositions.xpos=0;
@@ -809,29 +755,26 @@ void ObsManager::clearObsPositions()
   obsPositions.ypos=0;
   delete[] obsPositions.values;
   obsPositions.values=0;
-
 }
-
 
 void ObsManager::calc_obs_mslp(const vector<ObsPlot*> oplot)
 {
+  if (!mslp)
+    return;
 
-  if(!mslp) return;
   ObsPlot::clearPos();
-  int m= oplot.size();
-  for (int i=0; i<m; i++){
+  for (size_t i=0; i<oplot.size(); i++)
     oplot[i]->obs_mslp(obsPositions.values);
-  }
-
 }
 
 ObsDialogInfo ObsManager::initDialog()
 {
+  const int levels[] = {10, 30, 50, 70, 100, 150, 200, 250, 300, 400, 500, 700, 850, 925, 1000};
+  const int NLEVELS = sizeof(levels)/sizeof(levels[0]);
 
   map<std::string,ProdInfo>::iterator prbegin= Prod.begin();
   map<std::string,ProdInfo>::iterator prend=   Prod.end();
   map<std::string,ProdInfo>::iterator pr;
-
 
   //+++++++++Plot type = Synop+++++++++++++++
 
@@ -962,7 +905,7 @@ ObsDialogInfo ObsManager::initDialog()
       "markerboxVisible asFieldButton orientation more_times";
   ppressure.criteriaList = criteriaList["pressure"];
 
-  ppressure.pressureLevels = levels;
+  ppressure.pressureLevels = std::vector<int>(levels, levels + NLEVELS);
 
   ppressure.button.push_back(addButton("Pos","Position",0,0,true));
   ppressure.button.push_back(addButton("Wind","Wind (direction and speed)"));
@@ -1015,7 +958,7 @@ ObsDialogInfo ObsManager::initDialog()
             "markerboxVisible asFieldButton orientation more_times";
         psingle.criteriaList = criteriaList["pressure"];
 
-        psingle.pressureLevels = levels;
+        psingle.pressureLevels = std::vector<int>(levels, levels + NLEVELS);
         setAllActive(psingle,pr->second.parameter,pr->second.dialogName,
             ppressure.button);
       }
@@ -1090,30 +1033,10 @@ ObsDialogInfo ObsManager::initDialog()
       "markerboxVisible asFieldButton  orientation more_times";
   pocea.criteriaList = criteriaList["ocean"];
 
-  pocea.pressureLevels.push_back(0);
-  pocea.pressureLevels.push_back(10);
-  pocea.pressureLevels.push_back(20);
-  pocea.pressureLevels.push_back(30);
-  pocea.pressureLevels.push_back(50);
-  pocea.pressureLevels.push_back(75);
-  pocea.pressureLevels.push_back(100);
-  pocea.pressureLevels.push_back(125);
-  pocea.pressureLevels.push_back(150);
-  pocea.pressureLevels.push_back(200);
-  pocea.pressureLevels.push_back(250);
-  pocea.pressureLevels.push_back(300);
-  pocea.pressureLevels.push_back(400);
-  pocea.pressureLevels.push_back(500);
-  pocea.pressureLevels.push_back(600);
-  pocea.pressureLevels.push_back(700);
-  pocea.pressureLevels.push_back(800);
-  pocea.pressureLevels.push_back(900);
-  pocea.pressureLevels.push_back(1000);
-  pocea.pressureLevels.push_back(1200);
-  pocea.pressureLevels.push_back(1500);
-  pocea.pressureLevels.push_back(2000);
-  pocea.pressureLevels.push_back(3000);
-  pocea.pressureLevels.push_back(4000);
+  const int ocea_levels[] = { 0, 10, 20, 30, 50, 75, 100, 125, 150, 200, 250, 300, 400,
+                              500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 3000, 4000 };
+  const int NOCEALEVELS = sizeof(ocea_levels)/sizeof(ocea_levels[0]);
+  pocea.pressureLevels = std::vector<int>(ocea_levels, ocea_levels + NOCEALEVELS);
 
   pocea.button.push_back(addButton("Id","Identifcation",0,0,true));
   pocea.button.push_back(addButton("PwaPwa","period of waves"));
@@ -1366,10 +1289,9 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
           dialog.plottype[id].button.push_back(addButton("Wind",""));
           dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
         }
-        int nc= obsAscii.columnName.size();
-        for (int c=0; c<nc; c++) {
+        for (size_t c=0; c<obsAscii.columnCount(); c++) {
           dialog.plottype[id].button.push_back
-          (addButton(obsAscii.columnName[c], obsAscii.columnTooltip[c], -100,100,true));
+              (addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100,100,true));
           dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
         }
 
@@ -1389,9 +1311,9 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
             dialog.plottype[id].button.push_back(addButton("Wind",""));
             dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
           }
-          for (size_t c=0; c<obsAscii.columnName.size(); c++) {
+          for (size_t c=0; c<obsAscii.columnCount(); c++) {
             dialog.plottype[id].button.push_back
-            (addButton(obsAscii.columnName[c], obsAscii.columnTooltip[c], -100,100,true));
+                (addButton(obsAscii.columnName(c), obsAscii.columnTooltip(c), -100,100,true));
             dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
           }
         }

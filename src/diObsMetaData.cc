@@ -33,17 +33,15 @@
 #include "config.h"
 #endif
 
-#include <diObsMetaData.h>
+#include "diObsMetaData.h"
 
 #include <puTools/miStringFunctions.h>
 
-void ObsMetaData::addStationsToUrl(std::string& filename)
+void ObsMetaData::addStationsToUrl(std::string& filename) const
 {
   std::string txt;
-  std::map<std::string, ObsData>::iterator p = metaData.begin();
-  for ( ; p != metaData.end(); ++p ) {
-    txt +=("&s=" + p->second.id);
-  }
+  for (string_ObsData_m::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    txt += "&s=" + p->second.id;
 
   miutil::replace(filename, "STATIONS", txt);
 }

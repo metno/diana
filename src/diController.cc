@@ -604,17 +604,13 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   // first check keys independent of mode
   //-------------------------------------
   if (ke->type() == QEvent::KeyPress){
-    if (ke->key() == Qt::Key_PageUp){
-      plotm->nextObs(false);  // browse through observations, backwards
+    if (ke->key() == Qt::Key_PageUp or ke->key() == Qt::Key_PageDown) {
+      const bool forward = ke->key() == Qt::Key_PageDown;
+      plotm->nextObs(forward);  // browse through observations
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
-      return;
-    } else if (ke->key() == Qt::Key_PageDown){
-      plotm->nextObs(true);  // browse through observations, forwards
-      res.repaint= true;
-      res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit)
+        res.savebackground= true;
       return;
     } else if (!(ke->modifiers() & Qt::AltModifier) &&
                (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||

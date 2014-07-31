@@ -113,24 +113,17 @@ public:
   };
 
 private:
-  std::map<std::string, ProdInfo> defProd;
-  std::map<std::string, ProdInfo> Prod;
-  std::map<std::string, ObsMetaData*> metaDataMap;
+  typedef std::map<std::string, ProdInfo> string_ProdInfo_m;
+  string_ProdInfo_m defProd;
+  string_ProdInfo_m Prod;
+  typedef std::map<std::string, ObsMetaData*> string_ObsMetaData_m;
+  string_ObsMetaData_m metaDataMap;
   ObsDialogInfo dialog;
   std::vector<ObsDialogInfo::PriorityList> priority;
   //one  criterialist pr plot type
   std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
-  std::vector<int> levels;
-
   //  set<std::string> dataTypesListed;
-
-
-  //Used to find files
-  bool firstTry; //false if times can't be found from filename
-  std::vector<miutil::miTime> termin; //list of times from all files used
-  miutil::miTime timeRangeMin;
-  miutil::miTime timeRangeMax;
 
   bool useArchive; //read archive files too.
   bool mslp;
@@ -158,8 +151,9 @@ private:
 		  const std::vector<std::string>& parameter, 
 		  const std::string& name,
 		  const std::vector<ObsDialogInfo::Button>& b);
-  void getFileName(std::vector<FileInfo>& finfo,
-		   miutil::miTime& , std::string dataType, ObsPlot*);
+  std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
+      std::vector<miutil::miTime>& termin,
+      miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
   bool updateTimesfromFile(std::string obsType);
   bool updateTimes(std::string obsType);
 
@@ -175,7 +169,8 @@ public:
   ObsManager();
 
   //parse PlotInfo
-  bool init(ObsPlot *, const std::string&);
+  ObsPlot* createObsPlot(const std::string&);
+
   //read data
   bool prepare(ObsPlot *,miutil::miTime);
   ObsDialogInfo initDialog(void);
