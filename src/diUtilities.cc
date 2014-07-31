@@ -34,7 +34,7 @@ void was_enabled::restore(Plot* plot, const std::string& key) const
 string_v glob(const std::string& pattern, int glob_flags, bool& error)
 {
   glob_t globBuf;
-  error = (glob_cache(pattern.c_str(), glob_flags, 0, &globBuf) != 0);
+  error = (glob(pattern.c_str(), glob_flags, 0, &globBuf) != 0);
 
   string_v matches;
   if (not error)
