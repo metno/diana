@@ -68,7 +68,7 @@ SatManager::SatManager()
   useArchive=false;
 }
 
-void SatManager::prepareSat(const vector<string>& inp)
+void SatManager::prepareSat(const std::vector<std::string>& inp)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1300,9 +1300,9 @@ bool SatManager::isMosaic(const std::string &satellite, const std::string & file
   return Prod[satellite][file].mosaic;
 }
 
-vector<std::string> SatManager::getCalibChannels()
+std::vector<std::string> SatManager::getCalibChannels()
 {
-  vector<std::string> channels;
+  std::vector<std::string> channels;
   for (size_t i = 0; i < vsp.size(); i++) {
     if (vsp[i]->isEnabled())
       vsp[i]->getCalibChannels(channels); //add channels
@@ -1310,9 +1310,9 @@ vector<std::string> SatManager::getCalibChannels()
   return channels;
 }
 
-vector<SatValues> SatManager::showValues(float x, float y)
+std::vector<SatValues> SatManager::showValues(float x, float y)
 {
-  vector<SatValues> satval;
+  std::vector<SatValues> satval;
   for (size_t i = 0; i < vsp.size(); i++) {
     if (vsp[i]->isEnabled()) {
       vsp[i]->values(x, y, satval);
@@ -1321,9 +1321,9 @@ vector<SatValues> SatManager::showValues(float x, float y)
   return satval;
 }
 
-vector<std::string> SatManager::getSatnames()
+std::vector<std::string> SatManager::getSatnames()
 {
-  vector<std::string> satnames;
+  std::vector<std::string> satnames;
   for (size_t j = 0; j < vsp.size(); j++) {
     std::string str;
     vsp[j]->getSatName(str);
