@@ -1023,7 +1023,7 @@ void EditItemManager::setCreatePolyLineMode()
   createPolyLineAction->setChecked(true);
   //clearCursorStack();
   //qApp->setOverrideCursor(Qt::CrossCursor); // FOR NOW
-  const QCursor cursor = QCursor(QPixmap(paint_create_polyline_xpm), 5, 5);
+  const QCursor cursor = QCursor(QPixmap(paint_create_polyline_xpm), 4, 4);
   //qApp->setOverrideCursor(cursor);
   emit setWorkAreaCursor(cursor);
 }
@@ -1036,7 +1036,7 @@ void EditItemManager::setCreateSymbolMode()
   createSymbolAction->setChecked(true);
   //clearCursorStack();
   //qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
-  const QCursor cursor = QCursor(QPixmap(paint_create_symbol_xpm), 5, 5);
+  const QCursor cursor = QCursor(QPixmap(paint_create_symbol_xpm), 4, 4);
   //qApp->setOverrideCursor(cursor);
   emit setWorkAreaCursor(cursor);
 }
