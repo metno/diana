@@ -46,7 +46,7 @@ DrawingLayersPane::DrawingLayersPane(EditItems::LayerManager *layerManager, cons
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
   bottomLayout_->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", this, SLOT(moveCurrentUp())));
   bottomLayout_->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", this, SLOT(moveCurrentDown())));
-  bottomLayout_->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the current layer", this, SLOT(editCurrent())));
+  bottomLayout_->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of the current layer", this, SLOT(editAttrsOfCurrent())));
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 }
 

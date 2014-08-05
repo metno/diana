@@ -51,11 +51,14 @@
 
 namespace EditItems {
 
-LayerWidget::LayerWidget(LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool removable, QWidget *parent)
+LayerWidget::LayerWidget(
+    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool removable,
+    bool attrsEditable, QWidget *parent)
   : QWidget(parent)
   , layerMgr_(layerManager)
   , layer_(layer)
   , removable_(removable)
+  , attrsEditable_(attrsEditable)
 {
   setContentsMargins(0, 0, 0, 0);
 
@@ -187,6 +190,11 @@ void LayerWidget::showInfo(bool checked)
 bool LayerWidget::isRemovable() const
 {
   return removable_;
+}
+
+bool LayerWidget::isAttrsEditable() const
+{
+  return attrsEditable_;
 }
 
 void LayerWidget::updateLabels()
@@ -418,9 +426,16 @@ void LayersPaneBase::moveCurrentDown()
   moveDown(current());
 }
 
-void LayersPaneBase::editCurrent()
+void LayersPaneBase::editAttrs(LayerWidget *layerWidget)
 {
-  current()->editName(); // ### only the name for now
+  layerWidget->editName(); // ### only the name attribute for now
+}
+
+void LayersPaneBase::editAttrsOfCurrent()
+{
+  if (!current()->isAttrsEditable())
+    return;
+  editAttrs(current());
 }
 
 QString LayersPaneBase::saveVisible(const QString &fileName) const
@@ -458,9 +473,10 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
       contextMenu.addAction(&moveDown_act);
     }
 
-    QAction editName_act(QPixmap(edit_xpm), tr("Edit Name"), 0);
-    editName_act.setIconVisibleInMenu(true);
-    contextMenu.addAction(&editName_act);
+    QAction editAttrs_act(QPixmap(edit_xpm), tr("Edit Attributes"), 0);
+    editAttrs_act.setIconVisibleInMenu(true);
+    editAttrs_act.setEnabled(editCurrentButton_->isEnabled());
+    contextMenu.addAction(&editAttrs_act);
 
     addContextMenuActions(contextMenu); // add special actions
 
@@ -475,16 +491,16 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
       moveUp(layerWidget);
     } else if (action == &moveDown_act) {
       moveDown(layerWidget);
-    } else if (action == &editName_act) {
-      layerWidget->editName();
+    } else if (action == &editAttrs_act) {
+      editAttrs(layerWidget);
     }
   }
 }
 
 void LayersPaneBase::mouseDoubleClicked(QMouseEvent *event)
 {
-  if (event->button() & Qt::LeftButton)
-    current()->editName();
+  if ((event->button() & Qt::LeftButton) && (current()->isAttrsEditable()))
+    editAttrsOfCurrent();
 }
 
 void LayersPaneBase::ensureVisible(LayerWidget *layer)
@@ -558,7 +574,7 @@ void LayersPaneBase::updateButtons()
 
   moveCurrentUpButton_->setEnabled(currentPos() > 0);
   moveCurrentDownButton_->setEnabled(currentPos() < (allSize - 1));
-  editCurrentButton_->setEnabled(current());
+  editCurrentButton_->setEnabled(current() && current()->isAttrsEditable());
 }
 
 void LayersPaneBase::handleWidgetsUpdate()

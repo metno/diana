@@ -69,7 +69,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   bottomLayout_->addWidget(removeCurrentButton_ = createToolButton(QPixmap(remove_xpm), "Remove the current layer", this, SLOT(removeCurrent())));
   bottomLayout_->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", this, SLOT(moveCurrentUp())));
   bottomLayout_->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", this, SLOT(moveCurrentDown())));
-  bottomLayout_->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit the current layer", this, SLOT(editCurrent())));
+  bottomLayout_->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of the current layer", this, SLOT(editAttrsOfCurrent())));
   bottomLayout_->addWidget(saveVisibleButton_ = createToolButton(QPixmap(filesave), "Save visible layers to file", this, SLOT(saveVisible())));
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
@@ -83,7 +83,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
   layerGroup_ = layerManager->addToNewLayerGroup(scratchLayer, "");
   layerGroup_->setActive(true);
-  add(scratchLayer, false, false);
+  add(scratchLayer, false, false, false);
 }
 
 void EditDrawingLayersPane::updateButtons()
@@ -132,9 +132,9 @@ bool EditDrawingLayersPane::handleKeyPressEvent(QKeyEvent *event)
   return false;
 }
 
-void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable)
+void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable, bool nameEditable)
 {
-  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable);
+  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable, nameEditable);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
   if (!skipUpdate) {

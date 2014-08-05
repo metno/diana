@@ -49,7 +49,7 @@ private:
   virtual void addContextMenuActions(QMenu &) const;
   virtual bool handleContextMenuAction(const QAction *, LayerWidget *);
   virtual bool handleKeyPressEvent(QKeyEvent *);
-  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
+  void add(const QSharedPointer<Layer> &, bool = false, bool = true, bool = true);
   void duplicate(LayerWidget *);
   void initialize(LayerWidget *);
   QToolButton *addEmptyButton_;

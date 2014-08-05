@@ -176,7 +176,7 @@ QSharedPointer<LayerGroup> LayerManager::findLayerGroup(const QSharedPointer<Lay
 QSharedPointer<Layer> LayerManager::findLayer(const QString &name) const
 {
   foreach (const QSharedPointer<Layer> &layer, orderedLayers_) {
-    if (layer->name() == name)
+    if (layer->name().toLower() == name.toLower())
       return layer;
   }
   return QSharedPointer<Layer>();
