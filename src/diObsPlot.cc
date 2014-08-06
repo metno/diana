@@ -1351,7 +1351,7 @@ bool ObsPlot::preparePlot()
 {
   METLIBS_LOG_SCOPE();
 
-  if (!enabled) {
+  if (!isEnabled()) {
     // make sure plot-densities etc are recalc. next time
     if (StaticPlot::getDirty())
       beendisabled= true;
@@ -1364,7 +1364,7 @@ bool ObsPlot::preparePlot()
 
   StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface, 8 * Scale);
   // fontsizeScale != 1 when postscript font size != X font size
-  if (hardcopy)
+  if (StaticPlot::hardcopy)
     fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
@@ -1681,7 +1681,7 @@ bool ObsPlot::plot()
 
   if (circle == 0)
   {
-    cerr << "ERROR: ObsPlot::plot(): Unable to create new displaylist, glGenLists(1) returns 0" << endl;
+    METLIBS_LOG_ERROR("Unable to create new displaylist, glGenLists(1) returns 0");
     return false;
   }
   glNewList(circle, GL_COMPILE);
@@ -3858,8 +3858,8 @@ void ObsPlot::plotDBSynop(int index)
     // From road m/s, convert it here...
     float ff = roadobsff[index];
     lpos = itab[(dd/10+3)/2]+10;
-    if(ccriteria) checkColourCriteria("dd",dd);
-    if(ccriteria) checkColourCriteria("ff",ff);
+    checkColourCriteria("dd",dd);
+    checkColourCriteria("ff",ff);
     plotWind(dd,ff,ddvar,radius);
   }
   else
@@ -3887,7 +3887,7 @@ void ObsPlot::plotDBSynop(int index)
   if(N_value != undef) {
     /* convert to eights */
     int N_value_plot = (int)(long)(N_value * 8.0)/100.0;
-    if(ccriteria) checkColourCriteria("N",N_value_plot);
+    checkColourCriteria("N",N_value_plot);
     if (automationcode != 0)
       cloudCover(N_value_plot,radius);
     else
@@ -3902,7 +3902,7 @@ void ObsPlot::plotDBSynop(int index)
   float VVxpos = iptab[lpos+14] + 22;
   if( ww_value != undef &&
       ww_value>3) {//1-3 skal ikke plottes
-    if(ccriteria) checkColourCriteria("ww",ww_value);
+    checkColourCriteria("ww",ww_value);
     weather((short int)(int)ww_value,TTT_value,zone,
         iptab[lpos+12],iptab[lpos+13]);
     VVxpos = iptab[lpos+12] -18;
@@ -3925,7 +3925,7 @@ void ObsPlot::plotDBSynop(int index)
     Ch_value = Ch_value - 10.0;
     if (Ch_value> 0)
     {
-      if(ccriteria) checkColourCriteria("Ch",Ch_value);
+      checkColourCriteria("Ch",Ch_value);
       symbol(itab[190+(int)Ch_value], iptab[lpos+4], iptab[lpos+5],0.8);
     }
   }
@@ -3937,7 +3937,7 @@ void ObsPlot::plotDBSynop(int index)
     Cm_value = Cm_value - 20.0;
     if (Cm_value> 0)
     {
-      if(ccriteria) checkColourCriteria("Cm",Cm_value);
+      checkColourCriteria("Cm",Cm_value);
       symbol(itab[180+(int)Cm_value], iptab[lpos+2], iptab[lpos+3],0.8);
     }
   }
@@ -3949,7 +3949,7 @@ void ObsPlot::plotDBSynop(int index)
     Cl_value = Cl_value - 30.0;
     if (Cl_value> 0)
     {
-      if(ccriteria) checkColourCriteria("Cl",Cl_value);
+      checkColourCriteria("Cl",Cl_value);
       symbol(itab[170+(int)Cl_value], iptab[lpos+22], iptab[lpos+23],0.8);
     }
   }
@@ -3957,27 +3957,27 @@ void ObsPlot::plotDBSynop(int index)
   // Past weather - W1
   //METLIBS_LOG_DEBUG("Past weather - W1: value " << W1_value);
   if( W1_value != undef) {
-    if(ccriteria) checkColourCriteria("W1",W1_value);
+    checkColourCriteria("W1",W1_value);
     pastWeather(int(W1_value), iptab[lpos+34], iptab[lpos+35],0.8);
   }
 
   // Past weather - W2
   //METLIBS_LOG_DEBUG("Past weather - W2: value " << W2_value);
   if( W2_value != undef) {
-    if(ccriteria) checkColourCriteria("W2",W2_value);
+    checkColourCriteria("W2",W2_value);
     pastWeather((int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
   }
    // Direction of ship movement - ds
   if (DS_value != undef && VS_value != undef)
    {
-   if(ccriteria) checkColourCriteria("ds",DS_value);
+   checkColourCriteria("ds",DS_value);
    arrow(DS_value, iptab[lpos+32], iptab[lpos+33]);
    }
     /* Currently not used
    // Direction of swell waves - dw1dw1
    if(  pFlag.count("dw1dw1")
    && (f_p=dta.fdata.find("dw1dw1")) != fend ){
-   if(ccriteria) checkColourCriteria("dw1dw1",f_p->second);
+   checkColourCriteria("dw1dw1",f_p->second);
    zigzagArrow(f_p->second, iptab[lpos+30], iptab[lpos+31]);
    }
    */
@@ -3994,14 +3994,14 @@ void ObsPlot::plotDBSynop(int index)
    else */
   //METLIBS_LOG_DEBUG("Pressure - PPPP: value " << PPPP_value);
   if( PPPP_value != undef ) {
-    if(ccriteria) checkColourCriteria("PPPP",PPPP_value);
+    checkColourCriteria("PPPP",PPPP_value);
     printNumber(PPPP_value,iptab[lpos+44]+2,iptab[lpos+45]+2,"PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
   //METLIBS_LOG_DEBUG("Pressure tendency over 3 hours - ppp: value " << ppp_value);
   if( ppp_value != undef ) {
-    if(ccriteria) checkColourCriteria("ppp",ppp_value);
+    checkColourCriteria("ppp",ppp_value);
     printNumber(ppp_value,iptab[lpos+40]+2,iptab[lpos+41]+2,"ppp");
   }
 
@@ -4130,7 +4130,7 @@ void ObsPlot::plotDBSynop(int index)
   //METLIBS_LOG_DEBUG("Value to plot: value " << rrr_plot_value);
   if (rrr_plot_value != undef)
   {
-    if(ccriteria) checkColourCriteria("RRR",rrr_plot_value);
+    checkColourCriteria("RRR",rrr_plot_value);
     if( rrr_plot_value < 0.1) //No precipitation (0.)
       printString("0.",iptab[lpos+32]+2,iptab[lpos+33]+2);
     else if( rrr_plot_value> 989) //Precipitation, but less than 0.1 mm (0.0)
@@ -4142,7 +4142,7 @@ void ObsPlot::plotDBSynop(int index)
   // Horizontal visibility - VV
   //METLIBS_LOG_DEBUG("Horizontal visibility - VV: value " << VV_value);
   if( VV_value != undef ) {
-    if(ccriteria) checkColourCriteria("VV",VV_value);
+    checkColourCriteria("VV",VV_value);
     // dont print in synop code, print in km #515, redmine
     //printNumber(visibility(VV_value,zone == 99),VVxpos,iptab[lpos+15],"fill_2");
     if (VV_value < 5000.0)
@@ -4154,13 +4154,13 @@ void ObsPlot::plotDBSynop(int index)
   // Temperature - TTT
   //METLIBS_LOG_DEBUG("Temperature - TTT: value " << TTT_value);
   if( TTT_value != undef ) {
-    if(ccriteria) checkColourCriteria("TTT",TTT_value);
+    checkColourCriteria("TTT",TTT_value);
     printNumber(TTT_value,iptab[lpos+10]+2,iptab[lpos+11]+2,"temp");
   }
   // Dewpoint temperature - TdTdTd
   //METLIBS_LOG_DEBUG("Dewpoint temperature - TdTdTd: value " << TdTdTd_value);
   if( TdTdTd_value != undef ) {
-    if(ccriteria) checkColourCriteria("TdTdTd",TdTdTd_value);
+    checkColourCriteria("TdTdTd",TdTdTd_value);
     printNumber(TdTdTd_value,iptab[lpos+16]+2,iptab[lpos+17]+2,"temp");
   }
 
@@ -4181,7 +4181,7 @@ void ObsPlot::plotDBSynop(int index)
     //METLIBS_LOG_DEBUG("TxTn: " << TxTn_value);
     if (TxTn_value != undef)
     {
-      if(ccriteria) checkColourCriteria("TxTn",TxTn_value);
+      checkColourCriteria("TxTn",TxTn_value);
       printNumber(TxTn_value,iptab[lpos+8]+2,iptab[lpos+9]+2,"temp");
     }
   }
@@ -4189,14 +4189,14 @@ void ObsPlot::plotDBSynop(int index)
   // Snow depth - sss
   //METLIBS_LOG_DEBUG("Snow depth - sss: value " << sss_value);
   if( sss_value != undef && zone!=99 ) {
-    if(ccriteria) checkColourCriteria("sss",sss_value);
+    checkColourCriteria("sss",sss_value);
     printNumber(sss_value,iptab[lpos+46]+2,iptab[lpos+47]+2);
   }
 
   // Maximum wind speed (gusts) - 911ff
   //METLIBS_LOG_DEBUG("Maximum wind speed (gusts) - 911ff: value " << f911ff_value);
   if( f911ff_value != undef ) {
-    if(ccriteria) checkColourCriteria("911ff",f911ff_value);
+    checkColourCriteria("911ff",f911ff_value);
     printNumber(diutil::ms2knots(f911ff_value),
         iptab[lpos+38]+2,iptab[lpos+39]+2,"fill_2",true);
   }
@@ -4204,7 +4204,7 @@ void ObsPlot::plotDBSynop(int index)
   /* Not currently used
    // State of the sea - s
    if( pFlag.count("s") && (f_p=dta.fdata.find("s")) != fend ){
-   if(ccriteria) checkColourCriteria("s",f_p->second);
+   checkColourCriteria("s",f_p->second);
    if(TxTnFlag)
    printNumber(f_p->second,iptab[lpos+6]+2,iptab[lpos+7]+2);
    else
@@ -4217,7 +4217,7 @@ void ObsPlot::plotDBSynop(int index)
   //METLIBS_LOG_DEBUG("Maximum wind speed: value " << fxfx_value);
   if( fxfx_value != undef)
   {
-    if(ccriteria) checkColourCriteria("fxfx",fxfx_value);
+    checkColourCriteria("fxfx",fxfx_value);
     if(TxTnFlag)
       printNumber(diutil::ms2knots(fxfx_value),
           iptab[lpos+6]+12,iptab[lpos+7]+2,"fill_2",true);
@@ -4229,7 +4229,7 @@ void ObsPlot::plotDBSynop(int index)
   //METLIBS_LOG_DEBUG("WMO station id");
   if (wmono_value != undef || !call_sign.empty())
   {
-    if(ccriteria) checkColourCriteria("St.no(5)",0);
+    checkColourCriteria("St.no(5)",0);
     int wmo = (int)wmono_value;
     char buf[128];
     if (station_type == road::diStation::WMO)
