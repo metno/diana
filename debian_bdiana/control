@@ -12,7 +12,7 @@ Build-Depends: debhelper (>= 7.4.15), g++, gfortran,
  libboost-date-time-dev, libboost-regex-dev, libboost-thread-dev,
  libboost-system-dev, libgeotiff-dev, libshp-dev, libpng-dev,
  libavformat-dev,
- cmake, libgtest-dev
+ cmake, libgtest-dev, libudunits2-dev
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.2
 
