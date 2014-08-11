@@ -633,7 +633,7 @@ bool ObsPlot::setData()
         {
           add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
           if (roadobsKnots)
-            aff= knots2ms(atof( roadobsp[stationid][roadobsColumn["ffk"]].c_str()));
+            aff= diutil::knots2ms(atof( roadobsp[stationid][roadobsColumn["ffk"]].c_str()));
           else
             aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
         }
@@ -3911,7 +3911,7 @@ void ObsPlot::plotDBSynop(int index)
   //characteristics of pressure tendency - a
   //METLIBS_LOG_DEBUG("characteristics of pressure tendency - a: value " << a_value);
   if( a_value != undef ) {
-    if(ccriteria) checkColourCriteria("a",a_value);
+    checkColourCriteria("a",a_value);
     if(ppp_value != undef && ppp_value> 9 )
       symbol(itab[201+(int)a_value], iptab[lpos+42]+10, iptab[lpos+43],0.8);
     else
@@ -4048,8 +4048,8 @@ void ObsPlot::plotDBSynop(int index)
           h_value = (h_value*3.2808399)/100.0;
         }
         h = h_value;
-        if(ccriteria && Nh!=undef) checkColourCriteria("Nh",Nh);
-        if(ccriteria && h!=undef) checkColourCriteria("h",h);
+        if(Nh!=undef) checkColourCriteria("Nh",Nh);
+        if(h!=undef) checkColourCriteria("h",h);
         if( ClFlag ) {
           amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
         } else {
@@ -4102,8 +4102,8 @@ void ObsPlot::plotDBSynop(int index)
           h_value = (h_value*3.2808399)/100.0;
         }
         h = h_value;
-        if(ccriteria && Nh!=undef) checkColourCriteria("Nh",Nh);
-        if(ccriteria && h!=undef) checkColourCriteria("h",h);
+        if(Nh!=undef) checkColourCriteria("Nh",Nh);
+        if(h!=undef) checkColourCriteria("h",h);
         if( ClFlag ) {
           amountOfClouds_1((short int)(int)Nh, (short int)(int)h,iptab[lpos+24]+2,iptab[lpos+25]+2);
         } else {
