@@ -241,7 +241,7 @@ int ObsPlot::numVisiblePositions()
   int npos =  numPositions();
   int count = 0;
   for(int i = 0; i < npos; i++) {
-    if (x[i] < StaticPlot::getMapSize().isinside(x[i], y[i]))
+		if (StaticPlot::getMapSize().isinside(x[i], y[i]))
       count++;
   }
   return count;
