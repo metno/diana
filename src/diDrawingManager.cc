@@ -212,8 +212,8 @@ QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVari
 
 void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  Q_ASSERT(CurrLayer);
-  CurrLayer->insertItem(item);
+  Q_ASSERT(!layerMgr_->selectedLayers().isEmpty());
+  layerMgr_->selectedLayers().first()->insertItem(item);
 }
 
 bool DrawingManager::loadDrawing(const QString &fileName)
@@ -246,8 +246,7 @@ bool DrawingManager::loadDrawing(const QString &fileName)
 
 void DrawingManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
 {
-  Q_ASSERT(CurrLayer);
-  CurrLayer->removeItem(item);
+  layerMgr_->removeItem(item);
 }
 
 QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) const
@@ -443,11 +442,6 @@ void DrawingManager::plot(bool under, bool over)
 
   }
   glPopMatrix();
-}
-
-int DrawingManager::itemCount() const
-{
-  return CurrLayer ? CurrLayer->itemCount() : 0;
 }
 
 QSet<QString> &DrawingManager::getDrawings()

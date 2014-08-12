@@ -33,11 +33,10 @@
 #define EDITITEMSLAYERMANAGER_H
 
 #include <QObject>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QList>
 #include <EditItems/drawingitembase.h>
-
-#define CurrLayer layerMgr_->currentLayer()
 
 class DrawingManager;
 
@@ -54,15 +53,20 @@ public:
   ~LayerManager();
   bool isEmpty() const;
   void clear();
-  QSharedPointer<Layer> currentLayer() const;
-  void setCurrentLayer(const QSharedPointer<Layer> &);
+  QList<QSharedPointer<Layer> > selectedLayers() const;
+  int selectedLayersItemCount() const;
+  QSet<QSharedPointer<DrawingItemBase> > itemsInSelectedLayers(bool = false) const;
+  bool selectedLayersContainItem(const QSharedPointer<DrawingItemBase> &) const;
+  bool selectItem(const QSharedPointer<DrawingItemBase> &);
+  bool deselectItem(const QSharedPointer<DrawingItemBase> &);
+  bool deselectAllItems();
   void addToLayerGroup(QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
   void addToLayerGroup(QSharedPointer<LayerGroup> &, const QSharedPointer<Layer> &);
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
   QSharedPointer<Layer> createNewLayer(const QString & = QString()) const;
-  QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &, const DrawingManager *) const;
+  QSharedPointer<Layer> createDuplicateLayer(const QList<QSharedPointer<Layer> > &, const DrawingManager *) const;
   void mergeLayers(const QList<QSharedPointer<Layer> > &, const QSharedPointer<Layer> &) const;
   const QList<QSharedPointer<LayerGroup> > &layerGroups() const;
   const QList<QSharedPointer<Layer> > &orderedLayers() const;
@@ -71,12 +75,12 @@ public:
   QSharedPointer<Layer> findLayer(const QString &) const;
   void removeLayer(const QSharedPointer<Layer> &);
   void moveLayer(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
+  void removeItem(const QSharedPointer<DrawingItemBase> &);
 
 private:
   QList<QSharedPointer<LayerGroup> > layerGroups_;
   // the layers of all layer groups organized in a single, ordered list:
   QList<QSharedPointer<Layer> > orderedLayers_;
-  QSharedPointer<Layer> currLayer_;
 
   QString createUniqueLayerGroupName(const QString &) const;
   void ensureUniqueLayerGroupName(const QSharedPointer<LayerGroup> &) const;

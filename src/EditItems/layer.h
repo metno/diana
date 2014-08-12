@@ -33,6 +33,7 @@
 #define EDITITEMSLAYER_H
 
 #include <QObject>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QList>
 #include <QSet>
@@ -50,7 +51,7 @@ class Layer : public QObject {
   friend class LayerManager;
 public:
   Layer(const QString &);
-  Layer(const Layer &, const DrawingManager *);
+  Layer(const QList<QSharedPointer<Layer> > &, const DrawingManager *);
   ~Layer();
   int id() const;
   int itemCount() const;
@@ -59,7 +60,7 @@ public:
   QList<QSharedPointer<DrawingItemBase> > items() const;
   QSet<QSharedPointer<DrawingItemBase> > itemSet() const;
   void insertItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  void removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  bool removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
   void clearItems(bool = true);
   bool containsItem(const QSharedPointer<DrawingItemBase> &) const;
   int selectedItemCount() const;
@@ -68,12 +69,14 @@ public:
   QList<QSharedPointer<DrawingItemBase> > selectedItems() const;
   QSet<QSharedPointer<DrawingItemBase> > selectedItemSet() const;
   void insertSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  void removeSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  void clearSelectedItems(bool = true);
+  bool removeSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  bool clearSelectedItems(bool = true);
   bool containsSelectedItem(const QSharedPointer<DrawingItemBase> &) const;
   bool isEmpty() const;
   bool isEditable() const;
   bool isActive() const;
+  bool isSelected() const;
+  void setSelected(bool = true);
   bool isVisible() const;
   void setVisible(bool);
   bool hasUnsavedChanges() const;
@@ -88,6 +91,7 @@ private:
   QList<QSharedPointer<DrawingItemBase> > items_;
   QList<QSharedPointer<DrawingItemBase> > selItems_;
   QSharedPointer<LayerGroup> layerGroup_;
+  bool selected_;
   bool visible_;
   bool unsavedChanges_;
   QString name_;

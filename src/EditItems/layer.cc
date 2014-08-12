@@ -36,20 +36,26 @@ namespace EditItems {
 
 Layer::Layer(const QString &name)
   : id_(nextId())
+  , selected_(false)
   , visible_(true)
   , unsavedChanges_(false)
   , name_(name)
 {
 }
 
-Layer::Layer(const Layer &other, const DrawingManager *dm)
+Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm)
   : id_(nextId())
-  , visible_(other.visible_)
+  , selected_(false)
+  , visible_(false)
   , unsavedChanges_(false)
-  , name_(QString("copy of %1").arg(other.name()))
+  , name_(QString("copy of %1 layers").arg(srcLayers.size()))
 {
-  foreach (const QSharedPointer<DrawingItemBase> item, other.items_)
-    insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
+  foreach (const QSharedPointer<Layer> &srcLayer, srcLayers) {
+    if (srcLayer->visible_)
+      visible_ = true;
+    foreach (const QSharedPointer<DrawingItemBase> item, srcLayer->items_)
+      insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
+  }
 }
 
 Layer::~Layer()
@@ -104,11 +110,12 @@ void Layer::insertItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
     emit updated();
 }
 
-void Layer::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
+bool Layer::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
-  items_.removeOne(item);
+  const bool removed = items_.removeOne(item);
   if (notify)
     emit updated();
+  return removed;
 }
 
 void Layer::clearItems(bool notify)
@@ -161,18 +168,21 @@ void Layer::insertSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool
   }
 }
 
-void Layer::removeSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
+bool Layer::removeSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
-  selItems_.removeOne(item);
+  const bool removed = selItems_.removeOne(item);
   if (notify)
     emit updated();
+  return removed;
 }
 
-void Layer::clearSelectedItems(bool notify)
+bool Layer::clearSelectedItems(bool notify)
 {
+  const bool origEmpty = selItems_.isEmpty();
   selItems_.clear();
   if (notify)
     emit updated();
+  return !origEmpty;
 }
 
 bool Layer::containsSelectedItem(const QSharedPointer<DrawingItemBase> &item) const
@@ -193,6 +203,16 @@ bool Layer::isEditable() const
 bool Layer::isActive() const
 {
   return layerGroup_->isActive();
+}
+
+bool Layer::isSelected() const
+{
+  return selected_;
+}
+
+void Layer::setSelected(bool selected)
+{
+  selected_ = selected;
 }
 
 bool Layer::isVisible() const

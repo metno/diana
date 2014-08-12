@@ -31,7 +31,6 @@
 
 #include <EditItems/editdrawinglayerspane.h>
 #include <EditItems/layer.h>
-#include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/dialogcommon.h>
 #include <diDrawingManager.h>
@@ -46,7 +45,7 @@
 #include <QAction>
 
 #include "addempty.xpm"
-#include "mergevisible.xpm"
+#include "merge.xpm"
 #include "duplicate.xpm"
 #include "remove.xpm"
 #include "filesave.xpm"
@@ -54,26 +53,28 @@
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title)
+  : LayersPaneBase(layerManager, title, true)
   , addEmptyButton_(0)
-  , mergeVisibleButton_(0)
-  , duplicateCurrentButton_(0)
-  , removeCurrentButton_(0)
+  , mergeSelectedButton_(0)
+  , duplicateSelectedButton_(0)
+  , removeSelectedButton_(0)
   , saveVisibleButton_(0)
 {
   bottomLayout_->addWidget(addEmptyButton_ = createToolButton(QPixmap(addempty_xpm), "Add an empty layer", this, SLOT(addEmpty())));
-  bottomLayout_->addWidget(mergeVisibleButton_ = createToolButton(QPixmap(mergevisible_xpm), "Merge visible layers into a new layer", this, SLOT(mergeVisible())));
+  bottomLayout_->addWidget(mergeSelectedButton_ = createToolButton(QPixmap(merge_xpm), "Merge selected layers", this, SLOT(mergeSelected())));
   bottomLayout_->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", this, SLOT(showAll())));
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
-  bottomLayout_->addWidget(duplicateCurrentButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate the current layer", this, SLOT(duplicateCurrent())));
-  bottomLayout_->addWidget(removeCurrentButton_ = createToolButton(QPixmap(remove_xpm), "Remove the current layer", this, SLOT(removeCurrent())));
-  bottomLayout_->addWidget(moveCurrentUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move the current layer up", this, SLOT(moveCurrentUp())));
-  bottomLayout_->addWidget(moveCurrentDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move the current layer down", this, SLOT(moveCurrentDown())));
-  bottomLayout_->addWidget(editCurrentButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of the current layer", this, SLOT(editAttrsOfCurrent())));
+  bottomLayout_->addWidget(duplicateSelectedButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate selected layers", this, SLOT(duplicateSelected())));
+  bottomLayout_->addWidget(removeSelectedButton_ = createToolButton(QPixmap(remove_xpm), "Remove selected layers", this, SLOT(removeSelected())));
+  bottomLayout_->addWidget(moveUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move selected layer up", this, SLOT(moveSingleSelectedUp())));
+  bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));
+  bottomLayout_->addWidget(editButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of selected layer", this, SLOT(editAttrsOfSingleSelected())));
   bottomLayout_->addWidget(saveVisibleButton_ = createToolButton(QPixmap(filesave), "Save visible layers to file", this, SLOT(saveVisible())));
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   // create context menu actions
+  merge_act_ = new QAction(QPixmap(merge_xpm), tr("Merge"), 0);
+  merge_act_->setIconVisibleInMenu(true);
   duplicate_act_ = new QAction(QPixmap(duplicate_xpm), tr("Duplicate"), 0);
   duplicate_act_->setIconVisibleInMenu(true);
   remove_act_ = new QAction(QPixmap(remove_xpm), tr("Remove"), 0);
@@ -90,33 +91,43 @@ void EditDrawingLayersPane::updateButtons()
 {
   LayersPaneBase::updateButtons();
 
-  const int visSize = visibleWidgets().size();
-  mergeVisibleButton_->setEnabled(visSize > 1);
-  duplicateCurrentButton_->setEnabled(current());
+  int allCount;
+  int selectedCount;
+  int visibleCount;
+  int removableCount;
+  getLayerCounts(allCount, selectedCount, visibleCount, removableCount);
+  Q_UNUSED(allCount);
 
-  // the layer may be removed iff it is current, editable, and belongs to a removable widget
-  removeCurrentButton_->setEnabled(current() && current()->layer()->isEditable() && current()->isRemovable());
-
-  saveVisibleButton_->setEnabled(visSize > 0);
+  mergeSelectedButton_->setEnabled(selectedCount > 1);
+  duplicateSelectedButton_->setEnabled(selectedCount > 0);
+  removeSelectedButton_->setEnabled(removableCount > 0);
+  saveVisibleButton_->setEnabled(visibleCount > 0);
 }
 
 void EditDrawingLayersPane::addContextMenuActions(QMenu &menu) const
 {
-  duplicate_act_->setEnabled(duplicateCurrentButton_->isEnabled());
+  merge_act_->setEnabled(mergeSelectedButton_->isEnabled());
+  menu.addAction(merge_act_);
+  duplicate_act_->setEnabled(duplicateSelectedButton_->isEnabled());
   menu.addAction(duplicate_act_);
-  remove_act_->setEnabled(removeCurrentButton_->isEnabled());
+  remove_act_->setEnabled(removeSelectedButton_->isEnabled());
   menu.addAction(remove_act_);
 }
 
-bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, LayerWidget *layerWidget)
+bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, const QList<LayerWidget *> &layerWidgets)
 {
+  if (action == merge_act_) {
+    merge(layerWidgets);
+    return true;
+  }
+
   if (action == duplicate_act_) {
-    duplicate(layerWidget);
+    duplicate(layerWidgets);
     return true;
   }
 
   if (action == remove_act_) {
-    LayersPaneBase::remove(layerWidget);
+    LayersPaneBase::remove(layerWidgets);
     return true;
   }
 
@@ -126,7 +137,7 @@ bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, Layer
 bool EditDrawingLayersPane::handleKeyPressEvent(QKeyEvent *event)
 {
   if ((event->key() == Qt::Key_Delete) || (event->key() == Qt::Key_Backspace)) {
-    removeCurrent();
+    removeSelected();
     return true;
   }
   return false;
@@ -137,11 +148,8 @@ void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpd
   LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable, nameEditable);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
-  if (!skipUpdate) {
-    setCurrent(layerWidget);
-    ensureCurrentVisible();
-    handleWidgetsUpdate();
-  }
+  if (!skipUpdate)
+    selectExclusive(layerWidget);
 }
 
 void EditDrawingLayersPane::addEmpty()
@@ -151,59 +159,52 @@ void EditDrawingLayersPane::addEmpty()
   add(newLayer);
 }
 
-void EditDrawingLayersPane::mergeVisible()
+// Merges two or more layers into the topmost layer, removing the other layers.
+void EditDrawingLayersPane::merge(const QList<LayerWidget *> &layerWidgets)
 {
-#if 0
-  const QList<LayerWidget *> visLayerWidgets = visibleWidgets();
+  if (layerWidgets.size() < 2)
+    return;
 
-  if (visLayerWidgets.size() > 1) {
-    if (QMessageBox::warning(
-          this, "Merge visible layers", "Really merge visible layers?",
-          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-      return;
+  if (QMessageBox::warning(
+         this, "Merge layers", QString("About to merge %1 layer%2; continue?")
+        .arg(layerWidgets.size()).arg(layerWidgets.size() != 1 ? "s" : ""),
+         QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    return;
 
-    const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer("merged layer");
-    layerMgr_->addToDefaultLayerGroup(newLayer); // ### NOTE: the default layer group is obsolete!
-
-    layerMgr_->mergeLayers(layers(visLayerWidgets), newLayer);
-
-    LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
-    layout_->insertWidget(layout_->count(), newLayerWidget);
-    initialize(newLayerWidget);
-    setCurrent(newLayerWidget);
-    ensureCurrentVisible();
-    handleWidgetsUpdate();
-
-    // ### remove source layers (i.e. those associated with visLayerWidgets) ... TBD
-  }
-
-  handleWidgetsUpdate();
-#else
-  QMessageBox::warning(this, "tmp disabled", "merging visible is temporarily disabled!", QMessageBox::Ok);
-#endif
+  const QList<LayerWidget *> srcLayerWidgets = layerWidgets.mid(1);
+  LayerWidget *tgtLayerWidget = layerWidgets.first();
+  layerMgr_->mergeLayers(layers(srcLayerWidgets), tgtLayerWidget->layer());
+  remove(srcLayerWidgets, false, false);
 }
 
-void EditDrawingLayersPane::duplicate(LayerWidget *srcLayerWidget)
+void EditDrawingLayersPane::mergeSelected()
 {
-  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(srcLayerWidget->layer(), EditItemManager::instance());
+  merge(selectedWidgets());
+}
+
+// Merges one or more layers into a single new layer, keeping the original layers.
+void EditDrawingLayersPane::duplicate(const QList<LayerWidget *> &layerWidgets)
+{
+  if (layerWidgets.isEmpty())
+    return;
+
+  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(layers(layerWidgets), EditItemManager::instance());
   layerMgr_->addToLayerGroup(layerGroup_, newLayer);
-  const int srcIndex = layout_->indexOf(srcLayerWidget);
   LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
-  layout_->insertWidget(srcIndex + 1, newLayerWidget);
+  layout_->insertWidget(layout_->indexOf(layerWidgets.last()) + 1, newLayerWidget);
   initialize(newLayerWidget);
-  setCurrent(newLayerWidget);
-  ensureCurrentVisible();
-  handleWidgetsUpdate();
+  select(newLayerWidget);
+  select(layerWidgets, false);
 }
 
-void EditDrawingLayersPane::duplicateCurrent()
+void EditDrawingLayersPane::duplicateSelected()
 {
-  duplicate(current());
+  duplicate(selectedWidgets());
 }
 
-void EditDrawingLayersPane::removeCurrent()
+void EditDrawingLayersPane::removeSelected()
 {
-  remove(current());
+  remove(selectedWidgets());
 }
 
 void EditDrawingLayersPane::saveVisible() const

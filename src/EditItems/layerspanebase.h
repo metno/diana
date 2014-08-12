@@ -33,6 +33,7 @@
 #define LAYERSPANEBASE_H
 
 #include <QWidget>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QString>
 #include <QMouseEvent>
@@ -74,7 +75,7 @@ public:
   void setLayerVisible(bool);  // ---''---
   bool hasUnsavedChanges() const;
   void setUnsavedChanges(bool);
-  void setCurrent(bool);
+  void setSelected(bool = true);
   void editName();
   void setState(const QSharedPointer<Layer> &);
   void showInfo(bool);
@@ -108,30 +109,29 @@ public:
   QString saveVisible(const QString &) const;
 
 protected:
-  LayersPaneBase(LayerManager *, const QString &);
+  LayersPaneBase(LayerManager *, const QString &, bool);
 
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
   ScrollArea *scrollArea_;
   QToolButton *showAllButton_;
   QToolButton *hideAllButton_;
-  QToolButton *moveCurrentUpButton_;
-  QToolButton *moveCurrentDownButton_;
-  QToolButton *editCurrentButton_;
+  QToolButton *moveUpButton_;
+  QToolButton *moveDownButton_;
+  QToolButton *editButton_;
   QToolButton *importFilesButton_;
   bool showInfo_;
 
   void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);
-  int currentPos() const;
-  LayerWidget *current();
-  void setCurrentIndex(int);
-  void setCurrent(LayerWidget *);
-  void updateCurrent();
+  QList<int> selectedPos() const;
+  void selectIndex(int, bool = true);
+  void select(const QList<LayerWidget *> &, bool = true);
+  void select(LayerWidget *, bool = true);
+  void selectExclusive(LayerWidget *);
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
-  void ensureCurrentVisible();
-  void remove(LayerWidget *, bool = false);
+  void remove(const QList<LayerWidget *> &, bool = false, bool = true);
   void move(LayerWidget *, bool);
   void moveUp(LayerWidget *);
   void moveUp(int);
@@ -139,7 +139,9 @@ protected: // ### some of these may be private ... TBD
   void moveDown(int);
   void editAttrs(LayerWidget *);
   void setAllVisible(bool);
+  QList<LayerWidget *> widgets(bool = false, bool = false) const;
   QList<LayerWidget *> visibleWidgets() const;
+  QList<LayerWidget *> selectedWidgets() const;
   QList<LayerWidget *> allWidgets() const;
   QList<QSharedPointer<Layer> > layers(const QList<LayerWidget *> &) const;
 
@@ -148,20 +150,27 @@ protected:
   QHBoxLayout *bottomLayout_; // populated by subclass
   virtual void updateButtons();
   virtual void addContextMenuActions(QMenu &) const {}
-  virtual bool handleContextMenuAction(const QAction *, LayerWidget *) { return false; }
+  virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &) { return false; }
   virtual bool handleKeyPressEvent(QKeyEvent *) { return false; }
+  void getLayerCounts(int &, int &, int &, int &) const;
 
 protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
   void mouseDoubleClicked(QMouseEvent *);
-  void ensureCurrentVisibleTimeout();
   void showAll();
   void hideAll();
-  void moveCurrentUp();
-  void moveCurrentDown();
-  void editAttrsOfCurrent();
+  void moveSingleSelectedUp();
+  void moveSingleSelectedDown();
+  void editAttrsOfSingleSelected();
   void handleWidgetsUpdate();
   void updateWidgetStructure();
+
+private slots:
+  void ensureVisibleTimeout();
+
+private:
+  LayerWidget *visibleLayerWidget_;
+  bool multiSelectable_;
 
 signals:
   void updated();

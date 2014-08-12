@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 
 namespace EditItems {

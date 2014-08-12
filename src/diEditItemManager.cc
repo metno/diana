@@ -185,10 +185,6 @@ void EditItemManager::addItem(const QSharedPointer<DrawingItemBase> &item, bool 
     undoStack_.push(arCmd);
   }
 
-  //    qDebug() << "   ###### addItem()" << item << ", incomplete:" << incomplete << ", item infos:";
-  //    foreach (DrawingItemBase *item, CurrLayer->items())
-  //        qDebug() << "   ###### - " << item->infoString().toLatin1().data();
-
   if (!skipRepaint)
     repaint();
 }
@@ -203,7 +199,7 @@ QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVar
 void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
   DrawingManager::addItem_(item);
-  if (false) selectItem(item); // for now, don't pre-select new items
+  //if (false) selectItem(item); // for now, don't pre-select new items
   emit itemAdded(item.data());
 }
 
@@ -235,7 +231,6 @@ void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
   if (hoverItem_ == item)
     hoverItem_.clear();
   deselectItem(item);
-  emit itemRemoved(item.data()); // ### anybody connected to this?
 }
 
 void EditItemManager::initNewItem(DrawingItemBase *item)
@@ -277,25 +272,17 @@ void EditItemManager::retrieveItems(const QSet<QSharedPointer<DrawingItemBase> >
 
 void EditItemManager::reset()
 {
-    undoStack_.clear();
+  undoStack_.clear();
 }
 
 QUndoStack * EditItemManager::undoStack()
 {
-    return &undoStack_;
-}
-
-QSet<QSharedPointer<DrawingItemBase> > EditItemManager::getSelectedItems() const
-{
-  if (!CurrLayer)
-    return QSet<QSharedPointer<DrawingItemBase> >();
-  else
-    return CurrLayer->selectedItemSet();
+  return &undoStack_;
 }
 
 void EditItemManager::mousePress(QMouseEvent *event)
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (hasIncompleteItem()) {
@@ -303,7 +290,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
     return;
   }
 
-  QSet<QSharedPointer<DrawingItemBase> > selItems = getSelectedItems();
+  QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QSet<QSharedPointer<DrawingItemBase> > origSelItems(selItems);
 
   const QSet<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(event->pos());
@@ -334,15 +321,15 @@ void EditItemManager::mousePress(QMouseEvent *event)
 
     // send mouse press to the hit item
     bool multiItemOp = false;
-    QSet<QSharedPointer<DrawingItemBase> > eventItems(CurrLayer->itemSet());
+    QSet<QSharedPointer<DrawingItemBase> > eventItems(layerMgr_->itemsInSelectedLayers());
 
     bool rpn = false;
     Editing(hitItem.data())->mousePress(event, rpn, &undoCommands, &eventItems, &selItems, &multiItemOp);
     if (rpn) repaintNeeded_ = true;
-    addedItems = eventItems - CurrLayer->itemSet();
-    removedItems = CurrLayer->itemSet() - eventItems;
+    addedItems = eventItems - layerMgr_->itemsInSelectedLayers();
+    removedItems = layerMgr_->itemsInSelectedLayers() - eventItems;
 
-    if (CurrLayer->containsItem(hitItem)) {
+    if (layerMgr_->selectedLayersContainItem(hitItem)) {
       // the hit item is still there
       if (multiItemOp) {
         // send the mouse press to other selected items
@@ -367,7 +354,7 @@ void EditItemManager::mousePress(QMouseEvent *event)
   if (addedOrRemovedItems || modifiedItems)
     pushCommands(addedItems, removedItems, undoCommands);
 
-  if (getSelectedItems() != origSelItems) {
+  if (layerMgr_->itemsInSelectedLayers(true) != origSelItems) {
     emit selectionChanged();
     repaintNeeded_ = true;
   }
@@ -394,7 +381,7 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
 
 void EditItemManager::mouseRelease(QMouseEvent *event)
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (hasIncompleteItem()) {
@@ -407,8 +394,8 @@ void EditItemManager::mouseRelease(QMouseEvent *event)
   QList<QUndoCommand *> undoCommands;
 
   // send to selected items
-  for (int i = 0; i < CurrLayer->selectedItemCount(); ++i)
-    Editing(CurrLayer->selectedItemRef(i).data())->mouseRelease(event, repaintNeeded_, &undoCommands);
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true))
+    Editing(item.data())->mouseRelease(event, repaintNeeded_, &undoCommands);
 
   const bool modifiedItems = !undoCommands.empty();
   if (modifiedItems) {
@@ -442,7 +429,7 @@ void EditItemManager::incompleteMouseRelease(QMouseEvent *event)
 
 void EditItemManager::mouseMove(QMouseEvent *event)
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (hasIncompleteItem()) {
@@ -477,9 +464,9 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     }
   } else {
     // send move event to all selected items
-    for (int i = 0; i < CurrLayer->selectedItemCount(); ++i) {
-      Editing(CurrLayer->selectedItemRef(i).data())->mouseMove(event, rpn);
-      CurrLayer->selectedItemRef(i)->setLatLonPoints(getLatLonPoints(*(CurrLayer->selectedItem(i))));
+    foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true)) {
+      Editing(item.data())->mouseMove(event, rpn);
+      item->setLatLonPoints(getLatLonPoints(*item));
       if (rpn) repaintNeeded_ = true;
     }
   }
@@ -551,7 +538,7 @@ static QSharedPointer<DrawingItemBase> idToItem(const QSet<QSharedPointer<Drawin
 
 void EditItemManager::keyPress(QKeyEvent *event)
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (hasIncompleteItem()) {
@@ -560,8 +547,8 @@ void EditItemManager::keyPress(QKeyEvent *event)
   }
 
   repaintNeeded_ = false;
-  const QSet<QSharedPointer<DrawingItemBase> > items = CurrLayer->itemSet();
-  QSet<QSharedPointer<DrawingItemBase> > selItems = CurrLayer->selectedItemSet();
+  const QSet<QSharedPointer<DrawingItemBase> > items = layerMgr_->itemsInSelectedLayers();
+  QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
 
   const QSet<QSharedPointer<DrawingItemBase> > origSelItems(selItems);
   QSet<int> origSelIds;
@@ -621,7 +608,7 @@ void EditItemManager::incompleteKeyPress(QKeyEvent *event)
 
 void EditItemManager::keyRelease(QKeyEvent *event)
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (hasIncompleteItem()) {
@@ -632,9 +619,9 @@ void EditItemManager::keyRelease(QKeyEvent *event)
   repaintNeeded_ = false; // whether at least one item needs to be repainted after processing the event
 
   // send to selected items
-  for (int i = 0; i < CurrLayer->selectedItemCount(); ++i) {
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true)) {
     bool rpn = false;
-    Editing(CurrLayer->selectedItemRef(i).data())->keyRelease(event, rpn);
+    Editing(item.data())->keyRelease(event, rpn);
     if (rpn)
       repaintNeeded_ = true;
   }
@@ -664,6 +651,7 @@ void EditItemManager::plot(bool under, bool over)
   glTranslatef(editRect.x1, editRect.y1, 0.0);
   glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
 
+  const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
 
@@ -675,7 +663,7 @@ void EditItemManager::plot(bool under, bool over)
 
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
         EditItemBase::DrawModes modes = EditItemBase::Normal;
-        if (CurrLayer && CurrLayer->containsSelectedItem(item))
+        if (selItems.contains(item))
           modes |= EditItemBase::Selected;
         if (item == hoverItem_)
           modes |= EditItemBase::Hovered;
@@ -733,15 +721,19 @@ bool EditItemManager::canRedo() const
 
 QSet<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPointF &pos) const
 {
-  if (!CurrLayer)
+  if (layerMgr_->selectedLayers().isEmpty())
     return QSet<QSharedPointer<DrawingItemBase> >();
+
+  const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
+
   QSet<QSharedPointer<DrawingItemBase> > hitItems;
-  for (int i = 0; i < CurrLayer->itemCount(); ++i) {
-    if (CurrLayer->item(i)->property("visible", false).toBool() == false)
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers()) {
+    if (item->property("visible", false).toBool() == false)
       continue;
-    if (Editing(CurrLayer->item(i).data())->hit(pos, CurrLayer->containsSelectedItem(CurrLayer->item(i))))
-      hitItems.insert(CurrLayer->item(i));
+    if (Editing(item.data())->hit(pos, selItems.contains(item)))
+      hitItems.insert(item);
   }
+
   return hitItems;
 }
 
@@ -811,26 +803,20 @@ void EditItemManager::pushCommands(const QSet<QSharedPointer<DrawingItemBase> > 
 
 void EditItemManager::selectItem(const QSharedPointer<DrawingItemBase> &item)
 {
-  if (CurrLayer) {
-    CurrLayer->insertSelectedItem(item);
+  if (layerMgr_->selectItem(item))
     emit selectionChanged();
-  }
 }
 
 void EditItemManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
 {
-  if (CurrLayer) {
-    CurrLayer->removeSelectedItem(item);
+  if (layerMgr_->deselectItem(item))
     emit selectionChanged();
-  }
 }
 
 void EditItemManager::deselectAllItems()
 {
-  if (CurrLayer) {
-    CurrLayer->clearSelectedItems();
+  if (layerMgr_->deselectAllItems())
     emit selectionChanged();
-  }
 }
 
 // Action handling
@@ -856,17 +842,15 @@ QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
 void EditItemManager::editProperties()
 {
   // NOTE: we only support editing properties for one item at a time for now
-  Q_ASSERT(getSelectedItems().size() == 1);
-  QSharedPointer<DrawingItemBase> item = *(getSelectedItems().begin());
-  if (Properties::PropertiesEditor::instance()->edit(item)) {
-    emit itemChanged(item.data()); // ### anybody conncted to this?
+  Q_ASSERT(layerMgr_->itemsInSelectedLayers(true).size() == 1);
+  QSharedPointer<DrawingItemBase> item = *(layerMgr_->itemsInSelectedLayers(true).begin());
+  if (Properties::PropertiesEditor::instance()->edit(item))
     repaint();
-  }
 }
 
 void EditItemManager::editStyle()
 {
-  foreach (const QSharedPointer<DrawingItemBase> &item, getSelectedItems()) {
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true)) {
     const QString styleType = item->propertiesRef().value("style:type").toString();
     if (styleType != "Custom") {
       QMessageBox::warning(0, "Warning", QString(
@@ -877,7 +861,7 @@ void EditItemManager::editStyle()
     }
   }
 
-  EditItemsStyle::StyleEditor::instance()->edit(getSelectedItems());
+  EditItemsStyle::StyleEditor::instance()->edit(layerMgr_->itemsInSelectedLayers(true));
 }
 
 // Sets the style type of the currently selected items.
@@ -904,11 +888,12 @@ void EditItemManager::setStyleType() const
 
 void EditItemManager::updateActions()
 {
-  cutAction->setEnabled(getSelectedItems().size() > 0);
-  copyAction->setEnabled(getSelectedItems().size() > 0);
+  const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
+  cutAction->setEnabled(selItems.size() > 0);
+  copyAction->setEnabled(selItems.size() > 0);
   pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
-  editPropertiesAction->setEnabled(getSelectedItems().size() == 1);
-  editStyleAction->setEnabled(getSelectedItems().size() > 0);
+  editPropertiesAction->setEnabled(selItems.size() == 1);
+  editStyleAction->setEnabled(selItems.size() > 0);
 }
 
 void EditItemManager::updateTimes()
@@ -962,12 +947,12 @@ void EditItemManager::copyItems(const QSet<QSharedPointer<DrawingItemBase> > &it
 
 void EditItemManager::copySelectedItems()
 {
-  copyItems(getSelectedItems());
+  copyItems(layerMgr_->itemsInSelectedLayers(true));
 }
 
 void EditItemManager::cutSelectedItems()
 {
-  const QSet<QSharedPointer<DrawingItemBase> > items = getSelectedItems();
+  const QSet<QSharedPointer<DrawingItemBase> > items = layerMgr_->itemsInSelectedLayers(true);
   copyItems(items);
   foreach (const QSharedPointer<DrawingItemBase> item, items)
     removeItem(item);
@@ -1074,8 +1059,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   //res.newcursor= edit_cursor;
   res.newcursor= keep_it;
 
-  // Do not process the event if there is no current edit layer.
-  if (!CurrLayer)
+  // skip if no layers are selected
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   // Transform the mouse position into the original coordinate system used for the objects.
@@ -1083,7 +1068,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   PLOTM->getPlotWindow(w, h);
   plotRect = PLOTM->getPlotSize();
 
-  if (itemCount() == 0)
+  if (layerMgr_->selectedLayersItemCount() == 0)
     editRect = plotRect;
 
   // Determine the displacement from the edit origin to the current view origin
@@ -1122,9 +1107,9 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction);
-      editPropertiesAction->setEnabled(getSelectedItems().size() == 1);
+      editPropertiesAction->setEnabled(layerMgr_->itemsInSelectedLayers(true).size() == 1);
       contextMenu.addAction(editStyleAction);
-      editStyleAction->setEnabled(getSelectedItems().size() > 0);
+      editStyleAction->setEnabled(layerMgr_->itemsInSelectedLayers(true).size() > 0);
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
@@ -1143,7 +1128,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
           QVariantList data;
           QVariantList styleItems;
-          foreach (const QSharedPointer<DrawingItemBase> styleItem, getSelectedItems())
+          foreach (const QSharedPointer<DrawingItemBase> styleItem, layerMgr_->itemsInSelectedLayers(true))
             styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
           data.append(QVariant(styleItems));
           data.append(styleName);
@@ -1221,8 +1206,8 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
   res.background= false;      // Don't paint the background.
   res.repaint= false;
 
-  // Do not process the event if there is no current edit layer.
-  if (!CurrLayer)
+  // skip if no layers are selected
+  if (layerMgr_->selectedLayers().isEmpty())
     return;
 
   if (event->type() == QEvent::KeyPress) {

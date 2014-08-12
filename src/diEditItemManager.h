@@ -81,7 +81,6 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QSet<QSharedPointer<DrawingItemBase> > getSelectedItems() const;
   QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
 
   bool processInput(const std::vector<std::string>& inp);
@@ -139,8 +138,6 @@ signals:
   void canRedoChanged(bool);
   void incompleteEditing(bool);
   void itemAdded(DrawingItemBase *);
-  void itemChanged(DrawingItemBase *); // ### anybody connected to this?
-  void itemRemoved(DrawingItemBase *); // ### anybody connected to this?
   void timesUpdated();
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();

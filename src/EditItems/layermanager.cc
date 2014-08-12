@@ -57,20 +57,76 @@ void LayerManager::clear()
 {
   layerGroups_.clear();
   orderedLayers_.clear();
-  currLayer_.clear();
 }
 
-QSharedPointer<Layer> LayerManager::currentLayer() const
+QList<QSharedPointer<Layer> > LayerManager::selectedLayers() const
 {
-  return currLayer_;
+  QList<QSharedPointer<Layer> > selLayers;
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->isSelected())
+      selLayers.append(layer);
+  return selLayers;
 }
 
-void LayerManager::setCurrentLayer(const QSharedPointer<Layer> &layer)
+int LayerManager::selectedLayersItemCount() const
 {
-  if (!orderedLayers_.contains(layer))
-    qFatal("LayerManager::setCurrentLayer(): layer %p not found in orderedLayers_", (void *)(layer.data()));
-  currLayer_ = layer;
+  int count = 0;
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->isSelected())
+      count += layer->itemCount();
+  return count;
 }
+
+QSet<QSharedPointer<DrawingItemBase> > LayerManager::itemsInSelectedLayers(bool selectedItemsOnly) const
+{
+  QSet<QSharedPointer<DrawingItemBase> > items;
+
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->isSelected()) {
+      if (selectedItemsOnly)
+        items.unite(layer->selectedItemSet());
+      else
+        items.unite(layer->itemSet());
+    }
+
+  return items;
+}
+
+bool LayerManager::selectedLayersContainItem(const QSharedPointer<DrawingItemBase> &item) const
+{
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->isSelected() && layer->containsItem(item))
+      return true;
+  return false;
+}
+
+bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item)
+{
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->containsItem(item)) {
+      layer->insertSelectedItem(item);
+      return true;
+    }
+  return false;
+}
+
+bool LayerManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
+{
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->removeSelectedItem(item))
+      return true;
+  return false;
+}
+
+bool LayerManager::deselectAllItems()
+{
+  bool cleared = false;
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->clearSelectedItems())
+      cleared = true;
+  return cleared;
+}
+
 
 void LayerManager::addToLayerGroup(QSharedPointer<LayerGroup> &layerGroup, const QList<QSharedPointer<Layer> > &layers)
 {
@@ -122,19 +178,19 @@ QSharedPointer<Layer> LayerManager::createNewLayer(const QString &name) const
   return layer;
 }
 
-QSharedPointer<Layer> LayerManager::createDuplicateLayer(const QSharedPointer<Layer> &srcLayer, const DrawingManager *dm) const
+QSharedPointer<Layer> LayerManager::createDuplicateLayer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm) const
 {
-  if (!srcLayer) {
+  if (srcLayers.isEmpty()) {
     Q_ASSERT(false);
     return QSharedPointer<Layer>();
   }
 
-  QSharedPointer<Layer> layer(new Layer(*(srcLayer.data()), dm));
+  QSharedPointer<Layer> layer(new Layer(srcLayers, dm));
   ensureUniqueLayerName(layer);
   return layer;
 }
 
-// Copies all items and selected item of \a srcLayers into \a dstLayer.
+// Copies all items and selected items of \a srcLayers into \a dstLayer.
 void LayerManager::mergeLayers(const QList<QSharedPointer<Layer> > &srcLayers, const QSharedPointer<Layer> &dstLayer) const
 {
   for (int i = 0; i < srcLayers.size(); ++i) {
@@ -197,8 +253,6 @@ void LayerManager::removeLayer(const QSharedPointer<Layer> &layer)
 
   layerGroup->layers_.removeOne(layer);
   orderedLayers_.removeOne(layer);
-  if (currLayer_ == layer)
-     currLayer_.clear();
 }
 
 // Moves \a srcLayer to the other side of \a dstLayer.
@@ -207,6 +261,13 @@ void LayerManager::moveLayer(const QSharedPointer<Layer> &srcLayer, const QShare
   const int dstIndex = orderedLayers_.indexOf(dstLayer);
   orderedLayers_.removeOne(srcLayer);
   orderedLayers_.insert(dstIndex, srcLayer);
+}
+
+void LayerManager::removeItem(const QSharedPointer<DrawingItemBase> &item)
+{
+  foreach (const QSharedPointer<Layer> &layer, orderedLayers_)
+    if (layer->removeItem(item, false))
+      return;
 }
 
 QString LayerManager::createUniqueLayerGroupName(const QString &baseName) const

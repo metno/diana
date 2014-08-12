@@ -33,6 +33,7 @@
 #define EDITITEMSLAYERGROUPSPANE_H
 
 #include <QWidget>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 
 class QVBoxLayout;

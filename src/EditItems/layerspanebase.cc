@@ -140,13 +140,14 @@ void LayerWidget::setUnsavedChanges(bool unsavedChanges)
   unsavedChangesLabel_->setChecked(unsavedChanges);
 }
 
-void LayerWidget::setCurrent(bool current)
+void LayerWidget::setSelected(bool selected)
 {
-  const QString ssheet(current ? "QLabel { background-color : #f27b4b; color : black; }" : "");
+  const QString ssheet(selected ? "QLabel { background-color : #f27b4b; color : black; }" : "");
   visibleLabel_->setStyleSheet(ssheet);
   unsavedChangesLabel_->setStyleSheet(ssheet);
   nameLabel_->setStyleSheet(ssheet);
   infoLabel_->setStyleSheet(ssheet);
+  layer_->setSelected(selected);
 }
 
 void LayerWidget::editName()
@@ -179,6 +180,7 @@ void LayerWidget::setState(const QSharedPointer<Layer> &layer)
   visibleLabel_->setChecked(layer->isVisible());
   unsavedChangesLabel_->setChecked(layer->hasUnsavedChanges());
   nameLabel_->setText(layer->name());
+  setSelected(layer->isSelected());
 }
 
 void LayerWidget::showInfo(bool checked)
@@ -220,15 +222,17 @@ void LayerWidget::handleVisibilityChanged(bool visible)
   emit visibilityChanged(visible);
 }
 
-LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title)
+LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title, bool multiSelectable)
   : showAllButton_(0)
   , hideAllButton_(0)
-  , moveCurrentUpButton_(0)
-  , moveCurrentDownButton_(0)
-  , editCurrentButton_(0)
+  , moveUpButton_(0)
+  , moveDownButton_(0)
+  , editButton_(0)
   , importFilesButton_(0)
   , showInfo_(false)
   , layerMgr_(layerManager)
+  , visibleLayerWidget_(0)
+  , multiSelectable_(multiSelectable)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -291,60 +295,83 @@ void LayersPaneBase::keyPressEvent(QKeyEvent *event)
     return;
 
   // try common handling
-  if (event->matches(QKeySequence::Quit)) {
-    qApp->quit();
-  } else if (event->key() == Qt::Key_Up) {
-    if (event->modifiers() & Qt::ControlModifier)
-      moveCurrentUp();
-    else
-      setCurrentIndex(currentPos() - 1);
-  } else if (event->key() == Qt::Key_Down) {
-    if (event->modifiers() & Qt::ControlModifier)
-      moveCurrentDown();
-    else
-      setCurrentIndex(currentPos() + 1);
+  if (((event->key() == Qt::Key_Up) || (event->key() == Qt::Key_Down)) && (layerMgr_->selectedLayers().size() == 1)) {
+
+    const int selPos = selectedPos().first();
+
+    if (event->key() == Qt::Key_Up) {
+      if (event->modifiers() & Qt::ControlModifier) {
+        moveSingleSelectedUp();
+      } else {
+        selectIndex(selPos, false);
+        selectIndex(selPos - 1);
+      }
+    } else if (event->key() == Qt::Key_Down) {
+      if (event->modifiers() & Qt::ControlModifier) {
+        moveSingleSelectedDown();
+      } else {
+        selectIndex(selPos, false);
+        selectIndex(selPos + 1);
+      }
+    }
   } else {
     QWidget::keyPressEvent(event);
   }
 }
 
-void LayersPaneBase::setCurrentIndex(int index)
+void LayersPaneBase::selectIndex(int index, bool selected)
 {
-  setCurrent(atPos(index));
+  select(atPos(index), selected);
 }
 
-void LayersPaneBase::setCurrent(LayerWidget *layerWidget)
+void LayersPaneBase::select(const QList<LayerWidget *> &layerWidgets, bool selected)
 {
-  if (!layerWidget)
-    return;
-  layerMgr_->setCurrentLayer(layerWidget->layer());
-  updateCurrent();
-  ensureVisible(layerWidget);
-  handleWidgetsUpdate();
+  LayerWidget *visLW = 0;
+  bool updateNeeded = false;
+  foreach (LayerWidget *lw, layerWidgets) {
+    if (lw) {
+      lw->setSelected(selected);
+      updateNeeded = true;
+      if (selected && !visLW)
+        visLW = lw;
+    }
+  }
+  if (visLW)
+    ensureVisible(visLW);
+  if (updateNeeded)
+    handleWidgetsUpdate();
 }
 
-void LayersPaneBase::updateCurrent()
+void LayersPaneBase::select(LayerWidget *layerWidget, bool selected)
 {
+  select(QList<LayerWidget *>() << layerWidget, selected);
+}
+
+void LayersPaneBase::selectExclusive(LayerWidget *layerWidget)
+{
+  QList<LayerWidget *> others;
+  for (int i = 0; i < layout_->count(); ++i) {
+    LayerWidget *lw = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
+    if (lw != layerWidget)
+      others.append(lw);
+  }
+  select(layerWidget);
+  select(others, false);
+}
+
+// Returns the indexes of the selected layers.
+QList<int> LayersPaneBase::selectedPos() const
+{
+  QList<int> pos;
+  const QList<QSharedPointer<Layer> > selLayers = layerMgr_->selectedLayers();
+
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    layerWidget->setCurrent(layerWidget->layer() == layerMgr_->currentLayer());
+    if (selLayers.contains(layerWidget->layer()))
+      pos.append(i);
   }
-}
 
-// Returns the index of the current layer, or -1 if not found.
-int LayersPaneBase::currentPos() const
-{
-  for (int i = 0; i < layout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    if (layerWidget->layer() == layerMgr_->currentLayer())
-      return i;
-  }
-  return -1;
-}
-
-LayerWidget *LayersPaneBase::current()
-{
-  return atPos(currentPos());
+  return pos;
 }
 
 LayerWidget *LayersPaneBase::atPos(int pos)
@@ -354,29 +381,27 @@ LayerWidget *LayersPaneBase::atPos(int pos)
   return 0;
 }
 
-void LayersPaneBase::remove(LayerWidget *layerWidget, bool widgetOnly)
+void LayersPaneBase::remove(const QList<LayerWidget *> &layerWidgets, bool widgetsOnly, bool userConfirm)
 {
-  if (!layerWidget->isRemovable())
-    return;
+  QList<LayerWidget *> removable;
+  foreach (LayerWidget *lw, layerWidgets)
+    if (lw->isRemovable())
+      removable.append(lw);
 
-  if ((!layerWidget) || (layout_->count() == 0))
-    return;
-
-  if ((!widgetOnly) && (!layerWidget->layer()->isEmpty()) &&
+  if ((!removable.isEmpty()) && (!widgetsOnly) && userConfirm &&
       (QMessageBox::warning(
-         this, "Remove layer", "Really remove layer?",
+         this, "Remove layers", QString("About to remove %1 layer%2; continue?").arg(removable.size()).arg(removable.size() != 1 ? "s" : ""),
          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No))
     return;
 
-  const int index = layout_->indexOf(layerWidget);
-  layout_->removeWidget(layerWidget);
-  if (!widgetOnly)
-    layerMgr_->removeLayer(layerWidget->layer());
-  delete layerWidget;
-  if (layout_->count() > 0)
-    setCurrentIndex(qMin(index, layout_->count() - 1));
+  foreach (LayerWidget *lw, removable) {
+    layout_->removeWidget(lw);
+    if (!widgetsOnly)
+      layerMgr_->removeLayer(lw->layer());
+    delete lw;
+  }
 
-  if (!widgetOnly)
+  if ((!removable.isEmpty()) && (!widgetsOnly))
     handleWidgetsUpdate();
 }
 
@@ -389,10 +414,8 @@ void LayersPaneBase::move(LayerWidget *layerWidget, bool up)
   const QSharedPointer<Layer> dstLayer = atPos(dstIndex)->layer();
   layout_->removeWidget(layerWidget);
   layout_->insertWidget(dstIndex, layerWidget);
-  updateCurrent();
   layerMgr_->moveLayer(layerWidget->layer(), dstLayer);
-  if (layerWidget == current())
-    ensureCurrentVisible();
+  ensureVisible(layerWidget);
   handleWidgetsUpdate();
 }
 
@@ -406,9 +429,11 @@ void LayersPaneBase::moveUp(int index)
   moveUp(atPos(index));
 }
 
-void LayersPaneBase::moveCurrentUp()
+void LayersPaneBase::moveSingleSelectedUp()
 {
-  moveUp(current());
+  const QList<int> selPos = selectedPos();
+  if (selPos.size() == 1)
+    moveUp(selPos.first());
 }
 
 void LayersPaneBase::moveDown(LayerWidget *layerWidget)
@@ -421,9 +446,11 @@ void LayersPaneBase::moveDown(int index)
   moveDown(atPos(index));
 }
 
-void LayersPaneBase::moveCurrentDown()
+void LayersPaneBase::moveSingleSelectedDown()
 {
-  moveDown(current());
+  const QList<int> selPos = selectedPos();
+  if (selPos.size() == 1)
+    moveDown(selPos.first());
 }
 
 void LayersPaneBase::editAttrs(LayerWidget *layerWidget)
@@ -431,11 +458,17 @@ void LayersPaneBase::editAttrs(LayerWidget *layerWidget)
   layerWidget->editName(); // ### only the name attribute for now
 }
 
-void LayersPaneBase::editAttrsOfCurrent()
+void LayersPaneBase::editAttrsOfSingleSelected()
 {
-  if (!current()->isAttrsEditable())
+  const QList<int> selPos = selectedPos();
+  if (selPos.size() == 1)
     return;
-  editAttrs(current());
+
+  LayerWidget *layerWidget = atPos(selPos.first());
+  if (!layerWidget->isAttrsEditable())
+    return;
+
+  editAttrs(layerWidget);
 }
 
 QString LayersPaneBase::saveVisible(const QString &fileName) const
@@ -453,29 +486,46 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
 {
   LayerWidget *layerWidget = qobject_cast<LayerWidget *>(sender());
   Q_ASSERT(layerWidget);
-  setCurrent(layerWidget);
-  if (event->button() & Qt::RightButton) {
+
+  if (event->button() & Qt::LeftButton) {
+    if (event->modifiers().testFlag(Qt::NoModifier)) {
+      // select target layer and unselect all others
+      foreach (LayerWidget *lw, allWidgets()) {
+        const bool selected = (lw == layerWidget);
+        select(lw, selected);
+      }
+    } else if (multiSelectable_ && (event->modifiers() & Qt::ControlModifier)) {
+      // toggle selection of target layer if at least one other layer is selected, otherwise select target layer
+      const QList<int> selPos = selectedPos();
+      if (selPos.size() > 1)
+        select(layerWidget, !layerWidget->layer()->isSelected());
+      else
+        select(layerWidget);
+    }
+  } else if ((event->button() & Qt::RightButton) && event->modifiers().testFlag(Qt::NoModifier)
+             && (layerWidget->layer()->isSelected())) {
+    // open context menu and apply action to all selected layers
 
     QMenu contextMenu;
 
     // add common actions
     QAction moveUp_act(QPixmap(moveup_xpm), tr("Move Up"), 0);
-    if (moveCurrentUpButton_) {
+    if (moveUpButton_) {
       moveUp_act.setIconVisibleInMenu(true);
-      moveUp_act.setEnabled(moveCurrentUpButton_->isEnabled());
+      moveUp_act.setEnabled(moveUpButton_->isEnabled());
       contextMenu.addAction(&moveUp_act);
     }
 
     QAction moveDown_act(QPixmap(movedown_xpm), tr("Move Down"), 0);
-    if (moveCurrentDownButton_) {
+    if (moveDownButton_) {
       moveDown_act.setIconVisibleInMenu(true);
-      moveDown_act.setEnabled(moveCurrentDownButton_->isEnabled());
+      moveDown_act.setEnabled(moveDownButton_->isEnabled());
       contextMenu.addAction(&moveDown_act);
     }
 
     QAction editAttrs_act(QPixmap(edit_xpm), tr("Edit Attributes"), 0);
     editAttrs_act.setIconVisibleInMenu(true);
-    editAttrs_act.setEnabled(editCurrentButton_->isEnabled());
+    editAttrs_act.setEnabled(editButton_->isEnabled());
     contextMenu.addAction(&editAttrs_act);
 
     addContextMenuActions(contextMenu); // add special actions
@@ -483,7 +533,7 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
     QAction *action = contextMenu.exec(event->globalPos(), &moveUp_act);
 
     // try to match a special action
-    if (handleContextMenuAction(action, layerWidget))
+    if (handleContextMenuAction(action, selectedWidgets()))
       return;
 
     // try to match a common action
@@ -499,24 +549,23 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
 
 void LayersPaneBase::mouseDoubleClicked(QMouseEvent *event)
 {
-  if ((event->button() & Qt::LeftButton) && (current()->isAttrsEditable()))
-    editAttrsOfCurrent();
+  if ((event->button() & Qt::LeftButton))
+    editAttrsOfSingleSelected();
 }
 
-void LayersPaneBase::ensureVisible(LayerWidget *layer)
+void LayersPaneBase::ensureVisibleTimeout()
 {
+  if (!visibleLayerWidget_)
+    return;
   qApp->processEvents();
-  scrollArea_->ensureWidgetVisible(layer);
+  scrollArea_->ensureWidgetVisible(visibleLayerWidget_);
+  visibleLayerWidget_ = 0;
 }
 
-void LayersPaneBase::ensureCurrentVisibleTimeout()
+void LayersPaneBase::ensureVisible(LayerWidget *layerWidget)
 {
-  ensureVisible(current());
-}
-
-void LayersPaneBase::ensureCurrentVisible()
-{
-  QTimer::singleShot(0, this, SLOT(ensureCurrentVisibleTimeout()));
+  visibleLayerWidget_ = layerWidget;
+  QTimer::singleShot(0, this, SLOT(ensureVisibleTimeout()));
 }
 
 void LayersPaneBase::setAllVisible(bool visible)
@@ -536,25 +585,31 @@ void LayersPaneBase::hideAll()
   setAllVisible(false);
 }
 
+QList<LayerWidget *> LayersPaneBase::widgets(bool requireSelected, bool requireVisible) const
+{
+  QList<LayerWidget *> layerWidgets;
+  for (int i = 0; i < layout_->count(); ++i) {
+    LayerWidget *lw = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
+    const bool match = (!requireSelected || lw->layer()->isSelected()) && (!requireVisible || lw->isLayerVisible());
+    if (match)
+      layerWidgets.append(lw);
+  }
+  return layerWidgets;
+}
+
 QList<LayerWidget *> LayersPaneBase::visibleWidgets() const
 {
-  QList<LayerWidget *> visLayerWidgets;
-  for (int i = 0; i < layout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    if (layerWidget->isLayerVisible())
-      visLayerWidgets.append(layerWidget);
-  }
-  return visLayerWidgets;
+  return widgets(false, true);
+}
+
+QList<LayerWidget *> LayersPaneBase::selectedWidgets() const
+{
+  return widgets(true, false);
 }
 
 QList<LayerWidget *> LayersPaneBase::allWidgets() const
 {
-  QList<LayerWidget *> allLayerWidgets;
-  for (int i = 0; i < layout_->count(); ++i) {
-    LayerWidget *layerWidget = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    allLayerWidgets.append(layerWidget);
-  }
-  return allLayerWidgets;
+  return widgets(false, false);
 }
 
 QList<QSharedPointer<Layer> > LayersPaneBase::layers(const QList<LayerWidget *> &layerWidgets) const
@@ -567,14 +622,18 @@ QList<QSharedPointer<Layer> > LayersPaneBase::layers(const QList<LayerWidget *> 
 
 void LayersPaneBase::updateButtons()
 {
-  const int visSize = visibleWidgets().size();
-  const int allSize = layout_->count();
-  showAllButton_->setEnabled(visSize < allSize);
-  hideAllButton_->setEnabled(visSize > 0);
+  int allCount;
+  int selectedCount;
+  int visibleCount;
+  int removableCount;
+  getLayerCounts(allCount, selectedCount, visibleCount, removableCount);
+  const QList<int> selPos = selectedPos();
 
-  moveCurrentUpButton_->setEnabled(currentPos() > 0);
-  moveCurrentDownButton_->setEnabled(currentPos() < (allSize - 1));
-  editCurrentButton_->setEnabled(current() && current()->isAttrsEditable());
+  showAllButton_->setEnabled(visibleCount < allCount);
+  hideAllButton_->setEnabled(visibleCount > 0);
+  moveUpButton_->setEnabled((selPos.size() == 1) && (selPos.first() > 0));
+  moveDownButton_->setEnabled((selPos.size() == 1) && (selPos.first() < (allCount - 1)));
+  editButton_->setEnabled((selPos.size() == 1) && atPos(selPos.first())->isAttrsEditable());
 }
 
 void LayersPaneBase::handleWidgetsUpdate()
@@ -601,7 +660,7 @@ void LayersPaneBase::updateWidgetStructure()
     }
   } else if (diff > 0) {
     for (int i = 0; i < diff; ++i)
-      remove(atPos(0), true);
+      remove(QList<LayerWidget *>() << atPos(0), true);
   }
 
   // ### for now (remove when tested):
@@ -609,18 +668,29 @@ void LayersPaneBase::updateWidgetStructure()
     qFatal("ASSERTION FAILED: layout_->count()=%d != activeLayers.size()=%d",
            layout_->count(), activeLayers.size());
 
-  // update widget contents and current index
+  // update widget contents
   int currIndex = -1;
   for (int i = 0; i < activeLayers.size(); ++i) {
     LayerWidget *layerWidget = atPos(i);
     QSharedPointer<Layer> layer = activeLayers.at(i);
     layerWidget->setState(layer);
     initLayerWidget(layerWidget);
-    if (activeLayers.at(i) == layerMgr_->currentLayer())
-      currIndex = i;
   }
-  Q_ASSERT(currIndex >= 0);
-  setCurrentIndex(currIndex);
+}
+
+void LayersPaneBase::getLayerCounts(int &allCount, int &selectedCount, int &visibleCount, int &removableCount) const
+{
+  allCount = selectedCount = visibleCount = removableCount = 0;
+  foreach (LayerWidget *lw, allWidgets()) {
+    allCount++;
+    if (lw->layer()->isSelected()) {
+      selectedCount++;
+      if (lw->isRemovable())
+        removableCount++;
+    }
+    if (lw->isLayerVisible())
+      visibleCount++;
+  }
 }
 
 } // namespace

@@ -120,6 +120,7 @@ private:
 };
 
 #if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 inline uint qHash(const QSharedPointer<DrawingItemBase> &key)
 {

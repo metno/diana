@@ -1,5 +1,5 @@
 /* XPM */
-static const char * mergevisible_xpm[] = {
+static const char * merge_xpm[] = {
 "24 24 119 2",
 "  	c None",
 ". 	c #454545",

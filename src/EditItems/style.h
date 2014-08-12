@@ -38,6 +38,7 @@
 #include <QMap>
 #include <QVariantMap>
 #include <QLabel>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>

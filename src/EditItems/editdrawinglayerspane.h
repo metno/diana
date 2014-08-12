@@ -33,11 +33,11 @@
 #define EDITDRAWINGLAYERSPANE_H
 
 #include <EditItems/layerspanebase.h>
+#include <EditItems/layergroup.h>
 
 namespace EditItems {
 
 class LayerManager;
-class LayerGroup;
 
 class EditDrawingLayersPane : public LayersPaneBase
 {
@@ -47,24 +47,26 @@ public:
 private:
   virtual void updateButtons();
   virtual void addContextMenuActions(QMenu &) const;
-  virtual bool handleContextMenuAction(const QAction *, LayerWidget *);
+  virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &);
   virtual bool handleKeyPressEvent(QKeyEvent *);
   void add(const QSharedPointer<Layer> &, bool = false, bool = true, bool = true);
-  void duplicate(LayerWidget *);
+  void merge(const QList<LayerWidget *> &);
+  void duplicate(const QList<LayerWidget *> &);
   void initialize(LayerWidget *);
   QToolButton *addEmptyButton_;
-  QToolButton *mergeVisibleButton_;
-  QToolButton *duplicateCurrentButton_;
-  QToolButton *removeCurrentButton_;
+  QToolButton *mergeSelectedButton_;
+  QToolButton *duplicateSelectedButton_;
+  QToolButton *removeSelectedButton_;
   QToolButton *saveVisibleButton_;
+  QAction *merge_act_;
   QAction *duplicate_act_;
   QAction *remove_act_;
   QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
 private slots:
   void addEmpty();
-  void mergeVisible();
-  void duplicateCurrent();
-  void removeCurrent();
+  void mergeSelected();
+  void duplicateSelected();
+  void removeSelected();
   void saveVisible() const;
 };
 

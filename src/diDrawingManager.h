@@ -42,6 +42,7 @@
 #include <QSet>
 #include <QString>
 #include <QVariantMap>
+//#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <vector>
 
@@ -90,8 +91,6 @@ public:
   void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints);
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
-
-  int itemCount() const;
 
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
