@@ -40,7 +40,7 @@ class QLabel;
  \brief Geoposition in status bar
 
  Widget in status bar for displaying the geographical position of the mouse pointer
-*/
+ */
 class StatusGeopos: public QWidget {
   Q_OBJECT
 private:
@@ -52,6 +52,8 @@ public:
   StatusGeopos(QWidget* parent = 0);
   bool geographicMode();
   bool gridMode();
+  bool areaMode();
+  bool distMode();
   void setPosition(float, float);
   void undefPosition();
 

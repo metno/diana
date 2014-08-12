@@ -60,6 +60,8 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   xybox->addItem(tr("Lat/Lon decimal"));
   xybox->addItem(tr("Proj coordinates"));
   xybox->addItem(tr("Grid coordinates"));
+  xybox->addItem(tr("Area (km2)"));
+  xybox->addItem(tr("Distance (km)"));
   thlayout->addWidget(xybox);
 
   sxlabel = new QLabel(tr("Lat:"), this);
@@ -96,6 +98,17 @@ bool StatusGeopos::gridMode()
   return (xybox->currentIndex() == 3);
 }
 
+bool StatusGeopos::areaMode()
+{
+  return (xybox->currentIndex() == 4);
+}
+
+bool StatusGeopos::distMode()
+{
+  return (xybox->currentIndex() == 5);
+}
+
+
 void StatusGeopos::setPosition(float lat, float lon)
 {
 
@@ -131,7 +144,16 @@ void StatusGeopos::setPosition(float lat, float lon)
       else
         slon << setw(3) << deg << "°" << setw(2) << setfill('0') << min << "'W";
     }
-
+  } else if (xybox->currentIndex() == 4){
+    sxlabel->setText("  Mark:");
+    sylabel->setText("Window:");
+    slat << lat;
+    slon << lon;
+  } else if (xybox->currentIndex() == 5){
+    sxlabel->setText("  Vert:");
+    sylabel->setText(" Horiz:");
+    slat << lat;
+    slon << lon;
   } else {
 
     sxlabel->setText("  X:");

@@ -78,13 +78,13 @@ GridConverter PlotModule::gc; // Projection-converter
 PlotModule *PlotModule::self = 0;
 
 PlotModule::PlotModule() :
-           plotw(0.),ploth(0.),
-           showanno(true),hardcopy(false),
-           dorubberband(false),
-           dopanning(false), keepcurrentarea(true), obsnr(0)
+               plotw(0.),ploth(0.),
+               showanno(true),hardcopy(false),
+               dorubberband(false),
+               dopanning(false), keepcurrentarea(true), obsnr(0)
 {
   self = this;
-  oldx = newx = oldy = newy = 0;
+  oldx = newx = oldy = newy = startx = starty = 0;
   mapdefined = false;
   mapDefinedByUser = false;
   mapDefinedByData = false;
@@ -354,7 +354,7 @@ void PlotModule::prepareObs(const vector<string>& inp)
     ObsPlot *op = obsm->createObsPlot(inp[i]);
     if (op) {
       plotenabled.restore(op, op->getPlotInfo(3));
-      
+
       if (vobsTimes.empty()) {
         obsOneTime ot;
         vobsTimes.push_back(ot);
@@ -1640,6 +1640,102 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
 
 }
 
+
+double PlotModule::getEntireWindowDistances(const bool horizontal){
+  int x1,  y2, x2 = 0, y1 = 0;
+  getPlotWindow(x1, y2);
+
+  float flat1, flat3, flat4, flon1, flon3, flon4;
+  PhysToGeo(x1, y1, flat1, flon1);
+  PhysToGeo(x1, y2, flat3, flon3);
+  PhysToGeo(x2, y2, flat4, flon4);
+  double dist;
+  if(horizontal){
+    dist = GreatCircleDistance(flat3,flat4,flon3 ,flon4);
+  } else {
+    dist = GreatCircleDistance(flat1,flat3,flon1 ,flon3);
+  }
+  return dist;
+}
+
+double PlotModule::getWindowDistances(const float& x, const float& y, const bool horizontal){
+
+  if ( !dorubberband )
+    return getEntireWindowDistances(horizontal);
+
+  float flat1, flat3, flat4, flon1, flon3, flon4;
+  PhysToGeo(startx, starty, flat1, flon1);
+  PhysToGeo(startx, y, flat3, flon3);
+  PhysToGeo(x, y, flat4, flon4);
+  double dist;
+  if(horizontal){
+    dist = GreatCircleDistance(flat3,flat4,flon3 ,flon4);
+  } else {
+    dist = GreatCircleDistance(flat1,flat3,flon1 ,flon3);
+  }
+  return dist;
+}
+
+double PlotModule::getMarkedArea(const float& x, const float& y){
+
+  if ( !dorubberband) return 0.;
+
+  float flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4;
+  PhysToGeo(startx, starty, flat1, flon1);
+  PhysToGeo(x, starty, flat2, flon2);
+  PhysToGeo(startx, y, flat3, flon3);
+  PhysToGeo(x, y, flat4, flon4);
+  return getArea(flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4);
+}
+
+double PlotModule::getWindowArea(){
+  int x1,  y2, x2 = 0, y1 = 0;
+  getPlotWindow(x1, y2);
+  float flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4;
+  PhysToGeo(x1, y1, flat1, flon1);
+  PhysToGeo(x2, y1, flat2, flon2);
+  PhysToGeo(x1, y2, flat3, flon3);
+  PhysToGeo(x2, y2, flat4, flon4);
+  return getArea(flat1, flat2, flat3, flat4, flon1, flon2, flon3, flon4);
+}
+
+double PlotModule::calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag){
+  /*Calculates the area as two triangles
+   * Each triangle is calculated with Herons formula*/
+  // Returns the calculated area as m2
+  double calcArea = 0;
+  double p1 = ((hLSide + vLSide + diag)/2);
+  double p2 = ((hUSide + vRSide + diag)/2);
+  double nonsqrt1, nonsqrt2;
+  nonsqrt1 = p1*(p1 - hLSide)*(p1 - vLSide)*(p1 - diag);
+  nonsqrt2 = p2*(p1 - hUSide)*(p1 - vRSide)*(p1 - diag);
+  calcArea = sqrt(nonsqrt1)+sqrt(nonsqrt2);
+  return calcArea;
+}
+
+double PlotModule::getArea(const float& flat1,
+    const float& flat2,
+    const float& flat3,
+    const float& flat4,
+    const float& flon1,
+    const float& flon2,
+    const float& flon3,
+    const float& flon4){
+  //Calculate distance vertical left side with earth radius in mind
+  double vLSide = GreatCircleDistance(flat1,flat3,flon1,flon3);
+  //Calculate distance horizontal lower side with earth radius in mind
+  double hLSide = GreatCircleDistance(flat3,flat4,flon3,flon4);
+  //Calculate distance vertical right side with earth radius in mind
+  double vRSide = GreatCircleDistance(flat2,flat4,flon2,flon4);
+  //Calculate distance horizontal upper side with earth radius in mind
+  double hUSide = GreatCircleDistance(flat1,flat2,flon1,flon2);
+  //Calculate distance diagonal with earth radius in mind
+  double diagonal = GreatCircleDistance(flat1,flat4,flon1,flon4);
+  //Calculate area as addition of two triangles
+  return calculateArea(hLSide, hUSide, vLSide, vRSide, diagonal);
+}
+
+
 // static
 float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
 {
@@ -1714,12 +1810,12 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
 #endif
 
   { std::vector<miTime> sattimes = satm->getSatTimes();
-    if (not sattimes.empty())
-      times["satellites"] = sattimes;
+  if (not sattimes.empty())
+    times["satellites"] = sattimes;
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("--- Found sattimes:");
-    for (unsigned int i=0; i<sattimes.size(); i++)
-      METLIBS_LOG_DEBUG(sattimes[i]);
+  METLIBS_LOG_DEBUG("--- Found sattimes:");
+  for (unsigned int i=0; i<sattimes.size(); i++)
+    METLIBS_LOG_DEBUG(sattimes[i]);
 #endif
   }
 
@@ -2405,7 +2501,8 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       res.savebackground = true;
       res.background = true;
       res.repaint = true;
-
+      startx = me->x();
+      starty = me->y();
       return;
 
     } else if (me->button() == Qt::MidButton) {
@@ -2494,6 +2591,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       }
 
       dorubberband = false;
+      startx = starty = 0;
 
     } else if (me->button() == Qt::MidButton) {
       dopanning = false;

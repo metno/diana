@@ -27,7 +27,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -63,8 +63,8 @@ using namespace miutil;
 using namespace std;
 
 Controller::Controller()
-  : plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
-    objm(0), editm(0),editoverride(false)
+: plotm(0), fieldm(0), fieldplotm(0), obsm(0), satm(0),
+  objm(0), editm(0),editoverride(false)
 {
   METLIBS_LOG_SCOPE();
 
@@ -190,7 +190,7 @@ vector<Rectangle> Controller::plotAnnotations()
 
 // receive rectangle..
 void Controller::PixelArea(const int x1, const int y1,
-                           const int x2, const int y2){
+    const int x2, const int y2){
   Rectangle r(x1,y1,x2,y2);
   plotm->PixelArea(r);
 }
@@ -225,7 +225,7 @@ void Controller::setPlotWindow(const int w, const int h){
 
 // return latitude,longitude from physical x,y
 bool Controller::PhysToGeo(const float x,const float y,
-                           float& lat,float& lon){
+    float& lat,float& lon){
   return plotm->PhysToGeo(x,y,lat,lon);
 }
 
@@ -237,7 +237,7 @@ bool Controller::GeoToPhys(const float lat,const float lon,
 
 // return map x,y from physical x,y
 void Controller::PhysToMap(const float x,const float y,
-         float& xmap,float& ymap){
+    float& xmap,float& ymap){
   plotm->PhysToMap(x,y,xmap,ymap);
 }
 
@@ -245,6 +245,18 @@ void Controller::PhysToMap(const float x,const float y,
 bool Controller::MapToGrid(const float xmap, const float ymap,
     float& gridx, float& gridy){
   return plotm->MapToGrid(xmap,ymap,gridx,gridy);
+}
+
+double Controller::getWindowDistances(const float& x, const float& y, const bool horizontal){
+  return plotm->getWindowDistances(x, y, horizontal);
+}
+
+double Controller::getMarkedArea(const float& x, const float& y){
+  return plotm->getMarkedArea(x, y);
+}
+
+double Controller::getWindowArea(){
+  return plotm->getWindowArea();
 }
 
 // start hardcopy plot
@@ -337,24 +349,24 @@ void Controller::nextObs(bool next){
 
 //init hqcData from QSocket
 bool Controller::initHqcdata(int from,
-                             const string& commondesc,
-                             const string& common,
-                             const string& desc,
-                             const vector<string>& data){
-   return obsm->initHqcdata(from,commondesc,common,desc,data);
+    const string& commondesc,
+    const string& common,
+    const string& desc,
+    const vector<string>& data){
+  return obsm->initHqcdata(from,commondesc,common,desc,data);
 }
 
 //update hqcData from QSocket
 void Controller::updateHqcdata(const string& commondesc,
-                               const string& common,
-                               const string& desc,
-                               const vector<string>& data){
+    const string& common,
+    const string& desc,
+    const vector<string>& data){
   obsm->updateHqcdata(commondesc,common,desc,data);
 }
 
 //select obs parameter to flag from QSocket
 void Controller::processHqcCommand(const std::string& command,
-                                   const std::string& str){
+    const std::string& str){
   obsm->processHqcCommand(command, str);
 }
 
@@ -439,7 +451,7 @@ std::string Controller::getMarkedAnnotation(){
 }
 
 void Controller::changeMarkedAnnotation(std::string text,int cursor,
-                                        int sel1, int sel2){
+    int sel1, int sel2){
   plotm->changeMarkedAnnotation(text,cursor,sel1,sel2);
 }
 
@@ -598,8 +610,8 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
     keyoverride= true;
   }
 
-    //TESTING GRIDEDITMANAGER
-//  gridm->sendKeyboardEvent(ke,res);
+  //TESTING GRIDEDITMANAGER
+  //  gridm->sendKeyboardEvent(ke,res);
 
   // first check keys independent of mode
   //-------------------------------------
@@ -613,41 +625,41 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         res.savebackground= true;
       return;
     } else if (!(ke->modifiers() & Qt::AltModifier) &&
-               (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
-               ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
-               ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
-               ke->key() == Qt::Key_F8)) {
+        (ke->key() == Qt::Key_F2 || ke->key() == Qt::Key_F3 ||
+            ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
+            ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
+            ke->key() == Qt::Key_F8)) {
       plotm->changeArea(ke);
       res.repaint= true;
       res.background= true;
       if (inEdit) res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_F9){
-//    METLIBS_LOG_WARN("F9 - not defined");
+      //    METLIBS_LOG_WARN("F9 - not defined");
       return;
     } else if (ke->key() == Qt::Key_F10){
-//    METLIBS_LOG_WARN("Show previus plot (apply)");
+      //    METLIBS_LOG_WARN("Show previus plot (apply)");
       return;
     } else if (ke->key() == Qt::Key_F11){
-//    METLIBS_LOG_WARN("Show next plot (apply)");
+      //    METLIBS_LOG_WARN("Show next plot (apply)");
       return;
       //####################################################################
     } else if ((ke->key() == Qt::Key_Left && ke->modifiers() & Qt::ShiftModifier) ||
-               (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) ){
+        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) ){
       plotm->obsTime(ke,res);  // change observation time only
       res.repaint= true;
       res.background= true;
       if (inEdit) res.savebackground= true;
       return;
       //####################################################################
-     } else if (!(ke->modifiers() & Qt::ControlModifier) &&
-                !(ke->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier
-                (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
-                ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
-                ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
-// 		ke->key() == Qt::Key_A    || ke->key() == Qt::Key_D     ||
-// 		ke->key() == Qt::Key_S    || ke->key() == Qt::Key_W     ||
-                ke->key() == Qt::Key_Home)) {
+    } else if (!(ke->modifiers() & Qt::ControlModifier) &&
+        !(ke->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier
+        (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
+            ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
+            ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
+            // 		ke->key() == Qt::Key_A    || ke->key() == Qt::Key_D     ||
+            // 		ke->key() == Qt::Key_S    || ke->key() == Qt::Key_W     ||
+            ke->key() == Qt::Key_Home)) {
       plotm->sendKeyboardEvent(ke,res);
       res.repaint= true;
       res.background= true;
@@ -697,23 +709,23 @@ set<string> Controller::getComplexList()
 
 // return satfileinfo
 const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
-                                                   const std::string& file,
-                                                   bool update){
+    const std::string& file,
+    bool update){
   return satm->getFiles(satellite,file,update);
 }
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-                                     set<miTime>& constTimes,
-                                     const vector<string>& pinfos,
-                                     bool allTimes,
-                                     bool updateSources)
+    set<miTime>& constTimes,
+    const vector<string>& pinfos,
+    bool allTimes,
+    bool updateSources)
 {
   plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
 }
 
 const vector<Colour>& Controller::getSatColours(const std::string& satellite,
-                                                   const std::string& file){
+    const std::string& file){
   return satm->getColours(satellite,file);
 }
 
@@ -763,14 +775,14 @@ void Controller::obsTimeListUpdated(){
 
 
 void Controller::setSatAuto(bool autoFile,const std::string& satellite,
-                            const std::string& file)
+    const std::string& file)
 {
   satm->setSatAuto(autoFile,satellite,file);
 }
 
 
 void Controller::getUffdaClasses(vector <std::string> & vUffdaClass,
-                                 vector <std::string> &vUffdaClassTip){
+    vector <std::string> &vUffdaClassTip){
   vUffdaClass=satm->vUffdaClass;
   vUffdaClassTip=satm->vUffdaClassTip;
 }
@@ -811,8 +823,8 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
 }
 
 void Controller::getAllFieldNames(vector<std::string> & fieldNames,
-                                    set<std::string>& fieldprefixes,
-                                    set<std::string>& fieldsuffixes)
+    set<std::string>& fieldprefixes,
+    set<std::string>& fieldsuffixes)
 {
   fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
 }
@@ -833,10 +845,10 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
 }
 
 void Controller::getFieldGroups(const std::string& modelNameRequest,
-                                std::string& modelName,
-                                std::string refTime,
-                                bool plotGroups,
-                                vector<FieldGroupInfo>& vfgi)
+    std::string& modelName,
+    std::string refTime,
+    bool plotGroups,
+    vector<FieldGroupInfo>& vfgi)
 {
 
   fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, plotGroups, vfgi);
@@ -882,7 +894,7 @@ void Controller::setObjAuto(bool autoFile){
 }
 
 vector<ObjFileInfo> Controller::getObjectFiles(std::string objectname,
-                                               bool refresh) {
+    bool refresh) {
   return objm->getObjectFiles(objectname,refresh);
 }
 
@@ -915,10 +927,10 @@ void Controller::putStations(StationPlot* stationPlot){
 }
 
 void Controller::makeStationPlot(const string& commondesc,
-                         const string& common,
-                         const string& description,
-                         int from,
-                         const  vector<string>& data)
+    const string& common,
+    const string& description,
+    int from,
+    const  vector<string>& data)
 {
   stam->makeStationPlot(commondesc,common,description,from,data);
 }
@@ -928,15 +940,15 @@ std::string Controller::findStation(int x, int y, std::string name, int id){
 }
 
 void Controller::findStations(int x, int y, bool add,
-                              vector<std::string>& name,
-                              vector<int>& id,
-                              vector<std::string>& station){
+    vector<std::string>& name,
+    vector<int>& id,
+    vector<std::string>& station){
   stam->findStations(x,y,add,name,id,station);
 }
 
 void Controller::getEditStation(int step,
-                                std::string& name, int& id,
-                                vector<std::string>& stations){
+    std::string& name, int& id,
+    vector<std::string>& stations){
   if (stam->getEditStation(step,name,id,stations))
     plotm->PlotAreaSetup();
 }
@@ -947,9 +959,9 @@ void Controller::getStationData(vector<std::string>& data)
 }
 
 void Controller::stationCommand(const string& command,
-                                const vector<string>& data,
-                                const string& name, int id,
-                                const string& misc)
+    const vector<string>& data,
+    const string& name, int id,
+    const string& misc)
 {
   stam->stationCommand(command,data,name,id,misc);
 
@@ -957,7 +969,7 @@ void Controller::stationCommand(const string& command,
     plotm->setAnnotations();
 }
 void Controller::stationCommand(const string& command,
-                                const string& name, int id)
+    const string& name, int id)
 {
   stam->stationCommand(command,name,id);
 
@@ -979,7 +991,7 @@ void Controller::makeAreas(const std::string& name, std::string areastring, int 
 }
 
 void Controller::areaCommand(const std::string& command,const std::string& dataSet,
-                             const std::string& data, int id ){
+    const std::string& data, int id ){
   //METLIBS_LOG_DEBUG("Controller::areaCommand");
   plotm->areaCommand(command,dataSet,data,id);
 }
@@ -993,29 +1005,29 @@ vector <selectArea> Controller::findAreas(int x, int y, bool newArea){
 //********** plotting and selecting locationPlots on the map **************
 void Controller::putLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Controller::putLocation");
+  METLIBS_LOG_DEBUG("Controller::putLocation");
 #endif
   plotm->putLocation(locationdata);
 }
 
 void Controller::updateLocation(const LocationData& locationdata){
 #ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Controller::updateLocation");
+  METLIBS_LOG_DEBUG("Controller::updateLocation");
 #endif
   plotm->updateLocation(locationdata);
 }
 
 void Controller::deleteLocation(const std::string& name){
 #ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Controller::deleteLocation: " << name);
+  METLIBS_LOG_DEBUG("Controller::deleteLocation: " << name);
 #endif
   plotm->deleteLocation(name);
 }
 
 void Controller::setSelectedLocation(const std::string& name,
-                                   const std::string& elementname){
+    const std::string& elementname){
 #ifdef DEBUGPRINT
-        METLIBS_LOG_DEBUG("Controller::setSelectedLocation: " << name << "," << elementname);
+  METLIBS_LOG_DEBUG("Controller::setSelectedLocation: " << name << "," << elementname);
 #endif
   plotm->setSelectedLocation(name,elementname);
 }
@@ -1050,12 +1062,12 @@ void Controller::enablePlotElement(const PlotElement& pe)
 
 vector<string> Controller::writeLog()
 {
-   return plotm->writeLog();
+  return plotm->writeLog();
 }
 
 void Controller::readLog(const vector<string>& vstr,
-                         const string& thisVersion,
-                         const string& logVersion)
+    const string& thisVersion,
+    const string& logVersion)
 {
   plotm->readLog(vstr,thisVersion,logVersion);
 }

@@ -1,33 +1,33 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+ $Id$
 
-  Copyright (C) 2006 met.no
+ Copyright (C) 2006 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
 
-  This file is part of Diana
+ This file is part of Diana
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
@@ -67,14 +67,14 @@ class QMouseEvent;
 
 /**
 
-  \brief Main plot engine
+ \brief Main plot engine
 
-  The main plot engine, combining various plot layers into one map view
-  - reroutes plot info strings to appropriate handlers
-  - reroutes mouse and keyboard events
-  - all plot layers stored within
+ The main plot engine, combining various plot layers into one map view
+ - reroutes plot info strings to appropriate handlers
+ - reroutes mouse and keyboard events
+ - all plot layers stored within
 
-*/
+ */
 
 class PlotModule {
 private:
@@ -90,16 +90,16 @@ private:
   std::vector<ObsPlot*> vop;   // vector of observation plots
   std::vector<FieldPlot*> vfp; // vector of field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
-  std::vector<TrajectoryPlot*>vtp; // vector of trajectory plots
-  std::vector<MeasurementsPlot*>vMeasurementsPlot; // vector of measurements plots
+  std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
+  std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
-  std::vector <AnnotationPlot*> obsVap; //display obs annotation
-  std::vector <AnnotationPlot*> objectVap; //display object label
-  std::vector <AnnotationPlot*> editVap;   //edit object labels
+  std::vector<AnnotationPlot*> obsVap; //display obs annotation
+  std::vector<AnnotationPlot*> objectVap; //display object label
+  std::vector<AnnotationPlot*> editVap;   //edit object labels
   typedef std::vector<AreaObjects> areaobjects_v;
   areaobjects_v vareaobjects;  //QED areas
 
-  std::vector<std::string> annotationStrings;//orig. strings from setup
+  std::vector<std::string> annotationStrings;  //orig. strings from setup
 
   bool mapdefined;       // area/projection defined for plot
   bool mapDefinedByUser; // map area set by user
@@ -116,11 +116,12 @@ private:
   printOptions printoptions;
   bool hardcopy;
 
-  std::vector <LocationPlot*> locationPlots; // location (vcross,...) to be plotted
+  std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
-  float oldx, oldy,xmoved,ymoved;
+  float oldx, oldy, xmoved, ymoved;
   float newx, newy;
+  float startx, starty;
   Area myArea;
   std::deque<Area> areaQ;
   int areaIndex;
@@ -129,8 +130,8 @@ private:
   bool dopanning;
   bool keepcurrentarea;
 
-  struct obsOneTime{
-    std::vector<ObsPlot*> vobsOneTime;// vector of obs plots, same time
+  struct obsOneTime {
+    std::vector<ObsPlot*> vobsOneTime; // vector of obs plots, same time
   };
   std::vector<obsOneTime> vobsTimes;   // vector of structs, different times
   int obsnr; //which obs time
@@ -170,7 +171,8 @@ private:
   void prepareAnnotation(const std::vector<std::string>&);
 
   /// calculate distance between two points
-  static float GreatCircleDistance(float lat1,float lat2,float lon1 ,float lon2);
+  static float GreatCircleDistance(float lat1, float lat2, float lon1,
+      float lon2);
 
 public:
   PlotModule();
@@ -179,7 +181,7 @@ public:
   void PlotAreaSetup();
 
   /// the main plot routine (plot for underlay, plot for overlay)
-  void plot(bool under =true, bool over =true);
+  void plot(bool under = true, bool over = true);
   /// split plot info strings and reroute them to appropriate handlers
   void preparePlots(const std::vector<std::string>&);
 
@@ -191,19 +193,31 @@ public:
   /// get annotations from all plots
   void setAnnotations();
   /// get current Area
-  const Area& getCurrentArea(){return StaticPlot::getMapArea();}
+  const Area& getCurrentArea()
+  {
+    return StaticPlot::getMapArea();
+  }
 
   /// update FieldPlots
   bool updateFieldPlot(const std::vector<std::string>& pin);
   /// update all plot objects, returning true if successful
-  bool updatePlots(bool failOnMissingData=false);
+  bool updatePlots(bool failOnMissingData = false);
   /// toggle conservative map area
-  void keepCurrentArea(bool b){keepcurrentarea= b;}
+  void keepCurrentArea(bool b)
+  {
+    keepcurrentarea = b;
+  }
 
   /// get static maparea in plot superclass
-  const Area& getMapArea() {return StaticPlot::getMapArea();}
+  const Area& getMapArea()
+  {
+    return StaticPlot::getMapArea();
+  }
   /// get plotwindow rectangle
-  const Rectangle& getPlotSize(){return StaticPlot::getPlotSize();}
+  const Rectangle& getPlotSize()
+  {
+    return StaticPlot::getPlotSize();
+  }
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
@@ -211,40 +225,51 @@ public:
   /// receive rectangle in pixels
   void PixelArea(const Rectangle r);
   /// return latitude,longitude from physical x,y
-  bool PhysToGeo(const float,const float,float&,float&);
-  bool PhysToGeo(const float x, const float y, float& lat, float& lon, Area area, Rectangle r);
+  bool PhysToGeo(const float, const float, float&, float&);
+  bool PhysToGeo(const float x, const float y, float& lat, float& lon,
+      Area area, Rectangle r);
   /// return physical x,y from physical latitude,longitude
-  bool GeoToPhys(const float,const float,float&,float&);
-  bool GeoToPhys(const float, const float, float&, float&, Area area, Rectangle r);
+  bool GeoToPhys(const float, const float, float&, float&);
+  bool GeoToPhys(const float, const float, float&, float&, Area area,
+      Rectangle r);
   /// return map x,y from physical x,y
-  void PhysToMap(const float,const float,float&,float&);
+  void PhysToMap(const float, const float, float&, float&);
   /// return field grid x,y from map x,y if field defined and map proj = field proj
-  bool MapToGrid(const float,const float,float&,float&);
+  bool MapToGrid(const float, const float, float&, float&);
+
+  double getEntireWindowDistances(const bool horizontal);
+  double getWindowDistances(const float& x, const float& y,
+      const bool horizontal);
+  double getMarkedArea(const float& x, const float& y);
+  double getWindowArea();
+
+  double calculateArea(double hLSide, double hUSide, double vLSide,
+      double vRSide, double diag);
+
+  double getArea(const float& flat1, const float& flat2, const float& flat3,
+      const float& flat4, const float& flon1, const float& flon2,
+      const float& flon3, const float& flon4);
+
   /// start hardcopy plot
   void startHardcopy(const printOptions& po);
   /// end hardcopy plot
   void endHardcopy();
   /// set managers
-  void setManagers(FieldManager*,
-                   FieldPlotManager*,
-                   ObsManager*,
-                   SatManager*,
-                   StationManager*,
-                   ObjectManager*,
-                   EditManager*);
+  void setManagers(FieldManager*, FieldPlotManager*, ObsManager*, SatManager*,
+      StationManager*, ObjectManager*, EditManager*);
 
   /// return current plottime
   void getPlotTime(std::string&);
   /// return current plottime
   void getPlotTime(miutil::miTime&);
   /// return data times (fields,images, observations, objects and editproducts)
-  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
+  void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times,
+      bool updateSources = false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-                           std::set<miutil::miTime>& constTimes,
-                           const std::vector<std::string>& pinfos,
-                           bool allTimes=true,
-                           bool updateSources=false);
+      std::set<miutil::miTime>& constTimes,
+      const std::vector<std::string>& pinfos, bool allTimes = true,
+      bool updateSources = false);
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
@@ -255,9 +280,9 @@ public:
   /// Update ObsPlots if data files have changed
   void updateObs();
   ///find obs in pos x,y
-  bool findObs(int x,int y);
+  bool findObs(int x, int y);
   ///get id of obsevation i pos x,y
-  bool getObsName(int x,int y, std::string& name);
+  bool getObsName(int x, int y, std::string& name);
   ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
   ///in edit mode: change obs time, leave the rest unchanged
@@ -267,19 +292,19 @@ public:
 
   //Area
   ///put area into list of area objects
-  void makeAreas(std::string name,std::string areastring, int id);
+  void makeAreas(std::string name, std::string areastring, int id);
   ///send command to right area object
   void areaCommand(const std::string& command, const std::string& dataSet,
-                   const std::string& data, int id );
+      const std::string& data, int id);
   ///find areas in position x,y
-  std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
+  std::vector<selectArea> findAreas(int x, int y, bool newArea = false);
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
   void updateLocation(const LocationData& locationdata);
   void deleteLocation(const std::string& name);
   void setSelectedLocation(const std::string& name,
-                         const std::string& elementname);
+      const std::string& elementname);
   std::string findLocation(int x, int y, const std::string& name);
 
   std::vector<std::string> getFieldModels();
@@ -297,14 +322,17 @@ public:
   void measurementsPos(std::vector<std::string>&);
 
   //show or hide all annotations (for fields, observations, satellite etc.)
-  void showAnnotations(bool on){showanno=on;}
+  void showAnnotations(bool on)
+  {
+    showanno = on;
+  }
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
   std::string getMarkedAnnotation();
   /// change text of marked and editable annotationplot
-  void changeMarkedAnnotation(std::string text,int cursor=0,
-                              int sel1=0,int sel2=0);
+  void changeMarkedAnnotation(std::string text, int cursor = 0, int sel1 = 0,
+      int sel2 = 0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
@@ -320,7 +348,7 @@ public:
   /// put info from saved edit labels into new annotation
   void updateEditLabels(const std::vector<std::string>& productLabelstrings,
       const std::string& productName, bool newProduct);
-  
+
   void deleteAllEditAnnotations();
 
   //Objects
@@ -352,16 +380,19 @@ public:
   std::vector<std::string> writeLog();
   // read settings from log file data
   void readLog(const std::vector<std::string>& vstr,
-               const std::string& thisVersion, const std::string& logVersion);
+      const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  const std::vector<FieldPlot*>& getFieldPlots() const;     // Returns a vector of defined field plots.
-  const std::vector<ObsPlot*>& getObsPlots() const;         // Returns a vector of defined observation plots.
+  const std::vector<FieldPlot*>& getFieldPlots() const; // Returns a vector of defined field plots.
+  const std::vector<ObsPlot*>& getObsPlots() const; // Returns a vector of defined observation plots.
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;
 
-  static PlotModule *instance() { return self; }
+  static PlotModule *instance()
+  {
+    return self;
+  }
 };
 
 #endif

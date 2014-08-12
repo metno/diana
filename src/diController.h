@@ -25,7 +25,7 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 #ifndef diController_h
 #define diController_h
 
@@ -73,7 +73,7 @@ class QMouseEvent;
   - ui independent code beyond this point
   - used both in interactive and batch version of Diana
 
-*/
+ */
 
 class Controller {
 
@@ -129,7 +129,7 @@ public:
   void setPlotWindow(const int, const int);
   /// receive rectangle..
   void PixelArea(const int x1, const int y1,
-                 const int x2, const int y2);
+      const int x2, const int y2);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from latitude,longitude
@@ -138,6 +138,13 @@ public:
   void PhysToMap(const float,const float,float&,float&);
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float,const float,float&,float&);
+  /// return distance marked by the rubberband or entire window in m
+  double getWindowDistances(const float& x, const float& y, const bool horizontal);
+  /// return area marked by the rubberband in m2
+  double getMarkedArea(const float& x, const float& y);
+  /// return area of entire window in m2
+  double getWindowArea();
+
   /// start hardcopy plot
   void startHardcopy(const printOptions&);
   /// end hardcopy plot
@@ -150,10 +157,10 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-                           std::set<miutil::miTime>& constTimes,
-                           const std::vector<std::string>& pinfos,
-                           bool allTimes=true,
-                           bool updateSources=false);
+      std::set<miutil::miTime>& constTimes,
+      const std::vector<std::string>& pinfos,
+      bool allTimes=true,
+      bool updateSources=false);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t);
   /// returns the current product name
@@ -185,10 +192,10 @@ public:
   void nextObs(bool);
   /// init hqcData from QSocket
   bool initHqcdata(int from, const std::string&, const std::string&,
-                   const std::string&, const std::vector<std::string>&);
+      const std::string&, const std::vector<std::string>&);
   /// update hqcData from QSocket
   void updateHqcdata(const std::string&, const std::string&,
-                     const std::string&, const std::vector<std::string>&);
+      const std::string&, const std::vector<std::string>&);
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
@@ -199,7 +206,7 @@ public:
   std::vector<std::string> getTrajectoryFields();
   /// start trajectory computation
   bool startTrajectoryComputation();
-// print trajectory positions to file
+  // print trajectory positions to file
   bool printTrajectoryPositions(const std::string& filename);
   /// get field models used (for Vprof etc.)
   std::vector<std::string> getFieldModels();
@@ -221,7 +228,7 @@ public:
   std::string getMarkedAnnotation();
   /// change text of marked and editable annotationplot
   void changeMarkedAnnotation(std::string text,int cursor=0,
-                              int sel1=0,int sel2=0);
+      int sel1=0,int sel2=0);
   /// delete marked and editable annotation
   void DeleteMarkedAnnotation();
   /// start editing annotations
@@ -251,7 +258,7 @@ public:
   const std::vector<Colour>& getSatColours(const std::string & satellite, const std::string & file);
   /// returns channels for subproduct of class satellite and subclass file
   const std::vector<std::string>& getSatChannels(const std::string & satellite, const std::string &file ,
-                                         int index=-1);
+      int index=-1);
   /// returns true if satellite picture is a mosaic
   bool isMosaic(const std::string &, const std::string &);
   /// refresh list of satellite files
@@ -294,16 +301,16 @@ public:
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
   void getAllFieldNames(std::vector<std::string>& fieldNames,
-                        std::set<std::string>& fieldprefixes,
-                        std::set<std::string>& fieldsuffixes);
+      std::set<std::string>& fieldprefixes,
+      std::set<std::string>& fieldsuffixes);
   ///return levels
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
   void getFieldGroups(const std::string& modelNameRequest,
-                      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
-///update list of fieldsources (field files)
+  ///update list of fieldsources (field files)
   void updateFieldSource(const std::string & modelName);
 
   // Map-dialog methods
@@ -333,22 +340,22 @@ public:
   //stations
   void putStations(StationPlot*);
   void makeStationPlot(const std::string& commondesc, const std::string& common,
-                       const std::string& description, int from,
-                       const  std::vector<std::string>& data);
+      const std::string& description, int from,
+      const  std::vector<std::string>& data);
   void deleteStations(std::string name);
   void deleteStations(int id=-2);
   std::string findStation(int, int,std::string name,int id=-1);
   void findStations(int, int, bool add, std::vector<std::string>& name, std::vector<int>& id,
-                    std::vector<std::string>& station);
+      std::vector<std::string>& station);
   void getEditStation(int step, std::string& name, int& id,
-                      std::vector<std::string>& stations);
+      std::vector<std::string>& stations);
   void getStationData(std::vector<std::string>& data);
   void stationCommand(const std::string& Command,
-                      const std::vector<std::string>& data,
-                      const std::string& name="", int id=-1,
-                      const std::string& misc="");
+      const std::vector<std::string>& data,
+      const std::string& name="", int id=-1,
+      const std::string& misc="");
   void stationCommand(const std::string& Command,
-                      const std::string& name="", int id=-1);
+      const std::string& name="", int id=-1);
   float getStationsScale();
   void setStationsScale(float new_scale);
 
@@ -357,7 +364,7 @@ public:
   void makeAreas(const std::string& name, std::string areaString, int id=-1);
   ///send command to right area object
   void areaCommand(const std::string& command, const std::string& dataSet,
-                   const std::string& data, int id );
+      const std::string& data, int id );
   ///find areas in position x,y
   std::vector <selectArea> findAreas(int x, int y, bool newArea=false);
 
@@ -366,7 +373,7 @@ public:
   void updateLocation(const LocationData& locationdata);
   void deleteLocation(const std::string& name);
   void setSelectedLocation(const std::string& name,
-                         const std::string& elementname);
+      const std::string& elementname);
   std::string findLocation(int x, int y, const std::string& name);
 
   std::map<std::string,InfoFile> getInfoFiles();
@@ -374,10 +381,10 @@ public:
   std::vector<PlotElement> getPlotElements();
   void enablePlotElement(const PlotElement& pe);
 
-/********************* reading and writing log file *******************/
- std::vector<std::string> writeLog();
- void readLog(const std::vector<std::string>& vstr,
-              const std::string& thisVersion, const std::string& logVersion);
+  /********************* reading and writing log file *******************/
+  std::vector<std::string> writeLog();
+  void readLog(const std::vector<std::string>& vstr,
+      const std::string& thisVersion, const std::string& logVersion);
   ///Enable and disable paint mode
   void setPaintModeEnabled(bool);
 

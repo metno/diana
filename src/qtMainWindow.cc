@@ -3142,6 +3142,14 @@ void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
     } else {
       sgeopos->undefPosition();
     }
+  } else if (sgeopos->areaMode()){ //Show area in km2
+    double markedArea= contr->getMarkedArea(x, y);
+    double windowArea= contr->getWindowArea();
+    sgeopos->setPosition(markedArea/(1000.0*1000.0),windowArea/(1000.0*1000.0));
+  } else if (sgeopos->distMode()){ //Show distance in km
+    double horizDist = contr->getWindowDistances(x, y, true);
+    double vertDist = contr->getWindowDistances(x, y, false);
+    sgeopos->setPosition(vertDist/1000.0,horizDist/1000.0);
   } else {
     sgeopos->setPosition(xmap,ymap);
   }
