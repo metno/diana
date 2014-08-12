@@ -70,7 +70,8 @@ public:
   QSet<QSharedPointer<DrawingItemBase> > selectedItemSet() const;
   void insertSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
   bool removeSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  bool clearSelectedItems(bool = true);
+  bool deselectAllItems(bool = true);
+  bool selectAllItems(bool = true);
   bool containsSelectedItem(const QSharedPointer<DrawingItemBase> &) const;
   bool isEmpty() const;
   bool isEditable() const;

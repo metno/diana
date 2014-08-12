@@ -52,22 +52,29 @@ private:
   void add(const QSharedPointer<Layer> &, bool = false, bool = true, bool = true);
   void merge(const QList<LayerWidget *> &);
   void duplicate(const QList<LayerWidget *> &);
-  void initialize(LayerWidget *);
+  virtual void initLayerWidget(LayerWidget *);
   QToolButton *addEmptyButton_;
+  QToolButton *selectAllItemsButton_;
+  QToolButton *deselectAllItemsButton_;
   QToolButton *mergeSelectedButton_;
   QToolButton *duplicateSelectedButton_;
   QToolButton *removeSelectedButton_;
   QToolButton *saveVisibleButton_;
+  QAction *selectAll_act_;
+  QAction *deselectAll_act_;
   QAction *merge_act_;
   QAction *duplicate_act_;
   QAction *remove_act_;
   QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
 private slots:
+  void selectAll();
+  void deselectAll();
   void addEmpty();
   void mergeSelected();
   void duplicateSelected();
   void removeSelected();
   void saveVisible() const;
+  void handleLayerUpdate();
 };
 
 } // namespace

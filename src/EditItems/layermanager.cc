@@ -122,7 +122,7 @@ bool LayerManager::deselectAllItems()
 {
   bool cleared = false;
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->clearSelectedItems())
+    if (layer->deselectAllItems())
       cleared = true;
   return cleared;
 }

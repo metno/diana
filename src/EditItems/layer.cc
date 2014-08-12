@@ -176,13 +176,22 @@ bool Layer::removeSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool
   return removed;
 }
 
-bool Layer::clearSelectedItems(bool notify)
+bool Layer::deselectAllItems(bool notify)
 {
   const bool origEmpty = selItems_.isEmpty();
   selItems_.clear();
   if (notify)
     emit updated();
   return !origEmpty;
+}
+
+bool Layer::selectAllItems(bool notify)
+{
+  const bool origFull = (selItems_.size() == items_.size());
+  selItems_ = items_;
+  if (notify)
+    emit updated();
+  return !origFull;
 }
 
 bool Layer::containsSelectedItem(const QSharedPointer<DrawingItemBase> &item) const

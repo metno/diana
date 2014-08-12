@@ -693,4 +693,13 @@ void LayersPaneBase::getLayerCounts(int &allCount, int &selectedCount, int &visi
   }
 }
 
+void LayersPaneBase::getSelectedLayersItemCounts(int &allCount, int &selectedCount) const
+{
+  allCount = selectedCount = 0;
+  foreach (LayerWidget *lw, selectedWidgets()) {
+    allCount += lw->layer()->itemCount();
+    selectedCount += lw->layer()->selectedItemCount();
+  }
+}
+
 } // namespace

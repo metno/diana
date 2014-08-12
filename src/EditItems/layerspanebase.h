@@ -122,7 +122,7 @@ protected: // ### some of these may be private ... TBD
   QToolButton *importFilesButton_;
   bool showInfo_;
 
-  void initLayerWidget(LayerWidget *);
+  virtual void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);
   QList<int> selectedPos() const;
   void selectIndex(int, bool = true);
@@ -153,6 +153,7 @@ protected:
   virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &) { return false; }
   virtual bool handleKeyPressEvent(QKeyEvent *) { return false; }
   void getLayerCounts(int &, int &, int &, int &) const;
+  void getSelectedLayersItemCounts(int &, int &) const;
 
 protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
