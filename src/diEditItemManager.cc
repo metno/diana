@@ -145,8 +145,12 @@ void EditItemManager::setEditing(bool enable)
 {
   Manager::setEditing(enable);
   emit editing(enable);
-  if (!enable)
+  if (!enable) {
+    hoverItem_.clear();
     emit unsetWorkAreaCursor();
+  } else {
+    // set hoverItem_ if current mouse pos hits an item ... TBD
+  }
 }
 
 /**
@@ -663,10 +667,12 @@ void EditItemManager::plot(bool under, bool over)
 
       foreach (const QSharedPointer<DrawingItemBase> item, items) {
         EditItemBase::DrawModes modes = EditItemBase::Normal;
-        if (selItems.contains(item))
-          modes |= EditItemBase::Selected;
-        if (item == hoverItem_)
-          modes |= EditItemBase::Hovered;
+        if (isEditing()) {
+          if (selItems.contains(item))
+            modes |= EditItemBase::Selected;
+          if (item == hoverItem_)
+            modes |= EditItemBase::Hovered;
+        }
         if (item->property("visible", true).toBool()) {
           applyPlotOptions(item);
           setFromLatLonPoints(*item, item->getLatLonPoints());
