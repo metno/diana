@@ -535,25 +535,45 @@ std::string VprofManager::setStation(int step)
 }
 
 
-miTime VprofManager::setTime(int step)
+miTime VprofManager::set1Time(int step, int dir)
 {
-  METLIBS_LOG_SCOPE("step=" << step);
+  METLIBS_LOG_INFO("step=" << step);
 
   if (timeList.size()==0)
     return miTime::nowTime();
 
   int n= timeList.size();
-  int i= 0;
-  while (i<n && timeList[i]!=plotTime) i++;
-  if (i<n) {
-    i+=step;
-    //if (i<0)  i= n-1;
-    //if (i>=n) i= 0;
-    //HK changed to noncyclic...
-    if (i<0)  i= 0;
-    if (i>=n) i= n-1;
+  int i = 0;
+  if ( step == 0 ){
+    while (i<n && timeList[i] != plotTime) {
+      i++;
+    }
+   i += dir;
+
+
   } else {
-    i= 0;
+
+    miTime newTime(plotTime);
+    newTime.addHour(step * dir);
+
+    if( dir > 0 ) {
+      i = 0;
+      while (i<n && timeList[i] < newTime) {
+        i++;
+      }
+    } else {
+      i = n-1;
+      while (i>=0 && timeList[i] > newTime) {
+        i--;
+      }
+    }
+  }
+
+  if (i==n) {
+    i = n-1;
+  }
+  if (i<0) {
+    i = 0;
   }
 
   plotTime= timeList[i];

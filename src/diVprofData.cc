@@ -142,7 +142,6 @@ bool VprofData::readFimex(const std::string& setup_line)
   numParam = 6;
   mainText.push_back(modelName);
 
-  validTime.push_back(miTime("2014-03-05 00:00:00"));
   miTime t = validTime[0];
   for (size_t i = 0; i < validTime.size(); i++) {
     forecastHour.push_back(miTime::hourDiff(validTime[i],t));

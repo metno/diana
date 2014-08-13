@@ -40,6 +40,7 @@
 #include <vector>
 
 class QComboBox;
+class QSpinBox;
 class QToolBar;
 class ToggleButton;
 class VprofWidget;
@@ -94,6 +95,7 @@ private:
   ToggleButton * setupButton;
   QComboBox * stationBox;
   QComboBox * timeBox;
+  QSpinBox * timeSpinBox;
 
   void updateStationBox();
   void updateTimeBox();
@@ -126,7 +128,7 @@ private slots:
   void hideSetup();
   void stationBoxActivated(int index);
   void timeBoxActivated(int index);
-  bool timeChangedSlot(int);
+  bool timeChangedSlot();
   bool stationChangedSlot(int);
 
 signals:

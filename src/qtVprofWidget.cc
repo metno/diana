@@ -67,9 +67,7 @@ VprofWidget::VprofWidget(VprofManager *vpm, QWidget* parent)
 //  Set up the OpenGL rendering state
 void VprofWidget::initializeGL()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWidget::initializeGL");
-#endif
+  METLIBS_LOG_SCOPE();
 
   glShadeModel( GL_FLAT );
   setAutoBufferSwap(false);
@@ -79,12 +77,7 @@ void VprofWidget::initializeGL()
 
 void VprofWidget::paintGL()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofWidget::paintGL");
-#endif
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("VprofWidget::paintGL");
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (!vprofm) return;
 
@@ -99,9 +92,7 @@ void VprofWidget::paintGL()
 //  Set up the OpenGL view port, matrix mode, etc.
 void VprofWidget::resizeGL( int w, int h )
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofWidget::resizeGL  w=" << w << " h=" << h);
-#endif
   if (vprofm) vprofm->setPlotWindow(w,h);
 
   glViewport( 0, 0, (GLint)w, (GLint)h );
@@ -110,32 +101,6 @@ void VprofWidget::resizeGL( int w, int h )
   updateGL();
 
   setFocus();
-}
-
-// ---------------------- event callbacks -----------------
-
-void VprofWidget::keyPressEvent(QKeyEvent *me)
-{
-  if (me->key()==Qt::Key_Left  ||
-      me->key()==Qt::Key_Right ||
-      me->key()==Qt::Key_Down  ||
-      me->key()==Qt::Key_Up) {
-
-    if (me->key()==Qt::Key_Left){
-      vprofm->setTime(-1);
-      emit timeChanged(-1);
-    } else if (me->key()==Qt::Key_Right){
-      vprofm->setTime(+1);
-      emit timeChanged(+1);
-    }else if (me->key()==Qt::Key_Down){
-      vprofm->setStation(-1);
-      emit stationChanged(-1);
-    }else if (me->key()==Qt::Key_Up){
-      vprofm->setStation(+1);
-      emit stationChanged(+1);
-    }
-    updateGL();
-  }
 }
 
 

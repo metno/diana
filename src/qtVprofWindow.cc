@@ -55,6 +55,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
+#include <QSpinBox>
 
 #include "forover.xpm"
 #include "bakover.xpm"
@@ -84,9 +85,6 @@ VprofWindow::VprofWindow(Controller *co)
   vprofw= new VprofWidget(vprofm, this);
 #endif
   setCentralWidget(vprofw);
-  connect(vprofw, SIGNAL(timeChanged(int)),SLOT(timeChangedSlot(int)));
-  connect(vprofw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
-
 
   // tool bar and buttons
   vpToolbar = new QToolBar(this);
@@ -153,6 +151,9 @@ VprofWindow::VprofWindow(Controller *co)
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
+  timeSpinBox = new QSpinBox( this );
+  timeSpinBox->setValue(0);
+
   vpToolbar->addWidget(modelButton);
   vpToolbar->addWidget(setupButton);
   vpToolbar->addWidget(updateButton);
@@ -169,6 +170,7 @@ VprofWindow::VprofWindow(Controller *co)
   tsToolbar->addWidget(leftTimeButton);
   tsToolbar->addWidget(timeBox);
   tsToolbar->addWidget(rightTimeButton);
+  tsToolbar->addWidget(timeSpinBox);
 
   //connected dialogboxes
 
@@ -237,8 +239,8 @@ void VprofWindow::rightStationClicked(){
 
 void VprofWindow::leftTimeClicked(){
   //called when the left time button is clicked
-  vprofm->setTime(-1);
-  timeChangedSlot(-1);
+  vprofm->set1Time(timeSpinBox->value(),-1);
+  timeChangedSlot();
   vprofw->updateGL();
 }
 
@@ -246,57 +248,32 @@ void VprofWindow::leftTimeClicked(){
 
 void VprofWindow::rightTimeClicked(){
   //called when the right Station button is clicked
-  vprofm->setTime(+1);
-  timeChangedSlot(+1);
+  vprofm->set1Time(timeSpinBox->value(),1);
+  timeChangedSlot();
   vprofw->updateGL();
 }
 
 
 /***************************************************************************/
 
-bool VprofWindow::timeChangedSlot(int diff){
-  //called if signal timeChanged is emitted from graphics
-  //window (qtVprofWidget)
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("timeChangedSlot(int) is called ");
-#endif
-  int index=timeBox->currentIndex();
-  while(diff<0){
-    if(--index < 0) {
-      //set index to the last in the box !
-      index=timeBox->count()-1;
-    }
-    timeBox->setCurrentIndex(index);
-    diff++;
-  }
-  while(diff>0){
-    if(++index > timeBox->count()-1) {
-      //set index to the first in the box !
-      index=0;
-    }
-    timeBox->setCurrentIndex(index);
-    diff--;
-  }
-  miutil::miTime t = vprofm->getTime();
-  std::string tstring=t.isoTime(false,false);
+bool VprofWindow::timeChangedSlot(){
+  METLIBS_LOG_SCOPE();
+
   if (!timeBox->count()) return false;
+
+  miutil::miTime t = vprofm->getTime();
+
+  std::string tstring=t.isoTime(false,false);
   std::string tbs=timeBox->currentText().toStdString();
-  if (tbs!=tstring){
-    //search timeList
-    int n = timeBox->count();
-    for (int i = 0; i<n;i++){
-      if(tstring ==timeBox->itemText(i).toStdString()){
-        timeBox->setCurrentIndex(i);
-        tbs=timeBox->currentText().toStdString();
-        break;
-      }
+  //search timeList
+  int n = timeBox->count();
+  for (int i = 0; i<n;i++){
+    if(tstring ==timeBox->itemText(i).toStdString()){
+      METLIBS_LOG_DEBUG(LOGVAL(timeBox->itemText(i).toStdString()));
+      timeBox->setCurrentIndex(i);
+      tbs=timeBox->currentText().toStdString();
+      break;
     }
-  }
-  if (tbs!=tstring){
-    METLIBS_LOG_WARN("WARNING! timeChangedSlot  time from vprofm ="
-    << t    <<" not equal to timeBox text = " << tbs);
-    METLIBS_LOG_WARN("You should search through timelist!");
-    return false;
   }
 
   if (onlyObs) {
@@ -353,7 +330,7 @@ bool VprofWindow::stationChangedSlot(int diff){
       }
     }
   }
-  QString sq = s.c_str();
+  QString sq = QString::fromUtf8(s.c_str());
   if (sbs==s) {
     emit stationChanged(sq); //name of current station (to mainWindow)
     return true;
@@ -583,7 +560,7 @@ void VprofWindow::changeModel(){
   updateTimeBox();
   //get correct selection in comboboxes
   stationChangedSlot(0);
-  timeChangedSlot(0);
+  timeChangedSlot();
   vprofw->updateGL();
 }
 
@@ -667,7 +644,7 @@ void VprofWindow::updateStationBox(){
 
   int n =stations.size();
   for (int i=0; i<n; i++){
-    stationBox->addItem(QString(stations[i].c_str()));
+    stationBox->addItem(QString::fromUtf8((stations[i].c_str())));
   }
 }
 
@@ -775,7 +752,7 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
   }
   //get correct selection in comboboxes
   stationChangedSlot(0);
-  timeChangedSlot(0);
+  timeChangedSlot();
   vprofw->updateGL();
 }
 
