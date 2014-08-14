@@ -193,8 +193,6 @@ void ObsAscii::decodeHeader()
     std::string& line = lines[i]; // must be reference here, used later in decodeData
     erase_comment(line);
     miutil::trim(line);
-    if (line.empty())
-      return;
 
     if (line == "[DATA]")
       // end of header, start data
