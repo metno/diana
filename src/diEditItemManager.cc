@@ -987,18 +987,20 @@ void EditItemManager::emitItemChanged() const
   }
 
   static bool lastCallMatched = false;
-  static QVariantMap lastMatchedVMap;
+  static QVariantMap lastEmittedVMap;
   if (itemProps.size() == 1) {
-    QVariantMap matchedVMap = itemProps.first();
-    if (matchedVMap != lastMatchedVMap) { // avoid emitting successive duplicates
-      emit itemChanged(matchedVMap);
-      lastMatchedVMap = matchedVMap;
+    QVariantMap vmap = itemProps.first();
+    if (vmap != lastEmittedVMap) { // avoid emitting successive duplicates
+      emit itemChanged(vmap);
+      lastEmittedVMap = vmap;
     }
     lastCallMatched = true;
   } else {
-    if (lastCallMatched)
+    if (lastCallMatched) {
       // send an invalid variant map to notify about the transition from match to mismatch
       emit itemChanged(QVariantMap());
+      lastEmittedVMap = QVariantMap();
+    }
     lastCallMatched = false;
   }
 }
@@ -1184,6 +1186,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       }
 
       // populate the menu
+      QList<QSharedPointer<DrawingItemBase> > selectedItems = layerMgr_->itemsInSelectedLayers(true).toList();
+      QSet<DrawingItemBase::Category> selectedCategories;
+      for (int i = 0; i < selectedItems.size(); ++i)
+        selectedCategories.insert(selectedItems.at(i)->category());
+
       QMenu contextMenu;
       contextMenu.addAction(cutAction);
       contextMenu.addAction(copyAction);
@@ -1192,18 +1199,15 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction);
-      editPropertiesAction->setEnabled(layerMgr_->itemsInSelectedLayers(true).size() == 1);
+      editPropertiesAction->setEnabled(selectedItems.size() == 1);
       contextMenu.addAction(editStyleAction);
-      editStyleAction->setEnabled(layerMgr_->itemsInSelectedLayers(true).size() > 0);
+      editStyleAction->setEnabled(!selectedItems.isEmpty());
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
-      styleTypeMenu.setEnabled(!hitItem.isNull());
-
-      QList<QSharedPointer<QAction> > styleTypeActions;
-
-      if (!hitItem.isNull()) {
-        QStringList styleNames = DrawingStyleManager::instance()->styles(hitItem.data()->category());
+      styleTypeMenu.setEnabled(selectedCategories.size() == 1);
+      if (styleTypeMenu.isEnabled()) {
+        QStringList styleNames = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
         qSort(styleNames);
         Q_ASSERT(!styleNames.contains("Custom"));
         styleNames.append("Custom");
@@ -1213,13 +1217,12 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
           QVariantList data;
           QVariantList styleItems;
-          foreach (const QSharedPointer<DrawingItemBase> styleItem, layerMgr_->itemsInSelectedLayers(true))
+          foreach (const QSharedPointer<DrawingItemBase> styleItem, selectedItems)
             styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
           data.append(QVariant(styleItems));
           data.append(styleName);
           action->setData(data);
           connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
-          styleTypeActions.append(QSharedPointer<QAction>(action));
           styleTypeMenu.addAction(action);
         }
       }
@@ -1235,6 +1238,9 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       // execute the menu (assuming all its actions are connected to slots)
       if (!contextMenu.isEmpty())
         contextMenu.exec(me2.globalPos());
+
+      if (!hasIncompleteItem())
+        emitItemChanged();
 
     } else {
 
@@ -1260,11 +1266,12 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       // process the event further (delegating it to relevant items etc.)
       mousePress(&me2);
+
+      if (needsRepaint() && !hasIncompleteItem())
+        emitItemChanged();
     }
 
     event->setAccepted(true);
-    if (needsRepaint() && !hasIncompleteItem())
-      emitItemChanged();
 
   } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
@@ -1274,7 +1281,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   else if (event->type() == QEvent::MouseButtonRelease) {
     mouseRelease(&me2);
     event->setAccepted(true);
-    if ((me2.button() != Qt::RightButton) && needsRepaint() && !hasIncompleteItem())
+    if (needsRepaint() && !hasIncompleteItem())
       emitItemChanged();
   }
 
