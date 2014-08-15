@@ -129,7 +129,7 @@ private:
   bool splitSuffix(std::string& plotName, std::string& suffix);
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
-  bool splitDifferenceCommandString(std::string pin, std::string& fspec1, std::string& fspec2);
+  bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);
 
   void parseString(std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
 

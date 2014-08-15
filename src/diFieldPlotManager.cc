@@ -1162,24 +1162,23 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   return vfieldrequest;
 }
 
-bool FieldPlotManager::splitDifferenceCommandString(std::string pin, std::string& fspec1, std::string& fspec2)
+bool FieldPlotManager::splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2)
 {
+  const size_t p1 = pin.find(" ( ", 0);
+  if (p1 == string::npos)
+    return false;
 
-  //if difference, split pin and return true
-  if (miutil::contains(pin, " ( ") && miutil::contains(pin, " - ") && miutil::contains(pin, " ) ")) {
-    size_t p1 = pin.find(" ( ", 0);
-    size_t p2 = pin.find(" - ", p1 + 3);
-    size_t p3 = pin.find(" ) ", p2 + 3);
-    if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
-      fspec1 = pin.substr(0, p1) + pin.substr(p1 + 2, p2 - p1
-          - 2) + pin.substr(p3+2);
-      fspec2 = pin.substr(0, p1) + pin.substr(p2 + 2, p3 - p2
-          - 2) + pin.substr(p3+2);
-      return true;
-    }
-  }
+  const size_t p2 = pin.find(" - ", p1 + 3);
+  if (p2 == string::npos)
+    return false;
 
-  // if not difference, return false
-  return false;
+  const size_t p3 = pin.find(" ) ", p2 + 3);
+  if (p3 == string::npos)
+    return false;
 
+  const std::string common_start = pin.substr(0, p1),
+      common_end = pin.substr(p3+2);
+  fspec1 = common_start + pin.substr(p1 + 2, p2 - p1 - 2) + common_end;
+  fspec2 = common_start + pin.substr(p2 + 2, p3 - p2 - 2) + common_end;
+  return true;
 }
