@@ -173,9 +173,12 @@ void PaintGLContext::setPolygonColor(const QRgb &color)
     switch (attributes.polygonMode[GL_FRONT]) {
     case GL_FILL:
         painter->setPen(Qt::NoPen);
-        if (attributes.polygonStipple && !attributes.mask.isNull())
+        if (attributes.polygonStipple && !attributes.mask.isNull()) {
+            QVector<QRgb> colours;
+            colours << qRgba(0, 0, 0, 0) << attributes.color;
+            attributes.mask.setColorTable(colours);
             painter->setBrush(attributes.mask);
-        else
+        } else
             painter->setBrush(QColor::fromRgba(color));
         break;
     case GL_LINE: {
@@ -1462,6 +1465,7 @@ bool glText::getCharSize(const int c, float& w, float& h)
     QRectF rect = fm.boundingRect(QChar(c));
     w = rect.width() / xscale;
     h = rect.height() / yscale;
+    if (w == 0) h = 0;
     return true;
 }
 
@@ -1476,6 +1480,7 @@ bool glText::getMaxCharSize(float& w, float& h)
     QPointF p = QPointF(fm.maxWidth(), fm.height()); // * ctx->transform.inverted();
     w = p.x() / xscale;
     h = p.y() / yscale;
+    if (w == 0) h = 0;
     return true;
 }
 
@@ -1483,14 +1488,19 @@ bool glText::getStringSize(const char* s, float& w, float& h)
 {
     ENSURE_CTX_AND_PAINTER_BOOL
 
+    QString str = QString::fromLatin1(s);
+
     float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
     float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
 
     QFontMetricsF fm(ctx->font);
     //QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
-    QRectF rect = fm.boundingRect(QString::fromLatin1(s));
+    QRectF rect = fm.boundingRect(str);
     w = rect.width() / xscale;
     h = rect.height() * 0.8 / yscale;
+    if (w == 0 || str.trimmed().isEmpty())
+        h = 0;
+
     return true;
 }
 
