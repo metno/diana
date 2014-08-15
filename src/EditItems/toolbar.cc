@@ -60,7 +60,7 @@ ToolBar::ToolBar(QWidget *parent)
   selectAction_ = actions[EditItemManager::Select];
   addAction(selectAction_);
   actionGroup->addAction(selectAction_);
-  connect(selectAction_, SIGNAL(selectActionTriggered(bool)), SLOT(handleSelectActionTriggered(bool)));
+  connect(selectAction_, SIGNAL(triggered(bool)), SLOT(handleSelectActionTriggered(bool)));
 
   // *** create polyline ***
   polyLineAction_ = actions[EditItemManager::CreatePolyLine];
