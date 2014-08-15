@@ -57,7 +57,8 @@ public:
   int selectedLayersItemCount() const;
   QSet<QSharedPointer<DrawingItemBase> > itemsInSelectedLayers(bool = false) const;
   bool selectedLayersContainItem(const QSharedPointer<DrawingItemBase> &) const;
-  bool selectItem(const QSharedPointer<DrawingItemBase> &);
+  bool selectItem(const QSharedPointer<DrawingItemBase> &, bool = false);
+  bool selectItem(int, bool = false);
   bool deselectItem(const QSharedPointer<DrawingItemBase> &);
   bool deselectAllItems();
   void addToLayerGroup(QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
@@ -73,6 +74,8 @@ public:
   QSharedPointer<LayerGroup> findLayerGroup(const QString &) const;
   QSharedPointer<LayerGroup> findLayerGroup(const QSharedPointer<Layer> &) const;
   QSharedPointer<Layer> findLayer(const QString &) const;
+  bool findItem(int, QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &) const;
+  bool findLayer(const QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &) const;
   void removeLayer(const QSharedPointer<Layer> &);
   void moveLayer(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
   void removeItem(const QSharedPointer<DrawingItemBase> &);
@@ -87,6 +90,8 @@ private:
 
   QString createUniqueLayerName(const QString &) const;
   void ensureUniqueLayerName(const QSharedPointer<Layer> &) const;
+
+  void selectItem(const QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &, bool);
 };
 
 } // namespace

@@ -100,14 +100,31 @@ bool LayerManager::selectedLayersContainItem(const QSharedPointer<DrawingItemBas
   return false;
 }
 
-bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item)
+void LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, QSharedPointer<Layer> &layer, bool exclusive)
 {
-  foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->containsItem(item)) {
-      layer->insertSelectedItem(item);
-      return true;
-    }
-  return false;
+  if (exclusive)
+    deselectAllItems();
+  layer->insertSelectedItem(item);
+}
+
+bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive)
+{
+  QSharedPointer<Layer> layer;
+  if (!findLayer(item, layer))
+    return false;
+
+  selectItem(item, layer, exclusive);
+  return true;
+}
+
+bool LayerManager::selectItem(int id, bool exclusive)
+{
+  QSharedPointer<DrawingItemBase> item;
+  QSharedPointer<Layer> layer;
+  if (!findItem(id, item, layer))
+    return false;
+  selectItem(item, layer, exclusive);
+  return true;
 }
 
 bool LayerManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
@@ -236,6 +253,27 @@ QSharedPointer<Layer> LayerManager::findLayer(const QString &name) const
       return layer;
   }
   return QSharedPointer<Layer>();
+}
+
+bool LayerManager::findItem(int id, QSharedPointer<DrawingItemBase> &item, QSharedPointer<Layer> &layer) const
+{
+  foreach(const QSharedPointer<Layer> &layer_, orderedLayers_) {
+    if (layer_->findItem(id, item)) {
+      layer = layer_;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool LayerManager::findLayer(const QSharedPointer<DrawingItemBase> &item, QSharedPointer<Layer> &layer) const
+{
+  foreach(const QSharedPointer<Layer> &layer_, orderedLayers_)
+    if (layer_->containsItem(item)) {
+      layer = layer_;
+      return true;
+    }
+  return false;
 }
 
 void LayerManager::removeLayer(const QSharedPointer<Layer> &layer)

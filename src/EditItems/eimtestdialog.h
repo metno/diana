@@ -29,52 +29,43 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef EDITITEMSTOOLBAR_H
-#define EDITITEMSTOOLBAR_H
+#ifndef EIMTESTDIALOG_H
+#define EIMTESTDIALOG_H
 
-#include <QToolBar>
+#include <QDialog>
+#include <QSharedPointer>
+#include <QSet>
+#include <QVariant>
+#include <EditItems/drawingitembase.h>
 
+class QTextEdit;
+class QCheckBox;
 class QComboBox;
+class QString;
+class QPushButton;
 
-namespace EditItems {
-
-class ToolBar : public QToolBar
+class EIMTestDialog : public QDialog
 {
   Q_OBJECT
 public:
-  static ToolBar *instance();
-  bool nonSelectActionLocked() const;
-  void setSelectAction();
-  void setCreatePolyLineAction(const QString &);
-
-private slots:
-  void handleSelectActionTriggered(bool);
-  void handleNonSelectActionTriggered(bool);
-  void setPolyLineType(int index);
-  void setSymbolType(int index);
-  void setTextType(int index);
+  EIMTestDialog(QWidget *);
 
 private:
-  ToolBar(QWidget * = 0);
-  static ToolBar *self_; // singleton instance pointer
+  QTextEdit *textEdit_;
+  QCheckBox *enabledCheckBox_;
+  QComboBox *selectComboBox_;
+  int nEvents_;
+  QSet<int> itemIds_;
+  void updateSelectComboBox();
+  void appendText(const QString &);
 
-  bool nonSelectActionLocked_;
-
-  QAction *selectAction_;
-  QAction *polyLineAction_;
-  QComboBox *polyLineCombo_;
-  QAction *symbolAction_;
-  QComboBox *symbolCombo_;
-  QAction *textAction_;
-  QComboBox *textCombo_;
-
-  void showEvent(QShowEvent *);
-  void hideEvent(QHideEvent *);
-
-signals:
-  void visible(bool);
+private slots:
+  void changeEnabledState(int);
+  void clear();
+  void prepareCrossSectionPlacement();
+  void handleItemChange(const QVariantMap &);
+  void handleItemRemoval(int);
+  void selectItem();
 };
 
-} // namespace
-
-#endif // EDITITEMSTOOLBAR_H
+#endif // EIMTESTDIALOG_H

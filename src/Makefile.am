@@ -147,6 +147,7 @@ diana_qt_sources = \
 	EditItems/toolbar.cc \
 	EditItems/drawingdialog.cc \
 	EditItems/editdrawingdialog.cc \
+	EditItems/eimtestdialog.cc \
 	EditItems/layergroupspane.cc \
 	EditItems/layerspanebase.cc \
 	EditItems/drawinglayerspane.cc \
@@ -291,6 +292,7 @@ noinst_HEADERS = \
 	EditItems/toolbar.h \
 	EditItems/drawingdialog.h \
 	EditItems/editdrawingdialog.h \
+	EditItems/eimtestdialog.h \
 	EditItems/layergroupspane.h \
 	EditItems/layerspanebase.h \
 	EditItems/drawinglayerspane.h \

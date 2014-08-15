@@ -208,6 +208,7 @@ private Q_SLOTS:
   void SliderSet();
   void editUpdate(bool = true);
   void handleEIMEditing(bool);
+  void toggleEIMTestDialog();
 
   void toggleDialogs();
   void toggleStatusBar();

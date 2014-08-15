@@ -277,13 +277,13 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
   return latLonPoints;
 }
 
-void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints)
+void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const
 {
   QList<QPointF> points = GeoToPhys(latLonPoints);
   item.setPoints(points);
 }
 
-QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints)
+QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);

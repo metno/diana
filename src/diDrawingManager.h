@@ -88,9 +88,9 @@ public:
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
 
   QList<QPointF> getLatLonPoints(const DrawingItemBase &item) const;
-  void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints);
+  void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const;
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
-  QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints);
+  QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints) const;
 
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 

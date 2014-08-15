@@ -73,6 +73,7 @@ public:
   bool deselectAllItems(bool = true);
   bool selectAllItems(bool = true);
   bool containsSelectedItem(const QSharedPointer<DrawingItemBase> &) const;
+  bool findItem(int, QSharedPointer<DrawingItemBase> &) const;
   bool isEmpty() const;
   bool isEditable() const;
   bool isActive() const;

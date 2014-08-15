@@ -48,6 +48,7 @@
 #include <EditItems/style.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/layergroup.h>
+#include <EditItems/toolbar.h>
 #include <qtMainWindow.h>
 #include "paint_select2.xpm"
 #include "paint_create_polyline.xpm"
@@ -74,6 +75,7 @@ EditItemManager::EditItemManager()
   : repaintNeeded_(false)
   , skipRepaint_(false)
   , undoView_(0)
+  , itemChangeNotificationEnabled_(false)
 {
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -203,7 +205,9 @@ QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVar
 void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
 {
   DrawingManager::addItem_(item);
-  //if (false) selectItem(item); // for now, don't pre-select new items
+  selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
+  if (!EditItems::ToolBar::instance()->nonSelectActionLocked())
+    EditItems::ToolBar::instance()->setSelectAction();
   emit itemAdded(item.data());
 }
 
@@ -235,6 +239,7 @@ void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
   if (hoverItem_ == item)
     hoverItem_.clear();
   deselectItem(item);
+  emit itemRemoved(item->id());
 }
 
 void EditItemManager::initNewItem(DrawingItemBase *item)
@@ -586,10 +591,8 @@ void EditItemManager::keyPress(QKeyEvent *event)
   if (addedOrRemovedItems || modifiedItems)
     pushCommands(addedItems, removedItems, undoCommands);
 
-  if (selItems != origSelItems) {
-    emit selectionChanged();
+  if (selItems != origSelItems)
     repaintNeeded_ = true;
-  }
 }
 
 // Handles a key press event for an item in the process of being completed.
@@ -807,10 +810,22 @@ void EditItemManager::pushCommands(const QSet<QSharedPointer<DrawingItemBase> > 
   repaintNeeded_ = true; // ###
 }
 
-void EditItemManager::selectItem(const QSharedPointer<DrawingItemBase> &item)
+bool EditItemManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive)
 {
-  if (layerMgr_->selectItem(item))
+  if (layerMgr_->selectItem(item, exclusive)) {
     emit selectionChanged();
+    return true;
+  }
+  return false;
+}
+
+bool EditItemManager::selectItem(int id, bool exclusive)
+{
+  if (layerMgr_->selectItem(id, exclusive)) {
+    emit selectionChanged();
+    return true;
+  }
+  return false;
 }
 
 void EditItemManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
@@ -923,6 +938,69 @@ void EditItemManager::handleLayersUpdate()
 {
   updateActionsAndTimes();
   repaint();
+}
+
+void EditItemManager::enableItemChangeNotification(bool enabled)
+{
+  itemChangeNotificationEnabled_ = enabled;
+}
+
+void EditItemManager::setItemChangeFilter(const QString &itemType)
+{
+  itemChangeFilter_ = itemType;
+}
+
+// Emits the itemChanged() signal to notify about a _potential_ change to a single-selected
+// item filtered according to setItemChangeFilter().
+// The signal is also emitted whenever the above condition goes from true to false.
+void EditItemManager::emitItemChanged() const
+{
+  if (!itemChangeNotificationEnabled_)
+    return;
+
+  QList<QVariantMap> itemProps;
+
+  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
+  for (int i = layers.size() - 1; i >= 0; --i) {
+    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
+
+    foreach (const QSharedPointer<DrawingItemBase> item, layer->selectedItems()) {
+      const QString type(item->properties().value("style:type").toString());
+      if (itemChangeFilter_ != type)
+        continue;
+
+      QVariantMap props;
+      props.insert("type", type);
+      props.insert("layer:index", i);
+      props.insert("layer:visible", layer->isVisible());
+      props.insert("id", item->id());
+      props.insert("visible", item->property("visible", true).toBool());
+      //
+      setFromLatLonPoints(*item, item->getLatLonPoints());
+      QVariantList latLonPoints;
+      foreach (QPointF p, item->getLatLonPoints())
+        latLonPoints.append(p);
+      props.insert("latLonPoints", latLonPoints);
+
+      itemProps.append(props);
+    }
+  }
+
+  static bool lastCallMatched = false;
+  static QVariantMap lastMatchedVMap;
+  if (itemProps.size() == 1) {
+    QVariantMap matchedVMap = itemProps.first();
+    if (matchedVMap != lastMatchedVMap) { // avoid emitting successive duplicates
+      emit itemChanged(matchedVMap);
+      lastMatchedVMap = matchedVMap;
+    }
+    lastCallMatched = true;
+  } else {
+    if (lastCallMatched)
+      // send an invalid variant map to notify about the transition from match to mismatch
+      emit itemChanged(QVariantMap());
+    lastCallMatched = false;
+  }
 }
 
 // Clipboard operations
@@ -1053,6 +1131,7 @@ void EditItemManager::setCreateCompositeMode()
 void EditItemManager::handleSelectionChange()
 {
   updateActions();
+  emitItemChanged();
 }
 
 // Manager API
@@ -1182,7 +1261,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       // process the event further (delegating it to relevant items etc.)
       mousePress(&me2);
     }
+
     event->setAccepted(true);
+    if (needsRepaint() && !hasIncompleteItem())
+      emitItemChanged();
+
   } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
     event->setAccepted(true);
@@ -1191,6 +1274,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   else if (event->type() == QEvent::MouseButtonRelease) {
     mouseRelease(&me2);
     event->setAccepted(true);
+    if ((me2.button() != Qt::RightButton) && needsRepaint() && !hasIncompleteItem())
+      emitItemChanged();
   }
 
   else if (event->type() == QEvent::MouseButtonDblClick) {
@@ -1231,12 +1316,17 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
   res.repaint = true;
   res.background = true;
-  if (event->isAccepted())
+  if (event->isAccepted()) {
+    emitItemChanged();
     return;
+  }
 
   keyPress(event);
 
   updateActionsAndTimes();
+
+  if (needsRepaint())
+    emitItemChanged();
 }
 
 // Command classes

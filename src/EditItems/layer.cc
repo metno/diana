@@ -199,6 +199,16 @@ bool Layer::containsSelectedItem(const QSharedPointer<DrawingItemBase> &item) co
   return selItems_.contains(item);
 }
 
+bool Layer::findItem(int id, QSharedPointer<DrawingItemBase> &item) const
+{
+  foreach (const QSharedPointer<DrawingItemBase> &item_, items_)
+    if (item_->id() == id) {
+      item = item_;
+      return true;
+    }
+  return false;
+}
+
 bool Layer::isEmpty() const
 {
   return items_.isEmpty();

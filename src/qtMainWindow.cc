@@ -139,6 +139,8 @@
 #include "EditItems/drawingdialog.h"
 #include "EditItems/editdrawingdialog.h"
 
+#include "EditItems/eimtestdialog.h"
+
 #include <diana_icon.xpm>
 #include <pick.xpm>
 #include <earth3.xpm>
@@ -929,6 +931,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   editDrawingDialog->hide();
   addDialog(editDrawingDialog);
 
+  QAction *eimTestDialogToggleAction = new QAction(this);
+  eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
+  eimTestDialogToggleAction->setShortcutContext(Qt::ApplicationShortcut);
+  connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
+  addAction(eimTestDialogToggleAction);
+
 //  paintToolBar = new PaintToolBar(this);
 //  paintToolBar->setObjectName("PaintToolBar");
 //  addToolBar(Qt::BottomToolBarArea, paintToolBar);
@@ -1225,6 +1233,12 @@ void DianaMainWindow::handleEIMEditing(bool enabled)
   if (enabled)
     setEditDrawingMode(true);
   editUpdate(enabled);
+}
+
+void DianaMainWindow::toggleEIMTestDialog()
+{
+  static EIMTestDialog *eimTestDialog = new EIMTestDialog(this);
+  eimTestDialog->setVisible(!eimTestDialog->isVisible());
 }
 
 void DianaMainWindow::quickMenuApply(const vector<string>& s)

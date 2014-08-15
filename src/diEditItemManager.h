@@ -97,6 +97,10 @@ public:
   QHash<Action, QAction*> actions();
   QUndoView *getUndoView();
 
+  void enableItemChangeNotification(bool = true);
+  void setItemChangeFilter(const QString &);
+  void emitItemChanged() const;
+
 public slots:
   void abortEditing();
   void completeEditing();
@@ -117,7 +121,8 @@ public slots:
   void redo();
   void repaint();
   void reset();
-  void selectItem(const QSharedPointer<DrawingItemBase> &);
+  bool selectItem(const QSharedPointer<DrawingItemBase> &, bool = false);
+  bool selectItem(int, bool = false);
   void setSelectMode();
   void startStopEditing(bool start);
   void undo();
@@ -138,6 +143,8 @@ signals:
   void canRedoChanged(bool);
   void incompleteEditing(bool);
   void itemAdded(DrawingItemBase *);
+  void itemChanged(const QVariantMap &) const;
+  void itemRemoved(int) const;
   void timesUpdated();
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
@@ -191,6 +198,9 @@ private:
   void updateActions();
   void updateTimes();
   void updateActionsAndTimes();
+
+  QString itemChangeFilter_;
+  bool itemChangeNotificationEnabled_;
 
   virtual bool parseSetup() { return true; } // n/a
 
