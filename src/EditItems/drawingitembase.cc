@@ -36,6 +36,7 @@
 
 DrawingItemBase::DrawingItemBase()
     : id_(nextId())
+    , selected_(false)
 {
 }
 
@@ -279,4 +280,14 @@ QDomNode DrawingItemBase::toKML(const QHash<QString, QString> &extraExtData) con
 
 void DrawingItemBase::fromKML(const QHash<QString, QString> &extraExtData)
 {
+}
+
+void DrawingItemBase::setSelected(bool selected)
+{
+  selected_ = selected;
+}
+
+bool DrawingItemBase::selected() const
+{
+  return selected_;
 }

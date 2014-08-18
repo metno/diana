@@ -132,71 +132,86 @@ bool Layer::containsItem(const QSharedPointer<DrawingItemBase> &item) const
 
 int Layer::selectedItemCount() const
 {
-  return selItems_.count();
+  return selectedItems().size();
 }
 
 const QSharedPointer<DrawingItemBase> Layer::selectedItem(int pos) const
 {
-  if ((pos < 0) || (pos >= selItems_.size()))
-    qFatal("Layer::selectedItem(): index %d outside valid range [0, %d]", pos, selItems_.size() - 1);
-  return selItems_.at(pos);
-}
-
-QSharedPointer<DrawingItemBase> &Layer::selectedItemRef(int pos)
-{
-  if ((pos < 0) || (pos >= selItems_.size()))
-    qFatal("Layer::selectedItemRef(): index %d outside valid range [0, %d]", pos, selItems_.size() - 1);
-  return selItems_[pos];
+  const QList<QSharedPointer<DrawingItemBase> > selItems = selectedItems();
+  if ((pos < 0) || (pos >= selItems.size()))
+    qFatal("Layer::selectedItem(): index %d outside valid range [0, %d]", pos, selItems.size() - 1);
+  return selItems.at(pos);
 }
 
 QList<QSharedPointer<DrawingItemBase> > Layer::selectedItems() const
 {
-  return selItems_;
+  QList<QSharedPointer<DrawingItemBase> > selItems;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items_)
+    if (item->selected())
+      selItems.append(item);
+  return selItems;
 }
 
-QSet<QSharedPointer<DrawingItemBase> > Layer::selectedItemSet() const
+void Layer::selectItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
-  return selItems_.toSet();
-}
-
-void Layer::insertSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
-{
-  if (!selItems_.contains(item)) {
-    selItems_.append(item);
+  if (!item->selected()) {
+    item->setSelected();
     if (notify)
       emit updated();
   }
 }
 
-bool Layer::removeSelectedItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
+bool Layer::deselectItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
-  const bool removed = selItems_.removeOne(item);
-  if (notify)
-    emit updated();
-  return removed;
-}
-
-bool Layer::deselectAllItems(bool notify)
-{
-  const bool origEmpty = selItems_.isEmpty();
-  selItems_.clear();
-  if (notify)
-    emit updated();
-  return !origEmpty;
+  bool deselected = false;
+  if (item->selected()) {
+    item->setSelected(false);
+    deselected = true;
+    if (notify)
+      emit updated();
+  }
+  return deselected;
 }
 
 bool Layer::selectAllItems(bool notify)
 {
-  const bool origFull = (selItems_.size() == items_.size());
-  selItems_ = items_;
-  if (notify)
-    emit updated();
-  return !origFull;
+  int unselCount = 0;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items_)
+    if (!item->selected()) {
+      item->setSelected(true);
+      unselCount++;
+    }
+
+  if (unselCount > 0) {
+    if (notify)
+      emit updated();
+    return true;
+  }
+
+  return false;
+}
+
+bool Layer::deselectAllItems(bool notify)
+{
+  int selCount = 0;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items_)
+    if (item->selected()) {
+      item->setSelected(false);
+      selCount++;
+    }
+
+  if (selCount > 0) {
+    if (notify)
+      emit updated();
+    return true;
+  }
+
+  return false;
 }
 
 bool Layer::containsSelectedItem(const QSharedPointer<DrawingItemBase> &item) const
 {
-  return selItems_.contains(item);
+  return items_.contains(item) && item->selected();
 }
 
 bool Layer::findItem(int id, QSharedPointer<DrawingItemBase> &item) const

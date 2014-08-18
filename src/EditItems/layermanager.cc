@@ -84,7 +84,7 @@ QSet<QSharedPointer<DrawingItemBase> > LayerManager::itemsInSelectedLayers(bool 
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
     if (layer->isSelected()) {
       if (selectedItemsOnly)
-        items.unite(layer->selectedItemSet());
+        items.unite(layer->selectedItems().toSet());
       else
         items.unite(layer->itemSet());
     }
@@ -104,7 +104,7 @@ void LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, QShar
 {
   if (exclusive)
     deselectAllItems();
-  layer->insertSelectedItem(item);
+  layer->selectItem(item);
 }
 
 bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive)
@@ -130,7 +130,7 @@ bool LayerManager::selectItem(int id, bool exclusive)
 bool LayerManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
 {
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->removeSelectedItem(item))
+    if (layer->deselectItem(item))
       return true;
   return false;
 }
@@ -214,7 +214,7 @@ void LayerManager::mergeLayers(const QList<QSharedPointer<Layer> > &srcLayers, c
     for (int j = 0; j < srcLayers.at(i)->itemCount(); ++j)
       dstLayer->insertItem(srcLayers.at(i)->itemRef(j));
     for (int j = 0; j < srcLayers.at(i)->selectedItemCount(); ++j)
-      dstLayer->insertSelectedItem(srcLayers.at(i)->selectedItemRef(j));
+      dstLayer->selectItem(srcLayers.at(i)->selectedItem(j));
   }
 }
 

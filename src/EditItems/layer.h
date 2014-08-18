@@ -65,13 +65,11 @@ public:
   bool containsItem(const QSharedPointer<DrawingItemBase> &) const;
   int selectedItemCount() const;
   const QSharedPointer<DrawingItemBase> selectedItem(int) const;
-  QSharedPointer<DrawingItemBase> &selectedItemRef(int);
   QList<QSharedPointer<DrawingItemBase> > selectedItems() const;
-  QSet<QSharedPointer<DrawingItemBase> > selectedItemSet() const;
-  void insertSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  bool removeSelectedItem(const QSharedPointer<DrawingItemBase> &, bool = true);
-  bool deselectAllItems(bool = true);
+  void selectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  bool deselectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
   bool selectAllItems(bool = true);
+  bool deselectAllItems(bool = true);
   bool containsSelectedItem(const QSharedPointer<DrawingItemBase> &) const;
   bool findItem(int, QSharedPointer<DrawingItemBase> &) const;
   bool isEmpty() const;
@@ -91,7 +89,6 @@ private:
   static int nextId_;
   static int nextId();
   QList<QSharedPointer<DrawingItemBase> > items_;
-  QList<QSharedPointer<DrawingItemBase> > selItems_;
   QSharedPointer<LayerGroup> layerGroup_;
   bool selected_;
   bool visible_;

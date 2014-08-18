@@ -97,6 +97,9 @@ public:
   // Handles conversion of the item's KML representation to internal properties.
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
 
+  void setSelected(bool = true);
+  bool selected() const;
+
 protected:
   virtual DrawingItemBase *cloneSpecial() const
   {
@@ -112,6 +115,7 @@ private:
   int id_;
   static int nextId_;
   int nextId();
+  bool selected_;
 
   QDomElement createExtDataElement(QDomDocument &, const QHash<QString, QString> &) const;
   QDomElement createPointOrPolygonElement(QDomDocument &) const;
