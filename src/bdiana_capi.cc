@@ -300,6 +300,7 @@ int default_canvas = qt_glpixelbuffer;
 #endif
 int canvasType = default_canvas; // type of canvas to use
 bool use_nowtime = false;
+bool use_firsttime = false;
 bool antialias = false;
 bool failOnMissingData=false;
 
@@ -1177,7 +1178,9 @@ static void printUsage(bool showexample)
             "#  - Lists must be defined OUTSIDE all loop statements            \n"
             "#--------------------------------------------------------------   \n"
             "#- alternative to TIME=.. commandline option:                     \n"
+            "#  (default time is the last available time)                      \n"
             "#  use settime=YYYY-MM-DD hh:mm:ss                                \n"
+            "#  use settime=currenttine / nowtime /firsttime                   \n"
             "#- use addhour=<value> or addminute=<value> to increment datatime \n"
             "#  (offset from TIME=\"\" variable). Useful in loops              \n"
             "#--------------------------------------------------------------   \n"
@@ -1358,20 +1361,33 @@ static miutil::miTime selectTime()
   // empty vectors if the getPlotTimes function did not return one for
   // a given data type.
   if (ptime.undef()) {
-    if (use_nowtime)
+    if (use_nowtime) {
       thetime = selectNowTime(times["fields"], times["satellites"],
-                              times["observations"], times["objects"],
-                              times["products"]);
-    else if (times["fields"].size() > 0)
-      thetime = times.at("fields").back();
-    else if (times["satellites"].size() > 0)
-      thetime = times.at("satellites").back();
-    else if (times["observations"].size() > 0)
-      thetime = times.at("observations").back();
-    else if (times["objects"].size() > 0)
-      thetime = times.at("objects").back();
-    else if (times["products"].size() > 0)
-      thetime = times.at("products").back();
+          times["observations"], times["objects"],
+          times["products"]);
+    } else if ( use_firsttime ) {
+      if (times["fields"].size() > 0)
+        thetime = times.at("fields").front();
+      else if (times["satellites"].size() > 0)
+        thetime = times.at("satellites").front();
+      else if (times["observations"].size() > 0)
+        thetime = times.at("observations").front();
+      else if (times["objects"].size() > 0)
+        thetime = times.at("objects").front();
+      else if (times["products"].size() > 0)
+        thetime = times.at("products").front();
+    } else {
+      if (times["fields"].size() > 0)
+        thetime = times.at("fields").back();
+      else if (times["satellites"].size() > 0)
+        thetime = times.at("satellites").back();
+      else if (times["observations"].size() > 0)
+        thetime = times.at("observations").back();
+      else if (times["objects"].size() > 0)
+        thetime = times.at("objects").back();
+      else if (times["products"].size() > 0)
+        thetime = times.at("products").back();
+    }
   } else
     thetime = ptime;
 
@@ -3150,6 +3166,8 @@ static int parseAndProcess(istream &is)
     } else if (key == com_settime) {
       if ( value == "nowtime" || value == "current" ) {
         use_nowtime = true;
+      } else if ( value == "firsttime" ) {
+          use_firsttime = true;
       } else if (miTime::isValid(value)) {
         fixedtime = ptime = miTime(value);
       }

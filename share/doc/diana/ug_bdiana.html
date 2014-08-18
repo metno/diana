@@ -257,9 +257,10 @@ ENDPLOT                  # End of plot-command
 #    LOOP.END                                                     
 #  - Lists must be defined OUTSIDE all loop statements            
 #--------------------------------------------------------------   
-#- alternative to TIME=.. commandline option:                     
+#- alternative to TIME=.. commandline option:   
+#  (default time is the last available time)
 #  use settime=YYYY-MM-DD hh:mm:ss                                
-#  use settime=current / nowtime  
+#  use settime=current / nowtime /firsttime
 #- use addhour=&lt;value&gt; or addminute=&lt;value&gt; to increment datatime 
 #  (offset from TIME="" variable). Useful in loops              
 #--------------------------------------------------------------   
