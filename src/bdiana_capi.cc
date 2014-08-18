@@ -1388,6 +1388,7 @@ static miutil::miTime selectTime()
       else if (times["products"].size() > 0)
         thetime = times.at("products").back();
     }
+    fixedtime = ptime = thetime;
   } else
     thetime = ptime;
 
