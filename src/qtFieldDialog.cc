@@ -3633,12 +3633,12 @@ void FieldDialog::putOKString(const vector<std::string>& vstr,
       int n = vfgi[indexFGR].fieldNames.size();
       bool change = false;
       for (int i = 0; i < m; i++) {
-        if (selectedFields[i].indexMGR == indexMGR && selectedFields[i].indexM
-            == indexM) {
+        if (selectedFields[i].indexMGR == indexMGR && selectedFields[i].indexM == indexM) {
           bool groupOK = true;
           if ( selectedFields[i].cdmSyntax ) {
-            if ( selectedFields[i].zaxis != vfgi[indexFGR].zaxis
-                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis ) {
+            if (indexFGR < 0
+                || selectedFields[i].zaxis != vfgi[indexFGR].zaxis
+                || selectedFields[i].extraaxis != vfgi[indexFGR].extraaxis) {
               //                || selectedFields[i].grid != vfgi[indexFGR].grid ) {
               groupOK = false;
             }
