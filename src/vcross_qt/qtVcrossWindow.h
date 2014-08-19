@@ -34,6 +34,7 @@
 #include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
 #include <QtGui/QDialog>
+#include <QVariant>
 #include <vector>
 
 namespace miutil {
@@ -137,6 +138,10 @@ private Q_SLOTS:
   void timeBoxActivated(int index);
   bool timeChangedSlot(int);
   bool crossectionChangedSlot(int);
+
+  void dynCrossEditManagerEnabled(int state);
+  void dynCrossEditManagerChange(const QVariantMap &props);
+  void dynCrossEditManagerRemoval(int id);
 
 Q_SIGNALS:
   void VcrossHide();

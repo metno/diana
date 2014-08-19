@@ -138,8 +138,21 @@ void QtManager::setDynamicCrossection(const std::string& csLabel, const LonLat_v
     }
   }
 
-  BOOST_FOREACH(Source_p src, dynSources) {
-    src->addDynamicCrossection(csLabel, points);
+  if (points.size() >= 2) {
+    BOOST_FOREACH(Source_p src, dynSources) {
+      src->addDynamicCrossection(csLabel, points);
+    }
+  } else {
+    BOOST_FOREACH(Source_p src, dynSources) {
+      if (Inventory_cp inv = src->getInventory()) {
+        BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
+          if (cs->label == csLabel) {
+            src->dropDynamicCrossection(cs);
+            break;
+          }
+        }
+      }
+    }
   }
 
   setModels();

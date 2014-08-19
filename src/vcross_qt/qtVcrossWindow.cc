@@ -35,17 +35,20 @@
 
 #include "diController.h"
 #include "diLocationPlot.h"
-#include <puTools/mi_boost_compatibility.hh>
-#include <puTools/miSetupParser.h>
+
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #include "qtVcrossDialog.h"
 #include "qtVcrossSetupDialog.h"
 #ifdef USE_VCROSS_V2
+#include "diEditItemManager.h"
+#include "EditItems/toolbar.h"
 #include "qtDynVcrossDialog.h"
 #endif
 #include "qtPrintManager.h"
 
+#include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 
 #include <qapplication.h>
@@ -57,6 +60,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qfont.h>
+#include <QCheckBox>
 #include <QMessageBox>
 #include <QPrintDialog>
 #include <QPrinter>
@@ -178,6 +182,10 @@ VcrossWindow::VcrossWindow(Controller *co)
   QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
   connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
 
+  QCheckBox * dynEditManager = new QCheckBox(tr("Draw/Edit"), this);
+  connect(dynEditManager, SIGNAL(stateChanged(int)),
+      SLOT(dynCrossEditManagerEnabled(int)));
+
   QAbstractButton *leftCrossectionButton= new QToolButton(this);
   leftCrossectionButton->setIcon(QPixmap(bakover_xpm));
   connect(leftCrossectionButton, SIGNAL(clicked()), SLOT(leftCrossectionClicked()) );
@@ -225,6 +233,7 @@ VcrossWindow::VcrossWindow(Controller *co)
   vclayout->addWidget(quitButton);
   vclayout->addWidget(helpButton);
   vclayout->addWidget(dynCrossButton);
+  vclayout->addWidget(dynEditManager);
   vclayout->addStretch();
   vlayout->addLayout(vclayout);
 
@@ -573,6 +582,73 @@ void VcrossWindow::dynCrossClicked()
       vcrossm->setCrossection(lcs.back().label.toStdString());
   }
 
+  Q_EMIT crossectionSetChanged();
+  updateCrossectionBox();
+
+  vcrossw->update();
+#endif
+}
+
+void VcrossWindow::dynCrossEditManagerEnabled(int state)
+{
+  if (state == Qt::Checked) {
+    EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
+    EditItems::ToolBar::instance()->show();
+
+    EditItemManager::instance()->enableItemChangeNotification();
+    EditItemManager::instance()->setItemChangeFilter("Cross section");
+    connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
+        this, SLOT(dynCrossEditManagerChange(const QVariantMap &)), Qt::UniqueConnection);
+    connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
+        this, SLOT(dynCrossEditManagerRemoval(int)), Qt::UniqueConnection);
+    EditItemManager::instance()->emitItemChanged();
+  } else {
+    disconnect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
+        this, SLOT(dynCrossEditManagerChange(const QVariantMap &)));
+    disconnect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
+        this, SLOT(dynCrossEditManagerRemoval(int)));
+    EditItemManager::instance()->enableItemChangeNotification(false);
+  }
+}
+
+void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
+{
+  METLIBS_LOG_SCOPE();
+
+#ifdef USE_VCROSS_V2
+  const char key_points[] = "latLonPoints", key_id[] = "id";
+  if (not (props.contains(key_points) and props.contains(key_id)))
+    return;
+
+  std::string label = QString("dyn_%1").arg(props.value(key_id).toInt()).toStdString();
+
+  vcross::LonLat_v points;
+  foreach (QVariant v, props.value(key_points).toList()) {
+    const QPointF p = v.toPointF();
+    const float lat = p.x(), lon = p.y(); // FIXME swpa x <-> y
+    points.push_back(LonLat::fromDegrees(lon, lat));
+  }
+  if (points.size() < 2)
+    return;
+
+  vcrossm->setDynamicCrossection(label, points);
+
+  Q_EMIT crossectionSetChanged();
+  updateCrossectionBox();
+
+  vcrossm->setCrossection(label);
+
+  vcrossw->update();
+#endif
+}
+
+void VcrossWindow::dynCrossEditManagerRemoval(int id)
+{
+  METLIBS_LOG_SCOPE();
+
+#ifdef USE_VCROSS_V2
+  std::string label = QString("dyn_%1").arg(id).toStdString();
+  vcrossm->setDynamicCrossection(label, vcross::LonLat_v()); // empty points => remove
   Q_EMIT crossectionSetChanged();
   updateCrossectionBox();
 
