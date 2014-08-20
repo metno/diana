@@ -49,11 +49,6 @@
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>
 
-// #define DEBUGPRINT 1
-//#ifndef ROADOBS
-//#define ROADOBS 1
-//#endif
-
 using namespace std;
 using namespace miutil;
 #ifdef ROADOBS
@@ -119,10 +114,6 @@ ObsPlot::ObsPlot() : Plot()
   knotParameters.insert("911ff");
   knotParameters.insert("fxfx");
   knotParameters.insert("fmfm");
-  roadobsData = false;
-#ifdef ROADOBS
-  roadobsHeader = false;
-#endif
   // the handle to a glList
   circle=0;
 }
@@ -207,6 +198,21 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
   obsp.insert(obsp.end(),obs.begin(),obs.end());
 }
 
+void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
+{
+  // FIXME: Optimize for performande
+  for (size_t i=0; i<obsp.size(); ++i) {
+    std::vector<ObsData>::const_iterator itr = obs.begin();
+    for (; itr < obs.end(); itr++)
+    {
+      if ((obsp[i].id == itr->id) && (obsp[i].obsTime == itr->obsTime)) {
+        obsp[i] = *itr;
+        break;
+      }
+    }
+  }
+}
+
 void ObsPlot::updateLevel(const std::string& dataType)
 {
   METLIBS_LOG_SCOPE("dataType: " << dataType);
@@ -249,12 +255,6 @@ int ObsPlot::numVisiblePositions()
 
 int ObsPlot::getObsCount() const
 {
-  // METLIBS_LOG_SCOPE();
-#ifdef ROADOBS
-  if (not roadobsp.empty())
-    return roadobsp.size();
-#endif
-
   return obsp.size();
 }
 
@@ -294,8 +294,9 @@ bool ObsPlot::updateObs()
 
   for (size_t i=0; i<fileNames.size(); i++) {
 #ifdef ROADOBS
+		// Dont ask the database too often.
     if (miutil::contains(fileNames[i], "ROAD")) {
-      if (ltime - modificationTime[i] > 1)
+      if (ltime - modificationTime[i] > 30 )
         return true;
       continue;
     }
@@ -498,19 +499,6 @@ bool ObsPlot::prepare(const std::string& pin)
     }
   }
 
-#ifdef ROADOBS
-  if (plottype()=="roadobs") {
-    roadobsParameter.clear();
-    roadobsWind= false;
-    for (int i=0; i<numPar; i++) {
-      const std::string lpar = miutil::to_lower(parameter[i]);
-      roadobsParameter.push_back(lpar);
-      if (lpar == "wind")
-        roadobsWind = true;
-    }
-  }
-#endif
-
   std::string all = "all";
   parameterDecode(all, false);
   for (int i = 0; i < numPar; i++) {
@@ -583,9 +571,6 @@ bool ObsPlot::setData()
   y = 0;
 
   int numObs = numPositions();
-#ifdef ROADOBS
-  roadobsData = not roadobsp.empty();
-#endif
 
   if (numObs < 1) {
     METLIBS_LOG_WARN("no data");
@@ -602,9 +587,9 @@ bool ObsPlot::setData()
   StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), numObs, x, y);
 
   bool ddff = true;
-#ifdef ROADOBS
-  ddff = (roadobsData && roadobsColumn.count("dd") && (roadobsColumn.count("ff") || roadobsColumn.count("ffk")));
-#endif
+//#ifdef ROADOBS
+//  ddff = (roadobsData && roadobsColumn.count("dd") && (roadobsColumn.count("ff") || roadobsColumn.count("ffk")));
+//#endif
 
   if (ddff) {
     // find direction of north for each observation
@@ -618,88 +603,40 @@ bool ObsPlot::setData()
 
     StaticPlot::gc.geov2xy(StaticPlot::getMapArea(), numObs, x, y, u, v);
 
-    if (roadobsData) {
-#ifdef ROADOBS
-      roadobsdd.resize(numObs);
-      roadobsff.resize(numObs);
 
-      for (int i=0; i<numObs; i++) {
-        float add = -1.0;
-        float aff = 0.0;
-        // BEE CAREFULL! This code assumes that the number of entries in
-        // stationlist are the same as in the roadobsp map.
-        int stationid = (*stationlist)[i].stationID();
-        if (roadobsp[stationid].size() != 0)
-        {
-          add= atof( roadobsp[stationid][roadobsColumn["dd"]].c_str());
-          if (roadobsKnots)
-            aff= diutil::knots2ms(atof( roadobsp[stationid][roadobsColumn["ffk"]].c_str()));
-          else
-            aff= atof( roadobsp[stationid][roadobsColumn["ff"]].c_str());
+    for (int i = 0; i < numObs; i++) {
+      //##############################################################
+      //      if (obsp[i].dd<1 || obsp[i].dd>360 || obsp[i].ff<1)
+      //	METLIBS_LOG_DEBUG("DATA DD,FF "<<obsp[i].dd<<" "<<obsp[i].ff
+      //            <<" "<<obsp[i].id<<" "<<obsp[i].obsTime);
+      //##############################################################
+      const int angle = (int) (atan2f(u[i], v[i]) * 180 / M_PI);
+      if (obsp[i].fdata.count("dd")) {
+        float& dd = obsp[i].fdata["dd"];
+        if (dd> 0 and dd <= 360) {
+          obsp[i].fdata["dd_orig"] = dd;
+          dd = normalize_angle(dd + angle);
         }
-        //METLIBS_LOG_DEBUG("add: " << add << " aff: " << aff << " i: " << i);
-        roadobsff[i]= int(aff + 0.5);
-        if (add> 0.0 && add <= 360.0)
-          roadobsdd[i] = normalize_angle(add + atan2f(u[i],v[i])*180/M_PI);
-        else
-          roadobsdd[i] = -32767;
       }
-#endif
-    } else {
-
-      for (int i = 0; i < numObs; i++) {
-        //##############################################################
-        //      if (obsp[i].dd<1 || obsp[i].dd>360 || obsp[i].ff<1)
-        //	METLIBS_LOG_DEBUG("DATA DD,FF "<<obsp[i].dd<<" "<<obsp[i].ff
-        //            <<" "<<obsp[i].id<<" "<<obsp[i].obsTime);
-        //##############################################################
-        const int angle = (int) (atan2f(u[i], v[i]) * 180 / M_PI);
-        if (obsp[i].fdata.count("dd")) {
-          float& dd = obsp[i].fdata["dd"];
-          if (dd> 0 and dd <= 360) {
-            obsp[i].fdata["dd_orig"] = dd;
-            dd = normalize_angle(dd + angle);
-          }
-        }
-        if (obsp[i].fdata.count("dw1dw1")) {
-          float& dd = obsp[i].fdata["dw1dw1"];
-          dd = normalize_angle(dd + angle);
-        }
-        if (obsp[i].fdata.count("ds")) {
-          float& dd = obsp[i].fdata["ds"];
-          dd = normalize_angle(dd + angle);
-        }
+      if (obsp[i].fdata.count("dw1dw1")) {
+        float& dd = obsp[i].fdata["dw1dw1"];
+        dd = normalize_angle(dd + angle);
+      }
+      // FIXME: stringdata ?
+      if (obsp[i].fdata.count("ds")) {
+        float& dd = obsp[i].fdata["ds"];
+        dd = normalize_angle(dd + angle);
+      }
+      if (obsp[i].stringdata.count("ds")) {
+        float tmp_dd = atof(obsp[i].stringdata["ds"].c_str());
+        float& dd = tmp_dd;
+        dd = normalize_angle(dd + angle);
       }
     }
 
     delete[] u;
     delete[] v;
   }
-
-#ifdef ROADOBS
-  if (roadobsData) {
-    roadobspar.clear();
-    int nc= roadobsColumnName.size();
-    int np= roadobsParameter.size();
-    //######################################################################
-    //for (int c=0; c<nc; c++)
-    //  METLIBS_LOG_DEBUG("ROADOBS.PLOT  roadobsColumnName: "<<roadobsColumnName[c]);
-    //for (int p=0; p<np; p++)
-    //  METLIBS_LOG_DEBUG("ROADOBS.PLOT  roadobsParameter: "<<roadobsParameter[p]);
-    //######################################################################
-    for (int c=0; c<nc; c++) {
-      std::string cpar= miutil::to_lower(roadobsColumnName[c]);
-      int p= 0;
-      while (p<np && roadobsParameter[p]!=cpar)
-        p++;
-      if (p<np)
-        roadobspar.push_back(c);
-      //######################################################################
-      /*      METLIBS_LOG_DEBUG("ROADOBS.PLOT  nc,np,c,p: "<<nc<<" "<<np<<" "<<c<<" "<<p);*/
-      //######################################################################
-    }
-  }
-#endif
 
   updateDeltaTimes();
 
@@ -714,7 +651,7 @@ bool ObsPlot::setData()
   // sort according to parameter
   for(std::map<string,bool>::iterator iter = sortcriteria.begin(); iter != sortcriteria.end(); ++iter)
     parameter_sort(iter->first, iter->second);
- 
+
   if (plottype() == "metar" && metarMap.size() == 0)
     initMetarMap();
 
@@ -723,26 +660,8 @@ bool ObsPlot::setData()
 
 void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
 {
-  if (roadobsData) {
-#ifdef ROADOBS
-    if (obsidx >= stationlist->size() or obsidx >= roadobsp.size()) {
-      x = y = 10;
-      return;
-    }
-    const road::diStation& s = (*stationlist)[obsidx];
-    const int stationid = s.stationID();
-    if (not roadobsp[stationid].empty()) {
-      x = atof(roadobsp[stationid][roadobsColumn["x"]].c_str());
-      y = atof(roadobsp[stationid][roadobsColumn["y"]].c_str());
-    } else {
-      x = s.lat(); // FIXME strange that x is lat and y is lon
-      y = s.lon();
-    }
-#endif
-  } else {
     x = obsp[obsidx].xpos;
     y = obsp[obsidx].ypos;
-  }
 }
 
 bool ObsPlot::timeOK(const miTime& t) const
@@ -756,12 +675,6 @@ bool ObsPlot::timeOK(const miTime& t) const
 void ObsPlot::logStations()
 {
   METLIBS_LOG_SCOPE();
-
-#ifdef ROADOBS
-  if(roadobsData)
-    return; // difficult to log because no "Id"
-#endif
-
   int n = nextplot.size();
   if (n) {
     visibleStations[plottype()].clear();
@@ -774,14 +687,6 @@ void ObsPlot::logStations()
 void ObsPlot::readStations()
 {
   METLIBS_LOG_SCOPE();
-
-#ifdef ROADOBS
-  // difficult to log roadobsdata because no "Id"
-  if(roadobsData) {
-    all_stations = all_from_file;
-    return;
-  }
-#endif
 
   int n = visibleStations[plottype()].size();
   if (n > 0) {
@@ -829,9 +734,6 @@ void ObsPlot::clear()
   nextplot.clear();
   notplot.clear();
   obsp.clear();
-#ifdef ROADOBS
-  roadobsp.clear();
-#endif
   annotation.clear();
   setPlotName("");
   labels.clear();
@@ -854,12 +756,7 @@ void ObsPlot::priority_sort()
 
   // AF: synop: put automatic stations after other types (fixed,ship)
   //     (how to detect other obs. types, temp,aireps,... ???????)
-  if (roadobsData) {
-#ifdef ROADOBS
-    for (i=0; i<numObs; i++)
-      all_from_file[i]=i;
-#endif
-  } else {
+// FIXME: ix from database ?
     vector<int> automat;
     int n = 0;
     for (i = 0; i < numObs; i++) {
@@ -871,9 +768,8 @@ void ObsPlot::priority_sort()
     int na = automat.size();
     for (i = 0; i < na; i++)
       all_from_file[n++] = automat[i];
-  }
 
-  if (priority and not roadobsData) {
+  if (priority ) {
 
     if (currentPriorityFile != priorityFile)
       readPriorityFile(priorityFile);
@@ -903,86 +799,6 @@ void ObsPlot::priority_sort()
       }
     }
   }
-
-  // find index of "Name"-parameter
-  // Unfortunately its called "St.no(5)"
-  // For WMO its the wmonumber <block><station>
-  // For ship its the call sign
-  // For metar, its the ICAO code
-#ifdef ROADOBS
-  bool nameParameterFound = false;
-  int nameIndex = 0;
-  vector<std::string>::iterator it=roadobsColumnName.begin();
-  for(; it < roadobsColumnName.end(); it++) {
-    if(*it == "St.no(5)") {
-      nameParameterFound = true;
-      break;
-    } else {
-      nameIndex++;
-    }
-  }
-  if (roadobsData && priority && nameParameterFound) {
-
-    if (currentPriorityFile != priorityFile)
-      readPriorityFile(priorityFile);
-
-    if (priorityList.size()> 0) {
-      vector<int> tmpList = all_from_file;
-      all_from_file.clear();
-
-      // Fill the stations from priority list into all_from_file,
-      // and mark them in tmpList
-      int j, n = priorityList.size();
-
-      for (j = 0; j < n; j++) {
-        i = 0;
-        bool found = false;
-        vector<std::string> tmpv = roadobsp[i];
-        if (tmpv.size() > 0)
-        {
-          if (tmpv[nameIndex] != priorityList[j])
-          {
-            i++;
-          }
-          else
-            found = true;
-        }
-        else
-          i++;
-        while (i < numObs && !found)
-        {
-          tmpv = roadobsp[i];
-          if (tmpv.size() > 0)
-          {
-            if (tmpv[nameIndex] != priorityList[j])
-            {
-              i++;
-            }
-            else
-              found = true;
-          }
-          else
-            i++;
-        }
-        //cerr << "i: " << i << endl;
-        if (i < numObs) {
-          all_from_file.push_back(i);
-          tmpList[i] = -1;
-        }
-      }
-
-      if (!showOnlyPrioritized) {
-        for (i = 0; i < tmpList.size(); i++)
-          if (tmpList[i] != -1)
-            all_from_file.push_back(i);
-      }
-    }
-
-  }
-  // Reset variables
-  nameParameterFound = false;
-  nameIndex = 0;
-#endif
 }
 
 void ObsPlot::time_sort(void)
@@ -994,31 +810,17 @@ void ObsPlot::time_sort(void)
 
   int index, numObs = 0;
 
-  if (roadobsData) {
-#ifdef ROADOBS
-    if(roadobsTime.size() == 0) return;
-    numObs = roadobsTime.size();
-#endif
-  } else {
     numObs = obsp.size();
-  }
 
   vector<int> diff(numObs);
   multimap<int, int> sortmap1;
   multimap<int, int> sortmap2;
 
-  if (roadobsData) {
-#ifdef ROADOBS
-    for (int i=0; i<numObs; i++)
-      diff[i] = abs(miTime::minDiff(roadobsTime[i],Time));
-#endif
 
-  } else {
-    // Data from obs-files
+	// Data from obs-files or database
     // find mindiff = abs(obsTime-plotTime) for all observations
     for (int i = 0; i < numObs; i++)
       diff[i] = abs(miTime::minDiff(obsp[i].obsTime, Time));
-  }
 
   //Sorting ...
   for (int i = 0; i < numObs; i++) {
@@ -1302,18 +1104,7 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
       return false;
     min_i = nextplot[min_i];
   }
-
-  if(roadobsData) {
-#ifdef ROADOBS
-    // BEE CAREFULL! This code assumes that the number of entries in
-    // stationlist are the same as in the roadobsp map.
-    int stationid = (*stationlist)[min_i].stationID();
-    if (roadobsp[stationid].size() != 0)
-      name = roadobsp[stationid][0];
-#endif
-  } else {
     name = obsp[min_i].id;
-  }
 
   static std::string lastName;
   if (name == lastName)
@@ -1341,7 +1132,7 @@ void ObsPlot::nextObs(bool Next)
     plotnr--;
   }
 }
-
+// we must keep this for performance reasons
 #ifdef ROADOBS
 /* this metod compute wich stations to plot
  and fills a vector vith the diStation object that shuld get data
@@ -1379,7 +1170,7 @@ bool ObsPlot::preparePlot()
       num--;
   }
   else if (plottype()=="roadobs") {
-    if (roadobsWind)
+    if ( pFlag.count("wind"))
       num--;
   }
   else {
@@ -1597,9 +1388,11 @@ bool ObsPlot::preparePlot()
   // reset stations_to_plot
   stations_to_plot.clear();
   // use nextplot info to fill the stations_to_plot.
-  for (size_t i=0; i<nextplot.size(); i++)
+  for (size_t i=0; i<nextplot.size(); i++) {
+		//cerr << "nextplot[i]: " << nextplot[i] << endl;
+		//cerr << (*stationlist)[nextplot[i]].toSend() << endl;
     stations_to_plot.push_back((*stationlist)[nextplot[i]]);
-
+	}
   //reset
 
   next = false;
@@ -1713,7 +1506,7 @@ bool ObsPlot::plot()
   }
 #ifdef ROADOBS
   else if (plottype()=="roadobs") {
-    if (roadobsWind)
+    if (pFlag.count("wind"))
       num--;
   }
 #endif
@@ -2058,11 +1851,6 @@ void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
 
   bool wind = pFlag.count("wind");
 
-#ifdef ROADOBS
-  if (plottype()=="roadobs")
-    wind= roadobsWind;
-#endif
-
   if (wind)
     areaFreeWindSize = scale * 47.;
   else
@@ -2099,15 +1887,9 @@ bool ObsPlot::areaFree(int idx)
   int pos = 1;
 
   if (areaFreeWindSize > 0.0) {
-    if (plottype()=="roadobs") {
-#ifdef ROADOBS
-      idd= roadobsdd[idx];
-#endif
-    } else {
       if ( obsp[idx].fdata.count("dd") ) {
         idd = (int) obsp[idx].fdata["dd"];
       }
-    }
     if (idd > 0 && idd < 361) {
       float dd = float(idd) * M_PI / 180.;
       float xw = areaFreeWindSize * sin(dd);
@@ -2864,7 +2646,7 @@ void ObsPlot::plotDBMetar(int index)
 
   // NOTE: We must use the new data structures....
 
-  //ObsData &dta = obsp[index];
+  ObsData &dta = obsp[index];
 
   float N_value = undef;
   float ww_value = undef;
@@ -2910,254 +2692,91 @@ void ObsPlot::plotDBMetar(int index)
   float HS4_value = undef;
 
   // Decode the string from database
-  int n= roadobspar.size();
-  for (int i=0; i<n; i++) {
-    int j= roadobspar[i];
-    if (roadobsColumnName[j] == "St.no(5)")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        icao_value = str;
-    }
-    if (roadobsColumnName[j] == "dxdxdx")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        dxdxdx_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "dndndn")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        dndndn_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "fmfmk")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        fmfm_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "fxfx")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        fxfx_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "sss")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        sss_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "VV")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        VV_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "N")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        N_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "ww")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        ww_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "GWI")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        GWI_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "a")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        a_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "TTT")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TTT_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "TdTdTd")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TdTdTd_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "PHPHPHPH")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        PHPHPHPH_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "ppp")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        ppp_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Nh")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Nh_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "h")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        h_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Ch")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Ch_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Cm")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Cm_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Cl")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Cl_value = atof(str.c_str());
-    }
 
-    if (roadobsColumnName[j] == "W1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        W1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "W2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        W2_value = atof(str.c_str());
-    }
-    // Is the 24 and 12 hour values reported at the same time?
-    if (miutil::contains(roadobsColumnName[j], "TxTxTx"))
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TxTx_value = atof(str.c_str());
-    }
-    if (miutil::contains(roadobsColumnName[j], "TnTnTn"))
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TnTn_value = atof(str.c_str());
-    }
+	if (pFlag.count("name") && dta.stringdata.count("Name"))
+		 icao_value = dta.stringdata["Name"];
+	if (pFlag.count("dxdxdx") && dta.stringdata.count("dxdxdx"))
+		 dxdxdx_value = atof(dta.stringdata["dxdxdx"].c_str());
+	if (pFlag.count("dndndn") && dta.stringdata.count("dndndn"))
+		 dndndn_value = atof(dta.stringdata["dndndn"].c_str());
+	if (pFlag.count("fmfmk") && dta.stringdata.count("fmfmk"))
+		 fmfm_value = atof(dta.stringdata["fmfmk"].c_str());
+	if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
+		 fxfx_value = atof(dta.stringdata["fxfx"].c_str());
+	if (pFlag.count("sss") && dta.stringdata.count("sss"))
+		 sss_value = atof(dta.stringdata["sss"].c_str());
+	if (pFlag.count("vv") && dta.stringdata.count("VV"))
+		 VV_value = atof(dta.stringdata["VV"].c_str());
+	if (pFlag.count("n") && dta.stringdata.count("N"))
+		 N_value = atof(dta.stringdata["N"].c_str());
+	if (pFlag.count("ww") && dta.stringdata.count("ww"))
+		 ww_value = atof(dta.stringdata["ww"].c_str());
+	if (pFlag.count("gwi") && dta.stringdata.count("GWI"))
+		 GWI_value = atof(dta.stringdata["GWI"].c_str());
+	if (pFlag.count("a") && dta.stringdata.count("a"))
+		 a_value = atof(dta.stringdata["a"].c_str());
+	if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
+		 TTT_value = atof(dta.stringdata["TTT"].c_str());
+	if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
+		 TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
+	if (pFlag.count("phphphph") && dta.stringdata.count("PHPHPHPH"))
+		 PHPHPHPH_value = atof(dta.stringdata["PHPHPHPH"].c_str());
+	if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
+		 ppp_value = atof(dta.stringdata["ppp"].c_str());
+	if (pFlag.count("nh") && dta.stringdata.count("Nh"))
+		 Nh_value = atof(dta.stringdata["Nh"].c_str());
+	if (pFlag.count("h") && dta.stringdata.count("h"))
+		 h_value = atof(dta.stringdata["h"].c_str());
+	if (pFlag.count("ch") && dta.stringdata.count("Ch"))
+		 Ch_value = atof(dta.stringdata["Ch"].c_str());
+	if (pFlag.count("cm") && dta.stringdata.count("Cm"))
+		 Cm_value = atof(dta.stringdata["Cm"].c_str());
+	if (pFlag.count("cl") && dta.stringdata.count("Cl"))
+		 Cl_value = atof(dta.stringdata["Cl"].c_str());
+	if (pFlag.count("w1") && dta.stringdata.count("W1"))
+		 W1_value = atof(dta.stringdata["W1"].c_str());
+	if (pFlag.count("w2") && dta.stringdata.count("W2"))
+		 W2_value = atof(dta.stringdata["W2"].c_str());
+// FIXME: Is the 24 and 12 hour values reported at the same time?
+	if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
+		 TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
+// FIXME: Is the 24 and 12 hour values reported at the same time?
+	if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
+		 TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
     // Cload layer 1-4 from automat stations
-    if (roadobsColumnName[j] == "NS_A1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A4_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A4_value = atof(str.c_str());
-    }
+	if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
+		 NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
+	if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
+		 HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
+	if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
+		 NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
+	if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
+		 HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
+	if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
+		 NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
+	if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
+		 HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
+	if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
+		 NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
+	if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
+		 HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
     // Cload layer 1-4 from manual stations
-    if (roadobsColumnName[j] == "NS1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS4_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS4_value = atof(str.c_str());
-    }
-  }
+	if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
+		 NS1_value = atof(dta.stringdata["NS1"].c_str());
+	if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
+		 HS1_value = atof(dta.stringdata["HS1"].c_str());
+	if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
+		 NS2_value = atof(dta.stringdata["NS2"].c_str());
+	if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
+		 HS2_value = atof(dta.stringdata["HS2"].c_str());
+	if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
+		 NS3_value = atof(dta.stringdata["NS3"].c_str());
+	if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
+		 HS3_value = atof(dta.stringdata["HS3"].c_str());
+	if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
+		 NS4_value = atof(dta.stringdata["NS4"].c_str());
+	if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
+		 HS4_value = atof(dta.stringdata["HS4"].c_str());
 
   GLfloat radius = 7.0;
   int lpos = itab[1] + 10;
@@ -3180,36 +2799,11 @@ void ObsPlot::plotDBMetar(int index)
   glCallList(circle);
   glPopMatrix();
   //wind
-  if(roadobsWind && roadobsdd[index] != undef)
-  {
-    if (roadobsKnots)
-    {
-      if (roadobsff[index] != undef)
-      {
-        int dd = roadobsdd[index];
-        int ffk = roadobsff[index];
-        checkColourCriteria("dd", dd);
-        checkColourCriteria("ffk", ffk);
-        metarWind(dd, ffk, radius, lpos);
-      }
-    }
-    else
-    {
-      if (roadobsff[index] != undef)
-      {
-        int dd = roadobsdd[index];
-        int ff = roadobsff[index];
-        checkColourCriteria("dd", dd);
-        checkColourCriteria("ff", ff);
-        metarWind(dd, diutil::ms2knots(ff), radius, lpos);
-      }
-    }
-  }
-  /*if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
+  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
     checkColourCriteria("dd", dta.fdata["dd"]);
     checkColourCriteria("ff", dta.fdata["ff"]);
     metarWind((int) dta.fdata["dd"], diutil::ms2knots(dta.fdata["ff"]), radius, lpos);
-  }*/
+  }
 
   //limit of variable wind direction
   int dndx = 16;
@@ -3424,7 +3018,7 @@ void ObsPlot::plotDBMetar(int index)
 
   //Id
   if (icao_value != "X") {
-    checkColourCriteria("St.no(5)", 0);
+    checkColourCriteria("Name", 0);
     printString(icao_value.c_str(),iptab[lpos+46]+2,iptab[lpos+47]+2);
     //printString(icao_value.c_str(), xid, yid);
   }
@@ -3472,6 +3066,11 @@ void ObsPlot::plotDBSynop(int index)
   //METLIBS_LOG_DEBUG("Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData);
   // Do not plot stations with no data
   if (!isData) return;
+
+	// NOTE: We must use the new data structures....
+
+  ObsData &dta = obsp[index];
+
   // loop all the parameters and then plot them
   // check for the TTT value etc
   float wmono_value = undef;
@@ -3523,277 +3122,110 @@ void ObsPlot::plotDBSynop(int index)
   float HS3_value = undef;
   float NS4_value = undef;
   float HS4_value = undef;
+
   // Decode the string from database
-  int n= roadobspar.size();
-  for (int i=0; i<n; i++) {
-    int j= roadobspar[i];
-    if (roadobsColumnName[j] == "St.no(5)")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X") {
+
+	if (pFlag.count("name") && dta.stringdata.count("Name")) {
+		 std::string str = dta.stringdata["Name"];
         if (station_type == road::diStation::WMO)
           wmono_value = atof(str.c_str());
         else if (station_type == road::diStation::SHIP)
           call_sign = str;
       }
-    }
-    if (roadobsColumnName[j] == "911ff")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        f911ff_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "fxfx")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        fxfx_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "sss")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        sss_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "VV")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        VV_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "N")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        N_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "ww")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        ww_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "a")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        a_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "TTT")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TTT_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "TdTdTd")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TdTdTd_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "PPPP")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        PPPP_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "ppp")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        ppp_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Nh")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Nh_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "h")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        h_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Ch")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Ch_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Cm")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Cm_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "Cl")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        Cl_value = atof(str.c_str());
-    }
-
-    if (roadobsColumnName[j] == "W1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        W1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "W2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        W2_value = atof(str.c_str());
-    }
-    // direction an dspeed of ship.
-    if (roadobsColumnName[j] == "vs")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        VS_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "ds")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        DS_value = atof(str.c_str());
-    }
-    // Is the 24 and 12 hour values reported at the same time?
-    if (miutil::contains(roadobsColumnName[j], "TxTxTx"))
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TxTx_value = atof(str.c_str());
-    }
-    if (miutil::contains(roadobsColumnName[j], "TnTnTn"))
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        TnTn_value = atof(str.c_str());
-    }
+	if (pFlag.count("911ff") && dta.stringdata.count("911ff"))
+		 f911ff_value = atof(dta.stringdata["911ff"].c_str());
+	if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
+		 fxfx_value = atof(dta.stringdata["fxfx"].c_str());
+	if (pFlag.count("sss") && dta.stringdata.count("sss"))
+		 sss_value = atof(dta.stringdata["sss"].c_str());
+	if (pFlag.count("vv") && dta.stringdata.count("VV"))
+		 VV_value = atof(dta.stringdata["VV"].c_str());
+	if (pFlag.count("n") && dta.stringdata.count("N"))
+		 N_value = atof(dta.stringdata["N"].c_str());
+	if (pFlag.count("ww") && dta.stringdata.count("ww"))
+		 ww_value = atof(dta.stringdata["ww"].c_str());
+	if (pFlag.count("vv") && dta.stringdata.count("VV"))
+		 VV_value = atof(dta.stringdata["VV"].c_str());
+	if (pFlag.count("a") && dta.stringdata.count("a"))
+		 a_value = atof(dta.stringdata["a"].c_str());
+	if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
+		 TTT_value = atof(dta.stringdata["TTT"].c_str());
+	if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
+		 TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
+	if (pFlag.count("pppp") && dta.stringdata.count("PPPP"))
+		 PPPP_value = atof(dta.stringdata["PPPP"].c_str());
+	if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
+		 ppp_value = atof(dta.stringdata["ppp"].c_str());
+	if (pFlag.count("nh") && dta.stringdata.count("Nh"))
+		 Nh_value = atof(dta.stringdata["Nh"].c_str());
+	if (pFlag.count("h") && dta.stringdata.count("h"))
+		 h_value = atof(dta.stringdata["h"].c_str());
+	if (pFlag.count("ch") && dta.stringdata.count("Ch"))
+		 Ch_value = atof(dta.stringdata["Ch"].c_str());
+	if (pFlag.count("cm") && dta.stringdata.count("Cm"))
+		 Cm_value = atof(dta.stringdata["Cm"].c_str());
+	if (pFlag.count("cl") && dta.stringdata.count("Cl"))
+		 Cl_value = atof(dta.stringdata["Cl"].c_str());
+	if (pFlag.count("w1") && dta.stringdata.count("W1"))
+		 W1_value = atof(dta.stringdata["W1"].c_str());
+	if (pFlag.count("w2") && dta.stringdata.count("W2"))
+		 W2_value = atof(dta.stringdata["W2"].c_str());
+	if (pFlag.count("vs") && dta.stringdata.count("vs"))
+		 VS_value = atof(dta.stringdata["vs"].c_str());
+	if (pFlag.count("ds") && dta.stringdata.count("ds"))
+		 DS_value = atof(dta.stringdata["ds"].c_str());
+// FIXME: Is the 24 and 12 hour values reported at the same time?
+	if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
+		 TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
+// FIXME: Is the 24 and 12 hour values reported at the same time?
+	if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
+		 TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
     // Cload layer 1-4 from automat stations
-    if (roadobsColumnName[j] == "NS_A1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS_A4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS_A4_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS_A4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS_A4_value = atof(str.c_str());
-    }
+	if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
+		 NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
+	if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
+		 HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
+	if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
+		 NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
+	if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
+		 HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
+	if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
+		 NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
+	if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
+		 HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
+	if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
+		 NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
+	if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
+		 HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
     // Cload layer 1-4 from manual stations
-    if (roadobsColumnName[j] == "NS1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS1")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS1_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS2")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS2_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS3")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS3_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "NS4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        NS4_value = atof(str.c_str());
-    }
-    if (roadobsColumnName[j] == "HS4")
-    {
-      std::string str = roadobsp[stationid][j];
-      if (str != "X")
-        HS4_value = atof(str.c_str());
-    }
-    // another special case, the RRR
-    if(miutil::contains(roadobsColumnName[j], "RRR")) {
-      std::string str = roadobsp[stationid][j];
-      float value = undef;
-      if (str != "X")
-        value = atof(str.c_str());
-      if (value != undef)
-      {
-        // ALWAYS plot the value with the largest accumulation time.
-        // Skip the rest values
-        if( roadobsColumnName[j] =="RRR_24")
-          rrr_24_value = value;
-        /*else */if( roadobsColumnName[j] =="RRR_12")
-          rrr_12_value = value;
-        /*else */if( roadobsColumnName[j] =="RRR_6")
-          rrr_6_value = value;
-        /*else */if( roadobsColumnName[j] =="RRR_3")
-          rrr_3_value = value;
-        /*else */if( roadobsColumnName[j] =="RRR_1")
-          rrr_1_value = value;
-      }
-    }
+	if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
+		 NS1_value = atof(dta.stringdata["NS1"].c_str());
+	if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
+		 HS1_value = atof(dta.stringdata["HS1"].c_str());
+	if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
+		 NS2_value = atof(dta.stringdata["NS2"].c_str());
+	if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
+		 HS2_value = atof(dta.stringdata["HS2"].c_str());
+	if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
+		 NS3_value = atof(dta.stringdata["NS3"].c_str());
+	if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
+		 HS3_value = atof(dta.stringdata["HS3"].c_str());
+	if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
+		 NS4_value = atof(dta.stringdata["NS4"].c_str());
+	if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
+		 HS4_value = atof(dta.stringdata["HS4"].c_str());
 
-  }
+    // another special case, the RRR
+	if (pFlag.count("rrr_24") && dta.stringdata.count("RRR_24"))
+		 rrr_24_value = atof(dta.stringdata["RRR_24"].c_str());
+	if (pFlag.count("rrr_12") && dta.stringdata.count("RRR_12"))
+		 rrr_12_value = atof(dta.stringdata["RRR_12"].c_str());
+	if (pFlag.count("rrr_6") && dta.stringdata.count("RRR_6"))
+		 rrr_6_value = atof(dta.stringdata["RRR_6"].c_str());
+	if (pFlag.count("rrr_3") && dta.stringdata.count("RRR_3"))
+		 rrr_3_value = atof(dta.stringdata["RRR_3"].c_str());
+	if (pFlag.count("rrr_1") && dta.stringdata.count("RRR_1"))
+		 rrr_1_value = atof(dta.stringdata["RRR_1"].c_str());
 
   GLfloat radius=7.0;
   GLfloat x1,x2,x3,y1,y2,y3;
@@ -3843,29 +3275,25 @@ void ObsPlot::plotDBSynop(int index)
   }
 
   //wind - dd,ff
-  //METLIBS_LOG_DEBUG("wind - dd,ff");
-  if( roadobsWind && roadobsdd[index] != undef ) {
-    bool ddvar=false;
-
-    int dd = roadobsdd[index];
-    if(dd==990 || dd==510) {
-      ddvar=true;
-      dd=270;
-    }
-    if(diutil::ms2knots(roadobsff[index])<1.)
-      dd=0;
-    // Wind should be plotted in knots
-    // From road m/s, convert it here...
-    float ff = roadobsff[index];
-    lpos = itab[(dd/10+3)/2]+10;
-    checkColourCriteria("dd",dd);
-    checkColourCriteria("ff",ff);
-    plotWind(dd,ff,ddvar,radius);
+  if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")
+      && dta.fdata["dd"] != undef) {
+    bool ddvar = false;
+    int dd = (int) dta.fdata["dd"];
+    if (dd == 990 || dd == 510) {
+      ddvar = true;
+      dd = 270;
   }
-  else
-    lpos = itab[1] +10;
+    if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
+      dd = 0;
+    lpos = itab[(dd / 10 + 3) / 2] + 10;
+    checkColourCriteria("dd", dd);
+    checkColourCriteria("ff", dta.fdata["ff"]);
+    plotWind(dd, dta.fdata["ff"], ddvar, radius);
+  } else
+    lpos = itab[1] + 10;
 
   int zone = 0;
+	// No snow depth from ship.
   if (station_type == road::diStation::SHIP)
     zone = 99;
   else if(station_type == road::diStation::WMO)
@@ -4229,7 +3657,7 @@ void ObsPlot::plotDBSynop(int index)
   //METLIBS_LOG_DEBUG("WMO station id");
   if (wmono_value != undef || !call_sign.empty())
   {
-    checkColourCriteria("St.no(5)",0);
+    checkColourCriteria("Name",0);
     int wmo = (int)wmono_value;
     char buf[128];
     if (station_type == road::diStation::WMO)
@@ -6508,16 +5936,6 @@ bool ObsPlot::getValueForCriteria(int index, const std::string& param, float& va
 {
   value = 0;
 
-  if(plottype() =="roadobs") {
-#ifdef ROADOBS
-    int j=0;
-    while (j<roadobsp[index].size() && roadobsColumnName[j]!=param)
-      j++;
-    if (j == roadobsp[index].size())
-      return false;
-    value = atof(roadobsp[index][j].c_str());
-#endif // ROADOBS
-  } else {
     if (obsp[index].fdata.count(param)) {
       value = obsp[index].fdata[param];
     } else if (obsp[index].stringdata.count(param)){
@@ -6525,7 +5943,6 @@ bool ObsPlot::getValueForCriteria(int index, const std::string& param, float& va
     } else if (miutil::to_lower(param) != obsp[index].dataType) {
       return false;
     }
-  }
   return true;
 }
 

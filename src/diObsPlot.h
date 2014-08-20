@@ -417,6 +417,7 @@ public:
   // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs); // ASCII only (ObsAscii ctor)
+  void replaceObsData(std::vector<ObsData>& obs); // ROADOBS only, replaces fake data with correct data.)
   const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
     { return Time; }
   void setLabels(const std::vector<std::string>& l) // ObsAscii only
@@ -453,45 +454,10 @@ public:
   const std::vector<std::string>& getFileNames() const;
 
   // observations from road
-  bool roadobsData;
 #ifdef ROADOBS
-  bool roadobsHeader;
-  bool roadobsOK;
-  bool roadobsKnots;
-  int  roadobsSkipDataLines;
-  std::string roadobsDataName;
-  miutil::miTime   roadobsMainTime;
-  miutil::miTime   roadobsStartTime;
-  miutil::miTime   roadobsEndTime;
-  std::vector<std::string> roadobsColumnName;
-  std::vector<std::string> roadobsColumnTooltip;
-  std::vector<std::string> roadobsColumnType;
-  std::vector<std::string> roadobsColumnHide;
-  std::vector<std::string> roadobsColumnUndefined;
-
-  std::vector<miutil::miTime> roadobsTime;
-
-  //vector< std::vector<std::string> > roadobsp;
-  // needed to get data from road ON DEMAND
-  std::string filename;
-  std::string databasefile;
-  std::string stationfile;
-  std::string headerfile;
-  miutil::miTime filetime;
-  map <int, std::vector<std::string> > roadobsp;
   std::vector<road::diStation>  * stationlist;
   std::vector<road::diStation> stations_to_plot;
   bool preparePlot(void);
-  std::vector<int> roadobsLengthMax;
-
-  std::map<std::string,int> roadobsColumn; //column index(time, x,y,dd,ff etc)
-
-  std::vector<std::string> roadobsParameter;
-  std::vector<int>      roadobspar;
-  bool             roadobsWind;
-
-  std::vector<int> roadobsdd;
-  std::vector<float> roadobsff;
 #endif
 };
 

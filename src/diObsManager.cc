@@ -1239,32 +1239,20 @@ ObsDialogInfo ObsManager::updateDialog(const std::string& name)
   std::string filename; // just dummy here
   miTime filetime; // just dummy here
   ObsRoad obsRoad = ObsRoad(filename,databasefile,stationfile,headerfile,filetime,roplot,false);
-  headerfound= roplot->roadobsOK;
-  if (roplot->roadobsOK && roplot->roadobsColumn.count("time")
-      && !roplot->roadobsColumn.count("date"))
+	bool found= obsRoad.asciiOK();
+
+	if (obsRoad.asciiOK() && obsRoad.parameterType("time")
+		&& !obsRoad.parameterType("date"))
     Prod[oname].useFileTime= true;
-  if (headerfound) {
-    int nc= roplot->roadobsColumnName.size();
-    bool addWind= false;
-    if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ff")) {
-      addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ff"]) ?
-          roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ff"];
-    }
-    else if (roplot->roadobsColumn.count("dd") && roplot->roadobsColumn.count("ffk")) {
-      addWind= (roplot->roadobsColumn["dd"] < roplot->roadobsColumn["ffk"]) ?
-          roplot->roadobsColumn["dd"] : roplot->roadobsColumn["ffk"];
-    }
-    if (addWind) {
+	if (obsRoad.parameterType("dd") && obsRoad.parameterType("ff")) {
       dialog.plottype[id].button.push_back(addButton("Wind",""));
       dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
     }
-    for (int c=0; c<nc; c++) {
-      dialog.plottype[id].button.push_back(addButton(roplot->roadobsColumnName[c],
-          roplot->roadobsColumnTooltip[c],
-          -100,100,true));
+	for (size_t c=0; c<obsRoad.columnCount(); c++) {
+		dialog.plottype[id].button.push_back
+			(addButton(obsRoad.columnName(c), obsRoad.columnTooltip(c), -100,100,true));
       dialog.plottype[id].datatype[0].active.push_back(true);  // only one datatype, yet!
     }
-  }
   delete roplot;
 #endif
   if (pr->second.obsformat!=ofmt_ascii && pr->second.obsformat!=ofmt_url) return dialog;
