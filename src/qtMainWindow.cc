@@ -931,11 +931,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   editDrawingDialog->hide();
   addDialog(editDrawingDialog);
 
+#ifdef ENABLE_EIM_TESTDIALOG
   QAction *eimTestDialogToggleAction = new QAction(this);
   eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
   eimTestDialogToggleAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
   addAction(eimTestDialogToggleAction);
+#endif // ENABLE_EIM_TESTDIALOG
 
 //  paintToolBar = new PaintToolBar(this);
 //  paintToolBar->setObjectName("PaintToolBar");
@@ -1237,8 +1239,10 @@ void DianaMainWindow::handleEIMEditing(bool enabled)
 
 void DianaMainWindow::toggleEIMTestDialog()
 {
+#ifdef ENABLE_EIM_TESTDIALOG
   static EIMTestDialog *eimTestDialog = new EIMTestDialog(this);
   eimTestDialog->setVisible(!eimTestDialog->isVisible());
+#endif // ENABLE_EIM_TESTDIALOG
 }
 
 void DianaMainWindow::quickMenuApply(const vector<string>& s)

@@ -32,6 +32,9 @@
 #ifndef EIMTESTDIALOG_H
 #define EIMTESTDIALOG_H
 
+// #define ENABLE_EIM_TESTDIALOG
+#ifdef ENABLE_EIM_TESTDIALOG
+
 #include <QDialog>
 #include <QSharedPointer>
 #include <QSet>
@@ -68,4 +71,5 @@ private slots:
   void selectItem();
 };
 
+#endif // ENABLE_EIM_TESTDIALOG
 #endif // EIMTESTDIALOG_H

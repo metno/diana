@@ -29,10 +29,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <EditItems/eimtestdialog.h>
+#ifdef ENABLE_EIM_TESTDIALOG
+
 #include <diController.h>
 #include <diEditItemManager.h>
 #include <EditItems/toolbar.h>
-#include <EditItems/eimtestdialog.h>
 #include <QAction>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -171,3 +173,5 @@ void EIMTestDialog::selectItem()
     qDebug() << "failed to convert" << id_s << "to integer";
   }
 }
+
+#endif // ENABLE_EIM_TESTDIALOG
