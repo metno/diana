@@ -1,30 +1,30 @@
 /*
-  Diana - A Free Meteorological Visualisation Tool
+ Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2013 met.no
 
-  Contact information:
-  Norwegian Meteorological Institute
-  Box 43 Blindern
-  0313 OSLO
-  NORWAY
-  email: diana@met.no
+ Contact information:
+ Norwegian Meteorological Institute
+ Box 43 Blindern
+ 0313 OSLO
+ NORWAY
+ email: diana@met.no
 
-  This file is part of Diana
+ This file is part of Diana
 
-  Diana is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+ Diana is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
 
-  Diana is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+ Diana is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Diana; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ You should have received a copy of the GNU General Public License
+ along with Diana; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef diObsPlot_h
 #define diObsPlot_h
@@ -44,14 +44,14 @@
 
 /**
 
-  \brief Plot observations
+ \brief Plot observations
 
-  - synop plot
-  - metar plot
-  - list plot
+ - synop plot
+ - metar plot
+ - list plot
 
  */
-class ObsPlot : public Plot {
+class ObsPlot: public Plot {
 
 private:
   std::vector<ObsData> obsp;
@@ -80,7 +80,9 @@ private:
   std::string m_plottype;
 
   const std::string& plottype() const
-    { return m_plottype; }
+  {
+    return m_plottype;
+  }
 
   std::string currentDatatype; // BUFR only
   std::vector<std::string> datatypes;
@@ -89,7 +91,9 @@ private:
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
 
-  enum flag {QUALITY_GOOD = 4};
+  enum flag {
+    QUALITY_GOOD = 4
+  };
   bool qualityFlag; // used in plotSynop and plotList to show only good-quality data
 
   bool wmoFlag; // used in plotSynop and plotList to show only stations with wmonumber
@@ -99,7 +103,7 @@ private:
   bool moretimes; //if true, sort stations according to obsTime
   miutil::miTime Time;
   std::string annotation;
-  std::vector<std::string> labels;    // labels from ascii-files or PlotModule(edit)
+  std::vector<std::string> labels; // labels from ascii-files or PlotModule(edit)
   float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
   bool firstplot;
@@ -113,56 +117,56 @@ private:
   std::vector<long> modificationTime;
 
   //Criteria
-  enum Sign{
+  enum Sign {
     less_than = 0,
     less_than_or_equal_to = 1,
     more_than = 2,
     more_than_or_equal_to = 3,
-    equal_to  = 4,
-    no_sign   = 5
+    equal_to = 4,
+    no_sign = 5
   };
 
-  struct baseCriteria{
+  struct baseCriteria {
     float limit;
     Sign sign;
 
     bool match(float value) const;
   };
 
-  struct plotCriteria : public baseCriteria {
+  struct plotCriteria: public baseCriteria {
     bool plot;
   };
 
-  struct colourCriteria : public baseCriteria {
+  struct colourCriteria: public baseCriteria {
     Colour colour;
   };
 
-  struct markerCriteria  : public baseCriteria {
+  struct markerCriteria: public baseCriteria {
     std::string marker;
   };
 
-  std::map<std::string,std::vector<plotCriteria> > plotcriteria;
-  std::map<std::string,std::vector<colourCriteria> > colourcriteria;
-  std::map<std::string,std::vector<colourCriteria> > totalcolourcriteria;
-  std::map<std::string,std::vector<markerCriteria> > markercriteria;
+  std::map<std::string, std::vector<plotCriteria> > plotcriteria;
+  std::map<std::string, std::vector<colourCriteria> > colourcriteria;
+  std::map<std::string, std::vector<colourCriteria> > totalcolourcriteria;
+  std::map<std::string, std::vector<markerCriteria> > markercriteria;
 
-  std::map<std::string,bool > sortcriteria;
+  std::map<std::string, bool> sortcriteria;
   //which parameters to plot
-  std::map<std::string,bool> pFlag;
+  std::map<std::string, bool> pFlag;
 
   // ------------------------------------------------------------------------
   //Positions of plotted observations
   struct UsedBox {
-    float x1,x2,y1,y2;
+    float x1, x2, y1, y2;
   };
   //  static
   static std::vector<float> xUsed;
   static std::vector<float> yUsed;
   static std::vector<UsedBox> usedBox;
 
-  bool positionFree(float,float, float,float);
-  void areaFreeSetup(float scale, float space, int num,
-      float xdist, float ydist);
+  bool positionFree(float, float, float, float);
+  void areaFreeSetup(float scale, float space, int num, float xdist,
+      float ydist);
   bool areaFree(int idx);
   // ------------------------------------------------------------------------
 
@@ -182,21 +186,19 @@ private:
   float scale;
   GLuint circle;
 
-
   //Metar
-  struct metarww{
+  struct metarww {
     int lww, lwwg;
   };
-  static std::map<std::string,metarww> metarMap;
-  static std::map<int,int> lwwg2;
+  static std::map<std::string, metarww> metarMap;
+  static std::map<int, int> lwwg2;
   // only METAR, called from setData
   void initMetarMap();
-
 
   //which obs will be plotted
   bool next;
   bool previous;
-  bool  thisObs;
+  bool thisObs;
   int plotnr;
   int maxnr;
   bool fromFile;
@@ -207,17 +209,17 @@ private:
   std::vector<int> all_stations; // all stations, from last plot or from file
   std::vector<int> all_from_file; // all stations, from file or priority list
   //id of all stations shown, sorted by plot type
-  static std::map< std::string, std::vector<std::string> > visibleStations;
+  static std::map<std::string, std::vector<std::string> > visibleStations;
 
-  float areaFreeSpace,areaFreeWindSize;
-  float areaFreeXsize,areaFreeYsize;
-  float areaFreeXmove[4],areaFreeYmove[4];
+  float areaFreeSpace, areaFreeWindSize;
+  float areaFreeXsize, areaFreeYsize;
+  float areaFreeXmove[4], areaFreeYmove[4];
 
   //Hqc
   std::string hqcFlag;  //which parameter is flagged
   bool flaginfo;
   Colour flagColour;
-  std::map<std::string,Colour> paramColour;
+  std::map<std::string, Colour> paramColour;
   std::string selectedStation;
   std::string mark_parameter;
 
@@ -228,7 +230,7 @@ private:
 
   void decodeCriteria(std::string critStr);
   void decodeSort(std::string sortStr);
- 
+
   bool getValueForCriteria(int index, const std::string& param, float& value);
   void adjustRRR(float& value);
 
@@ -236,33 +238,35 @@ private:
   void checkTotalColourCriteria(int index);
   std::string checkMarkerCriteria(int index);
   void checkColourCriteria(const std::string& param, float value);
-  void parameterDecode(std::string , bool =true);
+  void parameterDecode(std::string, bool = true);
 
   // used many times from plotList and once from plotAscii
-  void printUndef(float& , float&, bool align_right=false);
+  void printUndef(float&, float&, bool align_right = false);
 
   // used only from plotList
-  void printList(float f, float& xpos, float& ypos,
-      int precision, bool align_right=false, std::string opt="");
-  void printListParameter(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-      float yStep, bool align_right, int precision);
-  void printListParameter2(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-      float yStep, bool align_right, int precision);
-  void printListRRR(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-      float yStep, bool align_right);
+  void printList(float f, float& xpos, float& ypos, int precision,
+      bool align_right = false, std::string opt = "");
+  void printListParameter(const ObsData& dta, const std::string& param,
+      float& xpos, float& ypos, float yStep, bool align_right, int precision);
+  void printListParameter2(const ObsData& dta, const std::string& param,
+      float& xpos, float& ypos, float yStep, bool align_right, int precision);
+  void printListRRR(const ObsData& dta, const std::string& param, float& xpos,
+      float& ypos, float yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printNumber(float, float, float, const std::string& align="left",
-      bool =false, bool =false);
+  void printNumber(float, float, float, const std::string& align = "left",
+      bool = false, bool = false);
 
   // from plotList, plotSynop, ROAD/plotDBSynop (commented out)
-  void printAvvik(float, float, float, bool align_right=false);
+  void printAvvik(float, float, float, bool align_right = false);
 
   // from plotList, plotSynop
-  void printTime(miutil::miTime, float, float, bool align_right=false, std::string ="");
+  void printTime(miutil::miTime, float, float, bool align_right = false,
+      std::string = "");
 
   // from plotList and plotAscii
-  void printListString(const std::string& txt, float& xpos, float& ypos, bool align_right=false);
+  void printListString(const std::string& txt, float& xpos, float& ypos,
+      bool align_right = false);
 
   float advanceByStringWidth(const std::string& txt, float& xpos);
   void advanceByDD(int dd, float& xpos);
@@ -270,7 +274,8 @@ private:
   bool checkWMOnumber(const ObsData& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printString(const char *, float , float, bool align_right=false,bool =false);
+  void printString(const char *, float, float, bool align_right = false, bool =
+      false);
 
   // from plotMetar, ROAD/plotDBMetar (commented)
   void metarSymbol(std::string, float, float, int&);
@@ -279,16 +284,16 @@ private:
   void metarString2int(std::string ww, int intww[]);
 
   // from plotMetar, ROAD/plotDBMetar
-  void metarWind(int,int,float &, int &);
+  void metarWind(int, int, float &, int &);
 
   // from plotList, plotSynop, ROAD/plotDBSynop
-  void arrow(float angle, float xpos, float ypos, float scale=1.);
+  void arrow(float angle, float xpos, float ypos, float scale = 1.);
 
   // from plotList, plotSynop, ROAD/plotDBSynop (commented out)
-  void zigzagArrow(float angle, float xpos, float ypos, float scale=1.);
+  void zigzagArrow(float angle, float xpos, float ypos, float scale = 1.);
 
   // from plotList, plotSynop, plotMetar, metarSymbol, weather, pastWeather, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void symbol(int, float, float,float scale=1, bool align_right=false);
+  void symbol(int, float, float, float scale = 1, bool align_right = false);
 
   // from plotSynop, metarWind, ROAD/plotDBSynop
   void cloudCover(const float& fN, const float& radius);
@@ -297,20 +302,21 @@ private:
   void cloudCoverAuto(const float& fN, const float &radius);
 
   // from plotList, plotAscii, plotSynop, ROAD/plotDBSynop
-  void plotWind(int dd, float ff_ms, bool ddvar, float radius, float current=-1);
+  void plotWind(int dd, float ff_ms, bool ddvar, float radius, float current =
+      -1);
   //  void plotArrow(int,int, bool,float &);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
-  void weather(short int ww, float TTT, int zone,
-      float x, float y, float scale=1, bool align_right=false);
+  void weather(short int ww, float TTT, int zone, float x, float y,
+      float scale = 1, bool align_right = false);
 
   // used only from plotList, plotSynop, and ROAD/plotDBSynop
-  void pastWeather(int w, float x, float y,
-      float scale=1, bool align_right=false);
+  void pastWeather(int w, float x, float y, float scale = 1, bool align_right =
+      false);
 
   // used only from plotList and plotSynop
-  void wave(const float& PwPw, const float& HwHw,
-      float x, float y, bool align_right=false);
+  void wave(const float& PwPw, const float& HwHw, float x, float y,
+      bool align_right = false);
 
   // used only from plotList and plotSynop
   int visibility(float vv, bool ship);
@@ -319,14 +325,15 @@ private:
   int vis_direction(float dv);
 
   // used only from plotSynop
-  void amountOfClouds(short int, short int, float,float);
+  void amountOfClouds(short int, short int, float, float);
 
   // ROAD only used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar=false);
+  void amountOfClouds_1(short int Nh, short int h, float x, float y,
+      bool metar = false);
   // ROAD only, used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2,
-      short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y
-      , bool metar=false);
+  void amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2,
+      short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
+      float x, float y, bool metar = false);
 
   void checkAccumulationTime(ObsData &dta); // used in ::plot when testpos == true (ie updating text/symbol layers)
   void checkGustTime(ObsData &dta);
@@ -344,11 +351,11 @@ private:
   void parameter_sort(std::string parameter, bool minValue);
   void priority_sort(void);
   void time_sort(void);
-  
-  int getObsCount() const;
-  int  numVisiblePositions(); // slow!
 
-public:
+  int getObsCount() const;
+  int numVisiblePositions(); // slow!
+
+  public:
   ObsPlot();
   ObsPlot(const ObsPlot &rhs);
   ~ObsPlot();
@@ -367,16 +374,22 @@ public:
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata
-    { annotation = anno; }
+  {
+    annotation = anno;
+  }
 
   const std::vector<std::string>& getObsExtraAnnotations() const // from PlotModule
-    { return labels; }
+      {
+    return labels;
+      }
   bool updateObs(); // from PlotModule::updateObs
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
 
   void setLabel(const std::string& pin) // from PlotModule and ObsRoad
-    { labels.push_back(pin); }
+  {
+    labels.push_back(pin);
+  }
 
   bool getPositions(std::vector<float>&, std::vector<float>&);
   void obs_mslp(float *);
@@ -385,64 +398,112 @@ public:
   bool findObs(int x, int y);
 
   // find name of observation near screen coordinates x, y
-  bool getObsName(int xx,int yy, std::string& station);
+  bool getObsName(int xx, int yy, std::string& station);
 
   // switch to next layer of symbols / text
   void nextObs(bool forward);
 
   const std::string& getInfoStr() const
-    { return infostr; }
+  {
+    return infostr;
+  }
   bool mslp() const
-    { return devfield; }
+  {
+    return devfield;
+  }
 
-  bool moreTimes(){return moretimes;}
+  bool moreTimes()
+  {
+    return moretimes;
+  }
 
   const std::vector<std::string>& dataTypes() const // only from ObsManager::prepare
-    { return datatypes; }
+      {
+    return datatypes;
+      }
   void setObsTime(const miutil::miTime& t) // only from ObsManager::prepare
-    {Time=t;}
-  void setCurrent(float cur){current=cur;} // only from ObsManager::prepare
+  {
+    Time = t;
+  }
+  void setCurrent(float cur)
+  {
+    current = cur;
+  } // only from ObsManager::prepare
   void setModificationTime(const std::string& fname); // only from ObsManager::prepare
 
-  bool LevelAsField(){return levelAsField;} // from PlotModule
-  int getLevel(){return level;}
+  bool LevelAsField()
+  {
+    return levelAsField;
+  } // from PlotModule
+  int getLevel()
+  {
+    return level;
+  }
 
-  void removeObs(){obsp.pop_back();} // BUFR only
-  void setDataType(std::string datatype) {currentDatatype = datatype;} // BUFR only
+  void removeObs()
+  {
+    obsp.pop_back();
+  } // BUFR only
+  void setDataType(std::string datatype)
+  {
+    currentDatatype = datatype;
+  } // BUFR only
   ObsData& getNextObs(); // BUFR only
-  void resetObs(int num){obsp.resize(num);} // BUFR only, called from ObsManager
-  int  numPositions() const //BUFR only, called from ObsManager before resetobs
-    { return getObsCount(); }
+  void resetObs(int num)
+  {
+    obsp.resize(num);
+  } // BUFR only, called from ObsManager
+  int numPositions() const //BUFR only, called from ObsManager before resetobs
+  {
+    return getObsCount();
+  }
 
   // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs); // ASCII only (ObsAscii ctor)
   void replaceObsData(std::vector<ObsData>& obs); // ROADOBS only, replaces fake data with correct data.)
   const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
-    { return Time; }
+  {
+    return Time;
+  }
   void setLabels(const std::vector<std::string>& l) // ObsAscii only
-    { labels = l; }
-private:
+  {
+    labels = l;
+  }
+  private:
   bool updateDeltaTimes();
   bool updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime); // ASCII only
-public:
+  public:
 
-  void addObsVector(const std::vector<ObsData>& vdata){obsp = vdata;} // HQC only (from ObsManager::sendHqcdata)
+  void addObsVector(const std::vector<ObsData>& vdata)
+  {
+    obsp = vdata;
+  } // HQC only (from ObsManager::sendHqcdata)
   void changeParamColour(const std::string& param, bool select); // HQC only
   bool flagInfo() const // HQC only
-    { return flaginfo; }
+  {
+    return flaginfo;
+  }
   void setHqcFlag(const std::string& flag) // HQC only
-    { hqcFlag = flag; }
+  {
+    hqcFlag = flag;
+  }
   void setSelectedStation(const std::string& station) // HQC only
-    { selectedStation = station; }
+  {
+    selectedStation = station;
+  }
 
   /// copy some xpos and ypos from metaData map to obsp
   void mergeMetaData(const std::map<std::string, ObsData>& metaData);
 
   int getTimeDiff() const
-    { return timeDiff; }
+  {
+    return timeDiff;
+  }
   void setTimeDiff(int diff)
-    { timeDiff = diff; }
+  {
+    timeDiff = diff;
+  }
   // if timediff == -1 :use all observations
   // if not: use all observations with abs(obsTime-Time)<timediff
   bool timeOK(const miutil::miTime& t) const;
@@ -455,7 +516,7 @@ public:
 
   // observations from road
 #ifdef ROADOBS
-  std::vector<road::diStation>  * stationlist;
+  std::vector<road::diStation> * stationlist;
   std::vector<road::diStation> stations_to_plot;
   bool preparePlot(void);
 #endif

@@ -73,9 +73,12 @@ short * ObsPlot::iptabMetar = 0;
 static const int undef = -32767; //should be defined elsewhere
 
 static inline bool is_true(const std::string& value)
-{ return (value == "true"); }
+{
+  return (value == "true");
+}
 
-ObsPlot::ObsPlot() : Plot()
+ObsPlot::ObsPlot() :
+        Plot()
 {
   METLIBS_LOG_SCOPE();
 
@@ -115,7 +118,7 @@ ObsPlot::ObsPlot() : Plot()
   knotParameters.insert("fxfx");
   knotParameters.insert("fmfm");
   // the handle to a glList
-  circle=0;
+  circle = 0;
 }
 
 ObsPlot::~ObsPlot()
@@ -129,7 +132,8 @@ void ObsPlot::getObsAnnotation(string &str, Colour &col)
 {
   //Append to number of plots to the annotation string
   if (not annotation.empty()) {
-    string anno_str = (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(numPositions()) +" )");
+    string anno_str = (" ( " + miutil::from_number(numVisiblePositions())
+    + " / " + miutil::from_number(numPositions()) + " )");
     str = annotation + anno_str;
   } else
     str = annotation;
@@ -140,10 +144,11 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!isEnabled() || numPositions()==0 || current<0)
+  if (!isEnabled() || numPositions() == 0 || current < 0)
     return false;
 
-  float vectorAnnotationSize = 30 * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 0.7;
+  float vectorAnnotationSize = 30 * StaticPlot::getPlotSize().width()
+          / StaticPlot::getPhysWidth() * 0.7;
   std::string vectorAnnotationText = std::string(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
@@ -184,8 +189,9 @@ ObsData& ObsPlot::getNextObs()
 void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__<<" : "<<obsp.size()<<" : "<<metaData.size());
-  for (size_t i=0; i<obsp.size(); ++i) {
-    const std::map<std::string, ObsData>::const_iterator itM = metaData.find(obsp[i].id);
+  for (size_t i = 0; i < obsp.size(); ++i) {
+    const std::map<std::string, ObsData>::const_iterator itM = metaData.find(
+        obsp[i].id);
     if (itM != metaData.end()) {
       obsp[i].xpos = itM->second.xpos;
       obsp[i].ypos = itM->second.ypos;
@@ -195,16 +201,15 @@ void ObsPlot::mergeMetaData(const std::map<std::string, ObsData>& metaData)
 
 void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 {
-  obsp.insert(obsp.end(),obs.begin(),obs.end());
+  obsp.insert(obsp.end(), obs.begin(), obs.end());
 }
 
 void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
 {
   // FIXME: Optimize for performande
-  for (size_t i=0; i<obsp.size(); ++i) {
+  for (size_t i = 0; i < obsp.size(); ++i) {
     std::vector<ObsData>::const_iterator itr = obs.begin();
-    for (; itr < obs.end(); itr++)
-    {
+    for (; itr < obs.end(); itr++) {
       if ((obsp[i].id == itr->id) && (obsp[i].obsTime == itr->obsTime)) {
         obsp[i] = *itr;
         break;
@@ -244,10 +249,10 @@ int ObsPlot::numVisiblePositions()
 {
   METLIBS_LOG_SCOPE();
 
-  int npos =  numPositions();
+  int npos = numPositions();
   int count = 0;
-  for(int i = 0; i < npos; i++) {
-		if (StaticPlot::getMapSize().isinside(x[i], y[i]))
+  for (int i = 0; i < npos; i++) {
+    if (StaticPlot::getMapSize().isinside(x[i], y[i]))
       count++;
   }
   return count;
@@ -291,22 +296,20 @@ bool ObsPlot::updateObs()
 #ifdef ROADOBS
   const long ltime = time(NULL);
 #endif // ROADOBS
-
-  for (size_t i=0; i<fileNames.size(); i++) {
+  for (size_t i = 0; i < fileNames.size(); i++) {
 #ifdef ROADOBS
-		// Dont ask the database too often.
+    // Dont ask the database too often.
     if (miutil::contains(fileNames[i], "ROAD")) {
       if (ltime - modificationTime[i] > 30 )
         return true;
       continue;
     }
 #endif // ROADOBS
-
     const char *path = fileNames[i].c_str();
     pu_struct_stat buf;
     if (pu_stat(path, &buf) != 0)
       return true;
-    if (modificationTime[i] != (long)buf.st_mtime)
+    if (modificationTime[i] != (long) buf.st_mtime)
       return true;
   }
 
@@ -330,12 +333,12 @@ std::string ObsPlot::findPlotType(const std::string& infostr)
     const std::string key = miutil::to_lower(stokens[0]);
     if (key != "plot")
       continue;
-    
+
     const std::vector<std::string> vstr = miutil::split(miutil::to_lower(stokens[1]), ":");
     const std::string& value = vstr[0];
     if (value == "pressure" || value == "trykk" //"trykk" is obsolete
-        || value == "list" || value == "enkel" //"enkel" is obsolete
-        || value == "tide" || value == "ocean")
+        || value == "list" || value == "enkel"//"enkel" is obsolete
+            || value == "tide" || value == "ocean")
     {
       plottype = "list";
     } else if (value == "hqc_synop") {
@@ -394,8 +397,7 @@ bool ObsPlot::prepare(const std::string& pin)
         value = vstr[0];
         if (value == "pressure" || value == "trykk" //"trykk" is obsolete
             || value == "list" || value == "enkel" //"enkel" is obsolete
-            || value == "tide" || value == "ocean")
-        {
+                || value == "tide" || value == "ocean") {
           value = "list";
         } else if (value == "hqc_synop") {
           value = "synop";
@@ -453,10 +455,10 @@ bool ObsPlot::prepare(const std::string& pin)
         wmoFlag = is_true(value);
       } else if (key == "moretimes") {
         moretimes = is_true(value);
-       } else if (key == "sort") {
-         decodeSort(tokens[i]);
-//     } else if (key == "allairepslevels") {
-//        allAirepsLevels = is_true(value);
+      } else if (key == "sort") {
+        decodeSort(tokens[i]);
+        //     } else if (key == "allairepslevels") {
+        //        allAirepsLevels = is_true(value);
       } else if (key == "timediff")
         if (miutil::to_lower(value) == "alltimes")
           timeDiff = -1;
@@ -468,8 +470,8 @@ bool ObsPlot::prepare(const std::string& pin)
           level = -1;
         } else
           level = atoi(value.c_str());
-//      } else if (key == "leveldiff") {
-//        leveldiff = atoi(value.c_str());
+        //      } else if (key == "leveldiff") {
+        //        leveldiff = atoi(value.c_str());
       } else if (key == "onlypos") {
         onlypos = true;
       } else if (key == "showonlyprioritized") {
@@ -487,10 +489,10 @@ bool ObsPlot::prepare(const std::string& pin)
       } else if (key == "criteria") {
         decodeCriteria(tokens[i]);
       } else if (key == "arrowstyle") {
-        if (value=="wind")
-          poptions.arrowstyle= arrow_wind;
-        else if (value=="wind_arrow")
-          poptions.arrowstyle= arrow_wind_arrow;
+        if (value == "wind")
+          poptions.arrowstyle = arrow_wind;
+        else if (value == "wind_arrow")
+          poptions.arrowstyle = arrow_wind_arrow;
       } else if (key == "font") {
         poptions.fontname = orig_value;
       } else if (key == "face") {
@@ -540,8 +542,8 @@ bool ObsPlot::prepare(const std::string& pin)
     iptab = iptabMetar;
 
   } else {
-    itab= 0;
-    iptab= 0;
+    itab = 0;
+    iptab = 0;
   }
 
   return true;
@@ -580,16 +582,16 @@ bool ObsPlot::setData()
   x = new float[numObs];
   y = new float[numObs];
 
-  for (int i=0; i<numObs; i++)
+  for (int i = 0; i < numObs; i++)
     getObsLonLat(i, x[i], y[i]);
 
   // convert points to correct projection
   StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), numObs, x, y);
 
   bool ddff = true;
-//#ifdef ROADOBS
-//  ddff = (roadobsData && roadobsColumn.count("dd") && (roadobsColumn.count("ff") || roadobsColumn.count("ffk")));
-//#endif
+  //#ifdef ROADOBS
+  //  ddff = (roadobsData && roadobsColumn.count("dd") && (roadobsColumn.count("ff") || roadobsColumn.count("ffk")));
+  //#endif
 
   if (ddff) {
     // find direction of north for each observation
@@ -603,7 +605,6 @@ bool ObsPlot::setData()
 
     StaticPlot::gc.geov2xy(StaticPlot::getMapArea(), numObs, x, y, u, v);
 
-
     for (int i = 0; i < numObs; i++) {
       //##############################################################
       //      if (obsp[i].dd<1 || obsp[i].dd>360 || obsp[i].ff<1)
@@ -613,7 +614,7 @@ bool ObsPlot::setData()
       const int angle = (int) (atan2f(u[i], v[i]) * 180 / M_PI);
       if (obsp[i].fdata.count("dd")) {
         float& dd = obsp[i].fdata["dd"];
-        if (dd> 0 and dd <= 360) {
+        if (dd > 0 and dd <= 360) {
           obsp[i].fdata["dd_orig"] = dd;
           dd = normalize_angle(dd + angle);
         }
@@ -649,7 +650,8 @@ bool ObsPlot::setData()
     time_sort();
 
   // sort according to parameter
-  for(std::map<string,bool>::iterator iter = sortcriteria.begin(); iter != sortcriteria.end(); ++iter)
+  for (std::map<string, bool>::iterator iter = sortcriteria.begin();
+      iter != sortcriteria.end(); ++iter)
     parameter_sort(iter->first, iter->second);
 
   if (plottype() == "metar" && metarMap.size() == 0)
@@ -660,16 +662,15 @@ bool ObsPlot::setData()
 
 void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
 {
-    x = obsp[obsidx].xpos;
-    y = obsp[obsidx].ypos;
+  x = obsp[obsidx].xpos;
+  y = obsp[obsidx].ypos;
 }
 
 bool ObsPlot::timeOK(const miTime& t) const
 {
   // called very often METLIBS_LOG_SCOPE("time: " << t.isoTime());
 
-  return (timeDiff < 0
-      || abs(miTime::minDiff(t, Time)) < timeDiff + 1);
+  return (timeDiff < 0 || abs(miTime::minDiff(t, Time)) < timeDiff + 1);
 }
 
 void ObsPlot::logStations()
@@ -756,20 +757,20 @@ void ObsPlot::priority_sort()
 
   // AF: synop: put automatic stations after other types (fixed,ship)
   //     (how to detect other obs. types, temp,aireps,... ???????)
-// FIXME: ix from database ?
-    vector<int> automat;
-    int n = 0;
-    for (i = 0; i < numObs; i++) {
-      if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"] < 4)
-        all_from_file[n++] = i;
-      else
-        automat.push_back(i);
-    }
-    int na = automat.size();
-    for (i = 0; i < na; i++)
-      all_from_file[n++] = automat[i];
+  // FIXME: ix from database ?
+  vector<int> automat;
+  int n = 0;
+  for (i = 0; i < numObs; i++) {
+    if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"] < 4)
+      all_from_file[n++] = i;
+    else
+      automat.push_back(i);
+  }
+  int na = automat.size();
+  for (i = 0; i < na; i++)
+    all_from_file[n++] = automat[i];
 
-  if (priority ) {
+  if (priority) {
 
     if (currentPriorityFile != priorityFile)
       readPriorityFile(priorityFile);
@@ -810,26 +811,25 @@ void ObsPlot::time_sort(void)
 
   int index, numObs = 0;
 
-    numObs = obsp.size();
+  numObs = obsp.size();
 
   vector<int> diff(numObs);
   multimap<int, int> sortmap1;
   multimap<int, int> sortmap2;
 
-
-	// Data from obs-files or database
-    // find mindiff = abs(obsTime-plotTime) for all observations
-    for (int i = 0; i < numObs; i++)
-      diff[i] = abs(miTime::minDiff(obsp[i].obsTime, Time));
+  // Data from obs-files or database
+  // find mindiff = abs(obsTime-plotTime) for all observations
+  for (int i = 0; i < numObs; i++)
+    diff[i] = abs(miTime::minDiff(obsp[i].obsTime, Time));
 
   //Sorting ...
   for (int i = 0; i < numObs; i++) {
     index = all_stations[i];
-    sortmap1.insert(pair<int, int> (diff[index], index));
+    sortmap1.insert(pair<int, int>(diff[index], index));
   }
   for (int i = 0; i < numObs; i++) {
     index = all_from_file[i];
-    sortmap2.insert(pair<int, int> (diff[index], index));
+    sortmap2.insert(pair<int, int>(diff[index], index));
   }
 
   multimap<int, int>::iterator p = sortmap1.begin();
@@ -848,97 +848,99 @@ void ObsPlot::parameter_sort(std::string parameter, bool minValue)
   //sort the observations according to priority list
   if (obsp.empty())
     return;
-  
+
   vector<int> tmpFileList = all_from_file;
   vector<int> tmpStnList = all_stations;
-  
+
   multimap<string, int> stringFileSortmap;
   multimap<string, int> stringStnSortmap;
   multimap<double, int> numFileSortmap;
   multimap<double, int> numStnSortmap;
-  
+
   // Fill the observation with parameter
   // and mark them in tmpList
   int index;
-  for (size_t i = 0; i < tmpFileList.size(); i++ ){
+  for (size_t i = 0; i < tmpFileList.size(); i++) {
     index = all_stations[i];
-    if(obsp[index].stringdata.count(parameter)) {
+    if (obsp[index].stringdata.count(parameter)) {
       string stringkey = obsp[index].stringdata[parameter];
-      if(miutil::is_number(stringkey))
-      {
+      if (miutil::is_number(stringkey)) {
         double numberkey = miutil::to_double(stringkey);
-        numFileSortmap.insert(pair<double, int> (numberkey, index));
-      }
-      else {
-        stringFileSortmap.insert(pair<string, int> (stringkey, index));
+        numFileSortmap.insert(pair<double, int>(numberkey, index));
+      } else {
+        stringFileSortmap.insert(pair<string, int>(stringkey, index));
       }
       tmpFileList[i] = -1;
-      
+
     }
   }
-  
-  for (size_t i = 0; i < tmpStnList.size(); i++ ){
+
+  for (size_t i = 0; i < tmpStnList.size(); i++) {
     index = all_stations[i];
-    if(obsp[index].stringdata.count(parameter)) {
+    if (obsp[index].stringdata.count(parameter)) {
       string stringkey = obsp[index].stringdata[parameter];
-      if(miutil::is_number(stringkey))
-      {
+      if (miutil::is_number(stringkey)) {
         double numberkey = miutil::to_double(stringkey);
-        numStnSortmap.insert(pair<double, int> (numberkey, index));
-      }
-      else {
-        stringStnSortmap.insert(pair<string, int> (stringkey, index));
+        numStnSortmap.insert(pair<double, int>(numberkey, index));
+      } else {
+        stringStnSortmap.insert(pair<string, int>(stringkey, index));
       }
       tmpStnList[i] = -1;
-      
+
     }
   }
-  
+
   all_from_file.clear();
   all_stations.clear();
-  if(!minValue) {
-    for(multimap<double, int>::iterator p = numFileSortmap.begin(); p != numFileSortmap.end(); p++) {
+  if (!minValue) {
+    for (multimap<double, int>::iterator p = numFileSortmap.begin();
+        p != numFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
-    for(multimap<string, int>::iterator p = stringFileSortmap.begin(); p != stringFileSortmap.end(); p++) {
+    for (multimap<string, int>::iterator p = stringFileSortmap.begin();
+        p != stringFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
-    
-    for(multimap<double, int>::iterator p = numStnSortmap.begin(); p != numStnSortmap.end(); p++) {
+
+    for (multimap<double, int>::iterator p = numStnSortmap.begin();
+        p != numStnSortmap.end(); p++) {
       all_stations.push_back(p->second);
     }
-    for(multimap<string, int>::iterator p = stringStnSortmap.begin(); p != stringStnSortmap.end(); p++) {
+    for (multimap<string, int>::iterator p = stringStnSortmap.begin();
+        p != stringStnSortmap.end(); p++) {
+      all_stations.push_back(p->second);
+    }
+  } else {
+    for (multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin();
+        p != stringFileSortmap.rend(); p++) {
+      all_from_file.push_back(p->second);
+    }
+    for (multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin();
+        p != numFileSortmap.rend(); p++) {
+      all_from_file.push_back(p->second);
+    }
+    for (multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin();
+        p != stringStnSortmap.rend(); p++) {
+      all_stations.push_back(p->second);
+    }
+    for (multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin();
+        p != numStnSortmap.rend(); p++) {
       all_stations.push_back(p->second);
     }
   }
-  else {
-    for(multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin(); p != stringFileSortmap.rend(); p++) {
-      all_from_file.push_back(p->second);
-    }
-    for(multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin(); p != numFileSortmap.rend(); p++) {
-      all_from_file.push_back(p->second);
-    }
-    for(multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin(); p != stringStnSortmap.rend(); p++) {
-      all_stations.push_back(p->second);
-    }
-    for(multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin(); p != numStnSortmap.rend(); p++) {
-      all_stations.push_back(p->second);
-    }
-  }
-  
+
   if (!showOnlyPrioritized) {
     for (size_t i = 0; i < tmpFileList.size(); i++)
       if (tmpFileList[i] != -1) {
         all_from_file.push_back(tmpFileList[i]);
       }
-    
+
     for (size_t i = 0; i < tmpStnList.size(); i++)
       if (tmpStnList[i] != -1) {
         all_stations.push_back(tmpStnList[i]);
       }
   }
 }
-
 
 void ObsPlot::readPriorityFile(const std::string& filename)
 {
@@ -1017,7 +1019,6 @@ void ObsPlot::obs_mslp(float *values)
 
 //***********************************************************************
 
-
 bool ObsPlot::findObs(int xx, int yy)
 {
   // METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
@@ -1028,13 +1029,16 @@ bool ObsPlot::findObs(int xx, int yy)
   vector<int>::iterator p = notplot.begin();
 
   vector<int>::iterator min_p;
-  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
+  float min_r = 10.0f * StaticPlot::getPlotSize().width()
+          / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
   float r;
   int min_i = -1;
 
-  float xpos = xx * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos = yy * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos = xx * StaticPlot::getPlotSize().width()
+          / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = yy * StaticPlot::getPlotSize().height()
+          / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
   //find closest station, closer than min_r, from list of stations not plotted
   for (int i = 0; i < n; i++, p++) {
@@ -1071,13 +1075,16 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
   METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
 
-  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
+  float min_r = 10.0f * StaticPlot::getPlotSize().width()
+          / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
   float r;
   int min_i = -1;
 
-  float xpos = xx * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos = yy * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos = xx * StaticPlot::getPlotSize().width()
+          / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+  float ypos = yy * StaticPlot::getPlotSize().height()
+          / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
   int numObs = numPositions();
 
@@ -1104,7 +1111,7 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
       return false;
     min_i = nextplot[min_i];
   }
-    name = obsp[min_i].id;
+  name = obsp[min_i].id;
 
   static std::string lastName;
   if (name == lastName)
@@ -1205,7 +1212,7 @@ bool ObsPlot::preparePlot()
   //**********************************************************************
   //Which stations to plot
 
-  bool testpos= true; // positionFree or areaFree must be tested
+  bool testpos= true;// positionFree or areaFree must be tested
   vector<int> ptmp;
   vector<int>::iterator p,pbegin,pend;
 
@@ -1330,7 +1337,7 @@ bool ObsPlot::preparePlot()
 
   } else {
     //nothing has changed
-    testpos= false; //no need to test positionFree or areaFree
+    testpos= false;//no need to test positionFree or areaFree
   }
   //######################################################
   //  int ubsize1= usedBox.size();
@@ -1389,10 +1396,10 @@ bool ObsPlot::preparePlot()
   stations_to_plot.clear();
   // use nextplot info to fill the stations_to_plot.
   for (size_t i=0; i<nextplot.size(); i++) {
-		//cerr << "nextplot[i]: " << nextplot[i] << endl;
-		//cerr << (*stationlist)[nextplot[i]].toSend() << endl;
+    //cerr << "nextplot[i]: " << nextplot[i] << endl;
+    //cerr << (*stationlist)[nextplot[i]].toSend() << endl;
     stations_to_plot.push_back((*stationlist)[nextplot[i]]);
-	}
+  }
   //reset
 
   next = false;
@@ -1406,7 +1413,6 @@ bool ObsPlot::preparePlot()
   return true;
 }
 #endif // ROADOBS
-
 bool ObsPlot::plot()
 {
   METLIBS_LOG_SCOPE();
@@ -1421,7 +1427,7 @@ bool ObsPlot::plot()
   int numObs = numPositions();
   if (numObs == 0)
     return false;
-  
+
   // Update observation delta time before checkPlotCriteria
   if (updateDeltaTimes())
     StaticPlot::setDirty(true);
@@ -1438,7 +1444,8 @@ bool ObsPlot::plot()
   else
     glLineWidth(3);
 
-  StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, 8 * Scale);
+  StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface,
+      8 * Scale);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (StaticPlot::hardcopy)
@@ -1446,7 +1453,8 @@ bool ObsPlot::plot()
   else
     fontsizeScale = 1.0;
 
-  scale = Scale * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() * 0.7;
+  scale = Scale * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth()
+  * 0.7;
 
   if (poptions.antialiasing)
     glEnable(GL_MULTISAMPLE);
@@ -1465,16 +1473,15 @@ bool ObsPlot::plot()
   GLfloat radius = 7.0;
   // YE: Should we check for existing list ?!
   // Yes, I think so!
-  if (circle != 0)
-  {
+  if (circle != 0) {
     if (glIsList(circle))
       glDeleteLists(circle, 1);
   }
   circle = glGenLists(1);
 
-  if (circle == 0)
-  {
-    METLIBS_LOG_ERROR("Unable to create new displaylist, glGenLists(1) returns 0");
+  if (circle == 0) {
+    METLIBS_LOG_ERROR(
+        "Unable to create new displaylist, glGenLists(1) returns 0");
     return false;
   }
   glNewList(circle, GL_COMPILE);
@@ -1527,7 +1534,7 @@ bool ObsPlot::plot()
   synopPlot = (plottype() == "synop" || plottype() == "metar" || plottype() == "roadobs");
 #endif
 
-  if ( synopPlot ) {
+  if (synopPlot) {
     xdist = 100 * scale / density;
     ydist = 90 * scale / density;
   } else if (plottype() == "list" || plottype() == "ascii") {
@@ -1830,10 +1837,11 @@ bool ObsPlot::plot()
 
 bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
 {
-  METLIBS_LOG_SCOPE("x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist);
+  METLIBS_LOG_SCOPE(
+      "x: " << x << " y: " << y << " xdist: " << xdist << " ydist: " << ydist);
 
   for (size_t i = 0; i < xUsed.size(); i++) {
-    if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist) 
+    if (fabsf(x - xUsed[i]) < xdist && fabsf(y - yUsed[i]) < ydist)
       return false;
   }
   xUsed.push_back(x);
@@ -1844,8 +1852,8 @@ bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
 void ObsPlot::areaFreeSetup(float scale, float space, int num, float xdist,
     float ydist)
 {
-  METLIBS_LOG_SCOPE("scale: " << scale << " space: " << space << " num: "
-      << num << " xdist: " << xdist << " ydist: " << ydist);
+  METLIBS_LOG_SCOPE(
+      "scale: " << scale << " space: " << space << " num: " << num << " xdist: " << xdist << " ydist: " << ydist);
 
   areaFreeSpace = space;
 
@@ -1882,14 +1890,14 @@ bool ObsPlot::areaFree(int idx)
   float yc = y[idx];
 
   UsedBox ub[2];
-  int idd=0, nb = 0;
+  int idd = 0, nb = 0;
 
   int pos = 1;
 
   if (areaFreeWindSize > 0.0) {
-      if ( obsp[idx].fdata.count("dd") ) {
-        idd = (int) obsp[idx].fdata["dd"];
-      }
+    if (obsp[idx].fdata.count("dd")) {
+      idd = (int) obsp[idx].fdata["dd"];
+    }
     if (idd > 0 && idd < 361) {
       float dd = float(idd) * M_PI / 180.;
       float xw = areaFreeWindSize * sin(dd);
@@ -1936,8 +1944,9 @@ bool ObsPlot::areaFree(int idx)
 
   while (result && ib < nb) {
     int i = 0;
-    while (i < n && (ub[ib].x1 > usedBox[i].x2 || ub[ib].x2 < usedBox[i].x1
-        || ub[ib].y1 > usedBox[i].y2 || ub[ib].y2 < usedBox[i].y1))
+    while (i < n
+        && (ub[ib].x1 > usedBox[i].x2 || ub[ib].x2 < usedBox[i].x1
+            || ub[ib].y1 > usedBox[i].y2 || ub[ib].y2 < usedBox[i].y1))
       i++;
     result = (i == n);
     ib++;
@@ -1974,8 +1983,8 @@ void ObsPlot::advanceByDD(int dd, float& xpos)
   }
 }
 
-void ObsPlot::printListParameter(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-    float yStep, bool align_right, int precision)
+void ObsPlot::printListParameter(const ObsData& dta, const std::string& param,
+    float& xpos, float& ypos, float yStep, bool align_right, int precision)
 {
   if (not pFlag.count(miutil::to_lower(param)))
     return;
@@ -1990,8 +1999,8 @@ void ObsPlot::printListParameter(const ObsData& dta, const std::string& param, f
   }
 }
 
-void ObsPlot::printListParameter2(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-    float yStep, bool align_right, int precision)
+void ObsPlot::printListParameter2(const ObsData& dta, const std::string& param,
+    float& xpos, float& ypos, float yStep, bool align_right, int precision)
 {
   if (not pFlag.count(miutil::to_lower(param)))
     return;
@@ -2006,8 +2015,8 @@ void ObsPlot::printListParameter2(const ObsData& dta, const std::string& param, 
   }
 }
 
-void ObsPlot::printListRRR(const ObsData& dta, const std::string& param, float& xpos, float& ypos,
-    float yStep, bool align_right)
+void ObsPlot::printListRRR(const ObsData& dta, const std::string& param,
+    float& xpos, float& ypos, float yStep, bool align_right)
 {
   if (not pFlag.count(miutil::to_lower(param)))
     return;
@@ -2133,9 +2142,9 @@ void ObsPlot::plotList(int index)
     if (vertical_orientation)
       ypos += yShift;
     xpos += xShift;
-    if (wind){
+    if (wind) {
       float xx = 0, yy = 0;
-      printUndef(xx,yy, "left"); //undef wind, station position
+      printUndef(xx, yy, "left"); //undef wind, station position
     }
   }
 
@@ -2173,14 +2182,14 @@ void ObsPlot::plotList(int index)
 
   if (pFlag.count("pos")) {
     ostringstream slat, slon;
-    slat << setw(6) << setprecision(2) << setiosflags(ios::fixed) << fabsf(
-        dta.ypos);
+    slat << setw(6) << setprecision(2) << setiosflags(ios::fixed)
+            << fabsf(dta.ypos);
     if (dta.ypos >= 0.)
       slat << 'N';
     else
       slat << 'S';
-    slon << setw(6) << setprecision(2) << setiosflags(ios::fixed) << fabsf(
-        dta.xpos);
+    slon << setw(6) << setprecision(2) << setiosflags(ios::fixed)
+            << fabsf(dta.xpos);
     if (dta.xpos >= 0.)
       slon << 'E';
     else
@@ -2215,8 +2224,10 @@ void ObsPlot::plotList(int index)
       printUndef(xpos, ypos, align_right);
     }
   }
-  printListParameter2(dta, "TTT", xpos, ypos, yStep, align_right, tempPrecision ? 0 : 1);
-  printListParameter2(dta, "TdTdTd", xpos, ypos, yStep, align_right, tempPrecision ? 0 : 1);
+  printListParameter2(dta, "TTT", xpos, ypos, yStep, align_right,
+      tempPrecision ? 0 : 1);
+  printListParameter2(dta, "TdTdTd", xpos, ypos, yStep, align_right,
+      tempPrecision ? 0 : 1);
   printListParameter(dta, "pppp", xpos, ypos, yStep, align_right, 1);
   if (devfield && (f_p = dta.fdata.find("PPPP_mslp")) != dta.fdata.end()) {
     ypos -= yStep;
@@ -2230,8 +2241,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("a")) != dta.fdata.end() && f_p->second >= 0
         && f_p->second < 9) {
       checkColourCriteria("a", f_p->second);
-      symbol(itab[201 + (int) f_p->second], xpos * scale - xshift,
-          ypos * scale, 0.8 * scale, align_right);
+      symbol(itab[201 + (int) f_p->second], xpos * scale - xshift, ypos * scale,
+          0.8 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else {
@@ -2243,7 +2254,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("VV")) != dta.fdata.end()) {
       checkColourCriteria("VV", f_p->second);
-      printList(visibility(f_p->second, dta.zone == 99), xpos, ypos, 0, align_right, "fill_2");
+      printList(visibility(f_p->second, dta.zone == 99), xpos, ypos, 0,
+          align_right, "fill_2");
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2252,8 +2264,8 @@ void ObsPlot::plotList(int index)
   printListRRR(dta, "RRR", xpos, ypos, yStep, align_right);
   if (pFlag.count("ww")) {
     ypos -= yStep;
-    if ((f_p = dta.fdata.find("ww")) != dta.fdata.end() && (q_p
-        = dta.fdata.find("TTT")) != dta.fdata.end()) {
+    if ((f_p = dta.fdata.find("ww")) != dta.fdata.end() && (q_p =
+        dta.fdata.find("TTT")) != dta.fdata.end()) {
       checkColourCriteria("ww", f_p->second);
       weather((short int) f_p->second, q_p->second, dta.zone,
           xpos * scale - xshift, (ypos - 0.2 * yStep) * scale, scale * 0.6,
@@ -2269,8 +2281,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("W1")) != dta.fdata.end() && f_p->second > 2
         && f_p->second < 10) {
       checkColourCriteria("W1", f_p->second);
-      pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale, 0.6
-          * scale, align_right);
+      pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale,
+          0.6 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else
@@ -2281,8 +2293,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("W2")) != dta.fdata.end() && f_p->second > 2
         && f_p->second < 10) {
       checkColourCriteria("W2", f_p->second);
-      pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale, 0.6
-          * scale, align_right);
+      pastWeather((int) f_p->second, xpos * scale - xshift, ypos * scale,
+          0.6 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else
@@ -2294,8 +2306,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("Ch")) != dta.fdata.end() && f_p->second > 0
         && f_p->second < 10) {
       checkColourCriteria("Cl", f_p->second);
-      symbol(itab[190 + (int) f_p->second], xpos * scale - xshift,
-          ypos * scale, 0.6 * scale, align_right);
+      symbol(itab[190 + (int) f_p->second], xpos * scale - xshift, ypos * scale,
+          0.6 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else
@@ -2306,8 +2318,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("Cm")) != dta.fdata.end() && f_p->second > 0
         && f_p->second < 10) {
       checkColourCriteria("Cm", f_p->second);
-      symbol(itab[180 + (int) f_p->second], xpos * scale - xshift,
-          ypos * scale, 0.6 * scale, align_right);
+      symbol(itab[180 + (int) f_p->second], xpos * scale - xshift, ypos * scale,
+          0.6 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else
@@ -2318,8 +2330,8 @@ void ObsPlot::plotList(int index)
     if ((f_p = dta.fdata.find("Cl")) != dta.fdata.end() && f_p->second > 0
         && f_p->second < 10) {
       checkColourCriteria("Ch", f_p->second);
-      symbol(itab[170 + (int) f_p->second], xpos * scale - xshift,
-          ypos * scale, 0.6 * scale, align_right);
+      symbol(itab[170 + (int) f_p->second], xpos * scale - xshift, ypos * scale,
+          0.6 * scale, align_right);
       if (!vertical_orientation)
         xpos += 20;
     } else
@@ -2329,8 +2341,8 @@ void ObsPlot::plotList(int index)
     printListParameter(dta, "vs", xpos, ypos, yStep, align_right, 0);
   if (pFlag.count("ds")) {
     ypos -= yStep;
-    if (dta.fdata.find("vs") != dta.fdata.end() && (f_p = dta.fdata.find("ds"))
-        != dta.fdata.end()) {
+    if (dta.fdata.find("vs") != dta.fdata.end()
+        && (f_p = dta.fdata.find("ds")) != dta.fdata.end()) {
       checkColourCriteria("ds", f_p->second);
       arrow(f_p->second, xpos * scale - xshift, ypos * scale, scale * 0.6);
       if (!vertical_orientation)
@@ -2338,11 +2350,13 @@ void ObsPlot::plotList(int index)
     } else
       printUndef(xpos, ypos, align_right);
   }
-  printListParameter(dta, "TwTwTw", xpos, ypos, yStep, align_right, tempPrecision ? 0 : 1);
+  printListParameter(dta, "TwTwTw", xpos, ypos, yStep, align_right,
+      tempPrecision ? 0 : 1);
   if (pFlag.count("pwahwa")) {
     ypos -= yStep;
     std::map<string, float>::const_iterator p = dta.fdata.find("HwaHwa");
-    if ((f_p = dta.fdata.find("PwaPwa")) != dta.fdata.end() && p != dta.fdata.end()) {
+    if ((f_p = dta.fdata.find("PwaPwa")) != dta.fdata.end()
+        && p != dta.fdata.end()) {
       checkColourCriteria("PwaHwa", f_p->second);
       wave(f_p->second, p->second, xpos, ypos, align_right);
       if (!vertical_orientation)
@@ -2355,7 +2369,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("dw1dw1")) != dta.fdata.end()) {
       checkColourCriteria("dw1dw1", f_p->second);
-      zigzagArrow(f_p->second, xpos * scale - xshift, ypos * scale, scale * 0.6);
+      zigzagArrow(f_p->second, xpos * scale - xshift, ypos * scale,
+          scale * 0.6);
       if (!vertical_orientation)
         xpos += 20;
     } else {
@@ -2365,7 +2380,8 @@ void ObsPlot::plotList(int index)
   if (pFlag.count("pw1hw1")) {
     ypos -= yStep;
     std::map<string, float>::const_iterator p = dta.fdata.find("Pw1Hw1");
-    if ((f_p = dta.fdata.find("Pw1Pw1")) != dta.fdata.end() && p != dta.fdata.end()) {
+    if ((f_p = dta.fdata.find("Pw1Pw1")) != dta.fdata.end()
+        && p != dta.fdata.end()) {
       checkColourCriteria("Pw1Hw1", f_p->second);
       wave(f_p->second, p->second, xpos, ypos, align_right);
       if (!vertical_orientation)
@@ -2374,7 +2390,8 @@ void ObsPlot::plotList(int index)
       printUndef(xpos, ypos, align_right);
     }
   }
-  printListParameter(dta, "TxTn", xpos, ypos, yStep, align_right, tempPrecision ? 0 : 1);
+  printListParameter(dta, "TxTn", xpos, ypos, yStep, align_right,
+      tempPrecision ? 0 : 1);
   printListParameter(dta, "sss", xpos, ypos, yStep, align_right, 1);
   if (pFlag.count("911ff")) {
     ypos -= yStep;
@@ -2395,7 +2412,8 @@ void ObsPlot::plotList(int index)
       printUndef(xpos, ypos, align_right);
     }
   }
-  printListParameter(dta, "T_red", xpos, ypos, yStep, align_right, tempPrecision ? 0 : 1);
+  printListParameter(dta, "T_red", xpos, ypos, yStep, align_right,
+      tempPrecision ? 0 : 1);
   if (pFlag.count("id")) {
     ypos -= yStep;
     checkColourCriteria("Id", 0);
@@ -2490,8 +2508,8 @@ float ObsPlot::advanceByStringWidth(const std::string& txt, float& xpos)
   return w;
 }
 
-void ObsPlot::printListString(const std::string& txt,
-    float& xpos, float& ypos, bool align_right)
+void ObsPlot::printListString(const std::string& txt, float& xpos, float& ypos,
+    bool align_right)
 {
   float x = xpos * scale;
   const float y = ypos * scale;
@@ -2508,9 +2526,9 @@ void ObsPlot::plotAscii(int index)
   ObsData &dta = obsp[index];
 
   GLfloat radius = 3.0;
-  int printPos=-1;
+  int printPos = -1;
   if (not left_alignment)
-    printPos=0;
+    printPos = 0;
   float xpos = 0;
   float ypos = 0;
   float w, h;
@@ -2519,7 +2537,8 @@ void ObsPlot::plotAscii(int index)
   float yStep = h / scale; //depend on character height
   bool align_right = false;
   int num = numPar;
-  bool windOK = pFlag.count("Wind") && dta.fdata.count("dd") && dta.fdata.count("ff");
+  bool windOK = pFlag.count("Wind") && dta.fdata.count("dd")
+          && dta.fdata.count("ff");
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -2613,7 +2632,7 @@ void ObsPlot::plotAscii(int index)
   for (int i = 0; i < n; i++) {
     // int j = asciipar[i];
     std::string param = columnName[i];
-    if ( pFlag.count(param) ) {
+    if (pFlag.count(param)) {
       ypos -= yStep;
       std::string str = dta.stringdata[param];
       miutil::remove(str, '"');
@@ -2634,7 +2653,7 @@ void ObsPlot::plotDBMetar(int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  std::string icao_value  = "X";
+  std::string icao_value = "X";
   int stationid = (*stationlist)[index].stationID();
   int automationcode = (*stationlist)[index].environmentid();
   bool isData = (*stationlist)[index].data();
@@ -2693,96 +2712,96 @@ void ObsPlot::plotDBMetar(int index)
 
   // Decode the string from database
 
-	if (pFlag.count("name") && dta.stringdata.count("Name"))
-		 icao_value = dta.stringdata["Name"];
-	if (pFlag.count("dxdxdx") && dta.stringdata.count("dxdxdx"))
-		 dxdxdx_value = atof(dta.stringdata["dxdxdx"].c_str());
-	if (pFlag.count("dndndn") && dta.stringdata.count("dndndn"))
-		 dndndn_value = atof(dta.stringdata["dndndn"].c_str());
-	if (pFlag.count("fmfmk") && dta.stringdata.count("fmfmk"))
-		 fmfm_value = atof(dta.stringdata["fmfmk"].c_str());
-	if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
-		 fxfx_value = atof(dta.stringdata["fxfx"].c_str());
-	if (pFlag.count("sss") && dta.stringdata.count("sss"))
-		 sss_value = atof(dta.stringdata["sss"].c_str());
-	if (pFlag.count("vv") && dta.stringdata.count("VV"))
-		 VV_value = atof(dta.stringdata["VV"].c_str());
-	if (pFlag.count("n") && dta.stringdata.count("N"))
-		 N_value = atof(dta.stringdata["N"].c_str());
-	if (pFlag.count("ww") && dta.stringdata.count("ww"))
-		 ww_value = atof(dta.stringdata["ww"].c_str());
-	if (pFlag.count("gwi") && dta.stringdata.count("GWI"))
-		 GWI_value = atof(dta.stringdata["GWI"].c_str());
-	if (pFlag.count("a") && dta.stringdata.count("a"))
-		 a_value = atof(dta.stringdata["a"].c_str());
-	if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
-		 TTT_value = atof(dta.stringdata["TTT"].c_str());
-	if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
-		 TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
-	if (pFlag.count("phphphph") && dta.stringdata.count("PHPHPHPH"))
-		 PHPHPHPH_value = atof(dta.stringdata["PHPHPHPH"].c_str());
-	if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
-		 ppp_value = atof(dta.stringdata["ppp"].c_str());
-	if (pFlag.count("nh") && dta.stringdata.count("Nh"))
-		 Nh_value = atof(dta.stringdata["Nh"].c_str());
-	if (pFlag.count("h") && dta.stringdata.count("h"))
-		 h_value = atof(dta.stringdata["h"].c_str());
-	if (pFlag.count("ch") && dta.stringdata.count("Ch"))
-		 Ch_value = atof(dta.stringdata["Ch"].c_str());
-	if (pFlag.count("cm") && dta.stringdata.count("Cm"))
-		 Cm_value = atof(dta.stringdata["Cm"].c_str());
-	if (pFlag.count("cl") && dta.stringdata.count("Cl"))
-		 Cl_value = atof(dta.stringdata["Cl"].c_str());
-	if (pFlag.count("w1") && dta.stringdata.count("W1"))
-		 W1_value = atof(dta.stringdata["W1"].c_str());
-	if (pFlag.count("w2") && dta.stringdata.count("W2"))
-		 W2_value = atof(dta.stringdata["W2"].c_str());
-// FIXME: Is the 24 and 12 hour values reported at the same time?
-	if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
-		 TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
-// FIXME: Is the 24 and 12 hour values reported at the same time?
-	if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
-		 TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
-    // Cload layer 1-4 from automat stations
-	if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
-		 NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
-	if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
-		 HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
-	if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
-		 NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
-	if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
-		 HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
-	if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
-		 NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
-	if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
-		 HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
-	if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
-		 NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
-	if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
-		 HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
-    // Cload layer 1-4 from manual stations
-	if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
-		 NS1_value = atof(dta.stringdata["NS1"].c_str());
-	if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
-		 HS1_value = atof(dta.stringdata["HS1"].c_str());
-	if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
-		 NS2_value = atof(dta.stringdata["NS2"].c_str());
-	if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
-		 HS2_value = atof(dta.stringdata["HS2"].c_str());
-	if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
-		 NS3_value = atof(dta.stringdata["NS3"].c_str());
-	if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
-		 HS3_value = atof(dta.stringdata["HS3"].c_str());
-	if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
-		 NS4_value = atof(dta.stringdata["NS4"].c_str());
-	if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
-		 HS4_value = atof(dta.stringdata["HS4"].c_str());
+  if (pFlag.count("name") && dta.stringdata.count("Name"))
+    icao_value = dta.stringdata["Name"];
+  if (pFlag.count("dxdxdx") && dta.stringdata.count("dxdxdx"))
+    dxdxdx_value = atof(dta.stringdata["dxdxdx"].c_str());
+  if (pFlag.count("dndndn") && dta.stringdata.count("dndndn"))
+    dndndn_value = atof(dta.stringdata["dndndn"].c_str());
+  if (pFlag.count("fmfmk") && dta.stringdata.count("fmfmk"))
+    fmfm_value = atof(dta.stringdata["fmfmk"].c_str());
+  if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
+    fxfx_value = atof(dta.stringdata["fxfx"].c_str());
+  if (pFlag.count("sss") && dta.stringdata.count("sss"))
+    sss_value = atof(dta.stringdata["sss"].c_str());
+  if (pFlag.count("vv") && dta.stringdata.count("VV"))
+    VV_value = atof(dta.stringdata["VV"].c_str());
+  if (pFlag.count("n") && dta.stringdata.count("N"))
+    N_value = atof(dta.stringdata["N"].c_str());
+  if (pFlag.count("ww") && dta.stringdata.count("ww"))
+    ww_value = atof(dta.stringdata["ww"].c_str());
+  if (pFlag.count("gwi") && dta.stringdata.count("GWI"))
+    GWI_value = atof(dta.stringdata["GWI"].c_str());
+  if (pFlag.count("a") && dta.stringdata.count("a"))
+    a_value = atof(dta.stringdata["a"].c_str());
+  if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
+    TTT_value = atof(dta.stringdata["TTT"].c_str());
+  if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
+    TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
+  if (pFlag.count("phphphph") && dta.stringdata.count("PHPHPHPH"))
+    PHPHPHPH_value = atof(dta.stringdata["PHPHPHPH"].c_str());
+  if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
+    ppp_value = atof(dta.stringdata["ppp"].c_str());
+  if (pFlag.count("nh") && dta.stringdata.count("Nh"))
+    Nh_value = atof(dta.stringdata["Nh"].c_str());
+  if (pFlag.count("h") && dta.stringdata.count("h"))
+    h_value = atof(dta.stringdata["h"].c_str());
+  if (pFlag.count("ch") && dta.stringdata.count("Ch"))
+    Ch_value = atof(dta.stringdata["Ch"].c_str());
+  if (pFlag.count("cm") && dta.stringdata.count("Cm"))
+    Cm_value = atof(dta.stringdata["Cm"].c_str());
+  if (pFlag.count("cl") && dta.stringdata.count("Cl"))
+    Cl_value = atof(dta.stringdata["Cl"].c_str());
+  if (pFlag.count("w1") && dta.stringdata.count("W1"))
+    W1_value = atof(dta.stringdata["W1"].c_str());
+  if (pFlag.count("w2") && dta.stringdata.count("W2"))
+    W2_value = atof(dta.stringdata["W2"].c_str());
+  // FIXME: Is the 24 and 12 hour values reported at the same time?
+  if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
+    TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
+  // FIXME: Is the 24 and 12 hour values reported at the same time?
+  if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
+    TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
+  // Cload layer 1-4 from automat stations
+  if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
+    NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
+  if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
+    HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
+  if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
+    NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
+  if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
+    HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
+  if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
+    NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
+  if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
+    HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
+  if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
+    NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
+  if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
+    HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
+  // Cload layer 1-4 from manual stations
+  if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
+    NS1_value = atof(dta.stringdata["NS1"].c_str());
+  if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
+    HS1_value = atof(dta.stringdata["HS1"].c_str());
+  if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
+    NS2_value = atof(dta.stringdata["NS2"].c_str());
+  if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
+    HS2_value = atof(dta.stringdata["HS2"].c_str());
+  if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
+    NS3_value = atof(dta.stringdata["NS3"].c_str());
+  if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
+    HS3_value = atof(dta.stringdata["HS3"].c_str());
+  if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
+    NS4_value = atof(dta.stringdata["NS4"].c_str());
+  if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
+    HS4_value = atof(dta.stringdata["HS4"].c_str());
 
   GLfloat radius = 7.0;
   int lpos = itab[1] + 10;
   /*const map<std::string, float>::iterator fend = dta.fdata.end();
-  map<std::string, float>::iterator f2_p;
-  map<std::string, float>::iterator f_p;*/
+   map<std::string, float>::iterator f2_p;
+   map<std::string, float>::iterator f_p;*/
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -2849,11 +2868,11 @@ void ObsPlot::plotDBMetar(int index)
 
     if (GWI_value == 2) {
       printString("OK", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 1){ //Clouds
+    } else if (GWI_value == 1) { //Clouds
       printString("NSC", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 3){ //Clouds
+    } else if (GWI_value == 3) { //Clouds
       printString("SKC", iptab[lpos+12] -8,iptab[lpos+13]);
-    } else if (GWI_value == 1){ //Clouds
+    } else if (GWI_value == 1) { //Clouds
       printString("NSW", iptab[lpos+12] -8,iptab[lpos+13]);
     }
     VVxpos = iptab[lpos+12] -28;
@@ -2887,23 +2906,23 @@ void ObsPlot::plotDBMetar(int index)
 
   //Recent weather
   /*if (pFlag.count("reww")) {
-    checkColourCriteria("REww", 0);
-    if (dta.REww.size() > 0 && dta.REww[0].exists()) {
-      int intREww[5];
-      metarString2int(dta.REww[0], intREww);
-      if (intREww[0] >= 0 && intREww[0] < 100) {
-        symbol(itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
-      }
-    }
-    if (dta.REww.size() > 1 && dta.REww[1].exists()) {
-      int intREww[5];
-      metarString2int(dta.REww[1], intREww);
-      if (intREww[0] >= 0 && intREww[0] < 100) {
-        symbol(itab[40 + intREww[0]], iptab[lpos + 30] + 15, iptab[lpos + 31]
-                                                                   + 2);
-      }
-    }
-  }*/
+   checkColourCriteria("REww", 0);
+   if (dta.REww.size() > 0 && dta.REww[0].exists()) {
+   int intREww[5];
+   metarString2int(dta.REww[0], intREww);
+   if (intREww[0] >= 0 && intREww[0] < 100) {
+   symbol(itab[40 + intREww[0]], iptab[lpos + 30], iptab[lpos + 31] + 2);
+   }
+   }
+   if (dta.REww.size() > 1 && dta.REww[1].exists()) {
+   int intREww[5];
+   metarString2int(dta.REww[1], intREww);
+   if (intREww[0] >= 0 && intREww[0] < 100) {
+   symbol(itab[40 + intREww[0]], iptab[lpos + 30] + 15, iptab[lpos + 31]
+   + 2);
+   }
+   }
+   }*/
 
   glPopMatrix();
   bool ClFlag = false;
@@ -3015,7 +3034,6 @@ void ObsPlot::plotDBMetar(int index)
     printString("x",iptab[lpos+44]+18,iptab[lpos+45]+2);
   }
 
-
   //Id
   if (icao_value != "X") {
     checkColourCriteria("Name", 0);
@@ -3067,7 +3085,7 @@ void ObsPlot::plotDBSynop(int index)
   // Do not plot stations with no data
   if (!isData) return;
 
-	// NOTE: We must use the new data structures....
+  // NOTE: We must use the new data structures....
 
   ObsData &dta = obsp[index];
 
@@ -3125,107 +3143,107 @@ void ObsPlot::plotDBSynop(int index)
 
   // Decode the string from database
 
-	if (pFlag.count("name") && dta.stringdata.count("Name")) {
-		 std::string str = dta.stringdata["Name"];
-        if (station_type == road::diStation::WMO)
-          wmono_value = atof(str.c_str());
-        else if (station_type == road::diStation::SHIP)
-          call_sign = str;
-      }
-	if (pFlag.count("911ff") && dta.stringdata.count("911ff"))
-		 f911ff_value = atof(dta.stringdata["911ff"].c_str());
-	if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
-		 fxfx_value = atof(dta.stringdata["fxfx"].c_str());
-	if (pFlag.count("sss") && dta.stringdata.count("sss"))
-		 sss_value = atof(dta.stringdata["sss"].c_str());
-	if (pFlag.count("vv") && dta.stringdata.count("VV"))
-		 VV_value = atof(dta.stringdata["VV"].c_str());
-	if (pFlag.count("n") && dta.stringdata.count("N"))
-		 N_value = atof(dta.stringdata["N"].c_str());
-	if (pFlag.count("ww") && dta.stringdata.count("ww"))
-		 ww_value = atof(dta.stringdata["ww"].c_str());
-	if (pFlag.count("vv") && dta.stringdata.count("VV"))
-		 VV_value = atof(dta.stringdata["VV"].c_str());
-	if (pFlag.count("a") && dta.stringdata.count("a"))
-		 a_value = atof(dta.stringdata["a"].c_str());
-	if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
-		 TTT_value = atof(dta.stringdata["TTT"].c_str());
-	if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
-		 TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
-	if (pFlag.count("pppp") && dta.stringdata.count("PPPP"))
-		 PPPP_value = atof(dta.stringdata["PPPP"].c_str());
-	if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
-		 ppp_value = atof(dta.stringdata["ppp"].c_str());
-	if (pFlag.count("nh") && dta.stringdata.count("Nh"))
-		 Nh_value = atof(dta.stringdata["Nh"].c_str());
-	if (pFlag.count("h") && dta.stringdata.count("h"))
-		 h_value = atof(dta.stringdata["h"].c_str());
-	if (pFlag.count("ch") && dta.stringdata.count("Ch"))
-		 Ch_value = atof(dta.stringdata["Ch"].c_str());
-	if (pFlag.count("cm") && dta.stringdata.count("Cm"))
-		 Cm_value = atof(dta.stringdata["Cm"].c_str());
-	if (pFlag.count("cl") && dta.stringdata.count("Cl"))
-		 Cl_value = atof(dta.stringdata["Cl"].c_str());
-	if (pFlag.count("w1") && dta.stringdata.count("W1"))
-		 W1_value = atof(dta.stringdata["W1"].c_str());
-	if (pFlag.count("w2") && dta.stringdata.count("W2"))
-		 W2_value = atof(dta.stringdata["W2"].c_str());
-	if (pFlag.count("vs") && dta.stringdata.count("vs"))
-		 VS_value = atof(dta.stringdata["vs"].c_str());
-	if (pFlag.count("ds") && dta.stringdata.count("ds"))
-		 DS_value = atof(dta.stringdata["ds"].c_str());
-// FIXME: Is the 24 and 12 hour values reported at the same time?
-	if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
-		 TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
-// FIXME: Is the 24 and 12 hour values reported at the same time?
-	if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
-		 TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
-    // Cload layer 1-4 from automat stations
-	if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
-		 NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
-	if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
-		 HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
-	if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
-		 NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
-	if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
-		 HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
-	if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
-		 NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
-	if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
-		 HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
-	if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
-		 NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
-	if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
-		 HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
-    // Cload layer 1-4 from manual stations
-	if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
-		 NS1_value = atof(dta.stringdata["NS1"].c_str());
-	if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
-		 HS1_value = atof(dta.stringdata["HS1"].c_str());
-	if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
-		 NS2_value = atof(dta.stringdata["NS2"].c_str());
-	if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
-		 HS2_value = atof(dta.stringdata["HS2"].c_str());
-	if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
-		 NS3_value = atof(dta.stringdata["NS3"].c_str());
-	if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
-		 HS3_value = atof(dta.stringdata["HS3"].c_str());
-	if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
-		 NS4_value = atof(dta.stringdata["NS4"].c_str());
-	if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
-		 HS4_value = atof(dta.stringdata["HS4"].c_str());
+  if (pFlag.count("name") && dta.stringdata.count("Name")) {
+    std::string str = dta.stringdata["Name"];
+    if (station_type == road::diStation::WMO)
+      wmono_value = atof(str.c_str());
+    else if (station_type == road::diStation::SHIP)
+      call_sign = str;
+  }
+  if (pFlag.count("911ff") && dta.stringdata.count("911ff"))
+    f911ff_value = atof(dta.stringdata["911ff"].c_str());
+  if (pFlag.count("fxfx") && dta.stringdata.count("fxfx"))
+    fxfx_value = atof(dta.stringdata["fxfx"].c_str());
+  if (pFlag.count("sss") && dta.stringdata.count("sss"))
+    sss_value = atof(dta.stringdata["sss"].c_str());
+  if (pFlag.count("vv") && dta.stringdata.count("VV"))
+    VV_value = atof(dta.stringdata["VV"].c_str());
+  if (pFlag.count("n") && dta.stringdata.count("N"))
+    N_value = atof(dta.stringdata["N"].c_str());
+  if (pFlag.count("ww") && dta.stringdata.count("ww"))
+    ww_value = atof(dta.stringdata["ww"].c_str());
+  if (pFlag.count("vv") && dta.stringdata.count("VV"))
+    VV_value = atof(dta.stringdata["VV"].c_str());
+  if (pFlag.count("a") && dta.stringdata.count("a"))
+    a_value = atof(dta.stringdata["a"].c_str());
+  if (pFlag.count("ttt") && dta.stringdata.count("TTT"))
+    TTT_value = atof(dta.stringdata["TTT"].c_str());
+  if (pFlag.count("tdtdtd") && dta.stringdata.count("TdTdTd"))
+    TdTdTd_value = atof(dta.stringdata["TdTdTd"].c_str());
+  if (pFlag.count("pppp") && dta.stringdata.count("PPPP"))
+    PPPP_value = atof(dta.stringdata["PPPP"].c_str());
+  if (pFlag.count("ppp") && dta.stringdata.count("ppp"))
+    ppp_value = atof(dta.stringdata["ppp"].c_str());
+  if (pFlag.count("nh") && dta.stringdata.count("Nh"))
+    Nh_value = atof(dta.stringdata["Nh"].c_str());
+  if (pFlag.count("h") && dta.stringdata.count("h"))
+    h_value = atof(dta.stringdata["h"].c_str());
+  if (pFlag.count("ch") && dta.stringdata.count("Ch"))
+    Ch_value = atof(dta.stringdata["Ch"].c_str());
+  if (pFlag.count("cm") && dta.stringdata.count("Cm"))
+    Cm_value = atof(dta.stringdata["Cm"].c_str());
+  if (pFlag.count("cl") && dta.stringdata.count("Cl"))
+    Cl_value = atof(dta.stringdata["Cl"].c_str());
+  if (pFlag.count("w1") && dta.stringdata.count("W1"))
+    W1_value = atof(dta.stringdata["W1"].c_str());
+  if (pFlag.count("w2") && dta.stringdata.count("W2"))
+    W2_value = atof(dta.stringdata["W2"].c_str());
+  if (pFlag.count("vs") && dta.stringdata.count("vs"))
+    VS_value = atof(dta.stringdata["vs"].c_str());
+  if (pFlag.count("ds") && dta.stringdata.count("ds"))
+    DS_value = atof(dta.stringdata["ds"].c_str());
+  // FIXME: Is the 24 and 12 hour values reported at the same time?
+  if (pFlag.count("txtn") && dta.stringdata.count("TxTxTx"))
+    TxTx_value = atof(dta.stringdata["TxTxTx"].c_str());
+  // FIXME: Is the 24 and 12 hour values reported at the same time?
+  if (pFlag.count("txtn") && dta.stringdata.count("TnTnTn"))
+    TnTn_value = atof(dta.stringdata["TnTnTn"].c_str());
+  // Cload layer 1-4 from automat stations
+  if (pFlag.count("ns_a1") && dta.stringdata.count("NS_A1"))
+    NS_A1_value = atof(dta.stringdata["NS_A1"].c_str());
+  if (pFlag.count("hs_a1") && dta.stringdata.count("HS_A1"))
+    HS_A1_value = atof(dta.stringdata["HS_A1"].c_str());
+  if (pFlag.count("ns_a2") && dta.stringdata.count("NS_A2"))
+    NS_A2_value = atof(dta.stringdata["NS_A2"].c_str());
+  if (pFlag.count("hs_a2") && dta.stringdata.count("HS_A2"))
+    HS_A2_value = atof(dta.stringdata["HS_A2"].c_str());
+  if (pFlag.count("ns_a3") && dta.stringdata.count("NS_A3"))
+    NS_A3_value = atof(dta.stringdata["NS_A3"].c_str());
+  if (pFlag.count("hs_a3") && dta.stringdata.count("HS_A3"))
+    HS_A3_value = atof(dta.stringdata["HS_A3"].c_str());
+  if (pFlag.count("ns_a4") && dta.stringdata.count("NS_A4"))
+    NS_A4_value = atof(dta.stringdata["NS_A4"].c_str());
+  if (pFlag.count("hs_a4") && dta.stringdata.count("HS_A4"))
+    HS_A4_value = atof(dta.stringdata["HS_A4"].c_str());
+  // Cload layer 1-4 from manual stations
+  if (pFlag.count("ns1") && dta.stringdata.count("NS1"))
+    NS1_value = atof(dta.stringdata["NS1"].c_str());
+  if (pFlag.count("hs1") && dta.stringdata.count("HS1"))
+    HS1_value = atof(dta.stringdata["HS1"].c_str());
+  if (pFlag.count("ns2") && dta.stringdata.count("NS2"))
+    NS2_value = atof(dta.stringdata["NS2"].c_str());
+  if (pFlag.count("hs2") && dta.stringdata.count("HS2"))
+    HS2_value = atof(dta.stringdata["HS2"].c_str());
+  if (pFlag.count("ns3") && dta.stringdata.count("NS3"))
+    NS3_value = atof(dta.stringdata["NS3"].c_str());
+  if (pFlag.count("hs3") && dta.stringdata.count("HS3"))
+    HS3_value = atof(dta.stringdata["HS3"].c_str());
+  if (pFlag.count("ns4") && dta.stringdata.count("NS4"))
+    NS4_value = atof(dta.stringdata["NS4"].c_str());
+  if (pFlag.count("hs4") && dta.stringdata.count("HS4"))
+    HS4_value = atof(dta.stringdata["HS4"].c_str());
 
-    // another special case, the RRR
-	if (pFlag.count("rrr_24") && dta.stringdata.count("RRR_24"))
-		 rrr_24_value = atof(dta.stringdata["RRR_24"].c_str());
-	if (pFlag.count("rrr_12") && dta.stringdata.count("RRR_12"))
-		 rrr_12_value = atof(dta.stringdata["RRR_12"].c_str());
-	if (pFlag.count("rrr_6") && dta.stringdata.count("RRR_6"))
-		 rrr_6_value = atof(dta.stringdata["RRR_6"].c_str());
-	if (pFlag.count("rrr_3") && dta.stringdata.count("RRR_3"))
-		 rrr_3_value = atof(dta.stringdata["RRR_3"].c_str());
-	if (pFlag.count("rrr_1") && dta.stringdata.count("RRR_1"))
-		 rrr_1_value = atof(dta.stringdata["RRR_1"].c_str());
+  // another special case, the RRR
+  if (pFlag.count("rrr_24") && dta.stringdata.count("RRR_24"))
+    rrr_24_value = atof(dta.stringdata["RRR_24"].c_str());
+  if (pFlag.count("rrr_12") && dta.stringdata.count("RRR_12"))
+    rrr_12_value = atof(dta.stringdata["RRR_12"].c_str());
+  if (pFlag.count("rrr_6") && dta.stringdata.count("RRR_6"))
+    rrr_6_value = atof(dta.stringdata["RRR_6"].c_str());
+  if (pFlag.count("rrr_3") && dta.stringdata.count("RRR_3"))
+    rrr_3_value = atof(dta.stringdata["RRR_3"].c_str());
+  if (pFlag.count("rrr_1") && dta.stringdata.count("RRR_1"))
+    rrr_1_value = atof(dta.stringdata["RRR_1"].c_str());
 
   GLfloat radius=7.0;
   GLfloat x1,x2,x3,y1,y2,y3;
@@ -3282,7 +3300,7 @@ void ObsPlot::plotDBSynop(int index)
     if (dd == 990 || dd == 510) {
       ddvar = true;
       dd = 270;
-  }
+    }
     if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
       dd = 0;
     lpos = itab[(dd / 10 + 3) / 2] + 10;
@@ -3293,7 +3311,7 @@ void ObsPlot::plotDBSynop(int index)
     lpos = itab[1] + 10;
 
   int zone = 0;
-	// No snow depth from ship.
+  // No snow depth from ship.
   if (station_type == road::diStation::SHIP)
     zone = 99;
   else if(station_type == road::diStation::WMO)
@@ -3321,15 +3339,15 @@ void ObsPlot::plotDBSynop(int index)
     else
       cloudCoverAuto(N_value_plot,radius);
   } /*else if( !precip ) {
-    glColor4ubv(colour.RGBA());
-    cloudCover(undef,radius);
-  }*/
+   glColor4ubv(colour.RGBA());
+   cloudCover(undef,radius);
+   }*/
 
   //Weather - WW
   //METLIBS_LOG_DEBUG("Weather - WW: value " << ww_value);
   float VVxpos = iptab[lpos+14] + 22;
   if( ww_value != undef &&
-      ww_value>3) {//1-3 skal ikke plottes
+      ww_value>3) {  //1-3 skal ikke plottes
     checkColourCriteria("ww",ww_value);
     weather((short int)(int)ww_value,TTT_value,zone,
         iptab[lpos+12],iptab[lpos+13]);
@@ -3395,13 +3413,13 @@ void ObsPlot::plotDBSynop(int index)
     checkColourCriteria("W2",W2_value);
     pastWeather((int)W2_value, iptab[lpos+36], iptab[lpos+37],0.8);
   }
-   // Direction of ship movement - ds
+  // Direction of ship movement - ds
   if (DS_value != undef && VS_value != undef)
-   {
-   checkColourCriteria("ds",DS_value);
-   arrow(DS_value, iptab[lpos+32], iptab[lpos+33]);
-   }
-    /* Currently not used
+  {
+    checkColourCriteria("ds",DS_value);
+    arrow(DS_value, iptab[lpos+32], iptab[lpos+33]);
+  }
+  /* Currently not used
    // Direction of swell waves - dw1dw1
    if(  pFlag.count("dw1dw1")
    && (f_p=dta.fdata.find("dw1dw1")) != fend ){
@@ -3561,7 +3579,7 @@ void ObsPlot::plotDBSynop(int index)
     checkColourCriteria("RRR",rrr_plot_value);
     if( rrr_plot_value < 0.1) //No precipitation (0.)
       printString("0.",iptab[lpos+32]+2,iptab[lpos+33]+2);
-    else if( rrr_plot_value> 989) //Precipitation, but less than 0.1 mm (0.0)
+    else if( rrr_plot_value> 989)//Precipitation, but less than 0.1 mm (0.0)
       printString("0.0",iptab[lpos+32]+2,iptab[lpos+33]+2);
     else
       printNumber(rrr_plot_value,iptab[lpos+32]+2,iptab[lpos+33]+2,"RRR");
@@ -3693,12 +3711,11 @@ void ObsPlot::plotSynop(int index)
   map<string, float>::iterator ttt_p = dta.fdata.find("TTT");
 
   //Some positions depend on wheather the following parameters are plotted or not
-  bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count(
-      "st.type") && (not dta.dataType.empty()))));
+  bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl"))
+      || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
   bool timeFlag = (pFlag.count("time") && dta.zone == 99);
   bool precip = (dta.fdata.count("ix") && dta.fdata["ix"] == -1);
-
 
   //reset colour
   glColor4ubv(origcolour.RGBA());
@@ -3769,12 +3786,12 @@ void ObsPlot::plotSynop(int index)
   //characteristics of pressure tendency - a
   map<string, float>::iterator ppp_p = dta.fdata.find("ppp");
   ;
-  if (pFlag.count("a") && (f_p = dta.fdata.find("a")) != fend && f_p->second
-      >= 0 && f_p->second < 9) {
+  if (pFlag.count("a") && (f_p = dta.fdata.find("a")) != fend
+      && f_p->second >= 0 && f_p->second < 9) {
     checkColourCriteria("a", f_p->second);
     if (ppp_p != fend && ppp_p->second > 9)
-      symbol(itab[201 + (int) f_p->second], iptab[lpos + 42] + 12, iptab[lpos
-                                                                         + 43], 0.8);
+      symbol(itab[201 + (int) f_p->second], iptab[lpos + 42] + 12,
+          iptab[lpos + 43], 0.8);
     else
       symbol(itab[201 + (int) f_p->second], iptab[lpos + 42], iptab[lpos + 43],
           0.8);
@@ -3784,14 +3801,16 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("ch") && (f_p = dta.fdata.find("Ch")) != fend) {
     checkColourCriteria("Ch", f_p->second);
     //METLIBS_LOG_DEBUG("Ch: " << f_p->second);
-    symbol(itab[190 + (int) f_p->second], iptab[lpos + 4], iptab[lpos + 5], 0.8);
+    symbol(itab[190 + (int) f_p->second], iptab[lpos + 4], iptab[lpos + 5],
+        0.8);
   }
 
   // Middle cloud type - Cm
   if (pFlag.count("cm") && (f_p = dta.fdata.find("Cm")) != fend) {
     checkColourCriteria("Cm", f_p->second);
     //METLIBS_LOG_DEBUG("Cm: " << f_p->second);
-    symbol(itab[180 + (int) f_p->second], iptab[lpos + 2], iptab[lpos + 3], 0.8);
+    symbol(itab[180 + (int) f_p->second], iptab[lpos + 2], iptab[lpos + 3],
+        0.8);
   }
 
   // Low cloud type - Cl
@@ -3815,8 +3834,8 @@ void ObsPlot::plotSynop(int index)
   }
 
   // Direction of ship movement - ds
-  if (pFlag.count("ds") && dta.fdata.find("vs") != fend && (f_p
-      = dta.fdata.find("ds")) != fend) {
+  if (pFlag.count("ds") && dta.fdata.find("vs") != fend && (f_p =
+      dta.fdata.find("ds")) != fend) {
     checkColourCriteria("ds", f_p->second);
     arrow(f_p->second, iptab[lpos + 32], iptab[lpos + 33]);
   }
@@ -3832,18 +3851,17 @@ void ObsPlot::plotSynop(int index)
   // Pressure - PPPP
   if (devfield) {
     if ((f_p = dta.fdata.find("PPPP_mslp")) != fend) {
-      printAvvik(f_p->second, iptab[lpos + 44] , iptab[lpos + 45] );
+      printAvvik(f_p->second, iptab[lpos + 44], iptab[lpos + 45]);
     }
   } else if (pFlag.count("pppp") && (f_p = dta.fdata.find("PPPP")) != fend) {
     checkColourCriteria("PPPP", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 44] , iptab[lpos + 45] , "PPPP");
+    printNumber(f_p->second, iptab[lpos + 44], iptab[lpos + 45], "PPPP");
   }
 
   // Pressure tendency over 3 hours - ppp
   if (pFlag.count("ppp") && ppp_p != fend) {
     checkColourCriteria("ppp", ppp_p->second);
-    printNumber(ppp_p->second, iptab[lpos + 40] , iptab[lpos + 41] ,
-        "ppp");
+    printNumber(ppp_p->second, iptab[lpos + 40], iptab[lpos + 41], "ppp");
   }
   // Clouds
   if (pFlag.count("nh") || pFlag.count("h")) {
@@ -3864,69 +3882,67 @@ void ObsPlot::plotSynop(int index)
       if (h != undef)
         checkColourCriteria("h", h);
       if (ClFlag) {
-        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24] , iptab[lpos
-                                                                       + 25] );
+        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24],
+            iptab[lpos + 25]);
       } else {
-        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24] , iptab[lpos
-                                                                       + 25]  + 10);
+        amountOfClouds((short int) Nh, (short int) h, iptab[lpos + 24],
+            iptab[lpos + 25] + 10);
       }
     }
   }
 
   //Precipitation - RRR
-  if (pFlag.count("rrr") && !(dta.zone == 99 && dta.fdata.count("ds")
-      && dta.fdata.count("vs"))) {
+  if (pFlag.count("rrr")
+      && !(dta.zone == 99 && dta.fdata.count("ds") && dta.fdata.count("vs"))) {
     if ((f_p = dta.fdata.find("RRR")) != fend) {
       checkColourCriteria("RRR", f_p->second);
       if (f_p->second < 0.0) //Precipitation, but less than 0.1 mm (0.0)
-        printString("0.0", iptab[lpos + 32] +2, iptab[lpos + 33] );
+        printString("0.0", iptab[lpos + 32] + 2, iptab[lpos + 33]);
       else if (f_p->second < 0.1) //No precipitation (0.)
-        printString("0.", iptab[lpos + 32] +2, iptab[lpos + 33] );
+        printString("0.", iptab[lpos + 32] + 2, iptab[lpos + 33]);
       else
-        printNumber(f_p->second, iptab[lpos + 32] +2, iptab[lpos + 33] ,
-            "RRR");
+        printNumber(f_p->second, iptab[lpos + 32] + 2, iptab[lpos + 33], "RRR");
     }
   }
   // Horizontal visibility - VV
   if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
     checkColourCriteria("VV", f_p->second);
-    printNumber(visibility(f_p->second, dta.zone == 99), VVxpos, iptab[lpos
-                                                                       + 15], "fill_2");
+    printNumber(visibility(f_p->second, dta.zone == 99), VVxpos,
+        iptab[lpos + 15], "fill_2");
   }
   // Temperature - TTT
   if (pFlag.count("ttt") && ttt_p != fend) {
     checkColourCriteria("TTT", ttt_p->second);
-    printNumber(ttt_p->second, iptab[lpos + 10] , iptab[lpos + 11] ,
-        "temp");
+    printNumber(ttt_p->second, iptab[lpos + 10], iptab[lpos + 11], "temp");
   }
 
   // Dewpoint temperature - TdTdTd
   if (pFlag.count("tdtdtd") && (f_p = dta.fdata.find("TdTdTd")) != fend) {
     checkColourCriteria("TdTdTd", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 16] , iptab[lpos + 17] , "temp");
+    printNumber(f_p->second, iptab[lpos + 16], iptab[lpos + 17], "temp");
   }
 
   // Max/min temperature - TxTxTx/TnTnTn
   if (TxTnFlag) {
     if ((f_p = dta.fdata.find("TxTn")) != fend) {
       checkColourCriteria("TxTn", f_p->second);
-      printNumber(f_p->second, iptab[lpos + 8] , iptab[lpos + 9] , "temp");
+      printNumber(f_p->second, iptab[lpos + 8], iptab[lpos + 9], "temp");
     }
   }
 
   // Snow depth - sss
-  if (pFlag.count("sss") && (f_p = dta.fdata.find("sss")) != fend && dta.zone
-      != 99) {
+  if (pFlag.count("sss") && (f_p = dta.fdata.find("sss")) != fend
+      && dta.zone != 99) {
     checkColourCriteria("sss", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 46] , iptab[lpos + 47] );
+    printNumber(f_p->second, iptab[lpos + 46], iptab[lpos + 47]);
   }
 
   // Maximum wind speed (gusts) - 911ff
-  if (pFlag.count("911ff") ) {
-    if((f_p = dta.fdata.find("911ff")) != fend) {
+  if (pFlag.count("911ff")) {
+    if ((f_p = dta.fdata.find("911ff")) != fend) {
       checkColourCriteria("911ff", f_p->second);
-      printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 38] , iptab[lpos + 39]
-                                                                  , "fill_2", true);
+      printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 38],
+          iptab[lpos + 39], "fill_2", true);
     }
   }
 
@@ -3934,39 +3950,39 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("s") && (f_p = dta.fdata.find("s")) != fend) {
     checkColourCriteria("s", f_p->second);
     if (TxTnFlag)
-      printNumber(f_p->second, iptab[lpos + 6] , iptab[lpos + 7] );
+      printNumber(f_p->second, iptab[lpos + 6], iptab[lpos + 7]);
     else
-      printNumber(f_p->second, iptab[lpos + 6] , iptab[lpos + 7] - 14);
+      printNumber(f_p->second, iptab[lpos + 6], iptab[lpos + 7] - 14);
   }
 
   // Maximum wind speed
-  if (pFlag.count("fxfx") ) {
-    if ( (f_p = dta.fdata.find("fxfx")) != fend
+  if (pFlag.count("fxfx")) {
+    if ((f_p = dta.fdata.find("fxfx")) != fend
         && !(dta.zone > 1 && dta.zone < 99)) {
       checkColourCriteria("fxfx", f_p->second);
       if (TxTnFlag)
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10, iptab[lpos + 7]
-                                                                       , "fill_2", true);
+        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+            iptab[lpos + 7], "fill_2", true);
       else
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10, iptab[lpos + 7]
-                                                                       - 14, "fill_2", true);
+        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+            iptab[lpos + 7] - 14, "fill_2", true);
     }
   }
 
   //Maritime
 
   // Ship's average speed - vs
-  if (pFlag.count("vs") && dta.fdata.find("ds") != fend && (f_p
-      = dta.fdata.find("vs")) != fend) {
+  if (pFlag.count("vs") && dta.fdata.find("ds") != fend && (f_p =
+      dta.fdata.find("vs")) != fend) {
     checkColourCriteria("vs", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 32] + 18, iptab[lpos + 33] );
+    printNumber(f_p->second, iptab[lpos + 32] + 18, iptab[lpos + 33]);
   }
 
   //Time
   if (timeFlag && !dta.obsTime.undef()) {
     checkColourCriteria("Time", 0);
-    printTime(dta.obsTime, float(iptab[lpos + 46] ), float(iptab[lpos + 47]
-    ), "left", "h.m");
+    printTime(dta.obsTime, float(iptab[lpos + 46]), float(iptab[lpos + 47]),
+        "left", "h.m");
   }
 
   // Ship or buoy identifier
@@ -3974,9 +3990,9 @@ void ObsPlot::plotSynop(int index)
     checkColourCriteria("Id", 0);
     std::string kjTegn = dta.id;
     if (timeFlag)
-      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
+      printString(kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] );
+      printString(kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47]);
   }
 
   //Wmo block + station number - land stations
@@ -3988,28 +4004,28 @@ void ObsPlot::plotSynop(int index)
       checkColourCriteria("St.no(3)", 0);
     }
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
-      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] + 15);
+      printString(kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47] + 15);
     else
-      printString(kjTegn.c_str(), iptab[lpos + 46] , iptab[lpos + 47] );
+      printString(kjTegn.c_str(), iptab[lpos + 46], iptab[lpos + 47]);
   }
 
   //Sea temperature
   if (pFlag.count("twtwtw") && (f_p = dta.fdata.find("TwTwTw")) != fend) {
     checkColourCriteria("TwTwTw", f_p->second);
-    printNumber(f_p->second, iptab[lpos + 18] , iptab[lpos + 19] ,
-        "temp", true);
+    printNumber(f_p->second, iptab[lpos + 18], iptab[lpos + 19], "temp", true);
   }
 
   //Wave
-  if (pFlag.count("pwahwa") && (f_p = dta.fdata.find("PwaPwa")) != fend && (h_p
-      = dta.fdata.find("HwaHwa")) != fend) {
+  if (pFlag.count("pwahwa") && (f_p = dta.fdata.find("PwaPwa")) != fend
+      && (h_p = dta.fdata.find("HwaHwa")) != fend) {
     checkColourCriteria("PwaHwa", 0);
-    wave(f_p->second, h_p->second, iptab[lpos + 20] , iptab[lpos + 21] );
+    wave(f_p->second, h_p->second, iptab[lpos + 20], iptab[lpos + 21]);
   }
-  if (pFlag.count("pw1hw1") && ((f_p = dta.fdata.find("Pw1Pw1")) != fend
-      && (h_p = dta.fdata.find("Hw1Hw1")) != fend)) {
+  if (pFlag.count("pw1hw1")
+      && ((f_p = dta.fdata.find("Pw1Pw1")) != fend
+          && (h_p = dta.fdata.find("Hw1Hw1")) != fend)) {
     checkColourCriteria("Pw1Hw1", 0);
-    wave(f_p->second, h_p->second, iptab[lpos + 28] , iptab[lpos + 29] );
+    wave(f_p->second, h_p->second, iptab[lpos + 28], iptab[lpos + 29]);
   }
 
   if (!flaginfo) {
@@ -4031,7 +4047,8 @@ void ObsPlot::plotSynop(int index)
   }
 
   //Flag + red/yellow/green
-  if (pFlag.count("flag") && not hqcFlag.empty() && dta.flagColour.count(hqcFlag)) {
+  if (pFlag.count("flag") && not hqcFlag.empty()
+      && dta.flagColour.count(hqcFlag)) {
     glPushMatrix();
     glScalef(scale, scale, 0.0);
     glColor4ubv(dta.flagColour[hqcFlag].RGBA());
@@ -4118,13 +4135,14 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
     checkColourCriteria("dd", dta.fdata["dd"]);
     checkColourCriteria("ff", dta.fdata["ff"]);
-    metarWind((int) dta.fdata["dd"], diutil::ms2knots(dta.fdata["ff"]), radius, lpos);
+    metarWind((int) dta.fdata["dd"], diutil::ms2knots(dta.fdata["ff"]), radius,
+        lpos);
   }
 
   //limit of variable wind direction
   int dndx = 16;
-  if (pFlag.count("dndx") && (f_p = dta.fdata.find("dndndn")) != fend && (f2_p
-      = dta.fdata.find("dxdxdx")) != fend) {
+  if (pFlag.count("dndx") && (f_p = dta.fdata.find("dndndn")) != fend && (f2_p =
+      dta.fdata.find("dxdxdx")) != fend) {
     ostringstream cs;
     cs << f_p->second / 10 << "V" << f2_p->second / 10;
     printString(cs.str().c_str(), iptab[lpos + 2] + 2, iptab[lpos + 3] + 2);
@@ -4134,8 +4152,8 @@ void ObsPlot::plotMetar(int index)
   float xid, yid;
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
     checkColourCriteria("fmfm", f_p->second);
-    printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 4] + 2, iptab[lpos + 5] + 2
-        - dndx, "left", true);
+    printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 4] + 2,
+        iptab[lpos + 5] + 2 - dndx, "left", true);
     //understrekes
     xid = iptab[lpos + 4] + 20 + 15;
     yid = iptab[lpos + 5] - dndx + 8;
@@ -4148,14 +4166,16 @@ void ObsPlot::plotMetar(int index)
   if (pFlag.count("ttt") && (f_p = dta.fdata.find("TTT")) != fend) {
     checkColourCriteria("TTT", f_p->second);
     //    if( dta.TT>-99.5 && dta.TT<99.5 ) //right align_righted
-    printNumber(f_p->second, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16, "temp");
+    printNumber(f_p->second, iptab[lpos + 12] + 23, iptab[lpos + 13] + 16,
+        "temp");
   }
 
   //Dewpoint temperature
   if (pFlag.count("tdtdtd") && (f_p = dta.fdata.find("TdTdTd")) != fend) {
     checkColourCriteria("TdTdTd", f_p->second);
     //    if( dta.TdTd>-99.5 && dta.TdTd<99.5 )  //right align_righted and underlined
-    printNumber(f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16, "temp", true);
+    printNumber(f_p->second, iptab[lpos + 14] + 23, iptab[lpos + 15] - 16,
+        "temp", true);
   }
   glPushMatrix();
   glScalef(scale, scale, 0.0);
@@ -4187,8 +4207,8 @@ void ObsPlot::plotMetar(int index)
       int intREww[5];
       metarString2int(dta.REww[1], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
-        symbol(itab[40 + intREww[0]], iptab[lpos + 30] + 15, iptab[lpos + 31]
-                                                                   + 2);
+        symbol(itab[40 + intREww[0]], iptab[lpos + 30] + 15,
+            iptab[lpos + 31] + 2);
       }
     }
   }
@@ -4200,13 +4220,13 @@ void ObsPlot::plotMetar(int index)
     if ((f_p = dta.fdata.find("VVVV")) != fend) {
       checkColourCriteria("VVVV/Dv", 0);
       if ((f2_p = dta.fdata.find("Dv")) != fend) {
-        printNumber(float(int(f_p->second) / 100), iptab[lpos + 12] + 2
-            + wwshift, iptab[lpos + 13] + 2);
-        printNumber(vis_direction(f2_p->second), iptab[lpos + 12] + 22
-            + wwshift, iptab[lpos + 13] + 2);
+        printNumber(float(int(f_p->second) / 100),
+            iptab[lpos + 12] + 2 + wwshift, iptab[lpos + 13] + 2);
+        printNumber(vis_direction(f2_p->second),
+            iptab[lpos + 12] + 22 + wwshift, iptab[lpos + 13] + 2);
       } else {
-        printNumber(float(int(f_p->second) / 100), iptab[lpos + 12] + 22
-            + wwshift, iptab[lpos + 13] + 2);
+        printNumber(float(int(f_p->second) / 100),
+            iptab[lpos + 12] + 22 + wwshift, iptab[lpos + 13] + 2);
       }
     }
   }
@@ -4216,13 +4236,13 @@ void ObsPlot::plotMetar(int index)
     if ((f_p = dta.fdata.find("VxVxVxVx")) != fend) {
       checkColourCriteria("VVVV/Dv", 0);
       if ((f2_p = dta.fdata.find("Dvx")) != fend) {
-        printNumber(float(int(f_p->second) / 100), iptab[lpos + 12] + 2
-            + wwshift, iptab[lpos + 15]);
-        printNumber(f2_p->second, iptab[lpos + 12] + 22 + wwshift, iptab[lpos
-                                                                         + 13]);
+        printNumber(float(int(f_p->second) / 100),
+            iptab[lpos + 12] + 2 + wwshift, iptab[lpos + 15]);
+        printNumber(f2_p->second, iptab[lpos + 12] + 22 + wwshift,
+            iptab[lpos + 13]);
       } else {
-        printNumber(float(int(f_p->second) / 100), iptab[lpos + 14] + 22
-            + wwshift, iptab[lpos + 15]);
+        printNumber(float(int(f_p->second) / 100),
+            iptab[lpos + 14] + 22 + wwshift, iptab[lpos + 15]);
       }
     }
   }
@@ -4379,8 +4399,8 @@ void ObsPlot::metarString2int(std::string ww, int intww[])
     if ((ia[0].lww == 38 || ia[0].lww == 36) && (ia[1].lww == 70)) //BLSN, DRSN
       k = true;
     //BLDU, BLSA, DRDU, DRSA
-    if ((ia[0].lww == 38 || ia[0].lww == 36) && (ia[1].lww == 6 || ia[1].lww
-        == 7)) {
+    if ((ia[0].lww == 38 || ia[0].lww == 36)
+        && (ia[1].lww == 6 || ia[1].lww == 7)) {
       ia[0].lww = 31;
       k = true;
     }
@@ -4414,22 +4434,22 @@ void ObsPlot::metarString2int(std::string ww, int intww[])
   }
 
   if (ia.size() > 1)
-    if (ia[0].lwwg == 3 && ia[0].lww != 79 && ia[1].lwwg == 3 && ia[1].lww
-        != 79) {
+    if (ia[0].lwwg == 3 && ia[0].lww != 79 && ia[1].lwwg == 3
+        && ia[1].lww != 79) {
       ia[0].lww += 100 * ia[1].lww;
       ia.erase(ia.begin() + 1);
     }
 
   if (ia.size() > 2)
-    if (ia[1].lwwg == 3 && ia[1].lww != 79 && ia[2].lwwg == 3 && ia[2].lww
-        != 79) {
+    if (ia[1].lwwg == 3 && ia[1].lww != 79 && ia[2].lwwg == 3
+        && ia[2].lww != 79) {
       ia[1].lww += 100 * ia[2].lww;
       ia.erase(ia.begin() + 2);
     }
 
   if (ia.size() > 3)
-    if (ia[2].lwwg == 3 && ia[2].lww != 79 && ia[3].lwwg == 3 && ia[3].lww
-        != 79) {
+    if (ia[2].lwwg == 3 && ia[2].lww != 79 && ia[3].lwwg == 3
+        && ia[3].lww != 79) {
       ia[2].lww += 100 * ia[3].lww;
       ia.erase(ia.begin() + 3);
     }
@@ -4649,8 +4669,8 @@ void ObsPlot::initMetarMap()
   lwwg2[31] = 7;
 }
 
-void ObsPlot::printNumber(float f, float x, float y, const std::string& align, bool line,
-    bool mark)
+void ObsPlot::printNumber(float f, float x, float y, const std::string& align,
+    bool line, bool mark)
 {
   x *= scale;
   y *= scale;
@@ -4689,8 +4709,7 @@ void ObsPlot::printNumber(float f, float x, float y, const std::string& align, b
     cs.fill('0');
     f = (int(f * 10 + 0.5)) % 1000;
     cs << f;
-  }
-  else if (align == "float_1") {
+  } else if (align == "float_1") {
     cs.setf(ios::fixed);
     cs.precision(1);
     cs << f;
@@ -4700,20 +4719,17 @@ void ObsPlot::printNumber(float f, float x, float y, const std::string& align, b
     StaticPlot::getFontPack()->getStringSize(c, w, h);
     w *= fontsizeScale;
     x -= w - 30 * scale;
-  }
-  else if (align == "fill_2") {
+  } else if (align == "fill_2") {
     int i = diutil::float2int(f);
     cs.width(2);
     cs.fill('0');
     cs << i;
-  }
-  else if (align == "fill_1") {
+  } else if (align == "fill_1") {
     int i = diutil::float2int(f);
     cs.width(1);
     cs.fill('0');
     cs << i;
-  }
-  else if (align == "ppp") {
+  } else if (align == "ppp") {
     if (f > 0)
       cs << '+';
     else
@@ -4955,27 +4971,26 @@ void ObsPlot::amountOfClouds(short int Nh, short int h, float x, float y)
   StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 }
 
-void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool metar)
+void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y,
+    bool metar)
 {
   std::string str;
   const char * c;
 
   ostringstream ost;
   if (Nh > -1)
-    if (metar)
-    {
-      if (Nh==8)
+    if (metar) {
+      if (Nh == 8)
         ost << "O";
-      else if(Nh==11)
+      else if (Nh == 11)
         ost << "S";
-      else if(Nh==12)
+      else if (Nh == 12)
         ost << "B";
-      else if(Nh==13)
+      else if (Nh == 13)
         ost << "F";
       else
         ost << Nh;
-    }
-    else
+    } else
       ost << Nh;
   else
     ost << "x";
@@ -5001,32 +5016,31 @@ void ObsPlot::amountOfClouds_1(short int Nh, short int h, float x, float y, bool
   StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 }
 
-void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4, float x, float y, bool metar)
+void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2,
+    short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
+    float x, float y, bool metar)
 {
   std::string str;
   const char * c;
 
   float x_org = x;
 
-  if (Ns4 != undef || hs4 != undef)
-  {
+  if (Ns4 != undef || hs4 != undef) {
     x = x_org;
     ostringstream ost;
     if (Ns4 > -1)
-      if (metar)
-      {
-        if (Ns4==8)
+      if (metar) {
+        if (Ns4 == 8)
           ost << "O";
-        else if(Ns4==11)
+        else if (Ns4 == 11)
           ost << "S";
-        else if(Ns4==12)
+        else if (Ns4 == 12)
           ost << "B";
-        else if(Ns4==13)
+        else if (Ns4 == 13)
           ost << "F";
         else
           ost << Ns4;
-      }
-      else
+      } else
         ost << Ns4;
     else
       ost << "x";
@@ -5034,7 +5048,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     str = ost.str();
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
-    x += 10*strlen(c);
+    x += 10 * strlen(c);
     StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
@@ -5047,27 +5061,24 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     str = ostr.str();
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
-    y-=12;
+    y -= 12;
   }
-  if (Ns3 != undef || hs3 != undef)
-  {
+  if (Ns3 != undef || hs3 != undef) {
     x = x_org;
     ostringstream ost;
     if (Ns3 > -1)
-      if (metar)
-      {
-        if (Ns3==8)
+      if (metar) {
+        if (Ns3 == 8)
           ost << "O";
-        else if(Ns3==11)
+        else if (Ns3 == 11)
           ost << "S";
-        else if(Ns3==12)
+        else if (Ns3 == 12)
           ost << "B";
-        else if(Ns3==13)
+        else if (Ns3 == 13)
           ost << "F";
         else
           ost << Ns3;
-      }
-      else
+      } else
         ost << Ns3;
     else
       ost << "x";
@@ -5076,7 +5087,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
-    x += 10*strlen(c);
+    x += 10 * strlen(c);
     StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
@@ -5089,27 +5100,24 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     str = ostr.str();
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
-    y-=12;
+    y -= 12;
   }
-  if (Ns2 != undef || hs2 != undef)
-  {
-    x=x_org;
+  if (Ns2 != undef || hs2 != undef) {
+    x = x_org;
     ostringstream ost;
     if (Ns2 > -1)
-      if (metar)
-      {
-        if (Ns2==8)
+      if (metar) {
+        if (Ns2 == 8)
           ost << "O";
-        else if(Ns2==11)
+        else if (Ns2 == 11)
           ost << "S";
-        else if(Ns2==12)
+        else if (Ns2 == 12)
           ost << "B";
-        else if(Ns2==13)
+        else if (Ns2 == 13)
           ost << "F";
         else
           ost << Ns2;
-      }
-      else
+      } else
         ost << Ns2;
     else
       ost << "x";
@@ -5118,7 +5126,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
-    x += 10*strlen(c);
+    x += 10 * strlen(c);
     StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
@@ -5131,27 +5139,24 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     str = ostr.str();
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
-    y-=12;
+    y -= 12;
   }
-  if (Ns1 != undef || hs1 != undef)
-  {
-    x=x_org;
+  if (Ns1 != undef || hs1 != undef) {
+    x = x_org;
     ostringstream ost;
     if (Ns1 > -1)
-      if (metar)
-      {
-        if (Ns1==8)
+      if (metar) {
+        if (Ns1 == 8)
           ost << "O";
-        else if(Ns1==11)
+        else if (Ns1 == 11)
           ost << "S";
-        else if(Ns1==12)
+        else if (Ns1 == 12)
           ost << "B";
-        else if(Ns1==13)
+        else if (Ns1 == 13)
           ost << "F";
         else
           ost << Ns1;
-      }
-      else
+      } else
         ost << Ns1;
     else
       ost << "x";
@@ -5160,7 +5165,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
 
-    x += 10*strlen(c);
+    x += 10 * strlen(c);
     StaticPlot::getFontPack()->drawStr("-", x * scale, y * scale, 0.0);
 
     ostringstream ostr;
@@ -5173,7 +5178,7 @@ void ObsPlot::amountOfClouds_1_4(short int Ns1, short int hs1, short int Ns2, sh
     str = ostr.str();
     c = str.c_str();
     StaticPlot::getFontPack()->drawStr(c, x * scale, y * scale, 0.0);
-    y-=12;
+    y -= 12;
   }
 }
 
@@ -5186,11 +5191,11 @@ void ObsPlot::checkAccumulationTime(ObsData &dta)
   //  }
 
   int hour = Time.hour();
-  if ((hour == 6  || hour == 18 ) && dta.fdata.count("RRR_12")) {
+  if ((hour == 6 || hour == 18) && dta.fdata.count("RRR_12")) {
 
     dta.fdata["RRR"] = dta.fdata["RRR_12"];
 
-  } else if ((hour == 0 || hour == 12 ) && dta.fdata.count("RRR_6")) {
+  } else if ((hour == 0 || hour == 12) && dta.fdata.count("RRR_6")) {
     dta.fdata["RRR"] = dta.fdata["RRR_6"];
 
   } else if (dta.fdata.count("RRR_1")) {
@@ -5206,12 +5211,12 @@ void ObsPlot::checkGustTime(ObsData &dta)
   //    dta.fdata.erase(dta.fdata.find("911ff"));
   //  }
   int hour = Time.hour();
-  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18 )
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18)
       && dta.fdata.count("911ff_360")) {
 
     dta.fdata["911ff"] = dta.fdata["911ff_360"];
 
-  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21 )
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21)
       && dta.fdata.count("911ff_180")) {
 
     dta.fdata["911ff"] = dta.fdata["911ff_180"];
@@ -5223,11 +5228,12 @@ void ObsPlot::checkGustTime(ObsData &dta)
   }
 }
 
-
 bool ObsPlot::updateDeltaTimes()
 {
   bool updated = false;
-  if (plottype() == "ascii" && std::find(columnName.begin(), columnName.end(), "DeltaTime")!=columnName.end()) {
+  if (plottype() == "ascii"
+      && std::find(columnName.begin(), columnName.end(), "DeltaTime")
+  != columnName.end()) {
     miutil::miTime nowTime = miutil::miTime::nowTime();
     for (int i = 0; i < getObsCount(); i++) {
       if (updateDeltaTime(obsp[i], nowTime))
@@ -5241,8 +5247,9 @@ bool ObsPlot::updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime)
 {
   if (dta.obsTime.undef())
     return false;
-  
-  dta.stringdata["DeltaTime"] = miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime));
+
+  dta.stringdata["DeltaTime"] = miutil::from_number(
+      miutil::miTime::secDiff(nowTime, dta.obsTime));
   return true;
 }
 
@@ -5254,12 +5261,12 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
   //  }
 
   int hour = Time.hour();
-  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18 )
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18)
       && dta.fdata.count("fxfx_360")) {
 
     dta.fdata["fxfx"] = dta.fdata["fxfx_360"];
 
-  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21 )
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21)
       && dta.fdata.count("fxfx_180")) {
 
     dta.fdata["fxfx"] = dta.fdata["fxfx_180"];
@@ -5324,9 +5331,11 @@ void ObsPlot::zigzagArrow(float angle, float xpos, float ypos, float scale)
   glPopMatrix();
 }
 
-void ObsPlot::symbol(int n, float xpos, float ypos, float scale, bool align_right)
+void ObsPlot::symbol(int n, float xpos, float ypos, float scale,
+    bool align_right)
 {
-  METLIBS_LOG_SCOPE("n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align_right: " << align_right);
+  METLIBS_LOG_SCOPE(
+      "n: " << n << " xpos: " << xpos << " ypos: " << ypos << " scale: " << scale << " align_right: " << align_right);
 
   int npos, nstep, k1, k2, k = 0;
   int ipx, ipy;
@@ -5457,7 +5466,7 @@ void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
   int N = diutil::float2int(fN);
 
   float x;
-  GLfloat x1,x2,x3,y1,y2,y3;
+  GLfloat x1, x2, x3, y1, y2, y3;
 
   // Total cloud cover N
   // Dont fill anything
@@ -5472,8 +5481,7 @@ void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
     glVertex2f(x, -1 * x);
     glVertex2f(-1 * x, x);
     glEnd();
-  } 
-  else if (N == 9) {
+  } else if (N == 9) {
     // some special code.., fog perhaps
     x = radius / sqrt((float) 2);
     glBegin(GL_LINES);
@@ -5482,41 +5490,40 @@ void ObsPlot::cloudCoverAuto(const float& fN, const float &radius)
     glVertex2f(x, -1 * x);
     glVertex2f(-1 * x, x);
     glEnd();
-  } 
-  else if (N >= 6 && N <= 8) {
+  } else if (N >= 6 && N <= 8) {
     GLfloat tmp_radius = 0.6 * radius;
-    y1 = y2 = -1.1*tmp_radius;
-    x1 = y1*sqrtf(3.0);
-    x2 = -1*x1;
+    y1 = y2 = -1.1 * tmp_radius;
+    x1 = y1 * sqrtf(3.0);
+    x2 = -1 * x1;
     x3 = 0;
-    y3 = tmp_radius*2.2;
+    y3 = tmp_radius * 2.2;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
-    glVertex2f(x1,y1);
-    glVertex2f(x2,y2);
-    glVertex2f(x3,y3);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
+    glVertex2f(x3, y3);
     glEnd();
 
-  }
-  else if (N >= 3 && N <= 5) {
+  } else if (N >= 3 && N <= 5) {
     GLfloat tmp_radius = 0.6 * radius;
-    y1 = y2 = -1.1*tmp_radius;
-    x1 = y1*sqrtf(3.0);
-    x2 = -1*x1;
+    y1 = y2 = -1.1 * tmp_radius;
+    x1 = y1 * sqrtf(3.0);
+    x2 = -1 * x1;
     x1 = 0;
     x3 = 0;
-    y3 = tmp_radius*2.2;
+    y3 = tmp_radius * 2.2;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
-    glVertex2f(x1,y1);
-    glVertex2f(x2,y2);
-    glVertex2f(x3,y3);
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y2);
+    glVertex2f(x3, y3);
     glEnd();
 
   }
 }
 
-void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float radius, float current)
+void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float radius,
+    float current)
 {
   //full feather = current
   if (current > 0)
@@ -5636,12 +5643,12 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float radius, float curr
   }
 
   //arrow
-  if (  poptions.arrowstyle == arrow_wind_arrow
-      && (plottype() == "list" || plottype() == "ascii") ) {
+  if (poptions.arrowstyle == arrow_wind_arrow
+      && (plottype() == "list" || plottype() == "ascii")) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
-    glVertex2f( 0, 0);
-    glVertex2f( 3, 5);
+    glVertex2f(0, 0);
+    glVertex2f(3, 5);
     glVertex2f(-3, 5);
     glEnd();
   }
@@ -5652,12 +5659,12 @@ void ObsPlot::plotWind(int dd, float ff_ms, bool ddvar, float radius, float curr
 void ObsPlot::weather(short int ww, float TTT, int zone, float xpos, float ypos,
     float scale, bool align_right)
 {
-  const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0,
-      0, 0, 0, 18, 0, 28, 21, 20, 21, 22, 24, 29, 38, 38, 37, 41, 41, 43, 45,
-      47, 49, 0, 0, 0, 0, 63, 63, 65, 63, 65, 74, 75, 66, 67, 0, 53, 51, 53,
-      55, 56, 57, 57, 58, 59, 0, 63, 61, 63, 65, 66, 67, 67, 68, 69, 0, 73, 71,
-      73, 75, 79, 79, 79, 0, 0, 0, 81, 80, 81, 82, 85, 86, 86, 0, 0, 0, 17, 17,
-      95, 96, 17, 97, 99, 0, 0, 0 };
+  const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0, 0,
+      0, 0, 18, 0, 28, 21, 20, 21, 22, 24, 29, 38, 38, 37, 41, 41, 43, 45, 47,
+      49, 0, 0, 0, 0, 63, 63, 65, 63, 65, 74, 75, 66, 67, 0, 53, 51, 53, 55, 56,
+      57, 57, 58, 59, 0, 63, 61, 63, 65, 66, 67, 67, 68, 69, 0, 73, 71, 73, 75,
+      79, 79, 79, 0, 0, 0, 81, 80, 81, 82, 85, 86, 86, 0, 0, 0, 17, 17, 95, 96,
+      17, 97, 99, 0, 0, 0 };
 
 #ifdef ROADOBS
   short int wwTmp;
@@ -5823,7 +5830,8 @@ bool ObsPlot::readTable(const std::string& type, const std::string& filename)
   return true;
 }
 
-void ObsPlot::decodeSort(std::string sortStr) {
+void ObsPlot::decodeSort(std::string sortStr)
+{
   sortStr = sortStr.substr(sortStr.find_first_of("=") + 1, sortStr.size() - 1);
   vector<std::string> vstr = miutil::split(sortStr, ";");
   int nvstr = vstr.size();
@@ -5833,8 +5841,7 @@ void ObsPlot::decodeSort(std::string sortStr) {
     vector<std::string> vcrit = miutil::split(vstr[i], ",");
     if (vcrit.size() > 1 && miutil::to_lower(vcrit[1]) == "desc") {
       sortcriteria[vcrit[0]] = false;
-    }
-    else {
+    } else {
       sortcriteria[vcrit[0]] = true;
     }
   }
@@ -5918,31 +5925,33 @@ void ObsPlot::checkColourCriteria(const std::string& param, float value)
 
   Colour col = colour;
 
-  std::map<std::string, vector<colourCriteria> >::iterator p = colourcriteria.find(param);
+  std::map<std::string, vector<colourCriteria> >::iterator p =
+      colourcriteria.find(param);
   if (p != colourcriteria.end()) {
     if (p->first == "RRR")
       adjustRRR(value);
-    
+
     for (size_t i = 0; i < colourcriteria[param].size(); i++) {
       if (p->second[i].match(value))
         col = p->second[i].colour;
     }
   }
-  
+
   glColor4ubv(col.RGBA());
 }
 
-bool ObsPlot::getValueForCriteria(int index, const std::string& param, float& value)
+bool ObsPlot::getValueForCriteria(int index, const std::string& param,
+    float& value)
 {
   value = 0;
 
-    if (obsp[index].fdata.count(param)) {
-      value = obsp[index].fdata[param];
-    } else if (obsp[index].stringdata.count(param)){
-      value = atof(obsp[index].stringdata[param].c_str());
-    } else if (miutil::to_lower(param) != obsp[index].dataType) {
-      return false;
-    }
+  if (obsp[index].fdata.count(param)) {
+    value = obsp[index].fdata[param];
+  } else if (obsp[index].stringdata.count(param)) {
+    value = atof(obsp[index].stringdata[param].c_str());
+  } else if (miutil::to_lower(param) != obsp[index].dataType) {
+    return false;
+  }
   return true;
 }
 
@@ -5961,11 +5970,11 @@ void ObsPlot::adjustRRR(float& value)
 bool ObsPlot::baseCriteria::match(float value) const
 {
   const float delta = fabsf(value) * 0.01;
-  return (sign == less_than             && value <  limit)
-      || (sign == less_than_or_equal_to && value <= limit+delta)
-      || (sign == more_than             && value >  limit)
-      || (sign == more_than_or_equal_to && value >= limit-delta)
-      || (sign == equal_to              && std::abs(value - limit) < delta)
+  return (sign == less_than && value < limit)
+      || (sign == less_than_or_equal_to && value <= limit + delta)
+      || (sign == more_than && value > limit)
+      || (sign == more_than_or_equal_to && value >= limit - delta)
+      || (sign == equal_to && std::abs(value - limit) < delta)
       || (sign == no_sign);
 }
 
@@ -6025,7 +6034,8 @@ std::string ObsPlot::checkMarkerCriteria(int index)
   if (markercriteria.empty())
     return marker;
 
-  map<std::string, vector<markerCriteria> >::iterator p = markercriteria.begin();
+  map<std::string, vector<markerCriteria> >::iterator p =
+      markercriteria.begin();
 
   for (; p != markercriteria.end(); p++) {
     float value = 0;
@@ -6046,7 +6056,8 @@ void ObsPlot::changeParamColour(const std::string& param, bool select)
   if (select) {
     colourCriteria cc;
     cc.sign = no_sign;
-    cc.colour = Colour("red");;
+    cc.colour = Colour("red");
+    ;
     colourcriteria[param].push_back(cc);
   } else {
     colourcriteria.erase(param);
