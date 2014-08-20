@@ -625,7 +625,7 @@ void ObsRoad::decodeData()
 
   miTime obstime;
 
-  miDate filedate= filetime.date();
+  miDate filedate= fileTime.date();
 
   // skip header; this relies on decodeHeader having trimmed the header lines
   size_t ii = 0;
