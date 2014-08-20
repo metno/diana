@@ -534,10 +534,9 @@ bool AnnotationPlot::plot()
   border = cmargin * window.width();
   //get dimensions of annotations and of box around annotations(xbox,ybox)
   bbox = window;
-  getXYBox();
+
   //check if annotations should be scaled, get new dimensions
-  if (scaleAnno)
-    getXYBoxScaled(window);
+  getXYBox();
 
   int n = annotations.size();
 
@@ -571,35 +570,20 @@ bool AnnotationPlot::plot()
   if (!plotAnno)
     return true;
 
-  float x, y;
-
   // draw the annotations
-
-  y = bbox.y2 - border;
-
   for (int i = 0; i < n; i++) {
-    if (annotations[i].spaceLine) {
-      y -= (annotations[i].hei + spacing) * 0.5;
-    } else {
-      x = bbox.x1 + border;
-      Annotation & anno = annotations[i];
-      y -= anno.hei;
-      if (anno.hAlign == align_center)
-        x += 0.5 * (maxwid - anno.wid);
-      if (anno.hAlign == align_right)
-        x += (maxwid - anno.wid);
-      //draw one annotation - one line
-      Colour c = anno.col;
-      if (c == StaticPlot::getBackgroundColour())
-        c = StaticPlot::getBackContrastColour();
-      currentColour = c;
-      if (getColourMode())
-        glColor4ubv(c.RGBA());
-      else
-        glIndexi(c.Index());
-      plotElements(annotations[i].annoElements, x, y, annotations[i].hei);
-      y -= spacing;
-    }
+    Annotation & anno = annotations[i];
+    //draw one annotation - one line
+    Colour c = anno.col;
+    if (c == StaticPlot::getBackgroundColour())
+      c = StaticPlot::getBackContrastColour();
+    currentColour = c;
+    if (getColourMode())
+      glColor4ubv(c.RGBA());
+    else
+      glIndexi(c.Index());
+    plotElements(annotations[i].annoElements,
+                 anno.rect.x1, anno.rect.y1, annotations[i].hei);
   }
   StaticPlot::UpdateOutput();
 
@@ -926,6 +910,12 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
   hei = height;
 }
 
+/**
+ * Gets an appropriate bounding box for the annotations, setting the bbox
+ * member variable as a result. When this method is called, the bbox
+ * corresponds to the plot window.
+ */
+
 void AnnotationPlot::getXYBox()
 {
   //  METLIBS_LOG_DEBUG("getXYBox()");
@@ -939,11 +929,13 @@ void AnnotationPlot::getXYBox()
   float totalhei = 0;
   maxwid = 0;
   spacing = 0;
-  //find width and height of each annotation, and max width and height
+
+  // Find width and height of each annotation, and total width and height.
   int n = annotations.size();
+
   for (int i = 0; i < n; i++) {
     getAnnoSize(annotations[i].annoElements, wid, hei);
-    //needed???????????
+
     annotations[i].wid = wid;
     annotations[i].hei = hei;
 
@@ -955,113 +947,82 @@ void AnnotationPlot::getXYBox()
     if (annotations[i].spaceLine)
       totalhei -= (hei + spacing) * 0.5;
   }
-  maxwid += 2 * border;
   spacing = cspacing * maxhei;
-  totalhei += (n - 1) * spacing + 2 * border;
 
-  //size of total annotation (bbox)
-  // set x-coordinates
+  float width = bbox.width();
+  float height = bbox.height();
+
+  if (scaleAnno) {
+    width *= cxratio;
+    height *= cyratio;
+
+    // The scale factor is the ratio of the width of the annotation (minus borders)
+    // to the maximum width of items in the annotation. This gives us a factor we
+    // can use to fit the items into the annotation.
+    scaleFactor = min((width - 2 * border) / maxwid, float(1.0));
+    fontsizeToPlot = fontsizeToPlot * scaleFactor;
+
+    float scaledHeight = totalhei * scaleFactor;
+    float scaledSpacing = (height - scaledHeight - (2 * border))/(n - 1);
+    spacing = min(scaledSpacing, spacing);
+
+    // Scale the width and height of each annotation.
+    for (int i = 0; i < n; i++) {
+      annotations[i].wid *= scaleFactor;
+      annotations[i].hei *= scaleFactor;
+    }
+
+    // Shrink the annotation vertically if there is free space (if the
+    // spacing used was less than that available).
+    if (spacing < scaledSpacing)
+        height -= (n - 1)*(scaledSpacing - spacing);
+  }
+
+  // Set the x coordinates for the annotation's bounding box.
   if (poptions.h_align == align_left) {
     bbox.x1 += xoffset;
   } else if (poptions.h_align == align_right) {
-    bbox.x1 = bbox.x2 - maxwid - xoffset;
+    bbox.x1 = bbox.x2 - width - xoffset;
   } else if (poptions.h_align == align_center) {
-    bbox.x1 = (bbox.x1 + bbox.x2) / 2.0 - (maxwid + xoffset) / 2.0;
+    bbox.x1 = (bbox.x1 + bbox.x2) / 2.0 - width / 2.0;
   }
-  bbox.x2 = bbox.x1 + maxwid;
+  bbox.x2 = bbox.x1 + width;
 
-  // set y-coordinates
+  // Set the y coordinates for the annotation's bounding box.
   if (poptions.v_align == align_bottom) {
     bbox.y1 += yoffset;
   } else if (poptions.v_align == align_top) {
-    bbox.y1 = bbox.y2 - totalhei - yoffset;
+    bbox.y1 = bbox.y2 - height - yoffset;
   } else if (poptions.v_align == align_center) {
-    bbox.y1 = (bbox.y1 + bbox.y2) / 2.0 - (totalhei + yoffset) / 2.0;
+    bbox.y1 = (bbox.y1 + bbox.y2) / 2.0 - (height + yoffset) / 2.0;
   }
-  bbox.y2 = bbox.y1 + totalhei;
+  bbox.y2 = bbox.y1 + height;
 
-  //rectangle for each annotation
-  float x1=0, x2=0, y1=0, y2=0;
-  if (poptions.v_align == align_bottom) {
-    y1 = bbox.y1 + totalhei;
-  } else if (poptions.v_align == align_top) {
-    y1 = bbox.y2;
-  } else if (poptions.v_align == align_center) {
-    y1 = (bbox.y1 + bbox.y2) / 2.0 + totalhei / 2.0;
-  }
-  y2 = y1 - annotations[0].hei - border;
+  // Arrange the annotations.
+  float x1, x2, y1, y2;
+
+  if (poptions.v_align == align_bottom)
+    y2 = bbox.y1 + height - border;
+  else if (poptions.v_align == align_top)
+    y2 = bbox.y2 - border;
+  else // if (poptions.v_align == align_center)
+    y2 = (bbox.y1 + bbox.y2) / 2.0 + height / 2.0;
 
   for (int i = 0; i < n; i++) {
-    if (poptions.h_align == align_left) {
-      x1 = bbox.x1;
-      x2 = x1 + annotations[i].wid + 2 * border;
-    } else if (poptions.h_align == align_right) {
-      x2 = bbox.x2;
-      x1 = x2 - annotations[i].wid - 2 * border;
-    } else if (poptions.h_align == align_center) {
-      x1 = bbox.x1 + (bbox.x2 - bbox.x1) / 2 - annotations[i].wid / 2 - border;
-      x2 = bbox.x1 + (bbox.x2 - bbox.x1) / 2 + annotations[i].wid / 2 + border;
+    if (annotations[i].hAlign == align_left) {
+      x1 = bbox.x1 + border;
+      x2 = x1 + annotations[i].wid + border;
+    } else if (annotations[i].hAlign == align_right) {
+      x2 = bbox.x2 - border;
+      x1 = x2 - annotations[i].wid - border;
+    } else { // if (annotations[i].hAlign == align_center)
+      x1 = (bbox.x2 + bbox.x1) / 2 - annotations[i].wid / 2;
+      x2 = (bbox.x2 + bbox.x1) / 2 + annotations[i].wid / 2;
     }
-    if (i == n - 1)
-      y2 -= border;
+    y1 = y2 - annotations[i].hei;
     annotations[i].rect = Rectangle(x1, y1, x2, y2);
-    if (i == n - 1)
-      break;
-    y1 = y2;
-    y2 -= annotations[i + 1].hei;
+    y2 -= annotations[i].hei + spacing;
   }
-}
-
-void AnnotationPlot::getXYBoxScaled(Rectangle& window)
-{
-  float dxFrame = 0, dyFrame = 0;
-  float xboxScale, yboxScale;
-  //annotations should be scaled
-  //xratio is width of annotation divided by width of frame
-  dxFrame = window.width();
-  dyFrame = window.height();
-  xboxScale = cxratio * dxFrame;
-  yboxScale = cyratio * dyFrame;
-  scaleFactor = (xboxScale - 2 * border) / maxwid;
-  fontsizeToPlot = fontsizeToPlot * scaleFactor;
-  //get estimated width with new fontsizetoplot
-  getXYBox();
-
-  //Keep old bbox in order to calc scale
-  Rectangle bboxOld = bbox;
-
-  //check if annotation is too big for the box, this could happen if
-  // not small enough fonts available (plot empty box)
-  if (bbox.width() * 0.5 > xboxScale || bbox.height() * 0.5 > yboxScale)
-    plotAnno = false;
-
-  //change bbox to correct size and position
-  if (poptions.h_align == align_right)
-    bbox.x1 = bbox.x2 - xboxScale;
-  else if (poptions.h_align == align_left)
-    bbox.x2 = bbox.x1 + xboxScale;
-  else {
-    float w = bbox.width();
-    bbox.x1 = bbox.x1 + 0.5 * (w - xboxScale);
-    bbox.x2 = bbox.x2 - 0.5 * (w - xboxScale);
-  }
-  if (poptions.v_align == align_top)
-    bbox.y1 = bbox.y2 - yboxScale;
-  else if (poptions.h_align == align_bottom)
-    bbox.y2 = bbox.y1 + yboxScale;
-  else {
-    float h = bbox.height();
-    bbox.y1 = bbox.y1 + 0.5 * (h - yboxScale);
-    bbox.y2 = bbox.y2 - 0.5 * (h - yboxScale);
-  }
-
-  //scale width and height of each annotation
-  int n = annotations.size();
-  for (int i = 0; i < n; i++) {
-    annotations[i].wid *= bbox.width() / bboxOld.width();
-    annotations[i].hei *= bbox.height() / bboxOld.height();
-  }
-  spacing *= bbox.height() / bboxOld.height();
 }
 
 bool AnnotationPlot::markAnnotationPlot(int x, int y)
