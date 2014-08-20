@@ -38,11 +38,14 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QScrollArea>
+#include <EditItems/layer.h>
 
 class QToolButton;
 class QIcon;
 
 namespace EditItems {
+
+class LayerManager;
 
 class CheckableLabel : public QLabel
 {
@@ -85,6 +88,7 @@ private:
 };
 
 QToolButton *createToolButton(const QIcon &, const QString &, const QObject *, const char *);
+QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *, QString *);
 
 } // namespace
 

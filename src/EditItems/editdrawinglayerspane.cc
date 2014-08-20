@@ -47,26 +47,31 @@
 #include "selectall.xpm"
 #include "deselectall.xpm"
 #include "addempty.xpm"
+#include "fileopen.xpm"
 #include "merge.xpm"
 #include "duplicate.xpm"
 #include "remove.xpm"
 #include "filesave.xpm"
+
+#include <QDebug>
 
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
   : LayersPaneBase(layerManager, title, true)
   , addEmptyButton_(0)
+  , addFromFileButton_(0)
   , selectAllItemsButton_(0)
   , deselectAllItemsButton_(0)
   , mergeSelectedButton_(0)
   , duplicateSelectedButton_(0)
   , removeSelectedButton_(0)
-  , saveVisibleButton_(0)
+  , saveSelectedButton_(0)
 {
   bottomLayout_->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", this, SLOT(showAll())));
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
   bottomLayout_->addWidget(addEmptyButton_ = createToolButton(QPixmap(addempty_xpm), "Add an empty layer", this, SLOT(addEmpty())));
+  bottomLayout_->addWidget(addFromFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Add layers from file", this, SLOT(addFromFile())));
   bottomLayout_->addWidget(moveUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move selected layer up", this, SLOT(moveSingleSelectedUp())));
   bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));
   bottomLayout_->addWidget(editButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of selected layer", this, SLOT(editAttrsOfSingleSelected())));
@@ -75,7 +80,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   bottomLayout_->addWidget(mergeSelectedButton_ = createToolButton(QPixmap(merge_xpm), "Merge selected layers", this, SLOT(mergeSelected())));
   bottomLayout_->addWidget(duplicateSelectedButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate selected layers", this, SLOT(duplicateSelected())));
   bottomLayout_->addWidget(removeSelectedButton_ = createToolButton(QPixmap(remove_xpm), "Remove selected layers", this, SLOT(removeSelected())));
-  bottomLayout_->addWidget(saveVisibleButton_ = createToolButton(QPixmap(filesave), "Save visible layers to file", this, SLOT(saveVisible())));
+  bottomLayout_->addWidget(saveSelectedButton_ = createToolButton(QPixmap(filesave), "Save selected layers to file", this, SLOT(saveSelected())));
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   // create context menu actions
@@ -116,7 +121,7 @@ void EditDrawingLayersPane::updateButtons()
   mergeSelectedButton_->setEnabled(selectedLayersCount > 1);
   duplicateSelectedButton_->setEnabled(selectedLayersCount > 0);
   removeSelectedButton_->setEnabled(removableLayersCount > 0);
-  saveVisibleButton_->setEnabled(visibleLayersCount > 0);
+  saveSelectedButton_->setEnabled(visibleLayersCount > 0);
 }
 
 void EditDrawingLayersPane::addContextMenuActions(QMenu &menu) const
@@ -188,6 +193,28 @@ void EditDrawingLayersPane::addEmpty()
   add(newLayer);
 }
 
+void EditDrawingLayersPane::addFromFile()
+{
+  QString error;
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, &error);
+  if (!error.isEmpty()) {
+    QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
+    return;
+  }
+
+  if (layers.isEmpty()) {
+    QMessageBox::warning(0, "Warning", QString("no layers found"));
+    return;
+  }
+
+  foreach (const QSharedPointer<Layer> &layer, layers) {
+    layerMgr_->addToLayerGroup(layerGroup_, layer);
+    add(layer, true);
+  }
+
+  emit updated();
+}
+
 void EditDrawingLayersPane::selectAll()
 {
   foreach (LayerWidget *lw, selectedWidgets())
@@ -248,17 +275,17 @@ void EditDrawingLayersPane::removeSelected()
   remove(selectedWidgets());
 }
 
-void EditDrawingLayersPane::saveVisible() const
+void EditDrawingLayersPane::saveSelected() const
 {
   const QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
     DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
   if (fileName.isEmpty())
     return;
 
-  QString error = LayersPaneBase::saveVisible(fileName);
+  QString error = LayersPaneBase::saveSelected(fileName);
 
   if (!error.isEmpty())
-    QMessageBox::warning(0, "Error", QString("failed to save visible layers to file: %1").arg(error));
+    QMessageBox::warning(0, "Error", QString("failed to save selected layers to file: %1").arg(error));
 }
 
 void EditDrawingLayersPane::handleLayerUpdate()

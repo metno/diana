@@ -101,6 +101,8 @@ public:
   void setItemChangeFilter(const QString &);
   void emitItemChanged() const;
 
+  void setItemsVisibilityForced(bool);
+
 public slots:
   void abortEditing();
   void completeEditing();
@@ -201,6 +203,7 @@ private:
 
   QString itemChangeFilter_;
   bool itemChangeNotificationEnabled_;
+  bool itemsVisibilityForced_;
 
   virtual bool parseSetup() { return true; } // n/a
 

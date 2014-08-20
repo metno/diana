@@ -471,15 +471,23 @@ void LayersPaneBase::editAttrsOfSingleSelected()
   editAttrs(layerWidget);
 }
 
-QString LayersPaneBase::saveVisible(const QString &fileName) const
+QString LayersPaneBase::saveLayers(const QList<QSharedPointer<Layer> > &layers_, const QString &fileName) const
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  const QList<QSharedPointer<Layer> > visLayers = layers(visibleWidgets());
   QString error;
-  KML::saveToFile(fileName, visLayers, &error);
+  KML::saveLayersToFile(fileName, layers_, &error);
   QApplication::restoreOverrideCursor();
-
   return error;
+}
+
+QString LayersPaneBase::saveVisible(const QString &fileName) const
+{
+  return saveLayers(layers(visibleWidgets()), fileName);
+}
+
+QString LayersPaneBase::saveSelected(const QString &fileName) const
+{
+  return saveLayers(layers(selectedWidgets()), fileName);
 }
 
 void LayersPaneBase::mouseClicked(QMouseEvent *event)

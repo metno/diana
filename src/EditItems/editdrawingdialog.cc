@@ -95,6 +95,11 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   infoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   bottomLayout->addWidget(infoCBox);
   //
+  QCheckBox *forceItemsVisibleCBox = new QCheckBox("items always visible");
+  connect(forceItemsVisibleCBox, SIGNAL(toggled(bool)), SLOT(setItemsVisibilityForced(bool)));
+  forceItemsVisibleCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+  bottomLayout->addWidget(forceItemsVisibleCBox);
+  //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
 
@@ -165,6 +170,11 @@ void EditDrawingDialog::dumpStructure()
 void EditDrawingDialog::showInfo(bool checked)
 {
   layersPane_->showInfo(checked);
+}
+
+void EditDrawingDialog::setItemsVisibilityForced(bool checked)
+{
+  editm_->setItemsVisibilityForced(checked);
 }
 
 } // namespace

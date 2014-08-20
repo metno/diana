@@ -76,6 +76,7 @@ EditItemManager::EditItemManager()
   , skipRepaint_(false)
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
+  , itemsVisibilityForced_(false)
 {
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -676,7 +677,7 @@ void EditItemManager::plot(bool under, bool over)
           if (item == hoverItem_)
             modes |= EditItemBase::Hovered;
         }
-        if (item->property("visible", true).toBool()) {
+        if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
           applyPlotOptions(item);
           setFromLatLonPoints(*item, item->getLatLonPoints());
           Editing(item.data())->draw(modes, false, EditItemsStyle::StyleEditor::instance()->isVisible());
@@ -737,7 +738,7 @@ QSet<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPoin
 
   QSet<QSharedPointer<DrawingItemBase> > hitItems;
   foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers()) {
-    if (item->property("visible", false).toBool() == false)
+    if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
       continue;
     if (Editing(item.data())->hit(pos, selItems.contains(item)))
       hitItems.insert(item);
@@ -1003,6 +1004,12 @@ void EditItemManager::emitItemChanged() const
     }
     lastCallMatched = false;
   }
+}
+
+void EditItemManager::setItemsVisibilityForced(bool forced)
+{
+  itemsVisibilityForced_ = forced;
+  repaint(); // or a full handleLayersUpdate()?
 }
 
 // Clipboard operations

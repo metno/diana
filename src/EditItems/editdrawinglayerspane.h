@@ -54,12 +54,13 @@ private:
   void duplicate(const QList<LayerWidget *> &);
   virtual void initLayerWidget(LayerWidget *);
   QToolButton *addEmptyButton_;
+  QToolButton *addFromFileButton_;
   QToolButton *selectAllItemsButton_;
   QToolButton *deselectAllItemsButton_;
   QToolButton *mergeSelectedButton_;
   QToolButton *duplicateSelectedButton_;
   QToolButton *removeSelectedButton_;
-  QToolButton *saveVisibleButton_;
+  QToolButton *saveSelectedButton_;
   QAction *selectAll_act_;
   QAction *deselectAll_act_;
   QAction *merge_act_;
@@ -70,10 +71,11 @@ private slots:
   void selectAll();
   void deselectAll();
   void addEmpty();
+  void addFromFile();
   void mergeSelected();
   void duplicateSelected();
   void removeSelected();
-  void saveVisible() const;
+  void saveSelected() const;
   void handleLayerUpdate();
 };
 

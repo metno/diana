@@ -51,7 +51,7 @@
 // API for saving/loading to/from KML files.
 namespace KML {
 
-void saveToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error);
+void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error);
 
 QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
 

@@ -107,6 +107,7 @@ public:
   void showInfo(bool);
   void init();
   QString saveVisible(const QString &) const;
+  QString saveSelected(const QString &) const;
 
 protected:
   LayersPaneBase(LayerManager *, const QString &, bool);
@@ -172,6 +173,8 @@ private slots:
 private:
   LayerWidget *visibleLayerWidget_;
   bool multiSelectable_;
+
+  QString saveLayers(const QList<QSharedPointer<Layer> > &, const QString &) const;
 
 signals:
   void updated();

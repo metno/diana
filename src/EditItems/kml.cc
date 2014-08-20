@@ -67,7 +67,7 @@ static QByteArray createKMLText(QDomDocument &doc, const QDomDocumentFragment &i
 
 // Saves a list of \a layers to \a fileName.
 // The function leaves \a error empty iff it succeeds.
-void saveToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error)
+void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditItems::Layer> > &layers, QString *error)
 {
   *error = QString();
   QDomDocument doc;

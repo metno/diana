@@ -29,10 +29,18 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "empty.xpm"
+#include <diDrawingManager.h>
 #include <EditItems/dialogcommon.h>
+#include <EditItems/kml.h>
+#include <EditItems/editpolyline.h>
+#include <EditItems/editsymbol.h>
+#include <EditItems/edittext.h>
+#include <EditItems/editcomposite.h>
 #include <QToolButton>
 #include <QIcon>
+#include <QFileDialog>
+#include <QApplication>
+#include "empty.xpm"
 
 namespace EditItems {
 
@@ -100,6 +108,28 @@ QToolButton *createToolButton(const QIcon &icon, const QString &toolTip, const Q
   button->setToolTip(toolTip);
   QObject::connect(button, SIGNAL(clicked()), object, method);
   return button;
+}
+
+// Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
+QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, QString *error)
+{
+  *error = QString();
+
+  const QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
+    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+  if (fileName.isEmpty())
+    return QList<QSharedPointer<Layer> >();
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  const QList<QSharedPointer<Layer> > layers = \
+      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
+  QApplication::restoreOverrideCursor();
+
+  QFileInfo fi(fileName);
+  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
+
+  return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
 }
 
 } // namespace

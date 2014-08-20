@@ -189,28 +189,6 @@ void LayerGroupsPane::addWidgetForLG(const QSharedPointer<LayerGroup> &layerGrou
   connect(lgWidget, SIGNAL(mouseClicked(QMouseEvent *)), SLOT(mouseClicked(QMouseEvent *)));
 }
 
-// Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
-static QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, QString *error)
-{
-  *error = QString();
-
-  const QString fileName = QFileDialog::getOpenFileName(0, QObject::tr("Open File"),
-    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
-    return QList<QSharedPointer<Layer> >();
-
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  const QList<QSharedPointer<Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
-  QApplication::restoreOverrideCursor();
-
-  QFileInfo fi(fileName);
-  DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
-
-  return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
-}
-
 void LayerGroupsPane::addToLGFromFile()
 {
   QString error;

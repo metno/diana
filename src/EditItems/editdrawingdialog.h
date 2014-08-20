@@ -63,6 +63,8 @@ private slots:
   // ### FOR TESTING:
   void dumpStructure();
   void showInfo(bool);
+
+  void setItemsVisibilityForced(bool);
 };
 
 } // namespace
