@@ -158,7 +158,6 @@ private:
   void getAnnoSize(std::vector<element>& annoEl, float& wid, float& hei,
       bool horizontal = true);
   void getXYBox();
-  void getXYBoxScaled(Rectangle& window);
   bool plotElements(std::vector<element>& annoEl, float& x, float& y,
       float annoHeight, bool horizontal = true);
   float plotArrow(float x, float y, float l, bool feather = false);
