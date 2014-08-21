@@ -283,6 +283,8 @@ void DrawingStyleManager::beginFill(DrawingItemBase *item)
   const int alpha = style.value(DSP_filltransparency::name()).toInt(&alphaOk);
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
 
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   QString fillPattern = style.value(DSP_fillpattern::name()).toString();
 
   if (!fillPattern.isEmpty()) {
