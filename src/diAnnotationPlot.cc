@@ -976,6 +976,9 @@ void AnnotationPlot::getXYBox()
     // spacing used was less than that available).
     if (spacing < scaledSpacing)
         height -= (n - 1)*(scaledSpacing - spacing);
+  } else {
+    width = maxwid + 2 * border;
+    height = totalhei + (n - 1) * spacing + 2 * border;
   }
 
   // Set the x coordinates for the annotation's bounding box.
