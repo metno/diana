@@ -74,6 +74,7 @@ EditItemManager *EditItemManager::self = 0;
 EditItemManager::EditItemManager()
   : repaintNeeded_(false)
   , skipRepaint_(false)
+  , hitOffset_(0)
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
@@ -303,10 +304,10 @@ void EditItemManager::mousePress(QMouseEvent *event)
   QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QSet<QSharedPointer<DrawingItemBase> > origSelItems(selItems);
 
-  const QSet<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(event->pos());
+  const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(event->pos());
   QSharedPointer<DrawingItemBase> hitItem; // consider only this item to be hit
   if (!hitItems.empty())
-    hitItem = *(hitItems.begin()); // for now; eventually use the one with higher z-value etc. ... TBD
+    hitItem = hitItems.first();
 
   const bool hitSelItem = selItems.contains(hitItem); // whether an already selected item was hit
   const bool selectMulti = event->modifiers() & Qt::ControlModifier;
@@ -459,11 +460,10 @@ void EditItemManager::mouseMove(QMouseEvent *event)
   bool rpn = false;
 
   if (hover) {
-    const QSet<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(event->pos());
+    lastHoverPos_ = event->pos();
+    const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(lastHoverPos_);
     if (!hitItems.empty()) {
-      // consider only the topmost item that was hit ... 2 B DONE
-      // for now, consider only the first that was found
-      hoverItem_ = *(hitItems.begin());
+      hoverItem_ = hitItems.first();
 
       // send mouse hover event to the hover item
       Editing(hoverItem_.data())->mouseHover(event, rpn);
@@ -729,19 +729,25 @@ bool EditItemManager::canRedo() const
   return undoStack_.canRedo();
 }
 
-QSet<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPointF &pos) const
+QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPointF &pos) const
 {
   if (layerMgr_->selectedLayers().isEmpty())
-    return QSet<QSharedPointer<DrawingItemBase> >();
+    return QList<QSharedPointer<DrawingItemBase> >();
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
 
-  QSet<QSharedPointer<DrawingItemBase> > hitItems;
+  QList<QSharedPointer<DrawingItemBase> > hitItems;
   foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers()) {
     if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
       continue;
     if (Editing(item.data())->hit(pos, selItems.contains(item)))
-      hitItems.insert(item);
+      hitItems.append(item);
+  }
+
+  if (hitItems.size() > 1) { // rotate list
+    const int steps = hitOffset_ % hitItems.size();
+    for (int i = 0; i < steps; ++i)
+      hitItems.append(hitItems.takeFirst());
   }
 
   return hitItems;
@@ -1180,10 +1186,10 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       // open a context menu
 
       // get actions contributed by a hit item (if any)
-      const QSet<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(me2.pos());
+      const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(me2.pos());
       QSharedPointer<DrawingItemBase> hitItem; // consider only this item to be hit
       if (!hitItems.empty())
-        hitItem = *(hitItems.begin()); // for now; eventually use the one with higher z-value etc. ... TBD
+        hitItem = hitItems.first();
 
       QList<QAction *> hitItemActions;
       if (!hitItem.isNull()) {
@@ -1315,21 +1321,31 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
   if (layerMgr_->selectedLayers().isEmpty())
     return;
 
-  if (event->type() == QEvent::KeyPress) {
-    if (cutAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      cutSelectedItems();
-    else if (copyAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      copySelectedItems();
-    else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      pasteItems();
-    else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch)
-      editProperties();
-    else
-      event->ignore();
-  }
-
   res.repaint = true;
   res.background = true;
+
+  if (event->type() == QEvent::KeyPress) {
+    if (cutAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      cutSelectedItems();
+    } else if (copyAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      copySelectedItems();
+    } else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      pasteItems();
+    } else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      editProperties();
+    } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
+        if (!hoverItem_.isNull()) {
+          // if multiple items are hit at the last hover position, then cycle through them
+          hitOffset_ += ((event->key() == Qt::Key_PageUp) ? 1 : -1);
+          QMouseEvent hoverEvent(QEvent::MouseMove, lastHoverPos_, Qt::NoButton, Qt::MouseButtons(), event->modifiers());
+          mouseMove(&hoverEvent);
+          return;
+        }
+    } else {
+      event->ignore();
+    }
+  }
+
   if (event->isAccepted()) {
     emitItemChanged();
     return;

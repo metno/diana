@@ -81,7 +81,7 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QSet<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
+  QList<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
 
   bool processInput(const std::vector<std::string>& inp);
   void plot(bool under, bool over);
@@ -164,6 +164,8 @@ private:
   QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   bool repaintNeeded_;
   bool skipRepaint_;
+  quint32 hitOffset_;
+  QPoint lastHoverPos_;
   QUndoStack undoStack_;
   QUndoView *undoView_;
 
