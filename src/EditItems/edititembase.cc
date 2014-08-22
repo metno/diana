@@ -33,8 +33,8 @@
 #include <GL/gl.h>
 
 EditItemBase::EditItemBase()
-    : moving_(false)
-    , resizing_(false)
+  : moving_(false)
+  , resizing_(false)
 {}
 
 void EditItemBase::init()
@@ -60,58 +60,63 @@ QList<QPointF> EditItemBase::geometry() const
 
 void EditItemBase::setGeometry(const QList<QPointF> &points)
 {
-    Drawing(this)->points_ = points;
-    updateControlPoints();
+  Drawing(this)->points_ = points;
+  updateControlPoints();
 }
 
 QList<QPointF> EditItemBase::baseGeometry() const
 {
-    return basePoints_;
+  return basePoints_;
 }
 
 QList<QPointF> EditItemBase::getBasePoints() const
 {
-    return baseGeometry();
+  return baseGeometry();
 }
 
 // Returns the index (>= 0)  of the control point hit by \a pos, or -1 if no
 // control point was hit.
 int EditItemBase::hitControlPoint(const QPointF &pos) const
 {
-    for (int i = 0; i < controlPoints_.size(); ++i)
-        if (controlPoints_.at(i).contains(pos))
-            return i;
-    return -1;
+  for (int i = 0; i < controlPoints_.size(); ++i)
+    if (controlPoints_.at(i).contains(pos))
+      return i;
+  return -1;
 }
 
 // Moves the item by the specified amount (i.e. \a pos is relative to the item's current position).
 void EditItemBase::moveBy(const QPointF &pos)
 {
-    baseMousePos_ = QPointF();
-    basePoints_ = Drawing(this)->points_;
-    move(pos);
+  baseMousePos_ = QPointF();
+  basePoints_ = Drawing(this)->points_;
+  move(pos);
 }
 
 void EditItemBase::move(const QPointF &pos)
 {
-    const QPointF delta = pos - baseMousePos_;
-    Q_ASSERT(basePoints_.size() == points_.size());
-    for (int i = 0; i < Drawing(this)->points_.size(); ++i)
-        Drawing(this)->points_[i] = basePoints_.at(i) + delta;
-    updateControlPoints();
+  const QPointF delta = pos - baseMousePos_;
+  Q_ASSERT(basePoints_.size() == points_.size());
+  for (int i = 0; i < Drawing(this)->points_.size(); ++i)
+    Drawing(this)->points_[i] = basePoints_.at(i) + delta;
+  updateControlPoints();
 }
 
 void EditItemBase::drawControlPoints() const
 {
-    glColor3ub(0, 0, 0);
-    foreach (QRectF c, controlPoints_) {
-        glBegin(GL_POLYGON);
-        glVertex3i(c.left(),  c.bottom(), 1);
-        glVertex3i(c.right(), c.bottom(), 1);
-        glVertex3i(c.right(), c.top(),    1);
-        glVertex3i(c.left(),  c.top(),    1);
-        glEnd();
-    }
+  glPushAttrib(GL_POLYGON_BIT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  glColor3ub(0, 0, 0);
+  foreach (QRectF c, controlPoints_) {
+    glBegin(GL_POLYGON);
+    glVertex3i(c.left(),  c.bottom(), 1);
+    glVertex3i(c.right(), c.bottom(), 1);
+    glVertex3i(c.right(), c.top(),    1);
+    glVertex3i(c.left(),  c.top(),    1);
+    glEnd();
+  }
+
+  glPopAttrib();
 }
 
 // Highlight the hovered control point.
@@ -160,7 +165,7 @@ void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
  */
 void EditItemBase::draw()
 {
-    draw(Normal, false);
+  draw(Normal, false);
 }
 
 /**
@@ -191,12 +196,12 @@ void EditItemBase::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
-    Q_UNUSED(undoCommands)
-    Q_UNUSED(items)
-    Q_UNUSED(selItems)
-    Q_UNUSED(multiItemOp)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
+  Q_UNUSED(undoCommands)
+  Q_UNUSED(items)
+  Q_UNUSED(selItems)
+  Q_UNUSED(multiItemOp)
 }
 
 /**
@@ -212,21 +217,21 @@ void EditItemBase::mousePress(
  */
 void EditItemBase::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
-    Q_UNUSED(complete)
-    Q_UNUSED(aborted)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
+  Q_UNUSED(complete)
+  Q_UNUSED(aborted)
 }
 
 void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
 {
-    Q_UNUSED(event);
-    Q_UNUSED(repaintNeeded); // no need to set this
-    Q_ASSERT(undoCommands);
-    DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
-    if ((moving_ || resizing_) && (ditem->getPoints() != getBasePoints()))
-        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
-    moving_ = resizing_ = false;
+  Q_UNUSED(event);
+  Q_UNUSED(repaintNeeded); // no need to set this
+  Q_ASSERT(undoCommands);
+  DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
+  if ((moving_ || resizing_) && (ditem->getPoints() != getBasePoints()))
+    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
+  moving_ = resizing_ = false;
 }
 
 void EditItemBase::mouseMove(QMouseEvent *event, bool &repaintNeeded)
@@ -248,89 +253,89 @@ void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 
 void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::keyPress(
-        QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
+    QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
+    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
 {
-    if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-        QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
-        while (it != items->end()) {
-            if ((*it).data() == Drawing(this)) {
-                it = items->erase(it);
-            } else {
-                ++it;
-            }
-        }
-    } else if (
-               (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
-               ((event->key() == Qt::Key_Left)
-                || (event->key() == Qt::Key_Right)
-                || (event->key() == Qt::Key_Down)
-                || (event->key() == Qt::Key_Up))) {
-        QPointF pos;
-        const qreal nudgeVal = 1; // nudge item by this much
-        if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
-        else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
-        else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
-        else pos += QPointF(0, nudgeVal); // Key_Up
-        moveBy(pos);
-        DrawingItemBase *ditem = Drawing(this);
-        undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
-        repaintNeeded = true;
+  if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
+    QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
+    while (it != items->end()) {
+      if ((*it).data() == Drawing(this)) {
+        it = items->erase(it);
+      } else {
+        ++it;
+      }
     }
+  } else if (
+             (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
+             ((event->key() == Qt::Key_Left)
+              || (event->key() == Qt::Key_Right)
+              || (event->key() == Qt::Key_Down)
+              || (event->key() == Qt::Key_Up))) {
+    QPointF pos;
+    const qreal nudgeVal = 1; // nudge item by this much
+    if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
+    else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
+    else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
+    else pos += QPointF(0, nudgeVal); // Key_Up
+    moveBy(pos);
+    DrawingItemBase *ditem = Drawing(this);
+    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
+    repaintNeeded = true;
+  }
 }
 
 void EditItemBase::keyRelease(QKeyEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
-    Q_UNUSED(complete)
-    Q_UNUSED(aborted)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
+  Q_UNUSED(complete)
+  Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteMouseMove(QMouseEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
 }
 
 void EditItemBase::incompleteMouseDoubleClick(QMouseEvent *event, bool &repaintNeeded, bool &complete,
                                               bool &aborted)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
-    Q_UNUSED(complete)
-    Q_UNUSED(aborted)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
+  Q_UNUSED(complete)
+  Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
-    Q_UNUSED(complete)
-    Q_UNUSED(aborted)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
+  Q_UNUSED(complete)
+  Q_UNUSED(aborted)
 }
 
 void EditItemBase::incompleteKeyRelease(QKeyEvent *event, bool &repaintNeeded)
 {
-    Q_UNUSED(event)
-    Q_UNUSED(repaintNeeded)
+  Q_UNUSED(event)
+  Q_UNUSED(repaintNeeded)
 }
 
 QVariantMap EditItemBase::clipboardVarMap() const

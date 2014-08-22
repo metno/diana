@@ -496,8 +496,9 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
     imageCache[key] = image;
   }
 
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
+  glPushAttrib(GL_COLOR_BUFFER_BIT|GL_POLYGON_BIT);
   glEnable(GL_BLEND);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glctx->drawTexture(QPointF(x, y), texture);
   glPopAttrib();
 }
