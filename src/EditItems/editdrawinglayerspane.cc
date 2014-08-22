@@ -212,6 +212,8 @@ void EditDrawingLayersPane::addFromFile()
     add(layer, true);
   }
 
+  selectExclusive(widgets(layers));
+
   emit updated();
 }
 

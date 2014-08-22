@@ -347,16 +347,21 @@ void LayersPaneBase::select(LayerWidget *layerWidget, bool selected)
   select(QList<LayerWidget *>() << layerWidget, selected);
 }
 
-void LayersPaneBase::selectExclusive(LayerWidget *layerWidget)
+void LayersPaneBase::selectExclusive(const QList<LayerWidget *> &layerWidgets)
 {
   QList<LayerWidget *> others;
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *lw = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    if (lw != layerWidget)
+    if (!layerWidgets.contains(lw))
       others.append(lw);
   }
-  select(layerWidget);
+  select(layerWidgets);
   select(others, false);
+}
+
+void LayersPaneBase::selectExclusive(LayerWidget *layerWidget)
+{
+  selectExclusive(QList<LayerWidget *>() << layerWidget);
 }
 
 // Returns the indexes of the selected layers.
@@ -598,8 +603,18 @@ QList<LayerWidget *> LayersPaneBase::widgets(bool requireSelected, bool requireV
   QList<LayerWidget *> layerWidgets;
   for (int i = 0; i < layout_->count(); ++i) {
     LayerWidget *lw = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
-    const bool match = (!requireSelected || lw->layer()->isSelected()) && (!requireVisible || lw->isLayerVisible());
-    if (match)
+    if ((!requireSelected || lw->layer()->isSelected()) && (!requireVisible || lw->isLayerVisible()))
+      layerWidgets.append(lw);
+  }
+  return layerWidgets;
+}
+
+QList<LayerWidget *> LayersPaneBase::widgets(const QList<QSharedPointer<Layer> > &layers) const
+{
+  QList<LayerWidget *> layerWidgets;
+  for (int i = 0; i < layout_->count(); ++i) {
+    LayerWidget *lw = qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget());
+    if (layers.contains(lw->layer()))
       layerWidgets.append(lw);
   }
   return layerWidgets;

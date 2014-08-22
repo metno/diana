@@ -125,11 +125,12 @@ protected: // ### some of these may be private ... TBD
 
   virtual void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);
-  QList<int> selectedPos() const;
   void selectIndex(int, bool = true);
   void select(const QList<LayerWidget *> &, bool = true);
   void select(LayerWidget *, bool = true);
+  void selectExclusive(const QList<LayerWidget *> &);
   void selectExclusive(LayerWidget *);
+  QList<int> selectedPos() const;
   LayerWidget *atPos(int);
   void ensureVisible(LayerWidget *);
   void remove(const QList<LayerWidget *> &, bool = false, bool = true);
@@ -141,6 +142,7 @@ protected: // ### some of these may be private ... TBD
   void editAttrs(LayerWidget *);
   void setAllVisible(bool);
   QList<LayerWidget *> widgets(bool = false, bool = false) const;
+  QList<LayerWidget *> widgets(const QList<QSharedPointer<Layer> > &) const;
   QList<LayerWidget *> visibleWidgets() const;
   QList<LayerWidget *> selectedWidgets() const;
   QList<LayerWidget *> allWidgets() const;
