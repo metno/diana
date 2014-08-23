@@ -466,7 +466,7 @@ void LayersPaneBase::editAttrs(LayerWidget *layerWidget)
 void LayersPaneBase::editAttrsOfSingleSelected()
 {
   const QList<int> selPos = selectedPos();
-  if (selPos.size() == 1)
+  if (selPos.size() != 1)
     return;
 
   LayerWidget *layerWidget = atPos(selPos.first());
