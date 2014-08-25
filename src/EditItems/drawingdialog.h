@@ -33,6 +33,7 @@
 #define DRAWINGDIALOG_H
 
 #include "qtDataDialog.h"
+#include <EditItems/layer.h>
 
 class DrawingManager;
 class LayerManager;
@@ -69,6 +70,9 @@ private slots:
   // ### FOR TESTING:
   void dumpStructure();
   void showInfo(bool);
+
+signals:
+  void newEditLayerRequested(const QSharedPointer<Layer> &);
 };
 
 } // namespace

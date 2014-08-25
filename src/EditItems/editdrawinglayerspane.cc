@@ -53,8 +53,6 @@
 #include "remove.xpm"
 #include "filesave.xpm"
 
-#include <QDebug>
-
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
@@ -175,6 +173,17 @@ bool EditDrawingLayersPane::handleKeyPressEvent(QKeyEvent *event)
     return true;
   }
   return false;
+}
+
+void EditDrawingLayersPane::addDuplicate(const QSharedPointer<Layer> &layer)
+{
+  // initialize screen coordinates from lat/lon
+  for (int i = 0; i < layer->itemCount(); ++i)
+    DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
+
+  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(QList<QSharedPointer<Layer> >() << layer, EditItemManager::instance());
+  layerMgr_->addToLayerGroup(layerGroup_, newLayer);
+  add(newLayer);
 }
 
 void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable, bool nameEditable)

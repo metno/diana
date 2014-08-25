@@ -44,6 +44,7 @@ class EditDrawingLayersPane : public LayersPaneBase
   Q_OBJECT
 public:
   EditDrawingLayersPane(LayerManager *, const QString &);
+  void addDuplicate(const QSharedPointer<Layer> &);
 private:
   virtual void updateButtons();
   virtual void addContextMenuActions(QMenu &) const;

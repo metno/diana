@@ -111,6 +111,12 @@ std::string EditDrawingDialog::name() const
   return "EDITDRAWING";
 }
 
+void EditDrawingDialog::handleNewEditLayerRequested(const QSharedPointer<Layer> &layer)
+{
+
+  layersPane_->addDuplicate(layer);
+}
+
 // ### FOR TESTING:
 static void dumpLayerManagerStructure(const LayerManager *lm)
 {

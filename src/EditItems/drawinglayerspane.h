@@ -40,10 +40,17 @@ class LayerManager;
 
 class DrawingLayersPane : public LayersPaneBase
 {
+  Q_OBJECT
 public:
   DrawingLayersPane(LayerManager *, const QString &);
-private:
   virtual void updateButtons();
+private:
+  QToolButton *duplicateToEditableButton_;
+private slots:
+  void duplicateToEditable();
+
+signals:
+  void newEditLayerRequested(const QSharedPointer<Layer> &);
 };
 
 } // namespace

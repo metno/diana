@@ -35,10 +35,11 @@
 #include <EditItems/toolbar.h>
 #include <EditItems/layergroupspane.h>
 #include <EditItems/drawinglayerspane.h>
-#include <EditItems/drawingpolyline.h>
-#include <EditItems/drawingsymbol.h>
-#include <EditItems/drawingtext.h>
-#include <EditItems/drawingcomposite.h>
+
+#include <EditItems/editpolyline.h>
+#include <EditItems/editsymbol.h>
+#include <EditItems/edittext.h>
+#include <EditItems/editcomposite.h>
 
 #include <paint_mode.xpm> // ### for now
 #include <QAction>
@@ -112,8 +113,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   foreach (const QString &fileName, drawm_->getDrawings()) {
     QString error;
     const QList<QSharedPointer<Layer> > layers =
-        KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-        DrawingItem_Text::Text, DrawingItem_Composite::Composite>(layerMgr_, fileName, &error);
+        KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+        EditItem_Text::Text, EditItem_Composite::Composite>(layerMgr_, fileName, &error);
     if (error.isEmpty())
       layerMgr_->addToNewLayerGroup(layers, fileName);
     else
@@ -127,6 +128,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   connect(layerGroupsPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
   connect(layersPane_, SIGNAL(updated()), SLOT(handleDialogUpdated()));
+
+  connect(layersPane_, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)));
 
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
@@ -255,6 +258,7 @@ void DrawingDialog::makeProduct()
 void DrawingDialog::handleDialogUpdated()
 {
   indicateUnappliedChanges(true);
+  layersPane_->updateButtons();
 }
 
 

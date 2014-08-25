@@ -931,6 +931,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   editDrawingDialog->hide();
   addDialog(editDrawingDialog);
 
+  connect(drawingDialog, SIGNAL(newEditLayerRequested(const QSharedPointer<Layer> &)), editDrawingDialog,
+          SLOT(handleNewEditLayerRequested(const QSharedPointer<Layer> &)));
+
 #ifdef ENABLE_EIM_TESTDIALOG
   QAction *eimTestDialogToggleAction = new QAction(this);
   eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
