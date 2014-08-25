@@ -61,9 +61,6 @@ public:
   // Returns a deep copy of this item.
   DrawingItemBase *clone(const DrawingManager *) const;
 
-  // Returns the item's group ID if set, or -1 otherwise.
-  int groupId() const;
-
   virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
   QVariant property(const QString &name, const QVariant &default_ = QVariant()) const;

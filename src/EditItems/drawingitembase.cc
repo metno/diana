@@ -59,17 +59,6 @@ DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm) const
   return item;
 }
 
-int DrawingItemBase::groupId() const
-{
-  if (!properties_.contains("groupId"))
-      properties_.insert("groupId", id()); // note that properties_ is declared as mutable
-  const QVariant vgid = properties_.value("groupId");
-  bool ok;
-  const int gid = vgid.toInt(&ok);
-  Q_ASSERT(ok);
-  return gid;
-}
-
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const
 {
   if (properties_.contains(name))
@@ -171,9 +160,6 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
     break;
   }
   extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:objectType", objectType));
-
-  // group ID
-  extDataElem.appendChild(KML::createExtDataDataElement(doc, "met:groupId", QString::number(groupId())));
 
   // style properties
   foreach (const QString key, properties_.keys()) {

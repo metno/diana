@@ -120,29 +120,6 @@ QDomElement createExtDataDataElement(QDomDocument &doc, const QString &name, con
   return dataElem;
 }
 
-// Returns the met:groupId value associated with \a node. Sets \a found to true iff a value is found.
-// Leaves \a error empty iff no errors occurs.
-int findGroupId(const QDomNode &node, bool &found, QString *error)
-{
-  QHash<QString, QString> extdata = getExtendedData(node, "Placemark");
-  if (extdata.isEmpty() || !error->isEmpty()) {
-    *error = QString("No extended data available for coordinates node on line %1").arg(node.lineNumber());
-    found = false;
-    return -1;
-  }
-
-  bool ok;
-  int groupId = extdata.value("met:groupId").toInt(&ok);
-  if (!ok) {
-    *error = QString("failed to extract met:groupId as integer: %1").arg(groupId);
-    found = false;
-    return -1;
-  } else {
-    found = true;
-    return groupId;
-  }
-}
-
 // Returns any extended data map located as a child of the nearest node
 // with tag \a parentTag along the ancestor chain from (and including) \a node.
 QHash<QString, QString> getExtendedData(const QDomNode &node, const QString &parentTag)

@@ -55,8 +55,6 @@ void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditIt
 
 QDomElement createExtDataDataElement(QDomDocument &, const QString &, const QString &);
 
-int findGroupId(const QDomNode &, bool &, QString *);
-
 QHash<QString, QString> getExtendedData(const QDomNode &, const QString &);
 
 QList<QPointF> getPoints(const QDomNode &, QString *);
@@ -131,97 +129,81 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(Edi
   // *** PHASE 1: extract items
 
   QList<QSharedPointer<DrawingItemBase> > items;
-  QMap<int, int> finalGroupId;
 
   // loop over <coordinates> elements
   QDomNodeList coordsNodes = doc.elementsByTagName("coordinates");
   for (int i = 0; i < coordsNodes.size(); ++i) {
     const QDomNode coordsNode = coordsNodes.item(i);
-    bool found;
-    const int groupId = findGroupId(coordsNode, found, error);
+    // create item
+    const QList<QPointF> points = getPoints(coordsNode, error);
     if (!error->isEmpty())
       return QList<QSharedPointer<EditItems::Layer> >();
-    if (found) {
-      // create item
-      const QList<QPointF> points = getPoints(coordsNode, error);
-      if (!error->isEmpty())
-        return QList<QSharedPointer<EditItems::Layer> >();
 
-      // Find the extended data associated with the coordinates.
+    // Find the extended data associated with the coordinates.
 
-      const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
-      if (pmExtData.isEmpty()) {
-        *error = "<Placemark> element without <ExtendedData> element found";
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-
-      // Create a suitable item for this KML structure.
-
-      BaseType *itemObj = 0;
-      QString objectType = pmExtData.value("met:objectType");
-      if (objectType == "PolyLine") {
-        itemObj = createPolyLine<PolyLineType>(points, coordsNode);
-      } else if (objectType == "Symbol") {
-        itemObj = createSymbol<SymbolType>(points, coordsNode, pmExtData);
-      } else if (objectType == "Text") {
-        itemObj = createText<TextType>(points, coordsNode, pmExtData);
-      } else if (objectType == "Composite") {
-        itemObj = createComposite<CompositeType>(points, coordsNode, pmExtData);
-      } else {
-        *error = QString("unknown element found");
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-      Q_ASSERT(itemObj);
-      QSharedPointer<DrawingItemBase> item(Drawing(itemObj));
-      items.append(item);
-      DrawingItemBase *ditem = item.data();
-
-      // set general properties
-      if (!finalGroupId.contains(groupId))
-        finalGroupId.insert(groupId, ditem->id()); // NOTE: item->data() is just created, and its ID is globally unique!
-      ditem->setProperty("groupId", finalGroupId.value(groupId));
-
-      DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
-
-      if (pmExtData.contains("met:layerId"))  {
-        bool ok;
-        const int layerId = pmExtData.value("met:layerId").toInt(&ok);
-        if (!ok) {
-          *error = QString("failed to parse met:layerId as integer: %1").arg(pmExtData.value("met:layerId"));
-          return QList<QSharedPointer<EditItems::Layer> >();
-        }
-        ditem->setProperty("layerId", layerId);
-      }
-
-      QMap<QString, QDomElement> ancElems;
-      findAncestorElements(coordsNode, &ancElems, error);
-      if (!error->isEmpty())
-        return QList<QSharedPointer<EditItems::Layer> >();
-
-      if (ancElems.contains("Placemark")) {
-        ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
-        if (!error->isEmpty())
-          return QList<QSharedPointer<EditItems::Layer> >();
-      } else {
-        *error = "found <coordinates> element outside a <Placemark> element";
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-
-      if (ancElems.contains("Folder")) {
-        ditem->setProperty("Folder:name", getName(ancElems.value("Folder"), error));
-        if (!error->isEmpty())
-          return QList<QSharedPointer<EditItems::Layer> >();
-
-          QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Folder"), error);
-          if (!error->isEmpty())
-            return QList<QSharedPointer<EditItems::Layer> >();
-          ditem->setProperty("TimeSpan:begin", timeSpan.first);
-          ditem->setProperty("TimeSpan:end", timeSpan.second);
-      }
-
-    } else {
-      *error = "found <coordinates> element not associated with a met:groupId";
+    const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
+    if (pmExtData.isEmpty()) {
+      *error = "<Placemark> element without <ExtendedData> element found";
       return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    // Create a suitable item for this KML structure.
+
+    BaseType *itemObj = 0;
+    QString objectType = pmExtData.value("met:objectType");
+    if (objectType == "PolyLine") {
+      itemObj = createPolyLine<PolyLineType>(points, coordsNode);
+    } else if (objectType == "Symbol") {
+      itemObj = createSymbol<SymbolType>(points, coordsNode, pmExtData);
+    } else if (objectType == "Text") {
+      itemObj = createText<TextType>(points, coordsNode, pmExtData);
+    } else if (objectType == "Composite") {
+      itemObj = createComposite<CompositeType>(points, coordsNode, pmExtData);
+    } else {
+      *error = QString("unknown element found");
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+    Q_ASSERT(itemObj);
+    QSharedPointer<DrawingItemBase> item(Drawing(itemObj));
+    items.append(item);
+    DrawingItemBase *ditem = item.data();
+
+    DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
+
+    if (pmExtData.contains("met:layerId"))  {
+      bool ok;
+      const int layerId = pmExtData.value("met:layerId").toInt(&ok);
+      if (!ok) {
+        *error = QString("failed to parse met:layerId as integer: %1").arg(pmExtData.value("met:layerId"));
+        return QList<QSharedPointer<EditItems::Layer> >();
+      }
+      ditem->setProperty("layerId", layerId);
+    }
+
+    QMap<QString, QDomElement> ancElems;
+    findAncestorElements(coordsNode, &ancElems, error);
+    if (!error->isEmpty())
+      return QList<QSharedPointer<EditItems::Layer> >();
+
+    if (ancElems.contains("Placemark")) {
+      ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+    } else {
+      *error = "found <coordinates> element outside a <Placemark> element";
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    if (ancElems.contains("Folder")) {
+      ditem->setProperty("Folder:name", getName(ancElems.value("Folder"), error));
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+
+      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Folder"), error);
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+      ditem->setProperty("TimeSpan:begin", timeSpan.first);
+      ditem->setProperty("TimeSpan:end", timeSpan.second);
     }
   }
 
