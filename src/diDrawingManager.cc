@@ -255,6 +255,7 @@ QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) cons
   return PhysToGeo(points);
 }
 
+// Returns geographic coordinates converted from screen coordinates.
 QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
   int w, h;
@@ -266,7 +267,6 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 
   QList<QPointF> latLonPoints;
 
-  // Convert screen coordinates to geographic coordinates.
   for (int i = 0; i < n; ++i) {
     float x, y;
     PLOTM->PhysToGeo(points.at(i).x() - dx,
@@ -283,23 +283,22 @@ void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPoi
   item.setPoints(points);
 }
 
+// Returns screen coordinates converted from geographic coordinates.
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
-  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
 
   QList<QPointF> points;
   int n = latLonPoints.size();
 
-  // Convert geographic coordinates to screen coordinates.
+  const Rectangle currPlotRect = PLOTM->getPlotSize();
   for (int i = 0; i < n; ++i) {
     float x, y;
     PLOTM->GeoToPhys(latLonPoints.at(i).x(),
                      latLonPoints.at(i).y(),
-                     x, y, currentArea, plotRect);
-    points.append(QPointF(x + dx, y + dy));
+                     x, y, currentArea, currPlotRect);
+    points.append(QPointF(x, y));
   }
 
   return points;
