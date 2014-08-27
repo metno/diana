@@ -115,14 +115,13 @@ static inline CompositeType *createComposite(const QList<QPointF> &points, const
   return item;
 }
 
-// Returns a list of item layers extracted from DOM document \a doc.
+// Returns a list of item layers extracted from DOM document \a doc originally loaded from source file \a srcFileName.
 // Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
 // Upon failure, the function returns an empty list of item layers and a failure reason in \a error.
 // If the document contains no layer information, the items are returned in a single layer with default properties.
-template<typename BaseType, typename PolyLineType, typename SymbolType,
-         typename TextType, typename CompositeType>
-static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(EditItems::LayerManager *layerManager,
-                                                                             const QDomDocument &doc, QString *error)
+template<typename BaseType, typename PolyLineType, typename SymbolType, typename TextType, typename CompositeType>
+static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
+    EditItems::LayerManager *layerManager, const QDomDocument &doc, const QString &srcFileName, QString *error)
 {
   *error = QString();
 
@@ -169,6 +168,8 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(Edi
     DrawingItemBase *ditem = item.data();
 
     DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
+
+    ditem->setProperty("srcFile", srcFileName);
 
     if (pmExtData.contains("met:layerId"))  {
       bool ok;
@@ -295,6 +296,9 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(Edi
   if (!defaultLayer.isNull())
     layers.prepend(defaultLayer);
 
+  foreach (const QSharedPointer<EditItems::Layer> &layer, layers)
+    layer->insertSrcFile(srcFileName);
+
   return layers;
 }
 
@@ -345,7 +349,8 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems:
   // at this point, a document is successfully created from either the new or the old format
 
   // parse document and create items
-  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(layerManager, doc, error);
+  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument<BaseType, PolyLineType, SymbolType, TextType, CompositeType>(
+        layerManager, doc, fileName, error);
 
   // initialize screen coordinates from lat/lon
   foreach (const QSharedPointer<EditItems::Layer> layer, layers) {

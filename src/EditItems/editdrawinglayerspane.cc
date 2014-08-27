@@ -92,6 +92,8 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   duplicate_act_->setIconVisibleInMenu(true);
   remove_act_ = new QAction(QPixmap(remove_xpm), tr("Remove"), 0);
   remove_act_->setIconVisibleInMenu(true);
+  save_act_ = new QAction(QPixmap(filesave), tr("Save"), 0);
+  save_act_->setIconVisibleInMenu(true);
 
   // add scratch layer
   const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
@@ -134,6 +136,8 @@ void EditDrawingLayersPane::addContextMenuActions(QMenu &menu) const
   menu.addAction(duplicate_act_);
   remove_act_->setEnabled(removeSelectedButton_->isEnabled());
   menu.addAction(remove_act_);
+  save_act_->setEnabled(saveSelectedButton_->isEnabled());
+  menu.addAction(save_act_);
 }
 
 bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, const QList<LayerWidget *> &layerWidgets)
@@ -160,6 +164,11 @@ bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, const
 
   if (action == remove_act_) {
     LayersPaneBase::remove(layerWidgets);
+    return true;
+  }
+
+  if (action == save_act_) {
+    save(layerWidgets);
     return true;
   }
 
@@ -286,17 +295,50 @@ void EditDrawingLayersPane::removeSelected()
   remove(selectedWidgets());
 }
 
-void EditDrawingLayersPane::saveSelected() const
+void EditDrawingLayersPane::save(const QList<LayerWidget *> &layerWidgets)
 {
-  const QString fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
-    DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
-  if (fileName.isEmpty())
-    return;
+  QSet<QString> srcFiles;
+  foreach (LayerWidget *lw, layerWidgets) {
+    srcFiles.unite(lw->layer()->srcFiles());
+    foreach (const QSharedPointer<DrawingItemBase> &item, lw->layer()->items()) {
+      if (item->properties().contains("srcFile"))
+          srcFiles.insert(item->properties().value("srcFile").toString());
+    }
+  }
 
+  QString fileName;
+  bool cancel;
+  if (!srcFiles.isEmpty()) {
+    QStringList sortedSrcFiles = srcFiles.toList();
+    qSort(sortedSrcFiles);
+    fileName = selectString("Select a file", "Select another file", lastSelSaveFName_, sortedSrcFiles, cancel);
+  }
+  if (cancel)
+    return;
+  if (fileName.isEmpty()) {
+    fileName = QFileDialog::getSaveFileName(0, QObject::tr("Save File"),
+                                            DrawingManager::instance()->getWorkDir(), QObject::tr("KML files (*.kml);; All files (*)"));
+    if (fileName.isEmpty())
+      return;
+  } else {
+    const QFileInfo fileInfo(fileName);
+    if (fileInfo.exists() &&
+        (QMessageBox::warning(
+           this, "Overwrite file?", QString("A file named %1 already exists.\nDo you want to replace it?").arg(fileInfo.absoluteFilePath()),
+           QMessageBox::Yes | QMessageBox::No) == QMessageBox::No))
+        return;
+  }
+
+  lastSelSaveFName_ = fileName;
   QString error = LayersPaneBase::saveSelected(fileName);
 
   if (!error.isEmpty())
     QMessageBox::warning(0, "Error", QString("failed to save selected layers to file: %1").arg(error));
+}
+
+void EditDrawingLayersPane::saveSelected()
+{
+  save(selectedWidgets());
 }
 
 void EditDrawingLayersPane::handleLayerUpdate()

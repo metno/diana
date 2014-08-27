@@ -53,6 +53,7 @@ private:
   void add(const QSharedPointer<Layer> &, bool = false, bool = true, bool = true);
   void merge(const QList<LayerWidget *> &);
   void duplicate(const QList<LayerWidget *> &);
+  void save(const QList<LayerWidget *> &);
   virtual void initLayerWidget(LayerWidget *);
   QToolButton *addEmptyButton_;
   QToolButton *addFromFileButton_;
@@ -67,7 +68,9 @@ private:
   QAction *merge_act_;
   QAction *duplicate_act_;
   QAction *remove_act_;
+  QAction *save_act_;
   QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
+  QString lastSelSaveFName_;
 private slots:
   void selectAll();
   void deselectAll();
@@ -76,7 +79,7 @@ private slots:
   void mergeSelected();
   void duplicateSelected();
   void removeSelected();
-  void saveSelected() const;
+  void saveSelected();
   void handleLayerUpdate();
 };
 

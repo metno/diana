@@ -215,6 +215,7 @@ void LayerManager::mergeLayers(const QList<QSharedPointer<Layer> > &srcLayers, c
       dstLayer->insertItem(srcLayers.at(i)->itemRef(j));
     for (int j = 0; j < srcLayers.at(i)->selectedItemCount(); ++j)
       dstLayer->selectItem(srcLayers.at(i)->selectedItem(j));
+    dstLayer->uniteSrcFiles(srcLayers.at(i)->srcFiles());
   }
 }
 

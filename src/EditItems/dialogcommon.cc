@@ -39,6 +39,9 @@
 #include <QToolButton>
 #include <QIcon>
 #include <QFileDialog>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QRadioButton>
 #include <QApplication>
 #include "empty.xpm"
 
@@ -130,6 +133,68 @@ QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, Q
   DrawingManager::instance()->setWorkDir(fi.dir().absolutePath());
 
   return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
+}
+
+class StringSelector : public QDialog
+{
+public:
+  StringSelector(const QString &title, const QString &noneTitle, const QString &defaultString, const QStringList &strings)
+    : noneButton_(0)
+  {
+    setWindowTitle(title);
+    QVBoxLayout *vboxLayout = new QVBoxLayout;
+
+    foreach (const QString &s, strings) {
+      QRadioButton *button = new QRadioButton(s);
+      button->setChecked(s == defaultString);
+      bgroup_.addButton(button);
+      vboxLayout->addWidget(button);
+    }
+
+    noneButton_ = new QRadioButton(noneTitle);
+    noneButton_->setChecked(!(bgroup_.checkedButton()));
+    bgroup_.addButton(noneButton_);
+    vboxLayout->addWidget(noneButton_);
+
+    QDialogButtonBox *dialogBBox =
+        new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(dialogBBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(dialogBBox, SIGNAL(rejected()), SLOT(reject()));
+    vboxLayout->addWidget(dialogBBox);
+
+    setLayout(vboxLayout);
+  }
+
+  ~StringSelector()
+  {
+    foreach (QAbstractButton *button, bgroup_.buttons())
+      delete button;
+  }
+
+  QString selection() const
+  {
+    QAbstractButton *button = bgroup_.checkedButton();
+    if (button && (button != noneButton_))
+      return button->text();
+    return QString();
+  }
+
+private:
+  QButtonGroup bgroup_;
+  QAbstractButton *noneButton_;
+};
+
+// Opens a modal dialog that lets the user select one of the candidate strings or none.
+// Returns either the selected candidate string or an empty string.
+QString selectString(const QString &title, const QString &noneTitle, const QString &defaultString, const QStringList &strings, bool &cancel)
+{
+  StringSelector stor(title, noneTitle, defaultString, strings);
+  cancel = false;
+  if (stor.exec() == QDialog::Rejected) {
+    cancel = true;
+    return QString();
+  }
+  return stor.selection();
 }
 
 } // namespace

@@ -84,6 +84,9 @@ public:
   QString name() const;
   void setName(const QString &);
   const QSharedPointer<LayerGroup> &layerGroupRef() const;
+  QSet<QString> srcFiles() const;
+  void insertSrcFile(const QString &);
+  void uniteSrcFiles(const QSet<QString> &srcFiles);
 private:
   int id_;
   static int nextId_;
@@ -94,6 +97,7 @@ private:
   bool visible_;
   bool unsavedChanges_;
   QString name_;
+  QSet<QString> srcFiles_;
 signals:
   void updated();
 };

@@ -89,6 +89,7 @@ private:
 
 QToolButton *createToolButton(const QIcon &, const QString &, const QObject *, const char *);
 QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *, QString *);
+QString selectString(const QString &, const QString &, const QString &, const QStringList &, bool &);
 
 } // namespace
 

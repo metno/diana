@@ -55,6 +55,7 @@ Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManage
       visible_ = true;
     foreach (const QSharedPointer<DrawingItemBase> item, srcLayer->items_)
       insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
+    srcFiles_.unite(srcLayer->srcFiles());
   }
 }
 
@@ -282,6 +283,21 @@ void Layer::setName(const QString &n)
 const QSharedPointer<LayerGroup> &Layer::layerGroupRef() const
 {
   return layerGroup_;
+}
+
+QSet<QString> Layer::srcFiles() const
+{
+  return srcFiles_;
+}
+
+void Layer::insertSrcFile(const QString &srcFile)
+{
+  srcFiles_.insert(srcFile);
+}
+
+void Layer::uniteSrcFiles(const QSet<QString> &srcFiles)
+{
+  srcFiles_.unite(srcFiles);
 }
 
 } // namespace
