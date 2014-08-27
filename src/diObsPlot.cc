@@ -1013,8 +1013,6 @@ void ObsPlot::obs_mslp(float *values)
 
   plot();
 
-  for (int i = 0; i < numObs; i++)
-    obsp[i].fdata.erase("PPPP_mslp");
 }
 
 //***********************************************************************

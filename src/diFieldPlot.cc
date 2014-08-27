@@ -4750,39 +4750,6 @@ std::string FieldPlot::getTrajectoryFieldName()
   return str;
 }
 
-bool FieldPlot::obs_mslp(ObsPositions& obsPositions)
-{
-
-  if (not isEnabled())
-    return false;
-  if (fields.size() != 1 or not checkFields(1))
-    return false;
-
-  if (miutil::to_lower(fields[0]->name) != "mslp")
-    return false;
-
-  //change projection if needed
-  if (obsPositions.obsArea.P() != fields[0]->area.P()) {
-    StaticPlot::gc.getPoints(obsPositions.obsArea.P(), fields[0]->area.P(),
-        obsPositions.numObs, obsPositions.xpos, obsPositions.ypos);
-    obsPositions.obsArea = fields[0]->area;
-  }
-
-  if (obsPositions.convertToGrid) {
-    fields[0]->convertToGrid(obsPositions.numObs, obsPositions.xpos,
-        obsPositions.ypos);
-    obsPositions.convertToGrid = false;
-  }
-
-  //get values
-  int interpoltype = 1;
-  if (!fields[0]->interpolate(obsPositions.numObs, obsPositions.xpos,
-      obsPositions.ypos, obsPositions.values, interpoltype))
-    return false;
-
-  return true;
-}
-
 bool FieldPlot::checkFields(size_t count) const
 {
   if (count == 0) {

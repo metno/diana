@@ -1150,31 +1150,12 @@ void PlotModule::plotUnder()
     }
   }
 
-  // if "PPPP-mslp", calc. values and plot observations,
-  //if inEdit use editField, if not use first "MSLP"-field
-  if (obsm->obs_mslp()) {
-    if (editm->isInEdit() && editm->getMapMode() != fedit_mode && editm->getMapMode() != combine_mode) {
-      // in underlay while not changing the field
-      if (editm->obs_mslp(obsm->getObsPositions())) {
-        obsm->calc_obs_mslp(vop);
-      }
-    } else if (!editm->isInEdit()) {
-      for (unsigned int i = 0; i < vfp.size(); i++) {
-        if (vfp[i]->obs_mslp(obsm->getObsPositions())) {
-          obsm->calc_obs_mslp(vop);
-          break;
-        }
-      }
-    }
-  }
-
-  // plot observations
-  if (!editm->isInEdit() || !obsm->obs_mslp()) {
+  // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
+  if ( !( editm->isInEdit()&& (editm->getMapMode() == fedit_mode || editm->getMapMode() == combine_mode)  && obsm->obs_mslp())) {
     ObsPlot::clearPos();
     for (size_t i = 0; i < vop.size(); i++)
       vop[i]->plot();
   }
-
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)

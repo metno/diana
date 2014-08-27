@@ -75,7 +75,6 @@ public:
   bool plotNumbers();
   std::string getModelName();
   std::string getTrajectoryFieldName();
-  bool obs_mslp(ObsPositions& obsPositions);
   bool fieldsOK();
   void clearFields();
 
