@@ -664,7 +664,10 @@ void PlotModule::setAnnotations()
     vector<vector<string> > vvstr = vap[i]->getAnnotationStrings();
     for (size_t k = 0; k < vvstr.size(); k++) {
       for (size_t j = 0; j < vfp.size(); j++) {
-        vfp[j]->getAnnotations(vvstr[k]);
+        vfp[j]->getDataAnnotations(vvstr[k]);
+      }
+      for (size_t j = 0; j < vop.size(); j++) {
+        vop[j]->getDataAnnotations(vvstr[k]);
       }
       satm->getSatAnnotations(vvstr[k]);
       editm->getAnnotations(vvstr[k]);
@@ -933,7 +936,6 @@ bool PlotModule::updatePlots(bool failOnMissingData)
     vMeasurementsPlot[0]->prepare();
   }
 
-  // get annotations from all plots
   setAnnotations();
 
   PlotAreaSetup();
@@ -942,6 +944,9 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   // because we need to reproject the items to screen coordinates.
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
     it->second->changeProjection(StaticPlot::getMapArea());
+
+
+
 
   // Successful update
   return !(failOnMissingData && nodata);
@@ -1170,16 +1175,6 @@ void PlotModule::plotUnder()
       vop[i]->plot();
   }
 
-  for (size_t l = 0; l < vap.size(); l++) {
-    vector<vector<string> > vvstr = vap[l]->getAnnotationStrings();
-    for (size_t k = 0; k < vvstr.size(); k++) {
-      for (size_t j = 0; j < vfp.size(); j++)
-        vfp[j]->getDataAnnotations(vvstr[k]);
-      for (size_t j = 0; j < vop.size(); j++)
-        vop[j]->getDataAnnotations(vvstr[k]);
-    }
-    vap[l]->setAnnotationStrings(vvstr);
-  }
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)
@@ -2356,7 +2351,7 @@ void PlotModule::updateEditLabels(const vector<std::string>& productLabelstrings
     vector<vector<string> > vvstr = ap->getAnnotationStrings();
     for (size_t k = 0; k < vvstr.size(); k++) {
       for (size_t j = 0; j < vfp.size(); j++)
-        vfp[j]->getAnnotations(vvstr[k]);
+        vfp[j]->getDataAnnotations(vvstr[k]);
     }
     ap->setAnnotationStrings(vvstr);
 

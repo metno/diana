@@ -3564,5 +3564,5 @@ bool FieldEdit::plot(bool showinfluence)
 
 bool FieldEdit::getAnnotations(vector<string>& anno)
 {
-  return editfieldplot->getAnnotations(anno);
+  return editfieldplot->getDataAnnotations(anno);
 }

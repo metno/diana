@@ -225,9 +225,9 @@ struct aTable {
   std::string text;
 };
 
-bool FieldPlot::getAnnotations(vector<string>& anno)
+bool FieldPlot::getTableAnnotations(vector<string>& anno)
 {
-  //  METLIBS_LOG_DEBUG("getAnnotations:"<<anno.size());
+  METLIBS_LOG_SCOPE();
 
   if (not checkFields(1))
     return false;
@@ -538,6 +538,8 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
 
     }
   }
+
+  getTableAnnotations(anno);
 
   return true;
 }

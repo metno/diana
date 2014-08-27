@@ -55,7 +55,6 @@ public:
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
-  bool getAnnotations(std::vector<std::string>& anno);
   bool getDataAnnotations(std::vector<std::string>& anno);
   bool plot();
   bool plot(const int){return false;}
@@ -97,6 +96,7 @@ private:
   float    vectorAnnotationSize;
   std::string vectorAnnotationText;
 
+  bool getTableAnnotations(std::vector<std::string>& anno);
   std::vector<float*> prepareVectors(float* x, float* y, bool rotateVectors);
   std::vector<float*> prepareDirectionVectors(float* x, float* y);
   void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
