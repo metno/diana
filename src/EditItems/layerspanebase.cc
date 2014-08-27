@@ -692,7 +692,6 @@ void LayersPaneBase::updateWidgetStructure()
            layout_->count(), activeLayers.size());
 
   // update widget contents
-  int currIndex = -1;
   for (int i = 0; i < activeLayers.size(); ++i) {
     LayerWidget *layerWidget = atPos(i);
     QSharedPointer<Layer> layer = activeLayers.at(i);
