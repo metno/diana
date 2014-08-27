@@ -1,5 +1,5 @@
 /* XPM */
-static char * duplicate_to_editable_xpm[] = {
+static const char * duplicate_to_editable_xpm[] = {
 "23 24 10 1",
 " 	c None",
 ".	c #525252",

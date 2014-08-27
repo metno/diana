@@ -1,5 +1,5 @@
 /* XPM */
-static char * paint_create_symbol_xpm[] = {
+static const char * paint_create_symbol_xpm[] = {
 "24 24 157 2",
 "  	c None",
 ". 	c #000000",

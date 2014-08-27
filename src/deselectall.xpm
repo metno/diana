@@ -1,5 +1,5 @@
 /* XPM */
-static char * deselectall_xpm[] = {
+static const char * deselectall_xpm[] = {
 "24 24 43 1",
 " 	c None",
 ".	c #FF0000",
