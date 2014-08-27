@@ -45,10 +45,13 @@ public:
   DrawingLayersPane(LayerManager *, const QString &);
   virtual void updateButtons();
 private:
+  virtual void addContextMenuActions(QMenu &) const;
+  virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &);
+  void duplicateToEditable(const QSharedPointer<Layer> &);
   QToolButton *duplicateToEditableButton_;
+  QAction *duplicateToEditable_act_;
 private slots:
-  void duplicateToEditable();
-
+  void duplicateSelectedToEditable();
 signals:
   void newEditLayerRequested(const QSharedPointer<Layer> &);
 };

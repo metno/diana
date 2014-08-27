@@ -36,6 +36,8 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QSpacerItem>
+#include <QMenu>
+#include <QAction>
 
 #include "duplicate_to_editable.xpm"
 
@@ -50,8 +52,12 @@ DrawingLayersPane::DrawingLayersPane(EditItems::LayerManager *layerManager, cons
   bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));
   bottomLayout_->addWidget(editButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of selected layer", this, SLOT(editAttrsOfSingleSelected())));
   bottomLayout_->addWidget(duplicateToEditableButton_ =
-      createToolButton(QPixmap(duplicate_to_editable_xpm), "Duplicate selected layer to an editable layer", this, SLOT(duplicateToEditable())));
+      createToolButton(QPixmap(duplicate_to_editable_xpm), "Duplicate selected layer to an editable layer", this, SLOT(duplicateSelectedToEditable())));
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
+
+  // create context menu actions
+  duplicateToEditable_act_ = new QAction(QPixmap(duplicate_to_editable_xpm), tr("Duplicate to editable"), 0);
+  duplicateToEditable_act_->setIconVisibleInMenu(true);
 }
 
 void DrawingLayersPane::updateButtons()
@@ -70,14 +76,36 @@ void DrawingLayersPane::updateButtons()
   duplicateToEditableButton_->setEnabled(selectedLayersCount == 1);
 }
 
+void DrawingLayersPane::addContextMenuActions(QMenu &menu) const
+{
+  duplicateToEditable_act_->setEnabled(duplicateToEditableButton_->isEnabled());
+  menu.addAction(duplicateToEditable_act_);
+}
+
+bool DrawingLayersPane::handleContextMenuAction(const QAction *action, const QList<LayerWidget *> &layerWidgets)
+{
+  if (action == duplicateToEditable_act_) {
+    if (layerWidgets.size() == 1)
+      duplicateToEditable(layerWidgets.first()->layer());
+    return true;
+  }
+
+  return false;
+}
+
+// Duplicates the given layer to a new layer in the EditDrawingDialog.
+void DrawingLayersPane::duplicateToEditable(const QSharedPointer<Layer> &layer)
+{
+  emit newEditLayerRequested(layer);
+}
+
 // Duplicates the selected layer to a new layer in the EditDrawingDialog.
-void DrawingLayersPane::duplicateToEditable()
+void DrawingLayersPane::duplicateSelectedToEditable()
 {
   const QList<LayerWidget *> selWidgets = selectedWidgets();
   if (selWidgets.size() != 1)
     return;
-
-  emit newEditLayerRequested(selWidgets.first()->layer());
+  duplicateToEditable(selWidgets.first()->layer());
 }
 
 } // namespace
