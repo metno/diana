@@ -343,7 +343,7 @@ QVariantMap EditItemBase::clipboardVarMap() const
   QVariantMap vmap = ConstDrawing(this)->properties();
   vmap.insert("type", metaObject()->className());
   QVariantList vpoints;
-  foreach (QPointF p, DrawingManager::instance()->PhysToGeo(ConstDrawing(this)->getPoints()))
+  foreach (QPointF p, ConstDrawing(this)->getLatLonPoints())
     vpoints.append(p);
   vmap.insert("points", vpoints);
   return vmap;
