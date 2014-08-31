@@ -395,7 +395,8 @@ private:
   void obs_mslp(float *);
 
   // find observation near screen coordinates x, y; only of showpos
-  bool findObs(int x, int y);
+  int findObs(int x, int y, const std::string& type="");
+  bool showpos_findObs(int x, int y);
 
   // find name of observation near screen coordinates x, y
   bool getObsName(int xx, int yy, std::string& station);

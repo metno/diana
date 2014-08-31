@@ -1919,7 +1919,7 @@ bool PlotModule::findObs(int x, int y)
   bool found = false;
 
   for (size_t i = 0; i < vop.size(); i++)
-    if (vop[i]->findObs(x, y))
+    if (vop[i]->showpos_findObs(x, y))
       found = true;
 
   return found;

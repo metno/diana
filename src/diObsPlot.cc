@@ -1017,50 +1017,76 @@ void ObsPlot::obs_mslp(float *values)
 
 //***********************************************************************
 
-bool ObsPlot::findObs(int xx, int yy)
+int ObsPlot::findObs(int xx, int yy, const std::string& type)
 {
-  // METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
-  if (!showpos)
-    return false;
+  METLIBS_LOG_SCOPE();
 
-  int n = notplot.size();
-  vector<int>::iterator p = notplot.begin();
-
-  vector<int>::iterator min_p;
   float min_r = 10.0f * StaticPlot::getPlotSize().width()
-          / StaticPlot::getPhysWidth();
+              / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
   float r;
   int min_i = -1;
 
   float xpos = xx * StaticPlot::getPlotSize().width()
-          / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
+              / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
   float ypos = yy * StaticPlot::getPlotSize().height()
-          / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+              / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
-  //find closest station, closer than min_r, from list of stations not plotted
-  for (int i = 0; i < n; i++, p++) {
-    r = powf(xpos - x[notplot[i]], 2) + powf(ypos - y[notplot[i]], 2);
-    if (r < min_r) {
-      min_r = r;
-      min_i = i;
-      min_p = p;
+  if ( type == "notplot" ) {
+    //find closest station, closer than min_r, from list of stations not plotted
+    for (size_t i = 0; i < notplot.size(); i++ ) {
+      r = powf(xpos - x[notplot[i]], 2) + powf(ypos - y[notplot[i]], 2);
+      if ( r < min_r ) {
+        min_r = r;
+        min_i = i;
+      }
+    }
+    //if last station are closer, return -1
+    if ( min_i > -1 && nextplot.size() ) {
+      r = powf(xpos - x[nextplot[0]], 2) + powf(ypos - y[nextplot[0]], 2);
+      if ( r < min_r )
+        return -1;
+    }
+  } else if (type == "nextplot" ) {
+    //find closest station, closer than min_r, from list of stations plotted
+    for (size_t i = 0; i < nextplot.size(); i++ ) {
+      r = powf(xpos - x[nextplot[i]], 2) + powf(ypos - y[nextplot[i]], 2);
+      if (r < min_r) {
+        min_r = r;
+        min_i = i;
+      }
+    }
+  } else {
+    //find closest station, closer than min_r
+    for (size_t i = 0; i < obsp.size(); i++ ) {
+      r = powf(xpos - x[i], 2) + powf(ypos - y[i], 2);
+      if (r < min_r) {
+        min_r = r;
+        min_i = i;
+      }
     }
   }
+
+  return min_i;
+
+}
+
+bool ObsPlot::showpos_findObs(int xx, int yy)
+{
+  METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
+
+  if (!showpos)
+    return false;
+
+  int min_i = findObs(xx,yy,"notplot");
 
   if (min_i < 0) {
     return false;
   }
 
-  //if last station are closer, return false
-  if (nextplot.size()) {
-    r = powf(xpos - x[nextplot[0]], 2) + powf(ypos - y[nextplot[0]], 2);
-    if (r < min_r)
-      return false;
-  }
-
   //insert station found in list of stations to plot, and remove it
   //from list of stations not to plot
+  vector<int>::iterator min_p = notplot.begin()+min_i;
   nextplot.insert(nextplot.begin(), notplot[min_i]);
   notplot.erase(min_p);
   thisObs = true;
@@ -1073,38 +1099,14 @@ bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
   METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);
 
-  float min_r = 10.0f * StaticPlot::getPlotSize().width()
-          / StaticPlot::getPhysWidth();
-  min_r = powf(min_r, 2);
-  float r;
   int min_i = -1;
 
-  float xpos = xx * StaticPlot::getPlotSize().width()
-          / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos = yy * StaticPlot::getPlotSize().height()
-          / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
-
-  int numObs = numPositions();
-
   if (onlypos) {
-    for (int i = 0; i < numObs; i++) {
-      r = powf(xpos - x[i], 2) + powf(ypos - y[i], 2);
-      if (r < min_r) {
-        min_r = r;
-        min_i = i;
-      }
-    }
+    min_i =  findObs(xx,yy);
     if (min_i < 0)
       return false;
   } else {
-    int n = nextplot.size();
-    for (int i = 0; i < n; i++) {
-      r = powf(xpos - x[nextplot[i]], 2) + powf(ypos - y[nextplot[i]], 2);
-      if (r < min_r) {
-        min_r = r;
-        min_i = i;
-      }
-    }
+    min_i =  findObs(xx,yy,"nextplot");
     if (min_i < 0)
       return false;
     min_i = nextplot[min_i];
