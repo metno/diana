@@ -50,7 +50,7 @@
 #include <iterator>
 #include <iomanip>
 
-#define MILOGGER_CATEGORY "vcross.QtPlot"
+#define MILOGGER_CATEGORY "diana.VcrossPlot"
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
@@ -917,6 +917,7 @@ void QtPlot::plotDataVector(QPainter& painter, OptionPlot_cp plot)
   const float vu = plot->poptions.vectorunit;
   if (vu > 0)
     pv.setScale(vu);
+  pv.setThickArrowScale(mOptions->thickArrowScale);
   plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
 }
 

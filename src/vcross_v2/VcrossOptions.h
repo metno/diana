@@ -117,7 +117,7 @@ public:
   bool     extrapolateFixedLevels;
   bool     extrapolateToBottom;
 
-  bool     thinArrows;
+  float    thickArrowScale;
 
   std::string verticalType;      // obsolete
   std::string verticalScale;     // linear/exner

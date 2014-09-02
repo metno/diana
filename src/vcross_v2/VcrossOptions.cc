@@ -122,7 +122,7 @@ void VcrossOptions::setDefaults()
   extrapolateFixedLevels= false;
   extrapolateToBottom= true;
 
-  thinArrows= false;
+  thickArrowScale= 0.1;
 
   verticalType= "Pressure/hPa";
   verticalScale= "linear";
@@ -264,7 +264,7 @@ std::vector<std::string> VcrossOptions::writeOptions()
       << "extrapolateToBottom=" << asBool(extrapolateToBottom)));
 
   vstr.push_back((StringBuilder()
-      << "thinArrows=" << asBool(thinArrows)));
+      << "thickArrowScale=" << thickArrowScale));
 
   vstr.push_back((StringBuilder()
       << "Vertical=" << verticalType));
@@ -384,7 +384,7 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
       else if (key=="extrapolateFixedLevels") extrapolateFixedLevels = kv.toBool();
       else if (key=="extrapolateToBottom")    extrapolateToBottom = kv.toBool();
 
-      else if (key=="thinArrows")    thinArrows = kv.toBool();
+      else if (key=="thickArrows")    thickArrowScale = kv.toDouble();
 
       else if (key=="Vertical")               verticalType= value;
       else if (key=="verticalScale")               verticalScale= value;

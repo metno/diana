@@ -254,11 +254,10 @@ void VcrossSetupUI::defineValue(int low, int high, int step, int value,
     valuespinbox->setMinimum(low);
     valuespinbox->setMaximum(high);
     valuespinbox->setSingleStep(step);
-    valuespinbox->setValue(value);
     if (not prefix.empty())
-      valuespinbox->setPrefix(QString(prefix.c_str()));
+      valuespinbox->setPrefix(QString::fromStdString(prefix));
     else if (not suffix.empty())
-      valuespinbox->setSuffix(QString(suffix.c_str()));
+      valuespinbox->setSuffix(QString::fromStdString(suffix));
     valuespinbox->setValue(value);
   }
 }

@@ -104,6 +104,7 @@ void PaintWindArrow::paint(QPainter& painter, float u, float v, float gx, float 
 PaintVector::PaintVector()
   : mScaleX(1)
   , mScaleY(mScaleX)
+  , mThickArrowScale(0.1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -122,7 +123,14 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
   const float ff = sqrtf(u*u + v*v);
   if (ff <= 0.00001 or isnan(ff))
     return;
-  
+
+  QPen pen = painter.pen();
+  if (mThickArrowScale > 0) {
+    QPen pen2(pen);
+    pen2.setWidthF(ff * mThickArrowScale);
+    painter.setPen(pen2);
+  }
+
   // direction
   const float dx = mScaleX * u, dy = mScaleY * v;
   const float ex = px + dx, ey = py + dy;
@@ -132,6 +140,9 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
   const float a = -1/3., s = a / 2;
   painter.drawLine(ex, ey, ex + a*dx + s*dy, ey + a*dy - s*dx);
   painter.drawLine(ex, ey, ex + a*dx - s*dy, ey + a*dy + s*dx);
+
+  if (mThickArrowScale > 0)
+    painter.setPen(pen);
 }
 
 // ------------------------------------------------------------------------

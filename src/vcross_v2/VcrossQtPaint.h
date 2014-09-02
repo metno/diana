@@ -80,7 +80,11 @@ struct PaintVector : public PaintArrow {
   inline void setScale(float sxy)
     { setScale(sxy, sxy); }
 
+  void setThickArrowScale(float tas)
+    { mThickArrowScale = tas; }
+
   float mScaleX, mScaleY;
+  float mThickArrowScale;
 };
 
 } // namespace vcross
