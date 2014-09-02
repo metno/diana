@@ -75,7 +75,6 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
   normal= true;
   currprod= -1;
-  //dbi.loggedin= false;
   productfree= false;
 
   setWindowTitle(tr("New product"));
