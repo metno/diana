@@ -1,3 +1,48 @@
+diana (3.36.0~rc5-2) unstable; urgency=low
+
+  * using metlibs-difield-dev=5.2.7-4
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 29 Aug 2014 13:42:50 +0200
+
+diana (3.36.0~rc5-1) unstable; urgency=low
+
+  * FieldFunctions: using % in probability function
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 28 Aug 2014 17:56:36 +0200
+
+diana (3.36.0~rc4-1) unstable; urgency=low
+
+  * new probability function - probability_between
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Aug 2014 11:03:54 +0200
+
+diana (3.36.0~rc3-2) unstable; urgency=low
+
+  * reverted diAnnotationPlot
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 21 Aug 2014 09:01:31 +0200
+
+diana (3.36.0~rc3-1) unstable; urgency=low
+
+  * vcross: initial support for EditItemManager draw/edit/remove
+  * several bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 21 Aug 2014 07:21:00 +0200
+
+diana (3.36.0~rc2-1) unstable; urgency=low
+
+  * Bugfix: ObsAscii
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 14 Aug 2014 11:56:12 +0200
+
+diana (3.36.0~rc1-1) unstable; urgency=low
+
+  * probability functions
+  * Vprof: timeStepSpinnBox
+  * Statusbar: area and distance
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 11 Aug 2014 10:59:54 +0200
+
 diana (3.35.5-1) unstable; urgency=low
 
   * FieldEdit: autoremove old files
@@ -64,7 +109,7 @@ diana (3.35.0-13) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 May 2014 15:20:37 +0200
 
-diana (3.35.0-12) unstable; urgency=low
+src/qtVprofWindow.hdiana (3.35.0-12) unstable; urgency=low
 
   * Bugfix vcross: locationData and topography
   * Bugfix edit: permissions
