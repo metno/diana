@@ -912,7 +912,7 @@ void FieldDialog::CreateAdvanced()
 
   //line values
   linevaluesField = new QLineEdit(advFrame);
-  connect(linevaluesField, SIGNAL(returnPressed()),
+  connect(linevaluesField, SIGNAL(editingFinished()),
       SLOT(linevaluesFieldEdited()));
   // log line values
   linevaluesLogCheckBox = new QCheckBox(QString(tr("Log")), advFrame);
