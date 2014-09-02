@@ -1,3 +1,9 @@
+diana (3.36.0~rc6-1) unstable; urgency=low
+
+  * FieldEdit Bugfix: problems with continue to edit fields that have been edited before (same
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 02 Sep 2014 12:24:41 +0200
+
 diana (3.36.0~rc5-2) unstable; urgency=low
 
   * using metlibs-difield-dev=5.2.7-4

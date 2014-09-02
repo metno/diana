@@ -176,7 +176,7 @@ public:
   /// returns true if last saved product has not been sent !
   bool unsentEditChanges();
   /// save field and objects to file and/or database
-  bool writeEditProduct(std::string&  message,
+  bool writeEditProduct(QString&  message,
 			const bool wfield =true,
 			const bool wobjects =true,
                         const bool send = false,

@@ -1213,16 +1213,20 @@ void EditDialog::ComboBoxData(QComboBox* box, int mindex)
 bool EditDialog::saveEverything(bool send, bool approved)
 {
   ecomment->saveComment();
-  std::string message;
+  QString message;
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-    message= std::string(tr("Problem saving/sending product\n").toStdString()) +
-        message;
-    QMessageBox::warning( this, tr("Save error:"),
-        message.c_str());
+  // EditManager might have solved the problem, try once more
+    res = m_editm->writeEditProduct(message,true,true,send,approved);
+    if (!res){
+      message= tr("Problems saving product: ") +
+          message;
+      QMessageBox::warning( this, tr("Save error:"),
+          message);
 
-    return false;
+      return false;
+    }
   }
 
   miutil::miTime t= miutil::miTime::nowTime();
