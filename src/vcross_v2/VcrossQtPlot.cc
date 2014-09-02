@@ -883,8 +883,15 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
   const detail::VCAxisPositions positions(mAxisX, mAxisY, distances, plot->evaluated->z_values);
   vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions);
   vcross::detail::VCLines con_lines(plot->poptions, *levels, painter, area);
-  contouring::run(con_field, con_lines);
-  con_lines.paint();
+  try {
+    contouring::run(con_field, con_lines);
+    con_lines.paint();
+  } catch (contouring::too_many_levels& ex) {
+    QPen pen(vcross::util::QC(plot->poptions.linecolour));
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawText(area.center(), "too many lines");
+  }
 }
 
 void QtPlot::plotDataWind(QPainter& painter, OptionPlot_cp plot)

@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 
 //#define LENGTH_STATS 1
 
@@ -103,23 +102,18 @@ static void dump_join_size()
 #endif
 
 namespace contouring {
+
+std::string too_many_levels::fmt_many_levels(level_t ix, level_t iy, level_t lbl, level_t lbr, level_t ltr, level_t ltl)
+{
+  std::ostringstream out;
+  out << "too many levels @" << ix << ':' << iy << " bl=" << lbl
+      << " br=" << lbr << " tr=" << ltr << " tl=" << ltl;
+  return out.str();
+}
+
 namespace detail {
 
 const int MAX_LEVELS = 100;
-
-class too_many_levels : public std::overflow_error
-{
-public:
-  too_many_levels(int ix, int iy, int lbl, int lbr, int ltr, int ltl)
-    : overflow_error(fmt_many_levels(ix, iy, lbl, lbr, ltr, ltl)) { }
-
-private:
-  static std::string fmt_many_levels(int ix, int iy, int lbl, int lbr, int ltr, int ltl)
-    { std::ostringstream out;
-      out << "too many levels @" << ix << ':' << iy << " bl=" << lbl
-          << " br=" << lbr << " tr=" << ltr << " tl=" << ltl;
-      return out.str(); }
-};
 
 class line_end;
 typedef line_end* line_end_x;
@@ -1304,12 +1298,8 @@ void run(const field_t& field, lines_t& lines)
 #ifdef LENGTH_STATS
     clear_join_size();
 #endif
-    try {
-      detail::runner r(field, lines);
-      r.run();
-    } catch (detail::too_many_levels& tml) {
-      std::cerr << tml.what() << std::endl;
-    }
+    detail::runner r(field, lines);
+    r.run();
 #ifdef LENGTH_STATS
     dump_join_size();
 #endif

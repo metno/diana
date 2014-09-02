@@ -585,7 +585,11 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   DianaGLLines dl(poptions, *levels, fp);
 
   { METLIBS_LOG_TIME("contouring");
-    contouring::run(df, dl);
+    try {
+      contouring::run(df, dl);
+    } catch (contouring::too_many_levels& tml) {
+      METLIBS_LOG_WARN(tml.what());
+    }
   }
 
   { METLIBS_LOG_TIME("painting");

@@ -4,6 +4,7 @@
 
 #include "reversible_list.hh"
 #include <boost/pool/pool_alloc.hpp>
+#include <stdexcept>
 
 namespace contouring {
 
@@ -37,6 +38,16 @@ public:
 
     virtual void add_contour_line(level_t level, const points_t& points, bool closed) = 0;
     virtual void add_contour_polygon(level_t level, const points_t& points) = 0;
+};
+
+class too_many_levels : public std::overflow_error
+{
+public:
+  too_many_levels(level_t ix, level_t iy, level_t lbl, level_t lbr, level_t ltr, level_t ltl)
+    : overflow_error(fmt_many_levels(ix, iy, lbl, lbr, ltr, ltl)) { }
+
+private:
+  static std::string fmt_many_levels(level_t ix, level_t iy, level_t lbl, level_t lbr, level_t ltr, level_t ltl);
 };
 
 void run(const field_t& field, lines_t& lines);
