@@ -117,12 +117,44 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
 
 QList<QPointF> DrawingItemBase::getPoints() const
 {
-    return points_;
+  return points_;
 }
 
 void DrawingItemBase::setPoints(const QList<QPointF> &points)
 {
-    points_ = points;
+  points_ = points;
+}
+
+QSizeF DrawingItemBase::getSize() const
+{
+  if (points_.size() < 2)
+    return QSizeF(0, 0);
+
+  return boundingRect().size();
+}
+
+QRectF DrawingItemBase::boundingRect() const
+{
+  if (points_.size() < 1)
+    return QRectF();
+  else if (points_.size() == 1)
+    return QRectF(points_.at(0).x(), points_.at(0).y(), 0, 0);
+
+  float xmin, xmax;
+  xmin = xmax = points_.at(0).x();
+  float ymin, ymax;
+  ymin = ymax = points_.at(0).y();
+
+  foreach (QPointF point, points_) {
+    float x = point.x();
+    float y = point.y();
+    xmin = qMin(x, xmin);
+    xmax = qMax(x, xmax);
+    ymin = qMin(y, ymin);
+    ymax = qMax(y, ymax);
+  }
+
+  return QRectF(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
 QList<QPointF> DrawingItemBase::getLatLonPoints() const

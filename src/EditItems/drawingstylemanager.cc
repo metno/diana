@@ -34,6 +34,7 @@
 #include <QVector2D>
 #include <QComboBox>
 #include <qmath.h>
+#include <QDebug>
 
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
 #include "polyStipMasks.h"
@@ -75,6 +76,31 @@ static QColor parseColour(const QString &text)
   }
 
   return defaultColour;
+}
+
+static QStringList parseStrings(const QString &text, const QString &sep = QString(","))
+{
+  QStringList strings;
+
+  bool in_quote = false;
+  QString current;
+
+  for (int i = 0; i < text.size(); ++i) {
+    QString ch = text.at(i);
+    if (ch == "\"")
+      in_quote = !in_quote;
+    else if (ch == sep) {
+      if (in_quote)
+        current += ch;
+      else {
+        strings.append(current);
+        current.clear();
+      }
+    } else
+      current += ch;
+  }
+
+  return strings;
 }
 
 QString DSP_linecolour::name() { return "linecolour"; }
@@ -141,6 +167,27 @@ QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { r
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
 QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 
+QString DSP_objects::name() { return "objects"; }
+QVariant DSP_objects::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(":"); }
+
+QString DSP_values::name() { return "values"; }
+QVariant DSP_values::parse(const QHash<QString, QString> &def) const
+{
+  return def.value(name()).split(":");
+}
+
+QString DSP_styles::name() { return "styles"; }
+QVariant DSP_styles::parse(const QHash<QString, QString> &def) const
+{
+  return def.value(name()).split(":");
+}
+
+QString DSP_layout::name() { return "layout"; }
+QVariant DSP_layout::parse(const QHash<QString, QString> &def) const
+{
+  return def.value(name(), "horizontal");
+}
+
 DrawingStyleManager *DrawingStyleManager::self = 0;
 
 DrawingStyleManager::DrawingStyleManager()
@@ -176,6 +223,12 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
   properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
   properties_[DrawingItemBase::Text].insert(DSP_fontsize::name(), new DSP_fontsize);
+
+  // Define the supported composite style properties.
+  properties_[DrawingItemBase::Composite].insert(DSP_objects::name(), new DSP_objects);
+  properties_[DrawingItemBase::Composite].insert(DSP_values::name(), new DSP_values);
+  properties_[DrawingItemBase::Composite].insert(DSP_styles::name(), new DSP_styles);
+  properties_[DrawingItemBase::Composite].insert(DSP_layout::name(), new DSP_layout);
 }
 
 DrawingStyleManager::~DrawingStyleManager()
@@ -207,6 +260,8 @@ void DrawingStyleManager::addStyle(const DrawingItemBase::Category &category, co
     styleName = definition.value("textstyle");
   else if (definition.contains("symbol"))
     styleName = definition.value("symbol");
+  else if (definition.contains("composite"))
+    styleName = definition.value("composite");
   else
     styleName = definition.value("style");
 
@@ -755,6 +810,11 @@ void DrawingStyleManager::beginText(const DrawingItemBase *item, FontManager *fp
                textColour.alpha());
   else
     glColor3f(0.0, 0.0, 0.0);
+}
+
+void DrawingStyleManager::setFont(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions)
+{
+  QVariantMap style = getStyle(item);
 
   // Fill in the default font settings from the plot options object. These
   // will be overridden if equivalent properties are found.

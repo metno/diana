@@ -49,6 +49,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QSvgRenderer>
+#include <QDebug>
 
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"
@@ -135,6 +136,8 @@ bool DrawingManager::parseSetup()
       workDir = items["workdir"];
     } else if (items.contains("textstyle")) {
       styleManager->addStyle(DrawingItemBase::Text, items);
+    } else if (items.contains("composite")) {
+      styleManager->addStyle(DrawingItemBase::Composite, items);
     }
   }
 
@@ -279,8 +282,10 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 
 void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const
 {
-  QList<QPointF> points = GeoToPhys(latLonPoints);
-  item.setPoints(points);
+  if (!latLonPoints.isEmpty()) {
+    QList<QPointF> points = GeoToPhys(latLonPoints);
+    item.setPoints(points);
+  }
 }
 
 // Returns screen coordinates converted from geographic coordinates.
@@ -401,7 +406,9 @@ bool DrawingManager::changeProjection(const Area& newArea)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
-  plotRect = editRect = PLOTM->getPlotSize();
+  Rectangle r = PLOTM->getPlotSize();
+  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  editRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
   currentArea = newArea;
   return true;
 }
@@ -414,7 +421,8 @@ void DrawingManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  plotRect = PLOTM->getPlotSize();
+  Rectangle r = PLOTM->getPlotSize();
+  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
   int w, h;
   PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect.x1, editRect.y1, 0.0);
@@ -496,6 +504,7 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   }
 
   glPushAttrib(GL_COLOR_BUFFER_BIT|GL_POLYGON_BIT);
+  glColor4f(1, 1, 1, 1);
   glEnable(GL_BLEND);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glctx->drawTexture(QPointF(x, y), texture);

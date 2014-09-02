@@ -118,15 +118,6 @@ void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool 
   }
 }
 
-void Symbol::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
-{
-  // Update the geographic points and the control points.
-  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
-  updateControlPoints();
-
-  repaintNeeded = true;
-}
-
 void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   Q_UNUSED(repaintNeeded);

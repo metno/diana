@@ -60,6 +60,15 @@ QList<QPointF> Symbol::boundingSquare() const
   return points;
 }
 
+QRectF Symbol::boundingRect() const
+{
+  if (points_.isEmpty())
+    return QRectF();
+
+  int size = properties_.value("size", 32).toInt();
+  return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
+}
+
 void Symbol::draw()
 {
   if (points_.isEmpty())

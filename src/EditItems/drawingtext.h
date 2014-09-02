@@ -45,6 +45,12 @@ public:
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual void draw();
 
+  virtual const QStringList &text() const;
+  virtual void setText(const QStringList &lines);
+
+  virtual QRectF boundingRect() const;
+  void updateRect();
+
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
 

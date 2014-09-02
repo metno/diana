@@ -34,6 +34,7 @@
 #include "diPlot.h"
 #include "diFontManager.h"
 #include "EditItems/drawingstylemanager.h"
+#include <QDebug>
 
 namespace EditItem_Text {
 
@@ -96,6 +97,12 @@ void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoComman
   }
 }
 
+/**
+ * Processes a mouse press event when the object is incomplete.
+ * This implementation only handles left button clicks, adding two points to the internal
+ * list on the first click.
+ * Any additional clicks cause the object to be marked as complete.
+ */
 void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   repaintNeeded = true;
@@ -218,25 +225,7 @@ void Text::updateControlPoints()
   if (points_.size() < 2)
     return;
 
-  float x = points_.at(0).x();
-  float y = points_.at(0).y();
-  qreal width = 0;
-
-  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
-  styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
-
-  for (int i = 0; i < lines_.size(); ++i) {
-    QString text = lines_.at(i);
-    QSizeF size = getStringSize(text);
-    width = qMax(width, size.width());
-    size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
-    y -= size.height();
-    if (i < lines_.size() - 1)
-      y -= size.height() * spacing_;
-  }
-
-  points_[1] = QPointF(x + width, y);
+  updateRect();
 }
 
 void Text::setPoints(const QList<QPointF> &points)
@@ -246,8 +235,7 @@ void Text::setPoints(const QList<QPointF> &points)
 
 void Text::drawHoverHighlighting(bool) const
 {
-  QRectF bbox(points_.at(0), points_.at(1));
-  bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
+  QRectF bbox = boundingRect();
 
   glColor3ub(255, 0, 0);
   glBegin(GL_LINE_LOOP);
@@ -264,8 +252,7 @@ void Text::drawIncomplete() const
     return;
 
   if (!lines_.isEmpty()) {
-    QRectF bbox(points_.at(0), points_.at(1));
-    bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
+    QRectF bbox = boundingRect();
 
     glLineStipple(1, 0x5555);
     glEnable(GL_LINE_STIPPLE);

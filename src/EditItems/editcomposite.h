@@ -39,6 +39,8 @@ namespace EditItem_Composite {
 
 class Composite : public EditItemBase, public DrawingItem_Composite::Composite
 {
+  Q_OBJECT
+
 public:
   Composite();
   virtual ~Composite();
@@ -46,10 +48,24 @@ public:
   virtual bool hit(const QPointF &pos, bool selected) const;
   virtual bool hit(const QRectF &bbox) const;
 
+  virtual void mousePress(QMouseEvent *event, bool &repaintNeeded,
+                          QList<QUndoCommand *> *undoCommands,
+                          QSet<QSharedPointer<DrawingItemBase> > *items = 0,
+                          const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0,
+                          bool *multiItemOp = 0);
+
+  virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
+  virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
+
 protected:
+  virtual void drawHoverHighlighting(bool) const;
+  virtual void drawIncomplete() const;
+
+  virtual void move(const QPointF &pos);
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
-  virtual void drawHoverHighlighting(bool) const;
+  virtual void setPoints(const QList<QPointF> &points);
+
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 };

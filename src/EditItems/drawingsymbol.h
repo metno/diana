@@ -42,6 +42,7 @@ public:
   virtual ~Symbol();
   virtual QDomNode toKML(const QHash<QString, QString> &extraExtData) const;
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
+  virtual QRectF boundingRect() const;
 
 protected:
   QList<QPointF> boundingSquare() const;

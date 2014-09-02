@@ -131,6 +131,28 @@ ToolBar::ToolBar(QWidget *parent)
   textCombo_->setCurrentIndex(0);
   setTextType(0);
 
+  // *** create composite ***
+  compositeAction_ = actions[EditItemManager::CreateComposite];
+  addAction(compositeAction_);
+  actionGroup->addAction(compositeAction_);
+  connect(compositeAction_, SIGNAL(triggered(bool)), SLOT(handleNonSelectActionTriggered(bool)));
+
+  // Create a combo box containing specific composite types.
+  compositeCombo_ = new QComboBox();
+  connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCompositeType(int)));
+  connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), compositeAction_, SLOT(trigger()));
+  addWidget(compositeCombo_);
+
+  // Create an entry for each style. Use the name as an internal identifier
+  // since we may decide to use tr() on the visible name at some point.
+  styles = dsm->styles(DrawingItemBase::Composite);
+  styles.sort();
+  foreach (QString name, styles)
+    compositeCombo_->addItem(name, name);
+
+  compositeCombo_->setCurrentIndex(0);
+  setCompositeType(0);
+
   // Select the first action in the group by default.
   actionGroup->actions().at(0)->trigger();
 }
@@ -185,6 +207,13 @@ void ToolBar::setTextType(int index)
   // Obtain the style identifier from the style action and store it in the
   // main text action for later retrieval by the EditItemManager.
   textAction_->setData(textCombo_->itemData(index));
+}
+
+void ToolBar::setCompositeType(int index)
+{
+  // Obtain the style identifier from the style action and store it in the
+  // main text action for later retrieval by the EditItemManager.
+  compositeAction_->setData(compositeCombo_->itemData(index));
 }
 
 void ToolBar::showEvent(QShowEvent *event)

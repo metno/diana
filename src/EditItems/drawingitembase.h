@@ -35,6 +35,7 @@
 #include <QColor>
 #include <QList>
 #include <QPointF>
+#include <QRectF>
 #include <QVariant>
 #include <QDomNode>
 #include <GL/gl.h>
@@ -76,6 +77,11 @@ public:
   virtual QList<QPointF> getPoints() const;
   // Sets the item's points.
   virtual void setPoints(const QList<QPointF> &points);
+
+  // Returns the item's dimensions.
+  virtual QSizeF getSize() const;
+  // Returns the item's bounding rectangle.
+  virtual QRectF boundingRect() const;
 
   // Returns the item's geographic points.
   virtual QList<QPointF> getLatLonPoints() const;

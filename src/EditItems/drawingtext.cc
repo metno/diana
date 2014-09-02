@@ -33,6 +33,7 @@
 #include "drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
+#include <QDebug>
 
 namespace DrawingItem_Text {
 
@@ -53,13 +54,11 @@ void Text::draw()
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  // Use the fill colour defined in the style to fill the text area.
-  QRectF bbox(points_.at(0), points_.at(1));
-  bbox.adjust(-margin_, margin_, 2 * margin_, -margin_);
-
+  QRectF bbox = boundingRect();
   QList<QPointF> points;
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
+  // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(this);
   styleManager->fillLoop(this, points);
   styleManager->endFill(this);
@@ -72,6 +71,7 @@ void Text::draw()
 
   GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
   styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
+  styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
 
   float x = points_.at(0).x();
   float y = points_.at(0).y();
@@ -106,6 +106,47 @@ QSizeF Text::getStringSize(const QString &text, int index) const
 DrawingItemBase::Category Text::category() const
 {
   return DrawingItemBase::Text;
+}
+
+const QStringList &Text::text() const
+{
+  return lines_;
+}
+
+QRectF Text::boundingRect() const
+{
+  QRectF bbox = DrawingItemBase::boundingRect();
+  bbox.adjust(-margin_, -margin_, margin_, margin_);
+  return bbox;
+}
+
+void Text::updateRect()
+{
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
+  styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
+
+  float x = points_.at(0).x();
+  float y = points_.at(0).y();
+  qreal width = 0;
+
+  for (int i = 0; i < lines_.size(); ++i) {
+    QString text = lines_.at(i);
+    QSizeF size = getStringSize(text);
+    width = qMax(width, size.width());
+    size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
+    y -= size.height();
+    if (i < lines_.size() - 1)
+      y -= size.height() * spacing_;
+  }
+
+  points_[1] = QPointF(x + width, y);
+}
+
+void Text::setText(const QStringList &lines)
+{
+  lines_ = lines;
+  updateRect();
 }
 
 QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const

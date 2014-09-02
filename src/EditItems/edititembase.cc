@@ -31,6 +31,7 @@
 
 #include "edititembase.h"
 #include <GL/gl.h>
+#include <QDebug>
 
 EditItemBase::EditItemBase()
   : moving_(false)
@@ -136,10 +137,12 @@ void EditItemBase::drawHoveredControlPoint() const
   glPopAttrib();
 }
 
-// Draws the item.
-// \a modes indicates whether the item is selected, hovered, both, or neither.
-// \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
-// \a editingStyle is true iff the item's style is currently being edited.
+/**
+ * Draws the item.
+ * \a modes indicates whether the item is selected, hovered, both, or neither.
+ * \a incomplete is true iff the item is in the process of being completed (i.e. during manual placement of a new item).
+ * \a editingStyle is true iff the item's style is currently being edited.
+ */
 void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
 {
   Drawing(this)->draw();

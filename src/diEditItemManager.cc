@@ -379,6 +379,7 @@ void EditItemManager::incompleteMousePress(QMouseEvent *event)
   bool completed = false;
   bool aborted = false;
   Editing(incompleteItem_.data())->incompleteMousePress(event, rpn, completed, aborted);
+
   // Record geographic coordinates for the item as they are added to it.
   incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
   if (completed)
@@ -450,7 +451,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
 
   // Check if the event is part of a multi-select operation using a rubberband-rectangle.
   // In that case, the event should only be used to update the selection (and tell items to redraw themselves as
-  // approproate), and NOT be passed on through the mouseMove() functions of the selected items ... 2 B DONE!
+  // appropriate), and NOT be passed on through the mouseMove() functions of the selected items ... 2 B DONE!
 
   repaintNeeded_ = false;
 
@@ -653,7 +654,8 @@ void EditItemManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  plotRect = PLOTM->getPlotSize();
+  Rectangle r = PLOTM->getPlotSize();
+  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
   int w, h;
   PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect.x1, editRect.y1, 0.0);
@@ -1166,7 +1168,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  plotRect = PLOTM->getPlotSize();
+  Rectangle r = PLOTM->getPlotSize();
+  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
 
   if (layerMgr_->selectedLayersItemCount() == 0)
     editRect = plotRect;
@@ -1263,15 +1266,16 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           const QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_PolyLine::PolyLine()));
           addItem(item, true);
           item->setProperty("style:type", createPolyLineAction->data().toString());
-        }
-        else if (mode_ == CreateSymbolMode) {
+        } else if (mode_ == CreateSymbolMode) {
           QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Symbol::Symbol()));
           addItem(item, true);
           item->setProperty("style:type", createSymbolAction->data().toString());
-        } else if (mode_ == CreateCompositeMode)
-          addItem(QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Composite::Composite())), true);
-        else if (mode_ == CreateTextMode) {
-        QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Text::Text()));
+        } else if (mode_ == CreateCompositeMode) {
+          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Composite::Composite()));
+          addItem(item, true);
+          item->setProperty("style:type", createCompositeAction->data().toString());
+        } else if (mode_ == CreateTextMode) {
+          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Text::Text()));
           addItem(item, true);
           item->setProperty("style:type", createTextAction->data().toString());
         }

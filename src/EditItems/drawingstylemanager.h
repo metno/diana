@@ -217,6 +217,38 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_objects : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_values : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_styles : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_layout : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 /**
   \brief Manager for drawing styles.
 */
@@ -242,6 +274,7 @@ public:
 
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
+  void setFont(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions);
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);

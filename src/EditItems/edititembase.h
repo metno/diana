@@ -116,7 +116,7 @@ protected:
 
     int hitControlPoint(const QPointF &) const;
     void moveBy(const QPointF &);
-    void move(const QPointF &);
+    virtual void move(const QPointF &);
     virtual void resize(const QPointF &) = 0;
     virtual void updateControlPoints() = 0;
 
