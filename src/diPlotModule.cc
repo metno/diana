@@ -1613,9 +1613,7 @@ bool PlotModule::MapToGrid(const float xmap, const float ymap,
   }
 
   return false;
-
 }
-
 
 double PlotModule::getEntireWindowDistances(const bool horizontal){
   int x1,  y2, x2 = 0, y1 = 0;
@@ -2672,19 +2670,13 @@ void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
 vector<std::string> PlotModule::getFieldModels()
 {
-  set<std::string> unique;
-  int n = vfp.size();
-  for (int i = 0; i < n; i++) {
-    std::string fname = vfp[i]->getModelName();
+  std::set<std::string> unique;
+  for (size_t i = 0; i < vfp.size(); i++) {
+    const std::string& fname = vfp[i]->getModelName();
     if (not fname.empty())
       unique.insert(fname);
   }
-  vector<std::string> vstr;
-  set<std::string>::iterator p = unique.begin(), pend = unique.end();
-  for (; p != pend; p++)
-    vstr.push_back(*p);
-
-  return vstr;
+  return std::vector<std::string>(unique.begin(), unique.end());
 }
 
 vector<std::string> PlotModule::getTrajectoryFields()
