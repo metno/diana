@@ -521,8 +521,6 @@ void DianaGLLines::drawLabels(const point_v& points, contouring::level_t li)
     if (p1.x < p0.x)
       std::swap(p0, p1);
     const float angle_deg = atan2f(p1.y - p0.y, p1.x - p0.x) * 180. / M_PI;
-    if (angle_deg < -45 or angle_deg > 45)
-      continue;
 
     // check that line is somewhat straight under label
     size_t idx2 = idx0 + 1;
