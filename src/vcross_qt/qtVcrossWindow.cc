@@ -65,6 +65,7 @@
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>
+#include <QSpinBox>
 #include <QAction>
 
 #include <QtCore/QAbstractListModel>
@@ -219,6 +220,11 @@ VcrossWindow::VcrossWindow(Controller *co)
   connect(rightTimeButton, SIGNAL(clicked()), SLOT(rightTimeClicked()) );
   rightTimeButton->setAutoRepeat(true);
 
+  timeSpinBox = new QSpinBox(this);
+  timeSpinBox->setMinimum(1);
+  timeSpinBox->setValue(1);
+  timeSpinBox->setToolTip(tr("Number of times to step forward/backward when using the time arrow buttons"));
+
   QVBoxLayout* vlayout = new QVBoxLayout;
   vlayout->setSpacing(2);
   vlayout->setMargin(2);
@@ -245,6 +251,7 @@ VcrossWindow::VcrossWindow(Controller *co)
   tslayout->addWidget(leftTimeButton);
   tslayout->addWidget(timeBox);
   tslayout->addWidget(rightTimeButton);
+  tslayout->addWidget(timeSpinBox);
   tslayout->addStretch();
   vlayout->addLayout(tslayout);
 
@@ -327,23 +334,27 @@ void VcrossWindow::rightCrossectionClicked()
 
 /***************************************************************************/
 
+void VcrossWindow::stepTime(int direction)
+{
+  const int step = std::max(timeSpinBox->value(), 1)
+      * (direction < 0 ? -1 : 1);
+  vcrossm->setTime(step);
+  timeChangedSlot(step);
+  vcrossw->update();
+}
+
+/***************************************************************************/
+
 void VcrossWindow::leftTimeClicked()
 {
-  //called when the left time button is clicked
-  vcrossm->setTime(-1);
-  //update combobox
-  timeChangedSlot(-1);
-  vcrossw->update();
+  stepTime(-1);
 }
 
 /***************************************************************************/
 
 void VcrossWindow::rightTimeClicked()
 {
-  //called when the right Crossection button is clicked
-  vcrossm->setTime(+1);
-  timeChangedSlot(+1);
-  vcrossw->update();
+  stepTime(+1);
 }
 
 /***************************************************************************/

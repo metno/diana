@@ -50,6 +50,7 @@ class QAction;
 class QComboBox;
 class QPrinter;
 class QString;
+class QSpinBox;
 
 /**
   \brief Window for Vertical Crossections
@@ -106,6 +107,7 @@ private:
   ToggleButton * timeGraphButton;
   QComboBox * crossectionBox;
   QComboBox * timeBox;
+  QSpinBox* timeSpinBox;
 
   void updateCrossectionBox();
   void updateTimeBox();
@@ -116,6 +118,7 @@ private:
 
   void makeEPS(const std::string& filename);
   void emitQmenuStrings();
+  void stepTime(int direction);
 
 private Q_SLOTS:
   void dataClicked(bool on);
