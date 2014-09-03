@@ -63,6 +63,8 @@ private:
   QToolButton *duplicateSelectedButton_;
   QToolButton *removeSelectedButton_;
   QToolButton *saveSelectedButton_;
+  QToolButton *undoButton_;
+  QToolButton *redoButton_;
   QAction *selectAll_act_;
   QAction *deselectAll_act_;
   QAction *merge_act_;
@@ -80,6 +82,8 @@ private slots:
   void duplicateSelected();
   void removeSelected();
   void saveSelected();
+  void undo();
+  void redo();
   void handleLayerUpdate();
 };
 

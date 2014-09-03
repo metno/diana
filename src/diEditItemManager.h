@@ -64,12 +64,10 @@ public:
   EditItemManager();
   virtual ~EditItemManager();
 
-  /// Registers a new item with the manager.
-  /// \a incomplete is true iff the item is considered in the process of being completed (i.e. during manual placement of a new item).
-  void addItem(const QSharedPointer<DrawingItemBase> &item, bool incomplete = false, bool skipRepaint = false);
+  void addItem(const QSharedPointer<DrawingItemBase> &, QSet<QSharedPointer<DrawingItemBase> > *, bool = false, bool = false);
   void editItem(const QSharedPointer<DrawingItemBase> &item);
   void editItem(DrawingItemBase *item);
-  void removeItem(const QSharedPointer<DrawingItemBase> &item);
+  void removeItem(const QSharedPointer<DrawingItemBase> &, QSet<QSharedPointer<DrawingItemBase> > *);
 
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
@@ -105,7 +103,7 @@ public:
 
 public slots:
   void abortEditing();
-  void completeEditing();
+  void completeEditing(QSet<QSharedPointer<DrawingItemBase> > *);
   void copySelectedItems();
   void cutSelectedItems();
   void deselectItem(const QSharedPointer<DrawingItemBase> &);
@@ -113,12 +111,16 @@ public slots:
   void editProperties();
   void editStyle();
   void setStyleType() const;
-  void keyPress(QKeyEvent *);
+  void keyPress(
+      QKeyEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *,
+      QSet<QSharedPointer<DrawingItemBase> > *, bool &);
   void keyRelease(QKeyEvent *);
-  void mouseDoubleClick(QMouseEvent *);
+  void mouseDoubleClick(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
   void mouseMove(QMouseEvent *);
-  void mousePress(QMouseEvent *);
-  void mouseRelease(QMouseEvent *);
+  void mousePress(
+      QMouseEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *,
+      QSet<QSharedPointer<DrawingItemBase> > *, bool &);
+  void mouseRelease(QMouseEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *);
   void pasteItems();
   void redo();
   void repaint();
@@ -186,18 +188,20 @@ private:
     SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
   } mode_;
 
-  void incompleteMousePress(QMouseEvent *);
-  void incompleteMouseRelease(QMouseEvent *);
+  void incompleteMousePress(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
+  void incompleteMouseRelease(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
   void incompleteMouseMove(QMouseEvent *);
-  void incompleteMouseDoubleClick(QMouseEvent *);
-  void incompleteKeyPress(QKeyEvent *);
+  void incompleteMouseDoubleClick(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
+  void incompleteKeyPress(QKeyEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
   void incompleteKeyRelease(QKeyEvent *);
-  void pushCommands(const QSet<QSharedPointer<DrawingItemBase> > &addedItems,
-                    const QSet<QSharedPointer<DrawingItemBase> > &removedItems,
-                    const QList<QUndoCommand *> &undoCommands);
+  void pushCommands(const QList<QUndoCommand *> &,
+                    const QSet<QSharedPointer<DrawingItemBase> > & = QSet<QSharedPointer<DrawingItemBase> >(),
+                    const QSet<QSharedPointer<DrawingItemBase> > & = QSet<QSharedPointer<DrawingItemBase> >());
 
   // Clipboard operations
   void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
+  void cutSelectedItems(QSet<QSharedPointer<DrawingItemBase> > *);
+  void pasteItems(QSet<QSharedPointer<DrawingItemBase> > *);
 
   void updateActions();
   void updateTimes();

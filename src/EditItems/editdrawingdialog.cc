@@ -95,6 +95,11 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   infoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   bottomLayout->addWidget(infoCBox);
   //
+  QCheckBox *undoCBox = new QCheckBox("show undo stack");
+  connect(undoCBox, SIGNAL(toggled(bool)), SLOT(showUndoStack(bool)));
+  undoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+  bottomLayout->addWidget(undoCBox);
+  //
   QCheckBox *forceItemsVisibleCBox = new QCheckBox("items always visible");
   connect(forceItemsVisibleCBox, SIGNAL(toggled(bool)), SLOT(setItemsVisibilityForced(bool)));
   forceItemsVisibleCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -176,6 +181,11 @@ void EditDrawingDialog::dumpStructure()
 void EditDrawingDialog::showInfo(bool checked)
 {
   layersPane_->showInfo(checked);
+}
+
+void EditDrawingDialog::showUndoStack(bool checked)
+{
+  editm_->getUndoView()->setVisible(checked);
 }
 
 void EditDrawingDialog::setItemsVisibilityForced(bool checked)

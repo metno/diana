@@ -44,6 +44,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include "undo.xpm"
+#include "redo.xpm"
 #include "selectall.xpm"
 #include "deselectall.xpm"
 #include "addempty.xpm"
@@ -65,6 +67,8 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   , duplicateSelectedButton_(0)
   , removeSelectedButton_(0)
   , saveSelectedButton_(0)
+  , undoButton_(0)
+  , redoButton_(0)
 {
   bottomLayout_->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", this, SLOT(showAll())));
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
@@ -79,6 +83,15 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   bottomLayout_->addWidget(duplicateSelectedButton_ = createToolButton(QPixmap(duplicate_xpm), "Duplicate selected layers", this, SLOT(duplicateSelected())));
   bottomLayout_->addWidget(removeSelectedButton_ = createToolButton(QPixmap(remove_xpm), "Remove selected layers", this, SLOT(removeSelected())));
   bottomLayout_->addWidget(saveSelectedButton_ = createToolButton(QPixmap(filesave), "Save selected layers to file", this, SLOT(saveSelected())));
+  //
+  bottomLayout_->addWidget(undoButton_ = createToolButton(QPixmap(undo_xpm), "Undo", this, SLOT(undo())));
+  undoButton_->setEnabled(EditItemManager::instance()->undoStack()->canUndo());
+  connect(EditItemManager::instance()->undoStack(), SIGNAL(canUndoChanged(bool)), undoButton_, SLOT(setEnabled(bool)));
+  //
+  bottomLayout_->addWidget(redoButton_ = createToolButton(QPixmap(redo_xpm), "Redo", this, SLOT(redo())));
+  redoButton_->setEnabled(EditItemManager::instance()->undoStack()->canRedo());
+  connect(EditItemManager::instance()->undoStack(), SIGNAL(canRedoChanged(bool)), redoButton_, SLOT(setEnabled(bool)));
+  //
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   // create context menu actions
@@ -339,6 +352,16 @@ void EditDrawingLayersPane::save(const QList<LayerWidget *> &layerWidgets)
 void EditDrawingLayersPane::saveSelected()
 {
   save(selectedWidgets());
+}
+
+void EditDrawingLayersPane::undo()
+{
+  EditItemManager::instance()->undoStack()->undo();
+}
+
+void EditDrawingLayersPane::redo()
+{
+  EditItemManager::instance()->undoStack()->redo();
 }
 
 void EditDrawingLayersPane::handleLayerUpdate()
