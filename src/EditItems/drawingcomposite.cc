@@ -138,7 +138,6 @@ void Composite::createElements()
   QStringList styles = style.value("styles").toStringList();
   QString layout = style.value("layout").toString();
 
-  int row = 0, column = 0;
   if (layout == "horizontal")
     layout_ = Qt::Horizontal;
   else if (layout == "vertical")
@@ -155,8 +154,7 @@ void Composite::createElements()
     return;
   }
 
-  // Create and lay out the elements.
-  QPointF current = points_.at(0);
+  // Create the elements.
 
   for (int i = 0; i < objects.size(); ++i) {
 
@@ -166,12 +164,12 @@ void Composite::createElements()
       element = new DrawingItem_Text::Text();
     else if (objects.at(i) == "symbol")
       element = new DrawingItem_Symbol::Symbol();
+    else if (objects.at(i) == "composite")
+      element = new DrawingItem_Composite::Composite();
     else
       continue;
 
-    QList<QPointF> points;
-    points << current << current;
-    element->setPoints(points);
+    element->setPoints(points_);
 
     // Copy the style property into the new element.
     element->setProperty("style:type", styles.at(i));
@@ -181,26 +179,83 @@ void Composite::createElements()
       QStringList lines;
       lines.append(values.at(i));
       static_cast<DrawingItem_Text::Text *>(element)->setText(lines);
+    } else if (objects.at(i) == "composite") {
+      DrawingItem_Composite::Composite *c = static_cast<DrawingItem_Composite::Composite *>(element);
+      c->createElements();
     }
 
     elements_.append(element);
-
-    // Obtain latitude and longitude coordinates for the element.
-    setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
-
-    QSizeF size = element->getSize();
-
-    switch (layout_) {
-    case Qt::Horizontal:
-      current += QPointF(size.width(), 0);
-      break;
-    case Qt::Vertical:
-      current += QPointF(0, size.height());
-      break;
-    default:
-      ;
-    }
   }
+
+  for (int i = 0; i < objects.size(); ++i)
+    arrangeElement(i);
+}
+
+void Composite::arrangeElement(int i)
+{
+  QRectF previousRect;
+
+  if (i < 1 || i >= elements_.size())
+    previousRect = QRectF(boundingRect().topLeft(), QSizeF(0, 0));
+  else
+    previousRect = elements_.at(i - 1)->boundingRect();
+
+  DrawingItemBase *element = elements_.at(i);
+  QSizeF size = element->getSize();
+  QPointF point;
+
+  switch (layout_) {
+  case Qt::Horizontal:
+    //point = QPointF(previousRect.right(), previousRect.bottom() - previousRect.height() + size.height());
+    point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
+    break;
+  case Qt::Vertical:
+    point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
+    break;
+  default:
+    ;
+  }
+
+  // Determine the change in position of the element.
+  QList<QPointF> points = element->getPoints();
+  QPointF offset = point - points.at(0);
+
+  for (int j = 0; j < points.size(); ++j)
+    points[j] += offset;
+
+  element->setPoints(points);
+  qDebug() << element->boundingRect();
+
+  // Obtain latitude and longitude coordinates for the element.
+  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
+}
+
+void Composite::setPoints(const QList<QPointF> &points)
+{
+  QPointF offset;
+
+  if (points_.size() == 0) {
+    // Ensure that the object itself has points.
+    DrawingItemBase::setPoints(points);
+    offset = QPointF(0, 0);
+  }
+
+  // Calculate the offset for each of the points using the first point passed.
+  offset = points.at(0) - points_.at(0);
+
+  // Adjust the child elements using the offset.
+  foreach (DrawingItemBase *element, elements_) {
+
+    QList<QPointF> newPoints;
+    foreach (QPointF point, element->getPoints())
+      newPoints.append(point + offset);
+
+    element->setPoints(newPoints);
+    element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
+  }
+
+  // Update the points to contain the child elements inside the object.
+  //updateRect();
 }
 
 } // namespace

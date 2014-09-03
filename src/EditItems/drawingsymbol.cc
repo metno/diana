@@ -34,11 +34,14 @@
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
 
+#define DEFAULT_SYMBOL_SIZE 48
+#define DEFAULT_SYMBOL_SIZE_STRING "48"
+
 namespace DrawingItem_Symbol {
 
 Symbol::Symbol()
 {
-  properties_["size"] = 32;
+  properties_["size"] = DEFAULT_SYMBOL_SIZE;
 }
 
 Symbol::~Symbol()
@@ -50,7 +53,7 @@ QList<QPointF> Symbol::boundingSquare() const
   if (points_.isEmpty())
     return QList<QPointF>();
 
-  int size = properties_.value("size", 32).toInt();
+  int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
 
   QList<QPointF> points;
   points.append(points_.at(0) + QPointF(-size/2, -size/2));
@@ -65,7 +68,7 @@ QRectF Symbol::boundingRect() const
   if (points_.isEmpty())
     return QRectF();
 
-  int size = properties_.value("size", 32).toInt();
+  int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
   return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
 }
 
@@ -74,7 +77,7 @@ void Symbol::draw()
   if (points_.isEmpty())
     return;
 
-  int size = properties_.value("size", 32).toInt();
+  int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
 
   DrawingManager::instance()->drawSymbol(property("style:type", "Default").toString(),
     points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
@@ -83,13 +86,13 @@ void Symbol::draw()
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["size"] = QString::number(properties_.value("size", 32).toInt());
+  extra["size"] = QString::number(properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt());
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
 void Symbol::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  properties_["size"] = extraExtData.value("met:size", "32").toInt();
+  properties_["size"] = extraExtData.value("met:size", DEFAULT_SYMBOL_SIZE_STRING).toInt();
 }
 
 DrawingItemBase::Category Symbol::category() const

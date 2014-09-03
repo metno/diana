@@ -249,6 +249,14 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_hide : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 /**
   \brief Manager for drawing styles.
 */

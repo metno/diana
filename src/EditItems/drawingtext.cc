@@ -73,8 +73,8 @@ void Text::draw()
   styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
   styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
 
-  float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float x = points_.at(0).x() + margin_;
+  float y = points_.at(0).y() - margin_;
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);
@@ -116,7 +116,6 @@ const QStringList &Text::text() const
 QRectF Text::boundingRect() const
 {
   QRectF bbox = DrawingItemBase::boundingRect();
-  bbox.adjust(-margin_, -margin_, margin_, margin_);
   return bbox;
 }
 
@@ -140,7 +139,7 @@ void Text::updateRect()
       y -= size.height() * spacing_;
   }
 
-  points_[1] = QPointF(x + width, y);
+  points_[1] = QPointF(x + width + 2 * margin_, y - 2 * margin_);
 }
 
 void Text::setText(const QStringList &lines)

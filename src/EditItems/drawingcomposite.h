@@ -56,7 +56,9 @@ public:
   virtual void updateRect();
 
 protected:
+  virtual void arrangeElement(int i);
   virtual void createElements();
+  virtual void setPoints(const QList<QPointF> &points);
 
   QList<DrawingItemBase *> elements_;
   Qt::Orientation layout_;

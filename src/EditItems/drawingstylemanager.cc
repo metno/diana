@@ -188,6 +188,12 @@ QVariant DSP_layout::parse(const QHash<QString, QString> &def) const
   return def.value(name(), "horizontal");
 }
 
+QString DSP_hide::name() { return "hide"; }
+QVariant DSP_hide::parse(const QHash<QString, QString> &def) const
+{
+  return def.value(name(), "false") == "true";
+}
+
 DrawingStyleManager *DrawingStyleManager::self = 0;
 
 DrawingStyleManager::DrawingStyleManager()
@@ -229,6 +235,9 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Composite].insert(DSP_values::name(), new DSP_values);
   properties_[DrawingItemBase::Composite].insert(DSP_styles::name(), new DSP_styles);
   properties_[DrawingItemBase::Composite].insert(DSP_layout::name(), new DSP_layout);
+  properties_[DrawingItemBase::Composite].insert(DSP_fillcolour::name(), new DSP_fillcolour);
+  properties_[DrawingItemBase::Composite].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::Composite].insert(DSP_hide::name(), new DSP_hide);
 }
 
 DrawingStyleManager::~DrawingStyleManager()

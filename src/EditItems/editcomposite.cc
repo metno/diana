@@ -137,24 +137,7 @@ void Composite::updateControlPoints()
 
 void Composite::setPoints(const QList<QPointF> &points)
 {
-  QPointF offset;
-
-  if (points_.size() > 0) {
-    // Calculate the offset for each of the points using the first point passed.
-    offset = points.at(0) - points_.at(0);
-  } else
-    offset = QPointF(0, 0);
-
-  // Adjust the child elements using the offset.
-  foreach (DrawingItemBase *element, elements_) {
-
-    QList<QPointF> newPoints;
-    foreach (QPointF point, element->getPoints())
-      newPoints.append(point + offset);
-
-    element->setPoints(newPoints);
-    element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
-  }
+  DrawingItem_Composite::Composite::setPoints(points);
 
   // Update the list with the new points.
   setGeometry(points);
