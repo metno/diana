@@ -489,7 +489,7 @@ void VcrossSetupDialog::applySetup()
   vcopt->vcSelectedOnMapLinetype=  mSetupHITMAPDRAW->getLinetype();
 #endif
 
-  vcrossm->standardPart();
+  vcrossm->disableTimeGraph();
 }
 
 
