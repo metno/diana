@@ -133,6 +133,9 @@ private:
   bool isTimeGraph() const
     { return mTimeGraphPos >= 0; }
 
+  void saveZoom();
+  void restoreZoom();
+
 private:
   Collector_p mCollector;
   VcrossOptions_p mOptions;
@@ -151,6 +154,9 @@ private:
   int mPlotTime; //! mCrossectionTimes index of current plot time
 
   string_v mPlotStrings;
+
+  typedef std::map<std::string, QtPlot::Rect> cs_zoom_t;
+  cs_zoom_t mCrossectionZooms;
 };
 
 typedef boost::shared_ptr<QtManager> QtManager_p;

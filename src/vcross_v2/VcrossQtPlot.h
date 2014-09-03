@@ -90,6 +90,16 @@ public:
   void viewSetWindow(int w, int h);
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
 
+  struct Rect {
+    float x1, y1, x2, y2;
+    Rect(float xx1, float yy1, float xx2, float yy2)
+      : x1(xx1), y1(yy1), x2(xx2), y2(yy2) { }
+    Rect()
+      : x1(0), y1(0), x2(0), y2(0) { }
+  };
+  Rect viewGetCurrentZoom() const;
+  void viewSetCurrentZoom(const Rect& r);
+
   int getNearestPos(int px);
 
   void clear(bool keepX=false, bool keepY=false);

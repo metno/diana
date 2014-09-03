@@ -234,6 +234,19 @@ void QtPlot::viewStandard()
   mViewChanged = true;
 }
 
+QtPlot::Rect QtPlot::viewGetCurrentZoom() const
+{
+  return Rect(mAxisX->getValueMin(), mAxisY->getValueMin(), mAxisX->getValueMax(), mAxisY->getValueMax());
+}
+
+void QtPlot::viewSetCurrentZoom(const Rect& r)
+{
+  mAxisX->setValueRange(r.x1, r.x2);
+  mAxisY->setValueRange(r.y1, r.y2);
+  mKeepX = true;
+  mKeepY = true;
+}
+
 void QtPlot::clear(bool keepX, bool keepY)
 {
   mKeepX = keepX;

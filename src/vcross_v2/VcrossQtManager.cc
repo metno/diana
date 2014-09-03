@@ -43,7 +43,7 @@
 #include <boost/foreach.hpp>
 #include <boost/range/algorithm.hpp>
 
-#define MILOGGER_CATEGORY "vcross.QtManager"
+#define MILOGGER_CATEGORY "diana.VcrossManager"
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
@@ -97,6 +97,7 @@ void QtManager::cleanup()
   mCrossectionCurrent = -1;
   mPlotTime = -1;
   mTimeGraphPos = -1;
+  mCrossectionZooms.clear();
 
   mCollector->clear();
   mPlot->clear();
@@ -114,6 +115,8 @@ void QtManager::cleanup()
 void QtManager::setCrossection(const std::string& csLabel)
 {
   METLIBS_LOG_SCOPE();
+  if (csLabel == currentCSName())
+    return;
 
   string_v::const_iterator it = std::find(mCrossectionLabels.begin(), mCrossectionLabels.end(), csLabel);
   if (it == mCrossectionLabels.end()) {
@@ -206,8 +209,8 @@ void QtManager::updateCSPoints()
   mCrossectionPoints.clear();
   mCrossectionCurrent = -1;
   mTimeGraphPos = -1;
+  mCrossectionZooms.clear();
 }
-
 
 // ------------------------------------------------------------------------
 
@@ -337,22 +340,40 @@ void QtManager::setPlotWindow(int w, int h)
 void QtManager::movePart(int pxmove, int pymove)
 {
   mPlot->viewPan(pxmove, pymove);
+  saveZoom();
 }
 
 void QtManager::decreasePart(int px1, int py1, int px2, int py2)
 {
   mPlot->viewZoomIn(px1, py1, px2, py2);
+  saveZoom();
 }
 
 void QtManager::increasePart()
 {
   mPlot->viewZoomOut();
+  saveZoom();
 }
 
 void QtManager::standardPart()
 {
   mPlot->setVerticalAxis();
   mPlot->viewStandard();
+  saveZoom();
+}
+
+void QtManager::saveZoom()
+{
+  mCrossectionZooms[currentCSName()] = mPlot->viewGetCurrentZoom();
+}
+
+void QtManager::restoreZoom()
+{
+  cs_zoom_t::const_iterator it = mCrossectionZooms.find(currentCSName());
+  if (it != mCrossectionZooms.end())
+    mPlot->viewSetCurrentZoom(it->second);
+  else
+    standardPart();
 }
 
 // ------------------------------------------------------------------------
@@ -404,7 +425,6 @@ void QtManager::preparePlot()
   }
 
   mPlot->clear((dataChange == CHANGED_NO or dataChange == CHANGED_TIME), (dataChange != CHANGED_SEL));
-
   model_values_m model_values;
   if (not isTimeGraph()) {
     METLIBS_LOG_DEBUG(LOGVAL(mCrossectionCurrent));
@@ -422,6 +442,7 @@ void QtManager::preparePlot()
       mPlot->setHorizontalTime(ll, mCrossectionTimes);
     }
   }
+
   vcross::Z_AXIS_TYPE zType;
   if(mOptions->verticalCoordinate == "Pressure")
     zType = vcross::Z_TYPE_PRESSURE;
@@ -453,6 +474,7 @@ void QtManager::preparePlot()
     }
   }
   mPlot->prepare();
+  restoreZoom();
 }
 
 // ------------------------------------------------------------------------
@@ -602,6 +624,8 @@ bool QtManager::timeGraphOK()
 void QtManager::disableTimeGraph()
 {
   METLIBS_LOG_SCOPE();
+  if (mTimeGraphPos >= 0)
+    mCrossectionZooms.clear();
   mTimeGraphPos = -1;
   dataChange = CHANGED_SEL;
 }
@@ -615,6 +639,8 @@ void QtManager::setTimeGraphPos(int plotx, int /*ploty*/)
   if (mCollector->getSelectedPlots().empty())
     return;
 
+  if (mTimeGraphPos < 0)
+    mCrossectionZooms.clear();
   mTimeGraphPos = mPlot->getNearestPos(plotx);
   dataChange = CHANGED_SEL;
 }
@@ -624,6 +650,8 @@ void QtManager::setTimeGraphPos(int plotx, int /*ploty*/)
 void QtManager::setTimeGraphPos(int incr)
 {
   METLIBS_LOG_SCOPE();
+  if (mTimeGraphPos < 0)
+    mCrossectionZooms.clear();
   if (util::step_index(mTimeGraphPos, incr, mCrossectionTimes.size()))
     dataChange |= CHANGED_SEL; // TODO
 }
@@ -650,6 +678,8 @@ void QtManager::setTimeGraph(const LonLat& position)
     return;
 
   setCrossection(cs->label);
+  if (mTimeGraphPos < 0)
+    mCrossectionZooms.clear();
   mTimeGraphPos = index;
   dataChange = CHANGED_SEL;
 }
