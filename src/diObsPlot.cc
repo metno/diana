@@ -206,16 +206,12 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 
 void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
 {
-  // FIXME: Optimize for performande
-  for (size_t i = 0; i < obsp.size(); ++i) {
-    std::vector<ObsData>::const_iterator itr = obs.begin();
-    for (; itr < obs.end(); itr++) {
-      if ((obsp[i].id == itr->id) && (obsp[i].obsTime == itr->obsTime)) {
-        obsp[i] = *itr;
-        break;
-      }
-    }
-  }
+  // best performance ?
+  size_t new_size = obsp.size() - obs.size();
+  if (new_size < 0)
+    new_size = 0;
+  resetObs(new_size);
+  addObsData(obs);
 }
 
 void ObsPlot::updateLevel(const std::string& dataType)
@@ -298,10 +294,17 @@ bool ObsPlot::updateObs()
 #endif // ROADOBS
   for (size_t i = 0; i < fileNames.size(); i++) {
 #ifdef ROADOBS
-    // Dont ask the database too often.
+    // Dont ask the database too often if allObs, eg ligthning
     if (miutil::contains(fileNames[i], "ROAD")) {
+      if (allObs)
       if (ltime - modificationTime[i] > 30 )
         return true;
+        else
+          continue;
+      else
+        if (ltime != modificationTime[i])
+          return true;
+        else
       continue;
     }
 #endif // ROADOBS
@@ -395,6 +398,7 @@ bool ObsPlot::prepare(const std::string& pin)
       if (key == "plot") {
         vector<std::string> vstr = miutil::split(value, ":");
         value = vstr[0];
+        dialogname = value;
         if (value == "pressure" || value == "trykk" //"trykk" is obsolete
             || value == "list" || value == "enkel" //"enkel" is obsolete
                 || value == "tide" || value == "ocean") {
@@ -408,8 +412,7 @@ bool ObsPlot::prepare(const std::string& pin)
         }
 #ifdef ROADOBS
         // To avoid that roadobs will be set to ascii below
-        else if( value == "roadobs") {
-          // dummy statement !
+        else if( value == "synop_wmo" || value == "synop_ship" || value == "metar_icao") {
           value = "roadobs";
         }
 #endif
@@ -673,14 +676,26 @@ bool ObsPlot::timeOK(const miTime& t) const
   return (timeDiff < 0 || abs(miTime::minDiff(t, Time)) < timeDiff + 1);
 }
 
+std::vector<int> & ObsPlot::getStationsToPlot()
+{
+  // Returns the visible stations
+  return stations_to_plot;
+}
+
+// clear VisibleStations map from current dialogname
+void ObsPlot::clearVisibleStations()
+{
+  visibleStations[dialogname].clear();
+}
+
 void ObsPlot::logStations()
 {
   METLIBS_LOG_SCOPE();
   int n = nextplot.size();
   if (n) {
-    visibleStations[plottype()].clear();
+    visibleStations[dialogname].clear();
     for (int i = 0; i < n; i++) {
-      visibleStations[plottype()].push_back(obsp[nextplot[i]].id);
+      visibleStations[dialogname].push_back(obsp[nextplot[i]].id);
     }
   }
 }
@@ -689,7 +704,7 @@ void ObsPlot::readStations()
 {
   METLIBS_LOG_SCOPE();
 
-  int n = visibleStations[plottype()].size();
+  int n = visibleStations[dialogname].size();
   if (n > 0) {
 
     vector<int> tmpList = all_from_file;
@@ -702,7 +717,7 @@ void ObsPlot::readStations()
     for (int k = 0; k < numObs; k++) {
       i = all_from_file[k];
       j = 0;
-      while (j < n && visibleStations[plottype()][j] != obsp[i].id)
+      while (j < n && visibleStations[dialogname][j] != obsp[i].id)
         j++;
       if (j < n) {
         all_stations.push_back(i);
@@ -732,6 +747,10 @@ void ObsPlot::clear()
   METLIBS_LOG_SCOPE();
   //  logStations();
   firstplot = true;
+  list_plotnr.clear();    // list of all stations, value = plotnr
+  all_this_area.clear(); // all stations within area
+  all_stations.clear(); // all stations, from last plot or from file
+  all_from_file.clear(); // all stations, from file or priority list
   nextplot.clear();
   notplot.clear();
   obsp.clear();
@@ -761,7 +780,8 @@ void ObsPlot::priority_sort()
   vector<int> automat;
   int n = 0;
   for (i = 0; i < numObs; i++) {
-    if (obsp[i].fdata.count("ix") && obsp[i].fdata["ix"] < 4)
+    if ((obsp[i].fdata.count("ix") && obsp[i].fdata["ix"] < 4)
+			|| ( obsp[i].fdata.count("auto") && obsp[i].fdata["auto"] != 0))
       all_from_file[n++] = i;
     else
       automat.push_back(i);
@@ -861,7 +881,7 @@ void ObsPlot::parameter_sort(std::string parameter, bool minValue)
   // and mark them in tmpList
   int index;
   for (size_t i = 0; i < tmpFileList.size(); i++) {
-    index = all_stations[i];
+    index = all_from_file[i];
     if (obsp[index].stringdata.count(parameter)) {
       string stringkey = obsp[index].stringdata[parameter];
       if (miutil::is_number(stringkey)) {
@@ -1142,7 +1162,7 @@ void ObsPlot::nextObs(bool Next)
 // we must keep this for performance reasons
 #ifdef ROADOBS
 /* this metod compute wich stations to plot
- and fills a vector vith the diStation object that shuld get data
+ and fills a vector with index to the internal stationlist that should get data
  from road */
 
 bool ObsPlot::preparePlot()
@@ -1396,9 +1416,7 @@ bool ObsPlot::preparePlot()
   stations_to_plot.clear();
   // use nextplot info to fill the stations_to_plot.
   for (size_t i=0; i<nextplot.size(); i++) {
-    //cerr << "nextplot[i]: " << nextplot[i] << endl;
-    //cerr << (*stationlist)[nextplot[i]].toSend() << endl;
-    stations_to_plot.push_back((*stationlist)[nextplot[i]]);
+    stations_to_plot.push_back(nextplot[i]);
   }
   //reset
 
@@ -1407,8 +1425,11 @@ bool ObsPlot::preparePlot()
   thisObs = false;
   if (nextplot.empty())
     plotnr=-1;
-  firstplot = false;
+  //firstplot = false;
   beendisabled = false;
+
+  //clearPos();
+  //clear();
 
   return true;
 }
@@ -1812,7 +1833,6 @@ bool ObsPlot::plot()
 #ifdef ROADOBS
   else if (plottype() == "roadobs") {
     for (int i=0; i<n; i++) {
-      //METLIBS_LOG_DEBUG(i << ", " << nextplot[i]);
       plotRoadobs(nextplot[i]);
       if (i % 50 == 0) StaticPlot::UpdateOutput();
     }
@@ -2653,19 +2673,15 @@ void ObsPlot::plotDBMetar(int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  std::string icao_value = "X";
-  int stationid = (*stationlist)[index].stationID();
-  int automationcode = (*stationlist)[index].environmentid();
-  bool isData = (*stationlist)[index].data();
-  //NOTE! The plot is dependent of the plotting order of
-  // the individual parameters.
-  //METLIBS_LOG_DEBUG("Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData);
-  // Do not plot stations with no data
-  if (!isData) return;
-
   // NOTE: We must use the new data structures....
-
   ObsData &dta = obsp[index];
+
+  std::string icao_value = "X";
+  std::string station_type = dta.stringdata["data_type"];
+  int automationcode = dta.fdata["auto"];
+  bool isData = dta.fdata["isdata"];
+  // Don't plot stations with no data
+  if (!isData) return;
 
   float N_value = undef;
   float ww_value = undef;
@@ -3055,39 +3071,34 @@ void ObsPlot::plotDBMetar(int index)
 void ObsPlot::plotRoadobs(int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
-
-  // EXTRACT the data
-  // BEE CAREFULL! This code assumes that the number of entries in
-  // stationlist are the same as in the roadobsp map.
-  // we must check if its a faked line or a line vith data
-  if (index > (*stationlist).size() - 1) return;
-  std::string station_type = (*stationlist)[index].station_type();
+  // Just to be safe...
+  if (index > obsp.size() - 1) return;
+  if (index < 0) return;
+  ObsData & dta = obsp[index];
   // Does this work for ship ?!
-  if (station_type == road::diStation::WMO || station_type == road::diStation::SHIP)
+  if (dta.stringdata["data_type"] == road::diStation::WMO || dta.stringdata["data_type"] == road::diStation::SHIP)
     plotDBSynop(index);
-  else
+  else if (dta.stringdata["data_type"] == road::diStation::ICAO)
     plotDBMetar(index);
+  // Unknown type of station...
+  else return;
 }
 
 void ObsPlot::plotDBSynop(int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  std::string station_type = (*stationlist)[index].station_type();
-  int stationid_wmo = (*stationlist)[index].wmonr();
-  std::string call_sign;
-  int stationid = (*stationlist)[index].stationID();
-  int automationcode = (*stationlist)[index].environmentid();
-  bool isData = (*stationlist)[index].data();
-  //NOTE! The plot is dependent of the plotting order of
-  // the individual parameters.
-  //METLIBS_LOG_DEBUG("Stationid: " << stationid << " Automationcode: " << automationcode << " Data: " << isData);
-  // Do not plot stations with no data
-  if (!isData) return;
 
   // NOTE: We must use the new data structures....
 
   ObsData &dta = obsp[index];
+
+  std::string station_type = dta.stringdata["data_type"];
+  std::string call_sign;
+  int automationcode = dta.fdata["auto"];
+  bool isData = dta.fdata["isdata"];
+  // Do not plot stations with no data
+  if (!isData) return;
 
   // loop all the parameters and then plot them
   // check for the TTT value etc
@@ -3315,7 +3326,7 @@ void ObsPlot::plotDBSynop(int index)
   if (station_type == road::diStation::SHIP)
     zone = 99;
   else if(station_type == road::diStation::WMO)
-    zone = stationid_wmo/1000;
+    zone = wmono_value/1000;
 
   /*
    bool ClFlag = (pFlag.count("cl") && dta.fdata.count("Cl") ||

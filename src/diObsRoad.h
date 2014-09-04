@@ -54,10 +54,13 @@ private:
   std::string databasefile_;
   std::string stationfile_;
   std::string headerfile_;
+	// This defines a set of stations, eg synop,metar,ship observations
+  std::vector<road::diStation> * stationlist;
   miutil::miTime filetime_;
   void readHeader(ObsPlot *oplot);
   void readRoadData(ObsPlot *oplot);
   void initRoadData(ObsPlot *oplot);
+	bool headerRead;
 
 	// from ObsAscii class
 	bool m_needDataRead;

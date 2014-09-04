@@ -71,13 +71,18 @@ ObsRoad::ObsRoad(const std::string &filename, const std::string &databasefile, c
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::ObsRoad() ++");
 #endif
+	// clear members
+
+	headerRead = false;
   filename_ = filename;
   databasefile_ = databasefile;
   stationfile_ = stationfile;
   headerfile_ = headerfile;
   filetime_ = filetime;
-	if (!breadData)
+	if (!breadData) {
 		readHeader(oplot);
+		headerRead = true;
+	}
 	else
 		readData(oplot);
 }
@@ -162,12 +167,7 @@ void ObsRoad::initData(ObsPlot *oplot)
 	METLIBS_LOG_DEBUG("++ ObsRoad::initData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 	// read the headerfile if needed
-	// FIXME: Read always...
-	if(true)
-	{
 		readHeader(oplot);
-	}
-	
 	initRoadData(oplot);
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initData()done ++ ");
@@ -179,6 +179,10 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::initRoadData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
+	// Does not work, why ?
+	//if (!oplot->isallObs())
+	//	oplot->clear(); // ???
+	//oplot->clearVisibleStations();
 	oplot->setLabels(labels);
   oplot->columnName = m_columnName;
 
@@ -190,7 +194,7 @@ void ObsRoad::initRoadData(ObsPlot *oplot)
   map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end())
   {
-	  oplot->stationlist = its->second;
+		stationlist = its->second;
   }
 
 	map<int, std::string> lines_map;
@@ -266,12 +270,7 @@ void ObsRoad::readData(ObsPlot *oplot)
 	METLIBS_LOG_DEBUG("++ ObsRoad::readData( filename= " << filename_ << " databasefile= " << databasefile_ << " stationfile= " << stationfile_ << " headerfile= " << headerfile_ << " filetime= " << filetime_.isoTime() << " )++ " << endl);
 #endif
 	// read the headerfile if needed
-	// FIXME, should be read every time!!
-	if(true)
-	{
 		readHeader(oplot);
-	}
-
 	readRoadData(oplot);
 #ifdef DEBUGPRINT
 	METLIBS_LOG_DEBUG("++ ObsRoad::readData()done ++ ");
@@ -296,7 +295,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   map<std::string, vector<diStation> * >::iterator its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end())
   {
-	  oplot->stationlist = its->second;
+	  stationlist = its->second;
   }
   // FIXME: For now, does nothing...
   road.open();
@@ -306,7 +305,7 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
   map<int, std::string> lines_map;
   // Members in the global stationlist that is not in the stations_to_plot list are not read from road
   // This should improve performance
-  road.getData(oplot->stations_to_plot, lines_map);
+  road.getData(oplot->getStationsToPlot(), lines_map);
 	// FIXME: For now, does nothing...
 	road.close();
 
@@ -319,11 +318,10 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 		//INDEX in station list
 	stnid = it->first;
 	str = it->second;
-		miutil::trim(	str);
+	miutil::trim(str);
 		// Append every line to 
 		lines.push_back(str);
 	}
-
 	separator = "|";
 
 	// remove the fake data....
@@ -334,9 +332,9 @@ void ObsRoad::readRoadData(ObsPlot *oplot)
 
 	oplot->replaceObsData(vObsData);
 
-	oplot->setData();
+	oplot->clearVisibleStations();
 
-
+	// Dont set data here, the manager will do that...
 	// HERE, we should be finished!
 
 
@@ -645,6 +643,7 @@ void ObsRoad::decodeData()
     ii += 1;
   }
 
+  int index = 0;
   for (; ii < lines.size(); ++ii) {
     METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
 		//cerr << "read '" << lines[ii] << "'" << endl;
@@ -659,7 +658,11 @@ void ObsRoad::decodeData()
       pstr = miutil::split_protected(lines[ii], '"', '"');
 
     ObsData  obsData;
-
+		// Set metadata for station...
+		obsData.stringdata["data_type"] = (*stationlist)[index].station_type();
+		obsData.fdata["auto"] = (*stationlist)[index].environmentid();
+		obsData.fdata["isdata"] = (*stationlist)[index].data();
+    index ++;
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
     for (size_t i=0; i<tmp_nColumn; i++) {
       if (not asciiColumnUndefined.count(pstr[i]))

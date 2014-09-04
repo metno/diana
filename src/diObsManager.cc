@@ -1033,7 +1033,7 @@ ObsDialogInfo ObsManager::initDialog()
 
       //proad.name= pr->second.dialogName;
       //proad.name= pr->second.plotFormat + ": " + pr->second.dialogName;
-      proad.name= pr->second.plotFormat + ":" + pr->second.dialogName;
+      proad.name= pr->second.dialogName;
       proad.button.clear();
 
       type.active.clear();

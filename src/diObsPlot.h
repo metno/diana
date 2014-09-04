@@ -78,6 +78,7 @@ private:
   int level;
   bool levelAsField;
   std::string m_plottype;
+	std::string dialogname;
 
   const std::string& plottype() const
   {
@@ -208,6 +209,7 @@ private:
   std::vector<int> all_this_area; // all stations within area
   std::vector<int> all_stations; // all stations, from last plot or from file
   std::vector<int> all_from_file; // all stations, from file or priority list
+	std::vector<int> stations_to_plot; // copy of list of stations that will be plotted
   //id of all stations shown, sorted by plot type
   static std::map<std::string, std::vector<std::string> > visibleStations;
 
@@ -365,7 +367,12 @@ private:
 
   // clear info about text/symbol layers
   static void clearPos();
-
+	// return the computed index in stationlist, ROADOBS only
+	std::vector<int> & getStationsToPlot();
+	// clear VisibleStations map from current plottype
+	void clearVisibleStations();
+	// Returns the allObs boolean
+	bool isallObs() {return allObs;};
   bool plot();
   bool prepare(const std::string&);
   bool setData();
@@ -517,8 +524,6 @@ private:
 
   // observations from road
 #ifdef ROADOBS
-  std::vector<road::diStation> * stationlist;
-  std::vector<road::diStation> stations_to_plot;
   bool preparePlot(void);
 #endif
 };
