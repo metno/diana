@@ -243,8 +243,9 @@ void PolyLine::keyPress(
     removePoint();
     if (getPoints() != origPoints)
       undoCommands->append(new SetGeometryCommand(this, origPoints, getPoints()));
-  } else if (((event->key() == Qt::Key_Plus) || (event->key() == Qt::Key_Enter)
-              || (event->key() == Qt::Key_Return)) && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
+  } else if (((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)
+              || (event->key() == Qt::Key_Plus) || (event->key() == Qt::Key_Insert))
+             && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
     const QList<QPointF> origPoints = getPoints();
     addPoint();
     if (getPoints() != origPoints)
