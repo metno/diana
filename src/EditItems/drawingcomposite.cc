@@ -195,9 +195,10 @@ void Composite::arrangeElement(int i)
 {
   QRectF previousRect;
 
-  if (i < 1 || i >= elements_.size())
+  if (i < 1 || i >= elements_.size()) {
+    i = 0;
     previousRect = QRectF(boundingRect().topLeft(), QSizeF(0, 0));
-  else
+  } else
     previousRect = elements_.at(i - 1)->boundingRect();
 
   DrawingItemBase *element = elements_.at(i);
@@ -207,24 +208,29 @@ void Composite::arrangeElement(int i)
   switch (layout_) {
   case Qt::Horizontal:
     //point = QPointF(previousRect.right(), previousRect.bottom() - previousRect.height() + size.height());
-    point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
+    if (i == 0)
+      point = QPointF(previousRect.left(), previousRect.top());
+    else
+      point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
     break;
   case Qt::Vertical:
-    point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
+    if (i == 0)
+      point = QPointF(previousRect.left(), previousRect.top());
+    else
+      point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
     break;
   default:
     ;
   }
 
   // Determine the change in position of the element.
-  QList<QPointF> points = element->getPoints();
-  QPointF offset = point - points.at(0);
+  QPointF offset = point - element->boundingRect().bottomLeft();
 
+  QList<QPointF> points = element->getPoints();
   for (int j = 0; j < points.size(); ++j)
     points[j] += offset;
 
   element->setPoints(points);
-  qDebug() << element->boundingRect();
 
   // Obtain latitude and longitude coordinates for the element.
   setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
