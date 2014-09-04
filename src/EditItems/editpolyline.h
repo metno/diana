@@ -54,6 +54,9 @@ private:
     virtual bool hit(const QRectF &) const;
 
     virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
+    virtual void mouseHover(QMouseEvent *, bool &);
+    virtual void keyPress(
+        QKeyEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > * = 0, const QSet<QSharedPointer<DrawingItemBase> > * = 0);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
@@ -78,9 +81,8 @@ private:
 
     QAction *addPoint_act_;
     QAction *removePoint_act_;
-    mutable int hitPointIndex_;
-    mutable int hitLineIndex_;
-    mutable QPoint hitLinePos_;
+    int hoverLineIndex_;
+    QPoint hoverPos_;
 
 private slots:
     void addPoint();

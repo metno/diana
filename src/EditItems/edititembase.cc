@@ -43,7 +43,7 @@ void EditItemBase::init()
   moving_ = false;
   resizing_ = false;
   pressedCtrlPointIndex_ = -1;
-  hoveredCtrlPointIndex_ = -1;
+  hoverCtrlPointIndex_ = -1;
 }
 
 void EditItemBase::copyBaseData(EditItemBase *item) const
@@ -123,8 +123,8 @@ void EditItemBase::drawControlPoints() const
 // Highlight the hovered control point.
 void EditItemBase::drawHoveredControlPoint() const
 {
-  Q_ASSERT(hoveredCtrlPointIndex_ >= 0);
-  const QRectF *r = &controlPoints_.at(hoveredCtrlPointIndex_);
+  Q_ASSERT(hoverCtrlPointIndex_ >= 0);
+  const QRectF *r = &controlPoints_.at(hoverCtrlPointIndex_);
   glPushAttrib(GL_LINE_BIT);
   glLineWidth(2);
   const int pad = 1;
@@ -250,7 +250,7 @@ void EditItemBase::mouseMove(QMouseEvent *event, bool &repaintNeeded)
 
 void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
-  hoveredCtrlPointIndex_ = hitControlPoint(event->pos());
+  hoverCtrlPointIndex_ = hitControlPoint(event->pos());
   repaintNeeded = true;
 }
 

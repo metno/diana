@@ -1183,12 +1183,12 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         hitItem = hitItems.first();
 
       QList<QAction *> hitItemActions;
-      QList<QPointF> hitItemBasePoints;
+      QList<QPointF> hitItemOrigPoints;
       if (!hitItem.isNull()) {
         selectItem(hitItem);
         emit repaintNeeded();
         hitItemActions = Editing(hitItem.data())->actions(me2.pos());
-        hitItemBasePoints = hitItem->getPoints();
+        hitItemOrigPoints = hitItem->getPoints();
       }
 
       // populate the menu
@@ -1248,8 +1248,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       if (!hasIncompleteItem())
         emitItemChanged();
 
-      if ((!hitItem.isNull()) && (hitItem->getPoints() != hitItemBasePoints))
-        undoCommands.append(new SetGeometryCommand(Editing(hitItem.data()), hitItemBasePoints, hitItem->getPoints()));
+      if ((!hitItem.isNull()) && (hitItem->getPoints() != hitItemOrigPoints))
+        undoCommands.append(new SetGeometryCommand(Editing(hitItem.data()), hitItemOrigPoints, hitItem->getPoints()));
 
     } else {
 

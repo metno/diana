@@ -136,7 +136,7 @@ protected:
 
     QPointF baseMousePos_;
     int pressedCtrlPointIndex_;
-    int hoveredCtrlPointIndex_;
+    int hoverCtrlPointIndex_;
 
     static int controlPointSize() { return 8; }
 };

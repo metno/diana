@@ -165,7 +165,7 @@ void Symbol::drawHoverHighlighting(bool incomplete) const
   else
     glColor3ub(255, 0, 0);
 
-  if (hoveredCtrlPointIndex_ >= 0) {
+  if (hoverCtrlPointIndex_ >= 0) {
     EditItemBase::drawHoveredControlPoint();
   } else {
     // highlight the bounding box
