@@ -31,7 +31,6 @@
 
 #include "edititembase.h"
 #include <GL/gl.h>
-#include <QDebug>
 
 EditItemBase::EditItemBase()
   : moving_(false)
