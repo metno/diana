@@ -38,6 +38,9 @@
 #include <QTranslator>
 #include <QMessageBox>
 
+// required to tell fimex to use log4cpp
+#include <fimex/Logger.h>
+
 #include "diLocalSetupParser.h"
 #include "diPrintOptions.h"
 #include "diController.h"
@@ -163,6 +166,9 @@ int main(int argc, char **argv)
     logfilename += PVERSION;
     logfilename += "/log4cpp.properties";
   }
+
+  // tell fimex to use log4cpp
+  MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
   milogger::LoggingConfig log4cpp(logfilename);
 
   SetupParser::setUserVariables(user_variables);

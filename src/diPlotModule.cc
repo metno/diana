@@ -59,7 +59,6 @@
 #include <puTools/miStringFunctions.h>
 
 #include <GL/gl.h>
-#include <sstream>
 
 #include <QKeyEvent>
 #include <QMouseEvent>

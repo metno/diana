@@ -165,7 +165,8 @@ PlotOptions::PlotOptions():
 // and fill a PlotOptions with appropriate values
 bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool returnMergedOptionString)
 {
-  METLIBS_LOG_SCOPE();
+  // very frequent METLIBS_LOG_SCOPE();
+
   // defined keywords:
   //------------------------------------------
   // options1: off,isoline

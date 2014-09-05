@@ -130,7 +130,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[j] = -179.999;
       ty[j] = orig_shapes[i]->padfY[j];
     }
-	success = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
+    success = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
 
     for (int k=0; k<nVertices; k++) {
       shapes[i]->padfX[k] = tx[k];
@@ -149,7 +149,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[1] = -179.999;
     ty[0] = orig_shapes[i]->dfYMin;
     ty[1] = orig_shapes[i]->dfYMax;
-	success2 = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
+    success2 = StaticPlot::gc.geo2xy(StaticPlot::getMapArea(), nVertices, tx, ty);
 
     shapes[i]->dfXMin = tx[0];
     shapes[i]->dfXMax = tx[1];
