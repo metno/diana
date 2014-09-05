@@ -99,6 +99,8 @@ public:
     // Returns actions that are applicable to this item at screen position \a pos. Examples include adding or deleting control points.
     virtual QList<QAction *> actions(const QPoint &pos) const;
 
+    virtual void updateHoverPos(const QPoint &);
+
 protected:
     EditItemBase();
 
@@ -137,6 +139,7 @@ protected:
     QPointF baseMousePos_;
     int pressedCtrlPointIndex_;
     int hoverCtrlPointIndex_;
+    QPoint hoverPos_;
 
     static int controlPointSize() { return 8; }
 };

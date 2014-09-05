@@ -79,10 +79,11 @@ private:
 
     virtual QList<QAction *> actions(const QPoint &) const;
 
+    virtual void updateHoverPos(const QPoint &);
+
     QAction *addPoint_act_;
     QAction *removePoint_act_;
     int hoverLineIndex_;
-    QPoint hoverPos_;
 
 private slots:
     void addPoint();

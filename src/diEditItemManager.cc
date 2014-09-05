@@ -433,6 +433,9 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     lastHoverPos_ = event->pos();
     const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(lastHoverPos_);
     if (!hitItems.empty()) {
+      foreach (const QSharedPointer<DrawingItemBase> &hitItem, hitItems)
+        Editing(hitItem.data())->updateHoverPos(lastHoverPos_);
+
       hoverItem_ = hitItems.first();
 
       // send mouse hover event to the hover item

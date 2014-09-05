@@ -197,6 +197,12 @@ QList<QAction *> PolyLine::actions(const QPoint &pos) const
   return acts;
 }
 
+void PolyLine::updateHoverPos(const QPoint &pos)
+{
+  EditItemBase::updateHoverPos(pos);
+  hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
+}
+
 void PolyLine::mousePress(
     QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
@@ -222,7 +228,6 @@ void PolyLine::mousePress(
 void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded)
 {
   EditItemBase::mouseHover(event, repaintNeeded);
-  hoverPos_ = event->pos();
   if (hoverCtrlPointIndex_ < 0) {
     hoverLineIndex_ = hitLine(hoverPos_);
   } else {

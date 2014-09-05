@@ -363,3 +363,8 @@ QList<QAction *> EditItemBase::actions(const QPoint &) const
 {
   return QList<QAction *>();
 }
+
+void EditItemBase::updateHoverPos(const QPoint &pos)
+{
+  hoverPos_ = pos;
+}
