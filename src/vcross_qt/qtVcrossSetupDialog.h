@@ -77,6 +77,7 @@ private:
   VcrossSetupUI* mSetupLOWERLEVEL;
   VcrossSetupUI* mSetupOTHERLEVELS;
   VcrossSetupUI* mSetupSURFACE;
+  VcrossSetupUI* mSetupINFLIGHT;
   VcrossSetupUI* mSetupDISTANCE;
   VcrossSetupUI* mSetupGEOPOS;
   VcrossSetupUI* mSetupVERTGRID;

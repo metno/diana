@@ -94,6 +94,8 @@ const char VC_SURFACE_PRESSURE[]  = "vc_surface_pressure";
 const char VC_SURFACE_HEIGHT[]    = "vc_surface_height";
 const char VC_SPECIFIC_HUMIDITY[] = "vc_specific_humidity";
 const char VC_AIR_TEMPERATURE[]   = "vc_air_temperature";
+const char VC_INFLIGHT_PRESSURE[]  = "vc_inflight_pressure";
+const char VC_INFLIGHT_HEIGHT[]    = "vc_inflight_height";
 
 // ========================================================================
 
@@ -187,6 +189,14 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
 }
 
 // ------------------------------------------------------------------------
+
+static float* getPressureFloats(const name2value_t& n2v)
+{
+  name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
+  if (itpp == n2v.end() or not itpp->second)
+    return 0;
+  return itpp->second->values().get();
+}
 
 Values_cp FunctionData::evaluate(name2value_t& n2v) const
 {
@@ -302,10 +312,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_thesat_from_th: {
     if (compute == 0) compute = 5;
 
-    name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
-    if (itpp == n2v.end())
-      return Values_cp();
-    const float* f_pp = itpp->second->values().get();
+    const float* f_pp = getPressureFloats(n2v);
     if (not f_pp)
       return Values_cp();
 
@@ -318,10 +325,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_the_from_th_q: {
     if (compute == 0) compute = 2;
 
-    name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
-    if (itpp == n2v.end())
-      return Values_cp();
-    const float* f_pp = itpp->second->values().get();
+    const float* f_pp = getPressureFloats(n2v);
     if (not f_pp)
       return Values_cp();
 
@@ -354,10 +358,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0)
       compute = 12;
 
-    name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
-    if (itpp == n2v.end())
-      return Values_p();
-    const float* f_pp = itpp->second->values().get();
+    const float* f_pp = getPressureFloats(n2v);
     if (not f_pp)
       return Values_p();
 

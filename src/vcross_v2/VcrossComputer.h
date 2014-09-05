@@ -127,6 +127,8 @@ extern const char VC_SURFACE_PRESSURE[];
 extern const char VC_SURFACE_HEIGHT[];
 extern const char VC_SPECIFIC_HUMIDITY[];
 extern const char VC_AIR_TEMPERATURE[];
+extern const char VC_INFLIGHT_PRESSURE[];
+extern const char VC_INFLIGHT_HEIGHT[];
 
 void resolveCrossection(InventoryBase_cps& inv);
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v);

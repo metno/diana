@@ -87,6 +87,11 @@ public:
   std::string surfaceLinetype;
   float    surfaceLinewidth;
 
+  bool     pInflight;
+  std::string inflightColour;
+  std::string inflightLinetype;
+  float    inflightLinewidth;
+
   bool     pMarkerlines;
   std::string markerlinesColour;
   std::string markerlinesLinetype;

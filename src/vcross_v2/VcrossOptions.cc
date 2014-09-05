@@ -92,6 +92,11 @@ void VcrossOptions::setDefaults()
   surfaceLinetype= "solid";
   surfaceLinewidth= 1.;
 
+  pInflight= true;
+  inflightColour= "red";
+  inflightLinetype= "solid";
+  inflightLinewidth= 5.;
+
   pMarkerlines= true;
   markerlinesColour= "black";
   markerlinesLinetype= "solid";
@@ -227,6 +232,12 @@ std::vector<std::string> VcrossOptions::writeOptions()
       << " surfaceLinewidth=" << surfaceLinewidth));
 
   vstr.push_back((StringBuilder()
+      << "Inflight=" << asBool(pInflight)
+      << " inflightColour=" << inflightColour
+      << " inflightLinetype=" << inflightLinetype
+      << " inflightLinewidth=" << inflightLinewidth));
+
+  vstr.push_back((StringBuilder()
       << "Distance=" << asBool(pDistance)
       << " distanceColour=" << distanceColour
       << " distanceUnit=" << distanceUnit));
@@ -348,6 +359,11 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
       else if (key=="surfaceColour")    surfaceColour= value;
       else if (key=="surfaceLinetype")  surfaceLinetype= value;
       else if (key=="surfaceLinewidth") surfaceLinewidth= kv.toDouble();
+
+      else if (key=="Inflight")         pInflight = kv.toBool();
+      else if (key=="inflightColour")    inflightColour= value;
+      else if (key=="inflightLinetype")  inflightLinetype= value;
+      else if (key=="inflightLinewidth") inflightLinewidth= kv.toDouble();
 
       else if (key=="Distance")       pDistance = kv.toBool();
       else if (key=="distanceColour") distanceColour= value;

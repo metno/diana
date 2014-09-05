@@ -262,6 +262,8 @@ void QtPlot::clear(bool keepX, bool keepY)
   mTimeDistances.clear();
 
   mSurface = Values_cp();
+  mLines.clear();
+
   mViewChanged = true;
 }
 
@@ -322,6 +324,12 @@ void QtPlot::addPlot(EvaluatedPlot_cp ep)
 {
   METLIBS_LOG_SCOPE();
   mPlots.push_back(miutil::make_shared<OptionPlot>(ep));
+}
+
+void QtPlot::addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth)
+{
+  METLIBS_LOG_SCOPE();
+  mLines.push_back(OptionLine(linevalues, linecolour, linetype, linewidth));
 }
 
 void QtPlot::prepare()
@@ -858,10 +866,16 @@ void QtPlot::plotData(QPainter& painter)
 
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
-    if ((ep->argument_values.empty()) or (not ep->z_values) or (ep->z_values->npoint() != npoint)
-        or (ep->values(0)->npoint() != npoint))
-    {
-      METLIBS_LOG_ERROR("no argument_values, or no z_values, or unexpected point count, cannot plot");
+    if (ep->argument_values.empty()) {
+      METLIBS_LOG_ERROR("no argument_values, cannot plot");
+      return;
+    }
+    if (not ep->z_values) {
+      METLIBS_LOG_ERROR("no z_values, cannot plot");
+      return;
+    }
+    if ((ep->z_values->npoint() != npoint) or (ep->values(0)->npoint() != npoint)) {
+      METLIBS_LOG_ERROR("unexpected point count, cannot plot");
       return;
     }
     
@@ -880,6 +894,9 @@ void QtPlot::plotData(QPainter& painter)
       break;
     }
   }
+
+  for (OptionLine_v::const_iterator itL = mLines.begin(); itL != mLines.end(); ++itL)
+    plotDataLine(painter, *itL);
 }
 
 void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
@@ -991,6 +1008,40 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
     }
   }
   painter.setBrush(Qt::NoBrush);
+}
+
+void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
+{
+  METLIBS_LOG_SCOPE();
+  if (not ol.linevalues) {
+    METLIBS_LOG_DEBUG("no line values");
+    return;
+  }
+
+  painter.save();
+  QPen pen(vcross::util::QC(colourOrContrast(ol.linecolour)), ol.linewidth);
+  vcross::util::setDash(pen, ol.linetype);
+  painter.setPen(pen);
+
+  const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
+      : mCrossectionDistances;
+
+  QPolygonF polyline;
+  const int nx = ol.linevalues->npoint();
+  for (int ix=0; ix<nx; ++ix) {
+    const float vx = distances.at(ix), lv = ol.linevalues->value(ix, 0);
+    const float px = mAxisX->value2paint(vx);
+    float py = mAxisY->value2paint(lv);
+    if (mAxisX->legalPaint(px) and mAxisY->legalPaint(py))
+      polyline << QPointF(px, py);
+    else if (polyline.size() >= 2) {
+      painter.drawPolyline(polyline);
+      polyline.clear();
+    }
+  }
+  if (polyline.size() >= 2)
+    painter.drawPolyline(polyline);
+  painter.restore();
 }
 
 } // namespace vcross

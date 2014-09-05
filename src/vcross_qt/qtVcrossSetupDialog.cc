@@ -163,6 +163,7 @@ void VcrossSetupDialog::initOptions()
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+  mSetupINFLIGHT = new VcrossSetupUI(this, tr("Inflight lines"), glayout, nrow++, opts);
   mSetupVERTGRID = new VcrossSetupUI(this, tr("Vertical gridlines"), glayout, nrow++, opts);
 #ifndef DISABLE_UNUSED_OPTIONS
   mSetupMARKERLINES = new VcrossSetupUI(this, tr("Marker lines"), glayout, nrow++, opts);
@@ -311,6 +312,11 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
   mSetupSURFACE->setLinetype (vcopt->surfaceLinetype);
 #endif
 
+  mSetupINFLIGHT->setChecked  (vcopt->pInflight);
+  mSetupINFLIGHT->setColour   (vcopt->inflightColour);
+  mSetupINFLIGHT->setLinewidth(vcopt->inflightLinewidth);
+  mSetupINFLIGHT->setLinetype (vcopt->inflightLinetype);
+
   mSetupDISTANCE->setChecked         (vcopt->pDistance);
   mSetupDISTANCE->setColour     (vcopt->distanceColour);
   mSetupDISTANCE->setTextChoice (vcopt->distanceUnit);
@@ -415,6 +421,11 @@ void VcrossSetupDialog::applySetup()
   vcopt->surfaceLinewidth= mSetupSURFACE->getLinewidth();
   vcopt->surfaceLinetype=  mSetupSURFACE->getLinetype ();
 #endif
+
+  vcopt->pInflight        = mSetupINFLIGHT->isChecked();
+  vcopt->inflightColour    = mSetupINFLIGHT->getColour().name;
+  vcopt->inflightLinewidth = mSetupINFLIGHT->getLinewidth();
+  vcopt->inflightLinetype  = mSetupINFLIGHT->getLinetype ();
 
   vcopt->pDistance=      mSetupDISTANCE->isChecked();
   vcopt->distanceColour= mSetupDISTANCE->getColour().name;

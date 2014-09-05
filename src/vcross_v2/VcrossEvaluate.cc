@@ -104,12 +104,7 @@ Values_cp vc_evaluate_field(model_values_m& model_values,
   if (it_m == model_values.end())
     return Values_cp();
 
-  name2value_t& n2v = it_m->second;
-  const name2value_t::const_iterator it_f = n2v.find(VC_SURFACE_PRESSURE);
-  if (it_f != n2v.end())
-    return it_f->second;
-
-  return vc_evaluate_field(field, n2v);
+  return vc_evaluate_field(field, it_m->second);
 }
 
 //########################################################################
@@ -249,6 +244,7 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
       z_name_values_t::iterator it_z = z_name_values.find(zaxis->id());
       if (it_z == z_name_values.end()) {
         z_hpa_conv_t z;
+        METLIBS_LOG_DEBUG("about to convert z axis '" << zaxis->id() << "' from '" << zaxis->unit() << "' to hPa");
         z.first  = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
         z.second = vc_converted_z_axis(zaxis, z.first, z_type,
             collector, model_values, sp->model);

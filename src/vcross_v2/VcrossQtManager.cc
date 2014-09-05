@@ -398,7 +398,7 @@ bool QtManager::plot(QPainter& painter)
     mPlot->plot(painter);
     return true;
   } catch (std::exception& e) {
-    METLIBS_LOG_ERROR(e.what());
+    METLIBS_LOG_ERROR("exception: " << e.what());
   } catch (...) {
     METLIBS_LOG_ERROR("unknown exception");
   }
@@ -458,7 +458,6 @@ void QtManager::preparePlot()
   // TODO decide if to plot surface height or pressure
   const std::string& model1 = mCollector->getSelectedPlots().front()->model;
   vc_evaluate_surface(mCollector, model_values, model1);
-
   { std::string surface_id, surface_unit;
     if (zType == vcross::Z_TYPE_PRESSURE) {
       surface_id = VC_SURFACE_PRESSURE;
@@ -468,11 +467,35 @@ void QtManager::preparePlot()
       surface_unit = "m";
     }
     if (not surface_id.empty()) {
-      if (InventoryBase_cp surface = mCollector->getResolvedField(model1, surface_id))
+      if (InventoryBase_cp surface = mCollector->getResolvedField(model1, surface_id)) {
+        METLIBS_LOG_DEBUG(LOGVAL(surface->unit()) << LOGVAL(surface_unit));
         mPlot->setSurface(util::unitConversion(model_values.at(model1).at(surface_id),
                 surface->unit(), surface_unit));
+      }
     }
   }
+
+  if (mOptions->pInflight) {
+    std::string inflight_id, inflight_unit;
+    if (zType == vcross::Z_TYPE_PRESSURE) {
+      inflight_id = VC_INFLIGHT_PRESSURE;
+      inflight_unit = "hPa";
+    } else if (zType == vcross::Z_TYPE_HEIGHT) {
+      inflight_id = VC_INFLIGHT_HEIGHT;
+      inflight_unit = "m";
+    }
+    if (not inflight_id.empty()) {
+      if (InventoryBase_cp inflight = mCollector->getResolvedField(model1, inflight_id)) {
+        METLIBS_LOG_DEBUG("resolved '" << inflight_id << "'");
+        if (Values_cp linevalues = vc_evaluate_field(model_values, model1, inflight)) {
+          METLIBS_LOG_DEBUG(LOGVAL(inflight->unit()) << LOGVAL(inflight_unit));
+          mPlot->addLine(util::unitConversion(linevalues, inflight->unit(), inflight_unit),
+              mOptions->inflightColour, mOptions->inflightLinetype, mOptions->inflightLinewidth);
+        }
+      }
+    }
+  }
+
   mPlot->prepare();
   restoreZoom();
 }
@@ -532,6 +555,11 @@ bool QtManager::setSelection(const string_v& vstr)
 
     BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots())
         vc_require_pressure_height(mCollector, sp->model);
+
+    if (mOptions->pInflight) {
+      vc_require_unit(mCollector, model1, VC_INFLIGHT_PRESSURE, "hPa");
+      vc_require_unit(mCollector, model1, VC_INFLIGHT_HEIGHT,   "m");
+    }
   }
 
   dataChange |= CHANGED_SEL;

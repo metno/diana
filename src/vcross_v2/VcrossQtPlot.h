@@ -79,6 +79,17 @@ private:
   typedef boost::shared_ptr<const OptionPlot> OptionPlot_cp;
   typedef std::vector<OptionPlot_cp> OptionPlot_cpv;
 
+  struct OptionLine {
+    Values_cp linevalues;
+    std::string linecolour;
+    std::string linetype;
+    float linewidth;
+
+    OptionLine(Values_cp lv, const std::string& lc, const std::string& lt, float lw)
+      : linevalues(lv), linecolour(lc), linetype(lt), linewidth(lw) { }
+  };
+  typedef std::vector<OptionLine> OptionLine_v;
+
 public:
   QtPlot(VcrossOptions_p options);
   ~QtPlot();
@@ -109,6 +120,7 @@ public:
   void setSurface(Values_cp s)
     { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);
+  void addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth);
   void prepare();
   void plot(QPainter& painter);
 
@@ -145,7 +157,7 @@ private:
   void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1);
   void plotDataWind(QPainter& painter, OptionPlot_cp plot);
   void plotDataVector(QPainter& painter, OptionPlot_cp plot);
-  //void plotDataLine(QPainter& painter, OptionPlot_cp plot);
+  void plotDataLine(QPainter& painter, const OptionLine& ol);
 
   bool isTimeGraph() const
     { return not mTimePoints.empty(); }
@@ -181,6 +193,8 @@ private:
 
   OptionPlot_cpv mPlots;
   Values_cp mSurface;
+
+  OptionLine_v mLines;
 };
 
 typedef boost::shared_ptr<QtPlot> QtPlot_p;
