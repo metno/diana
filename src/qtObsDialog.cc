@@ -1156,7 +1156,7 @@ void ObsDialog::numberList( QComboBox* cBox, float number ){
   const float enormal[nenormal] = { 0.001, 0.01, 0.1, 1.0, 10., 100., 1000.,
       10000.};
   QString qs;
-  for (int i=0; i<=nenormal; i++) {
+  for (int i=0; i<nenormal; i++) {
     cBox->addItem(qs.setNum(enormal[i]*number));
   }
   cBox->setCurrentIndex(nenormal/2-1);
