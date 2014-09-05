@@ -32,7 +32,9 @@
 	    <li>
 	    	The next lines contain data types. Multiple types can be selected.</li>
 	    <li>
-	    	Then select the parameters which are to be plotted.</li>
+	    	Then select the parameters which are to be plotted by either manually select
+            each parameter or buy pressing the All, None or Default button.
+	    </li>
 	    <li>
 	    	Show all positions - displays an x where there is no room to display the
 	    	observation. By clicking the x, the observation is displayed. PageUp
@@ -94,8 +96,12 @@
 	    	Show only prioritized - If checked; show only the stations contained
 	    	in the chosen priority list.
 	    </li>
+        <li>
+	    	Sort - If selected; sort the observation plots accordning to the value of the selected parameter.
+            The sort order is selected by pressing either the Asc och the Desc radio buttons.
+	    </li>
 	    <li>
-	    	Update - the list of files is reread.
+	    	Refresh - the list of files is reread.
 	    </li>
 	    <li>
 	    	Show all - Displays all plot types with the selected data types if clicked.
@@ -129,7 +135,7 @@
 
   <ul>
     <li>
-      <b>Criteria list</b> - Choose a list of criteria. The lists can be added
+      <b>List of criteria</b> - Choose a list of criteria. The lists can be added
       in the setup-file or made in the dialogue. All saved changes are logged.
 		</li>
     <li>
@@ -150,10 +156,16 @@
       plotted in the selected colour.
       <li><b>Colour - whole synop</b> - observations matching the criteria are
       plotted in the selected colour.
+      <li><b>Marker</b> - observations matching the criteria are
+      marked with the selected marker below.
 </ul>
     </li>
     <li>
       <b>Colour</b> - Choose colour, only applies if "Colour" has been selected
+      above.
+    </li>
+    <li>
+      <b>Marker</b> - Choose marker, only applies if "Marker" has been selected
       above.
     </li>
     <li>
@@ -163,7 +175,7 @@
       selected colour. The precision of the limit value can be adjusted.
     </li>
     <li>
-      <b>Save list</b> - enter filename and click "Save".
+      <b>Save criteria list</b> - enter filename and click "Save".
   </ul>
 
     List of data types, data files etc. are in the <a
