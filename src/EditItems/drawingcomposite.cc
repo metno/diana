@@ -58,12 +58,12 @@ void Composite::draw()
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  // Use the fill colour defined in the style to fill the text area.
   QRectF bbox(points_.at(0), points_.at(1));
 
   QList<QPointF> points;
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
+  // Use the fill colour defined in the style to fill the text area.
   styleManager->beginFill(this);
   styleManager->fillLoop(this, points);
   styleManager->endFill(this);
@@ -73,32 +73,9 @@ void Composite::draw()
   }
 }
 
-void Composite::setLatLonPoints(const QList<QPointF> &points)
-{
-  QPointF offset;
-
-  if (latLonPoints_.size() > 0) {
-    // Calculate the offset for each of the points using the first point passed.
-    offset = points.at(0) - latLonPoints_.at(0);
-  } else
-    offset = QPointF(0, 0);
-
-  // Adjust the child elements using the offset.
-  foreach (DrawingItemBase *element, elements_) {
-
-    QList<QPointF> newPoints;
-    foreach (QPointF point, element->getLatLonPoints())
-      newPoints.append(point + offset);
-
-    element->setLatLonPoints(newPoints);
-  }
-
-  DrawingItemBase::setLatLonPoints(points);
-}
-
 QRectF Composite::boundingRect() const
 {
-  QRectF thisRect = DrawingItemBase::boundingRect();
+  QRectF thisRect;
 
   foreach (DrawingItemBase *element, elements_) {
     QRectF rect = element->boundingRect();
@@ -197,7 +174,7 @@ void Composite::arrangeElement(int i)
 
   if (i < 1 || i >= elements_.size()) {
     i = 0;
-    previousRect = QRectF(boundingRect().topLeft(), QSizeF(0, 0));
+    previousRect = QRectF(points_[0], QSizeF(0, 0));
   } else
     previousRect = elements_.at(i - 1)->boundingRect();
 
@@ -233,21 +210,19 @@ void Composite::arrangeElement(int i)
   element->setPoints(points);
 
   // Obtain latitude and longitude coordinates for the element.
-  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
+  //element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
 }
 
 void Composite::setPoints(const QList<QPointF> &points)
 {
   QPointF offset;
 
-  if (points_.size() == 0) {
-    // Ensure that the object itself has points.
+  // Calculate the offset for each of the points using the first point passed.
+  if (points_.isEmpty()) {
     DrawingItemBase::setPoints(points);
     offset = QPointF(0, 0);
-  }
-
-  // Calculate the offset for each of the points using the first point passed.
-  offset = points.at(0) - points_.at(0);
+  } else
+    offset = points.at(0) - points_.at(0);
 
   // Adjust the child elements using the offset.
   foreach (DrawingItemBase *element, elements_) {
@@ -257,11 +232,11 @@ void Composite::setPoints(const QList<QPointF> &points)
       newPoints.append(point + offset);
 
     element->setPoints(newPoints);
-    element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
+    //element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
   }
 
   // Update the points to contain the child elements inside the object.
-  //updateRect();
+  updateRect();
 }
 
 } // namespace

@@ -135,14 +135,6 @@ void Composite::updateControlPoints()
 {
 }
 
-void Composite::setPoints(const QList<QPointF> &points)
-{
-  DrawingItem_Composite::Composite::setPoints(points);
-
-  // Update the list with the new points.
-  setGeometry(points);
-}
-
 void Composite::drawHoverHighlighting(bool) const
 {
   QRectF bbox = boundingRect();

@@ -46,9 +46,6 @@ public:
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
 
-  // Sets the item's geographic points.
-  virtual void setLatLonPoints(const QList<QPointF> &points);
-
   // Reimplementation of the base class's method.
   virtual QRectF boundingRect() const;
 

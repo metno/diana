@@ -64,7 +64,6 @@ protected:
   virtual void move(const QPointF &pos);
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
-  virtual void setPoints(const QList<QPointF> &points);
 
 private:
   virtual DrawingItemBase *cloneSpecial() const;
