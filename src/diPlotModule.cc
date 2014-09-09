@@ -1930,6 +1930,18 @@ bool PlotModule::getObsName(int x, int y, std::string& name)
 
   return false;
 }
+std::string PlotModule::getObsPopupText(int x, int y)
+{
+  int n = vop.size();
+  std::string obsText = "";
+ 
+  for (size_t i = 0; i < n; i++)
+    if (vop[i]->getObsPopupText(x, y, obsText))
+      return obsText;
+
+  return obsText;
+}
+
 
 //areas
 void PlotModule::makeAreas(std::string name, std::string areastring, int id)

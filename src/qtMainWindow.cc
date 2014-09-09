@@ -3094,7 +3094,12 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
   if ( !stationsText.isEmpty() ) {
     QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), stationsText, w);
   }
-
+  std::string obsText= contr->getObsPopupText(mev->x(), mev->y());
+  QString obsPopupData = QString::fromStdString(obsText);
+  if ( !obsPopupData.isEmpty() ) {
+         QWhatsThis::showText(w->mapToGlobal(QPoint(mev->x(), w->height() - mev->y())), obsPopupData, w);
+  }
+  
 }
 
 

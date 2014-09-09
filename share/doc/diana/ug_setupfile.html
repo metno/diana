@@ -129,6 +129,8 @@
 	  <td>defined priority lists for observation plotting</td></tr>
 	<tr><td><a href="#OBSERVATION_CRITERIA">OBSERVATION_CRITERIA</a></td>
 	  <td>definitions of criterias for plotting observations</td></tr>
+	<tr><td><a href="#OBSERVATION_POPUP_SPEC">OBSERVATION_POPUP_SPEC</a></td>
+	  <td>define parameters and layout for observation popup window</td></tr>
 	<tr><td><a href="#IMAGE">IMAGE</a></td><td>geo images (satellite, radar) defined with file sources, available channels etc.</td></tr>
 	<tr><td><a href="#TEXT_INFORMATION_FILES">TEXT_INFORMATION_FILES</a></td>
 	  <td>list of files for the text viewer in Diana</td></tr>
@@ -509,6 +511,34 @@ CLEAR_FILEGROUP
 	  <td>Plot the observation if TTT is reported</td></tr>
     </table>
 <p>
+
+      <a name="OBSERVATION_POPUP_SPEC"></a><h3>Section OBSERVATION_POPUP_SPEC</h3>
+    Definitions of the text in the popup window. The popup window can be turned on/off in the <a href="ug_obsdialogue.html">observation dialogue</a>. 
+    If this section has no definition for the selected datatype, the parameters selected in the dialogue will be shown.
+<p>
+	datatype = name of observation type <br>
+        free text and parameters marked with $ sign <br>
+<p>
+    <br>Example:
+    <pre>
+    datatype=Lightning
+    Lat $Lat Lon $Lon 
+    Maximum current $Pk
+    $Ci 0=Cloud-Ground:1=Cloud-Cloud
+    </pre>
+    <p>
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Definition</td><td>Description</td></tr>
+	<tr><td>datatype=Lightning</td><td>This popup text will be shown for the datatype Lightning</td></tr>
+	<tr><td>Lat $Lat Lon $Lon</td>
+	  <td>Lat 37.27 Lon -6.04</td></tr>
+	<tr><td>Maximum current $Pk</td>
+	  <td>Maximum current 0043</td></tr>
+	<tr><td>$Ci 0=Cloud-Ground:1=Cloud-Cloud</td>
+	  <td>If the value of the parameter Ci is 0, show Cloud-Ground, otherwise Cloud-Cloud. </td></tr>
+    </table>
+<p>
+
 
       <!-- PAGEBREAK -->
 

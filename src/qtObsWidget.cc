@@ -137,6 +137,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   bool asFieldButton=false;
   bool orient=false;
   bool parameterName=false;
+  bool popupWindow=false;
   bool moreTimes=false;
   bool qualityFlag=false;
   bool wmoFlag=false;
@@ -166,6 +167,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
         orient = on;
       else if(stokens[0]=="parameterName")
         parameterName = on;
+      else if(stokens[0]=="popup")
+        popupWindow = on;
       else if(stokens[0]=="more_times")
         moreTimes = on;
       else if(stokens[0]=="criteria")
@@ -279,7 +282,9 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   if(!tempPrecision) tempPrecisionCheckBox->hide();
   parameterNameCheckBox= new QCheckBox(tr("Name of parameter"),this);
   if(!parameterName) parameterNameCheckBox->hide();
-  moreTimesCheckBox=
+  popupWindowCheckBox= new QCheckBox(tr("Selected observation in popup window"),this);
+  if(!popupWindow) popupWindowCheckBox->hide();
+     moreTimesCheckBox=
     new QCheckBox(tr("All observations (mixing different times)"),this);
   if(!moreTimes) moreTimesCheckBox->hide();
   devFieldCheckBox= new QCheckBox(tr("PPPP - MSLP-field"),this);
@@ -470,6 +475,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addWidget( wmoCheckBox );
   vcommonlayout->addLayout( devLayout );
   vcommonlayout->addWidget( allAirepsLevelsCheckBox );
+  vcommonlayout->addWidget( popupWindowCheckBox );
   vcommonlayout->addLayout( onlyposLayout);
   vcommonlayout->addLayout( criteriaLayout );
   vcommonlayout->addWidget( line1 );
@@ -809,6 +815,9 @@ std::string ObsWidget::getOKString(bool forLog)
   if( onlyposCheckBox->isChecked() ){
     dVariables.misc["onlypos"]="true";
   }
+  if( popupWindowCheckBox->isChecked() )
+    dVariables.misc["popup"]="true";
+
   if( pricheckbox->isChecked() ){
       dVariables.misc["showonlyprioritized"]="true";
   }
@@ -987,6 +996,12 @@ void ObsWidget::updateDialog(bool setChecked){
   if (dVariables.misc.count("parametername") &&
       dVariables.misc["parametername"] == "true"){
     parameterNameCheckBox->setChecked(true);
+  }
+
+  //popupWindow
+  if (dVariables.misc.count("popup") &&
+      dVariables.misc["popup"] == "true"){
+    popupWindowCheckBox->setChecked(true);
   }
 
   //moreTimes (not from log)
@@ -1279,6 +1294,8 @@ void ObsWidget::setFalse(){
 
   criteriaCheckBox->setChecked(false);
   criteriaChecked(false);
+
+  popupWindowCheckBox->setChecked(false);
 
   if( pressureLevels ){
     pressureComboBox->setCurrentIndex(0);

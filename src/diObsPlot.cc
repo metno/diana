@@ -45,7 +45,6 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
-
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>
 
@@ -110,6 +109,7 @@ ObsPlot::ObsPlot() :
   showOnlyPrioritized = false;
   flaginfo = false;
   parameterName = false;
+  popupText = false;
   qualityFlag = false;
   wmoFlag = false;
   knotParameters.insert("ff");
@@ -371,7 +371,6 @@ bool ObsPlot::prepare(const std::string& pin)
 
   if (pin.size() > 0) //if there is an info string, save it.
     infostr = pin; //if not, use last info string
-
   setPlotInfo(pin);
 
   //clear criteria lists
@@ -452,6 +451,9 @@ bool ObsPlot::prepare(const std::string& pin)
         tempPrecision = is_true(value);
       } else if (key == "parametername") {
         parameterName = is_true(value);
+      } else if (key == "popup") {
+        popupText = is_true(value);
+      } else if (key == "parameter") {
       } else if (key == "qualityflag") {
         qualityFlag = is_true(value);
       } else if (key == "wmoflag") {
@@ -1113,8 +1115,132 @@ bool ObsPlot::showpos_findObs(int xx, int yy)
   return true;
 }
 
-//***********************************************************************
+void ObsPlot::setPopupSpec(std::vector<std::string>& txt)
+{
+  std::string datatype="";
+  vector< std::string> data;
 
+  for (size_t j = 0; j < txt.size(); j++) {
+    if (miutil::contains(txt[j], "datatype")) {
+      if (!datatype.empty() && data.size() > 0) {
+        popupSpec[datatype] = data;
+        data.clear();
+      }
+      vector<std::string> token = miutil::split(txt[j], "=");
+      if (token.size() == 2 ){
+        datatype = miutil::to_lower(token[1]);
+      }
+    } else {
+      data.push_back(txt[j]);   
+      if (j==txt.size()-1) {
+        if (!datatype.empty()) {
+          popupSpec[datatype]=data;
+          data.clear();
+        }
+      }
+    }
+  }
+}
+
+//***********************************************************************
+bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
+{
+#ifdef DEBUGPRINT
+  METLIBS_LOG_DEBUG("++ ObsPlot::getObsPopupText( xx: " << " yy: " << yy << " ) ++");
+#endif
+  int min_i = -1;
+  int found = -1; 
+  min_i =  findObs(xx,yy);
+  if (min_i < 0)
+    return false;
+  ObsData dt = obsp[min_i];
+  if (popupText) {
+    for (size_t i = 0; i < datatypes.size(); i++) {         
+      std::map<string, vector<std::string> >::iterator f_p = popupSpec.begin();
+      for (; f_p != popupSpec.end(); f_p++) {
+        if (f_p->first == datatypes[i]) {
+          found = i;
+          vector< std::string> mdata = f_p->second;
+          if ( mdata.size() > 0) {
+            setuptext += "<table>";
+            if (!dt.obsTime.undef()) {
+              setuptext += "<tr>";
+              setuptext += "<td>";
+              setuptext += "<span style=\"background: red; color: red\">X</span>";
+              setuptext += dt.obsTime.isoTime();
+              setuptext += " ";
+            }
+            for (size_t j = 0; j < mdata.size(); j++) {          
+              setuptext += "<tr>";
+              setuptext += "<td>";
+              setuptext += "<span style=\"background: red; color: red\">X</span>";
+              vector<std::string> token = miutil::split(mdata[j], ' ');
+              std::string p;
+              for (size_t j = 0; j < token.size(); j++) {
+                if (miutil::contains(token[j], "$")) {
+                  miutil::trim(token[j]);
+                  miutil::remove(token[j], '$');
+                  if (miutil::to_int(dt.stringdata[token[j]]) != undef )
+                    setuptext += dt.stringdata[token[j]];
+                  else 
+                    setuptext += "X";
+                  setuptext += " ";
+                } else if (miutil::contains(token[j], ":")) {
+                  vector<std::string> values = miutil::split(token[j], ":");
+                  for (size_t i = 0; i < values.size(); i++) {
+                    if (miutil::contains(values[i], "=")) {
+                      vector<std::string> keys = miutil::split(values[i], "=");
+                      if (keys.size() == 2) {
+                        if (dt.stringdata[token[0]] == keys[0])
+                          setuptext += keys[1];
+                        setuptext += " ";
+                      }
+                    } 
+                  }
+                } else {
+                  setuptext += token[j];
+                  setuptext += " ";
+                }
+              }
+            } //end of for mdata
+            setuptext += "</table>";
+          }
+        } 
+      } 
+    } // end of datatypes
+
+    if (found < 0) {
+      setuptext += "<table>";
+      int size = columnName.size();
+      for (int i = 0; i < size; i++) {
+        std::string param = columnName[i];
+        if ( pFlag.count(param)) {
+          setuptext += "<tr>";
+          setuptext += "<td>";
+          setuptext += param;
+          setuptext += "</td>";
+          setuptext += "<td>";
+          setuptext += "  ";
+          if (miutil::to_int(dt.stringdata[param]) != undef )
+            setuptext += dt.stringdata[param];
+          else
+            setuptext += "X";
+          setuptext += " ";
+          setuptext += "</td>";
+          setuptext += "</tr>";
+          setuptext += "</table>";
+        }
+      }
+    }
+    if (!setuptext.empty() )
+      return true;
+    else
+      return false;
+  } // end of popuptext 
+  return false;
+}
+
+//***********************************************************************
 bool ObsPlot::getObsName(int xx, int yy, string& name)
 {
   METLIBS_LOG_SCOPE("xx: " << " yy: " << yy);

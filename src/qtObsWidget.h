@@ -143,6 +143,7 @@ private:
   QCheckBox* alignmentCheckBox;
   QCheckBox* showposCheckBox;
   QCheckBox* onlyposCheckBox;
+  QCheckBox* popupWindowCheckBox;
   QComboBox* markerBox;
 
   QComboBox* pressureComboBox;

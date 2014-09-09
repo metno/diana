@@ -91,7 +91,8 @@ private:
   std::string priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
-
+  bool popupText; // selected parameters in popup window
+ 
   enum flag {
     QUALITY_GOOD = 4
   };
@@ -105,6 +106,7 @@ private:
   miutil::miTime Time;
   std::string annotation;
   std::vector<std::string> labels; // labels from ascii-files or PlotModule(edit)
+  std::map<std::string, std::vector<std::string> > popupSpec;
   float fontsizeScale; //needed when postscript font != X font
   float current; //cuurent, not wind
   bool firstplot;
@@ -384,6 +386,7 @@ private:
   {
     annotation = anno;
   }
+  void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare 
 
   const std::vector<std::string>& getObsExtraAnnotations() const // from PlotModule
       {
@@ -400,6 +403,8 @@ private:
 
   bool getPositions(std::vector<float>&, std::vector<float>&);
   void obs_mslp(float *);
+
+  bool getObsPopupText(int xx,int yy, std::string& obstext );
 
   // find observation near screen coordinates x, y; only of showpos
   int findObs(int x, int y, const std::string& type="");

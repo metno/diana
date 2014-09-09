@@ -281,9 +281,11 @@ public:
   void updateObs();
   ///find obs in pos x,y
   bool findObs(int x, int y);
-  ///get id of obsevation i pos x,y
+  ///get id of obsevation in pos x,y
   bool getObsName(int x, int y, std::string& name);
-  ///plot next/prev set of observations(PageUp/PageDown)
+  ///get popup text of obsevation in pos x,y
+  std::string getObsPopupText(int x, int y);
+   ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
   ///in edit mode: change obs time, leave the rest unchanged
   void obsTime(QKeyEvent* ke, EventResult& res);

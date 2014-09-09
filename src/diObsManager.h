@@ -124,6 +124,8 @@ private:
   std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
   //  set<std::string> dataTypesListed;
+  
+  std::vector<std::string> popupSpec;  // Parameter data from setupfil
 
   bool useArchive; //read archive files too.
   bool mslp;

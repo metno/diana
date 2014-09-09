@@ -188,6 +188,8 @@ public:
   bool findObs(int,int);
   /// find name of obs in grid position x,y
   bool getObsName(int x,int y, std::string& name);
+  /// get obs popup text in grid position x,y 
+  std::string getObsPopupText(int x,int y); 
   /// plot other observations
   void nextObs(bool);
   /// init hqcData from QSocket

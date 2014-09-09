@@ -98,7 +98,6 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
   METLIBS_LOG_SCOPE();
 
   oplot->clear();
-
   mslp = mslp || oplot->mslp();
 
   if (oplot->flagInfo()) {
@@ -162,6 +161,11 @@ bool ObsManager::prepare(ObsPlot * oplot, miTime time)
 
     //get get pressure level etc from field (if needed)
     oplot->updateLevel(dataType);
+
+    //set setuptext for ascii
+    if (popupSpec.size() > 0) {
+      oplot->setPopupSpec(popupSpec);
+    }  
 
     for (size_t j = 0; j < finfo.size(); j++) {
       const std::string& filetype = finfo[j].filetype;
@@ -1001,8 +1005,7 @@ ObsDialogInfo ObsManager::initDialog()
 
       ObsDialogInfo::PlotType pascii;
 
-      pascii.misc = "markerboxVisible orientation  parameterName=true";
-
+      pascii.misc = "markerboxVisible orientation  parameterName=true popup";
       pascii.criteriaList = criteriaList["ascii"];
 
       pascii.name = pr->second.dialogName;
@@ -1027,7 +1030,7 @@ ObsDialogInfo ObsManager::initDialog()
       ObsDialogInfo::PlotType proad;
 
       proad.misc =
-          "markerboxVisible orientation  parameterName=true";
+          "markerboxVisible orientation  parameterName=true popup";
 
       proad.criteriaList = criteriaList["roadobs"];
 
@@ -1812,6 +1815,15 @@ bool ObsManager::parseSetup()
     if (critList.criteria.size())
       criteriaList[plottype].push_back(critList);
   }
+  // Handling of popup window specification
+  const std::string obs_popup_data = "OBSERVATION_POPUP_SPEC";
+  vector<std::string> sect_popup_data;
+ 
+  if (SetupParser::getSection(obs_popup_data,sect_popup_data)){
+    popupSpec = sect_popup_data;
+
+  }
+
 
   return true;
 }
