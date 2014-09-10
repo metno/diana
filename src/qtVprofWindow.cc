@@ -330,7 +330,7 @@ bool VprofWindow::stationChangedSlot(int diff){
       }
     }
   }
-  QString sq = QString::fromUtf8(s.c_str());
+  QString sq = s.c_str();
   if (sbs==s) {
     emit stationChanged(sq); //name of current station (to mainWindow)
     return true;
@@ -644,7 +644,7 @@ void VprofWindow::updateStationBox(){
 
   int n =stations.size();
   for (int i=0; i<n; i++){
-    stationBox->addItem(QString::fromUtf8((stations[i].c_str())));
+    stationBox->addItem((stations[i].c_str()));
   }
 }
 
