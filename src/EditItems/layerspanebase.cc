@@ -407,6 +407,13 @@ void LayersPaneBase::remove(const QList<LayerWidget *> &layerWidgets, bool widge
     delete lw;
   }
 
+  // ensure to select the default layer if any
+  if (!defaultLayer_.isNull()) {
+    LayerWidget *lw = widgetFromLayer(defaultLayer_);
+    if (lw)
+      lw->setSelected();
+  }
+
   if ((!removable.isEmpty()) && (!widgetsOnly))
     handleWidgetsUpdate();
 }
@@ -484,6 +491,14 @@ QString LayersPaneBase::saveLayers(const QList<QSharedPointer<Layer> > &layers_,
   KML::saveLayersToFile(fileName, layers_, &error);
   QApplication::restoreOverrideCursor();
   return error;
+}
+
+LayerWidget *LayersPaneBase::widgetFromLayer(const QSharedPointer<Layer> &layer)
+{
+  foreach (LayerWidget *lw, widgets())
+    if (lw->layer() == layer)
+      return lw;
+  return 0;
 }
 
 QString LayersPaneBase::saveVisible(const QString &fileName) const

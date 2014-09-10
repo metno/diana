@@ -151,6 +151,7 @@ protected: // ### some of these may be private ... TBD
 protected:
   LayerManager *layerMgr_;
   QHBoxLayout *bottomLayout_; // populated by subclass
+  QSharedPointer<Layer> defaultLayer_;
   virtual void updateButtons();
   virtual void addContextMenuActions(QMenu &) const {}
   virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &) { return false; }
@@ -180,6 +181,7 @@ private:
   bool layerUpdatesEnabled_;
 
   QString saveLayers(const QList<QSharedPointer<Layer> > &, const QString &) const;
+  LayerWidget *widgetFromLayer(const QSharedPointer<Layer> &);
 
 signals:
   void updated();

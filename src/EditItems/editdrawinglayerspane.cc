@@ -110,6 +110,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
 
   // add scratch layer
   const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
+  defaultLayer_ = scratchLayer;
   layerGroup_ = layerManager->addToNewLayerGroup(scratchLayer, "");
   layerGroup_->setActive(true);
   add(scratchLayer, false, false, false);
