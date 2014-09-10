@@ -1,3 +1,9 @@
+diana (3.36.0-2) unstable; urgency=low
+
+  * Bugfix utf-8
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 10 Sep 2014 14:42:45 +0200
+
 diana (3.36.0-1) unstable; urgency=low
 
   * Version 3.36.0
