@@ -123,7 +123,7 @@ protected: // ### some of these may be private ... TBD
   QToolButton *importFilesButton_;
   bool showInfo_;
 
-  virtual void initLayerWidget(LayerWidget *);
+  void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);
   void selectIndex(int, bool = true);
   void select(const QList<LayerWidget *> &, bool = true);
@@ -157,6 +157,7 @@ protected:
   virtual bool handleKeyPressEvent(QKeyEvent *) { return false; }
   void getLayerCounts(int &, int &, int &, int &) const;
   void getSelectedLayersItemCounts(int &, int &) const;
+  void setLayerUpdatesEnabled(bool);
 
 protected slots: // ### some of these may be private ... TBD
   void mouseClicked(QMouseEvent *);
@@ -168,6 +169,7 @@ protected slots: // ### some of these may be private ... TBD
   void editAttrsOfSingleSelected();
   void handleWidgetsUpdate();
   void updateWidgetStructure();
+  virtual void handleLayersUpdate();
 
 private slots:
   void ensureVisibleTimeout();
@@ -175,6 +177,7 @@ private slots:
 private:
   LayerWidget *visibleLayerWidget_;
   bool multiSelectable_;
+  bool layerUpdatesEnabled_;
 
   QString saveLayers(const QList<QSharedPointer<Layer> > &, const QString &) const;
 

@@ -54,7 +54,6 @@ private:
   void merge(const QList<LayerWidget *> &);
   void duplicate(const QList<LayerWidget *> &);
   void save(const QList<LayerWidget *> &);
-  virtual void initLayerWidget(LayerWidget *);
   QToolButton *addEmptyButton_;
   QToolButton *addFromFileButton_;
   QToolButton *selectAllItemsButton_;
@@ -84,7 +83,7 @@ private slots:
   void saveSelected();
   void undo();
   void redo();
-  void handleLayerUpdate();
+  virtual void handleLayersUpdate();
 };
 
 } // namespace

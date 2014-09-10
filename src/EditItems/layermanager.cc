@@ -100,46 +100,46 @@ bool LayerManager::selectedLayersContainItem(const QSharedPointer<DrawingItemBas
   return false;
 }
 
-void LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, QSharedPointer<Layer> &layer, bool exclusive)
+void LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, QSharedPointer<Layer> &layer, bool exclusive, bool notify)
 {
   if (exclusive)
     deselectAllItems();
-  layer->selectItem(item);
+  layer->selectItem(item, notify);
 }
 
-bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive)
+bool LayerManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive, bool notify)
 {
   QSharedPointer<Layer> layer;
   if (!findLayer(item, layer))
     return false;
 
-  selectItem(item, layer, exclusive);
+  selectItem(item, layer, exclusive, notify);
   return true;
 }
 
-bool LayerManager::selectItem(int id, bool exclusive)
+bool LayerManager::selectItem(int id, bool exclusive, bool notify)
 {
   QSharedPointer<DrawingItemBase> item;
   QSharedPointer<Layer> layer;
   if (!findItem(id, item, layer))
     return false;
-  selectItem(item, layer, exclusive);
+  selectItem(item, layer, exclusive, notify);
   return true;
 }
 
-bool LayerManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
+bool LayerManager::deselectItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->deselectItem(item))
+    if (layer->deselectItem(item, notify))
       return true;
   return false;
 }
 
-bool LayerManager::deselectAllItems()
+bool LayerManager::deselectAllItems(bool notify)
 {
   bool cleared = false;
   foreach(const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->deselectAllItems())
+    if (layer->deselectAllItems(notify))
       cleared = true;
   return cleared;
 }
@@ -302,10 +302,10 @@ void LayerManager::moveLayer(const QSharedPointer<Layer> &srcLayer, const QShare
   orderedLayers_.insert(dstIndex, srcLayer);
 }
 
-void LayerManager::removeItem(const QSharedPointer<DrawingItemBase> &item)
+void LayerManager::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
   foreach (const QSharedPointer<Layer> &layer, orderedLayers_)
-    if (layer->removeItem(item, false))
+    if (layer->removeItem(item, notify))
       return;
 }
 

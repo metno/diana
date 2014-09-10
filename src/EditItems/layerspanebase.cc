@@ -233,6 +233,7 @@ LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QStr
   , layerMgr_(layerManager)
   , visibleLayerWidget_(0)
   , multiSelectable_(multiSelectable)
+  , layerUpdatesEnabled_(true)
 {
   QVBoxLayout *vboxLayout1 = new QVBoxLayout;
   vboxLayout1->setContentsMargins(0, 2, 0, 2);
@@ -283,7 +284,7 @@ void LayersPaneBase::initLayerWidget(LayerWidget *layerWidget)
   connect(layerWidget, SIGNAL(visibilityChanged(bool)), SLOT(handleWidgetsUpdate()), Qt::UniqueConnection);
   if (layerWidget->layer()) {
     layerWidget->updateLabels();
-    connect(layerWidget->layer().data(), SIGNAL(updated()), SIGNAL(updated()), Qt::UniqueConnection);
+    connect(layerWidget->layer().data(), SIGNAL(updated()), SLOT(handleLayersUpdate()), Qt::UniqueConnection);
     connect(layerWidget->layer().data(), SIGNAL(updated()), layerWidget, SLOT(updateLabels()), Qt::UniqueConnection);
   }
 }
@@ -662,7 +663,7 @@ void LayersPaneBase::updateButtons()
 void LayersPaneBase::handleWidgetsUpdate()
 {
   updateButtons();
-  emit updated();
+  handleLayersUpdate();
 }
 
 // Updates widget structure (i.e. number and order of widgets).
@@ -698,6 +699,18 @@ void LayersPaneBase::updateWidgetStructure()
     layerWidget->setState(layer);
     initLayerWidget(layerWidget);
   }
+}
+
+void LayersPaneBase::setLayerUpdatesEnabled(bool enabled)
+{
+  layerUpdatesEnabled_ = enabled;
+}
+
+void LayersPaneBase::handleLayersUpdate()
+{
+  if (!layerUpdatesEnabled_)
+    return;
+  emit updated();
 }
 
 void LayersPaneBase::getLayerCounts(int &allCount, int &selectedCount, int &visibleCount, int &removableCount) const

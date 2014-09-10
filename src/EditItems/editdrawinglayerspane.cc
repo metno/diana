@@ -244,8 +244,6 @@ void EditDrawingLayersPane::addFromFile()
   }
 
   selectExclusive(widgets(layers));
-
-  emit updated();
 }
 
 void EditDrawingLayersPane::selectAll()
@@ -272,10 +270,13 @@ void EditDrawingLayersPane::merge(const QList<LayerWidget *> &layerWidgets)
          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
+  setLayerUpdatesEnabled(false);
   const QList<LayerWidget *> srcLayerWidgets = layerWidgets.mid(1);
   LayerWidget *tgtLayerWidget = layerWidgets.first();
   layerMgr_->mergeLayers(layers(srcLayerWidgets), tgtLayerWidget->layer());
   remove(srcLayerWidgets, false, false);
+  setLayerUpdatesEnabled(true);
+  handleLayersUpdate();
 }
 
 void EditDrawingLayersPane::mergeSelected()
@@ -289,6 +290,7 @@ void EditDrawingLayersPane::duplicate(const QList<LayerWidget *> &layerWidgets)
   if (layerWidgets.isEmpty())
     return;
 
+  setLayerUpdatesEnabled(false);
   const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(layers(layerWidgets), EditItemManager::instance());
   layerMgr_->addToLayerGroup(layerGroup_, newLayer);
   LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
@@ -296,6 +298,8 @@ void EditDrawingLayersPane::duplicate(const QList<LayerWidget *> &layerWidgets)
   initLayerWidget(newLayerWidget);
   select(newLayerWidget);
   select(layerWidgets, false);
+  setLayerUpdatesEnabled(true);
+  handleLayersUpdate();
 }
 
 void EditDrawingLayersPane::duplicateSelected()
@@ -364,16 +368,10 @@ void EditDrawingLayersPane::redo()
   EditItemManager::instance()->undoStack()->redo();
 }
 
-void EditDrawingLayersPane::handleLayerUpdate()
+void EditDrawingLayersPane::handleLayersUpdate()
 {
+  LayersPaneBase::handleLayersUpdate();
   updateButtons();
-}
-
-void EditDrawingLayersPane::initLayerWidget(LayerWidget *layerWidget)
-{
-  LayersPaneBase::initLayerWidget(layerWidget);
-  if (layerWidget->layer())
-    connect(layerWidget->layer().data(), SIGNAL(updated()), SLOT(handleLayerUpdate()), Qt::UniqueConnection);
 }
 
 } // namespace

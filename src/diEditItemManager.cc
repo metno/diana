@@ -200,13 +200,15 @@ QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVar
         EditItem_Text::Text, EditItem_Composite::Composite>(vmap, error));
 }
 
-void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
+void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded)
 {
   DrawingManager::addItem_(item);
   selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
   if (!EditItems::ToolBar::instance()->nonSelectActionLocked())
     EditItems::ToolBar::instance()->setSelectAction();
   emit itemAdded(item.data());
+  if (updateNeeded)
+    update();
 }
 
 void EditItemManager::editItem(const QSharedPointer<DrawingItemBase> &item)
@@ -226,13 +228,15 @@ void EditItemManager::removeItem(const QSharedPointer<DrawingItemBase> &item, QS
   removedItems->insert(item);
 }
 
-void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item)
+void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded)
 {
   DrawingManager::removeItem_(item);
   if (hoverItem_ == item)
     hoverItem_.clear();
   deselectItem(item);
   emit itemRemoved(item->id());
+  if (updateNeeded)
+    update();
 }
 
 void EditItemManager::initNewItem(DrawingItemBase *item)
@@ -254,21 +258,23 @@ void EditItemManager::initNewItem(DrawingItemBase *item)
 
 void EditItemManager::storeItems(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
+  int i = 0;
   foreach (const QSharedPointer<DrawingItemBase> item, items) {
     // Convert the item's screen coordinates to geographic coordinates.
     item->setLatLonPoints(getLatLonPoints(*item));
-    removeItem_(item);
+    removeItem_(item, ++i == items.size());
   }
 }
 
 void EditItemManager::retrieveItems(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
+  int i = 0;
   foreach (const QSharedPointer<DrawingItemBase> item, items) {
     // The items stored on the undo stack have been given geographic
     // coordinates, so we use those to obtain screen coordinates.
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(*item, item->getLatLonPoints());
-    addItem_(item);
+    addItem_(item, ++i == items.size());
   }
 }
 
@@ -790,33 +796,35 @@ void EditItemManager::pushCommands(const QList<QUndoCommand *> &undoCommands,
   repaintNeeded_ = true;
 }
 
-bool EditItemManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive)
+bool EditItemManager::selectItem(const QSharedPointer<DrawingItemBase> &item, bool exclusive, bool notify)
 {
   if (layerMgr_->selectItem(item, exclusive)) {
-    emit selectionChanged();
+    if (notify)
+      emit selectionChanged();
     return true;
   }
   return false;
 }
 
-bool EditItemManager::selectItem(int id, bool exclusive)
+bool EditItemManager::selectItem(int id, bool exclusive, bool notify)
 {
   if (layerMgr_->selectItem(id, exclusive)) {
-    emit selectionChanged();
+    if (notify)
+      emit selectionChanged();
     return true;
   }
   return false;
 }
 
-void EditItemManager::deselectItem(const QSharedPointer<DrawingItemBase> &item)
+void EditItemManager::deselectItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
-  if (layerMgr_->deselectItem(item))
+  if (layerMgr_->deselectItem(item, notify) && notify)
     emit selectionChanged();
 }
 
-void EditItemManager::deselectAllItems()
+void EditItemManager::deselectAllItems(bool notify)
 {
-  if (layerMgr_->deselectAllItems())
+  if (layerMgr_->deselectAllItems(notify) && notify)
     emit selectionChanged();
 }
 
@@ -914,7 +922,7 @@ void EditItemManager::updateActionsAndTimes()
   updateTimes();
 }
 
-void EditItemManager::handleLayersUpdate()
+void EditItemManager::update()
 {
   updateActionsAndTimes();
   repaint();

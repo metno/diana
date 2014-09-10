@@ -108,7 +108,8 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
 
-  connect(layersPane_, SIGNAL(updated()), editm_, SLOT(handleLayersUpdate()));
+  // add connections
+  connect(layersPane_, SIGNAL(updated()), editm_, SLOT(update()));
 }
 
 std::string EditDrawingDialog::name() const

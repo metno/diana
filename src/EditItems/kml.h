@@ -283,7 +283,7 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
         *error = QString("item with layer ID outside valid range ([0, %1]): %2").arg(layers.size() - 1).arg(layerId);
         return QList<QSharedPointer<EditItems::Layer> >();
       }
-      layers.at(layerId)->insertItem(item, false);
+      layers.at(layerId)->insertItem(item);
     } else {
       // item does not have a layer ID, so insert in default layer
       if (defaultLayer.isNull())

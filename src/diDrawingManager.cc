@@ -49,7 +49,6 @@
 #include <QImage>
 #include <QPainter>
 #include <QSvgRenderer>
-#include <QDebug>
 
 #if defined(USE_PAINTGL)
 #include "PaintGL/paintgl.h"

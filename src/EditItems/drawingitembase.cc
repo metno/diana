@@ -55,6 +55,7 @@ DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm) const
 {
   DrawingItemBase *item = cloneSpecial();
   item->setLatLonPoints(dm->getLatLonPoints(*item));
+  const_cast<QVariantMap &>(propertiesRef()).remove("points");
   item->setProperties(properties());
   return item;
 }

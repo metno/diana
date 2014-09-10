@@ -106,8 +106,8 @@ public slots:
   void completeEditing(QSet<QSharedPointer<DrawingItemBase> > *);
   void copySelectedItems();
   void cutSelectedItems();
-  void deselectItem(const QSharedPointer<DrawingItemBase> &);
-  void deselectAllItems();
+  void deselectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  void deselectAllItems(bool = true);
   void editProperties();
   void editStyle();
   void setStyleType() const;
@@ -125,13 +125,13 @@ public slots:
   void redo();
   void repaint();
   void reset();
-  bool selectItem(const QSharedPointer<DrawingItemBase> &, bool = false);
-  bool selectItem(int, bool = false);
+  bool selectItem(const QSharedPointer<DrawingItemBase> &, bool = false, bool = true);
+  bool selectItem(int, bool = false, bool = true);
   void setSelectMode();
   void startStopEditing(bool start);
   void undo();
 
-  void handleLayersUpdate();
+  void update();
 
 private slots:
   void setCreatePolyLineMode();
@@ -155,8 +155,8 @@ signals:
   void editing(bool);
 
 protected:
-  virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
-  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
+  virtual void addItem_(const QSharedPointer<DrawingItemBase> &, bool = true);
+  virtual void removeItem_(const QSharedPointer<DrawingItemBase> &, bool = true);
 
 private slots:
   void initNewItem(DrawingItemBase *item);
