@@ -147,6 +147,7 @@ ToolBar::ToolBar(QWidget *parent)
   // since we may decide to use tr() on the visible name at some point.
   styles = dsm->styles(DrawingItemBase::Composite);
   styles.sort();
+
   foreach (QString name, styles) {
     if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false)
       compositeCombo_->addItem(name, name);
