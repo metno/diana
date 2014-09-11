@@ -303,14 +303,14 @@ void LayersPaneBase::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Up) {
       if (event->modifiers() & Qt::ControlModifier) {
         moveSingleSelectedUp();
-      } else {
+      } else if (selPos > 0) {
         selectIndex(selPos, false);
         selectIndex(selPos - 1);
       }
     } else if (event->key() == Qt::Key_Down) {
       if (event->modifiers() & Qt::ControlModifier) {
         moveSingleSelectedDown();
-      } else {
+      } else if (selPos < (layout_->count() - 1)) {
         selectIndex(selPos, false);
         selectIndex(selPos + 1);
       }
