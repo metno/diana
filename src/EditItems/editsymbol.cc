@@ -158,7 +158,7 @@ void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > 
   repaintNeeded = true;
 }
 
-void Symbol::drawHoverHighlighting(bool incomplete, bool) const
+void Symbol::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
     glColor3ub(0, 200, 0);
@@ -176,6 +176,9 @@ void Symbol::drawHoverHighlighting(bool incomplete, bool) const
       glVertex3i(p.x(), p.y(), 1);
     glEnd();
     glPopAttrib();
+
+    // highlight the control points
+    drawControlPoints(selected);
   }
 }
 

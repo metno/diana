@@ -101,12 +101,16 @@ void EditItemBase::move(const QPointF &pos)
   updateControlPoints();
 }
 
-void EditItemBase::drawControlPoints() const
+void EditItemBase::drawControlPoints(bool selected) const
 {
   glPushAttrib(GL_POLYGON_BIT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  glColor3ub(0, 0, 0);
+  if (selected)
+    glColor3ub(0, 0, 0);
+  else
+    glColor3ub(255, 0, 0);
+
   foreach (QRectF c, controlPoints_) {
     glBegin(GL_POLYGON);
     glVertex3i(c.left(),  c.bottom(), 1);

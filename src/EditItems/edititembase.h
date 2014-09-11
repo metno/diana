@@ -127,7 +127,7 @@ protected:
 
     virtual void drawHoverHighlighting(bool, bool) const = 0;
 
-    void drawControlPoints() const;
+    void drawControlPoints(bool = true) const;
     void drawHoveredControlPoint() const;
 
     bool moving_;

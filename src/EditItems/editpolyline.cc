@@ -410,6 +410,9 @@ void PolyLine::drawHoverHighlighting(bool incomplete, bool selected) const
     styleManager->drawLines(this, points_, 1);
     glPopAttrib();
 
+    // highlight the control points
+    drawControlPoints(selected);
+
     if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
       // highlight the insertion position of a new point
       glColor3ub(0, 200, 0);
