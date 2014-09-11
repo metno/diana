@@ -134,6 +134,9 @@ public:
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
 
+  void setPlotRect(Rectangle r);
+  void setEditRect(Rectangle r);
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
@@ -143,8 +146,8 @@ protected:
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
-  Rectangle plotRect;
-  Rectangle editRect;
+  static Rectangle plotRect;
+  static Rectangle editRect;
   Area currentArea;
 
   // ### are these needed any longer?

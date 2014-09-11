@@ -49,11 +49,13 @@ public:
 
 protected:
   virtual void draw();
+  virtual void drawHoverHighlighting(bool, bool) const;
 
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
-  virtual bool hit(const QPointF &, bool) const;
+  virtual
+  bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
 
   virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
@@ -63,8 +65,6 @@ private:
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
 
   virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }
-
-  virtual void drawHoverHighlighting(bool, bool) const;
 
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();

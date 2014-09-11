@@ -49,6 +49,7 @@ Text::~Text()
 
 void Text::draw()
 {
+  QStringList lines_ = text();
   if (points_.isEmpty() || lines_.isEmpty())
     return;
 
@@ -69,7 +70,7 @@ void Text::draw()
   styleManager->drawLines(this, points);
   styleManager->endLine(this);
 
-  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
+  GLfloat scale = fontScale();
   styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
   styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
 
@@ -90,8 +91,13 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   if (index == -1)
     index = text.size();
 
+  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
+  styleManager->setFont(this, StaticPlot::getFontPack(), fontScale(), poptions);
+
   float width, height;
-  StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height);
+  if (!StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height)) {
+    width = height = 0;
+  }
 
   QSizeF size(width, height);
 
@@ -108,26 +114,29 @@ DrawingItemBase::Category Text::category() const
   return DrawingItemBase::Text;
 }
 
-const QStringList &Text::text() const
+GLfloat Text::fontScale() const
 {
-  return lines_;
+  if (StaticPlot::getMapSize().width() == 0 || StaticPlot::getMapSize().height() == 0)
+    return 1;
+  else
+    return qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(),
+                StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
 }
 
-QRectF Text::boundingRect() const
+const QStringList &Text::text() const
 {
-  QRectF bbox = DrawingItemBase::boundingRect();
-  return bbox;
+  return ConstDrawing(this)->property("text").toStringList();
 }
 
 void Text::updateRect()
 {
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
-  styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
+  styleManager->setFont(this, StaticPlot::getFontPack(), fontScale(), poptions);
 
   float x = points_.at(0).x();
   float y = points_.at(0).y();
   qreal width = 0;
+  QStringList lines_ = text();
 
   for (int i = 0; i < lines_.size(); ++i) {
     QString text = lines_.at(i);
@@ -144,14 +153,14 @@ void Text::updateRect()
 
 void Text::setText(const QStringList &lines)
 {
-  lines_ = lines;
+  setProperty("text", lines);
   updateRect();
 }
 
 QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["text"] = lines_.join("\n");
+  extra["text"] = text().join("\n");
   extra["margin"] = QString::number(margin_);
   extra["spacing"] = QString::number(spacing_);
   return DrawingItemBase::toKML(extra.unite(extraExtData));
@@ -159,7 +168,7 @@ QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 
 void Text::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  lines_ = extraExtData.value("met:text", "").split("\n");
+  setText(extraExtData.value("met:text", "").split("\n"));
   margin_ = extraExtData.value("met:margin", "4").toInt();
   spacing_ = extraExtData.value("met:spacing", "0.5").toFloat();
 }

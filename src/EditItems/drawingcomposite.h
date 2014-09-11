@@ -38,6 +38,10 @@ namespace DrawingItem_Composite {
 class Composite : public DrawingItemBase
 {
 public:
+  enum Orientation {
+    Horizontal, Vertical, Diagonal
+  };
+
   Composite();
   virtual ~Composite();
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
@@ -52,13 +56,19 @@ public:
   // Updates the bounding rectangle and lays out elements.
   virtual void updateRect();
 
-protected:
-  virtual void arrangeElement(int i);
   virtual void createElements();
+  DrawingItemBase *elementAt(int index) const;
+
   virtual void setPoints(const QList<QPointF> &points);
 
+protected:
+  virtual DrawingItemBase *newCompositeItem() const;
+  virtual DrawingItemBase *newPolylineItem() const;
+  virtual DrawingItemBase *newSymbolItem() const;
+  virtual DrawingItemBase *newTextItem() const;
+
   QList<DrawingItemBase *> elements_;
-  Qt::Orientation layout_;
+  Orientation layout_;
 };
 
 } // namespace

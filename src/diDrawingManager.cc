@@ -66,10 +66,12 @@ using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self = 0;
+Rectangle DrawingManager::plotRect;
+Rectangle DrawingManager::editRect;
 
 DrawingManager::DrawingManager()
 {
-  editRect = PLOTM->getPlotSize();
+  setEditRect(PLOTM->getPlotSize());
   currentArea = PLOTM->getCurrentArea();
   styleManager = DrawingStyleManager::instance();
   layerMgr_ = new EditItems::LayerManager();
@@ -276,6 +278,7 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
                      x, y, currentArea, plotRect);
     latLonPoints.append(QPointF(x, y));
   }
+
   return latLonPoints;
 }
 
@@ -406,8 +409,8 @@ bool DrawingManager::changeProjection(const Area& newArea)
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
   Rectangle r = PLOTM->getPlotSize();
-  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
-  editRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  setPlotRect(r);
+  setEditRect(r);
   currentArea = newArea;
   return true;
 }
@@ -421,7 +424,7 @@ void DrawingManager::plot(bool under, bool over)
   // while everything else is plotted in map coordinates.
   glPushMatrix();
   Rectangle r = PLOTM->getPlotSize();
-  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  setPlotRect(r);
   int w, h;
   PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect.x1, editRect.y1, 0.0);
@@ -543,4 +546,14 @@ void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &ite
 EditItems::LayerManager *DrawingManager::getLayerManager()
 {
   return layerMgr_;
+}
+
+void DrawingManager::setPlotRect(Rectangle r)
+{
+  DrawingManager::plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+}
+
+void DrawingManager::setEditRect(Rectangle r)
+{
+  DrawingManager::editRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }

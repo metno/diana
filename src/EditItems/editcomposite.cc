@@ -29,20 +29,31 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "drawingcomposite.h"
+#include "drawingstylemanager.h"
 #include "editcomposite.h"
+#include "editpolyline.h"
 #include "editsymbol.h"
 #include "edittext.h"
-#include <QDebug>
+
+#include <QDialog>
 
 namespace EditItem_Composite {
 
 Composite::Composite()
 {
+  editAction = new QAction(tr("Edit item"), this);
+  connect(editAction, SIGNAL(triggered()), SLOT(editItem()));
 }
 
 Composite::~Composite()
 {
+}
+
+QList<QAction *> Composite::actions(const QPoint &pos) const
+{
+  QList<QAction *> acts;
+  acts << editAction;
+  return acts;
 }
 
 DrawingItemBase *Composite::cloneSpecial() const
@@ -92,7 +103,7 @@ void Composite::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bo
 {
   repaintNeeded = true;
 
-  if (event->button() == Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton && points_.isEmpty()) {
     // Create two points: one for the current mouse position and another to be
     // updated during the following move events.
     points_.append(QPointF(event->pos()));
@@ -106,14 +117,13 @@ void Composite::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bo
     setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
     createElements();
     updateRect();
-
-    complete = true;
   }
 }
 
 void Composite::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   repaintNeeded = true;
+  complete = true;
 }
 
 void Composite::move(const QPointF &pos)
@@ -150,6 +160,193 @@ void Composite::drawHoverHighlighting(bool, bool) const
 
 void Composite::drawIncomplete() const
 {
+  QRectF bbox = boundingRect();
+
+  glColor3ub(0, 255, 0);
+  glBegin(GL_LINE_LOOP);
+  glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
+  glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
+  glVertex2f(bbox.topRight().x(), bbox.topRight().y());
+  glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
+  glEnd();
+}
+
+void Composite::editItem()
+{
+  QDialog dialog;
+  QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+  CompositeEditor *editor = new CompositeEditor(this);
+  layout->addWidget(editor);
+
+  layout->addStretch();
+
+  QDialogButtonBox *box = new QDialogButtonBox();
+  box->addButton(QDialogButtonBox::Ok);
+  box->addButton(QDialogButtonBox::Cancel);
+  layout->addWidget(box);
+
+  connect(box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+  connect(box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+  dialog.setWindowTitle(tr("Edit Item"));
+  if (dialog.exec() == QDialog::Accepted)
+    editor->applyChanges();
+}
+
+DrawingItemBase *Composite::newCompositeItem() const
+{
+  return new EditItem_Composite::Composite();
+}
+
+DrawingItemBase *Composite::newPolylineItem() const
+{
+  return new EditItem_PolyLine::PolyLine();
+}
+
+DrawingItemBase *Composite::newSymbolItem() const
+{
+  return new EditItem_Symbol::Symbol();
+}
+
+DrawingItemBase *Composite::newTextItem() const
+{
+  return new EditItem_Text::Text();
+}
+
+CompositeEditor::CompositeEditor(Composite *item)
+{
+  this->item = item;
+  createElements(DrawingItemBase::Composite,
+    Drawing(item)->property("style:type").toString());
+}
+
+void CompositeEditor::createElements(const DrawingItemBase::Category &category, const QString &name)
+{
+  QVariantMap style = DrawingStyleManager::instance()->getStyle(category, name);
+  objects = style.value("objects").toStringList();
+  values = style.value("values").toStringList();
+  styles = style.value("styles").toStringList();
+  QString layout = style.value("layout").toString();
+
+  QString background = style.value("fillcolour", "white").toString();
+  setStyleSheet(QString("QWidget { background-color: %1 }").arg(background));
+
+  QLayout *layout_;
+
+  if (layout == "vertical")
+    layout_ = new QVBoxLayout(this);
+  else if (layout == "diagonal")
+    layout_ = new QGridLayout(this);
+  else
+    layout_ = new QHBoxLayout(this);
+
+  // If the number of objects, styles and values do not match then return.
+  if ((objects.size() != values.size()) || (objects.size() != styles.size()))
+    return;
+
+  // Create the elements.
+  DrawingManager *dm = DrawingManager::instance();
+
+  for (int i = 0; i < objects.size(); ++i) {
+
+    QString style = item->elementAt(i)->property("style:type").toString();
+    QWidget *child;
+
+    if (objects.at(i) == "text") {
+      QLineEdit *textEdit = new QLineEdit();
+      QString text = item->elementAt(i)->property("text").toStringList().join("\n");
+      textEdit->setText(text);
+      textEdit->setProperty("index", i);
+      connect(textEdit, SIGNAL(textChanged(const QString &)), SLOT(updateText(const QString &)));
+
+      child = textEdit;
+
+    } else if (objects.at(i) == "symbol") {
+      QToolButton *button = new QToolButton();
+
+      int size = DrawingItem_Symbol::Symbol::defaultSize();
+      button->setIcon(QPixmap::fromImage(dm->getSymbolImage(style, size, size)));
+      button->setIconSize(QSize(size, size));
+
+      QMenu *menu = new QMenu();
+      foreach (QString symbolName, dm->symbolNames()) {
+        QIcon icon(QPixmap::fromImage(dm->getSymbolImage(symbolName, 32, 32)));
+        QAction *action = menu->addAction(icon, symbolName);
+        action->setData(i);
+        action->setIconText(symbolName);
+      }
+      connect(menu, SIGNAL(triggered(QAction *)), SLOT(updateSymbol(QAction *)));
+
+      button->setMenu(menu);
+      child = button;
+      editors[i] = child;
+
+    } else if (objects.at(i) == "composite") {
+      // Create a child editor for the composite item and append its index to
+      // a list for use when changes are applied.
+      CompositeEditor* childEditor = new CompositeEditor(static_cast<EditItem_Composite::Composite *>(item->elementAt(i)));
+      childEditors.append(childEditor);
+      child = childEditor;
+
+    } else
+      continue;
+
+    if (layout == "diagonal") {
+      static_cast<QGridLayout *>(layout_)->addWidget(child, i, i);
+    } else
+      layout_->addWidget(child);
+  }
+}
+
+CompositeEditor::~CompositeEditor()
+{
+}
+
+void CompositeEditor::applyChanges()
+{
+  // Apply the changes to the immediate child elements.
+  QHashIterator<int, QVariantList> it(changes);
+  while (it.hasNext()) {
+    it.next();
+    int index = it.key();
+    QVariantList value = it.value();
+    item->elementAt(index)->setProperty(value.at(0).toString(), value.at(1));
+  }
+
+  // Apply the changes to composite child elements.
+  foreach (CompositeEditor *childEditor, childEditors)
+    childEditor->applyChanges();
+}
+
+void CompositeEditor::updateSymbol(QAction *action)
+{
+  int index = action->data().toInt();
+  if (objects.at(index) == "symbol") {
+    QWidget *w = editors.value(index);
+    QToolButton *button = static_cast<QToolButton *>(w);
+    button->setIcon(action->icon());
+    QVariantList ch;
+    ch << "style:type" << action->iconText();
+    changes[index] = ch;
+  }
+}
+
+void CompositeEditor::updateText(const QString &text)
+{
+  bool ok = false;
+  int index = sender()->property("index").toInt(&ok);
+  if (ok && objects.at(index) == "text") {
+    if (item) {
+      // The element's text property accepts a QStringList. If we inadvertently
+      // pass a QString then we'll get a hard-to-debug crash.
+      QStringList lines;
+      lines << text;
+      QVariantList ch;
+      ch << "text" << lines;
+      changes[index] = ch;
+    }
+  }
 }
 
 } // namespace EditItem_Composite

@@ -57,6 +57,8 @@ public:
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
+  virtual QList<QAction *> actions(const QPoint &) const;
+
 protected:
   virtual void drawHoverHighlighting(bool, bool) const;
   virtual void drawIncomplete() const;
@@ -65,8 +67,44 @@ protected:
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
 
+  virtual DrawingItemBase *newCompositeItem() const;
+  virtual DrawingItemBase *newPolylineItem() const;
+  virtual DrawingItemBase *newSymbolItem() const;
+  virtual DrawingItemBase *newTextItem() const;
+
+private slots:
+  void editItem();
+
 private:
   virtual DrawingItemBase *cloneSpecial() const;
+
+  QAction *editAction;
+};
+
+class CompositeEditor : public QWidget {
+  Q_OBJECT
+
+public:
+  CompositeEditor(Composite *item);
+  virtual ~CompositeEditor();
+
+  void applyChanges();
+
+private slots:
+  void updateSymbol(QAction *action);
+  void updateText(const QString &text);
+
+private:
+  void createElements(const DrawingItemBase::Category &category, const QString &name);
+
+  QStringList objects;
+  QStringList values;
+  QStringList styles;
+
+  Composite *item;
+  QHash<int, QVariantList> changes;
+  QList<CompositeEditor *> childEditors;
+  QHash<int, QWidget *> editors;
 };
 
 } // namespace EditItem_Composite

@@ -32,6 +32,7 @@
 #include "GL/gl.h"
 #include "diDrawingManager.h"
 #include "drawingcomposite.h"
+#include "drawingpolyline.h"
 #include "drawingsymbol.h"
 #include "drawingtext.h"
 #include "drawingstylemanager.h"
@@ -68,9 +69,8 @@ void Composite::draw()
   styleManager->fillLoop(this, points);
   styleManager->endFill(this);
 
-  foreach (DrawingItemBase *element, elements_) {
+  foreach (DrawingItemBase *element, elements_)
     element->draw();
-  }
 }
 
 QRectF Composite::boundingRect() const
@@ -109,6 +109,11 @@ void Composite::createElements()
 {
   METLIBS_LOG_SCOPE();
 
+  if (points_.isEmpty()) {
+    points_.append(QPointF(0, 0));
+    points_.append(QPointF(0, 0));
+  }
+
   QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
   QStringList objects = style.value("objects").toStringList();
   QStringList values = style.value("values").toStringList();
@@ -116,11 +121,13 @@ void Composite::createElements()
   QString layout = style.value("layout").toString();
 
   if (layout == "horizontal")
-    layout_ = Qt::Horizontal;
+    layout_ = Horizontal;
   else if (layout == "vertical")
-    layout_ = Qt::Vertical;
+    layout_ = Vertical;
+  else if (layout == "diagonal")
+    layout_ = Diagonal;
   else {
-    layout_ = Qt::Horizontal;
+    layout_ = Horizontal;
     if (objects.size() != 1)
       METLIBS_LOG_WARN("Invalid layout given in " << properties_.value("style:type").toString().toStdString());
   }
@@ -138,11 +145,13 @@ void Composite::createElements()
     DrawingItemBase *element;
 
     if (objects.at(i) == "text")
-      element = new DrawingItem_Text::Text();
+      element = newTextItem();
     else if (objects.at(i) == "symbol")
-      element = new DrawingItem_Symbol::Symbol();
+      element = newSymbolItem();
     else if (objects.at(i) == "composite")
-      element = new DrawingItem_Composite::Composite();
+      element = newCompositeItem();
+    else if (objects.at(i) == "line")
+      element = newPolylineItem();
     else
       continue;
 
@@ -156,6 +165,7 @@ void Composite::createElements()
       QStringList lines;
       lines.append(values.at(i));
       static_cast<DrawingItem_Text::Text *>(element)->setText(lines);
+
     } else if (objects.at(i) == "composite") {
       DrawingItem_Composite::Composite *c = static_cast<DrawingItem_Composite::Composite *>(element);
       c->createElements();
@@ -164,53 +174,86 @@ void Composite::createElements()
     elements_.append(element);
   }
 
-  for (int i = 0; i < objects.size(); ++i)
-    arrangeElement(i);
+  QRectF previousRect = QRectF(points_[0], QSizeF(0, 0));
+
+  for (int i = 0; i < elements_.size(); ++i) {
+
+    DrawingItemBase *element = elements_.at(i);
+    QSizeF size = element->getSize();
+    QPointF point;
+
+    QList<QPointF> points;
+
+    if (dynamic_cast<DrawingItem_PolyLine::PolyLine *>(element)) {
+
+      // Treat lines differently. Position all the points based on the previous
+      // element, discarding the existing geometry of the line.
+      if (i == 0) {
+        points << QPointF(previousRect.left(), previousRect.top());
+        points << QPointF(previousRect.right(), previousRect.top());
+        points << QPointF(previousRect.right(), previousRect.bottom());
+        points << QPointF(previousRect.left(), previousRect.bottom());
+      } else {
+        switch (layout_) {
+        case Horizontal:
+          points << QPointF(previousRect.right(), previousRect.bottom());
+          points << QPointF(previousRect.right(), previousRect.top());
+          break;
+        case Vertical:
+          points << QPointF(previousRect.left(), previousRect.top());
+          points << QPointF(previousRect.right(), previousRect.top());
+          break;
+        case Diagonal:
+          qDebug() << previousRect;
+          points << QPointF(previousRect.left() + previousRect.width()/2,
+                            previousRect.top() - previousRect.height()/2);
+          points << QPointF(previousRect.right() + previousRect.width()/2,
+                            previousRect.bottom() - previousRect.height()/2);
+          break;
+        default:
+          ;
+        }
+      }
+
+      // Keep the previous rectangle.
+      element->setPoints(points);
+
+    } else {
+      if (i == 0)
+        point = QPointF(previousRect.left(), previousRect.top());
+      else {
+        switch (layout_) {
+        case Horizontal:
+          //point = QPointF(previousRect.right(), previousRect.bottom() - previousRect.height() + size.height());
+          point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
+          break;
+        case Vertical:
+          point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
+          break;
+        case Diagonal:
+          point = QPointF(previousRect.right(), previousRect.top());
+          break;
+        default:
+          ;
+        }
+      }
+
+      // Determine the change in position of the element.
+      QPointF offset = point - element->boundingRect().bottomLeft();
+
+      points = element->getPoints();
+      for (int j = 0; j < points.size(); ++j)
+        points[j] += offset;
+
+      element->setPoints(points);
+      previousRect = element->boundingRect();
+    }
+  }
 }
 
-void Composite::arrangeElement(int i)
+DrawingItemBase *Composite::elementAt(int index) const
 {
-  QRectF previousRect;
-
-  if (i < 1 || i >= elements_.size()) {
-    i = 0;
-    previousRect = QRectF(points_[0], QSizeF(0, 0));
-  } else
-    previousRect = elements_.at(i - 1)->boundingRect();
-
-  DrawingItemBase *element = elements_.at(i);
-  QSizeF size = element->getSize();
-  QPointF point;
-
-  switch (layout_) {
-  case Qt::Horizontal:
-    //point = QPointF(previousRect.right(), previousRect.bottom() - previousRect.height() + size.height());
-    if (i == 0)
-      point = QPointF(previousRect.left(), previousRect.top());
-    else
-      point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
-    break;
-  case Qt::Vertical:
-    if (i == 0)
-      point = QPointF(previousRect.left(), previousRect.top());
-    else
-      point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
-    break;
-  default:
-    ;
-  }
-
-  // Determine the change in position of the element.
-  QPointF offset = point - element->boundingRect().bottomLeft();
-
-  QList<QPointF> points = element->getPoints();
-  for (int j = 0; j < points.size(); ++j)
-    points[j] += offset;
-
-  element->setPoints(points);
-
-  // Obtain latitude and longitude coordinates for the element.
-  //element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
+  return elements_.at(index);
 }
 
 void Composite::setPoints(const QList<QPointF> &points)
@@ -232,11 +275,30 @@ void Composite::setPoints(const QList<QPointF> &points)
       newPoints.append(point + offset);
 
     element->setPoints(newPoints);
-    //element->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*element));
   }
 
   // Update the points to contain the child elements inside the object.
   updateRect();
+}
+
+DrawingItemBase *Composite::newCompositeItem() const
+{
+  return new DrawingItem_Composite::Composite();
+}
+
+DrawingItemBase *Composite::newPolylineItem() const
+{
+  return new DrawingItem_PolyLine::PolyLine();
+}
+
+DrawingItemBase *Composite::newSymbolItem() const
+{
+  return new DrawingItem_Symbol::Symbol();
+}
+
+DrawingItemBase *Composite::newTextItem() const
+{
+  return new DrawingItem_Text::Text();
 }
 
 } // namespace

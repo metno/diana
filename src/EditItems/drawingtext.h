@@ -48,7 +48,7 @@ public:
   virtual const QStringList &text() const;
   virtual void setText(const QStringList &lines);
 
-  virtual QRectF boundingRect() const;
+  GLfloat fontScale() const;
   void updateRect();
 
   // Returns the category of the item as required by the style manager.
@@ -57,7 +57,6 @@ public:
 protected:
   QSizeF getStringSize(const QString &text, int index = -1) const;
 
-  QStringList lines_;
   int margin_;
   float spacing_;
 };

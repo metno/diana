@@ -34,7 +34,6 @@
 #include "diPlot.h"
 #include "diFontManager.h"
 #include "EditItems/drawingstylemanager.h"
-#include <QDebug>
 
 namespace EditItem_Text {
 
@@ -134,7 +133,9 @@ void Text::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool 
   // Make the text area editable by using a valid index.
   cursor_ = 0;
   line_ = 0;
+  QStringList lines_ = text();
   lines_.append(QString());
+  setText(lines_);
 }
 
 void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -143,6 +144,8 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
     event->ignore();
     return;
   }
+
+  QStringList lines_ = text();
 
   switch (event->key()) {
   case Qt::Key_Escape:
@@ -212,6 +215,7 @@ void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &compl
     cursor_ += event->text().size();
   }
 
+  setText(lines_);
   updateControlPoints();
   event->accept();
 }
@@ -251,7 +255,7 @@ void Text::drawIncomplete() const
   if (points_.size() < 2)
     return;
 
-  if (!lines_.isEmpty()) {
+  if (!text().isEmpty()) {
     QRectF bbox = boundingRect();
 
     glLineStipple(1, 0x5555);
@@ -272,6 +276,8 @@ void Text::drawIncomplete() const
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
   GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
   styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
+
+  QStringList lines_ = text();
 
   for (int line = 0; line < line_; ++line) {
     size = getStringSize(lines_.at(line));

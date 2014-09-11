@@ -881,9 +881,10 @@ SAT NOAA Europa 1+2+4 timediff=60 mosaic=0 cut=0.02 alphacut=0 alpha=1
 <tr><td>Contrail P max  <td>cotrailsPmax=700        <td><i>number</i>
 </TABLE>    
 
-	<h3>X-server and Xvfb</h3>
-	  As mentioned in <b>bdiana's</b> help text, it needs an X-server. If bdiana 
-	  is run on a machine with an active X-session it will automatically use this. 
+	<h3>X-server and Xvfb (bdiana 3.28 and earlier)</h3>
+	  Releases of <b>bdiana</b> earlier than version 3.29 require an X-server to run.
+      If bdiana is run on a machine with an active X-session, such as a workstation,
+      it will automatically use this server.
 	  On machines without X or when running without the user being logged in, a 
 	  different X-server needs to be set with the <b>-display</b> variable 
 	  (<i>host:display-no.screen-no</i>). A good alternative on linux machines is 

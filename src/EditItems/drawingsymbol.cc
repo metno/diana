@@ -100,4 +100,9 @@ DrawingItemBase::Category Symbol::category() const
   return DrawingItemBase::Symbol;
 }
 
+int Symbol::defaultSize()
+{
+  return DEFAULT_SYMBOL_SIZE;
+}
+
 } // namespace

@@ -44,6 +44,8 @@ public:
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual QRectF boundingRect() const;
 
+  static int defaultSize();
+
 protected:
   QList<QPointF> boundingSquare() const;
   virtual void draw();

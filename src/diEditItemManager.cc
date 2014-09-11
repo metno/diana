@@ -628,8 +628,7 @@ void EditItemManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  Rectangle r = PLOTM->getPlotSize();
-  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  setPlotRect(PLOTM->getPlotSize());
   int w, h;
   PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect.x1, editRect.y1, 0.0);
@@ -1167,11 +1166,10 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  Rectangle r = PLOTM->getPlotSize();
-  plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  setPlotRect(PLOTM->getPlotSize());
 
   if (layerMgr_->selectedLayersItemCount() == 0)
-    editRect = plotRect;
+    setEditRect(PLOTM->getPlotSize());
 
   // Determine the displacement from the edit origin to the current view origin
   // in screen coordinates. This gives us displaced screen coordinates - these
