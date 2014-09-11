@@ -251,7 +251,7 @@ void PolyLine::keyPress(
     repaintNeeded = true;
   } else if (((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)
               || (event->key() == Qt::Key_Plus) || (event->key() == Qt::Key_Insert))
-             && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
+             && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0) && (hoverPos_ != QPoint(-1, -1))) {
     const QList<QPointF> origPoints = getPoints();
     addPoint();
     if (getPoints() != origPoints)
@@ -390,7 +390,7 @@ void PolyLine::drawIncomplete() const
 {
 }
 
-void PolyLine::drawHoverHighlighting(bool incomplete) const
+void PolyLine::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
@@ -398,7 +398,7 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
   glColor3ub(255, 0, 0);
 
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint();
+    EditItemBase::drawHoveredControlPoint(); // highlight the control point
   } else {
     DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
@@ -410,8 +410,8 @@ void PolyLine::drawHoverHighlighting(bool incomplete) const
     styleManager->drawLines(this, points_, 1);
     glPopAttrib();
 
-    // highlight the insertion position of a new point
-    if ((hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
+    if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
+      // highlight the insertion position of a new point
       glColor3ub(0, 200, 0);
       const int w = 4;
       const int w_2 = w/2;

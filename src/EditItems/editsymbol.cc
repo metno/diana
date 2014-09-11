@@ -158,7 +158,7 @@ void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > 
   repaintNeeded = true;
 }
 
-void Symbol::drawHoverHighlighting(bool incomplete) const
+void Symbol::drawHoverHighlighting(bool incomplete, bool) const
 {
   if (incomplete)
     glColor3ub(0, 200, 0);
@@ -166,7 +166,7 @@ void Symbol::drawHoverHighlighting(bool incomplete) const
     glColor3ub(255, 0, 0);
 
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint();
+    EditItemBase::drawHoveredControlPoint(); // highlight the control point
   } else {
     // highlight the bounding box
     glPushAttrib(GL_LINE_BIT);

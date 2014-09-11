@@ -125,7 +125,7 @@ protected:
     // Draws graphics to indicate the incomplete state of the item (if applicable).
     virtual void drawIncomplete() const {}
 
-    virtual void drawHoverHighlighting(bool) const = 0;
+    virtual void drawHoverHighlighting(bool, bool) const = 0;
 
     void drawControlPoints() const;
     void drawHoveredControlPoint() const;

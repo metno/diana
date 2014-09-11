@@ -64,7 +64,7 @@ private:
 
   virtual QString infoString() const { return QString("%1 type=%2").arg(DrawingItemBase::infoString()).arg(metaObject()->className()); }
 
-  virtual void drawHoverHighlighting(bool) const;
+  virtual void drawHoverHighlighting(bool, bool) const;
 
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();

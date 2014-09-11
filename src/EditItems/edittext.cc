@@ -233,7 +233,7 @@ void Text::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void Text::drawHoverHighlighting(bool) const
+void Text::drawHoverHighlighting(bool, bool) const
 {
   QRectF bbox = boundingRect();
 

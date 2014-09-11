@@ -58,7 +58,7 @@ public:
   virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
 protected:
-  virtual void drawHoverHighlighting(bool) const;
+  virtual void drawHoverHighlighting(bool, bool) const;
   virtual void drawIncomplete() const;
 
   virtual void move(const QPointF &pos);

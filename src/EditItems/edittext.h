@@ -61,7 +61,7 @@ public:
   virtual QList<QAction *> actions(const QPoint &) const;
 
 protected:
-  virtual void drawHoverHighlighting(bool) const;
+  virtual void drawHoverHighlighting(bool, bool) const;
   virtual void drawIncomplete() const;
 
   virtual void resize(const QPointF &);

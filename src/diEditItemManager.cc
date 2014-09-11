@@ -437,11 +437,14 @@ void EditItemManager::mouseMove(QMouseEvent *event)
 
   if (hover) {
     lastHoverPos_ = event->pos();
-    const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(lastHoverPos_);
-    if (!hitItems.empty()) {
-      foreach (const QSharedPointer<DrawingItemBase> &hitItem, hitItems)
-        Editing(hitItem.data())->updateHoverPos(lastHoverPos_);
+    QList<QSharedPointer<DrawingItemBase> > missedItems;
+    const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(lastHoverPos_, &missedItems);
+    foreach (const QSharedPointer<DrawingItemBase> &hitItem, hitItems)
+      Editing(hitItem.data())->updateHoverPos(lastHoverPos_);
+    foreach (const QSharedPointer<DrawingItemBase> &missedItem, missedItems)
+      Editing(missedItem.data())->updateHoverPos(QPoint(-1, -1));
 
+    if (!hitItems.empty()) {
       hoverItem_ = hitItems.first();
 
       // send mouse hover event to the hover item
@@ -702,7 +705,8 @@ bool EditItemManager::canRedo() const
   return undoStack_.canRedo();
 }
 
-QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPointF &pos) const
+QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(
+    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
 {
   if (layerMgr_->selectedLayers().isEmpty())
     return QList<QSharedPointer<DrawingItemBase> >();
@@ -715,6 +719,8 @@ QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(const QPoi
       continue;
     if (Editing(item.data())->hit(pos, selItems.contains(item)))
       hitItems.append(item);
+    else if (missedItems)
+      missedItems->append(item);
   }
 
   if (hitItems.size() > 1) { // rotate list

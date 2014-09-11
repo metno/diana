@@ -79,7 +79,8 @@ public:
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
 
-  QList<QSharedPointer<DrawingItemBase> > findHitItems(const QPointF &) const;
+  QList<QSharedPointer<DrawingItemBase> > findHitItems(
+      const QPointF &, QList<QSharedPointer<DrawingItemBase> > * = 0) const;
 
   bool processInput(const std::vector<std::string>& inp);
   void plot(bool under, bool over);

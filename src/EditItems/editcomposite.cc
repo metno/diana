@@ -135,7 +135,7 @@ void Composite::updateControlPoints()
 {
 }
 
-void Composite::drawHoverHighlighting(bool) const
+void Composite::drawHoverHighlighting(bool, bool) const
 {
   QRectF bbox = boundingRect();
 
