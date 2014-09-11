@@ -104,12 +104,6 @@ void GLwidget::paintGL()
     contr->plot(true, false); // draw underlay
   }
 
-  EditItemManager *editm = static_cast<EditItemManager *>(contr->getManager("EDITDRAWING"));
-  if (editm && editm->isEditing()) {
-    glColor3ub(128, 0, 0);
-    renderText(10, height() - 10, "new painting mode (experimental)");
-  }
-
   if (savebackground) {
 #ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("savebackground");
