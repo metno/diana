@@ -104,7 +104,6 @@ private:
   printOptions priop;
 
   miutil::miTime mainWindowTime;
-  bool onlyObs; // if only observations, stations changes with time
 
   void makeEPS(const std::string& filename);
 

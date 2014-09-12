@@ -51,18 +51,6 @@ class SpectrumManager
 {
 private:
 
-  enum obsType {
-    obsAAA,
-    obsBBB
-  };
-
-  struct ObsFile {
-    std::string filename;
-    obsType  obstype;
-    miutil::miTime   time;
-    long     modificationTime;
-  };
-
   struct StationPos {
     float latitude;
     float longitude;
@@ -76,25 +64,14 @@ private:
   std::vector<std::string> dialogModelNames;
   std::vector<std::string> dialogFileNames;
 
-  // temp file paths  ("/dir/xxxx??.dat*")
-  std::vector<std::string> obsAaaPaths;
-  // pilot file paths ("/dir/xxxx??.dat*")
-  std::vector<std::string> obsBbbPaths;
-
   SpectrumOptions *spopt;
   std::vector<SpectrumFile*> spfile;
-  bool showObs;
   bool asField;
 
   std::vector<std::string> nameList;
   std::vector<float> latitudeList;
   std::vector<float> longitudeList;
-  std::vector<std::string> obsList;
   std::vector<miutil::miTime>   timeList;
-
-  std::vector<ObsFile> obsfiles;
-  std::vector<miutil::miTime> obsTime;
-  bool onlyObs;
 
   std::vector<std::string> fieldModels;
   std::vector<std::string> selectedModels;
@@ -118,11 +95,9 @@ private:
   std::map<std::string,std::string> menuConst;
 
   std::string getDefaultModel();
-  void updateObsFileList();
   bool initSpectrumFile(std::string file,std::string model);
   void initStations();
   void initTimes();
-  void checkObsTime(int hour=-1);
   void preparePlot();
 
 public:
@@ -155,17 +130,15 @@ public:
   std::vector<std::string> getModelNames();
   std::vector<std::string> getModelFiles();
   void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<std::string>& models, bool obs, bool field);
-  void setSelectedFiles(const std::vector<std::string>& files, bool obs, bool field);
+  void setSelectedModels(const std::vector<std::string>& models, bool field);
+  void setSelectedFiles(const std::vector<std::string>& files, bool field);
 
   std::vector<std::string> getSelectedModels();
 
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
-  bool onlyObsState() { return onlyObs; }
   void mainWindowTimeChanged(const miutil::miTime& time);
-  void updateObs();
   std::string getAnnotationString();
 
   void setMenuConst(std::map<std::string,std::string> mc)

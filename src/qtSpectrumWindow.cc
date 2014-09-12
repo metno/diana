@@ -299,15 +299,6 @@ bool SpectrumWindow::timeChangedSlot(int diff)
     return false;
   }
 
-  if (onlyObs) {
-    //emit to main Window (updates stationPlot)
-    emit spectrumSetChanged();
-    //update combobox lists of stations and time
-    updateStationBox();
-    //get correct selection in comboboxes
-    stationChangedSlot(0);
-  }
-
   emit setTime("spectrum",t);
 
   return true;
@@ -526,7 +517,6 @@ void SpectrumWindow::updateClicked()
 
   METLIBS_LOG_DEBUG("update clicked");
 
-  spectrumm->updateObs();      // check obs.files
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
   mainWindowTimeChanged(t);
 }
@@ -559,8 +549,6 @@ void SpectrumWindow::changeModel()
   METLIBS_LOG_DEBUG("SpectrumWindow::changeModel()");
 
   spectrumm->setModel();
-
-  onlyObs= spectrumm->onlyObsState();
 
   //emit to main Window (updates stationPlot)
   emit spectrumSetChanged();
@@ -693,15 +681,6 @@ void SpectrumWindow::timeBoxActivated(int index)
   if (index>=0 && index<int(times.size())) {
     spectrumm->setTime(times[index]);
 
-    if (onlyObs) {
-      //emit to main Window (updates stationPlot)
-      emit spectrumSetChanged();
-      //update combobox lists of stations and time
-      updateStationBox();
-      //get correct selection in comboboxes
-      stationChangedSlot(0);
-    }
-
     spectrumw->updateGL();
   }
 }
@@ -740,12 +719,6 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
   METLIBS_LOG_DEBUG("spectrumWindow::mainWindowTimeChanged called with time " << t);
 
   spectrumm->mainWindowTimeChanged(t);
-  if (onlyObs) {
-    //emit to main Window (updates stationPlot)
-    emit spectrumSetChanged();
-    //update combobox lists of stations and time
-    updateStationBox();
-  }
   //get correct selection in comboboxes
   stationChangedSlot(0);
   timeChangedSlot(0);

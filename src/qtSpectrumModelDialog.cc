@@ -64,12 +64,10 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
   // text constants
   ASFIELD = tr("As field").toStdString();
-  OBS     = tr("Observations").toStdString();
 
   // send translated menunames to manager
   map<std::string,std::string> textconst;
   textconst["ASFIELD"]  = ASFIELD;
-  textconst["OBS"]      = OBS;
   vm->setMenuConst(textconst);
 
   //********** create the various QT widgets to appear in dialog ***********
@@ -136,7 +134,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   hlayout1->addWidget( deleteAll );
   hlayout1->addWidget( refresh );
 
-  //place buttons "utfør", "help" etc. in horizontal layout
+  //place buttons "utfï¿½r", "help" etc. in horizontal layout
   QHBoxLayout* hlayout2 = new QHBoxLayout();
   hlayout2->addWidget( modelhide );
   hlayout2->addWidget( modelapplyhide );
@@ -252,7 +250,6 @@ void SpectrumModelDialog::setModel(){
   METLIBS_LOG_DEBUG("SpectrumModelDialog::setModel()");
 
 
-  bool showObs=false;
   bool asField=false;
 
   if (modelButton->isChecked()) {
@@ -262,14 +259,12 @@ void SpectrumModelDialog::setModel(){
     for (int i = 0; i<n;i++){
       if(modelfileList->item(i)->isSelected()){
         string model = modelfileList->item(i)->text().toStdString();
-        if(model==OBS){
-          showObs=true;
-        } else if (model==ASFIELD){
+        if (model==ASFIELD){
           asField = true;
         } else models.push_back(model);
       }
     }
-    spectrumm->setSelectedModels(models,showObs,asField);
+    spectrumm->setSelectedModels(models,asField);
 
   } else if (fileButton->isChecked()) {
 
@@ -281,7 +276,7 @@ void SpectrumModelDialog::setModel(){
         files.push_back(file);
       }
     }
-    spectrumm->setSelectedFiles(files,showObs,asField);
+    spectrumm->setSelectedFiles(files,asField);
   }
 
 }
@@ -306,8 +301,6 @@ void SpectrumModelDialog::updateModelfileList(){
     //make a string list with models to insert into modelfileList
     vector <std::string> modelnames =spectrumm->getModelNames();
     int nr_models = modelnames.size();
-    //modelfileList->insertItem(OBS);
-    // qt4 fix: Made QString of ASFIELD
     modelfileList->addItem(QString(ASFIELD.c_str()));
     for (int i=0; i<nr_models; i++)
       modelfileList->addItem(QString(modelnames[i].c_str()));

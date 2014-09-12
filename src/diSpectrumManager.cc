@@ -50,7 +50,7 @@ using namespace::miutil;
 using namespace std;
 
 SpectrumManager::SpectrumManager()
-: showObs(false), plotw(0), ploth(0), dataChange(true), hardcopy(false)
+: plotw(0), ploth(0), dataChange(true), hardcopy(false)
 {
 
   METLIBS_LOG_SCOPE();
@@ -59,8 +59,6 @@ SpectrumManager::SpectrumManager()
   spopt= new SpectrumOptions();  // defaults are set
 
   parseSetup();
-
-  updateObsFileList();
 
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970,1,1,0,0,0);
@@ -92,15 +90,9 @@ void SpectrumManager::parseSetup()
   dialogModelNames.clear();
   dialogFileNames.clear();
 
-  //const std::string section1 = "SPECTRUM_SETUP";
   const std::string section2 = "SPECTRUM_FILES";
   vector<std::string> vstr;
 
-  //if (!SetupParser::getSection(section1,vstr)) {
-  //  METLIBS_LOG_DEBUG("Missing section " << section1 << " in setupfile.");
-  //  return false;
-  //}
-  //vstr.clear();
 
   if (SetupParser::getSection(section2,vstr)) {
 
@@ -114,15 +106,7 @@ void SpectrumManager::parseSetup()
 
     for (int i=0; i<n; i++) {
       tokens= miutil::split_protected(vstr[i], '\"','\"'," ",true);
-      if (tokens.size()==1) {
-        tokens1= miutil::split(tokens[0], "=");
-        if (tokens1.size()==2) {
-          if (miutil::to_lower(tokens1[0])=="obs.aaa")
-            obsAaaPaths.push_back(tokens1[1]);
-          else if (miutil::to_lower(tokens1[0])=="obs.bbb")
-            obsBbbPaths.push_back(tokens1[1]);
-        }
-      } else if (tokens.size()==2) {
+      if (tokens.size()==2) {
         tokens1= miutil::split(tokens[0], "=");
         tokens2= miutil::split(tokens[1], "=");
         if (tokens1.size()==2          && tokens2.size()==2  &&
@@ -143,41 +127,8 @@ void SpectrumManager::parseSetup()
 
   } else {
 
-    //METLIBS_LOG_DEBUG("Missing section " << section2 << " in setupfile.");
+    METLIBS_LOG_DEBUG("Missing section " << section2 << " in setupfile.");
 
-  }
-}
-
-
-void SpectrumManager::updateObsFileList()
-{
-
-  METLIBS_LOG_SCOPE();
-
-  obsfiles.clear();
-  for (diutil::string_v::const_iterator ita = obsAaaPaths.begin(); ita != obsAaaPaths.end(); ++ita) {
-    ObsFile of;
-    of.obstype= obsAAA;
-    of.time=    miTime(1970,1,1,0,0,0);
-    of.modificationTime= 0;
-
-    const diutil::string_v matches = diutil::glob(*ita);
-    for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-      of.filename = *it;
-      obsfiles.push_back(of);
-    }
-  }
-  for (diutil::string_v::const_iterator itb = obsBbbPaths.begin(); itb != obsBbbPaths.end(); ++itb) {
-    ObsFile of;
-    of.obstype= obsBBB;
-    of.time=    miTime(1970,1,1,0,0,0);
-    of.modificationTime= 0;
-
-    const diutil::string_v matches = diutil::glob(*itb);
-    for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-      of.filename = *it;
-      obsfiles.push_back(of);
-    }
   }
 }
 
@@ -223,14 +174,6 @@ void SpectrumManager::setModel()
     delete spfile[i];
   spfile.clear();
 
-  //check if there are any selected models, if not use default
-  //   if (!selectedModels.size()&&!selectedFiles.size()
-  //       &&(!asField || !fieldModels.size())){
-  //     METLIBS_LOG_DEBUG("No model selected");
-  //     std::string model = getDefaultModel();
-  //     usemodels.insert(model);
-  //   }
-
   usemodels.clear();
 
   //if as field is selected find corresponding model
@@ -261,27 +204,13 @@ void SpectrumManager::setModel()
   vector<string>::iterator q = selectedFiles.begin();
   for (; q!=selectedFiles.end(); q++) {
     std::string file= *q;
-    //HK ??? cheating...
-    if (miutil::contains(file, "obs")) {
-      showObs = true;
-    } else {
-      map<std::string,std::string>::iterator pf=filenames.begin();
-      for (; pf!=filenames.end(); pf++) {
-        if (file==pf->second){
-          initSpectrumFile(file,pf->first);
-          break;
-        }
+    map<std::string,std::string>::iterator pf=filenames.begin();
+    for (; pf!=filenames.end(); pf++) {
+      if (file==pf->second){
+        initSpectrumFile(file,pf->first);
+        break;
       }
     }
-  }
-
-  onlyObs= false;
-
-  if (showObs && spfile.size()==0) {
-    // until anything decided:
-    // check observation time and display the most recent file
-    checkObsTime();
-    onlyObs= true;
   }
 
   initTimes();
@@ -310,10 +239,6 @@ void SpectrumManager::setTime(const miTime& time)
 
 
   plotTime= time;
-
-  if (onlyObs)
-    initStations();
-
   dataChange= true;
 }
 
@@ -360,9 +285,6 @@ miTime SpectrumManager::setTime(int step)
   while (i<n && timeList[i]!=plotTime) i++;
   if (i<n) {
     i+=step;
-    //if (i<0)  i= n-1;
-    //if (i>=n) i= 0;
-    //HK changed to noncyclic...
     if (i<0)  i= 0;
     if (i>=n) i= n-1;
   } else {
@@ -370,10 +292,6 @@ miTime SpectrumManager::setTime(int step)
   }
 
   plotTime= timeList[i];
-
-  if (onlyObs)
-    initStations();
-
   dataChange= true;
 
   return plotTime;
@@ -423,10 +341,9 @@ bool SpectrumManager::plot()
     hardcopystarted= true;
   }
 
-  int nobs= (showObs) ? 1 : 0;
   int nmod= spfile.size();
 
-  SpectrumPlot::startPlot(nobs+nmod,plotw,ploth,spopt);
+  SpectrumPlot::startPlot(nmod,plotw,ploth,spopt);
 
   if (not plotStation.empty()) {
 
@@ -438,53 +355,9 @@ bool SpectrumManager::plot()
       }
     }
 
-    if (showObs) {
-      int n= nameList.size();
-      int i= 0;
-      while (i<n && nameList[i]!=plotStation) i++;
-
-      if (i<n && not obsList[i].empty()) {
-        checkObsTime(plotTime.hour());
-
-        vector<std::string> stationList;
-        stationList.push_back(obsList[i]);
-        SpectrumPlot *spp= 0;
-        /**********************************************************************
-        int nn= 0;
-        while (spp==0 && nn<nf) {
-	  if (obsfiles[nn].modificationTime &&
-	      obsfiles[nn].time==plotTime) {
-            try {
-	      if (obsfiles[nn].obstype==obsAAA) {
-	        SpectrumObsAAA spobs(obsfiles[nn].filename,stationList);
-	        spp= spobs.getStation(obsList[i],plotTime);
-	      } else if (obsfiles[nn].obstype==obsBBB) {
-	        SpectrumObsBBB spobs(obsfiles[nn].filename,stationList);
-	        spp= spobs.getStation(obsList[i],plotTime);
-	      }
-            }
-            catch (...) {
-              METLIBS_LOG_DEBUG("Exception in: " <<obsfiles[nn].filename);
-            }
-          }
-          nn++;
-        }
-         **********************************************************************/
-        if (spp) {
-          spp->plot(spopt);
-          delete spp;
-        }
-      }
-    }
-
-    //    SpectrumPlot::plotText(); // ????????????????????????????????
   }
 
   SpectrumPlot::plotDiagram(spopt);
-
-  // postscript output
-  //  if (hardcopy) SpectrumPlot::endPSoutput();
-  //  hardcopy= false;
 
   return true;
 }
@@ -494,7 +367,6 @@ void SpectrumManager::preparePlot()
 {
 
   METLIBS_LOG_SCOPE();
-
 
   int n= spectrumplots.size();
   for (int i=0; i<n; i++)
@@ -518,7 +390,6 @@ vector <std::string> SpectrumManager::getModelNames()
 
   METLIBS_LOG_SCOPE();
 
-  updateObsFileList();
   return dialogModelNames;
 }
 
@@ -529,10 +400,6 @@ vector <std::string> SpectrumManager::getModelFiles()
   METLIBS_LOG_SCOPE();
 
   vector<std::string> modelfiles= dialogFileNames;
-  updateObsFileList();
-  int n= obsfiles.size();
-  for (int i=0; i<n; i++)
-    modelfiles.push_back(obsfiles[i].filename);
 
   return modelfiles;
 }
@@ -545,10 +412,9 @@ void SpectrumManager::setFieldModels(const vector<string>& fieldmodels)
 }
 
 
-void SpectrumManager::setSelectedModels(const vector<string>& models, bool obs ,bool field)
+void SpectrumManager::setSelectedModels(const vector<string>& models, bool field)
 {
   //called when model selected in model dialog
-  showObs= obs;
   asField = field;
   //set data from models, not files
   selectedFiles.clear();
@@ -556,10 +422,9 @@ void SpectrumManager::setSelectedModels(const vector<string>& models, bool obs ,
 }
 
 
-void SpectrumManager::setSelectedFiles(const vector<string>& files, bool obs ,bool field)
+void SpectrumManager::setSelectedFiles(const vector<string>& files, bool field)
 {
   //called when model selected in model dialog
-  showObs= obs;
   asField = field;
   //set data from files not models
   selectedModels.clear();
@@ -579,8 +444,6 @@ std::string SpectrumManager::getDefaultModel()
 vector<string> SpectrumManager::getSelectedModels()
 {
   vector <string> models = selectedModels;
-  if (showObs)
-    models.push_back(menuConst["OBS"]);
   if (asField)
     models.push_back(menuConst["ASFIELD"]);
   return models;
@@ -590,7 +453,6 @@ vector<string> SpectrumManager::getSelectedModels()
 bool SpectrumManager::initSpectrumFile(std::string file, std::string model)
 {
   SpectrumFile *spf= new SpectrumFile(file,model);
-  //if (spf->readFileHeader()) {
   if (spf->update()) {
     METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
     spfile.push_back(spf);
@@ -612,31 +474,25 @@ void SpectrumManager::initStations()
 
 
   nameList.clear();
-  obsList.clear();
 
   map<std::string,StationPos> stations;
 
   vector<std::string> namelist;
   vector<float>    latitudelist;
   vector<float>    longitudelist;
-  vector<std::string> obslist;
 
   for (int i = 0;i<nspfile;i++){
     namelist= spfile[i]->getNames();
     latitudelist= spfile[i]->getLatitudes();
     longitudelist= spfile[i]->getLongitudes();
-    //obslist= spfile[i]->getObsNames();
-    obslist= spfile[i]->getNames();
     unsigned int n=namelist.size();
-    if (n!=latitudelist.size()||n!=longitudelist.size()||
-        n!=obslist.size()) {
+    if (n!=latitudelist.size()||n!=longitudelist.size()) {
       METLIBS_LOG_ERROR("diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
     } else{
       for (unsigned int j = 0;j<n;j++){
         StationPos newPos;
         newPos.latitude= latitudelist[j];
         newPos.longitude=longitudelist[j];
-        newPos.obs=obslist[j];
         stations[namelist[j]] = newPos;
       }
     }
@@ -645,8 +501,6 @@ void SpectrumManager::initStations()
   namelist.clear();
   latitudelist.clear();
   longitudelist.clear();
-  obslist.clear();
-
 
   map<std::string,StationPos>::iterator p=stations.begin();
   for (; p!=stations.end(); p++) {
@@ -658,12 +512,10 @@ void SpectrumManager::initStations()
     namelist.push_back(name);
     latitudelist.push_back(pos.latitude);
     longitudelist.push_back(pos.longitude);
-    obslist.push_back(pos.obs);
   }
   nameList=     namelist;
   latitudeList= latitudelist;
   longitudeList=longitudelist;
-  obsList=      obslist;
 
   // remember station
   if (!plotStation.empty()) lastStation = plotStation;
@@ -703,71 +555,14 @@ void SpectrumManager::initTimes()
   //assume common times...
   if (spfile.size()) timeList= spfile[0]->getTimes();
 
-  if (onlyObs)
-    timeList= obsTime;
-
   int n= timeList.size();
   int i= 0;
   while (i<n && timeList[i]!=plotTime) i++;
 
   if (i==n && n>0) {
-    if (onlyObs)
-      plotTime= timeList[n-1]; // the newest observations
-    else
       plotTime= timeList[0];
   }
 }
-
-
-void SpectrumManager::checkObsTime(int hour)
-{
-
-  METLIBS_LOG_SCOPE("hour= " << hour);
-
-
-  // use hour=-1 to check all files
-  // hour otherwise used to spread checking of many files (with plotTime.hour)
-
-  if (hour>23) hour=-1;
-  bool newtime= false;
-  int n= obsfiles.size();
-
-  pu_struct_stat statbuf;
-
-  for (int i=0; i<n; i++) {
-    if (obsfiles[i].modificationTime==0 || hour<0 ||
-        obsfiles[i].time.hour()==hour) {
-      if (pu_stat(obsfiles[i].filename.c_str(),&statbuf)==0) {
-        if (obsfiles[i].modificationTime!=statbuf.st_mtime) {
-          obsfiles[i].modificationTime= statbuf.st_mtime;
-          /***************************************************************************
-          try {
-            obs ofile;
-	    ofile.readFileHeader(obsfiles[i].filename);
-	    if (obsfiles[i].time != ofile.fileObsTime()) newtime= true;
-	    obsfiles[i].time= ofile.fileObsTime();
-          }
-          catch (...) {
-            METLIBS_LOG_DEBUG("Exception in: "<<obsfiles[i].filename);
-	  }
-           ***************************************************************************/
-        }
-      }
-    }
-  }
-
-  if (newtime && hour<0) {
-    set<miTime> timeset;
-    for (int i=0; i<n; i++)
-      if (obsfiles[i].modificationTime)
-        timeset.insert(obsfiles[i].time);
-    obsTime.clear();
-    set<miTime>::iterator p= timeset.begin(), pend= timeset.end();
-    for (; p!=pend; p++)
-      obsTime.push_back(*p);
-  }
-}
-
 
 void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 {
@@ -791,24 +586,13 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 }
 
 
-void SpectrumManager::updateObs()
-{
-
-  METLIBS_LOG_SCOPE();
-
-  updateObsFileList();
-  checkObsTime();
-}
 
 
 std::string SpectrumManager::getAnnotationString()
 {
   std::string str = std::string("B�lgespekter ");
-  if (onlyObs)
-    str += plotTime.isoTime();
-  else
-    for (set <std::string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
-      str+=*p+std::string(" ");
+  for (set <std::string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
+    str+=*p+std::string(" ");
   return str;
 }
 

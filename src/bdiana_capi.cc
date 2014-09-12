@@ -843,7 +843,6 @@ void parse_vcross_options(const vector<string>& opts)
 // SPECTRUM-options with parser
 std::string spectrum_station;
 vector<string> spectrum_models, spectrum_options;
-bool spectrum_plotobs = false; // not used, yet...
 bool spectrum_optionschanged;
 
 static void parse_spectrum_options(const vector<string>& opts)
@@ -856,11 +855,7 @@ static void parse_spectrum_options(const vector<string>& opts)
       continue;
     std::string upline = miutil::to_upper(line);
 
-    if (upline == "OBSERVATION.ON")
-      spectrum_plotobs = true;
-    else if (upline == "OBSERVATION.OFF")
-      spectrum_plotobs = false;
-    else if (miutil::contains(upline, "MODELS=") || miutil::contains(upline, "MODEL=")
+    if (miutil::contains(upline, "MODELS=") || miutil::contains(upline, "MODEL=")
         || miutil::contains(upline, "STATION=")) {
       vector<std::string> vs = miutil::split(line, "=");
       if (vs.size() > 1) {
@@ -2051,8 +2046,7 @@ static int parseAndProcess(istream &is)
         if (spectrum_optionschanged)
           spectrummanager->getOptions()->readOptions(spectrum_options);
         spectrum_optionschanged = false;
-        spectrummanager->setSelectedModels(spectrum_models, spectrum_plotobs,
-            false);
+        spectrummanager->setSelectedModels(spectrum_models, false);
         spectrummanager->setModel();
 
         if (ptime.undef()) {
@@ -2507,7 +2501,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, spectrum_plotobs, false);
+      spectrummanager->setSelectedModels(spectrum_models, false);
       spectrummanager->setModel();
 
       if (ptime.undef()) {
@@ -2817,7 +2811,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, spectrum_plotobs, false);
+      spectrummanager->setSelectedModels(spectrum_models, false);
       spectrummanager->setModel();
 
       if (ptime.undef()) {
