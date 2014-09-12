@@ -55,9 +55,9 @@ using namespace std;
 SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 : QDialog(parent),spectrumm(vm)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::SpectrumModelDialog called");
-#endif
+
 
   //caption to appear on top of dialog
   setWindowTitle( tr("Diana Wavespectrum - models") );
@@ -161,9 +161,9 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 
 void SpectrumModelDialog::modelfileClicked(int tt){
   //this slot is called when modelfile button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::modelfileClicked()\n");
-#endif
+
 
   updateModelfileList();
 }
@@ -173,9 +173,9 @@ void SpectrumModelDialog::modelfileClicked(int tt){
 
 void SpectrumModelDialog::refreshClicked(){
   //this slot is called when refresh button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::refreshClicked()\n");
-#endif
+
   updateModelfileList();
 
 }
@@ -184,9 +184,9 @@ void SpectrumModelDialog::refreshClicked(){
 
 void SpectrumModelDialog::deleteAllClicked(){
   //this slot is called when delete button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::deleteAllClicked()\n");
-#endif
+
   modelfileList->clearSelection();
 }
 
@@ -194,9 +194,9 @@ void SpectrumModelDialog::deleteAllClicked(){
 
 void SpectrumModelDialog::helpClicked(){
   //this slot is called when help button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::helpClicked()\n");
-#endif
+
   emit showsource("ug_spectrum.html");
 }
 
@@ -205,9 +205,9 @@ void SpectrumModelDialog::helpClicked(){
 
 void SpectrumModelDialog::applyClicked(){
   //this slot is called when apply button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::applyClicked(int tt)\n");
-#endif
+
   setModel();
   emit ModelApply();
 
@@ -217,9 +217,9 @@ void SpectrumModelDialog::applyClicked(){
 
 void SpectrumModelDialog::applyhideClicked(){
   //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::applyhideClicked(int tt)\n");
-#endif
+
   setModel();
   emit ModelHide();
   emit ModelApply();
@@ -229,9 +229,9 @@ void SpectrumModelDialog::applyhideClicked(){
 
 /*********************************************/
 void SpectrumModelDialog::setSelection(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::setSelection()");
-#endif
+
   if (modelButton->isChecked()){
     vector<string> models = spectrumm->getSelectedModels();
     int n = models.size();
@@ -248,9 +248,9 @@ void SpectrumModelDialog::setSelection(){
 
 /*********************************************/
 void SpectrumModelDialog::setModel(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::setModel()");
-#endif
+
 
   bool showObs=false;
   bool asField=false;
@@ -288,9 +288,9 @@ void SpectrumModelDialog::setModel(){
 /*********************************************/
 
 void SpectrumModelDialog::updateModelfileList(){
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModelDialog::updateModelfileList()\n");
-#endif
+
 
   //want to keep the selected models/files
   int n= modelfileList->count();
@@ -331,8 +331,8 @@ void SpectrumModelDialog::updateModelfileList(){
 
 
 void SpectrumModelDialog::closeEvent( QCloseEvent* e) {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumModel was closed!");
-#endif
+
   emit ModelHide();
 }

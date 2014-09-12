@@ -28,8 +28,6 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-//#define DEBUGPRINT
-//#define DEBUGREDRAW
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -71,9 +69,8 @@ SpectrumWidget::SpectrumWidget(SpectrumManager *spm, QWidget* parent)
 //  Set up the OpenGL rendering state
 void SpectrumWidget::initializeGL()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWidget::initializeGL");
-#endif
 
   glShadeModel( GL_FLAT );
   setAutoBufferSwap(false);
@@ -83,12 +80,8 @@ void SpectrumWidget::initializeGL()
 
 void SpectrumWidget::paintGL()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWidget::paintGL");
-#endif
-#ifdef DEBUGREDRAW
-  METLIBS_LOG_DEBUG("SpectrumWidget::paintGL");
-#endif
 
   if (!spectrumm) return;
 
@@ -101,9 +94,9 @@ void SpectrumWidget::paintGL()
 //  Set up the OpenGL view port, matrix mode, etc.
 void SpectrumWidget::resizeGL( int w, int h )
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWidget::resizeGL  w=" << w << " h=" << h);
-#endif
+
   if (spectrumm) spectrumm->setPlotWindow(w,h);
 
   glViewport( 0, 0, (GLint)w, (GLint)h );

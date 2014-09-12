@@ -108,17 +108,17 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   vlayout->addLayout( hlayout2 );
 
 
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumSetupDialog::SpectrumSetupDialog finished");
-#endif
+
 }
 
 
 void SpectrumSetupDialog::initOptions()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumSetupDialog::initOptions");
-#endif
+
 
   //make a grid with 4 rows, columms for labels and
   // for the checkboxes/comboboxes/spinboxes
@@ -251,9 +251,9 @@ void SpectrumSetupDialog::setup(SpectrumOptions *spopt)
 
 void SpectrumSetupDialog::applySetup()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumSetupDialog::applySetup()");
-#endif
+
   SpectrumOptions * spopt= spectrumm->getOptions();
 
   spopt->pText=      mSetupTEXTPLOT->isChecked();

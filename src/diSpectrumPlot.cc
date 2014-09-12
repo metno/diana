@@ -108,9 +108,9 @@ float  SpectrumPlot::eTotalMax= 0.0;
 SpectrumPlot::SpectrumPlot()
 	: numDirec(0), numFreq(0), sdata(0), xdata(0), ydata(0)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("++ SpectrumPlot::Default Constructor");
-#endif
+
 
   if (!fp) {
     fp= new FontManager();
@@ -125,9 +125,9 @@ SpectrumPlot::SpectrumPlot()
 
 // Destructor
 SpectrumPlot::~SpectrumPlot() {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("++ SpectrumPlot::Destructor");
-#endif
+
 
   delete[] sdata;
   delete[] xdata;
@@ -299,9 +299,9 @@ bool SpectrumPlot::endPSoutput(){
 void SpectrumPlot::startPlot(int numplots, int w, int h,
 			     SpectrumOptions *spopt)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumPlot::startPlot numplots=" << numplots);
-#endif
+
 
   numplot= numplots;
   nplot= 0;
@@ -420,9 +420,9 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
 //static
 void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("++ SpectrumPlot::plotDiagram");
-#endif
+
   const float rad= 3.141592654/180.;
 
   int n;
@@ -610,10 +610,10 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 
 bool SpectrumPlot::plot(SpectrumOptions *spopt)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("++ SpectrumPlot::plot " << posName << " "
   				   << validTime);
-#endif
+
   const float rad= 3.141592654/180.;
 
   Colour c;

@@ -194,9 +194,9 @@ SpectrumWindow::SpectrumWindow()
   active = false;
   //mainWindowTime= miutil::miTime::nowTime();
 
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::SpectrumWindow() finished");
-#endif
+
 }
 
 
@@ -204,14 +204,14 @@ void SpectrumWindow::modelClicked( bool on )
 {
   //called when the model button is clicked
   if( on ){
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("Model button clicked on");
-#endif
+
     spModelDialog->show();
   } else {
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("Model button clicked off");
-#endif
+
     spModelDialog->hide();
   }
 }
@@ -257,9 +257,9 @@ bool SpectrumWindow::timeChangedSlot(int diff)
 {
   //called if signal timeChanged is emitted from graphics
   //window (qtSpectrumWidget)
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("timeChangedSlot(int) is called ");
-#endif
+
   int index=timeBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
@@ -316,9 +316,9 @@ bool SpectrumWindow::timeChangedSlot(int diff)
 
 bool SpectrumWindow::stationChangedSlot(int diff)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("stationChangedSlot(int) is called ");
-#endif
+
   int index=stationBox->currentIndex();
   while(diff<0){
     if(--index < 0) {
@@ -477,16 +477,16 @@ void SpectrumWindow::setupClicked(bool on)
 {
   //called when the setup button is clicked
   if( on ){
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("Setup button clicked on");
-#endif
+
     spSetupDialog->start();
     spSetupDialog->show();
 
   } else {
-#ifdef DEBUGPRINT
+
     METLIBS_LOG_DEBUG("Setup button clicked off");
-#endif
+
     spSetupDialog->hide();
   }
 }
@@ -495,9 +495,9 @@ void SpectrumWindow::setupClicked(bool on)
 void SpectrumWindow::quitClicked()
 {
   //called when the quit button is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("quit clicked");
-#endif
+
   //for now, only hide window, not really quit !
   spToolbar->hide();
   tsToolbar->hide();
@@ -523,9 +523,9 @@ void SpectrumWindow::quitClicked()
 void SpectrumWindow::updateClicked()
 {
   //called when the update button in Spectrumwindow is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("update clicked");
-#endif
+
   spectrumm->updateObs();      // check obs.files
   miutil::miTime t= mainWindowTime; // use the main time (fields etc.)
   mainWindowTimeChanged(t);
@@ -535,9 +535,9 @@ void SpectrumWindow::updateClicked()
 void SpectrumWindow::helpClicked()
 {
   //called when the help button in Spectrumwindow is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("help clicked");
-#endif
+
   emit showsource("ug_spectrum.html");
 }
 
@@ -545,9 +545,9 @@ void SpectrumWindow::helpClicked()
 void SpectrumWindow::MenuOK()
 {
   //obsolete - nothing happens here
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::MenuOK()");
-#endif
+
 }
 
 
@@ -555,9 +555,9 @@ void SpectrumWindow::changeModel()
 {
   //called when the apply button from model dialog is clicked
   //... or field is changed ?
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::changeModel()");
-#endif
+
   spectrumm->setModel();
 
   onlyObs= spectrumm->onlyObsState();
@@ -577,9 +577,9 @@ void SpectrumWindow::changeModel()
 void SpectrumWindow::changeSetup()
 {
   //called when the apply from setup dialog is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::changeSetup()");
-#endif
+
   spectrumw->updateGL();
 }
 
@@ -587,9 +587,9 @@ void SpectrumWindow::changeSetup()
 void SpectrumWindow::hideModel()
 {
   //called when the hide button (from model dialog) is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::hideModel()");
-#endif
+
   spModelDialog->hide();
   modelButton->setChecked(false);
 }
@@ -598,9 +598,9 @@ void SpectrumWindow::hideModel()
 void SpectrumWindow::hideSetup()
 {
   //called when the hide button (from setup dialog) is clicked
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::hideSetup()");
-#endif
+
   spSetupDialog->hide();
   setupButton->setChecked(false);
 }
@@ -608,9 +608,9 @@ void SpectrumWindow::hideSetup()
 
 StationPlot* SpectrumWindow::getStations()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::getStations()");
-#endif
+
   const vector <std::string> stations = spectrumm->getStationList();
   const vector <float> latitude = spectrumm->getLatitudes();
   const vector <float> longitude = spectrumm->getLongitudes();
@@ -622,13 +622,13 @@ StationPlot* SpectrumWindow::getStations()
   stationPlot->setPlotName(ann);
 
   //the coordinates are defined here
-#ifdef DEBUGPRINT
+
   //  for (int i = 0; i<n;i++){
   //     METLIBS_LOG_DEBUG("Station number " << i << " name = " << stations[i]
   // 	 << " latitude = " << latitude[i]
   // 	 << " longitude = " << longitude[i]);
   //   }
-#endif
+
 
   return stationPlot;
 }
@@ -637,9 +637,9 @@ StationPlot* SpectrumWindow::getStations()
 void SpectrumWindow::updateStationBox()
 {
   //update list of stations in stationBox
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::updateStationBox");
-#endif
+
 
   stationBox->clear();
   vector<std::string> stations= spectrumm->getStationList();
@@ -657,9 +657,9 @@ void SpectrumWindow::updateStationBox()
 void SpectrumWindow::updateTimeBox()
 {
   //update list of times
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::updateTimeBox");
-#endif
+
 
   timeBox->clear();
   vector<miutil::miTime> times= spectrumm->getTimeList();
@@ -709,9 +709,9 @@ void SpectrumWindow::timeBoxActivated(int index)
 
 bool SpectrumWindow::changeStation(const std::string& station)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumWindow::changeStation");
-#endif
+
   spectrumm->setStation(station);
   spectrumw->updateGL();
   raise();
@@ -736,9 +736,9 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
   mainWindowTime= t;
 
   if (!active) return;
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("spectrumWindow::mainWindowTimeChanged called with time " << t);
-#endif
+
   spectrumm->mainWindowTimeChanged(t);
   if (onlyObs) {
     //emit to main Window (updates stationPlot)
@@ -755,9 +755,9 @@ void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 
 void SpectrumWindow::startUp(const miutil::miTime& t)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("spectrumWindow::startUp called with time " << t);
-#endif
+
   active = true;
   spToolbar->show();
   tsToolbar->show();

@@ -57,9 +57,9 @@ SpectrumOptions::~SpectrumOptions()
 
 void SpectrumOptions::setDefaults()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_DEBUG("SpectrumOptions::setDefaults");
-#endif
+
 
   pText= true;
   textColour= "black";
@@ -102,9 +102,9 @@ void SpectrumOptions::setDefaults()
 
 std::vector<std::string> SpectrumOptions::writeOptions()
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_SCOPE();
-#endif
+
 
   std::vector<std::string> vstr;
   std::string str;
@@ -161,9 +161,9 @@ std::vector<std::string> SpectrumOptions::writeOptions()
 
 void SpectrumOptions::readOptions(const std::vector<std::string>& vstr)
 {
-#ifdef DEBUGPRINT
+
   METLIBS_LOG_SCOPE();
-#endif
+
 
   std::vector<std::string> vs,tokens;
   std::string key,value;
