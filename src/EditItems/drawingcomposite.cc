@@ -71,6 +71,12 @@ void Composite::draw()
 
   foreach (DrawingItemBase *element, elements_)
     element->draw();
+
+  // Draw the outline using the border colour and line pattern defined in
+  // the style.
+  styleManager->beginLine(this);
+  styleManager->drawLines(this, points);
+  styleManager->endLine(this);
 }
 
 QRectF Composite::boundingRect() const
@@ -94,7 +100,18 @@ void Composite::updateRect()
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
-  return DrawingItemBase::toKML(); // call base implementation for now
+  QHash<QString, QString> extra;
+  QDomNode node = DrawingItemBase::toKML(extra.unite(extraExtData));
+
+  foreach (DrawingItemBase *element, elements_)
+    node.appendChild(element->toKML());
+
+  return node;
+}
+
+void Composite::fromKML(const QHash<QString, QString> &extraExtData)
+{
+  //properties_["size"] = extraExtData.value("met:size", DEFAULT_SYMBOL_SIZE_STRING).toInt();
 }
 
 DrawingItemBase::Category Composite::category() const
@@ -174,6 +191,11 @@ void Composite::createElements()
     elements_.append(element);
   }
 
+  arrangeElements();
+}
+
+void Composite::arrangeElements()
+{
   QRectF previousRect = QRectF(points_[0], QSizeF(0, 0));
 
   for (int i = 0; i < elements_.size(); ++i) {
@@ -188,34 +210,30 @@ void Composite::createElements()
 
       // Treat lines differently. Position all the points based on the previous
       // element, discarding the existing geometry of the line.
-      if (i == 0) {
-        points << QPointF(previousRect.left(), previousRect.top());
-        points << QPointF(previousRect.right(), previousRect.top());
-        points << QPointF(previousRect.right(), previousRect.bottom());
-        points << QPointF(previousRect.left(), previousRect.bottom());
-      } else {
+      if (i != 0) {
         switch (layout_) {
         case Horizontal:
           points << QPointF(previousRect.right(), previousRect.bottom());
           points << QPointF(previousRect.right(), previousRect.top());
+          previousRect.translate(2, 0);
           break;
         case Vertical:
           points << QPointF(previousRect.left(), previousRect.top());
           points << QPointF(previousRect.right(), previousRect.top());
+          previousRect.translate(0, -2);
           break;
         case Diagonal:
-          qDebug() << previousRect;
           points << QPointF(previousRect.left() + previousRect.width()/2,
                             previousRect.top() - previousRect.height()/2);
           points << QPointF(previousRect.right() + previousRect.width()/2,
                             previousRect.bottom() - previousRect.height()/2);
+          previousRect.translate(2, -2);
           break;
         default:
           ;
         }
       }
 
-      // Keep the previous rectangle.
       element->setPoints(points);
 
     } else {

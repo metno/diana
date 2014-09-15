@@ -235,9 +235,12 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Composite].insert(DSP_values::name(), new DSP_values);
   properties_[DrawingItemBase::Composite].insert(DSP_styles::name(), new DSP_styles);
   properties_[DrawingItemBase::Composite].insert(DSP_layout::name(), new DSP_layout);
+  properties_[DrawingItemBase::Composite].insert(DSP_linecolour::name(), new DSP_linecolour);
+  properties_[DrawingItemBase::Composite].insert(DSP_linetransparency::name(), new DSP_linetransparency);
   properties_[DrawingItemBase::Composite].insert(DSP_fillcolour::name(), new DSP_fillcolour);
   properties_[DrawingItemBase::Composite].insert(DSP_filltransparency::name(), new DSP_filltransparency);
   properties_[DrawingItemBase::Composite].insert(DSP_hide::name(), new DSP_hide);
+  properties_[DrawingItemBase::Composite].insert(DSP_closed::name(), new DSP_closed);
 }
 
 DrawingStyleManager::~DrawingStyleManager()

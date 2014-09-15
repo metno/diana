@@ -289,8 +289,8 @@ void Text::drawIncomplete() const
     // Draw a caret.
     glColor3ub(255, 0, 0);
     glBegin(GL_LINES);
-    glVertex2f(x + size.width(), y - size.height() - margin_);
-    glVertex2f(x + size.width(), y + margin_);
+    glVertex2f(x + margin_ + size.width(), y - size.height() - margin_);
+    glVertex2f(x + margin_ + size.width(), y - margin_);
     glEnd();
   }
 }

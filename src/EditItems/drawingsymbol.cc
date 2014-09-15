@@ -33,6 +33,7 @@
 #include "GL/gl.h"
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
+#include <QDebug>
 
 #define DEFAULT_SYMBOL_SIZE 48
 #define DEFAULT_SYMBOL_SIZE_STRING "48"
@@ -68,8 +69,12 @@ QRectF Symbol::boundingRect() const
   if (points_.isEmpty())
     return QRectF();
 
+  QString name = property("style:type", "Default").toString();
   int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
-  return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
+  QSize defaultSize = DrawingManager::instance()->getSymbolSize(name);
+  float aspect = defaultSize.height()/float(defaultSize.width());
+
+  return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - aspect*size/2, size, aspect*size);
 }
 
 void Symbol::draw()
@@ -77,16 +82,21 @@ void Symbol::draw()
   if (points_.isEmpty())
     return;
 
+  DrawingManager *dm = DrawingManager::instance();
+  QString name = property("style:type", "Default").toString();
+
+  QSize defaultSize = dm->getSymbolSize(name);
+  float aspect = defaultSize.height()/float(defaultSize.width());
   int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
 
-  DrawingManager::instance()->drawSymbol(property("style:type", "Default").toString(),
-    points_.at(0).x() - size/2, points_.at(0).y() - size/2, size, size);
+  DrawingManager::instance()->drawSymbol(name,
+    points_.at(0).x() - size/2, points_.at(0).y() - aspect*size/2, size, aspect*size);
 }
 
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["size"] = QString::number(properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt());
+  extra["met:size"] = QString::number(properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt());
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 

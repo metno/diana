@@ -534,6 +534,12 @@ QImage DrawingManager::getSymbolImage(const QString &name, int width, int height
   return image;
 }
 
+QSize DrawingManager::getSymbolSize(const QString &name)
+{
+  QSvgRenderer renderer(symbols.value(name));
+  return renderer.defaultSize();
+}
+
 void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &item) const
 {
   const bool antialiasing = item->property("antialiasing", true).toBool();

@@ -44,6 +44,7 @@ public:
 
   Composite();
   virtual ~Composite();
+  virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
   virtual void draw();
 
@@ -56,6 +57,7 @@ public:
   // Updates the bounding rectangle and lays out elements.
   virtual void updateRect();
 
+  virtual void arrangeElements();
   virtual void createElements();
   DrawingItemBase *elementAt(int index) const;
 

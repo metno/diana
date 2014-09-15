@@ -317,6 +317,9 @@ void CompositeEditor::applyChanges()
   // Apply the changes to composite child elements.
   foreach (CompositeEditor *childEditor, childEditors)
     childEditor->applyChanges();
+
+  // Arrange the elements, taking the changes into account.
+  item->arrangeElements();
 }
 
 void CompositeEditor::updateSymbol(QAction *action)

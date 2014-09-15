@@ -45,6 +45,7 @@
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <vector>
+#include <QDebug>
 
 class PlotModule;
 class ObjectManager;
@@ -95,7 +96,7 @@ public:
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
   template<typename BaseType, typename PolyLineType, typename SymbolType,
-           typename Text, typename Composite>
+           typename TextType, typename CompositeType>
   inline BaseType *createItemFromVarMap_(const QVariantMap &vmap, QString *error)
   {
     Q_ASSERT(!vmap.empty());
@@ -107,12 +108,17 @@ public:
       item = new PolyLineType();
     } else if (vmap.value("type").toString().endsWith("Symbol")) {
       item = new SymbolType();
+    } else if (vmap.value("type").toString().endsWith("Text")) {
+      item = new TextType();
+    } else if (vmap.value("type").toString().endsWith("Composite")) {
+      item = new CompositeType();
     } else {
-      *error = QString("unsupported item type: %1, expected %2 or %3")
-          .arg(vmap.value("type").toString()).arg("*PolyLine").arg("*Symbol");
+      *error = QString("unsupported item type: %1")
+          .arg(vmap.value("type").toString());
       return 0;
     }
 
+    qDebug() << vmap;
     item->setProperties(vmap);
     setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
     return item;
@@ -124,6 +130,7 @@ public:
   void drawSymbol(const QString &name, float x, float y, int width, int height);
   QStringList symbolNames() const;
   QImage getSymbolImage(const QString &name, int width, int height);
+  QSize getSymbolSize(const QString &name);
 
   // Dialog-related methods
   QSet<QString> &getDrawings();

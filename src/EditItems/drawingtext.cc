@@ -160,9 +160,10 @@ void Text::setText(const QStringList &lines)
 QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["text"] = text().join("\n");
-  extra["margin"] = QString::number(margin_);
-  extra["spacing"] = QString::number(spacing_);
+  QStringList lines = text();
+  extra["met:text"] = lines.join("\n");
+  extra["met:margin"] = QString::number(margin_);
+  extra["met:spacing"] = QString::number(spacing_);
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
