@@ -192,6 +192,7 @@ void Composite::createElements()
   }
 
   arrangeElements();
+  readExtraProperties();
 }
 
 void Composite::arrangeElements()
@@ -297,6 +298,34 @@ void Composite::setPoints(const QList<QPointF> &points)
 
   // Update the points to contain the child elements inside the object.
   updateRect();
+}
+
+/**
+ * Read the properties of the child elements, storing them in a list in this
+ * item's property map.
+ */
+void Composite::readExtraProperties()
+{
+  // Examine the child elements of this item and their children, incorporating their
+  // properties into the properties of this item.
+  QVariantList extraProperties;
+
+  foreach (DrawingItemBase *element, elements_) {
+    Composite *c = dynamic_cast<Composite *>(element);
+    if (c)
+      c->readExtraProperties();
+    extraProperties.append(element->properties());
+  }
+
+  properties_["children"] = extraProperties;
+}
+
+/**
+ * Write the properties of the child elements, storing them in a list in this
+ * item's property map.
+ */
+void Composite::writeExtraProperties()
+{
 }
 
 DrawingItemBase *Composite::newCompositeItem() const

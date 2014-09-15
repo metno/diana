@@ -118,9 +118,14 @@ public:
       return 0;
     }
 
-    qDebug() << vmap;
     item->setProperties(vmap);
     setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
+
+    CompositeType *c = dynamic_cast<CompositeType *>(item);
+    if (c) {
+      c->createElements();
+    }
+
     return item;
   }
 

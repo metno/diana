@@ -60,6 +60,8 @@ public:
   virtual void arrangeElements();
   virtual void createElements();
   DrawingItemBase *elementAt(int index) const;
+  void readExtraProperties();
+  void writeExtraProperties();
 
   virtual void setPoints(const QList<QPointF> &points);
 

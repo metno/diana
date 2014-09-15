@@ -320,6 +320,7 @@ void CompositeEditor::applyChanges()
 
   // Arrange the elements, taking the changes into account.
   item->arrangeElements();
+  item->readExtraProperties();
 }
 
 void CompositeEditor::updateSymbol(QAction *action)
