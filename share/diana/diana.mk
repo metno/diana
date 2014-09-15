@@ -269,30 +269,56 @@ dist_div_DATA= share/diana/UK_lyn.header \
 
 symbolsdir= $(datarootdir)/diana/@PVERSION@/images/symbols
 dist_symbols_DATA= \
-	share/diana/images/symbols/WeatherSymbol_ICAO_Drizzle.svg \
+	share/diana/images/symbols/WeatherSymbol_Right_Arrow.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Cold.svg \
+	share/diana/images/symbols/WeatherSymbol_Diagonal_Cross.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Drizzle.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Hail.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_High_Pressure.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_MountainObscuration.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg \
-	share/diana/images/symbols/WeatherSymbol_ICAO_Rain.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Rain.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_SevereAircraftIcing.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_SevereSandOrDustHaze.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_SevereTurbulence.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Shower.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Sleet.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Sleet_Shower.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Snow.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Snow_Shower.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Thunderstorms.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Thunderstorms_with_Hail.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_TropicalCyclone.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_VisibleVolcanicAshCloud.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg \
+	share/diana/images/symbols/WeatherSymbol_WMO_Warm.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
 
+font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
+METSYMBOLFONT=Symbol   # Use this as default font for meteorological symbols
+ standard_symbolsize=30
+  standard_symbolsize=20
+  complex_symbolsize=4
+  standard_symbolsize=20
+  complex_symbolsize=6
+  standard_symbolsize=30
+  standard_symbolsize=30
+  standard_symbolsize=30
+  standard_symbolsize=30
+  standard_symbolsize=30
+  standard_symbolsize=5
+  complex_symbolsize=3
