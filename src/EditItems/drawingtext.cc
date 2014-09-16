@@ -30,7 +30,8 @@
 */
 
 #include "GL/gl.h"
-#include "drawingtext.h"
+#include "diDrawingManager.h"
+#include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
 
@@ -122,7 +123,7 @@ GLfloat Text::fontScale() const
                 StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
 }
 
-const QStringList &Text::text() const
+QStringList Text::text() const
 {
   return ConstDrawing(this)->property("text").toStringList();
 }
@@ -160,14 +161,15 @@ QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
   QStringList lines = text();
-  extra["met:text"] = lines.join("\n");
-  extra["met:margin"] = QString::number(margin_);
-  extra["met:spacing"] = QString::number(spacing_);
+  extra["text"] = lines.join("\n");
+  extra["margin"] = QString::number(margin_);
+  extra["spacing"] = QString::number(spacing_);
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
 void Text::fromKML(const QHash<QString, QString> &extraExtData)
 {
+  DrawingManager::instance()->setFromLatLonPoints(*this, getLatLonPoints());
   setText(extraExtData.value("met:text", "").split("\n"));
   margin_ = extraExtData.value("met:margin", "4").toInt();
   spacing_ = extraExtData.value("met:spacing", "0.5").toFloat();

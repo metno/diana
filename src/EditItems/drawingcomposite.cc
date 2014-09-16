@@ -37,6 +37,7 @@
 #include "drawingtext.h"
 #include "drawingstylemanager.h"
 #include <diPlotModule.h>
+#include <QDebug>
 
 #define MILOGGER_CATEGORY "diana.Composite"
 #include <miLogger/miLogging.h>
@@ -100,17 +101,14 @@ void Composite::updateRect()
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  QDomNode node = DrawingItemBase::toKML(extra.unite(extraExtData));
-
-  foreach (DrawingItemBase *element, elements_)
-    node.appendChild(element->toKML());
-
-  return node;
+  extra["children"] = toKMLExtraData();
+  return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
 void Composite::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  //properties_["size"] = extraExtData.value("met:size", DEFAULT_SYMBOL_SIZE_STRING).toInt();
+  fromKMLExtraData(extraExtData.value("met:children"));
+  writeExtraProperties();
 }
 
 DrawingItemBase::Category Composite::category() const
@@ -367,6 +365,24 @@ DrawingItemBase *Composite::newSymbolItem() const
 DrawingItemBase *Composite::newTextItem() const
 {
   return new DrawingItem_Text::Text();
+}
+
+QString Composite::toKMLExtraData() const
+{
+  QVariantList childList = properties_.value("children").toList();
+  QByteArray data;
+  QDataStream stream(&data, QIODevice::WriteOnly);
+  stream << childList;
+  return QString(data.toBase64());
+}
+
+void Composite::fromKMLExtraData(const QString &data)
+{
+  QVariantList childList;
+  QByteArray bytes = QByteArray::fromBase64(data.toAscii());
+  QDataStream stream(&bytes, QIODevice::ReadOnly);
+  stream >> childList;
+  properties_["children"] = childList;
 }
 
 } // namespace

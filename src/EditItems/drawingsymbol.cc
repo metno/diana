@@ -95,7 +95,7 @@ void Symbol::draw()
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["met:size"] = QString::number(properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt());
+  extra["size"] = QString::number(properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt());
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 

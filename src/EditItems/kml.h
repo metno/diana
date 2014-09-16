@@ -110,6 +110,8 @@ static inline CompositeType *createComposite(const QList<QPointF> &points, const
 {
   Q_UNUSED(coordsNode); // might be needed later
   CompositeType *item = new CompositeType();
+  Drawing(item)->setProperty("style:type", extData.value("met:style:type"));
+  item->createElements();
   item->setLatLonPoints(points);
   item->fromKML(extData);
   return item;

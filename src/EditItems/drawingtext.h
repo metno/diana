@@ -45,7 +45,7 @@ public:
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual void draw();
 
-  virtual const QStringList &text() const;
+  virtual QStringList text() const;
   virtual void setText(const QStringList &lines);
 
   GLfloat fontScale() const;

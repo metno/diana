@@ -73,6 +73,12 @@ protected:
 
   QList<DrawingItemBase *> elements_;
   Orientation layout_;
+
+private:
+  /// Serialises the properties of the child elements as a string.
+  QString toKMLExtraData() const;
+  /// Unpacks serialised property data from a string.
+  void fromKMLExtraData(const QString &data);
 };
 
 } // namespace
