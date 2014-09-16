@@ -37,7 +37,6 @@
 #include "drawingtext.h"
 #include "drawingstylemanager.h"
 #include <diPlotModule.h>
-#include <QDebug>
 
 #define MILOGGER_CATEGORY "diana.Composite"
 #include <miLogger/miLogging.h>
@@ -192,6 +191,13 @@ void Composite::createElements()
   }
 
   arrangeElements();
+
+  // Write any properties for child elements already present in this item's
+  // property map into the property maps of the children themselves.
+  writeExtraProperties();
+
+  // Read the child elements' properties back into the main children entry of
+  // this item's property map.
   readExtraProperties();
 }
 
@@ -311,9 +317,12 @@ void Composite::readExtraProperties()
   QVariantList extraProperties;
 
   foreach (DrawingItemBase *element, elements_) {
+    // For child elements that are composite items, ensure that they contain
+    // up-to-date information about their children.
     Composite *c = dynamic_cast<Composite *>(element);
     if (c)
       c->readExtraProperties();
+
     extraProperties.append(element->properties());
   }
 
@@ -326,6 +335,18 @@ void Composite::readExtraProperties()
  */
 void Composite::writeExtraProperties()
 {
+  QVariantList childList = properties_["children"].toList();
+
+  for (int i = 0; i < childList.size(); ++i) {
+    DrawingItemBase *element = elements_.at(i);
+    element->setProperties(childList.at(i).toMap());
+
+    // Update any child elements that are composite items using their updated
+    // properties.
+    Composite *c = dynamic_cast<Composite *>(element);
+    if (c)
+      c->writeExtraProperties();
+  }
 }
 
 DrawingItemBase *Composite::newCompositeItem() const

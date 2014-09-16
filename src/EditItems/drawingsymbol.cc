@@ -33,7 +33,6 @@
 #include "GL/gl.h"
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
-#include <QDebug>
 
 #define DEFAULT_SYMBOL_SIZE 48
 #define DEFAULT_SYMBOL_SIZE_STRING "48"

@@ -34,7 +34,6 @@
 #include <QVector2D>
 #include <QComboBox>
 #include <qmath.h>
-#include <QDebug>
 
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
 #include "polyStipMasks.h"

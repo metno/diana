@@ -33,7 +33,6 @@
 #include "drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
-#include <QDebug>
 
 namespace DrawingItem_Text {
 

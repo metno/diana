@@ -45,7 +45,6 @@
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <vector>
-#include <QDebug>
 
 class PlotModule;
 class ObjectManager;
@@ -122,9 +121,8 @@ public:
     setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
 
     CompositeType *c = dynamic_cast<CompositeType *>(item);
-    if (c) {
+    if (c)
       c->createElements();
-    }
 
     return item;
   }
