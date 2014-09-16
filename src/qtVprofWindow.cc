@@ -86,6 +86,9 @@ VprofWindow::VprofWindow(Controller *co)
 #endif
   setCentralWidget(vprofw);
 
+  connect(vprofw, SIGNAL(timeChanged(int)),SLOT(timeClicked(int)));
+  connect(vprofw, SIGNAL(stationChanged(int)),SLOT(stationChangedSlot(int)));
+
   // tool bar and buttons
   vpToolbar = new QToolBar(this);
   addToolBar(Qt::TopToolBarArea,vpToolbar);
@@ -235,20 +238,17 @@ void VprofWindow::rightStationClicked(){
 }
 
 /***************************************************************************/
-
-
 void VprofWindow::leftTimeClicked(){
-  //called when the left time button is clicked
-  vprofm->set1Time(timeSpinBox->value(),-1);
-  timeChangedSlot();
-  vprofw->updateGL();
+  timeClicked(-1);
 }
 
-/***************************************************************************/
-
 void VprofWindow::rightTimeClicked(){
+  timeClicked(1);
+}
+
+void VprofWindow::timeClicked(int i){
   //called when the right Station button is clicked
-  vprofm->set1Time(timeSpinBox->value(),1);
+  vprofm->setTime(timeSpinBox->value(),i);
   timeChangedSlot();
   vprofw->updateGL();
 }

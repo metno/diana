@@ -114,6 +114,7 @@ private slots:
   void rightStationClicked();
   void leftTimeClicked();
   void rightTimeClicked();
+  void timeClicked(int i);
   void printClicked();
   void saveClicked();
   void setupClicked(bool on);

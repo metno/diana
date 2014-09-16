@@ -535,9 +535,9 @@ std::string VprofManager::setStation(int step)
 }
 
 
-miTime VprofManager::set1Time(int step, int dir)
+miTime VprofManager::setTime(int step, int dir)
 {
-  METLIBS_LOG_INFO("step=" << step);
+  METLIBS_LOG_DEBUG(LOGVAL(step) <<LOGVAL(dir));
 
   if (timeList.size()==0)
     return miTime::nowTime();

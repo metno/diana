@@ -103,6 +103,30 @@ void VprofWidget::resizeGL( int w, int h )
   setFocus();
 }
 
+// ---------------------- event callbacks -----------------
+
+void VprofWidget::keyPressEvent(QKeyEvent *me)
+{
+  if (me->key()==Qt::Key_Left  ||
+      me->key()==Qt::Key_Right ||
+      me->key()==Qt::Key_Down  ||
+      me->key()==Qt::Key_Up) {
+
+    if (me->key()==Qt::Key_Left){
+      emit timeChanged(-1);
+    } else if (me->key()==Qt::Key_Right){
+      emit timeChanged(+1);
+    }else if (me->key()==Qt::Key_Down){
+      vprofm->setStation(-1);
+      emit stationChanged(-1);
+    }else if (me->key()==Qt::Key_Up){
+      vprofm->setStation(+1);
+      emit stationChanged(+1);
+    }
+    updateGL();
+  }
+}
+
 
 bool VprofWidget::saveRasterImage(const std::string fname,
 			          const std::string format,

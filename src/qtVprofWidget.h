@@ -80,6 +80,12 @@ protected:
 private:
   VprofManager *vprofm;
 
+  void keyPressEvent(QKeyEvent *me);
+
+signals:
+  void timeChanged(int);
+  void stationChanged(int);
+
 };
 
 
