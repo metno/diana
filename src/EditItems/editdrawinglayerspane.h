@@ -50,10 +50,11 @@ private:
   virtual void addContextMenuActions(QMenu &) const;
   virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &);
   virtual bool handleKeyPressEvent(QKeyEvent *);
-  void add(const QSharedPointer<Layer> &, bool = false, bool = true, bool = true);
+  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
   void merge(const QList<LayerWidget *> &);
   void duplicate(const QList<LayerWidget *> &);
   void save(const QList<LayerWidget *> &);
+  QString scratchLayerName_;
   QToolButton *addEmptyButton_;
   QToolButton *addFromFileButton_;
   QToolButton *selectAllItemsButton_;
@@ -70,7 +71,6 @@ private:
   QAction *duplicate_act_;
   QAction *remove_act_;
   QAction *save_act_;
-  QSharedPointer<LayerGroup> layerGroup_; // the layer group for all editable layers
   QString lastSelSaveFName_;
 private slots:
   void selectAll();

@@ -36,6 +36,7 @@
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
 #include <QList>
+#include <QBitArray>
 #include <EditItems/drawingitembase.h>
 
 class DrawingManager;
@@ -61,14 +62,18 @@ public:
   bool selectItem(int, bool = false, bool = true);
   bool deselectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
   bool deselectAllItems(bool = true);
-  void addToLayerGroup(QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
-  void addToLayerGroup(QSharedPointer<LayerGroup> &, const QSharedPointer<Layer> &);
+  void addToLayerGroup(const QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
+  void addToLayerGroup(const QSharedPointer<LayerGroup> &, const QSharedPointer<Layer> &);
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
-  QSharedPointer<Layer> createNewLayer(const QString & = QString()) const;
+  QSharedPointer<Layer> createNewLayer(const QString & = QString(), bool = true) const;
+  QSharedPointer<Layer> createNewLayer(const QSharedPointer<LayerGroup> &, const QString & = QString(), bool = true);
   QSharedPointer<Layer> createDuplicateLayer(const QList<QSharedPointer<Layer> > &, const DrawingManager *) const;
-  void mergeLayers(const QList<QSharedPointer<Layer> > &, const QSharedPointer<Layer> &) const;
+  QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &, const DrawingManager *) const;
+  QSharedPointer<Layer> createDuplicateLayer(
+      const QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &, const DrawingManager *);
+  static void mergeLayers(const QList<QSharedPointer<Layer> > &, const QSharedPointer<Layer> &);
   const QList<QSharedPointer<LayerGroup> > &layerGroups() const;
   const QList<QSharedPointer<Layer> > &orderedLayers() const;
   QSharedPointer<LayerGroup> findLayerGroup(const QString &) const;
@@ -79,6 +84,12 @@ public:
   void removeLayer(const QSharedPointer<Layer> &);
   void moveLayer(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
   void removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+
+  void copyState(QList<QSharedPointer<LayerGroup> > *, QList<QSharedPointer<Layer> > *) const;
+  void replaceState(const QList<QSharedPointer<LayerGroup> > &, const QList<QSharedPointer<Layer> > &);
+
+  QBitArray selected() const;
+  QBitArray visible() const;
 
 private:
   QList<QSharedPointer<LayerGroup> > layerGroups_;
@@ -92,6 +103,9 @@ private:
   void ensureUniqueLayerName(const QSharedPointer<Layer> &) const;
 
   void selectItem(const QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &, bool, bool = true);
+
+signals:
+  void stateReplaced();
 };
 
 } // namespace

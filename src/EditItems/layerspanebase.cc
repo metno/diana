@@ -35,6 +35,8 @@
 #include <EditItems/layermanager.h>
 #include <EditItems/kml.h>
 #include <EditItems/dialogcommon.h>
+#include <EditItems/modifylayerscommand.h>
+#include <diEditItemManager.h>
 
 #include <QApplication>
 #include <QAction>
@@ -48,16 +50,16 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QToolButton>
+#include <QBitArray>
 
 namespace EditItems {
 
 LayerWidget::LayerWidget(
-    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool removable,
+    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo,
     bool attrsEditable, QWidget *parent)
   : QWidget(parent)
   , layerMgr_(layerManager)
   , layer_(layer)
-  , removable_(removable)
   , attrsEditable_(attrsEditable)
 {
   setContentsMargins(0, 0, 0, 0);
@@ -191,7 +193,7 @@ void LayerWidget::showInfo(bool checked)
 
 bool LayerWidget::isRemovable() const
 {
-  return removable_;
+  return layer_.isNull() ? true : layer_->isRemovable();
 }
 
 bool LayerWidget::isAttrsEditable() const
@@ -218,11 +220,11 @@ void LayerWidget::updateLabels()
 
 void LayerWidget::handleVisibilityChanged(bool visible)
 {
-  layer_->setVisible(visible);
-  emit visibilityChanged(visible);
+//  layer_->setVisible(visible); ### obsolete
+  emit visibilityChanged(layer_, visible);
 }
 
-LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title, bool multiSelectable)
+LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title, bool undoEnabled, bool multiSelectable)
   : showAllButton_(0)
   , hideAllButton_(0)
   , moveUpButton_(0)
@@ -231,6 +233,7 @@ LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QStr
   , importFilesButton_(0)
   , showInfo_(false)
   , layerMgr_(layerManager)
+  , undoEnabled_(undoEnabled)
   , visibleLayerWidget_(0)
   , multiSelectable_(multiSelectable)
   , layerUpdatesEnabled_(true)
@@ -260,12 +263,13 @@ LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QStr
   QVBoxLayout *mainLayout = new QVBoxLayout;
   mainLayout->addWidget(groupBox);
   setLayout(mainLayout);
+
+  connect(layerMgr_, SIGNAL(stateReplaced()), SLOT(update()));
 }
 
 void LayersPaneBase::init()
 {
-  updateWidgetStructure();
-  updateButtons();
+  update();
 }
 
 void LayersPaneBase::showInfo(bool checked)
@@ -281,7 +285,8 @@ void LayersPaneBase::initLayerWidget(LayerWidget *layerWidget)
 {
   connect(layerWidget, SIGNAL(mouseClicked(QMouseEvent *)), SLOT(mouseClicked(QMouseEvent *)), Qt::UniqueConnection);
   connect(layerWidget, SIGNAL(mouseDoubleClicked(QMouseEvent *)), SLOT(mouseDoubleClicked(QMouseEvent *)), Qt::UniqueConnection);
-  connect(layerWidget, SIGNAL(visibilityChanged(bool)), SLOT(handleWidgetsUpdate()), Qt::UniqueConnection);
+  connect(layerWidget, SIGNAL(visibilityChanged(const QSharedPointer<Layer> &, bool)),
+          SLOT(handleVisibilityChanged(const QSharedPointer<Layer> &, bool)), Qt::UniqueConnection);
   if (layerWidget->layer()) {
     layerWidget->updateLabels();
     connect(layerWidget->layer().data(), SIGNAL(updated()), SLOT(handleLayersUpdate()), Qt::UniqueConnection);
@@ -304,15 +309,31 @@ void LayersPaneBase::keyPressEvent(QKeyEvent *event)
       if (event->modifiers() & Qt::ControlModifier) {
         moveSingleSelectedUp();
       } else if (selPos > 0) {
-        selectIndex(selPos, false);
-        selectIndex(selPos - 1);
+        // single-select the layer above the currently selected one
+        if (undoEnabled_) {
+          QBitArray selected(layerMgr_->orderedLayers().size());
+          selected.setBit(layerMgr_->orderedLayers().indexOf(atPos(selPos - 1)->layer()));
+          if (selected != layerMgr_->selected())
+            EditItemManager::instance()->undoStack()->push(new ModifyLayerSelectionCommand(layerMgr_, selected));
+        } else {
+          selectIndex(selPos, false);
+          selectIndex(selPos - 1);
+        }
       }
     } else if (event->key() == Qt::Key_Down) {
       if (event->modifiers() & Qt::ControlModifier) {
         moveSingleSelectedDown();
       } else if (selPos < (layout_->count() - 1)) {
-        selectIndex(selPos, false);
-        selectIndex(selPos + 1);
+        // single-select the layer below the currently selected one
+        if (undoEnabled_) {
+          QBitArray selected(layerMgr_->orderedLayers().size());
+          selected.setBit(layerMgr_->orderedLayers().indexOf(atPos(selPos + 1)->layer()));
+          if (selected != layerMgr_->selected())
+            EditItemManager::instance()->undoStack()->push(new ModifyLayerSelectionCommand(layerMgr_, selected));
+        } else {
+          selectIndex(selPos, false);
+          selectIndex(selPos + 1);
+        }
       }
     }
   } else {
@@ -387,35 +408,43 @@ LayerWidget *LayersPaneBase::atPos(int pos)
   return 0;
 }
 
-void LayersPaneBase::remove(const QList<LayerWidget *> &layerWidgets, bool widgetsOnly, bool userConfirm)
+void LayersPaneBase::remove(const QList<LayerWidget *> &layerWidgets, bool widgetsOnly, bool explicitRemove)
 {
-  QList<LayerWidget *> removable;
+  QList<LayerWidget *> removableWidgets;
   foreach (LayerWidget *lw, layerWidgets)
     if (lw->isRemovable())
-      removable.append(lw);
+      removableWidgets.append(lw);
 
-  if ((!removable.isEmpty()) && (!widgetsOnly) && userConfirm &&
+  if ((!removableWidgets.isEmpty()) && (!widgetsOnly) && explicitRemove &&
       (QMessageBox::warning(
-         this, "Remove layers", QString("About to remove %1 layer%2; continue?").arg(removable.size()).arg(removable.size() != 1 ? "s" : ""),
+         this, "Remove layers", QString("About to remove %1 layer%2; continue?").arg(removableWidgets.size()).arg(removableWidgets.size() != 1 ? "s" : ""),
          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No))
     return;
 
-  foreach (LayerWidget *lw, removable) {
-    layout_->removeWidget(lw);
-    if (!widgetsOnly)
-      layerMgr_->removeLayer(lw->layer());
-    delete lw;
-  }
+  if (undoEnabled_ && explicitRemove) {
+    QBitArray removableLayers(layerMgr_->orderedLayers().size());
+    foreach (LayerWidget *lw, removableWidgets)
+      removableLayers.setBit(layerMgr_->orderedLayers().indexOf(lw->layer()));
+    EditItemManager::instance()->undoStack()->push(new RemoveLayersCommand(layerMgr_, removableLayers));
+  } else {
 
-  // ensure to select the default layer if any
-  if (!defaultLayer_.isNull()) {
-    LayerWidget *lw = widgetFromLayer(defaultLayer_);
-    if (lw)
-      lw->setSelected();
-  }
+    foreach (LayerWidget *lw, removableWidgets) {
+      layout_->removeWidget(lw);
+      if (!widgetsOnly)
+        layerMgr_->removeLayer(lw->layer());
+      delete lw;
+    }
 
-  if ((!removable.isEmpty()) && (!widgetsOnly))
-    handleWidgetsUpdate();
+    // ensure to select the default layer if any
+    if (!defaultLayer_.isNull()) {
+      LayerWidget *lw = widgetFromLayer(defaultLayer_);
+      if (lw)
+        lw->setSelected();
+    }
+
+    if ((!removableWidgets.isEmpty()) && (!widgetsOnly))
+      handleWidgetsUpdate();
+  }
 }
 
 void LayersPaneBase::move(LayerWidget *layerWidget, bool up)
@@ -424,12 +453,19 @@ void LayersPaneBase::move(LayerWidget *layerWidget, bool up)
   const int dstIndex = index + (up ? -1 : 1);
   if ((dstIndex < 0) || (dstIndex >= (layout_->count())))
     return;
-  const QSharedPointer<Layer> dstLayer = atPos(dstIndex)->layer();
-  layout_->removeWidget(layerWidget);
-  layout_->insertWidget(dstIndex, layerWidget);
-  layerMgr_->moveLayer(layerWidget->layer(), dstLayer);
-  ensureVisible(layerWidget);
-  handleWidgetsUpdate();
+
+  if (undoEnabled_) {
+    EditItemManager::instance()->undoStack()->push(new MoveLayerCommand(layerMgr_, index, dstIndex));
+
+  } else {
+
+    const QSharedPointer<Layer> dstLayer = atPos(dstIndex)->layer();
+    layout_->removeWidget(layerWidget);
+    layout_->insertWidget(dstIndex, layerWidget);
+    layerMgr_->moveLayer(layerWidget->layer(), dstLayer);
+    ensureVisible(layerWidget);
+    handleWidgetsUpdate();
+  }
 }
 
 void LayersPaneBase::moveUp(LayerWidget *layerWidget)
@@ -519,17 +555,36 @@ void LayersPaneBase::mouseClicked(QMouseEvent *event)
   if (event->button() & Qt::LeftButton) {
     if (event->modifiers().testFlag(Qt::NoModifier)) {
       // select target layer and unselect all others
-      foreach (LayerWidget *lw, allWidgets()) {
-        const bool selected = (lw == layerWidget);
-        select(lw, selected);
+      if (undoEnabled_) {
+        QBitArray selected(layerMgr_->orderedLayers().size());
+        selected.setBit(layerMgr_->orderedLayers().indexOf(layerWidget->layer()));
+        if (selected != layerMgr_->selected())
+          EditItemManager::instance()->undoStack()->push(new ModifyLayerSelectionCommand(layerMgr_, selected));
+      } else {
+        foreach (LayerWidget *lw, allWidgets()) {
+          const bool selected = (lw == layerWidget);
+          select(lw, selected);
+        }
       }
     } else if (multiSelectable_ && (event->modifiers() & Qt::ControlModifier)) {
       // toggle selection of target layer if at least one other layer is selected, otherwise select target layer
       const QList<int> selPos = selectedPos();
-      if (selPos.size() > 1)
-        select(layerWidget, !layerWidget->layer()->isSelected());
-      else
-        select(layerWidget);
+      if (undoEnabled_) {
+        QBitArray selected(layerMgr_->orderedLayers().size());
+        for (int i = 0; i < layerMgr_->orderedLayers().size(); ++i) {
+          const QSharedPointer<Layer> layer = layerMgr_->orderedLayers().at(i);
+          selected.setBit(i, (layer == layerWidget->layer())
+                           ? ((selPos.size() > 1) ? !layer->isSelected() : true)
+                           : layer->isSelected());
+        }
+        if (selected != layerMgr_->selected())
+          EditItemManager::instance()->undoStack()->push(new ModifyLayerSelectionCommand(layerMgr_, selected));
+      } else {
+        if (selPos.size() > 1)
+          select(layerWidget, !layerWidget->layer()->isSelected());
+        else
+          select(layerWidget);
+      }
     }
   } else if ((event->button() & Qt::RightButton) && event->modifiers().testFlag(Qt::NoModifier)
              && (layerWidget->layer()->isSelected())) {
@@ -597,11 +652,17 @@ void LayersPaneBase::ensureVisible(LayerWidget *layerWidget)
   QTimer::singleShot(0, this, SLOT(ensureVisibleTimeout()));
 }
 
-void LayersPaneBase::setAllVisible(bool visible)
+void LayersPaneBase::setAllVisible(bool vis)
 {
-  for (int i = 0; i < layout_->count(); ++i)
-    qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget())->setLayerVisible(visible);
-  handleWidgetsUpdate();
+  if (undoEnabled_) {
+    QBitArray visible(layerMgr_->orderedLayers().size(), vis);
+    if (visible != layerMgr_->visible())
+      EditItemManager::instance()->undoStack()->push(new ModifyLayerVisibilityCommand(layerMgr_, visible));
+  } else {
+    for (int i = 0; i < layout_->count(); ++i)
+      qobject_cast<LayerWidget *>(layout_->itemAt(i)->widget())->setLayerVisible(vis);
+    handleWidgetsUpdate();
+  }
 }
 
 void LayersPaneBase::showAll()
@@ -612,6 +673,19 @@ void LayersPaneBase::showAll()
 void LayersPaneBase::hideAll()
 {
   setAllVisible(false);
+}
+
+void LayersPaneBase::handleVisibilityChanged(const QSharedPointer<Layer> &layer, bool vis)
+{
+  if (undoEnabled_) {
+    QBitArray visible(layerMgr_->visible());
+    visible.setBit(layerMgr_->orderedLayers().indexOf(layer), vis);
+    if (visible != layerMgr_->visible())
+      EditItemManager::instance()->undoStack()->push(new ModifyLayerVisibilityCommand(layerMgr_, visible));
+  } else {
+    layer->setVisible(vis);
+    handleWidgetsUpdate();
+  }
 }
 
 QList<LayerWidget *> LayersPaneBase::widgets(bool requireSelected, bool requireVisible) const
@@ -690,16 +764,15 @@ void LayersPaneBase::updateWidgetStructure()
       activeLayers.append(layer);
   }
 
-  // add/remove widgets to match the number of layers
-  const int diff = layout_->count() - activeLayers.size();
-  if (diff < 0) {
-    for (int i = 0; i < -diff; ++i) {
-      LayerWidget *layerWidget = new LayerWidget(layerMgr_, QSharedPointer<Layer>(), showInfo_);
-      layout_->insertWidget(0, layerWidget);
-    }
-  } else if (diff > 0) {
-    for (int i = 0; i < diff; ++i)
-      remove(QList<LayerWidget *>() << atPos(0), true);
+  // adjust widget list to match the number of layers
+  while (layout_->count() > 0) {
+    LayerWidget *lw = atPos(0);
+    layout_->removeWidget(lw);
+    delete lw;
+  }
+  for (int i = 0; i < activeLayers.size(); ++i) {
+    LayerWidget *lw = new LayerWidget(layerMgr_, QSharedPointer<Layer>(), showInfo_);
+    layout_->insertWidget(0, lw);
   }
 
   // ### for now (remove when tested):
@@ -710,8 +783,7 @@ void LayersPaneBase::updateWidgetStructure()
   // update widget contents
   for (int i = 0; i < activeLayers.size(); ++i) {
     LayerWidget *layerWidget = atPos(i);
-    QSharedPointer<Layer> layer = activeLayers.at(i);
-    layerWidget->setState(layer);
+    layerWidget->setState(activeLayers.at(i));
     initLayerWidget(layerWidget);
   }
 }
@@ -726,6 +798,13 @@ void LayersPaneBase::handleLayersUpdate()
   if (!layerUpdatesEnabled_)
     return;
   emit updated();
+}
+
+void LayersPaneBase::update()
+{
+  updateWidgetStructure();
+  updateButtons();
+  handleLayersUpdate();
 }
 
 void LayersPaneBase::getLayerCounts(int &allCount, int &selectedCount, int &visibleCount, int &removableCount) const

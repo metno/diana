@@ -36,6 +36,8 @@
 #include <EditItems/editsymbol.h>
 #include <EditItems/edittext.h>
 #include <EditItems/editcomposite.h>
+#include <EditItems/layermanager.h>
+#include <EditItems/layer.h>
 #include <QToolButton>
 #include <QIcon>
 #include <QFileDialog>

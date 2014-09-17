@@ -66,7 +66,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, bool = true, bool = true, QWidget * = 0);
+  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, bool = true, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -88,7 +88,6 @@ private:
   CheckableLabel *unsavedChangesLabel_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
-  bool removable_;
   bool attrsEditable_;
 public slots:
   void updateLabels();
@@ -97,7 +96,7 @@ private slots:
 signals:
   void mouseClicked(QMouseEvent *);
   void mouseDoubleClicked(QMouseEvent *);
-  void visibilityChanged(bool);
+  void visibilityChanged(const QSharedPointer<Layer> &, bool);
 };
 
 class LayersPaneBase : public QWidget
@@ -110,7 +109,7 @@ public:
   QString saveSelected(const QString &) const;
 
 protected:
-  LayersPaneBase(LayerManager *, const QString &, bool);
+  LayersPaneBase(LayerManager *, const QString &, bool, bool);
 
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
@@ -152,6 +151,7 @@ protected:
   LayerManager *layerMgr_;
   QHBoxLayout *bottomLayout_; // populated by subclass
   QSharedPointer<Layer> defaultLayer_;
+  bool undoEnabled_;
   virtual void updateButtons();
   virtual void addContextMenuActions(QMenu &) const {}
   virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &) { return false; }
@@ -171,9 +171,11 @@ protected slots: // ### some of these may be private ... TBD
   void handleWidgetsUpdate();
   void updateWidgetStructure();
   virtual void handleLayersUpdate();
+  void update();
 
 private slots:
   void ensureVisibleTimeout();
+  void handleVisibilityChanged(const QSharedPointer<Layer> &, bool);
 
 private:
   LayerWidget *visibleLayerWidget_;

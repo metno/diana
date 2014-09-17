@@ -33,8 +33,10 @@
 #include <EditItems/layer.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/dialogcommon.h>
+#include <EditItems/modifylayerscommand.h>
 #include <diDrawingManager.h>
 #include <diEditItemManager.h>
+
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QPixmap>
@@ -58,7 +60,8 @@
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, true)
+  : LayersPaneBase(layerManager, title, true, true)
+  , scratchLayerName_("SCRATCH")
   , addEmptyButton_(0)
   , addFromFileButton_(0)
   , selectAllItemsButton_(0)
@@ -109,11 +112,10 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   save_act_->setIconVisibleInMenu(true);
 
   // add scratch layer
-  const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer("SCRATCH");
-  defaultLayer_ = scratchLayer;
-  layerGroup_ = layerManager->addToNewLayerGroup(scratchLayer, "");
-  layerGroup_->setActive(true);
-  add(scratchLayer, false, false, false);
+  const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer(scratchLayerName_, false);
+  layerManager->addToNewLayerGroup(scratchLayer, "");
+  scratchLayer->layerGroupRef()->setActive(true);
+  add(scratchLayer, false, false);
 }
 
 void EditDrawingLayersPane::updateButtons()
@@ -204,14 +206,16 @@ void EditDrawingLayersPane::addDuplicate(const QSharedPointer<Layer> &layer)
   for (int i = 0; i < layer->itemCount(); ++i)
     DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
 
-  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(QList<QSharedPointer<Layer> >() << layer, EditItemManager::instance());
-  layerMgr_->addToLayerGroup(layerGroup_, newLayer);
-  add(newLayer);
+  Q_ASSERT(undoEnabled_);
+  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(layer, EditItemManager::instance());
+  EditItemManager::instance()->undoStack()->push(
+        new AddLayersCommand(
+          "add duplicated layer", layerMgr_, newLayer, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
 }
 
-void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool removable, bool nameEditable)
+void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool nameEditable)
 {
-  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, removable, nameEditable);
+  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, nameEditable);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
   if (!skipUpdate)
@@ -220,9 +224,9 @@ void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpd
 
 void EditDrawingLayersPane::addEmpty()
 {
-  const QSharedPointer<Layer> newLayer = layerMgr_->createNewLayer();
-  layerMgr_->addToLayerGroup(layerGroup_, newLayer);
-  add(newLayer);
+  Q_ASSERT(undoEnabled_);
+  EditItemManager::instance()->undoStack()->push(
+        new AddEmptyLayerCommand(layerMgr_, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
 }
 
 void EditDrawingLayersPane::addFromFile()
@@ -239,12 +243,10 @@ void EditDrawingLayersPane::addFromFile()
     return;
   }
 
-  foreach (const QSharedPointer<Layer> &layer, layers) {
-    layerMgr_->addToLayerGroup(layerGroup_, layer);
-    add(layer, true);
-  }
-
-  selectExclusive(widgets(layers));
+  Q_ASSERT(undoEnabled_);
+  EditItemManager::instance()->undoStack()->push(
+        new AddLayersCommand(
+          "add layer(s) from file", layerMgr_, layers, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
 }
 
 void EditDrawingLayersPane::selectAll()
@@ -265,19 +267,11 @@ void EditDrawingLayersPane::merge(const QList<LayerWidget *> &layerWidgets)
   if (layerWidgets.size() < 2)
     return;
 
-  if (QMessageBox::warning(
-         this, "Merge layers", QString("About to merge %1 layer%2; continue?")
-        .arg(layerWidgets.size()).arg(layerWidgets.size() != 1 ? "s" : ""),
-         QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
-    return;
-
-  setLayerUpdatesEnabled(false);
-  const QList<LayerWidget *> srcLayerWidgets = layerWidgets.mid(1);
-  LayerWidget *tgtLayerWidget = layerWidgets.first();
-  layerMgr_->mergeLayers(layers(srcLayerWidgets), tgtLayerWidget->layer());
-  remove(srcLayerWidgets, false, false);
-  setLayerUpdatesEnabled(true);
-  handleLayersUpdate();
+  Q_ASSERT(undoEnabled_);
+  QBitArray mergeable(layerMgr_->orderedLayers().size());
+  foreach (LayerWidget *lw, layerWidgets)
+    mergeable.setBit(layerMgr_->orderedLayers().indexOf(lw->layer()));
+  EditItemManager::instance()->undoStack()->push(new MergeLayersCommand(layerMgr_, mergeable));
 }
 
 void EditDrawingLayersPane::mergeSelected()
@@ -291,16 +285,12 @@ void EditDrawingLayersPane::duplicate(const QList<LayerWidget *> &layerWidgets)
   if (layerWidgets.isEmpty())
     return;
 
-  setLayerUpdatesEnabled(false);
-  const QSharedPointer<Layer> newLayer = layerMgr_->createDuplicateLayer(layers(layerWidgets), EditItemManager::instance());
-  layerMgr_->addToLayerGroup(layerGroup_, newLayer);
-  LayerWidget *newLayerWidget = new LayerWidget(layerMgr_, newLayer, showInfo_);
-  layout_->insertWidget(layout_->indexOf(layerWidgets.last()) + 1, newLayerWidget);
-  initLayerWidget(newLayerWidget);
-  select(newLayerWidget);
-  select(layerWidgets, false);
-  setLayerUpdatesEnabled(true);
-  handleLayersUpdate();
+  Q_ASSERT(undoEnabled_);
+  QBitArray srcLayerIndexes(layerMgr_->orderedLayers().size());
+  foreach (LayerWidget *lw, layerWidgets)
+    srcLayerIndexes.setBit(layerMgr_->orderedLayers().indexOf(lw->layer()));
+  EditItemManager::instance()->undoStack()->push(
+        new DuplicateLayersCommand(layerMgr_, srcLayerIndexes, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
 }
 
 void EditDrawingLayersPane::duplicateSelected()

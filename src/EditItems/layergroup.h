@@ -48,6 +48,7 @@ class LayerGroup : public QObject
   friend class LayerManager;
 public:
   LayerGroup(const QString &, bool = true, bool = false);
+  LayerGroup(const LayerGroup &);
   ~LayerGroup();
   int id() const;
   QString name() const;
@@ -56,6 +57,7 @@ public:
   bool isActive() const;
   void setActive(bool);
   const QList<QSharedPointer<Layer> > &layersRef() const;
+  QList<QSharedPointer<Layer> > &layersRef();
 private:
   int id_;
   static int nextId_;

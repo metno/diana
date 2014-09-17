@@ -50,8 +50,9 @@ class Layer : public QObject {
   Q_OBJECT
   friend class LayerManager;
 public:
-  Layer(const QString &);
-  Layer(const QList<QSharedPointer<Layer> > &, const DrawingManager *);
+  Layer(const QString &, bool = true);
+  Layer(const Layer &);
+  Layer(const QList<QSharedPointer<Layer> > &, const DrawingManager *, bool = true);
   ~Layer();
   int id() const;
   int itemCount() const;
@@ -73,6 +74,7 @@ public:
   bool containsSelectedItem(const QSharedPointer<DrawingItemBase> &) const;
   bool findItem(int, QSharedPointer<DrawingItemBase> &) const;
   bool isEmpty() const;
+  bool isRemovable() const;
   bool isEditable() const;
   bool isActive() const;
   bool isSelected() const;
@@ -83,6 +85,7 @@ public:
   void setUnsavedChanges(bool);
   QString name() const;
   void setName(const QString &);
+  void setLayerGroup(const QSharedPointer<LayerGroup> &);
   const QSharedPointer<LayerGroup> &layerGroupRef() const;
   QSet<QString> srcFiles() const;
   void insertSrcFile(const QString &);
@@ -97,6 +100,7 @@ private:
   bool visible_;
   bool unsavedChanges_;
   QString name_;
+  bool removable_;
   QSet<QString> srcFiles_;
 signals:
   void updated();

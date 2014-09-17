@@ -34,21 +34,35 @@
 
 namespace EditItems {
 
-Layer::Layer(const QString &name)
+Layer::Layer(const QString &name, bool removable)
   : id_(nextId())
   , selected_(false)
   , visible_(true)
   , unsavedChanges_(false)
   , name_(name)
+  , removable_(removable)
 {
 }
 
-Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm)
+Layer::Layer(const Layer &other)
+  : id_(other.id_)
+  , items_(other.items_)
+  , selected_(other.selected_)
+  , visible_(other.visible_)
+  , unsavedChanges_(other.unsavedChanges_)
+  , name_(other.name_)
+  , removable_(other.removable_)
+  , srcFiles_(other.srcFiles_)
+{
+}
+
+Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm, bool removable)
   : id_(nextId())
   , selected_(false)
   , visible_(false)
   , unsavedChanges_(false)
   , name_(QString("copy of %1 layers").arg(srcLayers.size()))
+  , removable_(removable)
 {
   foreach (const QSharedPointer<Layer> &srcLayer, srcLayers) {
     if (srcLayer->visible_)
@@ -235,6 +249,11 @@ bool Layer::isEditable() const
   return layerGroup_->isEditable();
 }
 
+bool Layer::isRemovable() const
+{
+  return removable_;
+}
+
 bool Layer::isActive() const
 {
   return layerGroup_->isActive();
@@ -278,6 +297,11 @@ QString Layer::name() const
 void Layer::setName(const QString &n)
 {
   name_ = n.trimmed();
+}
+
+void Layer::setLayerGroup(const QSharedPointer<LayerGroup> &layerGroup)
+{
+  layerGroup_ = layerGroup;
 }
 
 const QSharedPointer<LayerGroup> &Layer::layerGroupRef() const

@@ -44,7 +44,7 @@
 namespace EditItems {
 
 DrawingLayersPane::DrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, false)
+  : LayersPaneBase(layerManager, title, false, false)
 {
   bottomLayout_->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", this, SLOT(showAll())));
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));

@@ -42,6 +42,16 @@ LayerGroup::LayerGroup(const QString &name, bool editable, bool active)
 {
 }
 
+LayerGroup::LayerGroup(const LayerGroup &other)
+  : id_(other.id_)
+  , name_(other.name_)
+  , editable_(other.editable_)
+  , active_(other.active_)
+{
+  foreach (const QSharedPointer<Layer> &layer, other.layers_)
+    layers_.append(QSharedPointer<Layer>(new Layer(*(layer.data()))));
+}
+
 LayerGroup::~LayerGroup()
 {
 }
@@ -84,6 +94,11 @@ void LayerGroup::setActive(bool active)
 }
 
 const QList<QSharedPointer<Layer> > &LayerGroup::layersRef() const
+{
+  return layers_;
+}
+
+QList<QSharedPointer<Layer> > &LayerGroup::layersRef()
 {
   return layers_;
 }
