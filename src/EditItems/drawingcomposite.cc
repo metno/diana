@@ -37,7 +37,6 @@
 #include "drawingtext.h"
 #include "drawingstylemanager.h"
 #include <diPlotModule.h>
-#include <QDebug>
 
 #define MILOGGER_CATEGORY "diana.Composite"
 #include <miLogger/miLogging.h>
@@ -333,7 +332,13 @@ void Composite::readExtraProperties()
  */
 void Composite::writeExtraProperties()
 {
+  METLIBS_LOG_SCOPE();
   QVariantList childList = properties_["children"].toList();
+  if (childList.size() != elements_.size()) {
+    METLIBS_LOG_WARN("Number of elements does not match the number of properties for style"
+                     << properties_["style:type"].toString().toStdString());
+    return;
+  }
 
   for (int i = 0; i < childList.size(); ++i) {
     DrawingItemBase *element = elements_.at(i);
