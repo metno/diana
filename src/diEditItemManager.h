@@ -260,10 +260,10 @@ private:
 class SetStyleTypeCommand : public QUndoCommand
 {
 public:
-  SetStyleTypeCommand(const QString &text, const QList<DrawingItemBase *> &, const QString &, QUndoCommand *parent = 0);
+  SetStyleTypeCommand(const QString &text, const QList<QSharedPointer<DrawingItemBase> > &, const QString &, QUndoCommand *parent = 0);
   virtual ~SetStyleTypeCommand() {}
 private:
-  QList<DrawingItemBase *> items_;
+  QList<QSharedPointer<DrawingItemBase> > items_;
   QString newType_;
   QStringList oldTypes_;
   virtual void undo();

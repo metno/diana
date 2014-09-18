@@ -882,9 +882,9 @@ void EditItemManager::editStyle()
 void EditItemManager::setStyleType()
 {
   const QVariantList data = qobject_cast<QAction *>(sender())->data().toList();
-  QList<DrawingItemBase *> items;
+  QList<QSharedPointer<DrawingItemBase> > items;
   foreach (QVariant styleItem, data.at(0).toList())
-    items.append(static_cast<DrawingItemBase *>(styleItem.value<void *>()));
+    items.append(styleItem.value<QSharedPointer<DrawingItemBase> >());
   undoStack()->push(new SetStyleTypeCommand("set style type", items, data.at(1).toString()));
 }
 
@@ -1227,7 +1227,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           QVariantList data;
           QVariantList styleItems;
           foreach (const QSharedPointer<DrawingItemBase> styleItem, selectedItems)
-            styleItems.append(QVariant::fromValue((void *)(styleItem.data())));
+            styleItems.append(QVariant::fromValue(styleItem));
           data.append(QVariant(styleItems));
           data.append(styleName);
           action->setData(data);
@@ -1447,12 +1447,12 @@ bool SetGeometryCommand::mergeWith(const QUndoCommand *command)
   return true;
 }
 
-SetStyleTypeCommand::SetStyleTypeCommand(const QString &text, const QList<DrawingItemBase *> &items, const QString &newType, QUndoCommand *parent)
+SetStyleTypeCommand::SetStyleTypeCommand(const QString &text, const QList<QSharedPointer<DrawingItemBase> > &items, const QString &newType, QUndoCommand *parent)
     : QUndoCommand(text, parent)
     , items_(items)
     , newType_(newType)
 {
-  foreach (const DrawingItemBase *item, items_)
+  foreach (const QSharedPointer<DrawingItemBase> item, items_)
     oldTypes_.append(item->propertiesRef().value("style:type").toString());
 }
 
@@ -1460,16 +1460,16 @@ void SetStyleTypeCommand::undo()
 {
   for (int i = 0; i < items_.size(); ++i) {
     if (oldTypes_.at(i) != "Custom")
-      DrawingStyleManager::instance()->setStyle(items_.at(i), DrawingStyleManager::instance()->getStyle(items_.at(i)->category(), oldTypes_.at(i)));
+      DrawingStyleManager::instance()->setStyle(items_.at(i).data(), DrawingStyleManager::instance()->getStyle(items_.at(i)->category(), oldTypes_.at(i)));
     items_.at(i)->setProperty("style:type", oldTypes_.at(i));
   }
 }
 
 void SetStyleTypeCommand::redo()
 {
-  foreach (DrawingItemBase *item, items_) {
+  foreach (const QSharedPointer<DrawingItemBase> item, items_) {
     if (newType_ != "Custom")
-      DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(item->category(), newType_));
+      DrawingStyleManager::instance()->setStyle(item.data(), DrawingStyleManager::instance()->getStyle(item->category(), newType_));
     item->setProperty("style:type", newType_);
   }
 }
