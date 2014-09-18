@@ -879,25 +879,13 @@ void EditItemManager::editStyle()
 }
 
 // Sets the style type of the currently selected items.
-void EditItemManager::setStyleType() const
+void EditItemManager::setStyleType()
 {
-  const QAction *action = qobject_cast<QAction *>(sender());
-  const QVariantList data = action->data().toList();
-  const QVariantList styleItems = data.at(0).toList();
-  const QString tgtType = data.at(1).toString();
-
-  foreach (QVariant styleItem, styleItems) {
-    DrawingItemBase *item = static_cast<DrawingItemBase *>(styleItem.value<void *>());
-
-    // copy all style properties if converting from non-custom to custom
-    if (tgtType == "Custom") {
-      const QString srcType = item->propertiesRef().value("style:type").toString();
-      if (srcType != "Custom")
-        DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(item->category(), srcType));
-    }
-
-    item->setProperty("style:type", tgtType); // set type regardless
-  }
+  const QVariantList data = qobject_cast<QAction *>(sender())->data().toList();
+  QList<DrawingItemBase *> items;
+  foreach (QVariant styleItem, data.at(0).toList())
+    items.append(static_cast<DrawingItemBase *>(styleItem.value<void *>()));
+  undoStack()->push(new SetStyleTypeCommand("set style type", items, data.at(1).toString()));
 }
 
 void EditItemManager::updateActions()
@@ -1457,4 +1445,31 @@ bool SetGeometryCommand::mergeWith(const QUndoCommand *command)
 
   newLatLonPoints_ = setgeo->newLatLonPoints();
   return true;
+}
+
+SetStyleTypeCommand::SetStyleTypeCommand(const QString &text, const QList<DrawingItemBase *> &items, const QString &newType, QUndoCommand *parent)
+    : QUndoCommand(text, parent)
+    , items_(items)
+    , newType_(newType)
+{
+  foreach (const DrawingItemBase *item, items_)
+    oldTypes_.append(item->propertiesRef().value("style:type").toString());
+}
+
+void SetStyleTypeCommand::undo()
+{
+  for (int i = 0; i < items_.size(); ++i) {
+    if (oldTypes_.at(i) != "Custom")
+      DrawingStyleManager::instance()->setStyle(items_.at(i), DrawingStyleManager::instance()->getStyle(items_.at(i)->category(), oldTypes_.at(i)));
+    items_.at(i)->setProperty("style:type", oldTypes_.at(i));
+  }
+}
+
+void SetStyleTypeCommand::redo()
+{
+  foreach (DrawingItemBase *item, items_) {
+    if (newType_ != "Custom")
+      DrawingStyleManager::instance()->setStyle(item, DrawingStyleManager::instance()->getStyle(item->category(), newType_));
+    item->setProperty("style:type", newType_);
+  }
 }

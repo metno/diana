@@ -111,7 +111,7 @@ public slots:
   void deselectAllItems(bool = true);
   void editProperties();
   void editStyle();
-  void setStyleType() const;
+  void setStyleType();
   void keyPress(
       QKeyEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *,
       QSet<QSharedPointer<DrawingItemBase> > *, bool &);
@@ -253,6 +253,19 @@ private:
   EditItemBase *item_;
   QList<QPointF> oldLatLonPoints_;
   QList<QPointF> newLatLonPoints_;
+  virtual void undo();
+  virtual void redo();
+};
+
+class SetStyleTypeCommand : public QUndoCommand
+{
+public:
+  SetStyleTypeCommand(const QString &text, const QList<DrawingItemBase *> &, const QString &, QUndoCommand *parent = 0);
+  virtual ~SetStyleTypeCommand() {}
+private:
+  QList<DrawingItemBase *> items_;
+  QString newType_;
+  QStringList oldTypes_;
   virtual void undo();
   virtual void redo();
 };
