@@ -100,13 +100,22 @@ void Composite::updateRect()
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;
-  extra["children"] = toKMLExtraData();
+  QString output;
+  QXmlStreamWriter stream(&output);
+  stream.setAutoFormatting(true);
+  toKMLExtraData(stream, properties_.value("children").toList());
+  extra["children"] = output;
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
 void Composite::fromKML(const QHash<QString, QString> &extraExtData)
 {
-  fromKMLExtraData(extraExtData.value("met:children"));
+  QString input = extraExtData.value("met:children");
+  QXmlStreamReader stream(input);
+  if (stream.readNextStartElement()) {
+    if (stream.name() == "elements")
+      properties_["children"] = fromKMLExtraData(stream);
+  }
   writeExtraProperties();
 }
 
@@ -334,6 +343,9 @@ void Composite::writeExtraProperties()
 {
   METLIBS_LOG_SCOPE();
   QVariantList childList = properties_["children"].toList();
+  if (childList.isEmpty())
+    return;
+
   if (childList.size() != elements_.size()) {
     METLIBS_LOG_WARN("Number of elements does not match the number of properties for style"
                      << properties_["style:type"].toString().toStdString());
@@ -372,22 +384,112 @@ DrawingItemBase *Composite::newTextItem() const
   return new DrawingItem_Text::Text();
 }
 
-QString Composite::toKMLExtraData() const
+/**
+ * Converts the QVariantMap objects corresponding to elements in a composite
+ * item to XML elements for storage in a KML file. Each map is taken from a
+ * QVariantList that corresponds to the elements held by a composite item.
+ * An example of the format used to describe the contents of a composite item
+ * is as follows:
+ *
+ * <elements>
+ *   <element>
+ *      <int name="size">48</int>
+ *      <string name="style:type">Moderate Aircraft Icing</string>
+ *   </element>
+ *   <element>
+ *     <elements>
+ *       <element>
+ *         <string name="style:type">SIGWX label</string>
+ *         <stringlist name="text">X</stringlist>
+ *       </element>
+ *       <element>
+ *         <string name="style:type">Plain line</string>
+ *       </element>
+ *       <element>
+ *         <string name="style:type">SIGWX label</string>
+ *         <stringlist name="text">Y</stringlist>
+ *       </element>
+ *     </elements>
+ *     <string name="style:type">X over X</string>
+ *   </element>
+ * </elements>
+ */
+void Composite::toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &children) const
 {
-  QVariantList childList = properties_.value("children").toList();
-  QByteArray data;
-  QDataStream stream(&data, QIODevice::WriteOnly);
-  stream << childList;
-  return QString(data.toBase64());
+  stream.writeStartElement("elements");
+
+  foreach (QVariant child, children) {
+    stream.writeStartElement("element");
+    QMapIterator<QString, QVariant> it(child.toMap());
+
+    while (it.hasNext()) {
+
+      it.next();
+      QString key = it.key();
+      QVariant value = it.value();
+
+      switch (value.type()) {
+      case QVariant::String:
+        stream.writeStartElement("string");
+        stream.writeAttribute("name", key);
+        stream.writeCharacters(value.toString());
+        stream.writeEndElement();
+        break;
+      case QVariant::Int:
+        stream.writeStartElement("int");
+        stream.writeAttribute("name", key);
+        stream.writeCharacters(QString::number(value.toInt()));
+        stream.writeEndElement();
+        break;
+      case QVariant::StringList:
+        stream.writeStartElement("stringlist");
+        stream.writeAttribute("name", key);
+        stream.writeCharacters(value.toStringList().join("\n"));
+        stream.writeEndElement();
+        break;
+      case QVariant::List:
+        if (key == "children")
+          toKMLExtraData(stream, value.toList());
+        break;
+      default:
+        ;
+      }
+    }
+
+    stream.writeEndElement(); // element
+  }
+  stream.writeEndElement(); // elements
 }
 
-void Composite::fromKMLExtraData(const QString &data)
+/**
+ * Read XML elements from a stream, converting them to properties in a
+ * QVariantMap and append each map to a QVariantList corresponding to
+ * each drawing element. Returns the list of maps corresponding to the
+ * elements held by a composite item.
+ */
+QVariantList Composite::fromKMLExtraData(QXmlStreamReader &stream)
 {
   QVariantList childList;
-  QByteArray bytes = QByteArray::fromBase64(data.toAscii());
-  QDataStream stream(&bytes, QIODevice::ReadOnly);
-  stream >> childList;
-  properties_["children"] = childList;
+
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "element") {
+      QVariantMap childMap;
+      while (stream.readNextStartElement()) {
+        QString key = stream.attributes().value("name").toString();
+        if (stream.name() == "string")
+          childMap[key] = stream.readElementText();
+        else if (stream.name() == "int")
+          childMap[key] = stream.readElementText().toInt();
+        else if (stream.name() == "stringlist")
+          childMap[key] = stream.readElementText().split("\n");
+        else if (stream.name() == "elements")
+          childMap["children"] = fromKMLExtraData(stream);
+      }
+      childList.append(childMap);
+    } else
+      break;
+  }
+  return childList;
 }
 
 } // namespace

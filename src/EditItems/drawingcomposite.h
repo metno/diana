@@ -32,6 +32,8 @@
 #ifndef DRAWINGCOMPOSITE_H
 #define DRAWINGCOMPOSITE_H
 
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include "drawingitembase.h"
 
 namespace DrawingItem_Composite {
@@ -76,9 +78,9 @@ protected:
 
 private:
   /// Serialises the properties of the child elements as a string.
-  QString toKMLExtraData() const;
+  void toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &children) const;
   /// Unpacks serialised property data from a string.
-  void fromKMLExtraData(const QString &data);
+  QVariantList fromKMLExtraData(QXmlStreamReader &stream);
 };
 
 } // namespace
