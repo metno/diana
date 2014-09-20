@@ -883,9 +883,20 @@ void EditItemManager::setStyleType()
 {
   const QVariantList data = qobject_cast<QAction *>(sender())->data().toList();
   QList<QSharedPointer<DrawingItemBase> > items;
-  foreach (QVariant styleItem, data.at(0).toList())
-    items.append(styleItem.value<QSharedPointer<DrawingItemBase> >());
-  undoStack()->push(new SetStyleTypeCommand("set style type", items, data.at(1).toString()));
+  const QString newType = data.at(1).toString();
+  foreach (QVariant styleItem, data.at(0).toList()) {
+    const QSharedPointer<DrawingItemBase> item = styleItem.value<QSharedPointer<DrawingItemBase> >();
+
+    // copy all style properties if converting from non-custom to custom
+    if (newType == "Custom") {
+      const QString oldType = item->propertiesRef().value("style:type").toString();
+      if (oldType != "Custom")
+        DrawingStyleManager::instance()->setStyle(item.data(), DrawingStyleManager::instance()->getStyle(item->category(), oldType));
+    }
+
+    items.append(item);
+  }
+  undoStack()->push(new SetStyleTypeCommand("set style type", items, newType));
 }
 
 void EditItemManager::updateActions()
