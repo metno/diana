@@ -38,6 +38,9 @@
 #include <QRectF>
 #include <QVariant>
 #include <QDomNode>
+#include <QString>
+#include <QHash>
+#include <QSharedPointer>
 #include <GL/gl.h>
 
 #define Drawing(i) dynamic_cast<DrawingItemBase *>(i)
@@ -103,6 +106,8 @@ public:
   void setSelected(bool = true);
   bool selected() const;
 
+  static QList<QVariantMap> properties(const QList<QSharedPointer<DrawingItemBase> > &);
+
 protected:
   virtual DrawingItemBase *cloneSpecial() const
   {
@@ -126,7 +131,6 @@ private:
   QDomElement createPlacemarkElement(QDomDocument &) const;
 };
 
-#include <QSharedPointer>
 Q_DECLARE_METATYPE( QSharedPointer<DrawingItemBase> )
 
 #if (QT_VERSION < QT_VERSION_CHECK(4, 8, 0))

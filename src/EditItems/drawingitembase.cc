@@ -310,3 +310,11 @@ bool DrawingItemBase::selected() const
 {
   return selected_;
 }
+
+QList<QVariantMap> DrawingItemBase::properties(const QList<QSharedPointer<DrawingItemBase> > &items)
+{
+  QList<QVariantMap> props;
+  foreach(const QSharedPointer<DrawingItemBase> &item, items)
+    props.append(item->properties());
+  return props;
+}

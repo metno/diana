@@ -154,6 +154,7 @@ diana_qt_sources = \
 	EditItems/editdrawinglayerspane.cc \
 	EditItems/dialogcommon.cc \
 	EditItems/modifylayerscommand.cc \
+	EditItems/modifypropertiescommand.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -300,6 +301,7 @@ noinst_HEADERS = \
 	EditItems/editdrawinglayerspane.h \
 	EditItems/dialogcommon.h \
 	EditItems/modifylayerscommand.h \
+	EditItems/modifypropertiescommand.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \

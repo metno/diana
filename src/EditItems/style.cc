@@ -29,6 +29,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <EditItems/edititembase.h>
+#include <EditItems/style.h>
+#include <EditItems/modifypropertiescommand.h>
+#include <diEditItemManager.h>
+
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QDialogButtonBox>
@@ -36,8 +41,6 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QSpinBox>
-#include <EditItems/edititembase.h>
-#include <EditItems/style.h>
 #include "qtUtility.h"
 
 namespace EditItemsStyle {
@@ -466,10 +469,18 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
     row++;
   }
 
+  // save current properties
+  const QList<QSharedPointer<DrawingItemBase> > itemList = items.toList();
+  const QList<QVariantMap> oldProperties = DrawingItemBase::properties(itemList);
+
   // open dialog
   setWindowTitle(QString("%1 (%2 %3)").arg(tr("Item Style")).arg(items.size()).arg(items.size() == 1 ? tr("item") : tr("items")));
-  if (exec() != QDialog::Accepted)
+  if (exec() == QDialog::Accepted) {
+    EditItemManager::instance()->undoStack()->push(
+          new EditItems::ModifyPropertiesCommand("modify style properties", itemList, oldProperties, DrawingItemBase::properties(itemList)));
+  } else {
     reset();
+  }
 }
 
 // Restores original values.
