@@ -5363,8 +5363,8 @@ Vil du sende før du avslutter?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="162"/>
-        <source>Topography</source>
-        <translation>Topografi</translation>
+        <source>Surface Pressure (Topography)</source>
+        <translation>Marktryck (Topografi)</translation>
     </message>
     <message>
         <source>Grid x,y positions</source>

@@ -4729,8 +4729,8 @@ Enviar antes de salir?</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="162"/>
-        <source>Topography</source>
-        <translation>Topografía</translation>
+        <source>Surface Pressure (Topography)</source>
+        <translation>Presión en superficie (Topografía)</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="178"/>

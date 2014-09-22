@@ -159,7 +159,7 @@ void VcrossSetupDialog::initOptions()
 #endif
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
-  mSetupSURFACE = new VcrossSetupUI(this, tr("Topography"), glayout, nrow++, opts);
+  mSetupSURFACE = new VcrossSetupUI(this, tr("Surface Pressure (Topography)"), glayout, nrow++, opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
 	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);

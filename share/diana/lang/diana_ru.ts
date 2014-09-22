@@ -4937,8 +4937,8 @@ Do you want to run your changes first?</source>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="162"/>
-        <source>Topography</source>
-        <translation type="unfinished">топогра́фия</translation>
+        <source>Surface Pressure (Topography)</source>
+        <translation type="unfinished">Приземное давление (топогра́фия)</translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossSetupDialog.cc" line="178"/>
