@@ -223,7 +223,8 @@ CompositeEditor::CompositeEditor(Composite *item)
 
 void CompositeEditor::createElements(const DrawingItemBase::Category &category, const QString &name)
 {
-  QVariantMap style = DrawingStyleManager::instance()->getStyle(category, name);
+  DrawingStyleManager *dsm = DrawingStyleManager::instance();
+  QVariantMap style = dsm->getStyle(category, name);
   objects = style.value("objects").toStringList();
   values = style.value("values").toStringList();
   styles = style.value("styles").toStringList();
@@ -250,17 +251,39 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
 
   for (int i = 0; i < objects.size(); ++i) {
 
-    QString style = item->elementAt(i)->property("style:type").toString();
+    DrawingItemBase *element = item->elementAt(i);
+    QString style = element->property("style:type").toString();
     QWidget *child;
 
     if (objects.at(i) == "text") {
-      QLineEdit *textEdit = new QLineEdit();
-      QString text = item->elementAt(i)->property("text").toStringList().join("\n");
-      textEdit->setText(text);
-      textEdit->setProperty("index", i);
-      connect(textEdit, SIGNAL(textChanged(const QString &)), SLOT(updateText(const QString &)));
+      QString currentText = element->property("text").toStringList().join("\n");
 
-      child = textEdit;
+      if (values.at(i) == "X") {
+        QComboBox *textCombo = new QComboBox();
+        textCombo->setEditable(true);
+        textCombo->addItems(dsm->getComplexTextList());
+
+        int index = dsm->getComplexTextList().indexOf(currentText);
+        if (index == -1) {
+          textCombo->insertItem(0, currentText);
+          index = 0;
+        }
+
+        textCombo->setCurrentIndex(index);
+
+        // Record the index of this component in the list of objects.
+        textCombo->setProperty("index", i);
+        connect(textCombo, SIGNAL(currentIndexChanged(const QString &)), SLOT(updateText(const QString &)));
+        child = textCombo;
+
+      } else {
+        QLineEdit *textEdit = new QLineEdit();
+        textEdit->setText(currentText);
+        // Record the index of this component in the list of objects.
+        textEdit->setProperty("index", i);
+        connect(textEdit, SIGNAL(textChanged(const QString &)), SLOT(updateText(const QString &)));
+        child = textEdit;
+      }
 
     } else if (objects.at(i) == "symbol") {
       QToolButton *button = new QToolButton();
@@ -285,7 +308,7 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
     } else if (objects.at(i) == "composite") {
       // Create a child editor for the composite item and append its index to
       // a list for use when changes are applied.
-      CompositeEditor* childEditor = new CompositeEditor(static_cast<EditItem_Composite::Composite *>(item->elementAt(i)));
+      CompositeEditor* childEditor = new CompositeEditor(static_cast<EditItem_Composite::Composite *>(element));
       childEditors.append(childEditor);
       child = childEditor;
 
@@ -328,8 +351,10 @@ void CompositeEditor::updateSymbol(QAction *action)
   int index = action->data().toInt();
   if (objects.at(index) == "symbol") {
     QWidget *w = editors.value(index);
+    // Update the button icon immediately.
     QToolButton *button = static_cast<QToolButton *>(w);
     button->setIcon(action->icon());
+    // Record the new style in the changes map.
     QVariantList ch;
     ch << "style:type" << action->iconText();
     changes[index] = ch;

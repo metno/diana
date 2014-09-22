@@ -297,6 +297,11 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vst
   setStyle(item, style, prefix);
 }
 
+void DrawingStyleManager::setComplexTextList(const QStringList &strings)
+{
+  complexTextList = strings;
+}
+
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
   glPushAttrib(GL_LINE_BIT);
@@ -404,6 +409,11 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
       styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
   }
   return parse(item->category(), styleProperties);
+}
+
+QStringList DrawingStyleManager::getComplexTextList() const
+{
+  return complexTextList;
 }
 
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const

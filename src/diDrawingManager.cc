@@ -139,6 +139,9 @@ bool DrawingManager::parseSetup()
       styleManager->addStyle(DrawingItemBase::Text, items);
     } else if (items.contains("composite")) {
       styleManager->addStyle(DrawingItemBase::Composite, items);
+    } else if (items.contains("complextext")) {
+      QStringList strings = items["complextext"].split(",");
+      styleManager->setComplexTextList(strings);
     }
   }
 

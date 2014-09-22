@@ -271,6 +271,7 @@ public:
 
   void setStyle(DrawingItemBase *, const QHash<QString, QString> &, const QString & = QString()) const;
   void setStyle(DrawingItemBase *, const QVariantMap &, const QString & = QString()) const;
+  void setComplexTextList(const QStringList &strings);
 
   void beginLine(DrawingItemBase *item);
   void endLine(DrawingItemBase *item);
@@ -293,6 +294,7 @@ public:
   QVariantMap getStyle(DrawingItemBase *item) const;
   QVariantMap getStyle(const DrawingItemBase *item) const;
   QVariantMap getStyle(const DrawingItemBase::Category &category, const QString &name) const;
+  QStringList getComplexTextList() const;
 
   static DrawingStyleManager *instance();
 
@@ -307,6 +309,7 @@ private:
   QHash<DrawingItemBase::Category, QHash<QString, QVariantMap> > styles_;
   QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
   static DrawingStyleManager *self;  // singleton instance pointer
+  QStringList complexTextList;
 };
 
 #endif // _diDrawingStyleManager_h
