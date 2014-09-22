@@ -475,15 +475,17 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
     }
   } else /* timeGraph */ {
+#if 0
     // time graph: hour/date/forecast (not if text is off)
     if (mOptions->pText) {
       linesYbot += LINES_3;
       vcross::util::maximize(charsXleft, CHARS_TIME);
       charsXrght = charsXleft;
     }
+#endif
     // time graph: only one position (and only one line needed)
     if (mOptions->pDistance or mOptions->pGeoPos)
-      linesYbot += LINES_1;
+      linesYbot += LINES_2;
   }
 
   if (mOptions->pText)
@@ -655,7 +657,7 @@ void QtPlot::plotXLabels(QPainter& painter)
     }
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
-    if (mOptions->pDistance) {
+    if (mOptions->pDistance or mOptions->pGeoPos) {
       painter.setPen(vcross::util::QC(colourOrContrast(mOptions->distanceColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mTimeDistances.size(); ++i) {
