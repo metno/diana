@@ -266,23 +266,17 @@ QVariantMap DrawingStyleManager::parse(const DrawingItemBase::Category &category
 void DrawingStyleManager::addStyle(const DrawingItemBase::Category &category, const QHash<QString, QString> &definition)
 {
   // Parse the definition and set the private members.
-  QString styleName;
+  QString styleType;
   if (definition.contains("textstyle"))
-    styleName = definition.value("textstyle");
+    styleType = definition.value("textstyle");
   else if (definition.contains("symbol"))
-    styleName = definition.value("symbol");
+    styleType = definition.value("symbol");
   else if (definition.contains("composite"))
-    styleName = definition.value("composite");
+    styleType = definition.value("composite");
   else
-    styleName = definition.value("style");
+    styleType = definition.value("style");
 
-  if (styleName.isEmpty() || styleName == "Custom") {
-    // ### This doesn't make sense unless we want to have special default values for the custom style.
-    // ### For now the custom style can just use the standard default values, so just skip (possibly give a warning?).
-    return;
-  }
-
-  styles_[category][styleName] = parse(category, definition);
+  styles_[category][styleType] = parse(category, definition);
 }
 
 void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, QString> &style, const QString &prefix) const
@@ -301,12 +295,6 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vst
   foreach (QString key, vstyle.keys())
     style.insert(key, vstyle.value(key).toString());
   setStyle(item, style, prefix);
-}
-
-void DrawingStyleManager::setDefaultStyle(DrawingItemBase *item) const
-{
-  item->setProperty("style:type", "Custom");
-  setStyle(item, getStyle(item));
 }
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
@@ -410,20 +398,12 @@ QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
 
 QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
-  const QString styleName = item->property("style:type").toString();
-
-  if (styleName == "Custom" || (!containsStyle(item->category(), styleName))) {
-    // use default values, but override with values stored directly in the item
-    QHash<QString, QString> styleProperties;
-    foreach (QString key, item->propertiesRef().keys()) {
-      if (key.startsWith("style:"))
-        styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
-    }
-    return parse(item->category(), styleProperties);
-  } else {
-    // use fixed values for this style
-    return styles_[item->category()].value(styleName);
+  QHash<QString, QString> styleProperties;
+  foreach (QString key, item->propertiesRef().keys()) {
+    if (key.startsWith("style:"))
+      styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
   }
+  return parse(item->category(), styleProperties);
 }
 
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const

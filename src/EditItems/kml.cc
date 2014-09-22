@@ -468,7 +468,7 @@ DrawingItemBase *createItemFromOldProperties(QMap<QString, QString> props, QStri
   // set style properties ...
   QHash<QString, QString> styleProps;
   if (props.contains("Type"))
-    styleProps.insert("type", "Custom"); // ### for now
+    styleProps.insert("type", "Default"); // ### for now
   if (props.contains("LineWidth"))
     styleProps.insert("linewidth", props.value("LineWidth"));
   if (props.contains("RGBA"))

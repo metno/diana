@@ -864,17 +864,6 @@ void EditItemManager::editProperties()
 
 void EditItemManager::editStyle()
 {
-  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true)) {
-    const QString styleType = item->propertiesRef().value("style:type").toString();
-    if (styleType != "Custom") {
-      QMessageBox::warning(0, "Warning", QString(
-                             "At least one non-custom item selected:\n\n    %1"
-                             "\n\nPlease convert all selected items to custom type before editing style.")
-                           .arg(styleType));
-      return;
-    }
-  }
-
   EditItemsStyle::StyleEditor::instance()->edit(layerMgr_->itemsInSelectedLayers(true));
 }
 
@@ -884,18 +873,8 @@ void EditItemManager::setStyleType()
   const QVariantList data = qobject_cast<QAction *>(sender())->data().toList();
   QList<QSharedPointer<DrawingItemBase> > items;
   const QString newType = data.at(1).toString();
-  foreach (QVariant styleItem, data.at(0).toList()) {
-    const QSharedPointer<DrawingItemBase> item = styleItem.value<QSharedPointer<DrawingItemBase> >();
-
-    // copy all style properties if converting from non-custom to custom
-    if (newType == "Custom") {
-      const QString oldType = item->propertiesRef().value("style:type").toString();
-      if (oldType != "Custom")
-        DrawingStyleManager::instance()->setStyle(item.data(), DrawingStyleManager::instance()->getStyle(item->category(), oldType));
-    }
-
-    items.append(item);
-  }
+  foreach (QVariant item, data.at(0).toList())
+    items.append(item.value<QSharedPointer<DrawingItemBase> >());
   undoStack()->push(new SetStyleTypeCommand("set style type", items, newType));
 }
 
@@ -1227,20 +1206,16 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       styleTypeMenu.setTitle("Convert");
       styleTypeMenu.setEnabled(selectedCategories.size() == 1);
       if (styleTypeMenu.isEnabled()) {
-        QStringList styleNames = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
-        qSort(styleNames);
-        Q_ASSERT(!styleNames.contains("Custom"));
-        styleNames.append("Custom");
-        foreach (QString styleName, styleNames) {
-          if (styleName == "Custom")
-            styleTypeMenu.addSeparator();
-          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
+        QStringList styleTypes = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
+        qSort(styleTypes);
+        foreach (QString styleType, styleTypes) {
+          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleType), 0);
           QVariantList data;
           QVariantList styleItems;
           foreach (const QSharedPointer<DrawingItemBase> styleItem, selectedItems)
             styleItems.append(QVariant::fromValue(styleItem));
           data.append(QVariant(styleItems));
-          data.append(styleName);
+          data.append(styleType);
           action->setData(data);
           connect(action, SIGNAL(triggered()), SLOT(setStyleType()));
           styleTypeMenu.addAction(action);
@@ -1269,23 +1244,29 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       // create a new item if necessary
       if ((me2.button() == Qt::LeftButton) && !hasIncompleteItem()) {
+        QSharedPointer<DrawingItemBase> item;
+
         if (mode_ == CreatePolyLineMode) {
-          const QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_PolyLine::PolyLine()));
+          item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_PolyLine::PolyLine()));
           addItem(item, &addedItems, true);
           item->setProperty("style:type", createPolyLineAction->data().toString());
         } else if (mode_ == CreateSymbolMode) {
-          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Symbol::Symbol()));
+          item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Symbol::Symbol()));
           addItem(item, &addedItems, true);
           item->setProperty("style:type", createSymbolAction->data().toString());
         } else if (mode_ == CreateCompositeMode) {
-          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Composite::Composite()));
+          item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Composite::Composite()));
           addItem(item, &addedItems, true);
           item->setProperty("style:type", createCompositeAction->data().toString());
         } else if (mode_ == CreateTextMode) {
-          QSharedPointer<DrawingItemBase> item(Drawing(new EditItem_Text::Text()));
+          item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Text::Text()));
           addItem(item, &addedItems, true);
           item->setProperty("style:type", createTextAction->data().toString());
         }
+
+        if (!item.isNull())
+          DrawingStyleManager::instance()->setStyle(
+                item.data(), DrawingStyleManager::instance()->getStyle(item->category(), item->propertiesRef().value("style:type").toString()));
       }
 
       // process the event further (delegating it to relevant items etc.)
@@ -1470,8 +1451,7 @@ SetStyleTypeCommand::SetStyleTypeCommand(const QString &text, const QList<QShare
 void SetStyleTypeCommand::undo()
 {
   for (int i = 0; i < items_.size(); ++i) {
-    if (oldTypes_.at(i) != "Custom")
-      DrawingStyleManager::instance()->setStyle(items_.at(i).data(), DrawingStyleManager::instance()->getStyle(items_.at(i)->category(), oldTypes_.at(i)));
+    DrawingStyleManager::instance()->setStyle(items_.at(i).data(), DrawingStyleManager::instance()->getStyle(items_.at(i)->category(), oldTypes_.at(i)));
     items_.at(i)->setProperty("style:type", oldTypes_.at(i));
   }
 }
@@ -1479,8 +1459,7 @@ void SetStyleTypeCommand::undo()
 void SetStyleTypeCommand::redo()
 {
   foreach (const QSharedPointer<DrawingItemBase> item, items_) {
-    if (newType_ != "Custom")
-      DrawingStyleManager::instance()->setStyle(item.data(), DrawingStyleManager::instance()->getStyle(item->category(), newType_));
+    DrawingStyleManager::instance()->setStyle(item.data(), DrawingStyleManager::instance()->getStyle(item->category(), newType_));
     item->setProperty("style:type", newType_);
   }
 }

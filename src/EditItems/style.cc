@@ -354,18 +354,16 @@ StyleEditor *StyleEditor::instance()
 
 StyleEditor *StyleEditor::instance_ = 0;
 
-// Returns the union of all style properties of customizable items in \a items.
+// Returns the union of all style properties of \a items.
 // Style properties that differ in at least two items will be indicated as invalid (i.e. a default QVariant).
-static QVariantMap getCustomStylePropsUnion(const QSet<QSharedPointer<DrawingItemBase> > &items)
+static QVariantMap getStylePropsUnion(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
   QVariantMap sprops;
   QRegExp rx("style:(.+)");
 
-  // loop over customizable items
+  // loop over items
   foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QVariantMap &props = item->propertiesRef();
-    if (props.value("style:type") != "Custom")
-      continue;
 
     // loop over style properties
     foreach (const QString &key, props.keys()) {
@@ -388,17 +386,15 @@ static QVariantMap getCustomStylePropsUnion(const QSet<QSharedPointer<DrawingIte
   return sprops;
 }
 
-// Returns the style properties of customizable items in \a items.
-static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<QSharedPointer<DrawingItemBase> > &items)
+// Returns the style properties of \a items.
+static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
   QMap<DrawingItemBase *, QVariantMap> spropsMap;
   QRegExp rx("style:(.+)");
 
-  // loop over customizable items
+  // loop over items
   foreach (QSharedPointer<DrawingItemBase> item, items) {
     const QVariantMap &props = item->propertiesRef();
-    if (props.value("style:type") != "Custom")
-      continue;
 
     QVariantMap sprops;
 
@@ -417,21 +413,11 @@ static QMap<DrawingItemBase *, QVariantMap> getCustomStyleProps(const QSet<QShar
 // Opens a modal dialog to edit the style properties of \a items.
 void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
-  bool readOnly = false; // ### set but not used!
   DrawingItemBase::Category category = items.begin()->data()->category();
 
-  // only allow editing for items with style type 'Custom'
-  foreach (QSharedPointer<DrawingItemBase> item, items) {
-    const QString typeName = item->propertiesRef().value("style:type").toString();
-    if (typeName != "Custom")
-      readOnly = true;
-    if (item.data()->category() != category)
-      return;
-  }
-
   // get initial values
-  savedProps_ = getCustomStyleProps(items);
-  QVariantMap sprops = getCustomStylePropsUnion(items);
+  savedProps_ = getStyleProps(items);
+  QVariantMap sprops = getStylePropsUnion(items);
 
   // clear old content
   editors_.clear();

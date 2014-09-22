@@ -98,22 +98,6 @@ void DrawingItemBase::setProperties(const QVariantMap &properties)
     foreach (QVariant v, points)
       latLonPoints_.append(v.toPointF());
   }
-
-  QString styleType = properties_.value("style:type").toString();
-
-  // Update the type name in the item's properties.
-  properties_["style:type"] = styleType;
-
-  // If the style is a custom style then update the properties using the
-  // Default style as a template.
-  if (styleType == "Custom") {
-    QVariantMap style = DrawingStyleManager::instance()->getStyle(category(), "Default");
-    foreach (QString key, style.keys()) {
-      if (!properties_.contains("style:" + key)) {
-        properties_["style:" + key] = style.value(key);
-      }
-    }
-  }
 }
 
 QList<QPointF> DrawingItemBase::getPoints() const
