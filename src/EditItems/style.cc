@@ -169,9 +169,9 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
 
   const QString fullName = QString("style:%1").arg(name());
 
-  foreach (QSharedPointer<DrawingItemBase> item, items_) {
+  foreach (QSharedPointer<DrawingItemBase> item, items_)
     item->propertiesRef().insert(fullName, userData);
-  }
+
   EditItemManager::instance()->repaint();
 }
 

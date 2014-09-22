@@ -53,6 +53,7 @@ public:
   virtual QVariant parse(const QHash<QString, QString> &) const = 0;
 protected:
   static QString lineColour(const QHash<QString, QString> &);
+  static QString linePattern(const QHash<QString, QString> &);
   static QString fillColour(const QHash<QString, QString> &);
   static QString textColour(const QHash<QString, QString> &);
 };

@@ -77,6 +77,17 @@ static QColor parseColour(const QString &text)
   return defaultColour;
 }
 
+static ushort parseLinePattern(const QString &s)
+{
+  bool ok = false;
+  const ushort pattern = s.toUShort(&ok);
+  if (ok)
+    return pattern;
+  if (s == "dashed")
+    return 0x0f0f; // ### for now
+  return 0xffff;
+}
+
 static QStringList parseStrings(const QString &text, const QString &sep = QString(","))
 {
   QStringList strings;
@@ -112,7 +123,7 @@ QString DSP_linewidth::name() { return "linewidth"; }
 QVariant DSP_linewidth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "1.0").toFloat(); }
 
 QString DSP_linepattern::name() { return "linepattern"; }
-QVariant DSP_linepattern::parse(const QHash<QString, QString> &def) const { return def.value(name(), "solid"); }
+QVariant DSP_linepattern::parse(const QHash<QString, QString> &def) const { return parseLinePattern(linePattern(def)); }
 
 QString DSP_linesmooth::name() { return "linesmooth"; }
 QVariant DSP_linesmooth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
@@ -163,6 +174,7 @@ QString DSP_fontsize::name() { return "fontsize"; }
 QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), "10"); }
 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
+QString DrawingStyleProperty::linePattern(const QHash<QString, QString> &def) { return def.value(DSP_linepattern::name(), "solid"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
 QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 
@@ -308,10 +320,12 @@ void DrawingStyleManager::beginLine(DrawingItemBase *item)
 
   const QVariantMap style = getStyle(item);
 
-  QString linePattern = style.value("linepattern").toString();
-  if (linePattern == "dashed") {
+  const QString lpString = style.value("linepattern").toString();
+  bool ok = false;
+  const ushort linePattern = lpString.toUShort(&ok);
+  if (ok) {
     glEnable(GL_LINE_STIPPLE);
-    glLineStipple(2, 0xf0f0);
+    glLineStipple(2, linePattern);
   }
 
   float lineWidth = style.value(DSP_linewidth::name()).toFloat();

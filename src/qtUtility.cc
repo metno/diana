@@ -311,6 +311,17 @@ QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>& patte
   return box;
 }
 
+static ushort lineStipplePattern(const QString &pattern)
+{
+  ushort p = 0;
+  if (pattern.size() == 16) {
+    for (int i = 0; i < 16; ++i)
+      if (!pattern.at(i).isSpace())
+        p |= (1 << i);
+  }
+  return p;
+}
+
 /*********************************************/
 QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
 {
@@ -325,7 +336,7 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
     if (k2-k1-1 >= 16)
       pattern = slinetypes[i].substr(k1+1,16);
     std::auto_ptr<QPixmap> pmapLinetype(linePixmap(pattern, 3));
-    box->addItem(*pmapLinetype, "");
+    box->addItem(*pmapLinetype, "", lineStipplePattern(QString::fromStdString(pattern)));
   }
 
   box->setEnabled( Enabled );
