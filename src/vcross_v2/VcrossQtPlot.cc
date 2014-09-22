@@ -75,6 +75,11 @@ inline void writeLatNS(std::ostream& out, float lat)
   writeLonEWLatNS(out, lat, 'N', 'S');
 }
 
+inline float square(float x)
+{
+  return x*x;
+}
+
 static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
@@ -297,7 +302,7 @@ void QtPlot::setHorizontalTime(const LonLat& tgPosition, const std::vector<miuti
     mTimeDistances.push_back(0);
     for (size_t i=1; i<mTimePoints.size(); ++i) {
       const miutil::miTime& t1 = mTimePoints.at(i);
-      mTimeDistances.push_back(miutil::miTime::minDiff(t0, t1));
+      mTimeDistances.push_back(miutil::miTime::minDiff(t1, t0));
     }
   }
 }
@@ -532,18 +537,18 @@ int QtPlot::getNearestPos(int px)
   METLIBS_LOG_SCOPE();
 
   const float valueX = mAxisX->paint2value(px);
-  int n = 0;
-  if (mAxisX->legalValue(valueX)) {
-    float d2 = 1e20;
-    for (size_t i = 0; i < mCrossectionDistances.size(); i++) {
-      const float dx = mCrossectionDistances.at(i) - px, dx2 = dx*dx;
-      if (d2 > dx2) {
-        d2 = dx2;
-        n = i;
+  int n_min = 0;
+  if (mAxisX->legalValue(valueX) and not mCrossectionDistances.empty()) {
+    float dx2_min = square(mCrossectionDistances.at(0) - valueX);
+    for (size_t i = 1; i < mCrossectionDistances.size(); i++) {
+      const float dx2 = square(mCrossectionDistances.at(i) - valueX);
+      if (dx2 < dx2_min) {
+        dx2_min = dx2;
+        n_min = i;
       }
     }
   }
-  return n;
+  return n_min;
 }
 
 void QtPlot::plot(QPainter& painter)
@@ -874,8 +879,12 @@ void QtPlot::plotData(QPainter& painter)
       METLIBS_LOG_ERROR("no z_values, cannot plot");
       return;
     }
-    if ((ep->z_values->npoint() != npoint) or (ep->values(0)->npoint() != npoint)) {
-      METLIBS_LOG_ERROR("unexpected point count, cannot plot");
+    if (ep->z_values->npoint() != npoint) {
+      METLIBS_LOG_ERROR("unexpected z point count " << ep->z_values->npoint() << " != " << npoint << ", cannot plot");
+      return;
+    }
+    if (ep->values(0)->npoint() != npoint) {
+      METLIBS_LOG_ERROR("unexpected v0 point count " << ep->values(0)->npoint() << " != " << npoint << ", cannot plot");
       return;
     }
     
