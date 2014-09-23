@@ -49,9 +49,15 @@ TextEditor::TextEditor(const QString &text, bool readOnly)
   textEdit_->setReadOnly(readOnly);
   layout->addWidget(textEdit_);
 
-  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
-  connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-  connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), this, SLOT(accept()));
+  QDialogButtonBox *buttonBox = 0;
+  if (readOnly) {
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttonBox->button(QDialogButtonBox::Close), SIGNAL(clicked()), SLOT(reject()));
+  } else {
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), SLOT(accept()));
+  }
   layout->addWidget(buttonBox);
 
   setLayout(layout);
@@ -78,11 +84,16 @@ QString SpecialLineEdit::propertyName() const { return propertyName_; }
 void SpecialLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
   QMenu *menu = createStandardContextMenu();
-  QAction action(tr("&Edit"), 0);
+  QAction action(isReadOnly() ? tr("&Show") : tr("&Edit"), 0);
   connect(&action, SIGNAL(triggered()), this, SLOT(openTextEdit()));
   menu->addAction(&action);
   menu->exec(event->globalPos());
   delete menu;
+}
+
+void SpecialLineEdit::mouseDoubleClickEvent(QMouseEvent *)
+{
+  openTextEdit();
 }
 
 void SpecialLineEdit::openTextEdit()
@@ -96,7 +107,7 @@ void SpecialLineEdit::openTextEdit()
 static QWidget * createEditor(const QString &propertyName, const QVariant &val, bool readOnly = false)
 {
   QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) ||
+  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::Bool) ||
       (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
     editor = new SpecialLineEdit(propertyName, readOnly);
     qobject_cast<QLineEdit *>(editor)->setText(val.toString());

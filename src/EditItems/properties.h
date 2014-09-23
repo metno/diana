@@ -65,6 +65,7 @@ private:
   QString propertyName_;
   QString propertyName() const;
   void contextMenuEvent(QContextMenuEvent *);
+  void mouseDoubleClickEvent(QMouseEvent *);
 private slots:
   void openTextEdit();
 };
