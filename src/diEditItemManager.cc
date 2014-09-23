@@ -78,6 +78,7 @@ EditItemManager::EditItemManager()
   , undoView_(0)
   , itemChangeNotificationEnabled_(false)
   , itemsVisibilityForced_(false)
+  , itemPropsDirectlyEditable_(false)
 {
   connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(initNewItem(DrawingItemBase *)));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
@@ -93,7 +94,7 @@ EditItemManager::EditItemManager()
   copyAction->setShortcut(QKeySequence::Copy);
   pasteAction = new QAction(tr("&Paste"), this);
   pasteAction->setShortcut(QKeySequence::Paste);
-  editPropertiesAction = new QAction(tr("Edit P&roperties..."), this);
+  editPropertiesAction = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
   editPropertiesAction->setShortcut(tr("Ctrl+R"));
   editStyleAction = new QAction(tr("Edit Style..."), this);
   //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
@@ -858,7 +859,7 @@ void EditItemManager::editProperties()
   // NOTE: we only support editing properties for one item at a time for now
   Q_ASSERT(layerMgr_->itemsInSelectedLayers(true).size() == 1);
   QSharedPointer<DrawingItemBase> item = *(layerMgr_->itemsInSelectedLayers(true).begin());
-  if (Properties::PropertiesEditor::instance()->edit(item))
+  if (Properties::PropertiesEditor::instance()->edit(item, !itemPropsDirectlyEditable_))
     repaint();
 }
 

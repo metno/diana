@@ -32,15 +32,6 @@
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>
 
-//#include <QVBoxLayout>
-//#include <QTextEdit>
-//#include <QDialogButtonBox>
-//#include <QPushButton>
-//#include <QAction>
-//#include <QMenu>
-//#include <QContextMenuEvent>
-//#include <QLineEdit>
-//#include <QDateTimeEdit>
 #include <EditItems/edititembase.h>
 #include <EditItems/properties.h>
 
@@ -48,13 +39,14 @@
 namespace Properties {
 
 
-TextEditor::TextEditor(const QString &text)
+TextEditor::TextEditor(const QString &text, bool readOnly)
 {
   setWindowTitle("Text Editor");
 
   QVBoxLayout *layout = new QVBoxLayout;
   textEdit_ = new QTextEdit;
   textEdit_->setPlainText(text);
+  textEdit_->setReadOnly(readOnly);
   layout->addWidget(textEdit_);
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
@@ -75,9 +67,10 @@ QString TextEditor::text() const
   return textEdit_->toPlainText();
 }
 
-SpecialLineEdit::SpecialLineEdit(const QString &pname)
+SpecialLineEdit::SpecialLineEdit(const QString &pname, bool readOnly)
   : propertyName_(pname)
 {
+  setReadOnly(readOnly);
 }
 
 QString SpecialLineEdit::propertyName() const { return propertyName_; }
@@ -94,21 +87,22 @@ void SpecialLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 void SpecialLineEdit::openTextEdit()
 {
-  TextEditor textEditor(text());
+  TextEditor textEditor(text(), isReadOnly());
   textEditor.setWindowTitle(propertyName());
   if (textEditor.exec() == QDialog::Accepted)
     setText(textEditor.text());
 }
 
-static QWidget * createEditor(const QString &propertyName, const QVariant &val)
+static QWidget * createEditor(const QString &propertyName, const QVariant &val, bool readOnly = false)
 {
   QWidget *editor = 0;
   if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) ||
       (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
-    editor = new SpecialLineEdit(propertyName);
+    editor = new SpecialLineEdit(propertyName, readOnly);
     qobject_cast<QLineEdit *>(editor)->setText(val.toString());
   } else if (val.type() == QVariant::DateTime) {
     editor = new QDateTimeEdit(val.toDateTime());
+    qobject_cast<QDateTimeEdit *>(editor)->setReadOnly(readOnly);
   } else {
     METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
   }
@@ -138,8 +132,10 @@ PropertiesEditor *PropertiesEditor::instance()
 
 PropertiesEditor *PropertiesEditor::instance_ = 0;
 
-// Opens a modal dialog to edit the properties of \a item. Returns true iff the properties were changed.
-bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item)
+// Opens a modal dialog to show the properties of \a item.
+// The properties may be modified if \a readOnly is false.
+// Returns true iff the properties were changed.
+bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly)
 {
   const QVariantMap origProps = item->properties();
   if (origProps.isEmpty()) {
@@ -153,7 +149,7 @@ bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item)
   // set new content and initial values
   QFormLayout *formLayout = new QFormLayout(formWidget_);
   foreach (const QString key, origProps.keys()) {
-    QWidget *editor = createEditor(key, origProps.value(key));
+    QWidget *editor = createEditor(key, origProps.value(key), readOnly);
     if (editor)
       formLayout->addRow(key, editor);
   }

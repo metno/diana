@@ -47,7 +47,7 @@ namespace Properties {
 class TextEditor : public QDialog
 {
 public:
-  TextEditor(const QString &text);
+  TextEditor(const QString &text, bool = false);
   virtual ~TextEditor();
 
   QString text() const;
@@ -60,7 +60,7 @@ class SpecialLineEdit : public QLineEdit
 {
   Q_OBJECT
 public:
-  SpecialLineEdit(const QString &);
+  SpecialLineEdit(const QString &, bool = false);
 private:
   QString propertyName_;
   QString propertyName() const;
@@ -73,7 +73,7 @@ class PropertiesEditor : public QDialog
 {
 public:
   static PropertiesEditor *instance();
-  bool edit(QSharedPointer<DrawingItemBase> &);
+  bool edit(QSharedPointer<DrawingItemBase> &, bool = false);
 
 private:
   PropertiesEditor();

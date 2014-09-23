@@ -211,6 +211,7 @@ private:
   QString itemChangeFilter_;
   bool itemChangeNotificationEnabled_;
   bool itemsVisibilityForced_;
+  bool itemPropsDirectlyEditable_;
 
   virtual bool parseSetup() { return true; } // n/a
 
