@@ -188,16 +188,16 @@ QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name
   return layerGroup;
 }
 
-QSharedPointer<Layer> LayerManager::createNewLayer(const QString &name, bool removable) const
+QSharedPointer<Layer> LayerManager::createNewLayer(const QString &name, bool removable, bool attrsEditable) const
 {
-  QSharedPointer<Layer> layer(new Layer(name.isEmpty() ? "new layer" : name, removable));
+  QSharedPointer<Layer> layer(new Layer(name.isEmpty() ? "new layer" : name, removable, attrsEditable));
   ensureUniqueLayerName(layer);
   return layer;
 }
 
-QSharedPointer<Layer> LayerManager::createNewLayer(const QSharedPointer<LayerGroup> &layerGroup, const QString &name, bool removable)
+QSharedPointer<Layer> LayerManager::createNewLayer(const QSharedPointer<LayerGroup> &layerGroup, const QString &name, bool removable, bool attrsEditable)
 {
-  QSharedPointer<Layer> layer = createNewLayer(name, removable);
+  QSharedPointer<Layer> layer = createNewLayer(name, removable, attrsEditable);
   addToLayerGroup(layerGroup, layer);
   return layer;
 }

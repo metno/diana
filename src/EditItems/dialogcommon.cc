@@ -129,6 +129,8 @@ QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, Q
   const QList<QSharedPointer<Layer> > layers = \
       KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
       EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
+  foreach (const QSharedPointer<Layer> &layer, layers)
+    layerManager->ensureUniqueLayerName(layer);
   QApplication::restoreOverrideCursor();
 
   QFileInfo fi(fileName);

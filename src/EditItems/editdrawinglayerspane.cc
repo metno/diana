@@ -112,10 +112,10 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   save_act_->setIconVisibleInMenu(true);
 
   // add scratch layer
-  const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer(scratchLayerName_, false);
+  const QSharedPointer<Layer> scratchLayer = layerManager->createNewLayer(scratchLayerName_, false, false);
   layerManager->addToNewLayerGroup(scratchLayer, "");
   scratchLayer->layerGroupRef()->setActive(true);
-  add(scratchLayer, false, false);
+  add(scratchLayer, false);
 }
 
 void EditDrawingLayersPane::updateButtons()
@@ -213,9 +213,9 @@ void EditDrawingLayersPane::addDuplicate(const QSharedPointer<Layer> &layer)
           "add duplicated layer", layerMgr_, newLayer, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
 }
 
-void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate, bool nameEditable)
+void EditDrawingLayersPane::add(const QSharedPointer<Layer> &layer, bool skipUpdate)
 {
-  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_, nameEditable);
+  LayerWidget *layerWidget = new LayerWidget(layerMgr_, layer, showInfo_);
   layout_->addWidget(layerWidget);
   initLayerWidget(layerWidget);
   if (!skipUpdate)

@@ -55,12 +55,10 @@
 namespace EditItems {
 
 LayerWidget::LayerWidget(
-    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo,
-    bool attrsEditable, QWidget *parent)
+    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, QWidget *parent)
   : QWidget(parent)
   , layerMgr_(layerManager)
   , layer_(layer)
-  , attrsEditable_(attrsEditable)
 {
   setContentsMargins(0, 0, 0, 0);
 
@@ -198,7 +196,7 @@ bool LayerWidget::isRemovable() const
 
 bool LayerWidget::isAttrsEditable() const
 {
-  return attrsEditable_;
+  return layer_.isNull() ? false : layer_->isAttrsEditable();
 }
 
 void LayerWidget::updateLabels()

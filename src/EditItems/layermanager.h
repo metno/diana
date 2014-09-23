@@ -67,8 +67,8 @@ public:
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
   QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
-  QSharedPointer<Layer> createNewLayer(const QString & = QString(), bool = true) const;
-  QSharedPointer<Layer> createNewLayer(const QSharedPointer<LayerGroup> &, const QString & = QString(), bool = true);
+  QSharedPointer<Layer> createNewLayer(const QString & = QString(), bool = true, bool = true) const;
+  QSharedPointer<Layer> createNewLayer(const QSharedPointer<LayerGroup> &, const QString & = QString(), bool = true, bool = true);
   QSharedPointer<Layer> createDuplicateLayer(const QList<QSharedPointer<Layer> > &, const DrawingManager *) const;
   QSharedPointer<Layer> createDuplicateLayer(const QSharedPointer<Layer> &, const DrawingManager *) const;
   QSharedPointer<Layer> createDuplicateLayer(
@@ -91,16 +91,16 @@ public:
   QBitArray selected() const;
   QBitArray visible() const;
 
-private:
-  QList<QSharedPointer<LayerGroup> > layerGroups_;
-  // the layers of all layer groups organized in a single, ordered list:
-  QList<QSharedPointer<Layer> > orderedLayers_;
-
   QString createUniqueLayerGroupName(const QString &) const;
   void ensureUniqueLayerGroupName(const QSharedPointer<LayerGroup> &) const;
 
   QString createUniqueLayerName(const QString &) const;
   void ensureUniqueLayerName(const QSharedPointer<Layer> &) const;
+
+private:
+  QList<QSharedPointer<LayerGroup> > layerGroups_;
+  // the layers of all layer groups organized in a single, ordered list:
+  QList<QSharedPointer<Layer> > orderedLayers_;
 
   void selectItem(const QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &, bool, bool = true);
 

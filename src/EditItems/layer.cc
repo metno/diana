@@ -34,13 +34,14 @@
 
 namespace EditItems {
 
-Layer::Layer(const QString &name, bool removable)
+Layer::Layer(const QString &name, bool removable, bool attrsEditable)
   : id_(nextId())
   , selected_(false)
   , visible_(true)
   , unsavedChanges_(false)
   , name_(name)
   , removable_(removable)
+  , attrsEditable_(attrsEditable)
 {
 }
 
@@ -52,17 +53,19 @@ Layer::Layer(const Layer &other)
   , unsavedChanges_(other.unsavedChanges_)
   , name_(other.name_)
   , removable_(other.removable_)
+  , attrsEditable_(other.attrsEditable_)
   , srcFiles_(other.srcFiles_)
 {
 }
 
-Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm, bool removable)
+Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManager *dm, bool removable, bool attrsEditable)
   : id_(nextId())
   , selected_(false)
   , visible_(false)
   , unsavedChanges_(false)
   , name_(QString("copy of %1 layers").arg(srcLayers.size()))
   , removable_(removable)
+  , attrsEditable_(attrsEditable)
 {
   foreach (const QSharedPointer<Layer> &srcLayer, srcLayers) {
     if (srcLayer->visible_)
@@ -252,6 +255,11 @@ bool Layer::isEditable() const
 bool Layer::isRemovable() const
 {
   return removable_;
+}
+
+bool Layer::isAttrsEditable() const
+{
+  return attrsEditable_;
 }
 
 bool Layer::isActive() const

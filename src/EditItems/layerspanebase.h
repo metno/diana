@@ -66,7 +66,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, bool = true, QWidget * = 0);
+  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -88,7 +88,6 @@ private:
   CheckableLabel *unsavedChangesLabel_;
   ClickableLabel *nameLabel_;
   ClickableLabel *infoLabel_;
-  bool attrsEditable_;
 public slots:
   void updateLabels();
 private slots:

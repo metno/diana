@@ -50,7 +50,7 @@ private:
   virtual void addContextMenuActions(QMenu &) const;
   virtual bool handleContextMenuAction(const QAction *, const QList<LayerWidget *> &);
   virtual bool handleKeyPressEvent(QKeyEvent *);
-  void add(const QSharedPointer<Layer> &, bool = false, bool = true);
+  void add(const QSharedPointer<Layer> &, bool = false);
   void merge(const QList<LayerWidget *> &);
   void duplicate(const QList<LayerWidget *> &);
   void save(const QList<LayerWidget *> &);
