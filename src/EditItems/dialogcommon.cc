@@ -115,6 +115,20 @@ QToolButton *createToolButton(const QIcon &icon, const QString &toolTip, const Q
   return button;
 }
 
+// Returns a list of layers from \a fileName. Upon failure, a reason is passed in \a error.
+QList<QSharedPointer<Layer> > createLayersFromFile(const QString &fileName, LayerManager *layerManager, QString *error)
+{
+  *error = QString();
+
+  const QList<QSharedPointer<Layer> > layers = \
+      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
+  foreach (const QSharedPointer<Layer> &layer, layers)
+    layerManager->ensureUniqueLayerName(layer);
+
+  return error->isEmpty() ? layers : QList<QSharedPointer<Layer> >();
+}
+
 // Asks the user for a file name and returns a list of layers from this file. Upon failure, a reason is passed in \a error.
 QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, QString *error)
 {
@@ -126,11 +140,7 @@ QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *layerManager, Q
     return QList<QSharedPointer<Layer> >();
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  const QList<QSharedPointer<Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
-  foreach (const QSharedPointer<Layer> &layer, layers)
-    layerManager->ensureUniqueLayerName(layer);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerManager, error);
   QApplication::restoreOverrideCursor();
 
   QFileInfo fi(fileName);

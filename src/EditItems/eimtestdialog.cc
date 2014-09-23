@@ -78,6 +78,10 @@ EIMTestDialog::EIMTestDialog(QWidget *parent)
   QPushButton *pcspButton = new QPushButton("Prepare cross section placement");
   connect(pcspButton, SIGNAL(clicked()), SLOT(prepareCrossSectionPlacement()));
   mainLayout->addWidget(pcspButton);
+
+  QPushButton *loadButton = new QPushButton("Load KML file");
+  connect(loadButton, SIGNAL(clicked()), SLOT(loadKMLFile()));
+  mainLayout->addWidget(loadButton);
 }
 
 void EIMTestDialog::changeEnabledState(int state)
@@ -106,6 +110,12 @@ void EIMTestDialog::prepareCrossSectionPlacement()
     enabledCheckBox_->setChecked(true);
   EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
   EditItems::ToolBar::instance()->show();
+}
+
+void EIMTestDialog::loadKMLFile()
+{
+  EditItemManager::instance()->emitLoadFile("/home/joa/.diana/work/hei.kml");
+  EditItemManager::instance()->setEditing(true);
 }
 
 void EIMTestDialog::appendText(const QString &s)

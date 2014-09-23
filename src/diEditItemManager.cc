@@ -977,6 +977,11 @@ void EditItemManager::emitItemChanged() const
   }
 }
 
+void EditItemManager::emitLoadFile(const QString &fileName) const
+{
+  emit loadFile(fileName);
+}
+
 void EditItemManager::setItemsVisibilityForced(bool forced)
 {
   itemsVisibilityForced_ = forced;

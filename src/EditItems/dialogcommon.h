@@ -88,6 +88,7 @@ class Layer;
 class LayerManager;
 
 QToolButton *createToolButton(const QIcon &, const QString &, const QObject *, const char *);
+QList<QSharedPointer<Layer> > createLayersFromFile(const QString &, LayerManager *, QString *);
 QList<QSharedPointer<Layer> > createLayersFromFile(LayerManager *, QString *);
 QString selectString(const QString &, const QString &, const QString &, const QStringList &, bool &);
 

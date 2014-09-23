@@ -84,6 +84,7 @@ private slots:
   void undo();
   void redo();
   virtual void handleLayersUpdate();
+  void loadFile(const QString &);
 };
 
 } // namespace

@@ -66,6 +66,7 @@ private slots:
   void changeEnabledState(int);
   void clear();
   void prepareCrossSectionPlacement();
+  void loadKMLFile();
   void handleItemChange(const QVariantMap &);
   void handleItemRemoval(int);
   void selectItem();

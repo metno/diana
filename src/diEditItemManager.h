@@ -100,6 +100,8 @@ public:
   void setItemChangeFilter(const QString &);
   void emitItemChanged() const;
 
+  void emitLoadFile(const QString &) const;
+
   void setItemsVisibilityForced(bool);
 
 public slots:
@@ -154,6 +156,7 @@ signals:
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
   void editing(bool);
+  void loadFile(const QString &) const;
 
 protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &, bool = true);

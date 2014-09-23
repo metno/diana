@@ -57,6 +57,9 @@
 #include "remove.xpm"
 #include "filesave.xpm"
 
+#define MILOGGER_CATEGORY "diana.DrawingManager"
+#include <miLogger/miLogging.h>
+
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
@@ -116,6 +119,8 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   layerManager->addToNewLayerGroup(scratchLayer, "");
   scratchLayer->layerGroupRef()->setActive(true);
   add(scratchLayer, false);
+
+  connect(EditItemManager::instance(), SIGNAL(loadFile(const QString &)), SLOT(loadFile(const QString &)));
 }
 
 void EditDrawingLayersPane::updateButtons()
@@ -363,6 +368,20 @@ void EditDrawingLayersPane::handleLayersUpdate()
 {
   LayersPaneBase::handleLayersUpdate();
   updateButtons();
+}
+
+void EditDrawingLayersPane::loadFile(const QString &fileName)
+{
+  QString error;
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerMgr_, &error);\
+  if (error.isEmpty()) {
+    Q_ASSERT(undoEnabled_);
+    EditItemManager::instance()->undoStack()->push(
+          new AddLayersCommand(
+            "add layer(s) from file", layerMgr_, layers, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
+  } else {
+    METLIBS_LOG_WARN("Failed to load layers from file " << fileName.toStdString() << ": " << error.toStdString());
+  }
 }
 
 } // namespace
