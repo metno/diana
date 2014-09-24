@@ -72,7 +72,8 @@ static QString undoCommandText(int nadded, int nremoved, int nmodified)
 EditItemManager *EditItemManager::self = 0;
 
 EditItemManager::EditItemManager()
-  : repaintNeeded_(false)
+  : selectingOnly_(true)
+  , repaintNeeded_(false)
   , skipRepaint_(false)
   , hitOffset_(0)
   , undoView_(0)
@@ -132,6 +133,8 @@ EditItemManager::EditItemManager()
 
   setSelectMode();
   setEnabled(true);
+
+  Manager::setEditing(true); // get all mouse- and key events regardless of editing mode, but only allow full editing if selectingOnly_ == false
 }
 
 EditItemManager::~EditItemManager()
@@ -148,7 +151,8 @@ EditItemManager *EditItemManager::instance()
 
 void EditItemManager::setEditing(bool enable)
 {
-  Manager::setEditing(enable);
+  selectingOnly_ = !enable;
+
   emit editing(enable);
   if (!enable) {
     hoverItem_.clear();
@@ -449,10 +453,10 @@ void EditItemManager::mouseMove(QMouseEvent *event)
       hoverItem_ = hitItems.first();
 
       // send mouse hover event to the hover item
-      Editing(hoverItem_.data())->mouseHover(event, rpn);
+      Editing(hoverItem_.data())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
     } else if (!origHoverItem.isNull()) {
-      Editing(origHoverItem.data())->mouseHover(event, rpn);
+      Editing(origHoverItem.data())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
     }
   } else {
@@ -1165,6 +1169,32 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
+  if (selectingOnly_) {
+   // Only allow single-selection and basic hover highlighting.
+   // Modifying items otherwise is not possible in this mode.
+
+    event->ignore();
+    if (event->type() == QEvent::MouseButtonPress) {
+      if (me2.button() == Qt::LeftButton) {
+        deselectAllItems(false);
+        const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(me2.pos());
+        if (!hitItems.empty()) {
+          selectItem(hitItems.first(), true, false);
+          event->accept();
+        }
+        emit selectionChanged();
+        repaintNeeded_ = true;
+      }
+    } else if (event->type() == QEvent::MouseMove) {
+      mouseMove(&me2);
+    }
+
+    if (repaintNeeded_)
+      emit repaintNeeded();
+
+    return;
+  }
+
   QList<QUndoCommand *> undoCommands;
   QSet<QSharedPointer<DrawingItemBase> > addedItems;
   QSet<QSharedPointer<DrawingItemBase> > removedItems;
@@ -1315,6 +1345,18 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     updateActionsAndTimes();
 }
 
+bool EditItemManager::cycleHitOrder(QKeyEvent *event)
+{
+  if (!hoverItem_.isNull()) {
+    // if multiple items are hit at the last hover position, then cycle through them
+    hitOffset_ += ((event->key() == Qt::Key_PageUp) ? 1 : -1);
+    QMouseEvent hoverEvent(QEvent::MouseMove, lastHoverPos_, Qt::NoButton, Qt::MouseButtons(), event->modifiers());
+    mouseMove(&hoverEvent);
+    return true;
+  }
+  return false;
+}
+
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
   event->accept();
@@ -1328,6 +1370,22 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
   res.repaint = true;
   res.background = true;
+
+
+  if (selectingOnly_) {
+    // Only allow cycling the hit order.
+    // Modifying items otherwise is not possible in this mode.
+
+    if (event->type() == QEvent::KeyPress) {
+      if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
+        if (cycleHitOrder(event))
+          return;
+      }
+    }
+
+    event->ignore();
+    return;
+  }
 
   QList<QUndoCommand *> undoCommands;
   QSet<QSharedPointer<DrawingItemBase> > addedItems;
@@ -1344,13 +1402,8 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
     } else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       editProperties();
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
-        if (!hoverItem_.isNull()) {
-          // if multiple items are hit at the last hover position, then cycle through them
-          hitOffset_ += ((event->key() == Qt::Key_PageUp) ? 1 : -1);
-          QMouseEvent hoverEvent(QEvent::MouseMove, lastHoverPos_, Qt::NoButton, Qt::MouseButtons(), event->modifiers());
-          mouseMove(&hoverEvent);
-          return;
-        }
+      if (cycleHitOrder(event))
+        return;
     } else {
       event->ignore();
     }

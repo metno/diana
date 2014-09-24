@@ -74,7 +74,7 @@ public:
     // See mousePress() for the documentation of the arguments.
     virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands);
     virtual void mouseMove(QMouseEvent *event, bool &repaintNeeded);
-    virtual void mouseHover(QMouseEvent *event, bool &repaintNeeded);
+    virtual void mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectingOnly = false);
     virtual void mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded);
     virtual void keyPress(
         QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,

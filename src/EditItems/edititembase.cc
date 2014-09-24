@@ -251,7 +251,7 @@ void EditItemBase::mouseMove(QMouseEvent *event, bool &repaintNeeded)
   }
 }
 
-void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded)
+void EditItemBase::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool)
 {
   hoverCtrlPointIndex_ = hitControlPoint(event->pos());
   repaintNeeded = true;

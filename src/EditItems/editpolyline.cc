@@ -225,10 +225,10 @@ void PolyLine::mousePress(
   }
 }
 
-void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded)
+void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectingOnly)
 {
   EditItemBase::mouseHover(event, repaintNeeded);
-  if (hoverCtrlPointIndex_ < 0) {
+  if ((hoverCtrlPointIndex_ < 0) && !(selectingOnly)) {
     hoverLineIndex_ = hitLine(hoverPos_);
   } else {
     hoverLineIndex_ = -1;

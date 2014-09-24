@@ -166,6 +166,7 @@ private slots:
   void initNewItem(DrawingItemBase *item);
 
 private:
+  bool selectingOnly_;
   QSharedPointer<DrawingItemBase> hoverItem_;
   QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   bool repaintNeeded_;
@@ -217,6 +218,8 @@ private:
   bool itemPropsDirectlyEditable_;
 
   virtual bool parseSetup() { return true; } // n/a
+
+  bool cycleHitOrder(QKeyEvent *);
 
   static EditItemManager *self;   // singleton instance pointer
 };

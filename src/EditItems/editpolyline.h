@@ -54,7 +54,7 @@ private:
     virtual bool hit(const QRectF &) const;
 
     virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
-    virtual void mouseHover(QMouseEvent *, bool &);
+    virtual void mouseHover(QMouseEvent *, bool &, bool = false);
     virtual void keyPress(
         QKeyEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > * = 0, const QSet<QSharedPointer<DrawingItemBase> > * = 0);
 
