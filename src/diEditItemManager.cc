@@ -155,7 +155,7 @@ void EditItemManager::setEditing(bool enable)
 
   emit editing(enable);
   if (!enable) {
-    hoverItem_.clear();
+    hitItems_.clear();
     abortEditing();
     emit unsetWorkAreaCursor();
   } else {
@@ -253,8 +253,7 @@ void EditItemManager::removeItem(const QSharedPointer<DrawingItemBase> &item, QS
 void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded)
 {
   DrawingManager::removeItem_(item);
-  if (hoverItem_ == item)
-    hoverItem_.clear();
+  hitItems_.removeOne(item);
   deselectItem(item);
   emit itemRemoved(item->id());
   if (updateNeeded)
@@ -452,8 +451,8 @@ void EditItemManager::mouseMove(QMouseEvent *event)
 
   repaintNeeded_ = false;
 
-  QSharedPointer<DrawingItemBase> origHoverItem = hoverItem_;
-  hoverItem_.clear();
+  QList<QSharedPointer<DrawingItemBase> > origHitItems = hitItems_;
+  hitItems_.clear();
   const bool hover = !event->buttons();
   bool rpn = false;
 
@@ -467,13 +466,13 @@ void EditItemManager::mouseMove(QMouseEvent *event)
       Editing(missedItem.data())->updateHoverPos(QPoint(-1, -1));
 
     if (!hitItems.empty()) {
-      hoverItem_ = hitItems.first();
+      hitItems_ = hitItems;
 
       // send mouse hover event to the hover item
-      Editing(hoverItem_.data())->mouseHover(event, rpn, selectingOnly_);
+      Editing(hitItems_.first().data())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
-    } else if (!origHoverItem.isNull()) {
-      Editing(origHoverItem.data())->mouseHover(event, rpn, selectingOnly_);
+    } else if (!origHitItems.isEmpty()) {
+      Editing(origHitItems.first().data())->mouseHover(event, rpn, selectingOnly_);
       if (rpn) repaintNeeded_ = true;
     }
   } else {
@@ -485,7 +484,7 @@ void EditItemManager::mouseMove(QMouseEvent *event)
     }
   }
 
-  if (hoverItem_ != origHoverItem)
+  if (hitItems_ != origHitItems)
     repaintNeeded_ = true;
 }
 
@@ -494,8 +493,8 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
 {
   Q_ASSERT(hasIncompleteItem());
 
-  const QSharedPointer<DrawingItemBase> origHoverItem = hoverItem_;
-  hoverItem_.clear();
+  const QList<QSharedPointer<DrawingItemBase> > origHitItems = hitItems_;
+  hitItems_.clear();
   const bool hover = !event->buttons();
   if (hover) {
     bool rpn = false;
@@ -503,14 +502,14 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
     if (rpn) repaintNeeded_ = true;
     if (Editing(incompleteItem_.data())->hit(event->pos(), false))
-      hoverItem_ = incompleteItem_;
+      hitItems_ = QList<QSharedPointer<DrawingItemBase> >() << incompleteItem_;
   } else {
     bool rpn = false;
     Editing(incompleteItem_.data())->incompleteMouseMove(event, rpn);
     if (rpn) repaintNeeded_ = true;
   }
 
-  if (hoverItem_ != origHoverItem)
+  if (hitItems_ != origHitItems)
     repaintNeeded_ = true;
 }
 
@@ -671,7 +670,7 @@ void EditItemManager::plot(bool under, bool over)
         if (isEditing()) {
           if (selItems.contains(item))
             modes |= EditItemBase::Selected;
-          if (item == hoverItem_)
+          if ((!hitItems_.isEmpty()) && (item == hitItems_.first()))
             modes |= EditItemBase::Hovered;
         }
         if (itemsVisibilityForced_ || item->property("visible", true).toBool()) {
@@ -684,7 +683,8 @@ void EditItemManager::plot(bool under, bool over)
   }
   if (hasIncompleteItem()) { // note that only complete items may be selected
     setFromLatLonPoints(*incompleteItem_, incompleteItem_->getLatLonPoints());
-    Editing(incompleteItem_.data())->draw((incompleteItem_ == hoverItem_) ? EditItemBase::Hovered : EditItemBase::Normal, true);
+    Editing(incompleteItem_.data())->draw(
+          ((!hitItems_.isEmpty()) && (incompleteItem_ == hitItems_.first())) ? EditItemBase::Hovered : EditItemBase::Normal, true);
   }
 
   glPopMatrix();
@@ -773,7 +773,7 @@ void EditItemManager::abortEditing()
     setFocus(false);
 
     incompleteItem_.clear();
-    hoverItem_.clear();
+    hitItems_.clear();
     //setSelectMode(); // restore default mode
     emit incompleteEditing(false);
     emit repaintNeeded();
@@ -1158,6 +1158,7 @@ void EditItemManager::handleSelectionChange()
 
 void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
+  event->ignore();
   res.savebackground= true;   // Save the background after painting.
   res.background= false;      // Don't paint the background.
   res.repaint= false;
@@ -1190,7 +1191,6 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
    // Only allow single-selection and basic hover highlighting.
    // Modifying items otherwise is not possible in this mode.
 
-    event->ignore();
     if (event->type() == QEvent::MouseButtonPress) {
       if (me2.button() == Qt::LeftButton) {
         deselectAllItems(false);
@@ -1334,23 +1334,23 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       repaintNeeded_ = true;
     }
 
-    event->setAccepted(true);
+    event->accept();
 
   } else if (event->type() == QEvent::MouseMove) {
     mouseMove(&me2);
-    event->setAccepted(true);
+    event->accept();
   }
 
   else if (event->type() == QEvent::MouseButtonRelease) {
     mouseRelease(&me2, &undoCommands, &addedItems);
-    event->setAccepted(true);
+    event->accept();
     if (needsRepaint() && !hasIncompleteItem())
       emitItemChanged();
   }
 
   else if (event->type() == QEvent::MouseButtonDblClick) {
     mouseDoubleClick(&me2, &addedItems);
-    event->setAccepted(true);
+    event->accept();
   }
 
   pushCommands(undoCommands, addedItems, removedItems);
@@ -1364,11 +1364,12 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
 bool EditItemManager::cycleHitOrder(QKeyEvent *event)
 {
-  if (!hoverItem_.isNull()) {
-    // if multiple items are hit at the last hover position, then cycle through them
+  if (hitItems_.size() > 1) {
+    // multiple items are hit at the last hover position, so cycle through them
     hitOffset_ += ((event->key() == Qt::Key_PageUp) ? 1 : -1);
     QMouseEvent hoverEvent(QEvent::MouseMove, lastHoverPos_, Qt::NoButton, Qt::MouseButtons(), event->modifiers());
     mouseMove(&hoverEvent);
+    event->accept();
     return true;
   }
   return false;
@@ -1376,7 +1377,7 @@ bool EditItemManager::cycleHitOrder(QKeyEvent *event)
 
 void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 {
-  event->accept();
+  event->ignore();
   res.savebackground= true;   // Save the background after painting.
   res.background= false;      // Don't paint the background.
   res.repaint= false;
@@ -1400,7 +1401,6 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       }
     }
 
-    event->ignore();
     return;
   }
 
@@ -1421,9 +1421,9 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
       if (cycleHitOrder(event))
         return;
-    } else {
-      event->ignore();
     }
+  } else {
+    return;
   }
 
   if (!event->isAccepted())

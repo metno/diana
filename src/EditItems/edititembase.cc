@@ -272,6 +272,7 @@ void EditItemBase::keyPress(
     while (it != items->end()) {
       if ((*it).data() == Drawing(this)) {
         it = items->erase(it);
+        event->accept();
       } else {
         ++it;
       }
@@ -292,6 +293,7 @@ void EditItemBase::keyPress(
     DrawingItemBase *ditem = Drawing(this);
     undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
     repaintNeeded = true;
+    event->accept();
   }
 }
 

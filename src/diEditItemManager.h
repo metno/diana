@@ -167,7 +167,7 @@ private slots:
 
 private:
   bool selectingOnly_;
-  QSharedPointer<DrawingItemBase> hoverItem_;
+  QList<QSharedPointer<DrawingItemBase> > hitItems_;
   QSharedPointer<DrawingItemBase> incompleteItem_; // item in the process of being completed (e.g. having its control points manually placed)
   bool repaintNeeded_;
   bool skipRepaint_;

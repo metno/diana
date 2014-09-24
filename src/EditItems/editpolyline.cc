@@ -249,6 +249,7 @@ void PolyLine::keyPress(
     if (hoverCtrlPointIndex_ < 0) // no control point beneath the one we just removed, so check if we hit a line
       hoverLineIndex_ = hitLine(hoverPos_);
     repaintNeeded = true;
+    event->accept();
   } else if (((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)
               || (event->key() == Qt::Key_Plus) || (event->key() == Qt::Key_Insert))
              && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0) && (hoverPos_ != QPoint(-1, -1))) {
@@ -258,6 +259,7 @@ void PolyLine::keyPress(
       undoCommands->append(new SetGeometryCommand(this, origPoints, getPoints()));
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
     repaintNeeded = true;
+    event->accept();
   } else {
     EditItemBase::keyPress(event, repaintNeeded, undoCommands, items, selItems);
   }
