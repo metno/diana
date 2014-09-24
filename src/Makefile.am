@@ -445,9 +445,7 @@ noinst_HEADERS += \
 	vcross_qt/qtVcrossDialog.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/VcrossQtWidget.h \
-	vcross_qt/qtVcrossWindow.h \
-	vcross_qt/qtDynVcrossDialog.h 
-
+	vcross_qt/qtVcrossWindow.h
 
 else
 	vcross_v1/diVcross1Field.h \
