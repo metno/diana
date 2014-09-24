@@ -43,7 +43,6 @@
 #ifdef USE_VCROSS_V2
 #include "diEditItemManager.h"
 #include "EditItems/toolbar.h"
-#include "qtDynVcrossDialog.h"
 #endif
 #include "qtPrintManager.h"
 
@@ -138,9 +137,9 @@ typedef VectorModel<MiTimeExtract> MiTimeModel;
 
 VcrossWindow::VcrossWindow(Controller *co)
   : QWidget(0)
+  , dynEditManagerConnected(false)
 {
   METLIBS_LOG_SCOPE();
-
   
   vcrossm =  miutil::make_shared<QtManager>();
 
@@ -179,11 +178,8 @@ VcrossWindow::VcrossWindow(Controller *co)
   QPushButton * helpButton = NormalPushButton(tr("Help"),this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
-  //button for dynCross - pushbutton
-  QPushButton * dynCrossButton = NormalPushButton(tr("Draw cross/Clear"),this);
-  connect( dynCrossButton, SIGNAL(clicked()), SLOT(dynCrossClicked()) );
-
-  QCheckBox * dynEditManager = new QCheckBox(tr("Draw/Edit"), this);
+  dynEditManager = new QCheckBox(tr("Draw/Edit"), this);
+  dynEditManager->setEnabled(false);
   connect(dynEditManager, SIGNAL(stateChanged(int)),
       SLOT(dynCrossEditManagerEnabled(int)));
 
@@ -238,7 +234,6 @@ VcrossWindow::VcrossWindow(Controller *co)
   vclayout->addWidget(saveButton);
   vclayout->addWidget(quitButton);
   vclayout->addWidget(helpButton);
-  vclayout->addWidget(dynCrossButton);
   vclayout->addWidget(dynEditManager);
   vclayout->addStretch();
   vlayout->addLayout(vclayout);
@@ -576,35 +571,22 @@ void VcrossWindow::helpClicked()
   /*emit*/ showsource("ug_verticalcrosssections.html");
 }
 
-/***************************************************************************/
-//called when the Dynamic/Clear button in Vprofwindow is clicked
-void VcrossWindow::dynCrossClicked()
-{
-  METLIBS_LOG_SCOPE();
-
-#ifdef USE_VCROSS_V2
-  DynVcrossDialog dd(this);
-  if (dd.exec() == QDialog::Accepted) {
-    typedef DynVcrossDialog::LabelledCrossection_v lcs_v;
-    const lcs_v lcs = dd.extractCrossections();
-    for (lcs_v::const_iterator it = lcs.begin(); it != lcs.end(); ++it)
-      vcrossm->setDynamicCrossection(it->label.toStdString(), it->points);
-    if (not lcs.empty())
-      vcrossm->setCrossection(lcs.back().label.toStdString());
-  }
-
-  Q_EMIT crossectionSetChanged();
-  updateCrossectionBox();
-
-  vcrossw->update();
-#endif
-}
-
 void VcrossWindow::dynCrossEditManagerEnabled(int state)
 {
   if (state == Qt::Checked) {
     EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
+    EditItemManager::instance()->setEditing(true);
     EditItems::ToolBar::instance()->show();
+    dynCrossEditManagerEnableSignals();
+  } else {
+    EditItemManager::instance()->setEditing(false);
+  }
+}
+
+void VcrossWindow::dynCrossEditManagerEnableSignals()
+{
+  if (not dynEditManagerConnected) {
+    dynEditManagerConnected = true;
 
     EditItemManager::instance()->enableItemChangeNotification();
     EditItemManager::instance()->setItemChangeFilter("Cross section");
@@ -612,14 +594,15 @@ void VcrossWindow::dynCrossEditManagerEnabled(int state)
         this, SLOT(dynCrossEditManagerChange(const QVariantMap &)), Qt::UniqueConnection);
     connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
         this, SLOT(dynCrossEditManagerRemoval(int)), Qt::UniqueConnection);
-    EditItemManager::instance()->emitItemChanged();
-  } else {
-    disconnect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
-        this, SLOT(dynCrossEditManagerChange(const QVariantMap &)));
-    disconnect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
-        this, SLOT(dynCrossEditManagerRemoval(int)));
-    EditItemManager::instance()->enableItemChangeNotification(false);
+    connect(EditItemManager::instance(), SIGNAL(editing(bool)),
+        this, SLOT(slotCheckEditmode(bool)), Qt::UniqueConnection);
   }
+}
+
+void VcrossWindow::slotCheckEditmode(bool editing)
+{
+  if (vcrossm->supportsDynamicCrossections())
+    dynEditManager->setChecked(editing);
 }
 
 void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
@@ -684,10 +667,38 @@ void VcrossWindow::changeFields(bool modelChanged)
   //... or field is changed ?
   METLIBS_LOG_SCOPE();
 
+  if (vcrossm->supportsDynamicCrossections()) {
+    dynEditManager->setEnabled(true);
+    if (EditItemManager::instance()) {
+      typedef std::set<std::string> string_s;
+      const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
+      if (not csPredefined.empty()) {
+        for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it)
+          EditItemManager::instance()->emitLoadFile(QString::fromStdString(*it));
+
+#if 0
+        const QSet<QSharedPointer<DrawingItemBase> > items
+            = EditItemManager::instance()->getLayerManager()->itemsInSelectedLayers(false);
+        foreach (const QSharedPointer<DrawingItemBase> item, items) {
+          if (item->property("style:type").toString() == "Cross section") {
+            // TODO add name to vcross manager without actually creating a cross-section
+          }
+        }
+#endif
+        dynCrossEditManagerEnableSignals();
+      } else {
+        dynEditManager->setChecked(true);
+      }
+    }
+  } else {
+    dynEditManager->setChecked(false);
+    dynEditManager->setEnabled(false);
+  }
+
   if (modelChanged) {
 
     //emit to MainWindow (updates crossectionPlot)
-    emit crossectionSetChanged();
+    Q_EMIT crossectionSetChanged();
 
     //update combobox lists of crossections and time
     updateCrossectionBox();

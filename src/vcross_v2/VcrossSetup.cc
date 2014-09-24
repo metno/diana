@@ -55,6 +55,8 @@ std::string kv2string(const miutil::KeyValue& kv)
     return kv.key() + "=" + kv.value();
 }
 
+const vcross::Setup::string_string_m EMPTY_STRING_STRING_MAP;
+
 } // anonymous namespace
 
 // ========================================================================
@@ -127,17 +129,25 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
     const std::vector<miutil::KeyValue> kvs = miutil::SetupParser::splitManyKeyValue(lines[l], true);
     std::string name, filename, filetype, fileconfig;
+    string_string_m options;
     BOOST_FOREACH(const miutil::KeyValue& kv, kvs) {
       if (kv.key() == "m")
         name = kv.value();
       else if (kv.key() == "f")
         filename = kv.value();
-      else if (kv.key() == "t")
+      else if (kv.key() == "t") {
+        if (kv.value() != "fimex")
+          filetype = kv.value();
+        else
+          METLIBS_LOG_INFO("ignoring filetype t=fimex, it is not valid for vertical cross-sections");
+      } else if (kv.key() == "t" or kv.key() == "format")
         filetype = kv.value();
-      else if (kv.key() == "c")
+      else if (kv.key() == "c" or kv.key() == "config")
         fileconfig = kv.value();
-      else
-        errors.push_back(SyntaxError(l, "unknown key '" + kv.key() + "'"));
+      else  {
+        METLIBS_LOG_DEBUG(LOGVAL(kv.key()) << LOGVAL(kv.value()));
+        options[kv.key()] = kv.value();
+      }
     }
     if (name.empty() or filename.empty()) {
       errors.push_back(SyntaxError(l, "name and filename required"));
@@ -165,10 +175,13 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
         for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
           const std::string& path = *it;
           const std::string reftime_from_filename = tf.getTimeStr(path);
-          addFimexSource(name + "@" + reftime_from_filename, path, filetype, fileconfig);
+          const std::string& name_time = name + "@" + reftime_from_filename;
+          addFimexSource(name_time, path, filetype, fileconfig);
+          mModelOptions[name_time] = options;
         }
       } else {
         addFimexSource(name, filename, filetype, fileconfig);
+        mModelOptions[name] = options;
       }
     }
   }
@@ -331,7 +344,14 @@ std::map<std::string,std::string> Setup::getAllPlotOptions()
   return plotopts;
 }
 
-
+const Setup::string_string_m& Setup::getModelOptions(const std::string& name) const
+{
+  ModelOptions_m::const_iterator it = mModelOptions.find(name);
+  if (it != mModelOptions.end())
+    return it->second;
+  else
+    return EMPTY_STRING_STRING_MAP;
+}
 
 // ########################################################################
 

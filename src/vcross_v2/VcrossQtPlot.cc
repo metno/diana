@@ -394,8 +394,10 @@ void QtPlot::prepareYAxisRange()
       }
     }
   }
-  if (not have_z)
+  if (not have_z) {
+    METLIBS_LOG_DEBUG("none of the plots has z values");
     return;
+  }
   if (not mAxisY->increasing())
     std::swap(yax_min, yax_max);
   METLIBS_LOG_DEBUG(LOGVAL(yax_min) << LOGVAL(yax_max));

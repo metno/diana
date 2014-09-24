@@ -216,8 +216,7 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossDialog.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
-	vcross_qt/VcrossQtWidget.cc \
-	vcross_qt/qtDynVcrossDialog.cc 
+	vcross_qt/VcrossQtWidget.cc 
 else
 diana_qt_sources += \
 	vcross_qt/qtVcross1Dialog.cc \

@@ -62,6 +62,7 @@ QtManager::QtManager()
   , mCrossectionCurrent(-1)
   , mTimeGraphPos(-1)
   , mPlotTime(-1)
+  , mHasSupportForDynamicCs(false)
 {
   METLIBS_LOG_SCOPE();
   string_v sources, computations, plots;
@@ -572,6 +573,9 @@ bool QtManager::setModels()
 {
   METLIBS_LOG_SCOPE();
 
+  mCsPredefined.clear();
+  mHasSupportForDynamicCs = false;
+
   const vctime_t timeBefore = currentTime(); // remember current time, search for it later
   const std::string csBefore = currentCSName(); // remember current cs' name, search for it later
 
@@ -587,6 +591,23 @@ bool QtManager::setModels()
     METLIBS_LOG_DEBUG(LOGVAL(m));
 
     if (Source_p src = mCollector->getSetup()->findSource(m)) {
+      if (src->supportsDynamicCrossections()) {
+        METLIBS_LOG_DEBUG("model '" << m << "' supports dynamic cs");
+        mHasSupportForDynamicCs = true;
+        const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(m);
+        METLIBS_LOG_DEBUG("model '" << m << "' has " << options.size() << " options");
+        if (not options.empty()) {
+          const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
+          METLIBS_LOG_DEBUG("model '" << m << "' has " << it->second << "'");
+          if (it != options.end() and not it->second.empty()) {
+            mCsPredefined.insert(it->second);
+            METLIBS_LOG_DEBUG("model '" << m << "' has predefined cs '" << it->second << "'");
+          }
+        }
+      } else {
+        METLIBS_LOG_DEBUG("model '" << m << "' does not support dynamic cs");
+      }
+
       if (Inventory_cp inv = src->getInventory()) {
         METLIBS_LOG_DEBUG(LOGVAL(inv->crossections.size()));
         BOOST_FOREACH(Crossection_cp cs, inv->crossections) {

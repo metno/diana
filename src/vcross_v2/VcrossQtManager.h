@@ -74,6 +74,15 @@ public:
   const string_v& getCrossectionList() const
     { return mCrossectionLabels; }
   void getCrossections(LocationData& locationdata);
+
+  //! list of filenames with predefined cross-sections
+  const std::set<std::string>& getCrossectionPredefinitions() const
+    { return mCsPredefined; }
+
+  //! true if at least one selected model supports dynamic cross-sections
+  bool supportsDynamicCrossections() const
+    { return mHasSupportForDynamicCs; }
+
   std::vector<std::string> getQuickMenuStrings();
   vctime_t getTime() const
     { return currentTime(); }
@@ -154,6 +163,11 @@ private:
   int mPlotTime; //! mCrossectionTimes index of current plot time
 
   string_v mPlotStrings;
+
+  //! filenames of predefined cross-sections
+  std::set<std::string> mCsPredefined;
+
+  bool mHasSupportForDynamicCs;
 
   typedef std::map<std::string, QtPlot::Rect> cs_zoom_t;
   cs_zoom_t mCrossectionZooms;

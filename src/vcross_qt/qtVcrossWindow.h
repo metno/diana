@@ -47,6 +47,7 @@ class VcrossDialog;
 class VcrossSetupDialog;
 
 class QAction;
+class QCheckBox;
 class QComboBox;
 class QPrinter;
 class QString;
@@ -108,6 +109,8 @@ private:
   QComboBox * crossectionBox;
   QComboBox * timeBox;
   QSpinBox* timeSpinBox;
+  QCheckBox * dynEditManager;
+  bool dynEditManagerConnected;
 
   void updateCrossectionBox();
   void updateTimeBox();
@@ -132,7 +135,6 @@ private Q_SLOTS:
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();
-  void dynCrossClicked();
   void changeFields(bool modelChanged);
   void changeSetup();
   void hideDialog();
@@ -145,6 +147,10 @@ private Q_SLOTS:
   void dynCrossEditManagerEnabled(int state);
   void dynCrossEditManagerChange(const QVariantMap &props);
   void dynCrossEditManagerRemoval(int id);
+  void slotCheckEditmode(bool editing);
+
+private:
+  void dynCrossEditManagerEnableSignals();
 
 Q_SIGNALS:
   void VcrossHide();

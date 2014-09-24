@@ -77,6 +77,7 @@ ConfiguredPlot_cp parsePlotLine(const std::string& line);
 
 class Setup {
 public:
+  typedef std::map<std::string,std::string> string_string_m;
   
   SyntaxError_v configureSources(const string_v& lines);
   SyntaxError_v configureComputations(const string_v& lines);
@@ -93,7 +94,8 @@ public:
     { return mPlots; }
 
 
-  std::map<std::string,std::string> getAllPlotOptions();
+  string_string_m getAllPlotOptions();
+  const string_string_m& getModelOptions(const std::string& name) const;
 
 private:
   void addFimexSource(const std::string& name, const std::string& filename,
@@ -102,6 +104,10 @@ private:
 private:
   typedef std::map<std::string, Source_p> Source_p_m;
   Source_p_m mSources;
+
+  typedef std::map<std::string, string_string_m> ModelOptions_m;
+  ModelOptions_m mModelOptions;
+
   NameItem_v mComputations;
   ConfiguredPlot_cpv mPlots;
 };
