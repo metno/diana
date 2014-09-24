@@ -497,7 +497,15 @@ void VprofManager::setModel()
 void VprofManager::setStation(const std::string& station)
 {
   METLIBS_LOG_SCOPE(station);
-  plotStation= station;
+  plotStations.clear();
+  plotStations.push_back(station);
+}
+
+void VprofManager::setStations(const std::vector<std::string>& stations)
+{
+  METLIBS_LOG_SCOPE(stations.size());
+  if ( stations.size() )
+    plotStations = stations;
 }
 
 void VprofManager::setTime(const miTime& time)
@@ -519,9 +527,9 @@ std::string VprofManager::setStation(int step)
 
   int i= 0;
   int n= nameList.size();
-  if (!plotStation.empty())
-    while (i<n && nameList[i]!=plotStation) i++;
-
+  if (plotStations.size()>0){
+    while (i<n && nameList[i]!=plotStations[0]) i++;
+  }
   if (i<n) {
     i+=step;
     if (i<0)  i= n-1;
@@ -530,14 +538,15 @@ std::string VprofManager::setStation(int step)
     i= 0;
   }
 
-  plotStation= nameList[i];
-  return plotStation;
+  plotStations.clear();
+  plotStations.push_back(nameList[i]);
+  return plotStations[0];
 }
 
 
 miTime VprofManager::setTime(int step, int dir)
 {
-  METLIBS_LOG_DEBUG(LOGVAL(step) <<LOGVAL(dir));
+  METLIBS_LOG_DEBUG(LOGVAL(step) << LOGVAL(dir));
 
   if (timeList.size()==0)
     return miTime::nowTime();
@@ -610,8 +619,8 @@ void VprofManager::endHardcopy(){
 
 bool VprofManager::plot()
 {
-  METLIBS_LOG_SCOPE(LOGVAL(plotStation) << LOGVAL(plotTime));
-
+  METLIBS_LOG_SCOPE(LOGVAL(plotStations.size()) << LOGVAL(plotTime));
+  selectedStations.clear();
   if (!vpdiag) {
     vpdiag= new VprofDiagram(vpopt);
     vpdiag->setPlotWindow(plotw,ploth);
@@ -630,21 +639,40 @@ bool VprofManager::plot()
 
   vpdiag->plot();
 
-  if (not plotStation.empty()) {
+  if ( plotStations.size() != 0 ) {
 
     for (size_t i=0; i<vpdata.size(); i++) {
-      std::auto_ptr<VprofPlot> vp(vpdata[i]->getData(plotStation,plotTime));
-      if (vp.get())
+
+      std::auto_ptr<VprofPlot> vp;
+
+      for ( size_t j=0; j<plotStations.size(); ++j){
+        vp.reset(vpdata[i]->getData(plotStations[j],plotTime));
+        if (vp.get()) {
+          selectedStations.push_back(plotStations[j]);
+          break;
+        }
+      }
+      if (vp.get()){
         vp->plot(vpopt, i);
+      }
     }
-
     if (showObs) {
-      int n= nameList.size();
-      int i= 0;
-      while (i<n && nameList[i]!=plotStation)
-        i++;
-
-      if (i<n && not obsList[i].empty()) {
+      // obsList corresponds to the obsList.size() first entries of nameList
+      int n= obsList.size();
+      int m= plotStations.size();
+      int i=0;
+      bool found = false;
+      for ( i = 0; i<n; i++) {
+        int j=0;
+        while (j<m && nameList[i]!=plotStations[j])
+          j++;
+        if ( j < m ) {
+          found = true;
+          selectedStations.push_back(plotStations[j]);
+          break;
+        }
+      }
+      if ( found ) {
         checkObsTime(plotTime.hour());
 
         vector<std::string> stationList;
@@ -870,54 +898,6 @@ void VprofManager::initStations()
   vector <std::string> obslist;
   vector<miTime> tlist;
 
-  for (int i = 0;i<nvpdata;i++){
-    namelist= vpdata[i]->getNames();
-    latitudelist= vpdata[i]->getLatitudes();
-    longitudelist= vpdata[i]->getLongitudes();
-    obslist= vpdata[i]->getObsNames();
-    unsigned int n=namelist.size();
-    if (n!=latitudelist.size()||n!=longitudelist.size()||
-        n!=obslist.size()) {
-      METLIBS_LOG_ERROR("diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
-    } else if (n>0) {
-      // check for duplicates
-      // name should be used as to check
-      // all lists must be equal in size
-      if (namelist.size() == obslist.size() && namelist.size() == latitudelist.size() && namelist.size() == longitudelist.size())
-      {
-        for (size_t index = 0; index < namelist.size(); index++)
-        {
-          bool found = false;
-          for (size_t j = 0; j < nameList.size(); j++)
-          {
-            if (nameList[j] == namelist[index])
-            {
-              // stop searching
-              found = true;
-              break;
-            }
-          }
-          if (!found)
-          {
-            nameList.push_back(namelist[index]);
-            obsList.push_back(obslist[index]);
-            latitudeList.push_back(latitudelist[index]);
-            longitudeList.push_back(longitudelist[index]);
-          }
-        }
-      }
-      else
-      {
-        // This should not happen.....
-        nameList.insert(nameList.end(),namelist.begin(),namelist.end());
-        obsList.insert(obsList.end(),obslist.begin(),obslist.end());
-        latitudeList.insert(latitudeList.end(),latitudelist.begin(),latitudelist.end());
-        longitudeList.insert(longitudeList.end(),longitudelist.begin(),longitudelist.end());
-      }
-
-    }
-  }
-
   // using current time until..................
   map<std::string,int> amdarCount;
   int n= obsfiles.size();
@@ -999,17 +979,7 @@ void VprofManager::initStations()
     } else if (ns>0) {
       for (unsigned int j=0; j<ns; j++) {
         if (namelist[j].substr(0,2)=="99") {
-#ifdef linux
-          // until robs (linux swap problem) fixed
-          // (note that "obslist" is kept unchanged/wrong for reading)
-          std::string callsign=  namelist[j].substr(3,1)
-								        + namelist[j].substr(2,1)
-								        + namelist[j].substr(5,1)
-								        + namelist[j].substr(4,1);
-          namelist[j]= callsign;
-#else
           namelist[j]= namelist[j].substr(2,namelist[j].length()-2);
-#endif
         }
       }
       if (obsfiles[i].obstype==pilot) {
@@ -1057,28 +1027,61 @@ void VprofManager::initStations()
   }
 }
 
+for (int i = 0;i<nvpdata;i++){
+  namelist= vpdata[i]->getNames();
+  latitudelist= vpdata[i]->getLatitudes();
+  longitudelist= vpdata[i]->getLongitudes();
+//    obslist= vpdata[i]->getObsNames();
+  unsigned int n=namelist.size();
+  if (n!=latitudelist.size()||n!=longitudelist.size()) {
+    METLIBS_LOG_ERROR("diVprofManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
+  } else if (n>0) {
+    // check for duplicates
+    // name should be used as to check
+    // all lists must be equal in size
+    if (namelist.size() == latitudelist.size() && namelist.size() == longitudelist.size())
+    {
+      for (size_t index = 0; index < namelist.size(); index++)
+      {
+        bool found = false;
+        for (size_t j = 0; j < nameList.size(); j++)
+        {
+          if (nameList[j] == namelist[index])
+          {
+            // stop searching
+            found = true;
+            break;
+          }
+        }
+        if (!found)
+        {
+          nameList.push_back(namelist[index]);
+//            obsList.push_back(obslist[index]);
+          latitudeList.push_back(latitudelist[index]);
+          longitudeList.push_back(longitudelist[index]);
+        }
+      }
+    }
+    else
+    {
+      // This should not happen.....
+      nameList.insert(nameList.end(),namelist.begin(),namelist.end());
+//        obsList.insert(obsList.end(),obslist.begin(),obslist.end());
+      latitudeList.insert(latitudeList.end(),latitudelist.begin(),latitudelist.end());
+      longitudeList.insert(longitudeList.end(),longitudelist.begin(),longitudelist.end());
+    }
+
+  }
+}
+
 // remember station
-if (!plotStation.empty()) lastStation = plotStation;
+if (plotStations.size() != 0) lastStation = plotStations[0];
 
 METLIBS_LOG_DEBUG("lastStation"  << lastStation);
 
-//if it's the first time, plotStation is first in list
-if (lastStation.empty() && nameList.size())
-  plotStation=nameList[0];
-else{
-  int n = nameList.size();
-  bool found = false;
-  //find plot station
-  for (int i=0;i<n;i++){
-    if(nameList[i]== lastStation){
-      plotStation=nameList[i];
-      found=true;
-    }
-  }
-  if (!found) plotStation.clear();
-}
-
-METLIBS_LOG_DEBUG("plotStation" << plotStation);
+//if it's the first time, plot the first station
+if (plotStations.empty() && nameList.size())
+  plotStations.push_back(nameList[0]);
 
 }
 
@@ -1398,3 +1401,4 @@ void VprofManager::printObsFilePath(const ObsFilePath & ofp)
 #endif 
   METLIBS_LOG_INFO(">");
 }
+

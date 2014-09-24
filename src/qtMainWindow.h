@@ -218,7 +218,7 @@ private Q_SLOTS:
   void hideVprofWindow();
   void hideVcrossWindow();
   void hideSpectrumWindow();
-  void stationChangedSlot(const QString&);
+  void stationChangedSlot(const std::vector<std::string>&);
   void modelChangedSlot();
   void crossectionChangedSlot(const QString& name);
   void crossectionSetChangedSlot();

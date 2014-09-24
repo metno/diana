@@ -431,6 +431,19 @@ string StationManager::findStation(int x, int y, std::string name, int id)
   return std::string();
 }
 
+vector<string> StationManager::findStations(int x, int y, std::string name, int id)
+{
+  map <std::string,StationPlot*>::iterator it;
+  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == (*it).second->getId()) && (name == (*it).second->getName())) {
+      vector<std::string> st = (*it).second->findStations(x, y);
+      if (st.size() > 0)
+        return st;
+    }
+  }
+  return vector<std::string>();
+}
+
 void StationManager::findStations(int x, int y, bool add, std::vector<std::string>& name,
     std::vector<int>& id, std::vector<std::string>& station)
 {

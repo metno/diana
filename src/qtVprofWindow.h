@@ -64,7 +64,8 @@ public:
   ~VprofWindow(){}
 
   StationPlot* getStations();
-  bool changeStation(const std::string& station);
+  void changeStation(const std::string& station);
+  void changeStations(const std::vector<std::string>& stations);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
@@ -99,6 +100,8 @@ private:
 
   void updateStationBox();
   void updateTimeBox();
+  void stationChanged();
+  void timeChanged();
 
   // printerdefinitions
   printOptions priop;
@@ -112,6 +115,7 @@ private slots:
   void modelClicked(bool on);
   void leftStationClicked();
   void rightStationClicked();
+  void stationClicked( int i);
   void leftTimeClicked();
   void rightTimeClicked();
   void timeClicked(int i);
@@ -129,13 +133,11 @@ private slots:
   void hideSetup();
   void stationBoxActivated(int index);
   void timeBoxActivated(int index);
-  bool timeChangedSlot();
-  bool stationChangedSlot(int);
 
 signals:
   void VprofHide();
   void showsource(const std::string, const std::string=""); // activate help
-  void stationChanged(const QString& );
+  void stationChanged(const std::vector<std::string>& );
   void modelChanged();
   void emitTimes(const std::string&, const std::vector<miutil::miTime>& );
   void setTime(const std::string&, const miutil::miTime&);

@@ -129,7 +129,6 @@ bool VprofData::readFimex(const std::string& setup_line)
 
   for (size_t i = 0; i < stations.size(); i++) {
     posName.push_back(stations[i].name);
-    obsName.push_back(stations[i].id);
     posLatitude.push_back(stations[i].lat);
     posLongitude.push_back(stations[i].lon);
     posDeltaLatitude.push_back(0.0);

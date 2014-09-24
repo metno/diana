@@ -942,6 +942,10 @@ std::string Controller::findStation(int x, int y, std::string name, int id){
   return stam->findStation(x,y,name,id);
 }
 
+std::vector<std::string> Controller::findStations(int x, int y, std::string name, int id){
+  return stam->findStations(x,y,name,id);
+}
+
 void Controller::findStations(int x, int y, bool add,
     vector<std::string>& name,
     vector<int>& id,

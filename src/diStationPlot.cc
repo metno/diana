@@ -651,27 +651,33 @@ Station* StationPlot::stationAt(int x, int y)
   return 0;
 }
 
-vector<Station*> StationPlot::stationsAt(int x, int y)
+vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAllStations)
 {
   float xpos = x * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
   float ypos = y * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
 
-  float min_r = 10.0f * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
+  float min_r = radius * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth();
   min_r = powf(min_r, 2);
 
   vector<Station*> within;
 
   float gx = xpos, gy = ypos;
   if (!StaticPlot::getMapArea().P().convertToGeographic(1, &gx, &gy)) {
-    vector<Station*> found = stationAreas[0].findStations(gy, gx);
+    vector<Station*> found;
+    if ( useAllStations ) {
+      found = stations;
+    } else {
+      found = stationAreas[0].findStations(gy, gx);
+    }
 
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
         float sx = found[i]->lon, sy = found[i]->lat;
         if (StaticPlot::getMapArea().P().convertFromGeographic(1, &sx, &sy) == 0) {
           float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
-          if (r < min_r)
+          if (r < min_r) {
             within.push_back(found[i]);
+          }
         }
       }
     }
@@ -702,6 +708,22 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
   return stationstring;
 }
 
+vector<std::string> StationPlot::findStations(int x, int y)
+{
+  vector<std::string> stationstring;
+
+  if (!visible || !isEnabled())
+    return stationstring;
+
+  vector<Station*> found = stationsAt(x, y, 10.0f, true);
+
+  for (unsigned int i = 0; i < found.size(); i++) {
+    stationstring.push_back(found[i]->name);
+  }
+
+  return stationstring;
+}
+
 float StationPlot::getImageScale(int i)
 {
   return stations[i]->scale;
@@ -717,11 +739,27 @@ vector<Station*> StationPlot::getSelectedStations() const
   return stations;
 }
 
+void StationPlot::setSelectedStations(const std::vector<std::string>& station)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(station.size()));
+
+    int n = stations.size();
+  for (int j = 0; j < n; j++) {
+    stations[j]->isSelected = false;
+  }
+
+  int m = station.size();
+  for (int j = 0; j < m; j++){
+    for (int i = 0; i < n; i++)
+      if (stations[i]->name == station[j]) {
+        setSelectedStation(i,true);
+      }
+  }
+}
+
 int StationPlot::setSelectedStation(std::string station, bool add)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("StationPlot::setSelectedStation" << station);
-#endif
 
   int n = stations.size();
   for (int i = 0; i < n; i++)
@@ -741,9 +779,7 @@ int StationPlot::setSelectedStation(std::string station, bool add)
  */
 int StationPlot::setSelectedStation(int i, bool add)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("StationPlot::setSelectedStation: " << i);
-#endif
   int n = stations.size();
 
   //remove old selections
@@ -1109,6 +1145,11 @@ bool StationPlot::stationCommand(const string& command,
 
   else if (command == "setSelectedStation" && data.size() > 0) {
     setSelectedStation(data[0]);
+    return true;
+  }
+
+  else if (command == "setSelectedStations" ) {
+    setSelectedStations(data);
     return true;
   }
 
@@ -1506,6 +1547,8 @@ StationArea::StationArea(float minLat, float maxLat, float minLon, float maxLon)
 
 vector<Station*> StationArea::findStations(float lat, float lon) const
 {
+  METLIBS_LOG_SCOPE();
+
   for (unsigned int i = 0; i < areas.size(); ++i) {
     if (lat >= areas[i].minLat && lat < areas[i].maxLat && lon >= areas[i].minLon && lon < areas[i].maxLon)
       return areas[i].findStations(lat, lon);

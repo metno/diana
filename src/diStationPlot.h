@@ -164,11 +164,14 @@ public:
   /// Returns the station at position x and y
   Station* stationAt(int x, int y);
   /// Returns all stations at position x and y
-  std::vector<Station*> stationsAt(int x, int y);
+  std::vector<Station*> stationsAt(int x, int y, float radius=100.0, bool useAllStation=false);
   /// Returns a std::vector containing the names of the stations at position x and y
   std::vector<std::string> findStation(int x, int y, bool add=false);
+  std::vector<std::string> findStations(int x, int y);
   /// Returns the selected stations in the plot object
   std::vector<Station*> getSelectedStations() const;
+  /// set stations with name station to selected<br>
+  void setSelectedStations(const std::vector<std::string>& station);
   /// set station with name station to selected<br> if add is false, unselect all stations first
   int setSelectedStation(std::string station, bool add=false);
   /// set station number i to selected<br> if add is false, unselect all stations first

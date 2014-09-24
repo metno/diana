@@ -142,7 +142,8 @@ private:
 
   int plotw, ploth;
 
-  std::string plotStation;
+  std::vector<std::string> plotStations;
+  std::vector<std::string> selectedStations;
   std::string lastStation;
   miutil::miTime   plotTime;
   miutil::miTime ztime;
@@ -183,11 +184,12 @@ public:
   void parseSetup();
   void setModel();
   void setStation(const std::string& station);
+  void setStations(const std::vector<std::string>& station);
   void setTime(const miutil::miTime& time);
   std::string setStation(int step);
   miutil::miTime setTime(int step, int dir);
   const miutil::miTime getTime(){return plotTime;}
-  const std::string getStation(){return plotStation;}
+  const std::vector<std::string> getStations(){return selectedStations;}
   const std::string getLastStation(){return lastStation;}
   const std::vector<std::string>& getStationList() { return nameList; }
   const std::vector<float>& getLatitudes(){return latitudeList;}

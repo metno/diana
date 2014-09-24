@@ -1073,8 +1073,8 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
-  connect(vpWindow,SIGNAL(stationChanged(const QString &)),
-      SLOT(stationChangedSlot(const QString &)));
+  connect(vpWindow,SIGNAL(stationChanged(const std::vector<std::string> &)),
+      SLOT(stationChangedSlot(const std::vector<std::string> &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
 
   // vertical crossections
@@ -1865,14 +1865,10 @@ void DianaMainWindow::hideSpectrumWindow()
 }
 
 
-void DianaMainWindow::stationChangedSlot(const QString& station)
+void DianaMainWindow::stationChangedSlot(const vector<std::string>& station)
 {
-  //METLIBS_LOG_DEBUG("DianaMainWindow::stationChangedSlot to " << station);
-  METLIBS_LOG_DEBUG("DianaMainWindow::stationChangedSlot");
-  string s =station.toStdString();
-  vector<string> data;
-  data.push_back(s);
-  contr->stationCommand("setSelectedStation",data,"vprof");
+  METLIBS_LOG_SCOPE();
+  contr->stationCommand("setSelectedStations",station,"vprof");
   w->updateGL();
 }
 
@@ -3144,7 +3140,7 @@ void DianaMainWindow::catchMouseRightPos(QMouseEvent* mev)
 // picks up mousemovements (without buttonclicks)
 void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev->x()<<" "<<mev->y());
+//  METLIBS_LOG_DEBUG("DianaMainWindow::catchMouseMovePos x,y: "<<mev->x()<<" "<<mev->y());
   int x = mev->x();
   int y = mev->y();
 
@@ -3222,18 +3218,17 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
     needupdate= true;
   }
 
-  //find the name of station we clicked/pointed
-  //at (from plotModul->stationPlot)
-  std::string station = contr->findStation(x,y,"vprof");
+  //find the name of stations clicked/pointed
+  //at
+  vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
-  if (vpWindow && !station.empty()) {
-    vpWindow->changeStation(station);
-    //  needupdate= true;
+  if (vpWindow ) {
+    vpWindow->changeStations(stations);
   }
 
   //find the name of station we clicked/pointed
   //at (from plotModul->stationPlot)
-  station = contr->findStation(x,y,"spectrum");
+  std::string station = contr->findStation(x,y,"spectrum");
   //now tell spWindow about new station (this calls spManager)
   if (spWindow && !station.empty()) {
     spWindow->changeStation(station);
