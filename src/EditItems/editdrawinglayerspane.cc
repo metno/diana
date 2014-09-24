@@ -57,7 +57,7 @@
 #include "remove.xpm"
 #include "filesave.xpm"
 
-#define MILOGGER_CATEGORY "diana.DrawingManager"
+#define MILOGGER_CATEGORY "diana.EditDrawingDialog"
 #include <miLogger/miLogging.h>
 
 namespace EditItems {
