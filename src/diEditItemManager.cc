@@ -156,9 +156,26 @@ void EditItemManager::setEditing(bool enable)
   emit editing(enable);
   if (!enable) {
     hoverItem_.clear();
+    abortEditing();
     emit unsetWorkAreaCursor();
   } else {
-    // set hoverItem_ if current mouse pos hits an item ... TBD
+    // restore mode
+    if (mode_ == SelectMode)
+      setSelectMode();
+    else if (mode_ == CreatePolyLineMode)
+      setCreatePolyLineMode();
+    else if (mode_ == CreateSymbolMode)
+      setCreateSymbolMode();
+    else if (mode_ == CreateTextMode)
+      setCreateTextMode();
+    else if (mode_ == CreateCompositeMode)
+      setCreateCompositeMode();
+    else
+      METLIBS_LOG_WARN("EditItemManager::setEditing(): invalid mode: " << mode_);
+
+    // restore any hover item etc.
+    QMouseEvent hoverEvent(QEvent::MouseMove, lastHoverPos_, Qt::NoButton, Qt::MouseButtons(), Qt::KeyboardModifiers());
+    mouseMove(&hoverEvent);
   }
 }
 
