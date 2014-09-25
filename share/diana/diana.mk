@@ -276,6 +276,7 @@ dist_symbols_DATA= \
 	share/diana/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_Hail.svg \
+	share/diana/images/symbols/WeatherSymbol_ICAO_Hail_Filled.svg \
 	share/diana/images/symbols/WeatherSymbol_WMO_High_Pressure.svg \
 	share/diana/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg \
