@@ -418,6 +418,7 @@ QVariantMap DrawingStyleManager::getStyle(DrawingItemBase *item) const
 QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 {
   QHash<QString, QString> styleProperties;
+  // Build a hash containing only the item properties that are style-related.
   foreach (QString key, item->propertiesRef().keys()) {
     if (key.startsWith("style:"))
       styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
