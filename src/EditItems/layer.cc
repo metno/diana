@@ -328,6 +328,11 @@ QSet<QString> Layer::srcFiles() const
   return srcFiles_;
 }
 
+void Layer::clearSrcFiles()
+{
+  srcFiles_.clear();
+}
+
 void Layer::insertSrcFile(const QString &srcFile)
 {
   srcFiles_.insert(srcFile);

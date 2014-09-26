@@ -108,6 +108,11 @@ void saveLayersToFile(const QString &fileName, const QList<QSharedPointer<EditIt
     return;
   }
   file.close();
+
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    layer->clearSrcFiles();
+    layer->insertSrcFile(fileName);
+  }
 }
 
 QDomElement createExtDataDataElement(QDomDocument &doc, const QString &name, const QString &value)

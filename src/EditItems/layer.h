@@ -90,6 +90,7 @@ public:
   void setLayerGroup(const QSharedPointer<LayerGroup> &);
   const QSharedPointer<LayerGroup> &layerGroupRef() const;
   QSet<QString> srcFiles() const;
+  void clearSrcFiles();
   void insertSrcFile(const QString &);
   void uniteSrcFiles(const QSet<QString> &srcFiles);
 private:
