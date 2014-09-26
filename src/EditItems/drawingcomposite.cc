@@ -136,7 +136,7 @@ void Composite::createElements()
     points_.append(QPointF(0, 0));
   }
 
-  QVariantMap style = DrawingStyleManager::instance()->getStyle(DrawingItemBase::Composite, properties_.value("style:type").toString());
+  QVariantMap style = DrawingStyleManager::instance()->getStyle(this);
   QStringList objects = style.value("objects").toStringList();
   QStringList values = style.value("values").toStringList();
   QStringList styles = style.value("styles").toStringList();
