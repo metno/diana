@@ -61,6 +61,7 @@ public:
   QList<QSharedPointer<DrawingItemBase> > items() const;
   QSet<QSharedPointer<DrawingItemBase> > itemSet() const;
   void insertItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  void insertItems(const QList<QSharedPointer<DrawingItemBase> > &, bool = true);
   bool removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
   void clearItems(bool = true);
   bool containsItem(const QSharedPointer<DrawingItemBase> &) const;

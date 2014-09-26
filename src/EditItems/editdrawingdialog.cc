@@ -167,6 +167,13 @@ static void dumpLayerManagerStructure(const LayerManager *lm)
            .arg(layer->itemCount())
            .arg(layer->selectedItemCount())
            .toLatin1().data();
+    if (layer->srcFiles().isEmpty()) {
+      qDebug() << "    src files: none";
+    } else {
+      qDebug() << "    src files:";
+      foreach (const QString srcFile, layer->srcFiles())
+        qDebug() << "      " << srcFile.toLatin1().data();
+    }
     i++;
   }
 }

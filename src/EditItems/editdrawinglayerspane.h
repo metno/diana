@@ -57,6 +57,7 @@ private:
   QString scratchLayerName_;
   QToolButton *addEmptyButton_;
   QToolButton *addFromFileButton_;
+  QToolButton *refreshSelectedButton_;
   QToolButton *selectAllItemsButton_;
   QToolButton *deselectAllItemsButton_;
   QToolButton *mergeSelectedButton_;
@@ -65,6 +66,7 @@ private:
   QToolButton *saveSelectedButton_;
   QToolButton *undoButton_;
   QToolButton *redoButton_;
+  QAction *refresh_act_;
   QAction *selectAll_act_;
   QAction *deselectAll_act_;
   QAction *merge_act_;
@@ -77,6 +79,7 @@ private slots:
   void deselectAll();
   void addEmpty();
   void addFromFile();
+  void refreshSelected();
   void mergeSelected();
   void duplicateSelected();
   void removeSelected();

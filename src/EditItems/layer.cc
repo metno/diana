@@ -128,6 +128,12 @@ void Layer::insertItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
     emit updated();
 }
 
+void Layer::insertItems(const QList<QSharedPointer<DrawingItemBase> > &items, bool notify)
+{
+  foreach (const QSharedPointer<DrawingItemBase> &item, items)
+    insertItem(item, notify);
+}
+
 bool Layer::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
   const bool removed = items_.removeOne(item);

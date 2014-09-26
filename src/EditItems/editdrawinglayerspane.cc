@@ -52,6 +52,7 @@
 #include "deselectall.xpm"
 #include "addempty.xpm"
 #include "fileopen.xpm"
+#include "refresh.xpm"
 #include "merge.xpm"
 #include "duplicate.xpm"
 #include "remove.xpm"
@@ -60,6 +61,8 @@
 #define MILOGGER_CATEGORY "diana.EditDrawingDialog"
 #include <miLogger/miLogging.h>
 
+#include <QDebug>
+
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
@@ -67,6 +70,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   , scratchLayerName_("SCRATCH")
   , addEmptyButton_(0)
   , addFromFileButton_(0)
+  , refreshSelectedButton_(0)
   , selectAllItemsButton_(0)
   , deselectAllItemsButton_(0)
   , mergeSelectedButton_(0)
@@ -80,6 +84,7 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
   bottomLayout_->addWidget(addEmptyButton_ = createToolButton(QPixmap(addempty_xpm), "Add an empty layer", this, SLOT(addEmpty())));
   bottomLayout_->addWidget(addFromFileButton_ = createToolButton(QPixmap(fileopen_xpm), "Add layers from file", this, SLOT(addFromFile())));
+  bottomLayout_->addWidget(refreshSelectedButton_ = createToolButton(QPixmap(refresh_xpm), "Refresh selected layers from file", this, SLOT(refreshSelected())));
   bottomLayout_->addWidget(moveUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move selected layer up", this, SLOT(moveSingleSelectedUp())));
   bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));
   bottomLayout_->addWidget(editButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of selected layer", this, SLOT(editAttrsOfSingleSelected())));
@@ -101,6 +106,8 @@ EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManag
   bottomLayout_->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
 
   // create context menu actions
+  refresh_act_ = new QAction(QPixmap(refresh_xpm), tr("Refresh"), 0);
+  refresh_act_->setIconVisibleInMenu(true);
   selectAll_act_ = new QAction(QPixmap(selectall_xpm), tr("Select All"), 0);
   selectAll_act_->setIconVisibleInMenu(true);
   deselectAll_act_ = new QAction(QPixmap(deselectall_xpm), tr("Deselect All"), 0);
@@ -137,6 +144,7 @@ void EditDrawingLayersPane::updateButtons()
   int selectedItemsCount;
   getSelectedLayersItemCounts(allItemsCount, selectedItemsCount);
 
+  refreshSelectedButton_->setEnabled(selectedLayersCount > 0);
   selectAllItemsButton_->setEnabled(selectedItemsCount < allItemsCount);
   deselectAllItemsButton_->setEnabled(selectedItemsCount > 0);
   mergeSelectedButton_->setEnabled(selectedLayersCount > 1);
@@ -147,6 +155,8 @@ void EditDrawingLayersPane::updateButtons()
 
 void EditDrawingLayersPane::addContextMenuActions(QMenu &menu) const
 {
+  refresh_act_->setEnabled(refreshSelectedButton_->isEnabled());
+  menu.addAction(refresh_act_);
   selectAll_act_->setEnabled(selectAllItemsButton_->isEnabled());
   menu.addAction(selectAll_act_);
   deselectAll_act_->setEnabled(deselectAllItemsButton_->isEnabled());
@@ -163,6 +173,11 @@ void EditDrawingLayersPane::addContextMenuActions(QMenu &menu) const
 
 bool EditDrawingLayersPane::handleContextMenuAction(const QAction *action, const QList<LayerWidget *> &layerWidgets)
 {
+  if (action == refresh_act_) {
+    refreshSelected();
+    return true;
+  }
+
   if (action == selectAll_act_) {
     selectAll();
     return true;
@@ -237,7 +252,7 @@ void EditDrawingLayersPane::addEmpty()
 void EditDrawingLayersPane::addFromFile()
 {
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, &error);
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(layerMgr_, true, &error);
   if (!error.isEmpty()) {
     QMessageBox::warning(0, "Error", QString("failed to add to layer group from file: %1").arg(error));
     return;
@@ -252,6 +267,45 @@ void EditDrawingLayersPane::addFromFile()
   EditItemManager::instance()->undoStack()->push(
         new AddLayersCommand(
           "add layer(s) from file", layerMgr_, layers, layerMgr_->layerGroups().indexOf(layerMgr_->findLayer(scratchLayerName_)->layerGroupRef())));
+}
+
+void EditDrawingLayersPane::refreshSelected()
+{
+  // find union of source files of selected layers
+  QSet<QString> selFiles;
+  QMap<QString, QSharedPointer<Layer> > selLayers;
+  foreach (LayerWidget *lw, selectedWidgets()) {
+    const QSharedPointer<Layer> layer = lw->layer();
+    selFiles.unite(layer->srcFiles());
+    Q_ASSERT(!selLayers.contains(layer->name()));
+    selLayers.insert(layer->name(), layer);
+  }
+
+  // replace selected layers with contents of layers with the same name in selFiles
+  QSet<QString> affectedLayers;
+  foreach (const QString fileName, selFiles) {
+    QString error;
+    const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerMgr_, false, &error);\
+    if (error.isEmpty()) {
+      foreach (const QSharedPointer<Layer> layer, layers) {
+
+        if (selLayers.contains(layer->name())) {
+
+          // avoid clearing unaffected layers
+          if (!affectedLayers.contains(layer->name())) {
+            selLayers.value(layer->name())->clearItems(false); // affected for the first time, so clear
+            affectedLayers.insert(layer->name());
+          }
+
+          selLayers.value(layer->name())->insertItems(layer->items(), false);
+        }
+      }
+    } else {
+      METLIBS_LOG_WARN("Failed to load layers from file " << fileName.toStdString() << ": " << error.toStdString());
+    }
+  }
+
+  handleLayersUpdate();
 }
 
 void EditDrawingLayersPane::selectAll()
@@ -373,7 +427,7 @@ void EditDrawingLayersPane::handleLayersUpdate()
 void EditDrawingLayersPane::loadFile(const QString &fileName)
 {
   QString error;
-  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerMgr_, &error);\
+  const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerMgr_, true, &error);\
   if (error.isEmpty()) {
     Q_ASSERT(undoEnabled_);
     EditItemManager::instance()->undoStack()->push(
