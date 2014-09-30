@@ -271,6 +271,8 @@ void EditDrawingLayersPane::addFromFile()
 
 void EditDrawingLayersPane::refreshSelected()
 {
+  Q_ASSERT(undoEnabled_);
+
   // find union of source files of selected layers
   QSet<QString> selFiles;
   QMap<QString, QSharedPointer<Layer> > selLayers;
@@ -282,22 +284,20 @@ void EditDrawingLayersPane::refreshSelected()
   }
 
   // replace selected layers with contents of layers with the same name in selFiles
-  QSet<QString> affectedLayers;
+  QMap<QString, QSharedPointer<QList<QSharedPointer<DrawingItemBase> > > > newLayerItems; // refreshed set of items for each layer
+  bool itemsFound = false;
   foreach (const QString fileName, selFiles) {
     QString error;
     const QList<QSharedPointer<Layer> > layers = createLayersFromFile(fileName, layerMgr_, false, &error);\
     if (error.isEmpty()) {
       foreach (const QSharedPointer<Layer> layer, layers) {
-
         if (selLayers.contains(layer->name())) {
-
-          // avoid clearing unaffected layers
-          if (!affectedLayers.contains(layer->name())) {
-            selLayers.value(layer->name())->clearItems(false); // affected for the first time, so clear
-            affectedLayers.insert(layer->name());
-          }
-
-          selLayers.value(layer->name())->insertItems(layer->items(), false);
+          if (!layer->items().isEmpty())
+            itemsFound = true;
+          if (!newLayerItems.contains(layer->name()))
+            newLayerItems.insert(layer->name(), QSharedPointer<QList<QSharedPointer<DrawingItemBase> > >(new QList<QSharedPointer<DrawingItemBase> >));
+          foreach (const QSharedPointer<DrawingItemBase> &item, layer->items())
+            newLayerItems.value(layer->name())->append(item);
         }
       }
     } else {
@@ -305,7 +305,8 @@ void EditDrawingLayersPane::refreshSelected()
     }
   }
 
-  handleLayersUpdate();
+  if (itemsFound)
+    EditItemManager::instance()->undoStack()->push(new RefreshLayersCommand(layerMgr_, newLayerItems));
 }
 
 void EditDrawingLayersPane::selectAll()

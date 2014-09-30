@@ -32,9 +32,12 @@
 #ifndef MODIFYLAYERSCOMMAND_H
 #define MODIFYLAYERSCOMMAND_H
 
+#include <EditItems/drawingitembase.h>
+
 #include <QUndoCommand>
 #include <QString>
 #include <QList>
+#include <QMap>
 #include <QSharedPointer>
 
 class QBitArray;
@@ -119,6 +122,12 @@ class MoveLayerCommand : public ModifyLayersCommand
 {
 public:
   MoveLayerCommand(LayerManager *, int, int);
+};
+
+class RefreshLayersCommand : public ModifyLayersCommand
+{
+public:
+  RefreshLayersCommand(LayerManager *, const QMap<QString, QSharedPointer<QList<QSharedPointer<DrawingItemBase> > > > &);
 };
 
 } // namespace

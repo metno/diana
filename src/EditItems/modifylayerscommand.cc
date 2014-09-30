@@ -187,4 +187,15 @@ MoveLayerCommand::MoveLayerCommand(LayerManager *layerMgr, int from, int to)
   newOrderedLayers_.insert(to, newOrderedLayers_.takeAt(from));
 }
 
+RefreshLayersCommand::RefreshLayersCommand(LayerManager *layerMgr, const QMap<QString, QSharedPointer<QList<QSharedPointer<DrawingItemBase> > > > &newLayerItems)
+  : ModifyLayersCommand("refresh layer(s)", layerMgr)
+{
+  foreach (const QSharedPointer<Layer> &layer, newOrderedLayers_) {
+    if (newLayerItems.contains(layer->name())) {
+      layer->clearItems(false);
+      layer->insertItems(*(newLayerItems.value(layer->name()).data()), false);
+    }
+  }
+}
+
 } // namespace
