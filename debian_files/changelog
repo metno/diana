@@ -127,7 +127,7 @@ diana (3.35.0-13) unstable; urgency=low
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 19 May 2014 15:20:37 +0200
 
-src/qtVprofWindow.hdiana (3.35.0-12) unstable; urgency=low
+diana (3.35.0-12) unstable; urgency=low
 
   * Bugfix vcross: locationData and topography
   * Bugfix edit: permissions
