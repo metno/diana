@@ -59,9 +59,9 @@
 #include <qpixmap.h>
 #include <qcursor.h>
 #include <paint_cursor.xpm>
-#include <paint_add_crusor.xpm>
-#include <paint_remove_crusor.xpm>
-#include <paint_forbidden_crusor.xpm>
+#include <paint_add_cursor.xpm>
+#include <paint_remove_cursor.xpm>
+#include <paint_forbidden_cursor.xpm>
 
 // GLwidget constructor
 #if !defined(USE_PAINTGL)
@@ -224,14 +224,14 @@ void GLwidget::changeCursor(const cursortype c)
     case paint_draw_cursor:
       setCursor(QCursor(QPixmap(paint_cursor_xpm), 0, 16));
       break;
-    case paint_add_crusor:
-      setCursor(QCursor(QPixmap(paint_add_crusor_xpm), 7, 1));
+    case paint_add_cursor:
+      setCursor(QCursor(QPixmap(paint_add_cursor_xpm), 7, 1));
       break;
-    case paint_remove_crusor:
-      setCursor(QCursor(QPixmap(paint_remove_crusor_xpm), 7, 1));
+    case paint_remove_cursor:
+      setCursor(QCursor(QPixmap(paint_remove_cursor_xpm), 7, 1));
       break;
-    case paint_forbidden_crusor:
-      setCursor(QCursor(QPixmap(paint_forbidden_crusor_xpm), 7, 1));
+    case paint_forbidden_cursor:
+      setCursor(QCursor(QPixmap(paint_forbidden_cursor_xpm), 7, 1));
       break;
     case normal_cursor:
     default:
