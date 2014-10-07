@@ -209,7 +209,29 @@ void Composite::createElements()
 
 void Composite::arrangeElements()
 {
-  QRectF previousRect = QRectF(points_[0], QSizeF(0, 0));
+  QRectF previousRect;
+
+  QSizeF maxSize;
+  for (int i = 0; i < elements_.size(); ++i) {
+    DrawingItemBase *element = elements_.at(i);
+    element->updateRect();
+    QSizeF size = element->getSize();
+    maxSize = maxSize.expandedTo(size);
+  }
+
+  switch (layout_) {
+  case Horizontal:
+    previousRect = QRectF(points_[0], QSizeF(0, maxSize.height()));
+    break;
+  case Vertical:
+    previousRect = QRectF(points_[0], QSizeF(maxSize.width(), 0));
+    break;
+  case Diagonal:
+    previousRect = QRectF(points_[0], QSizeF(maxSize.width(), maxSize.height()));
+    break;
+  default:
+    ;
+  }
 
   for (int i = 0; i < elements_.size(); ++i) {
 
@@ -221,52 +243,45 @@ void Composite::arrangeElements()
 
     if (dynamic_cast<DrawingItem_PolyLine::PolyLine *>(element)) {
 
-      // Treat lines differently. Position all the points based on the previous
-      // element, discarding the existing geometry of the line.
-      if (i != 0) {
-        switch (layout_) {
-        case Horizontal:
-          points << QPointF(previousRect.right(), previousRect.bottom());
-          points << QPointF(previousRect.right(), previousRect.top());
-          previousRect.translate(2, 0);
-          break;
-        case Vertical:
-          points << QPointF(previousRect.left(), previousRect.top());
-          points << QPointF(previousRect.right(), previousRect.top());
-          previousRect.translate(0, -2);
-          break;
-        case Diagonal:
-          points << QPointF(previousRect.left() + previousRect.width()/2,
-                            previousRect.top() - previousRect.height()/2);
-          points << QPointF(previousRect.right() + previousRect.width()/2,
-                            previousRect.bottom() - previousRect.height()/2);
-          previousRect.translate(2, -2);
-          break;
-        default:
-          ;
-        }
+      // Treat lines differently. Position all the points based on the parent
+      // and following elements, discarding the existing geometry of the line.
+      switch (layout_) {
+      case Horizontal:
+        points << QPointF(previousRect.right(), previousRect.bottom());
+        points << QPointF(previousRect.right(), previousRect.top());
+        previousRect.translate(2, 0);
+        break;
+      case Vertical:
+        points << QPointF(previousRect.left(), previousRect.top());
+        points << QPointF(previousRect.right(), previousRect.top());
+        previousRect.translate(0, -2);
+        break;
+      case Diagonal:
+        points << QPointF(previousRect.left() + previousRect.width()/2,
+                          previousRect.top() - previousRect.height()/2);
+        points << QPointF(previousRect.right() + previousRect.width()/2,
+                          previousRect.bottom() - previousRect.height()/2);
+        previousRect.translate(2, -2);
+        break;
+      default:
+        ;
       }
-
-      element->setPoints(points);
-
     } else {
-      if (i == 0)
-        point = QPointF(previousRect.left(), previousRect.top());
-      else {
-        switch (layout_) {
-        case Horizontal:
-          //point = QPointF(previousRect.right(), previousRect.bottom() - previousRect.height() + size.height());
-          point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
-          break;
-        case Vertical:
-          point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
-          break;
-        case Diagonal:
-          point = QPointF(previousRect.right(), previousRect.top());
-          break;
-        default:
-          ;
-        }
+      switch (layout_) {
+      case Horizontal:
+        point = QPointF(previousRect.right(), previousRect.bottom() - (previousRect.height() - size.height())/2);
+        previousRect.translate(size.width(), 0);
+        break;
+      case Vertical:
+        point = QPointF(previousRect.left() + (previousRect.size().width() - size.width())/2, previousRect.top());
+        previousRect.translate(0, -size.height());
+        break;
+      case Diagonal:
+        point = QPointF(previousRect.right(), previousRect.top());
+        previousRect.translate(size.width(), -size.height());
+        break;
+      default:
+        ;
       }
 
       // Determine the change in position of the element.
@@ -275,10 +290,9 @@ void Composite::arrangeElements()
       points = element->getPoints();
       for (int j = 0; j < points.size(); ++j)
         points[j] += offset;
-
-      element->setPoints(points);
-      previousRect = element->boundingRect();
     }
+
+    element->setPoints(points);
   }
 }
 

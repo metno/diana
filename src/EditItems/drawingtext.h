@@ -48,6 +48,7 @@ public:
   virtual QStringList text() const;
   virtual void setText(const QStringList &lines);
 
+
   GLfloat fontScale() const;
   void updateRect();
 

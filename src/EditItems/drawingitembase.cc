@@ -142,6 +142,10 @@ QRectF DrawingItemBase::boundingRect() const
   return QRectF(xmin, ymin, xmax - xmin, ymax - ymin);
 }
 
+void DrawingItemBase::updateRect()
+{
+}
+
 QList<QPointF> DrawingItemBase::getLatLonPoints() const
 {
     return latLonPoints_;

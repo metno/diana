@@ -425,7 +425,15 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
     if (key.startsWith("style:"))
       styleProperties[key.mid(6)] = item->propertiesRef().value(key).toString();
   }
-  return parse(item->category(), styleProperties);
+
+  // If the style is customised then parse the contents of the hash; otherwise
+  // just return the style that corresponds to the style name.
+  if (item->category() == DrawingItemBase::PolyLine)
+    return parse(item->category(), styleProperties);
+  else {
+    const QString styleName = item->property("style:type").toString();
+    return styles_[item->category()].value(styleName);
+  }
 }
 
 QStringList DrawingStyleManager::getComplexTextList() const

@@ -85,6 +85,8 @@ public:
   virtual QSizeF getSize() const;
   // Returns the item's bounding rectangle.
   virtual QRectF boundingRect() const;
+  // Updates the bounding rectangle.
+  virtual void updateRect();
 
   // Returns the item's geographic points.
   virtual QList<QPointF> getLatLonPoints() const;

@@ -274,6 +274,7 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
         // Record the index of this component in the list of objects.
         textCombo->setProperty("index", i);
         connect(textCombo, SIGNAL(currentIndexChanged(const QString &)), SLOT(updateText(const QString &)));
+        connect(textCombo, SIGNAL(editTextChanged(const QString &)), SLOT(updateText(const QString &)));
         child = textCombo;
 
       } else {
