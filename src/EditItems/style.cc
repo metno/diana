@@ -51,6 +51,7 @@ public:
   DecorationBox(QWidget *parent = 0)
     : QComboBox(parent)
   {
+    addItem("none", "");
     addItem("triangles", "triangles");
     addItem("arches", "arches");
     addItem("crosses", "crosses");
@@ -66,6 +67,7 @@ public:
   FillPatternBox(QWidget *parent = 0)
     : QComboBox(parent)
   {
+    addItem("solid", "");
     addItem("diagleft", "diagleft");
     addItem("zigzag", "zigzag");
     addItem("paralyse", "paralyse");
