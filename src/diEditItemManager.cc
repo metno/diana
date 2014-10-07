@@ -222,10 +222,11 @@ QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVar
         EditItem_Text::Text, EditItem_Composite::Composite>(vmap, error));
 }
 
-void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded)
+void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded, bool ignoreSelection)
 {
   DrawingManager::addItem_(item);
-  selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
+  if (!ignoreSelection)
+    selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
   if (!EditItems::ToolBar::instance()->nonSelectActionLocked())
     EditItems::ToolBar::instance()->setSelectAction();
   emit itemAdded(item.data());
@@ -295,7 +296,7 @@ void EditItemManager::retrieveItems(const QSet<QSharedPointer<DrawingItemBase> >
     // coordinates, so we use those to obtain screen coordinates.
     if (!item->getLatLonPoints().isEmpty())
       setFromLatLonPoints(*item, item->getLatLonPoints());
-    addItem_(item, ++i == items.size());
+    addItem_(item, ++i == items.size(), true);
   }
 }
 
@@ -1071,13 +1072,16 @@ void EditItemManager::pasteItems(QSet<QSharedPointer<DrawingItemBase> > *addedIt
     foreach (QVariant cbItem, cbItems) {
       QString error;
       const QSharedPointer<DrawingItemBase> item = createItemFromVarMap(cbItem.toMap(), &error);
-      if (item)
+      if (item) {
+        item->setSelected();
         addItem(item, addedItems, false);
-      else
+      } else {
         QMessageBox::warning(0, "Error", error);
+      }
     }
   }
 
+  layerMgr_->deselectAllItems();
   updateActionsAndTimes();
 }
 

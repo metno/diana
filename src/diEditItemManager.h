@@ -159,7 +159,7 @@ signals:
   void loadFile(const QString &) const;
 
 protected:
-  virtual void addItem_(const QSharedPointer<DrawingItemBase> &, bool = true);
+  virtual void addItem_(const QSharedPointer<DrawingItemBase> &, bool = true, bool = false);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &, bool = true);
 
 private slots:
