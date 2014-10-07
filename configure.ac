@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.36.0], [diana@met.no])
+AC_INIT([diana], [3.36.1], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])

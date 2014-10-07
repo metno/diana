@@ -1,3 +1,10 @@
+diana (3.36.1-1) unstable; urgency=low
+
+  * Vcross: bugfix - timegraph
+  * Vprof: bugfix - bdiana
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 07 Oct 2014 11:33:31 +0200
+
 diana (3.36.0-2) unstable; urgency=low
 
   * Bugfix utf-8
