@@ -45,6 +45,23 @@
 
 namespace EditItemsStyle {
 
+class DecorationBox : public QComboBox
+{
+public:
+  DecorationBox(QWidget * = 0);
+};
+
+DecorationBox::DecorationBox(QWidget *parent)
+  : QComboBox(parent)
+{
+  addItem("triangles", "triangles");
+  addItem("arches", "arches");
+  addItem("crosses", "crosses");
+  addItem("arrow", "arrow");
+  addItem("SIGWX", "SIGWX");
+  addItem("arches,triangles", "arches,triangles");
+}
+
 ComboBoxEditor::ComboBoxEditor(QComboBox *comboBox) : comboBox_(comboBox)
 {
   connect(comboBox_, SIGNAL(currentIndexChanged(int)), SIGNAL(currentIndexChanged(int)));
@@ -247,6 +264,15 @@ private:
   virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
 };
 
+class SPE_decoration1 : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_decoration1::name(); }
+private:
+  virtual QString labelText() const { return "decoration 1"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new DecorationBox); }
+};
+
 class SPE_decoration1_colour : public StylePropertyEditor
 {
 public:
@@ -263,6 +289,15 @@ public:
 private:
   virtual QString labelText() const { return "decoration 1 offset"; }
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 100); }
+};
+
+class SPE_decoration2 : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_decoration2::name(); }
+private:
+  virtual QString labelText() const { return "decoration 2"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new DecorationBox); }
 };
 
 class SPE_decoration2_colour : public StylePropertyEditor
@@ -348,6 +383,12 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_closed; }
 };
 
+class ESP_decoration1 : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1; }
+};
+
 class ESP_decoration1_colour : public EditStyleProperty
 {
 private:
@@ -358,6 +399,12 @@ class ESP_decoration1_offset : public EditStyleProperty
 {
 private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_offset; }
+};
+
+class ESP_decoration2 : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2; }
 };
 
 class ESP_decoration2_colour : public EditStyleProperty
@@ -397,10 +444,10 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
   // fillpattern ... TBD
   properties_.insert(DSP_closed::name(), new ESP_closed);
-  // decoration1 ... TBD
+  properties_.insert(DSP_decoration1::name(), new ESP_decoration1);
   properties_.insert(DSP_decoration1_colour::name(), new ESP_decoration1_colour);
   properties_.insert(DSP_decoration1_offset::name(), new ESP_decoration1_offset);
-  // decoration2 ... TBD
+  properties_.insert(DSP_decoration2::name(), new ESP_decoration2);
   properties_.insert(DSP_decoration2_colour::name(), new ESP_decoration2_colour);
   properties_.insert(DSP_decoration2_offset::name(), new ESP_decoration2_offset);
 }
