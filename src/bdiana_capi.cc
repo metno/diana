@@ -1943,6 +1943,7 @@ static int parseAndProcess(istream &is)
           painter.setRenderHint(QPainter::Antialiasing);
 #endif
         vcrossmanager->plot();
+#endif
 
         // --------------------------------------------------------
       } else if (plottype == plot_vprof) {
@@ -1954,7 +1955,6 @@ static int parseAndProcess(istream &is)
         if (not MAKE_CONTROLLER())
           return 99;
 
-#endif
         // -- vprof plot
         if (!vprofmanager) {
           vprofmanager = new VprofManager(main_controller);
