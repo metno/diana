@@ -48,19 +48,32 @@ namespace EditItemsStyle {
 class DecorationBox : public QComboBox
 {
 public:
-  DecorationBox(QWidget * = 0);
+  DecorationBox(QWidget *parent = 0)
+    : QComboBox(parent)
+  {
+    addItem("triangles", "triangles");
+    addItem("arches", "arches");
+    addItem("crosses", "crosses");
+    addItem("arrow", "arrow");
+    addItem("SIGWX", "SIGWX");
+    addItem("arches,triangles", "arches,triangles");
+  }
 };
 
-DecorationBox::DecorationBox(QWidget *parent)
-  : QComboBox(parent)
+class FillPatternBox : public QComboBox
 {
-  addItem("triangles", "triangles");
-  addItem("arches", "arches");
-  addItem("crosses", "crosses");
-  addItem("arrow", "arrow");
-  addItem("SIGWX", "SIGWX");
-  addItem("arches,triangles", "arches,triangles");
-}
+public:
+  FillPatternBox(QWidget *parent = 0)
+    : QComboBox(parent)
+  {
+    addItem("diagleft", "diagleft");
+    addItem("zigzag", "zigzag");
+    addItem("paralyse", "paralyse");
+    addItem("ldiagleft2", "ldiagleft2");
+    addItem("vdiagleft", "vdiagleft");
+    addItem("vldiagcross_little", "vldiagcross_little");
+  }
+};
 
 ComboBoxEditor::ComboBoxEditor(QComboBox *comboBox) : comboBox_(comboBox)
 {
@@ -255,6 +268,15 @@ private:
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
+class SPE_fillpattern : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_fillpattern::name(); }
+private:
+  virtual QString labelText() const { return "fill pattern"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(new FillPatternBox); }
+};
+
 class SPE_closed : public StylePropertyEditor
 {
 public:
@@ -377,6 +399,12 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_filltransparency; }
 };
 
+class ESP_fillpattern : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillpattern; }
+};
+
 class ESP_closed : public EditStyleProperty
 {
 private:
@@ -442,7 +470,7 @@ StyleEditor::StyleEditor()
   // lineshape ... TBD
   properties_.insert(DSP_fillcolour::name(), new ESP_fillcolour);
   properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
-  // fillpattern ... TBD
+  properties_.insert(DSP_fillpattern::name(), new ESP_fillpattern);
   properties_.insert(DSP_closed::name(), new ESP_closed);
   properties_.insert(DSP_decoration1::name(), new ESP_decoration1);
   properties_.insert(DSP_decoration1_colour::name(), new ESP_decoration1_colour);
