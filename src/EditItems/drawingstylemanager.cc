@@ -304,8 +304,10 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, Q
 void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vstyle, const QString &prefix) const
 {
   QHash<QString, QString> style;
-  foreach (QString key, vstyle.keys())
-    style.insert(key, vstyle.value(key).toString());
+  foreach (QString key, vstyle.keys()) {
+    const QVariant v = vstyle.value(key);
+    style.insert(key, (v.type() == QVariant::StringList) ? v.toStringList().join(",") : v.toString());
+  }
   setStyle(item, style, prefix);
 }
 
