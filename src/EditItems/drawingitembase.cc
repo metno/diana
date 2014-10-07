@@ -88,10 +88,10 @@ const QVariantMap &DrawingItemBase::propertiesRef() const
   return properties_;
 }
 
-void DrawingItemBase::setProperties(const QVariantMap &properties)
+void DrawingItemBase::setProperties(const QVariantMap &properties, bool ignorePoints)
 {
   properties_ = properties;
-  if (properties.contains("points")) {
+  if ((!ignorePoints) && properties.contains("points")) {
     QVariantList points = properties.value("points").toList();
     points_.clear();
     latLonPoints_.clear();

@@ -74,7 +74,7 @@ public:
   QVariantMap &propertiesRef();
   const QVariantMap &propertiesRef() const;
   // Sets the item's properties.
-  void setProperties(const QVariantMap &);
+  void setProperties(const QVariantMap &, bool = false);
 
   // Returns the item's points.
   virtual QList<QPointF> getPoints() const;

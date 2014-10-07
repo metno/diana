@@ -50,13 +50,13 @@ ModifyPropertiesCommand::ModifyPropertiesCommand(
 void ModifyPropertiesCommand::undo()
 {
   for (int i = 0; i < items_.size(); ++i)
-    items_.at(i)->setProperties(oldProperties_.at(i));
+    items_.at(i)->setProperties(oldProperties_.at(i), true);
 }
 
 void ModifyPropertiesCommand::redo()
 {
   for (int i = 0; i < items_.size(); ++i)
-    items_.at(i)->setProperties(newProperties_.at(i));
+    items_.at(i)->setProperties(newProperties_.at(i), true);
 }
 
 } // namespace
