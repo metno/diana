@@ -129,9 +129,6 @@ QVariant DSP_linepattern::parse(const QHash<QString, QString> &def) const { retu
 QString DSP_linesmooth::name() { return "linesmooth"; }
 QVariant DSP_linesmooth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
 
-QString DSP_lineshape::name() { return "lineshape"; }
-QVariant DSP_lineshape::parse(const QHash<QString, QString> &def) const { return def.value(name(), "normal"); }
-
 QString DSP_fillcolour::name() { return "fillcolour"; }
 QVariant DSP_fillcolour::parse(const QHash<QString, QString> &def) const { return parseColour(fillColour(def)); }
 
@@ -218,7 +215,6 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::PolyLine].insert(DSP_linewidth::name(), new DSP_linewidth);
   properties_[DrawingItemBase::PolyLine].insert(DSP_linepattern::name(), new DSP_linepattern);
   properties_[DrawingItemBase::PolyLine].insert(DSP_linesmooth::name(), new DSP_linesmooth);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_lineshape::name(), new DSP_lineshape);
   properties_[DrawingItemBase::PolyLine].insert(DSP_fillcolour::name(), new DSP_fillcolour);
   properties_[DrawingItemBase::PolyLine].insert(DSP_filltransparency::name(), new DSP_filltransparency);
   properties_[DrawingItemBase::PolyLine].insert(DSP_fillpattern::name(), new DSP_fillpattern);

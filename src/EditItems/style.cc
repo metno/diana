@@ -469,7 +469,6 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_linewidth::name(), new ESP_linewidth);
   properties_.insert(DSP_linepattern::name(), new ESP_linepattern);
   properties_.insert(DSP_linesmooth::name(), new ESP_linesmooth);
-  // lineshape ... TBD
   properties_.insert(DSP_fillcolour::name(), new ESP_fillcolour);
   properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
   properties_.insert(DSP_fillpattern::name(), new ESP_fillpattern);

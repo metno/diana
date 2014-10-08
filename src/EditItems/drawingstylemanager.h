@@ -98,14 +98,6 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
-class DSP_lineshape : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
 class DSP_fillcolour : public DrawingStyleProperty
 {
 public:
