@@ -275,7 +275,7 @@ void Text::drawIncomplete() const
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
   GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
-  styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
+  styleManager->beginText(this, poptions);
 
   QStringList lines_ = text();
 

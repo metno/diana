@@ -278,12 +278,12 @@ public:
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
-  void beginText(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions);
+  void beginText(const DrawingItemBase *item, const PlotOptions &poptions);
   void endText(const DrawingItemBase *item);
 
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
-  void setFont(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions);
+  void setFont(const DrawingItemBase *item, const PlotOptions &poptions);
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);

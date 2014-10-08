@@ -287,12 +287,11 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
       }
 
     } else if (objects.at(i) == "symbol") {
-      QToolButton *button = new QToolButton();
+      QLabel *label = new QLabel();
 
-      int size = DrawingItem_Symbol::Symbol::defaultSize();
-      button->setIcon(QPixmap::fromImage(dm->getSymbolImage(style, size, size)));
-      button->setIconSize(QSize(size, size));
-
+      QSize size = dm->getSymbolSize(style);
+      label->setPixmap(QPixmap::fromImage(dm->getSymbolImage(style, size.width(), size.height())));
+/*
       QMenu *menu = new QMenu();
       foreach (QString symbolName, dm->symbolNames()) {
         QIcon icon(QPixmap::fromImage(dm->getSymbolImage(symbolName, 32, 32)));
@@ -301,10 +300,10 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
         action->setIconText(symbolName);
       }
       connect(menu, SIGNAL(triggered(QAction *)), SLOT(updateSymbol(QAction *)));
-
       button->setMenu(menu);
-      child = button;
       editors[i] = child;
+*/
+      child = label;
 
     } else if (objects.at(i) == "composite") {
       // Create a child editor for the composite item and append its index to

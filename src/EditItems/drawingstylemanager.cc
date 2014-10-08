@@ -29,6 +29,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diPlot.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/drawingitembase.h"
 #include <QVector2D>
@@ -827,7 +828,7 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
   return new_points;
 }
 
-void DrawingStyleManager::beginText(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions)
+void DrawingStyleManager::beginText(const DrawingItemBase *item, const PlotOptions &poptions)
 {
   QVariantMap style = getStyle(item);
   QColor textColour = style.value("textcolour").value<QColor>();
@@ -838,7 +839,7 @@ void DrawingStyleManager::beginText(const DrawingItemBase *item, FontManager *fp
     glColor3f(0.0, 0.0, 0.0);
 }
 
-void DrawingStyleManager::setFont(const DrawingItemBase *item, FontManager *fp, float scale, const PlotOptions &poptions)
+void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions &poptions)
 {
   QVariantMap style = getStyle(item);
 
@@ -848,7 +849,8 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item, FontManager *fp, 
   QString fontFace = style.value("fontface", QString::fromStdString(poptions.fontface)).toString();
   float fontSize = style.value("fontsize", poptions.fontsize).toFloat();
 
-  fp->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
+  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
+  StaticPlot::getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
 }
 
 void DrawingStyleManager::endText(const DrawingItemBase *item)

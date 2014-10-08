@@ -70,9 +70,9 @@ void Text::draw()
   styleManager->drawLines(this, points);
   styleManager->endLine(this);
 
-  GLfloat scale = fontScale();
-  styleManager->beginText(this, StaticPlot::getFontPack(), scale, poptions);
-  styleManager->setFont(this, StaticPlot::getFontPack(), scale, poptions);
+  styleManager->beginText(this, poptions);
+  styleManager->setFont(this, poptions);
+  GLfloat scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
 
   float x = points_.at(0).x() + margin_;
   float y = points_.at(0).y() - margin_;
@@ -92,7 +92,7 @@ QSizeF Text::getStringSize(const QString &text, int index) const
     index = text.size();
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  styleManager->setFont(this, StaticPlot::getFontPack(), fontScale(), poptions);
+  styleManager->setFont(this, poptions);
 
   float width, height;
   if (!StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height)) {
@@ -114,15 +114,6 @@ DrawingItemBase::Category Text::category() const
   return DrawingItemBase::Text;
 }
 
-GLfloat Text::fontScale() const
-{
-  if (StaticPlot::getMapSize().width() == 0 || StaticPlot::getMapSize().height() == 0)
-    return 1;
-  else
-    return qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(),
-                StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
-}
-
 QStringList Text::text() const
 {
   return ConstDrawing(this)->property("text").toStringList();
@@ -131,7 +122,7 @@ QStringList Text::text() const
 void Text::updateRect()
 {
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  styleManager->setFont(this, StaticPlot::getFontPack(), fontScale(), poptions);
+  styleManager->setFont(this, poptions);
 
   float x = points_.at(0).x();
   float y = points_.at(0).y();
