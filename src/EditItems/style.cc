@@ -288,6 +288,15 @@ private:
   virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
 };
 
+class SPE_reversed : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_reversed::name(); }
+private:
+  virtual QString labelText() const { return "reversed"; }
+  virtual IndexedEditor *createEditor() { return new CheckBoxEditor(); }
+};
+
 class SPE_decoration1 : public StylePropertyEditor
 {
 public:
@@ -413,6 +422,12 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_closed; }
 };
 
+class ESP_reversed : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_reversed; }
+};
+
 class ESP_decoration1 : public EditStyleProperty
 {
 private:
@@ -473,6 +488,7 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
   properties_.insert(DSP_fillpattern::name(), new ESP_fillpattern);
   properties_.insert(DSP_closed::name(), new ESP_closed);
+  properties_.insert(DSP_reversed::name(), new ESP_reversed);
   properties_.insert(DSP_decoration1::name(), new ESP_decoration1);
   properties_.insert(DSP_decoration1_colour::name(), new ESP_decoration1_colour);
   properties_.insert(DSP_decoration1_offset::name(), new ESP_decoration1_offset);

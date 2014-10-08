@@ -130,6 +130,14 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_reversed : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 class DSP_decoration1 : public DrawingStyleProperty
 {
 public:

@@ -141,6 +141,9 @@ QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { retu
 QString DSP_closed::name() { return "closed"; }
 QVariant DSP_closed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "true") == "true"; }
 
+QString DSP_reversed::name() { return "reversed"; }
+QVariant DSP_reversed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
+
 QString DSP_decoration1::name() { return "decoration1"; }
 QVariant DSP_decoration1::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(","); }
 
@@ -219,6 +222,7 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::PolyLine].insert(DSP_filltransparency::name(), new DSP_filltransparency);
   properties_[DrawingItemBase::PolyLine].insert(DSP_fillpattern::name(), new DSP_fillpattern);
   properties_[DrawingItemBase::PolyLine].insert(DSP_closed::name(), new DSP_closed);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_reversed::name(), new DSP_reversed);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1::name(), new DSP_decoration1);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_colour::name(), new DSP_decoration1_colour);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_offset::name(), new DSP_decoration1_offset);
@@ -468,6 +472,8 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
 
+  const bool reversed = style.value(DSP_reversed::name()).toBool();
+
   if (style.value(DSP_decoration1::name()).isValid()) {
     QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
     glColor4ub(colour.red(), colour.green(), colour.blue(), colour.alpha());
@@ -475,7 +481,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     unsigned int offset = style.value(DSP_decoration1_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration1::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, Outside, points_, z, offset);
+      drawDecoration(style, decor, closed, reversed ? Outside : Inside, points_, z, offset);
       offset += 1;
     }
   }
@@ -487,7 +493,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     unsigned int offset = style.value(DSP_decoration2_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration2::name()).toList()) {
       QString decor = v.toString();
-      drawDecoration(style, decor, closed, Inside, points_, z, offset);
+      drawDecoration(style, decor, closed, reversed ? Inside : Outside, points_, z, offset);
       offset += 1;
     }
   }
