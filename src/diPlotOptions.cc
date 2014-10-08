@@ -1052,8 +1052,11 @@ std::string PlotOptions::toString()
   if (frame>=0) ostr << " frame=" << frame;
   if (zeroLine>=0) ostr << " zero.line=" << zeroLine;
 
-  if ( colours.size() == 3  ) {
-    ostr << " colours=" << colours[0].Name() + "," + colours[1].Name() + "," + colours[2].Name();
+  if ( colours.size() > 2  ) {
+    ostr << " colours=";
+    BOOST_FOREACH(const Colour& c, colours) {
+      ostr << c.Name() + ",";
+    }
   }
 
   if(dimension == 1){
