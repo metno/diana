@@ -66,7 +66,8 @@ DrawingItemBase *Text::cloneSpecial() const
 
 bool Text::hit(const QPointF &pos, bool selected) const
 {
-  QRectF textbox(points_.at(0), points_.at(1));
+  QRectF textbox = boundingRect();
+  textbox.translate(offset());
   return textbox.contains(pos);
 }
 
@@ -75,7 +76,8 @@ bool Text::hit(const QRectF &bbox) const
   if (points_.size() < 2)
     return false;
 
-  QRectF textbox(points_.at(0), points_.at(1));
+  QRectF textbox = boundingRect();
+  textbox.translate(offset());
   return textbox.intersects(bbox);
 }
 
@@ -240,6 +242,7 @@ void Text::setPoints(const QList<QPointF> &points)
 void Text::drawHoverHighlighting(bool, bool) const
 {
   QRectF bbox = boundingRect();
+  bbox.translate(offset());
 
   glColor3ub(255, 0, 0);
   glBegin(GL_LINE_LOOP);
@@ -255,9 +258,10 @@ void Text::drawIncomplete() const
   if (points_.size() < 2)
     return;
 
-  if (!text().isEmpty()) {
-    QRectF bbox = boundingRect();
+  QRectF bbox = boundingRect();
+  bbox.translate(offset());
 
+  if (!text().isEmpty()) {
     glLineStipple(1, 0x5555);
     glEnable(GL_LINE_STIPPLE);
     glBegin(GL_LINE_LOOP);
@@ -269,8 +273,8 @@ void Text::drawIncomplete() const
     glDisable(GL_LINE_STIPPLE);
   }
 
-  float x = points_.at(0).x();
-  float y = points_.at(0).y();
+  float x = bbox.bottomLeft().x();
+  float y = bbox.bottomLeft().y();
   QSizeF size;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();

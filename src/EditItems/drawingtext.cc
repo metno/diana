@@ -56,6 +56,7 @@ void Text::draw()
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
   QRectF bbox = boundingRect();
+  bbox.translate(offset());
   QList<QPointF> points;
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
@@ -74,8 +75,8 @@ void Text::draw()
   styleManager->setFont(this, poptions);
   float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
 
-  float x = points_.at(0).x() + margin_;
-  float y = points_.at(0).y() - margin_;
+  float x = points.at(0).x() + margin_;
+  float y = points.at(0).y() - margin_;
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);
@@ -121,6 +122,15 @@ DrawingItemBase::Category Text::category() const
 QStringList Text::text() const
 {
   return ConstDrawing(this)->property("text").toStringList();
+}
+
+QPointF Text::offset() const
+{
+  QRectF bbox = boundingRect();
+  if (property("alignment", Qt::AlignCenter) == Qt::AlignCenter)
+    return QPointF(-bbox.width()/2, bbox.height()/2);
+  else
+    return QPointF(0, 0);
 }
 
 void Text::updateRect()

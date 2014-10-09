@@ -166,9 +166,10 @@ void Composite::createElements()
 
     DrawingItemBase *element;
 
-    if (objects.at(i) == "text")
+    if (objects.at(i) == "text") {
       element = newTextItem();
-    else if (objects.at(i) == "symbol")
+      element->setProperty("alignment", Qt::AlignLeft);
+    } else if (objects.at(i) == "symbol")
       element = newSymbolItem();
     else if (objects.at(i) == "composite")
       element = newCompositeItem();

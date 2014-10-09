@@ -48,8 +48,8 @@ public:
   virtual QStringList text() const;
   virtual void setText(const QStringList &lines);
 
+  QPointF offset() const;
 
-  GLfloat fontScale() const;
   void updateRect();
 
   // Returns the category of the item as required by the style manager.
