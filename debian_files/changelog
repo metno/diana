@@ -1,3 +1,10 @@
+diana (3.36.1-2) unstable; urgency=low
+
+  * using libemos0d=000382+dfsg-metno1
+  * using libfimex-dev=0.54-1
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 09 Oct 2014 09:09:04 +0200
+
 diana (3.36.1-1) unstable; urgency=low
 
   * Vcross: bugfix - timegraph
