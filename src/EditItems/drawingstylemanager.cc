@@ -133,7 +133,7 @@ QString DSP_fillcolour::name() { return "fillcolour"; }
 QVariant DSP_fillcolour::parse(const QHash<QString, QString> &def) const { return parseColour(fillColour(def)); }
 
 QString DSP_filltransparency::name() { return "filltransparency"; }
-QVariant DSP_filltransparency::parse(const QHash<QString, QString> &def) const { return def.value(name(), "50").toInt(); }
+QVariant DSP_filltransparency::parse(const QHash<QString, QString> &def) const { return def.value(name(), "205").toInt(); }
 
 QString DSP_fillpattern::name() { return "fillpattern"; }
 QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
@@ -336,7 +336,7 @@ void DrawingStyleManager::beginLine(DrawingItemBase *item)
 
   QColor borderColour = style.value(DSP_linecolour::name()).value<QColor>();
   bool alphaOk;
-  const int alpha = style.value(DSP_linetransparency::name()).toInt(&alphaOk);
+  const int alpha = 255 - style.value(DSP_linetransparency::name()).toInt(&alphaOk);
   if (borderColour.isValid())
     glColor4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
 }
@@ -356,7 +356,7 @@ void DrawingStyleManager::beginFill(DrawingItemBase *item)
 
   QColor fillColour = style.value(DSP_fillcolour::name()).value<QColor>();
   bool alphaOk;
-  const int alpha = style.value(DSP_filltransparency::name()).toInt(&alphaOk);
+  const int alpha = 255 - style.value(DSP_filltransparency::name()).toInt(&alphaOk);
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -464,7 +464,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     points_ = points;
 
   bool alphaOk;
-  const int alpha = style.value(DSP_linetransparency::name()).toInt(&alphaOk);
+  const int alpha = 255 - style.value(DSP_linetransparency::name()).toInt(&alphaOk);
   if ((!alphaOk) || (alpha >= 0)) {
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), z);
