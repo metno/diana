@@ -72,14 +72,18 @@ void Text::draw()
 
   styleManager->beginText(this, poptions);
   styleManager->setFont(this, poptions);
-  GLfloat scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
+  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
 
   float x = points_.at(0).x() + margin_;
   float y = points_.at(0).y() - margin_;
 
   foreach (QString text, lines_) {
     QSizeF size = getStringSize(text);
-    StaticPlot::getFontPack()->drawStr(text.toStdString().c_str(), x, y - size.height(), 0);
+    glPushMatrix();
+    glTranslatef(x, y - size.height(), 0);
+    glScalef(scale, scale, 1.0);
+    StaticPlot::getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
+    glPopMatrix();
     y -= size.height() * (1.0 + spacing_);
   }
 
@@ -95,18 +99,18 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   styleManager->setFont(this, poptions);
 
   float width, height;
-  if (!StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height)) {
+  if (!StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
-  }
 
   QSizeF size(width, height);
 
   if (height == 0) {
     StaticPlot::getFontPack()->getStringSize("X", width, height);
-    size.setHeight(qMax(height, poptions.fontsize));
+    size.setHeight(height);
   }
 
-  return size;
+  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
+  return scale * size;
 }
 
 DrawingItemBase::Category Text::category() const

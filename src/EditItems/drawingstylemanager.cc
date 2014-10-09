@@ -851,8 +851,7 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions
   QString fontFace = style.value("fontface", QString::fromStdString(poptions.fontface)).toString();
   float fontSize = style.value("fontsize", poptions.fontsize).toFloat();
 
-  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
-  StaticPlot::getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize * scale);
+  StaticPlot::getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize);
 }
 
 void DrawingStyleManager::endText(const DrawingItemBase *item)
