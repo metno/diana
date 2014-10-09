@@ -117,8 +117,8 @@ static QStringList parseStrings(const QString &text, const QString &sep = QStrin
 QString DSP_linecolour::name() { return "linecolour"; }
 QVariant DSP_linecolour::parse(const QHash<QString, QString> &def) const { return parseColour(lineColour(def)); }
 
-QString DSP_linetransparency::name() { return "linetransparency"; }
-QVariant DSP_linetransparency::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
+QString DSP_linealpha::name() { return "linealpha"; }
+QVariant DSP_linealpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
 
 QString DSP_linewidth::name() { return "linewidth"; }
 QVariant DSP_linewidth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "1.0").toFloat(); }
@@ -132,8 +132,8 @@ QVariant DSP_linesmooth::parse(const QHash<QString, QString> &def) const { retur
 QString DSP_fillcolour::name() { return "fillcolour"; }
 QVariant DSP_fillcolour::parse(const QHash<QString, QString> &def) const { return parseColour(fillColour(def)); }
 
-QString DSP_filltransparency::name() { return "filltransparency"; }
-QVariant DSP_filltransparency::parse(const QHash<QString, QString> &def) const { return def.value(name(), "205").toInt(); }
+QString DSP_fillalpha::name() { return "fillalpha"; }
+QVariant DSP_fillalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "50").toInt(); }
 
 QString DSP_fillpattern::name() { return "fillpattern"; }
 QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
@@ -214,12 +214,12 @@ DrawingStyleManager::DrawingStyleManager()
 
   // Define the supported polyline style properties.
   properties_[DrawingItemBase::PolyLine].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_linetransparency::name(), new DSP_linetransparency);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_linealpha::name(), new DSP_linealpha);
   properties_[DrawingItemBase::PolyLine].insert(DSP_linewidth::name(), new DSP_linewidth);
   properties_[DrawingItemBase::PolyLine].insert(DSP_linepattern::name(), new DSP_linepattern);
   properties_[DrawingItemBase::PolyLine].insert(DSP_linesmooth::name(), new DSP_linesmooth);
   properties_[DrawingItemBase::PolyLine].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::PolyLine].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_fillalpha::name(), new DSP_fillalpha);
   properties_[DrawingItemBase::PolyLine].insert(DSP_fillpattern::name(), new DSP_fillpattern);
   properties_[DrawingItemBase::PolyLine].insert(DSP_closed::name(), new DSP_closed);
   properties_[DrawingItemBase::PolyLine].insert(DSP_reversed::name(), new DSP_reversed);
@@ -232,11 +232,11 @@ DrawingStyleManager::DrawingStyleManager()
 
   // Define the supported text style properties.
   properties_[DrawingItemBase::Text].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::Text].insert(DSP_linetransparency::name(), new DSP_linetransparency);
+  properties_[DrawingItemBase::Text].insert(DSP_linealpha::name(), new DSP_linealpha);
   properties_[DrawingItemBase::Text].insert(DSP_linewidth::name(), new DSP_linewidth);
   properties_[DrawingItemBase::Text].insert(DSP_linepattern::name(), new DSP_linepattern);
   properties_[DrawingItemBase::Text].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::Text].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::Text].insert(DSP_fillalpha::name(), new DSP_fillalpha);
   properties_[DrawingItemBase::Text].insert(DSP_textcolour::name(), new DSP_textcolour);
   properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
   properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
@@ -248,9 +248,9 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Composite].insert(DSP_styles::name(), new DSP_styles);
   properties_[DrawingItemBase::Composite].insert(DSP_layout::name(), new DSP_layout);
   properties_[DrawingItemBase::Composite].insert(DSP_linecolour::name(), new DSP_linecolour);
-  properties_[DrawingItemBase::Composite].insert(DSP_linetransparency::name(), new DSP_linetransparency);
+  properties_[DrawingItemBase::Composite].insert(DSP_linealpha::name(), new DSP_linealpha);
   properties_[DrawingItemBase::Composite].insert(DSP_fillcolour::name(), new DSP_fillcolour);
-  properties_[DrawingItemBase::Composite].insert(DSP_filltransparency::name(), new DSP_filltransparency);
+  properties_[DrawingItemBase::Composite].insert(DSP_fillalpha::name(), new DSP_fillalpha);
   properties_[DrawingItemBase::Composite].insert(DSP_hide::name(), new DSP_hide);
   properties_[DrawingItemBase::Composite].insert(DSP_closed::name(), new DSP_closed);
 }
@@ -336,7 +336,7 @@ void DrawingStyleManager::beginLine(DrawingItemBase *item)
 
   QColor borderColour = style.value(DSP_linecolour::name()).value<QColor>();
   bool alphaOk;
-  const int alpha = 255 - style.value(DSP_linetransparency::name()).toInt(&alphaOk);
+  const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
   if (borderColour.isValid())
     glColor4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
 }
@@ -356,7 +356,7 @@ void DrawingStyleManager::beginFill(DrawingItemBase *item)
 
   QColor fillColour = style.value(DSP_fillcolour::name()).value<QColor>();
   bool alphaOk;
-  const int alpha = 255 - style.value(DSP_filltransparency::name()).toInt(&alphaOk);
+  const int alpha = style.value(DSP_fillalpha::name()).toInt(&alphaOk);
   glColor4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -464,7 +464,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
     points_ = points;
 
   bool alphaOk;
-  const int alpha = 255 - style.value(DSP_linetransparency::name()).toInt(&alphaOk);
+  const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
   if ((!alphaOk) || (alpha >= 0)) {
     foreach (QPointF p, points_)
       glVertex3i(p.x(), p.y(), z);

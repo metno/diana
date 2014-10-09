@@ -216,12 +216,12 @@ private:
   virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
 };
 
-class SPE_linetransparency : public StylePropertyEditor
+class SPE_linealpha : public StylePropertyEditor
 {
 public:
-  virtual QString name() const { return DSP_linetransparency::name(); }
+  virtual QString name() const { return DSP_linealpha::name(); }
 private:
-  virtual QString labelText() const { return "line transparency"; }
+  virtual QString labelText() const { return "line alpha"; }
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
@@ -261,12 +261,12 @@ private:
   virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
 };
 
-class SPE_filltransparency : public StylePropertyEditor
+class SPE_fillalpha : public StylePropertyEditor
 {
 public:
-  virtual QString name() const { return DSP_filltransparency::name(); }
+  virtual QString name() const { return DSP_fillalpha::name(); }
 private:
-  virtual QString labelText() const { return "fill transparency"; }
+  virtual QString labelText() const { return "fill alpha"; }
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
@@ -374,10 +374,10 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linecolour; }
 };
 
-class ESP_linetransparency : public EditStyleProperty
+class ESP_linealpha : public EditStyleProperty
 {
 private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linetransparency; }
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_linealpha; }
 };
 
 class ESP_linewidth : public EditStyleProperty
@@ -404,10 +404,10 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillcolour; }
 };
 
-class ESP_filltransparency : public EditStyleProperty
+class ESP_fillalpha : public EditStyleProperty
 {
 private:
-  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_filltransparency; }
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_fillalpha; }
 };
 
 class ESP_fillpattern : public EditStyleProperty
@@ -480,12 +480,12 @@ StyleEditor::StyleEditor()
 
   // define editors for supported style properties
   properties_.insert(DSP_linecolour::name(), new ESP_linecolour);
-  properties_.insert(DSP_linetransparency::name(), new ESP_linetransparency);
+  properties_.insert(DSP_linealpha::name(), new ESP_linealpha);
   properties_.insert(DSP_linewidth::name(), new ESP_linewidth);
   properties_.insert(DSP_linepattern::name(), new ESP_linepattern);
   properties_.insert(DSP_linesmooth::name(), new ESP_linesmooth);
   properties_.insert(DSP_fillcolour::name(), new ESP_fillcolour);
-  properties_.insert(DSP_filltransparency::name(), new ESP_filltransparency);
+  properties_.insert(DSP_fillalpha::name(), new ESP_fillalpha);
   properties_.insert(DSP_fillpattern::name(), new ESP_fillpattern);
   properties_.insert(DSP_closed::name(), new ESP_closed);
   properties_.insert(DSP_reversed::name(), new ESP_reversed);
