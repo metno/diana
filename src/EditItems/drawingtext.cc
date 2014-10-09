@@ -55,8 +55,7 @@ void Text::draw()
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QRectF bbox = boundingRect();
-  bbox.translate(offset());
+  QRectF bbox = drawingRect();
   QList<QPointF> points;
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
 
@@ -124,13 +123,13 @@ QStringList Text::text() const
   return ConstDrawing(this)->property("text").toStringList();
 }
 
-QPointF Text::offset() const
+QRectF Text::drawingRect() const
 {
   QRectF bbox = boundingRect();
   if (property("alignment", Qt::AlignCenter) == Qt::AlignCenter)
-    return QPointF(-bbox.width()/2, bbox.height()/2);
-  else
-    return QPointF(0, 0);
+    bbox.translate(-bbox.width()/2, bbox.height()/2);
+
+  return bbox;
 }
 
 void Text::updateRect()

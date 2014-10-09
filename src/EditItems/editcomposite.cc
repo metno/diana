@@ -66,13 +66,13 @@ DrawingItemBase *Composite::cloneSpecial() const
 
 bool Composite::hit(const QPointF &pos, bool selected) const
 {
-  QRectF box(points_.at(0), points_.at(1));
+  QRectF box = boundingRect();
   return box.contains(pos);
 }
 
 bool Composite::hit(const QRectF &bbox) const
 {
-  QRectF box(points_.at(0), points_.at(1));
+  QRectF box = boundingRect();
   return box.intersects(bbox);
 }
 

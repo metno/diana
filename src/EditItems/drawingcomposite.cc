@@ -58,7 +58,7 @@ void Composite::draw()
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
 
-  QRectF bbox(points_.at(0), points_.at(1));
+  QRectF bbox = boundingRect();
 
   QList<QPointF> points;
   points << bbox.bottomLeft() << bbox.bottomRight() << bbox.topRight() << bbox.topLeft();
@@ -93,8 +93,8 @@ QRectF Composite::boundingRect() const
 void Composite::updateRect()
 {
   QRectF rect = boundingRect();
-  points_[0] = rect.topLeft();
-  points_[1] = rect.bottomRight();
+  points_[0] = rect.center();
+  points_[1] = rect.center();
 }
 
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
@@ -220,15 +220,17 @@ void Composite::arrangeElements()
     maxSize = maxSize.expandedTo(size);
   }
 
+  QPointF start = points_[0] + QPointF(-maxSize.width()/2, -maxSize.height()/2);
+
   switch (layout_) {
   case Horizontal:
-    previousRect = QRectF(points_[0], QSizeF(0, maxSize.height()));
+    previousRect = QRectF(start, QSizeF(0, maxSize.height()));
     break;
   case Vertical:
-    previousRect = QRectF(points_[0], QSizeF(maxSize.width(), 0));
+    previousRect = QRectF(start, QSizeF(maxSize.width(), 0));
     break;
   case Diagonal:
-    previousRect = QRectF(points_[0], QSizeF(maxSize.width(), maxSize.height()));
+    previousRect = QRectF(start, QSizeF(maxSize.width(), maxSize.height()));
     break;
   default:
     ;

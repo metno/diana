@@ -48,7 +48,7 @@ public:
   virtual QStringList text() const;
   virtual void setText(const QStringList &lines);
 
-  QPointF offset() const;
+  QRectF drawingRect() const;
 
   void updateRect();
 
