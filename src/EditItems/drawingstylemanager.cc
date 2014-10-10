@@ -115,63 +115,83 @@ static QStringList parseStrings(const QString &text, const QString &sep = QStrin
 }
 
 QString DSP_linecolour::name() { return "linecolour"; }
+DrawingStyleManager::StyleCategory DSP_linecolour::styleCategory() const { return DrawingStyleManager::Line; }
 QVariant DSP_linecolour::parse(const QHash<QString, QString> &def) const { return parseColour(lineColour(def)); }
 
 QString DSP_linealpha::name() { return "linealpha"; }
+DrawingStyleManager::StyleCategory DSP_linealpha::styleCategory() const { return DrawingStyleManager::Line; }
 QVariant DSP_linealpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
 
 QString DSP_linewidth::name() { return "linewidth"; }
+DrawingStyleManager::StyleCategory DSP_linewidth::styleCategory() const { return DrawingStyleManager::Line; }
 QVariant DSP_linewidth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "1.0").toFloat(); }
 
 QString DSP_linepattern::name() { return "linepattern"; }
+DrawingStyleManager::StyleCategory DSP_linepattern::styleCategory() const { return DrawingStyleManager::Line; }
 QVariant DSP_linepattern::parse(const QHash<QString, QString> &def) const { return parseLinePattern(linePattern(def)); }
 
 QString DSP_linesmooth::name() { return "linesmooth"; }
+DrawingStyleManager::StyleCategory DSP_linesmooth::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_linesmooth::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
 
 QString DSP_fillcolour::name() { return "fillcolour"; }
+DrawingStyleManager::StyleCategory DSP_fillcolour::styleCategory() const { return DrawingStyleManager::Area; }
 QVariant DSP_fillcolour::parse(const QHash<QString, QString> &def) const { return parseColour(fillColour(def)); }
 
 QString DSP_fillalpha::name() { return "fillalpha"; }
+DrawingStyleManager::StyleCategory DSP_fillalpha::styleCategory() const { return DrawingStyleManager::Area; }
 QVariant DSP_fillalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "50").toInt(); }
 
 QString DSP_fillpattern::name() { return "fillpattern"; }
+DrawingStyleManager::StyleCategory DSP_fillpattern::styleCategory() const { return DrawingStyleManager::Area; }
 QVariant DSP_fillpattern::parse(const QHash<QString, QString> &def) const { return def.value(name()); }
 
 QString DSP_closed::name() { return "closed"; }
+DrawingStyleManager::StyleCategory DSP_closed::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_closed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "true") == "true"; }
 
 QString DSP_reversed::name() { return "reversed"; }
+DrawingStyleManager::StyleCategory DSP_reversed::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_reversed::parse(const QHash<QString, QString> &def) const { return def.value(name(), "false") == "true"; }
 
 QString DSP_decoration1::name() { return "decoration1"; }
+DrawingStyleManager::StyleCategory DSP_decoration1::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration1::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(","); }
 
 QString DSP_decoration1_colour::name() { return "decoration1.colour"; }
+DrawingStyleManager::StyleCategory DSP_decoration1_colour::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration1_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
 
 QString DSP_decoration1_offset::name() { return "decoration1.offset"; }
+DrawingStyleManager::StyleCategory DSP_decoration1_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration1_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
 
 QString DSP_decoration2::name() { return "decoration2"; }
+DrawingStyleManager::StyleCategory DSP_decoration2::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration2::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(","); }
 
 QString DSP_decoration2_colour::name() { return "decoration2.colour"; }
+DrawingStyleManager::StyleCategory DSP_decoration2_colour::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration2_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
 
 QString DSP_decoration2_offset::name() { return "decoration2.offset"; }
+DrawingStyleManager::StyleCategory DSP_decoration2_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration2_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
 
 QString DSP_textcolour::name() { return "textcolour"; }
+DrawingStyleManager::StyleCategory DSP_textcolour::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
 
 QString DSP_fontname::name() { return "fontname"; }
+DrawingStyleManager::StyleCategory DSP_fontname::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_fontname::parse(const QHash<QString, QString> &def) const { return def.value(name(), "SCALEFONT"); }
 
 QString DSP_fontface::name() { return "fontface"; }
+DrawingStyleManager::StyleCategory DSP_fontface::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_fontface::parse(const QHash<QString, QString> &def) const { return def.value(name(), "NORMAL"); }
 
 QString DSP_fontsize::name() { return "fontsize"; }
+DrawingStyleManager::StyleCategory DSP_fontsize::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), "10"); }
 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
@@ -180,27 +200,32 @@ QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { r
 QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 
 QString DSP_objects::name() { return "objects"; }
+DrawingStyleManager::StyleCategory DSP_objects::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_objects::parse(const QHash<QString, QString> &def) const { return def.value(name()).split(":"); }
 
 QString DSP_values::name() { return "values"; }
+DrawingStyleManager::StyleCategory DSP_values::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_values::parse(const QHash<QString, QString> &def) const
 {
   return def.value(name()).split(":");
 }
 
 QString DSP_styles::name() { return "styles"; }
+DrawingStyleManager::StyleCategory DSP_styles::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_styles::parse(const QHash<QString, QString> &def) const
 {
   return def.value(name()).split(":");
 }
 
 QString DSP_layout::name() { return "layout"; }
+DrawingStyleManager::StyleCategory DSP_layout::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_layout::parse(const QHash<QString, QString> &def) const
 {
   return def.value(name(), "horizontal");
 }
 
 QString DSP_hide::name() { return "hide"; }
+DrawingStyleManager::StyleCategory DSP_hide::styleCategory() const { return DrawingStyleManager::General; }
 QVariant DSP_hide::parse(const QHash<QString, QString> &def) const
 {
   return def.value(name(), "false") == "true";
@@ -392,6 +417,29 @@ void DrawingStyleManager::endFill(DrawingItemBase *item)
 
   glPopAttrib(); // GL_POLYGON_BIT
 }
+
+DrawingStyleManager::StyleCategory DrawingStyleManager::styleCategory(const DrawingItemBase::Category &itemCategory, const QString &name) const
+{
+  if (properties_.contains(itemCategory) && properties_.value(itemCategory).contains(name))
+    return properties_.value(itemCategory).value(name)->styleCategory();
+  return Invalid;
+}
+
+QString DrawingStyleManager::styleCategoryName(const StyleCategory sc)
+{
+  if (sc == Invalid)
+    return "Invalid";
+  else if (sc == General)
+    return "General";
+  else if (sc == Line)
+    return "Line";
+  else if (sc == Area)
+    return "Area";
+  else if (sc == Decoration)
+    return "Decoration";
+  return "Unknown";
+}
+
 
 bool DrawingStyleManager::containsStyle(const DrawingItemBase::Category &category, const QString &name) const
 {

@@ -577,34 +577,50 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
   if (formWidget_->layout())
     delete formWidget_->layout();
 
+  // group style properties into categories
+  QStringList propNames = DrawingStyleManager::instance()->properties(category);
+  qSort(propNames);
+  QHash<DrawingStyleManager::StyleCategory, QStringList> styleCategories;
+  foreach (const QString propName, propNames)
+    styleCategories[DrawingStyleManager::instance()->styleCategory(category, propName)].append(propName);
+
   // set new content and initial values for the properties that we would like to support
   QGridLayout *gridLayout = new QGridLayout;
   formWidget_->setLayout(gridLayout);
-  QStringList propNames = DrawingStyleManager::instance()->properties(category);
-  qSort(propNames);
   int row = 0;
-  foreach (QString propName, propNames) {
-    StylePropertyEditor *editor = 0;
-    if (properties_.contains(propName))
-      editor = properties_.value(propName)->createEditor(propName, items, sprops);
-    if (editor) {
-      editors_.append(QSharedPointer<StylePropertyEditor>(editor));
-      QWidget *editorWidget = editor->widget();
-      if (!editorWidget) {
-        editorWidget = new QLabel("n/a"); // i.e. not found in any of the selected items
-        formLabels_.append(QSharedPointer<QLabel>(qobject_cast<QLabel *>(editorWidget)));
-      }
-      QLabel *label = new QLabel(editor->labelText());
-      formLabels_.append(QSharedPointer<QLabel>(label));
-      gridLayout->addWidget(label, row, 0);
-      gridLayout->addWidget(editorWidget, row, 1);
-    } else { // property name not recognized at all
-      QLabel *label = new QLabel(QString("%1: UNSUPPORTED").arg(propName));
+  foreach (const DrawingStyleManager::StyleCategory styleCategory, styleCategories.keys()) {
+
+    {
+      QLabel *label = new QLabel(DrawingStyleManager::instance()->styleCategoryName(styleCategory));
+      label->setStyleSheet("background-color:#ddd; font:bold");
       formLabels_.append(QSharedPointer<QLabel>(label));
       gridLayout->addWidget(label, row, 0, 1, -1);
+      row++;
     }
 
-    row++;
+    foreach (const QString propName, styleCategories.value(styleCategory)) {
+      StylePropertyEditor *editor = 0;
+      if (properties_.contains(propName))
+        editor = properties_.value(propName)->createEditor(propName, items, sprops);
+      if (editor) {
+        editors_.append(QSharedPointer<StylePropertyEditor>(editor));
+        QWidget *editorWidget = editor->widget();
+        if (!editorWidget) {
+          editorWidget = new QLabel("n/a"); // i.e. not found in any of the selected items
+          formLabels_.append(QSharedPointer<QLabel>(qobject_cast<QLabel *>(editorWidget)));
+        }
+        QLabel *label = new QLabel(editor->labelText());
+        formLabels_.append(QSharedPointer<QLabel>(label));
+        gridLayout->addWidget(label, row, 0);
+        gridLayout->addWidget(editorWidget, row, 1);
+      } else { // property name not recognized at all
+        QLabel *label = new QLabel(QString("%1: UNSUPPORTED").arg(propName));
+        formLabels_.append(QSharedPointer<QLabel>(label));
+        gridLayout->addWidget(label, row, 0, 1, -1);
+      }
+
+      row++;
+    }
   }
 
   // save current properties

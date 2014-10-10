@@ -45,218 +45,7 @@
 #include "diPlotOptions.h"
 #include "EditItems/drawingitembase.h"
 
-class DrawingItemBase;
-
-class DrawingStyleProperty
-{
-public:
-  virtual QVariant parse(const QHash<QString, QString> &) const = 0;
-protected:
-  static QString lineColour(const QHash<QString, QString> &);
-  static QString linePattern(const QHash<QString, QString> &);
-  static QString fillColour(const QHash<QString, QString> &);
-  static QString textColour(const QHash<QString, QString> &);
-};
-
-class DSP_linecolour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_linealpha : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_linewidth : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_linepattern : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_linesmooth : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fillcolour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fillalpha : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fillpattern : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_closed : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_reversed : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration1 : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration1_colour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration1_offset : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration2 : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration2_colour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_decoration2_offset : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_textcolour : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fontname : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fontface : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_fontsize : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_objects : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_values : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_styles : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_layout : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
-
-class DSP_hide : public DrawingStyleProperty
-{
-public:
-  static QString name();
-private:
-  virtual QVariant parse(const QHash<QString, QString> &) const;
-};
+class DrawingStyleProperty;
 
 /**
   \brief Manager for drawing styles.
@@ -265,6 +54,8 @@ class DrawingStyleManager
 {
 public:
   enum Side { Inside, Outside };
+
+  enum StyleCategory { Invalid, General, Line, Area, Decoration };
 
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
@@ -289,6 +80,9 @@ public:
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> getDecorationLines(const QList<QPointF> &points, qreal lineLength);
 
+  StyleCategory styleCategory(const DrawingItemBase::Category &, const QString &) const;
+  static QString styleCategoryName(const StyleCategory);
+
   bool containsStyle(const DrawingItemBase::Category &category, const QString &name) const;
   QStringList styles(const DrawingItemBase::Category &category) const;
   QStringList properties(const DrawingItemBase::Category &category) const;
@@ -311,6 +105,243 @@ private:
   QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
   static DrawingStyleManager *self;  // singleton instance pointer
   QStringList complexTextList;
+};
+
+class DrawingStyleProperty
+{
+public:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const = 0;
+  virtual QVariant parse(const QHash<QString, QString> &) const = 0;
+protected:
+  static QString lineColour(const QHash<QString, QString> &);
+  static QString linePattern(const QHash<QString, QString> &);
+  static QString fillColour(const QHash<QString, QString> &);
+  static QString textColour(const QHash<QString, QString> &);
+};
+
+class DSP_linecolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linealpha : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linewidth : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linepattern : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_linesmooth : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fillcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fillalpha : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fillpattern : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_closed : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_reversed : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1 : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1_colour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration1_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2 : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2_colour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_textcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontname : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontface : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_fontsize : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_objects : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_values : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_styles : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_layout : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_hide : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
 #endif // _diDrawingStyleManager_h
