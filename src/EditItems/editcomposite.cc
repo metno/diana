@@ -291,18 +291,6 @@ void CompositeEditor::createElements(const DrawingItemBase::Category &category, 
 
       QSize size = dm->getSymbolSize(style);
       label->setPixmap(QPixmap::fromImage(dm->getSymbolImage(style, size.width(), size.height())));
-/*
-      QMenu *menu = new QMenu();
-      foreach (QString symbolName, dm->symbolNames()) {
-        QIcon icon(QPixmap::fromImage(dm->getSymbolImage(symbolName, 32, 32)));
-        QAction *action = menu->addAction(icon, symbolName);
-        action->setData(i);
-        action->setIconText(symbolName);
-      }
-      connect(menu, SIGNAL(triggered(QAction *)), SLOT(updateSymbol(QAction *)));
-      button->setMenu(menu);
-      editors[i] = child;
-*/
       child = label;
 
     } else if (objects.at(i) == "composite") {
