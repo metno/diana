@@ -911,7 +911,7 @@ void DrawingStyleManager::endText(const DrawingItemBase *item)
   Q_UNUSED(item)
 }
 
-QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name) const
+QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name, const QString &value) const
 {
   DrawingManager *dm = DrawingManager::instance();
 
@@ -919,7 +919,9 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
   case DrawingItemBase::Text:
   {
     QFontMetrics fm(QApplication::font());
-    QImage image(fm.size(Qt::TextSingleLine, "Text"), QImage::Format_ARGB32);
+    QString v = value;
+    if (v.isEmpty()) v = "Text";
+    QImage image(fm.size(Qt::TextSingleLine, v), QImage::Format_ARGB32);
     image.fill(qRgba(255,255,255,255));
     QPainter painter(&image);
     painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, "Text");
@@ -951,7 +953,7 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     QString style = styles.at(i);
     QImage image;
     if (objects.at(i) == "text") {
-      image = toImage(DrawingItemBase::Text, style);
+      image = toImage(DrawingItemBase::Text, style, values.at(i));
       images.append(image);
     } else if (objects.at(i) == "symbol") {
       image = toImage(DrawingItemBase::Symbol, style);

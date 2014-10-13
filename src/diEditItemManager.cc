@@ -1257,11 +1257,11 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       contextMenu.addAction(editPropertiesAction);
       editPropertiesAction->setEnabled(selectedItems.size() == 1);
       contextMenu.addAction(editStyleAction);
-      editStyleAction->setEnabled(!selectedItems.isEmpty());
+      editStyleAction->setEnabled(!selectedItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
-      styleTypeMenu.setEnabled(selectedCategories.size() == 1);
+      styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
       if (styleTypeMenu.isEnabled()) {
         QStringList styleTypes = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
         qSort(styleTypes);

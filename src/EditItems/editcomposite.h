@@ -59,6 +59,9 @@ public:
 
   virtual QList<QAction *> actions(const QPoint &) const;
 
+  virtual void createElements();
+  virtual bool isEditable(DrawingItemBase *element) const;
+
 protected:
   virtual void drawHoverHighlighting(bool, bool) const;
   virtual void drawIncomplete() const;

@@ -91,7 +91,8 @@ public:
   QVariantMap getStyle(const DrawingItemBase::Category &category, const QString &name) const;
   QStringList getComplexTextList() const;
 
-  QImage toImage(const DrawingItemBase::Category &category, const QString &name) const;
+  QImage toImage(const DrawingItemBase::Category &category, const QString &name,
+                 const QString &value = QString()) const;
 
   static DrawingStyleManager *instance();
 

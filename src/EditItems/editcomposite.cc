@@ -56,6 +56,27 @@ QList<QAction *> Composite::actions(const QPoint &pos) const
   return acts;
 }
 
+void Composite::createElements()
+{
+  DrawingItem_Composite::Composite::createElements();
+  editAction->setEnabled(isEditable(this));
+}
+
+bool Composite::isEditable(DrawingItemBase *element) const
+{
+  if (dynamic_cast<EditItem_Text::Text *>(element))
+    return true;
+
+  bool editable = false;
+  EditItem_Composite::Composite *c = dynamic_cast<EditItem_Composite::Composite *>(element);
+  if (c) {
+    foreach (DrawingItemBase *child, c->elements_)
+      editable |= isEditable(child);
+    return editable;
+  } else
+    return false;
+}
+
 DrawingItemBase *Composite::cloneSpecial() const
 {
   Composite *item = new Composite;
