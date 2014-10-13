@@ -35,6 +35,10 @@
 #include "drawingitembase.h"
 
 namespace DrawingItem_Symbol {
+
+#define DEFAULT_SYMBOL_SIZE 48
+#define DEFAULT_SYMBOL_SIZE_STRING "48"
+
 class Symbol : public DrawingItemBase
 {
 public:

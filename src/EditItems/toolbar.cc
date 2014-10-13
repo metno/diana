@@ -30,6 +30,7 @@
 */
 
 #include "diEditItemManager.h"
+#include "EditItems/editcomposite.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/toolbar.h"
 #include <QActionGroup>
@@ -149,8 +150,11 @@ ToolBar::ToolBar(QWidget *parent)
   styles.sort();
 
   foreach (QString name, styles) {
-    if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false)
-      compositeCombo_->addItem(name, name);
+    if (dsm->getStyle(DrawingItemBase::Composite, name).value("hide").toBool() == false) {
+      QImage image = dsm->toImage(DrawingItemBase::Composite, name);
+      QIcon icon(QPixmap::fromImage(image));
+      compositeCombo_->addItem(icon, name, name);
+    }
   }
 
   compositeCombo_->setCurrentIndex(0);

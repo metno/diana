@@ -34,9 +34,6 @@
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
 
-#define DEFAULT_SYMBOL_SIZE 48
-#define DEFAULT_SYMBOL_SIZE_STRING "48"
-
 namespace DrawingItem_Symbol {
 
 Symbol::Symbol()

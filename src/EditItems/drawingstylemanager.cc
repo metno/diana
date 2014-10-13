@@ -30,10 +30,14 @@
 */
 
 #include "diPlot.h"
+#include "diDrawingManager.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/drawingitembase.h"
-#include <QVector2D>
+#include "EditItems/drawingsymbol.h"
+#include <QApplication>
 #include <QComboBox>
+#include <QPainter>
+#include <QVector2D>
 #include <qmath.h>
 
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
@@ -905,4 +909,100 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions
 void DrawingStyleManager::endText(const DrawingItemBase *item)
 {
   Q_UNUSED(item)
+}
+
+QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name) const
+{
+  DrawingManager *dm = DrawingManager::instance();
+
+  switch (category) {
+  case DrawingItemBase::Text:
+  {
+    QFontMetrics fm(QApplication::font());
+    QImage image(fm.size(Qt::TextSingleLine, "Text"), QImage::Format_ARGB32);
+    image.fill(qRgba(255,255,255,255));
+    QPainter painter(&image);
+    painter.drawText(QRect(QPoint(0, 0), image.size()), Qt::AlignCenter, "Text");
+    painter.end();
+    return image;
+  }
+  case DrawingItemBase::Symbol:
+    return dm->getSymbolImage(name, DEFAULT_SYMBOL_SIZE, DEFAULT_SYMBOL_SIZE);;
+  case DrawingItemBase::PolyLine:
+    return QImage();
+  case DrawingItemBase::Composite:
+  default:
+    ;
+  }
+
+  QVariantMap thisStyle = getStyle(category, name);
+  QStringList objects = thisStyle.value("objects").toStringList();
+  QStringList values = thisStyle.value("values").toStringList();
+  QStringList styles = thisStyle.value("styles").toStringList();
+  QString layout = thisStyle.value("layout").toString();
+
+  QList<QImage> images;
+  QList<float> positions;
+  float pos = 0.0;
+  QSizeF maxSize;
+
+  for (int i = 0; i < objects.size(); ++i) {
+
+    QString style = styles.at(i);
+    QImage image;
+    if (objects.at(i) == "text") {
+      image = toImage(DrawingItemBase::Text, style);
+      images.append(image);
+    } else if (objects.at(i) == "symbol") {
+      image = toImage(DrawingItemBase::Symbol, style);
+      images.append(image);
+    } else if (objects.at(i) == "line") {
+      image = toImage(DrawingItemBase::PolyLine, style);
+      images.append(image);
+    } else if (objects.at(i) == "composite") {
+      image = toImage(DrawingItemBase::Composite, style);
+      images.append(image);
+    } else
+      continue;
+
+    positions.append(pos);
+
+    // Record the positions of elements and keep track of the maximum size.
+    // A null image is a placeholder for a line.
+    if (image.isNull())
+      pos += 2;
+    else if (layout == "horizontal") {
+      pos += image.width();
+      maxSize = maxSize.expandedTo(QSize(pos, image.height()));
+    } else {
+      pos += image.height();
+      maxSize = maxSize.expandedTo(QSize(image.width(), pos));
+    }
+  }
+
+  QImage thisImage(maxSize.toSize(), QImage::Format_ARGB32);
+  thisImage.fill(qRgba(255,255,255,255));
+  QPainter painter;
+  painter.begin(&thisImage);
+
+  for (int i = 0; i < images.size(); ++i) {
+    QImage image = images.at(i);
+    if (layout == "horizontal") {
+      if (image.isNull()) {
+        image = QImage(1, maxSize.toSize().height(), QImage::Format_ARGB32);
+        image.fill(qRgba(0,0,0,255));
+      }
+      painter.drawImage(positions.at(i), (maxSize.height() - image.height())/2, image);
+    } else {
+      if (image.isNull()) {
+        image = QImage(maxSize.toSize().width(), 1, QImage::Format_ARGB32);
+        image.fill(qRgba(0,0,0,255));
+      }
+      painter.drawImage((maxSize.width() - image.width())/2, positions.at(i), image);
+    }
+  }
+
+  painter.end();
+
+  return thisImage;
 }

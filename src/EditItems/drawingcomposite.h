@@ -32,6 +32,7 @@
 #ifndef DRAWINGCOMPOSITE_H
 #define DRAWINGCOMPOSITE_H
 
+#include <QImage>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include "drawingitembase.h"
