@@ -239,7 +239,9 @@ bool hardcopy_started[5]; // has startHardcopy been called
 // the Controller and Managers
 Controller* main_controller = 0;
 VprofManager* vprofmanager = 0;
-#ifndef USE_VCROSS_V2
+#ifdef USE_VCROSS_V2
+  vcross::QtManager_p vcrossmanager;
+#else
 VcrossManager* vcrossmanager = 0;
 #endif
 SpectrumManager* spectrummanager = 0;
@@ -1873,7 +1875,6 @@ static int parseAndProcess(istream &is)
 
         // --------------------------------------------------------
       } else if (plottype == plot_vcross) {
-#ifndef USE_VCROSS_V2
 
 #if defined(USE_PAINTGL)
         if (!multiple_plots)
@@ -1884,7 +1885,11 @@ static int parseAndProcess(istream &is)
 
         // -- vcross plot
         if (!vcrossmanager) {
+#ifdef USE_VCROSS_V2	
+          vcrossmanager = miutil::make_shared<vcross::QtManager>();
+#else
           vcrossmanager = new VcrossManager(main_controller);
+#endif
         }
 
         // set size of plotwindow
@@ -1942,6 +1947,14 @@ static int parseAndProcess(istream &is)
         if (canvasType == qt_qimage && raster && antialias)
           painter.setRenderHint(QPainter::Antialiasing);
 #endif
+     
+#ifdef USE_VCROSS_V2
+#if defined(USE_PAINTGL)
+        vcrossmanager->plot(painter);
+#else
+        METLIBS_LOG_ERROR("Can't plot vertical crossections (V2) whithout using paintGL");
+#endif
+#else
         vcrossmanager->plot();
 #endif
 
