@@ -507,36 +507,44 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
           return vp;
         }
 
-    for (size_t i=0; i<evaluated_plots[0]->values(0)->nlevel(); ++i){
-      vp->tt.push_back(evaluated_plots[0]->values(0)->value(0,i));
-      vp->ptt.push_back(evaluated_plots[0]->z_values->value(0,i));
+    Values::ShapeIndex idx(evaluated_plots[0]->values(0)->shape());
+
+    for (size_t i=0; i<evaluated_plots[0]->values(0)->shape().length(0); ++i){
+      idx.set(0, i);
+      vp->tt.push_back(evaluated_plots[0]->values(0)->value(idx));
+      vp->ptt.push_back(evaluated_plots[0]->z_values->value(idx));
     }
-    for (size_t i=0; i<evaluated_plots[1]->values(0)->nlevel(); ++i){
-      vp->td.push_back(evaluated_plots[1]->values(0)->value(0,i));
+    for (size_t i=0; i<evaluated_plots[1]->values(0)->shape().length(0); ++i){
+      idx.set(0, i);
+      vp->td.push_back(evaluated_plots[1]->values(0)->value(idx));
     }
 
     size_t index = 2;
     if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "x_wind_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->nlevel(); ++i){
-        vp->uu.push_back(evaluated_plots[index]->values(0)->value(0,i));
+      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i){
+        idx.set(0, i);
+        vp->uu.push_back(evaluated_plots[index]->values(0)->value(idx));
       }
       ++index;
     }
     if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "y_wind_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->nlevel(); ++i){
-        vp->vv.push_back(evaluated_plots[index]->values(0)->value(0,i));
+      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i){
+        idx.set(0, i);
+        vp->vv.push_back(evaluated_plots[index]->values(0)->value(idx));
       }
       ++index;
     }
     if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "relative_humidity_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->nlevel(); ++i){
-        vp->rhum.push_back(evaluated_plots[index]->values(0)->value(0,i));
+      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i){
+        idx.set(0, i);
+        vp->rhum.push_back(evaluated_plots[index]->values(0)->value(idx));
       }
       ++index;
     }
     if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "upward_air_velocity_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->nlevel(); ++i){
-        vp->om.push_back(evaluated_plots[index]->values(0)->value(0,i)/100);
+      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i){
+        idx.set(0, i);
+        vp->om.push_back(evaluated_plots[index]->values(0)->value(idx)/100);
       }
       ++index;
     }
@@ -695,19 +703,19 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time) {
   }
 
   //################################################################
-  //METLIBS_LOG_DEBUG("    "<<vp->posName<<"  "<<vp->validTime.isoTime());
-  //METLIBS_LOG_DEBUG("           vp->ptt.size()= "<<vp->ptt.size());
-  //METLIBS_LOG_DEBUG("           vp->tt.size()=  "<<vp->tt.size());
-  //METLIBS_LOG_DEBUG("           vp->ptd.size()= "<<vp->ptd.size());
-  //METLIBS_LOG_DEBUG("           vp->td.size()=  "<<vp->td.size());
-  //METLIBS_LOG_DEBUG("           vp->puv.size()= "<<vp->puv.size());
-  //METLIBS_LOG_DEBUG("           vp->uu.size()=  "<<vp->uu.size());
-  //METLIBS_LOG_DEBUG("           vp->vv.size()=  "<<vp->vv.size());
-  //METLIBS_LOG_DEBUG("           vp->pom.size()= "<<vp->pom.size());
-  //METLIBS_LOG_DEBUG("           vp->om.size()=  "<<vp->om.size());
-  //METLIBS_LOG_DEBUG("           vp->dd.size()=  "<<vp->dd.size());
-  //METLIBS_LOG_DEBUG("           vp->ff.size()=  "<<vp->ff.size());
-  //METLIBS_LOG_DEBUG("           vp->sigwind.size()=  "<<vp->sigwind.size());
+//  METLIBS_LOG_DEBUG("    "<<vp->posName<<"  "<<vp->validTime.isoTime());
+  METLIBS_LOG_DEBUG("           vp->ptt.size()= "<<vp->ptt.size());
+  METLIBS_LOG_DEBUG("           vp->tt.size()=  "<<vp->tt.size());
+  METLIBS_LOG_DEBUG("           vp->ptd.size()= "<<vp->ptd.size());
+  METLIBS_LOG_DEBUG("           vp->td.size()=  "<<vp->td.size());
+  METLIBS_LOG_DEBUG("           vp->puv.size()= "<<vp->puv.size());
+  METLIBS_LOG_DEBUG("           vp->uu.size()=  "<<vp->uu.size());
+  METLIBS_LOG_DEBUG("           vp->vv.size()=  "<<vp->vv.size());
+  METLIBS_LOG_DEBUG("           vp->pom.size()= "<<vp->pom.size());
+  METLIBS_LOG_DEBUG("           vp->om.size()=  "<<vp->om.size());
+  METLIBS_LOG_DEBUG("           vp->dd.size()=  "<<vp->dd.size());
+  METLIBS_LOG_DEBUG("           vp->ff.size()=  "<<vp->ff.size());
+  METLIBS_LOG_DEBUG("           vp->sigwind.size()=  "<<vp->sigwind.size());
   //################################################################
 
   return vp;
