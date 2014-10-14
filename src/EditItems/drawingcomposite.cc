@@ -132,12 +132,15 @@ void Composite::createElements()
 {
   METLIBS_LOG_SCOPE();
 
+  QVariantMap style = DrawingStyleManager::instance()->getStyle(DrawingItemBase::Composite, properties_.value("style:type").toString());
+  if (style.isEmpty())
+    return;
+
   if (points_.isEmpty()) {
     points_.append(QPointF(0, 0));
     points_.append(QPointF(0, 0));
   }
 
-  QVariantMap style = DrawingStyleManager::instance()->getStyle(DrawingItemBase::Composite, properties_.value("style:type").toString());
   QStringList objects = style.value("objects").toStringList();
   QStringList values = style.value("values").toStringList();
   QStringList styles = style.value("styles").toStringList();
@@ -152,7 +155,7 @@ void Composite::createElements()
   else {
     layout_ = Horizontal;
     if (objects.size() != 1)
-      METLIBS_LOG_WARN("Invalid layout given in " << properties_.value("style:type").toString().toStdString());
+      METLIBS_LOG_WARN("Invalid layout given in " << properties_.value("style:type").toString().toStdString() << ": " << layout.toStdString());
   }
 
   // If the number of objects, styles and values do not match then warn and return.
@@ -365,8 +368,10 @@ void Composite::writeExtraProperties()
     return;
 
   if (childList.size() != elements_.size()) {
-    METLIBS_LOG_WARN("Number of elements does not match the number of properties for style"
-                     << properties_["style:type"].toString().toStdString());
+    METLIBS_LOG_WARN("Number of elements " << elements_.size()
+      << " does not match the number of properties "
+      << childList.size() << " for style"
+      << properties_["style:type"].toString().toStdString());
     return;
   }
 
