@@ -134,9 +134,6 @@ QRectF Text::drawingRect() const
 
 void Text::updateRect()
 {
-  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  styleManager->setFont(this, poptions);
-
   float x = points_.at(0).x();
   float y = points_.at(0).y();
   qreal width = 0;
