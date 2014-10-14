@@ -82,6 +82,8 @@ private:
   void toKMLExtraData(QXmlStreamWriter &stream, const QVariantList &children) const;
   /// Unpacks serialised property data from a string.
   QVariantList fromKMLExtraData(QXmlStreamReader &stream);
+
+  bool created_;
 };
 
 } // namespace

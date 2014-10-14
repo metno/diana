@@ -46,6 +46,7 @@ namespace DrawingItem_Composite {
 
 Composite::Composite()
 {
+  created_ = false;
 }
 
 Composite::~Composite()
@@ -54,6 +55,9 @@ Composite::~Composite()
 
 void Composite::draw()
 {
+  if (!created_)
+    createElements();
+
   if (points_.isEmpty() || elements_.isEmpty())
     return;
 
@@ -131,6 +135,9 @@ DrawingItemBase::Category Composite::category() const
 void Composite::createElements()
 {
   METLIBS_LOG_SCOPE();
+
+  if (PlotModule::instance()->getPlotSize().width() == 0)
+    return;
 
   QVariantMap style = DrawingStyleManager::instance()->getStyle(DrawingItemBase::Composite, properties_.value("style:type").toString());
   if (style.isEmpty())
@@ -210,6 +217,8 @@ void Composite::createElements()
   // Read the child elements' properties back into the main children entry of
   // this item's property map.
   readExtraProperties();
+
+  created_ = true;
 }
 
 void Composite::arrangeElements()
