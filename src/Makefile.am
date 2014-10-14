@@ -71,6 +71,7 @@ common_cxx_sources = \
 	diSatManager.cc \
 	diSatPlot.cc \
 	diShapeObject.cc \
+	diSpectrumData.cc \
 	diSpectrumFile.cc \
 	diSpectrumManager.cc \
 	diSpectrumOptions.cc \
@@ -347,6 +348,7 @@ noinst_HEADERS = \
 	diSatManager.h \
 	diSatPlot.h \
 	diShapeObject.h \
+	diSpectrumData.h \
 	diSpectrumFile.h \
 	diSpectrumManager.h \
 	diSpectrumOptions.h \
