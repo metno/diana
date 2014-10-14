@@ -743,7 +743,6 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
       Colour c= Colour(spopt->spectrumLineColour);
       glColor3ubv(c.RGB());
       glLineWidth(spopt->spectrumLinewidth);
-
       bool res=
            contour(numDirec+1,numFreq,sdata,xdata,ydata,
                    part,iconv,conv,xylim,
@@ -787,7 +786,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
   }
 //###########################################################################
 
-  if (spopt->pPeakDirection) {
+  if (spopt->pPeakDirection && ddPeak > -1) {
     c= Colour(spopt->peakDirectionColour);
     glColor3ubv(c.RGB());
     glLineWidth(spopt->peakDirectionLinewidth);
@@ -916,6 +915,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     glBegin(GL_QUAD_STRIP);
     for (int i=0; i<numFreq; i++) {
+      if ( frequences[i] > 0.5 )
+         break;
       x= xefdiag + dxefdiag*frequences[i]/vxefdiag;
       y= yefdiag + dyefdiag*eTotal[i]/vyefdiag;
       glVertex2f(x,y);
@@ -930,6 +931,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     glLineWidth(spopt->energyLinewidth);
     glBegin(GL_LINE_STRIP);
     for (int i=0; i<numFreq; i++) {
+      if ( frequences[i] > 0.5 )
+         break;
       x= xefdiag + dxefdiag*frequences[i]/vxefdiag;
       y= yefdiag + dyefdiag*eTotal[i]/vyefdiag;
       glVertex2f(x,y);
@@ -938,18 +941,20 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
   }
 
   // wave height (HMO)
-  c= Colour(spopt->textColour);
-  glColor3ubv(c.RGB());
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glBegin(GL_POLYGON);
-  y= yhmo + dyhmo*hmo/vyhmo;
-  glVertex2f(xhmo,yhmo);
-  glVertex2f(xhmo+dxhmo,yhmo);
-  glVertex2f(xhmo+dxhmo,y);
-  glVertex2f(xhmo,y);
-  glEnd();
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  if ( hmo > -1 ) {
+    c= Colour(spopt->textColour);
+    glColor3ubv(c.RGB());
+    glShadeModel(GL_FLAT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBegin(GL_POLYGON);
+    y= yhmo + dyhmo*hmo/vyhmo;
+    glVertex2f(xhmo,yhmo);
+    glVertex2f(xhmo+dxhmo,yhmo);
+    glVertex2f(xhmo+dxhmo,y);
+    glVertex2f(xhmo,y);
+    glEnd();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
 
   //---------------------
 
@@ -984,16 +989,9 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     ostringstream ostr1,ostr2;
     ostr1<<"Position: "<<posName<<"   Time: "<<validtime
          <<" UTC ("<<setiosflags(ios::showpos)<<forecastHour<<")";
-    ostr2<<"HMO= "<<setw(4)<<setprecision(1)<<setiosflags(ios::fixed)<<hmo
-         <<"m   Tp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<tPeak
-         <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddPeak
-         <<" deg";
-
     std::string str1= ostr1.str();
-    std::string str2= ostr2.str();
     fp->getStringSize(str1.c_str(),dx,dy);
-    fp->getStringSize(str2.c_str(), x,dy);
-    if (dx<x) dx=x;
+
     if (dx>xplot2-xplot1-dytext1*0.5) {
       float fontsize= int(fontSize1*(xplot2-xplot1-dytext1*0.5)/dx);
       fp->setFontSize(fontsize);
@@ -1001,9 +999,17 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     x=xplot1+dytext1*0.25;
     y=yplot1+dytext1+dy*0.30;
     fp->drawStr(str1.c_str(),x,y,0.0);
-    x=xplot1+dytext1*0.25;
-    y=yplot1+dy*0.30;
-    fp->drawStr(str2.c_str(),x,y,0.0);
+
+    if ( hmo>-1 && tPeak>-1 && ddPeak>-1 ) {
+      ostr2<<"HMO= "<<setw(4)<<setprecision(1)<<setiosflags(ios::fixed)<<hmo
+          <<"m   Tp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<tPeak
+          <<"s   DDp= "<<setw(5)<<setprecision(1)<<setiosflags(ios::fixed)<<ddPeak
+          <<" deg";
+      std::string str2= ostr2.str();
+      x=xplot1+dytext1*0.25;
+      y=yplot1+dy*0.30;
+      fp->drawStr(str2.c_str(),x,y,0.0);
+    }
   }
 
   UpdateOutput();

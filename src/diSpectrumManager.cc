@@ -37,6 +37,7 @@
 
 #include <diSpectrumOptions.h>
 #include <diSpectrumFile.h>
+#include <diSpectrumData.h>
 #include <diSpectrumPlot.h>
 #include "diUtilities.h"
 
@@ -77,6 +78,8 @@ SpectrumManager::~SpectrumManager()
 
   for (unsigned int i=0; i<spfile.size(); i++)
     delete spfile[i];
+  for (unsigned int i=0; i<spdata.size(); i++)
+    delete spdata[i];
 }
 
 
@@ -85,51 +88,51 @@ void SpectrumManager::parseSetup()
 
   METLIBS_LOG_SCOPE();
 
-
   //clear old setupinfo
+  filenames.clear();
+  filetypes.clear();
+  filesetup.clear();
   dialogModelNames.clear();
   dialogFileNames.clear();
 
   const std::string section2 = "SPECTRUM_FILES";
-  vector<std::string> vstr;
 
+  vector<std::string> vstr;
 
   if (SetupParser::getSection(section2,vstr)) {
 
-    // not many error messages here yet...
-
     set<std::string> uniquefiles;
 
-    std::string model,filename;
-    vector<std::string> tokens,tokens1,tokens2;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      tokens= miutil::split_protected(vstr[i], '\"','\"'," ",true);
-      if (tokens.size()==2) {
-        tokens1= miutil::split(tokens[0], "=");
-        tokens2= miutil::split(tokens[1], "=");
-        if (tokens1.size()==2          && tokens2.size()==2  &&
-            miutil::to_lower(tokens1[0])=="m" && miutil::to_lower(tokens2[0])=="f") {
-          model= tokens1[1];
-          filename= tokens2[1];
-          filenames[model]= filename;
-          if (uniquefiles.find(filename)==uniquefiles.end()) {
-            uniquefiles.insert(filename);
-            dialogModelNames.push_back(model);
-            dialogFileNames.push_back(filename);
-          }
+      vector<std::string> tokens= miutil::split(vstr[i]);
+      std::string model,filename;
+      std::string filetype = "standard";
+      for ( size_t j=0; j<tokens.size(); ++j) {
+        vector<std::string> tokens1= miutil::split(tokens[j], "=");
+        if ( tokens1.size() != 2 ) continue;
+        if ( tokens1[0] == miutil::to_lower("m") ) {
+          model = tokens1[1];
+        } else if( tokens1[0] == miutil::to_lower("f") ) {
+          filename = tokens1[1];
+        } else if( tokens1[0] == miutil::to_lower("t") ) {
+          filetype = tokens1[1];
         }
+      }
+
+      filenames[model]= filename;
+      filetypes[model]=filetype;
+      filesetup[model] = vstr[i];
+      if (uniquefiles.find(filename)==uniquefiles.end()) {
+        uniquefiles.insert(filename);
+        dialogModelNames.push_back(model);
+        dialogFileNames.push_back(filename);
       }
     }
 
-    vstr.clear();
-
-  } else {
-
-    METLIBS_LOG_DEBUG("Missing section " << section2 << " in setupfile.");
-
   }
+
 }
 
 
@@ -173,6 +176,9 @@ void SpectrumManager::setModel()
   for (unsigned int i=0; i<spfile.size(); i++)
     delete spfile[i];
   spfile.clear();
+  for (unsigned int i=0; i<spdata.size(); i++)
+    delete spdata[i];
+  spdata.clear();
 
   usemodels.clear();
 
@@ -342,6 +348,7 @@ bool SpectrumManager::plot()
   }
 
   int nmod= spfile.size();
+  if (nmod == 0) nmod = spdata.size();
 
   SpectrumPlot::startPlot(nmod,plotw,ploth,spopt);
 
@@ -380,6 +387,10 @@ void SpectrumManager::preparePlot()
 
   for (int i=0; i<m; i++) {
     SpectrumPlot *spp= spfile[i]->getData(plotStation,plotTime);
+    spectrumplots.push_back(spp);
+  }
+  for (size_t i=0; i<spdata.size(); i++) {
+    SpectrumPlot *spp= spdata[i]->getData(plotStation,plotTime);
     spectrumplots.push_back(spp);
   }
 }
@@ -452,26 +463,38 @@ vector<string> SpectrumManager::getSelectedModels()
 
 bool SpectrumManager::initSpectrumFile(std::string file, std::string model)
 {
-  SpectrumFile *spf= new SpectrumFile(file,model);
-  if (spf->update()) {
-    METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
-    spfile.push_back(spf);
-    return true;
-  } else {
-    METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
-    delete spf;
-    return false;
+  METLIBS_LOG_SCOPE(LOGVAL(file) << LOGVAL(model));
+  if ( filetypes[model] == "standard" ) {
+    SpectrumFile *spf= new SpectrumFile(file,model);
+    if (spf->update()) {
+      METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
+      spfile.push_back(spf);
+      return true;
+    } else {
+      METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
+      delete spf;
+      return false;
+    }
+  } else if ( filetypes[model] == "netcdf" ) {
+    SpectrumData *spd = new SpectrumData(file,model);
+    if ( spd->readFileHeader(filesetup[model])) {
+      METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
+      spdata.push_back(spd);
+      return true;
+    } else {
+      METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
+      delete spd;
+      return false;
+    }
   }
 }
 
-
 void SpectrumManager::initStations()
 {
+
+  METLIBS_LOG_SCOPE();
+
   //merge lists from all models
-  int nspfile = spfile.size();
-
-  METLIBS_LOG_SCOPE("size of spfile " << nspfile);
-
 
   nameList.clear();
 
@@ -481,12 +504,31 @@ void SpectrumManager::initStations()
   vector<float>    latitudelist;
   vector<float>    longitudelist;
 
+  int nspfile = spfile.size();
   for (int i = 0;i<nspfile;i++){
     namelist= spfile[i]->getNames();
     latitudelist= spfile[i]->getLatitudes();
     longitudelist= spfile[i]->getLongitudes();
     unsigned int n=namelist.size();
-    if (n!=latitudelist.size()||n!=longitudelist.size()) {
+    if (n!=latitudelist.size() || n!=longitudelist.size()) {
+      METLIBS_LOG_ERROR("diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
+    } else{
+      for (unsigned int j = 0;j<n;j++){
+        StationPos newPos;
+        newPos.latitude= latitudelist[j];
+        newPos.longitude=longitudelist[j];
+        stations[namelist[j]] = newPos;
+      }
+    }
+  }
+
+  int nspdata = spdata.size();
+  for (int i = 0;i<nspdata;i++){
+    namelist= spdata[i]->getNames();
+    latitudelist= spdata[i]->getLatitudes();
+    longitudelist= spdata[i]->getLongitudes();
+    unsigned int n=namelist.size();
+    if (n!=latitudelist.size() || n!=longitudelist.size()) {
       METLIBS_LOG_ERROR("diSpectrumManager::initStations - SOMETHING WRONG WITH STATIONLIST!");
     } else{
       for (unsigned int j = 0;j<n;j++){
@@ -553,7 +595,10 @@ void SpectrumManager::initTimes()
   timeList.clear();
 
   //assume common times...
-  if (spfile.size()) timeList= spfile[0]->getTimes();
+  if (spdata.size())
+    timeList= spdata[0]->getTimes();
+  else if (spfile.size())
+    timeList= spfile[0]->getTimes();
 
   int n= timeList.size();
   int i= 0;

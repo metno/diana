@@ -54,6 +54,7 @@ class GLPfile;
 class SpectrumPlot
 {
   friend class SpectrumFile;
+  friend class SpectrumData;
 
 public:
   SpectrumPlot();

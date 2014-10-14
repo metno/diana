@@ -42,6 +42,7 @@
 
 class SpectrumOptions;
 class SpectrumFile;
+class SpectrumData;
 class SpectrumPlot;
 
 /**
@@ -59,6 +60,8 @@ private:
 
   // map<model,filename>
   std::map<std::string,std::string> filenames;
+  std::map<std::string,std::string> filetypes;
+  std::map<std::string,std::string> filesetup;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
@@ -66,6 +69,7 @@ private:
 
   SpectrumOptions *spopt;
   std::vector<SpectrumFile*> spfile;
+  std::vector<SpectrumData*> spdata;
   bool asField;
 
   std::vector<std::string> nameList;
