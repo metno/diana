@@ -171,6 +171,11 @@ DrawingStyleManager::StyleCategory DSP_decoration1_colour::styleCategory() const
 DrawingStyleManager::LockCategory DSP_decoration1_colour::lockCategory() const { return DrawingStyleManager::LockColour; }
 QVariant DSP_decoration1_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
 
+QString DSP_decoration1_alpha::name() { return "decoration1.alpha"; }
+DrawingStyleManager::StyleCategory DSP_decoration1_alpha::styleCategory() const { return DrawingStyleManager::Decoration; }
+DrawingStyleManager::LockCategory DSP_decoration1_alpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
+QVariant DSP_decoration1_alpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
+
 QString DSP_decoration1_offset::name() { return "decoration1.offset"; }
 DrawingStyleManager::StyleCategory DSP_decoration1_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration1_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
@@ -183,6 +188,11 @@ QString DSP_decoration2_colour::name() { return "decoration2.colour"; }
 DrawingStyleManager::StyleCategory DSP_decoration2_colour::styleCategory() const { return DrawingStyleManager::Decoration; }
 DrawingStyleManager::LockCategory DSP_decoration2_colour::lockCategory() const { return DrawingStyleManager::LockColour; }
 QVariant DSP_decoration2_colour::parse(const QHash<QString, QString> &def) const { return parseColour(def.value(name(), lineColour(def))); }
+
+QString DSP_decoration2_alpha::name() { return "decoration2.alpha"; }
+DrawingStyleManager::StyleCategory DSP_decoration2_alpha::styleCategory() const { return DrawingStyleManager::Decoration; }
+DrawingStyleManager::LockCategory DSP_decoration2_alpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
+QVariant DSP_decoration2_alpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
 
 QString DSP_decoration2_offset::name() { return "decoration2.offset"; }
 DrawingStyleManager::StyleCategory DSP_decoration2_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
@@ -261,9 +271,11 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::PolyLine].insert(DSP_reversed::name(), new DSP_reversed);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1::name(), new DSP_decoration1);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_colour::name(), new DSP_decoration1_colour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_alpha::name(), new DSP_decoration1_alpha);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration1_offset::name(), new DSP_decoration1_offset);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2::name(), new DSP_decoration2);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_colour::name(), new DSP_decoration2_colour);
+  properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_alpha::name(), new DSP_decoration2_alpha);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_offset::name(), new DSP_decoration2_offset);
 
   // Define the supported text style properties.
@@ -528,11 +540,13 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
   else
     points_ = points;
 
-  bool alphaOk;
-  const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
-  if ((!alphaOk) || (alpha >= 0)) {
-    foreach (QPointF p, points_)
-      glVertex3i(p.x(), p.y(), z);
+  {
+    bool alphaOk;
+    const int alpha = style.value(DSP_linealpha::name()).toInt(&alphaOk);
+    if ((!alphaOk) || (alpha >= 0)) {
+      foreach (QPointF p, points_)
+        glVertex3i(p.x(), p.y(), z);
+    }
   }
 
   glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
@@ -541,7 +555,9 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   if (style.value(DSP_decoration1::name()).isValid()) {
     QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
-    glColor4ub(colour.red(), colour.green(), colour.blue(), colour.alpha());
+    bool alphaOk;
+    const int alpha = style.value(DSP_decoration1_alpha::name()).toInt(&alphaOk);
+    glColor4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
     unsigned int offset = style.value(DSP_decoration1_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration1::name()).toList()) {
@@ -553,7 +569,9 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   if (style.value(DSP_decoration2::name()).isValid()) {
     QColor colour = style.value(DSP_decoration2_colour::name()).value<QColor>();
-    glColor4ub(colour.red(), colour.green(), colour.blue(), colour.alpha());
+    bool alphaOk;
+    const int alpha = style.value(DSP_decoration2_alpha::name()).toInt(&alphaOk);
+    glColor4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
 
     unsigned int offset = style.value(DSP_decoration2_offset::name()).toInt();
     foreach (QVariant v, style.value(DSP_decoration2::name()).toList()) {

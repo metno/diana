@@ -239,6 +239,16 @@ private:
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
+class DSP_decoration1_alpha : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
 class DSP_decoration1_offset : public DrawingStyleProperty
 {
 public:
@@ -258,6 +268,16 @@ private:
 };
 
 class DSP_decoration2_colour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_decoration2_alpha : public DrawingStyleProperty
 {
 public:
   static QString name();

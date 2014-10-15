@@ -341,6 +341,15 @@ private:
   virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
 };
 
+class SPE_decoration1_alpha : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_decoration1_alpha::name(); }
+private:
+  virtual QString labelText() const { return "decoration 1 alpha"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
+};
+
 class SPE_decoration1_offset : public StylePropertyEditor
 {
 public:
@@ -366,6 +375,15 @@ public:
 private:
   virtual QString labelText() const { return "decoration 2 colour"; }
   virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
+};
+
+class SPE_decoration2_alpha : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_decoration2_alpha::name(); }
+private:
+  virtual QString labelText() const { return "decoration 2 alpha"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
 class SPE_decoration2_offset : public StylePropertyEditor
@@ -466,6 +484,12 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_colour; }
 };
 
+class ESP_decoration1_alpha : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration1_alpha; }
+};
+
 class ESP_decoration1_offset : public EditStyleProperty
 {
 private:
@@ -482,6 +506,12 @@ class ESP_decoration2_colour : public EditStyleProperty
 {
 private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2_colour; }
+};
+
+class ESP_decoration2_alpha : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_decoration2_alpha; }
 };
 
 class ESP_decoration2_offset : public EditStyleProperty
@@ -517,9 +547,11 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_reversed::name(), new ESP_reversed);
   properties_.insert(DSP_decoration1::name(), new ESP_decoration1);
   properties_.insert(DSP_decoration1_colour::name(), new ESP_decoration1_colour);
+  properties_.insert(DSP_decoration1_alpha::name(), new ESP_decoration1_alpha);
   properties_.insert(DSP_decoration1_offset::name(), new ESP_decoration1_offset);
   properties_.insert(DSP_decoration2::name(), new ESP_decoration2);
   properties_.insert(DSP_decoration2_colour::name(), new ESP_decoration2_colour);
+  properties_.insert(DSP_decoration2_alpha::name(), new ESP_decoration2_alpha);
   properties_.insert(DSP_decoration2_offset::name(), new ESP_decoration2_offset);
 }
 
