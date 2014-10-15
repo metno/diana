@@ -56,6 +56,7 @@ public:
   enum Side { Inside, Outside };
 
   enum StyleCategory { Invalid, General, Line, Area, Decoration };
+  enum LockCategory { LockNone, LockAlpha, LockColour };
 
   DrawingStyleManager();
   virtual ~DrawingStyleManager();
@@ -82,6 +83,8 @@ public:
 
   StyleCategory styleCategory(const DrawingItemBase::Category &, const QString &) const;
   static QString styleCategoryName(const StyleCategory);
+
+  LockCategory lockCategory(const DrawingItemBase::Category &, const QString &) const;
 
   bool containsStyle(const DrawingItemBase::Category &category, const QString &name) const;
   QStringList styles(const DrawingItemBase::Category &category) const;
@@ -114,6 +117,7 @@ class DrawingStyleProperty
 {
 public:
   virtual DrawingStyleManager::StyleCategory styleCategory() const = 0;
+  virtual DrawingStyleManager::LockCategory lockCategory() const { return DrawingStyleManager::LockNone; }
   virtual QVariant parse(const QHash<QString, QString> &) const = 0;
 protected:
   static QString lineColour(const QHash<QString, QString> &);
@@ -128,6 +132,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -137,6 +142,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -173,6 +179,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -182,6 +189,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -227,6 +235,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -254,6 +263,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 
@@ -272,6 +282,7 @@ public:
   static QString name();
 private:
   virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
   virtual QVariant parse(const QHash<QString, QString> &) const;
 };
 

@@ -40,6 +40,8 @@
 #include <QLabel>
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
+#include <QPair>
+#include <QCheckBox>
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/drawingitembase.h>
 
@@ -118,6 +120,9 @@ public:
   virtual QString labelText() const = 0;
   QWidget *widget();
   void reset();
+  void setCurrentIndex(int);
+  void updateItems(int);
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
 protected:
   StylePropertyEditor();
 private:
@@ -126,6 +131,7 @@ private:
   QSet<QSharedPointer<DrawingItemBase> > items_;
   IndexedEditor *editor_;
   QVariant origInitVal_;
+  bool lockingEnabled_;
   void setCurrentIndex(const QVariant &);
 private slots:
   void handleCurrentIndexChanged(int);
@@ -137,6 +143,7 @@ class StyleEditor : public QDialog
 public:
   static StyleEditor *instance();
   void edit(const QSet<QSharedPointer<DrawingItemBase> > &);
+  QList<QSharedPointer<StylePropertyEditor> > lockedEditors(StylePropertyEditor *);
 private:
   StyleEditor();
   static StyleEditor *instance_;
@@ -145,7 +152,9 @@ private:
   QMap<DrawingItemBase *, QVariantMap> savedProps_;
   QList<QSharedPointer<StylePropertyEditor> > editors_;
   QList<QSharedPointer<QLabel> > formLabels_;
+  QMap<QString, QCheckBox *> lockedCheckBoxes_;
   QHash<QString, EditStyleProperty *> properties_;
+  QHash<DrawingStyleManager::LockCategory, QList<QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> > > lockedEditors_;
 private slots:
   void reset();
 };

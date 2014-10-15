@@ -39,7 +39,6 @@
 #include <QDialogButtonBox>
 #include <QVariantMap>
 #include <QComboBox>
-#include <QCheckBox>
 #include <QSpinBox>
 #include "qtUtility.h"
 
@@ -141,6 +140,7 @@ void IntRangeEditor::handleValueChanged(int val) { emit currentIndexChanged(val 
 
 StylePropertyEditor::StylePropertyEditor()
   : editor_(0)
+  , lockingEnabled_(false)
 {
 }
 
@@ -162,10 +162,12 @@ void StylePropertyEditor::init(bool applicable, const QSet<QSharedPointer<Drawin
 {
   items_ = items;
   if (applicable) {
+    lockingEnabled_ = false;
     editor_ = createEditor();
     connect(editor_, SIGNAL(currentIndexChanged(int)), SLOT(handleCurrentIndexChanged(int)));
     setCurrentIndex(initVal);
     origInitVal_ = initVal;
+    lockingEnabled_ = true;
   }
 }
 
@@ -186,15 +188,17 @@ void StylePropertyEditor::setCurrentIndex(const QVariant &val)
   editor_->setCurrentIndex(-1);
 }
 
-void StylePropertyEditor::handleCurrentIndexChanged(int index)
+void StylePropertyEditor::setCurrentIndex(int index)
 {
-  IndexedEditor *editor = qobject_cast<IndexedEditor *>(sender());
-  if (!editor) {
-    qWarning() << "StylePropertyEditor::handleCurrentIndexChanged(): sender() not an IndexedEditor";
-    return;
-  }
+  editor_->blockSignals(true); // since the following call doesn't need to trigger handleCurrentIndexChanged()
+  editor_->setCurrentIndex(index);
+  editor_->blockSignals(false);
+}
 
-  const QVariant userDataVar = editor->itemData(index);
+// Updates items with a new value for this style property.
+void StylePropertyEditor::updateItems(int index)
+{
+  const QVariant userDataVar = editor_->itemData(index);
   if (!userDataVar.isValid())
     return;
   const QString userData = userDataVar.toString();
@@ -203,8 +207,30 @@ void StylePropertyEditor::handleCurrentIndexChanged(int index)
 
   foreach (QSharedPointer<DrawingItemBase> item, items_)
     item->propertiesRef().insert(fullName, userData);
+}
+
+void StylePropertyEditor::handleCurrentIndexChanged(int index)
+{
+  // update items with this style property
+  updateItems(index);
+
+  if (lockingEnabled_) {
+    // update items with locked style properties
+    QList<QSharedPointer<StylePropertyEditor> > lockedEditors = StyleEditor::instance()->lockedEditors(this);
+    foreach (const QSharedPointer<StylePropertyEditor> &lockedEditor, lockedEditors) {
+      lockedEditor->setCurrentIndex(index);
+      lockedEditor->updateItems(index);
+    }
+  }
 
   EditItemManager::instance()->repaint();
+}
+
+DrawingStyleManager::LockCategory StylePropertyEditor::lockCategory() const
+{
+  return (!items_.isEmpty())
+      ? DrawingStyleManager::instance()->lockCategory(items_.begin()->data()->category(), name())
+      : DrawingStyleManager::LockNone;
 }
 
 class SPE_linecolour : public StylePropertyEditor
@@ -565,7 +591,10 @@ static QMap<DrawingItemBase *, QVariantMap> getStyleProps(const QSet<QSharedPoin
 // Opens a modal dialog to edit the style properties of \a items.
 void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
 {
-  DrawingItemBase::Category category = items.begin()->data()->category();
+  if (items.isEmpty())
+    return;
+
+  DrawingItemBase::Category itemCategory = items.begin()->data()->category();
 
   // get initial values
   savedProps_ = getStyleProps(items);
@@ -574,17 +603,18 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
   // clear old content
   editors_.clear();
   formLabels_.clear();
+  lockedEditors_.clear();
   if (formWidget_->layout())
     delete formWidget_->layout();
 
   // group style properties into categories
-  QStringList propNames = DrawingStyleManager::instance()->properties(category);
+  QStringList propNames = DrawingStyleManager::instance()->properties(itemCategory);
   qSort(propNames);
   QHash<DrawingStyleManager::StyleCategory, QStringList> styleCategories;
   foreach (const QString propName, propNames)
-    styleCategories[DrawingStyleManager::instance()->styleCategory(category, propName)].append(propName);
+    styleCategories[DrawingStyleManager::instance()->styleCategory(itemCategory, propName)].append(propName);
 
-  // set new content and initial values for the properties that we would like to support
+  // set new content and initial values for supported properties
   QGridLayout *gridLayout = new QGridLayout;
   formWidget_->setLayout(gridLayout);
   int row = 0;
@@ -599,20 +629,30 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
     }
 
     foreach (const QString propName, styleCategories.value(styleCategory)) {
-      StylePropertyEditor *editor = 0;
+      QSharedPointer<StylePropertyEditor> editor;
       if (properties_.contains(propName))
-        editor = properties_.value(propName)->createEditor(propName, items, sprops);
-      if (editor) {
-        editors_.append(QSharedPointer<StylePropertyEditor>(editor));
+        editor = QSharedPointer<StylePropertyEditor>(properties_.value(propName)->createEditor(propName, items, sprops));
+      if (!editor.isNull()) {
+        editors_.append(editor);
         QWidget *editorWidget = editor->widget();
         if (!editorWidget) {
           editorWidget = new QLabel("n/a"); // i.e. not found in any of the selected items
           formLabels_.append(QSharedPointer<QLabel>(qobject_cast<QLabel *>(editorWidget)));
+        } else {
+          if (editor->lockCategory() != DrawingStyleManager::LockNone) {
+            if (!lockedCheckBoxes_.contains(propName))
+              lockedCheckBoxes_.insert(propName, new QCheckBox);
+            QCheckBox *cbox = lockedCheckBoxes_.value(propName);
+            gridLayout->addWidget(cbox, row, 2);
+            lockedEditors_[editor->lockCategory()].append(qMakePair(editor, cbox));
+          }
         }
+
         QLabel *label = new QLabel(editor->labelText());
         formLabels_.append(QSharedPointer<QLabel>(label));
         gridLayout->addWidget(label, row, 0);
         gridLayout->addWidget(editorWidget, row, 1);
+
       } else { // property name not recognized at all
         QLabel *label = new QLabel(QString("%1: UNSUPPORTED").arg(propName));
         formLabels_.append(QSharedPointer<QLabel>(label));
@@ -637,6 +677,25 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
     reset();
   }
 }
+
+// Returns the editors that are currently locked to \a editor (the value of those editors will automatically
+// follow the value of \a editor as the latter is interactively modified).
+QList<QSharedPointer<StylePropertyEditor> > StyleEditor::lockedEditors(StylePropertyEditor *editor)
+{
+  QList<QSharedPointer<StylePropertyEditor> > lockedEds_;
+
+  if (lockedEditors_.contains(editor->lockCategory())) {
+    const QList<QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> > editorPairs = lockedEditors_.value(editor->lockCategory());
+    for (int i = 0; i < editorPairs.size(); ++i) {
+      const QPair<QSharedPointer<StylePropertyEditor>, QCheckBox *> editorPair = editorPairs.at(i);
+      if (editorPair.second->isChecked())
+        lockedEds_.append(editorPair.first);
+    }
+  }
+
+  return lockedEds_;
+}
+
 
 // Restores original values.
 void StyleEditor::reset()
