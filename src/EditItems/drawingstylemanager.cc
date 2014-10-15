@@ -348,6 +348,17 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QHash<QString, Q
       item->setProperty(QString("style:%1").arg(name), style.value(key));
     }
   }
+
+  // if the style type is defined, set missing style properties to their default values
+  const QStringList origItemProps = item->propertiesRef().keys();
+  if (origItemProps.contains("style:type")) {
+    const QVariantMap typeStyle = getStyle(item->category(), item->propertiesRef().value("style:type").toString());
+    foreach (const QString &prop, typeStyle.keys()) {
+      const QString prefixedProp = QString("style:%1").arg(prop);
+      if (!origItemProps.contains(prefixedProp))
+        item->propertiesRef().insert(prefixedProp, typeStyle.value(prop));
+    }
+  }
 }
 
 void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vstyle, const QString &prefix) const
