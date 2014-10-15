@@ -1,3 +1,12 @@
+diana (3.36.2-1) unstable; urgency=low
+
+  * Bugfix FieldFunctions
+  * using libemos0d=000382+dfsg-metno3
+  * using libfimex-dev=0.54-1
+  * using metlibs-difield-dev=5.2.8-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 15 Oct 2014 14:24:55 +0200
+
 diana (3.36.1-2) unstable; urgency=low
 
   * using libemos0d=000382+dfsg-metno1
