@@ -44,7 +44,7 @@ void Collector::clear()
 
 void Collector::requireField(const std::string& model, InventoryBase_cp field)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(field->id()));
   if (not field)
     return;
 

@@ -74,19 +74,17 @@ InventoryBase_cp Resolver::getResolvedField(const std::string& model, const std:
 
 Resolver::model_data& Resolver::getModelData(const std::string& model)
 {
+  METLIBS_LOG_SCOPE();
+
   model_data_m::iterator it = mModelData.find(model);
   if (it != mModelData.end())
     return it->second;
 
+  METLIBS_LOG_DEBUG("new model_data for '" << model << "'");
   model_data& md = mModelData[model];
   md.source = mSetup->findSource(model);
-  if ( md.source == NULL ){
-    return md;
-  }
-  md.inventory = md.source->getInventory();
-  if ( md.inventory == NULL){
-    return md;
-  }
+  if (md.source)
+    md.inventory = md.source->getInventory();
   resolveAllFields(md);
   resolveAllPlots(md);
   return md;
@@ -96,16 +94,20 @@ Resolver::model_data& Resolver::getModelData(const std::string& model)
 
 void Resolver::resolveAllFields(model_data& md)
 {
-  md.resolved_fields = InventoryBase_cps(md.inventory->fields.begin(), md.inventory->fields.end());
-  vcross::resolveCrossection(md.resolved_fields);
-  // FIXME __PRESSURE is missing here as it depends on the z axis of the first selected plot, or other things
-  vcross::resolve(md.resolved_fields, mSetup->getComputations());
+  if (md.inventory) {
+    md.resolved_fields = InventoryBase_cps(md.inventory->fields.begin(), md.inventory->fields.end());
+    vcross::resolveCrossection(md.resolved_fields);
+    // FIXME __PRESSURE is missing here as it depends on the z axis of the first selected plot, or other things
+    vcross::resolve(md.resolved_fields, mSetup->getComputations());
+  }
 }
 
 // ------------------------------------------------------------------------
 
 void Resolver::resolveAllPlots(model_data& md)
 {
+  if (not md.inventory)
+    return;
   BOOST_FOREACH(ConfiguredPlot_cp cp, mSetup->getPlots()) {
     bool argumentsOk = true;
     ResolvedPlot_p rp = miutil::make_shared<ResolvedPlot>(cp);

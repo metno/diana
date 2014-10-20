@@ -232,7 +232,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
   const size_t np = av0->npoint(), nl = av0->nlevel();
-  Values_p out = Values_p(new Values(np, nl));
+  Values_p out = Values_p(new Values(av0->shape()));
 
   const float *f0 = av0->values().get(), *f1 = (av1 ? av1->values().get() : 0);
   float* fo = out->values().get();
@@ -359,8 +359,10 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       compute = 12;
 
     const float* f_pp = getPressureFloats(n2v);
-    if (not f_pp)
+    if (not f_pp) {
+      METLIBS_LOG_DEBUG("no pressure field");
       return Values_p();
+    }
 
     if (not ffunc.alevelhum(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0, "kelvin"))
       return Values_p();
@@ -501,11 +503,12 @@ void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t nt
 
 void collectRequired(InventoryBase_cps& required, InventoryBase_cp item)
 {
-  //METLIBS_LOG_SCOPE();
-  if (item->dataType() == FieldData::DATA_TYPE()) {
+  METLIBS_LOG_SCOPE(LOGVAL(item->id()));
+  const std::string& type = item->dataType();
+  if (type == FieldData::DATA_TYPE() or type == ZAxisData::DATA_TYPE()) {
     //METLIBS_LOG_DEBUG("field, inserting '" << item->id() << "'");
     required.insert(item);
-  } else if (item->dataType() == FunctionData::DATA_TYPE()) {
+  } else if (type == FunctionData::DATA_TYPE()) {
     FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
     BOOST_FOREACH(const InventoryBase_cp& a, f->arguments()) {
       collectRequired(required, a);
