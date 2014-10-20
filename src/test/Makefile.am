@@ -11,6 +11,7 @@ check_PROGRAMS += dianaUnitTests
 
 dianaUnitTests_SOURCES = \
     TestVprofData.cc \
+    TestCommandParser.cc \
     TestPlotOptions.cc
 
 if !WITH_EMBEDDED
