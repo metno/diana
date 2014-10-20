@@ -148,50 +148,103 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   if (iTime == numTime)
     return spp;
 
+
   const LonLat pos = LonLat::fromDegrees(posLongitude[iPos], posLatitude[iPos]);
   const Time user_time(util::from_miTime(time));
 
   vcross::Inventory_cp inv = fs->getInventory();
   size_t index;
   Crossection_cp cs = inv->findCrossectionPoint(pos, index);
-  FieldData_cp field_spec = inv->findFieldById("SPEC");
   InventoryBase_cps request;
+  FieldData_cp field_spec = inv->findFieldById("SPEC");
+  if ( !field_spec.get() )
+    return spp;
   request.insert(field_spec);
+  FieldData_cp field_hmo = inv->findFieldById("hs");
+  if ( field_hmo.get() )
+    request.insert(field_hmo);
+  FieldData_cp field_wdir = inv->findFieldById("dd");
+  if ( field_wdir.get() )
+    request.insert(field_wdir);
+  FieldData_cp field_wspeed = inv->findFieldById("ff");
+  if ( field_wspeed.get() )
+    request.insert(field_wspeed);
+  FieldData_cp field_tpeak = inv->findFieldById("tp");
+  if ( field_tpeak.get() )
+    request.insert(field_tpeak);
+  FieldData_cp field_ddpeak = inv->findFieldById("Pdir");
+  if ( field_ddpeak.get() )
+    request.insert(field_ddpeak);
+
   name2value_t n2v;
   const Time reftime = fs->getDefaultReferenceTime();
   fs->getWaveSpectrumValues(reftime, cs, index, user_time, request, n2v);
-  Values_cp spec_values = n2v[field_spec->id()];
-  const Values::Shape& shape(spec_values->shape());
-
-  Values::ShapeIndex idx(spec_values->shape());
 
   spp = new SpectrumPlot();
-
   spp->prognostic = true;
-
   spp->modelName = modelName;
   spp->posName = posName[iPos];
-  spp->wspeed = -1;
-  spp->wdir = -1;
-  spp->hmo = -1;
-  spp->tPeak = -1;
-  spp->ddPeak = -1;
-
   spp->numDirec = numDirec;
   spp->numFreq = numFreq;
-
   spp->validTime = validTime[iTime];
   spp->forecastHour = forecastHour[iTime];
-
   spp->directions = directions;
   spp->frequences = frequences;
 
+  if ( field_hmo.get() ) {
+    Values_cp hmo = n2v[field_hmo->id()];
+    Values::ShapeIndex idx_hmo(hmo->shape());
+    idx_hmo.set(0,0);
+    spp->hmo = hmo->value(idx_hmo);
+  } else {
+    spp->hmo = -1;
+  }
+  if ( field_wdir.get() ) {
+  Values_cp wdir = n2v[field_wdir->id()];
+  Values::ShapeIndex idx_wdir(wdir->shape());
+  idx_wdir.set(0,0);
+  spp->wdir=wdir->value(idx_wdir);
+  } else {
+    spp->wdir = -1;
+  }
+
+  if ( field_wspeed.get() ) {
+  Values_cp wspeed = n2v[field_wspeed->id()];
+  Values::ShapeIndex idx_wspeed(wspeed->shape());
+  idx_wspeed.set(0,0);
+  METLIBS_LOG_INFO(wspeed->value(idx_wspeed));
+  spp->wspeed=wspeed->value(idx_wspeed);
+  } else {
+    spp->wspeed = -1;
+  }
+
+  if ( field_tpeak.get() ) {
+  Values_cp tpeak = n2v[field_tpeak->id()];
+  Values::ShapeIndex idx_tpeak(tpeak->shape());
+  idx_tpeak.set(0,0);
+  spp->tPeak = tpeak->value(idx_tpeak);
+  } else {
+    spp->tPeak = -1;
+  }
+
+  if ( field_ddpeak.get() ) {
+  Values_cp ddpeak = n2v[field_ddpeak->id()];
+  Values::ShapeIndex idx_ddpeak(ddpeak->shape());
+  idx_ddpeak.set(0,0);
+  spp->ddPeak = ddpeak->value(idx_ddpeak);
+  } else {
+    spp->ddPeak = -1;
+  }
+
+  Values_cp spec_values = n2v[field_spec->id()];
+  const Values::Shape& shape(spec_values->shape());
+  Values::ShapeIndex idx(spec_values->shape());
+
   int size = shape.length(0) * shape.length(1);
   float *spec = new float[size];
-  int ii = 0;
 
+  int ii = 0;
   for (int i = 0; i < shape.length(1); i++) {
-    // METLIBS_LOG_DEBUG(LOGVAL(evaluated_plots[0]->values(0)->shape().value(i,0)));
     for (int j = 0; j < shape.length(0); j++) {
       idx.set("direction", j);
       idx.set("freq", i);
@@ -200,12 +253,11 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
         METLIBS_LOG_DEBUG("NAN");
         return 0;
       }
-      //      METLIBS_LOG_DEBUG(LOGVAL(spec[ii]));
       ++ii;
     }
 
   }
-  //  return spp;
+
   int n = numDirec + 1;
   int m = (numDirec + 1) * numFreq;
   float *sdata = new float[m];
@@ -215,15 +267,13 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   const float rad = 3.141592654 / 180.;
 
   float radstep = fabsf(directions[0] - directions[1]) * rad;
-  METLIBS_LOG_DEBUG(LOGVAL(numDirec) << LOGVAL(numFreq));
+
   // extend direction size, for graphics
   for (int j = 0; j < numFreq; j++) {
     for (int i = 0; i < numDirec; i++) {
-      //  cerr <<j<<"  spec:"<<spec[j*numDirec+i]<<endl;
       sdata[j * n + i] = spec[j * numDirec + i];
     }
     sdata[j * n + numDirec] = spec[j * numDirec + 0];
-
   }
 
   float smax = 0.0;
