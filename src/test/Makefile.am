@@ -10,6 +10,7 @@ TESTS += dianaUnitTests
 check_PROGRAMS += dianaUnitTests
 
 dianaUnitTests_SOURCES = \
+    TestVprofData.cc \
     TestPlotOptions.cc
 
 if !WITH_EMBEDDED
@@ -38,3 +39,5 @@ dianaUnitTests_LDADD = \
     $(gtest_LIBS)
 
 endif # HAVE_GTEST
+
+EXTRA_DIST = arome_vprof.nc
