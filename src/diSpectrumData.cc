@@ -82,7 +82,20 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
     METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].latDeg()));
     METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].lonDeg()));
     ostringstream ost;
-    ost << cs->points[i].lonDeg() << ";" << cs->points[i].latDeg();
+    float lon = int (fabs(cs->points[i].lonDeg()) * 10);
+    lon /= 10.;
+    float lat = int (fabs(cs->points[i].latDeg()) * 10);
+    lat /= 10.;
+    ost << lon;
+    if ( cs->points[i].lonDeg() < 0. )
+      ost  << "W " ;
+    else
+      ost  << "E " ;
+    ost << lat;
+    if ( cs->points[i].latDeg() < 0. )
+      ost  << "S" ;
+    else
+      ost  << "N" ;
     posName.push_back( ost.str() );
     posLatitude.push_back( cs->points[i].latDeg() );
     posLongitude.push_back( cs->points[i].lonDeg() );
@@ -212,7 +225,6 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   Values_cp wspeed = n2v[field_wspeed->id()];
   Values::ShapeIndex idx_wspeed(wspeed->shape());
   idx_wspeed.set(0,0);
-  METLIBS_LOG_INFO(wspeed->value(idx_wspeed));
   spp->wspeed=wspeed->value(idx_wspeed);
   } else {
     spp->wspeed = -1;
