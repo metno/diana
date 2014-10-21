@@ -49,7 +49,8 @@ public:
   ResolvedPlot_cp getResolvedPlot(const std::string& model, const std::string& plot);
   const InventoryBase_cpv& getAllResolvedFields(const std::string& model);
   InventoryBase_cp getResolvedField(const std::string& model, const std::string& field_id);
-  
+  void addDynamicPointValue(std::string model,std::string name, LonLat pos);
+
 private:
   void resolveAllFields(model_data& md);
   void resolveAllPlots(model_data& md);

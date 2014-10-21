@@ -44,6 +44,14 @@ Inventory_cp Resolver::getInventory(const std::string& model)
   return getModelData(model).inventory;
 }
 
+void Resolver::addDynamicPointValue(std::string model, std::string name, LonLat pos)
+{
+  Source_p sp= getModelData(model).source;
+  LonLat_v positions;
+  positions.push_back(pos);
+  sp->addDynamicCrossection(name,positions);
+}
+
 // ------------------------------------------------------------------------
 
 const ResolvedPlot_cpv& Resolver::getAllResolvedPlots(const std::string& model)

@@ -312,14 +312,3 @@ dist_symbols_DATA= \
 font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
 METSYMBOLFONT=Symbol   # Use this as default font for meteorological symbols
  standard_symbolsize=30
-  standard_symbolsize=20
-  complex_symbolsize=4
-  standard_symbolsize=20
-  complex_symbolsize=6
-  standard_symbolsize=30
-  standard_symbolsize=30
-  standard_symbolsize=30
-  standard_symbolsize=30
-  standard_symbolsize=30
-  standard_symbolsize=5
-  complex_symbolsize=3

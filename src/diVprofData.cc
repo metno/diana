@@ -39,6 +39,7 @@
 #include <diField/VcrossUtil.h>
 #ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossEvaluate.h"
+#include <vcross_v2/VcrossComputer.h>
 #endif
 //#include <boost/make_shared.hpp>
 #include <cstdio>
@@ -53,12 +54,15 @@ using namespace std;
 using namespace miutil;
 using namespace vcross;
 
-VprofData::VprofData(const std::string& filename, const std::string& modelname) :
-        fileName(filename), modelName(modelname), readFromFimex(false), readFromField(
-            false), fieldManager(NULL), numPos(0), numTime(0), numParam(0), numLevel(
-                0), dataBuffer(0)
+VprofData::VprofData(const std::string& filename, const std::string& modelname,
+    const std::string& stationsfilename) :
+        fileName(filename), modelName(modelname), stationsFileName(stationsfilename),
+        readFromFimex(false), readFromField(false), fieldManager(NULL), numPos(0),
+        numTime(0), numParam(0), numLevel(0), dataBuffer(0)
 {
+
   METLIBS_LOG_SCOPE();
+
 }
 
 VprofData::~VprofData()
@@ -68,104 +72,16 @@ VprofData::~VprofData()
     delete[] dataBuffer;
 }
 
-bool VprofData::readFimex(const std::string& setup_line)
+void VprofData::readStationNames(const std::string& stationsfilename)
 {
-#ifdef USE_VCROSS_V2
-  METLIBS_LOG_SCOPE();
 
-  //parameters and computations should be defined in setup
-  Setup_p setup = miutil::make_shared<Setup>();
-  string_v fields;
-  fields.push_back("air_temperature_celsius_ml");
-  fields.push_back("dew_point_temperature_celsius_ml");
-  fields.push_back("x_wind_ml");
-  fields.push_back("y_wind_ml");
-  fields.push_back("relative_humidity_ml");
-  fields.push_back("upward_air_velocity_ml");
-  string_v plots;
-  string_v plot_defs;
-  for ( size_t i = 0; i < fields.size(); ++i ) {
-    plots.push_back(std::string("name=") + fields[i] + std::string(" plot=CONTOUR(") + fields[i] + std::string(")"));
-    plot_defs.push_back("VCROSS " + std::string(" model=") + modelName + std::string(" field=") + fields[i]);
-  }
-
-  string_v computations;
-  computations.push_back("relative_humidity_ml=rh_from_tk_q(air_temperature_ml,specific_humidity_ml)");
-  computations.push_back("tdk=tdk_from_tk_q(air_temperature_ml,specific_humidity_ml)");
-  computations.push_back("air_temperature_celsius_ml=convert_unit(air_temperature_ml,celsius)");
-  computations.push_back("dew_point_temperature_celsius_ml=convert_unit(tdk,celsius)");
-  string_v sources;
-  sources.push_back(setup_line);
-  vc_configure(setup, sources, computations, plots);
-
-  collector = miutil::make_shared<Collector>(setup);
-
-  vc_select_plots(collector, plot_defs);
-
-  vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
-  if (not inv)
-    return false;
-
-  std::set<std::string> csLabels;
-  vector<station> stations;
-  BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
-    if (cs->points.size() != 1)
-      continue;
-    csLabels.insert(cs->label);
-    station st;
-    st.id = "";
-    st.name = cs->label;
-    st.lat = cs->points[0].latDeg();
-    st.lon = cs->points[0].lonDeg();
-    st.height = 0;
-    st.barHeight = 0;
-    stations.push_back(st);
-  }
-
-  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
-    validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
-  }
-
-  for (size_t i = 0; i < stations.size(); i++) {
-    posName.push_back(stations[i].name);
-    posLatitude.push_back(stations[i].lat);
-    posLongitude.push_back(stations[i].lon);
-    posDeltaLatitude.push_back(0.0);
-    posDeltaLongitude.push_back(0.0);
-    posTemp.push_back(0);
-  }
-
-  numPos = posName.size();
-  numTime = validTime.size();
-  numParam = 6;
-  mainText.push_back(modelName);
-
-  miTime t = validTime[0];
-  for (size_t i = 0; i < validTime.size(); i++) {
-    forecastHour.push_back(miTime::hourDiff(validTime[i],t));
-    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
-  }
-  readFromFimex = true;
-  vProfPlot = 0;
-
-  //return success;
-#endif
-  return true;
-}
-
-bool VprofData::readField(std::string type, FieldManager* fieldm)
-{
-  METLIBS_LOG_DEBUG(
-      "++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
   FILE *stationfile;
   char line[1024];
-  std::string correctFileName = fileName;
-  miutil::replace(correctFileName, modelName, "");
-  if ((stationfile = fopen(correctFileName.c_str(), "rb")) == NULL) {
-    METLIBS_LOG_ERROR("Unable to open file! " << correctFileName);
-    return false;
+
+  if ((stationfile = fopen(stationsfilename.c_str(), "rb")) == NULL) {
+    METLIBS_LOG_ERROR("Unable to open file! " << stationsfilename);
+    return;
   }
-  fieldManager = fieldm;
 
   vector<std::string> stationVector;
   vector<station> stations;
@@ -232,6 +148,111 @@ bool VprofData::readField(std::string type, FieldManager* fieldm)
     posDeltaLongitude.push_back(0.0);
     posTemp.push_back(0);
   }
+}
+bool VprofData::readFimex(const std::string& setup_line,
+    const vector<std::string>& computations)
+{
+#ifdef USE_VCROSS_V2
+  METLIBS_LOG_SCOPE();
+
+  //parameters and computations should be defined in setup
+  Setup_p setup = miutil::make_shared<Setup>();
+  collector = miutil::make_shared<Collector>(setup);
+
+  string_v sources;
+  sources.push_back(setup_line);
+
+  setup->configureSources(sources);
+  setup->configureComputations(computations);
+
+  collector->setupChanged();
+
+  fields.push_back("vp_air_temperature_celsius_ml");
+  fields.push_back("vp_dew_point_temperature_celsius_ml");
+  fields.push_back("vp_x_wind_ml");
+  fields.push_back("vp_y_wind_ml");
+  fields.push_back("vp_relative_humidity_ml");
+  fields.push_back("vp_upward_air_velocity_ml");
+  for ( size_t i = 0; i < fields.size(); ++i ) {
+    collector->requireField(modelName,fields[i]);
+  }
+
+
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
+  if (not inv)
+    return false;
+
+  if ( inv->crossections.size() > 0 ) {
+    vector<station> stations;
+
+    BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
+      if (cs->points.size() != 1)
+        continue;
+      station st;
+      st.id = "";
+      st.name = cs->label;
+      st.lat = cs->points[0].latDeg();
+      st.lon = cs->points[0].lonDeg();
+      st.height = 0;
+      st.barHeight = 0;
+      stations.push_back(st);
+    }
+
+    for (size_t i = 0; i < stations.size(); i++) {
+      posName.push_back(stations[i].name);
+      posLatitude.push_back(stations[i].lat);
+      posLongitude.push_back(stations[i].lon);
+      posDeltaLatitude.push_back(0.0);
+      posDeltaLongitude.push_back(0.0);
+      posTemp.push_back(0);
+    }
+
+  } else {
+
+    if (!stationsFileName.empty()) {
+      readStationNames(stationsFileName);
+    }
+    for (size_t i = 0; i < posLongitude.size(); i++) {
+      //add profile
+      METLIBS_LOG_DEBUG("add profile "<<LOGVAL(posLongitude[i]) << LOGVAL(posLatitude[i]));
+      LonLat pos = LonLat::fromDegrees(posLongitude[i],posLatitude[i]);
+      collector->getResolver()->addDynamicPointValue(modelName,posName[i],pos);
+    }
+
+  }
+
+  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
+    validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
+  }
+
+  numPos = posName.size();
+  numTime = validTime.size();
+  numParam = 6;
+  mainText.push_back(modelName);
+
+  miTime t = validTime[0];
+  for (size_t i = 0; i < validTime.size(); i++) {
+    forecastHour.push_back(miTime::hourDiff(validTime[i],t));
+    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
+  }
+  readFromFimex = true;
+  vProfPlot = 0;
+
+  //return success;
+#endif
+  return true;
+}
+
+bool VprofData::readField(std::string type, FieldManager* fieldm)
+{
+  METLIBS_LOG_DEBUG(
+      "++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
+
+  std::string correctFileName = stationsFileName;
+  miutil::replace(correctFileName, modelName, "");
+  readStationNames(correctFileName);
+
+  fieldManager = fieldm;
 
   bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
   numPos = posName.size();
@@ -495,13 +516,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   vp->maxLevels = numLevel;
   vp->windInKnots = true;
 
-  //####  ostringstream ostr;
-  //####  ostr << " (" << setiosflags(ios::showpos) << forecastHour[iTime] << ") ";
-  //####
-  //####  vp->text= modelName + " " + posName[iPos]
-  //####	   + ostr.str() + validTime[iTime].isoTime();
-
-  size_t k;
 
   if (readFromFimex) {
 #ifdef USE_VCROSS_V2
@@ -509,63 +523,91 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
 
+    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, fields[0]));
+    InventoryBase_cp zaxis = air_temperature->zaxis();
+    collector->requireField(modelName, zaxis);
+
     model_values_m model_values = vc_fetch_pointValues(collector, pos, user_time);
 
-    const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(collector, model_values);
+    model_values_m::iterator itM = model_values.find(modelName);
+    name2value_t& n2v = itM->second;
 
-    //If air_temperature or dew_point_temperature are missing, VprofPlot will crash
-    if ( (evaluated_plots[0]->name() != "air_temperature_celsius_ml" ) ||
-        (evaluated_plots[1]->name() != "dew_point_temperature_celsius_ml" )) {
+    Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
+    if (zvalues == 0 )
       return vp;
-    }
+    n2v[VC_PRESSURE] = zvalues;
 
-    Values::ShapeIndex idx(evaluated_plots[0]->values(0)->shape());
+    vc_evaluate_fields(collector, model_values, modelName, fields);
 
-    for (size_t i=0; i<evaluated_plots[0]->values(0)->shape().length(0); ++i) {
-      idx.set(0, i);
-      vp->tt.push_back(evaluated_plots[0]->values(0)->value(idx));
-      vp->ptt.push_back(evaluated_plots[0]->z_values->value(idx));
-    }
-    for (size_t i=0; i<evaluated_plots[1]->values(0)->shape().length(0); ++i) {
-      idx.set(0, i);
-      vp->td.push_back(evaluated_plots[1]->values(0)->value(idx));
-    }
-
-    size_t index = 2;
-    if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "x_wind_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i) {
+    name2value_t::const_iterator itN = n2v.find("vp_air_temperature_celsius_ml");
+    if ( itN != n2v.end()) {
+      Values_cp t_values = itN->second;
+      Values::ShapeIndex idx(t_values->shape());
+      for (int i=0; i<t_values->shape().length(0); ++i) {
         idx.set(0, i);
-        vp->uu.push_back(evaluated_plots[index]->values(0)->value(idx));
+        vp->tt.push_back(t_values->value(idx));
       }
-      ++index;
+      Values_cp z_values = n2v[VC_PRESSURE];
+      Values::ShapeIndex idx_z(z_values->shape());
+      for (int i=0; i<z_values->shape().length(0); ++i) {
+        idx_z.set(0, i);
+        vp->ptt.push_back(z_values->value(idx_z));
+      }
     }
-    if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "y_wind_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i) {
+    itN = n2v.find("vp_dew_point_temperature_celsius_ml");
+    if ( itN != n2v.end()) {
+      Values_cp values = itN->second;
+      Values::ShapeIndex idx(values->shape());
+      for (int i=0; i<values->shape().length(0); ++i) {
         idx.set(0, i);
-        vp->vv.push_back(evaluated_plots[index]->values(0)->value(idx));
+        vp->td.push_back(values->value(idx));
       }
-      ++index;
     }
-    if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "relative_humidity_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i) {
+    itN = n2v.find("vp_x_wind_ml");
+    if ( itN != n2v.end()) {
+      Values_cp values = itN->second;
+      Values::ShapeIndex idx(values->shape());
+      for (int i=0; i<values->shape().length(0); ++i) {
         idx.set(0, i);
-        vp->rhum.push_back(evaluated_plots[index]->values(0)->value(idx));
+        vp->uu.push_back(values->value(idx));
       }
-      ++index;
     }
-    if( index < evaluated_plots.size() && evaluated_plots[index]->name() == "upward_air_velocity_ml" ) {
-      for (size_t i=0; i<evaluated_plots[index]->values(0)->shape().length(0); ++i) {
+    itN = n2v.find("vp_y_wind_ml");
+    if ( itN != n2v.end()) {
+      Values_cp values = itN->second;
+      Values::ShapeIndex idx(values->shape());
+      for (int i=0; i<values->shape().length(0); ++i) {
         idx.set(0, i);
-        vp->om.push_back(evaluated_plots[index]->values(0)->value(idx)/100);
+        vp->vv.push_back(values->value(idx));
       }
-      ++index;
+    }
+    itN = n2v.find("vp_relative_humidity_ml");
+    if ( itN != n2v.end()) {
+      Values_cp values = itN->second;
+      Values::ShapeIndex idx(values->shape());
+      for (int i=0; i<values->shape().length(0); ++i) {
+        idx.set(0, i);
+        vp->rhum.push_back(values->value(idx));
+      }
+    }
+    itN = n2v.find("vp_upward_air_velocity_ml");
+    if ( itN != n2v.end()) {
+      Values_cp values = itN->second;
+      Values::ShapeIndex idx(values->shape());
+      for (int i=0; i<values->shape().length(0); ++i) {
+        idx.set(0, i);
+        vp->om.push_back(values->value(idx)/100.);
+      }
     }
 
     vp->windInKnots = false;
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
 #endif
+
   } else if (readFromField) {
+
+    size_t k;
 
     if ((name == vProfPlotName) && (time == vProfPlotTime)) {
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
@@ -682,13 +724,14 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     }
   }
 
+
   // dd,ff and significant levels (as in temp observation...)
   if (int(vp->uu.size()) == numLevel && int(vp->vv.size()) == numLevel) {
     float degr = 180. / 3.141592654;
     float uew, vns;
     int dd, ff;
     int kmax = 0;
-    for (k = 0; k < size_t(numLevel); k++) {
+    for (size_t k = 0; k < size_t(numLevel); k++) {
       uew = vp->uu[k];
       vns = vp->vv[k];
       ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
@@ -708,7 +751,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
         kmax = k;
     }
     for (size_t l = 0; l < (vp->sigwind.size()); l++) {
-      for (k = 1; k < size_t(numLevel) - 1; k++) {
+      for (size_t k = 1; k < size_t(numLevel) - 1; k++) {
         if (vp->ff[k] < vp->ff[k - 1] && vp->ff[k] < vp->ff[k + 1])
           vp->sigwind[k] = 1;
         if (vp->ff[k] > vp->ff[k - 1] && vp->ff[k] > vp->ff[k + 1])
@@ -719,7 +762,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   }
 
   //################################################################
-  //  METLIBS_LOG_DEBUG("    "<<vp->posName<<"  "<<vp->validTime.isoTime());
   METLIBS_LOG_DEBUG("           vp->ptt.size()= "<<vp->ptt.size());
   METLIBS_LOG_DEBUG("           vp->tt.size()=  "<<vp->tt.size());
   METLIBS_LOG_DEBUG("           vp->ptd.size()= "<<vp->ptd.size());
@@ -731,6 +773,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   METLIBS_LOG_DEBUG("           vp->om.size()=  "<<vp->om.size());
   METLIBS_LOG_DEBUG("           vp->dd.size()=  "<<vp->dd.size());
   METLIBS_LOG_DEBUG("           vp->ff.size()=  "<<vp->ff.size());
+  METLIBS_LOG_DEBUG("           vp->rhum.size()=  "<<vp->rhum.size());
   METLIBS_LOG_DEBUG("           vp->sigwind.size()=  "<<vp->sigwind.size());
   //################################################################
 

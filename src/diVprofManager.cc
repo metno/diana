@@ -129,6 +129,7 @@ void VprofManager::parseSetup()
   METLIBS_LOG_SCOPE();
 
   filenames.clear();
+  stationsfilenames.clear();
   filetypes.clear();
   filesetup.clear();
   dialogModelNames.clear();
@@ -142,7 +143,7 @@ void VprofManager::parseSetup()
 
     set<std::string> uniquefiles;
 
-    std::string model,filename;
+    std::string model, filename, stationsfilename;
     vector<std::string> tokens,tokens1,tokens2, tokens3, tokens4;
     int n= vstr.size();
 
@@ -222,12 +223,13 @@ void VprofManager::parseSetup()
           } else if( tokens1[0] == miutil::to_lower("f") ) {
             filename = tokens1[1];
           } else if( tokens1[0] == miutil::to_lower("s") ) {
-            filename = tokens1[1];
+            stationsfilename = tokens1[1];
           } else if( tokens1[0] == miutil::to_lower("t") ) {
             filetype = tokens1[1];
           }
         }
         filenames[model]= filename;
+        stationsfilenames[model]= stationsfilename;
         filetypes[filename] = filetype;
         filesetup[filename] = vstr[i];
         uniquefiles.insert(filename);
@@ -254,6 +256,9 @@ void VprofManager::parseSetup()
   }
 
   amdarStationFile= LocalSetupParser::basicValue("amdarstationlist");
+
+  miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
+
 }
 
 
@@ -852,15 +857,15 @@ bool VprofManager::initVprofData(std::string file, std::string model)
 {
   METLIBS_LOG_SCOPE();
 
-  std::auto_ptr<VprofData> vpd(new VprofData(file, model));
+  std::auto_ptr<VprofData> vpd(new VprofData(file, model, stationsfilenames[model]));
   const std::string filetype = filetypes[file];
   bool ok = false;
   if (filetype == "standard") {
     ok = vpd->readFile();
   } else if (filetype == "GribFile") {
     ok = vpd->readField(filetypes[file], fieldm);
-  } else if (filetypes[file] == "netcdf") {
-    ok = vpd->readFimex(filesetup[file]);
+  } else if (filetypes[file] == "netcdf" || filetypes[file] == "felt") {
+    ok = vpd->readFimex(filesetup[file], computations);
   } else {
     METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << file << "' model '"
         << model << "' has unknown filetype '" << filetype << "'");

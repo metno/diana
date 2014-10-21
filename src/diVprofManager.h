@@ -99,8 +99,10 @@ private:
 
   // std::map<model,filename>
   std::map<std::string,std::string> filenames;
+  std::map<std::string,std::string> stationsfilenames;
   std::map<std::string,std::string> filetypes;
   std::map<std::string,std::string> filesetup;
+  std::vector<std::string> computations;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
