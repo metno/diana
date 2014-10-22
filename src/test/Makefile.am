@@ -21,7 +21,10 @@ endif
 
 dianaUnitTests_LDFLAGS = -L.. \
     $(DIFIELD_LDFLAGS) \
+    $(MIRASTER_LDFLAGS) \
+    $(EMOS_LDFLAGS) \
     $(PUDATATYPES_LDFLAGS) \
+    $(SHP_LDFLAGS) \
     $(GLTEXT_LDFLAGS) \
     $(GLU_LDFLAGS) \
     $(gtest_LDFLAGS) \
@@ -30,7 +33,10 @@ dianaUnitTests_LDFLAGS = -L.. \
 dianaUnitTests_CPPFLAGS = \
     $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
     $(DIFIELD_CPPFLAGS) \
+    $(MIRASTER_CPPFLAGS) \
+    $(EMOS_CPPFLAGS) \
     $(PUDATATYPES_CPPFLAGS) \
+    $(SHP_CPPFLAGS) \
     $(GLTEXT_CPPFLAGS) \
     $(GLU_CPPFLAGS) \
     $(gtest_CFLAGS) \
@@ -39,7 +45,10 @@ dianaUnitTests_CPPFLAGS = \
 dianaUnitTests_LDADD = \
     -lgtest_main $(diana_lib) \
     $(DIFIELD_LIBS) \
+    $(MIRASTER_LIBS) \
+    $(EMOS_LIBS) $(FORTRAN_LIBS) \
     $(PUDATATYPES_LIBS) \
+    $(SHP_LIBS) \
     $(GLTEXT_LIBS) \
     $(GLU_LIBS) \
     $(gtest_LIBS) \
