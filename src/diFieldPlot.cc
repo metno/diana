@@ -728,8 +728,8 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
     int iy2, int maxElementsX, int& step, float& dist)
 {
   int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
   int ix1 = ixx1;
   int iy1 = iyy1;
 
@@ -876,6 +876,17 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
   return xstep;
 }
 
+bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes, bool cached)
+{
+  if (not getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
+          getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(),
+          boxes, fields[0]->nx / factor, fields[0]->ny / factor, &x, &y, ix1, ix2, iy1, iy2, cached))
+    return false;
+  if (ix1 > ix2 || iy1 > iy2)
+    return false;
+  return true;
+}
+
 // plot vector field as wind arrows
 // Fields u(0) v(1), optional- colorfield(2)
 bool FieldPlot::plotWind()
@@ -892,16 +903,10 @@ bool FieldPlot::plotWind()
     colourdata = fields[2]->data;
   }
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert windvectors to correct projection
@@ -914,6 +919,9 @@ bool FieldPlot::plotWind()
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
+
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -1202,16 +1210,11 @@ bool FieldPlot::plotValue()
   }
 
   int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   float* field = fields[0]->data;
@@ -1220,6 +1223,8 @@ bool FieldPlot::plotValue()
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep = step;
 
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
   }
@@ -1332,19 +1337,12 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   if (not checkFields(3))
     return false;
 
-  int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   float *t = fields[2]->data;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert windvectors to correct projection
@@ -1358,6 +1356,10 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
   int xstep = step;
+
+  int i, ix, iy;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -1777,23 +1779,19 @@ bool FieldPlot::plotValues()
 
   const size_t nfields = fields.size();
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   int step = poptions.density;
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, step, sdist);
   int xstep = step;
+
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -1960,17 +1958,10 @@ bool FieldPlot::plotVector()
   if (not checkFields(2))
     return false;
 
-  int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert vectors to correct projection
@@ -1984,6 +1975,10 @@ bool FieldPlot::plotVector()
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
+
+  int i, ix, iy;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -2073,17 +2068,10 @@ bool FieldPlot::plotVectorColour()
   if (not checkFields(3))
     return false;
 
-  int i, ix, iy, l;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert vectors to correct projection
@@ -2097,6 +2085,10 @@ bool FieldPlot::plotVectorColour()
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
+
+  int i, ix, iy, l;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -2256,17 +2248,10 @@ bool FieldPlot::plotDirection()
   if (not checkFields(1))
     return false;
 
-  int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert directions to vectors in correct projection
@@ -2280,6 +2265,10 @@ bool FieldPlot::plotDirection()
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
+
+  int i, ix, iy;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -2365,17 +2354,10 @@ bool FieldPlot::plotDirectionColour()
   if (not checkFields(2))
     return false;
 
-  int i, ix, iy, l;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   // convert directions to vectors in correct projection
@@ -2389,6 +2371,10 @@ bool FieldPlot::plotDirectionColour()
   float sdist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
   int xstep = step;
+
+  int i, ix, iy, l;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -2545,10 +2531,6 @@ bool FieldPlot::plotContour()
   if (not checkFields(1))
     return false;
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-  int rnx, rny;
-
   int ipart[4];
 
   const int mmm = 2;
@@ -2576,29 +2558,25 @@ bool FieldPlot::plotContour()
   if (factor < 2)
     factor = 1;
 
-  rnx = nx / factor;
-  rny = ny / factor;
-
   // convert gridpoints to correct projection
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, rnx, rny, &x,
-      &y, ix1, ix2, iy1, iy2)) {
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
   }
 
+  const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
+
   // Create a resampled data array to pass to the contour function.
   float *data;
   if (factor != 1) {
-    METLIBS_LOG_INFO(
-        "Resampled field from" << LOGVAL(nx) << LOGVAL(ny) << " to" << LOGVAL(rnx) << LOGVAL(rny));
+    METLIBS_LOG_INFO("Resampled field from" << LOGVAL(fields[0]->nx) << LOGVAL(fields[0]->ny)
+        << " to" << LOGVAL(rnx) << LOGVAL(rny));
     data = new float[rnx * rny];
     int i = 0;
     for (int iy = 0; iy < rny; ++iy) {
       int j = 0;
       for (int ix = 0; ix < rnx; ++ix) {
-        data[(i * rnx) + j] =
-            fields[0]->data[(iy * nx * factor) + (ix * factor)];
+        data[(i * rnx) + j] = fields[0]->data[(iy * fields[0]->nx * factor) + (ix * factor)];
         ++j;
       }
       ++i;
@@ -2874,21 +2852,18 @@ bool FieldPlot::plotContour2()
     return false;
   }
 
-  const int nx = fields[0]->nx;
-  const int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x = 0, *y = 0;
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2)) {
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
   }
 
   if (ix1 >= ix2 || iy1 >= iy2)
     return false;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
   if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
     return false;
 
@@ -2929,20 +2904,14 @@ bool FieldPlot::plotBox_pattern()
 
   int i, ix, iy, i1, i2;
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridbox corners to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  int nxc = nx;
-
+  const int nx = fields[0]->nx, nxc = nx;
+  const int ny = fields[0]->ny;
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
   }
@@ -3043,19 +3012,15 @@ bool FieldPlot::plotBox_alpha_shade()
   if (not checkFields(1))
     return false;
 
-  int ix, iy, i1, i2;
-
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
+
+  int ix, iy, i1, i2;
+  const int nx = fields[0]->nx;
+  const int ny = fields[0]->ny;
 
   if (poptions.frame) {
     plotFrame(nx, ny, x, y);
@@ -3153,21 +3118,15 @@ bool FieldPlot::plotAlarmBox()
   if (not checkFields(1))
     return false;
 
-  int ix, iy, i1, i2;
-
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
-      iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
     return false;
 
-  int nxc = nx + 1;
+  int ix, iy, i1, i2;
+  const int nx = fields[0]->nx, nxc = nx + 1;
+  const int ny = fields[0]->ny;
 
   // vmin,vmax: ok range, without alarm !!!
   float vmin = -fieldUndef;
@@ -3474,42 +3433,31 @@ bool FieldPlot::plotPixmap()
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
 
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
-
   // From plotFillCell
-  int rnx, rny;
 
   // convert gridbox corners to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
 
-  int factor = resamplingFactor(nx, ny);
+  int factor = resamplingFactor(fields[0]->nx, fields[0]->ny);
 
   if (factor < 2)
     factor = 1;
 
-  rnx = nx / factor;
-  rny = ny / factor;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, rnx, rny, &x,
-      &y, ix1, ix2, iy1, iy2, false);
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, false))
+    return false;
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
-  if (ix2 == nx - 1) {
+  if (ix2 == fields[0]->nx - 1) {
     ix2--;
   }
 
-  if (ix1 > ix2 || iy1 > iy2)
-    return false;
+  const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
 
   glLineWidth(poptions.linewidth);
   glColor3ubv(poptions.bordercolour.RGB());
   if (poptions.frame) {
-    if (factor >= 2)
-      plotFrame(rnx + 1, rny + 1, x, y);
-    else
-      plotFrame(nx + 1, ny + 1, x, y);
+    plotFrame(rnx + 1, rny + 1, x, y);
   }
 
   if (poptions.alpha < 255) {
@@ -3533,8 +3481,8 @@ bool FieldPlot::plotPixmap()
   float ymin = 0.;
   if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmin, &ymin))
     return false;
-  float xmax = nx * fields[0]->gridResolutionX;
-  float ymax = ny * fields[0]->gridResolutionY;
+  float xmax = fields[0]->nx * fields[0]->gridResolutionX;
+  float ymax = fields[0]->ny * fields[0]->gridResolutionY;
 
   if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmax, &ymax))
     return false;
@@ -3568,8 +3516,8 @@ bool FieldPlot::plotPixmap()
   // Corners of image shown (image coordinates)
   int bmStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? int(x1) : 0;
   int bmStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? int(y1) : 0;
-  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : nx - 1;
-  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : ny - 1;
+  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : (fields[0]->nx - 1);
+  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : (fields[0]->ny - 1);
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
@@ -3608,7 +3556,7 @@ bool FieldPlot::plotPixmap()
    cImage: Pointer to imagedata, either sat_image or resampled data
    */
   unsigned char * cimage = resampleImage(currwid, currhei, bmStartx, bmStarty,
-      scalex, scaley, nx, ny);
+      scalex, scaley, fields[0]->nx, fields[0]->ny);
 
   // always needed (if not, slow oper...) ??????????????
   glEnable(GL_BLEND);
@@ -3621,7 +3569,7 @@ bool FieldPlot::plotPixmap()
   glPixelZoom(scalex, scaley);
   glPixelStorei(GL_UNPACK_SKIP_ROWS, bmStarty); //pixels
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, bmStartx); //pixels
-  glPixelStorei(GL_UNPACK_ROW_LENGTH, nx); //pixels on image
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, fields[0]->nx); //pixels on image
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glRasterPos2f(grStartx, grStarty); //glcoord.
 
@@ -3640,10 +3588,7 @@ bool FieldPlot::plotPixmap()
   getStaticPlot()->UpdateOutput();
   //From plotFillCell
   if (poptions.update_stencil) {
-    if (factor >= 2)
-      plotFrameStencil(rnx + 1, rny + 1, x, y);
-    else
-      plotFrameStencil(nx + 1, ny + 1, x, y);
+    plotFrameStencil(rnx + 1, rny + 1, x, y);
   }
   // From plotFillCell ends.
 
@@ -3679,14 +3624,11 @@ bool FieldPlot::plotFillCell()
 
   rnx = nx / factor;
   rny = ny / factor;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, rnx, rny, &x,
-      &y, ix1, ix2, iy1, iy2, false);
+  getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, false); // no check here as ix2 needs to be "fixed"
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
-  if (ix2 == nx - 1) {
+  if (ix2 == nx - 1)
     ix2--;
-  }
 
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3824,10 +3766,7 @@ bool FieldPlot::plotAlpha_shade()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   if (poptions.frame) {
@@ -3907,10 +3846,7 @@ bool FieldPlot::plotFrameOnly()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   if (poptions.frame) {
@@ -4096,12 +4032,7 @@ bool FieldPlot::markExtreme()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2))
-    return false;
-
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   int ix, iy, n, i, j, k;
@@ -4413,12 +4344,7 @@ bool FieldPlot::plotGridLines()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, fields[0]->nx,
-      fields[0]->ny, &x, &y, ix1, ix2, iy1, iy2))
-    return false;
-
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   ix2++;
@@ -4479,17 +4405,12 @@ bool FieldPlot::plotUndefined()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
-      iy1, iy2))
-    return false;
-
-  int nxc = nx + 1;
-
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
     return false;
   if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
     return false;
+
+  int nxc = nx + 1;
 
   if (poptions.undefMasking == 1) {
     glShadeModel(GL_FLAT);
@@ -4609,16 +4530,11 @@ bool FieldPlot::plotNumbers()
     return false;
 
   int i, ix, iy;
-  int nx = fields[0]->nx;
-  int ny = fields[0]->ny;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
-      ix2, iy1, iy2);
-  if (ix1 > ix2 || iy1 > iy2)
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
   int autostep;
@@ -4657,7 +4573,7 @@ bool FieldPlot::plotNumbers()
 
   for (iy = iy1; iy < iy2; iy++) {
     for (ix = ix1; ix < ix2; ix++) {
-      i = iy * nx + ix;
+      i = iy * fields[0]->nx + ix;
       gx = x[i];
       gy = y[i];
 
@@ -4683,16 +4599,10 @@ bool FieldPlot::plotNumbers()
   // draw lines/boxes at borders between gridpoints..............................
 
   // convert gridpoints to correct projection
-  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
-      iy1, iy2))
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
     return false;
 
-  if (ix1 > ix2 || iy1 > iy2)
-    return false;
-
-  nx++;
-  ny++;
+  const int nx = fields[0]->nx + 1;
 
   glLineWidth(1.0);
 

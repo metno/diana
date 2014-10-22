@@ -130,7 +130,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[j] = -179.999;
       ty[j] = orig_shapes[i]->padfY[j];
     }
-    success = getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(), nVertices, tx, ty);
+    success = getStaticPlot()->geo2xy(nVertices, tx, ty);
 
     for (int k=0; k<nVertices; k++) {
       shapes[i]->padfX[k] = tx[k];
@@ -149,7 +149,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[1] = -179.999;
     ty[0] = orig_shapes[i]->dfYMin;
     ty[1] = orig_shapes[i]->dfYMax;
-    success2 = getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(), nVertices, tx, ty);
+    success2 = getStaticPlot()->geo2xy(nVertices, tx, ty);
 
     shapes[i]->dfXMin = tx[0];
     shapes[i]->dfXMax = tx[1];
@@ -205,7 +205,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
 			tx[j] = -179.999;
         ty[j] = psShape->padfY[j];
       }
-      getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(), nVertices, tx, ty);
+      getStaticPlot()->geo2xy(nVertices, tx, ty);
       for (int j=0; j<nVertices; j++) {
         psShape->padfX[j] = tx[j];
         psShape->padfY[j] = ty[j];
@@ -223,7 +223,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
       ty[0] = psShape->dfYMin;
       ty[1] = psShape->dfYMax;
       nVertices = 2;
-      getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(), nVertices, tx, ty);
+      getStaticPlot()->geo2xy(nVertices, tx, ty);
       psShape->dfXMin = tx[0];
       psShape->dfXMax = tx[1];
       psShape->dfYMin = ty[0];

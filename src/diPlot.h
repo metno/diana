@@ -231,6 +231,9 @@ public:
 
   bool isPanning()
     { return panning; }
+
+  /// convert from geo to xy using getMapArea()
+  bool geo2xy(int n, float* x, float* y);
 };
 
 /**

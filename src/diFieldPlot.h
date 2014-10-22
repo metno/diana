@@ -148,6 +148,8 @@ private:
    *  If count == 0, check that at least one field exists an that all fields have data.
    */
   bool checkFields(size_t count) const;
+
+  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false, bool cached=true);
 };
 
 #endif

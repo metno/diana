@@ -174,7 +174,7 @@ void MeasurementsPlot::measurementsPos(vector<string>& vstr)
       xpos[i] = longitude[i];
       ypos[i] = latitude[i];
     }
-    getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(),nlon,xpos,ypos);
+    getStaticPlot()->geo2xy(nlon, xpos, ypos);
 
     for (int i=0; i<nlon; i++) {
       lat.push_back(latitude[i]);

@@ -450,3 +450,8 @@ void StaticPlot::panPlot(bool b)
 {
   panning= b;
 }
+
+bool StaticPlot::geo2xy(int n, float* x, float* y)
+{
+  return gc.geo2xy(getMapArea(), n, x, y);
+}

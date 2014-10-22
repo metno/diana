@@ -591,7 +591,7 @@ bool ObsPlot::setData()
     getObsLonLat(i, x[i], y[i]);
 
   // convert points to correct projection
-  getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(), numObs, x, y);
+  getStaticPlot()->geo2xy(numObs, x, y);
 
   bool ddff = true;
   //#ifdef ROADOBS

@@ -180,7 +180,7 @@ bool LocationPlot::changeProjection()
     np+=np1;
   }
 
-  if (!getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(),numPos,px,py)) {
+  if (!getStaticPlot()->geo2xy(numPos, px, py)) {
      METLIBS_LOG_INFO("getPoints error");
      return false;
   }
