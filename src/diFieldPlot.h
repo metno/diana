@@ -149,7 +149,8 @@ private:
    */
   bool checkFields(size_t count) const;
 
-  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false, bool cached=true);
+  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false, bool cached=true) const;
+  bool getPoints(int n, float* x, float* y) const;
 };
 
 #endif

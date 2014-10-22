@@ -876,7 +876,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
   return xstep;
 }
 
-bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes, bool cached)
+bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes, bool cached) const
 {
   if (not getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor, fields[0]->gridResolutionY * factor,
           getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(),
@@ -885,6 +885,11 @@ bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1
   if (ix1 > ix2 || iy1 > iy2)
     return false;
   return true;
+}
+
+bool FieldPlot::getPoints(int n, float* x, float* y) const
+{
+  return getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), n, x, y);
 }
 
 // plot vector field as wind arrows
@@ -3473,18 +3478,16 @@ bool FieldPlot::plotPixmap()
 
   // From plotFillCell ends.
 
-  int npos = 1;
-
   //Member variables, used in values().
   //Corners of total image (map coordinates)
   float xmin = 0.;
   float ymin = 0.;
-  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmin, &ymin))
+  if (not getPoints(1, &xmin, &ymin))
     return false;
   float xmax = fields[0]->nx * fields[0]->gridResolutionX;
   float ymax = fields[0]->ny * fields[0]->gridResolutionY;
 
-  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmax, &ymax))
+  if (not getPoints(1, &xmax, &ymax))
     return false;
 
   // scaling
@@ -3502,11 +3505,11 @@ bool FieldPlot::plotPixmap()
   // Corners of total image (image coordinates)
   float x1 = getStaticPlot()->getMapSize().x1;
   float y1 = getStaticPlot()->getMapSize().y1;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), npos, &x1, &y1))
+  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), 1, &x1, &y1))
     return false;
   float x2 = getStaticPlot()->getMapSize().x2;
   float y2 = getStaticPlot()->getMapSize().y2;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), npos, &x2, &y2))
+  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), 1, &x2, &y2))
     return false;
   x1 /= fields[0]->gridResolutionX;
   x2 /= fields[0]->gridResolutionX;
@@ -3523,7 +3526,7 @@ bool FieldPlot::plotPixmap()
   // (part of lower left pixel may well be outside screen)
   float xstart = bmStartx * fields[0]->gridResolutionX;
   float ystart = bmStarty * fields[0]->gridResolutionY;
-  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xstart, &ystart))
+  if (not getPoints(1, &xstart, &ystart))
     return false;
 
   //Strange, but needed
@@ -4688,8 +4691,7 @@ int FieldPlot::resamplingFactor(int nx, int ny) const
   cy[0] = fields[0]->area.R().y1;
   cx[1] = fields[0]->area.R().x2;
   cy[1] = fields[0]->area.R().y2;
-  int npos = 2;
-  getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, cx, cy);
+  getPoints(2, cx, cy);
 
   double xs = getStaticPlot()->getPlotSize().width() / fabs(cx[1] - cx[0]);
   double ys = getStaticPlot()->getPlotSize().height() / fabs(cy[1] - cy[0]);
