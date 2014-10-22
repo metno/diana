@@ -81,7 +81,11 @@ void CommandParser::memberCopy(const CommandParser& rhs){
 }
 
 
-bool CommandParser::isInt(const std::string& s){
+bool CommandParser::isInt(const std::string& s)
+{
+  // in contrast to miutil::is_int, this function does not accept
+  // spaces around the number
+
   int i= 0, n= s.length();
   if (n==0) return false;
   if (s[i]=='-' || s[i]=='+'){
@@ -96,7 +100,11 @@ bool CommandParser::isInt(const std::string& s){
 }
 
 
-bool CommandParser::isFloat(const std::string& s){
+bool CommandParser::isFloat(const std::string& s)
+{
+  // in contrast to miutil::is_float, this function does not accept
+  // spaces around the number
+
   bool adot= false;
   int i= 0, n= s.length();
   if (n==0) return false;
@@ -115,7 +123,7 @@ bool CommandParser::isFloat(const std::string& s){
         adot=true;
       } else if (s[i]=='E' || s[i]=='e') {
 	ne= n;
-	n= i+1;
+	n= i+1; // this stops looping, too
       } else {
         return false;
       }
