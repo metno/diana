@@ -39,7 +39,8 @@ do-configure:
 	    --with-lrelease=/opt/qt4-headless/bin/lrelease \
 	    --enable-embedded \
 		--enable-perl \
-	    --enable-batch-only
+	    --enable-batch-only \
+	    --enable-vcross-v2
 
 override_dh_auto_install:
 	    mkdir -p $(DESTDIR)/usr/bin

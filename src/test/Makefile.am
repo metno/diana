@@ -24,7 +24,8 @@ dianaUnitTests_LDFLAGS = -L.. \
     $(PUDATATYPES_LDFLAGS) \
     $(GLTEXT_LDFLAGS) \
     $(GLU_LDFLAGS) \
-    $(gtest_LDFLAGS)
+    $(gtest_LDFLAGS) \
+    $(QT4_LDFLAGS)
 
 dianaUnitTests_CPPFLAGS = \
     $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
@@ -32,7 +33,8 @@ dianaUnitTests_CPPFLAGS = \
     $(PUDATATYPES_CPPFLAGS) \
     $(GLTEXT_CPPFLAGS) \
     $(GLU_CPPFLAGS) \
-    $(gtest_CFLAGS)
+    $(gtest_CFLAGS) \
+    $(QT4_CPPFLAGS)
 
 dianaUnitTests_LDADD = \
     -lgtest_main $(diana_lib) \
@@ -40,7 +42,8 @@ dianaUnitTests_LDADD = \
     $(PUDATATYPES_LIBS) \
     $(GLTEXT_LIBS) \
     $(GLU_LIBS) \
-    $(gtest_LIBS)
+    $(gtest_LIBS) \
+    $(QT4_LIBS)
 
 endif # HAVE_GTEST
 

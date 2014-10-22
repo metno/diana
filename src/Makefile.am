@@ -108,13 +108,7 @@ common_cxx_sources += \
 	vcross_v2/VcrossCollector.cc \
 	vcross_v2/VcrossEvaluate.cc \
 	vcross_v2/VcrossResolver.cc \
-	vcross_v2/VcrossOptions.cc \
-	vcross_v2/VcrossQtContour.cc \
-	vcross_v2/VcrossQtManager.cc \
-	vcross_v2/VcrossQtPaint.cc \
-	vcross_v2/VcrossQtPlot.cc \
-	vcross_v2/VcrossQtUtil.cc \
-	vcross_v2/VcrossQtAxis.cc 
+	vcross_v2/VcrossOptions.cc
 
 common_ldadd += \
 	$(BOOST_REGEX_LIBS)
@@ -132,6 +126,16 @@ endif
 # Qt sources
 common_qt_sources = diManager.cc \
 	diDrawingManager.cc
+
+if WITH_VCROSS_V2
+common_qt_sources += \
+	vcross_v2/VcrossQtContour.cc \
+	vcross_v2/VcrossQtManager.cc \
+	vcross_v2/VcrossQtPaint.cc \
+	vcross_v2/VcrossQtPlot.cc \
+	vcross_v2/VcrossQtUtil.cc \
+	vcross_v2/VcrossQtAxis.cc 
+endif
 
 if WITH_BATCH_ONLY
 diana_qt_sources =
