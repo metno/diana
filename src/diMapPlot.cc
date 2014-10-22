@@ -133,31 +133,31 @@ bool MapPlot::prepare(const std::string& pinfo, Area rarea, bool ifequal)
         areadef= true;
       } else if (miutil::to_upper(stokens[0]) == "PROJECTION") { //obsolete
         newarea.setArea(stokens[1]);
-        StaticPlot::xyLimit.clear();
+        getStaticPlot()->xyLimit.clear();
         areadef = true;
       } else if (miutil::to_upper(stokens[0])=="XYLIMIT") { //todo: add warning and show new syntax
         vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
         if (vstr.size()>=4) {
-          StaticPlot::xyLimit.clear();
-          StaticPlot::xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
-          StaticPlot::xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
-          StaticPlot::xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
-          StaticPlot::xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
+          getStaticPlot()->xyLimit.clear();
+          getStaticPlot()->xyLimit.push_back((atof(vstr[0].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          getStaticPlot()->xyLimit.push_back((atof(vstr[1].c_str()) - 1.0)*newarea.P().getGridResolutionX());
+          getStaticPlot()->xyLimit.push_back((atof(vstr[2].c_str()) - 1.0)*newarea.P().getGridResolutionY());
+          getStaticPlot()->xyLimit.push_back((atof(vstr[3].c_str()) - 1.0)*newarea.P().getGridResolutionY());
           METLIBS_LOG_WARN("WARNING: using obsolete syntax xylimit");
           METLIBS_LOG_WARN("New syntax:");
-          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<StaticPlot::xyLimit[0]<<":"<<StaticPlot::xyLimit[1]<<":"<<StaticPlot::xyLimit[2]<<":"<<StaticPlot::xyLimit[3]);
+          METLIBS_LOG_WARN("AREA "<<newarea.P()<<" rectangle="<<getStaticPlot()->xyLimit[0]<<":"<<getStaticPlot()->xyLimit[1]<<":"<<getStaticPlot()->xyLimit[2]<<":"<<getStaticPlot()->xyLimit[3]);
 
-          if (StaticPlot::xyLimit[0]>=StaticPlot::xyLimit[1] || StaticPlot::xyLimit[2]>=StaticPlot::xyLimit[3])
-            StaticPlot::xyLimit.clear();
+          if (getStaticPlot()->xyLimit[0]>=getStaticPlot()->xyLimit[1] || getStaticPlot()->xyLimit[2]>=getStaticPlot()->xyLimit[3])
+            getStaticPlot()->xyLimit.clear();
         }
       } else if (miutil::to_upper(stokens[0])=="XYPART") {//obsolete
         vector<std::string> vstr= miutil::split(stokens[1], 0, ",");
         if (vstr.size()>=4) {
-          StaticPlot::xyPart.clear();
+          getStaticPlot()->xyPart.clear();
           for (int j=0; j<4; j++)
-            StaticPlot::xyPart.push_back(atof(vstr[j].c_str()) * 0.01);
-          if (StaticPlot::xyPart[0]>=StaticPlot::xyPart[1] || StaticPlot::xyPart[2]>=StaticPlot::xyPart[3])
-            StaticPlot::xyPart.clear();
+            getStaticPlot()->xyPart.push_back(atof(vstr[j].c_str()) * 0.01);
+          if (getStaticPlot()->xyPart[0]>=getStaticPlot()->xyPart[1] || getStaticPlot()->xyPart[2]>=getStaticPlot()->xyPart[3])
+            getStaticPlot()->xyPart.clear();
         }
       }
     }
@@ -172,7 +172,7 @@ bool MapPlot::prepare(const std::string& pinfo, Area rarea, bool ifequal)
 
   //Background colour
   if ((not bgcolourname.empty())) {
-    StaticPlot::setBgColour(bgcolourname); // static Plot member
+    getStaticPlot()->setBgColour(bgcolourname); // static Plot member
     //just background colour, no map. No reason to make MapPlot object
     if ( n==2 ) {
       return false;
@@ -260,7 +260,7 @@ bool MapPlot::plot(int zorder)
   if (!isEnabled() || !isactive[zorder])
     return false;
 
-  if (StaticPlot::isPanning()) {
+  if (getStaticPlot()->isPanning()) {
     haspanned = true;
   } else if (haspanned) {
     mapchanged= true;
@@ -274,7 +274,7 @@ bool MapPlot::plot(int zorder)
   if ( !usedrawlists) {
     // do not use display lists: always make a new plot from scratch
     makenew = true;
-  } else if ((StaticPlot::getDirty() && !StaticPlot::isPanning()) || mapchanged || !glIsList(drawlist[zorder])) {
+  } else if ((getStaticPlot()->getDirty() && !getStaticPlot()->isPanning()) || mapchanged || !glIsList(drawlist[zorder])) {
     // Making new map drawlist for this zorder
     makelist=true;
     if (glIsList(drawlist[zorder]))
@@ -295,16 +295,16 @@ bool MapPlot::plot(int zorder)
         mapchanged= false;
     }
     // make new plot anyway during panning
-  } else if (StaticPlot::getDirty()) { // && mapinfo.type!="triangles"
+  } else if (getStaticPlot()->getDirty()) { // && mapinfo.type!="triangles"
     makenew= true;
   }
 
   if (makenew) {
     std::string mapfile;
     // diagonal in pixels
-    float physdiag= sqrt(StaticPlot::getPhysWidth()*StaticPlot::getPhysWidth()+StaticPlot::getPhysHeight()*StaticPlot::getPhysHeight());
+    float physdiag= sqrt(getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth()+getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight());
     // map resolution i km/pixel
-    float mapres= (physdiag > 0.0 ? StaticPlot::getGcd()/(physdiag*1000) : 0.0);
+    float mapres= (physdiag > 0.0 ? getStaticPlot()->getGcd()/(physdiag*1000) : 0.0);
 
     // find correct mapfile
     int n= mapinfo.mapfiles.size();
@@ -322,13 +322,13 @@ bool MapPlot::plot(int zorder)
     }
 
     Colour c= contopts.linecolour;
-    if (c==StaticPlot::getBackgroundColour())
-      c= StaticPlot::getBackContrastColour();
+    if (c==getStaticPlot()->getBackgroundColour())
+      c= getStaticPlot()->getBackContrastColour();
 
     if (mapinfo.type=="normal" || mapinfo.type=="pland") {
       // check contours
       if (mapinfo.contour.ison && mapinfo.contour.zorder==zorder) {
-        float xylim[4]= { StaticPlot::getMapSize().x1, StaticPlot::getMapSize().x2, StaticPlot::getMapSize().y1, StaticPlot::getMapSize().y2 };
+        float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
         if (!plotMapLand4(mapfile, xylim, contopts.linetype,
             contopts.linewidth, c))
           METLIBS_LOG_ERROR("ERROR OPEN/READ " << mapfile);
@@ -342,11 +342,11 @@ bool MapPlot::plot(int zorder)
         if (filledmaps.count(mapfile)==0) {
           filledmaps[mapfile]= FilledMap(mapfile);
         }
-        Area fullarea(StaticPlot::getMapArea().P(), StaticPlot::getPlotSize());
-        filledmaps[mapfile].plot(fullarea, StaticPlot::getMapSize(), StaticPlot::getGcd(), land, cont, !cont
+        Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
+        filledmaps[mapfile].plot(fullarea, getStaticPlot()->getMapSize(), getStaticPlot()->getGcd(), land, cont, !cont
             && mapinfo.contour.ison, contopts.linetype.bmap,
             contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
-            StaticPlot::getBackgroundColour().RGBA());
+            getStaticPlot()->getBackgroundColour().RGBA());
       }
 
     } else if (mapinfo.type=="lines_simple_text") {
@@ -368,9 +368,9 @@ bool MapPlot::plot(int zorder)
 #endif
         shapemaps[mapfile] = ShapeObject();
         shapemaps[mapfile].read(mapfile,true);
-        shapeareas[mapfile] = Area(StaticPlot::getMapArea());
+        shapeareas[mapfile] = Area(getStaticPlot()->getMapArea());
       }
-      if (shapeareas[mapfile].P() != StaticPlot::getMapArea().P()) {
+      if (shapeareas[mapfile].P() != getStaticPlot()->getMapArea().P()) {
 #ifdef DEBUGPRINT
         METLIBS_LOG_DEBUG("Projection wrong for: " << mapfile);
 #endif
@@ -381,13 +381,13 @@ bool MapPlot::plot(int zorder)
           shapemaps[mapfile] = ShapeObject();
           shapemaps[mapfile].read(mapfile,true);
         }
-        shapeareas[mapfile] = Area(StaticPlot::getMapArea());
+        shapeareas[mapfile] = Area(getStaticPlot()->getMapArea());
       }
-      Area fullarea(StaticPlot::getMapArea().P(), StaticPlot::getPlotSize());
-      shapemaps[mapfile].plot(fullarea, StaticPlot::getGcd(), land, cont, !cont && mapinfo.contour.ison,
+      Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
+      shapemaps[mapfile].plot(fullarea, getStaticPlot()->getGcd(), land, cont, !cont && mapinfo.contour.ison,
           mapinfo.special,mapinfo.symbol,mapinfo.dbfcol,
           contopts.linetype.bmap, contopts.linewidth, c.RGBA(),
-          landopts.fillcolour.RGBA(), StaticPlot::getBackgroundColour().RGBA());
+          landopts.fillcolour.RGBA(), getStaticPlot()->getBackgroundColour().RGBA());
     } else {
       METLIBS_LOG_WARN("Unknown maptype for map " << mapinfo.name << " = "
           << mapinfo.type);
@@ -395,13 +395,13 @@ bool MapPlot::plot(int zorder)
 
     if (makelist)
       glEndList();
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
 
   } else {
     // execute old display list
     if (glIsList(drawlist[zorder]))
       glCallList(drawlist[zorder]);
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
   }
 
   // check latlon
@@ -410,7 +410,7 @@ bool MapPlot::plot(int zorder)
   if (plot_lon || plot_lat) {
 
     if (mapinfo.lon.showvalue || mapinfo.lat.showvalue)
-      StaticPlot::getFontPack()->setFont("BITMAPFONT");
+      getStaticPlot()->getFontPack()->setFont("BITMAPFONT");
 
     plotGeoGrid(mapinfo, plot_lon, plot_lat);
   }
@@ -420,8 +420,8 @@ bool MapPlot::plot(int zorder)
     //    METLIBS_LOG_DEBUG("Plotting frame for layer:" << zorder);
     Rectangle reqr= reqarea.R();
     Colour c= ffopts.linecolour;
-    if (c==StaticPlot::getBackgroundColour())
-      c= StaticPlot::getBackContrastColour();
+    if (c==getStaticPlot()->getBackgroundColour())
+      c= getStaticPlot()->getBackContrastColour();
     glColor4ubv(c.RGBA());
     //       glColor3f(0.0,0.0,0.0);
     glLineWidth(ffopts.linewidth);
@@ -430,7 +430,7 @@ bool MapPlot::plot(int zorder)
       glEnable(GL_LINE_STIPPLE);
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if (reqarea.P()==StaticPlot::getMapArea().P()) {
+    if (reqarea.P()==getStaticPlot()->getMapArea().P()) {
       glBegin(GL_LINE_LOOP);
       glVertex2f(reqr.x1, reqr.y1);
       glVertex2f(reqr.x2, reqr.y1);
@@ -469,7 +469,7 @@ bool MapPlot::plot(int zorder)
         x[5*nsub-i]= reqr.x1;
       }
       // convert points to current projection
-      StaticPlot::gc.getPoints(reqarea.P(), StaticPlot::getMapArea().P(), npos, x, y);
+      getStaticPlot()->gc.getPoints(reqarea.P(), getStaticPlot()->getMapArea().P(), npos, x, y);
 
       glBegin(GL_LINE_LOOP);
       for (int i=0; i<npos; i++) {
@@ -480,10 +480,10 @@ bool MapPlot::plot(int zorder)
       delete[] x;
       delete[] y;
     }
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   glDisable(GL_LINE_STIPPLE);
 
   return true;
@@ -562,7 +562,7 @@ bool MapPlot::plotMapLand4(const std::string& filename, float xylim[],
 
   Projection geoProj;
   geoProj.setGeographic();
-  Projection projection = StaticPlot::getMapArea().P();
+  Projection projection = getStaticPlot()->getMapArea().P();
 
   const unsigned int nwrec = 1024;
   const unsigned int maxpos = 2000;
@@ -994,7 +994,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
    */
 
 
-  Projection p= StaticPlot::getMapArea().P();
+  Projection p= getStaticPlot()->getMapArea().P();
   if (!p.isDefined()) {
     METLIBS_LOG_ERROR("MapPlot::plotGeoGrid ERROR: undefined projection");
     return false;
@@ -1013,7 +1013,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     plotResolution= 100;
 
 
-  float xylim[4]= { StaticPlot::getMapSize().x1, StaticPlot::getMapSize().x2, StaticPlot::getMapSize().y1, StaticPlot::getMapSize().y2 };
+  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
 
   int n, j;
   float lonmin=FLT_MAX, lonmax=-FLT_MAX, latmin=FLT_MAX, latmax=-FLT_MAX;
@@ -1073,8 +1073,8 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
   if (plot_lon && ilon1<=ilon2) {
 
     Colour c= lonopts.linecolour;
-    if (c==StaticPlot::getBackgroundColour())
-      c= StaticPlot::getBackContrastColour();
+    if (c==getStaticPlot()->getBackgroundColour())
+      c= getStaticPlot()->getBackContrastColour();
     glColor4ubv(c.RGBA());
     glLineWidth(lonopts.linewidth+0.1);
     if (lonopts.linetype.bmap!=0xFFFF) {
@@ -1108,7 +1108,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon;
           y[n] = glat + dlat * float(n);
         }
-        if (StaticPlot::getMapArea().P().convertFromGeographic(nlat, x, y)==0) {
+        if (getStaticPlot()->getMapArea().P().convertFromGeographic(nlat, x, y)==0) {
           clipPrimitiveLines(nlat, x, y, xylim, jumplimit, lon_values,
               lon_valuepos, plotstr);
         } else {
@@ -1119,11 +1119,11 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       delete[] y;
     }
   }
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   glDisable(GL_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
-    StaticPlot::getFontPack()->setFontSize(lon_fontsize);
+    getStaticPlot()->getFontPack()->setFontSize(lon_fontsize);
     n = value_annotations.size();
     Rectangle prevr;
     for (j = 0; j < n; j++) {
@@ -1132,21 +1132,21 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      StaticPlot::getFontPack()->drawStr(value_annotations[j].t.c_str(), x, y, 0);
+      getStaticPlot()->getFontPack()->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      StaticPlot::getFontPack()->getStringSize(value_annotations[j].t.c_str(),w,h);
+      getStaticPlot()->getFontPack()->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
   }
 
   // draw latitude lines......................................
 
   if (plot_lat && ilat1<=ilat2) {
     Colour c= latopts.linecolour;
-    if (c==StaticPlot::getBackgroundColour())
-      c= StaticPlot::getBackContrastColour();
+    if (c==getStaticPlot()->getBackgroundColour())
+      c= getStaticPlot()->getBackContrastColour();
     glColor4ubv(c.RGBA());
     glLineWidth(latopts.linewidth+0.1);
     if (latopts.linetype.bmap!=0xFFFF) {
@@ -1181,7 +1181,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon + dlon * float(n);
           y[n] = glat;
         }
-        if (StaticPlot::getMapArea().P().convertFromGeographic(nlon, x, y)==0) {
+        if (getStaticPlot()->getMapArea().P().convertFromGeographic(nlon, x, y)==0) {
           clipPrimitiveLines(nlon, x, y, xylim, jumplimit, lat_values,
               lat_valuepos, plotstr);
         } else {
@@ -1193,11 +1193,11 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   glDisable(GL_LINE_STIPPLE);
 
   if (value_annotations.size() > 0) {
-    StaticPlot::getFontPack()->setFontSize(lat_fontsize);
+    getStaticPlot()->getFontPack()->setFontSize(lat_fontsize);
     n = value_annotations.size();
     Rectangle prevr;
     for (j = 0; j < n; j++) {
@@ -1206,13 +1206,13 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
       if (prevr.isinside(x,y)){
         continue;
       }
-      StaticPlot::getFontPack()->drawStr(value_annotations[j].t.c_str(), x, y, 0);
+      getStaticPlot()->getFontPack()->drawStr(value_annotations[j].t.c_str(), x, y, 0);
       float w,h;
-      StaticPlot::getFontPack()->getStringSize(value_annotations[j].t.c_str(),w,h);
+      getStaticPlot()->getFontPack()->getStringSize(value_annotations[j].t.c_str(),w,h);
       prevr = Rectangle(x,y,x+w,y+h);
     }
     value_annotations.clear();
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
   }
 
   /*  }*/
@@ -1235,11 +1235,11 @@ bool MapPlot::plotLinesSimpleText(const std::string& filename)
   if (file.bad())
     return false;
 
-  float xylim[4]= { StaticPlot::getMapSize().x1, StaticPlot::getMapSize().x2, StaticPlot::getMapSize().y1, StaticPlot::getMapSize().y2 };
+  float xylim[4]= { getStaticPlot()->getMapSize().x1, getStaticPlot()->getMapSize().x2, getStaticPlot()->getMapSize().y1, getStaticPlot()->getMapSize().y2 };
 
   Colour c= contopts.linecolour;
-  if (c==StaticPlot::getBackgroundColour())
-    c= StaticPlot::getBackContrastColour();
+  if (c==getStaticPlot()->getBackgroundColour())
+    c= getStaticPlot()->getBackContrastColour();
   glColor4ubv(c.RGBA());
   glLineWidth(contopts.linewidth+0.1);
   if (contopts.linetype.bmap!=0xFFFF) {
@@ -1258,7 +1258,7 @@ bool MapPlot::plotLinesSimpleText(const std::string& filename)
   bool endline;
   int nlines= 0;
   int n= 0;
-  float jumplimit = StaticPlot::getMapArea().P().getMapLinesJumpLimit();
+  float jumplimit = getStaticPlot()->getMapArea().P().getMapLinesJumpLimit();
 
   while (!endfile) {
 
@@ -1286,7 +1286,7 @@ bool MapPlot::plotLinesSimpleText(const std::string& filename)
     if (n>1) {
       float xn= x[n-1];
       float yn= y[n-1];
-      if (StaticPlot::getMapArea().P().convertFromGeographic(n, x, y) == 0 ) {
+      if (getStaticPlot()->getMapArea().P().convertFromGeographic(n, x, y) == 0 ) {
         clipPrimitiveLines(n, x, y, xylim, jumplimit);
         nlines++;
       } else {
@@ -1306,7 +1306,7 @@ bool MapPlot::plotLinesSimpleText(const std::string& filename)
 
   file.close();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 

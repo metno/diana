@@ -30,6 +30,7 @@
 */
 
 #include "diPlot.h"
+#include "diPlotModule.h"
 #include "diDrawingManager.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/drawingitembase.h"
@@ -945,7 +946,7 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions
   QString fontFace = style.value("fontface", QString::fromStdString(poptions.fontface)).toString();
   float fontSize = style.value("fontsize", poptions.fontsize).toFloat();
 
-  StaticPlot::getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize);
+  PlotModule::instance()->getStaticPlot()->getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize);
 }
 
 void DrawingStyleManager::endText(const DrawingItemBase *item)

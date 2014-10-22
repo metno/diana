@@ -49,7 +49,7 @@ using namespace miutil;
 MeasurementsPlot::MeasurementsPlot()
  :Plot()
 {
-  oldArea=StaticPlot::getMapArea();
+  oldArea=getStaticPlot()->getMapArea();
   lineWidth=1;
 }
 
@@ -67,7 +67,7 @@ bool MeasurementsPlot::prepare(void)
 
   //Change projection
 
-  if (oldArea.P() == StaticPlot::getMapArea().P()) //nothing to do
+  if (oldArea.P() == getStaticPlot()->getMapArea().P()) //nothing to do
     return true;
 
   int npos = x.size();
@@ -84,7 +84,7 @@ bool MeasurementsPlot::prepare(void)
 
 
   // convert points to correct projection
-  StaticPlot::gc.getPoints(oldArea.P(),StaticPlot::getMapArea().P(),npos,xpos,ypos);//) {
+  getStaticPlot()->gc.getPoints(oldArea.P(),getStaticPlot()->getMapArea().P(),npos,xpos,ypos);//) {
 
   for (int i=0; i<npos; i++){
     x[i] = xpos[i];
@@ -94,7 +94,7 @@ bool MeasurementsPlot::prepare(void)
   delete[] xpos;
   delete[] ypos;
 
-  oldArea = StaticPlot::getMapArea();
+  oldArea = getStaticPlot()->getMapArea();
   return true;
 }
 
@@ -174,7 +174,7 @@ void MeasurementsPlot::measurementsPos(vector<string>& vstr)
       xpos[i] = longitude[i];
       ypos[i] = latitude[i];
     }
-    StaticPlot::gc.geo2xy(StaticPlot::getMapArea(),nlon,xpos,ypos);
+    getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(),nlon,xpos,ypos);
 
     for (int i=0; i<nlon; i++) {
       lat.push_back(latitude[i]);
@@ -198,12 +198,12 @@ bool MeasurementsPlot::plot(){
   if (!isEnabled())
     return false;
 
-  if (colour==StaticPlot::getBackgroundColour())
-    colour= StaticPlot::getBackContrastColour();
+  if (colour==getStaticPlot()->getBackgroundColour())
+    colour= getStaticPlot()->getBackContrastColour();
   glColor4ubv(colour.RGBA());
   glLineWidth(float(lineWidth)+0.1f);
 
-  float d= 5*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth();
+  float d= 5*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth();
 
   // plot  posistions
   int m = x.size();

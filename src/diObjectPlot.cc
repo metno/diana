@@ -843,8 +843,8 @@ void ObjectPlot::plotRubber(){
 
 void ObjectPlot::setWindowInfo()
 {
-  window_dw= (StaticPlot::getPlotSize().x2-StaticPlot::getPlotSize().x1)/StaticPlot::getPhysWidth();
-  window_dh= (StaticPlot::getPlotSize().y2-StaticPlot::getPlotSize().y1)/StaticPlot::getPhysHeight();
+  window_dw= (getStaticPlot()->getPlotSize().x2-getStaticPlot()->getPlotSize().x1)/getStaticPlot()->getPhysWidth();
+  window_dh= (getStaticPlot()->getPlotSize().y2-getStaticPlot()->getPlotSize().y1)/getStaticPlot()->getPhysHeight();
 }
 
 

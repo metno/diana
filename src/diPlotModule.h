@@ -43,6 +43,7 @@
 #include <vector>
 #include <set>
 #include <deque>
+#include <memory>
 
 class ObsPlot;
 class MapPlot;
@@ -111,6 +112,8 @@ private:
 
   float plotw, ploth;     // width and height of plotwindow (pixels)
   bool showanno;        // show standard annotations
+
+  std::auto_ptr<StaticPlot> staticPlot_;
 
   // postscript production members
   printOptions printoptions;
@@ -194,9 +197,7 @@ public:
   void setAnnotations();
   /// get current Area
   const Area& getCurrentArea()
-  {
-    return StaticPlot::getMapArea();
-  }
+    { return staticPlot_->getMapArea(); }
 
   /// update FieldPlots
   bool updateFieldPlot(const std::vector<std::string>& pin);
@@ -210,14 +211,12 @@ public:
 
   /// get static maparea in plot superclass
   const Area& getMapArea()
-  {
-    return StaticPlot::getMapArea();
-  }
+    { return staticPlot_->getMapArea(); }
+
   /// get plotwindow rectangle
   const Rectangle& getPlotSize()
-  {
-    return StaticPlot::getPlotSize();
-  }
+  { return staticPlot_->getPlotSize(); }
+
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
@@ -395,6 +394,9 @@ public:
   {
     return self;
   }
+
+  StaticPlot* getStaticPlot() const
+    { return staticPlot_.get(); }
 };
 
 #endif

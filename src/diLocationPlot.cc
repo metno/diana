@@ -166,7 +166,7 @@ bool LocationPlot::changeProjection()
 {
   METLIBS_LOG_SCOPE();
 
-  if (numPos<1 || posArea.P()==StaticPlot::getMapArea().P()) return false;
+  if (numPos<1 || posArea.P()==getStaticPlot()->getMapArea().P()) return false;
 
   int nlines= locdata.elements.size();
   int np1, np= 0;
@@ -180,12 +180,12 @@ bool LocationPlot::changeProjection()
     np+=np1;
   }
 
-  if (!StaticPlot::gc.geo2xy(StaticPlot::getMapArea(),numPos,px,py)) {
+  if (!getStaticPlot()->gc.geo2xy(getStaticPlot()->getMapArea(),numPos,px,py)) {
      METLIBS_LOG_INFO("getPoints error");
      return false;
   }
 
-  posArea= StaticPlot::getMapArea();
+  posArea= getStaticPlot()->getMapArea();
 
   float xmin,xmax,ymin,ymax,dmax,dx,dy;
   int n1,n2, numLines= locinfo.size();
@@ -222,10 +222,10 @@ std::string LocationPlot::find(int x, int y)
   const float maxdist= 10.0f;
 
   std::string name;
-  float xpos= x*StaticPlot::getPlotSize().width() /StaticPlot::getPhysWidth()  + StaticPlot::getPlotSize().x1;
-  float ypos= y*StaticPlot::getPlotSize().height()/StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos= x*getStaticPlot()->getPlotSize().width() /getStaticPlot()->getPhysWidth()  + getStaticPlot()->getPlotSize().x1;
+  float ypos= y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
 
-  float dmax= maxdist*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth();
+  float dmax= maxdist*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth();
   float dmin2= dmax*dmax;
   int   lmin= -1;
   float dx,dy,sx,sy,sdiv;
@@ -279,7 +279,7 @@ bool LocationPlot::plot()
 
   if (numPos<1) return false;
 
-  if (posArea.P()!=StaticPlot::getMapArea().P()) {
+  if (posArea.P()!=getStaticPlot()->getMapArea().P()) {
     if (!changeProjection()) return false;
   }
 
@@ -292,8 +292,8 @@ bool LocationPlot::plot()
   Linetype l1= Linetype(locdata.linetype);
   Linetype l2= Linetype(locdata.linetypeSelected);
 
-  if (c1==StaticPlot::getBackgroundColour()) c1= StaticPlot::getBackContrastColour();
-  if (c2==StaticPlot::getBackgroundColour()) c2= StaticPlot::getBackContrastColour();
+  if (c1==getStaticPlot()->getBackgroundColour()) c1= getStaticPlot()->getBackContrastColour();
+  if (c2==getStaticPlot()->getBackgroundColour()) c2= getStaticPlot()->getBackContrastColour();
 
   glColor3ubv(c1.RGB());
   glLineWidth(w1);
@@ -317,7 +317,7 @@ bool LocationPlot::plot()
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   glDisable(GL_LINE_STIPPLE);
 
   if (lselected>=0) {
@@ -333,7 +333,7 @@ bool LocationPlot::plot()
     for (int n=n1; n<n2; n++)
       glVertex2f(px[n],py[n]);
     glEnd();
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
   }
 

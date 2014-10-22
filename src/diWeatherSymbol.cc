@@ -285,11 +285,11 @@ bool WeatherSymbol::plot()
     setWindowInfo();
 
     //change the symbolsize to plot according to great circle distance
-    float scalefactor = StaticPlot::getGcd()/7000000;
+    float scalefactor = getStaticPlot()->getGcd()/7000000;
     int symbolSizeToPlot = int(symbolSize/scalefactor);
 
     //also scale according to windowheight and width (standard is 500)
-    scalefactor = sqrtf(StaticPlot::getPhysHeight()*StaticPlot::getPhysHeight()+StaticPlot::getPhysWidth()*StaticPlot::getPhysWidth())/500;
+    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
     symbolSizeToPlot = int(symbolSizeToPlot*scalefactor);
 
     fSense = symbolSizeToPlot/12;  //  sensitivity to mark object
@@ -326,15 +326,15 @@ bool WeatherSymbol::plot()
 
         } else if (drawIndex>0) {
           // this is a normal symbol
-          StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-          StaticPlot::getFontPack()->getCharSize(drawIndex,cw,ch);
-          StaticPlot::getFontPack()->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
+          getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+          getStaticPlot()->getFontPack()->getCharSize(drawIndex,cw,ch);
+          getStaticPlot()->getFontPack()->drawChar(drawIndex,x-cw/2,y-ch/2,0.0);
 
         } else if (drawIndex==0){
           // this is a normal text
-          StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-          StaticPlot::getFontPack()->getStringSize(symbolString.c_str(),cw,ch);
-          StaticPlot::getFontPack()->drawStr(symbolString.c_str(),x-cw/2,y-ch/2,0.0);
+          getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+          getStaticPlot()->getFontPack()->getStringSize(symbolString.c_str(),cw,ch);
+          getStaticPlot()->getFontPack()->drawStr(symbolString.c_str(),x-cw/2,y-ch/2,0.0);
         }
 
         // update boundBox according to symbolSizeToPlot
@@ -355,10 +355,9 @@ bool WeatherSymbol::plot()
     drawNodePoints();
   }
   // for PostScript generation
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   return true;
-
 }
 
 

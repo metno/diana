@@ -33,6 +33,7 @@
 
 #include <diObsManager.h>
 #include <diObsAscii.h>
+#include "diPlotModule.h"
 #include "diUtilities.h"
 
 #include <puTools/miSetupParser.h>
@@ -744,7 +745,7 @@ void ObsManager::updateObsPositions(const vector<ObsPlot*> oplot)
   }
 
   if (oplot.size()) {
-    obsPositions.obsArea = StaticPlot::getMapArea();
+    obsPositions.obsArea = PlotModule::instance()->getStaticPlot()->getMapArea();
   }
 
   //new conversion  needed

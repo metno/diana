@@ -516,7 +516,7 @@ void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
 
 void ObjectManager::plotObjects()
 {
-  objects.changeProjection(StaticPlot::getMapArea());
+  objects.changeProjection(plotm->getStaticPlot()->getMapArea());
   objects.plot();
 }
 

@@ -286,7 +286,7 @@ float ImageGallery::width(const std::string& name)
     << name);
   } else {
     readImage(name);
-    w= Images[name].width*StaticPlot::getPlotSize().width()/(StaticPlot::getPhysWidth() > 0 ? StaticPlot::getPhysWidth()*1.0 : 1.0);;
+    w= Images[name].width*getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? getStaticPlot()->getPhysWidth()*1.0 : 1.0);;
   }
   return w;
 }
@@ -299,7 +299,7 @@ float ImageGallery::height(const std::string& name)
     << name);
   } else {
     readImage(name);
-    h= Images[name].height*StaticPlot::getPlotSize().height()/(StaticPlot::getPhysHeight() > 0 ? StaticPlot::getPhysHeight()*1.0 : 1.0);
+    h= Images[name].height*getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? getStaticPlot()->getPhysHeight()*1.0 : 1.0);
   }
   return h;
 }
@@ -382,8 +382,8 @@ bool ImageGallery::plotImage_(const std::string name,
     const int alpha)
 {
 
-  if (gx < StaticPlot::getPlotSize().x1 || gx >= StaticPlot::getPlotSize().x2 ||
-      gy < StaticPlot::getPlotSize().y1 || gy >= StaticPlot::getPlotSize().y2)
+  if (gx < getStaticPlot()->getPlotSize().x1 || gx >= getStaticPlot()->getPlotSize().x2 ||
+      gy < getStaticPlot()->getPlotSize().y1 || gy >= getStaticPlot()->getPlotSize().y2)
     return true;
 
   int nx= Images[name].width;
@@ -398,7 +398,7 @@ bool ImageGallery::plotImage_(const std::string name,
 
   glRasterPos2f(gx,gy);
 
-  if (alpha != 255 && ncomp == 4 && !StaticPlot::hardcopy) {
+  if (alpha != 255 && ncomp == 4 && !getStaticPlot()->hardcopy) {
     int fsize = nx*ny*ncomp;
     unsigned char* newdata= new unsigned char [fsize];
     unsigned char av= static_cast<unsigned char>(alpha);
@@ -425,17 +425,17 @@ bool ImageGallery::plotImage_(const std::string name,
   }
 
   // for postscript output, add imagedata to glpfile
-  if (StaticPlot::hardcopy){
+  if (getStaticPlot()->hardcopy){
     // change to pixel coordinates
-    float sx= StaticPlot::getPhysWidth()*1.0/(StaticPlot::getPlotSize().width() > 0 ? StaticPlot::getPlotSize().width() : 1.0);
-    float sy= StaticPlot::getPhysHeight()*1.0/(StaticPlot::getPlotSize().height() > 0 ? StaticPlot::getPlotSize().height() : 1.0);
-    float pgx= (gx-StaticPlot::getPlotSize().x1)*sx;
-    float pgy= (gy-StaticPlot::getPlotSize().y1)*sy;
+    float sx= getStaticPlot()->getPhysWidth()*1.0/(getStaticPlot()->getPlotSize().width() > 0 ? getStaticPlot()->getPlotSize().width() : 1.0);
+    float sy= getStaticPlot()->getPhysHeight()*1.0/(getStaticPlot()->getPlotSize().height() > 0 ? getStaticPlot()->getPlotSize().height() : 1.0);
+    float pgx= (gx-getStaticPlot()->getPlotSize().x1)*sx;
+    float pgy= (gy-getStaticPlot()->getPlotSize().y1)*sy;
 
-    if (!(pgx >= StaticPlot::getPhysWidth() || pgy >= StaticPlot::getPhysHeight() ||
+    if (!(pgx >= getStaticPlot()->getPhysWidth() || pgy >= getStaticPlot()->getPhysHeight() ||
         // pgx+nx*scalex <= 0.0 || pgy+ny*scaley <= 0.0)){
         pgx <= 0.0 || pgy <= 0.0)){
-      StaticPlot::psAddImage(Images[name].data,
+      getStaticPlot()->psAddImage(Images[name].data,
           ncomp*nx*ny, nx, ny,
           pgx, pgy, scalex, scaley,
           0, 0, nx-1, ny-1,
@@ -444,7 +444,7 @@ bool ImageGallery::plotImage_(const std::string name,
       // 		  glformat,GL_UNSIGNED_BYTE);
 
       // for postscript output
-      StaticPlot::UpdateOutput();
+      getStaticPlot()->UpdateOutput();
     }
   }
   return true;
@@ -454,16 +454,16 @@ bool ImageGallery::plotMarker_(const std::string name,
     const float& x, const float& y,
     const float scale)
 {
-  if (x < StaticPlot::getPlotSize().x1 || x >= StaticPlot::getPlotSize().x2 ||
-      y < StaticPlot::getPlotSize().y1 || y >= StaticPlot::getPlotSize().y2)
+  if (x < getStaticPlot()->getPlotSize().x1 || x >= getStaticPlot()->getPlotSize().x2 ||
+      y < getStaticPlot()->getPlotSize().y1 || y >= getStaticPlot()->getPlotSize().y2)
     return true;
 
   int nlines=Images[name].line.size();
   if(nlines>0) {
     glPushMatrix();
     glTranslatef(x,y,0.0);
-    float Scalex= scale*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth()*0.7;
-    float Scaley= scale*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth()*0.7;
+    float Scalex= scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
+    float Scaley= scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
     glScalef(Scalex,Scaley,0.0);
 
     for(int k=0; k<nlines; k++){
@@ -580,8 +580,8 @@ bool ImageGallery::plotImage(const std::string& name,
 
   if (center){
     // center image on x,y: find scale
-    float sx= StaticPlot::getPlotSize().width()/(StaticPlot::getPhysWidth() > 0 ? 2.0*StaticPlot::getPhysWidth() : 2.0);
-    float sy= StaticPlot::getPlotSize().height()/(StaticPlot::getPhysHeight() > 0 ? 2.0*StaticPlot::getPhysHeight() : 2.0);
+    float sx= getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 2.0*getStaticPlot()->getPhysWidth() : 2.0);
+    float sy= getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 2.0*getStaticPlot()->getPhysHeight() : 2.0);
     gx-= nx*sx*scale;
     gy-= ny*sy*scale;
   }
@@ -629,8 +629,8 @@ bool ImageGallery::plotImages(const int n,
   int ny = 0;
   float scalex=scale, scaley=scale;
   std::string oldname;
-  float sx= scale*StaticPlot::getPlotSize().width()/(StaticPlot::getPhysWidth() > 0 ? 2.0*StaticPlot::getPhysWidth() : 2.0);
-  float sy= scale*StaticPlot::getPlotSize().height()/(StaticPlot::getPhysHeight() > 0 ? 2.0*StaticPlot::getPhysHeight() : 2.0);
+  float sx= scale*getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 2.0*getStaticPlot()->getPhysWidth() : 2.0);
+  float sy= scale*getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 2.0*getStaticPlot()->getPhysHeight() : 2.0);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -740,10 +740,10 @@ bool ImageGallery::plotImageAtPixel(const std::string& name,
     gy-=  ny*scale/2.0;
   }
 
-  float sx= StaticPlot::getPlotSize().width()/(StaticPlot::getPhysWidth() > 0 ? 1.0*StaticPlot::getPhysWidth() : 1.0);
-  float sy= StaticPlot::getPlotSize().height()/(StaticPlot::getPhysHeight() > 0 ? 1.0*StaticPlot::getPhysHeight() : 1.0);
-  gx*= sx; gx+= StaticPlot::getPlotSize().x1;
-  gy*= sy; gy+= StaticPlot::getPlotSize().y1;
+  float sx= getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 1.0*getStaticPlot()->getPhysWidth() : 1.0);
+  float sy= getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 1.0*getStaticPlot()->getPhysHeight() : 1.0);
+  gx*= sx; gx+= getStaticPlot()->getPlotSize().x1;
+  gy*= sy; gy+= getStaticPlot()->getPlotSize().y1;
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

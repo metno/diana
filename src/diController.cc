@@ -107,14 +107,14 @@ void Controller::setColourIndices(std::vector<Colour::ColourInfo>& vc){
 
 void  Controller::restartFontManager()
 {
-  StaticPlot::restartFontManager();
+  plotm->getStaticPlot()->restartFontManager();
 }
 
 bool Controller::parseSetup()
 {
   METLIBS_LOG_SCOPE();
 
-  StaticPlot::initFontManager();
+  plotm->getStaticPlot()->initFontManager();
 
   //Parse field sections
   vector<std::string> fieldSubSect = fieldm->subsections();

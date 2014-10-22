@@ -34,6 +34,7 @@
 #include "diPlot.h"
 
 #include "diFontManager.h"
+#include "diPlotModule.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -49,41 +50,42 @@ using namespace ::miutil;
 using namespace ::std;
 using namespace d_print;
 
-// static class members
-Area StaticPlot::area;           // chosen projec./area in gridcoordinates
-Area StaticPlot::requestedarea;  // requested projec./area in gridcoordinates
-Rectangle StaticPlot::maprect;   // legal plotarea for maps in gc
-Rectangle StaticPlot::fullrect;  // full plotarea in gc
-GridConverter StaticPlot::gc;    // Projection-converter
-miTime StaticPlot::ctime;        // current time
-float StaticPlot::pwidth=0;      // physical plotwidth
-float StaticPlot::pheight=0;     // physical plotheight
-float StaticPlot::gcd=0;         // great circle distance (corner to corner)
-FontManager* StaticPlot::fp=0;   // master fontpack
-bool StaticPlot::dirty=true;     // plotsize has changed
-GLPfile* StaticPlot::psoutput=0; // PostScript module
-bool StaticPlot::hardcopy=false; // producing postscript
-int StaticPlot::pressureLevel=-1;// current pressure level
-int StaticPlot::oceandepth=-1;   // current ocean depth
-std::string StaticPlot::bgcolour="";// name of background colour
-Colour StaticPlot::backgroundColour;
-Colour StaticPlot::backContrastColour;
-bool StaticPlot::panning=false;  // panning in progress
-vector<float> StaticPlot::xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-vector<float> StaticPlot::xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
-printerManager StaticPlot::printman;   // printer manager
+GridConverter StaticPlot::gc; // Projection-converter
+
+StaticPlot::StaticPlot()
+  : pwidth(0)         // physical plotwidth
+  , pheight(0)        // physical plotheight
+  , dirty(true)       // plotsize has changed
+  , pressureLevel(-1) // current pressure level
+  , oceandepth(-1)    // current ocean depth
+  , gcd(0)            // great circle distance (corner to corner)
+  , panning(false)    // panning in progress
+  , fp(0)             // master fontpack
+  , psoutput(0)       // PostScript module
+  , hardcopy(false)   // producing postscript
+{
+}
+
+StaticPlot::~StaticPlot()
+{
+}
 
 Plot::Plot()
   : enabled(true)
   , rgbmode(true)
 {
   METLIBS_LOG_SCOPE();
-  if (not StaticPlot::getFontPack())
-    StaticPlot::restartFontManager();
+  if (not getStaticPlot()->getFontPack())
+    getStaticPlot()->restartFontManager();
 }
 
 bool Plot::operator==(const Plot &rhs) const{
   return false;
+}
+
+StaticPlot* Plot::getStaticPlot() const
+{
+  return PlotModule::instance()->getStaticPlot();
 }
 
 void StaticPlot::initFontManager()

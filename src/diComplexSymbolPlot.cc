@@ -469,9 +469,9 @@ void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
   METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSymbol()");
 #endif
   float cw,ch;
-  StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-  StaticPlot::getFontPack()->getCharSize(index,cw,ch);
-  StaticPlot::getFontPack()->drawChar(index,x-cw/2,y-ch/2,0.0);
+  getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->getCharSize(index,cw,ch);
+  getStaticPlot()->getFontPack()->drawChar(index,x-cw/2,y-ch/2,0.0);
 }
 
 
@@ -484,8 +484,8 @@ void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
   }
   float cw,ch;
   getComplexSize(1999,cw,ch);
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-  StaticPlot::getFontPack()->drawStr(sigString.c_str(),x-0.45*cw,y-0.4*ch,0.0);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->drawStr(sigString.c_str(),x-0.45*cw,y-0.4*ch,0.0);
 }
 
 
@@ -495,10 +495,10 @@ void ComplexSymbolPlot::drawSigTextBoxString(float& x,float& y, bool whitebox){
 #endif
   float cw,ch;
   getComplexSize(1999,cw,ch);
-  //StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/3);
-  StaticPlot::getFontPack()->set("Helvetica","BOLD",12);
- // StaticPlot::getFontPack()->set("Arial","NORMAL",12);
-  StaticPlot::getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
+  //getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/3);
+  getStaticPlot()->getFontPack()->set("Helvetica","BOLD",12);
+ // getStaticPlot()->getFontPack()->set("Arial","NORMAL",12);
+  getStaticPlot()->getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("** sigString  = **"<<sigString.c_str());
 #endif
@@ -512,8 +512,8 @@ void ComplexSymbolPlot::drawSigEditString(float& x,float& y, bool whitebox){
 #endif
   float cw,ch;
   getComplexSize(1999,cw,ch);
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-  StaticPlot::getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("** sigString  = **"<<sigString.c_str());
 #endif
@@ -693,13 +693,13 @@ void ComplexSymbolPlot::drawSigNumber(float x,float y){
   if(whiteBox){
     drawBox(900,x,y);
   }
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   float cw1,ch1;
   //float cw2,ch2;
-  StaticPlot::getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-  //StaticPlot::getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
-  StaticPlot::getFontPack()->drawStr(xstrings[0].c_str(),x-cw1/2,y-1.1*ch1,0.0);
-  //StaticPlot::getFontPack()->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
+  getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+  //getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
+  getStaticPlot()->getFontPack()->drawStr(xstrings[0].c_str(),x-cw1/2,y-1.1*ch1,0.0);
+  //getStaticPlot()->getFontPack()->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
   float sw,sh;
   getComplexSize(900,sw,sh);
   //xvisible=true;
@@ -755,13 +755,13 @@ void ComplexSymbolPlot::drawSig7(float x,float y){
   if(whiteBox){
     drawBox(1007,x,y);
   }
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   float cw1,ch1;
   float cw2,ch2;
-  StaticPlot::getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-  StaticPlot::getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
-  StaticPlot::getFontPack()->drawStr(xstrings[0].c_str(),x-cw1/2,y+0.1*ch1,0.0);
-  StaticPlot::getFontPack()->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
+  getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+  getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
+  getStaticPlot()->getFontPack()->drawStr(xstrings[0].c_str(),x-cw1/2,y+0.1*ch1,0.0);
+  getStaticPlot()->getFontPack()->drawStr(xstrings[1].c_str(),x-cw2/2,y-1.1*ch2,0.0);
   float sw,sh;
   getComplexSize(1007,sw,sh);
   glBegin(GL_LINE_STRIP);
@@ -960,9 +960,9 @@ void ComplexSymbolPlot::drawSig30(float x,float y){
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
   float cw,ch;
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/2);
-  StaticPlot::getFontPack()->getStringSize("V",cw,ch);
-  StaticPlot::getFontPack()->drawStr("V",x-cw/2,y-ch/2,0.0);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/2);
+  getStaticPlot()->getFontPack()->getStringSize("V",cw,ch);
+  getStaticPlot()->getFontPack()->drawStr("V",x-cw/2,y-ch/2,0.0);
   //  drawSymbol(135,x,y);
   glColor4fv(currentColor);
 
@@ -1080,8 +1080,8 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
 
   float sw,sh;
   std::string s = "10";
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-  StaticPlot::getFontPack()->getStringSize(s.c_str(),sw,sh);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->getStringSize(s.c_str(),sw,sh);
   sw=1.1*sw; sh=1.2*sh;
   sh = sh*1.5;
   sw = sw*1.5;
@@ -1158,8 +1158,8 @@ void ComplexSymbolPlot::drawCircle(int index,
   float sw,sh;
   if(circle) {
     std::string s = "10";
-    StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-    StaticPlot::getFontPack()->getStringSize(s.c_str(),sw,sh);
+    getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+    getStaticPlot()->getFontPack()->getStringSize(s.c_str(),sw,sh);
     sw=1.1*sw; sh=1.2*sh;
   } else {
     getComplexSize(index,sw,sh);
@@ -1223,8 +1223,8 @@ void ComplexSymbolPlot::drawDiamond(int index,float x, float y){
 
   float sw,sh;
   std::string s = "10";
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-  StaticPlot::getFontPack()->getStringSize(s.c_str(),sw,sh);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+  getStaticPlot()->getFontPack()->getStringSize(s.c_str(),sw,sh);
   sw=1.1*sw; sh=1.2*sh;
 
   //draw white background
@@ -1380,28 +1380,28 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
   diffx=0;
   diffy=0;
   if (index < 1000){
-    StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-    StaticPlot::getFontPack()->getCharSize(index,cw,ch);
+    getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+    getStaticPlot()->getFontPack()->getCharSize(index,cw,ch);
     sw=ch; sh=ch;
   }
   else{
     switch (index){
     case 1999:
       //sigstring
-      StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getStringSize(sigString.c_str(),cw,ch);
+      getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getStringSize(sigString.c_str(),cw,ch);
       sw=1.1*cw; sh=1.2*ch;
       break;
     case 3001:
       if (symbolStrings.size()>1){
-	StaticPlot::getFontPack()->set("Helvetica","BOLD",12);
+	getStaticPlot()->getFontPack()->set("Helvetica","BOLD",12);
         cw2=ch2=0;
         for (unsigned int i=0; i<symbolStrings.size(); i++){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("*********before ");
   METLIBS_LOG_DEBUG("cw = " <<cw2 << "         ch = "<< ch2);
 #endif
-	  StaticPlot::getFontPack()->getStringSize(symbolStrings[i].c_str(),cw1,ch1);
+	  getStaticPlot()->getFontPack()->getStringSize(symbolStrings[i].c_str(),cw1,ch1);
 	  if (cw1>cw2)  cw2=cw1;
 	  ch2 += ch1;
 #ifdef DEBUGPRINT
@@ -1415,16 +1415,16 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 3000:
       //sigeditstring
-      StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getStringSize(sigString.c_str(),cw,ch);
+      getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getStringSize(sigString.c_str(),cw,ch);
       sw=1.1*cw; sh=1.2*ch;
       break;
     case 900:
-      StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (xstrings.size()>0)
-	StaticPlot::getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
       //if (xstrings.size()>1)
-	//StaticPlot::getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
+	//getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
       //if (cw1>cw2)
 	sw=cw1;
       //else
@@ -1436,47 +1436,47 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 1000:
       if (symbolStrings.size()>0){
-	StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[0].c_str(),cw,ch);
+	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw,ch);
 	sw=1.1*cw; sh=1.2*ch;
       }
       break;
     case 1001:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(SIG2SYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
     case 1002:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(SIG2SYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(SIG2SYMBOL,cw,ch);
       sw=1.4*cw; sh=1.8*ch;
       break;
     case 1003:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(SIG3SYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=ch;
       break;
     case 1004:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(SIG3SYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(SIG3SYMBOL,cw,ch);
       sw=1.2*cw; sh=1.4*ch;
       break;
     case 1005:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       getComplexSize(1001,cw,ch);
       sw=1.8*cw; sh=1.5*ch;
       break;
     case 1006:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
       getComplexSize(1003,cw,ch);
       sw=1.8*cw; sh=2.8*ch;
       break;
     case 1007:
-      StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (xstrings.size()>0)
-	StaticPlot::getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
       if (xstrings.size()>1)
-	StaticPlot::getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
+	getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
       if (cw1>cw2)
 	sw=cw1;
       else
@@ -1594,38 +1594,38 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
 	sh=ch2;
       break;
     case 1018:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(RIGHTARROW,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(RIGHTARROW,cw,ch);
       sw=cw/2; sh=ch/2;
       break;
     case 1019:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(LOWSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(LOWSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1020:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(HIGHSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(HIGHSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1021:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(THUNDERSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(THUNDERSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1022:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(CROSS,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
     case 1025:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(MOUNTAINWAVESYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(MOUNTAINWAVESYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1026:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(VULCANOSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(VULCANOSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1027:
@@ -1638,8 +1638,8 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       getComplexSize(1000,sw,sh);
       break;
     case 1030:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(FOGSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(FOGSYMBOL,cw,ch);
       sw=cw; sh=ch;
       break;
     case 1031:
@@ -1654,10 +1654,10 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     case 1034:
       if (symbolStrings.size()>1){
 	getComplexSize(1026,cw2,ch2);
-	StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
+	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
 	cw1 += (cw2*1);
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	if (cw2>cw1)  cw1=cw2;
 	ch1 += ch2;
 	sw = cw1 * 1.3;
@@ -1665,16 +1665,16 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       }
       break;
     case 1035:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(NEW_CROSS,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(NEW_CROSS,cw,ch);
       sw=cw; sh=0.5*ch;
       break;
     case 1036:
-      StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (symbolStrings.size()>0)
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[0].c_str(),sw,sh);{
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),sw,sh);{
 	if (symbolStrings.size()>1 && not symbolStrings[1].empty()){
-	  StaticPlot::getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+	  getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	  if (cw2>sh)  sw=cw2;
 	  sh += ch2;
 	}
@@ -1683,8 +1683,8 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       }
       break;
     case 1037:
-      StaticPlot::getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(WIDESPREADBRSYMBOL,cw,ch);
+      getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
+      getStaticPlot()->getFontPack()->getCharSize(WIDESPREADBRSYMBOL,cw,ch);
       sh =ch;
       sw=cw;
       sw=cw; sh=ch;
@@ -1705,9 +1705,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       if (symbolStrings.size()>1){
 	float cw1,ch1;
 	float cw2,ch2;
-	StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
-	StaticPlot::getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
+	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
 	if (cw1>cw2)
 	  sw=cw1;
 	else

@@ -142,7 +142,7 @@ const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs
 {
   vector<std::string> evs;
   for (size_t j = 0; j < vs.size(); j++) {
-    std::string es = insertTime(vs[j], StaticPlot::getTime());
+    std::string es = insertTime(vs[j], getStaticPlot()->getTime());
 
     if (useAnaTime) {
       // only using the latest analysis time (yet...)
@@ -517,14 +517,14 @@ bool AnnotationPlot::plot()
   plotAnno = true;
 
   Rectangle window;
-  if (plotRequested && StaticPlot::getRequestedarea().P() == StaticPlot::getMapArea().P()) {
-    window = StaticPlot::getRequestedarea().R();
+  if (plotRequested && getStaticPlot()->getRequestedarea().P() == getStaticPlot()->getMapArea().P()) {
+    window = getStaticPlot()->getRequestedarea().R();
     if (window.x1 == window.x2 || window.y1 == window.y2)
-      window = StaticPlot::getPlotSize();
+      window = getStaticPlot()->getPlotSize();
     if (cxratio > 0 && cyratio > 0)
       scaleAnno = true;
   } else
-    window = StaticPlot::getPlotSize();
+    window = getStaticPlot()->getPlotSize();
 
   fontsizeToPlot = int(poptions.fontsize);
 
@@ -563,7 +563,7 @@ bool AnnotationPlot::plot()
   glDisable(GL_BLEND);
 
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   //plotAnno could be false if annotations too big for box
   // return here after plotted box only
@@ -575,8 +575,8 @@ bool AnnotationPlot::plot()
     Annotation & anno = annotations[i];
     //draw one annotation - one line
     Colour c = anno.col;
-    if (c == StaticPlot::getBackgroundColour())
-      c = StaticPlot::getBackContrastColour();
+    if (c == getStaticPlot()->getBackgroundColour())
+      c = getStaticPlot()->getBackContrastColour();
     currentColour = c;
     if (getColourMode())
       glColor4ubv(c.RGBA());
@@ -585,7 +585,7 @@ bool AnnotationPlot::plot()
     plotElements(annotations[i].annoElements,
                  anno.rect.x1, anno.rect.y1, annotations[i].hei);
   }
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   // draw outline
   if (poptions.polystyle != poly_fill && poptions.polystyle != poly_none) {
@@ -618,7 +618,7 @@ bool AnnotationPlot::plot()
     plotBorders();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   return true;
 }
@@ -630,8 +630,8 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
 
   float fontsizeScale;
   float wid, hei;
-  if (StaticPlot::hardcopy)
-    fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
+  if (getStaticPlot()->hardcopy)
+    fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
@@ -665,7 +665,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
       glEnd();
       glDisable(GL_BLEND);
     }
-    StaticPlot::UpdateOutput();
+    getStaticPlot()->UpdateOutput();
 
     // get coordinates of border, draw later
     if (annoEl[j].polystyle == poly_border || annoEl[j].polystyle == poly_both) {
@@ -707,16 +707,16 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
           glColor4f(0, 0, 1, 1.0);
         }
       }
-      StaticPlot::getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      StaticPlot::getFontPack()->getStringSize(astring.c_str(), wid, hei);
+      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       hei *= fontsizeScale;
       if (annoEl[j].eHalign == align_right && j + 1 == annoEl.size())
         x = bbox.x2 - wid - border;
-      StaticPlot::getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
+      getStaticPlot()->getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
       //remember corners of box around text for marking and editing
       annoEl[j].x1 = x;
       annoEl[j].y1 = y;
@@ -727,7 +727,7 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         //markert tekst
         float w, h;
         std::string substring = astring.substr(0, annoEl[j].itsCursor);
-        StaticPlot::getFontPack()->getStringSize(substring.c_str(), w, h);
+        getStaticPlot()->getFontPack()->getStringSize(substring.c_str(), w, h);
         glColor4f(0, 0, 0, 1.0);
         glBegin(GL_LINE_STRIP);
         glVertex2f(annoEl[j].x1 + w, annoEl[j].y1);
@@ -735,17 +735,17 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
         glEnd();
       }
     } else if (annoEl[j].eType == symbol) {
-      StaticPlot::getFontPack()->set(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->set(annoEl[j].eFont, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       float tmpwid;
-      StaticPlot::getFontPack()->getCharSize(annoEl[j].eCharacter, tmpwid, hei);
-      StaticPlot::getFontPack()->drawChar(annoEl[j].eCharacter, x, y, 0.0);
+      getStaticPlot()->getFontPack()->getCharSize(annoEl[j].eCharacter, tmpwid, hei);
+      getStaticPlot()->getFontPack()->drawChar(annoEl[j].eCharacter, x, y, 0.0);
       //set back to normal font and draw one blank
-      StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = " ";
-      StaticPlot::getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
-      StaticPlot::getFontPack()->getStringSize(astring.c_str(), wid, hei);
+      getStaticPlot()->getFontPack()->drawStr(astring.c_str(), x, y, 0.0);
+      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), wid, hei);
       wid *= fontsizeScale;
       wid += tmpwid;
       hei *= fontsizeScale;
@@ -851,13 +851,13 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
   for (size_t j = 0; j < annoEl.size(); j++) {
     float w = 0.0, h = 0.0;
     if (annoEl[j].eType == text || annoEl[j].eType == input) {
-      StaticPlot::getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->set(poptions.fontname, annoEl[j].eFace, annoEl[j].eSize
           * fontsizeToPlot);
       std::string astring = annoEl[j].eText;
       astring += " ";
-      StaticPlot::getFontPack()->getStringSize(astring.c_str(), w, h);
-      if (StaticPlot::hardcopy)
-        fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
+      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), w, h);
+      if (getStaticPlot()->hardcopy)
+        fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
       else
         fontsizeScale = 1.0;
       w *= fontsizeScale;
@@ -875,17 +875,17 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
       h = annoEl[j].arrowLength / 2.;
       w = annoEl[j].arrowLength;
     } else if (annoEl[j].eType == symbol) {
-      StaticPlot::getFontPack()->set(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->set(annoEl[j].eFont, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      StaticPlot::getFontPack()->getCharSize(annoEl[j].eCharacter, w, h);
-      StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
+      getStaticPlot()->getFontPack()->getCharSize(annoEl[j].eCharacter, w, h);
+      getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, annoEl[j].eSize
           * fontsizeToPlot);
-      if (StaticPlot::hardcopy)
-        fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
+      if (getStaticPlot()->hardcopy)
+        fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
       else
         fontsizeScale = 1.0;
       std::string astring = " ";
-      StaticPlot::getFontPack()->getStringSize(astring.c_str(), w, h);
+      getStaticPlot()->getFontPack()->getStringSize(astring.c_str(), w, h);
       w *= fontsizeScale;
       w += w;
       h *= fontsizeScale;
@@ -1036,8 +1036,8 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
   bool wasMarked = isMarked;
   isMarked = false;
   //convert x and y...
-  float xpos = x * StaticPlot::getPlotSize().width() / StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos = y * StaticPlot::getPlotSize().height() / StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos = x * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
+  float ypos = y * getStaticPlot()->getPlotSize().height() / getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
   if (xpos > bbox.x1 && xpos < bbox.x2 && ypos > bbox.y1 && ypos < bbox.y2) {
     isMarked = true;
     //loop over elements

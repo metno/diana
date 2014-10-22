@@ -183,16 +183,16 @@ void LegendPlot::getStringSize(std::string str, float& width, float& height)
 {
   //Bugfix
   //The postscript size of "-" are underestimated
-  if (StaticPlot::StaticPlot::hardcopy){
+  if (getStaticPlot()->hardcopy){
     int n = miutil::count_char(str, '-');
     for(int i=0;i<n;i++) str+="-";
   }
 
-  StaticPlot::getFontPack()->getStringSize(str.c_str(), width, height);
+  getStaticPlot()->getFontPack()->getStringSize(str.c_str(), width, height);
 
   // fontsizeScale != 1 when postscript font size != X font size
-  if (StaticPlot::hardcopy){
-    float fontsizeScale = StaticPlot::getFontPack()->getSizeDiv();
+  if (getStaticPlot()->hardcopy){
+    float fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
     width*=fontsizeScale;
     height*=fontsizeScale;
   }
@@ -308,7 +308,7 @@ bool LegendPlot::plot(float x, float y)
     glColor4ubv(poptions.textcolour.RGBA());
     float titley1 = y2title-yborder-maxheight/2;
     for (int i=0;i<ntitle;i++){
-      StaticPlot::getFontPack()->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
+      getStaticPlot()->getFontPack()->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -376,10 +376,10 @@ bool LegendPlot::plot(float x, float y)
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
       std::string cstring = colourcodes[i].colourstr;
-      StaticPlot::getFontPack()->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
+      getStaticPlot()->getFontPack()->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
-      StaticPlot::UpdateOutput();
+      getStaticPlot()->UpdateOutput();
     }
     glDisable(GL_POLYGON_STIPPLE);
   }
@@ -398,8 +398,8 @@ void LegendPlot::showSatTable(int x,int y)
   // if x,y inside title bar, then the table should be hidden or shown
 
   //convert x and y...
-  float xpos=x*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos=y*StaticPlot::getPlotSize().height()/StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos=x*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
+  float ypos=y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
 
   //now check if it's inside title bar
   if (xpos>x1title && xpos<x2title && ypos>y1title && ypos<y2title)
@@ -414,8 +414,8 @@ bool LegendPlot::inSatTable(int x,int y)
 {
 
   //convert x and y...
-  float xpos=x*StaticPlot::getPlotSize().width()/StaticPlot::getPhysWidth() + StaticPlot::getPlotSize().x1;
-  float ypos=y*StaticPlot::getPlotSize().height()/StaticPlot::getPhysHeight() + StaticPlot::getPlotSize().y1;
+  float xpos=x*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
+  float ypos=y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
 
   //now check if it's inside title bar
   if (xpos>x1title && xpos<x2title && ypos>y1title && ypos<y2title)
@@ -428,8 +428,8 @@ bool LegendPlot::inSatTable(int x,int y)
 void LegendPlot::moveSatTable(int x1,int y1, int x2, int y2)
 {
 
-  float deltax = (x2-x1)/StaticPlot::getPhysWidth();
-  float deltay = (y2-y1)/StaticPlot::getPhysHeight();
+  float deltax = (x2-x1)/getStaticPlot()->getPhysWidth();
+  float deltay = (y2-y1)/getStaticPlot()->getPhysHeight();
 
   xRatio = xRatio - deltax;
   yRatio = yRatio - deltay;
@@ -447,7 +447,7 @@ float LegendPlot::height()
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,maxheight=0,titlewidth=0;
 
   //colour code strings
@@ -493,7 +493,7 @@ float LegendPlot::width()
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  StaticPlot::getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,titlewidth=0;
 
   //colour code strings

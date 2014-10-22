@@ -189,6 +189,8 @@ private:
 
   void drawInfluence();
 
+  StaticPlot* getStaticPlot() const;
+
 public:
   FieldEdit(FieldPlotManager* fieldPlotManager);
   ~FieldEdit();

@@ -46,189 +46,190 @@ class FontManager;
 
 
 /**
-   StaticPlot keeps all static data shared by the various plotting classes.
+   StaticPlot keeps all previously static data shared by the various plotting classes.
    - postscript generation initiated here
 */
-
 class StaticPlot {
 private:
-  // static members
-  static Area area;          // Projection and size of current grid
-  static Area requestedarea; // Projection and size of requested grid
-  static Rectangle maprect;  // Size of map plot area
-  static Rectangle fullrect; // Size of full plot area
-  static miutil::miTime ctime;       // current time
-  static float pwidth;       // physical size of plotarea
-  static float pheight;      // --- " ---
-  static bool dirty;         // plotarea has changed
-  static int pressureLevel;          // current pressure level
-  static int oceandepth;       // current ocean depth
-  static std::string bgcolour;  // name of background colour
-  static Colour backgroundColour;   // background colour
-  static Colour backContrastColour; // suitable contrast colour
-  static float gcd;          // great circle distance
-  static bool panning;       // panning in progress
-  static FontManager* fp;    // master fontpack
-  static printerManager printman;   // printer manager
+  Area area;          // Projection and size of current grid
+  Area requestedarea; // Projection and size of requested grid
+  Rectangle maprect;  // Size of map plot area
+  Rectangle fullrect; // Size of full plot area
+  miutil::miTime ctime;       // current time
+  float pwidth;       // physical size of plotarea
+  float pheight;      // --- " ---
+  bool dirty;         // plotarea has changed
+  int pressureLevel;          // current pressure level
+  int oceandepth;       // current ocean depth
+  std::string bgcolour;  // name of background colour
+  Colour backgroundColour;   // background colour
+  Colour backContrastColour; // suitable contrast colour
+  float gcd;          // great circle distance
+  bool panning;       // panning in progress
+  FontManager* fp;    // master fontpack
+  printerManager printman;   // printer manager
 
 public:
   static GridConverter gc;   // gridconverter class
-  static GLPfile* psoutput;  // PostScript module
-  static bool hardcopy;      // producing postscript
+  GLPfile* psoutput;  // PostScript module
+  bool hardcopy;      // producing postscript
 
   // FIXME xyLimit and xyPart only used by obsolete config in MapPlot::prepare
-  static std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
-  static std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
+  std::vector<float> xyLimit; // MAP ... xyLimit=x1,x2,y1,y2
+  std::vector<float> xyPart;  // MAP ... xyPart=x1%,x2%,y1%,y2%
 
 public:
-  static void psAddImage(const GLvoid*,GLint,GLint,GLint, // pixels,size,nx,ny
+  StaticPlot();
+  ~StaticPlot();
+
+  void psAddImage(const GLvoid*,GLint,GLint,GLint, // pixels,size,nx,ny
 		  GLfloat,GLfloat,GLfloat,GLfloat, // x,y,sx,sy
 		  GLint,GLint,GLint,GLint,   // start,stop
 		  GLenum,GLenum);  // format, type
 
   /// init fonts
-  static void initFontManager();
+  void initFontManager();
 
   /// kill current FontManager, start new and init
-  static void restartFontManager();
+  void restartFontManager();
 
   /// return current area on map
-  static const Area& getMapArea()
+  const Area& getMapArea()
     { return area; }
 
   /// set area, possibly trying to keep the current physical area
-  static bool setMapArea(const Area&, bool keepcurrentarea);
+  bool setMapArea(const Area&, bool keepcurrentarea);
 
   /// with a new projection: find the best matching physical area with the current one
-  static Area findBestMatch(const Area&);
+  Area findBestMatch(const Area&);
 
   /// this is the area we really want
-  static void setRequestedarea(const Area &a)
+  void setRequestedarea(const Area &a)
     { requestedarea = a; }
 
   /// this is the area we really wanted
-  static Area& getRequestedarea()
+  Area& getRequestedarea()
     { return requestedarea; }
 
   /// this is the full size of the plot in the current projection
-  static const Rectangle& getPlotSize()
+  const Rectangle& getPlotSize()
     { return fullrect; }
 
   /// set the  full size of the plot in the current projection
-  static void setPlotSize(const Rectangle& r);
+  void setPlotSize(const Rectangle& r);
 
   /// this is size of the data grid
-  static const Rectangle& getMapSize()
+  const Rectangle& getMapSize()
     { return maprect; }
 
   /// set the size of the data grid
-  static void setMapSize(const Rectangle& r);
+  void setMapSize(const Rectangle& r);
 
   /// set the physical size of the map in pixels
-  static void setPhysSize(float w, float h);
+  void setPhysSize(float w, float h);
 
   /// this is  the physical size of the map in pixels
-  static void getPhysSize(float& w, float& h);
+  void getPhysSize(float& w, float& h);
 
-  static float getPhysWidth()
+  float getPhysWidth()
     { return pwidth; }
 
-  static float getPhysHeight()
+  float getPhysHeight()
     { return pheight; }
 
   /// set the current data time
-  static void setTime(const miutil::miTime& t)
+  void setTime(const miutil::miTime& t)
     { ctime= t; }
 
   /// return the current data time
-  static const miutil::miTime& getTime()
+  const miutil::miTime& getTime()
     { return ctime; }
 
   /// set current pressure level
-  static void setPressureLevel(int l)
+  void setPressureLevel(int l)
     { pressureLevel= l; }
 
   /// this is the current pressure level
-  static int getPressureLevel()
+  int getPressureLevel()
     { return pressureLevel; }
 
   /// set current ocean depth
-  static void setOceanDepth(int depth)
+  void setOceanDepth(int depth)
     { oceandepth= depth; }
 
   /// this is the current ocean depth
-  static int getOceanDepth()
+  int getOceanDepth()
     {return oceandepth;}
 
   /// set name of background colour
-  static void setBgColour(const std::string& cn)
+  void setBgColour(const std::string& cn)
     { bgcolour= cn; }
 
   /// return the name of the current background colour
-  static const std::string& getBgColour()
+  const std::string& getBgColour()
     { return bgcolour; }
 
   /// set background colour
-  static void setBackgroundColour(const Colour& c)
+  void setBackgroundColour(const Colour& c)
     { backgroundColour= c; }
 
   /// set colour with good contrast to background
-  static void setBackContrastColour(const Colour& c)
+  void setBackContrastColour(const Colour& c)
     { backContrastColour= c; }
 
   /// return the current background colour
-  static const Colour& getBackgroundColour()
+  const Colour& getBackgroundColour()
     { return backgroundColour; }
 
   /// return colour with good contrast to background
-  static const Colour& getBackContrastColour()
+  const Colour& getBackContrastColour()
     { return backContrastColour; }
 
   /// return pointer to the FontManager
-  static FontManager* getFontPack() {return fp;}
+  FontManager* getFontPack() {return fp;}
 
   /// mark this as 'redraw needed'
-  static void setDirty(bool dirty=true);
+  void setDirty(bool dirty=true);
 
   /// is redraw needed
-  static bool getDirty()
+  bool getDirty()
     { return dirty; }
 
   /// clear clipping variables
-  static void xyClear();
+  void xyClear();
 
   // hardcopy routines
   /// start postscript output
-  static bool startPSoutput(const printOptions& po);
+  bool startPSoutput(const printOptions& po);
   /// add a stencil as x,y arrays (postscript only)
-  static void addHCStencil(int size, const float* x, const float* y);
+  void addHCStencil(int size, const float* x, const float* y);
   /// add a scissor in GL coordinates (postscript only)
-  static void addHCScissor(double x0, double y0, // GL scissor
+  void addHCScissor(double x0, double y0, // GL scissor
 		    double  w, double  h);
   /// add a scissor in pixel coordinates (postscript only)
-  static void addHCScissor(int x0, int y0, // Pixel scissor
+  void addHCScissor(int x0, int y0, // Pixel scissor
 		    int  w, int  h);
   /// remove all clipping (postscript only)
-  static void removeHCClipping();
+  void removeHCClipping();
   /// for postscript output - resample state vectors
-  static void UpdateOutput();
+  void UpdateOutput();
   /// start new page in postscript
-  static bool startPSnewpage();
+  bool startPSnewpage();
   /// for postscript output - reset state vectors
-  static void resetPage();
+  void resetPage();
   /// end postscript output
-  static bool endPSoutput();
+  bool endPSoutput();
 
   /// set great circle distance
-  static void setGcd(float dist);
+  void setGcd(float dist);
 
-  static float getGcd()
+  float getGcd()
     { return gcd; }
 
   /// toggle panning
-  static void panPlot(bool pan);
+  void panPlot(bool pan);
 
-  static bool isPanning()
+  bool isPanning()
     { return panning; }
 };
 
@@ -245,6 +246,8 @@ public:
 
   // Equality operator
   bool operator==(const Plot &rhs) const;
+
+  StaticPlot* getStaticPlot() const;
 
   /// plot
   virtual bool plot(){return false; }

@@ -34,6 +34,7 @@
 #include "EditItems/drawingtext.h"
 #include "EditItems/drawingstylemanager.h"
 #include "diFontManager.h"
+#include "diPlotModule.h"
 
 namespace DrawingItem_Text {
 
@@ -72,7 +73,7 @@ void Text::draw()
 
   styleManager->beginText(this, poptions);
   styleManager->setFont(this, poptions);
-  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
+  float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
 
   float x = points.at(0).x() + margin_;
   float y = points.at(0).y() - margin_;
@@ -82,7 +83,7 @@ void Text::draw()
     glPushMatrix();
     glTranslatef(x, y - size.height(), 0);
     glScalef(scale, scale, 1.0);
-    StaticPlot::getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
+    PlotModule::instance()->getStaticPlot()->getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
     glPopMatrix();
     y -= size.height() * (1.0 + spacing_);
   }
@@ -99,17 +100,17 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   styleManager->setFont(this, poptions);
 
   float width, height;
-  if (!StaticPlot::getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
+  if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
   QSizeF size(width, height);
 
   if (height == 0) {
-    StaticPlot::getFontPack()->getStringSize("X", width, height);
-    size.setHeight(height);
+    PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize("X", width, height);
+    size.setHeight(qMax(height, poptions.fontsize));
   }
 
-  float scale = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
+  float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
   return scale * size;
 }
 

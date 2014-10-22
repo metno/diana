@@ -33,6 +33,7 @@
 #include "diEditItemManager.h"
 #include "diPlot.h"
 #include "diFontManager.h"
+#include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 
 namespace EditItem_Text {
@@ -274,7 +275,8 @@ void Text::drawIncomplete() const
   QSizeF size;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(StaticPlot::getPhysWidth()/StaticPlot::getMapSize().width(), StaticPlot::getPhysHeight()/StaticPlot::getMapSize().height());
+  GLfloat scale = qMax(PlotModule::instance()->getStaticPlot()->getPhysWidth()/PlotModule::instance()->getStaticPlot()->getMapSize().width(),
+      PlotModule::instance()->getStaticPlot()->getPhysHeight()/PlotModule::instance()->getStaticPlot()->getMapSize().height());
   styleManager->beginText(this, poptions);
 
   QStringList lines_ = text();

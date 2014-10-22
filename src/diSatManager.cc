@@ -33,14 +33,14 @@
 #include "config.h"
 #endif
 
-#include <fstream>
-
 #include <diSatManager.h>
-#include <GL/gl.h>
+
+#include "diPlotModule.h"
 #include "diUtilities.h"
+
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
-#include <set>
+
 #include <diMItiff.h>
 #ifdef HDF5FILE
 #include <diHDF5.h>
@@ -48,6 +48,10 @@
 #ifdef GEOTIFF
 #include <diGEOtiff.h>
 #endif
+
+#include <GL/gl.h>
+#include <fstream>
+#include <set>
 
 #define MILOGGER_CATEGORY "diana.SatManager"
 #include <miLogger/miLogging.h>
@@ -284,7 +288,7 @@ bool SatManager::setData(SatPlot *satp)
       index=getFileName(satdata, satdata->actualfile);
     else
       //find filename from time
-      index=getFileName(satdata, StaticPlot::getTime());
+      index=getFileName(satdata, PlotModule::instance()->getStaticPlot()->getTime());
   }
 
   if (index <0) {
@@ -917,7 +921,7 @@ void SatManager::getMosaicfiles(Sat* satdata)
   int satdiff, plotdiff, diff= satdata->maxDiff+1;
   miTime plottime, sattime=satdata->time;
   if (satdata->autoFile)
-    plottime=StaticPlot::getTime();
+    plottime=PlotModule::instance()->getStaticPlot()->getTime();
   else
     plottime=sattime;
 

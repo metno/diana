@@ -183,7 +183,7 @@ bool WeatherFront::plot(){
         scaledlinewidth=siglinewidth*2;
       else {
         //change the linewidth according to great circle distance
-        float scalefactor = StaticPlot::getGcd()/7000000;
+        float scalefactor = getStaticPlot()->getGcd()/7000000;
         if (scalefactor <=1 )
           scaledlinewidth = linewidth;
         else if (scalefactor > 1.0 && scalefactor < 4)
@@ -224,7 +224,7 @@ bool WeatherFront::plot(){
       }
 
       // for PostScript generation
-      StaticPlot::UpdateOutput();
+      getStaticPlot()->UpdateOutput();
 
       //draw line
       if ( currentState == active || drawIndex != SigweatherFront ) {
@@ -250,7 +250,7 @@ bool WeatherFront::plot(){
         if (rubber) plotRubber();
       }
 
-      StaticPlot::UpdateOutput();
+      getStaticPlot()->UpdateOutput();
       if (itsLinetype.stipple) {
         glDisable(GL_LINE_STIPPLE);
       }
@@ -258,7 +258,7 @@ bool WeatherFront::plot(){
       glDisable(GL_BLEND);
 
       drawNodePoints();
-      StaticPlot::UpdateOutput();
+      getStaticPlot()->UpdateOutput();
     }
   }
 
@@ -471,7 +471,7 @@ void WeatherFront::drawColds(){
 
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
@@ -590,7 +590,7 @@ void WeatherFront::drawWarms(){
 
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
@@ -741,7 +741,7 @@ void WeatherFront::drawOccluded(){
 
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
@@ -885,7 +885,7 @@ void WeatherFront::drawStationary(){
 
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
@@ -955,7 +955,7 @@ void WeatherFront::drawSquallLine(){
     s= 0.;
 
   }
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 }
 
 
@@ -1052,7 +1052,7 @@ void WeatherFront::drawArrowLine(){
       glVertex2f(xtop2,ytop2);
       glEnd();
     }
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -1187,7 +1187,7 @@ void WeatherFront::drawTroughLine(){
 
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

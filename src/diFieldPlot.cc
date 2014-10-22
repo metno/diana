@@ -94,7 +94,7 @@ const Area& FieldPlot::getFieldArea()
   if (fields.size() && fields[0])
     return fields[0]->area;
   else
-    return StaticPlot::getMapArea(); // return master-area
+    return getStaticPlot()->getMapArea(); // return master-area
 }
 
 //  return area for existing field
@@ -109,7 +109,7 @@ bool FieldPlot::getRealFieldArea(Area& a)
 // check if current data from plottime
 bool FieldPlot::updateNeeded(string& pin)
 {
-  if (ftime.undef() || (ftime != StaticPlot::getTime() && !miutil::contains(pinfo, " time="))
+  if (ftime.undef() || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
       || fields.size() == 0) {
     pin = pinfo;
     return true;
@@ -149,8 +149,8 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 
   if (poptions.maxDiagonalInMeters > -1) {
     METLIBS_LOG_INFO(
-      " FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<StaticPlot::getRequestedarea().getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
-    if (StaticPlot::getRequestedarea().getDiagonalInMeters() > poptions.maxDiagonalInMeters)
+      " FieldPlot::prepare: requestedarea.getDiagonalInMeters():"<<getStaticPlot()->getRequestedarea().getDiagonalInMeters()<<"  max:"<<poptions.maxDiagonalInMeters);
+    if (getStaticPlot()->getRequestedarea().getDiagonalInMeters() > poptions.maxDiagonalInMeters)
       return false;
   }
 
@@ -568,13 +568,13 @@ bool FieldPlot::plot()
   }
 
   // avoid background colour
-  if (poptions.bordercolour == StaticPlot::getBackgroundColour())
-    poptions.bordercolour = StaticPlot::getBackContrastColour();
-  if (poptions.linecolour == StaticPlot::getBackgroundColour())
-    poptions.linecolour = StaticPlot::getBackContrastColour();
+  if (poptions.bordercolour == getStaticPlot()->getBackgroundColour())
+    poptions.bordercolour = getStaticPlot()->getBackContrastColour();
+  if (poptions.linecolour == getStaticPlot()->getBackgroundColour())
+    poptions.linecolour = getStaticPlot()->getBackContrastColour();
   for (unsigned int i = 0; i < poptions.colours.size(); i++)
-    if (poptions.colours[i] == StaticPlot::getBackgroundColour())
-      poptions.colours[i] = StaticPlot::getBackContrastColour();
+    if (poptions.colours[i] == getStaticPlot()->getBackgroundColour())
+      poptions.colours[i] = getStaticPlot()->getBackContrastColour();
 
   if (poptions.antialiasing)
     glEnable(GL_MULTISAMPLE);
@@ -644,7 +644,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
 
   int nf = tmpfields.size();
 
-  if (!rotateVectors || fields[0]->area.P() == StaticPlot::getMapArea().P()) {
+  if (!rotateVectors || fields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
     u = fields[0]->data;
     v = fields[1]->data;
     if (nf == 2) {
@@ -653,7 +653,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
       tmpfields.clear();
     }
   } else if (nf == 2 && tmpfields[0]->numSmoothed == fields[0]->numSmoothed
-      && tmpfields[0]->area.P() == StaticPlot::getMapArea().P()) {
+      && tmpfields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
   } else {
@@ -668,11 +668,11 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
     int npos = fields[0]->nx * fields[0]->ny;
-    if (!StaticPlot::gc.getVectors(tmpfields[0]->area, StaticPlot::getMapArea(), npos, x, y, u, v)) {
+    if (!getStaticPlot()->gc.getVectors(tmpfields[0]->area, getStaticPlot()->getMapArea(), npos, x, y, u, v)) {
       return uv;
     }
-    tmpfields[0]->area.setP(StaticPlot::getMapArea().P());
-    tmpfields[1]->area.setP(StaticPlot::getMapArea().P());
+    tmpfields[0]->area.setP(getStaticPlot()->getMapArea().P());
+    tmpfields[1]->area.setP(getStaticPlot()->getMapArea().P());
   }
   uv.push_back(u);
   uv.push_back(v);
@@ -691,7 +691,7 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
   int nf = tmpfields.size();
 
   if (nf == 2 && tmpfields[0]->numSmoothed == fields[0]->numSmoothed
-      && tmpfields[0]->area.P() == StaticPlot::getMapArea().P()) {
+      && tmpfields[0]->area.P() == getStaticPlot()->getMapArea().P()) {
     //use fields in current projection
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
@@ -712,12 +712,12 @@ vector<float*> FieldPlot::prepareDirectionVectors(float* x, float* y)
       v[i] = 1.0f;
 
     bool turn = fields[0]->turnWaveDirection;
-    if (!StaticPlot::gc.getDirectionVectors(StaticPlot::getMapArea(), turn, npos, x, y, u, v)) {
+    if (!getStaticPlot()->gc.getDirectionVectors(getStaticPlot()->getMapArea(), turn, npos, x, y, u, v)) {
       return uv;
     }
 
-    tmpfields[0]->area.setP(StaticPlot::getMapArea().P());
-    tmpfields[1]->area.setP(StaticPlot::getMapArea().P());
+    tmpfields[0]->area.setP(getStaticPlot()->getMapArea().P());
+    tmpfields[1]->area.setP(getStaticPlot()->getMapArea().P());
   }
   uv.push_back(u);
   uv.push_back(v);
@@ -799,8 +799,8 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
   // automatic wind/vector density if step<1
   if (step < 1) {
     // 40 winds or 55 arrows if 1000 pixels
-    float numElements = float(maxElementsX) * StaticPlot::getPhysWidth() / 1000.;
-    float elementSize = StaticPlot::getPlotSize().width() / numElements;
+    float numElements = float(maxElementsX) * getStaticPlot()->getPhysWidth() / 1000.;
+    float elementSize = getStaticPlot()->getPlotSize().width() / numElements;
     step = int(elementSize / dist + 0.75);
     if (step < 1)
       step = 1;
@@ -898,8 +898,8 @@ bool FieldPlot::plotWind()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -1005,12 +1005,12 @@ bool FieldPlot::plotWind()
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
   Projection geoProj;
   geoProj.setGeographic();
-  const Projection& projection = StaticPlot::getMapArea().P();
+  const Projection& projection = getStaticPlot()->getMapArea().P();
 
   glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
   glColor3ubv(poptions.linecolour.RGB());
@@ -1131,7 +1131,7 @@ bool FieldPlot::plotWind()
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   // draw 50-knot flags
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1150,7 +1150,7 @@ bool FieldPlot::plotWind()
     glEnd();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   if (rgb != rgb_default)
     delete[] rgb;
@@ -1208,8 +1208,8 @@ bool FieldPlot::plotValue()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -1258,14 +1258,14 @@ bool FieldPlot::plotValue()
 
   glColor3ubv(poptions.linecolour.RGB());
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
 
   float fontsize = 10. * poptions.labelSize;
-  StaticPlot::getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  StaticPlot::getFontPack()->getCharSize('0', chx, chy);
+  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
   chy *= 0.75;
 
   for (iy = iy1; iy < iy2; iy += step) {
@@ -1304,14 +1304,14 @@ bool FieldPlot::plotValue()
           }
           ostr << value;
           std::string str = ostr.str();
-          StaticPlot::getFontPack()->drawStr(str.c_str(), gx - chx / 2, gy - chy / 2, 0.0);
+          getStaticPlot()->getFontPack()->drawStr(str.c_str(), gx - chx / 2, gy - chy / 2, 0.0);
         }
       }
     }
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
@@ -1341,8 +1341,8 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -1386,16 +1386,16 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(flagl);
   float fontsize = 7. * poptions.labelSize;
 
-  StaticPlot::getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  StaticPlot::getFontPack()->getStringSize("ps00", chx, chy);
+  getStaticPlot()->getFontPack()->getStringSize("ps00", chx, chy);
 
-  StaticPlot::getFontPack()->getCharSize('0', chx, chy);
+  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
 
   // the real height for numbers 0-9 (width is ok)
   chy *= 0.75;
@@ -1582,7 +1582,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   // draw 50-knot flags
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1594,7 +1594,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
     glEnd();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   // plot numbers.................................................
 
@@ -1632,7 +1632,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
       i = iy * nx + ix;
       gx = x[i];
       gy = y[i];
-      if (t[i] != fieldUndef && StaticPlot::getMapSize().isinside(gx, gy)
+      if (t[i] != fieldUndef && getStaticPlot()->getMapSize().isinside(gx, gy)
           && t[i] > poptions.minvalue && t[i] < poptions.maxvalue) {
 
         if (u[i] != fieldUndef && v[i] != fieldUndef)
@@ -1677,7 +1677,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
         }
 
         std::string str = ostr.str();
-        StaticPlot::getFontPack()->getStringSize(str.c_str(), w, h);
+        getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
         //###########################################################################
         //        x1= gx + adx[ipos0] + cdx[ipos0]*w;
         //        y1= gy + ady[ipos0];
@@ -1726,8 +1726,8 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
         y1 = gy + ady[ipos1];
         x2 = x1 + w;
         y2 = y1 + chy;
-        if (StaticPlot::getMapSize().isinside(x1, y1) && StaticPlot::getMapSize().isinside(x2, y2)) {
-          StaticPlot::getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+        if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
+          getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
           // mark used space for number (line around)
           ib1 = int((x1 - bx) * bres);
           ib2 = int((x2 - bx) * bres) + 1;
@@ -1747,7 +1747,7 @@ bool FieldPlot::plotWindAndValue(bool flightlevelChart)
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   delete[] bmap;
 
@@ -1783,8 +1783,8 @@ bool FieldPlot::plotValues()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
 
   if (ix1 > ix2 || iy1 > iy2)
@@ -1814,10 +1814,10 @@ bool FieldPlot::plotValues()
 
   float fontsize = 8. * poptions.labelSize;
 
-  StaticPlot::getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
+  getStaticPlot()->getFontPack()->set("BITMAPFONT", poptions.fontface, fontsize);
 
   float chx, chy;
-  StaticPlot::getFontPack()->getCharSize('0', chx, chy);
+  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
   float hchy = chy * 0.5;
 
   //-----------------------------------------------------------------------
@@ -1898,23 +1898,23 @@ bool FieldPlot::plotValues()
 
         for (size_t j = 0; j < nfields; j++) {
           float * fieldData = fields[j]->data;
-          if (fieldData[i] != fieldUndef && StaticPlot::getMapSize().isinside(gx, gy)) {
+          if (fieldData[i] != fieldUndef && getStaticPlot()->getMapSize().isinside(gx, gy)) {
             int value =
                 (fieldData[i] >= 0.0f) ? int(fieldData[i] + 0.5f) :
                     int(fieldData[i] - 0.5f);
             ostringstream ostr;
             ostr << value;
             std::string str = ostr.str();
-            StaticPlot::getFontPack()->getStringSize(str.c_str(), w, h);
+            getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
 
             int ipos1 = position[j];
             x1 = gx + adx[ipos1] + cdx[ipos1] * w;
             y1 = gy + ady[ipos1];
             x2 = x1 + w;
             y2 = y1 + chy;
-            if (StaticPlot::getMapSize().isinside(x1, y1) && StaticPlot::getMapSize().isinside(x2, y2)) {
+            if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
               glColor3ubv(col[j].RGB());
-              StaticPlot::getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+              getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
             }
           }
         }
@@ -1924,14 +1924,14 @@ bool FieldPlot::plotValues()
           ostringstream ostr;
           ostr << "----";
           std::string str = ostr.str();
-          StaticPlot::getFontPack()->getStringSize(str.c_str(), w, h);
+          getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
 
           x1 = gx + adx[8] + cdx[8] * w;
           y1 = gy + ady[8];
           x2 = x1 + w;
           y2 = y1 + chy;
-          if (StaticPlot::getMapSize().isinside(x1, y1) && StaticPlot::getMapSize().isinside(x2, y2)) {
-            StaticPlot::getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
+          if (getStaticPlot()->getMapSize().isinside(x1, y1) && getStaticPlot()->getMapSize().isinside(x2, y2)) {
+            getStaticPlot()->getFontPack()->drawStr(str.c_str(), x1, y1, 0.0);
           }
         }
 
@@ -1939,7 +1939,7 @@ bool FieldPlot::plotValues()
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(nx, ny, x, y);
@@ -1967,8 +1967,8 @@ bool FieldPlot::plotVector()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -2020,7 +2020,7 @@ bool FieldPlot::plotVector()
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(arrowlength * 1.5);
 
   glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
@@ -2054,7 +2054,7 @@ bool FieldPlot::plotVector()
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -2080,8 +2080,8 @@ bool FieldPlot::plotVectorColour()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -2190,7 +2190,7 @@ bool FieldPlot::plotVectorColour()
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(arrowlength * 1.5);
 
   glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
@@ -2232,7 +2232,7 @@ bool FieldPlot::plotVectorColour()
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   delete[] rgb;
   delete[] limits;
@@ -2263,8 +2263,8 @@ bool FieldPlot::plotDirection()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -2310,7 +2310,7 @@ bool FieldPlot::plotDirection()
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(arrowlength * 1.0);
 
   glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
@@ -2344,7 +2344,7 @@ bool FieldPlot::plotDirection()
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -2372,8 +2372,8 @@ bool FieldPlot::plotDirectionColour()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -2484,7 +2484,7 @@ bool FieldPlot::plotDirectionColour()
   if (iy2 > ny)
     iy2 = ny;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(arrowlength * 1.0);
 
   glLineWidth(poptions.linewidth + 0.1);  // +0.1 to avoid MesaGL coredump
@@ -2524,7 +2524,7 @@ bool FieldPlot::plotDirectionColour()
   }
   glEnd();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   delete[] rgb;
   delete[] limits;
@@ -2580,8 +2580,8 @@ bool FieldPlot::plotContour()
   rny = ny / factor;
 
   // convert gridpoints to correct projection
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, rnx, rny, &x,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
+      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, rnx, rny, &x,
       &y, ix1, ix2, iy1, iy2)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
@@ -2619,10 +2619,10 @@ bool FieldPlot::plotContour()
   ipart[2] = iy1;
   ipart[3] = iy2;
 
-  xylim[0] = StaticPlot::getMapSize().x1;
-  xylim[1] = StaticPlot::getMapSize().x2;
-  xylim[2] = StaticPlot::getMapSize().y1;
-  xylim[3] = StaticPlot::getMapSize().y2;
+  xylim[0] = getStaticPlot()->getMapSize().x1;
+  xylim[1] = getStaticPlot()->getMapSize().x2;
+  xylim[2] = getStaticPlot()->getMapSize().y1;
+  xylim[3] = getStaticPlot()->getMapSize().y2;
 
   if (poptions.valueLabel == 0)
     labfmt[0] = 0;
@@ -2635,8 +2635,8 @@ bool FieldPlot::plotContour()
   if (labfmt[0] != 0) {
     float fontsize = 10. * poptions.labelSize;
 
-    StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
-    StaticPlot::getFontPack()->getCharSize('0', chxlab, chylab);
+    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+    getStaticPlot()->getFontPack()->getCharSize('0', chxlab, chylab);
 
     // the real height for numbers 0-9 (width is ok)
     chylab *= 0.75;
@@ -2724,8 +2724,8 @@ bool FieldPlot::plotContour()
         zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim,
         rlim, idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2,
         ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab,
-        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, StaticPlot::getFontPack(), poptions,
-        StaticPlot::psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
+        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, getStaticPlot()->getFontPack(), poptions,
+        getStaticPlot()->psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
         ftime.hour());
 
   }
@@ -2835,8 +2835,8 @@ bool FieldPlot::plotContour()
         zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim,
         rlim, idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2,
         ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab,
-        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, StaticPlot::getFontPack(), poptions,
-        StaticPlot::psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
+        chylab, ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, getStaticPlot()->getFontPack(), poptions,
+        getStaticPlot()->psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
         ftime.hour());
 
     //restore contour shading
@@ -2848,7 +2848,7 @@ bool FieldPlot::plotContour()
     markExtreme();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -2880,8 +2880,8 @@ bool FieldPlot::plotContour2()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x = 0, *y = 0;
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
@@ -2896,11 +2896,11 @@ bool FieldPlot::plotContour2()
     plotFrame(nx, ny, x, y);
 
   if (poptions.valueLabel)
-    StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, 10 * poptions.labelSize);
+    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, 10 * poptions.labelSize);
 
   {
     METLIBS_LOG_TIME("contour2");
-    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, StaticPlot::getFontPack(),
+    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields[0]->data, x, y, getStaticPlot()->getFontPack(),
         poptions, fieldUndef))
       METLIBS_LOG_ERROR("contour2 error");
   }
@@ -2908,7 +2908,7 @@ bool FieldPlot::plotContour2()
       && !poptions.extremeType.empty())
     markExtreme();
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -2935,8 +2935,8 @@ bool FieldPlot::plotBox_pattern()
   // convert gridbox corners to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3019,14 +3019,14 @@ bool FieldPlot::plotBox_pattern()
         }
         glEnd();
         i2 -= 2;
-        StaticPlot::UpdateOutput();
+        getStaticPlot()->UpdateOutput();
       } else
         i2 = nx;
 
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_POLYGON_STIPPLE);
 
@@ -3051,8 +3051,8 @@ bool FieldPlot::plotBox_alpha_shade()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3135,7 +3135,7 @@ bool FieldPlot::plotBox_alpha_shade()
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_BLEND);
 
@@ -3161,8 +3161,8 @@ bool FieldPlot::plotAlarmBox()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
       iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3281,7 +3281,7 @@ bool FieldPlot::plotAlarmBox()
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   if (poptions.update_stencil)
     plotFrameStencil(nxc, ny + 1, x, y);
@@ -3296,7 +3296,7 @@ bool FieldPlot::plotFillCellExt()
   if (not checkFields(1))
     return false;
   // projection is not equal...
-  if (!StaticPlot::getMapArea().P().isAlmostEqual(fields[0]->area.P())) {
+  if (!getStaticPlot()->getMapArea().P().isAlmostEqual(fields[0]->area.P())) {
     return plotFillCell();
   }
   // plotPixmap does not work when plotting fields
@@ -3491,8 +3491,8 @@ bool FieldPlot::plotPixmap()
 
   rnx = nx / factor;
   rny = ny / factor;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, StaticPlot::getMapArea(), StaticPlot::getMapSize(), true, rnx, rny, &x,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
+      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, rnx, rny, &x,
       &y, ix1, ix2, iy1, iy2, false);
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
@@ -3531,34 +3531,34 @@ bool FieldPlot::plotPixmap()
   //Corners of total image (map coordinates)
   float xmin = 0.;
   float ymin = 0.;
-  if (!StaticPlot::gc.getPoints(fields[0]->area.P(), StaticPlot::getMapArea().P(), npos, &xmin, &ymin))
+  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmin, &ymin))
     return false;
   float xmax = nx * fields[0]->gridResolutionX;
   float ymax = ny * fields[0]->gridResolutionY;
 
-  if (!StaticPlot::gc.getPoints(fields[0]->area.P(), StaticPlot::getMapArea().P(), npos, &xmax, &ymax))
+  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmax, &ymax))
     return false;
 
   // scaling
-  float scalex = StaticPlot::getPhysWidth() / StaticPlot::getPlotSize().width();
-  float scaley = StaticPlot::getPhysHeight() / StaticPlot::getPlotSize().height();
+  float scalex = getStaticPlot()->getPhysWidth() / getStaticPlot()->getPlotSize().width();
+  float scaley = getStaticPlot()->getPhysHeight() / getStaticPlot()->getPlotSize().height();
 
   // Corners of image shown (map coordinates)
   // special care of lat/lon projection global
   // xmin is wrong for these projections...
   // handled in plotfillcellext.
 
-  float grStartx = (StaticPlot::getMapSize().x1 > xmin) ? StaticPlot::getMapSize().x1 : xmin;
-  float grStarty = (StaticPlot::getMapSize().y1 > ymin) ? StaticPlot::getMapSize().y1 : ymin;
+  float grStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? getStaticPlot()->getMapSize().x1 : xmin;
+  float grStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? getStaticPlot()->getMapSize().y1 : ymin;
 
   // Corners of total image (image coordinates)
-  float x1 = StaticPlot::getMapSize().x1;
-  float y1 = StaticPlot::getMapSize().y1;
-  if (!StaticPlot::gc.getPoints(StaticPlot::getMapArea().P(), fields[0]->area.P(), npos, &x1, &y1))
+  float x1 = getStaticPlot()->getMapSize().x1;
+  float y1 = getStaticPlot()->getMapSize().y1;
+  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), npos, &x1, &y1))
     return false;
-  float x2 = StaticPlot::getMapSize().x2;
-  float y2 = StaticPlot::getMapSize().y2;
-  if (!StaticPlot::gc.getPoints(StaticPlot::getMapArea().P(), fields[0]->area.P(), npos, &x2, &y2))
+  float x2 = getStaticPlot()->getMapSize().x2;
+  float y2 = getStaticPlot()->getMapSize().y2;
+  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), npos, &x2, &y2))
     return false;
   x1 /= fields[0]->gridResolutionX;
   x2 /= fields[0]->gridResolutionX;
@@ -3566,25 +3566,25 @@ bool FieldPlot::plotPixmap()
   y2 /= fields[0]->gridResolutionY;
 
   // Corners of image shown (image coordinates)
-  int bmStartx = (StaticPlot::getMapSize().x1 > xmin) ? int(x1) : 0;
-  int bmStarty = (StaticPlot::getMapSize().y1 > ymin) ? int(y1) : 0;
-  int bmStopx = (StaticPlot::getMapSize().x2 < xmax) ? int(x2) : nx - 1;
-  int bmStopy = (StaticPlot::getMapSize().y2 < ymax) ? int(y2) : ny - 1;
+  int bmStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? int(x1) : 0;
+  int bmStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? int(y1) : 0;
+  int bmStopx = (getStaticPlot()->getMapSize().x2 < xmax) ? int(x2) : nx - 1;
+  int bmStopy = (getStaticPlot()->getMapSize().y2 < ymax) ? int(y2) : ny - 1;
 
   // lower left corner of displayed image part, in map coordinates
   // (part of lower left pixel may well be outside screen)
   float xstart = bmStartx * fields[0]->gridResolutionX;
   float ystart = bmStarty * fields[0]->gridResolutionY;
-  if (!StaticPlot::gc.getPoints(fields[0]->area.P(), StaticPlot::getMapArea().P(), npos, &xstart, &ystart))
+  if (!getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, &xstart, &ystart))
     return false;
 
   //Strange, but needed
-  float bmxmove = (StaticPlot::getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
-  float bmymove = (StaticPlot::getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
+  float bmxmove = (getStaticPlot()->getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
+  float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
 
   // for hardcopy
-  float pxstart = (xstart - StaticPlot::getMapSize().x1) * scalex;
-  float pystart = (ystart - StaticPlot::getMapSize().y1) * scaley;
+  float pxstart = (xstart - getStaticPlot()->getMapSize().x1) * scalex;
+  float pystart = (ystart - getStaticPlot()->getMapSize().y1) * scaley;
 
   // update scaling with ratio image to map (was map to screen pixels)
   scalex *= fields[0]->gridResolutionX;
@@ -3615,8 +3615,8 @@ bool FieldPlot::plotPixmap()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // assure valid raster position after OpenGL transformations
-  grStartx += StaticPlot::getPlotSize().width() * 0.0001;
-  grStarty += StaticPlot::getPlotSize().height() * 0.0001;
+  grStartx += getStaticPlot()->getPlotSize().width() * 0.0001;
+  grStarty += getStaticPlot()->getPlotSize().height() * 0.0001;
 
   glPixelZoom(scalex, scaley);
   glPixelStorei(GL_UNPACK_SKIP_ROWS, bmStarty); //pixels
@@ -3637,7 +3637,7 @@ bool FieldPlot::plotPixmap()
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   glDisable(GL_BLEND);
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   //From plotFillCell
   if (poptions.update_stencil) {
     if (factor >= 2)
@@ -3679,8 +3679,8 @@ bool FieldPlot::plotFillCell()
 
   rnx = nx / factor;
   rny = ny / factor;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
-      fields[0]->gridResolutionY * factor, StaticPlot::getMapArea(), StaticPlot::getMapSize(), true, rnx, rny, &x,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX * factor,
+      fields[0]->gridResolutionY * factor, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, rnx, rny, &x,
       &y, ix1, ix2, iy1, iy2, false);
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
@@ -3798,7 +3798,7 @@ bool FieldPlot::plotFillCell()
   glEnd();
   glDisable(GL_BLEND);
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   if (poptions.update_stencil) {
     if (factor >= 2)
@@ -3824,8 +3824,8 @@ bool FieldPlot::plotAlpha_shade()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3885,7 +3885,7 @@ bool FieldPlot::plotAlpha_shade()
     glEnd();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_BLEND);
   glShadeModel(GL_FLAT);
@@ -3907,8 +3907,8 @@ bool FieldPlot::plotFrameOnly()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -3993,7 +3993,7 @@ void FieldPlot::plotFrame(const int nx, const int ny, float *x, float *y)
 
   // glDisable(GL_LINE_STIPPLE);
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   return;
 }
@@ -4063,8 +4063,8 @@ void FieldPlot::plotFilledFrame(const int nx, const int ny, float *x, float *y)
   int ix, iy;
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4ub(StaticPlot::getBackgroundColour().R(), StaticPlot::getBackgroundColour().G(), StaticPlot::getBackgroundColour().B(),
-      StaticPlot::getBackgroundColour().A());
+  glColor4ub(getStaticPlot()->getBackgroundColour().R(), getStaticPlot()->getBackgroundColour().G(), getStaticPlot()->getBackgroundColour().B(),
+      getStaticPlot()->getBackgroundColour().A());
   glDisable(GL_BLEND);
 
   for (iy = iy1; iy < iy2 - 1; iy++) {
@@ -4096,8 +4096,8 @@ bool FieldPlot::markExtreme()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2))
     return false;
 
@@ -4176,10 +4176,10 @@ bool FieldPlot::markExtreme()
   }
 
   float fontsize = 28. * poptions.extremeSize;
-  StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
   float chrx, chry;
-  StaticPlot::getFontPack()->getCharSize('L', chrx, chry);
+  getStaticPlot()->getFontPack()->getCharSize('L', chrx, chry);
   // approx. real height for the character (width is ok)
   chry *= 0.75;
   float size = chry < chrx ? chrx : chry;
@@ -4235,7 +4235,7 @@ bool FieldPlot::markExtreme()
   int p, pp, l, iend, jend, ibest, jbest, ngrad, etype;
   bool ok;
 
-  Rectangle ms = StaticPlot::getMapSize();
+  Rectangle ms = getStaticPlot()->getMapSize();
   ms.setExtension(-size * 0.5);
 
   for (iy = iy1; iy < iy2; iy++) {
@@ -4359,23 +4359,23 @@ bool FieldPlot::markExtreme()
                 ostr.setf(ios::fixed);
                 ostr.precision(poptions.precision);
                 ostr << fpos;
-                StaticPlot::getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
+                getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
                     gy - chry * 0.5, 0.0);
               } else {
-                StaticPlot::getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
+                getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
                     gy - chry * 0.5, 0.0);
                 if (extremeValue != "none") {
                   float fontsize = 18. * poptions.extremeSize;
-                  StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
                   ostringstream ostr;
                   ostr.setf(ios::fixed);
                   ostr.precision(poptions.precision);
                   ostr << fpos;
-                  StaticPlot::getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
+                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
                       gy - chry * 0.8, 0.0);
                 }
                 float fontsize = 28. * poptions.extremeSize;
-                StaticPlot::getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+                getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
               }
 
@@ -4413,8 +4413,8 @@ bool FieldPlot::plotGridLines()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, fields[0]->nx,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, fields[0]->nx,
       fields[0]->ny, &x, &y, ix1, ix2, iy1, iy2))
     return false;
 
@@ -4457,7 +4457,7 @@ bool FieldPlot::plotGridLines()
     glEnd();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   return true;
 }
@@ -4479,8 +4479,8 @@ bool FieldPlot::plotUndefined()
 
   // convert gridpoints to correct projection
   float *x, *y;
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
       iy1, iy2))
     return false;
 
@@ -4502,8 +4502,8 @@ bool FieldPlot::plotUndefined()
     }
   }
 
-  if (poptions.undefColour == StaticPlot::getBackgroundColour())
-    poptions.undefColour = StaticPlot::getBackContrastColour();
+  if (poptions.undefColour == getStaticPlot()->getBackgroundColour())
+    poptions.undefColour = getStaticPlot()->getBackContrastColour();
 
   glColor3ubv(poptions.undefColour.RGB());
 
@@ -4588,7 +4588,7 @@ bool FieldPlot::plotUndefined()
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   glDisable(GL_LINE_STIPPLE);
 
@@ -4615,8 +4615,8 @@ bool FieldPlot::plotNumbers()
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), false, nx, ny, &x, &y, ix1,
+  getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), false, nx, ny, &x, &y, ix1,
       ix2, iy1, iy2);
   if (ix1 > ix2 || iy1 > iy2)
     return false;
@@ -4631,11 +4631,11 @@ bool FieldPlot::plotNumbers()
   iy2++;
 
   float fontsize = 16.;
-  //StaticPlot::getFontPack()->set("BITMAPFONT",poptions.fontface,fontsize);
-  StaticPlot::getFontPack()->set("BITMAPFONT", "bold", fontsize);
+  //getStaticPlot()->getFontPack()->set("BITMAPFONT",poptions.fontface,fontsize);
+  getStaticPlot()->getFontPack()->set("BITMAPFONT", "bold", fontsize);
 
   float chx, chy;
-  StaticPlot::getFontPack()->getCharSize('0', chx, chy);
+  getStaticPlot()->getFontPack()->getCharSize('0', chx, chy);
   // the real height for numbers 0-9 (width is ok)
   chy *= 0.75;
 
@@ -4665,26 +4665,26 @@ bool FieldPlot::plotNumbers()
         ostringstream ostr;
         ostr << setprecision(iprec) << setiosflags(ios::fixed) << field[i];
         str = ostr.str();
-        StaticPlot::getFontPack()->getStringSize(str.c_str(), w, h);
+        getStaticPlot()->getFontPack()->getStringSize(str.c_str(), w, h);
         w *= 0.5;
       } else {
         str = "X";
         w = ww;
       }
 
-      if (StaticPlot::getMapSize().isinside(gx - w, gy - hh)
-          && StaticPlot::getMapSize().isinside(gx + w, gy + hh))
-        StaticPlot::getFontPack()->drawStr(str.c_str(), gx - w, gy - hh, 0.0);
+      if (getStaticPlot()->getMapSize().isinside(gx - w, gy - hh)
+          && getStaticPlot()->getMapSize().isinside(gx + w, gy + hh))
+        getStaticPlot()->getFontPack()->drawStr(str.c_str(), gx - w, gy - hh, 0.0);
     }
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
 
   // draw lines/boxes at borders between gridpoints..............................
 
   // convert gridpoints to correct projection
-  if (!StaticPlot::gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
-      fields[0]->gridResolutionY, StaticPlot::getMapArea(), StaticPlot::getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
+  if (!getStaticPlot()->gc.getGridPoints(fields[0]->area, fields[0]->gridResolutionX,
+      fields[0]->gridResolutionY, getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true, nx, ny, &x, &y, ix1, ix2,
       iy1, iy2))
     return false;
 
@@ -4715,7 +4715,7 @@ bool FieldPlot::plotNumbers()
     glEnd();
   }
 
-  StaticPlot::UpdateOutput();
+  getStaticPlot()->UpdateOutput();
   return true;
 }
 
@@ -4779,10 +4779,10 @@ int FieldPlot::resamplingFactor(int nx, int ny) const
   cx[1] = fields[0]->area.R().x2;
   cy[1] = fields[0]->area.R().y2;
   int npos = 2;
-  StaticPlot::gc.getPoints(fields[0]->area.P(), StaticPlot::getMapArea().P(), npos, cx, cy);
+  getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), npos, cx, cy);
 
-  double xs = StaticPlot::getPlotSize().width() / fabs(cx[1] - cx[0]);
-  double ys = StaticPlot::getPlotSize().height() / fabs(cy[1] - cy[0]);
+  double xs = getStaticPlot()->getPlotSize().width() / fabs(cx[1] - cx[0]);
+  double ys = getStaticPlot()->getPlotSize().height() / fabs(cy[1] - cy[0]);
   double resamplingF = min(xs, ys);
   return int(resamplingF);
 }
