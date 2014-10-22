@@ -864,12 +864,8 @@ bool VprofManager::initVprofData(std::string file, std::string model)
     ok = vpd->readFile();
   } else if (filetype == "GribFile") {
     ok = vpd->readField(filetypes[file], fieldm);
-  } else if (filetypes[file] == "netcdf" || filetypes[file] == "felt") {
-    ok = vpd->readFimex(filesetup[file], computations);
   } else {
-    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << file << "' model '"
-        << model << "' has unknown filetype '" << filetype << "'");
-    return false;
+    ok = vpd->readFimex(filesetup[file], computations);
   }
   if (ok) {
     METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << model << "' filetype '"
