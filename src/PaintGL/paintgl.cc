@@ -108,6 +108,8 @@ void PaintGLContext::makeCurrent()
     transform = QTransform();
     attributesStack.clear();
 
+    clientState = 0;
+
     printing = false;
 }
 
@@ -739,10 +741,24 @@ void glDisable(GLenum cap)
 
 void glDisableClientState(GLenum cap)
 {
+  ENSURE_CTX
+  ctx->clientState &= ~cap;
 }
 
 void glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
+  ENSURE_CTX_AND_PAINTER
+
+  if (!(ctx->clientState & GL_VERTEX_ARRAY))
+    return;
+
+  glBegin(mode);
+  if (ctx->vertexSize == 2 && ctx->vertexType == GL_DOUBLE) {
+    GLdouble *ptr = (GLdouble *)(ctx->vertexPointer);
+    for (GLint i = first * 2; i < (first + count) * 2; i += 2)
+      glVertex2dv(&ptr[i]);
+  }
+  glEnd();
 }
 
 void glDrawBuffer(GLenum mode)
@@ -813,6 +829,8 @@ void glEnable(GLenum cap)
 
 void glEnableClientState(GLenum cap)
 {
+  ENSURE_CTX
+  ctx->clientState |= cap;
 }
 
 void glEnd()
@@ -1312,6 +1330,11 @@ void glVertex3i(GLint x, GLint y, GLint z)
 
 void glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+  ENSURE_CTX
+  ctx->vertexSize = size;
+  ctx->vertexType = type;
+  ctx->vertexStride = stride;
+  ctx->vertexPointer = ptr;
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)

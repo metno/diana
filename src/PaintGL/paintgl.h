@@ -110,6 +110,13 @@ public:
     QHash<GLuint,QImage> textures;
     QHash<qint64,GLuint> textureCache;
 
+    GLuint clientState;
+
+    GLint vertexSize;
+    GLenum vertexType;
+    GLsizei vertexStride;
+    const GLvoid *vertexPointer;
+
     QRect viewport;
     QRectF window;
 
