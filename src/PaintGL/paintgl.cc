@@ -706,10 +706,14 @@ void glDeleteLists(GLuint list, GLsizei range)
 
 void glDeleteTextures(GLsizei n, const GLuint *textures)
 {
+    ENSURE_CTX
+    for (int i = 0; i < n; ++i)
+        ctx->textures.remove(textures[i]);
 }
 
 void glDepthMask(GLboolean flag)
 {
+    // Unimplemented - this may be required for correct frame plotting.
 }
 
 void glDisable(GLenum cap)
@@ -763,6 +767,8 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count)
 
 void glDrawBuffer(GLenum mode)
 {
+    /* Unimplemented - code using this function is unlikely to be used when
+       this OpenGL wrapper is in use. */
 }
 
 void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
@@ -798,6 +804,8 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
 void glEdgeFlag(GLboolean flag)
 {
+    /* Unimplemented - this seems to be called only with GL_TRUE in Diana and
+       should be true by default. */
 }
 
 void glEnable(GLenum cap)
@@ -957,7 +965,8 @@ void glGetIntegerv(GLenum pname, GLint *params)
 
 void glIndexi(GLint c)
 {
-    // Unimplemented
+    /* Unimplemented - either explicitly documented as unused in Diana or
+       used in code that is unlikely to be executed. */
 }
 
 GLboolean glIsEnabled(GLenum cap)
@@ -1171,6 +1180,8 @@ void glRasterPos2f(GLfloat x, GLfloat y)
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
                   GLenum format, GLenum type, GLvoid *pixels)
 {
+    /* Unimplemented - code using this function is unlikely to be used when
+       this OpenGL wrapper is in use. */
 }
 
 void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
@@ -1258,6 +1269,7 @@ void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 void glTexCoord2f(GLfloat s, GLfloat t)
 {
     ENSURE_CTX
+    // Unimplemented - unused in Diana.
 }
 
 void glTexEnvf(GLenum target, GLenum pname, GLfloat param)
@@ -1279,6 +1291,7 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat,
 
 void glTexParameteri(GLenum target, GLenum pname, GLint param)
 {
+    // Unimplemented - unused in Diana.
 }
 
 void glTranslatef(GLfloat x, GLfloat y, GLfloat z)
