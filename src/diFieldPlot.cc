@@ -2651,7 +2651,6 @@ bool FieldPlot::plotContour()
     idraw = 1;
     if (poptions.zeroLine == 0) {
       idraw = 2;
-      zoff = 0.;
     }
   }
 
@@ -2742,7 +2741,6 @@ bool FieldPlot::plotContour()
       idraw2 = 1;
       if (poptions.zeroLine == 0) {
         idraw2 = 2;
-        zoff2 = 0;
       }
     }
   }
