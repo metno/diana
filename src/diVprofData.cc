@@ -60,16 +60,13 @@ VprofData::VprofData(const std::string& filename, const std::string& modelname,
         readFromFimex(false), readFromField(false), fieldManager(NULL), numPos(0),
         numTime(0), numParam(0), numLevel(0), dataBuffer(0)
 {
-
   METLIBS_LOG_SCOPE();
-
 }
 
 VprofData::~VprofData()
 {
   METLIBS_LOG_SCOPE();
-  if (dataBuffer)
-    delete[] dataBuffer;
+  delete[] dataBuffer;
 }
 
 void VprofData::readStationNames(const std::string& stationsfilename)
@@ -182,31 +179,18 @@ bool VprofData::readFimex(const std::string& setup_line,
   if (not inv)
     return false;
 
-  if ( inv->crossections.size() > 0 ) {
-    vector<station> stations;
-
+  if (not inv->crossections.empty()) {
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->points.size() != 1)
         continue;
-      station st;
-      st.id = "";
-      st.name = cs->label;
-      st.lat = cs->points[0].latDeg();
-      st.lon = cs->points[0].lonDeg();
-      st.height = 0;
-      st.barHeight = 0;
-      stations.push_back(st);
-    }
 
-    for (size_t i = 0; i < stations.size(); i++) {
-      posName.push_back(stations[i].name);
-      posLatitude.push_back(stations[i].lat);
-      posLongitude.push_back(stations[i].lon);
+      posName.push_back(cs->label);
+      posLatitude.push_back(cs->points[0].latDeg());
+      posLongitude.push_back(cs->points[0].lonDeg());
       posDeltaLatitude.push_back(0.0);
       posDeltaLongitude.push_back(0.0);
       posTemp.push_back(0);
     }
-
   } else {
 
     if (!stationsFileName.empty()) {
