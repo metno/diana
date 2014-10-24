@@ -71,7 +71,6 @@ VprofData::~VprofData()
 
 void VprofData::readStationNames(const std::string& stationsfilename)
 {
-
   FILE *stationfile;
   char line[1024];
 
@@ -174,7 +173,6 @@ bool VprofData::readFimex(const std::string& setup_line,
     collector->requireField(modelName,fields[i]);
   }
 
-
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
   if (not inv)
     return false;
@@ -192,7 +190,6 @@ bool VprofData::readFimex(const std::string& setup_line,
       posTemp.push_back(0);
     }
   } else {
-
     if (!stationsFileName.empty()) {
       readStationNames(stationsFileName);
     }
@@ -202,7 +199,6 @@ bool VprofData::readFimex(const std::string& setup_line,
       LonLat pos = LonLat::fromDegrees(posLongitude[i],posLatitude[i]);
       collector->getResolver()->addDynamicPointValue(modelName,posName[i],pos);
     }
-
   }
 
   BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
