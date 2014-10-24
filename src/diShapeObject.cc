@@ -312,8 +312,8 @@ bool ShapeObject::plot(Area area, // current area
 		   bool cont, // plot contour-lines
 		   bool keepcont, // keep contourlines for later
                    bool special, // special case, when plotting symbol instead of a point
-                   int symbol, // symbol number to be plottet
-                   std::string dbfcol, // column name in dfb file, text to be plottet
+                   int symbol, // symbol number to be plotted
+                   std::string dbfcol, // column name in dfb file, text to be plotted
  		   GLushort linetype, // contour line type
 		   float linewidth, // contour linewidth
 		   const unsigned char* lcolour, // contour linecolour
@@ -321,20 +321,20 @@ bool ShapeObject::plot(Area area, // current area
 		   const unsigned char* bcolour)
 {
 	float x1, y1, x2, y2;
-        int symbol_rad = 0; 
+    int symbol_rad = 0; 
 	//GLenum errCode;
-  //const GLubyte *errString;
+    //const GLubyte *errString;
 	float scalefactor = gcd/7000000;
 	int fontSizeToPlot = int(2/scalefactor);
 
-        //also scale according to windowheight and width (standard is 500)
-        scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
-//METLIBS_LOG_DEBUG("scalefactor =" <<scalefactor); 
-        fontSizeToPlot = int(fontSizeToPlot*scalefactor);
-        //symbol_rad = int(symbol * scalefactor);
-        symbol_rad = symbol;
-//METLIBS_LOG_DEBUG("symbol_rad = " << symbol_rad); 
-//METLIBS_LOG_DEBUG("fontSizeToPlot = " << fontSizeToPlot); 
+    //also scale according to windowheight and width (standard is 500)
+    scalefactor = sqrtf(getStaticPlot()->getPhysHeight()*getStaticPlot()->getPhysHeight()+getStaticPlot()->getPhysWidth()*getStaticPlot()->getPhysWidth())/500;
+    //METLIBS_LOG_DEBUG("scalefactor =" <<scalefactor); 
+    fontSizeToPlot = int(fontSizeToPlot*scalefactor);
+    //symbol_rad = int(symbol * scalefactor);
+    symbol_rad = symbol;
+    //METLIBS_LOG_DEBUG("symbol_rad = " << symbol_rad); 
+    //METLIBS_LOG_DEBUG("fontSizeToPlot = " << fontSizeToPlot); 
 
 	x1= area.R().x1 -1.;
 	x2= area.R().x2 +1.;
@@ -400,8 +400,8 @@ bool ShapeObject::plot(Area area, // current area
 #define SHPP_FIRSTRING  4
 #define SHPP_RING       5
 */
-        // Retrieving text for plotting from the dbf file and col=dbfcol
-        vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
+    // Retrieving text for plotting from the dbf file and col=dbfcol
+    vector<std::string> tmpDesc=dbfPlotDesc[dbfcol];
 
 	int n=shapes.size();
 #ifdef DEBUGPRINT
