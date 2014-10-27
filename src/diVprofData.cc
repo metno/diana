@@ -145,51 +145,45 @@ void VprofData::readStationNames(const std::string& stationsfilename)
     posTemp.push_back(0);
   }
 }
-bool VprofData::readFimex(const std::string& setup_line,
-    const vector<std::string>& computations)
+bool VprofData::readFimex(vcross::Collector_p collector_, const vector<std::string>& fields_)
 {
 #ifdef USE_VCROSS_V2
   METLIBS_LOG_SCOPE();
 
-  //parameters and computations should be defined in setup
-  Setup_p setup = miutil::make_shared<Setup>();
-  collector = miutil::make_shared<Collector>(setup);
-
-  string_v sources;
-  sources.push_back(setup_line);
-
-  setup->configureSources(sources);
-  setup->configureComputations(computations);
-
-  collector->setupChanged();
-
-  fields.push_back("vp_air_temperature_celsius_ml");
-  fields.push_back("vp_dew_point_temperature_celsius_ml");
-  fields.push_back("vp_x_wind_ml");
-  fields.push_back("vp_y_wind_ml");
-  fields.push_back("vp_relative_humidity_ml");
-  fields.push_back("vp_upward_air_velocity_ml");
-  for ( size_t i = 0; i < fields.size(); ++i ) {
-    collector->requireField(modelName,fields[i]);
-  }
+  collector = collector_;
+  fields = fields_;
 
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
   if (not inv)
     return false;
 
-  if (not inv->crossections.empty()) {
+  if ( inv->crossections.size() > 0 ) {
+    vector<station> stations;
+
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->points.size() != 1)
         continue;
+      station st;
+      st.id = "";
+      st.name = cs->label;
+      st.lat = cs->points[0].latDeg();
+      st.lon = cs->points[0].lonDeg();
+      st.height = 0;
+      st.barHeight = 0;
+      stations.push_back(st);
+    }
 
-      posName.push_back(cs->label);
-      posLatitude.push_back(cs->points[0].latDeg());
-      posLongitude.push_back(cs->points[0].lonDeg());
+    for (size_t i = 0; i < stations.size(); i++) {
+      posName.push_back(stations[i].name);
+      posLatitude.push_back(stations[i].lat);
+      posLongitude.push_back(stations[i].lon);
       posDeltaLatitude.push_back(0.0);
       posDeltaLongitude.push_back(0.0);
       posTemp.push_back(0);
     }
+
   } else {
+
     if (!stationsFileName.empty()) {
       readStationNames(stationsFileName);
     }
@@ -199,6 +193,7 @@ bool VprofData::readFimex(const std::string& setup_line,
       LonLat pos = LonLat::fromDegrees(posLongitude[i],posLatitude[i]);
       collector->getResolver()->addDynamicPointValue(modelName,posName[i],pos);
     }
+
   }
 
   BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {

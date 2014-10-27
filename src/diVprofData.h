@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: diVprofData.h 4551 2014-10-21 13:10:06Z lisbethb $
 
   Copyright (C) 2006 met.no
 
@@ -56,7 +56,7 @@ public:
   void readStationNames(const std::string& stationsfilename);
   bool readFile();
   bool readField(std::string type, FieldManager* fieldm);
-  bool readFimex(const std::string& setup_line, const std::vector<std::string>& computations);
+  bool readFimex(vcross::Collector_p collector_ , const std::vector<std::string>& fields_);
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   std::vector<std::string> getNames() { return posName; }
   std::vector <float> getLatitudes() { return posLatitude; }

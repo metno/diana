@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: diVprofManager.h 4551 2014-10-21 13:10:06Z lisbethb $
 
   Copyright (C) 2006 met.no
 
@@ -35,6 +35,10 @@
 #include <diPrintOptions.h>
 #include <diField/TimeFilter.h>
 #include <diController.h>
+
+#ifdef USE_VCROSS_V2
+#include "vcross_v2/VcrossCollector.h"
+#endif
 
 #include <puTools/miTime.h>
 
@@ -101,14 +105,17 @@ private:
   std::map<std::string,std::string> filenames;
   std::map<std::string,std::string> stationsfilenames;
   std::map<std::string,std::string> filetypes;
-  std::map<std::string,std::string> filesetup;
   std::vector<std::string> computations;
+  std::vector<std::string> fields;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
   std::vector<std::string> dialogFileNames;
-
   std::vector<ObsFilePath>   filePaths;
+
+#ifdef USE_VCROSS_V2
+  vcross::Collector_p collector;
+#endif
 
   std::string amdarStationFile;
   bool amdarStationList;
@@ -158,7 +165,7 @@ private:
 
   std::string getDefaultModel();
   void updateObsFileList();
-  bool initVprofData(std::string file,std::string model);
+  bool initVprofData(std::string model);
   void initStations();
   void initTimes();
   void checkObsTime(int hour=-1);
