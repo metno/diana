@@ -41,7 +41,7 @@
 #include <EditItems/edittext.h>
 #include <EditItems/editcomposite.h>
 
-#include <paint_mode.xpm> // ### for now
+#include <drawing.xpm> // ### for now
 #include <QAction>
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -67,7 +67,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   drawm_ = DrawingManager::instance();
 
   // create an action that can be used to open the dialog from within a menu or toolbar
-  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Drawing Dialog"), this);
+  m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
   m_action->setShortcutContext(Qt::ApplicationShortcut);
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
   m_action->setCheckable(true);

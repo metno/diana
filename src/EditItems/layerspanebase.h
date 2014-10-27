@@ -32,6 +32,8 @@
 #ifndef LAYERSPANEBASE_H
 #define LAYERSPANEBASE_H
 
+#include <EditItems/layer.h>
+
 #include <QWidget>
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
@@ -56,7 +58,6 @@ class QAction;
 
 namespace EditItems {
 
-class Layer;
 class LayerManager;
 class ScrollArea;
 class CheckableLabel;

@@ -82,7 +82,7 @@ public:
   bool isSelected() const;
   void setSelected(bool = true);
   bool isVisible() const;
-  void setVisible(bool);
+  void setVisible(bool, bool = false);
   bool hasUnsavedChanges() const;
   void setUnsavedChanges(bool);
   QString name() const;
@@ -108,6 +108,7 @@ private:
   QSet<QString> srcFiles_;
 signals:
   void updated();
+  void visibilityChanged(bool);
 };
 
 } // namespace

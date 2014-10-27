@@ -35,7 +35,7 @@
 #include <EditItems/toolbar.h>
 #include <EditItems/layergroupspane.h>
 #include <EditItems/editdrawinglayerspane.h>
-#include <paint_mode.xpm> // ### for now
+#include <editdrawing.xpm> // ### for now
 #include <QAction>
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -60,7 +60,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   editm_ = EditItemManager::instance();
 
   // create an action that can be used to open the dialog from within a menu or toolbar
-  m_action = new QAction(QIcon(QPixmap(paint_mode_xpm)), tr("Edit Drawing Dialog"), this);
+  m_action = new QAction(QIcon(QPixmap(editdrawing_xpm)), tr("Edit Drawing Dialog"), this);
   m_action->setShortcutContext(Qt::ApplicationShortcut);
   m_action->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_B);
   m_action->setCheckable(true);

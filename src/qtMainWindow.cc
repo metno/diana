@@ -173,6 +173,8 @@
 #include <ruler.xpm>
 #include <info.xpm>
 #include <autoupdate.xpm>
+#include <drawing.xpm>
+#include <editdrawing.xpm>
 
 //#define DEBUGREDRAWCATCH 
 
@@ -852,6 +854,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   ig.addImageToGallery("spectrum_icon",sp_img);
   QImage st_img(station_xpm);
   ig.addImageToGallery("STATION",st_img);
+  QImage dr_img(drawing_xpm);
+  ig.addImageToGallery(DrawingManager::instance()->plotElementTag().toStdString(), dr_img);
+  QImage edr_img(editdrawing_xpm);
+  ig.addImageToGallery(EditItemManager::instance()->plotElementTag().toStdString(), edr_img);
 
   // Read the avatars to gallery
 
@@ -956,6 +962,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(EditItemManager::instance(), SIGNAL(setWorkAreaCursor(const QCursor &)), SLOT(setWorkAreaCursor(const QCursor &)));
   connect(EditItemManager::instance(), SIGNAL(unsetWorkAreaCursor()), SLOT(unsetWorkAreaCursor()));
   connect(EditItemManager::instance(), SIGNAL(editing(bool)), SLOT(handleEIMEditing(bool)));
+
+  connect(DrawingManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
+  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);
@@ -1200,7 +1209,7 @@ void DianaMainWindow::start()
   dialogChanged = false;
 
   if (showelem){
-    statusbuttons->setPlotElements(contr->getPlotElements());
+    updatePlotElements();
     statusbuttons->show();
   } else {
     statusbuttons->reset();
@@ -1441,6 +1450,26 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
       continue;
     }
   }
+}
+
+std::vector<PlotElement> DianaMainWindow::getPlotElements() const
+{
+  std::vector<PlotElement> pe = contr->getPlotElements();
+
+  std::vector<PlotElement> pe_dm = DrawingManager::instance()->getPlotElements();
+  for (std::vector<PlotElement>::const_iterator it = pe_dm.begin(); it != pe_dm.end(); ++it)
+    pe.push_back(*it);
+
+  std::vector<PlotElement> pe_em = EditItemManager::instance()->getPlotElements();
+  for (std::vector<PlotElement>::const_iterator it = pe_em.begin(); it != pe_em.end(); ++it)
+    pe.push_back(*it);
+
+  return pe;
+}
+
+void DianaMainWindow::updatePlotElements()
+{
+  statusbuttons->setPlotElements(getPlotElements());
 }
 
 void DianaMainWindow::MenuOK()
@@ -1968,7 +1997,7 @@ void DianaMainWindow::connectionClosed()
   om->setPlottype("Hqc_synop",false);
   om->setPlottype("Hqc_list",false);
   MenuOK();
-  if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+  if (showelem) updatePlotElements();
 
 }
 
@@ -2123,14 +2152,14 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   else if (letter.command == qmstrings::showpositions ){
     //description: dataset
     contr->stationCommand("show",letter.description,letter.from);
-    if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+    if (showelem) updatePlotElements();
 
   }
 
   else if (letter.command == qmstrings::hidepositions ){
     //description: dataset
     contr->stationCommand("hide",letter.description,letter.from);
-    if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+    if (showelem) updatePlotElements();
 
   }
 
@@ -2195,7 +2224,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   else if (letter.command == qmstrings::areas ){
     if(letter.data.size()>0)
       contr->makeAreas(letter.common,letter.data[0],letter.from);
-    if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+    if (showelem) updatePlotElements();
   }
 
   else if (letter.command == qmstrings::areacommand ){
@@ -2240,7 +2269,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   else if (letter.command == qmstrings::deletearea ){
     //commondesc dataSet
     contr->areaCommand("delete",letter.common,"all",letter.from);
-    if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+    if (showelem) updatePlotElements();
   }
 
   else if (letter.command == qmstrings::showtext ){
@@ -2297,7 +2326,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
       om->setPlottype("Hqc_list",false);
       MenuOK();
     }
-    if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+    if (showelem) updatePlotElements();
 
   }
 
@@ -2474,7 +2503,7 @@ void DianaMainWindow::autoUpdate()
 void DianaMainWindow::updateGLSlot()
 {
   w->updateGL();
-  if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+  if (showelem) updatePlotElements();
 }
 
 
@@ -2665,7 +2694,7 @@ void DianaMainWindow::timeChanged(){
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
   if (vcWindow) vcWindow->mainWindowTimeChanged(t);
-  if (showelem) statusbuttons->setPlotElements(contr->getPlotElements());
+  if (showelem) updatePlotElements();
 
   //update sat channels in statusbar
   vector<string> channels = contr->getCalibChannels();
@@ -4082,13 +4111,17 @@ void DianaMainWindow::satFileListUpdate()
 
 void DianaMainWindow::toggleElement(PlotElement pe)
 {
-  contr->enablePlotElement(pe);
-  //update sat channels in statusbar
+  if (QString::fromStdString(pe.type) == DrawingManager::instance()->plotElementTag())
+    DrawingManager::instance()->enablePlotElement(pe);
+  else if (QString::fromStdString(pe.type) == EditItemManager::instance()->plotElementTag())
+    EditItemManager::instance()->enablePlotElement(pe);
+  else
+    contr->enablePlotElement(pe);
+
   vector<string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   w->updateGL();
 }
-
 
 void DianaMainWindow::showElements()
 {
@@ -4098,7 +4131,7 @@ void DianaMainWindow::showElements()
     optOnOffAction->setChecked( false );
     showelem= false;
   } else {
-    statusbuttons->setPlotElements(contr->getPlotElements());
+    updatePlotElements();
     statusbuttons->show();
     optOnOffAction->setChecked( true );
     showelem= true;

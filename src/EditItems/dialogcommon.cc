@@ -72,6 +72,12 @@ void CheckableLabel::setChecked(bool enabled)
   }
 }
 
+void CheckableLabel::checkAndNotify(bool enabled)
+{
+  setChecked(enabled);
+  emit checked(enabled);
+}
+
 void CheckableLabel::mousePressEvent(QMouseEvent *event)
 {
   if (clickable_ && (event->button() & Qt::LeftButton))

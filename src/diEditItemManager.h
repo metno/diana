@@ -104,6 +104,8 @@ public:
 
   void setItemsVisibilityForced(bool);
 
+  virtual QString plotElementTag() const;
+
 public slots:
   void abortEditing();
   void completeEditing(QSet<QSharedPointer<DrawingItemBase> > *);

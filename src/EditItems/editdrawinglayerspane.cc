@@ -61,8 +61,6 @@
 #define MILOGGER_CATEGORY "diana.EditDrawingDialog"
 #include <miLogger/miLogging.h>
 
-#include <QDebug>
-
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)

@@ -30,7 +30,6 @@
 */
 
 #include <EditItems/layerspanebase.h>
-#include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/kml.h>
@@ -69,6 +68,8 @@ LayerWidget::LayerWidget(
 
   visibleLabel_ = new CheckableLabel(
         layer_ ? layer_->isVisible() : false, visible_xpm, "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
+  if (layer_)
+    connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
   connect(visibleLabel_, SIGNAL(checked(bool)), SLOT(handleVisibilityChanged(bool)));
   mainLayout->addWidget(visibleLabel_);
 
@@ -176,8 +177,10 @@ void LayerWidget::editName()
 
 void LayerWidget::setState(const QSharedPointer<Layer> &layer)
 {
+  Q_ASSERT(layer);
   layer_ = layer;
   visibleLabel_->setChecked(layer->isVisible());
+  connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
   unsavedChangesLabel_->setChecked(layer->hasUnsavedChanges());
   nameLabel_->setText(layer->name());
   setSelected(layer->isSelected());

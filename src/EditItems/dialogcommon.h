@@ -58,6 +58,8 @@ private:
   QString uncheckedToolTip_;
   bool clickable_;
   void mousePressEvent(QMouseEvent *);
+public slots:
+  void checkAndNotify(bool);
 signals:
   void mouseClicked(QMouseEvent *);
   void checked(bool);

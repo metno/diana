@@ -54,6 +54,8 @@ class QMouseEvent;
 
 class DrawingStyleManager;
 
+class PlotElement;
+
 /**
   \brief Manager for drawing areas and annotations.
 */
@@ -147,6 +149,10 @@ public:
   void setPlotRect(Rectangle r);
   void setEditRect(Rectangle r);
 
+  std::vector<PlotElement> getPlotElements() const;
+  virtual QString plotElementTag() const;
+  void enablePlotElement(const PlotElement &);
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
@@ -165,6 +171,8 @@ protected:
   QSet<QString> loaded_;
 
   EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
+
+  mutable QHash<int, QSharedPointer<EditItems::Layer> > plotElems_;
 
 private:
 

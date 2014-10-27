@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
+  $Id: qtMainWindow.h 4493 2014-09-24 11:23:39Z lisbethb $
 
   Copyright (C) 2006 met.no
 
@@ -269,6 +269,8 @@ private Q_SLOTS:
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
 
+  void updatePlotElements();
+
 private:
   bool push_command;   // push current plot on stack
   bool browsing;       // user browsing through plot-stack
@@ -477,6 +479,8 @@ private:
 
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
+
+  std::vector<PlotElement> getPlotElements() const;
 
   static DianaMainWindow *self;   // singleton instance pointer
 };

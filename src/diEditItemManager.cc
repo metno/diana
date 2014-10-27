@@ -1010,6 +1010,11 @@ void EditItemManager::setItemsVisibilityForced(bool forced)
   repaint(); // or a full handleLayersUpdate()?
 }
 
+QString EditItemManager::plotElementTag() const
+{
+  return "EDITDRAWING";
+}
+
 // Clipboard operations
 
 void EditItemManager::copyItems(const QSet<QSharedPointer<DrawingItemBase> > &items)

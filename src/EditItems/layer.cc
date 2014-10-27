@@ -288,9 +288,11 @@ bool Layer::isVisible() const
   return visible_;
 }
 
-void Layer::setVisible(bool visible)
+void Layer::setVisible(bool visible, bool notify)
 {
   visible_ = visible;
+  if (notify)
+    emit visibilityChanged(visible);
 }
 
 bool Layer::hasUnsavedChanges() const
