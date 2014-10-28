@@ -499,7 +499,10 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     const Time user_time(util::from_miTime(time));
 
     FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, fields[0]));
-    InventoryBase_cp zaxis = air_temperature->zaxis();
+    if ( !air_temperature )
+      return NULL;
+
+  InventoryBase_cp zaxis = air_temperature->zaxis();
     collector->requireField(modelName, zaxis);
 
     model_values_m model_values = vc_fetch_pointValues(collector, pos, user_time);
@@ -509,7 +512,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
     if (zvalues == 0 )
-      return vp;
+      return NULL;
     n2v[VC_PRESSURE] = zvalues;
 
     vc_evaluate_fields(collector, model_values, modelName, fields);
