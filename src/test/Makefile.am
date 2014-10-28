@@ -29,6 +29,7 @@ dianaUnitTests_LDFLAGS = -L.. \
     $(GLTEXT_LDFLAGS) \
     $(GLU_LDFLAGS) \
     $(gtest_LDFLAGS) \
+    $(PNG_LDFLAGS) \
     $(QT4_LDFLAGS)
 
 dianaUnitTests_CPPFLAGS = \
@@ -41,6 +42,7 @@ dianaUnitTests_CPPFLAGS = \
     $(GLTEXT_CPPFLAGS) \
     $(GLU_CPPFLAGS) \
     $(gtest_CFLAGS) \
+    $(PNG_CPPFLAGS) \
     $(QT4_CPPFLAGS)
 
 dianaUnitTests_LDADD = \
@@ -53,6 +55,7 @@ dianaUnitTests_LDADD = \
     $(GLTEXT_LIBS) \
     $(GLU_LIBS) \
     $(gtest_LIBS) \
+    $(PNG_LIBS) \
     $(QT4_LIBS)
 
 endif # HAVE_GTEST

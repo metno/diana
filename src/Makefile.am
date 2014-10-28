@@ -633,7 +633,7 @@ common_cppflags += \
 	$(SHP_CPPFLAGS) \
 	$(CURL_CPPFLAGS) \
 	$(PNG_CPPFLAGS) \
-        $(UU_CPPFLAGS)
+	$(UU_CPPFLAGS)
 
 common_ldflags += \
 	$(DIFIELD_LDFLAGS) \
@@ -644,7 +644,7 @@ common_ldflags += \
 	$(SHP_LDFLAGS) \
 	$(CURL_LDFLAGS) \
 	$(PNG_LDFLAGS) \
-        $(UU_LDFLAGS)
+	$(UU_LDFLAGS)
 
 common_ldadd += \
 	$(DIFIELD_LIBS) \
@@ -655,7 +655,7 @@ common_ldadd += \
 	$(SHP_LIBS) \
 	$(CURL_LIBS) \
 	$(PNG_LIBS) \
-        $(UU_LIBS)
+	$(UU_LIBS)
 
 # Additional source code for SMHI support
 if WITH_SMHI
