@@ -104,8 +104,10 @@ all-local: $(PERLMAKEFILE) $(PERLFILES)
 clean-local: $(PERLMAKEFILE)
 	make -C Metno-Bdiana $(AM_MAKEFLAGS) clean
 
+if !WITH_EMBEDDED
 check-local: $(PERLMAKEFILE)
 	make -C Metno-Bdiana $(AM_MAKEFLAGS) test
+endif
 
 install-exec-local:
 	make -C Metno-Bdiana $(AM_MAKEFLAGS) DESTDIR=$(DESTDIR) install
