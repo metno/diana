@@ -3019,6 +3019,10 @@ static int parseAndProcess(istream &is)
         qpbuffer = new QGLPixelBuffer(xsize, ysize, format, 0);
 
         qpbuffer->makeCurrent();
+
+        if (not MAKE_CONTROLLER())
+          return 99;
+
         main_controller->restartFontManager();
 
       } else if (canvasType == qt_glframebuffer) {
