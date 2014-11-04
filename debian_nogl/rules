@@ -1,21 +1,13 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-METNO_CONFIG = @METNO_CONFIG@
-METNO_SUFFIX = @METNO_SUFFIX@
-
-include /usr/share/metno-devscripts/metno_rules.mk
-
 export DH_VERBOSE=1
 
 # Support parallel building.
 %:
 	dh $@ --parallel
 
-#confflags = "CXX='ccache g++'"
-confflags =
-
-do-configure:
+override_dh_auto_configure:
 	./autogen.sh
 	./configure $(confflags) \
 	    --disable-silent-rules \
@@ -25,5 +17,4 @@ do-configure:
 	    --disable-silent-rules \
 	    --enable-geotiff \
 	    --enable-embedded \
-	    --program-suffix=-nogl \
-	    CC="ccache gcc" CXX="ccache g++"
+	    --program-suffix=-nogl
