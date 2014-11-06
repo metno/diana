@@ -42,6 +42,7 @@
 #include "diLinetype.h"
 #include "diUtilities.h"
 
+#include <diField/diMetConstants.h>
 #include <puTools/miStringFunctions.h>
 
 #include <cmath>
@@ -1355,8 +1356,10 @@ void VprofDiagram::plotDiagram()
       for (it = it1; it <= it2; it += itstep) {
         t1 = it;
         x = (t1 + 100.) * 0.2;
-        i = int(x);
-        esat = ewt[i] + (ewt[i + 1] - ewt[i]) * (x - i);
+        if (MetNo::Constants::ewt_defined(x))
+            esat = MetNo::Constants::ewt_value(x);
+        else
+          esat = 0;
         qsat = eps * esat / pptab[k1000];
         tcl1 = cp * (t1 + t0);
         qcl1 = qsat;
@@ -1386,8 +1389,9 @@ void VprofDiagram::plotDiagram()
             for (int iteration = 0; iteration < 5; iteration++) {
               t = tcl / cp - t0;
               x = (t + 100.) * 0.2;
-              i = int(x);
-              esat = ewt[i] + (ewt[i + 1] - ewt[i]) * (x - i);
+              if (MetNo::Constants::ewt_undefined(x))
+                break;
+              esat = MetNo::Constants::ewt_value(x);
               qsat = eps * esat / p;
               dq = qcl - qsat;
               a1 = cplr * qcl / tcl;
@@ -1452,8 +1456,9 @@ void VprofDiagram::plotDiagram()
         n = 1;
         kstop = 0;
         for (k = kmin; k <= kpmax; k++) {
+          using namespace MetNo::Constants;
           esat = qsat * pptab[k] / eps;
-          while (ewt[n] < esat && n < mewtab - 1)
+          while (ewt[n] < esat && n < N_EWT - 1)
             n++;
           x = (esat - ewt[n - 1]) / (ewt[n] - ewt[n - 1]);
           t = -100. + (n - 1. + x) * 5.;

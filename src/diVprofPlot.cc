@@ -37,9 +37,10 @@
 #include "diColour.h"
 #include "diUtilities.h"
 
+#include <diField/diMetConstants.h>
+
 #include <cmath>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.VprofPlot"
@@ -418,27 +419,27 @@ bool VprofPlot::plot(VprofOptions *vpopt, int nplot)
 void VprofPlot::relhum(const vector<float>& tt, const vector<float>& td)
 {
   METLIBS_LOG_SCOPE();
+  using namespace MetNo::Constants;
 
   int nlev= tt.size();
   rhum.resize(nlev);
-  int i;
-  float x,et,etd,rhx;
+  float et,etd,rhx;
 
   for (int k=0; k<nlev; k++) {
-    x= (tt[k]+100.)*0.2;
-    i= int(x);
-    if (i<0) i= 0;
-    if (i>mewtab-2) i= mewtab-2;
-    et= ewt[i]+(ewt[i+1]-ewt[i])*(x-i);
-    x= (td[k]+100.)*0.2;
-    i= int(x);
-    if (i<0) i= 0;
-    if (i>mewtab-2) i= mewtab-2;
-    etd= ewt[i]+(ewt[i+1]-ewt[i])*(x-i);
-    rhx= 100.*etd/et;
-    if (rhx<  0.) rhx=   0.;
-    if (rhx>100.) rhx= 100.;
-    rhum[k]= rhx;
+    const float xt = (tt[k]+100.)*0.2;
+    const float xtd = (td[k]+100.)*0.2;
+    if (ewt_defined(xt) and ewt_defined(xtd)) {
+      et  = ewt_value(xt);
+      etd = ewt_value(xtd);
+      rhx = 100.*etd/et;
+    } else {
+      rhx = 0;
+    }
+    if (rhx < 0)
+        rhx = 0;
+    if (rhx > 100)
+        rhx = 100;
+    rhum[k] = rhx;
   }
 }
 
@@ -477,18 +478,19 @@ void VprofPlot::ducting(const vector<float>& pp,
   }
 
   duct.resize(nlev);
-  int   i,k;
-  float x,etd,tk,pi1,pi2,th1,th2,dz;
+  int   k;
+  float x,tk,pi1,pi2,th1,th2,dz;
 
   for (k=0; k<nlev; k++) {
     x= (td[k]+100.)*0.2;
-    i= int(x);
-    if (i<0) i= 0;
-    if (i>mewtab-2) i= mewtab-2;
-    etd= ewt[i]+(ewt[i+1]-ewt[i])*(x-i);
-    tk= tt[k] + t0;
-    ////duct[k]= 77.6*(pp[k]/tk) + 373000.*etd/(tk*tk);
-    duct[k]= 77.6*(pp[k]/tk) + 373256.*etd/(tk*tk);
+    if (MetNo::Constants::ewt_defined(x)) {
+      const float etd = MetNo::Constants::ewt_value(x);
+      tk= tt[k] + t0;
+      ////duct[k]= 77.6*(pp[k]/tk) + 373000.*etd/(tk*tk);
+      duct[k]= 77.6*(pp[k]/tk) + 373256.*etd/(tk*tk);
+    } else {
+      duct[k]= 0;
+    }
   }
 
   pi2= cp*powf(pp[0]*p0inv,rcp);
