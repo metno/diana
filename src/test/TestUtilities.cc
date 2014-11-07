@@ -28,8 +28,12 @@
 */
 
 #include <diUtilities.h>
+#include <diField/TimeFilter.h>
+#include <puCtools/puCglob.h> // for GLOB_BRACE
 #include <gtest/gtest.h>
 #include <cstring>
+
+static const std::string SRC_TEST = std::string(TOP_SRCDIR) + "/src/test/";
 
 TEST(TestUtilities, StartsWith)
 {
@@ -53,4 +57,21 @@ TEST(TestUtilities, AppendCharsSplitNewline)
   EXPECT_EQ("World!", lines[1]);
   EXPECT_EQ("Hello",  lines[2]);
   EXPECT_EQ("Diana!", lines[3]);
+}
+
+TEST(TestUtilities, GlobTimeFilter)
+{
+  TimeFilter tf;
+  const std::string pattern = SRC_TEST + "test_utilities_[yyyymmddHHMM]+???H??M";
+  std::string filtered = pattern;
+  tf.initFilter(filtered, true);
+  EXPECT_EQ(SRC_TEST + "test_utilities_????????????+???H??M", filtered);
+
+  const diutil::string_v matches = diutil::glob(filtered, GLOB_BRACE);
+
+  EXPECT_EQ(1, matches.size());
+  if (matches.size() >= 1) {
+    const std::string ex = SRC_TEST + "test_utilities_201409121200+000H00M";
+    EXPECT_EQ(ex, matches.front());
+  }
 }
