@@ -483,38 +483,18 @@ void DrawingManager::drawSymbol(const QString &name, float x, float y, int width
   if (!symbols.contains(name))
     return;
 
-  GLuint texture = 0;
-#if defined(USE_PAINTGL)
-  PaintGLContext *glctx = const_cast<PaintGLContext *>(PaintGLContext::currentContext());
-#else
-  QGLContext *glctx = const_cast<QGLContext *>(QGLContext::currentContext());
-#endif
-  QImage image(width, height, QImage::Format_ARGB32);
+  // retrieve the image for this size (creating one if necessary)
+  const QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
+  if (!imageCache.contains(key))
+    imageCache.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
+  const QImage image = imageCache.value(key);
 
-  // If an existing image is cached then delete the texture and prepare to
-  // create another.
-  bool found = false;
-  QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
-
-  if (imageCache.contains(key)) {
-    image = imageCache[key];
-    texture = symbolTextures[key];
-    found = true;
-  }
-
-  if (!found) {
-    image = getSymbolImage(name, width, height);
-
-    texture = glctx->bindTexture(image.mirrored());
-    symbolTextures[key] = texture;
-    imageCache[key] = image;
-  }
-
+  // draw the image
   glPushAttrib(GL_COLOR_BUFFER_BIT|GL_POLYGON_BIT);
-  glColor4f(1, 1, 1, 1);
   glEnable(GL_BLEND);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glctx->drawTexture(QPointF(x, y), texture);
+  glRasterPos2f(x, y);
+  glDrawPixels(image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
   glPopAttrib();
 }
 

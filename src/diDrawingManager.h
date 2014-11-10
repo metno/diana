@@ -180,7 +180,6 @@ private:
   QString workDir;
 
   QMap<QString, QByteArray> symbols;
-  QHash<QString, GLuint> symbolTextures;
   QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
 
