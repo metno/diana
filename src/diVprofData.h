@@ -100,7 +100,7 @@ private:
   std::vector<std::string> mainText;
   std::vector<int>      paramId;
   std::vector<float>    paramScale;
-  VprofPlot        *vProfPlot;
+  std::auto_ptr<VprofPlot> vProfPlot;
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
 
@@ -111,5 +111,12 @@ private:
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
 };
+
+extern const char VP_AIR_TEMPERATURE[];
+extern const char VP_DEW_POINT_TEMPERATURE[];
+extern const char VP_X_WIND[];
+extern const char VP_Y_WIND[];
+extern const char VP_RELATIVE_HUMIDITY[];
+extern const char VP_OMEGA[]; // upward air velocity in Pa/s
 
 #endif

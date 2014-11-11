@@ -273,12 +273,12 @@ void VprofManager::parseSetup()
 
   collector->setupChanged();
 
-  fields.push_back("vp_air_temperature_celsius_ml");
-  fields.push_back("vp_dew_point_temperature_celsius_ml");
-  fields.push_back("vp_x_wind_ml");
-  fields.push_back("vp_y_wind_ml");
-  fields.push_back("vp_relative_humidity_ml");
-  fields.push_back("vp_upward_air_velocity_ml");
+  fields.push_back(VP_AIR_TEMPERATURE);
+  fields.push_back(VP_DEW_POINT_TEMPERATURE);
+  fields.push_back(VP_X_WIND);
+  fields.push_back(VP_Y_WIND);
+  fields.push_back(VP_RELATIVE_HUMIDITY);
+  fields.push_back(VP_OMEGA);
   for(size_t i=0;i<models.size();i++){
     for ( size_t j = 0; j < fields.size(); ++j ) {
       METLIBS_LOG_DEBUG(LOGVAL(models[i]) << LOGVAL(fields[j]));
@@ -292,9 +292,7 @@ void VprofManager::parseSetup()
     METLIBS_LOG_ERROR("Missing section " << section2 << " in setupfile.");
 
   }
-
 }
-
 
 void VprofManager::updateObsFileList()
 {

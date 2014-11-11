@@ -41,7 +41,6 @@
 #include "vcross_v2/VcrossEvaluate.h"
 #include <vcross_v2/VcrossComputer.h>
 #endif
-//#include <boost/make_shared.hpp>
 #include <cstdio>
 #include <iomanip>
 #include <sstream>
@@ -53,6 +52,13 @@
 using namespace std;
 using namespace miutil;
 using namespace vcross;
+
+const char VP_AIR_TEMPERATURE[]       = "vp_air_temperature_celsius";
+const char VP_DEW_POINT_TEMPERATURE[] = "vp_dew_point_temperature_celsius";
+const char VP_X_WIND[]                = "vp_x_wind_ms";
+const char VP_Y_WIND[]                = "vp_y_wind_ms";
+const char VP_RELATIVE_HUMIDITY[]     = "vp_relative_humidity";
+const char VP_OMEGA[]                 = "vp_omega_pas";
 
 VprofData::VprofData(const std::string& filename, const std::string& modelname,
     const std::string& stationsfilename) :
@@ -163,20 +169,9 @@ bool VprofData::readFimex(vcross::Collector_p collector_, const vector<std::stri
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->points.size() != 1)
         continue;
-      station st;
-      st.id = "";
-      st.name = cs->label;
-      st.lat = cs->points[0].latDeg();
-      st.lon = cs->points[0].lonDeg();
-      st.height = 0;
-      st.barHeight = 0;
-      stations.push_back(st);
-    }
-
-    for (size_t i = 0; i < stations.size(); i++) {
-      posName.push_back(stations[i].name);
-      posLatitude.push_back(stations[i].lat);
-      posLongitude.push_back(stations[i].lon);
+      posName.push_back(cs->label);
+      posLatitude.push_back(cs->points[0].latDeg());
+      posLongitude.push_back(cs->points[0].lonDeg());
       posDeltaLatitude.push_back(0.0);
       posDeltaLongitude.push_back(0.0);
       posTemp.push_back(0);
@@ -211,17 +206,14 @@ bool VprofData::readFimex(vcross::Collector_p collector_, const vector<std::stri
     progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
   }
   readFromFimex = true;
-  vProfPlot = 0;
-
-  //return success;
+  vProfPlot.reset(0);
 #endif
   return true;
 }
 
 bool VprofData::readField(std::string type, FieldManager* fieldm)
 {
-  METLIBS_LOG_DEBUG(
-      "++ VprofData::readField  model= " << modelName << " type=" << type << " path=" << fileName);
+  METLIBS_LOG_SCOPE("model= " << modelName << " type=" << type << " path=" << fileName);
 
   std::string correctFileName = stationsFileName;
   miutil::replace(correctFileName, modelName, "");
@@ -238,7 +230,7 @@ bool VprofData::readField(std::string type, FieldManager* fieldm)
     progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
   }
   readFromField = true;
-  vProfPlot = 0;
+  vProfPlot.reset(0);
 
   return success;
   //return true;
@@ -246,13 +238,13 @@ bool VprofData::readField(std::string type, FieldManager* fieldm)
 
 bool VprofData::readFile()
 {
-  METLIBS_LOG_DEBUG("++ VprofData::readFile  fileName= " << fileName);
+  METLIBS_LOG_SCOPE("fileName= " << fileName);
 
   // reading and storing all information and unpacked data
 
-  int bufferlength = 512;
+  const int bufferlength = 512;
 
-  FtnVfile *vfile = new FtnVfile(fileName, bufferlength);
+  std::auto_ptr<FtnVfile> vfile(new FtnVfile(fileName, bufferlength));
 
   int length, ctype;
   int *head = 0, *content = 0, *posid = 0, *tmp = 0;
@@ -434,6 +426,8 @@ bool VprofData::readFile()
     length = numPos * numTime * numParam * numLevel;
 
     // dataBuffer[numPos][numTime][numParam][numLevel]
+    delete dataBuffer;
+    dataBuffer = 0; // in case of exception
     dataBuffer = vfile->getShortInt(length);
 
   }  // end of try
@@ -443,28 +437,35 @@ bool VprofData::readFile()
     success = false;
   }
 
-  delete vfile;
-  if (head)
-    delete[] head;
-  if (content)
-    delete[] content;
-  if (posid)
-    delete[] posid;
-  if (tmp)
-    delete[] tmp;
+  delete[] head;
+  delete[] content;
+  delete[] posid;
+  delete[] tmp;
 
   return success;
 }
 
+static void copy_vprof_values(const name2value_t& n2v, const std::string& id, std::vector<float>& values_out)
+{
+  name2value_t::const_iterator itN = n2v.find(id);
+  if (itN == n2v.end() or not itN->second) {
+    values_out.clear();
+    return;
+  }
+
+  Values_cp values = itN->second;
+  Values::ShapeIndex idx(values->shape());
+  for (int i=0; i<values->shape().length(0); ++i) {
+    idx.set(0, i);
+    values_out.push_back(values->value(idx));
+  }
+}
+
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 {
-  METLIBS_LOG_DEBUG(
-      "++ VprofData::getData  " << name << "  " << time << "  " << modelName);
-
-  VprofPlot *vp = 0;
+  METLIBS_LOG_SCOPE(name << "  " << time << "  " << modelName);
 
   int iPos = 0;
-
   while (iPos < numPos && posName[iPos] != name)
     iPos++;
 
@@ -473,10 +474,9 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     iTime++;
 
   if (iPos == numPos || iTime == numTime)
-    return vp;
+    return 0;
 
-  vp = new VprofPlot();
-
+  std::auto_ptr<VprofPlot> vp(new VprofPlot());
   vp->text.index = -1;
   vp->text.prognostic = true;
   vp->text.modelName = modelName;
@@ -491,18 +491,17 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   vp->maxLevels = numLevel;
   vp->windInKnots = true;
 
-
   if (readFromFimex) {
 #ifdef USE_VCROSS_V2
 
-    LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
+    const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
 
-    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, fields[0]));
-    if ( !air_temperature )
-      return NULL;
+    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, VP_AIR_TEMPERATURE));
+    if (not air_temperature)
+      return 0;
 
-  InventoryBase_cp zaxis = air_temperature->zaxis();
+    InventoryBase_cp zaxis = air_temperature->zaxis();
     collector->requireField(modelName, zaxis);
 
     model_values_m model_values = vc_fetch_pointValues(collector, pos, user_time);
@@ -511,72 +510,19 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     name2value_t& n2v = itM->second;
 
     Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
-    if (zvalues == 0 )
-      return NULL;
+    if (not zvalues)
+      return 0;
     n2v[VC_PRESSURE] = zvalues;
 
     vc_evaluate_fields(collector, model_values, modelName, fields);
 
-    name2value_t::const_iterator itN = n2v.find("vp_air_temperature_celsius_ml");
-    if ( itN != n2v.end()) {
-      Values_cp t_values = itN->second;
-      Values::ShapeIndex idx(t_values->shape());
-      for (int i=0; i<t_values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->tt.push_back(t_values->value(idx));
-      }
-      Values_cp z_values = n2v[VC_PRESSURE];
-      Values::ShapeIndex idx_z(z_values->shape());
-      for (int i=0; i<z_values->shape().length(0); ++i) {
-        idx_z.set(0, i);
-        vp->ptt.push_back(z_values->value(idx_z));
-      }
-    }
-    itN = n2v.find("vp_dew_point_temperature_celsius_ml");
-    if ( itN != n2v.end()) {
-      Values_cp values = itN->second;
-      Values::ShapeIndex idx(values->shape());
-      for (int i=0; i<values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->td.push_back(values->value(idx));
-      }
-    }
-    itN = n2v.find("vp_x_wind_ml");
-    if ( itN != n2v.end()) {
-      Values_cp values = itN->second;
-      Values::ShapeIndex idx(values->shape());
-      for (int i=0; i<values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->uu.push_back(values->value(idx));
-      }
-    }
-    itN = n2v.find("vp_y_wind_ml");
-    if ( itN != n2v.end()) {
-      Values_cp values = itN->second;
-      Values::ShapeIndex idx(values->shape());
-      for (int i=0; i<values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->vv.push_back(values->value(idx));
-      }
-    }
-    itN = n2v.find("vp_relative_humidity_ml");
-    if ( itN != n2v.end()) {
-      Values_cp values = itN->second;
-      Values::ShapeIndex idx(values->shape());
-      for (int i=0; i<values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->rhum.push_back(values->value(idx));
-      }
-    }
-    itN = n2v.find("vp_upward_air_velocity_ml");
-    if ( itN != n2v.end()) {
-      Values_cp values = itN->second;
-      Values::ShapeIndex idx(values->shape());
-      for (int i=0; i<values->shape().length(0); ++i) {
-        idx.set(0, i);
-        vp->om.push_back(values->value(idx)/100.);
-      }
-    }
+    copy_vprof_values(n2v, VP_AIR_TEMPERATURE, vp->tt);
+    copy_vprof_values(n2v, VC_PRESSURE, vp->ptt);
+    copy_vprof_values(n2v, VP_DEW_POINT_TEMPERATURE, vp->td);
+    copy_vprof_values(n2v, VP_X_WIND, vp->uu);
+    copy_vprof_values(n2v, VP_Y_WIND, vp->vv);
+    copy_vprof_values(n2v, VP_RELATIVE_HUMIDITY, vp->rhum);
+    copy_vprof_values(n2v, VP_OMEGA, vp->om);
 
     vp->windInKnots = false;
     numLevel = vp->ptt.size();
@@ -585,120 +531,66 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
   } else if (readFromField) {
 
-    size_t k;
-
-    if ((name == vProfPlotName) && (time == vProfPlotTime)) {
+    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get()) {
       METLIBS_LOG_DEBUG("returning cached VProfPlot");
-      for (k = 0; k < vProfPlot->ptt.size(); k++)
-        vp->ptt.push_back(vProfPlot->ptt[k]);
-      for (k = 0; k < vProfPlot->tt.size(); k++)
-        vp->tt.push_back(vProfPlot->tt[k]);
-      for (k = 0; k < vProfPlot->ptd.size(); k++)
-        vp->ptd.push_back(vProfPlot->ptd[k]);
-      for (k = 0; k < vProfPlot->td.size(); k++)
-        vp->td.push_back(vProfPlot->td[k]);
-      for (k = 0; k < vProfPlot->puv.size(); k++)
-        vp->puv.push_back(vProfPlot->puv[k]);
-      for (k = 0; k < vProfPlot->uu.size(); k++)
-        vp->uu.push_back(vProfPlot->uu[k]);
-      for (k = 0; k < vProfPlot->vv.size(); k++)
-        vp->vv.push_back(vProfPlot->vv[k]);
-      for (k = 0; k < vProfPlot->om.size(); k++)
-        vp->om.push_back(vProfPlot->om[k]);
-      for (k = 0; k < vProfPlot->pom.size(); k++)
-        vp->pom.push_back(vProfPlot->pom[k]);
+
+      vp->ptt = vProfPlot->ptt;
+      vp->tt  = vProfPlot->tt;
+      vp->ptd = vProfPlot->ptd;
+      vp->td  = vProfPlot->td;
+      vp->puv = vProfPlot->puv;
+      vp->uu  = vProfPlot->uu;
+      vp->vv  = vProfPlot->vv;
+      vp->om  = vProfPlot->om;
+      vp->pom = vProfPlot->pom;
+
     } else {
-      bool success = fieldManager->makeVProf(modelName, validTime[iTime],
-          posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
-          vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom);
-      if (!success) {
-        delete vp;
-        return NULL;
-      }
+      if (not fieldManager->makeVProf(modelName, validTime[iTime],
+              posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
+              vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom))
+        return 0;
 
       numLevel = vp->tt.size();
       vp->maxLevels = numLevel;
 
-      vProfPlotTime = miTime(time);
-      vProfPlotName = std::string(name);
-      if (vProfPlot)
-        delete vProfPlot;
-      vProfPlot = new VprofPlot();
-      for (k = 0; k < vp->ptt.size(); k++)
-        vProfPlot->ptt.push_back(vp->ptt[k]);
-      for (k = 0; k < vp->tt.size(); k++)
-        vProfPlot->tt.push_back(vp->tt[k]);
-      for (k = 0; k < vp->ptd.size(); k++)
-        vProfPlot->ptd.push_back(vp->ptd[k]);
-      for (k = 0; k < vp->td.size(); k++)
-        vProfPlot->td.push_back(vp->td[k]);
-      for (k = 0; k < vp->puv.size(); k++)
-        vProfPlot->puv.push_back(vp->puv[k]);
-      for (k = 0; k < vp->uu.size(); k++)
-        vProfPlot->uu.push_back(vp->uu[k]);
-      for (k = 0; k < vp->vv.size(); k++)
-        vProfPlot->vv.push_back(vp->vv[k]);
-      for (k = 0; k < vp->om.size(); k++)
-        vProfPlot->om.push_back(vp->om[k]);
-      for (k = 0; k < vp->pom.size(); k++)
-        vProfPlot->pom.push_back(vp->pom[k]);
+      vProfPlotTime = time;
+      vProfPlotName = name;
+
+      vProfPlot.reset(new VprofPlot());
+      vProfPlot->ptt = vp->ptt;
+      vProfPlot->tt  = vp->tt;
+      vProfPlot->ptd = vp->ptd;
+      vProfPlot->td  = vp->td;
+      vProfPlot->puv = vp->puv;
+      vProfPlot->uu  = vp->uu;
+      vProfPlot->vv  = vp->vv;
+      vProfPlot->om  = vp->om;
+      vProfPlot->pom = vp->pom;
     }
-    //iPos = 0;
-    //iTime = 0;
-    for (k = 0; k < vp->ptt.size(); k++)
-      METLIBS_LOG_DEBUG("ptt["<<k<<"]: " <<vp->ptt[k]);
-    for (k = 0; k < vp->tt.size(); k++)
-      METLIBS_LOG_DEBUG("tt["<<k<<"]: " <<vp->tt[k]);
-    for (k = 0; k < vp->ptd.size(); k++)
-      METLIBS_LOG_DEBUG("ptd["<<k<<"]: " <<vp->ptd[k]);
-    for (k = 0; k < vp->td.size(); k++)
-      METLIBS_LOG_DEBUG("td["<<k<<"]: " <<vp->td[k]);
-    for (k = 0; k < vp->puv.size(); k++)
-      METLIBS_LOG_DEBUG("puv["<<k<<"]: " <<vp->puv[k]);
-    for (k = 0; k < vp->uu.size(); k++)
-      METLIBS_LOG_DEBUG("uu["<<k<<"]: " <<vp->uu[k]);
-    for (k = 0; k < vp->vv.size(); k++)
-      METLIBS_LOG_DEBUG("vv["<<k<<"]: " <<vp->vv[k]);
-    for (k = 0; k < vp->om.size(); k++)
-      METLIBS_LOG_DEBUG("om["<<k<<"]: " <<vp->om[k]);
-    for (k = 0; k < vp->pom.size(); k++)
-      METLIBS_LOG_DEBUG("pom["<<k<<"]: " <<vp->pom[k]);
+
   } else {
-
-    int j, k, n;
-    float scale;
-
-    for (n = 0; n < numParam; n++) {
-      j = iPos * numTime * numParam * numLevel + iTime * numParam * numLevel
-          + n * numLevel;
-      scale = paramScale[n];
+    for (int n = 0; n < numParam; n++) {
+      const float scale = paramScale[n];
+      int j = iPos * numTime * numParam * numLevel + iTime * numParam * numLevel + n * numLevel;
       if (paramId[n] == 8) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->ptt.push_back(scale * dataBuffer[j++]);
       } else if (paramId[n] == 4) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->tt.push_back(scale * dataBuffer[j++]);
       } else if (paramId[n] == 5) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->td.push_back(scale * dataBuffer[j++]);
       } else if (paramId[n] == 2) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->uu.push_back(scale * dataBuffer[j++]);
       } else if (paramId[n] == 3) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->vv.push_back(scale * dataBuffer[j++]);
       } else if (paramId[n] == 13) {
-        for (k = 0; k < numLevel; k++)
+        for (int k = 0; k < numLevel; k++)
           vp->om.push_back(scale * dataBuffer[j++]);
       }
-    }
-    for (k = 0; k < numLevel; k++) {
-      METLIBS_LOG_DEBUG("ptt["<<k<<"]" <<vp->ptt[k]);
-      METLIBS_LOG_DEBUG("tt["<<k<<"]" <<vp->tt[k]);
-      METLIBS_LOG_DEBUG("td["<<k<<"]" <<vp->td[k]);
-      METLIBS_LOG_DEBUG("uu["<<k<<"]" <<vp->uu[k]);
-      METLIBS_LOG_DEBUG("vv["<<k<<"]" <<vp->vv[k]);
-      METLIBS_LOG_DEBUG("om["<<k<<"]" <<vp->om[k]);
     }
   }
 
@@ -706,16 +598,14 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   // dd,ff and significant levels (as in temp observation...)
   if (int(vp->uu.size()) == numLevel && int(vp->vv.size()) == numLevel) {
     float degr = 180. / 3.141592654;
-    float uew, vns;
-    int dd, ff;
     int kmax = 0;
     for (size_t k = 0; k < size_t(numLevel); k++) {
-      uew = vp->uu[k];
-      vns = vp->vv[k];
-      ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
+      float uew = vp->uu[k];
+      float vns = vp->vv[k];
+      int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
       if (!vp->windInKnots)
         ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
-      dd = int(270. - degr * atan2f(vns, uew) + 0.5);
+      int dd = int(270. - degr * atan2f(vns, uew) + 0.5);
       if (dd > 360)
         dd -= 360;
       if (dd <= 0)
@@ -739,21 +629,5 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->sigwind[kmax] = 3;
   }
 
-  //################################################################
-  METLIBS_LOG_DEBUG("           vp->ptt.size()= "<<vp->ptt.size());
-  METLIBS_LOG_DEBUG("           vp->tt.size()=  "<<vp->tt.size());
-  METLIBS_LOG_DEBUG("           vp->ptd.size()= "<<vp->ptd.size());
-  METLIBS_LOG_DEBUG("           vp->td.size()=  "<<vp->td.size());
-  METLIBS_LOG_DEBUG("           vp->puv.size()= "<<vp->puv.size());
-  METLIBS_LOG_DEBUG("           vp->uu.size()=  "<<vp->uu.size());
-  METLIBS_LOG_DEBUG("           vp->vv.size()=  "<<vp->vv.size());
-  METLIBS_LOG_DEBUG("           vp->pom.size()= "<<vp->pom.size());
-  METLIBS_LOG_DEBUG("           vp->om.size()=  "<<vp->om.size());
-  METLIBS_LOG_DEBUG("           vp->dd.size()=  "<<vp->dd.size());
-  METLIBS_LOG_DEBUG("           vp->ff.size()=  "<<vp->ff.size());
-  METLIBS_LOG_DEBUG("           vp->rhum.size()=  "<<vp->rhum.size());
-  METLIBS_LOG_DEBUG("           vp->sigwind.size()=  "<<vp->sigwind.size());
-  //################################################################
-
-  return vp;
+  return vp.release();
 }
