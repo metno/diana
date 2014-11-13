@@ -33,6 +33,7 @@
 #include "GL/gl.h"
 #include "drawingsymbol.h"
 #include "diDrawingManager.h"
+#include "EditItems/drawingstylemanager.h"
 
 namespace DrawingItem_Symbol {
 
@@ -77,16 +78,7 @@ void Symbol::draw()
 {
   if (points_.isEmpty())
     return;
-
-  DrawingManager *dm = DrawingManager::instance();
-  QString name = property("style:type", "Default").toString();
-
-  QSize defaultSize = dm->getSymbolSize(name);
-  float aspect = defaultSize.height()/float(defaultSize.width());
-  int size = properties_.value("size", DEFAULT_SYMBOL_SIZE).toInt();
-
-  DrawingManager::instance()->drawSymbol(name,
-    points_.at(0).x() - size/2, points_.at(0).y() - aspect*size/2, size, aspect*size);
+  DrawingStyleManager::instance()->drawSymbol(this);
 }
 
 QDomNode Symbol::toKML(const QHash<QString, QString> &extraExtData) const

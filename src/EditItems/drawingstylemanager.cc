@@ -199,6 +199,14 @@ QString DSP_decoration2_offset::name() { return "decoration2.offset"; }
 DrawingStyleManager::StyleCategory DSP_decoration2_offset::styleCategory() const { return DrawingStyleManager::Decoration; }
 QVariant DSP_decoration2_offset::parse(const QHash<QString, QString> &def) const { return def.value(name(), "0").toInt(); }
 
+QString DSP_symbolcolour::name() { return "symbolcolour"; }
+DrawingStyleManager::StyleCategory DSP_symbolcolour::styleCategory() const { return DrawingStyleManager::Symbol; }
+QVariant DSP_symbolcolour::parse(const QHash<QString, QString> &def) const { return parseColour(symbolColour(def)); }
+
+QString DSP_symbolalpha::name() { return "symbolalpha"; }
+DrawingStyleManager::StyleCategory DSP_symbolalpha::styleCategory() const { return DrawingStyleManager::Symbol; }
+QVariant DSP_symbolalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
+
 QString DSP_textcolour::name() { return "textcolour"; }
 DrawingStyleManager::StyleCategory DSP_textcolour::styleCategory() const { return DrawingStyleManager::General; }
 DrawingStyleManager::LockCategory DSP_textcolour::lockCategory() const { return DrawingStyleManager::LockColour; }
@@ -219,6 +227,7 @@ QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 QString DrawingStyleProperty::linePattern(const QHash<QString, QString> &def) { return def.value(DSP_linepattern::name(), "solid"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
+QString DrawingStyleProperty::symbolColour(const QHash<QString, QString> &def) { return def.value(DSP_symbolcolour::name(), "black"); }
 QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 
 QString DSP_objects::name() { return "objects"; }
@@ -278,6 +287,10 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_colour::name(), new DSP_decoration2_colour);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_alpha::name(), new DSP_decoration2_alpha);
   properties_[DrawingItemBase::PolyLine].insert(DSP_decoration2_offset::name(), new DSP_decoration2_offset);
+
+  // Define the supported symbol style properties.
+  properties_[DrawingItemBase::Symbol].insert(DSP_symbolcolour::name(), new DSP_symbolcolour);
+  properties_[DrawingItemBase::Symbol].insert(DSP_symbolalpha::name(), new DSP_symbolalpha);
 
   // Define the supported text style properties.
   properties_[DrawingItemBase::Text].insert(DSP_linecolour::name(), new DSP_linecolour);
@@ -472,6 +485,8 @@ QString DrawingStyleManager::styleCategoryName(const StyleCategory sc)
     return "Area";
   else if (sc == Decoration)
     return "Decoration";
+  else if (sc == Symbol)
+    return "Symbol";
   return "Unknown";
 }
 
@@ -518,7 +533,8 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 
   // If the style is customised then parse the contents of the hash; otherwise
   // just return the style that corresponds to the style name.
-  if (item->category() == DrawingItemBase::PolyLine)
+  if ((item->category() == DrawingItemBase::PolyLine) ||
+      (item->category() == DrawingItemBase::Symbol))
     return parse(item->category(), styleProperties);
   else {
     const QString styleName = item->property("style:type").toString();
@@ -952,6 +968,47 @@ void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions
 void DrawingStyleManager::endText(const DrawingItemBase *item)
 {
   Q_UNUSED(item)
+}
+
+void DrawingStyleManager::drawSymbol(const DrawingItemBase *item) const
+{
+  DrawingManager *dm = DrawingManager::instance();
+
+  const QString name = item->properties().value("style:type", "Default").toString();
+
+  if (!dm->symbolNames().contains(name))
+    return;
+
+  const QSize defaultSize = dm->getSymbolSize(name);
+  const float aspect = defaultSize.height() / float(defaultSize.width());
+  const int size = item->properties().value("size", DEFAULT_SYMBOL_SIZE).toInt();
+  const float width = size;
+  const float height = aspect * size;
+  const QImage image = dm->getCachedImage(name, width, height);
+
+  const QVariantMap style = getStyle(item);
+
+  glPushAttrib(GL_PIXEL_MODE_BIT);
+
+  const QColor colour = style.value(DSP_symbolcolour::name()).value<QColor>();
+  if (colour.isValid()) {
+    glPixelTransferf(GL_RED_BIAS, colour.red() / 255.0);
+    glPixelTransferf(GL_GREEN_BIAS, colour.green() / 255.0);
+    glPixelTransferf(GL_BLUE_BIAS, colour.blue() / 255.0);
+  }
+
+  bool alphaOk;
+  const int alpha = style.value(DSP_symbolalpha::name()).toInt(&alphaOk);
+  if (alphaOk)
+    glPixelTransferf(GL_ALPHA_SCALE, alpha / 255.0);
+
+  glEnable(GL_BLEND);
+  glRasterPos2f(
+        item->getPoints().at(0).x() - size / 2,
+        item->getPoints().at(0).y() - aspect * size / 2);
+  glDrawPixels(image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+
+  glPopAttrib();
 }
 
 QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, const QString &name, const QString &value) const

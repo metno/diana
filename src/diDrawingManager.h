@@ -139,10 +139,10 @@ public:
   static DrawingManager *instance();
 
   // Resource handling
-  void drawSymbol(const QString &name, float x, float y, int width, int height);
   QStringList symbolNames() const;
-  QImage getSymbolImage(const QString &name, int width, int height);
-  QSize getSymbolSize(const QString &name);
+  QImage getCachedImage(const QString &, int, int) const;
+  QImage getSymbolImage(const QString &, int, int) const;
+  QSize getSymbolSize(const QString &) const;
 
   // Dialog-related methods
   QSet<QString> &getDrawings();
@@ -187,7 +187,7 @@ private:
   QString workDir;
 
   QMap<QString, QByteArray> symbols;
-  QHash<QString, QImage> imageCache;
+  mutable QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
 
   static DrawingManager *self;  // singleton instance pointer

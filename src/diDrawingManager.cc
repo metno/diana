@@ -478,32 +478,20 @@ void DrawingManager::setWorkDir(const QString &dir)
   workDir = dir;
 }
 
-void DrawingManager::drawSymbol(const QString &name, float x, float y, int width, int height)
-{
-  if (!symbols.contains(name))
-    return;
-
-  // retrieve the image for this size (creating one if necessary)
-  const QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
-  if (!imageCache.contains(key))
-    imageCache.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
-  const QImage image = imageCache.value(key);
-
-  // draw the image
-  glPushAttrib(GL_COLOR_BUFFER_BIT|GL_POLYGON_BIT);
-  glEnable(GL_BLEND);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glRasterPos2f(x, y);
-  glDrawPixels(image.width(), image.height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
-  glPopAttrib();
-}
-
 QStringList DrawingManager::symbolNames() const
 {
   return symbols.keys();
 }
 
-QImage DrawingManager::getSymbolImage(const QString &name, int width, int height)
+QImage DrawingManager::getCachedImage(const QString &name, int width, int height) const
+{
+  const QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
+  if (!imageCache.contains(key))
+    imageCache.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
+  return imageCache.value(key);
+}
+
+QImage DrawingManager::getSymbolImage(const QString &name, int width, int height) const
 {
   QImage image(width, height, QImage::Format_ARGB32);
   if (width == 0 || height == 0)
@@ -519,7 +507,7 @@ QImage DrawingManager::getSymbolImage(const QString &name, int width, int height
   return image;
 }
 
-QSize DrawingManager::getSymbolSize(const QString &name)
+QSize DrawingManager::getSymbolSize(const QString &name) const
 {
   QSvgRenderer renderer(symbols.value(name));
   return renderer.defaultSize();

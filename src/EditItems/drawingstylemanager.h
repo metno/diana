@@ -55,7 +55,7 @@ class DrawingStyleManager
 public:
   enum Side { Inside, Outside };
 
-  enum StyleCategory { Invalid, General, Line, Area, Decoration };
+  enum StyleCategory { Invalid, General, Line, Area, Decoration, Symbol };
   enum LockCategory { LockNone, LockAlpha, LockColour };
 
   DrawingStyleManager();
@@ -76,6 +76,8 @@ public:
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
   void setFont(const DrawingItemBase *item, const PlotOptions &poptions);
+
+  void drawSymbol(const DrawingItemBase *) const;
 
   static const QPainterPath interpolateToPath(const QList<QPointF> &points, bool closed);
   static const QList<QPointF> interpolateToPoints(const QList<QPointF> &points, bool closed);
@@ -123,6 +125,7 @@ protected:
   static QString lineColour(const QHash<QString, QString> &);
   static QString linePattern(const QHash<QString, QString> &);
   static QString fillColour(const QHash<QString, QString> &);
+  static QString symbolColour(const QHash<QString, QString> &);
   static QString textColour(const QHash<QString, QString> &);
 };
 
@@ -288,6 +291,24 @@ private:
 };
 
 class DSP_decoration2_offset : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_symbolcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_symbolalpha : public DrawingStyleProperty
 {
 public:
   static QString name();
