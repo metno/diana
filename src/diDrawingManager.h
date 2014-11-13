@@ -46,6 +46,13 @@
 #include <QSharedPointer>
 #include <vector>
 
+#if !defined(USE_PAINTGL)
+#include <qgl.h>
+#else
+#include "PaintGL/paintgl.h"
+#define QGLWidget PaintGLWidget
+#endif
+
 class PlotModule;
 class ObjectManager;
 

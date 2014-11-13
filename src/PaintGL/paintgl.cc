@@ -1692,3 +1692,9 @@ void PaintGLWidget::renderText(int x, int y, const QString &str, const QFont &fo
   glContext->painter->drawText(x, y, str);
   glPopMatrix();
 }
+
+QImage PaintGLWidget::convertToGLFormat(const QImage &image)
+{
+  return image;
+}
+

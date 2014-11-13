@@ -369,6 +369,8 @@ public:
     void renderText(int x, int y, const QString &str, const QFont &font = QFont(), int listBase = 2000);
     void swapBuffers();
 
+    static QImage convertToGLFormat(const QImage &image);
+
 public slots:
     /// Print the visible contents of the widget.
     void print(QPrinter* device);
