@@ -1,8 +1,8 @@
 
 #=========================================
 DIANA
-Version: 3.34.0
-(Using metlibs Version 4.12.4)
+Version: 3.36.0
+(Using metlibs Version 5.2.12)
 #=========================================
 
 Norwegian Meteorological Institute (met.no)
@@ -17,16 +17,14 @@ email: diana@met.no
 Contents:
 1. About Diana
 2. Install
-3. Running Diana
-4. Configuration
-5. File formats
-6. Resource files
+3. File formats
+4. Resource files
 
 #-------------------------------------------
 # 1. About Diana
 #-------------------------------------------
 
-Diana is the core visualisation tool from met.no (Norwegian Meteorological
+Diana is the core visualisation tool from MET Norway (Norwegian Meteorological
 Institute) and is distributed under the GPL license. See gpl.txt for details
 concerning the GPL license.
 
@@ -50,74 +48,14 @@ Diana for batch plotting (bdiana).  This can be built against embedded
 versions of the Qt libraries in order to run on systems without displays,
 such as servers.
 
-
-++++++++++++++
-
-
 #-------------------------------------------
 # 2. Install
 #-------------------------------------------
 
-see INSTALL
-
-Demo data
-=================================================================
-#Download demodata from 
-ftp://ftp.met.no/diana/diana_demodata.tar.gz
-#Download maps from 
-ftp://ftp.met.no/diana/diana_maps.tar.gz
-# unpack data files
-tar xzvf diana_demodata.tar.gz
-tar xzvf diana_maps.tar.gz
-
-Installing diana, see:
-https://diana.wiki.met.no/doku.php?do=show&id=autotools
+see https://diana.wiki.met.no/doku.php
 
 #-------------------------------------------
-# 3 Running Diana
-#-------------------------------------------
-
-
-1. Prepare setupfile with exact installation directory:
-Edit DIANADIR, OPDATA, MAPDIR
-
-2. Starting Diana:
- diana.bin            # looks for diana.setup in current directory
- # or
- bin/diana -s /etc/diana/diana.setup
-
- Language is preset to English (Norwegian is the only other option, in
- the setup file).  User guide available under Help.
-
------------------
-
-Running bdiana:
-run "bin/bdiana -example" and study the Diana User Guide bdiana chapter.
-
-#-------------------------------------------
-# 4 Configuration files for diana
-#-------------------------------------------
-
-All specifications of data access (incl. background map files) is in
-etc/diana/diana.setup
-
-Changing the setup file:
-Example:To add a new field file to diana.setup, 
-put the following inside the <FIELD_FILES>
- section:
- #----------------------------------------------
- filegroup=SURGE
- m=TOPO f=/disk1/SURGE/ETOPO2/bathymetry.flt  t=MetnoFieldFile
- #-----------------------------------------------
-
- If you need to add a new field parameter, the
- <METNOFIELDFILE_PARAMETERS> section is the correct place. You will also
- need to add a PLOT comand for your new parameter, see the
- <FIELD_PLOT> section.
-
-
-#-------------------------------------------
-# 5 File formats for diana
+# 3 File formats for diana
 #-------------------------------------------
 
 The current version supports following file formats
@@ -130,16 +68,15 @@ Observations:          MetnoObs       (proprietary met.no)
                        ascii
 Image (sat.,radar):    mitiff         (proprietary met.no)
                        HDF5
-Prognostic sounding:   vprof          (proprietary met.no)
-vertical crossections: vcross         (proprietary met.no)
-Wave spectrum:         wamspec        (proprietary met.no)
+Prognostic sounding:   NetCDF
+vertical crossections: NetCDF
+Wave spectrum:         NetCDF
 Maps:                  shape
                        ascii
                        metno-format   (documentation available)
 
-
 #-------------------------------------------
-# 6 Resource files
+# 4 Resource files
 #-------------------------------------------
 
 Some files included with Diana are obtained from third parties and are made
