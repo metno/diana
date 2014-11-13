@@ -944,49 +944,61 @@ m=WAM.50KM.12  f=$(OPDATA)/wave/wamspec12.dat
 
 
 <DRAWING>
-# Symbols
-symbol="Drizzle" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Drizzle.svg
+# Symbol styles
+symbol="Arrow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Right_Arrow.svg
+symbol="Cold" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Cold.svg
+symbol="Diagonal Cross" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Diagonal_Cross.svg
+symbol="Drizzle" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Drizzle.svg
+symbol="Freezing Drizzle" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg
 symbol="Freezing Precipitation" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg
-symbol="Hail" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Hail.svg
+symbol="High Pressure" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_High_Pressure.svg
+symbol="Hail" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Hail_Filled.svg
+symbol="Low Pressure" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg
 symbol="Moderate Aircraft Icing" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateAircraftIcing.svg
 symbol="Moderate Turbulence" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_ModerateTurbulence.svg
 symbol="Mountain Waves" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainWaves.svg
-symbol="Moutain Obscuration" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MoutainObscuration.svg
+symbol="Mountain Obscuration" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_MountainObscuration.svg
 symbol="Pressure Centre Location" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_PressureCentreLocation.svg
 symbol="Radioactive Materials In The Atmosphere" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_RadioactiveMaterialsInTheAtmosphere.svg
-symbol="Rain" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Rain.svg
+symbol="Rain" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Rain.svg
 symbol="Severe Aircraft Icing" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereAircraftIcing.svg
 symbol="Severe Sand Or Dust Haze" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereSandOrDustHaze.svg
 symbol="Severe Turbulence" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_SevereTurbulence.svg
+symbol="Sleet" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet.svg
+symbol="Sleet Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Sleet_Shower.svg
 symbol="Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Shower.svg
 symbol="Snow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Snow.svg
+symbol="Snow Shower" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Snow_Shower.svg
 symbol="Thunderstorms" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Thunderstorms.svg
+symbol="Thunderstorms with Hail" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Thunderstorms_with_Hail.svg
 symbol="Tropical Cyclone" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_TropicalCyclone.svg
 symbol="Visible Volcanic Ash Cloud" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VisibleVolcanicAshCloud.svg
 symbol="Volcanic Eruption" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_VolcanicEruption.svg
+symbol="Warm" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Warm.svg
 symbol="Widespread Blowing Snow" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadBlowingSnow.svg
 symbol="Widespread Fog" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog.svg
+symbol="Widespread Fog" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadFog_with_V.svg
 symbol="Widespread Haze" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadHaze.svg
 symbol="Widespread Mist" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadMist.svg
 symbol="Widespread Sandstorm Or Duststorm" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg
 symbol="Widespread Smoke" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg
 symbol="Wind Arrow Or Flight Level Double Bar" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
 
-# Area styles
+# Polyline styles
 style="Precipitation"                           linecolour=darkgreen linewidth=2 linesmooth=true closed=true
 style="Clouds (Byge)"                           linecolour=green linewidth=2 linepattern=dashed linesmooth=true \
                                                 closed=true
 style="Fog"                                     linecolour=black linewidth=2 linepattern=dashed linesmooth=true \
                                                 fillcolour=grey fillpattern=zigzag closed=true
 style="Significant weather"                     linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=black closed=true linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=black closed=true linealpha=0 \
+                                                fillalpha=0
 style="Significant weather (TURB/VA/RC)"        linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=red closed=true linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=red closed=true linealpha=0 \
+                                                fillalpha=0
 style="Significant weather (ICE/TCU/CB)"        linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=blue closed=true linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=blue closed=true linealpha=0 \
+                                                fillalpha=0
 style="Reduced visibility (low clouds)"         linecolour=255:164:71 linewidth=2 linepattern=dashed \
                                                 linesmooth=true closed=true
 style="Clouds"                                  linecolour=red linewidth=2 linesmooth=true fillcolour=red \
@@ -996,43 +1008,95 @@ style="Ice"                                     linecolour=olive linewidth=2 lin
 style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true
 style="Ash cloud (forecast)"                    linecolour=black linewidth=2 linepattern=dashed closed=true
 
-# Front styles
 style="Cold front"                              linecolour=blue linewidth=3 decoration1=triangles \
                                                 decoration1.colour=blue linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Warm front"                              linecolour=red linewidth=3 decoration1=arches \
                                                 decoration1.colour=red linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Occluded front"                          linecolour=purple linewidth=3 decoration1=arches,triangles \
                                                 decoration1.colour=purple linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Cold occlusion"                          linecolour=blue linewidth=3 decoration1=arches,triangles \
                                                 decoration1.colour=blue linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Warm occlusion"                          linecolour=red linewidth=3 decoration1=arches,triangles \
                                                 decoration1.colour=red linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Stationary front"                        linecolour=grey linewidth=3 decoration1=arches \
                                                 decoration1.colour=red decoration2=triangles \
                                                 decoration2.colour=blue decoration2.offset=1 linesmooth=true \
-                                                decoration2.offset=2 closed=false filltransparency=0
+                                                decoration2.offset=2 closed=false fillalpha=0
 style="Squall line"                             linecolour=blue linewidth=3 decoration1=crosses \
-                                                linesmooth=true closed=false filltransparency=0
+                                                linesmooth=true closed=false fillalpha=0
 style="Trough line"                             linecolour=blue linewidth=1 linesmooth=true closed=false \
-                                                filltransparency=0
+                                                fillalpha=0
 style="Significant weather front"               linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=black closed=false linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=black closed=false linealpha=0 \
+                                                fillalpha=0
 style="Significant weather (TURB/VA/RC) front"  linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=red closed=false linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=red closed=false linealpha=0 \
+                                                fillalpha=0
 style="Significant weather (ICE/TCU/CB) front"  linewidth=2 linesmooth=true decoration1=SIGWX \
-                                                decoration1.colour=blue closed=false linetransparency=0 \
-                                                filltransparency=0
+                                                decoration1.colour=blue closed=false linealpha=0 \
+                                                fillalpha=0
 style="Jet stream"                              linecolour=black linewidth=3 linesmooth=true decoration1=arrow \
-                                                closed=false filltransparency=0
+                                                closed=false fillalpha=0
+style="Cross section"                           linecolour=150:0:150 linewidth=3 linepattern=solid linesmooth=false \
+                                                fillalpha=0 closed=false
+style="Plain line" linecolour=black linewidth=3 linesmooth=true closed=false fillalpha=0 linewidth=2
 
 # Text styles
-textstyle="Label" linecolour=black linetransparency=0 fillcolour=white filltransparency=255 textcolour=black fontsize=10
-textstyle="Large text" linecolour=black linetransparency=0 fillcolour=white filltransparency=255 textcolour=black fontsize=20
+textstyle="Label" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=10
+textstyle="Large text" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=20
+textstyle="SIGWX label" linecolour=black linealpha=0 fillcolour=white fillalpha=255 textcolour=black fontsize=25
+
+# Composite styles
+composite="Text above Text" objects=text:text values="Text:Text" styles="SIGWX label:SIGWX label" layout=vertical linealpha=0 \
+                            fillcolour=white fillalpha=255
+composite="X over X"        objects=text:line:text values=X::X styles="SIGWX label:Plain line:SIGWX label" layout=vertical \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Volcano label"   objects=symbol:text values=":XXX" styles="Volcanic Eruption:SIGWX label" fillcolour=white hide=true linealpha=0
+composite="Moderate Turbulence" objects=symbol values="" styles="Moderate Turbulence" fillalpha=255 fillcolour=white linealpha=0
+composite="Severe Turbulence" objects=symbol values="" styles="Severe Turbulence" fillalpha=255 fillcolour=white linealpha=0
+composite="Moderate/Severe Turbulence" objects=symbol:line:symbol values="::" styles="Moderate Turbulence:Plain line:Severe Turbulence" \
+                            fillalpha=255 layout=diagonal fillcolour=white linealpha=0
+composite="Moderate/Severe Aircraft Icing" objects=symbol:line:symbol values="::" \
+                            styles="Moderate Aircraft Icing:Plain line:Severe Aircraft Icing" fillalpha=255 \
+                            fillcolour=white layout=diagonal linealpha=0
+composite="Moderate Aircraft Icing with X over X" objects=symbol:composite values=":" styles="Moderate Aircraft Icing:X over X" \
+                            layout=horizontal fillcolour=white fillalpha=255 linealpha=0
+composite="Moderate Turbulence with X over X" objects=symbol:composite values=":" styles="Moderate Turbulence:X over X" \
+                            layout=horizontal fillcolour=white fillalpha=255 linealpha=0
+composite="Predefined Text with X over X" objects=text:composite values="X:" styles="SIGWX label:X over X" layout=horizontal \
+                            fillcolour=white linealpha=0
+composite="Severe Aircraft Icing with X over X" objects=symbol:composite values="Text:" \
+                            styles="Severe Aircraft Icing:X over X" layout=horizontal fillcolour=white linealpha=0
+composite="Severe Turbulence with X over X" objects=symbol:composite values=":" styles="Severe Turbulence:X over X" \
+                            layout=horizontal fillcolour=white fillalpha=255 linealpha=0
+composite="Text with X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=horizontal \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Moderate/Severe aircraft icing with X over X" objects=composite:composite values=":" styles="Moderate/Severe Aircraft Icing:X over X" \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Moderate/Severe turbulence with X over X" objects=composite:composite values=":" styles="Moderate/Severe Turbulence:X over X" \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Predefined Text above X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=vertical \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Text above X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=vertical \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Text above Text with X over X" objects=composite:composite values=":" styles="Text above Text:X over X" layout=horizontal \
+                            fillcolour=white fillalpha=255 linealpha=0
+composite="Predefined Text inside blue circle" objects=text values="X" styles="SIGWX label" linecolour=blue \
+                            fillcolour=white fillalpha=255 closed=true
+composite="Predefined Text inside red diamond" objects=text values="X" styles="SIGWX label" linecolour=red \
+                            fillcolour=white fillalpha=255 closed=true
+composite="Predefined Text inside curved scroll" objects=text values="X" styles="SIGWX label" linecolour=black \
+                            fillcolour=white fillalpha=255 closed=true
+composite="Volcanic Eruption" objects=composite:text values=":Text" styles="Volcano label:SIGWX label" layout=vertical \
+                            fillcolour=white fillalpha=255 linecolour=black closed=true
+composite="Predefined Text over Predefined Text inside blue curved rectangle" objects=text:text values="X:X" \
+                            styles="SIGWX label:SIGWX label" fillcolour=white fillalpha=255 closed=true linecolour=blue
+
+# Predefined text strings for use in composite objects.
+complextext="BKN/OVC STF,RA,RADZ,SHRA,SN,SHSN,LOC FG,BR,NSC,RASN,SHSNGS,SHRASN,SHRA,BR/FG,DZ,FZRA,SFC VIS,LT 5 KM,ISOL,EMBD CB,SCT/BKN,CB/TCU"
 </DRAWING>
