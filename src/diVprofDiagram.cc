@@ -1355,9 +1355,9 @@ void VprofDiagram::plotDiagram()
       int kstop, kstep;
       for (it = it1; it <= it2; it += itstep) {
         t1 = it;
-        x = (t1 + 100.) * 0.2;
-        if (MetNo::Constants::ewt_defined(x))
-            esat = MetNo::Constants::ewt_value(x);
+        const MetNo::Constants::ewt_calculator ewt(t1);
+        if (ewt.defined())
+            esat = ewt.value();
         else
           esat = 0;
         qsat = eps * esat / pptab[k1000];
@@ -1388,10 +1388,10 @@ void VprofDiagram::plotDiagram()
             // adjust humidity in some iterations
             for (int iteration = 0; iteration < 5; iteration++) {
               t = tcl / cp - t0;
-              x = (t + 100.) * 0.2;
-              if (MetNo::Constants::ewt_undefined(x))
+              const MetNo::Constants::ewt_calculator ewt(t);
+              if (ewt.defined())
                 break;
-              esat = MetNo::Constants::ewt_value(x);
+              esat = ewt.value();
               qsat = eps * esat / p;
               dq = qcl - qsat;
               a1 = cplr * qcl / tcl;

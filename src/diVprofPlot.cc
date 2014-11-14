@@ -423,17 +423,14 @@ void VprofPlot::relhum(const vector<float>& tt, const vector<float>& td)
 
   int nlev= tt.size();
   rhum.resize(nlev);
-  float et,etd,rhx;
 
   for (int k=0; k<nlev; k++) {
-    const float xt = (tt[k]+100.)*0.2;
-    const float xtd = (td[k]+100.)*0.2;
-    if (ewt_defined(xt) and ewt_defined(xtd)) {
-      et  = ewt_value(xt);
-      etd = ewt_value(xtd);
+    const ewt_calculator ewt(tt[k]), ewt2(td[k]);
+    float rhx = 0;
+    if (ewt.defined() and ewt2.defined()) {
+      const float et = ewt.value();
+      const float etd = ewt2.value();
       rhx = 100.*etd/et;
-    } else {
-      rhx = 0;
     }
     if (rhx < 0)
         rhx = 0;
@@ -482,9 +479,9 @@ void VprofPlot::ducting(const vector<float>& pp,
   float x,tk,pi1,pi2,th1,th2,dz;
 
   for (k=0; k<nlev; k++) {
-    x= (td[k]+100.)*0.2;
-    if (MetNo::Constants::ewt_defined(x)) {
-      const float etd = MetNo::Constants::ewt_value(x);
+    const MetNo::Constants::ewt_calculator ewt(td[k]);
+    if (ewt.defined()) {
+      const float etd = ewt.value();
       tk= tt[k] + t0;
       ////duct[k]= 77.6*(pp[k]/tk) + 373000.*etd/(tk*tk);
       duct[k]= 77.6*(pp[k]/tk) + 373256.*etd/(tk*tk);

@@ -75,8 +75,6 @@ const FunctionSpec* findFunctionByName(const std::string& name)
   return 0;
 }
 
-FieldFunctions ffunc; // Container for Field Functions
-
 } // anonymous namespace 
 
 // ========================================================================
@@ -253,13 +251,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0) compute = 4;
 
     if (mNumericArgIndex < 0) {
-      if (!ffunc.fieldOPERfield(compute, np, nl, f0, f1, fo, allDefined, ud0))
+      if (!FieldFunctions::fieldOPERfield(compute, np, nl, f0, f1, fo, allDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 0) {
-      if (!ffunc.constantOPERfield(compute, np, nl, mNumericArg, f0, fo, allDefined, ud0))
+      if (!FieldFunctions::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, allDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 1) {
-      if (!ffunc.fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, allDefined, ud0))
+      if (!FieldFunctions::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, allDefined, ud0))
         return Values_p();
     } else {
       return Values_p();
@@ -316,7 +314,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (not f_pp)
       return Values_cp();
 
-    if (not ffunc.aleveltemp(compute, np, nl, f0, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp, fo, allDefined, ud0, "kelvin"))
       return Values_cp();
     break; }
 
@@ -329,7 +327,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (not f_pp)
       return Values_cp();
 
-    if (not ffunc.alevelthe(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0))
+    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0))
       return Values_cp();
     break; }
 
@@ -364,13 +362,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_p();
     }
 
-    if (not ffunc.alevelhum(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0, "kelvin"))
       return Values_p();
     break; }
 
   case vcf_height_above_msl_from_surface_geopotential: {
     compute = 3;
-    if (!ffunc.fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, MetNo::Constants::ginv, fo, allDefined, ud0))
+    if (!FieldFunctions::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, MetNo::Constants::ginv, fo, allDefined, ud0))
       return Values_p();
     break; }
 
