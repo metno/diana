@@ -849,9 +849,9 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
     QVector2D next_v = next - p;
 
     // Take the minimum length of the two vectors.
-    qreal prev_l = previous_v.length();
-    qreal next_l = next_v.length();
-    qreal l = qMin(prev_l, next_l);
+    float prev_l = previous_v.length();
+    float next_l = next_v.length();
+    float l = qMin(prev_l, next_l);
 
     // Adjust the previous and next points to lie the same distance away from
     // the current point.
@@ -862,8 +862,8 @@ const QPainterPath DrawingStyleManager::interpolateToPath(const QList<QPointF> &
     // tangent or gradient that we extend from the current point to position
     // control points.
     QVector2D gradient = (new_next - new_previous).normalized();
-    prev_l = qMin(QVector2D::dotProduct(p - previous, gradient), l)/3.0;
-    next_l = qMin(QVector2D::dotProduct(next - p, gradient), l)/3.0;
+    prev_l = qMin((float)QVector2D::dotProduct(p - previous, gradient), l)/3.0;
+    next_l = qMin((float)QVector2D::dotProduct(next - p, gradient), l)/3.0;
 
     // Construct two control points on either side of the current point.
     QVector2D p0 = p - prev_l * gradient;

@@ -32,6 +32,8 @@
 #include "edititembase.h"
 #include <GL/gl.h>
 
+#include <qglobal.h>
+
 EditItemBase::EditItemBase()
   : moving_(false)
   , resizing_(false)
@@ -95,7 +97,7 @@ void EditItemBase::moveBy(const QPointF &pos)
 void EditItemBase::move(const QPointF &pos)
 {
   const QPointF delta = pos - baseMousePos_;
-  Q_ASSERT(basePoints_.size() == points_.size());
+  Q_ASSERT(basePoints_.size() == Drawing(this)->points_.size());
   for (int i = 0; i < Drawing(this)->points_.size(); ++i)
     Drawing(this)->points_[i] = basePoints_.at(i) + delta;
   updateControlPoints();

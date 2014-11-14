@@ -106,8 +106,7 @@ private:
   void replaceDynamicOptions(std::vector<std::string>& oldCommand,
       std::vector<std::string>& newCommand);
 
-
-signals:
+Q_SIGNALS:
   void QuickHide();   // request hide for this dialog
 
 protected:
@@ -121,8 +120,7 @@ public:
     QMENU
   };
 
-  QuickMenu(QWidget *parent, Controller* c,
-	    Qt::WFlags f=0);
+  QuickMenu(QWidget *parent, Controller* c);
 
   void start();
 

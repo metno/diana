@@ -34,10 +34,10 @@
 
 //#define VCROSS_GLWIDGET 1
 #ifdef VCROSS_GLWIDGET
-#include <QtGui/QGLWidget>
+#include <QGLWidget>
 #define VCROSS_GL(gl,nogl) gl
 #else
-#include <QtGui/QWidget>
+#include <QWidget>
 #define VCROSS_GL(gl,nogl) nogl
 #endif
 

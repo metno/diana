@@ -35,7 +35,14 @@
 #include "editsymbol.h"
 #include "edittext.h"
 
+#include <QAction>
 #include <QDialog>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 namespace EditItem_Composite {
 

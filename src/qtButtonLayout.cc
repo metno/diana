@@ -70,7 +70,7 @@ ButtonLayout::ButtonLayout(QWidget* parent, vector<ObsDialogInfo::Button>& butto
 
   bgroup->setExclusive(false);
   for( int i=0; i< nr_buttons; i++ ){
-    b[i]->setCheckable ( TRUE );
+    b[i]->setCheckable(true);
   }
 
   //  bgroup->hide();
@@ -134,7 +134,7 @@ void ButtonLayout::ALLClicked(){
   int nr_buttons = buttonList.size();
   for( int k=0; k< nr_buttons; k++ ){
     if(b[k]->isEnabled()){
-      b[k]->setChecked( TRUE );
+      b[k]->setChecked(true);
       buttonOn[k] = true;
     }
   }
@@ -146,7 +146,7 @@ void ButtonLayout::NONEClicked(){
 
   int nr_buttons = buttonList.size();
   for( int k=0; k< nr_buttons; k++ ){
-    b[k]->setChecked( FALSE );
+    b[k]->setChecked(false);
     buttonOn[k]=false;
   }
 }
@@ -158,11 +158,11 @@ void ButtonLayout::DEFAULTClicked(){
   int nr_buttons = buttonList.size();
   for( int k=0; k < nr_buttons; k++ ){
     if( buttonList[k].Default && b[k]->isEnabled()){
-      b[k]->setChecked( TRUE );
+      b[k]->setChecked(true);
       buttonOn[k]=true;
     }
     else{
-      b[k]->setChecked( FALSE );
+      b[k]->setChecked(false);
       buttonOn[k]=false;
     }
   }

@@ -270,7 +270,7 @@ void QuickEditOptions::downClicked()  // move item down
 
 void QuickEditOptions::newClicked()   // new key
 {
-  bool ok = FALSE;
+  bool ok = false;
   QString text = QInputDialog::getText(this,
       tr("New key"),
       tr("Make new key with name:"),
@@ -288,7 +288,7 @@ void QuickEditOptions::newClicked()   // new key
 void QuickEditOptions::renameClicked()// rename key
 {
   if (keynum<0 || keynum>=int(options.size())) return;
-  bool ok = FALSE;
+  bool ok = false;
   QString text = QInputDialog::getText(this,
       tr("New name"),
       tr("Change key name:"),

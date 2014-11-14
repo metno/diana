@@ -364,7 +364,7 @@ void  EditDialog::FieldTab()
     bgroupinfluence->addButton(rbInfluence[i],i);
     vLayout->addWidget( rbInfluence[i] );
   }
-  bgroupinfluence->setExclusive(TRUE);
+  bgroupinfluence->setExclusive(true);
 
   rbInfluence[1]->setEnabled(false);
 

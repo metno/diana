@@ -440,8 +440,9 @@ QVariant StationDialog::Model::headerData(int section, Qt::Orientation orientati
  */
 void StationDialog::Model::updateData(stationDialogInfo& info)
 {
+  beginResetModel();
   m_info = info;
-  reset();
+  endResetModel();
 }
 
 /**

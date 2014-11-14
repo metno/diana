@@ -58,10 +58,10 @@
 #include <QFrame>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QWhatsThis>
+#include <QMimeData>
 
 #include <puCtools/puCglob.h>
-#include <qmotifstyle.h>
-#include <qwindowsstyle.h>
 
 #include <QAction>
 #include <QShortcut>
@@ -197,7 +197,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   version_string = ver_str;
   build_string = build_str;
 
-  setWindowIcon(QIcon(diana_icon_xpm));
+  setWindowIcon(QIcon(QPixmap(diana_icon_xpm)));
   setWindowTitle(tr(dianaTitle.c_str()));
 
   self = this;

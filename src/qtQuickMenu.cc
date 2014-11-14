@@ -65,9 +65,8 @@ using namespace std;
 
 const std::string vprefix= "@";
 
-QuickMenu::QuickMenu( QWidget *parent, Controller* c,
-    Qt::WFlags f)
-: QDialog( parent, f), contr(c), comset(false),
+QuickMenu::QuickMenu( QWidget *parent, Controller* c)
+: QDialog(parent), contr(c), comset(false),
 activemenu(0), timerinterval(10), timeron(false),
 browsing(false),
 prev_plotindex(0), prev_listindex(0),

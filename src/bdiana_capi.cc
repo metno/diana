@@ -98,6 +98,8 @@
 
 #include <boost/algorithm/string/join.hpp>
 
+#include <QApplication>
+
 #ifdef VIDEO_EXPORT
 # include <MovieMaker.h>
 #endif

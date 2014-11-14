@@ -36,6 +36,8 @@
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 
+#include <QAction>
+
 namespace EditItem_Text {
 
 Text::Text()

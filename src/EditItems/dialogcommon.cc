@@ -38,13 +38,17 @@
 #include <EditItems/editcomposite.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/layer.h>
-#include <QToolButton>
-#include <QIcon>
-#include <QFileDialog>
+
+#include <QApplication>
+#include <QButtonGroup>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QIcon>
 #include <QRadioButton>
-#include <QApplication>
+#include <QToolButton>
+#include <QVBoxLayout>
+
 #include "empty.xpm"
 
 namespace EditItems {
@@ -67,7 +71,7 @@ void CheckableLabel::setChecked(bool enabled)
     setPixmap(pixmap_);
     setToolTip(checkedToolTip_);
   } else {
-    setPixmap(empty_xpm);
+    setPixmap(QPixmap(empty_xpm));
     setToolTip(uncheckedToolTip_);
   }
 }

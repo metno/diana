@@ -37,19 +37,21 @@
 #include <EditItems/modifylayerscommand.h>
 #include <diEditItemManager.h>
 
-#include <QApplication>
 #include <QAction>
+#include <QApplication>
+#include <QBitArray>
 #include <QGroupBox>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLabel>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QPixmap>
+#include <QString>
 #include <QTimer>
 #include <QToolButton>
-#include <QBitArray>
+#include <QVBoxLayout>
 
 namespace EditItems {
 
@@ -67,7 +69,7 @@ LayerWidget::LayerWidget(
   mainLayout->setSpacing(0);
 
   visibleLabel_ = new CheckableLabel(
-        layer_ ? layer_->isVisible() : false, visible_xpm, "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
+    layer_ ? layer_->isVisible() : false, QPixmap(visible_xpm), "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
   if (layer_)
     connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
   connect(visibleLabel_, SIGNAL(checked(bool)), SLOT(handleVisibilityChanged(bool)));
@@ -75,7 +77,7 @@ LayerWidget::LayerWidget(
 
   static int nn = 0;
   unsavedChangesLabel_ = new CheckableLabel(
-        nn++ % 2, unsavedchanges_xpm, "the layer has unsaved changes\n(do ??? to save them)", "the layer does not have any unsaved changes", false);
+    nn++ % 2, QPixmap(unsavedchanges_xpm), "the layer has unsaved changes\n(do ??? to save them)", "the layer does not have any unsaved changes", false);
   connect(unsavedChangesLabel_, SIGNAL(mouseClicked(QMouseEvent *)), SIGNAL(mouseClicked(QMouseEvent *)));
   //mainLayout->addWidget(unsavedChangesLabel_);
 

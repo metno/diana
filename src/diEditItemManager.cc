@@ -35,6 +35,10 @@
 #include <miLogger/miLogging.h>
 
 #include <QtGui> // ### include only relevant headers ... TBD
+#include <QAction>
+#include <QApplication>
+#include <QMenu>
+#include <QMessageBox>
 
 #include <diEditItemManager.h>
 #include <diPlotModule.h>

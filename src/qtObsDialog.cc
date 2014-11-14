@@ -583,7 +583,7 @@ void ObsDialog::makeExtension()
   radioLayout->addWidget(colourButton);
   radioLayout->addWidget(totalColourButton);
   radioLayout->addWidget(markerButton);
-  radiogroup->setExclusive(TRUE);
+  radiogroup->setExclusive(true);
   plotButton->setChecked(true);
   plotButton->setToolTip(tr("Plot observations which meet all criteria of at least one parameter") );
   colourButton->setToolTip(tr("Plot a parameter in the colour specified if it meets any criteria of that parameter") );

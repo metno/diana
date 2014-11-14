@@ -33,7 +33,7 @@
 #include "vcross_v2/VcrossQtManager.h"
 #include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QVariant>
 #include <vector>
 

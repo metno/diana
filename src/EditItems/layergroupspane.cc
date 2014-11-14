@@ -49,6 +49,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QToolButton>
 
 namespace EditItems {
 
@@ -217,7 +218,7 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 {
   LayerGroupWidget *lgWidget = qobject_cast<LayerGroupWidget *>(sender());
   Q_ASSERT(lgWidget);
-  Q_ASSERT(lgWidget->layerGroup() != layerMgr_->defaultLayerGroup());
+// FIXME defaultLayerGroup does not exist  Q_ASSERT(lgWidget->layerGroup() != layerMgr_->defaultLayerGroup());
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
   lgWidget->updateLabels();

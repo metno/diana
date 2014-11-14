@@ -52,8 +52,8 @@
 
 #include <qapplication.h>
 #include <QFileDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>

@@ -31,21 +31,24 @@
 #ifndef _maildialog_h
 #define _maildialog_h
 
-
-#include <QtGui>
 #include <diController.h>
+
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 /**
    \brief Dialogue for sending a picture via email
-
-
 */
-
 class MailDialog: public QDialog
-{
-    Q_OBJECT
+{ Q_OBJECT;
+
 public:
-	MailDialog(QWidget* parent, Controller* llctrl);
+  MailDialog(QWidget* parent, Controller* llctrl);
 
 private:
 	Controller* m_ctrl;
@@ -64,7 +67,7 @@ private:
 protected:
 	void accept();	//Overloaded to perform mail send
 
-signals:
+Q_SIGNALS:
   void saveImage(QString);
 
 };

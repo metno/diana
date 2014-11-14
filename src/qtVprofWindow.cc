@@ -51,7 +51,6 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qfont.h>
-#include <qmotifstyle.h>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPixmap>

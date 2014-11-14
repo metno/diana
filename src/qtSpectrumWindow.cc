@@ -53,7 +53,6 @@
 #include <qfont.h>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <qmotifstyle.h>
 #include <QPixmap>
 
 #define MILOGGER_CATEGORY "diana.SpectrumWindow"

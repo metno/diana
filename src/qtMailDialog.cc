@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,10 +31,15 @@
 #include "config.h"
 #endif
 
-#include <QMessageBox>
 #include "qtMailDialog.h"
+
 #include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QGridLayout>
 #include <QImage>
+#include <QMessageBox>
+#include <QTemporaryFile>
 
 //******************************************************************************
 //* MailDialog::MailDialog( QWidget* parent, Controller* llctrl )

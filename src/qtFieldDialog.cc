@@ -2638,7 +2638,7 @@ void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)
 
   float ekv=10;
   if (lineintervalCbox->currentIndex() >0 && !lineintervalCbox->currentText().isNull()) {
-    ekv = atof(lineintervalCbox->currentText().toAscii());
+    ekv = atof(lineintervalCbox->currentText().toLatin1());
   }
 
   int n;

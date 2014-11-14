@@ -141,7 +141,7 @@ void AddtoMenu::okClicked( )
 
 void AddtoMenu::newClicked()
 {
-  bool ok = FALSE;
+  bool ok = false;
   QString text = QInputDialog::getText(this,
       tr("New Menu"),
       tr("Make new menu with name:"),

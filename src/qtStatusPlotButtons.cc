@@ -73,11 +73,11 @@ void PlotButton::setPlotElement(const PlotElement& pe)
       if(ig.Image(pe.icon,image)){
         setIcon(QPixmap::fromImage(image));
       } else {
-        setIcon(QIcon(question_xpm));
+        setIcon(QIcon(QPixmap(question_xpm)));
       }
     }
   } else {
-    setIcon(QIcon(question_xpm));
+    setIcon(QIcon(QPixmap(question_xpm)));
   }
 
   plotelement_= pe;

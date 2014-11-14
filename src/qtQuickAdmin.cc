@@ -442,7 +442,7 @@ void QuickAdmin::downClicked()
 
 void QuickAdmin::newClicked()
 {
-  bool ok = FALSE;
+  bool ok = false;
   if (activeElement == -1) {
     QString text = QInputDialog::getText(this, tr("Make new menu"), tr(
         "Make new menu with name:"), QLineEdit::Normal, QString::null, &ok);
@@ -509,7 +509,7 @@ void QuickAdmin::newfileClicked()
 
 void QuickAdmin::renameClicked()
 {
-  bool ok = FALSE;
+  bool ok = false;
   if (activeElement == -1) {
     QString text = QInputDialog::getText(this, tr("Change menu name"), tr(
         "New name:"), QLineEdit::Normal, menus[activeMenu].name.c_str(), &ok);

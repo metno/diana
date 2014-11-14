@@ -35,9 +35,18 @@
 #include <EditItems/edititembase.h>
 #include <EditItems/properties.h>
 
+#include <QAction>
+#include <QDateTimeEdit>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 namespace Properties {
-
 
 TextEditor::TextEditor(const QString &text, bool readOnly)
 {

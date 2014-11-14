@@ -36,6 +36,8 @@
 #include <diDrawingManager.h>
 #include <EditItems/drawingstylemanager.h>
 
+#include <QAction>
+
 namespace EditItem_PolyLine {
 
 PolyLine::PolyLine()

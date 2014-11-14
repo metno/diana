@@ -33,6 +33,9 @@
 #include "drawingsymbol.h"
 #include "editsymbol.h"
 
+#include <QAction>
+#include <QMenu>
+
 namespace EditItem_Symbol {
 
 Symbol::Symbol()
