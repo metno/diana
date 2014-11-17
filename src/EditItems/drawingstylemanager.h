@@ -42,7 +42,6 @@
 #include <QColor>
 
 #include "diFontManager.h"
-#include "diPlotOptions.h"
 #include "EditItems/drawingitembase.h"
 
 class DrawingStyleProperty;
@@ -70,12 +69,12 @@ public:
   void endLine(DrawingItemBase *item);
   void beginFill(DrawingItemBase *item);
   void endFill(DrawingItemBase *item);
-  void beginText(const DrawingItemBase *item, const PlotOptions &poptions);
-  void endText(const DrawingItemBase *item);
 
-  void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0) const;
+  void drawText(const DrawingItemBase *) const;
+
+  void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
-  void setFont(const DrawingItemBase *item, const PlotOptions &poptions);
+  void setFont(const DrawingItemBase *item) const;
 
   void drawSymbol(const DrawingItemBase *) const;
 
@@ -318,6 +317,16 @@ private:
 };
 
 class DSP_textcolour : public DrawingStyleProperty
+{
+public:
+  static QString name();
+private:
+  virtual DrawingStyleManager::StyleCategory styleCategory() const;
+  virtual DrawingStyleManager::LockCategory lockCategory() const;
+  virtual QVariant parse(const QHash<QString, QString> &) const;
+};
+
+class DSP_textalpha : public DrawingStyleProperty
 {
 public:
   static QString name();

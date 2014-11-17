@@ -413,6 +413,24 @@ private:
   virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
 };
 
+class SPE_textcolour : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_textcolour::name(); }
+private:
+  virtual QString labelText() const { return "text colour"; }
+  virtual IndexedEditor *createEditor() { return new ComboBoxEditor(ColourBox(0, true, 0, tr("off").toStdString(),true)); }
+};
+
+class SPE_textalpha : public StylePropertyEditor
+{
+public:
+  virtual QString name() const { return DSP_textalpha::name(); }
+private:
+  virtual QString labelText() const { return "text alpha"; }
+  virtual IndexedEditor *createEditor() { return new IntRangeEditor(0, 255); }
+};
+
 // ... editors for more subtypes
 
 class EditStyleProperty
@@ -550,6 +568,18 @@ private:
   virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_symbolalpha; }
 };
 
+class ESP_textcolour : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_textcolour; }
+};
+
+class ESP_textalpha : public EditStyleProperty
+{
+private:
+  virtual StylePropertyEditor *createSpecialEditor() const { return new SPE_textalpha; }
+};
+
 StyleEditor::StyleEditor()
 {
   setWindowTitle(tr("Item Style"));
@@ -585,6 +615,8 @@ StyleEditor::StyleEditor()
   properties_.insert(DSP_decoration2_offset::name(), new ESP_decoration2_offset);
   properties_.insert(DSP_symbolcolour::name(), new ESP_symbolcolour);
   properties_.insert(DSP_symbolalpha::name(), new ESP_symbolalpha);
+  properties_.insert(DSP_textcolour::name(), new ESP_textcolour);
+  properties_.insert(DSP_textalpha::name(), new ESP_textalpha);
 }
 
 StyleEditor *StyleEditor::instance()

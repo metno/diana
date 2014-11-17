@@ -82,7 +82,7 @@ PlotOptions::PlotOptions():
   plottype(fpt_contour), rotateVectors(1), discontinuous(0), contourShading(0),
   polystyle(poly_fill), arrowstyle(arrow_wind), h_align(align_left), v_align(align_bottom),
   alignX(0), alignY(0),
-  fontname("SCALEFONT"), fontface("NORMAL"), fontsize(10.0), precision(0),
+  fontname(defaultFontName()), fontface(defaultFontFace()), fontsize(defaultFontSize()), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
   antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
 {

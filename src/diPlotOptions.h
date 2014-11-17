@@ -212,6 +212,10 @@ public:
   static std::vector< std::vector<std::string> >& getPlotTypes(){return plottypes;}
   static std::map< std::string, std::string > getEnabledOptions(){ return enabledOptions;}
 
+  static std::string defaultFontName() { return "SCALEFONT"; }
+  static std::string defaultFontFace() { return "NORMAL"; }
+  static float defaultFontSize() { return 10.0; }
+
 public:
   //! fill in values and "..." in a float vector (error if size==0)
   static std::vector<float> autoExpandFloatVector(const std::string&);

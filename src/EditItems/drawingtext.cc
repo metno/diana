@@ -40,8 +40,11 @@ namespace DrawingItem_Text {
 
 Text::Text()
 {
-  margin_ = 4;
-  spacing_ = 0.5;
+  propertiesRef().insert("style:margin", defaultMargin());
+  propertiesRef().insert("style:spacing", defaultSpacing());
+  propertiesRef().insert("style:fontname", QString::fromStdString(PlotOptions::defaultFontName()));
+  propertiesRef().insert("style:fontface", QString::fromStdString(PlotOptions::defaultFontFace()));
+  propertiesRef().insert("style:fontsize", PlotOptions::defaultFontSize());
 }
 
 Text::~Text()
@@ -50,8 +53,7 @@ Text::~Text()
 
 void Text::draw()
 {
-  QStringList lines_ = text();
-  if (points_.isEmpty() || lines_.isEmpty())
+  if (points_.isEmpty() || text().isEmpty())
     return;
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
@@ -65,30 +67,13 @@ void Text::draw()
   styleManager->fillLoop(this, points);
   styleManager->endFill(this);
 
-  // Draw the outline using the border colour and line pattern defined in
-  // the style.
+  // Draw the outline using the border colour and line pattern defined in the style.
   styleManager->beginLine(this);
-  styleManager->drawLines(this, points);
+  styleManager->drawLines(this, points, 0, true);
   styleManager->endLine(this);
 
-  styleManager->beginText(this, poptions);
-  styleManager->setFont(this, poptions);
-  float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
-
-  float x = points.at(0).x() + margin_;
-  float y = points.at(0).y() - margin_;
-
-  foreach (QString text, lines_) {
-    QSizeF size = getStringSize(text);
-    glPushMatrix();
-    glTranslatef(x, y - size.height(), 0);
-    glScalef(scale, scale, 1.0);
-    PlotModule::instance()->getStaticPlot()->getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
-    glPopMatrix();
-    y -= size.height() * (1.0 + spacing_);
-  }
-
-  styleManager->endText(this);
+  // Draw the text itself.
+  styleManager->drawText(this);
 }
 
 QSizeF Text::getStringSize(const QString &text, int index) const
@@ -97,7 +82,7 @@ QSizeF Text::getStringSize(const QString &text, int index) const
     index = text.size();
 
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  styleManager->setFont(this, poptions);
+  styleManager->setFont(this);
 
   float width, height;
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
@@ -109,10 +94,31 @@ QSizeF Text::getStringSize(const QString &text, int index) const
 
   if (height == 0) {
     PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize("X", width, height);
-    size.setHeight(qMax(scale * height, poptions.fontsize));
+    size.setHeight(qMax(scale * height, fontSize()));
   }
 
   return size;
+}
+
+float Text::margin() const
+{
+  bool ok = false;
+  const float val = properties().value("style:margin", defaultMargin()).toFloat(&ok);
+  return ok ? val : defaultMargin();
+}
+
+float Text::spacing() const
+{
+  bool ok = false;
+  const float val = properties().value("style:spacing", defaultSpacing()).toFloat(&ok);
+  return ok ? val : defaultSpacing();
+}
+
+float Text::fontSize() const
+{
+  bool ok = false;
+  const float val = properties().value("style:fontsize", PlotOptions::defaultFontSize()).toFloat(&ok);
+  return ok ? val : PlotOptions::defaultFontSize();
 }
 
 DrawingItemBase::Category Text::category() const
@@ -128,9 +134,8 @@ QStringList Text::text() const
 QRectF Text::drawingRect() const
 {
   QRectF bbox = boundingRect();
-  if (property("alignment", Qt::AlignCenter) == Qt::AlignCenter)
-    bbox.translate(-bbox.width()/2, bbox.height()/2);
-
+  //  if (property("alignment", Qt::AlignCenter) == Qt::AlignCenter) ### This must also be considered in DrawingStyleManager::drawText()
+  //    bbox.translate(-bbox.width()/2, bbox.height()/2);
   return bbox;
 }
 
@@ -145,13 +150,13 @@ void Text::updateRect()
     QString text = lines_.at(i);
     QSizeF size = getStringSize(text);
     width = qMax(width, size.width());
-    size.setHeight(qMax(size.height(), qreal(poptions.fontsize)));
+    size.setHeight(qMax(size.height(), qreal(fontSize())));
     y -= size.height();
     if (i < lines_.size() - 1)
-      y -= size.height() * spacing_;
+      y -= size.height() * spacing();
   }
 
-  points_[1] = QPointF(x + width + 2 * margin_, y - 2 * margin_);
+  points_[1] = QPointF(x + width + 2 * margin(), y - 2 * margin());
 }
 
 void Text::setText(const QStringList &lines)
@@ -165,8 +170,6 @@ QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
   QHash<QString, QString> extra;
   QStringList lines = text();
   extra["text"] = lines.join("\n");
-  extra["margin"] = QString::number(margin_);
-  extra["spacing"] = QString::number(spacing_);
   return DrawingItemBase::toKML(extra.unite(extraExtData));
 }
 
@@ -174,8 +177,6 @@ void Text::fromKML(const QHash<QString, QString> &extraExtData)
 {
   DrawingManager::instance()->setFromLatLonPoints(*this, getLatLonPoints());
   setText(extraExtData.value("met:text", "").split("\n"));
-  margin_ = extraExtData.value("met:margin", "4").toInt();
-  spacing_ = extraExtData.value("met:spacing", "0.5").toFloat();
 }
 
 } // namespace

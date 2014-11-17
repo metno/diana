@@ -35,6 +35,7 @@
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/drawingitembase.h"
 #include "EditItems/drawingsymbol.h"
+#include "EditItems/drawingtext.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QPainter>
@@ -212,23 +213,28 @@ DrawingStyleManager::StyleCategory DSP_textcolour::styleCategory() const { retur
 DrawingStyleManager::LockCategory DSP_textcolour::lockCategory() const { return DrawingStyleManager::LockColour; }
 QVariant DSP_textcolour::parse(const QHash<QString, QString> &def) const { return parseColour(textColour(def)); }
 
+QString DSP_textalpha::name() { return "textalpha"; }
+DrawingStyleManager::StyleCategory DSP_textalpha::styleCategory() const { return DrawingStyleManager::General; }
+DrawingStyleManager::LockCategory DSP_textalpha::lockCategory() const { return DrawingStyleManager::LockAlpha; }
+QVariant DSP_textalpha::parse(const QHash<QString, QString> &def) const { return def.value(name(), "255").toInt(); }
+
 QString DSP_fontname::name() { return "fontname"; }
 DrawingStyleManager::StyleCategory DSP_fontname::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontname::parse(const QHash<QString, QString> &def) const { return def.value(name(), "SCALEFONT"); }
+QVariant DSP_fontname::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::fromStdString(PlotOptions::defaultFontName())); }
 
 QString DSP_fontface::name() { return "fontface"; }
 DrawingStyleManager::StyleCategory DSP_fontface::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontface::parse(const QHash<QString, QString> &def) const { return def.value(name(), "NORMAL"); }
+QVariant DSP_fontface::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::fromStdString(PlotOptions::defaultFontFace())); }
 
 QString DSP_fontsize::name() { return "fontsize"; }
 DrawingStyleManager::StyleCategory DSP_fontsize::styleCategory() const { return DrawingStyleManager::General; }
-QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), "10"); }
+QVariant DSP_fontsize::parse(const QHash<QString, QString> &def) const { return def.value(name(), QString::number(PlotOptions::defaultFontSize())); }
 
 QString DrawingStyleProperty::lineColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
 QString DrawingStyleProperty::linePattern(const QHash<QString, QString> &def) { return def.value(DSP_linepattern::name(), "solid"); }
 QString DrawingStyleProperty::fillColour(const QHash<QString, QString> &def) { return def.value(DSP_fillcolour::name(), "128:128:128"); }
 QString DrawingStyleProperty::symbolColour(const QHash<QString, QString> &def) { return def.value(DSP_symbolcolour::name(), "black"); }
-QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_linecolour::name(), "black"); }
+QString DrawingStyleProperty::textColour(const QHash<QString, QString> &def) { return def.value(DSP_textcolour::name(), "black"); }
 
 QString DSP_objects::name() { return "objects"; }
 DrawingStyleManager::StyleCategory DSP_objects::styleCategory() const { return DrawingStyleManager::General; }
@@ -300,6 +306,7 @@ DrawingStyleManager::DrawingStyleManager()
   properties_[DrawingItemBase::Text].insert(DSP_fillcolour::name(), new DSP_fillcolour);
   properties_[DrawingItemBase::Text].insert(DSP_fillalpha::name(), new DSP_fillalpha);
   properties_[DrawingItemBase::Text].insert(DSP_textcolour::name(), new DSP_textcolour);
+  properties_[DrawingItemBase::Text].insert(DSP_textalpha::name(), new DSP_textalpha);
   properties_[DrawingItemBase::Text].insert(DSP_fontname::name(), new DSP_fontname);
   properties_[DrawingItemBase::Text].insert(DSP_fontface::name(), new DSP_fontface);
   properties_[DrawingItemBase::Text].insert(DSP_fontsize::name(), new DSP_fontsize);
@@ -392,11 +399,11 @@ void DrawingStyleManager::setComplexTextList(const QStringList &strings)
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
-  glPushAttrib(GL_LINE_BIT);
+  glPushAttrib(GL_LINE_BIT|GL_CURRENT_BIT);
 
   const QVariantMap style = getStyle(item);
 
-  const QString lpString = style.value("linepattern").toString();
+  const QString lpString = style.value(DSP_linepattern::name()).toString();
   bool ok = false;
   const ushort linePattern = lpString.toUShort(&ok);
   if (ok) {
@@ -418,12 +425,12 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  glPopAttrib(); // GL_LINE_BIT
+  glPopAttrib();
 }
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
-  glPushAttrib(GL_POLYGON_BIT);
+  glPushAttrib(GL_POLYGON_BIT|GL_CURRENT_BIT);
 
   QVariantMap style = getStyle(item);
 
@@ -463,7 +470,7 @@ void DrawingStyleManager::endFill(DrawingItemBase *item)
 {
   Q_UNUSED(item)
 
-  glPopAttrib(); // GL_POLYGON_BIT
+  glPopAttrib();
 }
 
 DrawingStyleManager::StyleCategory DrawingStyleManager::styleCategory(const DrawingItemBase::Category &itemCategory, const QString &name) const
@@ -534,7 +541,8 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
   // If the style is customised then parse the contents of the hash; otherwise
   // just return the style that corresponds to the style name.
   if ((item->category() == DrawingItemBase::PolyLine) ||
-      (item->category() == DrawingItemBase::Symbol))
+      (item->category() == DrawingItemBase::Symbol) ||
+      (item->category() == DrawingItemBase::Text))
     return parse(item->category(), styleProperties);
   else {
     const QString styleName = item->property("style:type").toString();
@@ -547,10 +555,10 @@ QStringList DrawingStyleManager::getComplexTextList() const
   return complexTextList;
 }
 
-void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z) const
+void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);
-  bool closed = style.value(DSP_closed::name()).toBool();
+  bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
 
   if (closed)
     glBegin(GL_LINE_LOOP);
@@ -780,7 +788,7 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
 void DrawingStyleManager::fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const
 {
   QVariantMap style = getStyle(item);
-  bool closed = style.value("closed").toBool();
+  bool closed = style.value(DSP_closed::name()).toBool();
 
   QList<QPointF> points_;
   if (style.value(DSP_linesmooth::name()).toBool())
@@ -941,33 +949,50 @@ const QList<QPointF> DrawingStyleManager::getDecorationLines(const QList<QPointF
   return new_points;
 }
 
-void DrawingStyleManager::beginText(const DrawingItemBase *item, const PlotOptions &poptions)
+void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
 {
+  const DrawingItem_Text::Text *item = dynamic_cast<const DrawingItem_Text::Text *>(item_);
+  if (!item)
+    qFatal("DrawingStyleManager::drawText(): not a text item");
+
   QVariantMap style = getStyle(item);
-  QColor textColour = style.value("textcolour").value<QColor>();
+
+  const QColor textColour = style.value(DSP_textcolour::name()).value<QColor>();
+  bool alphaOk;
+  const int alpha = style.value(DSP_textalpha::name()).toInt(&alphaOk);
   if (textColour.isValid())
-    glColor4ub(textColour.red(), textColour.green(), textColour.blue(),
-               textColour.alpha());
+    glColor4ub(textColour.red(), textColour.green(), textColour.blue(), alphaOk ? alpha : 255);
   else
-    glColor3f(0.0, 0.0, 0.0);
+    glColor4ub(0, 0, 0, 255);
+
+  setFont(item);
+  const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+
+  const float x = item->getPoints().at(0).x() + item->margin();
+  float y = item->getPoints().at(0).y() - item->margin();
+
+  foreach (QString text, item->text()) {
+    const QSizeF size = item->getStringSize(text);
+    glPushMatrix();
+    glTranslatef(x, y - size.height(), 0);
+    glScalef(scale, scale, 1.0);
+    PlotModule::instance()->getStaticPlot()->getFontPack()->drawStr(text.toStdString().c_str(), 0, 0, 0);
+    glPopMatrix();
+    y -= size.height() * (1.0 + item->spacing());
+  }
 }
 
-void DrawingStyleManager::setFont(const DrawingItemBase *item, const PlotOptions &poptions)
+void DrawingStyleManager::setFont(const DrawingItemBase *item) const
 {
   QVariantMap style = getStyle(item);
 
   // Fill in the default font settings from the plot options object. These
   // will be overridden if equivalent properties are found.
-  QString fontName = style.value("fontname", QString::fromStdString(poptions.fontname)).toString();
-  QString fontFace = style.value("fontface", QString::fromStdString(poptions.fontface)).toString();
-  float fontSize = style.value("fontsize", poptions.fontsize).toFloat();
+  const QString fontName = style.value(DSP_fontname::name(), QString::fromStdString(PlotOptions::defaultFontName())).toString();
+  const QString fontFace = style.value(DSP_fontface::name(), QString::fromStdString(PlotOptions::defaultFontFace())).toString();
+  const float fontSize = style.value(DSP_fontsize::name(), PlotOptions::defaultFontSize()).toFloat();
 
   PlotModule::instance()->getStaticPlot()->getFontPack()->set(fontName.toStdString(), fontFace.toStdString(), fontSize);
-}
-
-void DrawingStyleManager::endText(const DrawingItemBase *item)
-{
-  Q_UNUSED(item)
 }
 
 void DrawingStyleManager::drawSymbol(const DrawingItemBase *item) const
@@ -1038,10 +1063,10 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
   }
 
   QVariantMap thisStyle = getStyle(category, name);
-  QStringList objects = thisStyle.value("objects").toStringList();
-  QStringList values = thisStyle.value("values").toStringList();
-  QStringList styles = thisStyle.value("styles").toStringList();
-  QString layout = thisStyle.value("layout").toString();
+  QStringList objects = thisStyle.value(DSP_objects::name()).toStringList();
+  QStringList values = thisStyle.value(DSP_values::name()).toStringList();
+  QStringList styles = thisStyle.value(DSP_styles::name()).toStringList();
+  QString layout = thisStyle.value(DSP_layout::name()).toString();
 
   QList<QImage> images;
   QList<float> positions;

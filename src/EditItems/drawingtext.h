@@ -32,11 +32,10 @@
 #ifndef DRAWINGTEXT_H
 #define DRAWINGTEXT_H
 
-#include "diPlot.h"
 #include "drawingitembase.h"
 
 namespace DrawingItem_Text {
-class Text : public Plot, public DrawingItemBase
+class Text : public DrawingItemBase
 {
 public:
   Text();
@@ -55,11 +54,14 @@ public:
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
 
-protected:
+  float margin() const;
+  float spacing() const;
+  float fontSize() const;
   QSizeF getStringSize(const QString &text, int index = -1) const;
 
-  int margin_;
-  float spacing_;
+private:
+  static float defaultMargin() { return 4; }
+  static float defaultSpacing() { return 0.5; }
 };
 
 } // namespace
