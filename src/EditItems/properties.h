@@ -40,6 +40,7 @@
 class QContextMenuEvent;
 class DrawingItemBase;
 class QWidget;
+class QDialogButtonBox;
 
 namespace Properties {
 
@@ -68,6 +69,8 @@ private:
 
   static PropertiesEditor *instance_;
   QWidget *formWidget_;
+  QDialogButtonBox *buttonBox_;
+  QDialogButtonBox *readOnlyButtonBox_;
 };
 
 } // namespace

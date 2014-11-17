@@ -35,6 +35,7 @@
 #include <EditItems/edititembase.h>
 #include <EditItems/properties.h>
 #include <EditItems/dialogcommon.h>
+#include <QDialogButtonBox>
 
 namespace Properties {
 
@@ -93,10 +94,12 @@ PropertiesEditor::PropertiesEditor()
   formWidget_ = new QWidget();
   layout->addWidget(formWidget_);
 
-  QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-  connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-  connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-  layout->addWidget(buttonBox);
+  buttonBox_ = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+  connect(buttonBox_->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
+  connect(buttonBox_->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
+
+  readOnlyButtonBox_ = new QDialogButtonBox(QDialogButtonBox::Close);
+  connect(readOnlyButtonBox_->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 PropertiesEditor *PropertiesEditor::instance()
@@ -130,8 +133,13 @@ bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly
       formLayout->addRow(key, editor);
   }
 
+  // set button box
+  layout()->removeWidget(buttonBox_);
+  layout()->removeWidget(readOnlyButtonBox_);
+  layout()->addWidget(readOnly ? readOnlyButtonBox_ : buttonBox_);
+
   // open dialog
-  if (exec() == QDialog::Accepted) {
+  if ((exec() == QDialog::Accepted) && (!readOnly)) {
     QVariantMap newProps;
     for (int i = 0; i < formLayout->rowCount(); ++i) {
       QLayoutItem *litem = formLayout->itemAt(i, QFormLayout::LabelRole);
