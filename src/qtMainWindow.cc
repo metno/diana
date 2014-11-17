@@ -61,8 +61,6 @@
 #include <QWhatsThis>
 #include <QMimeData>
 
-#include <puCtools/puCglob.h>
-
 #include <QAction>
 #include <QShortcut>
 #include <QApplication>
@@ -2662,23 +2660,12 @@ void DianaMainWindow::increaseTimeStep()
 
 void DianaMainWindow::setPlotTime(miutil::miTime& t)
 {
+  METLIBS_LOG_TIME();
   QApplication::setOverrideCursor( Qt::WaitCursor );
-#ifdef M_TIME
-  struct timeval pre;
-  struct timeval post;
-  gettimeofday(&pre, NULL);
-#endif
   if (contr->setPlotTime(t)) {
     contr->updatePlots();
     w->updateGL();
   }
-#ifdef M_TIME
-  gettimeofday(&post, NULL);
-  double s = (((double)post.tv_sec*1000000.0 + (double)post.tv_usec)-((double)pre.tv_sec*1000000.0 + (double)pre.tv_usec))/1000000.0;
-  LogHandler::getInstance()->setObjectName("diana.DianaMainWindow.setPlotTime");
-  COMMON_LOG::getInstance("common").infoStream() << "Plottime: " << s << " s";
-  COMMON_LOG::getInstance("common").infoStream().flush();
-#endif
   timeChanged();
   QApplication::restoreOverrideCursor();
 
@@ -3611,135 +3598,51 @@ void DianaMainWindow::timecontrolslot()
   timeControlAction->setChecked(!b);
 }
 
-
-
+static void writeLogSection(std::ostream& log, const std::string& section,
+    const std::vector<std::string>& contents)
+{
+  log << '[' << section << ']' << std::endl;
+  for (size_t i=0; i<contents.size(); ++i)
+    log << contents[i] << std::endl;
+  log << "[/" << section << ']' << std::endl;
+}
 
 void DianaMainWindow::writeLogFile()
 {
   // write the system log file to $HOME/.diana.log
 
   miLogFile milogfile; // static logger
-  std::string logfile= LocalSetupParser::basicValue("homedir") + "/diana.log";
-  std::string thisVersion= version_string;
-  std::string thisBuild= build_string;
-  // open filestream
-  ofstream file(logfile.c_str());
-  if (!file){
+
+  const std::string logfile = LocalSetupParser::basicValue("homedir") + "/diana.log";
+  std::ofstream file(logfile.c_str());
+  if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << logfile);
     return;
   }
 
-  vector<string> vstr;
-  int i,n;
+  writeLogSection(file, "MAIN.LOG", writeLog(version_string, build_string));
+  writeLogSection(file, "CONTROLLER.LOG", contr->writeLog());
+  writeLogSection(file, "MAP.LOG", mm->writeLog());
+  writeLogSection(file, "FIELD.LOG",  fm->writeLog());
+  writeLogSection(file, "OBS.LOG", om->writeLog());
+  writeLogSection(file, "SAT.LOG", sm->writeLog());
+  writeLogSection(file, "QUICK.LOG", qm->writeLog());
+  writeLogSection(file, "TRAJ.LOG", trajm->writeLog());
 
-  vstr= writeLog(thisVersion,thisBuild);
-  n= vstr.size();
-  file << "[MAIN.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/MAIN.LOG]" << endl;
-
-  vstr= contr->writeLog();
-  n= vstr.size();
-  file << "[CONTROLLER.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/CONTROLLER.LOG]" << endl;
-  file << endl;
-
-  vstr= mm->writeLog();
-  n= vstr.size();
-  file << "[MAP.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/MAP.LOG]" << endl;
-  file << endl;
-
-  vector<std::string> vstdstr= fm->writeLog();
-  n= vstdstr.size();
-  file << "[FIELD.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstdstr[i] << endl;
-  file << "[/FIELD.LOG]" << endl;
-  file << endl;
-
-  vstr= om->writeLog();
-  n= vstr.size();
-  file << "[OBS.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/OBS.LOG]" << endl;
-  file << endl;
-
-  vstr= sm->writeLog();
-  n= vstr.size();
-  file << "[SAT.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/SAT.LOG]" << endl;
-  file << endl;
-
-  vstr= qm->writeLog();
-  n= vstr.size();
-  file << "[QUICK.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/QUICK.LOG]" << endl;
-  file << endl;
-
-  vstr= trajm->writeLog();
-  n= vstr.size();
-  file << "[TRAJ.LOG]" << endl;
-  for (i=0; i<n; i++) file << vstr[i] << endl;
-  file << "[/TRAJ.LOG]" << endl;
-  file << endl;
-
-  if ( vpWindow ){
-    vstr= vpWindow->writeLog("window");
-    n= vstr.size();
-    file << "[VPROF.WINDOW.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/VPROF.WINDOW.LOG]" << endl;
-    file << endl;
-
-    vstr= vpWindow->writeLog("setup");
-    n= vstr.size();
-    file << "[VPROF.SETUP.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/VPROF.SETUP.LOG]" << endl;
-    file << endl;
+  if (vpWindow) {
+    writeLogSection(file, "VPROF.WINDOW.LOG", vpWindow->writeLog("window"));
+    writeLogSection(file, "VPROF.SETUP.LOG",  vpWindow->writeLog("setup"));
   }
 
-  if ( vcWindow ){
-    vstr= vcWindow->writeLog("window");
-    n= vstr.size();
-    file << "[VCROSS.WINDOW.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/VCROSS.WINDOW.LOG]" << endl;
-    file << endl;
-
-    vstr= vcWindow->writeLog("setup");
-    n= vstr.size();
-    file << "[VCROSS.SETUP.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/VCROSS.SETUP.LOG]" << endl;
-    file << endl;
-
-    vstr= vcWindow->writeLog("field");
-    n= vstr.size();
-    file << "[VCROSS.FIELD.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/VCROSS.FIELD.LOG]" << endl;
-    file << endl;
+  if (vcWindow) {
+    writeLogSection(file, "VCROSS.WINDOW.LOG", vcWindow->writeLog("window"));
+    writeLogSection(file, "VCROSS.SETUP.LOG", vcWindow->writeLog("setup"));
+    writeLogSection(file, "VCROSS.FIELD.LOG", vcWindow->writeLog("field"));
   }
 
-  if ( spWindow ){
-    vstr= spWindow->writeLog("window");
-    n= vstr.size();
-    file << "[SPECTRUM.WINDOW.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/SPECTRUM.WINDOW.LOG]" << endl;
-    file << endl;
-
-    vstr= spWindow->writeLog("setup");
-    n= vstr.size();
-    file << "[SPECTRUM.SETUP.LOG]" << endl;
-    for (i=0; i<n; i++) file << vstr[i] << endl;
-    file << "[/SPECTRUM.SETUP.LOG]" << endl;
-    file << endl;
+  if (spWindow) {
+    writeLogSection(file, "SPECTRUM.WINDOW.LOG", spWindow->writeLog("window"));
+    writeLogSection(file, "SPECTRUM.SETUP.LOG", spWindow->writeLog("setup"));
   }
 
   file.close();
