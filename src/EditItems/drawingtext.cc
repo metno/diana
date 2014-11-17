@@ -103,15 +103,16 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
-  QSizeF size(width, height);
+  const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+
+  QSizeF size(scale * width, scale * height);
 
   if (height == 0) {
     PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize("X", width, height);
-    size.setHeight(qMax(height, poptions.fontsize));
+    size.setHeight(qMax(scale * height, poptions.fontsize));
   }
 
-  float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
-  return scale * size;
+  return size;
 }
 
 DrawingItemBase::Category Text::category() const
