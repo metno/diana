@@ -633,8 +633,16 @@ bool QtManager::setModels()
       }
     }
   }
-  util::from_set(mCrossectionLabels, csLabels);
-  util::from_set(mCrossectionTimes, times);
+  bool modelChange = false;
+
+  string_v newCrossectionLabels;
+  times_t newCrossectionTimes;
+  util::from_set(newCrossectionLabels, csLabels);
+  util::from_set(newCrossectionTimes, times);
+  if (newCrossectionTimes != mCrossectionTimes or newCrossectionLabels != mCrossectionLabels)
+    modelChange = true;
+  std::swap(mCrossectionLabels, newCrossectionLabels);
+  std::swap(mCrossectionTimes,  newCrossectionTimes);
 
   locationData.elements.clear();
   locationData.elements.insert(locationData.elements.end(), le.begin(), le.end());
@@ -650,7 +658,6 @@ bool QtManager::setModels()
 
   setTimeToBestMatch(timeBefore);
 
-  bool modelChange = false;
   if (mCrossectionCurrent < 0 // no previous cs
       or csLabels.find(csBefore) == csLabels.end()) // current cs' name no longer known
   {
