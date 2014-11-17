@@ -38,9 +38,11 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QScrollArea>
+#include <QDialog>
 
 class QToolButton;
 class QIcon;
+class QTextEdit;
 
 namespace EditItems {
 
@@ -84,6 +86,18 @@ public:
   ScrollArea(QWidget * = 0);
 private:
   void keyPressEvent(QKeyEvent *);
+};
+
+class TextEditor : public QDialog
+{
+public:
+  TextEditor(const QString &text, bool = false);
+  virtual ~TextEditor();
+
+  QString text() const;
+
+private:
+  QTextEdit *textEdit_;
 };
 
 class Layer;

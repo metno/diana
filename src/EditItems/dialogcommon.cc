@@ -116,6 +116,40 @@ void ScrollArea::keyPressEvent(QKeyEvent *event)
   event->ignore();
 }
 
+TextEditor::TextEditor(const QString &text, bool readOnly)
+{
+  setWindowTitle("Text Editor");
+
+  QVBoxLayout *layout = new QVBoxLayout;
+  textEdit_ = new QTextEdit;
+  textEdit_->setPlainText(text);
+  textEdit_->setReadOnly(readOnly);
+  layout->addWidget(textEdit_);
+
+  QDialogButtonBox *buttonBox = 0;
+  if (readOnly) {
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    connect(buttonBox->button(QDialogButtonBox::Close), SIGNAL(clicked()), SLOT(reject()));
+  } else {
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), SLOT(accept()));
+  }
+  layout->addWidget(buttonBox);
+
+  setLayout(layout);
+}
+
+TextEditor::~TextEditor()
+{
+  delete textEdit_;
+}
+
+QString TextEditor::text() const
+{
+  return textEdit_->toPlainText();
+}
+
 QToolButton *createToolButton(const QIcon &icon, const QString &toolTip, const QObject *object, const char *method)
 {
   QToolButton *button = new QToolButton;

@@ -169,8 +169,9 @@ bool ToolBar::nonSelectActionLocked() const
   return nonSelectActionLocked_;
 }
 
-void ToolBar::setSelectAction()
+void ToolBar::setSelectAction(bool force)
 {
+  if (force || (!EditItems::ToolBar::instance()->nonSelectActionLocked()))
   selectAction_->trigger();
 }
 

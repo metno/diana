@@ -44,7 +44,7 @@ class ToolBar : public QToolBar
 public:
   static ToolBar *instance();
   bool nonSelectActionLocked() const;
-  void setSelectAction();
+  void setSelectAction(bool = true);
   void setCreatePolyLineAction(const QString &);
 
 private slots:

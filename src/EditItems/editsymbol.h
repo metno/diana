@@ -54,8 +54,7 @@ protected:
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
-  virtual
-  bool hit(const QPointF &, bool) const;
+  virtual bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
 
   virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);

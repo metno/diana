@@ -35,6 +35,7 @@
 #include "diFontManager.h"
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
+#include "EditItems/dialogcommon.h"
 
 #include <QAction>
 
@@ -42,10 +43,8 @@ namespace EditItem_Text {
 
 Text::Text()
 {
-  cursor_ = -1;
-  line_ = -1;
-  editAction = new QAction(tr("Edit text"), this);
-  connect(editAction, SIGNAL(triggered()), SLOT(editItem()));
+  editAction = new QAction(tr("Edit Text"), this);
+  connect(editAction, SIGNAL(triggered()), SLOT(editText()));
 }
 
 Text::~Text()
@@ -99,6 +98,11 @@ void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoComman
   }
 }
 
+void Text::mouseDoubleClick(QMouseEvent *, bool &)
+{
+  editText();
+}
+
 /**
  * Processes a mouse press event when the object is incomplete.
  * This implementation only handles left button clicks, adding two points to the internal
@@ -107,120 +111,29 @@ void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoComman
  */
 void Text::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  repaintNeeded = true;
-
   if (event->button() == Qt::LeftButton) {
-    if (points_.size() < 2) {
-      // Create two points: one for the current mouse position and another to be
-      // updated during the following move events.
-      points_.append(QPointF(event->pos()));
-      points_.append(QPointF(event->pos()));
-      cursor_ = -1;
+    Q_ASSERT(points_.isEmpty());
+    // set initial bounding box corners
+    points_.append(QPointF(event->pos()));
+    points_.append(QPointF(event->pos()));
 
-      // Ensure that the manager gets the keyboard focus so that key events are
-      // delivered to this item.
-      EditItemManager::instance()->setFocus(true);
-    } else
+    if ((!editText()) || text().join("\n").trimmed().isEmpty()) {
+      aborted = true;
+    } else {
       complete = true;
+      repaintNeeded = true;
+      updateControlPoints();
+    }
   }
-}
-
-void Text::incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
-{
-  // Update the geographic points and the control points.
-  setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*this));
-  updateControlPoints();
-
-  repaintNeeded = true;
-
-  // Make the text area editable by using a valid index.
-  cursor_ = 0;
-  line_ = 0;
-  QStringList lines_ = text();
-  lines_.append(QString());
-  setText(lines_);
 }
 
 void Text::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
-  if (cursor_ == -1) {
-    event->ignore();
-    return;
-  }
-
-  QStringList lines_ = text();
-
-  switch (event->key()) {
-  case Qt::Key_Escape:
+  Q_UNUSED(repaintNeeded);
+  Q_UNUSED(complete);
+  if (event->key() == Qt::Key_Escape) {
     aborted = true;
-    break;
-  case Qt::Key_Return:
-    if (event->modifiers() & Qt::ShiftModifier)
-      complete = true;
-    else {
-      lines_.insert(line_ + 1, lines_.at(line_).mid(cursor_));
-      lines_[line_] = lines_.at(line_).left(cursor_);
-      line_ += 1;
-      cursor_ = 0;
-    }
-    break;
-  case Qt::Key_Backspace:
-    if (cursor_ > 0) {
-      lines_[line_] = lines_[line_].left(cursor_ - 1) + lines_[line_].mid(cursor_);
-      cursor_ -= 1;
-    } else if (line_ > 0) {
-      cursor_ = lines_.at(line_ - 1).size();
-      lines_[line_ - 1] += lines_[line_];
-      lines_.removeAt(line_);
-      line_ -= 1;
-    }
-    break;
-  case Qt::Key_Delete:
-    if (cursor_ <= lines_[line_].size() - 1)
-      lines_[line_] = lines_[line_].left(cursor_) + lines_[line_].mid(cursor_ + 1);
-    else if (line_ < lines_.size() - 1) {
-      lines_[line_] += lines_[line_ + 1];
-      lines_.removeAt(line_ + 1);
-    }
-    break;
-  case Qt::Key_Left:
-    if (cursor_ > 0)
-      cursor_ -= 1;
-    else if (line_ > 0) {
-      line_ -= 1;
-      cursor_ = lines_.at(line_).size();
-    }
-    break;
-  case Qt::Key_Right:
-    if (cursor_ < lines_[line_].size())
-      cursor_ += 1;
-    else if (line_ < lines_.size() - 1) {
-      line_ += 1;
-      cursor_ = 0;
-    }
-    break;
-  case Qt::Key_Up:
-    if (line_ > 0)
-      line_ -= 1;
-    break;
-  case Qt::Key_Down:
-    if (line_ < lines_.size() - 1)
-      line_ += 1;
-    break;
-  case Qt::Key_Home:
-    cursor_ = 0;
-    break;
-  case Qt::Key_End:
-    cursor_ = lines_[line_].size();
-    break;
-  default:
-    lines_[line_].insert(cursor_, event->text());
-    cursor_ += event->text().size();
   }
-
-  setText(lines_);
-  updateControlPoints();
-  event->accept();
 }
 
 void Text::resize(const QPointF &)
@@ -229,10 +142,15 @@ void Text::resize(const QPointF &)
 
 void Text::updateControlPoints()
 {
-  if (points_.size() < 2)
-    return;
-
   updateRect();
+
+  controlPoints_.clear();
+  const int size = controlPointSize(), size_2 = size / 2;
+  const QRectF r = drawingRect();
+  controlPoints_.append(QRectF( r.bottomLeft().x() - size_2,  r.bottomLeft().y() - size_2, size, size));
+  controlPoints_.append(QRectF(r.bottomRight().x() - size_2, r.bottomRight().y() - size_2, size, size));
+  controlPoints_.append(QRectF(   r.topRight().x() - size_2,    r.topRight().y() - size_2, size, size));
+  controlPoints_.append(QRectF(    r.topLeft().x() - size_2,     r.topLeft().y() - size_2, size, size));
 }
 
 void Text::setPoints(const QList<QPointF> &points)
@@ -255,54 +173,36 @@ void Text::drawHoverHighlighting(bool, bool) const
 
 void Text::drawIncomplete() const
 {
-  if (points_.size() < 2)
+  if (points_.isEmpty())
     return;
 
-  QRectF bbox = drawingRect();
-
-  if (!text().isEmpty()) {
-    glLineStipple(1, 0x5555);
-    glEnable(GL_LINE_STIPPLE);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
-    glVertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
-    glVertex2f(bbox.topRight().x(), bbox.topRight().y());
-    glVertex2f(bbox.topLeft().x(), bbox.topLeft().y());
-    glEnd();
-    glDisable(GL_LINE_STIPPLE);
-  }
-
-  float x = bbox.bottomLeft().x();
-  float y = bbox.bottomLeft().y();
-  QSizeF size;
-
-  DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-  GLfloat scale = qMax(PlotModule::instance()->getStaticPlot()->getPhysWidth()/PlotModule::instance()->getStaticPlot()->getMapSize().width(),
-      PlotModule::instance()->getStaticPlot()->getPhysHeight()/PlotModule::instance()->getStaticPlot()->getMapSize().height());
-  styleManager->beginText(this, poptions);
-
-  QStringList lines_ = text();
-
-  for (int line = 0; line < line_; ++line) {
-    size = getStringSize(lines_.at(line));
-    y -= size.height() * (1.0 + spacing_);
-  }
-
-  if (cursor_ != -1) {
-    size = getStringSize(lines_.at(line_), cursor_);
-    // Draw a caret.
-    glColor3ub(255, 0, 0);
-    glBegin(GL_LINES);
-    glVertex2f(x + margin_ + size.width(), y - size.height() - margin_);
-    glVertex2f(x + margin_ + size.width(), y - margin_);
-    glEnd();
-  }
+  // mark the insertion point with a red square
+  const float x = points_.first().x();
+  const float y = points_.first().y();
+  const float s = 4;
+  glColor3ub(255, 0, 0);
+  glBegin(GL_POLYGON);
+  glVertex2f(x - s, y - s);
+  glVertex2f(x + s, y - s);
+  glVertex2f(x + s, y + s);
+  glVertex2f(x - s, y + s);
+  glEnd();
 }
 
-void Text::editItem()
+bool Text::editText()
 {
-  EditItemManager::instance()->editItem(this);
-  EditItemManager::instance()->setFocus(true);
+  EditItems::TextEditor textEditor(text().join("\n"));
+  textEditor.setWindowTitle("Edit Text");
+  if (textEditor.exec() == QDialog::Accepted) {
+    const QString t = textEditor.text().trimmed();
+    if (!t.isEmpty()) {
+      setText(t.split("\n"));
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
 }
 
 } // namespace EditItem_Text

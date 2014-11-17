@@ -231,8 +231,7 @@ void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool
   DrawingManager::addItem_(item);
   if (!ignoreSelection)
     selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
-  if (!EditItems::ToolBar::instance()->nonSelectActionLocked())
-    EditItems::ToolBar::instance()->setSelectAction();
+  EditItems::ToolBar::instance()->setSelectAction(false);
   emit itemAdded(item.data());
   if (updateNeeded)
     update();
@@ -525,7 +524,12 @@ void EditItemManager::mouseDoubleClick(QMouseEvent *event, QSet<QSharedPointer<D
     return;
   }
 
-  // do nothing for now
+  const QList<QSharedPointer<DrawingItemBase> > hitItems = findHitItems(event->pos());
+  if (!hitItems.empty()) {
+    bool rpn = false;
+    Editing(hitItems.first().data())->mouseDoubleClick(event, rpn);
+    if (rpn) repaintNeeded_ = true;
+  }
 }
 
 void EditItemManager::incompleteMouseDoubleClick(QMouseEvent *event, QSet<QSharedPointer<DrawingItemBase> > *addedItems)
@@ -563,6 +567,11 @@ void EditItemManager::keyPress(
 
   if (hasIncompleteItem()) {
     incompleteKeyPress(event, addedItems);
+    return;
+  }
+
+  if (event->key() == Qt::Key_Escape) {
+    EditItems::ToolBar::instance()->setSelectAction(false);
     return;
   }
 
@@ -779,7 +788,8 @@ void EditItemManager::abortEditing()
 
     incompleteItem_.clear();
     hitItems_.clear();
-    //setSelectMode(); // restore default mode
+    EditItems::ToolBar::instance()->setSelectAction(false);
+
     emit incompleteEditing(false);
     emit repaintNeeded();
   }
@@ -1110,53 +1120,43 @@ void EditItemManager::pasteItems()
 void EditItemManager::setSelectMode()
 {
   abortEditing();
-
   mode_ = SelectMode;
   selectAction->setChecked(true);
-  //clearCursorStack();
   emit unsetWorkAreaCursor();
 }
 
 void EditItemManager::setCreatePolyLineMode()
 {
   abortEditing();
-
   mode_ = CreatePolyLineMode;
   createPolyLineAction->setChecked(true);
-  //clearCursorStack();
-  //qApp->setOverrideCursor(Qt::CrossCursor); // FOR NOW
   const QCursor cursor = QCursor(QPixmap(paint_create_polyline_xpm), 4, 4);
-  //qApp->setOverrideCursor(cursor);
   emit setWorkAreaCursor(cursor);
 }
 
 void EditItemManager::setCreateSymbolMode()
 {
   abortEditing();
-
   mode_ = CreateSymbolMode;
   createSymbolAction->setChecked(true);
-  //clearCursorStack();
-  //qApp->setOverrideCursor(Qt::PointingHandCursor); // FOR NOW
   const QCursor cursor = QCursor(QPixmap(paint_create_symbol_xpm), 4, 4);
-  //qApp->setOverrideCursor(cursor);
   emit setWorkAreaCursor(cursor);
 }
 
 void EditItemManager::setCreateTextMode()
 {
   abortEditing();
-
   mode_ = CreateTextMode;
-  const QCursor cursor(Qt::PointingHandCursor);
+  createTextAction->setChecked(true);
+  const QCursor cursor(Qt::IBeamCursor);
   emit setWorkAreaCursor(cursor);
 }
 
 void EditItemManager::setCreateCompositeMode()
 {
   abortEditing();
-
   mode_ = CreateCompositeMode;
+  createCompositeAction->setChecked(true);
   const QCursor cursor(Qt::PointingHandCursor);
   emit setWorkAreaCursor(cursor);
 }

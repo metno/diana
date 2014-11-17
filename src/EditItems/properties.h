@@ -38,23 +38,10 @@
 #include <QVariantMap>
 
 class QContextMenuEvent;
-class QTextEdit;
 class DrawingItemBase;
 class QWidget;
 
 namespace Properties {
-
-class TextEditor : public QDialog
-{
-public:
-  TextEditor(const QString &text, bool = false);
-  virtual ~TextEditor();
-
-  QString text() const;
-
-private:
-  QTextEdit *textEdit_;
-};
 
 class SpecialLineEdit : public QLineEdit
 {

@@ -45,6 +45,8 @@ public:
   Text();
   virtual ~Text();
 
+private:
+
   virtual bool hit(const QPointF &pos, bool selected) const;
   virtual bool hit(const QRectF &bbox) const;
 
@@ -53,9 +55,8 @@ public:
                           QSet<QSharedPointer<DrawingItemBase> > *items = 0,
                           const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0,
                           bool *multiItemOp = 0);
-
+  virtual void mouseDoubleClick(QMouseEvent *, bool &);
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
-  virtual void incompleteMouseRelease(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
   virtual QList<QAction *> actions(const QPoint &) const;
@@ -69,13 +70,11 @@ protected:
   virtual void setPoints(const QList<QPointF> &points);
 
 private slots:
-  void editItem();
+  bool editText();
 
 private:
   virtual DrawingItemBase *cloneSpecial() const;
 
-  int line_;
-  int cursor_;
   QAction *editAction;
 };
 

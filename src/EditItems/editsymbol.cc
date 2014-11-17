@@ -113,11 +113,10 @@ void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCo
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
 {
   if (event->button() == Qt::LeftButton) {
-    if (points_.isEmpty()) {
-      points_.append(QPointF(event->pos().x(), event->pos().y()));
-      complete = true;
-      repaintNeeded = true;
-    }
+    Q_ASSERT(points_.isEmpty());
+    points_.append(QPointF(event->pos().x(), event->pos().y()));
+    complete = true;
+    repaintNeeded = true;
   }
 }
 

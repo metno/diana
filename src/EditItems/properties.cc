@@ -34,53 +34,9 @@
 
 #include <EditItems/edititembase.h>
 #include <EditItems/properties.h>
-
-#include <QAction>
-#include <QDateTimeEdit>
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QLabel>
-#include <QMenu>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QTextEdit>
-#include <QVBoxLayout>
+#include <EditItems/dialogcommon.h>
 
 namespace Properties {
-
-TextEditor::TextEditor(const QString &text, bool readOnly)
-{
-  setWindowTitle("Text Editor");
-
-  QVBoxLayout *layout = new QVBoxLayout;
-  textEdit_ = new QTextEdit;
-  textEdit_->setPlainText(text);
-  textEdit_->setReadOnly(readOnly);
-  layout->addWidget(textEdit_);
-
-  QDialogButtonBox *buttonBox = 0;
-  if (readOnly) {
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    connect(buttonBox->button(QDialogButtonBox::Close), SIGNAL(clicked()), SLOT(reject()));
-  } else {
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
-    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SLOT(reject()));
-    connect(buttonBox->button(QDialogButtonBox::Save), SIGNAL(clicked()), SLOT(accept()));
-  }
-  layout->addWidget(buttonBox);
-
-  setLayout(layout);
-}
-
-TextEditor::~TextEditor()
-{
-  delete textEdit_;
-}
-
-QString TextEditor::text() const
-{
-  return textEdit_->toPlainText();
-}
 
 SpecialLineEdit::SpecialLineEdit(const QString &pname, bool readOnly)
   : propertyName_(pname)
@@ -107,7 +63,7 @@ void SpecialLineEdit::mouseDoubleClickEvent(QMouseEvent *)
 
 void SpecialLineEdit::openTextEdit()
 {
-  TextEditor textEditor(text(), isReadOnly());
+  EditItems::TextEditor textEditor(text(), isReadOnly());
   textEditor.setWindowTitle(propertyName());
   if (textEditor.exec() == QDialog::Accepted)
     setText(textEditor.text());
