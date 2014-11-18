@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtSatDialog.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
@@ -39,7 +40,6 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
-#include <QApplication>
 #include <QSlider>
 #include <QRadioButton>
 #include <QComboBox>
@@ -300,9 +300,9 @@ void SatDialog::nameActivated(int in)
 /*********************************************/
 void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
 {
-  METLIBS_LOG_DEBUG("SatDialog::fileListWidgetClicked called");
+  METLIBS_LOG_SCOPE();
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  diutil::OverrideCursor waitCursor;
 
   int index = timefileBut->checkedId();
 
@@ -322,11 +322,6 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
     timefileBut->button(index)->setChecked(true);
     timefileClicked(index);
   }
-
-  QApplication::restoreOverrideCursor();
-
-  METLIBS_LOG_DEBUG("fileListWidgetClicked returned");
-  return;
 }
 
 /*********************************************/
@@ -664,8 +659,8 @@ void SatDialog::RefreshList()
 
 void SatDialog::Refresh()
 {
-  METLIBS_LOG_DEBUG("SatDialog::Refresh() called); Reading files from disk");
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  METLIBS_LOG_SCOPE();
+  diutil::OverrideCursor waitCursor;
 
   for (unsigned int i = 0; i < m_state.size(); i++) {
     //    if(m_state[i].filename.empty()){
@@ -675,28 +670,22 @@ void SatDialog::Refresh()
   }
 
   RefreshList();
-
-  QApplication::restoreOverrideCursor();
-  return;
 }
 
 /*********************************************/
 
 void SatDialog::mosaicToggled(bool on)
 {
-
   int index = pictures->currentRow();
   if (index > -1 && int(m_state.size()) > index)
     m_state[index].mosaic = on;
   updatePictures(index, false);
-
 }
 
 /*********************************************/
 
 void SatDialog::advancedChanged()
 {
-
   int index = pictures->currentRow();
   std::string advancedstring = sda->getOKString();
   if (index > -1)
@@ -1109,10 +1098,10 @@ void SatDialog::updateTimefileList()
   timefileList->clear();
 
   //get new list of sat files
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  files = m_ctrl->getSatFiles(namebox->currentText().toStdString(),
-      fileListWidget->currentItem()->text().toStdString(), true);
-  QApplication::restoreOverrideCursor();
+  { diutil::OverrideCursor waitCursor;
+    files = m_ctrl->getSatFiles(namebox->currentText().toStdString(),
+        fileListWidget->currentItem()->text().toStdString(), true);
+  }
 
   if (autoButton->isChecked())
     return;
@@ -1294,8 +1283,8 @@ void SatDialog::updateColours()
 /*********************************************/
 void SatDialog::emitSatTimes(bool update)
 {
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  METLIBS_LOG_DEBUG("emitSatTimes");
+  METLIBS_LOG_SCOPE();
+  diutil::OverrideCursor waitCursor;
   times.clear();
   set<miutil::miTime> timeset;
 
@@ -1318,9 +1307,7 @@ void SatDialog::emitSatTimes(bool update)
   }
 
   bool useTimes = (times.size() > m_state.size());
-  emit
-  emitTimes("sat", times, useTimes);
-  QApplication::restoreOverrideCursor();
+  Q_EMIT emitTimes("sat", times, useTimes);
 }
 
 /*********************************************/

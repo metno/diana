@@ -32,7 +32,6 @@
 #include "config.h"
 #endif
 
-#include <QApplication>
 #include <QComboBox>
 #include <QSlider>
 #include <QListWidget>
@@ -51,6 +50,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 
+#include "diUtilities.h"
 #include "qtFieldDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
@@ -1183,7 +1183,7 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
 {
   METLIBS_LOG_SCOPE();
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  diutil::OverrideCursor waitCursor;
 
   refTimeComboBox->clear();
   fieldGRbox->clear();
@@ -1204,8 +1204,6 @@ void FieldDialog::modelboxClicked(QListWidgetItem * item)
     refTimeComboBox->setCurrentIndex(refTimeComboBox->count()-1);
   }
   updateFieldGroups();
-
-  QApplication::restoreOverrideCursor();
 }
 
 void FieldDialog::updateFieldGroups()
@@ -3187,14 +3185,10 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
 
   std::string modelName;
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-
-  m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
-
-  modelName = model;
-
-
-  QApplication::restoreOverrideCursor();
+  {  diutil::OverrideCursor waitCursor;
+    m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
+    modelName = model;
+  }
 
   if (indexMGR >= 0 && indexM >= 0) {
     // field groups will be shown, translate the name parts

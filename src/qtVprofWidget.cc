@@ -37,14 +37,13 @@
 
 #include <QImage>
 #include <QKeyEvent>
-#include <QApplication>
 
-#define MILOGGER_CATEGORY "diana.VprofWidget"
-#include <miLogger/miLogging.h>
-
+#include "diUtilities.h"
 #include "qtVprofWidget.h"
 #include "diVprofManager.h"
 
+#define MILOGGER_CATEGORY "diana.VprofWidget"
+#include <miLogger/miLogging.h>
 
 #if !defined(USE_PAINTGL)
 VprofWidget::VprofWidget(VprofManager *vpm, const QGLFormat fmt,
@@ -81,9 +80,9 @@ void VprofWidget::paintGL()
 
   if (!vprofm) return;
 
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-  vprofm->plot();
-  QApplication::restoreOverrideCursor();
+  { diutil::OverrideCursor waitCursor;
+    vprofm->plot();
+  }
 
   swapBuffers();
 }

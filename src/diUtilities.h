@@ -2,6 +2,8 @@
 #ifndef diUtilities_h
 #define diUtilities_h 1
 
+#include <QCursor>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -76,6 +78,12 @@ inline int ms2knots(float ff)
 
 inline float knots2ms(float ff)
 { return (ff*1852.0/3600.0); }
+
+class OverrideCursor {
+public:
+  OverrideCursor(const QCursor& cursor = Qt::WaitCursor);
+  ~OverrideCursor();
+};
 
 } // namespace diutil
 

@@ -3,6 +3,8 @@
 
 #include "diPlot.h"
 
+#include <QApplication>
+
 #include <puCtools/glob_cache.h>
 #include <puCtools/puCglob.h>
 #include <puTools/miStringFunctions.h>
@@ -328,6 +330,16 @@ bool getFromAny(const std::string &uof, string_v& lines)
     return getFromFile(uof.substr(7), lines);
 
   return diutil::getFromFile(uof, lines);
+}
+
+OverrideCursor::OverrideCursor(const QCursor& cursor)
+{
+  QApplication::setOverrideCursor(cursor);
+}
+
+OverrideCursor::~OverrideCursor()
+{
+  QApplication::restoreOverrideCursor();
 }
 
 } // namespace diutil

@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "qtSpectrumWindow.h"
@@ -43,7 +44,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
 #include <qtoolbutton.h>
@@ -382,7 +382,7 @@ void SpectrumWindow::printClicked()
       priop.printer= qprt.printerName().toStdString();
 
     // start the postscript production
-    QApplication::setOverrideCursor( Qt::WaitCursor );
+    diutil::OverrideCursor waitCursor;
 
     spectrumm->startHardcopy(priop);
     spectrumw->updateGL();
@@ -402,7 +402,6 @@ void SpectrumWindow::printClicked()
         METLIBS_LOG_WARN("Print command:" << command << " failed");
       }
     }
-    QApplication::restoreOverrideCursor();
   }
 }
 
@@ -443,7 +442,7 @@ void SpectrumWindow::saveClicked()
 
 void SpectrumWindow::makeEPS(const std::string& filename)
 {
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -458,8 +457,6 @@ void SpectrumWindow::makeEPS(const std::string& filename)
   spectrumm->startHardcopy(priop);
   spectrumw->updateGL();
   spectrumw->updateGL();
-
-  QApplication::restoreOverrideCursor();
 }
 
 

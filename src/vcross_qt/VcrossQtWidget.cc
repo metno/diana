@@ -29,6 +29,7 @@
 
 #include "VcrossQtWidget.h"
 
+#include "diUtilities.h"
 #include "vcross_v2/VcrossQtManager.h"
 
 #include <QPainter>
@@ -36,7 +37,6 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QApplication>
 
 #include <cmath>
 
@@ -69,15 +69,13 @@ void QtWidget::paintEvent(QPaintEvent* event)
   if (!vcrossm)
     return;
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  diutil::OverrideCursor waitCursor;
 
   QPainter painter;
   painter.begin(this);
   painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   vcrossm->plot(painter);
   painter.end();
-
-  QApplication::restoreOverrideCursor();
 }
 
 void QtWidget::resizeEvent(QResizeEvent* event)

@@ -40,6 +40,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include "diUtilities.h"
+
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
 #include "qtTimeStepSpinbox.h"
@@ -52,7 +54,6 @@
 #include <QFileDialog>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QApplication>
 #include <QTimerEvent>
 #include <QFocusEvent>
 #include <QFrame>
@@ -1258,7 +1259,7 @@ void DianaMainWindow::toggleEIMTestDialog()
 void DianaMainWindow::quickMenuApply(const vector<string>& s)
 {
   METLIBS_LOG_SCOPE();
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   contr->plotCommands(s);
 
   map<string,vector<miutil::miTime> > times;
@@ -1281,7 +1282,6 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
   timeChanged();
 
   dialogChanged=false;
-  QApplication::restoreOverrideCursor();
 }
 
 void DianaMainWindow::resetAll()
@@ -1294,7 +1294,7 @@ void DianaMainWindow::resetAll()
 
 void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 {
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
 
   if ( vstr.size() > 0 && vstr[0] == "VCROSS") {
     vcrossMenu();
@@ -1349,7 +1349,6 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     push_command= true;
     vlabel = tmplabel;
   }
-  QApplication::restoreOverrideCursor();
 }
 
 void DianaMainWindow::toggleEditDrawingMode()
@@ -1474,7 +1473,7 @@ void DianaMainWindow::MenuOK()
 {
   METLIBS_LOG_SCOPE();
 
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
 
   vector<string> pstr;
   vector<string> diagstr;
@@ -1521,8 +1520,6 @@ void DianaMainWindow::MenuOK()
       }
     qm->pushPlot(plotname,pstr,QuickMenu::MAP);
   }
-
-  QApplication::restoreOverrideCursor();
 }
 
 void DianaMainWindow::updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>& pstr)
@@ -2415,7 +2412,7 @@ void DianaMainWindow::processLetter(const miMessage &letter)
       }
       else {
         // Avoid not needed updates
-        QApplication::setOverrideCursor( Qt::WaitCursor );
+        diutil::OverrideCursor waitCursor;
         // what to do with om->getTimes() ?
         om->getTimes();
         sm->RefreshList();
@@ -2435,7 +2432,6 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         }
         //METLIBS_LOG_DEBUG("stepforward");
         stepforward();
-        QApplication::restoreOverrideCursor();
       }
     }
   }
@@ -2484,11 +2480,9 @@ void DianaMainWindow::sendLetter(miMessage& letter)
 void DianaMainWindow::updateObs()
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::obsUpdate()");
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   contr->updateObs();
   w->updateGL();
-  QApplication::restoreOverrideCursor();
-
 }
 
 void DianaMainWindow::autoUpdate()
@@ -2657,18 +2651,15 @@ void DianaMainWindow::increaseTimeStep()
   timestep->setValue(v);
 }
 
-
 void DianaMainWindow::setPlotTime(miutil::miTime& t)
 {
   METLIBS_LOG_TIME();
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   if (contr->setPlotTime(t)) {
     contr->updatePlots();
     w->updateGL();
   }
   timeChanged();
-  QApplication::restoreOverrideCursor();
-
 }
 
 void DianaMainWindow::timeChanged(){
@@ -2697,7 +2688,6 @@ void DianaMainWindow::timeChanged(){
   }
 
   QCoreApplication::sendPostedEvents ();
-
 }
 
 
@@ -2717,12 +2707,11 @@ void DianaMainWindow::levelDown()
 
 void DianaMainWindow::levelChange(int increment)
 {
-
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   // update field dialog and FieldPlots
   contr->updateFieldPlot(fm->changeLevel(increment,0));
   updateGLSlot();
-  QApplication::restoreOverrideCursor();
+
   toolLevelUpAction->  setEnabled(fm->levelsExists(true,0));
   toolLevelDownAction->setEnabled(fm->levelsExists(false,0));
 }
@@ -2745,14 +2734,13 @@ void DianaMainWindow::idnumDown()
 void DianaMainWindow::idnumChange(int increment)
 {
 
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   // update field dialog and FieldPlots
   contr->updateFieldPlot(fm->changeLevel(increment, 1));
   updateGLSlot();
-  QApplication::restoreOverrideCursor();
+
   toolIdnumUpAction->  setEnabled(fm->levelsExists(true,1));
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
-
 }
 
 
@@ -2896,7 +2884,7 @@ void DianaMainWindow::saveAnimation() {
 
 void DianaMainWindow::makeEPS(const std::string& filename)
 {
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -2914,8 +2902,6 @@ void DianaMainWindow::makeEPS(const std::string& filename)
   w->Glw()->endHardcopy();
   w->updateGL();
 #endif
-
-  QApplication::restoreOverrideCursor();
 }
 
 
@@ -2976,7 +2962,7 @@ void DianaMainWindow::hardcopy()
         priop.printer= qprt.printerName().toStdString();
 
       // start the postscript production
-      QApplication::setOverrideCursor( Qt::WaitCursor );
+      diutil::OverrideCursor waitCursor;
       //     contr->startHardcopy(priop);
 #if !defined(USE_PAINTGL)
       w->Glw()->startHardcopy(priop);
@@ -3011,8 +2997,6 @@ void DianaMainWindow::hardcopy()
         priop.printer= oldprinter;
       }
 
-      QApplication::restoreOverrideCursor();
-
       //     // reset number of copies (saves a lot of paper)
       //     qprt.setNumCopies(1);
     }
@@ -3035,7 +3019,6 @@ void DianaMainWindow::trajPositions(bool b)
   markTrajPos = b;
   markMeasurementsPos = false;
   markVcross = false;
-
 }
 
 void DianaMainWindow::measurementsPositions(bool b)
@@ -3043,7 +3026,6 @@ void DianaMainWindow::measurementsPositions(bool b)
   markMeasurementsPos = b;
   markTrajPos = false;
   markVcross = false;
-
 }
 
 void DianaMainWindow::vCrossPositions(bool b)

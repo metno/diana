@@ -31,13 +31,13 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtButtonLayout.h"
 #include "qtObsWidget.h"
 #include "qtUtility.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <QApplication>
 #include <QSlider>
 #include <QComboBox>
 #include <QPushButton>
@@ -679,19 +679,14 @@ void ObsWidget::inTopClicked( int id )
   if(parameterButtons)
     parameterButtons->enableButtons(datatype[id].active);
 
-
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   emit getTimes();
-  QApplication::restoreOverrideCursor();
-
-  //  METLIBS_LOG_DEBUG("ObsWidget::inTopClicked returned");
 }
 
 
 void ObsWidget::outTopClicked( int id )
 {
-
   // This function is called when datatypeButtons sends a signal
   //  outGroupClicked(int), and is sent when an already selected
   //  datatype is unselected, that is the button is pressed out.
@@ -707,12 +702,8 @@ void ObsWidget::outTopClicked( int id )
   }
 
   // Names of datatypes selected are sent to controller
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   emit getTimes();
-  QApplication::restoreOverrideCursor();
-
-
-  //  METLIBS_LOG_DEBUG("ObsWidget::outTopClicked returned");
 }
 
 void ObsWidget::markButton(const std::string& str,bool on)

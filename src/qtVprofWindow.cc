@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtVprofWindow.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
@@ -43,7 +44,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include <qapplication.h>
 #include <QFileDialog>
 #include <QToolBar>
 #include <qtoolbutton.h>
@@ -353,7 +353,7 @@ void VprofWindow::printClicked()
       priop.printer= qprt.printerName().toStdString();
 
     // start the postscript production
-    QApplication::setOverrideCursor( Qt::WaitCursor );
+    diutil::OverrideCursor waitCursor;
 
     vprofm->startHardcopy(priop);
     vprofw->updateGL();
@@ -374,7 +374,6 @@ void VprofWindow::printClicked()
       }
 
     }
-    QApplication::restoreOverrideCursor();
   }
 }
 
@@ -415,7 +414,7 @@ void VprofWindow::saveClicked()
 
 void VprofWindow::makeEPS(const std::string& filename)
 {
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -431,8 +430,6 @@ void VprofWindow::makeEPS(const std::string& filename)
   vprofw->updateGL();
   vprofm->endHardcopy();
   vprofw->updateGL();
-
-  QApplication::restoreOverrideCursor();
 }
 
 /***************************************************************************/
@@ -527,9 +524,9 @@ void VprofWindow::changeModel(){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofWindow::changeModel()");
 #endif
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-  vprofm->setModel();
-  QApplication::restoreOverrideCursor();
+  { diutil::OverrideCursor waitCursor;
+    vprofm->setModel();
+  }
 
   onlyObs= vprofm->onlyObsState();
 

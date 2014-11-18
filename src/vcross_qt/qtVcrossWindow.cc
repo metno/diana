@@ -35,6 +35,7 @@
 
 #include "diController.h"
 #include "diLocationPlot.h"
+#include "diUtilities.h"
 
 #include "qtUtility.h"
 #include "qtToggleButton.h"
@@ -50,7 +51,6 @@
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 
-#include <qapplication.h>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -466,9 +466,8 @@ void VcrossWindow::printClicked()
     // fill printOption from qprinter-selections
     toPrintOption(qprt, priop);
 
-    QApplication::setOverrideCursor( Qt::WaitCursor );
+    diutil::OverrideCursor waitCursor;
     vcrossw->print(qprt);
-    QApplication::restoreOverrideCursor();
   }
 }
 
@@ -492,7 +491,7 @@ void VcrossWindow::saveClicked()
 
 void VcrossWindow::makeEPS(const std::string& filename)
 {
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
   printOptions priop;
   priop.fname= filename;
   priop.colop= d_print::incolour;
@@ -505,7 +504,6 @@ void VcrossWindow::makeEPS(const std::string& filename)
   priop.doEPS= true;
 
 //  vcrossw->print(priop);
-  QApplication::restoreOverrideCursor();
 }
 
 /***************************************************************************/

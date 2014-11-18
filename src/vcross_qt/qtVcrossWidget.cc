@@ -33,6 +33,7 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtVcrossWidget.h"
 
 #ifdef USE_VCROSS_V2
@@ -44,7 +45,6 @@
 #include <QImage>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QApplication>
 
 #define MILOGGER_CATEGORY "diana.VcrossWidget"
 #include <miLogger/miLogging.h>
@@ -120,9 +120,9 @@ void VcrossWidget::paintGL()
 #ifdef DEBUGREDRAW
     METLIBS_LOG_DEBUG("... vcrossm->plot");
 #endif
-    QApplication::setOverrideCursor( Qt::WaitCursor );
-    vcrossm->plot();
-    QApplication::restoreOverrideCursor();
+    { diutil::OverrideCursor waitCursor;
+      vcrossm->plot();
+    }
 
     if (savebackground) {
 #ifdef DEBUGREDRAW

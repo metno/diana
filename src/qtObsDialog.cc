@@ -31,6 +31,7 @@
 #include "config.h"
 #endif
 
+#include "diUtilities.h"
 #include "qtObsDialog.h"
 #include "qtObsWidget.h"
 #include "qtUtility.h"
@@ -38,7 +39,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include <QApplication>
 #include <QComboBox>
 #include <QLabel>
 #include <QListWidget>
@@ -276,12 +276,12 @@ void ObsDialog::plotSelected( int index, bool sendTimes )
     getTimes();
 }
 
-void ObsDialog::getTimes(void){
-
+void ObsDialog::getTimes()
+{
   // Names of datatypes selected are sent to controller,
   // and times are returned
 
-  QApplication::setOverrideCursor( Qt::WaitCursor );
+  diutil::OverrideCursor waitCursor;
 
   vector<std::string> dataName;
   if(multiplot){
@@ -308,11 +308,7 @@ void ObsDialog::getTimes(void){
   }
 
   vector<miutil::miTime> times = m_ctrl->getObsTimes(dataName);
-
-  emit emitTimes("obs",times);
-
-  QApplication::restoreOverrideCursor();
-
+  Q_EMIT emitTimes("obs",times);
 }
 
 

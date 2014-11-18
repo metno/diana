@@ -34,6 +34,7 @@
 #endif
 
 #include "vcross_qt/qtVcrossDialog.h"
+#include "diUtilities.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
 #ifdef USE_VCROSS_V2
@@ -59,7 +60,6 @@
 #include <QPixmap>
 #include <QFrame>
 #include <QVBoxLayout>
-#include <QApplication>
 
 #include <cmath>
 
@@ -836,9 +836,9 @@ void VcrossDialog::modelboxClicked(QListWidgetItem* item)
   METLIBS_LOG_SCOPE();
 
   int index = modelbox->row(item);
-  QApplication::setOverrideCursor( Qt::WaitCursor );
-  fields= vcrossm->getFieldNames(models[index]);
-  QApplication::restoreOverrideCursor();
+  { diutil::OverrideCursor waitCursor;
+    fields= vcrossm->getFieldNames(models[index]);
+  }
 
   //###  fieldbox->clearSelection();
   if (fieldbox->count()>0) {
