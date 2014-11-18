@@ -81,11 +81,13 @@ inline int ms2knots(float ff)
 inline float knots2ms(float ff)
 { return (ff*1852.0/3600.0); }
 
+#if !defined(USE_PAINTGL)
 class OverrideCursor {
 public:
   OverrideCursor(const QCursor& cursor = QCursor(Qt::WaitCursor));
   ~OverrideCursor();
 };
+#endif
 
 /*! replace reftime by refhour and refoffset
   refoffset is 0 today, -1 yesterday etc independent of time of the day

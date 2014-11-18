@@ -332,6 +332,7 @@ bool getFromAny(const std::string &uof, string_v& lines)
   return diutil::getFromFile(uof, lines);
 }
 
+#if !defined(USE_PAINTGL)
 OverrideCursor::OverrideCursor(const QCursor& cursor)
 {
   QApplication::setOverrideCursor(cursor);
@@ -341,6 +342,7 @@ OverrideCursor::~OverrideCursor()
 {
   QApplication::restoreOverrideCursor();
 }
+#endif
 
 // only used from qtQuickMenu -- and from unit test, that's why it's here
 void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate)
