@@ -83,7 +83,7 @@ inline float knots2ms(float ff)
 
 class OverrideCursor {
 public:
-  OverrideCursor(const QCursor& cursor = Qt::WaitCursor);
+  OverrideCursor(const QCursor& cursor = QCursor(Qt::WaitCursor));
   ~OverrideCursor();
 };
 
