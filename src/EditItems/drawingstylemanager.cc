@@ -95,31 +95,6 @@ static ushort parseLinePattern(const QString &s)
   return 0xffff;
 }
 
-static QStringList parseStrings(const QString &text, const QString &sep = QString(","))
-{
-  QStringList strings;
-
-  bool in_quote = false;
-  QString current;
-
-  for (int i = 0; i < text.size(); ++i) {
-    QString ch = text.at(i);
-    if (ch == "\"")
-      in_quote = !in_quote;
-    else if (ch == sep) {
-      if (in_quote)
-        current += ch;
-      else {
-        strings.append(current);
-        current.clear();
-      }
-    } else
-      current += ch;
-  }
-
-  return strings;
-}
-
 QString DSP_linecolour::name() { return "linecolour"; }
 DrawingStyleManager::StyleCategory DSP_linecolour::styleCategory() const { return DrawingStyleManager::Line; }
 DrawingStyleManager::LockCategory DSP_linecolour::lockCategory() const { return DrawingStyleManager::LockColour; }
