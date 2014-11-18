@@ -26,8 +26,6 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-//#define DEBUGREDRAW
-//#define DEBUGREDRAWCATCH
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -175,7 +173,9 @@
 #include <drawing.xpm>
 #include <editdrawing.xpm>
 
-//#define DEBUGREDRAWCATCH 
+//#define DISABLE_VPROF 1
+//#define DISABLE_VCROSS 1
+//#define DISABLE_WAVESPEC 1
 
 using namespace std;
 
@@ -375,25 +375,37 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showTrajecDialogAction, SIGNAL( triggered() ) ,  SLOT( trajMenu() ) );
   // --------------------------------------------------------------------
   showProfilesDialogAction = new QAction( QIcon(QPixmap(balloon_xpm )),tr("&Vertical Profiles"), this );
+  showProfilesDialogAction->setIconVisibleInMenu(true);
+#ifndef DISABLE_VPROF
   showProfilesDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showProfilesDialogAction->setShortcut(Qt::ALT+Qt::Key_V);
   showProfilesDialogAction->setCheckable(false);
-  showProfilesDialogAction->setIconVisibleInMenu(true);
   connect( showProfilesDialogAction, SIGNAL( triggered() ) ,  SLOT( vprofMenu() ) );
+#else
+  showProfilesDialogAction->setEnabled(false);
+#endif
   // --------------------------------------------------------------------
   showCrossSectionDialogAction = new QAction(QIcon( QPixmap(vcross_xpm )),tr("Vertical &Cross sections"), this );
+  showCrossSectionDialogAction->setIconVisibleInMenu(true);
+#ifndef DISABLE_VCROSS
   showCrossSectionDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showCrossSectionDialogAction->setShortcut(Qt::ALT+Qt::Key_C);
   showCrossSectionDialogAction->setCheckable(false);
-  showCrossSectionDialogAction->setIconVisibleInMenu(true);
   connect( showCrossSectionDialogAction, SIGNAL( triggered() ) ,  SLOT( vcrossMenu() ) );
+#else
+  showCrossSectionDialogAction->setEnabled(false);
+#endif
   // --------------------------------------------------------------------
   showWaveSpectrumDialogAction = new QAction(QIcon( QPixmap(spectrum_xpm )),tr("&Wave spectra"), this );
+  showWaveSpectrumDialogAction->setIconVisibleInMenu(true);
+#ifndef DISABLE_WAVESPEC
   showWaveSpectrumDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showWaveSpectrumDialogAction->setShortcut(Qt::ALT+Qt::Key_W);
   showWaveSpectrumDialogAction->setCheckable(false);
-  showWaveSpectrumDialogAction->setIconVisibleInMenu(true);
   connect( showWaveSpectrumDialogAction, SIGNAL( triggered() ) ,  SLOT( spectrumMenu() ) );
+#else
+  showWaveSpectrumDialogAction->setEnabled(false);
+#endif
 
   // --------------------------------------------------------------------
   zoomOutAction = new QAction( tr("Zoom out"), this );
@@ -1077,6 +1089,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   // vertical profiles
   // create a new main window
+#ifndef DISABLE_VPROF
   vpWindow = new VprofWindow(contr);
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
@@ -1084,9 +1097,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(vpWindow,SIGNAL(stationChanged(const std::vector<std::string> &)),
       SLOT(stationChangedSlot(const std::vector<std::string> &)));
   connect(vpWindow,SIGNAL(modelChanged()),SLOT(modelChangedSlot()));
+#endif
 
   // vertical crossections
   // create a new main window
+#ifndef DISABLE_VCROSS
   vcWindow = new VcrossWindow(contr);
   connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
   connect(vcWindow,SIGNAL(showsource(const std::string, const std::string)),
@@ -1103,8 +1118,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
   connect (vcWindow, SIGNAL(prevHVcrossPlot()), SLOT(prevHVcrossPlot()));
   connect (vcWindow, SIGNAL(nextHVcrossPlot()), SLOT(nextHVcrossPlot()));
+#endif
+
   // Wave spectrum
   // create a new main window
+#ifndef DISABLE_WAVESPEC
   spWindow = new SpectrumWindow();
   connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
   connect(spWindow,SIGNAL(showsource(const std::string, const std::string)),
@@ -1113,6 +1131,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
       SLOT(spectrumChangedSlot(const QString &)));
   connect(spWindow,SIGNAL(spectrumSetChanged()),
       SLOT(spectrumSetChangedSlot()));
+#endif
 
   // browse plots
   browser= new BrowserBox(this);
@@ -1139,21 +1158,21 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(objm, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&,bool)),
           tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&,bool)));
 
-  if ( vpWindow ){
+  if (vpWindow) {
     connect(vpWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
             tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
     connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
             tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
-  if ( vcWindow ){
+  if (vcWindow) {
     connect(vcWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
             tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
     connect(vcWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
             tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
-  if ( spWindow ){
+  if (spWindow) {
     connect(spWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
             tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
 
@@ -1296,9 +1315,10 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 {
   diutil::OverrideCursor waitCursor;
 
-  if ( vstr.size() > 0 && vstr[0] == "VCROSS") {
+  if (!vstr.empty() && vstr[0] == "VCROSS") {
     vcrossMenu();
-    vcWindow->parseQuickMenuStrings(vstr);
+    if (vcWindow)
+      vcWindow->parseQuickMenuStrings(vstr);
   } else {
 
     // strings for each dialog
@@ -1772,7 +1792,8 @@ void DianaMainWindow::measurementsMenu()
 
 void DianaMainWindow::vprofMenu()
 {
-  if ( !vpWindow ) return;
+  if (!vpWindow)
+    return;
   if (vpWindow->active) {
     vpWindow->raise();
   } else {
@@ -1784,7 +1805,8 @@ void DianaMainWindow::vprofMenu()
 
 void DianaMainWindow::vcrossMenu()
 {
-  if ( !vcWindow ) return;
+  if (!vcWindow)
+    return;
   if (vcWindow->active) {
     vcWindow->raise();
   } else {
@@ -1796,7 +1818,8 @@ void DianaMainWindow::vcrossMenu()
 
 void DianaMainWindow::spectrumMenu()
 {
-  if ( !spWindow ) return;
+  if (!spWindow)
+    return;
   if (spWindow->active) {
     spWindow->raise();
   } else {
@@ -1821,8 +1844,10 @@ void DianaMainWindow::info_activated(QAction *action)
 
 void DianaMainWindow::vprofStartup()
 {
-  if ( !vpWindow ) return;
-  if (vpWindow->firstTime) MenuOK();
+  if (!vpWindow)
+    return;
+  if (vpWindow->firstTime)
+    MenuOK();
   miutil::miTime t;
   contr->getPlotTime(t);
   vpWindow->startUp(t);
@@ -1833,8 +1858,10 @@ void DianaMainWindow::vprofStartup()
 
 void DianaMainWindow::vcrossStartup()
 {
-  if ( !vcWindow ) return;
-  if (vcWindow->firstTime) MenuOK();
+  if (!vcWindow)
+    return;
+  if (vcWindow->firstTime)
+    MenuOK();
   miutil::miTime t;
   contr->getPlotTime(t);
   vcWindow->startUp(t);
@@ -1844,8 +1871,10 @@ void DianaMainWindow::vcrossStartup()
 
 void DianaMainWindow::spectrumStartup()
 {
-  if ( !spWindow ) return;
-  if (spWindow->firstTime) MenuOK();
+  if (!spWindow)
+    return;
+  if (spWindow->firstTime)
+    MenuOK();
   miutil::miTime t;
   contr->getPlotTime(t);
   spWindow->startUp(t);
@@ -1856,8 +1885,9 @@ void DianaMainWindow::spectrumStartup()
 
 void DianaMainWindow::hideVprofWindow()
 {
-  METLIBS_LOG_DEBUG("hideVprofWindow called !");
-  if ( !vpWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!vpWindow)
+    return;
   vpWindow->hide();
   // delete stations
   contr->stationCommand("delete","vprof");
@@ -1867,8 +1897,9 @@ void DianaMainWindow::hideVprofWindow()
 
 void DianaMainWindow::hideVcrossWindow()
 {
-  METLIBS_LOG_DEBUG("hideVcrossWindow called !");
-  if ( !vcWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!vcWindow)
+    return;
   // vcWindow hidden and locationPlots deleted
   vcWindow->hide();
   contr->deleteLocation("vcross");
@@ -1878,8 +1909,9 @@ void DianaMainWindow::hideVcrossWindow()
 
 void DianaMainWindow::hideSpectrumWindow()
 {
-  METLIBS_LOG_DEBUG("hideSpectrumWindow called !");
-  if ( !spWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!spWindow)
+    return;
   // spWindow and stations only hidden, should also be possible to
   //delete all !
   spWindow->hide();
@@ -1899,8 +1931,9 @@ void DianaMainWindow::stationChangedSlot(const vector<std::string>& station)
 
 void DianaMainWindow::modelChangedSlot()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::modelChangedSlot()");
-  if ( !vpWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!vpWindow)
+    return;
   StationPlot * sp = vpWindow->getStations() ;
   sp->setName("vprof");
   sp->setImage("vprof_normal","vprof_selected");
@@ -1922,11 +1955,12 @@ void DianaMainWindow::crossectionChangedSlot(const QString& name)
 
 void DianaMainWindow::crossectionSetChangedSlot()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::crossectionSetChangedSlot()");
-  if ( !vcWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!vcWindow)
+    return;
   LocationData ed;
   vcWindow->getCrossections(ed);
-  ed.name= "vcross";
+  ed.name = "vcross";
   if (ed.elements.size())
     contr->putLocation(ed);
   else
@@ -1937,11 +1971,12 @@ void DianaMainWindow::crossectionSetChangedSlot()
 
 void DianaMainWindow::crossectionSetUpdateSlot()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::crossectionSetUpdateSlot()");
-  if ( !vcWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!vcWindow)
+    return;
   LocationData ed;
   vcWindow->getCrossectionOptions(ed);
-  ed.name= "vcross";
+  ed.name = "vcross";
   contr->updateLocation(ed);
   updateGLSlot();
 }
@@ -1962,8 +1997,9 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
 
 void DianaMainWindow::spectrumSetChangedSlot()
 {
-  METLIBS_LOG_DEBUG("DianaMainWindow::spectrumSetChangedSlot()");
-  if ( !spWindow ) return;
+  METLIBS_LOG_SCOPE();
+  if (!spWindow)
+    return;
   StationPlot * stp = spWindow->getStations() ;
   stp->setName("spectrum");
   stp->setImage("spectrum_normal","spectrum_selected");
@@ -2070,17 +2106,19 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         //find the name of station we clicked at (from plotModul->stationPlot)
         std::string station = contr->findStation(ix,iy,letter.command);
         //now tell vpWindow about new station (this calls vpManager)
-        if (vpWindow && !station.empty()) vpWindow->changeStation(station);
+        if (vpWindow && !station.empty())
+          vpWindow->changeStation(station);
       }
     }
   }
 
-  else if( letter.command == qmstrings::vcross){
+  else if (letter.command == qmstrings::vcross) {
     //description: name
     vcrossMenu();
-    if(letter.data.size()){
+    if (letter.data.size()) {
         //tell vcWindow to plot this corssection
-        if (vcWindow) vcWindow->changeCrossection(letter.data[0]);
+        if (vcWindow)
+          vcWindow->changeCrossection(letter.data[0]);
     }
   }
 
@@ -2918,13 +2956,15 @@ void DianaMainWindow::parseSetup()
       METLIBS_LOG_ERROR("An error occured while re-reading setup ");
     }
     contr->parseSetup();
-    vcWindow->parseSetup();
-    vpWindow->parseSetup();
-    spWindow->parseSetup();
+    if (vcWindow)
+      vcWindow->parseSetup();
+    if (vpWindow)
+      vpWindow->parseSetup();
+    if (spWindow)
+      spWindow->parseSetup();
 
     fm->updateModels();
     om->updateDialog();
-
   }
 }
 
@@ -3056,7 +3096,7 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     w->updateGL(); // repaint window
   }
 
-  if (markVcross) {
+  if (markVcross && vcWindow) {
     vcWindow->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
@@ -3220,9 +3260,8 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   //at
   vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
-  if (vpWindow ) {
+  if (vpWindow)
     vpWindow->changeStations(stations);
-  }
 
   //find the name of station we clicked/pointed
   //at (from plotModul->stationPlot)
