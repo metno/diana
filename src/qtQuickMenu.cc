@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -323,15 +321,9 @@ void QuickMenu::pushPlot(const std::string& name,
 {
   std::vector<string> pstr(pstr_c.begin(), pstr_c.end()); // make copy so that refhour etc can be replaced
 
-  //replace reftime by refhour, refoffset must be set manually
-  for (size_t i=0; i<pstr.size(); i++){
-    if ( pstr[i].find("reftime=") != std::string::npos ) {
-      std::string hourstr = pstr[i].substr(pstr[i].find("reftime=")+19,2);
-      std::string str1 = pstr[i].substr(pstr[i].find("reftime="),27);
-      std::string str2 = "refhour=" + hourstr;
-      miutil::replace(pstr[i], str1, str2);
-    }
-  }
+  const miutil::miDate nowDate = miutil::miTime::nowTime().date();
+  for (size_t i=0; i<pstr.size(); i++)
+    diutil::replace_reftime_with_offset(pstr[i], nowDate);
 
   if (qm.empty())
     return;
@@ -1287,5 +1279,3 @@ void QuickMenu::helpClicked(){
 void QuickMenu::closeEvent( QCloseEvent* e) {
   emit QuickHide();
 }
-
-

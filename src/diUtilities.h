@@ -2,6 +2,8 @@
 #ifndef diUtilities_h
 #define diUtilities_h 1
 
+#include <puTools/miTime.h>
+
 #include <QCursor>
 
 #include <map>
@@ -84,6 +86,11 @@ public:
   OverrideCursor(const QCursor& cursor = Qt::WaitCursor);
   ~OverrideCursor();
 };
+
+/*! replace reftime by refhour and refoffset
+  refoffset is 0 today, -1 yesterday etc independent of time of the day
+*/
+void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate);
 
 } // namespace diutil
 
