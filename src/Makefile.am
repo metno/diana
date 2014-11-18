@@ -846,7 +846,6 @@ libdiana_a_CPPFLAGS = \
 
 # diana-specific sources (the rest is in libdiana)
 diana_bin_SOURCES = \
-	$(common_qt_sources) \
 	$(diana_qt_sources) \
 	$(common_xpm_sources) \
 	$(language_sources) \
