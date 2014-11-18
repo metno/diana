@@ -36,7 +36,7 @@
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/dialogcommon.h"
-
+#include <EditItems/modifytextcommand.h>
 #include <QAction>
 
 namespace EditItem_Text {
@@ -191,12 +191,18 @@ void Text::drawIncomplete() const
 
 bool Text::editText()
 {
+  const QStringList oldText = text();
+
   EditItems::TextEditor textEditor(text().join("\n"));
   textEditor.setWindowTitle("Edit Text");
   if (textEditor.exec() == QDialog::Accepted) {
     const QString t = textEditor.text().trimmed();
     if (!t.isEmpty()) {
-      setText(t.split("\n"));
+      const QStringList newText = t.split("\n");
+
+      if (newText != oldText)
+        EditItemManager::instance()->undoStack()->push(
+              new EditItems::ModifyTextCommand("modify text", QSharedPointer<DrawingItem_Text::Text>(this), oldText, newText));
       return true;
     } else {
       return false;
