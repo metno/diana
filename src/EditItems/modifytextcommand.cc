@@ -35,12 +35,12 @@
 namespace EditItems {
 
 ModifyTextCommand::ModifyTextCommand(
-    const QString &name,
+    const QString &text,
     const QSharedPointer<DrawingItem_Text::Text> &item,
     const QStringList &oldText,
     const QStringList &newText,
     QUndoCommand *parent)
-  : QUndoCommand(name, parent)
+  : QUndoCommand(text, parent)
   , item_(item)
   , oldText_(oldText)
   , newText_(newText)
