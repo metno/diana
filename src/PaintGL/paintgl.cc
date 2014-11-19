@@ -816,7 +816,7 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     ctx->painter->resetTransform();
     ctx->painter->translate(ctx->rasterPos);
     ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
-    ctx->painter->drawImage(0, 0, image);
+    ctx->painter->drawImage(0, 0, biasImage);
     ctx->painter->restore();
 
     // Update the raster position.
