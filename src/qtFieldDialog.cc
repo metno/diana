@@ -2571,64 +2571,11 @@ void FieldDialog::enableWidgets(std::string plottype)
 
 vector<std::string> FieldDialog::numberList(QComboBox* cBox, float number, bool onoff)
 {
-  METLIBS_LOG_SCOPE("number="<<number);
-
-  cBox->clear();
-
-  vector<std::string> vnumber;
-
-  const int nenormal = 18;
-  const float enormal[nenormal] =
-  { 1., 1.5,2., 2.5, 3.,3.5, 4.,4.5, 5.,5.5, 6.,6.5, 7.,7.5, 8.,8.5, 9.,9.5 };
-  float e, elog, ex, d, dd;
-  int i, j, k, n, ielog, nupdown;
-
-  e = number;
-  if (e <= 0)
-    e = 1.0;
-  elog = log10f(e);
-  if (elog >= 0.)
-    ielog = int(elog);
-  else
-    ielog = int(elog - 0.99999);
-  ex = powf(10., ielog);
-  n = 0;
-  d = fabsf(e - enormal[0] * ex);
-  for (i = 1; i < nenormal; ++i) {
-    dd = fabsf(e - enormal[i] * ex);
-    if (d > dd) {
-      d = dd;
-      n = i;
-    }
-  }
-  nupdown = nenormal * 2 / 3;
-  if (onoff) {
-    vnumber.push_back("off");
-  }
-  for (i = n - nupdown; i <= n + nupdown; ++i) {
-    j = i / nenormal;
-    k = i % nenormal;
-    if (i < 0)
-      j--;
-    if (k < 0)
-      k += nenormal;
-    ex = powf(10., ielog + j);
-    vnumber.push_back(miutil::from_number(enormal[k] * ex));
-  }
-  n = 1 + nupdown * 2;
-
-  QString qs;
-  for (i = 0; i < n; ++i) {
-    cBox->addItem(QString(vnumber[i].c_str()));
-  }
-
-
-  if (onoff)
-    cBox->setCurrentIndex(nupdown + 1);
-  else
-    cBox->setCurrentIndex(nupdown);
-
-  return vnumber;
+  const float enormal[] = {
+    1., 1.5,2., 2.5, 3.,3.5, 4.,4.5, 5.,5.5,
+    6.,6.5, 7.,7.5, 8.,8.5, 9.,9.5, -1
+  };
+  return diutil::numberList(cBox, number, enormal, onoff);
 }
 
 void FieldDialog::baseList(QComboBox* cBox, float base, bool onoff)

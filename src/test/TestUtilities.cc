@@ -94,3 +94,13 @@ TEST(TestUtilities, replace_reftime_with_offset)
     EXPECT_EQ(pstr_ex, pstr);
   }
 }
+
+TEST(TestUtilities, numberList)
+{
+  const char* expected_c[13] = { "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1", "2", "2.5", "3", "4", "5", "6" };
+  const std::vector<std::string> expected(expected_c, expected_c + 13);
+
+  const float enormal[] = { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9., -1 };
+  const std::vector<std::string> actual = diutil::numberList(1, enormal);
+  EXPECT_EQ(expected, actual);
+}

@@ -1142,19 +1142,9 @@ void ObsDialog::updateExtension()
   }
 }
 
-void ObsDialog::numberList( QComboBox* cBox, float number ){
-
-  cBox->clear();
-
-  vector<float> vnumber;
-
-  const int nenormal = 8;
-  const float enormal[nenormal] = { 0.001, 0.01, 0.1, 1.0, 10., 100., 1000.,
-      10000.};
-  QString qs;
-  for (int i=0; i<nenormal; i++) {
-    cBox->addItem(qs.setNum(enormal[i]*number));
-  }
-  cBox->setCurrentIndex(nenormal/2-1);
+void ObsDialog::numberList(QComboBox* cBox, float number)
+{
+  const float enormal[] = { 0.001, 0.01, 0.1, 1.0, 10., 100., 1000., 10000., -1 };
+  diutil::numberList(cBox, number, enormal, false);
   cBox->setEnabled(true);
 }

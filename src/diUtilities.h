@@ -11,6 +11,7 @@
 #include <vector>
 
 class Plot;
+class QComboBox;
 
 namespace diutil {
 
@@ -93,6 +94,14 @@ public:
   refoffset is 0 today, -1 yesterday etc independent of time of the day
 */
 void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate);
+
+/*! Make list of numbers around 'number'.
+ */
+std::vector<std::string> numberList(float number, const float* enormal);
+
+/*! Fill combobox with values around 'number'.
+ */
+std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff);
 
 } // namespace diutil
 

@@ -499,12 +499,7 @@ VcrossDialog::VcrossDialog( QWidget* parent, vcross::QtManager_p vm )
 
   // keep focus away from the modelbox (with none selected)
   fieldbox->setFocus();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VcrossDialog::ConstructorCernel returned");
-#endif
 }
-
 
 void VcrossDialog::toolTips()
 {
@@ -528,7 +523,7 @@ void VcrossDialog::toolTips()
 
 void VcrossDialog::advancedToggled(bool on)
 {
-  METLIBS_LOG_DEBUG("VcrossDialog::advancedToggled  on= " << on);
+  METLIBS_LOG_SCOPE(LOGVAL(on));
   this->showExtension(on);
   m_advanced= on;
 }
@@ -536,7 +531,7 @@ void VcrossDialog::advancedToggled(bool on)
 
 void VcrossDialog::CreateAdvanced()
 {
-  METLIBS_LOG_DEBUG("VcrossDialog::CreateAdvanced");
+  METLIBS_LOG_SCOPE();
 
   advFrame= new QWidget(this);
 
@@ -1623,52 +1618,8 @@ void VcrossDialog::disableFieldOptions()
 
 std::vector<std::string> VcrossDialog::numberList( QComboBox* cBox, float number )
 {
-  METLIBS_LOG_SCOPE();
-
-  cBox->clear();
-
-  std::vector<std::string> vnumber;
-
-  const int nenormal = 10;
-  const float enormal[nenormal] = { 1., 2., 2.5, 3., 4., 5.,
-      6., 7., 8., 9. };
-  float e, elog, ex, d, dd;
-  int   i, j, k, n, ielog, nupdown;
-
-  e= number;
-  if( e<=0 ) e=1.0;
-  elog= log10f(e);
-  if (elog>=0.) ielog= int(elog);
-  else          ielog= int(elog-0.99999);
-  ex = powf(10., ielog);
-  n= 0;
-  d= fabsf(e - enormal[0]*ex);
-  for (i=1; i<nenormal; ++i) {
-    dd = fabsf(e - enormal[i]*ex);
-    if (d>dd) {
-      d=dd;
-      n=i;
-    }
-  }
-  nupdown= nenormal*2/3;
-  for (i=n-nupdown; i<=n+nupdown; ++i) {
-    j= i/nenormal;
-    k= i%nenormal;
-    if (i<0) j--;
-    if (k<0) k+=nenormal;
-    ex= powf(10., ielog+j);
-    vnumber.push_back(miutil::from_number(enormal[k]*ex));
-  }
-  n=1+nupdown*2;
-
-  QString qs;
-  for (i=0; i<n; ++i) {
-    cBox->addItem(QString(vnumber[i].c_str()));
-  }
-
-  cBox->setCurrentIndex(nupdown);
-
-  return vnumber;
+  const float enormal[] = { 1., 2., 2.5, 3., 4., 5., 6., 7., 8., 9., -1 };
+  return diutil::numberList(cBox, number, enormal, false);
 }
 
 std::string VcrossDialog::baseList( QComboBox* cBox,

@@ -4,6 +4,7 @@
 #include "diPlot.h"
 
 #include <QApplication>
+#include <QComboBox>
 
 #include <puCtools/glob_cache.h>
 #include <puCtools/puCglob.h>
@@ -366,6 +367,59 @@ void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdat
   if (daydiff < 0)
     replacement += " refoffset=" + miutil::from_number(daydiff);
   pstr = pstr.substr(0, refpos) + replacement + pstr.substr(refpos+27);
+}
+
+std::vector<std::string> numberList(float number, const float* enormal)
+{
+  int nenormal = 0;
+  while (enormal[nenormal] > 0)
+    nenormal += 1;
+
+  const float e = number > 0 ? number : 1;
+  const float elog = log10f(e);
+  const int ielog = int((elog >= 0) ? elog : elog - 0.99999);
+  const float ex = powf(10., ielog);
+  int n = 0;
+  float d = fabsf(e - enormal[0] * ex);
+  for (int i = 1; i < nenormal; ++i) {
+    const float dd = fabsf(e - enormal[i] * ex);
+    if (d > dd) {
+      d = dd;
+      n = i;
+    }
+  }
+
+  std::vector<std::string> vnumber;
+  const int nupdown = nenormal * 2 / 3;
+
+  for (int i = n - nupdown; i <= n + nupdown; ++i) {
+    int j = i / nenormal;
+    int k = i % nenormal;
+    if (i < 0)
+      j--;
+    if (k < 0)
+      k += nenormal;
+    float ex = powf(10., ielog + j);
+    vnumber.push_back(miutil::from_number(enormal[k] * ex));
+  }
+  return vnumber;
+}
+
+std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff)
+{
+  std::vector<std::string> numbers = numberList(number, enormal);
+
+  int current = (numbers.size() - 1)/2;
+  if (onoff) {
+    numbers.insert(numbers.begin(), "off");
+    current += 1;
+  }
+  cBox->clear();
+  for (size_t i=0; i<numbers.size(); ++i)
+    cBox->addItem(QString::fromStdString(numbers[i]));
+  cBox->setCurrentIndex(current);
+
+  return numbers;
 }
 
 } // namespace diutil
