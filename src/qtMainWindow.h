@@ -41,6 +41,10 @@
 #include <diField/diRectangle.h>
 #include <EditItems/toolbar.h>
 
+#ifdef USE_PAINTGL
+#include <QPrintPreviewDialog>
+#endif
+
 #ifdef VIDEO_EXPORT
 #include <MovieMaker.h>
 #endif
