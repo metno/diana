@@ -35,9 +35,7 @@
 
 #include <puTools/miTime.h>
 #include <diField/diFieldManager.h>
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossCollector.h"
-#endif
 #include <vector>
 
 /**
@@ -104,10 +102,9 @@ private:
   std::string vProfPlotName;
   miutil::miTime   vProfPlotTime;
 
-#ifdef USE_VCROSS_V2
   vcross::Collector_p collector;
   vcross::string_v fields;
-#endif
+
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
 };

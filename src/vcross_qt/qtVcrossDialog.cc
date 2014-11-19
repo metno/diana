@@ -37,11 +37,7 @@
 #include "diUtilities.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossQtManager.h"
-#else
-#include "vcross_v1/diVcross1Manager.h"
-#endif
 
 #include <diField/diMetConstants.h>
 #include <puTools/miStringFunctions.h>

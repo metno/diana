@@ -41,10 +41,8 @@
 #include "qtToggleButton.h"
 #include "qtVcrossDialog.h"
 #include "qtVcrossSetupDialog.h"
-#ifdef USE_VCROSS_V2
 #include "diEditItemManager.h"
 #include "EditItems/toolbar.h"
-#endif
 #include "qtPrintManager.h"
 
 #include <puTools/mi_boost_compatibility.hh>
@@ -607,7 +605,6 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 {
   METLIBS_LOG_SCOPE();
 
-#ifdef USE_VCROSS_V2
   const char key_points[] = "latLonPoints", key_id[] = "id";
   if (not (props.contains(key_points) and props.contains(key_id)))
     return;
@@ -631,21 +628,18 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
   vcrossm->setCrossection(label);
 
   vcrossw->update();
-#endif
 }
 
 void VcrossWindow::dynCrossEditManagerRemoval(int id)
 {
   METLIBS_LOG_SCOPE();
 
-#ifdef USE_VCROSS_V2
   std::string label = QString("dyn_%1").arg(id).toStdString();
   vcrossm->setDynamicCrossection(label, vcross::LonLat_v()); // empty points => remove
   Q_EMIT crossectionSetChanged();
   updateCrossectionBox();
 
   vcrossw->update();
-#endif
 }
 
 /***************************************************************************/

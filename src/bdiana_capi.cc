@@ -78,14 +78,8 @@
 #include <miLogger/LogHandler.h>
 
 
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossQtManager.h"
 #include "vcross_v2/VcrossOptions.h"
-#else // !USE_VCROSS_V2
-#include "vcross_v1/diVcross1Manager.h"
-#include "vcross_v1/diVcross1Plot.h"
-#include "vcross_v1/diVcross1Options.h"
-#endif // !USE_VCROSS_V2
 
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
@@ -241,11 +235,7 @@ bool hardcopy_started[5]; // has startHardcopy been called
 // the Controller and Managers
 Controller* main_controller = 0;
 VprofManager* vprofmanager = 0;
-#ifdef USE_VCROSS_V2
-  vcross::QtManager_p vcrossmanager;
-#else
-VcrossManager* vcrossmanager = 0;
-#endif
+vcross::QtManager_p vcrossmanager;
 SpectrumManager* spectrummanager = 0;
 
 #ifdef USE_XLIB
@@ -655,12 +645,6 @@ void startHardcopy(const plot_type pt, const printOptions priop)
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy (standard)");
     main_controller->startHardcopy(priop);
-#ifndef USE_VCROSS_V2
-  } else if (pt == plot_vcross && vcrossmanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- startHardcopy (vcross)");
-    vcrossmanager->startHardcopy(priop);
-#endif
   } else if (pt == plot_vprof && vprofmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- startHardcopy (vprof)");
@@ -730,12 +714,6 @@ void endHardcopy(const plot_type pt)
     if (verbose)
       METLIBS_LOG_INFO("- endHardcopy (standard)");
     main_controller->endHardcopy();
-#ifndef USE_VCROSS_V2
-  } else if (pt == plot_vcross && hardcopy_started[pt] && vcrossmanager) {
-    if (verbose)
-      METLIBS_LOG_INFO("- endHardcopy (vcross)");
-    vcrossmanager->endHardcopy();
-#endif
   } else if (pt == plot_vprof && hardcopy_started[pt] && vprofmanager) {
     if (verbose)
       METLIBS_LOG_INFO("- endHardcopy (vprof)");
@@ -1886,13 +1864,8 @@ static int parseAndProcess(istream &is)
           return 99;
 
         // -- vcross plot
-        if (!vcrossmanager) {
-#ifdef USE_VCROSS_V2	
+        if (!vcrossmanager)
           vcrossmanager = miutil::make_shared<vcross::QtManager>();
-#else
-          vcrossmanager = new VcrossManager(main_controller);
-#endif
-        }
 
         // set size of plotwindow
         if (!multiple_plots)
@@ -1950,14 +1923,10 @@ static int parseAndProcess(istream &is)
           painter.setRenderHint(QPainter::Antialiasing);
 #endif
      
-#ifdef USE_VCROSS_V2
 #if defined(USE_PAINTGL)
         vcrossmanager->plot(painter);
 #else
         METLIBS_LOG_ERROR("Can't plot vertical crossections (V2) whithout using paintGL");
-#endif
-#else
-        vcrossmanager->plot();
 #endif
 
         // --------------------------------------------------------
@@ -3901,10 +3870,6 @@ int diana_dealloc()
   }
 #endif
 
-#ifndef USE_VCROSS_V2
-  if (vcrossmanager)
-    delete vcrossmanager;
-#endif
   if (vprofmanager)
     delete vprofmanager;
   if (spectrummanager)

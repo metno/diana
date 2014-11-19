@@ -33,11 +33,7 @@
 #include "diCommandParser.h"
 #include "diColourShading.h"
 #include "diPattern.h"
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossQtManager.h"
-#else
-#include "vcross_v1/diVcross1Manager.h"
-#endif
 
 #include <QDialog>
 

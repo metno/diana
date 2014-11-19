@@ -41,13 +41,8 @@
 #include <QVBoxLayout>
 
 #include "qtUtility.h"
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossOptions.h"
 #define DISABLE_UNUSED_OPTIONS 1
-#else
-#include "vcross_v1/diVcross1Manager.h"
-#include "vcross_v1/diVcross1Options.h"
-#endif
 
 #include "qtVcrossSetup.h"
 #include "qtVcrossSetupDialog.h"

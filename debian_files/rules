@@ -12,7 +12,6 @@ configure-stamp:
 	./autogen.sh
 	./configure  \
 	    --disable-silent-rules \
-            --enable-vcross-v2 \
 	    --enable-geotiff \
             --enable-obs-bufr \
 	    --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
