@@ -50,7 +50,6 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 
-#include "diUtilities.h"
 #include "qtFieldDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"

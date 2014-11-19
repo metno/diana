@@ -38,7 +38,7 @@
 #include <QImage>
 #include <QKeyEvent>
 
-#include "diUtilities.h"
+#include "qtUtility.h"
 #include "qtVprofWidget.h"
 #include "diVprofManager.h"
 

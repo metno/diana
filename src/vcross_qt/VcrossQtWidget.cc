@@ -29,7 +29,7 @@
 
 #include "VcrossQtWidget.h"
 
-#include "diUtilities.h"
+#include "qtUtility.h"
 #include "vcross_v2/VcrossQtManager.h"
 
 #include <QPainter>

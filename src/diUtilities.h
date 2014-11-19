@@ -4,14 +4,11 @@
 
 #include <puTools/miTime.h>
 
-#include <QCursor>
-
 #include <map>
 #include <string>
 #include <vector>
 
 class Plot;
-class QComboBox;
 
 namespace diutil {
 
@@ -82,14 +79,6 @@ inline int ms2knots(float ff)
 inline float knots2ms(float ff)
 { return (ff*1852.0/3600.0); }
 
-#if !defined(USE_PAINTGL)
-class OverrideCursor {
-public:
-  OverrideCursor(const QCursor& cursor = QCursor(Qt::WaitCursor));
-  ~OverrideCursor();
-};
-#endif
-
 /*! replace reftime by refhour and refoffset
   refoffset is 0 today, -1 yesterday etc independent of time of the day
 */
@@ -98,10 +87,6 @@ void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdat
 /*! Make list of numbers around 'number'.
  */
 std::vector<std::string> numberList(float number, const float* enormal);
-
-/*! Fill combobox with values around 'number'.
- */
-std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff);
 
 } // namespace diutil
 

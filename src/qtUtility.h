@@ -126,4 +126,25 @@ void listWidget(QListWidget* box, const std::vector<std::string>& vstr, int defI
 
 QPixmap* linePixmap(const std::string& pattern, int linewidth);
 
+#include <QCursor>
+
+#include <string>
+#include <vector>
+
+class QComboBox;
+
+namespace diutil {
+
+class OverrideCursor {
+public:
+  OverrideCursor(const QCursor& cursor = QCursor(Qt::WaitCursor));
+  ~OverrideCursor();
+};
+
+/*! Fill combobox with values around 'number'.
+ */
+std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff);
+
+} // namespace diutil
+
 #endif

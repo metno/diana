@@ -333,18 +333,6 @@ bool getFromAny(const std::string &uof, string_v& lines)
   return diutil::getFromFile(uof, lines);
 }
 
-#if !defined(USE_PAINTGL)
-OverrideCursor::OverrideCursor(const QCursor& cursor)
-{
-  QApplication::setOverrideCursor(cursor);
-}
-
-OverrideCursor::~OverrideCursor()
-{
-  QApplication::restoreOverrideCursor();
-}
-#endif
-
 // only used from qtQuickMenu -- and from unit test, that's why it's here
 void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate)
 {
@@ -403,23 +391,6 @@ std::vector<std::string> numberList(float number, const float* enormal)
     vnumber.push_back(miutil::from_number(enormal[k] * ex));
   }
   return vnumber;
-}
-
-std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff)
-{
-  std::vector<std::string> numbers = numberList(number, enormal);
-
-  int current = (numbers.size() - 1)/2;
-  if (onoff) {
-    numbers.insert(numbers.begin(), "off");
-    current += 1;
-  }
-  cBox->clear();
-  for (size_t i=0; i<numbers.size(); ++i)
-    cBox->addItem(QString::fromStdString(numbers[i]));
-  cBox->setCurrentIndex(current);
-
-  return numbers;
 }
 
 } // namespace diutil

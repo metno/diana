@@ -32,11 +32,15 @@
 #endif
 
 #include "qtUtility.h"
-#include <diLinetype.h>
+
+#include "diUtilities.h"
+
 #include "diImageGallery.h"
+#include "diLinetype.h"
 
 #include <puTools/miStringFunctions.h>
 
+#include <QApplication>
 #include <qcombobox.h>
 #include <QListWidget>
 #include <qlayout.h>
@@ -529,3 +533,34 @@ QPixmap* linePixmap(const std::string& pattern, int linewidth)
 
   return pmap;
 }
+
+namespace diutil {
+
+OverrideCursor::OverrideCursor(const QCursor& cursor)
+{
+  QApplication::setOverrideCursor(cursor);
+}
+
+OverrideCursor::~OverrideCursor()
+{
+  QApplication::restoreOverrideCursor();
+}
+
+std::vector<std::string> numberList(QComboBox* cBox, float number, const float* enormal, bool onoff)
+{
+  std::vector<std::string> numbers = numberList(number, enormal);
+
+  int current = (numbers.size() - 1)/2;
+  if (onoff) {
+    numbers.insert(numbers.begin(), "off");
+    current += 1;
+  }
+  cBox->clear();
+  for (size_t i=0; i<numbers.size(); ++i)
+    cBox->addItem(QString::fromStdString(numbers[i]));
+  cBox->setCurrentIndex(current);
+
+  return numbers;
+}
+
+} // namespace diutil

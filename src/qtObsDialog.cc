@@ -31,7 +31,6 @@
 #include "config.h"
 #endif
 
-#include "diUtilities.h"
 #include "qtObsDialog.h"
 #include "qtObsWidget.h"
 #include "qtUtility.h"

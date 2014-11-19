@@ -38,8 +38,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#include "diUtilities.h"
-
 #include "qtTimeSlider.h"
 #include "qtTimeControl.h"
 #include "qtTimeStepSpinbox.h"
@@ -48,6 +46,7 @@
 #include "qtShowSatValues.h"
 #include "qtTextDialog.h"
 #include "qtImageGallery.h"
+#include "qtUtility.h"
 
 #include <QFileDialog>
 #include <QPrintDialog>
