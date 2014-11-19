@@ -28,6 +28,8 @@ struct PaintAttributes {
     bool lineStipple;
     bool polygonStipple;
     bool antialiasing;
+    QColor bias;
+    QColor scale;
 };
 
 struct StencilAttributes {

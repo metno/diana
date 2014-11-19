@@ -97,6 +97,8 @@ void PaintGLContext::makeCurrent()
     attributes.lineStipple = false;
     attributes.polygonStipple = false;
     attributes.antialiasing = false;
+    attributes.bias = QColor(0, 0, 0, 0);
+    attributes.scale = QColor(1, 1, 1, 1);
 
     points.clear();
     validPoints.clear();
@@ -783,6 +785,25 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
 
+    // Process the image according to the transfer function parameters.
+    QImage scaleImage(image.size(), QImage::Format_ARGB32);
+    scaleImage.fill(ctx->attributes.scale);
+
+    QPainter scalePainter;
+    scalePainter.begin(&scaleImage);
+    scalePainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    scalePainter.drawImage(0, 0, image);
+    scalePainter.end();
+
+    QImage biasImage(image.size(), QImage::Format_ARGB32);
+    biasImage.fill(ctx->attributes.bias);
+
+    QPainter biasPainter;
+    biasPainter.begin(&biasImage);
+    biasPainter.setCompositionMode(QPainter::CompositionMode_Plus);
+    biasPainter.drawImage(0, 0, scaleImage);
+    biasPainter.end();
+
     if (!ctx->colorMask) return;
 
     ctx->painter->save();
@@ -1098,6 +1119,25 @@ void glPixelStorei(GLenum pname, GLint param)
     ctx->pixelStore[pname] = param;
 }
 
+void glPixelTransferf(GLenum pname, GLfloat param)
+{
+    ENSURE_CTX
+    switch (pname) {
+    case GL_RED_BIAS:
+        ctx->attributes.bias.setRedF(param);
+        break;
+    case GL_GREEN_BIAS:
+        ctx->attributes.bias.setGreenF(param);
+        break;
+    case GL_BLUE_BIAS:
+        ctx->attributes.bias.setBlueF(param);
+        break;
+    case GL_ALPHA_SCALE:
+        ctx->attributes.scale.setAlphaF(param);
+        break;
+    }
+}
+
 void glPixelZoom(GLfloat xfactor, GLfloat yfactor)
 {
     ENSURE_CTX
@@ -1162,6 +1202,10 @@ void glPushAttrib(GLbitfield mask)
     else if (mask & GL_POLYGON_BIT)
       ctx->attributesStack.push(ctx->attributes);
     else if (mask & GL_COLOR_BUFFER_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_CURRENT_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_PIXEL_MODE_BIT)
       ctx->attributesStack.push(ctx->attributes);
 }
 
