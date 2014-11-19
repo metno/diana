@@ -33,7 +33,11 @@ model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user
     name2value_t& n2v = model_values[model];
     const Time ref_time(src->getBestReferenceTime(user_time));
     vcross::evaluateCrossection(cs, n2v);
-    src->getCrossectionValues(ref_time, cs, user_time, it->second, n2v);
+    try {
+      src->getCrossectionValues(ref_time, cs, user_time, it->second, n2v);
+    } catch (std::exception& ex) {
+      METLIBS_LOG_WARN(ex.what());
+    }
   }
   return model_values;
 }
@@ -58,7 +62,11 @@ model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_cros
     name2value_t& n2v = model_values[model];
     const Time ref_time(src->getBestReferenceTime(user_time));
     vcross::evaluateCrossection(cs, n2v);
-    src->getPointValues(ref_time, cs, 0,user_time, it->second, n2v);
+    try {
+      src->getPointValues(ref_time, cs, 0,user_time, it->second, n2v);
+    } catch (std::exception& ex) {
+      METLIBS_LOG_WARN(ex.what());
+    }
   }
   return model_values;
 }
@@ -89,7 +97,11 @@ model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position)
     // TODO how to get a reference time for a time graph?
     const Time ref_time(src->getDefaultReferenceTime());
     vcross::evaluateCrossection4TimeGraph(cs, index, inv->times.npoint(), n2v);
-    src->getTimegraphValues(ref_time, cs, index, it->second, n2v);
+    try {
+      src->getTimegraphValues(ref_time, cs, index, it->second, n2v);
+    } catch (std::exception& ex) {
+      METLIBS_LOG_WARN(ex.what());
+    }
   }
   return model_values;
 }
