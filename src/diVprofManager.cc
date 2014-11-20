@@ -94,8 +94,6 @@ VprofManager::VprofManager(Controller* co)
 
   vpopt= new VprofOptions();  // defaults are set
 
-  parseSetup();
-
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970,1,1,0,0,0);
 
@@ -258,8 +256,7 @@ void VprofManager::parseSetup()
 
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
 #ifdef USE_VCROSS_V2
-  vcross::Setup_p setup = miutil::make_shared<vcross::Setup>();
-  collector = miutil::make_shared<vcross::Collector>(setup);
+  setup = miutil::make_shared<vcross::Setup>();
   setup->configureSources(sources);
   vcross::string_v models = setup->getAllModelNames();
   for ( size_t i=0; i<models.size() ;i++ ) {
@@ -270,21 +267,6 @@ void VprofManager::parseSetup()
   }
 
   setup->configureComputations(computations);
-
-  collector->setupChanged();
-
-  fields.push_back(VP_AIR_TEMPERATURE);
-  fields.push_back(VP_DEW_POINT_TEMPERATURE);
-  fields.push_back(VP_X_WIND);
-  fields.push_back(VP_Y_WIND);
-  fields.push_back(VP_RELATIVE_HUMIDITY);
-  fields.push_back(VP_OMEGA);
-  for(size_t i=0;i<models.size();i++){
-    for ( size_t j = 0; j < fields.size(); ++j ) {
-      METLIBS_LOG_DEBUG(LOGVAL(models[i]) << LOGVAL(fields[j]));
-      collector->requireField(models[i],fields[j]);
-    }
-  }
 
 #endif
   } else {
@@ -392,18 +374,18 @@ void VprofManager::updateObsFileList()
           of.filename = "ROADOBSAMDAR_" + time.isoDate() + "_" + time.isoClock(true, true);
         obsfiles.push_back(of);
         time.addHour(-6);
-      } 
+      }
 
     }
-    else 
+    else
     {
       /* Use glob for ordinary files */
       matches = diutil::glob(filePaths[j].filepath);
     }
-#else 
-    /* Use glob for ordinary files */ 
+#else
+    /* Use glob for ordinary files */
     matches = diutil::glob(filePaths[j].filepath);
-#endif 
+#endif
 
     ObsFile of;
     of.obstype   = filePaths[j].obstype;
@@ -790,7 +772,7 @@ bool VprofManager::plot()
 vector <std::string> VprofManager::getModelNames()
 {
   METLIBS_LOG_SCOPE();
-
+  parseSetup();
   updateObsFileList();
   return dialogModelNames;
 }
@@ -800,7 +782,7 @@ vector <std::string> VprofManager::getModelNames()
 vector <std::string> VprofManager::getModelFiles()
 {
   METLIBS_LOG_SCOPE();
-
+  parseSetup();
   vector<std::string> modelfiles= dialogFileNames;
   updateObsFileList();
   int n= obsfiles.size();
@@ -896,7 +878,7 @@ bool VprofManager::initVprofData(std::string model)
   } else if ( filetypes[model_part] == "GribFile") {
     ok = vpd->readField(filetypes[model_part], fieldm);
   } else {
-    ok = vpd->readFimex(collector, fields);
+    ok = vpd->readFimex(setup);
   }
   if (ok) {
     METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << model << "' filetype '"

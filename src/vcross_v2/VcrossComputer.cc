@@ -161,7 +161,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
       // TODO check that the z axes are identical
       addArgument(it);
     } else {
-      METLIBS_LOG_WARN("argument '" << a << "' not known");
+      METLIBS_LOG_DEBUG("argument '" << a << "' not known");
       badArgs = true;
     }
   }

@@ -151,13 +151,24 @@ void VprofData::readStationNames(const std::string& stationsfilename)
     posTemp.push_back(0);
   }
 }
-bool VprofData::readFimex(vcross::Collector_p collector_, const vector<std::string>& fields_)
+bool VprofData::readFimex(vcross::Setup_p setup)
 {
 #ifdef USE_VCROSS_V2
   METLIBS_LOG_SCOPE();
 
-  collector = collector_;
-  fields = fields_;
+  collector = miutil::make_shared<vcross::Collector>(setup);
+
+  fields.push_back(VP_AIR_TEMPERATURE);
+  fields.push_back(VP_DEW_POINT_TEMPERATURE);
+  fields.push_back(VP_X_WIND);
+  fields.push_back(VP_Y_WIND);
+  fields.push_back(VP_RELATIVE_HUMIDITY);
+  fields.push_back(VP_OMEGA);
+
+  for ( size_t j = 0; j < fields.size(); ++j ) {
+    METLIBS_LOG_DEBUG(LOGVAL(modelName) << LOGVAL(fields[j]));
+    collector->requireField(modelName,fields[j]);
+  }
 
   vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
   if (not inv)
@@ -447,6 +458,7 @@ bool VprofData::readFile()
 
 static void copy_vprof_values(const name2value_t& n2v, const std::string& id, std::vector<float>& values_out)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(id));
   name2value_t::const_iterator itN = n2v.find(id);
   if (itN == n2v.end() or not itN->second) {
     values_out.clear();
@@ -503,10 +515,20 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     InventoryBase_cp zaxis = air_temperature->zaxis();
     collector->requireField(modelName, zaxis);
-
-    model_values_m model_values = vc_fetch_pointValues(collector, pos, user_time);
+    model_values_m model_values;
+    try {
+      model_values = vc_fetch_pointValues(collector, pos, user_time);
+    } catch (std::exception& e) {
+      METLIBS_LOG_ERROR("exception: " << e.what());
+      return 0;
+    } catch (...) {
+      METLIBS_LOG_ERROR("unknown exception");
+      return 0;
+    }
 
     model_values_m::iterator itM = model_values.find(modelName);
+    if ( itM == model_values.end() )
+      return 0;
     name2value_t& n2v = itM->second;
 
     Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
