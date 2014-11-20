@@ -97,8 +97,8 @@ void PaintGLContext::makeCurrent()
     attributes.lineStipple = false;
     attributes.polygonStipple = false;
     attributes.antialiasing = false;
-    attributes.bias = QColor(0, 0, 0, 0);
-    attributes.scale = QColor(1, 1, 1, 1);
+    attributes.bias = QColor(0, 0, 0, 255);
+    attributes.scale = QColor(255, 255, 255, 255);
 
     points.clear();
     validPoints.clear();
@@ -800,7 +800,7 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
 
     QPainter biasPainter;
     biasPainter.begin(&biasImage);
-    biasPainter.setCompositionMode(QPainter::CompositionMode_Plus);
+    biasPainter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
     biasPainter.drawImage(0, 0, scaleImage);
     biasPainter.end();
 
