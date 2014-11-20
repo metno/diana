@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VcrossWindow</class>
+ <widget class="QWidget" name="VcrossWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>473</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Vertical Crossections</string>
+  </property>
+  <layout class="QGridLayout" name="layoutMain" rowstretch="0,0,1" columnstretch="0,1">
+   <property name="margin">
+    <number>2</number>
+   </property>
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="layoutTop1">
+     <item>
+      <widget class="QPushButton" name="toggleSettings">
+       <property name="text">
+        <string>Settings…</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonPrint">
+       <property name="text">
+        <string>Print…</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonSave">
+       <property name="text">
+        <string>Save…</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonHelp">
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonClose">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="layoutTop2">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="buttonCsPrevious">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&lt;</string>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboCs">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="buttonCsNext">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="toggleCsEdit">
+       <property name="text">
+        <string>Draw/Edit</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="buttonTimePrevious">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&lt;</string>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboTime">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="buttonTimeNext">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="timeSpinBox">
+       <property name="toolTip">
+        <string>Number of times to step forward/backward when using the time arrow buttons</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="toggleTimeGraph">
+       <property name="text">
+        <string>Time Graph</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QVBoxLayout" name="layoutLayers">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="toolAddField">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="layerButtons" native="true"/>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <widget class="vcross::QtWidget" name="vcross" native="true"/>
+   </item>
+  </layout>
+  <action name="actionAddField">
+   <property name="text">
+    <string>actionAddField</string>
+   </property>
+   <property name="toolTip">
+    <string>Add field(s)…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vcross::QtWidget</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/VcrossQtWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>toolAddField</tabstop>
+  <tabstop>comboCs</tabstop>
+  <tabstop>buttonCsPrevious</tabstop>
+  <tabstop>buttonCsNext</tabstop>
+  <tabstop>comboTime</tabstop>
+  <tabstop>buttonTimePrevious</tabstop>
+  <tabstop>buttonTimeNext</tabstop>
+  <tabstop>toggleCsEdit</tabstop>
+  <tabstop>toggleTimeGraph</tabstop>
+  <tabstop>toggleSettings</tabstop>
+  <tabstop>buttonPrint</tabstop>
+  <tabstop>buttonSave</tabstop>
+  <tabstop>buttonHelp</tabstop>
+  <tabstop>buttonClose</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboCs</sender>
+   <signal>activated(int)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>crossectionBoxActivated(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>84</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAddField</sender>
+   <signal>triggered()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onAddField()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboTime</sender>
+   <signal>activated(int)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>timeBoxActivated(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>366</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>quitClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>635</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCsNext</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>rightCrossectionClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCsPrevious</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>leftCrossectionClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>15</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonTimeNext</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>rightTimeClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonTimePrevious</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>leftTimeClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonHelp</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>helpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>544</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonPrint</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>printClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>249</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonSave</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>saveClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toggleTimeGraph</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>timeGraphClicked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>556</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toggleCsEdit</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>dynCrossEditManagerEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toggleSettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>setupClicked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onAddField()</slot>
+  <slot>leftCrossectionClicked()</slot>
+  <slot>rightCrossectionClicked()</slot>
+  <slot>crossectionBoxActivated(int)</slot>
+  <slot>leftTimeClicked()</slot>
+  <slot>rightTimeClicked()</slot>
+  <slot>timeBoxActivated(int)</slot>
+  <slot>printClicked()</slot>
+  <slot>saveClicked()</slot>
+  <slot>setupClicked(bool)</slot>
+  <slot>timeGraphClicked(bool)</slot>
+  <slot>quitClicked()</slot>
+  <slot>helpClicked()</slot>
+  <slot>dynCrossEditManagerEnabled(bool)</slot>
+ </slots>
+</ui>

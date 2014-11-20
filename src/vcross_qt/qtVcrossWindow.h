@@ -31,6 +31,7 @@
 #define _qt_vcrossmainwindow_
 
 #include "vcross_v2/VcrossQtManager.h"
+#include "diVcrossSelectionManager.h"
 #include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
 #include <QDialog>
@@ -40,15 +41,17 @@
 namespace miutil {
 class miTime;
 }
+class ActionButton;
 class Controller;
 class LocationData;
 class ToggleButton;
-class VcrossDialog;
 class VcrossSetupDialog;
+class Ui_VcrossWindow;
 
 class QAction;
 class QCheckBox;
 class QComboBox;
+class QHBoxLayout;
 class QPrinter;
 class QString;
 class QSpinBox;
@@ -90,68 +93,6 @@ public:
   ///add position to list of positions
   void mapPos(float lat, float lon);
 
-
-protected:
-  void closeEvent( QCloseEvent* );
-
-private:
-  vcross::QtManager_p vcrossm;
-  vcross::QtWidget * vcrossw;
-  VcrossDialog * vcDialog;
-  VcrossSetupDialog * vcSetupDialog;
-
-  //qt widgets
-  QAction *showPrevPlotAction;
-  QAction *showNextPlotAction;
-  ToggleButton * dataButton;
-  ToggleButton * setupButton;
-  ToggleButton * timeGraphButton;
-  QComboBox * crossectionBox;
-  QComboBox * timeBox;
-  QSpinBox* timeSpinBox;
-  QCheckBox * dynEditManager;
-  bool dynEditManagerConnected;
-
-  void updateCrossectionBox();
-  void updateTimeBox();
-
-  // printerdefinitions
-  printOptions priop;
-  QString mRasterFilename;
-
-  void makeEPS(const std::string& filename);
-  void emitQmenuStrings();
-  void stepTime(int direction);
-
-private Q_SLOTS:
-  void dataClicked(bool on);
-  void leftCrossectionClicked();
-  void rightCrossectionClicked();
-  void leftTimeClicked();
-  void rightTimeClicked();
-  void printClicked();
-  void saveClicked();
-  void setupClicked(bool on);
-  void timeGraphClicked(bool on);
-  void quitClicked();
-  void helpClicked();
-  void changeFields(bool modelChanged);
-  void changeSetup();
-  void hideDialog();
-  void hideSetup();
-  void crossectionBoxActivated(int index);
-  void timeBoxActivated(int index);
-  bool timeChangedSlot(int);
-  bool crossectionChangedSlot(int);
-
-  void dynCrossEditManagerEnabled(int state);
-  void dynCrossEditManagerChange(const QVariantMap &props);
-  void dynCrossEditManagerRemoval(int id);
-  void slotCheckEditmode(bool editing);
-
-private:
-  void dynCrossEditManagerEnableSignals();
-
 Q_SIGNALS:
   void VcrossHide();
   void showsource(const std::string&, const std::string& = ""); // activate help
@@ -164,6 +105,72 @@ Q_SIGNALS:
   void quickMenuStrings(const std::string&, const std::vector<std::string>&);
   void nextHVcrossPlot();
   void prevHVcrossPlot();
+
+protected:
+  void closeEvent(QCloseEvent*);
+
+private:
+  void makeEPS(const std::string& filename);
+  void emitQmenuStrings();
+  void stepTime(int direction);
+  void dynCrossEditManagerEnableSignals();
+  void changeFields();
+  void updateCrossectionBox();
+  void updateTimeBox();
+
+private Q_SLOTS:
+  // GUI slots for leayer buttons
+  void onFieldAction(int position, int action);
+
+  // slots for VcrossSelectionManager
+  void onFieldAdded(const std::string& model, const std::string& field, int position);
+  void onFieldUpdated(const std::string& model, const std::string& field, int position);
+  void onFieldRemoved(const std::string& model, const std::string& field, int position);
+  void onFieldsRemoved();
+
+  // slots for diana main window
+  bool crossectionChangedSlot(int);
+  bool timeChangedSlot(int);
+
+  // slots for diana main window drawing editor
+  void dynCrossEditManagerChange(const QVariantMap &props);
+  void dynCrossEditManagerRemoval(int id);
+  void slotCheckEditmode(bool editing);
+
+  // GUI slots for window
+  void onAddField();
+  void leftCrossectionClicked();
+  void rightCrossectionClicked();
+  void crossectionBoxActivated(int index);
+  void leftTimeClicked();
+  void rightTimeClicked();
+  void timeBoxActivated(int index);
+  void printClicked();
+  void saveClicked();
+  void setupClicked(bool on);
+  void timeGraphClicked(bool on);
+  void quitClicked();
+  void helpClicked();
+  void dynCrossEditManagerEnabled(bool);
+
+  // slots for vcross setup dialog
+  void hideSetup();
+  void changeSetup();
+
+private:
+  vcross::QtManager_p vcrossm;
+
+  std::auto_ptr<VcrossSelectionManager> selectionManager;
+  std::auto_ptr<Ui_VcrossWindow> ui;
+
+  VcrossSetupDialog* vcSetupDialog;
+  bool dynEditManagerConnected;
+
+  // printerdefinitions
+  printOptions priop;
+  QString mRasterFilename;
+
+  int vcrossDialogX, vcrossDialogY;
 };
 
 #endif // _qt_vcrossmainwindow_

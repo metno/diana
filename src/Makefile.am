@@ -124,6 +124,8 @@ common_qt_sources += \
 	vcross_v2/VcrossQtUtil.cc \
 	vcross_v2/VcrossQtAxis.cc 
 
+diana_qt_forms =
+
 if WITH_BATCH_ONLY
 diana_qt_sources =
 else
@@ -148,6 +150,7 @@ diana_qt_sources = \
 	EditItems/modifylayerscommand.cc \
 	EditItems/modifypropertiescommand.cc \
 	EditItems/modifytextcommand.cc \
+	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
 	qtAnnoText.cc \
@@ -200,13 +203,21 @@ diana_qt_sources = \
 	qtVprofWindow.cc \
 	qtWorkArea.cc 
 
-
 diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
-	vcross_qt/qtVcrossDialog.cc \
+	vcross_qt/qtVcrossLayerButton.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
+	vcross_qt/qtVcrossWizard.cc \
+	vcross_qt/diVcrossSelectionManager.cc \
+	vcross_qt/qtVcrossModelPage.cc \
+	vcross_qt/qtVcrossFieldPage.cc \
+	vcross_qt/qtVcrossStylePage.cc \
+	vcross_qt/qtVcrossStyleWidget.cc \
 	vcross_qt/VcrossQtWidget.cc 
+
+diana_qt_forms += \
+	vcross_qt/vcross_window.ui
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)
@@ -426,7 +437,6 @@ noinst_HEADERS += \
 	vcross_v2/VcrossQtPlot.h \
 	vcross_v2/VcrossQtUtil.h \
 	vcross_v2/VcrossQtAxis.h \
-	vcross_qt/qtVcrossDialog.h \
 	vcross_qt/qtVcrossSetupDialog.h \
 	vcross_qt/VcrossQtWidget.h \
 	vcross_qt/qtVcrossWindow.h \
@@ -448,9 +458,6 @@ noinst_HEADERS += \
         diController.h \
         diLocalSetupParser.h
 endif
-
-# diana_qt_forms= qtStationDialog.ui
-diana_qt_forms=
 
 # xpm files needed to build
 common_xpm_sources= active_object.xpm \
