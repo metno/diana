@@ -32,6 +32,7 @@ struct PaintAttributes {
     bool biased;
     QColor scale;
     bool scaled;
+    QPointF pixelZoom;
 };
 
 struct StencilAttributes {
@@ -91,7 +92,6 @@ public:
     GLuint currentTexture;
 
     QPointF rasterPos;
-    QPointF pixelZoom;
     QHash<GLenum,GLint> pixelStore;
     QPointF bitmapMove;
 

@@ -101,6 +101,7 @@ void PaintGLContext::makeCurrent()
     attributes.biased = false;
     attributes.scale = QColor(255, 255, 255, 255);
     attributes.scaled = false;
+    attributes.pixelZoom = QPointF(1, 1);
 
     points.clear();
     validPoints.clear();
@@ -826,7 +827,7 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     // No need to record the following transformation because we will only use it once.
     ctx->painter->resetTransform();
     ctx->painter->translate(ctx->rasterPos);
-    ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
+    ctx->painter->scale(ctx->attributes.pixelZoom.x(), -ctx->attributes.pixelZoom.y());
     ctx->painter->drawImage(0, 0, destImage);
     ctx->painter->restore();
 
@@ -1156,7 +1157,7 @@ void glPixelTransferf(GLenum pname, GLfloat param)
 void glPixelZoom(GLfloat xfactor, GLfloat yfactor)
 {
     ENSURE_CTX
-    ctx->pixelZoom = QPointF(xfactor, yfactor);
+    ctx->attributes.pixelZoom = QPointF(xfactor, yfactor);
 }
 
 void glPointSize(GLfloat size)
@@ -1754,6 +1755,6 @@ void PaintGLWidget::renderText(int x, int y, const QString &str, const QFont &fo
 
 QImage PaintGLWidget::convertToGLFormat(const QImage &image)
 {
-  return image.transformed(QTransform().scale(1, -1));
+  return image.transformed(QTransform().scale(1, -1)).rgbSwapped();
 }
 
