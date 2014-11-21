@@ -37,7 +37,7 @@
 #include <diController.h>
 
 #ifdef USE_VCROSS_V2
-#include "vcross_v2/VcrossCollector.h"
+#include "vcross_v2/VcrossSetup.h"
 #endif
 
 #include <puTools/miTime.h>
@@ -106,7 +106,6 @@ private:
   std::map<std::string,std::string> stationsfilenames;
   std::map<std::string,std::string> filetypes;
   std::vector<std::string> computations;
-  std::vector<std::string> fields;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
@@ -114,7 +113,7 @@ private:
   std::vector<ObsFilePath>   filePaths;
 
 #ifdef USE_VCROSS_V2
-  vcross::Collector_p collector;
+  vcross::Setup_p setup;
 #endif
 
   std::string amdarStationFile;

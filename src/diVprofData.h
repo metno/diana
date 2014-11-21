@@ -56,7 +56,7 @@ public:
   void readStationNames(const std::string& stationsfilename);
   bool readFile();
   bool readField(std::string type, FieldManager* fieldm);
-  bool readFimex(vcross::Collector_p collector_ , const std::vector<std::string>& fields_);
+  bool readFimex(vcross::Setup_p setup );
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   std::vector<std::string> getNames() { return posName; }
   std::vector <float> getLatitudes() { return posLatitude; }
