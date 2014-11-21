@@ -3285,8 +3285,14 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
       // Index in field
       int oldi = ix + (iy * nx);
       float value = field->data[oldi];
-      if (value == fieldUndef)
+      if (value == fieldUndef){
+        cimage[newi + 0] = 0;
+        cimage[newi + 1] = 0;
+        cimage[newi + 2] = 0;
+        cimage[newi + 3] = 0;
+
         continue;
+      }
       if (value >= poptions.minvalue && value <= poptions.maxvalue) {
 
         // set pixel value
@@ -3431,24 +3437,23 @@ bool FieldPlot::plotPixmap()
     return false;
 
   // How to deal with palettecolours_cold
-  // For now, dont create one
+  // For now, don't create one
   if (poptions.palettecolours.size() == 0) {
     poptions.palettecolours = ColourShading::getColourShading("standard");
   }
-
-  // From plotFillCell
-
-  // convert gridbox corners to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
 
   int factor = resamplingFactor(fields[0]->nx, fields[0]->ny);
 
   if (factor < 2)
     factor = 1;
 
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, false))
-    return false;
+  // convert all gridpoints only if needed by plotFrame or update_stencil
+  int ix1, ix2, iy1, iy2;
+  float *x, *y;
+  if (  poptions.update_stencil || poptions.frame ) {
+    if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, true))
+      return false;
+  }
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
   if (ix2 == fields[0]->nx - 1) {
@@ -3619,13 +3624,12 @@ bool FieldPlot::plotFillCell()
   float *x, *y;
 
   int factor = resamplingFactor(nx, ny);
-
   if (factor < 2)
     factor = 1;
 
   rnx = nx / factor;
   rny = ny / factor;
-  getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, false); // no check here as ix2 needs to be "fixed"
+  getGridPoints(x, y, ix1, ix2, iy1, iy2, factor, true, true); // no check here as ix2 needs to be "fixed"
 
   // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
   if (ix2 == nx - 1)
@@ -3687,7 +3691,7 @@ bool FieldPlot::plotFillCell()
               || value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
-                  % poptions.palettecolours.size();
+                      % poptions.palettecolours.size();
             } else {
               // Just divide by lineintervall...
               index = int((value - poptions.base) / poptions.lineinterval);
@@ -3702,7 +3706,7 @@ bool FieldPlot::plotFillCell()
                 * poptions.palettecolours_cold.size() - poptions.base;
             if (poptions.repeat) {
               index = int((value + base) / poptions.lineinterval)
-                  % poptions.palettecolours_cold.size();
+                      % poptions.palettecolours_cold.size();
             } else {
               index = int((value + base) / poptions.lineinterval);
             }
