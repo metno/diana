@@ -809,7 +809,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
   // wind .....................................................
   if (spopt->pWind && wspeed>0.001){
 
-    float dd= wdir + 180.;
+    float dd= wdir;
     float ff= wspeed * 3600.0/1852.0;
 
     c= Colour(spopt->windColour);

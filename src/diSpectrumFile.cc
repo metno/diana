@@ -279,7 +279,7 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
     int *tmp= vfile->getInt(numExtra);
     spp->northRotation= tmp[0]*extraScale[0];
     spp->wspeed=        tmp[1]*extraScale[1];
-    spp->wdir=          tmp[2]*extraScale[2];
+    spp->wdir=          tmp[2]*extraScale[2] + 180;
     spp->hmo=           tmp[3]*extraScale[3];
     spp->tPeak=         tmp[4]*extraScale[4];
     spp->ddPeak=        tmp[5]*extraScale[5];
