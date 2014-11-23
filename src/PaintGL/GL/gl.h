@@ -108,7 +108,9 @@ typedef double          GLclampd;   /* double precision float in [0,1] */
 
 /* glPush/PopAttrib bits */
 #define GL_COLOR_BUFFER_BIT     0x00004000
+#define GL_CURRENT_BIT          0x00000001
 #define GL_DEPTH_BUFFER_BIT     0x00000100
+#define GL_PIXEL_MODE_BIT       0x00000020
 #define GL_STENCIL_BUFFER_BIT   0x00000400
 
 /* Data types */
@@ -169,10 +171,14 @@ typedef double          GLclampd;   /* double precision float in [0,1] */
 #define GL_TEXTURE_WRAP_T       0x2803
 
 /* Pixel Mode / Transfer */
+#define GL_ALPHA_SCALE          0x0D1C
+#define GL_BLUE_BIAS            0x0D1B
+#define GL_GREEN_BIAS           0x0D19
 #define GL_PACK_ALIGNMENT       0x0D05
 #define GL_PACK_ROW_LENGTH      0x0D02
 #define GL_PACK_SKIP_PIXELS     0x0D04
 #define GL_PACK_SKIP_ROWS       0x0D03
+#define GL_RED_BIAS             0x0D15
 #define GL_UNPACK_ALIGNMENT     0x0CF5
 #define GL_UNPACK_ROW_LENGTH    0x0CF2
 #define GL_UNPACK_SKIP_PIXELS   0x0CF4
@@ -295,6 +301,7 @@ void glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
 void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
                   const GLvoid *pixels);
 void glPixelStorei(GLenum pname, GLint param);
+void glPixelTransferf(GLenum pname, GLfloat param);
 void glPixelZoom(GLfloat xfactor, GLfloat yfactor);
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
                   GLenum format, GLenum type, GLvoid *pixels);

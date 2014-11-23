@@ -97,6 +97,11 @@ void PaintGLContext::makeCurrent()
     attributes.lineStipple = false;
     attributes.polygonStipple = false;
     attributes.antialiasing = false;
+    attributes.bias = QColor(0, 0, 0, 255);
+    attributes.biased = false;
+    attributes.scale = QColor(255, 255, 255, 255);
+    attributes.scaled = false;
+    attributes.pixelZoom = QPointF(1, 1);
 
     points.clear();
     validPoints.clear();
@@ -777,13 +782,41 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     ENSURE_CTX_AND_PAINTER
     // Assuming type == GL_UNSIGNED_BYTE
 
+    if (!ctx->colorMask) return;
+
     int sx = ctx->pixelStore[GL_UNPACK_SKIP_PIXELS];
     int sy = ctx->pixelStore[GL_UNPACK_SKIP_ROWS];
     int sr = ctx->pixelStore[GL_UNPACK_ROW_LENGTH];
 
     QImage image = QImage((const uchar *)pixels + (sr * 4 * sy) + (sx * 4), width, height, sr * 4, QImage::Format_ARGB32).rgbSwapped();
+    QImage destImage;
 
-    if (!ctx->colorMask) return;
+    // Process the image according to the transfer function parameters.
+    if (ctx->attributes.scaled) {
+        destImage = QImage(image.size(), QImage::Format_ARGB32);
+        destImage.fill(ctx->attributes.scale);
+
+        QPainter scalePainter;
+        scalePainter.begin(&destImage);
+        scalePainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        scalePainter.drawImage(0, 0, image);
+        scalePainter.end();
+    } else
+        destImage = image;
+
+    // Apply a bias to the image's colours if defined. This uses the original
+    // image as a mask and applies a solid colour through that mask to
+    // effectively recolour the image.
+    if (ctx->attributes.biased) { 
+        QImage biasImage(image.size(), QImage::Format_ARGB32);
+        biasImage.fill(ctx->attributes.bias);
+
+        QPainter biasPainter;
+        biasPainter.begin(&destImage);
+        biasPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        biasPainter.drawImage(0, 0, biasImage);
+        biasPainter.end();
+    }
 
     ctx->painter->save();
     // Set the clip path, but don't unset it - the state will be restored.
@@ -794,8 +827,8 @@ void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type,
     // No need to record the following transformation because we will only use it once.
     ctx->painter->resetTransform();
     ctx->painter->translate(ctx->rasterPos);
-    ctx->painter->scale(ctx->pixelZoom.x(), -ctx->pixelZoom.y());
-    ctx->painter->drawImage(0, 0, image);
+    ctx->painter->scale(ctx->attributes.pixelZoom.x(), -ctx->attributes.pixelZoom.y());
+    ctx->painter->drawImage(0, 0, destImage);
     ctx->painter->restore();
 
     // Update the raster position.
@@ -1098,10 +1131,33 @@ void glPixelStorei(GLenum pname, GLint param)
     ctx->pixelStore[pname] = param;
 }
 
+void glPixelTransferf(GLenum pname, GLfloat param)
+{
+    ENSURE_CTX
+    switch (pname) {
+    case GL_RED_BIAS:
+        ctx->attributes.bias.setRedF(param);
+        ctx->attributes.biased = true;
+        break;
+    case GL_GREEN_BIAS:
+        ctx->attributes.bias.setGreenF(param);
+        ctx->attributes.biased = true;
+        break;
+    case GL_BLUE_BIAS:
+        ctx->attributes.bias.setBlueF(param);
+        ctx->attributes.biased = true;
+        break;
+    case GL_ALPHA_SCALE:
+        ctx->attributes.scale.setAlphaF(param);
+        ctx->attributes.scaled = true;
+        break;
+    }
+}
+
 void glPixelZoom(GLfloat xfactor, GLfloat yfactor)
 {
     ENSURE_CTX
-    ctx->pixelZoom = QPointF(xfactor, yfactor);
+    ctx->attributes.pixelZoom = QPointF(xfactor, yfactor);
 }
 
 void glPointSize(GLfloat size)
@@ -1162,6 +1218,10 @@ void glPushAttrib(GLbitfield mask)
     else if (mask & GL_POLYGON_BIT)
       ctx->attributesStack.push(ctx->attributes);
     else if (mask & GL_COLOR_BUFFER_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_CURRENT_BIT)
+      ctx->attributesStack.push(ctx->attributes);
+    else if (mask & GL_PIXEL_MODE_BIT)
       ctx->attributesStack.push(ctx->attributes);
 }
 
@@ -1695,6 +1755,6 @@ void PaintGLWidget::renderText(int x, int y, const QString &str, const QFont &fo
 
 QImage PaintGLWidget::convertToGLFormat(const QImage &image)
 {
-  return image;
+  return image.transformed(QTransform().scale(1, -1)).rgbSwapped();
 }
 
