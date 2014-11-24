@@ -116,7 +116,7 @@ QtPlot::~QtPlot()
   METLIBS_LOG_SCOPE();
 }
 
-void QtPlot::plotText(QPainter& painter)
+void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotations)
 {
   METLIBS_LOG_SCOPE();
   if (not mOptions->pText)
@@ -128,10 +128,12 @@ void QtPlot::plotText(QPainter& painter)
     vcross::util::updateMaxStringWidth(painter, widthField, plot->name());
   }
 
-  const float xModel = mCharSize.width(), xField = xModel + widthModel + mCharSize.width();
+  const float xModel = mCharSize.width(), xField = xModel + widthModel + mCharSize.width(),
+      xAnnotations = xField + widthField + mCharSize.width();
   float yPlot = mTotalSize.height() - LINE_GAP*mCharSize.height();
   const float yCSName = yPlot, yStep = mCharSize.height() * LINES_1;
 
+  size_t idx_annotations = 0;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     if (plot->poptions.options_1)
       painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
@@ -139,7 +141,11 @@ void QtPlot::plotText(QPainter& painter)
       painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
     painter.drawText(QPointF(xModel, yPlot), QString::fromStdString(plot->model()));
     painter.drawText(QPointF(xField, yPlot), QString::fromStdString(plot->name()));
+    if (idx_annotations < annotations.size())
+      painter.drawText(QPointF(xAnnotations, yPlot), QString::fromStdString(annotations.at(idx_annotations)));
+
     yPlot -= yStep;
+    idx_annotations += 1;
   }
 
   QString label;
@@ -570,10 +576,10 @@ void QtPlot::plot(QPainter& painter)
 
   plotVerticalGridLines(painter);
   plotSurface(painter);
-  plotData(painter);
+  const std::vector<std::string> annotations = plotData(painter);
 
   plotFrame(painter);
-  plotText(painter);
+  plotText(painter, annotations);
   plotXLabels(painter);
   plotTitle(painter);
 }
@@ -865,7 +871,7 @@ void QtPlot::plotFrame(QPainter& painter)
   }
 }
 
-void QtPlot::plotData(QPainter& painter)
+std::vector<std::string> QtPlot::plotData(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
 
@@ -873,46 +879,46 @@ void QtPlot::plotData(QPainter& painter)
       : mCrossectionDistances;
   const size_t npoint = distances.size();
 
+  std::vector<std::string> annotations;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
+    std::string annotation;
     if (ep->argument_values.empty()) {
       METLIBS_LOG_ERROR("no argument_values, cannot plot");
-      return;
-    }
-    if (not ep->z_values) {
+    } else if (not ep->z_values) {
       METLIBS_LOG_ERROR("no z_values, cannot plot");
-      return;
-    }
-    if (ep->z_values->npoint() != npoint) {
+    } else if (ep->z_values->npoint() != npoint) {
       METLIBS_LOG_ERROR("unexpected z point count " << ep->z_values->npoint() << " != " << npoint << ", cannot plot");
-      return;
-    }
-    if (ep->values(0)->npoint() != npoint) {
+    } else if (ep->values(0)->npoint() != npoint) {
       METLIBS_LOG_ERROR("unexpected v0 point count " << ep->values(0)->npoint() << " != " << npoint << ", cannot plot");
-      return;
-    }
+    } else {
+      // seems ok
 
-    if (miutil::to_lower(plot->poptions.extremeType) == "value")
-      plotDataExtremes(painter, plot);
+      if (miutil::to_lower(plot->poptions.extremeType) == "value")
+        annotation += plotDataExtremes(painter, plot);
 
-    switch(plot->type()) {
-    case ConfiguredPlot::T_CONTOUR:
-      plotDataContour(painter, plot);
-      break;
-    case ConfiguredPlot::T_WIND:
-      plotDataWind(painter, plot);
-      break;
-    case ConfiguredPlot::T_VECTOR:
-      plotDataVector(painter, plot);
-      break;
-    case ConfiguredPlot::T_NONE:
-      // no plot, nothing to do (but compiler complains)
-      break;
+      switch(plot->type()) {
+      case ConfiguredPlot::T_CONTOUR:
+        plotDataContour(painter, plot);
+        break;
+      case ConfiguredPlot::T_WIND:
+        plotDataWind(painter, plot);
+        break;
+      case ConfiguredPlot::T_VECTOR:
+        plotDataVector(painter, plot);
+        break;
+      case ConfiguredPlot::T_NONE:
+        // no plot, nothing to do (but compiler complains)
+        break;
+      }
     }
+    annotations.push_back(annotation);
   }
 
   for (OptionLine_v::const_iterator itL = mLines.begin(); itL != mLines.end(); ++itL)
     plotDataLine(painter, *itL);
+
+  return annotations;
 }
 
 void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
@@ -1043,7 +1049,7 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
   return sqrt(v);
 }
 
-void QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
+std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
 
@@ -1088,27 +1094,32 @@ void QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       }
     }
   }
-  if (not (have_max or have_min))
-    return;
 
   // step 2 draw cross for min, point for max
-
-  const QColor color(vcross::util::QC(plot->poptions.linecolour));
-  painter.setPen(QPen(color, plot->poptions.linewidth));
-  painter.setBrush(Qt::NoBrush);
-
-  const float R = 9*plot->poptions.extremeSize, D = R*sqrt(2)/2;
-  if (have_min) {
-    painter.drawEllipse(QPointF(min_px, min_py), R, R);
-    painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));
-    painter.drawLine(QPointF(min_px+D, min_py-D), QPointF(min_px-D, min_py+D));
-  }
-  if (have_max) {
-    painter.drawEllipse(QPointF(max_px, max_py), R, R);
-    painter.setBrush(color);
-    painter.drawEllipse(QPointF(max_px, max_py), R/3, R/3);
+  std::string annotation;
+  if (have_max or have_min) {
+    const QColor color(vcross::util::QC(plot->poptions.linecolour));
+    painter.setPen(QPen(color, plot->poptions.linewidth));
     painter.setBrush(Qt::NoBrush);
+    
+    const float R = 9*plot->poptions.extremeSize, D = R*sqrt(2)/2;
+    if (have_min) {
+      painter.drawEllipse(QPointF(min_px, min_py), R, R);
+      painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));
+      painter.drawLine(QPointF(min_px+D, min_py-D), QPointF(min_px-D, min_py+D));
+      annotation += "min=" + miutil::from_number(min_v);
+    }
+    if (have_max) {
+      painter.drawEllipse(QPointF(max_px, max_py), R, R);
+      painter.setBrush(color);
+      painter.drawEllipse(QPointF(max_px, max_py), R/3, R/3);
+      painter.setBrush(Qt::NoBrush);
+      if (have_min)
+        annotation += " ";
+      annotation += "max=" + miutil::from_number(max_v);
+    }
   }
+  return annotation;
 }
 
 void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
