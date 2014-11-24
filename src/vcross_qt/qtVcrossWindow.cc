@@ -78,9 +78,15 @@
 #include "vcross_window.ui.h"
 
 #include "addempty.xpm"
-#include "edit.xpm"
-#include "forover.xpm"
 #include "bakover.xpm"
+#include "clock.xpm"
+#include "edit.xpm"
+#include "exit.xpm"
+#include "fileprint.xpm"
+#include "filesave.xpm"
+#include "forover.xpm"
+#include "info.xpm"
+#include "icon_settings.xpm"
 
 using namespace vcross;
 
@@ -192,7 +198,14 @@ void VcrossWindow::setupUi()
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
   new ActionButton(ui->toolAddField, ui->actionAddField, this);
 
-  QPixmap back(bakover_xpm), forward(forward_xpm);
+  ui->toggleTimeGraph->setIcon(QPixmap(clock_xpm));
+  ui->buttonClose->setIcon(QPixmap(exit_xpm));
+  ui->buttonHelp->setIcon(QPixmap(info_xpm));
+  ui->buttonPrint->setIcon(QPixmap(fileprint_xpm));
+  ui->buttonSave->setIcon(QPixmap(filesave));
+  ui->buttonSettings->setIcon(QPixmap(icon_settings));
+
+  const QPixmap back(bakover_xpm), forward(forward_xpm);
 
   ui->buttonCsPrevious->setIcon(back);
   ui->buttonCsNext->setIcon(forward);
