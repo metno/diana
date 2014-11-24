@@ -329,7 +329,7 @@ void VcrossWindow::onFieldsRemoved()
 {
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
   while (lbl->count() > 0) {
-    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(0));
+    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(0));
     QToolButton *button = static_cast<QToolButton*>(wi->widget());
     button->deleteLater();
   }
