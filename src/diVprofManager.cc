@@ -255,7 +255,6 @@ void VprofManager::parseSetup()
   amdarStationFile= LocalSetupParser::basicValue("amdarstationlist");
 
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
-#ifdef USE_VCROSS_V2
   setup = miutil::make_shared<vcross::Setup>();
   setup->configureSources(sources);
   vcross::string_v models = setup->getAllModelNames();
@@ -268,11 +267,8 @@ void VprofManager::parseSetup()
 
   setup->configureComputations(computations);
 
-#endif
   } else {
-
     METLIBS_LOG_ERROR("Missing section " << section2 << " in setupfile.");
-
   }
 }
 

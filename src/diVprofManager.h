@@ -36,9 +36,7 @@
 #include <diField/TimeFilter.h>
 #include <diController.h>
 
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossSetup.h"
-#endif
 
 #include <puTools/miTime.h>
 
@@ -112,9 +110,7 @@ private:
   std::vector<std::string> dialogFileNames;
   std::vector<ObsFilePath>   filePaths;
 
-#ifdef USE_VCROSS_V2
   vcross::Setup_p setup;
-#endif
 
   std::string amdarStationFile;
   bool amdarStationList;

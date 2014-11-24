@@ -30,13 +30,7 @@
 #define VCROSSSETUPDIALOG_H
 
 #include <QDialog>
-#ifdef USE_VCROSS_V2
 #include "vcross_v2/VcrossQtManager.h"
-#else
-#include "vcross_v1/diVcross1Manager.h"
-#endif
-
-#include <vector>
 
 class VcrossOptions;
 class VcrossSetupUI;
@@ -53,18 +47,24 @@ public:
   VcrossSetupDialog(QWidget* parent, vcross::QtManager_p vm);
   void start();
 
-protected:
-  void closeEvent(QCloseEvent*);
+private Q_SLOTS:
+  void standardClicked();
+  void helpClicked();
+  void applyClicked();
+  void applyhideClicked();
+
+Q_SIGNALS:
+  void SetupApply();
+  void showsource(const std::string&, const std::string& = "");
 
 private:
-  vcross::QtManager_p vcrossm;
-
   void initOptions();
-
   void setup(vcross::VcrossOptions * vcopt);
   void printSetup();
   void applySetup();
 
+private:
+  vcross::QtManager_p vcrossm;
   QGridLayout* glayout;
 
   bool isInitialized;
@@ -93,17 +93,6 @@ private:
   VcrossSetupUI* mSetupBACKCOLOUR;
   VcrossSetupUI* mSetupONMAPDRAW;
   VcrossSetupUI* mSetupHITMAPDRAW;
-
-private Q_SLOTS:
-  void standardClicked();
-  void helpClicked();
-  void applyClicked();
-  void applyhideClicked();
-
-Q_SIGNALS:
-  void SetupHide();
-  void SetupApply();
-  void showsource(const std::string&, const std::string& = "");
 };
 
 #endif

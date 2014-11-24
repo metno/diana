@@ -62,8 +62,10 @@ class QtWidget : public QWidget
   Q_OBJECT;
 
 public:
-  QtWidget(QtManager_p vcm, QWidget* parent = 0);
+  QtWidget(QWidget* parent = 0);
   ~QtWidget();
+
+  void setVcrossManager(QtManager_p vcm);
 
   void enableTimeGraph(bool on);
 

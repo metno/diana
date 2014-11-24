@@ -45,10 +45,11 @@
 
 namespace vcross {
 
-QtWidget::QtWidget(QtManager_p vcm, QWidget* parent)
+QtWidget::QtWidget(QWidget* parent)
   : VCROSS_GL(QGLWidget(QGLFormat(QGL::SampleBuffers), parent),QWidget(parent))
-  , vcrossm(vcm), arrowKeyDirection(1)
-  , timeGraph(false), startTimeGraph(false)
+  , arrowKeyDirection(1)
+  , timeGraph(false)
+  , startTimeGraph(false)
 {
   METLIBS_LOG_SCOPE();
   setFocusPolicy(Qt::StrongFocus);
@@ -60,6 +61,11 @@ QtWidget::QtWidget(QtManager_p vcm, QWidget* parent)
 
 QtWidget::~QtWidget()
 {
+}
+
+void QtWidget::setVcrossManager(QtManager_p vcm)
+{
+  vcrossm = vcm;
 }
 
 void QtWidget::paintEvent(QPaintEvent* event)
@@ -91,7 +97,7 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
   if (dorubberband || dopanning)
     return;
 
-  bool change= true;
+  bool change= true, handled = true;
 
   if (me->modifiers() & Qt::ControlModifier) {
 
@@ -112,6 +118,7 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
       vcrossm->setCrossection(+1);
       /*emit*/ crossectionChanged(+1);
     } else {
+      handled = false;
       change= false;
     }
   } else {
@@ -140,14 +147,16 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
       arrowKeyDirection *= -1;
       change= false;
     } else {
+      handled = false;
       change= false;
     }
   }
 
   if (change)
     update();
+  else if (!handled)
+    VCROSS_GL(QGLWidget,QWidget)::keyPressEvent(me);
 }
-
 
 void QtWidget::mousePressEvent(QMouseEvent* me)
 {

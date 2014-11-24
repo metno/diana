@@ -86,6 +86,11 @@ void QtManager::parseSetup(const string_v& sources, const string_v&computations,
   mCollector->setupChanged();
 }
 
+void QtManager::updateOptions()
+{
+  preparePlot();
+}
+
 void QtManager::readOptions(const string_v& vstr)
 {
   return mOptions->readOptions(vstr);

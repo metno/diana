@@ -37,10 +37,10 @@
 #include <puTools/miStringFunctions.h>
 #include <diField/VcrossData.h>
 #include <diField/VcrossUtil.h>
-#ifdef USE_VCROSS_V2
+
 #include "vcross_v2/VcrossEvaluate.h"
-#include <vcross_v2/VcrossComputer.h>
-#endif
+#include "vcross_v2/VcrossComputer.h"
+
 #include <cstdio>
 #include <iomanip>
 #include <sstream>

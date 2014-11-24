@@ -125,11 +125,6 @@ AC_ARG_ENABLE([batch-only],
         [], [enable_batch_only=no])
 AM_CONDITIONAL([WITH_BATCH_ONLY], [test x$enable_batch_only = xyes])
 
-AC_ARG_ENABLE([vcross-v2],
-    [AS_HELP_STRING([--enable-vcross-v2], [compile version 2 of vertical cross sections])],
-        [], [enable_vcross_v2=yes])
-AM_CONDITIONAL([WITH_VCROSS_V2], [test x$enable_vcross_v2 = xyes])
-
 AC_ARG_ENABLE([perl],
     [AS_HELP_STRING([--enable-perl], [enable perl module)])],
 	    [], [enable_perl=no])
