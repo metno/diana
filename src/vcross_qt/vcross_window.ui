@@ -95,6 +95,9 @@
      </property>
      <item>
       <widget class="QToolButton" name="buttonCsPrevious">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -111,6 +114,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="comboCs">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -124,6 +130,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="buttonCsNext">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -140,6 +149,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="toggleCsEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Draw/Edit</string>
        </property>
@@ -163,6 +175,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="buttonTimePrevious">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -179,6 +194,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="comboTime">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -192,6 +210,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="buttonTimeNext">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>

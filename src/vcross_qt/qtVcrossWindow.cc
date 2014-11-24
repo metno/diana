@@ -149,7 +149,7 @@ VcrossWindow::VcrossWindow(Controller *co)
   , vcrossDialogY(16)
 {
   METLIBS_LOG_SCOPE();
-  ui->setupUi(this);
+  setupUi();
   
   vcrossm =  miutil::make_shared<QtManager>();
   selectionManager.reset(new VcrossSelectionManager(vcrossm));
@@ -159,22 +159,7 @@ VcrossWindow::VcrossWindow(Controller *co)
   connect(ui->vcross, SIGNAL(timeChanged(int)), SLOT(timeChangedSlot(int)));
   connect(ui->vcross, SIGNAL(crossectionChanged(int)), SLOT(crossectionChangedSlot(int)));
 
-  ui->actionAddField->setIcon(QPixmap(addempty_xpm));
-  new ActionButton(ui->toolAddField, ui->actionAddField, this);
-
-  ui->comboCs->addItem("                        ");
-  ui->buttonCsPrevious->setIcon(QPixmap(bakover_xpm));
-  ui->buttonCsNext->setIcon(QPixmap(forward_xpm));
-  ui->toggleCsEdit->setEnabled(false);
-
   ui->comboTime->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
-  ui->buttonTimePrevious->setIcon(QPixmap(bakover_xpm));
-  ui->buttonTimeNext->setIcon(QPixmap(forward_xpm));
-
-  QBoxLayout* lbl = new QVBoxLayout;
-  lbl->setContentsMargins(0, 0, 0, 0);
-  lbl->setSpacing(1);
-  ui->layerButtons->setLayout(lbl);
 
   //connected dialogboxes
 
@@ -200,6 +185,27 @@ VcrossWindow::VcrossWindow(Controller *co)
 
 VcrossWindow::~VcrossWindow()
 {
+}
+
+void VcrossWindow::setupUi()
+{
+  ui->setupUi(this);
+
+  ui->actionAddField->setIcon(QPixmap(addempty_xpm));
+  new ActionButton(ui->toolAddField, ui->actionAddField, this);
+
+  QPixmap back(bakover_xpm), forward(forward_xpm);
+
+  ui->buttonCsPrevious->setIcon(back);
+  ui->buttonCsNext->setIcon(forward);
+
+  ui->buttonTimePrevious->setIcon(back);
+  ui->buttonTimeNext->setIcon(forward);
+
+  QBoxLayout* lbl = new QVBoxLayout;
+  lbl->setContentsMargins(0, 0, 0, 0);
+  lbl->setSpacing(1);
+  ui->layerButtons->setLayout(lbl);
 }
 
 /***************************************************************************/
@@ -434,8 +440,7 @@ bool VcrossWindow::crossectionChangedSlot(int diff)
     s = ""; // FIXME vcrossm->getLastCrossection();
   std::string sbs = ui->comboCs->currentText().toStdString();
   if (sbs != s){
-    const int n = ui->comboCs->count();
-    for(int i = 0;i<n;i++){
+    for(int i = 0; i<count; i++) {
       if (s==ui->comboCs->itemText(i).toStdString()) {
         ui->comboCs->setCurrentIndex(i);
         sbs = ui->comboCs->currentText().toStdString();
@@ -445,14 +450,17 @@ bool VcrossWindow::crossectionChangedSlot(int diff)
   }
   QString sq = QString::fromStdString(s);
   if (sbs == s) {
-    /*emit*/ crossectionChanged(sq); //name of current crossection (to mainWindow)
+    Q_EMIT crossectionChanged(sq); //name of current crossection (to mainWindow)
     return true;
   } else {
     //    METLIBS_LOG_WARN("WARNING! crossectionChangedSlot  crossection from vcrossm ="
     // 	 << s    <<" not equal to crossectionBox text = " << sbs);
     //current or last crossection plotted is not in the list, insert it...
-    ui->comboCs->addItem(sq,0);
+    ui->comboCs->addItem(sq);
     ui->comboCs->setCurrentIndex(0);
+    ui->comboCs->setEnabled(true);
+    ui->buttonCsPrevious->setEnabled(true);
+    ui->buttonCsNext->setEnabled(true);
     return false;
   }
 }
@@ -555,13 +563,20 @@ void VcrossWindow::quitClicked()
   vcrossm->cleanup();
 
   ui->comboCs->clear();
-  ui->comboTime->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
+  ui->comboCs->setEnabled(false);
+  ui->buttonCsPrevious->setEnabled(false);
+  ui->buttonCsNext->setEnabled(false);
+
+  const std::vector<miutil::miTime> NO_TIMES;
+  ui->comboTime->setModel(new MiTimeModel(NO_TIMES));
+  ui->comboTime->setEnabled(false);
+  ui->buttonTimePrevious->setEnabled(false);
+  ui->buttonTimeNext->setEnabled(false);
 
   active = false;
-  /*emit*/ updateCrossSectionPos(false);
-  /*emit*/ VcrossHide();
-  std::vector<miutil::miTime> t;
-  /*emit*/ emitTimes("vcross", t);
+  Q_EMIT updateCrossSectionPos(false);
+  Q_EMIT VcrossHide();
+  Q_EMIT emitTimes("vcross", NO_TIMES);
 }
 
 /***************************************************************************/
@@ -569,8 +584,7 @@ void VcrossWindow::quitClicked()
 void VcrossWindow::helpClicked()
 {
   //called when the help button in Vcrosswindow is clicked
-  METLIBS_LOG_SCOPE();
-  /*emit*/ showsource("ug_verticalcrosssections.html");
+  Q_EMIT showsource("ug_verticalcrosssections.html");
 }
 
 void VcrossWindow::dynCrossEditManagerEnabled(bool on)
@@ -760,7 +774,10 @@ void VcrossWindow::updateCrossectionBox()
 
   ui->comboCs->clear();
   const std::vector<std::string>& crossections = vcrossm->getCrossectionList();
-
+  const bool haveCs = not crossections.empty();
+  ui->comboCs->setEnabled(haveCs);
+  ui->buttonCsPrevious->setEnabled(haveCs);
+  ui->buttonCsNext->setEnabled(haveCs);
   for (size_t i=0; i<crossections.size(); i++)
     ui->comboCs->addItem(QString::fromStdString(crossections[i]));
 }
@@ -772,8 +789,12 @@ void VcrossWindow::updateTimeBox()
   METLIBS_LOG_SCOPE();
 
   const std::vector<miutil::miTime>& times = vcrossm->getTimeList();
+  const bool haveTimes = not times.empty();
+  ui->comboTime->setEnabled(haveTimes);
+  ui->buttonTimePrevious->setEnabled(haveTimes);
+  ui->buttonTimeNext->setEnabled(haveTimes);
   ui->comboTime->setModel(new MiTimeModel(times));
-  /*emit*/ emitTimes("vcross",times);
+  Q_EMIT emitTimes("vcross",times);
 }
 
 /***************************************************************************/
@@ -783,7 +804,7 @@ void VcrossWindow::crossectionBoxActivated(int index)
   const QString& sq = ui->comboCs->currentText();
   vcrossm->setCrossection(sq.toStdString());
   ui->vcross->update();
-  /*emit*/ crossectionChanged(sq); //name of current crossection (to mainWindow)
+  Q_EMIT crossectionChanged(sq); //name of current crossection (to mainWindow)
   emitQmenuStrings();
 }
 
@@ -796,7 +817,7 @@ void VcrossWindow::timeBoxActivated(int index)
   if (index>=0 && index < int(times.size())) {
     vcrossm->setTime(times[index]);
     ui->vcross->update();
-    /*emit*/ setTime("vcross", times[index]);
+    Q_EMIT setTime("vcross", times[index]);
   }
 }
 
@@ -811,10 +832,7 @@ bool VcrossWindow::changeCrossection(const std::string& crossection)
   raise();
   emitQmenuStrings();
 
-  if (crossectionChangedSlot(0))
-    return true;
-  else
-    return false;
+  return crossectionChangedSlot(0);
 }
 
 /***************************************************************************/
@@ -875,7 +893,7 @@ void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_stri
 {
   vcrossm->parseQuickMenuStrings(qm_string);
   selectionManager->putOKString(qm_string);
-  /*emit*/ crossectionSetChanged();
+  Q_EMIT crossectionSetChanged();
 
   //update combobox lists of crossections and time
   updateCrossectionBox();
@@ -889,11 +907,9 @@ void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_stri
 void VcrossWindow::parseSetup()
 {
   METLIBS_LOG_SCOPE();
-  string_v sources;
+  string_v sources, computations, plots;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_FILES", sources);
-  string_v computations;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_COMPUTATIONS", computations);
-  string_v plots;
   miutil::SetupParser::getSection("VERTICAL_CROSSECTION_PLOTS", plots);
   vcrossm->parseSetup(sources,computations,plots);
 }

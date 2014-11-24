@@ -110,6 +110,9 @@ protected:
   void closeEvent(QCloseEvent*);
 
 private:
+  //! setup UI and adjust some things that cannot be done easily with qt designer
+  void setupUi();
+
   void makeEPS(const std::string& filename);
   void emitQmenuStrings();
   void stepTime(int direction);
