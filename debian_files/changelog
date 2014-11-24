@@ -1,3 +1,9 @@
+diana (3.37.0~rc2-1) unstable; urgency=low
+
+  * Vertical crossections: new gui
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 24 Nov 2014 14:17:16 +0100
+
 diana (3.37.0~rc1-1) unstable; urgency=low
 
   * several fixes
