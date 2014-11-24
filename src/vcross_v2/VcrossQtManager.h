@@ -119,10 +119,13 @@ public:
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
   // end of calls from VcrossWidget
 
-  // called from VcrossDialog
+  // called from VcrossSetupDialog
   VcrossOptions* getOptions()
     { return mOptions.get(); }
-  // end of calls from VcrossDialog
+
+  //! re-read mOptions after it has been changed in VcrossSetupDialog
+  void updateOptions();
+  // end of calls from VcrossSetupDialog
 
   //! forwards call to mOptions
   void readOptions(const string_v& vstr);

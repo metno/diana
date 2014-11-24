@@ -32,8 +32,6 @@
 #include <QDialog>
 #include "vcross_v2/VcrossQtManager.h"
 
-#include <vector>
-
 class VcrossOptions;
 class VcrossSetupUI;
 class QGridLayout;
@@ -49,18 +47,24 @@ public:
   VcrossSetupDialog(QWidget* parent, vcross::QtManager_p vm);
   void start();
 
-protected:
-  void closeEvent(QCloseEvent*);
+private Q_SLOTS:
+  void standardClicked();
+  void helpClicked();
+  void applyClicked();
+  void applyhideClicked();
+
+Q_SIGNALS:
+  void SetupApply();
+  void showsource(const std::string&, const std::string& = "");
 
 private:
-  vcross::QtManager_p vcrossm;
-
   void initOptions();
-
   void setup(vcross::VcrossOptions * vcopt);
   void printSetup();
   void applySetup();
 
+private:
+  vcross::QtManager_p vcrossm;
   QGridLayout* glayout;
 
   bool isInitialized;
@@ -89,17 +93,6 @@ private:
   VcrossSetupUI* mSetupBACKCOLOUR;
   VcrossSetupUI* mSetupONMAPDRAW;
   VcrossSetupUI* mSetupHITMAPDRAW;
-
-private Q_SLOTS:
-  void standardClicked();
-  void helpClicked();
-  void applyClicked();
-  void applyhideClicked();
-
-Q_SIGNALS:
-  void SetupHide();
-  void SetupApply();
-  void showsource(const std::string&, const std::string& = "");
 };
 
 #endif

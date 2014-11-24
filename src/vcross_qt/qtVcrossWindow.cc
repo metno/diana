@@ -162,10 +162,8 @@ VcrossWindow::VcrossWindow(Controller *co)
   ui->comboTime->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
 
   //connected dialogboxes
-
-  vcSetupDialog = new VcrossSetupDialog(this,vcrossm);
+  vcSetupDialog = new VcrossSetupDialog(this, vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()), SLOT(changeSetup()));
-  connect(vcSetupDialog, SIGNAL(SetupHide()), SLOT(hideSetup()));
   connect(vcSetupDialog, SIGNAL(showsource(const std::string&, const std::string&)),
       SIGNAL(showsource(const std::string&, const std::string&)));
 
@@ -523,15 +521,10 @@ void VcrossWindow::makeEPS(const std::string& filename)
 
 /***************************************************************************/
 
-void VcrossWindow::setupClicked(bool on)
+void VcrossWindow::onShowSetupDialog()
 {
-  //called when the setup button is clicked
-  if( on ){
-    vcSetupDialog->start();
-    vcSetupDialog->show();
-  } else {
-    vcSetupDialog->hide();
-  }
+  vcSetupDialog->start();
+  vcSetupDialog->show();
 }
 
 /***************************************************************************/
@@ -743,17 +736,6 @@ void VcrossWindow::changeSetup()
 
   ui->vcross->update();
   emitQmenuStrings();
-}
-
-/***************************************************************************/
-
-void VcrossWindow::hideSetup()
-{
-  //called when the hide button (from setup dialog) is clicked
-  METLIBS_LOG_SCOPE();
-
-  vcSetupDialog->hide();
-  ui->toggleSettings->setChecked(false);
 }
 
 /***************************************************************************/

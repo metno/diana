@@ -150,14 +150,13 @@ private Q_SLOTS:
   void timeBoxActivated(int index);
   void printClicked();
   void saveClicked();
-  void setupClicked(bool on);
+  void onShowSetupDialog();
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();
   void dynCrossEditManagerEnabled(bool);
 
   // slots for vcross setup dialog
-  void hideSetup();
   void changeSetup();
 
 private:

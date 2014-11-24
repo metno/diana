@@ -23,12 +23,12 @@
    <item row="0" column="1">
     <layout class="QHBoxLayout" name="layoutTop1">
      <item>
-      <widget class="QPushButton" name="toggleSettings">
+      <widget class="QPushButton" name="buttonSettings">
+       <property name="toolTip">
+        <string>Show vertical crossection settings dialog</string>
+       </property>
        <property name="text">
         <string>Settings…</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -345,7 +345,7 @@
   <tabstop>buttonTimeNext</tabstop>
   <tabstop>toggleCsEdit</tabstop>
   <tabstop>toggleTimeGraph</tabstop>
-  <tabstop>toggleSettings</tabstop>
+  <tabstop>buttonSettings</tabstop>
   <tabstop>buttonPrint</tabstop>
   <tabstop>buttonSave</tabstop>
   <tabstop>buttonHelp</tabstop>
@@ -562,10 +562,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>toggleSettings</sender>
-   <signal>toggled(bool)</signal>
+   <sender>buttonSettings</sender>
+   <signal>clicked()</signal>
    <receiver>VcrossWindow</receiver>
-   <slot>setupClicked(bool)</slot>
+   <slot>onShowSetupDialog()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>45</x>
@@ -588,7 +588,7 @@
   <slot>timeBoxActivated(int)</slot>
   <slot>printClicked()</slot>
   <slot>saveClicked()</slot>
-  <slot>setupClicked(bool)</slot>
+  <slot>onShowSetupDialog()</slot>
   <slot>timeGraphClicked(bool)</slot>
   <slot>quitClicked()</slot>
   <slot>helpClicked()</slot>
