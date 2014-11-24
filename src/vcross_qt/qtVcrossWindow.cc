@@ -655,7 +655,6 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 
   vcrossm->setDynamicCrossection(label, points);
 
-  Q_EMIT crossectionSetChanged();
   updateCrossectionBox();
 
   vcrossm->setCrossection(label);
@@ -669,7 +668,6 @@ void VcrossWindow::dynCrossEditManagerRemoval(int id)
 
   std::string label = QString("dyn_%1").arg(id).toStdString();
   vcrossm->setDynamicCrossection(label, vcross::LonLat_v()); // empty points => remove
-  Q_EMIT crossectionSetChanged();
   updateCrossectionBox();
 
   ui->vcross->update();
@@ -688,13 +686,31 @@ void VcrossWindow::emitQmenuStrings()
 
 void VcrossWindow::changeFields()
 {
+  METLIBS_LOG_SCOPE();
+
   const std::vector<std::string> vstr = selectionManager->getOKString();
   const bool modelChanged = vcrossm->setSelection(vstr);
 
   //called when the apply button from model/field dialog is clicked
   //... or field is changed ?
-  METLIBS_LOG_SCOPE();
 
+  enableDynamicCsIfSupported();
+
+  if (modelChanged) {
+    updateCrossectionBox();
+    updateTimeBox();
+
+    //get correct selection in comboboxes
+    crossectionChangedSlot(0);
+    timeChangedSlot(0);
+  }
+
+  ui->vcross->update();
+  emitQmenuStrings();
+}
+
+void VcrossWindow::enableDynamicCsIfSupported()
+{
   if (vcrossm->supportsDynamicCrossections()) {
     ui->toggleCsEdit->setEnabled(true);
     if (EditItemManager::instance()) {
@@ -722,23 +738,6 @@ void VcrossWindow::changeFields()
     ui->toggleCsEdit->setChecked(false);
     ui->toggleCsEdit->setEnabled(false);
   }
-
-  if (modelChanged) {
-
-    //emit to MainWindow (updates crossectionPlot)
-    Q_EMIT crossectionSetChanged();
-
-    //update combobox lists of crossections and time
-    updateCrossectionBox();
-    updateTimeBox();
-
-    //get correct selection in comboboxes
-    crossectionChangedSlot(0);
-    timeChangedSlot(0);
-  }
-
-  ui->vcross->update();
-  emitQmenuStrings();
 }
 
 /***************************************************************************/
@@ -769,10 +768,13 @@ void VcrossWindow::getCrossections(LocationData& locationdata)
 
 /***************************************************************************/
 
+// update list of crossections in ui->comboCs
 void VcrossWindow::updateCrossectionBox()
 {
-  //update list of crossections in ui->comboCs
   METLIBS_LOG_SCOPE();
+
+  //emit to MainWindow (updates crossectionPlot)
+  Q_EMIT crossectionSetChanged();
 
   ui->comboCs->clear();
   const std::vector<std::string>& crossections = vcrossm->getCrossectionList();
@@ -881,23 +883,14 @@ void VcrossWindow::startUp(const miutil::miTime& t)
 void VcrossWindow::mapPos(float lat, float lon)
 {
   METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
-
-//  if(vcrossm->setCrossection(lat,lon)) {
-//    // If the return is true (field) update the crossection box and
-//    // tell mainWindow to reread the crossections.
-//    updateCrossectionBox();
-//    /*emit*/ crossectionSetChanged();
-//  }
-  emitQmenuStrings();
 }
 
 void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_string)
 {
   vcrossm->parseQuickMenuStrings(qm_string);
   selectionManager->putOKString(qm_string);
-  Q_EMIT crossectionSetChanged();
 
-  //update combobox lists of crossections and time
+  enableDynamicCsIfSupported();
   updateCrossectionBox();
   updateTimeBox();
 
