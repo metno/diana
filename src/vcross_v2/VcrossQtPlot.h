@@ -132,7 +132,7 @@ private:
   void plotSurface(QPainter& painter);
   void plotXLabels(QPainter& painter);
   void plotTitle(QPainter& painter);
-  void plotText(QPainter& painter);
+  void plotText(QPainter& painter, const std::vector<std::string>& annotations);
 
   /*! Prepare x axis value range after all plots are added. */
   void prepareXAxis();
@@ -152,7 +152,8 @@ private:
   /*! Update axes to maintain aspect ratio */
   void prepareAxesForAspectRatio();
 
-  void plotData(QPainter& painter);
+  std::vector<std::string> plotData(QPainter& painter);
+  std::string plotDataExtremes(QPainter& painter, OptionPlot_cp plot);
   void plotDataContour(QPainter& painter, OptionPlot_cp plot);
   void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1);
   void plotDataWind(QPainter& painter, OptionPlot_cp plot);
@@ -168,6 +169,8 @@ private:
     { if (c == mBackColour) return mContrastColour; else return c; }
   Colour colourOrContrast(const std::string& ctxt) const
     { return colourOrContrast(Colour(ctxt)); }
+
+  static float absValue(OptionPlot_cp plot, int ix, int iy);
 
 private:
   VcrossOptions_p mOptions;
