@@ -153,7 +153,6 @@ void VprofData::readStationNames(const std::string& stationsfilename)
 }
 bool VprofData::readFimex(vcross::Setup_p setup)
 {
-#ifdef USE_VCROSS_V2
   METLIBS_LOG_SCOPE();
 
   collector = miutil::make_shared<vcross::Collector>(setup);
@@ -218,7 +217,6 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   }
   readFromFimex = true;
   vProfPlot.reset(0);
-#endif
   return true;
 }
 
@@ -504,7 +502,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   vp->windInKnots = true;
 
   if (readFromFimex) {
-#ifdef USE_VCROSS_V2
 
     const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
@@ -549,7 +546,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->windInKnots = false;
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
-#endif
 
   } else if (readFromField) {
 
