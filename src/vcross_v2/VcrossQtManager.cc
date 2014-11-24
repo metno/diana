@@ -761,9 +761,11 @@ void QtManager::parseQuickMenuStrings(const std::vector<std::string>& vstr)
 
     if (miutil::contains(upline, "CROSSECTION=")) {
       const std::vector<std::string> vs = miutil::split(line, "=");
-      crossection = vs[1];
-      if (miutil::contains(crossection, "\""))
-        miutil::remove(crossection, '\"');
+      if (vs.size()==2) {
+        crossection = vs[1];
+        if (miutil::contains(crossection, "\""))
+          miutil::remove(crossection, '\"');
+      }
     } else if (miutil::contains(upline, "VCROSS ")) {
       vcross_data.push_back(line);
     } else {
