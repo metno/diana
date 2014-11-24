@@ -29,10 +29,13 @@ public:
   bool updateField(const std::string& model, const std::string& field, const std::string& fieldOpts);
   bool removeField(const std::string& model, const std::string& field);
 
+  void setVisibleAt(int position, bool visible);
+
   int countFields() const;
   const std::string& getFieldAt(int position) const;
   const std::string& getModelAt(int position) const;
   const std::string& getOptionsAt(int position) const;
+  bool getVisibleAt(int position) const;
 
   QStringList allModels();
   QStringList availableFields(const QString& model);
@@ -67,6 +70,9 @@ private:
     std::string field;
     std::string fieldOpts;
     int hourOffset;
+    bool visible;
+    SelectedField(const std::string& mdl, const std::string& fld, const std::string& opts)
+      : model(mdl), field(fld), fieldOpts(opts), hourOffset(0), visible(true) { }
   };
   typedef std::vector<SelectedField> SelectedField_v;
   SelectedField_v selectedFields;

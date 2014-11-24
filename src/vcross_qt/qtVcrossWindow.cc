@@ -276,6 +276,13 @@ void VcrossWindow::onFieldAction(int position, int action)
   } else if (action == VcrossLayerButton::REMOVE) {
     selectionManager->removeField(model, field);
     changeFields();
+  } else if (action == VcrossLayerButton::SHOW_HIDE) {
+    QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
+    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
+    VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
+
+    selectionManager->setVisibleAt(position, not button->isChecked());
+    changeFields();
   }
 }
 

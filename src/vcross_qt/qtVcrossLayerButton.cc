@@ -15,7 +15,7 @@ VcrossLayerButton::VcrossLayerButton(const QString& model, const QString& field,
   setToolTip(tr("Model: %1 Field: %2").arg(model).arg(field));
   setCheckable(true);
 
-  connect(this, SIGNAL(toggled()), this, SLOT(onShowHide()));
+  connect(this, SIGNAL(toggled(bool)), this, SLOT(onShowHide()));
   
   QMenu* menu = new QMenu(this);
 
@@ -23,8 +23,7 @@ VcrossLayerButton::VcrossLayerButton(const QString& model, const QString& field,
   connect(actionEdit, SIGNAL(triggered()), SLOT(onEdit()));
 
   actionShowHide = menu->addAction(tr("Show/Hide"));
-  connect(actionShowHide, SIGNAL(triggered()), SLOT(onShowHide()));
-  actionShowHide->setEnabled(false);
+  connect(actionShowHide, SIGNAL(triggered()), SLOT(toggle())); // calls toggled signal
 
   actionUp = menu->addAction(tr("Up"));
   connect(actionUp, SIGNAL(triggered()), SLOT(onUp()));

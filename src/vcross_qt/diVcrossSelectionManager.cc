@@ -67,11 +67,8 @@ bool VcrossSelectionManager::addField(const std::string& model, const std::strin
     position = selectedFields.size();
 
 
-  SelectedField sf;
-  sf.model = model;
-  sf.field = field;
-  sf.hourOffset = 0; // hourOffset;
-  sf.fieldOpts = fieldOpts;
+  SelectedField sf(model, field, fieldOpts);
+  // sf.hourOffset = hourOffset;
   selectedFields.insert(selectedFields.begin() + position, sf);
   Q_EMIT fieldAdded(model, field, position);
   return true;
@@ -132,6 +129,21 @@ const std::string& VcrossSelectionManager::getOptionsAt(int position) const
   if (position < 0 || position >= int(selectedFields.size()))
     return EMPTY;
   return selectedFields.at(position).fieldOpts;
+}
+
+void VcrossSelectionManager::setVisibleAt(int position, bool visible)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(position) << LOGVAL(visible));
+  if (position < 0 || position >= int(selectedFields.size()))
+    return;
+  selectedFields.at(position).visible = visible;
+}
+
+bool VcrossSelectionManager::getVisibleAt(int position) const
+{
+  if (position < 0 || position >= int(selectedFields.size()))
+    return false;
+  return selectedFields.at(position).visible;
 }
 
 QStringList VcrossSelectionManager::allModels()
@@ -214,8 +226,11 @@ std::vector<std::string> VcrossSelectionManager::getOKString()
 
   for (size_t i=0; i<selectedFields.size(); i++) {
     const SelectedField& sf = selectedFields.at(i);
-    std::ostringstream ostr;
+    METLIBS_LOG_DEBUG(LOGVAL(sf.model) << LOGVAL(sf.field) << LOGVAL(sf.visible));
+    if (not sf.visible)
+      continue;
 
+    std::ostringstream ostr;
     ostr << "VCROSS "
          << "model=" << sf.model
          << " field=" <<  sf.field;
@@ -285,12 +300,8 @@ void VcrossSelectionManager::putOKString(const std::vector<std::string>& vstr,
 
     const std::vector<std::string>::const_iterator it = std::find(cached_fields.begin(), cached_fields.end(), field);
     if (it != cached_fields.end()) {
-      SelectedField sf;
-      sf.model = model;
-      sf.field = field;
+      SelectedField sf(model, field, fOpts);
       sf.hourOffset = hourOffset;
-      sf.fieldOpts = fOpts;
-
       selectedFields.push_back(sf);
       Q_EMIT fieldAdded(model, field, selectedFields.size()-1);
     }
