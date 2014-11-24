@@ -153,6 +153,7 @@ private:
   void prepareAxesForAspectRatio();
 
   void plotData(QPainter& painter);
+  void plotDataExtremes(QPainter& painter, OptionPlot_cp plot);
   void plotDataContour(QPainter& painter, OptionPlot_cp plot);
   void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1);
   void plotDataWind(QPainter& painter, OptionPlot_cp plot);

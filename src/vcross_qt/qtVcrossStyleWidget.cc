@@ -17,7 +17,8 @@
 #define MILOGGER_CATEGORY "diana.VcrossStyleWidget"
 #include <miLogger/miLogging.h>
 
-#define DISABLE_EXTREMES 1
+//#define DISABLE_EXTREMES 1
+#define DISABLE_EXTREME_LIMITS 1
 #define DISABLE_PATTERNS 1
 #define DISABLE_LINE_SMOOTHING 1
 #define DISABLE_HOUROFFSET 1
@@ -207,7 +208,6 @@ QWidget* VcrossStyleWidget::createAdvancedTab()
   connect(extremeValueCheckBox, SIGNAL(toggled(bool)),
       SLOT(extremeValueCheckBoxToggled(bool)));
 
-  //QLabel* extremeTypeLabelHead= new QLabel( "Min,max", advFrame );
   QLabel* extremeSizeLabel= new QLabel(tr("Size"), advFrame);
   extremeSizeSpinBox= new QSpinBox(advFrame);
   extremeSizeSpinBox->setMinimum(5);
@@ -220,6 +220,7 @@ QWidget* VcrossStyleWidget::createAdvancedTab()
   connect(extremeSizeSpinBox, SIGNAL(valueChanged(int)),
       SLOT(extremeSizeChanged(int)));
 
+#ifndef DISABLE_EXTREME_LIMITS
   extremeLimits<<"Off";
   for (int i=0; i<MetNo::Constants::nLevelTable; i++)
     extremeLimits << QString::number(MetNo::Constants::pLevelTable[i]);
@@ -237,14 +238,17 @@ QWidget* VcrossStyleWidget::createAdvancedTab()
   extremeLimitMaxComboBox->setEnabled(false);
   connect(extremeLimitMaxComboBox, SIGNAL(activated(int)),
       SLOT(extremeLimitsChanged()));
+#endif
 
   QGridLayout* extremeLayout = new QGridLayout();
   extremeLayout->addWidget(extremeSizeLabel,        0, 0);
+  extremeLayout->addWidget(extremeSizeSpinBox,      1, 0);
+#ifndef DISABLE_EXTREME_LIMITS
   extremeLayout->addWidget(extremeLimitMinLabel,    0, 1);
   extremeLayout->addWidget(extremeLimitMaxLabel,    0, 2);
-  extremeLayout->addWidget(extremeSizeSpinBox,      1, 0);
   extremeLayout->addWidget(extremeLimitMinComboBox, 1, 1);
   extremeLayout->addWidget(extremeLimitMaxComboBox, 1, 2);
+#endif // DISABLE_EXTREME_LIMITS
 #endif
 
 #ifndef DISABLE_LINE_SMOOTHING
@@ -493,8 +497,10 @@ void VcrossStyleWidget::retranslateUI()
   resetOptionsButton->setToolTip(tr("reset plot layout"));
 #ifndef DISABLE_EXTREMES
   extremeSizeSpinBox->setToolTip(tr("Size of min/max marker"));
+#ifndef DISABLE_EXTREME_LIMITS
   extremeLimitMinComboBox->setToolTip(tr("Find min/max value above this vertical level (unit hPa)"));
   extremeLimitMaxComboBox->setToolTip(tr("Find min/max value below this vertical level (unit hPa)"));
+#endif // DISABLE_EXTREME_LIMITS
 #endif // DISABLE_EXTREMES
 }
 #endif
@@ -747,14 +753,17 @@ void VcrossStyleWidget::enableFieldOptions()
 
 #ifndef DISABLE_EXTREMES
   if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
-    if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
-    else e=1.0;
-    i= (int(e*100.+0.5))/5 * 5;
+    if (vpcopt[nc].floatValue.size()>0)
+      e = vpcopt[nc].floatValue[0];
+    else
+      e = 1.0;
+    i = int((e*100.+0.5)/5) * 5;
     extremeSizeSpinBox->setValue(i);
   } else {
     extremeSizeSpinBox->setValue(100);
   }
 
+#ifndef DISABLE_EXTREME_LIMITS
   if ((nc=cp->findKey(vpcopt,"extreme.limits"))>=0) {
     std::string value = vpcopt[nc].allValue;
     std::vector<std::string> tokens = miutil::split(value,",");
@@ -771,6 +780,7 @@ void VcrossStyleWidget::enableFieldOptions()
       }
     }
   }
+#endif // DISABLE_EXTREME_LIMITS
 
   // extreme.type (value or none)
   if ((nc=cp->findKey(vpcopt,"extreme.type"))>=0) {
@@ -780,23 +790,13 @@ void VcrossStyleWidget::enableFieldOptions()
       extremeValueCheckBox->setChecked(false);
     }
     updateFieldOptions("extreme.type", vpcopt[nc].allValue);
+#ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(true);
     extremeLimitMaxComboBox->setEnabled(true);
+#endif
     extremeSizeSpinBox->setEnabled(true);
   }
   extremeValueCheckBox->setEnabled(true);
-  /*************************************************************************
-  if (extreme && (nc=cp->findKey(vpcopt,"extreme.radius"))>=0) {
-    if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
-    else e=1.0;
-    i= (int(e*100.+0.5))/5 * 5;
-    extremeRadiusSpinBox->setValue(i);
-    extremeRadiusSpinBox->setEnabled(true);
-  } else if (extremeRadiusSpinBox->isEnabled()) {
-    extremeRadiusSpinBox->setValue(100);
-    extremeRadiusSpinBox->setEnabled(false);
-  }
-   *************************************************************************/
 #endif // DISABLE_EXTREMES
 
 #ifndef DISABLE_LINE_SMOOTHING
@@ -1028,13 +1028,12 @@ void VcrossStyleWidget::disableFieldOptions()
   extremeSizeSpinBox->setValue(100);
   extremeSizeSpinBox->setEnabled(false);
 
+#ifndef DISABLE_EXTREME_LIMITS
   extremeLimitMinComboBox->setCurrentIndex(0);
   extremeLimitMinComboBox->setEnabled(false);
   extremeLimitMaxComboBox->setCurrentIndex(0);
   extremeLimitMaxComboBox->setEnabled(false);
-
-  //extremeRadiusSpinBox->setValue(100);
-  //extremeRadiusSpinBox->setEnabled(false);
+#endif // DISABLE_EXTREME_LIMITS
 #endif // DISABLE_EXTREMES
 
 #ifndef DISABLE_LINE_SMOOTHING
@@ -1168,13 +1167,17 @@ void VcrossStyleWidget::extremeValueCheckBoxToggled(bool on)
 #ifndef DISABLE_EXTREMES
   if (on) {
     updateFieldOptions("extreme.type","Value");
+#ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(true);
     extremeLimitMaxComboBox->setEnabled(true);
+#endif // DISABLE_EXTREME_LIMITS
     extremeSizeSpinBox->setEnabled(true);
   } else {
     updateFieldOptions("extreme.type","None");
+#ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(false);
     extremeLimitMaxComboBox->setEnabled(false);
+#endif // DISABLE_EXTREME_LIMITS
     extremeSizeSpinBox->setEnabled(false);
   }
   extremeLimitsChanged();
@@ -1183,7 +1186,7 @@ void VcrossStyleWidget::extremeValueCheckBoxToggled(bool on)
 
 void VcrossStyleWidget::extremeLimitsChanged()
 {
-#ifndef DISABLE_EXTREMES
+#ifndef DISABLE_EXTREME_LIMITS
   std::string extremeString = "remove";
   std::ostringstream ost;
   if (extremeLimitMinComboBox->isEnabled() && extremeLimitMinComboBox->currentIndex() > 0 ) {
