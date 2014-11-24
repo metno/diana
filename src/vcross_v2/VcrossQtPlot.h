@@ -170,6 +170,8 @@ private:
   Colour colourOrContrast(const std::string& ctxt) const
     { return colourOrContrast(Colour(ctxt)); }
 
+  static float absValue(OptionPlot_cp plot, int ix, int iy);
+
 private:
   VcrossOptions_p mOptions;
   Colour mBackColour, mContrastColour;

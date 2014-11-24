@@ -1026,6 +1026,23 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
   painter.setBrush(Qt::NoBrush);
 }
 
+// static
+float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
+{
+  const size_t n = plot->evaluated->argument_values.size();
+  if (n == 0)
+    return 0;
+  float v = plot->evaluated->values(0)->value(ix, iy);
+  if (n == 1)
+    return v;
+  v *= v;
+  for (size_t i=1; i<n; ++i) {
+    const float vi = plot->evaluated->values(i)->value(ix, iy);
+    v += vi*vi;
+  }
+  return sqrt(v);
+}
+
 void QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
@@ -1033,7 +1050,6 @@ void QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
   const Values_cp z_values = plot->evaluated->z_values;
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
-  const Values_cp values = plot->evaluated->values(0);
 
   // step 1: loop through all values, find minimum / maximum visible value
 
@@ -1054,7 +1070,7 @@ void QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       if (not mAxisY->legalPaint(py))
         continue;
 
-      const float v = values->value(ix, iy);
+      const float v = absValue(plot, ix, iy);
       if (isnan(v))
         continue;
 
