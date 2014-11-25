@@ -88,13 +88,17 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
+  #if defined(USE_PAINTGL)
+  const float scale = 1.0;
+  #else
   const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+  #endif
 
   QSizeF size(scale * width, scale * height);
 
   if (height == 0) {
     PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize("X", width, height);
-    size.setHeight(qMax(scale * height, fontSize()));
+    size.setHeight(scale * height);
   }
 
   return size;
@@ -162,7 +166,8 @@ void Text::updateRect()
 void Text::setText(const QStringList &lines)
 {
   setProperty("text", lines);
-  updateRect();
+  if (!points_.isEmpty())
+    updateRect();
 }
 
 QDomNode Text::toKML(const QHash<QString, QString> &extraExtData) const
