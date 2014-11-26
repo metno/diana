@@ -234,7 +234,7 @@ void VcrossWindow::onAddField()
     const QStringList fields = wiz.getSelectedFields();
     for (int i=0; i<fields.size(); ++i) {
       const std::string fld = fields.at(i).toStdString();
-      const std::string opt = selectionManager->defaultOptions(model, fld);
+      const std::string opt = selectionManager->defaultOptions(model, fld, false);
       selectionManager->addField(model, fld, opt, selectionManager->countFields());
     }
 
@@ -251,7 +251,7 @@ void VcrossWindow::onFieldAction(int position, int action)
   const std::string model = selectionManager->getModelAt(position);
   const std::string field = selectionManager->getFieldAt(position);
   const std::string opt   = selectionManager->getOptionsAt(position);
-  const std::string dflt  = selectionManager->defaultOptions(model, field);
+  const std::string dflt  = selectionManager->defaultOptions(model, field, true);
 
   METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field) << LOGVAL(opt) << LOGVAL(dflt));
 

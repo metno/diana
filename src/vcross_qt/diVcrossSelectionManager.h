@@ -40,8 +40,8 @@ public:
   QStringList allModels();
   QStringList availableFields(const QString& model);
 
-  std::string defaultOptions(const QString& model, const QString& field);
-  std::string defaultOptions(const std::string& model, const std::string& field);
+  std::string defaultOptions(const QString& model, const QString& field, bool setupOptions);
+  std::string defaultOptions(const std::string& model, const std::string& field, bool setupOptions);
 
   // interface towards quickmenu / ....
 

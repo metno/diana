@@ -186,6 +186,8 @@ QWidget* VcrossStyleWidget::createBasicTab()
 
   resetOptionsButton = NormalPushButton( tr("R"), this );
   resetOptionsButton->setEnabled(false);
+  connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
+
   optlayout->addWidget(resetOptionsButton, 6, 1);
   optlayout->setRowStretch(optlayout->rowCount(), 1);
 
@@ -1379,5 +1381,6 @@ void VcrossStyleWidget::updateFieldOptions(const std::string& name,
 void VcrossStyleWidget::resetOptions()
 {
   currentFieldOpts = defaultOptions;
+  disableFieldOptions();
   enableFieldOptions();
 }

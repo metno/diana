@@ -179,19 +179,22 @@ QStringList VcrossSelectionManager::availableFields(const QString& model)
   return fsl;
 }
 
-std::string VcrossSelectionManager::defaultOptions(const QString& model, const QString& field)
+std::string VcrossSelectionManager::defaultOptions(const QString& model, const QString& field, bool setupOptions)
 {
-  return defaultOptions(model.toStdString(), field.toStdString());
+  return defaultOptions(model.toStdString(), field.toStdString(), setupOptions);
 }
 
-std::string VcrossSelectionManager::defaultOptions(const std::string& model, const std::string& field)
+std::string VcrossSelectionManager::defaultOptions(const std::string& model, const std::string& field, bool setupOptions)
 {
-  string_string_m::const_iterator itO = fieldOptions.find(field);
-  if (itO == fieldOptions.end())
-    itO = setupFieldOptions.find(field);
-  if (itO == setupFieldOptions.end())
-    return "";
-  return itO->second;
+  if (!setupOptions) {
+    const string_string_m::const_iterator itU = fieldOptions.find(field);
+    if (itU != fieldOptions.end())
+      return itU->second;
+  }
+  const string_string_m::const_iterator itS = setupFieldOptions.find(field);
+  if (itS != setupFieldOptions.end())
+    return itS->second;
+  return "";
 }
 
 // ==================== interface towards quickmenu / .... ====================
