@@ -374,7 +374,7 @@ void DrawingStyleManager::setComplexTextList(const QStringList &strings)
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
-  glPushAttrib(GL_LINE_BIT|GL_CURRENT_BIT);
+  glPushAttrib(GL_LINE_BIT);
 
   const QVariantMap style = getStyle(item);
 
@@ -405,7 +405,7 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
-  glPushAttrib(GL_POLYGON_BIT|GL_CURRENT_BIT);
+  glPushAttrib(GL_POLYGON_BIT);
 
   QVariantMap style = getStyle(item);
 
