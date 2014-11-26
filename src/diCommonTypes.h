@@ -29,7 +29,8 @@
 #ifndef _diCommonTypes_h
 #define _diCommonTypes_h
 
-#include <diColour.h>
+#include "diColour.h"
+
 #include <puTools/miTime.h>
 #include <diField/diArea.h>
 

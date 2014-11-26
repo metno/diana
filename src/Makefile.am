@@ -44,6 +44,7 @@ common_cxx_sources = \
 	diFilledMap.cc \
 	diFontManager.cc \
 	diFtnVfile.cc \
+	diGlUtilities.cc \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
@@ -307,12 +308,14 @@ noinst_HEADERS = \
 	diFilledMap.h \
 	diFontManager.h \
 	diFtnVfile.h \
+	diGlUtilities.h \
 	diHDF5.h \
 	diImageGallery.h \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
 	diLinetype.h \
+	diLocationData.h \
 	diLocationPlot.h \
 	diMItiff.h \
 	diManager.h \

@@ -34,6 +34,7 @@
 #endif
 
 #include "diFilledMap.h"
+#include "diGlUtilities.h"
 #include "diUtilities.h"
 #include "diVprofDiagram.h"
 

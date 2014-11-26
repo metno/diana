@@ -38,9 +38,7 @@
 
 #include "poly_contouring.hh"
 
-class Area;
 class FontManager;
-class GLPfile;
 
 class DianaLevels {
 public:

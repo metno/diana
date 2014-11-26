@@ -66,6 +66,18 @@ class StationPlot;
 class QKeyEvent;
 class QMouseEvent;
 
+namespace diutil {
+
+class was_enabled {
+  typedef std::map<std::string, bool> key_enabled_t;
+  key_enabled_t key_enabled;
+public:
+  void save(const Plot* plot, const std::string& key);
+  void restore(Plot* plot, const std::string& key) const;
+};
+
+} // namespace diutil
+
 /**
 
  \brief Main plot engine

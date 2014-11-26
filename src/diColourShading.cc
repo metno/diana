@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <diColourShading.h>
+#include "diColourShading.h"
 
 #include <puTools/miStringFunctions.h>
 

@@ -31,8 +31,9 @@
 #include "config.h"
 #endif
 
-#include <diPrintOptions.h>
-#include <diLocalSetupParser.h>
+#include "diPrintOptions.h"
+#include "diLocalSetupParser.h"
+
 #include <puTools/miSetupParser.h>
 #include <fstream>
 

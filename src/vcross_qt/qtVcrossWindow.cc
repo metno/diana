@@ -38,7 +38,7 @@
 #include "qtVcrossWizard.h"
 
 #include "diController.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
 #include "diUtilities.h"
 
 #include "qtActionButton.h"

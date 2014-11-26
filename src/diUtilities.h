@@ -12,14 +12,6 @@ class Plot;
 
 namespace diutil {
 
-class was_enabled {
-  typedef std::map<std::string, bool> key_enabled_t;
-  key_enabled_t key_enabled;
-public:
-  void save(const Plot* plot, const std::string& key);
-  void restore(Plot* plot, const std::string& key) const;
-};
-
 template<class C>
 void delete_all_and_clear(C& container)
 {
@@ -36,28 +28,6 @@ string_v glob(const std::string& pattern, int glob_flags, bool& error);
 //! glob filenames, return matches, or empty if error
 inline string_v glob(const std::string& pattern, int glob_flags=0)
 { bool error; return glob(pattern, glob_flags, error); }
-
-enum MapValuePosition {
-  map_none, map_left, map_bottom, map_right, map_top, map_all
-};
-
-//! convert position "bottom", left" etc to MapValuePosition
-MapValuePosition mapValuePositionFromText(const std::string& p);
-
-/// Lat/Lon Value Annotation with position on map
-struct MapValueAnno {
-  std::string t;
-  float x;
-  float y;
-  MapValueAnno(const std::string& tt, float xx, float yy)
-    : t(tt), x(xx), y(yy) { }
-};
-typedef std::vector<MapValueAnno> MapValueAnno_v;
-
-void xyclip(int npos, const float *x, const float *y, const float xylim[4],
-    MapValuePosition anno_position, const std::string& anno, MapValueAnno_v& anno_positions);
-
-void xyclip(int npos, const float *x, const float *y, const float xylim[4]);
 
 bool startswith(const std::string& txt, const std::string& start);
 

@@ -31,8 +31,10 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-#include <diPlot.h>
+#include "diPlot.h"
+
 #include <GL/gl.h>
+
 #include <vector>
 #include <map>
 

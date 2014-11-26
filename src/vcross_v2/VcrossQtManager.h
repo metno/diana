@@ -33,7 +33,7 @@
 #include "VcrossOptions.h"
 #include "VcrossSetup.h"
 #include "VcrossQtPlot.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
 
 #include <puTools/miTime.h>
 #include <vector>

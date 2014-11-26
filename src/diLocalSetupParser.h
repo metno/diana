@@ -29,7 +29,7 @@
 #ifndef diLocalSetupParser_h
 #define diLocalSetupParser_h
 
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 
 #include <vector>
 #include <map>

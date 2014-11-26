@@ -38,7 +38,9 @@
 #endif
 
 #include "diVprofDiagram.h"
+
 #include "diColour.h"
+#include "diGlUtilities.h"
 #include "diLinetype.h"
 #include "diUtilities.h"
 
