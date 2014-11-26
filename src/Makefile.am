@@ -217,6 +217,7 @@ diana_qt_sources += \
 	vcross_qt/VcrossQtWidget.cc 
 
 diana_qt_forms += \
+	vcross_qt/vcross_style_widget.ui \
 	vcross_qt/vcross_window.ui
 
 common_cppflags += \
