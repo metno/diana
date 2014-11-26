@@ -68,6 +68,7 @@ bool VcrossSelectionManager::addField(const std::string& model, const std::strin
 
 
   SelectedField sf(model, field, fieldOpts);
+  fieldOptions[field] = fieldOpts;
   // sf.hourOffset = hourOffset;
   selectedFields.insert(selectedFields.begin() + position, sf);
   Q_EMIT fieldAdded(model, field, position);
@@ -83,6 +84,7 @@ bool VcrossSelectionManager::updateField(const std::string& model, const std::st
     if (sf.model == model and sf.field == field) {
       if (sf.fieldOpts != fieldOpts) {
         sf.fieldOpts = fieldOpts;
+        fieldOptions[field] = fieldOpts;
         Q_EMIT fieldUpdated(model, field, j);
       }
       return true;
@@ -344,6 +346,8 @@ void VcrossSelectionManager::readLog(const string_v& loglines,
   // (do not destroy any new options in the program,
   //  and get rid of old unused options)
   for (; itL != loglines.end(); ++itL) {
+    if (diutil::startswith(*itL, "===="))
+      break;
     const int firstspace = itL->find_first_of(' ');
     if (firstspace <= 0 or firstspace >= int(itL->size())-1)
       continue;
@@ -381,6 +385,8 @@ void VcrossSelectionManager::readLog(const string_v& loglines,
       }
       if (changed)
         itO->second = cp->unParse(vpopt);
+    } else {
+      fieldOptions[fieldname] = options;
     }
   }
 }
