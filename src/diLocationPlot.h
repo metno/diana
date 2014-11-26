@@ -32,39 +32,7 @@
 #define LocationPlot_h
 
 #include "diPlot.h"
-
-#include <diField/diArea.h>
-
-#include <vector>
-
-  /// Types of locations to be displayed
-  enum LocationType {
-    location_line,
-    location_unknown
-  };
-
-  /// Description of one location (name and position)
-  struct LocationElement {
-    std::string name;
-    std::vector<float> xpos;    // usually longitude
-    std::vector<float> ypos;    // usually latitude
-  };
-
-  /// Data and info for a set of locations
-  struct LocationData {
-    std::string         name;
-    LocationType     locationType; // for all elements
-    Area             area;      // only Projection used (usually geo)
-    std::vector<LocationElement> elements;
-    std::string         annotation;
-    std::string         colour;
-    std::string         linetype;
-    float            linewidth;
-    std::string         colourSelected;
-    std::string         linetypeSelected;
-    float            linewidthSelected;
-  };
-
+#include "diLocationData.h"
 
 /**
    \brief Plot pickable Locations on the map
@@ -126,8 +94,4 @@ private:
 
 };
 
-#endif
-
-
-
-
+#endif // LocationPlot_h

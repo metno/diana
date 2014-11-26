@@ -31,10 +31,11 @@
 #ifndef diMapPlot_h
 #define diMapPlot_h
 
-#include "diUtilities.h"
-#include "diPlot.h"
 #include "diFilledMap.h"
-#include <diShapeObject.h>
+#include "diGlUtilities.h"
+#include "diPlot.h"
+#include "diShapeObject.h"
+#include "diUtilities.h"
 
 #include <GL/gl.h>
 

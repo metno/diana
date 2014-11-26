@@ -34,8 +34,10 @@
 #include "diVcrossSelectionManager.h"
 #include "VcrossQtWidget.h"
 #include "diPrintOptions.h"
+
 #include <QDialog>
 #include <QVariant>
+
 #include <vector>
 
 namespace miutil {

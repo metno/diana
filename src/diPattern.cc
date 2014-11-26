@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <diPattern.h>
+#include "diPattern.h"
 
 using std::vector;
 

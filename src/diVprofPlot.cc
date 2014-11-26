@@ -34,7 +34,9 @@
 #endif
 
 #include "diVprofPlot.h"
+
 #include "diColour.h"
+#include "diGlUtilities.h"
 #include "diUtilities.h"
 
 #include <diField/diMetConstants.h>

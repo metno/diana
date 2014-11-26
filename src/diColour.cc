@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diColour.cc 3903 2012-07-13 11:11:25Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,11 +31,10 @@
 #include "config.h"
 #endif
 
-#include <diColour.h>
+#include "diColour.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <cstdio>
 #include <iomanip>
 #include <ostream>
 
@@ -188,24 +185,6 @@ void Colour::addColourInfo(const ColourInfo& ci)
       }
   }
   colours.push_back(ci);
-}
-
-void Colour::readColourMap(const std::string fname){
-  FILE *fp;
-  char buffer[1024], name_[100];
-  std::string lname;
-  int r,g,b;
-  Colour c;
-  if ((fp=fopen(fname.c_str(),"r"))){
-    while (fgets(buffer,1023,fp)){
-      if (buffer[0]=='#' || buffer[0]=='!') continue;
-      sscanf(buffer,"%i %i %i %s\n",&r,&g,&b,name_);
-      lname= miutil::to_lower(name_);
-      define(lname,r,g,b,255);
-    }
-    METLIBS_LOG_DEBUG("Found " << cmap.size() << " colours in " << fname);
-    fclose(fp);
-  }
 }
 
 Colour Colour::contrastColour() const

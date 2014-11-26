@@ -71,6 +71,22 @@
 using namespace miutil;
 using namespace std;
 
+namespace diutil {
+
+void was_enabled::save(const Plot* plot, const std::string& key)
+{
+  key_enabled[key] = plot->isEnabled();
+}
+
+void was_enabled::restore(Plot* plot, const std::string& key) const
+{
+  key_enabled_t::const_iterator it = key_enabled.find(key);
+  if (it != key_enabled.end())
+    plot->setEnabled(it->second);
+};
+
+} // namespace diutil
+
 // static class members
 GridConverter PlotModule::gc; // Projection-converter
 

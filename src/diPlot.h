@@ -29,9 +29,9 @@
 #ifndef diPlot_h
 #define diPlot_h
 
-#include <diColour.h>
-#include <diPlotOptions.h>
-#include <diPrintOptions.h>
+#include "diColour.h"
+#include "diPlotOptions.h"
+#include "diPrintOptions.h"
 
 #include <diField/diArea.h>
 #include <diField/diGridConverter.h>
