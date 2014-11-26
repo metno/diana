@@ -7,19 +7,15 @@
 #include "diPattern.h"
 
 #include <QStringList>
-#include <QTabWidget>
+#include <QWidget>
 
 #include <memory>
 #include <string>
 #include <vector>
 
-class QCheckBox;
-class QComboBox;
-class QLabel;
-class QPushButton;
-class QSpinBox;
+class Ui_VcrossStyleWidget;
 
-class VcrossStyleWidget : public QTabWidget {
+class VcrossStyleWidget : public QWidget {
   Q_OBJECT;
 
 public:
@@ -34,17 +30,12 @@ public:
   std::string getOptions();
 
 private:
-  QWidget* createBasicTab();
-  QWidget* createAdvancedTab();
+  void setupUi();
 
   void initFieldOptions();
-
   void disableFieldOptions();
   void enableFieldOptions();
-  void updateFieldOptions(const std::string& name,
-      const std::string& value, int valueIndex=0);
-  std::vector<std::string> numberList( QComboBox* cBox, float number );
-  std::string baseList( QComboBox* cBox, float base, float ekv, bool onoff=false);
+  void updateFieldOptions(const std::string& name, const std::string& value, int valueIndex=0);
   std::string checkFieldOptions(const std::string& str, bool fieldPrefix);
 
 private Q_SLOTS:
@@ -80,6 +71,8 @@ private Q_SLOTS:
   void updatePaletteString();
 
 private:
+  std::auto_ptr<Ui_VcrossStyleWidget> ui;
+
   std::string currentFieldOpts;
   std::string defaultOptions;
 
@@ -98,65 +91,15 @@ private:
   std::auto_ptr<CommandParser> cp;
   std::vector<ParsedCommand> vpcopt;
 
-  QCheckBox*  extremeValueCheckBox;
-  QSpinBox*  extremeSizeSpinBox;
-  QComboBox* extremeLimitMaxComboBox;
-  QComboBox* extremeLimitMinComboBox;
-  QSpinBox*  lineSmoothSpinBox;
-  QSpinBox*  labelSizeSpinBox;
-  QSpinBox*  hourOffsetSpinBox;
-  //QComboBox* undefMaskingCbox;
-  //QComboBox* undefColourCbox;
-  //QComboBox* undefLinewidthCbox;
-  //QComboBox* undefLinetypeCbox;
-  QCheckBox* zeroLineCheckBox;
-  QCheckBox* valueLabelCheckBox;
-  QCheckBox* tableCheckBox;
-  QCheckBox* repeatCheckBox;
-  QComboBox* shadingComboBox;
-  QComboBox* shadingcoldComboBox;
-  QSpinBox*  shadingSpinBox;
-  QSpinBox*  shadingcoldSpinBox;
-  QComboBox* patternComboBox;
-  QComboBox* patternColourBox;
-  QSpinBox*  alphaSpinBox;
-  QComboBox* zero1ComboBox;
-  QComboBox* min1ComboBox;
-  QComboBox* max1ComboBox;
-  QComboBox* interval2ComboBox;
-  QComboBox* linewidth1ComboBox;
-  QComboBox* linetype1ComboBox;
-  QComboBox* type1ComboBox;
-
   std::vector<std::string> baseopts;
   std::vector<std::string> undefMasking;
 
-  QPushButton*  resetOptionsButton;
-  QLabel*    colorlabel;
-  QComboBox* colorCbox;
-  QPixmap**  pmapColor;
-  QPixmap**  pmapTwoColors;
-  QPixmap**  pmapThreeColors;
   int        nr_colors;
-
-  QLabel*    linewidthlabel;
-  QComboBox* lineWidthCbox;
   int        nr_linewidths;
-
-  QLabel*    linetypelabel;
-  QComboBox* lineTypeCbox;
   int        nr_linetypes;
 
-  QLabel*    lineintervallabel;
-  QComboBox* lineintervalCbox;
-
-  QLabel*    densitylabel;
-  QComboBox* densityCbox;
   const char** cdensities;
   int        nr_densities;
-
-  QLabel*    vectorunitlabel;
-  QComboBox* vectorunitCbox;
 };
 
 #endif // VcrossStyleWidget_h

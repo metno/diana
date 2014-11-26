@@ -121,21 +121,6 @@ dist_images_DATA= share/diana/images/wwwmet7_transp.png \
 	share/diana/images/dnmi.xpm \
 	share/diana/images/dnmi.png \
 	share/diana/images/Met_sort_horisontal2.png \
-	share/diana/images/yr_cloudy.png \
-	share/diana/images/yr_fair.png \
-	share/diana/images/yr_fog.png \
-	share/diana/images/yr_heavyrain.png \
-	share/diana/images/yr_partlycloudy.png \
-	share/diana/images/yr_rain.png \
-	share/diana/images/yr_rainshowers.png  \
-	share/diana/images/yr_rainshowersthunder.png \
-	share/diana/images/yr_rainthunder.png \
-	share/diana/images/yr_sleet.png \
-	share/diana/images/yr_sleetshowers.png \
-	share/diana/images/yr_snow.png \
-	share/diana/images/yr_snowshowers.png \
-	share/diana/images/yr_snowthunder.png \
-	share/diana/images/yr_sun.png \
 	share/diana/images/Met_RGB_Horisontal.png
 
 

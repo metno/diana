@@ -118,6 +118,7 @@ private:
   void stepTime(int direction);
   void dynCrossEditManagerEnableSignals();
   void changeFields();
+  void enableDynamicCsIfSupported();
   void updateCrossectionBox();
   void updateTimeBox();
 

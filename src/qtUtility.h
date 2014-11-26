@@ -86,7 +86,11 @@ QComboBox* ColourBox(QWidget* parent,
     bool Enabled=true, int defItem=0,
     const std::string& firstItem="", bool name=false);
 
+void installColours(QComboBox* box, const std::vector<Colour::ColourInfo>& cInfo, bool name=false);
+
 void ExpandColourBox(QComboBox* box, const Colour& col);
+
+void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadingInfo>& csInfo, bool name=false);
 
 QComboBox* PaletteBox(QWidget* parent,
 		      const std::vector<ColourShading::ColourShadingInfo>&,
@@ -99,9 +103,11 @@ QComboBox* PatternBox(QWidget* parent, const std::vector<Pattern::PatternInfo>&,
 		      bool Enabled=true, int defItem=0,
 		      const std::string& firstItem="", bool name=false);
 
+void installLinetypes(QComboBox* box);
 QComboBox* LinetypeBox(QWidget* parent,
 		    bool Enabled=true, int defItem=0);
 
+void installLinewidths(QComboBox* box, int nr_linewidths=12);
 QComboBox* LinewidthBox(QWidget* parent,
 			bool Enabled=true,
 			int nr_linewidths=12,

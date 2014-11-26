@@ -1389,7 +1389,7 @@ void VprofDiagram::plotDiagram()
             for (int iteration = 0; iteration < 5; iteration++) {
               t = tcl / cp - t0;
               const MetNo::Constants::ewt_calculator ewt(t);
-              if (ewt.defined())
+              if (!ewt.defined())
                 break;
               esat = ewt.value();
               qsat = eps * esat / p;

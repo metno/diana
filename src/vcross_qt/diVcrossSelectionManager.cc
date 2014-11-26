@@ -68,6 +68,7 @@ bool VcrossSelectionManager::addField(const std::string& model, const std::strin
 
 
   SelectedField sf(model, field, fieldOpts);
+  fieldOptions[field] = fieldOpts;
   // sf.hourOffset = hourOffset;
   selectedFields.insert(selectedFields.begin() + position, sf);
   Q_EMIT fieldAdded(model, field, position);
@@ -83,6 +84,7 @@ bool VcrossSelectionManager::updateField(const std::string& model, const std::st
     if (sf.model == model and sf.field == field) {
       if (sf.fieldOpts != fieldOpts) {
         sf.fieldOpts = fieldOpts;
+        fieldOptions[field] = fieldOpts;
         Q_EMIT fieldUpdated(model, field, j);
       }
       return true;
@@ -177,19 +179,22 @@ QStringList VcrossSelectionManager::availableFields(const QString& model)
   return fsl;
 }
 
-std::string VcrossSelectionManager::defaultOptions(const QString& model, const QString& field)
+std::string VcrossSelectionManager::defaultOptions(const QString& model, const QString& field, bool setupOptions)
 {
-  return defaultOptions(model.toStdString(), field.toStdString());
+  return defaultOptions(model.toStdString(), field.toStdString(), setupOptions);
 }
 
-std::string VcrossSelectionManager::defaultOptions(const std::string& model, const std::string& field)
+std::string VcrossSelectionManager::defaultOptions(const std::string& model, const std::string& field, bool setupOptions)
 {
-  string_string_m::const_iterator itO = fieldOptions.find(field);
-  if (itO == fieldOptions.end())
-    itO = setupFieldOptions.find(field);
-  if (itO == setupFieldOptions.end())
-    return "";
-  return itO->second;
+  if (!setupOptions) {
+    const string_string_m::const_iterator itU = fieldOptions.find(field);
+    if (itU != fieldOptions.end())
+      return itU->second;
+  }
+  const string_string_m::const_iterator itS = setupFieldOptions.find(field);
+  if (itS != setupFieldOptions.end())
+    return itS->second;
+  return "";
 }
 
 // ==================== interface towards quickmenu / .... ====================
@@ -344,6 +349,8 @@ void VcrossSelectionManager::readLog(const string_v& loglines,
   // (do not destroy any new options in the program,
   //  and get rid of old unused options)
   for (; itL != loglines.end(); ++itL) {
+    if (diutil::startswith(*itL, "===="))
+      break;
     const int firstspace = itL->find_first_of(' ');
     if (firstspace <= 0 or firstspace >= int(itL->size())-1)
       continue;
@@ -381,6 +388,8 @@ void VcrossSelectionManager::readLog(const string_v& loglines,
       }
       if (changed)
         itO->second = cp->unParse(vpopt);
+    } else {
+      fieldOptions[fieldname] = options;
     }
   }
 }

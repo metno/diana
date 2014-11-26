@@ -374,7 +374,7 @@ void DrawingStyleManager::setComplexTextList(const QStringList &strings)
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
 {
-  glPushAttrib(GL_LINE_BIT|GL_CURRENT_BIT);
+  glPushAttrib(GL_LINE_BIT);
 
   const QVariantMap style = getStyle(item);
 
@@ -405,7 +405,7 @@ void DrawingStyleManager::endLine(DrawingItemBase *item)
 
 void DrawingStyleManager::beginFill(DrawingItemBase *item)
 {
-  glPushAttrib(GL_POLYGON_BIT|GL_CURRENT_BIT);
+  glPushAttrib(GL_POLYGON_BIT);
 
   QVariantMap style = getStyle(item);
 
@@ -618,6 +618,9 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QList<QPointF> points_ = getDecorationLines(points, lineLength);
     qreal size = lineWidth * 5;
 
+    glPushAttrib(GL_POLYGON_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glBegin(GL_TRIANGLES);
 
     for (int i = offset; i < points_.size() + di; i += 4) {
@@ -637,6 +640,8 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     }
 
     glEnd(); // GL_TRIANGLES
+
+    glPopAttrib();
 
   } else if (decoration == "arches") {
 
@@ -658,6 +663,9 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       QPointF midpoint = (line.p1() + line.p2())/2;
       qreal astep = qAbs(finish_angle - start_angle)/npoints;
 
+      glPushAttrib(GL_POLYGON_BIT);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
       // Create an arc using points on the circle with the predefined radius.
       // The direction we go around the circle is chosen to be consistent with
       // previous behaviour.
@@ -670,6 +678,8 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       }
 
       glEnd(); // GL_POLYGON
+
+      glPopAttrib();
     }
 
   } else if (decoration == "crosses") {
@@ -721,11 +731,16 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
     QPointF p1 = points_.last() - (lineLength * 2 * tangent) - dp;
     QPointF p2 = points_.last() - (lineLength * 2 * tangent) + dp;
 
+    glPushAttrib(GL_POLYGON_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glBegin(GL_TRIANGLES);
     glVertex3f(points_.last().x(), points_.last().y(), z);
     glVertex3f(p1.x(), p1.y(), z);
     glVertex3f(p2.x(), p2.y(), z);
     glEnd(); // GL_TRIANGLES
+
+    glPopAttrib();
 
   } else if (decoration == "SIGWX") {
 
@@ -756,7 +771,6 @@ void DrawingStyleManager::drawDecoration(const QVariantMap &style, const QString
       }
     }
     glEnd(); // GL_LINE_STRIP
-
   }
 }
 

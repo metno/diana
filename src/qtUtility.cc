@@ -181,23 +181,24 @@ static void ExpandColourBox(QComboBox* box, const QColor& pixcolor, const QStrin
   box->addItem(qicon, name, pixcolor);
 }
 
-QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
-    bool Enabled, int defItem, const std::string& firstItem, bool name)
+void installColours(QComboBox* box, const vector<Colour::ColourInfo>& cInfo, bool name)
 {
-  QComboBox* box = new QComboBox( parent );
-
-  if (not firstItem.empty())
-    box->addItem(QString::fromStdString(firstItem));
-
   const int nr_colors= cInfo.size();
   for (int t=0; t<nr_colors; t++) {
     const QColor pixcolor(cInfo[t].rgb[0],cInfo[t].rgb[1],cInfo[t].rgb[2] );
     ExpandColourBox(box, pixcolor, name ? QString::fromStdString(cInfo[t].name) : QString());
   }
+}
 
+QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
+    bool Enabled, int defItem, const std::string& firstItem, bool name)
+{
+  QComboBox* box = new QComboBox(parent);
+  if (not firstItem.empty())
+    box->addItem(QString::fromStdString(firstItem));
+  installColours(box, cInfo, name);
   box->setEnabled( Enabled );
   box->setCurrentIndex(defItem);
-
   return box;
 }
 
@@ -208,27 +209,21 @@ void ExpandColourBox(QComboBox* box, const Colour& col)
 }
 
 /*********************************************/
-QComboBox* PaletteBox( QWidget* parent, const vector<ColourShading::ColourShadingInfo>& csInfo,
-    bool Enabled, int defItem, const std::string& firstItem, bool name)
+void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadingInfo>& csInfo, bool name)
 {
-  QComboBox* box = new QComboBox( parent );
-
-  int nr_palettes= csInfo.size();
-
-  if (not firstItem.empty())
-    box->addItem(QString::fromStdString(firstItem));
-
-  for( int i=0; i<nr_palettes; i++ ){
-    int nr_colours = csInfo[i].colour.size();
+  const int nr_palettes= csInfo.size();
+  for (int i=0; i<nr_palettes; i++) {
+    const int nr_colours = csInfo[i].colour.size();
     if ( nr_colours == 0 )
       continue;
     int maxwidth=20;
     int step = nr_colours/maxwidth+1;
     int factor = maxwidth/(nr_colours/step);
     int width = (nr_colours/step) * factor;
-    QPixmap* pmap = new QPixmap( width, 20 );
+    QPixmap pmap(width, 20);
+
     QPainter qp;
-    qp.begin( pmap );
+    qp.begin(&pmap);
     for( int j=0; j<nr_colours; j+=step ){
       QColor pixcolor=QColor(csInfo[i].colour[j].R(),
           csInfo[i].colour[j].G(),
@@ -236,21 +231,25 @@ QComboBox* PaletteBox( QWidget* parent, const vector<ColourShading::ColourShadin
 
       qp.fillRect( j*factor,0,factor,20,pixcolor);
     }
-
     qp.end();
 
-    QIcon qicon( *pmap );
+    QIcon qicon(pmap);
     QString qs;
-    if(name) qs = QString::fromStdString(csInfo[i].name);
-    box->addItem(qicon,qs);
-    delete pmap;
-    pmap=0;
+    if(name)
+      qs = QString::fromStdString(csInfo[i].name);
+    box->addItem(qicon, qs);
   }
+}
 
-  box->setEnabled( Enabled );
-
+QComboBox* PaletteBox( QWidget* parent, const vector<ColourShading::ColourShadingInfo>& csInfo,
+    bool Enabled, int defItem, const std::string& firstItem, bool name)
+{
+  QComboBox* box = new QComboBox( parent );
+  if (not firstItem.empty())
+    box->addItem(QString::fromStdString(firstItem));
+  installPalette(box, csInfo, name);
+  box->setEnabled(Enabled);
   box->setCurrentIndex(defItem);
-
   return box;
 }
 
@@ -327,10 +326,8 @@ static ushort lineStipplePattern(const QString &pattern)
 }
 
 /*********************************************/
-QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
+void installLinetypes(QComboBox* box)
 {
-  QComboBox* box = new QComboBox(parent);
-
   vector<std::string> slinetypes = Linetype::getLinetypeInfo();
   const int nr_linetypes= slinetypes.size();
   for (int i=0; i<nr_linetypes; i++) {
@@ -342,23 +339,30 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
     std::auto_ptr<QPixmap> pmapLinetype(linePixmap(pattern, 3));
     box->addItem(*pmapLinetype, "", lineStipplePattern(QString::fromStdString(pattern)));
   }
+}
 
+QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
+{
+  QComboBox* box = new QComboBox(parent);
+  installLinetypes(box);
   box->setEnabled( Enabled );
-
   return box;
 }
 
 /*********************************************/
-QComboBox* LinewidthBox(QWidget* parent, bool Enabled, int nr_linewidths, int defItem)
+void installLinewidths(QComboBox* box, int nr_linewidths)
 {
-  QComboBox* box = new QComboBox( parent );
-
-  for( int i=0; i < nr_linewidths; i++){
+  for (int i=0; i < nr_linewidths; i++) {
     std::auto_ptr<QPixmap> pmapLinewidth(linePixmap("x", i+1));
     box->addItem(*pmapLinewidth, QString("  %1").arg(i+1), i + 1);
   }
-  box->setEnabled(Enabled);
+}
 
+QComboBox* LinewidthBox(QWidget* parent, bool Enabled, int nr_linewidths, int defItem)
+{
+  QComboBox* box = new QComboBox( parent );
+  installLinewidths(box, nr_linewidths);
+  box->setEnabled(Enabled);
   return box;
 }
 
