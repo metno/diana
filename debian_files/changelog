@@ -1,6 +1,8 @@
 diana (3.37.0~rc2-1) unstable; urgency=low
 
   * Vertical crossections: new gui
+  * bugfix: vprof and showalterindex
+  * bugfix: drawing tool 
 
  -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 24 Nov 2014 14:17:16 +0100
 
