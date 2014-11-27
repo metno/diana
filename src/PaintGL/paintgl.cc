@@ -1137,19 +1137,19 @@ void glPixelTransferf(GLenum pname, GLfloat param)
     switch (pname) {
     case GL_RED_BIAS:
         ctx->attributes.bias.setRedF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_GREEN_BIAS:
         ctx->attributes.bias.setGreenF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_BLUE_BIAS:
         ctx->attributes.bias.setBlueF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_ALPHA_SCALE:
         ctx->attributes.scale.setAlphaF(param);
-        ctx->attributes.scaled = true;
+        ctx->attributes.scaled |= (param != 1.0);
         break;
     }
 }
