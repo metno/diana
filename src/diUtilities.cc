@@ -43,7 +43,7 @@ string_v glob(const std::string& pattern, int glob_flags, bool& error)
   if (not error)
     matches = string_v(globBuf.gl_pathv, globBuf.gl_pathv + globBuf.gl_pathc);
 
-  globfree_cache(&globBuf);
+  globfree(&globBuf);
   return matches;
 }
 
