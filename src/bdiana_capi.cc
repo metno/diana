@@ -1046,16 +1046,16 @@ static void printUsage(bool showexample)
             "OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\\n"
             " VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\\n"
             " TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 scale=1 \\\n"
-            " timediff=180 colour=black font=Helvetica face=normal\n"
+            " timediff=180 colour=black font=BITMAPFONT face=normal\n"
             "OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area \\\n"
             " timediff=60\n"
             "MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \\\n"
             " cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \\\n"
             " land=on land.colour=landgul land.zorder=0 latlon=off frame=off\n"
-            "LABEL data font=Helvetica\n"
+            "LABEL data font=BITMAPFONT\n"
             "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black \\\n"
             " fcolour=white:200 polystyle=both halign=left valign=top \\\n"
-            " font=Helvetica fontsize=12\n"
+            " font=BITMAPFONT fontsize=12\n"
 
             "                                                                  \n"
             "ENDPLOT                  # End of plot-command                    \n"
@@ -1097,7 +1097,7 @@ static void printUsage(bool showexample)
             "VPROF.PLOT               # start of vertical profile plot         \n"
             "                                                                  \n"
             "OBSERVATION.ON           # plot observation: OBSERVATION.ON/OFF   \n"
-            "MODELS=HIRLAM.00,EC.12   # comma-separated list of models         \n"
+            "MODELS=AROME-MetCoOp.00, HIRLAM.12KM.00  # comma-separated list of models \n"
             "STATION=KIRKENES         # station-name                           \n"
             "                                                                  \n"
             "ENDPLOT                  # End of plot-command                    \n"
@@ -1279,7 +1279,7 @@ static void printUsage(bool showexample)
             "#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\ \n"
             "#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\  \n"
             "#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\       \n"
-            "#  scale=1 timediff=180 colour=black font=Helvetica face=normal        \n"
+            "#  scale=1 timediff=180 colour=black font=BITMAPFONT face=normal        \n"
             "#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area          \n"
             "#  ENDTIME                                                             \n"
             "#  LEVEL                                                               \n"
@@ -1942,6 +1942,7 @@ static int parseAndProcess(istream &is)
         // -- vprof plot
         if (!vprofmanager) {
           vprofmanager = new VprofManager(main_controller);
+          vprofmanager->parseSetup();
         }
 
         // set size of plotwindow
