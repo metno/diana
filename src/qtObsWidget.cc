@@ -406,6 +406,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   QLabel *sortLabel = new QLabel( tr("Sort "), this);
   sortBox = ComboBox( this,buttonNames,true);
   sortBox->insertItem(0,tr("No sort criteria"));
+  sortBox->setCurrentIndex(0);
   sortRadiogroup = new QButtonGroup( this );
   ascsortButton = new QRadioButton(tr("Asc"), this);
   descsortButton = new QRadioButton(tr("Desc"), this);
