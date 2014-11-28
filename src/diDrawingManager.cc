@@ -119,13 +119,18 @@ bool DrawingManager::parseSetup()
     if (items.contains("file")) {
       if (items.contains("symbol")) {
 
+        // The default section is an empty string.
+        QString section = items.value("section", "");
+
         // Symbol definitions
         QFile f(items["file"]);
         if (f.open(QFile::ReadOnly)) {
           symbols[items["symbol"]] = f.readAll();
           f.close();
+          // Add the symbol name to the relevant section.
+          symbolSections[section].append(items["symbol"]);
         } else
-          METLIBS_LOG_WARN("Failed to load symbol file: " << items["file"].toStdString());
+          METLIBS_LOG_WARN("Failed to load drawing symbol file: " << items["file"].toStdString());
 
       } else {
         // Drawing definitions
@@ -478,9 +483,17 @@ void DrawingManager::setWorkDir(const QString &dir)
   workDir = dir;
 }
 
-QStringList DrawingManager::symbolNames() const
+QStringList DrawingManager::symbolNames(const QString &section) const
 {
-  return symbols.keys();
+  if (section.isNull())
+    return symbols.keys();
+  else
+    return symbolSections.value(section);
+}
+
+QStringList DrawingManager::symbolSectionNames() const
+{
+  return symbolSections.keys();
 }
 
 QImage DrawingManager::getCachedImage(const QString &name, int width, int height) const

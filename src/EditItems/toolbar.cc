@@ -93,18 +93,28 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create a combo box containing specific symbols.
   symbolCombo_ = new QComboBox();
+  symbolCombo_->view()->setTextElideMode(Qt::ElideRight);
   connect(symbolCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setSymbolType(int)));
   connect(symbolCombo_, SIGNAL(currentIndexChanged(int)), symbolAction_, SLOT(trigger()));
   addWidget(symbolCombo_);
 
   DrawingManager *dm = DrawingManager::instance();
+  QAbstractItemModel *model = symbolCombo_->model();
+  QFont sectionFont = font();
+  sectionFont.setWeight(QFont::Bold);
 
-  // Create an entry for each style. Use the name as an internal identifier
-  // since we may decide to use tr() on the visible name at some point.
+  foreach (QString section, dm->symbolSectionNames()) {
+    symbolCombo_->addItem(section);
+    QModelIndex index = model->index(model->rowCount() - 1, 0);
+    model->setData(index, sectionFont, Qt::FontRole);
+    model->setData(index, palette().brush(QPalette::AlternateBase), Qt::BackgroundRole);
 
-  foreach (QString name, dm->symbolNames()) {
-    QIcon icon(QPixmap::fromImage(dm->getSymbolImage(name, 32, 32)));
-    symbolCombo_->addItem(icon, name, name);
+    // Create an entry for each symbol. Use the name as an internal identifier
+    // since we may decide to use tr() on the visible name at some point.
+    foreach (QString name, dm->symbolNames(section)) {
+      QIcon icon(QPixmap::fromImage(dm->getSymbolImage(name, 32, 32)));
+      symbolCombo_->addItem(icon, name, name);
+    }
   }
 
   symbolCombo_->setCurrentIndex(0);
@@ -140,6 +150,7 @@ ToolBar::ToolBar(QWidget *parent)
 
   // Create a combo box containing specific composite types.
   compositeCombo_ = new QComboBox();
+  compositeCombo_->view()->setTextElideMode(Qt::ElideRight);
   connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), this, SLOT(setCompositeType(int)));
   connect(compositeCombo_, SIGNAL(currentIndexChanged(int)), compositeAction_, SLOT(trigger()));
   addWidget(compositeCombo_);
@@ -207,7 +218,9 @@ void ToolBar::setSymbolType(int index)
 {
   // Obtain the style identifier from the style action and store it in the
   // main symbol action for later retrieval by the EditItemManager.
-  symbolAction_->setData(symbolCombo_->itemData(index));
+  QVariant data = symbolCombo_->itemData(index);
+  if (!data.isNull())
+    symbolAction_->setData(data);
 }
 
 void ToolBar::setTextType(int index)

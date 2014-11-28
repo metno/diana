@@ -139,7 +139,8 @@ public:
   static DrawingManager *instance();
 
   // Resource handling
-  QStringList symbolNames() const;
+  QStringList symbolNames(const QString &section = QString()) const;
+  QStringList symbolSectionNames() const;
   QImage getCachedImage(const QString &, int, int) const;
   QImage getSymbolImage(const QString &, int, int) const;
   QSize getSymbolSize(const QString &) const;
@@ -186,6 +187,7 @@ private:
   GridConverter gc;
   QString workDir;
 
+  QMap<QString, QStringList> symbolSections;
   QMap<QString, QByteArray> symbols;
   mutable QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
