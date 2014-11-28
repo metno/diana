@@ -39,6 +39,7 @@
 #include "diLinetype.h"
 
 #include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miStringBuilder.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QtGui/QPainter>
@@ -871,6 +872,25 @@ void QtPlot::plotFrame(QPainter& painter)
   }
 }
 
+static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error)
+{
+  if (ep->argument_values.empty()) {
+    error = "no argument_values, cannot plot";
+  } else if (not ep->z_values) {
+    error = "no z_values, cannot plot";
+  } else if (ep->z_values->npoint() != npoint) {
+    error = (miutil::StringBuilder() << "unexpected z point count " << ep->z_values->npoint()
+        << " != " << npoint << ", cannot plot").str();
+  } else if (ep->values(0)->npoint() != npoint) {
+    error = (miutil::StringBuilder() << "unexpected v0 point count " << ep->values(0)->npoint()
+        << " != " << npoint << ", cannot plot").str();
+  } else {
+    error = std::string();
+    return true;
+  }
+  return false;
+}
+
 std::vector<std::string> QtPlot::plotData(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
@@ -879,24 +899,11 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
       : mCrossectionDistances;
   const size_t npoint = distances.size();
 
-  std::vector<std::string> annotations;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
-    std::string annotation;
-    if (ep->argument_values.empty()) {
-      METLIBS_LOG_ERROR("no argument_values, cannot plot");
-    } else if (not ep->z_values) {
-      METLIBS_LOG_ERROR("no z_values, cannot plot");
-    } else if (ep->z_values->npoint() != npoint) {
-      METLIBS_LOG_ERROR("unexpected z point count " << ep->z_values->npoint() << " != " << npoint << ", cannot plot");
-    } else if (ep->values(0)->npoint() != npoint) {
-      METLIBS_LOG_ERROR("unexpected v0 point count " << ep->values(0)->npoint() << " != " << npoint << ", cannot plot");
-    } else {
+    std::string error;
+    if (isPlotOk(ep, npoint, error)) {
       // seems ok
-
-      if (miutil::to_lower(plot->poptions.extremeType) == "value")
-        annotation += plotDataExtremes(painter, plot);
-
       switch(plot->type()) {
       case ConfiguredPlot::T_CONTOUR:
         plotDataContour(painter, plot);
@@ -911,6 +918,20 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
         // no plot, nothing to do (but compiler complains)
         break;
       }
+    } else {
+      METLIBS_LOG_ERROR(error);
+    }
+  }
+
+  std::vector<std::string> annotations;
+  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+    EvaluatedPlot_cp ep = plot->evaluated;
+    std::string annotation, error;
+    if (isPlotOk(ep, npoint, error)) {
+      if (miutil::to_lower(plot->poptions.extremeType) == "value")
+        annotation += plotDataExtremes(painter, plot);
+    } else {
+      // do not repeat error message here
     }
     annotations.push_back(annotation);
   }
