@@ -83,7 +83,8 @@ ObsPlot::ObsPlot() :
 
   x = NULL;
   y = NULL;
-  Scale = 1;
+  markerSize = -1;
+  textSize = 1;
   allObs = false;
   levelAsField = false;
   level = -10;
@@ -424,9 +425,15 @@ bool ObsPlot::prepare(const std::string& pin)
       } else if (key == "parameter") {
         parameter = miutil::split(orig_value, 0, ",");
         numPar = parameter.size();
-      } else if (key == "scale")
-        Scale = atof(value.c_str());
-      else if (key == "density") {
+      } else if (key == "scale") {
+        textSize = atof(value.c_str());
+        if ( markerSize < 0 )
+          markerSize = atof(value.c_str());
+      } else if (key == "marker.size") {
+        markerSize = atof(value.c_str());
+      } else if (key == "text.size") {
+        textSize = atof(value.c_str());
+      } else if (key == "density") {
         if (miutil::to_lower(value) == "allobs")
           allObs = true;
         else
@@ -506,6 +513,8 @@ bool ObsPlot::prepare(const std::string& pin)
     }
   }
 
+  if ( markerSize < 0 )
+    markerSize = textSize;
   std::string all = "all";
   parameterDecode(all, false);
   for (int i = 0; i < numPar; i++) {
@@ -1306,14 +1315,14 @@ bool ObsPlot::preparePlot()
   if (not numObs)
     return false;
 
-  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface, 8 * Scale);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface, 8 * textSize);
   // fontsizeScale != 1 when postscript font size != X font size
   if (getStaticPlot()->hardcopy)
     fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
-  scale= Scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
+  scale= textSize*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
 
   int num=numPar;
   // I think we should check for roadobsWind here also
@@ -1584,15 +1593,15 @@ bool ObsPlot::plot()
     origcolour = getStaticPlot()->getBackContrastColour();
   glColor4ubv(origcolour.RGBA());
 
-  if (Scale < 1.75)
+  if (textSize < 1.75)
     glLineWidth(1);
-  else if (Scale < 2.55)
+  else if (textSize < 2.55)
     glLineWidth(2);
   else
     glLineWidth(3);
 
   getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface,
-      8 * Scale);
+      8 * textSize);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (getStaticPlot()->hardcopy)
@@ -1600,7 +1609,7 @@ bool ObsPlot::plot()
   else
     fontsizeScale = 1.0;
 
-  scale = Scale * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth()
+  scale = textSize * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth()
   * 0.7;
 
   if (poptions.antialiasing)
@@ -1611,7 +1620,7 @@ bool ObsPlot::plot()
   //Plot markers only
   if (onlypos) {
     ImageGallery ig;
-    ig.plotImages(numObs, image, x, y, true, Scale);
+    ig.plotImages(numObs, image, x, y, true, markerSize);
     return true;
   }
 
@@ -2243,7 +2252,7 @@ void ObsPlot::plotList(int index)
   float yShift = ig.heightp(image) / 2;
 
   if (!pFlag.count("wind")) {
-    ig.plotImage(thisImage, x[index], y[index], true, Scale);
+    ig.plotImage(thisImage, x[index], y[index], true, markerSize);
   }
 
   glPushMatrix();
@@ -2703,9 +2712,9 @@ void ObsPlot::plotAscii(int index)
       std::string thisImage = dta.stringdata["image"];
       xShift = ig.widthp(thisImage) / 2;
       yShift = ig.heightp(thisImage) / 2;
-      ig.plotImage(thisImage, x[index], y[index], true, Scale);
+      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
     } else {
-      ig.plotImage(thisImage, x[index], y[index], true, Scale);
+      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
     }
   }
 
