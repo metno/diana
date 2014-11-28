@@ -60,7 +60,8 @@ private:
 
   //from plotInfo
   std::string infostr;
-  float Scale;
+  float markerSize;
+  float textSize;
   bool allObs;     //plot all observations
   int numPar;      //number of parameters to plot
   float density;     // distannce between obs
