@@ -28,6 +28,7 @@ public:
   bool addField(const std::string& model, const std::string& field, const std::string& fieldOpts, int position);
   bool updateField(const std::string& model, const std::string& field, const std::string& fieldOpts);
   bool removeField(const std::string& model, const std::string& field);
+  void removeAllFields();
 
   void setVisibleAt(int position, bool visible);
 
