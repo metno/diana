@@ -21,6 +21,7 @@ class VcrossStyleWidget : public QWidget {
 public:
   VcrossStyleWidget(QWidget* parent);
 
+  void setModelFieldName(const QString& mdl, const QString& fld);
   void setOptions(const std::string& fopt, const std::string& defaultopt);
   const std::string& options() const;
   bool valid() const;

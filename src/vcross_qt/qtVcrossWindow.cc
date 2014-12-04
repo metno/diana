@@ -256,10 +256,11 @@ void VcrossWindow::onFieldAction(int position, int action)
   METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field) << LOGVAL(opt) << LOGVAL(dflt));
 
   if (action == VcrossLayerButton::EDIT) {
+    const QString mdl = QString::fromStdString(model);
+    const QString fld = QString::fromStdString(field);
+
     QDialog d(this);
-    d.setWindowTitle(tr("Style for %1 -- %2")
-        .arg(QString::fromStdString(model))
-        .arg(QString::fromStdString(field)));
+    d.setWindowTitle(tr("Style for %1 -- %2").arg(mdl).arg(fld));
     VcrossStyleWidget* sw = new VcrossStyleWidget(&d);
     QPushButton* accept = new QPushButton(tr("OK"), &d);
     connect(accept, SIGNAL(clicked()), &d, SLOT(accept()));
@@ -268,6 +269,7 @@ void VcrossWindow::onFieldAction(int position, int action)
     l->addWidget(accept);
     d.setLayout(l);
     
+    sw->setModelFieldName(mdl, fld);
     sw->setOptions(opt, dflt);
     if (d.exec() && sw->valid()) {
       selectionManager->updateField(model, field, sw->options());
