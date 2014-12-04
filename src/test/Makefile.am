@@ -12,6 +12,7 @@ check_PROGRAMS += dianaUnitTests
 dianaUnitTests_SOURCES = \
     TestVprofData.cc \
     TestCommandParser.cc \
+    TestLogFileIO.cc \
     TestPlotOptions.cc \
     TestUtilities.cc
 

@@ -30,6 +30,8 @@
 #ifndef _qt_vcrossmainwindow_
 #define _qt_vcrossmainwindow_
 
+#include "diVcrossInterface.h"
+
 #include "vcross_v2/VcrossQtManager.h"
 #include "diVcrossSelectionManager.h"
 #include "VcrossQtWidget.h"
@@ -58,6 +60,10 @@ class QPrinter;
 class QString;
 class QSpinBox;
 
+#ifndef Q_DECL_OVERRIDE
+#define Q_DECL_OVERRIDE /* empty */
+#endif
+
 /**
   \brief Window for Vertical Crossections
 
@@ -69,41 +75,35 @@ class VcrossWindow: public QWidget
   Q_OBJECT
 
 public:
-  VcrossWindow(Controller* co);
+  VcrossWindow();
   ~VcrossWindow();
 
-  //! alias for getCrossections \deprecated
-  void getCrossectionOptions(LocationData& locationdata)
-    { return getCrossections(locationdata); }
-  void getCrossections(LocationData& locationdata);
+  // ========== begin called via VcrossWindowInterface
+  void makeVisible(bool visible);
   bool changeCrossection(const std::string& crossection);
-  void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
   void parseQuickMenuStrings(const std::vector<std::string>& vstr);
-
   void parseSetup();
 
-  std::vector<std::string> writeLog(const std::string& logpart);
-
-  void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion,
+  void writeLog(LogFileIO& logfile);
+  void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
       int displayWidth, int displayHeight);
 
-  bool firstTime;
-  bool active;
+  void dynCrossEditManagerChange(const QVariantMap &props);
+  void dynCrossEditManagerRemoval(int id);
+  void slotCheckEditmode(bool editing);
+  // ========== end called via VcrossWindowInterface
 
-  ///add position to list of positions
-  void mapPos(float lat, float lon);
-
-Q_SIGNALS:
+Q_SIGNALS: // defined in VcrossInterface
   void VcrossHide();
-  void showsource(const std::string&, const std::string& = ""); // activate help
+  void requestHelpPage(const std::string&, const std::string& = ""); // activate help
+  void requestLoadCrossectionFiles(const QStringList& filenames);
+  //! called when draw/edit button is toggled
+  void requestVcrossEditor(bool on);
   void crossectionChanged(const QString&);
-  void crossectionSetChanged();
-  void crossectionSetUpdate();
+  void crossectionSetChanged(const LocationData& locations);
   void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
   void setTime(const std::string&, const miutil::miTime&);
-  void updateCrossSectionPos(bool);
   void quickMenuStrings(const std::string&, const std::vector<std::string>&);
   void nextHVcrossPlot();
   void prevHVcrossPlot();
@@ -116,9 +116,11 @@ private:
   void setupUi();
 
   void makeEPS(const std::string& filename);
+
+  // emits SIGNAL(crossectionSetChanged) with list of crossections from vcross-manager
+  void emitCrossectionSet();
   void emitQmenuStrings();
   void stepTime(int direction);
-  void dynCrossEditManagerEnableSignals();
   void changeFields();
   void enableDynamicCsIfSupported();
   void updateCrossectionBox();
@@ -138,11 +140,6 @@ private Q_SLOTS:
   bool crossectionChangedSlot(int);
   bool timeChangedSlot(int);
 
-  // slots for diana main window drawing editor
-  void dynCrossEditManagerChange(const QVariantMap &props);
-  void dynCrossEditManagerRemoval(int id);
-  void slotCheckEditmode(bool editing);
-
   // GUI slots for window
   void onAddField();
   void onRemoveAllFields();
@@ -158,7 +155,6 @@ private Q_SLOTS:
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();
-  void dynCrossEditManagerEnabled(bool);
 
   // slots for vcross setup dialog
   void changeSetup();
@@ -177,6 +173,52 @@ private:
   QString mRasterFilename;
 
   int vcrossDialogX, vcrossDialogY;
+
+  bool firstTime, active;
+};
+
+class VcrossWindowInterface : public VcrossInterface
+{
+  Q_INTERFACES(VcrossInterface)
+
+public:
+  VcrossWindowInterface();
+  ~VcrossWindowInterface();
+
+  void makeVisible(bool visible) Q_DECL_OVERRIDE
+    { window->makeVisible(visible); }
+
+  void parseSetup() Q_DECL_OVERRIDE
+    { window->parseSetup(); }
+
+  bool changeCrossection(const std::string& csName) Q_DECL_OVERRIDE
+    { return window->changeCrossection(csName); }
+
+  void mainWindowTimeChanged(const miutil::miTime& t) Q_DECL_OVERRIDE
+    { window->mainWindowTimeChanged(t); }
+
+  void parseQuickMenuStrings(const std::vector<std::string>& vstr) Q_DECL_OVERRIDE
+    { window->parseQuickMenuStrings(vstr); }
+
+  void writeLog(LogFileIO& logfile) Q_DECL_OVERRIDE
+    { window->writeLog(logfile); }
+
+  void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
+      int displayWidth, int displayHeight) Q_DECL_OVERRIDE
+    { window->readLog(logfile, thisVersion, logVersion, displayWidth, displayHeight); }
+
+public: /* Q_SLOT implementations */
+  void editManagerChanged(const QVariantMap &props) Q_DECL_OVERRIDE
+    { window->dynCrossEditManagerChange(props); }
+
+  void editManagerRemoved(int id) Q_DECL_OVERRIDE
+    { window->dynCrossEditManagerRemoval(id); }
+
+  void editManagerEditing(bool editing) Q_DECL_OVERRIDE
+    { window->slotCheckEditmode(editing); }
+
+private:
+  VcrossWindow* window;
 };
 
 #endif // _qt_vcrossmainwindow_

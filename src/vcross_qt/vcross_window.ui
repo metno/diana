@@ -562,22 +562,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>toggleCsEdit</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>VcrossWindow</receiver>
-   <slot>dynCrossEditManagerEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>179</x>
-     <y>47</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonSettings</sender>
    <signal>clicked()</signal>
    <receiver>VcrossWindow</receiver>
@@ -625,6 +609,5 @@
   <slot>timeGraphClicked(bool)</slot>
   <slot>quitClicked()</slot>
   <slot>helpClicked()</slot>
-  <slot>dynCrossEditManagerEnabled(bool)</slot>
  </slots>
 </ui>
