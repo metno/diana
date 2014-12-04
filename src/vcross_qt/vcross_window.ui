@@ -309,6 +309,22 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QToolButton" name="toolRemoveAllFields">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Remove all fields</string>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="1">
@@ -577,9 +593,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>toolRemoveAllFields</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onRemoveAllFields()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>26</x>
+     <y>458</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddField()</slot>
+  <slot>onRemoveAllFields()</slot>
   <slot>leftCrossectionClicked()</slot>
   <slot>rightCrossectionClicked()</slot>
   <slot>crossectionBoxActivated(int)</slot>

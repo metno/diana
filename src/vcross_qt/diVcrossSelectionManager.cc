@@ -107,6 +107,14 @@ bool VcrossSelectionManager::removeField(const std::string& model, const std::st
   return false;
 }
 
+void VcrossSelectionManager::removeAllFields()
+{
+  if (not selectedFields.empty()) {
+    selectedFields.clear();
+    Q_EMIT fieldsRemoved();
+  }
+}
+
 int VcrossSelectionManager::countFields() const
 {
   return selectedFields.size();
@@ -205,7 +213,10 @@ std::string VcrossSelectionManager::getShortname()
   std::string previousModel;
 
   for (size_t i = 0; i < selectedFields.size(); i++) {
-    const std::string& mdl = selectedFields[i].model;
+    const SelectedField& sf = selectedFields[i];
+    if (!sf.visible)
+      continue;
+    const std::string& mdl = sf.model;
     if (mdl != previousModel) {
       if (i > 0)
         shortname << ' ';
@@ -254,10 +265,7 @@ void VcrossSelectionManager::putOKString(const std::vector<std::string>& vstr,
 {
   METLIBS_LOG_SCOPE();
 
-  if (not selectedFields.empty()) {
-    selectedFields.clear();
-    Q_EMIT fieldsRemoved();
-  }
+  removeAllFields();
 
   if (vstr.empty())
     return;

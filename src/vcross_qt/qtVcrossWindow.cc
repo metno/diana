@@ -87,6 +87,7 @@
 #include "forover.xpm"
 #include "info.xpm"
 #include "icon_settings.xpm"
+#include "kill.xpm"
 
 using namespace vcross;
 
@@ -205,6 +206,8 @@ void VcrossWindow::setupUi()
   ui->buttonSave->setIcon(QPixmap(filesave));
   ui->buttonSettings->setIcon(QPixmap(icon_settings));
 
+  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
+
   const QPixmap back(bakover_xpm), forward(forward_xpm);
 
   ui->buttonCsPrevious->setIcon(back);
@@ -240,6 +243,14 @@ void VcrossWindow::onAddField()
 
     changeFields();
   }
+}
+
+/***************************************************************************/
+
+void VcrossWindow::onRemoveAllFields()
+{
+  selectionManager->removeAllFields();
+  changeFields();
 }
 
 /***************************************************************************/
@@ -679,9 +690,11 @@ void VcrossWindow::dynCrossEditManagerRemoval(int id)
 
 void VcrossWindow::emitQmenuStrings()
 {
-  const std::string plotname = "<font color=\"#005566\">" + selectionManager->getShortname() + " " + vcrossm->getCrossection() + "</font>";
   const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
-  /*emit*/ quickMenuStrings(plotname, qm_string);
+  if (!qm_string.empty()) {
+    const std::string plotname = "<font color=\"#005566\">" + selectionManager->getShortname() + " " + vcrossm->getCrossection() + "</font>";
+    Q_EMIT quickMenuStrings(plotname, qm_string);
+  }
 }
 
 /***************************************************************************/

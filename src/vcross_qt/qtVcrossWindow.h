@@ -145,6 +145,7 @@ private Q_SLOTS:
 
   // GUI slots for window
   void onAddField();
+  void onRemoveAllFields();
   void leftCrossectionClicked();
   void rightCrossectionClicked();
   void crossectionBoxActivated(int index);
