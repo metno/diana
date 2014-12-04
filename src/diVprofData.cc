@@ -192,13 +192,6 @@ bool VprofData::readFimex(vcross::Setup_p setup)
     if (!stationsFileName.empty()) {
       readStationNames(stationsFileName);
     }
-    for (size_t i = 0; i < posLongitude.size(); i++) {
-      //add profile
-      METLIBS_LOG_DEBUG("add profile "<<LOGVAL(posLongitude[i]) << LOGVAL(posLatitude[i]));
-      LonLat pos = LonLat::fromDegrees(posLongitude[i],posLatitude[i]);
-      collector->getResolver()->addDynamicPointValue(modelName,posName[i],pos);
-    }
-
   }
 
   BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
@@ -489,6 +482,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
   if (iPos == numPos || iTime == numTime)
     return 0;
 
+  if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
+    METLIBS_LOG_DEBUG("returning cached VProfPlot");
+    return new VprofPlot(*vProfPlot);
+  }
+
   std::auto_ptr<VprofPlot> vp(new VprofPlot());
   vp->text.index = -1;
   vp->text.prognostic = true;
@@ -508,6 +506,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
+    // This replaces the current dynamic crossection, if present.
+    // TODO: Should be tested when more than one time step is available.
+    if (!stationsFileName.empty()) {
+      collector->getResolver()->addDynamicPointValue(modelName, posName[iPos], pos);
+    }
 
     FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, VP_AIR_TEMPERATURE));
     if (not air_temperature)
@@ -558,42 +561,13 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
   } else if (readFromField) {
 
-    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get()) {
-      METLIBS_LOG_DEBUG("returning cached VProfPlot");
+    if (not fieldManager->makeVProf(modelName, validTime[iTime],
+            posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
+            vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom))
+      return 0;
 
-      vp->ptt = vProfPlot->ptt;
-      vp->tt  = vProfPlot->tt;
-      vp->ptd = vProfPlot->ptd;
-      vp->td  = vProfPlot->td;
-      vp->puv = vProfPlot->puv;
-      vp->uu  = vProfPlot->uu;
-      vp->vv  = vProfPlot->vv;
-      vp->om  = vProfPlot->om;
-      vp->pom = vProfPlot->pom;
-
-    } else {
-      if (not fieldManager->makeVProf(modelName, validTime[iTime],
-              posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
-              vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom))
-        return 0;
-
-      numLevel = vp->tt.size();
-      vp->maxLevels = numLevel;
-
-      vProfPlotTime = time;
-      vProfPlotName = name;
-
-      vProfPlot.reset(new VprofPlot());
-      vProfPlot->ptt = vp->ptt;
-      vProfPlot->tt  = vp->tt;
-      vProfPlot->ptd = vp->ptd;
-      vProfPlot->td  = vp->td;
-      vProfPlot->puv = vp->puv;
-      vProfPlot->uu  = vp->uu;
-      vProfPlot->vv  = vp->vv;
-      vProfPlot->om  = vp->om;
-      vProfPlot->pom = vp->pom;
-    }
+    numLevel = vp->tt.size();
+    vp->maxLevels = numLevel;
 
   } else {
     for (int n = 0; n < numParam; n++) {
@@ -656,5 +630,10 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->sigwind[kmax] = 3;
   }
 
+  vProfPlotTime = time;
+  vProfPlotName = name;
+  vProfPlot.reset(new VprofPlot(*vp));
+  METLIBS_LOG_DEBUG("returning new VProfPlot");
   return vp.release();
+  // end !cached VprofPlot
 }
