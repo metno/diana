@@ -431,6 +431,14 @@ void QtManager::preparePlot()
   }
 
   mPlot->clear((dataChange == CHANGED_NO or dataChange == CHANGED_TIME), (dataChange != CHANGED_SEL));
+
+  vcross::Z_AXIS_TYPE zType;
+  if(mOptions->verticalCoordinate == "Pressure")
+    zType = vcross::Z_TYPE_PRESSURE;
+  else
+    zType = vcross::Z_TYPE_HEIGHT;
+  mCollector->requireVertical(zType);
+
   model_values_m model_values;
   if (not isTimeGraph()) {
     METLIBS_LOG_DEBUG(LOGVAL(mCrossectionCurrent));
@@ -449,17 +457,11 @@ void QtManager::preparePlot()
     }
   }
 
-  vcross::Z_AXIS_TYPE zType;
-  if(mOptions->verticalCoordinate == "Pressure")
-    zType = vcross::Z_TYPE_PRESSURE;
-  else
-    zType = vcross::Z_TYPE_HEIGHT;
   mPlot->setVerticalAxis();
 
   const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, zType);
-  BOOST_FOREACH(EvaluatedPlot_cp ep, evaluated_plots) {
-    mPlot->addPlot(ep);
-  }
+  for (EvaluatedPlot_cpv::const_iterator it = evaluated_plots.begin(); it != evaluated_plots.end(); ++it)
+    mPlot->addPlot(*it);
 
   // TODO decide if to plot surface height or pressure
   const std::string& model1 = mCollector->getSelectedPlots().front()->model;

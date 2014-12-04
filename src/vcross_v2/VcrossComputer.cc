@@ -81,7 +81,6 @@ const FunctionSpec* findFunctionByName(const std::string& name)
 
 namespace vcross {
 
-const char VC_PRESSURE[]  = "__PRESSURE";
 const char VC_LONGITUDE[] = "__LONGITUDE";
 const char VC_LATITUDE[]  = "__LATITUDE";
 const char VC_BEARING[]   = "__BEARING";
@@ -188,9 +187,24 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
 
 // ------------------------------------------------------------------------
 
-static float* getPressureFloats(const name2value_t& n2v)
+static float* getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
 {
-  name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
+  if (!arg0)
+    return 0;
+  
+  ZAxisData_cp zfield = arg0->zaxis();
+  if (!zfield)
+    return 0;
+
+  std::string pressureId;
+  if (util::unitsConvertible(zfield->unit(), "hPa"))
+    pressureId = zfield->id();
+  else if (FieldData_cp pfield = boost::static_pointer_cast<const FieldData>(zfield->pressureField()))
+    pressureId = pfield->id();
+  else
+    return 0;
+
+  name2value_t::const_iterator itpp = n2v.find(pressureId);
   if (itpp == n2v.end() or not itpp->second)
     return 0;
   return itpp->second->values().get();
@@ -226,6 +240,8 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
    
     argument_values.push_back(ita->second);
   }
+
+  const FieldData_cp a0 = boost::dynamic_pointer_cast<const FieldData>(argument(0));
 
   const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
@@ -310,9 +326,11 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_thesat_from_th: {
     if (compute == 0) compute = 5;
 
-    const float* f_pp = getPressureFloats(n2v);
-    if (not f_pp)
+    const float* f_pp = getPressureFloats(a0, n2v);
+    if (not f_pp) {
+      METLIBS_LOG_WARN("no pressure for aleveltemp, " << LOGVAL(compute));
       return Values_cp();
+    }
 
     if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp, fo, allDefined, ud0, "kelvin"))
       return Values_cp();
@@ -323,7 +341,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_the_from_th_q: {
     if (compute == 0) compute = 2;
 
-    const float* f_pp = getPressureFloats(n2v);
+    const float* f_pp = getPressureFloats(a0, n2v);
     if (not f_pp)
       return Values_cp();
 
@@ -356,7 +374,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0)
       compute = 12;
 
-    const float* f_pp = getPressureFloats(n2v);
+    const float* f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_DEBUG("no pressure field");
       return Values_p();
@@ -376,6 +394,41 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     return Values_p();
   }
   return out;
+}
+
+void FunctionData::collectRequired(InventoryBase_cps& required) const
+{
+  for (InventoryBase_cpv::const_iterator it = mArguments.begin(); it != mArguments.end(); ++it)
+    vcross::collectRequired(required, *it);
+
+  switch(function()) {
+  case vcf_tk_from_th:
+  case vcf_th_from_tk:
+  case vcf_thesat_from_tk:
+  case vcf_thesat_from_th:
+  case vcf_the_from_tk_q:
+  case vcf_the_from_th_q:
+  case vcf_rh_from_tk_q:
+  case vcf_rh_from_th_q:
+  case vcf_tdk_from_tk_q:
+  case vcf_tdk_from_th_q:
+  case vcf_q_from_tk_rh:
+  case vcf_q_from_th_rh:
+  case vcf_tdk_from_tk_rh:
+  case vcf_tdk_from_th_rh: {
+    // these functions require a pressure field
+    if (FieldData_cp fa0 = boost::dynamic_pointer_cast<const FieldData>(argument(0))) {
+      if (ZAxisData_cp zaxis = fa0->zaxis()) {
+        if (util::unitsConvertible(zaxis->unit(), "hPa"))
+          required.insert(zaxis);
+        else if (InventoryBase_cp pfield = zaxis->pressureField())
+          required.insert(pfield);
+      }
+    }
+    break; }
+  default:
+    break; // no pressure required
+  }
 }
 
 // ========================================================================
@@ -508,8 +561,32 @@ void collectRequired(InventoryBase_cps& required, InventoryBase_cp item)
     required.insert(item);
   } else if (type == FunctionData::DATA_TYPE()) {
     FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
+    f->collectRequired(required);
     BOOST_FOREACH(const InventoryBase_cp& a, f->arguments()) {
       collectRequired(required, a);
+    }
+  }
+}
+
+void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item, Z_AXIS_TYPE zType)
+{
+  if (item->dataType() != FieldData::DATA_TYPE())
+    return;
+  FieldData_cp field = boost::static_pointer_cast<const FieldData>(item);
+
+  if (zType == Z_TYPE_PRESSURE) {
+    if (ZAxisData_cp zaxis = field->zaxis()) {
+      if (util::unitsConvertible(zaxis->unit(), "hPa"))
+        required.insert(zaxis);
+      else if (InventoryBase_cp pfield = zaxis->pressureField())
+        required.insert(pfield);
+    }
+  } else if (zType == Z_TYPE_HEIGHT) {
+    if (ZAxisData_cp zaxis = field->zaxis()) {
+      if (util::unitsConvertible(zaxis->unit(), "m"))
+        required.insert(zaxis);
+      else if (InventoryBase_cp hfield = zaxis->heightField())
+        required.insert(hfield);
     }
   }
 }

@@ -53,6 +53,16 @@ void Collector::requireField(const std::string& model, InventoryBase_cp field)
   collectRequired(required, field);
 }
 
+void Collector::requireVertical(Z_AXIS_TYPE zType)
+{
+  for (model_required_m::iterator it = mModelRequired.begin(); it != mModelRequired.end(); ++it) {
+    InventoryBase_cps& required = it->second;
+    const InventoryBase_cps fields = it->second; // take copy, not reference
+    for (InventoryBase_cps::const_iterator it = fields.begin(); it != fields.end(); ++it)
+      vcross::collectRequiredVertical(required, *it, zType);
+  }
+}
+
 // ------------------------------------------------------------------------
 
 bool Collector::selectPlot(const std::string& model, const std::string& plot, const string_v& options)
