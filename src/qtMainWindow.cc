@@ -91,6 +91,7 @@
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "diLocationPlot.h"
+#include "diLogFile.h"
 
 #include "qtDataDialog.h"
 #include "qtQuickMenu.h"
@@ -118,20 +119,21 @@
 
 #include "qtMailDialog.h"
 
-#include <qUtilities/miLogFile.h>
 #include <puTools/miSetupParser.h>
 
 #include <iomanip>
 
-#define MILOGGER_CATEGORY "diana.MainWindow"
-#include <miLogger/miLogging.h>
 #include <diField/diFieldManager.h>
 
 #include "diEditItemManager.h"
 #include "EditItems/drawingdialog.h"
 #include "EditItems/editdrawingdialog.h"
+#include "EditItems/toolbar.h"
 
 #include "EditItems/eimtestdialog.h"
+
+#define MILOGGER_CATEGORY "diana.MainWindow"
+#include <miLogger/miLogging.h>
 
 #include <diana_icon.xpm>
 #include <pick.xpm>
@@ -174,17 +176,21 @@
 
 using namespace std;
 
+static const char LOCATIONS_VCROSS[] = "vcross";
+
 DianaMainWindow *DianaMainWindow::self = 0;
 
 DianaMainWindow::DianaMainWindow(Controller *co,
     const std::string& ver_str,
     const std::string& build_str,
     const std::string& dianaTitle)
-: QMainWindow(),
-  push_command(true),browsing(false),
-  markTrajPos(false), markMeasurementsPos(false), markVcross(false),
-  vpWindow(0), vcWindow(0), spWindow(0),contr(co),
-  timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
+  : QMainWindow(),
+    push_command(true),browsing(false),
+    markTrajPos(false), markMeasurementsPos(false), vpWindow(0)
+  , vcInterface(0)
+  , vcrossEditManagerConnected(false)
+  , spWindow(0), contr(co)
+  , timeron(0),timeout_ms(100),timeloop(false),showelem(true), autoselect(false)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1097,22 +1103,27 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // vertical crossections
   // create a new main window
 #ifndef DISABLE_VCROSS
-  vcWindow = new VcrossWindow(contr);
-  connect(vcWindow,SIGNAL(VcrossHide()),SLOT(hideVcrossWindow()));
-  connect(vcWindow,SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
-  connect(vcWindow,SIGNAL(crossectionChanged(const QString &)),
-      SLOT(crossectionChangedSlot(const QString &)));
-  connect(vcWindow,SIGNAL(crossectionSetChanged()),
-      SLOT(crossectionSetChangedSlot()));
-  connect(vcWindow,SIGNAL(crossectionSetUpdate()),
-      SLOT(crossectionSetUpdateSlot()));
-  connect(vcWindow,SIGNAL(updateCrossSectionPos(bool)),
-      SLOT(vCrossPositions(bool)));
-  connect(vcWindow,SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
-      SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
-  connect (vcWindow, SIGNAL(prevHVcrossPlot()), SLOT(prevHVcrossPlot()));
-  connect (vcWindow, SIGNAL(nextHVcrossPlot()), SLOT(nextHVcrossPlot()));
+  vcInterface.reset(new VcrossWindowInterface);
+  if (vcInterface.get()) {
+    connect(vcInterface.get(), SIGNAL(VcrossHide()),
+        SLOT(hideVcrossWindow()));
+    connect(vcInterface.get(), SIGNAL(requestHelpPage(const std::string&, const std::string&)),
+        help, SLOT(showsource(const std::string&, const std::string&)));
+    connect(vcInterface.get(), SIGNAL(requestLoadCrossectionFiles(const QStringList&)),
+        SLOT(onVcrossRequestLoadCrossectionsFile(const QStringList&)));
+    connect(vcInterface.get(), SIGNAL(requestVcrossEditor(bool)),
+        SLOT(onVcrossRequestEditManager(bool)));
+    connect(vcInterface.get(), SIGNAL(crossectionChanged(const QString &)),
+        SLOT(crossectionChangedSlot(const QString &)));
+    connect(vcInterface.get(), SIGNAL(crossectionSetChanged(const LocationData&)),
+        SLOT(crossectionSetChangedSlot(const LocationData&)));
+    connect(vcInterface.get(), SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
+        SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
+    connect (vcInterface.get(), SIGNAL(prevHVcrossPlot()),
+        SLOT(prevHVcrossPlot()));
+    connect (vcInterface.get(), SIGNAL(nextHVcrossPlot()),
+        SLOT(nextHVcrossPlot()));
+  }
 #endif
 
   // Wave spectrum
@@ -1160,12 +1171,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
     connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
             tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
-  if (vcWindow) {
-    connect(vcWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
-            tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
-
-    connect(vcWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-            tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
+  if (vcInterface.get()) {
+    connect(vcInterface.get(), SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
+        tslider, SLOT(insert(const std::string&, const std::vector<miutil::miTime>&)));
+    
+    connect(vcInterface.get(), SIGNAL(setTime(const std::string&, const miutil::miTime&)),
+        tslider, SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
   if (spWindow) {
     connect(spWindow, SIGNAL(emitTimes(const std::string&, const std::vector<miutil::miTime>&)),
@@ -1312,8 +1323,8 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 
   if (!vstr.empty() && vstr[0] == "VCROSS") {
     vcrossMenu();
-    if (vcWindow)
-      vcWindow->parseQuickMenuStrings(vstr);
+    if (vcInterface.get())
+      vcInterface->parseQuickMenuStrings(vstr);
   } else {
 
     // strings for each dialog
@@ -1800,14 +1811,13 @@ void DianaMainWindow::vprofMenu()
 
 void DianaMainWindow::vcrossMenu()
 {
-  if (!vcWindow)
+  if (!vcInterface.get())
     return;
-  if (vcWindow->active) {
-    vcWindow->raise();
-  } else {
-    vcrossStartup();
-    updateGLSlot();
-  }
+
+  miutil::miTime t;
+  contr->getPlotTime(t);
+  vcInterface->mainWindowTimeChanged(t);
+  vcInterface->makeVisible(true);
 }
 
 
@@ -1851,19 +1861,6 @@ void DianaMainWindow::vprofStartup()
 }
 
 
-void DianaMainWindow::vcrossStartup()
-{
-  if (!vcWindow)
-    return;
-  if (vcWindow->firstTime)
-    MenuOK();
-  miutil::miTime t;
-  contr->getPlotTime(t);
-  vcWindow->startUp(t);
-  vcWindow->show();
-}
-
-
 void DianaMainWindow::spectrumStartup()
 {
   if (!spWindow)
@@ -1893,11 +1890,12 @@ void DianaMainWindow::hideVprofWindow()
 void DianaMainWindow::hideVcrossWindow()
 {
   METLIBS_LOG_SCOPE();
-  if (!vcWindow)
+  if (!vcInterface.get())
     return;
-  // vcWindow hidden and locationPlots deleted
-  vcWindow->hide();
-  contr->deleteLocation("vcross");
+
+  // vcInterface hidden and locationPlots deleted
+  vcInterface->makeVisible(false);
+  contr->deleteLocation(LOCATIONS_VCROSS);
   updateGLSlot();
 }
 
@@ -1938,41 +1936,63 @@ void DianaMainWindow::modelChangedSlot()
 }
 
 
+void DianaMainWindow::onVcrossRequestLoadCrossectionsFile(const QStringList& filenames)
+{
+  for (int i=0; i<filenames.size(); ++i)
+    EditItemManager::instance()->emitLoadFile(filenames.at(i));
+}
+
+
+void DianaMainWindow::vcrossEditManagerEnableSignals()
+{
+  if (not vcrossEditManagerConnected) {
+    vcrossEditManagerConnected = true;
+
+    EditItemManager::instance()->enableItemChangeNotification();
+    EditItemManager::instance()->setItemChangeFilter("Cross section");
+    connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
+        vcInterface.get(), SLOT(editManagerChanged(const QVariantMap &)), Qt::UniqueConnection);
+    connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
+        vcInterface.get(), SLOT(editManagerRemoved(int)), Qt::UniqueConnection);
+    connect(EditItemManager::instance(), SIGNAL(editing(bool)),
+        vcInterface.get(), SLOT(editManagerEditing(bool)), Qt::UniqueConnection);
+  }
+}
+
+
+void DianaMainWindow::onVcrossRequestEditManager(bool on)
+{
+  if (on) {
+    EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
+    EditItemManager::instance()->setEditing(true);
+    EditItems::ToolBar::instance()->show();
+    vcrossEditManagerEnableSignals();
+  } else {
+    EditItemManager::instance()->setEditing(false);
+  }
+}
+
+
 void DianaMainWindow::crossectionChangedSlot(const QString& name)
 {
   METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot to " << name.toStdString());
   //METLIBS_LOG_DEBUG("DianaMainWindow::crossectionChangedSlot ");
   std::string s= name.toStdString();
-  contr->setSelectedLocation("vcross", s);
+  contr->setSelectedLocation(LOCATIONS_VCROSS, s);
   w->updateGL();
 }
 
 
-void DianaMainWindow::crossectionSetChangedSlot()
+void DianaMainWindow::crossectionSetChangedSlot(const LocationData& locations)
 {
   METLIBS_LOG_SCOPE();
-  if (!vcWindow)
-    return;
-  LocationData ed;
-  vcWindow->getCrossections(ed);
-  ed.name = "vcross";
-  if (ed.elements.size())
+  if (locations.elements.empty()) {
+    contr->deleteLocation(LOCATIONS_VCROSS);
+  } else {
+    LocationData ed = locations;
+    ed.name = LOCATIONS_VCROSS;
     contr->putLocation(ed);
-  else
-    contr->deleteLocation(ed.name);
-  updateGLSlot();
-}
-
-
-void DianaMainWindow::crossectionSetUpdateSlot()
-{
-  METLIBS_LOG_SCOPE();
-  if (!vcWindow)
-    return;
-  LocationData ed;
-  vcWindow->getCrossectionOptions(ed);
-  ed.name = "vcross";
-  contr->updateLocation(ed);
+  }
   updateGLSlot();
 }
 
@@ -2111,9 +2131,9 @@ void DianaMainWindow::processLetter(const miMessage &letter)
     //description: name
     vcrossMenu();
     if (letter.data.size()) {
-        //tell vcWindow to plot this corssection
-        if (vcWindow)
-          vcWindow->changeCrossection(letter.data[0]);
+        //tell vcInterface to plot this crossection
+        if (vcInterface.get())
+          vcInterface->changeCrossection(letter.data[0]);
     }
   }
 
@@ -2704,7 +2724,7 @@ void DianaMainWindow::timeChanged(){
   contr->getPlotTime(t);
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
-  if (vcWindow) vcWindow->mainWindowTimeChanged(t);
+  if (vcInterface.get()) vcInterface->mainWindowTimeChanged(t);
   if (showelem) updatePlotElements();
 
   //update sat channels in statusbar
@@ -2951,8 +2971,8 @@ void DianaMainWindow::parseSetup()
       METLIBS_LOG_ERROR("An error occured while re-reading setup ");
     }
     contr->parseSetup();
-    if (vcWindow)
-      vcWindow->parseSetup();
+    if (vcInterface.get())
+      vcInterface->parseSetup();
     if (vpWindow)
       vpWindow->parseSetup();
     if (spWindow)
@@ -3053,22 +3073,12 @@ void DianaMainWindow::trajPositions(bool b)
 {
   markTrajPos = b;
   markMeasurementsPos = false;
-  markVcross = false;
 }
 
 void DianaMainWindow::measurementsPositions(bool b)
 {
   markMeasurementsPos = b;
   markTrajPos = false;
-  markVcross = false;
-}
-
-void DianaMainWindow::vCrossPositions(bool b)
-{
-  METLIBS_LOG_DEBUG("vCrossPositions b=" << b);
-  markMeasurementsPos = false;
-  markTrajPos = false;
-  markVcross = b;
 }
 
 // picks up a single click on position x,y
@@ -3088,11 +3098,6 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
 
   if(markMeasurementsPos) {
     measurementsm->mapPos(lat,lon);
-    w->updateGL(); // repaint window
-  }
-
-  if (markVcross && vcWindow) {
-    vcWindow->mapPos(lat,lon);
     w->updateGL(); // repaint window
   }
 
@@ -3268,9 +3273,9 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   }
 
   // locationPlots (vcross,...)
-  std::string crossection= contr->findLocation(x,y,"vcross");
-  if (vcWindow && !crossection.empty()) {
-    vcWindow->changeCrossection(crossection);
+  std::string crossection= contr->findLocation(x, y, LOCATIONS_VCROSS);
+  if (vcInterface.get() && !crossection.empty()) {
+    vcInterface->changeCrossection(crossection);
     //  needupdate= true;
   }
 
@@ -3614,55 +3619,43 @@ void DianaMainWindow::timecontrolslot()
   timeControlAction->setChecked(!b);
 }
 
-static void writeLogSection(std::ostream& log, const std::string& section,
-    const std::vector<std::string>& contents)
-{
-  log << '[' << section << ']' << std::endl;
-  for (size_t i=0; i<contents.size(); ++i)
-    log << contents[i] << std::endl;
-  log << "[/" << section << ']' << std::endl;
-}
-
 void DianaMainWindow::writeLogFile()
 {
   // write the system log file to $HOME/.diana.log
 
-  miLogFile milogfile; // static logger
-
-  const std::string logfile = LocalSetupParser::basicValue("homedir") + "/diana.log";
-  std::ofstream file(logfile.c_str());
+  const std::string logfilepath = LocalSetupParser::basicValue("homedir") + "/diana.log";
+  std::ofstream file(logfilepath.c_str());
   if (!file) {
-    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << logfile);
+    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << logfilepath);
     return;
   }
 
-  writeLogSection(file, "MAIN.LOG", writeLog(version_string, build_string));
-  writeLogSection(file, "CONTROLLER.LOG", contr->writeLog());
-  writeLogSection(file, "MAP.LOG", mm->writeLog());
-  writeLogSection(file, "FIELD.LOG",  fm->writeLog());
-  writeLogSection(file, "OBS.LOG", om->writeLog());
-  writeLogSection(file, "SAT.LOG", sm->writeLog());
-  writeLogSection(file, "QUICK.LOG", qm->writeLog());
-  writeLogSection(file, "TRAJ.LOG", trajm->writeLog());
+  LogFileIO logfile;
+  logfile.getSection("MAIN.LOG").addLines(writeLog(version_string, build_string));
+  logfile.getSection("CONTROLLER.LOG").addLines(contr->writeLog());
+  logfile.getSection("MAP.LOG").addLines(mm->writeLog());
+  logfile.getSection("FIELD.LOG").addLines( fm->writeLog());
+  logfile.getSection("OBS.LOG").addLines(om->writeLog());
+  logfile.getSection("SAT.LOG").addLines(sm->writeLog());
+  logfile.getSection("QUICK.LOG").addLines(qm->writeLog());
+  logfile.getSection("TRAJ.LOG").addLines(trajm->writeLog());
 
   if (vpWindow) {
-    writeLogSection(file, "VPROF.WINDOW.LOG", vpWindow->writeLog("window"));
-    writeLogSection(file, "VPROF.SETUP.LOG",  vpWindow->writeLog("setup"));
+    logfile.getSection("VPROF.WINDOW.LOG").addLines(vpWindow->writeLog("window"));
+    logfile.getSection("VPROF.SETUP.LOG").addLines( vpWindow->writeLog("setup"));
   }
 
-  if (vcWindow) {
-    writeLogSection(file, "VCROSS.WINDOW.LOG", vcWindow->writeLog("window"));
-    writeLogSection(file, "VCROSS.SETUP.LOG", vcWindow->writeLog("setup"));
-    writeLogSection(file, "VCROSS.FIELD.LOG", vcWindow->writeLog("field"));
-  }
+  if (vcInterface.get())
+    vcInterface->writeLog(logfile);
 
   if (spWindow) {
-    writeLogSection(file, "SPECTRUM.WINDOW.LOG", spWindow->writeLog("window"));
-    writeLogSection(file, "SPECTRUM.SETUP.LOG", spWindow->writeLog("setup"));
+    logfile.getSection("SPECTRUM.WINDOW.LOG").addLines(spWindow->writeLog("window"));
+    logfile.getSection("SPECTRUM.SETUP.LOG").addLines(spWindow->writeLog("setup"));
   }
 
+  logfile.write(file);
   file.close();
-  METLIBS_LOG_INFO("Finished writing " << logfile);
+  METLIBS_LOG_INFO("Finished writing " << logfilepath);
 }
 
 
@@ -3672,88 +3665,41 @@ void DianaMainWindow::readLogFile()
 
   getDisplaySize();
 
-  std::string logfile= LocalSetupParser::basicValue("homedir") + "/diana.log";
-  std::string thisVersion= version_string;
+  std::string logfilepath = LocalSetupParser::basicValue("homedir") + "/diana.log";
   std::string logVersion;
 
-  miLogFile milogfile; // static logger from puTools - keeps stuff in mind
-
-  milogfile.setMaxXY(displayWidth,displayHeight);
-
-  // open filestream
-  ifstream file(logfile.c_str());
-  if (!file){
-    //    METLIBS_LOG_DEBUG("Can't open " << logfile);
+  std::ifstream file(logfilepath.c_str());
+  if (!file) {
+    //    METLIBS_LOG_DEBUG("Can't open " << logfilepath);
     return;
   }
 
-  METLIBS_LOG_INFO("READ " << logfile);
+  LogFileIO logfile;
+  logfile.read(file);
 
-  std::string beginStr, endStr, str;
-  vector<string> vstr;
+  METLIBS_LOG_INFO("READ " << logfilepath);
 
-  while (getline(file,beginStr)) {
-    if (!beginStr.empty() && beginStr[0]!='#') {
-      miutil::trim(beginStr);
-      int l= beginStr.length();
-      if (l<3 || beginStr[0]!='[' || beginStr[l-1]!=']') {
-        METLIBS_LOG_ERROR("Bad keyword found in " << logfile << " : " << beginStr);
-        break;
-      }
-
-      endStr= beginStr.substr(0,1) + '/' + beginStr.substr(1,l-1);
-      vstr.clear();
-
-      while (getline(file,str)) {
-        if (str==endStr) break;
-        vstr.push_back(str);
-      }
-
-      if (beginStr=="[MAIN.LOG]")
-        readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[CONTROLLER.LOG]")
-        contr->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[MAP.LOG]")
-        mm->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[FIELD.LOG]")
-        fm->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[OBS.LOG]")
-        om->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[SAT.LOG]")
-        sm->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[TRAJ.LOG]")
-        trajm->readLog(vstr,thisVersion,logVersion);
-      else if (beginStr=="[QUICK.LOG]")
-        qm->readLog(vstr,thisVersion,logVersion);
-      else if (vpWindow && beginStr=="[VPROF.WINDOW.LOG]")
-        vpWindow->readLog("window",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (vpWindow && beginStr=="[VPROF.SETUP.LOG]")
-        vpWindow->readLog("setup",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (vcWindow && beginStr=="[VCROSS.WINDOW.LOG]")
-        vcWindow->readLog("window",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (vcWindow && beginStr=="[VCROSS.SETUP.LOG]")
-        vcWindow->readLog("setup",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (vcWindow && beginStr=="[VCROSS.FIELD.LOG]")
-        vcWindow->readLog("field",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (spWindow && beginStr=="[SPECTRUM.WINDOW.LOG]")
-        spWindow->readLog("window",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-      else if (spWindow && beginStr=="[SPECTRUM.SETUP.LOG]")
-        spWindow->readLog("setup",vstr,thisVersion,logVersion,
-            displayWidth,displayHeight);
-
-      //else
-      //	METLIBS_LOG_DEBUG("Unhandled log section: " << beginStr);
-    }
+  readLog(logfile.getSection("MAIN.LOG").lines(), version_string, logVersion);
+  contr->readLog(logfile.getSection("CONTROLLER.LOG").lines(), version_string, logVersion);
+  mm->readLog(logfile.getSection("MAP.LOG").lines(), version_string, logVersion);
+  fm->readLog(logfile.getSection("FIELD.LOG").lines(), version_string, logVersion);
+  om->readLog(logfile.getSection("OBS.LOG").lines(), version_string, logVersion);
+  sm->readLog(logfile.getSection("SAT.LOG").lines(), version_string, logVersion);
+  trajm->readLog(logfile.getSection("TRAJ.LOG").lines(), version_string, logVersion);
+  qm->readLog(logfile.getSection("QUICK.LOG").lines(), version_string, logVersion);
+  if (vpWindow) {
+    vpWindow->readLog("window", logfile.getSection("VPROF.WINDOW.LOG").lines(), version_string, logVersion, displayWidth,displayHeight);
+    vpWindow->readLog("setup", logfile.getSection("VPROF.SETUP.LOG").lines(), version_string, logVersion, displayWidth,displayHeight);
+  }
+  if (vcInterface.get())
+    vcInterface->readLog(logfile, version_string, logVersion, displayWidth,displayHeight);
+  if (spWindow) {
+    spWindow->readLog("window", logfile.getSection("SPECTRUM.WINDOW.LOG").lines(), version_string, logVersion, displayWidth,displayHeight);
+    spWindow->readLog("setup", logfile.getSection("SPECTRUM.SETUP.LOG").lines(), version_string, logVersion, displayWidth,displayHeight);
   }
 
   file.close();
-  METLIBS_LOG_INFO("Finished reading " << logfile);
+  METLIBS_LOG_INFO("Finished reading " << logfilepath);
 }
 
 

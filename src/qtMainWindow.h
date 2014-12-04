@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: qtMainWindow.h 4493 2014-09-24 11:23:39Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,15 +29,18 @@
 #ifndef _qt_mainwindow_
 #define _qt_mainwindow_
 
+#include "diCommonTypes.h"
+#include "diLocationPlot.h"
+#include "diMapMode.h"
+#include "diPrintOptions.h"
+#include <EditItems/toolbar.h>
+
 #include <QMainWindow>
 #include <QTimerEvent>
 #include <QLabel>
 #include <QFocusEvent>
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
-#include <diMapMode.h>
+
 #include <diField/diRectangle.h>
-#include <EditItems/toolbar.h>
 
 #ifdef USE_PAINTGL
 #include <QPrintPreviewDialog>
@@ -85,7 +86,7 @@ class HelpDialog;
 class QButton;
 class ShowSatValues;
 class VprofWindow;
-class VcrossWindow;
+class VcrossInterface;
 class SpectrumWindow;
 class StatusPlotButtons;
 class BrowserBox;
@@ -134,9 +135,7 @@ protected:
   void closeEvent( QCloseEvent* );
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
-
   bool event(QEvent* event);
-
 
 public Q_SLOTS:
   void toggleToolBar();
@@ -166,7 +165,6 @@ private Q_SLOTS:
   void fieldMenu();
   void objMenu();
   void vprofMenu();
-  void vcrossMenu();
   void spectrumMenu();
   void trajMenu();
   void measurementsMenu();
@@ -184,10 +182,8 @@ private Q_SLOTS:
   void resetAll();
   void editApply();
   void MenuOK();
-  void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
   void trajPositions(bool);
   void measurementsPositions(bool);
-  void vCrossPositions(bool);
   void catchMouseGridPos(QMouseEvent*);
   void catchMouseRightPos(QMouseEvent*);
   void catchMouseMovePos(QMouseEvent*,bool);
@@ -220,13 +216,19 @@ private Q_SLOTS:
 
   void info_activated(QAction *);
   void hideVprofWindow();
-  void hideVcrossWindow();
   void hideSpectrumWindow();
   void stationChangedSlot(const std::vector<std::string>&);
   void modelChangedSlot();
+
+  //! show vcross window
+  void vcrossMenu();
+  void hideVcrossWindow();
+  void crossectionSetChangedSlot(const LocationData& locations);
   void crossectionChangedSlot(const QString& name);
-  void crossectionSetChangedSlot();
-  void crossectionSetUpdateSlot();
+  void updateVcrossQuickMenuHistory(const std::string& plotname, const std::vector<std::string>&);
+  void onVcrossRequestLoadCrossectionsFile(const QStringList& filenames);
+  void onVcrossRequestEditManager(bool on);
+
   void spectrumChangedSlot(const QString& name);
   void spectrumSetChangedSlot();
 
@@ -274,6 +276,9 @@ private Q_SLOTS:
   void unsetWorkAreaCursor();
 
   void updatePlotElements();
+
+private:
+  void vcrossEditManagerEnableSignals();
 
 private:
   bool push_command;   // push current plot on stack
@@ -407,10 +412,11 @@ private:
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
   bool                markMeasurementsPos; //left mouse click -> mark measurement position
-  bool                markVcross; //left mouse click -> mark Vcross position
 
   VprofWindow       * vpWindow;
-  VcrossWindow      * vcWindow;
+  std::auto_ptr<VcrossInterface> vcInterface;
+  bool vcrossEditManagerConnected;
+
   SpectrumWindow    * spWindow;
   std::map<std::string,InfoFile> infoFiles;
 
@@ -475,7 +481,6 @@ private:
   void timeChanged();
   void satFileListUpdate();
   void vprofStartup();
-  void vcrossStartup();
   void spectrumStartup();
   void getPlotStrings(std::vector<std::string> &pstr,
                       std::vector<std::string> &diagstr,

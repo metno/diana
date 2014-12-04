@@ -51,6 +51,7 @@ common_cxx_sources = \
 	diLinetype.cc \
 	diLocalSetupParser.cc \
 	diLocationPlot.cc \
+	diLogFile.cc \
 	diMItiff.cc \
 	diMapManager.cc \
 	diMapPlot.cc \
@@ -124,6 +125,9 @@ common_qt_sources += \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
 	vcross_v2/VcrossQtAxis.cc 
+
+common_qt_headers = \
+	diVcrossInterface.h
 
 diana_qt_forms =
 
@@ -317,6 +321,7 @@ noinst_HEADERS = \
 	diLinetype.h \
 	diLocationData.h \
 	diLocationPlot.h \
+	diLogFile.h \
 	diMItiff.h \
 	diManager.h \
 	diMapManager.h \
@@ -429,6 +434,7 @@ noinst_HEADERS = \
 	bdiana_capi.h 
 
 noinst_HEADERS += \
+	diVcrossInterface.h \
 	vcross_v2/VcrossSetup.h \
 	vcross_v2/VcrossComputer.h \
 	vcross_v2/VcrossCollector.h \
@@ -753,14 +759,14 @@ common_ldadd += \
 endif
 
 # Generated Qt source code
-common_moc_sources = $(common_qt_sources:.cc=.moc.cc)
+common_moc_sources = $(common_qt_sources:.cc=.moc.cc) $(common_qt_headers:.h=.moc.cc)
 diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
 bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
 diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
 CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
 	@mkdir -p $(shell dirname $@)
-	$(MOC4) -o $@ $<
+	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
 %.ui.h: %.ui
 	@mkdir -p $(shell dirname $@)
