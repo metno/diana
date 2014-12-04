@@ -14,6 +14,7 @@ VcrossLayerButton::VcrossLayerButton(const QString& model, const QString& field,
   setIcon(QPixmap(felt_xpm));
   setToolTip(tr("Model: %1 Field: %2").arg(model).arg(field));
   setCheckable(true);
+  setChecked(true);
 
   connect(this, SIGNAL(toggled(bool)), this, SLOT(onShowHide()));
   

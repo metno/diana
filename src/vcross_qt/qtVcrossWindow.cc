@@ -283,7 +283,7 @@ void VcrossWindow::onFieldAction(int position, int action)
     QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
     VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
 
-    selectionManager->setVisibleAt(position, not button->isChecked());
+    selectionManager->setVisibleAt(position, button->isChecked());
     changeFields();
   }
 }
