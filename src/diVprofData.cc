@@ -454,6 +454,15 @@ bool VprofData::readFile()
   return success;
 }
 
+static void copy_vprof_values(Values_cp values, std::vector<float>& values_out)
+{
+  Values::ShapeIndex idx(values->shape());
+  for (int i=0; i<values->shape().length(0); ++i) {
+    idx.set(0, i);
+    values_out.push_back(values->value(idx));
+  }
+}
+
 static void copy_vprof_values(const name2value_t& n2v, const std::string& id, std::vector<float>& values_out)
 {
   METLIBS_LOG_SCOPE(LOGVAL(id));
@@ -462,13 +471,7 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
     values_out.clear();
     return;
   }
-
-  Values_cp values = itN->second;
-  Values::ShapeIndex idx(values->shape());
-  for (int i=0; i<values->shape().length(0); ++i) {
-    idx.set(0, i);
-    values_out.push_back(values->value(idx));
-  }
+  copy_vprof_values(itN->second, values_out);
 }
 
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
@@ -509,9 +512,12 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, VP_AIR_TEMPERATURE));
     if (not air_temperature)
       return 0;
+    ZAxisData_cp zaxis = air_temperature->zaxis();
+    if (!zaxis)
+      return 0;
 
-    InventoryBase_cp zaxis = air_temperature->zaxis();
-    collector->requireField(modelName, zaxis);
+    collector->requireVertical(Z_TYPE_PRESSURE);
+
     model_values_m model_values;
     try {
       model_values = vc_fetch_pointValues(collector, pos, user_time);
@@ -524,19 +530,22 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     }
 
     model_values_m::iterator itM = model_values.find(modelName);
-    if ( itM == model_values.end() )
+    if (itM == model_values.end())
       return 0;
     name2value_t& n2v = itM->second;
 
-    Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
-    if (not zvalues)
-      return 0;
-    n2v[VC_PRESSURE] = zvalues;
-
     vc_evaluate_fields(collector, model_values, modelName, fields);
 
+    Values_cp z_values;
+    if (util::unitsConvertible(zaxis->unit(), "hPa"))
+      z_values = vc_evaluate_field(zaxis, n2v);
+    else if (InventoryBase_cp pfield = zaxis->pressureField())
+      z_values = vc_evaluate_field(pfield, n2v);
+    if (not z_values)
+      return 0;
+    copy_vprof_values(z_values, vp->ptt);
+
     copy_vprof_values(n2v, VP_AIR_TEMPERATURE, vp->tt);
-    copy_vprof_values(n2v, VC_PRESSURE, vp->ptt);
     copy_vprof_values(n2v, VP_DEW_POINT_TEMPERATURE, vp->td);
     copy_vprof_values(n2v, VP_X_WIND, vp->uu);
     copy_vprof_values(n2v, VP_Y_WIND, vp->vv);

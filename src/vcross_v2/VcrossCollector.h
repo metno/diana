@@ -58,6 +58,8 @@ public:
 
   void requireField(const std::string& model, InventoryBase_cp field);
 
+  void requireVertical(Z_AXIS_TYPE zType);
+
   bool selectPlot(const std::string& model, const std::string& plot, const string_v& options);
 
 private:

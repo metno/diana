@@ -96,6 +96,7 @@ public:
 
   bool setArguments(const string_v& arguments, const InventoryBase_cps& contentSoFar);
   Values_cp evaluate(name2value_t& n2v) const;
+  void collectRequired(InventoryBase_cps& required) const;
 
 private:
   bool hasNumericArg() const
@@ -114,9 +115,9 @@ typedef boost::shared_ptr<const FunctionData> FunctionData_cp;
 
 void resolve(InventoryBase_cps& content, const NameItem_v& nameItems);
 void collectRequired(InventoryBase_cps& required, InventoryBase_cp item);
+void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item, Z_AXIS_TYPE zType);
 Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v);
 
-extern const char VC_PRESSURE[];
 extern const char VC_LONGITUDE[];
 extern const char VC_LATITUDE[];
 extern const char VC_BEARING[];
