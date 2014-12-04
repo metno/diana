@@ -113,6 +113,12 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey("alpha",          "",0,CommandParser::cmdInt);
 }
 
+void VcrossStyleWidget::setModelFieldName(const QString& mdl, const QString& fld)
+{
+  ui->labelModel->setText(mdl);
+  ui->labelField->setText(fld);
+}
+
 void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& defaultopt)
 {
   defaultOptions = defaultopt;
