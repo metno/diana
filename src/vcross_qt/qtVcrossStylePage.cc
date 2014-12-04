@@ -54,7 +54,8 @@ VcrossStylePage::VcrossStylePage(QWidget* parent)
 
 void VcrossStylePage::retranslateUI()
 {
-  fieldLabel->setText(tr("Soorry, please be patient"));
+  fieldLabel->setText(tr("Maybe it will be possible to edit field options here, later and only if exactly one field has been chosen."));
+  fieldLabel->setWordWrap(true);
 }
 
 void VcrossStylePage::initializePage()
