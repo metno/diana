@@ -4111,6 +4111,8 @@ bool FieldPlot::markExtreme()
     extremeValue = "both";
   }
 
+  glColor3ubv(poptions.linecolour.RGB());
+
   float fontsize = 28. * poptions.extremeSize;
   getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
@@ -4289,40 +4291,42 @@ bool FieldPlot::markExtreme()
             }
 
             if (ibest == ix && jbest == iy) {
-              // mark extreme point
-              if (!extremeString) {
-                ostringstream ostr;
-                ostr.setf(ios::fixed);
-                ostr.precision(poptions.precision);
-                ostr << fpos;
-                getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
-                    gy - chry * 0.5, 0.0);
-              } else {
-                getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
-                    gy - chry * 0.5, 0.0);
-                if (extremeValue != "none") {
-                  float fontsize = 18. * poptions.extremeSize;
-                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+              if (fpos < poptions.maxvalue && fpos > poptions.minvalue) {
+                // mark extreme point
+                if (!extremeString) {
                   ostringstream ostr;
                   ostr.setf(ios::fixed);
                   ostr.precision(poptions.precision);
                   ostr << fpos;
-                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
-                      gy - chry * 0.8, 0.0);
+                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
+                      gy - chry * 0.5, 0.0);
+                } else {
+                  getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
+                      gy - chry * 0.5, 0.0);
+                  if (extremeValue != "none") {
+                    float fontsize = 18. * poptions.extremeSize;
+                    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+                    ostringstream ostr;
+                    ostr.setf(ios::fixed);
+                    ostr.precision(poptions.precision);
+                    ostr << fpos;
+                    getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
+                        gy - chry * 0.8, 0.0);
+                  }
+                  float fontsize = 28. * poptions.extremeSize;
+                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+
                 }
-                float fontsize = 28. * poptions.extremeSize;
-                getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
+                //#######################################################################
+                //		glBegin(GL_LINE_LOOP);
+                //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
+                //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
+                //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
+                //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
+                //		glEnd();
+                //#######################################################################
               }
-
-              //#######################################################################
-              //		glBegin(GL_LINE_LOOP);
-              //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
-              //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
-              //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
-              //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
-              //		glEnd();
-              //#######################################################################
             }
           }
         }
