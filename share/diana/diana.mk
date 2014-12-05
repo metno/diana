@@ -293,7 +293,3 @@ dist_symbols_DATA= \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSandstormOrDuststorm.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WidespreadSmoke.svg \
 	share/diana/images/symbols/WeatherSymbol_ICAO_WindArrowOrFlightLevelDoubleBar.svg
-
-font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
-METSYMBOLFONT=Symbol   # Use this as default font for meteorological symbols
- standard_symbolsize=30
