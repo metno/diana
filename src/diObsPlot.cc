@@ -2383,7 +2383,7 @@ void ObsPlot::plotList(int index)
       tempPrecision ? 0 : 1);
   printListParameter2(dta, "TdTdTd", xpos, ypos, yStep, align_right,
       tempPrecision ? 0 : 1);
-  printListParameter(dta, "pppp", xpos, ypos, yStep, align_right, 1);
+  printListParameter(dta, "PPPP", xpos, ypos, yStep, align_right, 1);
   if (devfield && (f_p = dta.fdata.find("PPPP_mslp")) != dta.fdata.end()) {
     ypos -= yStep;
     printAvvik(f_p->second, xpos, ypos, align_right);
