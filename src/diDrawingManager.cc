@@ -125,10 +125,21 @@ bool DrawingManager::parseSetup()
         // Symbol definitions
         QFile f(items["file"]);
         if (f.open(QFile::ReadOnly)) {
-          symbols[items["symbol"]] = f.readAll();
+
+          // Store a combination of the section name and the symbol name in
+          // the common symbol map.
+          QString name = items["symbol"];
+
+          if (!section.isEmpty())
+            name = section + "|" + name;
+
+          items["symbol"] = name;
+          symbols[name] = f.readAll();
           f.close();
-          // Add the symbol name to the relevant section.
-          symbolSections[section].append(items["symbol"]);
+
+          // Add the internal symbol name to the relevant section.
+          symbolSections[section].insert(name);
+          styleManager->addStyle(DrawingItemBase::Symbol, items);
         } else
           METLIBS_LOG_WARN("Failed to load drawing symbol file: " << items["file"].toStdString());
 
@@ -136,7 +147,6 @@ bool DrawingManager::parseSetup()
         // Drawing definitions
         drawings_.insert(items["file"]);
       }
-      styleManager->addStyle(DrawingItemBase::Symbol, items);
     } else if (items.contains("style")) {
       // Read-only style definitions
       styleManager->addStyle(DrawingItemBase::PolyLine, items);
@@ -487,8 +497,9 @@ QStringList DrawingManager::symbolNames(const QString &section) const
 {
   if (section.isNull())
     return symbols.keys();
-  else
-    return symbolSections.value(section);
+  
+  QStringList names = symbolSections.value(section).toList();
+  return names;
 }
 
 QStringList DrawingManager::symbolSectionNames() const

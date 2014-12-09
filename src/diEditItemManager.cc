@@ -1270,16 +1270,45 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
+      // Disable conversion if only composite items are selected.
       styleTypeMenu.setEnabled((selectedCategories.size() == 1) && !selectedCategories.contains(DrawingItemBase::Composite));
+
       if (styleTypeMenu.isEnabled()) {
+
+        // Obtain a list of style names for the first category of the selected items.
         QStringList styleTypes = DrawingStyleManager::instance()->styles(*(selectedCategories.begin()));
-        qSort(styleTypes);
+
+        // Filter out styles from different sections - this only makes sense
+        // for symbols at the moment.
+        QSet<QString> sections;
+        foreach (QSharedPointer<DrawingItemBase> item, selectedItems) {
+          QStringList pieces = item->property("style:type").toString().split("|");
+          if (pieces.size() != 1)
+            sections.insert(pieces.first());
+        }
+        QStringList filteredTypes;
         foreach (QString styleType, styleTypes) {
-          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleType), 0);
-          QVariantList data;
+          QStringList pieces = styleType.split("|");
+          if (pieces.size() == 1)
+            filteredTypes.append(styleType);
+          else if (sections.contains(pieces.first()))
+            filteredTypes.append(styleType);
+        }
+
+        qSort(filteredTypes);
+
+        // Add each of the available style types to the menu.
+        foreach (QString styleType, filteredTypes) {
+          QString styleName = styleType.split("|").last();
+          QAction *action = new QAction(QString("%1 %2").arg(tr("To")).arg(styleName), 0);
           QVariantList styleItems;
           foreach (const QSharedPointer<DrawingItemBase> styleItem, selectedItems)
             styleItems.append(QVariant::fromValue(styleItem));
+
+          // Pack the selected items and the style type for this menu entry
+          // into a list to be sent via the triggered signal if this entry
+          // is selected.
+          QVariantList data;
           data.append(QVariant(styleItems));
           data.append(styleType);
           action->setData(data);

@@ -111,9 +111,13 @@ ToolBar::ToolBar(QWidget *parent)
 
     // Create an entry for each symbol. Use the name as an internal identifier
     // since we may decide to use tr() on the visible name at some point.
-    foreach (QString name, dm->symbolNames(section)) {
+    // Remove any section information from the name for clarity.
+    QStringList names = dm->symbolNames(section);
+    names.sort();
+    foreach (QString name, names) {
+      QString visibleName = name.split("|").last();
       QIcon icon(QPixmap::fromImage(dm->getSymbolImage(name, 32, 32)));
-      symbolCombo_->addItem(icon, name, name);
+      symbolCombo_->addItem(icon, visibleName, name);
     }
   }
 
@@ -219,7 +223,12 @@ void ToolBar::setSymbolType(int index)
   // Obtain the style identifier from the style action and store it in the
   // main symbol action for later retrieval by the EditItemManager.
   QVariant data = symbolCombo_->itemData(index);
-  if (!data.isNull())
+
+  // If a section heading was selected then select the item following it if
+  // possible.
+  if (data.isNull() && index < (symbolCombo_->count() - 1))
+    symbolCombo_->setCurrentIndex(index + 1);
+  else
     symbolAction_->setData(data);
 }
 

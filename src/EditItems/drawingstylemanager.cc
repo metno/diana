@@ -481,7 +481,7 @@ DrawingStyleManager::LockCategory DrawingStyleManager::lockCategory(const Drawin
 
 bool DrawingStyleManager::containsStyle(const DrawingItemBase::Category &category, const QString &name) const
 {
-  return styles_[category].contains(name);
+  return styles_.contains(category) && styles_.value(category).contains(name);
 }
 
 QStringList DrawingStyleManager::styles(const DrawingItemBase::Category &category) const

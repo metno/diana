@@ -187,7 +187,7 @@ private:
   GridConverter gc;
   QString workDir;
 
-  QMap<QString, QStringList> symbolSections;
+  QMap<QString, QSet<QString> > symbolSections;
   QMap<QString, QByteArray> symbols;
   mutable QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
