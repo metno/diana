@@ -603,6 +603,7 @@ void VcrossWindow::quitClicked()
   active = false;
   Q_EMIT VcrossHide();
   Q_EMIT emitTimes("vcross", NO_TIMES);
+  hide();
 }
 
 /***************************************************************************/
