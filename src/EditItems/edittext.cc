@@ -43,7 +43,7 @@ namespace EditItem_Text {
 
 Text::Text()
 {
-  editAction = new QAction(tr("Edit Text"), this);
+  editAction = new QAction(tr("Edit text"), this);
   connect(editAction, SIGNAL(triggered()), SLOT(editText()));
 }
 

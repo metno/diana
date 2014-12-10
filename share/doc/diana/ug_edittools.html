@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Diana User Guide: Edit tools (from version 3.37)</title>
+  </head>
+
+  <body>
+    <table border="0" cellpadding="3" cellspacing="0" width="100%" >
+	<tr bgcolor="lightgrey">
+	  <td valign="center">&nbsp;Diana User Guide: Edit tools&nbsp;|&nbsp;
+	    <a href="ug_profeteditdrawingtools.html">Previous: Profet Drawing Tools</a>&nbsp;|&nbsp;
+	    <a href="ug_timecontrol.html">Next: Time Control</a>&nbsp;|&nbsp;
+	    <a href="index.html">Index</a></td>
+	  <td valign="center" align="right"><img src="diana_logo.png" align="right" border="0"></td>
+	</tr>
+    </table>
+
+    <p>
+    <h2>
+      <a NAME="Edit"></a><img SRC="drawing-editdrawing.png" align="MIDDLE" ALT="Edit icon">
+      Edit tools (from version 3.37)</h2>
+
+    <p>The edit dialogue is used during production of weather charts such as analyses and sigmaps. It
+      contains drawing tools for fronts, areas and symbols.<br>
+      Completed charts are stored in a shared directory for distribution to other regional offices.
+      Charts can also be saved in the user's working directory.
+    <ul>
+      <li><a href="#newproduct">Start a new product</a>
+      <li><a href="#normalediting">Normal editing</a>
+	<ul>
+	  <li><a href="#drawing-fronts-and-areas">Drawing fronts and areas</a></li>
+	  <li><a href="#drawing-symbols">Drawing symbols</a></li>
+	  <li><a href="#drawing-text-labels">Drawing text labels</a></li>
+	  <li><a href="#drawing-composite-objects">Drawing composite objects</a></li>
+	</ul></li>
+      <li><a href="#quickdrawings">Creating simple pictures</a></li>
+      <li><a href="#Comments">Comments</a></li>
+      <li><a href="#Form">Form</a></li>
+    </ul>
+    <!-- PAGEBREAK -->
+    <a NAME="newproduct"></a>
+    <br>
+    <h3> Start a new product</h3>
+    <p>
+    New products are created using the Edit Drawing Dialogue which can be
+    accessed via the <b>Show</b> menu or by pressing <i>Ctrl-Shift-B</i>.
+    The data you are currently using when you create a drawing will remain
+    visible while you create a product, so you need to ensure that you have
+    already selected the <a href="ug_fielddialogue.html">fields</a>,
+    <a href="ug_obsdialogue.html">observations</a>,
+    <a href="ug_satdialogue.html">images</a> and other data you require before
+    you start drawing.
+    </p>
+    <table WIDTH="100%" >
+	<tr VALIGN="TOP">
+	  <td><img SRC="edit-drawing-dialog.png" ALT="Edit Drawing Dialogue"></td>
+	</tr>
+    </table>
+    <p>
+    The dialogue shows a list of <b>Active Layers</b>. These contain the
+    objects that you can edit. Initially, there is only an empty scratch
+    layer present in the list which can be used for quick work-in-progress
+    drawings.
+    </p>
+    <p>
+    Layers are visible in the main window when the <img src="drawing-visible.png">
+    (visible) icon is present next to the name of the layer in the list. To hide
+    a layer, click the icon next to its name. Click in the gap to make the layer
+    visible again.
+    </p>
+    <p>
+    New layers can be added by clicking the <img src="drawing-addempty.png">
+    (add empty layer) button, and the currently selected layers can be deleted
+    by clicking the <img src="drawing-remove.png"> (remove layer) button. Note
+    that the scratch layer cannot be deleted.
+    </p>
+    <p>
+    Layers can also be loaded from disk by clicking the
+    <img src="drawing-fileopen.png"> (open file) button. This allows the user to
+    select a file from their working directory, or from other locations on the
+    disk. To save one or more layers to a file, click the
+    <img src="drawing-filesave.png"> (save file) button. This opens a dialogue
+    that lets you choose name and location of the file that will contain the
+    objects.
+    </p>
+    <p>
+    The other buttons are explained below.
+    </p>
+    <!-- PAGEBREAK -->
+      <a NAME="normalediting"></a>
+    <h3> Normal Editing</h3>
+    <p>
+    Objects can be created and edited using the drawing toolbar which is
+    shown by opening the <b>Show</b> menu and selecting the <b>Edit Drawing
+    Mode</b> entry, or by pressing <i>Ctrl-B</i>. The toolbar allows you to
+    choose different kinds of object that will be placed in the currently
+    selected layer in the Edit Drawing Dialogue. <!-- Note that it seems to
+    be inserted into the first selected layer in the dialog. -->
+    The left mouse button is used to click buttons and menus in the toolbar,
+    as well as to add and select objects in the plot.
+    </p>
+
+    <a name="drawing-fronts-and-areas"></a>  
+    <p><b>Drawing fronts and areas</b></p>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><p>
+    The <img src="drawing-paint_create_polyline.png"> (create polyline)
+    button is used to start creation of a front or area. Click the button to
+    choose the type of front or area shown in the adjacent menu or open the
+    menu and select the type you want. You can now start to draw the object
+    by clicking on the locations where you want to add points.
+    </p><p>
+    To finish creating the object, use the right mouse button to add the last
+    point. Don't worry if you have one point too many &ndash; it can be deleted
+    later.
+    </p></td>
+    <td><img src="drawing-create-polyline.png"></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <tr>
+    <td><img src="drawing-move-polyline.png"></td>
+    <td><p>
+    The <img src="drawing-paint_select2.png"> (select) button is used to
+    select and manipulate objects in the plot. When this tool is enabled, you
+    can click on an object when it is highlighted and drag it to move it around
+    in the plot. Release the mouse button when the object is in the desired
+    position.
+    </p><p>
+    You can also modify an object by opening its context menu. Move the
+    cursor over the object and click the right mouse button to open the menu.
+    This allows you to cut or copy the object, edit its style and convert it
+    to another object of a similar type. Note that keyboard shortcuts are also
+    available for the cut (<i>Ctrl-X</i>) and copy (<i>Ctrl-C</i>) actions.
+    </p></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><p>
+    Objects that are selected will be highlighted in red and will show small
+    black squares where each of their points are. These small squares can be
+    moved around individually to change the shape of the object.
+    </p><p>
+    If you open an object's context menu over a point, you can select the
+    <b>Remove point</b> menu entry to delete that point. Alternatively, you
+    can press the <i>Delete</i> or <i>Backspace</i> keys to delete it. This
+    is useful if you accidentally created the object with too many points.
+    </p>
+    </td>
+    <td><img src="drawing-edit-polyline.png"></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><img src="drawing-polyline-add-point.png"></td>
+    <td><p>
+    If you move the cursor over a front or the edge of an area, you will see
+    a small green square appear. This shows where a new point can be placed.
+    Opening the context menu reveals the <b>Add point</b> entry which can be
+    selected to add a new point at the position indicated by the green square.
+    This is useful if you accidentally created the object with too few points.
+    </p>
+    </td>
+    </tr>
+    </table>
+
+    <a name="drawing-symbols"></a>
+    <p><b>Drawing symbols</b></p>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><p>
+    The <img src="drawing-paint_create_symbol.png"> (create symbol)
+    button is used to start creation of a symbol. Click the button to
+    choose the type of symbol shown in the adjacent menu or open the
+    menu and select the type you want. You can now start to place the symbol
+    by clicking on a location on the plot.
+    </p><p>
+    Once it has been placed, you can select and move it in the same way that
+    you can select and move fronts and areas. You can also change the style
+    and type of symbol via its context menu.
+    </p>
+    </td>
+    <td><img src="drawing-create-symbol.png"></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><img src="drawing-resize-symbol.png"></td>
+    <td><p>
+    As with fronts and areas, the symbol has four points that can be moved.
+    However, these cannot be moved individually. Moving one of these points
+    causes all of them to move &ndash; this allows you to resize the symbol.
+    </p><p>
+    Click and drag a point to resize the symbol, and release the mouse button
+    when you have finished. Note that the symbol is not shown when it is being
+    resized, but the outline is shown to help you choose its final size.
+    </p>
+    </td>
+    </tr>
+    </table>
+
+    <a name="drawing-text-labels"></a>
+    <p><b>Drawing text labels</b></p>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><p>
+    The <img src="drawing-paint_create_text.png"> (create text label)
+    button is used to start creation of a label. Click the button to
+    choose the type of label shown in the adjacent menu or open the
+    menu and select the type you want. You can now start to place the label
+    by clicking on a location on the plot.
+    </p><p>
+    Once it has been placed, you can select and move it in the same way that
+    you can select and move fronts, areas and symbols. You can also change the
+    style and type of the label via its context menu.
+    </p>
+    </td>
+    <td><img src="drawing-create-text.png"></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><img src="drawing-edit-text.png"></td>
+    <td><p>
+    Text labels cannot be resized in the usual way. However, you can convert
+    a label to type via the <b>Convert</b> entry in its context menu.
+    </p><p>
+    You can change the text shown in a label by clicking on it with the left
+    mouse button. Alternatively, you can select the <b>Edit text</b> entry in
+    its context menu.
+    </p>
+    </td>
+    </tr>
+    </table>
+
+    <a name="drawing-composite-objects"></a>
+    <p><b>Drawing composite objects</b></p>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><p>
+    The <b>Composite</b> button is used to start creation of a composite
+    object. These contain more than one type of object &ndash; usually a
+    combination of symbols and text. Click the button to choose the type of
+    composite object shown in the adjacent menu or open the menu and select
+    the type you want. You can now start to place it by clicking on a location
+    on the plot.
+    </p><p>
+    Once it has been placed, you can select and move it in the same way that
+    you can select and move fronts, areas, symbols and labels. You can also
+    change the type of the object via its context menu. Composite objects
+    cannot be resized.
+    </p>
+    </td>
+    <td><img src="drawing-create-text.png"></td>
+    </tr>
+    </table>
+
+    <table width="100%" valign="top" cellspacing="8">
+    <tr>
+    <td><img src="drawing-edit-text.png"></td>
+    <td><p>
+    You can change the text shown in a composite object by opening its context
+    menu and selecting the <b>Edit item</b> entry. This allows you to change
+    the text used in the object, but not the symbols.
+    </p><p>
+    Custom composite objects must be defined in the setup file.
+    </p>
+    </td>
+    </tr>
+    </table>
+
+  </body>
+</html>
