@@ -123,6 +123,8 @@
 	  <td>defines fields for visualisation with default plot options </td></tr>
 	<tr><td><a href="#FIELD_FILES">FIELD_FILES</a></td>
 	  <td>lists files or other sources for field data </td></tr>
+	 <tr><td><a href="#FIMEX_SETUP">FIMEX_SETUP</a></td>
+	  <td>options to fimexreader, for example reprojection of fields </td></tr>
 	<tr><td><a href="#OBSERVATION_FILES">OBSERVATION_FILES</a></td>
 	  <td>defines available observations for plotting </td></tr>
 	<tr><td><a href="#OBSERVATION_PRIORITY_LISTS">OBSERVATION_PRIORITY_LISTS</a></td>
@@ -372,6 +374,7 @@ end.field
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>proj4string=</td><td>"+proj=stere +lat_ts=60 ..."</td><td>This projection overwrites the projection in the datasource</td></tr>
 	<tr><td>turnwavedirection</td><td>true/false</td><td>Different models define wave direction different, possible to turn the direction</td></tr>
+	<tr><td>r</td><td>name of reprojection</td><td>The reprojection should be defined in FIMEX_SETUP section</td></tr>
 	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
 	file group</td></tr>
 	<tr><td>CLEAR_FILEGROUP</td><td></td><td>Delete current file group</td></tr>
@@ -392,7 +395,10 @@ With reference time in filename:
 filegroup=AROME-MetCoOp
 m=AROME-MetCoOp.2.5KM    t=fimex format=netcdf f=/opdata/arome2_5/arome_metcoop2_5km_[yyyymmdd_HH].nc
     </pre>
-
+reprojection, LL02_GLDI is the name of the reprojection.
+    <pre>
+m=LL02_GLDI t=fimex format=grib config=${DIANADIR}/share/fimex/CommonGribReaderConfig.xml f=$(DATA)/24/sam/data/data/S/REDA/Diana/LL02_GLDI_[yyyymmddHH]* r=LL02_GLDI
+	</pre>
 Redefine models:
     <pre>
 FileGroup=HIRLAM8km
@@ -410,6 +416,30 @@ Delete file group:
     <pre>
 FileGroup=HIRLAM8km
 CLEAR_FILEGROUP
+    </pre>
+	
+	<a name="FIMEX_SETUP"></a><h3>Section FIMEX_SETUP</h3>
+    Options to fimexreader, for example reprojection of fields.
+	All keys must be defined.
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key=</td><td>Value</td><td>Comment</td></tr>
+	<tr><td>name=</td><td>Name of option</td><td>Must be unique</td></tr>
+	<tr><td>type=</td><td>reprojection</td><td>The only option type yet.</td></tr>
+	<tr><td>projstring=</td><td>"+proj=latlon +R=6371229 +no_defs"</td><td>This projection overwrites the projection in the datasource. Note the "" signs.</td></tr>
+	<tr><td>xAxisValues=</td><td>"-179.75,-179.5,...,179.75"</td><td>Used by the fimex interpolator, see fimex dokumentation. Note the "" signs.</td></tr>
+	<tr><td>yAxisValues=</td><td>"-80.75,-80.5,...,80.75"</td><td>-"- Note the "" signs.</td></tr>
+	<tr><td>xAxisUnit=</td><td>degree_east...</td><td>-"-</td></tr>
+	<tr><td>yAxisUnit=</td><td>degree_north...</td><td>-"-</td></tr>
+	<tr><td>method=</td><td>nearestneighbor...</td><td>Interpolation method, used by fimex interpolator</td></tr>
+    </table>
+
+    <br>
+<b>Examples:</b>
+    <pre>
+  # valid interpolation types, method = nearestneighbor, bilinear,bicubic, forward_max, forward_min, forward_mean, forward_median, forward_sum, coord_nearestneighbor, coord_kdtree
+  name=gfs0p25 type=reprojection projString="+proj=latlon +R=6371229 +no_defs" xAxisValues="-179.75,-179.5,...,179.75" yAxisValues="-80.75,-80.5,...,80.75" xAxisUnit=degree_east yAxisUnit=degree_north method=bilinear
+  name=LL02_GLDI type=reprojection projString="+proj=latlon +R=6371000 +no_defs" xAxisValues="-179.75,-179.5,...,179.75" yAxisValues="-80.75,-80.5,...,80.75" xAxisUnit=degree_east yAxisUnit=degree_north method=nearestneighbor
     </pre>
 
       <!-- PAGEBREAK -->
