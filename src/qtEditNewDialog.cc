@@ -347,7 +347,7 @@ void EditNewDialog::prodBox(int idx)
 
 void EditNewDialog::idBox(int idx)
 {
-  METLIBS_LOG_SCOPE());
+  METLIBS_LOG_SCOPE();
   int n= products.size();
   if (n==0 || currprod<0) return;
   int m= products[currprod].pids.size();
