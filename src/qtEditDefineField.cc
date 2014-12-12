@@ -52,6 +52,9 @@
 #include "diController.h"
 #include "diEditManager.h"
 
+#define MILOGGER_CATEGORY "diana.EditDefineFieldDialog"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 
 /*********************************************/
@@ -60,7 +63,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
     int n,EditProduct ep)
 : QDialog(parent), m_ctrl(llctrl), EdProd(ep), num(n)
 {
-
+  METLIBS_LOG_SCOPE();
   setModal(true);
 
   m_editm= m_ctrl->getEditManager();
@@ -92,7 +95,7 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 
 
   QString xps= tr("Official product") + " -- <i>" +
-  tr("Locally stored") ;
+      tr("Locally stored") ;
   QLabel* xplabel= new QLabel(xps, this);
 
   QVBoxLayout* vlayout = new QVBoxLayout( this);
@@ -203,9 +206,8 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
 /*********************************************/
 
 vector <std::string> EditDefineFieldDialog::getProductNames(){
-#ifdef dEditDlg
-  cout << "getProductNames called " << endl;
-#endif
+  METLIBS_LOG_SCOPE();
+
   vector <std::string> name;
   if (!m_editm) return name;
   //get fields
@@ -215,7 +217,7 @@ vector <std::string> EditDefineFieldDialog::getProductNames(){
   }
   name.push_back(EdProd.name);
   vector<savedProduct> sp=
-    m_editm->getSavedProducts(EdProd,num);
+      m_editm->getSavedProducts(EdProd,num);
   pmap[EdProd.name]=sp;
   vector<std::string> products = m_editm->getEditProductNames();
   int n = products.size();
@@ -240,9 +242,7 @@ vector <std::string> EditDefineFieldDialog::getProductNames(){
 /*********************************************/
 
 void EditDefineFieldDialog::prodnameActivated(int iprod){
-#ifdef dEditDlg
-  cout << "EditDefineFieldDialog::prodnameActivated " << iprod << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (int(productNames.size())>iprod){
     currentProductName= productNames[iprod];
     fillList();
@@ -253,9 +253,7 @@ void EditDefineFieldDialog::prodnameActivated(int iprod){
 
 void EditDefineFieldDialog::fillList()
 {
-#ifdef dEditDlg
-  cout << "EditDefineFieldDialog::fillList for " << currentProductName << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (currentProductName.empty()) return;
   fBox->clear();
   fBox->clearFocus();
@@ -266,7 +264,12 @@ void EditDefineFieldDialog::fillList()
   } else {
     vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
-      std::string str = splist[i].pid + std::string(" - ") +splist[i].ptime.isoTime()+ " - " +splist[i].filename;
+      std::string str;
+      if ( splist[i].ptime.undef() ) {
+        str = splist[i].pid + std::string(" - ") + splist[i].filename;
+      } else {
+        str = splist[i].pid + std::string(" - ") +splist[i].ptime.isoTime()+ " - " +splist[i].filename;
+      }
       QListWidgetItem* item = new QListWidgetItem(QString(str.c_str()));
       bool italic= (splist[i].source==data_local);
       QFont font = item->font();
@@ -281,9 +284,7 @@ void EditDefineFieldDialog::fillList()
 
 void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
 {
-#ifdef dEditDlg
-  cout << "EditDefineFieldDialog::fieldselect" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   int i =fBox->row(item);
   if (currentProductName==MODELFIELDS){
     selectedfield= fields[i];
@@ -317,9 +318,7 @@ void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
 /*********************************************/
 
 void EditDefineFieldDialog::updateFilenames(){
-#ifdef dEditDlg
-  cout << "EditDefineFieldDialog::updateFilenames" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   filenames->clear();
   if (fieldSelected()){
     std::string namestr=selectedfield;
@@ -345,22 +344,18 @@ void EditDefineFieldDialog::updateFilenames(){
 /*********************************************/
 
 void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
-#ifdef dEditDlg
-  cout << "EditDefineFieldDialog::filenameSlot" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   selectedProdIndex=filenames->row(item);
   if (num==-1){
     map<std::string,bool> useEditobject =
-      m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
+        m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
     setCheckedCbs(useEditobject);
   }
 }
 
 /*********************************************/
 void EditDefineFieldDialog::DeleteClicked(){
-#ifdef dEditDlg
-  cout<<"EditDefineFieldDialog::DeleteClicked() called;" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (fieldSelected()){
     selectedfield.clear();
     updateFilenames();
@@ -384,18 +379,14 @@ void EditDefineFieldDialog::DeleteClicked(){
 /*********************************************/
 
 void EditDefineFieldDialog::Refresh(){
-#ifdef dEditDlg
-  cout<<"EditDefineFieldDialog::Refresh() called;" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   getProductNames();
   fillList();
 }
 /***********************************************************/
 
 void EditDefineFieldDialog::cbsClicked(){
-#ifdef dEditDlg
-  cout << "cbs0Clicked !" << endl;
-#endif
+  METLIBS_LOG_SCOPE();
   if (num>-1) return;
   if (productSelected()){
     if (selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())){

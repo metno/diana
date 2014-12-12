@@ -287,22 +287,24 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
   editfield->numSmoothed= 0;
 
-  editfield->validFieldTime = tprod;
-  editfield->analysisTime = tprod;
-
   // text for plot etc.
   std::string text, fulltext;
   text = "ANALYSE " + fieldname;
 
-  std::string sclock= editfield->validFieldTime.isoClock();
-  std::string shour=  sclock.substr(0,2);
-  std::string smin=   sclock.substr(3,2);
-  if (smin=="00")
-    fulltext = text + " " + editfield->validFieldTime.isoDate()
-    + " " + shour + " UTC";
-  else
-    fulltext = text + " " + editfield->validFieldTime.isoDate()
-    + " " + shour + ":" + smin + " UTC";
+  if ( !tprod.undef() ) {
+    editfield->validFieldTime = tprod;
+    editfield->analysisTime = tprod;
+
+    std::string sclock= editfield->validFieldTime.isoClock();
+    std::string shour=  sclock.substr(0,2);
+    std::string smin=   sclock.substr(3,2);
+    if (smin=="00")
+      fulltext = text + " " + editfield->validFieldTime.isoDate()
+      + " " + shour + " UTC";
+    else
+      fulltext = text + " " + editfield->validFieldTime.isoDate()
+      + " " + shour + ":" + smin + " UTC";
+  }
 
   editfield->name=     fieldname;
   editfield->text=     text;
@@ -565,7 +567,9 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename) {
   fieldrequest.paramName = editfield->paramName;
 //  fieldrequest.ptime = editfield->validFieldTime;
   fieldrequest.unit = editfield->unit;
-  fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  if  ( !editfield->validFieldTime.undef() ) {
+    fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  }
   return fieldPlotManager->writeField(fieldrequest,editfield);
 
 }

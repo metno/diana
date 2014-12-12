@@ -1057,9 +1057,9 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
   std::string outputFilename;
 
-  if (not producttimedefined)
-    return false;
-  std::string time_string = producttime.format("%Y%m%dt%H%M%S");
+  std::string time_string;
+  if ( producttimedefined )
+    time_string= " " + producttime.format("%Y%m%dt%H%M%S");
 
   if ( local ) {
     outputFilename = EdProd.local_savedir + "/";
@@ -1080,7 +1080,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
     outputFilename = EdProd.prod_savedir + "/work/";
   }
 
-  EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + "_" + time_string + ".nc";
+  EdProd.fields[fnum].filename = EdProdId.name + "_" + EdProd.fields[fnum].filenamePart + time_string + ".nc";
   outputFilename += EdProd.fields[fnum].filename;
   if ( qfile.exists(outputFilename.c_str()) && !qfile.remove(outputFilename.c_str()) ){
     message = "Copy from " + QString(EdProd.templateFilename.c_str()) + " to " + QString(outputFilename.c_str()) + "  failed. (File exsists, but can't be overwritten.)";
@@ -1153,7 +1153,7 @@ bool EditManager::startEdit(const EditProduct& ep,
   diutil::delete_all_and_clear(fedits);
 
   producttime = valid;
-  producttimedefined = true;
+  producttimedefined = !valid.undef();
 
   for (unsigned int j=0; j<EdProd.fields.size(); j++) {
     // spec. used when reading and writing field
@@ -1208,7 +1208,8 @@ bool EditManager::startEdit(const EditProduct& ep,
   // delete all previous objects
   objm->getEditObjects().init();
   objm->getEditObjects().setPrefix(EdProdId.name);
-  objm->getEditObjects().setTime(producttime);
+  if(producttimedefined)
+    objm->getEditObjects().setTime(producttime);
 
   bool newProduct=true;
 
@@ -1470,7 +1471,7 @@ bool EditManager::findProduct(EditProduct& ep, std::string pname){
 
 vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     std::string fieldname){
-
+  METLIBS_LOG_SCOPE();
   int num=-1,n=ep.fields.size();
   for (int i=0;i<n;i++){
     if (fieldname==ep.fields[i].name){
@@ -1640,7 +1641,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
     savedProduct savedprod;
     savedprod.ptime= objm->timeFileName(name);
     // remove files older than autoremove
-    if (autoremove > 0 && miTime::hourDiff(now,savedprod.ptime) > autoremove ) {
+    if (autoremove > 0 && !savedprod.ptime.undef() && miTime::hourDiff(now,savedprod.ptime) > autoremove ) {
       METLIBS_LOG_DEBUG("Removing file: "<<name );
       QFile::remove(name.c_str());
       continue;
@@ -1668,7 +1669,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
     const std::string& name = *it;
     METLIBS_LOG_DEBUG("Found a file " << name);
     miTime ptime= objm->timeFileName(name);
-    if (autoremove > 0 && miTime::hourDiff(now,ptime) > autoremove ) {
+    if (autoremove > 0 && !ptime.undef() && miTime::hourDiff(now,ptime) > autoremove ) {
       METLIBS_LOG_DEBUG("Removing file: "<<name );
       QFile::remove(name.c_str());
     }
@@ -1678,6 +1679,7 @@ void EditManager::findSavedProducts(vector <savedProduct> & prods,
 
 vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
     const int element){
+  METLIBS_LOG_SCOPE();
 
   // return names of existing fields valid for editing
   vector<std::string> vstr;
@@ -1724,6 +1726,8 @@ void EditManager::stopEdit()
 }
 
 vector<std::string> EditManager::getEditProductNames(){
+  METLIBS_LOG_SCOPE();
+
   vector<std::string> names;
   for ( size_t i = 0; i<editproducts.size(); ++i ) {
     names.push_back(editproducts[i].name);
@@ -1738,8 +1742,13 @@ vector<EditProduct> EditManager::getEditProducts(){
 
 std::string EditManager::savedProductString(savedProduct sp)
 {
-  return sp.pid + " " + sp.productName + " "
-      + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
+  if (sp.ptime.undef()){
+    return sp.pid + " " + sp.productName + " "
+         + " " + sp.selectObjectTypes + " " + sp.filename;
+  } else {
+    return sp.pid + " " + sp.productName + " "
+        + sp.ptime.isoTime() + " " + sp.selectObjectTypes + " " + sp.filename;
+  }
 }
 
 

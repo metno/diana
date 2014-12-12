@@ -88,7 +88,7 @@ using namespace std;
 EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent), m_ctrl(llctrl), m_editm(0)
 {
-  METLIBS_LOG_DEBUG("EditDialog::EditDialog called");
+  METLIBS_LOG_SCOPE();
 
   TABNAME_FIELD= tr("Field");
   TABNAME_OBJECTS= tr("Objects");
@@ -182,7 +182,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
 /*********************************************/
 void EditDialog::ConstructorCernel( const EditDialogInfo mdi )
 {
-  METLIBS_LOG_DEBUG("EditDialog::ConstructorCernel called");
+  METLIBS_LOG_SCOPE();
 
   m_editm= m_ctrl->getEditManager();
   m_objm=  m_ctrl->getObjectManager();
@@ -559,7 +559,7 @@ void EditDialog::exlineCheckBoxToggled(bool on)
 
 void EditDialog::FieldEditMethods( QListWidgetItem * item  )
 {
-  METLIBS_LOG_DEBUG("EditDialog::FieldEditMethods(index)  index= "<<m_Fieldeditmethods->currentRow());
+  METLIBS_LOG_SCOPE();
 
   if(m_Fieldeditmethods->count()==0) return;
 
@@ -717,7 +717,7 @@ void  EditDialog::FrontTabBox( int index )
 
 void EditDialog::FrontEditClicked()
 {
-  //  METLIBS_LOG_DEBUG("FrontEditClicked " );
+  METLIBS_LOG_SCOPE();
   //called when an item in the objects list box clicked
   if (!inEdit || m_Fronteditmethods->count()==0) return;
 
@@ -758,7 +758,7 @@ void EditDialog::FrontEditClicked()
         m_objm->setCurrentComplexText(symbolText,xText);
         m_objm->setCurrentColour(colour);
       }
-  
+
     }
     else if (m_objm->inEditTextMode()){
       vector<string> symbolText,xText;
@@ -791,7 +791,7 @@ void EditDialog::FrontEditDoubleClicked()
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
-  
+
   } else if (m_objm->inComplexTextColorMode()){
     vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
@@ -800,7 +800,7 @@ void EditDialog::FrontEditDoubleClicked()
       m_objm->setCurrentComplexText(symbolText,xText);
       m_objm->setCurrentColour(colour);
     }
-  
+
   } else if (m_objm->inEditTextMode()){
     vector<string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
@@ -862,7 +862,7 @@ void EditDialog::EditMarkedText()
   //changes all marked texts and objectmanagers current text !
   vector <string> symbolText,xText,eText, mText;
   std::string text = m_objm->getMarkedText();
-     //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
+  //METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = "  << text);
   if (!text.empty()){
     //get new text from inputdialog box
     Colour::ColourInfo colour=m_objm->getMarkedColour();
@@ -885,30 +885,30 @@ void EditDialog::EditMarkedText()
   }
   m_objm->getMarkedComplexText(symbolText,xText);
   if (symbolText.size()||xText.size()){
-     //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedComplexText returns nonempty strings" );
-     //METLIBS_LOG_DEBUG();
-     if (getComplexText(symbolText,xText))
-       m_objm->changeMarkedComplexText(symbolText,xText);
+    //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedComplexText returns nonempty strings" );
+    //METLIBS_LOG_DEBUG();
+    if (getComplexText(symbolText,xText))
+      m_objm->changeMarkedComplexText(symbolText,xText);
   }
   m_objm->getMarkedMultilineText(mText);
   if (mText.size()){
-     //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedMultilineText returns nonempty strings" );
-     if (getEditText(mText))
-        m_objm->changeMarkedMultilineText(mText);
+    //METLIBS_LOG_DEBUG("-----EditDialog::getMarkedMultilineText returns nonempty strings" );
+    if (getEditText(mText))
+      m_objm->changeMarkedMultilineText(mText);
   }
 
 
   m_objm->getMarkedComplexTextColored(symbolText,xText);
   if (symbolText.size()==1 && xText.size()==1){
-     //METLIBS_LOG_DEBUG("------EditDialog::getMarkedComplexTextColored returns nonempty strings" );
-     Colour::ColourInfo colour=m_objm->getMarkedTextColour();
-     if (getComplexColoredText(symbolText,xText,colour)){
-       m_objm->changeMarkedComplexTextColored(symbolText,xText);
-       m_objm->changeMarkedTextColour(colour);
-       m_objm->setCurrentColour(colour);
-     }
+    //METLIBS_LOG_DEBUG("------EditDialog::getMarkedComplexTextColored returns nonempty strings" );
+    Colour::ColourInfo colour=m_objm->getMarkedTextColour();
+    if (getComplexColoredText(symbolText,xText,colour)){
+      m_objm->changeMarkedComplexTextColored(symbolText,xText);
+      m_objm->changeMarkedTextColour(colour);
+      m_objm->setCurrentColour(colour);
+    }
   }
-  
+
 }
 
 void EditDialog::DeleteMarkedAnnotation()
@@ -945,17 +945,17 @@ bool EditDialog::getComplexColoredText(vector<string>& symbolText,
   bool ok=false;
   if (symbolText.size() && xText.size()){
     set<string> complexList = m_ctrl->getComplexList();
- /*   ComplexText * cText =new ComplexText(this,
+    /*   ComplexText * cText =new ComplexText(this,
     		m_ctrl,
     		symbolText,xText,
     		complexList,true);*/
     ComplexPressureText * cText =new ComplexPressureText(this,
-    		m_ctrl,
-    		symbolText,
-    		xText,
-    		complexList,
-    		currEdittool,
-    		true);
+        m_ctrl,
+        symbolText,
+        xText,
+        complexList,
+        currEdittool,
+        true);
     cText->setColour(colour);
     if (cText->exec()){
       cText->getComplexText(symbolText,xText);
@@ -1048,7 +1048,7 @@ void  EditDialog::CombineTab()
 
 void EditDialog::stopCombine()
 {
-//   METLIBS_LOG_DEBUG("EditDialog::stopCombine called");
+  //   METLIBS_LOG_DEBUG("EditDialog::stopCombine called");
 
   twd->setTabEnabled(0, true);
   twd->setTabEnabled(1, true);
@@ -1103,7 +1103,7 @@ void EditDialog::CombineEditMethods()
     }
   } else {
     METLIBS_LOG_ERROR("EditDialog::CombineEditMethods    unknown combineAction:"
-    << combineAction);
+        << combineAction);
     return;
   }
   if (inEdit) {
@@ -1159,7 +1159,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
     std::string etool=m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools[i].name;
-  if (inEdit) METLIBS_LOG_DEBUG("ListWidgetData etool = "<< etool);
+    if (inEdit) METLIBS_LOG_DEBUG("ListWidgetData etool = "<< etool);
     vstr.push_back(etool);
     QString dialog_etool;
     //find translation
@@ -1217,7 +1217,7 @@ bool EditDialog::saveEverything(bool send, bool approved)
   bool res = m_editm->writeEditProduct(message,true,true,send,approved);
 
   if (!res){
-  // EditManager might have solved the problem, try once more
+    // EditManager might have solved the problem, try once more
     res = m_editm->writeEditProduct(message,true,true,send,approved);
     if (!res){
       message= tr("Problems saving product: ") +
@@ -1233,7 +1233,7 @@ bool EditDialog::saveEverything(bool send, bool approved)
   QString lcs(send ? " <font color=\"darkgreen\">"+tr("Saved") +"</font> "
       : " <font color=\"black\">"+tr("saved")+"</font> ");
   QString tcs= QString("<font color=\"black\">")+
-  QString(t.isoTime().c_str()) + QString("</font> ");
+      QString(t.isoTime().c_str()) + QString("</font> ");
   QString qs= lcs + tcs;
 
   if (send && approved){
@@ -1411,14 +1411,17 @@ void EditDialog::updateLabels()
 {
   // update top-labels etc.
   std::string s;
-  if (inEdit)
+  if (inEdit) {
     s= std::string("<font color=\"darkgreen\">") +
-    currprod.name + std::string("</font>") +
-    std::string("<font color=\"blue\"> ") +
-    currid.name + std::string("</font>") +
-    std::string(" ") + prodtime.format("%D %H:%M");
-  else
+        currprod.name + std::string("</font>") +
+        std::string("<font color=\"blue\"> ") +
+        currid.name + std::string("</font>");
+    if ( !prodtime.undef() ) {
+      s += std::string(" ") + prodtime.format("%D %H:%M");
+    }
+  } else {
     s= "";
+  }
 
   prodlabel->setText(s.c_str());
 }
@@ -1473,7 +1476,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   // Resize main window, depending on the map selected for sigkarta
   if (currprod.winX>0 && currprod.winY>0)
-     emit emitResize(currprod.winX,currprod.winY);
+    emit emitResize(currprod.winX,currprod.winY);
   // update Product and Id label..
   updateLabels();
 
@@ -1667,7 +1670,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
     EditProductId& ci,
     miutil::miTime& time)
 {
-//   METLIBS_LOG_DEBUG("EditNewCombineOK");
+  //   METLIBS_LOG_DEBUG("EditNewCombineOK");
   // Turn off Undo-buttons
   undoFrontsEnable();
   undoFieldsDisable();
