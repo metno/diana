@@ -298,28 +298,44 @@ void MeasurementsDialog::calculateVelocity()
   distancebox->clear();
 
   if (positionVector.size() == 2) {
-    double lat1 = positionVector[0].lat;
-    double lat2 = positionVector[1].lat;
-    double lon1 = positionVector[0].lon;
-    double lon2 = positionVector[1].lon;
-    miutil::miTime time1 = positionVector[0].time;
-    miutil::miTime time2 = positionVector[1].time;
+    double start_lat = positionVector[0].lat;
+    double stop_lat = positionVector[1].lat;
+    double start_lon = positionVector[0].lon;
+    double stop_lon = positionVector[1].lon;
+    miutil::miTime start_time = positionVector[0].time;
+    miutil::miTime stop_time = positionVector[1].time;
+    METLIBS_LOG_INFO(LOGVAL(start_lat));
+    METLIBS_LOG_INFO(LOGVAL(start_lon));
+    METLIBS_LOG_INFO(LOGVAL(stop_lat));
+    METLIBS_LOG_INFO(LOGVAL(stop_lon));
+    METLIBS_LOG_INFO(LOGVAL(start_time));
+    METLIBS_LOG_INFO(LOGVAL(stop_time));
 
-    double d = DistanceInMeters(lat1, lon1, lat2, lon2);
-    int t = abs(miutil::miTime::secDiff(time1, time2));
-
-    QString speedresult1, speedresult2, speedresult3, distanceresult;
-
-    speedresult1.sprintf("%.2f m/s", (float)d/t);
-    speedresult2.sprintf("%.2f km/h", (float)(d/t)*3.6);
-    speedresult3.sprintf("%.2f knots", (float)((d/t)*3.6)/1.852);
-
-    distanceresult.sprintf("%.2f km", (float)d/1000);
-
-    speedbox1->setText(speedresult1);
-    speedbox2->setText(speedresult2);
-    speedbox3->setText(speedresult3);
+    double distance = DistanceInMeters(start_lat, start_lon, stop_lat, stop_lon)/1000;
+    METLIBS_LOG_INFO(LOGVAL(distance)<< " km");
+    QString distanceresult;
+    distanceresult.sprintf("%.2f km", (float)distance);
     distancebox->setText(distanceresult);
+
+    if ( start_time != stop_time ) {
+      int t = abs(miutil::miTime::secDiff(start_time, stop_time));
+      double speed_in_ms = distance/t;
+      double speed_in_kmh = (distance/t)*3.6;
+      double speed_in_knots = ((distance/t)*3.6)/1.852;
+      METLIBS_LOG_INFO(LOGVAL(speed_in_ms)<< " m/s");
+      METLIBS_LOG_INFO(LOGVAL(speed_in_kmh)<< " km/h");
+      METLIBS_LOG_INFO(LOGVAL(speed_in_knots)<< " knots");
+
+      QString speedresult1, speedresult2, speedresult3;
+
+      speedresult1.sprintf("%.2f m/s", (float)speed_in_ms);
+      speedresult2.sprintf("%.2f km/h", (float)speed_in_kmh);
+      speedresult3.sprintf("%.2f knots", (float)speed_in_knots);
+
+      speedbox1->setText(speedresult1);
+      speedbox2->setText(speedresult2);
+      speedbox3->setText(speedresult3);
+    }
   }
   emit updateMeasurements();
 }
