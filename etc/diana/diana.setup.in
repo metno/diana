@@ -1349,8 +1349,14 @@ style="Clouds"                                  linecolour=red linewidth=2 lines
                                                 fillpattern=diagleft closed=true
 style="Ice"                                     linecolour=olive linewidth=2 linesmooth=true fillcolour=olive \
                                                 fillpattern=paralyse closed=true
-style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true
-style="Ash cloud (forecast)"                    linecolour=black linewidth=2 linepattern=dashed closed=true
+style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL0/200 (observed)"            linecolour=red linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL200/350 (observed)"          linecolour=green linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL350/550 (observed)"          linecolour=blue linewidth=3 closed=true fillalpha=0
+style="Ash cloud (forecast)"                    linecolour=black linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL0/200 (forecast)"            linecolour=red linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL200/350 (forecast)"          linecolour=green linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL350/550 (forecast)"          linecolour=blue linewidth=3 linepattern=dashed closed=true fillalpha=0
 
 style="Cold front"                              linecolour=blue linewidth=3 decoration1=triangles \
                                                 decoration1.colour=blue linesmooth=true closed=false \
