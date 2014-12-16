@@ -192,7 +192,7 @@ public:
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
-		 const miutil::miTime& valid,
+		 miutil::miTime& valid,
 		 QString& message);
   /// stop editing product
   void stopEdit();

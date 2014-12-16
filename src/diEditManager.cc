@@ -993,11 +993,14 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
 
     std::string outputFilename;
 
-    std::string time_string = time.format("%Y%m%dt%H%M%S");
+    std::string time_string;
+    if ( !time.undef() ) {
+      time_string = "_" + time.format("%Y%m%dt%H%M%S");
+    }
 
     if (ci.sendable ) {
       outputFilename = ep.prod_savedir + "/work/";
-      std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+      std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
       outputFilename += filename;
       QString qs(outputFilename.c_str());
       QFile qfile(qs);
@@ -1008,7 +1011,7 @@ bool EditManager::fileExists(const EditProduct& ep, const EditProductId& ci,
     }
 
     outputFilename = ep.local_savedir + "/";
-    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + "_" + time_string + ".nc";
+    std::string filename = ci.name + "_" + ep.fields[j].filenamePart + time_string + ".nc";
     outputFilename += filename;
     QString qs(outputFilename.c_str());
     QFile qfile(qs);
@@ -1059,7 +1062,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
   std::string time_string;
   if ( producttimedefined )
-    time_string= " " + producttime.format("%Y%m%dt%H%M%S");
+    time_string= "_" + producttime.format("%Y%m%dt%H%M%S");
 
   if ( local ) {
     outputFilename = EdProd.local_savedir + "/";
@@ -1128,7 +1131,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
 bool EditManager::startEdit(const EditProduct& ep,
     const EditProductId& ei,
-    const miTime& valid,
+    miTime& valid,
     QString& message)
 {
   METLIBS_LOG_SCOPE();
@@ -1177,7 +1180,11 @@ bool EditManager::startEdit(const EditProduct& ep,
       }
       if (i==vfp.size())
         return false;
+      if ( vf[0]->validFieldTime.undef() ){
+        valid= producttime=vf[0]->validFieldTime;
+        producttimedefined = false;
 
+      }
       fed->setData(vf, fieldname, producttime);
       fedits.push_back(fed);
 

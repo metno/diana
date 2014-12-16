@@ -533,6 +533,8 @@ void EditNewDialog::handleFieldButton(int num)
     if (edf.fieldSelected()){
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
+      prodtime= miutil::miTime();
+      timespin->setTime(prodtime);
     } else if (edf.productSelected()){
       vector <savedProduct> vsap= edf.vselectedProd();
       if (vsap.size()){
@@ -619,7 +621,7 @@ bool EditNewDialog::load_combine(){
 
 bool EditNewDialog::checkProductFree()
 {
-
+  METLIBS_LOG_SCOPE(LOGVAL(prodtime));
   QString message;
 
   bool ok = m_editm->fileExists(products[currprod],pid,prodtime,message);
@@ -633,26 +635,28 @@ bool EditNewDialog::checkProductFree()
 }
 
 void EditNewDialog::ok_clicked(){
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(prodtime));
   miutil::miTime ptime;
   if (normal) ptime= prodtime;
   else        ptime= combinetime;
-  int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
+  if ( !ptime.undef() ) {
+    int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
 
-  QString msg;
-  if ((products[currprod].startEarly &&
-      products[currprod].minutesStartEarly>minutes))
-    msg= tr("Product made earlier than normal!");
-  if ((products[currprod].startLate &&
-      products[currprod].minutesStartLate<minutes))
-    msg= tr("Product made later than normal!");
-  if (!msg.isEmpty()) {
-    QString pname= prodbox->currentText();
-    QString message= pname + "\n" + msg;
-    if (QMessageBox::warning( this, tr("Product time"),message,
-        tr("Continue"),tr("Cancel")) != 0) return;
+    QString msg;
+    if ((products[currprod].startEarly &&
+        products[currprod].minutesStartEarly>minutes))
+      msg= tr("Product made earlier than normal!");
+    if ((products[currprod].startLate &&
+        products[currprod].minutesStartLate<minutes))
+      msg= tr("Product made later than normal!");
+    if (!msg.isEmpty()) {
+      QString pname= prodbox->currentText();
+      QString message= pname + "\n" + msg;
+      if (QMessageBox::warning( this, tr("Product time"),message,
+          tr("Continue"),tr("Cancel")) != 0) return;
+    }
+
   }
-
 
   productfree= checkProductFree();
   if (!productfree){
