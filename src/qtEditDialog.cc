@@ -1621,8 +1621,9 @@ void EditDialog::EditNewOk(EditProduct& ep,
   miutil::miTime t;
   m_editm->getProductTime(t);
   vector<miutil::miTime> Times;
-  Times.push_back(t);
-  METLIBS_LOG_DEBUG("EditDialog::EditNewOk emit emitTimes(product): "<<Times[0]);
+  if (!t.undef() ) {
+    Times.push_back(t);
+  }
   emit emitTimes("product",Times);
 
   // update field dialog

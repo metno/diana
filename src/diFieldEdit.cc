@@ -443,7 +443,7 @@ void FieldEdit::changeGrid()
 
 bool FieldEdit::readEditfield(const std::string& filename)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(filename));
 
   std::string fileType = "fimex";
   std::vector<std::string> filenames;
