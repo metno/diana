@@ -394,28 +394,35 @@ void PolyLine::drawIncomplete() const
 {
 }
 
+void PolyLine::drawHoverHighlightingBG(bool incomplete, bool selected) const
+{
+  if (incomplete)
+    return;
+
+  // highlight the polyline
+  bool ok = false;
+  const int lineWidth = properties().value("style:linewidth").toInt(&ok);
+  const int defaultLineWidth = 2;
+  const int pad = 6;
+  DrawingStyleManager::instance()->highlightPolyLine(this, points_, (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180));
+
+  // highlight the control points
+  drawControlPoints(QColor(255, 0, 0, 255));
+}
+
 void PolyLine::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
 
-  glColor3ub(255, 0, 0);
-
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint(); // highlight the control point
+    // highlight the control point
+    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(QColor(255, 255, 0, 255));
   } else {
-    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-
-    // highlight the polyline
-    glPushAttrib(GL_LINE_BIT);
-    bool ok = false;
-    const int lineWidth = properties().value("style:linewidth").toInt(&ok);
-    glLineWidth(ok ? lineWidth : 2);
-    styleManager->drawLines(this, points_, 1);
-    glPopAttrib();
-
     // highlight the control points
-    drawControlPoints(selected);
+    if (selected)
+      drawControlPoints(QColor(255, 0, 0, 255));
 
     if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
       // highlight the insertion position of a new point

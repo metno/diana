@@ -530,6 +530,42 @@ QStringList DrawingStyleManager::getComplexTextList() const
   return complexTextList;
 }
 
+void DrawingStyleManager::highlightPolyLine(const DrawingItemBase *item, const QList<QPointF> &points, int lineWidth, const QColor &col, bool forceClosed) const
+{
+  QVariantMap style = getStyle(item);
+  const bool closed = forceClosed || style.value(DSP_closed::name()).toBool();
+
+  const int z = 0;
+  const qreal lw_2 = lineWidth / 2.0;
+
+  QList<QPointF> points_;
+  if (style.value(DSP_linesmooth::name()).toBool())
+    points_ = interpolateToPoints(points, closed);
+  else
+    points_ = points;
+
+  glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
+
+  glPushAttrib(GL_POLYGON_BIT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  for (int i = 1; i < (points_.size() + (closed ? 1 : 0)); ++i) {
+    const QPointF p1 = points_.at(i % points_.size());
+    const QPointF p0 = points_.at(i - 1);
+    const QVector2D v(p1.x() - p0.x(), p1.y() - p0.y());
+    const QVector2D u = QVector2D(-v.y(), v.x()).normalized();
+
+    glBegin(GL_POLYGON);
+    glVertex3f(p0.x() + lw_2 * u.x(), p0.y() + lw_2 * u.y(), z);
+    glVertex3f(p1.x() + lw_2 * u.x(), p1.y() + lw_2 * u.y(), z);
+    glVertex3f(p1.x() - lw_2 * u.x(), p1.y() - lw_2 * u.y(), z);
+    glVertex3f(p0.x() - lw_2 * u.x(), p0.y() - lw_2 * u.y(), z);
+    glEnd(); // GL_POLYGON
+  }
+
+  glPopAttrib();
+}
+
 void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z, bool forceClosed) const
 {
   QVariantMap style = getStyle(item);

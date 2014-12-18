@@ -65,6 +65,7 @@ private:
     virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(DrawingItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
 
     virtual void drawIncomplete() const;
+    virtual void drawHoverHighlightingBG(bool, bool) const;
     virtual void drawHoverHighlighting(bool, bool) const;
 
     virtual void resize(const QPointF &);

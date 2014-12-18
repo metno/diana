@@ -125,10 +125,11 @@ protected:
     // Draws graphics to indicate the incomplete state of the item (if applicable).
     virtual void drawIncomplete() const {}
 
+    virtual void drawHoverHighlightingBG(bool, bool) const {};
     virtual void drawHoverHighlighting(bool, bool) const = 0;
 
-    void drawControlPoints(bool = true) const;
-    void drawHoveredControlPoint() const;
+    void drawControlPoints(const QColor & = QColor(0, 0, 0, 255), int = 0) const;
+    void drawHoveredControlPoint(const QColor & = QColor(0, 0, 0, 255), int = 0) const;
 
     bool moving_;
     bool resizing_;
