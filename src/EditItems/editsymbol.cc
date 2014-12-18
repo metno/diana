@@ -33,6 +33,8 @@
 #include "drawingsymbol.h"
 #include "editsymbol.h"
 
+#include <EditItems/drawingstylemanager.h>
+
 #include <QAction>
 #include <QMenu>
 
@@ -160,27 +162,35 @@ void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > 
   repaintNeeded = true;
 }
 
+void Symbol::drawHoverHighlightingBG(bool incomplete, bool selected) const
+{
+  if (incomplete)
+    return;
+
+  // highlight the bounding box boundary
+  bool ok = false;
+  const int lineWidth = properties().value("style:linewidth").toInt(&ok);
+  const int defaultLineWidth = 2;
+  const int pad = 6;
+  DrawingStyleManager::instance()->highlightPolyLine(this, boundingSquare(), (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180), true);
+
+  // highlight the control points
+  drawControlPoints(QColor(255, 0, 0, 255));
+}
+
 void Symbol::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
-    glColor3ub(0, 200, 0);
-  else
-    glColor3ub(255, 0, 0);
+    return;
 
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint(); // highlight the control point
+    // highlight the control point
+    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(QColor(255, 255, 0, 255));
   } else {
-    // highlight the bounding box
-    glPushAttrib(GL_LINE_BIT);
-    glLineWidth(2);
-    glBegin(GL_LINE_LOOP);
-    foreach (QPointF p, boundingSquare())
-      glVertex3i(p.x(), p.y(), 1);
-    glEnd();
-    glPopAttrib();
-
     // highlight the control points
-    drawControlPoints(selected);
+    if (selected)
+      drawControlPoints(QColor(255, 0, 0, 255));
   }
 }
 

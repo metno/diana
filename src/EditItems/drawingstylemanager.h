@@ -72,6 +72,8 @@ public:
 
   void drawText(const DrawingItemBase *) const;
 
+  void highlightPolyLine(const DrawingItemBase *, const QList<QPointF> &, int, const QColor &, bool = false) const;
+
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
   void setFont(const DrawingItemBase *item) const;

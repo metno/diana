@@ -49,6 +49,7 @@ public:
 
 protected:
   virtual void draw();
+  virtual void drawHoverHighlightingBG(bool, bool) const;
   virtual void drawHoverHighlighting(bool, bool) const;
 
 private:

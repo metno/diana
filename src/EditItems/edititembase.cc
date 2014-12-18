@@ -103,42 +103,37 @@ void EditItemBase::move(const QPointF &pos)
   updateControlPoints();
 }
 
-void EditItemBase::drawControlPoints(bool selected) const
+static void drawRect(const QRectF &r, int pad, int z = 1)
+{
+  glBegin(GL_POLYGON);
+  glVertex3i(r.left() - pad,  r.bottom() + pad, z);
+  glVertex3i(r.right() + pad, r.bottom() + pad, z);
+  glVertex3i(r.right() + pad, r.top() - pad,    z);
+  glVertex3i(r.left() - pad,  r.top() - pad,    z);
+  glEnd();
+}
+
+void EditItemBase::drawControlPoints(const QColor &color, int pad) const
 {
   glPushAttrib(GL_POLYGON_BIT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
 
-  if (selected)
-    glColor3ub(0, 0, 0);
-  else
-    glColor3ub(255, 0, 0);
-
-  foreach (QRectF c, controlPoints_) {
-    glBegin(GL_POLYGON);
-    glVertex3i(c.left(),  c.bottom(), 1);
-    glVertex3i(c.right(), c.bottom(), 1);
-    glVertex3i(c.right(), c.top(),    1);
-    glVertex3i(c.left(),  c.top(),    1);
-    glEnd();
-  }
+  foreach (QRectF c, controlPoints_)
+    drawRect(c, pad);
 
   glPopAttrib();
 }
 
-// Highlight the hovered control point.
-void EditItemBase::drawHoveredControlPoint() const
+void EditItemBase::drawHoveredControlPoint(const QColor &color, int pad) const
 {
   Q_ASSERT(hoverCtrlPointIndex_ >= 0);
-  const QRectF *r = &controlPoints_.at(hoverCtrlPointIndex_);
-  glPushAttrib(GL_LINE_BIT);
-  glLineWidth(2);
-  const int pad = 1;
-  glBegin(GL_LINE_LOOP);
-  glVertex3i(r->left() - pad,  r->bottom() + pad, 1);
-  glVertex3i(r->right() + pad, r->bottom() + pad, 1);
-  glVertex3i(r->right() + pad, r->top() - pad, 1);
-  glVertex3i(r->left() - pad,  r->top() - pad, 1);
-  glEnd();
+  glPushAttrib(GL_POLYGON_BIT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
+
+  drawRect(controlPoints_.at(hoverCtrlPointIndex_), pad);
+
   glPopAttrib();
 }
 
@@ -150,22 +145,22 @@ void EditItemBase::drawHoveredControlPoint() const
  */
 void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
 {
+  // NOTE: if we're editing the style, highlighting and control points would only be in the way
+
+  if ((!editingStyle) && (modes & Hovered))
+    drawHoverHighlightingBG(incomplete, modes & Selected);
+
   Drawing(this)->draw();
 
   if (incomplete)
     drawIncomplete();
 
-  // if we're editing the style, highlighting and control points would only be in the way
-  if (editingStyle)
-    return;
-
-  // draw highlighting if hovered
-  if (modes & Hovered)
-    drawHoverHighlighting(incomplete, modes & Selected);
-
-  // draw control points and hover highlighting if selected
-  if (modes & Selected)
-    drawControlPoints();
+  if (!editingStyle) {
+    if (modes & Hovered)
+      drawHoverHighlighting(incomplete, modes & Selected);
+    if (modes & Selected)
+      drawControlPoints();
+  }
 }
 
 /**
