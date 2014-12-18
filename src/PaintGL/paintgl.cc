@@ -1420,7 +1420,13 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
         ctx->painter->setClipRect(ctx->viewport);
 }
 
-
+/**
+ * glText replacement class
+ */
+glText::glText()
+    : scalex(1.0), scaley(1.0)
+{
+}
 
 bool glText::testDefineFonts(std::string path)
 {
@@ -1560,8 +1566,8 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     QFontMetricsF fm(ctx->font, ctx->painter->device());
     //QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     QRectF rect = fm.boundingRect(str);
-    w = rect.width() / xscale;
-    h = rect.height() * 0.8 / yscale;
+    w = rect.width() * scalex;
+    h = rect.height() * 0.8 * scaley;
     if (w == 0 || str.trimmed().isEmpty())
         h = 0;
 
