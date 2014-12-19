@@ -34,7 +34,6 @@
 #include <diVprofPlot.h>
 
 #include <puTools/miTime.h>
-#include <diField/diFieldManager.h>
 #include "vcross_v2/VcrossCollector.h"
 #include <vector>
 
@@ -53,7 +52,6 @@ public:
   ~VprofData();
   void readStationNames(const std::string& stationsfilename);
   bool readFile();
-  bool readField(std::string type, FieldManager* fieldm);
   bool readFimex(vcross::Setup_p setup );
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   std::vector<std::string> getNames() { return posName; }
@@ -68,8 +66,6 @@ private:
   std::string modelName;
   std::string stationsFileName;
   bool readFromFimex;
-  bool readFromField;
-  FieldManager* fieldManager;
 
   int numPos;
   int numTime;

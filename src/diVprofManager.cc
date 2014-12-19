@@ -54,7 +54,6 @@
 #include "diVprofRTemp.h"
 #endif // ROADOBS
 
-#include <diField/diFieldManager.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
@@ -90,8 +89,6 @@ VprofManager::VprofManager(Controller* co)
 {
   METLIBS_LOG_SCOPE();
 
-  fieldm= co->getFieldManager(); // set fieldmanager
-
   vpopt= new VprofOptions();  // defaults are set
 
   //zero time = 00:00:00 UTC Jan 1 1970
@@ -120,7 +117,6 @@ void VprofManager::cleanup()
     delete vpdata[i];
   vpdata.clear();
   // NOTE: Flush the field cache
-  fieldm->fieldcache->flush();
 }
 
 
@@ -226,7 +222,7 @@ void VprofManager::parseSetup()
             filetype = tokens1[1];
           }
         }
-        if ( filetype !="standard" && filetype!="GribFile" ) {
+        if ( filetype !="standard" ) {
           sources.push_back(vstr[i]);
 
           stationsfilenames[model]= stationsfilename;
@@ -871,8 +867,6 @@ bool VprofManager::initVprofData(std::string model)
   bool ok = false;
   if ( filetypes[model_part] == "standard") {
     ok = vpd->readFile();
-  } else if ( filetypes[model_part] == "GribFile") {
-    ok = vpd->readField(filetypes[model_part], fieldm);
   } else {
     ok = vpd->readFimex(setup);
   }

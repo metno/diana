@@ -63,7 +63,7 @@ const char VP_OMEGA[]                 = "vp_omega_pas";
 VprofData::VprofData(const std::string& filename, const std::string& modelname,
     const std::string& stationsfilename) :
         fileName(filename), modelName(modelname), stationsFileName(stationsfilename),
-        readFromFimex(false), readFromField(false), fieldManager(NULL), numPos(0),
+        readFromFimex(false), numPos(0),
         numTime(0), numParam(0), numLevel(0), dataBuffer(0)
 {
   METLIBS_LOG_SCOPE();
@@ -213,30 +213,6 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   return true;
 }
 
-bool VprofData::readField(std::string type, FieldManager* fieldm)
-{
-  METLIBS_LOG_SCOPE("model= " << modelName << " type=" << type << " path=" << fileName);
-
-  std::string correctFileName = stationsFileName;
-  miutil::replace(correctFileName, modelName, "");
-  readStationNames(correctFileName);
-
-  fieldManager = fieldm;
-
-  bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
-  numPos = posName.size();
-  numTime = validTime.size();
-  numParam = 6;
-  mainText.push_back(modelName);
-  for (size_t i = 0; i < forecastHour.size(); i++) {
-    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
-  }
-  readFromField = true;
-  vProfPlot.reset(0);
-
-  return success;
-  //return true;
-}
 
 bool VprofData::readFile()
 {
@@ -559,15 +535,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
 
-  } else if (readFromField) {
-
-    if (not fieldManager->makeVProf(modelName, validTime[iTime],
-            posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
-            vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom))
-      return 0;
-
-    numLevel = vp->tt.size();
-    vp->maxLevels = numLevel;
 
   } else {
     for (int n = 0; n < numParam; n++) {
