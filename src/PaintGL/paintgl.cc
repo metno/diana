@@ -1563,7 +1563,7 @@ bool glText::getStringSize(const char* s, float& w, float& h)
     QFontMetricsF fm(ctx->font, ctx->painter->device());
     QRectF rect = fm.boundingRect(str);
     w = rect.width() * scalex;
-    h = rect.height() * 0.6 * scaley;
+    h = rect.height() * 0.8 * scaley;
     if (w == 0 || str.trimmed().isEmpty())
         h = 0;
 
