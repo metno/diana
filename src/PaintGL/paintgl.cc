@@ -1560,14 +1560,10 @@ bool glText::getStringSize(const char* s, float& w, float& h)
 
     QString str = QString::fromLatin1(s);
 
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
     QFontMetricsF fm(ctx->font, ctx->painter->device());
-    //QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
     QRectF rect = fm.boundingRect(str);
     w = rect.width() * scalex;
-    h = rect.height() * 0.8 * scaley;
+    h = rect.height() * 0.6 * scaley;
     if (w == 0 || str.trimmed().isEmpty())
         h = 0;
 
