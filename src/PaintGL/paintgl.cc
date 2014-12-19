@@ -1514,13 +1514,9 @@ bool glText::drawStr(const char* s, const float x, const float y,
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
 
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
     ctx->painter->setFont(ctx->font);
     QString str = QString::fromLatin1(s);
     QFontMetricsF fm(ctx->font, ctx->painter->device());
-    float h = fm.boundingRect(str).height();
 
     // No need to record this transformation.
     ctx->painter->setTransform(ctx->transform);
@@ -1528,11 +1524,10 @@ bool glText::drawStr(const char* s, const float x, const float y,
     ctx->painter->translate(x, y);
     ctx->painter->rotate(a);
     // Unscale the text so that it appears at the intended size.
-    ctx->painter->scale(1.0/xscale, 1.0/yscale);
+    ctx->painter->scale(scalex, scaley);
     // Flip it vertically to take coordinate system differences into account.
-    ctx->painter->translate(0, -h/2);
     ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
-    ctx->painter->drawText(0, -h/2, str);
+    ctx->painter->drawText(0, -fm.descent()/2, str);
     ctx->painter->restore();
     return true;
 }
