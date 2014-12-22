@@ -260,37 +260,47 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
   Q_UNUSED(repaintNeeded)
 }
 
+void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+{
+  QPointF pos;
+  const qreal nudgeVal = 1; // nudge item by this much
+  if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
+  else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
+  else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
+  else pos += QPointF(0, nudgeVal); // Key_Up
+  moveBy(pos);
+  DrawingItemBase *ditem = Drawing(this);
+  undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
+  repaintNeeded = true;
+  event->accept();
+}
+
+void EditItemBase::remove(QKeyEvent *event, QSet<QSharedPointer<DrawingItemBase> > *items)
+{
+  QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
+  while (it != items->end()) {
+    if ((*it).data() == Drawing(this)) {
+      it = items->erase(it);
+      event->accept();
+    } else {
+      ++it;
+    }
+  }
+}
+
 void EditItemBase::keyPress(
     QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
     QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
 {
   if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-    QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
-    while (it != items->end()) {
-      if ((*it).data() == Drawing(this)) {
-        it = items->erase(it);
-        event->accept();
-      } else {
-        ++it;
-      }
-    }
+    remove(event, items);
   } else if (
              (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
              ((event->key() == Qt::Key_Left)
               || (event->key() == Qt::Key_Right)
               || (event->key() == Qt::Key_Down)
               || (event->key() == Qt::Key_Up))) {
-    QPointF pos;
-    const qreal nudgeVal = 1; // nudge item by this much
-    if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
-    else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
-    else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
-    else pos += QPointF(0, nudgeVal); // Key_Up
-    moveBy(pos);
-    DrawingItemBase *ditem = Drawing(this);
-    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
-    repaintNeeded = true;
-    event->accept();
+    nudge(event, repaintNeeded, undoCommands);
   }
 }
 
