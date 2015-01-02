@@ -429,6 +429,7 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.palettecolours.clear();
         po.palettecolours_cold.clear();
         po.contourShading = ( value != "off");
+        miutil::remove(value,'"');
         po.palettename=value;
         const vector<string> stokens = miutil::split(value, ",");
         const size_t m= stokens.size();
