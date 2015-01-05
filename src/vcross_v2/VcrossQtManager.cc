@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,18 +30,15 @@
 #include "VcrossQtManager.h"
 
 #include "diPlotOptions.h"
-//#include "diLocationPlot.h"
+#include "diUtilities.h"
 #include "VcrossComputer.h"
 #include "VcrossOptions.h"
 #include "VcrossQtPlot.h"
-//#include "diVcrossSetup.h"
+
 #include <diField/VcrossUtil.h>
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
-
-#include <boost/foreach.hpp>
-#include <boost/range/algorithm.hpp>
 
 #define MILOGGER_CATEGORY "diana.VcrossManager"
 #include <miLogger/miLogging.h>
@@ -49,6 +46,7 @@
 namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
+const char KEY_CROSSECTION_EQ[] = "CROSSECTION=";
 
 } // namespace anonymous
 
@@ -89,11 +87,6 @@ void QtManager::parseSetup(const string_v& sources, const string_v&computations,
 void QtManager::updateOptions()
 {
   preparePlot();
-}
-
-void QtManager::readOptions(const string_v& vstr)
-{
-  return mOptions->readOptions(vstr);
 }
 
 void QtManager::cleanup()
@@ -140,7 +133,10 @@ void QtManager::setDynamicCrossection(const std::string& csLabel, const LonLat_v
 
   typedef std::set<Source_p> Source_ps;
   Source_ps dynSources;
-  BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots()) {
+
+  const SelectedPlot_cpv& spv = mCollector->getSelectedPlots();
+  for (SelectedPlot_cpv::const_iterator it = spv.begin(); it != spv.end(); ++it) {
+    SelectedPlot_cp sp = *it;
     if (Source_p src = mCollector->getSetup()->findSource(sp->model)) {
       if (src->supportsDynamicCrossections())
         dynSources.insert(src);
@@ -148,18 +144,13 @@ void QtManager::setDynamicCrossection(const std::string& csLabel, const LonLat_v
   }
 
   if (points.size() >= 2) {
-    BOOST_FOREACH(Source_p src, dynSources) {
-      src->addDynamicCrossection(csLabel, points);
-    }
+    for (Source_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it)
+      (*it)->addDynamicCrossection(csLabel, points);
   } else {
-    BOOST_FOREACH(Source_p src, dynSources) {
-      if (Inventory_cp inv = src->getInventory()) {
-        BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
-          if (cs->label == csLabel) {
-            src->dropDynamicCrossection(cs);
-            break;
-          }
-        }
+    for (Source_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
+      if (Inventory_cp inv = (*it)->getInventory()) {
+        if (Crossection_cp cs = inv->findCrossectionByLabel(csLabel))
+          (*it)->dropDynamicCrossection(cs);
       }
     }
   }
@@ -200,8 +191,9 @@ void QtManager::updateCSPoints()
 
   const std::string& csLabel = currentCSName();
   METLIBS_LOG_DEBUG(LOGVAL(csLabel));
-  BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots()) {
-    if (Source_p src = mCollector->getSetup()->findSource(sp->model)) {
+  const SelectedPlot_cpv& spv = mCollector->getSelectedPlots();
+  for (SelectedPlot_cpv::const_iterator it = spv.begin(); it != spv.end(); ++it) {
+    if (Source_p src = mCollector->getSetup()->findSource((*it)->model)) {
       if (Inventory_cp inv = src->getInventory()) {
         if (Crossection_cp cs = inv->findCrossectionByLabel(csLabel)) {
           mCrossectionPoints = cs->points;
@@ -530,11 +522,9 @@ string_v QtManager::getFieldNames(const std::string& model)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model));
   const ResolvedPlot_cpv& available_plots = mCollector->getAllResolvedPlots(model);
-
   string_v plot_names;
-  BOOST_FOREACH(const ResolvedPlot_cp rp, available_plots) {
-    plot_names.push_back(rp->name());
-  }
+  for (ResolvedPlot_cpv::const_iterator it = available_plots.begin(); it != available_plots.end(); ++it)
+    plot_names.push_back((*it)->name());
   return plot_names;
 }
 
@@ -555,6 +545,8 @@ bool QtManager::setSelection(const string_v& vstr)
   // save plotStrings
   mPlotStrings = vstr;
   mPlot->clear();
+
+  mCollector->clear();
   vc_select_plots(mCollector, vstr);
 
   if (not mCollector->getSelectedPlots().empty()) {
@@ -583,15 +575,19 @@ bool QtManager::setModels()
   const vctime_t timeBefore = currentTime(); // remember current time, search for it later
   const std::string csBefore = currentCSName(); // remember current cs' name, search for it later
 
-  std::set<std::string> models;
-  BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots()) {
-    models.insert(sp->model);
-  }
+  typedef std::set<std::string> string_s;
+
+  string_s models;
+  const SelectedPlot_cpv& spv = mCollector->getSelectedPlots();
+  for (SelectedPlot_cpv::const_iterator it = spv.begin(); it != spv.end(); ++it)
+    models.insert((*it)->model);
+
   std::set<LocationElement, lt_LocationElement> le;
 
-  std::set<std::string> csLabels;
+  string_s csLabels;
   std::set<miutil::miTime> times;
-  BOOST_FOREACH(const std::string& m, models) {
+  for (string_s::const_iterator itM = models.begin(); itM != models.end(); ++itM) {
+    const std::string& m = *itM;
     METLIBS_LOG_DEBUG(LOGVAL(m));
 
     if (Source_p src = mCollector->getSetup()->findSource(m)) {
@@ -614,16 +610,17 @@ bool QtManager::setModels()
 
       if (Inventory_cp inv = src->getInventory()) {
         METLIBS_LOG_DEBUG(LOGVAL(inv->crossections.size()));
-        BOOST_FOREACH(Crossection_cp cs, inv->crossections) {
-
-          LonLat_v  crossectionPoints = cs->points;
-          if ( crossectionPoints.size() < 2 )
+        for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
+          Crossection_cp cs = *itCS;
+        
+          const LonLat_v& crossectionPoints = (*itCS)->points;
+          if (crossectionPoints.size() < 2)
             continue;
           LocationElement el;
           el.name = cs->label;
-          BOOST_FOREACH(const LonLat& ll, crossectionPoints) {
-            el.xpos.push_back(ll.lonDeg());
-            el.ypos.push_back(ll.latDeg());
+          for (LonLat_v::const_iterator itL = crossectionPoints.begin(); itL != crossectionPoints.end(); ++itL) {
+            el.xpos.push_back(itL->lonDeg());
+            el.ypos.push_back(itL->latDeg());
           }
           le.insert(el);
 
@@ -631,9 +628,8 @@ bool QtManager::setModels()
           METLIBS_LOG_DEBUG(LOGVAL(cs->label));
         }
 
-        BOOST_FOREACH(Time::timevalue_t time, inv->times.values) {
-          times.insert(util::to_miTime(inv->times.unit, time));
-        }
+        for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
+          times.insert(util::to_miTime(inv->times.unit, *itT));
       }
     }
   }
@@ -746,25 +742,23 @@ void QtManager::setTimeGraph(const LonLat& position)
 
 // ------------------------------------------------------------------------
 
-void QtManager::parseQuickMenuStrings(const std::vector<std::string>& vstr)
+void QtManager::parseQuickMenuStrings(const std::vector<std::string>& qm_lines)
 {
-  std::vector<std::string> vcross_data, vcross_options;
+  string_v vcross_data, vcross_options;
   std::string crossection;
 
-  BOOST_FOREACH(std::string line, vstr) { // copy because it has to be trimmed
-    miutil::trim(line);
+  for (string_v::const_iterator it = qm_lines.begin(); it != qm_lines.end(); ++it) { // copy because it has to be trimmed
+    const std::string line = miutil::trimmed(*it);
     if (line.empty())
       continue;
 
     const std::string upline = miutil::to_upper(line);
 
-    if (miutil::contains(upline, "CROSSECTION=")) {
-      const std::vector<std::string> vs = miutil::split(line, "=");
-      if (vs.size()==2) {
-        crossection = vs[1];
-        if (miutil::contains(crossection, "\""))
-          miutil::remove(crossection, '\"');
-      }
+    if (diutil::startswith(upline, KEY_CROSSECTION_EQ)) {
+      // next line assumes that miutil::to_upper does not change character count
+      crossection = line.substr(sizeof(KEY_CROSSECTION_EQ)-1);
+      if (miutil::contains(crossection, "\""))
+        miutil::remove(crossection, '\"');
     } else if (miutil::contains(upline, "VCROSS ")) {
       vcross_data.push_back(line);
     } else {
@@ -773,7 +767,7 @@ void QtManager::parseQuickMenuStrings(const std::vector<std::string>& vstr)
     }
   }
 
-  readOptions(vcross_options);
+  mOptions->readOptions(vcross_options);
   setSelection(vcross_data);
   setCrossection(crossection);
 }
@@ -782,18 +776,16 @@ void QtManager::parseQuickMenuStrings(const std::vector<std::string>& vstr)
 
 std::vector<std::string> QtManager::getQuickMenuStrings()
 {
-  std::vector<std::string> vstr;
+  std::vector<std::string> qm_lines;
+  qm_lines.push_back("VCROSS");
 
   const std::vector<std::string> vstrOpt = getOptions()->writeOptions();
-  const std::vector<std::string> vstrPlot = mPlotStrings;
-  const std::string crossection = "CROSSECTION=" + getCrossection();
+  qm_lines.insert(qm_lines.end(), vstrOpt.begin(),  vstrOpt.end());
 
-  vstr.push_back("VCROSS");
-  vstr.insert(vstr.end(), vstrOpt.begin(),  vstrOpt.end());
-  vstr.insert(vstr.end(), vstrPlot.begin(), vstrPlot.end());
-  vstr.push_back(crossection);
+  qm_lines.insert(qm_lines.end(), mPlotStrings.begin(), mPlotStrings.end());
 
-  return vstr;
+  qm_lines.push_back(KEY_CROSSECTION_EQ + getCrossection());
+  return qm_lines;
 }
 
 // ------------------------------------------------------------------------
@@ -805,10 +797,10 @@ std::vector<std::string> QtManager::writeLog()
 
 // ------------------------------------------------------------------------
 
-void QtManager::readLog(const std::vector<std::string>& vstr,
+void QtManager::readLog(const std::vector<std::string>& log,
     const std::string& thisVersion, const std::string& logVersion)
 {
-  readOptions(vstr);
+  mOptions->readOptions(log);
 }
 
 } // namespace vcross

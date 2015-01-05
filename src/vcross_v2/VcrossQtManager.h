@@ -127,9 +127,6 @@ public:
   void updateOptions();
   // end of calls from VcrossSetupDialog
 
-  //! forwards call to mOptions
-  void readOptions(const string_v& vstr);
-
 private:
   void preparePlot();
 

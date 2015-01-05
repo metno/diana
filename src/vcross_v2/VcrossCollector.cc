@@ -53,6 +53,8 @@ void Collector::requireField(const std::string& model, InventoryBase_cp field)
   collectRequired(required, field);
 }
 
+// ------------------------------------------------------------------------
+
 void Collector::requireVertical(Z_AXIS_TYPE zType)
 {
   for (model_required_m::iterator it = mModelRequired.begin(); it != mModelRequired.end(); ++it) {
@@ -79,11 +81,9 @@ bool Collector::selectPlot(const std::string& model, const std::string& plot, co
   mSelectedPlots.push_back(sp);
 
   InventoryBase_cps& required = mModelRequired[model];
-  BOOST_FOREACH(const FieldData_cp& a, rp->arguments) {
-    collectRequired(required, a);
-    if (a->hasZAxis())
-      required.insert(a->zaxis());
-  }
+  const FieldData_cpv& args = rp->arguments;
+  for (FieldData_cpv::const_iterator it = args.begin(); it != args.end(); ++it)
+    collectRequired(required, *it);
 
   return true;
 }
