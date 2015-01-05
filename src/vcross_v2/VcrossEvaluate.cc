@@ -189,23 +189,6 @@ void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, co
 
 // ########################################################################
 
-Values_cpv vc_evaluate_pressure_height(Collector_p collector, model_values_m& model_values, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  if (not vc_resolve_pressure_height(collector->getResolver(), model)) {
-    METLIBS_LOG_DEBUG("could not resolve fields for pressure->height conversion");
-    return Values_cpv();
-  }
-
-  static const char* conversion_field_ids[] = {
-    VC_SPECIFIC_HUMIDITY, VC_AIR_TEMPERATURE, VC_SURFACE_PRESSURE, VC_SURFACE_HEIGHT, 0 
-  };
-  // FIXME need to convert to expected units
-  return vc_evaluate_fields(collector, model_values, model, conversion_field_ids);
-}
-
-// ########################################################################
-
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model_values, Z_AXIS_TYPE z_type)
 {
   METLIBS_LOG_SCOPE();

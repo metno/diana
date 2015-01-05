@@ -126,8 +126,6 @@ extern const char VC_CORIOLIS[];
 
 extern const char VC_SURFACE_PRESSURE[];
 extern const char VC_SURFACE_HEIGHT[];
-extern const char VC_SPECIFIC_HUMIDITY[];
-extern const char VC_AIR_TEMPERATURE[];
 extern const char VC_INFLIGHT_PRESSURE[];
 extern const char VC_INFLIGHT_HEIGHT[];
 

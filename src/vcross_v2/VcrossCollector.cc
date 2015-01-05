@@ -143,13 +143,4 @@ bool vc_require_surface(Collector_p collector, const std::string& model)
   return ok;
 }
 
-bool vc_require_pressure_height(Collector_p collector, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  bool ok = vc_require_surface(collector, model);
-  ok &= vc_require_unit(collector, model, VC_SPECIFIC_HUMIDITY, "1");
-  ok &= vc_require_unit(collector, model, VC_AIR_TEMPERATURE,   "K");
-  return ok;
-}
-
 } // namespace vcross

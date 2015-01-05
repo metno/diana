@@ -76,7 +76,6 @@ void vc_select_plots(Collector_p collector, const string_v& to_plot);
 
 bool vc_require_unit(Collector_p collector, const std::string& model, const std::string& field_id, const std::string& unit);
 bool vc_require_surface(Collector_p collector, const std::string& model);
-bool vc_require_pressure_height(Collector_p collector, const std::string& model);
 
 } // namespace vcross
 

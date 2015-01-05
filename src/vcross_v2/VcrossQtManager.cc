@@ -561,9 +561,6 @@ bool QtManager::setSelection(const string_v& vstr)
     const std::string& model1 = mCollector->getSelectedPlots().front()->model;
     vc_require_surface(mCollector, model1);
 
-    BOOST_FOREACH(SelectedPlot_cp sp, mCollector->getSelectedPlots())
-        vc_require_pressure_height(mCollector, sp->model);
-
     if (mOptions->pInflight) {
       vc_require_unit(mCollector, model1, VC_INFLIGHT_PRESSURE, "hPa");
       vc_require_unit(mCollector, model1, VC_INFLIGHT_HEIGHT,   "m");

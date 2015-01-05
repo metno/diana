@@ -157,12 +157,4 @@ bool vc_resolve_surface(Resolver_p resolver, const std::string& model)
       and vc_resolve_unit(resolver, model, VC_SURFACE_HEIGHT,   "m");
 }
 
-bool vc_resolve_pressure_height(Resolver_p resolver, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  return vc_resolve_surface(resolver, model)
-      and vc_resolve_unit(resolver, model, VC_SPECIFIC_HUMIDITY, "1")
-      and vc_resolve_unit(resolver, model, VC_AIR_TEMPERATURE,   "K");
-}
-
 } // namespace vcross

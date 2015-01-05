@@ -89,8 +89,6 @@ const char VC_CORIOLIS[]  = "__CORIOLIS";
 
 const char VC_SURFACE_PRESSURE[]  = "vc_surface_pressure";
 const char VC_SURFACE_HEIGHT[]    = "vc_surface_height";
-const char VC_SPECIFIC_HUMIDITY[] = "vc_specific_humidity";
-const char VC_AIR_TEMPERATURE[]   = "vc_air_temperature";
 const char VC_INFLIGHT_PRESSURE[]  = "vc_inflight_pressure";
 const char VC_INFLIGHT_HEIGHT[]    = "vc_inflight_height";
 
