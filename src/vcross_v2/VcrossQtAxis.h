@@ -13,7 +13,7 @@ struct Axis {
   typedef std::vector<std::string> string_v;
   typedef std::vector<string_v> labels_t;
   enum Type { LINEAR, EXNER };
-  enum Quantity { TIME, DISTANCE, HEIGHT, PRESSURE };
+  enum Quantity { TIME, DISTANCE, ALTITUDE, PRESSURE };
   
   Axis(bool h);
 

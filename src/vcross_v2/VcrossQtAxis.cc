@@ -149,8 +149,8 @@ bool Axis::setQuantity(const std::string& q)
     mQuantity = TIME;
   else if (q == "distance")
     mQuantity = DISTANCE;
-  else if (q == "Height")
-    mQuantity = HEIGHT;
+  else if (q == "Altitude")
+    mQuantity = ALTITUDE;
   else if (q == "Pressure")
     mQuantity = PRESSURE;
   else

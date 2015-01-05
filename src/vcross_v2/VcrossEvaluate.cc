@@ -182,7 +182,7 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
 void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, const std::string& model)
 {
   METLIBS_LOG_SCOPE();
-  static const char* surface_field_ids[] = { VC_SURFACE_PRESSURE, VC_SURFACE_HEIGHT, 0 };
+  static const char* surface_field_ids[] = { VC_SURFACE_PRESSURE, VC_SURFACE_ALTITUDE, 0 };
   // FIXME need to convert to expected units
   vc_evaluate_fields(collector, model_values, model, surface_field_ids);
 }
@@ -212,11 +212,11 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
           z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
         else if (InventoryBase_cp pfield = zaxis->pressureField())
           z_values = vc_evaluate_field(pfield, n2v);
-      } else if (z_type == Z_TYPE_HEIGHT) {
+      } else if (z_type == Z_TYPE_ALTITUDE) {
         if (util::unitsConvertible(zaxis->unit(), "m"))
           z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "m");
-        else if (InventoryBase_cp hfield = zaxis->heightField())
-          z_values = vc_evaluate_field(hfield, n2v);
+        else if (InventoryBase_cp afield = zaxis->altitudeField())
+          z_values = vc_evaluate_field(afield, n2v);
       }
       ep->z_values = z_values; // FIXME these values do not match zaxis' units
     }

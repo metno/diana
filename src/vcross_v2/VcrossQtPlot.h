@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -48,14 +48,6 @@
 namespace vcross {
 
 //----------------------------------------------------
-
-/// Posssible vertical types for Vertical Crossection plots
-enum VcrossVertical {
-  vcv_exner,
-  vcv_pressure,
-  vcv_height,
-  vcv_none
-};
 
 /**
    \brief Plots (prognostic) vertical crossection data or time graphs

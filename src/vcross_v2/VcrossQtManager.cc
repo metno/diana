@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -428,7 +428,7 @@ void QtManager::preparePlot()
   if(mOptions->verticalCoordinate == "Pressure")
     zType = vcross::Z_TYPE_PRESSURE;
   else
-    zType = vcross::Z_TYPE_HEIGHT;
+    zType = vcross::Z_TYPE_ALTITUDE;
   mCollector->requireVertical(zType);
 
   model_values_m model_values;
@@ -455,15 +455,15 @@ void QtManager::preparePlot()
   for (EvaluatedPlot_cpv::const_iterator it = evaluated_plots.begin(); it != evaluated_plots.end(); ++it)
     mPlot->addPlot(*it);
 
-  // TODO decide if to plot surface height or pressure
+  // TODO decide if to plot surface altitude or pressure
   const std::string& model1 = mCollector->getSelectedPlots().front()->model;
   vc_evaluate_surface(mCollector, model_values, model1);
   { std::string surface_id, surface_unit;
     if (zType == vcross::Z_TYPE_PRESSURE) {
       surface_id = VC_SURFACE_PRESSURE;
       surface_unit = "hPa";
-    } else if (zType == vcross::Z_TYPE_HEIGHT) {
-      surface_id = VC_SURFACE_HEIGHT;
+    } else if (zType == vcross::Z_TYPE_ALTITUDE) {
+      surface_id = VC_SURFACE_ALTITUDE;
       surface_unit = "m";
     }
     if (not surface_id.empty()) {
@@ -480,8 +480,8 @@ void QtManager::preparePlot()
     if (zType == vcross::Z_TYPE_PRESSURE) {
       inflight_id = VC_INFLIGHT_PRESSURE;
       inflight_unit = "hPa";
-    } else if (zType == vcross::Z_TYPE_HEIGHT) {
-      inflight_id = VC_INFLIGHT_HEIGHT;
+    } else if (zType == vcross::Z_TYPE_ALTITUDE) {
+      inflight_id = VC_INFLIGHT_ALTITUDE;
       inflight_unit = "m";
     }
     if (not inflight_id.empty()) {
@@ -555,7 +555,7 @@ bool QtManager::setSelection(const string_v& vstr)
 
     if (mOptions->pInflight) {
       vc_require_unit(mCollector, model1, VC_INFLIGHT_PRESSURE, "hPa");
-      vc_require_unit(mCollector, model1, VC_INFLIGHT_HEIGHT,   "m");
+      vc_require_unit(mCollector, model1, VC_INFLIGHT_ALTITUDE, "m");
     }
   }
 

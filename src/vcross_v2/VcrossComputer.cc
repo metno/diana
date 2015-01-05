@@ -88,9 +88,9 @@ const char VC_STEP[]      = "__STEP";
 const char VC_CORIOLIS[]  = "__CORIOLIS";
 
 const char VC_SURFACE_PRESSURE[]  = "vc_surface_pressure";
-const char VC_SURFACE_HEIGHT[]    = "vc_surface_height";
-const char VC_INFLIGHT_PRESSURE[]  = "vc_inflight_pressure";
-const char VC_INFLIGHT_HEIGHT[]    = "vc_inflight_height";
+const char VC_SURFACE_ALTITUDE[]  = "vc_surface_altitude";
+const char VC_INFLIGHT_PRESSURE[] = "vc_inflight_pressure";
+const char VC_INFLIGHT_ALTITUDE[] = "vc_inflight_altitude";
 
 // ========================================================================
 
@@ -579,12 +579,12 @@ void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item,
       else if (InventoryBase_cp pfield = zaxis->pressureField())
         required.insert(pfield);
     }
-  } else if (zType == Z_TYPE_HEIGHT) {
+  } else if (zType == Z_TYPE_ALTITUDE) {
     if (ZAxisData_cp zaxis = field->zaxis()) {
       if (util::unitsConvertible(zaxis->unit(), "m"))
         required.insert(zaxis);
-      else if (InventoryBase_cp hfield = zaxis->heightField())
-        required.insert(hfield);
+      else if (InventoryBase_cp afield = zaxis->altitudeField())
+        required.insert(afield);
     }
   }
 }
@@ -613,53 +613,6 @@ Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
 
   FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
   out = f->evaluate(n2v);
-  return out;
-}
-
-// ================================================================================
-
-Values_cp heightFromPressure(Values_cp pressure, bool positiveUp, Values_cp specific_humidity, Values_cp air_temperature,
-    Values_cp surface_pressure, Values_cp topography)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(positiveUp));
-  Values_p out;
-  if (not (pressure and surface_pressure and specific_humidity and air_temperature))
-    return out;
-  const size_t np = pressure->npoint(), nl = pressure->nlevel();
-  if (surface_pressure->npoint() != np or surface_pressure->nlevel() != 1)
-    return out;
-  if (specific_humidity->npoint() != np or specific_humidity->nlevel() != nl)
-    return out;
-  if (air_temperature->npoint() != np or air_temperature->nlevel() != nl)
-    return out;
-#if 0
-  if (specific_humidity->unit() != "1" and specific_humidity->unit() != "kg/kg")
-    return out;
-  if (air_temperature->unit() != "K")
-    return out;
-  if (pressure->unit() != surface_pressure->unit())
-    return out;
-  if (topography and topography->unit() != "m")
-    return out;
-#endif
-
-  const int l0 = (positiveUp ? 0 : nl-1), l1 = (positiveUp ? nl-1 : 0), dl = (positiveUp ? 1 : -1);
-  out = miutil::make_shared<Values>(np, nl);
-  for (size_t p = 0; p < np; p++) {
-    float h = (topography ? topography->value(p, 0) : 0);
-    METLIBS_LOG_DEBUG(LOGVAL(p) << LOGVAL(h));
-    for (int l = l0; l != l1; l += dl) {
-      const float p_low_alti = (l == l0)
-          ? surface_pressure->value(p, 0) : pressure->value(p, l - dl);
-      const float p_high_alti = pressure->value(p, l);
-      const float dh = util::heightDifferenceFromPressureDifference(p_low_alti, p_high_alti,
-          specific_humidity->value(p, l), air_temperature->value(p, l));
-      h += dh;
-      if (p < 10)
-        METLIBS_LOG_DEBUG(LOGVAL(p) << LOGVAL(l) << LOGVAL(p_low_alti) << LOGVAL(p_high_alti) << LOGVAL(dh) << LOGVAL(h));
-      out->setValue(h, p, l);
-    }
-  }
   return out;
 }
 

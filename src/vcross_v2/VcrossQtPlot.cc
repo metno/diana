@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2015 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -803,7 +803,7 @@ void QtPlot::plotFrame(QPainter& painter)
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
     }
-  } else if (mAxisY->quantity() == vcross::detail::Axis::HEIGHT) {
+  } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
     if (mAxisY->label() == "m") {
       nticks = nzsteps;
       tickValues = tickLabels = zsteps;

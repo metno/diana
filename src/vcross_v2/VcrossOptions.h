@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -126,7 +126,7 @@ public:
 
   std::string verticalType;      // obsolete
   std::string verticalScale;     // linear/exner
-  std::string verticalCoordinate; // pressure/height
+  std::string verticalCoordinate; // pressure/altitude
   std::string verticalUnit;      // hPa/FL/m/ft
 
   bool keepVerHorRatio;

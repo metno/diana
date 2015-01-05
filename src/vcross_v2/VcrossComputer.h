@@ -125,18 +125,15 @@ extern const char VC_STEP[];
 extern const char VC_CORIOLIS[];
 
 extern const char VC_SURFACE_PRESSURE[];
-extern const char VC_SURFACE_HEIGHT[];
+extern const char VC_SURFACE_ALTITUDE[];
 extern const char VC_INFLIGHT_PRESSURE[];
-extern const char VC_INFLIGHT_HEIGHT[];
+extern const char VC_INFLIGHT_ALTITUDE[];
 
 void resolveCrossection(InventoryBase_cps& inv);
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v);
 void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t ntimes, name2value_t& n2v);
 
 // ================================================================================
-
-Values_cp heightFromPressure(Values_cp pressure, bool positiveUp, Values_cp specific_humidity, Values_cp air_temperature,
-    Values_cp surface_pressure, Values_cp topography = Values_cp());
 
 Values_cp potentialTemperature(Values_cp pressure, Values_cp air_temperature);
 

@@ -139,7 +139,7 @@ bool vc_require_surface(Collector_p collector, const std::string& model)
 {
   METLIBS_LOG_SCOPE();
   bool ok = vc_require_unit(collector, model, VC_SURFACE_PRESSURE, "hPa");
-  ok     &= vc_require_unit(collector, model, VC_SURFACE_HEIGHT,   "m");
+  ok     &= vc_require_unit(collector, model, VC_SURFACE_ALTITUDE, "m");
   return ok;
 }
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -206,8 +206,8 @@ void VcrossSetupDialog::initOptions()
   vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/hPa");
   vchoice.push_back("Pressure/FL");
-  vchoice.push_back("Height/m");
-  vchoice.push_back("Height/Ft");
+  vchoice.push_back("Altitude/m");
+  vchoice.push_back("Altitude/Ft");
   mSetupVERTICALTYPE->defineTextChoice(vchoice,0);
 
   nrow++;
