@@ -50,13 +50,8 @@ std::string baseList(QComboBox* cBox, float base, float ekv, bool onoff=false)
 
   for (int i=0; i<n; ++i) {
     j++;
-    float e= base + ekv*float(j);
-    if(fabs(e)<ekv/2)
-      cBox->addItem("0");
-    else{
-      const std::string estr = miutil::from_number(e);
-      cBox->addItem(QString::fromStdString(estr));
-    }
+    const float e = base + ekv*j;
+    cBox->addItem(QString::number(e));
   }
 
   if(onoff)
@@ -1128,7 +1123,7 @@ void VcrossStyleWidget::min1ComboBoxToggled(int index)
     float a = atof(str.c_str());
     float b = 1.0;
     if(!ui->lineintervalCbox->currentText().isNull() )
-      b = ui->lineintervalCbox->currentText().toInt();
+      b = ui->lineintervalCbox->currentText().toFloat();
     baseList(ui->min1ComboBox,a,b,true);
   }
 }
@@ -1143,7 +1138,7 @@ void VcrossStyleWidget::max1ComboBoxToggled(int index)
     float a = atof(str.c_str());
     float b = 1.0;
     if(!ui->lineintervalCbox->currentText().isNull() )
-      b = ui->lineintervalCbox->currentText().toInt();
+      b = ui->lineintervalCbox->currentText().toFloat();
     baseList(ui->max1ComboBox,a,b,true);
   }
 }
