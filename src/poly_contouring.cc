@@ -113,7 +113,7 @@ std::string too_many_levels::fmt_many_levels(level_t ix, level_t iy, level_t lbl
 
 namespace detail {
 
-const int MAX_LEVELS = 100;
+const int MAX_LEVELS = 1000;
 
 class line_end;
 typedef line_end* line_end_x;
