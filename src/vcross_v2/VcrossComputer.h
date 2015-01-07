@@ -135,10 +135,6 @@ void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t nt
 
 // ================================================================================
 
-Values_cp potentialTemperature(Values_cp pressure, Values_cp air_temperature);
-
-// ================================================================================
-
 namespace detail {
 class NormalTangential {
 public:

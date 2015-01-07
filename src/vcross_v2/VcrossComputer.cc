@@ -616,36 +616,6 @@ Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
   return out;
 }
 
-// ================================================================================
-
-Values_cp potentialTemperature(Values_cp pressure, Values_cp air_temperature)
-{
-  Values_p out;
-  if (not (pressure and air_temperature))
-    return out;
-  const size_t np = pressure->npoint(), nl = pressure->nlevel();
-  if (air_temperature->npoint() != np or air_temperature->nlevel() != nl)
-    return out;
-
-  float p0 = 1000; // hPa
-#if 0
-  if (pressure->unit() == "Pa")
-    p0 *= 100;
-  else if (pressure->unit() != "hPa")
-    return out;
-  if (air_temperature->unit() != "K")
-    return out;
-#endif
-
-  out = miutil::make_shared<Values>(np, nl); // in K
-  for (size_t p = 0; p < np; p++) {
-    for (size_t l = 0; l < nl; l++) {
-      out->setValue(util::potentialTemperature(p0, pressure->value(p, l), air_temperature->value(p, l)), p, l);
-    }
-  }
-  return out;
-}
-
 // ========================================================================
 
 namespace detail {
