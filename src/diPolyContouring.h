@@ -89,14 +89,13 @@ public:
 
 class DianaLevelStep : public DianaLevels {
 public:
-  DianaLevelStep(float step, float off)
-    : mStep(step), mOff(off), mMin(1), mMax(0) { }
-  void set_limits(float mini, float maxi)
-    { mMin = mini; mMax = maxi; }
+  DianaLevelStep(float step, float off);
+  void set_limits(float mini, float maxi);
   virtual contouring::level_t level_for_value(float value) const;
   virtual float value_for_level(contouring::level_t l) const;
 protected:
   float mStep, mOff, mMin, mMax;
+  bool mHaveMin, mHaveMax;
 };
 
 // ########################################################################
