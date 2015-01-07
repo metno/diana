@@ -107,10 +107,6 @@ public:
   ///return levels
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
 
-  /// return all defined field plot names from setup
-  void getAllFieldNames(std::vector<std::string>& fieldNames,
-      std::set<std::string>& fieldprefixes, std::set<std::string>& fieldsuffixes);
-
   /// Parse plotInfo string into FieldReqests and plotName
   bool parsePin(std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
 
@@ -120,13 +116,10 @@ public:
 private:
 
   std::vector<PlotField> vPlotField;
-  std::set<std::string> fieldprefixes;
-  std::set<std::string> fieldsuffixes;
 
   std::vector<std::string>
       splitComStr(const std::string& s, bool splitall);
 
-  bool splitSuffix(std::string& plotName, std::string& suffix);
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
   bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);

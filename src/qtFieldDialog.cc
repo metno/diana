@@ -114,7 +114,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   // get all field plot options from setup file
   vector<std::string> fieldNames;
-  m_ctrl->getAllFieldNames(fieldNames, fieldPrefixes, fieldSuffixes);
+  m_ctrl->getAllFieldNames(fieldNames);
   { std::map<std::string, std::string> sfu;
   PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
   setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
@@ -4586,36 +4586,6 @@ std::string FieldDialog::getFieldOptions(
 
   pfopt = setupFieldOptions.find(fieldname);
   if (pfopt != setupFieldOptions.end())
-    return pfopt->second;
-
-  // test known suffixes and prefixes to the original name.
-
-  map<std::string, std::string>::const_iterator pfend =
-      setupFieldOptions.end();
-
-  set<std::string>::const_iterator ps;
-  size_t l, lname = fieldname.length();
-
-  ps = fieldSuffixes.begin();
-
-  while (pfopt == pfend && ps != fieldSuffixes.end()) {
-    if ((l = (*ps).length()) < lname && fieldname.substr(lname - l) == (*ps))
-      pfopt = setupFieldOptions.find(fieldname.substr(0, lname - l));
-    ps++;
-  }
-
-  if (pfopt != pfend)
-    return pfopt->second;
-
-  ps = fieldPrefixes.begin();
-
-  while (pfopt == pfend && ps != fieldPrefixes.end()) {
-    if ((l = (*ps).length()) < lname && fieldname.substr(0, l) == (*ps))
-      pfopt = setupFieldOptions.find(fieldname.substr(l));
-    ps++;
-  }
-
-  if (pfopt != pfend)
     return pfopt->second;
 
   //default

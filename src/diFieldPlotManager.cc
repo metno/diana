@@ -65,12 +65,6 @@ void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
 bool FieldPlotManager::parseSetup()
 {
 
-  //field prefixes and field suffixes (used in EPS so far)
-  vector<std::string> suffix;
-  suffix.push_back(".mean");
-  suffix.push_back(".std.dev.");
-  PlotOptions::setSuffix(suffix);
-
   if ( !parseFieldPlotSetup() ) {
     return false;
   }
@@ -84,8 +78,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
 {
 
   METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
-
-  fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
   std::string sect_name = "FIELD_PLOT";
   vector<std::string> lines;
@@ -484,18 +476,6 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
   }
 
   return levels;
-
-}
-
-vector<std::string> FieldPlotManager::getPlotFields()
-{
-
-  vector<std::string> param;
-  for (unsigned int i = 0; i < vPlotField.size(); i++) {
-    param.push_back(vPlotField[i].name);
-  }
-
-  return param;
 
 }
 
@@ -926,8 +906,6 @@ void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
           }
         }
 
-
-        //add plotNames without suffix
         if (ninput >= vPlotField[j].input.size()) {
           plotNames.push_back(plotName);
           plotNameLevels[plotName] = levels;
@@ -960,32 +938,6 @@ std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model
 gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
 {
   return fieldManager->getGrid(model);
-}
-
-
-void FieldPlotManager::getAllFieldNames(vector<std::string> & fieldNames,
-    set<std::string>& fprefixes, set<std::string>& fsuffixes)
-{
-
-  fieldNames = getPlotFields();
-  fprefixes = fieldprefixes;
-  fsuffixes = fieldsuffixes;
-
-}
-
-bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
-{
-
-  set<std::string>::const_iterator ps = fieldsuffixes.begin();
-  for (; ps != fieldsuffixes.end(); ps++) {
-    if (plotName.find(*ps) != std::string::npos) {
-      suffix = *ps;
-      plotName.erase(plotName.find(*ps));
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void FieldPlotManager::parseString( std::string& pin,

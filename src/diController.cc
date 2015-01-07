@@ -825,11 +825,9 @@ vector<FieldDialogInfo> Controller::initFieldDialog(){
   return fieldm->getFieldDialogInfo();
 }
 
-void Controller::getAllFieldNames(vector<std::string> & fieldNames,
-    set<std::string>& fieldprefixes,
-    set<std::string>& fieldsuffixes)
+void Controller::getAllFieldNames(vector<std::string> & fieldNames)
 {
-  fieldplotm->getAllFieldNames(fieldNames,fieldprefixes,fieldsuffixes);
+  fieldplotm->getAllFieldNames(fieldNames);
 }
 
 vector<std::string> Controller::getFieldLevels(const std::string& pinfo)
