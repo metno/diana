@@ -83,7 +83,7 @@ public:
   /// return available times for the requested models and fields
   void makeFieldText(Field* fout, const std::string& plotName);
 
-  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool& constTimes, bool updateSources=false);
+  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool updateSources=false);
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldGroups(const std::string& modelNameRequest,
@@ -97,7 +97,7 @@ public:
 
   /// Returns the available times for the selected models and fields.
   std::vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
-      bool& constTimes, bool updateSources=false);
+      bool updateSources=false);
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,

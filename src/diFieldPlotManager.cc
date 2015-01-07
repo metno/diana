@@ -385,7 +385,7 @@ vector<std::string> FieldPlotManager::getFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
-    bool& constTimes, bool updateSources)
+    bool updateSources)
 {
   vector<miTime> fieldtime;
 
@@ -414,7 +414,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     return fieldtime;
   }
 
-  return getFieldTime(request, constTimes, updateSources);
+  return getFieldTime(request, updateSources);
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
@@ -443,7 +443,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
 
   //getting times
   bool constT;
-  normalTimes = getFieldTime(pinfos, constT, updateSources);
+  normalTimes = getFieldTime(pinfos, updateSources);
   if (constT) {
     if (normalTimes.size()) {
       constTimes = normalTimes[0];
@@ -500,7 +500,7 @@ vector<std::string> FieldPlotManager::getPlotFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(
-    vector<FieldRequest>& request, bool& constTimes, bool updateSources)
+    vector<FieldRequest>& request, bool updateSources)
 
 {
   vector<miTime> vtime;
@@ -513,7 +513,7 @@ vector<miTime> FieldPlotManager::getFieldTime(
       }
     }
   }
-  return fieldManager->getFieldTime(request, constTimes, updateSources);
+  return fieldManager->getFieldTime(request, updateSources);
 }
 
 bool FieldPlotManager::addGridCollection(const std::string fileType,
@@ -1051,23 +1051,7 @@ void FieldPlotManager::parseString( std::string& pin,
         }
       } else if (key == "file.palette") {
         fieldrequest.palette = vtoken[1];
-      } else if (key == "forecast.hour") {
-       std::vector<std::string> values;
-       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
-       for (unsigned int i = 0; i < values.size(); i++) {
-         fieldrequest.forecast.push_back(atoi(values[i].c_str()));
-       }
-       fieldrequest.forecastSpec = 1;
-     } else if (vtoken[0] == "forecast.hour.loop") {
-       std::vector<std::string> values;
-       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
-       if (values.size() == 3) { // first,last,step
-         for (int i = 0; i < 3; i++) {
-           fieldrequest.forecast.push_back(atoi(values[i].c_str()));
-         }
-         fieldrequest.forecastSpec = 2;
-       }
-     }
+      }
     }
   }
 

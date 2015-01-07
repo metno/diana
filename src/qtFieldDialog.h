@@ -79,7 +79,6 @@ private:
   struct SelectedField {
     bool inEdit;
     bool external;     // from QuickMenu,...
-    bool forecastSpec; // yet only if external
     int indexMGR; //index model group
     int indexM;   //index model
     int indexRefTime; //index reference time
@@ -105,7 +104,7 @@ private:
     bool plotDefinition;
     bool levelmove;
     bool idnummove;
-    SelectedField() : inEdit(false), external(false), forecastSpec(false),
+    SelectedField() : inEdit(false), external(false),
         hourOffset(0), hourDiff(0), minus(false),
         cdmSyntax(true), plotDefinition(true), levelmove(true), idnummove(true)
     {

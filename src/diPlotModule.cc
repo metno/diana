@@ -1789,8 +1789,7 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
     METLIBS_LOG_DEBUG("Field plotinfo:" << vfp[i]->getPlotInfo());
   }
   if (pinfos.size() > 0) {
-    bool constT;
-    times["fields"] = fieldplotm->getFieldTime(pinfos, constT, updateSources);
+    times["fields"] = fieldplotm->getFieldTime(pinfos, updateSources);
   }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("--- Found fieldtimes:");

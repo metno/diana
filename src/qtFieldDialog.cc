@@ -248,10 +248,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey("alpha", "", 0, CommandParser::cmdInt);
   cp->addKey("overlay", "", 0, CommandParser::cmdInt);
 
-  // yet only from "external" (QuickMenu) commands
-  cp->addKey("forecast.hour", "", 2, CommandParser::cmdInt);
-  cp->addKey("forecast.hour.loop", "", 2, CommandParser::cmdInt);
-
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
   cp->addKey("dim", "", 1, CommandParser::cmdInt);
   //----------------------------------------------------------------
@@ -1613,7 +1609,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       SelectedField sf;
       sf.inEdit = false;
       sf.external = false;
-      sf.forecastSpec = false;
       sf.indexMGR = indexMGR;
       sf.indexM = indexM;
       sf.modelName = vfgi[indexFGR].modelName;
@@ -3686,8 +3681,6 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
       if (!sf.fieldOpts.empty())
         sf.fieldOpts += " ";
       sf.fieldOpts += (vpc[j].key + "=" + vpc[j].allValue);
-      if (vpc[j].idNumber == 2)
-        sf.forecastSpec = true;
     }
   }
 
@@ -3758,7 +3751,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
   std::string vfg2_model, model, field, level, idnum, fOpts;
   int hourOffset, hourDiff;
   int indexMGR, indexM, indexFGR, indexF;
-  bool forecastSpec;
 
   vector<ParsedCommand> vpc;
 
@@ -3771,7 +3763,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
   fOpts.clear();
   hourOffset = 0;
   hourDiff = 0;
-  forecastSpec = false;
 
   //######################################################################
   //    for (int j = 0; j < vpc.size(); j++) {
@@ -3799,8 +3790,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
           if (!fOpts.empty())
             fOpts += " ";
           fOpts += (vpc[j].key + "=" + vpc[j].allValue);
-          if (vpc[j].idNumber == 2)
-            forecastSpec = true;
         }
       }
     }
@@ -3893,7 +3882,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
 
   if (indexFGR >= 0 && indexF >= 0) {
     sf.inEdit = false;
-    sf.forecastSpec = forecastSpec; // only if external
     sf.indexMGR = indexMGR;
     sf.indexM = indexM;
     sf.modelName = vfg2[indexFGR].modelName;
@@ -4169,12 +4157,6 @@ std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSynta
 
       newstr += " ";
       newstr += cp->unParse(vpopt);
-      // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-      for (int i = 2; i < nlog; i++) {
-        if (vplog[i].idNumber == 2 || vplog[i].idNumber == 3) {
-          newstr += (" " + vplog[i].key + "=" + vplog[i].allValue);
-        }
-      }
     }
   }
 
@@ -4696,27 +4678,12 @@ void FieldDialog::updateTime()
         request[nr].plevel = selectedFields[i].level;
         request[nr].elevel = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;
-        request[nr].forecastSpec = 0;
         request[nr].refTime = selectedFields[i].refTime;
         request[nr].zaxis = selectedFields[i].zaxis;
         request[nr].eaxis = selectedFields[i].extraaxis;
         request[nr].grid = selectedFields[i].grid;
         request[nr].plotDefinition = selectedFields[i].plotDefinition;
         request[nr].allTimeSteps = allTimeStepButton->isChecked();
-        if (selectedFields[i].forecastSpec) {
-          vector<ParsedCommand> vpc = cp->parse(selectedFields[i].fieldOpts);
-          int nvpc = vpc.size();
-          int j = 0;
-          while (j < nvpc && vpc[j].idNumber != 2)
-            j++;
-          if (j < nvpc) {
-            if (vpc[j].key == "forecast.hour")
-              request[nr].forecastSpec = 1;
-            else if (vpc[j].key == "forecast.hour.loop")
-              request[nr].forecastSpec = 2;
-            request[nr].forecast = vpc[j].intValue;
-          }
-        }
         nr++;
       }
     }
