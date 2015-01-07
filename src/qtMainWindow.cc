@@ -1938,6 +1938,7 @@ void DianaMainWindow::modelChangedSlot()
 
 void DianaMainWindow::onVcrossRequestLoadCrossectionsFile(const QStringList& filenames)
 {
+  vcrossEditManagerEnableSignals();
   for (int i=0; i<filenames.size(); ++i)
     EditItemManager::instance()->emitLoadFile(filenames.at(i));
 }
@@ -1964,11 +1965,10 @@ void DianaMainWindow::onVcrossRequestEditManager(bool on)
 {
   if (on) {
     EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
-    EditItemManager::instance()->setEditing(true);
     EditItems::ToolBar::instance()->show();
     vcrossEditManagerEnableSignals();
   } else {
-    EditItemManager::instance()->setEditing(false);
+    EditItems::ToolBar::instance()->hide();
   }
 }
 
