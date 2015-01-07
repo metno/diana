@@ -35,7 +35,7 @@
 
 #include "qtVcrossLayerButton.h"
 #include "qtVcrossStyleDialog.h"
-#include "qtVcrossWizard.h"
+#include "qtVcrossAddPlotDialog.h"
 
 #include "diLocationData.h"
 #include "diLogFile.h"
@@ -234,22 +234,12 @@ void VcrossWindow::setupUi()
 void VcrossWindow::onAddField()
 {
   METLIBS_LOG_SCOPE();
-  VcrossWizard wiz(this, selectionManager.get());
-  wiz.move(vcrossDialogX, vcrossDialogY);
-  if (wiz.exec()) {
-    vcrossDialogX = wiz.pos().x();
-    vcrossDialogY = wiz.pos().y();
-
-    const std::string model = wiz.getSelectedModel().toStdString();
-    const QStringList fields = wiz.getSelectedFields();
-    for (int i=0; i<fields.size(); ++i) {
-      const std::string fld = fields.at(i).toStdString();
-      const std::string opt = selectionManager->defaultOptions(model, fld, false);
-      selectionManager->addField(model, fld, opt, selectionManager->countFields());
-    }
-
-    changeFields();
-  }
+  VcrossAddPlotDialog d(this, selectionManager.get());
+  d.move(vcrossDialogX, vcrossDialogY);
+  d.restart();
+  d.exec();
+  vcrossDialogX = d.pos().x();
+  vcrossDialogY = d.pos().y();
 }
 
 /***************************************************************************/
@@ -307,6 +297,8 @@ void VcrossWindow::onFieldAdded(const std::string& model, const std::string& fie
       QString::fromStdString(field), position, this);
   connect(button, SIGNAL(triggered(int, int)), SLOT(onFieldAction(int, int)));
   lbl->insertWidget(position, button);
+
+  changeFields();
 }
 
 void VcrossWindow::onFieldUpdated(const std::string& model, const std::string& field, int position)
