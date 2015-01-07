@@ -6,513 +6,491 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>249</width>
-    <height>565</height>
+    <width>430</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,1">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>2</number>
+   </property>
    <property name="margin">
     <number>0</number>
    </property>
-   <property name="spacing">
-    <number>4</number>
-   </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="labelModelTitle">
-     <property name="text">
-      <string>Model:</string>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="groupBasic">
+       <property name="title">
+        <string>Basic</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="lineWidthCbox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="densityCbox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="linewidthlabel">
+          <property name="text">
+           <string>Line width</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineWidthCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lineintervallabel">
+          <property name="text">
+           <string>Line interval</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineintervalCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="vectorunitlabel">
+          <property name="text">
+           <string>Unit</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorunitCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="lineintervalCbox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="colorlabel">
+          <property name="text">
+           <string>Colour</string>
+          </property>
+          <property name="buddy">
+           <cstring>colorCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="colorCbox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="vectorunitCbox"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="linetypelabel">
+          <property name="text">
+           <string>Line type</string>
+          </property>
+          <property name="buddy">
+           <cstring>lineTypeCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="densitylabel">
+          <property name="text">
+           <string>Density</string>
+          </property>
+          <property name="buddy">
+           <cstring>densityCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="lineTypeCbox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupLabels">
+       <property name="title">
+        <string>Value labels</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="valueLabelCheckBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Show numbers on lines</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelSizeLabel">
+          <property name="text">
+           <string>Size</string>
+          </property>
+          <property name="buddy">
+           <cstring>labelSizeSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="labelSizeSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>399</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupExtremes">
+       <property name="title">
+        <string>Extremes</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="1" column="0">
+         <widget class="QLabel" name="extremeSizeLabel">
+          <property name="text">
+           <string>Marker size</string>
+          </property>
+          <property name="buddy">
+           <cstring>extremeSizeSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="extremeSizeSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Size of min/max marker</string>
+          </property>
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="extremeValueCheckBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Indicate min/max values</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>1</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="labelModel">
-     <property name="text">
-      <string notr="true">&lt;model&gt;</string>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>2</number>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="labelFieldTitle">
-     <property name="text">
-      <string>Field:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="labelField">
-     <property name="text">
-      <string notr="true">&lt;field&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QTabWidget" name="tabs">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="tabBasic">
-      <attribute name="title">
-       <string>Basic</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridBasic" columnstretch="0,1">
-       <property name="margin">
-        <number>2</number>
+     <item>
+      <widget class="QGroupBox" name="groupPalette">
+       <property name="title">
+        <string>Palette</string>
        </property>
-       <property name="spacing">
-        <number>4</number>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,1">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="repeatCheckBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Repeat</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="shadingLabel">
+          <property name="text">
+           <string>Colours</string>
+          </property>
+          <property name="buddy">
+           <cstring>shadingComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="shadingComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="shadingSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="shadingcoldLabel">
+          <property name="text">
+           <string>Colours (-)</string>
+          </property>
+          <property name="buddy">
+           <cstring>shadingcoldComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="shadingcoldComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="shadingcoldSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="alphaLabel">
+          <property name="text">
+           <string>Alpha</string>
+          </property>
+          <property name="buddy">
+           <cstring>alphaSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="alphaSpinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>255</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="baseLabel">
+          <property name="text">
+           <string>Basis value</string>
+          </property>
+          <property name="buddy">
+           <cstring>zero1ComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="zero1ComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupRange">
+       <property name="title">
+        <string>Value Range Limits</string>
        </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="colorlabel">
-         <property name="text">
-          <string>Colour</string>
-         </property>
-         <property name="buddy">
-          <cstring>colorCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="colorCbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="linewidthlabel">
-         <property name="text">
-          <string>Line width</string>
-         </property>
-         <property name="buddy">
-          <cstring>lineWidthCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="lineWidthCbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="linetypelabel">
-         <property name="text">
-          <string>Line type</string>
-         </property>
-         <property name="buddy">
-          <cstring>lineTypeCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="lineTypeCbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lineintervallabel">
-         <property name="text">
-          <string>Line interval</string>
-         </property>
-         <property name="buddy">
-          <cstring>lineintervalCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="lineintervalCbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="densitylabel">
-         <property name="text">
-          <string>Density</string>
-         </property>
-         <property name="buddy">
-          <cstring>densityCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QComboBox" name="densityCbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="vectorunitlabel">
-         <property name="text">
-          <string>Unit</string>
-         </property>
-         <property name="buddy">
-          <cstring>vectorunitCbox</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QComboBox" name="vectorunitCbox"/>
-       </item>
-       <item row="6" column="0">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>1</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="7" column="0">
-        <widget class="QPushButton" name="resetOptionsButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="toolTip">
-          <string>Reset to setup file</string>
-         </property>
-         <property name="text">
-          <string>Reset</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tabAdvanced">
-      <attribute name="title">
-       <string>Advanced</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,1">
-       <property name="spacing">
-        <number>4</number>
+       <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0" columnstretch="0,1">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="minLabel">
+          <property name="text">
+           <string>Min</string>
+          </property>
+          <property name="buddy">
+           <cstring>min1ComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="min1ComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="maxLabel">
+          <property name="text">
+           <string>Max</string>
+          </property>
+          <property name="buddy">
+           <cstring>max1ComboBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="max1ComboBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+       <zorder>maxLabel</zorder>
+       <zorder>min1ComboBox</zorder>
+       <zorder>max1ComboBox</zorder>
+       <zorder>minLabel</zorder>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="zeroLineCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
-       <property name="margin">
-        <number>2</number>
+       <property name="text">
+        <string>Show zero-line</string>
        </property>
-       <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Value labels</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="valueLabelCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Show numbers on lines</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelSizeLabel">
-            <property name="text">
-             <string>Size</string>
-            </property>
-            <property name="buddy">
-             <cstring>labelSizeSpinBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="labelSizeSpinBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="suffix">
-             <string>%</string>
-            </property>
-            <property name="minimum">
-             <number>5</number>
-            </property>
-            <property name="maximum">
-             <number>399</number>
-            </property>
-            <property name="singleStep">
-             <number>5</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupExtremes">
-         <property name="title">
-          <string>Extremes</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="0">
-           <widget class="QLabel" name="extremeSizeLabel">
-            <property name="text">
-             <string>Marker size</string>
-            </property>
-            <property name="buddy">
-             <cstring>extremeSizeSpinBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="extremeSizeSpinBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Size of min/max marker</string>
-            </property>
-            <property name="suffix">
-             <string>%</string>
-            </property>
-            <property name="minimum">
-             <number>5</number>
-            </property>
-            <property name="maximum">
-             <number>300</number>
-            </property>
-            <property name="singleStep">
-             <number>5</number>
-            </property>
-            <property name="value">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="extremeValueCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Indicate min/max values</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupPalette">
-         <property name="title">
-          <string>Palette</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="repeatCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Repeat</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="shadingLabel">
-            <property name="text">
-             <string>Colours</string>
-            </property>
-            <property name="buddy">
-             <cstring>shadingComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="shadingComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QSpinBox" name="shadingSpinBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="shadingcoldLabel">
-            <property name="text">
-             <string>Colours (-)</string>
-            </property>
-            <property name="buddy">
-             <cstring>shadingcoldComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="shadingcoldComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QSpinBox" name="shadingcoldSpinBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="alphaLabel">
-            <property name="text">
-             <string>Alpha</string>
-            </property>
-            <property name="buddy">
-             <cstring>alphaSpinBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QSpinBox" name="alphaSpinBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>255</number>
-            </property>
-            <property name="singleStep">
-             <number>5</number>
-            </property>
-            <property name="value">
-             <number>255</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="baseLabel">
-            <property name="text">
-             <string>Basis value</string>
-            </property>
-            <property name="buddy">
-             <cstring>zero1ComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QComboBox" name="zero1ComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupRange">
-         <property name="title">
-          <string>Value Range Limits</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="minLabel">
-            <property name="text">
-             <string>Min</string>
-            </property>
-            <property name="buddy">
-             <cstring>min1ComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="min1ComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="maxLabel">
-            <property name="text">
-             <string>Max</string>
-            </property>
-            <property name="buddy">
-             <cstring>max1ComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="max1ComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-         <zorder>maxLabel</zorder>
-         <zorder>min1ComboBox</zorder>
-         <zorder>max1ComboBox</zorder>
-         <zorder>minLabel</zorder>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="zeroLineCheckBox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Show zero-line</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>1</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </widget>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>1</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabs</tabstop>
   <tabstop>colorCbox</tabstop>
   <tabstop>lineWidthCbox</tabstop>
   <tabstop>lineTypeCbox</tabstop>
   <tabstop>lineintervalCbox</tabstop>
   <tabstop>densityCbox</tabstop>
   <tabstop>vectorunitCbox</tabstop>
-  <tabstop>resetOptionsButton</tabstop>
   <tabstop>valueLabelCheckBox</tabstop>
   <tabstop>labelSizeSpinBox</tabstop>
   <tabstop>extremeValueCheckBox</tabstop>

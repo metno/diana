@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VcrossStyleDialog</class>
+ <widget class="QDialog" name="VcrossStyleDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>220</width>
+    <height>74</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Vertical Crossections -- Style</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0,0">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="margin">
+    <number>2</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="layoutPlot" stretch="0,1">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="labelPlot">
+       <property name="text">
+        <string notr="true"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboPlot"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="VcrossStyleWidget" name="styleWidget" native="true"/>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutButtons" stretch="0,1,0">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="buttonResetOptions">
+       <property name="toolTip">
+        <string>Reset selected plot to default options, without applying</string>
+       </property>
+       <property name="text">
+        <string>&amp;Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonApply">
+       <property name="toolTip">
+        <string>Apply options for the selected plot</string>
+       </property>
+       <property name="text">
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VcrossStyleWidget</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossStyleWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboPlot</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>VcrossStyleDialog</receiver>
+   <slot>slotSelectedPlotChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>15</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>15</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonResetOptions</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossStyleDialog</receiver>
+   <slot>slotResetPlotOptions()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>72</x>
+     <y>505</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>495</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonApply</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossStyleDialog</receiver>
+   <slot>slotApply()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>367</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>497</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>slotSelectedPlotChanged(int)</slot>
+  <slot>slotApply()</slot>
+  <slot>slotResetPlotOptions()</slot>
+ </slots>
+</ui>

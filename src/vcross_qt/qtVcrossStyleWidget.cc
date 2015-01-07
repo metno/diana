@@ -108,14 +108,10 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey("alpha",          "",0,CommandParser::cmdInt);
 }
 
-void VcrossStyleWidget::setModelFieldName(const QString& mdl, const QString& fld)
-{
-  ui->labelModel->setText(mdl);
-  ui->labelField->setText(fld);
-}
-
 void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& defaultopt)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(fopt) << LOGVAL(defaultopt));
+  disableFieldOptions();
   defaultOptions = defaultopt;
   currentFieldOpts = fopt;
   enableFieldOptions();
@@ -192,8 +188,6 @@ void VcrossStyleWidget::setupUi()
       SLOT(densityCboxActivated(int)));
   connect(ui->vectorunitCbox, SIGNAL(activated(int)),
       SLOT(vectorunitCboxActivated(int)));
-  connect(ui->resetOptionsButton, SIGNAL(clicked()),
-      SLOT(resetOptions()));
 
   // mark min/max values
 #ifndef DISABLE_EXTREMES
@@ -340,7 +334,7 @@ void VcrossStyleWidget::enableFieldOptions()
 
   disableFieldOptions();
 
-  ui->resetOptionsButton->setEnabled(true);
+  Q_EMIT canResetOptions(true);
 
   vpcopt = cp->parse(currentFieldOpts);
 
@@ -351,22 +345,21 @@ void VcrossStyleWidget::enableFieldOptions()
   if ((nc=cp->findKey(vpcopt,"colour"))>=0) {
     ui->shadingComboBox->setEnabled(true);
     ui->shadingcoldComboBox->setEnabled(true);
-    if (!ui->colorCbox->isEnabled()) {
-      ui->colorCbox->setEnabled(true);
-    }
+    ui->colorCbox->setEnabled(true);
     i=0;
-    if(miutil::to_lower(vpcopt[nc].allValue) == "off" ||
-        miutil::to_lower(vpcopt[nc].allValue) == "av" ){
-      updateFieldOptions("colour","off");
+    const std::string c = miutil::to_lower(vpcopt[nc].allValue);
+    if (c == "off" || c == "av") {
+      updateFieldOptions("colour", "off");
       ui->colorCbox->setCurrentIndex(0);
     } else {
-      while (i<nr_colors
-          && miutil::to_lower(vpcopt[nc].allValue)!=colourInfo[i].name) i++;
-      if (i==nr_colors) i=0;
-      updateFieldOptions("colour",colourInfo[i].name);
+      while (i<nr_colors && c != colourInfo[i].name)
+        i++;
+      if (i==nr_colors)
+        i=0;
+      updateFieldOptions("colour", colourInfo[i].name);
       ui->colorCbox->setCurrentIndex(i+1);
     }
-  } else if (ui->colorCbox->isEnabled()) {
+  } else {
     ui->colorCbox->setEnabled(false);
   }
 
@@ -396,11 +389,11 @@ void VcrossStyleWidget::enableFieldOptions()
       str = "off";
       ui->shadingComboBox->setCurrentIndex(0);
       ui->shadingcoldComboBox->setCurrentIndex(0);
-    }else {
+    } else {
       str = tokens[0];
       ui->shadingComboBox->setCurrentIndex(i+1);
     }
-    if(tokens.size()==2){
+    if (tokens.size()==2){
       std::vector<std::string> stokens = miutil::split(tokens[1],";");
       if(stokens.size()==2)
         ui->shadingcoldSpinBox->setValue(atoi(stokens[1].c_str()));
@@ -818,7 +811,7 @@ void VcrossStyleWidget::disableFieldOptions()
 {
   METLIBS_LOG_SCOPE();
 
-  ui->resetOptionsButton->setEnabled(false);
+  Q_EMIT canResetOptions(false);
 
   ui->colorCbox->setEnabled(false);
   ui->shadingComboBox->setCurrentIndex(0);
@@ -1146,7 +1139,7 @@ void VcrossStyleWidget::max1ComboBoxToggled(int index)
 void VcrossStyleWidget::updateFieldOptions(const std::string& name,
     const std::string& value, int valueIndex)
 {
-  METLIBS_LOG_SCOPE("name= " << name << "  value= " << value);
+  //METLIBS_LOG_SCOPE("name= " << name << "  value= " << value);
 
   if (currentFieldOpts.empty())
     return;

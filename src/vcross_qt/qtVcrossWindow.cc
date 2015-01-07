@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,7 +34,7 @@
 #include "qtVcrossWindow.h"
 
 #include "qtVcrossLayerButton.h"
-#include "qtVcrossStyleWidget.h"
+#include "qtVcrossStyleDialog.h"
 #include "qtVcrossWizard.h"
 
 #include "diLocationData.h"
@@ -174,6 +174,10 @@ VcrossWindow::VcrossWindow()
       SIGNAL(requestVcrossEditor(bool)));
 
   //connected dialogboxes
+  vcStyleDialog = new VcrossStyleDialog(this);
+  vcStyleDialog->setSelectionManager(selectionManager.get());
+  vcStyleDialog->setVisible(false);
+
   vcSetupDialog = new VcrossSetupDialog(this, vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()), SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(showsource(const std::string&, const std::string&)),
@@ -181,6 +185,8 @@ VcrossWindow::VcrossWindow()
 
   connect(selectionManager.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
       this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
+  connect(selectionManager.get(), SIGNAL(fieldUpdated(const std::string&, const std::string&, int)),
+      this, SLOT(onFieldUpdated(const std::string&, const std::string&, int)));
   connect(selectionManager.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
       this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
   connect(selectionManager.get(), SIGNAL(fieldsRemoved()),
@@ -270,23 +276,8 @@ void VcrossWindow::onFieldAction(int position, int action)
   if (action == VcrossLayerButton::EDIT) {
     const QString mdl = QString::fromStdString(model);
     const QString fld = QString::fromStdString(field);
-
-    QDialog d(this);
-    d.setWindowTitle(tr("Style for %1 -- %2").arg(mdl).arg(fld));
-    VcrossStyleWidget* sw = new VcrossStyleWidget(&d);
-    QPushButton* accept = new QPushButton(tr("OK"), &d);
-    connect(accept, SIGNAL(clicked()), &d, SLOT(accept()));
-    QVBoxLayout* l = new QVBoxLayout;
-    l->addWidget(sw);
-    l->addWidget(accept);
-    d.setLayout(l);
-    
-    sw->setModelFieldName(mdl, fld);
-    sw->setOptions(opt, dflt);
-    if (d.exec() && sw->valid()) {
-      selectionManager->updateField(model, field, sw->options());
-      changeFields();
-    }
+    vcStyleDialog->showModelField(mdl, fld);
+    vcStyleDialog->show();
   } else if (action == VcrossLayerButton::REMOVE) {
     selectionManager->removeField(model, field);
     changeFields();
@@ -320,6 +311,8 @@ void VcrossWindow::onFieldAdded(const std::string& model, const std::string& fie
 
 void VcrossWindow::onFieldUpdated(const std::string& model, const std::string& field, int position)
 {
+  METLIBS_LOG_SCOPE();
+  changeFields();
 }
 
 void VcrossWindow::onFieldRemoved(const std::string& model, const std::string& field, int position)
@@ -599,6 +592,8 @@ void VcrossWindow::quitClicked()
   ui->comboTime->setEnabled(false);
   ui->buttonTimePrevious->setEnabled(false);
   ui->buttonTimeNext->setEnabled(false);
+
+  vcStyleDialog->setVisible(false);
 
   active = false;
   Q_EMIT VcrossHide();
@@ -889,6 +884,8 @@ void VcrossWindow::writeLog(LogFileIO& logfile)
         + miutil::from_number(vcrossDialogY));
     sec_window.addLine("VcrossSetupDialog.pos " + miutil::from_number(vcSetupDialog->x()) + " "
         + miutil::from_number(vcSetupDialog->y()));
+    sec_window.addLine("VcrossStyleDialog.pos " + miutil::from_number(vcStyleDialog->x()) + " "
+        + miutil::from_number(vcStyleDialog->y()));
 
     // printer name & options...
     if (not priop.printer.empty()){
@@ -925,6 +922,7 @@ void VcrossWindow::readLog(const LogFileIO& logfile,
           if      (tokens[0]=="VcrossWindow.pos")      this->move(x,y);
           else if (tokens[0]=="VcrossDialog.pos")      { vcrossDialogX = x; vcrossDialogY = y; }
           else if (tokens[0]=="VcrossSetupDialog.pos") vcSetupDialog->move(x,y);
+          else if (tokens[0]=="VcrossStyleDialog.pos") vcStyleDialog->move(x,y);
         }
 
       } else if (tokens.size()>=2) {

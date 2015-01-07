@@ -218,10 +218,12 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossModelPage.cc \
 	vcross_qt/qtVcrossFieldPage.cc \
 	vcross_qt/qtVcrossStylePage.cc \
+	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \
 	vcross_qt/VcrossQtWidget.cc 
 
 diana_qt_forms += \
+	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
 	vcross_qt/vcross_window.ui
 

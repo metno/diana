@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,6 +49,7 @@ class ActionButton;
 class Controller;
 class LocationData;
 class ToggleButton;
+class VcrossStyleDialog;
 class VcrossSetupDialog;
 class Ui_VcrossWindow;
 
@@ -165,6 +166,7 @@ private:
   std::auto_ptr<VcrossSelectionManager> selectionManager;
   std::auto_ptr<Ui_VcrossWindow> ui;
 
+  VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;
 
