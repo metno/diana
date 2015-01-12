@@ -306,10 +306,11 @@ void MeasurementsDialog::calculate()
 
     LonLat start_lonlat = LonLat::fromDegrees(start_lon,start_lat);
     LonLat stop_lonlat = LonLat::fromDegrees(stop_lon,stop_lat);
-    double distance = start_lonlat.distanceTo(stop_lonlat)/1000.0;
-    METLIBS_LOG_INFO(LOGVAL(distance)<< " km");
+    double distance = start_lonlat.distanceTo(stop_lonlat);
+    double distance_in_kilometers = distance/1000.0;
+    METLIBS_LOG_INFO(LOGVAL(distance_in_kilometers)<< " km");
     QString distanceresult;
-    distanceresult.sprintf("%.2f km", (float)distance);
+    distanceresult.sprintf("%.2f km", (float)distance_in_kilometers);
     distancebox->setText(distanceresult);
 
     double bearing = start_lonlat.bearingTo(stop_lonlat) * RAD_TO_DEG;
@@ -321,8 +322,8 @@ void MeasurementsDialog::calculate()
     if ( start_time != stop_time ) {
       int t = abs(miutil::miTime::secDiff(start_time, stop_time));
       double speed_in_ms = distance/t;
-      double speed_in_kmh = (distance/t)*3.6;
-      double speed_in_knots = ((distance/t)*3.6)/1.852;
+      double speed_in_kmh = speed_in_ms*3.6;
+      double speed_in_knots = speed_in_kmh/1.852;
       METLIBS_LOG_INFO(LOGVAL(speed_in_ms)<< " m/s");
       METLIBS_LOG_INFO(LOGVAL(speed_in_kmh)<< " km/h");
       METLIBS_LOG_INFO(LOGVAL(speed_in_knots)<< " knots");
