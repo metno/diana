@@ -983,6 +983,7 @@ void EditItemManager::emitItemChanged() const
       props.insert("layer:visible", layer->isVisible());
       props.insert("id", item->id());
       props.insert("visible", item->property("visible", true).toBool());
+      props.insert("Placemark:name", item->property("Placemark:name").toString());
       //
       setFromLatLonPoints(*item, item->getLatLonPoints());
       QVariantList latLonPoints;

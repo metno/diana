@@ -611,14 +611,21 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 {
   METLIBS_LOG_SCOPE();
 
-  const char key_points[] = "latLonPoints", key_id[] = "id";
-  if (not (props.contains(key_points) and props.contains(key_id)))
+  // these have to match the keys used by EditItemManager::emitItemChanged
+  const char KEY_POINTS[] = "latLonPoints", KEY_ID[] = "id", KEY_NAME[] = "Placemark:name";
+
+  if (not (props.contains(KEY_POINTS) and props.contains(KEY_ID)))
     return;
 
-  std::string label = QString("dyn_%1").arg(props.value(key_id).toInt()).toStdString();
-
+  QString qlabel;
+  if (props.contains(KEY_NAME))
+    qlabel = props.value(KEY_NAME).toString();
+  if (qlabel.isEmpty())
+    qlabel = QString("dyn_%1").arg(props.value(KEY_ID).toInt());
+  const std::string label = qlabel.toStdString();
+  
   vcross::LonLat_v points;
-  foreach (QVariant v, props.value(key_points).toList()) {
+  foreach (QVariant v, props.value(KEY_POINTS).toList()) {
     const QPointF p = v.toPointF();
     const float lat = p.x(), lon = p.y(); // FIXME swpa x <-> y
     points.push_back(LonLat::fromDegrees(lon, lat));
