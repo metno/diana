@@ -2,7 +2,7 @@
 #ifndef VcrossStyleDialog_h
 #define VcrossStyleDialog_h 1
 
-#include "diVcrossSelectionManager.h"
+#include "vcross_v2/VcrossQtManager.h"
 
 #include <QDialog>
 #include <QStandardItemModel>
@@ -14,7 +14,7 @@ class VcrossStyleDialog : public QDialog {
 
 public:
   VcrossStyleDialog(QWidget* parent);
-  void setSelectionManager(VcrossSelectionManager* vsm);
+  void setManager(vcross::QtManager_p vcrossm);
 
   void showModelField(const QString& mdl, const QString& fld);
 
@@ -28,14 +28,13 @@ private Q_SLOTS:
   void onFieldAdded(const std::string& model, const std::string& field, int position);
   void onFieldUpdated(const std::string& model, const std::string& field, int position);
   void onFieldRemoved(const std::string& model, const std::string& field, int position);
-  void onFieldsRemoved();
 
   void slotSelectedPlotChanged(int index);
   void slotResetPlotOptions();
   void slotApply();
 
 private:
-  VcrossSelectionManager* selectionManager;
+  vcross::QtManager_p vcrossm;
   std::auto_ptr<Ui_VcrossStyleDialog> ui;
   QStandardItemModel* mPlots;
 };

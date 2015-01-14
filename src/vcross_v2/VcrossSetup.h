@@ -94,7 +94,10 @@ public:
     { return mPlots; }
 
 
-  string_string_m getAllPlotOptions();
+  std::string getPlotOptions(const std::string& name) const
+    { return getPlotOptions(findPlot(name)); }
+  std::string getPlotOptions(ConfiguredPlot_cp cp) const;
+
   const string_string_m& getModelOptions(const std::string& name) const;
 
 private:

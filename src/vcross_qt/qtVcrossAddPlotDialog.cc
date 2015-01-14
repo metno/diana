@@ -34,7 +34,6 @@
 #endif
 
 #include "vcross_qt/qtVcrossAddPlotDialog.h"
-#include "vcross_qt/diVcrossSelectionManager.h"
 
 #include "diUtilities.h"
 #include "qtUtility.h"
@@ -56,9 +55,9 @@
 #include "bakover.xpm"
 #include "start.xpm"
 
-VcrossAddPlotDialog::VcrossAddPlotDialog(QWidget* parent, VcrossSelectionManager* m)
+VcrossAddPlotDialog::VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p m)
   : QDialog(parent)
-  , selectionManager(m)
+  , vcrossm(m)
   , ui(new Ui_VcrossAddPlotDialog)
 {
   METLIBS_LOG_SCOPE();
@@ -136,8 +135,8 @@ void VcrossAddPlotDialog::onAdd()
   const QStringList plots = selectedPlots();
   for (int i=0; i<plots.size(); ++i) {
     const std::string fld = plots.at(i).toStdString();
-    const std::string opt = selectionManager->defaultOptions(model, fld, false);
-    selectionManager->addField(model, fld, opt, selectionManager->countFields());
+    const std::string opt = vcrossm->getPlotOptions(model, fld, false);
+    vcrossm->addField(model, fld, opt, -1);
   }
   initializePlotPage(true);
 }
@@ -148,7 +147,13 @@ void VcrossAddPlotDialog::initializeModelPage(bool forward)
 
   if (forward) {
     ui->modelFilter->clear();
-    modelNames->setStringList(selectionManager->allModels());
+
+    const std::vector<std::string> models = vcrossm->getAllModels();
+    QStringList msl;
+    for (size_t i=0; i<models.size(); ++i)
+      msl << QString::fromStdString(models[i]);
+
+    modelNames->setStringList(msl);
   }
   ui->buttonRestart->setEnabled(false);
   ui->buttonBack->setEnabled(false);
@@ -192,7 +197,13 @@ void VcrossAddPlotDialog::initializePlotPage(bool forward)
     ui->plotLabelModel->setText(tr("Choose plot(s) for model '%1'").arg(model));
 
     diutil::OverrideCursor waitCursor;
-    plotNames->setStringList(selectionManager->availableFields(model));
+
+    const std::vector<std::string> fields = vcrossm->getFieldNames(model.toStdString(), false);
+    QStringList fsl;
+    for (size_t i=0; i<fields.size(); ++i)
+      fsl << QString::fromStdString(fields[i]);
+
+    plotNames->setStringList(fsl);
   }
   ui->buttonRestart->setEnabled(true);
   ui->buttonBack->setEnabled(true);

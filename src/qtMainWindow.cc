@@ -83,7 +83,7 @@
 #include "qtMainWindow.h"
 #include "qtWorkArea.h"
 #include "qtVprofWindow.h"
-#include "vcross_qt/qtVcrossWindow.h"
+#include "vcross_qt/qtVcrossInterface.h"
 #include "qtSpectrumWindow.h"
 #include "diController.h"
 #include "diPrintOptions.h"

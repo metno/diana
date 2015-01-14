@@ -12,15 +12,15 @@
 
 namespace vcross {
 
-model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user_crossection, const Time& user_time)
+model_values_m vc_fetch_crossection(Collector_p collector, const std::string& user_crossection, const Time& user_time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
     
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -42,14 +42,14 @@ model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user
   return model_values;
 }
 
-model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_crossection, const Time& user_time)
+model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_crossection, const Time& user_time)
 {
   //METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -73,15 +73,15 @@ model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_cros
 
 // ########################################################################
 
-model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position)
+model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
 {
   METLIBS_LOG_SCOPE();
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
     
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -195,6 +195,8 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
   
   EvaluatedPlot_cpv evaluated_plots;
   BOOST_FOREACH(SelectedPlot_cp sp, collector->getSelectedPlots()) {
+    if (!sp->visible)
+      continue;
     if (sp->resolved->arguments.empty())
       continue;
 

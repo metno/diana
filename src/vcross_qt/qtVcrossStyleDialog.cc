@@ -21,33 +21,28 @@ std::ostream& operator<<(std::ostream& out, const QString& qstr)
 
 VcrossStyleDialog::VcrossStyleDialog(QWidget* parent)
   : QDialog(parent)
-  , selectionManager(0)
   , ui(new Ui_VcrossStyleDialog)
 {
   setupUi();
 }
 
-void VcrossStyleDialog::setSelectionManager(VcrossSelectionManager* vsm)
+void VcrossStyleDialog::setManager(vcross::QtManager_p vsm)
 {
-  if (selectionManager == vsm)
+  if (vcrossm == vsm)
     return;
 
-  if (selectionManager) {
-    disconnect(selectionManager, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
+  if (vcrossm) {
+    disconnect(vcrossm.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
         this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-    disconnect(selectionManager, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
+    disconnect(vcrossm.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
         this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-    disconnect(selectionManager, SIGNAL(fieldsRemoved()),
-        this, SLOT(onFieldsRemoved()));
   }
-  selectionManager = vsm;
-  if (selectionManager) {
-    connect(selectionManager, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
+  vcrossm = vsm;
+  if (vcrossm) {
+    connect(vcrossm.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
         this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-    connect(selectionManager, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
+    connect(vcrossm.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
         this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-    connect(selectionManager, SIGNAL(fieldsRemoved()),
-        this, SLOT(onFieldsRemoved()));
   }
 }
 
@@ -110,6 +105,8 @@ void VcrossStyleDialog::onFieldAdded(const std::string& model, const std::string
 
 void VcrossStyleDialog::onFieldUpdated(const std::string& model, const std::string& field, int position)
 {
+  if (position == ui->comboPlot->currentIndex())
+    slotSelectedPlotChanged(position);
 }
 
 void VcrossStyleDialog::onFieldRemoved(const std::string&, const std::string&, int position)
@@ -121,13 +118,6 @@ void VcrossStyleDialog::onFieldRemoved(const std::string&, const std::string&, i
   enableWidgets();
 }
 
-void VcrossStyleDialog::onFieldsRemoved()
-{
-  METLIBS_LOG_SCOPE();
-  mPlots->clear(); // does it also delete the QStandardItems?
-  enableWidgets();
-}
-
 void VcrossStyleDialog::slotSelectedPlotChanged(int index)
 {
   METLIBS_LOG_SCOPE(LOGVAL(index));
@@ -136,8 +126,8 @@ void VcrossStyleDialog::slotSelectedPlotChanged(int index)
 
   const QString& mdl = modelName(index), fld = fieldName(index);
   METLIBS_LOG_DEBUG(LOGVAL(mdl) << LOGVAL(fld));
-  const std::string opt  = selectionManager->getOptionsAt(index);
-  const std::string dflt = selectionManager->defaultOptions(mdl, fld, true);
+  const std::string opt  = vcrossm->getOptionsAt(index);
+  const std::string dflt = vcrossm->getPlotOptions(mdl.toStdString(), fld.toStdString(), true);
   ui->styleWidget->setOptions(opt, dflt);
 }
 
@@ -152,6 +142,6 @@ void VcrossStyleDialog::slotApply()
   const int r = ui->comboPlot->currentIndex();
   if (r >= 0) {
     const QString& mdl = modelName(r), fld = fieldName(r);
-    selectionManager->updateField(mdl.toStdString(), fld.toStdString(), ui->styleWidget->options());
+    vcrossm->updateField(mdl.toStdString(), fld.toStdString(), ui->styleWidget->options());
   }
 }

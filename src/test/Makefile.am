@@ -3,18 +3,32 @@ diana_lib = $(top_builddir)/src/libdiana.a
 
 TESTS = 
 
-check_PROGRAMS = 
+check_PROGRAMS =
 
 if HAVE_GTEST
 TESTS += dianaUnitTests
 check_PROGRAMS += dianaUnitTests
 
+dianaUnitTests_qt_sources = \
+    TestVcrossQtManager.cc \
+    TestVcrossQuickmenues.cc
+
+dianaUnitTests_moc_sources = $(dianaUnitTests_qt_sources:.cc=.moc.cc)
+
 dianaUnitTests_SOURCES = \
+    $(dianaUnitTests_qt_sources) \
     TestVprofData.cc \
     TestCommandParser.cc \
     TestLogFileIO.cc \
     TestPlotOptions.cc \
     TestUtilities.cc
+
+nodist_dianaUnitTests_SOURCES = \
+     $(dianaUnitTests_moc_sources)
+
+%.moc.cc: %.h
+	@mkdir -p $(shell dirname $@)
+	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
 if !WITH_EMBEDDED
 dianaUnitTests_SOURCES += \

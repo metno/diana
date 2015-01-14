@@ -124,7 +124,8 @@ common_qt_sources += \
 	vcross_v2/VcrossQtPaint.cc \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
-	vcross_v2/VcrossQtAxis.cc 
+	vcross_v2/VcrossQtAxis.cc \
+	vcross_v2/VcrossQuickmenues.cc
 
 common_qt_headers = \
 	diVcrossInterface.h
@@ -210,10 +211,10 @@ diana_qt_sources = \
 
 diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
+	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerButton.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
-	vcross_qt/diVcrossSelectionManager.cc \
 	vcross_qt/qtVcrossAddPlotDialog.cc \
 	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \

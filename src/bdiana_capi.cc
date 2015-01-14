@@ -795,6 +795,8 @@ bool vcross_optionschanged;
 
 void parse_vcross_options(const vector<string>& opts)
 {
+  // TODO almost the same code exists in bdiana_capi
+  // TODO this routine never clears vcross_options
   bool data_exist = false;
   int n = opts.size();
   for (int i = 0; i < n; i++) {
@@ -1881,17 +1883,17 @@ static int parseAndProcess(istream &is)
         if (vcross_optionschanged)
           vcrossmanager->getOptions()->readOptions(vcross_options);
         vcross_optionschanged = false;
-        vcrossmanager->setSelection(vcross_data);
+        vcrossmanager->selectFields(vcross_data);
 
         if (ptime.undef()) {
-          thetime = vcrossmanager->getTime();
+          thetime = vcrossmanager->getTimeValue();
           if (verbose)
             METLIBS_LOG_INFO("VCROSS has default time:" << thetime);
         } else
           thetime = ptime;
         if (verbose)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vcrossmanager->setTime(thetime);
+        vcrossmanager->setTimeToBestMatch(thetime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
@@ -1900,8 +1902,10 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- setting cross-section:" << crossection);
-        if (not crossection.empty())
-          vcrossmanager->setCrossection(crossection);
+        if (not crossection.empty()) {
+          int idx = vcrossmanager->findCrossectionIndex(QString::fromStdString(crossection));
+          vcrossmanager->setCrossectionIndex(idx);
+        }
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vcross, priop);

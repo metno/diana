@@ -30,23 +30,21 @@
 #ifndef QTVCROSSADDPLOTDIALOG_H
 #define QTVCROSSADDPLOTDIALOG_H
 
+#include "vcross_v2/VcrossQtManager.h"
+
 #include <QDialog>
 #include <memory>
 
 class QSortFilterProxyModel;
 class QStringListModel;
 
-namespace vcross {
-class QtManager;
-}
-class VcrossSelectionManager;
 class Ui_VcrossAddPlotDialog;
 
 class VcrossAddPlotDialog : public QDialog {
   Q_OBJECT
 
 public:
-  VcrossAddPlotDialog(QWidget* parent, VcrossSelectionManager* vsm);
+  VcrossAddPlotDialog(QWidget* parent, vcross::QtManager_p vsm);
 
 public Q_SLOTS:
   void restart();
@@ -77,7 +75,7 @@ private Q_SLOTS:
 private:
   enum { ModelPage, PlotPage };
 
-  VcrossSelectionManager* selectionManager;
+  vcross::QtManager_p vcrossm;
   std::auto_ptr<Ui_VcrossAddPlotDialog> ui;
 
   QStringListModel* modelNames;
