@@ -132,7 +132,7 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
   }
 
   // direction
-  const float dx = mScaleX * u, dy = mScaleY * v;
+  const float dx = mScaleX * u, dy = -mScaleY * v;
   const float ex = px + dx, ey = py + dy;
   painter.drawLine(px, py, ex, ey);
   
