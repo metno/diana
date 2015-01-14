@@ -521,23 +521,6 @@ void VcrossWindow::saveClicked()
 }
 
 
-void VcrossWindow::makeEPS(const std::string& filename)
-{
-  diutil::OverrideCursor waitCursor;
-  printOptions priop;
-  priop.fname= filename;
-  priop.colop= d_print::incolour;
-  priop.orientation= d_print::ori_automatic;
-  priop.pagesize= d_print::A4;
-  priop.numcopies= 1;
-  priop.usecustomsize= false;
-  priop.fittopage= false;
-  priop.drawbackground= true;
-  priop.doEPS= true;
-
-//  vcrossw->print(priop);
-}
-
 /***************************************************************************/
 
 void VcrossWindow::onShowSetupDialog()

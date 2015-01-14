@@ -116,8 +116,6 @@ private:
   //! setup UI and adjust some things that cannot be done easily with qt designer
   void setupUi();
 
-  void makeEPS(const std::string& filename);
-
   // emits SIGNAL(crossectionSetChanged) with list of crossections from vcross-manager
   void emitCrossectionSet();
   void emitQmenuStrings();

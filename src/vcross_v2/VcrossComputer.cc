@@ -560,9 +560,6 @@ void collectRequired(InventoryBase_cps& required, InventoryBase_cp item)
   } else if (type == FunctionData::DATA_TYPE()) {
     FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
     f->collectRequired(required);
-    BOOST_FOREACH(const InventoryBase_cp& a, f->arguments()) {
-      collectRequired(required, a);
-    }
   }
 }
 
