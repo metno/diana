@@ -598,7 +598,7 @@ void DrawingStyleManager::drawLines(const DrawingItemBase *item, const QList<QPo
 
   glEnd(); // GL_LINE_LOOP or GL_LINE_STRIP
 
-  const bool reversed = style.value(DSP_reversed::name()).toBool();
+  const bool reversed = !style.value(DSP_reversed::name()).toBool();
 
   if (style.value(DSP_decoration1::name()).isValid()) {
     QColor colour = style.value(DSP_decoration1_colour::name()).value<QColor>();
