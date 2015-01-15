@@ -872,7 +872,7 @@ void QtPlot::plotFrame(QPainter& painter)
   }
 }
 
-static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error)
+static bool isPlotOk(EvaluatedPlot_cp ep, size_t npoint, std::string& error)
 {
   if (ep->argument_values.empty()) {
     error = "no argument_values, cannot plot";
@@ -1082,7 +1082,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 
   const int nx = z_values->npoint(), ny = z_values->nlevel();
   bool have_max = false, have_min = false;
-  float max_px = -1, max_py = -1, min_px = -1, min_py = -1;
+  float max_px = -1, max_py = -1, max_vy = 0, min_px = -1, min_py = -1, min_vy = 0;
   float max_v = 0, min_v = 0;
   for (int ix=0; ix<nx; ix += 1) {
     const float vx = distances.at(ix);
@@ -1105,12 +1105,14 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
         have_max = true;
         max_px = px;
         max_py = py;
+        max_vy = vy;
         max_v = v;
       }
       if ((not have_min) or v < min_v) {
         have_min = true;
         min_px = px;
         min_py = py;
+        min_vy = vy;
         min_v = v;
       }
     }
@@ -1128,7 +1130,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.drawEllipse(QPointF(min_px, min_py), R, R);
       painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));
       painter.drawLine(QPointF(min_px+D, min_py-D), QPointF(min_px-D, min_py+D));
-      annotation += "min=" + miutil::from_number(min_v);
+      annotation += "min=" + miutil::from_number(min_v) + " (" + miutil::from_number(min_vy) + mAxisY->label() + ")";
     }
     if (have_max) {
       painter.drawEllipse(QPointF(max_px, max_py), R, R);
@@ -1137,7 +1139,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.setBrush(Qt::NoBrush);
       if (have_min)
         annotation += " ";
-      annotation += "max=" + miutil::from_number(max_v);
+      annotation += "max=" + miutil::from_number(max_v) + " (" + miutil::from_number(max_vy) + mAxisY->label() + ")";
     }
   }
   return annotation;
