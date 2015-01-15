@@ -183,6 +183,16 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
       ditem->setProperty("layerId", layerId);
     }
 
+    if (pmExtData.contains("met:joinId"))  {
+      bool ok;
+      const int joinId = pmExtData.value("met:joinId").toInt(&ok);
+      if (!ok) {
+        *error = QString("failed to parse met:joinId as integer: %1").arg(pmExtData.value("met:joinId"));
+        return QList<QSharedPointer<EditItems::Layer> >();
+      }
+      ditem->setProperty("joinId", joinId);
+    }
+
     QMap<QString, QDomElement> ancElems;
     findAncestorElements(coordsNode, &ancElems, error);
     if (!error->isEmpty())
@@ -359,6 +369,12 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems:
     for (int i = 0; i < layer->itemCount(); ++i)
       DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
+
+  // avoid conflict with existing joins
+  QList<QSharedPointer<DrawingItemBase> > items;
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers)
+    items.append(layer->items());
+  DrawingManager::instance()->separateJoinIds(items);
 
   return layers;
 }

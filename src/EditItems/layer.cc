@@ -75,6 +75,8 @@ Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManage
       insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
     srcFiles_.unite(srcLayer->srcFiles());
   }
+
+  DrawingManager::instance()->separateJoinIds(items_);
 }
 
 Layer::~Layer()

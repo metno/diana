@@ -107,6 +107,15 @@ void EditItemBase::move(const QPointF &pos)
     Drawing(this)->points_[i] = basePoints_.at(i) + delta;
 }
 
+// Moves the point at index \a i to the new position \a pos.
+void EditItemBase::movePointTo(int i, const QPointF &pos)
+{
+  Q_ASSERT(i >= 0);
+  Q_ASSERT(i < Drawing(this)->points_.size());
+  Drawing(this)->points_[i] = pos;
+  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*(Drawing(this))));
+}
+
 static void drawRect(const QRectF &r, int pad, int z = 1)
 {
   glBegin(GL_POLYGON);
@@ -117,14 +126,30 @@ static void drawRect(const QRectF &r, int pad, int z = 1)
   glEnd();
 }
 
-void EditItemBase::drawControlPoints(const QColor &color, int pad) const
+static bool isJoinedEndPoint(int joinCount, int joinId, int i, int n)
+{
+  return (joinCount > 1) && (((joinId < 0) && (i == 0)) || ((joinId > 0) && (i == (n - 1))));
+}
+
+void EditItemBase::drawControlPoints(const QColor &color, const QColor &joinColor, int pad) const
 {
   glPushAttrib(GL_POLYGON_BIT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
 
-  foreach (QRectF c, controlPoints_)
-    drawRect(c, pad);
+
+  const int jId = ConstDrawing(this)->joinId();
+  const int jCount = ConstDrawing(this)->joinCount();
+  const int n = controlPoints_.size();
+  for (int i = 0; i < n; ++i) {
+    int extraPad = 0;
+    if (isJoinedEndPoint(jCount, jId, i, n)) {
+      glColor4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
+      extraPad = 1;
+    } else {
+      glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
+    }
+    drawRect(controlPoints_.at(i), pad + extraPad);
+  }
 
   glPopAttrib();
 }
@@ -135,9 +160,9 @@ void EditItemBase::drawHoveredControlPoint(const QColor &color, int pad) const
   glPushAttrib(GL_POLYGON_BIT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
-
-  drawRect(controlPoints_.at(hoverCtrlPointIndex_), pad);
-
+  drawRect(
+        controlPoints_.at(hoverCtrlPointIndex_),
+        pad + (isJoinedEndPoint(ConstDrawing(this)->joinCount(), ConstDrawing(this)->joinId(), hoverCtrlPointIndex_, controlPoints_.size()) ? 1 : 0));
   glPopAttrib();
 }
 

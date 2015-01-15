@@ -99,6 +99,7 @@ public:
 
     virtual void updateHoverPos(const QPoint &);
     QPointF hoverPos() const;
+    virtual void movePointTo(int, const QPointF &);
 
 protected:
     EditItemBase();
@@ -127,7 +128,7 @@ protected:
     virtual void drawHoverHighlightingBG(bool, bool) const {};
     virtual void drawHoverHighlighting(bool, bool) const = 0;
 
-    void drawControlPoints(const QColor & = QColor(0, 0, 0, 255), int = 0) const;
+    void drawControlPoints(const QColor & = QColor(0, 0, 0, 255), const QColor & = QColor(0, 200, 200, 255), int = 0) const;
     void drawHoveredControlPoint(const QColor & = QColor(0, 0, 0, 255), int = 0) const;
 
     bool moving_;

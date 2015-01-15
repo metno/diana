@@ -89,6 +89,10 @@ EditItemManager::EditItemManager()
   cutAction->setShortcut(tr("Ctrl+X"));
   pasteAction = new QAction(tr("Paste"), this);
   pasteAction->setShortcut(QKeySequence::Paste);
+  joinAction = new QAction(tr("Join"), this);
+  joinAction->setShortcut(QString("J"));
+  unjoinAction = new QAction(tr("Unjoin"), this);
+  unjoinAction->setShortcut(tr("Ctrl+J"));
   editPropertiesAction = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
   editPropertiesAction->setShortcut(tr("Ctrl+R"));
   editStyleAction = new QAction(tr("Edit Style..."), this);
@@ -117,6 +121,8 @@ EditItemManager::EditItemManager()
   connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
   connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
   connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
+  connect(joinAction, SIGNAL(triggered()), SLOT(joinSelectedItems()));
+  connect(unjoinAction, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
   connect(editPropertiesAction, SIGNAL(triggered()), SLOT(editProperties()));
   connect(editStyleAction, SIGNAL(triggered()), SLOT(editStyle()));
   connect(selectAction, SIGNAL(triggered()), SLOT(setSelectMode()));
@@ -253,6 +259,7 @@ void EditItemManager::removeItem_(const QSharedPointer<DrawingItemBase> &item, b
   DrawingManager::removeItem_(item);
   hitItems_.removeOne(item);
   deselectItem(item);
+  updateJoins();
   emit itemRemoved(item->id());
   if (updateNeeded)
     update();
@@ -475,6 +482,8 @@ void EditItemManager::mouseMove(QMouseEvent *event)
       item->setLatLonPoints(getLatLonPoints(*item));
       if (rpn) repaintNeeded_ = true;
     }
+
+    adjustSelectedJoinPoints();
   }
 
   if (hitItems_ != origHitItems)
@@ -578,6 +587,8 @@ void EditItemManager::keyPress(QKeyEvent *event)
       bool rpn = false;
       Editing(origSelItem.data())->keyPress(event, rpn);
       Q_UNUSED(rpn); // ### for now
+
+      adjustSelectedJoinPoints();
     }
   }
 }
@@ -949,6 +960,101 @@ QString EditItemManager::plotElementTag() const
   return "EDITDRAWING";
 }
 
+// Updates joins by:
+// - updating the join count of joined items, and
+// - ensuring that joined end points coincide (skipped if \a updateJoinCountsOnly is true).
+void EditItemManager::updateJoins(bool updateJoinCountsOnly)
+{
+  QHash<int, QList<DrawingItemBase *> > joins;
+
+  // find all joins
+  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
+    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items()) {
+      const int joinId = item->joinId();
+      if (joinId)
+        joins[qAbs(joinId)].append(item.data());
+    }
+  }
+
+  foreach (const QList<DrawingItemBase *> &join, joins.values()) {
+
+    // update join counts
+    foreach (DrawingItemBase *item, join)
+      item->setJoinCount(join.size());
+
+    // ensure that end points of existing joins coincide
+    if ((!updateJoinCountsOnly) && (join.size() > 1)) {
+
+      // get joined end points
+      QVector<QPointF> points;
+      foreach (DrawingItemBase *item, join)
+        points.append((item->joinId() < 0) ? item->getPoints().first() : item->getPoints().last());
+
+      // select join point
+      QPointF joinPoint(QPolygonF(points).boundingRect().center()); // use center of bounding rect by default
+      foreach (DrawingItemBase *item, join)
+        if (Editing(item)->hoverPos() != QPoint(-1, -1)) { // use end point of hovered item instead
+          joinPoint = (item->joinId() < 0) ? item->getPoints().first() : item->getPoints().last();
+          break;
+        }
+
+      // move joined end points to join point
+      foreach (DrawingItemBase *item, join)
+        Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+    }
+  }
+}
+
+// Adjusts (by ensuring they coincide) all joined end points in joins that involve at least one selected item.
+void EditItemManager::adjustSelectedJoinPoints()
+{
+  // Algorithm:
+  // 1: Find all joins that involve at least one selected item (note that any hit item is assumed to be selected).
+  // 2: For each join:
+  //    case 1: the join contains any hit item: Move the joined end point of all other items to the one of the hit item.
+  //    case 2: <otherwise>: Move the joined end points of all unselected items to the joined end point of an arbitrary selected item.
+
+  QHash<int, QList<DrawingItemBase *> > unselJoins; // the unselected items in each join
+  QHash<int, QList<DrawingItemBase *> > selJoins; // the selected items in each join
+
+  // find all joins, separating unselected and selected items in each join
+  foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
+    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items()) {
+      const int absJoinId = qAbs(item->joinId());
+      if (absJoinId) {
+        if (item->selected())
+          selJoins[absJoinId].append(item.data());
+        else
+          unselJoins[absJoinId].append(item.data());
+      }
+    }
+  }
+
+  const int hitJoinId = hitItem_.isNull() ? 0 : hitItem_->joinId();
+
+  // loop over joins involving at least one selected item
+  foreach (int absJoinId, selJoins.keys()) {
+    if (absJoinId == qAbs(hitJoinId)) { // the hit item is part of this join
+      // move the joined end points in this join to the joined end point of the hit item
+      const QPointF joinPoint = (hitJoinId < 0) ? hitItem_->getPoints().first() : hitItem_->getPoints().last();
+      foreach (DrawingItemBase *item, selJoins.value(absJoinId))
+        Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+      if (unselJoins.contains(absJoinId)) {
+        foreach (DrawingItemBase *item, unselJoins.value(absJoinId))
+          Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+      }
+    } else { // the hit item is not part of this join
+      // move the joined end points of the unselected items in this join to the joined end point of an arbitrary selected item
+      DrawingItemBase *firstSelItem = selJoins.value(absJoinId).first();
+      const QPointF joinPoint = (firstSelItem->joinId() < 0) ? firstSelItem->getPoints().first() : firstSelItem->getPoints().last();
+      if (unselJoins.contains(absJoinId)) {
+        foreach (DrawingItemBase *item, unselJoins.value(absJoinId))
+          Editing(item)->movePointTo((item->joinId() < 0) ? 0 : item->getPoints().size() - 1, joinPoint);
+      }
+    }
+  }
+}
+
 // Clipboard operations
 
 void EditItemManager::copyItems(const QSet<QSharedPointer<DrawingItemBase> > &items)
@@ -1007,6 +1113,7 @@ void EditItemManager::pasteItems()
       const QSharedPointer<DrawingItemBase> item = createItemFromVarMap(cbItem.toMap(), &error);
       if (item) {
         item->setSelected();
+        item->propertiesRef().insert("joinId", 0);
         addItem(item, false);
       } else {
         QMessageBox::warning(0, "Error", error);
@@ -1017,6 +1124,79 @@ void EditItemManager::pasteItems()
   // ### the following is necessary only if items were actually added
   layerMgr_->deselectAllItems();
   updateActionsAndTimes();
+}
+
+// Joins currently selected items.
+void EditItemManager::joinSelectedItems()
+{
+  const QList<QSharedPointer<DrawingItemBase> > items = layerMgr_->itemsInSelectedLayers(true).values();
+
+  const int n = items.size();
+  if (n < 2)
+    return; // joining fewer than two items makes no sense
+  const int limit = 10;
+  if (n > limit) { // limit combinatorial explosion
+    QMessageBox::warning(0, "Error", QString("at most %1 items may be joined together").arg(limit));
+    return;
+  }
+
+  QRectF minBRect;
+  qreal minBRectDim = -1;
+  int minCombo = -1;
+
+  // loop over end point combinations
+  const int nc = qPow(2, n);
+  for (int c = 0; c < nc; ++c) {
+
+    // compute smallest bounding rect (in any dimension) for this combination and update minimum values
+    QVector<QPointF> points;
+    for (int i = 0; i < n; ++i) {
+      const bool first = (1 << i) & c;
+      points.append(first ? items.at(i)->getPoints().first() : items.at(i)->getPoints().last());
+    }
+    const QRectF brect = QPolygonF(points).boundingRect();
+    const qreal maxBRectDim = qMax(brect.width(), brect.height());
+    if ((minBRectDim < 0) || (maxBRectDim < minBRectDim)) {
+      minBRect = brect;
+      minBRectDim = maxBRectDim;
+      minCombo = c;
+    }
+  }
+
+  QBitArray first(n);
+  for (int i = 0; i < n; ++i)
+    if ((1 << i) & minCombo)
+      first.setBit(i);
+
+  // select join point
+  QPointF joinPoint(minBRect.center()); // use center of bounding rect by default
+  for (int i = 0; i < n; ++i)
+    if (Editing(items.at(i).data())->hoverPos() != QPoint(-1, -1)) { // use end point of hovered item instead
+      joinPoint = first.testBit(i) ? items.at(i)->getPoints().first() : items.at(i)->getPoints().last();
+      break;
+    }
+
+  // move joined end points to join point and register new join ID
+  QList<int> oldJoinIds;
+  QList<int> newJoinIds;
+  const int absNewJoinId = EditItemManager::instance()->nextJoinId();
+  for (int i = 0; i < n; ++i) {
+    oldJoinIds.append(items.at(i)->joinId());
+    const int newJoinId = first.testBit(i) ? -absNewJoinId : absNewJoinId;
+    newJoinIds.append(newJoinId);
+    items.at(i)->propertiesRef().insert("joinId", newJoinId);
+    Editing(items.at(i).data())->movePointTo(first.testBit(i) ? 0 : (items.at(i)->getPoints().size() - 1), joinPoint);
+  }
+
+  updateJoins(true);
+}
+
+// Unjoins currently selected items.
+void EditItemManager::unjoinSelectedItems()
+{
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true).values())
+    item->propertiesRef().insert("joinId", 0);
+  updateJoins(true);
 }
 
 //static void clearCursorStack()
@@ -1167,6 +1347,18 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
       contextMenu.addAction(cutAction);
       contextMenu.addAction(pasteAction);
       pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+
+      contextMenu.addSeparator();
+      contextMenu.addAction(joinAction);
+      joinAction->setEnabled(selectedItems.size() >= 2);
+      contextMenu.addAction(unjoinAction);
+      unjoinAction->setEnabled(false);
+      foreach (const QSharedPointer<DrawingItemBase> &item, selectedItems) {
+        if (item->joinId() && (item->joinCount() > 0)) {
+          unjoinAction->setEnabled(true);
+          break;
+        }
+      }
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction);
@@ -1371,6 +1563,7 @@ static bool itemStatesEqual(
   int nGeomChanges = 0; // # of items with ... changed geometry
   int nPropChanges = 0; // ... changes in properties
   int nSelChanges = 0; // ... changed selection state
+  int nJoinCountChanges = 0; // ... changed join counts
   int nOtherStateChanges = 0; // ... changes in other supported state
 
   for (int i = 0; i < oldItemStates.size(); ++i) { // loop over layers
@@ -1402,6 +1595,8 @@ static bool itemStatesEqual(
         nPropChanges++;
       if (oldItem->selected() != newItem->selected())
         nSelChanges++;
+      if (oldItem->joinCount() != newItem->joinCount())
+        nJoinCountChanges++;
     }
   }
 
@@ -1411,6 +1606,7 @@ static bool itemStatesEqual(
   addDiffsToDescr(descr, "%1change geometry of %2 item%3", nGeomChanges);
   addDiffsToDescr(descr, "%1change properties of %2 item%3", nPropChanges);
   addDiffsToDescr(descr, "%1change selection of %2 item%3", nSelChanges);
+  addDiffsToDescr(descr, "%1change join counts of %2 item%3", nJoinCountChanges);
   addDiffsToDescr(descr, "%1change other state of %2 item%3", nOtherStateChanges);
 
   return descr.isEmpty();
@@ -1468,6 +1664,10 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       copySelectedItems();
     } else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       pasteItems();
+    } else if (joinAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      joinSelectedItems();
+    } else if (unjoinAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      unjoinSelectedItems();
     } else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       editProperties();
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {

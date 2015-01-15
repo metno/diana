@@ -161,6 +161,9 @@ public:
   virtual QString plotElementTag() const;
   void enablePlotElement(const PlotElement &);
 
+  int nextJoinId(bool = true);
+  void separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &);
+
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
@@ -191,6 +194,9 @@ private:
   QMap<QString, QByteArray> symbols;
   mutable QHash<QString, QImage> imageCache;
   DrawingStyleManager *styleManager;
+
+  static int nextJoinId_;
+  void setNextJoinId(int);
 
   static DrawingManager *self;  // singleton instance pointer
 };

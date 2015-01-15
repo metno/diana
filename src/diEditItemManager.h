@@ -106,6 +106,8 @@ public:
 
   virtual QString plotElementTag() const;
 
+  void updateJoins(bool = false);
+
 public slots:
   void abortEditing();
   void completeEditing();
@@ -122,6 +124,8 @@ public slots:
   void mousePress(QMouseEvent *);
   void mouseRelease(QMouseEvent *);
   void pasteItems();
+  void joinSelectedItems();
+  void unjoinSelectedItems();
   void redo();
   void repaint();
   void reset();
@@ -176,6 +180,8 @@ private:
   QAction* copyAction;
   QAction* cutAction;
   QAction* pasteAction;
+  QAction* joinAction;
+  QAction* unjoinAction;
   QAction* editPropertiesAction;
   QAction* editStyleAction;
   QAction* undoAction;
@@ -214,6 +220,8 @@ private:
   QList<QList<QSharedPointer<DrawingItemBase> > > oldItemStates_;
   void saveItemStates();
   void pushModifyItemsCommand();
+
+  void adjustSelectedJoinPoints();
 
   QSharedPointer<DrawingItemBase> hitItem_; // current hit item
   QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries

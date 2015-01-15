@@ -91,6 +91,50 @@ DrawingManager *DrawingManager::instance()
   return DrawingManager::self;
 }
 
+int DrawingManager::nextJoinId_ = 1;
+
+int DrawingManager::nextJoinId(bool bump)
+{
+  // ### this function is not thread safe; use a mutex for that
+  const int origVal = nextJoinId_;
+  if (bump)
+    nextJoinId_++;
+  return origVal;
+}
+
+void DrawingManager::setNextJoinId(int val)
+{
+  // ### this function is not thread safe; use a mutex for that
+  if (val <= nextJoinId_) // only allow a higher value
+    return;
+  nextJoinId_ = val;
+}
+
+// Adjusts any join IDs in \a items to avoid conflicts with any existing joins (assuming existing join IDs are all < nextJoinId_).
+void DrawingManager::separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &items)
+{
+  int loAbsJoinId = 0;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
+    const int absJoinId = qAbs(item->joinId());
+    if (absJoinId > 0)
+      loAbsJoinId = (loAbsJoinId ? qMin(loAbsJoinId, absJoinId) : absJoinId);
+  }
+
+  const int add = (DrawingManager::instance()->nextJoinId(false) - loAbsJoinId);
+  int hiAbsJoinId = 0;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
+    const int joinId = item->joinId();
+    if (joinId) {
+      const int newAbsJoinId = qAbs(joinId) + add;
+      item->propertiesRef().insert("joinId", (joinId < 0) ? -newAbsJoinId : newAbsJoinId);
+      hiAbsJoinId = qMax(hiAbsJoinId, newAbsJoinId);
+    }
+  }
+
+  if (hiAbsJoinId)
+    setNextJoinId(hiAbsJoinId + 1);
+}
+
 bool DrawingManager::parseSetup()
 {
 #ifdef DEBUGPRINT

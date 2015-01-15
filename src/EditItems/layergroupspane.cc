@@ -203,6 +203,7 @@ void LayerGroupsPane::addToLGFromFile()
       return;
 
   layerMgr_->addToNewLayerGroup(layers);
+  EditItemManager::instance()->updateJoins();
 
   emit updated();
   updateWidgetContents();

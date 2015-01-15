@@ -79,6 +79,10 @@ public:
   // Sets the item's properties.
   void setProperties(const QVariantMap &, bool = false);
 
+  int joinId() const;
+  void setJoinCount(int);
+  int joinCount() const;
+
   // Returns the item's points.
   virtual QList<QPointF> getPoints() const;
   // Sets the item's points.
@@ -129,6 +133,7 @@ private:
   static int nextId_;
   int nextId();
   bool selected_;
+  int joinCount_;
 
   QDomElement createExtDataElement(QDomDocument &, const QHash<QString, QString> &) const;
   QDomElement createPointOrPolygonElement(QDomDocument &) const;

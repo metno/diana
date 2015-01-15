@@ -335,8 +335,15 @@ void PolyLine::removePoint()
   if ((hoverCtrlPointIndex_ >= 0) && (hoverCtrlPointIndex_ < points_.size()) && (points_.size() > 2)) {
     points_.removeAt(hoverCtrlPointIndex_);
     latLonPoints_.removeAt(hoverCtrlPointIndex_);
+    const int origHCPIndex = hoverCtrlPointIndex_;
     hoverCtrlPointIndex_ = -1;
     updateControlPoints();
+
+    // unjoin polyline if removing a joined end point
+    if (((origHCPIndex == 0) && (joinId() < 0)) || ((origHCPIndex == points_.size()) && (joinId() > 0))) {
+      propertiesRef().insert("joinId", 0);
+      EditItemManager::instance()->updateJoins();
+    }
   }
 }
 

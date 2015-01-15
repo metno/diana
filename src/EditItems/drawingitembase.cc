@@ -37,6 +37,7 @@
 DrawingItemBase::DrawingItemBase(int id__)
     : id_((id__ >= 0) ? id__ : nextId())
     , selected_(false)
+    , joinCount_(0)
 {
 }
 
@@ -61,6 +62,7 @@ DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm, bool setUnique
   item->setProperties(properties());
 
   item->selected_ = selected_;
+  item->joinCount_ = joinCount_;
 
   return item;
 }
@@ -75,6 +77,7 @@ void DrawingItemBase::setState(const DrawingItemBase *item)
   setProperties(props);
 
   selected_ = item->selected_;
+  joinCount_ = item->joinCount_;
 }
 
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const
@@ -115,6 +118,25 @@ void DrawingItemBase::setProperties(const QVariantMap &properties, bool ignorePo
     foreach (QVariant v, points)
       latLonPoints_.append(v.toPointF());
   }
+}
+
+// Returns the current join ID of the item. Two or more items are considered joined if their "joinId" properties are non-zero
+// and have the same absolute value. A negative and positive join ID indicates joining of the first and last end point respectively.
+int DrawingItemBase::joinId() const
+{
+  bool ok;
+  const int joinId = properties().value("joinId").toInt(&ok);
+  return ok ? joinId : 0;
+}
+
+void DrawingItemBase::setJoinCount(int jc)
+{
+  joinCount_ = jc;
+}
+
+int DrawingItemBase::joinCount() const
+{
+  return joinCount_;
 }
 
 QList<QPointF> DrawingItemBase::getPoints() const
@@ -204,6 +226,11 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
     if (key.startsWith("style:"))
       extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), properties_.value(key).toString()));
   }
+
+  // join ID
+  const int jid = joinId();
+  if (jid)
+    extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:joinId"), QString::number(jid)));
 
   // extra data
   foreach (const QString key, extra.keys()) {
