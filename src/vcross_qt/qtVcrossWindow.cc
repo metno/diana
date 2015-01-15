@@ -352,6 +352,7 @@ void VcrossWindow::onFieldRemoved(const std::string& model, const std::string& f
   QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(position));
   QToolButton *button = static_cast<QToolButton*>(wi->widget());
   button->deleteLater();
+  delete wi;
 
   repaintPlotIfNotInGroup();
 }
