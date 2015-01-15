@@ -42,7 +42,7 @@ class Composite : public EditItemBase, public DrawingItem_Composite::Composite
   Q_OBJECT
 
 public:
-  Composite();
+  Composite(int = -1);
   virtual ~Composite();
 
   virtual bool hit(const QPointF &pos, bool selected) const;
@@ -79,7 +79,7 @@ private slots:
   void editItem();
 
 private:
-  virtual DrawingItemBase *cloneSpecial() const;
+  virtual DrawingItemBase *cloneSpecial(bool) const;
 
   QAction *editAction;
 };

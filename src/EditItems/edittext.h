@@ -42,7 +42,7 @@ class Text : public EditItemBase, public DrawingItem_Text::Text
   Q_OBJECT
 
 public:
-  Text();
+  Text(int = -1);
   virtual ~Text();
 
 private:
@@ -50,11 +50,7 @@ private:
   virtual bool hit(const QPointF &pos, bool selected) const;
   virtual bool hit(const QRectF &bbox) const;
 
-  virtual void mousePress(QMouseEvent *event, bool &repaintNeeded,
-                          QList<QUndoCommand *> *undoCommands,
-                          QSet<QSharedPointer<DrawingItemBase> > *items = 0,
-                          const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0,
-                          bool *multiItemOp = 0);
+  virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
   virtual void mouseDoubleClick(QMouseEvent *, bool &);
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
   virtual void incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
@@ -73,7 +69,7 @@ private slots:
   bool editText();
 
 private:
-  virtual DrawingItemBase *cloneSpecial() const;
+  virtual DrawingItemBase *cloneSpecial(bool) const;
 
   QAction *editAction;
 };

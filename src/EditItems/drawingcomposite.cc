@@ -44,7 +44,8 @@
 
 namespace DrawingItem_Composite {
 
-Composite::Composite()
+Composite::Composite(int id)
+  : DrawingItemBase(id)
 {
   created_ = false;
 }

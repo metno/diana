@@ -35,7 +35,8 @@
 
 namespace DrawingItem_PolyLine {
 
-PolyLine::PolyLine()
+PolyLine::PolyLine(int id)
+  : DrawingItemBase(id)
 { 
 }
 

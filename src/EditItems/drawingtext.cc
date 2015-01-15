@@ -38,7 +38,8 @@
 
 namespace DrawingItem_Text {
 
-Text::Text()
+Text::Text(int id)
+  : DrawingItemBase(id)
 {
   propertiesRef().insert("style:margin", defaultMargin());
   propertiesRef().insert("style:spacing", defaultSpacing());

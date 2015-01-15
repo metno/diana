@@ -38,7 +38,7 @@ namespace DrawingItem_Text {
 class Text : public DrawingItemBase
 {
 public:
-  Text();
+  Text(int = -1);
   virtual ~Text();
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());

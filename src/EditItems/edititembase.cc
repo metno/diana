@@ -39,6 +39,11 @@ EditItemBase::EditItemBase()
   , resizing_(false)
 {}
 
+QPointF EditItemBase::hoverPos() const
+{
+  return hoverPos_;
+}
+
 void EditItemBase::init()
 {
   moving_ = false;
@@ -100,7 +105,6 @@ void EditItemBase::move(const QPointF &pos)
   Q_ASSERT(basePoints_.size() == Drawing(this)->points_.size());
   for (int i = 0; i < Drawing(this)->points_.size(); ++i)
     Drawing(this)->points_[i] = basePoints_.at(i) + delta;
-  updateControlPoints();
 }
 
 static void drawRect(const QRectF &r, int pad, int z = 1)
@@ -179,31 +183,13 @@ void EditItemBase::draw()
  * \a repaintNeeded is set to true iff the scene needs to be repainted (typically if the item
  * modified it's state in a way that is reflected visually).
  *
- * Undo-commands representing the effect of this event should be inserted into \a undoCommands.
- * NOTE: commands must not be removed from this container (it may contain commands from other
- * items as well).
- *
- * \a items is, if non-null, a set of items that may potentially be operated on by the event
- * (always including this item).
- * Items may be inserted into or removed from this container to reflect how items were inserted or
- * removed as a result of the operation.
- * NOTE: While new items may be created (with the new operator), existing items must never be
- * deleted (using the delete operator) while in this function. This will be done from the outside.
- *
- * \a selItems is, if non-null, the subset of currently selected items.
- *
  * \a multiItemOp is, if non-null, set to true iff the event starts an operation that may involve
  * other items (such as a move operation).
  */
-void EditItemBase::mousePress(
-    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
+void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   Q_UNUSED(event)
   Q_UNUSED(repaintNeeded)
-  Q_UNUSED(undoCommands)
-  Q_UNUSED(items)
-  Q_UNUSED(selItems)
   Q_UNUSED(multiItemOp)
 }
 
@@ -226,14 +212,10 @@ void EditItemBase::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded,
   Q_UNUSED(aborted)
 }
 
-void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded)
 {
   Q_UNUSED(event);
   Q_UNUSED(repaintNeeded); // no need to set this
-  Q_ASSERT(undoCommands);
-  DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
-  if ((moving_ || resizing_) && (ditem->getPoints() != getBasePoints()))
-    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
   moving_ = resizing_ = false;
 }
 
@@ -260,7 +242,7 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
   Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded)
 {
   QPointF pos;
   const qreal nudgeVal = 1; // nudge item by this much
@@ -269,38 +251,27 @@ void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded, QList<QUndoComma
   else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
   else pos += QPointF(0, nudgeVal); // Key_Up
   moveBy(pos);
-  DrawingItemBase *ditem = Drawing(this);
-  undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
   repaintNeeded = true;
   event->accept();
 }
 
-void EditItemBase::remove(QKeyEvent *event, QSet<QSharedPointer<DrawingItemBase> > *items)
+void EditItemBase::remove(QKeyEvent *event)
 {
-  QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
-  while (it != items->end()) {
-    if ((*it).data() == Drawing(this)) {
-      it = items->erase(it);
-      event->accept();
-    } else {
-      ++it;
-    }
-  }
+  if (EditItemManager::instance()->getLayerManager()->removeItem(Drawing(this)))
+    event->accept();
 }
 
-void EditItemBase::keyPress(
-    QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
+void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
-  if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-    remove(event, items);
+  if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)) {
+    remove(event);
   } else if (
              (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
              ((event->key() == Qt::Key_Left)
               || (event->key() == Qt::Key_Right)
               || (event->key() == Qt::Key_Down)
               || (event->key() == Qt::Key_Up))) {
-    nudge(event, repaintNeeded, undoCommands);
+    nudge(event, repaintNeeded);
   }
 }
 

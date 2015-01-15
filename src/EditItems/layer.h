@@ -93,6 +93,8 @@ public:
   void clearSrcFiles();
   void insertSrcFile(const QString &);
   void uniteSrcFiles(const QSet<QString> &srcFiles);
+  QList<QSharedPointer<DrawingItemBase> > copyItems(const DrawingManager *) const;
+  void replaceItems(const QList<QSharedPointer<DrawingItemBase> > &, const DrawingManager *);
 private:
   int id_;
   static int nextId_;

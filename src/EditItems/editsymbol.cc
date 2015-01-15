@@ -40,7 +40,8 @@
 
 namespace EditItem_Symbol {
 
-Symbol::Symbol()
+Symbol::Symbol(int id)
+  : DrawingItem_Symbol::Symbol(id)
 {
   init();
   updateControlPoints();
@@ -50,9 +51,9 @@ Symbol::~Symbol()
 {
 }
 
-DrawingItemBase *Symbol::cloneSpecial() const
+DrawingItemBase *Symbol::cloneSpecial(bool setUniqueId) const
 {
-  Symbol *item = new Symbol;
+  Symbol *item = new Symbol(setUniqueId ? -1 : id());
   copyBaseData(item);
   return item;
 }
@@ -73,9 +74,7 @@ bool Symbol::hit(const QRectF &rect) const
 
 
 // ### similar to PolyLine::mousePress - move common code to base class?
-void Symbol::mousePress(
-    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
+void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   Q_ASSERT(undoCommands);
 
@@ -88,28 +87,15 @@ void Symbol::mousePress(
 
     if (multiItemOp)
       *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
-
-  } else if (event->button() == Qt::RightButton) {
-    if (selItems) {
-      // open a context menu and perform the selected action
-      QMenu contextMenu;
-      QAction remove_act(tr("&Remove"), 0);
-
-      // add actions
-      contextMenu.addAction(&remove_act);
-      QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
-      if (action == &remove_act)
-        remove(repaintNeeded, items, selItems);
-    }
   }
 }
 
-void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded)
 {
   if (resizing_)
     repaintNeeded = true;
 
-  EditItemBase::mouseRelease(event, repaintNeeded, undoCommands);
+  EditItemBase::mouseRelease(event, repaintNeeded);
 }
 
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -149,17 +135,6 @@ void Symbol::updateControlPoints()
 void Symbol::setPoints(const QList<QPointF> &points)
 {
   setGeometry(points);
-}
-
-void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
-{
-  // Option 1: remove this item only:
-  // items->remove(this);
-
-  // Option 2: remove all selected items:
-  items->subtract(*selItems);
-
-  repaintNeeded = true;
 }
 
 void Symbol::drawHoverHighlightingBG(bool incomplete, bool selected) const

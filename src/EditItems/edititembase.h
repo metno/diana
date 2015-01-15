@@ -64,22 +64,20 @@ public:
     // up to the item itself.
     virtual bool hit(const QRectF &bbox) const = 0;
 
-    virtual void mousePress(
-        QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<QSharedPointer<DrawingItemBase> > *items = 0, const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0, bool *multiItemOp = 0);
+    virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
 
+
     // Handles other events for an item in its normal state.
     // See mousePress() for the documentation of the arguments.
-    virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands);
+    virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded);
     virtual void mouseMove(QMouseEvent *event, bool &repaintNeeded);
     virtual void mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectingOnly = false);
     virtual void mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded);
-    virtual void keyPress(
-        QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-        QSet<QSharedPointer<DrawingItemBase> > *items = 0, const QSet<QSharedPointer<DrawingItemBase> > *selItems = 0);
+    virtual void keyPress(QKeyEvent *event, bool &repaintNeeded);
     virtual void keyRelease(QKeyEvent *event, bool &repaintNeeded);
+
 
     // Handles other events for an item in the process of being completed (i.e. during manual placement of a new item).
     // See incompleteMousePress() for the documentation of the arguments.
@@ -100,6 +98,7 @@ public:
     virtual QList<QAction *> actions(const QPoint &pos) const;
 
     virtual void updateHoverPos(const QPoint &);
+    QPointF hoverPos() const;
 
 protected:
     EditItemBase();
@@ -145,8 +144,8 @@ protected:
     static int controlPointSize() { return 8; }
 
 private:
-    void nudge(QKeyEvent *, bool &, QList<QUndoCommand *> *);
-    void remove(QKeyEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
+    void nudge(QKeyEvent *, bool &);
+    void remove(QKeyEvent *);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(EditItemBase::DrawModes)

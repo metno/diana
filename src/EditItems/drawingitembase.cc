@@ -34,8 +34,8 @@
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/kml.h>
 
-DrawingItemBase::DrawingItemBase()
-    : id_(nextId())
+DrawingItemBase::DrawingItemBase(int id__)
+    : id_((id__ >= 0) ? id__ : nextId())
     , selected_(false)
 {
 }
@@ -51,13 +51,30 @@ int DrawingItemBase::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm) const
+DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm, bool setUniqueId) const
 {
-  DrawingItemBase *item = cloneSpecial();
+  DrawingItemBase *item = cloneSpecial(setUniqueId);
+
   item->setLatLonPoints(dm->getLatLonPoints(*item));
+
   const_cast<QVariantMap &>(propertiesRef()).remove("points");
   item->setProperties(properties());
+
+  item->selected_ = selected_;
+
   return item;
+}
+
+void DrawingItemBase::setState(const DrawingItemBase *item)
+{
+  setPoints(item->getPoints());
+  setLatLonPoints(item->getLatLonPoints());
+
+  QVariantMap props(item->properties());
+  props.remove("points");
+  setProperties(props);
+
+  selected_ = item->selected_;
 }
 
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const

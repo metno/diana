@@ -83,10 +83,14 @@ public:
   bool findLayer(const QSharedPointer<DrawingItemBase> &, QSharedPointer<Layer> &) const;
   void removeLayer(const QSharedPointer<Layer> &);
   void moveLayer(const QSharedPointer<Layer> &, const QSharedPointer<Layer> &);
-  void removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  bool removeItem(const QSharedPointer<DrawingItemBase> &, bool = true);
+  bool removeItem(const DrawingItemBase *);
 
   void copyState(QList<QSharedPointer<LayerGroup> > *, QList<QSharedPointer<Layer> > *) const;
   void replaceState(const QList<QSharedPointer<LayerGroup> > &, const QList<QSharedPointer<Layer> > &);
+
+  QList<QList<QSharedPointer<DrawingItemBase> > > copyItemStates(const DrawingManager *) const;
+  void replaceItemStates(const QList<QList<QSharedPointer<DrawingItemBase> > > &, const DrawingManager *);
 
   QBitArray selected() const;
   QBitArray visible() const;

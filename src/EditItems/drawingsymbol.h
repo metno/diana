@@ -42,7 +42,7 @@ namespace DrawingItem_Symbol {
 class Symbol : public DrawingItemBase
 {
 public:
-  Symbol();
+  Symbol(int = -1);
   virtual ~Symbol();
   virtual QDomNode toKML(const QHash<QString, QString> &extraExtData) const;
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
