@@ -62,7 +62,7 @@
 
 #define PLOTM PlotModule::instance()
 
-EditItemManager *EditItemManager::self = 0;
+EditItemManager *EditItemManager::self_ = 0;
 
 EditItemManager::EditItemManager()
   : selectingOnly_(true)
@@ -84,56 +84,56 @@ EditItemManager::EditItemManager()
   connect(&undoStack_, SIGNAL(canRedoChanged(bool)), this, SIGNAL(canRedoChanged(bool)));
   connect(&undoStack_, SIGNAL(indexChanged(int)), this, SLOT(repaint()));
 
-  copyAction = new QAction(tr("Copy"), this);
-  copyAction->setShortcut(QKeySequence::Copy);
-  cutAction = new QAction(tr("Cut"), this);
-  cutAction->setShortcut(tr("Ctrl+X"));
-  pasteAction = new QAction(tr("Paste"), this);
-  pasteAction->setShortcut(QKeySequence::Paste);
-  joinAction = new QAction(tr("Join"), this);
-  joinAction->setShortcut(QString("J"));
-  unjoinAction = new QAction(tr("Unjoin"), this);
-  unjoinAction->setShortcut(tr("Ctrl+J"));
-  toggleReversedAction = new QAction(tr("Toggle reversed"), this);
-  toggleReversedAction->setShortcut(QString("R"));
-  editPropertiesAction = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
-  editPropertiesAction->setShortcut(tr("Ctrl+R"));
-  editStyleAction = new QAction(tr("Edit Style..."), this);
+  copyAction_ = new QAction(tr("Copy"), this);
+  copyAction_->setShortcut(QKeySequence::Copy);
+  cutAction_ = new QAction(tr("Cut"), this);
+  cutAction_->setShortcut(tr("Ctrl+X"));
+  pasteAction_ = new QAction(tr("Paste"), this);
+  pasteAction_->setShortcut(QKeySequence::Paste);
+  joinAction_ = new QAction(tr("Join"), this);
+  joinAction_->setShortcut(QString("J"));
+  unjoinAction_ = new QAction(tr("Unjoin"), this);
+  unjoinAction_->setShortcut(tr("Ctrl+J"));
+  toggleReversedAction_ = new QAction(tr("Toggle reversed"), this);
+  toggleReversedAction_->setShortcut(QString("R"));
+  editPropertiesAction_ = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
+  editPropertiesAction_->setShortcut(tr("Ctrl+R"));
+  editStyleAction_ = new QAction(tr("Edit Style..."), this);
   //editStyleAction->setShortcut(tr("Ctrl+Y")); // ### already in use?
-  undoAction = undoStack_.createUndoAction(this);
-  redoAction = undoStack_.createRedoAction(this);
+  undoAction_ = undoStack_.createUndoAction(this);
+  redoAction_ = undoStack_.createRedoAction(this);
 
-  selectAction = new QAction(QPixmap(paint_select2_xpm), tr("&Select"), this);
+  selectAction_ = new QAction(QPixmap(paint_select2_xpm), tr("&Select"), this);
   //selectAction->setShortcut(tr("Ctrl+???"));
-  selectAction->setCheckable(true);
+  selectAction_->setCheckable(true);
 
-  createPolyLineAction = new QAction(QPixmap(paint_create_polyline_xpm), tr("Create &Polyline"), this);
+  createPolyLineAction_ = new QAction(QPixmap(paint_create_polyline_xpm), tr("Create &Polyline"), this);
   //createPolyLineAction->setShortcut(tr("Ctrl+???"));
-  createPolyLineAction->setCheckable(true);
+  createPolyLineAction_->setCheckable(true);
 
-  createSymbolAction = new QAction(QPixmap(paint_create_symbol_xpm), tr("Create &Symbol"), this);
+  createSymbolAction_ = new QAction(QPixmap(paint_create_symbol_xpm), tr("Create &Symbol"), this);
   //createSymbolAction->setShortcut(tr("Ctrl+???"));
-  createSymbolAction->setCheckable(true);
+  createSymbolAction_->setCheckable(true);
 
-  createTextAction = new QAction(QPixmap(paint_create_text_xpm), tr("Text"), this);
-  createTextAction->setCheckable(true);
+  createTextAction_ = new QAction(QPixmap(paint_create_text_xpm), tr("Text"), this);
+  createTextAction_->setCheckable(true);
 
-  createCompositeAction = new QAction(tr("Composite"), this);
-  createCompositeAction->setCheckable(true);
+  createCompositeAction_ = new QAction(tr("Composite"), this);
+  createCompositeAction_->setCheckable(true);
 
-  connect(copyAction, SIGNAL(triggered()), SLOT(copySelectedItems()));
-  connect(cutAction, SIGNAL(triggered()), SLOT(cutSelectedItems()));
-  connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
-  connect(joinAction, SIGNAL(triggered()), SLOT(joinSelectedItems()));
-  connect(unjoinAction, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
-  connect(toggleReversedAction, SIGNAL(triggered()), SLOT(toggleReversedForSelectedItems()));
-  connect(editPropertiesAction, SIGNAL(triggered()), SLOT(editProperties()));
-  connect(editStyleAction, SIGNAL(triggered()), SLOT(editStyle()));
-  connect(selectAction, SIGNAL(triggered()), SLOT(setSelectMode()));
-  connect(createPolyLineAction, SIGNAL(triggered()), SLOT(setCreatePolyLineMode()));
-  connect(createSymbolAction, SIGNAL(triggered()), SLOT(setCreateSymbolMode()));
-  connect(createTextAction, SIGNAL(triggered()), SLOT(setCreateTextMode()));
-  connect(createCompositeAction, SIGNAL(triggered()), SLOT(setCreateCompositeMode()));
+  connect(copyAction_, SIGNAL(triggered()), SLOT(copySelectedItems()));
+  connect(cutAction_, SIGNAL(triggered()), SLOT(cutSelectedItems()));
+  connect(pasteAction_, SIGNAL(triggered()), SLOT(pasteItems()));
+  connect(joinAction_, SIGNAL(triggered()), SLOT(joinSelectedItems()));
+  connect(unjoinAction_, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
+  connect(toggleReversedAction_, SIGNAL(triggered()), SLOT(toggleReversedForSelectedItems()));
+  connect(editPropertiesAction_, SIGNAL(triggered()), SLOT(editProperties()));
+  connect(editStyleAction_, SIGNAL(triggered()), SLOT(editStyle()));
+  connect(selectAction_, SIGNAL(triggered()), SLOT(setSelectMode()));
+  connect(createPolyLineAction_, SIGNAL(triggered()), SLOT(setCreatePolyLineMode()));
+  connect(createSymbolAction_, SIGNAL(triggered()), SLOT(setCreateSymbolMode()));
+  connect(createTextAction_, SIGNAL(triggered()), SLOT(setCreateTextMode()));
+  connect(createCompositeAction_, SIGNAL(triggered()), SLOT(setCreateCompositeMode()));
 
   setSelectMode();
   setEnabled(true);
@@ -147,10 +147,10 @@ EditItemManager::~EditItemManager()
 
 EditItemManager *EditItemManager::instance()
 {
-  if (!EditItemManager::self)
-    EditItemManager::self = new EditItemManager();
+  if (!EditItemManager::self_)
+    EditItemManager::self_ = new EditItemManager();
 
-  return EditItemManager::self;
+  return EditItemManager::self_;
 }
 
 void EditItemManager::setEditing(bool enable)
@@ -623,8 +623,8 @@ void EditItemManager::plot(bool under, bool over)
   setPlotRect(PLOTM->getPlotSize());
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  glTranslatef(editRect.x1, editRect.y1, 0.0);
-  glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+  glTranslatef(editRect_.x1, editRect_.y1, 0.0);
+  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
@@ -803,18 +803,18 @@ void EditItemManager::deselectAllItems(bool notify)
 QHash<EditItemManager::Action, QAction*> EditItemManager::actions()
 {
   QHash<Action, QAction*> a;
-  a[Cut] = cutAction;
-  a[Copy] = copyAction;
-  a[Paste] = pasteAction;
-  a[EditProperties] = editPropertiesAction;
-  a[EditStyle] = editStyleAction;
-  a[Undo] = undoAction;
-  a[Redo] = redoAction;
-  a[Select] = selectAction;
-  a[CreatePolyLine] = createPolyLineAction;
-  a[CreateSymbol] = createSymbolAction;
-  a[CreateText] = createTextAction;
-  a[CreateComposite] = createCompositeAction;
+  a[Cut] = cutAction_;
+  a[Copy] = copyAction_;
+  a[Paste] = pasteAction_;
+  a[EditProperties] = editPropertiesAction_;
+  a[EditStyle] = editStyleAction_;
+  a[Undo] = undoAction_;
+  a[Redo] = redoAction_;
+  a[Select] = selectAction_;
+  a[CreatePolyLine] = createPolyLineAction_;
+  a[CreateSymbol] = createSymbolAction_;
+  a[CreateText] = createTextAction_;
+  a[CreateComposite] = createCompositeAction_;
   return a;
 }
 
@@ -848,11 +848,11 @@ void EditItemManager::setStyleType()
 void EditItemManager::updateActions()
 {
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
-  cutAction->setEnabled(selItems.size() > 0);
-  copyAction->setEnabled(selItems.size() > 0);
-  pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
-  editPropertiesAction->setEnabled(selItems.size() == 1);
-  editStyleAction->setEnabled(selItems.size() > 0);
+  cutAction_->setEnabled(selItems.size() > 0);
+  copyAction_->setEnabled(selItems.size() > 0);
+  pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+  editPropertiesAction_->setEnabled(selItems.size() == 1);
+  editStyleAction_->setEnabled(selItems.size() > 0);
 }
 
 void EditItemManager::updateTimes()
@@ -1218,7 +1218,7 @@ void EditItemManager::setSelectMode()
 {
   abortEditing();
   mode_ = SelectMode;
-  selectAction->setChecked(true);
+  selectAction_->setChecked(true);
   emit unsetWorkAreaCursor();
 }
 
@@ -1226,7 +1226,7 @@ void EditItemManager::setCreatePolyLineMode()
 {
   abortEditing();
   mode_ = CreatePolyLineMode;
-  createPolyLineAction->setChecked(true);
+  createPolyLineAction_->setChecked(true);
   const QCursor cursor = QCursor(QPixmap(paint_create_polyline_xpm), 4, 4);
   emit setWorkAreaCursor(cursor);
 }
@@ -1235,7 +1235,7 @@ void EditItemManager::setCreateSymbolMode()
 {
   abortEditing();
   mode_ = CreateSymbolMode;
-  createSymbolAction->setChecked(true);
+  createSymbolAction_->setChecked(true);
   const QCursor cursor = QCursor(QPixmap(paint_create_symbol_xpm), 4, 4);
   emit setWorkAreaCursor(cursor);
 }
@@ -1244,7 +1244,7 @@ void EditItemManager::setCreateTextMode()
 {
   abortEditing();
   mode_ = CreateTextMode;
-  createTextAction->setChecked(true);
+  createTextAction_->setChecked(true);
   const QCursor cursor(Qt::IBeamCursor);
   emit setWorkAreaCursor(cursor);
 }
@@ -1253,7 +1253,7 @@ void EditItemManager::setCreateCompositeMode()
 {
   abortEditing();
   mode_ = CreateCompositeMode;
-  createCompositeAction->setChecked(true);
+  createCompositeAction_->setChecked(true);
   const QCursor cursor(Qt::PointingHandCursor);
   emit setWorkAreaCursor(cursor);
 }
@@ -1289,8 +1289,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   // Determine the displacement from the edit origin to the current view origin
   // in screen coordinates. This gives us displaced screen coordinates - these
   // are coordinates relative to the original edit rectangle.
-  float dx = (plotRect.x1 - editRect.x1) * (w/plotRect.width());
-  float dy = (plotRect.y1 - editRect.y1) * (h/plotRect.height());
+  float dx = (plotRect_.x1 - editRect_.x1) * (w/plotRect_.width());
+  float dy = (plotRect_.y1 - editRect_.y1) * (h/plotRect_.height());
 
   // Translate the mouse event by the current displacement of the viewport.
   QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
@@ -1352,32 +1352,32 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         selectedCategories.insert(item->category());
 
       QMenu contextMenu;
-      contextMenu.addAction(copyAction);
-      contextMenu.addAction(cutAction);
-      contextMenu.addAction(pasteAction);
-      pasteAction->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
+      contextMenu.addAction(copyAction_);
+      contextMenu.addAction(cutAction_);
+      contextMenu.addAction(pasteAction_);
+      pasteAction_->setEnabled(QApplication::clipboard()->mimeData()->hasFormat("application/x-diana-object"));
 
       contextMenu.addSeparator();
-      contextMenu.addAction(joinAction);
-      joinAction->setEnabled(selectedItems.size() >= 2);
-      contextMenu.addAction(unjoinAction);
-      unjoinAction->setEnabled(false);
+      contextMenu.addAction(joinAction_);
+      joinAction_->setEnabled(selectedItems.size() >= 2);
+      contextMenu.addAction(unjoinAction_);
+      unjoinAction_->setEnabled(false);
       foreach (const QSharedPointer<DrawingItemBase> &item, selectedItems) {
         if (item->joinId() && (item->joinCount() > 0)) {
-          unjoinAction->setEnabled(true);
+          unjoinAction_->setEnabled(true);
           break;
         }
       }
 
       contextMenu.addSeparator();
-      contextMenu.addAction(toggleReversedAction);
-      toggleReversedAction->setEnabled(selectedItems.size() >= 1);
+      contextMenu.addAction(toggleReversedAction_);
+      toggleReversedAction_->setEnabled(selectedItems.size() >= 1);
 
       contextMenu.addSeparator();
-      contextMenu.addAction(editPropertiesAction);
-      editPropertiesAction->setEnabled(selectedItems.size() == 1);
-      contextMenu.addAction(editStyleAction);
-      editStyleAction->setEnabled(!selectedItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
+      contextMenu.addAction(editPropertiesAction_);
+      editPropertiesAction_->setEnabled(selectedItems.size() == 1);
+      contextMenu.addAction(editStyleAction_);
+      editStyleAction_->setEnabled(!selectedItems.isEmpty() && !selectedCategories.contains(DrawingItemBase::Composite));
 
       QMenu styleTypeMenu;
       styleTypeMenu.setTitle("Convert");
@@ -1454,19 +1454,19 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
         if (mode_ == CreatePolyLineMode) {
           item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_PolyLine::PolyLine()));
           addItem(item, true);
-          item->setProperty("style:type", createPolyLineAction->data().toString());
+          item->setProperty("style:type", createPolyLineAction_->data().toString());
         } else if (mode_ == CreateSymbolMode) {
           item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Symbol::Symbol()));
           addItem(item, true);
-          item->setProperty("style:type", createSymbolAction->data().toString());
+          item->setProperty("style:type", createSymbolAction_->data().toString());
         } else if (mode_ == CreateCompositeMode) {
           item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Composite::Composite()));
           addItem(item, true);
-          item->setProperty("style:type", createCompositeAction->data().toString());
+          item->setProperty("style:type", createCompositeAction_->data().toString());
         } else if (mode_ == CreateTextMode) {
           item = QSharedPointer<DrawingItemBase>(Drawing(new EditItem_Text::Text()));
           addItem(item, true);
-          item->setProperty("style:type", createTextAction->data().toString());
+          item->setProperty("style:type", createTextAction_->data().toString());
         }
 
         if (!item.isNull())
@@ -1671,19 +1671,19 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
 
     saveItemStates(); // record current item states
 
-    if (cutAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    if (cutAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       cutSelectedItems();
-    } else if (copyAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (copyAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       copySelectedItems();
-    } else if (pasteAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (pasteAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       pasteItems();
-    } else if (joinAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (joinAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       joinSelectedItems();
-    } else if (unjoinAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (unjoinAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       unjoinSelectedItems();
-    } else if (toggleReversedAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (toggleReversedAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       toggleReversedForSelectedItems();
-    } else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+    } else if (editPropertiesAction_->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       editProperties();
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
       if (cycleHitOrder(event))

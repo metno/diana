@@ -173,9 +173,9 @@ protected:
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
-  static Rectangle plotRect;
-  static Rectangle editRect;
-  Area currentArea;
+  static Rectangle plotRect_;
+  static Rectangle editRect_;
+  Area currentArea_;
 
   // ### are these needed any longer?
   QSet<QString> drawings_;
@@ -187,18 +187,18 @@ protected:
 
 private:
 
-  GridConverter gc;
-  QString workDir;
+  GridConverter gc_;
+  QString workDir_;
 
-  QMap<QString, QSet<QString> > symbolSections;
-  QMap<QString, QByteArray> symbols;
-  mutable QHash<QString, QImage> imageCache;
-  DrawingStyleManager *styleManager;
+  QMap<QString, QSet<QString> > symbolSections_;
+  QMap<QString, QByteArray> symbols_;
+  mutable QHash<QString, QImage> imageCache_;
+  DrawingStyleManager *styleManager_;
 
   static int nextJoinId_;
   void setNextJoinId(int);
 
-  static DrawingManager *self;  // singleton instance pointer
+  static DrawingManager *self_;  // singleton instance pointer
 };
 
 #endif // _diDrawingManager_h

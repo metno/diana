@@ -112,8 +112,8 @@ private:
   // Record the style maps for each category of object.
   QHash<DrawingItemBase::Category, QHash<QString, QVariantMap> > styles_;
   QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
-  static DrawingStyleManager *self;  // singleton instance pointer
-  QStringList complexTextList;
+  static DrawingStyleManager *self_;  // singleton instance pointer
+  QStringList complexTextList_;
 };
 
 class DrawingStyleProperty

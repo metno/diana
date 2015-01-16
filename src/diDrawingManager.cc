@@ -67,15 +67,15 @@
 using namespace std;
 using namespace miutil;
 
-DrawingManager *DrawingManager::self = 0;
-Rectangle DrawingManager::plotRect;
-Rectangle DrawingManager::editRect;
+DrawingManager *DrawingManager::self_ = 0;
+Rectangle DrawingManager::plotRect_;
+Rectangle DrawingManager::editRect_;
 
 DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
-  currentArea = PLOTM->getCurrentArea();
-  styleManager = DrawingStyleManager::instance();
+  currentArea_ = PLOTM->getCurrentArea();
+  styleManager_ = DrawingStyleManager::instance();
   layerMgr_ = new EditItems::LayerManager();
 }
 
@@ -85,10 +85,10 @@ DrawingManager::~DrawingManager()
 
 DrawingManager *DrawingManager::instance()
 {
-  if (!DrawingManager::self)
-    DrawingManager::self = new DrawingManager();
+  if (!DrawingManager::self_)
+    DrawingManager::self_ = new DrawingManager();
 
-  return DrawingManager::self;
+  return DrawingManager::self_;
 }
 
 int DrawingManager::nextJoinId_ = 1;
@@ -178,12 +178,12 @@ bool DrawingManager::parseSetup()
             name = section + "|" + name;
 
           items["symbol"] = name;
-          symbols[name] = f.readAll();
+          symbols_[name] = f.readAll();
           f.close();
 
           // Add the internal symbol name to the relevant section.
-          symbolSections[section].insert(name);
-          styleManager->addStyle(DrawingItemBase::Symbol, items);
+          symbolSections_[section].insert(name);
+          styleManager_->addStyle(DrawingItemBase::Symbol, items);
         } else
           METLIBS_LOG_WARN("Failed to load drawing symbol file: " << items["file"].toStdString());
 
@@ -193,24 +193,24 @@ bool DrawingManager::parseSetup()
       }
     } else if (items.contains("style")) {
       // Read-only style definitions
-      styleManager->addStyle(DrawingItemBase::PolyLine, items);
+      styleManager_->addStyle(DrawingItemBase::PolyLine, items);
     } else if (items.contains("workdir")) {
-      workDir = items["workdir"];
+      workDir_ = items["workdir"];
     } else if (items.contains("textstyle")) {
-      styleManager->addStyle(DrawingItemBase::Text, items);
+      styleManager_->addStyle(DrawingItemBase::Text, items);
     } else if (items.contains("composite")) {
-      styleManager->addStyle(DrawingItemBase::Composite, items);
+      styleManager_->addStyle(DrawingItemBase::Composite, items);
     } else if (items.contains("complextext")) {
       QStringList strings = items["complextext"].split(",");
-      styleManager->setComplexTextList(strings);
+      styleManager_->setComplexTextList(strings);
     }
   }
 
-  if (workDir.isNull()) {
+  if (workDir_.isNull()) {
     std::string workdir = LocalSetupParser::basicValue("workdir");
     if (workdir.empty())
       workdir = LocalSetupParser::basicValue("homedir");
-    workDir = QString::fromStdString(workdir);
+    workDir_ = QString::fromStdString(workdir);
   }
 
   return true;
@@ -328,8 +328,8 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect.x1 - editRect.x1) * float(w)/plotRect.width();
-  float dy = (plotRect.y1 - editRect.y1) * float(h)/plotRect.height();
+  float dx = (plotRect_.x1 - editRect_.x1) * float(w)/plotRect_.width();
+  float dy = (plotRect_.y1 - editRect_.y1) * float(h)/plotRect_.height();
 
   int n = points.size();
 
@@ -339,7 +339,7 @@ QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
     float x, y;
     PLOTM->PhysToGeo(points.at(i).x() - dx,
                      points.at(i).y() - dy,
-                     x, y, currentArea, plotRect);
+                     x, y, currentArea_, plotRect_);
     latLonPoints.append(QPointF(x, y));
   }
 
@@ -368,7 +368,7 @@ QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) con
     float x, y;
     PLOTM->GeoToPhys(latLonPoints.at(i).x(),
                      latLonPoints.at(i).y(),
-                     x, y, currentArea, currPlotRect);
+                     x, y, currentArea_, currPlotRect);
     points.append(QPointF(x, y));
   }
 
@@ -475,7 +475,7 @@ bool DrawingManager::changeProjection(const Area& newArea)
   Rectangle r = PLOTM->getPlotSize();
   setPlotRect(r);
   setEditRect(r);
-  currentArea = newArea;
+  currentArea_ = newArea;
   return true;
 }
 
@@ -491,8 +491,8 @@ void DrawingManager::plot(bool under, bool over)
   setPlotRect(r);
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  glTranslatef(editRect.x1, editRect.y1, 0.0);
-  glScalef(plotRect.width()/w, plotRect.height()/h, 1.0);
+  glTranslatef(editRect_.x1, editRect_.y1, 0.0);
+  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
 
   QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
@@ -529,34 +529,34 @@ QSet<QString> &DrawingManager::getLoaded()
 
 QString DrawingManager::getWorkDir() const
 {
-  return workDir;
+  return workDir_;
 }
 
 void DrawingManager::setWorkDir(const QString &dir)
 {
-  workDir = dir;
+  workDir_ = dir;
 }
 
 QStringList DrawingManager::symbolNames(const QString &section) const
 {
   if (section.isNull())
-    return symbols.keys();
+    return symbols_.keys();
   
-  QStringList names = symbolSections.value(section).toList();
+  QStringList names = symbolSections_.value(section).toList();
   return names;
 }
 
 QStringList DrawingManager::symbolSectionNames() const
 {
-  return symbolSections.keys();
+  return symbolSections_.keys();
 }
 
 QImage DrawingManager::getCachedImage(const QString &name, int width, int height) const
 {
   const QString key = QString("%1 %2x%3").arg(name).arg(width).arg(height);
-  if (!imageCache.contains(key))
-    imageCache.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
-  return imageCache.value(key);
+  if (!imageCache_.contains(key))
+    imageCache_.insert(key, QGLWidget::convertToGLFormat(getSymbolImage(name, width, height)));
+  return imageCache_.value(key);
 }
 
 QImage DrawingManager::getSymbolImage(const QString &name, int width, int height) const
@@ -565,7 +565,7 @@ QImage DrawingManager::getSymbolImage(const QString &name, int width, int height
   if (width == 0 || height == 0)
     return image;
 
-  QSvgRenderer renderer(symbols.value(name));
+  QSvgRenderer renderer(symbols_.value(name));
   image.fill(QColor(0, 0, 0, 0).rgba());
   QPainter painter;
   painter.begin(&image);
@@ -577,7 +577,7 @@ QImage DrawingManager::getSymbolImage(const QString &name, int width, int height
 
 QSize DrawingManager::getSymbolSize(const QString &name) const
 {
-  QSvgRenderer renderer(symbols.value(name));
+  QSvgRenderer renderer(symbols_.value(name));
   return renderer.defaultSize();
 }
 
@@ -597,12 +597,12 @@ EditItems::LayerManager *DrawingManager::getLayerManager()
 
 void DrawingManager::setPlotRect(Rectangle r)
 {
-  DrawingManager::plotRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  DrawingManager::plotRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
 void DrawingManager::setEditRect(Rectangle r)
 {
-  DrawingManager::editRect = Rectangle(r.x1, r.y1, r.x2, r.y2);
+  DrawingManager::editRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
 std::vector<PlotElement> DrawingManager::getPlotElements() const

@@ -243,11 +243,11 @@ QVariant DSP_hide::parse(const QHash<QString, QString> &def) const
   return def.value(name(), "false") == "true";
 }
 
-DrawingStyleManager *DrawingStyleManager::self = 0;
+DrawingStyleManager *DrawingStyleManager::self_ = 0;
 
 DrawingStyleManager::DrawingStyleManager()
 {
-  self = this;
+  self_ = this;
 
   // Define the supported polyline style properties.
   properties_[DrawingItemBase::PolyLine].insert(DSP_linecolour::name(), new DSP_linecolour);
@@ -305,10 +305,10 @@ DrawingStyleManager::~DrawingStyleManager()
 
 DrawingStyleManager *DrawingStyleManager::instance()
 {
-  if (!DrawingStyleManager::self)
-    DrawingStyleManager::self = new DrawingStyleManager();
+  if (!DrawingStyleManager::self_)
+    DrawingStyleManager::self_ = new DrawingStyleManager();
 
-  return DrawingStyleManager::self;
+  return DrawingStyleManager::self_;
 }
 
 QVariantMap DrawingStyleManager::parse(const DrawingItemBase::Category &category,
@@ -369,7 +369,7 @@ void DrawingStyleManager::setStyle(DrawingItemBase *item, const QVariantMap &vst
 
 void DrawingStyleManager::setComplexTextList(const QStringList &strings)
 {
-  complexTextList = strings;
+  complexTextList_ = strings;
 }
 
 void DrawingStyleManager::beginLine(DrawingItemBase *item)
@@ -527,7 +527,7 @@ QVariantMap DrawingStyleManager::getStyle(const DrawingItemBase *item) const
 
 QStringList DrawingStyleManager::getComplexTextList() const
 {
-  return complexTextList;
+  return complexTextList_;
 }
 
 void DrawingStyleManager::highlightPolyLine(const DrawingItemBase *item, const QList<QPointF> &points, int lineWidth, const QColor &col, bool forceClosed) const
