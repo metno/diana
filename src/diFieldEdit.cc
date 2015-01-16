@@ -433,7 +433,7 @@ void FieldEdit::makeWorkfield()
 
 void FieldEdit::changeGrid()
 {
-//  cerr <<"==== changeGrid "<<areaspec<< ": "<<gridResolutionX<<endl;
+  METLIBS_LOG_DEBUG(LOGVAL(areaspec)<< LOGVAL(gridResolutionX));
   std::string demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
   if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,0)) {
@@ -475,7 +475,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
 
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
   vector<FieldGroupInfo> fgi;
-  fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
+  fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
   vector<Field*> vfout;
   std::string pin = "FIELD model=" + modelName + " plot=" + plotName;
   if ( !vcoord.empty() ) {
@@ -507,7 +507,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
 void FieldEdit::setData(const vector<Field*>& vf,
     const std::string& fieldname,
     const miTime& tprod) {
-
+METLIBS_LOG_SCOPE();
   cleanup();
 
   if (vf.size()==0) return;
@@ -539,6 +539,7 @@ void FieldEdit::setConstantValue(float value) {
 bool FieldEdit::readEditFieldFile(const std::string& filename,
     const std::string& fieldname,
     const miTime& tprod){
+  METLIBS_LOG_SCOPE();
 
   cleanup();
 

@@ -457,9 +457,8 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
   }
 
   vector<FieldGroupInfo> vfgi;
-  std::string name;
   std::string refTime;
-  getFieldGroups(tokens[1], name, refTime, true, vfgi);
+  getFieldGroups(tokens[1], refTime, true, vfgi);
   for (unsigned int i = 0; i < vfgi.size(); i++) {
     levels.push_back(vfgi[i].groupName);
     int k = 0;
@@ -828,12 +827,11 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
 
 }
 
-void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
-    std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
+void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__);
 
-  fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
+  fieldManager->getFieldGroups(modelName, refTime, vfgi);
 
   //Return vfgi whith parameter names from file + computed parameters
   if(!plotGroups) {

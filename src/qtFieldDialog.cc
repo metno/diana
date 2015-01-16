@@ -3120,15 +3120,13 @@ void FieldDialog::updateFieldOptions(const std::string& name,
   }
 }
 
-void FieldDialog::getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR,
+void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime, int& indexMGR,
     int& indexM, bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
 
-  std::string modelName;
 
   {  diutil::OverrideCursor waitCursor;
-    m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
-    modelName = model;
+    m_ctrl->getFieldGroups(modelName, refTime, plotOptions, vfg);
   }
 
   if (indexMGR >= 0 && indexM >= 0) {
@@ -3149,7 +3147,6 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
     while (indexMGR < ng && indexM < 0) {
       n = m_modelgroup[indexMGR].modelNames.size();
       i = 0;
-      modelName = modelName;
       while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i]) {
 
         //        cout << " getFieldGroups, checking group:" << indexMGR << " model:"

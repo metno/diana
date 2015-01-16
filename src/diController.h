@@ -306,8 +306,7 @@ public:
   ///return levels
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
-  void getFieldGroups(const std::string& modelNameRequest,
-      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
   ///update list of fieldsources (field files)

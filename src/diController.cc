@@ -845,14 +845,13 @@ std::string Controller::getBestFieldReferenceTime(const std::string& model, int 
   return fieldm->getBestReferenceTime(model, refOffset, refHour);
 }
 
-void Controller::getFieldGroups(const std::string& modelNameRequest,
-    std::string& modelName,
+void Controller::getFieldGroups(const std::string& modelName,
     std::string refTime,
     bool plotGroups,
     vector<FieldGroupInfo>& vfgi)
 {
 
-  fieldplotm->getFieldGroups(modelNameRequest, modelName, refTime, plotGroups, vfgi);
+  fieldplotm->getFieldGroups(modelName, refTime, plotGroups, vfgi);
 
 }
 

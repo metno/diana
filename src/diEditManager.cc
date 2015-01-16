@@ -1119,7 +1119,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
 
   vector<FieldGroupInfo> fgi;
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
-  fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
+  fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
 
   return true;
 
