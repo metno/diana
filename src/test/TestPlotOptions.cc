@@ -83,3 +83,13 @@ TEST(TestPlotOptions, AutoExpand)
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03,...0.07",
           vector<float>(expected4_f, boost::end(expected4_f))));
 }
+
+TEST(TestPlotOptions, testParsePlotOptionColour)
+{
+  Colour::define("red",255,0,0,0);
+  std::string colstr="colour=red";
+  PlotOptions poptions;
+  PlotOptions::parsePlotOption(colstr,poptions,true);
+  EXPECT_EQ("red",poptions.textcolour.Name());
+  EXPECT_EQ(colstr,poptions.toString());
+}

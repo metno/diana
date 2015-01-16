@@ -872,7 +872,11 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
   }
 
   if (returnMergedOptionString) {
-    optstr = origStr + " " + po.toString();
+    if ( origStr.empty() ) {
+      optstr = po.toString();
+    } else {
+      optstr = origStr + " " + po.toString();
+    }
   }
 
   return result;
