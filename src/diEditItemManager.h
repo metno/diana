@@ -126,6 +126,7 @@ public slots:
   void pasteItems();
   void joinSelectedItems();
   void unjoinSelectedItems();
+  void toggleReversedForSelectedItems();
   void redo();
   void repaint();
   void reset();
@@ -182,6 +183,7 @@ private:
   QAction* pasteAction;
   QAction* joinAction;
   QAction* unjoinAction;
+  QAction* toggleReversedAction;
   QAction* editPropertiesAction;
   QAction* editStyleAction;
   QAction* undoAction;

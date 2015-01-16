@@ -52,6 +52,7 @@
 #include <EditItems/style.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/layergroup.h>
+#include <EditItems/drawingstylemanager.h>
 #include <EditItems/toolbar.h>
 #include <qtMainWindow.h>
 #include "paint_select2.xpm"
@@ -93,6 +94,8 @@ EditItemManager::EditItemManager()
   joinAction->setShortcut(QString("J"));
   unjoinAction = new QAction(tr("Unjoin"), this);
   unjoinAction->setShortcut(tr("Ctrl+J"));
+  toggleReversedAction = new QAction(tr("Toggle reversed"), this);
+  toggleReversedAction->setShortcut(QString("R"));
   editPropertiesAction = new QAction(itemPropsDirectlyEditable_ ? tr("Edit P&roperties...") : tr("Show P&roperties..."), this);
   editPropertiesAction->setShortcut(tr("Ctrl+R"));
   editStyleAction = new QAction(tr("Edit Style..."), this);
@@ -123,6 +126,7 @@ EditItemManager::EditItemManager()
   connect(pasteAction, SIGNAL(triggered()), SLOT(pasteItems()));
   connect(joinAction, SIGNAL(triggered()), SLOT(joinSelectedItems()));
   connect(unjoinAction, SIGNAL(triggered()), SLOT(unjoinSelectedItems()));
+  connect(toggleReversedAction, SIGNAL(triggered()), SLOT(toggleReversedForSelectedItems()));
   connect(editPropertiesAction, SIGNAL(triggered()), SLOT(editProperties()));
   connect(editStyleAction, SIGNAL(triggered()), SLOT(editStyle()));
   connect(selectAction, SIGNAL(triggered()), SLOT(setSelectMode()));
@@ -1199,6 +1203,15 @@ void EditItemManager::unjoinSelectedItems()
   updateJoins(true);
 }
 
+void EditItemManager::toggleReversedForSelectedItems()
+{
+  foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers(true).values()) {
+    const QVariantMap style = DrawingStyleManager::instance()->getStyle(item.data());
+    const bool reversed = style.value(DSP_reversed::name()).toBool();
+    item->setProperty("style:reversed", !reversed);
+  }
+}
+
 //static void clearCursorStack()
 //{
 //    while (qApp->overrideCursor())
@@ -1359,6 +1372,10 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
           break;
         }
       }
+
+      contextMenu.addSeparator();
+      contextMenu.addAction(toggleReversedAction);
+      toggleReversedAction->setEnabled(selectedItems.size() >= 1);
 
       contextMenu.addSeparator();
       contextMenu.addAction(editPropertiesAction);
@@ -1668,6 +1685,8 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
       joinSelectedItems();
     } else if (unjoinAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       unjoinSelectedItems();
+    } else if (toggleReversedAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
+      toggleReversedForSelectedItems();
     } else if (editPropertiesAction->shortcut().matches(event->key() | event->modifiers()) == QKeySequence::ExactMatch) {
       editProperties();
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
