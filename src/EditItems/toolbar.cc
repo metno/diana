@@ -50,7 +50,6 @@ ToolBar *ToolBar::self_ = 0;
 
 ToolBar::ToolBar(QWidget *parent)
     : QToolBar(QApplication::translate("EditItems::ToolBar", "Paint Operations") + " (NEW)", parent)
-    , nonSelectActionLocked_(false)
 {
   DrawingStyleManager *dsm = DrawingStyleManager::instance();
 
@@ -61,13 +60,11 @@ ToolBar::ToolBar(QWidget *parent)
   selectAction_ = actions[EditItemManager::Select];
   addAction(selectAction_);
   actionGroup->addAction(selectAction_);
-  connect(selectAction_, SIGNAL(triggered(bool)), SLOT(handleSelectActionTriggered(bool)));
 
   // *** create polyline ***
   polyLineAction_ = actions[EditItemManager::CreatePolyLine];
   addAction(polyLineAction_);
   actionGroup->addAction(polyLineAction_);
-  connect(polyLineAction_, SIGNAL(triggered(bool)), SLOT(handleNonSelectActionTriggered(bool)));
 
   // Create a combo box containing specific polyline types.
   polyLineCombo_ = new QComboBox();
@@ -89,7 +86,6 @@ ToolBar::ToolBar(QWidget *parent)
   symbolAction_ = actions[EditItemManager::CreateSymbol];
   addAction(symbolAction_);
   actionGroup->addAction(actions[EditItemManager::CreateSymbol]);
-  connect(symbolAction_, SIGNAL(triggered(bool)), SLOT(handleNonSelectActionTriggered(bool)));
 
   // Create a combo box containing specific symbols.
   symbolCombo_ = new QComboBox();
@@ -128,7 +124,6 @@ ToolBar::ToolBar(QWidget *parent)
   textAction_ = actions[EditItemManager::CreateText];
   addAction(textAction_);
   actionGroup->addAction(textAction_);
-  connect(textAction_, SIGNAL(triggered(bool)), SLOT(handleNonSelectActionTriggered(bool)));
 
   // Create a combo box containing specific text types.
   textCombo_ = new QComboBox();
@@ -150,7 +145,6 @@ ToolBar::ToolBar(QWidget *parent)
   compositeAction_ = actions[EditItemManager::CreateComposite];
   addAction(compositeAction_);
   actionGroup->addAction(compositeAction_);
-  connect(compositeAction_, SIGNAL(triggered(bool)), SLOT(handleNonSelectActionTriggered(bool)));
 
   // Create a combo box containing specific composite types.
   compositeCombo_ = new QComboBox();
@@ -179,17 +173,6 @@ ToolBar::ToolBar(QWidget *parent)
   actionGroup->actions().at(0)->trigger();
 }
 
-bool ToolBar::nonSelectActionLocked() const
-{
-  return nonSelectActionLocked_;
-}
-
-void ToolBar::setSelectAction(bool force)
-{
-  if (force || (!EditItems::ToolBar::instance()->nonSelectActionLocked()))
-  selectAction_->trigger();
-}
-
 void ToolBar::setCreatePolyLineAction(const QString &type)
 {
   const int index = polyLineCombo_->findText(type);
@@ -197,18 +180,6 @@ void ToolBar::setCreatePolyLineAction(const QString &type)
     polyLineCombo_->setCurrentIndex(index);
     polyLineAction_->trigger();
   }
-}
-
-void ToolBar::handleSelectActionTriggered(bool checked)
-{
-  if (checked)
-    nonSelectActionLocked_ = false;
-}
-
-void ToolBar::handleNonSelectActionTriggered(bool checked)
-{
-  if (checked)
-    nonSelectActionLocked_ = QApplication::keyboardModifiers().testFlag(Qt::ControlModifier);
 }
 
 void ToolBar::setPolyLineType(int index)
