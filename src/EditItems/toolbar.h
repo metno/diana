@@ -43,13 +43,9 @@ class ToolBar : public QToolBar
   Q_OBJECT
 public:
   static ToolBar *instance();
-  bool nonSelectActionLocked() const;
-  void setSelectAction(bool = true);
   void setCreatePolyLineAction(const QString &);
 
 private slots:
-  void handleSelectActionTriggered(bool);
-  void handleNonSelectActionTriggered(bool);
   void setPolyLineType(int index);
   void setSymbolType(int index);
   void setTextType(int index);
@@ -58,8 +54,6 @@ private slots:
 private:
   ToolBar(QWidget * = 0);
   static ToolBar *self_; // singleton instance pointer
-
-  bool nonSelectActionLocked_;
 
   QAction *selectAction_;
   QAction *polyLineAction_;

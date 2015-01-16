@@ -234,7 +234,6 @@ void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool
   DrawingManager::addItem_(item);
   if (!ignoreSelection)
     selectItem(item, !QApplication::keyboardModifiers().testFlag(Qt::ControlModifier));
-  EditItems::ToolBar::instance()->setSelectAction(false);
   emit itemAdded(item.data());
   if (updateNeeded)
     update();
@@ -570,10 +569,8 @@ void EditItemManager::keyPress(QKeyEvent *event)
     return;
   }
 
-  if (event->key() == Qt::Key_Escape) {
-    EditItems::ToolBar::instance()->setSelectAction(false);
+  if (event->key() == Qt::Key_Escape)
     return;
-  }
 
   const QSet<QSharedPointer<DrawingItemBase> > origSelItems = layerMgr_->itemsInSelectedLayers(true);
   QSet<int> origSelIds;
@@ -748,7 +745,6 @@ void EditItemManager::abortEditing()
 
     incompleteItem_.clear();
     hitItems_.clear();
-    EditItems::ToolBar::instance()->setSelectAction(false);
 
     emit incompleteEditing(false);
     emit repaintNeeded();
@@ -1692,6 +1688,9 @@ void EditItemManager::sendKeyboardEvent(QKeyEvent *event, EventResult &res)
     } else if (event->modifiers().testFlag(Qt::NoModifier) && ((event->key() == Qt::Key_PageUp) || (event->key() == Qt::Key_PageDown))) {
       if (cycleHitOrder(event))
         return;
+    } else if (event->modifiers().testFlag(Qt::NoModifier) && (event->key() == Qt::Key_Escape)) {
+      setSelectMode();
+      return;
     }
   } else {
     return;
