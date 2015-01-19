@@ -62,6 +62,21 @@
 
 #define PLOTM PlotModule::instance()
 
+class UndoView : public QUndoView
+{
+public:
+  UndoView(QUndoStack *undoStack) : QUndoView(undoStack) {}
+private:
+  virtual void keyPressEvent(QKeyEvent *event)
+  {
+    // to avoid crash, support only basic keyboard navigation
+    if (event->matches(QKeySequence::MoveToPreviousLine) || event->matches(QKeySequence::MoveToNextLine))
+      QUndoView::keyPressEvent(event);
+    else
+      event->accept();
+  }
+};
+
 EditItemManager *EditItemManager::self_ = 0;
 
 EditItemManager::EditItemManager()
@@ -194,7 +209,7 @@ bool EditItemManager::processInput(const std::vector<std::string>& inp)
 QUndoView *EditItemManager::getUndoView()
 {
   if (!undoView_) {
-    undoView_ = new QUndoView(&undoStack_);
+    undoView_ = new UndoView(&undoStack_);
     undoView_->setWindowTitle("Drawing tool undo/redo stack");
   }
 

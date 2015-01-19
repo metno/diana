@@ -48,6 +48,7 @@ class QKeyEvent;
 class QMouseEvent;
 class QTextEdit;
 class QUndoStack;
+class UndoView;
 
 class EditItemManager : public DrawingManager
 {
@@ -176,7 +177,7 @@ private:
   quint32 hitOffset_;
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
-  QUndoView *undoView_;
+  UndoView *undoView_;
 
   QAction* copyAction_;
   QAction* cutAction_;
