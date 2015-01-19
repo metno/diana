@@ -48,6 +48,7 @@ class QKeyEvent;
 class QMouseEvent;
 class QTextEdit;
 class QUndoStack;
+class UndoView;
 
 class EditItemManager : public DrawingManager
 {
@@ -176,23 +177,23 @@ private:
   quint32 hitOffset_;
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
-  QUndoView *undoView_;
+  UndoView *undoView_;
 
-  QAction* copyAction;
-  QAction* cutAction;
-  QAction* pasteAction;
-  QAction* joinAction;
-  QAction* unjoinAction;
-  QAction* toggleReversedAction;
-  QAction* editPropertiesAction;
-  QAction* editStyleAction;
-  QAction* undoAction;
-  QAction* redoAction;
-  QAction* selectAction;
-  QAction* createPolyLineAction;
-  QAction* createSymbolAction;
-  QAction* createTextAction;
-  QAction* createCompositeAction;
+  QAction* copyAction_;
+  QAction* cutAction_;
+  QAction* pasteAction_;
+  QAction* joinAction_;
+  QAction* unjoinAction_;
+  QAction* toggleReversedAction_;
+  QAction* editPropertiesAction_;
+  QAction* editStyleAction_;
+  QAction* undoAction_;
+  QAction* redoAction_;
+  QAction* selectAction_;
+  QAction* createPolyLineAction_;
+  QAction* createSymbolAction_;
+  QAction* createTextAction_;
+  QAction* createCompositeAction_;
 
   enum Mode {
     SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
@@ -228,7 +229,7 @@ private:
   QSharedPointer<DrawingItemBase> hitItem_; // current hit item
   QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries
 
-  static EditItemManager *self;   // singleton instance pointer
+  static EditItemManager *self_;   // singleton instance pointer
 };
 
 
