@@ -29,14 +29,16 @@
 
 #include "VcrossQtPlot.h"
 
+#include "VcrossOptions.h"
 #include "VcrossQtAxis.h"
 #include "VcrossQtContour.h"
-#include "VcrossOptions.h"
 #include "VcrossQtPaint.h"
 #include "VcrossQtUtil.h"
-#include <diField/VcrossUtil.h>
 
 #include "diLinetype.h"
+
+#include <diField/diMetConstants.h>
+#include <diField/VcrossUtil.h>
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
@@ -785,26 +787,17 @@ void QtPlot::plotFrame(QPainter& painter)
   const float ftsteps[nftsteps] =
   { 1500., 3000., 8000., 15000., 30000., 50000, 60000 };
 
-  // P -> FlightLevels (used for remapping fields from P to FL)
-  const int mfl = 16;
-  const float plevels[mfl]
-      = { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 10 };
-  const float flevels[mfl]
-      = { 0, 25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 530, 600, 700, 800, 999 };
-
-  const float fl2m = 3.2808399; // flightlevel (100 feet unit) to meter
-
   int nticks = 0;
   const float *tickValues = 0, *tickLabels = 0;
   float scale = 1;
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
-    tickValues = plevels;
-    nticks = mfl;
+    tickValues = MetNo::Constants::pLevelTable;
+    nticks = MetNo::Constants::nLevelTable;
     if (mAxisY->label() == "hPa") {
-      tickLabels = plevels;
+      tickLabels = MetNo::Constants::pLevelTable;
     } else if (mAxisY->label() == "FL") {
-      tickLabels = flevels;
+      tickLabels = MetNo::Constants::fLevelTable;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -814,9 +807,9 @@ void QtPlot::plotFrame(QPainter& painter)
       nticks = nzsteps;
       tickValues = tickLabels = zsteps;
     } else if (mAxisY->label() == "Ft") {
-        scale = fl2m;
-        nticks = nftsteps;
-        tickValues = tickLabels = ftsteps;
+      scale = MetNo::Constants::ft_per_m;
+      nticks = nftsteps;
+      tickValues = tickLabels = ftsteps;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -857,6 +850,9 @@ void QtPlot::plotFrame(QPainter& painter)
       }
     }
 
+    const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
+        && (mAxisY->label() == "FL");
+
     // paint tick labels
     const float labelLeftEnd = tickLeftEnd - mCharSize.width();
     const float labelRightStart = tickRightStart + mCharSize.width();
@@ -866,7 +862,11 @@ void QtPlot::plotFrame(QPainter& painter)
       if (mAxisY->legalPaint(tickY)) {
         const float tickLabel = tickLabels[i];
         std::ostringstream ostr;
-        ostr << int(tickLabel) << mAxisY->label();
+        if (unitFirst)
+          ostr << mAxisY->label();
+        ostr << int(tickLabel);
+        if (!unitFirst)
+          ostr << mAxisY->label();
         const std::string txt = ostr.str();
         const QString c_str = QString::fromStdString(txt);
         const float labelW = painter.fontMetrics().width(c_str), labelH = painter.fontMetrics().height();
@@ -1094,6 +1094,22 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
   return sqrt(v);
 }
 
+std::string QtPlot::formatExtremeAnnotationValue(float value, float y)
+{
+  std::string text = miutil::from_number(value) + " (";
+
+  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE && mAxisY->label() == "FL") {
+    const double a_m = MetNo::Constants::ICAO_geo_altitude_from_pressure(y);
+    const double FL = MetNo::Constants::FL_from_geo_altitude(a_m);
+    text += "FL" + miutil::from_number(FL);
+  } else {
+    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE && mAxisY->label() == "Ft")
+      y *= MetNo::Constants::ft_per_m;
+    text += miutil::from_number(y) + mAxisY->label();
+  }
+  return text + ")";
+}
+
 std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
@@ -1157,7 +1173,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.drawEllipse(QPointF(min_px, min_py), R, R);
       painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));
       painter.drawLine(QPointF(min_px+D, min_py-D), QPointF(min_px-D, min_py+D));
-      annotation += "min=" + miutil::from_number(min_v) + " (" + miutil::from_number(min_vy) + mAxisY->label() + ")";
+      annotation += "min=" + formatExtremeAnnotationValue(min_v, min_vy);
     }
     if (have_max) {
       painter.drawEllipse(QPointF(max_px, max_py), R, R);
@@ -1166,7 +1182,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.setBrush(Qt::NoBrush);
       if (have_min)
         annotation += " ";
-      annotation += "max=" + miutil::from_number(max_v) + " (" + miutil::from_number(max_vy) + mAxisY->label() + ")";
+      annotation += "max=" + formatExtremeAnnotationValue(max_v, max_vy);
     }
   }
   return annotation;

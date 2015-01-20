@@ -2,10 +2,10 @@
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
 
-#include "puTools/mi_boost_compatibility.hh"
-#include "puTools/miStringFunctions.h"
-#include "diField/diFieldFunctions.h"
-#include "diField/diMetConstants.h"
+#include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miStringFunctions.h>
+#include <diField/diFieldFunctions.h>
+#include <diField/diMetConstants.h>
 
 #include <boost/foreach.hpp>
 
