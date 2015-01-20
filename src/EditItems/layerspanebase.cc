@@ -53,6 +53,12 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include "edit.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "visible.xpm"
+#include "unsavedchanges.xpm"
+
 namespace EditItems {
 
 LayerWidget::LayerWidget(
