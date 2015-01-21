@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,14 +38,6 @@
 #include <QString>
 #include <QMouseEvent>
 #include <QKeyEvent>
-
-#include "edit.xpm"
-#include "hideall.xpm"
-#include "movedown.xpm"
-#include "moveup.xpm"
-#include "showall.xpm"
-#include "visible.xpm"
-#include "unsavedchanges.xpm"
 
 class QVBoxLayout;
 class QHBoxLayout;

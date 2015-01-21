@@ -163,6 +163,7 @@ private:
     { return colourOrContrast(Colour(ctxt)); }
 
   static float absValue(OptionPlot_cp plot, int ix, int iy);
+  std::string formatExtremeAnnotationValue(float value, float y);
 
 private:
   VcrossOptions_p mOptions;

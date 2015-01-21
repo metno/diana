@@ -41,10 +41,10 @@ public:
     : DianaFieldBase(levels, positions), mData(data) { }
   
   size_t nx() const
-    { return mData->npoint(); }
+    { return mData->shape().length(Values::GEO_X); }
   
   size_t ny() const
-    { return mData->nlevel(); }
+    { return mData->shape().length(Values::GEO_Z); }
 
 protected:
   virtual float value(size_t ix, size_t iy) const;

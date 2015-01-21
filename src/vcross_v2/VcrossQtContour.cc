@@ -24,12 +24,19 @@ inline bool isUndefined(float v)
 
 float VCContourField::value(size_t ix, size_t iy) const
 {
-  return mData->value(ix, iy);
+  Values::ShapeIndex idx(mData->shape());
+  idx.set(Values::GEO_X, ix);
+  idx.set(Values::GEO_Z, iy);
+  return mData->value(idx);
 }
 
 contouring::point_t VCAxisPositions::position(size_t ix, size_t iy) const
 {
-  const float vx = mXval[ix], vy = mYval->value(ix, iy);
+  Values::ShapeIndex idx_y(mYval->shape());
+  idx_y.set(Values::GEO_X, ix);
+  idx_y.set(Values::GEO_Z, iy);
+
+  const float vx = mXval[ix], vy = mYval->value(idx_y);
   return contouring::point_t(mXpos->value2paint(vx, false), mYpos->value2paint(vy, false));
 }
 

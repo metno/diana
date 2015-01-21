@@ -29,14 +29,16 @@
 
 #include "VcrossQtPlot.h"
 
+#include "VcrossOptions.h"
 #include "VcrossQtAxis.h"
 #include "VcrossQtContour.h"
-#include "VcrossOptions.h"
 #include "VcrossQtPaint.h"
 #include "VcrossQtUtil.h"
-#include <diField/VcrossUtil.h>
 
 #include "diLinetype.h"
+
+#include <diField/diMetConstants.h>
+#include <diField/VcrossUtil.h>
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringBuilder.h>
@@ -393,10 +395,14 @@ void QtPlot::prepareYAxisRange()
     if (not z_values)
       continue;
     have_z = true;
-    METLIBS_LOG_DEBUG("next plot" << LOGVAL(z_values->npoint()) << LOGVAL(z_values->nlevel()));
-    for (size_t l=0; l<z_values->nlevel(); ++l) {
-      for (size_t p=0; p<z_values->npoint(); ++p) {
-        const float zax_value = z_values->value(p, l);
+    const int nl = z_values->shape().length(Values::GEO_Z), np = z_values->shape().length(Values::GEO_X);
+    METLIBS_LOG_DEBUG("next plot" << LOGVAL(np) << LOGVAL(nl));
+    Values::ShapeIndex idx(z_values->shape());
+    for (int l=0; l<nl; ++l) {
+      idx.set(Values::GEO_Z, l);
+      for (int p=0; p<np; ++p) {
+        idx.set(Values::GEO_X, p);
+        const float zax_value = z_values->value(idx);
         vcross::util::minimaximize(yax_min, yax_max, zax_value);
       }
     }
@@ -714,9 +720,11 @@ void QtPlot::plotSurface(QPainter& painter)
   painter.setBrush(vcross::util::QC(mOptions->surfaceColour));
 
   QPolygonF polygon; // TODO set pen etc
-  const int nx = mSurface->npoint();
+  const int nx = mSurface->shape().length(Values::GEO_X);
+  Values::ShapeIndex idx_surface(mSurface->shape());
   for (int ix=0; ix<nx; ++ix) {
-    const float vx = distances.at(ix), p0 = mSurface->value(ix, 0);
+    idx_surface.set(Values::GEO_X, ix);
+    const float vx = distances.at(ix), p0 = mSurface->value(idx_surface);
     const float px = mAxisX->value2paint(vx);
     float py = mAxisY->value2paint(p0);
     bool this_ok = mAxisX->legalPaint(px);
@@ -779,26 +787,17 @@ void QtPlot::plotFrame(QPainter& painter)
   const float ftsteps[nftsteps] =
   { 1500., 3000., 8000., 15000., 30000., 50000, 60000 };
 
-  // P -> FlightLevels (used for remapping fields from P to FL)
-  const int mfl = 16;
-  const float plevels[mfl]
-      = { 1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 10 };
-  const float flevels[mfl]
-      = { 0, 25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 530, 600, 700, 800, 999 };
-
-  const float fl2m = 3.2808399; // flightlevel (100 feet unit) to meter
-
   int nticks = 0;
   const float *tickValues = 0, *tickLabels = 0;
   float scale = 1;
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
-    tickValues = plevels;
-    nticks = mfl;
+    tickValues = MetNo::Constants::pLevelTable;
+    nticks = MetNo::Constants::nLevelTable;
     if (mAxisY->label() == "hPa") {
-      tickLabels = plevels;
+      tickLabels = MetNo::Constants::pLevelTable;
     } else if (mAxisY->label() == "FL") {
-      tickLabels = flevels;
+      tickLabels = MetNo::Constants::fLevelTable;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -808,9 +807,9 @@ void QtPlot::plotFrame(QPainter& painter)
       nticks = nzsteps;
       tickValues = tickLabels = zsteps;
     } else if (mAxisY->label() == "Ft") {
-        scale = fl2m;
-        nticks = nftsteps;
-        tickValues = tickLabels = ftsteps;
+      scale = MetNo::Constants::ft_per_m;
+      nticks = nftsteps;
+      tickValues = tickLabels = ftsteps;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -851,6 +850,9 @@ void QtPlot::plotFrame(QPainter& painter)
       }
     }
 
+    const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
+        && (mAxisY->label() == "FL");
+
     // paint tick labels
     const float labelLeftEnd = tickLeftEnd - mCharSize.width();
     const float labelRightStart = tickRightStart + mCharSize.width();
@@ -860,7 +862,11 @@ void QtPlot::plotFrame(QPainter& painter)
       if (mAxisY->legalPaint(tickY)) {
         const float tickLabel = tickLabels[i];
         std::ostringstream ostr;
-        ostr << int(tickLabel) << mAxisY->label();
+        if (unitFirst)
+          ostr << mAxisY->label();
+        ostr << int(tickLabel);
+        if (!unitFirst)
+          ostr << mAxisY->label();
         const std::string txt = ostr.str();
         const QString c_str = QString::fromStdString(txt);
         const float labelW = painter.fontMetrics().width(c_str), labelH = painter.fontMetrics().height();
@@ -872,17 +878,22 @@ void QtPlot::plotFrame(QPainter& painter)
   }
 }
 
-static bool isPlotOk(EvaluatedPlot_cp ep, size_t npoint, std::string& error)
+static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error)
 {
   if (ep->argument_values.empty()) {
     error = "no argument_values, cannot plot";
+    return false;
   } else if (not ep->z_values) {
     error = "no z_values, cannot plot";
-  } else if (ep->z_values->npoint() != npoint) {
-    error = (miutil::StringBuilder() << "unexpected z point count " << ep->z_values->npoint()
+    return false;
+  }
+  const int np_z = ep->z_values->shape().length(Values::GEO_X),
+      np_v0 = ep->values(0)->shape().length(Values::GEO_X);
+  if (np_z != npoint && np_z != 1) {
+    error = (miutil::StringBuilder() << "unexpected z point count " << np_z
         << " != " << npoint << ", cannot plot").str();
-  } else if (ep->values(0)->npoint() != npoint) {
-    error = (miutil::StringBuilder() << "unexpected v0 point count " << ep->values(0)->npoint()
+  } else if (np_v0 != npoint) {
+    error = (miutil::StringBuilder() << "unexpected v0 point count " << np_v0
         << " != " << npoint << ", cannot plot").str();
   } else {
     error = std::string();
@@ -1017,7 +1028,8 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
-  const int nx = z_values->npoint(), ny = z_values->nlevel();
+  const int ny = z_values->shape().length(Values::GEO_Z), nx = av0->shape().length(Values::GEO_X);
+  Values::ShapeIndex idx_z(z_values->shape()), idx_av0(av0->shape()), idx_av1(av1->shape());
   float lastX = - 1;
   bool paintedX = false;
   for (int ix=0; ix<nx; ix += xStep) {
@@ -1031,13 +1043,19 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
 
     bool paintedY = false;
     float lastY = - 1;
+    idx_z.set(Values::GEO_X, ix);
+    idx_av0.set(Values::GEO_X, ix);
+    idx_av1.set(Values::GEO_X, ix);
     for (int iy=0; iy<ny; iy += 1) {
-      const float vy = z_values->value(ix, iy);
+      idx_z.set(Values::GEO_Z, iy);
+      idx_av0.set(Values::GEO_Z, iy);
+      idx_av1.set(Values::GEO_Z, iy);
+      const float vy = z_values->value(idx_z);
       const float py = mAxisY->value2paint(vy);
       const bool paintThisY = mAxisY->legalPaint(py)
           and ((not xStepAuto) or (not paintedY) or (std::abs(py - lastY) >= 2*pa.size()));
       if (paintThisY) {
-        const float wx = av0->value(ix, iy), wy = av1->value(ix, iy);
+        const float wx = av0->value(idx_av0), wy = av1->value(idx_av1);
         if (not (isnan(wx) or isnan(wy))) {
           pa.paint(painter, wx, wy, px, py);
           lastY = py;
@@ -1059,15 +1077,37 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
   const size_t n = plot->evaluated->argument_values.size();
   if (n == 0)
     return 0;
-  float v = plot->evaluated->values(0)->value(ix, iy);
+  Values::ShapeIndex idx_v0(plot->evaluated->values(0)->shape());
+  idx_v0.set(Values::GEO_X, ix);
+  idx_v0.set(Values::GEO_Z, iy);
+  float v = plot->evaluated->values(0)->value(idx_v0);
   if (n == 1)
     return v;
   v *= v;
   for (size_t i=1; i<n; ++i) {
-    const float vi = plot->evaluated->values(i)->value(ix, iy);
+    Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
+    idx_vi.set(Values::GEO_X, ix);
+    idx_vi.set(Values::GEO_Z, iy);
+    const float vi = plot->evaluated->values(i)->value(idx_vi);
     v += vi*vi;
   }
   return sqrt(v);
+}
+
+std::string QtPlot::formatExtremeAnnotationValue(float value, float y)
+{
+  std::string text = miutil::from_number(value) + " (";
+
+  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE && mAxisY->label() == "FL") {
+    const double a_m = MetNo::Constants::ICAO_geo_altitude_from_pressure(y);
+    const double FL = MetNo::Constants::FL_from_geo_altitude(a_m);
+    text += "FL" + miutil::from_number(FL);
+  } else {
+    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE && mAxisY->label() == "Ft")
+      y *= MetNo::Constants::ft_per_m;
+    text += miutil::from_number(y) + mAxisY->label();
+  }
+  return text + ")";
 }
 
 std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
@@ -1080,7 +1120,8 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 
   // step 1: loop through all values, find minimum / maximum visible value
 
-  const int nx = z_values->npoint(), ny = z_values->nlevel();
+  const int ny = z_values->shape().length(Values::GEO_Z), nx = z_values->shape().length(Values::GEO_X);
+  Values::ShapeIndex idx_z(z_values->shape());
   bool have_max = false, have_min = false;
   float max_px = -1, max_py = -1, max_vy = 0, min_px = -1, min_py = -1, min_vy = 0;
   float max_v = 0, min_v = 0;
@@ -1091,8 +1132,10 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
     if (not mAxisX->legalPaint(px))
       continue;
 
+    idx_z.set(Values::GEO_X, ix);
     for (int iy=0; iy<ny; iy += 1) {
-      const float vy = z_values->value(ix, iy);
+      idx_z.set(Values::GEO_Z, iy);
+      const float vy = z_values->value(idx_z);
       const float py = mAxisY->value2paint(vy);
       if (not mAxisY->legalPaint(py))
         continue;
@@ -1130,7 +1173,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.drawEllipse(QPointF(min_px, min_py), R, R);
       painter.drawLine(QPointF(min_px+D, min_py+D), QPointF(min_px-D, min_py-D));
       painter.drawLine(QPointF(min_px+D, min_py-D), QPointF(min_px-D, min_py+D));
-      annotation += "min=" + miutil::from_number(min_v) + " (" + miutil::from_number(min_vy) + mAxisY->label() + ")";
+      annotation += "min=" + formatExtremeAnnotationValue(min_v, min_vy);
     }
     if (have_max) {
       painter.drawEllipse(QPointF(max_px, max_py), R, R);
@@ -1139,7 +1182,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       painter.setBrush(Qt::NoBrush);
       if (have_min)
         annotation += " ";
-      annotation += "max=" + miutil::from_number(max_v) + " (" + miutil::from_number(max_vy) + mAxisY->label() + ")";
+      annotation += "max=" + formatExtremeAnnotationValue(max_v, max_vy);
     }
   }
   return annotation;
@@ -1162,9 +1205,11 @@ void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
       : mCrossectionDistances;
 
   QPolygonF polyline;
-  const int nx = ol.linevalues->npoint();
+  const int nx = ol.linevalues->shape().length(Values::GEO_X);
+  Values::ShapeIndex ol_idx(ol.linevalues->shape());
   for (int ix=0; ix<nx; ++ix) {
-    const float vx = distances.at(ix), lv = ol.linevalues->value(ix, 0);
+    ol_idx.set(Values::GEO_X, ix);
+    const float vx = distances.at(ix), lv = ol.linevalues->value(ol_idx);
     const float px = mAxisX->value2paint(vx);
     float py = mAxisY->value2paint(lv);
     if (mAxisX->legalPaint(px) and mAxisY->legalPaint(py))

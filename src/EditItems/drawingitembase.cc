@@ -147,6 +147,7 @@ QList<QPointF> DrawingItemBase::getPoints() const
 void DrawingItemBase::setPoints(const QList<QPointF> &points)
 {
   points_ = points;
+  updateRect();
 }
 
 QSizeF DrawingItemBase::getSize() const

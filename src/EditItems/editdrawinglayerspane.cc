@@ -46,6 +46,12 @@
 #include <QMenu>
 #include <QAction>
 
+#include "edit.xpm"
+#include "hideall.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "showall.xpm"
+
 #include "undo.xpm"
 #include "redo.xpm"
 #include "selectall.xpm"

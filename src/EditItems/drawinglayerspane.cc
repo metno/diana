@@ -40,6 +40,11 @@
 #include <QAction>
 
 #include "duplicate_to_editable.xpm"
+#include "edit.xpm"
+#include "hideall.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "showall.xpm"
 
 namespace EditItems {
 
