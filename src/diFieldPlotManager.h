@@ -81,7 +81,7 @@ public:
       const std::vector<std::string>& option);
 
   /// return available times for the requested models and fields
-  void makeFieldText(Field* fout, const std::string& plotName);
+  void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel=false);
 
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool updateSources=false);
 
@@ -124,6 +124,8 @@ private:
   bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);
 
   void parseString(std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
+
+  void flightlevel2pressure(FieldRequest& frq);
 
   std::map<std::string, std::string> groupNames;
 

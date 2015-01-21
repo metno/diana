@@ -36,6 +36,7 @@
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
+#include <diField/diFieldFunctions.h>
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -379,6 +380,7 @@ vector<std::string> FieldPlotManager::getFields()
 vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     bool updateSources)
 {
+  METLIBS_LOG_SCOPE();
   vector<miTime> fieldtime;
 
   int numf = pinfos.size();
@@ -482,6 +484,8 @@ vector<miTime> FieldPlotManager::getFieldTime(
     vector<FieldRequest>& request, bool updateSources)
 
 {
+  METLIBS_LOG_SCOPE();
+
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition ) {
@@ -491,7 +495,9 @@ vector<miTime> FieldPlotManager::getFieldTime(
         request[i].standard_name = fr[0].standard_name;
       }
     }
+    flightlevel2pressure(request[i]);
   }
+
   return fieldManager->getFieldTime(request, updateSources);
 }
 
@@ -555,7 +561,7 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
       return false;
     }
 
-    makeFieldText(fout, plotName);
+    makeFieldText(fout, plotName, vfieldrequest[i].flightlevel);
     vfout.push_back(fout);
 
   }
@@ -564,12 +570,16 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
 
 }
 
-void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName)
+void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
 {
 
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
-    fieldtext += " " + fout->leveltext;
+    if ( flightlevel ) {
+      fieldtext += " " + FieldFunctions::pLevel2flightLevel[fout->leveltext];
+    } else {
+      fieldtext += " " + fout->leveltext;
+    }
   }
   if (!fout->idnumtext.empty()) {
     fieldtext += " " + fout->idnumtext;
@@ -1005,7 +1015,19 @@ void FieldPlotManager::parseString( std::string& pin,
     }
   }
 
+  flightlevel2pressure(fieldrequest);
+  METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.plevel));
+}
 
+void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
+{
+  if ( frq.zaxis == "flightlevel") {
+    frq.zaxis = "pressure";
+    frq.flightlevel=true;
+    if ( miutil::contains(frq.plevel,"FL") ) {
+      frq.plevel = FieldFunctions::getPressureLevel(frq.plevel);
+    }
+  }
 }
 
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)
