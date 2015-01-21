@@ -142,7 +142,7 @@ LayerGroupsPane::LayerGroupsPane(LayerManager *layerManager)
 
   vboxLayout1->addLayout(bottomLayout);
 
-  QGroupBox *groupBox = new QGroupBox("Layer Groups");
+  QGroupBox *groupBox = new QGroupBox(tr("Layer Groups"));
   groupBox->setLayout(vboxLayout1);
 
   QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -222,6 +222,21 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 // FIXME defaultLayerGroup does not exist  Q_ASSERT(lgWidget->layerGroup() != layerMgr_->defaultLayerGroup());
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
+
+  if (active) {
+    // Only load the contents of a file when the layer group is selected.
+    QString error;
+    QString fileName = lgWidget->layerGroup()->name();
+    const QList<QSharedPointer<Layer> > layers = \
+      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
+        EditItem_Text::Text, EditItem_Composite::Composite>(layerMgr_, fileName, &error);
+
+    if (error.isEmpty())
+      layerMgr_->addToLayerGroup(lgWidget->layerGroup(), layers);
+    else
+      qDebug() << QString("LayerGroupsPane::mouseClicked: failed to load layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
+  }
+
   lgWidget->updateLabels();
 
   emit updated();
