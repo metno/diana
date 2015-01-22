@@ -185,14 +185,14 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
 
 // ------------------------------------------------------------------------
 
-static float* getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
+static Values::ValueArray getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
 {
   if (!arg0)
-    return 0;
+    return Values::ValueArray();
   
   ZAxisData_cp zfield = arg0->zaxis();
   if (!zfield)
-    return 0;
+    return Values::ValueArray();
 
   std::string pressureId;
   if (util::unitsConvertible(zfield->unit(), "hPa"))
@@ -200,12 +200,18 @@ static float* getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
   else if (FieldData_cp pfield = boost::static_pointer_cast<const FieldData>(zfield->pressureField()))
     pressureId = pfield->id();
   else
-    return 0;
+    return Values::ValueArray();
 
   name2value_t::const_iterator itpp = n2v.find(pressureId);
   if (itpp == n2v.end() or not itpp->second)
-    return 0;
-  return itpp->second->values().get();
+    return Values::ValueArray();
+
+  name2value_t::const_iterator ita0 = n2v.find(arg0->id());
+  if (ita0 == n2v.end() or not ita0->second)
+    return Values::ValueArray();
+
+  Values_cp p_values = itpp->second, arg0_values = ita0->second;
+  return reshape(p_values->shape(), arg0_values->shape(), p_values->values());
 }
 
 Values_cp FunctionData::evaluate(name2value_t& n2v) const
@@ -324,13 +330,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_thesat_from_th: {
     if (compute == 0) compute = 5;
 
-    const float* f_pp = getPressureFloats(a0, n2v);
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_WARN("no pressure for aleveltemp, " << LOGVAL(compute));
       return Values_cp();
     }
 
-    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_cp();
     break; }
 
@@ -339,11 +345,11 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_the_from_th_q: {
     if (compute == 0) compute = 2;
 
-    const float* f_pp = getPressureFloats(a0, n2v);
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp)
       return Values_cp();
 
-    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0))
+    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0))
       return Values_cp();
     break; }
 
@@ -372,13 +378,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0)
       compute = 12;
 
-    const float* f_pp = getPressureFloats(a0, n2v);
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_DEBUG("no pressure field");
       return Values_p();
     }
 
-    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_p();
     break; }
 

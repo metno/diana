@@ -163,7 +163,7 @@ TEST(TestVcrossQtManager, Script)
   configureLogging();
 
   string_v sources;
-  sources.push_back("m=MODEL1 f=" + std::string(TOP_SRCDIR) + "/src/test/" + std::string(AROME_FILE) + " t=netcdf");
+  sources.push_back("m=MODEL1 f=" TEST_SRCDIR "/" + std::string(AROME_FILE) + " t=netcdf");
 
   string_v computations;
   computations.push_back("vc_surface_altitude  = convert_unit(altitude,m)");
