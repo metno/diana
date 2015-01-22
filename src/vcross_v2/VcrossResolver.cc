@@ -123,12 +123,12 @@ void Resolver::resolveAllPlots(model_data& md)
       InventoryBase_cp p = findItemById(md.resolved_fields, arg);
       FieldData_cp fp = boost::dynamic_pointer_cast<const FieldData>(p);
       if (not fp) {
-        METLIBS_LOG_WARN("plot '" << cp->name << "' argument '" << arg << "' unknown or not a field");
+        METLIBS_LOG_DEBUG("plot '" << cp->name << "' argument '" << arg << "' unknown or not a field");
         argumentsOk = false;
         break;
       } else if (not rp->arguments.empty() and rp->arguments.back()->zaxis() != fp->zaxis())
       {
-        METLIBS_LOG_WARN("plot '" << cp->name << "' arguments '" << arg << "' have different z axes");
+        METLIBS_LOG_DEBUG("plot '" << cp->name << "' arguments '" << arg << "' have different z axes");
         argumentsOk = false;
         break;
       } else {
