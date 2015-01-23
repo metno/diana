@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,7 +36,7 @@
 #if !defined(USE_PAINTGL)
 #include <glp/glpfile.h>
 #endif
-#include <math.h>
+#include <cmath>
 
 #define MILOGGER_CATEGORY "diana.VprofTables"
 #include <miLogger/miLogging.h>
@@ -198,7 +196,7 @@ bool VprofTables::startPSoutput(const printOptions& po){
     pro.papersize= printman.getSize(pro.pagesize);
   d_print::PaperSize a4size;
   float scale= 1.0;
-  if (abs(pro.papersize.vsize>0))
+  if (std::abs(pro.papersize.vsize)>0)
     scale= a4size.vsize/pro.papersize.vsize;
 
   // check if extra output-commands
