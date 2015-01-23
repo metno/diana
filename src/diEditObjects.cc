@@ -1300,7 +1300,7 @@ bool EditObjects::changeCurrentFronts(){
     q = objects.begin()+p1->place;
     q-=nFrontsDeleted;
 
-    unsigned int test = p1->place-nFrontsDeleted;
+    const int test = p1->place-nFrontsDeleted;
     if (p1->todo!=Insert &&
         (test<0 || test>=objects.size())){
       //HK ??? Something "strange" happened

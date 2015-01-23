@@ -221,8 +221,9 @@ void QuickEditOptions::updateList()
 void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in list
 {
 
-  unsigned int idx = list->row(item);
-  if (idx < 0 || idx >= options.size()) return;
+  int idx = list->row(item);
+  if (idx < 0 || idx >= options.size())
+    return;
   keynum= idx;
 
   choices->setEnabled(false);

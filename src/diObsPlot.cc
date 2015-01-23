@@ -208,7 +208,7 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
 {
   // best performance ?
-  size_t new_size = obsp.size() - obs.size();
+  int new_size = obsp.size() - obs.size();
   if (new_size < 0)
     new_size = 0;
   resetObs(new_size);

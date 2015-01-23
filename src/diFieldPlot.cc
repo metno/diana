@@ -3297,7 +3297,7 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
 
         // set pixel value
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
-        size_t index = 0;
+        int index = 0;
         if (poptions.linevalues.size() == 0) {
 
           if ((poptions.repeat && value > poptions.base)
@@ -3686,7 +3686,7 @@ bool FieldPlot::plotFillCell()
         // set fillcolor of cell
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
-          size_t index = 0;
+          int index = 0;
           if ((poptions.repeat && value > poptions.base)
               || value > poptions.base) {
             if (poptions.repeat) {
