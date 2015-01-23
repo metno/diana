@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,8 +26,9 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef _addtoDialog_h
-#define _addtODialog_h
+
+#ifndef QTADDTODIALOG_H
+#define QTADDTODIALOG_H
 
 #include <qdialog.h>
 #include <qlineedit.h>

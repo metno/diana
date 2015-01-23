@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,8 +26,8 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef _addtoDialog_h
-#define _addtODialog_h
+#ifndef QTANNOTEXT_H
+#define QTANNOTEXT_H
 
 #include <qdialog.h>
 #include <qlineedit.h>
@@ -55,7 +53,6 @@ public:
   void getAnnoText(std::vector<std::string>& symbolText, std::vector<std::string>& xText);
   ~AnnoText();
 
-    
 private:
   Controller*    m_ctrl;
 
@@ -64,17 +61,14 @@ private:
 
   std::string productname;
 
-signals:
+Q_SIGNALS:
   /// redraw (update GL)
   void editUpdate();
 
-
-private slots:
+private Q_SLOTS:
   void textChanged(const QString &);
   void textSelected();
   void stop();
-
-public slots:
 
 protected:
   void keyReleaseEvent(QKeyEvent*);

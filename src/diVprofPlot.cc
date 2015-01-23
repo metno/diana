@@ -478,7 +478,7 @@ void VprofPlot::ducting(const vector<float>& pp,
 
   duct.resize(nlev);
   int   k;
-  float x,tk,pi1,pi2,th1,th2,dz;
+  float tk,pi1,pi2,th1,th2,dz;
 
   for (k=0; k<nlev; k++) {
     const MetNo::Constants::ewt_calculator ewt(td[k]);

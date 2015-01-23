@@ -40,7 +40,7 @@
 #include <vector>
 
 class LogFileIO;
-class LocationData;
+struct LocationData;
 
 /**
  * This class forwards signals used for vertical crossections.

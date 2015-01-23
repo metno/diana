@@ -261,7 +261,7 @@ bool imageIO::write_png(const Image_data& img){
 
   // pack image into row-based structure
   png_byte **row_pointers;
-  row_pointers= new (png_byte*[img.height]);
+  row_pointers= new png_byte*[img.height];
   int bp=0;
   for (int i=img.height-1; i>=0; i--){
     row_pointers[i]= new png_byte[img.width*img.nchannels];
@@ -513,7 +513,7 @@ bool imageIO::read_xpm(Image_data& img)
     return false;
 
   //   METLIBS_LOG_DEBUG("RESULTING DATA:");
-  char **data = new (char*[vs.size()]);
+  char **data = new char*[vs.size()];
   for (unsigned int i=0; i<vs.size(); i++){
     data[i]= strdup(vs[i].c_str());
     //     METLIBS_LOG_DEBUG(data[i]);

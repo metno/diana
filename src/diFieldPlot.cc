@@ -3297,7 +3297,7 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
 
         // set pixel value
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
-        size_t index = 0;
+        int index = 0;
         if (poptions.linevalues.size() == 0) {
 
           if ((poptions.repeat && value > poptions.base)
@@ -3536,10 +3536,6 @@ bool FieldPlot::plotPixmap()
   float bmxmove = (getStaticPlot()->getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
   float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
 
-  // for hardcopy
-  float pxstart = (xstart - getStaticPlot()->getMapSize().x1) * scalex;
-  float pystart = (ystart - getStaticPlot()->getMapSize().y1) * scaley;
-
   // update scaling with ratio image to map (was map to screen pixels)
   scalex *= fields[0]->gridResolutionX;
   scaley *= fields[0]->gridResolutionY;
@@ -3686,7 +3682,7 @@ bool FieldPlot::plotFillCell()
         // set fillcolor of cell
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
-          size_t index = 0;
+          int index = 0;
           if ((poptions.repeat && value > poptions.base)
               || value > poptions.base) {
             if (poptions.repeat) {

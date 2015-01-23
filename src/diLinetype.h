@@ -53,7 +53,7 @@ public:
   static void init();
   /// define a new lint type from name, bitmap and repeat factor
   static void define(const std::string& _name,
-		     short int _bmap= 0xFFFF, int _factor= 1);
+		     short unsigned int _bmap= 0xFFFF, int _factor= 1);
 
   /// return default line type
   static Linetype getDefaultLinetype() { return defaultLinetype; }
@@ -66,10 +66,10 @@ public:
   static void getLinetypeInfo(std::vector<std::string>& name,
 			      std::vector<std::string>& pattern);
 
-  std::string name;     ///< name of line type
-  bool     stipple;  ///< not solid
-  short int   bmap;     ///< bitmap defing stipple pattern
-  int      factor;   ///< repeat factor
+  std::string name;        ///< name of line type
+  bool stipple;            ///< not solid
+  short unsigned int bmap; ///< bitmap defing stipple pattern
+  int factor;              ///< repeat factor
 
 private:
   static std::map<std::string,Linetype> linetypes;

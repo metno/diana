@@ -61,7 +61,7 @@ class QMouseEvent;
 
 class DrawingStyleManager;
 
-class PlotElement;
+struct PlotElement;
 
 /**
   \brief Manager for drawing areas and annotations.

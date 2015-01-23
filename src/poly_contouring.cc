@@ -495,7 +495,6 @@ private:
     std::vector<level_t> m_levels;
 
     const level_t m_undefined_level;
-    int m_flags;
 
 #ifdef USE_ALLOCATOR
     boost::object_pool<line> pool_line;

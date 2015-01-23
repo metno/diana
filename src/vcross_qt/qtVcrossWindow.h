@@ -47,7 +47,7 @@ class miTime;
 }
 class ActionButton;
 class Controller;
-class LocationData;
+struct LocationData;
 class ToggleButton;
 class VcrossStyleDialog;
 class VcrossSetupDialog;

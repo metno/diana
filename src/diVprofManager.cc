@@ -75,11 +75,6 @@ using namespace road;
 using namespace std;
 using miutil::miTime;
 
-namespace {
-inline vector<string> to_vector_string(const vector<miutil::miString>& m)
-        { return vector<string>(m.begin(), m.end()); }
-}
-
 //#define DEBUGPRINT 1
 
 VprofManager::VprofManager(Controller* co)

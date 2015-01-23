@@ -49,7 +49,6 @@
 namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
-const char KEY_CROSSECTION_EQ[] = "CROSSECTION=";
 
 struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
 {
