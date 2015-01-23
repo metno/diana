@@ -489,7 +489,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
   }
   std::vector<std::string> vpin;
   vpin.push_back(pin);
-  bool dummy;
+  bool dummy = false;
   vector<miTime> times = fieldPlotManager->getFieldTime(vpin,dummy);
   miTime time;
   if (times.size()) {

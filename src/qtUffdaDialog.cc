@@ -205,7 +205,7 @@ void UffdaDialog::storeClicked(){
     std::string body=getUffdaString();
     // write to local file (backup)
     ofstream file("uffda.dat");
-    bool okfile;
+    bool okfile = false;
     if (file){
       okfile=true;
       file << body;
