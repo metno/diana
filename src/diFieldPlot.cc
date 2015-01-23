@@ -3536,10 +3536,6 @@ bool FieldPlot::plotPixmap()
   float bmxmove = (getStaticPlot()->getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
   float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
 
-  // for hardcopy
-  float pxstart = (xstart - getStaticPlot()->getMapSize().x1) * scalex;
-  float pystart = (ystart - getStaticPlot()->getMapSize().y1) * scaley;
-
   // update scaling with ratio image to map (was map to screen pixels)
   scalex *= fields[0]->gridResolutionX;
   scaley *= fields[0]->gridResolutionY;

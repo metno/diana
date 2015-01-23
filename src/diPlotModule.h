@@ -134,7 +134,7 @@ private:
   std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
-  float oldx, oldy, xmoved, ymoved;
+  float oldx, oldy;
   float newx, newy;
   float startx, starty;
   Area myArea;
