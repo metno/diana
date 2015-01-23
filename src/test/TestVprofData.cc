@@ -44,7 +44,7 @@ TEST(VprofDataTest, TestSetup)
 
   string_v sources;
   sources.push_back("m=" + std::string(modelName)
-      + " f=" + std::string(TOP_SRCDIR) + "/src/test/" + std::string(AROME_FILE)
+      + " f=" + std::string(TEST_SRCDIR) + "/" + std::string(AROME_FILE)
       + " t=netcdf");
   EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
   EXPECT_TRUE(setup->findSource(modelName));
