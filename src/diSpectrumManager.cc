@@ -487,6 +487,7 @@ bool SpectrumManager::initSpectrumFile(std::string file, std::string model)
       return false;
     }
   }
+  return false;
 }
 
 void SpectrumManager::initStations()
