@@ -637,7 +637,7 @@ vector<miTime> ObsManager::getObsTimes(const vector<string>& pinfos)
 }
 
 void ObsManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTime, int& timediff, const std::string& pinfo)
+    int& timediff, const std::string& pinfo)
 {
   //Finding times from pinfo
 

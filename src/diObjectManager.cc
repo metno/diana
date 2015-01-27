@@ -214,7 +214,6 @@ vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 }
 
 void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-					miTime& constTime,
 					int& timediff,
 					const std::string& pinfo)
 {
@@ -239,11 +238,8 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     }
   }
 
-  if (not fileName.empty()) { //Product with const time
-    if(objectFiles.count(objectname)){
-      constTime = timeFilterFileName(fileName,objectFiles[objectname].filter);
-    }
-  } else { //Product with prog times
+  //Product with prog times
+  if (fileName.empty()) {
     vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
     int nfinfo=ofi.size();
     for (int k=0; k<nfinfo; k++){

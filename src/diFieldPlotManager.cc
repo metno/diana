@@ -412,7 +412,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTimes, int& timediff, const std::string& pinfo, bool updateSources)
+    int& timediff, const std::string& pinfo, bool updateSources)
 {
   //Finding times from pinfo
   //TODO: find const time

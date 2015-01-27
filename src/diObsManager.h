@@ -182,7 +182,6 @@ public:
   std::vector<miutil::miTime> getTimes(std::vector<std::string> pinfos);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);
 // return observation times for list of obsTypes
