@@ -71,6 +71,7 @@ class StationDialog;
 class MapDialog;
 class ObjectDialog;
 class TrajectoryDialog;
+class AnnotationDialog;
 class MeasurementsDialog;
 class UffdaDialog;
 class MailDialog;
@@ -167,6 +168,7 @@ private Q_SLOTS:
   void vprofMenu();
   void spectrumMenu();
   void trajMenu();
+  void AnnotationMenu();
   void measurementsMenu();
   void quickMenu();
 
@@ -324,6 +326,7 @@ private:
   QAction * showEditDialogAction;
   QAction * showObjectDialogAction;
   QAction * showTrajecDialogAction;
+  QAction * showAnnotationDialogAction;
   QAction * showMeasurementsDialogAction;
   QAction * showProfilesDialogAction;
   QAction * showCrossSectionDialogAction;
@@ -403,6 +406,7 @@ private:
   StationDialog     * stm;
   ObjectDialog      * objm;
   TrajectoryDialog  * trajm;
+  AnnotationDialog  * annom;
   MeasurementsDialog   * measurementsm;
   UffdaDialog       * uffm;
   MailDialog        * mailm;
@@ -430,7 +434,6 @@ private:
   ClientButton      * pluginB;
   bool                dialogChanged;
 
-  std::vector<std::string> vlabel;
   QButton* mwhelp;
   Controller* contr;
   std::string lastString;

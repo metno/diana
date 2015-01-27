@@ -406,10 +406,7 @@ void PlotModule::prepareAnnotation(const vector<string>& inp)
 
   // for now -- erase all annotationplots
   diutil::delete_all_and_clear(vap);
-
-  if (not inp.empty())
-    // FIXME this seems suspicious, why not overwrite if empty?
-    annotationStrings = inp;
+  annotationStrings = inp;
 }
 
 void PlotModule::prepareTrajectory(const vector<string>& inp)

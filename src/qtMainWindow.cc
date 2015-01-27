@@ -110,6 +110,7 @@
 #include "qtBrowserBox.h"
 #include "qtAddtoMenu.h"
 #include "qtUffdaDialog.h"
+#include "qtAnnotationDialog.h"
 #include <coserver/ClientButton.h>
 #include "qtTextView.h"
 #include <coserver/miMessage.h>
@@ -347,7 +348,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showSatDialogAction->setIconVisibleInMenu(true);
   connect( showSatDialogAction, SIGNAL( triggered() ) ,  SLOT( satMenu() ) );
   // --------------------------------------------------------------------
-  showStationDialogAction = new QAction( QIcon(QPixmap(station_xpm )),tr("&Toggle Stations"), this );
+  showStationDialogAction = new QAction( QIcon(QPixmap(station_xpm )),tr("Toggle Stations"), this );
   showStationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_A);
   showStationDialogAction->setCheckable(true);
@@ -374,6 +375,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showTrajecDialogAction->setCheckable(true);
   showTrajecDialogAction->setIconVisibleInMenu(true);
   connect( showTrajecDialogAction, SIGNAL( triggered() ) ,  SLOT( trajMenu() ) );
+  // --------------------------------------------------------------------
+  showAnnotationDialogAction = new QAction( tr("Annotation"), this );
+  showAnnotationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+  showAnnotationDialogAction->setShortcut(Qt::ALT+Qt::Key_L);
+  showAnnotationDialogAction->setCheckable(true);
+  showAnnotationDialogAction->setIconVisibleInMenu(true);
+  connect( showAnnotationDialogAction, SIGNAL( triggered() ) ,  SLOT( AnnotationMenu() ) );
   // --------------------------------------------------------------------
   showProfilesDialogAction = new QAction( QIcon(QPixmap(balloon_xpm )),tr("&Vertical Profiles"), this );
   showProfilesDialogAction->setIconVisibleInMenu(true);
@@ -679,6 +687,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showmenu->addAction( showEditDialogAction         );
   showmenu->addAction( showObjectDialogAction       );
   showmenu->addAction( showTrajecDialogAction       );
+  showmenu->addAction( showAnnotationDialogAction       );
   showmenu->addAction( showMeasurementsDialogAction    );
   showmenu->addAction( showProfilesDialogAction     );
   showmenu->addAction( showCrossSectionDialogAction );
@@ -931,6 +940,10 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   trajm->setFocusPolicy(Qt::StrongFocus);
   trajm->hide();
 
+  annom = new AnnotationDialog(this,contr);
+  annom->setFocusPolicy(Qt::StrongFocus);
+  annom->hide();
+
   measurementsm = new MeasurementsDialog(this,contr);
   measurementsm->setFocusPolicy(Qt::StrongFocus);
   measurementsm->hide();
@@ -1039,6 +1052,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( mm, SIGNAL(MapApply()),   SLOT(MenuOK()));
   connect( objm, SIGNAL(ObjApply()), SLOT(MenuOK()));
   connect( em, SIGNAL(editApply()),  SLOT(editApply()));
+  connect( annom, SIGNAL(AnnotationApply()),  SLOT(MenuOK()));
 
   connect( fm, SIGNAL(FieldHide()),  SLOT(fieldMenu()));
   connect( om, SIGNAL(ObsHide()),    SLOT(obsMenu()));
@@ -1049,6 +1063,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( qm, SIGNAL(QuickHide()),  SLOT(quickMenu()));
   connect( objm, SIGNAL(ObjHide()),  SLOT(objMenu()));
   connect( trajm, SIGNAL(TrajHide()),SLOT(trajMenu()));
+  connect( annom, SIGNAL(AnnotationHide()),SLOT(AnnotationMenu()));
   connect( measurementsm, SIGNAL(MeasurementsHide()),SLOT(measurementsMenu()));
   connect( uffm, SIGNAL(uffdaHide()),SLOT(uffMenu()));
 
@@ -1186,28 +1201,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
         tslider,SLOT(setTime(const std::string&, const miutil::miTime&)));
   }
 
-
-  //parse labels
-  const std::string label_name = "LABELS";
-  vector<std::string> sect_label;
-
-  if (!miutil::SetupParser::getSection(label_name,sect_label)){
-    METLIBS_LOG_WARN(label_name << " section not found");
-    //default
-    vlabel.push_back("LABEL data font=BITMAPFONT");
-    std::string labelstr= "LABEL text=\"$day $date $auto UTC\" ";
-    labelstr += "tcolour=red bcolour=black ";
-    labelstr+= "fcolour=white:200 polystyle=both halign=left valign=top ";
-    labelstr+= "font=BITMAPFONT fontsize=12";
-    vlabel.push_back(labelstr);
-    vlabel.push_back
-    ("LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0");
-  }
-
-  for(unsigned int i=0; i<sect_label.size(); i++) {
-    vlabel.push_back(sect_label[i]);
-  }
-
   setAcceptDrops(true);
 
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
@@ -1319,6 +1312,7 @@ void DianaMainWindow::resetAll()
 
 void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
 {
+  METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
 
   if (!vstr.empty() && vstr[0] == "VCROSS") {
@@ -1352,7 +1346,6 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
       }
     }
 
-    vector<string> tmplabel = vlabel;
     // feed strings to dialogs
     if (replace || mapcom.size()) mm->putOKString(mapcom);
     if (replace || fldcom.size()) fm->putOKString(fldcom);
@@ -1360,7 +1353,7 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     if (replace || satcom.size()) sm->putOKString(satcom);
     if (replace || statcom.size()) stm->putOKString(statcom);
     if (replace || objcom.size()) objm->putOKString(objcom);
-    if (replace ) vlabel=labelcom;
+    if (replace || labelcom.size()) annom->putOKString(labelcom);
 
     // Other data sources
     map<std::string, vector<std::string> >::iterator it;
@@ -1373,7 +1366,6 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     push_command= false; // do not push this command on stack
     MenuOK();
     push_command= true;
-    vlabel = tmplabel;
   }
 }
 
@@ -1450,18 +1442,20 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
   pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
   shortnames.push_back(mm->getShortname());
 
+  // annotation
+  bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
+  diagstr = annom->getOKString();
+  for ( size_t i =0; i< diagstr.size(); i++) {
+    if(!remove || not miutil::contains(diagstr[i], "$")) { //remove labels with time
+      pstr.push_back(diagstr[i]);
+    }
+  }
+
   // Other data sources
   map<QAction*, DataDialog*>::iterator it;
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
     diagstr = it->second->getOKString();
     pstr.insert(pstr.end(), diagstr.begin(), diagstr.end());
-  }
-
-  // label
-  bool remove = (contr->getMapMode() != normal_mode || tslider->numTimes()==0);
-  for(unsigned int i=0; i<vlabel.size(); i++){
-    if(!remove || not miutil::contains(vlabel[i], "$"))  //remove labels with time
-      pstr.push_back(vlabel[i]);
   }
 
   // remove empty lines
@@ -1784,6 +1778,11 @@ void DianaMainWindow::trajMenu()
   showTrajecDialogAction->setChecked( !b );
 }
 
+void DianaMainWindow::AnnotationMenu()
+{
+  toggleDialogVisibility(annom, showAnnotationDialogAction);
+}
+
 void DianaMainWindow::measurementsMenu()
 {
   bool b = measurementsm->isVisible();
@@ -2051,15 +2050,15 @@ void DianaMainWindow::connectionClosed()
 void DianaMainWindow::processLetter(const miMessage &letter)
 {
   std::string from = miutil::from_number(letter.from);
-  //  METLIBS_LOG_DEBUG("Command: "<<letter.command<<"  ");
-  //   METLIBS_LOG_DEBUG(" Description: "<<letter.description<<"  ");
-  //   METLIBS_LOG_DEBUG(" commonDesc: "<<letter.commondesc<<"  ");
-  //   METLIBS_LOG_DEBUG(" Common: "<<letter.common<<"  ");
-  //   for(unsigned size_t i=0;i<letter.data.size();i++)
-  //    if(letter.data[i].length()<80)
-  //       METLIBS_LOG_DEBUG(" data["<<i<<"]:"<<letter.data[i]);;
-  //    METLIBS_LOG_DEBUG(" From: "<<from);
-  //   METLIBS_LOG_DEBUG("To: "<<letter.to);
+    METLIBS_LOG_DEBUG("Command: "<<letter.command<<"  ");
+     METLIBS_LOG_DEBUG(" Description: "<<letter.description<<"  ");
+     METLIBS_LOG_DEBUG(" commonDesc: "<<letter.commondesc<<"  ");
+     METLIBS_LOG_DEBUG(" Common: "<<letter.common<<"  ");
+     for( size_t i=0;i<letter.data.size();i++)
+      if(letter.data[i].length()<80)
+         METLIBS_LOG_DEBUG(" data["<<i<<"]:"<<letter.data[i]);;
+      METLIBS_LOG_DEBUG(" From: "<<from);
+     METLIBS_LOG_DEBUG("To: "<<letter.to);
 
   if( letter.command == "menuok"){
     MenuOK();
@@ -2520,14 +2519,14 @@ void DianaMainWindow::sendPrintClicked(int id)
 void DianaMainWindow::sendLetter(miMessage& letter)
 {
   pluginB->sendMessage(letter);
-  //   METLIBS_LOG_DEBUG("SENDING>>>>");
-  //   METLIBS_LOG_DEBUG("Command: "<<letter.command);
-  //   METLIBS_LOG_DEBUG("Description: "<<letter.description);
-  //   METLIBS_LOG_DEBUG("commonDesc: "<<letter.commondesc);
-  //   METLIBS_LOG_DEBUG("Common: "<<letter.common);
-  //       for(size_t i=0;i<letter.data.size();i++)
-  // 	METLIBS_LOG_DEBUG("data:"<<letter.data[i]);
-  //   METLIBS_LOG_DEBUG("To: "<<letter.to);
+     METLIBS_LOG_DEBUG("SENDING>>>>");
+     METLIBS_LOG_DEBUG("Command: "<<letter.command);
+     METLIBS_LOG_DEBUG("Description: "<<letter.description);
+     METLIBS_LOG_DEBUG("commonDesc: "<<letter.commondesc);
+     METLIBS_LOG_DEBUG("Common: "<<letter.common);
+         for(size_t i=0;i<letter.data.size();i++)
+   	METLIBS_LOG_DEBUG("data:"<<letter.data[i]);
+     METLIBS_LOG_DEBUG("To: "<<letter.to);
 }
 
 void DianaMainWindow::updateObs()
