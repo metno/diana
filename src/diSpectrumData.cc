@@ -53,7 +53,7 @@ using namespace vcross;
 SpectrumData::SpectrumData(const std::string& filename,
     const std::string& modelname) :
     fileName(filename), modelName(modelname), numPos(0), numTime(0), numDirec(
-        0), numFreq(0), numExtra(0)
+        0), numFreq(0)
 {
   METLIBS_LOG_DEBUG("++ SpectrumData::Constructor");
 }

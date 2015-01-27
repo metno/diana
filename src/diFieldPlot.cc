@@ -3455,11 +3455,6 @@ bool FieldPlot::plotPixmap()
       return false;
   }
 
-  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
-  if (ix2 == fields[0]->nx - 1) {
-    ix2--;
-  }
-
   const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
 
   glLineWidth(poptions.linewidth);
@@ -3579,7 +3574,7 @@ bool FieldPlot::plotPixmap()
   //if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
   glBitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
   glDrawPixels((GLint) currwid, (GLint) currhei, GL_RGBA, GL_UNSIGNED_BYTE,
-      imagedata);
+      cimage);
   //Reset gl
   glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);

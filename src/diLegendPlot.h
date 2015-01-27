@@ -84,7 +84,7 @@ public:
   /// get width and height of string str with current font
   void getStringSize(std::string str, float& width, float& height);
   /// plots the legend plot with top left corner at x,y
-  bool plot(float x=0.0, float y=0.0);
+  bool plotLegend(float x=0.0, float y=0.0);
   bool plot(const int){return false;}
   /// if x,y inside title bar, then the table should be hidden or shown
   void showSatTable(int x,int y);

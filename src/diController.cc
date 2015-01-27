@@ -857,8 +857,7 @@ void Controller::getFieldGroups(const std::string& modelName,
 
 vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 {
-  bool constT;
-  return fieldplotm->getFieldTime(request,constT);
+  return fieldplotm->getFieldTime(request);
 }
 
 void Controller::updateFieldSource(const std::string & modelName)
