@@ -506,6 +506,17 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
         miutil::replace(anno[j], "$model", fields[0]->modelName);
       }
     }
+    if (miutil::contains(anno[j], "$idnum")) {
+      if (fields.size() && fields[0]) {
+        miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
+      }
+    }
+    if (miutil::contains(anno[j], "$level")) {
+      if (fields.size() && fields[0]) {
+        miutil::replace(anno[j], "$level", fields[0]->leveltext);
+      }
+    }
+
     if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize > 0.
         && not vectorAnnotationText.empty()) {
       if (miutil::contains(anno[j], "arrow="))
