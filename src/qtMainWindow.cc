@@ -949,6 +949,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 
   connect(DrawingManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
   connect(EditItemManager::instance()->getLayerManager(), SIGNAL(stateReplaced()), SLOT(updatePlotElements()));
+  connect(EditItemManager::instance()->getLayerManager(), SIGNAL(itemStatesReplaced()), SLOT(updatePlotElements()));
 
   textview = new TextView(this);
   textview->setMinimumWidth(300);

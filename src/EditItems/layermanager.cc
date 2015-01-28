@@ -389,6 +389,7 @@ void LayerManager::replaceItemStates(const QList<QList<QSharedPointer<DrawingIte
   Q_ASSERT(itemStates.size() == orderedLayers_.size());
   for (int i = 0; i < itemStates.size(); ++i)
     orderedLayers_.at(i)->replaceItems(itemStates.at(i), dm);
+  emit itemStatesReplaced();
 }
 
 QBitArray LayerManager::selected() const

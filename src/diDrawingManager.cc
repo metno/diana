@@ -605,16 +605,18 @@ void DrawingManager::setEditRect(Rectangle r)
   DrawingManager::editRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
-std::vector<PlotElement> DrawingManager::getPlotElements() const
+std::vector<PlotElement> DrawingManager::getPlotElements(bool nonEmptyOnly) const
 {
   std::vector<PlotElement> pel;
   plotElems_.clear();
   int i = 0;
   foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    pel.push_back(
-          PlotElement(
-            plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
-            plotElementTag().toStdString(), layer->isVisible()));
+    if ((!nonEmptyOnly) || (!layer->isEmpty())) {
+      pel.push_back(
+            PlotElement(
+              plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
+              plotElementTag().toStdString(), layer->isVisible()));
+    }
     plotElems_.insert(i, layer);
     i++;
   }

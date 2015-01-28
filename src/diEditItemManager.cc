@@ -1646,7 +1646,6 @@ void EditItemManager::pushModifyItemsCommand()
   const QList<QList<QSharedPointer<DrawingItemBase> > > newItemStates = getLayerManager()->copyItemStates(this);
 
   QString descr;
-  static int nn = 0; nn++;
   if (!itemStatesEqual(oldItemStates_, newItemStates, descr)) {
     undoStack_.push(new ModifyItemsCommand(oldItemStates_, newItemStates, descr));
     // ensure that only the first call to pushModifyItemsCommand() after a call to saveItemStates() has effect:
