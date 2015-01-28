@@ -1160,7 +1160,7 @@ static void printUsage(bool showexample)
             "#- alternative to TIME=.. commandline option:                     \n"
             "#  (default time is the last available time)                      \n"
             "#  use settime=YYYY-MM-DD hh:mm:ss                                \n"
-            "#  use settime=currenttine / nowtime /firsttime                   \n"
+            "#  use settime=currenttime / nowtime / firsttime                  \n"
             "#- use addhour=<value> or addminute=<value> to increment datatime \n"
             "#  (offset from TIME=\"\" variable). Useful in loops              \n"
             "#--------------------------------------------------------------   \n"
