@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -208,31 +208,24 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // file ========================
   // --------------------------------------------------------------------
   fileSavePictAction = new QAction( tr("&Save picture..."),this );
-  fileSavePictAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( fileSavePictAction, SIGNAL( triggered() ) , SLOT( saveraster() ) );
   // --------------------------------------------------------------------
   emailPictureAction = new QAction( tr("&Email picture..."),this );
-  emailPictureAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( emailPictureAction, SIGNAL( triggered() ) , SLOT( emailPicture() ) );
   // --------------------------------------------------------------------
   saveAnimationAction = new QAction( tr("Save &animation..."),this );
-  saveAnimationAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( saveAnimationAction, SIGNAL( triggered() ) , SLOT( saveAnimation() ) );
   // --------------------------------------------------------------------
   filePrintAction = new QAction( tr("&Print..."),this );
   filePrintAction->setShortcut(Qt::CTRL+Qt::Key_P);
-  filePrintAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( filePrintAction, SIGNAL( triggered() ) , SLOT( hardcopy() ) );
   // --------------------------------------------------------------------
 #if defined(USE_PAINTGL)
   filePrintPreviewAction = new QAction( tr("Print pre&view..."),this );
-  filePrintPreviewAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( filePrintPreviewAction, SIGNAL( triggered() ) , SLOT( previewHardcopy() ) );
 #endif
   // --------------------------------------------------------------------
   readSetupAction = new QAction( tr("Read setupfile"),this );
-  //restartAction->setShortcut(Qt::CTRL+Qt::Key_P);
-  readSetupAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( readSetupAction, SIGNAL( triggered() ) , SLOT( parseSetup() ) );
   // --------------------------------------------------------------------
   fileQuitAction = new QAction( tr("&Quit..."), this );
@@ -244,50 +237,41 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // options ======================
   // --------------------------------------------------------------------
   optOnOffAction = new QAction( tr("S&peed buttons"), this );
-  optOnOffAction->setShortcutContext(Qt::ApplicationShortcut);
   optOnOffAction->setCheckable(true);
   connect( optOnOffAction, SIGNAL( triggered() ) ,  SLOT( showElements() ) );
   // --------------------------------------------------------------------
   optArchiveAction = new QAction( tr("A&rchive mode"), this );
-  optArchiveAction->setShortcutContext(Qt::ApplicationShortcut);
   optArchiveAction->setCheckable(true);
   connect( optArchiveAction, SIGNAL( triggered() ) ,  SLOT( archiveMode() ) );
   // --------------------------------------------------------------------
   optAutoElementAction = new QAction( tr("&Automatic element choice"), this );
-  optAutoElementAction->setShortcutContext(Qt::ApplicationShortcut);
   optAutoElementAction->setShortcut(Qt::Key_Space);
   optAutoElementAction->setCheckable(true);
   connect( optAutoElementAction, SIGNAL( triggered() ), SLOT( autoElement() ) );
   // --------------------------------------------------------------------
   optAnnotationAction = new QAction( tr("A&nnotations"), this );
-  optAnnotationAction->setShortcutContext(Qt::ApplicationShortcut);
   optAnnotationAction->setCheckable(true);
   connect( optAnnotationAction, SIGNAL( triggered() ), SLOT( showAnnotations() ) );
   // --------------------------------------------------------------------
   optScrollwheelZoomAction = new QAction( tr("Scrollw&heel zooming"), this );
-  optScrollwheelZoomAction->setShortcutContext(Qt::ApplicationShortcut);
   optScrollwheelZoomAction->setCheckable(true);
   connect( optScrollwheelZoomAction, SIGNAL( triggered() ), SLOT( toggleScrollwheelZoom() ) );
   // --------------------------------------------------------------------
   optFontAction = new QAction( tr("Select &Font..."), this );
-  optFontAction->setShortcutContext(Qt::ApplicationShortcut);
   connect( optFontAction, SIGNAL( triggered() ) ,  SLOT( chooseFont() ) );
 
 
   // show ======================
   // --------------------------------------------------------------------
   showResetAreaAction = new QAction(QIcon( QPixmap(thumbs_up_xpm)),tr("Reset area and replot"), this );
-  showResetAreaAction->setShortcutContext(Qt::ApplicationShortcut);
   showResetAreaAction->setIconVisibleInMenu(true);
   connect( showResetAreaAction, SIGNAL( triggered() ) ,  SLOT( resetArea() ) );
   //----------------------------------------------------------------------
   showResetAllAction = new QAction( QIcon(QPixmap(thumbs_down_xpm)),tr("Reset all"), this );
-  showResetAllAction->setShortcutContext(Qt::ApplicationShortcut);
   showResetAllAction->setIconVisibleInMenu(true);
   connect( showResetAllAction, SIGNAL( triggered() ) ,  SLOT( resetAll() ) );
   // --------------------------------------------------------------------
   showApplyAction = new QAction( tr("&Apply plot"), this );
-  showApplyAction->setShortcutContext(Qt::ApplicationShortcut);
   showApplyAction->setShortcut(Qt::CTRL+Qt::Key_U);
   connect( showApplyAction, SIGNAL( triggered() ) ,  SLOT( MenuOK() ) );
   // --------------------------------------------------------------------
@@ -297,17 +281,14 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showAddQuickAction, SIGNAL( triggered() ) ,  SLOT( addToMenu() ) );
   // --------------------------------------------------------------------
   showPrevPlotAction = new QAction( tr("P&revious plot"), this );
-//  showPrevPlotAction->setShortcutContext(Qt::ApplicationShortcut);
   showPrevPlotAction->setShortcut(Qt::Key_F10);
   connect( showPrevPlotAction, SIGNAL( triggered() ) ,  SLOT( prevHPlot() ) );
   // --------------------------------------------------------------------
   showNextPlotAction = new QAction( tr("&Next plot"), this );
-  //showNextPlotAction->setShortcutContext(Qt::ApplicationShortcut);
   showNextPlotAction->setShortcut(Qt::Key_F11);
   connect( showNextPlotAction, SIGNAL( triggered() ) ,  SLOT( nextHPlot() ) );
   // --------------------------------------------------------------------
   showHideAllAction = new QAction( tr("&Hide All"), this );
-  showHideAllAction->setShortcutContext(Qt::ApplicationShortcut);
   showHideAllAction->setShortcut(Qt::CTRL+Qt::Key_D);
   showHideAllAction->setCheckable(true);
   connect( showHideAllAction, SIGNAL( triggered() ) ,  SLOT( toggleDialogs() ) );
@@ -321,56 +302,48 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showQuickmenuAction, SIGNAL( triggered() ) ,  SLOT( quickMenu() ) );
   // --------------------------------------------------------------------
   showMapDialogAction = new QAction( QPixmap(earth3_xpm ),tr("Maps"), this );
-  showMapDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showMapDialogAction->setShortcut(Qt::ALT+Qt::Key_K);
   showMapDialogAction->setCheckable(true);
   showMapDialogAction->setIconVisibleInMenu(true);
   connect( showMapDialogAction, SIGNAL( triggered() ) ,  SLOT( mapMenu() ) );
   // --------------------------------------------------------------------
   showFieldDialogAction = new QAction( QIcon(QPixmap(felt_xpm )),tr("&Fields"), this );
-  showFieldDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showFieldDialogAction->setShortcut(Qt::ALT+Qt::Key_F);
   showFieldDialogAction->setCheckable(true);
   showFieldDialogAction->setIconVisibleInMenu(true);
   connect( showFieldDialogAction, SIGNAL( triggered() ) ,  SLOT( fieldMenu() ) );
   // --------------------------------------------------------------------
   showObsDialogAction = new QAction( QIcon(QPixmap(synop_xpm )),tr("&Observations"), this );
-  showObsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showObsDialogAction->setShortcut(Qt::ALT+Qt::Key_O);
   showObsDialogAction->setCheckable(true);
   showObsDialogAction->setIconVisibleInMenu(true);
   connect( showObsDialogAction, SIGNAL( triggered() ) ,  SLOT( obsMenu() ) );
   // --------------------------------------------------------------------
   showSatDialogAction = new QAction( QIcon(QPixmap(sat_xpm )),tr("&Satellites and Radar"), this );
-  showSatDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showSatDialogAction->setShortcut(Qt::ALT+Qt::Key_S);
   showSatDialogAction->setCheckable(true);
   showSatDialogAction->setIconVisibleInMenu(true);
   connect( showSatDialogAction, SIGNAL( triggered() ) ,  SLOT( satMenu() ) );
   // --------------------------------------------------------------------
   showStationDialogAction = new QAction( QIcon(QPixmap(station_xpm )),tr("Toggle Stations"), this );
-  showStationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showStationDialogAction->setShortcut(Qt::ALT+Qt::Key_A);
   showStationDialogAction->setCheckable(true);
   showStationDialogAction->setIconVisibleInMenu(true);
   connect( showStationDialogAction, SIGNAL( triggered() ) ,  SLOT( stationMenu() ) );
   // --------------------------------------------------------------------
   showEditDialogAction = new QAction( QPixmap(editmode_xpm ),tr("&Product Editing"), this );
-  showEditDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showEditDialogAction->setShortcut(Qt::ALT+Qt::Key_E);
   showEditDialogAction->setCheckable(true);
   showEditDialogAction->setIconVisibleInMenu(true);
   connect( showEditDialogAction, SIGNAL( triggered() ) ,  SLOT( editMenu() ) );
   // --------------------------------------------------------------------
   showObjectDialogAction = new QAction( QIcon(QPixmap(front_xpm )),tr("O&bjects"), this );
-  showObjectDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showObjectDialogAction->setShortcut(Qt::ALT+Qt::Key_J);
   showObjectDialogAction->setCheckable(true);
   showObjectDialogAction->setIconVisibleInMenu(true);
   connect( showObjectDialogAction, SIGNAL( triggered() ) ,  SLOT( objMenu() ) );
   // --------------------------------------------------------------------
   showTrajecDialogAction = new QAction( QIcon(QPixmap( traj_xpm)),tr("&Trajectories"), this );
-  showTrajecDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showTrajecDialogAction->setShortcut(Qt::ALT+Qt::Key_T);
   showTrajecDialogAction->setCheckable(true);
   showTrajecDialogAction->setIconVisibleInMenu(true);
@@ -386,7 +359,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showProfilesDialogAction = new QAction( QIcon(QPixmap(balloon_xpm )),tr("&Vertical Profiles"), this );
   showProfilesDialogAction->setIconVisibleInMenu(true);
 #ifndef DISABLE_VPROF
-  showProfilesDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showProfilesDialogAction->setShortcut(Qt::ALT+Qt::Key_V);
   showProfilesDialogAction->setCheckable(false);
   connect( showProfilesDialogAction, SIGNAL( triggered() ) ,  SLOT( vprofMenu() ) );
@@ -397,7 +369,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showCrossSectionDialogAction = new QAction(QIcon( QPixmap(vcross_xpm )),tr("Vertical &Cross sections"), this );
   showCrossSectionDialogAction->setIconVisibleInMenu(true);
 #ifndef DISABLE_VCROSS
-  showCrossSectionDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showCrossSectionDialogAction->setShortcut(Qt::ALT+Qt::Key_C);
   showCrossSectionDialogAction->setCheckable(false);
   connect( showCrossSectionDialogAction, SIGNAL( triggered() ) ,  SLOT( vcrossMenu() ) );
@@ -408,7 +379,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   showWaveSpectrumDialogAction = new QAction(QIcon( QPixmap(spectrum_xpm )),tr("&Wave spectra"), this );
   showWaveSpectrumDialogAction->setIconVisibleInMenu(true);
 #ifndef DISABLE_WAVESPEC
-  showWaveSpectrumDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showWaveSpectrumDialogAction->setShortcut(Qt::ALT+Qt::Key_W);
   showWaveSpectrumDialogAction->setCheckable(false);
   connect( showWaveSpectrumDialogAction, SIGNAL( triggered() ) ,  SLOT( spectrumMenu() ) );
@@ -422,13 +392,11 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( zoomOutAction, SIGNAL( triggered() ), SLOT( zoomOut() ) );
   // --------------------------------------------------------------------
   showUffdaDialogAction = new QAction( tr("&Uffda Service"), this );
-  showUffdaDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showUffdaDialogAction->setShortcut(Qt::ALT+Qt::Key_U);
   showUffdaDialogAction->setCheckable(true);
   connect( showUffdaDialogAction, SIGNAL( triggered() ), SLOT( uffMenu() ) );
   // --------------------------------------------------------------------
   showMeasurementsDialogAction = new QAction( QPixmap( ruler),tr("&Measurements"), this );
-  showMeasurementsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showMeasurementsDialogAction->setShortcut(Qt::ALT+Qt::Key_M);
   showMeasurementsDialogAction->setCheckable(true);
   connect( showMeasurementsDialogAction, SIGNAL( triggered() ) ,  SLOT( measurementsMenu() ) );
@@ -438,7 +406,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // ----------------------------------------------------------------
 
   toggleEditDrawingModeAction = new QAction( tr("Edit Drawing Mode"), this );
-  toggleEditDrawingModeAction->setShortcutContext(Qt::ApplicationShortcut);
   toggleEditDrawingModeAction->setShortcut(Qt::CTRL+Qt::Key_B);
   connect(toggleEditDrawingModeAction, SIGNAL(triggered()), SLOT(toggleEditDrawingMode()));
 
@@ -451,22 +418,18 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( helpDocAction, SIGNAL( triggered() ) ,  SLOT( showHelp() ) );
   // --------------------------------------------------------------------
   helpAccelAction = new QAction( tr("&Accelerators"), this );
-  helpAccelAction->setShortcutContext(Qt::ApplicationShortcut);
   helpAccelAction->setCheckable(false);
   connect( helpAccelAction, SIGNAL( triggered() ) ,  SLOT( showAccels() ) );
   // --------------------------------------------------------------------
   helpNewsAction = new QAction( tr("&News"), this );
-  helpNewsAction->setShortcutContext(Qt::ApplicationShortcut);
   helpNewsAction->setCheckable(false);
   connect( helpNewsAction, SIGNAL( triggered() ) ,  SLOT( showNews() ) );
   // --------------------------------------------------------------------
   helpTestAction = new QAction( tr("Test &results"), this );
-  helpTestAction->setShortcutContext(Qt::ApplicationShortcut);
   helpTestAction->setCheckable(false);
   connect( helpTestAction, SIGNAL( triggered() ) ,  SLOT( showUrl() ) );
   // --------------------------------------------------------------------
   helpAboutAction = new QAction( tr("About Diana"), this );
-  helpAboutAction->setShortcutContext(Qt::ApplicationShortcut);
   helpAboutAction->setCheckable(false);
   connect( helpAboutAction, SIGNAL( triggered() ) ,  SLOT( about() ) );
   // --------------------------------------------------------------------
@@ -489,14 +452,12 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( timeForewardAction, SIGNAL( triggered() ) ,  SLOT( animation() ) );
   // --------------------------------------------------------------------
   timeStepBackwardAction = new QAction(QIcon( QPixmap(bakover_xpm )),tr("Step Backwards"), this );
-  //  timeStepBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeStepBackwardAction->setShortcut(Qt::CTRL+Qt::Key_Left);
   timeStepBackwardAction->setCheckable(false);
   timeStepBackwardAction->setIconVisibleInMenu(true);
   connect( timeStepBackwardAction, SIGNAL( triggered() ) ,  SLOT( stepback() ) );
   // --------------------------------------------------------------------
   timeStepForewardAction = new QAction(QIcon( QPixmap(forward_xpm )),tr("Step Forewards"), this );
-  //  timeStepForewardAction->setShortcutContext(Qt::ApplicationShortcut);
   timeStepForewardAction->setShortcut(Qt::CTRL+Qt::Key_Right);
   timeStepForewardAction->setCheckable(false);
   timeStepForewardAction->setIconVisibleInMenu(true);
@@ -517,7 +478,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( timeLoopAction, SIGNAL( triggered() ) ,  SLOT( animationLoop() ) );
   // --------------------------------------------------------------------
   timeControlAction = new QAction(QIcon( QPixmap( clock_xpm )),tr("Time control"), this );
-  timeControlAction->setShortcutContext(Qt::ApplicationShortcut);
   timeControlAction->setCheckable(true);
   timeControlAction->setEnabled(false);
   timeControlAction->setIconVisibleInMenu(true);
@@ -968,7 +928,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
 #ifdef ENABLE_EIM_TESTDIALOG
   QAction *eimTestDialogToggleAction = new QAction(this);
   eimTestDialogToggleAction->setShortcut(Qt::CTRL + Qt::Key_Backslash);
-  eimTestDialogToggleAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
   addAction(eimTestDialogToggleAction);
 #endif // ENABLE_EIM_TESTDIALOG
