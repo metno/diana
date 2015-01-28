@@ -719,12 +719,11 @@ const vector<SatFileInfo>& Controller::getSatFiles(const std::string& satellite,
 
 //returns union or intersection of plot times from all pinfos
 void Controller::getCapabilitiesTime(set<miTime>& okTimes,
-    set<miTime>& constTimes,
     const vector<string>& pinfos,
     bool allTimes,
     bool updateSources)
 {
-  plotm->getCapabilitiesTime(okTimes,constTimes,pinfos,allTimes,updateSources);
+  plotm->getCapabilitiesTime(okTimes,pinfos,allTimes,updateSources);
 }
 
 const vector<Colour>& Controller::getSatColours(const std::string& satellite,
@@ -857,8 +856,7 @@ void Controller::getFieldGroups(const std::string& modelName,
 
 vector<miTime> Controller::getFieldTime(vector<FieldRequest>& request)
 {
-  bool constT;
-  return fieldplotm->getFieldTime(request,constT);
+  return fieldplotm->getFieldTime(request);
 }
 
 void Controller::updateFieldSource(const std::string & modelName)

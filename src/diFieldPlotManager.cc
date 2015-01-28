@@ -412,7 +412,7 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTimes, int& timediff, const std::string& pinfo, bool updateSources)
+    int& timediff, const std::string& pinfo, bool updateSources)
 {
   //Finding times from pinfo
   //TODO: find const time
@@ -436,14 +436,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   //getting times
-  bool constT;
   normalTimes = getFieldTime(pinfos, updateSources);
-  if (constT) {
-    if (normalTimes.size()) {
-      constTimes = normalTimes[0];
-    }
-    normalTimes.clear();
-  }
 
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
@@ -991,6 +984,8 @@ void FieldPlotManager::parseString( std::string& pin,
         fieldrequest.grid = vtoken[1];
       } else if (key == "unit") {
         fieldrequest.unit = vtoken[1];
+      } else if (key == "vunit" && vtoken[1] == "FL") {
+        fieldrequest.flightlevel=true;
       } else if (key == "time") {
         fieldrequest.ptime = miTime(vtoken[1]);
       } else if (key == "reftime") {

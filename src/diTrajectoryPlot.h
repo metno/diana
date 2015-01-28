@@ -77,7 +77,6 @@ private:
   int    numIterations; // fixed no. of iterations each timestep
 		        // (no convergence test)
   int    numTraj;       // no. of trajectories (start positions)
-  int    numSteps;      // no. of timesteps computed
 
   bool computing;
   bool firstStep;

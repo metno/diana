@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,7 +66,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
-  m_action->setShortcutContext(Qt::ApplicationShortcut);
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);

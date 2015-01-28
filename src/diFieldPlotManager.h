@@ -100,7 +100,7 @@ public:
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      miutil::miTime& constTimes, int& timediff, const std::string& pinfo,
+      int& timediff, const std::string& pinfo,
       bool updateSources=false);
 
   ///return levels

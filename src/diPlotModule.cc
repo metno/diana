@@ -406,10 +406,7 @@ void PlotModule::prepareAnnotation(const vector<string>& inp)
 
   // for now -- erase all annotationplots
   diutil::delete_all_and_clear(vap);
-
-  if (not inp.empty())
-    // FIXME this seems suspicious, why not overwrite if empty?
-    annotationStrings = inp;
+  annotationStrings = inp;
 }
 
 void PlotModule::prepareTrajectory(const vector<string>& inp)
@@ -1832,12 +1829,10 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
 }
 
 //returns union or intersection of plot times from all pinfos
-void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
-    set<miTime>& constTimes, const vector<std::string>& pinfos,
+void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::string>& pinfos,
     bool allTimes, bool updateSources)
 {
   vector<miTime> normalTimes;
-  miTime constTime;
   int timediff;
   bool normalTimesFound = false;
   bool moreTimes = true;
@@ -1846,21 +1841,16 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
     if (!tokens.empty()) {
       std::string type = miutil::to_upper(tokens[0]);
       if (type == "FIELD")
-        fieldplotm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i], updateSources);
+        fieldplotm->getCapabilitiesTime(normalTimes, timediff, pinfos[i], updateSources);
       else if (type == "SAT")
-        satm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i]);
+        satm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
       else if (type == "OBS")
-        obsm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i]);
+        obsm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
       else if (type == "OBJECTS")
-        objm->getCapabilitiesTime(normalTimes, constTime, timediff, pinfos[i]);
+        objm->getCapabilitiesTime(normalTimes, timediff, pinfos[i]);
     }
 
-    if (!constTime.undef()) { //insert constTime
-
-      METLIBS_LOG_INFO("constTime:" << constTime.isoTime());
-      constTimes.insert(constTime);
-
-    } else if (moreTimes) { //insert okTimes
+    if (moreTimes) { //insert okTimes
 
       if ((!normalTimesFound && normalTimes.size()))
         normalTimesFound = true;
@@ -1886,7 +1876,6 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes,
       }
     } // if neither normalTimes nor constatTime, product is ignored
     normalTimes.clear();
-    constTime = miTime();
   }
 }
 
@@ -1947,7 +1936,7 @@ bool PlotModule::getObsName(int x, int y, std::string& name)
 }
 std::string PlotModule::getObsPopupText(int x, int y)
 {
-  int n = vop.size();
+  size_t n = vop.size();
   std::string obsText = "";
  
   for (size_t i = 0; i < n; i++)

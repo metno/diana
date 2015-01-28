@@ -759,11 +759,11 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     } else if (annoEl[j].eType == table) {
       hei = annoEl[j].classplot->height();
       if (poptions.v_align == align_top)
-        annoEl[j].classplot->plot(x, y + annoHeight);
+        annoEl[j].classplot->plotLegend(x, y + annoHeight);
       else if (poptions.v_align == align_center)
-        annoEl[j].classplot->plot(x, y + (annoHeight + hei) / 2.);
+        annoEl[j].classplot->plotLegend(x, y + (annoHeight + hei) / 2.);
       else
-        annoEl[j].classplot->plot(x, y + hei);
+        annoEl[j].classplot->plotLegend(x, y + hei);
       wid = annoEl[j].classplot->width();
     } else if (annoEl[j].eType == arrow) {
       wid = plotArrow(x, y, annoEl[j].arrowLength, annoEl[j].arrowFeather);

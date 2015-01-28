@@ -1124,8 +1124,6 @@ void VprofManager::checkObsTime(int hour)
   bool newtime= !obsTime.size();
   int n= obsfiles.size();
 
-  pu_struct_stat statbuf;
-
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES
     METLIBS_LOG_DEBUG("index: " << i);

@@ -157,7 +157,6 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      std::set<miutil::miTime>& constTimes,
       const std::vector<std::string>& pinfos,
       bool allTimes=true,
       bool updateSources=false);

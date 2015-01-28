@@ -1411,7 +1411,7 @@ std::vector<miTime> SatManager::getSatTimes(bool updateFileList, bool openFiles)
 }
 
 void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
-    miTime& constTime, int& timediff, const std::string& pinfo)
+    int& timediff, const std::string& pinfo)
 {
   //Finding times from pinfo
   //If pinfo contains "file=", return constTime
@@ -1437,14 +1437,8 @@ void SatManager::getCapabilitiesTime(std::vector<miTime>& normalTimes,
     }
   }
 
-  if (not filename.empty()) { //Product with const time
-    SatFileInfo sfi;
-    sfi.name = filename;
-    MItiff::readMItiffHeader(sfi);
-    constTime = sfi.time;
-
-  } else { //Product with prog times
-
+  //Product with prog times
+  if (filename.empty()) {
     std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
     int nfinfo=finfo.size();
     for (int k=0; k<nfinfo; k++) {

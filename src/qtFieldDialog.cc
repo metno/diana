@@ -1452,40 +1452,41 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
     int m = vlevels.size();
     int current = 0;
     while (current < m && vlevels[current] != level) current++;
-    if (current < m) {
-      level_incremented = vlevels[current + increment];
-    }
+    int new_index = current + increment;
+    if (new_index < m && new_index > -1) {
+      level_incremented = vlevels[new_index];
 
-    //loop through all plots to see if is possible to
+      //loop through all plots to see if it is possible to plot:
 
-    if ( type == 0 ) { //vertical levels
-      for (int j = 0; j < n; j++) {
-        if (selectedFields[j].levelmove && selectedFields[j].level == level) {
-          selectedFields[j].level = level_incremented;
-          //update dialog
-          if(j==selectedFieldbox->currentRow()){
-            levelSlider->blockSignals(true);
-            levelSlider->setValue(current + increment);
-            levelSlider->blockSignals(false);
-            levelChanged(current + increment);
+      if ( type == 0 ) { //vertical levels
+        for (int j = 0; j < n; j++) {
+          if (selectedFields[j].levelmove && selectedFields[j].level == level) {
+            selectedFields[j].level = level_incremented;
+            //update dialog
+            if(j==selectedFieldbox->currentRow()){
+              levelSlider->blockSignals(true);
+              levelSlider->setValue(new_index);
+              levelSlider->blockSignals(false);
+              levelChanged(new_index);
+            }
+          } else {
+            selectedFields[j].levelmove = false;
           }
-        } else {
-          selectedFields[j].levelmove = false;
         }
-      }
-    } else { // extra levels
-      for (int j = 0; j < n; j++) {
-        if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
-          selectedFields[j].idnum = level_incremented;
-          //update dialog
-          if(j==selectedFieldbox->currentRow()){
-            idnumSlider->blockSignals(true);
-            idnumSlider->setValue(current + increment);
-            idnumSlider->blockSignals(false);
-            idnumChanged(current + increment);
+      } else { // extra levels
+        for (int j = 0; j < n; j++) {
+          if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
+            selectedFields[j].idnum = level_incremented;
+            //update dialog
+            if(j==selectedFieldbox->currentRow()){
+              idnumSlider->blockSignals(true);
+              idnumSlider->setValue(new_index);
+              idnumSlider->blockSignals(false);
+              idnumChanged(new_index);
+            }
+          } else {
+            selectedFields[j].idnummove = false;
           }
-        } else {
-          selectedFields[j].idnummove = false;
         }
       }
     }

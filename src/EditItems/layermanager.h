@@ -110,6 +110,7 @@ private:
 
 signals:
   void stateReplaced();
+  void itemStatesReplaced();
 };
 
 } // namespace

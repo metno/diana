@@ -157,6 +157,7 @@ diana_qt_sources = \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
+	qtAnnotationDialog.cc \
 	qtAnnoText.cc \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
@@ -375,6 +376,7 @@ noinst_HEADERS = \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
+	qtAnnotationDialog.h \
 	qtAnnoText.h \
 	qtBrowserBox.h \
 	qtButtonLayout.h \

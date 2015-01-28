@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -161,20 +161,15 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   // --------------------------------------------------------------------
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
-  editAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(editAction, SIGNAL( triggered() ), SLOT(EditMarkedText()));
   addAction( editAction );
   // --------------------------------------------------------------------
   deleteAction = new QAction(this);
   deleteAction->setShortcut(Qt::CTRL+Qt::Key_Delete);
-  deleteAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(deleteAction, SIGNAL( triggered() ) , SLOT(DeleteMarkedAnnotation()));
   addAction( deleteAction );
 
-
   ConstructorCernel( ll );
-
-
 }
 
 
