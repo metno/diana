@@ -3300,8 +3300,7 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
         int index = 0;
         if (poptions.linevalues.size() == 0) {
 
-          if ((poptions.repeat && value > poptions.base)
-              || value > poptions.base) {
+          if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
                   % poptions.palettecolours.size();
@@ -3678,8 +3677,7 @@ bool FieldPlot::plotFillCell()
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
           int index = 0;
-          if ((poptions.repeat && value > poptions.base)
-              || value > poptions.base) {
+          if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
                       % poptions.palettecolours.size();
