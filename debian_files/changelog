@@ -1,8 +1,22 @@
+diana (3.37.0~rc5-1) unstable; urgency=low
+
+  * metlibs-difield-dev 5.5.1
+  * fimex 0.56-0
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 28 Jan 2015 14:37:01 +0100
+
+diana (3.37.0~rc4-2) unstable; urgency=low
+
+  * Bugfix: FieldEdit with files without timeaxis
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 16 Dec 2014 12:28:32 +0100
+
 diana (3.37.0~rc4-1) unstable; urgency=low
 
-  * new upstream version
+  * Results from measurementsdialog written to console/file
+  * FieldEdit with files without timeaxis
 
- -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 28 Jan 2015 14:24:32 +0100
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 15 Dec 2014 13:22:31 +0100
 
 diana (3.37.0~rc3-1) unstable; urgency=low
 
