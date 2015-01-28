@@ -1,5 +1,6 @@
 # $Id$
 
+AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = . test/gtest test
 
 if WITH_BATCH_ONLY
@@ -112,7 +113,7 @@ common_cxx_sources += \
 	vcross_v2/VcrossOptions.cc
 
 common_ldadd += \
-	$(BOOST_REGEX_LIBS)
+	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
 
 # Qt sources
 common_qt_sources = diManager.cc \
@@ -691,6 +692,7 @@ endif
 # Use Xlib-specific routines
 if WITH_XLIB
 common_cppflags += -DUSE_XLIB
+common_ldadd += -lX11
 endif
 
 # Embedded build support - remove X and OpenGL dependencies

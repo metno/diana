@@ -72,7 +72,8 @@ dianaUnitTests_LDADD = \
     $(GLU_LIBS) \
     $(gtest_LIBS) \
     $(PNG_LIBS) \
-    $(QT4_LIBS)
+    $(QT4_LIBS) \
+    $(BOOST_SYSTEM_LIBS)
 
 endif # HAVE_GTEST
 

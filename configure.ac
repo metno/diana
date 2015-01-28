@@ -13,13 +13,11 @@ METNO_PROGRAM_SUFFIX
 
 AC_LANG([C])
 AC_LANG([C++])
-AC_LANG([Fortran 77])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_CXX
-AC_PROG_F77([gfortran, g77])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PROG_LN_S
@@ -56,26 +54,6 @@ AC_CXX_HAVE_STD
 AC_CXX_HAVE_STL
 
 AC_LANG_POP([C++])
-
-#
-# Fortran
-#
-AC_LANG_PUSH([Fortran 77])
-
-FFLAGS="$FFLAGS -pipe -x f77-cpp-input -fPIC -fopenmp "
-
-AS_CASE([$F77],
-[g77], [
-    # If the g77 compiler is used, preprocess with -DG77
-    AC_DEFINE([G77], [], [using g77])
-    FFLAGS="$FFLAGS -DG77"
-    AC_SUBST([FORTRAN_LIBS], [-lg2c])
-],
-[gfortran], [
-    AC_SUBST([FORTRAN_LIBS], [-lgfortran])
-])
-
-AC_LANG_POP([Fortran 77])
 
 #
 # Features
@@ -186,6 +164,7 @@ AS_IF([test x$enable_batch_only != xyes], [
 
 METNO_REQUIRE_BOOST
 METNO_REQUIRE_BOOST_FEATURE([regex])
+METNO_REQUIRE_BOOST_FEATURE([system], [boost/system/api_config.hpp])
 
 # libavformat for video production
 AS_IF([test x$enable_video_export = xyes], [
@@ -204,13 +183,11 @@ METNO_REQUIRE_C_LIBRARY([CURL], [curl], [curl/curl.h])
 
 # EMOSLIB
 AS_IF([test x$enable_obs_bufr = xyes], [
-    METNO_REQUIRE_C_LIBRARY([EMOS], [emos], [], [pbopen])
+    METNO_REQUIRE_PKG([EMOS], [emos], [], [static])
 ])
 
 # udunits2
-AS_IF([test x$enable_vcross_v2 = xyes], [
-    METNO_REQUIRE_C_LIBRARY([UU], [udunits2], [udunits2.h], [ut_new_system])
-])
+METNO_REQUIRE_C_LIBRARY([UU], [udunits2], [udunits2.h], [ut_new_system])
 
 GTEST_CHECK([src/test/gtest])
 
