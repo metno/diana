@@ -131,6 +131,7 @@ private:
   QPushButton* noneButton;
   QPushButton* defButton;
   QCheckBox* tempPrecisionCheckBox;
+  QCheckBox* unit_msCheckBox;
   QCheckBox* parameterNameCheckBox;
   QCheckBox* moreTimesCheckBox;
   QCheckBox* qualityCheckBox;

@@ -91,6 +91,7 @@ private:
   bool priority;
   std::string priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
+  bool unit_ms; //wind in m/s or knots
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
   bool popupText; // selected parameters in popup window
  

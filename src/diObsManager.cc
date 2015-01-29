@@ -788,7 +788,7 @@ ObsDialogInfo ObsManager::initDialog()
   ObsDialogInfo::PlotType psynop;
   psynop.name = "Synop";
   psynop.misc =
-      "dev_field_button=true tempPrecision=true more_times qualityflag wmoflag";
+      "dev_field_button=true tempPrecision=true unit_ms more_times qualityflag wmoflag";
   psynop.criteriaList = criteriaList["synop"];
 
   psynop.button.push_back(addButton("Wind", "Wind (direction and speed)"));
@@ -885,7 +885,7 @@ ObsDialogInfo ObsManager::initDialog()
 
   plist.name = "List";
   plist.misc =
-      "dev_field_button tempPrecision markerboxVisible orientation more_times qualityflag wmoflag";
+      "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times qualityflag wmoflag";
   plist.criteriaList = criteriaList["list"];
 
   plist.button.push_back(addButton("Pos", "Position", 0, 0, true));
@@ -970,13 +970,13 @@ ObsDialogInfo ObsManager::initDialog()
           || pr->second.obsformat == ofmt_metar
           || pr->second.obsformat == ofmt_satob) {
         if (pr->second.plotFormat == "synop") {
-          psingle.misc = "dev_field_button=true tempPrecision=true more_times";
+          psingle.misc = "dev_field_button=true tempPrecision=true unit_ms more_times";
           psingle.criteriaList = criteriaList["synop"];
           setAllActive(psingle, pr->second.parameter, pr->second.dialogName,
               psynop.button);
         } else {
           psingle.misc =
-              "dev_field_button tempPrecision markerboxVisible orientation more_times";
+              "dev_field_button tempPrecision unit_ms markerboxVisible orientation more_times";
           psingle.criteriaList = criteriaList["list"];
           setAllActive(psingle, pr->second.parameter, pr->second.dialogName,
               plist.button);

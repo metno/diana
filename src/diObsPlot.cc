@@ -93,6 +93,7 @@ ObsPlot::ObsPlot() :
   density = 1;
   numPar = 0;
   tempPrecision = false;
+  unit_ms = false;
   vertical_orientation = true;
   left_alignment = true;
   showpos = false;
@@ -456,6 +457,8 @@ bool ObsPlot::prepare(const std::string& pin)
         mslpColour2 = c;
       } else if (key == "tempprecision") {
         tempPrecision = is_true(value);
+      } else if (key == "unit_ms") {
+        unit_ms = is_true(value);
       } else if (key == "parametername") {
         parameterName = is_true(value);
       } else if (key == "popup") {
@@ -2374,7 +2377,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if (dta.fdata.count("ff")) {
       checkColourCriteria("ff", ff_p->second);
-      printList(diutil::ms2knots(ff_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? ff_p->second : diutil::ms2knots(ff_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2552,7 +2556,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("911ff")) != dta.fdata.end()) {
       checkColourCriteria("911ff", f_p->second);
-      printList(diutil::ms2knots(f_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2562,7 +2567,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("fxfx")) != dta.fdata.end()) {
       checkColourCriteria("fxfx", f_p->second);
-      printList(diutil::ms2knots(f_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -4087,7 +4093,8 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("911ff")) {
     if ((f_p = dta.fdata.find("911ff")) != fend) {
       checkColourCriteria("911ff", f_p->second);
-      printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 38],
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printNumber(ff, iptab[lpos + 38],
           iptab[lpos + 39], "fill_2", true);
     }
   }
@@ -4106,11 +4113,12 @@ void ObsPlot::plotSynop(int index)
     if ((f_p = dta.fdata.find("fxfx")) != fend
         && !(dta.zone > 1 && dta.zone < 99)) {
       checkColourCriteria("fxfx", f_p->second);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
       if (TxTnFlag)
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+        printNumber(ff, iptab[lpos + 6] + 10,
             iptab[lpos + 7], "fill_2", true);
       else
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+        printNumber(ff, iptab[lpos + 6] + 10,
             iptab[lpos + 7] - 14, "fill_2", true);
     }
   }
@@ -4298,7 +4306,7 @@ void ObsPlot::plotMetar(int index)
   float xid, yid;
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
     checkColourCriteria("fmfm", f_p->second);
-    printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 4] + 2,
+    printNumber(f_p->second, iptab[lpos + 4] + 2,
         iptab[lpos + 5] + 2 - dndx, "left", true);
     //understrekes
     xid = iptab[lpos + 4] + 20 + 15;
