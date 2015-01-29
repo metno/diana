@@ -233,7 +233,7 @@ void DrawingDialog::makeProduct()
   // Write the layers to temporary files in the working directory.
   QDir dir(drawm_->getWorkDir());
   QString filePath = dir.absoluteFilePath("temp.kml");
-  layersPane_->saveVisible(filePath);
+  layersPane_->saveSelected(filePath);
 
   std::vector<std::string> inp;
   inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");
