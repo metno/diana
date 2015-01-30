@@ -214,7 +214,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
   vlayout->addLayout( hlayout );
 
   vlayout->activate();
- // vlayout->freeze();
+  // vlayout->freeze();
 
   first= false;
   newActive = false;
@@ -223,7 +223,7 @@ EditNewDialog::EditNewDialog( QWidget* parent, Controller* llctrl )
 
 void EditNewDialog::tabSelected(int tabindex)
 {
-    METLIBS_LOG_DEBUG("EditNewDialog::Selected tab:" <<tabindex);
+  METLIBS_LOG_SCOPE();
   normal= (tabindex == 0);
 
   if (normal)
@@ -249,14 +249,14 @@ void EditNewDialog::tabSelected(int tabindex)
 void EditNewDialog::combineSelect(QListWidgetItem * item)
 {
   std::string s= item->text().toStdString();
-    METLIBS_LOG_DEBUG("EditNewDialog::Combineselect:" << s);
+  METLIBS_LOG_DEBUG("EditNewDialog::Combineselect:" << s);
   if (miutil::miTime::isValid(s)){
     combinetime= miutil::miTime(s);
   }
   cselectlabel->setText(s.c_str());
   string tmp;
   vector <string> pids =
-    m_editm->getCombineIds(combinetime,products[currprod],pid);
+      m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
   cerr <<"pids:"<<n<<endl;
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
@@ -276,7 +276,7 @@ void EditNewDialog::combineClear(){
 void EditNewDialog::prodtimechanged(int v)
 {
   prodtime= timespin->Time();
-    METLIBS_LOG_DEBUG("EditNewDialog::Prodtime changed:" << prodtime);
+  METLIBS_LOG_DEBUG("EditNewDialog::Prodtime changed:" << prodtime);
 }
 
 
@@ -295,7 +295,7 @@ bool EditNewDialog::checkStatus()
       if ((products[currprod].fields[i].fromfield &&
           products[currprod].fields[i].fromfname.empty()) ||
           (!products[currprod].fields[i].fromfield &&
-              products[currprod].fields[i].fromprod.ptime.undef()))
+              products[currprod].fields[i].fromprod.filename.empty()))
         return false;
     }
   }
@@ -305,7 +305,7 @@ bool EditNewDialog::checkStatus()
 
 void EditNewDialog::prodBox(int idx)
 {
-  METLIBS_LOG_DEBUG("EditNewDialog::prodBox called");
+  METLIBS_LOG_SCOPE();
   int n= products.size();
   if (n==0 || idx<0 || idx>=n) return;
 
@@ -347,7 +347,7 @@ void EditNewDialog::prodBox(int idx)
 
 void EditNewDialog::idBox(int idx)
 {
-  METLIBS_LOG_DEBUG("EditNewDialog::idBox");
+  METLIBS_LOG_SCOPE();
   int n= products.size();
   if (n==0 || currprod<0) return;
   int m= products[currprod].pids.size();
@@ -370,7 +370,7 @@ void EditNewDialog::idBox(int idx)
 
 
 bool EditNewDialog::load(){
-  METLIBS_LOG_DEBUG("EditNewDialog::load");
+  METLIBS_LOG_SCOPE();
   isdata= false;
   productfree= false;
   newActive=true;
@@ -389,7 +389,7 @@ bool EditNewDialog::load(){
         products[i].fields[j].fromfield= true;
 
         vector<string> fstr=
-          m_editm->getValidEditFields(products[i],j);
+            m_editm->getValidEditFields(products[i],j);
         if (fstr.size())
           products[i].fields[j].fromfname= fstr[0];
         else
@@ -424,7 +424,7 @@ bool EditNewDialog::load(){
 std::string EditNewDialog::savedProd2Str(const savedProduct& sp, const std::string undef)
 {
   if (sp.ptime.undef())
-    return undef;
+    return sp.pid;
   else
     return sp.pid + std::string(" - ") + sp.ptime.isoTime();
 }
@@ -465,12 +465,12 @@ bool EditNewDialog::setNormal()
 void EditNewDialog::setObjectLabel(){
   // set object label
   std::string tmp =
-    std::string("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + std::string(" </font> ");
+      std::string("<font color=\"blue\"> ") + tr("No startobjects").toStdString() + std::string(" </font> ");
   if (products[currprod].objectprods.size()){
     if (not products[currprod].objectprods[0].filename.empty()) {
       tmp= std::string("<font color=\"red\"> ") +
-      savedProd2Str(products[currprod].objectprods[0]) +
-      std::string(" </font> ");
+          savedProd2Str(products[currprod].objectprods[0]) +
+          std::string(" </font> ");
     }
   }
   elab[0]->setText(tmp.c_str());
@@ -478,6 +478,7 @@ void EditNewDialog::setObjectLabel(){
 
 
 void EditNewDialog::setFieldLabel(){
+  METLIBS_LOG_SCOPE();
   // set field labels
   int n= products[currprod].fields.size();
   for (int i=0; i<n && i<maxelements-1; i++){
@@ -523,6 +524,7 @@ void EditNewDialog::handleObjectButton(int num)
 
 void EditNewDialog::handleFieldButton(int num)
 {
+  METLIBS_LOG_SCOPE();
   if( m_editm ){
     EditDefineFieldDialog edf(this,m_ctrl, num, products[currprod]);
     if (!edf.exec()) return;
@@ -531,15 +533,22 @@ void EditNewDialog::handleFieldButton(int num)
     if (edf.fieldSelected()){
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
+      prodtime= miutil::miTime();
+      timespin->setTime(prodtime);
     } else if (edf.productSelected()){
       vector <savedProduct> vsap= edf.vselectedProd();
       if (vsap.size()){
         products[currprod].fields[num].fromprod= vsap[0];
         if (num==0){
           //product time=time of field 0 !
-          miutil::miTime t = vsap[0].ptime;
-          prodtime= miutil::miTime(t);
-          timespin->setTime(prodtime);
+          if ( !vsap[0].ptime.undef() ) {
+            miutil::miTime t = vsap[0].ptime;
+            prodtime= miutil::miTime(t);
+            timespin->setTime(prodtime);
+          } else {
+            prodtime= miutil::miTime();
+            timespin->setTime(prodtime);
+          }
         }
       }
       products[currprod].fields[num].fromfield= false;
@@ -576,7 +585,7 @@ void EditNewDialog::ebutton3()
 }
 
 bool EditNewDialog::load_combine(){
-  METLIBS_LOG_DEBUG("EditNewDialog::Load-combine");
+  METLIBS_LOG_SCOPE();
   isdata= false;
   if( m_editm ){
     vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
@@ -612,7 +621,7 @@ bool EditNewDialog::load_combine(){
 
 bool EditNewDialog::checkProductFree()
 {
-
+  METLIBS_LOG_SCOPE(LOGVAL(prodtime));
   QString message;
 
   bool ok = m_editm->fileExists(products[currprod],pid,prodtime,message);
@@ -626,26 +635,28 @@ bool EditNewDialog::checkProductFree()
 }
 
 void EditNewDialog::ok_clicked(){
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(prodtime));
   miutil::miTime ptime;
   if (normal) ptime= prodtime;
   else        ptime= combinetime;
-  int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
+  if ( !ptime.undef() ) {
+    int minutes= miutil::miTime::minDiff(miutil::miTime::nowTime(),ptime);
 
-  QString msg;
-  if ((products[currprod].startEarly &&
-      products[currprod].minutesStartEarly>minutes))
-    msg= tr("Product made earlier than normal!");
-  if ((products[currprod].startLate &&
-      products[currprod].minutesStartLate<minutes))
-    msg= tr("Product made later than normal!");
-  if (!msg.isEmpty()) {
-    QString pname= prodbox->currentText();
-    QString message= pname + "\n" + msg;
-    if (QMessageBox::warning( this, tr("Product time"),message,
-        tr("Continue"),tr("Cancel")) != 0) return;
+    QString msg;
+    if ((products[currprod].startEarly &&
+        products[currprod].minutesStartEarly>minutes))
+      msg= tr("Product made earlier than normal!");
+    if ((products[currprod].startLate &&
+        products[currprod].minutesStartLate<minutes))
+      msg= tr("Product made later than normal!");
+    if (!msg.isEmpty()) {
+      QString pname= prodbox->currentText();
+      QString message= pname + "\n" + msg;
+      if (QMessageBox::warning( this, tr("Product time"),message,
+          tr("Continue"),tr("Cancel")) != 0) return;
+    }
+
   }
-
 
   productfree= checkProductFree();
   if (!productfree){

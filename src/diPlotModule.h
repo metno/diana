@@ -66,6 +66,18 @@ class StationPlot;
 class QKeyEvent;
 class QMouseEvent;
 
+namespace diutil {
+
+class was_enabled {
+  typedef std::map<std::string, bool> key_enabled_t;
+  key_enabled_t key_enabled;
+public:
+  void save(const Plot* plot, const std::string& key);
+  void restore(Plot* plot, const std::string& key) const;
+};
+
+} // namespace diutil
+
 /**
 
  \brief Main plot engine
@@ -122,7 +134,7 @@ private:
   std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   // event-handling
-  float oldx, oldy, xmoved, ymoved;
+  float oldx, oldy;
   float newx, newy;
   float startx, starty;
   Area myArea;
@@ -266,7 +278,6 @@ public:
       bool updateSources = false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      std::set<miutil::miTime>& constTimes,
       const std::vector<std::string>& pinfos, bool allTimes = true,
       bool updateSources = false);
 

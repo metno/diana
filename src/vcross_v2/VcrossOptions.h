@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,6 +28,8 @@
 */
 #ifndef VCROSSOPTIONS_HH
 #define VCROSSOPTIONS_HH
+
+#include <diField/VcrossData.h>
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -124,10 +126,11 @@ public:
 
   float    thickArrowScale;
 
-  std::string verticalType;      // obsolete
-  std::string verticalScale;     // linear/exner
-  std::string verticalCoordinate; // pressure/height
-  std::string verticalUnit;      // hPa/FL/m/ft
+  std::string verticalType;       //!< obsolete, but used !?
+  std::string verticalScale;      //!< linear/exner
+  std::string verticalCoordinate; //!< pressure/altitude
+  std::string verticalUnit;       //!< hPa/FL/m/ft
+  vcross::Z_AXIS_TYPE getVerticalType() const;
 
   bool keepVerHorRatio;
   int  verHorRatio;

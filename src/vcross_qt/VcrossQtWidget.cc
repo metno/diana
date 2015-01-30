@@ -105,18 +105,14 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
       vcrossm->setTimeGraphPos(-1);
     } else if (me->key()==Qt::Key_Right && timeGraph){
       vcrossm->setTimeGraphPos(+1);
-    } else if (me->key()==Qt::Key_Left){
-      vcrossm->setTime(-1);
-      /*emit*/ timeChanged(-1);
-    } else if (me->key()==Qt::Key_Right){
-      vcrossm->setTime(+1);
-      /*emit*/ timeChanged(+1);
-    } else if (me->key()==Qt::Key_Down){
-      vcrossm->setCrossection(-1);
-      /*emit*/ crossectionChanged(-1);
-    } else if (me->key()==Qt::Key_Up){
-      vcrossm->setCrossection(+1);
-      /*emit*/ crossectionChanged(+1);
+    } else if (me->key()==Qt::Key_Left) {
+      Q_EMIT stepTime(-1);
+    } else if (me->key()==Qt::Key_Right) {
+      Q_EMIT stepTime(+1);
+    } else if (me->key()==Qt::Key_Down) {
+      Q_EMIT stepCrossection(-1);
+    } else if (me->key()==Qt::Key_Up) {
+      Q_EMIT stepCrossection(+1);
     } else {
       handled = false;
       change= false;

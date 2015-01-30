@@ -37,7 +37,8 @@
 
 namespace DrawingItem_Symbol {
 
-Symbol::Symbol()
+Symbol::Symbol(int id)
+  : DrawingItemBase(id)
 {
   properties_["size"] = DEFAULT_SYMBOL_SIZE;
 }

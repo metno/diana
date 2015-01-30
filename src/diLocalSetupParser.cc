@@ -31,23 +31,23 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
+#include "diLocalSetupParser.h"
 
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
+#include "diColourShading.h"
+#include "diLinetype.h"
+#include "diPattern.h"
+
+#include <puCtools/mkdir.h>
+#include <puCtools/stat.h>
+#include <puTools/miSetupParser.h>
 
 #include <fstream>
 #include <list>
 
-#include "diLocalSetupParser.h"
-#include <diColourShading.h>
-#include <diPattern.h>
-#include <diImageGallery.h>
-#include <puCtools/mkdir.h>
-#include <puCtools/stat.h>
-
-#include <puTools/miSetupParser.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MILOGGER_CATEGORY "diana.LocalSetupParser"
 #include <miLogger/miLogging.h>

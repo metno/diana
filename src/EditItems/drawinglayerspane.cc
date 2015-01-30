@@ -40,14 +40,17 @@
 #include <QAction>
 
 #include "duplicate_to_editable.xpm"
+#include "edit.xpm"
+#include "hideall.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "showall.xpm"
 
 namespace EditItems {
 
 DrawingLayersPane::DrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, false, false)
+  : LayersPaneBase(layerManager, title, false, false, true)
 {
-  bottomLayout_->addWidget(showAllButton_ = createToolButton(QPixmap(showall_xpm), "Show all layers", this, SLOT(showAll())));
-  bottomLayout_->addWidget(hideAllButton_ = createToolButton(QPixmap(hideall_xpm), "Hide all layers", this, SLOT(hideAll())));
   bottomLayout_->addWidget(moveUpButton_ = createToolButton(QPixmap(moveup_xpm), "Move selected layer up", this, SLOT(moveSingleSelectedUp())));
   bottomLayout_->addWidget(moveDownButton_ = createToolButton(QPixmap(movedown_xpm), "Move selected layer down", this, SLOT(moveSingleSelectedDown())));
   bottomLayout_->addWidget(editButton_ = createToolButton(QPixmap(edit_xpm), "Edit attributes of selected layer", this, SLOT(editAttrsOfSingleSelected())));

@@ -232,16 +232,35 @@ float DianaLevelLog::value_for_level(contouring::level_t l) const
 
 //------------------------------------------------------------------------
 
+DianaLevelStep::DianaLevelStep(float step, float off)
+  : mStep(step)
+  , mOff(off)
+  , mMin(1)
+  , mMax(0)
+  , mHaveMin(false)
+  , mHaveMax(false)
+{
+}
+
+void DianaLevelStep::set_limits(float mini, float maxi)
+{
+  mMin = mini;
+  mMax = maxi;
+  mHaveMin = not isUndefined(mMin);
+  mHaveMax = not isUndefined(mMax);
+  if (mHaveMin and mHaveMax and mMin >= mMax)
+    mHaveMin = mHaveMax = false;
+}
+
 contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
   if (isUndefined(value))
     return UNDEF_LEVEL;
-  if (mMin < mMax) {
-    if (value < mMin)
-      value = mMin;
-    else if (value > mMax)
-      value = mMax;
-  }
+  // invalid combinations of mMin and mMax are caught in set_limits
+  if (mHaveMin and value < mMin)
+    value = mMin;
+  if (mHaveMax and value > mMax)
+    value = mMax;
   return rounded_div(value - mOff, mStep);
 }
 

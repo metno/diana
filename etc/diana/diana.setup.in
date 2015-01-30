@@ -1349,8 +1349,14 @@ style="Clouds"                                  linecolour=red linewidth=2 lines
                                                 fillpattern=diagleft closed=true
 style="Ice"                                     linecolour=olive linewidth=2 linesmooth=true fillcolour=olive \
                                                 fillpattern=paralyse closed=true
-style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true
-style="Ash cloud (forecast)"                    linecolour=black linewidth=2 linepattern=dashed closed=true
+style="Ash cloud (observed)"                    linecolour=black linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL0/200 (observed)"            linecolour=red linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL200/350 (observed)"          linecolour=green linewidth=3 closed=true fillalpha=0
+style="Ash cloud FL350/550 (observed)"          linecolour=blue linewidth=3 closed=true fillalpha=0
+style="Ash cloud (forecast)"                    linecolour=black linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL0/200 (forecast)"            linecolour=red linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL200/350 (forecast)"          linecolour=green linewidth=3 linepattern=dashed closed=true fillalpha=0
+style="Ash cloud FL350/550 (forecast)"          linecolour=blue linewidth=3 linepattern=dashed closed=true fillalpha=0
 
 style="Cold front"                              linecolour=blue linewidth=3 decoration1=triangles \
                                                 decoration1.colour=blue linesmooth=true closed=false \
@@ -1400,29 +1406,29 @@ composite="Text above Text" objects=text:text values="Text:Text" styles="SIGWX l
                             fillcolour=white fillalpha=255
 composite="X over X"        objects=text:line:text values=X::X styles="SIGWX label:Plain line:SIGWX label" layout=vertical \
                             fillcolour=white fillalpha=255 linealpha=0
-composite="Volcano label"   objects=symbol:text values=":XXX" styles="Volcanic Eruption:SIGWX label" fillcolour=white hide=true linealpha=0
-composite="Moderate Turbulence" objects=symbol values="" styles="Moderate Turbulence" fillalpha=255 fillcolour=white linealpha=0
-composite="Severe Turbulence" objects=symbol values="" styles="Severe Turbulence" fillalpha=255 fillcolour=white linealpha=0
-composite="Moderate/Severe Turbulence" objects=symbol:line:symbol values="::" styles="Moderate Turbulence:Plain line:Severe Turbulence" \
+composite="Volcano label"   objects=symbol:text values=":XXX" styles="Forecast|Volcanic Eruption:SIGWX label" fillcolour=white hide=true linealpha=0
+composite="Moderate Turbulence" objects=symbol values="" styles="Forecast|Moderate Turbulence" fillalpha=255 fillcolour=white linealpha=0
+composite="Severe Turbulence" objects=symbol values="" styles="Forecast|Severe Turbulence" fillalpha=255 fillcolour=white linealpha=0
+composite="Moderate/Severe Turbulence" objects=symbol:line:symbol values="::" styles="Forecast|Moderate Turbulence:Plain line:Forecast|Severe Turbulence" \
                             fillalpha=255 layout=diagonal fillcolour=white linealpha=0
 composite="Moderate/Severe Aircraft Icing" objects=symbol:line:symbol values="::" \
-                            styles="Moderate Aircraft Icing:Plain line:Severe Aircraft Icing" fillalpha=255 \
+                            styles="Forecast|Moderate Aircraft Icing:Plain line:Forecast|Severe Aircraft Icing" fillalpha=255 \
                             fillcolour=white layout=diagonal linealpha=0
-composite="Moderate Aircraft Icing with X over X" objects=symbol:composite values=":" styles="Moderate Aircraft Icing:X over X" \
+composite="Moderate Aircraft Icing with X over X" objects=symbol:composite values=":" styles="Forecast|Moderate Aircraft Icing:X over X" \
                             layout=horizontal fillcolour=white fillalpha=255 linealpha=0
-composite="Moderate Turbulence with X over X" objects=symbol:composite values=":" styles="Moderate Turbulence:X over X" \
+composite="Moderate Turbulence with X over X" objects=symbol:composite values=":" styles="Forecast|Moderate Turbulence:X over X" \
                             layout=horizontal fillcolour=white fillalpha=255 linealpha=0
 composite="Predefined Text with X over X" objects=text:composite values="X:" styles="SIGWX label:X over X" layout=horizontal \
                             fillcolour=white linealpha=0
 composite="Severe Aircraft Icing with X over X" objects=symbol:composite values="Text:" \
-                            styles="Severe Aircraft Icing:X over X" layout=horizontal fillcolour=white linealpha=0
-composite="Severe Turbulence with X over X" objects=symbol:composite values=":" styles="Severe Turbulence:X over X" \
+                            styles="Forecast|Severe Aircraft Icing:X over X" layout=horizontal fillcolour=white linealpha=0
+composite="Severe Turbulence with X over X" objects=symbol:composite values=":" styles="Forecast|Severe Turbulence:X over X" \
                             layout=horizontal fillcolour=white fillalpha=255 linealpha=0
 composite="Text with X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=horizontal \
                             fillcolour=white fillalpha=255 linealpha=0
-composite="Moderate/Severe aircraft icing with X over X" objects=composite:composite values=":" styles="Moderate/Severe Aircraft Icing:X over X" \
+composite="Moderate/Severe aircraft icing with X over X" objects=composite:composite values=":" styles="Forecast|Moderate/Severe Aircraft Icing:X over X" \
                             fillcolour=white fillalpha=255 linealpha=0
-composite="Moderate/Severe turbulence with X over X" objects=composite:composite values=":" styles="Moderate/Severe Turbulence:X over X" \
+composite="Moderate/Severe turbulence with X over X" objects=composite:composite values=":" styles="Forecast|Moderate/Severe Turbulence:X over X" \
                             fillcolour=white fillalpha=255 linealpha=0
 composite="Predefined Text above X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=vertical \
                             fillcolour=white fillalpha=255 linealpha=0

@@ -182,6 +182,7 @@ const std::string com_setup_field_info = "setup_field_info";
 const std::string com_time_opt = "time_options";
 const std::string com_time_format = "time_format";
 const std::string com_time = "time";
+const std::string com_time_vprof = "time.vprof";
 const std::string com_time_spectrum = "time.spectrum";
 const std::string com_endtime = "endtime";
 const std::string com_level = "level";
@@ -795,6 +796,8 @@ bool vcross_optionschanged;
 
 void parse_vcross_options(const vector<string>& opts)
 {
+  // TODO almost the same code exists in bdiana_capi
+  // TODO this routine never clears vcross_options
   bool data_exist = false;
   int n = opts.size();
   for (int i = 0; i < n; i++) {
@@ -1046,16 +1049,16 @@ static void printUsage(bool showexample)
             "OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\\n"
             " VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\\n"
             " TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 scale=1 \\\n"
-            " timediff=180 colour=black font=Helvetica face=normal\n"
+            " timediff=180 colour=black font=BITMAPFONT face=normal\n"
             "OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area \\\n"
             " timediff=60\n"
             "MAP area=Norge backcolour=white map=Gshhs-AUTO contour=on \\\n"
             " cont.colour=black cont.linewidth=1 cont.linetype=solid cont.zorder=1 \\\n"
             " land=on land.colour=landgul land.zorder=0 latlon=off frame=off\n"
-            "LABEL data font=Helvetica\n"
+            "LABEL data font=BITMAPFONT\n"
             "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black \\\n"
             " fcolour=white:200 polystyle=both halign=left valign=top \\\n"
-            " font=Helvetica fontsize=12\n"
+            " font=BITMAPFONT fontsize=12\n"
 
             "                                                                  \n"
             "ENDPLOT                  # End of plot-command                    \n"
@@ -1097,7 +1100,7 @@ static void printUsage(bool showexample)
             "VPROF.PLOT               # start of vertical profile plot         \n"
             "                                                                  \n"
             "OBSERVATION.ON           # plot observation: OBSERVATION.ON/OFF   \n"
-            "MODELS=HIRLAM.00,EC.12   # comma-separated list of models         \n"
+            "MODELS=AROME-MetCoOp.00, HIRLAM.12KM.00  # comma-separated list of models \n"
             "STATION=KIRKENES         # station-name                           \n"
             "                                                                  \n"
             "ENDPLOT                  # End of plot-command                    \n"
@@ -1157,7 +1160,7 @@ static void printUsage(bool showexample)
             "#- alternative to TIME=.. commandline option:                     \n"
             "#  (default time is the last available time)                      \n"
             "#  use settime=YYYY-MM-DD hh:mm:ss                                \n"
-            "#  use settime=currenttine / nowtime /firsttime                   \n"
+            "#  use settime=currenttime / nowtime / firsttime                  \n"
             "#- use addhour=<value> or addminute=<value> to increment datatime \n"
             "#  (offset from TIME=\"\" variable). Useful in loops              \n"
             "#--------------------------------------------------------------   \n"
@@ -1279,7 +1282,7 @@ static void printUsage(bool showexample)
             "#  OBS plot=Synop data=Synop parameter=Vind,TTT,TdTdTd,PPPP,ppp,a,h,\\ \n"
             "#  VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,Dw1Dw1,Pw1Hw1,\\  \n"
             "#  TxTn,sss,911ff,s,fxfx,Kjtegn  tempprecision=true density=1 \\       \n"
-            "#  scale=1 timediff=180 colour=black font=Helvetica face=normal        \n"
+            "#  scale=1 timediff=180 colour=black font=BITMAPFONT face=normal        \n"
             "#  OBJECTS NAME=\"DNMI Bakkeanalyse\" types=front,symbol,area          \n"
             "#  ENDTIME                                                             \n"
             "#  LEVEL                                                               \n"
@@ -1881,17 +1884,17 @@ static int parseAndProcess(istream &is)
         if (vcross_optionschanged)
           vcrossmanager->getOptions()->readOptions(vcross_options);
         vcross_optionschanged = false;
-        vcrossmanager->setSelection(vcross_data);
+        vcrossmanager->selectFields(vcross_data);
 
         if (ptime.undef()) {
-          thetime = vcrossmanager->getTime();
+          thetime = vcrossmanager->getTimeValue();
           if (verbose)
             METLIBS_LOG_INFO("VCROSS has default time:" << thetime);
         } else
           thetime = ptime;
         if (verbose)
           METLIBS_LOG_INFO("- plotting for time:" << thetime);
-        vcrossmanager->setTime(thetime);
+        vcrossmanager->setTimeToBestMatch(thetime);
 
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
@@ -1900,8 +1903,10 @@ static int parseAndProcess(istream &is)
 
         if (verbose)
           METLIBS_LOG_INFO("- setting cross-section:" << crossection);
-        if (not crossection.empty())
-          vcrossmanager->setCrossection(crossection);
+        if (not crossection.empty()) {
+          int idx = vcrossmanager->findCrossectionIndex(QString::fromStdString(crossection));
+          vcrossmanager->setCrossectionIndex(idx);
+        }
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vcross, priop);
@@ -1942,6 +1947,7 @@ static int parseAndProcess(istream &is)
         // -- vprof plot
         if (!vprofmanager) {
           vprofmanager = new VprofManager(main_controller);
+          vprofmanager->parseSetup();
         }
 
         // set size of plotwindow
@@ -2398,8 +2404,7 @@ static int parseAndProcess(istream &is)
         main_controller->plotCommands(pcom);
 
         set<miTime> okTimes;
-        set<miTime> constTimes;
-        main_controller->getCapabilitiesTime(okTimes, constTimes, pcom, time_options == "union", true);
+        main_controller->getCapabilitiesTime(okTimes, pcom, time_options == "union", true);
 
         // open filestream
         ofstream file(priop.fname.c_str());
@@ -2410,11 +2415,6 @@ static int parseAndProcess(istream &is)
         file << "PROG" << endl;
         set<miTime>::iterator p = okTimes.begin();
         for (; p != okTimes.end(); p++) {
-          file << (*p).format(time_format) << endl;
-        }
-        file << "CONST" << endl;
-        p = constTimes.begin();
-        for (; p != constTimes.end(); p++) {
           file << (*p).format(time_format) << endl;
         }
         file.close();
@@ -2451,6 +2451,47 @@ static int parseAndProcess(istream &is)
         file.close();
 
       }
+
+      continue;
+
+    } else if (miutil::to_lower(lines[k]) == com_time_vprof) {
+
+      if (verbose)
+        METLIBS_LOG_INFO("- finding times");
+
+      //Find ENDTIME
+      vector<string> pcom;
+      FIND_END_COMMAND(com_endtime)
+
+      if (!vprofmanager) {
+        vprofmanager = new VprofManager(main_controller);
+      vprofmanager->parseSetup();
+      }
+      // extract options for plot
+      parse_vprof_options(pcom);
+
+      if (vprof_optionschanged)
+        vprofmanager->getOptions()->readOptions(vprof_options);
+
+      vprof_optionschanged = false;
+      vprofmanager->setSelectedModels(vprof_models, false, vprof_plotobs,
+          vprof_plotobs, vprof_plotobs);
+      vprofmanager->setModel();
+
+      vector<miTime> okTimes = vprofmanager->getTimeList();
+
+      // open filestream
+      ofstream file(priop.fname.c_str());
+      if (!file) {
+        METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << priop.fname);
+        return 1;
+      }
+      file << "PROG" << endl;
+      vector<miTime>::iterator p = okTimes.begin();
+      for (; p != okTimes.end(); p++) {
+        file << (*p).format(time_format) << endl;
+      }
+      file.close();
 
       continue;
 

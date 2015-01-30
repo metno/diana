@@ -46,6 +46,12 @@
 #include <QMenu>
 #include <QAction>
 
+#include "edit.xpm"
+#include "hideall.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "showall.xpm"
+
 #include "undo.xpm"
 #include "redo.xpm"
 #include "selectall.xpm"
@@ -64,7 +70,7 @@
 namespace EditItems {
 
 EditDrawingLayersPane::EditDrawingLayersPane(EditItems::LayerManager *layerManager, const QString &title)
-  : LayersPaneBase(layerManager, title, true, true)
+  : LayersPaneBase(layerManager, title, true, true, true)
   , scratchLayerName_("SCRATCH")
   , addEmptyButton_(0)
   , addFromFileButton_(0)

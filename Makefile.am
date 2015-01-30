@@ -13,6 +13,7 @@ dist_applications_DATA= share/applications/metno-diana-versioned.desktop
 install-data-hook:
 	mv $(DESTDIR)/$(applicationsdir)/metno-diana-versioned.desktop $(DESTDIR)/$(applicationsdir)/metno-diana-@PVERSION@.desktop
 	mv $(DESTDIR)/$(pixmapsdir)/diana.png $(DESTDIR)/$(pixmapsdir)/diana-@PVERSION@.png
+	sed -r -i s/\<PVERSION\>/@PVERSION@/ $(DESTDIR)/$(prefix)/share/doc/diana-@PVERSION@/*.html
 
 include share/doc/diana/doc.mk
 include share/diana/diana.mk

@@ -42,7 +42,7 @@ namespace DrawingItem_PolyLine {
 class PolyLine : public DrawingItemBase
 {
 public:
-  PolyLine();
+  PolyLine(int = -1);
   virtual ~PolyLine();
   virtual QDomNode toKML() const;
 

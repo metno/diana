@@ -33,16 +33,16 @@
 
 #include "qtVcrossSetup.h"
 
-#include <puTools/miStringFunctions.h>
-
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <QGridLayout>
-
 #include "qtUtility.h"
 #include "diLinetype.h"
+
+#include <puTools/miStringFunctions.h>
+
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QSpinBox>
 
 #define MILOGGER_CATEGORY "diana.VcrossSetupUI"
 #include <miLogger/miLogging.h>
@@ -184,9 +184,12 @@ bool VcrossSetupUI::isChecked()
 Colour::ColourInfo VcrossSetupUI::getColour()
 {
   Colour::ColourInfo sColour;
-  if (colourbox){
+  if (colourbox) {
     int index = colourbox->currentIndex();
-    sColour = m_cInfo[index];
+    if (index >= 0 && index < m_cInfo.size())
+      sColour = m_cInfo[index];
+    else
+      METLIBS_LOG_ERROR("invalid colour index=" << index);
   }
   return sColour;
 }
@@ -197,7 +200,8 @@ void VcrossSetupUI::setColour(const std::string& colourString)
   int nr_colours = m_cInfo.size();
   for (int i = 0;i<nr_colours;i++){
     if (colourString==m_cInfo[i].name){
-      if (colourbox && i<colourbox->count()) colourbox->setCurrentIndex(i);
+      if (colourbox && i<colourbox->count())
+        colourbox->setCurrentIndex(i);
       break;
     }
   }
@@ -220,7 +224,10 @@ std::string VcrossSetupUI::getLinetype()
   std::string sString;
   if (linetypebox) {
     int index = linetypebox->currentIndex();
-    sString = linetypes[index];
+    if (index >= 0 && index < linetypes.size())
+      sString = linetypes[index];
+    else
+      METLIBS_LOG_ERROR("invalid linetype index=" << index);
   }
   return sString;
 }
@@ -406,7 +413,7 @@ void VcrossSetupUI::setTextChoice(const std::string& choice)
 
 std::string VcrossSetupUI::getTextChoice()
 {
-  if (textchoicebox) {
+  if (textchoicebox && !vTextChoice.empty()) {
     int i = textchoicebox->currentIndex();
     if (i<0 || i>=int(vTextChoice.size()))
       i=0;
@@ -431,7 +438,7 @@ void VcrossSetupUI::setTextChoice2(const std::string& choice)
 
 std::string VcrossSetupUI::getTextChoice2()
 {
-  if (textchoicebox2) {
+  if (textchoicebox2 && !vTextChoice2.empty()) {
     int i= textchoicebox2->currentIndex();
     if (i<0 || i>=int(vTextChoice2.size()))
       i=0;

@@ -184,7 +184,6 @@ public:
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& progTimes,
-			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);
 

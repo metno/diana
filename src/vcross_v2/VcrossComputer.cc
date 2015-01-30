@@ -2,10 +2,10 @@
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
 
-#include "puTools/mi_boost_compatibility.hh"
-#include "puTools/miStringFunctions.h"
-#include "diField/diFieldFunctions.h"
-#include "diField/diMetConstants.h"
+#include <puTools/mi_boost_compatibility.hh>
+#include <puTools/miStringFunctions.h>
+#include <diField/diFieldFunctions.h>
+#include <diField/diMetConstants.h>
 
 #include <boost/foreach.hpp>
 
@@ -81,7 +81,6 @@ const FunctionSpec* findFunctionByName(const std::string& name)
 
 namespace vcross {
 
-const char VC_PRESSURE[]  = "__PRESSURE";
 const char VC_LONGITUDE[] = "__LONGITUDE";
 const char VC_LATITUDE[]  = "__LATITUDE";
 const char VC_BEARING[]   = "__BEARING";
@@ -89,11 +88,9 @@ const char VC_STEP[]      = "__STEP";
 const char VC_CORIOLIS[]  = "__CORIOLIS";
 
 const char VC_SURFACE_PRESSURE[]  = "vc_surface_pressure";
-const char VC_SURFACE_HEIGHT[]    = "vc_surface_height";
-const char VC_SPECIFIC_HUMIDITY[] = "vc_specific_humidity";
-const char VC_AIR_TEMPERATURE[]   = "vc_air_temperature";
-const char VC_INFLIGHT_PRESSURE[]  = "vc_inflight_pressure";
-const char VC_INFLIGHT_HEIGHT[]    = "vc_inflight_height";
+const char VC_SURFACE_ALTITUDE[]  = "vc_surface_altitude";
+const char VC_INFLIGHT_PRESSURE[] = "vc_inflight_pressure";
+const char VC_INFLIGHT_ALTITUDE[] = "vc_inflight_altitude";
 
 // ========================================================================
 
@@ -188,12 +185,33 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
 
 // ------------------------------------------------------------------------
 
-static float* getPressureFloats(const name2value_t& n2v)
+static Values::ValueArray getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
 {
-  name2value_t::const_iterator itpp = n2v.find(VC_PRESSURE);
+  if (!arg0)
+    return Values::ValueArray();
+  
+  ZAxisData_cp zfield = arg0->zaxis();
+  if (!zfield)
+    return Values::ValueArray();
+
+  std::string pressureId;
+  if (util::unitsConvertible(zfield->unit(), "hPa"))
+    pressureId = zfield->id();
+  else if (FieldData_cp pfield = boost::static_pointer_cast<const FieldData>(zfield->pressureField()))
+    pressureId = pfield->id();
+  else
+    return Values::ValueArray();
+
+  name2value_t::const_iterator itpp = n2v.find(pressureId);
   if (itpp == n2v.end() or not itpp->second)
-    return 0;
-  return itpp->second->values().get();
+    return Values::ValueArray();
+
+  name2value_t::const_iterator ita0 = n2v.find(arg0->id());
+  if (ita0 == n2v.end() or not ita0->second)
+    return Values::ValueArray();
+
+  Values_cp p_values = itpp->second, arg0_values = ita0->second;
+  return reshape(p_values->shape(), arg0_values->shape(), p_values->values());
 }
 
 Values_cp FunctionData::evaluate(name2value_t& n2v) const
@@ -226,6 +244,8 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
    
     argument_values.push_back(ita->second);
   }
+
+  const FieldData_cp a0 = boost::dynamic_pointer_cast<const FieldData>(argument(0));
 
   const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
@@ -310,11 +330,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_thesat_from_th: {
     if (compute == 0) compute = 5;
 
-    const float* f_pp = getPressureFloats(n2v);
-    if (not f_pp)
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
+    if (not f_pp) {
+      METLIBS_LOG_WARN("no pressure for aleveltemp, " << LOGVAL(compute));
       return Values_cp();
+    }
 
-    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::aleveltemp(compute, np, nl, f0, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_cp();
     break; }
 
@@ -323,11 +345,11 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_the_from_th_q: {
     if (compute == 0) compute = 2;
 
-    const float* f_pp = getPressureFloats(n2v);
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp)
       return Values_cp();
 
-    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0))
+    if (not FieldFunctions::alevelthe(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0))
       return Values_cp();
     break; }
 
@@ -356,13 +378,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0)
       compute = 12;
 
-    const float* f_pp = getPressureFloats(n2v);
+    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_DEBUG("no pressure field");
       return Values_p();
     }
 
-    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp, fo, allDefined, ud0, "kelvin"))
+    if (not FieldFunctions::alevelhum(compute, np, nl, f0, f1, f_pp.get(), fo, allDefined, ud0, "kelvin"))
       return Values_p();
     break; }
 
@@ -376,6 +398,41 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     return Values_p();
   }
   return out;
+}
+
+void FunctionData::collectRequired(InventoryBase_cps& required) const
+{
+  for (InventoryBase_cpv::const_iterator it = mArguments.begin(); it != mArguments.end(); ++it)
+    vcross::collectRequired(required, *it);
+
+  switch(function()) {
+  case vcf_tk_from_th:
+  case vcf_th_from_tk:
+  case vcf_thesat_from_tk:
+  case vcf_thesat_from_th:
+  case vcf_the_from_tk_q:
+  case vcf_the_from_th_q:
+  case vcf_rh_from_tk_q:
+  case vcf_rh_from_th_q:
+  case vcf_tdk_from_tk_q:
+  case vcf_tdk_from_th_q:
+  case vcf_q_from_tk_rh:
+  case vcf_q_from_th_rh:
+  case vcf_tdk_from_tk_rh:
+  case vcf_tdk_from_th_rh: {
+    // these functions require a pressure field
+    if (FieldData_cp fa0 = boost::dynamic_pointer_cast<const FieldData>(argument(0))) {
+      if (ZAxisData_cp zaxis = fa0->zaxis()) {
+        if (util::unitsConvertible(zaxis->unit(), "hPa"))
+          required.insert(zaxis);
+        else if (InventoryBase_cp pfield = zaxis->pressureField())
+          required.insert(pfield);
+      }
+    }
+    break; }
+  default:
+    break; // no pressure required
+  }
 }
 
 // ========================================================================
@@ -508,8 +565,29 @@ void collectRequired(InventoryBase_cps& required, InventoryBase_cp item)
     required.insert(item);
   } else if (type == FunctionData::DATA_TYPE()) {
     FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
-    BOOST_FOREACH(const InventoryBase_cp& a, f->arguments()) {
-      collectRequired(required, a);
+    f->collectRequired(required);
+  }
+}
+
+void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item, Z_AXIS_TYPE zType)
+{
+  if (item->dataType() != FieldData::DATA_TYPE())
+    return;
+  FieldData_cp field = boost::static_pointer_cast<const FieldData>(item);
+
+  if (zType == Z_TYPE_PRESSURE) {
+    if (ZAxisData_cp zaxis = field->zaxis()) {
+      if (util::unitsConvertible(zaxis->unit(), "hPa"))
+        required.insert(zaxis);
+      else if (InventoryBase_cp pfield = zaxis->pressureField())
+        required.insert(pfield);
+    }
+  } else if (zType == Z_TYPE_ALTITUDE) {
+    if (ZAxisData_cp zaxis = field->zaxis()) {
+      if (util::unitsConvertible(zaxis->unit(), "m"))
+        required.insert(zaxis);
+      else if (InventoryBase_cp afield = zaxis->altitudeField())
+        required.insert(afield);
     }
   }
 }
@@ -538,83 +616,6 @@ Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
 
   FunctionData_cp f = boost::static_pointer_cast<const FunctionData>(item);
   out = f->evaluate(n2v);
-  return out;
-}
-
-// ================================================================================
-
-Values_cp heightFromPressure(Values_cp pressure, bool positiveUp, Values_cp specific_humidity, Values_cp air_temperature,
-    Values_cp surface_pressure, Values_cp topography)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(positiveUp));
-  Values_p out;
-  if (not (pressure and surface_pressure and specific_humidity and air_temperature))
-    return out;
-  const size_t np = pressure->npoint(), nl = pressure->nlevel();
-  if (surface_pressure->npoint() != np or surface_pressure->nlevel() != 1)
-    return out;
-  if (specific_humidity->npoint() != np or specific_humidity->nlevel() != nl)
-    return out;
-  if (air_temperature->npoint() != np or air_temperature->nlevel() != nl)
-    return out;
-#if 0
-  if (specific_humidity->unit() != "1" and specific_humidity->unit() != "kg/kg")
-    return out;
-  if (air_temperature->unit() != "K")
-    return out;
-  if (pressure->unit() != surface_pressure->unit())
-    return out;
-  if (topography and topography->unit() != "m")
-    return out;
-#endif
-
-  const int l0 = (positiveUp ? 0 : nl-1), l1 = (positiveUp ? nl-1 : 0), dl = (positiveUp ? 1 : -1);
-  out = miutil::make_shared<Values>(np, nl);
-  for (size_t p = 0; p < np; p++) {
-    float h = (topography ? topography->value(p, 0) : 0);
-    METLIBS_LOG_DEBUG(LOGVAL(p) << LOGVAL(h));
-    for (int l = l0; l != l1; l += dl) {
-      const float p_low_alti = (l == l0)
-          ? surface_pressure->value(p, 0) : pressure->value(p, l - dl);
-      const float p_high_alti = pressure->value(p, l);
-      const float dh = util::heightDifferenceFromPressureDifference(p_low_alti, p_high_alti,
-          specific_humidity->value(p, l), air_temperature->value(p, l));
-      h += dh;
-      if (p < 10)
-        METLIBS_LOG_DEBUG(LOGVAL(p) << LOGVAL(l) << LOGVAL(p_low_alti) << LOGVAL(p_high_alti) << LOGVAL(dh) << LOGVAL(h));
-      out->setValue(h, p, l);
-    }
-  }
-  return out;
-}
-
-// ================================================================================
-
-Values_cp potentialTemperature(Values_cp pressure, Values_cp air_temperature)
-{
-  Values_p out;
-  if (not (pressure and air_temperature))
-    return out;
-  const size_t np = pressure->npoint(), nl = pressure->nlevel();
-  if (air_temperature->npoint() != np or air_temperature->nlevel() != nl)
-    return out;
-
-  float p0 = 1000; // hPa
-#if 0
-  if (pressure->unit() == "Pa")
-    p0 *= 100;
-  else if (pressure->unit() != "hPa")
-    return out;
-  if (air_temperature->unit() != "K")
-    return out;
-#endif
-
-  out = miutil::make_shared<Values>(np, nl); // in K
-  for (size_t p = 0; p < np; p++) {
-    for (size_t l = 0; l < nl; l++) {
-      out->setValue(util::potentialTemperature(p0, pressure->value(p, l), air_temperature->value(p, l)), p, l);
-    }
-  }
   return out;
 }
 

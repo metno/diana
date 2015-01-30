@@ -31,7 +31,6 @@
 
 #include <EditItems/edititembase.h>
 #include <EditItems/style.h>
-#include <EditItems/modifypropertiescommand.h>
 #include <diEditItemManager.h>
 
 #include <QVBoxLayout>
@@ -766,9 +765,11 @@ void StyleEditor::edit(const QSet<QSharedPointer<DrawingItemBase> > &items)
   // open dialog
   setWindowTitle(QString("%1 (%2 %3)").arg(tr("Item Style")).arg(items.size()).arg(items.size() == 1 ? tr("item") : tr("items")));
   if (exec() == QDialog::Accepted) {
-    if (oldProperties != DrawingItemBase::properties(itemList))
-      EditItemManager::instance()->undoStack()->push(
-            new EditItems::ModifyPropertiesCommand("modify style properties", itemList, oldProperties, DrawingItemBase::properties(itemList)));
+    const QList<QVariantMap> newProperties = DrawingItemBase::properties(itemList);
+    if (oldProperties != newProperties) {
+      for (int i = 0; i < itemList.size(); ++i)
+        itemList.at(i)->setProperties(newProperties.at(i));
+    }
   } else {
     reset();
   }

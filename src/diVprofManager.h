@@ -118,8 +118,6 @@ private:
   std::vector<float>    amdarLongitude;
   std::vector<std::string> amdarName;
 
-  FieldManager *fieldm;   // field manager
-
   VprofOptions *vpopt;
   VprofDiagram *vpdiag;
   std::vector<VprofData*> vpdata;

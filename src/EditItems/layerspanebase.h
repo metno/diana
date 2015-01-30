@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,14 +39,6 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 
-#include "edit.xpm"
-#include "hideall.xpm"
-#include "movedown.xpm"
-#include "moveup.xpm"
-#include "showall.xpm"
-#include "visible.xpm"
-#include "unsavedchanges.xpm"
-
 class QVBoxLayout;
 class QHBoxLayout;
 class QToolButton;
@@ -67,7 +57,7 @@ class LayerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, QWidget * = 0);
+  LayerWidget(LayerManager *, const QSharedPointer<Layer> &, bool, bool = true, QWidget * = 0);
   ~LayerWidget();
   QSharedPointer<Layer> layer() const;
   QString name() const;
@@ -105,11 +95,10 @@ class LayersPaneBase : public QWidget
 public:
   void showInfo(bool);
   void init();
-  QString saveVisible(const QString &) const;
   QString saveSelected(const QString &) const;
 
 protected:
-  LayersPaneBase(LayerManager *, const QString &, bool, bool);
+  LayersPaneBase(LayerManager *, const QString &, bool, bool, bool);
 
 protected: // ### some of these may be private ... TBD
   QVBoxLayout *layout_;
@@ -121,6 +110,7 @@ protected: // ### some of these may be private ... TBD
   QToolButton *editButton_;
   QToolButton *importFilesButton_;
   bool showInfo_;
+  bool visibleLabelsEnabled_;
 
   void initLayerWidget(LayerWidget *);
   void keyPressEvent(QKeyEvent *);

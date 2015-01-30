@@ -342,7 +342,6 @@ public:
   std::vector<miutil::miTime> getObjectTimes(const std::string& pinfo);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-			   miutil::miTime& constTime,
 			   int& timediff,
 			   const std::string& pinfo);
   /// returns plot options for object file with name objectname

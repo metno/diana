@@ -132,7 +132,7 @@ public:
   calib cal[maxch]; ///< calibration data for all channels
 
   /// any images defined
-  bool noimages(){return !(image && rawimage);}
+  bool noimages(){return !(image);}
 
   // flags to indicate changes in parameters
   bool channelschanged;    ///< changes in selected channels

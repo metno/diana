@@ -53,9 +53,7 @@ using namespace miutil;
 LegendPlot::LegendPlot()
 : Plot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   showplot = true;
   x1title = 0;
   x2title = 0;
@@ -69,9 +67,7 @@ LegendPlot::LegendPlot()
 LegendPlot::LegendPlot(const std::string& str)
 : Plot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   showplot = true;
   x1title = 0;
@@ -114,9 +110,7 @@ LegendPlot::LegendPlot(const std::string& str)
 void LegendPlot::setData(const std::string& title,
     const vector<ColourCode>& colourcode)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   // fill the table with colours and textstrings from palette information
   titlestring = title;
@@ -126,25 +120,19 @@ void LegendPlot::setData(const std::string& title,
 // Copy constructor
 LegendPlot::LegendPlot(const LegendPlot &rhs)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   // elementwise copy
   memberCopy(rhs);
 }
 
 LegendPlot::~LegendPlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 }
 
 LegendPlot& LegendPlot::operator=(const LegendPlot &rhs)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   if (this == &rhs) return *this;
 
   // elementwise copy
@@ -155,17 +143,13 @@ LegendPlot& LegendPlot::operator=(const LegendPlot &rhs)
 
 bool LegendPlot::operator==(const LegendPlot &rhs) const
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   return false;
 }
 
 void LegendPlot::memberCopy(const LegendPlot& rhs)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   // copy members
   titlestring= rhs.titlestring;
   colourcodes= rhs.colourcodes;
@@ -200,11 +184,9 @@ void LegendPlot::getStringSize(std::string str, float& width, float& height)
   height *= 1.2;
 }
 
-bool LegendPlot::plot(float x, float y)
+bool LegendPlot::plotLegend(float x, float y)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   // fill the table with colours and textstrings from palette information
 
   int ncolours = colourcodes.size();
@@ -385,61 +367,8 @@ bool LegendPlot::plot(float x, float y)
   }
   glDisable(GL_BLEND);
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ Returning from Legend::plot() ++");
-#endif
 
   return true;
-}
-
-
-void LegendPlot::showSatTable(int x,int y)
-{
-  // if x,y inside title bar, then the table should be hidden or shown
-
-  //convert x and y...
-  float xpos=x*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-  float ypos=y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
-
-  //now check if it's inside title bar
-  if (xpos>x1title && xpos<x2title && ypos>y1title && ypos<y2title)
-    showplot = !showplot;
-
-
-}
-
-
-
-bool LegendPlot::inSatTable(int x,int y)
-{
-
-  //convert x and y...
-  float xpos=x*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-  float ypos=y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
-
-  //now check if it's inside title bar
-  if (xpos>x1title && xpos<x2title && ypos>y1title && ypos<y2title)
-    return true;
-  else return false;
-
-}
-
-
-void LegendPlot::moveSatTable(int x1,int y1, int x2, int y2)
-{
-
-  float deltax = (x2-x1)/getStaticPlot()->getPhysWidth();
-  float deltay = (y2-y1)/getStaticPlot()->getPhysHeight();
-
-  xRatio = xRatio - deltax;
-  yRatio = yRatio - deltay;
-  //check that table doesn't disappear out of picture
-  if (xRatio < 0.0) xRatio = 0.0;
-  if (yRatio < 0.02) yRatio = 0.02;
-  if (xRatio > 0.98) xRatio = 0.98;
-  if (yRatio > 0.99) yRatio = 0.99;
-
-
 }
 
 float LegendPlot::height()

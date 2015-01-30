@@ -48,6 +48,7 @@ class QKeyEvent;
 class QMouseEvent;
 class QTextEdit;
 class QUndoStack;
+class UndoView;
 
 class EditItemManager : public DrawingManager
 {
@@ -64,10 +65,10 @@ public:
   EditItemManager();
   virtual ~EditItemManager();
 
-  void addItem(const QSharedPointer<DrawingItemBase> &, QSet<QSharedPointer<DrawingItemBase> > *, bool = false, bool = false);
+  void addItem(const QSharedPointer<DrawingItemBase> &, bool = false, bool = false);
   void editItem(const QSharedPointer<DrawingItemBase> &item);
   void editItem(DrawingItemBase *item);
-  void removeItem(const QSharedPointer<DrawingItemBase> &, QSet<QSharedPointer<DrawingItemBase> > *);
+  void removeItem(const QSharedPointer<DrawingItemBase> &);
 
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
@@ -106,9 +107,11 @@ public:
 
   virtual QString plotElementTag() const;
 
+  void updateJoins(bool = false);
+
 public slots:
   void abortEditing();
-  void completeEditing(QSet<QSharedPointer<DrawingItemBase> > *);
+  void completeEditing();
   void copySelectedItems();
   void cutSelectedItems();
   void deselectItem(const QSharedPointer<DrawingItemBase> &, bool = true);
@@ -116,17 +119,15 @@ public slots:
   void editProperties();
   void editStyle();
   void setStyleType();
-  void keyPress(
-      QKeyEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *,
-      QSet<QSharedPointer<DrawingItemBase> > *, bool &);
-  void keyRelease(QKeyEvent *);
-  void mouseDoubleClick(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
+  void keyPress(QKeyEvent *);
+  void mouseDoubleClick(QMouseEvent *);
   void mouseMove(QMouseEvent *);
-  void mousePress(
-      QMouseEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *,
-      QSet<QSharedPointer<DrawingItemBase> > *, bool &);
-  void mouseRelease(QMouseEvent *, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *);
+  void mousePress(QMouseEvent *);
+  void mouseRelease(QMouseEvent *);
   void pasteItems();
+  void joinSelectedItems();
+  void unjoinSelectedItems();
+  void toggleReversedForSelectedItems();
   void redo();
   void repaint();
   void reset();
@@ -176,39 +177,35 @@ private:
   quint32 hitOffset_;
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
-  QUndoView *undoView_;
+  UndoView *undoView_;
 
-  QAction* cutAction;
-  QAction* copyAction;
-  QAction* pasteAction;
-  QAction* editPropertiesAction;
-  QAction* editStyleAction;
-  QAction* undoAction;
-  QAction* redoAction;
-  QAction* selectAction;
-  QAction* createPolyLineAction;
-  QAction* createSymbolAction;
-  QAction* createTextAction;
-  QAction* createCompositeAction;
+  QAction* copyAction_;
+  QAction* cutAction_;
+  QAction* pasteAction_;
+  QAction* joinAction_;
+  QAction* unjoinAction_;
+  QAction* toggleReversedAction_;
+  QAction* editPropertiesAction_;
+  QAction* editStyleAction_;
+  QAction* undoAction_;
+  QAction* redoAction_;
+  QAction* selectAction_;
+  QAction* createPolyLineAction_;
+  QAction* createSymbolAction_;
+  QAction* createTextAction_;
+  QAction* createCompositeAction_;
 
   enum Mode {
     SelectMode, CreatePolyLineMode, CreateSymbolMode, CreateTextMode, CreateCompositeMode
   } mode_;
 
-  void incompleteMousePress(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
-  void incompleteMouseRelease(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
+  void incompleteMousePress(QMouseEvent *);
+  void incompleteMouseRelease(QMouseEvent *);
   void incompleteMouseMove(QMouseEvent *);
-  void incompleteMouseDoubleClick(QMouseEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
-  void incompleteKeyPress(QKeyEvent *, QSet<QSharedPointer<DrawingItemBase> > *);
-  void incompleteKeyRelease(QKeyEvent *);
-  void pushCommands(const QList<QUndoCommand *> &,
-                    const QSet<QSharedPointer<DrawingItemBase> > & = QSet<QSharedPointer<DrawingItemBase> >(),
-                    const QSet<QSharedPointer<DrawingItemBase> > & = QSet<QSharedPointer<DrawingItemBase> >());
+  void incompleteMouseDoubleClick(QMouseEvent *);
+  void incompleteKeyPress(QKeyEvent *);
 
-  // Clipboard operations
   void copyItems(const QSet<QSharedPointer<DrawingItemBase> > &);
-  void cutSelectedItems(QSet<QSharedPointer<DrawingItemBase> > *);
-  void pasteItems(QSet<QSharedPointer<DrawingItemBase> > *);
 
   void updateActions();
   void updateTimes();
@@ -223,58 +220,27 @@ private:
 
   bool cycleHitOrder(QKeyEvent *);
 
-  static EditItemManager *self;   // singleton instance pointer
+  QList<QList<QSharedPointer<DrawingItemBase> > > oldItemStates_;
+  void saveItemStates();
+  void pushModifyItemsCommand();
+
+  void adjustSelectedJoinPoints();
+
+  QSharedPointer<DrawingItemBase> hitItem_; // current hit item
+  QHash<DrawingItemBase *, QList<QPointF> > oldGeoms_; // original geometries
+
+  static EditItemManager *self_;   // singleton instance pointer
 };
 
-class EditItemCommand : public QUndoCommand
+
+class ModifyItemsCommand : public QUndoCommand
 {
 public:
-  EditItemCommand(const QString &text, QUndoCommand *parent = 0);
-  EditItemCommand() {}
-  virtual ~EditItemCommand() {}
-};
-
-class AddOrRemoveItemsCommand : public EditItemCommand
-{
-public:
-  AddOrRemoveItemsCommand(const QSet<QSharedPointer<DrawingItemBase> > &, const QSet<QSharedPointer<DrawingItemBase> > &);
-  virtual ~AddOrRemoveItemsCommand() {}
-
+  ModifyItemsCommand(const QList<QList<QSharedPointer<DrawingItemBase> > > &, const QList<QList<QSharedPointer<DrawingItemBase> > > &, const QString &);
+  virtual ~ModifyItemsCommand() {}
 private:
-  QSet<QSharedPointer<DrawingItemBase> > addedItems_;
-  QSet<QSharedPointer<DrawingItemBase> > removedItems_;
-  virtual void undo();
-  virtual void redo();
-};
-
-class SetGeometryCommand : public EditItemCommand
-{
-public:
-  SetGeometryCommand(EditItemBase *, const QList<QPointF> &, const QList<QPointF> &);
-  virtual ~SetGeometryCommand() {}
-  virtual int id() const;
-  virtual bool mergeWith(const QUndoCommand *command);
-
-  EditItemBase *item() const;
-  QList<QPointF> newLatLonPoints() const;
-
-private:
-  EditItemBase *item_;
-  QList<QPointF> oldLatLonPoints_;
-  QList<QPointF> newLatLonPoints_;
-  virtual void undo();
-  virtual void redo();
-};
-
-class SetStyleTypeCommand : public QUndoCommand
-{
-public:
-  SetStyleTypeCommand(const QString &text, const QList<QSharedPointer<DrawingItemBase> > &, const QString &, QUndoCommand *parent = 0);
-  virtual ~SetStyleTypeCommand() {}
-private:
-  QList<QSharedPointer<DrawingItemBase> > items_;
-  QString newType_;
-  QStringList oldTypes_;
+  QList<QList<QSharedPointer<DrawingItemBase> > > oldItemStates_;
+  QList<QList<QSharedPointer<DrawingItemBase> > > newItemStates_;
   virtual void undo();
   virtual void redo();
 };

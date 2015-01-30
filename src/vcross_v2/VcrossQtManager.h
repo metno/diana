@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,9 +33,12 @@
 #include "VcrossOptions.h"
 #include "VcrossSetup.h"
 #include "VcrossQtPlot.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
 
 #include <puTools/miTime.h>
+
+#include <QObject>
+
 #include <vector>
 #include <map>
 #include <memory>
@@ -47,32 +50,79 @@ namespace vcross {
 /**
    \brief Managing Vertical Crossection data sources and plotting
 */
-class QtManager {
+class QtManager : public QObject {
+  Q_OBJECT;
+  
 private:
   typedef miutil::miTime vctime_t;
 
 public:
+  typedef std::vector<std::string> string_v;
+  typedef std::set<std::string> string_s;
+  typedef std::map<std::string, std::string> string_string_m;
+  typedef std::set<Source_p> Source_ps;
+
   QtManager();
   ~QtManager();
 
+
+  void cleanup();
+
+
   Setup_p getSetup() const
     { return mCollector->getSetup(); }
+  void parseSetup(const string_v& sources, const string_v&computations, const string_v&plots);
 
-  // called from VcrossDialog
-  std::vector<std::string> getAllModels();
-  std::map<std::string,std::string> getAllFieldOptions();
-  std::vector<std::string> getFieldNames(const std::string& model);
-  bool setSelection(const std::vector<std::string>& vstr);
-  // end of calls from VcrossDialog
 
-  // called from VcrossWindow
-  void cleanup();
-  // TODO void cleanupDynamicCrossSections();
-  void disableTimeGraph();
-  const std::string& getCrossection() const
-    { return currentCSName(); }
-  const string_v& getCrossectionList() const
-    { return mCrossectionLabels; }
+  VcrossOptions* getOptions() const
+    { return mOptions.get(); }
+
+  //! re-read mOptions after it has been changed in VcrossSetupDialog
+  void updateOptions();
+
+
+  //! lists all model names configured in setup
+  string_v getAllModels();
+
+  //! get plot options used previously in this session, or those configured in setup
+  std::string getPlotOptions(const std::string& model, const std::string& field, bool fromSetup) const;
+
+  /*! get a list of plot names that can be cosen for the given model 
+   * \param model the model name for which plots shall be listed
+   * \param includeSelected include plots that are already selected in the list
+   */
+  std::vector<std::string> getFieldNames(const std::string& model, bool includeSelected=true);
+
+  size_t getFieldCount() const;
+  std::string getFieldAt(int index) const;
+  std::string getModelAt(int index) const;
+  std::string getOptionsAt(int index) const;
+  bool getVisibleAt(int index) const;
+
+  SelectedPlot_p findSelectedPlot(const std::string& model, const std::string& field);
+  int findSelectedPlotIndex(const std::string& model, const std::string& field);
+
+  void fieldChangeStart(bool script);
+  void fieldChangeDone();
+
+  void addField(const std::string& model, const std::string& field, const std::string& fieldOpts,
+      int index, bool updateUserFieldOptions=true);
+  void updateField(const std::string& model, const std::string& field, const std::string& fieldOpts);
+  void removeField(const std::string& model, const std::string& field);
+  void removeAllFields();
+
+  void setFieldVisible(int index, bool visible);
+
+
+  int getCrossectionIndex() const;
+  void setCrossectionIndex(int index);
+  int findCrossectionIndex(const QString& label);
+  QString getCrossectionLabel(int index) const;
+  QString getCrossectionLabel() const
+    { return getCrossectionLabel(getCrossectionIndex()); }
+  int getCrossectionCount() const;
+  void addDynamicCrossection(const QString& label, const LonLat_v& points);
+  void removeDynamicCrossection(const QString& label);
   void getCrossections(LocationData& locationdata);
 
   //! list of filenames with predefined cross-sections
@@ -83,65 +133,75 @@ public:
   bool supportsDynamicCrossections() const
     { return mHasSupportForDynamicCs; }
 
-  std::vector<std::string> getQuickMenuStrings();
-  vctime_t getTime() const
-    { return currentTime(); }
-  const std::vector<vctime_t>& getTimeList() const
-    { return mCrossectionTimes; }
-  void mainWindowTimeChanged(const vctime_t& time);
-  void parseQuickMenuStrings(const std::vector<std::string>& vstr);
-  void parseSetup(const string_v& sources, const string_v&computations, const string_v&plots);
-  void readLog(const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion);
-  //! Add or replace a dynamic cross section
-  void setDynamicCrossection(const std::string& crossection, const LonLat_v& points);
-  void setCrossection(const std::string& crossection);
-  void setTime(const vctime_t& time);
+
+  int getTimeIndex() const;
+  void setTimeIndex(int index);
+  int getTimeCount() const;
+  vctime_t getTimeValue(int index) const;
+  vctime_t getTimeValue() const
+    { return getTimeValue(getTimeIndex()); }
+  void setTimeToBestMatch(const vctime_t& time);
+
+
   void setTimeGraph(const LonLat& position);
   bool timeGraphOK();
-  std::vector<std::string> writeLog();
-  // end of calls from VcrossWindow
+  void disableTimeGraph();
+  void setTimeGraphPos(int plotx, int ploty);
+  void setTimeGraphPos(int incr);
 
-  // called from VcrossWindow and VcrossWidget
-  std::string setCrossection(int step);
-  vctime_t setTime(int step);
-  // end of calls from VcrossWindow and VcrossWidget
 
-  // called from VcrossWidget
+  void selectFields(const string_v& fields);
+
+  void readVcrossOptions(const string_v& settings, const std::string& thisVersion, const std::string& logVersion);
+  string_v writeVcrossOptions();
+
+  void readPlotOptions(const string_v& settings, const std::string& thisVersion, const std::string& logVersion);
+  string_v writePlotOptions();
+
+
   void setPlotWindow(int w, int h);
   void movePart(int pxmove, int pymove);
   void decreasePart(int px1, int py1, int px2, int py2);
   void increasePart();
   void standardPart();
-  bool plot(QPainter& painter);
-  void setTimeGraphPos(int plotx, int ploty);
-  void setTimeGraphPos(int incr);
   void getPlotSize(float& x1, float& y1, float& x2, float& y2, Colour& rubberbandColour);
-  // end of calls from VcrossWidget
+  bool plot(QPainter& painter);
 
-  // called from VcrossSetupDialog
-  VcrossOptions* getOptions()
-    { return mOptions.get(); }
+Q_SIGNALS:
+  void fieldChangeBegin(bool fromScript);
+  void fieldAdded(const std::string& model, const std::string& field, int index);
+  void fieldRemoved(const std::string& model, const std::string& field, int index);
+  void fieldOptionsChanged(const std::string& model, const std::string& field, int index);
+  void fieldVisibilityChanged(const std::string& model, const std::string& field, int index);
+  void fieldChangeEnd();
 
-  //! re-read mOptions after it has been changed in VcrossSetupDialog
-  void updateOptions();
-  // end of calls from VcrossSetupDialog
+  void crossectionListChanged();
+  void crossectionIndexChanged(int current);
 
-  //! forwards call to mOptions
-  void readOptions(const string_v& vstr);
+  void timeListChanged();
+  void timeIndexChanged(int current);
+
+  void timeGraphMode(bool on);
 
 private:
+  SelectedPlot_p getSelectedPlot(int index) const;
+  Source_ps listDynamicSources() const;
+
+  // update list of crossections, emit signal
+  void handleChangedCrossectionList(const QString& oldLabel);
+
+  // update crossection points, emit signal
+  void handleChangedCrossection();
+
+  void handleChangedTimeList(const vctime_t& oldTime);
+  void handleChangedTime();
+
+  void updateCrossectionsTimes();
+
   void preparePlot();
 
   void fillLocationData(LocationData& locationdata);
 
-  void setTimeToBestMatch(const vctime_t& time);
-
-  bool setModels();
-
-  const std::string& currentCSName() const;
-  void updateCSPoints();
-  vctime_t currentTime() const;
   bool isTimeGraph() const
     { return mTimeGraphPos >= 0; }
 
@@ -155,17 +215,16 @@ private:
 
   enum { CHANGED_NO=0, CHANGED_TIME=1, CHANGED_CS=2, CHANGED_SEL=7 };
   int dataChange;
+  bool inFieldChangeGroup;
 
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
   int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
   LocationData locationData;
-  typedef std::vector<vctime_t> times_t;
-  times_t mCrossectionTimes;
+  typedef std::vector<vctime_t> vctime_v;
+  vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
-
-  string_v mPlotStrings;
 
   //! filenames of predefined cross-sections
   std::set<std::string> mCsPredefined;
@@ -174,6 +233,9 @@ private:
 
   typedef std::map<std::string, QtPlot::Rect> cs_zoom_t;
   cs_zoom_t mCrossectionZooms;
+
+  //! Maps fieldname to field options set via the GUI (ie not via quickmenu). These are saved in writePlotOptions().
+  string_string_m userFieldOptions;
 };
 
 typedef boost::shared_ptr<QtManager> QtManager_p;

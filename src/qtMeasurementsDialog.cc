@@ -42,6 +42,8 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
+#include <puDatatypes/miCoordinates.h>
+
 #include "qtUtility.h"
 #include "qtMeasurementsDialog.h"
 
@@ -194,6 +196,14 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   distancebox->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   distancebox->setMinimumSize(distancebox->sizeHint());
 
+  bearinglabel= new QLabel("Bearing:",this);
+  bearinglabel->setFrameStyle( QFrame::Panel);
+  bearinglabel->setMinimumSize(bearinglabel->sizeHint());
+
+  bearingbox= new QLabel("0",this);
+  bearingbox->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+  bearingbox->setMinimumSize(bearingbox->sizeHint());
+
   //now create a grid layout
   QGridLayout* gridlayout = new QGridLayout(this);
   gridlayout->setColumnStretch(1,1);
@@ -228,9 +238,11 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget(speedbox3,          10,2,1,2);
   gridlayout->addWidget(distancelabel,      11,0,1,2);
   gridlayout->addWidget(distancebox,        11,2,1,2);
-  gridlayout->addWidget(line3,              12,0,1,4);
-  gridlayout->addWidget( Hide,           15,0,1,2);
-  gridlayout->addWidget( quit,           15,2,1,2);
+  gridlayout->addWidget(bearinglabel,      12,0,1,2);
+  gridlayout->addWidget(bearingbox,        12,2,1,2);
+  gridlayout->addWidget(line3,              13,0,1,4);
+  gridlayout->addWidget( Hide,           16,0,1,2);
+  gridlayout->addWidget( quit,           16,2,1,2);
 }
 /********************************************************/
 
@@ -267,59 +279,65 @@ void MeasurementsDialog::deleteClicked(){
 
 /*********************************************/
 
-//static const double DEG_TO_RAD = 0.017453292519943295769236907684886;
-static const double EARTH_RADIUS_IN_METERS = 6372797.560856;
-
-double MeasurementsDialog::ArcInRadians(double lat1, double lon1, double lat2, double lon2) {
-    double latitudeArc  = (lat1 - lat2) * DEG_TO_RAD;
-    double longitudeArc = (lon1 - lon2) * DEG_TO_RAD;
-    double latitudeH = sin(latitudeArc * 0.5);
-    latitudeH *= latitudeH;
-    double lontitudeH = sin(longitudeArc * 0.5);
-    lontitudeH *= lontitudeH;
-    double tmp = cos(lat1*DEG_TO_RAD) * cos(lat2*DEG_TO_RAD);
-    return 2.0 * asin(sqrt(latitudeH + tmp*lontitudeH));
-}
-
-double MeasurementsDialog::DistanceInMeters(double lat1, double lon1, double lat2, double lon2) {
-    return EARTH_RADIUS_IN_METERS*ArcInRadians(lat1, lon1, lat2, lon2);
-}
-
-void MeasurementsDialog::calculateVelocity()
+void MeasurementsDialog::calculate()
 {
   //this slot is called when start calc. button pressed
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   speedbox1->clear();
   speedbox2->clear();
   speedbox3->clear();
   distancebox->clear();
+  bearingbox->clear();
 
   if (positionVector.size() == 2) {
-    double lat1 = positionVector[0].lat;
-    double lat2 = positionVector[1].lat;
-    double lon1 = positionVector[0].lon;
-    double lon2 = positionVector[1].lon;
-    miutil::miTime time1 = positionVector[0].time;
-    miutil::miTime time2 = positionVector[1].time;
+    double start_lat = positionVector[0].lat;
+    double stop_lat = positionVector[1].lat;
+    double start_lon = positionVector[0].lon;
+    double stop_lon = positionVector[1].lon;
+    miutil::miTime start_time = positionVector[0].time;
+    miutil::miTime stop_time = positionVector[1].time;
+    METLIBS_LOG_INFO(LOGVAL(start_lat));
+    METLIBS_LOG_INFO(LOGVAL(start_lon));
+    METLIBS_LOG_INFO(LOGVAL(stop_lat));
+    METLIBS_LOG_INFO(LOGVAL(stop_lon));
+    METLIBS_LOG_INFO(LOGVAL(start_time));
+    METLIBS_LOG_INFO(LOGVAL(stop_time));
 
-    double d = DistanceInMeters(lat1, lon1, lat2, lon2);
-    int t = abs(miutil::miTime::secDiff(time1, time2));
-
-    QString speedresult1, speedresult2, speedresult3, distanceresult;
-
-    speedresult1.sprintf("%.2f m/s", (float)d/t);
-    speedresult2.sprintf("%.2f km/h", (float)(d/t)*3.6);
-    speedresult3.sprintf("%.2f knots", (float)((d/t)*3.6)/1.852);
-
-    distanceresult.sprintf("%.2f km", (float)d/1000);
-
-    speedbox1->setText(speedresult1);
-    speedbox2->setText(speedresult2);
-    speedbox3->setText(speedresult3);
+    LonLat start_lonlat = LonLat::fromDegrees(start_lon,start_lat);
+    LonLat stop_lonlat = LonLat::fromDegrees(stop_lon,stop_lat);
+    double distance = start_lonlat.distanceTo(stop_lonlat);
+    double distance_in_kilometers = distance/1000.0;
+    METLIBS_LOG_INFO(LOGVAL(distance_in_kilometers)<< " km");
+    QString distanceresult;
+    distanceresult.sprintf("%.2f km", (float)distance_in_kilometers);
     distancebox->setText(distanceresult);
+
+    double bearing = start_lonlat.bearingTo(stop_lonlat) * RAD_TO_DEG;
+    METLIBS_LOG_INFO(LOGVAL(bearing));
+    QString bearingresult;
+    bearingresult.sprintf("%.2f", (float)bearing);
+    bearingbox->setText(bearingresult);
+
+    if ( start_time != stop_time ) {
+      int t = abs(miutil::miTime::secDiff(start_time, stop_time));
+      double speed_in_ms = distance/t;
+      double speed_in_kmh = speed_in_ms*3.6;
+      double speed_in_knots = speed_in_kmh/1.852;
+      METLIBS_LOG_INFO(LOGVAL(speed_in_ms)<< " m/s");
+      METLIBS_LOG_INFO(LOGVAL(speed_in_kmh)<< " km/h");
+      METLIBS_LOG_INFO(LOGVAL(speed_in_knots)<< " knots");
+
+      QString speedresult1, speedresult2, speedresult3;
+
+      speedresult1.sprintf("%.2f m/s", (float)speed_in_ms);
+      speedresult2.sprintf("%.2f km/h", (float)speed_in_kmh);
+      speedresult3.sprintf("%.2f knots", (float)speed_in_knots);
+
+      speedbox1->setText(speedresult1);
+      speedbox2->setText(speedresult2);
+      speedbox3->setText(speedresult3);
+    }
   }
   emit updateMeasurements();
 }
@@ -339,7 +357,7 @@ void MeasurementsDialog::quitClicked()
 
 void MeasurementsDialog::helpClicked()
 {
-//  emit showsource("ug_messurements.html");
+  //  emit showsource("ug_messurements.html");
 }
 
 /*********************************************/
@@ -348,9 +366,7 @@ void MeasurementsDialog::helpClicked()
 
 void MeasurementsDialog::mapPos(float lat, float lon)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   //Put this position in vector of positions
   posStruct pos;
@@ -372,7 +388,7 @@ void MeasurementsDialog::mapPos(float lat, float lon)
     return;
   }
 
-//  //Make string and send to trajectoryPlot
+  //  //Make string and send to measuremenPlot
   ostringstream str;
   str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
   str << "latitudelongitude=" << lat << "," << lon;
@@ -392,9 +408,7 @@ void MeasurementsDialog::mapPos(float lat, float lon)
 void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index)
 {
 
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   int latdeg, latmin, londeg, lonmin;
   std::string latdir, londir;
@@ -426,21 +440,21 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
   timestr.sprintf("%s", t.isoClock().c_str());
 
   switch (index) {
-    case 1:
-      latbox1->setText(latstr);
-      lonbox1->setText(lonstr);
-      datebox1->setText(datestr);
-      timebox1->setText(timestr);
-      break;
-    case 2:
-      latbox2->setText(latstr);
-      lonbox2->setText(lonstr);
-      datebox2->setText(datestr);
-      timebox2->setText(timestr);
+  case 1:
+    latbox1->setText(latstr);
+    lonbox1->setText(lonstr);
+    datebox1->setText(datestr);
+    timebox1->setText(timestr);
+    break;
+  case 2:
+    latbox2->setText(latstr);
+    lonbox2->setText(lonstr);
+    datebox2->setText(datestr);
+    timebox2->setText(timestr);
 
-      calculateVelocity();
+    calculate();
 
-      break;
+    break;
   }
 }
 
@@ -448,9 +462,7 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
 
 void MeasurementsDialog::sendAllPositions()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   vector<string> vstr;
 
@@ -470,9 +482,7 @@ void MeasurementsDialog::sendAllPositions()
 
 void MeasurementsDialog::showplus()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   this->show();
 
   emit markMeasurementsPos(true);
@@ -505,10 +515,10 @@ void MeasurementsDialog::focusOutEvent( QFocusEvent * )
 
 void MeasurementsDialog::focusChanged( QWidget * old, QWidget * now )
 {
-    QWidget* p = now;
-    while(p)
-    {
-        if(p == this)
-        p = p->parentWidget();
-    }
+  QWidget* p = now;
+  while(p)
+  {
+    if(p == this)
+      p = p->parentWidget();
+  }
 }

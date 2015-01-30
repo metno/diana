@@ -81,13 +81,12 @@ public:
       const std::vector<std::string>& option);
 
   /// return available times for the requested models and fields
-  void makeFieldText(Field* fout, const std::string& plotName);
+  void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel=false);
 
-  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool& constTimes, bool updateSources=false);
+  std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request, bool updateSources=false);
 
   /// return all field groups for one model/file (to FieldDialog)
-  void getFieldGroups(const std::string& modelNameRequest,
-      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
 
   ///return referencetime given by refoffset and refhour or last referencetime for given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
@@ -97,19 +96,15 @@ public:
 
   /// Returns the available times for the selected models and fields.
   std::vector<miutil::miTime> getFieldTime(const std::vector<std::string>& pinfos,
-      bool& constTimes, bool updateSources=false);
+      bool updateSources=false);
 
   /// Returns the union or intersection of plot times from all pinfos.
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-      miutil::miTime& constTimes, int& timediff, const std::string& pinfo,
+      int& timediff, const std::string& pinfo,
       bool updateSources=false);
 
   ///return levels
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
-
-  /// return all defined field plot names from setup
-  void getAllFieldNames(std::vector<std::string>& fieldNames,
-      std::set<std::string>& fieldprefixes, std::set<std::string>& fieldsuffixes);
 
   /// Parse plotInfo string into FieldReqests and plotName
   bool parsePin(std::string& pin, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
@@ -120,18 +115,17 @@ public:
 private:
 
   std::vector<PlotField> vPlotField;
-  std::set<std::string> fieldprefixes;
-  std::set<std::string> fieldsuffixes;
 
   std::vector<std::string>
       splitComStr(const std::string& s, bool splitall);
 
-  bool splitSuffix(std::string& plotName, std::string& suffix);
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
   bool splitDifferenceCommandString(const std::string& pin, std::string& fspec1, std::string& fspec2);
 
   void parseString(std::string& pin, FieldRequest& fieldrequest, std::vector<std::string>& paramNames, std::string& plotName );
+
+  void flightlevel2pressure(FieldRequest& frq);
 
   std::map<std::string, std::string> groupNames;
 

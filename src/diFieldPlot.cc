@@ -506,6 +506,17 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
         miutil::replace(anno[j], "$model", fields[0]->modelName);
       }
     }
+    if (miutil::contains(anno[j], "$idnum")) {
+      if (fields.size() && fields[0]) {
+        miutil::replace(anno[j], "$idnum", fields[0]->idnumtext);
+      }
+    }
+    if (miutil::contains(anno[j], "$level")) {
+      if (fields.size() && fields[0]) {
+        miutil::replace(anno[j], "$level", fields[0]->leveltext);
+      }
+    }
+
     if (miutil::contains(anno[j], "arrow") && vectorAnnotationSize > 0.
         && not vectorAnnotationText.empty()) {
       if (miutil::contains(anno[j], "arrow="))
@@ -3297,11 +3308,10 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
 
         // set pixel value
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
-        size_t index = 0;
+        int index = 0;
         if (poptions.linevalues.size() == 0) {
 
-          if ((poptions.repeat && value > poptions.base)
-              || value > poptions.base) {
+          if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
                   % poptions.palettecolours.size();
@@ -3455,11 +3465,6 @@ bool FieldPlot::plotPixmap()
       return false;
   }
 
-  // Make sure not to wrap data when plotting data with geo proj on geo map (ECMWF data)
-  if (ix2 == fields[0]->nx - 1) {
-    ix2--;
-  }
-
   const int rnx = fields[0]->nx / factor, rny = fields[0]->ny / factor;
 
   glLineWidth(poptions.linewidth);
@@ -3536,10 +3541,6 @@ bool FieldPlot::plotPixmap()
   float bmxmove = (getStaticPlot()->getMapSize().x1 > xmin) ? (xstart - grStartx) * scalex : 0;
   float bmymove = (getStaticPlot()->getMapSize().y1 > ymin) ? (ystart - grStarty) * scaley : 0;
 
-  // for hardcopy
-  float pxstart = (xstart - getStaticPlot()->getMapSize().x1) * scalex;
-  float pystart = (ystart - getStaticPlot()->getMapSize().y1) * scaley;
-
   // update scaling with ratio image to map (was map to screen pixels)
   scalex *= fields[0]->gridResolutionX;
   scaley *= fields[0]->gridResolutionY;
@@ -3583,7 +3584,7 @@ bool FieldPlot::plotPixmap()
   //if (bmxmove<0. || bmymove<0.) glBitmap(0,0,0.,0.,bmxmove,bmymove,NULL);
   glBitmap(0, 0, 0., 0., bmxmove, bmymove, NULL);
   glDrawPixels((GLint) currwid, (GLint) currhei, GL_RGBA, GL_UNSIGNED_BYTE,
-      imagedata);
+      cimage);
   //Reset gl
   glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
@@ -3686,9 +3687,8 @@ bool FieldPlot::plotFillCell()
         // set fillcolor of cell
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
-          size_t index = 0;
-          if ((poptions.repeat && value > poptions.base)
-              || value > poptions.base) {
+          int index = 0;
+          if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
                       % poptions.palettecolours.size();
@@ -4111,6 +4111,8 @@ bool FieldPlot::markExtreme()
     extremeValue = "both";
   }
 
+  glColor3ubv(poptions.linecolour.RGB());
+
   float fontsize = 28. * poptions.extremeSize;
   getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
@@ -4289,40 +4291,42 @@ bool FieldPlot::markExtreme()
             }
 
             if (ibest == ix && jbest == iy) {
-              // mark extreme point
-              if (!extremeString) {
-                ostringstream ostr;
-                ostr.setf(ios::fixed);
-                ostr.precision(poptions.precision);
-                ostr << fpos;
-                getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
-                    gy - chry * 0.5, 0.0);
-              } else {
-                getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
-                    gy - chry * 0.5, 0.0);
-                if (extremeValue != "none") {
-                  float fontsize = 18. * poptions.extremeSize;
-                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+              if (fpos < poptions.maxvalue && fpos > poptions.minvalue) {
+                // mark extreme point
+                if (!extremeString) {
                   ostringstream ostr;
                   ostr.setf(ios::fixed);
                   ostr.precision(poptions.precision);
                   ostr << fpos;
-                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
-                      gy - chry * 0.8, 0.0);
+                  getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * 0.5,
+                      gy - chry * 0.5, 0.0);
+                } else {
+                  getStaticPlot()->getFontPack()->drawStr(pmarks[etype].c_str(), gx - chrx * 0.5,
+                      gy - chry * 0.5, 0.0);
+                  if (extremeValue != "none") {
+                    float fontsize = 18. * poptions.extremeSize;
+                    getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+                    ostringstream ostr;
+                    ostr.setf(ios::fixed);
+                    ostr.precision(poptions.precision);
+                    ostr << fpos;
+                    getStaticPlot()->getFontPack()->drawStr(ostr.str().c_str(), gx - chrx * (-0.6),
+                        gy - chry * 0.8, 0.0);
+                  }
+                  float fontsize = 28. * poptions.extremeSize;
+                  getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
+
                 }
-                float fontsize = 28. * poptions.extremeSize;
-                getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface, fontsize);
 
+                //#######################################################################
+                //		glBegin(GL_LINE_LOOP);
+                //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
+                //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
+                //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
+                //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
+                //		glEnd();
+                //#######################################################################
               }
-
-              //#######################################################################
-              //		glBegin(GL_LINE_LOOP);
-              //		glVertex2f(gx-chrx[etype]*0.5,gy-chry[etype]*0.5);
-              //		glVertex2f(gx+chrx[etype]*0.5,gy-chry[etype]*0.5);
-              //		glVertex2f(gx+chrx[etype]*0.5,gy+chry[etype]*0.5);
-              //		glVertex2f(gx-chrx[etype]*0.5,gy+chry[etype]*0.5);
-              //		glEnd();
-              //#######################################################################
             }
           }
         }

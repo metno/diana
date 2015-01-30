@@ -25,21 +25,20 @@ public:
   const std::string& options() const;
   bool valid() const;
 
-  void initialize();
-  bool isComplete() const;
-  std::string getOptions();
+public Q_SLOTS:
+  void resetOptions();
+
+Q_SIGNALS:
+  void canResetOptions(bool enableReset);
 
 private:
   void setupUi();
 
-  void initFieldOptions();
   void disableFieldOptions();
   void enableFieldOptions();
   void updateFieldOptions(const std::string& name, const std::string& value, int valueIndex=0);
-  std::string checkFieldOptions(const std::string& str, bool fieldPrefix);
 
 private Q_SLOTS:
-  void resetOptions();
   void colorCboxActivated( int index );
   void lineWidthCboxActivated( int index );
   void lineTypeCboxActivated( int index );
@@ -78,8 +77,6 @@ private:
 
   std::vector<Colour::ColourInfo> colourInfo;
   std::vector<ColourShading::ColourShadingInfo> csInfo;
-  std::vector<std::string> twoColourNames;
-  std::vector<std::string> threeColourNames;
   std::vector<Pattern::PatternInfo> patternInfo;
 
   std::vector<std::string> linetypes;
@@ -91,15 +88,11 @@ private:
   std::auto_ptr<CommandParser> cp;
   std::vector<ParsedCommand> vpcopt;
 
-  std::vector<std::string> baseopts;
   std::vector<std::string> undefMasking;
 
   int        nr_colors;
   int        nr_linewidths;
   int        nr_linetypes;
-
-  const char** cdensities;
-  int        nr_densities;
 };
 
 #endif // VcrossStyleWidget_h

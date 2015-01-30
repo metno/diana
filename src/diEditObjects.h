@@ -121,7 +121,6 @@ public:
 private:
   mapMode mapmode;
   int editmode; // edit mode index
-  int edittool; // edit tools index
   std::string drawingtool; 
 
   object_modes objectmode;

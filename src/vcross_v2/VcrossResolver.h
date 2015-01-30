@@ -69,7 +69,6 @@ InventoryBase_cp vc_resolve_unit(Resolver_p resolver, const std::string& model,
     const std::string& field_id, const std::string& unit);
 
 bool vc_resolve_surface(Resolver_p resolver, const std::string& model);
-bool vc_resolve_pressure_height(Resolver_p resolver, const std::string& model);
 
 } // namespace vcross
 

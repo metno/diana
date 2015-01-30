@@ -214,7 +214,6 @@ vector<miTime> ObjectManager::getObjectTimes(const string& pinfo)
 }
 
 void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-					miTime& constTime,
 					int& timediff,
 					const std::string& pinfo)
 {
@@ -239,11 +238,8 @@ void ObjectManager::getCapabilitiesTime(vector<miTime>& normalTimes,
     }
   }
 
-  if (not fileName.empty()) { //Product with const time
-    if(objectFiles.count(objectname)){
-      constTime = timeFilterFileName(fileName,objectFiles[objectname].filter);
-    }
-  } else { //Product with prog times
+  //Product with prog times
+  if (fileName.empty()) {
     vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
     int nfinfo=ofi.size();
     for (int k=0; k<nfinfo; k++){
@@ -423,28 +419,31 @@ miTime ObjectManager::timeFileName(std::string fileName)
 
     size_t pos1 = fileName.find_last_of("_");
     size_t pos2 = fileName.find_last_of(".");
-    if ( pos1 != string::npos && pos2 != string::npos && pos2 > pos1 ) {
+    if ( pos1 != string::npos && pos2 != string::npos && pos2 > pos1 + 10 ) {
       std::string tStr = fileName.substr(pos1+1,pos2-pos1-1);
       miutil::replace(tStr,"t","T");
       miTime time(tStr);
       return time;
     }
+    return miTime();
   }
-    return timeFromString(parts[nparts-1]);
+  return timeFromString(parts[nparts-1]);
 }
 
 miTime ObjectManager::timeFromString(std::string timeString)
 {
   //get time from a string with yyyymmddhhmm
-    int year= atoi(timeString.substr(0,4).c_str());
-    int mon=  atoi(timeString.substr(4,2).c_str());
-    int day=  atoi(timeString.substr(6,2).c_str());
-    int hour= atoi(timeString.substr(8,2).c_str());
-    int min= 0;
-    if (timeString.length() >= 12)
-      min= atoi(timeString.substr(10,2).c_str());
-    if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
-    return miTime(year,mon,day,hour,min,0);
+  if ( timeString.size() < 10 )
+    return miTime();
+  int year= atoi(timeString.substr(0,4).c_str());
+  int mon=  atoi(timeString.substr(4,2).c_str());
+  int day=  atoi(timeString.substr(6,2).c_str());
+  int hour= atoi(timeString.substr(8,2).c_str());
+  int min= 0;
+  if (timeString.length() >= 12)
+    min= atoi(timeString.substr(10,2).c_str());
+  if (year<0 || mon <0 || day<0 || hour<0 || min < 0) return ztime;
+  return miTime(year,mon,day,hour,min,0);
 }
 
 

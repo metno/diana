@@ -56,14 +56,17 @@ class DrawingItemBase
 public:
   enum Category { PolyLine, Symbol, Text, Composite };
 
-  DrawingItemBase();
+  DrawingItemBase(int);
   virtual ~DrawingItemBase();
 
   // Returns the item's globally unique ID.
   int id() const;
 
   // Returns a deep copy of this item.
-  DrawingItemBase *clone(const DrawingManager *) const;
+  DrawingItemBase *clone(const DrawingManager *, bool = true) const;
+
+  // Copies state from another item.
+  void setState(const DrawingItemBase *);
 
   virtual QString infoString() const { return QString("addr=%1 id=%2").arg((ulong)this, 0, 16).arg(id()); }
 
@@ -75,6 +78,10 @@ public:
   const QVariantMap &propertiesRef() const;
   // Sets the item's properties.
   void setProperties(const QVariantMap &, bool = false);
+
+  int joinId() const;
+  void setJoinCount(int);
+  int joinCount() const;
 
   // Returns the item's points.
   virtual QList<QPointF> getPoints() const;
@@ -111,7 +118,7 @@ public:
   static QList<QVariantMap> properties(const QList<QSharedPointer<DrawingItemBase> > &);
 
 protected:
-  virtual DrawingItemBase *cloneSpecial() const
+  virtual DrawingItemBase *cloneSpecial(bool) const
   {
     // assume this implementation is never called
     Q_ASSERT(false);
@@ -126,6 +133,7 @@ private:
   static int nextId_;
   int nextId();
   bool selected_;
+  int joinCount_;
 
   QDomElement createExtDataElement(QDomDocument &, const QHash<QString, QString> &) const;
   QDomElement createPointOrPolygonElement(QDomDocument &) const;

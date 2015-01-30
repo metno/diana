@@ -43,7 +43,7 @@ class QLabel;
 class QCheckBox;
 
 /**
-  \brief Dialogue for speed and distance calculation
+  \brief Dialog for speed, distance and bearing calculation
    
    -select coords in  different timeslots and calculate speed
 */
@@ -81,6 +81,8 @@ protected:
   QLabel *speedbox3;
   QLabel *distancelabel;
   QLabel *distancebox;
+  QLabel *bearinglabel;
+  QLabel *bearingbox;
   QLabel *timelabel1;
   QLabel *timelabel2;
   QLabel *timebox1;
@@ -106,14 +108,12 @@ private:
   //functions
   std::string makeString();
   void update_posList(float lat, float lon, miutil::miTime t, int index);
-  void calculateVelocity();
+  void calculate();
 
 private slots:
   void deleteClicked();
   void helpClicked();
   void quitClicked();
-  double ArcInRadians(double lat1, double lon1, double lat2, double lon2);
-  double DistanceInMeters(double lat1, double lon1, double lat2, double lon2);
   
 
   

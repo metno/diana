@@ -97,8 +97,8 @@ private:
   bool startTimeGraph;
 
 Q_SIGNALS:
-  void timeChanged(int);
-  void crossectionChanged(int);
+  void stepTime(int direction);
+  void stepCrossection(int direction);
 };
 
 } // namespace vcross

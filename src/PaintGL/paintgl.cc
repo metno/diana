@@ -1137,19 +1137,19 @@ void glPixelTransferf(GLenum pname, GLfloat param)
     switch (pname) {
     case GL_RED_BIAS:
         ctx->attributes.bias.setRedF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_GREEN_BIAS:
         ctx->attributes.bias.setGreenF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_BLUE_BIAS:
         ctx->attributes.bias.setBlueF(param);
-        ctx->attributes.biased = true;
+        ctx->attributes.biased |= (param != 0.0);
         break;
     case GL_ALPHA_SCALE:
         ctx->attributes.scale.setAlphaF(param);
-        ctx->attributes.scaled = true;
+        ctx->attributes.scaled |= (param != 1.0);
         break;
     }
 }
@@ -1420,7 +1420,13 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
         ctx->painter->setClipRect(ctx->viewport);
 }
 
-
+/**
+ * glText replacement class
+ */
+glText::glText()
+    : scalex(1.0), scaley(1.0)
+{
+}
 
 bool glText::testDefineFonts(std::string path)
 {
@@ -1490,32 +1496,12 @@ bool glText::setFontSize(const float size)
 bool glText::drawChar(const int c, const float x, const float y,
                       const float a)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
-    if (!ctx->colorMask) return true;
+    // Use the same code as the glTextTT class.
+    char s[2];
+    s[0] = (char) c;
+    s[1] = '\0';
 
-    ctx->painter->save();
-    // Set the clip path, but don't unset it - the state will be restored.
-    ctx->setClipPath();
-
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
-    ctx->painter->setFont(ctx->font);
-    QChar ch = QChar::fromLatin1(c);
-    QFontMetricsF fm(ctx->font);
-    float h = fm.boundingRect(ch).height();
-
-    // No need to record this transformation.
-    ctx->painter->setTransform(ctx->transform);
-    ctx->painter->setPen(QPen(ctx->attributes.color));
-    ctx->painter->translate(x, y);
-    ctx->painter->rotate(a);
-    ctx->painter->scale(1.0/xscale, 1.0/yscale);
-    ctx->painter->translate(0, -h/2);
-    ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
-    ctx->painter->drawText(0, -h/2, ch);
-    ctx->painter->restore();
-    return true;
+    return drawStr(s, x, y, a);
 }
 
 bool glText::drawStr(const char* s, const float x, const float y,
@@ -1528,55 +1514,38 @@ bool glText::drawStr(const char* s, const float x, const float y,
     // Set the clip path, but don't unset it - the state will be restored.
     ctx->setClipPath();
 
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
     ctx->painter->setFont(ctx->font);
     QString str = QString::fromLatin1(s);
-    QFontMetricsF fm(ctx->font);
-    float h = fm.boundingRect(str).height();
+    QFontMetricsF fm(ctx->font, ctx->painter->device());
 
     // No need to record this transformation.
     ctx->painter->setTransform(ctx->transform);
     ctx->painter->setPen(QPen(ctx->attributes.color));
     ctx->painter->translate(x, y);
     ctx->painter->rotate(a);
-    ctx->painter->scale(1.0/xscale, 1.0/yscale);
-    ctx->painter->translate(0, -h/2);
+    // Unscale the text so that it appears at the intended size.
+    ctx->painter->scale(scalex, scaley);
+    // Flip it vertically to take coordinate system differences into account.
     ctx->painter->setTransform(QTransform(1, 0, 0, 0, -1, 0, 0, 0, 1), true);
-    ctx->painter->drawText(0, -h/2, str);
+    ctx->painter->drawText(0, -fm.descent()/2, str);
     ctx->painter->restore();
     return true;
 }
 
 bool glText::getCharSize(const int c, float& w, float& h)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
+    // Use the same code as the glTextTT class.
+    char s[2];
+    s[0] = (char) c;
+    s[1] = '\0';
 
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
-    QFontMetricsF fm(ctx->font);
-    //QRectF rect = ctx->transform.inverted().mapRect(fm.boundingRect(QChar(c)));
-    QRectF rect = fm.boundingRect(QChar(c));
-    w = rect.width() / xscale;
-    h = rect.height() / yscale;
-    if (w == 0) h = 0;
-    return true;
+    return getStringSize(s, w, h);
 }
 
 bool glText::getMaxCharSize(float& w, float& h)
 {
-    ENSURE_CTX_AND_PAINTER_BOOL
-
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
-    QFontMetricsF fm(ctx->font);
-    QPointF p = QPointF(fm.maxWidth(), fm.height()); // * ctx->transform.inverted();
-    w = p.x() / xscale;
-    h = p.y() / yscale;
-    if (w == 0) h = 0;
+    // Use the same code as the glTextTT class.
+    getCharSize('M', w, h);
     return true;
 }
 
@@ -1586,14 +1555,10 @@ bool glText::getStringSize(const char* s, float& w, float& h)
 
     QString str = QString::fromLatin1(s);
 
-    float xscale = pow(pow(ctx->transform.m11(), 2) + pow(ctx->transform.m12(), 2), 0.5);
-    float yscale = pow(pow(ctx->transform.m21(), 2) + pow(ctx->transform.m22(), 2), 0.5);
-
-    QFontMetricsF fm(ctx->font);
-    //QRectF rect = ctx->transform.inverted().mapRect(QRectF(0, 0, fm.width(s), fm.height()));
+    QFontMetricsF fm(ctx->font, ctx->painter->device());
     QRectF rect = fm.boundingRect(str);
-    w = rect.width() / xscale;
-    h = rect.height() * 0.8 / yscale;
+    w = rect.width() * scalex;
+    h = rect.height() * 0.8 * scaley;
     if (w == 0 || str.trimmed().isEmpty())
         h = 0;
 

@@ -96,6 +96,7 @@ public:
 
   bool setArguments(const string_v& arguments, const InventoryBase_cps& contentSoFar);
   Values_cp evaluate(name2value_t& n2v) const;
+  void collectRequired(InventoryBase_cps& required) const;
 
 private:
   bool hasNumericArg() const
@@ -114,9 +115,9 @@ typedef boost::shared_ptr<const FunctionData> FunctionData_cp;
 
 void resolve(InventoryBase_cps& content, const NameItem_v& nameItems);
 void collectRequired(InventoryBase_cps& required, InventoryBase_cp item);
+void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item, Z_AXIS_TYPE zType);
 Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v);
 
-extern const char VC_PRESSURE[];
 extern const char VC_LONGITUDE[];
 extern const char VC_LATITUDE[];
 extern const char VC_BEARING[];
@@ -124,22 +125,13 @@ extern const char VC_STEP[];
 extern const char VC_CORIOLIS[];
 
 extern const char VC_SURFACE_PRESSURE[];
-extern const char VC_SURFACE_HEIGHT[];
-extern const char VC_SPECIFIC_HUMIDITY[];
-extern const char VC_AIR_TEMPERATURE[];
+extern const char VC_SURFACE_ALTITUDE[];
 extern const char VC_INFLIGHT_PRESSURE[];
-extern const char VC_INFLIGHT_HEIGHT[];
+extern const char VC_INFLIGHT_ALTITUDE[];
 
 void resolveCrossection(InventoryBase_cps& inv);
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v);
 void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t ntimes, name2value_t& n2v);
-
-// ================================================================================
-
-Values_cp heightFromPressure(Values_cp pressure, bool positiveUp, Values_cp specific_humidity, Values_cp air_temperature,
-    Values_cp surface_pressure, Values_cp topography = Values_cp());
-
-Values_cp potentialTemperature(Values_cp pressure, Values_cp air_temperature);
 
 // ================================================================================
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -34,20 +34,19 @@
 #include "qtVcrossWindow.h"
 
 #include "qtVcrossLayerButton.h"
-#include "qtVcrossStyleWidget.h"
-#include "qtVcrossWizard.h"
+#include "qtVcrossStyleDialog.h"
+#include "qtVcrossAddPlotDialog.h"
 
-#include "diController.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
+#include "diLogFile.h"
 #include "diUtilities.h"
 
 #include "qtActionButton.h"
 #include "qtUtility.h"
-#include "qtToggleButton.h"
 #include "qtVcrossSetupDialog.h"
-#include "diEditItemManager.h"
-#include "EditItems/toolbar.h"
 #include "qtPrintManager.h"
+
+#include <diField/VcrossUtil.h>
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miSetupParser.h>
@@ -87,6 +86,7 @@
 #include "forover.xpm"
 #include "info.xpm"
 #include "icon_settings.xpm"
+#include "kill.xpm"
 
 using namespace vcross;
 
@@ -109,8 +109,11 @@ public:
   typedef typename Extract::value_t value_t;
   typedef std::vector<value_t> vector_t;
 
-  VectorModel(const vector_t& values, const Extract& e = Extract())
-    : mValues(values), mExtract(e) { }
+  VectorModel(const vector_t& values, QObject* parent=0)
+    : QAbstractListModel(parent), mValues(values) { }
+
+  VectorModel(const vector_t& values, const Extract& e, QObject* parent=0)
+    : QAbstractListModel(parent), mValues(values), mExtract(e) { }
 
   int rowCount(const QModelIndex&) const
     { return mValues.size(); }
@@ -145,44 +148,73 @@ struct MiTimeExtract : public VectorModelDetail::BasicExtract<miutil::miTime>
 };
 typedef VectorModel<MiTimeExtract> MiTimeModel;
 
+static const char LOG_WINDOW[] = "VCROSS.WINDOW.LOG";
+static const char LOG_SETUP[]  = "VCROSS.SETUP.LOG";
+static const char LOG_FIELD[]  = "VCROSS.FIELD.LOG";
+
 } // namespace anonymous
 
-VcrossWindow::VcrossWindow(Controller *co)
+VcrossWindow::VcrossWindow()
   : QWidget(0)
   , ui(new Ui_VcrossWindow)
-  , dynEditManagerConnected(false)
   , vcrossDialogX(16)
   , vcrossDialogY(16)
+  , firstTime(true)
+  , active(false)
+  , mInFieldChangeGroup(false)
+  , mGroupChangedFields(false)
 {
   METLIBS_LOG_SCOPE();
   setupUi();
   
   vcrossm =  miutil::make_shared<QtManager>();
-  selectionManager.reset(new VcrossSelectionManager(vcrossm));
+  quickmenues.reset(new VcrossQuickmenues(vcrossm));
+  connect(quickmenues.get(), SIGNAL(quickmenuUpdate(const std::string&, const std::vector<std::string>&)),
+      this, SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)));
 
   //central widget
   ui->vcross->setVcrossManager(vcrossm);
-  connect(ui->vcross, SIGNAL(timeChanged(int)), SLOT(timeChangedSlot(int)));
-  connect(ui->vcross, SIGNAL(crossectionChanged(int)), SLOT(crossectionChangedSlot(int)));
+  connect(ui->vcross, SIGNAL(stepTime(int)), SLOT(stepTime(int)));
+  connect(ui->vcross, SIGNAL(stepCrossection(int)), SLOT(stepCrossection(int)));
 
   ui->comboTime->setModel(new MiTimeModel(std::vector<miutil::miTime>()));
 
+  connect(ui->toggleCsEdit, SIGNAL(toggled(bool)),
+      SIGNAL(requestVcrossEditor(bool)));
+
   //connected dialogboxes
+  vcStyleDialog = new VcrossStyleDialog(this);
+  vcStyleDialog->setManager(vcrossm);
+  vcStyleDialog->setVisible(false);
+
   vcSetupDialog = new VcrossSetupDialog(this, vcrossm);
   connect(vcSetupDialog, SIGNAL(SetupApply()), SLOT(changeSetup()));
   connect(vcSetupDialog, SIGNAL(showsource(const std::string&, const std::string&)),
-      SIGNAL(showsource(const std::string&, const std::string&)));
+      SIGNAL(requestHelpPage(const std::string&, const std::string&)));
 
-  connect(selectionManager.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-  connect(selectionManager.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-  connect(selectionManager.get(), SIGNAL(fieldsRemoved()),
-      this, SLOT(onFieldsRemoved()));
+  { vcross::QtManager* m = vcrossm.get();
+    connect(m, SIGNAL(fieldChangeBegin(bool)),
+        this, SLOT(onFieldChangeBegin(bool)));
+    connect(m, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
+        this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
+    connect(m, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
+        this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
+    connect(m, SIGNAL(fieldOptionsChanged(const std::string&, const std::string&, int)),
+        this, SLOT(onFieldOptionsChanged(const std::string&, const std::string&, int)));
+    connect(m, SIGNAL(fieldVisibilityChanged(const std::string&, const std::string&, int)),
+        this, SLOT(onFieldVisibilityChanged(const std::string&, const std::string&, int)));
+    connect(m, SIGNAL(fieldChangeEnd()),
+        this, SLOT(onFieldChangeEnd()));
 
-  //inialize everything in startUp
-  firstTime = true;
-  active = false;
+    connect(m, SIGNAL(crossectionListChanged()),
+        this, SLOT(crossectionListChangedSlot()));
+    connect(m, SIGNAL(crossectionIndexChanged(int)),
+        this, SLOT(crossectionChangedSlot(int)));
+    connect(m, SIGNAL(timeListChanged()),
+        this, SLOT(timeListChangedSlot()));
+    connect(m, SIGNAL(timeIndexChanged(int)),
+        this, SLOT(timeChangedSlot(int)));
+  }
 }
 
 /***************************************************************************/
@@ -205,6 +237,8 @@ void VcrossWindow::setupUi()
   ui->buttonSave->setIcon(QPixmap(filesave));
   ui->buttonSettings->setIcon(QPixmap(icon_settings));
 
+  ui->toolRemoveAllFields->setIcon(QPixmap(kill_xpm));
+
   const QPixmap back(bakover_xpm), forward(forward_xpm);
 
   ui->buttonCsPrevious->setIcon(back);
@@ -224,22 +258,20 @@ void VcrossWindow::setupUi()
 void VcrossWindow::onAddField()
 {
   METLIBS_LOG_SCOPE();
-  VcrossWizard wiz(this, selectionManager.get());
-  wiz.move(vcrossDialogX, vcrossDialogY);
-  if (wiz.exec()) {
-    vcrossDialogX = wiz.pos().x();
-    vcrossDialogY = wiz.pos().y();
+  VcrossAddPlotDialog d(this, vcrossm);
+  d.move(vcrossDialogX, vcrossDialogY);
+  d.restart();
+  d.exec();
+  vcrossDialogX = d.pos().x();
+  vcrossDialogY = d.pos().y();
+}
 
-    const std::string model = wiz.getSelectedModel().toStdString();
-    const QStringList fields = wiz.getSelectedFields();
-    for (int i=0; i<fields.size(); ++i) {
-      const std::string fld = fields.at(i).toStdString();
-      const std::string opt = selectionManager->defaultOptions(model, fld, false);
-      selectionManager->addField(model, fld, opt, selectionManager->countFields());
-    }
+/***************************************************************************/
 
-    changeFields();
-  }
+void VcrossWindow::onRemoveAllFields()
+{
+  METLIBS_LOG_SCOPE();
+  vcrossm->removeAllFields();
 }
 
 /***************************************************************************/
@@ -248,42 +280,31 @@ void VcrossWindow::onFieldAction(int position, int action)
 {
   METLIBS_LOG_SCOPE(LOGVAL(position));
 
-  const std::string model = selectionManager->getModelAt(position);
-  const std::string field = selectionManager->getFieldAt(position);
-  const std::string opt   = selectionManager->getOptionsAt(position);
-  const std::string dflt  = selectionManager->defaultOptions(model, field, true);
-
-  METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field) << LOGVAL(opt) << LOGVAL(dflt));
+  const std::string model = vcrossm->getModelAt(position);
+  const std::string field = vcrossm->getFieldAt(position);
+  METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field));
 
   if (action == VcrossLayerButton::EDIT) {
-    QDialog d(this);
-    d.setWindowTitle(tr("Style for %1 -- %2")
-        .arg(QString::fromStdString(model))
-        .arg(QString::fromStdString(field)));
-    VcrossStyleWidget* sw = new VcrossStyleWidget(&d);
-    QPushButton* accept = new QPushButton(tr("OK"), &d);
-    connect(accept, SIGNAL(clicked()), &d, SLOT(accept()));
-    QVBoxLayout* l = new QVBoxLayout;
-    l->addWidget(sw);
-    l->addWidget(accept);
-    d.setLayout(l);
-    
-    sw->setOptions(opt, dflt);
-    if (d.exec() && sw->valid()) {
-      selectionManager->updateField(model, field, sw->options());
-      changeFields();
-    }
+    const QString mdl = QString::fromStdString(model);
+    const QString fld = QString::fromStdString(field);
+    vcStyleDialog->showModelField(mdl, fld);
+    vcStyleDialog->show();
   } else if (action == VcrossLayerButton::REMOVE) {
-    selectionManager->removeField(model, field);
-    changeFields();
+    vcrossm->removeField(model, field);
   } else if (action == VcrossLayerButton::SHOW_HIDE) {
     QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
     QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
     VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
 
-    selectionManager->setVisibleAt(position, not button->isChecked());
-    changeFields();
+    vcrossm->setFieldVisible(position, button->isChecked());
   }
+}
+
+void VcrossWindow::onFieldChangeBegin(bool fromScript)
+{
+  METLIBS_LOG_SCOPE();
+  mInFieldChangeGroup = true;
+  mGroupChangedFields = false;
 }
 
 void VcrossWindow::onFieldAdded(const std::string& model, const std::string& field, int position)
@@ -302,10 +323,18 @@ void VcrossWindow::onFieldAdded(const std::string& model, const std::string& fie
       QString::fromStdString(field), position, this);
   connect(button, SIGNAL(triggered(int, int)), SLOT(onFieldAction(int, int)));
   lbl->insertWidget(position, button);
+
+  repaintPlotIfNotInGroup();
 }
 
-void VcrossWindow::onFieldUpdated(const std::string& model, const std::string& field, int position)
+void VcrossWindow::onFieldOptionsChanged(const std::string& model, const std::string& field, int position)
 {
+  repaintPlotIfNotInGroup();
+}
+
+void VcrossWindow::onFieldVisibilityChanged(const std::string& model, const std::string& field, int position)
+{
+  repaintPlotIfNotInGroup();
 }
 
 void VcrossWindow::onFieldRemoved(const std::string& model, const std::string& field, int position)
@@ -320,41 +349,116 @@ void VcrossWindow::onFieldRemoved(const std::string& model, const std::string& f
     button->setPosition(i-1, i==n-1);
   }
 
-  QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
+  QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(position));
   QToolButton *button = static_cast<QToolButton*>(wi->widget());
   button->deleteLater();
+  delete wi;
+
+  repaintPlotIfNotInGroup();
 }
 
-void VcrossWindow::onFieldsRemoved()
+void VcrossWindow::repaintPlotIfNotInGroup()
 {
-  QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  while (lbl->count() > 0) {
-    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(0));
-    QToolButton *button = static_cast<QToolButton*>(wi->widget());
-    button->deleteLater();
-  }
+  if (mInFieldChangeGroup)
+    mGroupChangedFields = true;
+  else
+    repaintPlot();
+}
+
+void VcrossWindow::onFieldChangeEnd()
+{
+  if (mInFieldChangeGroup && mGroupChangedFields)
+    repaintPlot();
+  mInFieldChangeGroup = mGroupChangedFields = false;
 }
 
 /***************************************************************************/
 
-void VcrossWindow::leftCrossectionClicked()
+void VcrossWindow::stepCrossection(int direction)
 {
-  //called when the left Crossection button is clicked
-  const std::string s = vcrossm->setCrossection(-1);
-  crossectionChangedSlot(-1);
-  ui->vcross->update();
-  emitQmenuStrings();
+  METLIBS_LOG_SCOPE();
+  int index = vcrossm->getCrossectionIndex();
+  if (vcross::util::step_index(index, direction > 0 ? +1 : -1, vcrossm->getCrossectionCount()))
+    vcrossm->setCrossectionIndex(index);
 }
 
-/***************************************************************************/
 
 void VcrossWindow::rightCrossectionClicked()
 {
-  //called when the right Crossection button is clicked
-  const std::string s= vcrossm->setCrossection(+1);
-  crossectionChangedSlot(+1);
+  stepCrossection(+1);
+}
+
+
+void VcrossWindow::leftCrossectionClicked()
+{
+  stepCrossection(-1);
+}
+
+
+void VcrossWindow::crossectionChangedSlot(int current)
+{
+  METLIBS_LOG_SCOPE();
+  ui->comboCs->setCurrentIndex(current);
   ui->vcross->update();
-  emitQmenuStrings();
+  Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel()); //name of current crossection (to mainWindow)
+}
+
+
+void VcrossWindow::crossectionListChangedSlot()
+{
+  METLIBS_LOG_SCOPE();
+  ui->comboCs->clear();
+  const int count = vcrossm->getCrossectionCount();
+  for (int i=0; i<count; ++i)
+    ui->comboCs->addItem(vcrossm->getCrossectionLabel(i));
+
+  ui->comboCs->setEnabled(count > 0);
+  ui->buttonCsPrevious->setEnabled(count > 0);
+  ui->buttonCsNext->setEnabled(count > 0);
+
+  enableDynamicCsIfSupported();
+
+  emitCrossectionSet();
+}
+
+
+void VcrossWindow::emitCrossectionSet()
+{
+  METLIBS_LOG_SCOPE();
+  // emit to MainWindow (updates crossectionPlot)
+  LocationData locations;
+  vcrossm->getCrossections(locations);
+  Q_EMIT crossectionSetChanged(locations);
+  Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel());
+}
+
+
+void VcrossWindow::enableDynamicCsIfSupported()
+{
+  METLIBS_LOG_SCOPE();
+  if (vcrossm->supportsDynamicCrossections()) {
+    ui->toggleCsEdit->setEnabled(true);
+
+    typedef std::set<std::string> string_s;
+    const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
+    if (not csPredefined.empty()) {
+      QStringList filenames;
+      for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it)
+        filenames << QString::fromStdString(*it);
+      Q_EMIT requestLoadCrossectionFiles(filenames);
+    } else {
+      ui->toggleCsEdit->setChecked(true);
+    }
+  } else {
+    ui->toggleCsEdit->setChecked(false);
+    ui->toggleCsEdit->setEnabled(false);
+  }
+}
+
+
+void VcrossWindow::crossectionBoxActivated(int index)
+{
+  vcrossm->setCrossectionIndex(index);
 }
 
 /***************************************************************************/
@@ -364,125 +468,61 @@ void VcrossWindow::stepTime(int direction)
   METLIBS_LOG_SCOPE(LOGVAL(direction));
   const int step = std::max(ui->timeSpinBox->value(), 1)
       * (direction < 0 ? -1 : 1);
-  vcrossm->setTime(step);
-  timeChangedSlot(step);
-  ui->vcross->update();
+
+  int index = vcrossm->getTimeIndex();
+  if (vcross::util::step_index(index, step, vcrossm->getTimeCount()))
+    vcrossm->setTimeIndex(index);
 }
 
-/***************************************************************************/
 
 void VcrossWindow::leftTimeClicked()
 {
   stepTime(-1);
 }
 
-/***************************************************************************/
 
 void VcrossWindow::rightTimeClicked()
 {
   stepTime(+1);
 }
 
-/***************************************************************************/
 
-bool VcrossWindow::timeChangedSlot(int diff)
+void VcrossWindow::timeChangedSlot(int current)
 {
-  // called if signal timeChanged is emitted from graphics window (qtVcrossWidget)
-  METLIBS_LOG_SCOPE();
-
-  const int count = ui->comboTime->count();
-  METLIBS_LOG_DEBUG(LOGVAL(count) << LOGVAL(diff));
-  if (count <= 0)
-    return false;
-
-  if (diff != 0) {
-    int index = ui->comboTime->currentIndex();
-    index += diff;
-    while (index < 0)
-      index += count;
-    index %= count;
-    ui->comboTime->setCurrentIndex(index);
-  }
-
-  const miutil::miTime& vct = vcrossm->getTime();
-  const MiTimeModel* tim = static_cast<MiTimeModel*>(ui->comboTime->model());
-  const miutil::miTime& tbt = tim->values().at(ui->comboTime->currentIndex());
-
-  bool ok = (vct == tbt);
-
-  // search timeList
-  if (not ok) {
-    for (int i = 0; i<count; i++) {
-      if (vct == tim->values().at(i)) {
-        ui->comboTime->setCurrentIndex(i);
-        METLIBS_LOG_DEBUG(LOGVAL(i));
-        ok = true;
-        break;
-      }
-    }
-  }
-
-  if (not ok) {
-    METLIBS_LOG_DEBUG(LOGVAL(vct) << "not found");
-    return false;
-  }
-
-  /*emit*/ setTime("vcross", vct);
-  return true;
+  METLIBS_LOG_SCOPE(LOGVAL(current));
+  ui->comboTime->setCurrentIndex(current);
+  ui->vcross->update();
+  Q_EMIT setTime("vcross", vcrossm->getTimeValue(current));
 }
 
-/***************************************************************************/
 
-bool VcrossWindow::crossectionChangedSlot(int diff)
+void VcrossWindow::timeListChangedSlot()
 {
   METLIBS_LOG_SCOPE();
 
-  const int count = ui->comboCs->count();
-  METLIBS_LOG_DEBUG(LOGVAL(count) << LOGVAL(diff));
-  if (count <= 0)
-    return false;
+  std::vector<miutil::miTime> times;
+  const int count = vcrossm->getTimeCount();
+  METLIBS_LOG_DEBUG(LOGVAL(count));
+  for (int i=0; i<count; ++i) {
+    METLIBS_LOG_DEBUG(LOGVAL(i));
+    times.push_back(vcrossm->getTimeValue(i));
+  }
+  ui->comboTime->setModel(new MiTimeModel(times));
 
-  if (diff != 0) {
-    int index = ui->comboCs->currentIndex();
-    index += diff;
-    while (index < 0)
-      index += count;
-    index %= count;
-    ui->comboCs->setCurrentIndex(index);
-  }
+  ui->comboTime->setEnabled(count > 0);
+  ui->buttonTimePrevious->setEnabled(count > 0);
+  ui->buttonTimeNext->setEnabled(count > 0);
 
-  //get current crossection
-  std::string s = vcrossm->getCrossection();
-  //if no current crossection, use last crossection plotted
-  if (s.empty())
-    s = ""; // FIXME vcrossm->getLastCrossection();
-  std::string sbs = ui->comboCs->currentText().toStdString();
-  if (sbs != s){
-    for(int i = 0; i<count; i++) {
-      if (s==ui->comboCs->itemText(i).toStdString()) {
-        ui->comboCs->setCurrentIndex(i);
-        sbs = ui->comboCs->currentText().toStdString();
-        break;
-      }
-    }
-  }
-  QString sq = QString::fromStdString(s);
-  if (sbs == s) {
-    Q_EMIT crossectionChanged(sq); //name of current crossection (to mainWindow)
-    return true;
-  } else {
-    //    METLIBS_LOG_WARN("WARNING! crossectionChangedSlot  crossection from vcrossm ="
-    // 	 << s    <<" not equal to crossectionBox text = " << sbs);
-    //current or last crossection plotted is not in the list, insert it...
-    ui->comboCs->addItem(sq);
-    ui->comboCs->setCurrentIndex(0);
-    ui->comboCs->setEnabled(true);
-    ui->buttonCsPrevious->setEnabled(true);
-    ui->buttonCsNext->setEnabled(true);
-    return false;
-  }
+  if (count > 0)
+    Q_EMIT emitTimes("vcross", times);
 }
 
+
+void VcrossWindow::timeBoxActivated(int index)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(index));
+  vcrossm->setTimeIndex(index);
+}
 
 /***************************************************************************/
 
@@ -521,23 +561,6 @@ void VcrossWindow::saveClicked()
   }
 }
 
-
-void VcrossWindow::makeEPS(const std::string& filename)
-{
-  diutil::OverrideCursor waitCursor;
-  printOptions priop;
-  priop.fname= filename;
-  priop.colop= d_print::incolour;
-  priop.orientation= d_print::ori_automatic;
-  priop.pagesize= d_print::A4;
-  priop.numcopies= 1;
-  priop.usecustomsize= false;
-  priop.fittopage= false;
-  priop.drawbackground= true;
-  priop.doEPS= true;
-
-//  vcrossw->print(priop);
-}
 
 /***************************************************************************/
 
@@ -586,10 +609,12 @@ void VcrossWindow::quitClicked()
   ui->buttonTimePrevious->setEnabled(false);
   ui->buttonTimeNext->setEnabled(false);
 
+  vcStyleDialog->setVisible(false);
+
   active = false;
-  Q_EMIT updateCrossSectionPos(false);
   Q_EMIT VcrossHide();
   Q_EMIT emitTimes("vcross", NO_TIMES);
+  hide();
 }
 
 /***************************************************************************/
@@ -597,35 +622,7 @@ void VcrossWindow::quitClicked()
 void VcrossWindow::helpClicked()
 {
   //called when the help button in Vcrosswindow is clicked
-  Q_EMIT showsource("ug_verticalcrosssections.html");
-}
-
-void VcrossWindow::dynCrossEditManagerEnabled(bool on)
-{
-  if (on) {
-    EditItems::ToolBar::instance()->setCreatePolyLineAction("Cross section");
-    EditItemManager::instance()->setEditing(true);
-    EditItems::ToolBar::instance()->show();
-    dynCrossEditManagerEnableSignals();
-  } else {
-    EditItemManager::instance()->setEditing(false);
-  }
-}
-
-void VcrossWindow::dynCrossEditManagerEnableSignals()
-{
-  if (not dynEditManagerConnected) {
-    dynEditManagerConnected = true;
-
-    EditItemManager::instance()->enableItemChangeNotification();
-    EditItemManager::instance()->setItemChangeFilter("Cross section");
-    connect(EditItemManager::instance(), SIGNAL(itemChanged(const QVariantMap &)),
-        this, SLOT(dynCrossEditManagerChange(const QVariantMap &)), Qt::UniqueConnection);
-    connect(EditItemManager::instance(), SIGNAL(itemRemoved(int)),
-        this, SLOT(dynCrossEditManagerRemoval(int)), Qt::UniqueConnection);
-    connect(EditItemManager::instance(), SIGNAL(editing(bool)),
-        this, SLOT(slotCheckEditmode(bool)), Qt::UniqueConnection);
-  }
+  Q_EMIT requestHelpPage("ug_verticalcrosssections.html");
 }
 
 void VcrossWindow::slotCheckEditmode(bool editing)
@@ -638,14 +635,20 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
 {
   METLIBS_LOG_SCOPE();
 
-  const char key_points[] = "latLonPoints", key_id[] = "id";
-  if (not (props.contains(key_points) and props.contains(key_id)))
+  // these have to match the keys used by EditItemManager::emitItemChanged
+  const char KEY_POINTS[] = "latLonPoints", KEY_ID[] = "id", KEY_NAME[] = "Placemark:name";
+
+  if (not (props.contains(KEY_POINTS) and props.contains(KEY_ID)))
     return;
 
-  std::string label = QString("dyn_%1").arg(props.value(key_id).toInt()).toStdString();
-
+  QString label;
+  if (props.contains(KEY_NAME))
+    label = props.value(KEY_NAME).toString();
+  if (label.isEmpty())
+    label = QString("dyn_%1").arg(props.value(KEY_ID).toInt());
+  
   vcross::LonLat_v points;
-  foreach (QVariant v, props.value(key_points).toList()) {
+  foreach (QVariant v, props.value(KEY_POINTS).toList()) {
     const QPointF p = v.toPointF();
     const float lat = p.x(), lon = p.y(); // FIXME swpa x <-> y
     points.push_back(LonLat::fromDegrees(lon, lat));
@@ -653,252 +656,83 @@ void VcrossWindow::dynCrossEditManagerChange(const QVariantMap &props)
   if (points.size() < 2)
     return;
 
-  vcrossm->setDynamicCrossection(label, points);
-
-  updateCrossectionBox();
-
-  vcrossm->setCrossection(label);
-
-  ui->vcross->update();
+  vcrossm->addDynamicCrossection(label, points);
 }
 
 void VcrossWindow::dynCrossEditManagerRemoval(int id)
 {
-  METLIBS_LOG_SCOPE();
-
-  std::string label = QString("dyn_%1").arg(id).toStdString();
-  vcrossm->setDynamicCrossection(label, vcross::LonLat_v()); // empty points => remove
-  updateCrossectionBox();
-
-  ui->vcross->update();
+  METLIBS_LOG_SCOPE(LOGVAL(id));
+  vcrossm->removeDynamicCrossection(QString("dyn_%1").arg(id));
 }
 
 /***************************************************************************/
 
-void VcrossWindow::emitQmenuStrings()
+void VcrossWindow::repaintPlot()
 {
-  const std::string plotname = "<font color=\"#005566\">" + selectionManager->getShortname() + " " + vcrossm->getCrossection() + "</font>";
-  const std::vector<std::string> qm_string = vcrossm->getQuickMenuStrings();
-  /*emit*/ quickMenuStrings(plotname, qm_string);
-}
-
-/***************************************************************************/
-
-void VcrossWindow::changeFields()
-{
-  METLIBS_LOG_SCOPE();
-
-  const std::vector<std::string> vstr = selectionManager->getOKString();
-  const bool modelChanged = vcrossm->setSelection(vstr);
-
-  //called when the apply button from model/field dialog is clicked
-  //... or field is changed ?
-
-  enableDynamicCsIfSupported();
-
-  if (modelChanged) {
-    updateCrossectionBox();
-    updateTimeBox();
-
-    //get correct selection in comboboxes
-    crossectionChangedSlot(0);
-    timeChangedSlot(0);
-  }
-
   ui->vcross->update();
-  emitQmenuStrings();
-}
-
-void VcrossWindow::enableDynamicCsIfSupported()
-{
-  if (vcrossm->supportsDynamicCrossections()) {
-    ui->toggleCsEdit->setEnabled(true);
-    if (EditItemManager::instance()) {
-      typedef std::set<std::string> string_s;
-      const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
-      if (not csPredefined.empty()) {
-        for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it)
-          EditItemManager::instance()->emitLoadFile(QString::fromStdString(*it));
-
-#if 0
-        const QSet<QSharedPointer<DrawingItemBase> > items
-            = EditItemManager::instance()->getLayerManager()->itemsInSelectedLayers(false);
-        foreach (const QSharedPointer<DrawingItemBase> item, items) {
-          if (item->property("style:type").toString() == "Cross section") {
-            // TODO add name to vcross manager without actually creating a cross-section
-          }
-        }
-#endif
-        dynCrossEditManagerEnableSignals();
-      } else {
-        ui->toggleCsEdit->setChecked(true);
-      }
-    }
-  } else {
-    ui->toggleCsEdit->setChecked(false);
-    ui->toggleCsEdit->setEnabled(false);
-  }
 }
 
 /***************************************************************************/
 
 void VcrossWindow::changeSetup()
 {
-  //called when the apply from setup dialog is clicked
-  METLIBS_LOG_SCOPE();
-
-  //###if (mapOptionsChanged) {
-  // emit to MainWindow
-  // (updates crossectionPlot colour etc., not data, name etc.)
-  /*emit*/ crossectionSetUpdate();
-  //###}
-
-  ui->vcross->update();
-  emitQmenuStrings();
-}
-
-/***************************************************************************/
-
-void VcrossWindow::getCrossections(LocationData& locationdata)
-{
-  METLIBS_LOG_SCOPE();
-
-  vcrossm->getCrossections(locationdata);
-}
-
-/***************************************************************************/
-
-// update list of crossections in ui->comboCs
-void VcrossWindow::updateCrossectionBox()
-{
-  METLIBS_LOG_SCOPE();
-
-  //emit to MainWindow (updates crossectionPlot)
-  Q_EMIT crossectionSetChanged();
-
-  ui->comboCs->clear();
-  const std::vector<std::string>& crossections = vcrossm->getCrossectionList();
-  const bool haveCs = not crossections.empty();
-  ui->comboCs->setEnabled(haveCs);
-  ui->buttonCsPrevious->setEnabled(haveCs);
-  ui->buttonCsNext->setEnabled(haveCs);
-  for (size_t i=0; i<crossections.size(); i++)
-    ui->comboCs->addItem(QString::fromStdString(crossections[i]));
-}
-
-/***************************************************************************/
-
-void VcrossWindow::updateTimeBox()
-{
-  METLIBS_LOG_SCOPE();
-
-  const std::vector<miutil::miTime>& times = vcrossm->getTimeList();
-  const bool haveTimes = not times.empty();
-  ui->comboTime->setEnabled(haveTimes);
-  ui->buttonTimePrevious->setEnabled(haveTimes);
-  ui->buttonTimeNext->setEnabled(haveTimes);
-  ui->comboTime->setModel(new MiTimeModel(times));
-  Q_EMIT emitTimes("vcross",times);
-}
-
-/***************************************************************************/
-
-void VcrossWindow::crossectionBoxActivated(int index)
-{
-  const QString& sq = ui->comboCs->currentText();
-  vcrossm->setCrossection(sq.toStdString());
-  ui->vcross->update();
-  Q_EMIT crossectionChanged(sq); //name of current crossection (to mainWindow)
-  emitQmenuStrings();
-}
-
-/***************************************************************************/
-
-void VcrossWindow::timeBoxActivated(int index)
-{
-  const std::vector<miutil::miTime>& times = vcrossm->getTimeList();
-
-  if (index>=0 && index < int(times.size())) {
-    vcrossm->setTime(times[index]);
-    ui->vcross->update();
-    Q_EMIT setTime("vcross", times[index]);
-  }
+  emitCrossectionSet();
+  repaintPlot();
 }
 
 /***************************************************************************/
 
 bool VcrossWindow::changeCrossection(const std::string& crossection)
 {
-  METLIBS_LOG_SCOPE();
-
-  vcrossm->setCrossection(crossection); //HK ??? should check if crossection exists ?
-  ui->vcross->update();
-  raise();
-  emitQmenuStrings();
-
-  return crossectionChangedSlot(0);
+  vcrossm->setCrossectionIndex(vcrossm->findCrossectionIndex(QString::fromStdString(crossection)));
+  return true;
 }
 
 /***************************************************************************/
 
 void VcrossWindow::mainWindowTimeChanged(const miutil::miTime& t)
 {
-  METLIBS_LOG_SCOPE();
   if (!active)
     return;
-  METLIBS_LOG_DEBUG("time = " << t);
 
-  vcrossm->mainWindowTimeChanged(t);
-  //get correct selection in comboboxes
-  crossectionChangedSlot(0);
-  timeChangedSlot(0);
-  ui->vcross->update();
+  vcrossm->setTimeToBestMatch(t);
 }
 
 
 /***************************************************************************/
 
-void VcrossWindow::startUp(const miutil::miTime& t)
+void VcrossWindow::makeVisible(bool visible)
 {
-  METLIBS_LOG_SCOPE("t= " << t);
+  METLIBS_LOG_SCOPE();
 
-  active = true;
-  //do something first time we start Vertical crossections
-  if (firstTime){
-    //vector<miutil::miString> models;
-    //define models for dialogs, comboboxes and crossectionplot
-    //vcrossm->setSelectedModels(models, true,false);
-    //vcDialog->setSelection();
-    firstTime=false;
-    // show default diagram without any data
-    ui->vcross->update();
+  if (visible and active) {
+    raise();
+    return;
   }
-  //changeModel();
-  mainWindowTimeChanged(t);
+
+  if (visible != active) {
+    active = visible;
+    if (visible) {
+      show(); // includes raise() ?
+      
+      //do something first time we start Vertical crossections
+      if (firstTime) {
+        firstTime = false;
+        ui->vcross->update();
+      }
+    } else {
+      quitClicked();
+    }
+  }
 }
 
-/*
- * Set the position clicked on the map in the current VcrossPlot.
- */
-void VcrossWindow::mapPos(float lat, float lon)
+void VcrossWindow::parseQuickMenuStrings(const string_v& qm_strings)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(lat) << LOGVAL(lon));
-}
-
-void VcrossWindow::parseQuickMenuStrings(const std::vector<std::string>& qm_string)
-{
-  vcrossm->parseQuickMenuStrings(qm_string);
-  selectionManager->putOKString(qm_string);
-
-  enableDynamicCsIfSupported();
-  updateCrossectionBox();
-  updateTimeBox();
-
-  crossectionChangedSlot(0);
-  ui->vcross->update();
+  quickmenues->parse(qm_strings);
 }
 
 /***************************************************************************/
+
 void VcrossWindow::parseSetup()
 {
   METLIBS_LOG_SCOPE();
@@ -909,55 +743,46 @@ void VcrossWindow::parseSetup()
   vcrossm->parseSetup(sources,computations,plots);
 }
 
-std::vector<std::string> VcrossWindow::writeLog(const std::string& logpart)
-{
-  std::vector<std::string> vstr;
 
-  if (logpart=="window") {
-    std::string str;
-    str= "VcrossWindow.size " + miutil::from_number(width()) + " "
-        + miutil::from_number(height());
-    vstr.push_back(str);
-    str= "VcrossWindow.pos " + miutil::from_number(x()) + " "
-        + miutil::from_number(y());
-    vstr.push_back(str);
-    str= "VcrossDialog.pos "  + miutil::from_number(vcrossDialogX) + " "
-        + miutil::from_number(vcrossDialogY);
-    vstr.push_back(str);
-    str= "VcrossSetupDialog.pos " + miutil::from_number(vcSetupDialog->x()) + " "
-        + miutil::from_number(vcSetupDialog->y());
-    vstr.push_back(str);
+void VcrossWindow::writeLog(LogFileIO& logfile)
+{
+  { LogFileIO::Section& sec_window = logfile.getSection(LOG_WINDOW);
+    sec_window.addLine("VcrossWindow.size " + miutil::from_number(width()) + " "
+        + miutil::from_number(height()));
+    sec_window.addLine("VcrossWindow.pos " + miutil::from_number(x()) + " "
+        + miutil::from_number(y()));
+    sec_window.addLine("VcrossDialog.pos "  + miutil::from_number(vcrossDialogX) + " "
+        + miutil::from_number(vcrossDialogY));
+    sec_window.addLine("VcrossSetupDialog.pos " + miutil::from_number(vcSetupDialog->x()) + " "
+        + miutil::from_number(vcSetupDialog->y()));
+    sec_window.addLine("VcrossStyleDialog.pos " + miutil::from_number(vcStyleDialog->x()) + " "
+        + miutil::from_number(vcStyleDialog->y()));
 
     // printer name & options...
     if (not priop.printer.empty()){
-      str= "PRINTER " + priop.printer;
-      vstr.push_back(str);
+      sec_window.addLine("PRINTER " + priop.printer);
       if (priop.orientation==d_print::ori_portrait)
-        str= "PRINTORIENTATION portrait";
+        sec_window.addLine("PRINTORIENTATION portrait");
       else
-        str= "PRINTORIENTATION landscape";
-      vstr.push_back(str);
+        sec_window.addLine("PRINTORIENTATION landscape");
     }
-
-  } else if (logpart=="setup") {
-    vstr = vcrossm->writeLog();
-  } else if (logpart=="field") {
-    vstr = selectionManager->writeLog();
   }
-
-  return vstr;
+  { LogFileIO::Section& sec_setup = logfile.getSection(LOG_SETUP);
+    sec_setup.addLines(vcrossm->writeVcrossOptions());
+  }
+  { LogFileIO::Section& sec_field = logfile.getSection(LOG_FIELD);
+    sec_field.addLines(vcrossm->writePlotOptions());
+  }
 }
 
-void VcrossWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr,
+
+void VcrossWindow::readLog(const LogFileIO& logfile,
     const std::string& thisVersion, const std::string& logVersion,
     int displayWidth, int displayHeight)
 {
-  if (logpart=="window") {
-
-    const int n = vstr.size();
-
-    for (int i=0; i<n; i++) {
-      const std::vector<std::string> tokens = miutil::split(vstr[i], 0, " ");
+  { const LogFileIO::Section& sec_window = logfile.getSection(LOG_WINDOW);
+    for (size_t i=0; i<sec_window.size(); i++) {
+      const std::vector<std::string> tokens = miutil::split(sec_window[i], 0, " ");
       if (tokens.size()==3) {
 
         int x= atoi(tokens[1].c_str());
@@ -969,6 +794,7 @@ void VcrossWindow::readLog(const std::string& logpart, const std::vector<std::st
           if      (tokens[0]=="VcrossWindow.pos")      this->move(x,y);
           else if (tokens[0]=="VcrossDialog.pos")      { vcrossDialogX = x; vcrossDialogY = y; }
           else if (tokens[0]=="VcrossSetupDialog.pos") vcSetupDialog->move(x,y);
+          else if (tokens[0]=="VcrossStyleDialog.pos") vcStyleDialog->move(x,y);
         }
 
       } else if (tokens.size()>=2) {
@@ -984,11 +810,12 @@ void VcrossWindow::readLog(const std::string& logpart, const std::vector<std::st
 
       }
     }
-
-  } else if (logpart=="setup") {
-    vcrossm->readLog(vstr, thisVersion, logVersion);
-  } else if (logpart=="field") {
-    selectionManager->readLog(vstr,thisVersion,logVersion);
+  }
+  { const LogFileIO::Section& sec_setup = logfile.getSection(LOG_SETUP);
+    vcrossm->readVcrossOptions(sec_setup.lines(), thisVersion, logVersion);
+  }
+  { const LogFileIO::Section& sec_field = logfile.getSection(LOG_FIELD);
+    vcrossm->readPlotOptions(sec_field.lines(), thisVersion, logVersion);
   }
 }
 

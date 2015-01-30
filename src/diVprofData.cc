@@ -63,7 +63,7 @@ const char VP_OMEGA[]                 = "vp_omega_pas";
 VprofData::VprofData(const std::string& filename, const std::string& modelname,
     const std::string& stationsfilename) :
         fileName(filename), modelName(modelname), stationsFileName(stationsfilename),
-        readFromFimex(false), readFromField(false), fieldManager(NULL), numPos(0),
+        readFromFimex(false), numPos(0),
         numTime(0), numParam(0), numLevel(0), dataBuffer(0)
 {
   METLIBS_LOG_SCOPE();
@@ -192,13 +192,6 @@ bool VprofData::readFimex(vcross::Setup_p setup)
     if (!stationsFileName.empty()) {
       readStationNames(stationsFileName);
     }
-    for (size_t i = 0; i < posLongitude.size(); i++) {
-      //add profile
-      METLIBS_LOG_DEBUG("add profile "<<LOGVAL(posLongitude[i]) << LOGVAL(posLatitude[i]));
-      LonLat pos = LonLat::fromDegrees(posLongitude[i],posLatitude[i]);
-      collector->getResolver()->addDynamicPointValue(modelName,posName[i],pos);
-    }
-
   }
 
   BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
@@ -220,30 +213,6 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   return true;
 }
 
-bool VprofData::readField(std::string type, FieldManager* fieldm)
-{
-  METLIBS_LOG_SCOPE("model= " << modelName << " type=" << type << " path=" << fileName);
-
-  std::string correctFileName = stationsFileName;
-  miutil::replace(correctFileName, modelName, "");
-  readStationNames(correctFileName);
-
-  fieldManager = fieldm;
-
-  bool success = fieldManager->invVProf(modelName, validTime, forecastHour);
-  numPos = posName.size();
-  numTime = validTime.size();
-  numParam = 6;
-  mainText.push_back(modelName);
-  for (size_t i = 0; i < forecastHour.size(); i++) {
-    progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
-  }
-  readFromField = true;
-  vProfPlot.reset(0);
-
-  return success;
-  //return true;
-}
 
 bool VprofData::readFile()
 {
@@ -454,6 +423,15 @@ bool VprofData::readFile()
   return success;
 }
 
+static void copy_vprof_values(Values_cp values, std::vector<float>& values_out)
+{
+  Values::ShapeIndex idx(values->shape());
+  for (int i=0; i<values->shape().length(0); ++i) {
+    idx.set(0, i);
+    values_out.push_back(values->value(idx));
+  }
+}
+
 static void copy_vprof_values(const name2value_t& n2v, const std::string& id, std::vector<float>& values_out)
 {
   METLIBS_LOG_SCOPE(LOGVAL(id));
@@ -462,13 +440,7 @@ static void copy_vprof_values(const name2value_t& n2v, const std::string& id, st
     values_out.clear();
     return;
   }
-
-  Values_cp values = itN->second;
-  Values::ShapeIndex idx(values->shape());
-  for (int i=0; i<values->shape().length(0); ++i) {
-    idx.set(0, i);
-    values_out.push_back(values->value(idx));
-  }
+  copy_vprof_values(itN->second, values_out);
 }
 
 VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
@@ -485,6 +457,11 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
   if (iPos == numPos || iTime == numTime)
     return 0;
+
+  if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get() and vProfPlot->text.modelName == modelName) {
+    METLIBS_LOG_DEBUG("returning cached VProfPlot");
+    return new VprofPlot(*vProfPlot);
+  }
 
   std::auto_ptr<VprofPlot> vp(new VprofPlot());
   vp->text.index = -1;
@@ -505,13 +482,21 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
     const LonLat pos = LonLat::fromDegrees(posLongitude[iPos],posLatitude[iPos]);
     const Time user_time(util::from_miTime(time));
+    // This replaces the current dynamic crossection, if present.
+    // TODO: Should be tested when more than one time step is available.
+    if (!stationsFileName.empty()) {
+      collector->getResolver()->addDynamicPointValue(modelName, posName[iPos], pos);
+    }
 
     FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, VP_AIR_TEMPERATURE));
     if (not air_temperature)
       return 0;
+    ZAxisData_cp zaxis = air_temperature->zaxis();
+    if (!zaxis)
+      return 0;
 
-    InventoryBase_cp zaxis = air_temperature->zaxis();
-    collector->requireField(modelName, zaxis);
+    collector->requireVertical(Z_TYPE_PRESSURE);
+
     model_values_m model_values;
     try {
       model_values = vc_fetch_pointValues(collector, pos, user_time);
@@ -524,19 +509,22 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     }
 
     model_values_m::iterator itM = model_values.find(modelName);
-    if ( itM == model_values.end() )
+    if (itM == model_values.end())
       return 0;
     name2value_t& n2v = itM->second;
 
-    Values_cp zvalues = vc_evaluate_field(zaxis, n2v);
-    if (not zvalues)
-      return 0;
-    n2v[VC_PRESSURE] = zvalues;
-
     vc_evaluate_fields(collector, model_values, modelName, fields);
 
+    Values_cp z_values;
+    if (util::unitsConvertible(zaxis->unit(), "hPa"))
+      z_values = vc_evaluate_field(zaxis, n2v);
+    else if (InventoryBase_cp pfield = zaxis->pressureField())
+      z_values = vc_evaluate_field(pfield, n2v);
+    if (not z_values)
+      return 0;
+    copy_vprof_values(z_values, vp->ptt);
+
     copy_vprof_values(n2v, VP_AIR_TEMPERATURE, vp->tt);
-    copy_vprof_values(n2v, VC_PRESSURE, vp->ptt);
     copy_vprof_values(n2v, VP_DEW_POINT_TEMPERATURE, vp->td);
     copy_vprof_values(n2v, VP_X_WIND, vp->uu);
     copy_vprof_values(n2v, VP_Y_WIND, vp->vv);
@@ -547,44 +535,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     numLevel = vp->ptt.size();
     vp->maxLevels= numLevel;
 
-  } else if (readFromField) {
-
-    if (name == vProfPlotName and time == vProfPlotTime and vProfPlot.get()) {
-      METLIBS_LOG_DEBUG("returning cached VProfPlot");
-
-      vp->ptt = vProfPlot->ptt;
-      vp->tt  = vProfPlot->tt;
-      vp->ptd = vProfPlot->ptd;
-      vp->td  = vProfPlot->td;
-      vp->puv = vProfPlot->puv;
-      vp->uu  = vProfPlot->uu;
-      vp->vv  = vProfPlot->vv;
-      vp->om  = vProfPlot->om;
-      vp->pom = vProfPlot->pom;
-
-    } else {
-      if (not fieldManager->makeVProf(modelName, validTime[iTime],
-              posLatitude[iPos], posLongitude[iPos], vp->tt, vp->ptt, vp->td,
-              vp->ptd, vp->uu, vp->vv, vp->puv, vp->om, vp->pom))
-        return 0;
-
-      numLevel = vp->tt.size();
-      vp->maxLevels = numLevel;
-
-      vProfPlotTime = time;
-      vProfPlotName = name;
-
-      vProfPlot.reset(new VprofPlot());
-      vProfPlot->ptt = vp->ptt;
-      vProfPlot->tt  = vp->tt;
-      vProfPlot->ptd = vp->ptd;
-      vProfPlot->td  = vp->td;
-      vProfPlot->puv = vp->puv;
-      vProfPlot->uu  = vp->uu;
-      vProfPlot->vv  = vp->vv;
-      vProfPlot->om  = vp->om;
-      vProfPlot->pom = vp->pom;
-    }
 
   } else {
     for (int n = 0; n < numParam; n++) {
@@ -647,5 +597,10 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     vp->sigwind[kmax] = 3;
   }
 
+  vProfPlotTime = time;
+  vProfPlotName = name;
+  vProfPlot.reset(new VprofPlot(*vp));
+  METLIBS_LOG_DEBUG("returning new VProfPlot");
   return vp.release();
+  // end !cached VprofPlot
 }

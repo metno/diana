@@ -44,21 +44,22 @@ class Symbol : public EditItemBase, public DrawingItem_Symbol::Symbol
   friend class SetGeometryCommand;
 
 public:
-  Symbol();
+  Symbol(int = -1);
   virtual ~Symbol();
 
 protected:
   virtual void draw();
+  virtual void drawHoverHighlightingBG(bool, bool) const;
   virtual void drawHoverHighlighting(bool, bool) const;
 
 private:
-  virtual DrawingItemBase *cloneSpecial() const;
+  virtual DrawingItemBase *cloneSpecial(bool) const;
 
   virtual bool hit(const QPointF &, bool) const;
   virtual bool hit(const QRectF &) const;
 
-  virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
-  virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands);
+  virtual void mousePress(QMouseEvent *, bool &, bool *);
+  virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded);
 
   virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
   virtual void incompleteKeyPress(QKeyEvent *, bool &, bool &, bool &);
@@ -68,8 +69,6 @@ private:
   virtual void resize(const QPointF &);
   virtual void updateControlPoints();
   virtual void setPoints(const QList<QPointF> &);
-
-  void remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems);
 };
 
 } // namespace EditItem_Symbol

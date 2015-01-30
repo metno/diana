@@ -45,7 +45,7 @@ public:
     Horizontal, Vertical, Diagonal
   };
 
-  Composite();
+  Composite(int = -1);
   virtual ~Composite();
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual QDomNode toKML(const QHash<QString, QString> & = QHash<QString, QString>()) const;

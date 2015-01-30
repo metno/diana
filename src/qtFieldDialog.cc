@@ -114,7 +114,7 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
 
   // get all field plot options from setup file
   vector<std::string> fieldNames;
-  m_ctrl->getAllFieldNames(fieldNames, fieldPrefixes, fieldSuffixes);
+  m_ctrl->getAllFieldNames(fieldNames);
   { std::map<std::string, std::string> sfu;
   PlotOptions::getAllFieldOptions(std::vector<std::string>(fieldNames.begin(), fieldNames.end()), sfu);
   setupFieldOptions = std::map<std::string, std::string>(sfu.begin(), sfu.end()); }
@@ -247,10 +247,6 @@ FieldDialog::FieldDialog(QWidget* parent, Controller* lctrl)
   cp->addKey("repeat", "", 0, CommandParser::cmdInt);
   cp->addKey("alpha", "", 0, CommandParser::cmdInt);
   cp->addKey("overlay", "", 0, CommandParser::cmdInt);
-
-  // yet only from "external" (QuickMenu) commands
-  cp->addKey("forecast.hour", "", 2, CommandParser::cmdInt);
-  cp->addKey("forecast.hour.loop", "", 2, CommandParser::cmdInt);
 
   cp->addKey("allTimeSteps", "", 3, CommandParser::cmdString);
   cp->addKey("dim", "", 1, CommandParser::cmdInt);
@@ -1456,40 +1452,41 @@ vector<string> FieldDialog::changeLevel(int increment, int type)
     int m = vlevels.size();
     int current = 0;
     while (current < m && vlevels[current] != level) current++;
-    if (current < m) {
-      level_incremented = vlevels[current + increment];
-    }
+    int new_index = current + increment;
+    if (new_index < m && new_index > -1) {
+      level_incremented = vlevels[new_index];
 
-    //loop through all plots to see if is possible to
+      //loop through all plots to see if it is possible to plot:
 
-    if ( type == 0 ) { //vertical levels
-      for (int j = 0; j < n; j++) {
-        if (selectedFields[j].levelmove && selectedFields[j].level == level) {
-          selectedFields[j].level = level_incremented;
-          //update dialog
-          if(j==selectedFieldbox->currentRow()){
-            levelSlider->blockSignals(true);
-            levelSlider->setValue(current + increment);
-            levelSlider->blockSignals(false);
-            levelChanged(current + increment);
+      if ( type == 0 ) { //vertical levels
+        for (int j = 0; j < n; j++) {
+          if (selectedFields[j].levelmove && selectedFields[j].level == level) {
+            selectedFields[j].level = level_incremented;
+            //update dialog
+            if(j==selectedFieldbox->currentRow()){
+              levelSlider->blockSignals(true);
+              levelSlider->setValue(new_index);
+              levelSlider->blockSignals(false);
+              levelChanged(new_index);
+            }
+          } else {
+            selectedFields[j].levelmove = false;
           }
-        } else {
-          selectedFields[j].levelmove = false;
         }
-      }
-    } else { // extra levels
-      for (int j = 0; j < n; j++) {
-        if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
-          selectedFields[j].idnum = level_incremented;
-          //update dialog
-          if(j==selectedFieldbox->currentRow()){
-            idnumSlider->blockSignals(true);
-            idnumSlider->setValue(current + increment);
-            idnumSlider->blockSignals(false);
-            idnumChanged(current + increment);
+      } else { // extra levels
+        for (int j = 0; j < n; j++) {
+          if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
+            selectedFields[j].idnum = level_incremented;
+            //update dialog
+            if(j==selectedFieldbox->currentRow()){
+              idnumSlider->blockSignals(true);
+              idnumSlider->setValue(new_index);
+              idnumSlider->blockSignals(false);
+              idnumChanged(new_index);
+            }
+          } else {
+            selectedFields[j].idnummove = false;
           }
-        } else {
-          selectedFields[j].idnummove = false;
         }
       }
     }
@@ -1613,7 +1610,6 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
       SelectedField sf;
       sf.inEdit = false;
       sf.external = false;
-      sf.forecastSpec = false;
       sf.indexMGR = indexMGR;
       sf.indexM = indexM;
       sf.modelName = vfgi[indexFGR].modelName;
@@ -3125,15 +3121,13 @@ void FieldDialog::updateFieldOptions(const std::string& name,
   }
 }
 
-void FieldDialog::getFieldGroups(const std::string& model, const std::string& refTime, int& indexMGR,
+void FieldDialog::getFieldGroups(const std::string& modelName, const std::string& refTime, int& indexMGR,
     int& indexM, bool plotOptions, vector<FieldGroupInfo>& vfg)
 {
 
-  std::string modelName;
 
   {  diutil::OverrideCursor waitCursor;
-    m_ctrl->getFieldGroups(model, modelName, refTime, plotOptions, vfg);
-    modelName = model;
+    m_ctrl->getFieldGroups(modelName, refTime, plotOptions, vfg);
   }
 
   if (indexMGR >= 0 && indexM >= 0) {
@@ -3154,7 +3148,6 @@ void FieldDialog::getFieldGroups(const std::string& model, const std::string& re
     while (indexMGR < ng && indexM < 0) {
       n = m_modelgroup[indexMGR].modelNames.size();
       i = 0;
-      modelName = modelName;
       while (i < n && modelName != m_modelgroup[indexMGR].modelNames[i]) {
 
         //        cout << " getFieldGroups, checking group:" << indexMGR << " model:"
@@ -3686,8 +3679,6 @@ bool FieldDialog::decodeString_cdmSyntax( const std::string& fieldString, Select
       if (!sf.fieldOpts.empty())
         sf.fieldOpts += " ";
       sf.fieldOpts += (vpc[j].key + "=" + vpc[j].allValue);
-      if (vpc[j].idNumber == 2)
-        sf.forecastSpec = true;
     }
   }
 
@@ -3758,7 +3749,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
   std::string vfg2_model, model, field, level, idnum, fOpts;
   int hourOffset, hourDiff;
   int indexMGR, indexM, indexFGR, indexF;
-  bool forecastSpec;
 
   vector<ParsedCommand> vpc;
 
@@ -3771,7 +3761,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
   fOpts.clear();
   hourOffset = 0;
   hourDiff = 0;
-  forecastSpec = false;
 
   //######################################################################
   //    for (int j = 0; j < vpc.size(); j++) {
@@ -3799,8 +3788,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
           if (!fOpts.empty())
             fOpts += " ";
           fOpts += (vpc[j].key + "=" + vpc[j].allValue);
-          if (vpc[j].idNumber == 2)
-            forecastSpec = true;
         }
       }
     }
@@ -3893,7 +3880,6 @@ bool FieldDialog::decodeString_oldSyntax( const std::string& fieldString, Select
 
   if (indexFGR >= 0 && indexF >= 0) {
     sf.inEdit = false;
-    sf.forecastSpec = forecastSpec; // only if external
     sf.indexMGR = indexMGR;
     sf.indexM = indexM;
     sf.modelName = vfg2[indexFGR].modelName;
@@ -4169,12 +4155,6 @@ std::string FieldDialog::checkFieldOptions(const std::string& str, bool cdmSynta
 
       newstr += " ";
       newstr += cp->unParse(vpopt);
-      // from quickmenu, keep "forecast.hour=..." and "forecast.hour.loop=..."
-      for (int i = 2; i < nlog; i++) {
-        if (vplog[i].idNumber == 2 || vplog[i].idNumber == 3) {
-          newstr += (" " + vplog[i].key + "=" + vplog[i].allValue);
-        }
-      }
     }
   }
 
@@ -4606,36 +4586,6 @@ std::string FieldDialog::getFieldOptions(
   if (pfopt != setupFieldOptions.end())
     return pfopt->second;
 
-  // test known suffixes and prefixes to the original name.
-
-  map<std::string, std::string>::const_iterator pfend =
-      setupFieldOptions.end();
-
-  set<std::string>::const_iterator ps;
-  size_t l, lname = fieldname.length();
-
-  ps = fieldSuffixes.begin();
-
-  while (pfopt == pfend && ps != fieldSuffixes.end()) {
-    if ((l = (*ps).length()) < lname && fieldname.substr(lname - l) == (*ps))
-      pfopt = setupFieldOptions.find(fieldname.substr(0, lname - l));
-    ps++;
-  }
-
-  if (pfopt != pfend)
-    return pfopt->second;
-
-  ps = fieldPrefixes.begin();
-
-  while (pfopt == pfend && ps != fieldPrefixes.end()) {
-    if ((l = (*ps).length()) < lname && fieldname.substr(0, l) == (*ps))
-      pfopt = setupFieldOptions.find(fieldname.substr(l));
-    ps++;
-  }
-
-  if (pfopt != pfend)
-    return pfopt->second;
-
   //default
   PlotOptions po;
   return po.toString();
@@ -4696,27 +4646,12 @@ void FieldDialog::updateTime()
         request[nr].plevel = selectedFields[i].level;
         request[nr].elevel = selectedFields[i].idnum;
         request[nr].hourOffset = selectedFields[i].hourOffset;
-        request[nr].forecastSpec = 0;
         request[nr].refTime = selectedFields[i].refTime;
         request[nr].zaxis = selectedFields[i].zaxis;
         request[nr].eaxis = selectedFields[i].extraaxis;
         request[nr].grid = selectedFields[i].grid;
         request[nr].plotDefinition = selectedFields[i].plotDefinition;
         request[nr].allTimeSteps = allTimeStepButton->isChecked();
-        if (selectedFields[i].forecastSpec) {
-          vector<ParsedCommand> vpc = cp->parse(selectedFields[i].fieldOpts);
-          int nvpc = vpc.size();
-          int j = 0;
-          while (j < nvpc && vpc[j].idNumber != 2)
-            j++;
-          if (j < nvpc) {
-            if (vpc[j].key == "forecast.hour")
-              request[nr].forecastSpec = 1;
-            else if (vpc[j].key == "forecast.hour.loop")
-              request[nr].forecastSpec = 2;
-            request[nr].forecast = vpc[j].intValue;
-          }
-        }
         nr++;
       }
     }

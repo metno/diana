@@ -101,7 +101,7 @@ void Linetype::init()
 
 // static
 void Linetype::define(const std::string& _name,
-		      short int _bmap, int _factor)
+    short unsigned int _bmap, int _factor)
 {
   std::string ltname= miutil::to_lower(_name);
   Linetype lt;

@@ -139,7 +139,7 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
         if (kv.value() != "fimex")
           filetype = kv.value();
         else
-          METLIBS_LOG_INFO("ignoring filetype t=fimex, it is not valid for vertical cross-sections");
+          METLIBS_LOG_INFO("ignoring filetype t!=fimex, it is not valid for vertical cross-sections");
       } else if (kv.key() == "t" or kv.key() == "format")
         filetype = kv.value();
       else if (kv.key() == "c" or kv.key() == "config")
@@ -261,87 +261,84 @@ ConfiguredPlot_cp Setup::findPlot(const std::string& name) const
   return ConfiguredPlot_cp();
 }
 
-std::map<std::string,std::string> Setup::getAllPlotOptions()
+std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
 {
   METLIBS_LOG_SCOPE();
 
-  std::map<std::string,std::string> plotopts;
+  if (!cp)
+    return std::string();
 
-  BOOST_FOREACH(vcross::ConfiguredPlot_cp cp, mPlots) {
-    PlotOptions po;
-    std::string op_c = boost::algorithm::join(cp->options, " ");
+  PlotOptions po;
+  std::string op_c = boost::algorithm::join(cp->options, " ");
 
-    PlotOptions::parsePlotOption(op_c, po);
+  PlotOptions::parsePlotOption(op_c, po);
+  
+  if (po.linetype.name.length() == 0)
+    po.linetype = Linetype::getDefaultLinetype();
+  if (po.undefLinetype.name.length() == 0)
+    po.undefLinetype = Linetype::getDefaultLinetype();
 
-    if (po.linetype.name.length() == 0)
-      po.linetype = Linetype::getDefaultLinetype();
-    if (po.undefLinetype.name.length() == 0)
-      po.undefLinetype = Linetype::getDefaultLinetype();
-
-    std::ostringstream ostr;
-
-    if (cp->type == ConfiguredPlot::T_CONTOUR) {
-      bool usebase = false;
-      if (po.colours.size() < 2 || po.colours.size() > 3) {
-        ostr << "colour=" << po.linecolour.Name();
-      } else {
-        ostr << "colours=" << po.colours[0].Name();
-        for (unsigned int j = 1; j < po.colours.size(); j++)
-          ostr << "," << po.colours[j].Name();
-        usebase = true;
-      }
-      if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
-        ostr << " linetype=" << po.linetype.name;
-      } else {
-        ostr << " linetypes=" << po.linetypes[0].name;
-        for (unsigned int j = 1; j < po.linetypes.size(); j++)
-          ostr << "," << po.linetypes[j].name;
-        usebase = true;
-      }
-      if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
-        ostr << " linewidth=" << po.linewidth;
-      } else {
-        ostr << " linewidths=" << po.linewidths[0];
-        for (unsigned int j = 1; j < po.linewidths.size(); j++)
-          ostr << "," << po.linewidths[j];
-        usebase = true;
-      }
-      if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
-        ostr << " line.interval=" << po.lineinterval;
-        if (po.zeroLine >= 0)
-          ostr << " zero.line=" << po.zeroLine;
-      }
-      ostr << " line.smooth=" << po.lineSmooth << " value.label="
-          << po.valueLabel << " label.size=" << po.labelSize;
-      ostr << " base=" << po.base;
-      if (po.minvalue > -1.e+35)
-        ostr << " minvalue=" << po.minvalue;
-      else
-        ostr << " minvalue=off";
-      if (po.maxvalue < 1.e+35)
-        ostr << " maxvalue=" << po.maxvalue;
-      else
-        ostr << " maxvalue=off";
-
-      ostr << " palettecolours=" << po.palettename;
-      ostr << " table=" << po.table;
-      ostr << " repeat=" << po.repeat;
-
-    } else if (cp->type == ConfiguredPlot::T_WIND) {
-      ostr << "colour=" << po.linecolour.Name() << " linewidth="
-          << po.linewidth << " density=" << po.density;
-    } else if (cp->type == ConfiguredPlot::T_VECTOR) {
-      ostr << "colour=" << po.linecolour.Name() << " linewidth="
-          << po.linewidth << " density=" << po.density << " vector.unit="
-          << po.vectorunit;
-    } else {
+  std::ostringstream ostr;
+  
+  if (cp->type == ConfiguredPlot::T_CONTOUR) {
+    bool usebase = false;
+    if (po.colours.size() < 2 || po.colours.size() > 3) {
       ostr << "colour=" << po.linecolour.Name();
+    } else {
+      ostr << "colours=" << po.colours[0].Name();
+      for (unsigned int j = 1; j < po.colours.size(); j++)
+        ostr << "," << po.colours[j].Name();
+      usebase = true;
     }
+  if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
+      ostr << " linetype=" << po.linetype.name;
+    } else {
+      ostr << " linetypes=" << po.linetypes[0].name;
+      for (unsigned int j = 1; j < po.linetypes.size(); j++)
+        ostr << "," << po.linetypes[j].name;
+      usebase = true;
+    }
+    if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
+      ostr << " linewidth=" << po.linewidth;
+    } else {
+      ostr << " linewidths=" << po.linewidths[0];
+      for (unsigned int j = 1; j < po.linewidths.size(); j++)
+        ostr << "," << po.linewidths[j];
+      usebase = true;
+    }
+    if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
+      ostr << " line.interval=" << po.lineinterval;
+      if (po.zeroLine >= 0)
+        ostr << " zero.line=" << po.zeroLine;
+    }
+    ostr << " line.smooth=" << po.lineSmooth << " value.label="
+        << po.valueLabel << " label.size=" << po.labelSize;
+    ostr << " base=" << po.base;
+    if (po.minvalue > -1.e+35)
+      ostr << " minvalue=" << po.minvalue;
+    else
+      ostr << " minvalue=off";
+    if (po.maxvalue < 1.e+35)
+      ostr << " maxvalue=" << po.maxvalue;
+    else
+      ostr << " maxvalue=off";
 
-    plotopts[cp->name] = ostr.str();
+    ostr << " palettecolours=" << po.palettename;
+    ostr << " table=" << po.table;
+    ostr << " repeat=" << po.repeat;
+
+  } else if (cp->type == ConfiguredPlot::T_WIND) {
+    ostr << "colour=" << po.linecolour.Name() << " linewidth="
+        << po.linewidth << " density=" << po.density;
+  } else if (cp->type == ConfiguredPlot::T_VECTOR) {
+    ostr << "colour=" << po.linecolour.Name() << " linewidth="
+        << po.linewidth << " density=" << po.density << " vector.unit="
+        << po.vectorunit;
+  } else {
+    ostr << "colour=" << po.linecolour.Name();
   }
 
-  return plotopts;
+  return ostr.str();
 }
 
 const Setup::string_string_m& Setup::getModelOptions(const std::string& name) const

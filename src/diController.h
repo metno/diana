@@ -157,7 +157,6 @@ public:
   void getPlotTimes(std::map<std::string, std::vector<miutil::miTime> >& times, bool updateSources=false);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes,
-      std::set<miutil::miTime>& constTimes,
       const std::vector<std::string>& pinfos,
       bool allTimes=true,
       bool updateSources=false);
@@ -302,14 +301,11 @@ public:
   ///return the reference time given by refOffset and refhour or the last reference time for the given model
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour);
   /// return plot options for all defined plot fields in setup
-  void getAllFieldNames(std::vector<std::string>& fieldNames,
-      std::set<std::string>& fieldprefixes,
-      std::set<std::string>& fieldsuffixes);
+  void getAllFieldNames(std::vector<std::string>& fieldNames);
   ///return levels
   std::vector<std::string> getFieldLevels(const std::string& pinfo);
   /// return FieldGroupInfo for one model to FieldDialog
-  void getFieldGroups(const std::string& modelNameRequest,
-      std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
+  void getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, std::vector<FieldGroupInfo>& vfgi);
   /// Returns available times for the requested fields.
   std::vector<miutil::miTime> getFieldTime(std::vector<FieldRequest>& request);
   ///update list of fieldsources (field files)

@@ -53,13 +53,20 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include "edit.xpm"
+#include "movedown.xpm"
+#include "moveup.xpm"
+#include "visible.xpm"
+#include "unsavedchanges.xpm"
+
 namespace EditItems {
 
 LayerWidget::LayerWidget(
-    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, QWidget *parent)
+    LayerManager *layerManager, const QSharedPointer<Layer> &layer, bool showInfo, bool addVisibleLabel, QWidget *parent)
   : QWidget(parent)
   , layerMgr_(layerManager)
   , layer_(layer)
+  , visibleLabel_(0)
 {
   setContentsMargins(0, 0, 0, 0);
 
@@ -68,12 +75,14 @@ LayerWidget::LayerWidget(
   mainLayout->setMargin(0);
   mainLayout->setSpacing(0);
 
-  visibleLabel_ = new CheckableLabel(
-    layer_ ? layer_->isVisible() : false, QPixmap(visible_xpm), "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
-  if (layer_)
-    connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
-  connect(visibleLabel_, SIGNAL(checked(bool)), SLOT(handleVisibilityChanged(bool)));
-  mainLayout->addWidget(visibleLabel_);
+  if (addVisibleLabel) {
+    visibleLabel_ = new CheckableLabel(
+          layer_ ? layer_->isVisible() : false, QPixmap(visible_xpm), "the layer is visible\n(click to make it invisible)", "the layer is invisible\n(click to make it visible)");
+    if (layer_)
+      connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
+    connect(visibleLabel_, SIGNAL(checked(bool)), SLOT(handleVisibilityChanged(bool)));
+    mainLayout->addWidget(visibleLabel_);
+  }
 
   static int nn = 0;
   unsavedChangesLabel_ = new CheckableLabel(
@@ -99,7 +108,8 @@ LayerWidget::LayerWidget(
 
 LayerWidget::~LayerWidget()
 {
-  delete visibleLabel_;
+  if (visibleLabel_)
+    delete visibleLabel_;
   delete unsavedChangesLabel_;
   delete nameLabel_;
   delete infoLabel_;
@@ -129,7 +139,8 @@ bool LayerWidget::isLayerVisible() const
 
 void LayerWidget::setLayerVisible(bool visible)
 {
-  visibleLabel_->setChecked(visible);
+  if (visibleLabel_)
+    visibleLabel_->setChecked(visible);
   layer_->setVisible(visible);
 }
 
@@ -146,7 +157,8 @@ void LayerWidget::setUnsavedChanges(bool unsavedChanges)
 void LayerWidget::setSelected(bool selected)
 {
   const QString ssheet(selected ? "QLabel { background-color : #f27b4b; color : black; }" : "");
-  visibleLabel_->setStyleSheet(ssheet);
+  if (visibleLabel_)
+    visibleLabel_->setStyleSheet(ssheet);
   unsavedChangesLabel_->setStyleSheet(ssheet);
   nameLabel_->setStyleSheet(ssheet);
   infoLabel_->setStyleSheet(ssheet);
@@ -181,8 +193,10 @@ void LayerWidget::setState(const QSharedPointer<Layer> &layer)
 {
   Q_ASSERT(layer);
   layer_ = layer;
-  visibleLabel_->setChecked(layer->isVisible());
-  connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
+  if (visibleLabel_) {
+    visibleLabel_->setChecked(layer->isVisible());
+    connect(layer_.data(), SIGNAL(visibilityChanged(bool)), visibleLabel_, SLOT(checkAndNotify(bool)), Qt::UniqueConnection);
+  }
   unsavedChangesLabel_->setChecked(layer->hasUnsavedChanges());
   nameLabel_->setText(layer->name());
   setSelected(layer->isSelected());
@@ -227,7 +241,7 @@ void LayerWidget::handleVisibilityChanged(bool visible)
   emit visibilityChanged(layer_, visible);
 }
 
-LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title, bool undoEnabled, bool multiSelectable)
+LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QString &title, bool visibleLabelsEnabled, bool undoEnabled, bool multiSelectable)
   : showAllButton_(0)
   , hideAllButton_(0)
   , moveUpButton_(0)
@@ -235,6 +249,7 @@ LayersPaneBase::LayersPaneBase(EditItems::LayerManager *layerManager, const QStr
   , editButton_(0)
   , importFilesButton_(0)
   , showInfo_(false)
+  , visibleLabelsEnabled_(visibleLabelsEnabled)
   , layerMgr_(layerManager)
   , undoEnabled_(undoEnabled)
   , visibleLayerWidget_(0)
@@ -540,11 +555,6 @@ LayerWidget *LayersPaneBase::widgetFromLayer(const QSharedPointer<Layer> &layer)
   return 0;
 }
 
-QString LayersPaneBase::saveVisible(const QString &fileName) const
-{
-  return saveLayers(layers(visibleWidgets()), fileName);
-}
-
 QString LayersPaneBase::saveSelected(const QString &fileName) const
 {
   return saveLayers(layers(selectedWidgets()), fileName);
@@ -745,8 +755,10 @@ void LayersPaneBase::updateButtons()
   getLayerCounts(allCount, selectedCount, visibleCount, removableCount);
   const QList<int> selPos = selectedPos();
 
-  showAllButton_->setEnabled(visibleCount < allCount);
-  hideAllButton_->setEnabled(visibleCount > 0);
+  if (showAllButton_ && hideAllButton_) {
+    showAllButton_->setEnabled(visibleCount < allCount);
+    hideAllButton_->setEnabled(visibleCount > 0);
+  }
   moveUpButton_->setEnabled((selPos.size() == 1) && (selPos.first() > 0));
   moveDownButton_->setEnabled((selPos.size() == 1) && (selPos.first() < (allCount - 1)));
   editButton_->setEnabled((selPos.size() == 1) && atPos(selPos.first())->isAttrsEditable());
@@ -774,7 +786,7 @@ void LayersPaneBase::updateWidgetStructure()
     delete lw;
   }
   for (int i = 0; i < activeLayers.size(); ++i) {
-    LayerWidget *lw = new LayerWidget(layerMgr_, QSharedPointer<Layer>(), showInfo_);
+    LayerWidget *lw = new LayerWidget(layerMgr_, QSharedPointer<Layer>(), showInfo_, visibleLabelsEnabled_);
     layout_->insertWidget(0, lw);
   }
 

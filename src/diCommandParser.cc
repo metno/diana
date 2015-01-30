@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#include <diCommandParser.h>
+#include "diCommandParser.h"
 
 #include <puTools/miStringFunctions.h>
 

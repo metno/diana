@@ -39,6 +39,11 @@ EditItemBase::EditItemBase()
   , resizing_(false)
 {}
 
+QPointF EditItemBase::hoverPos() const
+{
+  return hoverPos_;
+}
+
 void EditItemBase::init()
 {
   moving_ = false;
@@ -100,45 +105,64 @@ void EditItemBase::move(const QPointF &pos)
   Q_ASSERT(basePoints_.size() == Drawing(this)->points_.size());
   for (int i = 0; i < Drawing(this)->points_.size(); ++i)
     Drawing(this)->points_[i] = basePoints_.at(i) + delta;
-  updateControlPoints();
 }
 
-void EditItemBase::drawControlPoints(bool selected) const
+// Moves the point at index \a i to the new position \a pos.
+void EditItemBase::movePointTo(int i, const QPointF &pos)
+{
+  Q_ASSERT(i >= 0);
+  Q_ASSERT(i < Drawing(this)->points_.size());
+  Drawing(this)->points_[i] = pos;
+  Drawing(this)->setLatLonPoints(DrawingManager::instance()->getLatLonPoints(*(Drawing(this))));
+}
+
+static void drawRect(const QRectF &r, int pad, int z = 1)
+{
+  glBegin(GL_POLYGON);
+  glVertex3i(r.left() - pad,  r.bottom() + pad, z);
+  glVertex3i(r.right() + pad, r.bottom() + pad, z);
+  glVertex3i(r.right() + pad, r.top() - pad,    z);
+  glVertex3i(r.left() - pad,  r.top() - pad,    z);
+  glEnd();
+}
+
+static bool isJoinedEndPoint(int joinCount, int joinId, int i, int n)
+{
+  return (joinCount > 1) && (((joinId < 0) && (i == 0)) || ((joinId > 0) && (i == (n - 1))));
+}
+
+void EditItemBase::drawControlPoints(const QColor &color, const QColor &joinColor, int pad) const
 {
   glPushAttrib(GL_POLYGON_BIT);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-  if (selected)
-    glColor3ub(0, 0, 0);
-  else
-    glColor3ub(255, 0, 0);
 
-  foreach (QRectF c, controlPoints_) {
-    glBegin(GL_POLYGON);
-    glVertex3i(c.left(),  c.bottom(), 1);
-    glVertex3i(c.right(), c.bottom(), 1);
-    glVertex3i(c.right(), c.top(),    1);
-    glVertex3i(c.left(),  c.top(),    1);
-    glEnd();
+  const int jId = ConstDrawing(this)->joinId();
+  const int jCount = ConstDrawing(this)->joinCount();
+  const int n = controlPoints_.size();
+  for (int i = 0; i < n; ++i) {
+    int extraPad = 0;
+    if (isJoinedEndPoint(jCount, jId, i, n)) {
+      glColor4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
+      extraPad = 1;
+    } else {
+      glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
+    }
+    drawRect(controlPoints_.at(i), pad + extraPad);
   }
 
   glPopAttrib();
 }
 
-// Highlight the hovered control point.
-void EditItemBase::drawHoveredControlPoint() const
+void EditItemBase::drawHoveredControlPoint(const QColor &color, int pad) const
 {
   Q_ASSERT(hoverCtrlPointIndex_ >= 0);
-  const QRectF *r = &controlPoints_.at(hoverCtrlPointIndex_);
-  glPushAttrib(GL_LINE_BIT);
-  glLineWidth(2);
-  const int pad = 1;
-  glBegin(GL_LINE_LOOP);
-  glVertex3i(r->left() - pad,  r->bottom() + pad, 1);
-  glVertex3i(r->right() + pad, r->bottom() + pad, 1);
-  glVertex3i(r->right() + pad, r->top() - pad, 1);
-  glVertex3i(r->left() - pad,  r->top() - pad, 1);
-  glEnd();
+  glPushAttrib(GL_POLYGON_BIT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glColor4ub(color.red(), color.green(), color.blue(), color.alpha());
+  drawRect(
+        controlPoints_.at(hoverCtrlPointIndex_),
+        pad + (isJoinedEndPoint(ConstDrawing(this)->joinCount(), ConstDrawing(this)->joinId(), hoverCtrlPointIndex_, controlPoints_.size()) ? 1 : 0));
   glPopAttrib();
 }
 
@@ -150,22 +174,22 @@ void EditItemBase::drawHoveredControlPoint() const
  */
 void EditItemBase::draw(DrawModes modes, bool incomplete, bool editingStyle)
 {
+  // NOTE: if we're editing the style, highlighting and control points would only be in the way
+
+  if ((!editingStyle) && (modes & Hovered))
+    drawHoverHighlightingBG(incomplete, modes & Selected);
+
   Drawing(this)->draw();
 
   if (incomplete)
     drawIncomplete();
 
-  // if we're editing the style, highlighting and control points would only be in the way
-  if (editingStyle)
-    return;
-
-  // draw highlighting if hovered
-  if (modes & Hovered)
-    drawHoverHighlighting(incomplete, modes & Selected);
-
-  // draw control points and hover highlighting if selected
-  if (modes & Selected)
-    drawControlPoints();
+  if (!editingStyle) {
+    if (modes & Hovered)
+      drawHoverHighlighting(incomplete, modes & Selected);
+    if (modes & Selected)
+      drawControlPoints();
+  }
 }
 
 /**
@@ -184,31 +208,13 @@ void EditItemBase::draw()
  * \a repaintNeeded is set to true iff the scene needs to be repainted (typically if the item
  * modified it's state in a way that is reflected visually).
  *
- * Undo-commands representing the effect of this event should be inserted into \a undoCommands.
- * NOTE: commands must not be removed from this container (it may contain commands from other
- * items as well).
- *
- * \a items is, if non-null, a set of items that may potentially be operated on by the event
- * (always including this item).
- * Items may be inserted into or removed from this container to reflect how items were inserted or
- * removed as a result of the operation.
- * NOTE: While new items may be created (with the new operator), existing items must never be
- * deleted (using the delete operator) while in this function. This will be done from the outside.
- *
- * \a selItems is, if non-null, the subset of currently selected items.
- *
  * \a multiItemOp is, if non-null, set to true iff the event starts an operation that may involve
  * other items (such as a move operation).
  */
-void EditItemBase::mousePress(
-    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
+void EditItemBase::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   Q_UNUSED(event)
   Q_UNUSED(repaintNeeded)
-  Q_UNUSED(undoCommands)
-  Q_UNUSED(items)
-  Q_UNUSED(selItems)
   Q_UNUSED(multiItemOp)
 }
 
@@ -231,14 +237,10 @@ void EditItemBase::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded,
   Q_UNUSED(aborted)
 }
 
-void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+void EditItemBase::mouseRelease(QMouseEvent *event, bool &repaintNeeded)
 {
   Q_UNUSED(event);
   Q_UNUSED(repaintNeeded); // no need to set this
-  Q_ASSERT(undoCommands);
-  DrawingItemBase *ditem = dynamic_cast<DrawingItemBase *>(this);
-  if ((moving_ || resizing_) && (ditem->getPoints() != getBasePoints()))
-    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
   moving_ = resizing_ = false;
 }
 
@@ -265,37 +267,36 @@ void EditItemBase::mouseDoubleClick(QMouseEvent *event, bool &repaintNeeded)
   Q_UNUSED(repaintNeeded)
 }
 
-void EditItemBase::keyPress(
-    QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
+void EditItemBase::nudge(QKeyEvent *event, bool &repaintNeeded)
 {
-  if (items && ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete))) {
-    QSet<QSharedPointer<DrawingItemBase> >::iterator it = items->begin();
-    while (it != items->end()) {
-      if ((*it).data() == Drawing(this)) {
-        it = items->erase(it);
-        event->accept();
-      } else {
-        ++it;
-      }
-    }
+  QPointF pos;
+  const qreal nudgeVal = 1; // nudge item by this much
+  if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
+  else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
+  else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
+  else pos += QPointF(0, nudgeVal); // Key_Up
+  moveBy(pos);
+  repaintNeeded = true;
+  event->accept();
+}
+
+void EditItemBase::remove(QKeyEvent *event)
+{
+  if (EditItemManager::instance()->getLayerManager()->removeItem(Drawing(this)))
+    event->accept();
+}
+
+void EditItemBase::keyPress(QKeyEvent *event, bool &repaintNeeded)
+{
+  if ((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)) {
+    remove(event);
   } else if (
              (event->modifiers() & Qt::GroupSwitchModifier) && // "Alt Gr" modifier key
              ((event->key() == Qt::Key_Left)
               || (event->key() == Qt::Key_Right)
               || (event->key() == Qt::Key_Down)
               || (event->key() == Qt::Key_Up))) {
-    QPointF pos;
-    const qreal nudgeVal = 1; // nudge item by this much
-    if (event->key() == Qt::Key_Left) pos += QPointF(-nudgeVal, 0);
-    else if (event->key() == Qt::Key_Right) pos += QPointF(nudgeVal, 0);
-    else if (event->key() == Qt::Key_Down) pos += QPointF(0, -nudgeVal);
-    else pos += QPointF(0, nudgeVal); // Key_Up
-    moveBy(pos);
-    DrawingItemBase *ditem = Drawing(this);
-    undoCommands->append(new SetGeometryCommand(this, getBasePoints(), ditem->getPoints()));
-    repaintNeeded = true;
-    event->accept();
+    nudge(event, repaintNeeded);
   }
 }
 

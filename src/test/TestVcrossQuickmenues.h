@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-
+  
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,49 +21,42 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef QTVCROSSFIELDPAGE_H
-#define QTVCROSSFIELDPAGE_H
+#ifndef TESTVCROSSQUICKMENUS_H
+#define TESTVCROSSQUICKMENUS_H 1
 
-#include <QWizardPage>
+#include <QObject>
+#include <string>
+#include <vector>
 
 namespace vcross {
-class QtManager;
-}
-class QLabel;
-class QLineEdit;
-class QListView;
-class QSortFilterProxyModel;
-class QStringListModel;
-class QWidget;
 
-class VcrossFieldPage : public QWizardPage {
+class VcrossQuickmenues;
+
+namespace test {
+class QuickmenuSlots : public QObject {
   Q_OBJECT;
 
 public:
-  VcrossFieldPage(QWidget* parent=0);
-
-  void initializePage();
-  bool isComplete() const;
-  
-  QStringList selectedFields() const;
+  QuickmenuSlots(VcrossQuickmenues* qm);
+  void reset();
 
 private Q_SLOTS:
-  void onFilterTextChanged(const QString& text);
+  void onQuickmenuesUpdate(const std::string& t, const std::vector<std::string>& qm);
 
-private:
-  void retranslateUI();
+public:
+  typedef std::vector<std::string> string_v;
+  typedef std::vector<string_v> string_vv;
 
-private:
-  QLineEdit* fieldFilter;
-  QListView* fieldList;
-  QStringListModel* fieldNames;
-  QSortFilterProxyModel* fieldSorter;
+  string_v titles;
+  string_vv qmenues;
 };
+} // namespace test
+} // namespace vcross
 
-#endif // QTVCROSSFIELDPAGE_H
+#endif // TESTVCROSSQUICKMENUS_H

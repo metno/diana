@@ -60,7 +60,7 @@ private:
   LayerGroupsPane *layerGroupsPane_;
   DrawingLayersPane *layersPane_; // keeps the active layers
   LayerManager *layerMgr_; // Read/written by DrawingDialog.
-                           // The Apply operation clears the deep-copies the active layers of this->layerMgr_ into DrawingManager::layerMgr_.
+                           // The Apply operation deep-copies the active layers of this->layerMgr_ into DrawingManager::layerMgr_.
 
 private slots:
   virtual void updateTimes();

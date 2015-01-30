@@ -1,5 +1,6 @@
 # $Id$
 
+AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = . test/gtest test
 
 if WITH_BATCH_ONLY
@@ -44,12 +45,14 @@ common_cxx_sources = \
 	diFilledMap.cc \
 	diFontManager.cc \
 	diFtnVfile.cc \
+	diGlUtilities.cc \
 	diImageGallery.cc \
 	diImageIO.cc \
 	diLegendPlot.cc \
 	diLinetype.cc \
 	diLocalSetupParser.cc \
 	diLocationPlot.cc \
+	diLogFile.cc \
 	diMItiff.cc \
 	diMapManager.cc \
 	diMapPlot.cc \
@@ -110,7 +113,7 @@ common_cxx_sources += \
 	vcross_v2/VcrossOptions.cc
 
 common_ldadd += \
-	$(BOOST_REGEX_LIBS)
+	$(BOOST_REGEX_LIBS) $(BOOST_SYSTEM_LIBS)
 
 # Qt sources
 common_qt_sources = diManager.cc \
@@ -122,7 +125,11 @@ common_qt_sources += \
 	vcross_v2/VcrossQtPaint.cc \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
-	vcross_v2/VcrossQtAxis.cc 
+	vcross_v2/VcrossQtAxis.cc \
+	vcross_v2/VcrossQuickmenues.cc
+
+common_qt_headers = \
+	diVcrossInterface.h
 
 diana_qt_forms =
 
@@ -148,11 +155,10 @@ diana_qt_sources = \
 	EditItems/editdrawinglayerspane.cc \
 	EditItems/dialogcommon.cc \
 	EditItems/modifylayerscommand.cc \
-	EditItems/modifypropertiescommand.cc \
-	EditItems/modifytextcommand.cc \
 	qtActionButton.cc \
 	qtAddtoDialog.cc \
 	qtAddtoMenu.cc \
+	qtAnnotationDialog.cc \
 	qtAnnoText.cc \
 	qtBrowserBox.cc \
 	qtButtonLayout.cc \
@@ -205,18 +211,18 @@ diana_qt_sources = \
 
 diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
+	vcross_qt/qtVcrossInterface.cc \
 	vcross_qt/qtVcrossLayerButton.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
-	vcross_qt/qtVcrossWizard.cc \
-	vcross_qt/diVcrossSelectionManager.cc \
-	vcross_qt/qtVcrossModelPage.cc \
-	vcross_qt/qtVcrossFieldPage.cc \
-	vcross_qt/qtVcrossStylePage.cc \
+	vcross_qt/qtVcrossAddPlotDialog.cc \
+	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \
 	vcross_qt/VcrossQtWidget.cc 
 
 diana_qt_forms += \
+	vcross_qt/vcross_plot_add_dialog.ui \
+	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
 	vcross_qt/vcross_window.ui
 
@@ -295,8 +301,6 @@ noinst_HEADERS = \
 	EditItems/editdrawinglayerspane.h \
 	EditItems/dialogcommon.h \
 	EditItems/modifylayerscommand.h \
-	EditItems/modifypropertiescommand.h \
-	EditItems/modifytextcommand.h \
 	diDrawingManager.h \
 	diEditManager.h \
 	diEditObjects.h \
@@ -307,13 +311,16 @@ noinst_HEADERS = \
 	diFilledMap.h \
 	diFontManager.h \
 	diFtnVfile.h \
+	diGlUtilities.h \
 	diHDF5.h \
 	diImageGallery.h \
 	diImageIO.h \
 	diKeys.h \
 	diLegendPlot.h \
 	diLinetype.h \
+	diLocationData.h \
 	diLocationPlot.h \
+	diLogFile.h \
 	diMItiff.h \
 	diManager.h \
 	diMapManager.h \
@@ -370,6 +377,7 @@ noinst_HEADERS = \
 	polyStipMasks.h \
 	qtAddtoDialog.h \
 	qtAddtoMenu.h \
+	qtAnnotationDialog.h \
 	qtAnnoText.h \
 	qtBrowserBox.h \
 	qtButtonLayout.h \
@@ -426,6 +434,7 @@ noinst_HEADERS = \
 	bdiana_capi.h 
 
 noinst_HEADERS += \
+	diVcrossInterface.h \
 	vcross_v2/VcrossSetup.h \
 	vcross_v2/VcrossComputer.h \
 	vcross_v2/VcrossCollector.h \
@@ -683,6 +692,7 @@ endif
 # Use Xlib-specific routines
 if WITH_XLIB
 common_cppflags += -DUSE_XLIB
+common_ldadd += -lX11
 endif
 
 # Embedded build support - remove X and OpenGL dependencies
@@ -750,14 +760,14 @@ common_ldadd += \
 endif
 
 # Generated Qt source code
-common_moc_sources = $(common_qt_sources:.cc=.moc.cc)
+common_moc_sources = $(common_qt_sources:.cc=.moc.cc) $(common_qt_headers:.h=.moc.cc)
 diana_moc_sources = $(diana_qt_sources:.cc=.moc.cc)
 bdiana_moc_sources = $(bdiana_qt_sources:.cc=.moc.cc)
 diana_uic_headers = $(diana_qt_forms:.ui=.ui.h)
 CLEANFILES += $(common_moc_sources) $(diana_moc_sources) $(bdiana_moc_sources) $(diana_uic_headers)
 %.moc.cc: %.h
 	@mkdir -p $(shell dirname $@)
-	$(MOC4) -o $@ $<
+	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
 %.ui.h: %.ui
 	@mkdir -p $(shell dirname $@)

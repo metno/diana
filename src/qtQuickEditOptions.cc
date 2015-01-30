@@ -55,6 +55,9 @@
 #include "filenew.xpm"
 #include "editcut.xpm"
 
+#define MILOGGER_CATEGORY "diana.QuickEditOptions"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 
 QuickEditOptions::QuickEditOptions(QWidget* parent,
@@ -218,8 +221,9 @@ void QuickEditOptions::updateList()
 void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in list
 {
 
-  unsigned int idx = list->row(item);
-  if (idx < 0 || idx >= options.size()) return;
+  int idx = list->row(item);
+  if (idx < 0 || idx >= options.size())
+    return;
   keynum= idx;
 
   choices->setEnabled(false);
@@ -247,7 +251,7 @@ void QuickEditOptions::chChanged(const QString& s)
   if (keynum<0 || keynum>=int(options.size()))
     return;
 
-  options[keynum].options = miutil::split(s.toStdString(), ",", false); //Do not skip blank enteries
+  options[keynum].options = miutil::split_protected(s.toStdString(), '"','"',",", false); //Do not skip blank enteries
 }
 
 void QuickEditOptions::upClicked()    // move item up

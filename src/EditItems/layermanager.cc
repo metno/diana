@@ -322,11 +322,21 @@ void LayerManager::moveLayer(const QSharedPointer<Layer> &srcLayer, const QShare
   orderedLayers_.insert(dstIndex, srcLayer);
 }
 
-void LayerManager::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
+bool LayerManager::removeItem(const QSharedPointer<DrawingItemBase> &item, bool notify)
 {
   foreach (const QSharedPointer<Layer> &layer, orderedLayers_)
     if (layer->removeItem(item, notify))
-      return;
+      return true;
+  return false;
+}
+
+bool LayerManager::removeItem(const DrawingItemBase *item)
+{
+  QSharedPointer<DrawingItemBase> item_;
+  QSharedPointer<Layer> layer;
+  if (findItem(item->id(), item_, layer))
+    return removeItem(item_, false);
+  return false;
 }
 
 void LayerManager::copyState(QList<QSharedPointer<LayerGroup> > *layerGroups, QList<QSharedPointer<Layer> > *orderedLayers) const
@@ -362,6 +372,24 @@ void LayerManager::replaceState(const QList<QSharedPointer<LayerGroup> > &layerG
   layerGroups_ = layerGroups;
   orderedLayers_ = orderedLayers;
   emit stateReplaced();
+}
+
+QList<QList<QSharedPointer<DrawingItemBase> > > LayerManager::copyItemStates(const DrawingManager *dm) const
+{
+  QList<QList<QSharedPointer<DrawingItemBase> > > itemStates;
+  foreach(const QSharedPointer<Layer> &layer, orderedLayers_) {
+    QList<QSharedPointer<DrawingItemBase> > layerItems = layer->copyItems(dm);
+    itemStates.append(layerItems);
+  }
+  return itemStates;
+}
+
+void LayerManager::replaceItemStates(const QList<QList<QSharedPointer<DrawingItemBase> > > &itemStates, const DrawingManager *dm)
+{
+  Q_ASSERT(itemStates.size() == orderedLayers_.size());
+  for (int i = 0; i < itemStates.size(); ++i)
+    orderedLayers_.at(i)->replaceItems(itemStates.at(i), dm);
+  emit itemStatesReplaced();
 }
 
 QBitArray LayerManager::selected() const

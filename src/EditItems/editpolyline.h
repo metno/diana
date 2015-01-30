@@ -44,19 +44,18 @@ class PolyLine : public EditItemBase, public DrawingItem_PolyLine::PolyLine
     Q_OBJECT
     friend class SetGeometryCommand;
 public:
-    PolyLine();
+    PolyLine(int = -1);
     virtual ~PolyLine();
 
 private:
-    virtual DrawingItemBase *cloneSpecial() const;
+    virtual DrawingItemBase *cloneSpecial(bool) const;
 
     virtual bool hit(const QPointF &, bool) const;
     virtual bool hit(const QRectF &) const;
 
-    virtual void mousePress(QMouseEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > *, const QSet<QSharedPointer<DrawingItemBase> > *, bool *);
+    virtual void mousePress(QMouseEvent *, bool &, bool *);
     virtual void mouseHover(QMouseEvent *, bool &, bool = false);
-    virtual void keyPress(
-        QKeyEvent *, bool &, QList<QUndoCommand *> *, QSet<QSharedPointer<DrawingItemBase> > * = 0, const QSet<QSharedPointer<DrawingItemBase> > * = 0);
+    virtual void keyPress(QKeyEvent *, bool &);
 
     virtual void incompleteMousePress(QMouseEvent *, bool &, bool &, bool &);
     virtual void incompleteMouseHover(QMouseEvent *, bool &);
@@ -65,6 +64,7 @@ private:
     virtual QString infoString() const { return QString("%1 type=%2 npoints=%3").arg(DrawingItemBase::infoString()).arg(metaObject()->className()).arg(points_.size()); }
 
     virtual void drawIncomplete() const;
+    virtual void drawHoverHighlightingBG(bool, bool) const;
     virtual void drawHoverHighlighting(bool, bool) const;
 
     virtual void resize(const QPointF &);

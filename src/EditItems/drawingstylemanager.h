@@ -72,6 +72,8 @@ public:
 
   void drawText(const DrawingItemBase *) const;
 
+  void highlightPolyLine(const DrawingItemBase *, const QList<QPointF> &, int, const QColor &, bool = false) const;
+
   void drawLines(const DrawingItemBase *item, const QList<QPointF> &points, int z = 0, bool = false) const;
   void fillLoop(const DrawingItemBase *item, const QList<QPointF> &points) const;
   void setFont(const DrawingItemBase *item) const;
@@ -110,8 +112,8 @@ private:
   // Record the style maps for each category of object.
   QHash<DrawingItemBase::Category, QHash<QString, QVariantMap> > styles_;
   QHash<DrawingItemBase::Category, QHash<QString, DrawingStyleProperty *> > properties_;
-  static DrawingStyleManager *self;  // singleton instance pointer
-  QStringList complexTextList;
+  static DrawingStyleManager *self_;  // singleton instance pointer
+  QStringList complexTextList_;
 };
 
 class DrawingStyleProperty

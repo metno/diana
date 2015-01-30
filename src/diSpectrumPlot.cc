@@ -183,7 +183,7 @@ bool SpectrumPlot::startPSoutput(const printOptions& po){
     pro.papersize= printman.getSize(pro.pagesize);
   d_print::PaperSize a4size;
   float scale= 1.0;
-  if (abs(pro.papersize.vsize>0))
+  if (abs(pro.papersize.vsize)>0)
     scale= a4size.vsize/pro.papersize.vsize;
 
   // check if extra output-commands

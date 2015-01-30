@@ -36,6 +36,7 @@
 #include <diFieldPlotManager.h>
 #include <diPlotOptions.h>
 #include <diField/FieldSpecTranslation.h>
+#include <diField/diFieldFunctions.h>
 #include <puTools/miSetupParser.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -65,12 +66,6 @@ void FieldPlotManager::getAllFieldNames(vector<std::string>& fieldNames)
 bool FieldPlotManager::parseSetup()
 {
 
-  //field prefixes and field suffixes (used in EPS so far)
-  vector<std::string> suffix;
-  suffix.push_back(".mean");
-  suffix.push_back(".std.dev.");
-  PlotOptions::setSuffix(suffix);
-
   if ( !parseFieldPlotSetup() ) {
     return false;
   }
@@ -84,8 +79,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
 {
 
   METLIBS_LOG_DEBUG("bool FieldPlotManager::parseSetup");
-
-  fieldManager->getPrefixandSuffix(fieldprefixes, fieldsuffixes);
 
   std::string sect_name = "FIELD_PLOT";
   vector<std::string> lines;
@@ -385,8 +378,9 @@ vector<std::string> FieldPlotManager::getFields()
 }
 
 vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
-    bool& constTimes, bool updateSources)
+    bool updateSources)
 {
+  METLIBS_LOG_SCOPE();
   vector<miTime> fieldtime;
 
   int numf = pinfos.size();
@@ -414,11 +408,11 @@ vector<miTime> FieldPlotManager::getFieldTime(const vector<string>& pinfos,
     return fieldtime;
   }
 
-  return getFieldTime(request, constTimes, updateSources);
+  return getFieldTime(request, updateSources);
 }
 
 void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
-    miTime& constTimes, int& timediff, const std::string& pinfo, bool updateSources)
+    int& timediff, const std::string& pinfo, bool updateSources)
 {
   //Finding times from pinfo
   //TODO: find const time
@@ -442,14 +436,7 @@ void FieldPlotManager::getCapabilitiesTime(vector<miTime>& normalTimes,
   }
 
   //getting times
-  bool constT;
-  normalTimes = getFieldTime(pinfos, constT, updateSources);
-  if (constT) {
-    if (normalTimes.size()) {
-      constTimes = normalTimes[0];
-    }
-    normalTimes.clear();
-  }
+  normalTimes = getFieldTime(pinfos, updateSources);
 
   METLIBS_LOG_DEBUG("FieldPlotManager::getCapabilitiesTime: no. of times"<<normalTimes.size());
 }
@@ -465,9 +452,8 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
   }
 
   vector<FieldGroupInfo> vfgi;
-  std::string name;
   std::string refTime;
-  getFieldGroups(tokens[1], name, refTime, true, vfgi);
+  getFieldGroups(tokens[1], refTime, true, vfgi);
   for (unsigned int i = 0; i < vfgi.size(); i++) {
     levels.push_back(vfgi[i].groupName);
     int k = 0;
@@ -487,22 +473,12 @@ vector<std::string> FieldPlotManager::getFieldLevels(const std::string& pinfo)
 
 }
 
-vector<std::string> FieldPlotManager::getPlotFields()
-{
-
-  vector<std::string> param;
-  for (unsigned int i = 0; i < vPlotField.size(); i++) {
-    param.push_back(vPlotField[i].name);
-  }
-
-  return param;
-
-}
-
 vector<miTime> FieldPlotManager::getFieldTime(
-    vector<FieldRequest>& request, bool& constTimes, bool updateSources)
+    vector<FieldRequest>& request, bool updateSources)
 
 {
+  METLIBS_LOG_SCOPE();
+
   vector<miTime> vtime;
   for (size_t i = 0; i <request.size(); ++i ) {
     if (request[i].plotDefinition ) {
@@ -512,8 +488,10 @@ vector<miTime> FieldPlotManager::getFieldTime(
         request[i].standard_name = fr[0].standard_name;
       }
     }
+    flightlevel2pressure(request[i]);
   }
-  return fieldManager->getFieldTime(request, constTimes, updateSources);
+
+  return fieldManager->getFieldTime(request, updateSources);
 }
 
 bool FieldPlotManager::addGridCollection(const std::string fileType,
@@ -576,7 +554,7 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
       return false;
     }
 
-    makeFieldText(fout, plotName);
+    makeFieldText(fout, plotName, vfieldrequest[i].flightlevel);
     vfout.push_back(fout);
 
   }
@@ -585,12 +563,16 @@ bool FieldPlotManager::makeFields(const std::string& pin_const,
 
 }
 
-void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName)
+void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
 {
 
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
-    fieldtext += " " + fout->leveltext;
+    if ( flightlevel ) {
+      fieldtext += " " + FieldFunctions::pLevel2flightLevel[fout->leveltext];
+    } else {
+      fieldtext += " " + fout->leveltext;
+    }
   }
   if (!fout->idnumtext.empty()) {
     fieldtext += " " + fout->idnumtext;
@@ -848,12 +830,11 @@ bool FieldPlotManager::makeDifferenceField(const std::string& fspec1,
 
 }
 
-void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
-    std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
+void FieldPlotManager::getFieldGroups(const std::string& modelName, std::string refTime, bool plotGroups, vector<FieldGroupInfo>& vfgi)
 {
   //METLIBS_LOG_DEBUG(__FUNCTION__);
 
-  fieldManager->getFieldGroups(modelNameRequest, modelName, refTime, vfgi);
+  fieldManager->getFieldGroups(modelName, refTime, vfgi);
 
   //Return vfgi whith parameter names from file + computed parameters
   if(!plotGroups) {
@@ -926,8 +907,6 @@ void FieldPlotManager::getFieldGroups(const std::string& modelNameRequest,
           }
         }
 
-
-        //add plotNames without suffix
         if (ninput >= vPlotField[j].input.size()) {
           plotNames.push_back(plotName);
           plotNameLevels[plotName] = levels;
@@ -960,32 +939,6 @@ std::string FieldPlotManager::getBestFieldReferenceTime(const std::string& model
 gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
 {
   return fieldManager->getGrid(model);
-}
-
-
-void FieldPlotManager::getAllFieldNames(vector<std::string> & fieldNames,
-    set<std::string>& fprefixes, set<std::string>& fsuffixes)
-{
-
-  fieldNames = getPlotFields();
-  fprefixes = fieldprefixes;
-  fsuffixes = fieldsuffixes;
-
-}
-
-bool FieldPlotManager::splitSuffix(std::string& plotName, std::string& suffix)
-{
-
-  set<std::string>::const_iterator ps = fieldsuffixes.begin();
-  for (; ps != fieldsuffixes.end(); ps++) {
-    if (plotName.find(*ps) != std::string::npos) {
-      suffix = *ps;
-      plotName.erase(plotName.find(*ps));
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void FieldPlotManager::parseString( std::string& pin,
@@ -1031,6 +984,8 @@ void FieldPlotManager::parseString( std::string& pin,
         fieldrequest.grid = vtoken[1];
       } else if (key == "unit") {
         fieldrequest.unit = vtoken[1];
+      } else if (key == "vunit" && vtoken[1] == "FL") {
+        fieldrequest.flightlevel=true;
       } else if (key == "time") {
         fieldrequest.ptime = miTime(vtoken[1]);
       } else if (key == "reftime") {
@@ -1051,27 +1006,23 @@ void FieldPlotManager::parseString( std::string& pin,
         }
       } else if (key == "file.palette") {
         fieldrequest.palette = vtoken[1];
-      } else if (key == "forecast.hour") {
-       std::vector<std::string> values;
-       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
-       for (unsigned int i = 0; i < values.size(); i++) {
-         fieldrequest.forecast.push_back(atoi(values[i].c_str()));
-       }
-       fieldrequest.forecastSpec = 1;
-     } else if (vtoken[0] == "forecast.hour.loop") {
-       std::vector<std::string> values;
-       boost::algorithm::split(values,vtoken[1], boost::algorithm::is_any_of(std::string(",")));
-       if (values.size() == 3) { // first,last,step
-         for (int i = 0; i < 3; i++) {
-           fieldrequest.forecast.push_back(atoi(values[i].c_str()));
-         }
-         fieldrequest.forecastSpec = 2;
-       }
-     }
+      }
     }
   }
 
+  flightlevel2pressure(fieldrequest);
+  METLIBS_LOG_DEBUG(LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.plevel));
+}
 
+void FieldPlotManager::flightlevel2pressure(FieldRequest& frq)
+{
+  if ( frq.zaxis == "flightlevel") {
+    frq.zaxis = "pressure";
+    frq.flightlevel=true;
+    if ( miutil::contains(frq.plevel,"FL") ) {
+      frq.plevel = FieldFunctions::getPressureLevel(frq.plevel);
+    }
+  }
 }
 
 bool FieldPlotManager::parsePin( std::string& pin, vector<FieldRequest>& vfieldrequest, std::string& plotName)

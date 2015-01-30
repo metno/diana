@@ -34,9 +34,10 @@
 #include <EditItems/drawingstylemanager.h>
 #include <EditItems/kml.h>
 
-DrawingItemBase::DrawingItemBase()
-    : id_(nextId())
+DrawingItemBase::DrawingItemBase(int id__)
+    : id_((id__ >= 0) ? id__ : nextId())
     , selected_(false)
+    , joinCount_(0)
 {
 }
 
@@ -51,13 +52,32 @@ int DrawingItemBase::nextId()
   return nextId_++; // ### not thread safe; use a mutex for that
 }
 
-DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm) const
+DrawingItemBase *DrawingItemBase::clone(const DrawingManager *dm, bool setUniqueId) const
 {
-  DrawingItemBase *item = cloneSpecial();
+  DrawingItemBase *item = cloneSpecial(setUniqueId);
+
   item->setLatLonPoints(dm->getLatLonPoints(*item));
+
   const_cast<QVariantMap &>(propertiesRef()).remove("points");
   item->setProperties(properties());
+
+  item->selected_ = selected_;
+  item->joinCount_ = joinCount_;
+
   return item;
+}
+
+void DrawingItemBase::setState(const DrawingItemBase *item)
+{
+  setPoints(item->getPoints());
+  setLatLonPoints(item->getLatLonPoints());
+
+  QVariantMap props(item->properties());
+  props.remove("points");
+  setProperties(props);
+
+  selected_ = item->selected_;
+  joinCount_ = item->joinCount_;
 }
 
 QVariant DrawingItemBase::property(const QString &name, const QVariant &default_) const
@@ -100,6 +120,25 @@ void DrawingItemBase::setProperties(const QVariantMap &properties, bool ignorePo
   }
 }
 
+// Returns the current join ID of the item. Two or more items are considered joined if their "joinId" properties are non-zero
+// and have the same absolute value. A negative and positive join ID indicates joining of the first and last end point respectively.
+int DrawingItemBase::joinId() const
+{
+  bool ok;
+  const int joinId = properties().value("joinId").toInt(&ok);
+  return ok ? joinId : 0;
+}
+
+void DrawingItemBase::setJoinCount(int jc)
+{
+  joinCount_ = jc;
+}
+
+int DrawingItemBase::joinCount() const
+{
+  return joinCount_;
+}
+
 QList<QPointF> DrawingItemBase::getPoints() const
 {
   return points_;
@@ -108,6 +147,7 @@ QList<QPointF> DrawingItemBase::getPoints() const
 void DrawingItemBase::setPoints(const QList<QPointF> &points)
 {
   points_ = points;
+  updateRect();
 }
 
 QSizeF DrawingItemBase::getSize() const
@@ -187,6 +227,11 @@ QDomElement DrawingItemBase::createExtDataElement(QDomDocument &doc, const QHash
     if (key.startsWith("style:"))
       extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:%1").arg(key), properties_.value(key).toString()));
   }
+
+  // join ID
+  const int jid = joinId();
+  if (jid)
+    extDataElem.appendChild(KML::createExtDataDataElement(doc, QString("met:joinId"), QString::number(jid)));
 
   // extra data
   foreach (const QString key, extra.keys()) {

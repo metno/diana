@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -125,12 +123,9 @@ StatusPlotButtons::StatusPlotButtons(QWidget* parent)
 
   //Action
   plotButtonsAction = new QAction( this );
-  plotButtonsAction->setShortcutContext(Qt::ApplicationShortcut);
   plotButtonsAction->setShortcut(Qt::Key_End);
   connect( plotButtonsAction, SIGNAL( triggered() ),SLOT(setfocus()));
   addAction( plotButtonsAction );
-
-
 }
 
 void StatusPlotButtons::calcTipPos()

@@ -164,7 +164,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   xfirst=rhs.xfirst;
   yfirst=rhs.yfirst;
   xrefpos=rhs.xrefpos;
-  yrefpos=yrefpos;
+  yrefpos=rhs.yrefpos;
   deltascale=rhs.deltascale;
   xprev=rhs.xprev;
   yprev=rhs.yprev;
@@ -287,22 +287,24 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
   editfield->numSmoothed= 0;
 
-  editfield->validFieldTime = tprod;
-  editfield->analysisTime = tprod;
-
   // text for plot etc.
   std::string text, fulltext;
   text = "ANALYSE " + fieldname;
 
-  std::string sclock= editfield->validFieldTime.isoClock();
-  std::string shour=  sclock.substr(0,2);
-  std::string smin=   sclock.substr(3,2);
-  if (smin=="00")
-    fulltext = text + " " + editfield->validFieldTime.isoDate()
-    + " " + shour + " UTC";
-  else
-    fulltext = text + " " + editfield->validFieldTime.isoDate()
-    + " " + shour + ":" + smin + " UTC";
+  if ( !tprod.undef() ) {
+    editfield->validFieldTime = tprod;
+    editfield->analysisTime = tprod;
+
+    std::string sclock= editfield->validFieldTime.isoClock();
+    std::string shour=  sclock.substr(0,2);
+    std::string smin=   sclock.substr(3,2);
+    if (smin=="00")
+      fulltext = text + " " + editfield->validFieldTime.isoDate()
+      + " " + shour + " UTC";
+    else
+      fulltext = text + " " + editfield->validFieldTime.isoDate()
+      + " " + shour + ":" + smin + " UTC";
+  }
 
   editfield->name=     fieldname;
   editfield->text=     text;
@@ -431,7 +433,7 @@ void FieldEdit::makeWorkfield()
 
 void FieldEdit::changeGrid()
 {
-//  cerr <<"==== changeGrid "<<areaspec<< ": "<<gridResolutionX<<endl;
+  METLIBS_LOG_DEBUG(LOGVAL(areaspec)<< LOGVAL(gridResolutionX));
   std::string demands= "fine.interpolation";
   if (areaminimize) demands+= " minimize.area";
   if (!editfield->changeGrid(areaspec,gridResolutionX, gridResolutionY,demands,0)) {
@@ -441,7 +443,7 @@ void FieldEdit::changeGrid()
 
 bool FieldEdit::readEditfield(const std::string& filename)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(filename));
 
   std::string fileType = "fimex";
   std::vector<std::string> filenames;
@@ -473,7 +475,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
 
   std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName,0,-1 );
   vector<FieldGroupInfo> fgi;
-  fieldPlotManager->getFieldGroups(modelName,modelName,reftime,true,fgi);
+  fieldPlotManager->getFieldGroups(modelName,reftime,true,fgi);
   vector<Field*> vfout;
   std::string pin = "FIELD model=" + modelName + " plot=" + plotName;
   if ( !vcoord.empty() ) {
@@ -487,7 +489,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
   }
   std::vector<std::string> vpin;
   vpin.push_back(pin);
-  bool dummy;
+  bool dummy = false;
   vector<miTime> times = fieldPlotManager->getFieldTime(vpin,dummy);
   miTime time;
   if (times.size()) {
@@ -505,7 +507,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
 void FieldEdit::setData(const vector<Field*>& vf,
     const std::string& fieldname,
     const miTime& tprod) {
-
+METLIBS_LOG_SCOPE();
   cleanup();
 
   if (vf.size()==0) return;
@@ -537,6 +539,7 @@ void FieldEdit::setConstantValue(float value) {
 bool FieldEdit::readEditFieldFile(const std::string& filename,
     const std::string& fieldname,
     const miTime& tprod){
+  METLIBS_LOG_SCOPE();
 
   cleanup();
 
@@ -565,7 +568,9 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename) {
   fieldrequest.paramName = editfield->paramName;
 //  fieldrequest.ptime = editfield->validFieldTime;
   fieldrequest.unit = editfield->unit;
-  fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  if  ( !editfield->validFieldTime.undef() ) {
+    fieldrequest.output_time = editfield->validFieldTime.isoTime();
+  }
   return fieldPlotManager->writeField(fieldrequest,editfield);
 
 }

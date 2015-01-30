@@ -31,6 +31,7 @@
 
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
+#include <diDrawingManager.h>
 
 namespace EditItems {
 
@@ -74,6 +75,8 @@ Layer::Layer(const QList<QSharedPointer<Layer> > &srcLayers, const DrawingManage
       insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm)), false);
     srcFiles_.unite(srcLayer->srcFiles());
   }
+
+  DrawingManager::instance()->separateJoinIds(items_);
 }
 
 Layer::~Layer()
@@ -343,6 +346,43 @@ void Layer::insertSrcFile(const QString &srcFile)
 void Layer::uniteSrcFiles(const QSet<QString> &srcFiles)
 {
   srcFiles_.unite(srcFiles);
+}
+
+QList<QSharedPointer<DrawingItemBase> > Layer::copyItems(const DrawingManager *dm) const
+{
+  QList<QSharedPointer<DrawingItemBase> > items;
+  foreach (const QSharedPointer<DrawingItemBase> &item, items_)
+    items.append(QSharedPointer<DrawingItemBase>(item->clone(dm, false)));
+  return items;
+}
+
+void Layer::replaceItems(const QList<QSharedPointer<DrawingItemBase> > &items, const DrawingManager *dm)
+{
+  QSet<int> ids;
+  // loop over new items
+  foreach (const QSharedPointer<DrawingItemBase> &item, items) {
+    ids.insert(item->id());
+    bool found = false;
+    foreach (const QSharedPointer<DrawingItemBase> &item_, items_) {
+      if (item_->id() == item->id()) { // item with this ID already exists, so copy the state
+        item_->setState(item.data());
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) // item with this ID does not exist, so insert a cloned item (with the same ID)
+      insertItem(QSharedPointer<DrawingItemBase>(item->clone(dm, false)), false);
+  }
+
+  // remove items that did not exist in the set of new items
+  QList<QSharedPointer<DrawingItemBase> >::iterator it = items_.begin();
+  while (it != items_.end()) {
+    if (!ids.contains((*it)->id()))
+      it = items_.erase(it);
+    else
+      ++it;
+  }
 }
 
 } // namespace

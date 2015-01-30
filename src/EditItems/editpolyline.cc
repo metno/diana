@@ -40,8 +40,9 @@
 
 namespace EditItem_PolyLine {
 
-PolyLine::PolyLine()
-  : addPoint_act_(new QAction(tr("Add point"), this))
+PolyLine::PolyLine(int id)
+  : DrawingItem_PolyLine::PolyLine(id)
+  , addPoint_act_(new QAction(tr("Add point"), this))
   , removePoint_act_(new QAction(tr("Remove point"), this))
   , hoverLineIndex_(-1)
 {
@@ -59,9 +60,9 @@ PolyLine::~PolyLine()
 {
 }
 
-DrawingItemBase *PolyLine::cloneSpecial() const
+DrawingItemBase *PolyLine::cloneSpecial(bool setUniqueId) const
 {
-  PolyLine *item = new PolyLine;
+  PolyLine *item = new PolyLine(setUniqueId ? -1 : id());
   copyBaseData(item);
   return item;
 }
@@ -205,16 +206,8 @@ void PolyLine::updateHoverPos(const QPoint &pos)
   hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
 }
 
-void PolyLine::mousePress(
-    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
+void PolyLine::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
-  Q_ASSERT(undoCommands);
-  Q_UNUSED(repaintNeeded);
-  Q_UNUSED(undoCommands);
-  Q_UNUSED(items);
-  Q_UNUSED(selItems);
-
   if (event->button() == Qt::LeftButton) {
     pressedCtrlPointIndex_ = hitControlPoint(event->pos());
     resizing_ = (pressedCtrlPointIndex_ >= 0);
@@ -224,6 +217,8 @@ void PolyLine::mousePress(
 
     if (multiItemOp)
       *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
+
+    EditItemBase::mousePress(event, repaintNeeded, multiItemOp);
   }
 }
 
@@ -237,16 +232,12 @@ void PolyLine::mouseHover(QMouseEvent *event, bool &repaintNeeded, bool selectin
   }
 }
 
-void PolyLine::keyPress(
-    QKeyEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
+void PolyLine::keyPress(QKeyEvent *event, bool &repaintNeeded)
 {
   if (((event->key() == Qt::Key_Backspace) || (event->key() == Qt::Key_Delete)
        || (event->key() == Qt::Key_Minus)) && (hoverCtrlPointIndex_ >= 0)) {
     const QList<QPointF> origPoints = getPoints();
     removePoint();
-    if (getPoints() != origPoints)
-      undoCommands->append(new SetGeometryCommand(this, origPoints, getPoints()));
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
     if (hoverCtrlPointIndex_ < 0) // no control point beneath the one we just removed, so check if we hit a line
       hoverLineIndex_ = hitLine(hoverPos_);
@@ -257,13 +248,11 @@ void PolyLine::keyPress(
              && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0) && (hoverPos_ != QPoint(-1, -1))) {
     const QList<QPointF> origPoints = getPoints();
     addPoint();
-    if (getPoints() != origPoints)
-      undoCommands->append(new SetGeometryCommand(this, origPoints, getPoints()));
     hoverCtrlPointIndex_ = hitControlPoint(hoverPos_);
     repaintNeeded = true;
     event->accept();
   } else {
-    EditItemBase::keyPress(event, repaintNeeded, undoCommands, items, selItems);
+    EditItemBase::keyPress(event, repaintNeeded);
   }
 }
 
@@ -346,8 +335,15 @@ void PolyLine::removePoint()
   if ((hoverCtrlPointIndex_ >= 0) && (hoverCtrlPointIndex_ < points_.size()) && (points_.size() > 2)) {
     points_.removeAt(hoverCtrlPointIndex_);
     latLonPoints_.removeAt(hoverCtrlPointIndex_);
+    const int origHCPIndex = hoverCtrlPointIndex_;
     hoverCtrlPointIndex_ = -1;
     updateControlPoints();
+
+    // unjoin polyline if removing a joined end point
+    if (((origHCPIndex == 0) && (joinId() < 0)) || ((origHCPIndex == points_.size()) && (joinId() > 0))) {
+      propertiesRef().insert("joinId", 0);
+      EditItemManager::instance()->updateJoins();
+    }
   }
 }
 
@@ -394,28 +390,35 @@ void PolyLine::drawIncomplete() const
 {
 }
 
+void PolyLine::drawHoverHighlightingBG(bool incomplete, bool selected) const
+{
+  if (incomplete)
+    return;
+
+  // highlight the polyline
+  bool ok = false;
+  const int lineWidth = properties().value("style:linewidth").toInt(&ok);
+  const int defaultLineWidth = 2;
+  const int pad = 6;
+  DrawingStyleManager::instance()->highlightPolyLine(this, points_, (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180));
+
+  // highlight the control points
+  drawControlPoints(QColor(255, 0, 0, 255));
+}
+
 void PolyLine::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
     return;
 
-  glColor3ub(255, 0, 0);
-
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint(); // highlight the control point
+    // highlight the control point
+    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(QColor(255, 255, 0, 255));
   } else {
-    DrawingStyleManager *styleManager = DrawingStyleManager::instance();
-
-    // highlight the polyline
-    glPushAttrib(GL_LINE_BIT);
-    bool ok = false;
-    const int lineWidth = properties().value("style:linewidth").toInt(&ok);
-    glLineWidth(ok ? lineWidth : 2);
-    styleManager->drawLines(this, points_, 1);
-    glPopAttrib();
-
     // highlight the control points
-    drawControlPoints(selected);
+    if (selected)
+      drawControlPoints(QColor(255, 0, 0, 255));
 
     if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
       // highlight the insertion position of a new point

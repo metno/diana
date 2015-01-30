@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -171,13 +171,13 @@ void VcrossSetupDialog::initOptions()
       | VcrossSetupUI::useTextChoice2
 #endif
     );
-#ifndef DISABLE_UNUSED_OPTIONS
   mSetupDISTANCE = new VcrossSetupUI(this, tr("Distance"), glayout, nrow++, opts);
   std::vector<std::string> distunit;
   distunit.push_back("km");
   distunit.push_back("nm");
   mSetupDISTANCE->defineTextChoice(distunit,0);
 
+#ifndef DISABLE_UNUSED_OPTIONS
   std::vector<std::string> diststep;
   diststep.push_back("grid");
   diststep.push_back("1");
@@ -206,8 +206,8 @@ void VcrossSetupDialog::initOptions()
   vchoice.push_back("Standard/FL");
   vchoice.push_back("Pressure/hPa");
   vchoice.push_back("Pressure/FL");
-  vchoice.push_back("Height/m");
-  vchoice.push_back("Height/Ft");
+  vchoice.push_back("Altitude/m");
+  vchoice.push_back("Altitude/Ft");
   mSetupVERTICALTYPE->defineTextChoice(vchoice,0);
 
   nrow++;
@@ -316,10 +316,10 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
   mSetupINFLIGHT->setLinewidth(vcopt->inflightLinewidth);
   mSetupINFLIGHT->setLinetype (vcopt->inflightLinetype);
 
-#ifndef DISABLE_UNUSED_OPTIONS
   mSetupDISTANCE->setChecked         (vcopt->pDistance);
   mSetupDISTANCE->setColour     (vcopt->distanceColour);
   mSetupDISTANCE->setTextChoice (vcopt->distanceUnit);
+#ifndef DISABLE_UNUSED_OPTIONS
   mSetupDISTANCE->setTextChoice2(vcopt->distanceStep);
 #endif
 
@@ -430,10 +430,10 @@ void VcrossSetupDialog::applySetup()
   vcopt->inflightLinewidth = mSetupINFLIGHT->getLinewidth();
   vcopt->inflightLinetype  = mSetupINFLIGHT->getLinetype ();
 
-#ifndef DISABLE_UNUSED_OPTIONS
   vcopt->pDistance=      mSetupDISTANCE->isChecked();
   vcopt->distanceColour= mSetupDISTANCE->getColour().name;
   vcopt->distanceUnit=   mSetupDISTANCE->getTextChoice();
+#ifndef DISABLE_UNUSED_OPTIONS
   vcopt->distanceStep=   mSetupDISTANCE->getTextChoice2();
 #endif
 

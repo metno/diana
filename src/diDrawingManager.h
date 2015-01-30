@@ -61,7 +61,7 @@ class QMouseEvent;
 
 class DrawingStyleManager;
 
-class PlotElement;
+struct PlotElement;
 
 /**
   \brief Manager for drawing areas and annotations.
@@ -139,7 +139,8 @@ public:
   static DrawingManager *instance();
 
   // Resource handling
-  QStringList symbolNames() const;
+  QStringList symbolNames(const QString &section = QString()) const;
+  QStringList symbolSectionNames() const;
   QImage getCachedImage(const QString &, int, int) const;
   QImage getSymbolImage(const QString &, int, int) const;
   QSize getSymbolSize(const QString &) const;
@@ -156,9 +157,12 @@ public:
   void setPlotRect(Rectangle r);
   void setEditRect(Rectangle r);
 
-  std::vector<PlotElement> getPlotElements() const;
+  std::vector<PlotElement> getPlotElements(bool = true) const;
   virtual QString plotElementTag() const;
   void enablePlotElement(const PlotElement &);
+
+  int nextJoinId(bool = true);
+  void separateJoinIds(const QList<QSharedPointer<DrawingItemBase> > &);
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
@@ -169,9 +173,9 @@ protected:
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
-  static Rectangle plotRect;
-  static Rectangle editRect;
-  Area currentArea;
+  static Rectangle plotRect_;
+  static Rectangle editRect_;
+  Area currentArea_;
 
   // ### are these needed any longer?
   QSet<QString> drawings_;
@@ -183,14 +187,18 @@ protected:
 
 private:
 
-  GridConverter gc;
-  QString workDir;
+  GridConverter gc_;
+  QString workDir_;
 
-  QMap<QString, QByteArray> symbols;
-  mutable QHash<QString, QImage> imageCache;
-  DrawingStyleManager *styleManager;
+  QMap<QString, QSet<QString> > symbolSections_;
+  QMap<QString, QByteArray> symbols_;
+  mutable QHash<QString, QImage> imageCache_;
+  DrawingStyleManager *styleManager_;
 
-  static DrawingManager *self;  // singleton instance pointer
+  static int nextJoinId_;
+  void setNextJoinId(int);
+
+  static DrawingManager *self_;  // singleton instance pointer
 };
 
 #endif // _diDrawingManager_h

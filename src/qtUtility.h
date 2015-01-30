@@ -31,9 +31,10 @@
 #ifndef _qtutility_h
 #define _qtutility_h
 
-#include <diCommonTypes.h>
-#include <diColourShading.h>
-#include <diPattern.h>
+#include "diCommonTypes.h"
+#include "diColourShading.h"
+#include "diPattern.h"
+
 #include <QPixmap>
 #include <QLabel>
 

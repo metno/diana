@@ -53,11 +53,13 @@ ModifyLayersCommand::ModifyLayersCommand(
 void ModifyLayersCommand::undo()
 {
   layerMgr_->replaceState(oldLayerGroups_, oldOrderedLayers_);
+  EditItemManager::instance()->updateJoins();
 }
 
 void ModifyLayersCommand::redo()
 {
   layerMgr_->replaceState(newLayerGroups_, newOrderedLayers_);
+  EditItemManager::instance()->updateJoins();
 }
 
 void ModifyLayersCommand::removeLayers(const QList<QSharedPointer<Layer> > &removableLayers)

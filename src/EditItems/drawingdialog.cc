@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,7 +66,6 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // create an action that can be used to open the dialog from within a menu or toolbar
   m_action = new QAction(QIcon(QPixmap(drawing_xpm)), tr("Drawing Dialog"), this);
-  m_action->setShortcutContext(Qt::ApplicationShortcut);
   m_action->setShortcut(Qt::ALT + Qt::Key_B);
   m_action->setCheckable(true);
   m_action->setIconVisibleInMenu(true);
@@ -76,12 +73,12 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   layerMgr_ = new EditItems::LayerManager();
 
   // create the GUI
-  setWindowTitle("Drawing Dialog");
+  setWindowTitle(tr("Drawing Dialog"));
   setFocusPolicy(Qt::StrongFocus);
   QSplitter *splitter = new QSplitter(Qt::Vertical);
   layerGroupsPane_ = new LayerGroupsPane(layerMgr_);
   splitter->addWidget(layerGroupsPane_);
-  layersPane_ = new DrawingLayersPane(layerMgr_, "Active Layers");
+  layersPane_ = new DrawingLayersPane(layerMgr_, tr("Active Layers"));
   layersPane_->init();
   splitter->addWidget(layersPane_);
   splitter->setSizes(QList<int>() << 500 << 500);
@@ -111,14 +108,8 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   // load available layer groups
   foreach (const QString &fileName, drawm_->getDrawings()) {
-    QString error;
-    const QList<QSharedPointer<Layer> > layers =
-        KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(layerMgr_, fileName, &error);
-    if (error.isEmpty())
-      layerMgr_->addToNewLayerGroup(layers, fileName);
-    else
-      qDebug() << QString("DrawingDialog::DrawingDialog(): failed to load layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
+    const QList<QSharedPointer<Layer> > layers;
+    layerMgr_->addToNewLayerGroup(layers, fileName);
   }
   layerGroupsPane_->updateWidgetStructure();
 
@@ -242,7 +233,7 @@ void DrawingDialog::makeProduct()
   // Write the layers to temporary files in the working directory.
   QDir dir(drawm_->getWorkDir());
   QString filePath = dir.absoluteFilePath("temp.kml");
-  layersPane_->saveVisible(filePath);
+  layersPane_->saveSelected(filePath);
 
   std::vector<std::string> inp;
   inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");

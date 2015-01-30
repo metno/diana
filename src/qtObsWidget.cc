@@ -133,6 +133,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   nobutton = !button.size();
   bool devField=false;
   bool tempPrecision=false;
+  bool unit_ms=false;
   bool allAirepsLevels=false;
   bool asFieldButton=false;
   bool orient=false;
@@ -155,6 +156,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
         devField = on;
       else if(stokens[0]=="tempPrecision")
         tempPrecision = on;
+      else if(stokens[0]=="unit_ms")
+        unit_ms = on;
       else if(stokens[0]=="allAirepsLevels")
         allAirepsLevels = on;
       else if(stokens[0]=="markerboxVisible")
@@ -280,6 +283,8 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   showposCheckBox= new QCheckBox(tr("Show all positions"),this);
   tempPrecisionCheckBox= new QCheckBox(tr("Temperatures as integers"),this);
   if(!tempPrecision) tempPrecisionCheckBox->hide();
+  unit_msCheckBox= new QCheckBox(tr("Wind speed in m/s"),this);
+  if(!unit_ms) unit_msCheckBox->hide();
   parameterNameCheckBox= new QCheckBox(tr("Name of parameter"),this);
   if(!parameterName) parameterNameCheckBox->hide();
   popupWindowCheckBox= new QCheckBox(tr("Selected observation in popup window"),this);
@@ -346,6 +351,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   connect(onlyposCheckBox, SIGNAL(toggled(bool)), SLOT(onlyposChecked(bool)));
 
   tempPrecisionCheckBox->setChecked( true );
+  unit_msCheckBox->setChecked( false );
   allAirepsLevelsCheckBox->setChecked( false );
 
 
@@ -406,6 +412,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   QLabel *sortLabel = new QLabel( tr("Sort "), this);
   sortBox = ComboBox( this,buttonNames,true);
   sortBox->insertItem(0,tr("No sort criteria"));
+  sortBox->setCurrentIndex(0);
   sortRadiogroup = new QButtonGroup( this );
   ascsortButton = new QRadioButton(tr("Asc"), this);
   descsortButton = new QRadioButton(tr("Desc"), this);
@@ -469,6 +476,7 @@ void ObsWidget::setDialogInfo( Controller* ctrl,
   vcommonlayout->addWidget( alignmentCheckBox );
   vcommonlayout->addWidget( showposCheckBox );
   vcommonlayout->addWidget( tempPrecisionCheckBox );
+  vcommonlayout->addWidget( unit_msCheckBox );
   vcommonlayout->addWidget( parameterNameCheckBox );
   vcommonlayout->addWidget( moreTimesCheckBox );
   vcommonlayout->addWidget( qualityCheckBox );
@@ -782,6 +790,9 @@ std::string ObsWidget::getOKString(bool forLog)
   if( tempPrecisionCheckBox->isChecked() )
     dVariables.misc["tempprecision"]="true";
 
+  if( unit_msCheckBox->isChecked() )
+    dVariables.misc["unit_ms"]="true";
+
   if( parameterNameCheckBox->isChecked() )
     dVariables.misc["parametername"]="true";
 
@@ -981,6 +992,12 @@ void ObsWidget::updateDialog(bool setChecked){
   if (dVariables.misc.count("tempprecision") &&
       dVariables.misc["tempprecision"] == "true"){
     tempPrecisionCheckBox->setChecked(true);
+  }
+
+  //wind unit m/s
+  if (dVariables.misc.count("unit_ms") &&
+      dVariables.misc["unit_ms"] == "true"){
+    unit_msCheckBox->setChecked(true);
   }
 
   //parameterName
@@ -1263,6 +1280,8 @@ void ObsWidget::setFalse(){
   devFieldChecked(false);
 
   tempPrecisionCheckBox->setChecked(false);
+
+  unit_msCheckBox->setChecked(false);
 
   parameterNameCheckBox->setChecked(false);
 

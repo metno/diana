@@ -54,7 +54,6 @@
 #include "diVprofRTemp.h"
 #endif // ROADOBS
 
-#include <diField/diFieldManager.h>
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
@@ -76,11 +75,6 @@ using namespace road;
 using namespace std;
 using miutil::miTime;
 
-namespace {
-inline vector<string> to_vector_string(const vector<miutil::miString>& m)
-        { return vector<string>(m.begin(), m.end()); }
-}
-
 //#define DEBUGPRINT 1
 
 VprofManager::VprofManager(Controller* co)
@@ -89,8 +83,6 @@ VprofManager::VprofManager(Controller* co)
   plotw(0), ploth(0), hardcopy(false)
 {
   METLIBS_LOG_SCOPE();
-
-  fieldm= co->getFieldManager(); // set fieldmanager
 
   vpopt= new VprofOptions();  // defaults are set
 
@@ -120,7 +112,6 @@ void VprofManager::cleanup()
     delete vpdata[i];
   vpdata.clear();
   // NOTE: Flush the field cache
-  fieldm->fieldcache->flush();
 }
 
 
@@ -226,7 +217,7 @@ void VprofManager::parseSetup()
             filetype = tokens1[1];
           }
         }
-        if ( filetype !="standard" && filetype!="GribFile" ) {
+        if ( filetype !="standard" ) {
           sources.push_back(vstr[i]);
 
           stationsfilenames[model]= stationsfilename;
@@ -871,8 +862,6 @@ bool VprofManager::initVprofData(std::string model)
   bool ok = false;
   if ( filetypes[model_part] == "standard") {
     ok = vpd->readFile();
-  } else if ( filetypes[model_part] == "GribFile") {
-    ok = vpd->readField(filetypes[model_part], fieldm);
   } else {
     ok = vpd->readFimex(setup);
   }
@@ -1134,8 +1123,6 @@ void VprofManager::checkObsTime(int hour)
   if (hour>23) hour=-1;
   bool newtime= !obsTime.size();
   int n= obsfiles.size();
-
-  pu_struct_stat statbuf;
 
   for (int i=0; i<n; i++) {
 #ifdef DEBUGPRINT_FILES

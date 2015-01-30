@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2014 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,8 +29,9 @@
 #ifndef _qtPrintManager_h
 #define _qtPrintManager_h
 
+#include "diPrintOptions.h"
+
 #include <qprinter.h>
-#include <diPrintOptions.h>
 
 // conversion from Qt-printing types to diana-types
 d_print::Orientation getOrientation(QPrinter::Orientation ori);

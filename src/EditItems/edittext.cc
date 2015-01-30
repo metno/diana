@@ -36,14 +36,14 @@
 #include "diPlotModule.h"
 #include "EditItems/drawingstylemanager.h"
 #include "EditItems/dialogcommon.h"
-#include <EditItems/modifytextcommand.h>
 #include <QAction>
 
 namespace EditItem_Text {
 
-Text::Text()
+Text::Text(int id)
+  : DrawingItem_Text::Text(id)
 {
-  editAction = new QAction(tr("Edit Text"), this);
+  editAction = new QAction(tr("Edit text"), this);
   connect(editAction, SIGNAL(triggered()), SLOT(editText()));
 }
 
@@ -58,9 +58,9 @@ QList<QAction *> Text::actions(const QPoint &pos) const
   return acts;
 }
 
-DrawingItemBase *Text::cloneSpecial() const
+DrawingItemBase *Text::cloneSpecial(bool setUniqueId) const
 {
-  Text *item = new Text;
+  Text *item = new Text(setUniqueId ? -1 : id());
   copyBaseData(item);
   // ### copy special data from this into item ... TBD
   return item;
@@ -81,10 +81,7 @@ bool Text::hit(const QRectF &bbox) const
   return textbox.intersects(bbox);
 }
 
-void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-                      QSet<QSharedPointer<DrawingItemBase> > *items,
-                      const QSet<QSharedPointer<DrawingItemBase> > *selItems,
-                      bool *multiItemOp)
+void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {
     pressedCtrlPointIndex_ = -1;
@@ -199,10 +196,8 @@ bool Text::editText()
     const QString t = textEditor.text().trimmed();
     if (!t.isEmpty()) {
       const QStringList newText = t.split("\n");
-
       if (newText != oldText)
-        EditItemManager::instance()->undoStack()->push(
-              new EditItems::ModifyTextCommand("modify text", QSharedPointer<DrawingItem_Text::Text>(this), oldText, newText));
+        Drawing(this)->setProperty("text", newText);
       return true;
     } else {
       return false;

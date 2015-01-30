@@ -33,7 +33,7 @@
 #include <gtest/gtest.h>
 #include <cstring>
 
-static const std::string SRC_TEST = std::string(TOP_SRCDIR) + "/src/test/";
+static const std::string SRC_TEST = TEST_SRCDIR "/";
 
 TEST(TestUtilities, StartsWith)
 {

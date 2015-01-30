@@ -3,17 +3,33 @@ diana_lib = $(top_builddir)/src/libdiana.a
 
 TESTS = 
 
-check_PROGRAMS = 
+check_PROGRAMS =
 
 if HAVE_GTEST
 TESTS += dianaUnitTests
 check_PROGRAMS += dianaUnitTests
 
+dianaUnitTests_qt_sources = \
+    TestVcrossQtManager.cc \
+    TestVcrossQuickmenues.cc
+
+dianaUnitTests_moc_sources = $(dianaUnitTests_qt_sources:.cc=.moc.cc)
+
 dianaUnitTests_SOURCES = \
+    $(dianaUnitTests_qt_sources) \
+    TestVcrossComputer.cc \
     TestVprofData.cc \
     TestCommandParser.cc \
+    TestLogFileIO.cc \
     TestPlotOptions.cc \
     TestUtilities.cc
+
+nodist_dianaUnitTests_SOURCES = \
+     $(dianaUnitTests_moc_sources)
+
+%.moc.cc: %.h
+	@mkdir -p $(shell dirname $@)
+	$(MOC4) $(DEFAULT_INCLUDES) -o $@ $<
 
 if !WITH_EMBEDDED
 dianaUnitTests_SOURCES += \
@@ -33,7 +49,7 @@ dianaUnitTests_LDFLAGS = -L.. \
     $(QT4_LDFLAGS)
 
 dianaUnitTests_CPPFLAGS = \
-    $(AM_CPPFLAGS) -I$(srcdir)/.. -DTOP_SRCDIR=\"$(top_srcdir)\" \
+    $(AM_CPPFLAGS) -I$(srcdir)/.. -DTEST_SRCDIR=\"$(srcdir)\" \
     $(DIFIELD_CPPFLAGS) \
     $(MIRASTER_CPPFLAGS) \
     $(EMOS_CPPFLAGS) \
@@ -56,8 +72,9 @@ dianaUnitTests_LDADD = \
     $(GLU_LIBS) \
     $(gtest_LIBS) \
     $(PNG_LIBS) \
-    $(QT4_LIBS)
+    $(QT4_LIBS) \
+    $(BOOST_SYSTEM_LIBS)
 
 endif # HAVE_GTEST
 
-EXTRA_DIST = arome_vprof.nc
+EXTRA_DIST = arome_vprof.nc bangladesh_vc.nc

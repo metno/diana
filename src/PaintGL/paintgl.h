@@ -234,7 +234,7 @@ public:
       F_NORMAL = 0, F_BOLD = 1, F_ITALIC = 2, F_BOLD_ITALIC = 3
     };
 
-    glText() {}
+    glText();
     ~glText() {}
 
     // fill fontpack for testing
@@ -271,6 +271,11 @@ public:
       glHeight = glh;
       pixWidth = glWidth / vpWidth;
       pixHeight = glHeight / vpHeight;
+
+      // These are set this way in glTextTT for a fixed size viewport, which
+      // is what Diana apparently uses.
+      scalex = pixWidth;
+      scaley = pixHeight;
     }
     // set viewport size in physical coordinates (pixels)
     virtual void setVpSize(const float vpw, const float vph)
@@ -279,6 +284,11 @@ public:
       vpHeight = vph;
       pixWidth = glWidth / vpWidth;
       pixHeight = glHeight / vpHeight;
+
+      // These are set this way in glTextTT for a fixed size viewport, which
+      // is what Diana apparently uses.
+      scalex = pixWidth;
+      scaley = pixHeight;
     }
     virtual void setPixSize(const float pw, const float ph)
     {
@@ -352,6 +362,8 @@ private:
   int size_add; // user-controlled size modification
   bool hardcopy; // Hardcopy production
   GLPcontext* output; // OpenGL Hardcopy Module
+
+  float scalex, scaley;
 
   bool _addFamily(const std::string, int&) { return true; }
   bool _addSize(const int, int&) { return true; }

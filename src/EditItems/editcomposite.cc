@@ -46,7 +46,8 @@
 
 namespace EditItem_Composite {
 
-Composite::Composite()
+Composite::Composite(int id)
+  : DrawingItem_Composite::Composite(id)
 {
   editAction = new QAction(tr("Edit item"), this);
   connect(editAction, SIGNAL(triggered()), SLOT(editItem()));
@@ -84,9 +85,9 @@ bool Composite::isEditable(DrawingItemBase *element) const
     return false;
 }
 
-DrawingItemBase *Composite::cloneSpecial() const
+DrawingItemBase *Composite::cloneSpecial(bool setUniqueId) const
 {
-  Composite *item = new Composite;
+  Composite *item = new Composite(setUniqueId ? -1 : id());
   copyBaseData(item);
   // ### copy special data from this into item ... TBD
   return item;

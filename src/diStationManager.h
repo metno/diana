@@ -33,7 +33,7 @@
 #include <QString>
 
 class StationPlot;
-class Station;
+struct Station;
 
 class StationManager
 {

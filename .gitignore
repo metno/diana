@@ -90,3 +90,5 @@
 /src/test/gtest/Makefile
 /src/test/gtest/gtest*.o
 /src/test/gtest/libgtest*.a
+/config.h.in~
+/test-driver

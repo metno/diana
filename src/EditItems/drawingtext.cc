@@ -38,7 +38,8 @@
 
 namespace DrawingItem_Text {
 
-Text::Text()
+Text::Text(int id)
+  : DrawingItemBase(id)
 {
   propertiesRef().insert("style:margin", defaultMargin());
   propertiesRef().insert("style:spacing", defaultSpacing());
@@ -76,6 +77,9 @@ void Text::draw()
   styleManager->drawText(this);
 }
 
+/**
+ * Get the string size in viewport/screen units.
+ */
 QSizeF Text::getStringSize(const QString &text, int index) const
 {
   if (index == -1)
@@ -84,15 +88,16 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   DrawingStyleManager *styleManager = DrawingStyleManager::instance();
   styleManager->setFont(this);
 
+  // Obtain the width and height of the text in plot coordinates.
   float width, height;
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
-  #if defined(USE_PAINTGL)
-  const float scale = 1.0;
-  #else
-  const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
-  #endif
+  float scale = 1.0;
+  float physWidth = PlotModule::instance()->getStaticPlot()->getPhysWidth();
+  float plotWidth = PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+  if (plotWidth != 0.0)
+    scale = physWidth/plotWidth;
 
   QSizeF size(scale * width, scale * height);
 

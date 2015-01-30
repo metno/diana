@@ -123,12 +123,12 @@ void Resolver::resolveAllPlots(model_data& md)
       InventoryBase_cp p = findItemById(md.resolved_fields, arg);
       FieldData_cp fp = boost::dynamic_pointer_cast<const FieldData>(p);
       if (not fp) {
-        METLIBS_LOG_WARN("plot '" << cp->name << "' argument '" << arg << "' unknown or not a field");
+        METLIBS_LOG_DEBUG("plot '" << cp->name << "' argument '" << arg << "' unknown or not a field");
         argumentsOk = false;
         break;
       } else if (not rp->arguments.empty() and rp->arguments.back()->zaxis() != fp->zaxis())
       {
-        METLIBS_LOG_WARN("plot '" << cp->name << "' arguments '" << arg << "' have different z axes");
+        METLIBS_LOG_DEBUG("plot '" << cp->name << "' arguments '" << arg << "' have different z axes");
         argumentsOk = false;
         break;
       } else {
@@ -154,15 +154,7 @@ bool vc_resolve_surface(Resolver_p resolver, const std::string& model)
 {
   METLIBS_LOG_SCOPE();
   return vc_resolve_unit(resolver, model, VC_SURFACE_PRESSURE, "hPa")
-      and vc_resolve_unit(resolver, model, VC_SURFACE_HEIGHT,   "m");
-}
-
-bool vc_resolve_pressure_height(Resolver_p resolver, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  return vc_resolve_surface(resolver, model)
-      and vc_resolve_unit(resolver, model, VC_SPECIFIC_HUMIDITY, "1")
-      and vc_resolve_unit(resolver, model, VC_AIR_TEMPERATURE,   "K");
+      and vc_resolve_unit(resolver, model, VC_SURFACE_ALTITUDE, "m");
 }
 
 } // namespace vcross

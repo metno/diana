@@ -157,7 +157,7 @@ bool readQuickMenu(quickMenu& qm)
       if (tokens.size()>1){
         op.key= tokens[0];
         value= tokens[1];
-        op.options= miutil::split(value, ",", false); //Do not skip blank enteries
+        op.options = miutil::split_protected(value, '"','"',",", false); //Do not skip blank enteries
         op.def= (op.options.size()>0 ? op.options[0] : "");
         // add a new option
         qm.opt.push_back(op);

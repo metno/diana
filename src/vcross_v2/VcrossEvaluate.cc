@@ -12,15 +12,15 @@
 
 namespace vcross {
 
-model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user_crossection, const Time& user_time)
+model_values_m vc_fetch_crossection(Collector_p collector, const std::string& user_crossection, const Time& user_time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
     
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -42,14 +42,14 @@ model_values_m vc_fetch_crossection(Collector_p manager, const std::string& user
   return model_values;
 }
 
-model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_crossection, const Time& user_time)
+model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_crossection, const Time& user_time)
 {
   //METLIBS_LOG_SCOPE(LOGVAL(user_crossection) << LOGVAL(user_time.unit) << LOGVAL(user_time.value));
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -73,15 +73,15 @@ model_values_m vc_fetch_pointValues(Collector_p manager, const LonLat& user_cros
 
 // ########################################################################
 
-model_values_m vc_fetch_timegraph(Collector_p manager, const LonLat& position)
+model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
 {
   METLIBS_LOG_SCOPE();
-  const model_required_m& mr = manager->getRequired();
+  const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const std::string& model = it->first;
     
-    Source_p src = manager->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory();
@@ -182,92 +182,45 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
 void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, const std::string& model)
 {
   METLIBS_LOG_SCOPE();
-  static const char* surface_field_ids[] = { VC_SURFACE_PRESSURE, VC_SURFACE_HEIGHT, 0 };
+  static const char* surface_field_ids[] = { VC_SURFACE_PRESSURE, VC_SURFACE_ALTITUDE, 0 };
   // FIXME need to convert to expected units
   vc_evaluate_fields(collector, model_values, model, surface_field_ids);
 }
 
 // ########################################################################
 
-Values_cpv vc_evaluate_pressure_height(Collector_p collector, model_values_m& model_values, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  if (not vc_resolve_pressure_height(collector->getResolver(), model)) {
-    METLIBS_LOG_DEBUG("could not resolve fields for pressure->height conversion");
-    return Values_cpv();
-  }
-
-  static const char* conversion_field_ids[] = {
-    VC_SPECIFIC_HUMIDITY, VC_AIR_TEMPERATURE, VC_SURFACE_PRESSURE, VC_SURFACE_HEIGHT, 0 
-  };
-  // FIXME need to convert to expected units
-  return vc_evaluate_fields(collector, model_values, model, conversion_field_ids);
-}
-
-// ########################################################################
-
-Values_cp vc_converted_z_axis(ZAxisData_cp zaxis, Values_cp z_values, Z_AXIS_TYPE z_type,
-    Collector_p collector, model_values_m& model_values, const std::string& model)
-{
-  z_values = util::unitConversion(z_values, zaxis->unit(), "hPa");
-  if (not z_values)
-    return Values_cp();
-
-  const Z_AXIS_TYPE zaxis_type = zaxis->zType();
-  if (zaxis_type == z_type)
-    return z_values;
-  
-  if (zaxis_type == Z_TYPE_PRESSURE and z_type == Z_TYPE_HEIGHT) {
-    const Values_cpv conversion_values = vc_evaluate_pressure_height(collector, model_values, model);
-    if (conversion_values.empty())
-      return Values_cp();
-
-    return heightFromPressure(z_values, zaxis->zdirection() == Z_DIRECTION_UP,
-        conversion_values[0], conversion_values[1],
-        conversion_values[2], conversion_values[3]);
-  }
-  return Values_cp();
-}
-
-// ------------------------------------------------------------------------
-
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model_values, Z_AXIS_TYPE z_type)
 {
   METLIBS_LOG_SCOPE();
-  typedef std::pair<Values_cp, Values_cp> z_hpa_conv_t;
-  typedef std::map<std::string, z_hpa_conv_t> z_name_values_t;
-  typedef std::map<std::string, z_name_values_t> model_z_t;
-  model_z_t model_z;
   
   EvaluatedPlot_cpv evaluated_plots;
   BOOST_FOREACH(SelectedPlot_cp sp, collector->getSelectedPlots()) {
+    if (!sp->visible)
+      continue;
     if (sp->resolved->arguments.empty())
       continue;
 
     model_values_m::iterator it = model_values.find(sp->model);
     if (it == model_values.end())
       continue;
-
     name2value_t& n2v = it->second;
-    z_name_values_t& z_name_values = model_z[sp->model];
 
     EvaluatedPlot_p ep(new EvaluatedPlot(sp));
-
     FieldData_cp arg0 = sp->resolved->arguments.at(0);
     if (ZAxisData_cp zaxis = arg0->zaxis()) {
-      z_name_values_t::iterator it_z = z_name_values.find(zaxis->id());
-      if (it_z == z_name_values.end()) {
-        z_hpa_conv_t z;
-        METLIBS_LOG_DEBUG("about to convert z axis '" << zaxis->id() << "' from '" << zaxis->unit() << "' to hPa");
-        z.first  = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
-        z.second = vc_converted_z_axis(zaxis, z.first, z_type,
-            collector, model_values, sp->model);
-        it_z = z_name_values.insert(std::make_pair(zaxis->id(), z)).first;
+      Values_cp z_values;
+      if (z_type == Z_TYPE_PRESSURE) {
+        if (util::unitsConvertible(zaxis->unit(), "hPa"))
+          z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
+        else if (InventoryBase_cp pfield = zaxis->pressureField())
+          z_values = vc_evaluate_field(pfield, n2v);
+      } else if (z_type == Z_TYPE_ALTITUDE) {
+        if (util::unitsConvertible(zaxis->unit(), "m"))
+          z_values = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "m");
+        else if (InventoryBase_cp afield = zaxis->altitudeField())
+          z_values = vc_evaluate_field(afield, n2v);
       }
-      n2v[VC_PRESSURE] = it_z->second.first;
-      ep->z_values     = it_z->second.second; // FIXME these values do not match zaxis' units
-    } else {
-      n2v.erase(VC_PRESSURE);
+      ep->z_values = z_values; // FIXME these values do not match zaxis' units
     }
 
     ep->argument_values = vc_evaluate_fields(n2v, sp->resolved->arguments);

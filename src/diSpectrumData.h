@@ -77,7 +77,6 @@ private:
   int numTime;
   int numDirec;
   int numFreq;
-  int numExtra;
 
   std::vector<float> directions;
   std::vector<float> frequences;

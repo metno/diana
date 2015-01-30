@@ -83,7 +83,8 @@ ObsPlot::ObsPlot() :
 
   x = NULL;
   y = NULL;
-  Scale = 1;
+  markerSize = -1;
+  textSize = 1;
   allObs = false;
   levelAsField = false;
   level = -10;
@@ -92,6 +93,7 @@ ObsPlot::ObsPlot() :
   density = 1;
   numPar = 0;
   tempPrecision = false;
+  unit_ms = false;
   vertical_orientation = true;
   left_alignment = true;
   showpos = false;
@@ -207,7 +209,7 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
 void ObsPlot::replaceObsData(std::vector<ObsData>& obs)
 {
   // best performance ?
-  size_t new_size = obsp.size() - obs.size();
+  int new_size = obsp.size() - obs.size();
   if (new_size < 0)
     new_size = 0;
   resetObs(new_size);
@@ -424,9 +426,15 @@ bool ObsPlot::prepare(const std::string& pin)
       } else if (key == "parameter") {
         parameter = miutil::split(orig_value, 0, ",");
         numPar = parameter.size();
-      } else if (key == "scale")
-        Scale = atof(value.c_str());
-      else if (key == "density") {
+      } else if (key == "scale") {
+        textSize = atof(value.c_str());
+        if ( markerSize < 0 )
+          markerSize = atof(value.c_str());
+      } else if (key == "marker.size") {
+        markerSize = atof(value.c_str());
+      } else if (key == "text.size") {
+        textSize = atof(value.c_str());
+      } else if (key == "density") {
         if (miutil::to_lower(value) == "allobs")
           allObs = true;
         else
@@ -449,6 +457,8 @@ bool ObsPlot::prepare(const std::string& pin)
         mslpColour2 = c;
       } else if (key == "tempprecision") {
         tempPrecision = is_true(value);
+      } else if (key == "unit_ms") {
+        unit_ms = is_true(value);
       } else if (key == "parametername") {
         parameterName = is_true(value);
       } else if (key == "popup") {
@@ -506,6 +516,8 @@ bool ObsPlot::prepare(const std::string& pin)
     }
   }
 
+  if ( markerSize < 0 )
+    markerSize = textSize;
   std::string all = "all";
   parameterDecode(all, false);
   for (int i = 0; i < numPar; i++) {
@@ -1306,14 +1318,14 @@ bool ObsPlot::preparePlot()
   if (not numObs)
     return false;
 
-  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface, 8 * Scale);
+  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface, 8 * textSize);
   // fontsizeScale != 1 when postscript font size != X font size
   if (getStaticPlot()->hardcopy)
     fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
   else
     fontsizeScale = 1.0;
 
-  scale= Scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
+  scale= textSize*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
 
   int num=numPar;
   // I think we should check for roadobsWind here also
@@ -1584,15 +1596,15 @@ bool ObsPlot::plot()
     origcolour = getStaticPlot()->getBackContrastColour();
   glColor4ubv(origcolour.RGBA());
 
-  if (Scale < 1.75)
+  if (textSize < 1.75)
     glLineWidth(1);
-  else if (Scale < 2.55)
+  else if (textSize < 2.55)
     glLineWidth(2);
   else
     glLineWidth(3);
 
   getStaticPlot()->getFontPack()->set(poptions.fontname, poptions.fontface,
-      8 * Scale);
+      8 * textSize);
 
   // fontsizeScale != 1 when postscript font size != X font size
   if (getStaticPlot()->hardcopy)
@@ -1600,7 +1612,7 @@ bool ObsPlot::plot()
   else
     fontsizeScale = 1.0;
 
-  scale = Scale * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth()
+  scale = textSize * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth()
   * 0.7;
 
   if (poptions.antialiasing)
@@ -1611,7 +1623,7 @@ bool ObsPlot::plot()
   //Plot markers only
   if (onlypos) {
     ImageGallery ig;
-    ig.plotImages(numObs, image, x, y, true, Scale);
+    ig.plotImages(numObs, image, x, y, true, markerSize);
     return true;
   }
 
@@ -2243,7 +2255,7 @@ void ObsPlot::plotList(int index)
   float yShift = ig.heightp(image) / 2;
 
   if (!pFlag.count("wind")) {
-    ig.plotImage(thisImage, x[index], y[index], true, Scale);
+    ig.plotImage(thisImage, x[index], y[index], true, markerSize);
   }
 
   glPushMatrix();
@@ -2365,7 +2377,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if (dta.fdata.count("ff")) {
       checkColourCriteria("ff", ff_p->second);
-      printList(diutil::ms2knots(ff_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? ff_p->second : diutil::ms2knots(ff_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2374,7 +2387,7 @@ void ObsPlot::plotList(int index)
       tempPrecision ? 0 : 1);
   printListParameter2(dta, "TdTdTd", xpos, ypos, yStep, align_right,
       tempPrecision ? 0 : 1);
-  printListParameter(dta, "pppp", xpos, ypos, yStep, align_right, 1);
+  printListParameter(dta, "PPPP", xpos, ypos, yStep, align_right, 1);
   if (devfield && (f_p = dta.fdata.find("PPPP_mslp")) != dta.fdata.end()) {
     ypos -= yStep;
     printAvvik(f_p->second, xpos, ypos, align_right);
@@ -2543,7 +2556,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("911ff")) != dta.fdata.end()) {
       checkColourCriteria("911ff", f_p->second);
-      printList(diutil::ms2knots(f_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2553,7 +2567,8 @@ void ObsPlot::plotList(int index)
     ypos -= yStep;
     if ((f_p = dta.fdata.find("fxfx")) != dta.fdata.end()) {
       checkColourCriteria("fxfx", f_p->second);
-      printList(diutil::ms2knots(f_p->second), xpos, ypos, 0, align_right);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printList(ff, xpos, ypos, 0, align_right);
     } else {
       printUndef(xpos, ypos, align_right);
     }
@@ -2703,9 +2718,9 @@ void ObsPlot::plotAscii(int index)
       std::string thisImage = dta.stringdata["image"];
       xShift = ig.widthp(thisImage) / 2;
       yShift = ig.heightp(thisImage) / 2;
-      ig.plotImage(thisImage, x[index], y[index], true, Scale);
+      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
     } else {
-      ig.plotImage(thisImage, x[index], y[index], true, Scale);
+      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
     }
   }
 
@@ -4078,7 +4093,8 @@ void ObsPlot::plotSynop(int index)
   if (pFlag.count("911ff")) {
     if ((f_p = dta.fdata.find("911ff")) != fend) {
       checkColourCriteria("911ff", f_p->second);
-      printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 38],
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      printNumber(ff, iptab[lpos + 38],
           iptab[lpos + 39], "fill_2", true);
     }
   }
@@ -4097,11 +4113,12 @@ void ObsPlot::plotSynop(int index)
     if ((f_p = dta.fdata.find("fxfx")) != fend
         && !(dta.zone > 1 && dta.zone < 99)) {
       checkColourCriteria("fxfx", f_p->second);
+      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
       if (TxTnFlag)
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+        printNumber(ff, iptab[lpos + 6] + 10,
             iptab[lpos + 7], "fill_2", true);
       else
-        printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 6] + 10,
+        printNumber(ff, iptab[lpos + 6] + 10,
             iptab[lpos + 7] - 14, "fill_2", true);
     }
   }
@@ -4289,7 +4306,7 @@ void ObsPlot::plotMetar(int index)
   float xid, yid;
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
     checkColourCriteria("fmfm", f_p->second);
-    printNumber(diutil::ms2knots(f_p->second), iptab[lpos + 4] + 2,
+    printNumber(f_p->second, iptab[lpos + 4] + 2,
         iptab[lpos + 5] + 2 - dndx, "left", true);
     //understrekes
     xid = iptab[lpos + 4] + 20 + 15;

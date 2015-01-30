@@ -4,14 +4,21 @@
 #include <diField/VcrossUtil.h>
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
-#include <boost/foreach.hpp>
+
+#include <boost/algorithm/string/join.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/algorithm/string.hpp>
 
 #define MILOGGER_CATEGORY "vcross.Collector"
 #include "miLogger/miLogging.h"
 
 namespace vcross {
+
+std::string SelectedPlot::optionString() const
+{
+  return boost::algorithm::join(options, " ");
+}
+
+// ########################################################################
 
 Collector::Collector(Setup_p setup)
   : mResolver(miutil::make_shared<Resolver>(setup))
@@ -34,13 +41,78 @@ void Collector::setupChanged()
 
 // ------------------------------------------------------------------------
 
-void Collector::clear()
+bool Collector::clear()
 {
-  mModelRequired.clear();
+  if (mSelectedPlots.empty())
+    return false;
+
   mSelectedPlots.clear();
+  setUpdateRequiredNeeded();
+  mModelRequired.clear();
+
+  return true;
 }
 
 // ------------------------------------------------------------------------
+
+int Collector::selectPlot(const std::string& model, const std::string& plot, const string_v& options)
+{
+  return insertPlot(model, plot, options, -1);
+}
+
+
+int Collector::insertPlot(const std::string& model, const std::string& plot, const string_v& options, int index)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(plot));
+  ResolvedPlot_cp rp = mResolver->getResolvedPlot(model, plot);
+  if (not rp)
+    return -1;
+
+  SelectedPlot_p sp(new SelectedPlot);
+  sp->model = model;
+  sp->resolved = rp;
+  sp->options = options;
+
+  if (index < 0 || index >= mSelectedPlots.size()) {
+    index = mSelectedPlots.size();
+    mSelectedPlots.push_back(sp);
+  } else {
+    mSelectedPlots.insert(mSelectedPlots.begin() + index, sp);
+  }
+
+  setUpdateRequiredNeeded();
+  return index;
+}
+  
+
+bool Collector::removePlot(int index)
+{
+  if (index < 0 || index >= mSelectedPlots.size())
+    return false;
+
+  mSelectedPlots.erase(mSelectedPlots.begin() + index);
+  setUpdateRequiredNeeded();
+
+  return true;
+}
+
+
+std::string Collector::getFirstModel() const
+{
+  for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
+    if ((*itSP)->visible)
+      return (*itSP)->model;
+  return std::string();
+}
+
+
+bool Collector::updateRequired()
+{
+  if (mModelRequired.empty())
+    requirePlots();
+
+  return !mModelRequired.empty();
+}
 
 void Collector::requireField(const std::string& model, InventoryBase_cp field)
 {
@@ -53,65 +125,36 @@ void Collector::requireField(const std::string& model, InventoryBase_cp field)
   collectRequired(required, field);
 }
 
-// ------------------------------------------------------------------------
 
-bool Collector::selectPlot(const std::string& model, const std::string& plot, const string_v& options)
+void Collector::requireVertical(Z_AXIS_TYPE zType)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(plot));
-  ResolvedPlot_cp rp = mResolver->getResolvedPlot(model, plot);
-  if (not rp)
-    return false;
-
-  SelectedPlot_p sp(new SelectedPlot);
-  sp->model = model;
-  sp->resolved = rp;
-  sp->options = options;
-  mSelectedPlots.push_back(sp);
-
-  InventoryBase_cps& required = mModelRequired[model];
-  BOOST_FOREACH(const FieldData_cp& a, rp->arguments) {
-    collectRequired(required, a);
-    if (a->hasZAxis())
-      required.insert(a->zaxis());
-  }
-
-  return true;
-}
-
-//########################################################################
-
-void vc_select_plots(Collector_p collector, const string_v& to_plot)
-{
-  METLIBS_LOG_SCOPE();
-
-  collector->clear();
-  BOOST_FOREACH(const std::string& line, to_plot) {
-    if (util::isCommentLine(line))
-      continue;
-    METLIBS_LOG_DEBUG(LOGVAL(line) );
-
-    string_v m_p_o = miutil::split(line);
-    string_v poptions;
-    std::string model, plotname;
-
-    BOOST_FOREACH(const std::string& token, m_p_o) {
-      string_v stoken = miutil::split(token,"=");
-      if ( stoken.size() != 2 )
-        continue;
-      std::string key = boost::algorithm::to_lower_copy(stoken[0]);
-      if (key == "model" ) {
-        model = stoken[1];
-      } else if ( key == "field" ) {
-        plotname = stoken[1];
-      } else {
-        poptions.push_back(token);
-      }
-    }
-    
-    if (not collector->selectPlot(model, plotname, poptions))
-      METLIBS_LOG_WARN("could not select plot '" << plotname << "' for model '" << model << "'");
+  for (model_required_m::iterator it = mModelRequired.begin(); it != mModelRequired.end(); ++it) {
+    InventoryBase_cps& required = it->second;
+    const InventoryBase_cps fields = it->second; // take copy, not reference, as we modify it->second in the following loop
+    for (InventoryBase_cps::const_iterator it = fields.begin(); it != fields.end(); ++it)
+      vcross::collectRequiredVertical(required, *it, zType);
   }
 }
+
+
+void Collector::requirePlots()
+{
+  for (SelectedPlot_pv::iterator it = mSelectedPlots.begin(); it != mSelectedPlots.end(); ++it)
+    requirePlot(*it);
+}
+
+
+void Collector::requirePlot(SelectedPlot_p sp)
+{
+  if (!sp->visible)
+    return;
+
+  InventoryBase_cps& required = mModelRequired[sp->model];
+  const FieldData_cpv& args = sp->resolved->arguments;
+  for (FieldData_cpv::const_iterator it = args.begin(); it != args.end(); ++it)
+    collectRequired(required, *it);
+}
+
 
 //########################################################################
 
@@ -129,16 +172,7 @@ bool vc_require_surface(Collector_p collector, const std::string& model)
 {
   METLIBS_LOG_SCOPE();
   bool ok = vc_require_unit(collector, model, VC_SURFACE_PRESSURE, "hPa");
-  ok     &= vc_require_unit(collector, model, VC_SURFACE_HEIGHT,   "m");
-  return ok;
-}
-
-bool vc_require_pressure_height(Collector_p collector, const std::string& model)
-{
-  METLIBS_LOG_SCOPE();
-  bool ok = vc_require_surface(collector, model);
-  ok &= vc_require_unit(collector, model, VC_SPECIFIC_HUMIDITY, "1");
-  ok &= vc_require_unit(collector, model, VC_AIR_TEMPERATURE,   "K");
+  ok     &= vc_require_unit(collector, model, VC_SURFACE_ALTITUDE, "m");
   return ok;
 }
 

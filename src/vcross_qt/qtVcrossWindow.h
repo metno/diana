@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,11 +31,15 @@
 #define _qt_vcrossmainwindow_
 
 #include "vcross_v2/VcrossQtManager.h"
-#include "diVcrossSelectionManager.h"
+#include "vcross_v2/VcrossQuickmenues.h"
 #include "VcrossQtWidget.h"
+
+#include "diLogFile.h"
 #include "diPrintOptions.h"
+
 #include <QDialog>
 #include <QVariant>
+
 #include <vector>
 
 namespace miutil {
@@ -43,8 +47,9 @@ class miTime;
 }
 class ActionButton;
 class Controller;
-class LocationData;
+struct LocationData;
 class ToggleButton;
+class VcrossStyleDialog;
 class VcrossSetupDialog;
 class Ui_VcrossWindow;
 
@@ -55,6 +60,10 @@ class QHBoxLayout;
 class QPrinter;
 class QString;
 class QSpinBox;
+
+#ifndef Q_DECL_OVERRIDE
+#define Q_DECL_OVERRIDE /* empty */
+#endif
 
 /**
   \brief Window for Vertical Crossections
@@ -67,41 +76,35 @@ class VcrossWindow: public QWidget
   Q_OBJECT
 
 public:
-  VcrossWindow(Controller* co);
+  VcrossWindow();
   ~VcrossWindow();
 
-  //! alias for getCrossections \deprecated
-  void getCrossectionOptions(LocationData& locationdata)
-    { return getCrossections(locationdata); }
-  void getCrossections(LocationData& locationdata);
+  // ========== begin called via VcrossWindowInterface
+  void makeVisible(bool visible);
   bool changeCrossection(const std::string& crossection);
-  void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
   void parseQuickMenuStrings(const std::vector<std::string>& vstr);
-
   void parseSetup();
 
-  std::vector<std::string> writeLog(const std::string& logpart);
-
-  void readLog(const std::string& logpart, const std::vector<std::string>& vstr,
-	       const std::string& thisVersion, const std::string& logVersion,
+  void writeLog(LogFileIO& logfile);
+  void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
       int displayWidth, int displayHeight);
 
-  bool firstTime;
-  bool active;
+  void dynCrossEditManagerChange(const QVariantMap &props);
+  void dynCrossEditManagerRemoval(int id);
+  void slotCheckEditmode(bool editing);
+  // ========== end called via VcrossWindowInterface
 
-  ///add position to list of positions
-  void mapPos(float lat, float lon);
-
-Q_SIGNALS:
+Q_SIGNALS: // defined in VcrossInterface
   void VcrossHide();
-  void showsource(const std::string&, const std::string& = ""); // activate help
+  void requestHelpPage(const std::string&, const std::string& = ""); // activate help
+  void requestLoadCrossectionFiles(const QStringList& filenames);
+  //! called when draw/edit button is toggled
+  void requestVcrossEditor(bool on);
   void crossectionChanged(const QString&);
-  void crossectionSetChanged();
-  void crossectionSetUpdate();
+  void crossectionSetChanged(const LocationData& locations);
   void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
   void setTime(const std::string&, const miutil::miTime&);
-  void updateCrossSectionPos(bool);
   void quickMenuStrings(const std::string&, const std::vector<std::string>&);
   void nextHVcrossPlot();
   void prevHVcrossPlot();
@@ -113,59 +116,63 @@ private:
   //! setup UI and adjust some things that cannot be done easily with qt designer
   void setupUi();
 
-  void makeEPS(const std::string& filename);
-  void emitQmenuStrings();
-  void stepTime(int direction);
-  void dynCrossEditManagerEnableSignals();
-  void changeFields();
+  // emits SIGNAL(crossectionSetChanged) with list of crossections from vcross-manager
+
   void enableDynamicCsIfSupported();
-  void updateCrossectionBox();
-  void updateTimeBox();
+  void emitCrossectionSet();
+
+  void repaintPlotIfNotInGroup();
+  void repaintPlot();
 
 private Q_SLOTS:
   // GUI slots for leayer buttons
   void onFieldAction(int position, int action);
 
-  // slots for VcrossSelectionManager
+  // slots for QtManager
+  void onFieldChangeBegin(bool fromScript);
   void onFieldAdded(const std::string& model, const std::string& field, int position);
-  void onFieldUpdated(const std::string& model, const std::string& field, int position);
   void onFieldRemoved(const std::string& model, const std::string& field, int position);
-  void onFieldsRemoved();
+  void onFieldOptionsChanged(const std::string& model, const std::string& field, int position);
+  void onFieldVisibilityChanged(const std::string& model, const std::string& field, int position);
+  void onFieldChangeEnd();
 
-  // slots for diana main window
-  bool crossectionChangedSlot(int);
-  bool timeChangedSlot(int);
+  void crossectionChangedSlot(int);
+  void crossectionListChangedSlot();
+  void timeChangedSlot(int);
+  void timeListChangedSlot();
 
-  // slots for diana main window drawing editor
-  void dynCrossEditManagerChange(const QVariantMap &props);
-  void dynCrossEditManagerRemoval(int id);
-  void slotCheckEditmode(bool editing);
+  // GUI slots for widget
+  void stepCrossection(int direction);
+  void stepTime(int direction);
 
   // GUI slots for window
   void onAddField();
+  void onRemoveAllFields();
   void leftCrossectionClicked();
   void rightCrossectionClicked();
   void crossectionBoxActivated(int index);
   void leftTimeClicked();
   void rightTimeClicked();
   void timeBoxActivated(int index);
+
   void printClicked();
   void saveClicked();
   void onShowSetupDialog();
   void timeGraphClicked(bool on);
   void quitClicked();
   void helpClicked();
-  void dynCrossEditManagerEnabled(bool);
 
-  // slots for vcross setup dialog
+  // ---------- slots for vcross setup dialog
+  //! called when the apply from setup dialog is clicked
   void changeSetup();
 
 private:
   vcross::QtManager_p vcrossm;
+  std::auto_ptr<vcross::VcrossQuickmenues> quickmenues;
 
-  std::auto_ptr<VcrossSelectionManager> selectionManager;
   std::auto_ptr<Ui_VcrossWindow> ui;
 
+  VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;
 
@@ -174,6 +181,10 @@ private:
   QString mRasterFilename;
 
   int vcrossDialogX, vcrossDialogY;
+
+  bool firstTime, active;
+  bool mInFieldChangeGroup;
+  bool mGroupChangedFields;
 };
 
 #endif // _qt_vcrossmainwindow_

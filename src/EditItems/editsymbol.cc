@@ -33,12 +33,15 @@
 #include "drawingsymbol.h"
 #include "editsymbol.h"
 
+#include <EditItems/drawingstylemanager.h>
+
 #include <QAction>
 #include <QMenu>
 
 namespace EditItem_Symbol {
 
-Symbol::Symbol()
+Symbol::Symbol(int id)
+  : DrawingItem_Symbol::Symbol(id)
 {
   init();
   updateControlPoints();
@@ -48,9 +51,9 @@ Symbol::~Symbol()
 {
 }
 
-DrawingItemBase *Symbol::cloneSpecial() const
+DrawingItemBase *Symbol::cloneSpecial(bool setUniqueId) const
 {
-  Symbol *item = new Symbol;
+  Symbol *item = new Symbol(setUniqueId ? -1 : id());
   copyBaseData(item);
   return item;
 }
@@ -71,9 +74,7 @@ bool Symbol::hit(const QRectF &rect) const
 
 
 // ### similar to PolyLine::mousePress - move common code to base class?
-void Symbol::mousePress(
-    QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
-    QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems, bool *multiItemOp)
+void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   Q_ASSERT(undoCommands);
 
@@ -86,28 +87,15 @@ void Symbol::mousePress(
 
     if (multiItemOp)
       *multiItemOp = moving_; // i.e. a move operation would apply to all selected items
-
-  } else if (event->button() == Qt::RightButton) {
-    if (selItems) {
-      // open a context menu and perform the selected action
-      QMenu contextMenu;
-      QAction remove_act(tr("&Remove"), 0);
-
-      // add actions
-      contextMenu.addAction(&remove_act);
-      QAction *action = contextMenu.exec(event->globalPos(), &remove_act);
-      if (action == &remove_act)
-        remove(repaintNeeded, items, selItems);
-    }
   }
 }
 
-void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands)
+void Symbol::mouseRelease(QMouseEvent *event, bool &repaintNeeded)
 {
   if (resizing_)
     repaintNeeded = true;
 
-  EditItemBase::mouseRelease(event, repaintNeeded, undoCommands);
+  EditItemBase::mouseRelease(event, repaintNeeded);
 }
 
 void Symbol::incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted)
@@ -149,38 +137,35 @@ void Symbol::setPoints(const QList<QPointF> &points)
   setGeometry(points);
 }
 
-void Symbol::remove(bool &repaintNeeded, QSet<QSharedPointer<DrawingItemBase> > *items, const QSet<QSharedPointer<DrawingItemBase> > *selItems)
+void Symbol::drawHoverHighlightingBG(bool incomplete, bool selected) const
 {
-  // Option 1: remove this item only:
-  // items->remove(this);
+  if (incomplete)
+    return;
 
-  // Option 2: remove all selected items:
-  items->subtract(*selItems);
+  // highlight the bounding box boundary
+  bool ok = false;
+  const int lineWidth = properties().value("style:linewidth").toInt(&ok);
+  const int defaultLineWidth = 2;
+  const int pad = 6;
+  DrawingStyleManager::instance()->highlightPolyLine(this, boundingSquare(), (ok ? lineWidth : defaultLineWidth) + pad, QColor(255, 255, 0, 180), true);
 
-  repaintNeeded = true;
+  // highlight the control points
+  drawControlPoints(QColor(255, 0, 0, 255));
 }
 
 void Symbol::drawHoverHighlighting(bool incomplete, bool selected) const
 {
   if (incomplete)
-    glColor3ub(0, 200, 0);
-  else
-    glColor3ub(255, 0, 0);
+    return;
 
   if (hoverCtrlPointIndex_ >= 0) {
-    EditItemBase::drawHoveredControlPoint(); // highlight the control point
+    // highlight the control point
+    drawHoveredControlPoint(QColor(255, 0, 0, 255), 2);
+    drawHoveredControlPoint(QColor(255, 255, 0, 255));
   } else {
-    // highlight the bounding box
-    glPushAttrib(GL_LINE_BIT);
-    glLineWidth(2);
-    glBegin(GL_LINE_LOOP);
-    foreach (QPointF p, boundingSquare())
-      glVertex3i(p.x(), p.y(), 1);
-    glEnd();
-    glPopAttrib();
-
     // highlight the control points
-    drawControlPoints(selected);
+    if (selected)
+      drawControlPoints(QColor(255, 0, 0, 255));
   }
 }
 

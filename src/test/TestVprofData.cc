@@ -44,7 +44,7 @@ TEST(VprofDataTest, TestSetup)
 
   string_v sources;
   sources.push_back("m=" + std::string(modelName)
-      + " f=" + std::string(TOP_SRCDIR) + "/src/test/" + std::string(AROME_FILE)
+      + " f=" + std::string(TEST_SRCDIR) + "/" + std::string(AROME_FILE)
       + " t=netcdf");
   EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
   EXPECT_TRUE(setup->findSource(modelName));
@@ -74,21 +74,24 @@ TEST(VprofDataTest, TestSetup)
   field_ids.push_back("upward_air_velocity_ml");
   for (string_v::const_iterator it = field_ids.begin(); it != field_ids.end(); ++it)
     collector->requireField(modelName, *it);
+  collector->requireVertical(vcross::Z_TYPE_PRESSURE);
 
   FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, field_ids[0]));
   ASSERT_TRUE(air_temperature);
-  InventoryBase_cp zaxis = air_temperature->zaxis();
+  ZAxisData_cp zaxis = air_temperature->zaxis();
   ASSERT_TRUE(zaxis);
-  collector->requireField(modelName, zaxis);
 
   model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0));
   model_values_m::iterator itM = model_values.find(modelName);
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;
 
-  Values_cp zvalues = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
+  Values_cp zvalues;
+  if (util::unitsConvertible(zaxis->unit(), "hPa"))
+    zvalues = vc_evaluate_field(zaxis, n2v);
+  else if (InventoryBase_cp pfield = zaxis->pressureField())
+    zvalues = vc_evaluate_field(pfield, n2v);
   ASSERT_TRUE(zvalues);
-  n2v[VC_PRESSURE] = zvalues;
 
   vc_evaluate_fields(collector, model_values, modelName, field_ids);
 
