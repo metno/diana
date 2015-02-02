@@ -39,6 +39,7 @@
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
+#include <EditItems/timefilesextractor.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
 
@@ -203,6 +204,13 @@ bool DrawingManager::parseSetup()
     } else if (items.contains("complextext")) {
       QStringList strings = items["complextext"].split(",");
       styleManager_->setComplexTextList(strings);
+    } else if (items.contains("tseries")) {
+      const QString timeSeries = items.value("tseries");
+      const QString filePattern = items.value("tsfiles");
+      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(filePattern);
+      //qDebug() << "time series" << timeSeries << "; timefiles matching pattern" << filePattern << ":";
+      for (int i = 0; i < tfiles.size(); ++i)
+        ; //qDebug() << tfiles.at(i).first.filePath() << " / " << tfiles.at(i).second;
     }
   }
 
