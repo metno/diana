@@ -20,8 +20,12 @@ struct NameItem {
   std::string name;
   std::string function;
   string_v arguments;
-  NameItem() { }
-  NameItem(std::string n, std::string f) : name(n), function(f) { }
+
+  NameItem()
+    { }
+
+  NameItem(const std::string& n, const std::string& f)
+    : name(n), function(f) { }
 
   bool valid() const
     { return (not name.empty()); }

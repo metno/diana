@@ -10,10 +10,10 @@ struct EvaluatedPlot {
   SelectedPlot_cp selected;
   Values_cpv argument_values;
   Values_cp z_values;
-  
+
   EvaluatedPlot(SelectedPlot_cp sp)
     : selected(sp) { }
-  std::string name() const
+  const std::string& name() const
     { return selected->name(); }
   const ModelReftime& model() const
     { return selected->model; }

@@ -37,7 +37,7 @@ struct ResolvedPlot {
 
   ResolvedPlot(ConfiguredPlot_cp c)
     : configured(c) { }
-  std::string name() const
+  const std::string& name() const
     { return configured->name; }
 };
 

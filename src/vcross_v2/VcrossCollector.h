@@ -15,12 +15,13 @@ struct SelectedPlot {
   string_v options;
   bool visible;
 
-  std::string name() const
+  const std::string& name() const
     { return resolved->name(); }
 
   std::string optionString() const;
 
-  SelectedPlot(const ModelReftime& mr) : model(mr), visible(true) { }
+  SelectedPlot(const ModelReftime& mr)
+    : model(mr), visible(true) { }
 };
 typedef boost::shared_ptr<SelectedPlot> SelectedPlot_p;
 typedef boost::shared_ptr<const SelectedPlot> SelectedPlot_cp;

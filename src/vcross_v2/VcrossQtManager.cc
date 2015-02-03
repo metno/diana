@@ -580,7 +580,7 @@ void QtManager::preparePlot()
       const Time user_time = util::from_miTime(getTimeValue(getTimeIndex()));
       METLIBS_LOG_DEBUG(LOGVAL(user_time.unit) << LOGVAL(user_time.value));
       model_values = vc_fetch_crossection(mCollector, cs, user_time);
-      mPlot->setHorizontalCross(cs, mCrossectionPoints);
+      mPlot->setHorizontalCross(cs, getTimeValue(), mCrossectionPoints);
     }
   } else {
     METLIBS_LOG_DEBUG(LOGVAL(mCrossectionCurrent) << LOGVAL(mTimeGraphPos));

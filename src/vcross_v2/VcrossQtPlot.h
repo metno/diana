@@ -58,12 +58,17 @@ private:
   struct OptionPlot {
     EvaluatedPlot_cp evaluated;
     PlotOptions poptions;
+
     OptionPlot(EvaluatedPlot_cp e);
 
-    std::string model() const
+    const std::string& model() const
       { return evaluated->model().model; }
-    std::string name() const
+
+    miutil::miTime reftime() const;
+
+    const std::string& name() const
       { return evaluated->name(); }
+
     ConfiguredPlot::Type type() const
       { return evaluated->type(); }
   };
@@ -106,7 +111,8 @@ public:
   int getNearestPos(int px);
 
   void clear(bool keepX=false, bool keepY=false);
-  void setHorizontalCross(std::string csLabel, const LonLat_v& csPoints);
+  void setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
+      const LonLat_v& csPoints);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
   void setVerticalAxis();
   void setSurface(Values_cp s)
@@ -179,6 +185,7 @@ private:
 
   // for cross sections
   std::string mCrossectionLabel;
+  miutil::miTime mCrossectionTime;
   LonLat_v mCrossectionPoints;
   std::vector<float> mCrossectionDistances; //! distance in m from first point
 
