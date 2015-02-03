@@ -183,7 +183,7 @@ METNO_REQUIRE_C_LIBRARY([CURL], [curl], [curl/curl.h])
 
 # EMOSLIB
 AS_IF([test x$enable_obs_bufr = xyes], [
-    METNO_REQUIRE_PKG([EMOS], [emos], [], [static])
+    METNO_REQUIRE_PKG([EMOS], [emos], [], [])
 ])
 
 # udunits2
