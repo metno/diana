@@ -53,10 +53,14 @@ private:
   void setupUi();
 
   QString selectedModel() const;
+  QString selectedReferenceTime() const;
   QStringList selectedPlots() const;
 
   void initializeModelPage(bool forward);
   bool isModelComplete() const;
+
+  void initializeReftimePage(bool forward);
+  bool isReftimeComplete() const;
 
   void initializePlotPage(bool forward);
   bool isPlotComplete() const;
@@ -67,19 +71,22 @@ private Q_SLOTS:
   void onAdd();
 
   void checkModelComplete();
+  void checkReftimeComplete();
   void checkPlotComplete();
 
   void onModelFilter(const QString& text);
   void onPlotFilter(const QString& text);
 
 private:
-  enum { ModelPage, PlotPage };
+  enum { ModelPage, ReftimePage, PlotPage };
 
   vcross::QtManager_p vcrossm;
   std::auto_ptr<Ui_VcrossAddPlotDialog> ui;
 
   QStringListModel* modelNames;
   QSortFilterProxyModel* modelSorter;
+
+  QStringListModel* referenceTimes;
 
   QStringListModel* plotNames;
   QSortFilterProxyModel* plotSorter;

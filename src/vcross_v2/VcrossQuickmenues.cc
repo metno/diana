@@ -55,14 +55,14 @@ VcrossQuickmenues::VcrossQuickmenues(vcross::QtManager_p vcm)
   vcross::QtManager* m = mManager.get();
   connect(m, SIGNAL(fieldChangeBegin(bool)),
       this, SLOT(onFieldChangeBegin(bool)));
-  connect(m, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-  connect(m, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-  connect(m, SIGNAL(fieldOptionsChanged(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldOptionsChanged(const std::string&, const std::string&, int)));
-  connect(m, SIGNAL(fieldVisibilityChanged(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldVisibilityChanged(const std::string&, const std::string&, int)));
+  connect(m, SIGNAL(fieldAdded(int)),
+      this, SLOT(onFieldAdded(int)));
+  connect(m, SIGNAL(fieldRemoved(int)),
+      this, SLOT(onFieldRemoved(int)));
+  connect(m, SIGNAL(fieldOptionsChanged(int)),
+      this, SLOT(onFieldOptionsChanged(int)));
+  connect(m, SIGNAL(fieldVisibilityChanged(int)),
+      this, SLOT(onFieldVisibilityChanged(int)));
   connect(m, SIGNAL(fieldChangeEnd()),
       this, SLOT(onFieldChangeEnd()));
 
@@ -122,18 +122,19 @@ std::vector<std::string> VcrossQuickmenues::get() const
   const int n = mManager->getFieldCount();
   if (n > 0) {
     qm.push_back("VCROSS");
-    
+
     const string_v options = mManager->getOptions()->writeOptions();
     qm.insert(qm.end(), options.begin(), options.end());
 
     for (int i=0; i<n; ++i) {
       std::ostringstream field;
       field << "VCROSS model=" << mManager->getModelAt(i)
+            << " reftime=" << mManager->getReftimeAt(i).isoTime("T")
             << " field=" << mManager->getFieldAt(i)
             << " " << mManager->getOptionsAt(i);
       qm.push_back(field.str());
     }
-    
+
     const QString cs = mManager->getCrossectionLabel();
     if (!cs.isEmpty())
       qm.push_back(KEY_CROSSECTION_EQ + cs.toStdString());
@@ -178,27 +179,27 @@ void VcrossQuickmenues::onFieldChangeBegin(bool fromScript)
 }
 
 
-void VcrossQuickmenues::onFieldAdded(const std::string& model, const std::string& field, int position)
+void VcrossQuickmenues::onFieldAdded(int position)
 {
   METLIBS_LOG_SCOPE(LOGVAL(position));
   emitQmIfNotInGroup();
 }
 
 
-void VcrossQuickmenues::onFieldRemoved(const std::string& model, const std::string& field, int position)
+void VcrossQuickmenues::onFieldRemoved(int position)
 {
   emitQmIfNotInGroup();
 }
 
 
-void VcrossQuickmenues::onFieldOptionsChanged(const std::string& model, const std::string& field, int position)
+void VcrossQuickmenues::onFieldOptionsChanged(int position)
 {
   METLIBS_LOG_SCOPE(LOGVAL(position));
   emitQmIfNotInGroup();
 }
 
 
-void VcrossQuickmenues::onFieldVisibilityChanged(const std::string& model, const std::string& field, int position)
+void VcrossQuickmenues::onFieldVisibilityChanged(int position)
 {
 }
 

@@ -41,12 +41,36 @@
 #include <puTools/miTime.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <iomanip>
 #include <map>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObsBufr"
 #include <miLogger/miLogging.h>
+
+// libemos interface (to fortran routines)
+extern "C" {
+  extern long readbufr(FILE * file, char * buffer, long * bufr_len);
+
+  extern void bufrex_(int* ilen, int* ibuff, int* ksup, int* ksec0, int* ksec1,
+      int* ksec2, int* ksec3, int* ksec4, int* kelem,
+      const char* cnames, const char* cunits, int* kvals,
+      double* values, const char* cvals, int* kerr,
+      int len_cnames, int len_cunits, int len_cvals);
+  extern void buprt_(int* kswitch, int* ksub1, int* ksub2, int* kkelem,
+      const char* cnames, const char* cunits, const char* cvals,
+      int* kkvals, double* values, int* ksup, int* ksec1,
+      int* kerr, int len_cnames, int len_cunits, int len_cvals);
+  extern void busel_(int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
+      int* kerr);
+  extern void busel2_(int* ksubset, int * kelem,
+      int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
+      const char* cnames, const char* cunits,
+      int* kerr);
+  extern void bus012_(int* ilen, int* ibuff, int* ksup,
+      int* ksec0, int* ksec1, int* ksec2,int* kerr);
+} // extern "C"
 
 using namespace std;
 using namespace miutil;
@@ -55,128 +79,97 @@ const double bufrMissing = 1.6e+38;
 
 bool ObsBufr::init(const std::string& bufr_file, const std::string& format)
 {
-
-  //	     METLIBS_LOG_DEBUG("ObsBufr::init:"<<bufr_file);
+  METLIBS_LOG_SCOPE();
   obsTime = miTime(); //undef
-  //   const int ibflen=4*512000;
-  //   int ibuff[512000];
-  const int ibflen = 200000;
-  int ibuff[ibflen / 4];
-  std::string bufr_access = "r";
-  int iunit = 20;
-  int iret = 0;
 
-  // open for read
-  int len_bufr_file = bufr_file.length();
-  int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
-      len_bufr_access);
-
-  if (iret != 0) {
-    METLIBS_LOG_ERROR("ObsBufr::init: PBOPEN failed for " << bufr_file << "   iret="
-        << iret);
+  FILE* file_bufr = fopen(bufr_file.c_str(), "r");
+  if (!file_bufr) {
+    METLIBS_LOG_ERROR("fopen failed for '" << bufr_file << "'");
     return false;
   }
 
-  bool next = true;
+  int ibuff[50000];
 
+  bool ok = true, next = true;
   while (next) { // get the next BUFR product
-    int ilen;
-    int iibflen = ibflen;
-    pbbufr_(&iunit, ibuff, &iibflen, &ilen, &iret);
-
-    if (iret == -1) {
-      pbclose_(&iunit,&iret);
-      return true; // EOF
-    }
+    long buf_len = sizeof(ibuff);
+    const long iret = readbufr(file_bufr, (char*)ibuff, &buf_len);
 
     if (iret != 0) {
-      if (iret == -2)
-        METLIBS_LOG_ERROR("ObsBufr::init: ERROR: File handling problem");
-      if (iret == -3)
-        METLIBS_LOG_ERROR("ObsBufr::init: ERROR: Array too small");
-      pbclose_(&iunit,&iret);
-      return false;
+      if (iret == -1) {
+        // EOF
+      } else {
+        ok = false;
+        if (iret == -2)
+          METLIBS_LOG_ERROR("file handling problem");
+        else if (iret == -3)
+          METLIBS_LOG_ERROR("array too small");
+        else
+          METLIBS_LOG_ERROR("other error");
+      }
+      break;
     }
 
-    next = BUFRdecode(ibuff, ilen, format);
+    next = BUFRdecode(ibuff, buf_len, format);
   }
 
-
-
-  pbclose_(&iunit,&iret);
+  fclose(file_bufr);
 
   //init returns false when BUFRdecode returns false
   //BUFRdecode returns false when vprof station is found. Todo: make this more intuitive
-  return false;
+  return ok && next;
 }
 
 bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 {
-  //   METLIBS_LOG_DEBUG("ObsBufr::ObsTime");
-  const int ibflen = 200000;
-  int ibuff[ibflen / 4];
-  //   const int ibflen=4*512000;
-  //   int ibuff[512000];
-  std::string bufr_access = "r";
-  int iunit = 20;
-  int iret = 0;
+  METLIBS_LOG_SCOPE();
 
-  // open for read
-  int len_bufr_file = bufr_file.length();
-  int len_bufr_access = bufr_access.length();
-  pbopen_(&iunit, bufr_file.c_str(), bufr_access.c_str(), &iret, len_bufr_file,
-      len_bufr_access);
-  if (iret != 0) {
-    METLIBS_LOG_ERROR("PBOPEN failed for " << bufr_file << "   iret=" << iret);
+  FILE* file_bufr = fopen(bufr_file.c_str(), "r");
+  if (!file_bufr) {
+    METLIBS_LOG_ERROR("fopen failed for '" << bufr_file << "'");
     return false;
   }
 
-  int ilen;
-  int iibflen = ibflen;
-  pbbufr_(&iunit, ibuff, &iibflen, &ilen, &iret);
+  int ibuff[50000];
 
+  long buf_len = sizeof(ibuff);
+  const long iret = readbufr(file_bufr, (char*)ibuff, &buf_len);
+
+  bool ok = true;
   if (iret != 0) {
+    ok = false;
     if (iret == -1)
       METLIBS_LOG_INFO("EOF");
-    if (iret == -2)
-      METLIBS_LOG_ERROR("ERROR: File handling problem");
-    if (iret == -3)
-      METLIBS_LOG_ERROR("ERROR: Array too small");
-    return false;
+    else if (iret == -2)
+      METLIBS_LOG_ERROR("file handling problem");
+    else if (iret == -3)
+      METLIBS_LOG_ERROR("array too small");
+    else
+      METLIBS_LOG_ERROR("other error");
+  } else {
+    int ksup[9];
+    int ksec0[3];
+    int ksec1[40];
+    int ksec2[4096];
+    int kerr;
+
+    //read sec 0-2
+    int ibuf_len = buf_len;
+    bus012_(&ibuf_len, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
+
+    //HACK if year has only two digits, files from year 1971 to 2070 is assumed
+    int year = ksec1[8];
+    if (year < 1000) {
+      year = (year > 70) ? year + 1900 : year + 2000;
+    }
+    time = miutil::miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
+    if (time.undef())
+      ok = false;
   }
 
-  static int ksup[9];
-  static int ksec0[3];
-  static int ksec1[40];
-  static int ksec2[4096];
-  int kerr;
+  fclose(file_bufr);
 
-  //read sec 0-2
-  bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
-
-  //close file
-  pbclose_(&iunit,&iret);
-  //  Convert messages with data category (BUFR table A) 0 and 1 only.
-  //  0 = Surface data - land, 1 = Surface data - sea
-  //  if (ksec1[5] > 1) {
-  //    METLIBS_LOG_DEBUG("ksec1[5]: "<<ksec1[5]);
-  //    return false;
-  //  }
-
-  //HACK if year has only two digits, files from year 1971 to 2070 is assumed
-  int year = ksec1[8];
-  if (year < 1000) {
-    year = (year > 70) ? year + 1900 : year + 2000;
-  }
-  time = miTime(year, ksec1[9], ksec1[10], ksec1[11], ksec1[12], 0);
-
-  if ( time.undef() ) {
-    return false;
-  }
-
-  return true;
-
+  return ok;
 }
 
 bool ObsBufr::readStationInfo(const vector<std::string>& bufr_file,

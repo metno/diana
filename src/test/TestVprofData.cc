@@ -27,11 +27,12 @@ using namespace vcross;
 #define configureLogging() /* empty */
 #endif // !DEBUG_MESSAGES
 
-static const char AROME_FILE[] = "arome_vprof.nc";
-static const int AROME_N_CS = 6;
-static const int AROME_CS_LEN[AROME_N_CS] = { 14, 14, 14, 1, 1 };
-static const int AROME_N_TIME = 2;
-static const int AROME_N_Z = 65;
+const char AROME_FILE[] = "arome_vprof.nc";
+const int AROME_N_CS = 6;
+const int AROME_CS_LEN[AROME_N_CS] = { 14, 14, 14, 1, 1 };
+const int AROME_N_TIME = 2;
+const int AROME_N_Z = 65;
+const char AROME_RTT[] = "2014-10-20 00:00:00";
 
 static const char modelName[] = "testmodel";
 
@@ -47,7 +48,10 @@ TEST(VprofDataTest, TestSetup)
       + " f=" + std::string(TEST_SRCDIR) + "/" + std::string(AROME_FILE)
       + " t=netcdf");
   EXPECT_EQ(0, setup->configureSources(sources).size()) << "syntax errors in sources";
-  EXPECT_TRUE(setup->findSource(modelName));
+
+  Source_p src = setup->findSource(modelName);
+  ASSERT_TRUE(src);
+  EXPECT_EQ(1, src->getReferenceTimes().size());
 
   //parameters and computations should be defined in setup
   string_v computations;
@@ -58,7 +62,8 @@ TEST(VprofDataTest, TestSetup)
   EXPECT_EQ(0, setup->configureComputations(computations).size()) << "syntax errors in computations";
   collector->setupChanged();
 
-  vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
+  const vcross::Time AROME_RT = util::from_miTime(miutil::miTime(AROME_RTT));
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(ModelReftime(modelName, AROME_RT));
   ASSERT_TRUE(inv);
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS, inv->crossections.size());
@@ -72,17 +77,18 @@ TEST(VprofDataTest, TestSetup)
   field_ids.push_back("y_wind_ml");
   field_ids.push_back("relative_humidity_ml");
   field_ids.push_back("upward_air_velocity_ml");
+  const ModelReftime mr(modelName, AROME_RT);
   for (string_v::const_iterator it = field_ids.begin(); it != field_ids.end(); ++it)
-    collector->requireField(modelName, *it);
+    collector->requireField(mr, *it);
   collector->requireVertical(vcross::Z_TYPE_PRESSURE);
 
-  FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, field_ids[0]));
+  FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, field_ids[0]));
   ASSERT_TRUE(air_temperature);
   ZAxisData_cp zaxis = air_temperature->zaxis();
   ASSERT_TRUE(zaxis);
 
   model_values_m model_values = vc_fetch_pointValues(collector, cs->point(0), inv->times.at(0));
-  model_values_m::iterator itM = model_values.find(modelName);
+  model_values_m::iterator itM = model_values.find(mr);
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;
 
@@ -93,7 +99,7 @@ TEST(VprofDataTest, TestSetup)
     zvalues = vc_evaluate_field(pfield, n2v);
   ASSERT_TRUE(zvalues);
 
-  vc_evaluate_fields(collector, model_values, modelName, field_ids);
+  vc_evaluate_fields(collector, model_values, mr, field_ids);
 
   { name2value_t::const_iterator itN = n2v.find("x_wind_ml");
     EXPECT_TRUE(itN != n2v.end());

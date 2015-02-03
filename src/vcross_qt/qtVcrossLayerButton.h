@@ -10,7 +10,7 @@ class VcrossLayerButton : public QToolButton {
   Q_OBJECT;
 
 public:
-  VcrossLayerButton(const QString& model, const QString& field, int position, QWidget* parent=0);
+  VcrossLayerButton(const QString& label, int position, QWidget* parent=0);
 
   void setPosition(int position, bool last);
 

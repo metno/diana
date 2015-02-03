@@ -33,32 +33,6 @@
 
 #include <diObsPlot.h>
 
-// libemos interface (to fortran routines)
-extern "C" {
-  extern void pbopen_(int* iunit, const char* bufr_file, const char* rw,
-		      int* iret, int len_bufr_file, int len_bufr_access);
-  extern void pbclose_(int* iunit, int* iret);
-  extern void pbbufr_(int* iunit, int* ibuff, int* ibflen, int* ilen, int* iret);
-  extern void bufrex_(int* ilen, int* ibuff, int* ksup, int* ksec0, int* ksec1,
-		      int* ksec2, int* ksec3, int* ksec4, int* kelem,
-		      const char* cnames, const char* cunits, int* kvals,
-		      double* values, const char* cvals, int* kerr,
-		      int len_cnames, int len_cunits, int len_cvals);
-  extern void buprt_(int* kswitch, int* ksub1, int* ksub2, int* kkelem,
-  	             const char* cnames, const char* cunits, const char* cvals,
-                     int* kkvals, double* values, int* ksup, int* ksec1,
-		     int* kerr, int len_cnames, int len_cunits, int len_cvals);
-  extern void busel_(int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
-		     int* kerr);
-  extern void busel2_(int* ksubset, int * kelem, 
-		      int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
-		      const char* cnames, const char* cunits,
-		      int* kerr);
-  extern void bus012_(int* ilen, int* ibuff, int* ksup,
-		      int* ksec0, int* ksec1, int* ksec2,int* kerr);
-
-}
-
 class VprofPlot;
 
 /**

@@ -11,16 +11,17 @@ namespace vcross {
 struct SelectedPlot {
   ResolvedPlot_cp resolved;
 
-  std::string model;
+  ModelReftime model;
   string_v options;
   bool visible;
 
-  std::string name() const
+  const std::string& name() const
     { return resolved->name(); }
 
   std::string optionString() const;
 
-  SelectedPlot() : visible(true) { }
+  SelectedPlot(const ModelReftime& mr)
+    : model(mr), visible(true) { }
 };
 typedef boost::shared_ptr<SelectedPlot> SelectedPlot_p;
 typedef boost::shared_ptr<const SelectedPlot> SelectedPlot_cp;
@@ -29,7 +30,7 @@ typedef std::vector<SelectedPlot> SelectedPlot_v;
 
 // ========================================================================
 
-typedef std::map<std::string, InventoryBase_cps> model_required_m;
+typedef std::map<ModelReftime, InventoryBase_cps, lt_ModelReftime> model_required_m;
 
 // ========================================================================
 
@@ -52,10 +53,10 @@ public:
   const SelectedPlot_pv& getSelectedPlots() const
     { return mSelectedPlots; }
 
-  InventoryBase_cp getResolvedField(const std::string& model, const std::string& field)
+  InventoryBase_cp getResolvedField(const ModelReftime& model, const std::string& field)
     { return mResolver->getResolvedField(model, field); }
 
-  const ResolvedPlot_cpv& getAllResolvedPlots(const std::string& model)
+  const ResolvedPlot_cpv& getAllResolvedPlots(const ModelReftime& model)
     { return mResolver->getAllResolvedPlots(model); }
 
   bool updateRequired();
@@ -65,16 +66,16 @@ public:
     { return mModelRequired; }
 
   void requireVertical(Z_AXIS_TYPE zType);
-  void requireField(const std::string& model, const std::string& field_id)
+  void requireField(const ModelReftime& model, const std::string& field_id)
     { requireField(model, getResolvedField(model, field_id)); }
-  void requireField(const std::string& model, InventoryBase_cp field);
+  void requireField(const ModelReftime& model, InventoryBase_cp field);
 
-  int selectPlot(const std::string& model, const std::string& plot, const string_v& options);
-  int insertPlot(const std::string& model, const std::string& plot, const string_v& options, int index);
+  int selectPlot(const ModelReftime& model, const std::string& plot, const string_v& options);
+  int insertPlot(const ModelReftime& model, const std::string& plot, const string_v& options, int index);
   bool removePlot(int index);
 
   //! returns the first model that has a visible SelectedPlot
-  std::string getFirstModel() const;
+  ModelReftime getFirstModel() const;
 
 private:
   void requirePlots();
@@ -90,8 +91,8 @@ typedef boost::shared_ptr<Collector> Collector_p;
 
 // ########################################################################
 
-bool vc_require_unit(Collector_p collector, const std::string& model, const std::string& field_id, const std::string& unit);
-bool vc_require_surface(Collector_p collector, const std::string& model);
+bool vc_require_unit(Collector_p collector, const ModelReftime& model, const std::string& field_id, const std::string& unit);
+bool vc_require_surface(Collector_p collector, const ModelReftime& model);
 
 } // namespace vcross
 

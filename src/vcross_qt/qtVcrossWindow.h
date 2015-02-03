@@ -130,10 +130,10 @@ private Q_SLOTS:
 
   // slots for QtManager
   void onFieldChangeBegin(bool fromScript);
-  void onFieldAdded(const std::string& model, const std::string& field, int position);
-  void onFieldRemoved(const std::string& model, const std::string& field, int position);
-  void onFieldOptionsChanged(const std::string& model, const std::string& field, int position);
-  void onFieldVisibilityChanged(const std::string& model, const std::string& field, int position);
+  void onFieldAdded(int position);
+  void onFieldRemoved(int position);
+  void onFieldOptionsChanged(int position);
+  void onFieldVisibilityChanged(int position);
   void onFieldChangeEnd();
 
   void crossectionChangedSlot(int);

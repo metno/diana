@@ -253,7 +253,9 @@ bdiana_qt_sources = \
 	diWorkOrder.cc \
 	EditItems/layer.cc \
 	EditItems/layergroup.cc \
-	EditItems/layermanager.cc
+	EditItems/layermanager.cc \
+	EditItems/timefilesextractor.cc
+
 
 if WITH_EMBEDDED
 bdiana_qt_sources += \
@@ -291,6 +293,7 @@ noinst_HEADERS = \
 	EditItems/kml.h \
 	EditItems/properties.h \
 	EditItems/style.h \
+	EditItems/timefilesextractor.h \
 	EditItems/toolbar.h \
 	EditItems/drawingdialog.h \
 	EditItems/editdrawingdialog.h \

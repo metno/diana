@@ -33,7 +33,7 @@
 
 #include <puTools/miTime.h>
 #include <vector>
-#include <diField/FimexSource.h>
+#include <diField/VcrossSource.h>
 
 class SpectrumPlot;
 
@@ -87,7 +87,7 @@ private:
   std::vector<float> posLongitude;
   std::vector<miutil::miTime> validTime;
   std::vector<int> forecastHour;
-  vcross::FimexSource_p fs;
+  vcross::ReftimeSource_p fs;
 
 };
 

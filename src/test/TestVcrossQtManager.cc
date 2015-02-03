@@ -52,14 +52,14 @@ ManagerSlots::ManagerSlots(vcross::QtManager* manager)
 {
   connect(manager, SIGNAL(fieldChangeBegin(bool)),
       this, SLOT(onFieldChangeBegin(bool)));
-  connect(manager, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-  connect(manager, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-  connect(manager, SIGNAL(fieldOptionsChanged(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldOptionsChanged(const std::string&, const std::string&, int)));
-  connect(manager, SIGNAL(fieldVisibilityChanged(const std::string&, const std::string&, int)),
-      this, SLOT(onFieldVisibilityChanged(const std::string&, const std::string&, int)));
+  connect(manager, SIGNAL(fieldAdded(int)),
+      this, SLOT(onFieldAdded(int)));
+  connect(manager, SIGNAL(fieldRemoved(int)),
+      this, SLOT(onFieldRemoved(int)));
+  connect(manager, SIGNAL(fieldOptionsChanged(int)),
+      this, SLOT(onFieldOptionsChanged(int)));
+  connect(manager, SIGNAL(fieldVisibilityChanged(int)),
+      this, SLOT(onFieldVisibilityChanged(int)));
   connect(manager, SIGNAL(fieldChangeEnd()),
       this, SLOT(onFieldChangeEnd()));
 
@@ -79,17 +79,10 @@ void ManagerSlots::reset()
 {
   beginScript = end = false;
 
-  addedModel.clear();
-  addedField.clear();
-
-  removedModel.clear();
-  removedField.clear();
-
-  optionsModel.clear();
-  optionsField.clear();
-
-  visibilityModel.clear();
-  visibilityField.clear();
+  added.clear();
+  removed.clear();
+  options.clear();
+  visibility.clear();
 
   cslist = csindex = timelist = timeindex = 0;
 }
@@ -99,28 +92,24 @@ void ManagerSlots::onFieldChangeBegin(bool fromScript)
   beginScript = fromScript;
 }
 
-void ManagerSlots::onFieldAdded(const std::string& model, const std::string& field, int index)
+void ManagerSlots::onFieldAdded(int index)
 {
-  addedModel.push_back(model);
-  addedField.push_back(field);
+  added.push_back(index);
 }
 
-void ManagerSlots::onFieldRemoved(const std::string& model, const std::string& field, int index)
+void ManagerSlots::onFieldRemoved(int index)
 {
-  removedModel.push_back(model);
-  removedField.push_back(field);
+  removed.push_back(index);
 }
 
-void ManagerSlots::onFieldOptionsChanged(const std::string& model, const std::string& field, int index)
+void ManagerSlots::onFieldOptionsChanged(int index)
 {
-  optionsModel.push_back(model);
-  optionsField.push_back(field);
+  options.push_back(index);
 }
 
-void ManagerSlots::onFieldVisibilityChanged(const std::string& model, const std::string& field, int index)
+void ManagerSlots::onFieldVisibilityChanged(int index)
 {
-  visibilityModel.push_back(model);
-  visibilityField.push_back(field);
+  visibility.push_back(index);
 }
 
 void ManagerSlots::onFieldChangeEnd()
@@ -155,7 +144,15 @@ void ManagerSlots::onTimeIndexChanged(int)
 namespace {
 typedef std::vector<std::string> string_v;
 
-static const char AROME_FILE[] = "arome_vprof.nc";
+const char AROME1_FILE[] = "arome_vprof.nc";
+const vcross::QtManager::vctime_t AROME1_RT("2014-10-20 00:00:00");
+
+const char AROME2_FILE[] = "arome_[yyyymmdd]_[HH]_vc.nc";
+const char* AROME2_RTT[4] = {
+  "2015-02-01 12:00:00", "2015-02-01 18:00:00",
+  "2015-02-02 00:00:00", "2015-02-02 06:00:00"
+};
+
 }
 
 TEST(TestVcrossQtManager, Script)
@@ -163,7 +160,8 @@ TEST(TestVcrossQtManager, Script)
   configureLogging();
 
   string_v sources;
-  sources.push_back("m=MODEL1 f=" TEST_SRCDIR "/" + std::string(AROME_FILE) + " t=netcdf");
+  sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
+      + std::string(AROME1_FILE) + " t=netcdf");
 
   string_v computations;
   computations.push_back("vc_surface_altitude  = convert_unit(altitude,m)");
@@ -182,20 +180,24 @@ TEST(TestVcrossQtManager, Script)
 
   vcross::test::ManagerSlots ms(&manager);
 
-  manager.addField("MODEL1", "Temp(K)", "colour=red line.interval=0.2", 0);
-  EXPECT_EQ(1, ms.addedModel.size());
+  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes("MODEL");
+  ASSERT_EQ(1, reftimes.size());
+
+  manager.addField(vcross::QtManager::PlotSpec("MODEL", AROME1_RT, "Temp(K)"),
+      "colour=red line.interval=0.2", 0);
+  EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
   EXPECT_EQ(1, ms.csindex);
   ms.reset();
 
 
   string_v select;
-  select.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
+  select.push_back("VCROSS model=MODEL field=Vind colour=blue");
   manager.selectFields(select);
 
   EXPECT_TRUE(ms.beginScript);
-  EXPECT_EQ(1, ms.removedModel.size());
-  EXPECT_EQ(1, ms.addedModel.size());
+  EXPECT_EQ(1, ms.removed.size());
+  EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(0, ms.cslist); // we have the same model with the same set of crossections and times
   EXPECT_EQ(0, ms.csindex);
   EXPECT_TRUE(ms.end);
@@ -209,7 +211,72 @@ TEST(TestVcrossQtManager, Script)
     ms.reset();
   }
 
-  manager.updateField("MODEL1", "Vind", "colour=green");
-  EXPECT_EQ(1, ms.optionsModel.size());
+  manager.updateField(0, "colour=green");
+  EXPECT_EQ(1, ms.options.size());
   ms.reset();
+}
+
+TEST(TestVcrossQtManager, Reftime)
+{
+  configureLogging();
+
+  string_v sources;
+  sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
+      + std::string(AROME2_FILE) + " t=netcdf");
+
+  string_v computations;
+  computations.push_back("vc_surface_altitude  = convert_unit(altitude,m)");
+  computations.push_back("vc_surface_altitude  = height_above_msl_from_surface_geopotential(surface_geopotential)");
+  computations.push_back("tk = identity(air_temperature_ml)");
+  computations.push_back("tk = tk_from_th(air_potential_temperature_ml)");
+  computations.push_back("ff_normal     = normal(x_wind_ml, y_wind_ml)");
+  computations.push_back("ff_tangential = tangential(x_wind_ml, y_wind_ml)");
+
+  string_v plots;
+  plots.push_back("name=Temp(K) plot=CONTOUR(tk)  colour=red  line.interval=1.");
+  plots.push_back("name=Vind    plot=WIND(ff_tangential,ff_normal) colour=blue");
+
+  vcross::QtManager manager;
+  manager.parseSetup(sources, computations, plots);
+
+  vcross::test::ManagerSlots ms(&manager);
+
+  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes("MODEL");
+  ASSERT_EQ(4, reftimes.size());
+
+  const vcross::QtManager::vctime_t AROME2_RT1(AROME2_RTT[1]);
+  manager.addField(vcross::QtManager::PlotSpec("MODEL", AROME2_RT1, "Temp(K)"),
+      "colour=red line.interval=0.2", 0);
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(1, ms.cslist);
+  EXPECT_EQ(1, ms.csindex);
+  ms.reset();
+  EXPECT_EQ(AROME2_RTT[1], manager.getReftimeAt(0).isoTime());
+
+
+  string_v select;
+  select.push_back("VCROSS model=MODEL refhour=12 field=Vind colour=blue");
+  manager.selectFields(select);
+
+  EXPECT_TRUE(ms.beginScript);
+  EXPECT_EQ(1, ms.removed.size());
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(0, ms.cslist); // we have the same model with the same set of crossections and times
+  EXPECT_EQ(0, ms.csindex);
+  EXPECT_TRUE(ms.end);
+  ms.reset();
+
+  { int idx = manager.getCrossectionIndex(), n = manager.getCrossectionCount();
+    ASSERT_EQ(2, n);
+    idx = (idx + 1) % n; // make sure we actually change the index
+    manager.setCrossectionIndex(idx);
+    EXPECT_EQ(1, ms.csindex);
+    ms.reset();
+  }
+
+  manager.updateField(0, "colour=green");
+  EXPECT_EQ(1, ms.options.size());
+  ms.reset();
+
+  EXPECT_EQ(AROME2_RTT[0], manager.getReftimeAt(0).isoTime());
 }

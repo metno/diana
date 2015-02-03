@@ -38,6 +38,7 @@
 
 #include <puTools/mi_boost_compatibility.hh>
 #include <puTools/miStringFunctions.h>
+#include <diField/FimexSource.h>
 #include <diField/VcrossUtil.h>
 #include <boost/foreach.hpp>
 #include <sstream>
@@ -68,7 +69,7 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
 {
   METLIBS_LOG_SCOPE();
 
-  fs = vcross::FimexSource_p(new vcross::FimexSource(fileName, "netcdf"));
+  fs = vcross::ReftimeSource_p(new vcross::FimexReftimeSource(fileName, "netcdf", "", Time()));
 
   vcross::Inventory_cp inv = fs->getInventory();
   if (not inv) {
@@ -119,8 +120,7 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   request.insert(freq);
   request.insert(dir);
   name2value_t n2v;
-  const Time reftime = fs->getDefaultReferenceTime();
-  fs->getWaveSpectrumValues(reftime, cs0, 2, inv->times.at(0), request, n2v);
+  fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v);
   Values_cp freq_values = n2v[freq->id()];
   Values_cp dir_values = n2v[dir->id()];
 
@@ -190,8 +190,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
     request.insert(field_ddpeak);
 
   name2value_t n2v;
-  const Time reftime = fs->getDefaultReferenceTime();
-  fs->getWaveSpectrumValues(reftime, cs, index, user_time, request, n2v);
+  fs->getWaveSpectrumValues(cs, index, user_time, request, n2v);
 
   spp = new SpectrumPlot();
   spp->prognostic = true;

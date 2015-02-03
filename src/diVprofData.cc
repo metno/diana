@@ -151,6 +151,7 @@ void VprofData::readStationNames(const std::string& stationsfilename)
     posTemp.push_back(0);
   }
 }
+
 bool VprofData::readFimex(vcross::Setup_p setup)
 {
   METLIBS_LOG_SCOPE();
@@ -164,17 +165,18 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   fields.push_back(VP_RELATIVE_HUMIDITY);
   fields.push_back(VP_OMEGA);
 
+  const vcross::ModelReftime mr(modelName, collector->getResolver()->getSource(modelName)->getLatestReferenceTime());
   for ( size_t j = 0; j < fields.size(); ++j ) {
-    METLIBS_LOG_DEBUG(LOGVAL(modelName) << LOGVAL(fields[j]));
-    collector->requireField(modelName,fields[j]);
+    METLIBS_LOG_DEBUG(LOGVAL(mr) << LOGVAL(fields[j]));
+    collector->requireField(mr, fields[j]);
   }
 
-  vcross::Inventory_cp inv = collector->getResolver()->getInventory(modelName);
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
   if (not inv)
     return false;
 
-  if ( inv->crossections.size() > 0 ) {
-    vector<station> stations;
+  if (!inv->crossections.empty()) {
+    std::vector<station> stations;
 
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->points.size() != 1)
@@ -194,7 +196,7 @@ bool VprofData::readFimex(vcross::Setup_p setup)
     }
   }
 
-  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
+  BOOST_FOREACH(const vcross::Time::timevalue_t& time, inv->times.values) {
     validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
   }
 
@@ -203,9 +205,9 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   numParam = 6;
   mainText.push_back(modelName);
 
-  miTime t = validTime[0];
+  const miTime rt = util::to_miTime(mr.reftime);
   for (size_t i = 0; i < validTime.size(); i++) {
-    forecastHour.push_back(miTime::hourDiff(validTime[i],t));
+    forecastHour.push_back(miTime::hourDiff(validTime[i],rt));
     progText.push_back(std::string("+" + miutil::from_number(forecastHour[i])));
   }
   readFromFimex = true;
@@ -485,10 +487,12 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     // This replaces the current dynamic crossection, if present.
     // TODO: Should be tested when more than one time step is available.
     if (!stationsFileName.empty()) {
-      collector->getResolver()->addDynamicPointValue(modelName, posName[iPos], pos);
+      Source_p s = collector->getResolver()->getSource(modelName);
+      s->addDynamicCrossection(s->getLatestReferenceTime(), posName[iPos], LonLat_v(1, pos));
     }
 
-    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(modelName, VP_AIR_TEMPERATURE));
+    const vcross::ModelReftime mr(modelName, collector->getResolver()->getSource(modelName)->getLatestReferenceTime());
+    FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, VP_AIR_TEMPERATURE));
     if (not air_temperature)
       return 0;
     ZAxisData_cp zaxis = air_temperature->zaxis();
@@ -508,12 +512,12 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       return 0;
     }
 
-    model_values_m::iterator itM = model_values.find(modelName);
+    model_values_m::iterator itM = model_values.find(mr);
     if (itM == model_values.end())
       return 0;
     name2value_t& n2v = itM->second;
 
-    vc_evaluate_fields(collector, model_values, modelName, fields);
+    vc_evaluate_fields(collector, model_values, mr, fields);
 
     Values_cp z_values;
     if (util::unitsConvertible(zaxis->unit(), "hPa"))

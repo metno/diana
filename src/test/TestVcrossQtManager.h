@@ -48,10 +48,10 @@ public:
 
 private Q_SLOTS:
   void onFieldChangeBegin(bool fromScript);
-  void onFieldAdded(const std::string& model, const std::string& field, int index);
-  void onFieldRemoved(const std::string& model, const std::string& field, int index);
-  void onFieldOptionsChanged(const std::string& model, const std::string& field, int index);
-  void onFieldVisibilityChanged(const std::string& model, const std::string& field, int index);
+  void onFieldAdded(int index);
+  void onFieldRemoved(int index);
+  void onFieldOptionsChanged(int index);
+  void onFieldVisibilityChanged(int index);
   void onFieldChangeEnd();
 
   void onCrossectionListChanged();
@@ -63,10 +63,10 @@ private Q_SLOTS:
 public:
   bool beginScript, end;
 
-  std::vector<std::string> addedModel, addedField;
-  std::vector<std::string> removedModel, removedField;
-  std::vector<std::string> optionsModel, optionsField;
-  std::vector<std::string> visibilityModel, visibilityField;
+  std::vector<int> added;
+  std::vector<int> removed;
+  std::vector<int> options;
+  std::vector<int> visibility;
 
   int cslist, csindex, timelist, timeindex;
 };

@@ -99,6 +99,11 @@ static const float MAX_FRAMETEXT = 0.4;
 
 namespace vcross {
 
+miutil::miTime QtPlot::OptionPlot::reftime() const
+{
+  return util::to_miTime(evaluated->model().reftime);
+}
+
 // ########################################################################
 
 QtPlot::QtPlot(VcrossOptions_p options)
@@ -125,18 +130,36 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   if (not mOptions->pText)
     return;
 
-  float widthModel = 0, widthField = 0;
+  std::vector<std::string> reftimes;
+  reftimes.reserve(mPlots.size());
+
+  const bool tg = isTimeGraph();
+
+  float widthModel = 0, widthReftime = 0, widthField = 0;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     vcross::util::updateMaxStringWidth(painter, widthModel, plot->model());
     vcross::util::updateMaxStringWidth(painter, widthField, plot->name());
+
+    std::ostringstream rt;
+    const miutil::miTime reftime = plot->reftime();
+    if (!tg) {
+      const int fc_hour = miutil::miTime::hourDiff(mCrossectionTime, reftime);
+      rt << '(' << fc_hour << ") ";
+    }
+    rt << reftime.isoTime();
+    reftimes.push_back(rt.str());
+
+    vcross::util::updateMaxStringWidth(painter, widthReftime, reftimes.back());
   }
 
-  const float xModel = mCharSize.width(), xField = xModel + widthModel + mCharSize.width(),
-      xAnnotations = xField + widthField + mCharSize.width();
+  const float xModel = mCharSize.width(),
+      xField = xModel + widthModel + mCharSize.width(),
+      xReftime = xField + widthField + mCharSize.width(),
+      xAnnotations = xReftime + widthReftime + mCharSize.width();
   float yPlot = mTotalSize.height() - LINE_GAP*mCharSize.height();
   const float yCSName = yPlot, yStep = mCharSize.height() * LINES_1;
 
-  size_t idx_annotations = 0;
+  size_t idx_plot = 0;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     if (plot->poptions.options_1)
       painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
@@ -144,11 +167,13 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
       painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
     painter.drawText(QPointF(xModel, yPlot), QString::fromStdString(plot->model()));
     painter.drawText(QPointF(xField, yPlot), QString::fromStdString(plot->name()));
-    if (idx_annotations < annotations.size())
-      painter.drawText(QPointF(xAnnotations, yPlot), QString::fromStdString(annotations.at(idx_annotations)));
+    if (idx_plot < reftimes.size())
+      painter.drawText(QPointF(xReftime, yPlot), QString::fromStdString(reftimes.at(idx_plot)));
+    if (idx_plot < annotations.size())
+      painter.drawText(QPointF(xAnnotations, yPlot), QString::fromStdString(annotations.at(idx_plot)));
 
     yPlot -= yStep;
-    idx_annotations += 1;
+    idx_plot += 1;
   }
 
   QString label;
@@ -164,6 +189,11 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   const float label_w = painter.fontMetrics().width(label);
   painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
   painter.drawText(QPointF(mTotalSize.width() - label_w - mCharSize.width(), yCSName), label);
+  if (not isTimeGraph()) { // show cross section time
+    const QString time = QString::fromStdString(mCrossectionTime.isoTime());
+    const float time_w = painter.fontMetrics().width(time);
+    painter.drawText(QPointF(mTotalSize.width() - time_w - mCharSize.width(), yCSName - yStep), time);
+  }
 }
 
 void QtPlot::viewSetWindow(int w, int h)
@@ -281,11 +311,13 @@ void QtPlot::clear(bool keepX, bool keepY)
   mViewChanged = true;
 }
 
-void QtPlot::setHorizontalCross(std::string csLabel, const LonLat_v& csPoints)
+void QtPlot::setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
+    const LonLat_v& csPoints)
 {
   METLIBS_LOG_SCOPE(LOGVAL(csLabel) << LOGVAL(csPoints.size()));
 
   mCrossectionLabel = csLabel;
+  mCrossectionTime = csTime;
   mCrossectionPoints = csPoints;
 
   mCrossectionDistances.clear();
@@ -373,7 +405,7 @@ void QtPlot::prepareXAxis()
   else
     xax_max = mTimeDistances.back();
   METLIBS_LOG_DEBUG(LOGVAL(xax_min) << LOGVAL(xax_max));
-    
+
   mAxisX->setDataRange(xax_min, xax_max);
   mAxisX->setValueRange(xax_min, xax_max);
 }
@@ -470,7 +502,7 @@ void QtPlot::prepareAxesForAspectRatio()
 void QtPlot::computeMaxPlotArea(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
-  
+
   float charsXleft = 0, charsXrght = 0, linesYbot = 0, linesYtop = 0;
 
   if (mOptions->pLevelNumbers or mOptions->pFrame) {

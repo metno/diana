@@ -20,8 +20,12 @@ struct NameItem {
   std::string name;
   std::string function;
   string_v arguments;
-  NameItem() { }
-  NameItem(std::string n, std::string f) : name(n), function(f) { }
+
+  NameItem()
+    { }
+
+  NameItem(const std::string& n, const std::string& f)
+    : name(n), function(f) { }
 
   bool valid() const
     { return (not name.empty()); }
@@ -99,10 +103,6 @@ public:
   std::string getPlotOptions(ConfiguredPlot_cp cp) const;
 
   const string_string_m& getModelOptions(const std::string& name) const;
-
-private:
-  void addFimexSource(const std::string& name, const std::string& filename,
-      const std::string& filetype, const std::string& fileconfig);
 
 private:
   typedef std::map<std::string, Source_p> Source_p_m;

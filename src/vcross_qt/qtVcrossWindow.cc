@@ -79,7 +79,6 @@
 #include "addempty.xpm"
 #include "bakover.xpm"
 #include "clock.xpm"
-#include "edit.xpm"
 #include "exit.xpm"
 #include "fileprint.xpm"
 #include "filesave.xpm"
@@ -195,14 +194,14 @@ VcrossWindow::VcrossWindow()
   { vcross::QtManager* m = vcrossm.get();
     connect(m, SIGNAL(fieldChangeBegin(bool)),
         this, SLOT(onFieldChangeBegin(bool)));
-    connect(m, SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-    connect(m, SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
-    connect(m, SIGNAL(fieldOptionsChanged(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldOptionsChanged(const std::string&, const std::string&, int)));
-    connect(m, SIGNAL(fieldVisibilityChanged(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldVisibilityChanged(const std::string&, const std::string&, int)));
+    connect(m, SIGNAL(fieldAdded(int)),
+        this, SLOT(onFieldAdded(int)));
+    connect(m, SIGNAL(fieldRemoved(int)),
+        this, SLOT(onFieldRemoved(int)));
+    connect(m, SIGNAL(fieldOptionsChanged(int)),
+        this, SLOT(onFieldOptionsChanged(int)));
+    connect(m, SIGNAL(fieldVisibilityChanged(int)),
+        this, SLOT(onFieldVisibilityChanged(int)));
     connect(m, SIGNAL(fieldChangeEnd()),
         this, SLOT(onFieldChangeEnd()));
 
@@ -285,12 +284,10 @@ void VcrossWindow::onFieldAction(int position, int action)
   METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field));
 
   if (action == VcrossLayerButton::EDIT) {
-    const QString mdl = QString::fromStdString(model);
-    const QString fld = QString::fromStdString(field);
-    vcStyleDialog->showModelField(mdl, fld);
+    vcStyleDialog->showModelField(position);
     vcStyleDialog->show();
   } else if (action == VcrossLayerButton::REMOVE) {
-    vcrossm->removeField(model, field);
+    vcrossm->removeField(position);
   } else if (action == VcrossLayerButton::SHOW_HIDE) {
     QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
     QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
@@ -307,7 +304,7 @@ void VcrossWindow::onFieldChangeBegin(bool fromScript)
   mGroupChangedFields = false;
 }
 
-void VcrossWindow::onFieldAdded(const std::string& model, const std::string& field, int position)
+void VcrossWindow::onFieldAdded(int position)
 {
   METLIBS_LOG_SCOPE();
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
@@ -319,25 +316,32 @@ void VcrossWindow::onFieldAdded(const std::string& model, const std::string& fie
     button->setPosition(i+1, i==n-1);
   }
 
-  VcrossLayerButton* button = new VcrossLayerButton(QString::fromStdString(model),
-      QString::fromStdString(field), position, this);
+  const std::string model = vcrossm->getModelAt(position),
+      reftime = vcrossm->getReftimeAt(position).isoTime(),
+      field = vcrossm->getFieldAt(position);
+  const QString label = tr("Model: %1 Reftime: %2 Field: %3")
+      .arg(QString::fromStdString(model))
+      .arg(QString::fromStdString(reftime))
+      .arg(QString::fromStdString(field));
+
+  VcrossLayerButton* button = new VcrossLayerButton(label, position, this);
   connect(button, SIGNAL(triggered(int, int)), SLOT(onFieldAction(int, int)));
   lbl->insertWidget(position, button);
 
   repaintPlotIfNotInGroup();
 }
 
-void VcrossWindow::onFieldOptionsChanged(const std::string& model, const std::string& field, int position)
+void VcrossWindow::onFieldOptionsChanged(int position)
 {
   repaintPlotIfNotInGroup();
 }
 
-void VcrossWindow::onFieldVisibilityChanged(const std::string& model, const std::string& field, int position)
+void VcrossWindow::onFieldVisibilityChanged(int position)
 {
   repaintPlotIfNotInGroup();
 }
 
-void VcrossWindow::onFieldRemoved(const std::string& model, const std::string& field, int position)
+void VcrossWindow::onFieldRemoved(int position)
 {
   METLIBS_LOG_SCOPE();
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
