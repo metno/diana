@@ -61,7 +61,7 @@ private:
     OptionPlot(EvaluatedPlot_cp e);
 
     std::string model() const
-      { return evaluated->model(); }
+      { return evaluated->model().model; }
     std::string name() const
       { return evaluated->name(); }
     ConfiguredPlot::Type type() const

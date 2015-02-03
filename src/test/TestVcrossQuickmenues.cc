@@ -118,13 +118,14 @@ TEST(TestVcrossQuickmenues, Script)
   qmslots.reset();
 
   // set a different style => expect qm update
-  manager->updateField("MODEL1", "Vind", "colour=red");
+  manager->updateField(0, "colour=red");
   EXPECT_EQ(1, qmslots.titles.size());
   EXPECT_EQ(1, qmslots.qmenues.size());
   qmslots.reset();
 
   // add field => expect qm update
-  manager->addField("MODEL1", "Temp(K)", "colour=black", -1);
+  manager->addField(vcross::QtManager::PlotSpec("MODEL1", vcross::QtManager::vctime_t("2014-10-20 00:00:00"), "Temp(K)"),
+      "colour=black", -1);
   EXPECT_EQ(1, qmslots.titles.size());
   EXPECT_EQ(1, qmslots.qmenues.size());
   qmslots.reset();

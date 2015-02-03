@@ -55,25 +55,24 @@ bool Collector::clear()
 
 // ------------------------------------------------------------------------
 
-int Collector::selectPlot(const std::string& model, const std::string& plot, const string_v& options)
+int Collector::selectPlot(const ModelReftime& model, const std::string& plot, const string_v& options)
 {
   return insertPlot(model, plot, options, -1);
 }
 
 
-int Collector::insertPlot(const std::string& model, const std::string& plot, const string_v& options, int index)
+int Collector::insertPlot(const ModelReftime& model, const std::string& plot, const string_v& options, int index)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(plot));
   ResolvedPlot_cp rp = mResolver->getResolvedPlot(model, plot);
   if (not rp)
     return -1;
 
-  SelectedPlot_p sp(new SelectedPlot);
-  sp->model = model;
+  SelectedPlot_p sp(new SelectedPlot(model));
   sp->resolved = rp;
   sp->options = options;
 
-  if (index < 0 || index >= mSelectedPlots.size()) {
+  if (index < 0 || index >= (int)mSelectedPlots.size()) {
     index = mSelectedPlots.size();
     mSelectedPlots.push_back(sp);
   } else {
@@ -83,11 +82,11 @@ int Collector::insertPlot(const std::string& model, const std::string& plot, con
   setUpdateRequiredNeeded();
   return index;
 }
-  
+
 
 bool Collector::removePlot(int index)
 {
-  if (index < 0 || index >= mSelectedPlots.size())
+  if (index < 0 || index >= (int)mSelectedPlots.size())
     return false;
 
   mSelectedPlots.erase(mSelectedPlots.begin() + index);
@@ -97,12 +96,12 @@ bool Collector::removePlot(int index)
 }
 
 
-std::string Collector::getFirstModel() const
+ModelReftime Collector::getFirstModel() const
 {
   for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
     if ((*itSP)->visible)
       return (*itSP)->model;
-  return std::string();
+  return ModelReftime();
 }
 
 
@@ -114,7 +113,7 @@ bool Collector::updateRequired()
   return !mModelRequired.empty();
 }
 
-void Collector::requireField(const std::string& model, InventoryBase_cp field)
+void Collector::requireField(const ModelReftime& model, InventoryBase_cp field)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model));
   if (not field)
@@ -158,7 +157,7 @@ void Collector::requirePlot(SelectedPlot_p sp)
 
 //########################################################################
 
-bool vc_require_unit(Collector_p collector, const std::string& model, const std::string& field_id, const std::string& unit)
+bool vc_require_unit(Collector_p collector, const ModelReftime& model, const std::string& field_id, const std::string& unit)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(field_id) << LOGVAL(unit));
   InventoryBase_cp field = vc_resolve_unit(collector->getResolver(), model, field_id, unit);
@@ -168,7 +167,7 @@ bool vc_require_unit(Collector_p collector, const std::string& model, const std:
   return true;
 }
 
-bool vc_require_surface(Collector_p collector, const std::string& model)
+bool vc_require_surface(Collector_p collector, const ModelReftime& model)
 {
   METLIBS_LOG_SCOPE();
   bool ok = vc_require_unit(collector, model, VC_SURFACE_PRESSURE, "hPa");

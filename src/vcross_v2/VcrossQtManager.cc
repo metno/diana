@@ -69,16 +69,56 @@ bool lt_LocationElement::operator() (const LocationElement& a, const LocationEle
   return false;
 }
 
+miutil::miTime getBestReferenceTime(const std::vector<miutil::miTime>& reftimes,
+    int refOffset, int refHour)
+{
+  // FIXME this is a almost verbatim copy of diField FieldManager::getBestReferenceTime
+
+  if (reftimes.empty())
+    return miutil::miTime();
+
+  //if refime is not a valid time, return string
+  miutil::miTime reftime = reftimes.back();
+  if (reftime.undef()) {
+    return reftime;
+  }
+
+  if (refHour > -1) {
+    miutil::miDate date = reftime.date();
+    miutil::miClock clock(refHour, 0, 0);
+    reftime = miutil::miTime(date, clock);
+  }
+
+  reftime.addDay(refOffset);
+  if (std::find(reftimes.begin(), reftimes.end(), reftime) != reftimes.end())
+    return reftime;
+
+  //referencetime not found. If refHour is given and no refoffset, try yesterday
+  if (refHour > -1 && refOffset == 0) {
+    reftime.addDay(-1);
+    if (std::find(reftimes.begin(), reftimes.end(), reftime) != reftimes.end())
+      return reftime;
+  }
+  return miutil::miTime();
+}
+
+
 } // namespace anonymous
 
 namespace vcross {
+
+QtManager::PlotSpec::PlotSpec(const std::string& model, const vctime_t& reftime, const std::string& field)
+  : mModelReftime(model, util::from_miTime(reftime))
+  , mField(field)
+{
+}
 
 QtManager::QtManager()
   : mCollector(new Collector(miutil::make_shared<Setup>()))
   , mOptions(new VcrossOptions())
   , mPlot(new QtPlot(mOptions))
   , dataChange(0)
-  , inFieldChangeGroup(false)
+  , inFieldChangeGroup(0)
   , mCrossectionCurrent(-1)
   , mTimeGraphPos(-1)
   , mPlotTime(-1)
@@ -109,7 +149,9 @@ void QtManager::cleanup()
   mTimeGraphPos = -1;
   mCrossectionZooms.clear();
 
+  fieldChangeStart(true);
   removeAllFields();
+  fieldChangeDone();
 
   mPlot->clear();
 }
@@ -177,9 +219,12 @@ int QtManager::getCrossectionCount() const
 
 void QtManager::addDynamicCrossection(const QString& label, const LonLat_v& points)
 {
-  const Source_ps dynSources = listDynamicSources();
-  for (Source_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it)
-    (*it)->addDynamicCrossection(label.toStdString(), points);
+  const Source_Reftime_ps dynSources = listDynamicSources();
+  for (Source_Reftime_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
+    Source_p src = it->first;
+    const Time& reftime = it->second;
+    src->addDynamicCrossection(reftime, label.toStdString(), points);
+  }
 
   handleChangedCrossectionList(label);
 }
@@ -187,11 +232,13 @@ void QtManager::addDynamicCrossection(const QString& label, const LonLat_v& poin
 void QtManager::removeDynamicCrossection(const QString& label)
 {
   const QString before = getCrossectionLabel();
-  const Source_ps dynSources = listDynamicSources();
-  for (Source_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
-    if (Inventory_cp inv = (*it)->getInventory()) {
+  const Source_Reftime_ps dynSources = listDynamicSources();
+  for (Source_Reftime_ps::iterator it = dynSources.begin(); it != dynSources.end(); ++it) {
+    Source_p src = it->first;
+    const Time& reftime = it->second;
+    if (Inventory_cp inv = src->getInventory(reftime)) {
       if (Crossection_cp cs = inv->findCrossectionByLabel(label.toStdString()))
-        (*it)->dropDynamicCrossection(cs);
+        src->dropDynamicCrossection(reftime, cs);
     }
   }
 
@@ -207,15 +254,15 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
   mHasSupportForDynamicCs = false;
 
   std::set<LocationElement, lt_LocationElement> le;
-  const std::string model1 = mCollector->getFirstModel();
+  const ModelReftime model1 = mCollector->getFirstModel();
   METLIBS_LOG_DEBUG(LOGVAL(model1));
 
   string_s labels;
-  if (!model1.empty()) {
-    if (Source_p src = mCollector->getSetup()->findSource(model1)) {
-      if (src->supportsDynamicCrossections()) {
+  if (!model1.model.empty()) {
+    if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+      if (src->supportsDynamicCrossections(model1.reftime)) {
         mHasSupportForDynamicCs = true;
-        const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(model1);
+        const std::map<std::string,std::string>& options = mCollector->getSetup()->getModelOptions(model1.model);
         if (not options.empty()) {
           const std::map<std::string,std::string>::const_iterator it = options.find("predefined_cs");
           if (it != options.end() and not it->second.empty()) {
@@ -223,11 +270,11 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
           }
         }
       }
-  
-      if (Inventory_cp inv = src->getInventory()) {
+
+      if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
           Crossection_cp cs = *itCS;
-          
+
           const LonLat_v& crossectionPoints = (*itCS)->points;
           if (crossectionPoints.size() < 2)
             continue;
@@ -238,7 +285,7 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
             el.ypos.push_back(itL->latDeg());
           }
           le.insert(el);
-          
+
           labels.insert(cs->label);
         }
       }
@@ -271,8 +318,9 @@ void QtManager::handleChangedCrossection()
   mCrossectionPoints.clear();
   if (mCrossectionCurrent >= 0 and mCrossectionCurrent < getCrossectionCount()) {
     const std::string& label = mCrossectionLabels.at(mCrossectionCurrent);
-    if (Source_p src = mCollector->getSetup()->findSource(mCollector->getFirstModel()))
-      if (Inventory_cp inv = src->getInventory())
+    const ModelReftime& mr = mCollector->getFirstModel();
+    if (Source_p src = mCollector->getSetup()->findSource(mr.model))
+      if (Inventory_cp inv = src->getInventory(mr.reftime))
         if (Crossection_cp cs = inv->findCrossectionByLabel(label))
           mCrossectionPoints = cs->points;
   } else {
@@ -293,15 +341,15 @@ void QtManager::getCrossections(LocationData& locationdata)
 }
 
 
-QtManager::Source_ps QtManager::listDynamicSources() const
+QtManager::Source_Reftime_ps QtManager::listDynamicSources() const
 {
-  Source_ps dynSources;
+  Source_Reftime_ps dynSources;
   const SelectedPlot_pv& spv = mCollector->getSelectedPlots();
   for (SelectedPlot_pv::const_iterator it = spv.begin(); it != spv.end(); ++it) {
     SelectedPlot_cp sp = *it;
-    if (Source_p src = mCollector->getSetup()->findSource(sp->model)) {
-      if (src->supportsDynamicCrossections())
-        dynSources.insert(src);
+    if (Source_p src = mCollector->getSetup()->findSource(sp->model.model)) {
+      if (src->supportsDynamicCrossections(sp->model.reftime))
+        dynSources.insert(std::make_pair(src, sp->model.reftime));
     }
   }
   return dynSources;
@@ -344,12 +392,13 @@ void QtManager::setTimeIndex(int index)
 
 void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(time));
+  METLIBS_LOG_SCOPE();
 
   int bestTime = -1;
   if (!mCrossectionTimes.empty()) {
     bestTime = 0;
     if (!time.undef()) {
+      METLIBS_LOG_DEBUG(LOGVAL(time));
       int bestDiff = std::abs(miutil::miTime::minDiff(getTimeValue(0), time));
       for (int i=1; i<getTimeCount(); i++) {
         const int diff = std::abs(miutil::miTime::minDiff(getTimeValue(i), time));
@@ -389,12 +438,12 @@ QtManager::vctime_t QtManager::getTimeValue(int index) const
 void QtManager::handleChangedTimeList(const vctime_t& oldTime)
 {
   METLIBS_LOG_SCOPE();
-  const std::string model1 = mCollector->getFirstModel();
+  const ModelReftime model1 = mCollector->getFirstModel();
 
   std::set<miutil::miTime> times;
-  if (!model1.empty()) {
-    if (Source_p src = mCollector->getSetup()->findSource(model1)) {
-      if (Inventory_cp inv = src->getInventory()) {
+  if (!model1.model.empty()) {
+    if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+      if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
           times.insert(util::to_miTime(inv->times.unit, *itT));
       }
@@ -500,8 +549,8 @@ void QtManager::preparePlot()
 {
   METLIBS_LOG_SCOPE();
 
-  const std::string model1 = mCollector->getFirstModel();
-  if (getCrossectionIndex() < 0 || getCrossectionIndex() >= getCrossectionCount() || model1.empty()) {
+  const ModelReftime model1 = mCollector->getFirstModel();
+  if (getCrossectionIndex() < 0 || getCrossectionIndex() >= getCrossectionCount() || model1.model.empty()) {
     mPlot->clear();
     return;
   }
@@ -514,9 +563,9 @@ void QtManager::preparePlot()
   if (mCollector->updateRequired()) {
     mCollector->requireVertical(zType);
 
-    if (!model1.empty()) {
+    if (!model1.model.empty()) {
       vc_require_surface(mCollector, model1);
-      
+
       if (mOptions->pInflight) {
         vc_require_unit(mCollector, model1, VC_INFLIGHT_PRESSURE, "hPa");
         vc_require_unit(mCollector, model1, VC_INFLIGHT_ALTITUDE, "m");
@@ -600,15 +649,31 @@ std::vector<std::string> QtManager::getAllModels()
 }
 
 
-string_v QtManager::getFieldNames(const std::string& model, bool includeSelected)
+QtManager::vctime_v QtManager::getModelReferenceTimes(const std::string& modelName)
+{
+  METLIBS_LOG_SCOPE();
+  if (Source_p s = mCollector->getSetup()->findSource(modelName)) {
+    const Time_s reftimes = s->getReferenceTimes();
+    vctime_v rt;
+    rt.reserve(reftimes.size());
+    for (Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it)
+      rt.push_back(util::to_miTime(*it));
+    return rt;
+  }
+  return vctime_v();
+}
+
+
+string_v QtManager::getFieldNames(const std::string& model, const vctime_t& reftime, bool includeSelected)
 {
   METLIBS_LOG_SCOPE(LOGVAL(model));
-  const ResolvedPlot_cpv& available_plots = mCollector->getAllResolvedPlots(model);
+  const ModelReftime mr(model, util::from_miTime(reftime));
+  const ResolvedPlot_cpv& available_plots = mCollector->getAllResolvedPlots(mr);
 
   string_v plot_names;
   for (ResolvedPlot_cpv::const_iterator it = available_plots.begin(); it != available_plots.end(); ++it) {
     const std::string& field = (*it)->name();
-    if (!includeSelected && findSelectedPlot(model, field))
+    if (!includeSelected && findSelectedPlot(PlotSpec(mr, field)))
       continue;
     plot_names.push_back(field);
   }
@@ -616,7 +681,7 @@ string_v QtManager::getFieldNames(const std::string& model, bool includeSelected
   return plot_names;
 }
 
-std::string QtManager::getPlotOptions(const std::string& model, const std::string& field, bool fromSetup) const
+std::string QtManager::getPlotOptions(const std::string& field, bool fromSetup) const
 {
   if (!fromSetup) {
     const string_string_m::const_iterator itU = userFieldOptions.find(field);
@@ -636,18 +701,18 @@ SelectedPlot_p QtManager::getSelectedPlot(int index) const
 }
 
 
-SelectedPlot_p QtManager::findSelectedPlot(const std::string& model, const std::string& field)
+SelectedPlot_p QtManager::findSelectedPlot(const PlotSpec& ps)
 {
-  return getSelectedPlot(findSelectedPlotIndex(model, field));
+  return getSelectedPlot(findSelectedPlotIndex(ps));
 }
 
 
-int QtManager::findSelectedPlotIndex(const std::string& model, const std::string& field)
+int QtManager::findSelectedPlotIndex(const PlotSpec& ps)
 {
   const SelectedPlot_pv& sps = mCollector->getSelectedPlots();
   for (size_t i=0; i<sps.size(); ++i) {
     SelectedPlot_p sp = sps[i];
-    if (sp->model == model && sp->name() == field)
+    if (sp->model == ps.modelReftime() && sp->name() == ps.field())
       return i;
   }
   return -1;
@@ -672,9 +737,18 @@ std::string QtManager::getFieldAt(int position) const
 std::string QtManager::getModelAt(int position) const
 {
   if (vcross::SelectedPlot_p sp = getSelectedPlot(position))
-    return sp->model;
+    return sp->model.model;
   else
     return EMPTY_STRING;
+}
+
+
+QtManager::vctime_t QtManager::getReftimeAt(int position) const
+{
+  if (vcross::SelectedPlot_p sp = getSelectedPlot(position))
+    return util::to_miTime(sp->model.reftime);
+  else
+    return vctime_t();
 }
 
 
@@ -698,16 +772,21 @@ bool QtManager::getVisibleAt(int position) const
 
 void QtManager::fieldChangeStart(bool script)
 {
-  inFieldChangeGroup = true;
-  Q_EMIT fieldChangeBegin(script);
+  inFieldChangeGroup += 1;
+  if (inFieldChangeGroup == 1)
+    Q_EMIT fieldChangeBegin(script);
 }
 
 
 void QtManager::fieldChangeDone()
 {
   updateCrossectionsTimes();
-  Q_EMIT fieldChangeEnd();
-  inFieldChangeGroup = false;
+  if (inFieldChangeGroup == 1)
+    Q_EMIT fieldChangeEnd();
+  if (inFieldChangeGroup > 0)
+    inFieldChangeGroup -= 1;
+  else
+    METLIBS_LOG_ERROR("wrong call to fieldChangeDone, inFieldChangeGroup == " << inFieldChangeGroup);
 }
 
 
@@ -721,64 +800,62 @@ void QtManager::updateCrossectionsTimes()
 }
 
 
-void QtManager::addField(const std::string& model, const std::string& field,
-    const std::string& fieldOpts, int idx, bool updateUserFieldOptions)
+void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts, int idx, bool updateUserFieldOptions)
 {
-  if (findSelectedPlot(model, field))
+  if (findSelectedPlot(ps))
     return;
 
-  idx = mCollector->insertPlot(model, field, miutil::split(fieldOpts), idx);
+  idx = mCollector->insertPlot(ps.modelReftime(), ps.field(), miutil::split(fieldOpts), idx);
   if (idx >= 0) {
     if (updateUserFieldOptions)
-      userFieldOptions[field] = fieldOpts;
+      userFieldOptions[ps.field()] = fieldOpts;
 
     dataChange |= CHANGED_SEL;
 
-    Q_EMIT fieldAdded(model, field, idx);
-    if (!inFieldChangeGroup)
+    Q_EMIT fieldAdded(idx);
+    if (inFieldChangeGroup == 0)
       updateCrossectionsTimes();
     // TODO trigger plot update
   }
 }
 
 
-void QtManager::updateField(const std::string& model, const std::string& field, const std::string& fieldOpts)
+void QtManager::updateField(int idx, const std::string& fieldOpts)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(field));
-
-  const int idx = findSelectedPlotIndex(model, field);
-  METLIBS_LOG_DEBUG(LOGVAL(idx));
-  if (idx < 0)
+  METLIBS_LOG_SCOPE(LOGVAL(idx));
+  if (idx < 0 || idx >= (int)mCollector->getSelectedPlots().size())
     return;
 
   SelectedPlot_p sp = getSelectedPlot(idx);
+  if (not sp)
+    return;
+
   const string_v nfo = miutil::split(fieldOpts);
-  userFieldOptions[field] = fieldOpts;
+  userFieldOptions[sp->name()] = fieldOpts;
   if (sp->options != nfo) {
     METLIBS_LOG_DEBUG(LOGVAL(fieldOpts));
     sp->options = nfo;
 
     dataChange |= CHANGED_SEL;
-    
-    Q_EMIT fieldOptionsChanged(model, field, idx);
+
+    Q_EMIT fieldOptionsChanged(idx);
     // TODO trigger plot update
   }
 }
 
 
-void QtManager::removeField(const std::string& model, const std::string& field)
+void QtManager::removeField(int idx)
 {
-  const int idx = findSelectedPlotIndex(model, field);
-  if (idx <= 0)
+  if (idx < 0 || idx >= mCollector->getSelectedPlots().size())
     return;
 
   mCollector->removePlot(idx);
 
   dataChange |= CHANGED_SEL;
 
-  Q_EMIT fieldRemoved(model, field, idx);
-    if (!inFieldChangeGroup)
-      updateCrossectionsTimes();
+  Q_EMIT fieldRemoved(idx);
+  if (inFieldChangeGroup == 0)
+    updateCrossectionsTimes();
   // TODO trigger plot update
 }
 
@@ -789,10 +866,10 @@ void QtManager::removeAllFields()
   while (getFieldCount() > 0) {
     mCollector->removePlot(0);
     dataChange |= CHANGED_SEL;
-    Q_EMIT fieldRemoved(getModelAt(0), getFieldAt(0), 0);
+    Q_EMIT fieldRemoved(0);
     // TODO trigger plot update
   }
-  if (!inFieldChangeGroup)
+  if (inFieldChangeGroup == 0)
     updateCrossectionsTimes();
 }
 
@@ -806,8 +883,8 @@ void QtManager::setFieldVisible(int index, bool visible)
 
       dataChange |= CHANGED_SEL;
 
-      Q_EMIT fieldVisibilityChanged(sp->model, sp->name(), index);
-      if (!inFieldChangeGroup)
+      Q_EMIT fieldVisibilityChanged(index);
+      if (inFieldChangeGroup == 0)
         updateCrossectionsTimes();
       // TODO trigger update
     }
@@ -833,6 +910,8 @@ void QtManager::selectFields(const string_v& to_plot)
     string_v m_p_o = miutil::split(line);
     std::string poptions;
     std::string model, field;
+    vctime_t reftime;
+    int refhour = -1, refoffset = 0;
 
     for (string_v::const_iterator itT = m_p_o.begin(); itT != m_p_o.end(); ++itT) {
       const std::string& token = *itT;
@@ -844,15 +923,27 @@ void QtManager::selectFields(const string_v& to_plot)
         model = stoken[1];
       } else if (key == "field") {
         field = stoken[1];
+      } else if (key == "reftime") {
+        reftime = vctime_t(stoken[1]);
+      } else if (key == "refhour") {
+        refhour = miutil::to_int(stoken[1]);
+      } else if (key == "refoffset") {
+        refoffset = miutil::to_int(stoken[1]);
       } else {
         if (!poptions.empty())
           poptions += " ";
         poptions += token;
       }
     }
-    
-    if (!model.empty() && !field.empty())
-      addField(model, field, poptions, -1, false);
+    if (reftime.undef() && !model.empty()) {
+      const vctime_v reftimes = getModelReferenceTimes(model);
+      if (refhour != -1)
+        reftime = getBestReferenceTime(reftimes, refoffset, refhour);
+      if (reftime.undef() && !reftimes.empty())
+        reftime = reftimes.back();
+    }
+    if (!model.empty() && !field.empty() && !reftime.undef())
+      addField(PlotSpec(model, reftime, field), poptions, -1, false);
   }
 
   fieldChangeDone();

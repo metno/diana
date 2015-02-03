@@ -7,17 +7,17 @@
 
 #include "felt.xpm"
 
-VcrossLayerButton::VcrossLayerButton(const QString& model, const QString& field, int p, QWidget* parent)
+VcrossLayerButton::VcrossLayerButton(const QString& label, int p, QWidget* parent)
   : QToolButton(parent)
   , position(p)
 {
   setIcon(QPixmap(felt_xpm));
-  setToolTip(tr("Model: %1 Field: %2").arg(model).arg(field));
+  setToolTip(label);
   setCheckable(true);
   setChecked(true);
 
   connect(this, SIGNAL(toggled(bool)), this, SLOT(onShowHide()));
-  
+
   QMenu* menu = new QMenu(this);
 
   QAction* actionEdit = menu->addAction(tr("Style"));

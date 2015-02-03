@@ -5,13 +5,10 @@
 #include "diUtilities.h"
 
 #include <diField/FimexSource.h>
-#include <diField/TimeFilter.h>
 
 #include <puTools/miSetupParser.h>
 #include <puTools/miStringFunctions.h>
 #include <puTools/mi_boost_compatibility.hh>
-
-#include <puCtools/puCglob.h>
 
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -154,46 +151,13 @@ SyntaxError_v Setup::configureSources(const string_v& lines)
     } else if (mSources.find(name) != mSources.end()) {
       errors.push_back(SyntaxError(l, "name '" + name + "' already used"));
     } else {
-
-      // init time filter and replace yyyy etc. with ????
-      TimeFilter tf;
-      std::string before_slash, after_slash;
-      const size_t last_slash = filename.find_last_of("/");
-      if (last_slash != std::string::npos) {
-        before_slash = filename.substr(0, last_slash+1);
-        after_slash = filename.substr(last_slash+1, filename.size());
-      } else {
-        after_slash = filename;
-      }
-      tf.initFilter(after_slash, true);
-      filename = before_slash + after_slash;
-
-      // check for wild cards - expand filenames if necessary
-      if (filename.find_first_of("*?") != std::string::npos) {
-
-        const diutil::string_v matches = diutil::glob(filename, GLOB_BRACE);
-        for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-          const std::string& path = *it;
-          const std::string reftime_from_filename = tf.getTimeStr(path);
-          const std::string& name_time = name + "@" + reftime_from_filename;
-          addFimexSource(name_time, path, filetype, fileconfig);
-          mModelOptions[name_time] = options;
-        }
-      } else {
-        addFimexSource(name, filename, filetype, fileconfig);
-        mModelOptions[name] = options;
-      }
+      Source_p src = miutil::make_shared<FimexSource>(filename, filetype, fileconfig);
+      mSources.insert(std::make_pair(name, src));
+      mModelOptions[name] = options;
     }
   }
-  
-  return errors;
-}
 
-void Setup::addFimexSource(const std::string& name, const std::string& filename,
-    const std::string& filetype, const std::string& fileconfig)
-{
-  METLIBS_LOG_SCOPE("adding source '" << name << "' => '" << filename << "'");
-  mSources.insert(std::make_pair(name, miutil::make_shared<FimexSource>(filename, filetype, fileconfig)));
+  return errors;
 }
 
 SyntaxError_v Setup::configureComputations(const string_v& lines)

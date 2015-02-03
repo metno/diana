@@ -10,6 +10,7 @@
 namespace {
 enum {
   ModelRole = Qt::UserRole + 1,
+  ReftimeRole,
   FieldRole
 };
 std::ostream& operator<<(std::ostream& out, const QString& qstr)
@@ -32,29 +33,30 @@ void VcrossStyleDialog::setManager(vcross::QtManager_p vsm)
     return;
 
   if (vcrossm) {
-    disconnect(vcrossm.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-    disconnect(vcrossm.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
+    disconnect(vcrossm.get(), SIGNAL(fieldAdded(int)),
+        this, SLOT(onFieldAdded(int)));
+    disconnect(vcrossm.get(), SIGNAL(fieldOptionsChanged(int)),
+        this, SLOT(onFieldUpdated(int)));
+    disconnect(vcrossm.get(), SIGNAL(fieldRemoved(int)),
+        this, SLOT(onFieldRemoved(int)));
   }
   vcrossm = vsm;
   if (vcrossm) {
-    connect(vcrossm.get(), SIGNAL(fieldAdded(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldAdded(const std::string&, const std::string&, int)));
-    connect(vcrossm.get(), SIGNAL(fieldRemoved(const std::string&, const std::string&, int)),
-        this, SLOT(onFieldRemoved(const std::string&, const std::string&, int)));
+    connect(vcrossm.get(), SIGNAL(fieldAdded(int)),
+        this, SLOT(onFieldAdded(int)));
+    connect(vcrossm.get(), SIGNAL(fieldOptionsChanged(int)),
+        this, SLOT(onFieldUpdated(int)));
+    connect(vcrossm.get(), SIGNAL(fieldRemoved(int)),
+        this, SLOT(onFieldRemoved(int)));
   }
 }
 
-void VcrossStyleDialog::showModelField(const QString& mdl, const QString& fld)
+void VcrossStyleDialog::showModelField(int index)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(mdl) << LOGVAL(fld));
-  for (int r=0; r<mPlots->rowCount(); ++r) {
-    if (mdl == modelName(r) and fld == fieldName(r)) {
-      ui->comboPlot->setCurrentIndex(r);
-      slotSelectedPlotChanged(r);
-      return;
-    }
+  METLIBS_LOG_SCOPE(LOGVAL(index));
+  if (index >= 0 && index<mPlots->rowCount()) {
+    ui->comboPlot->setCurrentIndex(index);
+    slotSelectedPlotChanged(index);
   }
 }
 
@@ -64,21 +66,11 @@ void VcrossStyleDialog::setupUi()
   ui->labelPlot->setPixmap(QPixmap(felt_xpm).scaledToHeight(24)); // FIXME using ui->comboPlot->height() does not work
   connect(ui->styleWidget, SIGNAL(canResetOptions(bool)),
       ui->buttonResetOptions, SLOT(setEnabled(bool)));
-  
+
   mPlots = new QStandardItemModel(this);
   ui->comboPlot->setModel(mPlots);
 
   enableWidgets(); // we assume that ui->styleWidget->isEnabled == true;
-}
-
-QString VcrossStyleDialog::modelName(int index)
-{
-  return mPlots->item(index, 0)->data(ModelRole).toString();
-}
-
-QString VcrossStyleDialog::fieldName(int index)
-{
-  return mPlots->item(index, 0)->data(FieldRole).toString();
 }
 
 void VcrossStyleDialog::enableWidgets()
@@ -91,25 +83,26 @@ void VcrossStyleDialog::enableWidgets()
   }
 }
 
-void VcrossStyleDialog::onFieldAdded(const std::string& model, const std::string& field, int position)
+void VcrossStyleDialog::onFieldAdded(int position)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(model) << LOGVAL(field) << LOGVAL(position));
-  const QString mdl = QString::fromStdString(model), fld = QString::fromStdString(field);
-  QStandardItem* item = new QStandardItem(tr("M: %1 -- F: %2").arg(mdl).arg(fld));
-  item->setData(mdl, ModelRole);
-  item->setData(fld, FieldRole);
+  METLIBS_LOG_SCOPE(LOGVAL(position));
+  const QString mdl = QString::fromStdString(vcrossm->getModelAt(position)),
+      rt = QString::fromStdString(vcrossm->getReftimeAt(position).isoTime()),
+      fld = QString::fromStdString(vcrossm->getFieldAt(position));
+  QStandardItem* item = new QStandardItem(tr("M: %1 -- R: %2 -- F: %3")
+      .arg(mdl).arg(rt).arg(fld));
   mPlots->insertRow(position, item);
   ui->comboPlot->setCurrentIndex(position);
   enableWidgets();
 }
 
-void VcrossStyleDialog::onFieldUpdated(const std::string& model, const std::string& field, int position)
+void VcrossStyleDialog::onFieldUpdated(int position)
 {
   if (position == ui->comboPlot->currentIndex())
     slotSelectedPlotChanged(position);
 }
 
-void VcrossStyleDialog::onFieldRemoved(const std::string&, const std::string&, int position)
+void VcrossStyleDialog::onFieldRemoved(int position)
 {
   METLIBS_LOG_SCOPE(LOGVAL(position));
   QList<QStandardItem*> items = mPlots->takeRow(position);
@@ -124,10 +117,10 @@ void VcrossStyleDialog::slotSelectedPlotChanged(int index)
   if (index < 0)
     return;
 
-  const QString& mdl = modelName(index), fld = fieldName(index);
-  METLIBS_LOG_DEBUG(LOGVAL(mdl) << LOGVAL(fld));
+  const std::string fld = vcrossm->getFieldAt(index);
   const std::string opt  = vcrossm->getOptionsAt(index);
-  const std::string dflt = vcrossm->getPlotOptions(mdl.toStdString(), fld.toStdString(), true);
+  const std::string dflt = vcrossm->getPlotOptions(fld, true);
+  METLIBS_LOG_DEBUG(LOGVAL(index) << LOGVAL(fld) << LOGVAL(opt) << LOGVAL(dflt));
   ui->styleWidget->setOptions(opt, dflt);
 }
 
@@ -140,8 +133,6 @@ void VcrossStyleDialog::slotApply()
 {
   METLIBS_LOG_SCOPE();
   const int r = ui->comboPlot->currentIndex();
-  if (r >= 0) {
-    const QString& mdl = modelName(r), fld = fieldName(r);
-    vcrossm->updateField(mdl.toStdString(), fld.toStdString(), ui->styleWidget->options());
-  }
+  if (r >= 0)
+    vcrossm->updateField(r, ui->styleWidget->options());
 }

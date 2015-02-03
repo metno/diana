@@ -12,6 +12,34 @@
 
 namespace vcross {
 
+bool ModelReftime::valid() const
+{
+  return (!model.empty()) && reftime.valid();
+}
+
+bool ModelReftime::operator==(const ModelReftime& other) const
+{
+  return model == other.model && reftime == other.reftime;
+}
+
+bool lt_ModelReftime::operator()(const ModelReftime& mr1, const ModelReftime& mr2) const
+{
+  const int cmp = mr1.model.compare(mr2.model);
+  if (cmp < 0)
+    return true;
+  if (cmp > 0)
+    return false;
+  return mr1.reftime < mr2.reftime;
+};
+
+std::ostream& operator<<(std::ostream& out, const ModelReftime& mr)
+{
+  out << '[' << mr.model << '@' << util::to_miTime(mr.reftime) << ']';
+  return out;
+}
+
+//########################################################################
+
 Resolver::Resolver(Setup_p setup)
   : mSetup(setup)
 {
@@ -32,36 +60,28 @@ void Resolver::setupChanged()
 
 // ------------------------------------------------------------------------
 
-Source_p Resolver::getSource(const std::string& model)
+Source_p Resolver::getSource(const std::string& modelName)
 {
-  return getModelData(model).source;
+  return mSetup->findSource(modelName);
 }
 
 // ------------------------------------------------------------------------
 
-Inventory_cp Resolver::getInventory(const std::string& model)
+Inventory_cp Resolver::getInventory(const ModelReftime& model)
 {
   return getModelData(model).inventory;
 }
 
-void Resolver::addDynamicPointValue(std::string model, std::string name, LonLat pos)
-{
-  Source_p sp= getModelData(model).source;
-  LonLat_v positions;
-  positions.push_back(pos);
-  sp->addDynamicCrossection(name,positions);
-}
-
 // ------------------------------------------------------------------------
 
-const ResolvedPlot_cpv& Resolver::getAllResolvedPlots(const std::string& model)
+const ResolvedPlot_cpv& Resolver::getAllResolvedPlots(const ModelReftime& model)
 {
   return getModelData(model).resolved_plots;
 }
 
 // ------------------------------------------------------------------------
 
-ResolvedPlot_cp Resolver::getResolvedPlot(const std::string& model, const std::string& plot)
+ResolvedPlot_cp Resolver::getResolvedPlot(const ModelReftime& model, const std::string& plot)
 {
   const ResolvedPlot_cpv& rpv = getAllResolvedPlots(model);
   BOOST_FOREACH(ResolvedPlot_cp rp, rpv) {
@@ -73,26 +93,26 @@ ResolvedPlot_cp Resolver::getResolvedPlot(const std::string& model, const std::s
 
 // ------------------------------------------------------------------------
 
-InventoryBase_cp Resolver::getResolvedField(const std::string& model, const std::string& field_id)
+InventoryBase_cp Resolver::getResolvedField(const ModelReftime& model, const std::string& field_id)
 {
   return findItemById(getModelData(model).resolved_fields, field_id);
 }
 
 // ------------------------------------------------------------------------
 
-Resolver::model_data& Resolver::getModelData(const std::string& model)
+Resolver::model_data& Resolver::getModelData(const ModelReftime& mr)
 {
   METLIBS_LOG_SCOPE();
 
-  model_data_m::iterator it = mModelData.find(model);
+  model_data_m::iterator it = mModelData.find(mr);
   if (it != mModelData.end())
     return it->second;
 
-  METLIBS_LOG_DEBUG("new model_data for '" << model << "'");
-  model_data& md = mModelData[model];
-  md.source = mSetup->findSource(model);
+  METLIBS_LOG_DEBUG("new model_data for '" << mr.model << "'");
+  model_data& md = mModelData[mr];
+  md.source = mSetup->findSource(mr.model);
   if (md.source)
-    md.inventory = md.source->getInventory();
+    md.inventory = md.source->getInventory(mr.reftime);
   resolveAllFields(md);
   resolveAllPlots(md);
   return md;
@@ -142,7 +162,7 @@ void Resolver::resolveAllPlots(model_data& md)
 
 // ########################################################################
 
-InventoryBase_cp vc_resolve_unit(Resolver_p resolver, const std::string& model, const std::string& field_id, const std::string& unit)
+InventoryBase_cp vc_resolve_unit(Resolver_p resolver, const ModelReftime& model, const std::string& field_id, const std::string& unit)
 {
   InventoryBase_cp field = resolver->getResolvedField(model, field_id);
   if (field and util::unitsConvertible(field->unit(), unit))
@@ -150,7 +170,7 @@ InventoryBase_cp vc_resolve_unit(Resolver_p resolver, const std::string& model, 
   return InventoryBase_cp();
 }
 
-bool vc_resolve_surface(Resolver_p resolver, const std::string& model)
+bool vc_resolve_surface(Resolver_p resolver, const ModelReftime& model)
 {
   METLIBS_LOG_SCOPE();
   return vc_resolve_unit(resolver, model, VC_SURFACE_PRESSURE, "hPa")

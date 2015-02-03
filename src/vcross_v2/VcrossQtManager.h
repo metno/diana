@@ -52,15 +52,15 @@ namespace vcross {
 */
 class QtManager : public QObject {
   Q_OBJECT;
-  
-private:
-  typedef miutil::miTime vctime_t;
 
 public:
+  typedef miutil::miTime vctime_t;
+  typedef std::vector<vctime_t> vctime_v;
+
   typedef std::vector<std::string> string_v;
   typedef std::set<std::string> string_s;
   typedef std::map<std::string, std::string> string_string_m;
-  typedef std::set<Source_p> Source_ps;
+  typedef std::set< std::pair<Source_p,Time> > Source_Reftime_ps;
 
   QtManager();
   ~QtManager();
@@ -84,31 +84,53 @@ public:
   //! lists all model names configured in setup
   string_v getAllModels();
 
-  //! get plot options used previously in this session, or those configured in setup
-  std::string getPlotOptions(const std::string& model, const std::string& field, bool fromSetup) const;
+  //! lists all reference times available for the specified model
+  vctime_v getModelReferenceTimes(const std::string& modelName);
 
-  /*! get a list of plot names that can be cosen for the given model 
-   * \param model the model name for which plots shall be listed
+  //! get plot options used previously in this session, or those configured in setup
+  std::string getPlotOptions(const std::string& field, bool fromSetup) const;
+
+  /*! get a list of plot names that can be cosen for the given model
+   * \param model the model name for which plots shall be listed, from getAllModels
+   * \param reftime the reference time for which plots shall be listed, from getModelReferenceTimes
    * \param includeSelected include plots that are already selected in the list
    */
-  std::vector<std::string> getFieldNames(const std::string& model, bool includeSelected=true);
+  std::vector<std::string> getFieldNames(const std::string& model, const vctime_t& reftime, bool includeSelected=true);
 
   size_t getFieldCount() const;
-  std::string getFieldAt(int index) const;
   std::string getModelAt(int index) const;
+  vctime_t getReftimeAt(int index) const;
+  std::string getFieldAt(int index) const;
   std::string getOptionsAt(int index) const;
   bool getVisibleAt(int index) const;
-
-  SelectedPlot_p findSelectedPlot(const std::string& model, const std::string& field);
-  int findSelectedPlotIndex(const std::string& model, const std::string& field);
 
   void fieldChangeStart(bool script);
   void fieldChangeDone();
 
-  void addField(const std::string& model, const std::string& field, const std::string& fieldOpts,
-      int index, bool updateUserFieldOptions=true);
-  void updateField(const std::string& model, const std::string& field, const std::string& fieldOpts);
-  void removeField(const std::string& model, const std::string& field);
+  class PlotSpec {
+  public:
+    PlotSpec(const std::string& model, const vctime_t& reftime, const std::string& field);
+
+    PlotSpec(const ModelReftime& mr, const std::string& field)
+      : mModelReftime(mr), mField(field) { }
+
+    const ModelReftime& modelReftime() const
+      { return mModelReftime; }
+
+    const std::string& field() const
+      { return mField; }
+
+    void setField(const std::string& f)
+      { mField = f; }
+
+  private:
+    ModelReftime mModelReftime;
+    std::string mField;
+  };
+
+  void addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
+  void updateField(int index, const std::string& fieldOpts);
+  void removeField(int index);
   void removeAllFields();
 
   void setFieldVisible(int index, bool visible);
@@ -169,10 +191,10 @@ public:
 
 Q_SIGNALS:
   void fieldChangeBegin(bool fromScript);
-  void fieldAdded(const std::string& model, const std::string& field, int index);
-  void fieldRemoved(const std::string& model, const std::string& field, int index);
-  void fieldOptionsChanged(const std::string& model, const std::string& field, int index);
-  void fieldVisibilityChanged(const std::string& model, const std::string& field, int index);
+  void fieldAdded(int insertedIndex);
+  void fieldRemoved(int removedIndex);
+  void fieldOptionsChanged(int changedIndex);
+  void fieldVisibilityChanged(int changedIndex);
   void fieldChangeEnd();
 
   void crossectionListChanged();
@@ -184,8 +206,11 @@ Q_SIGNALS:
   void timeGraphMode(bool on);
 
 private:
+  SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
+  int findSelectedPlotIndex(const PlotSpec& ps);
+
   SelectedPlot_p getSelectedPlot(int index) const;
-  Source_ps listDynamicSources() const;
+  Source_Reftime_ps listDynamicSources() const;
 
   // update list of crossections, emit signal
   void handleChangedCrossectionList(const QString& oldLabel);
@@ -215,14 +240,13 @@ private:
 
   enum { CHANGED_NO=0, CHANGED_TIME=1, CHANGED_CS=2, CHANGED_SEL=7 };
   int dataChange;
-  bool inFieldChangeGroup;
+  int inFieldChangeGroup;
 
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
   int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
   LocationData locationData;
-  typedef std::vector<vctime_t> vctime_v;
   vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
 

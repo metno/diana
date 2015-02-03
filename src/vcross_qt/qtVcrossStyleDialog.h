@@ -16,18 +16,16 @@ public:
   VcrossStyleDialog(QWidget* parent);
   void setManager(vcross::QtManager_p vcrossm);
 
-  void showModelField(const QString& mdl, const QString& fld);
+  void showModelField(int idx);
 
 private:
   void setupUi();
-  QString modelName(int index);
-  QString fieldName(int index);
   void enableWidgets();
 
 private Q_SLOTS:
-  void onFieldAdded(const std::string& model, const std::string& field, int position);
-  void onFieldUpdated(const std::string& model, const std::string& field, int position);
-  void onFieldRemoved(const std::string& model, const std::string& field, int position);
+  void onFieldAdded(int position);
+  void onFieldUpdated(int position);
+  void onFieldRemoved(int position);
 
   void slotSelectedPlotChanged(int index);
   void slotResetPlotOptions();

@@ -27,10 +27,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <vcross_v2/VcrossSetup.h>
 #include <vcross_v2/VcrossComputer.h>
+#include <vcross_v2/VcrossQtManager.h>
+#include <vcross_v2/VcrossSetup.h>
 
 #include <diField/FimexSource.h>
+#include <diField/VcrossUtil.h>
 
 #include <fstream>
 
@@ -53,19 +55,21 @@ using namespace vcross;
 
 namespace /* anonymous */ {
 
-static const char BANGLADESH_FILE[] = "bangladesh_vc.nc";
-static const int BANGLADESH_N_CS = 4;
-static const int BANGLADESH_CS_LEN[BANGLADESH_N_CS] = { 1, 1, 96, 124 };
-static const int BANGLADESH_N_TIME = 5;
-static const int BANGLADESH_N_Z = 15;
+const char BANGLADESH_FILE[] = "bangladesh_vc.nc";
+const int BANGLADESH_N_CS = 4;
+const int BANGLADESH_CS_LEN[BANGLADESH_N_CS] = { 1, 1, 96, 124 };
+const int BANGLADESH_N_TIME = 5;
+const int BANGLADESH_N_Z = 15;
+//const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime("2014-11-24 12:00:00"));
+const char BANGLADESH_RTT[] = "2014-11-24 12:00:00";
 
-FimexSource_p openFimexSource(const std::string& file)
+Source_p openFimexSource(const std::string& file)
 {
   const std::string fileName = std::string(TEST_SRCDIR) + "/" + file;
   std::ifstream inputfile(fileName.c_str());
   if (not inputfile)
     return FimexSource_p();
-  
+
   return FimexSource_p(new FimexSource(fileName, "netcdf"));
 }
 
@@ -78,11 +82,13 @@ TEST(TestVcrossComputer, BangladeshTH)
   NameItem_v computations;
   computations.push_back(parseComputationLine("th = th_from_tk(air_temperature_pl)"));
 
-  FimexSource_p fs = openFimexSource(BANGLADESH_FILE);
+  Source_p fs = openFimexSource(BANGLADESH_FILE);
   if (not fs)
     return;
 
-  Inventory_cp inv = fs->getInventory();
+  fs->update();
+  const vcross::Time BANGLADESH_RT = util::from_miTime(miutil::miTime(BANGLADESH_RTT));
+  Inventory_cp inv = fs->getInventory(BANGLADESH_RT);
   ASSERT_TRUE(inv);
   ASSERT_EQ(BANGLADESH_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGLADESH_N_CS,   inv->crossections.size());
@@ -90,7 +96,7 @@ TEST(TestVcrossComputer, BangladeshTH)
   Crossection_cp cs3 = inv->crossections.at(3);
   ASSERT_TRUE(cs3);
   EXPECT_EQ(BANGLADESH_CS_LEN[3], cs3->npoint());
-  
+
   InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
   vcross::resolve(fields, computations);
 
@@ -103,14 +109,13 @@ TEST(TestVcrossComputer, BangladeshTH)
   InventoryBase_cp vertical_pressure = th->zaxis()->pressureField();
   ASSERT_TRUE(vertical and vertical_pressure);
 
-  const Time  reftime = fs->getDefaultReferenceTime();
   const Time& time = inv->times.at(1);
 
   InventoryBase_cps request;
   collectRequired(request, th);
 
   name2value_t n2v;
-  fs->getCrossectionValues(reftime, cs3, time, request, n2v);
+  fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v);
   vc_evaluate_field(th, n2v);
 
   Values_cp th_values = n2v[th->id()];

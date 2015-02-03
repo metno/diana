@@ -18,23 +18,22 @@ model_values_m vc_fetch_crossection(Collector_p collector, const std::string& us
   const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
-    const std::string& model = it->first;
+    const ModelReftime& mr = it->first;
     
-    Source_p src = collector->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(mr.model);
     if (not src)
       continue;
-    Inventory_cp inv = src->getInventory();
+    Inventory_cp inv = src->getInventory(mr.reftime);
     if (not inv)
       continue;
     Crossection_cp cs = inv->findCrossectionByLabel(user_crossection);
     if (not cs)
       continue;
 
-    name2value_t& n2v = model_values[model];
-    const Time ref_time(src->getBestReferenceTime(user_time));
+    name2value_t& n2v = model_values[mr];
     vcross::evaluateCrossection(cs, n2v);
     try {
-      src->getCrossectionValues(ref_time, cs, user_time, it->second, n2v);
+      src->getCrossectionValues(mr.reftime, cs, user_time, it->second, n2v);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -48,22 +47,21 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
   const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
-    const std::string& model = it->first;
-    Source_p src = collector->getSetup()->findSource(model);
+    const ModelReftime& mr = it->first;
+    Source_p src = collector->getSetup()->findSource(mr.model);
     if (not src)
       continue;
-    Inventory_cp inv = src->getInventory();
+    Inventory_cp inv = src->getInventory(mr.reftime);
     if (not inv)
       continue;
     size_t index;
     Crossection_cp cs = inv->findCrossectionPoint(user_crossection,index);
     if (not cs)
       continue;
-    name2value_t& n2v = model_values[model];
-    const Time ref_time(src->getBestReferenceTime(user_time));
+    name2value_t& n2v = model_values[mr];
     vcross::evaluateCrossection(cs, n2v);
     try {
-      src->getPointValues(ref_time, cs, 0,user_time, it->second, n2v);
+      src->getPointValues(mr.reftime, cs, 0,user_time, it->second, n2v);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -79,12 +77,12 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
   const model_required_m& mr = collector->getRequired();
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
-    const std::string& model = it->first;
+    const ModelReftime& mr = it->first;
     
-    Source_p src = collector->getSetup()->findSource(model);
+    Source_p src = collector->getSetup()->findSource(mr.model);
     if (not src)
       continue;
-    Inventory_cp inv = src->getInventory();
+    Inventory_cp inv = src->getInventory(mr.reftime);
     if (not inv)
       continue;
     size_t index = 0;
@@ -92,13 +90,11 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
     if (not cs)
       continue;
 
-    name2value_t& n2v = model_values[model];
+    name2value_t& n2v = model_values[mr];
 
-    // TODO how to get a reference time for a time graph?
-    const Time ref_time(src->getDefaultReferenceTime());
     vcross::evaluateCrossection4TimeGraph(cs, index, inv->times.npoint(), n2v);
     try {
-      src->getTimegraphValues(ref_time, cs, index, it->second, n2v);
+      src->getTimegraphValues(mr.reftime, cs, index, it->second, n2v);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -109,7 +105,7 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
 // ########################################################################
 
 Values_cp vc_evaluate_field(model_values_m& model_values,
-    const std::string& model, InventoryBase_cp field)
+    const ModelReftime& model, InventoryBase_cp field)
 {
   METLIBS_LOG_SCOPE();
   const model_values_m::iterator it_m = model_values.find(model);
@@ -141,7 +137,7 @@ Values_cpv vc_evaluate_fields(name2value_t& n2v, const FieldData_cpv& fields)
 //########################################################################
 
 Values_cpv vc_evaluate_fields(model_values_m& model_values,
-    const std::string& model, const InventoryBase_cpv& fields)
+    const ModelReftime& model, const InventoryBase_cpv& fields)
 {
   METLIBS_LOG_SCOPE();
 
@@ -154,7 +150,7 @@ Values_cpv vc_evaluate_fields(model_values_m& model_values,
 //########################################################################
 
 Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values,
-    const std::string& model, const string_v& field_ids)
+    const ModelReftime& model, const string_v& field_ids)
 {
   METLIBS_LOG_SCOPE();
 
@@ -167,7 +163,7 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
 //########################################################################
 
 Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values,
-    const std::string& model, const char** field_ids)
+    const ModelReftime& model, const char** field_ids)
 {
   METLIBS_LOG_SCOPE();
 
@@ -179,7 +175,7 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
 
 //########################################################################
 
-void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, const std::string& model)
+void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, const ModelReftime& model)
 {
   METLIBS_LOG_SCOPE();
   static const char* surface_field_ids[] = { VC_SURFACE_PRESSURE, VC_SURFACE_ALTITUDE, 0 };
