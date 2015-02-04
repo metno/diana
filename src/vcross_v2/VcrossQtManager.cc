@@ -149,9 +149,7 @@ void QtManager::cleanup()
   mTimeGraphPos = -1;
   mCrossectionZooms.clear();
 
-  fieldChangeStart(true);
   removeAllFields();
-  fieldChangeDone();
 
   mPlot->clear();
 }
@@ -783,9 +781,10 @@ void QtManager::fieldChangeStart(bool script)
 
 void QtManager::fieldChangeDone()
 {
-  updateCrossectionsTimes();
-  if (inFieldChangeGroup == 1)
+  if (inFieldChangeGroup == 1) {
+    updateCrossectionsTimes();
     Q_EMIT fieldChangeEnd();
+  }
   if (inFieldChangeGroup > 0)
     inFieldChangeGroup -= 1;
   else
@@ -866,14 +865,14 @@ void QtManager::removeField(int idx)
 void QtManager::removeAllFields()
 {
   METLIBS_LOG_SCOPE();
+  fieldChangeStart(true);
   while (getFieldCount() > 0) {
     mCollector->removePlot(0);
     dataChange |= CHANGED_SEL;
     Q_EMIT fieldRemoved(0);
     // TODO trigger plot update
   }
-  if (inFieldChangeGroup == 0)
-    updateCrossectionsTimes();
+  fieldChangeDone();
 }
 
 
