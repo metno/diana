@@ -188,6 +188,7 @@ private:
   miutil::miTime mCrossectionTime;
   LonLat_v mCrossectionPoints;
   std::vector<float> mCrossectionDistances; //! distance in m from first point
+  std::vector<float> mCrossectionBearings;  //! direction to next point
 
   // for time graph
   std::vector<miutil::miTime> mTimePoints;

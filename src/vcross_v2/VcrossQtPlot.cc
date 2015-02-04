@@ -100,6 +100,8 @@ static const float CHARS_TIME = 2.5;
 
 static const float MAX_FRAMETEXT = 0.4;
 
+static const bool showbearing = true;
+
 } // namespace anonymous
 
 namespace vcross {
@@ -306,6 +308,7 @@ void QtPlot::clear(bool keepX, bool keepY)
   mCrossectionLabel.clear();
   mCrossectionPoints.clear();
   mCrossectionDistances.clear();
+  mCrossectionBearings.clear();
 
   mTimePoints.clear();
   mTimeDistances.clear();
@@ -331,6 +334,21 @@ void QtPlot::setHorizontalCross(const std::string& csLabel, const miutil::miTime
   for (size_t i=1; i<mCrossectionPoints.size(); ++i) {
     const LonLat &p0 = mCrossectionPoints.at(i-1), &p1 = mCrossectionPoints.at(i);
     mCrossectionDistances.push_back(mCrossectionDistances.back() + p0.distanceTo(p1));
+  }
+
+  mCrossectionBearings.clear();
+  mCrossectionBearings.reserve(mCrossectionPoints.size());
+  if (mCrossectionPoints.size() == 0) {
+    // do nothing
+  } else if (mCrossectionPoints.size() == 1) {
+    // bearing undefined
+    mCrossectionBearings.push_back(0);
+  } else {
+    mCrossectionBearings.push_back(mCrossectionPoints.at(0).bearingTo(mCrossectionPoints.at(1)));
+    for (size_t i=1; i<mCrossectionPoints.size(); ++i) {
+      const LonLat &p0 = mCrossectionPoints.at(i-1), &p1 = mCrossectionPoints.at(i);
+      mCrossectionBearings.push_back(p0.bearingTo(p1));
+    }
   }
 }
 
@@ -522,9 +540,8 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       vcross::util::maximize(charsXleft, CHARS_DISTANCE);
       charsXrght = charsXleft;
     }
-    if (mOptions->pGeoPos)
-      linesYbot += LINES_2;
     if (mOptions->pGeoPos) {
+      linesYbot += showbearing ? LINES_3 : LINES_2;
       vcross::util::maximize(charsXleft, CHARS_POS_LEFT);
       vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
     }
@@ -662,7 +679,7 @@ void QtPlot::plotXLabels(QPainter& painter)
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
         const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
-        
+
         if (mAxisX->legalPaint(tickX)) {
           int tickLineWidth = 1;
           if (tickX >= nextLabelX) {
@@ -695,19 +712,32 @@ void QtPlot::plotXLabels(QPainter& painter)
         const float tickX = mAxisX->value2paint(distance);
         if (mAxisX->legalPaint(tickX)) {
           if (tickX >= nextLabelX) {
+            float lY = labelY, labelWb = 0;
+            if (showbearing) {
+              labelWb = std::max(mCharSize.width(), mCharSize.height());
+              const float s2 = labelWb / 2, b = mCrossectionBearings.at(i);
+              const float bdx = s2*std::sin(b), bdy = -s2*std::cos(b);
+              const float tcx = tickX, tcy = lY - s2;
+              PaintVector::paintArrow(painter, tcx - bdx, tcy - bdy, tcx + bdx, tcy + bdy);
+              lY += lines_1;
+            }
+
             std::ostringstream xostr, yostr;
             writeLonEW(xostr, mCrossectionPoints.at(i).lonDeg());
             writeLatNS(yostr, mCrossectionPoints.at(i).latDeg());
             const std::string xstr = xostr.str(), ystr = yostr.str();
             const QString x_str = QString::fromStdString(xstr), y_str = QString::fromStdString(ystr);
-            const float labelWx=painter.fontMetrics().width(x_str), labelWy = painter.fontMetrics().width(y_str);
-            painter.drawText(tickX - labelWx/2, labelY, x_str);
-            painter.drawText(tickX - labelWy/2, labelY + lines_1, y_str);
-            nextLabelX += std::min(labelWx, labelWy) + mCharSize.width();
+            const float labelWx=painter.fontMetrics().width(x_str),
+                labelWy = painter.fontMetrics().width(y_str);
+
+
+            painter.drawText(tickX - labelWx/2, lY, x_str);
+            painter.drawText(tickX - labelWy/2, lY + lines_1, y_str);
+            nextLabelX += std::max(labelWx, std::max(labelWy, labelWb)) + mCharSize.width();
           }
         }
       }
-      labelY += LINES_2 * mCharSize.height();
+      labelY += (showbearing ? LINES_3 : LINES_2) * mCharSize.height();
     }
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
@@ -715,7 +745,7 @@ void QtPlot::plotXLabels(QPainter& painter)
       painter.setPen(vcross::util::QC(colourOrContrast(mOptions->distanceColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mTimeDistances.size(); ++i) {
-        const float minutes = mTimeDistances.at(i); 
+        const float minutes = mTimeDistances.at(i);
         const float tickX = mAxisX->value2paint(minutes);
         if (mAxisX->legalPaint(tickX)) {
           if (tickX >= nextLabelX) {
