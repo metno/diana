@@ -216,6 +216,10 @@ void VcrossAddPlotDialog::initializeReftimePage(bool forward)
       rsl << QString::fromStdString(reftimes[i].isoTime());
 
     referenceTimes->setStringList(rsl);
+    if (referenceTimes->rowCount() > 0) {
+      const QModelIndex latest = referenceTimes->index(referenceTimes->rowCount()-1, 0);
+      ui->reftimeList->selectionModel()->setCurrentIndex(latest, QItemSelectionModel::ClearAndSelect);
+    }
   }
   ui->buttonRestart->setEnabled(true);
   ui->buttonBack->setEnabled(true);
