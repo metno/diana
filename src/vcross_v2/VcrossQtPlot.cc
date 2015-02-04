@@ -528,7 +528,7 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
 
-  float charsXleft = 0, charsXrght = 0, linesYbot = 0, linesYtop = 0;
+  float charsXleft = 0, charsXrght = 0, linesYbot = 0, linesYtop = 0, linesLabel;
 
   if (mOptions->pLevelNumbers or mOptions->pFrame) {
     charsXleft = charsXrght = (mOptions->pLevelNumbers) ? CHARS_NUMBERS : 0;
@@ -545,6 +545,7 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       vcross::util::maximize(charsXleft, CHARS_POS_LEFT);
       vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
     }
+    linesLabel = 2; // crossection label and time
   } else /* timeGraph */ {
 #if 0
     // time graph: hour/date/forecast (not if text is off)
@@ -557,10 +558,12 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
     // time graph: only one position (and only one line needed)
     if (mOptions->pDistance or mOptions->pGeoPos)
       linesYbot += LINES_2;
+
+    linesLabel = 1; // timegraph position
   }
 
   if (mOptions->pText)
-    linesYbot += mPlots.size() + LINE_GAP;
+    linesYbot += std::max(linesLabel, (float)mPlots.size()) * LINES_1;
 
   //if (mOptions->pPositionNames and not markName.empty())
   //  linesYtop += LINES_1;
