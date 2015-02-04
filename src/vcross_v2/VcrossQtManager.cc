@@ -652,6 +652,7 @@ QtManager::vctime_v QtManager::getModelReferenceTimes(const std::string& modelNa
 {
   METLIBS_LOG_SCOPE();
   if (Source_p s = mCollector->getSetup()->findSource(modelName)) {
+    s->update();
     const Time_s reftimes = s->getReferenceTimes();
     vctime_v rt;
     rt.reserve(reftimes.size());
