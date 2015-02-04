@@ -203,8 +203,6 @@ Q_SIGNALS:
   void timeListChanged();
   void timeIndexChanged(int current);
 
-  void timeGraphMode(bool on);
-
 private:
   SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
   int findSelectedPlotIndex(const PlotSpec& ps);

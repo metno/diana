@@ -421,7 +421,10 @@ int QtManager::getTimeIndex() const
 
 int QtManager::getTimeCount() const
 {
-  return mCrossectionTimes.size();
+  if (mTimeGraphPos < 0)
+    return mCrossectionTimes.size();
+  else
+    return 0;
 }
 
 
@@ -953,7 +956,11 @@ void QtManager::selectFields(const string_v& to_plot)
 bool QtManager::timeGraphOK()
 {
   METLIBS_LOG_SCOPE();
-  return (not mCollector->getSelectedPlots().empty());
+  if (mCollector->getSelectedPlots().empty())
+    return false;
+  if (mCrossectionTimes.size() < 2)
+    return false;
+  return true;
 }
 
 // ------------------------------------------------------------------------
@@ -964,6 +971,7 @@ void QtManager::disableTimeGraph()
   if (mTimeGraphPos >= 0)
     mCrossectionZooms.clear();
   mTimeGraphPos = -1;
+  Q_EMIT timeListChanged();
   dataChange |= CHANGED_SEL;
 }
 
@@ -973,13 +981,12 @@ void QtManager::setTimeGraphPos(int plotx, int /*ploty*/)
 {
   METLIBS_LOG_SCOPE();
 
-  if (mCollector->getSelectedPlots().empty())
-    return;
-
-  if (mTimeGraphPos < 0)
+  if (!mCollector->getSelectedPlots().empty() && mTimeGraphPos < 0) {
     mCrossectionZooms.clear();
-  mTimeGraphPos = mPlot->getNearestPos(plotx);
-  dataChange |= CHANGED_SEL;
+    mTimeGraphPos = mPlot->getNearestPos(plotx);
+    Q_EMIT timeListChanged();
+    dataChange |= CHANGED_SEL;
+  }
 }
 
 // ------------------------------------------------------------------------
@@ -988,7 +995,9 @@ void QtManager::setTimeGraphPos(int incr)
 {
   METLIBS_LOG_SCOPE();
   if (mTimeGraphPos < 0)
-    mCrossectionZooms.clear();
+    return;
+
+  mCrossectionZooms.clear();
   if (util::step_index(mTimeGraphPos, incr, mCrossectionPoints.size()))
     dataChange |= CHANGED_SEL; // TODO
 }
@@ -1007,8 +1016,10 @@ void QtManager::setTimeGraph(const LonLat& position)
           size_t cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
           if (cs_index >= 0) {
             setCrossectionIndex(cs_index);
-            if (mTimeGraphPos < 0)
+            if (mTimeGraphPos < 0) {
               mCrossectionZooms.clear();
+              Q_EMIT timeListChanged();
+            }
             mTimeGraphPos = index;
             dataChange |= CHANGED_SEL;
           }
@@ -1055,7 +1066,7 @@ void QtManager::readPlotOptions(const string_v& loglines,
     const std::string& thisVersion, const std::string& logVersion)
 {
   userFieldOptions.clear();
-  
+
   string_v::const_iterator itL = loglines.begin();
   while (itL != loglines.end() and not diutil::startswith(*itL, "===="))
     ++itL;

@@ -513,9 +513,10 @@ void VcrossWindow::timeListChangedSlot()
   }
   ui->comboTime->setModel(new MiTimeModel(times));
 
-  ui->comboTime->setEnabled(count > 0);
-  ui->buttonTimePrevious->setEnabled(count > 0);
-  ui->buttonTimeNext->setEnabled(count > 0);
+  const bool enabled = (count > 1);
+  ui->comboTime->setEnabled(enabled);
+  ui->buttonTimePrevious->setEnabled(enabled);
+  ui->buttonTimeNext->setEnabled(enabled);
 
   if (count > 0)
     Q_EMIT emitTimes("vcross", times);
@@ -527,6 +528,7 @@ void VcrossWindow::timeBoxActivated(int index)
   METLIBS_LOG_SCOPE(LOGVAL(index));
   vcrossm->setTimeIndex(index);
 }
+
 
 /***************************************************************************/
 
