@@ -120,8 +120,8 @@ QtManager::QtManager()
   , dataChange(0)
   , inFieldChangeGroup(0)
   , mCrossectionCurrent(-1)
-  , mTimeGraphPos(-1)
   , mPlotTime(-1)
+  , mTimeGraphPos(-1)
   , mHasSupportForDynamicCs(false)
 {
   METLIBS_LOG_SCOPE();
@@ -358,7 +358,6 @@ QtManager::Source_Reftime_ps QtManager::listDynamicSources() const
 
 void QtManager::fillLocationData(LocationData& ld)
 {
-
   METLIBS_LOG_SCOPE();
 
   Projection pgeo;
@@ -989,7 +988,7 @@ void QtManager::setTimeGraphPos(int incr)
   METLIBS_LOG_SCOPE();
   if (mTimeGraphPos < 0)
     mCrossectionZooms.clear();
-  if (util::step_index(mTimeGraphPos, incr, mCrossectionTimes.size()))
+  if (util::step_index(mTimeGraphPos, incr, mCrossectionPoints.size()))
     dataChange |= CHANGED_SEL; // TODO
 }
 
@@ -998,28 +997,24 @@ void QtManager::setTimeGraphPos(int incr)
 void QtManager::setTimeGraph(const LonLat& position)
 {
   METLIBS_LOG_SCOPE();
-#if 0
-  if (mCollector->getSelectedPlots().empty())
-    return;
-
-  const std::string& model1 = mCollector->getSelectedPlots().front()->model;
-  Source_p src = mCollector->getSetup()->findSource(model1);
-  if (not src)
-    return;
-  Inventory_cp inv = src->getInventory();
-  if (not inv)
-    return;
-  size_t index;
-  Crossection_cp cs = inv->findCrossectionPoint(position, index);
-  if (not cs)
-    return;
-
-  setCrossection(cs->label);
-  if (mTimeGraphPos < 0)
-    mCrossectionZooms.clear();
-  mTimeGraphPos = index;
-  dataChange |= CHANGED_SEL;
-#endif
+  const ModelReftime model1 = mCollector->getFirstModel();
+  if (model1.valid()) {
+    if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
+      if (Inventory_cp inv = src->getInventory(model1.reftime)) {
+        size_t index;
+        if (Crossection_cp cs = inv->findCrossectionPoint(position, index)) {
+          size_t cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
+          if (cs_index >= 0) {
+            setCrossectionIndex(cs_index);
+            if (mTimeGraphPos < 0)
+              mCrossectionZooms.clear();
+            mTimeGraphPos = index;
+            dataChange |= CHANGED_SEL;
+          }
+        }
+      }
+    }
+  }
 }
 
 // ------------------------------------------------------------------------

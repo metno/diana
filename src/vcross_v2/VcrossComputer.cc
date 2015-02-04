@@ -75,7 +75,7 @@ const FunctionSpec* findFunctionByName(const std::string& name)
   return 0;
 }
 
-} // anonymous namespace 
+} // anonymous namespace
 
 // ========================================================================
 
@@ -507,7 +507,7 @@ void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
   Values_p vbrng(new Values(cs->npoint(), 1, false));
   Values_p vstep(new Values(cs->npoint(), 1, false));
   Values_p vcor (new Values(cs->npoint(), 1, false));
-  
+
   for (size_t i=0; i<cs->npoint(); ++i) {
     Values::value_t flon, flat, fbrng, fstep, fcor;
     evaluateCrossectionPoint(cs, i, flon, flat, fbrng, fstep, fcor);
@@ -518,7 +518,7 @@ void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
     vcor ->setValue(fcor,  i, 0);
   }
 
-  n2v[VC_LONGITUDE] = vlon; 
+  n2v[VC_LONGITUDE] = vlon;
   n2v[VC_LATITUDE]  = vlat;
   n2v[VC_BEARING]   = vbrng;
   n2v[VC_STEP]      = vstep;
@@ -535,22 +535,16 @@ void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t nt
 
   Values_p vlon (new Values(ntimes, 1, false));
   Values_p vlat (new Values(ntimes, 1, false));
-  Values_p vbrng(new Values(ntimes, 1, false));
-  Values_p vstep(new Values(ntimes, 1, false));
   Values_p vcor (new Values(ntimes, 1, false));
 
   for (size_t i=0; i<ntimes; ++i) {
     vlon ->setValue(flon,  i, 0);
     vlat ->setValue(flat,  i, 0);
-    vbrng->setValue(fbrng, i, 0);
-    vstep->setValue(fstep, i, 0);
     vcor ->setValue(fcor,  i, 0);
   }
 
-  n2v[VC_LONGITUDE] = vlon; 
+  n2v[VC_LONGITUDE] = vlon;
   n2v[VC_LATITUDE]  = vlat;
-  n2v[VC_BEARING]   = vbrng;
-  n2v[VC_STEP]      = vstep;
   n2v[VC_CORIOLIS]  = vcor;
 }
 

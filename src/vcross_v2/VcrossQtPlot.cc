@@ -83,6 +83,11 @@ inline float square(float x)
   return x*x;
 }
 
+static const char* horizontal(bool timegraph)
+{
+  return timegraph ? vcross::Values::TIME : vcross::Values::GEO_X;
+}
+
 static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
@@ -422,18 +427,20 @@ void QtPlot::prepareYAxisRange()
   METLIBS_LOG_SCOPE();
   bool have_z = false;
   float yax_min = 1e35, yax_max = -1e35;
+  const char* H_COORD = horizontal(isTimeGraph());
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     Values_cp z_values = plot->evaluated->z_values;
     if (not z_values)
       continue;
     have_z = true;
-    const int nl = z_values->shape().length(Values::GEO_Z), np = z_values->shape().length(Values::GEO_X);
+    const int nl = z_values->shape().length(Values::GEO_Z),
+        np = z_values->shape().length(H_COORD);
     METLIBS_LOG_DEBUG("next plot" << LOGVAL(np) << LOGVAL(nl));
     Values::ShapeIndex idx(z_values->shape());
     for (int l=0; l<nl; ++l) {
       idx.set(Values::GEO_Z, l);
       for (int p=0; p<np; ++p) {
-        idx.set(Values::GEO_X, p);
+        idx.set(H_COORD, p);
         const float zax_value = z_values->value(idx);
         vcross::util::minimaximize(yax_min, yax_max, zax_value);
       }
@@ -653,7 +660,7 @@ void QtPlot::plotXLabels(QPainter& painter)
       float nextLabelX = mAxisX->getPaintMin();
       const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
-        const float distance = mCrossectionDistances.at(i); 
+        const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
         
         if (mAxisX->legalPaint(tickX)) {
@@ -684,7 +691,7 @@ void QtPlot::plotXLabels(QPainter& painter)
       painter.setPen(vcross::util::QC(colourOrContrast(mOptions->geoposColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
-        const float distance = mCrossectionDistances.at(i); 
+        const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
         if (mAxisX->legalPaint(tickX)) {
           if (tickX >= nextLabelX) {
@@ -746,16 +753,17 @@ void QtPlot::plotSurface(QPainter& painter)
 
   const float vYMin = mAxisY->getValueMin(), vYMax = mAxisY->getValueMax();
   const bool up = vYMin < vYMax;
+  const char* H_COORD = horizontal(isTimeGraph());
 
   painter.save();
   painter.setPen(Qt::NoPen);
   painter.setBrush(vcross::util::QC(mOptions->surfaceColour));
 
   QPolygonF polygon; // TODO set pen etc
-  const int nx = mSurface->shape().length(Values::GEO_X);
+  const int nx = mSurface->shape().length(H_COORD);
   Values::ShapeIndex idx_surface(mSurface->shape());
   for (int ix=0; ix<nx; ++ix) {
-    idx_surface.set(Values::GEO_X, ix);
+    idx_surface.set(H_COORD, ix);
     const float vx = distances.at(ix), p0 = mSurface->value(idx_surface);
     const float px = mAxisX->value2paint(vx);
     float py = mAxisY->value2paint(p0);
@@ -910,7 +918,7 @@ void QtPlot::plotFrame(QPainter& painter)
   }
 }
 
-static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error)
+static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error, bool timegraph)
 {
   if (ep->argument_values.empty()) {
     error = "no argument_values, cannot plot";
@@ -919,8 +927,9 @@ static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error)
     error = "no z_values, cannot plot";
     return false;
   }
-  const int np_z = ep->z_values->shape().length(Values::GEO_X),
-      np_v0 = ep->values(0)->shape().length(Values::GEO_X);
+  const char* H_COORD = horizontal(timegraph);
+  const int np_z = ep->z_values->shape().length(H_COORD),
+      np_v0 = ep->values(0)->shape().length(H_COORD);
   if (np_z != npoint && np_z != 1) {
     error = (miutil::StringBuilder() << "unexpected z point count " << np_z
         << " != " << npoint << ", cannot plot").str();
@@ -938,14 +947,16 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
 
-  const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
+  const bool tg = isTimeGraph();
+  const std::vector<float>& distances = tg ? mTimeDistances
       : mCrossectionDistances;
   const size_t npoint = distances.size();
 
+  METLIBS_LOG_DEBUG(LOGVAL(npoint));
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
     std::string error;
-    if (isPlotOk(ep, npoint, error)) {
+    if (isPlotOk(ep, npoint, error, tg)) {
       // seems ok
       switch(plot->type()) {
       case ConfiguredPlot::T_CONTOUR:
@@ -966,11 +977,12 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
     }
   }
 
+  METLIBS_LOG_DEBUG("adding annotations");
   std::vector<std::string> annotations;
   BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
     EvaluatedPlot_cp ep = plot->evaluated;
     std::string annotation, error;
-    if (isPlotOk(ep, npoint, error)) {
+    if (isPlotOk(ep, npoint, error, tg)) {
       if (miutil::to_lower(plot->poptions.extremeType) == "value")
         annotation += plotDataExtremes(painter, plot);
     } else {
@@ -988,7 +1000,7 @@ std::vector<std::string> QtPlot::plotData(QPainter& painter)
 void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
-  
+
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
@@ -996,8 +1008,8 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
       QPoint(mAxisX->getPaintMax(), mAxisY->getPaintMin()));
 
   DianaLevels_p levels = dianaLevelsForPlotOptions(plot->poptions, detail::UNDEF_VALUE);
-  const detail::VCAxisPositions positions(mAxisX, mAxisY, distances, plot->evaluated->z_values);
-  vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions);
+  const detail::VCAxisPositions positions(mAxisX, mAxisY, distances, plot->evaluated->z_values, isTimeGraph());
+  vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions, isTimeGraph());
   vcross::detail::VCLines con_lines(plot->poptions, *levels, painter, area);
   try {
     contouring::run(con_field, con_lines);
@@ -1007,6 +1019,7 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawText(area.center(), "too many lines");
+    METLIBS_LOG_DEBUG("too many lines");
   }
 }
 
@@ -1060,14 +1073,16 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
-  const int ny = z_values->shape().length(Values::GEO_Z), nx = av0->shape().length(Values::GEO_X);
+  const char* H_COORD = horizontal(isTimeGraph());
+  const int ny = z_values->shape().length(Values::GEO_Z),
+      nx = av0->shape().length(H_COORD);
   Values::ShapeIndex idx_z(z_values->shape()), idx_av0(av0->shape()), idx_av1(av1->shape());
   float lastX = - 1;
   bool paintedX = false;
   for (int ix=0; ix<nx; ix += xStep) {
     const float vx = distances.at(ix);
     const float px = mAxisX->value2paint(vx);
-    
+
     const bool paintThisX = mAxisX->legalPaint(px)
         and ((not xStepAuto) or (not paintedX) or (std::abs(px - lastX) >= 2*pa.size()));
     if (not paintThisX)
@@ -1075,9 +1090,9 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
 
     bool paintedY = false;
     float lastY = - 1;
-    idx_z.set(Values::GEO_X, ix);
-    idx_av0.set(Values::GEO_X, ix);
-    idx_av1.set(Values::GEO_X, ix);
+    idx_z.set(H_COORD, ix);
+    idx_av0.set(H_COORD, ix);
+    idx_av1.set(H_COORD, ix);
     for (int iy=0; iy<ny; iy += 1) {
       idx_z.set(Values::GEO_Z, iy);
       idx_av0.set(Values::GEO_Z, iy);
@@ -1104,13 +1119,14 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
 }
 
 // static
-float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
+float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy, bool timegraph)
 {
   const size_t n = plot->evaluated->argument_values.size();
   if (n == 0)
     return 0;
+  const char* H_COORD = horizontal(timegraph);
   Values::ShapeIndex idx_v0(plot->evaluated->values(0)->shape());
-  idx_v0.set(Values::GEO_X, ix);
+  idx_v0.set(H_COORD, ix);
   idx_v0.set(Values::GEO_Z, iy);
   float v = plot->evaluated->values(0)->value(idx_v0);
   if (n == 1)
@@ -1118,7 +1134,7 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy)
   v *= v;
   for (size_t i=1; i<n; ++i) {
     Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
-    idx_vi.set(Values::GEO_X, ix);
+    idx_vi.set(H_COORD, ix);
     idx_vi.set(Values::GEO_Z, iy);
     const float vi = plot->evaluated->values(i)->value(idx_vi);
     v += vi*vi;
@@ -1149,10 +1165,12 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
   const Values_cp z_values = plot->evaluated->z_values;
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
+  const char* H_COORD = horizontal(isTimeGraph());
 
   // step 1: loop through all values, find minimum / maximum visible value
 
-  const int ny = z_values->shape().length(Values::GEO_Z), nx = z_values->shape().length(Values::GEO_X);
+  const int ny = z_values->shape().length(Values::GEO_Z),
+      nx = z_values->shape().length(H_COORD);
   Values::ShapeIndex idx_z(z_values->shape());
   bool have_max = false, have_min = false;
   float max_px = -1, max_py = -1, max_vy = 0, min_px = -1, min_py = -1, min_vy = 0;
@@ -1160,11 +1178,11 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
   for (int ix=0; ix<nx; ix += 1) {
     const float vx = distances.at(ix);
     const float px = mAxisX->value2paint(vx);
-    
+
     if (not mAxisX->legalPaint(px))
       continue;
 
-    idx_z.set(Values::GEO_X, ix);
+    idx_z.set(H_COORD, ix);
     for (int iy=0; iy<ny; iy += 1) {
       idx_z.set(Values::GEO_Z, iy);
       const float vy = z_values->value(idx_z);
@@ -1172,7 +1190,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
       if (not mAxisY->legalPaint(py))
         continue;
 
-      const float v = absValue(plot, ix, iy);
+      const float v = absValue(plot, ix, iy, isTimeGraph());
       if (isnan(v))
         continue;
 
@@ -1235,12 +1253,13 @@ void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
 
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
+  const char* H_COORD = horizontal(isTimeGraph());
 
   QPolygonF polyline;
-  const int nx = ol.linevalues->shape().length(Values::GEO_X);
+  const int nx = ol.linevalues->shape().length(H_COORD);
   Values::ShapeIndex ol_idx(ol.linevalues->shape());
   for (int ix=0; ix<nx; ++ix) {
-    ol_idx.set(Values::GEO_X, ix);
+    ol_idx.set(H_COORD, ix);
     const float vx = distances.at(ix), lv = ol.linevalues->value(ol_idx);
     const float px = mAxisX->value2paint(vx);
     float py = mAxisY->value2paint(lv);

@@ -245,10 +245,12 @@ private:
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
-  int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
   LocationData locationData;
+
   vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
+
+  int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
 
   //! filenames of predefined cross-sections
   std::set<std::string> mCsPredefined;
