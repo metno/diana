@@ -119,6 +119,7 @@ private:
   // emits SIGNAL(crossectionSetChanged) with list of crossections from vcross-manager
 
   void enableDynamicCsIfSupported();
+  void enableTimeGraphIfSupported();
   void emitCrossectionSet();
 
   void repaintPlotIfNotInGroup();
@@ -140,6 +141,8 @@ private Q_SLOTS:
   void crossectionListChangedSlot();
   void timeChangedSlot(int);
   void timeListChangedSlot();
+
+  void timeGraphModeChangedSlot(bool);
 
   // GUI slots for widget
   void stepCrossection(int direction);

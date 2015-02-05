@@ -48,8 +48,6 @@ namespace vcross {
 QtWidget::QtWidget(QWidget* parent)
   : VCROSS_GL(QGLWidget(QGLFormat(QGL::SampleBuffers), parent),QWidget(parent))
   , arrowKeyDirection(1)
-  , timeGraph(false)
-  , startTimeGraph(false)
 {
   METLIBS_LOG_SCOPE();
   setFocusPolicy(Qt::StrongFocus);
@@ -65,7 +63,20 @@ QtWidget::~QtWidget()
 
 void QtWidget::setVcrossManager(QtManager_p vcm)
 {
+  if (vcrossm == vcm)
+    return;
+
+  if (vcrossm) {
+    disconnect(vcrossm.get(), SIGNAL(timeGraphModeChanged(bool)),
+        this, SLOT(switchedTimeGraph(bool)));
+  }
+
   vcrossm = vcm;
+
+  if (vcrossm) {
+    connect(vcrossm.get(), SIGNAL(timeGraphModeChanged(bool)),
+        this, SLOT(switchedTimeGraph(bool)));
+  }
 }
 
 void QtWidget::paintEvent(QPaintEvent* event)
@@ -86,26 +97,24 @@ void QtWidget::paintEvent(QPaintEvent* event)
 
 void QtWidget::resizeEvent(QResizeEvent* event)
 {
-  const int w = event->size().width(), h = event->size().height();
-  vcrossm->setPlotWindow(w,h);
+  if (vcrossm) {
+    const int w = event->size().width(), h = event->size().height();
+    vcrossm->setPlotWindow(w,h);
+  }
 }
 
 // ---------------------- event callbacks -----------------
 
 void QtWidget::keyPressEvent(QKeyEvent *me)
 {
-  if (dorubberband || dopanning)
+  if (dorubberband || dopanning || !vcrossm)
     return;
 
   bool change= true, handled = true;
 
   if (me->modifiers() & Qt::ControlModifier) {
 
-    if (me->key()==Qt::Key_Left && timeGraph){
-      vcrossm->setTimeGraphPos(-1);
-    } else if (me->key()==Qt::Key_Right && timeGraph){
-      vcrossm->setTimeGraphPos(+1);
-    } else if (me->key()==Qt::Key_Left) {
+    if (me->key()==Qt::Key_Left) {
       Q_EMIT stepTime(-1);
     } else if (me->key()==Qt::Key_Right) {
       Q_EMIT stepTime(+1);
@@ -156,19 +165,16 @@ void QtWidget::keyPressEvent(QKeyEvent *me)
 
 void QtWidget::mousePressEvent(QMouseEvent* me)
 {
+  if (!vcrossm)
+    return;
+
   mousex= me->x();
   mousey= height() - me->y();
 
   if (me->button()==Qt::LeftButton) {
-    if (startTimeGraph) {
-      vcrossm->setTimeGraphPos(mousex,mousey);
-      startTimeGraph= false;
-      timeGraph= true;
-    } else {
-      dorubberband= true;
-      firstx= mousex;
-      firsty= mousey;
-    }
+    dorubberband= true;
+    firstx= mousex;
+    firsty= mousey;
   } else if (me->button()==Qt::MidButton) {
     dopanning= true;
     firstx= mousex;
@@ -183,6 +189,9 @@ void QtWidget::mousePressEvent(QMouseEvent* me)
 
 void QtWidget::mouseMoveEvent(QMouseEvent* me)
 {
+  if (!vcrossm)
+    return;
+
   if (dorubberband) {
     mousex= me->x();
     mousey= height() - me->y();
@@ -200,13 +209,15 @@ void QtWidget::mouseMoveEvent(QMouseEvent* me)
 
 void QtWidget::mouseReleaseEvent(QMouseEvent* me)
 {
+  if (!vcrossm)
+    return;
+
   const int rubberlimit= 15;
 
   if (dorubberband) {
     mousex= me->x();
     mousey= height() - me->y();
-    if (abs(firstx-mousex)>rubberlimit ||
-	abs(firsty-mousey)>rubberlimit)
+    if (abs(firstx-mousex)>rubberlimit || abs(firsty-mousey)>rubberlimit)
       vcrossm->decreasePart(firstx,firsty,mousex,mousey);
     dorubberband= false;
     update();
@@ -220,16 +231,16 @@ void QtWidget::mouseReleaseEvent(QMouseEvent* me)
 }
 
 
-void QtWidget::enableTimeGraph(bool on)
+void QtWidget::switchedTimeGraph(bool)
 {
-  METLIBS_LOG_SCOPE("on=" << on);
-
-  timeGraph= false;
-  startTimeGraph= on;
+  update();
 }
 
 void QtWidget::print(QPrinter& printer)
 {
+  if (!vcrossm)
+    return;
+
   const float scale_w = printer.pageRect().width() / float(width());
   const float scale_h = printer.pageRect().height() / float(height());
   const float scale = std::min(scale_w, scale_h);
@@ -243,6 +254,9 @@ void QtWidget::print(QPrinter& printer)
 
 bool QtWidget::saveRasterImage(const QString& fname)
 {
+  if (!vcrossm)
+    return false;
+
   QImage image(width(), height(), QImage::Format_ARGB32);
 
   QPainter painter;
