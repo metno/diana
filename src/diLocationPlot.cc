@@ -41,9 +41,7 @@
 
 using namespace::miutil;
 
-// constructor
 LocationPlot::LocationPlot()
-  : Plot()
 {
   METLIBS_LOG_SCOPE();
 
@@ -55,7 +53,6 @@ LocationPlot::LocationPlot()
 }
 
 
-// destructor
 LocationPlot::~LocationPlot()
 {
   METLIBS_LOG_SCOPE();
@@ -66,8 +63,8 @@ LocationPlot::~LocationPlot()
 void LocationPlot::cleanup()
 {
   METLIBS_LOG_SCOPE();
-  if (px) delete[] px;
-  if (py) delete[] py;
+  delete[] px;
+  delete[] py;
   px= py= 0;
   numPos= 0;
   locinfo.clear();
@@ -98,11 +95,6 @@ bool LocationPlot::setData(const LocationData& locationdata)
   std::set<std::string> nameset;
 
   for (int i = 0; i < nelem; i++) {
-    if (locationdata.elements[i].xpos.size() < 2) {
-      METLIBS_LOG_DEBUG(i << " locationdata.elements[i].xpos.size()<2!"
-          << locationdata.elements[i].xpos.size());
-      continue;
-    }
     if (locationdata.elements[i].name.empty()) {
       METLIBS_LOG_INFO("i=" << i << " locationdata.elements[i].name.empty()!");
       return false;
@@ -308,7 +300,7 @@ bool LocationPlot::plot()
     if (locdata.elements[l].name!=selectedName) {
       n1= locinfo[l].beginpos;
       n2= locinfo[l].endpos;
-      glBegin(GL_LINE_STRIP);
+      glBegin(((n2 - n1) > 1) ? GL_LINE_STRIP : GL_POINTS);
       for (int n=n1; n<n2; n++)
         glVertex2f(px[n],py[n]);
       glEnd();
@@ -329,7 +321,7 @@ bool LocationPlot::plot()
     }
     n1= locinfo[lselected].beginpos;
     n2= locinfo[lselected].endpos;
-    glBegin(GL_LINE_STRIP);
+    glBegin(((n2 - n1) > 1) ? GL_LINE_STRIP : GL_POINTS);
     for (int n=n1; n<n2; n++)
       glVertex2f(px[n],py[n]);
     glEnd();
