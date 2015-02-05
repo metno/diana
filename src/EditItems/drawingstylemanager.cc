@@ -1132,6 +1132,11 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
     }
   }
 
+  // If the image has no size then return a null image. This usually means
+  // that a composite item is incorrectly defined.
+  if (maxSize.isEmpty())
+    return QImage();
+
   QImage thisImage(maxSize.toSize(), QImage::Format_ARGB32);
   thisImage.fill(qRgba(255,255,255,255));
   QPainter painter;
