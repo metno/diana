@@ -452,9 +452,12 @@ void VcrossWindow::enableDynamicCsIfSupported()
     const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
     if (not csPredefined.empty()) {
       QStringList filenames;
-      for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it)
-        filenames << QString::fromStdString(*it);
-      Q_EMIT requestLoadCrossectionFiles(filenames);
+      for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it) {
+        if (mPredefinedCsFiles.insert(*it).second)
+          filenames << QString::fromStdString(*it);
+      }
+      if (!filenames.isEmpty())
+        Q_EMIT requestLoadCrossectionFiles(filenames);
     } else {
       ui->toggleCsEdit->setChecked(true);
     }
@@ -619,6 +622,7 @@ void VcrossWindow::quitClicked()
 
   // cleanup selections in dialog and data in memory
   vcrossm->cleanup();
+  mPredefinedCsFiles.clear();
 
   ui->comboCs->clear();
   ui->comboCs->setEnabled(false);
