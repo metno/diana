@@ -210,6 +210,7 @@ void VcrossAddPlotDialog::initializeReftimePage(bool forward)
   ui->stack->setCurrentIndex(ReftimePage);
 
   if (forward) {
+    diutil::OverrideCursor waitCursor;
     const vcross::QtManager::vctime_v reftimes = vcrossm->getModelReferenceTimes(selectedModel().toStdString());
     QStringList rsl;
     for (size_t i=0; i<reftimes.size(); ++i)

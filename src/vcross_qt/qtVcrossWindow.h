@@ -178,6 +178,7 @@ private:
   VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;
+  std::set<std::string> mPredefinedCsFiles;
 
   // printerdefinitions
   printOptions priop;
