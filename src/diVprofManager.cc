@@ -39,6 +39,7 @@
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "vcross_v2/VcrossSetup.h"
+#include <diField/VcrossUtil.h>
 
 #ifdef BUFROBS
 #include "diObsBufr.h"
@@ -74,8 +75,6 @@ using namespace road;
 
 using namespace std;
 using miutil::miTime;
-
-//#define DEBUGPRINT 1
 
 VprofManager::VprofManager(Controller* co)
 : amdarStationList(false), vpdiag(0), showObs(false),
@@ -141,7 +140,7 @@ void VprofManager::parseSetup()
       if (tokens.size()==1) {
         tokens1= miutil::split(tokens[0], "=");
         if (tokens1.size()==2) {
-          const std::string tokens1_0_lc = miutil::to_lower(tokens1[0]);
+          std::string tokens1_0_lc = miutil::to_lower(tokens1[0]);
           ObsFilePath ofp;
           if (miutil::contains(tokens1_0_lc, "bufr."))
             ofp.fileformat = bufr;
@@ -159,6 +158,9 @@ void VprofManager::parseSetup()
           ofp.tf.initFilter(tokens1[1]);
           ofp.filepath = tokens1[1];
           filePaths.push_back(ofp);
+          miutil::replace(tokens1_0_lc,"bufr","obs");
+          dialogModelNames.push_back(tokens1_0_lc);
+          dialogFileNames.push_back(tokens1[1]);
         }
       } 
 #ifdef ROADOBS
@@ -424,59 +426,11 @@ void VprofManager::setModel()
   // should not clear all data, possibly needed again...
   cleanup();
 
-  //check if there are any selected models, if not use default
-  //   if (!selectedModels.size()&&!selectedFiles.size()
-  //       &&(!asField || !fieldModels.size())){
-  //     METLIBS_LOG_DEBUG("No model selected");
-  //     std::string model = getDefaultModel();
-  //     usemodels.insert(model);
-  //   }
-
-  usemodels.clear();
-
-  //if as field is selected find corresponding model
-  if (asField){
-    int n = fieldModels.size();
-    for (int i=0;i<n;i++)
-      usemodels.insert(fieldModels[i]);
-  }
-
   //models from model dialog
   int m= selectedModels.size();
-  for (int i=0;i<m;i++)
-    usemodels.insert(selectedModels[i]);
-
-  //define models/files  when "model" chosen in modeldialog
-  set<string>::iterator p = usemodels.begin();
-  for (; p!=usemodels.end(); p++) {
-    std::string model= *p;
-    map<std::string,std::string>::iterator pf;
-    pf= filenames.find(model);
-    if (pf==filenames.end()) {
-      METLIBS_LOG_ERROR("NO VPROFDATA for model " << model);
-    } else
-      initVprofData(model);
-  }
-
-  //define models/files  when "file" chosen in modeldialog
-  vector<string>::iterator q = selectedFiles.begin();
-  for (; q!=selectedFiles.end(); q++) {
-    std::string file= *q;
-    if (miutil::contains(file, menuConst["OBSTEMP"]))
-      showObs= showObsTemp= true;
-    else if (miutil::contains(file, menuConst["OBSPILOT"]))
-      showObs= showObsPilot= true;
-    else if (miutil::contains(file, menuConst["OBSAMDAR"]))
-      showObs= showObsAmdar= true;
-    else {
-      map<std::string,std::string>::iterator pf=filenames.begin();
-      for (; pf!=filenames.end(); pf++) {
-        if (file==pf->second){
-          initVprofData(pf->first);
-          break;
-        }
-      }
-    }
+  for (int i=0;i<m;i++) {
+    if ( !miutil::contains(selectedModels[i].model,"obs.") )
+      initVprofData(selectedModels[i]);
   }
 
   onlyObs= false;
@@ -763,6 +717,25 @@ vector <std::string> VprofManager::getModelNames()
   updateObsFileList();
   return dialogModelNames;
 }
+/***************************************************************************/
+std::vector <std::string> VprofManager::getReferencetimes(const std::string modelName)
+{
+  std::vector <std::string> rf;
+  if ( miutil::contains(modelName,"obs") || filetypes[modelName] == "standard" )
+    return rf;
+
+  vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);
+
+  collector->getResolver()->getSource(modelName)->update();
+  const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
+   vector<miTime> rtv;
+  rtv.reserve(reftimes.size());
+  for (vcross::Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
+    rf.push_back(vcross::util::to_miTime(*it).isoTime("T"));
+  }
+
+  return rf;
+}
 
 /***************************************************************************/
 
@@ -770,17 +743,7 @@ vector <std::string> VprofManager::getModelFiles()
 {
   METLIBS_LOG_SCOPE();
   parseSetup();
-  vector<std::string> modelfiles= dialogFileNames;
-  updateObsFileList();
-  int n= obsfiles.size();
-  for (int i=0; i<n; i++) {
-#ifdef DEBUGPRINT_FILES
-    METLIBS_LOG_DEBUG("index: " << i);
-    printObsFiles(obsfiles[i]);
-#endif
-    modelfiles.push_back(obsfiles[i].filename);
-  }
-  return modelfiles;
+  return dialogFileNames;
 }
 
 
@@ -795,37 +758,28 @@ void VprofManager::setFieldModels(const vector<string>& fieldmodels)
 
 /***************************************************************************/
 
-void VprofManager::setSelectedModels(const vector <string>& models,
-    bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar)
+void VprofManager::setSelectedModels(const vector <SelectedModel>& models,
+    bool obs)
 {
+  METLIBS_LOG_SCOPE();
   //called when model selected in model dialog
-  showObsTemp = obsTemp;
-  showObsPilot= obsPilot;
-  showObsAmdar= obsAmdar;
-  showObs= (obsTemp || obsPilot || obsAmdar);
-  asField = field;
+  if ( obs ) {
+    showObsTemp = showObsPilot = showObsAmdar = true;
+  } else {
+    for ( size_t i=0; i<models.size(); ++i ) {
+      if( obs || models[i].model == "obs.temp" ) {
+        showObsTemp = true;
+      } else if( obs || models[i].model == "obs.pilot" ) {
+        showObsPilot= true;
+      } else if( obs || models[i].model == "obs.amdar" ) {
+        showObsAmdar= true;
+      }
+    }
+  }
+  showObs= (showObsTemp || showObsPilot || showObsAmdar );
   //set data from models, not files
-  selectedFiles.clear();
   selectedModels = models;
-}
-
-
-/***************************************************************************/
-
-void VprofManager::setSelectedFiles(const vector<string>& files,
-    bool field, bool obsTemp,
-    bool obsPilot, bool obsAmdar)
-{
-  //called when model selected in model dialog
-  showObsTemp = obsTemp;
-  showObsPilot= obsPilot;
-  showObsAmdar= obsAmdar;
-  showObs= (obsTemp || obsPilot || obsAmdar);
-  asField = field;
-  //set data from files not models
-  selectedModels.clear();
-  selectedFiles = files;
+  METLIBS_LOG_DEBUG(LOGVAL(models.size()));
 }
 
 
@@ -839,39 +793,26 @@ std::string VprofManager::getDefaultModel()
   return model;
 }
 
-
-/***************************************************************************/
-vector<string> VprofManager::getSelectedModels()
-{
-  vector<string> models = selectedModels;
-  if (showObsTemp)  models.push_back(menuConst["OBSTEMP"]);
-  if (showObsPilot) models.push_back(menuConst["OBSPILOT"]);
-  if (showObsAmdar) models.push_back(menuConst["OBSAMDAR"]);
-  if (asField)      models.push_back(menuConst["ASFIELD"]);
-  return models;
-}
-
-
 /***************************************************************************/
 
-bool VprofManager::initVprofData(std::string model)
+bool VprofManager::initVprofData(const SelectedModel& selectedModel)
 {
   METLIBS_LOG_SCOPE();
-  std::string model_part=model.substr(0,model.find("@"));
-  std::auto_ptr<VprofData> vpd(new VprofData(filenames[model], model, stationsfilenames[model_part]));
+  std::string model_part=selectedModel.model.substr(0,selectedModel.model.find("@"));
+  std::auto_ptr<VprofData> vpd(new VprofData( selectedModel.model, stationsfilenames[model_part]));
   bool ok = false;
   if ( filetypes[model_part] == "standard") {
-    ok = vpd->readFile();
+    ok = vpd->readFile(filenames[selectedModel.model]);
   } else {
-    ok = vpd->readFimex(setup);
+    ok = vpd->readFimex(setup,selectedModel.reftime);
   }
   if (ok) {
-    METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << model << "' filetype '"
+    METLIBS_LOG_INFO("VPROFDATA READ OK for model '" << selectedModel.model << "' filetype '"
         << filetypes[model_part] << "'");
     vpdata.push_back(vpd.release());
   } else {
-    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << filenames[model] << "' model '"
-        << model << "' filetype '" << filetypes[model_part] << "'");
+    METLIBS_LOG_ERROR("VPROFDATA READ ERROR file '" << filenames[selectedModel.model] << "' model '"
+        << selectedModel.model << "' filetype '" << filetypes[model_part] << "'");
   }
   return ok;
 }
@@ -1192,8 +1133,8 @@ std::string VprofManager::getAnnotationString()
   if (onlyObs)
     str += plotTime.isoTime();
   else
-    for (set <string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
-      str+=*p+std::string(" ");
+    for (vector <SelectedModel>::iterator p=selectedModels.begin();p!=selectedModels.end();p++)
+      str+=(*p).model+std::string(" ");
   return str;
 }
 

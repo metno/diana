@@ -136,4 +136,10 @@ TEST(TestVcrossQuickmenues, Script)
   EXPECT_EQ(0, qmslots.titles.size());
   EXPECT_EQ(0, qmslots.qmenues.size());
   qmslots.reset();
+
+  // remove all => expect no qm update
+  manager->removeAllFields();
+  EXPECT_EQ(0, qmslots.titles.size());
+  EXPECT_EQ(0, qmslots.qmenues.size());
+  qmslots.reset();
 }

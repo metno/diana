@@ -77,4 +77,4 @@ dianaUnitTests_LDADD = \
 
 endif # HAVE_GTEST
 
-EXTRA_DIST = arome_vprof.nc bangladesh_vc.nc
+EXTRA_DIST = arome_vprof.nc bangladesh_vc.nc bangkok_sonde.nc

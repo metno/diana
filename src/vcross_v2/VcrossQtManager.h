@@ -165,11 +165,11 @@ public:
   void setTimeToBestMatch(const vctime_t& time);
 
 
+  bool supportsTimeGraph();
+  void switchTimeGraph(bool on);
+  bool isTimeGraph() const
+    { return mTimeGraphMode; }
   void setTimeGraph(const LonLat& position);
-  bool timeGraphOK();
-  void disableTimeGraph();
-  void setTimeGraphPos(int plotx, int ploty);
-  void setTimeGraphPos(int incr);
 
 
   void selectFields(const string_v& fields);
@@ -203,7 +203,7 @@ Q_SIGNALS:
   void timeListChanged();
   void timeIndexChanged(int current);
 
-  void timeGraphMode(bool on);
+  void timeGraphModeChanged(bool on);
 
 private:
   SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
@@ -227,9 +227,6 @@ private:
 
   void fillLocationData(LocationData& locationdata);
 
-  bool isTimeGraph() const
-    { return mTimeGraphPos >= 0; }
-
   void saveZoom();
   void restoreZoom();
 
@@ -245,10 +242,12 @@ private:
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
-  int mTimeGraphPos; //! position inside current cross section for which we plot a time graph; -1 for no timegraph
   LocationData locationData;
+
   vctime_v mCrossectionTimes;
   int mPlotTime; //! mCrossectionTimes index of current plot time
+
+  bool mTimeGraphMode; //! true iff in timegraph mode
 
   //! filenames of predefined cross-sections
   std::set<std::string> mCsPredefined;

@@ -118,6 +118,21 @@ PaintVector::~PaintVector()
 
 // ------------------------------------------------------------------------
 
+// static
+void PaintVector::paintArrow(QPainter& painter, float px, float py, float ex, float ey)
+{
+  // direction
+  painter.drawLine(px, py, ex, ey);
+
+  // arrow (drawn as two lines)
+  const float dx = ex - px, dy = ey - py;
+  const float a = -1/3., s = a / 2;
+  painter.drawLine(ex, ey, ex + a*dx + s*dy, ey + a*dy - s*dx);
+  painter.drawLine(ex, ey, ex + a*dx - s*dy, ey + a*dy + s*dx);
+}
+
+// ------------------------------------------------------------------------
+
 void PaintVector::paint(QPainter& painter, float u, float v, float px, float py) const
 {
   const float ff = sqrtf(u*u + v*v);
@@ -131,15 +146,7 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
     painter.setPen(pen2);
   }
 
-  // direction
-  const float dx = mScaleX * u, dy = -mScaleY * v;
-  const float ex = px + dx, ey = py + dy;
-  painter.drawLine(px, py, ex, ey);
-  
-  // arrow (drawn as two lines)
-  const float a = -1/3., s = a / 2;
-  painter.drawLine(ex, ey, ex + a*dx + s*dy, ey + a*dy - s*dx);
-  painter.drawLine(ex, ey, ex + a*dx - s*dy, ey + a*dy + s*dx);
+  paintArrow(painter, px, py, px + mScaleX * u, py - mScaleY * v);
 
   if (mThickArrowScale > 0)
     painter.setPen(pen);

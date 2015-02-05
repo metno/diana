@@ -1,3 +1,12 @@
+diana (3.37.0~rc6-1) unstable; urgency=low
+
+  * Vertical crossections referencetime
+  * Vertical profiles referencetime
+  * metlibs-difield-dev 5.5.2
+  * fimex 0.56-0
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 05 Feb 2015 12:39:39 +0100
+
 diana (3.37.0~rc5-1) unstable; urgency=low
 
   * metlibs-difield-dev 5.5.1

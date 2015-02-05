@@ -75,6 +75,8 @@ struct PaintVector : public PaintArrow {
    */
   virtual void paint(QPainter& painter, float u, float v, float px, float py) const;
 
+  static void paintArrow(QPainter& painter, float px, float py, float ex, float ey);
+
   void setScale(float sx, float sy);
 
   inline void setScale(float sxy)

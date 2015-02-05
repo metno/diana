@@ -22,14 +22,16 @@ typedef boost::shared_ptr<Axis> AxisPtr;
 class VCAxisPositions : public DianaPositions {
 public:
   VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis,
-      const std::vector<float>& xvalues, Values_cp zvalues)
-    : mXpos(xaxis), mYpos(yaxis), mXval(xvalues), mYval(zvalues) { }
+      const std::vector<float>& xvalues, Values_cp zvalues,
+      bool timegraph);
 
   virtual contouring::point_t position(size_t ix, size_t iy) const;
 
+private:
   AxisPtr mXpos, mYpos;
   std::vector<float> mXval;
   Values_cp mYval;
+  int mYShapePositionXT, mYShapePositionZ;
 };
 
 // ########################################################################
@@ -37,20 +39,21 @@ public:
 class VCContourField : public DianaFieldBase
 {
 public:
-  VCContourField(Values_cp data, const DianaLevels& levels, const VCAxisPositions& positions)
-    : DianaFieldBase(levels, positions), mData(data) { }
-  
+  VCContourField(Values_cp data, const DianaLevels& levels,
+      const VCAxisPositions& positions, bool timegraph);
+
   size_t nx() const
-    { return mData->shape().length(Values::GEO_X); }
-  
+    { return mData->shape().length(mShapePositionXT); }
+
   size_t ny() const
-    { return mData->shape().length(Values::GEO_Z); }
+    { return mData->shape().length(mShapePositionZ); }
 
 protected:
   virtual float value(size_t ix, size_t iy) const;
-  
+
 private:
   Values_cp mData;
+  int mShapePositionXT, mShapePositionZ;
 };
 
 // ########################################################################

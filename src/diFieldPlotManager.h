@@ -59,7 +59,6 @@ public:
 
   /// return lists of inputfields
   std::vector<std::string> getFields();
-  std::vector<std::string> getPlotFields();
 
   /// read setup section for field plots
   bool parseSetup();

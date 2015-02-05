@@ -19,7 +19,7 @@ model_values_m vc_fetch_crossection(Collector_p collector, const std::string& us
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const ModelReftime& mr = it->first;
-    
+
     Source_p src = collector->getSetup()->findSource(mr.model);
     if (not src)
       continue;
@@ -61,7 +61,7 @@ model_values_m vc_fetch_pointValues(Collector_p collector, const LonLat& user_cr
     name2value_t& n2v = model_values[mr];
     vcross::evaluateCrossection(cs, n2v);
     try {
-      src->getPointValues(mr.reftime, cs, 0,user_time, it->second, n2v);
+      src->getPointValues(mr.reftime, cs, 0, user_time, it->second, n2v);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
@@ -78,23 +78,22 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position)
   model_values_m model_values;
   for (model_required_m::const_iterator it=mr.begin(); it != mr.end(); ++it) {
     const ModelReftime& mr = it->first;
-    
+
     Source_p src = collector->getSetup()->findSource(mr.model);
     if (not src)
       continue;
     Inventory_cp inv = src->getInventory(mr.reftime);
     if (not inv)
       continue;
-    size_t index = 0;
-    Crossection_cp cs = inv->findCrossectionPoint(position, index);
+    Crossection_cp cs = inv->findCrossectionPoint(position);
     if (not cs)
       continue;
 
     name2value_t& n2v = model_values[mr];
 
-    vcross::evaluateCrossection4TimeGraph(cs, index, inv->times.npoint(), n2v);
+    vcross::evaluateCrossection4TimeGraph(cs, 0, inv->times.npoint(), n2v);
     try {
-      src->getTimegraphValues(mr.reftime, cs, index, it->second, n2v);
+      src->getTimegraphValues(mr.reftime, cs, 0, it->second, n2v);
     } catch (std::exception& ex) {
       METLIBS_LOG_WARN(ex.what());
     }
