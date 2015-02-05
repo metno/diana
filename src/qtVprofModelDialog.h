@@ -31,16 +31,13 @@
 #ifndef VPROFMODELDIALOG_H
 #define VPROFMODELDIALOG_H
 
-#include <diCommonTypes.h>
 #include <QDialog>
 #include <vector>
 
-class QFont;
-class QPalette;
-class VprofManager;
 class QListWidget;
-class QButtonGroup;
-class ToggleButton;
+class QListWidgetItem;
+class QCheckBox;
+class VprofManager;
 
 /**
    \brief Dialogue to selecet Vertical Profile data sources
@@ -55,7 +52,6 @@ public:
 
   //the constructor
   VprofModelDialog( QWidget* parent, VprofManager * vm );
-  void setSelection();
   void updateModelfileList();
 
 protected:
@@ -64,23 +60,18 @@ protected:
 private:
   VprofManager * vprofm;
 
-  //qt widget
-  QButtonGroup* modelfileBut;
-  ToggleButton* modelButton;
-  ToggleButton* fileButton;
   QListWidget * modelfileList;
-
-  std::string ASFIELD;
-  std::string OBSTEMP;
-  std::string OBSPILOT;
-  std::string OBSAMDAR;
+  QListWidget* reftimeWidget;
+  QListWidget* selectedModelsWidget;
 
   //functions
   void setModel();
 
 private slots:
-  void modelfileClicked(int);
+  void modelfilelistClicked(QListWidgetItem*);
+  void reftimeWidgetClicked(QListWidgetItem*);
   void refreshClicked();
+  void deleteClicked();
   void deleteAllClicked();
   void helpClicked();
   void applyhideClicked();

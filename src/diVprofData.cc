@@ -60,9 +60,9 @@ const char VP_Y_WIND[]                = "vp_y_wind_ms";
 const char VP_RELATIVE_HUMIDITY[]     = "vp_relative_humidity";
 const char VP_OMEGA[]                 = "vp_omega_pas";
 
-VprofData::VprofData(const std::string& filename, const std::string& modelname,
+VprofData::VprofData(const std::string& modelname,
     const std::string& stationsfilename) :
-        fileName(filename), modelName(modelname), stationsFileName(stationsfilename),
+        modelName(modelname), stationsFileName(stationsfilename),
         readFromFimex(false), numPos(0),
         numTime(0), numParam(0), numLevel(0), dataBuffer(0)
 {
@@ -152,7 +152,7 @@ void VprofData::readStationNames(const std::string& stationsfilename)
   }
 }
 
-bool VprofData::readFimex(vcross::Setup_p setup)
+bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
 {
   METLIBS_LOG_SCOPE();
 
@@ -165,7 +165,14 @@ bool VprofData::readFimex(vcross::Setup_p setup)
   fields.push_back(VP_RELATIVE_HUMIDITY);
   fields.push_back(VP_OMEGA);
 
-  const vcross::ModelReftime mr(modelName, collector->getResolver()->getSource(modelName)->getLatestReferenceTime());
+  if ( reftimestr.empty() ) {
+    reftime = collector->getResolver()->getSource(modelName)->getLatestReferenceTime();
+  } else {
+    miTime mt(reftimestr);
+    reftime = util::from_miTime(mt);
+  }
+  const vcross::ModelReftime mr(modelName, reftime);
+
   for ( size_t j = 0; j < fields.size(); ++j ) {
     METLIBS_LOG_DEBUG(LOGVAL(mr) << LOGVAL(fields[j]));
     collector->requireField(mr, fields[j]);
@@ -216,7 +223,7 @@ bool VprofData::readFimex(vcross::Setup_p setup)
 }
 
 
-bool VprofData::readFile()
+bool VprofData::readFile( const std::string& fileName)
 {
   METLIBS_LOG_SCOPE("fileName= " << fileName);
 
@@ -491,7 +498,16 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       s->addDynamicCrossection(s->getLatestReferenceTime(), posName[iPos], LonLat_v(1, pos));
     }
 
-    const vcross::ModelReftime mr(modelName, collector->getResolver()->getSource(modelName)->getLatestReferenceTime());
+    const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
+    vector<miTime> rtv;
+    rtv.reserve(reftimes.size());
+    for (Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
+      rtv.push_back(util::to_miTime(*it));
+      METLIBS_LOG_INFO(LOGVAL(util::to_miTime(*it)));
+    }
+
+    const vcross::ModelReftime mr(modelName, reftime);
+
     FieldData_cp air_temperature = boost::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, VP_AIR_TEMPERATURE));
     if (not air_temperature)
       return 0;

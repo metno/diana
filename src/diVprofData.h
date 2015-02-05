@@ -46,13 +46,12 @@ class VprofData
 {
 
 public:
-  VprofData(const std::string& filename,
-      const std::string& modelname,
+  VprofData(const std::string& modelname,
       const std::string& stationsfilename="");
   ~VprofData();
   void readStationNames(const std::string& stationsfilename);
-  bool readFile();
-  bool readFimex(vcross::Setup_p setup );
+  bool readFile(const std::string& fileName);
+  bool readFimex(vcross::Setup_p setup, const std::string& reftime );
   VprofPlot* getData(const std::string& name, const miutil::miTime& time);
   std::vector<std::string> getNames() { return posName; }
   std::vector <float> getLatitudes() { return posLatitude; }
@@ -62,7 +61,6 @@ public:
 
 private:
 
-  std::string fileName;
   std::string modelName;
   std::string stationsFileName;
   bool readFromFimex;
@@ -100,6 +98,7 @@ private:
 
   vcross::Collector_p collector;
   vcross::string_v fields;
+  vcross::Time reftime;
 
   // dataBuffer[numPos][numTime][numParam][numLevel]
   short int *dataBuffer;
