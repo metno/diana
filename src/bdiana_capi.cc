@@ -1834,7 +1834,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
 
         if (verbose)
@@ -1932,7 +1932,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
      
 #if defined(USE_PAINTGL)
@@ -2011,7 +2011,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
         vprofmanager->plot();
 
@@ -2082,7 +2082,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
         spectrummanager->plot();
 
