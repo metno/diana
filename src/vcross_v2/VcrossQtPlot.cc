@@ -92,7 +92,7 @@ static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
 static const float LINES_3 = 3 + LINE_GAP;
-static const float CHARS_NUMBERS = 10;
+static const float CHARS_NUMBERS = 8;
 static const float CHARS_DISTANCE = 5.5;
 static const float CHARS_POS_LEFT  = 5.5;
 static const float CHARS_POS_RIGHT = 1.9;
@@ -848,106 +848,175 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
   }
 }
 
+namespace /* anonymous */ {
+typedef float (*tick_to_axis_f)(float);
+
+float identity(float x)
+{
+  return x;
+}
+
+float foot_to_meter(float ft)
+{
+  return ft / MetNo::Constants::ft_per_m;
+}
+
+float FL_to_hPa(float fl)
+{
+  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
+  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+}
+
+typedef std::vector<float> ticks_t;
+
+ticks_t ticks_table(const float* table, int size)
+{
+  return ticks_t(table, table + size);
+}
+
+ticks_t ticks_auto(float start, float end, float scale, float offset)
+{
+  scale = std::abs(scale);
+  if ((start > end) != (offset < 0))
+    offset *= -1;
+  ticks_t ticks(1, start);
+  while ((offset > 0 && ticks.back() < end)
+      || (offset < 0 && ticks.back() > end))
+    ticks.push_back(ticks.back()*scale + offset);
+  return ticks;
+}
+
+} // anonymous namespace
+
 void QtPlot::plotFrame(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
 
-  const int nzsteps = 9;
-  const float zsteps[nzsteps] =
-      { 10., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000 };
+  using namespace MetNo::Constants;
 
-  const int nftsteps = 7;
-  const float ftsteps[nftsteps] =
-  { 1500., 3000., 8000., 15000., 30000., 50000, 60000 };
+  if (!(mOptions->pFrame || mOptions->pLevelNumbers))
+    return;
 
-  int nticks = 0;
-  const float *tickValues = 0, *tickLabels = 0;
-  float scale = 1;
+  // colour etc. for frame etc.
+  const QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)),
+      mOptions->frameLinewidth);
+
+  if (mOptions->pFrame) {
+    // paint frame
+    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()),
+        max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
+
+    QPen penFrame(pen);
+    // no stipple for ticks
+    vcross::util::setDash(penFrame, mOptions->frameLinetype);
+    painter.setPen(penFrame);
+    painter.drawRect(QRectF(min, max));
+  }
+
+  if (!mOptions->pLevelNumbers)
+    return;
+
+  typedef std::vector<float> ticks_t;
+  ticks_t tickValues;
+  tick_to_axis_f tta = identity;
+  float autotick_offset = 0, autotick_scale = 1;
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
-    tickValues = MetNo::Constants::pLevelTable;
-    nticks = MetNo::Constants::nLevelTable;
     if (mAxisY->label() == "hPa") {
-      tickLabels = MetNo::Constants::pLevelTable;
+      tickValues = ticks_table(pLevelTable, nLevelTable);
+      autotick_offset = -5;
     } else if (mAxisY->label() == "FL") {
-      tickLabels = MetNo::Constants::fLevelTable;
+      tickValues = ticks_table(fLevelTable, nLevelTable);
+      tta = FL_to_hPa;
+      autotick_offset = 10;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
     }
   } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
     if (mAxisY->label() == "m") {
-      nticks = nzsteps;
-      tickValues = tickLabels = zsteps;
+      const int nzsteps = 12;
+      const float zsteps[nzsteps] =
+          { 10., 500., 1000., 2500., 5000., 10000, 15000,
+            20000, 25000, 30000, 35000, 40000 };
+      tickValues = ticks_table(zsteps, nzsteps);
+      autotick_offset = 100;
     } else if (mAxisY->label() == "Ft") {
-      scale = MetNo::Constants::ft_per_m;
-      nticks = nftsteps;
-      tickValues = tickLabels = ftsteps;
+      const int nftsteps = 10;
+      const float ftsteps[nftsteps] =
+          { 1500, 3000, 8000, 15000, 30000, 50000, 60000,
+            70000, 80000, 90000 };
+      tickValues = ticks_table(ftsteps, nftsteps);
+      tta = foot_to_meter;
+      autotick_offset = 300;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
     }
-  }
-  if (nticks == 0 or not tickValues or not tickLabels) {
-    METLIBS_LOG_WARN("missing y axis ticks or labels");
+  } else {
+    METLIBS_LOG_WARN("unsupported y axis quantity");
     return;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(nticks));
 
-  const float tickLeftEnd = mAxisX->getPaintMin(), tickLeftStart = tickLeftEnd - 0.5*mCharSize.width();
-  const float tickRightStart = mAxisX->getPaintMax(), tickRightEnd = tickRightStart + 0.5*mCharSize.width();
-  METLIBS_LOG_DEBUG(LOGVAL(tickLeftStart) << LOGVAL(tickLeftEnd) << LOGVAL(tickRightStart) << LOGVAL(tickRightEnd));
-
-  // colour etc. for frame etc.
-  QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)), mOptions->frameLinewidth), penFrame(pen);
-  vcross::util::setDash(penFrame, mOptions->frameLinetype);
-  painter.setPen(penFrame);
-
-  if (mOptions->pFrame) {
-    // paint frame
-    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()), max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
-    painter.drawRect(QRectF(min, max));
-
-    // no stipple for ticks
-    painter.setPen(pen);
+  { int visibleTicks = 0;
+    for (size_t i=0; i<tickValues.size(); ++i) {
+      const float axisValue = tta(tickValues[i]);
+      const float axisY = mAxisY->value2paint(axisValue);
+      if (mAxisY->legalPaint(axisY))
+        visibleTicks += 1;
+    }
+    METLIBS_LOG_DEBUG(LOGVAL(visibleTicks));
+    if (visibleTicks < 3) {
+      tickValues = ticks_auto(tickValues.front(), tickValues.back(),
+          autotick_scale, autotick_offset);
+      METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
+    }
   }
 
-  if (mOptions->pLevelNumbers) {
-    // paint tick marks
-    for (int i=0; i<nticks; ++i) {
-      const float tickValue = tickValues[i]/scale;
-      const float tickY = mAxisY->value2paint(tickValue);
-      if (mAxisY->legalPaint(tickY)) {
-        painter.drawLine(QLineF(tickLeftStart,  tickY, tickLeftEnd,    tickY));
-        painter.drawLine(QLineF(tickRightStart, tickY, tickRightEnd,   tickY));
-      }
-    }
+  painter.setPen(pen);
 
-    const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
-        && (mAxisY->label() == "FL");
+  const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
+      && (mAxisY->label() == "FL");
+  const float tickW = 0.4*mCharSize.width(),
+      labelD = mCharSize.width();
+  const float tickLeft = mAxisX->getPaintMin(),
+      tickRight = mAxisX->getPaintMax();
+  const float labelLeft = tickLeft - labelD,
+      labelRight = tickRight + labelD;
+  const QString unit = QString::fromStdString(mAxisY->label());
+  const float labelH = painter.fontMetrics().height();
+  METLIBS_LOG_DEBUG(LOGVAL(tickLeft) << LOGVAL(labelLeft)
+      << LOGVAL(tickRight) << LOGVAL(labelRight));
 
-    // paint tick labels
-    const float labelLeftEnd = tickLeftEnd - mCharSize.width();
-    const float labelRightStart = tickRightStart + mCharSize.width();
-    for (int i=0; i<nticks; ++i) {
-      const float tickValue = tickValues[i]/scale;
-      const float tickY = mAxisY->value2paint(tickValue);
-      if (mAxisY->legalPaint(tickY)) {
-        const float tickLabel = tickLabels[i];
-        std::ostringstream ostr;
-        if (unitFirst)
-          ostr << mAxisY->label();
-        ostr << int(tickLabel);
-        if (!unitFirst)
-          ostr << mAxisY->label();
-        const std::string txt = ostr.str();
-        const QString c_str = QString::fromStdString(txt);
-        const float labelW = painter.fontMetrics().width(c_str), labelH = painter.fontMetrics().height();
-        const float labelY = tickY+labelH*0.5;
-        painter.drawText(labelLeftEnd - labelW, labelY, c_str);
-        painter.drawText(labelRightStart,       labelY, c_str);
-      }
-    }
+  float lastTickLabelY = 1234567;
+  for (size_t i=0; i<tickValues.size(); ++i) {
+    const float axisValue = tta(tickValues[i]);
+    const float axisY = mAxisY->value2paint(axisValue);
+    if (!mAxisY->legalPaint(axisY))
+      continue;
+
+    const bool bigtick = (std::abs(lastTickLabelY - axisY) > 1.5*labelH);
+
+    // paint tick mark
+    const float tW = tickW * (bigtick ? 2 : 1);
+    painter.drawLine(QLineF(tickLeft-tW, axisY, tickLeft,     axisY));
+    painter.drawLine(QLineF(tickRight,   axisY, tickRight+tW, axisY));
+
+    if (!bigtick)
+      continue;
+    lastTickLabelY = axisY;
+
+    // paint tick label
+    QString label;
+    if (unitFirst)
+      label += unit;
+    label += QString::number(int(tickValues[i]));
+    if (!unitFirst)
+      label += unit;
+    const float labelW = painter.fontMetrics().width(label);
+    const float labelY = axisY+labelH*0.3;
+    painter.drawText(labelLeft - labelW, labelY, label);
+    painter.drawText(labelRight,         labelY, label);
   }
 }
 
