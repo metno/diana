@@ -190,7 +190,6 @@ VprofWindow::VprofWindow(Controller *co)
       SIGNAL(showsource(const std::string, const std::string)));
 
   //initialize everything in startUp
-  firstTime = true;
   active = false;
   mainWindowTime= miutil::miTime::nowTime();
 
@@ -736,23 +735,12 @@ void VprofWindow::mainWindowTimeChanged(const miutil::miTime& t){
 /***************************************************************************/
 
 void VprofWindow::startUp(const miutil::miTime& t){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("vprofWindow::startUp called with time " << t);
-#endif
+  METLIBS_LOG_INFO("vprofWindow::startUp called with time " << t);
   active = true;
   vpToolbar->show();
   tsToolbar->show();
-  //do something first time we start Vertical profiles
-  if (firstTime){
-    vector<string> models;
-    //define models for dialogs, comboboxes and stationplot
-    vprofm->setSelectedModels(models,false,true,true,true);
-    vpModelDialog->updateModelfileList();
-    vpModelDialog->setSelection();
-    firstTime=false;
-    // show default diagram without any data
-    vprofw->updateGL();
-  }
+  vpModelDialog->updateModelfileList();
+  vprofw->updateGL();
 
   changeModel();
   mainWindowTimeChanged(t);

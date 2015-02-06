@@ -50,19 +50,17 @@ using namespace std;
 using namespace miutil;
 using namespace vcross;
 
-// Default constructor
 SpectrumData::SpectrumData(const std::string& filename,
-    const std::string& modelname) :
-    fileName(filename), modelName(modelname), numPos(0), numTime(0), numDirec(
-        0), numFreq(0)
+    const std::string& modelname)
+  : fileName(filename), modelName(modelname), numPos(0),
+    numTime(0), numDirec(0), numFreq(0)
 {
-  METLIBS_LOG_DEBUG("++ SpectrumData::Constructor");
+  METLIBS_LOG_SCOPE();
 }
 
-// Destructor
 SpectrumData::~SpectrumData()
 {
-  METLIBS_LOG_DEBUG("++ SpectrumData::Destructor");
+  METLIBS_LOG_SCOPE();
 }
 
 bool SpectrumData::readFileHeader(const std::string& setup_line)
@@ -72,41 +70,40 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   fs = vcross::ReftimeSource_p(new vcross::FimexReftimeSource(fileName, "netcdf", "", Time()));
 
   vcross::Inventory_cp inv = fs->getInventory();
-  if (not inv) {
-    METLIBS_LOG_ERROR("Can't get inventory for " << fileName);
+  if (!inv || inv->times.npoint() == 0 || inv->crossections.empty()) {
+    METLIBS_LOG_ERROR("no or empty inventory for '" << fileName << "'");
     return false;
   }
 
-  BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections){
-
-  for( size_t i=0; i<cs->points.size(); ++i ) {
-    METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].latDeg()));
-    METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].lonDeg()));
-    ostringstream ost;
-    float lon = int (fabs(cs->points[i].lonDeg()) * 10);
-    lon /= 10.;
-    float lat = int (fabs(cs->points[i].latDeg()) * 10);
-    lat /= 10.;
-    ost << lon;
-    if ( cs->points[i].lonDeg() < 0. )
-      ost  << "W " ;
-    else
-      ost  << "E " ;
-    ost << lat;
-    if ( cs->points[i].latDeg() < 0. )
-      ost  << "S" ;
-    else
-      ost  << "N" ;
-    posName.push_back( ost.str() );
-    posLatitude.push_back( cs->points[i].latDeg() );
-    posLongitude.push_back( cs->points[i].lonDeg() );
+  BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
+    for (size_t i=0; i<cs->points.size(); ++i) {
+      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].latDeg()));
+      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].lonDeg()));
+      ostringstream ost;
+      float lon = int (fabs(cs->points[i].lonDeg()) * 10);
+      lon /= 10.;
+      float lat = int (fabs(cs->points[i].latDeg()) * 10);
+      lat /= 10.;
+      ost << lon;
+      if ( cs->points[i].lonDeg() < 0. )
+        ost  << "W " ;
+      else
+        ost  << "E " ;
+      ost << lat;
+      if ( cs->points[i].latDeg() < 0. )
+        ost  << "S" ;
+      else
+        ost  << "N" ;
+      posName.push_back( ost.str() );
+      posLatitude.push_back( cs->points[i].latDeg() );
+      posLongitude.push_back( cs->points[i].lonDeg() );
+    }
   }
-}
 
-  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values){
-  validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
-  METLIBS_LOG_DEBUG(LOGVAL(vcross::util::to_miTime(inv->times.unit, time)));
-}
+  BOOST_FOREACH(vcross::Time::timevalue_t time, inv->times.values) {
+    validTime.push_back(vcross::util::to_miTime(inv->times.unit, time));
+    METLIBS_LOG_DEBUG(LOGVAL(vcross::util::to_miTime(inv->times.unit, time)));
+  }
 
   miTime t = validTime[0];
   for (size_t i = 0; i < validTime.size(); i++) {
@@ -120,7 +117,7 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   request.insert(freq);
   request.insert(dir);
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v);
+  fs->getWaveSpectrumValues(cs0, 0, inv->times.at(0), request, n2v);
   Values_cp freq_values = n2v[freq->id()];
   Values_cp dir_values = n2v[dir->id()];
 
@@ -143,56 +140,76 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   return true;
 }
 
+static FieldData_cp find_request_field(Inventory_cp inv, InventoryBase_cps& request, const std::string& id)
+{
+  FieldData_cp fld;
+  if (inv)
+    fld = inv->findFieldById(id);
+  if (fld)
+    request.insert(fld);
+  return fld;
+}
+
+static Values_cp field_values(const name2value_t& n2v, FieldData_cp fld)
+{
+  if (fld) {
+    name2value_t::const_iterator it = n2v.find(fld->id());
+    if (it != n2v.end())
+      return it->second;
+  }
+  return Values_cp();
+}
+
 SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
 {
-  METLIBS_LOG_DEBUG("++ SpectrumData::getData   "<<name<<"   "<<time);
-
-  SpectrumPlot *spp = 0;
+  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(time));
 
   int iPos = 0;
   while (iPos < numPos && posName[iPos] != name)
     iPos++;
   if (iPos == numPos)
-    return spp;
+    return 0;
 
   int iTime = 0;
   while (iTime < numTime && validTime[iTime] != time)
     iTime++;
   if (iTime == numTime)
-    return spp;
+    return 0;
 
 
   const LonLat pos = LonLat::fromDegrees(posLongitude[iPos], posLatitude[iPos]);
   const Time user_time(util::from_miTime(time));
 
   vcross::Inventory_cp inv = fs->getInventory();
+  if (!inv) {
+    METLIBS_LOG_WARN("no inventory");
+    return 0;
+  }
+
   size_t index;
   Crossection_cp cs = inv->findCrossectionPoint(pos, index);
+  if (!cs) {
+    METLIBS_LOG_WARN("no crossection");
+    return 0;
+  }
+  METLIBS_LOG_DEBUG(LOGVAL(cs->label) << LOGVAL(index));
+
   InventoryBase_cps request;
-  FieldData_cp field_spec = inv->findFieldById("SPEC");
-  if ( !field_spec.get() )
-    return spp;
-  request.insert(field_spec);
-  FieldData_cp field_hmo = inv->findFieldById("hs");
-  if ( field_hmo.get() )
-    request.insert(field_hmo);
-  FieldData_cp field_wdir = inv->findFieldById("dd");
-  if ( field_wdir.get() )
-    request.insert(field_wdir);
-  FieldData_cp field_wspeed = inv->findFieldById("ff");
-  if ( field_wspeed.get() )
-    request.insert(field_wspeed);
-  FieldData_cp field_tpeak = inv->findFieldById("tp");
-  if ( field_tpeak.get() )
-    request.insert(field_tpeak);
-  FieldData_cp field_ddpeak = inv->findFieldById("Pdir");
-  if ( field_ddpeak.get() )
-    request.insert(field_ddpeak);
+  FieldData_cp field_spec = find_request_field(inv, request, "SPEC");
+  if (!field_spec) {
+    METLIBS_LOG_WARN("no SPEC field");
+    return 0;
+  }
+  FieldData_cp field_hmo = find_request_field(inv, request, "hs");
+  FieldData_cp field_wdir = find_request_field(inv, request, "dd");
+  FieldData_cp field_wspeed = find_request_field(inv, request, "ff");
+  FieldData_cp field_tpeak = find_request_field(inv, request, "tp");
+  FieldData_cp field_ddpeak = find_request_field(inv, request, "Pdir");
 
   name2value_t n2v;
   fs->getWaveSpectrumValues(cs, index, user_time, request, n2v);
 
-  spp = new SpectrumPlot();
+  std::auto_ptr<SpectrumPlot> spp(new SpectrumPlot);
   spp->prognostic = true;
   spp->modelName = modelName;
   spp->posName = posName[iPos];
@@ -203,70 +220,68 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   spp->directions = directions;
   spp->frequences = frequences;
 
-  if ( field_hmo.get() ) {
-    Values_cp hmo = n2v[field_hmo->id()];
+  if (Values_cp hmo = field_values(n2v, field_hmo)) {
     Values::ShapeIndex idx_hmo(hmo->shape());
     idx_hmo.set(0,0);
     spp->hmo = hmo->value(idx_hmo);
   } else {
     spp->hmo = -1;
   }
-  if ( field_wdir.get() ) {
-  Values_cp wdir = n2v[field_wdir->id()];
-  Values::ShapeIndex idx_wdir(wdir->shape());
-  idx_wdir.set(0,0);
-  spp->wdir=wdir->value(idx_wdir);
+  if (Values_cp wdir = field_values(n2v, field_wdir)) {
+    Values::ShapeIndex idx_wdir(wdir->shape());
+    idx_wdir.set(0,0);
+    spp->wdir=wdir->value(idx_wdir);
   } else {
     spp->wdir = -1;
   }
 
-  if ( field_wspeed.get() ) {
-  Values_cp wspeed = n2v[field_wspeed->id()];
-  Values::ShapeIndex idx_wspeed(wspeed->shape());
-  idx_wspeed.set(0,0);
-  spp->wspeed=wspeed->value(idx_wspeed);
+  if (Values_cp wspeed = field_values(n2v, field_wspeed)) {
+    Values::ShapeIndex idx_wspeed(wspeed->shape());
+    idx_wspeed.set(0,0);
+    spp->wspeed=wspeed->value(idx_wspeed);
   } else {
     spp->wspeed = -1;
   }
 
-  if ( field_tpeak.get() ) {
-  Values_cp tpeak = n2v[field_tpeak->id()];
-  Values::ShapeIndex idx_tpeak(tpeak->shape());
-  idx_tpeak.set(0,0);
-  spp->tPeak = tpeak->value(idx_tpeak);
+  if (Values_cp tpeak = field_values(n2v, field_tpeak)) {
+    Values::ShapeIndex idx_tpeak(tpeak->shape());
+    idx_tpeak.set(0,0);
+    spp->tPeak = tpeak->value(idx_tpeak);
   } else {
     spp->tPeak = -1;
   }
 
-  if ( field_ddpeak.get() ) {
-  Values_cp ddpeak = n2v[field_ddpeak->id()];
-  Values::ShapeIndex idx_ddpeak(ddpeak->shape());
-  idx_ddpeak.set(0,0);
-  spp->ddPeak = ddpeak->value(idx_ddpeak);
+  if (Values_cp ddpeak = field_values(n2v, field_ddpeak)) {
+    Values::ShapeIndex idx_ddpeak(ddpeak->shape());
+    idx_ddpeak.set(0,0);
+    spp->ddPeak = ddpeak->value(idx_ddpeak);
   } else {
     spp->ddPeak = -1;
   }
 
-  Values_cp spec_values = n2v[field_spec->id()];
+  Values_cp spec_values = field_values(n2v, field_spec);
+  if (!spec_values) {
+    METLIBS_LOG_WARN("no spec_values");
+    return 0;
+  }
   const Values::Shape& shape(spec_values->shape());
-  Values::ShapeIndex idx(spec_values->shape());
-
-  int size = shape.length(0) * shape.length(1);
+  Values::ShapeIndex idx(shape);
+  const int size = shape.volume(),
+      pos_direction = shape.position("direction"),
+      pos_freq = shape.position("freq");
   float *spec = new float[size];
-
   int ii = 0;
-  for (int i = 0; i < shape.length(1); i++) {
-    for (int j = 0; j < shape.length(0); j++) {
-      idx.set("direction", j);
-      idx.set("freq", i);
+  for (int i = 0; i < shape.length(pos_freq); i++) {
+    for (int j = 0; j < shape.length(pos_direction); j++) {
+      idx.set(pos_direction, j);
+      idx.set(pos_freq, i);
       spec[ii] = spec_values->value(idx);
-      if (spec[ii] != spec[ii]) {
+      if (isnan(spec[ii])) {
         METLIBS_LOG_DEBUG("NAN");
         return 0;
       }
       ++ii;
     }
-
   }
 
   int n = numDirec + 1;
@@ -327,50 +342,10 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
       ydata[j * n + i] = frequences[j] * sindir[i];
     }
   }
-  //###############################################
-  //  for (int i=0; i<numDirec; i++)
-  //    METLIBS_LOG_DEBUG("direc,angle,x,y:  "
-  //        <<directions[i]<<"  "<<90.-directions[i]-rotation<<"  "
-  //        <<cosdir[i]<<"  "<<sindir[i]);
-  //###############################################
 
-  //######################################################################
-  /******************************************************************
-   float specmin= spec[0];
-   float specmax= spec[0];
-   for (int i=0; i<numDirec*numFreq; i++) {
-   if (specmin>spec[i]) specmin= spec[i];
-   if (specmax<spec[i]) specmax= spec[i];
-   }
-   float sdatmin= sdata[0];
-   float sdatmax= sdata[0];
-   for (int i=0; i<m; i++) {
-   if (sdatmin>sdata[i]) sdatmin= sdata[i];
-   if (sdatmax<sdata[i]) sdatmax= sdata[i];
-   }
-   float etotmin= spp->eTotal[0];
-   float etotmax= spp->eTotal[0];
-   for (int i=0; i<numFreq; i++) {
-   if (etotmin>spp->eTotal[i]) etotmin= spp->eTotal[i];
-   if (etotmax<spp->eTotal[i]) etotmax= spp->eTotal[i];
-   }
-   METLIBS_LOG_DEBUG("   northRotation=   "<<spp->northRotation);
-   METLIBS_LOG_DEBUG("   wspeed=          "<<spp->wspeed);
-   METLIBS_LOG_DEBUG("   wdir=            "<<spp->wdir);
-   METLIBS_LOG_DEBUG("   hmo=             "<<spp->hmo);
-   METLIBS_LOG_DEBUG("   tPeak=           "<<spp->tPeak);
-   METLIBS_LOG_DEBUG("   ddPeak=          "<<spp->ddPeak);
-   METLIBS_LOG_DEBUG("   specmin,specmax: "<<specmin<<"  "<<specmax);
-   METLIBS_LOG_DEBUG("   sdatmin,sdatmax: "<<sdatmin<<"  "<<sdatmax);
-   METLIBS_LOG_DEBUG("   etotmin,etotmax: "<<etotmin<<"  "<<etotmax);
-   ******************************************************************/
-  //######################################################################
-  if (spp->sdata)
-    delete[] spp->sdata;
-  if (spp->xdata)
-    delete[] spp->xdata;
-  if (spp->ydata)
-    delete[] spp->ydata;
+  delete[] spp->sdata;
+  delete[] spp->xdata;
+  delete[] spp->ydata;
 
   spp->sdata = sdata;
   spp->xdata = xdata;
@@ -380,5 +355,6 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   delete[] cosdir;
   delete[] sindir;
 
-  return spp;
+  METLIBS_LOG_DEBUG("got spp data");
+  return spp.release();
 }

@@ -749,7 +749,8 @@ void endHardcopy(const plot_type pt)
 
 // VPROF-options with parser
 std::string vprof_station;
-vector<string> vprof_models, vprof_options;
+vector<VprofManager::SelectedModel> vprof_models;
+vector<string> vprof_options;
 bool vprof_plotobs = true;
 bool vprof_optionschanged;
 
@@ -778,7 +779,13 @@ void parse_vprof_options(const vector<string>& opts)
             miutil::remove(value, '\"');
           vprof_station = value;
         } else if (key == "MODELS" || key == "MODEL") {
-          vprof_models = miutil::split(value, 0, ",");
+          vector<std::string> models = miutil::split(value, 0, ",");
+          vprof_models.clear();
+          for ( size_t j=0; j<models.size(); ++j ) {
+            VprofManager::SelectedModel sm;
+            sm.model = models[j];
+            vprof_models.push_back(sm);
+          }
         }
       }
     } else {
@@ -1827,7 +1834,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
 
         if (verbose)
@@ -1925,7 +1932,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
      
 #if defined(USE_PAINTGL)
@@ -1964,8 +1971,7 @@ static int parseAndProcess(istream &is)
         if (vprof_optionschanged)
           vprofmanager->getOptions()->readOptions(vprof_options);
         vprof_optionschanged = false;
-        vprofmanager->setSelectedModels(vprof_models, false, vprof_plotobs,
-            vprof_plotobs, vprof_plotobs);
+        vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
         vprofmanager->setModel();
 
         if (ptime.undef()) {
@@ -2005,7 +2011,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
         vprofmanager->plot();
 
@@ -2076,7 +2082,7 @@ static int parseAndProcess(istream &is)
 
 #if defined(USE_PAINTGL)
         if (canvasType == qt_qimage && raster && antialias)
-          painter.setRenderHint(QPainter::Antialiasing);
+          glEnable(GL_MULTISAMPLE);
 #endif
         spectrummanager->plot();
 
@@ -2474,8 +2480,7 @@ static int parseAndProcess(istream &is)
         vprofmanager->getOptions()->readOptions(vprof_options);
 
       vprof_optionschanged = false;
-      vprofmanager->setSelectedModels(vprof_models, false, vprof_plotobs,
-          vprof_plotobs, vprof_plotobs);
+      vprofmanager->setSelectedModels(vprof_models, vprof_plotobs);
       vprofmanager->setModel();
 
       vector<miTime> okTimes = vprofmanager->getTimeList();

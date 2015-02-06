@@ -76,7 +76,6 @@ public:
 	       const std::string& thisVersion, const std::string& logVersion,
 	       int displayWidth, int displayHeight);
 
-  bool firstTime;
   bool active;
 
 protected:

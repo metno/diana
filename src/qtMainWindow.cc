@@ -1810,8 +1810,6 @@ void DianaMainWindow::vprofStartup()
 {
   if (!vpWindow)
     return;
-  if (vpWindow->firstTime)
-    MenuOK();
   miutil::miTime t;
   contr->getPlotTime(t);
   vpWindow->startUp(t);

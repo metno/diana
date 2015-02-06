@@ -33,15 +33,15 @@
 
 #include <QPushButton>
 #include <QLabel>
-#include <QButtonGroup>
 #include <QListWidget>
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
 #include "qtUtility.h"
-#include "qtToggleButton.h"
-#include "diVprofManager.h"
 #include "qtVprofModelDialog.h"
+#include "diVprofManager.h"
+
 
 #define MILOGGER_CATEGORY "diana.VprofModelDialog"
 #include <miLogger/miLogging.h>
@@ -53,69 +53,34 @@ using namespace std;
 /***************************************************************************/
 
 VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
-  QDialog(parent), vprofm(vm)
+      QDialog(parent), vprofm(vm)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("VprofModelDialog::VprofModelDialog called");
 #endif
 
   //caption to appear on top of dialog
-  setWindowTitle(tr("Diana Vertical Profiles - Models"));
-
-  // string constants
-  ASFIELD = tr("As field").toStdString();
-  OBSTEMP = tr("Observations:TEMP").toStdString();
-  OBSPILOT = tr("Observations:PILOT").toStdString();
-  OBSAMDAR = tr("Observations:AMDAR").toStdString();
-
-  // send translated menunames to manager
-  map<std::string, std::string> textconst;
-  textconst["ASFIELD"] = ASFIELD;
-  textconst["OBSTEMP"] = OBSTEMP;
-  textconst["OBSPILOT"] = OBSPILOT;
-  textconst["OBSAMDAR"] = OBSAMDAR;
-  vm->setMenuConst(textconst);
-
-  //********** create the various QT widgets to appear in dialog ***********
-
-  //**** the three buttons "auto", "tid", "fil" *************
-  vector<std::string> model;
-  model.push_back(tr("Model").toStdString());
-  model.push_back(tr("File").toStdString());
-
-  //if a model is selected- should be as model- else default model(hirlam)
-
-  //********** the list of files/models to choose from **************
+  setWindowTitle(tr("Diana Vertical Profiles"));
 
   modelfileList = new QListWidget(this);
-  //  modelfileList->setMinimumHeight(HEIGHTLISTBOX);
-  modelfileList->setSelectionMode(QAbstractItemView::MultiSelection);
-  modelfileList->setEnabled(true);
+  connect(modelfileList, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(modelfilelistClicked(QListWidgetItem*)));
 
-  modelButton = new ToggleButton(this, tr("Model"));
-  if (modelButton->isChecked())
-    METLIBS_LOG_DEBUG("CHECKED");
-  fileButton = new ToggleButton(this, tr("File"));
-  modelfileBut = new QButtonGroup(this);
-  modelfileBut->addButton(modelButton, 0);
-  modelfileBut->addButton(fileButton, 1);
-  QHBoxLayout* modelfileLayout = new QHBoxLayout();
-  modelfileLayout->addWidget(modelButton);
-  modelfileLayout->addWidget(fileButton);
-  modelfileBut->setExclusive(true);
-  modelButton->setChecked(true);
+  QLabel* refLabel = TitleLabel(tr("Referencetime"),this);
+  reftimeWidget = new QListWidget(this);
+  connect(reftimeWidget, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(reftimeWidgetClicked(QListWidgetItem*)));
 
-  //modelfileClicked is called when auto,tid,fil buttons clicked
-  connect( modelfileBut, SIGNAL( buttonClicked(int) ),
-      SLOT( modelfileClicked(int) ) );
+  QLabel* selectedLabel = TitleLabel(tr("Selected models"),this);
+  selectedModelsWidget = new QListWidget(this);
 
   //push button to show help
   QPushButton * modelhelp = NormalPushButton(tr("Help"), this);
   connect(modelhelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   //push button to delete
-  QPushButton * deleteAll = NormalPushButton(tr("Delete all"), this);
-  connect(deleteAll, SIGNAL(clicked()), SLOT(deleteAllClicked()));
+  QPushButton * deleteButton = NormalPushButton(tr("Delete"), this);
+  connect(deleteButton, SIGNAL(clicked()), SLOT(deleteClicked()));
+  QPushButton * deleteAllButton = NormalPushButton(tr("Delete all"), this);
+  connect(deleteAllButton, SIGNAL(clicked()), SLOT(deleteAllClicked()));
 
   //push button to refresh
   QPushButton * refresh = NormalPushButton(tr("Refresh"), this);
@@ -135,69 +100,93 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager * vm) :
 
   // ************ place all the widgets in layouts ****************
 
-  //place buttons "oppdater", "hjelp" etc. in horizontal layout
   QHBoxLayout* hlayout1 = new QHBoxLayout();
-  hlayout1->addWidget(modelhelp);
-  hlayout1->addWidget(deleteAll);
-  hlayout1->addWidget(refresh);
+  hlayout1->addWidget(deleteButton);
+  hlayout1->addWidget(deleteAllButton);
 
-  //place buttons "utfør", "help" etc. in horizontal layout
   QHBoxLayout* hlayout2 = new QHBoxLayout();
-  hlayout2->addWidget(modelhide);
-  hlayout2->addWidget(modelapplyhide);
-  hlayout2->addWidget(modelapply);
+  hlayout2->addWidget(modelhelp);
+  hlayout2->addWidget(refresh);
+
+  QHBoxLayout* hlayout3 = new QHBoxLayout();
+  hlayout3->addWidget(modelhide);
+  hlayout3->addWidget(modelapplyhide);
+  hlayout3->addWidget(modelapply);
 
   //create a vertical layout to put all widgets and layouts in
   QVBoxLayout * vlayout = new QVBoxLayout(this);
-  vlayout->addLayout(modelfileLayout);
   vlayout->addWidget(modelfileList);
+  vlayout->addWidget(refLabel);
+  vlayout->addWidget(reftimeWidget);
+  vlayout->addWidget(selectedLabel);
+  vlayout->addWidget(selectedModelsWidget);
   vlayout->addLayout(hlayout1);
   vlayout->addLayout(hlayout2);
+  vlayout->addLayout(hlayout3);
 }
 
 /*********************************************/
-
-void VprofModelDialog::modelfileClicked(int tt)
+void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
 {
-  //this slot is called when modelfile button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::modelfileClicked()\n");
-#endif
+  reftimeWidget->clear();
+  vector<std::string> rfv = vprofm->getReferencetimes(item->text().toStdString());
+  for ( size_t i=0; i<rfv.size(); ++i){
+    reftimeWidget->addItem(rfv[i].c_str());
+  }
 
-  updateModelfileList();
+  if ( rfv.empty() ) {
+    selectedModelsWidget->addItem(modelfileList->currentItem()->text());
+    selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
+  } else {
+    reftimeWidget->setCurrentRow(reftimeWidget->count()-1);
+    reftimeWidgetClicked(reftimeWidget->currentItem());
+  }
 }
 
-/*********************************************/
+void VprofModelDialog::reftimeWidgetClicked(QListWidgetItem* item)
+{
+  QString qstr = modelfileList->currentItem()->text() + " " + reftimeWidget->currentItem()->text();
+
+  if ( selectedModelsWidget->count() && selectedModelsWidget->currentItem()->text().contains(modelfileList->currentItem()->text())) {
+    QListWidgetItem* ii = selectedModelsWidget->item(selectedModelsWidget->currentRow());
+    ii->setText(qstr);
+  } else {
+    selectedModelsWidget->addItem(qstr);
+    selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
+  }
+}
 
 void VprofModelDialog::refreshClicked()
 {
-  //this slot is called when refresh button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::refreshClicked()\n");
-#endif
+  METLIBS_LOG_SCOPE();
   updateModelfileList();
 
+}
+
+/*********************************************/
+
+void VprofModelDialog::deleteClicked()
+{
+  METLIBS_LOG_SCOPE();
+  if ( selectedModelsWidget->count() ) {
+    int row = selectedModelsWidget->currentRow();
+    selectedModelsWidget->takeItem(row);
+  }
 }
 
 /*********************************************/
 
 void VprofModelDialog::deleteAllClicked()
 {
-  //this slot is called when delete button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::deleteAllClicked()\n");
-#endif
-  modelfileList->clearSelection();
+  METLIBS_LOG_SCOPE();
+  selectedModelsWidget->clear();
 }
 
 /*********************************************/
 
 void VprofModelDialog::helpClicked()
 {
-  //this slot is called when help button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::helpClicked()\n");
-#endif
+  METLIBS_LOG_SCOPE();
   emit showsource("ug_verticalprofiles.html");
 }
 
@@ -205,10 +194,7 @@ void VprofModelDialog::helpClicked()
 
 void VprofModelDialog::applyClicked()
 {
-  //this slot is called when apply button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::applyClicked(int tt)\n");
-#endif
+  METLIBS_LOG_SCOPE();
   setModel();
   emit ModelApply();
 
@@ -218,10 +204,7 @@ void VprofModelDialog::applyClicked()
 
 void VprofModelDialog::applyhideClicked()
 {
-  //this slot is called when applyhide button pressed
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::applyhideClicked(int tt)\n");
-#endif
+  METLIBS_LOG_SCOPE();
   setModel();
   emit ModelHide();
   emit ModelApply();
@@ -229,84 +212,34 @@ void VprofModelDialog::applyhideClicked()
 }
 
 /*********************************************/
-void VprofModelDialog::setSelection()
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::setSelection()");
-#endif
-  if (modelButton->isChecked()) {
-    vector<string> models = vprofm->getSelectedModels();
-    int n = models.size();
-    for (int i = 0; i < n; i++) {
-      std::string model = models[i];
-      int m = modelfileList->count();
-      for (int j = 0; j < m; j++) {
-        std::string listModel = modelfileList->item(j)->text().toStdString();
-        if (model == listModel)
-          modelfileList->item(j)->setSelected(true);
-      }
-    }
-  }
-}
-
-/*********************************************/
 void VprofModelDialog::setModel()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::setModel()");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  bool showObsTemp = false;
-  bool showObsPilot = false;
-  bool showObsAmdar = false;
-  bool asField = false;
-
-  if (modelButton->isChecked()) {
-
-    vector<string> models;
-    int n = modelfileList->count();
-    for (int i = 0; i < n; i++) {
-      if (modelfileList->item(i)->isSelected()) {
-        std::string model = modelfileList->item(i)->text().toStdString();
-        if (model == OBSTEMP)
-          showObsTemp = true;
-        else if (model == OBSPILOT)
-          showObsPilot = true;
-        else if (model == OBSAMDAR)
-          showObsAmdar = true;
-        else if (model == ASFIELD)
-          asField = true;
-        else
-          models.push_back(model);
-      }
+  vector<VprofManager::SelectedModel> selectedModels;
+  int n = selectedModelsWidget->count();
+  for (int i = 0; i < n; i++) {
+    VprofManager::SelectedModel selectedModel;
+    QString qstr = selectedModelsWidget->item(i)->text();
+    QStringList qstrl = qstr.split(" ");
+    if ( qstrl.size() > 0 ) {
+      selectedModel.model = qstrl[0].toStdString();
     }
-    vprofm->setSelectedModels(models, asField, showObsTemp, showObsPilot,
-        showObsAmdar);
-
-  } else if (fileButton->isChecked()) {
-
-    vector<string> files;
-    int n = modelfileList->count();
-    for (int i = 0; i < n; i++) {
-      if (modelfileList->item(i)->isSelected()) {
-        std::string file = modelfileList->item(i)->text().toStdString();
-        files.push_back(file);
-      }
+    if ( qstrl.size() > 1 ) {
+      selectedModel.reftime = qstrl[1].toStdString();
     }
-    vprofm->setSelectedFiles(files, asField, showObsTemp, showObsPilot,
-        showObsAmdar);
+    selectedModels.push_back(selectedModel);
   }
+  vprofm->setSelectedModels(selectedModels);
 
 }
 /*********************************************/
 
 void VprofModelDialog::updateModelfileList()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModelDialog::updateModelfileList()\n");
-#endif
+  METLIBS_LOG_SCOPE();
 
-  //want to keep th selected models/files
+  //want to keep the selected models
   int n = modelfileList->count();
   set<std::string> current;
   for (int i = 0; i < n; i++)
@@ -316,27 +249,16 @@ void VprofModelDialog::updateModelfileList()
   //clear box with list of files
   modelfileList->clear();
 
-  if (modelButton->isChecked()) {
-    //make a string list with models to insert into modelfileList
-    vector<std::string> modelnames = vprofm->getModelNames();
-    int nr_models = modelnames.size();
-    modelfileList->addItem(QString(OBSTEMP.c_str()));
-    modelfileList->addItem(QString(OBSPILOT.c_str()));
-    modelfileList->addItem(QString(OBSAMDAR.c_str()));
-    modelfileList->addItem(QString(ASFIELD.c_str()));
-    for (int i = 0; i < nr_models; i++) {
-      modelfileList->addItem(modelnames[i].c_str());
-    }
-
-    //insert into modelfilelist
-  } else if (fileButton->isChecked()) {
-    //make a string list with files to insert into modelfileList
-    vector<std::string> modelfiles = vprofm->getModelFiles();
-    int nr_files = modelfiles.size();
-    for (int i = 0; i < nr_files; i++) {
-      modelfileList->addItem(QString(modelfiles[i].c_str()));
-    }
+  vector<std::string> modelnames = vprofm->getModelNames();
+  vector<std::string> modelfiles = vprofm->getModelFiles();
+  size_t nr_models = modelnames.size();
+  bool tooltip = nr_models == modelfiles.size();
+  for ( size_t i = 0; i < nr_models; i++) {
+    QListWidgetItem* item = new QListWidgetItem(modelnames[i].c_str(),modelfileList);
+    if ( tooltip )
+      item->setToolTip(modelfiles[i].c_str());
   }
+
 
   set<std::string>::iterator pend = current.end();
   n = modelfileList->count();
@@ -349,8 +271,6 @@ void VprofModelDialog::updateModelfileList()
 
 void VprofModelDialog::closeEvent(QCloseEvent* e)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("VprofModel was closed!");
-#endif
+  METLIBS_LOG_SCOPE();
   emit ModelHide();
 }

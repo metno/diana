@@ -67,8 +67,6 @@ public:
 
   void setVcrossManager(QtManager_p vcm);
 
-  void enableTimeGraph(bool on);
-
   void print(QPrinter& printer);
   bool saveRasterImage(const QString& fname);
 
@@ -84,6 +82,13 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent* me);
   virtual void mouseReleaseEvent(QMouseEvent* me);
 
+Q_SIGNALS:
+  void stepTime(int direction);
+  void stepCrossection(int direction);
+
+private Q_SLOTS:
+  void switchedTimeGraph(bool on);
+
 private:
   QtManager_p vcrossm;
 
@@ -92,13 +97,6 @@ private:
 
   int arrowKeyDirection;
   int firstx, firsty, mousex, mousey;
-
-  bool timeGraph;
-  bool startTimeGraph;
-
-Q_SIGNALS:
-  void stepTime(int direction);
-  void stepCrossection(int direction);
 };
 
 } // namespace vcross

@@ -165,7 +165,7 @@ VcrossWindow::VcrossWindow()
 {
   METLIBS_LOG_SCOPE();
   setupUi();
-  
+
   vcrossm =  miutil::make_shared<QtManager>();
   quickmenues.reset(new VcrossQuickmenues(vcrossm));
   connect(quickmenues.get(), SIGNAL(quickmenuUpdate(const std::string&, const std::vector<std::string>&)),
@@ -213,7 +213,11 @@ VcrossWindow::VcrossWindow()
         this, SLOT(timeListChangedSlot()));
     connect(m, SIGNAL(timeIndexChanged(int)),
         this, SLOT(timeChangedSlot(int)));
+    connect(m, SIGNAL(timeGraphModeChanged(bool)),
+        this, SLOT(timeGraphModeChangedSlot(bool)));
   }
+
+  enableTimeGraphIfSupported();
 }
 
 /***************************************************************************/
@@ -421,6 +425,7 @@ void VcrossWindow::crossectionListChangedSlot()
   ui->buttonCsNext->setEnabled(count > 0);
 
   enableDynamicCsIfSupported();
+  enableTimeGraphIfSupported();
 
   emitCrossectionSet();
 }
@@ -447,9 +452,12 @@ void VcrossWindow::enableDynamicCsIfSupported()
     const string_s& csPredefined = vcrossm->getCrossectionPredefinitions();
     if (not csPredefined.empty()) {
       QStringList filenames;
-      for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it)
-        filenames << QString::fromStdString(*it);
-      Q_EMIT requestLoadCrossectionFiles(filenames);
+      for (string_s::const_iterator it = csPredefined.begin(); it != csPredefined.end(); ++it) {
+        if (mPredefinedCsFiles.insert(*it).second)
+          filenames << QString::fromStdString(*it);
+      }
+      if (!filenames.isEmpty())
+        Q_EMIT requestLoadCrossectionFiles(filenames);
     } else {
       ui->toggleCsEdit->setChecked(true);
     }
@@ -473,8 +481,9 @@ void VcrossWindow::stepTime(int direction)
   const int step = std::max(ui->timeSpinBox->value(), 1)
       * (direction < 0 ? -1 : 1);
 
+  const int ntimes = vcrossm->getTimeCount();
   int index = vcrossm->getTimeIndex();
-  if (vcross::util::step_index(index, step, vcrossm->getTimeCount()))
+  if (ntimes > 0 && vcross::util::step_index(index, step, ntimes))
     vcrossm->setTimeIndex(index);
 }
 
@@ -513,13 +522,30 @@ void VcrossWindow::timeListChangedSlot()
   }
   ui->comboTime->setModel(new MiTimeModel(times));
 
-  const bool enabled = (count > 1);
+  const bool enabled = (count > 1) && !vcrossm->isTimeGraph();
   ui->comboTime->setEnabled(enabled);
   ui->buttonTimePrevious->setEnabled(enabled);
   ui->buttonTimeNext->setEnabled(enabled);
+  ui->timeSpinBox->setEnabled(enabled);
 
-  if (count > 0)
-    Q_EMIT emitTimes("vcross", times);
+  enableTimeGraphIfSupported();
+
+  Q_EMIT emitTimes("vcross", times);
+}
+
+
+void VcrossWindow::enableTimeGraphIfSupported()
+{
+  ui->toggleTimeGraph->setEnabled(vcrossm->supportsTimeGraph());
+}
+
+
+void VcrossWindow::timeGraphModeChangedSlot(bool on)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(on));
+  if (on != ui->toggleTimeGraph->isChecked())
+    ui->toggleTimeGraph->setChecked(on);
+  timeListChangedSlot();
 }
 
 
@@ -583,15 +609,8 @@ void VcrossWindow::timeGraphClicked(bool on)
   // called when the timeGraph button is clicked
   METLIBS_LOG_SCOPE("on=" << on);
 
-  if (on && vcrossm->timeGraphOK()) {
-    ui->vcross->enableTimeGraph(true);
-  } else if (on) {
-    ui->toggleTimeGraph->setChecked(false);
-  } else {
-    vcrossm->disableTimeGraph();
-    ui->vcross->enableTimeGraph(false);
-    ui->vcross->update();
-  }
+  if (on != vcrossm->isTimeGraph())
+    vcrossm->switchTimeGraph(on);
 }
 
 /***************************************************************************/
@@ -603,6 +622,7 @@ void VcrossWindow::quitClicked()
 
   // cleanup selections in dialog and data in memory
   vcrossm->cleanup();
+  mPredefinedCsFiles.clear();
 
   ui->comboCs->clear();
   ui->comboCs->setEnabled(false);

@@ -55,6 +55,12 @@ class VprofDiagram;
 */
 class VprofManager{
 
+public:
+  struct SelectedModel{
+    std::string model;
+    std::string reftime;
+  };
+
 private:
 
   enum obsType {
@@ -125,7 +131,6 @@ private:
   bool showObsTemp;
   bool showObsPilot;
   bool showObsAmdar;
-  bool asField;
 
   std::vector <std::string> nameList;
   std::vector <float>    latitudeList;
@@ -138,9 +143,7 @@ private:
   bool onlyObs;
 
   std::vector<std::string> fieldModels;
-  std::vector<std::string> selectedModels;
-  std::vector<std::string> selectedFiles;
-  std::set<std::string> usemodels;
+  std::vector<SelectedModel> selectedModels;
 
   int plotw, ploth;
 
@@ -158,7 +161,7 @@ private:
 
   std::string getDefaultModel();
   void updateObsFileList();
-  bool initVprofData(std::string model);
+  bool initVprofData(const SelectedModel& selectedModel);
   void initStations();
   void initTimes();
   void checkObsTime(int hour=-1);
@@ -199,15 +202,10 @@ public:
   const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
   std::vector <std::string> getModelNames();
   std::vector <std::string> getModelFiles();
+  std::vector <std::string> getReferencetimes(const std::string model);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<std::string>& models,
-			 bool field, bool obsTemp,
-			 bool obsPilot, bool obsAmdar);
-  void setSelectedFiles(const std::vector<std::string>& files,
-			bool field, bool obsTemp,
-			bool obsPilot, bool obsAmdar);
+  void setSelectedModels(const std::vector<SelectedModel>& models, bool obs=false);
 
-  std::vector<std::string> getSelectedModels();
   bool plot();
   void startHardcopy(const printOptions& po);
   void endHardcopy();
@@ -215,9 +213,6 @@ public:
   void mainWindowTimeChanged(const miutil::miTime& time);
   void updateObs();
   std::string getAnnotationString();
-
-  void setMenuConst(const std::map<std::string,std::string>& mc)
-    { menuConst = mc;}
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
