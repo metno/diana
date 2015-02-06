@@ -12,20 +12,10 @@
 #include <fstream>
 #include <string>
 
-#define MILOGGER_CATEGORY "diField.test.VprofDataTest"
+#define MILOGGER_CATEGORY "diana.test.VprofData"
 #include "miLogger/miLogging.h"
 
 using namespace vcross;
-
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
 
 const char AROME_FILE[] = "arome_vprof.nc";
 const int AROME_N_CS = 6;
@@ -43,8 +33,6 @@ static const char modelName[] = "testmodel";
 
 TEST(VprofDataTest, TestSetup)
 {
-  configureLogging();
-
   Setup_p setup = miutil::make_shared<vcross::Setup>();
   Collector_p collector = miutil::make_shared<Collector>(setup);
 
@@ -130,8 +118,6 @@ TEST(VprofDataTest, TestSetup)
 
 TEST(VprofDataTest, TestBangkok)
 {
-  configureLogging();
-
   Setup_p setup = miutil::make_shared<vcross::Setup>();
   Collector_p collector = miutil::make_shared<Collector>(setup);
 

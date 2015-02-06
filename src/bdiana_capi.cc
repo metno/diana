@@ -79,7 +79,7 @@
 
 
 #include "vcross_v2/VcrossQtManager.h"
-#include "vcross_v2/VcrossOptions.h"
+#include "vcross_v2/VcrossQuickmenues.h"
 
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
@@ -796,41 +796,6 @@ void parse_vprof_options(const vector<string>& opts)
   }
 }
 
-// VCROSS-options with parser
-vector<std::string> vcross_data, vcross_options;
-std::string crossection;
-bool vcross_optionschanged;
-
-void parse_vcross_options(const vector<string>& opts)
-{
-  // TODO almost the same code exists in bdiana_capi
-  // TODO this routine never clears vcross_options
-  bool data_exist = false;
-  int n = opts.size();
-  for (int i = 0; i < n; i++) {
-    std::string line = opts[i];
-    miutil::trim(line);
-    if (line.empty())
-      continue;
-    std::string upline = miutil::to_upper(line);
-
-    if (miutil::contains(upline, "CROSSECTION=")) {
-      vector<std::string> vs = miutil::split(line, "=");
-      crossection = vs[1];
-      if (miutil::contains(crossection, "\""))
-        miutil::remove(crossection, '\"');
-    } else if (miutil::contains(upline, "VCROSS ")) {
-      if (!data_exist)
-        vcross_data.clear();
-      vcross_data.push_back(line);
-      data_exist = true;
-    } else {
-      // assume plot-options
-      vcross_options.push_back(line);
-      vcross_optionschanged = true;
-    }
-  }
-}
 
 // SPECTRUM-options with parser
 std::string spectrum_station;
@@ -1643,7 +1608,11 @@ static int parseAndProcess(istream &is)
           != com_vcross_opt_end; i++, k++)
         pcom.push_back(lines[i]);
       k++;
-      parse_vcross_options(pcom);
+
+      if (!vcrossmanager)
+        vcrossmanager = miutil::make_shared<vcross::QtManager>();
+      vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+
       continue;
 
     } else if (miutil::to_lower(lines[k]) == com_spectrum_opt) {
@@ -1883,15 +1852,9 @@ static int parseAndProcess(istream &is)
         else
           vcrossmanager->setPlotWindow(deltax, deltay);
 
-        // extract options for plot
-        parse_vcross_options(pcom);
-
         if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        if (vcross_optionschanged)
-          vcrossmanager->getOptions()->readOptions(vcross_options);
-        vcross_optionschanged = false;
-        vcrossmanager->selectFields(vcross_data);
+          METLIBS_LOG_INFO("- sending vcross plot commands");
+        vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
 
         if (ptime.undef()) {
           thetime = vcrossmanager->getTimeValue();
@@ -1906,13 +1869,6 @@ static int parseAndProcess(istream &is)
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
           priop.fname = thetime.format(priop.fname);
-        }
-
-        if (verbose)
-          METLIBS_LOG_INFO("- setting cross-section:" << crossection);
-        if (not crossection.empty()) {
-          int idx = vcrossmanager->findCrossectionIndex(QString::fromStdString(crossection));
-          vcrossmanager->setCrossectionIndex(idx);
         }
 
         if (!raster && (!multiple_plots || multiple_newpage)) {

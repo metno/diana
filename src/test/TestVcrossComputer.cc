@@ -36,20 +36,10 @@
 
 #include <fstream>
 
-#define MILOGGER_CATEGORY "diana.test.VcrossComputer"
-#include "miLogger/miLogging.h"
-
 #include <gtest/gtest.h>
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
+#define MILOGGER_CATEGORY "diana.test.VcrossComputer"
+#include "miLogger/miLogging.h"
 
 using namespace vcross;
 
@@ -77,8 +67,6 @@ Source_p openFimexSource(const std::string& file)
 
 TEST(TestVcrossComputer, BangladeshTH)
 {
-  configureLogging();
-
   NameItem_v computations;
   computations.push_back(parseComputationLine("th = th_from_tk(air_temperature_pl)"));
 
