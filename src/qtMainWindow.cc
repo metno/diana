@@ -1094,9 +1094,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
         SLOT(crossectionSetChangedSlot(const LocationData&)));
     connect(vcInterface.get(), SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
         SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
-    connect (vcInterface.get(), SIGNAL(prevHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryPrevious()),
         SLOT(prevHVcrossPlot()));
-    connect (vcInterface.get(), SIGNAL(nextHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
         SLOT(nextHVcrossPlot()));
   }
 #endif

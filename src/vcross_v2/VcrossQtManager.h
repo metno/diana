@@ -219,7 +219,7 @@ private:
   void handleChangedCrossection();
 
   void handleChangedTimeList(const vctime_t& oldTime);
-  void handleChangedTime();
+  void handleChangedTime(int plotTimeIndex);
 
   void updateCrossectionsTimes();
 
