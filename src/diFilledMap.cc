@@ -829,6 +829,9 @@ void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
     float xylim[4], float jumplimit)
 {
   const float bigjump = 1000000;
+  bool antialiasing = glIsEnabled(GL_MULTISAMPLE);
+  if (antialiasing) glDisable(GL_MULTISAMPLE);
+
   glBegin(GL_TRIANGLES);
   for (int iv = i1; iv < i2; iv += 3) {
     float x1 = x[iv], x2 = x[iv + 1], x3 = x[iv + 2];
@@ -854,6 +857,7 @@ void FilledMap::clipTriangles(int i1, int i2, float * x, float * y,
   }
   glEnd();
 
+  if (antialiasing) glEnable(GL_MULTISAMPLE);
 }
 
 void FilledMap::clipPrimitiveLines(int i1, int i2, float *x, float *y,
