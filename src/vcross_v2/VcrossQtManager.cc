@@ -502,12 +502,14 @@ void QtManager::standardPart()
 
 void QtManager::saveZoom()
 {
-  mCrossectionZooms[getCrossectionLabel().toStdString()] = mPlot->viewGetCurrentZoom();
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  mCrossectionZooms[id] = mPlot->viewGetCurrentZoom();
 }
 
 void QtManager::restoreZoom()
 {
-  cs_zoom_t::const_iterator it = mCrossectionZooms.find(getCrossectionLabel().toStdString());
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  cs_zoom_t::const_iterator it = mCrossectionZooms.find(id);
   if (it != mCrossectionZooms.end())
     mPlot->viewSetCurrentZoom(it->second);
   else
