@@ -82,6 +82,37 @@ void printUsage()
        << "----------------------------------------------------------"<<endl;
 }
 
+namespace /* anonymous */ {
+
+::milogger::detail::Category QDEBUG_milogger("diana.qdebug");
+
+void qDebugMiLogging(QtMsgType type, const char *msg)
+{
+  milogger::detail::PriorityLevel loglevel = milogger::detail::DEBUG;
+  switch (type) {
+  case QtDebugMsg:
+    loglevel = milogger::detail::DEBUG;
+    break;
+  case QtWarningMsg:
+    loglevel = milogger::detail::WARN;
+    break;
+  case QtCriticalMsg:
+    loglevel = milogger::detail::ERROR;
+    break;
+  case QtFatalMsg:
+    loglevel = milogger::detail::FATAL;
+    break;
+  }
+
+  if (QDEBUG_milogger.isLoggingEnabled(loglevel))
+    QDEBUG_milogger.log(loglevel, msg);
+
+  if (loglevel == milogger::detail::FATAL)
+    abort();
+}
+
+} // anonymous namespace
+
 int main(int argc, char **argv)
 {
   cout << argv[0] << " : DIANA version: " << VERSION << "  build: "
@@ -170,6 +201,7 @@ int main(int argc, char **argv)
   // tell fimex to use log4cpp
   MetNoFimex::Logger::setClass(MetNoFimex::Logger::LOG4CPP);
   milogger::LoggingConfig log4cpp(logfilename);
+  qInstallMsgHandler(qDebugMiLogging);
 
   SetupParser::setUserVariables(user_variables);
   if (!LocalSetupParser::parse(setupfile)){
