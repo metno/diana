@@ -200,7 +200,7 @@ public:
   const std::vector<float>& getLongitudes(){return longitudeList;}
   const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
   std::vector <std::string> getModelNames();
-  std::vector <std::string> getModelFiles();
+  std::vector <std::string> getModelFiles(){return dialogFileNames;}
   std::vector <std::string> getReferencetimes(const std::string model);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
   void setSelectedModels(const std::vector<std::string>& models, bool obs=false);

@@ -221,17 +221,17 @@ void VprofManager::parseSetup()
         }
         if ( filetype !="standard" ) {
           sources.push_back(vstr[i]);
-
-          stationsfilenames[model]= stationsfilename;
-          filetypes[model] = filetype;
-        } else {
+        }
+//          stationsfilenames[model]= stationsfilename;
+//          filetypes[model] = filetype;
+//        } else {
           filenames[model]= filename;
           stationsfilenames[model]= stationsfilename;
           filetypes[model] = filetype;
           dialogModelNames.push_back(model);
           dialogFileNames.push_back(filename);
 
-        }
+        //}
       }
     }
 
@@ -250,13 +250,13 @@ void VprofManager::parseSetup()
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
   setup = miutil::make_shared<vcross::Setup>();
   setup->configureSources(sources);
-  vcross::string_v models = setup->getAllModelNames();
-  for ( size_t i=0; i<models.size() ;i++ ) {
-    METLIBS_LOG_INFO(LOGVAL(models[i]));
-    filenames[models[i]]= models[i];
-    dialogModelNames.push_back(models[i]);
-    dialogFileNames.push_back(models[i]);
-  }
+//  vcross::string_v models = setup->getAllModelNames();
+//  for ( size_t i=0; i<models.size() ;i++ ) {
+//    METLIBS_LOG_INFO(LOGVAL(models[i]));
+//    filenames[models[i]]= models[i];
+//    dialogModelNames.push_back(models[i]);
+//    dialogFileNames.push_back(models[i]);
+//  }
 
   setup->configureComputations(computations);
 
@@ -739,16 +739,6 @@ std::vector <std::string> VprofManager::getReferencetimes(const std::string mode
 
 /***************************************************************************/
 
-vector <std::string> VprofManager::getModelFiles()
-{
-  METLIBS_LOG_SCOPE();
-  parseSetup();
-  return dialogFileNames;
-}
-
-
-/***************************************************************************/
-
 void VprofManager::setFieldModels(const vector<string>& fieldmodels)
 {
   //called when model selected in field dialog
@@ -777,17 +767,14 @@ void VprofManager::setSelectedModels(const vector <std::string>& models,
     selectedModels.push_back(selectedModel);
   }
 
-  if ( obs ) {
-    showObsTemp = showObsPilot = showObsAmdar = true;
-  } else {
-    for ( size_t i=0; i<models.size(); ++i ) {
-      if( obs || selectedModels[i].model == "obs.temp" ) {
-        showObsTemp = true;
-      } else if( obs || selectedModels[i].model == "obs.pilot" ) {
-        showObsPilot= true;
-      } else if( obs || selectedModels[i].model == "obs.amdar" ) {
-        showObsAmdar= true;
-      }
+  showObsTemp = showObsPilot = showObsAmdar = obs;
+  for ( size_t i=0; i<models.size(); ++i ) {
+    if( selectedModels[i].model == "obs.temp" ) {
+      showObsTemp = true;
+    } else if( selectedModels[i].model == "obs.pilot" ) {
+      showObsPilot= true;
+    } else if( selectedModels[i].model == "obs.amdar" ) {
+      showObsAmdar= true;
     }
   }
   showObs= (showObsTemp || showObsPilot || showObsAmdar );
