@@ -41,7 +41,7 @@ namespace vcross {
 */
 class VcrossQuickmenues : public QObject {
   Q_OBJECT;
-  
+
 public:
   typedef std::vector<std::string> string_v;
 
@@ -49,6 +49,8 @@ public:
   ~VcrossQuickmenues();
 
   void selectFields(const string_v& fields);
+
+  static void parse(QtManager_p manager, const string_v& vstr);
 
   void parse(const string_v& vstr);
   string_v get() const;
@@ -78,8 +80,6 @@ private:
   bool mUpdatesFromScript;  //!< true if field changes come from a script
   bool mFieldsChanged;      //!< true if not only visibility changed
 };
-
-typedef boost::shared_ptr<QtManager> QtManager_p;
 
 } // namespace vcross
 

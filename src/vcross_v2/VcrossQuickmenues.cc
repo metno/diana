@@ -78,8 +78,14 @@ VcrossQuickmenues::~VcrossQuickmenues()
 
 void VcrossQuickmenues::parse(const std::vector<std::string>& qm_lines)
 {
+  parse(mManager, qm_lines);
+}
+
+
+// static
+void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string>& qm_lines)
+{
   METLIBS_LOG_SCOPE();
-  // TODO almost the same code exists in bdiana_capi
 
   string_v vcross_data, vcross_options;
   std::string crossection;
@@ -104,11 +110,11 @@ void VcrossQuickmenues::parse(const std::vector<std::string>& qm_lines)
     }
   }
 
-  mManager->getOptions()->readOptions(vcross_options);
-  mManager->selectFields(vcross_data);
+  manager->getOptions()->readOptions(vcross_options);
+  manager->selectFields(vcross_data);
   if (!crossection.empty()) {
-    const int idx = mManager->findCrossectionIndex(QString::fromStdString(crossection));
-    mManager->setCrossectionIndex(idx);
+    const int idx = manager->findCrossectionIndex(QString::fromStdString(crossection));
+    manager->setCrossectionIndex(idx);
   }
 }
 

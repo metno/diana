@@ -350,7 +350,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showTrajecDialogAction, SIGNAL( triggered() ) ,  SLOT( trajMenu() ) );
   // --------------------------------------------------------------------
   showAnnotationDialogAction = new QAction( tr("Annotation"), this );
-  showAnnotationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showAnnotationDialogAction->setShortcut(Qt::ALT+Qt::Key_L);
   showAnnotationDialogAction->setCheckable(true);
   showAnnotationDialogAction->setIconVisibleInMenu(true);
@@ -1094,9 +1093,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
         SLOT(crossectionSetChangedSlot(const LocationData&)));
     connect(vcInterface.get(), SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
         SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
-    connect (vcInterface.get(), SIGNAL(prevHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryPrevious()),
         SLOT(prevHVcrossPlot()));
-    connect (vcInterface.get(), SIGNAL(nextHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
         SLOT(nextHVcrossPlot()));
   }
 #endif

@@ -380,10 +380,8 @@ void QtManager::fillLocationData(LocationData& ld)
 
 void QtManager::setTimeIndex(int index)
 {
-  if (index != mPlotTime && index >= 0 && index < getTimeCount()) {
-    mPlotTime = index;
-    handleChangedTime();
-  }
+  if (index >= 0 && index < getTimeCount())
+    handleChangedTime(index);
 }
 
 
@@ -392,7 +390,7 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
   METLIBS_LOG_SCOPE();
 
   int bestTime = -1;
-  if (!mCrossectionTimes.empty()) {
+  if (getTimeCount()>0) {
     bestTime = 0;
     if (!time.undef()) {
       METLIBS_LOG_DEBUG(LOGVAL(time));
@@ -406,8 +404,7 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
       }
     }
   }
-  mPlotTime = bestTime;
-  handleChangedTime();
+  handleChangedTime(bestTime);
 }
 
 
@@ -449,9 +446,9 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
       }
     }
   }
-
   vctime_v newTimes;
   util::from_set(newTimes, times);
+
   if (mCrossectionTimes != newTimes) {
     std::swap(mCrossectionTimes, newTimes);
     mPlotTime = -1;
@@ -463,10 +460,13 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
 }
 
 
-void QtManager::handleChangedTime()
+void QtManager::handleChangedTime(int plotTimeIndex)
 {
-  dataChange |= CHANGED_TIME;
-  Q_EMIT timeIndexChanged(mPlotTime);
+  if (plotTimeIndex != mPlotTime) {
+    mPlotTime = plotTimeIndex;
+    dataChange |= CHANGED_TIME;
+    Q_EMIT timeIndexChanged(mPlotTime);
+  }
 }
 
 
@@ -502,12 +502,14 @@ void QtManager::standardPart()
 
 void QtManager::saveZoom()
 {
-  mCrossectionZooms[getCrossectionLabel().toStdString()] = mPlot->viewGetCurrentZoom();
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  mCrossectionZooms[id] = mPlot->viewGetCurrentZoom();
 }
 
 void QtManager::restoreZoom()
 {
-  cs_zoom_t::const_iterator it = mCrossectionZooms.find(getCrossectionLabel().toStdString());
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  cs_zoom_t::const_iterator it = mCrossectionZooms.find(id);
   if (it != mCrossectionZooms.end())
     mPlot->viewSetCurrentZoom(it->second);
   else
@@ -973,6 +975,12 @@ void QtManager::switchTimeGraph(bool on)
   mTimeGraphMode = on;
   Q_EMIT timeGraphModeChanged(mTimeGraphMode);
   handleChangedCrossectionList("");
+
+  // we cannot call handleChangedTimeList as mCrossectionTimes does
+  // not actually change; what changes is only the return value of
+  // getTimeCount(), which checks isTimeGraph()
+  Q_EMIT timeListChanged();
+
   dataChange |= CHANGED_SEL;
 }
 

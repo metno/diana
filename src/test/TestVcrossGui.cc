@@ -27,45 +27,23 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "TestVcrossQuickmenues.h"
 #include <vcross_v2/VcrossQtManager.h>
 #include <vcross_v2/VcrossQuickmenues.h>
 
+#include <QImage>
+#include <QPainter>
+
 #include <gtest/gtest.h>
 
-#define MILOGGER_CATEGORY "diana.test.VcrossQuickmenues"
+#define MILOGGER_CATEGORY "diana.test.VcrossGui"
 #include "miLogger/miLogging.h"
-
-namespace vcross {
-namespace test {
-
-QuickmenuSlots::QuickmenuSlots(VcrossQuickmenues* qm)
-{
-  connect(qm, SIGNAL(quickmenuUpdate(const std::string&, const std::vector<std::string>&)),
-      this, SLOT(onQuickmenuesUpdate(const std::string&, const std::vector<std::string>&)));
-}
-
-void QuickmenuSlots::reset()
-{
-  titles.clear();
-  qmenues.clear();
-}
-
-void QuickmenuSlots::onQuickmenuesUpdate(const std::string& t, const std::vector<std::string>& qm)
-{
-  titles.push_back(t);
-  qmenues.push_back(qm);
-}
-
-} // namespace test
-} // namespace vcross
 
 namespace {
 typedef std::vector<std::string> string_v;
 static const char AROME_FILE[] = "arome_vprof.nc";
 }
 
-TEST(TestVcrossQuickmenues, Script)
+TEST(TestVcrossGui, MicroBdiana)
 {
   string_v sources;
   sources.push_back("m=MODEL1 f=" TEST_SRCDIR "/" + std::string(AROME_FILE) + " t=netcdf");
@@ -85,49 +63,18 @@ TEST(TestVcrossQuickmenues, Script)
   vcross::QtManager_p manager(new vcross::QtManager);
   manager->parseSetup(sources, computations, plots);
 
-  vcross::VcrossQuickmenues qm(manager);
-
-  vcross::test::QuickmenuSlots qmslots(&qm);
-
   string_v qmlines;
   qmlines.push_back("VCROSS model=MODEL1 field=Vind colour=blue");
   qmlines.push_back("CROSSECTION=Nesbyen 6");
-  qm.parse(qmlines);
 
-  // no update here, we ran a script
-  EXPECT_EQ(0, qmslots.titles.size());
-  EXPECT_EQ(0, qmslots.qmenues.size());
-  qmslots.reset();
+  vcross::VcrossQuickmenues::parse(manager, qmlines);
 
-  // select a different crossection => expect qm update
-  manager->setCrossectionIndex(manager->findCrossectionIndex("Nesbyen 7"));
-  EXPECT_EQ(1, qmslots.titles.size());
-  EXPECT_EQ(1, qmslots.qmenues.size());
-  qmslots.reset();
-
-  // set a different style => expect qm update
-  manager->updateField(0, "colour=red");
-  EXPECT_EQ(1, qmslots.titles.size());
-  EXPECT_EQ(1, qmslots.qmenues.size());
-  qmslots.reset();
-
-  // add field => expect qm update
-  manager->addField(vcross::QtManager::PlotSpec("MODEL1", vcross::QtManager::vctime_t("2014-10-20 00:00:00"), "Temp(K)"),
-      "colour=black", -1);
-  EXPECT_EQ(1, qmslots.titles.size());
-  EXPECT_EQ(1, qmslots.qmenues.size());
-  qmslots.reset();
-
-  // set visibility => expect no qm update (as we have two fields)
-  manager->setFieldVisible(0, false);
-  manager->setFieldVisible(0, true);
-  EXPECT_EQ(0, qmslots.titles.size());
-  EXPECT_EQ(0, qmslots.qmenues.size());
-  qmslots.reset();
-
-  // remove all => expect no qm update
-  manager->removeAllFields();
-  EXPECT_EQ(0, qmslots.titles.size());
-  EXPECT_EQ(0, qmslots.qmenues.size());
-  qmslots.reset();
+  const int width = 600, height = 400;
+  manager->setPlotWindow(width, height);
+  QImage image(width, height, QImage::Format_ARGB32);
+  QPainter painter;
+  painter.begin(&image);
+  manager->plot(painter);
+  painter.end();
+  image.save(TEST_BUILDDIR "/fake_bdiana.png");
 }
