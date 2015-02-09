@@ -66,6 +66,8 @@ private:
 
   //functions
   void setModel();
+  QString getSelectedModelString();
+
 
 private slots:
   void modelfilelistClicked(QListWidgetItem*);

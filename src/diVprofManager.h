@@ -55,12 +55,6 @@ class VprofDiagram;
 */
 class VprofManager{
 
-public:
-  struct SelectedModel{
-    std::string model;
-    std::string reftime;
-  };
-
 private:
 
   enum obsType {
@@ -103,6 +97,11 @@ private:
     std::string databasefile;
 #endif
 
+  };
+
+  struct SelectedModel{
+    std::string model;
+    std::string reftime;
   };
 
   // std::map<model,filename>
@@ -204,7 +203,7 @@ public:
   std::vector <std::string> getModelFiles();
   std::vector <std::string> getReferencetimes(const std::string model);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<SelectedModel>& models, bool obs=false);
+  void setSelectedModels(const std::vector<std::string>& models, bool obs=false);
 
   bool plot();
   void startHardcopy(const printOptions& po);

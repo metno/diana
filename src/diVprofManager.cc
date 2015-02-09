@@ -758,28 +758,40 @@ void VprofManager::setFieldModels(const vector<string>& fieldmodels)
 
 /***************************************************************************/
 
-void VprofManager::setSelectedModels(const vector <SelectedModel>& models,
+void VprofManager::setSelectedModels(const vector <std::string>& models,
     bool obs)
 {
   METLIBS_LOG_SCOPE();
   //called when model selected in model dialog
+
+  selectedModels.clear();
+  for ( size_t i=0; i<models.size(); ++i ) {
+    SelectedModel selectedModel;
+    vector<std::string> vstr = miutil::split(models[i]," ");
+    if ( vstr.size() > 0 ) {
+      selectedModel.model = vstr[0];
+    }
+    if ( vstr.size() > 1 ) {
+      selectedModel.reftime = vstr[1];
+    }
+    selectedModels.push_back(selectedModel);
+  }
+
   if ( obs ) {
     showObsTemp = showObsPilot = showObsAmdar = true;
   } else {
     for ( size_t i=0; i<models.size(); ++i ) {
-      if( obs || models[i].model == "obs.temp" ) {
+      if( obs || selectedModels[i].model == "obs.temp" ) {
         showObsTemp = true;
-      } else if( obs || models[i].model == "obs.pilot" ) {
+      } else if( obs || selectedModels[i].model == "obs.pilot" ) {
         showObsPilot= true;
-      } else if( obs || models[i].model == "obs.amdar" ) {
+      } else if( obs || selectedModels[i].model == "obs.amdar" ) {
         showObsAmdar= true;
       }
     }
   }
   showObs= (showObsTemp || showObsPilot || showObsAmdar );
-  //set data from models, not files
-  selectedModels = models;
-  METLIBS_LOG_DEBUG(LOGVAL(models.size()));
+
 }
 
 
@@ -799,7 +811,7 @@ bool VprofManager::initVprofData(const SelectedModel& selectedModel)
 {
   METLIBS_LOG_SCOPE();
   std::string model_part=selectedModel.model.substr(0,selectedModel.model.find("@"));
-  std::auto_ptr<VprofData> vpd(new VprofData( selectedModel.model, stationsfilenames[model_part]));
+  std::auto_ptr<VprofData> vpd(new VprofData( selectedModel.model, stationsfilenames[selectedModel.model]));
   bool ok = false;
   if ( filetypes[model_part] == "standard") {
     ok = vpd->readFile(filenames[selectedModel.model]);
