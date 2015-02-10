@@ -490,15 +490,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     // TODO: Should be tested when more than one time step is available.
     if (!stationsFileName.empty()) {
       Source_p s = collector->getResolver()->getSource(modelName);
-      s->addDynamicCrossection(s->getLatestReferenceTime(), posName[iPos], LonLat_v(1, pos));
-    }
-
-    const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-    vector<miTime> rtv;
-    rtv.reserve(reftimes.size());
-    for (Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
-      rtv.push_back(util::to_miTime(*it));
-      METLIBS_LOG_DEBUG(LOGVAL(util::to_miTime(*it)));
+      s->addDynamicCrossection(reftime, posName[iPos], LonLat_v(1, pos));
     }
 
     const vcross::ModelReftime mr(modelName, reftime);
