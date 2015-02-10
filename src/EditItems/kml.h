@@ -32,8 +32,6 @@
 #ifndef KML_H
 #define KML_H
 
-#include "config.h"
-
 #include <QSet>
 #include <QString>
 #include <QStringList>
