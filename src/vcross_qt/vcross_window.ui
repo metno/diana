@@ -294,6 +294,22 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="toolShowStyle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Show style dialog</string>
+       </property>
+       <property name="text">
+        <string>Style</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QWidget" name="layerButtons" native="true"/>
      </item>
      <item>
@@ -593,6 +609,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>toolShowStyle</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onShowStyleDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>344</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddField()</slot>
@@ -606,6 +638,7 @@
   <slot>printClicked()</slot>
   <slot>saveClicked()</slot>
   <slot>onShowSetupDialog()</slot>
+  <slot>onShowStyleDialog()</slot>
   <slot>timeGraphClicked(bool)</slot>
   <slot>quitClicked()</slot>
   <slot>helpClicked()</slot>

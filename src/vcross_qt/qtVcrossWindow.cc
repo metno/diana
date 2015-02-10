@@ -84,6 +84,7 @@
 #include "info.xpm"
 #include "icon_settings.xpm"
 #include "kill.xpm"
+#include "palette.xpm"
 
 using namespace vcross;
 
@@ -227,6 +228,8 @@ void VcrossWindow::setupUi()
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
   new ActionButton(ui->toolAddField, ui->actionAddField, this);
 
+  ui->toolShowStyle->setIcon(QPixmap(palette_xpm));
+
   ui->toggleTimeGraph->setIcon(QPixmap(clock_xpm));
   ui->buttonClose->setIcon(QPixmap(exit_xpm));
   ui->buttonHelp->setIcon(QPixmap(info_xpm));
@@ -272,6 +275,14 @@ void VcrossWindow::onRemoveAllFields()
 }
 
 /***************************************************************************/
+
+void VcrossWindow::onShowStyleDialog()
+{
+  if (vcrossm && vcrossm->getFieldCount() > 0)
+    vcStyleDialog->showModelField(0);
+  vcStyleDialog->show();
+}
+
 
 void VcrossWindow::onFieldAction(int position, int action)
 {
