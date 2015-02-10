@@ -77,6 +77,7 @@ VprofData::~VprofData()
 
 void VprofData::readStationNames(const std::string& stationsfilename)
 {
+  METLIBS_LOG_SCOPE();
   FILE *stationfile;
   char line[1024];
 
@@ -182,9 +183,9 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   if (not inv)
     return false;
 
-  if (!inv->crossections.empty()) {
-    std::vector<station> stations;
-
+  if (!stationsFileName.empty()) {
+    readStationNames(stationsFileName);
+  } else {
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
       if (cs->points.size() != 1)
         continue;
@@ -194,12 +195,6 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
       posDeltaLatitude.push_back(0.0);
       posDeltaLongitude.push_back(0.0);
       posTemp.push_back(0);
-    }
-
-  } else {
-
-    if (!stationsFileName.empty()) {
-      readStationNames(stationsFileName);
     }
   }
 
@@ -495,15 +490,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     // TODO: Should be tested when more than one time step is available.
     if (!stationsFileName.empty()) {
       Source_p s = collector->getResolver()->getSource(modelName);
-      s->addDynamicCrossection(s->getLatestReferenceTime(), posName[iPos], LonLat_v(1, pos));
-    }
-
-    const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-    vector<miTime> rtv;
-    rtv.reserve(reftimes.size());
-    for (Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
-      rtv.push_back(util::to_miTime(*it));
-      METLIBS_LOG_INFO(LOGVAL(util::to_miTime(*it)));
+      s->addDynamicCrossection(reftime, posName[iPos], LonLat_v(1, pos));
     }
 
     const vcross::ModelReftime mr(modelName, reftime);

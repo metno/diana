@@ -139,20 +139,19 @@ void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
     selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
   } else {
     reftimeWidget->setCurrentRow(reftimeWidget->count()-1);
-    reftimeWidgetClicked(reftimeWidget->currentItem());
+    QString qstr = getSelectedModelString();
+    selectedModelsWidget->addItem(qstr);
+    selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
   }
 }
 
 void VprofModelDialog::reftimeWidgetClicked(QListWidgetItem* item)
 {
-  QString qstr = modelfileList->currentItem()->text() + " " + reftimeWidget->currentItem()->text();
 
   if ( selectedModelsWidget->count() && selectedModelsWidget->currentItem()->text().contains(modelfileList->currentItem()->text())) {
+    QString qstr = getSelectedModelString();
     QListWidgetItem* ii = selectedModelsWidget->item(selectedModelsWidget->currentRow());
     ii->setText(qstr);
-  } else {
-    selectedModelsWidget->addItem(qstr);
-    selectedModelsWidget->setCurrentRow(selectedModelsWidget->count()-1);
   }
 }
 
@@ -216,23 +215,24 @@ void VprofModelDialog::setModel()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<VprofManager::SelectedModel> selectedModels;
+  vector<std::string> selectedModels;
   int n = selectedModelsWidget->count();
   for (int i = 0; i < n; i++) {
-    VprofManager::SelectedModel selectedModel;
-    QString qstr = selectedModelsWidget->item(i)->text();
-    QStringList qstrl = qstr.split(" ");
-    if ( qstrl.size() > 0 ) {
-      selectedModel.model = qstrl[0].toStdString();
-    }
-    if ( qstrl.size() > 1 ) {
-      selectedModel.reftime = qstrl[1].toStdString();
-    }
-    selectedModels.push_back(selectedModel);
+    selectedModels.push_back(selectedModelsWidget->item(i)->text().toStdString());
   }
   vprofm->setSelectedModels(selectedModels);
 
 }
+
+QString VprofModelDialog::getSelectedModelString()
+{
+  QString qstr;
+  if ( modelfileList->currentItem() && reftimeWidget->currentItem()) {
+    qstr = modelfileList->currentItem()->text() + " " + reftimeWidget->currentItem()->text();
+  }
+  return qstr;
+}
+
 /*********************************************/
 
 void VprofModelDialog::updateModelfileList()
