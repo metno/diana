@@ -56,6 +56,7 @@ public:
   void makeVisible(bool visible) Q_DECL_OVERRIDE;
   void parseSetup() Q_DECL_OVERRIDE;
   void changeCrossection(const std::string& csName) Q_DECL_OVERRIDE;
+  void showTimegraph(const LonLat& position) Q_DECL_OVERRIDE;
   void mainWindowTimeChanged(const miutil::miTime& t) Q_DECL_OVERRIDE;
   void parseQuickMenuStrings(const std::vector<std::string>& vstr) Q_DECL_OVERRIDE;
   void writeLog(LogFileIO& logfile) Q_DECL_OVERRIDE;

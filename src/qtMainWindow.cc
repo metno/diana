@@ -2079,6 +2079,9 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         //now tell vpWindow about new station (this calls vpManager)
         if (vpWindow && !station.empty())
           vpWindow->changeStation(station);
+
+        if (vcInterface.get())
+          vcInterface->showTimegraph(LonLat::fromDegrees(lon, lat));
       }
     }
   }

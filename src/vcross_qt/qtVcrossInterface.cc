@@ -129,6 +129,13 @@ void VcrossWindowInterface::changeCrossection(const std::string& csName)
 }
 
 
+void VcrossWindowInterface::showTimegraph(const LonLat& position)
+{
+  vcrossm->switchTimeGraph(true);
+  vcrossm->setTimeGraph(position);
+}
+
+
 void VcrossWindowInterface::mainWindowTimeChanged(const miutil::miTime& t)
 {
   vcrossm->setTimeToBestMatch(t);
