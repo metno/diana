@@ -43,12 +43,14 @@
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
-#include <QPushButton> // ### FOR TESTING
-#include <QCheckBox> // ### FOR TESTING
+#include <QPushButton>
+#include <QCheckBox>
 #include <QDir>
 #include <qtUtility.h>
 
+#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
 #include <QDebug>
+#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
 
 namespace EditItems {
 
@@ -79,7 +81,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   hideLayout->addWidget(hideButton);
   mainLayout->addLayout(hideLayout);
 
-  // ### FOR TESTING
+#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   //
   QPushButton *dsButton = new QPushButton("dump structure");
@@ -104,6 +106,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
+#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
 
   // add connections
   connect(layersPane_, SIGNAL(updated()), editm_, SLOT(update()));
@@ -120,7 +123,7 @@ void EditDrawingDialog::handleNewEditLayerRequested(const QSharedPointer<Layer> 
   layersPane_->addDuplicate(layer);
 }
 
-// ### FOR TESTING:
+#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
 static void dumpLayerManagerStructure(const LayerManager *lm)
 {
   const QList<QSharedPointer<LayerGroup> > &layerGroups = lm->layerGroups();
@@ -174,13 +177,15 @@ static void dumpLayerManagerStructure(const LayerManager *lm)
     i++;
   }
 }
+#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
 
-// ### FOR TESTING:
 void EditDrawingDialog::dumpStructure()
 {
+#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
   qDebug() << "\nLAYER MANAGERS:";
   qDebug() << "\n1: In EditDrawingManager: =====================================";
   dumpLayerManagerStructure(editm_->getLayerManager());
+#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
 }
 
 void EditDrawingDialog::showInfo(bool checked)

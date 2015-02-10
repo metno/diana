@@ -51,11 +51,14 @@
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/kml.h>
-#include <QPushButton> // ### FOR TESTING
-#include <QCheckBox> // ### FOR TESTING
 #include <QMessageBox>
 #include <QDir>
+
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
+#include <QPushButton>
+#include <QCheckBox>
 #include <QDebug>
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
 namespace EditItems {
 
@@ -90,7 +93,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   mainLayout->addLayout(createStandardButtons());
 
-  // ### FOR TESTING
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   //
   QPushButton *dsButton = new QPushButton("dump structure");
@@ -105,6 +108,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
   // load available layer groups
   foreach (const QString &fileName, drawm_->getDrawings()) {
@@ -125,7 +129,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
 
-// ### FOR TESTING:
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
 static void dumpLayerManagerStructure(const LayerManager *lm)
 {
   const QList<QSharedPointer<LayerGroup> > &layerGroups = lm->layerGroups();
@@ -172,15 +176,17 @@ static void dumpLayerManagerStructure(const LayerManager *lm)
     i++;
   }
 }
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
-// ### FOR TESTING:
 void DrawingDialog::dumpStructure()
 {
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
   qDebug() << "\nLAYER MANAGERS:";
   qDebug() << "1: In DrawingDialog: =====================================";
   dumpLayerManagerStructure(layerMgr_);
   qDebug() << "\n2: In DrawingManager: =====================================";
   dumpLayerManagerStructure(drawm_->getLayerManager());
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 }
 
 void DrawingDialog::showInfo(bool checked)
