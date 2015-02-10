@@ -792,7 +792,7 @@ void parse_vprof_options(const vector<string>& opts)
 
 // SPECTRUM-options with parser
 std::string spectrum_station;
-vector<string> spectrum_models, spectrum_options;
+vector<string> spectrum_models,spectrum_options;
 bool spectrum_optionschanged;
 
 static void parse_spectrum_options(const vector<string>& opts)
@@ -1902,7 +1902,7 @@ static int parseAndProcess(istream &is)
 
         // -- vprof plot
         if (!vprofmanager) {
-          vprofmanager = new VprofManager(main_controller);
+          vprofmanager = new VprofManager();
           vprofmanager->parseSetup();
         }
 
@@ -1991,7 +1991,7 @@ static int parseAndProcess(istream &is)
         if (spectrum_optionschanged)
           spectrummanager->getOptions()->readOptions(spectrum_options);
         spectrum_optionschanged = false;
-        spectrummanager->setSelectedModels(spectrum_models, false);
+        spectrummanager->setSelectedModels(spectrum_models);
         spectrummanager->setModel();
 
         if (ptime.undef()) {
@@ -2419,7 +2419,7 @@ static int parseAndProcess(istream &is)
       FIND_END_COMMAND(com_endtime)
 
       if (!vprofmanager) {
-        vprofmanager = new VprofManager(main_controller);
+        vprofmanager = new VprofManager();
       vprofmanager->parseSetup();
       }
       // extract options for plot
@@ -2480,7 +2480,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, false);
+      spectrummanager->setSelectedModels(spectrum_models);
       spectrummanager->setModel();
 
       if (ptime.undef()) {
@@ -2790,7 +2790,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, false);
+      spectrummanager->setSelectedModels(spectrum_models);
       spectrummanager->setModel();
 
       if (ptime.undef()) {

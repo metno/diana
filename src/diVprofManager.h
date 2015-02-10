@@ -34,7 +34,6 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diField/TimeFilter.h>
-#include <diController.h>
 
 #include "vcross_v2/VcrossSetup.h"
 
@@ -175,7 +174,7 @@ private:
 
 public:
   // constructor
-  VprofManager(Controller *co);
+  VprofManager();
   // destructor
   ~VprofManager();
 

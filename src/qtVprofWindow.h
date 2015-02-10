@@ -32,7 +32,6 @@
 #define _qt_vprofmainwindow_
 
 #include <qstring.h>
-#include <diController.h>
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 
@@ -47,6 +46,7 @@ class VprofWidget;
 class VprofManager;
 class VprofModelDialog;
 class VprofSetupDialog;
+class StationPlot;
 class QPrinter;
 
 /**
@@ -60,13 +60,12 @@ class VprofWindow: public QMainWindow
   Q_OBJECT
 
 public:
-  VprofWindow(Controller *co);
+  VprofWindow();
   ~VprofWindow(){}
 
   StationPlot* getStations();
   void changeStation(const std::string& station);
   void changeStations(const std::vector<std::string>& stations);
-  void setFieldModels(const std::vector<std::string>& fieldmodels);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
 

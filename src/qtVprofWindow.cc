@@ -64,10 +64,10 @@
 
 using namespace std;
 
-VprofWindow::VprofWindow(Controller *co)
+VprofWindow::VprofWindow()
 : QMainWindow( 0)
 {
-  vprofm = new VprofManager(co);
+  vprofm = new VprofManager();
 
   setWindowTitle( tr("Diana Vertical Profiles") );
 
@@ -697,15 +697,6 @@ void VprofWindow::changeStations(const std::vector<string>& stations)
   stationChanged();
 }
 
-
-/***************************************************************************/
-
-void VprofWindow::setFieldModels(const vector<string>& fieldmodels)
-{
-  vprofm->setFieldModels(fieldmodels);
-  if (active)
-    changeModel();
-}
 
 /***************************************************************************/
 

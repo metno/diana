@@ -1065,7 +1065,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // vertical profiles
   // create a new main window
 #ifndef DISABLE_VPROF
-  vpWindow = new VprofWindow(contr);
+  vpWindow = new VprofWindow();
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
@@ -1251,10 +1251,6 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
   miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   contr->updatePlots();
-  //find current field models and send to vprofwindow..
-  vector <string> fieldmodels = contr->getFieldModels();
-  if (vpWindow) vpWindow->setFieldModels(fieldmodels);
-  if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
   timeChanged();
 
@@ -1479,10 +1475,6 @@ void DianaMainWindow::MenuOK()
   contr->updatePlots();
   METLIBS_LOG_INFO(contr->getMapArea());
 
-  //find current field models and send to vprofwindow..
-  vector<string> fieldmodels = contr->getFieldModels();
-  if (vpWindow) vpWindow->setFieldModels(fieldmodels);
-  if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
   timeChanged();
   dialogChanged = false;
@@ -3219,7 +3211,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   //at
   vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
-  if (vpWindow)
+  if (vpWindow&& stations.size()!=0)
     vpWindow->changeStations(stations);
 
   //find the name of station we clicked/pointed

@@ -35,6 +35,7 @@
 #include <diPrintOptions.h>
 
 #include <puTools/miTime.h>
+#include "vcross_v2/VcrossSetup.h"
 
 #include <vector>
 #include <map>
@@ -50,6 +51,8 @@ class SpectrumPlot;
 */
 class SpectrumManager
 {
+
+
 private:
 
   struct StationPos {
@@ -58,10 +61,16 @@ private:
     std::string obs;
   };
 
+  struct SelectedModel{
+    std::string model;
+    std::string reftime;
+  };
+
   // map<model,filename>
   std::map<std::string,std::string> filenames;
   std::map<std::string,std::string> filetypes;
   std::map<std::string,std::string> filesetup;
+  vcross::Setup_p setup;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
@@ -77,10 +86,7 @@ private:
   std::vector<float> longitudeList;
   std::vector<miutil::miTime>   timeList;
 
-  std::vector<std::string> fieldModels;
-  std::vector<std::string> selectedModels;
-  std::vector<std::string> selectedFiles;
-  std::set<std::string> usemodels;
+  std::vector<SelectedModel> selectedModels;
 
   int plotw, ploth;
 
@@ -99,7 +105,7 @@ private:
   std::map<std::string,std::string> menuConst;
 
   std::string getDefaultModel();
-  bool initSpectrumFile(std::string file,std::string model);
+  bool initSpectrumFile(const SelectedModel& selectedModel);
   void initStations();
   void initTimes();
   void preparePlot();
@@ -133,11 +139,10 @@ public:
 
   std::vector<std::string> getModelNames();
   std::vector<std::string> getModelFiles();
-  void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<std::string>& models, bool field);
-  void setSelectedFiles(const std::vector<std::string>& files, bool field);
+  std::vector <std::string> getReferencetimes(const std::string model);
+  void setSelectedModels(const std::vector<std::string>& models);
 
-  std::vector<std::string> getSelectedModels();
+//  std::vector<std::string> getSelectedModels();
 
   bool plot();
   void startHardcopy(const printOptions& po);
