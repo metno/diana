@@ -2419,7 +2419,7 @@ void ObsPlot::plotList(int index)
       printUndef(xpos, ypos, align_right);
     }
   }
-  printListParameter(dta, "n", xpos, ypos, yStep, align_right, 0);
+  printListParameter(dta, "N", xpos, ypos, yStep, align_right, 0);
   printListRRR(dta, "RRR", xpos, ypos, yStep, align_right);
   if (pFlag.count("ww")) {
     ypos -= yStep;
