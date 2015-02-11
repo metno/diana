@@ -244,6 +244,17 @@ void QtManager::removeDynamicCrossection(const QString& label)
   handleChangedCrossectionList(before);
 }
 
+LonLat_v QtManager::getDynamicCrossectionPoints(const QString& label)
+{
+  const ModelReftime& mr = mCollector->getFirstModel();
+  if (Source_p src = mCollector->getSetup()->findSource(mr.model))
+    if (Inventory_cp inv = src->getInventory(mr.reftime))
+      if (Crossection_cp cs = inv->findCrossectionByLabel(label.toStdString()))
+        if (cs->dynamic())
+          return cs->points;
+  return LonLat_v();
+}
+
 void QtManager::handleChangedCrossectionList(const QString& oldLabel)
 {
   METLIBS_LOG_SCOPE(LOGVAL(oldLabel.toStdString()));
@@ -334,7 +345,6 @@ void QtManager::handleChangedCrossection()
 
 void QtManager::getCrossections(LocationData& locationdata)
 {
-  METLIBS_LOG_SCOPE();
   locationdata = locationData;
 }
 
@@ -847,7 +857,7 @@ void QtManager::updateField(int idx, const std::string& fieldOpts)
 
 void QtManager::removeField(int idx)
 {
-  if (idx < 0 || idx >= mCollector->getSelectedPlots().size())
+  if (idx < 0 || idx >= mCollector->countSelectedPlots())
     return;
 
   mCollector->removePlot(idx);
@@ -980,8 +990,10 @@ void QtManager::switchTimeGraph(bool on)
   // not actually change; what changes is only the return value of
   // getTimeCount(), which checks isTimeGraph()
   Q_EMIT timeListChanged();
+  if (!mCrossectionTimes.empty())
+    setTimeToBestMatch(mCrossectionTimes[0]);
 
-  dataChange |= CHANGED_SEL;
+  dataChange |= CHANGED_SEL | CHANGED_TIME;
 }
 
 
