@@ -88,6 +88,45 @@ static const char* horizontal(bool timegraph)
   return timegraph ? vcross::Values::TIME : vcross::Values::GEO_X;
 }
 
+// begin utility functions for y ticks
+
+float identity(float x)
+{
+  return x;
+}
+
+float foot_to_meter(float ft)
+{
+  return ft / MetNo::Constants::ft_per_m;
+}
+
+float FL_to_hPa(float fl)
+{
+  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
+  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+}
+
+typedef std::vector<float> ticks_t;
+
+ticks_t ticks_table(const float* table, int size)
+{
+  return ticks_t(table, table + size);
+}
+
+ticks_t ticks_auto(float start, float end, float scale, float offset)
+{
+  scale = std::abs(scale);
+  if ((start > end) != (offset < 0))
+    offset *= -1;
+  ticks_t ticks(1, start);
+  while ((offset > 0 && ticks.back() < end)
+      || (offset < 0 && ticks.back() > end))
+    ticks.push_back(ticks.back()*scale + offset);
+  return ticks;
+}
+
+// end utility functions for y ticks
+
 static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
@@ -99,8 +138,6 @@ static const float CHARS_POS_RIGHT = 1.9;
 static const float CHARS_TIME = 2.5;
 
 static const float MAX_FRAMETEXT = 0.4;
-
-static const bool showbearing = true;
 
 } // namespace anonymous
 
@@ -541,7 +578,7 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       charsXrght = charsXleft;
     }
     if (mOptions->pGeoPos) {
-      linesYbot += showbearing ? LINES_3 : LINES_2;
+      linesYbot += mOptions->pCompass ? LINES_3 : LINES_2;
       vcross::util::maximize(charsXleft, CHARS_POS_LEFT);
       vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
     }
@@ -640,11 +677,16 @@ void QtPlot::plot(QPainter& painter)
 
   updateCharSize(painter);
 
+  ticks_t tickValues;
+  tick_to_axis_f tta = identity;
+  generateYTicks(tickValues, tta);
+
   plotVerticalGridLines(painter);
+  plotHorizontalGridLines(painter, tickValues, tta);
   plotSurface(painter);
   const std::vector<std::string> annotations = plotData(painter);
 
-  plotFrame(painter);
+  plotFrame(painter, tickValues, tta);
   plotText(painter, annotations);
   plotXLabels(painter);
   plotTitle(painter);
@@ -716,7 +758,7 @@ void QtPlot::plotXLabels(QPainter& painter)
         if (mAxisX->legalPaint(tickX)) {
           if (tickX >= nextLabelX) {
             float lY = labelY, labelWb = 0;
-            if (showbearing) {
+            if (mOptions->pCompass) {
               labelWb = std::max(mCharSize.width(), mCharSize.height());
               const float s2 = labelWb / 2, b = mCrossectionBearings.at(i);
               const float bdx = s2*std::sin(b), bdy = -s2*std::cos(b);
@@ -740,7 +782,7 @@ void QtPlot::plotXLabels(QPainter& painter)
           }
         }
       }
-      labelY += (showbearing ? LINES_3 : LINES_2) * mCharSize.height();
+      labelY += (mOptions->pCompass ? LINES_3 : LINES_2) * mCharSize.height();
     }
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
@@ -848,77 +890,35 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
   }
 }
 
-namespace /* anonymous */ {
-typedef float (*tick_to_axis_f)(float);
-
-float identity(float x)
+void QtPlot::plotHorizontalGridLines(QPainter& painter,
+    const ticks_t& tickValues, tick_to_axis_f& tta)
 {
-  return x;
+  if (not mOptions->pHorizontalGridLines)
+    return;
+
+  QPen pen(vcross::util::QC(colourOrContrast(mOptions->horgridColour)), mOptions->horgridLinewidth);
+  vcross::util::setDash(pen, mOptions->horgridLinetype);
+  painter.setPen(pen);
+
+  const float tickX0 = mAxisX->getPaintMin(), tickX1 = mAxisX->getPaintMax();
+  for (size_t i=0; i<tickValues.size(); ++i) {
+    const float axisValue = tta(tickValues[i]);
+    const float axisY = mAxisY->value2paint(axisValue);
+    if (!mAxisY->legalPaint(axisY))
+      continue;
+
+    // paint tick mark
+    painter.drawLine(QLineF(tickX0, axisY, tickX1, axisY));
+  }
 }
 
-float foot_to_meter(float ft)
+void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
 {
-  return ft / MetNo::Constants::ft_per_m;
-}
-
-float FL_to_hPa(float fl)
-{
-  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
-  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
-}
-
-typedef std::vector<float> ticks_t;
-
-ticks_t ticks_table(const float* table, int size)
-{
-  return ticks_t(table, table + size);
-}
-
-ticks_t ticks_auto(float start, float end, float scale, float offset)
-{
-  scale = std::abs(scale);
-  if ((start > end) != (offset < 0))
-    offset *= -1;
-  ticks_t ticks(1, start);
-  while ((offset > 0 && ticks.back() < end)
-      || (offset < 0 && ticks.back() > end))
-    ticks.push_back(ticks.back()*scale + offset);
-  return ticks;
-}
-
-} // anonymous namespace
-
-void QtPlot::plotFrame(QPainter& painter)
-{
-  METLIBS_LOG_SCOPE();
-
   using namespace MetNo::Constants;
 
-  if (!(mOptions->pFrame || mOptions->pLevelNumbers))
-    return;
+  tickValues.clear();
+  tta = identity;
 
-  // colour etc. for frame etc.
-  const QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)),
-      mOptions->frameLinewidth);
-
-  if (mOptions->pFrame) {
-    // paint frame
-    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()),
-        max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
-
-    QPen penFrame(pen);
-    // no stipple for ticks
-    vcross::util::setDash(penFrame, mOptions->frameLinetype);
-    painter.setPen(penFrame);
-    painter.drawRect(QRectF(min, max));
-  }
-
-  if (!mOptions->pLevelNumbers)
-    return;
-
-  typedef std::vector<float> ticks_t;
-  ticks_t tickValues;
-  tick_to_axis_f tta = identity;
   float autotick_offset = 0, autotick_scale = 1;
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
@@ -972,6 +972,34 @@ void QtPlot::plotFrame(QPainter& painter)
       METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
     }
   }
+}
+
+void QtPlot::plotFrame(QPainter& painter,
+    const ticks_t& tickValues, tick_to_axis_f& tta)
+{
+  METLIBS_LOG_SCOPE();
+
+  if (!(mOptions->pFrame || mOptions->pLevelNumbers))
+    return;
+
+  // colour etc. for frame etc.
+  const QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)),
+      mOptions->frameLinewidth);
+
+  if (mOptions->pFrame) {
+    // paint frame
+    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()),
+        max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
+
+    QPen penFrame(pen);
+    // no stipple for ticks
+    vcross::util::setDash(penFrame, mOptions->frameLinetype);
+    painter.setPen(penFrame);
+    painter.drawRect(QRectF(min, max));
+  }
+
+  if (!mOptions->pLevelNumbers)
+    return;
 
   painter.setPen(pen);
 

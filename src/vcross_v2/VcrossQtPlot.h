@@ -125,8 +125,15 @@ public:
 private:
   bool plotBackground(const std::vector<std::string>& labels);
 
-  void plotFrame(QPainter& painter);
+  typedef std::vector<float> ticks_t;
+  typedef float (*tick_to_axis_f)(float);
+  void generateYTicks(ticks_t& ticks, tick_to_axis_f& tta);
+
+  void plotFrame(QPainter& painter,
+      const ticks_t& tickValues, tick_to_axis_f& tta);
   void plotVerticalGridLines(QPainter& painter);
+  void plotHorizontalGridLines(QPainter& painter,
+      const ticks_t& tickValues, tick_to_axis_f& tta);
   void plotSurface(QPainter& painter);
   void plotXLabels(QPainter& painter);
   void plotTitle(QPainter& painter);
