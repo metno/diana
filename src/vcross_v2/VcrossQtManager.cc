@@ -600,7 +600,10 @@ void QtManager::preparePlot()
     mPlot->setHorizontalTime(ll, mCrossectionTimes);
   }
 
-  mPlot->setVerticalAxis();
+  if (mPlot->setVerticalAxis()) {
+    mPlot->viewStandard();
+    mCrossectionZooms.clear();
+  }
 
   const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, zType);
   for (EvaluatedPlot_cpv::const_iterator it = evaluated_plots.begin(); it != evaluated_plots.end(); ++it)

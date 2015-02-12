@@ -408,12 +408,21 @@ void QtPlot::setHorizontalTime(const LonLat& tgPosition, const std::vector<miuti
   }
 }
 
-void QtPlot::setVerticalAxis()
+bool QtPlot::setVerticalAxis()
 {
+  const std::string oldLabel = mAxisY->label();
+
   mAxisY->setType(mOptions->verticalScale);
   mAxisY->setQuantity(mOptions->verticalCoordinate);
   mAxisY->setLabel(mOptions->verticalUnit);
+
+  const std::string newLabel = mAxisY->label();
+  const bool verticalChange = (oldLabel != newLabel);
+  if (verticalChange)
+    mKeepY = false;
+
   mViewChanged = true;
+  return verticalChange;
 }
 
 QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)

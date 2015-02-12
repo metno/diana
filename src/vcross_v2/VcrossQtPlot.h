@@ -114,7 +114,7 @@ public:
   void setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
       const LonLat_v& csPoints);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
-  void setVerticalAxis();
+  bool setVerticalAxis();
   void setSurface(Values_cp s)
     { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);

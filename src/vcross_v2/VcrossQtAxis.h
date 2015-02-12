@@ -53,6 +53,8 @@ struct Axis {
     { return mLabel; }
 
   bool setType(const std::string& t);
+  Type type() const
+    { return mType; }
   bool setQuantity(const std::string& q);
   Quantity quantity() const
     { return mQuantity; }
@@ -75,7 +77,7 @@ private:
 
 private:
   bool horizontal;
-  Type type;
+  Type mType;
   Quantity mQuantity;
   std::string mLabel;
 
