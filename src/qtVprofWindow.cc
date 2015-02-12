@@ -75,7 +75,6 @@ VprofWindow::VprofWindow()
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
-  fmt.setDirectRendering(false);
 #endif
   //central widget
 #if !defined(USE_PAINTGL)
