@@ -68,7 +68,7 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   sxlabel->setMinimumSize(sxlabel->sizeHint());
   thlayout->addWidget(sxlabel, 0);
 
-  latlabel = new QLabel(" 00°00'N", this);
+  latlabel = new QLabel(" 00\xB0""00'N", this);
   latlabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   latlabel->setMinimumSize(latlabel->sizeHint());
   thlayout->addWidget(latlabel, 0);
@@ -79,7 +79,7 @@ StatusGeopos::StatusGeopos(QWidget* parent) :
   sylabel->setMinimumSize(sylabel->sizeHint());
   thlayout->addWidget(sylabel, 0);
 
-  lonlabel = new QLabel("000°00'W", this);
+  lonlabel = new QLabel("000\xB0""00'W", this);
   lonlabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   lonlabel->setMinimumSize(lonlabel->sizeHint());
   thlayout->addWidget(lonlabel, 0);
@@ -132,17 +132,17 @@ void StatusGeopos::setPosition(float lat, float lon)
       deg = min / 60;
       min = min % 60;
       if (lat >= 0.0)
-        slat << setw(2) << deg << "°" << setw(2) << setfill('0') << min << "'N";
+        slat << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min << "'N";
       else
-        slat << setw(2) << deg << "°" << setw(2) << setfill('0') << min << "'S";
+        slat << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min << "'S";
 
       min = int(fabsf(lon) * 60. + 0.5);
       deg = min / 60;
       min = min % 60;
       if (lon >= 0.0)
-        slon << setw(3) << deg << "°" << setw(2) << setfill('0') << min << "'E";
+        slon << setw(3) << deg << "\xB0" << setw(2) << setfill('0') << min << "'E";
       else
-        slon << setw(3) << deg << "°" << setw(2) << setfill('0') << min << "'W";
+        slon << setw(3) << deg << "\xB0" << setw(2) << setfill('0') << min << "'W";
     }
   } else if (xybox->currentIndex() == 4){
     sxlabel->setText("  Mark:");

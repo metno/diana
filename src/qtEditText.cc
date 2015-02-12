@@ -60,7 +60,7 @@ using namespace std;
 QValidator::State EditText::complexValidator::validate(QString& inputString, int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  if (not inputString.contains("0°:")) {
+  if (not inputString.contains("0\xB0:")) {
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;

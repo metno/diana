@@ -374,13 +374,13 @@ void Controller::processHqcCommand(const std::string& command,
 }
 
 //plot trajectory position
-void Controller::trajPos(vector<string>& str)
+void Controller::trajPos(const vector<string>& str)
 {
   plotm->trajPos(str);
 }
 
 //plot measurements position
-void Controller::measurementsPos(vector<string>& str)
+void Controller::measurementsPos(const vector<string>& str)
 {
   plotm->measurementsPos(str);
 }

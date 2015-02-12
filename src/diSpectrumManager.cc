@@ -397,7 +397,7 @@ vector <std::string> SpectrumManager::getModelFiles()
   return modelfiles;
 }
 
-std::vector <std::string> SpectrumManager::getReferencetimes(const std::string modelName)
+std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& modelName)
 {
   std::vector <std::string> rf;
   if ( filetypes[modelName] == "standard" )

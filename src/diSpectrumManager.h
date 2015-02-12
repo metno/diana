@@ -31,11 +31,11 @@
 #ifndef SPECTRUMMANAGER_H
 #define SPECTRUMMANAGER_H
 
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
+#include "diCommonTypes.h"
+#include "diPrintOptions.h"
+#include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
-#include "vcross_v2/VcrossSetup.h"
 
 #include <vector>
 #include <map>
@@ -51,10 +51,7 @@ class SpectrumPlot;
 */
 class SpectrumManager
 {
-
-
 private:
-
   struct StationPos {
     float latitude;
     float longitude;
@@ -79,7 +76,6 @@ private:
   SpectrumOptions *spopt;
   std::vector<SpectrumFile*> spfile;
   std::vector<SpectrumData*> spdata;
-  bool asField;
 
   std::vector<std::string> nameList;
   std::vector<float> latitudeList;
@@ -111,9 +107,7 @@ private:
   void preparePlot();
 
 public:
-  // constructor
   SpectrumManager();
-  // destructor
   ~SpectrumManager();
 
   void parseSetup();
@@ -129,9 +123,9 @@ public:
   std::string setStation(int step);
   miutil::miTime setTime(int step);
 
-  const miutil::miTime getTime(){return plotTime;}
-  const std::string getStation() { return plotStation; }
-  const std::string getLastStation() { return lastStation; }
+  const miutil::miTime& getTime(){return plotTime;}
+  const std::string& getStation() { return plotStation; }
+  const std::string& getLastStation() { return lastStation; }
   const std::vector<std::string>& getStationList() { return nameList; }
   const std::vector<float>& getLatitudes() { return latitudeList; }
   const std::vector<float>& getLongitudes() { return longitudeList; }
@@ -139,10 +133,8 @@ public:
 
   std::vector<std::string> getModelNames();
   std::vector<std::string> getModelFiles();
-  std::vector <std::string> getReferencetimes(const std::string model);
+  std::vector <std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const std::vector<std::string>& models);
-
-//  std::vector<std::string> getSelectedModels();
 
   bool plot();
   void startHardcopy(const printOptions& po);
@@ -150,7 +142,7 @@ public:
   void mainWindowTimeChanged(const miutil::miTime& time);
   std::string getAnnotationString();
 
-  void setMenuConst(std::map<std::string,std::string> mc)
+  void setMenuConst(const std::map<std::string,std::string>& mc)
     { menuConst = mc;}
 
   std::vector<std::string> writeLog();

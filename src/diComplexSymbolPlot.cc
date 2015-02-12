@@ -252,7 +252,7 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
     currentSymbolStrings.push_back("");
     break;
   case 1036:
-    currentSymbolStrings.push_back("0°:x");
+    currentSymbolStrings.push_back("0\xB0:x"); // was "0°:x";
     currentSymbolStrings.push_back("");
     break;
  case 1040:
@@ -1421,18 +1421,11 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 900:
       getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-      if (xstrings.size()>0)
+      if (xstrings.size()>0) {
 	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-      //if (xstrings.size()>1)
-	//getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
-      //if (cw1>cw2)
 	sw=cw1;
-      //else
-	//sw=cw2;
-      //if (ch1>ch2)
 	sh=2.0*ch1;
-      //else
-	//sh=2.0*ch2;
+      }
       break;
     case 1000:
       if (symbolStrings.size()>0){
@@ -1473,18 +1466,18 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 1007:
       getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-      if (xstrings.size()>0)
+      if (xstrings.size()>0) {
 	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-      if (xstrings.size()>1)
-	getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
-      if (cw1>cw2)
 	sw=cw1;
-      else
-	sw=cw2;
-      if (ch1>ch2)
 	sh=2.0*ch1;
-      else
-	sh=2.0*ch2;
+        if (xstrings.size()>1) {
+          getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
+          if (cw1<cw2)
+            sw=cw2;
+          if (ch1<ch2)
+            sh=2.0*ch2;
+        }
+      }
       break;
     case 1008:
       getComplexSize(1001,cw1,ch1);
