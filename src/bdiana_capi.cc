@@ -3871,6 +3871,7 @@ int diana_dealloc()
     delete spectrummanager;
   if (main_controller)
     delete main_controller;
+  vcrossmanager = vcross::QtManager_p();
 
   return DIANA_OK;
 }
