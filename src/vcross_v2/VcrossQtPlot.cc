@@ -584,18 +584,14 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
     }
     linesLabel = 2; // crossection label and time
   } else /* timeGraph */ {
-#if 0
-    // time graph: hour/date/forecast (not if text is off)
-    if (mOptions->pText) {
-      linesYbot += LINES_3;
+    // time graph: only one position (and only one line needed)
+    if (mOptions->pDistance or mOptions->pGeoPos) {
+      linesYbot += LINES_2;
+      // TODO extra line to show forecast hour
+      // linesYbot += LINES_1;
       vcross::util::maximize(charsXleft, CHARS_TIME);
       charsXrght = charsXleft;
     }
-#endif
-    // time graph: only one position (and only one line needed)
-    if (mOptions->pDistance or mOptions->pGeoPos)
-      linesYbot += LINES_2;
-
     linesLabel = 1; // timegraph position
   }
 

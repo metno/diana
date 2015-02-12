@@ -1020,7 +1020,7 @@ void QtManager::setTimeGraph(const LonLat& position)
   if (!cs)
     return;
 
-  size_t cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
+  int cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
   if (cs_index >= 0)
     setCrossectionIndex(cs_index);
 }
