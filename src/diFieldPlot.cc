@@ -2712,6 +2712,9 @@ bool FieldPlot::plotContour()
 
     int idraw2 = 0;
 
+    if (poptions.antialiasing)
+      glDisable(GL_MULTISAMPLE);
+
     METLIBS_LOG_TIME("contour");
     res = contour(rnx, rny, data, x, y, ipart, 2, NULL, xylim, idraw, zrange,
         zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim,
@@ -2721,6 +2724,8 @@ bool FieldPlot::plotContour()
         getStaticPlot()->psoutput, fields[0]->area, fieldUndef, getModelName(), fields[0]->name,
         ftime.hour());
 
+    if (poptions.antialiasing)
+      glEnable(GL_MULTISAMPLE);
   }
 
   //Plot contour lines
