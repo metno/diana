@@ -323,7 +323,7 @@ public:
 
   // Trajectories
   /// handles trajectory plot info strings
-  void trajPos(std::vector<std::string>&);
+  void trajPos(const std::vector<std::string>&);
   std::vector<std::string> getTrajectoryFields();
   bool startTrajectoryComputation();
   void stopTrajectoryComputation();
@@ -331,7 +331,7 @@ public:
   bool printTrajectoryPositions(const std::string& filename);
 
   // Measurements (distance, velocity)
-  void measurementsPos(std::vector<std::string>&);
+  void measurementsPos(const std::vector<std::string>&);
 
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool on)

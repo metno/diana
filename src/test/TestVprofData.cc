@@ -19,9 +19,7 @@ using namespace vcross;
 
 const char AROME_FILE[] = "arome_vprof.nc";
 const int AROME_N_CS = 6;
-const int AROME_CS_LEN[AROME_N_CS] = { 14, 14, 14, 1, 1 };
 const int AROME_N_TIME = 2;
-const int AROME_N_Z = 65;
 const char AROME_RTT[] = "2014-10-20 00:00:00";
 
 static const char BANGKOK_FILE[] = "bangkok_sonde.nc";

@@ -128,6 +128,13 @@ void VcrossOptions::setDefaults()
   pGeoPos= true;
   geoposColour= "black";
 
+  pCompass= true;
+
+  pHorizontalGridLines= true;
+  horgridColour= "grey90";
+  horgridLinetype= "dot";
+  horgridLinewidth= 1.;
+
   pVerticalGridLines= false;
   vergridColour= "black";
   vergridLinetype= "solid";
@@ -260,6 +267,15 @@ std::vector<std::string> VcrossOptions::writeOptions()
       << " geoposColour=" << geoposColour));
 
   vstr.push_back((StringBuilder()
+      << "Compass=" << asBool(pCompass)));
+
+  vstr.push_back((StringBuilder()
+      << "HorizontalGridLines=" << asBool(pHorizontalGridLines)
+      << " horgridColour=" << horgridColour
+      << " horgridLinetype=" << horgridLinetype
+      << " horgridLinewidth=" << horgridLinewidth));
+
+  vstr.push_back((StringBuilder()
       << "VerticalGridLines=" << asBool(pVerticalGridLines)
       << " vergridColour=" << vergridColour
       << " vergridLinetype=" << vergridLinetype
@@ -384,6 +400,13 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
 
       else if (key=="GeoPos")         pGeoPos = kv.toBool();
       else if (key=="geoposColour")   geoposColour= value;
+
+      else if (key=="Compass")        pCompass = kv.toBool();
+
+      else if (key=="HorizontalGridLines") pHorizontalGridLines = kv.toBool();
+      else if (key=="horgridColour")       horgridColour= value;
+      else if (key=="horgridLinetype")     horgridLinetype= value;
+      else if (key=="horgridLinewidth")    horgridLinewidth= kv.toDouble();
 
       else if (key=="VerticalGridLines") pVerticalGridLines = kv.toBool();
       else if (key=="vergridColour")     vergridColour= value;

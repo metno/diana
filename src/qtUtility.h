@@ -57,6 +57,8 @@ int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str);
 int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& def_str);
 
+// create a QPixmap showing palettecolours and colour from options
+QPixmap createPixmapForStyle(const std::string& options);
 
 // Labels
 
@@ -90,6 +92,8 @@ QComboBox* ColourBox(QWidget* parent,
 void installColours(QComboBox* box, const std::vector<Colour::ColourInfo>& cInfo, bool name=false);
 
 void ExpandColourBox(QComboBox* box, const Colour& col);
+
+QPixmap pixmapForColourShading(const std::vector<Colour>& colour);
 
 void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadingInfo>& csInfo, bool name=false);
 

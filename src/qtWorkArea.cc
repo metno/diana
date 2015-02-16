@@ -56,7 +56,6 @@ WorkArea::WorkArea(Controller *co,  QWidget* parent)
   QGLFormat::setDefaultOverlayFormat(ofmt);
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
-  fmt.setDirectRendering(false);
   glw = new GLwidget(contr, fmt, this);
 #else
   glw = new GLwidget(contr, this);

@@ -115,7 +115,7 @@ private:
   void repaintPlot();
 
 private Q_SLOTS:
-  // GUI slots for leayer buttons
+  // GUI slots for layer buttons
   void onFieldAction(int position, int action);
 
   // slots for QtManager
@@ -139,6 +139,7 @@ private Q_SLOTS:
 
   // GUI slots for window
   void onAddField();
+  void onShowStyleDialog();
   void onRemoveAllFields();
   void leftCrossectionClicked();
   void rightCrossectionClicked();

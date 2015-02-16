@@ -343,8 +343,7 @@ std::vector<float> FtnVfile::getFloatVector(int length, int iscale, int iundef)
 
 std::string FtnVfile::getString(int length)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(length));
+  METLIBS_LOG_SCOPE(LOGVAL(length));
 
   int lengthStr= length;
 
@@ -370,22 +369,18 @@ std::string FtnVfile::getString(int length)
   // files handled here often contains some strange norwegian characters
   n= str.length();
   for (i=0; i<n; i++) {
-    if      (str[i]=='#') str[i]='Æ';
-    else if (str[i]=='@') str[i]='Ø';
-    else if (str[i]=='$') str[i]='Å';
+    if      (str[i]=='#') str[i]='\xC6'; // was 'Æ'
+    else if (str[i]=='@') str[i]='\xD8'; // was 'Ø'
+    else if (str[i]=='$') str[i]='\xC5'; // was 'Å'
   }
 
-  //###############################################################
-  //cerr<<"FtnVfile::getString >>> " << str << " <<<" << endl;
-  //###############################################################
   return str;
 }
 
 
 void FtnVfile::skipData(int length)
 {
-  METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG(LOGVAL(length));
+  METLIBS_LOG_SCOPE(LOGVAL(length));
 
   int n, i=0;
 
@@ -396,4 +391,3 @@ void FtnVfile::skipData(int length)
     index+=n;
   }
 }
-

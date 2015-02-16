@@ -200,9 +200,9 @@ public:
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
-  void  trajPos(std::vector<std::string>&);
+  void  trajPos(const std::vector<std::string>&);
   /// plot measurements position
-  void  measurementsPos(std::vector<std::string>&);
+  void  measurementsPos(const std::vector<std::string>&);
   /// get trajectory fields
   std::vector<std::string> getTrajectoryFields();
   /// start trajectory computation

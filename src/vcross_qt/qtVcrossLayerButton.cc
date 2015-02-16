@@ -1,22 +1,49 @@
 
 #include "qtVcrossLayerButton.h"
 
+#include "qtUtility.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QAction>
 #include <QMenu>
+#include <QPainter>
 #include <QPixmap>
 
 #include "felt.xpm"
 
-VcrossLayerButton::VcrossLayerButton(const QString& label, int p, QWidget* parent)
+VcrossLayerButton::VcrossLayerButton(vcross::QtManager_p vcm, int p, QWidget* parent)
   : QToolButton(parent)
+  , vcrossm(vcm)
   , position(p)
 {
-  setIcon(QPixmap(felt_xpm));
+  const std::string model = vcrossm->getModelAt(position),
+      reftime = vcrossm->getReftimeAt(position).isoTime(),
+      field = vcrossm->getFieldAt(position);
+  const QString label = tr("Model: %1 Reftime: %2 Field: %3")
+      .arg(QString::fromStdString(model))
+      .arg(QString::fromStdString(reftime))
+      .arg(QString::fromStdString(field));
+
+
   setToolTip(label);
   setCheckable(true);
   setChecked(true);
 
+  updateStyle();
+
   connect(this, SIGNAL(toggled(bool)), this, SLOT(onShowHide()));
+
+  { vcross::QtManager* m = vcrossm.get();
+    connect(m, SIGNAL(fieldAdded(int)),
+        this, SLOT(onFieldAdded(int)));
+    connect(m, SIGNAL(fieldRemoved(int)),
+        this, SLOT(onFieldRemoved(int)));
+    connect(m, SIGNAL(fieldOptionsChanged(int)),
+        this, SLOT(onFieldOptionsChanged(int)));
+    connect(m, SIGNAL(fieldVisibilityChanged(int)),
+        this, SLOT(onFieldVisibilityChanged(int)));
+  }
 
   QMenu* menu = new QMenu(this);
 
@@ -40,11 +67,19 @@ VcrossLayerButton::VcrossLayerButton(const QString& label, int p, QWidget* paren
   setMenu(menu);
 }
 
-void VcrossLayerButton::setPosition(int p, bool last)
+void VcrossLayerButton::enableUpDown()
 {
-  position = p;
   actionDown->setEnabled(position > 0);
-  actionUp->setEnabled(not last);
+  const int n = vcrossm->getFieldCount()-1;
+  actionUp->setEnabled(position != n);
+}
+
+void VcrossLayerButton::updateStyle()
+{
+  QPixmap pixmap = createPixmapForStyle(vcrossm->getOptionsAt(position));
+  if (pixmap.isNull())
+    pixmap = QPixmap(felt_xpm);
+  setIcon(pixmap);
 }
 
 void VcrossLayerButton::onEdit()
@@ -59,7 +94,7 @@ void VcrossLayerButton::onRemove()
 
 void VcrossLayerButton::onShowHide()
 {
-  Q_EMIT triggered(position, SHOW_HIDE);
+  vcrossm->setFieldVisible(position, isChecked());
 }
 
 void VcrossLayerButton::onUp()
@@ -70,4 +105,40 @@ void VcrossLayerButton::onUp()
 void VcrossLayerButton::onDown()
 {
   Q_EMIT triggered(position, DOWN);
+}
+
+void VcrossLayerButton::onFieldAdded(int p)
+{
+  if (p <= position)
+    position += 1;
+  enableUpDown();
+}
+
+void VcrossLayerButton::onFieldRemoved(int p)
+{
+  if (p == position) {
+    deleteLater();
+    return;
+  }
+  if (p < position)
+    position -= 1;
+  enableUpDown();
+}
+
+void VcrossLayerButton::onFieldOptionsChanged(int p)
+{
+  if (p == position)
+    updateStyle();
+}
+
+void VcrossLayerButton::onFieldVisibilityChanged(int p)
+{
+  if (p != position)
+    return;
+
+  const bool visible = vcrossm->getVisibleAt(position);
+  if (isChecked() != visible)
+    setChecked(visible);
+  if (actionShowHide->isChecked() != visible)
+    actionShowHide->setChecked(visible);
 }

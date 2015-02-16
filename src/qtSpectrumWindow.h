@@ -65,7 +65,6 @@ public:
 
   StationPlot* getStations();
   bool changeStation(const std::string& station); //change plotstation
-  void setFieldModels(const std::vector<std::string>& fieldmodels);
   void startUp(const miutil::miTime& t);
   void mainWindowTimeChanged(const miutil::miTime& t);
 

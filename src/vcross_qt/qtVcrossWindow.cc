@@ -84,6 +84,7 @@
 #include "info.xpm"
 #include "icon_settings.xpm"
 #include "kill.xpm"
+#include "palette.xpm"
 
 using namespace vcross;
 
@@ -227,6 +228,8 @@ void VcrossWindow::setupUi()
   ui->actionAddField->setIcon(QPixmap(addempty_xpm));
   new ActionButton(ui->toolAddField, ui->actionAddField, this);
 
+  ui->toolShowStyle->setIcon(QPixmap(palette_xpm));
+
   ui->toggleTimeGraph->setIcon(QPixmap(clock_xpm));
   ui->buttonClose->setIcon(QPixmap(exit_xpm));
   ui->buttonHelp->setIcon(QPixmap(info_xpm));
@@ -273,6 +276,14 @@ void VcrossWindow::onRemoveAllFields()
 
 /***************************************************************************/
 
+void VcrossWindow::onShowStyleDialog()
+{
+  if (vcrossm && vcrossm->getFieldCount() > 0)
+    vcStyleDialog->showModelField(0);
+  vcStyleDialog->show();
+}
+
+
 void VcrossWindow::onFieldAction(int position, int action)
 {
   METLIBS_LOG_SCOPE(LOGVAL(position));
@@ -306,23 +317,7 @@ void VcrossWindow::onFieldAdded(int position)
 {
   METLIBS_LOG_SCOPE();
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  const int n = lbl->count();
-  METLIBS_LOG_DEBUG(LOGVAL(position) << LOGVAL(n));
-  for (int i=position; i<n; ++i) {
-    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(i));
-    VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
-    button->setPosition(i+1, i==n-1);
-  }
-
-  const std::string model = vcrossm->getModelAt(position),
-      reftime = vcrossm->getReftimeAt(position).isoTime(),
-      field = vcrossm->getFieldAt(position);
-  const QString label = tr("Model: %1 Reftime: %2 Field: %3")
-      .arg(QString::fromStdString(model))
-      .arg(QString::fromStdString(reftime))
-      .arg(QString::fromStdString(field));
-
-  VcrossLayerButton* button = new VcrossLayerButton(label, position, this);
+  VcrossLayerButton* button = new VcrossLayerButton(vcrossm, position, this);
   connect(button, SIGNAL(triggered(int, int)), SLOT(onFieldAction(int, int)));
   lbl->insertWidget(position, button);
 
@@ -342,19 +337,13 @@ void VcrossWindow::onFieldVisibilityChanged(int position)
 void VcrossWindow::onFieldRemoved(int position)
 {
   METLIBS_LOG_SCOPE();
+#if 0
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  const int n = lbl->count();
-  METLIBS_LOG_DEBUG(LOGVAL(position) << LOGVAL(n));
-  for (int i=position+1; i<n; ++i) {
-    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(i));
-    VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
-    button->setPosition(i-1, i==n-1);
-  }
-
   QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(position));
   QToolButton *button = static_cast<QToolButton*>(wi->widget());
   button->deleteLater();
   delete wi;
+#endif
 
   repaintPlotIfNotInGroup();
 }

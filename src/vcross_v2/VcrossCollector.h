@@ -53,6 +53,9 @@ public:
   const SelectedPlot_pv& getSelectedPlots() const
     { return mSelectedPlots; }
 
+  int countSelectedPlots() const
+    { return mSelectedPlots.size(); }
+
   InventoryBase_cp getResolvedField(const ModelReftime& model, const std::string& field)
     { return mResolver->getResolvedField(model, field); }
 

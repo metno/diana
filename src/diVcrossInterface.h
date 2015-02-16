@@ -30,6 +30,7 @@
 #ifndef DIVCROSSINTERFACE_H
 #define DIVCROSSINTERFACE_H 1
 
+#include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
 
 #include <QtPlugin>
@@ -103,6 +104,9 @@ public:
 
   //! request to change currently selected crossection
   virtual void changeCrossection(const std::string& csName) = 0;
+
+  //! request to show timegraph for the given position
+  virtual void showTimegraph(const LonLat& position) = 0;
 
   //! request to change currently selected time
   virtual void mainWindowTimeChanged(const miutil::miTime& t) = 0;

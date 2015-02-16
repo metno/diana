@@ -63,7 +63,7 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  void measurementsPos(std::vector<std::string>&);
+  void measurementsPos(const std::vector<std::string>&);
 };
 
 #endif

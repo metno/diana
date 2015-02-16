@@ -94,7 +94,7 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
 
   std::string ch=ginfo.channel;
   file.channel=miutil::split(ch, " ");
-
+  return true;
 }
 
 bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)

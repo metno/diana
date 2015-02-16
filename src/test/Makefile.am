@@ -1,5 +1,6 @@
 
 diana_lib = $(top_builddir)/src/libdiana.a
+CLEANFILES =
 
 TESTS = 
 check_PROGRAMS =
@@ -31,6 +32,7 @@ dianaGuiTests_SOURCES = \
 
 nodist_dianaUnitTests_SOURCES = \
      $(dianaUnitTests_moc_sources)
+CLEANFILES += $(dianaUnitTests_moc_sources)
 
 %.moc.cc: %.h
 	@mkdir -p $(shell dirname $@)

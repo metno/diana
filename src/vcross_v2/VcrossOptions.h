@@ -116,6 +116,13 @@ public:
   bool     pGeoPos;
   std::string geoposColour;
 
+  bool     pCompass;
+
+  bool     pHorizontalGridLines;
+  std::string horgridColour;
+  std::string horgridLinetype;
+  float    horgridLinewidth;
+
   bool     pVerticalGridLines;
   std::string vergridColour;
   std::string vergridLinetype;

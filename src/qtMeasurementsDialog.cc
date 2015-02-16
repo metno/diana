@@ -56,16 +56,13 @@
 
 using namespace std;
 
-MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
+MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   : QDialog(parent), contr(llctrl)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
-  //caption to appear on top of dialog
   setWindowTitle(tr("Measurements"));
-  this->setFocusPolicy(Qt::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
 
   //push button to delete last pos
   QPushButton * deleteButton = new QPushButton(tr("Clear"), this );
@@ -98,7 +95,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   latlabel1->setFrameStyle( QFrame::Panel);
   latlabel1->setMinimumSize(latlabel1->sizeHint());
 
-  latbox1= new QLabel("00°00'N",this);
+  latbox1= new QLabel("00\xB0""00'N",this); // was "00°00'N"
   latbox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   latbox1->setMinimumSize(latbox1->sizeHint());
 
@@ -106,7 +103,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   lonlabel1->setFrameStyle( QFrame::Panel);
   lonlabel1->setMinimumSize(lonlabel1->sizeHint());
 
-  lonbox1= new QLabel("00°00'W",this);
+  lonbox1= new QLabel("00\xB0""00'W",this);
   lonbox1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   lonbox1->setMinimumSize(lonbox1->sizeHint());
 
@@ -136,7 +133,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   latlabel2->setFrameStyle( QFrame::Panel);
   latlabel2->setMinimumSize(latlabel2->sizeHint());
 
-  latbox2= new QLabel("00°00'N",this);
+  latbox2= new QLabel("00\xB0""00'N",this);
   latbox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   latbox2->setMinimumSize(latbox2->sizeHint());
 
@@ -144,7 +141,7 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   lonlabel2->setFrameStyle( QFrame::Panel);
   lonlabel2->setMinimumSize(lonlabel2->sizeHint());
 
-  lonbox2= new QLabel("00°00'W",this);
+  lonbox2= new QLabel("00\xB0""00'W",this);
   lonbox2->setFrameStyle( QFrame::Panel | QFrame::Sunken );
   lonbox2->setMinimumSize(lonbox2->sizeHint());
 
@@ -244,21 +241,18 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl )
   gridlayout->addWidget( Hide,           16,0,1,2);
   gridlayout->addWidget( quit,           16,2,1,2);
 }
-/********************************************************/
 
 
-
-/*********************************************/
-
-void MeasurementsDialog::deleteClicked(){
+void MeasurementsDialog::deleteClicked()
+{
   //delete selected group of start positions
 
   positionVector.clear();
 
-  latbox1->setText("00°00'N");
-  lonbox1->setText("00°00'W");
-  latbox2->setText("00°00'N");
-  lonbox2->setText("00°00'W");
+  latbox1->setText("00\xB0""00'N");
+  lonbox1->setText("00\xB0""00'W");
+  latbox2->setText("00\xB0""00'N");
+  lonbox2->setText("00\xB0""00'W");
   datebox1->setText("0000-00-00");
   datebox2->setText("0000-00-00");
   timebox1->setText("00:00");
@@ -268,16 +262,12 @@ void MeasurementsDialog::deleteClicked(){
   speedbox3->setText("0 knots");
   distancebox->setText("0 km");
 
-  vector<string> vstr;
-  vstr.push_back("delete");
-  contr->measurementsPos(vstr);
+  contr->measurementsPos(vector<string>(1, "delete"));
   sendAllPositions();
 
-  emit updateMeasurements();
-
+  Q_EMIT updateMeasurements();
 }
 
-/*********************************************/
 
 void MeasurementsDialog::calculate()
 {
@@ -339,30 +329,23 @@ void MeasurementsDialog::calculate()
       speedbox3->setText(speedresult3);
     }
   }
-  emit updateMeasurements();
+  Q_EMIT updateMeasurements();
 }
 
-
-/*********************************************/
 
 void MeasurementsDialog::quitClicked()
 {
-  vector<string> vstr;
-  vstr.push_back("quit");
-  contr->measurementsPos(vstr);
-  emit markMeasurementsPos(false);
-  emit MeasurementsHide();
+  contr->measurementsPos(vector<string>(1, "quit"));
+  Q_EMIT markMeasurementsPos(false);
+  Q_EMIT MeasurementsHide();
 }
-/*********************************************/
+
 
 void MeasurementsDialog::helpClicked()
 {
-  //  emit showsource("ug_messurements.html");
+  // emit showsource("ug_messurements.html");
 }
 
-/*********************************************/
-
-/*********************************************/
 
 void MeasurementsDialog::mapPos(float lat, float lon)
 {
@@ -396,18 +379,14 @@ void MeasurementsDialog::mapPos(float lat, float lon)
   str <<" numpos="<<1;
   str <<" time="<<pos.time;
 
-  vector<string> vstr;
-  vstr.push_back(str.str());
-  contr->measurementsPos(vstr);
+  contr->measurementsPos(vector<string>(1, str.str()));
 
-  emit updateMeasurements();
+  Q_EMIT updateMeasurements();
 }
 
-/*********************************************/
 
 void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, int index)
 {
-
   METLIBS_LOG_SCOPE();
 
   int latdeg, latmin, londeg, lonmin;
@@ -434,8 +413,8 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
     londir = "W";
   }
 
-  latstr.sprintf("%d°%d '%s", latdeg, latmin, latdir.c_str());
-  lonstr.sprintf("%d°%d '%s", londeg, lonmin, londir.c_str());
+  latstr.sprintf("%d\xB0%d '%s", latdeg, latmin, latdir.c_str());
+  lonstr.sprintf("%d\xB0%d '%s", londeg, lonmin, londir.c_str());
   datestr.sprintf("%s", t.isoDate().c_str());
   timestr.sprintf("%s", t.isoClock().c_str());
 
@@ -458,7 +437,6 @@ void MeasurementsDialog::update_posList(float lat, float lon, miutil::miTime t, 
   }
 }
 
-/*********************************************/
 
 void MeasurementsDialog::sendAllPositions()
 {
@@ -466,17 +444,16 @@ void MeasurementsDialog::sendAllPositions()
 
   vector<string> vstr;
 
-  int npos=positionVector.size();
-  for( int i=0; i<npos; i++){
+  const int npos=positionVector.size();
+  for (int i=0; i<npos; i++) {
     ostringstream str;
     str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
     str << "latitudelongitude=";
     str << positionVector[i].lat << "," << positionVector[i].lon;
-    std::string posString = str.str();
-    vstr.push_back(posString);
+    vstr.push_back(str.str());
   }
   contr->measurementsPos(vstr);
-  emit updateMeasurements();
+  Q_EMIT updateMeasurements();
 }
 
 
@@ -485,40 +462,38 @@ void MeasurementsDialog::showplus()
   METLIBS_LOG_SCOPE();
   this->show();
 
-  emit markMeasurementsPos(true);
+  Q_EMIT markMeasurementsPos(true);
 
   sendAllPositions();
 
-  emit updateMeasurements();
+  Q_EMIT updateMeasurements();
 }
 
-bool MeasurementsDialog::close(bool alsoDelete){
-  emit markMeasurementsPos(false);
-  emit MeasurementsHide();
+
+bool MeasurementsDialog::close(bool alsoDelete)
+{
+  Q_EMIT markMeasurementsPos(false);
+  Q_EMIT MeasurementsHide();
   return true;
 }
 
-bool MeasurementsDialog::hasFocus() {
-  emit markMeasurementsPos(true);
-  return this->isActiveWindow();
+
+bool MeasurementsDialog::hasFocus()
+{
+  Q_EMIT markMeasurementsPos(true);
+  return isActiveWindow();
 }
 
-void MeasurementsDialog::focusInEvent( QFocusEvent * )
+void MeasurementsDialog::focusInEvent(QFocusEvent *)
 {
-  emit markMeasurementsPos(true);
+  Q_EMIT markMeasurementsPos(true);
 }
 
-void MeasurementsDialog::focusOutEvent( QFocusEvent * )
+void MeasurementsDialog::focusOutEvent(QFocusEvent *)
 {
-  emit markMeasurementsPos(false);
+  Q_EMIT markMeasurementsPos(false);
 }
 
-void MeasurementsDialog::focusChanged( QWidget * old, QWidget * now )
+void MeasurementsDialog::focusChanged(QWidget* old, QWidget* now)
 {
-  QWidget* p = now;
-  while(p)
-  {
-    if(p == this)
-      p = p->parentWidget();
-  }
 }

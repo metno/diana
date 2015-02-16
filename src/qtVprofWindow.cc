@@ -64,10 +64,10 @@
 
 using namespace std;
 
-VprofWindow::VprofWindow(Controller *co)
+VprofWindow::VprofWindow()
 : QMainWindow( 0)
 {
-  vprofm = new VprofManager(co);
+  vprofm = new VprofManager();
 
   setWindowTitle( tr("Diana Vertical Profiles") );
 
@@ -75,7 +75,6 @@ VprofWindow::VprofWindow(Controller *co)
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
-  fmt.setDirectRendering(false);
 #endif
   //central widget
 #if !defined(USE_PAINTGL)
@@ -697,15 +696,6 @@ void VprofWindow::changeStations(const std::vector<string>& stations)
   stationChanged();
 }
 
-
-/***************************************************************************/
-
-void VprofWindow::setFieldModels(const vector<string>& fieldmodels)
-{
-  vprofm->setFieldModels(fieldmodels);
-  if (active)
-    changeModel();
-}
 
 /***************************************************************************/
 

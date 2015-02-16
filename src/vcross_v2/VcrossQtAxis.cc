@@ -11,7 +11,7 @@ namespace detail {
 
 Axis::Axis(bool h)
   : horizontal(h)
-  , type(LINEAR)
+  , mType(LINEAR)
   , mQuantity(h ? DISTANCE : PRESSURE)
   , valueMin(0)
   , valueMax(1)
@@ -38,14 +38,14 @@ bool Axis::legalData(float d) const
 
 float Axis::function(float x) const
 {
-  if (type == EXNER and mQuantity == PRESSURE)
+  if (mType == EXNER and mQuantity == PRESSURE)
     return vcross::util::exnerFunction(x);
   return x; // LINEAR
 }
 
 float Axis::functionInverse(float x) const
 {
-  if (type == EXNER and mQuantity == PRESSURE)
+  if (mType == EXNER and mQuantity == PRESSURE)
     return vcross::util::exnerFunctionInverse(x);
   return x; // LINEAR
 }
@@ -132,9 +132,9 @@ bool Axis::setType(const std::string& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(t));
   if (t == "exner")
-    type = EXNER;
+    mType = EXNER;
   else if (t == "linear")
-    type = LINEAR;
+    mType = LINEAR;
   else
     return false;
 

@@ -76,7 +76,7 @@ using namespace road;
 using namespace std;
 using miutil::miTime;
 
-VprofManager::VprofManager(Controller* co)
+VprofManager::VprofManager()
 : amdarStationList(false), vpdiag(0), showObs(false),
   showObsTemp(false), showObsPilot(false), showObsAmdar(false),
   plotw(0), ploth(0), hardcopy(false)
@@ -1128,7 +1128,7 @@ void VprofManager::updateObs()
 
 std::string VprofManager::getAnnotationString()
 {
-  std::string str = std::string("Vertikalprofiler ");
+  std::string str = std::string("Vertical profiles ");
   if (onlyObs)
     str += plotTime.isoTime();
   else
