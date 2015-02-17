@@ -2212,7 +2212,7 @@ void PlotModule::obsStepChanged(int step)
   setAnnotations();
 }
 
-void PlotModule::trajPos(vector<std::string>& vstr)
+void PlotModule::trajPos(const vector<std::string>& vstr)
 {
   const int n = vtp.size();
 
@@ -2238,7 +2238,7 @@ void PlotModule::trajPos(vector<std::string>& vstr)
   }
 }
 
-void PlotModule::measurementsPos(vector<std::string>& vstr)
+void PlotModule::measurementsPos(const vector<std::string>& vstr)
 {
   const int n = vMeasurementsPlot.size();
   //if vstr starts with "quit", delete all MeasurementsPlot objects

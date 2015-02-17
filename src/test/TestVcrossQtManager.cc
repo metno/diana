@@ -30,20 +30,10 @@
 #include "TestVcrossQtManager.h"
 #include <vcross_v2/VcrossQtManager.h>
 
-#define MILOGGER_CATEGORY "diana.test.VcrossQtManager"
-#include "miLogger/miLogging.h"
-
 #include <gtest/gtest.h>
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
+#define MILOGGER_CATEGORY "diana.test.VcrossQtManager"
+#include "miLogger/miLogging.h"
 
 namespace vcross {
 namespace test {
@@ -157,8 +147,6 @@ const char* AROME2_RTT[4] = {
 
 TEST(TestVcrossQtManager, Script)
 {
-  configureLogging();
-
   string_v sources;
   sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
       + std::string(AROME1_FILE) + " t=netcdf");
@@ -218,8 +206,6 @@ TEST(TestVcrossQtManager, Script)
 
 TEST(TestVcrossQtManager, Reftime)
 {
-  configureLogging();
-
   string_v sources;
   sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
       + std::string(AROME2_FILE) + " t=netcdf");

@@ -75,7 +75,6 @@ SpectrumWindow::SpectrumWindow()
   QGLFormat fmt;
   fmt.setOverlay(false);
   fmt.setDoubleBuffer(true);
-  fmt.setDirectRendering(false);
 #endif
   //central widget
 #if !defined(USE_PAINTGL)
@@ -696,15 +695,6 @@ bool SpectrumWindow::changeStation(const std::string& station)
     return false;
 }
 
-
-void SpectrumWindow::setFieldModels(const vector<string>& fieldmodels)
-{
-  spectrumm->setFieldModels(fieldmodels);
-  if (active) changeModel();
-
-}
-
-
 void SpectrumWindow::mainWindowTimeChanged(const miutil::miTime& t)
 {
   // keep time for next "update" (in case not found now)
@@ -730,18 +720,9 @@ void SpectrumWindow::startUp(const miutil::miTime& t)
   active = true;
   spToolbar->show();
   tsToolbar->show();
-  //do something first time we start
-  if (firstTime){
-    //vector<std::string> models;
-    //define models for dialogs, comboboxes and stationplot
-    //spectrumm->setSelectedModels(models,false,false);
-    //spModelDialog->setSelection();
-    firstTime=false;
-    // show default diagram without any data
-    spectrumw->updateGL();
-  } else {
-    changeModel();
-  }
+  spModelDialog->updateModelfileList();
+  spectrumw->updateGL();
+  changeModel();
   mainWindowTimeChanged(t);
 }
 

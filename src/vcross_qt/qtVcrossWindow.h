@@ -31,7 +31,6 @@
 #define _qt_vcrossmainwindow_
 
 #include "vcross_v2/VcrossQtManager.h"
-#include "vcross_v2/VcrossQuickmenues.h"
 #include "VcrossQtWidget.h"
 
 #include "diLogFile.h"
@@ -76,15 +75,11 @@ class VcrossWindow: public QWidget
   Q_OBJECT
 
 public:
-  VcrossWindow();
+  VcrossWindow(vcross::QtManager_p vcm);
   ~VcrossWindow();
 
   // ========== begin called via VcrossWindowInterface
   void makeVisible(bool visible);
-  bool changeCrossection(const std::string& crossection);
-  void mainWindowTimeChanged(const miutil::miTime& t);
-  void parseQuickMenuStrings(const std::vector<std::string>& vstr);
-  void parseSetup();
 
   void writeLog(LogFileIO& logfile);
   void readLog(const LogFileIO& logfile, const std::string& thisVersion, const std::string& logVersion,
@@ -101,13 +96,8 @@ Q_SIGNALS: // defined in VcrossInterface
   void requestLoadCrossectionFiles(const QStringList& filenames);
   //! called when draw/edit button is toggled
   void requestVcrossEditor(bool on);
-  void crossectionChanged(const QString&);
-  void crossectionSetChanged(const LocationData& locations);
-  void emitTimes(const std::string&, const std::vector<miutil::miTime>&);
-  void setTime(const std::string&, const miutil::miTime&);
-  void quickMenuStrings(const std::string&, const std::vector<std::string>&);
-  void nextHVcrossPlot();
-  void prevHVcrossPlot();
+  void vcrossHistoryNext();
+  void vcrossHistoryPrevious();
 
 protected:
   void closeEvent(QCloseEvent*);
@@ -120,13 +110,12 @@ private:
 
   void enableDynamicCsIfSupported();
   void enableTimeGraphIfSupported();
-  void emitCrossectionSet();
 
   void repaintPlotIfNotInGroup();
   void repaintPlot();
 
 private Q_SLOTS:
-  // GUI slots for leayer buttons
+  // GUI slots for layer buttons
   void onFieldAction(int position, int action);
 
   // slots for QtManager
@@ -150,6 +139,7 @@ private Q_SLOTS:
 
   // GUI slots for window
   void onAddField();
+  void onShowStyleDialog();
   void onRemoveAllFields();
   void leftCrossectionClicked();
   void rightCrossectionClicked();
@@ -170,15 +160,12 @@ private Q_SLOTS:
   void changeSetup();
 
 private:
-  vcross::QtManager_p vcrossm;
-  std::auto_ptr<vcross::VcrossQuickmenues> quickmenues;
-
   std::auto_ptr<Ui_VcrossWindow> ui;
+  vcross::QtManager_p vcrossm;
 
   VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;
-  std::set<std::string> mPredefinedCsFiles;
 
   // printerdefinitions
   printOptions priop;

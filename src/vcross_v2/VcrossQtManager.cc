@@ -244,6 +244,17 @@ void QtManager::removeDynamicCrossection(const QString& label)
   handleChangedCrossectionList(before);
 }
 
+LonLat_v QtManager::getDynamicCrossectionPoints(const QString& label)
+{
+  const ModelReftime& mr = mCollector->getFirstModel();
+  if (Source_p src = mCollector->getSetup()->findSource(mr.model))
+    if (Inventory_cp inv = src->getInventory(mr.reftime))
+      if (Crossection_cp cs = inv->findCrossectionByLabel(label.toStdString()))
+        if (cs->dynamic())
+          return cs->points;
+  return LonLat_v();
+}
+
 void QtManager::handleChangedCrossectionList(const QString& oldLabel)
 {
   METLIBS_LOG_SCOPE(LOGVAL(oldLabel.toStdString()));
@@ -334,7 +345,6 @@ void QtManager::handleChangedCrossection()
 
 void QtManager::getCrossections(LocationData& locationdata)
 {
-  METLIBS_LOG_SCOPE();
   locationdata = locationData;
 }
 
@@ -380,10 +390,8 @@ void QtManager::fillLocationData(LocationData& ld)
 
 void QtManager::setTimeIndex(int index)
 {
-  if (index != mPlotTime && index >= 0 && index < getTimeCount()) {
-    mPlotTime = index;
-    handleChangedTime();
-  }
+  if (index >= 0 && index < getTimeCount())
+    handleChangedTime(index);
 }
 
 
@@ -392,7 +400,7 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
   METLIBS_LOG_SCOPE();
 
   int bestTime = -1;
-  if (!mCrossectionTimes.empty()) {
+  if (getTimeCount()>0) {
     bestTime = 0;
     if (!time.undef()) {
       METLIBS_LOG_DEBUG(LOGVAL(time));
@@ -406,8 +414,7 @@ void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
       }
     }
   }
-  mPlotTime = bestTime;
-  handleChangedTime();
+  handleChangedTime(bestTime);
 }
 
 
@@ -449,9 +456,9 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
       }
     }
   }
-
   vctime_v newTimes;
   util::from_set(newTimes, times);
+
   if (mCrossectionTimes != newTimes) {
     std::swap(mCrossectionTimes, newTimes);
     mPlotTime = -1;
@@ -463,10 +470,13 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
 }
 
 
-void QtManager::handleChangedTime()
+void QtManager::handleChangedTime(int plotTimeIndex)
 {
-  dataChange |= CHANGED_TIME;
-  Q_EMIT timeIndexChanged(mPlotTime);
+  if (plotTimeIndex != mPlotTime) {
+    mPlotTime = plotTimeIndex;
+    dataChange |= CHANGED_TIME;
+    Q_EMIT timeIndexChanged(mPlotTime);
+  }
 }
 
 
@@ -502,12 +512,14 @@ void QtManager::standardPart()
 
 void QtManager::saveZoom()
 {
-  mCrossectionZooms[getCrossectionLabel().toStdString()] = mPlot->viewGetCurrentZoom();
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  mCrossectionZooms[id] = mPlot->viewGetCurrentZoom();
 }
 
 void QtManager::restoreZoom()
 {
-  cs_zoom_t::const_iterator it = mCrossectionZooms.find(getCrossectionLabel().toStdString());
+  const std::string id = isTimeGraph() ? "" : getCrossectionLabel().toStdString();
+  cs_zoom_t::const_iterator it = mCrossectionZooms.find(id);
   if (it != mCrossectionZooms.end())
     mPlot->viewSetCurrentZoom(it->second);
   else
@@ -588,7 +600,10 @@ void QtManager::preparePlot()
     mPlot->setHorizontalTime(ll, mCrossectionTimes);
   }
 
-  mPlot->setVerticalAxis();
+  if (mPlot->setVerticalAxis()) {
+    mPlot->viewStandard();
+    mCrossectionZooms.clear();
+  }
 
   const EvaluatedPlot_cpv evaluated_plots = vc_evaluate_plots(mCollector, model_values, zType);
   for (EvaluatedPlot_cpv::const_iterator it = evaluated_plots.begin(); it != evaluated_plots.end(); ++it)
@@ -845,7 +860,7 @@ void QtManager::updateField(int idx, const std::string& fieldOpts)
 
 void QtManager::removeField(int idx)
 {
-  if (idx < 0 || idx >= mCollector->getSelectedPlots().size())
+  if (idx < 0 || idx >= mCollector->countSelectedPlots())
     return;
 
   mCollector->removePlot(idx);
@@ -973,7 +988,15 @@ void QtManager::switchTimeGraph(bool on)
   mTimeGraphMode = on;
   Q_EMIT timeGraphModeChanged(mTimeGraphMode);
   handleChangedCrossectionList("");
-  dataChange |= CHANGED_SEL;
+
+  // we cannot call handleChangedTimeList as mCrossectionTimes does
+  // not actually change; what changes is only the return value of
+  // getTimeCount(), which checks isTimeGraph()
+  Q_EMIT timeListChanged();
+  if (!mCrossectionTimes.empty())
+    setTimeToBestMatch(mCrossectionTimes[0]);
+
+  dataChange |= CHANGED_SEL | CHANGED_TIME;
 }
 
 
@@ -1000,7 +1023,7 @@ void QtManager::setTimeGraph(const LonLat& position)
   if (!cs)
     return;
 
-  size_t cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
+  int cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
   if (cs_index >= 0)
     setCrossectionIndex(cs_index);
 }

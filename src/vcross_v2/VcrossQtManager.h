@@ -146,6 +146,7 @@ public:
   void addDynamicCrossection(const QString& label, const LonLat_v& points);
   void removeDynamicCrossection(const QString& label);
   void getCrossections(LocationData& locationdata);
+  LonLat_v getDynamicCrossectionPoints(const QString& label);
 
   //! list of filenames with predefined cross-sections
   const std::set<std::string>& getCrossectionPredefinitions() const
@@ -219,7 +220,7 @@ private:
   void handleChangedCrossection();
 
   void handleChangedTimeList(const vctime_t& oldTime);
-  void handleChangedTime();
+  void handleChangedTime(int plotTimeIndex);
 
   void updateCrossectionsTimes();
 

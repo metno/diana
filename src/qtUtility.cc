@@ -33,6 +33,7 @@
 
 #include "qtUtility.h"
 
+#include "diCommandParser.h"
 #include "diUtilities.h"
 
 #include "diImageGallery.h"
@@ -81,6 +82,68 @@ int getIndex(const std::vector<Colour::ColourInfo>& cInfo, const std::string& de
   return -1;
 }
 
+static std::string findOption(CommandParser& cp,
+    std::vector<ParsedCommand>& vpcopt, const std::string& what)
+{
+  int nc = cp.findKey(vpcopt, what);
+  if (nc < 0)
+    return std::string();
+  const std::string c = miutil::to_lower(vpcopt[nc].allValue);
+  if (c == "off" || c == "av")
+    return std::string();
+  return c;
+}
+
+QPixmap createPixmapForStyle(const std::string& options)
+{
+  QPixmap pixmap;
+
+  CommandParser cp;
+  cp.addKey("colour",         "",0,CommandParser::cmdString);
+  cp.addKey("palettecolours", "",0,CommandParser::cmdString);
+  std::vector<ParsedCommand> vpcopt = cp.parse(options);
+
+  { const std::string c = findOption(cp, vpcopt, "palettecolours");
+    if (!c.empty())
+      pixmap = pixmapForColourShading(ColourShading::getColourShading(c));
+  }
+  { const std::string c = findOption(cp, vpcopt, "colour");
+    if (!c.empty()) {
+      const int S=20, N=4;
+
+      bool hasPalette = true;
+      if (pixmap.isNull()) {
+        hasPalette = false;
+        pixmap = QPixmap(S, S);
+        pixmap.fill(Qt::white);
+      }
+
+      const Colour col(c);
+      QPen pen(QColor(col.R(), col.G(), col.B()));
+
+      QPainter qp;
+      qp.begin(&pixmap);
+
+      if (!hasPalette) {
+        // draw arcs similar to felt.xpm but with the chosen colour
+        qp.setPen(pen);
+        for (int j=1; j<=N; j+=1) {
+          const int s = j*S/N;
+          qp.drawArc(-s, -s, 2*s, 2*s, 0, 360*16);
+        }
+      }
+
+      // draw rectangle in line colour
+      pen.setWidth(2);
+      qp.setPen(pen);
+      qp.drawRect(pixmap.rect().adjusted(1,1,-1,-1));
+
+      qp.end();
+    }
+  }
+
+  return pixmap;
+}
 
 /*********************************************/
 QLabel* TitleLabel(const QString& name, QWidget* parent)
@@ -209,31 +272,37 @@ void ExpandColourBox(QComboBox* box, const Colour& col)
 }
 
 /*********************************************/
+
+QPixmap pixmapForColourShading(const std::vector<Colour>& colour)
+{
+  const int nr_colours = colour.size();
+  if (nr_colours == 0)
+    return QPixmap();
+
+  int maxwidth=20;
+  int step = nr_colours/maxwidth+1;
+  int factor = maxwidth/(nr_colours/step);
+  int width = (nr_colours/step) * factor;
+  QPixmap pmap(width, 20);
+
+  QPainter qp;
+  qp.begin(&pmap);
+  for( int j=0; j<nr_colours; j+=step ){
+    QColor pixcolor=QColor(colour[j].R(), colour[j].G(), colour[j].B() );
+    qp.fillRect(j*factor, 0, factor, 20, pixcolor);
+  }
+  qp.end();
+  return pmap;
+}
+
 void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadingInfo>& csInfo, bool name)
 {
   const int nr_palettes= csInfo.size();
   for (int i=0; i<nr_palettes; i++) {
     const int nr_colours = csInfo[i].colour.size();
-    if ( nr_colours == 0 )
+    if (nr_colours == 0)
       continue;
-    int maxwidth=20;
-    int step = nr_colours/maxwidth+1;
-    int factor = maxwidth/(nr_colours/step);
-    int width = (nr_colours/step) * factor;
-    QPixmap pmap(width, 20);
-
-    QPainter qp;
-    qp.begin(&pmap);
-    for( int j=0; j<nr_colours; j+=step ){
-      QColor pixcolor=QColor(csInfo[i].colour[j].R(),
-          csInfo[i].colour[j].G(),
-          csInfo[i].colour[j].B() );
-
-      qp.fillRect( j*factor,0,factor,20,pixcolor);
-    }
-    qp.end();
-
-    QIcon qicon(pmap);
+    QIcon qicon(pixmapForColourShading(csInfo[i].colour));
     QString qs;
     if(name)
       qs = QString::fromStdString(csInfo[i].name);

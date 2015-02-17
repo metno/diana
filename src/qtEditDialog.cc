@@ -161,6 +161,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   // --------------------------------------------------------------------
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
+  editAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(editAction, SIGNAL( triggered() ), SLOT(EditMarkedText()));
   addAction( editAction );
   // --------------------------------------------------------------------

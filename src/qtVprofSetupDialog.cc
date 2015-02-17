@@ -439,8 +439,8 @@ void VprofSetupDialog::initDatatab()
   //units
   pressureSpinLow->setSuffix(" hPa");
   pressureSpinHigh->setSuffix(" hPa");
-  temperatureSpinLow->setSuffix("°C");
-  temperatureSpinHigh->setSuffix("°C");
+  temperatureSpinLow->setSuffix("\xB0""C");
+  temperatureSpinHigh->setSuffix("\xB0""C");
 
   connect(  pressureSpinLow, SIGNAL(valueChanged(int)),
 	    SLOT( setPressureMin(int)));

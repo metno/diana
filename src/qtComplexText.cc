@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -50,12 +48,15 @@
 
 #include <puTools/miStringFunctions.h>
 
+#define MILOGGER_CATEGORY "diana.ComplexText"
+#include <miLogger/miLogging.h>
+
 using namespace std;
 
 QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
 {
   //validator, only used for zero isoterm input !!!
-  if (not input.contains("0°:")) {
+  if (not input.contains("0\xB0:")) { // was"0°:"
     return QValidator::Invalid;
   }
   return QValidator::Acceptable;
@@ -71,266 +72,220 @@ QColor*            ComplexText::pixcolor=0;
 ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
     vector <string> & symbolText, vector <string>  & xText,
     set <string> cList,bool useColour)
-: QDialog(parent), m_ctrl(llctrl)
+  : QDialog(parent)
+  , m_ctrl(llctrl)
 {
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::ComplexText called"<<endl;
-#endif
+  METLIBS_LOG_SCOPE();
 
-      setModal(true);
+  setModal(true);
+  
+  if (!initialized) {
+    colourInfo = Colour::getColourInfo();
+    
+    nr_colors= colourInfo.size();
+    pixcolor = new QColor[nr_colors];// this must exist in the objectlifetime
+    for(int i=0; i<nr_colors; i++ ){
+      pixcolor[i]=QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
+          colourInfo[i].rgb[2] );
+    }
+  }
+  cv = 0;
 
-      //------------------------
-      if (!initialized) {
-        //------------------------
+  setWindowTitle(tr("Write text"));
+  
+  //  //horizontal layout for holding grid layouts
+  QHBoxLayout * hglayout = new QHBoxLayout();
+  //grid layouts
+  int ns = symbolText.size();
+  int nx = xText.size();
+  if (ns){
+    QGridLayout* glayout = new QGridLayout();
+    hglayout->addLayout(glayout, 0);
+    
+    set <string> complexList = cList;
+    
+    for (int i=0;i<ns;i++){
+      METLIBS_LOG_DEBUG("symbolText["<<i<<"]"<<symbolText[i]);
+      std::string ltext="Text"+miutil::from_number(i+1);
+      QString labeltext=ltext.c_str();
+      QLabel* namelabel= new QLabel(labeltext, this) ;
 
+      QComboBox *text = new QComboBox(this);
+      text->setEditable(true);
+      text->setCompleter(NULL);
+      if (!cv)
+        cv = new complexValidator(this);
+      text->addItem(symbolText[i].c_str());
+      set<string>::iterator p = complexList.begin();
+      for (; p!=complexList.end(); p++)
+        text->addItem(QString::fromStdString(*p));
 
-        colourInfo = Colour::getColourInfo();
+      connect(text->lineEdit(),
+          SIGNAL(selectionChanged()),SLOT(textSelected()));
+      connect(text,SIGNAL(activated(const QString &)),
+          SLOT(textActivated(const QString &)));
 
+      glayout->addWidget(namelabel, i+1,0);
+      glayout->addWidget(text, i+1,1);
+      vSymbolEdit.push_back(text);
 
-        nr_colors= colourInfo.size();
-        pixcolor = new QColor[nr_colors];// this must exist in the objectlifetime
-        for(int i=0; i<nr_colors; i++ ){
-          pixcolor[i]=QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
-              colourInfo[i].rgb[2] );
-
-
-        }
+      if (useColour) {
+        QLabel* colourlabel= new QLabel(tr("Colour"), this) ;
+        colourbox = ComboBox(this, pixcolor, nr_colors, false, 0 );
+        colourbox->setMaximumWidth(50);
+        colourbox->setMinimumWidth(50);
+        colourbox->setEnabled(true);
+        glayout->addWidget(colourlabel,i+1,2);
+        glayout->addWidget(colourbox,i+1,3);
       }
-      cv = 0;
+      else
+        colourbox=0;
+    }
+  }
 
-      setWindowTitle(tr("Write text"));
+  if (nx) {
+    QGridLayout* glayout = new QGridLayout();
+    hglayout->addLayout(glayout, 0);
+    for (int i=0;i<nx;i++){
+      METLIBS_LOG_DEBUG("xText["<<i<<"]"<<xText[i]);
+      std::string ltext="X"+miutil::from_number(i+1);
+      QString labeltext=ltext.c_str();
+      QLabel* namelabel= new QLabel(labeltext, this) ;
+      QLineEdit *x  = new QLineEdit(this);
+      x->setMinimumWidth(100);
+      x->setText(xText[i].c_str());
+      glayout->addWidget(namelabel, i+1,0);
+      glayout->addWidget(x, i+1,1);
+      vXEdit.push_back(x);
+    }
+  }
+  
+  QPushButton * okb= new QPushButton(tr("OK"),this);
+  connect(okb, SIGNAL(clicked()), SLOT(accept()));
+  QPushButton* quitb= new QPushButton(tr("Cancel"),this);
+  connect(quitb, SIGNAL(clicked()), SLOT(reject()));
 
-      //  //horizontal layout for holding grid layouts
-      QHBoxLayout * hglayout = new QHBoxLayout();
-      //grid layouts
-      int ns = symbolText.size();
-      int nx = xText.size();
-      if (ns){
-        QGridLayout* glayout = new QGridLayout();
-        hglayout->addLayout(glayout, 0);
+  int width  = quitb->sizeHint().width();
+  int height = quitb->sizeHint().height();
+  //set button size
+  okb->setMinimumSize( width, height );
+  okb->setMaximumSize( width, height );
+  quitb->setMinimumSize( width, height );
+  quitb->setMaximumSize( width, height );
 
-        //set <std::string> complexList = m_ctrl->getComplexList();
-        set <string> complexList = cList;
+  // buttons layout
+  QHBoxLayout * hlayout = new QHBoxLayout();
+  hlayout->addWidget(okb, 10);
+  hlayout->addWidget(quitb, 10);
 
-        for (int i=0;i<ns;i++){
-#ifdef DEBUGPRINT
-      cout<<"symbolText["<<i<<"]"<<symbolText[i] <<endl;
-#endif
-          std::string ltext="Text"+miutil::from_number(i+1);
-          QString labeltext=ltext.c_str();
-          QLabel* namelabel= new QLabel(labeltext, this) ;
+  //now create a vertical layout to put all the other layouts in
+  QVBoxLayout * vlayout = new QVBoxLayout(this);
+  vlayout->addLayout(hglayout, 0);
+  vlayout->addLayout(hlayout,0);
 
-          QComboBox *text = new QComboBox(this);
-          text->setEditable(true);
-          text->setCompleter(NULL);
-          if (!cv) cv = new complexValidator(this);
-          text->addItem(symbolText[i].c_str());
-          set<string>::iterator p = complexList.begin();
-          for (; p!=complexList.end(); p++)
-            text->addItem(QString::fromStdString(*p));
-
-          connect(text->lineEdit(),
-              SIGNAL(selectionChanged()),SLOT(textSelected()));
-          connect(text,SIGNAL(activated(const QString &)),
-              SLOT(textActivated(const QString &)));
-
-          glayout->addWidget(namelabel, i+1,0);
-          glayout->addWidget(text, i+1,1);
-          vSymbolEdit.push_back(text);
-
-          if (useColour){
-
-            QLabel* colourlabel= new QLabel(tr("Colour"), this) ;
-            colourbox = ComboBox(this, pixcolor, nr_colors, false, 0 );
-            colourbox->setMaximumWidth(50);
-            colourbox->setMinimumWidth(50);
-            colourbox->setEnabled(true);
-            glayout->addWidget(colourlabel,i+1,2);
-            glayout->addWidget(colourbox,i+1,3);
-          }
-          else
-            colourbox=0;
-
-        }
-
-      }
-
-
-      if (nx){
-        QGridLayout* glayout = new QGridLayout();
-        hglayout->addLayout(glayout, 0);
-        for (int i=0;i<nx;i++){
-#ifdef DEBUGPRINT
-      cout<<"xText["<<i<<"]"<<xText[i] <<endl;
-#endif
-          std::string ltext="X"+miutil::from_number(i+1);
-          QString labeltext=ltext.c_str();
-
-          QLabel* namelabel= new QLabel(labeltext, this) ;
-
-          QLineEdit *x  = new QLineEdit(this);
-          x->setMinimumWidth(100);
-          x->setText(xText[i].c_str());
-          glayout->addWidget(namelabel, i+1,0);
-          glayout->addWidget(x, i+1,1);
-          vXEdit.push_back(x);
-        }
-
-      }
-
-
-
-      QPushButton * okb= new QPushButton(tr("OK"),this);
-      connect(okb, SIGNAL(clicked()), SLOT(accept()));
-      QPushButton* quitb= new QPushButton(tr("Cancel"),this);
-      connect(quitb, SIGNAL(clicked()), SLOT(reject()));
-
-      int width  = quitb->sizeHint().width();
-      int height = quitb->sizeHint().height();
-      //set button size
-      okb->setMinimumSize( width, height );
-      okb->setMaximumSize( width, height );
-      quitb->setMinimumSize( width, height );
-      quitb->setMaximumSize( width, height );
-
-      // buttons layout
-      QHBoxLayout * hlayout = new QHBoxLayout();
-      hlayout->addWidget(okb, 10);
-      hlayout->addWidget(quitb, 10);
-
-      //now create a vertical layout to put all the other layouts in
-      QVBoxLayout * vlayout = new QVBoxLayout(this);
-      vlayout->addLayout(hglayout, 0);
-      vlayout->addLayout(hlayout,0);
-
-      //important to avoid endless loop !
-      startEdit=true;
-
+  //important to avoid endless loop !
+  startEdit=true;
 }
 
 
-    ComplexText::~ComplexText(){
-      int i,n;
-      n= vSymbolEdit.size();
-      for (i = 0;i<n;i++)
-        delete vSymbolEdit[i];
-      vSymbolEdit.clear();
-      n= vXEdit.size();
-      for (i = 0;i<n;i++)
-        delete vXEdit[i];
-      vXEdit.clear();
-      if (cv) delete cv;
-      cv=0;
+ComplexText::~ComplexText()
+{
+  for (size_t i = 0; i<vSymbolEdit.size(); i++)
+    delete vSymbolEdit[i];
+
+  for (size_t i = 0; i<vXEdit.size(); i++)
+    delete vXEdit[i];
+
+  delete cv;
+}
+
+void ComplexText::getComplexText(vector<string>& symbolText, vector<string>& xText)
+{
+  METLIBS_LOG_SCOPE();
+  symbolText.clear();
+  int ns=vSymbolEdit.size();
+  for (int i =0; i<ns;i++)
+    symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
+  xText.clear();
+  int nx=vXEdit.size();
+  for (int i =0; i<nx;i++)
+    xText.push_back(vXEdit[i]->text().toStdString());
+}
+
+
+void ComplexText::setColour(Colour::ColourInfo &colour)
+{
+  METLIBS_LOG_SCOPE();
+  int index = getColourIndex(colourInfo,colour);
+  colourbox-> setCurrentIndex(index);
+}
+
+void ComplexText::getColour(Colour::ColourInfo &colour)
+{
+  METLIBS_LOG_SCOPE();
+  int index=colourbox->currentIndex();
+  if (index>-1 && index<int(colourInfo.size()))
+    colour=colourInfo[index];
+}
+
+int ComplexText::getColourIndex(vector <Colour::ColourInfo> & colourInfo,
+    Colour::ColourInfo colour)
+{
+  int i,index=-1;
+  int nr_colors= colourInfo.size();
+  for(i=0; i<nr_colors; i++ ){
+    if (colourInfo[i].rgb[0]== colour.rgb[0] &&
+        colourInfo[i].rgb[1]==colour.rgb[1] &&
+        colourInfo[i].rgb[2]==colour.rgb[2] )
+      index=i;
+  }
+  if (index==-1){
+    colourInfo.push_back(colour);
+    QColor * pcolor=new QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
+        colourInfo[i].rgb[2] );
+    QPixmap* pmap = new QPixmap( 20, 20 );
+    pmap->fill(*pcolor);
+    QIcon *icon = new QIcon(*pmap);
+    colourbox->addItem ( *icon,"");
+    index=nr_colors;
+  }
+  return index;
+}
+
+void ComplexText::textActivated(const QString &textstring)
+{
+  METLIBS_LOG_SCOPE();
+  for (unsigned int i =0;i<vSymbolEdit.size();i++){
+    if (!vSymbolEdit[i]->hasFocus()) continue;
+    startEdit=true;
+    selectText(i);
+  }
+}
+
+void ComplexText::selectText(int i)
+{
+  METLIBS_LOG_SCOPE();
+  // Special routine to facilitate editing strings with "0°:"
+
+  if (startEdit){
+    startEdit=false;
+    std::string text = vSymbolEdit[i]->currentText().toStdString();
+    METLIBS_LOG_DEBUG(LOGVAL(text));
+    if (not miutil::contains(text, "0\xB0:")){ // was "0°:"
+      vSymbolEdit[i]->lineEdit()->setValidator(0);
+      return;
+    } else {
+      vSymbolEdit[i]->lineEdit()->setValidator(cv);
+      vSymbolEdit[i]->lineEdit()->setCursorPosition(3);
+      int length=vSymbolEdit[i]->currentText().length()-3;
+      vSymbolEdit[i]->lineEdit()->setSelection(3,length);
     }
-
-
-    void ComplexText::getComplexText(vector<string>& symbolText, vector<string>& xText)
-    {
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::getComplexText called"<<endl;
-#endif
-      symbolText.clear();
-      int ns=vSymbolEdit.size();
-      for (int i =0; i<ns;i++)
-        symbolText.push_back(vSymbolEdit[i]->currentText().toStdString());
-      xText.clear();
-      int nx=vXEdit.size();
-      for (int i =0; i<nx;i++)
-        xText.push_back(vXEdit[i]->text().toStdString());
-
-    }
-
-
-    void ComplexText::setColour(Colour::ColourInfo &colour){
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::setColour called"<<endl;
-#endif
-      int index = getColourIndex(colourInfo,colour);
-      colourbox-> setCurrentIndex(index);
-
-    }
-
-    void ComplexText::getColour(Colour::ColourInfo &colour){
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::getColour called"<<endl;
-#endif
-      int index=colourbox->currentIndex();
-      if (index>-1 && index<int(colourInfo.size()))
-        colour=colourInfo[index];
-    }
-
-
-    int ComplexText::getColourIndex(vector <Colour::ColourInfo> & colourInfo,
-        Colour::ColourInfo colour){
-      int i,index=-1;
-      int nr_colors= colourInfo.size();
-      for(i=0; i<nr_colors; i++ ){
-        if (colourInfo[i].rgb[0]== colour.rgb[0] &&
-            colourInfo[i].rgb[1]==colour.rgb[1] &&
-            colourInfo[i].rgb[2]==colour.rgb[2] )
-          index=i;
-      }
-      if (index==-1){
-        colourInfo.push_back(colour);
-        QColor * pcolor=new QColor( colourInfo[i].rgb[0], colourInfo[i].rgb[1],
-            colourInfo[i].rgb[2] );
-        QPixmap* pmap = new QPixmap( 20, 20 );
-        pmap->fill(*pcolor);
-        QIcon *icon = new QIcon(*pmap);
-        colourbox->addItem ( *icon,"");
-        index=nr_colors;
-      }
-      return index;
-    }
-
-
-
-
-    void ComplexText::textActivated(const QString &textstring){
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::TextActivated called"<<endl;
-#endif
-      for (unsigned int i =0;i<vSymbolEdit.size();i++){
-        if (!vSymbolEdit[i]->hasFocus()) continue;
-        startEdit=true;
-        selectText(i);
-      }
-    }
-
-
-    void ComplexText::selectText(int i)
-    {
-#ifdef DEBUGPRINT
-      cout<<"ComplexText::SelectText called"<<endl;
-#endif
-      // Special routine to facilitate editing strings with "0°:"
-      //
-      if (startEdit){
-        startEdit=false;
-        std::string text = vSymbolEdit[i]->currentText().toStdString();
-#ifdef DEBUGPRINT
-      cout<<"*** text =  "<< text <<endl;
-#endif
-        if (not miutil::contains(text, "0°:")){
-          vSymbolEdit[i]->lineEdit()->setValidator(0);
-          return;
-        } else {
-          vSymbolEdit[i]->lineEdit()->setValidator(cv);
-          vSymbolEdit[i]->lineEdit()->setCursorPosition(3);
-          int length=vSymbolEdit[i]->currentText().length()-3;
-          vSymbolEdit[i]->lineEdit()->setSelection(3,length);
-        }
-      }
-    }
-
-
-
+  }
+}
 
 void ComplexText::textSelected()
 {
-#ifdef DEBUGPRINT
-  cout<<"ComplexText::textSelected called"<<endl;
-#endif
+  METLIBS_LOG_SCOPE();
   for (unsigned int i =0;i<vSymbolEdit.size();i++){
     selectText(i);
   }

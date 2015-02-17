@@ -13,11 +13,6 @@ enum {
   ReftimeRole,
   FieldRole
 };
-std::ostream& operator<<(std::ostream& out, const QString& qstr)
-{
-  out << qstr.toStdString();
-  return out;
-}
 } // namespace
 
 VcrossStyleDialog::VcrossStyleDialog(QWidget* parent)

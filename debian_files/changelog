@@ -1,3 +1,24 @@
+diana (3.37.0~rc8-1) unstable; urgency=low
+
+  * ObsBufr: bugfix uninitialized variables
+  * vcross: reset zoom if changing vertical axis unit
+  * bdiana: destroy vcross manager
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 13 Feb 2015 10:18:11 +0100
+
+diana (3.37.0~rc7-1) unstable; urgency=low
+
+  * vcross: horizontal grid lines
+  * vcross: layer buttons show palette / arcs and line colour
+  * vcross: added button for style dialog
+  * vcross: same timegraph zoom for all positions
+  * vcross: plot more y axis labels if zoomed in very much
+  * vcross: quickmenues read and write crossection/timegraph + points
+  * Spectrum: possible to select referencetime
+  * Vprof: bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 11 Feb 2015 12:04:15 +0100
+
 diana (3.37.0~rc6-1) unstable; urgency=low
 
   * Vertical crossections referencetime

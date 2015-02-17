@@ -50,9 +50,8 @@ using namespace std;
 using namespace miutil;
 using namespace vcross;
 
-SpectrumData::SpectrumData(const std::string& filename,
-    const std::string& modelname)
-  : fileName(filename), modelName(modelname), numPos(0),
+SpectrumData::SpectrumData(const std::string& modelname)
+  : modelName(modelname), numPos(0),
     numTime(0), numDirec(0), numFreq(0)
 {
   METLIBS_LOG_SCOPE();
@@ -63,15 +62,24 @@ SpectrumData::~SpectrumData()
   METLIBS_LOG_SCOPE();
 }
 
-bool SpectrumData::readFileHeader(const std::string& setup_line)
+bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reftimestr)
 {
   METLIBS_LOG_SCOPE();
 
-  fs = vcross::ReftimeSource_p(new vcross::FimexReftimeSource(fileName, "netcdf", "", Time()));
+  collector = miutil::make_shared<vcross::Collector>(setup);
 
-  vcross::Inventory_cp inv = fs->getInventory();
+  if ( reftimestr.empty() ) {
+    reftime = collector->getResolver()->getSource(modelName)->getLatestReferenceTime();
+  } else {
+    miTime mt(reftimestr);
+    reftime = util::from_miTime(mt);
+  }
+
+  const vcross::ModelReftime mr(modelName, reftime);
+
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
   if (!inv || inv->times.npoint() == 0 || inv->crossections.empty()) {
-    METLIBS_LOG_ERROR("no or empty inventory for '" << fileName << "'");
+    METLIBS_LOG_ERROR("no or empty inventory for '" << modelName << "'");
     return false;
   }
 
@@ -117,7 +125,8 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   request.insert(freq);
   request.insert(dir);
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs0, 0, inv->times.at(0), request, n2v);
+  fs = collector->getResolver()->getSource(modelName);
+  fs->getWaveSpectrumValues(mr.reftime,cs0, 0, inv->times.at(0), request, n2v);
   Values_cp freq_values = n2v[freq->id()];
   Values_cp dir_values = n2v[dir->id()];
 
@@ -180,7 +189,8 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   const LonLat pos = LonLat::fromDegrees(posLongitude[iPos], posLatitude[iPos]);
   const Time user_time(util::from_miTime(time));
 
-  vcross::Inventory_cp inv = fs->getInventory();
+  const vcross::ModelReftime mr(modelName, reftime);
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
   if (!inv) {
     METLIBS_LOG_WARN("no inventory");
     return 0;
@@ -207,7 +217,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   FieldData_cp field_ddpeak = find_request_field(inv, request, "Pdir");
 
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs, index, user_time, request, n2v);
+  fs->getWaveSpectrumValues(mr.reftime,cs, index, user_time, request, n2v);
 
   std::auto_ptr<SpectrumPlot> spp(new SpectrumPlot);
   spp->prognostic = true;

@@ -40,7 +40,10 @@
 namespace /* anonymous */ {
 
 const std::string EMPTY_STRING;
-const char KEY_CROSSECTION_EQ[] = "CROSSECTION=";
+const char KEY_CROSSECTION[] = "CROSSECTION";
+const char KEY_TIMEGRAPH[]   = "TIMEGRAPH";
+const char KEY_CROSSECTION_LONLAT[] = "CROSSECTION_LONLAT_DEG";
+const char KEY_TIMEGRAPH_LONLAT[]   = "TIMEGRAPH_LONLAT_DEG";
 
 } // namespace anonymous
 
@@ -78,25 +81,49 @@ VcrossQuickmenues::~VcrossQuickmenues()
 
 void VcrossQuickmenues::parse(const std::vector<std::string>& qm_lines)
 {
+  parse(mManager, qm_lines);
+}
+
+// static
+void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string>& qm_lines)
+{
   METLIBS_LOG_SCOPE();
-  // TODO almost the same code exists in bdiana_capi
 
   string_v vcross_data, vcross_options;
-  std::string crossection;
+  std::string name_cs_tg, lonlat_cs_tg;
+  bool is_cs = false, is_tg = false, is_dyn = false;
 
   for (string_v::const_iterator it = qm_lines.begin(); it != qm_lines.end(); ++it) { // copy because it has to be trimmed
     const std::string line = miutil::trimmed(*it);
     if (line.empty())
       continue;
 
-    const std::string upline = miutil::to_upper(line);
+    const std::vector<std::string> split_eq = miutil::split(line, 1, "=", false);
+    if (split_eq.size() == 2) {
+      const std::string up0 = miutil::to_upper(split_eq[0]);
 
-    if (diutil::startswith(upline, KEY_CROSSECTION_EQ)) {
-      // next line assumes that miutil::to_upper does not change character count
-      crossection = line.substr(sizeof(KEY_CROSSECTION_EQ)-1);
-      if (miutil::contains(crossection, "\""))
-        miutil::remove(crossection, '\"');
-    } else if (diutil::startswith(upline, "VCROSS ")) {
+      if (up0 == KEY_CROSSECTION || up0 == KEY_CROSSECTION_LONLAT) {
+        is_cs = true;
+        is_tg = false;
+      }
+      if (up0 == KEY_TIMEGRAPH || up0 == KEY_TIMEGRAPH_LONLAT) {
+        is_cs = false;
+        is_tg = true;
+      }
+      if (up0 == KEY_CROSSECTION || up0 == KEY_TIMEGRAPH) {
+        name_cs_tg = split_eq[1];
+        METLIBS_LOG_DEBUG(LOGVAL(name_cs_tg));
+        continue;
+      }
+      if (up0 == KEY_CROSSECTION_LONLAT || up0 == KEY_TIMEGRAPH_LONLAT) {
+        lonlat_cs_tg = split_eq[1];
+        is_dyn = true;
+        METLIBS_LOG_DEBUG(LOGVAL(lonlat_cs_tg));
+        continue;
+      }
+    }
+    const std::string upline = miutil::to_upper(line);
+    if (diutil::startswith(upline, "VCROSS ")) {
       vcross_data.push_back(line);
     } else {
       // assume setup options
@@ -104,11 +131,33 @@ void VcrossQuickmenues::parse(const std::vector<std::string>& qm_lines)
     }
   }
 
-  mManager->getOptions()->readOptions(vcross_options);
-  mManager->selectFields(vcross_data);
-  if (!crossection.empty()) {
-    const int idx = mManager->findCrossectionIndex(QString::fromStdString(crossection));
-    mManager->setCrossectionIndex(idx);
+  manager->getOptions()->readOptions(vcross_options);
+  manager->selectFields(vcross_data);
+
+  METLIBS_LOG_DEBUG(LOGVAL(is_cs) << LOGVAL(is_tg));
+  if (is_cs || is_tg) {
+    manager->switchTimeGraph(is_tg);
+    if (!is_dyn) {
+      const int idx = manager->findCrossectionIndex(QString::fromStdString(name_cs_tg));
+      manager->setCrossectionIndex(idx);
+    } else {
+      // dynamic cs / timegraph
+      const std::string label = name_cs_tg.empty() ? std::string("dyn_qm") : name_cs_tg;
+      LonLat_v points;
+      const std::vector<std::string> split_ll = miutil::split(lonlat_cs_tg, " ");
+      points.reserve(split_ll.size());
+      for (std::vector<std::string>::const_iterator it = split_ll.begin(); it != split_ll.end(); ++it) {
+        METLIBS_LOG_DEBUG(LOGVAL(*it));
+        const std::vector<std::string> split_numbers = miutil::split(*it, ",", false);
+        if (split_numbers.size() >= 2) {
+          const float lon = miutil::to_float(split_numbers[0]);
+          const float lat = miutil::to_float(split_numbers[1]);
+          points.push_back(LonLat::fromDegrees(lon, lat));
+        }
+      }
+      if ((is_cs && points.size() >= 2) || (is_tg && points.size() == 1))
+        manager->addDynamicCrossection(QString::fromStdString(label), points);
+    }
   }
 }
 
@@ -135,9 +184,22 @@ std::vector<std::string> VcrossQuickmenues::get() const
       qm.push_back(field.str());
     }
 
-    const QString cs = mManager->getCrossectionLabel();
-    if (!cs.isEmpty())
-      qm.push_back(KEY_CROSSECTION_EQ + cs.toStdString());
+    const QString cs_label = mManager->getCrossectionLabel();
+    if (!cs_label.isEmpty()) {
+      const std::string cs_tg = mManager->isTimeGraph()
+          ? KEY_TIMEGRAPH : KEY_CROSSECTION;
+      qm.push_back(cs_tg + std::string("=") + cs_label.toStdString());
+
+      const LonLat_v points = mManager->getDynamicCrossectionPoints(cs_label);
+      if (!points.empty()) {
+        std::ostringstream pstr;
+        pstr << (mManager->isTimeGraph() ? KEY_TIMEGRAPH_LONLAT : KEY_CROSSECTION_LONLAT)
+             << '=';
+        for (LonLat_v::const_iterator it = points.begin(); it != points.end(); ++it)
+          pstr << it->lonDeg() << ',' << it->latDeg() << ' ';
+        qm.push_back(pstr.str());
+      }
+    }
   }
 
   return qm;

@@ -34,10 +34,9 @@
 #include <QDialog>
 #include <vector>
 
+class VprofManager;
 class QListWidget;
 class QListWidgetItem;
-class QCheckBox;
-class VprofManager;
 
 /**
    \brief Dialogue to selecet Vertical Profile data sources
@@ -66,6 +65,8 @@ private:
 
   //functions
   void setModel();
+  QString getSelectedModelString();
+
 
 private slots:
   void modelfilelistClicked(QListWidgetItem*);

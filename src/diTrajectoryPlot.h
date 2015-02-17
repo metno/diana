@@ -101,7 +101,7 @@ public:
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  int  trajPos(std::vector<std::string>&);
+  int  trajPos(const std::vector<std::string>&);
 
   bool startComputation(std::vector<Field*> vf);
   void stopComputation();

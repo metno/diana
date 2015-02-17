@@ -40,9 +40,14 @@
 #include <diSpectrumData.h>
 #include <diSpectrumPlot.h>
 #include "diUtilities.h"
+#include "vcross_v2/VcrossSetup.h"
+#include <diField/VcrossUtil.h>
+#include "vcross_v2/VcrossCollector.h"
 
 #include <puCtools/stat.h>
 #include <puTools/miSetupParser.h>
+#include <puTools/miStringFunctions.h>
+#include <puTools/mi_boost_compatibility.hh>
 
 #define MILOGGER_CATEGORY "diana.SpectrumManager"
 #include <miLogger/miLogging.h>
@@ -59,7 +64,7 @@ SpectrumManager::SpectrumManager()
 
   spopt= new SpectrumOptions();  // defaults are set
 
-  parseSetup();
+  //  parseSetup();
 
   //zero time = 00:00:00 UTC Jan 1 1970
   ztime = miTime(1970,1,1,0,0,0);
@@ -96,12 +101,12 @@ void SpectrumManager::parseSetup()
   dialogFileNames.clear();
 
   const std::string section2 = "SPECTRUM_FILES";
-
   vector<std::string> vstr;
 
   if (SetupParser::getSection(section2,vstr)) {
 
     set<std::string> uniquefiles;
+    vector<std::string> sources;
 
     int n= vstr.size();
 
@@ -120,6 +125,9 @@ void SpectrumManager::parseSetup()
           filetype = tokens1[1];
         }
       }
+      if ( filetype !="standard" ) {
+        sources.push_back(vstr[i]);
+      }
 
       filenames[model]= filename;
       filetypes[model]=filetype;
@@ -131,8 +139,9 @@ void SpectrumManager::parseSetup()
       }
     }
 
+    setup = miutil::make_shared<vcross::Setup>();
+    setup->configureSources(sources);
   }
-
 }
 
 
@@ -180,42 +189,15 @@ void SpectrumManager::setModel()
     delete spdata[i];
   spdata.clear();
 
-  usemodels.clear();
-
-  //if as field is selected find corresponding model
-  if (asField){
-    int n = fieldModels.size();
-    for (int i=0;i<n;i++)
-      usemodels.insert(fieldModels[i]);
-  }
-
   //models from model dialog
   int m= selectedModels.size();
-  for (int i=0;i<m;i++)
-    usemodels.insert(selectedModels[i]);
-
-  //define models/files  when "model" chosen in modeldialog
-  set <std::string>::iterator p = usemodels.begin();
-  for (; p!=usemodels.end(); p++) {
-    std::string model= *p;
+  for (int i=0;i<m;i++) {
     map<std::string,std::string>::iterator pf;
-    pf= filenames.find(model);
+    pf= filenames.find(selectedModels[i].model);
     if (pf==filenames.end()) {
-      METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << model);
-    } else
-      initSpectrumFile(pf->second,model);
-  }
-
-  //define models/files  when "file" chosen in modeldialog
-  vector<string>::iterator q = selectedFiles.begin();
-  for (; q!=selectedFiles.end(); q++) {
-    std::string file= *q;
-    map<std::string,std::string>::iterator pf=filenames.begin();
-    for (; pf!=filenames.end(); pf++) {
-      if (file==pf->second){
-        initSpectrumFile(file,pf->first);
-        break;
-      }
+      METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << selectedModels[i].model);
+    } else {
+      initSpectrumFile(selectedModels[i]);
     }
   }
 
@@ -400,7 +382,7 @@ vector <std::string> SpectrumManager::getModelNames()
 {
 
   METLIBS_LOG_SCOPE();
-
+parseSetup();
   return dialogModelNames;
 }
 
@@ -415,31 +397,39 @@ vector <std::string> SpectrumManager::getModelFiles()
   return modelfiles;
 }
 
-
-void SpectrumManager::setFieldModels(const vector<string>& fieldmodels)
+std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& modelName)
 {
-  //called when model selected in field dialog
-  fieldModels = fieldmodels;
+  std::vector <std::string> rf;
+  if ( filetypes[modelName] == "standard" )
+    return rf;
+
+  vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);
+
+  collector->getResolver()->getSource(modelName)->update();
+  const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
+   vector<miTime> rtv;
+  rtv.reserve(reftimes.size());
+  for (vcross::Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
+    rf.push_back(vcross::util::to_miTime(*it).isoTime("T"));
+  }
+
+  return rf;
 }
 
-
-void SpectrumManager::setSelectedModels(const vector<string>& models, bool field)
+void SpectrumManager::setSelectedModels(const vector<std::string>& models)
 {
-  //called when model selected in model dialog
-  asField = field;
-  //set data from models, not files
-  selectedFiles.clear();
-  selectedModels = models;
-}
-
-
-void SpectrumManager::setSelectedFiles(const vector<string>& files, bool field)
-{
-  //called when model selected in model dialog
-  asField = field;
-  //set data from files not models
   selectedModels.clear();
-  selectedFiles = files;
+  for ( size_t i=0; i<models.size(); ++i ) {
+    SelectedModel selectedModel;
+    vector<std::string> vstr = miutil::split(models[i]," ");
+    if ( vstr.size() > 0 ) {
+      selectedModel.model = vstr[0];
+    }
+    if ( vstr.size() > 1 ) {
+      selectedModel.reftime = vstr[1];
+    }
+    selectedModels.push_back(selectedModel);
+  }
 }
 
 
@@ -452,37 +442,29 @@ std::string SpectrumManager::getDefaultModel()
 }
 
 
-vector<string> SpectrumManager::getSelectedModels()
+bool SpectrumManager::initSpectrumFile(const SelectedModel& selectedModel)
 {
-  vector <string> models = selectedModels;
-  if (asField)
-    models.push_back(menuConst["ASFIELD"]);
-  return models;
-}
-
-
-bool SpectrumManager::initSpectrumFile(std::string file, std::string model)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(file) << LOGVAL(model));
-  if ( filetypes[model] == "standard" ) {
-    SpectrumFile *spf= new SpectrumFile(file,model);
+  METLIBS_LOG_SCOPE();
+  if ( filetypes[selectedModel.model] == "standard" ) {
+    SpectrumFile *spf= new SpectrumFile(filenames[selectedModel.model],selectedModel.model);
     if (spf->update()) {
-      METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
+      METLIBS_LOG_INFO("OK for model " << selectedModel.model);
       spfile.push_back(spf);
       return true;
     } else {
-      METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
+      METLIBS_LOG_ERROR("Model " << selectedModel.model);
       delete spf;
       return false;
     }
-  } else if ( filetypes[model] == "netcdf" ) {
-    SpectrumData *spd = new SpectrumData(file,model);
-    if ( spd->readFileHeader(filesetup[model])) {
-      METLIBS_LOG_INFO("SPECTRUMFILE READFILE OK for model " << model);
+  } else if ( filetypes[selectedModel.model] == "netcdf" ) {
+    SpectrumData *spd = new SpectrumData(selectedModel.model);
+
+    if ( spd->readFileHeader(setup,selectedModel.reftime)) {
+      METLIBS_LOG_INFO("OK for model " << selectedModel.model);
       spdata.push_back(spd);
       return true;
     } else {
-      METLIBS_LOG_ERROR("SPECTRUMFILE READFILE ERROR file " << file);
+      METLIBS_LOG_ERROR("Model " << selectedModel.model);
       delete spd;
       return false;
     }
@@ -636,9 +618,9 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 
 std::string SpectrumManager::getAnnotationString()
 {
-  std::string str = std::string("B�lgespekter ");
-  for (set <std::string>::iterator p=usemodels.begin();p!=usemodels.end();p++)
-    str+=*p+std::string(" ");
+  std::string str = std::string("Wave spectrum ");
+  for (vector <SelectedModel>::iterator p=selectedModels.begin();p!=selectedModels.end();p++)
+    str+=(*p).model+std::string(" ");
   return str;
 }
 

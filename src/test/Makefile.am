@@ -1,13 +1,14 @@
 
 diana_lib = $(top_builddir)/src/libdiana.a
+CLEANFILES =
 
 TESTS = 
-
 check_PROGRAMS =
+LDADD =
 
 if HAVE_GTEST
 TESTS += dianaUnitTests
-check_PROGRAMS += dianaUnitTests
+check_PROGRAMS += dianaUnitTests dianaGuiTests
 
 dianaUnitTests_qt_sources = \
     TestVcrossQtManager.cc \
@@ -22,10 +23,16 @@ dianaUnitTests_SOURCES = \
     TestCommandParser.cc \
     TestLogFileIO.cc \
     TestPlotOptions.cc \
-    TestUtilities.cc
+    TestUtilities.cc \
+    gtestMain.cc
+
+dianaGuiTests_SOURCES = \
+    TestVcrossGui.cc \
+    gtestMainQt.cc
 
 nodist_dianaUnitTests_SOURCES = \
      $(dianaUnitTests_moc_sources)
+CLEANFILES += $(dianaUnitTests_moc_sources)
 
 %.moc.cc: %.h
 	@mkdir -p $(shell dirname $@)
@@ -36,7 +43,7 @@ dianaUnitTests_SOURCES += \
     TestDianaLevels.cc
 endif
 
-dianaUnitTests_LDFLAGS = -L.. \
+LDFLAGS += -L.. \
     $(DIFIELD_LDFLAGS) \
     $(MIRASTER_LDFLAGS) \
     $(EMOS_LDFLAGS) \
@@ -48,8 +55,9 @@ dianaUnitTests_LDFLAGS = -L.. \
     $(PNG_LDFLAGS) \
     $(QT4_LDFLAGS)
 
-dianaUnitTests_CPPFLAGS = \
-    $(AM_CPPFLAGS) -I$(srcdir)/.. -DTEST_SRCDIR=\"$(srcdir)\" \
+CPPFLAGS += \
+    $(AM_CPPFLAGS) -I$(srcdir)/.. \
+    -DTEST_SRCDIR=\"$(abs_srcdir)\" -DTEST_BUILDDIR=\"$(abs_builddir)\" \
     $(DIFIELD_CPPFLAGS) \
     $(MIRASTER_CPPFLAGS) \
     $(EMOS_CPPFLAGS) \
@@ -61,8 +69,8 @@ dianaUnitTests_CPPFLAGS = \
     $(PNG_CPPFLAGS) \
     $(QT4_CPPFLAGS)
 
-dianaUnitTests_LDADD = \
-    -lgtest_main $(diana_lib) \
+LDADD += \
+    -lgtest $(diana_lib) \
     $(DIFIELD_LIBS) \
     $(MIRASTER_LIBS) \
     $(EMOS_LIBS) $(FORTRAN_LIBS) \

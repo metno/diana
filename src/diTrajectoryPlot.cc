@@ -109,7 +109,7 @@ bool TrajectoryPlot::prepare(void){
   return true;
 }
 
-int TrajectoryPlot::trajPos(vector<string>& vstr)
+int TrajectoryPlot::trajPos(const vector<string>& vstr)
 {
 #ifdef DEBUGPRINT
   for(int i=0;i<vstr.size();i++)

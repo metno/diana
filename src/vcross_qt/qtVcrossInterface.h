@@ -31,8 +31,10 @@
 #define _qtvcrossinterface_
 
 #include "diVcrossInterface.h"
+#include "vcross_v2/VcrossQuickmenues.h"
 
 #include <QVariant>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -44,7 +46,8 @@ class VcrossWindow;
 
 class VcrossWindowInterface : public VcrossInterface
 {
-  Q_INTERFACES(VcrossInterface)
+  Q_OBJECT;
+  Q_INTERFACES(VcrossInterface);
 
 public:
   VcrossWindowInterface();
@@ -52,7 +55,8 @@ public:
 
   void makeVisible(bool visible) Q_DECL_OVERRIDE;
   void parseSetup() Q_DECL_OVERRIDE;
-  bool changeCrossection(const std::string& csName) Q_DECL_OVERRIDE;
+  void changeCrossection(const std::string& csName) Q_DECL_OVERRIDE;
+  void showTimegraph(const LonLat& position) Q_DECL_OVERRIDE;
   void mainWindowTimeChanged(const miutil::miTime& t) Q_DECL_OVERRIDE;
   void parseQuickMenuStrings(const std::vector<std::string>& vstr) Q_DECL_OVERRIDE;
   void writeLog(LogFileIO& logfile) Q_DECL_OVERRIDE;
@@ -64,8 +68,24 @@ public: /* Q_SLOT implementations */
   void editManagerRemoved(int id) Q_DECL_OVERRIDE;
   void editManagerEditing(bool editing) Q_DECL_OVERRIDE;
 
+private Q_SLOTS:
+  void onVcrossHide();
+  void crossectionChangedSlot(int);
+  void crossectionListChangedSlot();
+  void timeChangedSlot(int);
+  void timeListChangedSlot();
+
 private:
+  bool checkWindow();
+  void loadPredefinedCS();
+
+private:
+  vcross::QtManager_p vcrossm;
+  std::auto_ptr<vcross::VcrossQuickmenues> quickmenues;
+
   VcrossWindow* window;
+
+  std::set<std::string> mPredefinedCsFiles;
 };
 
 #endif // _qt_vcrossmainwindow_
