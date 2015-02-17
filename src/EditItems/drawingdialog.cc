@@ -236,13 +236,15 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 
 void DrawingDialog::makeProduct()
 {
-  // Write the layers to temporary files in the working directory.
-  QDir dir(drawm_->getWorkDir());
-  QString filePath = dir.absoluteFilePath("temp.kml");
-  layersPane_->saveSelected(filePath);
+  QSet<QString> sources;
+  foreach (const QSharedPointer<Layer> &layer, layerMgr_->orderedLayers()) {
+    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items())
+      sources.insert(item->property("srcFile").toString());
+  }
 
   std::vector<std::string> inp;
-  inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");
+  foreach (const QString &source, sources)
+    inp.push_back("DRAWING file=\"" + source.toStdString() + "\"");
 
   putOKString(inp);
 
