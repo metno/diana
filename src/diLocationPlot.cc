@@ -275,8 +275,6 @@ bool LocationPlot::plot()
     if (!changeProjection()) return false;
   }
 
-  int n1,n2, numLines= locinfo.size();
-
   Colour   c1= Colour(locdata.colour);
   Colour   c2= Colour(locdata.colourSelected);
   float    w1= locdata.linewidth;
@@ -296,14 +294,10 @@ bool LocationPlot::plot()
 
   int lselected= -1;
 
+  const int numLines= locinfo.size();
   for (int l=0; l<numLines; l++) {
     if (locdata.elements[l].name!=selectedName) {
-      n1= locinfo[l].beginpos;
-      n2= locinfo[l].endpos;
-      glBegin(((n2 - n1) > 1) ? GL_LINE_STRIP : GL_POINTS);
-      for (int n=n1; n<n2; n++)
-        glVertex2f(px[n],py[n]);
-      glEnd();
+      drawLineOrPoint(l);
     } else {
       lselected= l;
     }
@@ -319,17 +313,32 @@ bool LocationPlot::plot()
       glEnable(GL_LINE_STIPPLE);
       glLineStipple(l2.factor,l2.bmap);
     }
-    n1= locinfo[lselected].beginpos;
-    n2= locinfo[lselected].endpos;
-    glBegin(((n2 - n1) > 1) ? GL_LINE_STRIP : GL_POINTS);
-    for (int n=n1; n<n2; n++)
-      glVertex2f(px[n],py[n]);
-    glEnd();
+    drawLineOrPoint(lselected);
     getStaticPlot()->UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
   }
 
   return true;
+}
+
+
+void LocationPlot::drawLineOrPoint(int l)
+{
+  const int n1 = locinfo[l].beginpos, n2= locinfo[l].endpos;
+  if ((n2 - n1) > 1) {
+    glBegin(GL_LINE_STRIP);
+    for (int n=n1; n<n2; n++)
+      glVertex2f(px[n],py[n]);
+    glEnd();
+  } else {
+    const float size = getStaticPlot()->getPlotSize().width() * 0.004;
+    glBegin(GL_LINES);
+    glVertex2f(px[n1]-size,py[n1]);
+    glVertex2f(px[n1]+size,py[n1]);
+    glVertex2f(px[n1],py[n1]-size);
+    glVertex2f(px[n1],py[n1]+size);
+    glEnd();
+  }
 }
 
 

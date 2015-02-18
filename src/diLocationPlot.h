@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,7 +66,9 @@ public:
   void getAnnotation(std::string &str, Colour &col);
 
 private:
+  void drawLineOrPoint(int l);
 
+private:
   struct InternalLocationInfo {
     int   beginpos;
     int   endpos;
