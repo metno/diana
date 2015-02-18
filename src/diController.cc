@@ -206,7 +206,7 @@ void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2){
 }
 
 // get plot area (incl. projection)
-Area Controller::getMapArea(){
+const Area& Controller::getMapArea(){
   return plotm->getMapArea();
 }
 

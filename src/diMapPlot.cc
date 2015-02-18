@@ -562,7 +562,7 @@ bool MapPlot::plotMapLand4(const std::string& filename, float xylim[],
 
   Projection geoProj;
   geoProj.setGeographic();
-  Projection projection = getStaticPlot()->getMapArea().P();
+  const Projection& projection = getStaticPlot()->getMapArea().P();
 
   const unsigned int nwrec = 1024;
   const unsigned int maxpos = 2000;
@@ -994,7 +994,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
    */
 
 
-  Projection p= getStaticPlot()->getMapArea().P();
+  const Projection& p = getStaticPlot()->getMapArea().P();
   if (!p.isDefined()) {
     METLIBS_LOG_ERROR("MapPlot::plotGeoGrid ERROR: undefined projection");
     return false;

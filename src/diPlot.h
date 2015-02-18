@@ -108,7 +108,7 @@ public:
     { requestedarea = a; }
 
   /// this is the area we really wanted
-  Area& getRequestedarea()
+  const Area& getRequestedarea()
     { return requestedarea; }
 
   /// this is the full size of the plot in the current projection

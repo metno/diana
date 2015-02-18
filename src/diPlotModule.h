@@ -238,11 +238,11 @@ public:
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float, const float, float&, float&);
   bool PhysToGeo(const float x, const float y, float& lat, float& lon,
-      Area area, Rectangle r);
+      const Area& area, const Rectangle& r);
   /// return physical x,y from physical latitude,longitude
   bool GeoToPhys(const float, const float, float&, float&);
-  bool GeoToPhys(const float, const float, float&, float&, Area area,
-      Rectangle r);
+  bool GeoToPhys(const float, const float, float&, float&,
+      const Area& area, const Rectangle& r);
   /// return map x,y from physical x,y
   void PhysToMap(const float, const float, float&, float&);
   /// return field grid x,y from map x,y if field defined and map proj = field proj
@@ -368,7 +368,7 @@ public:
   void setObjAuto(bool autoF);
 
   /// push a new area onto the area stack
-  void areaInsert(Area, bool);
+  void areaInsert(const Area&, bool);
   /// respond to shortcuts to move to predefined areas
   void changeArea(QKeyEvent* ke);
   /// zoom to specified rectangle

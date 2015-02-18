@@ -1376,7 +1376,7 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
   float ry[2] = { fi.posy, fi.posy + fi.ayellipse * editfield->gridResolutionY};
   if (geo) {
     int npos= 2;
-    Area maparea = getStaticPlot()->getMapArea();
+    const Area& maparea = getStaticPlot()->getMapArea();
     gc.geo2xy(maparea,npos,rx,ry);
   }
   float dx= rx[1]/editfield->gridResolutionX - rx[0]/editfield->gridResolutionX;
@@ -1415,7 +1415,7 @@ FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
       posy + dy*0.5* editfield->gridResolutionY };
   if (geo) {
     int npos=3;
-    Area maparea = getStaticPlot()->getMapArea();
+    const Area& maparea = getStaticPlot()->getMapArea();
     gc.xy2geo(maparea,npos,rx,ry);
   }
 

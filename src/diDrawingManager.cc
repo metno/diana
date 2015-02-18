@@ -480,10 +480,11 @@ bool DrawingManager::changeProjection(const Area& newArea)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
-  Rectangle r = PLOTM->getPlotSize();
+  const Rectangle& r = PLOTM->getPlotSize();
   setPlotRect(r);
   setEditRect(r);
-  currentArea_ = newArea;
+  if (currentArea_ != newArea)
+    currentArea_ = newArea;
   return true;
 }
 

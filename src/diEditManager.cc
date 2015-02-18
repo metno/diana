@@ -1826,7 +1826,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   METLIBS_LOG_SCOPE("Time = " << valid);
 
   int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
+  const Area& newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
   fieldsCombined= false;
 
@@ -2027,8 +2027,7 @@ bool EditManager::editCombine()
   METLIBS_LOG_SCOPE();
 
   int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
-  plotm->getMapArea() );
+  const Area& newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
   fieldsCombined= false;
 
@@ -2395,8 +2394,8 @@ bool EditManager::recalcCombineMatrix(){
 //  }
   //####################################################################
 
-  Area oldArea= plotm->getMapArea();
-  Area newArea= fedits[0]->editfield->area;
+  const Area& oldArea= plotm->getMapArea();
+  const Area& newArea= fedits[0]->editfield->area;
   if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis,yposis)) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     return false;
