@@ -131,6 +131,7 @@ public:
   void addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
   void updateField(int index, const std::string& fieldOpts);
   void removeField(int index);
+  void moveField(int indexOld, int indexNew);
   void removeAllFields();
 
   void setFieldVisible(int index, bool visible);
@@ -207,6 +208,9 @@ Q_SIGNALS:
   void timeGraphModeChanged(bool on);
 
 private:
+  int insertField(const ModelReftime& model, const std::string& plot,
+      const string_v& options, int idx);
+
   SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
   int findSelectedPlotIndex(const PlotSpec& ps);
 

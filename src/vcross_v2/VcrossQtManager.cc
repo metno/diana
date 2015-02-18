@@ -814,16 +814,24 @@ void QtManager::updateCrossectionsTimes()
 }
 
 
-void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts, int idx, bool updateUserFieldOptions)
+void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts,
+    int idx, bool updateUserFieldOptions)
 {
   if (findSelectedPlot(ps))
     return;
+  idx = insertField(ps.modelReftime(), ps.field(), miutil::split(fieldOpts), idx);
+  if (idx >= 0 && updateUserFieldOptions)
+    userFieldOptions[ps.field()] = fieldOpts;
+}
 
-  idx = mCollector->insertPlot(ps.modelReftime(), ps.field(), miutil::split(fieldOpts), idx);
+
+int QtManager::insertField(const ModelReftime& model, const std::string& plot,
+    const string_v& options, int idx)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(idx));
+  idx = mCollector->insertPlot(model, plot, options, idx);
+  METLIBS_LOG_DEBUG(LOGVAL(idx));
   if (idx >= 0) {
-    if (updateUserFieldOptions)
-      userFieldOptions[ps.field()] = fieldOpts;
-
     dataChange |= CHANGED_SEL;
 
     Q_EMIT fieldAdded(idx);
@@ -831,6 +839,7 @@ void QtManager::addField(const PlotSpec& ps, const std::string& fieldOpts, int i
       updateCrossectionsTimes();
     // TODO trigger plot update
   }
+  return idx;
 }
 
 
@@ -871,6 +880,24 @@ void QtManager::removeField(int idx)
   if (inFieldChangeGroup == 0)
     updateCrossectionsTimes();
   // TODO trigger plot update
+}
+
+
+void QtManager::moveField(int indexOld, int indexNew)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(indexOld) << LOGVAL(indexNew));
+  if (indexOld < 0 || indexOld >= mCollector->countSelectedPlots()
+      || indexNew < 0 || indexNew >= mCollector->countSelectedPlots()
+      || indexOld == indexNew)
+  {
+    return;
+  }
+
+  fieldChangeStart(true);
+  SelectedPlot_p plot = mCollector->getSelectedPlots().at(indexOld);
+  removeField(indexOld);
+  insertField(plot->model, plot->name(), plot->options, indexNew);
+  fieldChangeDone();
 }
 
 

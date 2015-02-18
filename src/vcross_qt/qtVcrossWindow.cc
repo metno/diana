@@ -297,6 +297,10 @@ void VcrossWindow::onFieldAction(int position, int action)
     vcStyleDialog->show();
   } else if (action == VcrossLayerButton::REMOVE) {
     vcrossm->removeField(position);
+  } else if (action == VcrossLayerButton::UP) {
+    vcrossm->moveField(position, position+1);
+  } else if (action == VcrossLayerButton::DOWN) {
+    vcrossm->moveField(position, position-1);
   } else if (action == VcrossLayerButton::SHOW_HIDE) {
     QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
     QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
@@ -337,13 +341,8 @@ void VcrossWindow::onFieldVisibilityChanged(int position)
 void VcrossWindow::onFieldRemoved(int position)
 {
   METLIBS_LOG_SCOPE();
-#if 0
   QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->takeAt(position));
-  QToolButton *button = static_cast<QToolButton*>(wi->widget());
-  button->deleteLater();
-  delete wi;
-#endif
+  delete lbl->takeAt(position);
 
   repaintPlotIfNotInGroup();
 }

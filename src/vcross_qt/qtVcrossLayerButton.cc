@@ -55,16 +55,15 @@ VcrossLayerButton::VcrossLayerButton(vcross::QtManager_p vcm, int p, QWidget* pa
 
   actionUp = menu->addAction(tr("Up"));
   connect(actionUp, SIGNAL(triggered()), SLOT(onUp()));
-  actionUp->setEnabled(false);
 
   actionDown = menu->addAction(tr("Down"));
   connect(actionDown, SIGNAL(triggered()), SLOT(onDown()));
-  actionDown->setEnabled(false);
 
   QAction* actionRemove = menu->addAction(tr("Remove"));
   connect(actionRemove, SIGNAL(triggered()), SLOT(onRemove()));
 
   setMenu(menu);
+  enableUpDown();
 }
 
 void VcrossLayerButton::enableUpDown()
