@@ -32,7 +32,6 @@
 #include <diColour.h>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
-#include <diLocationPlot.h>
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
@@ -46,6 +45,7 @@
 
 class AnnotationPlot;
 class PlotModule;
+struct LocationData;
 class FieldManager;
 class FieldPlotManager;
 class ObsManager;

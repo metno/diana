@@ -37,6 +37,7 @@
 #include <diObsPlot.h>
 
 #include <diFieldPlot.h>
+#include "diLocationPlot.h"
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
 #include <diMeasurementsPlot.h>

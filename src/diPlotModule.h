@@ -36,7 +36,6 @@
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 #include <puTools/miTime.h>
-#include <diLocationPlot.h>
 #include <diDisplayObjects.h>
 #include <diAreaObjects.h>
 
@@ -51,6 +50,8 @@ class AnnotationPlot;
 class FieldManager;
 class FieldPlotManager;
 class FieldPlot;
+struct LocationData;
+class LocationPlot;
 class Manager;
 class ObsManager;
 class SatManager;

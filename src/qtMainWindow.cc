@@ -90,7 +90,7 @@
 #include "diLocalSetupParser.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
 #include "diLogFile.h"
 
 #include "qtDataDialog.h"

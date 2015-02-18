@@ -37,6 +37,7 @@
 #include "qtTrajectoryDialog.h"
 #include "qtUtility.h"
 #include "qtGeoPosLineEdit.h"
+#include "diLinetype.h"
 
 #include <puTools/miStringFunctions.h>
 

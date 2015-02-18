@@ -30,7 +30,6 @@
 #define _qt_mainwindow_
 
 #include "diCommonTypes.h"
-#include "diLocationPlot.h"
 #include "diMapMode.h"
 #include "diPrintOptions.h"
 #include <EditItems/toolbar.h>
@@ -65,6 +64,7 @@ class QPushButton;
 class WorkArea;
 class QuickMenu;
 class FieldDialog;
+struct LocationData;
 class ObsDialog;
 class SatDialog;
 class StationDialog;

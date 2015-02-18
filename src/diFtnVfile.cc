@@ -36,8 +36,6 @@
 
 #include "diFtnVfile.h"
 
-#include "diLocationPlot.h"
-
 #include <cmath>
 #include <cstdio>
 #include <sstream>
