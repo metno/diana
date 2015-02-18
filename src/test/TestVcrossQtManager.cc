@@ -309,3 +309,23 @@ TEST(TestVcrossQtManager, MoveFields)
   EXPECT_TRUE(ms.end);
   ms.reset();
 }
+
+TEST(TestVcrossQtManager, DuplicateFields)
+{
+  vcross::QtManager manager;
+  configureManager(manager, AROME1_FILE);
+  vcross::test::ManagerSlots ms(&manager);
+
+  manager.getModelReferenceTimes(MODEL);
+
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=red line.interval=0.2", 0);
+  ms.reset();
+
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=blue line.interval=0.2", 1);
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(0, ms.cslist);
+  EXPECT_EQ(0, ms.csindex);
+  EXPECT_EQ(TEMPK, manager.getFieldAt(0));
+  EXPECT_EQ(TEMPK, manager.getFieldAt(1));
+  ms.reset();
+}

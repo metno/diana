@@ -261,7 +261,8 @@ void VcrossAddPlotDialog::initializePlotPage(bool forward)
 
     diutil::OverrideCursor waitCursor;
 
-    const std::vector<std::string> fields = vcrossm->getFieldNames(model.toStdString(), reftime, false);
+    const std::vector<std::string> fields
+        = vcrossm->getFieldNames(model.toStdString(), reftime, true);
     QStringList fsl;
     for (size_t i=0; i<fields.size(); ++i)
       fsl << QString::fromStdString(fields[i]);
