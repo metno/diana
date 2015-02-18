@@ -72,7 +72,7 @@ bool lt_LocationElement::operator() (const LocationElement& a, const LocationEle
 miutil::miTime getBestReferenceTime(const std::vector<miutil::miTime>& reftimes,
     int refOffset, int refHour)
 {
-  // FIXME this is a almost verbatim copy of diField FieldManager::getBestReferenceTime
+  // FIXME this is an almost verbatim copy of diField FieldManager::getBestReferenceTime
 
   if (reftimes.empty())
     return miutil::miTime();
@@ -462,6 +462,9 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
   if (mCrossectionTimes != newTimes) {
     std::swap(mCrossectionTimes, newTimes);
     mPlotTime = -1;
+
+    if (mTimeGraphMode && !supportsTimeGraph())
+      switchTimeGraph(false);
 
     dataChange |= CHANGED_TIME;
     Q_EMIT timeListChanged();
@@ -993,7 +996,7 @@ bool QtManager::supportsTimeGraph()
 {
   METLIBS_LOG_SCOPE();
   if (mCollector->getSelectedPlots().empty())
-    return false;
+    return true;
   if (mCrossectionTimes.size() < 2)
     return false;
   // TODO need to check if there are any length-1 cross-sections
