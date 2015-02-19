@@ -158,6 +158,10 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   METLIBS_LOG_SCOPE();
 
   collector = miutil::make_shared<vcross::Collector>(setup);
+  vcross::Source_p source = collector->getResolver()->getSource(modelName);
+  if (!source)
+    return false;
+
 
   fields.push_back(VP_AIR_TEMPERATURE);
   fields.push_back(VP_DEW_POINT_TEMPERATURE);
@@ -167,7 +171,7 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
   fields.push_back(VP_OMEGA);
 
   if ( reftimestr.empty() ) {
-    reftime = collector->getResolver()->getSource(modelName)->getLatestReferenceTime();
+    reftime = source->getLatestReferenceTime();
   } else {
     miTime mt(reftimestr);
     reftime = util::from_miTime(mt);
@@ -489,8 +493,10 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
     // This replaces the current dynamic crossection, if present.
     // TODO: Should be tested when more than one time step is available.
     if (!stationsFileName.empty()) {
-      Source_p s = collector->getResolver()->getSource(modelName);
-      s->addDynamicCrossection(reftime, posName[iPos], LonLat_v(1, pos));
+      Source_p source = collector->getResolver()->getSource(modelName);
+      if (!source)
+        return 0;
+      source->addDynamicCrossection(reftime, posName[iPos], LonLat_v(1, pos));
     }
 
     const vcross::ModelReftime mr(modelName, reftime);
