@@ -748,7 +748,7 @@ void endHardcopy(const plot_type pt)
 }
 
 // VPROF-options with parser
-std::string vprof_station;
+std::vector<std::string> vprof_stations;
 vector<string> vprof_models, vprof_options;
 bool vprof_plotobs = true;
 bool vprof_optionschanged;
@@ -776,7 +776,7 @@ void parse_vprof_options(const vector<string>& opts)
         if (key == "STATION") {
           if (miutil::contains(value, "\""))
             miutil::remove(value, '\"');
-          vprof_station = value;
+          vprof_stations  = miutil::split(value, ",");
         } else if (key == "MODELS" || key == "MODEL") {
           vprof_models = miutil::split(value, 0, ",");
         }
@@ -1903,7 +1903,7 @@ static int parseAndProcess(istream &is)
         // -- vprof plot
         if (!vprofmanager) {
           vprofmanager = new VprofManager();
-          vprofmanager->parseSetup();
+          vprofmanager->init();
         }
 
         // set size of plotwindow
@@ -1939,9 +1939,9 @@ static int parseAndProcess(istream &is)
         }
 
         if (verbose)
-          METLIBS_LOG_INFO("- setting station:" << vprof_station);
-        if (not vprof_station.empty())
-          vprofmanager->setStation(vprof_station);
+          METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
+        if (vprof_stations.size())
+          vprofmanager->setStations(vprof_stations);
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vprof, priop);
@@ -2420,7 +2420,7 @@ static int parseAndProcess(istream &is)
 
       if (!vprofmanager) {
         vprofmanager = new VprofManager();
-      vprofmanager->parseSetup();
+        vprofmanager->init();
       }
       // extract options for plot
       parse_vprof_options(pcom);

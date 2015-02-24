@@ -113,6 +113,11 @@ void VprofManager::cleanup()
   // NOTE: Flush the field cache
 }
 
+void VprofManager::init()
+{
+  parseSetup();
+  updateObsFileList();
+}
 
 void VprofManager::parseSetup()
 {
@@ -713,8 +718,7 @@ bool VprofManager::plot()
 vector <std::string> VprofManager::getModelNames()
 {
   METLIBS_LOG_SCOPE();
-  parseSetup();
-  updateObsFileList();
+  init();
   return dialogModelNames;
 }
 /***************************************************************************/

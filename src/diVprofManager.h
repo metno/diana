@@ -180,6 +180,8 @@ public:
 
   // clenans up vhen user closes the vprof window
   void cleanup();
+  // parseSetup and init obsfilelist
+  void init();
 
   VprofOptions* getOptions() { return vpopt; }
   void setPlotWindow(int w, int h);
