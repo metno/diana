@@ -83,7 +83,7 @@ TEST(TestVcrossComputer, BangladeshTH)
 
   Crossection_cp cs3 = inv->crossections.at(3);
   ASSERT_TRUE(cs3);
-  EXPECT_EQ(BANGLADESH_CS_LEN[3], cs3->npoint());
+  EXPECT_EQ(BANGLADESH_CS_LEN[3], cs3->length());
 
   InventoryBase_cps fields(inv->fields.begin(), inv->fields.end());
   vcross::resolve(fields, computations);

@@ -246,13 +246,18 @@ void QtManager::removeDynamicCrossection(const QString& label)
 
 LonLat_v QtManager::getDynamicCrossectionPoints(const QString& label)
 {
+  LonLat_v points;
   const ModelReftime& mr = mCollector->getFirstModel();
-  if (Source_p src = mCollector->getSetup()->findSource(mr.model))
+  if (Source_p src = mCollector->getSetup()->findSource(mr.model)) {
     if (Inventory_cp inv = src->getInventory(mr.reftime))
       if (Crossection_cp cs = inv->findCrossectionByLabel(label.toStdString()))
-        if (cs->dynamic())
-          return cs->points;
-  return LonLat_v();
+        if (cs->dynamic()) {
+          points.reserve(cs->lengthRequested());
+          for (size_t i = 0; i<cs->lengthRequested(); ++i)
+            points.push_back(cs->pointRequested(i));
+        }
+  }
+  return points;
 }
 
 void QtManager::handleChangedCrossectionList(const QString& oldLabel)
@@ -285,19 +290,18 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
         for (Crossection_cpv::const_iterator itCS = inv->crossections.begin(); itCS!= inv->crossections.end(); ++itCS) {
           Crossection_cp cs = *itCS;
 
-          const LonLat_v& crossectionPoints = (*itCS)->points;
-          if ((isTimeGraph() && crossectionPoints.size() != 1)
-              || (!isTimeGraph() && crossectionPoints.size() < 2))
+          if ((isTimeGraph() && cs->length() != 1)
+              || (!isTimeGraph() && cs->length() < 2))
             continue;
           LocationElement el;
-          el.name = cs->label;
-          for (LonLat_v::const_iterator itL = crossectionPoints.begin(); itL != crossectionPoints.end(); ++itL) {
-            el.xpos.push_back(itL->lonDeg());
-            el.ypos.push_back(itL->latDeg());
+          el.name = cs->label();
+          for (size_t i = 0; i<cs->length(); ++i) {
+            el.xpos.push_back(cs->point(i).lonDeg());
+            el.ypos.push_back(cs->point(i).latDeg());
           }
           le.insert(el);
 
-          labels.insert(cs->label);
+          labels.insert(cs->label());
         }
       }
     }
@@ -327,13 +331,20 @@ void QtManager::handleChangedCrossection()
   // FIXME this is a bad function, it will not work if models have the same cross-section label but different points
 
   mCrossectionPoints.clear();
+  mCrossectionPointsRequested.clear();
   if (mCrossectionCurrent >= 0 and mCrossectionCurrent < getCrossectionCount()) {
     const std::string& label = mCrossectionLabels.at(mCrossectionCurrent);
     const ModelReftime& mr = mCollector->getFirstModel();
     if (Source_p src = mCollector->getSetup()->findSource(mr.model))
       if (Inventory_cp inv = src->getInventory(mr.reftime))
-        if (Crossection_cp cs = inv->findCrossectionByLabel(label))
-          mCrossectionPoints = cs->points;
+        if (Crossection_cp cs = inv->findCrossectionByLabel(label)) {
+          mCrossectionPoints.reserve(cs->length());
+          for (size_t i = 0; i<cs->length(); ++i)
+            mCrossectionPoints.push_back(cs->point(i));
+          mCrossectionPointsRequested.reserve(cs->lengthRequested());
+          for (size_t i = 0; i<cs->lengthRequested(); ++i)
+            mCrossectionPointsRequested.push_back(cs->pointRequested(i));
+        }
   } else {
     mCrossectionCurrent = -1;
   }
@@ -596,7 +607,8 @@ void QtManager::preparePlot()
     const Time user_time = util::from_miTime(getTimeValue(getTimeIndex()));
     METLIBS_LOG_DEBUG(LOGVAL(user_time.unit) << LOGVAL(user_time.value));
     model_values = vc_fetch_crossection(mCollector, cs, user_time);
-    mPlot->setHorizontalCross(cs, getTimeValue(), mCrossectionPoints);
+    mPlot->setHorizontalCross(cs, getTimeValue(), mCrossectionPoints,
+        mCrossectionPointsRequested);
   } else {
     const LonLat& ll = mCrossectionPoints.at(0);
     model_values = vc_fetch_timegraph(mCollector, ll);
@@ -1051,7 +1063,7 @@ void QtManager::setTimeGraph(const LonLat& position)
   if (!cs)
     return;
 
-  int cs_index = findCrossectionIndex(QString::fromStdString(cs->label));
+  int cs_index = findCrossectionIndex(QString::fromStdString(cs->label()));
   if (cs_index >= 0)
     setCrossectionIndex(cs_index);
 }

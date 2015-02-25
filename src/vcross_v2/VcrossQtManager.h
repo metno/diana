@@ -246,6 +246,7 @@ private:
 
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
+  LonLat_v mCrossectionPointsRequested;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
   LocationData locationData;
 

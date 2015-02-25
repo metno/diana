@@ -88,6 +88,11 @@ static const char* horizontal(bool timegraph)
   return timegraph ? vcross::Values::TIME : vcross::Values::GEO_X;
 }
 
+bool eq_LonLat(const LonLat& a, const LonLat& b)
+{
+  return a.lon() == b.lon() && a.lat() == b.lat();
+}
+
 // begin utility functions for y ticks
 
 float identity(float x)
@@ -357,13 +362,16 @@ void QtPlot::clear(bool keepX, bool keepY)
 }
 
 void QtPlot::setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
-    const LonLat_v& csPoints)
+    const LonLat_v& csPoints, const LonLat_v& csPointsRequested)
 {
   METLIBS_LOG_SCOPE(LOGVAL(csLabel) << LOGVAL(csPoints.size()));
 
   mCrossectionLabel = csLabel;
   mCrossectionTime = csTime;
   mCrossectionPoints = csPoints;
+  mCrossectionPointsRequested = csPointsRequested;
+  if (mCrossectionPointsRequested.size() == mCrossectionPoints.size())
+    mCrossectionPointsRequested.clear();
 
   mCrossectionDistances.clear();
   mCrossectionDistances.reserve(mCrossectionPoints.size());
@@ -725,12 +733,13 @@ void QtPlot::plotXLabels(QPainter& painter)
       const float tickTopEnd = mAxisY->getPaintMax(), tickTopStart = tickTopEnd + 0.5*mCharSize.height();
       const float tickBotStart = mAxisY->getPaintMin(), tickBotEnd = tickBotStart - 0.5*mCharSize.height();
       float nextLabelX = mAxisX->getPaintMin();
+      size_t requestedIndex = 0;
       const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
         const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
-
-        if (mAxisX->legalPaint(tickX)) {
+        const bool legalX = mAxisX->legalPaint(tickX);
+        if (legalX) {
           int tickLineWidth = 1;
           if (tickX >= nextLabelX) {
             std::ostringstream xostr;
@@ -744,12 +753,29 @@ void QtPlot::plotXLabels(QPainter& painter)
               tickLineWidth += 1;
             }
           }
+
           // FIXME this makes thick tick marks for if distance is shown, and no ticks if no distance
           pen.setWidth(tickLineWidth);
           painter.setPen(pen);
           painter.drawLine(QLineF(tickX, tickBotStart, tickX, tickBotEnd));
           painter.drawLine(QLineF(tickX, tickTopStart, tickX, tickTopEnd));
         }
+
+        // draw vertical line for requested points
+        if (requestedIndex < mCrossectionPointsRequested.size()) {
+          const LonLat& requestedPoint = mCrossectionPointsRequested.at(requestedIndex);
+          if (eq_LonLat(requestedPoint, mCrossectionPoints.at(i))) {
+            const bool first_or_last = (requestedIndex == 0
+                || requestedIndex == mCrossectionPointsRequested.size() - 1);
+            if (legalX && !first_or_last) {
+              pen.setWidth(1);
+              painter.drawLine(QLineF(tickX, mAxisY->getPaintMin(),
+                      tickX, mAxisY->getPaintMax()));
+            }
+            requestedIndex += 1;
+          }
+        }
+
       }
       labelY += lines_1;
     }

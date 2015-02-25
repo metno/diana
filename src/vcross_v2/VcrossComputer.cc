@@ -479,17 +479,17 @@ namespace /*anonymous*/ {
 void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
     Values::value_t& vlon, Values::value_t& vlat, Values::value_t& vbrng, Values::value_t& vstep, Values::value_t& vcor)
 {
-  if (cs_index >= cs->npoint())
+  if (cs_index >= cs->length())
     return;
 
   const LonLat &p0 = cs->point(cs_index);
   vlon = p0.lon();
   vlat = p0.lat();
-  if (cs->npoint() == 1)
+  if (cs->length() == 1)
     vbrng = 0;
-  else if (cs_index < cs->npoint()-1)
+  else if (cs_index < cs->length()-1)
     vbrng = p0.bearingTo(cs->point(cs_index+1));
-  else // cs_index == cs->npoint()-1 and size >= 2
+  else // cs_index == cs->length()-1 and size >= 2
     // => repeat bearing of last segment
     vbrng = cs->point(cs_index-1).bearingTo(p0);
   if (cs_index == 0)
@@ -502,13 +502,13 @@ void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
 
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
 {
-  Values_p vlon (new Values(cs->npoint(), 1, false));
-  Values_p vlat (new Values(cs->npoint(), 1, false));
-  Values_p vbrng(new Values(cs->npoint(), 1, false));
-  Values_p vstep(new Values(cs->npoint(), 1, false));
-  Values_p vcor (new Values(cs->npoint(), 1, false));
+  Values_p vlon (new Values(cs->length(), 1, false));
+  Values_p vlat (new Values(cs->length(), 1, false));
+  Values_p vbrng(new Values(cs->length(), 1, false));
+  Values_p vstep(new Values(cs->length(), 1, false));
+  Values_p vcor (new Values(cs->length(), 1, false));
 
-  for (size_t i=0; i<cs->npoint(); ++i) {
+  for (size_t i=0; i<cs->length(); ++i) {
     Values::value_t flon, flat, fbrng, fstep, fcor;
     evaluateCrossectionPoint(cs, i, flon, flat, fbrng, fstep, fcor);
     vlon ->setValue(flon,  i, 0);
@@ -527,7 +527,7 @@ void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
 
 void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t ntimes, name2value_t& n2v)
 {
-  if (cs_index >= cs->npoint())
+  if (cs_index >= cs->length())
     return;
 
   Values::value_t flon, flat, fbrng, fstep, fcor;

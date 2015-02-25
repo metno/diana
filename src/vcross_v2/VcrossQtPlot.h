@@ -112,7 +112,7 @@ public:
 
   void clear(bool keepX=false, bool keepY=false);
   void setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
-      const LonLat_v& csPoints);
+      const LonLat_v& csPoints, const LonLat_v& csPointsRequested);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
   bool setVerticalAxis();
   void setSurface(Values_cp s)
@@ -194,6 +194,7 @@ private:
   std::string mCrossectionLabel;
   miutil::miTime mCrossectionTime;
   LonLat_v mCrossectionPoints;
+  LonLat_v mCrossectionPointsRequested;
   std::vector<float> mCrossectionDistances; //! distance in m from first point
   std::vector<float> mCrossectionBearings;  //! direction to next point
 

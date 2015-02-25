@@ -59,7 +59,7 @@ TEST(VprofDataTest, TestSetup)
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(3);
-  ASSERT_EQ(1, cs->npoint());
+  ASSERT_EQ(1, cs->length());
 
   string_v field_ids;
   field_ids.push_back("air_temperature_celsius_ml");
@@ -145,7 +145,7 @@ TEST(VprofDataTest, TestBangkok)
   ASSERT_EQ(BANGKOK_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGKOK_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(0);
-  ASSERT_EQ(1, cs->npoint());
+  ASSERT_EQ(1, cs->length());
 
   string_v field_ids;
   field_ids.push_back("air_temperature");

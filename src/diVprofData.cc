@@ -191,11 +191,11 @@ bool VprofData::readFimex(vcross::Setup_p setup, const std::string& reftimestr)
     readStationNames(stationsFileName);
   } else {
     BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
-      if (cs->points.size() != 1)
+      if (cs->length() != 1)
         continue;
-      posName.push_back(cs->label);
-      posLatitude.push_back(cs->points[0].latDeg());
-      posLongitude.push_back(cs->points[0].lonDeg());
+      posName.push_back(cs->label());
+      posLatitude.push_back(cs->point(0).latDeg());
+      posLongitude.push_back(cs->point(0).lonDeg());
       posDeltaLatitude.push_back(0.0);
       posDeltaLongitude.push_back(0.0);
       posTemp.push_back(0);

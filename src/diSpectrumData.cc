@@ -84,27 +84,28 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
   }
 
   BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
-    for (size_t i=0; i<cs->points.size(); ++i) {
-      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].latDeg()));
-      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].lonDeg()));
+    for (size_t i=0; i<cs->length(); ++i) {
+      const LonLat& p = cs->point(i);
+      METLIBS_LOG_DEBUG(LOGVAL(p.latDeg()));
+      METLIBS_LOG_DEBUG(LOGVAL(p.lonDeg()));
       ostringstream ost;
-      float lon = int (fabs(cs->points[i].lonDeg()) * 10);
+      float lon = int (fabs(p.lonDeg()) * 10);
       lon /= 10.;
-      float lat = int (fabs(cs->points[i].latDeg()) * 10);
+      float lat = int (fabs(p.latDeg()) * 10);
       lat /= 10.;
       ost << lon;
-      if ( cs->points[i].lonDeg() < 0. )
+      if (p.lonDeg() < 0)
         ost  << "W " ;
       else
         ost  << "E " ;
       ost << lat;
-      if ( cs->points[i].latDeg() < 0. )
+      if (p.latDeg() < 0)
         ost  << "S" ;
       else
         ost  << "N" ;
       posName.push_back( ost.str() );
-      posLatitude.push_back( cs->points[i].latDeg() );
-      posLongitude.push_back( cs->points[i].lonDeg() );
+      posLatitude.push_back(p.latDeg());
+      posLongitude.push_back(p.lonDeg());
     }
   }
 
@@ -202,7 +203,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
     METLIBS_LOG_WARN("no crossection");
     return 0;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(cs->label) << LOGVAL(index));
+  METLIBS_LOG_DEBUG(LOGVAL(cs->label()) << LOGVAL(index));
 
   InventoryBase_cps request;
   FieldData_cp field_spec = find_request_field(inv, request, "SPEC");
