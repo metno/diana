@@ -424,6 +424,10 @@ void VprofPlot::relhum(const vector<float>& tt, const vector<float>& td)
   using namespace MetNo::Constants;
 
   int nlev= tt.size();
+  if (tt.size() != td.size()) {
+    rhum.clear();
+    return;
+  }
   rhum.resize(nlev);
 
   for (int k=0; k<nlev; k++) {
@@ -471,7 +475,7 @@ void VprofPlot::ducting(const vector<float>& pp,
   const float p0inv= 1./p0;
 
   int nlev= pp.size();
-  if (nlev<2) {
+  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size()) {
     duct.clear();
     return;
   }
@@ -525,7 +529,7 @@ void VprofPlot::kindex(const vector<float>& pp,
   text.kindexFound= false;
 
   const int nlev= pp.size();
-  if (nlev<2)
+  if (nlev<2 || td.size() != pp.size() || tt.size() != pp.size())
     return;
 
   const bool pIncreasing= (pp[0]<pp[nlev-1]);
