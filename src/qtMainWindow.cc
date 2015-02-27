@@ -1260,7 +1260,7 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
 void DianaMainWindow::resetAll()
 {
   mm->useFavorite();
-  vector<string> pstr = mm->getOKString();;
+  vector<string> pstr = mm->getOKString();
   recallPlot(pstr, true);
   MenuOK();
 }
@@ -1311,10 +1311,15 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     if (replace || labelcom.size()) annom->putOKString(labelcom);
 
     // Other data sources
-    map<std::string, vector<std::string> >::iterator it;
-    for (it = dialog_com.begin(); it != dialog_com.end(); ++it) {
-      DataDialog *dialog = dialogNames.at(it->first);
-      dialog->putOKString(it->second);
+
+    // If the strings are being replaced then update each of the
+    // dialogs whether it has a command or not. Otherwise, only
+    // update those with a corresponding string.
+    map<std::string, DataDialog *>::iterator it;
+    for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
+      DataDialog *dialog = it->second;
+      if (replace || dialog_com.find(it->first) != dialog_com.end())
+        dialog->putOKString(dialog_com[it->first]);
     }
 
     // call full plot

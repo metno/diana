@@ -230,11 +230,11 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-  if (inp.empty())
-    return false;
-
   loaded_.clear();
   layerMgr_->clear();
+
+  if (inp.empty())
+    return false;
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
