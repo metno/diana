@@ -213,6 +213,9 @@ void VcrossAddPlotDialog::initializeReftimePage(bool forward)
 {
   ui->stack->setCurrentIndex(ReftimePage);
 
+  const QString model = selectedModel();
+  ui->reftimeLabelModel->setText(tr("Chosen model: %1")
+      .arg(model));
   if (forward) {
     diutil::OverrideCursor waitCursor;
     const vcross::QtManager::vctime_v reftimes = vcrossm->getModelReferenceTimes(selectedModel().toStdString());
@@ -257,14 +260,17 @@ void VcrossAddPlotDialog::initializePlotPage(bool forward)
   METLIBS_LOG_SCOPE();
   ui->stack->setCurrentIndex(PlotPage);
 
+  const QString model = selectedModel();
+  ui->plotLabelModel->setText(tr("Chosen model: %1")
+      .arg(model));
+  const QString referencetime = selectedReferenceTime();
+  ui->plotLabelReftime->setText(tr("Chosen reference time: %1")
+      .arg(referencetime));
   if (forward) {
     ui->plotFilter->clear();
-    const QString model = selectedModel();
-    const vcross::QtManager::vctime_t reftime(selectedReferenceTime().toStdString());
-    ui->plotLabelModel->setText(tr("Choose plot(s) for model '%1'").arg(model));
-
     diutil::OverrideCursor waitCursor;
 
+    const vcross::QtManager::vctime_t reftime(referencetime.toStdString());
     const std::vector<std::string> fields
         = vcrossm->getFieldNames(model.toStdString(), reftime, true);
     QStringList fsl;
