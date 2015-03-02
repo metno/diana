@@ -300,7 +300,10 @@ std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
     ostr << PlotOptions::key_colour << '=' << po.linecolour.Name()
          << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth
          << ' ' << PlotOptions::key_density << '=' << po.density
-         << ' ' << PlotOptions::key_vectorunit << '=' << po.vectorunit;
+         << ' ' << PlotOptions::key_vectorunit << '=' << po.vectorunit
+         << ' ' << PlotOptions::key_vectorscale_x << '=' << po.vectorscale_x
+         << ' ' << PlotOptions::key_vectorscale_y << '=' << po.vectorscale_y
+         << ' ' << PlotOptions::key_vectorthickness << '=' << po.vectorthickness;
   } else {
     ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
   }

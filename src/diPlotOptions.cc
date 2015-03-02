@@ -124,6 +124,9 @@ const std::string PlotOptions::key_density= "density";
 const std::string PlotOptions::key_densityfactor= "density.factor";
 const std::string PlotOptions::key_vectorunit= "vector.unit";
 const std::string PlotOptions::key_vectorunitname= "vector.unit.name";
+const std::string PlotOptions::key_vectorscale_x= "vector.scale.x";
+const std::string PlotOptions::key_vectorscale_y= "vector.scale.y";
+const std::string PlotOptions::key_vectorthickness= "vector.thickness";
 const std::string PlotOptions::key_forecastLength= "forecast.length";
 const std::string PlotOptions::key_forecastValueMin= "forecast.value.min";
 const std::string PlotOptions::key_forecastValueMax= "forecast.value.max";
@@ -170,7 +173,7 @@ PlotOptions::PlotOptions():
   linewidth(1), linewidth_2(1), colourcut(1), lineinterval(10.0), lineinterval_2(10.0),
   base(0.0), base_2(0.0), minvalue(-fieldUndef), minvalue_2(-fieldUndef),
   maxvalue(fieldUndef), maxvalue_2(fieldUndef), density(0), densityFactor(1.0),
-  vectorunit(1.0), vectorunitname("m/s"),
+  vectorunit(1.0), vectorunitname("m/s"), vectorscale_x(1), vectorscale_y(1), vectorthickness(0.1),
   extremeType("None"), extremeSize(1.0), extremeRadius(1.0),
   lineSmooth(0), fieldSmooth(0), frame(1), zeroLine(-1), valueLabel(1), labelSize(1.0),
   gridValue(0),gridLines(0), gridLinesMax(0),
@@ -652,6 +655,21 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
       } else if (key==key_vectorunitname){
         po.vectorunitname= value;
         miutil::remove(po.vectorunitname, '"');
+
+      } else if (key==key_vectorscale_x) {
+        if (miutil::is_number(value))
+          po.vectorscale_x = miutil::to_float(value);
+        else result=false;
+
+      } else if (key==key_vectorscale_y) {
+        if (miutil::is_number(value))
+          po.vectorscale_y = miutil::to_float(value);
+        else result=false;
+
+      } else if (key==key_vectorthickness){
+        if (miutil::is_number(value))
+          po.vectorthickness = std::max(0.0f, miutil::to_float(value));
+        else result=false;
 
       } else if (key==key_forecastLength){
         po.forecastLength= po.intVector(value);

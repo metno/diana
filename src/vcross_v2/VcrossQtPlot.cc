@@ -1216,10 +1216,10 @@ void QtPlot::plotDataVector(QPainter& painter, OptionPlot_cp plot)
   }
 
   PaintVector pv;
-  const float vu = plot->poptions.vectorunit;
-  if (vu > 0)
-    pv.setScale(vu);
-  pv.setThickArrowScale(mOptions->thickArrowScale);
+  pv.setScale(plot->poptions.vectorunit);
+  pv.setScaleXY(plot->poptions.vectorscale_x, plot->poptions.vectorscale_y);
+  METLIBS_LOG_DEBUG(LOGVAL(pv.mScale) << LOGVAL(pv.mScaleX) << LOGVAL(pv.mScaleY));
+  pv.setThickArrowScale(plot->poptions.vectorthickness);
   plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
 }
 

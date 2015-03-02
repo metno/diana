@@ -87,6 +87,7 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey(PlotOptions::key_lineinterval,  "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_density,       "",0,CommandParser::cmdInt);
   cp->addKey(PlotOptions::key_vectorunit,    "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_vectorthickness, "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_extremeType,   "",0,CommandParser::cmdString);
   cp->addKey(PlotOptions::key_extremeSize,   "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_extremeLimits, "",0,CommandParser::cmdString);
@@ -189,6 +190,8 @@ void VcrossStyleWidget::setupUi()
       SLOT(densityCboxActivated(int)));
   connect(ui->vectorunitCbox, SIGNAL(activated(int)),
       SLOT(vectorunitCboxActivated(int)));
+  connect(ui->vectorthicknessSpinBox, SIGNAL(valueChanged(int)),
+      SLOT(vectorthicknessChanged(int)));
 
   // mark min/max values
 #ifndef DISABLE_EXTREMES
@@ -574,6 +577,18 @@ void VcrossStyleWidget::enableFieldOptions()
     ui->vectorunitCbox->clear();
   }
 
+  // vectorthickness (vector thickness relative to length)
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorthickness))>=0) {
+    int thickness = 0;
+    if (vpcopt[nc].floatValue.size()>0)
+      thickness = 5*int(vpcopt[nc].floatValue[0]*20);
+    ui->vectorthicknessSpinBox->setValue(thickness);
+    ui->vectorthicknessSpinBox->setEnabled(true);
+  } else {
+    ui->vectorthicknessSpinBox->setValue(0);
+    ui->vectorthicknessSpinBox->setEnabled(false);
+  }
+
 #ifndef DISABLE_EXTREMES
   if ((nc=cp->findKey(vpcopt,PlotOptions::key_extremeSize))>=0) {
     if (vpcopt[nc].floatValue.size()>0)
@@ -844,6 +859,8 @@ void VcrossStyleWidget::disableFieldOptions()
 
   ui->vectorunitCbox->clear();
 
+  ui->vectorthicknessSpinBox->setEnabled(false);
+
 #ifndef DISABLE_EXTREMES
   ui->extremeValueCheckBox->setChecked(false);
   ui->extremeValueCheckBox->setEnabled(false);
@@ -937,6 +954,12 @@ void VcrossStyleWidget::vectorunitCboxActivated(int index)
   // update the list (with selected value in the middle)
   float a= atof(vectorunit[index].c_str());
   vectorunit= numberList(ui->vectorunitCbox, a);
+}
+
+void VcrossStyleWidget::vectorthicknessChanged(int value)
+{
+  updateFieldOptions(PlotOptions::key_vectorthickness,
+      miutil::from_number(value/100.0f));
 }
 
 void VcrossStyleWidget::extremeValueCheckBoxToggled(bool on)
@@ -1060,7 +1083,7 @@ void VcrossStyleWidget::updatePaletteString(){
 
 #ifndef DISABLE_PATTERNS
   if (ui->patternComboBox->currentIndex()>0 && ui->patternColourBox->currentIndex()>0) {
-    updateFieldOptions(PlotOptions::key_palettecolours","off,-1);
+    updateFieldOptions(PlotOptions::key_palettecolours,"off",-1);
     return;
   }
 #endif
@@ -1140,7 +1163,7 @@ void VcrossStyleWidget::max1ComboBoxToggled(int index)
 void VcrossStyleWidget::updateFieldOptions(const std::string& name,
     const std::string& value, int valueIndex)
 {
-  //METLIBS_LOG_SCOPE("name= " << name << "  value= " << value);
+  //METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(value) << LOGVAL(currentFieldOpts));
 
   if (currentFieldOpts.empty())
     return;

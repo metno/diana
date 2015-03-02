@@ -212,6 +212,9 @@ public:
   static const std::string key_vectorunit;
   // vector unit name
   static const std::string key_vectorunitname;
+  static const std::string key_vectorscale_x; ///< scaling factor for x component when drawing the vector arrow
+  static const std::string key_vectorscale_y; ///< scaling factor for y component when drawing the vector arrow
+  static const std::string key_vectorthickness; ///< thickness of vector arrow; 0 is a thin arrow (not scaled with length)
   // forecast length
   static const std::string key_forecastLength;
   // forecast value min
@@ -317,6 +320,9 @@ public:
   float densityFactor;
   float vectorunit;
   std::string vectorunitname;
+  float vectorscale_x; ///< scaling factor for x component when drawing the vector arrow
+  float vectorscale_y; ///< scaling factor for y component when drawing the vector arrow
+  float vectorthickness; ///< thickness of vector arrow; 0 is a thin arrow (not scaled with length)
   std::string extremeType;
   float    extremeSize;
   float    extremeRadius;

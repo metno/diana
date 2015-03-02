@@ -199,10 +199,6 @@ void VcrossSetupDialog::initOptions()
   mSetupBOTTOMEXT = new VcrossSetupUI(this, tr("Extrapolate to ocean floor"), glayout, nrow++, opts);
 #endif
 
-  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useValue);
-  mSetupTHICKARROWS = new VcrossSetupUI(this, tr("Thick arrows"), glayout, nrow++, opts);
-  mSetupTHICKARROWS->defineValue(1,50,1,10,"","%");
-
   nrow++;
   opts= VcrossSetupUI::useTextChoice;
   mSetupVERTICALTYPE = new VcrossSetupUI(this, tr("Vertical type"), glayout, nrow++, opts);
@@ -359,10 +355,6 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
   mSetupBOTTOMEXT->setChecked(vcopt->extrapolateToBottom);
 #endif
 
-  const bool thickArrows = vcopt->thickArrowScale > 0;
-  mSetupTHICKARROWS->setChecked(thickArrows);
-  mSetupTHICKARROWS->setValue(thickArrows ? (vcopt->thickArrowScale * 100.0) : 10);
-
   mSetupVERTICALTYPE->setTextChoice(vcopt->verticalType);
 
   mSetupVHSCALE->setChecked   (vcopt->keepVerHorRatio);
@@ -479,11 +471,6 @@ void VcrossSetupDialog::applySetup()
 
   vcopt->extrapolateToBottom= mSetupBOTTOMEXT->isChecked();
 #endif
-
-  if (mSetupTHICKARROWS->isChecked())
-    vcopt->thickArrowScale= mSetupTHICKARROWS->getValue() / 100.0;
-  else
-    vcopt->thickArrowScale= 0;
 
   { vcopt->verticalType= mSetupVERTICALTYPE->getTextChoice();
     std::vector<std::string> tokens = miutil::split(vcopt->verticalType,"/");
