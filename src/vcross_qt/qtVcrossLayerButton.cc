@@ -6,7 +6,9 @@
 #include <puTools/miStringFunctions.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QMenu>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
 
@@ -24,7 +26,6 @@ VcrossLayerButton::VcrossLayerButton(vcross::QtManager_p vcm, int p, QWidget* pa
       .arg(QString::fromStdString(model))
       .arg(QString::fromStdString(reftime))
       .arg(QString::fromStdString(field));
-
 
   setToolTip(label);
   setCheckable(true);
@@ -65,6 +66,10 @@ VcrossLayerButton::VcrossLayerButton(vcross::QtManager_p vcm, int p, QWidget* pa
   setMenu(menu);
   setPopupMode(QToolButton::MenuButtonPopup);
   enableUpDown();
+}
+
+VcrossLayerButton::~VcrossLayerButton()
+{
 }
 
 void VcrossLayerButton::enableUpDown()
@@ -141,4 +146,23 @@ void VcrossLayerButton::onFieldVisibilityChanged(int p)
     setChecked(visible);
   if (actionShowHide->isChecked() != visible)
     actionShowHide->setChecked(visible);
+}
+
+void VcrossLayerButton::mousePressEvent(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton)
+    dragStartPosition = event->pos();
+  QToolButton::mousePressEvent(event);
+}
+
+void VcrossLayerButton::mouseMoveEvent(QMouseEvent *event)
+{
+  if ((event->buttons() & Qt::LeftButton)
+      && (event->pos() - dragStartPosition).manhattanLength()
+      < QApplication::startDragDistance())
+  {
+    Q_EMIT startDrag(position);
+  } else {
+    QToolButton::mouseMoveEvent(event);
+  }
 }

@@ -12,11 +12,17 @@ class VcrossLayerButton : public QToolButton {
 
 public:
   VcrossLayerButton(vcross::QtManager_p vcm, int position, QWidget* parent=0);
+  ~VcrossLayerButton();
 
   enum { EDIT, REMOVE, SHOW_HIDE, UP, DOWN };
 
 Q_SIGNALS:
   void triggered(int position, int what);
+  void startDrag(int position);
+
+protected:
+  void mousePressEvent(QMouseEvent *event);
+  void mouseMoveEvent(QMouseEvent *event);
 
 private Q_SLOTS:
   void onEdit();
@@ -40,6 +46,8 @@ private:
   QAction* actionShowHide;
   QAction* actionUp;
   QAction* actionDown;
+
+  QPoint dragStartPosition;
 };
 
 #endif

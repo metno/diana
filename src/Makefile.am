@@ -212,6 +212,7 @@ diana_qt_sources = \
 diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
+	vcross_qt/qtVcrossLayerBar.cc \
 	vcross_qt/qtVcrossLayerButton.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \

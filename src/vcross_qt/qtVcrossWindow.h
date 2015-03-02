@@ -116,8 +116,8 @@ private:
   void repaintPlot();
 
 private Q_SLOTS:
-  // GUI slots for layer buttons
-  void onFieldAction(int position, int action);
+  // from layer button bar
+  void onRequestStyleEditor(int position);
 
   // slots for QtManager
   void onFieldChangeBegin(bool fromScript);

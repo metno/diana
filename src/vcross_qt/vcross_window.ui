@@ -297,7 +297,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QWidget" name="layerButtons" native="true"/>
+      <widget class="VcrossLayerBar" name="layerButtons" native="true"/>
      </item>
      <item>
       <spacer name="verticalSpacer">
@@ -351,6 +351,12 @@
    <class>vcross::QtWidget</class>
    <extends>QWidget</extends>
    <header>vcross_qt/VcrossQtWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VcrossLayerBar</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossLayerBar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

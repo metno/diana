@@ -33,7 +33,6 @@
 
 #include "qtVcrossWindow.h"
 
-#include "qtVcrossLayerButton.h"
 #include "qtVcrossStyleDialog.h"
 #include "qtVcrossAddPlotDialog.h"
 
@@ -174,6 +173,10 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
   connect(ui->toggleCsEdit, SIGNAL(toggled(bool)),
       SIGNAL(requestVcrossEditor(bool)));
 
+  ui->layerButtons->setManager(vcrossm);
+  connect(ui->layerButtons, SIGNAL(requestStyleEditor(int)),
+      this, SLOT(onRequestStyleEditor(int)));
+
   //connected dialogboxes
   vcAddPlotDialog = new VcrossAddPlotDialog(this, vcrossm);
   vcAddPlotDialog->setVisible(false);
@@ -247,14 +250,14 @@ void VcrossWindow::setupUi()
 
   ui->buttonTimePrevious->setIcon(back);
   ui->buttonTimeNext->setIcon(forward);
-
-  QBoxLayout* lbl = new QVBoxLayout;
-  lbl->setContentsMargins(0, 0, 0, 0);
-  lbl->setSpacing(1);
-  ui->layerButtons->setLayout(lbl);
 }
 
-/***************************************************************************/
+
+void VcrossWindow::onRequestStyleEditor(int position)
+{
+  vcStyleDialog->showModelField(position);
+  vcStyleDialog->show();
+}
 
 void VcrossWindow::onAddField()
 {
@@ -263,7 +266,6 @@ void VcrossWindow::onAddField()
   vcAddPlotDialog->show();
 }
 
-/***************************************************************************/
 
 void VcrossWindow::onRemoveAllFields()
 {
@@ -271,7 +273,6 @@ void VcrossWindow::onRemoveAllFields()
   vcrossm->removeAllFields();
 }
 
-/***************************************************************************/
 
 void VcrossWindow::onShowStyleDialog()
 {
@@ -280,32 +281,6 @@ void VcrossWindow::onShowStyleDialog()
   vcStyleDialog->show();
 }
 
-
-void VcrossWindow::onFieldAction(int position, int action)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(position));
-
-  const std::string model = vcrossm->getModelAt(position);
-  const std::string field = vcrossm->getFieldAt(position);
-  METLIBS_LOG_DEBUG(LOGVAL(model) << LOGVAL(field));
-
-  if (action == VcrossLayerButton::EDIT) {
-    vcStyleDialog->showModelField(position);
-    vcStyleDialog->show();
-  } else if (action == VcrossLayerButton::REMOVE) {
-    vcrossm->removeField(position);
-  } else if (action == VcrossLayerButton::UP) {
-    vcrossm->moveField(position, position+1);
-  } else if (action == VcrossLayerButton::DOWN) {
-    vcrossm->moveField(position, position-1);
-  } else if (action == VcrossLayerButton::SHOW_HIDE) {
-    QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-    QWidgetItem* wi = static_cast<QWidgetItem*>(lbl->itemAt(position));
-    VcrossLayerButton *button = static_cast<VcrossLayerButton*>(wi->widget());
-
-    vcrossm->setFieldVisible(position, button->isChecked());
-  }
-}
 
 void VcrossWindow::onFieldChangeBegin(bool fromScript)
 {
@@ -316,12 +291,6 @@ void VcrossWindow::onFieldChangeBegin(bool fromScript)
 
 void VcrossWindow::onFieldAdded(int position)
 {
-  METLIBS_LOG_SCOPE();
-  QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  VcrossLayerButton* button = new VcrossLayerButton(vcrossm, position, this);
-  connect(button, SIGNAL(triggered(int, int)), SLOT(onFieldAction(int, int)));
-  lbl->insertWidget(position, button);
-
   repaintPlotIfNotInGroup();
 }
 
@@ -337,10 +306,6 @@ void VcrossWindow::onFieldVisibilityChanged(int position)
 
 void VcrossWindow::onFieldRemoved(int position)
 {
-  METLIBS_LOG_SCOPE();
-  QBoxLayout* lbl = static_cast<QBoxLayout*>(ui->layerButtons->layout());
-  delete lbl->takeAt(position);
-
   repaintPlotIfNotInGroup();
 }
 
