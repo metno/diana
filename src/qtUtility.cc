@@ -99,15 +99,15 @@ QPixmap createPixmapForStyle(const std::string& options)
   QPixmap pixmap;
 
   CommandParser cp;
-  cp.addKey("colour",         "",0,CommandParser::cmdString);
-  cp.addKey("palettecolours", "",0,CommandParser::cmdString);
+  cp.addKey(PlotOptions::key_colour,         "",0,CommandParser::cmdString);
+  cp.addKey(PlotOptions::key_palettecolours, "",0,CommandParser::cmdString);
   std::vector<ParsedCommand> vpcopt = cp.parse(options);
 
-  { const std::string c = findOption(cp, vpcopt, "palettecolours");
+  { const std::string c = findOption(cp, vpcopt, PlotOptions::key_palettecolours);
     if (!c.empty())
       pixmap = pixmapForColourShading(ColourShading::getColourShading(c));
   }
-  { const std::string c = findOption(cp, vpcopt, "colour");
+  { const std::string c = findOption(cp, vpcopt, PlotOptions::key_colour);
     if (!c.empty()) {
       const int S=20, N=4;
 
