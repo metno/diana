@@ -93,6 +93,11 @@ bool eq_LonLat(const LonLat& a, const LonLat& b)
   return a.lon() == b.lon() && a.lat() == b.lat();
 }
 
+const int   NFLTABLE = 16;
+const float FLTABLE[NFLTABLE] =  {
+  25, 50, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999
+};
+
 // begin utility functions for y ticks
 
 float identity(float x)
@@ -957,7 +962,7 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
       tickValues = ticks_table(pLevelTable, nLevelTable);
       autotick_offset = -5;
     } else if (mAxisY->label() == "FL") {
-      tickValues = ticks_table(fLevelTable, nLevelTable);
+      tickValues = ticks_table(FLTABLE, NFLTABLE);
       tta = FL_to_hPa;
       autotick_offset = 10;
     } else {
