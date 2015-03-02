@@ -2,15 +2,12 @@
 <ui version="4.0">
  <class>VcrossAddPlotDialog</class>
  <widget class="QDialog" name="VcrossAddPlotDialog">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>278</height>
+    <width>360</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,13 +60,20 @@
       </layout>
      </widget>
      <widget class="QWidget" name="reftimePage">
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
        <property name="spacing">
         <number>2</number>
        </property>
        <property name="margin">
         <number>0</number>
        </property>
+       <item>
+        <widget class="QLabel" name="reftimeLabelModel">
+         <property name="text">
+          <string notr="true">Chosen model: %1</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="reftimeLabel">
          <property name="text">
@@ -90,7 +94,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="plotPage">
-      <layout class="QVBoxLayout" name="layoutFields" stretch="0,0,0">
+      <layout class="QVBoxLayout" name="layoutFields" stretch="0,0,0,0,1">
        <property name="spacing">
         <number>2</number>
        </property>
@@ -100,7 +104,21 @@
        <item>
         <widget class="QLabel" name="plotLabelModel">
          <property name="text">
-          <string notr="true">Choose plot(s) for the selected model and reference time</string>
+          <string notr="true">Chosen model: %1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="plotLabelReftime">
+         <property name="text">
+          <string notr="true">Chosen reference time: %1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="plotLabel">
+         <property name="text">
+          <string>Choose plot(s):</string>
          </property>
         </widget>
        </item>

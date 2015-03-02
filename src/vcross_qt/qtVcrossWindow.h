@@ -48,6 +48,7 @@ class ActionButton;
 class Controller;
 struct LocationData;
 class ToggleButton;
+class VcrossAddPlotDialog;
 class VcrossStyleDialog;
 class VcrossSetupDialog;
 class Ui_VcrossWindow;
@@ -163,6 +164,7 @@ private:
   std::auto_ptr<Ui_VcrossWindow> ui;
   vcross::QtManager_p vcrossm;
 
+  VcrossAddPlotDialog* vcAddPlotDialog;
   VcrossStyleDialog* vcStyleDialog;
   VcrossSetupDialog* vcSetupDialog;
   bool dynEditManagerConnected;
@@ -170,8 +172,6 @@ private:
   // printerdefinitions
   printOptions priop;
   QString mRasterFilename;
-
-  int vcrossDialogX, vcrossDialogY;
 
   bool firstTime, active;
   bool mInFieldChangeGroup;

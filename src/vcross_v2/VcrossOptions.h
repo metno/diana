@@ -131,8 +131,6 @@ public:
   bool     extrapolateFixedLevels;
   bool     extrapolateToBottom;
 
-  float    thickArrowScale;
-
   std::string verticalType;       //!< obsolete, but used !?
   std::string verticalScale;      //!< linear/exner
   std::string verticalCoordinate; //!< pressure/altitude

@@ -2,6 +2,7 @@
 #include "qtVcrossStyleWidget.h"
 
 #include "diLinetype.h"
+#include "diPlotOptions.h"
 #include "qtUtility.h"
 
 #include <diField/diMetConstants.h>
@@ -79,33 +80,34 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey("hour.offset","",1,CommandParser::cmdInt);
 
   // add more plot options to the cp's keyDataBase
-  cp->addKey("colour",         "",0,CommandParser::cmdString);
-  cp->addKey("colours",        "",0,CommandParser::cmdString);
-  cp->addKey("linewidth",      "",0,CommandParser::cmdInt);
-  cp->addKey("linetype",       "",0,CommandParser::cmdString);
-  cp->addKey("line.interval",  "",0,CommandParser::cmdFloat);
-  cp->addKey("density",        "",0,CommandParser::cmdInt);
-  cp->addKey("vector.unit",    "",0,CommandParser::cmdFloat);
-  cp->addKey("extreme.type",   "",0,CommandParser::cmdString);
-  cp->addKey("extreme.size",   "",0,CommandParser::cmdFloat);
-  cp->addKey("extreme.limits", "",0,CommandParser::cmdString);
-  cp->addKey("line.smooth",    "",0,CommandParser::cmdInt);
-  cp->addKey("zero.line",      "",0,CommandParser::cmdInt);
-  cp->addKey("value.label",    "",0,CommandParser::cmdInt);
-  cp->addKey("label.size",     "",0,CommandParser::cmdFloat);
-  cp->addKey("base",           "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_colour,        "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_colours,       "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_linewidth,     "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_linetype,      "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_lineinterval,  "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_density,       "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_vectorunit,    "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_vectorthickness, "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_extremeType,   "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_extremeSize,   "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_extremeLimits, "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_lineSmooth,    "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_zeroLine,      "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_valueLabel,    "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_labelSize,     "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_basevalue,     "",0,CommandParser::cmdFloat);
   //cp->addKey("undef.masking",  "",0,CommandParser::cmdInt);
   //cp->addKey("undef.colour",   "",0,CommandParser::cmdString);
   //cp->addKey("undef.linewidth","",0,CommandParser::cmdInt);
   //cp->addKey("undef.linetype", "",0,CommandParser::cmdString);
-  cp->addKey("palettecolours", "",0,CommandParser::cmdString);
-  cp->addKey("minvalue",       "",0,CommandParser::cmdFloat);
-  cp->addKey("maxvalue",       "",0,CommandParser::cmdFloat);
-  cp->addKey("table",          "",0,CommandParser::cmdInt);
-  cp->addKey("patterns",       "",0,CommandParser::cmdString);
-  cp->addKey("patterncolour",  "",0,CommandParser::cmdString);
-  cp->addKey("repeat",      "",0,CommandParser::cmdInt);
-  cp->addKey("alpha",          "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_palettecolours, "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_minvalue,       "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_maxvalue,       "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_table,          "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_patterns,       "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_pcolour,        "",0,CommandParser::cmdString);
+  cp->addKey(PlotOptions::key_repeat,         "",0,CommandParser::cmdInt);
+  cp->addKey(PlotOptions::key_alpha,          "",0,CommandParser::cmdInt);
 }
 
 void VcrossStyleWidget::setOptions(const std::string& fopt, const std::string& defaultopt)
@@ -188,6 +190,8 @@ void VcrossStyleWidget::setupUi()
       SLOT(densityCboxActivated(int)));
   connect(ui->vectorunitCbox, SIGNAL(activated(int)),
       SLOT(vectorunitCboxActivated(int)));
+  connect(ui->vectorthicknessSpinBox, SIGNAL(valueChanged(int)),
+      SLOT(vectorthicknessChanged(int)));
 
   // mark min/max values
 #ifndef DISABLE_EXTREMES
@@ -342,21 +346,21 @@ void VcrossStyleWidget::enableFieldOptions()
   float e;
 
   // colour(s)
-  if ((nc=cp->findKey(vpcopt,"colour"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_colour))>=0) {
     ui->shadingComboBox->setEnabled(true);
     ui->shadingcoldComboBox->setEnabled(true);
     ui->colorCbox->setEnabled(true);
     i=0;
     const std::string c = miutil::to_lower(vpcopt[nc].allValue);
     if (c == "off" || c == "av") {
-      updateFieldOptions("colour", "off");
+      updateFieldOptions(PlotOptions::key_colour, "off");
       ui->colorCbox->setCurrentIndex(0);
     } else {
       while (i<nr_colors && c != colourInfo[i].name)
         i++;
       if (i==nr_colors)
         i=0;
-      updateFieldOptions("colour", colourInfo[i].name);
+      updateFieldOptions(PlotOptions::key_colour, colourInfo[i].name);
       ui->colorCbox->setCurrentIndex(i+1);
     }
   } else {
@@ -364,7 +368,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   //contour shading
-  if ((nc=cp->findKey(vpcopt,"palettecolours"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_palettecolours))>=0) {
     ui->shadingComboBox->setEnabled(true);
     ui->shadingSpinBox->setEnabled(true);
     ui->shadingcoldComboBox->setEnabled(true);
@@ -409,9 +413,9 @@ void VcrossStyleWidget::enableFieldOptions()
     } else {
       ui->shadingcoldComboBox->setCurrentIndex(0);
     }
-    updateFieldOptions("palettecolours",str,-1);
+    updateFieldOptions(PlotOptions::key_palettecolours,str,-1);
   } else {
-    updateFieldOptions("palettecolours","off",-1);
+    updateFieldOptions(PlotOptions::key_palettecolours,"off",-1);
     ui->shadingComboBox->setCurrentIndex(0);
     ui->shadingComboBox->setEnabled(false);
     ui->shadingcoldComboBox->setCurrentIndex(0);
@@ -420,17 +424,17 @@ void VcrossStyleWidget::enableFieldOptions()
     //    updateFieldOptions("table","remove");
 #ifndef DISABLE_PATTERNS
     patternComboBox->setEnabled(false);
-    updateFieldOptions("patterns","remove");
+    updateFieldOptions(PlotOptions::key_patterns,"remove");
 #endif
     ui->repeatCheckBox->setEnabled(false);
-    updateFieldOptions("repeat","remove");
+    updateFieldOptions(PlotOptions::key_repeat,"remove");
     ui->alphaSpinBox->setEnabled(false);
-    updateFieldOptions("alpha","remove");
+    updateFieldOptions(PlotOptions::key_alpha,"remove");
   }
 
   //pattern
 #ifndef DISABLE_PATTERNS
-  if ((nc=cp->findKey(vpcopt,"patterns"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_patterns))>=0) {
     patternComboBox->setEnabled(true);
     patternColourBox->setEnabled(true);
     std::string value = vpcopt[nc].allValue;
@@ -446,28 +450,28 @@ void VcrossStyleWidget::enableFieldOptions()
       str = patternInfo[i].name;
       patternComboBox->setCurrentIndex(i+1);
     }
-    updateFieldOptions("patterns",str,-1);
+    updateFieldOptions(PlotOptions::key_patterns,str,-1);
   } else {
-    updateFieldOptions("patterns","off",-1);
+    updateFieldOptions(PlotOptions::key_patterns,"off",-1);
     patternComboBox->setCurrentIndex(0);
   }
 
   //pattern colour
-  if ((nc=cp->findKey(vpcopt,"patterncolour"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_pcolour))>=0) {
     i=0;
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
     if (i==nr_colors) {
-      updateFieldOptions("patterncolour","remove");
+      updateFieldOptions(PlotOptions::key_pcolour,"remove");
       patternColourBox->setCurrentIndex(0);
     }else {
-      updateFieldOptions("patterncolour",colourInfo[i].name);
+      updateFieldOptions(PlotOptions::key_pcolour,colourInfo[i].name);
       patternColourBox->setCurrentIndex(i+1);
     }
   }
 #endif // DISABLE_PATTERNS
 
   //table
-  //  nc=cp->findKey(vpcopt,"table");
+  //  nc=cp->findKey(vpcopt,PlotOptions::key_table);
   //  if (nc>=0) {
   //    bool on= vpcopt[nc].allValue=="1";
   //    tableCheckBox->setChecked( on );
@@ -476,7 +480,7 @@ void VcrossStyleWidget::enableFieldOptions()
   //  }
 
   //repeat
-  nc=cp->findKey(vpcopt,"repeat");
+  nc=cp->findKey(vpcopt,PlotOptions::key_repeat);
   if (nc>=0) {
     bool on= vpcopt[nc].allValue=="1";
     ui->repeatCheckBox->setChecked( on );
@@ -485,24 +489,24 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   //alpha shading
-  if ((nc=cp->findKey(vpcopt,"alpha"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_alpha))>=0) {
     if (vpcopt[nc].intValue.size()>0) i=vpcopt[nc].intValue[0];
     else i=255;
     ui->alphaSpinBox->setValue(i);
     ui->alphaSpinBox->setEnabled(true);
   } else {
     ui->alphaSpinBox->setValue(255);
-    updateFieldOptions("alpha","remove");
+    updateFieldOptions(PlotOptions::key_alpha,"remove");
   }
 
   // linetype
-  if ((nc=cp->findKey(vpcopt,"linetype"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_linetype))>=0) {
     ui->lineTypeCbox->setEnabled(true);
     i=0;
     while (i<nr_linetypes && vpcopt[nc].allValue!=linetypes[i]) i++;
     if (i==nr_linetypes) {
       i=0;
-      updateFieldOptions("linetype",linetypes[i]);
+      updateFieldOptions(PlotOptions::key_linetype,linetypes[i]);
     }
     ui->lineTypeCbox->setCurrentIndex(i);
   } else if (ui->lineTypeCbox->isEnabled()) {
@@ -510,13 +514,13 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // linewidth
-  if ((nc=cp->findKey(vpcopt,"linewidth"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_linewidth))>=0) {
     ui->lineWidthCbox->setEnabled(true);
     i=0;
     while (i<nr_linewidths && vpcopt[nc].allValue!=miutil::from_number(i+1)) i++;
     if (i==nr_linewidths) {
       i=0;
-      updateFieldOptions("linewidth",miutil::from_number(i+1));
+      updateFieldOptions(PlotOptions::key_linewidth,miutil::from_number(i+1));
     }
     ui->lineWidthCbox->setCurrentIndex(i);
   } else if (ui->lineWidthCbox->isEnabled()) {
@@ -525,7 +529,7 @@ void VcrossStyleWidget::enableFieldOptions()
 
   // line interval (isoline contouring)
   float ekv=-1.;
-  if ((nc=cp->findKey(vpcopt,"line.interval"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_lineinterval))>=0) {
     if (vpcopt[nc].floatValue.size()>0) ekv=vpcopt[nc].floatValue[0];
     else ekv= 10.;
     lineintervals= numberList(ui->lineintervalCbox, ekv);
@@ -536,7 +540,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // wind/vector density
-  if ((nc=cp->findKey(vpcopt,"density"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_density))>=0) {
     if (!ui->densityCbox->isEnabled()) {
       ui->densityCbox->addItems(densityStringList);
       ui->densityCbox->setEnabled(true);
@@ -546,7 +550,7 @@ void VcrossStyleWidget::enableFieldOptions()
       s= vpcopt[nc].strValue[0];
     } else {
       s= "0";
-      updateFieldOptions("density",s);
+      updateFieldOptions(PlotOptions::key_density,s);
     }
     if (s=="0") {
       i=0;
@@ -565,7 +569,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // vectorunit (vector length unit)
-  if ((nc=cp->findKey(vpcopt,"vector.unit"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorunit))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e= vpcopt[nc].floatValue[0];
     else e=5;
     vectorunit= numberList(ui->vectorunitCbox, e);
@@ -573,8 +577,20 @@ void VcrossStyleWidget::enableFieldOptions()
     ui->vectorunitCbox->clear();
   }
 
+  // vectorthickness (vector thickness relative to length)
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorthickness))>=0) {
+    int thickness = 0;
+    if (vpcopt[nc].floatValue.size()>0)
+      thickness = 5*int(vpcopt[nc].floatValue[0]*20);
+    ui->vectorthicknessSpinBox->setValue(thickness);
+    ui->vectorthicknessSpinBox->setEnabled(true);
+  } else {
+    ui->vectorthicknessSpinBox->setValue(0);
+    ui->vectorthicknessSpinBox->setEnabled(false);
+  }
+
 #ifndef DISABLE_EXTREMES
-  if ((nc=cp->findKey(vpcopt,"extreme.size"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_extremeSize))>=0) {
     if (vpcopt[nc].floatValue.size()>0)
       e = vpcopt[nc].floatValue[0];
     else
@@ -586,7 +602,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
 #ifndef DISABLE_EXTREME_LIMITS
-  if ((nc=cp->findKey(vpcopt,"extreme.limits"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_extremeLimits))>=0) {
     std::string value = vpcopt[nc].allValue;
     std::vector<std::string> tokens = miutil::split(value,",");
     if ( tokens.size() > 0 ) {
@@ -605,13 +621,13 @@ void VcrossStyleWidget::enableFieldOptions()
 #endif // DISABLE_EXTREME_LIMITS
 
   // extreme.type (value or none)
-  if ((nc=cp->findKey(vpcopt,"extreme.type"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_extremeType))>=0) {
     if( miutil::to_lower(vpcopt[nc].allValue) == "value" ) {
       ui->extremeValueCheckBox->setChecked(true);
     } else {
       ui->extremeValueCheckBox->setChecked(false);
     }
-    updateFieldOptions("extreme.type", vpcopt[nc].allValue);
+    updateFieldOptions(PlotOptions::key_extremeType, vpcopt[nc].allValue);
 #ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(true);
     extremeLimitMaxComboBox->setEnabled(true);
@@ -622,7 +638,7 @@ void VcrossStyleWidget::enableFieldOptions()
 #endif // DISABLE_EXTREMES
 
 #ifndef DISABLE_LINE_SMOOTHING
-  if ((nc=cp->findKey(vpcopt,"line.smooth"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_lineSmooth))>=0) {
     if (vpcopt[nc].intValue.size()>0) i=vpcopt[nc].intValue[0];
     else i=0;
     lineSmoothSpinBox->setValue(i);
@@ -633,7 +649,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 #endif // DISABLE_LINE_SMOOTHING
 
-  if ((nc=cp->findKey(vpcopt,"label.size"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_labelSize))>=0) {
     if (vpcopt[nc].floatValue.size()>0) e=vpcopt[nc].floatValue[0];
     else e= 1.0;
     i= (int(e*100.+0.5))/5 * 5;
@@ -646,7 +662,7 @@ void VcrossStyleWidget::enableFieldOptions()
 
   // base
   std::string base;
-  if (ekv>0. && (nc=cp->findKey(vpcopt,"base"))>=0) {
+  if (ekv>0. && (nc=cp->findKey(vpcopt,PlotOptions::key_basevalue))>=0) {
     if (!vpcopt[nc].floatValue.empty())
       e = vpcopt[nc].floatValue[0];
     else
@@ -667,9 +683,9 @@ void VcrossStyleWidget::enableFieldOptions()
   hourOffsetSpinBox->setEnabled(true);
 #endif
 
-  /*************************************************************************
+#if 0 // UNDEF MASKING
   // undefined masking
-  if ((nc=cp->findKey(vpcopt,"undef.masking"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_undefMasking))>=0) {
     n= undefMasking.size();
     if (!undefMaskingCbox->isEnabled()) {
       const char** cvstr= new const char*[n];
@@ -692,7 +708,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // undefined masking colour
-  if ((nc=cp->findKey(vpcopt,"undef.colour"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_undefColour))>=0) {
     if (!undefColourCbox->isEnabled()) {
       for( i=0; i<nr_colors; i++)
         undefColourCbox->insertItem( *pmapColor[i] );
@@ -702,7 +718,7 @@ void VcrossStyleWidget::enableFieldOptions()
     while (i<nr_colors && vpcopt[nc].allValue!=colourInfo[i].name) i++;
     if (i==nr_colors) {
       i=0;
-      updateFieldOptions("undef.colour",colourInfo[i].name);
+      updateFieldOptions(PlotOptions::key_undefColour,colourInfo[i].name);
     }
     undefColourCbox->setCurrentIndex(i);
   } else if (undefColourCbox->isEnabled()) {
@@ -711,7 +727,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // undefined masking linewidth (if used)
-  if ((nc=cp->findKey(vpcopt,"undef.linewidth"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_undefLinewidth))>=0) {
     if (!undefLinewidthCbox->isEnabled()) {
       for( i=0; i < nr_linewidths; i++)
         undefLinewidthCbox->insertItem ( *pmapLinewidths[i] );
@@ -721,7 +737,7 @@ void VcrossStyleWidget::enableFieldOptions()
     while (i<nr_linewidths && vpcopt[nc].allValue!=linewidths[i]) i++;
     if (i==nr_linewidths) {
       i=0;
-      updateFieldOptions("undef.linewidth",linewidths[i]);
+      updateFieldOptions(PlotOptions::key_undefLinewidth,linewidths[i]);
     }
     undefLinewidthCbox->setCurrentIndex(i);
   } else if (undefLinewidthCbox->isEnabled()) {
@@ -730,7 +746,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
   // undefined masking linetype (if used)
-  if ((nc=cp->findKey(vpcopt,"undef.linetype"))>=0) {
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_undefLinetype))>=0) {
     if (!undefLinetypeCbox->isEnabled()) {
       for( i=0; i < nr_linetypes; i++)
         undefLinetypeCbox->insertItem ( *pmapLinetypes[i] );
@@ -740,16 +756,16 @@ void VcrossStyleWidget::enableFieldOptions()
     while (i<nr_linetypes && vpcopt[nc].allValue!=linetypes[i]) i++;
     if (i==nr_linetypes) {
       i=0;
-      updateFieldOptions("undef.linetype",linetypes[i]);
+      updateFieldOptions(PlotOptions::key_undefLinetype,linetypes[i]);
     }
     undefLinetypeCbox->setCurrentIndex(i);
   } else if (undefLinetypeCbox->isEnabled()) {
     undefLinetypeCbox->clear();
     undefLinetypeCbox->setEnabled(false);
   }
-   *************************************************************************/
+#endif // UNDEF MASKING
 
-  nc=cp->findKey(vpcopt,"zero.line");
+  nc=cp->findKey(vpcopt,PlotOptions::key_zeroLine);
   if (nc>=0) {
     if (vpcopt[nc].allValue=="-1") {
       nc=-1;
@@ -764,7 +780,7 @@ void VcrossStyleWidget::enableFieldOptions()
     ui->zeroLineCheckBox->setEnabled( false );
   }
 
-  nc=cp->findKey(vpcopt,"value.label");
+  nc=cp->findKey(vpcopt,PlotOptions::key_valueLabel);
   if (nc>=0) {
     bool on= vpcopt[nc].allValue=="1";
     ui->valueLabelCheckBox->setChecked( on );
@@ -776,7 +792,7 @@ void VcrossStyleWidget::enableFieldOptions()
   }
 
 
-  nc=cp->findKey(vpcopt,"minvalue");
+  nc=cp->findKey(vpcopt,PlotOptions::key_minvalue);
   if (nc>=0) {
     ui->min1ComboBox->setEnabled(true);
     float value;
@@ -791,7 +807,7 @@ void VcrossStyleWidget::enableFieldOptions()
     ui->min1ComboBox->setEnabled( false );
   }
 
-  nc=cp->findKey(vpcopt,"maxvalue");
+  nc=cp->findKey(vpcopt,PlotOptions::key_maxvalue);
   if (nc>=0) {
     ui->max1ComboBox->setEnabled(true);
     float value;
@@ -842,6 +858,8 @@ void VcrossStyleWidget::disableFieldOptions()
   ui->densityCbox->setEnabled(false);
 
   ui->vectorunitCbox->clear();
+
+  ui->vectorthicknessSpinBox->setEnabled(false);
 
 #ifndef DISABLE_EXTREMES
   ui->extremeValueCheckBox->setChecked(false);
@@ -899,24 +917,24 @@ void VcrossStyleWidget::disableFieldOptions()
 void VcrossStyleWidget::colorCboxActivated(int index)
 {
   if (index==0)
-    updateFieldOptions("colour","off");
+    updateFieldOptions(PlotOptions::key_colour,"off");
   else
-    updateFieldOptions("colour",colourInfo[index-1].name);
+    updateFieldOptions(PlotOptions::key_colour,colourInfo[index-1].name);
 }
 
 void VcrossStyleWidget::lineWidthCboxActivated(int index)
 {
-  updateFieldOptions("linewidth", miutil::from_number(index+1));
+  updateFieldOptions(PlotOptions::key_linewidth, miutil::from_number(index+1));
 }
 
 void VcrossStyleWidget::lineTypeCboxActivated(int index)
 {
-  updateFieldOptions("linetype", linetypes[index]);
+  updateFieldOptions(PlotOptions::key_linetype, linetypes[index]);
 }
 
 void VcrossStyleWidget::lineintervalCboxActivated(int index)
 {
-  updateFieldOptions("line.interval", lineintervals[index]);
+  updateFieldOptions(PlotOptions::key_lineinterval, lineintervals[index]);
   // update the list (with selected value in the middle)
   float a= atof(lineintervals[index].c_str());
   lineintervals= numberList(ui->lineintervalCbox, a);
@@ -925,31 +943,37 @@ void VcrossStyleWidget::lineintervalCboxActivated(int index)
 void VcrossStyleWidget::densityCboxActivated(int index)
 {
   if (index==0)
-    updateFieldOptions("density","0");
+    updateFieldOptions(PlotOptions::key_density,"0");
   else
-    updateFieldOptions("density", ui->densityCbox->currentText().toStdString());
+    updateFieldOptions(PlotOptions::key_density, ui->densityCbox->currentText().toStdString());
 }
 
 void VcrossStyleWidget::vectorunitCboxActivated(int index)
 {
-  updateFieldOptions("vector.unit",vectorunit[index]);
+  updateFieldOptions(PlotOptions::key_vectorunit,vectorunit[index]);
   // update the list (with selected value in the middle)
   float a= atof(vectorunit[index].c_str());
   vectorunit= numberList(ui->vectorunitCbox, a);
+}
+
+void VcrossStyleWidget::vectorthicknessChanged(int value)
+{
+  updateFieldOptions(PlotOptions::key_vectorthickness,
+      miutil::from_number(value/100.0f));
 }
 
 void VcrossStyleWidget::extremeValueCheckBoxToggled(bool on)
 {
 #ifndef DISABLE_EXTREMES
   if (on) {
-    updateFieldOptions("extreme.type","Value");
+    updateFieldOptions(PlotOptions::key_extremeType,"Value");
 #ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(true);
     extremeLimitMaxComboBox->setEnabled(true);
 #endif // DISABLE_EXTREME_LIMITS
     ui->extremeSizeSpinBox->setEnabled(true);
   } else {
-    updateFieldOptions("extreme.type","None");
+    updateFieldOptions(PlotOptions::key_extremeType,"None");
 #ifndef DISABLE_EXTREME_LIMITS
     extremeLimitMinComboBox->setEnabled(false);
     extremeLimitMaxComboBox->setEnabled(false);
@@ -972,7 +996,7 @@ void VcrossStyleWidget::extremeLimitsChanged()
     }
     extremeString = ost.str();
   }
-  updateFieldOptions("extreme.limits",extremeString);
+  updateFieldOptions(PlotOptions::key_extreme.limits,extremeString);
 #endif
 }
 
@@ -980,7 +1004,7 @@ void VcrossStyleWidget::extremeSizeChanged(int value)
 {
 #ifndef DISABLE_EXTREMES
   const std::string str = miutil::from_number(float(value)*0.01);
-  updateFieldOptions("extreme.size", str);
+  updateFieldOptions(PlotOptions::key_extremeSize, str);
 #endif
 }
 
@@ -988,14 +1012,14 @@ void VcrossStyleWidget::lineSmoothChanged(int value)
 {
 #ifndef DISABLE_LINE_SMOOTHING
   const std::string str = miutil::from_number(value);
-  updateFieldOptions("line.smooth",str);
+  updateFieldOptions(PlotOptions::key_lineSmooth,str);
 #endif
 }
 
 void VcrossStyleWidget::labelSizeChanged(int value)
 {
   const std::string str = miutil::from_number(float(value)*0.01);
-  updateFieldOptions("label.size",str);
+  updateFieldOptions(PlotOptions::key_labelSize,str);
 }
 
 void VcrossStyleWidget::hourOffsetChanged(int value)
@@ -1008,26 +1032,26 @@ void VcrossStyleWidget::hourOffsetChanged(int value)
 
 void VcrossStyleWidget::zeroLineCheckBoxToggled(bool on)
 {
-  updateFieldOptions("zero.line", on ? "1" : "0");
+  updateFieldOptions(PlotOptions::key_zeroLine, on ? "1" : "0");
 }
 
 void VcrossStyleWidget::valueLabelCheckBoxToggled(bool on)
 {
-  updateFieldOptions("value.label", on ? "1" : "0");
+  updateFieldOptions(PlotOptions::key_valueLabel, on ? "1" : "0");
 }
 
 void VcrossStyleWidget::tableCheckBoxToggled(bool on)
 {
-  updateFieldOptions("table", on ? "1" : "0");
+  updateFieldOptions(PlotOptions::key_table, on ? "1" : "0");
 }
 
 void VcrossStyleWidget::patternComboBoxToggled(int index)
 {
 #ifndef DISABLE_PATTERNS
   if(index == 0){
-    updateFieldOptions("patterns","off");
+    updateFieldOptions(PlotOptions::key_patterns,"off");
   } else {
-    updateFieldOptions("patterns", patternInfo[index-1].name);
+    updateFieldOptions(PlotOptions::key_patterns, patternInfo[index-1].name);
   }
 #endif
   updatePaletteString();
@@ -1037,9 +1061,9 @@ void VcrossStyleWidget::patternColourBoxToggled(int index)
 {
 #ifndef DISABLE_PATTERNS
   if(index == 0){
-    updateFieldOptions("patterncolour","remove");
+    updateFieldOptions(PlotOptions::key_patterncolour,"remove");
   } else {
-    updateFieldOptions("patterncolour",colourInfo[index-1].name);
+    updateFieldOptions(PlotOptions::key_patterncolour,colourInfo[index-1].name);
   }
 #endif
   updatePaletteString();
@@ -1047,7 +1071,7 @@ void VcrossStyleWidget::patternColourBoxToggled(int index)
 
 void VcrossStyleWidget::repeatCheckBoxToggled(bool on)
 {
-  updateFieldOptions("repeat", on ? "1" : "0");
+  updateFieldOptions(PlotOptions::key_repeat, on ? "1" : "0");
 }
 
 void VcrossStyleWidget::shadingChanged()
@@ -1059,7 +1083,7 @@ void VcrossStyleWidget::updatePaletteString(){
 
 #ifndef DISABLE_PATTERNS
   if (ui->patternComboBox->currentIndex()>0 && ui->patternColourBox->currentIndex()>0) {
-    updateFieldOptions("palettecolours","off",-1);
+    updateFieldOptions(PlotOptions::key_palettecolours,"off",-1);
     return;
   }
 #endif
@@ -1070,7 +1094,7 @@ void VcrossStyleWidget::updatePaletteString(){
   int value2 = ui->shadingcoldSpinBox->value();
 
   if(index1==0 && index2==0){
-    updateFieldOptions("palettecolours","off",-1);
+    updateFieldOptions(PlotOptions::key_palettecolours,"off",-1);
     return;
   }
 
@@ -1087,19 +1111,19 @@ void VcrossStyleWidget::updatePaletteString(){
     if(value2>0)
       str += ";" + miutil::from_number(value2);
   }
-  updateFieldOptions("palettecolours",str,-1);
+  updateFieldOptions(PlotOptions::key_palettecolours,str,-1);
 }
 
 void VcrossStyleWidget::alphaChanged(int index)
 {
-  updateFieldOptions("alpha", miutil::from_number(index));
+  updateFieldOptions(PlotOptions::key_alpha, miutil::from_number(index));
 }
 
 void VcrossStyleWidget::zero1ComboBoxToggled(int index)
 {
   if (!ui->zero1ComboBox->currentText().isNull()) {
     std::string str = ui->zero1ComboBox->currentText().toStdString();
-    updateFieldOptions("base",str);
+    updateFieldOptions(PlotOptions::key_basevalue,str);
     float a = atof(str.c_str());
     float b = ui->lineintervalCbox->currentText().toInt();
     baseList(ui->zero1ComboBox,a,b,true);
@@ -1109,10 +1133,10 @@ void VcrossStyleWidget::zero1ComboBoxToggled(int index)
 void VcrossStyleWidget::min1ComboBoxToggled(int index)
 {
   if( index == 0 )
-    updateFieldOptions("minvalue","off");
+    updateFieldOptions(PlotOptions::key_minvalue,"off");
   else if(!ui->min1ComboBox->currentText().isNull() ){
     std::string str = ui->min1ComboBox->currentText().toStdString();
-    updateFieldOptions("minvalue",str);
+    updateFieldOptions(PlotOptions::key_minvalue,str);
     float a = atof(str.c_str());
     float b = 1.0;
     if(!ui->lineintervalCbox->currentText().isNull() )
@@ -1124,10 +1148,10 @@ void VcrossStyleWidget::min1ComboBoxToggled(int index)
 void VcrossStyleWidget::max1ComboBoxToggled(int index)
 {
   if( index == 0 )
-    updateFieldOptions("maxvalue","off");
+    updateFieldOptions(PlotOptions::key_maxvalue,"off");
   else if(!ui->max1ComboBox->currentText().isNull() ){
     std::string str = ui->max1ComboBox->currentText().toStdString();
-    updateFieldOptions("maxvalue", ui->max1ComboBox->currentText().toStdString());
+    updateFieldOptions(PlotOptions::key_maxvalue, ui->max1ComboBox->currentText().toStdString());
     float a = atof(str.c_str());
     float b = 1.0;
     if(!ui->lineintervalCbox->currentText().isNull() )
@@ -1139,7 +1163,7 @@ void VcrossStyleWidget::max1ComboBoxToggled(int index)
 void VcrossStyleWidget::updateFieldOptions(const std::string& name,
     const std::string& value, int valueIndex)
 {
-  //METLIBS_LOG_SCOPE("name= " << name << "  value= " << value);
+  //METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(value) << LOGVAL(currentFieldOpts));
 
   if (currentFieldOpts.empty())
     return;

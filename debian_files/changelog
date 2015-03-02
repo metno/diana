@@ -1,3 +1,10 @@
+diana (3.37.0~rc9-1) unstable; urgency=low
+
+  * vcross - several fixes
+  * vprof - check that source exists before using it, and init stations in bdiana
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 02 Mar 2015 11:53:54 +0100
+
 diana (3.37.0~rc8-1) unstable; urgency=low
 
   * ObsBufr: bugfix uninitialized variables

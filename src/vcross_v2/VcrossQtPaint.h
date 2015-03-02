@@ -65,7 +65,7 @@ struct PaintVector : public PaintArrow {
   virtual bool withArrowHead() const
     { return true; }
   virtual float size() const
-    { return (mScaleX + mScaleY)*4; }
+    { return mScale*4; }
 
   /*! Paint a wind arrow with u,v components at pixel position (px, py).
    * \param u u-component, painted horizontally
@@ -77,15 +77,14 @@ struct PaintVector : public PaintArrow {
 
   static void paintArrow(QPainter& painter, float px, float py, float ex, float ey);
 
-  void setScale(float sx, float sy);
+  void setScaleXY(float sx, float sy);
 
-  inline void setScale(float sxy)
-    { setScale(sxy, sxy); }
+  void setScale(float sxy);
 
   void setThickArrowScale(float tas)
     { mThickArrowScale = tas; }
 
-  float mScaleX, mScaleY;
+  float mScale, mScaleX, mScaleY;
   float mThickArrowScale;
 };
 

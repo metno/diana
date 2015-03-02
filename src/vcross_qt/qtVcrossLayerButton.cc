@@ -63,6 +63,7 @@ VcrossLayerButton::VcrossLayerButton(vcross::QtManager_p vcm, int p, QWidget* pa
   connect(actionRemove, SIGNAL(triggered()), SLOT(onRemove()));
 
   setMenu(menu);
+  setPopupMode(QToolButton::MenuButtonPopup);
   enableUpDown();
 }
 

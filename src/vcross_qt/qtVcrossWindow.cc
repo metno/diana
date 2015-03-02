@@ -156,8 +156,6 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
   : QWidget(0)
   , ui(new Ui_VcrossWindow)
   , vcrossm(vcm)
-  , vcrossDialogX(16)
-  , vcrossDialogY(16)
   , firstTime(true)
   , active(false)
   , mInFieldChangeGroup(false)
@@ -177,6 +175,9 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
       SIGNAL(requestVcrossEditor(bool)));
 
   //connected dialogboxes
+  vcAddPlotDialog = new VcrossAddPlotDialog(this, vcrossm);
+  vcAddPlotDialog->setVisible(false);
+
   vcStyleDialog = new VcrossStyleDialog(this);
   vcStyleDialog->setManager(vcrossm);
   vcStyleDialog->setVisible(false);
@@ -258,12 +259,8 @@ void VcrossWindow::setupUi()
 void VcrossWindow::onAddField()
 {
   METLIBS_LOG_SCOPE();
-  VcrossAddPlotDialog d(this, vcrossm);
-  d.move(vcrossDialogX, vcrossDialogY);
-  d.restart();
-  d.exec();
-  vcrossDialogX = d.pos().x();
-  vcrossDialogY = d.pos().y();
+  vcAddPlotDialog->restart();
+  vcAddPlotDialog->show();
 }
 
 /***************************************************************************/
@@ -683,8 +680,8 @@ void VcrossWindow::writeLog(LogFileIO& logfile)
         + miutil::from_number(height()));
     sec_window.addLine("VcrossWindow.pos " + miutil::from_number(x()) + " "
         + miutil::from_number(y()));
-    sec_window.addLine("VcrossDialog.pos "  + miutil::from_number(vcrossDialogX) + " "
-        + miutil::from_number(vcrossDialogY));
+    sec_window.addLine("VcrossDialog.pos "  + miutil::from_number(vcAddPlotDialog->x()) + " "
+        + miutil::from_number(vcAddPlotDialog->y()));
     sec_window.addLine("VcrossSetupDialog.pos " + miutil::from_number(vcSetupDialog->x()) + " "
         + miutil::from_number(vcSetupDialog->y()));
     sec_window.addLine("VcrossStyleDialog.pos " + miutil::from_number(vcStyleDialog->x()) + " "
@@ -724,7 +721,7 @@ void VcrossWindow::readLog(const LogFileIO& logfile,
         }
         if (x>=0 && y>=0 && x<displayWidth-20 && y<displayHeight-20) {
           if      (tokens[0]=="VcrossWindow.pos")      this->move(x,y);
-          else if (tokens[0]=="VcrossDialog.pos")      { vcrossDialogX = x; vcrossDialogY = y; }
+          else if (tokens[0]=="VcrossDialog.pos")      vcAddPlotDialog->move(x, y);
           else if (tokens[0]=="VcrossSetupDialog.pos") vcSetupDialog->move(x,y);
           else if (tokens[0]=="VcrossStyleDialog.pos") vcStyleDialog->move(x,y);
         }

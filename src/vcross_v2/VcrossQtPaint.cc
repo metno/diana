@@ -146,7 +146,7 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
     painter.setPen(pen2);
   }
 
-  paintArrow(painter, px, py, px + mScaleX * u, py - mScaleY * v);
+  paintArrow(painter, px, py, px + mScale*mScaleX*u, py - mScale*mScaleY*v);
 
   if (mThickArrowScale > 0)
     painter.setPen(pen);
@@ -154,10 +154,17 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
 
 // ------------------------------------------------------------------------
 
-void PaintVector::setScale(float sx, float sy)
+void PaintVector::setScaleXY(float sx, float sy)
 {
   mScaleX = sx;
   mScaleY = sy;
+}
+
+void PaintVector::setScale(float sxy)
+{
+  mScale = sxy;
+  if (mScale <= 0)
+    mScale = 1;
 }
 
 } // namespace vcross
