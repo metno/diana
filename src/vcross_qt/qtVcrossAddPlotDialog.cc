@@ -140,8 +140,8 @@ void VcrossAddPlotDialog::onNext()
 void VcrossAddPlotDialog::onAdd()
 {
   const int page = ui->stack->currentIndex();
-  if (page != PlotPage or (not (isModelComplete()
-              and isReftimeComplete() and isPlotComplete())))
+  if (page != PlotPage
+      || (!(isModelComplete() && isReftimeComplete() && isPlotComplete())))
   {
     return;
   }
@@ -151,11 +151,15 @@ void VcrossAddPlotDialog::onAdd()
   vcross::QtManager::PlotSpec ps(model, reftime, "");
 
   const QStringList plots = selectedPlots();
-  for (int i=0; i<plots.size(); ++i) {
-    const std::string fld = plots.at(i).toStdString();
-    const std::string opt = vcrossm->getPlotOptions(fld, false);
-    ps.setField(fld);
-    vcrossm->addField(ps, opt, -1);
+  if (!plots.isEmpty()) {
+    vcrossm->fieldChangeStart(false);
+    for (int i=0; i<plots.size(); ++i) {
+      const std::string fld = plots.at(i).toStdString();
+      const std::string opt = vcrossm->getPlotOptions(fld, false);
+      ps.setField(fld);
+      vcrossm->addField(ps, opt, -1);
+    }
+    vcrossm->fieldChangeDone();
   }
   initializePlotPage(true);
 }
