@@ -1763,13 +1763,7 @@ void FieldDialog::enableFieldOptions()
   } else {
     upFieldButton->setEnabled((index > numEditFields));
     downFieldButton->setEnabled((index < lastindex));
-    if (vfgi.size() == 0)
-      changeModelButton->setEnabled(false);
-    else if (selectedFields[index].indexMGR == modelGRbox->currentIndex()
-        && selectedFields[index].indexM == modelbox->currentRow())
-      changeModelButton->setEnabled(false);
-    else
-      changeModelButton->setEnabled(true);
+    changeModelButton->setEnabled(true);
     deleteButton->setEnabled(true);
     copyField->setEnabled(true);
   }
@@ -4458,7 +4452,7 @@ void FieldDialog::changeModel()
         selectedFields[i].plotDefinition = fieldGroupCheckBox->isChecked();
 
         std::string str = selectedFields[i].modelName + " "
-            + selectedFields[i].fieldName;
+            + selectedFields[i].fieldName + " " + selectedFields[i].refTime;
         selectedFieldbox->item(i)->setText(QString(str.c_str()));
       }
     }
