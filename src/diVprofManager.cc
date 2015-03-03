@@ -275,6 +275,7 @@ void VprofManager::updateObsFileList()
   METLIBS_LOG_SCOPE();
 
   obsfiles.clear();
+  obsTime.clear();
   int n= filePaths.size();
   diutil::string_v matches;
   for (int j=0; j<n; j++) {
@@ -725,7 +726,11 @@ vector <std::string> VprofManager::getModelNames()
 std::vector <std::string> VprofManager::getReferencetimes(const std::string modelName)
 {
   std::vector <std::string> rf;
-  if ( miutil::contains(modelName,"obs") || filetypes[modelName] == "standard" )
+  if ( miutil::contains(modelName,"obs") ) {
+    updateObsFileList();
+    return rf;
+  }
+  if ( filetypes[modelName] == "standard" )
     return rf;
 
   vcross::Collector_p collector = miutil::make_shared<vcross::Collector>(setup);

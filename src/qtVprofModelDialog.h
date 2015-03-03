@@ -71,7 +71,6 @@ private:
 private slots:
   void modelfilelistClicked(QListWidgetItem*);
   void reftimeWidgetClicked(QListWidgetItem*);
-  void refreshClicked();
   void deleteClicked();
   void deleteAllClicked();
   void helpClicked();
