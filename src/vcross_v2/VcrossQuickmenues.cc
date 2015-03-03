@@ -131,6 +131,7 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
     }
   }
 
+  manager->fieldChangeStart(true);
   manager->getOptions()->readOptions(vcross_options);
   manager->selectFields(vcross_data);
 
@@ -159,6 +160,7 @@ void VcrossQuickmenues::parse(QtManager_p manager, const std::vector<std::string
         manager->addDynamicCrossection(QString::fromStdString(label), points);
     }
   }
+  manager->fieldChangeDone();
 }
 
 
