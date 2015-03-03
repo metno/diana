@@ -1125,7 +1125,7 @@ void VcrossStyleWidget::zero1ComboBoxToggled(int index)
     std::string str = ui->zero1ComboBox->currentText().toStdString();
     updateFieldOptions(PlotOptions::key_basevalue,str);
     float a = atof(str.c_str());
-    float b = ui->lineintervalCbox->currentText().toInt();
+    float b = ui->lineintervalCbox->currentText().toFloat();
     baseList(ui->zero1ComboBox,a,b,true);
   }
 }
