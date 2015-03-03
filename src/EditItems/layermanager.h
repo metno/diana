@@ -64,9 +64,10 @@ public:
   bool deselectAllItems(bool = true);
   void addToLayerGroup(const QSharedPointer<LayerGroup> &, const QList<QSharedPointer<Layer> > &);
   void addToLayerGroup(const QSharedPointer<LayerGroup> &, const QSharedPointer<Layer> &);
-  QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString & = QString());
+  QSharedPointer<LayerGroup> addToNewLayerGroup(const QList<QSharedPointer<Layer> > &, const QString &name = QString(),
+    const QString &fileName = QString());
   QSharedPointer<LayerGroup> addToNewLayerGroup(const QSharedPointer<Layer> &, const QString & = QString());
-  QSharedPointer<LayerGroup> createNewLayerGroup(const QString &) const;
+  QSharedPointer<LayerGroup> createNewLayerGroup(const QString &name, const QString &fileName = QString()) const;
   QSharedPointer<Layer> createNewLayer(const QString & = QString(), bool = true, bool = true) const;
   QSharedPointer<Layer> createNewLayer(const QSharedPointer<LayerGroup> &, const QString & = QString(), bool = true, bool = true);
   QSharedPointer<Layer> createDuplicateLayer(const QList<QSharedPointer<Layer> > &, const DrawingManager *) const;

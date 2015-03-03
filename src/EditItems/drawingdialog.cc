@@ -111,9 +111,10 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 #endif // ENABLE_DRAWINGDIALOG_TESTING
 
   // load available layer groups
-  foreach (const QString &fileName, drawm_->getDrawings()) {
+  QMap<QString, QString> drawings = drawm_->getDrawings();
+  foreach (const QString &name, drawings.keys()) {
     const QList<QSharedPointer<Layer> > layers;
-    layerMgr_->addToNewLayerGroup(layers, fileName);
+    layerMgr_->addToNewLayerGroup(layers, name, drawings[name]);
   }
   layerGroupsPane_->updateWidgetStructure();
 
@@ -218,8 +219,14 @@ std::vector<std::string> DrawingDialog::getOKString()
   if (!drawm_->isEnabled())
     return lines;
 
-  foreach (QString filePath, drawm_->getLoaded()) {
-    QString line = "DRAWING file=\"" + filePath + "\"";
+  QMap<QString, QString> loaded = drawm_->getLoaded();
+  foreach (QString name, loaded.keys()) {
+    QString line;
+    QString fileName = loaded[name];
+    if (fileName == name)
+      line = "DRAWING file=\"" + fileName + "\"";
+    else
+      line = "DRAWING name=\"" + name + "\"";
     lines.push_back(line.toStdString());
   }
 
@@ -236,15 +243,23 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 
 void DrawingDialog::makeProduct()
 {
+  // Obtain a set of the files in use.
   QSet<QString> sources;
   foreach (const QSharedPointer<Layer> &layer, layerMgr_->orderedLayers()) {
     foreach (const QSharedPointer<DrawingItemBase> &item, layer->items())
       sources.insert(item->property("srcFile").toString());
   }
 
+  // Map the files back to names for the drawings if possible.
   std::vector<std::string> inp;
-  foreach (const QString &source, sources)
-    inp.push_back("DRAWING file=\"" + source.toStdString() + "\"");
+  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerMgr_->layerGroups()) {
+    if (layerGroup->isActive() && sources.contains(layerGroup->fileName())) {
+      if (layerGroup->name() == layerGroup->fileName())
+        inp.push_back("DRAWING file=\"" + layerGroup->fileName().toStdString() + "\"");
+      else
+        inp.push_back("DRAWING name=\"" + layerGroup->name().toStdString() + "\"");
+    }
+  }
 
   putOKString(inp);
 
