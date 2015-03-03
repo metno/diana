@@ -1260,7 +1260,11 @@ void  EditDialog::sendClicked()
 
 void  EditDialog::approveClicked()
 {
-
+  if (!undoFrontButton->isEnabled() && !undoFieldButton->isEnabled() ) {
+    QString message = "Can't approve empty product";
+    QMessageBox::warning( this, tr("Error approve product"),message);
+    return;
+  }
   saveEverything(true,true);
   if (m_editm->showAllObjects()) emit editUpdate();
 }
@@ -1431,7 +1435,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   emit editMode(true);
 
   // Turn off Undo-buttons
-  undoFrontsEnable();
+  undoFrontsDisable();
   undoFieldsDisable();
   // stop current edit
   m_editm->stopEdit();
@@ -1609,7 +1613,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
   saveButton->setEnabled(true);
   sendButton->setEnabled(currid.sendable);
   approveButton->setEnabled(currid.sendable);
-
   commentbutton->setEnabled(not currprod.commentFilenamePart.empty() );
 
   lStatus->setText(tr("Not saved"));
@@ -1669,7 +1672,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 {
   //   METLIBS_LOG_DEBUG("EditNewCombineOK");
   // Turn off Undo-buttons
-  undoFrontsEnable();
+  undoFrontsDisable();
   undoFieldsDisable();
   // stop current edit
   m_editm->stopEdit();
