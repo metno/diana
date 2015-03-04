@@ -973,14 +973,14 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
     if (mAxisY->label() == "m") {
       const int nzsteps = 12;
       const float zsteps[nzsteps] =
-          { 10., 500., 1000., 2500., 5000., 10000, 15000,
+          { 100., 500., 1000., 2500., 5000., 10000, 15000,
             20000, 25000, 30000, 35000, 40000 };
       tickValues = ticks_table(zsteps, nzsteps);
       autotick_offset = 100;
     } else if (mAxisY->label() == "Ft") {
       const int nftsteps = 11;
       const float ftsteps[nftsteps] =
-          { 30, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
+          { 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
             70000, 80000, 90000 };
       tickValues = ticks_table(ftsteps, nftsteps);
       tta = foot_to_meter;
