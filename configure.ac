@@ -2,7 +2,7 @@
 # $Id: configure.ac 4440 2014-09-04 12:05:03Z lisbethb $
 #
 AC_PREREQ([2.59])
-AC_INIT([diana], [3.37.0~rc9], [diana@met.no])
+AC_INIT([diana], [3.38.0~a1], [diana@met.no])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.10 foreign])
