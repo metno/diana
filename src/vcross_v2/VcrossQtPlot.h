@@ -29,7 +29,6 @@
 #ifndef VcrossQtPlot_h
 #define VcrossQtPlot_h
 
-#include "VcrossQtAxis.h"
 #include "VcrossQtPaint.h"
 #include <diField/VcrossData.h>
 #include "VcrossEvaluate.h"
@@ -46,6 +45,12 @@
 #include <map>
 
 namespace vcross {
+
+namespace detail {
+struct Axis;
+typedef boost::shared_ptr<Axis> AxisPtr;
+typedef boost::shared_ptr<const Axis> AxisCPtr;
+} // namespace detail
 
 //----------------------------------------------------
 
