@@ -430,11 +430,8 @@ void VcrossWindow::timeListChangedSlot()
 
   std::vector<miutil::miTime> times;
   const int count = vcrossm->getTimeCount();
-  METLIBS_LOG_DEBUG(LOGVAL(count));
-  for (int i=0; i<count; ++i) {
-    METLIBS_LOG_DEBUG(LOGVAL(i));
+  for (int i=0; i<count; ++i)
     times.push_back(vcrossm->getTimeValue(i));
-  }
   ui->comboTime->setModel(new MiTimeModel(times));
 
   const bool enabled = (count > 1) && !vcrossm->isTimeGraph();

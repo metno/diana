@@ -90,7 +90,9 @@ static const char* horizontal(bool timegraph)
 
 bool eq_LonLat(const LonLat& a, const LonLat& b)
 {
-  return a.lon() == b.lon() && a.lat() == b.lat();
+  const float EPS = 1e-7;
+  return EPS > fabs(a.lon() - b.lon())
+      && EPS > fabs(a.lat() - b.lat());
 }
 
 const int   NFLTABLE = 14;
