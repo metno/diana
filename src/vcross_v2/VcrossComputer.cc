@@ -45,8 +45,8 @@ const FunctionSpec vcross_functions[vcross::vcf_no_function] = {
   { "tdk_from_tk_rh", 2, vcf_tdk_from_tk_rh, "K", {"K", "1"} },
   { "tdk_from_th_rh", 2, vcf_tdk_from_th_rh, "K", {"K", "1"} },
 
-  { "rh_from_tk_q", 2, vcf_rh_from_tk_q, "1", {"K", "1"} },
-  { "rh_from_th_q", 2, vcf_rh_from_th_q, "1", {"K", "1"} },
+  { "rh_from_tk_q", 2, vcf_rh_from_tk_q, "%", {"K", "1"} },
+  { "rh_from_th_q", 2, vcf_rh_from_th_q, "%", {"K", "1"} },
   { "q_from_tk_rh", 2, vcf_q_from_tk_rh, "1", {"K", "1"} },
   { "q_from_th_rh", 2, vcf_q_from_th_rh, "1", {"K", "1"} },
 
