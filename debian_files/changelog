@@ -1,3 +1,16 @@
+diana (3.37.0-1) unstable; urgency=low
+
+  * vcross - bugfix linetype
+  * using metlibs-difield-dev=5.5.5-2
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 06 Mar 2015 10:36:02 +0100
+
+diana (3.37.0~rc10-1) unstable; urgency=low
+
+  * vcross - bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 03 Mar 2015 16:27:42 +0100
+
 diana (3.37.0~rc9-1) unstable; urgency=low
 
   * vcross - several fixes
