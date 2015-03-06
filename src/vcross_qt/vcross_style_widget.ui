@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>349</height>
+    <width>431</width>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
        <property name="title">
         <string>Basic</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0">
+       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0">
         <property name="margin">
          <number>2</number>
         </property>
@@ -71,16 +71,6 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="vectorunitlabel">
-          <property name="text">
-           <string>Unit</string>
-          </property>
-          <property name="buddy">
-           <cstring>vectorunitCbox</cstring>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="1">
          <widget class="QComboBox" name="lineintervalCbox">
           <property name="enabled">
@@ -108,9 +98,6 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QComboBox" name="vectorunitCbox"/>
-        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="linetypelabel">
           <property name="text">
@@ -135,35 +122,6 @@
          <widget class="QComboBox" name="lineTypeCbox">
           <property name="enabled">
            <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="vectorthicknesslabel">
-          <property name="text">
-           <string>Thickness</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QSpinBox" name="vectorthicknessSpinBox">
-          <property name="toolTip">
-           <string>Vector thickness relative to length</string>
-          </property>
-          <property name="specialValueText">
-           <string>Off</string>
-          </property>
-          <property name="suffix">
-           <string notr="true">%</string>
-          </property>
-          <property name="prefix">
-           <string notr="true"/>
-          </property>
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="singleStep">
-           <number>5</number>
           </property>
          </widget>
         </item>
@@ -497,6 +455,125 @@
       </widget>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupVectors">
+       <property name="title">
+        <string>Vectors</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="5" column="1">
+         <widget class="QSpinBox" name="vectorthicknessSpinBox">
+          <property name="toolTip">
+           <string>Vector thickness relative to length</string>
+          </property>
+          <property name="specialValueText">
+           <string>Off</string>
+          </property>
+          <property name="suffix">
+           <string notr="true">%</string>
+          </property>
+          <property name="prefix">
+           <string notr="true"/>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="vectorunitCbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for length</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="vectorthicknesslabel">
+          <property name="text">
+           <string>Thickness</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="vectorunitlabel">
+          <property name="text">
+           <string>Unit</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorunitCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="vectorScaleXLlabel">
+          <property name="text">
+           <string>X scale</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorunitCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="vectorunitlabel_3">
+          <property name="text">
+           <string>Y scale</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorunitCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="vectorscalexSbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for x component</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-1000000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="vectorscaleySbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for y component</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-1000000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -519,7 +596,6 @@
   <tabstop>lineTypeCbox</tabstop>
   <tabstop>lineintervalCbox</tabstop>
   <tabstop>densityCbox</tabstop>
-  <tabstop>vectorunitCbox</tabstop>
   <tabstop>valueLabelCheckBox</tabstop>
   <tabstop>labelSizeSpinBox</tabstop>
   <tabstop>extremeValueCheckBox</tabstop>

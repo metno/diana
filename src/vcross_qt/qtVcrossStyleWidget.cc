@@ -87,6 +87,8 @@ VcrossStyleWidget::VcrossStyleWidget(QWidget* parent)
   cp->addKey(PlotOptions::key_lineinterval,  "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_density,       "",0,CommandParser::cmdInt);
   cp->addKey(PlotOptions::key_vectorunit,    "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_vectorscale_x, "",0,CommandParser::cmdFloat);
+  cp->addKey(PlotOptions::key_vectorscale_y, "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_vectorthickness, "",0,CommandParser::cmdFloat);
   cp->addKey(PlotOptions::key_extremeType,   "",0,CommandParser::cmdString);
   cp->addKey(PlotOptions::key_extremeSize,   "",0,CommandParser::cmdFloat);
@@ -190,6 +192,10 @@ void VcrossStyleWidget::setupUi()
       SLOT(densityCboxActivated(int)));
   connect(ui->vectorunitCbox, SIGNAL(activated(int)),
       SLOT(vectorunitCboxActivated(int)));
+  connect(ui->vectorscalexSbox, SIGNAL(valueChanged(const QString&)),
+      SLOT(vectorscalexSboxChanged(const QString&)));
+  connect(ui->vectorscaleySbox, SIGNAL(valueChanged(const QString&)),
+      SLOT(vectorscaleySboxChanged(const QString&)));
   connect(ui->vectorthicknessSpinBox, SIGNAL(valueChanged(int)),
       SLOT(vectorthicknessChanged(int)));
 
@@ -577,6 +583,32 @@ void VcrossStyleWidget::enableFieldOptions()
     ui->vectorunitCbox->clear();
   }
 
+  // vector scale x (scaling in x)
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorscale_x))>=0) {
+    if (vpcopt[nc].floatValue.size()>0)
+      e = vpcopt[nc].floatValue[0];
+    else
+      e = 1;
+    ui->vectorscalexSbox->setEnabled(true);
+    ui->vectorscalexSbox->setValue(e);
+  } else {
+    ui->vectorscalexSbox->setEnabled(false);
+    ui->vectorscalexSbox->setValue(1);
+  }
+
+  // vector scale y (scaling in y)
+  if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorscale_y))>=0) {
+    if (vpcopt[nc].floatValue.size()>0)
+      e = vpcopt[nc].floatValue[0];
+    else
+      e = 1;
+    ui->vectorscaleySbox->setEnabled(true);
+    ui->vectorscaleySbox->setValue(e);
+  } else if (ui->vectorscaleySbox->isEnabled()) {
+    ui->vectorscaleySbox->setEnabled(false);
+    ui->vectorscaleySbox->setValue(1);
+  }
+
   // vectorthickness (vector thickness relative to length)
   if ((nc=cp->findKey(vpcopt,PlotOptions::key_vectorthickness))>=0) {
     int thickness = 0;
@@ -858,7 +890,8 @@ void VcrossStyleWidget::disableFieldOptions()
   ui->densityCbox->setEnabled(false);
 
   ui->vectorunitCbox->clear();
-
+  ui->vectorscalexSbox->setEnabled(false);
+  ui->vectorscaleySbox->setEnabled(false);
   ui->vectorthicknessSpinBox->setEnabled(false);
 
 #ifndef DISABLE_EXTREMES
@@ -958,6 +991,16 @@ void VcrossStyleWidget::vectorunitCboxActivated(int index)
   // update the list (with selected value in the middle)
   float a= atof(vectorunit[index].c_str());
   vectorunit= numberList(ui->vectorunitCbox, a);
+}
+
+void VcrossStyleWidget::vectorscalexSboxChanged(const QString& value)
+{
+  updateFieldOptions(PlotOptions::key_vectorscale_x, value.toStdString());
+}
+
+void VcrossStyleWidget::vectorscaleySboxChanged(const QString& value)
+{
+  updateFieldOptions(PlotOptions::key_vectorscale_y, value.toStdString());
 }
 
 void VcrossStyleWidget::vectorthicknessChanged(int value)

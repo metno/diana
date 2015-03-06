@@ -156,8 +156,8 @@ void PaintVector::paint(QPainter& painter, float u, float v, float px, float py)
 
 void PaintVector::setScaleXY(float sx, float sy)
 {
-  mScaleX = sx;
-  mScaleY = sy;
+  mScaleX = (sx == 0 ? 1 : sx);
+  mScaleY = (sy == 0 ? 1 : sy);
 }
 
 void PaintVector::setScale(float sxy)

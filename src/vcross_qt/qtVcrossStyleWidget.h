@@ -45,6 +45,8 @@ private Q_SLOTS:
   void lineintervalCboxActivated( int index );
   void densityCboxActivated( int index );
   void vectorunitCboxActivated( int index );
+  void vectorscalexSboxChanged(const QString& value);
+  void vectorscaleySboxChanged(const QString& value);
   void vectorthicknessChanged(int value);
 
   void extremeValueCheckBoxToggled(bool on);
