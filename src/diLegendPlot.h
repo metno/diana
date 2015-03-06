@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -31,13 +29,19 @@
 #ifndef diLegendPlot_h
 #define diLegendPlot_h
 
-#include <diPlot.h>
+#include "diColour.h"
+#include "diPlotOptions.h"
+
+#include <string>
+#include <vector>
+
+class StaticPlot;
 
 /**
   \brief Plots a legend with colour and text
 */
 
-class LegendPlot : public Plot {
+class LegendPlot /*: public Plot*/ {
 
 public:
   /// Legend text with colour and pattern
@@ -62,51 +66,60 @@ private:
   // if showplot = true: show the whole table. if false: only title bar
   bool showplot;
   std::string suffix;
-  static float xUsed; 
+  PlotOptions poptions;
+  StaticPlot* staticPlot_;
+  static float xUsed;
 
-  // Copy members
   void memberCopy(const LegendPlot& rhs);
-  // Equality operator
   bool operator==(const LegendPlot &rhs) const;
 
-public:
-  /// Constructor
   LegendPlot();
-  /// Constructor which reads string to get title and make vector of ColourCode
-  LegendPlot(const std::string& str);
   LegendPlot(const LegendPlot &rhs);
-  /// Destructor
-  ~LegendPlot();
-  /// Assignment operator
   LegendPlot& operator=(const LegendPlot &rhs);
-  /// sets title and ColourCode vector
-  void setData(const std::string& title, const std::vector<ColourCode>& colourcode);
+
   /// get width and height of string str with current font
   void getStringSize(std::string str, float& width, float& height);
+
+public:
+  /// Constructor which reads string to get title and make vector of ColourCode
+  LegendPlot(const std::string& str);
+  ~LegendPlot();
+
+  /// sets title and ColourCode vector
+  void setData(const std::string& title, const std::vector<ColourCode>& colourcode);
+
   /// plots the legend plot with top left corner at x,y
   bool plotLegend(float x=0.0, float y=0.0);
-  bool plot(const int){return false;}
+
   /// if x,y inside title bar, then the table should be hidden or shown
   void showSatTable(int x,int y);
   /// check if x,y inside title bar
   bool inSatTable(int x,int y);
   /// moves plot from x1,y1 to x2,y2
   void moveSatTable(int x1,int y1,int x2,int y2);
-  /// sets background colour
-  void setBackgroundColour(Colour c){poptions.fillcolour=c;}
+
+  void setPlotOptions(const PlotOptions& po)
+    { poptions = po; }
+
+  void setTitle(std::string t)
+    { titlestring = t; }
+
+  void setBackgroundColour(Colour c)
+    { poptions.fillcolour = c; }
+
+  void setStaticPlot(StaticPlot* sp)
+    { staticPlot_ = sp; }
+
   ///sets suffix, usually unit (hPa, mm)
   void setSuffix(const std::string& suffix_){suffix = suffix_;}
+
   /// sets alignment
   void setAlignment(Alignment a){poptions.h_align=a;}
+
   /// calculates and returns total table height
   float height();
   /// calculates and returns total table width
   float width();
-  /// sets plot options
-  void setPlotOptions(const PlotOptions& po){poptions=po;}
-  // sets title
-  void setTitle(std::string t){titlestring=t;}
 };
 
-
-#endif
+#endif // diLegendPlot_h

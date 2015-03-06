@@ -45,11 +45,11 @@ private:
   float transitionwidth;
 
   void drawThickLine();
-public:
-  //constructor
-  AreaBorder();
   AreaBorder(const AreaBorder &rhs);
-  // Destructor
+  AreaBorder& operator=(const AreaBorder &rhs);
+
+public:
+  AreaBorder();
   ~AreaBorder();
 
   /// returns linewidth
@@ -61,9 +61,8 @@ public:
   { transitionwidth=w; if (transitionwidth<1) transitionwidth=1.; }
 
   /// draws the border
-  virtual bool plot();
-  /// returns false
-  virtual bool plot(const int){return false;}
+  void plot(PlotOrder porder);
+
   /// shows / marks node point/ points on front
   bool showLine(float x, float y);
   /// returns showLine

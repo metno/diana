@@ -69,13 +69,11 @@ using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self_ = 0;
-Rectangle DrawingManager::plotRect_;
 Rectangle DrawingManager::editRect_;
 
 DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
-  currentArea_ = PLOTM->getCurrentArea();
   styleManager_ = DrawingStyleManager::instance();
   layerMgr_ = new EditItems::LayerManager();
 }
@@ -331,24 +329,21 @@ QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) cons
   return PhysToGeo(points);
 }
 
+inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+
 // Returns geographic coordinates converted from screen coordinates.
 QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect_.x1 - editRect_.x1) * float(w)/plotRect_.width();
-  float dy = (plotRect_.y1 - editRect_.y1) * float(h)/plotRect_.height();
+  const StaticPlot* sp = PLOTM->getStaticPlot();
+  const XY dxy = sp->MapToPhys(XY(editRect_.x1, editRect_.y1));
 
   int n = points.size();
 
   QList<QPointF> latLonPoints;
-
+  latLonPoints.reserve(n);
   for (int i = 0; i < n; ++i) {
-    float x, y;
-    PLOTM->PhysToGeo(points.at(i).x() - dx,
-                     points.at(i).y() - dy,
-                     x, y, currentArea_, plotRect_);
-    latLonPoints.append(QPointF(x, y));
+    const XY lonlat = sp->PhysToGeo(fromQ(points.at(i)) + dxy);
+    latLonPoints.append(QPointF(lonlat.y(), lonlat.x()));
   }
 
   return latLonPoints;
@@ -365,18 +360,14 @@ void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPoi
 // Returns screen coordinates converted from geographic coordinates.
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-
   QList<QPointF> points;
   int n = latLonPoints.size();
 
-  const Rectangle currPlotRect = PLOTM->getPlotSize();
   for (int i = 0; i < n; ++i) {
     float x, y;
     PLOTM->GeoToPhys(latLonPoints.at(i).x(),
                      latLonPoints.at(i).y(),
-                     x, y, currentArea_, currPlotRect);
+                     x, y);
     points.append(QPointF(x, y));
   }
 
@@ -481,10 +472,7 @@ bool DrawingManager::changeProjection(const Area& newArea)
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
   const Rectangle& r = PLOTM->getPlotSize();
-  setPlotRect(r);
   setEditRect(r);
-  if (currentArea_ != newArea)
-    currentArea_ = newArea;
   return true;
 }
 
@@ -496,12 +484,9 @@ void DrawingManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  Rectangle r = PLOTM->getPlotSize();
-  setPlotRect(r);
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
+  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+      PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
@@ -602,11 +587,6 @@ void DrawingManager::applyPlotOptions(const QSharedPointer<DrawingItemBase> &ite
 EditItems::LayerManager *DrawingManager::getLayerManager()
 {
   return layerMgr_;
-}
-
-void DrawingManager::setPlotRect(Rectangle r)
-{
-  DrawingManager::plotRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
 void DrawingManager::setEditRect(Rectangle r)

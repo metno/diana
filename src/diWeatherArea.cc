@@ -192,10 +192,10 @@ void WeatherArea::setState(const state s)
   currentState = s;
 }
 
-bool WeatherArea::plot()
+void WeatherArea::plot(PlotOrder zorder)
 {
   if (!isEnabled())
-    return false;
+    return;
 
   // if this object is visible
   if (isVisible) {
@@ -299,7 +299,6 @@ bool WeatherArea::plot()
     drawNodePoints();
     getStaticPlot()->UpdateOutput();
   }
-  return true;
 }
 
 
@@ -487,7 +486,6 @@ string WeatherArea::writeTypeString()
 
 void WeatherArea::drawSigweather()
 {
-  const float PI = 3.1415926535897932384626433832795; // this is a double double
   //METLIBS_LOG_DEBUG("WeatherArea::drawSigweather");
   //calculate total length
   //   if (!orientationClockwise())
@@ -531,7 +529,7 @@ void WeatherArea::drawSigweather()
     float hyp = sqrtf(deltay * deltay + deltax * deltax);
     const int nflag = 19;
     float xflag[nflag], yflag[nflag];
-    float flagstep = PI / (nflag - 1);
+    float flagstep = M_PI / (nflag - 1);
     for (int j = 0; j < nflag; j++) {
       xflag[j] = hyp / 2 * cos(j * flagstep);
       yflag[j] = hyp / 2 * sin(j * flagstep);
@@ -540,7 +538,7 @@ void WeatherArea::drawSigweather()
     float yy1 = yplot[i] + deltay / 2;
     glPushMatrix();
     glTranslatef(xx1, yy1, 0.0);
-    glRotatef(atan2(deltay, deltax) * 180. / PI, 0.0, 0.0, 1.0);
+    glRotatef(atan2(deltay, deltax) * RAD_TO_DEG, 0.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
     for (int j = 0; j < nflag; j++)
       glVertex2f(xflag[j], yflag[j]);

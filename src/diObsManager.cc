@@ -31,8 +31,11 @@
 #include "config.h"
 #endif
 
-#include <diObsManager.h>
-#include <diObsAscii.h>
+#include "diObsManager.h"
+
+#include "diObsAscii.h"
+#include "diObsMetaData.h"
+#include "diObsPlot.h"
 #include "diPlotModule.h"
 #include "diUtilities.h"
 
@@ -763,14 +766,15 @@ void ObsManager::clearObsPositions()
   obsPositions.values = 0;
 }
 
-void ObsManager::calc_obs_mslp(const vector<ObsPlot*> oplot)
+void ObsManager::calc_obs_mslp(Plot::PlotOrder porder,
+    const vector<ObsPlot*>& oplot)
 {
   if (!mslp)
     return;
 
   ObsPlot::clearPos();
   for (size_t i = 0; i < oplot.size(); i++)
-    oplot[i]->obs_mslp(obsPositions.values);
+    oplot[i]->obs_mslp(porder, obsPositions.values); // this is actually plotting data
 }
 
 ObsDialogInfo ObsManager::initDialog()

@@ -64,13 +64,11 @@ private:
   void setFillArea(const std::string& filltype);   //set fillArea=true if !filltype.empty()
   void setFilltype(const GLubyte* filltype){itsFilltype = filltype;}
 public:
-  /// default constructor
   WeatherArea();
   /// constructor with integer area type as argument
   WeatherArea(int ty);
   /// constructor with name of area type as argument
   WeatherArea(std::string tystring);
-  /// Destructor
   ~WeatherArea();
   /// define map to find area type number from name
   static void defineAreas(std::vector<editToolInfo> areas);
@@ -78,8 +76,7 @@ public:
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation and whether area should be filled
   void setState(const state s);
-  bool plot();  ///< draws the area
-  bool plot(const int){return false;}
+  void plot(PlotOrder zorder);
   /// shows / marks node point/ points on area
   bool showLine(float x, float y);
   /// set type of area

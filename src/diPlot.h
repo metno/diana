@@ -30,6 +30,7 @@
 #define diPlot_h
 
 #include "diColour.h"
+#include "diPoint.h"
 #include "diPlotOptions.h"
 #include "diPrintOptions.h"
 
@@ -44,7 +45,6 @@
 class GLPfile;
 class FontManager;
 
-
 /**
    StaticPlot keeps all previously static data shared by the various plotting classes.
    - postscript generation initiated here
@@ -54,10 +54,10 @@ private:
   Area area;          // Projection and size of current grid
   Area requestedarea; // Projection and size of requested grid
   Rectangle maprect;  // Size of map plot area
-  Rectangle fullrect; // Size of full plot area
+  Rectangle plotsize; // Size of full plot area
   miutil::miTime ctime;       // current time
-  float pwidth;       // physical size of plotarea
-  float pheight;      // --- " ---
+  XY mPhys;           // physical size of plotarea
+  XY mPhysToMapScale; // ratio of plot size to physical size
   bool dirty;         // plotarea has changed
   int pressureLevel;          // current pressure level
   int oceandepth;       // current ocean depth
@@ -94,14 +94,59 @@ public:
   void restartFontManager();
 
   /// return current area on map
-  const Area& getMapArea()
+  const Area& getMapArea() const
     { return area; }
 
   /// set area, possibly trying to keep the current physical area
-  bool setMapArea(const Area&, bool keepcurrentarea);
+  void setMapArea(const Area&, bool keepcurrentarea);
 
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
+
+  /// convert from physical xy to geographic coordinates in lat-lon degrees
+  bool PhysToGeo(float x, float y, float& lat, float& lon) const;
+
+  /// convert from physical xy to geographic coordinates in lon-lat degrees
+  XY PhysToGeo(const XY& phys) const
+    { return MapToGeo(PhysToMap(phys)); }
+
+  /// convert from geographic coordinates in lat-lon degrees to physical xy
+  bool GeoToPhys(float lat, float lon, float& x, float& y) const;
+
+  /// convert from geographic coordinates in lon-lat degrees to physical xy
+  XY GeoToPhys(const XY& lonlat) const
+    { return MapToPhys(GeoToMap(lonlat)); }
+
+  void PhysToMap(float x, float y, float& xmap, float& ymap) const
+    { PhysToMap(XY(x, y)).unpack(xmap, ymap); }
+  void MapToPhys(float xmap, float ymap, float& x, float& y) const
+    { MapToPhys(XY(xmap, ymap)).unpack(x, y); }
+
+  XY PhysToMap(const XY& phys) const;
+  XY MapToPhys(const XY& map) const;
+
+  /// convert from geographic coordinates in lon-lat degrees to map xy
+  bool GeoToMap(int n, float* x, float* y) const;
+
+  /** convert from geographic coordinates in lon-lat degrees to map xy
+   * x and y must already be converted, e.g. with GeoToMap(int, float*, float*)
+   * u and v will be converted
+   */
+  bool GeoToMap(int n, const float* x, const float* y, float* u, float* v) const;
+
+  /// convert from geographic coordinates in lon-lat degrees to map xy
+  XY GeoToMap(const XY& lonlatdeg) const;
+
+  /// convert from map xy to geographic coordinates in lon-lat degrees
+  bool MapToGeo(int n, float* x, float* y) const;
+
+  /// convert from map xy to geographic coordinates in lon-lat degrees
+  XY MapToGeo(const XY& map) const;
+
+  bool ProjToMap(const Projection& srcProj, int n, float* x, float* y) const;
+  bool ProjToMap(const Area& srcArea, int n,
+      const float* x, const float* y, float* u, float* v) const;
+  bool MapToProj(const Projection& targetProj, int n, float* x, float* y) const;
 
   /// this is the area we really want
   void setRequestedarea(const Area &a)
@@ -112,14 +157,23 @@ public:
     { return requestedarea; }
 
   /// this is the full size of the plot in the current projection
-  const Rectangle& getPlotSize()
-    { return fullrect; }
+  const Rectangle& getPlotSize() const
+    { return plotsize; }
 
   /// set the  full size of the plot in the current projection
   void setPlotSize(const Rectangle& r);
 
+  const XY& getPhysToMapScale() const
+    { return mPhysToMapScale; }
+
+  float getPhysToMapScaleX() const
+    { return mPhysToMapScale.x(); }
+
+  float getPhysToMapScaleY() const
+    { return mPhysToMapScale.y(); }
+
   /// this is size of the data grid
-  const Rectangle& getMapSize()
+  const Rectangle& getMapSize() const
     { return maprect; }
 
   /// set the size of the data grid
@@ -129,13 +183,14 @@ public:
   void setPhysSize(float w, float h);
 
   /// this is  the physical size of the map in pixels
-  void getPhysSize(float& w, float& h);
+  bool hasPhysSize() const
+    { return mPhys.x() > 0 && mPhys.y() > 0; }
 
-  float getPhysWidth()
-    { return pwidth; }
+  float getPhysWidth() const
+    { return mPhys.x(); }
 
-  float getPhysHeight()
-    { return pheight; }
+  float getPhysHeight() const
+    { return mPhys.y(); }
 
   /// set the current data time
   void setTime(const miutil::miTime& t)
@@ -162,20 +217,11 @@ public:
     {return oceandepth;}
 
   /// set name of background colour
-  void setBgColour(const std::string& cn)
-    { bgcolour= cn; }
+  void setBgColour(const std::string& cn);
 
   /// return the name of the current background colour
   const std::string& getBgColour()
     { return bgcolour; }
-
-  /// set background colour
-  void setBackgroundColour(const Colour& c)
-    { backgroundColour= c; }
-
-  /// set colour with good contrast to background
-  void setBackContrastColour(const Colour& c)
-    { backContrastColour= c; }
 
   /// return the current background colour
   const Colour& getBackgroundColour()
@@ -221,7 +267,7 @@ public:
   bool endPSoutput();
 
   /// set great circle distance
-  void setGcd(float dist);
+  void updateGcd();
 
   float getGcd()
     { return gcd; }
@@ -232,8 +278,8 @@ public:
   bool isPanning()
     { return panning; }
 
-  /// convert from geo to xy using getMapArea()
-  bool geo2xy(int n, float* x, float* y);
+private:
+  void updatePhysToMapScale();
 };
 
 /**
@@ -247,15 +293,20 @@ public:
   // "implemented" below
   virtual ~Plot() = 0;
 
-  // Equality operator
   bool operator==(const Plot &rhs) const;
 
   StaticPlot* getStaticPlot() const;
 
-  /// plot
-  virtual bool plot(){return false; }
-  /// plot for specified layer
-  virtual bool plot(int zorder){return false; }
+  enum PlotOrder {
+    BACKGROUND,
+    SHADE_BACKGROUND,
+    SHADE,
+    LINES_BACKGROUND,
+    LINES,
+    OVERLAY
+  };
+
+  virtual void plot(PlotOrder zorder) = 0;
 
   /// enable this plot object
   void setEnabled(bool enable=true);
@@ -298,10 +349,10 @@ public:
 
 protected:
   std::string pinfo;            // plotinfo
-  PlotOptions poptions;      // plotoptions
+  PlotOptions poptions;
 
 private:
-  bool enabled;              // plot enabled
+  bool enabled;               // plot enabled
   bool rgbmode;               // rgb or colour-index mode
   std::string plotname;       // name of plot
 };

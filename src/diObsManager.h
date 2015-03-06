@@ -31,9 +31,9 @@
 #ifndef diObsManager_h
 #define diObsManager_h
 
-#include <diCommonTypes.h>
-#include <diObsPlot.h>
-#include <diObsMetaData.h>
+#include "diCommonTypes.h"
+#include "diPlot.h"
+#include "diObsData.h"
 
 #include <diField/TimeFilter.h>
 
@@ -42,6 +42,8 @@
 #include <vector>
 
 class ObsData;
+class ObsMetaData;
+class ObsPlot;
 struct ObsDialogInfo;
 
 /**
@@ -124,7 +126,7 @@ private:
   std::map<std::string, std::vector<ObsDialogInfo::CriteriaList> > criteriaList;
 
   //  set<std::string> dataTypesListed;
-  
+
   std::vector<std::string> popupSpec;  // Parameter data from setupfil
 
   bool useArchive; //read archive files too.
@@ -141,18 +143,19 @@ private:
   std::string selectedStation;
   //--------------------------------------
 
-  bool addStationsAndTimeFromMetaData( const std::string& metaData, std::string& url, const miutil::miTime& time);
-  ObsDialogInfo::Button addButton(const std::string& name, const std::string& tip, 
-				  int low=-50, int high=50, bool def=true);
+  bool addStationsAndTimeFromMetaData( const std::string& metaData,
+      std::string& url, const miutil::miTime& time);
+  ObsDialogInfo::Button addButton(const std::string& name, const std::string& tip,
+      int low=-50, int high=50, bool def=true);
   void addType(ObsDialogInfo::PlotType& dialogInfo,
-	       const std::vector<ObsFormat>& obsformat);
-  void setActive(const std::vector<std::string>& name, bool on, 
-		 std::vector<bool>& active, 
-		 const std::vector<ObsDialogInfo::Button>& b);
+      const std::vector<ObsFormat>& obsformat);
+  void setActive(const std::vector<std::string>& name, bool on,
+      std::vector<bool>& active,
+      const std::vector<ObsDialogInfo::Button>& b);
   void setAllActive(ObsDialogInfo::PlotType& dialogInfo,
-		  const std::vector<std::string>& parameter, 
-		  const std::string& name,
-		  const std::vector<ObsDialogInfo::Button>& b);
+      const std::vector<std::string>& parameter,
+      const std::string& name,
+      const std::vector<ObsDialogInfo::Button>& b);
   std::vector<FileInfo> getFileName(const miutil::miTime& , const ProdInfo& pi,
       std::vector<miutil::miTime>& termin,
       miutil::miTime& timeRangeMin, miutil::miTime& timeRangeMax, bool moretimes, int timeDiff);
@@ -162,7 +165,7 @@ private:
 
 //  HQC
   bool changeHqcdata(ObsData&, const std::vector<std::string>& param,
-			const std::vector<std::string>& data);
+      const std::vector<std::string>& data);
   Colour flag2colour(const std::string& flag);
 
   void printProdInfo(const ProdInfo & pinfo);
@@ -182,23 +185,28 @@ public:
   std::vector<miutil::miTime> getTimes(std::vector<std::string> pinfos);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::vector<miutil::miTime>& normalTimes,
-			   int& timediff,
-			   const std::string& pinfo);
+      int& timediff, const std::string& pinfo);
+
 // return observation times for list of obsTypes
   std::vector<miutil::miTime> getObsTimes(const std::vector<std::string>& obsTypes);
-  bool obs_mslp(){return mslp;}
+  bool obs_mslp() const
+    { return mslp; }
   void updateObsPositions(const std::vector<ObsPlot*> oplot);
-  ObsPositions& getObsPositions(){  return obsPositions;}
+  ObsPositions& getObsPositions()
+    { return obsPositions; }
   void clearObsPositions();
-  void calc_obs_mslp(const std::vector<ObsPlot*> oplot);
-  void archiveMode( bool on ){useArchive=on;}
+  void calc_obs_mslp(Plot::PlotOrder porder,
+      const std::vector<ObsPlot*>& oplot);
+  void archiveMode(bool on)
+    { useArchive=on; }
+
 //  HQC
   ObsDialogInfo updateHqcDialog(const std::string& plotType);
-  bool initHqcdata(int from, 
-		   const std::string& commondesc, const std::string& common,
-		   const std::string& desc, const std::vector<std::string>&data);
+  bool initHqcdata(int from,
+      const std::string& commondesc, const std::string& common,
+      const std::string& desc, const std::vector<std::string>&data);
   bool updateHqcdata(const std::string& commondesc, const std::string& common,
-		     const std::string& desc, const std::vector<std::string>&data);
+      const std::string& desc, const std::vector<std::string>&data);
   bool sendHqcdata(ObsPlot* oplot);
   void processHqcCommand(const std::string&, const std::string&);
   // Added for automatic updates

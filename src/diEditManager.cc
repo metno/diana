@@ -2721,13 +2721,15 @@ void EditManager::setEditMessage(const string& str)
 }
 
 
-void EditManager::plot(bool under, bool over)
+void EditManager::plot(Plot::PlotOrder zorder)
 {
+  const bool under = (zorder == Plot::LINES);
+  const bool over = (zorder == Plot::OVERLAY);
 //  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
 //  <<"  showRegion="<<showRegion);
 
   if (apEditmessage)
-    apEditmessage->plot();
+    apEditmessage->plot(zorder);
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2768,7 +2770,7 @@ void EditManager::plot(bool under, bool over)
   if (plotcombine && under){
     int n= objm->getCombiningObjects().objects.size();
     for (int i=0; i<n; i++)
-      objm->getCombiningObjects().objects[i]->plot();
+      objm->getCombiningObjects().objects[i]->plot(zorder);
   }
 
   if (plototherfield || plotactivefield) {
@@ -2776,21 +2778,21 @@ void EditManager::plot(bool under, bool over)
       if (fedits[i]->editfield && fedits[i]->editfieldplot) {
         bool act= fedits[i]->activated();
         if ((act && plotactivefield) || (!act && plototherfield)){
-          //METLIBS_LOG_DEBUG("  Plotting field " << i);
-          fedits[i]->plot(plotinfluence);
+          fedits[i]->plot(zorder, plotinfluence);
         }
       }
     }
   }
 
   if (plotobjects) {
-    objm->getEditObjects().plot();
+    objm->getEditObjects().plot(zorder);
     if (over) {
       objm->getEditObjects().drawJoinPoints();
     }
   }
 
-  if (plotregion) plotSingleRegion();
+  if (plotregion)
+    plotSingleRegion(zorder);
 
   if (plotcombine && over){
     int n= objm->getCombiningObjects().objects.size();
@@ -2816,7 +2818,7 @@ void EditManager::plot(bool under, bool over)
           }
         }
       }
-      if (gc.getPoints(plotm->getMapArea().P(),fedits[0]->editfield->area.P(),npos,x,y)) {
+      if (plotm->getStaticPlot()->MapToProj(fedits[0]->editfield->area.P(),npos,x,y)) {
         float s= 0.;
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
@@ -2833,14 +2835,14 @@ void EditManager::plot(bool under, bool over)
 
     objm->getCombiningObjects().setScaleToField(scale);
 
-    objm->getCombiningObjects().plot();
+    objm->getCombiningObjects().plot(zorder);
 
     objm->getCombiningObjects().drawJoinPoints();
   }
 }
 
 
-void EditManager::plotSingleRegion()
+void EditManager::plotSingleRegion(Plot::PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2853,7 +2855,7 @@ void EditManager::plotSingleRegion()
     if (showRegion<int(combinefields[i].size())) {
       if (combinefields[i][showRegion]->editfield &&
           combinefields[i][showRegion]->editfieldplot)
-        combinefields[i][showRegion]->plot(false);
+        combinefields[i][showRegion]->plot(zorder, false);
     }
   }
 
@@ -2861,7 +2863,7 @@ void EditManager::plotSingleRegion()
     // projection may have been changed when showing single region data
     combineobjects[showRegion].changeProjection(plotm->getMapArea());
 
-    combineobjects[showRegion].plot();
+    combineobjects[showRegion].plot(zorder);
   }
 }
 

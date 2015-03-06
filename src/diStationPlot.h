@@ -125,30 +125,28 @@ private:
 class StationPlot: public Plot{
 
 public:
-  //constructors
   StationPlot(){}
   /// constructor with station longitudes and latitudes
   StationPlot(const std::vector <float> & lons, const std::vector <float> & lats);
   /// constructor with station names,longitudes and latitudes
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
-	      const std::vector <float> & lats);
+      const std::vector <float> & lats);
   /// constructor with station names,longitudes,latitudes and images
   StationPlot(const std::vector <std::string> & names,const std::vector <float> & lons,
         const std::vector <float> & lats, const std::vector <std::string> images);
   /// constructor with stations
   StationPlot(const std::vector <Station*> &stations);
   StationPlot(const std::string& commondesc,
-	      const std::string& common,
-	      const std::string& description,
-	      int from,
-	      const  std::vector<std::string>& data);
-  //destructor
+      const std::string& common,
+      const std::string& description,
+      int from,
+      const  std::vector<std::string>& data);
   ~StationPlot();
 
 
   /// plot stations
-  bool plot();
-  bool plot(const int){return false;}
+  void plot(PlotOrder zorder);
+
   /// hide stations
   void hide();
   // show stations
@@ -211,38 +209,37 @@ public:
   std::string getIcon(){return iconName;}
   void setEditStations(const std::vector<std::string>& );
   bool getEditStation(int step, std::string& name, int& id,
-		      std::vector<std::string>& stations, bool& updateArea);
+      std::vector<std::string>& stations);
   bool stationCommand(const std::string& Command,
-		      const std::vector<std::string>& data,
-		      const std::string& misc="");
+      const std::vector<std::string>& data,
+      const std::string& misc="");
   bool stationCommand(const std::string& Command);
   std::string stationRequest(const std::string& Command);
 
   friend bool operator==(const StationPlot& lhs, const StationPlot& rhs)
-  { return (lhs.stations.size()==rhs.stations.size()) ; }
-  friend bool operator>(const StationPlot& lhs, const StationPlot& rhs)
-  { return (lhs.stations.size()>rhs.stations.size()); }
-  friend bool operator<(const StationPlot& lhs, const StationPlot& rhs)
-  { return (lhs.stations.size()<rhs.stations.size()); }
+    { return (lhs.stations.size()==rhs.stations.size()) ; }
 
+  friend bool operator>(const StationPlot& lhs, const StationPlot& rhs)
+    { return (lhs.stations.size()>rhs.stations.size()); }
+
+  friend bool operator<(const StationPlot& lhs, const StationPlot& rhs)
+    { return (lhs.stations.size()<rhs.stations.size()); }
 
 private:
-
   std::vector<Station*> stations; //stations, name, lon, lat etc...
   std::vector<StationArea> stationAreas;  // areas containing stations
 
   //  void addStation(const std::string names);
   void addStation(const float lon, const float lat,
-		  const std::string name="",
-		  const std::string image="",
-		  int alpha=255, float scale=1.0);
+      const std::string name="",
+      const std::string image="",
+      int alpha=255, float scale=1.0);
   void addStation(Station* station);
   void defineCoordinates();
   void init();
   void plotStation(int i);
   void glPlot(Station::Status tp, float x, float y, float w, float h, bool selected = false);
-  void plotWind(int i, float x, float y,
-		bool classic=false, float scale=1);
+  void plotWind(int i, float x, float y, bool classic=false, float scale=1);
 
   std::vector <float> xplot; //x-positions to plot in current projection
   std::vector <float> yplot; //y-positions to plot in current projection
@@ -263,7 +260,6 @@ private:
   int editIndex; //last selected editStation
   int index; //last selected
 
-  float pi;
   GLuint circle;
   ImageGallery ig;
 

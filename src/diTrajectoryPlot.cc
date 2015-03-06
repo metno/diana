@@ -71,10 +71,9 @@ TrajectoryPlot::~TrajectoryPlot(){
 }
 
 
-bool TrajectoryPlot::prepare(void){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::prepare() ++");
-#endif
+bool TrajectoryPlot::prepare()
+{
+  METLIBS_LOG_SCOPE();
 
   //Change projection
 
@@ -93,9 +92,8 @@ bool TrajectoryPlot::prepare(void){
     ypos[i] = y[i];
   }
 
-
   // convert points to correct projection
-  getStaticPlot()->gc.getPoints(oldArea.P(),getStaticPlot()->getMapArea().P(),npos,xpos,ypos);//) {
+  getStaticPlot()->ProjToMap(oldArea.P(), npos, xpos, ypos);
 
   for (int i=0; i<npos; i++){
     x[i] = xpos[i];
@@ -111,10 +109,11 @@ bool TrajectoryPlot::prepare(void){
 
 int TrajectoryPlot::trajPos(const vector<string>& vstr)
 {
-#ifdef DEBUGPRINT
-  for(int i=0;i<vstr.size();i++)
-    METLIBS_LOG_DEBUG("++ TrajectoryPlot::trajPos() " << vstr[i]);
-#endif
+  METLIBS_LOG_SCOPE();
+  if (METLIBS_LOG_DEBUG_ENABLED()) {
+    for(size_t i=0;i<vstr.size();i++)
+      METLIBS_LOG_DEBUG(vstr[i]);
+  }
 
   int action= 0;  // action to be taken by PlotModule (0=none)
 
@@ -131,12 +130,11 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
 
     for( int i=0; i<n; i++){
       vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("stokens:");
-      for (int j=0; j<stokens.size(); j++)
-        METLIBS_LOG_DEBUG("  " << stokens[j]);
-      METLIBS_LOG_DEBUG();
-#endif
+      if (METLIBS_LOG_DEBUG_ENABLED()) {
+        METLIBS_LOG_DEBUG("stokens:");
+        for (size_t j=0; j<stokens.size(); j++)
+          METLIBS_LOG_DEBUG("  " << stokens[j]);
+      }
       if( stokens.size() == 1) {
         key= miutil::to_lower(stokens[0]);
         if (key == "clear") {
@@ -210,7 +208,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
       ypos[i] = latitude[i];
     }
 
-    getStaticPlot()->getMapArea().P().convertFromGeographic(nlon,xpos,ypos);
+    getStaticPlot()->GeoToMap(nlon, xpos, ypos);
 
     if (numMarker==5 || numMarker==9){
 
@@ -226,15 +224,11 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
 
         float dlat,dlon;
         getStaticPlot()->getMapArea().P().getLatLonIncrement(latitude[i],longitude[i],dlat,dlon);
-        float lat1 = latitude[i];
-        float lon1 = float(markerRadius)*1000*dlon + longitude[i];
-        float lat2 = float(markerRadius)*1000*dlat + latitude[i];
-        float lon2 = longitude[i];
-        int one=1;
-        getStaticPlot()->getMapArea().P().convertFromGeographic(one,&lon1,&lat1);
-        getStaticPlot()->getMapArea().P().convertFromGeographic(one,&lon2,&lat2);
-        float dx=lon1 - xpos[i];
-        float dy=lat2-ypos[i];
+        float lats[2] = { latitude[i], float(markerRadius)*1000*dlat + latitude[i] };
+        float lons[2] = { float(markerRadius)*1000*dlon + longitude[i], longitude[i] };
+        getStaticPlot()->GeoToMap(2,lons,lats);
+        float dx=lons[0] - xpos[i];
+        float dy=lats[1] - ypos[i];
         for (int j=0; j<numMarker; j++, n++) {
           xnew[n]= xpos[i] + dx*cx[j];
           ynew[n]= ypos[i] + dy*cy[j];
@@ -246,7 +240,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
         y.push_back(ynew[i]);
       }
 
-      getStaticPlot()->getMapArea().P().convertToGeographic(n,xnew,ynew);
+      getStaticPlot()->MapToGeo(n,xnew,ynew);
 
       for (int i=0; i<n; i++) {
         lon.push_back(xnew[i]);
@@ -270,45 +264,41 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
     delete[] xpos;
     delete[] ypos;
 
-#ifdef DEBUGPRINT
-    nlon = lon.size();
-    for (int i=0; i<nlon; i++){
-      METLIBS_LOG_DEBUG("   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                                        <<"    "<<x[i]<<" "<<y[i]);
+    if (METLIBS_LOG_DEBUG_ENABLED()) {
+      const int nlon = lon.size();
+      METLIBS_LOG_DEBUG("  lon.size= "<<nlon);
+      for (int i=0; i<nlon; i++) {
+        METLIBS_LOG_DEBUG("   i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
+            <<"    "<<x[i]<<" "<<y[i]);
+        int ndup=0;
+        for (int j=i+1; j<nlon; j++)
+          if (lat[i]==lat[j] && lon[i]==lon[j])
+            ndup++;
+        if (ndup>0)
+          METLIBS_LOG_DEBUG("   duplikat i,lat,lon,x,y: "
+              <<i<<"  "<<lat[i]<<" "<<lon[i]
+              <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup);
+      }
     }
-#endif
-
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("TrajectoryPlot::trajPos  lon.size= "<<lon.size());
-    for (int i=0; i<nlon; i++){
-      int ndup=0;
-      for (int j=i+1; j<nlon; j++)
-        if (lat[i]==lat[j] && lon[i]==lon[j]) ndup++;
-      if (ndup>0)
-        METLIBS_LOG_DEBUG("   duplikat i,lat,lon,x,y: "<<i<<"  "<<lat[i]<<" "<<lon[i]
-                                                                                   <<"    "<<xpos[i]<<" "<<ypos[i]<<"  ndup= "<<ndup);
-    }
-#endif
   }
 
   return action;
 }
 
 
-bool TrajectoryPlot::plot(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::plot() ++");
-#endif
+void TrajectoryPlot::plot(PlotOrder zorder)
+{
+  METLIBS_LOG_SCOPE();
 
-  if (!plot_on || !isEnabled())
-    return false;
+  if (!plot_on || !isEnabled() || zorder != LINES)
+    return;
 
   if (colour==getStaticPlot()->getBackgroundColour())
     colour= getStaticPlot()->getBackContrastColour();
   glColor4ubv(colour.RGBA());
   glLineWidth(float(lineWidth)+0.1f);
 
-  float d= 5*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth();
+  float d= 5*getStaticPlot()->getPhysToMapScaleX();
 
   if (vtrajdata.size()==0) {
 
@@ -334,10 +324,11 @@ bool TrajectoryPlot::plot(){
     for (int n=0; n<vtsize; n++) {
       if (vtrajdata[n]->area.P() != getStaticPlot()->getMapArea().P()) {
         int npos= numTraj * vtrajdata[n]->ndata;
-        if (!getStaticPlot()->gc.getPoints(vtrajdata[n]->area.P(), getStaticPlot()->getMapArea().P(),
-            npos, vtrajdata[n]->x, vtrajdata[n]->y)) {
+        if (!getStaticPlot()->ProjToMap(vtrajdata[n]->area.P(),
+                npos, vtrajdata[n]->x, vtrajdata[n]->y))
+        {
           METLIBS_LOG_ERROR("TrajectoryPlot::plot  getPoints ERROR");
-          return false;
+          return;
         }
         vtrajdata[n]->area= getStaticPlot()->getMapArea();
       }
@@ -457,7 +448,7 @@ bool TrajectoryPlot::plot(){
       const int nc= 16;
       float xc[nc];
       float yc[nc];
-      float cstep= 2 * acosf(-1.0) / float(nc);
+      float cstep= 2 * M_PI / float(nc);
       for (int j=0; j<nc; j++) {
         xc[j]= r * cosf(cstep*float(j));
         yc[j]= r * sinf(cstep*float(j));
@@ -490,18 +481,13 @@ bool TrajectoryPlot::plot(){
         }
       }
     }
-
   }
-
-  return true;
 }
 
 
 bool TrajectoryPlot::startComputation(vector<Field*> vf)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::startComputation");
-#endif
+  METLIBS_LOG_SCOPE();
 
   stopComputation();  //in case not done before..
   clearData();
@@ -522,18 +508,14 @@ bool TrajectoryPlot::startComputation(vector<Field*> vf)
   computing= true;
   firstStep= true;
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(".....OK");
-#endif
   return true;
 }
 
 
 void TrajectoryPlot::stopComputation()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::stopComputation");
-#endif
+  METLIBS_LOG_SCOPE();
+
   // remove fields etc...
   // mark as not running
 
@@ -543,15 +525,12 @@ void TrajectoryPlot::stopComputation()
 
   computing= false;
   firstStep= true;
-
 }
 
 
 void TrajectoryPlot::clearData()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::clearData");
-#endif
+  METLIBS_LOG_SCOPE();
 
   int n= vtrajdata.size();
   for (int i=0; i<n; i++) {
@@ -571,9 +550,7 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 {
   // return true  if trajectories are computed (changed)
   // return false if trajectories are not computed, this is not an error!
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("++ TrajectoryPlot::compute");
-#endif
+  METLIBS_LOG_SCOPE();
 
   if (!computing) return false;
 
@@ -923,10 +900,6 @@ bool TrajectoryPlot::compute(vector<Field*> vf)
 
   firstStep= false;
 
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("...finished");
-#endif
   return true;
 }
 
@@ -955,7 +928,6 @@ void TrajectoryPlot::getTrajectoryAnnotation(string& s, Colour& c)
 
 bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 {
-
   //output
   ofstream fs;
 
@@ -988,7 +960,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
       yyy[(n+1)*numTraj+i]=vtrajdata[n]->y[(i+1)*(vtrajdata[n]->ndata)-1];
     }
   }
-  getStaticPlot()->getMapArea().P().convertToGeographic(npos,xxx,yyy);
+  getStaticPlot()->MapToGeo(npos,xxx,yyy);
 
   //print to file
   fs <<"[NAME TRAJECTORY]"<<endl;
@@ -1013,6 +985,4 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
 
   fs.close();
   return true;
-
-
 }

@@ -60,6 +60,8 @@ const char VP_Y_WIND[]                = "vp_y_wind_ms";
 const char VP_RELATIVE_HUMIDITY[]     = "vp_relative_humidity";
 const char VP_OMEGA[]                 = "vp_omega_pas";
 
+static const float RAD_TO_DEG = 180 / M_PI;
+
 VprofData::VprofData(const std::string& modelname,
     const std::string& stationsfilename) :
         modelName(modelname), stationsFileName(stationsfilename),
@@ -578,7 +580,6 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
 
   // dd,ff and significant levels (as in temp observation...)
   if (int(vp->uu.size()) == numLevel && int(vp->vv.size()) == numLevel) {
-    float degr = 180. / 3.141592654;
     int kmax = 0;
     for (size_t k = 0; k < size_t(numLevel); k++) {
       float uew = vp->uu[k];
@@ -586,7 +587,7 @@ VprofPlot* VprofData::getData(const std::string& name, const miTime& time)
       int ff = int(sqrtf(uew * uew + vns * vns) + 0.5);
       if (!vp->windInKnots)
         ff *= 1.94384; // 1 knot = 1 m/s * 3600s/1852m
-      int dd = int(270. - degr * atan2f(vns, uew) + 0.5);
+      int dd = int(270. - RAD_TO_DEG * atan2f(vns, uew) + 0.5);
       if (dd > 360)
         dd -= 360;
       if (dd <= 0)

@@ -35,9 +35,10 @@
 #include "config.h"
 #endif
 
-#include <diLegendPlot.h>
-#include <diFontManager.h>
-#include <diImageGallery.h>
+#include "diLegendPlot.h"
+#include "diFontManager.h"
+#include "diImageGallery.h"
+#include "diPlot.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -51,7 +52,7 @@ using namespace std;
 using namespace miutil;
 
 LegendPlot::LegendPlot()
-: Plot()
+  : staticPlot_(0)
 {
   METLIBS_LOG_SCOPE();
   showplot = true;
@@ -65,7 +66,7 @@ LegendPlot::LegendPlot()
 
 
 LegendPlot::LegendPlot(const std::string& str)
-: Plot()
+  : staticPlot_(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -167,16 +168,16 @@ void LegendPlot::getStringSize(std::string str, float& width, float& height)
 {
   //Bugfix
   //The postscript size of "-" are underestimated
-  if (getStaticPlot()->hardcopy){
+  if (staticPlot_->hardcopy){
     int n = miutil::count_char(str, '-');
     for(int i=0;i<n;i++) str+="-";
   }
 
-  getStaticPlot()->getFontPack()->getStringSize(str.c_str(), width, height);
+  staticPlot_->getFontPack()->getStringSize(str.c_str(), width, height);
 
   // fontsizeScale != 1 when postscript font size != X font size
-  if (getStaticPlot()->hardcopy){
-    float fontsizeScale = getStaticPlot()->getFontPack()->getSizeDiv();
+  if (staticPlot_->hardcopy){
+    float fontsizeScale = staticPlot_->getFontPack()->getSizeDiv();
     width*=fontsizeScale;
     height*=fontsizeScale;
   }
@@ -290,7 +291,7 @@ bool LegendPlot::plotLegend(float x, float y)
     glColor4ubv(poptions.textcolour.RGBA());
     float titley1 = y2title-yborder-maxheight/2;
     for (int i=0;i<ntitle;i++){
-      getStaticPlot()->getFontPack()->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
+      staticPlot_->getFontPack()->drawStr(vtitlestring[i].c_str(),(x1title+xborder),titley1);
       titley1 -= maxheight;
     }
   }
@@ -358,10 +359,10 @@ bool LegendPlot::plotLegend(float x, float y)
       //draw textstring
       glColor4ubv(poptions.textcolour.RGBA());
       std::string cstring = colourcodes[i].colourstr;
-      getStaticPlot()->getFontPack()->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
+      staticPlot_->getFontPack()->drawStr(cstring.c_str(),(x2box+xborder),(y1box+0.8*yborder));
       y2box -= maxheight;
       y1box -= maxheight;
-      getStaticPlot()->UpdateOutput();
+      staticPlot_->UpdateOutput();
     }
     glDisable(GL_POLYGON_STIPPLE);
   }
@@ -376,7 +377,7 @@ float LegendPlot::height()
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  staticPlot_->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,maxheight=0,titlewidth=0;
 
   //colour code strings
@@ -422,7 +423,7 @@ float LegendPlot::width()
   int ncolours = colourcodes.size();
   if(!ncolours) return 0.0;
 
-  getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
+  staticPlot_->getFontPack()->set(poptions.fontname,poptions.fontface,poptions.fontsize);
   float width,height,maxwidth=0,titlewidth=0;
 
   //colour code strings

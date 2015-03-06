@@ -39,8 +39,22 @@ TEST(TestUtilities, StartsWith)
 {
   EXPECT_TRUE(diutil::startswith("fish", ""));
   EXPECT_TRUE(diutil::startswith("fish", "fi"));
+  EXPECT_TRUE(diutil::startswith("fish", "fish"));
 
   EXPECT_FALSE(diutil::startswith("fish", "sh"));
+  EXPECT_FALSE(diutil::startswith("fish", "is"));
+  EXPECT_FALSE(diutil::startswith("fish", "fishy"));
+}
+
+TEST(TestUtilities, EndsWith)
+{
+  EXPECT_TRUE(diutil::endswith("fish", ""));
+  EXPECT_TRUE(diutil::endswith("fish", "sh"));
+  EXPECT_TRUE(diutil::endswith("fish", "fish"));
+
+  EXPECT_FALSE(diutil::endswith("fish", "fi"));
+  EXPECT_FALSE(diutil::endswith("fish", "is"));
+  EXPECT_FALSE(diutil::endswith("fish", "fishy"));
 }
 
 TEST(TestUtilities, AppendCharsSplitNewline)

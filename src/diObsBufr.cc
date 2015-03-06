@@ -1516,7 +1516,6 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
   const double t0 = 273.15;
-  const float rad = 3.141592654 / 180.;
   const double ms2knots = 3600.0 / 1852.0;
 
   //  int wmoBlock = 0;
@@ -1571,7 +1570,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
             vplot->ff.push_back(ff);
             // convert to east/west and north/south component
             fff = float(ff);
-            ddd = (float(dd) + 90.) * rad;
+            ddd = (float(dd) + 90.) * DEG_TO_RAD;
             vplot->uu.push_back(fff * cosf(ddd));
             vplot->vv.push_back(-fff * sinf(ddd));
             vplot->sigwind.push_back(bpart);
@@ -1769,7 +1768,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
       vplot->ff.push_back(ff);
       // convert to east/west and north/south component
       fff = float(ff);
-      ddd = (float(dd) + 90.) * rad;
+      ddd = (float(dd) + 90.) * DEG_TO_RAD;
       vplot->uu.push_back(fff * cosf(ddd));
       vplot->vv.push_back(-fff * sinf(ddd));
       vplot->sigwind.push_back(bpart);

@@ -32,12 +32,16 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include <string>
-#include <vector>
+#include "diMapMode.h"
+#include "diPlot.h"
+
 #include <diField/diArea.h>
 #include <puTools/miTime.h>
-#include "diMapMode.h"
+
 #include <QObject>
+
+#include <string>
+#include <vector>
 
 class PlotModule;
 class QKeyEvent;
@@ -56,7 +60,11 @@ public:
   virtual std::vector<miutil::miTime> getTimes() const = 0;
   virtual bool changeProjection(const Area& newArea) = 0;
   virtual bool prepare(const miutil::miTime &time) = 0;
+
   virtual void plot(bool under, bool over) = 0;
+  void plot(Plot::PlotOrder zorder)
+    { plot(zorder == Plot::LINES, zorder == Plot::OVERLAY); }
+
   virtual bool processInput(const std::vector<std::string>& inp) = 0;
 
   virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) = 0;

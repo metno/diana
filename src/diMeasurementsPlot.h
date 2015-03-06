@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id: diTrajectoryPlot.h 1 2007-09-12 08:06:42Z lisbethb $
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,10 +29,10 @@
 #ifndef diMeasurementsPlot_h
 #define diMeasurementsPlot_h
 
-#include <diPlot.h>
+#include "diPlot.h"
+#include "diLinetype.h"
+
 #include <vector>
-#include <deque>
-#include <diLinetype.h>
 
 /**
    \brief plots positions used for distance and velocity measurements
@@ -42,28 +40,35 @@
 class MeasurementsPlot : public Plot {
 
 private:
-
   Colour colour;
   int lineWidth;
   Linetype lineType;
-  std::vector<float> x;
-  std::vector<float> y;
+  float *xpos;
+  float *ypos;
   std::vector<float> lat;
   std::vector<float> lon;
-  Area oldArea;
+  Projection oldProjection;
+  bool needReprojection;
 
 public:
-  // Constructors
   MeasurementsPlot();
-  // Destructor
   ~MeasurementsPlot();
 
-  bool plot();
-  bool plot(const int){return false;}
-  ///change projection
-  bool prepare(void);
-  ///Start positions, colours, lines, field, etc
+  void plot(Plot::PlotOrder porder);
+
+  void changeProjection();
+
+  /// define positions, colours, lines, field, etc
   void measurementsPos(const std::vector<std::string>&);
+
+private:
+  void reproject();
+
+  // deallocate xpos and ypos
+  void clearXY();
+
+  MeasurementsPlot(const MeasurementsPlot&);
+  MeasurementsPlot& operator=(const MeasurementsPlot&);
 };
 
 #endif

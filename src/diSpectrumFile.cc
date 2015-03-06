@@ -306,9 +306,7 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
   float *xdata= new float[m];
   float *ydata= new float[m];
 
-  const float rad= 3.141592654/180.;
-
-  float radstep= fabsf(directions[0]-directions[1])*rad;
+  float radstep= fabsf(directions[0]-directions[1])*DEG_TO_RAD;
 
   // extend direction size, for graphics
   for (int j=0; j<numFreq; j++) {
@@ -342,7 +340,7 @@ SpectrumPlot* SpectrumFile::getData(const std::string& name, const miTime& time)
   float rotation= spp->northRotation;
   float angle;
   for (int i=0; i<numDirec; i++) {
-    angle= (90.-directions[i]-rotation)*rad;
+    angle= (90.-directions[i]-rotation)*DEG_TO_RAD;
     cosdir[i]= cos(angle);
     sindir[i]= sin(angle);
   }

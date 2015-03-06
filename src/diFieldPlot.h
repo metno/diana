@@ -47,17 +47,16 @@
 class FieldPlot : public Plot {
 
 public:
-  // Constructor
   FieldPlot();
-  // Destructor
   ~FieldPlot();
 
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
 
   bool getDataAnnotations(std::vector<std::string>& anno);
-  bool plot();
-  bool plot(const int){return false;}
+
+  void plot(PlotOrder zorder);
+
   bool updateNeeded(std::string&);
   // check if current has same level
   bool updatePinNeeded(const std::string& pin);
@@ -66,7 +65,6 @@ public:
   const Area& getFieldArea();
   bool getRealFieldArea(Area&);
   bool getShadePlot() const { return (pshade || poptions.plot_under); }
-  bool getUndefinedPlot() const { return pundefined; }
   void getFieldAnnotation(std::string&, Colour&);
   std::vector<Field*> getFields() {return fields; }
   miutil::miTime getTime() const {return ftime;}
@@ -89,7 +87,6 @@ private:
   // plotting parameters
   std::string plottype;       // plot-method to use
   bool pshade;          // shaded (true) or line drawing (false)
-  bool pundefined;      // mark undefined areas/values
 
   // from plotting routines to annotations
   float    vectorAnnotationSize;
@@ -103,6 +100,7 @@ private:
   int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
 
   // plotting methods
+  bool plotMe();
   bool plotWind();
   bool plotWindAndValue(bool flightlevelChart=false);
   bool plotVector();

@@ -348,6 +348,7 @@ noinst_HEADERS = \
 	diPlot.h \
 	diPlotModule.h \
 	diPlotOptions.h \
+	diPoint.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diSat.h \

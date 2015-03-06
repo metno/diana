@@ -158,7 +158,7 @@ public:
   void enablePlotElement(const PlotElement& pe);
   void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
   void getSatAnnotations(std::vector<std::string>& anno);
-  void plot();
+  void plot(Plot::PlotOrder porder);
   void clear();
   bool getGridResolution(float& rx, float& ry);
 

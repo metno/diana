@@ -144,7 +144,8 @@ bool DisplayObjects::define(const std::string& pi)
 bool DisplayObjects::prepareObjects()
 {
   approved = false;
-  if (!defined) return false;
+  if (!defined)
+    return false;
 
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("DisplayObjects::prepareObjects");

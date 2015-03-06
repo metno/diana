@@ -1,8 +1,6 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
   Copyright (C) 2006 met.no
 
   Contact information:
@@ -33,9 +31,11 @@
 #include "config.h"
 #endif
 
-#include <diWeatherSymbol.h>
-#include <diFontManager.h>
-#include <diColour.h>
+#include "diWeatherSymbol.h"
+
+#include "diColour.h"
+#include "diComplexSymbolPlot.h"
+#include "diFontManager.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -60,11 +60,12 @@ std::string WeatherSymbol::currentText;
 Colour::ColourInfo WeatherSymbol::currentColour; //text colour
 set <std::string> WeatherSymbol::textlist; //texts used in combobox
 
-//Constructor
-WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0) {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Weather symbol- default constructor");
-#endif
+WeatherSymbol::WeatherSymbol()
+  : ObjectPlot(wSymbol)
+  , complexSymbol(0)
+{
+  METLIBS_LOG_SCOPE();
+
   setType(0);
   if (drawIndex < 1000)
     setSymbolSize(defaultSize);
@@ -74,22 +75,22 @@ WeatherSymbol::WeatherSymbol() : ObjectPlot(wSymbol),complexSymbol(0) {
 
 
 //constructor taking symboltype as argument
-WeatherSymbol::WeatherSymbol(int ty) : ObjectPlot(wSymbol),complexSymbol(0){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Weather symbol - int constructor");
-#endif
-
+WeatherSymbol::WeatherSymbol(int ty)
+  : ObjectPlot(wSymbol)
+  , complexSymbol(0)
+{
+  METLIBS_LOG_SCOPE();
   setType(ty);
-
 }
 
 
 //constructor taking symboltype and type of object as argument
-WeatherSymbol::WeatherSymbol(std::string tystring,int objTy) : ObjectPlot(objTy),
-symbolSize(defaultSize),complexSymbol(0){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Weather symbol(std::string,int) constructor");
-#endif
+WeatherSymbol::WeatherSymbol(std::string tystring,int objTy)
+  : ObjectPlot(objTy),
+    symbolSize(defaultSize)
+  , complexSymbol(0)
+{
+  METLIBS_LOG_SCOPE();
 
   // set correct symboltype
   if (tystring.empty())
@@ -99,27 +100,28 @@ symbolSize(defaultSize),complexSymbol(0){
 }
 
 
-WeatherSymbol::WeatherSymbol(const WeatherSymbol &rhs):ObjectPlot(rhs){
+WeatherSymbol::WeatherSymbol(const WeatherSymbol &rhs)
+  : ObjectPlot(rhs)
+{
   symbolSize=rhs.symbolSize;
   symbolString = rhs.symbolString;
-  if (rhs.complexSymbol!=0)
+  if (rhs.complexSymbol)
     complexSymbol= new ComplexSymbolPlot(*rhs.complexSymbol);
-  else complexSymbol=0;
+  else
+    complexSymbol=0;
 }
 
 
-// destructor
-WeatherSymbol::~WeatherSymbol(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol destructor");
-#endif
-  if (complexSymbol!=0) delete complexSymbol;
+WeatherSymbol::~WeatherSymbol()
+{
+  METLIBS_LOG_SCOPE();
+  delete complexSymbol;
 }
 
 
-
-void WeatherSymbol::defineSymbols(vector<editToolInfo> symbols){
-  // static function setting static private members
+// static function setting static private members
+void WeatherSymbol::defineSymbols(vector<editToolInfo> symbols)
+{
   int nStart = allSymbols.size();
   int n = symbols.size();
   for (int i=0; i<n; i++){
@@ -146,84 +148,90 @@ void WeatherSymbol::defineSymbols(vector<editToolInfo> symbols){
 }
 
 
-void WeatherSymbol::defineRegions(vector<editToolInfo> regions){
+void WeatherSymbol::defineRegions(vector<editToolInfo> regions)
+{
   if (regions.size()) {
     allRegions = regions;
     for (unsigned int i=0; i<regions.size(); i++)
       regionTypes[regions[i].name] = i;
   }
-
 }
 
 
 
-void WeatherSymbol::setCurrentText(const std::string & newText){
+void WeatherSymbol::setCurrentText(const std::string & newText)
+{
   currentText=newText;
 }
 
 
-set <std::string> WeatherSymbol::getTextList(){
+set <std::string> WeatherSymbol::getTextList()
+{
   return textlist;
 }
 
 
-void WeatherSymbol::setCurrentColour(const Colour::ColourInfo & newColour){
+void WeatherSymbol::setCurrentColour(const Colour::ColourInfo & newColour)
+{
   currentColour=newColour;
 }
 
 
-std::string WeatherSymbol::getCurrentText(){
+std::string WeatherSymbol::getCurrentText()
+{
   return currentText;
 }
 
-Colour::ColourInfo WeatherSymbol::getCurrentColour(){
+Colour::ColourInfo WeatherSymbol::getCurrentColour()
+{
   return currentColour;
 }
 
-void WeatherSymbol::initComplexList(){
+void WeatherSymbol::initComplexList()
+{
   ComplexSymbolPlot::initComplexList();
 }
 
-set <string> WeatherSymbol::getComplexList(){
+set <string> WeatherSymbol::getComplexList()
+{
   return ComplexSymbolPlot::getComplexList();
 }
 
 
-
-bool WeatherSymbol::isSimpleText(std::string edittool){
+bool WeatherSymbol::isSimpleText(std::string edittool)
+{
   //return true if editool corresponds to simple text, type 0
-  if (allSymbols[symbolTypes[edittool]].index == 0)
-    return true;
-  else
-    return false;
+  return (allSymbols[symbolTypes[edittool]].index == 0);
 }
 
 
-bool WeatherSymbol::isComplexText(std::string edittool){
+bool WeatherSymbol::isComplexText(std::string edittool)
+{
   //return true if editool corresponds to simple text, type 0
   int edIndex=allSymbols[symbolTypes[edittool]].index;
-  if (edIndex >=1000 && edIndex<3000){
+  if (edIndex >=1000 && edIndex<3000)
     return ComplexSymbolPlot::isComplexText(edIndex);
-  }
-  else
-    return false;
-}
-bool WeatherSymbol::isComplexTextColor(std::string edittool){
-  //return true if editool corresponds to simple text, type 0
-  int edIndex=allSymbols[symbolTypes[edittool]].index;
-  if (edIndex ==900){
-    return ComplexSymbolPlot::isComplexTextColor(edIndex);
-  }
   else
     return false;
 }
 
-bool WeatherSymbol::isTextEdit(std::string edittool){
+
+bool WeatherSymbol::isComplexTextColor(std::string edittool)
+{
   //return true if editool corresponds to simple text, type 0
   int edIndex=allSymbols[symbolTypes[edittool]].index;
-  if (edIndex >=3000){
+  if (edIndex ==900)
+    return ComplexSymbolPlot::isComplexTextColor(edIndex);
+  else
+    return false;
+}
+
+bool WeatherSymbol::isTextEdit(std::string edittool)
+{
+  //return true if editool corresponds to simple text, type 0
+  int edIndex=allSymbols[symbolTypes[edittool]].index;
+  if (edIndex >=3000)
     return ComplexSymbolPlot::isTextEdit(edIndex);
-  }
   else
     return false;
 }
@@ -241,7 +249,8 @@ void WeatherSymbol::setCurrentComplexText(const vector <std::string>& symbolText
 }
 
 
-void WeatherSymbol::initCurrentComplexText(std::string edittool){
+void WeatherSymbol::initCurrentComplexText(std::string edittool)
+{
   int edIndex=allSymbols[symbolTypes[edittool]].index;
   if (edIndex == 900 || edIndex >=1000){
     ComplexSymbolPlot::initCurrentStrings(edIndex);
@@ -250,15 +259,18 @@ void WeatherSymbol::initCurrentComplexText(std::string edittool){
 
 
 
-std::string WeatherSymbol::getAllRegions(int ir){
+std::string WeatherSymbol::getAllRegions(int ir)
+{
   std::string region;
-  if (int(allRegions.size())>ir) region=allRegions[ir].name;
+  if (int(allRegions.size())>ir)
+    region=allRegions[ir].name;
   return region;
 }
 
 
-void WeatherSymbol::addPoint( float x , float y){
-  switch (currentState){
+void WeatherSymbol::addPoint( float x , float y)
+{
+  switch (currentState) {
   case active:
     ObjectPoint pxy(x,y);
     nodePoints.push_back(pxy);
@@ -272,13 +284,12 @@ void WeatherSymbol::addPoint( float x , float y){
 /*
   Draws the weather symbol
  */
-bool WeatherSymbol::plot()
+void WeatherSymbol::plot(PlotOrder zorder)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(" Weather symbol::plot()");
-  METLIBS_LOG_DEBUG(" drawIndex = " << drawIndex);
-#endif
-  if (!isEnabled()) return false;
+  METLIBS_LOG_SCOPE(LOGVAL(drawIndex));
+
+  if (!isEnabled())
+    return;
 
   if (isVisible){
 
@@ -293,7 +304,8 @@ bool WeatherSymbol::plot()
     symbolSizeToPlot = int(symbolSizeToPlot*scalefactor);
 
     fSense = symbolSizeToPlot/12;  //  sensitivity to mark object
-    if (fSense < 1.0) fSense = 1.0; //HK ???
+    if (fSense < 1.0)
+      fSense = 1.0; //HK ???
 
     glPushMatrix();
 
@@ -304,14 +316,13 @@ bool WeatherSymbol::plot()
     //if (drawIndex == 900 ) setObjectColor(currentColour);
     glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
 
-    if (drawIndex == 3001){
-        if (complexSymbol!=0){
-          complexSymbol->drawTextBox(drawIndex,symbolSizeToPlot,rotation);
-        }
+    if (drawIndex == 3001) {
+      if (complexSymbol) {
+        complexSymbol->drawTextBox(drawIndex,symbolSizeToPlot,rotation);
+      }
     }
     else
     {
-
       int end = nodePoints.size();
       for (int i=0; i<end; i++) {
         float cw=0,ch=0;
@@ -319,7 +330,7 @@ bool WeatherSymbol::plot()
         float y=nodePoints[i].y;
         if (drawIndex == 900 || (drawIndex >=1000 && drawIndex<=3000)){
           // this is a complex symbol
-          if (complexSymbol!=0){
+          if (complexSymbol) {
             complexSymbol->draw(drawIndex,x,y,symbolSizeToPlot,rotation);
             complexSymbol->getComplexBoundingBox(drawIndex,cw,ch,x,y);
           }
@@ -338,8 +349,7 @@ bool WeatherSymbol::plot()
         }
 
         // update boundBox according to symbolSizeToPlot
-        float PI       = acosf(-1.0);
-        float angle = PI*rotation/180.;
+        float angle = rotation * DEG_TO_RAD;
         float cwr= fabsf(cos(angle))*cw+fabsf(sin(angle))*ch;
         float chr= fabsf(cos(angle))*ch+fabsf(sin(angle))*cw;
         boundBox.x1=x-cwr/2;
@@ -356,50 +366,57 @@ bool WeatherSymbol::plot()
   }
   // for PostScript generation
   getStaticPlot()->UpdateOutput();
-
-  return true;
 }
 
 
-void WeatherSymbol::setSymbolSize(float si){
-  if (si <0.1) symbolSize = 0.1;
-  else if (si >= 201) symbolSize = 200;
-  else if(si > 0 && si < 201) symbolSize=si;
-  //fSense = symbolSize/12;  //  sensitivity to mark object
-  //if (fSense < 1.0) fSense = 1.0;
+void WeatherSymbol::setSymbolSize(float si)
+{
+  if (si <0.1)
+    symbolSize = 0.1;
+  else if (si >= 201)
+    symbolSize = 200;
+  else if(si > 0 && si < 201)
+    symbolSize=si;
 }
 
-void WeatherSymbol::increaseSize(float val){
-  if(symbolSize<2.0) val/=10.;
+void WeatherSymbol::increaseSize(float val)
+{
+  if(symbolSize<2.0)
+    val/=10.;
   setSymbolSize(symbolSize+val);
   //non-complex symbol- new defaultsize
-  if (drawIndex < 1000) defaultSize = symbolSize;
+  if (drawIndex < 1000)
+    defaultSize = symbolSize;
 }
 
 
-void WeatherSymbol::setDefaultSize( ){
-  if (drawIndex < 1000) {
+void WeatherSymbol::setDefaultSize()
+{
+  if (drawIndex < 1000)
     setSymbolSize(defaultSize);
- } else
+  else
     setSymbolSize(defaultComplexSize);
 }
 
 
-void WeatherSymbol::changeDefaultSize( ){
-  if (drawIndex < 1000 ) defaultSize = symbolSize;
+void WeatherSymbol::changeDefaultSize()
+{
+  if (drawIndex < 1000)
+    defaultSize = symbolSize;
 }
 
-void WeatherSymbol::setStandardSize(int size1,int size2){
-  defaultSize=size1;
-  defaultComplexSize=size2;
+void WeatherSymbol::setStandardSize(int size1, int size2)
+{
+  defaultSize = size1;
+  defaultComplexSize = size2;
 }
 
 
-void WeatherSymbol::setType(int ty){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::setType(int)" << ty);
-#endif
-  if (typeOfObject ==wSymbol){
+void WeatherSymbol::setType(int ty)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(ty));
+
+  if (typeOfObject ==wSymbol) {
     if (-1<ty && ty<int(allSymbols.size()))
       type= ty;
     else if (ty==int(allSymbols.size()))
@@ -408,28 +425,30 @@ void WeatherSymbol::setType(int ty){
       type =allSymbols.size()-1;
     else
       return;
+
     setIndex(allSymbols[type].index);
     setBasisColor(allSymbols[type].colour);
 
-    if (drawIndex < 1000){
-    setSymbolSize(defaultSize);
-    }else
+    if (drawIndex < 1000)
+      setSymbolSize(defaultSize);
+    else
       setSymbolSize(defaultComplexSize);
 
     if ((drawIndex == 900 || drawIndex>=1000) && complexSymbol==0) {
       complexSymbol= new ComplexSymbolPlot(drawIndex);
       complexSymbol->setBorderColour(allSymbols[type].borderColour);
       setSymbolSize(defaultComplexSize + allSymbols[type].sizeIncrement);
-      if (drawIndex == 900 ) setObjectColor(currentColour);
+      if (drawIndex == 900)
+        setObjectColor(currentColour);
     }
-    if (isText()){
+    if (isText()) {
       if (currentText.empty())
         setString("Text");
       else
         setString(currentText);
       setObjectColor(currentColour);
     }
-  } else if (typeOfObject ==RegionName){
+  } else if (typeOfObject ==RegionName) {
     if (-1<ty && ty<int(allRegions.size()))
       type= ty;
     else if (ty==int(allRegions.size()))
@@ -445,7 +464,8 @@ void WeatherSymbol::setType(int ty){
 }
 
 
-void WeatherSymbol::increaseType(int val){
+void WeatherSymbol::increaseType(int val)
+{
   if (typeOfObject ==wSymbol){
     int ty;
     if (val==1)
@@ -460,11 +480,11 @@ void WeatherSymbol::increaseType(int val){
 }
 
 
-bool WeatherSymbol::setType(std::string tystring){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::setType(std::string)=" << tystring <<  endl);
-#endif
-  if (objectIs(wSymbol) && symbolTypes.find(tystring)!=symbolTypes.end()){
+bool WeatherSymbol::setType(std::string tystring)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(tystring));
+
+  if (objectIs(wSymbol) && symbolTypes.find(tystring)!=symbolTypes.end()) {
     setType(symbolTypes[tystring]);
     return true;
   }
@@ -476,24 +496,26 @@ bool WeatherSymbol::setType(std::string tystring){
 }
 
 
-
-bool WeatherSymbol::isOnObject(float x,float y){
+bool WeatherSymbol::isOnObject(float x, float y)
+{
   markedChanged=false;
 
   if (boundBox.isinside(x,y)) {
-    if (inBoundBox==false) markedChanged=true;
+    if (inBoundBox==false)
+      markedChanged=true;
     inBoundBox=true;
   }
   else{
-    if (inBoundBox==true) markedChanged=true;
+    if (inBoundBox==true)
+      markedChanged=true;
     inBoundBox=false;
   }
 
-  if (isInside(x,y)){
+  if (isInside(x,y)) {
     markPoint(x,y);
     return true;
   }
-  else{
+  else {
     unmarkAllPoints();
     return false;
   }
@@ -503,19 +525,18 @@ bool WeatherSymbol::isOnObject(float x,float y){
 
 string WeatherSymbol::writeTypeString()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::writeTypeString");
-#endif
+  METLIBS_LOG_SCOPE();
+
   std::string ret,tstring ;
   ostringstream cs;
-  if (objectIs(wSymbol) || objectIs(RegionName)){
-    if (objectIs(wSymbol)){
+  if (objectIs(wSymbol) || objectIs(RegionName)) {
+    if (objectIs(wSymbol)) {
       ret ="Object=Symbol;\n";
       //HACK: bdiana do not know Sig_snow, Sig_showers, Sig_snow_showers yet
       if( allSymbols[type].name == "Sig_snow" ) {
         tstring = "Type=Snow;\n";
       } else if( allSymbols[type].name == "Sig_showers" ) {
-          tstring = "Type=Showers;\n";
+        tstring = "Type=Showers;\n";
       } else if( allSymbols[type].name == "Sig_snow_showers" ) {
         tstring = "Type=Snow showers;\n";
       } else {
@@ -535,7 +556,7 @@ string WeatherSymbol::writeTypeString()
       tstring+= "Text=" +tempString+ ";\n";
     }
     else if (drawIndex==900 || drawIndex>=1000){
-      if (complexSymbol!=0){
+      if (complexSymbol) {
         tstring+=complexSymbol->writeComplexText();
         cs << "Rotation=" << rotation <<";\n";
         cs << "Whitebox=" << complexSymbol->hasWhiteBox()<< ";\n";
@@ -544,9 +565,6 @@ string WeatherSymbol::writeTypeString()
   }
   ret+=tstring;
   ret+=cs.str();
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ret=" << ret);
-#endif
   return ret;
 }
 
@@ -562,8 +580,8 @@ void WeatherSymbol::setString(const std::string& s)
 
 void WeatherSymbol::applyFilters(const std::vector<std::string>& symbolfilter)
 {
-  for (unsigned int i=0;i<symbolfilter.size();i++){
-    if (allSymbols[type].name==symbolfilter[i]){
+  for (unsigned int i=0;i<symbolfilter.size();i++) {
+    if (allSymbols[type].name==symbolfilter[i]) {
       isVisible=false;
       return;
     }
@@ -573,87 +591,71 @@ void WeatherSymbol::applyFilters(const std::vector<std::string>& symbolfilter)
 /************************************************************
  *  Methods for editing complex symbols                     *
  ************************************************************/
-void WeatherSymbol::getComplexText(vector<string>& symbolText, vector<string>& xText)
+void WeatherSymbol::getComplexText(vector<string>& symbolText,
+    vector<string>& xText)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::getComplexText");
-#endif
-  if (complexSymbol!=0) {
+  METLIBS_LOG_SCOPE();
+  if (complexSymbol) {
     if (drawIndex==900)
       complexSymbol->getComplexColoredText(symbolText,xText);
-    else if (drawIndex<=3000) 
+    else if (drawIndex<=3000)
       complexSymbol->getComplexText(symbolText,xText);
-
   }
 }
 
 void WeatherSymbol::getMultilineText(vector<string>& symbolText)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::getMultilineText");
-#endif
-  if (complexSymbol!=0) {
-    if (drawIndex>=3000)
-      complexSymbol->getMultilineText(symbolText);
-  }
+  METLIBS_LOG_SCOPE();
+  if (complexSymbol && drawIndex>=3000)
+    complexSymbol->getMultilineText(symbolText);
 }
 
-void WeatherSymbol::readComplexText(std::string s){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::readComplexText " <<  s);
-#endif
-  if (complexSymbol!=0)
+void WeatherSymbol::readComplexText(std::string s)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(s));
+  if (complexSymbol)
     complexSymbol->readComplexText(s);
 }
 
-void WeatherSymbol::changeMultilineText(const vector <std::string> & symbolText){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::changeMultilineText");
-#endif
-  if (complexSymbol!=0) {
-    if (drawIndex>=3000)
-      complexSymbol->changeMultilineText(symbolText);
-  }
+void WeatherSymbol::changeMultilineText(const vector <std::string> & symbolText)
+{
+  METLIBS_LOG_SCOPE();
+  if (complexSymbol && drawIndex>=3000)
+    complexSymbol->changeMultilineText(symbolText);
 }
 
-void WeatherSymbol::changeComplexText(const vector <std::string> & symbolText, const vector <std::string> & xText){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::changeComplexText");
-#endif
-  if (complexSymbol!=0) {
-    if (drawIndex<=3000)  
-      complexSymbol->changeComplexText(symbolText,xText);
-  }
+void WeatherSymbol::changeComplexText(const vector <std::string> & symbolText,
+    const vector <std::string> & xText)
+{
+  METLIBS_LOG_SCOPE();
+  if (complexSymbol && drawIndex<=3000)
+    complexSymbol->changeComplexText(symbolText,xText);
 }
 
 
-void WeatherSymbol::rotateObject(float val){
+void WeatherSymbol::rotateObject(float val)
+{
   //only works for complex objects
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::rotateObject");
-#endif
+  METLIBS_LOG_SCOPE();
   rotation+=val;
 }
 
 
-void WeatherSymbol::hideBox(){
+void WeatherSymbol::hideBox()
+{
   //only works for complex objects
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherSymbol::hideBox");
-#endif
-  if (complexSymbol!=0)
+  METLIBS_LOG_SCOPE();
+  if (complexSymbol)
     complexSymbol->hideBox();
 }
 
 
-void WeatherSymbol::setWhiteBox(int on){
+void WeatherSymbol::setWhiteBox(int on)
+{
   //only works for complex objects
-  if (complexSymbol!=0)
+  if (complexSymbol)
     complexSymbol->setWhiteBox(on);
 }
-
-
-
 
 
 void WeatherSymbol::replaceText(string& tempString, bool writestring)

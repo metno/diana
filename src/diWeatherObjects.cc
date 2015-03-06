@@ -40,6 +40,7 @@
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
 #include <diShapeObject.h>
+#include "diUtilities.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -108,90 +109,37 @@ bool WeatherObjects::empty(){
 
 /*********************************************/
 
-void WeatherObjects::plot(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::plot\n");
-#endif
-  if (!enabled) return;
-  // draw objects
-  int n= objects.size();
-  //draw areas, then fronts, then symbols
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wArea)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wArea plotted  ");
-#endif
-      objects[i]->plot();}
+void WeatherObjects::plot(Plot::PlotOrder porder)
+{
+  METLIBS_LOG_SCOPE();
+
+  if (!enabled || porder != Plot::LINES)
+    return;
+
+  const int n = objects.size();
+  const int NORDER = 7;
+  const objectType order[NORDER] = {
+    wArea, wFront, wSymbol, wText, Border, RegionName, ShapeXXX
+  };
+
+  for (int o=0; o<NORDER; ++o) {
+    for (int i=0; i<n; i++){
+      if (objects[i]->objectIs(order[o]))
+        objects[i]->plot(porder);
+    }
   }
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wFront)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wFront plotted  ");
-#endif
-
-      objects[i]->plot();}
-  }
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(wSymbol)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wSymbol plotted  ");
-#endif
-
-      objects[i]->plot();}
-  }
-
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(Border)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wBorder plotted  ");
-#endif
-
-      objects[i]->plot();}
-  }
-
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(RegionName)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wRegionName plotted  ");
-#endif
-
-      objects[i]->plot();}
-  }
-
-
-  for (int i=0; i<n; i++){
-    if (objects[i]->objectIs(ShapeXXX)){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects:wShape plotted  ");
-#endif
-
-      objects[i]->plot();}
-  }
-
-
-
 }
 
 /*********************************************/
 
 bool WeatherObjects::changeProjection(const Area& newArea)
 {
+  METLIBS_LOG_SCOPE("Change projection from " << itsArea <<" to " << newArea);
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::changeProjection");
-  METLIBS_LOG_DEBUG("Change projection from " << itsArea);
-  DEBUG <<" to " << newArea;
-#endif
+  if (itsArea.P() == newArea.P())
+    return false;
 
-
-  if (itsArea.P() == newArea.P()) return false;
-
-  if (empty())
-  {
+  if (empty()) {
     itsArea= newArea;
     return false;
   }
@@ -200,7 +148,8 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   int obsize = objects.size();
 
   //npos = number of points to be transformed = all object points
-  for (i=0; i<obsize; i++) npos+= objects[i]->getXYZsize();
+  for (i=0; i<obsize; i++)
+    npos+= objects[i]->getXYZsize();
   //plus one copy point(xopy,ycopy)
   npos++;
 
@@ -222,18 +171,17 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   xpos[n]=xcopy;
   ypos[n]=ycopy;
 
-  int ierror=0;
-  bool err=true;
-  if ( itsArea.P().getUsingLatLonValues()) {
-    ierror = newArea.P().convertFromGeographic(npos,xpos,ypos);
-  } else if ( newArea.P().getUsingLatLonValues()) {
-      ierror = itsArea.P().convertToGeographic(npos,xpos,ypos);
+  bool converted;
+  if (itsArea.P().getUsingLatLonValues()) {
+    converted = (newArea.P().convertFromGeographic(npos,xpos,ypos) == 0);
+  } else if (newArea.P().getUsingLatLonValues()) {
+    converted = (itsArea.P().convertToGeographic(npos,xpos,ypos) == 0);
   } else {
-    err = gc.getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);
+    converted = gc.getPoints(itsArea.P(),newArea.P(),npos,xpos,ypos);
   }
 
-  if(!err || ierror !=0 ) {
-    METLIBS_LOG_ERROR("WeatherObjects::changeProjection: getPoints error");
+  if (!converted) {
+    METLIBS_LOG_ERROR("coordinate conversion error");
     delete[] xpos;
     delete[] ypos;
     return false;
@@ -244,15 +192,11 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   n= 0;
   for (i=0; i<obsize; i++){
-    m= objects[i]->getXYZsize();
-    vector<float> x;
-    vector<float> y;
-    for (j=0; j<m; ++j) {
-      x.push_back(xpos[n]);
-      y.push_back(ypos[n]);
-      n++;
-    }
+    const int m= objects[i]->getXYZsize();
+    const vector<float> x(&xpos[n], &xpos[n+m]);
+    const vector<float> y(&ypos[n], &ypos[n+m]);
     objects[i]->setXY(x,y);
+    n += m;
   }
 
   delete[] xpos;
@@ -270,30 +214,25 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
 void WeatherObjects::updateObjects()
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherObjects::updateObjects");
-#endif
+  METLIBS_LOG_SCOPE();
 
   int obsize = objects.size();
-
-  for (int i=0; i<obsize; i++) objects[i]->updateBoundBox();
+  for (int i=0; i<obsize; i++)
+    objects[i]->updateBoundBox();
 }
 
 
 /*********************************************/
 
 bool
-WeatherObjects::readEditDrawFile(const std::string fn,const Area& newArea){
+WeatherObjects::readEditDrawFile(const std::string& fn,const Area& newArea){
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("WeatherObjects::readEditDrawFile(2)");
   METLIBS_LOG_DEBUG("filename" << fn);
 #endif
 
-
   //if *.shp read shapefile
-  vector <std::string> parts= miutil::split(fn, 0, ".");
-  std::string ext = parts.back();
-  if (ext=="shp"){
+  if (diutil::endswith(fn, ".shp")) {
     if (newArea.P()!=itsArea.P()){
       changeProjection(newArea);
     }
@@ -312,7 +251,7 @@ WeatherObjects::readEditDrawFile(const std::string fn,const Area& newArea){
   // open filestream
   ifstream file(fn.c_str());
   if (!file){
-    METLIBS_LOG_ERROR("ERROR OPEN (READ) " << fn);
+    METLIBS_LOG_ERROR("ERROR OPEN (READ) '" << fn << "'");
     return false;
   }
 
@@ -331,47 +270,40 @@ WeatherObjects::readEditDrawFile(const std::string fn,const Area& newArea){
     value = stokens[1];
   }
   //check if the line contains keyword date ?
-  if (key == "date")
-  {
-    fileString = std::string();
-    // read file
-    while (getline(file,str) && !file.eof()){
-      if (not str.empty() && str[0]!='#'){
-        // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
-        if (miutil::contains(str, "Helvetica")) {
-          miutil::replace(str, "Helvetica","BITMAPFONT");
-        }
-        //check if this is a LABEL string
-        if (str.substr(0,5)=="LABEL"){
-          if (useobject["anno"])
-            itsOldLabels.push_back(str);
-        } else {
-          fileString+=str;
-        }
-      }
-    }
-    file.close();
-
-    return readEditDrawString(fileString,newArea);
-  }
-  else{
+  if (key != "date") {
     METLIBS_LOG_ERROR("This file is not in the new format ");
     file.close();
+    return false;
   }
 
-  return false;
+  fileString = std::string();
+  // read file
+  while (getline(file,str) && !file.eof()){
+    if (str.empty() || str[0]=='#')
+      continue;
 
+    // The font Helvetica is not supported if X-fonts are not enabled, use BITMAPFONT defined in setup
+    if (miutil::contains(str, "Helvetica")) {
+      miutil::replace(str, "Helvetica","BITMAPFONT");
+    }
+    //check if this is a LABEL string
+    if (diutil::startswith(str, "LABEL")) {
+      if (useobject["anno"])
+        itsOldLabels.push_back(str);
+    } else {
+      fileString+=str;
+    }
+  }
+  file.close();
+  return readEditDrawString(fileString, newArea);
 }
 
 
 
-bool WeatherObjects::readEditDrawString(const std::string inputString,
-    const Area& newArea, bool replace){
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("readEditDrawString\n");
-  METLIBS_LOG_DEBUG("Input string" << inputString);
-#endif
+bool WeatherObjects::readEditDrawString(const std::string& inputString,
+    const Area& newArea, bool replace)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(inputString));
 
   std::string key,value,objectString;
 

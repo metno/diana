@@ -58,8 +58,7 @@ public:
   void hide() { visible= false; }
   void show() { visible= true; }
   bool isVisible() const { return visible; }
-  bool plot();
-  bool plot(const int) { return false; }
+  void plot(PlotOrder zorder);
   bool changeProjection();
   std::string getName() { return locdata.name; }
   std::string find(int x, int y);

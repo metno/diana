@@ -57,6 +57,8 @@ using namespace std;
 #define MILOGGER_CATEGORY "diana.VprofDiagram"
 #include <miLogger/miLogging.h>
 
+static const float DEG_TO_RAD = M_PI / 180;
+
 VprofDiagram::VprofDiagram(VprofOptions *vpop) :
   VprofTables(), vpopt(vpop),diagramInList(false),  drawlist(0), numtemp(0),
       numprog(0)
@@ -266,7 +268,6 @@ void VprofDiagram::prepare()
 
   //const float dptab=idptab;
   //const float dpinv=1./dptab;
-  const float rad = 3.141592654 / 180.;
   //const float undef=+1.e+35;
 
   // index for some pressure levels in the tables
@@ -374,7 +375,7 @@ void VprofDiagram::prepare()
       for (k = 0; k < mptab; k++)
         xztabd[k] = 0.;
     } else {
-      float tantang = tanf(vpopt->tangle * rad);
+      float tantang = tanf(vpopt->tangle * DEG_TO_RAD);
       float y1000 = yptabd[k1000];
       for (k = 0; k < mptab; k++)
         xztabd[k] = tantang * (yptabd[k] - y1000);
@@ -539,8 +540,8 @@ void VprofDiagram::prepare()
     xmindf -= chxlab * 5.5;
   if (vpopt->plabelt && vpopt->ptlines) {
     if (vpopt->tangle > 29. && vpopt->tangle < 61.) {
-      float sintan = sinf(vpopt->tangle * rad);
-      float costan = cosf(vpopt->tangle * rad);
+      float sintan = sinf(vpopt->tangle * DEG_TO_RAD);
+      float costan = cosf(vpopt->tangle * DEG_TO_RAD);
       xmaxdf += (costan * chxlab * 4. + costan * chylab);
       ymaxdf += (sintan * chxlab * 4. + sintan * chylab);
     } else {
@@ -903,7 +904,6 @@ void VprofDiagram::plotDiagram()
 
   const float dptab = idptab;
   const float dpinv = 1. / dptab;
-  const float rad = 3.141592654 / 180.;
   //const float undef=+1.e+35;
 
   // index for some pressure levels in the tables
@@ -1151,8 +1151,8 @@ void VprofDiagram::plotDiagram()
     glDisable(GL_LINE_STIPPLE);
     // t numbers (labels)
     if (vpopt->plabelt) {
-      float sintan = sinf(vpopt->tangle * rad);
-      float costan = cosf(vpopt->tangle * rad);
+      float sintan = sinf(vpopt->tangle * DEG_TO_RAD);
+      float costan = cosf(vpopt->tangle * DEG_TO_RAD);
       itstep = (tmax - tmin < 75) ? 5 : 10;
       if (itstep < vpopt->tStep)
         itstep = vpopt->tStep;
@@ -1175,7 +1175,7 @@ void VprofDiagram::plotDiagram()
         numwid = 4;
       }
       if (vpopt->tangle > 29. && vpopt->tangle < 61.) {
-        numrot = atan2f(costan, sintan) / rad;
+        numrot = atan2f(costan, sintan) / DEG_TO_RAD;
         dxmin = 1.3 * chy / costan;
         dx = chy * 0.5 / costan;
         dy = 0.;

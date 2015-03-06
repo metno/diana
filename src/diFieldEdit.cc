@@ -584,12 +584,8 @@ void FieldEdit::activate() {
   if (!editfieldplot) return;
 
   if (!editStarted) {
-
     // set a small default influence size
-    Rectangle fr= getStaticPlot()->getPlotSize();
-    float pwidth,pheight;
-    getStaticPlot()->getPhysSize(pwidth,pheight);
-    float d= 20. * (fr.x2-fr.x1)/pwidth/editfield->gridResolutionX;
+    float d= 20 * getStaticPlot()->getPhysToMapScaleX() / editfield->gridResolutionX;
 
     def_rcircle=   d;
     def_axellipse= d;
@@ -933,13 +929,14 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       convertpos= (maparea.P() != editfield->area.P());
 
       if (convertpos) {
-
-        float rx[3] = { gx*editfield->gridResolutionX,
-            (gx-axellipse*0.5)*editfield->gridResolutionX,
-            (gx+axellipse*0.5)*editfield->gridResolutionX };
-        float ry[3] = { gy*editfield->gridResolutionY,
-            (gy-ayellipse*0.5)*editfield->gridResolutionY,
-            (gy+ayellipse*0.5)*editfield->gridResolutionY };
+        const float frx = editfield->gridResolutionX,
+            fry = editfield->gridResolutionY;
+        float rx[3] = { gx*frx,
+                        (gx-axellipse*0.5f)*frx,
+                        (gx+axellipse*0.5f)*frx };
+        float ry[3] = { gy*fry,
+                        (gy-ayellipse*0.5f)*fry,
+                        (gy+ayellipse*0.5f)*fry };
         int npos= 3;
         if (!gc.getPoints(maparea.P(),editfield->area.P(),npos,rx,ry)) {
           METLIBS_LOG_ERROR("EDIT: getPoints error");
@@ -1191,10 +1188,12 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
           rcirclePlot = def_rcircle * (rcircle/orcircle) * editfield->gridResolutionX;
         } else if (convertpos) {
           // may be not the best we could do...
-          float rx[2] = { (gx-axellipse*0.5)*editfield->gridResolutionX,
-              (gx+axellipse*0.5)*editfield->gridResolutionX };
-          float ry[2] = { (gy-ayellipse*0.5)*editfield->gridResolutionY,
-              (gy+ayellipse*0.5)*editfield->gridResolutionY };
+          const float frx = editfield->gridResolutionX,
+              fry = editfield->gridResolutionY;
+          float rx[2] = { (gx-axellipse*0.5f)*frx,
+                          (gx+axellipse*0.5f)*frx };
+          float ry[2] = { (gy-ayellipse*0.5f)*fry,
+                          (gy+ayellipse*0.5f)*fry };
           int npos= 2;
           if (!gc.getPoints(editfield->area.P(),maparea.P(),npos,rx,ry)) {
             METLIBS_LOG_ERROR("EDIT: getPoints error");
@@ -1370,17 +1369,19 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
 
 void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
-    bool geo) {
-
-  float rx[2] = { fi.posx, fi.posx + fi.axellipse * editfield->gridResolutionX};
-  float ry[2] = { fi.posy, fi.posy + fi.ayellipse * editfield->gridResolutionY};
+    bool geo)
+{
+  const float frx = editfield->gridResolutionX,
+      fry = editfield->gridResolutionY;
+  float rx[2] = { fi.posx, fi.posx + fi.axellipse * frx};
+  float ry[2] = { fi.posy, fi.posy + fi.ayellipse * fry};
   if (geo) {
     int npos= 2;
     const Area& maparea = getStaticPlot()->getMapArea();
     gc.geo2xy(maparea,npos,rx,ry);
   }
-  float dx= rx[1]/editfield->gridResolutionX - rx[0]/editfield->gridResolutionX;
-  float dy= ry[1]/editfield->gridResolutionY - ry[0]/editfield->gridResolutionY;
+  float dx= (rx[1] - rx[0])/frx;
+  float dy= (ry[1] - ry[0])/fry;
 
   posx= rx[0];
   posy= ry[0];
@@ -1403,24 +1404,24 @@ void FieldEdit::setFieldInfluence(const FieldInfluence& fi,
 FieldInfluence FieldEdit::getFieldInfluence(bool geo) {
 
   FieldInfluence fi;
-  float dx,dy;
 
-  float scale= rcirclePlot / def_rcircle/ editfield->gridResolutionX;
-  dx= scale * def_axellipse;
-  dy= scale * def_ayellipse;
+  const float frx = editfield->gridResolutionX,
+      fry = editfield->gridResolutionY;
 
-  float rx[3]= { posx, posx - dx*0.5* editfield->gridResolutionX,
-      posx + dx*0.5* editfield->gridResolutionX };
-  float ry[3]= { posy, posy - dy*0.5* editfield->gridResolutionY,
-      posy + dy*0.5* editfield->gridResolutionY };
+  float scale= rcirclePlot / def_rcircle/ frx;
+  float dx= scale * def_axellipse;
+  float dy= scale * def_ayellipse;
+
+  float rx[3]= { posx, posx - dx*0.5f* frx, posx + dx*0.5f* frx };
+  float ry[3]= { posy, posy - dy*0.5f* fry, posy + dy*0.5f* fry };
   if (geo) {
     int npos=3;
     const Area& maparea = getStaticPlot()->getMapArea();
     gc.xy2geo(maparea,npos,rx,ry);
   }
 
-  dx= rx[2]/editfield->gridResolutionX - rx[1]/editfield->gridResolutionX;
-  dy= ry[2]/editfield->gridResolutionY - ry[1]/editfield->gridResolutionY;
+  dx= (rx[2] - rx[1])/frx;
+  dy= (ry[2] - ry[1])/fry;
 
   fi.posx= rx[0];
   fi.posy= ry[0];
@@ -3385,15 +3386,12 @@ void FieldEdit::drawInfluence()
   //   shape==2: ellipse with line between focus points
   //   shape==3: square
 
-  const float drot=5.0*3.141592654/180.;
+  const float drot=5.0*DEG_TO_RAD;
   float d,x,y,rot;
   int   i;
 
   // draw centre box
-  Rectangle fr= getStaticPlot()->getPlotSize();
-  float pwidth,pheight;
-  getStaticPlot()->getPhysSize(pwidth,pheight);
-  d= 5.0 * (fr.x2-fr.x1)/pwidth;
+  d= 5.0 * getStaticPlot()->getPhysToMapScaleX();
 
   glColor4f(0.0,1.0,1.0,0.5);
   glLineWidth(3.0);
@@ -3547,24 +3545,20 @@ void FieldEdit::drawInfluence()
 }
 
 
-bool FieldEdit::plot(bool showinfluence)
+void FieldEdit::plot(Plot::PlotOrder porder, bool showinfluence)
 {
-#ifdef DEBUGREDRAW
-  if (active) METLIBS_LOG_DEBUG("Plot active editfield");
-  else        METLIBS_LOG_DEBUG("Plot deactivated editfield");
-#endif
-  if (editfieldplot->getUndefinedPlot())
-    editfieldplot->plotUndefined();
+  METLIBS_LOG_SCOPE(LOGVAL(active));
 
-  bool res= editfieldplot->plot();
-  if (active && showinfluence) drawInfluence();
+  editfieldplot->plot(Plot::SHADE_BACKGROUND);
+
+  editfieldplot->plot(porder);
+  if (active && showinfluence)
+    drawInfluence();
 
   if (active && showinfluence && showNumbers)
     numbersDisplayed= editfieldplot->plotNumbers();
   else
     numbersDisplayed= false;
-
-  return res;
 }
 
 bool FieldEdit::getAnnotations(vector<string>& anno)

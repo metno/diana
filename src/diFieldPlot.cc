@@ -64,7 +64,7 @@ const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 
 FieldPlot::FieldPlot() :
-    overlay(false), pshade(false), pundefined(false), vectorAnnotationSize(0), imagedata(
+    overlay(false), pshade(false), vectorAnnotationSize(0), imagedata(
         NULL), previrs(1)
 {
   METLIBS_LOG_SCOPE();
@@ -109,8 +109,10 @@ bool FieldPlot::getRealFieldArea(Area& a)
 // check if current data from plottime
 bool FieldPlot::updateNeeded(string& pin)
 {
-  if (ftime.undef() || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
-      || fields.size() == 0) {
+  if (ftime.undef()
+      || (ftime != getStaticPlot()->getTime() && !miutil::contains(pinfo, " time="))
+      || fields.size() == 0)
+  {
     pin = pinfo;
     return true;
   }
@@ -175,8 +177,6 @@ bool FieldPlot::prepare(const std::string& fname, const std::string& pin)
 
   if (plottype == fpt_contour && poptions.contourShading > 0)
     pshade = true;
-
-  pundefined = (poptions.undefMasking > 0 and plottype != fpt_contour2);
 
   return true;
 }
@@ -555,7 +555,23 @@ bool FieldPlot::getDataAnnotations(vector<string>& anno)
   return true;
 }
 
-bool FieldPlot::plot()
+void FieldPlot::plot(PlotOrder zorder)
+{
+  if (zorder == SHADE_BACKGROUND) {
+    plotUndefined();
+  } else if (zorder == SHADE) {
+    if (getShadePlot())
+      plotMe();
+  } else if (zorder == LINES) {
+    if (!getShadePlot() && !overlayBuffer())
+      plotMe();
+  } else if (zorder == OVERLAY) {
+    if (overlayBuffer() && !getShadePlot())
+      plotMe();
+  }
+}
+
+bool FieldPlot::plotMe()
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(getModelName()));
@@ -679,7 +695,7 @@ vector<float*> FieldPlot::prepareVectors(float* x, float* y, bool rotateVectors)
     u = tmpfields[0]->data;
     v = tmpfields[1]->data;
     int npos = fields[0]->nx * fields[0]->ny;
-    if (!getStaticPlot()->gc.getVectors(tmpfields[0]->area, getStaticPlot()->getMapArea(), npos, x, y, u, v)) {
+    if (!getStaticPlot()->ProjToMap(tmpfields[0]->area, npos, x, y, u, v)) {
       return uv;
     }
     tmpfields[0]->area.setP(getStaticPlot()->getMapArea().P());
@@ -900,7 +916,7 @@ bool FieldPlot::getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1
 
 bool FieldPlot::getPoints(int n, float* x, float* y) const
 {
-  return getStaticPlot()->gc.getPoints(fields[0]->area.P(), getStaticPlot()->getMapArea().P(), n, x, y);
+  return getStaticPlot()->ProjToMap(fields[0]->area.P(), n, x, y);
 }
 
 // plot vector field as wind arrows
@@ -1311,7 +1327,7 @@ bool FieldPlot::plotValue()
 
         if (!classImages.empty()) { //plot symbol
           if (classImages.count(int(value))) {
-            ig.plotImage(classImages[int(value)], gx, gy, true,
+            ig.plotImage(getStaticPlot(), classImages[int(value)], gx, gy, true,
                 poptions.labelSize * 0.25);
           }
         } else { // plot value
@@ -3504,25 +3520,25 @@ bool FieldPlot::plotPixmap()
     return false;
 
   // scaling
-  float scalex = getStaticPlot()->getPhysWidth() / getStaticPlot()->getPlotSize().width();
-  float scaley = getStaticPlot()->getPhysHeight() / getStaticPlot()->getPlotSize().height();
+  float scalex = 1/getStaticPlot()->getPhysToMapScaleX();
+  float scaley = 1/getStaticPlot()->getPhysToMapScaleY();
 
   // Corners of image shown (map coordinates)
   // special care of lat/lon projection global
   // xmin is wrong for these projections...
   // handled in plotfillcellext.
 
-  float grStartx = (getStaticPlot()->getMapSize().x1 > xmin) ? getStaticPlot()->getMapSize().x1 : xmin;
-  float grStarty = (getStaticPlot()->getMapSize().y1 > ymin) ? getStaticPlot()->getMapSize().y1 : ymin;
+  float grStartx = std::max(getStaticPlot()->getMapSize().x1, xmin);
+  float grStarty = std::max(getStaticPlot()->getMapSize().y1, ymin);
 
   // Corners of total image (image coordinates)
   float x1 = getStaticPlot()->getMapSize().x1;
   float y1 = getStaticPlot()->getMapSize().y1;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), 1, &x1, &y1))
+  if (!getStaticPlot()->MapToProj(fields[0]->area.P(), 1, &x1, &y1))
     return false;
   float x2 = getStaticPlot()->getMapSize().x2;
   float y2 = getStaticPlot()->getMapSize().y2;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), fields[0]->area.P(), 1, &x2, &y2))
+  if (!getStaticPlot()->MapToProj(fields[0]->area.P(), 1, &x2, &y2))
     return false;
   x1 /= fields[0]->gridResolutionX;
   x2 /= fields[0]->gridResolutionX;
@@ -4406,6 +4422,9 @@ bool FieldPlot::plotGridLines()
 bool FieldPlot::plotUndefined()
 {
   METLIBS_LOG_SCOPE();
+
+  if (!(poptions.undefMasking > 0 and plottype != fpt_contour2))
+    return false;
 
   if (not isEnabled())
     return false;

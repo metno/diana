@@ -31,9 +31,10 @@
 #include "config.h"
 #endif
 
-#include <diComplexSymbolPlot.h>
-#include <diFontManager.h>
-#include <diWeatherSymbol.h>
+#include "diComplexSymbolPlot.h"
+
+#include "diFontManager.h"
+#include "diWeatherSymbol.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -66,8 +67,6 @@ using namespace std;
 #define SHOWERSYMBOL 109
 #define FZRASYMBOL 93
 
-//#define DEBUGPRINT
-
 //static variables
 // text used in new complex symbols
 
@@ -76,22 +75,9 @@ vector <std::string> ComplexSymbolPlot::currentXStrings; //xtext
 set <std::string> ComplexSymbolPlot::clist; //texts used in combobox
 float ComplexSymbolPlot::textShrink=1.5;
 
-ComplexSymbolPlot::ComplexSymbolPlot() : Plot(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::ComplexSymbolPlot()");
-#endif
-  xvisible=false;
-  nstringsvisible=0;
-  symbolStrings=currentSymbolStrings;
-  xstrings=currentXStrings;
-  whiteBox=true;
-}
-
-
-ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex) : Plot(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex)");
-#endif
+ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex)
+{
+  METLIBS_LOG_SCOPE();
   xvisible=false;
   nstringsvisible=0;
   symbolStrings=currentSymbolStrings;
@@ -105,10 +91,9 @@ ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex) : Plot(){
 }
 
 
-void ComplexSymbolPlot::initStrings(int drawIndex){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::initStrings()");
-#endif
+void ComplexSymbolPlot::initStrings(int drawIndex)
+{
+  METLIBS_LOG_SCOPE();
   switch (drawIndex){
   case 1000:
     if (symbolStrings.size()==0)
@@ -148,10 +133,9 @@ void ComplexSymbolPlot::initStrings(int drawIndex){
 }
 
 
-void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::initCurrentStrings()");
-#endif
+void ComplexSymbolPlot::initCurrentStrings(int drawIndex)
+{
+  METLIBS_LOG_SCOPE();
   currentSymbolStrings.clear();
   currentXStrings.clear();
   switch (drawIndex){
@@ -279,13 +263,9 @@ void ComplexSymbolPlot::initCurrentStrings(int drawIndex){
 }
 
 
-void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::draw()");
-  METLIBS_LOG_DEBUG("drawIndex = " << drawIndex);
-  METLIBS_LOG_DEBUG(" float x = " << x);
-  METLIBS_LOG_DEBUG(" float y = " << y);
-#endif
+void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(drawIndex) << LOGVAL(x) << LOGVAL(y));
   symbolSizeToPlot=size;
   xvisible=false;
   nstringsvisible=0;
@@ -464,10 +444,9 @@ void ComplexSymbolPlot::draw(int drawIndex, float x,float y,int size,float rot){
 
 
 
-void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSymbol()");
-#endif
+void ComplexSymbolPlot::drawSymbol(int index,float x,float y)
+{
+  METLIBS_LOG_SCOPE();
   float cw,ch;
   getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
   getStaticPlot()->getFontPack()->getCharSize(index,cw,ch);
@@ -475,10 +454,9 @@ void ComplexSymbolPlot::drawSymbol(int index,float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSigString()");
-#endif
+void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE();
   if (whitebox){
     drawBox(1999,x,y);
   }
@@ -489,62 +467,49 @@ void ComplexSymbolPlot::drawSigString(float x,float y, bool whitebox){
 }
 
 
-void ComplexSymbolPlot::drawSigTextBoxString(float& x,float& y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSigTextBoxString()");
-#endif
+void ComplexSymbolPlot::drawSigTextBoxString(float& x,float& y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE();
   float cw,ch;
   getComplexSize(1999,cw,ch);
   //getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot/3);
   getStaticPlot()->getFontPack()->set("Helvetica","BOLD",12);
  // getStaticPlot()->getFontPack()->set("Arial","NORMAL",12);
   getStaticPlot()->getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("** sigString  = **"<<sigString.c_str());
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(sigString));
   nstringsvisible=10;
 }
 
-void ComplexSymbolPlot::drawSigEditString(float& x,float& y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSigEditString()");
-  METLIBS_LOG_DEBUG("x = " <<x << "         y = "<< y);
-#endif
+void ComplexSymbolPlot::drawSigEditString(float& x,float& y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y));
   float cw,ch;
   getComplexSize(1999,cw,ch);
   getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
   getStaticPlot()->getFontPack()->drawStr(sigString.c_str(),x+0.45 ,y-0.4,0.0);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("** sigString  = **"<<sigString.c_str());
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(sigString));
   nstringsvisible=10;
 }
 
-void ComplexSymbolPlot::drawSigText(float x,float y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSigText()");
-#endif
+void ComplexSymbolPlot::drawSigText(float x,float y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE();
   initStrings(1000);
   if (symbolStrings.size()>0)
     sigString=symbolStrings[0];
   drawSigString(x,y,whitebox);
   nstringsvisible=1;
 }
+
 // Drawing texbox on right low corner of the frame
 //void ComplexSymbolPlot::drawSigTextBox(){
-void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawTextBox()");
- // METLIBS_LOG_DEBUG("x = " <<x << "         y = "<< y);
-#endif
+void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot)
+{
+  METLIBS_LOG_SCOPE();
   float x, y;
   x = 5.57101e+06;
   y = 3.40754e+06;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("drawIndex = " << drawIndex);
-  METLIBS_LOG_DEBUG(" float x = " << x);
-  METLIBS_LOG_DEBUG(" float y = " << y);
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(drawIndex) << LOGVAL(x) << LOGVAL(y));
   symbolSizeToPlot=size;
   xvisible=false;
   glPushMatrix();
@@ -554,9 +519,6 @@ void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot){
   float linewidth=symbolSizeToPlot/50+1;
   glLineWidth(linewidth);
   drawBox(drawIndex,0,0,false);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("** drawing filled area**");
-#endif
 //----------------------------------
   // draw filled area
   /*Colour fc = poptions.fillcolour;
@@ -590,9 +552,7 @@ void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot){
     for (unsigned int j= 0 ; j < symbolStrings.size(); j++)
     {
        sigString=symbolStrings[j];
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("sigString = " << sigString.c_str());
-#endif
+       METLIBS_LOG_DEBUG(LOGVAL(sigString));
        getComplexSize(1999,cw,ch);
        drawSigTextBoxString(sx,sy,whitebox);
        sy -= 0.5*ch;
@@ -600,11 +560,9 @@ void ComplexSymbolPlot::drawTextBox(int drawIndex,int size,float rot){
   glPopMatrix();
 }
 
-void ComplexSymbolPlot::drawColoredSigText(float x,float y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawColoredSigTextt()");
-  METLIBS_LOG_DEBUG("x = " <<x << "         y = "<< y);
-#endif
+void ComplexSymbolPlot::drawColoredSigText(float x,float y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y));
   //GLfloat currentColor[4];
   //glGetFloatv(GL_CURRENT_COLOR,currentColor);
   //glColor4ub(objectColour.R(),objectColour.G(),objectColour.B(),objectColour.A());
@@ -622,25 +580,20 @@ void ComplexSymbolPlot::drawColoredSigText(float x,float y, bool whitebox){
   drawSigNumber(x+sw/2,y);
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
   nstringsvisible=1;
-
 }
 
 
 // Plotting multiline text
-void ComplexSymbolPlot::drawSigEditText(float x,float y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawSigEditText()");
-  METLIBS_LOG_DEBUG("x = " <<x << "         y = "<< y);
-#endif
+void ComplexSymbolPlot::drawSigEditText(float x,float y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y));
   float cw,ch;
   initStrings(3000);
   if (symbolStrings.size()>0)
     for (unsigned int j= 0 ; j < symbolStrings.size(); j++)
     {
        sigString=symbolStrings[j];
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("sigString = " << sigString.c_str());
-#endif
+       METLIBS_LOG_DEBUG(LOGVAL(sigString));
        getComplexSize(1999,cw,ch);
        drawSigEditString(x,y,whitebox);
        y -= 0.9*ch;
@@ -648,10 +601,9 @@ void ComplexSymbolPlot::drawSigEditText(float x,float y, bool whitebox){
   nstringsvisible=10;
 }
 
-void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawDoubleSigText()");
-#endif
+void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox)
+{
+  METLIBS_LOG_SCOPE();
   float cw1,ch1;
   float cw2,ch2;
   initStrings(2000);
@@ -666,10 +618,9 @@ void ComplexSymbolPlot::drawDoubleSigText(float x,float y, bool whitebox){
   nstringsvisible=2;
 }
 
-void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::idrawDoubleSigTextAndSymbol()");
-#endif
+void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y)
+{
+  METLIBS_LOG_SCOPE();
   float cw1,ch1;
   float cw2,ch2;
   float sw,sh;
@@ -687,7 +638,8 @@ void ComplexSymbolPlot::drawDoubleSigTextAndSymbol(int symbol, float x,float y){
   nstringsvisible=2;
 }
 
-void ComplexSymbolPlot::drawSigNumber(float x,float y){
+void ComplexSymbolPlot::drawSigNumber(float x,float y)
+{
   if (xstrings.size()<1)
     initStrings(900);
   if(whiteBox){
@@ -707,17 +659,19 @@ void ComplexSymbolPlot::drawSigNumber(float x,float y){
 
 
 
-void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol){
+void ComplexSymbolPlot::drawSig1(float x,float y, int metSymbol)
+{
   if (whiteBox) {
     drawBox(metSymbol,0,0);
   }
   drawSymbol(metSymbol,x,y);
 }
 
-void ComplexSymbolPlot::drawSig5(float x,float y){
- if (whiteBox) {
-   drawBox(1005,x,y);
- }
+void ComplexSymbolPlot::drawSig5(float x,float y)
+{
+  if (whiteBox) {
+    drawBox(1005,x,y);
+  }
   float cw,ch;
   getComplexSize(1001,cw,ch);
   drawSymbol(SIG1SYMBOL,x-0.4*cw,y+0.3*ch);
@@ -732,7 +686,8 @@ void ComplexSymbolPlot::drawSig5(float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSig6(float x,float y){
+void ComplexSymbolPlot::drawSig6(float x,float y)
+{
   if (whiteBox) {
     drawBox(1006,x,y);
   }
@@ -749,7 +704,8 @@ void ComplexSymbolPlot::drawSig6(float x,float y){
 }
 
 
-void ComplexSymbolPlot::drawSig7(float x,float y){
+void ComplexSymbolPlot::drawSig7(float x,float y)
+{
   if (xstrings.size()<2)
     initStrings(1007);
   if(whiteBox){
@@ -970,21 +926,17 @@ void ComplexSymbolPlot::drawSig30(float x,float y){
 
 //Nuclear
 void ComplexSymbolPlot::drawSig31(float x,float y){
-
   drawNuclear(x,y);
-
 }
 
 //precipitation, green lines
 void ComplexSymbolPlot::drawSig32(float x,float y){
-
   drawPrecipitation(x,y);
-
 }
 
 //Visibility, black rectangular box
-void ComplexSymbolPlot::drawSig33(float x,float y){
-
+void ComplexSymbolPlot::drawSig33(float x,float y)
+{
   symbolSizeToPlot=int(symbolSizeToPlot/textShrink);
   sigString=symbolStrings[0];
   //  if (whiteBox) drawBox(1000,x,y,true);
@@ -993,8 +945,6 @@ void ComplexSymbolPlot::drawSig33(float x,float y){
   poptions.fontface="italic";
   drawSigString(x,y);
   nstringsvisible=1;
-
-
 }
 
 //Vulcano box,
@@ -1003,7 +953,6 @@ void ComplexSymbolPlot::drawSig34(float x,float y){
   if (whiteBox) drawBox(1034,x,y,true);
   drawBox(1034,x,y,false);
   drawDoubleSigTextAndSymbol(VULCANOSYMBOL,x,y);
-
 }
 
 //Freezing level (new)
@@ -1019,27 +968,19 @@ void ComplexSymbolPlot::drawSig36(float x,float y){
     drawDoubleSigText(x,y,false);
   }
   symbolSizeToPlot=int(symbolSizeToPlot*textShrink);
-
 }
 
 
-void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::drawBox");
-  METLIBS_LOG_DEBUG("*float x = "<< x);
-  METLIBS_LOG_DEBUG("*float y = "<< y);
-  METLIBS_LOG_DEBUG("*float fill = "<< fill);
-#endif
+void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y) << LOGVAL(fill));
 
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
   float sw,sh;
   getComplexSize(index,sw,sh);
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("float sw = "<< sw);
-  METLIBS_LOG_DEBUG("float sh = "<< sh);
-#endif
+  METLIBS_LOG_DEBUG(LOGVAL(sw) << LOGVAL(sh));
 
   if( fill ){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -1049,18 +990,13 @@ void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
     glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
     glBegin(GL_LINE_LOOP);
   }
-    if (index == 3001){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("********här ****ComplexSymbolPlot::drawBox");
-  METLIBS_LOG_DEBUG("sw = " <<sw << "         sh = "<< sh);
-#endif
-      glVertex2f(x-25000,y-295000);
-      glVertex2f(x-25000,y+37000);
-      glVertex2f(x+1100000,y+37000);
-      glVertex2f(x+1100000,y-295000);
- 
-    }
-    else {
+  if (index == 3001) {
+    glVertex2f(x-25000,y-295000);
+    glVertex2f(x-25000,y+37000);
+    glVertex2f(x+1100000,y+37000);
+    glVertex2f(x+1100000,y-295000);
+  }
+  else {
     glVertex2f(x-0.5*sw,y-0.5*sh);
     glVertex2f(x-0.5*sw,y+0.5*sh);
     glVertex2f(x+0.6*sw,y+0.5*sh);
@@ -1069,12 +1005,10 @@ void ComplexSymbolPlot::drawBox(int index,float x, float y,bool fill){
   glEnd();
 
   glColor4fv(currentColor);
-
 }
 
-void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
-  float PI=3.14;
-
+void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill)
+{
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
@@ -1107,16 +1041,16 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   glVertex2f(x-sw,y-0.5*sh+offset);
   glVertex2f(x-sw,y+0.5*sh+offset);
   for(int i=0;i<11;++i){
-    x1 = x -radius*cos(i*PI/10.0)-sw/2;
-    y1 = y2 - 0.5*radius*sin(i*PI/10.0);
+    x1 = x -radius*cos(i*M_PI/10.0)-sw/2;
+    y1 = y2 - 0.5*radius*sin(i*M_PI/10.0);
     glVertex2f(x1,y1+offset);
     offset-=sh/30;
   }
   offset+=sh/30;
 
   for(int i=0;i<10;++i){
-      x1 = x + sw/2 - radius*cos(i*PI/10.0);
-      y1 = y2+0.5*radius*sin(i*PI/10.0);
+      x1 = x + sw/2 - radius*cos(i*M_PI/10.0);
+      y1 = y2+0.5*radius*sin(i*M_PI/10.0);
       glVertex2f(x1,y1+offset);
       offset-=sh/30;
   }
@@ -1126,20 +1060,18 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
   //  offset+=sh/50;
 
   for(int i=0;i<11;++i){
-      x1 = x + sw/2 +radius*cos(i*PI/10.0);
-      y1 = y3+0.5*radius*sin(i*PI/10.0);
+      x1 = x + sw/2 +radius*cos(i*M_PI/10.0);
+      y1 = y3+0.5*radius*sin(i*M_PI/10.0);
       glVertex2f(x1,y1+offset);
       offset+=sh/30;
   }
   offset-=sh/30;
 
   for(int i=0;i<10;++i){
-    x1 = x +radius*cos(i*PI/10.0)-sw/2;
-    y1 = y3 - 0.5*radius*sin(i*PI/10.0);
+    x1 = x +radius*cos(i*M_PI/10.0)-sw/2;
+    y1 = y3 - 0.5*radius*sin(i*M_PI/10.0);
     glVertex2f(x1,y1+offset);
-
-
- offset+=sh/30;
+    offset+=sh/30;
   }
 
   glEnd();
@@ -1148,10 +1080,8 @@ void ComplexSymbolPlot::drawFlag(int index,float x, float y, bool fill){
 }
 
 void ComplexSymbolPlot::drawCircle(int index,
-				   float x,
-				   float y,
-				   bool circle){
-
+    float x, float y, bool circle)
+{
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
@@ -1175,7 +1105,6 @@ void ComplexSymbolPlot::drawCircle(int index,
     radius = sh/1.5;
     sw = sw/1.8;
   }
-  float PI=3.14;
 
   //draw white background
   if (whiteBox) {
@@ -1183,13 +1112,13 @@ void ComplexSymbolPlot::drawCircle(int index,
     glColor4f(1.0,1.0,1.0,1.0);
   glBegin(GL_POLYGON);
     for(int i=0;i<50;i++){
-      xc = sw/2+radius*sin(i*2*PI/100.0);
-      yc = radius*cos(i*2*PI/100.0);
+      xc = sw/2+radius*sin(i*2*M_PI/100.0);
+      yc = radius*cos(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     for(int i=50;i<100;i++){
-      xc = radius*sin(i*2*PI/100.0)-sw/2;
-      yc = radius*cos(i*2*PI/100.0);
+      xc = radius*sin(i*2*M_PI/100.0)-sw/2;
+      yc = radius*cos(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glEnd();
@@ -1200,13 +1129,13 @@ void ComplexSymbolPlot::drawCircle(int index,
   glBegin(GL_LINE_LOOP);
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
     for(int i=0;i<50;i++){
-      yc = sw/2+radius*sin(i*2*PI/100.0);
-      xc = radius*cos(i*2*PI/100.0);
+      yc = sw/2+radius*sin(i*2*M_PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
       glVertex2f(yc,xc);
     }
     for(int i=50;i<100;i++){
-      yc = radius*sin(i*2*PI/100.0)-sw/2;
-      xc = radius*cos(i*2*PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0)-sw/2;
+      xc = radius*cos(i*2*M_PI/100.0);
       glVertex2f(yc,xc);
     }
   glEnd();
@@ -1258,7 +1187,6 @@ void ComplexSymbolPlot::drawNuclear(float x, float y){
   GLfloat currentColor[4];
   glGetFloatv(GL_CURRENT_COLOR,currentColor);
 
-  float PI=3.14;
   float sw,sh;
   getComplexSize(1031,sw,sh);
   GLfloat xc,yc;
@@ -1268,8 +1196,8 @@ void ComplexSymbolPlot::drawNuclear(float x, float y){
   glColor4ub(borderColour.R(),borderColour.G(),borderColour.B(),borderColour.A());
   glBegin(GL_LINE_LOOP);
     for(int i=0;i<100;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glEnd();
@@ -1278,20 +1206,20 @@ void ComplexSymbolPlot::drawNuclear(float x, float y){
   glBegin(GL_POLYGON);
     glVertex2f(x,y);
     for(int i=0;i<100/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glVertex2f(x,y);
     for(int i=200/6;i<300/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glVertex2f(x,y);
     for(int i=400/6;i<500/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glVertex2f(x,y);
@@ -1301,20 +1229,20 @@ void ComplexSymbolPlot::drawNuclear(float x, float y){
   glBegin(GL_POLYGON);
     glVertex2f(x,y);
     for(int i=100/6;i<200/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glVertex2f(x,y);
     for(int i=300/6;i<400/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
     glVertex2f(x,y);
     for(int i=500/6;i<600/6;i++){
-      xc = radius*cos(i*2*PI/100.0);
-      yc = radius*sin(i*2*PI/100.0);
+      xc = radius*cos(i*2*M_PI/100.0);
+      yc = radius*sin(i*2*M_PI/100.0);
       glVertex2f(xc,yc);
     }
 
@@ -1369,10 +1297,9 @@ void ComplexSymbolPlot::drawPrecipitation(float x, float y){
   glColor4fv(currentColor);
 }
 
-void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("*******ComplexSymbolPlot::getComplexSize******");
-#endif
+void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh)
+{
+  METLIBS_LOG_SCOPE();
   float cw,ch;
   float cw1,ch1;
   float cw2,ch2;
@@ -1394,23 +1321,17 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 3001:
       if (symbolStrings.size()>1){
-	getStaticPlot()->getFontPack()->set("Helvetica","BOLD",12);
+        getStaticPlot()->getFontPack()->set("Helvetica","BOLD",12);
         cw2=ch2=0;
         for (unsigned int i=0; i<symbolStrings.size(); i++){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("*********before ");
-  METLIBS_LOG_DEBUG("cw = " <<cw2 << "         ch = "<< ch2);
-#endif
-	  getStaticPlot()->getFontPack()->getStringSize(symbolStrings[i].c_str(),cw1,ch1);
-	  if (cw1>cw2)  cw2=cw1;
-	  ch2 += ch1;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("*************after");
-  METLIBS_LOG_DEBUG("cw = " <<cw2 << "         ch = "<< ch2);
-#endif
+          METLIBS_LOG_DEBUG(LOGVAL(cw2) << LOGVAL(ch2));
+          getStaticPlot()->getFontPack()->getStringSize(symbolStrings[i].c_str(),cw1,ch1);
+          if (cw1>cw2)  cw2=cw1;
+          ch2 += ch1;
+          METLIBS_LOG_DEBUG(LOGVAL(cw2) << LOGVAL(ch2));
         }
-	sw = cw2 * 1.1;
-	sh = ch2 * 1.1;
+        sw = cw2 * 1.1;
+        sh = ch2 * 1.1;
       }
       break;
     case 3000:
@@ -1422,16 +1343,16 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     case 900:
       getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (xstrings.size()>0) {
-	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-	sw=cw1;
-	sh=2.0*ch1;
+        getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+        sw=cw1;
+        sh=2.0*ch1;
       }
       break;
     case 1000:
       if (symbolStrings.size()>0){
-	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw,ch);
-	sw=1.1*cw; sh=1.2*ch;
+        getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw,ch);
+        sw=1.1*cw; sh=1.2*ch;
       }
       break;
     case 1001:
@@ -1467,9 +1388,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     case 1007:
       getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (xstrings.size()>0) {
-	getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
-	sw=cw1;
-	sh=2.0*ch1;
+        getStaticPlot()->getFontPack()->getStringSize(xstrings[0].c_str(),cw1,ch1);
+        sw=cw1;
+        sh=2.0*ch1;
         if (xstrings.size()>1) {
           getStaticPlot()->getFontPack()->getStringSize(xstrings[1].c_str(),cw2,ch2);
           if (cw1<cw2)
@@ -1487,9 +1408,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1009:
       getComplexSize(1002,cw1,ch1);
@@ -1499,9 +1420,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1010:
       getComplexSize(1005,cw1,ch1);
@@ -1511,9 +1432,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1011:
       getComplexSize(1003,cw1,ch1);
@@ -1522,9 +1443,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       symbolSizeToPlot=int (symbolSizeToPlot*textShrink);
       sw=cw1+cw2;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1012:
       getComplexSize(1004,cw1,ch1);
@@ -1534,9 +1455,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1013:
       getComplexSize(1006,cw1,ch1);
@@ -1546,9 +1467,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1014:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1558,9 +1479,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1015:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1570,9 +1491,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sh=ch1+ch2;
       diffy=(ch2-ch1)*0.5;
       if (cw1>cw2)
-	sw=cw1;
+        sw=cw1;
       else
-	sw=cw2;
+        sw=cw2;
       break;
     case 1016:
       symbolSizeToPlot=int (symbolSizeToPlot/textShrink);
@@ -1582,9 +1503,9 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sw=cw1+cw2;
       diffx=(cw2-cw1)*0.5;
       if (ch1>ch2)
-	sh=ch1;
+        sh=ch1;
       else
-	sh=ch2;
+        sh=ch2;
       break;
     case 1018:
       getStaticPlot()->getFontPack()->set("METSYMBOLFONT",poptions.fontface,symbolSizeToPlot);
@@ -1646,15 +1567,16 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       break;
     case 1034:
       if (symbolStrings.size()>1){
-	getComplexSize(1026,cw2,ch2);
-	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
-	cw1 += (cw2*1);
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
-	if (cw2>cw1)  cw1=cw2;
-	ch1 += ch2;
-	sw = cw1 * 1.3;
-	sh = ch1 * 1.3;
+        getComplexSize(1026,cw2,ch2);
+        getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
+        cw1 += (cw2*1);
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+        if (cw2>cw1)
+          cw1=cw2;
+        ch1 += ch2;
+        sw = cw1 * 1.3;
+        sh = ch1 * 1.3;
       }
       break;
     case 1035:
@@ -1665,14 +1587,14 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
     case 1036:
       getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
       if (symbolStrings.size()>0)
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),sw,sh);{
-	if (symbolStrings.size()>1 && not symbolStrings[1].empty()){
-	  getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
-	  if (cw2>sh)  sw=cw2;
-	  sh += ch2;
-	}
-	sw *= 1.7;
-	sh *= 1.1;
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),sw,sh);{
+        if (symbolStrings.size()>1 && not symbolStrings[1].empty()){
+          getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+          if (cw2>sh)  sw=cw2;
+          sh += ch2;
+        }
+        sw *= 1.7;
+        sh *= 1.1;
       }
       break;
     case 1037:
@@ -1690,25 +1612,25 @@ void ComplexSymbolPlot::getComplexSize(int index, float& sw, float & sh){
       sh=ch1+ch2;
       diffy=(ch2-ch1)*0.5;
       if (cw1>cw2)
-	sw=cw1;
+        sw=cw1;
       else
-	sw=cw2;
+        sw=cw2;
       break;
     case 2000:
       if (symbolStrings.size()>1){
-	float cw1,ch1;
-	float cw2,ch2;
-	getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
-	getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
-	if (cw1>cw2)
-	  sw=cw1;
-	else
-	  sw=cw2;
-	if (ch1>ch2)
-	  sh=1.8*ch1;
-	else
-	  sh=1.8*ch2;
+        float cw1,ch1;
+        float cw2,ch2;
+        getStaticPlot()->getFontPack()->set(poptions.fontname,poptions.fontface,symbolSizeToPlot);
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[0].c_str(),cw1,ch1);
+        getStaticPlot()->getFontPack()->getStringSize(symbolStrings[1].c_str(),cw2,ch2);
+        if (cw1>cw2)
+          sw=cw1;
+        else
+          sw=cw2;
+        if (ch1>ch2)
+          sh=1.8*ch1;
+        else
+          sh=1.8*ch2;
       }
       break;
     }
@@ -1739,7 +1661,6 @@ void ComplexSymbolPlot::setWhiteBox(int on){
 
 
 bool ComplexSymbolPlot::isTextEdit(int drawIndex){
-  //METLIBS_LOG_DEBUG("complexSymbolPlot::isTextEdit " << drawIndex);
   switch (drawIndex){
   case 3000:
     return true;
@@ -1750,8 +1671,9 @@ bool ComplexSymbolPlot::isTextEdit(int drawIndex){
   }
 }
 
-bool ComplexSymbolPlot::isComplexTextColor(int drawIndex){
-  METLIBS_LOG_DEBUG("*************complexSymbolPlot::isComplexTextColor " << drawIndex);
+bool ComplexSymbolPlot::isComplexTextColor(int drawIndex)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(drawIndex));
   switch (drawIndex){
   case 900:
     return true;
@@ -1761,8 +1683,8 @@ bool ComplexSymbolPlot::isComplexTextColor(int drawIndex){
 }
 
 
-bool ComplexSymbolPlot::isComplexText(int drawIndex){
-  //METLIBS_LOG_DEBUG("complexSymbolPlot::isComplexText " << drawIndex);
+bool ComplexSymbolPlot::isComplexText(int drawIndex)
+{
   switch (drawIndex){
   case 1000:
     return true;
@@ -1860,13 +1782,15 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex){
 
 
 void ComplexSymbolPlot::getCurrentComplexText(vector <std::string> & symbolText,
-					  vector <std::string> & xText){
+    vector <std::string> & xText)
+{
   symbolText=currentSymbolStrings;
   xText=currentXStrings;
 }
 
 void ComplexSymbolPlot::setCurrentComplexText(const vector <std::string> &
-symbolText, const vector <std::string> & xText){
+    symbolText, const vector <std::string> & xText)
+{
   currentSymbolStrings=symbolText;
   //insert into list of texts
   for (unsigned int i =0;i<symbolText.size();i++){
@@ -1875,7 +1799,9 @@ symbolText, const vector <std::string> & xText){
   currentXStrings=xText;
 }
 
-void ComplexSymbolPlot::getComplexColoredText(vector <std::string> & symbolText, vector <std::string> & xText){
+void ComplexSymbolPlot::getComplexColoredText(vector <std::string> & symbolText,
+    vector <std::string> & xText)
+{
   xvisible = true;
 
   if (xvisible)
@@ -1915,9 +1841,7 @@ void ComplexSymbolPlot::changeComplexText(const vector <std::string> & symbolTex
 
 void ComplexSymbolPlot::readComplexText(const std::string& complexString)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::readComplexText" << complexString);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(complexString));
   std::string key,value;
   vector <std::string> tokens = miutil::split(complexString, 0, "/");
   for (unsigned int i = 0; i<tokens.size();i++){
@@ -1927,14 +1851,14 @@ void ComplexSymbolPlot::readComplexText(const std::string& complexString)
       value = stokens[1];
       vector <std::string> texts = miutil::split(value, 0, ",");
       if (key=="symbolstrings"){
-	symbolStrings=texts;
-	for (unsigned int i=0;i<symbolStrings.size();i++)
-	  WeatherSymbol::replaceText(symbolStrings[i],false);
+        symbolStrings=texts;
+        for (unsigned int i=0;i<symbolStrings.size();i++)
+          WeatherSymbol::replaceText(symbolStrings[i],false);
       }
       else if (key=="xstrings"){
-	xstrings=texts;
-	for (unsigned int i=0;i<xstrings.size();i++)
-	  WeatherSymbol::replaceText(xstrings[i],false);
+        xstrings=texts;
+        for (unsigned int i=0;i<xstrings.size();i++)
+          WeatherSymbol::replaceText(xstrings[i],false);
       }
     }
   }
@@ -1942,9 +1866,7 @@ void ComplexSymbolPlot::readComplexText(const std::string& complexString)
 
 
 std::string ComplexSymbolPlot::writeComplexText(){
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ComplexSymbolPlot::writeComplexText-");
-#endif
+  METLIBS_LOG_SCOPE();
   std::string ret;
   int ns=symbolStrings.size();
   int nx=xstrings.size();
@@ -1953,22 +1875,22 @@ std::string ComplexSymbolPlot::writeComplexText(){
    if (ns){
       ret+="symbolstrings:";
       for (int i=0;i<ns;i++){
-	std::string tempString=symbolStrings[i];
-	WeatherSymbol::replaceText(tempString,true);
-	ret+=tempString;
-	if (i<ns-1)
-	  ret+=",";
+        std::string tempString=symbolStrings[i];
+        WeatherSymbol::replaceText(tempString,true);
+        ret+=tempString;
+        if (i<ns-1)
+          ret+=",";
       }
     }
     if (ns&&nx)ret+="/";
     if (nx){
       ret+="xstrings:";
       for (int i=0;i<nx;i++){
-	std::string tempString=xstrings[i];
-	WeatherSymbol::replaceText(tempString,true);
-	ret+=tempString;
-	if (i<nx-1)
-	  ret+=",";
+        std::string tempString=xstrings[i];
+        WeatherSymbol::replaceText(tempString,true);
+        ret+=tempString;
+        if (i<nx-1)
+          ret+=",";
       }
     }
     ret+=";\n";
@@ -1977,8 +1899,8 @@ std::string ComplexSymbolPlot::writeComplexText(){
 }
 
 
-void ComplexSymbolPlot::initComplexList(){
-
+void ComplexSymbolPlot::initComplexList()
+{
 #ifdef SMHI
   clist.insert("SCT");
   clist.insert("SCT/BKN");
@@ -2027,12 +1949,7 @@ void ComplexSymbolPlot::initComplexList(){
 
 
 
-set <std::string> ComplexSymbolPlot::getComplexList(){
+set <std::string> ComplexSymbolPlot::getComplexList()
+{
   return clist;
 }
-
-
-
-
-
-

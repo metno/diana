@@ -154,7 +154,6 @@ public:
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
 
-  void setPlotRect(Rectangle r);
   void setEditRect(Rectangle r);
 
   std::vector<PlotElement> getPlotElements(bool = true) const;
@@ -173,9 +172,7 @@ protected:
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
-  static Rectangle plotRect_;
   static Rectangle editRect_;
-  Area currentArea_;
 
   // ### are these needed any longer?
   QSet<QString> drawings_;

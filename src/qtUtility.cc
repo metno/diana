@@ -38,6 +38,7 @@
 
 #include "diImageGallery.h"
 #include "diLinetype.h"
+#include "diPlotOptions.h"
 
 #include <puTools/miStringFunctions.h>
 

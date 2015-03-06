@@ -52,40 +52,30 @@ int ObjectPlot::siglinewidth=2;
 map <std::string,std::string> ObjectPlot::editTranslations;
 
 ObjectPlot::ObjectPlot()
-  : Plot()
 {
   initVariables();
 }
 
 ObjectPlot::ObjectPlot(int objTy)
-  : Plot()
-  , typeOfObject(objTy)
+  : typeOfObject(objTy)
 {
-  initVariables();
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
+  initVariables();
 }
-
 
 ObjectPlot::ObjectPlot(const ObjectPlot &rhs)
 {
-  // elementwise copy
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   memberCopy(rhs);
 }
 
 ObjectPlot::~ObjectPlot()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
-  if (x != NULL)  delete[] x;
-  if (y != NULL)  delete[] y;
-  if (x_s != NULL)  delete[] x_s;
-  if (y_s != NULL)  delete[] y_s;
+  delete[] x;
+  delete[] y;
+  delete[] x_s;
+  delete[] y_s;
 }
 
 void ObjectPlot::initVariables()
@@ -133,8 +123,9 @@ void ObjectPlot::initVariables()
 }
 
 
-void ObjectPlot::memberCopy(const ObjectPlot &rhs){
-  // copy members
+void ObjectPlot::memberCopy(const ObjectPlot &rhs)
+{
+  METLIBS_LOG_SCOPE();
   s_length = 0;
   x = NULL;
   y = NULL;
@@ -298,7 +289,8 @@ vector<float> ObjectPlot::getYmarkedJoined(){
 }
 
 
-void ObjectPlot::setXY(vector<float> x,vector <float> y){
+void ObjectPlot::setXY(const vector<float>& x, const vector <float>& y)
+{
   unsigned int n=x.size();
   unsigned int end=nodePoints.size();
   if (y.size()<n) n=y.size();
@@ -359,9 +351,10 @@ bool ObjectPlot::insertPoint(float x,float y){
 }
 
 
-void ObjectPlot::changeBoundBox(float x, float y){
+void ObjectPlot::changeBoundBox(float x, float y)
+{
   // Changes boundBox
-  if (! boundBox.isinside(x,y)){
+  if (!boundBox.isinside(x,y)) {
     if (x < boundBox.x1){ boundBox.x1=x; }
     if (x > boundBox.x2){ boundBox.x2=x; }
     if (y < boundBox.y1){ boundBox.y1=y; }
@@ -680,11 +673,10 @@ bool ObjectPlot::isEndPoint( float x , float y, float &xin, float &yin){
 
 
 
-void ObjectPlot::updateBoundBox(){
-  // updates the bound box
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("UpdateBoundbox called ");
-#endif
+void ObjectPlot::updateBoundBox()
+{
+  METLIBS_LOG_SCOPE();
+
   boundBox.x1= +INT_MAX;   // makes impossible box
   boundBox.x2= -INT_MAX;
   boundBox.y1= +INT_MAX;
@@ -752,7 +744,6 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
   if (ydraw.size()<msize) msize=ydraw.size();
   glLineWidth(2);
   float deltaw=window_dw*w*0.5;
-  float PI       = acosf(-1.0);
   for (unsigned int i=0; i<msize; i++){
     glBegin(GL_POLYGON);
     if (objectIs(wFront) || objectIs(Border)){
@@ -765,8 +756,8 @@ void ObjectPlot::drawPoints(vector <float> xdraw, vector <float> ydraw){
       GLfloat xc,yc;
       GLfloat radius=deltaw;
       for(int j=0;j<100;j++){
-        xc = radius*cos(j*2*PI/100.0);
-        yc = radius*sin(j*2*PI/100.0);
+        xc = radius*cos(j*2*M_PI/100.0);
+        yc = radius*sin(j*2*M_PI/100.0);
         glVertex2f(xdraw[i]+xc,ydraw[i]+yc);
       }
     } else if (objectIs(wSymbol) || objectIs(RegionName)){
@@ -843,8 +834,8 @@ void ObjectPlot::plotRubber(){
 
 void ObjectPlot::setWindowInfo()
 {
-  window_dw= (getStaticPlot()->getPlotSize().x2-getStaticPlot()->getPlotSize().x1)/getStaticPlot()->getPhysWidth();
-  window_dh= (getStaticPlot()->getPlotSize().y2-getStaticPlot()->getPlotSize().y1)/getStaticPlot()->getPhysHeight();
+  window_dw= getStaticPlot()->getPhysToMapScaleX();
+  window_dh= getStaticPlot()->getPhysToMapScaleY();
 }
 
 

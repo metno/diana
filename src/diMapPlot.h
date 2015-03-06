@@ -125,10 +125,11 @@ public:
   void markFiles();
 
   /// plot map in a specific zorder layer
-  bool plot(int zorder);
+  void plot(PlotOrder zorder);
 
   /// parse plotinfo
-  bool prepare(const std::string&, Area rarea, bool ifequal =true);
+  bool prepare(const std::string&, const Area& rarea, bool ifequal =true);
+
   /// return the area asked for
   bool requestedArea(Area& rarea); // return requested area
 };

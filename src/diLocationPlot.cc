@@ -172,7 +172,7 @@ bool LocationPlot::changeProjection()
     np+=np1;
   }
 
-  if (!getStaticPlot()->geo2xy(numPos, px, py)) {
+  if (!getStaticPlot()->GeoToMap(numPos, px, py)) {
      METLIBS_LOG_INFO("getPoints error");
      return false;
   }
@@ -214,25 +214,24 @@ std::string LocationPlot::find(int x, int y)
   const float maxdist= 10.0f;
 
   std::string name;
-  float xpos= x*getStaticPlot()->getPlotSize().width() /getStaticPlot()->getPhysWidth()  + getStaticPlot()->getPlotSize().x1;
-  float ypos= y*getStaticPlot()->getPlotSize().height()/getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
+  const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
 
-  float dmax= maxdist*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth();
+  float dmax= maxdist*getStaticPlot()->getPhysToMapScaleX();
   float dmin2= dmax*dmax;
   int   lmin= -1;
   float dx,dy,sx,sy,sdiv;
   int n1,n2,ndiv, numLines= locinfo.size();
 
   for (int l=0; l<numLines; l++) {
-    if (xpos>locinfo[l].xmin-dmax && xpos<locinfo[l].xmax+dmax &&
-        ypos>locinfo[l].ymin-dmax && ypos<locinfo[l].ymax+dmax) {
+    if (pos.x()>locinfo[l].xmin-dmax && pos.x()<locinfo[l].xmax+dmax &&
+        pos.y()>locinfo[l].ymin-dmax && pos.y()<locinfo[l].ymax+dmax) {
       n1= locinfo[l].beginpos;
       n2= locinfo[l].endpos;
       ndiv= int(locinfo[l].dmax/dmax) + 1;
       if (ndiv<2) {
 	for (int n=n1; n<n2; n++) {
-	  dx= px[n]-xpos;
-	  dy= py[n]-ypos;
+	  dx= px[n]-pos.x();
+	  dy= py[n]-pos.y();
 	  if (dmin2>dx*dx+dy*dy) {
 	    dmin2= dx*dx+dy*dy;
 	    lmin= l;
@@ -245,8 +244,8 @@ std::string LocationPlot::find(int x, int y)
           sx= (px[n]-px[n-1])*sdiv;
           sy= (py[n]-py[n-1])*sdiv;
 	  for (int j=0; j<ndiv; j++) {
-	    dx= px[n-1]+sx*float(j)-xpos;
-	    dy= py[n-1]+sy*float(j)-ypos;
+	    dx= px[n-1]+sx*float(j)-pos.x();
+	    dy= py[n-1]+sy*float(j)-pos.y();
 	    if (dmin2>dx*dx+dy*dy) {
 	      dmin2= dx*dx+dy*dy;
 	      lmin= l;
@@ -264,15 +263,18 @@ std::string LocationPlot::find(int x, int y)
 }
 
 
-bool LocationPlot::plot()
+void LocationPlot::plot(PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
-  if (!isEnabled()) return false;
+  if (zorder != LINES || !isEnabled())
+    return;
 
-  if (numPos<1) return false;
+  if (numPos<1)
+    return;
 
   if (posArea.P()!=getStaticPlot()->getMapArea().P()) {
-    if (!changeProjection()) return false;
+    if (!changeProjection())
+      return;
   }
 
   Colour   c1= Colour(locdata.colour);
@@ -317,8 +319,6 @@ bool LocationPlot::plot()
     getStaticPlot()->UpdateOutput();
     glDisable(GL_LINE_STIPPLE);
   }
-
-  return true;
 }
 
 

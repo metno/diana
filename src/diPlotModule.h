@@ -115,7 +115,6 @@ private:
 
   std::vector<std::string> annotationStrings;  //orig. strings from setup
 
-  bool mapdefined;       // area/projection defined for plot
   bool mapDefinedByUser; // map area set by user
   bool mapDefinedByData; // for initial maps with fields or sat.
   bool mapDefinedByView; // for initial maps without any data
@@ -123,7 +122,6 @@ private:
   Area requestedarea;
   Area previousrequestedarea;
 
-  float plotw, ploth;     // width and height of plotwindow (pixels)
   bool showanno;        // show standard annotations
 
   std::auto_ptr<StaticPlot> staticPlot_;
@@ -143,7 +141,6 @@ private:
   int areaIndex;
   bool areaSaved;
   bool dorubberband;
-  bool dopanning;
   bool keepcurrentarea;
 
   struct obsOneTime {
@@ -154,9 +151,6 @@ private:
   int obsTimeStep;
 
   std::vector<PlotElement> plotelements;
-
-  // static members
-  static GridConverter gc;   // gridconverter class
 
   //Plot underlay
   void plotUnder();
@@ -186,15 +180,29 @@ private:
   /// handles annotation plot info strings
   void prepareAnnotation(const std::vector<std::string>&);
 
-  /// calculate distance between two points
-  static float GreatCircleDistance(float lat1, float lat2, float lon1,
-      float lon2);
+  /// receive rectangle in pixels
+  void setMapAreaFromPhys(const Rectangle& phys);
+
+  double getEntireWindowDistances(const bool horizontal);
+
+  double getArea(const float& flat1, const float& flat2, const float& flat3,
+      const float& flat4, const float& flon1, const float& flon2,
+      const float& flon3, const float& flon4);
+  double calculateArea(double hLSide, double hUSide, double vLSide,
+      double vRSide, double diag);
+
+  /// create a Rectangle from staticPlot phys size
+  Rectangle getPhysRectangle() const;
+
+  void setMapArea(const Area& area);
+
+  void callManagersChangeProjection();
+  void defineMapArea();
+  void PlotAreaSetup();
 
 public:
   PlotModule();
   ~PlotModule();
-
-  void PlotAreaSetup();
 
   /// the main plot routine (plot for underlay, plot for overlay)
   void plot(bool under = true, bool over = true);
@@ -208,9 +216,6 @@ public:
 
   /// get annotations from all plots
   void setAnnotations();
-  /// get current Area
-  const Area& getCurrentArea()
-    { return staticPlot_->getMapArea(); }
 
   /// update FieldPlots
   bool updateFieldPlot(const std::vector<std::string>& pin);
@@ -228,39 +233,25 @@ public:
 
   /// get plotwindow rectangle
   const Rectangle& getPlotSize()
-  { return staticPlot_->getPlotSize(); }
+    { return staticPlot_->getPlotSize(); }
 
   /// get the size of the plot window
   void getPlotWindow(int &width, int &height);
   /// new size of plotwindow
   void setPlotWindow(const int&, const int&);
-  /// receive rectangle in pixels
-  void PixelArea(const Rectangle r);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float, const float, float&, float&);
-  bool PhysToGeo(const float x, const float y, float& lat, float& lon,
-      const Area& area, const Rectangle& r);
   /// return physical x,y from physical latitude,longitude
   bool GeoToPhys(const float, const float, float&, float&);
-  bool GeoToPhys(const float, const float, float&, float&,
-      const Area& area, const Rectangle& r);
   /// return map x,y from physical x,y
   void PhysToMap(const float, const float, float&, float&);
   /// return field grid x,y from map x,y if field defined and map proj = field proj
   bool MapToGrid(const float, const float, float&, float&);
 
-  double getEntireWindowDistances(const bool horizontal);
   double getWindowDistances(const float& x, const float& y,
       const bool horizontal);
   double getMarkedArea(const float& x, const float& y);
   double getWindowArea();
-
-  double calculateArea(double hLSide, double hUSide, double vLSide,
-      double vRSide, double diag);
-
-  double getArea(const float& flat1, const float& flat2, const float& flat3,
-      const float& flat4, const float& flon1, const float& flon2,
-      const float& flon3, const float& flon4);
 
   /// start hardcopy plot
   void startHardcopy(const printOptions& po);
@@ -284,8 +275,6 @@ public:
 
   /// set plottime
   bool setPlotTime(miutil::miTime&);
-  ///return black/white depending on background colour
-  Colour getContrastColour();
 
   // Observation
   /// Update ObsPlots if data files have changed
@@ -369,11 +358,12 @@ public:
   void setObjAuto(bool autoF);
 
   /// push a new area onto the area stack
-  void areaInsert(const Area&, bool);
+  void areaInsert(bool);
+
   /// respond to shortcuts to move to predefined areas
   void changeArea(QKeyEvent* ke);
   /// zoom to specified rectangle
-  void zoomTo(const Rectangle& rectangle);
+  void setMapAreaFromMap(const Rectangle& rectangle);
   /// zoom out (about 1.3 times)
   void zoomOut();
 

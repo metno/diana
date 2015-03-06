@@ -31,12 +31,13 @@
 #ifndef _diImageGallery_h
 #define _diImageGallery_h
 
-#include "diPlot.h"
+#include <GL/gl.h> // for GLubyte
 
-#include <GL/gl.h>
-
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
+
+class StaticPlot;
 
 /**
    \brief image cache and OpenGl plotting
@@ -44,7 +45,7 @@
    the image gallery is a cache of images used in Diana. Inherits
    Plot, so is also the plotting engine for generic images
 */
-class ImageGallery : public Plot {
+class ImageGallery {
 public:
   /// type of image
   enum type{
@@ -93,15 +94,15 @@ private:
   static std::map<std::string,pattern> Patterns;
   static std::map< int, std::vector<std::string> > Type;
 
-  bool plotImage_(const std::string name,         // OpenGL-plotting
-		  const float& gx, const float& gy,
-		  const float scalex,
-		  const float scaley,
-		  const int alpha);
+  bool plotImage_(StaticPlot* sp, const std::string name,         // OpenGL-plotting
+      const float& gx, const float& gy,
+      const float scalex,
+      const float scaley,
+      const int alpha);
 
-  bool plotMarker_(const std::string name,         // OpenGL-plotting
-		   const float& x, const float& y,
-		   const float scale);
+  bool plotMarker_(StaticPlot* sp, const std::string name,         // OpenGL-plotting
+      const float& x, const float& y,
+      const float scale);
 
   bool readImage(const std::string& name); //read data from file once
   bool readPattern(const std::string& name); //read data from file once
@@ -116,59 +117,59 @@ private:
 public:
   ImageGallery();
   static void clear();               ///< clear all images
-  
+
   /// add image
   bool addImage(const std::string& name,
-		const int w,
-		const int h,
-		const unsigned char* d,
-		const bool a);
+      const int w,
+      const int h,
+      const unsigned char* d,
+      const bool a);
   /// add pattern
   bool addPattern(const std::string& name,
-		  const unsigned char* d);
+      const unsigned char* d);
   /// remove imega
   bool delImage(const std::string& name);
   /// remove pattern
   bool delPattern(const std::string& name);
 
   /// image width in GL coor
-  float width(const std::string& name); 
+  float width_(const std::string& name);
   /// image height in GL coor
-  float height(const std::string& name);
+  float height_(const std::string& name);
   /// image width in pixels
-  int   widthp(const std::string& name);  
+  int   widthp(const std::string& name);
   /// image height in pixels
   int   heightp(const std::string& name);
 
   /// plot one image at gl-pos
-  bool plotImage(const std::string& name,
-		 const float& x, const float& y,
-		 const bool center = true,
-		 const float scale = 1.0,
-		 const int alpha = 255);
+  bool plotImage(StaticPlot* sp, const std::string& name,
+      const float& x, const float& y,
+      const bool center = true,
+      const float scale = 1.0,
+      const int alpha = 255);
   /// plot several images at gl-positions (different images)
-  bool plotImages(const int n,
-		  const std::vector<std::string>& vn,
-		  const float* x, const float* y,
-		  const bool center = true,
-		  const float scale = 1.0,
-		  const int alpha = 255);
+  bool plotImages(StaticPlot* sp, const int n,
+      const std::vector<std::string>& vn,
+      const float* x, const float* y,
+      const bool center = true,
+      const float scale = 1.0,
+      const int alpha = 255);
   /// plot several images at gl-positions (same image)
-  bool plotImages(const int n,
-		  const std::string& name,
-		  const float* x, const float* y,
-		  const bool center = true,
-		  const float scale = 1.0,
-		  const int alpha = 255);
+  bool plotImages(StaticPlot* sp, const int n,
+      const std::string& name,
+      const float* x, const float* y,
+      const bool center = true,
+      const float scale = 1.0,
+      const int alpha = 255);
   /// plot one image at pixel-pos
-  bool plotImageAtPixel(const std::string& name,
-			const float& x, const float& y,
-			const bool center = true,
-			const float scale = 1.0,
-			const int alpha = 255);
+  bool plotImageAtPixel(StaticPlot* sp, const std::string& name,
+      const float& x, const float& y,
+      const bool center = true,
+      const float scale = 1.0,
+      const int alpha = 255);
   void printInfo() const;
-  /// return all image-names of one type 
-  void ImageNames(std::vector<std::string>& vnames, int type) const; 
+  /// return all image-names of one type
+  void ImageNames(std::vector<std::string>& vnames, int type) const;
   /// return filename
   std::string getFilename(const std::string& name, bool pattern=false);
   /// return binary pattern by name

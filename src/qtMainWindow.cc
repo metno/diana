@@ -1371,8 +1371,10 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
-void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diagstr, vector<string> &shortnames)
+void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &shortnames)
 {
+  vector<string> diagstr;
+
   // fields
   pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
@@ -1456,10 +1458,9 @@ void DianaMainWindow::MenuOK()
   diutil::OverrideCursor waitCursor;
 
   vector<string> pstr;
-  vector<string> diagstr;
   vector<string> shortnames;
 
-  getPlotStrings(pstr, diagstr, shortnames);
+  getPlotStrings(pstr, shortnames);
 
 //init level up/down arrows
   toolLevelUpAction->setEnabled(fm->levelsExists(true,0));
@@ -1467,12 +1468,12 @@ void DianaMainWindow::MenuOK()
   toolIdnumUpAction->setEnabled(fm->levelsExists(true,1));
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
 
-  // printout
-  string logstr = "------- the final string from all dialogs:\n";
-  for (unsigned int i = 0; i < pstr.size(); ++i)
-    logstr += pstr[i] + "\n";
-
-  METLIBS_LOG_DEBUG(logstr);
+  if (METLIBS_LOG_DEBUG_ENABLED()) {
+    string logstr = "------- the final string from all dialogs:\n";
+    for (unsigned int i = 0; i < pstr.size(); ++i)
+      logstr += pstr[i] + "\n";
+    METLIBS_LOG_DEBUG(logstr);
+  }
 
   miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
@@ -2370,8 +2371,8 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
-    vector<string> v1, v2, v3;
-    getPlotStrings(v1, v2, v3);
+    vector<string> v1, v2;
+    getPlotStrings(v1, v2);
 
     miMessage l;
     l.to = letter.from;
@@ -3196,8 +3197,7 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
-
-  METLIBS_LOG_DEBUG("DianaMainWindow::catchElement x,y: "<<mev->x()<<" "<<mev->y());
+  METLIBS_LOG_SCOPE("x,y: "<<mev->x()<<" "<<mev->y());
 
   int x = mev->x();
   int y = mev->y();

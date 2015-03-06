@@ -36,6 +36,7 @@
 #include "diFontManager.h"
 #include "diPlotModule.h"
 
+#include <puDatatypes/miCoordinates.h>
 #include <puTools/miStringFunctions.h>
 
 #include <qglobal.h>
@@ -50,12 +51,17 @@ using namespace ::miutil;
 using namespace ::std;
 using namespace d_print;
 
+static float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
+{
+  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
+}
+
 GridConverter StaticPlot::gc; // Projection-converter
 
 StaticPlot::StaticPlot()
-  : pwidth(0)         // physical plotwidth
-  , pheight(0)        // physical plotheight
+  : mPhys(0, 0)       // physical plot size
   , dirty(true)       // plotsize has changed
+  , mPhysToMapScale(1, 1)
   , pressureLevel(-1) // current pressure level
   , oceandepth(-1)    // current ocean depth
   , gcd(0)            // great circle distance (corner to corner)
@@ -108,68 +114,77 @@ void Plot::setEnabled(bool e)
   enabled = e;
 }
 
-bool StaticPlot::setMapArea(const Area& a, bool keepcurrentarea){
-
-  if (a.P().isDefined()){
-    // change plot-Area
-    area= a;
-    if (!keepcurrentarea) {
-      if (xyLimit.size()==4) {
-        Rectangle rect(xyLimit[0],xyLimit[2],xyLimit[1],xyLimit[3]);
-        area.setR(rect);
-      } else if (xyPart.size()==4) {
-        Rectangle rect1= area.R();
-        Rectangle rect;
-        rect.x1= rect1.x1 + rect1.width() *xyPart[0];
-        rect.x2= rect1.x1 + rect1.width() *xyPart[1];
-        rect.y1= rect1.y1 + rect1.height()*xyPart[2];
-        rect.y2= rect1.y1 + rect1.height()*xyPart[3];
-        area.setR(rect);
-      }
-    }
-    setDirty(true);
-    return true;
-  } else {
-    // undefined projection
-    // if grid[0]=0, Area should not be set
-//    float gridspec[Projection::speclen];
-//    a.P().Gridspec(gridspec);
-//    if (gridspec[0]==0){
-//      return false;
-//    }
-    // use previous defined Area
-    // add support for pure rotation later
-    return true;
-  }
+void StaticPlot::setBgColour(const std::string& cn)
+{
+  bgcolour = cn;
+  backgroundColour = Colour(bgcolour);
+  backContrastColour = backgroundColour.contrastColour();
 }
 
+void StaticPlot::setMapArea(const Area& a, bool keepcurrentarea)
+{
+  if (!a.P().isDefined())
+    return;
 
-void StaticPlot::setPlotSize(const Rectangle& r){
-  if (fullrect==r) return;
-  fullrect= r;
+  // change plot-Area
+  area = a;
+  if (!keepcurrentarea) {
+    if (xyLimit.size()==4) {
+      Rectangle rect(xyLimit[0],xyLimit[2],xyLimit[1],xyLimit[3]);
+      area.setR(rect);
+    } else if (xyPart.size()==4) {
+      Rectangle rect1= area.R();
+      Rectangle rect;
+      rect.x1= rect1.x1 + rect1.width() *xyPart[0];
+      rect.x2= rect1.x1 + rect1.width() *xyPart[1];
+      rect.y1= rect1.y1 + rect1.height()*xyPart[2];
+      rect.y2= rect1.y1 + rect1.height()*xyPart[3];
+      area.setR(rect);
+    }
+  }
+  setDirty(true);
+}
+
+inline float oneIf0(float f)
+{
+  return (f <= 0) ? 1 : f;
+}
+
+void StaticPlot::updatePhysToMapScale()
+{
+  mPhysToMapScale = XY(oneIf0(plotsize.width()) / oneIf0(mPhys.x()),
+      oneIf0(plotsize.height()) / oneIf0(mPhys.y()));
+}
+
+void StaticPlot::setPlotSize(const Rectangle& r)
+{
+  if (plotsize == r)
+    return;
+
+  plotsize = r;
+  updatePhysToMapScale();
   setDirty(true);
 
-  //if (fp) fp->setGlSize(r.width(), r.height());
-  if (fp) fp->setGlSize(r.x1, r.x2, r.y1, r.y2);
+  if (fp)
+    fp->setGlSize(r.width(), r.height());
 }
 
 
-void StaticPlot::setMapSize(const Rectangle& r){
-  if (maprect==r) return;
+void StaticPlot::setMapSize(const Rectangle& r)
+{
+  if (maprect==r)
+    return;
   maprect= r;
   setDirty(true);
 }
 
-void StaticPlot::setPhysSize(float w, float h){
-  pwidth= w;
-  pheight= h;
-  if (fp) fp->setVpSize(w, h);
+void StaticPlot::setPhysSize(float w, float h)
+{
+  mPhys = XY(w, h);
+  updatePhysToMapScale();
+  if (fp)
+    fp->setVpSize(w, h);
   setDirty(true);
-}
-
-void StaticPlot::getPhysSize(float& w, float& h){
-  w= pwidth;
-  h= pheight;
 }
 
 Area StaticPlot::findBestMatch(const Area& newa){
@@ -220,9 +235,27 @@ void StaticPlot::setDirty(bool f)
 }
 
 
-void StaticPlot::setGcd(float dist){
-  gcd = dist;
+void StaticPlot::updateGcd()
+{
+  // lat3,lon3, point where ratio between window scale and geographical scale
+  // is computed, set to Oslo coordinates, can be changed according to area
+  const float lat3 = 60,
+      lon3 = 10,
+      lat1 = lat3 - 10,
+      lat2 = lat3 + 10,
+      lon1 = lon3 - 10,
+      lon2 = lon3 + 10;
 
+  //gcd is distance between lower left and upper right corners
+  float ngcd = GreatCircleDistance(lat1, lat2, lon1, lon2);
+  float x1, y1, x2, y2;
+  GeoToPhys(lat1, lon1, x1, y1);
+  GeoToPhys(lat2, lon2, x2, y2);
+  float distGeoSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+  float width = getPhysWidth(), height = getPhysHeight();
+  float distWindowSq = width * width + height * height;
+  float ratio = sqrtf(distWindowSq / distGeoSq);
+  gcd = ngcd * ratio;
 }
 
 void Plot::setColourMode(bool isrgb){
@@ -451,7 +484,85 @@ void StaticPlot::panPlot(bool b)
   panning= b;
 }
 
-bool StaticPlot::geo2xy(int n, float* x, float* y)
+
+bool StaticPlot::GeoToMap(int n, float* x, float* y) const
 {
   return gc.geo2xy(getMapArea(), n, x, y);
+}
+
+bool StaticPlot::GeoToMap(int n, const float* x, const float* y,
+    float* u, float* v) const
+{
+  return gc.geov2xy(getMapArea(), n, x, y, u, v);
+}
+
+XY StaticPlot::GeoToMap(const XY& lonlatdeg) const
+{
+  XY map(lonlatdeg);
+  GeoToMap(1, &map.rx(), &map.ry());
+  return map;
+}
+
+bool StaticPlot::MapToGeo(int n, float* x, float* y) const
+{
+  return gc.xy2geo(getMapArea(), n, x, y);
+}
+
+XY StaticPlot::MapToGeo(const XY& map) const
+{
+  XY lonlatdeg(map);
+  MapToGeo(1, &lonlatdeg.rx(), &lonlatdeg.ry());
+  return lonlatdeg;
+}
+
+bool StaticPlot::PhysToGeo(const float x, const float y, float& lat, float& lon) const
+{
+  bool ret = false;
+  if (hasPhysSize()) {
+    PhysToMap(x, y, lon, lat);
+    ret = MapToGeo(1, &lon, &lat);
+  }
+  return ret;
+}
+
+bool StaticPlot::GeoToPhys(float lat, float lon, float& x, float& y) const
+{
+  bool ret = false;
+  if (hasPhysSize()) {
+    ret = GeoToMap(1, &lon, &lat);
+    MapToPhys(lon, lat, x, y);
+  }
+  return ret;
+}
+
+XY StaticPlot::PhysToMap(const XY& phys) const
+{
+  if (hasPhysSize())
+    return phys*mPhysToMapScale + XY(getPlotSize().x1, getPlotSize().y1);
+  else
+    return phys;
+}
+
+XY StaticPlot::MapToPhys(const XY& map) const
+{
+  if (hasPhysSize())
+    return (map - XY(getPlotSize().x1, getPlotSize().y1)) / mPhysToMapScale;
+  else
+    return map;
+}
+
+bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y) const
+{
+  return gc.getPoints(srcProj, getMapArea().P(), n, x, y);
+}
+
+bool StaticPlot::ProjToMap(const Area& srcArea, int n,
+    const float* x, const float* y, float* u, float* v) const
+{
+  return gc.getVectors(srcArea, getMapArea(), n, x, y, u, v);
+}
+
+bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
+{
+  return gc.getPoints(getMapArea().P(), targetProj, n, x, y);
 }

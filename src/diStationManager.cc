@@ -31,8 +31,8 @@
 #include "config.h"
 #endif
 
-#include <diStationManager.h>
-#include <diStationPlot.h>
+#include "diStationManager.h"
+#include "diStationPlot.h"
 #include "diUtilities.h"
 
 #include <puTools/miSetupParser.h>
@@ -54,12 +54,10 @@ StationManager::StationManager()
 */
 bool StationManager::init(const vector<string>& inp)
 {
-  map <std::string,StationPlot*>::iterator it;
-
   // Hide all the station plots to begin with so that we can later
   // show and select/unselect them.
 
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
     if (it->second->isVisible())
       it->second->show();
     else
@@ -81,7 +79,7 @@ bool StationManager::init(const vector<string>& inp)
 
     std::string name = boost::algorithm::join(pieces, " ");
 
-    it = stationPlots.find(name);
+    stationPlots_t::iterator it = stationPlots.find(name);
     StationPlot* plot = 0;
 
     if (it == stationPlots.end()) {
@@ -138,6 +136,8 @@ stationDialogInfo StationManager::initDialog()
 
 bool StationManager::parseSetup()
 {
+  METLIBS_LOG_SCOPE();
+
   // Create stationSetInfo objects to be stored for later retrieval by the StationDialog.
   vector<std::string> section;
 
@@ -189,7 +189,7 @@ bool StationManager::parseSetup()
           urls.insert(pieces[1]);
         }
       } else {
-	METLIBS_LOG_ERROR(__FUNCTION__ << ": Invalid line in setup file: " << section[i]);
+        METLIBS_LOG_ERROR("Invalid line in setup file: " << section[i]);
       }
     }
   }
@@ -332,30 +332,23 @@ Station* StationManager::parseSMHI(std::string& miLine, std::string& url)
 
 float StationManager::getStationsScale()
 {
-  if(!stationPlots.empty()) {
-    map <std::string,StationPlot*>::iterator it = stationPlots.begin();
-    return (*it).second->getImageScale(0);
+  if (!stationPlots.empty()) {
+    return stationPlots.begin()->second->getImageScale(0);
   } else
     return .0;
 }
 
 void StationManager::setStationsScale(float new_scale)
 {
-  map <std::string,StationPlot*>::iterator p = stationPlots.begin();
-
-  while (p != stationPlots.end()) {
-    (*p).second->setImageScale(new_scale);
-    ++p;
-  }
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
+    it->second->setImageScale(new_scale);
 }
 
 //********** plotting and selecting stations on the map***************
 
 void StationManager::putStations(StationPlot* stationPlot)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("PlotModule::putStations");
-#endif
+  METLIBS_LOG_SCOPE();
 
   std::string name = stationPlot->getName();
   map <std::string,StationPlot*>::iterator p = stationPlots.begin();
@@ -396,9 +389,8 @@ void StationManager::makeStationPlot(const std::string& commondesc,
 
 Station* StationManager::findStation(int x, int y)
 {
-  map <std::string,StationPlot*>::iterator it;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    Station* station = (*it).second->stationAt(x, y);
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    Station* station = it->second->stationAt(x, y);
     if (station)
       return station;
   }
@@ -407,11 +399,10 @@ Station* StationManager::findStation(int x, int y)
 
 vector<Station*> StationManager::findStations(int x, int y)
 {
-  map <std::string,StationPlot*>::iterator it;
   vector<Station*> stations;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((*it).second->isVisible()) {
-      vector<Station*> found = (*it).second->stationsAt(x, y);
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if (it->second->isVisible()) {
+      vector<Station*> found = it->second->stationsAt(x, y);
       stations.insert(stations.end(), found.begin(), found.end());
     }
   }
@@ -420,10 +411,11 @@ vector<Station*> StationManager::findStations(int x, int y)
 
 string StationManager::findStation(int x, int y, std::string name, int id)
 {
-  map <std::string,StationPlot*>::iterator it;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == (*it).second->getId()) && (name == (*it).second->getName())) {
-      vector<std::string> st = (*it).second->findStation(x, y);
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == it->second->getId())
+        && (name == it->second->getName()))
+    {
+      vector<std::string> st = it->second->findStation(x, y);
       if (st.size() > 0)
         return st[0];
     }
@@ -433,9 +425,8 @@ string StationManager::findStation(int x, int y, std::string name, int id)
 
 vector<string> StationManager::findStations(int x, int y, std::string name, int id)
 {
-  map <std::string,StationPlot*>::iterator it;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == (*it).second->getId()) && (name == (*it).second->getName())) {
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == it->second->getId()) && (name == it->second->getName())) {
       vector<std::string> st = (*it).second->findStations(x, y);
       if (st.size() > 0)
         return st;
@@ -447,53 +438,41 @@ vector<string> StationManager::findStations(int x, int y, std::string name, int 
 void StationManager::findStations(int x, int y, bool add, std::vector<std::string>& name,
     std::vector<int>& id, std::vector<std::string>& station)
 {
-  std::map <std::string,StationPlot*>::iterator it;
-
   int ii;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    vector<std::string> st = (*it).second->findStation(x, y, add);
-    if ((ii = (*it).second->getId()) > -1) {
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    vector<std::string> st = it->second->findStation(x, y, add);
+    if ((ii = it->second->getId()) > -1) {
       for (unsigned int j = 0; j < st.size(); j++) {
-        name.push_back((*it).second->getName());
+        name.push_back(it->second->getName());
         id.push_back(ii);
         station.push_back(st[j]);
       }
     }
   }
-
 }
 
-bool StationManager::getEditStation(int step, std::string& name, int& id, vector<
-    std::string>& stations)
+void StationManager::getEditStation(int step, std::string& name, int& id,
+    vector<std::string>& stations)
 {
-
-  bool updateArea = false;
-  map <std::string,StationPlot*>::iterator it = stationPlots.begin();
-  while (it != stationPlots.end() && !(*it).second->getEditStation(step, name, id, stations,
-      updateArea))
-    it++;
-
-  return updateArea;
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if (it->second->getEditStation(step, name, id, stations))
+      return;
+  }
 }
 
 void StationManager::getStationData(vector<std::string>& data)
 {
-  map <std::string,StationPlot*>::iterator it;
-
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    data.push_back((*it).second->stationRequest("selected"));
-  }
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
+    data.push_back(it->second->stationRequest("selected"));
 }
 
 void StationManager::stationCommand(const std::string& command,
     const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
-  map <std::string,StationPlot*>::iterator it;
-
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-    if ((id == -1 || id == (*it).second->getId()) &&
-        (name == (*it).second->getName() || name.empty())) {
-      (*it).second->stationCommand(command, data, misc);
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+    if ((id == -1 || id == it->second->getId()) &&
+        (name == it->second->getName() || name.empty())) {
+      it->second->stationCommand(command, data, misc);
       break;
     }
   }
@@ -520,12 +499,10 @@ void StationManager::stationCommand(const std::string& command, const std::strin
     }
 
   } else {
-    map <std::string,StationPlot*>::iterator it;
-
-    for (it = stationPlots.begin(); it != stationPlots.end(); ++it) {
-      if ((id == -1 || id == (*it).second->getId()) &&
-          (name == (*it).second->getName() || name.empty()))
-        (*it).second->stationCommand(command);
+    for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it) {
+      if ((id == -1 || id == it->second->getId()) &&
+          (name == it->second->getName() || name.empty()))
+        it->second->stationCommand(command);
     }
   }
 }
@@ -533,8 +510,7 @@ void StationManager::stationCommand(const std::string& command, const std::strin
 vector <StationPlot*> StationManager::plots()
 {
   vector <StationPlot*> values;
-  map <std::string,StationPlot*>::iterator it;
-  for (it = stationPlots.begin(); it != stationPlots.end(); ++it)
+  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
     values.push_back(it->second);
 
   return values;

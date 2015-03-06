@@ -93,11 +93,7 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
-  float scale = 1.0;
-  float physWidth = PlotModule::instance()->getStaticPlot()->getPhysWidth();
-  float plotWidth = PlotModule::instance()->getStaticPlot()->getPlotSize().width();
-  if (plotWidth != 0.0)
-    scale = physWidth/plotWidth;
+  float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
   QSizeF size(scale * width, scale * height);
 

@@ -167,9 +167,10 @@ void WeatherFront::setState(const state s)
 }
 
 // draws the weather front
-bool WeatherFront::plot(){
-
-  if (!isEnabled()) return false;
+void WeatherFront::plot(PlotOrder zorder)
+{
+  if (!isEnabled())
+    return;
 
   if (isVisible){
     int end = nodePoints.size();
@@ -261,8 +262,6 @@ bool WeatherFront::plot(){
       getStaticPlot()->UpdateOutput();
     }
   }
-
-  return true;
 }
 
 
@@ -483,7 +482,6 @@ void WeatherFront::drawWarms(){
   //  METLIBS_LOG_DEBUG("WeatherFront::drawWarms");
   // warms are red arches on the front
 
-  const float PI=3.1415926535897932384626433832795;
   int ncount=0;
 
   float r= scaledlinewidth*2*getDwidth();
@@ -495,7 +493,7 @@ void WeatherFront::drawWarms(){
 
   const int nwarmflag= 19;
   float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= PI/(nwarmflag-1);
+  float flagstep= M_PI/(nwarmflag-1);
 
   for (j=0; j<nwarmflag; j++) {
     xwarmflag[j]= r*cos(j*flagstep);
@@ -573,7 +571,7 @@ void WeatherFront::drawWarms(){
     if (ncount%2==0){
       glPushMatrix();
       glTranslatef(xm, ym, 0.0);
-      glRotatef(atan2(dys,dxs)*180./PI,0.0,0.0,1.0);
+      glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
       glBegin(GL_POLYGON);
       for (j=0; j<nwarmflag; j++)
         glVertex2f(xwarmflag[j],ywarmflag[j]);
@@ -602,8 +600,6 @@ void WeatherFront::drawWarms(){
 void WeatherFront::drawOccluded(){
   //  METLIBS_LOG_DEBUG("WeatherFront::drawOccluded");
 
-  const float PI=3.1415926535897932384626433832795;
-
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
@@ -616,7 +612,7 @@ void WeatherFront::drawOccluded(){
 
   const int nwarmflag= 19;
   float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= PI/(nwarmflag-1);
+  float flagstep= M_PI/(nwarmflag-1);
 
   for (j=0; j<nwarmflag; j++) {
     xwarmflag[j]= r*cos(j*flagstep);
@@ -710,7 +706,7 @@ void WeatherFront::drawOccluded(){
       if (ncount%2==0){
         glPushMatrix();
         glTranslatef(xm, ym, 0.0);
-        glRotatef(atan2(dys,dxs)*180./PI,0.0,0.0,1.0);
+        glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
         glBegin(GL_POLYGON);
         for (j=0; j<nwarmflag; j++)
           glVertex2f(xwarmflag[j],ywarmflag[j]);
@@ -753,8 +749,6 @@ void WeatherFront::drawStationary(){
   //  METLIBS_LOG_DEBUG("WeatherFront::drawStationary");
   // colds are blue triangles on the front
 
-  const float PI=3.1415926535897932384626433832795;
-
   float r= scaledlinewidth*2*getDwidth();
   int end= s_length;
 
@@ -766,7 +760,7 @@ void WeatherFront::drawStationary(){
 
   const int nwarmflag= 19;
   float xwarmflag[nwarmflag], ywarmflag[nwarmflag];
-  float flagstep= PI/(nwarmflag-1);
+  float flagstep= M_PI/(nwarmflag-1);
 
   for (j=0; j<nwarmflag; j++) {
     xwarmflag[j]= r*cos(j*flagstep);
@@ -852,7 +846,7 @@ void WeatherFront::drawStationary(){
         glColor3f(1.,0.,0.);
         glPushMatrix();
         glTranslatef(xm, ym, 0.0);
-        glRotatef(atan2(dys,dxs)*180./PI,0.0,0.0,1.0);
+        glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
         glBegin(GL_POLYGON);
         for (j=0; j<nwarmflag; j++)
           glVertex2f(xwarmflag[j],ywarmflag[j]);
@@ -898,8 +892,6 @@ void WeatherFront::drawSquallLine(){
   //  METLIBS_LOG_DEBUG("WeatherFront::drawSquallLine");
   // colds are blue triangles on the front
 
-  const float PI=3.1415926535897932384626433832795;
-
   //float r= scaledlinewidth*2*getDwidth();
   float r= scaledlinewidth*getDwidth();
   int end= s_length;
@@ -936,7 +928,7 @@ void WeatherFront::drawSquallLine(){
 
       glPushMatrix();
       glTranslatef(xm, ym, 0.0);
-      glRotatef(atan2(dys,dxs)*180./PI,0.0,0.0,1.0);
+      glRotatef(atan2(dys,dxs)*RAD_TO_DEG,0.0,0.0,1.0);
 
       glBegin(GL_LINES);
       glVertex2f(-r,-r);
@@ -1267,7 +1259,6 @@ string WeatherFront::writeTypeString()
 
 
 void WeatherFront::drawSigweather(){
-  const float PI=3.1415926535897932384626433832795;
   //METLIBS_LOG_DEBUG("WeatherFront::drawSigweather");
   recalculate();
   first=true;
@@ -1300,7 +1291,7 @@ void WeatherFront::drawSigweather(){
     float hyp = sqrtf(deltay*deltay+deltax*deltax);
     const int nflag= 19;
     float xflag[nflag], yflag[nflag];
-    float flagstep= PI/(nflag-1);
+    float flagstep= M_PI/(nflag-1);
     for (int j=0; j<nflag; j++) {
       xflag[j]= hyp/2*cos(j*flagstep);
       yflag[j]= hyp/2*sin(j*flagstep);
@@ -1309,7 +1300,7 @@ void WeatherFront::drawSigweather(){
     float yy1=yplot[i]+deltay/2;
     glPushMatrix();
     glTranslatef(xx1, yy1, 0.0);
-    glRotatef(atan2(deltay,deltax)*180./PI,0.0,0.0,1.0);
+    glRotatef(atan2(deltay,deltax)*RAD_TO_DEG,0.0,0.0,1.0);
     glBegin(GL_LINE_STRIP);
     for (int j=0; j<nflag; j++)
       glVertex2f(xflag[j],yflag[j]);

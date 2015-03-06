@@ -31,13 +31,25 @@ string_v glob(const std::string& pattern, int glob_flags, bool& error)
   return matches;
 }
 
+static bool startsOrEndsWith(const std::string& txt, const std::string& sub,
+    int startcompare)
+{
+  if (sub.empty())
+    return true;
+  if (txt.size() < sub.size())
+    return false;
+  return txt.compare(startcompare, sub.size(), sub) == 0;
+}
+
 bool startswith(const std::string& txt, const std::string& start)
 {
-  if (start.empty())
-    return true;
-  if (txt.size() < start.size())
-    return false;
-  return txt.substr(0, start.size()) == start; // TODO avoid copy
+  return startsOrEndsWith(txt, start, 0);
+}
+
+bool endswith(const std::string& txt, const std::string& end)
+{
+  return startsOrEndsWith(txt, end,
+      ((int)txt.size()) - ((int)end.size()));
 }
 
 bool getFromFile(const std::string& filename, string_v& lines)

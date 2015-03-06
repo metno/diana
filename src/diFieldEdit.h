@@ -219,7 +219,7 @@ public:
   void activate();
   void deactivate() { active= false; };
   bool activated() { return active; }
-  bool plot(bool showinfluence);
+  void plot(Plot::PlotOrder porder, bool showinfluence);
   bool getAnnotations(std::vector<std::string>& anno);
 };
 

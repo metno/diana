@@ -82,8 +82,9 @@ private:
   static void setDefaultLineWidth(float w){defaultLineWidth=w;}
   /// set state to active or passive <br> also set whether to do spline interpolation
   void setState(const state s);
-  virtual bool plot();             ///< draws the front
-  virtual bool plot(const int){return false;}
+
+  void plot(PlotOrder zorder);
+
  ///< shows / marks node point/ points on front
   bool showLine(float x, float y);
   /// set front type

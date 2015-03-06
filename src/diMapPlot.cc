@@ -76,7 +76,6 @@ MapPlot::MapPlot()
   isactive[2]= false;
 }
 
-// Destructor
 MapPlot::~MapPlot()
 {
 #ifdef DEBUGPRINT
@@ -93,7 +92,7 @@ MapPlot::~MapPlot()
 /*
  Extract plotting-parameters from PlotInfo.
  */
-bool MapPlot::prepare(const std::string& pinfo, Area rarea, bool ifequal)
+bool MapPlot::prepare(const std::string& pinfo, const Area& rarea, bool ifequal)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE(pinfo);
@@ -247,18 +246,22 @@ void MapPlot::markFiles()
 /*
  Plot one layer of the map
  */
-bool MapPlot::plot(int zorder)
+void MapPlot::plot(PlotOrder porder)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
-  // check zorder
-  if (zorder < 0 || zorder > 2) {
-    METLIBS_LOG_WARN("Invalid zorder!");
-    return false;
-  }
+
+  int zorder;
+  if (porder == BACKGROUND)
+    zorder = 0;
+  else if (porder == LINES_BACKGROUND)
+    zorder = 1;
+  else if (porder == OVERLAY)
+    zorder = 2;
+  else
+    return;
+
   if (!isEnabled() || !isactive[zorder])
-    return false;
+    return;
 
   if (getStaticPlot()->isPanning()) {
     haspanned = true;
@@ -469,7 +472,7 @@ bool MapPlot::plot(int zorder)
         x[5*nsub-i]= reqr.x1;
       }
       // convert points to current projection
-      getStaticPlot()->gc.getPoints(reqarea.P(), getStaticPlot()->getMapArea().P(), npos, x, y);
+      getStaticPlot()->ProjToMap(reqarea.P(), npos, x, y);
 
       glBegin(GL_LINE_LOOP);
       for (int i=0; i<npos; i++) {
@@ -485,8 +488,6 @@ bool MapPlot::plot(int zorder)
 
   getStaticPlot()->UpdateOutput();
   glDisable(GL_LINE_STIPPLE);
-
-  return true;
 }
 
 
@@ -577,7 +578,7 @@ bool MapPlot::plotMapLand4(const std::string& filename, float xylim[],
   int iscale2 = 1, nlevel1 = 0, nlevel2 = 0, i, j;
   int n1, n2, nn, nwx1, nwx2, nlines, nl;
 
-  float scale, slat2, slon2, x1, y1, x2, y2, dx, dy, dxbad;
+  float scale, slat2, slon2, x1, y1, x2, y2, dx, dy;
   float glon, glat, glonmin, glonmax, glatmin, glatmax, reflon, reflat;
 
   float box1[4], box2[4];
@@ -656,20 +657,6 @@ bool MapPlot::plotMapLand4(const std::string& filename, float xylim[],
   }
 
   nw += nd;
-
-  dxbad = 1.e+35;
-  // TODO: remove this?
-  // polar stereographic
-  /*
-  if (gridtype != 1 && gridtype != 4) {
-    float tx[2] = { -170., 170. };
-    float ty[2] = { 60., 60. };
-    xyconvert(2, tx, ty, igeogrid, geogrid, gridtype, gridparam, &ierror);
-    dxbad = fabsf(tx[0] - tx[1]);
-  } else {
-    dxbad = 1.e+35;
-  }
-   */
 
   bool illegal_southpole = !projection.isLegal(0.0, -90.0);
   bool illegal_northpole = !projection.isLegal(0.0, 90.0);
@@ -1108,7 +1095,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon;
           y[n] = glat + dlat * float(n);
         }
-        if (getStaticPlot()->getMapArea().P().convertFromGeographic(nlat, x, y)==0) {
+        if (getStaticPlot()->GeoToMap(nlat, x, y)) {
           clipPrimitiveLines(nlat, x, y, xylim, jumplimit, lon_values,
               lon_valuepos, plotstr);
         } else {
@@ -1181,7 +1168,7 @@ bool MapPlot::plotGeoGrid(const MapInfo& mapinfo, bool plot_lon, bool plot_lat, 
           x[n] = glon + dlon * float(n);
           y[n] = glat;
         }
-        if (getStaticPlot()->getMapArea().P().convertFromGeographic(nlon, x, y)==0) {
+        if (getStaticPlot()->GeoToMap(nlon, x, y)) {
           clipPrimitiveLines(nlon, x, y, xylim, jumplimit, lat_values,
               lat_valuepos, plotstr);
         } else {
@@ -1286,7 +1273,7 @@ bool MapPlot::plotLinesSimpleText(const std::string& filename)
     if (n>1) {
       float xn= x[n-1];
       float yn= y[n-1];
-      if (getStaticPlot()->getMapArea().P().convertFromGeographic(n, x, y) == 0 ) {
+      if (getStaticPlot()->GeoToMap(n, x, y)) {
         clipPrimitiveLines(n, x, y, xylim, jumplimit);
         nlines++;
       } else {

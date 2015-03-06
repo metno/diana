@@ -635,11 +635,9 @@ void EditItemManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  setPlotRect(PLOTM->getPlotSize());
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
+  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+      PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
@@ -1296,7 +1294,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  setPlotRect(PLOTM->getPlotSize());
+  const Rectangle& plotRect_ = PLOTM->getPlotSize();
 
   if (layerMgr_->selectedLayersItemCount() == 0)
     setEditRect(PLOTM->getPlotSize());

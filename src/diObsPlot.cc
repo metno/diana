@@ -33,10 +33,10 @@
 #include "config.h"
 #endif
 
-#include <diObsPlot.h>
-#include <diFontManager.h>
-#include <diImageGallery.h>
-#include <diLocalSetupParser.h>
+#include "diObsPlot.h"
+#include "diFontManager.h"
+#include "diImageGallery.h"
+#include "diLocalSetupParser.h"
 #include "diUtilities.h"
 
 #include <puCtools/stat.h>
@@ -149,8 +149,7 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
   if (!isEnabled() || numPositions() == 0 || current < 0)
     return false;
 
-  float vectorAnnotationSize = 30 * getStaticPlot()->getPlotSize().width()
-          / getStaticPlot()->getPhysWidth() * 0.7;
+  float vectorAnnotationSize = 21 * getStaticPlot()->getPhysToMapScaleX();
   std::string vectorAnnotationText = std::string(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
@@ -603,7 +602,7 @@ bool ObsPlot::setData()
     getObsLonLat(i, x[i], y[i]);
 
   // convert points to correct projection
-  getStaticPlot()->geo2xy(numObs, x, y);
+  getStaticPlot()->GeoToMap(numObs, x, y);
 
   bool ddff = true;
   //#ifdef ROADOBS
@@ -620,7 +619,7 @@ bool ObsPlot::setData()
       v[i] = 10;
     }
 
-    getStaticPlot()->gc.geov2xy(getStaticPlot()->getMapArea(), numObs, x, y, u, v);
+    getStaticPlot()->GeoToMap(numObs, x, y, u, v);
 
     for (int i = 0; i < numObs; i++) {
       //##############################################################
@@ -1027,49 +1026,41 @@ bool ObsPlot::getPositions(vector<float> &xpos, vector<float> &ypos)
 
 //***********************************************************************
 
-void ObsPlot::obs_mslp(float *values)
+void ObsPlot::obs_mslp(PlotOrder porder, float *values)
 {
   METLIBS_LOG_SCOPE();
 
   //PPPP-mslp
-  if (!devfield) {
-    plot();
-    return;
-  }
-
-  int numObs = obsp.size();
-
-  for (int i = 0; i < numObs; i++) {
-    if (obsp[i].fdata.count("PPPP") && values[i + startxy] < 0.9e+35) {
-      obsp[i].fdata["PPPP_mslp"] = obsp[i].fdata["PPPP"] - values[i + startxy];
+  if (devfield) {
+    int numObs = obsp.size();
+    for (int i = 0; i < numObs; i++) {
+      if (obsp[i].fdata.count("PPPP") && values[i + startxy] < 0.9e+35) {
+        obsp[i].fdata["PPPP_mslp"] = obsp[i].fdata["PPPP"] - values[i + startxy];
+      }
     }
   }
-
-  plot();
-
+  plot(porder);
 }
 
 //***********************************************************************
+
+static inline float square(float x)
+{ return x*x; }
 
 int ObsPlot::findObs(int xx, int yy, const std::string& type)
 {
   METLIBS_LOG_SCOPE();
 
-  float min_r = 10.0f * getStaticPlot()->getPlotSize().width()
-              / getStaticPlot()->getPhysWidth();
-  min_r = powf(min_r, 2);
+  float min_r = square(10 * getStaticPlot()->getPhysToMapScaleX());
   float r;
   int min_i = -1;
 
-  float xpos = xx * getStaticPlot()->getPlotSize().width()
-              / getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-  float ypos = yy * getStaticPlot()->getPlotSize().height()
-              / getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
+  const XY pos = getStaticPlot()->PhysToMap(XY(xx, yy));
 
   if ( type == "notplot" ) {
     //find closest station, closer than min_r, from list of stations not plotted
     for (size_t i = 0; i < notplot.size(); i++ ) {
-      r = powf(xpos - x[notplot[i]], 2) + powf(ypos - y[notplot[i]], 2);
+      r = square(pos.x() - x[notplot[i]]) + square(pos.y() - y[notplot[i]]);
       if ( r < min_r ) {
         min_r = r;
         min_i = i;
@@ -1077,14 +1068,14 @@ int ObsPlot::findObs(int xx, int yy, const std::string& type)
     }
     //if last station are closer, return -1
     if ( min_i > -1 && nextplot.size() ) {
-      r = powf(xpos - x[nextplot[0]], 2) + powf(ypos - y[nextplot[0]], 2);
+      r = square(pos.x() - x[nextplot[0]]) + square(pos.y() - y[nextplot[0]]);
       if ( r < min_r )
         return -1;
     }
   } else if (type == "nextplot" ) {
     //find closest station, closer than min_r, from list of stations plotted
     for (size_t i = 0; i < nextplot.size(); i++ ) {
-      r = powf(xpos - x[nextplot[i]], 2) + powf(ypos - y[nextplot[i]], 2);
+      r = square(pos.x() - x[nextplot[i]]) + square(pos.y() - y[nextplot[i]]);
       if (r < min_r) {
         min_r = r;
         min_i = i;
@@ -1093,7 +1084,7 @@ int ObsPlot::findObs(int xx, int yy, const std::string& type)
   } else {
     //find closest station, closer than min_r
     for (size_t i = 0; i < obsp.size(); i++ ) {
-      r = powf(xpos - x[i], 2) + powf(ypos - y[i], 2);
+      r = square(pos.x() - x[i]) + square(pos.y() - y[i]);
       if (r < min_r) {
         min_r = r;
         min_i = i;
@@ -1325,7 +1316,7 @@ bool ObsPlot::preparePlot()
   else
     fontsizeScale = 1.0;
 
-  scale= textSize*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
+  scale= textSize*getStaticPlot()->getPhysToMapScaleX()*0.7;
 
   int num=numPar;
   // I think we should check for roadobsWind here also
@@ -1572,20 +1563,24 @@ bool ObsPlot::preparePlot()
   return true;
 }
 #endif // ROADOBS
-bool ObsPlot::plot()
+
+void ObsPlot::plot(PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
+
+  if (zorder != LINES)
+    return;
 
   if (!isEnabled()) {
     // make sure plot-densities etc are recalc. next time
     if (getStaticPlot()->getDirty())
       beendisabled = true;
-    return false;
+    return;
   }
 
   int numObs = numPositions();
   if (numObs == 0)
-    return false;
+    return;
 
   // Update observation delta time before checkPlotCriteria
   if (updateDeltaTimes())
@@ -1612,8 +1607,7 @@ bool ObsPlot::plot()
   else
     fontsizeScale = 1.0;
 
-  scale = textSize * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth()
-  * 0.7;
+  scale = textSize * getStaticPlot()->getPhysToMapScaleX() * 0.7;
 
   if (poptions.antialiasing)
     glEnable(GL_MULTISAMPLE);
@@ -1623,8 +1617,8 @@ bool ObsPlot::plot()
   //Plot markers only
   if (onlypos) {
     ImageGallery ig;
-    ig.plotImages(numObs, image, x, y, true, markerSize);
-    return true;
+    ig.plotImages(getStaticPlot(), numObs, image, x, y, true, markerSize);
+    return;
   }
 
   //Circle
@@ -1639,9 +1633,8 @@ bool ObsPlot::plot()
   circle = glGenLists(1);
 
   if (circle == 0) {
-    METLIBS_LOG_ERROR(
-        "Unable to create new displaylist, glGenLists(1) returns 0");
-    return false;
+    METLIBS_LOG_ERROR("Unable to create new displaylist, glGenLists(1) returns 0");
+    return;
   }
   glNewList(circle, GL_COMPILE);
   glBegin(GL_LINE_LOOP);
@@ -1990,7 +1983,6 @@ bool ObsPlot::plot()
   origcolour = selectedColour; // reset in case a background contrast colour was used
   firstplot = false;
   beendisabled = false;
-  return true;
 }
 
 bool ObsPlot::positionFree(float x, float y, float xdist, float ydist)
@@ -2255,7 +2247,7 @@ void ObsPlot::plotList(int index)
   float yShift = ig.heightp(image) / 2;
 
   if (!pFlag.count("wind")) {
-    ig.plotImage(thisImage, x[index], y[index], true, markerSize);
+    ig.plotImage(getStaticPlot(), thisImage, x[index], y[index], true, markerSize);
   }
 
   glPushMatrix();
@@ -2707,7 +2699,7 @@ void ObsPlot::plotAscii(int index)
 
   checkTotalColourCriteria(index);
 
-  std::string thisImage = checkMarkerCriteria(index);
+  const std::string thisImage = checkMarkerCriteria(index);
 
   ImageGallery ig;
   float xShift = ig.widthp(image) / 2;
@@ -2715,12 +2707,12 @@ void ObsPlot::plotAscii(int index)
 
   if (!windOK) {
     if (dta.stringdata.count("image")) {
-      std::string thisImage = dta.stringdata["image"];
-      xShift = ig.widthp(thisImage) / 2;
-      yShift = ig.heightp(thisImage) / 2;
-      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
+      const std::string thatImage = dta.stringdata["image"];
+      xShift = ig.widthp(thatImage) / 2;
+      yShift = ig.heightp(thatImage) / 2;
+      ig.plotImage(getStaticPlot(), thatImage, x[index], y[index], true, markerSize);
     } else {
-      ig.plotImage(thisImage, x[index], y[index], true, markerSize);
+      ig.plotImage(getStaticPlot(), thisImage, x[index], y[index], true, markerSize);
     }
   }
 

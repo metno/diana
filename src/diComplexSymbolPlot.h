@@ -42,9 +42,11 @@
 class ComplexSymbolPlot: public Plot
 {
 public:
- // Constructor
-  ComplexSymbolPlot();
   ComplexSymbolPlot(int drawIndex);
+
+  void plot(PlotOrder porder)
+    { }
+
   /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot
   void draw(int drawIndex, float x,float y,int size, float rot);
   /// draw complex symbol with index drawindex centered at x,y fontsize size and rotation rot

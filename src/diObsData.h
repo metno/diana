@@ -31,7 +31,8 @@
 #ifndef diObsData_h
 #define diObsData_h
 
-#include <diColour.h>
+#include "diColour.h"
+
 #include <puTools/miTime.h>
 #include <string>
 
@@ -52,17 +53,17 @@ public:
 
   //metar
   std::string metarId;
-  bool CAVOK;              
+  bool CAVOK;
   std::vector<std::string> REww;   ///< Recent weather
   std::vector<std::string> ww;     ///< Significant weather
   std::vector<std::string> cloud;  ///< Clouds
   std::string appendix;       ///< For whatever remains
-  
+
   std::map<std::string,float> fdata;
   std::map<std::string,std::string> stringdata;
 
-  //Hqc  
-  std::map<std::string,std::string> flag; 
+  //Hqc
+  std::map<std::string,std::string> flag;
   std::map<std::string,Colour> flagColour;
 };
 

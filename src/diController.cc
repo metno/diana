@@ -161,20 +161,20 @@ bool Controller::parseSetup()
   return true;
 }
 
-void Controller::plotCommands(const vector<string>& inp){
-#ifdef DEBUGPRINT
+void Controller::plotCommands(const vector<string>& inp)
+{
   METLIBS_LOG_SCOPE();
-  for (int q = 0; q < inp.size(); q++)
-    METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
-#endif
+  if (METLIBS_LOG_DEBUG_ENABLED()) {
+    for (size_t q = 0; q < inp.size(); q++)
+      METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
+  }
+
   plotm->preparePlots(inp);
 }
 
 void Controller::plot(bool under, bool over)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   plotm->plot(under, over);
 }
 
@@ -188,17 +188,10 @@ vector<Rectangle> Controller::plotAnnotations()
   return plotm->plotAnnotations();
 }
 
-// receive rectangle..
-void Controller::PixelArea(const int x1, const int y1,
-    const int x2, const int y2){
-  Rectangle r(x1,y1,x2,y2);
-  plotm->PixelArea(r);
-}
-
-
 // get plotwindow corners in GL-coordinates
-void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2){
-  Rectangle r= plotm->getPlotSize();
+void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2)
+{
+  const Rectangle& r = plotm->getPlotSize();
   x1= r.x1;
   x2= r.x2;
   y1= r.y1;
@@ -211,7 +204,7 @@ const Area& Controller::getMapArea(){
 }
 
 void Controller::zoomTo(const Rectangle & r) {
-  plotm->zoomTo(r);
+  plotm->setMapAreaFromMap(r);
 }
 
 void Controller::zoomOut(){
@@ -317,15 +310,6 @@ bool Controller::updatePlots(bool failOnMissingData){
 void Controller::updateFieldPlot(const vector<string>& pin)
 {
   plotm->updateFieldPlot(pin);
-}
-
-const Area& Controller::getCurrentArea(){
-  return plotm->getCurrentArea();
-}
-
-// get colour which is visible on the present background
-Colour Controller::getContrastColour(){
-  return plotm->getContrastColour();
 }
 
 // reload obsevations
@@ -951,8 +935,7 @@ void Controller::findStations(int x, int y, bool add,
 void Controller::getEditStation(int step,
     std::string& name, int& id,
     vector<std::string>& stations){
-  if (stam->getEditStation(step,name,id,stations))
-    plotm->PlotAreaSetup();
+  stam->getEditStation(step,name,id,stations);
 }
 
 void Controller::getStationData(vector<std::string>& data)

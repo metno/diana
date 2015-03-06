@@ -31,15 +31,16 @@
 #include "config.h"
 #endif
 
+#include "diImageGallery.h"
+#include "diImageIO.h"
+#include "diPlot.h"
+#include "diUtilities.h"
+
+#include <puTools/miSetupParser.h>
+#include <fstream>
+
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
-
-#include <diImageGallery.h>
-#include <diImageIO.h>
-#include "diUtilities.h"
-#include <puTools/miSetupParser.h>
-#include <GL/gl.h>
-#include <fstream>
 
 using namespace::miutil;
 using namespace std;
@@ -95,7 +96,6 @@ void ImageGallery::pattern::erase()
 // -------------- IMAGEGALLERY -------------------------------
 
 ImageGallery::ImageGallery()
-: Plot()
 {
 }
 
@@ -276,28 +276,26 @@ bool ImageGallery::addPattern(const std::string& name,
   return true;
 }
 
-float ImageGallery::width(const std::string& name)
+float ImageGallery::width_(const std::string& name)
 {
   float w= 0.0;
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::width ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
   } else {
     readImage(name);
-    w= Images[name].width*getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? getStaticPlot()->getPhysWidth()*1.0 : 1.0);;
+    w= Images[name].width;
   }
   return w;
 }
 
-float ImageGallery::height(const std::string& name)
+float ImageGallery::height_(const std::string& name)
 {
   float h= 0.0;
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::height ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
   } else {
     readImage(name);
-    h= Images[name].height*getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? getStaticPlot()->getPhysHeight()*1.0 : 1.0);
+    h= Images[name].height;
   }
   return h;
 }
@@ -306,8 +304,7 @@ int ImageGallery::widthp(const std::string& name)
 {
   int w= 0;
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::pwidth ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
   } else {
     readImage(name);
     if( Images[name].type == marker ){
@@ -330,8 +327,7 @@ int ImageGallery::heightp(const std::string& name)
 {
   int h= 0;
   if (!Images.count(name)){
-    METLIBS_LOG_ERROR("ImageGallery::pheight ERROR image not found:"
-    << name);
+    METLIBS_LOG_ERROR("ERROR image not found: '" << name << "'");
   } else {
     readImage(name);
     if( Images[name].type == marker ){
@@ -373,15 +369,15 @@ bool ImageGallery::delPattern(const std::string& name)
 }
 
 
-bool ImageGallery::plotImage_(const std::string name,
+bool ImageGallery::plotImage_(StaticPlot* sp, const std::string name,
     const float& gx, const float& gy,
     const float scalex,
     const float scaley,
     const int alpha)
 {
 
-  if (gx < getStaticPlot()->getPlotSize().x1 || gx >= getStaticPlot()->getPlotSize().x2 ||
-      gy < getStaticPlot()->getPlotSize().y1 || gy >= getStaticPlot()->getPlotSize().y2)
+  if (gx < sp->getPlotSize().x1 || gx >= sp->getPlotSize().x2 ||
+      gy < sp->getPlotSize().y1 || gy >= sp->getPlotSize().y2)
     return true;
 
   int nx= Images[name].width;
@@ -396,7 +392,7 @@ bool ImageGallery::plotImage_(const std::string name,
 
   glRasterPos2f(gx,gy);
 
-  if (alpha != 255 && ncomp == 4 && !getStaticPlot()->hardcopy) {
+  if (alpha != 255 && ncomp == 4 && !sp->hardcopy) {
     int fsize = nx*ny*ncomp;
     unsigned char* newdata= new unsigned char [fsize];
     unsigned char av= static_cast<unsigned char>(alpha);
@@ -423,45 +419,41 @@ bool ImageGallery::plotImage_(const std::string name,
   }
 
   // for postscript output, add imagedata to glpfile
-  if (getStaticPlot()->hardcopy){
+  if (sp->hardcopy){
     // change to pixel coordinates
-    float sx= getStaticPlot()->getPhysWidth()*1.0/(getStaticPlot()->getPlotSize().width() > 0 ? getStaticPlot()->getPlotSize().width() : 1.0);
-    float sy= getStaticPlot()->getPhysHeight()*1.0/(getStaticPlot()->getPlotSize().height() > 0 ? getStaticPlot()->getPlotSize().height() : 1.0);
-    float pgx= (gx-getStaticPlot()->getPlotSize().x1)*sx;
-    float pgy= (gy-getStaticPlot()->getPlotSize().y1)*sy;
+    const XY pg = sp->MapToPhys(XY(gx, gy));
 
-    if (!(pgx >= getStaticPlot()->getPhysWidth() || pgy >= getStaticPlot()->getPhysHeight() ||
-        // pgx+nx*scalex <= 0.0 || pgy+ny*scaley <= 0.0)){
-        pgx <= 0.0 || pgy <= 0.0)){
-      getStaticPlot()->psAddImage(Images[name].data,
+    if (!(pg.x() >= sp->getPhysWidth()
+            || pg.y() >= sp->getPhysHeight()
+            || pg.x() <= 0.0 || pg.y() <= 0.0))
+    {
+      sp->psAddImage(Images[name].data,
           ncomp*nx*ny, nx, ny,
-          pgx, pgy, scalex, scaley,
+          pg.x(), pg.y(), scalex, scaley,
           0, 0, nx-1, ny-1,
           glformat, GL_UNSIGNED_BYTE);
-      //       psGrabImage(pgx,pgy,nx*scalex,ny*scaley,
-      // 		  glformat,GL_UNSIGNED_BYTE);
 
       // for postscript output
-      getStaticPlot()->UpdateOutput();
+      sp->UpdateOutput();
     }
   }
   return true;
 }
 
-bool ImageGallery::plotMarker_(const std::string name,
+bool ImageGallery::plotMarker_(StaticPlot* sp, const std::string name,
     const float& x, const float& y,
     const float scale)
 {
-  if (x < getStaticPlot()->getPlotSize().x1 || x >= getStaticPlot()->getPlotSize().x2 ||
-      y < getStaticPlot()->getPlotSize().y1 || y >= getStaticPlot()->getPlotSize().y2)
+  if (x < sp->getPlotSize().x1 || x >= sp->getPlotSize().x2 ||
+      y < sp->getPlotSize().y1 || y >= sp->getPlotSize().y2)
     return true;
 
   int nlines=Images[name].line.size();
   if(nlines>0) {
     glPushMatrix();
     glTranslatef(x,y,0.0);
-    float Scalex= scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
-    float Scaley= scale*getStaticPlot()->getPlotSize().width()/getStaticPlot()->getPhysWidth()*0.7;
+    float Scalex= scale*sp->getPhysToMapScaleX()*0.7;
+    float Scaley= Scalex;
     glScalef(Scalex,Scaley,0.0);
 
     for(int k=0; k<nlines; k++){
@@ -548,7 +540,7 @@ bool ImageGallery::readFile(const std::string name, const std::string filename)
   return true;
 }
 
-bool ImageGallery::plotImage(const std::string& name,
+bool ImageGallery::plotImage(StaticPlot* sp, const std::string& name,
     const float& x, const float& y,
     const bool center,
     const float scale,
@@ -563,7 +555,7 @@ bool ImageGallery::plotImage(const std::string& name,
   }
 
   if(Images[name].type == marker)
-    return plotMarker_(name, x, y, scale);
+    return plotMarker_(sp, name, x, y, scale);
 
   if (Images[name].data==0) {
     METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
@@ -578,8 +570,8 @@ bool ImageGallery::plotImage(const std::string& name,
 
   if (center){
     // center image on x,y: find scale
-    float sx= getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 2.0*getStaticPlot()->getPhysWidth() : 2.0);
-    float sy= getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 2.0*getStaticPlot()->getPhysHeight() : 2.0);
+    float sx= sp->getPhysToMapScaleX() * 0.5;
+    float sy= sp->getPhysToMapScaleY() * 0.5;
     gx-= nx*sx*scale;
     gy-= ny*sy*scale;
   }
@@ -592,7 +584,7 @@ bool ImageGallery::plotImage(const std::string& name,
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
   glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(name, gx, gy, scalex, scaley, alpha);
+  bool res= plotImage_(sp, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
   glPixelStorei(GL_UNPACK_SKIP_ROWS,0);
@@ -605,7 +597,7 @@ bool ImageGallery::plotImage(const std::string& name,
 }
 
 
-bool ImageGallery::plotImages(const int n,
+bool ImageGallery::plotImages(StaticPlot* sp, const int n,
     const vector<std::string>& vn,
     const float* x, const float* y,
     const bool center,
@@ -627,8 +619,8 @@ bool ImageGallery::plotImages(const int n,
   int ny = 0;
   float scalex=scale, scaley=scale;
   std::string oldname;
-  float sx= scale*getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 2.0*getStaticPlot()->getPhysWidth() : 2.0);
-  float sy= scale*getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 2.0*getStaticPlot()->getPhysHeight() : 2.0);
+  float sx= scale*0.5*sp->getPhysToMapScaleX();
+  float sy= scale*0.5*sp->getPhysToMapScaleY();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -647,7 +639,7 @@ bool ImageGallery::plotImages(const int n,
     if(!readImage(vn[j])) return false;
 
     if(Images[vn[j]].type == marker) {
-      plotMarker_(vn[j], x[j], y[j], scale);
+      plotMarker_(sp, vn[j], x[j], y[j], scale);
       continue;
     }
 
@@ -670,7 +662,7 @@ bool ImageGallery::plotImages(const int n,
       gy-= ny*sy;
     }
 
-    plotImage_(vn[j], gx, gy, scalex, scaley, alpha);
+    plotImage_(sp, vn[j], gx, gy, scalex, scaley, alpha);
     oldname = vn[j];
   }
 
@@ -684,7 +676,7 @@ bool ImageGallery::plotImages(const int n,
   return true;
 }
 
-bool ImageGallery::plotImages(const int n,
+bool ImageGallery::plotImages(StaticPlot* sp, const int n,
     const std::string& name,
     const float* x, const float* y,
     const bool center,
@@ -700,11 +692,11 @@ bool ImageGallery::plotImages(const int n,
 
   vector<std::string> vn(n,name);
 
-  return plotImages(n, vn, x, y, center, scale, alpha);
+  return plotImages(sp, n, vn, x, y, center, scale, alpha);
 }
 
 
-bool ImageGallery::plotImageAtPixel(const std::string& name,
+bool ImageGallery::plotImageAtPixel(StaticPlot* sp, const std::string& name,
     const float& x, const float& y,
     const bool center,
     const float scale,
@@ -719,7 +711,7 @@ bool ImageGallery::plotImageAtPixel(const std::string& name,
   }
 
   if(Images[name].type == marker)
-    return plotMarker_(name, x, y, scale);
+    return plotMarker_(sp, name, x, y, scale);
 
   if (Images[name].data==0) {
     METLIBS_LOG_ERROR("ImageGallery::plot ERROR no image-data:"
@@ -738,10 +730,7 @@ bool ImageGallery::plotImageAtPixel(const std::string& name,
     gy-=  ny*scale/2.0;
   }
 
-  float sx= getStaticPlot()->getPlotSize().width()/(getStaticPlot()->getPhysWidth() > 0 ? 1.0*getStaticPlot()->getPhysWidth() : 1.0);
-  float sy= getStaticPlot()->getPlotSize().height()/(getStaticPlot()->getPhysHeight() > 0 ? 1.0*getStaticPlot()->getPhysHeight() : 1.0);
-  gx*= sx; gx+= getStaticPlot()->getPlotSize().x1;
-  gy*= sy; gy+= getStaticPlot()->getPlotSize().y1;
+  sp->PhysToMap(XY(gx, gy)).unpack(gx, gy);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -751,7 +740,7 @@ bool ImageGallery::plotImageAtPixel(const std::string& name,
   glPixelStorei(GL_UNPACK_SKIP_PIXELS,0);
   glPixelStorei(GL_UNPACK_ROW_LENGTH,nx);
 
-  bool res= plotImage_(name, gx, gy, scalex, scaley, alpha);
+  bool res= plotImage_(sp, name, gx, gy, scalex, scaley, alpha);
 
   //Reset gl
   glPixelStorei(GL_UNPACK_SKIP_ROWS,0);

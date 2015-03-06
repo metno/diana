@@ -31,6 +31,7 @@
 #ifndef CONTOURING_H
 #define CONTOURING_H
 
+#include <diField/diArea.h>
 #include <vector>
 #include <string>
 

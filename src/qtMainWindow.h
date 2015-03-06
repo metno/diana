@@ -486,7 +486,6 @@ private:
   void vprofStartup();
   void spectrumStartup();
   void getPlotStrings(std::vector<std::string> &pstr,
-                      std::vector<std::string> &diagstr,
                       std::vector<std::string> &shortnames);
 
   std::map<QAction*, DataDialog*> dialogs;

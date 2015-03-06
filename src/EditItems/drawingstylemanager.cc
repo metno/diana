@@ -991,7 +991,7 @@ void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
     glColor4ub(0, 0, 0, 255);
 
   setFont(item);
-  const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+  const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
   const float x = item->getPoints().at(0).x() + item->margin();
   float y = item->getPoints().at(0).y() - item->margin();

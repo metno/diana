@@ -127,9 +127,6 @@ public:
   void zoomOut();
   /// set plotwindow size in pixels (from GLwidget..)
   void setPlotWindow(const int, const int);
-  /// receive rectangle..
-  void PixelArea(const int x1, const int y1,
-      const int x2, const int y2);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from latitude,longitude
@@ -173,13 +170,8 @@ public:
   void updateFieldPlot(const std::vector<std::string>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
-  /// get current area
-  const Area& getCurrentArea();
   /// set colourindices from gui
   void setColourIndices(std::vector<Colour::ColourInfo>&);
-
-  /// get colour wich is visible on the present background
-  Colour getContrastColour();
 
   /// reload observations
   void updateObs();

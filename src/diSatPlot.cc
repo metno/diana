@@ -131,33 +131,32 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
   }
 
   //x, y in map coordinates
-  int npos =1;
   //Convert to satellite proj coordiantes
-  getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), satdata->area.P(), npos    , &x, &y);
+  getStaticPlot()->MapToProj(satdata->area.P(), 1, &x, &y);
   // convert to satellite pixel
   int xpos = x/satdata->gridResolutionX;
   int ypos = y/satdata->gridResolutionY;
 
   satdata->values(xpos,ypos,satval);
-
 }
 
-bool SatPlot::plot(){
+void SatPlot::plot(PlotOrder porder)
+{
   METLIBS_LOG_TIME();
+
+  if (porder != SHADE_BACKGROUND)
+    return;
+
   if (!isEnabled())
-    return false;
+    return;
 
-  if ((satdata == NULL)||
-      (satdata->image == NULL)||
-      (!satdata->approved))
-    return false;
+  if (!satdata || !satdata->image || !satdata->approved)
+    return;
 
-  if(!getStaticPlot()->getMapArea().P().isAlmostEqual(satdata->area.P()) ){
-   return plotFillcell();
-  }
-
-  return plotPixmap();
-
+  if (!getStaticPlot()->getMapArea().P().isAlmostEqual(satdata->area.P()))
+    plotFillcell();
+  else
+    plotPixmap();
 }
 
 bool SatPlot::plotFillcell()
@@ -171,37 +170,26 @@ bool SatPlot::plotFillcell()
 
   //todo: reduce resolution when zooming out
 //  int factor = getStaticPlot()->getPlotSize().width()/nx/2000;
-  int factor = 1;
-  int rnx = nx;
-  int rny = ny;
 
   float cx[2], cy[2];
   cx[0] = satdata->area.R().x1;
   cy[0] = satdata->area.R().y1;
   cx[1] = satdata->area.R().x2;
   cy[1] = satdata->area.R().y2;
-  int npos = 2;
-  getStaticPlot()->gc.getPoints(satdata->area.P(), getStaticPlot()->getMapArea().P(), npos, cx, cy);
+  getStaticPlot()->ProjToMap(satdata->area.P(), 2, cx, cy);
 
-  double gridW = nx*getStaticPlot()->getPlotSize().width()/double(cx[1] - cx[0]);
-  double gridH = ny*getStaticPlot()->getPlotSize().height()/double(cy[1] - cy[0]);
-  double resamplingF = min(gridW/getStaticPlot()->getPhysWidth(), gridH/getStaticPlot()->getPhysHeight());
-  factor = int(resamplingF);
+  double gridW = nx*getStaticPlot()->getPhysToMapScaleX()/double(cx[1] - cx[0]);
+  double gridH = ny*getStaticPlot()->getPhysToMapScaleY()/double(cy[1] - cy[0]);
+  int factor = std::max(1, int(std::min(gridW, gridH)));
 
-  if (factor >= 2) {
-    rnx = nx/factor;
-    rny = ny/factor;
-    getStaticPlot()->gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
-        getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true,
-        rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
-  } else {
-    factor = 1;
-    getStaticPlot()->gc.getGridPoints(satdata->area,satdata->gridResolutionX, satdata->gridResolutionY,
-        getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true,
-        nx, ny, &x, &y, ix1, ix2, iy1, iy2);
-  }
-  if (ix1>ix2 || iy1>iy2) return false;
-  
+  int rnx = nx / factor;
+  int rny = ny / factor;
+  getStaticPlot()->gc.getGridPoints(satdata->area,satdata->gridResolutionX * factor, satdata->gridResolutionY * factor,
+      getStaticPlot()->getMapArea(), getStaticPlot()->getMapSize(), true,
+      rnx, rny, &x, &y, ix1, ix2, iy1, iy2);
+  if (ix1>ix2 || iy1>iy2)
+    return false;
+
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -253,36 +241,37 @@ bool SatPlot::plotPixmap()
   //Corners of total image (map coordinates)
   xmin = 0.;
   ymin = 0.;
-  if (!getStaticPlot()->gc.getPoints(satdata->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmin, &ymin))
+  if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xmin, &ymin))
     return false;
   xmax = nx* satdata->gridResolutionX;
   ymax = ny* satdata->gridResolutionY;
 
-  if (!getStaticPlot()->gc.getPoints(satdata->area.P(), getStaticPlot()->getMapArea().P(), npos, &xmax, &ymax))
+  if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xmax, &ymax))
     return false;
 
   // exit if image is outside map area
   if (getStaticPlot()->getMapSize().x1 >= xmax || getStaticPlot()->getMapSize().x2 <= xmin ||
-      getStaticPlot()->getMapSize().y1 >= ymax || getStaticPlot()->getMapSize().y2 <= ymin) return true;
+      getStaticPlot()->getMapSize().y1 >= ymax || getStaticPlot()->getMapSize().y2 <= ymin)
+    return true;
 
   // scaling
-  float scalex = getStaticPlot()->getPhysWidth() /getStaticPlot()->getPlotSize().width();
-  float scaley = getStaticPlot()->getPhysHeight()/getStaticPlot()->getPlotSize().height();
+  float scalex = 1/getStaticPlot()->getPhysToMapScaleX();
+  float scaley = 1/getStaticPlot()->getPhysToMapScaleY();
 
   // Corners of image shown (map coordinates)
-  float grStartx = (getStaticPlot()->getMapSize().x1>xmin) ? getStaticPlot()->getMapSize().x1 : xmin;
-  float grStarty = (getStaticPlot()->getMapSize().y1>ymin) ? getStaticPlot()->getMapSize().y1 : ymin;
+  float grStartx = std::max(getStaticPlot()->getMapSize().x1, xmin);
+  float grStarty = std::max(getStaticPlot()->getMapSize().y1, ymin);
 //  float grStopx = (maprect.x2<xmin) ? maprect.x2 : xmax;
 //  float grStopy = (maprect.y2<ymin) ? maprect.y2 : ymax;
 
   // Corners of total image (image coordinates)
   float x1= getStaticPlot()->getMapSize().x1;
   float y1= getStaticPlot()->getMapSize().y1;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), satdata->area.P(), npos, &x1, &y1))
+  if (!getStaticPlot()->MapToProj(satdata->area.P(), 1, &x1, &y1))
     return false;
   float x2= getStaticPlot()->getMapSize().x2;
   float y2= getStaticPlot()->getMapSize().y2;
-  if (!getStaticPlot()->gc.getPoints(getStaticPlot()->getMapArea().P(), satdata->area.P(), npos, &x2, &y2))
+  if (!getStaticPlot()->MapToProj(satdata->area.P(), 1, &x2, &y2))
     return false;
   x1/=satdata->gridResolutionX;
   x2/=satdata->gridResolutionX;
@@ -299,7 +288,7 @@ bool SatPlot::plotPixmap()
   // (part of lower left pixel may well be outside screen)
   float xstart = bmStartx*satdata->gridResolutionX;
   float ystart = bmStarty*satdata->gridResolutionY;
-  if (!getStaticPlot()->gc.getPoints(satdata->area.P(), getStaticPlot()->getMapArea().P(), npos, &xstart, &ystart))
+  if (!getStaticPlot()->ProjToMap(satdata->area.P(), 1, &xstart, &ystart))
     return false;
 
   //Strange, but needed

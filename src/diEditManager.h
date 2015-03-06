@@ -35,6 +35,7 @@
 #include <diDrawingTypes.h>
 #include <diMapMode.h>
 #include <diObjectManager.h>
+#include "diPlot.h"
 #include <diFieldEdit.h>
 #include <diEditSpec.h>
 
@@ -128,7 +129,7 @@ private:
 
   bool unsentProduct; // true if last saved product has not been sent !
 
-  void plotSingleRegion();
+  void plotSingleRegion(Plot::PlotOrder zorder);
 
   void initEditTools();
   void setMapmodeinfo();
@@ -232,7 +233,7 @@ public:
   /// gets area from field
   bool getFieldArea(Area& a);
   /// plot edit fields and objects (under=true->plot inactive fields/objects, over=true plot active fields/objects)
-  void plot(bool under, bool over);
+  void plot(Plot::PlotOrder zorder);
   /// show difference between observed mslp and edited mslp
   bool obs_mslp(ObsPositions& obsPositions);
   /// shows all hidden edit objects

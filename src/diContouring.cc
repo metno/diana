@@ -33,17 +33,18 @@
 #include "config.h"
 #endif
 
-#include <shapefil.h>
-
-#include <puTools/miStringFunctions.h>
-
 #include <diFontManager.h>
 #include <diPlotOptions.h>
-#include <diField/diArea.h>
 #include <diContouring.h>
 #include <diTesselation.h>
 #include <diImageGallery.h>
 #include <polyStipMasks.h>
+
+#include <diField/diArea.h>
+#include <diField/diGridConverter.h>
+#include <puTools/miStringFunctions.h>
+
+#include <shapefil.h>
 
 #include <GL/gl.h>
 #include <cmath>
@@ -2774,7 +2775,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
           // pfa(5,xlc,ylc);
         }
 
-        angle = atan2f(dyy,dxx) * 180. / 3.141592654;
+        angle = atan2f(dyy,dxx) * RAD_TO_DEG;
 
 //        GLint *  params = new int[4];
 //        glGetIntegerv(GL_CURRENT_COLOR,  params);

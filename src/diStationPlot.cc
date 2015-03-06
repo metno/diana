@@ -33,8 +33,10 @@
 #include "config.h"
 #endif
 
-#include <diStationPlot.h>
-#include <diFontManager.h>
+#include "diStationPlot.h"
+#include "diFontManager.h"
+#include "diPlotModule.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -215,7 +217,6 @@ void StationPlot::init()
   stationAreas.push_back(area);
 
   //coordinates to be plotted
-  pi = acosf(-1.0);
   show();
   useImage = true;
   useStationNameNormal = false;
@@ -296,7 +297,7 @@ void StationPlot::addStation(Station* station)
   stationAreas[0].addStation(station);
 }
 
-bool StationPlot::plot()
+void StationPlot::plot(PlotOrder zorder)
 {
   /* Plot stations at positions xplot,yplot if stations[i]->isVisible
    different plotting options
@@ -305,11 +306,11 @@ bool StationPlot::plot()
    else plot red crosses, yellow circle around selected station
    if useStationNameNormal/useStationNameSelected==true plot name
    */
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("StationPlot::plot "<< name);
-#endif
-  if (!isEnabled() || !visible)
-    return false;
+
+  METLIBS_LOG_SCOPE(LOGVAL(name));
+
+  if (!isEnabled() || !visible || zorder != LINES)
+    return;
 
   //Circle
   GLfloat xc, yc;
@@ -330,8 +331,8 @@ bool StationPlot::plot()
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glBegin(GL_POLYGON);
   for (int i = 0; i < 100; i++) {
-    xc = radius * cos(i * 2 * pi / 100.0);
-    yc = radius * sin(i * 2 * pi / 100.0);
+    xc = radius * cos(i * 2 * M_PI / 100.0);
+    yc = radius * sin(i * 2 * M_PI / 100.0);
     glVertex2f(xc, yc);
   }
   glEnd();
@@ -366,7 +367,6 @@ bool StationPlot::plot()
   if (glIsList(circle))
     glDeleteLists(circle, 1);
   circle = 0;
-  return true;
 }
 
 void StationPlot::plotStation(int i)
@@ -382,60 +382,51 @@ void StationPlot::plotStation(int i)
 
   if (useImage) {
     //use either stations[i]->image or imageNormal/imageSelected
-    //METLIBS_LOG_DEBUG("useImage=true");
     if (!stations[i]->image.empty() && stations[i]->image2.empty()) {
       if (stations[i]->image == "wind") {
-        if (stations[i]->isSelected)
-          h = 40 * getStaticPlot()->getPlotSize().height() / (getStaticPlot()->getPhysHeight() > 0 ? getStaticPlot()->getPhysHeight() * 1.0 : 1.0);
-        else
-          h = 30 * getStaticPlot()->getPlotSize().height() / (getStaticPlot()->getPhysHeight() > 0 ? getStaticPlot()->getPhysHeight() * 1.0 : 1.0);
-        w = 30 * getStaticPlot()->getPlotSize().width() / (getStaticPlot()->getPhysWidth() > 0 ? getStaticPlot()->getPhysWidth() * 1.0 : 1.0);
-        //  	if(stations[i]->edit)
-        //  	  glPlot(Station::redCircle,x,y,h,w);
+        h = (stations[i]->isSelected ? 40 : 30)
+            * getStaticPlot()->getPhysToMapScaleY();
+        w = 30 * getStaticPlot()->getPhysToMapScaleX();
         plotWind(i, x, y);
       } else {
-        h = ig.height(stations[i]->image);
-        w = ig.width(stations[i]->image);
-        if (!ig.plotImage(stations[i]->image, x, y, true, stations[i]->scale,
-            stations[i]->alpha))
+        h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
+        w = ig.width_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleX();
+        if (!ig.plotImage(getStaticPlot(), stations[i]->image, x, y, true,
+                stations[i]->scale, stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
         glColor3ub(255, 0, 0); //red
         glPlot(Station::noStatus, x, y, w, h);
     } else if (!stations[i]->image.empty() && !stations[i]->image2.empty()) {
-      float h1 = ig.height(stations[i]->image);
-      float h2 = ig.height(stations[i]->image2);
-      if (h1 > h2)
-        h = h1;
-      else
-        h = h2;
-      float w1 = ig.width(stations[i]->image);
-      float w2 = ig.width(stations[i]->image2);
-      if (w1 > w2)
-        w = 2 * w1;
-      else
-        w = 2 * w2;
+      float h1 = ig.height_(stations[i]->image);
+      float h2 = ig.height_(stations[i]->image2);
+      h = std::max(h1, h2) * getStaticPlot()->getPhysToMapScaleY();
+      float w1 = ig.width_(stations[i]->image);
+      float w2 = ig.width_(stations[i]->image2);
+      w = 2 * std::max(w1, w2) * getStaticPlot()->getPhysToMapScaleX();
       glColor3ub(128, 128, 128); //grey
       glPlot(Station::noStatus, x, y, w, h);
-      if (!ig.plotImage(stations[i]->image, x - w1 / 2, y, true, stations[i]->scale,
-          stations[i]->alpha))
+      if (!ig.plotImage(getStaticPlot(), stations[i]->image, x - w1 / 2, y,
+              true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
-      if (!ig.plotImage(stations[i]->image2, x + w2 / 2, y, true, stations[i]->scale,
-          stations[i]->alpha))
+      if (!ig.plotImage(getStaticPlot(), stations[i]->image2, x + w2 / 2, y,
+              true, stations[i]->scale, stations[i]->alpha))
         plotted = false;
       if (stations[i]->isSelected)
         glColor3ub(255, 0, 0); //red
         glPlot(Station::noStatus, x, y, w, h);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
-      if (!ig.plotImage(imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(getStaticPlot(), imageNormal, x, y, true,
+              stations[i]->scale, stations[i]->alpha))
         plotted = false;
-      h = ig.height(imageNormal);
+      h = ig.height_(imageNormal) * getStaticPlot()->getPhysToMapScaleY();
     } else if (stations[i]->isSelected && !imageSelected.empty()) {
-      if (!ig.plotImage(imageSelected, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(getStaticPlot(), imageSelected, x, y, true,
+              stations[i]->scale, stations[i]->alpha))
         plotted = false;
-      h = ig.height(imageSelected);
+      h = ig.height_(imageSelected) * getStaticPlot()->getPhysToMapScaleY();
     } else {
       //if no image plot crosses and circles for selected/normal stations
       //METLIBS_LOG_DEBUG("useImage=false");
@@ -553,8 +544,7 @@ void StationPlot::defineCoordinates()
 bool StationPlot::changeProjection()
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("StationPlot::changeProjection");
-  METLIBS_LOG_DEBUG("Change projection to: "<< area);
+  METLIBS_LOG_SCOPE("Change projection to: "<< area << " wind might not be rotated");
 #endif
 
   int npos = xplot.size();
@@ -569,7 +559,7 @@ bool StationPlot::changeProjection()
     ypos[i] = stations[i]->lat;
   }
 
-  if (getStaticPlot()->getMapArea().P().convertFromGeographic(npos, xpos, ypos) != 0 ) {
+  if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     delete[] xpos;
     delete[] ypos;
@@ -587,12 +577,10 @@ bool StationPlot::changeProjection()
     u[i] = 0;
     v[i] = 10;
   }
-//TODO: crashes, but why? Only do this if "wind"-image exists
-//  getStaticPlot()->gc.getVectors(oldarea, area, npos, xpos, ypos, u, v);
 
   for (int i = 0; i < npos; i++) {
     if (stations[i]->image == "wind") {
-      int angle = (int) (atan2f(u[i], v[i]) * 180 / pi);
+      int angle = (int) (atan2f(u[i], v[i]) * RAD_TO_DEG);
       int dd = stations[i]->north + angle;
       if (dd < 1)
         dd += 360;
@@ -621,23 +609,24 @@ vector<Station*> StationPlot::getStations() const
   return stations;
 }
 
+static inline float square(float x)
+{ return x*x; }
+
 Station* StationPlot::stationAt(int x, int y)
 {
   vector<Station*> found = stationsAt(x, y);
 
   if (found.size() > 0) {
-    float xpos = x * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-    float ypos = y * getStaticPlot()->getPlotSize().height() / getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
+    const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
 
-    float min_r = 10.0f * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth();
-    min_r = powf(min_r, 2);
+    float min_r = square(10.0f * getStaticPlot()->getPhysToMapScaleX());
     int min_i = 0;
 
     // Find the closest station to the point within a given radius.
     for (unsigned int i = 0; i < found.size(); ++i) {
       float sx = found[i]->lon, sy = found[i]->lat;
-      if (getStaticPlot()->getMapArea().P().convertFromGeographic(1, &sx, &sy) == 0) {
-        float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
+      if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
+        float r = square(pos.x() - sx) + square(pos.y() - sy);
         if (r < min_r) {
           min_r = r;
           min_i = i;
@@ -653,16 +642,14 @@ Station* StationPlot::stationAt(int x, int y)
 
 vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAllStations)
 {
-  float xpos = x * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-  float ypos = y * getStaticPlot()->getPlotSize().height() / getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
+  const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
 
-  float min_r = radius * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth();
-  min_r = powf(min_r, 2);
+  float min_r = square(radius * getStaticPlot()->getPhysToMapScaleX());
 
   vector<Station*> within;
 
-  float gx = xpos, gy = ypos;
-  if (!getStaticPlot()->getMapArea().P().convertToGeographic(1, &gx, &gy)) {
+  float gx = pos.x(), gy = pos.y();
+  if (getStaticPlot()->MapToGeo(1, &gx, &gy)) {
     vector<Station*> found;
     if ( useAllStations ) {
       found = stations;
@@ -673,8 +660,8 @@ vector<Station*> StationPlot::stationsAt(int x, int y, float radius, bool useAll
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
         float sx = found[i]->lon, sy = found[i]->lat;
-        if (getStaticPlot()->getMapArea().P().convertFromGeographic(1, &sx, &sy) == 0) {
-          float r = powf(xpos - sx, 2) + powf(ypos - sy, 2);
+        if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
+          float r = square(pos.x() - sx) + square(pos.y() - sy);
           if (r < min_r) {
             within.push_back(found[i]);
           }
@@ -894,19 +881,12 @@ void StationPlot::setEditStations(const vector<string>& st)
     editIndex = -1;
     return;
   }
-
-  //   if(editIndex >= n || editIndex<0 || !stations[editIndex]->edit){
-  //     int i=0;
-  //     while(i<n && !stations[i]->edit) i++;
-  //     setSelectedStation(i);
-  //   }
-
 }
 
-bool StationPlot::getEditStation(int step, std::string& nname, int& iid, vector<
-    std::string>& sstations, bool& updateArea)
+bool StationPlot::getEditStation(int step, std::string& nname, int& iid,
+    vector<std::string>& sstations)
 {
-  //  METLIBS_LOG_DEBUG("getEditStations:"<<step<< "  editIndex:"<<editIndex);
+  METLIBS_LOG_SCOPE();
 
   if (editIndex < 0)
     return false;
@@ -951,13 +931,11 @@ bool StationPlot::getEditStation(int step, std::string& nname, int& iid, vector<
     setSelectedStation(i, add);
 
     //if stations[i] isn't on the map, pan the map
-    Rectangle r = getStaticPlot()->getMapArea().R();
+    const Rectangle& r = getStaticPlot()->getMapArea().R();
     if (!r.isinside(xplot[i], yplot[i])) {
-      r.putinside(xplot[i], yplot[i]);
-      Area a = getStaticPlot()->getMapArea();
-      a.setR(r);
-      getStaticPlot()->setMapArea(a, false);
-      updateArea = true;; //area need update
+      Rectangle request(r);
+      request.putinside(xplot[i], yplot[i]);
+      PlotModule::instance()->setMapAreaFromMap(request);
     }
 
     for (int i = 0; i < n; i++)
@@ -1110,8 +1088,8 @@ bool StationPlot::stationCommand(const string& command,
             yy[0] = yplot[i];
             u[0] = 0;
             v[0] = 10;
-            getStaticPlot()->gc.geov2xy(getStaticPlot()->getMapArea(), num, xx, yy, u, v);
-            int angle = (int) (atan2f(u[0], v[0]) * 180 / pi);
+            getStaticPlot()->GeoToMap(num, xx, yy, u, v);
+            int angle = (int) (atan2f(u[0], v[0]) * RAD_TO_DEG);
             dd += angle;
             if (dd < 1)
               dd += 360;
@@ -1259,13 +1237,13 @@ std::string StationPlot::stationRequest(const std::string& command)
 void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h, bool selected)
 {
   //called from StationPlot::plotStation: Add GL things to plot here.
-  float linewidth, scale, r;
+  const float scale = 1.5*getStaticPlot()->getPhysToMapScaleX();
+  float linewidth, r;
   GLfloat xc, yc;
   GLfloat radius;
   switch (tp) {
   case Station::unknown:
     linewidth = 2;
-    scale = getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() * 1.5;
     r = linewidth * scale;
     //plot grey transparent square
     glColor4ub(100, 100, 100, 50);
@@ -1283,7 +1261,6 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::failed:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1298,7 +1275,6 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::underRepair:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1313,7 +1289,6 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   case Station::working:
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() * 1.5;
     r = linewidth * scale;
     h = 1.5 * r;
     //plot crosses
@@ -1334,14 +1309,13 @@ void StationPlot::glPlot(Station::Status tp, float x, float y, float w, float h,
   if (selected) {
     linewidth = 4;
     glLineWidth(linewidth);
-    scale = getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() * 1.5;
     r = linewidth * scale;
     radius = 1.5 * r;
     glColor3ub(255, 255, 0);
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 100; i++) {
-      xc = radius * cos(i * 2 * pi / 100.0);
-      yc = radius * sin(i * 2 * pi / 100.0);
+      xc = radius * cos(i * 2 * M_PI / 100.0);
+      yc = radius * sin(i * 2 * M_PI / 100.0);
       glVertex2f(x + xc, y + yc);
     }
     glEnd();
@@ -1358,8 +1332,7 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
 
   int dd = stations[ii]->dd;
   int ff = stations[ii]->ff;
-  float radius = scale * 14 * getStaticPlot()->getPlotSize().width() / (getStaticPlot()->getPhysWidth() > 0 ? getStaticPlot()->getPhysWidth() * 1.0
-      : 1.0);
+  float radius = scale * 14 * getStaticPlot()->getPhysToMapScaleX();
 
   glPushMatrix();
   glTranslatef(x, y, 0.0);
@@ -1374,8 +1347,8 @@ void StationPlot::plotWind(int ii, float x, float y, bool classic, float scale)
     //Circle
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 100; i++) {
-      xc = cos(i * 2 * pi / 100.0);
-      yc = sin(i * 2 * pi / 100.0);
+      xc = cos(i * 2 * M_PI / 100.0);
+      yc = sin(i * 2 * M_PI / 100.0);
       glVertex2f(xc, yc);
     }
     glEnd();
