@@ -65,9 +65,9 @@ private Q_SLOTS:
   void patternComboBoxToggled(int index);
   void patternColourBoxToggled(int index);
   void alphaChanged(int index);
-  void zero1ComboBoxToggled(int index);
-  void min1ComboBoxToggled(int index);
-  void max1ComboBoxToggled(int index);
+  void zero1ComboBoxToggled();
+  void min1ComboBoxToggled();
+  void max1ComboBoxToggled();
   void updatePaletteString();
 
 private:

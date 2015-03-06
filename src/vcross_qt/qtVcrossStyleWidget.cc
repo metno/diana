@@ -325,11 +325,11 @@ void VcrossStyleWidget::setupUi()
   connect(ui->alphaSpinBox, SIGNAL(valueChanged(int)),
       SLOT(alphaChanged(int)));
   connect(ui->zero1ComboBox, SIGNAL(activated(int)),
-      SLOT(zero1ComboBoxToggled(int)));
+      SLOT(zero1ComboBoxToggled()));
   connect(ui->min1ComboBox, SIGNAL(activated(int)),
-      SLOT(min1ComboBoxToggled(int)));
+      SLOT(min1ComboBoxToggled()));
   connect(ui->max1ComboBox, SIGNAL( activated(int)),
-      SLOT(max1ComboBoxToggled(int)));
+      SLOT(max1ComboBoxToggled()));
 }
 
 void VcrossStyleWidget::enableFieldOptions()
@@ -938,6 +938,10 @@ void VcrossStyleWidget::lineintervalCboxActivated(int index)
   // update the list (with selected value in the middle)
   float a= atof(lineintervals[index].c_str());
   lineintervals= numberList(ui->lineintervalCbox, a);
+
+  zero1ComboBoxToggled();
+  min1ComboBoxToggled();
+  max1ComboBoxToggled();
 }
 
 void VcrossStyleWidget::densityCboxActivated(int index)
@@ -1119,7 +1123,7 @@ void VcrossStyleWidget::alphaChanged(int index)
   updateFieldOptions(PlotOptions::key_alpha, miutil::from_number(index));
 }
 
-void VcrossStyleWidget::zero1ComboBoxToggled(int index)
+void VcrossStyleWidget::zero1ComboBoxToggled()
 {
   if (!ui->zero1ComboBox->currentText().isNull()) {
     std::string str = ui->zero1ComboBox->currentText().toStdString();
@@ -1130,9 +1134,9 @@ void VcrossStyleWidget::zero1ComboBoxToggled(int index)
   }
 }
 
-void VcrossStyleWidget::min1ComboBoxToggled(int index)
+void VcrossStyleWidget::min1ComboBoxToggled()
 {
-  if( index == 0 )
+  if (ui->min1ComboBox->currentIndex() == 0)
     updateFieldOptions(PlotOptions::key_minvalue,"off");
   else if(!ui->min1ComboBox->currentText().isNull() ){
     std::string str = ui->min1ComboBox->currentText().toStdString();
@@ -1145,9 +1149,9 @@ void VcrossStyleWidget::min1ComboBoxToggled(int index)
   }
 }
 
-void VcrossStyleWidget::max1ComboBoxToggled(int index)
+void VcrossStyleWidget::max1ComboBoxToggled()
 {
-  if( index == 0 )
+  if (ui->max1ComboBox->currentIndex() == 0)
     updateFieldOptions(PlotOptions::key_maxvalue,"off");
   else if(!ui->max1ComboBox->currentText().isNull() ){
     std::string str = ui->max1ComboBox->currentText().toStdString();
