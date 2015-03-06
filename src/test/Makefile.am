@@ -23,6 +23,7 @@ dianaUnitTests_SOURCES = \
     TestCommandParser.cc \
     TestLogFileIO.cc \
     TestPlotOptions.cc \
+    TestPoint.cc \
     TestUtilities.cc \
     gtestMain.cc
 

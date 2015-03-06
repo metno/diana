@@ -68,6 +68,7 @@ common_cxx_sources = \
 	diPlot.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
+	diPoint.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \

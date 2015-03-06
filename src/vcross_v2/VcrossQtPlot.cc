@@ -36,6 +36,7 @@
 #include "VcrossQtUtil.h"
 
 #include "diLinetype.h"
+#include "diPoint.h"
 
 #include <diField/diMetConstants.h>
 #include <diField/VcrossUtil.h>
@@ -552,37 +553,25 @@ void QtPlot::prepareView(QPainter& painter)
 void QtPlot::prepareAxesForAspectRatio()
 {
   METLIBS_LOG_SCOPE();
-  float v2h = mOptions->verHorRatio;
-  if (isTimeGraph() or (not mOptions->keepVerHorRatio) or v2h <= 0) {
-    METLIBS_LOG_DEBUG("no aspect ratio");
-    // horizontal axis has time unit, vertical axis pressure or height; aspect ratio is meaningless
-    mAxisX->setPaintRange(mPlotAreaMax.left(),   mPlotAreaMax.right());
-    mAxisY->setPaintRange(mPlotAreaMax.bottom(), mPlotAreaMax.top());
-    return;
+  Rectangle pam(mPlotAreaMax.left(), mPlotAreaMax.top(),
+      mPlotAreaMax.right(), mPlotAreaMax.bottom());
+
+  if (!isTimeGraph() && mOptions->keepVerHorRatio && mOptions->verHorRatio > 0) {
+    float ymax = mAxisY->getValueMax(), ymin = mAxisY->getValueMin();
+    if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
+      // use the ICAO standard atmosphere
+      ymax = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymax);
+      ymin = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymin);
+    }
+    const float rangeY = std::abs(ymax-ymin);
+    if (rangeY > 0) {
+      const float rangeX = std::abs(mAxisX->getValueMax() - mAxisX->getValueMin());
+      diutil::fixAspectRatio(pam, (rangeX/rangeY)/mOptions->verHorRatio, false);
+    }
   }
 
-  const float rangeX = std::abs(mAxisX->getValueMax() - mAxisX->getValueMin());
-  float rangeY = v2h * std::abs(mAxisY->getValueMax() - mAxisY->getValueMin());
-  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
-    rangeY *= 10; // approximately 10m/hPa
-
-  // m/pixel on x and y axis
-  const float pmx = rangeX / mPlotAreaMax.width(), pmy = rangeY / mPlotAreaMax.height();
-  METLIBS_LOG_DEBUG(LOGVAL(pmx) << LOGVAL(pmy) << LOGVAL(rangeX) << LOGVAL(rangeY));
-
-  if (pmy > pmx) {
-    // too high for plot area, reduce width
-    const float mid = (mPlotAreaMax.left() + mPlotAreaMax.right())/2, w2 = mPlotAreaMax.width() * pmx / (pmy*2);
-    mAxisX->setPaintRange(mid - w2, mid + w2);
-    mAxisY->setPaintRange(mPlotAreaMax.bottom(), mPlotAreaMax.top());
-  } else {
-    // reduce height
-    const float mid = (mPlotAreaMax.bottom() + mPlotAreaMax.top())/2, h2 = mPlotAreaMax.height() * pmy / (pmx*2);
-    mAxisX->setPaintRange(mPlotAreaMax.left(), mPlotAreaMax.right());
-    mAxisY->setPaintRange(mid + h2, mid - h2);
-  }
-  METLIBS_LOG_DEBUG(LOGVAL(mAxisX->getPaintMin()) << LOGVAL(mAxisX->getPaintMax())
-      << LOGVAL(mAxisY->getPaintMin()) << LOGVAL(mAxisY->getPaintMax()));
+  mAxisX->setPaintRange(pam.x1, pam.x2);
+  mAxisY->setPaintRange(pam.y2, pam.y1);
 }
 
 void QtPlot::computeMaxPlotArea(QPainter& painter)

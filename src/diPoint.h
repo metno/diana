@@ -6,25 +6,15 @@
 
 namespace diutil {
 
-inline Rectangle adjustedRectangle(const Rectangle& r, float dx, float dy)
-{
-  Rectangle ar = r;
-  ar.x1 -= dx;
-  ar.y1 -= dy;
-  ar.x2 += dx;
-  ar.y2 += dy;
-  return ar;
-}
+void adjustRectangle(Rectangle& r, float dx, float dy);
+Rectangle adjustedRectangle(const Rectangle& r, float dx, float dy);
 
-inline Rectangle translatedRectangle(const Rectangle& r, float dx, float dy)
-{
-  Rectangle ar = r;
-  ar.x1 += dx;
-  ar.y1 += dy;
-  ar.x2 += dx;
-  ar.y2 += dy;
-  return ar;
-}
+void translateRectangle(Rectangle& r, float dx, float dy);
+Rectangle translatedRectangle(const Rectangle& r, float dx, float dy);
+
+void fixAspectRatio(Rectangle& rect, float requested_w_over_h, bool extend);
+Rectangle fixedAspectRatio(const Rectangle& rect, float requested_w_over_h, bool extend);
+
 
 template<class T>
 class Values2 {

@@ -1241,21 +1241,10 @@ void PlotModule::PlotAreaSetup()
   const Rectangle& mapr = ma.R();
 
   const float waspr = staticPlot_->getPhysWidth() / staticPlot_->getPhysHeight();
-  const float maspr = mapr.width() / mapr.height();
-
-  float dwid = 0, dhei = 0;
-  if (waspr > maspr) {// increase map width
-    dwid = (waspr * mapr.height() - mapr.width())/2;
-  } else { // increase map height
-    dhei = (mapr.width() / waspr - mapr.height())/2;
-  }
-
-  // update map area
-  const Rectangle mr = diutil::adjustedRectangle(mapr, dwid, dhei);
+  const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
   staticPlot_->setMapSize(mr);
 
-  // update full plot area
-  // add border
+  // update full plot area -- add border
   const float border = 0.0;
   const Rectangle fr = diutil::adjustedRectangle(mr, border, border);
   staticPlot_->setPlotSize(fr);
