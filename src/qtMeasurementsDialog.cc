@@ -346,6 +346,17 @@ void MeasurementsDialog::helpClicked()
   // emit showsource("ug_messurements.html");
 }
 
+static void insertlatlon(std::ostream& str, float lat, float lon)
+{
+#if 0
+  str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
+  str << "latitudelongitude=" << lat << "," << lon;
+#else
+  lat = roundf(lat*60)/60;
+  lon = roundf(lon*60)/60;
+  str << "latitudelongitude=" << lat << "," << lon;
+#endif
+}
 
 void MeasurementsDialog::mapPos(float lat, float lon)
 {
@@ -373,9 +384,9 @@ void MeasurementsDialog::mapPos(float lat, float lon)
 
   //  //Make string and send to measuremenPlot
   ostringstream str;
-  str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
-  str << "latitudelongitude=" << lat << "," << lon;
-  str << " latitudelongitude=" << lat << "," << lon;
+  insertlatlon(str, lat, lon);
+  str << ' ';
+  insertlatlon(str, lat, lon); // TODO why is the same lat-lon sent twice?
   str <<" numpos="<<1;
   str <<" time="<<pos.time;
 
@@ -447,9 +458,7 @@ void MeasurementsDialog::sendAllPositions()
   const int npos=positionVector.size();
   for (int i=0; i<npos; i++) {
     ostringstream str;
-    str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
-    str << "latitudelongitude=";
-    str << positionVector[i].lat << "," << positionVector[i].lon;
+    insertlatlon(str, positionVector[i].lat, positionVector[i].lon);
     vstr.push_back(str.str());
   }
   contr->measurementsPos(vstr);
