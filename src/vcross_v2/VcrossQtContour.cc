@@ -109,10 +109,13 @@ void VCLines::paint_labels()
 
 void VCLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)
 {
-  QPen pen(vcross::util::QC(colour), linewidth);
-  vcross::util::setDash(pen, linetype);
-  
-  mPainter.setPen(pen);
+  if (linetype.bmap != 0) {
+    QPen pen(vcross::util::QC(colour), linewidth);
+    vcross::util::setDash(pen, linetype);
+    mPainter.setPen(pen);
+  } else {
+    mPainter.setPen(Qt::NoPen);
+  }
   mPainter.setBrush(Qt::NoBrush);
 }
 
@@ -142,7 +145,8 @@ void VCLines::drawLabels(const point_v& points, contouring::level_t li)
   if (points.size() < 10)
     return;
 
-  setLine(mPlotOptions.linecolour, mPlotOptions.linetype, mPlotOptions.linewidth);
+  mPainter.setPen(vcross::util::QC(mPlotOptions.linecolour));
+  mPainter.setBrush(Qt::NoBrush);
 
   const QString lbl = QString::number(mLevels.value_for_level(li));
 
