@@ -499,7 +499,7 @@ void VcrossWindow::saveClicked()
     mRasterFilename = filename;
     if (not ui->vcross->saveRasterImage(filename))
       QMessageBox::warning(this, tr("Save image failed"),
-          tr("Saveing the vertical cross section plot as '%1' failed. Sorry.").arg(filename));
+          tr("Saving the vertical cross section plot as '%1' failed. Sorry.").arg(filename));
   }
 }
 

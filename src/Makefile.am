@@ -792,7 +792,9 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
-	$(LUPDATE4) $(diana_qt_sources:%=$(srcdir)/%) -ts $(language_sources)
+	$(LUPDATE4) $(diana_qt_sources:%=$(srcdir)/%) \
+	    $(diana_qt_forms:%=$(srcdir)/%) \
+	    -ts $(language_sources)
 .PHONY: lupdate
 
 %.qm: %.ts  $(diana_qt_sources)

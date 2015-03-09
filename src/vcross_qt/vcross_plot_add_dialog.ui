@@ -36,7 +36,10 @@
        <item>
         <widget class="QLabel" name="modelLabel">
          <property name="text">
-          <string>Choose a model:</string>
+          <string>Choose a &amp;model:</string>
+         </property>
+         <property name="buddy">
+          <cstring>modelFilter</cstring>
          </property>
         </widget>
        </item>
@@ -77,7 +80,10 @@
        <item>
         <widget class="QLabel" name="reftimeLabel">
          <property name="text">
-          <string>Choose a reference time:</string>
+          <string>Choose a r&amp;eference time:</string>
+         </property>
+         <property name="buddy">
+          <cstring>reftimeList</cstring>
          </property>
         </widget>
        </item>
@@ -118,7 +124,10 @@
        <item>
         <widget class="QLabel" name="plotLabel">
          <property name="text">
-          <string>Choose plot(s):</string>
+          <string>Choose &amp;plot(s):</string>
+         </property>
+         <property name="buddy">
+          <cstring>plotFilter</cstring>
          </property>
         </widget>
        </item>
@@ -171,7 +180,7 @@
      <item>
       <widget class="QPushButton" name="buttonRestart">
        <property name="text">
-        <string>Restart</string>
+        <string>&amp;Restart</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -181,7 +190,7 @@
      <item>
       <widget class="QPushButton" name="buttonBack">
        <property name="text">
-        <string>Back</string>
+        <string>&amp;Back</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -191,14 +200,14 @@
      <item>
       <widget class="QPushButton" name="buttonNext">
        <property name="text">
-        <string>Next</string>
+        <string>&amp;Next</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="buttonAdd">
        <property name="text">
-        <string>Add</string>
+        <string>&amp;Add</string>
        </property>
       </widget>
      </item>
