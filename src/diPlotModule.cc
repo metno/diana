@@ -61,7 +61,6 @@
 
 #include <GL/gl.h>
 
-#include <QKeyEvent>
 #include <QMouseEvent>
 
 //#define DEBUGPRINT
@@ -1873,7 +1872,7 @@ void PlotModule::nextObs(bool next)
     vop[i]->nextObs(next);
 }
 
-void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
+void PlotModule::obsTime(bool forward, EventResult& res)
 {
   // This function changes the observation time one hour,
   // and leaves the rest (fields, images etc.) unchanged.
@@ -1887,19 +1886,18 @@ void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
   if (!editm->isInEdit())
     return;
 
-  if (obsnr == 0 && ke->key() == Qt::Key_Right)
-    return;
-  if (obsnr > 20 && ke->key() == Qt::Key_Left)
-    return;
-
-  obsm->clearObsPositions();
-
-  miTime newTime = staticPlot_->getTime();
-  if (ke->key() == Qt::Key_Left) {
+  if (forward) {
+    if (obsnr > 20)
+      return;
     obsnr++;
-  } else {
+  } else { // backward
+    if (obsnr == 0)
+      return;
     obsnr--;
   }
+
+  obsm->clearObsPositions();
+  miTime newTime = staticPlot_->getTime();
   newTime.addHour(-1 * obsTimeStep * obsnr);
 
   //log old stations
@@ -2154,12 +2152,9 @@ void PlotModule::areaInsert(bool newArea)
   areaQ.push_back(staticPlot_->getMapArea());
 }
 
-void PlotModule::changeArea(QKeyEvent* ke)
+void PlotModule::changeArea(ChangeAreaCommand ca)
 {
-  const int key = ke->key();
-
-  // define your own area
-  if (key == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier) {
+  if (ca == CA_DEFINE_MYAREA) {
     myArea = staticPlot_->getMapArea();
     return;
   }
@@ -2167,10 +2162,9 @@ void PlotModule::changeArea(QKeyEvent* ke)
   Area a;
   MapManager mapm;
 
-  const bool key_F3_F4 = (key == Qt::Key_F3 || key == Qt::Key_F4);
-  if (key_F3_F4) { // go to previous or next area
+  if (ca == CA_HISTORY_PREVIOUS || ca == CA_HISTORY_NEXT) {
     areaInsert(false);
-    if (key == Qt::Key_F3) { // go to previous area
+    if (ca == CA_HISTORY_PREVIOUS) {
       if (areaIndex < 1)
         return;
       areaIndex--;
@@ -2182,18 +2176,17 @@ void PlotModule::changeArea(QKeyEvent* ke)
     a = areaQ[areaIndex];
   } else {
     areaInsert(true);
-    if (key == Qt::Key_F2) { //get your own area
+    if (ca == CA_RECALL_MYAREA) {
       a = myArea;
-    } else if (key == Qt::Key_F5) { //get predefined areas
+    } else if (ca == CA_RECALL_F5) { //get predefined areas
       mapm.getMapAreaByFkey("F5", a);
-    } else if (key == Qt::Key_F6) {
+    } else if (ca == CA_RECALL_F6) {
       mapm.getMapAreaByFkey("F6", a);
-    } else if (key == Qt::Key_F7) {
+    } else if (ca == CA_RECALL_F7) {
       mapm.getMapAreaByFkey("F7", a);
-    } else if (key == Qt::Key_F8) {
+    } else if (ca == CA_RECALL_F8) {
       mapm.getMapAreaByFkey("F8", a);
     }
-    // Controller checks that only these keys are sent here
   }
 
   setMapArea(a);
@@ -2331,61 +2324,48 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
   }
 }
 
-void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventResult& res)
 {
   static int arrowKeyDirection = 1;
 
   float dx = 0, dy = 0;
   float zoom = 0.;
 
-  if (ke->type() == QEvent::KeyPress) {
+  if (anav == ANAV_HOME) {
+    keepcurrentarea = false;
+    updatePlots();
+    keepcurrentarea = true;
+  } else if (anav == ANAV_TOGGLE_DIRECTION) {
+    arrowKeyDirection *= -1;
+    return;
+  } else if (anav == ANAV_PAN_LEFT)
+    dx = -staticPlot_->getPhysWidth() / 8;
+  else if (anav == ANAV_PAN_RIGHT)
+    dx = staticPlot_->getPhysWidth() / 8;
+  else if (anav == ANAV_PAN_DOWN)
+    dy = -staticPlot_->getPhysHeight() / 8;
+  else if (anav == ANAV_PAN_UP)
+    dy = staticPlot_->getPhysHeight() / 8;
+  else if (anav == ANAV_ZOOM_OUT)
+    zoom = 1.3;
+  else if (anav == ANAV_ZOOM_IN)
+    zoom = 1. / 1.3;
 
-    if (ke->key() == Qt::Key_Home) {
-      keepcurrentarea = false;
-      updatePlots();
-      keepcurrentarea = true;
-      return;
+  if (zoom > 0. || dx != 0 || dy != 0) {
+    if (dx != 0 || dy != 0) {
+      dx *= arrowKeyDirection;
+      dy *= arrowKeyDirection;
+    } else {
+      dx = staticPlot_->getPhysWidth()*(1-zoom);
+      dy = staticPlot_->getPhysHeight()*(1-zoom);
     }
-
-    if (ke->key() == Qt::Key_R) {
-      if (arrowKeyDirection > 0)
-        arrowKeyDirection = -1;
-      else
-        arrowKeyDirection = 1;
-      return;
-    }
-
-    if (ke->key() == Qt::Key_Left)
-      dx = -staticPlot_->getPhysWidth() / 8;
-    else if (ke->key() == Qt::Key_Right)
-      dx = staticPlot_->getPhysWidth() / 8;
-    else if (ke->key() == Qt::Key_Down)
-      dy = -staticPlot_->getPhysHeight() / 8;
-    else if (ke->key() == Qt::Key_Up)
-      dy = staticPlot_->getPhysHeight() / 8;
-    else if (ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
-      zoom = 1.3;
-    else if (ke->key() == Qt::Key_Z)
-      zoom = 1. / 1.3;
-    else if (ke->key() == Qt::Key_X)
-      zoom = 1.3;
-
-    if (zoom > 0. || dx != 0 || dy != 0) {
-      if (dx != 0 || dy != 0) {
-        dx *= arrowKeyDirection;
-        dy *= arrowKeyDirection;
-      } else {
-        dx = staticPlot_->getPhysWidth()*(1-zoom);
-        dy = staticPlot_->getPhysHeight()*(1-zoom);
-      }
-      //define new plotarea, first save the old one
-      areaInsert(true);
-      setMapAreaFromPhys(diutil::translatedRectangle(getPhysRectangle(), dx, dy));
-    }
-
-    res.repaint = true;
-    res.background = true;
+    //define new plotarea, first save the old one
+    areaInsert(true);
+    setMapAreaFromPhys(diutil::translatedRectangle(getPhysRectangle(), dx, dy));
   }
+
+  res.repaint = true;
+  res.background = true;
 }
 
 vector<std::string> PlotModule::getFieldModels()

@@ -597,9 +597,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
     keyoverride= true;
   }
 
-  //TESTING GRIDEDITMANAGER
-  //  gridm->sendKeyboardEvent(ke,res);
-
   // first check keys independent of mode
   //-------------------------------------
   if (ke->type() == QEvent::KeyPress){
@@ -616,10 +613,32 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
             ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
             ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
             ke->key() == Qt::Key_F8)) {
-      plotm->changeArea(ke);
+
+      const int key = ke->key();
+      PlotModule::ChangeAreaCommand caco;
+      if (key == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier)
+        caco = PlotModule::CA_DEFINE_MYAREA;
+      else if (key == Qt::Key_F3)
+        caco = PlotModule::CA_HISTORY_PREVIOUS;
+      else if (key == Qt::Key_F4)
+        caco = PlotModule::CA_HISTORY_NEXT;
+      else if (key == Qt::Key_F2)
+        caco = PlotModule::CA_RECALL_MYAREA;
+      else if (key == Qt::Key_F5)
+        caco = PlotModule::CA_RECALL_F5;
+      else if (key == Qt::Key_F6)
+        caco = PlotModule::CA_RECALL_F6;
+      else if (key == Qt::Key_F7)
+        caco = PlotModule::CA_RECALL_F7;
+      else if (key == Qt::Key_F7)
+        caco = PlotModule::CA_RECALL_F8;
+      else
+        return;
+      plotm->changeArea(caco);
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit)
+        res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_F9){
       //    METLIBS_LOG_WARN("F9 - not defined");
@@ -632,8 +651,10 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       return;
       //####################################################################
     } else if ((ke->key() == Qt::Key_Left && ke->modifiers() & Qt::ShiftModifier) ||
-        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) ){
-      plotm->obsTime(ke,res);  // change observation time only
+        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) )
+    {
+      const bool forward = (ke->key() == Qt::Key_Left);
+      plotm->obsTime(forward,res);  // change observation time only
       res.repaint= true;
       res.background= true;
       if (inEdit) res.savebackground= true;
@@ -644,16 +665,37 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
             ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
             ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
-            // 		ke->key() == Qt::Key_A    || ke->key() == Qt::Key_D     ||
-            // 		ke->key() == Qt::Key_S    || ke->key() == Qt::Key_W     ||
-            ke->key() == Qt::Key_Home)) {
-      plotm->sendKeyboardEvent(ke,res);
-      res.repaint= true;
-      res.background= true;
-      if (inEdit) res.savebackground= true;
+            ke->key() == Qt::Key_Home))
+    {
+      if (ke->type() == QEvent::KeyPress) {
+        PlotModule::AreaNavigationCommand anav;
+        if (ke->key() == Qt::Key_Home)
+          anav = PlotModule::ANAV_HOME;
+        else if (ke->key() == Qt::Key_Left)
+          anav = PlotModule::ANAV_PAN_LEFT;
+        else if (ke->key() == Qt::Key_Right)
+          anav = PlotModule::ANAV_PAN_RIGHT;
+        else if (ke->key() == Qt::Key_Down)
+          anav = PlotModule::ANAV_PAN_DOWN;
+        else if (ke->key() == Qt::Key_Up)
+          anav = PlotModule::ANAV_PAN_UP;
+        else if ((ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
+            || (ke->key() == Qt::Key_X))
+          anav = PlotModule::ANAV_ZOOM_OUT;
+        else if (ke->key() == Qt::Key_Z)
+          anav = PlotModule::ANAV_ZOOM_IN;
+        else
+          return;
+
+        plotm->areaNavigation(anav, res);
+        res.repaint= true;
+        res.background= true;
+        if (inEdit)
+          res.savebackground= true;
+      }
       return;
     } else if (ke->key() == Qt::Key_R) {
-      plotm->sendKeyboardEvent(ke,res);
+      plotm->areaNavigation(PlotModule::ANAV_TOGGLE_DIRECTION, res);
       return;
     }
   }
@@ -667,7 +709,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   // catch events to PlotModule
   //-------------------------------------
   if( !inEdit || keyoverride ) {
-    //    plotm->sendKeyboardEvent(ke,res);
     if (ke->type() == QEvent::KeyPress)
       res.action = keypressed;
   }

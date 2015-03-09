@@ -60,8 +60,8 @@ GridConverter StaticPlot::gc; // Projection-converter
 
 StaticPlot::StaticPlot()
   : mPhys(0, 0)       // physical plot size
-  , dirty(true)       // plotsize has changed
   , mPhysToMapScale(1, 1)
+  , dirty(true)       // plotsize has changed
   , pressureLevel(-1) // current pressure level
   , oceandepth(-1)    // current ocean depth
   , gcd(0)            // great circle distance (corner to corner)

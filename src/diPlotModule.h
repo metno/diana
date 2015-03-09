@@ -64,7 +64,6 @@ class TrajectoryPlot;
 class MeasurementsPlot;
 class StationPlot;
 
-class QKeyEvent;
 class QMouseEvent;
 
 namespace diutil {
@@ -288,7 +287,7 @@ public:
    ///plot next/prev set of observations(PageUp/PageDown)
   void nextObs(bool next);
   ///in edit mode: change obs time, leave the rest unchanged
-  void obsTime(QKeyEvent* ke, EventResult& res);
+  void obsTime(bool forward, EventResult& res);
   ///sets the step used in obsTime()
   void obsStepChanged(int step);
 
@@ -360,8 +359,20 @@ public:
   /// push a new area onto the area stack
   void areaInsert(bool);
 
+  enum ChangeAreaCommand {
+    CA_HISTORY_PREVIOUS,
+    CA_HISTORY_NEXT,
+    CA_DEFINE_MYAREA,
+    CA_RECALL_MYAREA,
+    CA_RECALL_F5,
+    CA_RECALL_F6,
+    CA_RECALL_F7,
+    CA_RECALL_F8,
+  };
+
   /// respond to shortcuts to move to predefined areas
-  void changeArea(QKeyEvent* ke);
+  void changeArea(ChangeAreaCommand ca);
+
   /// zoom to specified rectangle
   void setMapAreaFromMap(const Rectangle& rectangle);
   /// zoom out (about 1.3 times)
@@ -376,8 +387,18 @@ public:
   // keyboard/mouse events
   /// send one mouse event
   void sendMouseEvent(QMouseEvent* me, EventResult& res);
-  /// send one keyboard event
-  void sendKeyboardEvent(QKeyEvent* ke, EventResult& res);
+
+  enum AreaNavigationCommand {
+    ANAV_HOME,
+    ANAV_TOGGLE_DIRECTION,
+    ANAV_PAN_LEFT,
+    ANAV_PAN_RIGHT,
+    ANAV_PAN_DOWN,
+    ANAV_PAN_UP,
+    ANAV_ZOOM_OUT,
+    ANAV_ZOOM_IN
+  };
+  void areaNavigation(AreaNavigationCommand anav, EventResult& res);
 
   // return settings formatted for log file
   std::vector<std::string> writeLog();
