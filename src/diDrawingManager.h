@@ -38,6 +38,7 @@
 #include <EditItems/layer.h>
 #include <QHash>
 #include <QList>
+#include <QMap>
 #include <QPointF>
 #include <QSet>
 #include <QString>
@@ -146,8 +147,8 @@ public:
   QSize getSymbolSize(const QString &) const;
 
   // Dialog-related methods
-  QSet<QString> &getDrawings();
-  QSet<QString> &getLoaded();
+  QMap<QString, QString> &getDrawings();
+  QMap<QString, QString> &getLoaded();
   EditItems::LayerManager *getLayerManager();
   EditItems::LayerManager *getAuxLayerManager();
 
@@ -174,9 +175,8 @@ protected:
 
   static Rectangle editRect_;
 
-  // ### are these needed any longer?
-  QSet<QString> drawings_;
-  QSet<QString> loaded_;
+  QMap<QString, QString> drawings_;
+  QMap<QString, QString> loaded_;
 
   EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
 

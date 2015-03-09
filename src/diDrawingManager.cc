@@ -188,7 +188,13 @@ bool DrawingManager::parseSetup()
 
       } else {
         // Drawing definitions
-        drawings_.insert(items["file"]);
+        QString name;
+        if (items.contains("name"))
+          name = items["name"];
+        else
+          name = items["file"];
+
+        drawings_[name] = items["file"];
       }
     } else if (items.contains("style")) {
       // Read-only style definitions
@@ -251,9 +257,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       if (!parseKeyValue(*it, key, value))
         continue;
 
-      if (key == "file") {
-        // Read the specified file, skipping to the next line if successful,
-        // but returning false to indicate an error if unsuccessful.
+      // Read the specified file, skipping to the next line if successful,
+      // but returning false to indicate an error if unsuccessful.
+      if (key == "file" || key == "name") {
         if (loadDrawing(value))
           break;
         else
@@ -272,7 +278,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 std::vector<std::string> DrawingManager::getAnnotations() const
 {
   vector<string> output;
-  foreach (QString drawing, loaded_)
+  foreach (QString drawing, loaded_.keys())
     output.push_back(drawing.toStdString());
   return output;
 }
@@ -290,8 +296,16 @@ void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
   layerMgr_->selectedLayers().first()->insertItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &fileName)
+bool DrawingManager::loadDrawing(const QString &name)
 {
+  // If the name corresponds to a key in the list of drawings then look up
+  // associated file name.
+  QString fileName;
+  if (drawings_.contains(name))
+    fileName = drawings_[name];
+  else
+    fileName = name;
+
   // parse file and create item layers
   QString error;
   QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
@@ -312,9 +326,9 @@ bool DrawingManager::loadDrawing(const QString &fileName)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  layerMgr_->addToNewLayerGroup(layers, fileName);
+  layerMgr_->addToNewLayerGroup(layers, name, fileName);
+  loaded_[name] = fileName;
 
-  loaded_.insert(fileName);
   return true;
 }
 
@@ -511,12 +525,12 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-QSet<QString> &DrawingManager::getDrawings()
+QMap<QString, QString> &DrawingManager::getDrawings()
 {
   return drawings_;
 }
 
-QSet<QString> &DrawingManager::getLoaded()
+QMap<QString, QString> &DrawingManager::getLoaded()
 {
   return loaded_;
 }

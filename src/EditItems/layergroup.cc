@@ -78,6 +78,16 @@ void LayerGroup::setName(const QString &n)
   name_ = n;
 }
 
+QString LayerGroup::fileName() const
+{
+  return fileName_;
+}
+
+void LayerGroup::setFileName(const QString &fn)
+{
+  fileName_ = fn;
+}
+
 bool LayerGroup::isEditable() const
 {
   return editable_;

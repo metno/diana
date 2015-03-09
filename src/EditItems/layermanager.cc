@@ -149,7 +149,7 @@ void LayerManager::addToLayerGroup(const QSharedPointer<LayerGroup> &layerGroup,
 {
   foreach(const QSharedPointer<Layer> &layer, layers) {
     // ensure that the layer doesn't exist already (in some layer group)
-    QSharedPointer<LayerGroup> existingLayerGroup =findLayerGroup(layer);
+    QSharedPointer<LayerGroup> existingLayerGroup = findLayerGroup(layer);
     if (existingLayerGroup)
       qFatal("layer '%s' already exists in layer group '%s'",
              layer->name().toLatin1().data(),
@@ -168,9 +168,10 @@ void LayerManager::addToLayerGroup(const QSharedPointer<LayerGroup> &layerGroup,
   addToLayerGroup(layerGroup, QList<QSharedPointer<Layer> >() << layer);
 }
 
-QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name)
+QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QList<QSharedPointer<Layer> > &layers, const QString &name,
+                                                            const QString &fileName)
 {
-  QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name);
+  QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name, fileName);
   layerGroups_.append(layerGroup);
   addToLayerGroup(layerGroup, layers);
   return layerGroup;
@@ -181,9 +182,10 @@ QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QSharedPointer
   return addToNewLayerGroup(QList<QSharedPointer<Layer> >() << layer, name);
 }
 
-QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name) const
+QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name, const QString &fileName) const
 {
   QSharedPointer<LayerGroup> layerGroup(new LayerGroup(name.isEmpty() ? "new layer group" : name));
+  layerGroup->setFileName(fileName);
   ensureUniqueLayerGroupName(layerGroup);
   return layerGroup;
 }
