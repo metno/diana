@@ -60,6 +60,8 @@
 using namespace std;
 using namespace road;
 
+static const float DEG_TO_RAD = M_PI / 180;
+
 VprofRTemp::VprofRTemp()
 {
 }
