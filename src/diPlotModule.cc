@@ -2352,16 +2352,19 @@ void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventRes
     zoom = 1. / 1.3;
 
   if (zoom > 0. || dx != 0 || dy != 0) {
+    Rectangle r;
     if (dx != 0 || dy != 0) {
       dx *= arrowKeyDirection;
       dy *= arrowKeyDirection;
+      r = diutil::translatedRectangle(getPhysRectangle(), dx, dy);
     } else {
-      dx = staticPlot_->getPhysWidth()*(1-zoom);
-      dy = staticPlot_->getPhysHeight()*(1-zoom);
+      dx = staticPlot_->getPhysWidth()*(zoom-1);
+      dy = staticPlot_->getPhysHeight()*(zoom-1);
+      r = diutil::adjustedRectangle(getPhysRectangle(), dx, dy);
     }
     //define new plotarea, first save the old one
     areaInsert(true);
-    setMapAreaFromPhys(diutil::translatedRectangle(getPhysRectangle(), dx, dy));
+    setMapAreaFromPhys(r);
   }
 
   res.repaint = true;
