@@ -57,6 +57,21 @@ private:
   //obs positions
   float *x, *y;
 
+  struct Parameter {
+    std::string name;
+    bool knotParam;
+    bool tempParam;
+    bool rrrParam;
+    int symbol;
+    int precision;
+    Parameter():
+    knotParam(0), tempParam(false), rrrParam(false), symbol(-1), precision(0)
+    {
+    }
+  };
+
+  std::vector<Parameter> vparam;
+
   //from plotInfo
   std::string infostr;
   float markerSize;
@@ -78,7 +93,7 @@ private:
   int level;
   bool levelAsField;
   std::string m_plottype;
-	std::string dialogname;
+  std::string dialogname;
 
   const std::string& plottype() const
   {
@@ -251,23 +266,24 @@ private:
   // used only from plotList
   void printList(float f, float& xpos, float& ypos, int precision,
       bool align_right = false, std::string opt = "");
-  void printListParameter(const ObsData& dta, const std::string& param,
-      float& xpos, float& ypos, float yStep, bool align_right, int precision);
-  void printListParameter2(const ObsData& dta, const std::string& param,
-      float& xpos, float& ypos, float yStep, bool align_right, int precision);
+  void printListParameter(const ObsData& dta, const Parameter& param,
+      float& xpos, float& ypos, float yStep, bool align_right, float xshift);
+  void printListSymbol(const ObsData& dta, const Parameter& param,
+      float& xpos, float& ypos, float yStep, bool align_right, const float& xshift);
   void printListRRR(const ObsData& dta, const std::string& param, float& xpos,
-      float& ypos, float yStep, bool align_right);
+      float& ypos, bool align_right);
+  void printListPos(const ObsData& dta,
+      float& xpos, float& ypos, float yStep, bool align_right);
+
+  void plotAscii(const ObsData& dta,const std::string& param, float& xpos, float& ypos, const float& yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
   void printNumber(float, float, float, const std::string& align = "left",
       bool = false, bool = false);
 
-  // from plotList, plotSynop, ROAD/plotDBSynop (commented out)
-  void printAvvik(float, float, float, bool align_right = false);
-
   // from plotList, plotSynop
-  void printTime(miutil::miTime, float, float, bool align_right = false,
-      std::string = "");
+  void printTime(const miutil::miTime&, float, float, bool align_right = false,
+      const std::string& = "");
 
   // from plotList and plotAscii
   void printListString(const std::string& txt, float& xpos, float& ypos,
@@ -346,7 +362,6 @@ private:
 
   void plotSynop(int index);
   void plotList(int index);
-  void plotAscii(int index);
   void plotMetar(int index);
 #ifdef ROADOBS
   void plotRoadobs(int index);

@@ -1068,15 +1068,14 @@ ObsDialogInfo ObsManager::initDialog()
   pocea.pressureLevels = std::vector<int>(ocea_levels,
       ocea_levels + NOCEALEVELS);
 
+  pocea.button.push_back(addButton("Pos", "Position", 0, 0, true));
   pocea.button.push_back(addButton("Id", "Identifcation", 0, 0, true));
-  pocea.button.push_back(addButton("PwaPwa", "period of waves"));
-  pocea.button.push_back(addButton("HwaHwa", "height of waves"));
+  pocea.button.push_back(addButton("Date", "Date(mm-dd)", 0, 0));
+  pocea.button.push_back(addButton("Time", "hh.mm  ", 0, 0, true));
   pocea.button.push_back(addButton("depth", "depth", 0, 100, true));
   pocea.button.push_back(
       addButton("TTTT", "sea/water temperature", -50, 50, true));
   pocea.button.push_back(addButton("SSSS", "Salt", 0, 50, true));
-  pocea.button.push_back(addButton("Date", "Date(mm-dd)", 0, 0));
-  pocea.button.push_back(addButton("Time", "hh.mm  ", 0, 0, true));
 
   type.active.resize(pocea.button.size(), true);
 
@@ -1097,10 +1096,10 @@ ObsDialogInfo ObsManager::initDialog()
   ptide.criteriaList = criteriaList["tide"];
 
   ptide.button.push_back(addButton("Pos", "Position", 0, 0, true));
-  ptide.button.push_back(addButton("TE", "Tide", -10, 10, true));
-  ptide.button.push_back(addButton("Id", "Identification", 0, 0, true));
   ptide.button.push_back(addButton("Date", "Date(mm-dd)", 0, 0));
   ptide.button.push_back(addButton("Time", "hh.mm  ", 0, 0, true));
+  ptide.button.push_back(addButton("Name", "Name", 0, 0, true));
+  ptide.button.push_back(addButton("TE", "Tide", -10, 10, true));
 
   type.active.resize(ptide.button.size(), true);
 
