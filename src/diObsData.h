@@ -59,8 +59,11 @@ public:
   std::vector<std::string> cloud;  ///< Clouds
   std::string appendix;       ///< For whatever remains
 
-  std::map<std::string,float> fdata;
-  std::map<std::string,std::string> stringdata;
+  typedef std::map<std::string,float> fdata_t;
+  typedef std::map<std::string,std::string> stringdata_t;
+
+  fdata_t fdata;
+  stringdata_t stringdata;
 
   //Hqc
   std::map<std::string,std::string> flag;

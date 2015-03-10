@@ -537,7 +537,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   7001  HEIGHT OF STATION, M
     case 7030:
       if (values[j] < bufrMissing)
-        d.fdata["stationHeight"] = values[j];
+        d.fdata["Height"] = values[j];
       break;
 
       //   7032  HEIGHT OF SENSOR, M
@@ -1064,10 +1064,16 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if(d.fdata.count("N") && d.fdata.count("h") && d.fdata["N"]==0 && d.fdata["h"]==0) {
     d.fdata["h"] = 9;
   }
+  if ( !d.id.empty())
+    d.stringdata["Id"] = d.id;
+  if ( !d.name.empty())
+    d.stringdata["Name"] = d.name;
 
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
+    d.stringdata["Date"] = d.obsTime.format("%m-%d");
+    d.stringdata["Time"] = d.obsTime.format("%H.%M");
   }
 
   //skip obs if xpos or ypos  or obsTime not ok
@@ -1344,7 +1350,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         //   7001  HEIGHT OF STATION, M
       case 7001:
         if (values[j] < bufrMissing)
-          d.fdata["stationHeight"] = values[j];
+          d.fdata["Height"] = values[j];
         break;
 
         //   007004  PRESSURE, Pa->hPa
@@ -1504,8 +1510,14 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
     d.id = ostr.str();
   }
 
+  if ( !d.id.empty())
+    d.stringdata["Id"] = d.id;
+  if ( !d.name.empty())
+    d.stringdata["Name"] = d.name;
   //TIME
   d.obsTime = miTime(year, month, day, hour, minute, 0);
+  d.stringdata["Date"] = d.obsTime.format("%m-%d");
+  d.stringdata["Time"] = d.obsTime.format("%H.%M");
 
   return true;
 }
