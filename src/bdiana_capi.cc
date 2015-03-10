@@ -62,6 +62,7 @@
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
+#include <diPlotModule.h>
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
@@ -1558,6 +1559,7 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
+  PlotModule::instance()->getStaticPlot()->restartFontManager();
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
