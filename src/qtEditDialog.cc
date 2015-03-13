@@ -157,7 +157,18 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.v�r
   editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.v�r
   editTranslations["Generic area"]=tr("Generic area"); //
-
+  
+  // SMHI specific
+  editTranslations["Decreasing pressure"]=tr("Decreasing pressure"); //Pressure tendency, falling
+  editTranslations["Increasing pressure"]=tr("Increasing pressure"); //Pressure tendency, increasing
+  editTranslations["Drifting snow"]=tr("Drifting snow"); //Drifting snow
+  editTranslations["VMC-line"]=tr("VMC-line"); //VMC-line
+  editTranslations["CAT-line"]=tr("CAT-line"); //CAT-line
+  editTranslations["Line of thunderstorms red"]=tr("Line of thunderstorms red");
+  editTranslations["Line of thunderstorms green"]=tr("Line of thunderstorms green");
+  editTranslations["Line of thunderstorms blue"]=tr("Line of thunderstorms blue");
+  editTranslations["Graupel"]=tr("Graupel");
+  editTranslations["Jet stream"]=tr("Jet stream");
   // --------------------------------------------------------------------
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
