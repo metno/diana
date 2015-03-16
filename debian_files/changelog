@@ -1,8 +1,11 @@
 diana (3.38.0~a1-1) unstable; urgency=low
 
-  * new upstream version
+  * FieldFunctions - new functions with several forecasthours
+  * ObsPlot - more general plotList
+  * PlotModule/Controller - key events are interpreted in Controller
+  * PlotModule/StaticPlot/Plot - refactoring 
 
- -- Alexander Bürger <alexander.buerger@met.no>  Thu, 05 Mar 2015 08:08:08 +0100
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Mar 2015 08:55:50 +0100
 
 diana (3.37.0~rc9-1) unstable; urgency=low
 
