@@ -71,7 +71,6 @@ ObjectPlot::ObjectPlot(const ObjectPlot &rhs)
 
 ObjectPlot::~ObjectPlot()
 {
-  METLIBS_LOG_SCOPE();
   delete[] x;
   delete[] y;
   delete[] x_s;
