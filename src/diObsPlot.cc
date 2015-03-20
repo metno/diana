@@ -1721,7 +1721,7 @@ void ObsPlot::plot(PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (zorder != LINES)
+  if (zorder != LINES && zorder != OVERLAY)
     return;
 
   if (!isEnabled()) {
