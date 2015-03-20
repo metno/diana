@@ -113,7 +113,7 @@ void WeatherObjects::plot(Plot::PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!enabled || porder != Plot::LINES)
+  if (!enabled || ( porder != Plot::LINES && porder != Plot::OVERLAY) )
     return;
 
   const int n = objects.size();
