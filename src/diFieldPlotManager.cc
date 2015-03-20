@@ -578,6 +578,10 @@ void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, b
     fieldtext += " " + fout->idnumtext;
   }
 
+  if( !fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
+    fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
+  }
+
   std::string progtext;
   if( !fout->analysisTime.undef() && fout->forecastHour != -32767 ) {
     ostringstream ostr;
