@@ -34,11 +34,16 @@
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>
 
+#include <vector>
+
 #include <QtGui> // ### include only relevant headers ... TBD
 #include <QAction>
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
+
+#include <diLocalSetupParser.h>
+#include <puTools/miSetupParser.h>
 
 #include <diEditItemManager.h>
 #include <diPlotModule.h>
@@ -61,6 +66,9 @@
 #include "paint_create_text.xpm"
 
 #define PLOTM PlotModule::instance()
+
+using namespace std;
+using namespace miutil;
 
 class UndoView : public QUndoView
 {
@@ -166,6 +174,36 @@ EditItemManager *EditItemManager::instance()
     EditItemManager::self_ = new EditItemManager();
 
   return EditItemManager::self_;
+}
+
+bool EditItemManager::parseSetup()
+{
+  vector<string> section;
+
+  if (!SetupParser::getSection("DRAWING", section))
+    METLIBS_LOG_WARN("No DRAWING section.");
+
+  for (unsigned int i = 0; i < section.size(); ++i) {
+
+    // Split the line into tokens.
+    vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+    QHash<QString, QString> items;
+
+    for (unsigned int j = 0; j < tokens.size(); ++j) {
+      string key, value;
+      SetupParser::splitKeyValue(tokens[j], key, value);
+      items[QString::fromStdString(key)] = QString::fromStdString(value);
+    }
+
+    // Check for different types of definition.
+    if (items.contains("hide-property-sections")) {
+      QStringList values = items.value("hide-property-sections").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("hide", values);
+    }
+  }
+
+  // Let the base class parse the section of the setup file.
+  return DrawingManager::parseSetup();
 }
 
 void EditItemManager::setEditing(bool enable)
