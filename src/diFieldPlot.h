@@ -52,6 +52,7 @@ public:
 
   ///plot in overlay buffer
   bool overlayBuffer(){return overlay;}
+  void setOverlayBuffer(bool overlay_){overlay=overlay_;}
 
   bool getDataAnnotations(std::vector<std::string>& anno);
 

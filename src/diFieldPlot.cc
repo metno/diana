@@ -566,7 +566,8 @@ void FieldPlot::plot(PlotOrder zorder)
     if (!getShadePlot() && !overlayBuffer())
       plotMe();
   } else if (zorder == OVERLAY) {
-    plotMe();
+    if (overlay)
+      plotMe();
   }
 }
 
