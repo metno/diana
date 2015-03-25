@@ -195,6 +195,9 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
         }
         ditem->setProperty("joinId", joinId);
 
+      } else if (it.key() == "met:text") {
+        ;
+
       } else if (it.key().startsWith("met:"))
         ditem->setProperty(it.key().mid(4), it.value());
     }
