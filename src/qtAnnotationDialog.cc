@@ -159,6 +159,8 @@ void AnnotationDialog::parseSetup(){
       }
       setup_annoStrings[name]=qstr;
       current_annoStrings[name]=qstr;
+      if ( name == "default")
+        defaultAnno = qstr;
       qstr.clear();
     }
 
@@ -172,6 +174,7 @@ void AnnotationDialog::parseSetup(){
     }
     setup_annoStrings[name]=qstr;
     current_annoStrings[name]=qstr;
+    defaultAnno = qstr;
 
   } else {
 
@@ -183,6 +186,7 @@ void AnnotationDialog::parseSetup(){
     qstr += "LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0 \n";
     setup_annoStrings[name]=qstr;
     current_annoStrings[name]=qstr;
+    defaultAnno = qstr;
     return;
   }
 
