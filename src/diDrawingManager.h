@@ -172,6 +172,7 @@ public slots:
 
 signals:
   void itemsClicked(const QList<QSharedPointer<DrawingItemBase> > &items);
+  void itemsHovered(const QList<QSharedPointer<DrawingItemBase> > &items);
 
 protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
