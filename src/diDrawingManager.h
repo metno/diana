@@ -94,8 +94,11 @@ public:
   virtual bool processInput(const std::vector<std::string>& inp);
   virtual std::vector<std::string> getAnnotations() const;
 
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
+  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res);
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
+
+  QList<QSharedPointer<DrawingItemBase> > findHitItems(
+    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const;
 
   QList<QPointF> getLatLonPoints(const DrawingItemBase &item) const;
   void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const;
@@ -166,6 +169,9 @@ public:
 
 public slots:
   std::vector<miutil::miTime> getTimes() const;
+
+signals:
+  void itemsClicked(const QList<QSharedPointer<DrawingItemBase> > &items);
 
 protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);

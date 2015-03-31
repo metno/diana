@@ -436,4 +436,14 @@ void LayerManager::ensureUniqueLayerName(const QSharedPointer<Layer> &layer) con
   layer->setName(createUniqueLayerName(layer->name()));
 }
 
+QSet<QSharedPointer<DrawingItemBase> > LayerManager::allItems() const
+{
+  QSet<QSharedPointer<DrawingItemBase> > items;
+
+  for (int i = 0; i < orderedLayers_.size(); ++i)
+    items.unite(orderedLayers_.at(i)->items().toSet());
+
+  return items;
+}
+
 } // namespace

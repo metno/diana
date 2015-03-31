@@ -48,6 +48,7 @@
 #include <set>
 
 #include <QImage>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QSvgRenderer>
 
@@ -647,4 +648,37 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
   }
 
   plotElems_.value(i)->setVisible(pe.enabled, true);
+}
+
+/**
+ * Handles mouse events when used as part of Diana instead of bdiana.
+ */
+void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
+{
+  if (event->type() != QEvent::MouseButtonPress || event->buttons() != Qt::LeftButton)
+    return;
+
+  // Find a list of items at the point passed in the event.
+  QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
+  if (hit.size() > 0) {
+    emit itemsClicked(hit);
+    event->setAccepted(true);
+  }
+}
+
+QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
+    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
+{
+  // Find all items in all layers.
+  QSet<QSharedPointer<DrawingItemBase> > allItems = layerMgr_->allItems();
+  QList<QSharedPointer<DrawingItemBase> > hitItems;
+
+  foreach (const QSharedPointer<DrawingItemBase> &item, allItems) {
+    if (item->hit(pos, false))
+      hitItems.append(item);
+    else if (missedItems)
+      missedItems->append(item);
+  }
+
+  return hitItems;
 }

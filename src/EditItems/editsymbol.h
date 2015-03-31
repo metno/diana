@@ -56,7 +56,6 @@ private:
   virtual DrawingItemBase *cloneSpecial(bool) const;
 
   virtual bool hit(const QPointF &, bool) const;
-  virtual bool hit(const QRectF &) const;
 
   virtual void mousePress(QMouseEvent *, bool &, bool *);
   virtual void mouseRelease(QMouseEvent *event, bool &repaintNeeded);

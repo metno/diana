@@ -75,6 +75,18 @@ QRectF Symbol::boundingRect() const
   return QRectF(points_.at(0).x() - size/2, points_.at(0).y() - aspect*size/2, size, aspect*size);
 }
 
+bool Symbol::hit(const QPointF &pos, bool selected) const
+{
+  const QPolygonF polygon(boundingSquare().toVector());
+  return polygon.containsPoint(pos, Qt::OddEvenFill);
+}
+
+bool Symbol::hit(const QRectF &rect) const
+{
+  Q_UNUSED(rect);
+  return false; // for now
+}
+
 void Symbol::draw()
 {
   if (points_.isEmpty())

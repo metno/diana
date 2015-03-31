@@ -497,6 +497,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   res.newcursor= keep_it;    // leave the cursor be for now
   res.action= no_action;     // trigger GUI-action
 
+  me->setAccepted(false);
 
   mapMode mm= editm->getMapMode();
   bool inEdit = (mm != normal_mode);
@@ -526,10 +527,9 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     bool handled = false;
     if (!(me->modifiers() & Qt::ShiftModifier)) {
       for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-        if (it->second->isEditing()) {
-          it->second->sendMouseEvent(me, res);
-          if (me->isAccepted())
-            handled = true;
+        it->second->sendMouseEvent(me, res);
+        if (me->isAccepted()) {
+          handled = true;
           break;
         }
       }

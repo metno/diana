@@ -45,9 +45,6 @@ public:
   Composite(int = -1);
   virtual ~Composite();
 
-  virtual bool hit(const QPointF &pos, bool selected) const;
-  virtual bool hit(const QRectF &bbox) const;
-
   virtual void mousePress(QMouseEvent *event, bool &repaintNeeded,
                           QList<QUndoCommand *> *undoCommands,
                           QSet<QSharedPointer<DrawingItemBase> > *items = 0,

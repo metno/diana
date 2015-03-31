@@ -559,7 +559,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     Editing(incompleteItem_.data())->incompleteMouseHover(event, rpn);
     incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
     if (rpn) repaintNeeded_ = true;
-    if (Editing(incompleteItem_.data())->hit(event->pos(), false))
+    if (incompleteItem_->hit(event->pos(), false))
       hitItems_ = QList<QSharedPointer<DrawingItemBase> >() << incompleteItem_;
   } else {
     bool rpn = false;
@@ -754,13 +754,14 @@ QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(
   if (layerMgr_->selectedLayers().isEmpty())
     return QList<QSharedPointer<DrawingItemBase> >();
 
+  // Find only selected items in selected layers.
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
 
   QList<QSharedPointer<DrawingItemBase> > hitItems;
   foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers()) {
     if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
       continue;
-    if (Editing(item.data())->hit(pos, selItems.contains(item)))
+    if (item->hit(pos, selItems.contains(item)))
       hitItems.append(item);
     else if (missedItems)
       missedItems->append(item);
@@ -1319,6 +1320,9 @@ void EditItemManager::handleSelectionChange()
 
 void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
+  if (!isEditing())
+    return;
+
   event->ignore();
   res.savebackground= true;   // Save the background after painting.
   res.background= false;      // Don't paint the background.

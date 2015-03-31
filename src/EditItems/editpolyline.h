@@ -51,7 +51,6 @@ private:
     virtual DrawingItemBase *cloneSpecial(bool) const;
 
     virtual bool hit(const QPointF &, bool) const;
-    virtual bool hit(const QRectF &) const;
 
     virtual void mousePress(QMouseEvent *, bool &, bool *);
     virtual void mouseHover(QMouseEvent *, bool &, bool = false);
@@ -70,12 +69,6 @@ private:
     virtual void resize(const QPointF &);
     virtual void updateControlPoints();
     virtual void setPoints(const QList<QPointF> &);
-
-    static qreal dist2(const QPointF &, const QPointF &);
-    static qreal distance2(const QPointF &, const QPointF &, const QPointF &);
-    qreal distance(const QPointF &) const;
-
-    int hitLine(const QPointF &) const;
 
     virtual QList<QAction *> actions(const QPoint &) const;
 

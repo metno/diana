@@ -51,6 +51,9 @@ public:
 
   void updateRect();
 
+  virtual bool hit(const QPointF &pos, bool selected) const;
+  virtual bool hit(const QRectF &bbox) const;
+
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
 

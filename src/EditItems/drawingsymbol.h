@@ -48,6 +48,9 @@ public:
   virtual void fromKML(const QHash<QString, QString> & = QHash<QString, QString>());
   virtual QRectF boundingRect() const;
 
+  virtual bool hit(const QPointF &, bool) const;
+  virtual bool hit(const QRectF &) const;
+
   static int defaultSize();
 
 protected:

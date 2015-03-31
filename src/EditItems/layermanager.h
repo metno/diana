@@ -102,6 +102,8 @@ public:
   QString createUniqueLayerName(const QString &) const;
   void ensureUniqueLayerName(const QSharedPointer<Layer> &) const;
 
+  QSet<QSharedPointer<DrawingItemBase> > allItems() const;
+
 private:
   QList<QSharedPointer<LayerGroup> > layerGroups_;
   // the layers of all layer groups organized in a single, ordered list:

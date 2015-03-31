@@ -103,6 +103,18 @@ void Composite::updateRect()
   points_[1] = rect.center();
 }
 
+bool Composite::hit(const QPointF &pos, bool selected) const
+{
+  QRectF box = boundingRect();
+  return box.contains(pos);
+}
+
+bool Composite::hit(const QRectF &bbox) const
+{
+  QRectF box = boundingRect();
+  return box.intersects(bbox);
+}
+
 QDomNode Composite::toKML(const QHash<QString, QString> &extraExtData) const
 {
   QHash<QString, QString> extra;

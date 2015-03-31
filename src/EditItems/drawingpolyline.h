@@ -46,6 +46,14 @@ public:
   virtual ~PolyLine();
   virtual QDomNode toKML() const;
 
+  virtual bool hit(const QPointF &, bool) const;
+  virtual bool hit(const QRectF &) const;
+  int hitLine(const QPointF &) const;
+
+  static qreal dist2(const QPointF &, const QPointF &);
+  static qreal distance2(const QPointF &, const QPointF &, const QPointF &);
+  qreal distance(const QPointF &) const;
+
   // Returns the category of the item as required by the style manager.
   virtual Category category() const;
 

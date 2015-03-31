@@ -47,9 +47,6 @@ public:
 
 private:
 
-  virtual bool hit(const QPointF &pos, bool selected) const;
-  virtual bool hit(const QRectF &bbox) const;
-
   virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
   virtual void mouseDoubleClick(QMouseEvent *, bool &);
   virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);

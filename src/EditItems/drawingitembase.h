@@ -95,6 +95,16 @@ public:
   // Updates the bounding rectangle.
   virtual void updateRect();
 
+  // Returns true iff the item is hit at \a pos.
+  // The item is considered selected iff \a selected is true (a selected item may typically be hit at
+  // control points as well).
+  virtual bool hit(const QPointF &pos, bool selected) const = 0;
+
+  // Returns true iff the item is considered to be hit by \a rect.
+  // Whether this means that the item's shape is partially or fully inside \a rect is
+  // up to the item itself.
+  virtual bool hit(const QRectF &bbox) const = 0;
+
   // Returns the item's geographic points.
   virtual QList<QPointF> getLatLonPoints() const;
   // Sets the item's geographic points.
@@ -124,6 +134,9 @@ protected:
     Q_ASSERT(false);
     return 0;
   }
+
+  static qreal sqr(qreal);
+
   mutable QVariantMap properties_;
   QList<QPointF> points_;
   QList<QPointF> latLonPoints_;
