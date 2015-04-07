@@ -32,6 +32,7 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
+#include "diCommonTypes.h"
 #include "diMapMode.h"
 #include "diPlot.h"
 
@@ -71,6 +72,7 @@ public:
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) = 0;
 
   virtual std::vector<std::string> getAnnotations() const = 0;
+  virtual std::vector<PlotElement> getPlotElements() const = 0;
 
   virtual bool isEnabled() const;
   virtual void setEnabled(bool enable);

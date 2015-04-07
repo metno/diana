@@ -483,6 +483,12 @@ vector<PlotElement> PlotModule::getPlotElements()
     }
   }
 
+  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+    std::vector<PlotElement> pe = it->second->getPlotElements();
+    for (std::vector<PlotElement>::const_iterator it_pe = pe.begin(); it_pe != pe.end(); ++it_pe)
+      pel.push_back(*it_pe);
+  }
+
   return pel;
 }
 

@@ -160,7 +160,7 @@ public:
 
   void setEditRect(Rectangle r);
 
-  std::vector<PlotElement> getPlotElements(bool = true) const;
+  virtual std::vector<PlotElement> getPlotElements() const;
   virtual QString plotElementTag() const;
   void enablePlotElement(const PlotElement &);
 

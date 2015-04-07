@@ -1434,15 +1434,6 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &short
 std::vector<PlotElement> DianaMainWindow::getPlotElements() const
 {
   std::vector<PlotElement> pe = contr->getPlotElements();
-
-  std::vector<PlotElement> pe_dm = DrawingManager::instance()->getPlotElements();
-  for (std::vector<PlotElement>::const_iterator it = pe_dm.begin(); it != pe_dm.end(); ++it)
-    pe.push_back(*it);
-
-  std::vector<PlotElement> pe_em = EditItemManager::instance()->getPlotElements();
-  for (std::vector<PlotElement>::const_iterator it = pe_em.begin(); it != pe_em.end(); ++it)
-    pe.push_back(*it);
-
   return pe;
 }
 
