@@ -139,14 +139,14 @@ void VcrossSetupDialog::initOptions()
 #endif
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
-	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+      VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   mSetupFRAME = new VcrossSetupUI(this, tr("Frame"), glayout, nrow++, opts);
 
   opts= VcrossSetupUI::useOnOff;
   mSetupLEVELNUMBERS = new VcrossSetupUI(this, tr("Number for level"), glayout, nrow++, opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
-	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+      VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
 #ifndef DISABLE_UNUSED_OPTIONS
   mSetupUPPERLEVEL = new VcrossSetupUI(this, tr("Top level"), glayout, nrow++, opts);
   mSetupLOWERLEVEL = new VcrossSetupUI(this, tr("Bottom level"), glayout, nrow++, opts);
@@ -157,8 +157,9 @@ void VcrossSetupDialog::initOptions()
   mSetupSURFACE = new VcrossSetupUI(this, tr("Surface Pressure (Topography)"), glayout, nrow++, opts);
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour |
-	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+      VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   mSetupINFLIGHT = new VcrossSetupUI(this, tr("Inflight lines"), glayout, nrow++, opts);
+  mSetupHORGRID = new VcrossSetupUI(this, tr("Horizontal gridlines"), glayout, nrow++, opts);
 #ifndef DISABLE_UNUSED_OPTIONS
   mSetupVERTGRID = new VcrossSetupUI(this, tr("Vertical gridlines"), glayout, nrow++, opts);
   mSetupMARKERLINES = new VcrossSetupUI(this, tr("Marker lines"), glayout, nrow++, opts);
@@ -188,15 +189,15 @@ void VcrossSetupDialog::initOptions()
 
   opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useColour);
   mSetupGEOPOS = new VcrossSetupUI(this, tr("Geographical positions"), glayout, nrow++, opts);
+
+  opts= (VcrossSetupUI::useOnOff);
+  mSetupCOMPASS = new VcrossSetupUI(this, tr("Direction indicators"), glayout, nrow++, opts);
+
 #ifndef DISABLE_UNUSED_OPTIONS
   opts= VcrossSetupUI::useOnOff;
   mSetupEXTRAPOLP = new VcrossSetupUI(this, tr("Extrapolate to fixed P"), glayout, nrow++, opts);
   mSetupBOTTOMEXT = new VcrossSetupUI(this, tr("Extrapolate to ocean floor"), glayout, nrow++, opts);
 #endif
-
-  opts= (VcrossSetupUI::useOnOff | VcrossSetupUI::useValue);
-  mSetupTHICKARROWS = new VcrossSetupUI(this, tr("Thick arrows"), glayout, nrow++, opts);
-  mSetupTHICKARROWS->defineValue(1,50,1,10,"","%");
 
   nrow++;
   opts= VcrossSetupUI::useTextChoice;
@@ -233,7 +234,7 @@ void VcrossSetupDialog::initOptions()
 #ifndef DISABLE_UNUSED_OPTIONS
   nrow++;
   opts= (VcrossSetupUI::useColour |
-	 VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
+      VcrossSetupUI::useLineWidth | VcrossSetupUI::useLineType);
   mSetupONMAPDRAW = new VcrossSetupUI(this, tr("Crossections on map"), glayout, nrow++, opts);
   mSetupHITMAPDRAW = new VcrossSetupUI(this, tr("Selected crossection on map"), glayout, nrow++, opts);
 #endif
@@ -323,11 +324,18 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
   mSetupDISTANCE->setTextChoice2(vcopt->distanceStep);
 #endif
 
-  mSetupGEOPOS->setChecked    (vcopt->pGeoPos);
-  mSetupGEOPOS->setColour(vcopt->geoposColour);
+  mSetupGEOPOS->setChecked (vcopt->pGeoPos);
+  mSetupGEOPOS->setColour  (vcopt->geoposColour);
+
+  mSetupCOMPASS->setChecked(vcopt->pCompass);
+
+  mSetupHORGRID->setChecked  (vcopt->pHorizontalGridLines);
+  mSetupHORGRID->setColour   (vcopt->horgridColour);
+  mSetupHORGRID->setLinewidth(vcopt->horgridLinewidth);
+  mSetupHORGRID->setLinetype (vcopt->horgridLinetype);
 
 #ifndef DISABLE_UNUSED_OPTIONS
-  mSetupVERTGRID->setChecked       (vcopt->pVerticalGridLines);
+  mSetupVERTGRID->setChecked  (vcopt->pVerticalGridLines);
   mSetupVERTGRID->setColour   (vcopt->vergridColour);
   mSetupVERTGRID->setLinewidth(vcopt->vergridLinewidth);
   mSetupVERTGRID->setLinetype (vcopt->vergridLinetype);
@@ -346,10 +354,6 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
 
   mSetupBOTTOMEXT->setChecked(vcopt->extrapolateToBottom);
 #endif
-
-  const bool thickArrows = vcopt->thickArrowScale > 0;
-  mSetupTHICKARROWS->setChecked(thickArrows);
-  mSetupTHICKARROWS->setValue(thickArrows ? (vcopt->thickArrowScale * 100.0) : 10);
 
   mSetupVERTICALTYPE->setTextChoice(vcopt->verticalType);
 
@@ -372,7 +376,7 @@ void VcrossSetupDialog::setup(vcross::VcrossOptions* vcopt)
   mSetupONMAPDRAW->setColour   (vcopt->vcOnMapColour);
   mSetupONMAPDRAW->setLinewidth(vcopt->vcOnMapLinewidth);
   mSetupONMAPDRAW->setLinetype (vcopt->vcOnMapLinetype);
-  
+
   mSetupHITMAPDRAW->setColour   (vcopt->vcSelectedOnMapColour);
   mSetupHITMAPDRAW->setLinewidth(vcopt->vcSelectedOnMapLinewidth);
   mSetupHITMAPDRAW->setLinetype (vcopt->vcSelectedOnMapLinetype);
@@ -440,6 +444,13 @@ void VcrossSetupDialog::applySetup()
   vcopt->pGeoPos=      mSetupGEOPOS->isChecked();
   vcopt->geoposColour= mSetupGEOPOS->getColour().name;
 
+  vcopt->pCompass=     mSetupCOMPASS->isChecked();
+
+  vcopt->pHorizontalGridLines= mSetupHORGRID->isChecked();
+  vcopt->horgridColour=        mSetupHORGRID->getColour().name;
+  vcopt->horgridLinewidth=     mSetupHORGRID->getLinewidth();
+  vcopt->horgridLinetype=      mSetupHORGRID->getLinetype ();
+
 #ifndef DISABLE_UNUSED_OPTIONS
   vcopt->pVerticalGridLines= mSetupVERTGRID->isChecked();
   vcopt->vergridColour=      mSetupVERTGRID->getColour().name;
@@ -455,16 +466,11 @@ void VcrossSetupDialog::applySetup()
   vcopt->verticalMarkerColour=    mSetupVERTICALMARKER->getColour().name;
   vcopt->verticalMarkerLinewidth= mSetupVERTICALMARKER->getLinewidth();
   vcopt->verticalMarkerLinetype=  mSetupVERTICALMARKER->getLinetype ();
-      
+
   vcopt->extrapolateFixedLevels= mSetupEXTRAPOLP->isChecked();
 
   vcopt->extrapolateToBottom= mSetupBOTTOMEXT->isChecked();
 #endif
-
-  if (mSetupTHICKARROWS->isChecked())
-    vcopt->thickArrowScale= mSetupTHICKARROWS->getValue() / 100.0;
-  else
-    vcopt->thickArrowScale= 0;
 
   { vcopt->verticalType= mSetupVERTICALTYPE->getTextChoice();
     std::vector<std::string> tokens = miutil::split(vcopt->verticalType,"/");

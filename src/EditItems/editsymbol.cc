@@ -61,17 +61,8 @@ DrawingItemBase *Symbol::cloneSpecial(bool setUniqueId) const
 bool Symbol::hit(const QPointF &pos, bool selected) const
 {
   const bool hitSelectedControlPoint = selected && (hitControlPoint(pos) >= 0);
-  const QPolygonF polygon(boundingSquare().toVector());
-  const bool hitInterior = polygon.containsPoint(pos, Qt::OddEvenFill);
-  return hitSelectedControlPoint || hitInterior;
+  return hitSelectedControlPoint || DrawingItem_Symbol::Symbol::hit(pos, selected);
 }
-
-bool Symbol::hit(const QRectF &rect) const
-{
-  Q_UNUSED(rect);
-  return false; // for now
-}
-
 
 // ### similar to PolyLine::mousePress - move common code to base class?
 void Symbol::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)

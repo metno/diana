@@ -57,9 +57,6 @@ void EditItemBase::copyBaseData(EditItemBase *item) const
   item->setGeometry(geometry());
 }
 
-
-qreal EditItemBase::sqr(qreal x) { return x * x; }
-
 QList<QPointF> EditItemBase::geometry() const
 {
   return ConstDrawing(this)->points_;

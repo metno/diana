@@ -109,6 +109,8 @@ public:
 
   void updateJoins(bool = false);
 
+  virtual bool parseSetup();
+
 public slots:
   void abortEditing();
   void completeEditing();
@@ -215,8 +217,6 @@ private:
   bool itemChangeNotificationEnabled_;
   bool itemsVisibilityForced_;
   bool itemPropsDirectlyEditable_;
-
-  virtual bool parseSetup() { return true; } // n/a
 
   bool cycleHitOrder(QKeyEvent *);
 

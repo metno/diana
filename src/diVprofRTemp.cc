@@ -60,7 +60,8 @@
 using namespace std;
 using namespace road;
 
-// Default constructor
+static const float DEG_TO_RAD = M_PI / 180;
+
 VprofRTemp::VprofRTemp()
 {
 }
@@ -95,7 +96,6 @@ VprofRTemp::VprofRTemp(const std::string& file, bool amdar,
 }
 
 
-// Destructor
 VprofRTemp::~VprofRTemp()
 {
 }
@@ -109,8 +109,6 @@ miutil::miTime VprofRTemp::getFileObsTime(){
 VprofPlot* VprofRTemp::getStation(const std::string& station,
 				 const miutil::miTime& time)
 {
-  const float rad=3.141592654/180.;
-
   // get the stationlist
   VprofPlot *vp= NULL;
   // This creates the stationlist
@@ -488,7 +486,7 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 					  vp->ff.push_back(ff);
 					  // convert to east/west and north/south component
 					  fff= float(ff);
-					  ddd= (float(dd)+90.)*rad;
+					  ddd= (float(dd)+90.)*DEG_TO_RAD;
 					  vp->uu.push_back( fff*cosf(ddd));
 					  vp->vv.push_back(-fff*sinf(ddd));
 					  // check B-part flag (significant level)
@@ -514,7 +512,7 @@ VprofPlot* VprofRTemp::getStation(const std::string& station,
 				  vp->ff.push_back(ff);
 				  // convert to east/west and north/south component
 				  fff= float(ff);
-				  ddd= (float(dd)+90.)*rad;
+				  ddd= (float(dd)+90.)*DEG_TO_RAD;
 				  vp->uu.push_back( fff*cosf(ddd));
 				  vp->vv.push_back(-fff*sinf(ddd));
 				  // check B-part flag (significant level)

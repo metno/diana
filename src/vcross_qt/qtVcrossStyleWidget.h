@@ -45,6 +45,9 @@ private Q_SLOTS:
   void lineintervalCboxActivated( int index );
   void densityCboxActivated( int index );
   void vectorunitCboxActivated( int index );
+  void vectorscalexSboxChanged(const QString& value);
+  void vectorscaleySboxChanged(const QString& value);
+  void vectorthicknessChanged(int value);
 
   void extremeValueCheckBoxToggled(bool on);
   void extremeSizeChanged(int value);
@@ -64,9 +67,9 @@ private Q_SLOTS:
   void patternComboBoxToggled(int index);
   void patternColourBoxToggled(int index);
   void alphaChanged(int index);
-  void zero1ComboBoxToggled(int index);
-  void min1ComboBoxToggled(int index);
-  void max1ComboBoxToggled(int index);
+  void zero1ComboBoxToggled();
+  void min1ComboBoxToggled();
+  void max1ComboBoxToggled();
   void updatePaletteString();
 
 private:

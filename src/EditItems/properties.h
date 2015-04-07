@@ -33,8 +33,10 @@
 #define PROPERTIES_H
 
 #include <QDialog>
+#include <QHash>
 #include <QLineEdit>
 #include <QString>
+#include <QStringList>
 #include <QVariantMap>
 
 class QContextMenuEvent;
@@ -63,14 +65,18 @@ class PropertiesEditor : public QDialog
 public:
   static PropertiesEditor *instance();
   bool edit(QSharedPointer<DrawingItemBase> &, bool = false);
+  void setPropertyRules(const QString &rule, const QStringList &values);
 
 private:
   PropertiesEditor();
+  QWidget *createEditor(const QString &propertyName, const QVariant &val, bool readOnly = false);
 
   static PropertiesEditor *instance_;
   QWidget *formWidget_;
   QDialogButtonBox *buttonBox_;
   QDialogButtonBox *readOnlyButtonBox_;
+
+  QHash<QString, QStringList> rules_;
 };
 
 } // namespace

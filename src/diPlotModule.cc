@@ -37,6 +37,7 @@
 #include <diObsPlot.h>
 
 #include <diFieldPlot.h>
+#include "diLocationPlot.h"
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
 #include <diMeasurementsPlot.h>
@@ -60,7 +61,6 @@
 
 #include <GL/gl.h>
 
-#include <QKeyEvent>
 #include <QMouseEvent>
 
 //#define DEBUGPRINT
@@ -87,20 +87,24 @@ void was_enabled::restore(Plot* plot, const std::string& key) const
 
 } // namespace diutil
 
-// static class members
-GridConverter PlotModule::gc; // Projection-converter
+namespace {
+
+float GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
+{
+  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
+}
+
+} // anonymous namespace
 
 PlotModule *PlotModule::self = 0;
 
 PlotModule::PlotModule() :
-               plotw(0.),ploth(0.),
                showanno(true), staticPlot_(new StaticPlot()), hardcopy(false),
                dorubberband(false),
-               dopanning(false), keepcurrentarea(true), obsnr(0)
+               keepcurrentarea(true), obsnr(0)
 {
   self = this;
   oldx = newx = oldy = newy = startx = starty = 0;
-  mapdefined = false;
   mapDefinedByUser = false;
   mapDefinedByData = false;
   mapDefinedByView = false;
@@ -212,7 +216,6 @@ void PlotModule::prepareArea(const vector<string>& inp)
   const std::string key_areaname=  "areaname"; //old syntax
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
-  const std::string key_xypart=  "xypart";
 
   Projection proj;
   Rectangle rect;
@@ -387,22 +390,16 @@ void PlotModule::prepareObs(const vector<string>& inp)
 
 void PlotModule::prepareStations(const vector<string>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   if (!stam->init(inp)) {
-#ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("init returned false");
-#endif
   }
 }
 
 void PlotModule::prepareAnnotation(const vector<string>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   // for now -- erase all annotationplots
   diutil::delete_all_and_clear(vap);
@@ -411,9 +408,7 @@ void PlotModule::prepareAnnotation(const vector<string>& inp)
 
 void PlotModule::prepareTrajectory(const vector<string>& inp)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   // vtp.push_back(new TrajectoryPlot());
 }
 
@@ -486,6 +481,12 @@ vector<PlotElement> PlotModule::getPlotElements()
       bool enabled = locationPlots[j]->isEnabled();
       pel.push_back(PlotElement("LOCATION", str, "LOCATION", enabled));
     }
+  }
+
+  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
+    std::vector<PlotElement> pe = it->second->getPlotElements();
+    for (std::vector<PlotElement>::const_iterator it_pe = pe.begin(); it_pe != pe.end(); ++it_pe)
+      pel.push_back(*it_pe);
   }
 
   return pel;
@@ -561,9 +562,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
 
 void PlotModule::setAnnotations()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
   diutil::delete_all_and_clear(vap);
 
@@ -746,14 +745,12 @@ bool PlotModule::updateFieldPlot(const vector<std::string>& pin)
 }
 
 
-// update plots
 bool PlotModule::updatePlots(bool failOnMissingData)
 {
   METLIBS_LOG_SCOPE();
 
   vector<Field*> fv;
   const miTime& t = staticPlot_->getTime();
-  Area plotarea, newarea;
 
   bool nodata = vmp.empty(); // false when data are found
 
@@ -786,101 +783,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   // set maparea from map spec., sat or fields
 
-  //######################################################################
-  //  Area aa;
-  //  METLIBS_LOG_DEBUG("----------------------------------------------------");
-  //  aa=previousrequestedarea;
-  //  METLIBS_LOG_DEBUG("previousrequestedarea " << previousrequestedarea);
-  //  aa=requestedarea;
-  //  METLIBS_LOG_DEBUG("requestedarea         " <<requestedarea.Name()<<" : "<<requestedarea);
-  //  METLIBS_LOG_DEBUG("mapDefinedByUser= " << mapDefinedByUser);
-  //  METLIBS_LOG_DEBUG("mapDefinedByData= " << mapDefinedByData);
-  //  METLIBS_LOG_DEBUG("mapDefinedByView= " << mapDefinedByView);
-  //  METLIBS_LOG_DEBUG("mapdefined=       " << mapdefined);
-  //  METLIBS_LOG_DEBUG("keepcurrentarea=  " << keepcurrentarea);
-  //  METLIBS_LOG_DEBUG("----------------------------------------------------");
-  //######################################################################
-  mapdefined = false;
-
-  if (mapDefinedByUser) {     // area != "modell/sat-omr."
-
-    plotarea = staticPlot_->getMapArea();
-
-    if (!keepcurrentarea ){ // show def. area
-      mapdefined = mapDefinedByUser = staticPlot_->setMapArea(requestedarea,
-          keepcurrentarea);
-    } else if( plotarea.P() != requestedarea.P() || // or user just selected new area
-        previousrequestedarea.R() != requestedarea.R()) {
-      newarea = staticPlot_->findBestMatch(requestedarea);
-      mapdefined = mapDefinedByUser = staticPlot_->setMapArea(newarea, keepcurrentarea);
-    } else {
-      mapdefined = true;
-    }
-
-  } else if (keepcurrentarea && previousrequestedarea != requestedarea) {
-    // change from specified area to model/sat area
-    mapDefinedByData = false;
-  }
-
-  previousrequestedarea = requestedarea;
-
-  if (!mapdefined && keepcurrentarea && mapDefinedByData)
-    mapdefined = true;
-
-  if (!mapdefined) {
-    Area a;
-    if (satm->getSatArea(a)) {
-      // set area equal to first EXISTING sat-area
-      if (keepcurrentarea)
-        newarea = staticPlot_->findBestMatch(a);
-      else
-        newarea = a;
-      staticPlot_->setMapArea(newarea, keepcurrentarea);
-      mapdefined = mapDefinedByData = true;
-    }
-  }
-
-  if (!mapdefined && editm->isInEdit()) {
-    // set area equal to editfield-area
-    Area a;
-    if (editm->getFieldArea(a)) {
-      staticPlot_->setMapArea(a, true);
-      mapdefined = mapDefinedByData = true;
-    }
-  }
-
-  int i, n;
-  if (!mapdefined && vfp.size() > 0) {
-    // set area equal to first EXISTING field-area ("all timesteps"...)
-    n = vfp.size();
-    i = 0;
-    Area a;
-    while (i < n && !vfp[i]->getRealFieldArea(a))
-      i++;
-    if (i < n) {
-      if (keepcurrentarea)
-        newarea = staticPlot_->findBestMatch(a);
-      else
-        newarea = a;
-      staticPlot_->setMapArea(newarea, keepcurrentarea);
-      mapdefined = mapDefinedByData = true;
-    }
-  }
-
-  // moved here ------------------------
-  if (!mapdefined && keepcurrentarea && mapDefinedByView)
-    mapdefined = true;
-
-  if (!mapdefined) {
-    // no data on initial map ... change to "Hirlam.50km" projection and area
-    //    std::string areaString = "proj=spherical_rot grid=-46.5:-36.5:0.5:0.5:0:65 area=1:188:1:152";
-    Area a;
-    a.setDefault();
-    //    a.setAreaFromLog(areaString);
-    staticPlot_->setMapArea(a, keepcurrentarea);
-    mapdefined = mapDefinedByView = true;
-  }
-  // ----------------------------------
+  defineMapArea();
 
   // prepare data for observation plots
   obsnr = 0;
@@ -891,10 +794,8 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   for (; vobsTimes.size() > 1; vobsTimes.pop_back())
     diutil::delete_all_and_clear(vobsTimes.back().vobsOneTime);
   for (size_t i = 0; i < vop.size(); i++) {
-    if (!obsm->prepare(vop[i], staticPlot_->getTime())){
-#ifdef DEBUGPRINT
+    if (!obsm->prepare(vop[i], t)) {
       METLIBS_LOG_DEBUG("ObsManager returned false from prepare");
-#endif
     } else {
       nodata = false;
     }
@@ -910,12 +811,15 @@ bool PlotModule::updatePlots(bool failOnMissingData)
   // prepare item stored in miscellaneous managers
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     // If the preparation fails then return false to indicate an error.
-    if (it->second->isEnabled() && !it->second->prepare(staticPlot_->getTime()))
+    if (it->second->isEnabled() && !it->second->prepare(t))
       nodata = false;
   }
 
   // prepare editobjects (projection etc.)
   objm->changeProjection(staticPlot_->getMapArea());
+
+  // this is called in plotUnder:
+  // vareaobjects[i].changeProjection(staticPlot_->getMapArea());
 
   const std::vector<StationPlot*> stam_plots(stam->plots());
   for (size_t i = 0; i < stam_plots.size(); i++) {
@@ -945,7 +849,7 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   // Prepare measurement positions - change projection
   if (vMeasurementsPlot.size() > 0) {
-    vMeasurementsPlot[0]->prepare();
+    vMeasurementsPlot[0]->changeProjection();
   }
 
   setAnnotations();
@@ -954,14 +858,78 @@ bool PlotModule::updatePlots(bool failOnMissingData)
 
   // Update drawing items - this needs to be after the PlotAreaSetup call
   // because we need to reproject the items to screen coordinates.
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-    it->second->changeProjection(staticPlot_->getMapArea());
-
-
-
+  callManagersChangeProjection();
 
   // Successful update
   return !(failOnMissingData && nodata);
+}
+
+void PlotModule::defineMapArea()
+{
+  bool mapdefined = false;
+  Area newMapArea;
+  bool keep = keepcurrentarea;
+
+  if (mapDefinedByUser) {     // area != "modell/sat-omr."
+
+    if (!keepcurrentarea) { // show def. area
+      newMapArea = requestedarea;
+    } else if( getMapArea().P() != requestedarea.P() // or user just selected new area
+        || previousrequestedarea.R() != requestedarea.R())
+    {
+      newMapArea = staticPlot_->findBestMatch(requestedarea);
+    }
+    mapdefined = true;
+
+  } else if (keepcurrentarea && previousrequestedarea != requestedarea) {
+    // change from specified area to model/sat area
+    mapDefinedByData = false;
+  }
+
+  if (keepcurrentarea && mapDefinedByData)
+    mapdefined = true;
+
+  if (!mapdefined) {
+    if (satm->getSatArea(newMapArea)) {
+      // set area equal to first EXISTING sat-area
+      if (keepcurrentarea)
+        newMapArea = staticPlot_->findBestMatch(newMapArea);
+      mapdefined = mapDefinedByData = true;
+    }
+  }
+
+  if (!mapdefined && editm->isInEdit()) {
+    // set area equal to editfield-area
+    if (editm->getFieldArea(newMapArea)) {
+      keep = true;
+      mapdefined = mapDefinedByData = true;
+    }
+  }
+
+  if (!mapdefined && vfp.size() > 0) {
+    // set area equal to first EXISTING field-area ("all timesteps"...)
+    const int n = vfp.size();
+    int i = 0;
+    while (i < n && !vfp[i]->getRealFieldArea(newMapArea))
+      i++;
+    if (i < n) {
+      if (keepcurrentarea)
+        newMapArea = staticPlot_->findBestMatch(newMapArea);
+      mapdefined = mapDefinedByData = true;
+    }
+  }
+
+  if (keepcurrentarea && mapDefinedByView)
+    mapdefined = true;
+
+  if (!mapdefined) {
+    newMapArea.setDefault();
+    mapdefined = mapDefinedByView = true;
+  }
+
+  staticPlot_->setMapArea(newMapArea, keep);
+
+  previousrequestedarea = requestedarea;
 }
 
 // start hardcopy plot
@@ -1002,50 +970,17 @@ void PlotModule::plot(bool under, bool over)
   METLIBS_LOG_SCOPE(LOGVAL(under) << LOGVAL(over));
 #endif
 
-  Colour cback(staticPlot_->getBgColour().c_str());
-
-  // make background colour and a suitable contrast colour available
-  staticPlot_->setBackgroundColour(cback);
-  staticPlot_->setBackContrastColour(getContrastColour());
-
   //if plotarea has changed, calculate great circle distance...
-  if (staticPlot_->getDirty()) {
-    float lat1, lat2, lon1, lon2, lat3, lon3;
-    float width, height;
-    staticPlot_->getPhysSize(width, height);
-    //     PhysToGeo(0,0,lat1,lon1);
-    //     PhysToGeo(width,height,lat2,lon2);
-    //     PhysToGeo(width/2,height/2,lat3,lon3);
-    //##############################################################
-    // lat3,lon3, point where ratio between window scale and geographical scale
-    // is computed, set to Oslo coordinates, can be changed according to area
-    lat3 = 60;
-    lon3 = 10;
-    lat1 = lat3 - 10;
-    lat2 = lat3 + 10;
-    lon1 = lon3 - 10;
-    lon2 = lon3 + 10;
-    //###############################################################
-    //gcd is distance between lower left and upper right corners
-    float gcd = GreatCircleDistance(lat1, lat2, lon1, lon2);
-    float x1, y1, x2, y2;
-    GeoToPhys(lat1, lon1, x1, y1);
-    GeoToPhys(lat2, lon2, x2, y2);
-    float distGeoSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-    float distWindowSq = width * width + height * height;
-    float ratio = sqrtf(distWindowSq / distGeoSq);
-    gcd = gcd * ratio;
-    //float gcd2 = GreatCircleDistance(lat1,lat3,lon1,lon3);
-    //float earthCircumference = 40005041; // meters
-    //if (gcd<gcd2) gcd  = earthCircumference-gcd;
-    staticPlot_->setGcd(gcd);
-  }
+  if (staticPlot_->getDirty())
+    staticPlot_->updateGcd();
 
   if (under)
     plotUnder();
 
   if (over)
     plotOver();
+
+  staticPlot_->setDirty(false);
 }
 
 // plot underlay ---------------------------------------
@@ -1085,101 +1020,82 @@ void PlotModule::plotUnder()
   glDisable(GL_BLEND);
 
   // plot map-elements for lowest zorder
-  for (size_t i = 0; i < vmp.size(); i++) {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
-#endif
-    vmp[i]->plot(0);
-  }
+  for (size_t i = 0; i < vmp.size(); i++)
+    vmp[i]->plot(Plot::BACKGROUND);
 
   // plot satellite images
-  satm->plot();
+  satm->plot(Plot::SHADE_BACKGROUND);
 
   // mark undefined areas/values in field (before map)
-  for (size_t i = 0; i < vfp.size(); i++) {
-    if (vfp[i]->getUndefinedPlot()) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("Kaller plotUndefined til fieldplot number:" << i);
-#endif
-      vfp[i]->plotUndefined();
-    }
-  }
+  for (size_t i = 0; i < vfp.size(); i++)
+    vfp[i]->plot(Plot::SHADE_BACKGROUND);
 
   // plot fields (shaded fields etc. before map)
-  for (size_t i = 0; i < vfp.size(); i++) {
-    if (vfp[i]->getShadePlot()) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("Kaller plot til fieldplot number:" << i);
-#endif
-      vfp[i]->plot();
-    }
-  }
+  for (size_t i = 0; i < vfp.size(); i++)
+    vfp[i]->plot(Plot::SHADE);
 
   // plot map-elements for auto zorder
-  for (size_t i = 0; i < vmp.size(); i++) {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
-#endif
-    vmp[i]->plot(1);
-  }
+  for (size_t i = 0; i < vmp.size(); i++)
+    vmp[i]->plot(Plot::LINES_BACKGROUND);
 
   // plot locationPlots (vcross,...)
   for (size_t i = 0; i < locationPlots.size(); i++)
-    locationPlots[i]->plot();
+    locationPlots[i]->plot(Plot::LINES);
 
   // plot fields (isolines, vectors etc. after map)
   for (size_t i = 0; i < vfp.size(); i++) {
-    if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer()) {
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG("Kaller plot til fieldplot number:" << i);
-#endif
-      vfp[i]->plot();
-    }
+    if (!vfp[i]->getShadePlot() && !vfp[i]->overlayBuffer())
+      vfp[i]->plot(Plot::LINES);
   }
 
-  objm->plotObjects();
+  // next line also calls objects.changeProjection
+  objm->plotObjects(Plot::LINES);
 
   for (size_t i = 0; i < vareaobjects.size(); i++) {
     vareaobjects[i].changeProjection(staticPlot_->getMapArea());
-    vareaobjects[i].plot();
+    vareaobjects[i].plot(Plot::LINES);
   }
 
   // plot station plots
   const std::vector<StationPlot*> stam_plots(stam->plots());
   for (size_t j = 0; j < stam_plots.size(); j++)
-    stam_plots[j]->plot();
+    stam_plots[j]->plot(Plot::LINES);
 
   // plot inactive edit fields/objects under observations
   if (editm->isInEdit()) {
-    editm->plot(true, false);
+    editm->plot(Plot::LINES);
   }
 
   // plot other objects, including drawing items
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     if (it->second->isEnabled()) {
       it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(true, false);
+      it->second->plot(Plot::LINES);
     }
   }
 
   // plot observations (if in fieldEditMode  and the option obs_mslp is true, plot observations in overlay)
-  if ( !( editm->isInEdit()&& (editm->getMapMode() == fedit_mode || editm->getMapMode() == combine_mode)  && obsm->obs_mslp())) {
+  if (! (editm->isInEdit()
+          && (editm->getMapMode() == fedit_mode
+              || editm->getMapMode() == combine_mode)
+          && obsm->obs_mslp()))
+  {
     ObsPlot::clearPos();
     for (size_t i = 0; i < vop.size(); i++)
-      vop[i]->plot();
+      vop[i]->plot(Plot::LINES);
   }
 
   //plot trajectories
   for (size_t i = 0; i < vtp.size(); i++)
-    vtp[i]->plot();
+    vtp[i]->plot(Plot::LINES);
 
   for (size_t i = 0; i < vMeasurementsPlot.size(); i++)
-    vMeasurementsPlot[i]->plot();
+    vMeasurementsPlot[i]->plot(Plot::LINES);
 
   if (showanno && !editm->isInEdit()) {
     // plot Annotations
     for (size_t i = 0; i < vap.size(); i++)
-      vap[i]->plot();
+      vap[i]->plot(Plot::LINES);
   }
 
   if (hardcopy)
@@ -1196,39 +1112,36 @@ void PlotModule::plotOver()
   const Rectangle& plotr = staticPlot_->getPlotSize();
 
   // Check this!!!
-  for (size_t i = 0; i < vfp.size(); i++) {
-    if (vfp[i]->overlayBuffer() && !vfp[i]->getShadePlot()) {
-      vfp[i]->plot();
-    }
-  }
+  for (size_t i = 0; i < vfp.size(); i++)
+    vfp[i]->plot(Plot::OVERLAY);
 
   // plot active draw- and editobjects here
   if (editm->isInEdit()) {
 
-    editm->plot(false, true);
+    editm->plot(Plot::OVERLAY);
 
     // if PPPP-mslp, calc. values and plot observations,
     // in overlay while changing the field
     if (obsm->obs_mslp() && (editm->getMapMode() == fedit_mode || editm->getMapMode() == combine_mode)) {
       if (editm->obs_mslp(obsm->getObsPositions())) {
-        obsm->calc_obs_mslp(vop);
+        obsm->calc_obs_mslp(Plot::OVERLAY, vop);
       }
     }
 
     // Annotations
     if (showanno) {
       for (size_t i = 0; i < vap.size(); i++)
-        vap[i]->plot();
+        vap[i]->plot(Plot::OVERLAY);
     }
     for (size_t i = 0; i < editVap.size(); i++)
-      editVap[i]->plot();
+      editVap[i]->plot(Plot::OVERLAY);
 
   } // if editm->isInEdit()
 
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     if (it->second->isEnabled()) {
       it->second->changeProjection(staticPlot_->getMapArea());
-      it->second->plot(false, true);
+      it->second->plot(Plot::OVERLAY);
     }
   }
 
@@ -1237,15 +1150,10 @@ void PlotModule::plotOver()
         - plotr.x1 - 0.0002, plotr.y2 - plotr.y1 - 0.0002);
 
   // plot map-elements for highest zorder
-  for (size_t i = 0; i < vmp.size(); i++) {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("Kaller plot til mapplot number:" << i);
-#endif
-    vmp[i]->plot(2);
-  }
+  for (size_t i = 0; i < vmp.size(); i++)
+    vmp[i]->plot(Plot::OVERLAY);
 
   staticPlot_->UpdateOutput();
-  staticPlot_->setDirty(false);
 
   // frame (not needed if maprect==fullrect)
   Rectangle mr = staticPlot_->getMapSize();
@@ -1277,22 +1185,19 @@ void PlotModule::plotOver()
     METLIBS_LOG_DEBUG("PlotModule::plot rubberband oldx,oldy,newx,newy: "
         <<oldx<<" "<<oldy<<" "<<newx<<" "<<newy);
 #endif
-    const Rectangle& fullr = staticPlot_->getPlotSize();
-    float x1 = fullr.x1 + fullr.width() * oldx / plotw;
-    float y1 = fullr.y1 + fullr.height() * oldy / ploth;
-    float x2 = fullr.x1 + fullr.width() * newx / plotw;
-    float y2 = fullr.y1 + fullr.height() * newy / ploth;
+    const XY pold = staticPlot_->PhysToMap(XY(oldx, oldy));
+    const XY pnew = staticPlot_->PhysToMap(XY(newx, newy));
 
-    Colour c = getContrastColour();
-    glColor4ubv(c.RGBA());
+    const Colour& bcontrast = staticPlot_->getBackContrastColour();
+    glColor4ubv(bcontrast.RGBA());
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth(2.0);
     //glRectf(x1,y1,x2,y2); // Mesa problems ?
     glBegin(GL_LINE_LOOP);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y1);
-    glVertex2f(x2, y2);
-    glVertex2f(x1, y2);
+    glVertex2f(pold.x(), pold.y());
+    glVertex2f(pnew.x(), pold.y());
+    glVertex2f(pnew.x(), pnew.y());
+    glVertex2f(pold.x(), pnew.y());
     glEnd();
   }
 
@@ -1323,7 +1228,7 @@ vector<Rectangle> PlotModule::plotAnnotations()
   unsigned int n = vap.size();
   for (unsigned int i = 0; i < n; i++) {
     //	METLIBS_LOG_DEBUG("i:"<<i);
-    vap[i]->plot();
+    vap[i]->plot(Plot::LINES);
     rectangles.push_back(vap[i]->getBoundingBox());
   }
 
@@ -1332,68 +1237,22 @@ vector<Rectangle> PlotModule::plotAnnotations()
 
 void PlotModule::PlotAreaSetup()
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
 
-  if (plotw < 1 || ploth < 1)
+  if (!staticPlot_->hasPhysSize())
     return;
-  float waspr = plotw / ploth;
 
-  Area ma = staticPlot_->getMapArea();
-  Rectangle mapr = ma.R();
+  const Area& ma = staticPlot_->getMapArea();
+  const Rectangle& mapr = ma.R();
 
-  //   float d, del, delta = 0.01;
-  //   del = delta;
-  //   while (mapr.width() < delta) {
-  //     d = (del - mapr.width()) * 0.5;
-  //     mapr.x1 -= d;
-  //     mapr.x2 += d;
-  //     del = del * 2.;
-  //   }
-  //   del = delta;
-  //   while (mapr.height() < delta) {
-  //     d = (del - mapr.height()) * 0.5;
-  //     mapr.y1 -= d;
-  //     mapr.y2 += d;
-  //     del = del * 2.;
-  //   }
-
-  float maspr = mapr.width() / mapr.height();
-
-  float dwid = 0, dhei = 0;
-  if (waspr > maspr) {// increase map width
-    dwid = waspr * mapr.height() - mapr.width();
-  } else { // increase map height
-    dhei = mapr.width() / waspr - mapr.height();
-  }
-
-  // update map area
-  Rectangle mr = mapr;
-  mr.x1 -= (dwid) / 2.0;
-  mr.y1 -= (dhei) / 2.0;
-  mr.x2 += (dwid) / 2.0;
-  mr.y2 += (dhei) / 2.0;
-
-  // add border
-  //   float border= mr.width()*0.03/2.0;
-  float border = 0.0;
-  // update full plot area
-  Rectangle fr = mr;
-  fr.x1 -= border;
-  fr.y1 -= border;
-  fr.x2 += border;
-  fr.y2 += border;
-
+  const float waspr = staticPlot_->getPhysWidth() / staticPlot_->getPhysHeight();
+  const Rectangle mr = diutil::fixedAspectRatio(mapr, waspr, true);
   staticPlot_->setMapSize(mr);
-  staticPlot_->setPlotSize(fr);
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("============ After PlotAreaSetup ======");
-  METLIBS_LOG_DEBUG("Fullplotarea:" << fr);
-  METLIBS_LOG_DEBUG("plotarea:" << mr);
-  METLIBS_LOG_DEBUG("=======================================");
-#endif
+  // update full plot area -- add border
+  const float border = 0.0;
+  const Rectangle fr = diutil::adjustedRectangle(mr, border, border);
+  staticPlot_->setPlotSize(fr);
 }
 
 void PlotModule::setPlotWindow(const int& w, const int& h)
@@ -1402,10 +1261,7 @@ void PlotModule::setPlotWindow(const int& w, const int& h)
   METLIBS_LOG_SCOPE(LOGVAL(w) << LOGVAL(h));
 #endif
 
-  plotw = float(w);
-  ploth = float(h);
-
-  staticPlot_->setPhysSize(plotw, ploth);
+  staticPlot_->setPhysSize(w, h);
 
   PlotAreaSetup();
 
@@ -1459,144 +1315,67 @@ void PlotModule::cleanup()
   diutil::delete_all_and_clear(vap);
 }
 
-void PlotModule::PixelArea(const Rectangle r)
+Rectangle PlotModule::getPhysRectangle() const
 {
-  if (!plotw || !ploth)
-    return;
-  // full plot
-  const Rectangle& fullr = staticPlot_->getPlotSize();
+  const float pw = staticPlot_->getPhysWidth(), ph = staticPlot_->getPhysHeight();
+  return Rectangle(0, 0, pw, ph);
+}
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Plotw:" << plotw);
-  METLIBS_LOG_DEBUG("Ploth:" << ploth);
-  METLIBS_LOG_DEBUG("Selected rectangle:" << r);
-#endif
+void PlotModule::callManagersChangeProjection()
+{
+  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
+    it->second->changeProjection(staticPlot_->getMapArea());
+}
 
-  // map to grid-coordinates
-  Rectangle newr = fullr;
-  newr.x1 = fullr.x1 + fullr.width() * r.x1 / plotw;
-  newr.y1 = fullr.y1 + fullr.height() * r.y1 / ploth;
-  newr.x2 = fullr.x1 + fullr.width() * r.x2 / plotw;
-  newr.y2 = fullr.y1 + fullr.height() * r.y2 / ploth;
+void PlotModule::setMapArea(const Area& area)
+{
+  const bool projChanged = (staticPlot_->getMapArea().P() != area.P());
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("Fullplotarea:" << fullr);
-  METLIBS_LOG_DEBUG("plotarea:" << plotr);
-  //METLIBS_LOG_DEBUG("maparea:" << mapr);
-  METLIBS_LOG_DEBUG("new maparea:" << newr);
-#endif
-
-  // keep selection inside plotarea
-
-  //   newr.x1+= mapr.width()*r.x1/plotw;
-  //   newr.y1+= mapr.height()*r.y1/ploth;
-  //   newr.x2-= mapr.width()*(plotw-r.x2)/plotw;
-  //   newr.y2-= mapr.height()*(ploth-r.y2)/ploth;
-
-  Area ma = staticPlot_->getMapArea();
-  ma.setR(newr);
-  staticPlot_->setMapArea(ma, keepcurrentarea);
-
+  staticPlot_->setMapArea(area, keepcurrentarea);
   PlotAreaSetup();
+
+  if (projChanged) {
+    updatePlots();
+  } else {
+    callManagersChangeProjection();
+  }
+}
+
+void PlotModule::setMapAreaFromMap(const Rectangle& rectangle)
+{
+  const Area a(staticPlot_->getMapArea().P(), rectangle);
+
+  staticPlot_->setMapArea(a, false);
+  PlotAreaSetup();
+
+  updatePlots();
+}
+
+void PlotModule::setMapAreaFromPhys(const Rectangle& phys)
+{
+  if (!staticPlot_->hasPhysSize())
+    return;
+
+  const Rectangle newr = makeRectangle(staticPlot_->PhysToMap(XY(phys.x1, phys.y1)),
+      staticPlot_->PhysToMap(XY(phys.x2, phys.y2)));
+  const Area ma(staticPlot_->getMapArea().P(), newr);
+
+  setMapArea(ma);
 }
 
 bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon)
 {
-  bool ret=false;
-
-  if (mapdefined && plotw > 0 && ploth > 0) {
-    GridConverter gc;
-    Area area = staticPlot_->getMapArea();
-
-    Rectangle r = staticPlot_->getPlotSize();
-    int npos = 1;
-    float gx = r.x1 + r.width() / plotw * x;
-    float gy = r.y1 + r.height() / ploth * y;
-
-    // convert point to correct projection
-    ret = gc.xy2geo(area, npos, &gx, &gy);
-
-    lon = gx;
-    lat = gy;
-  }
-
-  return ret;
-}
-
-bool PlotModule::PhysToGeo(const float x, const float y, float& lat, float& lon, Area area, Rectangle r)
-{
-  bool ret=false;
-
-  if (mapdefined && plotw > 0 && ploth > 0) {
-    GridConverter gc;
-    int npos = 1;
-    float gx = r.x1 + r.width() / plotw * x;
-    float gy = r.y1 + r.height() / ploth * y;
-
-    // convert point to correct projection
-    ret = gc.xy2geo(area, npos, &gx, &gy);
-
-    lon = gx;
-    lat = gy;
-  }
-
-  return ret;
+  return staticPlot_->PhysToGeo(x, y, lat, lon);
 }
 
 bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y)
 {
-  bool ret=false;
-
-  if (mapdefined && plotw > 0 && ploth > 0) {
-    GridConverter gc;
-    Area area = staticPlot_->getMapArea();
-
-    const Rectangle r = staticPlot_->getPlotSize();
-    int npos = 1;
-
-    float yy = lat;
-    float xx = lon;
-
-    // convert point to correct projection
-    ret = gc.geo2xy(area, npos, &xx, &yy);
-
-    x = (xx - r.x1) * plotw / r.width();
-    y = (yy - r.y1) * ploth / r.height();
-
-  }
-  return ret;
+  return staticPlot_->GeoToPhys(lat, lon, x, y);
 }
 
-bool PlotModule::GeoToPhys(const float lat, const float lon, float& x, float& y, Area area, Rectangle r)
+void PlotModule::PhysToMap(const float x, const float y, float& xmap, float& ymap)
 {
-  bool ret=false;
-
-  if (mapdefined && plotw > 0 && ploth > 0) {
-    GridConverter gc;
-    int npos = 1;
-
-    float yy = lat;
-    float xx = lon;
-
-    // convert point to correct projection
-    ret = gc.geo2xy(area, npos, &xx, &yy);
-
-    x = (xx - r.x1) * plotw / r.width();
-    y = (yy - r.y1) * ploth / r.height();
-
-  }
-  return ret;
-}
-
-void PlotModule::PhysToMap(const float x, const float y, float& xmap,
-    float& ymap)
-{
-  if (mapdefined && plotw > 0 && ploth > 0) {
-    const Rectangle& r = staticPlot_->getPlotSize();
-    xmap = r.x1 + r.width() / plotw * x;
-    ymap = r.y1 + r.height() / ploth * y;
-  }
-
+  staticPlot_->PhysToMap(x, y, xmap, ymap);
 }
 
 /// return field grid x,y from map x,y if field defined and map proj = field proj
@@ -1721,12 +1500,6 @@ double PlotModule::getArea(const float& flat1,
   return calculateArea(hLSide, hUSide, vLSide, vRSide, diagonal);
 }
 
-
-// static
-float PlotModule::GreatCircleDistance(float lat1, float lat2, float lon1, float lon2)
-{
-  return LonLat::fromDegrees(lon1, lat1).distanceTo(LonLat::fromDegrees(lon2, lat2));
-}
 
 // set managers
 void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
@@ -1883,7 +1656,6 @@ void PlotModule::getCapabilitiesTime(set<miTime>& okTimes, const vector<std::str
 bool PlotModule::setPlotTime(miTime& t)
 {
   staticPlot_->setTime(t);
-  //  updatePlots();
   return true;
 }
 
@@ -1998,7 +1770,7 @@ void PlotModule::areaCommand(const std::string& command, const std::string& data
         if (command == "select" && vareaobjects[i].autoZoom()) {
           vector<std::string> token = miutil::split(data, ":");
           if (token.size() == 2 && token[1] == "on") {
-            zoomTo(vareaobjects[i].getBoundBox(token[0]));
+            setMapAreaFromMap(vareaobjects[i].getBoundBox(token[0]));
           }
         }
       }
@@ -2100,18 +1872,13 @@ std::string PlotModule::findLocation(int x, int y, const std::string& name)
 
 //****************************************************
 
-Colour PlotModule::getContrastColour()
-{
-  return Colour(staticPlot_->getBgColour()).contrastColour();
-}
-
 void PlotModule::nextObs(bool next)
 {
   for (size_t i = 0; i < vop.size(); i++)
     vop[i]->nextObs(next);
 }
 
-void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
+void PlotModule::obsTime(bool forward, EventResult& res)
 {
   // This function changes the observation time one hour,
   // and leaves the rest (fields, images etc.) unchanged.
@@ -2125,19 +1892,18 @@ void PlotModule::obsTime(QKeyEvent* ke, EventResult& res)
   if (!editm->isInEdit())
     return;
 
-  if (obsnr == 0 && ke->key() == Qt::Key_Right)
-    return;
-  if (obsnr > 20 && ke->key() == Qt::Key_Left)
-    return;
-
-  obsm->clearObsPositions();
-
-  miTime newTime = staticPlot_->getTime();
-  if (ke->key() == Qt::Key_Left) {
+  if (forward) {
+    if (obsnr > 20)
+      return;
     obsnr++;
-  } else {
+  } else { // backward
+    if (obsnr == 0)
+      return;
     obsnr--;
   }
+
+  obsm->clearObsPositions();
+  miTime newTime = staticPlot_->getTime();
   newTime.addHour(-1 * obsTimeStep * obsnr);
 
   //log old stations
@@ -2212,7 +1978,7 @@ void PlotModule::obsStepChanged(int step)
   setAnnotations();
 }
 
-void PlotModule::trajPos(vector<std::string>& vstr)
+void PlotModule::trajPos(const vector<std::string>& vstr)
 {
   const int n = vtp.size();
 
@@ -2238,21 +2004,20 @@ void PlotModule::trajPos(vector<std::string>& vstr)
   }
 }
 
-void PlotModule::measurementsPos(vector<std::string>& vstr)
+void PlotModule::measurementsPos(const vector<std::string>& vstr)
 {
-  const int n = vMeasurementsPlot.size();
   //if vstr starts with "quit", delete all MeasurementsPlot objects
   for (size_t j = 0; j < vstr.size(); j++) {
-    if (vstr[j].substr(0, 4) == "quit") {
+    if (diutil::startswith(vstr[j], "quit")) {
       diutil::delete_all_and_clear(vMeasurementsPlot);
       return;
     }
   }
 
   //if no MeasurementsPlot object, make one
-  if (n == 0) {
+  if (vMeasurementsPlot.empty())
     vMeasurementsPlot.push_back(new MeasurementsPlot());
-  }
+
   //there are never more than one MeasurementsPlot object (so far..)
   vMeasurementsPlot[0]->measurementsPos(vstr);
 }
@@ -2369,11 +2134,17 @@ void PlotModule::setObjAuto(bool autoF)
   objm->setObjAuto(autoF);
 }
 
-void PlotModule::areaInsert(Area a, bool newArea)
+void PlotModule::areaInsert(bool newArea)
 {
   if (newArea && areaSaved) {
     areaSaved = false;
     return;
+  }
+  if (!newArea) {
+    if (areaSaved)
+      return;
+    else
+      areaSaved = true;
   }
 
   if(areaIndex>-1){
@@ -2384,94 +2155,57 @@ void PlotModule::areaInsert(Area a, bool newArea)
   else
     areaIndex++;
 
-  areaQ.push_back(a);
+  areaQ.push_back(staticPlot_->getMapArea());
 }
 
-void PlotModule::changeArea(QKeyEvent* ke)
+void PlotModule::changeArea(ChangeAreaCommand ca)
 {
-  Area a;
-  MapManager mapm;
-
-  // define your own area
-  if (ke->key() == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier) {
+  if (ca == CA_DEFINE_MYAREA) {
     myArea = staticPlot_->getMapArea();
     return;
   }
 
-  if (ke->key() == Qt::Key_F3 || ke->key() == Qt::Key_F4) { // go to previous or next area
-    //if last area is not saved, save it
-    if (!areaSaved) {
-      areaInsert(staticPlot_->getMapArea(), false);
-      areaSaved = true;
-    }
-    if (ke->key() == Qt::Key_F3) { // go to previous area
+  Area a;
+  MapManager mapm;
+
+  if (ca == CA_HISTORY_PREVIOUS || ca == CA_HISTORY_NEXT) {
+    areaInsert(false);
+    if (ca == CA_HISTORY_PREVIOUS) {
       if (areaIndex < 1)
         return;
       areaIndex--;
-      a = areaQ[areaIndex];
-
-    } else if (ke->key() == Qt::Key_F4) { //go to next area
+    } else { // go to next area
       if (areaIndex + 2 > int(areaQ.size()))
         return;
       areaIndex++;
-      a = areaQ[areaIndex];
     }
-
-  } else if (ke->key() == Qt::Key_F2) { //get your own area
-    areaInsert(staticPlot_->getMapArea(), true);//save last area
-    a = myArea;
-  } else if (ke->key() == Qt::Key_F5) { //get predefined areas
-    areaInsert(staticPlot_->getMapArea(), true);
-    mapm.getMapAreaByFkey("F5", a);
-  } else if (ke->key() == Qt::Key_F6) {
-    areaInsert(staticPlot_->getMapArea(), true);
-    mapm.getMapAreaByFkey("F6", a);
-  } else if (ke->key() == Qt::Key_F7) {
-    areaInsert(staticPlot_->getMapArea(), true);
-    mapm.getMapAreaByFkey("F7", a);
-  } else if (ke->key() == Qt::Key_F8) {
-    areaInsert(staticPlot_->getMapArea(), true);
-    mapm.getMapAreaByFkey("F8", a);
-  }
-
-  const bool projChanged = (staticPlot_->getMapArea().P() != a.P());
-  staticPlot_->setMapArea(a, keepcurrentarea); // ### only when projChanged == true ?
-  PlotAreaSetup();
-  if (projChanged) {
-    updatePlots();
+    a = areaQ[areaIndex];
   } else {
-    // reproject items to screen coordinates
-    for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-      it->second->changeProjection(staticPlot_->getMapArea());
+    areaInsert(true);
+    if (ca == CA_RECALL_MYAREA) {
+      a = myArea;
+    } else if (ca == CA_RECALL_F5) { //get predefined areas
+      mapm.getMapAreaByFkey("F5", a);
+    } else if (ca == CA_RECALL_F6) {
+      mapm.getMapAreaByFkey("F6", a);
+    } else if (ca == CA_RECALL_F7) {
+      mapm.getMapAreaByFkey("F7", a);
+    } else if (ca == CA_RECALL_F8) {
+      mapm.getMapAreaByFkey("F8", a);
+    }
   }
-}
 
-void PlotModule::zoomTo(const Rectangle& rectangle)
-{
-  Area a = staticPlot_->getMapArea();
-  a.setR(rectangle);
-  staticPlot_->setMapArea(a, false);
-  PlotAreaSetup();
-  updatePlots();
+  setMapArea(a);
 }
 
 void PlotModule::zoomOut()
 {
-  float scale = 1.3;
-  float wd = ((plotw * scale - plotw) / 2.);
-  float hd = ((ploth * scale - ploth) / 2.);
-  float x1 = -wd;
-  float y1 = -hd;
-  float x2 = plotw + wd;
-  float y2 = ploth + hd;
-  //define new plotarea, first save the old one
-  areaInsert(staticPlot_->getMapArea(), true);
-  Rectangle r(x1, y1, x2, y2);
-  PixelArea(r);
+  const float scale = 0.15;
+  const float dx = scale * staticPlot_->getPhysWidth(),
+      dy = scale * staticPlot_->getPhysHeight();
 
-  // change the projection for drawing items
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
-    it->second->changeProjection(staticPlot_->getMapArea());
+  areaInsert(true);
+  setMapAreaFromPhys(diutil::adjustedRectangle(getPhysRectangle(), dx, dy));
 }
 
 // keyboard/mouse events
@@ -2495,8 +2229,7 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       return;
 
     } else if (me->button() == Qt::MidButton) {
-      areaInsert(staticPlot_->getMapArea(), true); // Save last area
-      dopanning = true;
+      areaInsert(true);
       staticPlot_->panPlot(true);
       res.newcursor = paint_move_cursor;
       return;
@@ -2519,17 +2252,9 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       res.repaint = true;
       return;
 
-    } else if (dopanning) {
-      float x1, y1, x2, y2;
-      float wd = me->x() - oldx;
-      float hd = me->y() - oldy;
-      x1 = -wd;
-      y1 = -hd;
-      x2 = plotw - wd;
-      y2 = ploth - hd;
-
-      Rectangle r(x1, y1, x2, y2);
-      PixelArea(r);
+    } else if (staticPlot_->isPanning()) {
+      const float dx = oldx - me->x(), dy = oldy - me->y();
+      setMapAreaFromPhys(diutil::translatedRectangle(getPhysRectangle(), dx, dy));
       oldx = me->x();
       oldy = me->y();
 
@@ -2583,7 +2308,6 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
       startx = starty = 0;
 
     } else if (me->button() == Qt::MidButton) {
-      dopanning = false;
       staticPlot_->panPlot(false);
       res.repaint = true;
       res.background = true;
@@ -2591,16 +2315,9 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
     }
     if (plotnew) {
       //define new plotarea, first save the old one
-      areaInsert(staticPlot_->getMapArea(), true);
-      Rectangle r(x1, y1, x2, y2);
-      PixelArea(r);
+      areaInsert(true);
+      setMapAreaFromPhys(Rectangle(x1, y1, x2, y2));
 
-      // update the projection for drawing items
-      map<string,Manager*>::iterator it = managers.begin();
-      while (it != managers.end()) {
-        it->second->changeProjection(staticPlot_->getMapArea());
-        ++it;
-      }
       res.repaint = true;
       res.background = true;
     }
@@ -2613,74 +2330,51 @@ void PlotModule::sendMouseEvent(QMouseEvent* me, EventResult& res)
   }
 }
 
-void PlotModule::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
+void PlotModule::areaNavigation(PlotModule::AreaNavigationCommand anav, EventResult& res)
 {
   static int arrowKeyDirection = 1;
 
   float dx = 0, dy = 0;
   float zoom = 0.;
 
-  if (ke->type() == QEvent::KeyPress) {
+  if (anav == ANAV_HOME) {
+    keepcurrentarea = false;
+    updatePlots();
+    keepcurrentarea = true;
+  } else if (anav == ANAV_TOGGLE_DIRECTION) {
+    arrowKeyDirection *= -1;
+    return;
+  } else if (anav == ANAV_PAN_LEFT)
+    dx = -staticPlot_->getPhysWidth() / 8;
+  else if (anav == ANAV_PAN_RIGHT)
+    dx = staticPlot_->getPhysWidth() / 8;
+  else if (anav == ANAV_PAN_DOWN)
+    dy = -staticPlot_->getPhysHeight() / 8;
+  else if (anav == ANAV_PAN_UP)
+    dy = staticPlot_->getPhysHeight() / 8;
+  else if (anav == ANAV_ZOOM_OUT)
+    zoom = 1.3;
+  else if (anav == ANAV_ZOOM_IN)
+    zoom = 1. / 1.3;
 
-    if (ke->key() == Qt::Key_Home) {
-      keepcurrentarea = false;
-      updatePlots();
-      keepcurrentarea = true;
-      return;
-    }
-
-    if (ke->key() == Qt::Key_R) {
-      if (arrowKeyDirection > 0)
-        arrowKeyDirection = -1;
-      else
-        arrowKeyDirection = 1;
-      return;
-    }
-
-    if (ke->key() == Qt::Key_Left)
-      dx = -plotw / 8;
-    else if (ke->key() == Qt::Key_Right)
-      dx = plotw / 8;
-    else if (ke->key() == Qt::Key_Down)
-      dy = -ploth / 8;
-    else if (ke->key() == Qt::Key_Up)
-      dy = ploth / 8;
-    //     else if (ke->key()==Qt::Key_A)     dx= -plotw/8;
-    //     else if (ke->key()==Qt::Key_D)     dx=  plotw/8;
-    //     else if (ke->key()==Qt::Key_S)     dy= -ploth/8;
-    //     else if (ke->key()==Qt::Key_W)     dy=  ploth/8;
-    else if (ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
-      zoom = 1.3;
-    else if (ke->key() == Qt::Key_Z)
-      zoom = 1. / 1.3;
-    else if (ke->key() == Qt::Key_X)
-      zoom = 1.3;
-
+  if (zoom > 0. || dx != 0 || dy != 0) {
+    Rectangle r;
     if (dx != 0 || dy != 0) {
       dx *= arrowKeyDirection;
       dy *= arrowKeyDirection;
-      //define new plotarea, first save the old one
-      areaInsert(staticPlot_->getMapArea(), true);
-      Rectangle r(dx, dy, plotw + dx, ploth + dy);
-      PixelArea(r);
-    } else if (zoom > 0.) {
-      //define new plotarea, first save the old one
-      areaInsert(staticPlot_->getMapArea(), true);
-      dx = plotw - (plotw * zoom);
-      dy = ploth - (ploth * zoom);
-      Rectangle r(dx, dy, plotw - dx, ploth - dy);
-      PixelArea(r);
+      r = diutil::translatedRectangle(getPhysRectangle(), dx, dy);
+    } else {
+      dx = staticPlot_->getPhysWidth()*(zoom-1);
+      dy = staticPlot_->getPhysHeight()*(zoom-1);
+      r = diutil::adjustedRectangle(getPhysRectangle(), dx, dy);
     }
-
-    // update the projection for drawing items
-    map<string,Manager*>::iterator it = managers.begin();
-    while (it != managers.end()) {
-      it->second->changeProjection(staticPlot_->getMapArea());
-      ++it;
-    }
-    res.repaint = true;
-    res.background = true;
+    //define new plotarea, first save the old one
+    areaInsert(true);
+    setMapAreaFromPhys(r);
   }
+
+  res.repaint = true;
+  res.background = true;
 }
 
 vector<std::string> PlotModule::getFieldModels()
@@ -2746,7 +2440,7 @@ bool PlotModule::printTrajectoryPositions(const std::string& filename)
 vector<std::string> PlotModule::writeLog()
 {
   //put last area in areaQ
-  areaInsert(staticPlot_->getMapArea(), true);
+  areaInsert(true);
 
   vector<std::string> vstr;
 
@@ -2798,6 +2492,6 @@ const vector<ObsPlot*>& PlotModule::getObsPlots() const
 
 void PlotModule::getPlotWindow(int &width, int &height)
 {
-  width = plotw;
-  height = ploth;
+  width = staticPlot_->getPhysWidth();
+  height = staticPlot_->getPhysHeight();
 }

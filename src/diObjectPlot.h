@@ -97,9 +97,6 @@ private:
   //translate norwegian->english in old files
   static std::map<std::string,std::string> editTranslations;
 
-  // Copy members
-  void memberCopy(const ObjectPlot &rhs);
-
   void drawTest();
   void drawPoints(std::vector <float> xdraw, std::vector <float> ydraw);
   bool isInsideBox(float x, float y,float x1,float y1,float x2,float y2);
@@ -107,6 +104,8 @@ private:
   std::string region; //from which region (i.e. VA,VV,VNN)
 
 protected:
+  void memberCopy(const ObjectPlot &rhs);
+
   bool rubber;
   bool spline;                    // draw spline
   float rubberx,rubbery;
@@ -155,21 +154,15 @@ protected:
   virtual void setIndex(int index){drawIndex=index;}
 
 public:
-  /// default constructor
   ObjectPlot();
   /// constructor taking type of object as argument
   ObjectPlot(int objTy);
-  /// copy constructor
   ObjectPlot(const ObjectPlot &rhs);
-  /// Destructor
   virtual ~ObjectPlot();
 
-  /// Assignment operator
   ObjectPlot& operator=(const ObjectPlot &rhs);
   /// returns true if typeOfObject equals Obtype
   bool objectIs(int Obtype){return (typeOfObject ==Obtype);}
-  virtual bool plot(){return false;}
-  virtual bool plot(const int){return false; }
   std::string getBasisColor() {return basisColor;}   ///< gets basis color of object
   void   setBasisColor(std::string);                 ///< sets basis color of object
   void   setObjectColor(std::string);                /// < sets actual color of object
@@ -287,7 +280,7 @@ public:
   std::vector<float> getYmarked();                                ///< returns y-values for all marked nodepoints
   std::vector<float> getXmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
   std::vector<float> getYmarkedJoined();                          ///< returns x-values for all marked and joined nodepoints
-  virtual void setXY(std::vector<float> x, std::vector <float> y);      ///< sets x and y values for all nodepoints
+  virtual void setXY(const std::vector<float>& x, const std::vector<float>& y);      ///< sets x and y values for all nodepoints
 
   virtual float getLineWidth(){return 0;}
   virtual void setLineWidth(float w){}

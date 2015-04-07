@@ -32,7 +32,6 @@
 #include <diColour.h>
 #include <diCommonTypes.h>
 #include <diDrawingTypes.h>
-#include <diLocationPlot.h>
 #include <diMapMode.h>
 #include <diPrintOptions.h>
 
@@ -46,6 +45,7 @@
 
 class AnnotationPlot;
 class PlotModule;
+struct LocationData;
 class FieldManager;
 class FieldPlotManager;
 class ObsManager;
@@ -120,16 +120,13 @@ public:
   /// get plotwindow corners in GL-coordinates
   void getPlotSize(float& x1, float& y1, float& x2, float& y2);
   /// get plot area (incl. projection)
-  Area getMapArea();
+  const Area& getMapArea();
   /// zoom to rectangle r
   void zoomTo(const Rectangle & r);
   /// zoom out map
   void zoomOut();
   /// set plotwindow size in pixels (from GLwidget..)
   void setPlotWindow(const int, const int);
-  /// receive rectangle..
-  void PixelArea(const int x1, const int y1,
-      const int x2, const int y2);
   /// return latitude,longitude from physical x,y
   bool PhysToGeo(const float,const float,float&,float&);
   /// return physical x,y from latitude,longitude
@@ -173,13 +170,8 @@ public:
   void updateFieldPlot(const std::vector<std::string>& pin);
   /// toggle area conservatism
   void keepCurrentArea(bool);
-  /// get current area
-  const Area& getCurrentArea();
   /// set colourindices from gui
   void setColourIndices(std::vector<Colour::ColourInfo>&);
-
-  /// get colour wich is visible on the present background
-  Colour getContrastColour();
 
   /// reload observations
   void updateObs();
@@ -200,9 +192,9 @@ public:
   /// select obs parameter to flag from QSocket
   void processHqcCommand(const std::string&, const std::string& ="");
   /// plot trajectory position
-  void  trajPos(std::vector<std::string>&);
+  void  trajPos(const std::vector<std::string>&);
   /// plot measurements position
-  void  measurementsPos(std::vector<std::string>&);
+  void  measurementsPos(const std::vector<std::string>&);
   /// get trajectory fields
   std::vector<std::string> getTrajectoryFields();
   /// start trajectory computation

@@ -31,8 +31,9 @@
 #ifndef SPECTRUMMANAGER_H
 #define SPECTRUMMANAGER_H
 
-#include <diCommonTypes.h>
-#include <diPrintOptions.h>
+#include "diCommonTypes.h"
+#include "diPrintOptions.h"
+#include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
 
@@ -51,17 +52,22 @@ class SpectrumPlot;
 class SpectrumManager
 {
 private:
-
   struct StationPos {
     float latitude;
     float longitude;
     std::string obs;
   };
 
+  struct SelectedModel{
+    std::string model;
+    std::string reftime;
+  };
+
   // map<model,filename>
   std::map<std::string,std::string> filenames;
   std::map<std::string,std::string> filetypes;
   std::map<std::string,std::string> filesetup;
+  vcross::Setup_p setup;
 
   // for use in dialog (unique lists in setup order)
   std::vector<std::string> dialogModelNames;
@@ -70,17 +76,13 @@ private:
   SpectrumOptions *spopt;
   std::vector<SpectrumFile*> spfile;
   std::vector<SpectrumData*> spdata;
-  bool asField;
 
   std::vector<std::string> nameList;
   std::vector<float> latitudeList;
   std::vector<float> longitudeList;
   std::vector<miutil::miTime>   timeList;
 
-  std::vector<std::string> fieldModels;
-  std::vector<std::string> selectedModels;
-  std::vector<std::string> selectedFiles;
-  std::set<std::string> usemodels;
+  std::vector<SelectedModel> selectedModels;
 
   int plotw, ploth;
 
@@ -99,15 +101,13 @@ private:
   std::map<std::string,std::string> menuConst;
 
   std::string getDefaultModel();
-  bool initSpectrumFile(std::string file,std::string model);
+  bool initSpectrumFile(const SelectedModel& selectedModel);
   void initStations();
   void initTimes();
   void preparePlot();
 
 public:
-  // constructor
   SpectrumManager();
-  // destructor
   ~SpectrumManager();
 
   void parseSetup();
@@ -123,9 +123,9 @@ public:
   std::string setStation(int step);
   miutil::miTime setTime(int step);
 
-  const miutil::miTime getTime(){return plotTime;}
-  const std::string getStation() { return plotStation; }
-  const std::string getLastStation() { return lastStation; }
+  const miutil::miTime& getTime(){return plotTime;}
+  const std::string& getStation() { return plotStation; }
+  const std::string& getLastStation() { return lastStation; }
   const std::vector<std::string>& getStationList() { return nameList; }
   const std::vector<float>& getLatitudes() { return latitudeList; }
   const std::vector<float>& getLongitudes() { return longitudeList; }
@@ -133,11 +133,8 @@ public:
 
   std::vector<std::string> getModelNames();
   std::vector<std::string> getModelFiles();
-  void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<std::string>& models, bool field);
-  void setSelectedFiles(const std::vector<std::string>& files, bool field);
-
-  std::vector<std::string> getSelectedModels();
+  std::vector <std::string> getReferencetimes(const std::string& model);
+  void setSelectedModels(const std::vector<std::string>& models);
 
   bool plot();
   void startHardcopy(const printOptions& po);
@@ -145,7 +142,7 @@ public:
   void mainWindowTimeChanged(const miutil::miTime& time);
   std::string getAnnotationString();
 
-  void setMenuConst(std::map<std::string,std::string> mc)
+  void setMenuConst(const std::map<std::string,std::string>& mc)
     { menuConst = mc;}
 
   std::vector<std::string> writeLog();

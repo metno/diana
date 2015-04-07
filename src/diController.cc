@@ -161,20 +161,20 @@ bool Controller::parseSetup()
   return true;
 }
 
-void Controller::plotCommands(const vector<string>& inp){
-#ifdef DEBUGPRINT
+void Controller::plotCommands(const vector<string>& inp)
+{
   METLIBS_LOG_SCOPE();
-  for (int q = 0; q < inp.size(); q++)
-    METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
-#endif
+  if (METLIBS_LOG_DEBUG_ENABLED()) {
+    for (size_t q = 0; q < inp.size(); q++)
+      METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q] << "'");
+  }
+
   plotm->preparePlots(inp);
 }
 
 void Controller::plot(bool under, bool over)
 {
-#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
-#endif
   plotm->plot(under, over);
 }
 
@@ -188,17 +188,10 @@ vector<Rectangle> Controller::plotAnnotations()
   return plotm->plotAnnotations();
 }
 
-// receive rectangle..
-void Controller::PixelArea(const int x1, const int y1,
-    const int x2, const int y2){
-  Rectangle r(x1,y1,x2,y2);
-  plotm->PixelArea(r);
-}
-
-
 // get plotwindow corners in GL-coordinates
-void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2){
-  Rectangle r= plotm->getPlotSize();
+void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2)
+{
+  const Rectangle& r = plotm->getPlotSize();
   x1= r.x1;
   x2= r.x2;
   y1= r.y1;
@@ -206,12 +199,12 @@ void Controller::getPlotSize(float& x1, float& y1, float& x2, float& y2){
 }
 
 // get plot area (incl. projection)
-Area Controller::getMapArea(){
+const Area& Controller::getMapArea(){
   return plotm->getMapArea();
 }
 
 void Controller::zoomTo(const Rectangle & r) {
-  plotm->zoomTo(r);
+  plotm->setMapAreaFromMap(r);
 }
 
 void Controller::zoomOut(){
@@ -319,15 +312,6 @@ void Controller::updateFieldPlot(const vector<string>& pin)
   plotm->updateFieldPlot(pin);
 }
 
-const Area& Controller::getCurrentArea(){
-  return plotm->getCurrentArea();
-}
-
-// get colour which is visible on the present background
-Colour Controller::getContrastColour(){
-  return plotm->getContrastColour();
-}
-
 // reload obsevations
 void Controller::updateObs(){
   plotm->updateObs();
@@ -374,13 +358,13 @@ void Controller::processHqcCommand(const std::string& command,
 }
 
 //plot trajectory position
-void Controller::trajPos(vector<string>& str)
+void Controller::trajPos(const vector<string>& str)
 {
   plotm->trajPos(str);
 }
 
 //plot measurements position
-void Controller::measurementsPos(vector<string>& str)
+void Controller::measurementsPos(const vector<string>& str)
 {
   plotm->measurementsPos(str);
 }
@@ -513,6 +497,7 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
   res.newcursor= keep_it;    // leave the cursor be for now
   res.action= no_action;     // trigger GUI-action
 
+  me->setAccepted(false);
 
   mapMode mm= editm->getMapMode();
   bool inEdit = (mm != normal_mode);
@@ -542,10 +527,9 @@ void Controller::sendMouseEvent(QMouseEvent* me, EventResult& res)
     bool handled = false;
     if (!(me->modifiers() & Qt::ShiftModifier)) {
       for (PlotModule::managers_t::iterator it = plotm->managers.begin(); it != plotm->managers.end(); ++it) {
-        if (it->second->isEditing()) {
-          it->second->sendMouseEvent(me, res);
-          if (me->isAccepted())
-            handled = true;
+        it->second->sendMouseEvent(me, res);
+        if (me->isAccepted()) {
+          handled = true;
           break;
         }
       }
@@ -613,9 +597,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
     keyoverride= true;
   }
 
-  //TESTING GRIDEDITMANAGER
-  //  gridm->sendKeyboardEvent(ke,res);
-
   // first check keys independent of mode
   //-------------------------------------
   if (ke->type() == QEvent::KeyPress){
@@ -632,10 +613,32 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
             ke->key() == Qt::Key_F4 || ke->key() == Qt::Key_F5 ||
             ke->key() == Qt::Key_F6 || ke->key() == Qt::Key_F7 ||
             ke->key() == Qt::Key_F8)) {
-      plotm->changeArea(ke);
+
+      const int key = ke->key();
+      PlotModule::ChangeAreaCommand caco;
+      if (key == Qt::Key_F2 && ke->modifiers() & Qt::ShiftModifier)
+        caco = PlotModule::CA_DEFINE_MYAREA;
+      else if (key == Qt::Key_F3)
+        caco = PlotModule::CA_HISTORY_PREVIOUS;
+      else if (key == Qt::Key_F4)
+        caco = PlotModule::CA_HISTORY_NEXT;
+      else if (key == Qt::Key_F2)
+        caco = PlotModule::CA_RECALL_MYAREA;
+      else if (key == Qt::Key_F5)
+        caco = PlotModule::CA_RECALL_F5;
+      else if (key == Qt::Key_F6)
+        caco = PlotModule::CA_RECALL_F6;
+      else if (key == Qt::Key_F7)
+        caco = PlotModule::CA_RECALL_F7;
+      else if (key == Qt::Key_F7)
+        caco = PlotModule::CA_RECALL_F8;
+      else
+        return;
+      plotm->changeArea(caco);
       res.repaint= true;
       res.background= true;
-      if (inEdit) res.savebackground= true;
+      if (inEdit)
+        res.savebackground= true;
       return;
     } else if (ke->key() == Qt::Key_F9){
       //    METLIBS_LOG_WARN("F9 - not defined");
@@ -648,8 +651,10 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
       return;
       //####################################################################
     } else if ((ke->key() == Qt::Key_Left && ke->modifiers() & Qt::ShiftModifier) ||
-        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) ){
-      plotm->obsTime(ke,res);  // change observation time only
+        (ke->key() == Qt::Key_Right && ke->modifiers() & Qt::ShiftModifier) )
+    {
+      const bool forward = (ke->key() == Qt::Key_Left);
+      plotm->obsTime(forward,res);  // change observation time only
       res.repaint= true;
       res.background= true;
       if (inEdit) res.savebackground= true;
@@ -660,16 +665,37 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
         (ke->key() == Qt::Key_Left || ke->key() == Qt::Key_Right ||
             ke->key() == Qt::Key_Down || ke->key() == Qt::Key_Up    ||
             ke->key() == Qt::Key_Z    || ke->key() == Qt::Key_X     ||
-            // 		ke->key() == Qt::Key_A    || ke->key() == Qt::Key_D     ||
-            // 		ke->key() == Qt::Key_S    || ke->key() == Qt::Key_W     ||
-            ke->key() == Qt::Key_Home)) {
-      plotm->sendKeyboardEvent(ke,res);
-      res.repaint= true;
-      res.background= true;
-      if (inEdit) res.savebackground= true;
+            ke->key() == Qt::Key_Home))
+    {
+      if (ke->type() == QEvent::KeyPress) {
+        PlotModule::AreaNavigationCommand anav;
+        if (ke->key() == Qt::Key_Home)
+          anav = PlotModule::ANAV_HOME;
+        else if (ke->key() == Qt::Key_Left)
+          anav = PlotModule::ANAV_PAN_LEFT;
+        else if (ke->key() == Qt::Key_Right)
+          anav = PlotModule::ANAV_PAN_RIGHT;
+        else if (ke->key() == Qt::Key_Down)
+          anav = PlotModule::ANAV_PAN_DOWN;
+        else if (ke->key() == Qt::Key_Up)
+          anav = PlotModule::ANAV_PAN_UP;
+        else if ((ke->key() == Qt::Key_Z && ke->modifiers() & Qt::ShiftModifier)
+            || (ke->key() == Qt::Key_X))
+          anav = PlotModule::ANAV_ZOOM_OUT;
+        else if (ke->key() == Qt::Key_Z)
+          anav = PlotModule::ANAV_ZOOM_IN;
+        else
+          return;
+
+        plotm->areaNavigation(anav, res);
+        res.repaint= true;
+        res.background= true;
+        if (inEdit)
+          res.savebackground= true;
+      }
       return;
     } else if (ke->key() == Qt::Key_R) {
-      plotm->sendKeyboardEvent(ke,res);
+      plotm->areaNavigation(PlotModule::ANAV_TOGGLE_DIRECTION, res);
       return;
     }
   }
@@ -683,7 +709,6 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
   // catch events to PlotModule
   //-------------------------------------
   if( !inEdit || keyoverride ) {
-    //    plotm->sendKeyboardEvent(ke,res);
     if (ke->type() == QEvent::KeyPress)
       res.action = keypressed;
   }
@@ -951,8 +976,7 @@ void Controller::findStations(int x, int y, bool add,
 void Controller::getEditStation(int step,
     std::string& name, int& id,
     vector<std::string>& stations){
-  if (stam->getEditStation(step,name,id,stations))
-    plotm->PlotAreaSetup();
+  stam->getEditStation(step,name,id,stations);
 }
 
 void Controller::getStationData(vector<std::string>& data)

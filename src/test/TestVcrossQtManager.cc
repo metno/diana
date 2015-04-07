@@ -30,20 +30,10 @@
 #include "TestVcrossQtManager.h"
 #include <vcross_v2/VcrossQtManager.h>
 
-#define MILOGGER_CATEGORY "diana.test.VcrossQtManager"
-#include "miLogger/miLogging.h"
-
 #include <gtest/gtest.h>
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
+#define MILOGGER_CATEGORY "diana.test.VcrossQtManager"
+#include "miLogger/miLogging.h"
 
 namespace vcross {
 namespace test {
@@ -153,37 +143,47 @@ const char* AROME2_RTT[4] = {
   "2015-02-02 00:00:00", "2015-02-02 06:00:00"
 };
 
+const std::string MODEL = "MODEL";
+const std::string TEMPK = "Temp(K)";
+const std::string TEMPC = "Temp(C)";
+const std::string VIND  = "Vind";
 }
 
-TEST(TestVcrossQtManager, Script)
+static void configureManager(vcross::QtManager& manager, const std::string& source)
 {
-  configureLogging();
-
   string_v sources;
-  sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
-      + std::string(AROME1_FILE) + " t=netcdf");
+  sources.push_back("m=" + MODEL
+      + " f=" TEST_SRCDIR "/" + source
+      + " t=netcdf");
 
   string_v computations;
   computations.push_back("vc_surface_altitude  = convert_unit(altitude,m)");
   computations.push_back("vc_surface_altitude  = height_above_msl_from_surface_geopotential(surface_geopotential)");
   computations.push_back("tk = identity(air_temperature_ml)");
+  computations.push_back("tc = convert_unit(tk,celsius)");
   computations.push_back("tk = tk_from_th(air_potential_temperature_ml)");
   computations.push_back("ff_normal     = normal(x_wind_ml, y_wind_ml)");
   computations.push_back("ff_tangential = tangential(x_wind_ml, y_wind_ml)");
 
   string_v plots;
-  plots.push_back("name=Temp(K) plot=CONTOUR(tk)  colour=red  line.interval=1.");
-  plots.push_back("name=Vind    plot=WIND(ff_tangential,ff_normal) colour=blue");
+  plots.push_back("name="  + TEMPK + " plot=CONTOUR(tk)  colour=red  line.interval=1.");
+  plots.push_back("name="  + TEMPC + " plot=CONTOUR(tc)  colour=red  line.interval=1.");
+  plots.push_back("name="  + VIND  + " plot=WIND(ff_tangential,ff_normal) colour=blue");
 
-  vcross::QtManager manager;
   manager.parseSetup(sources, computations, plots);
+}
 
+TEST(TestVcrossQtManager, Script)
+{
+  vcross::QtManager manager;
+  configureManager(manager, AROME1_FILE);
   vcross::test::ManagerSlots ms(&manager);
 
-  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes("MODEL");
+  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes(MODEL);
   ASSERT_EQ(1, reftimes.size());
+  EXPECT_EQ(AROME1_RT, reftimes.front());
 
-  manager.addField(vcross::QtManager::PlotSpec("MODEL", AROME1_RT, "Temp(K)"),
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK),
       "colour=red line.interval=0.2", 0);
   EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
@@ -192,7 +192,7 @@ TEST(TestVcrossQtManager, Script)
 
 
   string_v select;
-  select.push_back("VCROSS model=MODEL field=Vind colour=blue");
+  select.push_back("VCROSS model="+MODEL+" field="+VIND+" colour=blue");
   manager.selectFields(select);
 
   EXPECT_TRUE(ms.beginScript);
@@ -218,34 +218,15 @@ TEST(TestVcrossQtManager, Script)
 
 TEST(TestVcrossQtManager, Reftime)
 {
-  configureLogging();
-
-  string_v sources;
-  sources.push_back("m=MODEL f=" TEST_SRCDIR "/"
-      + std::string(AROME2_FILE) + " t=netcdf");
-
-  string_v computations;
-  computations.push_back("vc_surface_altitude  = convert_unit(altitude,m)");
-  computations.push_back("vc_surface_altitude  = height_above_msl_from_surface_geopotential(surface_geopotential)");
-  computations.push_back("tk = identity(air_temperature_ml)");
-  computations.push_back("tk = tk_from_th(air_potential_temperature_ml)");
-  computations.push_back("ff_normal     = normal(x_wind_ml, y_wind_ml)");
-  computations.push_back("ff_tangential = tangential(x_wind_ml, y_wind_ml)");
-
-  string_v plots;
-  plots.push_back("name=Temp(K) plot=CONTOUR(tk)  colour=red  line.interval=1.");
-  plots.push_back("name=Vind    plot=WIND(ff_tangential,ff_normal) colour=blue");
-
   vcross::QtManager manager;
-  manager.parseSetup(sources, computations, plots);
-
+  configureManager(manager, AROME2_FILE);
   vcross::test::ManagerSlots ms(&manager);
 
-  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes("MODEL");
+  const vcross::QtManager::vctime_v reftimes = manager.getModelReferenceTimes(MODEL);
   ASSERT_EQ(4, reftimes.size());
 
   const vcross::QtManager::vctime_t AROME2_RT1(AROME2_RTT[1]);
-  manager.addField(vcross::QtManager::PlotSpec("MODEL", AROME2_RT1, "Temp(K)"),
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME2_RT1, TEMPK),
       "colour=red line.interval=0.2", 0);
   EXPECT_EQ(1, ms.added.size());
   EXPECT_EQ(1, ms.cslist);
@@ -255,7 +236,7 @@ TEST(TestVcrossQtManager, Reftime)
 
 
   string_v select;
-  select.push_back("VCROSS model=MODEL refhour=12 field=Vind colour=blue");
+  select.push_back("VCROSS model="+MODEL+" refhour=12 field="+VIND+" colour=blue");
   manager.selectFields(select);
 
   EXPECT_TRUE(ms.beginScript);
@@ -279,4 +260,72 @@ TEST(TestVcrossQtManager, Reftime)
   ms.reset();
 
   EXPECT_EQ(AROME2_RTT[0], manager.getReftimeAt(0).isoTime());
+}
+
+TEST(TestVcrossQtManager, MoveFields)
+{
+  vcross::QtManager manager;
+  configureManager(manager, AROME1_FILE);
+  vcross::test::ManagerSlots ms(&manager);
+
+  manager.getModelReferenceTimes(MODEL);
+
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=red line.interval=0.2", 0);
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, VIND),  "colour=blue", 1);
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPC), "colour=green line.interval=0.2", 2);
+  EXPECT_EQ(3, ms.added.size());
+  EXPECT_EQ(1, ms.cslist);
+  EXPECT_EQ(1, ms.csindex);
+  EXPECT_EQ(TEMPK, manager.getFieldAt(0));
+  EXPECT_EQ(VIND,  manager.getFieldAt(1));
+  EXPECT_EQ(TEMPC, manager.getFieldAt(2));
+  ms.reset();
+
+  // move up, temp(k) from 0 to 1
+  manager.moveField(0, 1);
+
+  EXPECT_TRUE(ms.beginScript);
+  EXPECT_EQ(1, ms.removed.size());
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(0, ms.cslist);
+  EXPECT_EQ(0, ms.csindex);
+  EXPECT_TRUE(ms.end);
+  EXPECT_EQ(VIND,  manager.getFieldAt(0));
+  EXPECT_EQ(TEMPK, manager.getFieldAt(1));
+  EXPECT_EQ(TEMPC, manager.getFieldAt(2));
+  ms.reset();
+
+  // move down, temp(c) from 2 to 0
+  manager.moveField(2, 0);
+
+  EXPECT_TRUE(ms.beginScript);
+  EXPECT_EQ(1, ms.removed.size());
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(0, ms.cslist);
+  EXPECT_EQ(0, ms.csindex);
+  EXPECT_EQ(TEMPC, manager.getFieldAt(0));
+  EXPECT_EQ(VIND,  manager.getFieldAt(1));
+  EXPECT_EQ(TEMPK, manager.getFieldAt(2));
+  EXPECT_TRUE(ms.end);
+  ms.reset();
+}
+
+TEST(TestVcrossQtManager, DuplicateFields)
+{
+  vcross::QtManager manager;
+  configureManager(manager, AROME1_FILE);
+  vcross::test::ManagerSlots ms(&manager);
+
+  manager.getModelReferenceTimes(MODEL);
+
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=red line.interval=0.2", 0);
+  ms.reset();
+
+  manager.addField(vcross::QtManager::PlotSpec(MODEL, AROME1_RT, TEMPK), "colour=blue line.interval=0.2", 1);
+  EXPECT_EQ(1, ms.added.size());
+  EXPECT_EQ(0, ms.cslist);
+  EXPECT_EQ(0, ms.csindex);
+  EXPECT_EQ(TEMPK, manager.getFieldAt(0));
+  EXPECT_EQ(TEMPK, manager.getFieldAt(1));
+  ms.reset();
 }

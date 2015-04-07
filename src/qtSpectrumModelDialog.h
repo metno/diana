@@ -32,16 +32,11 @@
 #define SPECTRUMMODELDIALOG_H
 
 #include <QDialog>
-
-#include <diCommonTypes.h>
 #include <vector>
 
-class QFont;
-class QPalette;
 class SpectrumManager;
 class QListWidget;
-class QButtonGroup;
-class ToggleButton;
+class QListWidgetItem;
 
 /**
    \brief Dialogue to selecet Wave Spectrum data sources
@@ -63,21 +58,20 @@ protected:
 private:
   SpectrumManager * spectrumm;
 
-  //qt widget
-  QButtonGroup* modelfileBut;
-  ToggleButton* modelButton;
-  ToggleButton* fileButton;
   QListWidget * modelfileList;
-
-  std::string ASFIELD;
-  std::string OBS;
+  QListWidget* reftimeWidget;
+  QListWidget* selectedModelsWidget;
 
   //functions
   void setModel();
+  QString getSelectedModelString();
+
 
 private slots:
-  void modelfileClicked(int);
+  void modelfilelistClicked(QListWidgetItem*);
+  void reftimeWidgetClicked(QListWidgetItem*);
   void refreshClicked();
+  void deleteClicked();
   void deleteAllClicked();
   void helpClicked();
   void applyhideClicked();
@@ -86,7 +80,7 @@ private slots:
 signals:
   void ModelHide();
   void ModelApply();
-  void showsource(const std::string, const std::string=""); // activate help
+  void showsource(const std::string, const std::string="");
 };
 
 #endif

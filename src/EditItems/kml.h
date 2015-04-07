@@ -32,8 +32,6 @@
 #ifndef KML_H
 #define KML_H
 
-#include "config.h"
-
 #include <QSet>
 #include <QString>
 #include <QStringList>
@@ -173,24 +171,35 @@ static inline QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
 
     ditem->setProperty("srcFile", srcFileName);
 
-    if (pmExtData.contains("met:layerId"))  {
-      bool ok;
-      const int layerId = pmExtData.value("met:layerId").toInt(&ok);
-      if (!ok) {
-        *error = QString("failed to parse met:layerId as integer: %1").arg(pmExtData.value("met:layerId"));
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-      ditem->setProperty("layerId", layerId);
-    }
+    // Keep all the met: properties, treating the layerId and joinId properties specially.
+    QHashIterator<QString, QString> it(pmExtData);
+    while (it.hasNext()) {
 
-    if (pmExtData.contains("met:joinId"))  {
-      bool ok;
-      const int joinId = pmExtData.value("met:joinId").toInt(&ok);
-      if (!ok) {
-        *error = QString("failed to parse met:joinId as integer: %1").arg(pmExtData.value("met:joinId"));
-        return QList<QSharedPointer<EditItems::Layer> >();
-      }
-      ditem->setProperty("joinId", joinId);
+      it.next();
+
+      if (it.key() == "met:layerId") {
+        bool ok;
+        const int layerId = it.value().toInt(&ok);
+        if (!ok) {
+          *error = QString("failed to parse met:layerId as integer: %1").arg(it.value());
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        ditem->setProperty("layerId", layerId);
+
+      } else if (it.key() == "met:joinId") {
+        bool ok;
+        const int joinId = it.value().toInt(&ok);
+        if (!ok) {
+          *error = QString("failed to parse met:joinId as integer: %1").arg(it.value());
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        ditem->setProperty("joinId", joinId);
+
+      } else if (it.key() == "met:text") {
+        ;
+
+      } else if (it.key().startsWith("met:"))
+        ditem->setProperty(it.key().mid(4), it.value());
     }
 
     QMap<QString, QDomElement> ancElems;

@@ -55,15 +55,15 @@ public:
   /// returns true of no objects or labels
   bool empty();
   /// plot all weather objects
-  void plot();
+  void plot(Plot::PlotOrder porder);
  /// check if objectplots are enabled
   bool isEnabled();
  /// enable/disable objectplots
   void enable(const bool b);
   /// set prefix for object files
-  void setPrefix(std::string p){prefix=p;}
-  /// sets the object time 
-  void setTime(miutil::miTime t){itsTime=t;}
+  void setPrefix(const std::string& p){prefix=p;}
+  /// sets the object time
+  void setTime(const miutil::miTime& t){itsTime=t;}
   /// gets the object time
   miutil::miTime getTime(){if (itsTime.undef()) return ztime; else return itsTime;}
   /// returns number of object plots
@@ -83,13 +83,14 @@ public:
 
   ///return oldLabels from object file
   std::vector<std::string> getObjectLabels();
-  /// return new edited labels 
-  std::vector<std::string> getEditLabels(); 
+  /// return new edited labels
+  std::vector<std::string> getEditLabels();
 
   /// read file with weather objects and change projection to newArea
-  bool readEditDrawFile(const std::string ,const Area& newArea );
+  bool readEditDrawFile(const std::string& filename,const Area& newArea);
   /// read  string with weather objects and change projection to newArea
-  bool readEditDrawString(const std::string ,const Area& newArea, bool replace=false);
+  bool readEditDrawString(const std::string&  inputString,
+      const Area& newArea, bool replace=false);
   /// read file with area borders (for combining analyses)
   bool readAreaBorders(const std::string ,const Area& );
   /// write file with area borders (for combining analyses)
@@ -100,16 +101,16 @@ public:
   void setSelectedObjectTypes(std::string t){useobject = decodeTypeString(t);}
   /// returns number of object of this type
   int objectCount(int type );
-  /// add an object 
+  /// add an object
   void addObject(ObjectPlot * object, bool replace=false);
   /// remove an object
   std::vector<ObjectPlot*>::iterator removeObject(std::vector<ObjectPlot*>::iterator );
  /// the file the objects are read from
-  std::string filename;     
+  std::string filename;
   /// decode string with types of objects to plot
   static std::map <std::string,bool> decodeTypeString(std::string);
   /// x,y for copied objects
-  float xcopy,ycopy; 
+  float xcopy,ycopy;
 
 private:
   std::map<std::string,bool> useobject;

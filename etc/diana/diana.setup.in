@@ -1426,9 +1426,9 @@ composite="Severe Turbulence with X over X" objects=symbol:composite values=":" 
                             layout=horizontal fillcolour=white fillalpha=255 linealpha=0
 composite="Text with X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=horizontal \
                             fillcolour=white fillalpha=255 linealpha=0
-composite="Moderate/Severe aircraft icing with X over X" objects=composite:composite values=":" styles="Forecast|Moderate/Severe Aircraft Icing:X over X" \
+composite="Moderate/Severe aircraft icing with X over X" objects=composite:composite values=":" styles="Moderate/Severe Aircraft Icing:X over X" \
                             fillcolour=white fillalpha=255 linealpha=0
-composite="Moderate/Severe turbulence with X over X" objects=composite:composite values=":" styles="Forecast|Moderate/Severe Turbulence:X over X" \
+composite="Moderate/Severe turbulence with X over X" objects=composite:composite values=":" styles="Moderate/Severe Turbulence:X over X" \
                             fillcolour=white fillalpha=255 linealpha=0
 composite="Predefined Text above X over X" objects=text:composite values="Text:" styles="SIGWX label:X over X" layout=vertical \
                             fillcolour=white fillalpha=255 linealpha=0

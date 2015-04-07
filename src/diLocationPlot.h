@@ -1,9 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  $Id$
-
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2015 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -60,15 +58,16 @@ public:
   void hide() { visible= false; }
   void show() { visible= true; }
   bool isVisible() const { return visible; }
-  bool plot();
-  bool plot(const int) { return false; }
+  void plot(PlotOrder zorder);
   bool changeProjection();
   std::string getName() { return locdata.name; }
   std::string find(int x, int y);
   void getAnnotation(std::string &str, Colour &col);
 
 private:
+  void drawLineOrPoint(int l);
 
+private:
   struct InternalLocationInfo {
     int   beginpos;
     int   endpos;

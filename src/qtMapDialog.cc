@@ -36,6 +36,7 @@
 #include "qtMapDialog.h"
 #include "qtUtility.h"
 #include "qtToggleButton.h"
+#include "diLinetype.h"
 
 #include <puTools/miStringFunctions.h>
 

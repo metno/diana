@@ -29,7 +29,6 @@
 #ifndef VcrossQtPlot_h
 #define VcrossQtPlot_h
 
-#include "VcrossQtAxis.h"
 #include "VcrossQtPaint.h"
 #include <diField/VcrossData.h>
 #include "VcrossEvaluate.h"
@@ -46,6 +45,12 @@
 #include <map>
 
 namespace vcross {
+
+namespace detail {
+struct Axis;
+typedef boost::shared_ptr<Axis> AxisPtr;
+typedef boost::shared_ptr<const Axis> AxisCPtr;
+} // namespace detail
 
 //----------------------------------------------------
 
@@ -112,9 +117,9 @@ public:
 
   void clear(bool keepX=false, bool keepY=false);
   void setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
-      const LonLat_v& csPoints);
+      const LonLat_v& csPoints, const LonLat_v& csPointsRequested);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
-  void setVerticalAxis();
+  bool setVerticalAxis();
   void setSurface(Values_cp s)
     { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);
@@ -125,8 +130,15 @@ public:
 private:
   bool plotBackground(const std::vector<std::string>& labels);
 
-  void plotFrame(QPainter& painter);
+  typedef std::vector<float> ticks_t;
+  typedef float (*tick_to_axis_f)(float);
+  void generateYTicks(ticks_t& ticks, tick_to_axis_f& tta);
+
+  void plotFrame(QPainter& painter,
+      const ticks_t& tickValues, tick_to_axis_f& tta);
   void plotVerticalGridLines(QPainter& painter);
+  void plotHorizontalGridLines(QPainter& painter,
+      const ticks_t& tickValues, tick_to_axis_f& tta);
   void plotSurface(QPainter& painter);
   void plotXLabels(QPainter& painter);
   void plotTitle(QPainter& painter);
@@ -187,6 +199,7 @@ private:
   std::string mCrossectionLabel;
   miutil::miTime mCrossectionTime;
   LonLat_v mCrossectionPoints;
+  LonLat_v mCrossectionPointsRequested;
   std::vector<float> mCrossectionDistances; //! distance in m from first point
   std::vector<float> mCrossectionBearings;  //! direction to next point
 

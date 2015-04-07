@@ -47,6 +47,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="buttonPrint">
+       <property name="toolTip">
+        <string>Print vertical crossection</string>
+       </property>
        <property name="text">
         <string>Print…</string>
        </property>
@@ -54,6 +57,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="buttonSave">
+       <property name="toolTip">
+        <string>Save vectical crossection as image</string>
+       </property>
        <property name="text">
         <string>Save…</string>
        </property>
@@ -81,6 +87,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="buttonClose">
+       <property name="toolTip">
+        <string>Close vertical crossection window</string>
+       </property>
        <property name="text">
         <string>Close</string>
        </property>
@@ -104,8 +113,11 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Previous crossection</string>
+       </property>
        <property name="text">
-        <string>&lt;</string>
+        <string notr="true">&lt;</string>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -139,8 +151,11 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Next crossection</string>
+       </property>
        <property name="text">
-        <string>&gt;</string>
+        <string notr="true">&gt;</string>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -151,6 +166,9 @@
       <widget class="QPushButton" name="toggleCsEdit">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Start/stopp editering av snitt (hvis data tillater dette)</string>
        </property>
        <property name="text">
         <string>Draw/Edit</string>
@@ -184,8 +202,11 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Previous forecast time</string>
+       </property>
        <property name="text">
-        <string>&lt;</string>
+        <string notr="true">&lt;</string>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -219,8 +240,11 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Next forecast time</string>
+       </property>
        <property name="text">
-        <string>&gt;</string>
+        <string notr="true">&gt;</string>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
@@ -252,6 +276,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="toggleTimeGraph">
+       <property name="toolTip">
+        <string>Switch to timegraph mode</string>
+       </property>
        <property name="text">
         <string>Time Graph</string>
        </property>
@@ -259,19 +286,6 @@
         <bool>true</bool>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -288,13 +302,32 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Add field(s) to the crossection view</string>
+       </property>
        <property name="text">
         <string>Add</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QWidget" name="layerButtons" native="true"/>
+      <widget class="QToolButton" name="toolShowStyle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Show style dialog</string>
+       </property>
+       <property name="text">
+        <string>Style</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="VcrossLayerBar" name="layerButtons" native="true"/>
      </item>
      <item>
       <spacer name="verticalSpacer">
@@ -333,10 +366,10 @@
   </layout>
   <action name="actionAddField">
    <property name="text">
-    <string>actionAddField</string>
+    <string>Add fields…</string>
    </property>
    <property name="toolTip">
-    <string>Add field(s)…</string>
+    <string>Add field(s) to the vertical crossection view</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -348,6 +381,12 @@
    <class>vcross::QtWidget</class>
    <extends>QWidget</extends>
    <header>vcross_qt/VcrossQtWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VcrossLayerBar</class>
+   <extends>QWidget</extends>
+   <header>vcross_qt/qtVcrossLayerBar.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -593,6 +632,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>toolShowStyle</sender>
+   <signal>clicked()</signal>
+   <receiver>VcrossWindow</receiver>
+   <slot>onShowStyleDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>344</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onAddField()</slot>
@@ -606,6 +661,7 @@
   <slot>printClicked()</slot>
   <slot>saveClicked()</slot>
   <slot>onShowSetupDialog()</slot>
+  <slot>onShowStyleDialog()</slot>
   <slot>timeGraphClicked(bool)</slot>
   <slot>quitClicked()</slot>
   <slot>helpClicked()</slot>

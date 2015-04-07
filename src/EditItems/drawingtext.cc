@@ -93,11 +93,7 @@ QSizeF Text::getStringSize(const QString &text, int index) const
   if (!PlotModule::instance()->getStaticPlot()->getFontPack()->getStringSize(text.left(index).toStdString().c_str(), width, height))
     width = height = 0;
 
-  float scale = 1.0;
-  float physWidth = PlotModule::instance()->getStaticPlot()->getPhysWidth();
-  float plotWidth = PlotModule::instance()->getStaticPlot()->getPlotSize().width();
-  if (plotWidth != 0.0)
-    scale = physWidth/plotWidth;
+  float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
   QSizeF size(scale * width, scale * height);
 
@@ -166,6 +162,21 @@ void Text::updateRect()
   }
 
   points_[1] = QPointF(x + width + 2 * margin(), y - 2 * margin());
+}
+
+bool Text::hit(const QPointF &pos, bool selected) const
+{
+  QRectF textbox = drawingRect();
+  return textbox.contains(pos);
+}
+
+bool Text::hit(const QRectF &bbox) const
+{
+  if (points_.size() < 2)
+    return false;
+
+  QRectF textbox = drawingRect();
+  return textbox.intersects(bbox);
 }
 
 void Text::setText(const QStringList &lines)

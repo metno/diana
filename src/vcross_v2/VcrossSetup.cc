@@ -247,59 +247,65 @@ std::string Setup::getPlotOptions(ConfiguredPlot_cp cp) const
   if (cp->type == ConfiguredPlot::T_CONTOUR) {
     bool usebase = false;
     if (po.colours.size() < 2 || po.colours.size() > 3) {
-      ostr << "colour=" << po.linecolour.Name();
+      ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
     } else {
-      ostr << "colours=" << po.colours[0].Name();
+      ostr << PlotOptions::key_colours << '=' << po.colours[0].Name();
       for (unsigned int j = 1; j < po.colours.size(); j++)
         ostr << "," << po.colours[j].Name();
       usebase = true;
     }
-  if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
-      ostr << " linetype=" << po.linetype.name;
+    if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
+      ostr << ' ' << PlotOptions::key_linetype << '=' << po.linetype.name;
     } else {
-      ostr << " linetypes=" << po.linetypes[0].name;
+      ostr << ' ' << PlotOptions::key_linetypes << '=' << po.linetypes[0].name;
       for (unsigned int j = 1; j < po.linetypes.size(); j++)
         ostr << "," << po.linetypes[j].name;
       usebase = true;
     }
     if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
-      ostr << " linewidth=" << po.linewidth;
+      ostr << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth;
     } else {
-      ostr << " linewidths=" << po.linewidths[0];
+      ostr << ' ' << PlotOptions::key_linewidths << '=' << po.linewidths[0];
       for (unsigned int j = 1; j < po.linewidths.size(); j++)
         ostr << "," << po.linewidths[j];
       usebase = true;
     }
     if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
-      ostr << " line.interval=" << po.lineinterval;
+      ostr << ' ' << PlotOptions::key_lineinterval << '=' << po.lineinterval;
       if (po.zeroLine >= 0)
-        ostr << " zero.line=" << po.zeroLine;
+        ostr << ' ' << PlotOptions::key_zeroLine << '=' << po.zeroLine;
     }
-    ostr << " line.smooth=" << po.lineSmooth << " value.label="
-        << po.valueLabel << " label.size=" << po.labelSize;
-    ostr << " base=" << po.base;
+    ostr << ' ' << PlotOptions::key_lineSmooth << '=' << po.lineSmooth
+         << ' ' << PlotOptions::key_valueLabel << '=' << po.valueLabel
+         << ' ' << PlotOptions::key_labelSize << '=' << po.labelSize;
+    ostr << ' ' << PlotOptions::key_basevalue << '=' << po.base;
     if (po.minvalue > -1.e+35)
-      ostr << " minvalue=" << po.minvalue;
+      ostr << ' ' << PlotOptions::key_minvalue << '=' << po.minvalue;
     else
-      ostr << " minvalue=off";
+      ostr << ' ' << PlotOptions::key_minvalue << "=off";
     if (po.maxvalue < 1.e+35)
-      ostr << " maxvalue=" << po.maxvalue;
+      ostr << ' ' << PlotOptions::key_maxvalue << '=' << po.maxvalue;
     else
-      ostr << " maxvalue=off";
+      ostr << ' ' << PlotOptions::key_maxvalue << "=off";
 
-    ostr << " palettecolours=" << po.palettename;
-    ostr << " table=" << po.table;
-    ostr << " repeat=" << po.repeat;
+    ostr << ' ' << PlotOptions::key_palettecolours << '=' << po.palettename;
+    ostr << ' ' << PlotOptions::key_table << '=' << po.table;
+    ostr << ' ' << PlotOptions::key_repeat << '=' << po.repeat;
 
   } else if (cp->type == ConfiguredPlot::T_WIND) {
-    ostr << "colour=" << po.linecolour.Name() << " linewidth="
-        << po.linewidth << " density=" << po.density;
+    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name()
+         << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth
+         << ' ' << PlotOptions::key_density << '=' << po.density;
   } else if (cp->type == ConfiguredPlot::T_VECTOR) {
-    ostr << "colour=" << po.linecolour.Name() << " linewidth="
-        << po.linewidth << " density=" << po.density << " vector.unit="
-        << po.vectorunit;
+    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name()
+         << ' ' << PlotOptions::key_linewidth << '=' << po.linewidth
+         << ' ' << PlotOptions::key_density << '=' << po.density
+         << ' ' << PlotOptions::key_vectorunit << '=' << po.vectorunit
+         << ' ' << PlotOptions::key_vectorscale_x << '=' << po.vectorscale_x
+         << ' ' << PlotOptions::key_vectorscale_y << '=' << po.vectorscale_y
+         << ' ' << PlotOptions::key_vectorthickness << '=' << po.vectorthickness;
   } else {
-    ostr << "colour=" << po.linecolour.Name();
+    ostr << PlotOptions::key_colour << '=' << po.linecolour.Name();
   }
 
   return ostr.str();

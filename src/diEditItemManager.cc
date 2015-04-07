@@ -34,11 +34,16 @@
 #define MILOGGER_CATEGORY "diana.EditItemManager"
 #include <miLogger/miLogging.h>
 
+#include <vector>
+
 #include <QtGui> // ### include only relevant headers ... TBD
 #include <QAction>
 #include <QApplication>
 #include <QMenu>
 #include <QMessageBox>
+
+#include <diLocalSetupParser.h>
+#include <puTools/miSetupParser.h>
 
 #include <diEditItemManager.h>
 #include <diPlotModule.h>
@@ -61,6 +66,9 @@
 #include "paint_create_text.xpm"
 
 #define PLOTM PlotModule::instance()
+
+using namespace std;
+using namespace miutil;
 
 class UndoView : public QUndoView
 {
@@ -166,6 +174,36 @@ EditItemManager *EditItemManager::instance()
     EditItemManager::self_ = new EditItemManager();
 
   return EditItemManager::self_;
+}
+
+bool EditItemManager::parseSetup()
+{
+  vector<string> section;
+
+  if (!SetupParser::getSection("DRAWING", section))
+    METLIBS_LOG_WARN("No DRAWING section.");
+
+  for (unsigned int i = 0; i < section.size(); ++i) {
+
+    // Split the line into tokens.
+    vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+    QHash<QString, QString> items;
+
+    for (unsigned int j = 0; j < tokens.size(); ++j) {
+      string key, value;
+      SetupParser::splitKeyValue(tokens[j], key, value);
+      items[QString::fromStdString(key)] = QString::fromStdString(value);
+    }
+
+    // Check for different types of definition.
+    if (items.contains("hide-property-sections")) {
+      QStringList values = items.value("hide-property-sections").split(",");
+      Properties::PropertiesEditor::instance()->setPropertyRules("hide", values);
+    }
+  }
+
+  // Let the base class parse the section of the setup file.
+  return DrawingManager::parseSetup();
 }
 
 void EditItemManager::setEditing(bool enable)
@@ -521,7 +559,7 @@ void EditItemManager::incompleteMouseMove(QMouseEvent *event)
     Editing(incompleteItem_.data())->incompleteMouseHover(event, rpn);
     incompleteItem_->setLatLonPoints(getLatLonPoints(*incompleteItem_));
     if (rpn) repaintNeeded_ = true;
-    if (Editing(incompleteItem_.data())->hit(event->pos(), false))
+    if (incompleteItem_->hit(event->pos(), false))
       hitItems_ = QList<QSharedPointer<DrawingItemBase> >() << incompleteItem_;
   } else {
     bool rpn = false;
@@ -635,11 +673,9 @@ void EditItemManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  setPlotRect(PLOTM->getPlotSize());
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
+  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+      PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
   const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
@@ -718,13 +754,14 @@ QList<QSharedPointer<DrawingItemBase> > EditItemManager::findHitItems(
   if (layerMgr_->selectedLayers().isEmpty())
     return QList<QSharedPointer<DrawingItemBase> >();
 
+  // Find only selected items in selected layers.
   const QSet<QSharedPointer<DrawingItemBase> > selItems = layerMgr_->itemsInSelectedLayers(true);
 
   QList<QSharedPointer<DrawingItemBase> > hitItems;
   foreach (const QSharedPointer<DrawingItemBase> &item, layerMgr_->itemsInSelectedLayers()) {
     if ((!itemsVisibilityForced_) && (!item->property("visible", true).toBool()))
       continue;
-    if (Editing(item.data())->hit(pos, selItems.contains(item)))
+    if (item->hit(pos, selItems.contains(item)))
       hitItems.append(item);
     else if (missedItems)
       missedItems->append(item);
@@ -1283,6 +1320,9 @@ void EditItemManager::handleSelectionChange()
 
 void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 {
+  if (!isEditing())
+    return;
+
   event->ignore();
   res.savebackground= true;   // Save the background after painting.
   res.background= false;      // Don't paint the background.
@@ -1296,7 +1336,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   // Transform the mouse position into the original coordinate system used for the objects.
   int w, h;
   PLOTM->getPlotWindow(w, h);
-  setPlotRect(PLOTM->getPlotSize());
+  const Rectangle& plotRect_ = PLOTM->getPlotSize();
 
   if (layerMgr_->selectedLayersItemCount() == 0)
     setEditRect(PLOTM->getPlotSize());

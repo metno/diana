@@ -34,6 +34,7 @@
 #include <puTools/miTime.h>
 #include <vector>
 #include <diField/VcrossSource.h>
+#include "vcross_v2/VcrossCollector.h"
 
 class SpectrumPlot;
 
@@ -45,9 +46,9 @@ class SpectrumPlot;
  */
 class SpectrumData {
 public:
-  SpectrumData(const std::string& filename, const std::string& modelname);
+  SpectrumData(const std::string& modelname);
   ~SpectrumData();
-  bool readFileHeader(const std::string& setup_line);
+  bool readFileHeader(vcross::Setup_p setup, const std::string& reftimestr);
   std::vector<std::string> getNames()
   {
     return posName;
@@ -69,7 +70,6 @@ public:
 
 private:
 
-  std::string fileName;
   std::string modelName;
 
   std::string modelName2; // from file
@@ -87,8 +87,9 @@ private:
   std::vector<float> posLongitude;
   std::vector<miutil::miTime> validTime;
   std::vector<int> forecastHour;
-  vcross::ReftimeSource_p fs;
-
+  vcross::Source_p fs;
+  vcross::Collector_p collector;
+   vcross::Time reftime;
 };
 
 #endif

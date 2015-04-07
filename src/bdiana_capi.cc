@@ -62,6 +62,7 @@
 #include <diFieldPlot.h>
 #include <diObsManager.h>
 #include <diObsPlot.h>
+#include <diPlotModule.h>
 #include <diSatManager.h>
 #include <diSatPlot.h>
 
@@ -79,7 +80,7 @@
 
 
 #include "vcross_v2/VcrossQtManager.h"
-#include "vcross_v2/VcrossOptions.h"
+#include "vcross_v2/VcrossQuickmenues.h"
 
 #include <diVprofManager.h>
 #include <diVprofOptions.h>
@@ -748,9 +749,8 @@ void endHardcopy(const plot_type pt)
 }
 
 // VPROF-options with parser
-std::string vprof_station;
-vector<VprofManager::SelectedModel> vprof_models;
-vector<string> vprof_options;
+std::vector<std::string> vprof_stations;
+vector<string> vprof_models, vprof_options;
 bool vprof_plotobs = true;
 bool vprof_optionschanged;
 
@@ -777,15 +777,9 @@ void parse_vprof_options(const vector<string>& opts)
         if (key == "STATION") {
           if (miutil::contains(value, "\""))
             miutil::remove(value, '\"');
-          vprof_station = value;
+          vprof_stations  = miutil::split(value, ",");
         } else if (key == "MODELS" || key == "MODEL") {
-          vector<std::string> models = miutil::split(value, 0, ",");
-          vprof_models.clear();
-          for ( size_t j=0; j<models.size(); ++j ) {
-            VprofManager::SelectedModel sm;
-            sm.model = models[j];
-            vprof_models.push_back(sm);
-          }
+          vprof_models = miutil::split(value, 0, ",");
         }
       }
     } else {
@@ -796,45 +790,10 @@ void parse_vprof_options(const vector<string>& opts)
   }
 }
 
-// VCROSS-options with parser
-vector<std::string> vcross_data, vcross_options;
-std::string crossection;
-bool vcross_optionschanged;
-
-void parse_vcross_options(const vector<string>& opts)
-{
-  // TODO almost the same code exists in bdiana_capi
-  // TODO this routine never clears vcross_options
-  bool data_exist = false;
-  int n = opts.size();
-  for (int i = 0; i < n; i++) {
-    std::string line = opts[i];
-    miutil::trim(line);
-    if (line.empty())
-      continue;
-    std::string upline = miutil::to_upper(line);
-
-    if (miutil::contains(upline, "CROSSECTION=")) {
-      vector<std::string> vs = miutil::split(line, "=");
-      crossection = vs[1];
-      if (miutil::contains(crossection, "\""))
-        miutil::remove(crossection, '\"');
-    } else if (miutil::contains(upline, "VCROSS ")) {
-      if (!data_exist)
-        vcross_data.clear();
-      vcross_data.push_back(line);
-      data_exist = true;
-    } else {
-      // assume plot-options
-      vcross_options.push_back(line);
-      vcross_optionschanged = true;
-    }
-  }
-}
 
 // SPECTRUM-options with parser
 std::string spectrum_station;
-vector<string> spectrum_models, spectrum_options;
+vector<string> spectrum_models,spectrum_options;
 bool spectrum_optionschanged;
 
 static void parse_spectrum_options(const vector<string>& opts)
@@ -1600,6 +1559,7 @@ static bool MAKE_CONTROLLER()
     return true;
 
   main_controller = new Controller;
+  PlotModule::instance()->getStaticPlot()->restartFontManager();
 
   const bool ps = main_controller->parseSetup();
   if (not ps) {
@@ -1643,7 +1603,11 @@ static int parseAndProcess(istream &is)
           != com_vcross_opt_end; i++, k++)
         pcom.push_back(lines[i]);
       k++;
-      parse_vcross_options(pcom);
+
+      if (!vcrossmanager)
+        vcrossmanager = miutil::make_shared<vcross::QtManager>();
+      vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
+
       continue;
 
     } else if (miutil::to_lower(lines[k]) == com_spectrum_opt) {
@@ -1883,15 +1847,9 @@ static int parseAndProcess(istream &is)
         else
           vcrossmanager->setPlotWindow(deltax, deltay);
 
-        // extract options for plot
-        parse_vcross_options(pcom);
-
         if (verbose)
-          METLIBS_LOG_INFO("- sending plotCommands");
-        if (vcross_optionschanged)
-          vcrossmanager->getOptions()->readOptions(vcross_options);
-        vcross_optionschanged = false;
-        vcrossmanager->selectFields(vcross_data);
+          METLIBS_LOG_INFO("- sending vcross plot commands");
+        vcross::VcrossQuickmenues::parse(vcrossmanager, pcom);
 
         if (ptime.undef()) {
           thetime = vcrossmanager->getTimeValue();
@@ -1906,13 +1864,6 @@ static int parseAndProcess(istream &is)
         //expand filename
         if (miutil::contains(priop.fname, "%")) {
           priop.fname = thetime.format(priop.fname);
-        }
-
-        if (verbose)
-          METLIBS_LOG_INFO("- setting cross-section:" << crossection);
-        if (not crossection.empty()) {
-          int idx = vcrossmanager->findCrossectionIndex(QString::fromStdString(crossection));
-          vcrossmanager->setCrossectionIndex(idx);
         }
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
@@ -1953,8 +1904,8 @@ static int parseAndProcess(istream &is)
 
         // -- vprof plot
         if (!vprofmanager) {
-          vprofmanager = new VprofManager(main_controller);
-          vprofmanager->parseSetup();
+          vprofmanager = new VprofManager();
+          vprofmanager->init();
         }
 
         // set size of plotwindow
@@ -1990,9 +1941,9 @@ static int parseAndProcess(istream &is)
         }
 
         if (verbose)
-          METLIBS_LOG_INFO("- setting station:" << vprof_station);
-        if (not vprof_station.empty())
-          vprofmanager->setStation(vprof_station);
+          METLIBS_LOG_INFO("- setting station:" << vprof_stations.size());
+        if (vprof_stations.size())
+          vprofmanager->setStations(vprof_stations);
 
         if (!raster && (!multiple_plots || multiple_newpage)) {
           startHardcopy(plot_vprof, priop);
@@ -2042,7 +1993,7 @@ static int parseAndProcess(istream &is)
         if (spectrum_optionschanged)
           spectrummanager->getOptions()->readOptions(spectrum_options);
         spectrum_optionschanged = false;
-        spectrummanager->setSelectedModels(spectrum_models, false);
+        spectrummanager->setSelectedModels(spectrum_models);
         spectrummanager->setModel();
 
         if (ptime.undef()) {
@@ -2470,8 +2421,8 @@ static int parseAndProcess(istream &is)
       FIND_END_COMMAND(com_endtime)
 
       if (!vprofmanager) {
-        vprofmanager = new VprofManager(main_controller);
-      vprofmanager->parseSetup();
+        vprofmanager = new VprofManager();
+        vprofmanager->init();
       }
       // extract options for plot
       parse_vprof_options(pcom);
@@ -2531,7 +2482,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, false);
+      spectrummanager->setSelectedModels(spectrum_models);
       spectrummanager->setModel();
 
       if (ptime.undef()) {
@@ -2841,7 +2792,7 @@ static int parseAndProcess(istream &is)
         spectrummanager->getOptions()->readOptions(spectrum_options);
 
       spectrum_optionschanged = false;
-      spectrummanager->setSelectedModels(spectrum_models, false);
+      spectrummanager->setSelectedModels(spectrum_models);
       spectrummanager->setModel();
 
       if (ptime.undef()) {
@@ -3922,6 +3873,7 @@ int diana_dealloc()
     delete spectrummanager;
   if (main_controller)
     delete main_controller;
+  vcrossmanager = vcross::QtManager_p();
 
   return DIANA_OK;
 }

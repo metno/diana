@@ -356,12 +356,11 @@ void SpectrumPlot::startPlot(int numplots, int w, int h,
   }
 
   if (!xcircle || !ycircle) {
-    const float rad= 3.141592654/180.;
     xcircle= new float[120];
     ycircle= new float[120];
     for (int i=0; i<120; i++) {
-      xcircle[i]= cos(float(i*3)*rad);
-      ycircle[i]= sin(float(i*3)*rad);
+      xcircle[i]= cos(float(i*3)*DEG_TO_RAD);
+      ycircle[i]= sin(float(i*3)*DEG_TO_RAD);
     }
   }
 
@@ -422,8 +421,6 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 {
 
   METLIBS_LOG_DEBUG("++ SpectrumPlot::plotDiagram");
-
-  const float rad= 3.141592654/180.;
 
   int n;
   float v,x,y,dx,dy;
@@ -555,8 +552,8 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
     fp->drawStr(str.c_str(),x,y,0.0);
 
     str= "0.05 Hz/circle";
-    x= specRadius*1.05f*cos(60.0f*rad);
-    y= specRadius*1.05f*sin(60.0f*rad);
+    x= specRadius*1.05f*cos(60.0f*DEG_TO_RAD);
+    y= specRadius*1.05f*sin(60.0f*DEG_TO_RAD);
     fp->drawStr(str.c_str(),x,y,0.0);
 
     str= "F(f) [m2/Hz]";
@@ -610,11 +607,7 @@ void SpectrumPlot::plotDiagram(SpectrumOptions *spopt)
 
 bool SpectrumPlot::plot(SpectrumOptions *spopt)
 {
-
-  METLIBS_LOG_DEBUG("++ SpectrumPlot::plot " << posName << " "
-  				   << validTime);
-
-  const float rad= 3.141592654/180.;
+  METLIBS_LOG_SCOPE(posName << " " << validTime);
 
   Colour c;
 
@@ -790,8 +783,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
     c= Colour(spopt->peakDirectionColour);
     glColor3ubv(c.RGB());
     glLineWidth(spopt->peakDirectionLinewidth);
-    float dx= rwind * cos((270.-ddPeak)*rad);
-    float dy= rwind * sin((270.-ddPeak)*rad);
+    float dx= rwind * cos((270.-ddPeak)*DEG_TO_RAD);
+    float dy= rwind * sin((270.-ddPeak)*DEG_TO_RAD);
     float xend= xwind + dx;
     float yend= ywind + dy;
     dx*=0.15;
@@ -844,8 +837,8 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt)
 
     gx= xwind;
     gy= ywind;
-    gu= sin(dd*rad);
-    gv= cos(dd*rad);
+    gu= sin(dd*DEG_TO_RAD);
+    gv= cos(dd*DEG_TO_RAD);
 
     dx = flagstep*gu;
     dy = flagstep*gv;

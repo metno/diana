@@ -131,6 +131,7 @@ public:
   void addField(const PlotSpec& ps, const std::string& fieldOpts, int index, bool updateUserFieldOptions=true);
   void updateField(int index, const std::string& fieldOpts);
   void removeField(int index);
+  void moveField(int indexOld, int indexNew);
   void removeAllFields();
 
   void setFieldVisible(int index, bool visible);
@@ -146,6 +147,7 @@ public:
   void addDynamicCrossection(const QString& label, const LonLat_v& points);
   void removeDynamicCrossection(const QString& label);
   void getCrossections(LocationData& locationdata);
+  LonLat_v getDynamicCrossectionPoints(const QString& label);
 
   //! list of filenames with predefined cross-sections
   const std::set<std::string>& getCrossectionPredefinitions() const
@@ -206,6 +208,9 @@ Q_SIGNALS:
   void timeGraphModeChanged(bool on);
 
 private:
+  int insertField(const ModelReftime& model, const std::string& plot,
+      const string_v& options, int idx);
+
   SelectedPlot_p findSelectedPlot(const PlotSpec& ps);
   int findSelectedPlotIndex(const PlotSpec& ps);
 
@@ -219,7 +224,7 @@ private:
   void handleChangedCrossection();
 
   void handleChangedTimeList(const vctime_t& oldTime);
-  void handleChangedTime();
+  void handleChangedTime(int plotTimeIndex);
 
   void updateCrossectionsTimes();
 
@@ -241,6 +246,7 @@ private:
 
   string_v mCrossectionLabels;
   LonLat_v mCrossectionPoints;
+  LonLat_v mCrossectionPointsRequested;
   int mCrossectionCurrent; //! mCrossectionLabels index of current cross section
   LocationData locationData;
 

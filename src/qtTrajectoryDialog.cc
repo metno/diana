@@ -37,6 +37,7 @@
 #include "qtTrajectoryDialog.h"
 #include "qtUtility.h"
 #include "qtGeoPosLineEdit.h"
+#include "diLinetype.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -515,7 +516,7 @@ void TrajectoryDialog::update_posList(float lat, float lon) {
   min= int(fabsf(lat)*60.+0.5);
   deg= min/60;
   min= min%60;
-  ost << setw(2) << deg << "°" << setw(2) << setfill('0') << min;
+  ost << setw(2) << deg << "\xB0" << setw(2) << setfill('0') << min;
   if (lat>=0.0)
     ost << "'N   ";
   else
@@ -524,7 +525,7 @@ void TrajectoryDialog::update_posList(float lat, float lon) {
   min= int(fabsf(lon)*60.+0.5);
   deg= min/60;
   min= min%60;
-  ost << setfill(' ')<< setw(3) << deg << "°"
+  ost << setfill(' ')<< setw(3) << deg << "\xB0"
       << setw(2) << setfill('0') << min;
   if (lon>=0.0)
     ost << "'E";

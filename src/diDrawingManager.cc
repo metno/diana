@@ -48,6 +48,7 @@
 #include <set>
 
 #include <QImage>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QSvgRenderer>
 
@@ -69,13 +70,11 @@ using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self_ = 0;
-Rectangle DrawingManager::plotRect_;
 Rectangle DrawingManager::editRect_;
 
 DrawingManager::DrawingManager()
 {
   setEditRect(PLOTM->getPlotSize());
-  currentArea_ = PLOTM->getCurrentArea();
   styleManager_ = DrawingStyleManager::instance();
   layerMgr_ = new EditItems::LayerManager();
 }
@@ -190,7 +189,13 @@ bool DrawingManager::parseSetup()
 
       } else {
         // Drawing definitions
-        drawings_.insert(items["file"]);
+        QString name;
+        if (items.contains("name"))
+          name = items["name"];
+        else
+          name = items["file"];
+
+        drawings_[name] = items["file"];
       }
     } else if (items.contains("style")) {
       // Read-only style definitions
@@ -230,11 +235,11 @@ bool DrawingManager::parseSetup()
  */
 bool DrawingManager::processInput(const std::vector<std::string>& inp)
 {
-  if (inp.empty())
-    return false;
-
   loaded_.clear();
   layerMgr_->clear();
+
+  if (inp.empty())
+    return false;
 
   vector<string>::const_iterator it;
   for (it = inp.begin(); it != inp.end(); ++it) {
@@ -253,9 +258,9 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
       if (!parseKeyValue(*it, key, value))
         continue;
 
-      if (key == "file") {
-        // Read the specified file, skipping to the next line if successful,
-        // but returning false to indicate an error if unsuccessful.
+      // Read the specified file, skipping to the next line if successful,
+      // but returning false to indicate an error if unsuccessful.
+      if (key == "file" || key == "name") {
         if (loadDrawing(value))
           break;
         else
@@ -274,7 +279,7 @@ bool DrawingManager::processInput(const std::vector<std::string>& inp)
 std::vector<std::string> DrawingManager::getAnnotations() const
 {
   vector<string> output;
-  foreach (QString drawing, loaded_)
+  foreach (QString drawing, loaded_.keys())
     output.push_back(drawing.toStdString());
   return output;
 }
@@ -292,8 +297,16 @@ void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
   layerMgr_->selectedLayers().first()->insertItem(item);
 }
 
-bool DrawingManager::loadDrawing(const QString &fileName)
+bool DrawingManager::loadDrawing(const QString &name)
 {
+  // If the name corresponds to a key in the list of drawings then look up
+  // associated file name.
+  QString fileName;
+  if (drawings_.contains(name))
+    fileName = drawings_[name];
+  else
+    fileName = name;
+
   // parse file and create item layers
   QString error;
   QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
@@ -314,9 +327,9 @@ bool DrawingManager::loadDrawing(const QString &fileName)
       setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
   }
 
-  layerMgr_->addToNewLayerGroup(layers, fileName);
+  layerMgr_->addToNewLayerGroup(layers, name, fileName);
+  loaded_[name] = fileName;
 
-  loaded_.insert(fileName);
   return true;
 }
 
@@ -331,24 +344,21 @@ QList<QPointF> DrawingManager::getLatLonPoints(const DrawingItemBase &item) cons
   return PhysToGeo(points);
 }
 
+inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
+
 // Returns geographic coordinates converted from screen coordinates.
 QList<QPointF> DrawingManager::PhysToGeo(const QList<QPointF> &points) const
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-  float dx = (plotRect_.x1 - editRect_.x1) * float(w)/plotRect_.width();
-  float dy = (plotRect_.y1 - editRect_.y1) * float(h)/plotRect_.height();
+  const StaticPlot* sp = PLOTM->getStaticPlot();
+  const XY dxy = sp->MapToPhys(XY(editRect_.x1, editRect_.y1));
 
   int n = points.size();
 
   QList<QPointF> latLonPoints;
-
+  latLonPoints.reserve(n);
   for (int i = 0; i < n; ++i) {
-    float x, y;
-    PLOTM->PhysToGeo(points.at(i).x() - dx,
-                     points.at(i).y() - dy,
-                     x, y, currentArea_, plotRect_);
-    latLonPoints.append(QPointF(x, y));
+    const XY lonlat = sp->PhysToGeo(fromQ(points.at(i)) + dxy);
+    latLonPoints.append(QPointF(lonlat.y(), lonlat.x()));
   }
 
   return latLonPoints;
@@ -365,18 +375,14 @@ void DrawingManager::setFromLatLonPoints(DrawingItemBase &item, const QList<QPoi
 // Returns screen coordinates converted from geographic coordinates.
 QList<QPointF> DrawingManager::GeoToPhys(const QList<QPointF> &latLonPoints) const
 {
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-
   QList<QPointF> points;
   int n = latLonPoints.size();
 
-  const Rectangle currPlotRect = PLOTM->getPlotSize();
   for (int i = 0; i < n; ++i) {
     float x, y;
     PLOTM->GeoToPhys(latLonPoints.at(i).x(),
                      latLonPoints.at(i).y(),
-                     x, y, currentArea_, currPlotRect);
+                     x, y);
     points.append(QPointF(x, y));
   }
 
@@ -480,10 +486,8 @@ bool DrawingManager::changeProjection(const Area& newArea)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
-  Rectangle r = PLOTM->getPlotSize();
-  setPlotRect(r);
+  const Rectangle& r = PLOTM->getPlotSize();
   setEditRect(r);
-  currentArea_ = newArea;
   return true;
 }
 
@@ -495,12 +499,9 @@ void DrawingManager::plot(bool under, bool over)
   // Apply a transformation so that the items can be plotted with screen coordinates
   // while everything else is plotted in map coordinates.
   glPushMatrix();
-  Rectangle r = PLOTM->getPlotSize();
-  setPlotRect(r);
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
   glTranslatef(editRect_.x1, editRect_.y1, 0.0);
-  glScalef(plotRect_.width()/w, plotRect_.height()/h, 1.0);
+  glScalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
+      PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
   QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
   for (int i = layers.size() - 1; i >= 0; --i) {
@@ -525,12 +526,12 @@ void DrawingManager::plot(bool under, bool over)
   glPopMatrix();
 }
 
-QSet<QString> &DrawingManager::getDrawings()
+QMap<QString, QString> &DrawingManager::getDrawings()
 {
   return drawings_;
 }
 
-QSet<QString> &DrawingManager::getLoaded()
+QMap<QString, QString> &DrawingManager::getLoaded()
 {
   return loaded_;
 }
@@ -603,23 +604,18 @@ EditItems::LayerManager *DrawingManager::getLayerManager()
   return layerMgr_;
 }
 
-void DrawingManager::setPlotRect(Rectangle r)
-{
-  DrawingManager::plotRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
-}
-
 void DrawingManager::setEditRect(Rectangle r)
 {
   DrawingManager::editRect_ = Rectangle(r.x1, r.y1, r.x2, r.y2);
 }
 
-std::vector<PlotElement> DrawingManager::getPlotElements(bool nonEmptyOnly) const
+std::vector<PlotElement> DrawingManager::getPlotElements() const
 {
   std::vector<PlotElement> pel;
   plotElems_.clear();
   int i = 0;
   foreach (const QSharedPointer<EditItems::Layer> &layer, layerMgr_->orderedLayers()) {
-    if ((!nonEmptyOnly) || (!layer->isEmpty())) {
+    if (!layer->isEmpty()) {
       pel.push_back(
             PlotElement(
               plotElementTag().toStdString(), QString("%1").arg(i).toStdString(),
@@ -652,4 +648,37 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
   }
 
   plotElems_.value(i)->setVisible(pe.enabled, true);
+}
+
+/**
+ * Handles mouse events when used as part of Diana instead of bdiana.
+ */
+void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
+{
+  if (event->type() != QEvent::MouseMove || event->buttons() != Qt::NoButton)
+    return;
+
+  // Find a list of items at the point passed in the event.
+  QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
+  if (hit.size() > 0) {
+    emit itemsHovered(hit);
+    event->setAccepted(true);
+  }
+}
+
+QList<QSharedPointer<DrawingItemBase> > DrawingManager::findHitItems(
+    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const
+{
+  // Find all items in all layers.
+  QSet<QSharedPointer<DrawingItemBase> > allItems = layerMgr_->allItems();
+  QList<QSharedPointer<DrawingItemBase> > hitItems;
+
+  foreach (const QSharedPointer<DrawingItemBase> &item, allItems) {
+    if (item->hit(pos, false))
+      hitItems.append(item);
+    else if (missedItems)
+      missedItems->append(item);
+  }
+
+  return hitItems;
 }

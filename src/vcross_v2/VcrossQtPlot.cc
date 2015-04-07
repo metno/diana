@@ -36,6 +36,7 @@
 #include "VcrossQtUtil.h"
 
 #include "diLinetype.h"
+#include "diPoint.h"
 
 #include <diField/diMetConstants.h>
 #include <diField/VcrossUtil.h>
@@ -88,19 +89,68 @@ static const char* horizontal(bool timegraph)
   return timegraph ? vcross::Values::TIME : vcross::Values::GEO_X;
 }
 
+bool eq_LonLat(const LonLat& a, const LonLat& b)
+{
+  const float EPS = 1e-7;
+  return EPS > fabs(a.lon() - b.lon())
+      && EPS > fabs(a.lat() - b.lat());
+}
+
+const int   NFLTABLE = 14;
+const float FLTABLE[NFLTABLE] =  {
+  25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999
+};
+
+// begin utility functions for y ticks
+
+float identity(float x)
+{
+  return x;
+}
+
+float foot_to_meter(float ft)
+{
+  return ft / MetNo::Constants::ft_per_m;
+}
+
+float FL_to_hPa(float fl)
+{
+  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
+  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+}
+
+typedef std::vector<float> ticks_t;
+
+ticks_t ticks_table(const float* table, int size)
+{
+  return ticks_t(table, table + size);
+}
+
+ticks_t ticks_auto(float start, float end, float scale, float offset)
+{
+  scale = std::abs(scale);
+  if ((start > end) != (offset < 0))
+    offset *= -1;
+  ticks_t ticks(1, start);
+  while ((offset > 0 && ticks.back() < end)
+      || (offset < 0 && ticks.back() > end))
+    ticks.push_back(ticks.back()*scale + offset);
+  return ticks;
+}
+
+// end utility functions for y ticks
+
 static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
 static const float LINES_3 = 3 + LINE_GAP;
-static const float CHARS_NUMBERS = 10;
+static const float CHARS_NUMBERS = 8;
 static const float CHARS_DISTANCE = 5.5;
 static const float CHARS_POS_LEFT  = 5.5;
 static const float CHARS_POS_RIGHT = 1.9;
 static const float CHARS_TIME = 2.5;
 
 static const float MAX_FRAMETEXT = 0.4;
-
-static const bool showbearing = true;
 
 } // namespace anonymous
 
@@ -320,13 +370,16 @@ void QtPlot::clear(bool keepX, bool keepY)
 }
 
 void QtPlot::setHorizontalCross(const std::string& csLabel, const miutil::miTime& csTime,
-    const LonLat_v& csPoints)
+    const LonLat_v& csPoints, const LonLat_v& csPointsRequested)
 {
   METLIBS_LOG_SCOPE(LOGVAL(csLabel) << LOGVAL(csPoints.size()));
 
   mCrossectionLabel = csLabel;
   mCrossectionTime = csTime;
   mCrossectionPoints = csPoints;
+  mCrossectionPointsRequested = csPointsRequested;
+  if (mCrossectionPointsRequested.size() == mCrossectionPoints.size())
+    mCrossectionPointsRequested.clear();
 
   mCrossectionDistances.clear();
   mCrossectionDistances.reserve(mCrossectionPoints.size());
@@ -371,12 +424,21 @@ void QtPlot::setHorizontalTime(const LonLat& tgPosition, const std::vector<miuti
   }
 }
 
-void QtPlot::setVerticalAxis()
+bool QtPlot::setVerticalAxis()
 {
+  const std::string oldLabel = mAxisY->label();
+
   mAxisY->setType(mOptions->verticalScale);
   mAxisY->setQuantity(mOptions->verticalCoordinate);
   mAxisY->setLabel(mOptions->verticalUnit);
+
+  const std::string newLabel = mAxisY->label();
+  const bool verticalChange = (oldLabel != newLabel);
+  if (verticalChange)
+    mKeepY = false;
+
   mViewChanged = true;
+  return verticalChange;
 }
 
 QtPlot::OptionPlot::OptionPlot(EvaluatedPlot_cp e)
@@ -491,37 +553,25 @@ void QtPlot::prepareView(QPainter& painter)
 void QtPlot::prepareAxesForAspectRatio()
 {
   METLIBS_LOG_SCOPE();
-  float v2h = mOptions->verHorRatio;
-  if (isTimeGraph() or (not mOptions->keepVerHorRatio) or v2h <= 0) {
-    METLIBS_LOG_DEBUG("no aspect ratio");
-    // horizontal axis has time unit, vertical axis pressure or height; aspect ratio is meaningless
-    mAxisX->setPaintRange(mPlotAreaMax.left(),   mPlotAreaMax.right());
-    mAxisY->setPaintRange(mPlotAreaMax.bottom(), mPlotAreaMax.top());
-    return;
+  Rectangle pam(mPlotAreaMax.left(), mPlotAreaMax.top(),
+      mPlotAreaMax.right(), mPlotAreaMax.bottom());
+
+  if (!isTimeGraph() && mOptions->keepVerHorRatio && mOptions->verHorRatio > 0) {
+    float ymax = mAxisY->getValueMax(), ymin = mAxisY->getValueMin();
+    if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
+      // use the ICAO standard atmosphere
+      ymax = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymax);
+      ymin = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymin);
+    }
+    const float rangeY = std::abs(ymax-ymin);
+    if (rangeY > 0) {
+      const float rangeX = std::abs(mAxisX->getValueMax() - mAxisX->getValueMin());
+      diutil::fixAspectRatio(pam, (rangeX/rangeY)/mOptions->verHorRatio, false);
+    }
   }
 
-  const float rangeX = std::abs(mAxisX->getValueMax() - mAxisX->getValueMin());
-  float rangeY = v2h * std::abs(mAxisY->getValueMax() - mAxisY->getValueMin());
-  if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
-    rangeY *= 10; // approximately 10m/hPa
-
-  // m/pixel on x and y axis
-  const float pmx = rangeX / mPlotAreaMax.width(), pmy = rangeY / mPlotAreaMax.height();
-  METLIBS_LOG_DEBUG(LOGVAL(pmx) << LOGVAL(pmy) << LOGVAL(rangeX) << LOGVAL(rangeY));
-
-  if (pmy > pmx) {
-    // too high for plot area, reduce width
-    const float mid = (mPlotAreaMax.left() + mPlotAreaMax.right())/2, w2 = mPlotAreaMax.width() * pmx / (pmy*2);
-    mAxisX->setPaintRange(mid - w2, mid + w2);
-    mAxisY->setPaintRange(mPlotAreaMax.bottom(), mPlotAreaMax.top());
-  } else {
-    // reduce height
-    const float mid = (mPlotAreaMax.bottom() + mPlotAreaMax.top())/2, h2 = mPlotAreaMax.height() * pmy / (pmx*2);
-    mAxisX->setPaintRange(mPlotAreaMax.left(), mPlotAreaMax.right());
-    mAxisY->setPaintRange(mid + h2, mid - h2);
-  }
-  METLIBS_LOG_DEBUG(LOGVAL(mAxisX->getPaintMin()) << LOGVAL(mAxisX->getPaintMax())
-      << LOGVAL(mAxisY->getPaintMin()) << LOGVAL(mAxisY->getPaintMax()));
+  mAxisX->setPaintRange(pam.x1, pam.x2);
+  mAxisY->setPaintRange(pam.y2, pam.y1);
 }
 
 void QtPlot::computeMaxPlotArea(QPainter& painter)
@@ -541,24 +591,20 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       charsXrght = charsXleft;
     }
     if (mOptions->pGeoPos) {
-      linesYbot += showbearing ? LINES_3 : LINES_2;
+      linesYbot += mOptions->pCompass ? LINES_3 : LINES_2;
       vcross::util::maximize(charsXleft, CHARS_POS_LEFT);
       vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
     }
     linesLabel = 2; // crossection label and time
   } else /* timeGraph */ {
-#if 0
-    // time graph: hour/date/forecast (not if text is off)
-    if (mOptions->pText) {
-      linesYbot += LINES_3;
+    // time graph: only one position (and only one line needed)
+    if (mOptions->pDistance or mOptions->pGeoPos) {
+      linesYbot += LINES_2;
+      // TODO extra line to show forecast hour
+      // linesYbot += LINES_1;
       vcross::util::maximize(charsXleft, CHARS_TIME);
       charsXrght = charsXleft;
     }
-#endif
-    // time graph: only one position (and only one line needed)
-    if (mOptions->pDistance or mOptions->pGeoPos)
-      linesYbot += LINES_2;
-
     linesLabel = 1; // timegraph position
   }
 
@@ -640,11 +686,16 @@ void QtPlot::plot(QPainter& painter)
 
   updateCharSize(painter);
 
+  ticks_t tickValues;
+  tick_to_axis_f tta = identity;
+  generateYTicks(tickValues, tta);
+
   plotVerticalGridLines(painter);
+  plotHorizontalGridLines(painter, tickValues, tta);
   plotSurface(painter);
   const std::vector<std::string> annotations = plotData(painter);
 
-  plotFrame(painter);
+  plotFrame(painter, tickValues, tta);
   plotText(painter, annotations);
   plotXLabels(painter);
   plotTitle(painter);
@@ -678,12 +729,13 @@ void QtPlot::plotXLabels(QPainter& painter)
       const float tickTopEnd = mAxisY->getPaintMax(), tickTopStart = tickTopEnd + 0.5*mCharSize.height();
       const float tickBotStart = mAxisY->getPaintMin(), tickBotEnd = tickBotStart - 0.5*mCharSize.height();
       float nextLabelX = mAxisX->getPaintMin();
+      size_t requestedIndex = 0;
       const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
         const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
-
-        if (mAxisX->legalPaint(tickX)) {
+        const bool legalX = mAxisX->legalPaint(tickX);
+        if (legalX) {
           int tickLineWidth = 1;
           if (tickX >= nextLabelX) {
             std::ostringstream xostr;
@@ -697,12 +749,29 @@ void QtPlot::plotXLabels(QPainter& painter)
               tickLineWidth += 1;
             }
           }
+
           // FIXME this makes thick tick marks for if distance is shown, and no ticks if no distance
           pen.setWidth(tickLineWidth);
           painter.setPen(pen);
           painter.drawLine(QLineF(tickX, tickBotStart, tickX, tickBotEnd));
           painter.drawLine(QLineF(tickX, tickTopStart, tickX, tickTopEnd));
         }
+
+        // draw vertical line for requested points
+        if (requestedIndex < mCrossectionPointsRequested.size()) {
+          const LonLat& requestedPoint = mCrossectionPointsRequested.at(requestedIndex);
+          if (eq_LonLat(requestedPoint, mCrossectionPoints.at(i))) {
+            const bool first_or_last = (requestedIndex == 0
+                || requestedIndex == mCrossectionPointsRequested.size() - 1);
+            if (legalX && !first_or_last) {
+              pen.setWidth(1);
+              painter.drawLine(QLineF(tickX, mAxisY->getPaintMin(),
+                      tickX, mAxisY->getPaintMax()));
+            }
+            requestedIndex += 1;
+          }
+        }
+
       }
       labelY += lines_1;
     }
@@ -716,7 +785,7 @@ void QtPlot::plotXLabels(QPainter& painter)
         if (mAxisX->legalPaint(tickX)) {
           if (tickX >= nextLabelX) {
             float lY = labelY, labelWb = 0;
-            if (showbearing) {
+            if (mOptions->pCompass) {
               labelWb = std::max(mCharSize.width(), mCharSize.height());
               const float s2 = labelWb / 2, b = mCrossectionBearings.at(i);
               const float bdx = s2*std::sin(b), bdy = -s2*std::cos(b);
@@ -740,7 +809,7 @@ void QtPlot::plotXLabels(QPainter& painter)
           }
         }
       }
-      labelY += (showbearing ? LINES_3 : LINES_2) * mCharSize.height();
+      labelY += (mOptions->pCompass ? LINES_3 : LINES_2) * mCharSize.height();
     }
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
@@ -848,106 +917,161 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
   }
 }
 
-void QtPlot::plotFrame(QPainter& painter)
+void QtPlot::plotHorizontalGridLines(QPainter& painter,
+    const ticks_t& tickValues, tick_to_axis_f& tta)
 {
-  METLIBS_LOG_SCOPE();
+  if (not mOptions->pHorizontalGridLines)
+    return;
 
-  const int nzsteps = 9;
-  const float zsteps[nzsteps] =
-      { 10., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000 };
+  QPen pen(vcross::util::QC(colourOrContrast(mOptions->horgridColour)), mOptions->horgridLinewidth);
+  vcross::util::setDash(pen, mOptions->horgridLinetype);
+  painter.setPen(pen);
 
-  const int nftsteps = 7;
-  const float ftsteps[nftsteps] =
-  { 1500., 3000., 8000., 15000., 30000., 50000, 60000 };
+  const float tickX0 = mAxisX->getPaintMin(), tickX1 = mAxisX->getPaintMax();
+  for (size_t i=0; i<tickValues.size(); ++i) {
+    const float axisValue = tta(tickValues[i]);
+    const float axisY = mAxisY->value2paint(axisValue);
+    if (!mAxisY->legalPaint(axisY))
+      continue;
 
-  int nticks = 0;
-  const float *tickValues = 0, *tickLabels = 0;
-  float scale = 1;
+    // paint tick mark
+    painter.drawLine(QLineF(tickX0, axisY, tickX1, axisY));
+  }
+}
+
+void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
+{
+  using namespace MetNo::Constants;
+
+  tickValues.clear();
+  tta = identity;
+
+  float autotick_offset = 0, autotick_scale = 1;
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
-    tickValues = MetNo::Constants::pLevelTable;
-    nticks = MetNo::Constants::nLevelTable;
     if (mAxisY->label() == "hPa") {
-      tickLabels = MetNo::Constants::pLevelTable;
+      tickValues = ticks_table(pLevelTable, nLevelTable);
+      autotick_offset = -5;
     } else if (mAxisY->label() == "FL") {
-      tickLabels = MetNo::Constants::fLevelTable;
+      tickValues = ticks_table(FLTABLE, NFLTABLE);
+      tta = FL_to_hPa;
+      autotick_offset = 10;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
     }
   } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
     if (mAxisY->label() == "m") {
-      nticks = nzsteps;
-      tickValues = tickLabels = zsteps;
+      const int nzsteps = 12;
+      const float zsteps[nzsteps] =
+          { 100., 500., 1000., 2500., 5000., 10000, 15000,
+            20000, 25000, 30000, 35000, 40000 };
+      tickValues = ticks_table(zsteps, nzsteps);
+      autotick_offset = 100;
     } else if (mAxisY->label() == "Ft") {
-      scale = MetNo::Constants::ft_per_m;
-      nticks = nftsteps;
-      tickValues = tickLabels = ftsteps;
+      const int nftsteps = 11;
+      const float ftsteps[nftsteps] =
+          { 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
+            70000, 80000, 90000 };
+      tickValues = ticks_table(ftsteps, nftsteps);
+      tta = foot_to_meter;
+      autotick_offset = 300;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
     }
-  }
-  if (nticks == 0 or not tickValues or not tickLabels) {
-    METLIBS_LOG_WARN("missing y axis ticks or labels");
+  } else {
+    METLIBS_LOG_WARN("unsupported y axis quantity");
     return;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(nticks));
 
-  const float tickLeftEnd = mAxisX->getPaintMin(), tickLeftStart = tickLeftEnd - 0.5*mCharSize.width();
-  const float tickRightStart = mAxisX->getPaintMax(), tickRightEnd = tickRightStart + 0.5*mCharSize.width();
-  METLIBS_LOG_DEBUG(LOGVAL(tickLeftStart) << LOGVAL(tickLeftEnd) << LOGVAL(tickRightStart) << LOGVAL(tickRightEnd));
+  { int visibleTicks = 0;
+    for (size_t i=0; i<tickValues.size(); ++i) {
+      const float axisValue = tta(tickValues[i]);
+      const float axisY = mAxisY->value2paint(axisValue);
+      if (mAxisY->legalPaint(axisY))
+        visibleTicks += 1;
+    }
+    METLIBS_LOG_DEBUG(LOGVAL(visibleTicks));
+    if (visibleTicks < 3) {
+      tickValues = ticks_auto(tickValues.front(), tickValues.back(),
+          autotick_scale, autotick_offset);
+      METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
+    }
+  }
+}
+
+void QtPlot::plotFrame(QPainter& painter,
+    const ticks_t& tickValues, tick_to_axis_f& tta)
+{
+  METLIBS_LOG_SCOPE();
+
+  if (!(mOptions->pFrame || mOptions->pLevelNumbers))
+    return;
 
   // colour etc. for frame etc.
-  QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)), mOptions->frameLinewidth), penFrame(pen);
-  vcross::util::setDash(penFrame, mOptions->frameLinetype);
-  painter.setPen(penFrame);
+  const QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)),
+      mOptions->frameLinewidth);
 
   if (mOptions->pFrame) {
     // paint frame
-    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()), max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
-    painter.drawRect(QRectF(min, max));
+    const QPointF min(mAxisX->getPaintMin(), mAxisY->getPaintMin()),
+        max(mAxisX->getPaintMax(), mAxisY->getPaintMax());
 
+    QPen penFrame(pen);
     // no stipple for ticks
-    painter.setPen(pen);
+    vcross::util::setDash(penFrame, mOptions->frameLinetype);
+    painter.setPen(penFrame);
+    painter.drawRect(QRectF(min, max));
   }
 
-  if (mOptions->pLevelNumbers) {
-    // paint tick marks
-    for (int i=0; i<nticks; ++i) {
-      const float tickValue = tickValues[i]/scale;
-      const float tickY = mAxisY->value2paint(tickValue);
-      if (mAxisY->legalPaint(tickY)) {
-        painter.drawLine(QLineF(tickLeftStart,  tickY, tickLeftEnd,    tickY));
-        painter.drawLine(QLineF(tickRightStart, tickY, tickRightEnd,   tickY));
-      }
-    }
+  if (!mOptions->pLevelNumbers)
+    return;
 
-    const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
-        && (mAxisY->label() == "FL");
+  painter.setPen(pen);
 
-    // paint tick labels
-    const float labelLeftEnd = tickLeftEnd - mCharSize.width();
-    const float labelRightStart = tickRightStart + mCharSize.width();
-    for (int i=0; i<nticks; ++i) {
-      const float tickValue = tickValues[i]/scale;
-      const float tickY = mAxisY->value2paint(tickValue);
-      if (mAxisY->legalPaint(tickY)) {
-        const float tickLabel = tickLabels[i];
-        std::ostringstream ostr;
-        if (unitFirst)
-          ostr << mAxisY->label();
-        ostr << int(tickLabel);
-        if (!unitFirst)
-          ostr << mAxisY->label();
-        const std::string txt = ostr.str();
-        const QString c_str = QString::fromStdString(txt);
-        const float labelW = painter.fontMetrics().width(c_str), labelH = painter.fontMetrics().height();
-        const float labelY = tickY+labelH*0.5;
-        painter.drawText(labelLeftEnd - labelW, labelY, c_str);
-        painter.drawText(labelRightStart,       labelY, c_str);
-      }
-    }
+  const bool unitFirst = (mAxisY->quantity() == vcross::detail::Axis::PRESSURE)
+      && (mAxisY->label() == "FL");
+  const float tickW = 0.4*mCharSize.width(),
+      labelD = mCharSize.width();
+  const float tickLeft = mAxisX->getPaintMin(),
+      tickRight = mAxisX->getPaintMax();
+  const float labelLeft = tickLeft - labelD,
+      labelRight = tickRight + labelD;
+  const QString unit = QString::fromStdString(mAxisY->label());
+  const float labelH = painter.fontMetrics().height();
+  METLIBS_LOG_DEBUG(LOGVAL(tickLeft) << LOGVAL(labelLeft)
+      << LOGVAL(tickRight) << LOGVAL(labelRight));
+
+  float lastTickLabelY = 1234567;
+  for (size_t i=0; i<tickValues.size(); ++i) {
+    const float axisValue = tta(tickValues[i]);
+    const float axisY = mAxisY->value2paint(axisValue);
+    if (!mAxisY->legalPaint(axisY))
+      continue;
+
+    const bool bigtick = (std::abs(lastTickLabelY - axisY) > 1.5*labelH);
+
+    // paint tick mark
+    const float tW = tickW * (bigtick ? 2 : 1);
+    painter.drawLine(QLineF(tickLeft-tW, axisY, tickLeft,     axisY));
+    painter.drawLine(QLineF(tickRight,   axisY, tickRight+tW, axisY));
+
+    if (!bigtick)
+      continue;
+    lastTickLabelY = axisY;
+
+    // paint tick label
+    QString label;
+    if (unitFirst)
+      label += unit;
+    label += QString::number(int(tickValues[i]));
+    if (!unitFirst)
+      label += unit;
+    const float labelW = painter.fontMetrics().width(label);
+    const float labelY = axisY+labelH*0.3;
+    painter.drawText(labelLeft - labelW, labelY, label);
+    painter.drawText(labelRight,         labelY, label);
   }
 }
 
@@ -1083,10 +1207,10 @@ void QtPlot::plotDataVector(QPainter& painter, OptionPlot_cp plot)
   }
 
   PaintVector pv;
-  const float vu = plot->poptions.vectorunit;
-  if (vu > 0)
-    pv.setScale(vu);
-  pv.setThickArrowScale(mOptions->thickArrowScale);
+  pv.setScale(plot->poptions.vectorunit);
+  pv.setScaleXY(plot->poptions.vectorscale_x, plot->poptions.vectorscale_y);
+  METLIBS_LOG_DEBUG(LOGVAL(pv.mScale) << LOGVAL(pv.mScaleX) << LOGVAL(pv.mScaleY));
+  pv.setThickArrowScale(plot->poptions.vectorthickness);
   plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
 }
 

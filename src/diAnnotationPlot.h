@@ -166,17 +166,12 @@ private:
   std::string writeElement(element& annoEl);
 
 public:
-  // Constructors
   AnnotationPlot();
   AnnotationPlot(const std::string&);
-  // Destructor
   ~AnnotationPlot();
 
-  bool plot();
-  bool plot(const int)
-  {
-    return false;
-  }
+  void plot(PlotOrder zorder);
+
   ///decode plot info strings
   bool prepare(const std::string&);
   ///set data annotations

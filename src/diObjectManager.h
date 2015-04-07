@@ -199,7 +199,7 @@ public:
     { objects.getAnnotations(anno); }
   std::vector<std::string> getObjectLabels()
     { return objects.getObjectLabels(); }
-  void plotObjects();
+  void plotObjects(Plot::PlotOrder zorder);
   void clearObjects()
     { objects.clear(); }
   void setObjAuto(bool autoF)

@@ -58,15 +58,12 @@ private:
   bool hasTexture;
 
 public:
-  // Constructors
   SatPlot();
-  // Destructor
   ~SatPlot();
 
   Sat *satdata;
 
-  bool plot();
-  bool plot(const int){return false;}
+  void plot(PlotOrder zorder);
   void setData(Sat *);
   void clearData();
   Area& getSatArea(void){ return satdata->area;}

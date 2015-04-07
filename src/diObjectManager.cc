@@ -296,11 +296,11 @@ void ObjectManager::prepareObjects(const vector<string>& inp)
 }
 
 
-bool ObjectManager::prepareObjects(const miTime& t,
-				   const Area& area)
+bool ObjectManager::prepareObjects(const miTime& t, const Area& area)
 {
   //are objects defined (in objects.define() if not return false)
-  if (!objects.isDefined()) return false;
+  if (!objects.isDefined())
+    return false;
 
   //if autoFile or wrong time, set correct time
   if (objects.isAutoFile() || objects.getTime() ==ztime)
@@ -312,7 +312,8 @@ bool ObjectManager::prepareObjects(const miTime& t,
     //clear objects !
     objects.clear();
     //get new filename
-    if (!getFileName(objects)) return false;
+    if (!getFileName(objects))
+      return false;
   }
 
   if (!objects.isApproved()){
@@ -325,7 +326,8 @@ bool ObjectManager::prepareObjects(const miTime& t,
 
 
 vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string objectname,
-						  bool refresh){
+    bool refresh)
+{
   // called from ObjectDialog
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("ObjectManager::getObjectFiles");
@@ -513,10 +515,12 @@ void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
     str.clear();
 }
 
-void ObjectManager::plotObjects()
+void ObjectManager::plotObjects(Plot::PlotOrder zorder)
 {
-  objects.changeProjection(plotm->getStaticPlot()->getMapArea());
-  objects.plot();
+  if (zorder == Plot::LINES) {
+    objects.changeProjection(plotm->getStaticPlot()->getMapArea());
+    objects.plot(zorder);
+  }
 }
 
 /*----------------------------------------------------------------------

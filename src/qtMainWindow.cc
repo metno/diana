@@ -90,7 +90,7 @@
 #include "diLocalSetupParser.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
-#include "diLocationPlot.h"
+#include "diLocationData.h"
 #include "diLogFile.h"
 
 #include "qtDataDialog.h"
@@ -350,7 +350,6 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect( showTrajecDialogAction, SIGNAL( triggered() ) ,  SLOT( trajMenu() ) );
   // --------------------------------------------------------------------
   showAnnotationDialogAction = new QAction( tr("Annotation"), this );
-  showAnnotationDialogAction->setShortcutContext(Qt::ApplicationShortcut);
   showAnnotationDialogAction->setShortcut(Qt::ALT+Qt::Key_L);
   showAnnotationDialogAction->setCheckable(true);
   showAnnotationDialogAction->setIconVisibleInMenu(true);
@@ -1066,7 +1065,7 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   // vertical profiles
   // create a new main window
 #ifndef DISABLE_VPROF
-  vpWindow = new VprofWindow(contr);
+  vpWindow = new VprofWindow();
   connect(vpWindow,SIGNAL(VprofHide()),SLOT(hideVprofWindow()));
   connect(vpWindow,SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
@@ -1094,9 +1093,9 @@ DianaMainWindow::DianaMainWindow(Controller *co,
         SLOT(crossectionSetChangedSlot(const LocationData&)));
     connect(vcInterface.get(), SIGNAL(quickMenuStrings(const std::string&, const std::vector<std::string>&)),
         SLOT(updateVcrossQuickMenuHistory(const std::string&, const std::vector<std::string>&)));
-    connect (vcInterface.get(), SIGNAL(prevHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryPrevious()),
         SLOT(prevHVcrossPlot()));
-    connect (vcInterface.get(), SIGNAL(nextHVcrossPlot()),
+    connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
         SLOT(nextHVcrossPlot()));
   }
 #endif
@@ -1252,10 +1251,6 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
   miutil::miTime t= tslider->Value();
   contr->setPlotTime(t);
   contr->updatePlots();
-  //find current field models and send to vprofwindow..
-  vector <string> fieldmodels = contr->getFieldModels();
-  if (vpWindow) vpWindow->setFieldModels(fieldmodels);
-  if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
   timeChanged();
 
@@ -1265,7 +1260,7 @@ void DianaMainWindow::quickMenuApply(const vector<string>& s)
 void DianaMainWindow::resetAll()
 {
   mm->useFavorite();
-  vector<string> pstr = mm->getOKString();;
+  vector<string> pstr = mm->getOKString();
   recallPlot(pstr, true);
   MenuOK();
 }
@@ -1316,10 +1311,15 @@ void DianaMainWindow::recallPlot(const vector<string>& vstr, bool replace)
     if (replace || labelcom.size()) annom->putOKString(labelcom);
 
     // Other data sources
-    map<std::string, vector<std::string> >::iterator it;
-    for (it = dialog_com.begin(); it != dialog_com.end(); ++it) {
-      DataDialog *dialog = dialogNames.at(it->first);
-      dialog->putOKString(it->second);
+
+    // If the strings are being replaced then update each of the
+    // dialogs whether it has a command or not. Otherwise, only
+    // update those with a corresponding string.
+    map<std::string, DataDialog *>::iterator it;
+    for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
+      DataDialog *dialog = it->second;
+      if (replace || dialog_com.find(it->first) != dialog_com.end())
+        dialog->putOKString(dialog_com[it->first]);
     }
 
     // call full plot
@@ -1371,8 +1371,10 @@ void DianaMainWindow::editApply()
   push_command= true;
 }
 
-void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diagstr, vector<string> &shortnames)
+void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &shortnames)
 {
+  vector<string> diagstr;
+
   // fields
   pstr = fm->getOKString();
   shortnames.push_back(fm->getShortname());
@@ -1432,15 +1434,6 @@ void DianaMainWindow::getPlotStrings(vector<string> &pstr, vector<string> &diags
 std::vector<PlotElement> DianaMainWindow::getPlotElements() const
 {
   std::vector<PlotElement> pe = contr->getPlotElements();
-
-  std::vector<PlotElement> pe_dm = DrawingManager::instance()->getPlotElements();
-  for (std::vector<PlotElement>::const_iterator it = pe_dm.begin(); it != pe_dm.end(); ++it)
-    pe.push_back(*it);
-
-  std::vector<PlotElement> pe_em = EditItemManager::instance()->getPlotElements();
-  for (std::vector<PlotElement>::const_iterator it = pe_em.begin(); it != pe_em.end(); ++it)
-    pe.push_back(*it);
-
   return pe;
 }
 
@@ -1456,10 +1449,9 @@ void DianaMainWindow::MenuOK()
   diutil::OverrideCursor waitCursor;
 
   vector<string> pstr;
-  vector<string> diagstr;
   vector<string> shortnames;
 
-  getPlotStrings(pstr, diagstr, shortnames);
+  getPlotStrings(pstr, shortnames);
 
 //init level up/down arrows
   toolLevelUpAction->setEnabled(fm->levelsExists(true,0));
@@ -1467,12 +1459,12 @@ void DianaMainWindow::MenuOK()
   toolIdnumUpAction->setEnabled(fm->levelsExists(true,1));
   toolIdnumDownAction->setEnabled(fm->levelsExists(false,1));
 
-  // printout
-  string logstr = "------- the final string from all dialogs:\n";
-  for (unsigned int i = 0; i < pstr.size(); ++i)
-    logstr += pstr[i] + "\n";
-
-  METLIBS_LOG_DEBUG(logstr);
+  if (METLIBS_LOG_DEBUG_ENABLED()) {
+    string logstr = "------- the final string from all dialogs:\n";
+    for (unsigned int i = 0; i < pstr.size(); ++i)
+      logstr += pstr[i] + "\n";
+    METLIBS_LOG_DEBUG(logstr);
+  }
 
   miutil::miTime t = tslider->Value();
   contr->plotCommands(pstr);
@@ -1480,10 +1472,6 @@ void DianaMainWindow::MenuOK()
   contr->updatePlots();
   METLIBS_LOG_INFO(contr->getMapArea());
 
-  //find current field models and send to vprofwindow..
-  vector<string> fieldmodels = contr->getFieldModels();
-  if (vpWindow) vpWindow->setFieldModels(fieldmodels);
-  if (spWindow) spWindow->setFieldModels(fieldmodels);
   w->updateGL();
   timeChanged();
   dialogChanged = false;
@@ -2080,6 +2068,9 @@ void DianaMainWindow::processLetter(const miMessage &letter)
         //now tell vpWindow about new station (this calls vpManager)
         if (vpWindow && !station.empty())
           vpWindow->changeStation(station);
+
+        if (vcInterface.get())
+          vcInterface->showTimegraph(LonLat::fromDegrees(lon, lat));
       }
     }
   }
@@ -2371,8 +2362,8 @@ void DianaMainWindow::processLetter(const miMessage &letter)
   }
 
   else if (letter.command == qmstrings::getcurrentplotcommand) {
-    vector<string> v1, v2, v3;
-    getPlotStrings(v1, v2, v3);
+    vector<string> v1, v2;
+    getPlotStrings(v1, v2);
 
     miMessage l;
     l.to = letter.from;
@@ -3197,8 +3188,7 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
-
-  METLIBS_LOG_DEBUG("DianaMainWindow::catchElement x,y: "<<mev->x()<<" "<<mev->y());
+  METLIBS_LOG_SCOPE("x,y: "<<mev->x()<<" "<<mev->y());
 
   int x = mev->x();
   int y = mev->y();
@@ -3217,7 +3207,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   //at
   vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
-  if (vpWindow)
+  if (vpWindow&& stations.size()!=0)
     vpWindow->changeStations(stations);
 
   //find the name of station we clicked/pointed

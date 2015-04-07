@@ -51,11 +51,14 @@
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/kml.h>
-#include <QPushButton> // ### FOR TESTING
-#include <QCheckBox> // ### FOR TESTING
 #include <QMessageBox>
 #include <QDir>
+
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
+#include <QPushButton>
+#include <QCheckBox>
 #include <QDebug>
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
 namespace EditItems {
 
@@ -90,7 +93,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
 
   mainLayout->addLayout(createStandardButtons());
 
-  // ### FOR TESTING
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   //
   QPushButton *dsButton = new QPushButton("dump structure");
@@ -105,11 +108,13 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
   // load available layer groups
-  foreach (const QString &fileName, drawm_->getDrawings()) {
+  QMap<QString, QString> drawings = drawm_->getDrawings();
+  foreach (const QString &name, drawings.keys()) {
     const QList<QSharedPointer<Layer> > layers;
-    layerMgr_->addToNewLayerGroup(layers, fileName);
+    layerMgr_->addToNewLayerGroup(layers, name, drawings[name]);
   }
   layerGroupsPane_->updateWidgetStructure();
 
@@ -125,7 +130,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(this, SIGNAL(applyData()), SLOT(makeProduct()));
 }
 
-// ### FOR TESTING:
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
 static void dumpLayerManagerStructure(const LayerManager *lm)
 {
   const QList<QSharedPointer<LayerGroup> > &layerGroups = lm->layerGroups();
@@ -172,15 +177,17 @@ static void dumpLayerManagerStructure(const LayerManager *lm)
     i++;
   }
 }
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 
-// ### FOR TESTING:
 void DrawingDialog::dumpStructure()
 {
+#ifdef ENABLE_DRAWINGDIALOG_TESTING
   qDebug() << "\nLAYER MANAGERS:";
   qDebug() << "1: In DrawingDialog: =====================================";
   dumpLayerManagerStructure(layerMgr_);
   qDebug() << "\n2: In DrawingManager: =====================================";
   dumpLayerManagerStructure(drawm_->getLayerManager());
+#endif // ENABLE_DRAWINGDIALOG_TESTING
 }
 
 void DrawingDialog::showInfo(bool checked)
@@ -212,8 +219,14 @@ std::vector<std::string> DrawingDialog::getOKString()
   if (!drawm_->isEnabled())
     return lines;
 
-  foreach (QString filePath, drawm_->getLoaded()) {
-    QString line = "DRAWING file=\"" + filePath + "\"";
+  QMap<QString, QString> loaded = drawm_->getLoaded();
+  foreach (QString name, loaded.keys()) {
+    QString line;
+    QString fileName = loaded[name];
+    if (fileName == name)
+      line = "DRAWING file=\"" + fileName + "\"";
+    else
+      line = "DRAWING name=\"" + name + "\"";
     lines.push_back(line.toStdString());
   }
 
@@ -230,13 +243,23 @@ void DrawingDialog::putOKString(const std::vector<std::string>& vstr)
 
 void DrawingDialog::makeProduct()
 {
-  // Write the layers to temporary files in the working directory.
-  QDir dir(drawm_->getWorkDir());
-  QString filePath = dir.absoluteFilePath("temp.kml");
-  layersPane_->saveSelected(filePath);
+  // Obtain a set of the files in use.
+  QSet<QString> sources;
+  foreach (const QSharedPointer<Layer> &layer, layerMgr_->orderedLayers()) {
+    foreach (const QSharedPointer<DrawingItemBase> &item, layer->items())
+      sources.insert(item->property("srcFile").toString());
+  }
 
+  // Map the files back to names for the drawings if possible.
   std::vector<std::string> inp;
-  inp.push_back("DRAWING file=\"" + filePath.toStdString() + "\"");
+  foreach (const QSharedPointer<LayerGroup> &layerGroup, layerMgr_->layerGroups()) {
+    if (layerGroup->isActive() && sources.contains(layerGroup->fileName())) {
+      if (layerGroup->name() == layerGroup->fileName())
+        inp.push_back("DRAWING file=\"" + layerGroup->fileName().toStdString() + "\"");
+      else
+        inp.push_back("DRAWING name=\"" + layerGroup->name().toStdString() + "\"");
+    }
+  }
 
   putOKString(inp);
 

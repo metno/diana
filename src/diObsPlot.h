@@ -29,11 +29,9 @@
 #ifndef diObsPlot_h
 #define diObsPlot_h
 
-#include <diPlot.h>
-#include <diObsData.h>
-#include <GL/gl.h>
-#include <set>
-#include <vector>
+#include "diPlot.h"
+#include "diObsData.h"
+
 #ifdef ROADOBS
 #ifdef NEWARK_INC
 #include <newarkAPI/diStation.h>
@@ -42,14 +40,15 @@
 #endif
 #endif
 
-/**
+#include <set>
+#include <vector>
 
+/**
  \brief Plot observations
 
  - synop plot
  - metar plot
  - list plot
-
  */
 class ObsPlot: public Plot {
 
@@ -57,6 +56,21 @@ private:
   std::vector<ObsData> obsp;
   //obs positions
   float *x, *y;
+
+  struct Parameter {
+    std::string name;
+    bool knotParam;
+    bool tempParam;
+    bool rrrParam;
+    int symbol;
+    int precision;
+    Parameter():
+    knotParam(0), tempParam(false), rrrParam(false), symbol(-1), precision(0)
+    {
+    }
+  };
+
+  std::vector<Parameter> vparam;
 
   //from plotInfo
   std::string infostr;
@@ -79,7 +93,7 @@ private:
   int level;
   bool levelAsField;
   std::string m_plottype;
-	std::string dialogname;
+  std::string dialogname;
 
   const std::string& plottype() const
   {
@@ -252,23 +266,24 @@ private:
   // used only from plotList
   void printList(float f, float& xpos, float& ypos, int precision,
       bool align_right = false, std::string opt = "");
-  void printListParameter(const ObsData& dta, const std::string& param,
-      float& xpos, float& ypos, float yStep, bool align_right, int precision);
-  void printListParameter2(const ObsData& dta, const std::string& param,
-      float& xpos, float& ypos, float yStep, bool align_right, int precision);
+  void printListParameter(const ObsData& dta, const Parameter& param,
+      float& xpos, float& ypos, float yStep, bool align_right, float xshift);
+  void printListSymbol(const ObsData& dta, const Parameter& param,
+      float& xpos, float& ypos, float yStep, bool align_right, const float& xshift);
   void printListRRR(const ObsData& dta, const std::string& param, float& xpos,
-      float& ypos, float yStep, bool align_right);
+      float& ypos, bool align_right);
+  void printListPos(const ObsData& dta,
+      float& xpos, float& ypos, float yStep, bool align_right);
+
+  void plotAscii(const ObsData& dta,const std::string& param, float& xpos, float& ypos, const float& yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
   void printNumber(float, float, float, const std::string& align = "left",
       bool = false, bool = false);
 
-  // from plotList, plotSynop, ROAD/plotDBSynop (commented out)
-  void printAvvik(float, float, float, bool align_right = false);
-
   // from plotList, plotSynop
-  void printTime(miutil::miTime, float, float, bool align_right = false,
-      std::string = "");
+  void printTime(const miutil::miTime&, float, float, bool align_right = false,
+      const std::string& = "");
 
   // from plotList and plotAscii
   void printListString(const std::string& txt, float& xpos, float& ypos,
@@ -347,7 +362,6 @@ private:
 
   void plotSynop(int index);
   void plotList(int index);
-  void plotAscii(int index);
   void plotMetar(int index);
 #ifdef ROADOBS
   void plotRoadobs(int index);
@@ -361,23 +375,23 @@ private:
   int getObsCount() const;
   int numVisiblePositions(); // slow!
 
-  public:
+public:
   ObsPlot();
-  ObsPlot(const ObsPlot &rhs);
   ~ObsPlot();
 
-  ObsPlot& operator=(const ObsPlot &rhs);
   bool operator==(const ObsPlot &rhs) const;
 
   // clear info about text/symbol layers
   static void clearPos();
-	// return the computed index in stationlist, ROADOBS only
-	std::vector<int> & getStationsToPlot();
-	// clear VisibleStations map from current plottype
-	void clearVisibleStations();
-	// Returns the allObs boolean
-	bool isallObs() {return allObs;};
-  bool plot();
+  // return the computed index in stationlist, ROADOBS only
+  std::vector<int> & getStationsToPlot();
+  // clear VisibleStations map from current plottype
+  void clearVisibleStations();
+  // Returns the allObs boolean
+  bool isallObs() {return allObs;};
+
+  void plot(PlotOrder zorder);
+
   bool prepare(const std::string&);
   bool setData();
   void clear();
@@ -385,26 +399,22 @@ private:
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   void setObsAnnotation(const std::string &anno) // from ObsManager::prepare and ObsManager::sendHqcdata
-  {
-    annotation = anno;
-  }
-  void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare 
+    { annotation = anno; }
+
+  void setPopupSpec(std::vector<std::string>& txt); // from ObsManager::prepare
 
   const std::vector<std::string>& getObsExtraAnnotations() const // from PlotModule
-      {
-    return labels;
-      }
+      { return labels; }
+
   bool updateObs(); // from PlotModule::updateObs
   void logStations(); // from PlotModule::prepareObs, PlotModule::obsTime, PlotModule::updatePlots
   void readStations(); // from PlotModule::obsTime
 
   void setLabel(const std::string& pin) // from PlotModule and ObsRoad
-  {
-    labels.push_back(pin);
-  }
+    { labels.push_back(pin); }
 
   bool getPositions(std::vector<float>&, std::vector<float>&);
-  void obs_mslp(float *);
+  void obs_mslp(PlotOrder porder, float *);
 
   bool getObsPopupText(int xx,int yy, std::string& obstext );
 
@@ -419,106 +429,85 @@ private:
   void nextObs(bool forward);
 
   const std::string& getInfoStr() const
-  {
-    return infostr;
-  }
+    { return infostr; }
+
   bool mslp() const
-  {
-    return devfield;
-  }
+    { return devfield; }
 
   bool moreTimes()
-  {
-    return moretimes;
-  }
+    { return moretimes; }
 
   const std::vector<std::string>& dataTypes() const // only from ObsManager::prepare
-      {
-    return datatypes;
-      }
+    { return datatypes; }
+
   void setObsTime(const miutil::miTime& t) // only from ObsManager::prepare
-  {
-    Time = t;
-  }
-  void setCurrent(float cur)
-  {
-    current = cur;
-  } // only from ObsManager::prepare
+    { Time = t; }
+
+  void setCurrent(float cur) // only from ObsManager::prepare
+    { current = cur; }
+
   void setModificationTime(const std::string& fname); // only from ObsManager::prepare
 
-  bool LevelAsField()
-  {
-    return levelAsField;
-  } // from PlotModule
-  int getLevel()
-  {
-    return level;
-  }
+  bool LevelAsField() const // from PlotModule
+    { return levelAsField; }
 
-  void removeObs()
-  {
-    obsp.pop_back();
-  } // BUFR only
-  void setDataType(std::string datatype)
-  {
-    currentDatatype = datatype;
-  } // BUFR only
+  int getLevel()
+    { return level; }
+
+  void removeObs() // BUFR only
+    { obsp.pop_back(); }
+
+  void setDataType(std::string datatype)  // BUFR only
+    { currentDatatype = datatype; }
+
   ObsData& getNextObs(); // BUFR only
-  void resetObs(int num)
-  {
-    obsp.resize(num);
-  } // BUFR only, called from ObsManager
+
+  void resetObs(int num) // BUFR only, called from ObsManager
+    { obsp.resize(num); }
+
   int numPositions() const //BUFR only, called from ObsManager before resetobs
-  {
-    return getObsCount();
-  }
+    { return getObsCount(); }
 
   // Dialog info: Name, tooltip and type of parameter buttons. ASCII only
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs); // ASCII only (ObsAscii ctor)
   void replaceObsData(std::vector<ObsData>& obs); // ROADOBS only, replaces fake data with correct data.)
   const miutil::miTime& getObsTime() const // only from ObsRoad and ObsAscii
-  {
-    return Time;
-  }
+    { return Time; }
+
   void setLabels(const std::vector<std::string>& l) // ObsAscii only
-  {
-    labels = l;
-  }
-  private:
+    { labels = l; }
+
+private:
   bool updateDeltaTimes();
   bool updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime); // ASCII only
-  public:
+  ObsPlot(const ObsPlot &rhs);
+  ObsPlot& operator=(const ObsPlot &rhs);
 
-  void addObsVector(const std::vector<ObsData>& vdata)
-  {
-    obsp = vdata;
-  } // HQC only (from ObsManager::sendHqcdata)
+public:
+  void addObsVector(const std::vector<ObsData>& vdata)  // HQC only (from ObsManager::sendHqcdata)
+    { obsp = vdata; }
+
   void changeParamColour(const std::string& param, bool select); // HQC only
+
   bool flagInfo() const // HQC only
-  {
-    return flaginfo;
-  }
+    { return flaginfo; }
+
   void setHqcFlag(const std::string& flag) // HQC only
-  {
-    hqcFlag = flag;
-  }
+    { hqcFlag = flag; }
+
   void setSelectedStation(const std::string& station) // HQC only
-  {
-    selectedStation = station;
-  }
+    { selectedStation = station; }
 
   /// copy some xpos and ypos from metaData map to obsp
   void mergeMetaData(const std::map<std::string, ObsData>& metaData);
 
   int getTimeDiff() const
-  {
-    return timeDiff;
-  }
+    { return timeDiff; }
+
   void setTimeDiff(int diff)
-  {
-    timeDiff = diff;
-  }
+    { timeDiff = diff; }
+
   // if timediff == -1 :use all observations
   // if not: use all observations with abs(obsTime-Time)<timediff
   bool timeOK(const miutil::miTime& t) const;

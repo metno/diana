@@ -991,7 +991,7 @@ void DrawingStyleManager::drawText(const DrawingItemBase *item_) const
     glColor4ub(0, 0, 0, 255);
 
   setFont(item);
-  const float scale = PlotModule::instance()->getStaticPlot()->getPhysWidth() / PlotModule::instance()->getStaticPlot()->getPlotSize().width();
+  const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();
 
   const float x = item->getPoints().at(0).x() + item->margin();
   float y = item->getPoints().at(0).y() - item->margin();
@@ -1131,6 +1131,11 @@ QImage DrawingStyleManager::toImage(const DrawingItemBase::Category &category, c
       maxSize = maxSize.expandedTo(QSize(image.width(), pos));
     }
   }
+
+  // If the image has no size then return a null image. This usually means
+  // that a composite item is incorrectly defined.
+  if (maxSize.isEmpty())
+    return QImage();
 
   QImage thisImage(maxSize.toSize(), QImage::Format_ARGB32);
   thisImage.fill(qRgba(255,255,255,255));

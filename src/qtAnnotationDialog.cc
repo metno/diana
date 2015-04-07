@@ -159,6 +159,8 @@ void AnnotationDialog::parseSetup(){
       }
       setup_annoStrings[name]=qstr;
       current_annoStrings[name]=qstr;
+      if ( name == "default")
+        defaultAnno = qstr;
       qstr.clear();
     }
 
@@ -172,6 +174,7 @@ void AnnotationDialog::parseSetup(){
     }
     setup_annoStrings[name]=qstr;
     current_annoStrings[name]=qstr;
+    defaultAnno = qstr;
 
   } else {
 
@@ -183,6 +186,7 @@ void AnnotationDialog::parseSetup(){
     qstr += "LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0 \n";
     setup_annoStrings[name]=qstr;
     current_annoStrings[name]=qstr;
+    defaultAnno = qstr;
     return;
   }
 
@@ -208,26 +212,13 @@ vector<string> AnnotationDialog::getOKString()
 vector<string> AnnotationDialog::writeLog()
 {
   METLIBS_LOG_SCOPE();
-  vector<string> vstr;
-
-
-  vstr.push_back("================");
-
-  return vstr;
+  return vector<string>(1, "================");
 }
 
 
-void AnnotationDialog::readLog(const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion){
+void AnnotationDialog::readLog(const vector<string>&, const string&, const string&)
+{
   METLIBS_LOG_SCOPE();
-
-  int n=0, nvstr= vstr.size();
-  bool first=true;
-
-  while (n<nvstr && vstr[n].substr(0,4)!="====") {
-
-    n++;
-  }
 }
 
 void AnnotationDialog::putOKString(const vector<string>& vstr)
@@ -250,4 +241,3 @@ void AnnotationDialog::putOKString(const vector<string>& vstr)
 void AnnotationDialog::closeEvent( QCloseEvent* e){
   emit AnnotationHide();
 }
-

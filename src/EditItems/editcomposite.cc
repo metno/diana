@@ -93,18 +93,6 @@ DrawingItemBase *Composite::cloneSpecial(bool setUniqueId) const
   return item;
 }
 
-bool Composite::hit(const QPointF &pos, bool selected) const
-{
-  QRectF box = boundingRect();
-  return box.contains(pos);
-}
-
-bool Composite::hit(const QRectF &bbox) const
-{
-  QRectF box = boundingRect();
-  return box.intersects(bbox);
-}
-
 void Composite::mousePress(QMouseEvent *event, bool &repaintNeeded, QList<QUndoCommand *> *undoCommands,
                            QSet<QSharedPointer<DrawingItemBase> > *items,
                            const QSet<QSharedPointer<DrawingItemBase> > *selItems,

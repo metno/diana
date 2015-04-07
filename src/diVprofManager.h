@@ -34,7 +34,6 @@
 #include <diCommonTypes.h>
 #include <diPrintOptions.h>
 #include <diField/TimeFilter.h>
-#include <diController.h>
 
 #include "vcross_v2/VcrossSetup.h"
 
@@ -54,12 +53,6 @@ class VprofDiagram;
    \brief will not be used.
 */
 class VprofManager{
-
-public:
-  struct SelectedModel{
-    std::string model;
-    std::string reftime;
-  };
 
 private:
 
@@ -103,6 +96,11 @@ private:
     std::string databasefile;
 #endif
 
+  };
+
+  struct SelectedModel{
+    std::string model;
+    std::string reftime;
   };
 
   // std::map<model,filename>
@@ -176,12 +174,14 @@ private:
 
 public:
   // constructor
-  VprofManager(Controller *co);
+  VprofManager();
   // destructor
   ~VprofManager();
 
   // clenans up vhen user closes the vprof window
   void cleanup();
+  // parseSetup and init obsfilelist
+  void init();
 
   VprofOptions* getOptions() { return vpopt; }
   void setPlotWindow(int w, int h);
@@ -201,10 +201,10 @@ public:
   const std::vector<float>& getLongitudes(){return longitudeList;}
   const std::vector<miutil::miTime>&   getTimeList()    { return timeList; }
   std::vector <std::string> getModelNames();
-  std::vector <std::string> getModelFiles();
+  std::vector <std::string> getModelFiles(){return dialogFileNames;}
   std::vector <std::string> getReferencetimes(const std::string model);
   void setFieldModels(const std::vector<std::string>& fieldmodels);
-  void setSelectedModels(const std::vector<SelectedModel>& models, bool obs=false);
+  void setSelectedModels(const std::vector<std::string>& models, bool obs=false);
 
   bool plot();
   void startHardcopy(const printOptions& po);

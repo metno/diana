@@ -80,12 +80,13 @@ private:
   VcrossSetupUI* mSetupINFLIGHT;
   VcrossSetupUI* mSetupDISTANCE;
   VcrossSetupUI* mSetupGEOPOS;
+  VcrossSetupUI* mSetupCOMPASS;
   VcrossSetupUI* mSetupVERTGRID;
+  VcrossSetupUI* mSetupHORGRID;
   VcrossSetupUI* mSetupMARKERLINES;
   VcrossSetupUI* mSetupVERTICALMARKER;
   VcrossSetupUI* mSetupEXTRAPOLP;
   VcrossSetupUI* mSetupBOTTOMEXT;
-  VcrossSetupUI* mSetupTHICKARROWS;
   VcrossSetupUI* mSetupVERTICALTYPE;
   VcrossSetupUI* mSetupVHSCALE;
   VcrossSetupUI* mSetupSTDVERAREA;

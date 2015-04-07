@@ -60,6 +60,9 @@ public:
   // Updates the bounding rectangle and lays out elements.
   virtual void updateRect();
 
+  virtual bool hit(const QPointF &pos, bool selected) const;
+  virtual bool hit(const QRectF &bbox) const;
+
   virtual void arrangeElements();
   virtual void createElements();
   DrawingItemBase *elementAt(int index) const;

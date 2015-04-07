@@ -140,8 +140,8 @@ void VcrossAddPlotDialog::onNext()
 void VcrossAddPlotDialog::onAdd()
 {
   const int page = ui->stack->currentIndex();
-  if (page != PlotPage or (not (isModelComplete()
-              and isReftimeComplete() and isPlotComplete())))
+  if (page != PlotPage
+      || (!(isModelComplete() && isReftimeComplete() && isPlotComplete())))
   {
     return;
   }
@@ -151,11 +151,15 @@ void VcrossAddPlotDialog::onAdd()
   vcross::QtManager::PlotSpec ps(model, reftime, "");
 
   const QStringList plots = selectedPlots();
-  for (int i=0; i<plots.size(); ++i) {
-    const std::string fld = plots.at(i).toStdString();
-    const std::string opt = vcrossm->getPlotOptions(fld, false);
-    ps.setField(fld);
-    vcrossm->addField(ps, opt, -1);
+  if (!plots.isEmpty()) {
+    vcrossm->fieldChangeStart(false);
+    for (int i=0; i<plots.size(); ++i) {
+      const std::string fld = plots.at(i).toStdString();
+      const std::string opt = vcrossm->getPlotOptions(fld, false);
+      ps.setField(fld);
+      vcrossm->addField(ps, opt, -1);
+    }
+    vcrossm->fieldChangeDone();
   }
   initializePlotPage(true);
 }
@@ -209,6 +213,9 @@ void VcrossAddPlotDialog::initializeReftimePage(bool forward)
 {
   ui->stack->setCurrentIndex(ReftimePage);
 
+  const QString model = selectedModel();
+  ui->reftimeLabelModel->setText(tr("Chosen model: %1")
+      .arg(model));
   if (forward) {
     diutil::OverrideCursor waitCursor;
     const vcross::QtManager::vctime_v reftimes = vcrossm->getModelReferenceTimes(selectedModel().toStdString());
@@ -253,15 +260,19 @@ void VcrossAddPlotDialog::initializePlotPage(bool forward)
   METLIBS_LOG_SCOPE();
   ui->stack->setCurrentIndex(PlotPage);
 
+  const QString model = selectedModel();
+  ui->plotLabelModel->setText(tr("Chosen model: %1")
+      .arg(model));
+  const QString referencetime = selectedReferenceTime();
+  ui->plotLabelReftime->setText(tr("Chosen reference time: %1")
+      .arg(referencetime));
   if (forward) {
     ui->plotFilter->clear();
-    const QString model = selectedModel();
-    const vcross::QtManager::vctime_t reftime(selectedReferenceTime().toStdString());
-    ui->plotLabelModel->setText(tr("Choose plot(s) for model '%1'").arg(model));
-
     diutil::OverrideCursor waitCursor;
 
-    const std::vector<std::string> fields = vcrossm->getFieldNames(model.toStdString(), reftime, false);
+    const vcross::QtManager::vctime_t reftime(referencetime.toStdString());
+    const std::vector<std::string> fields
+        = vcrossm->getFieldNames(model.toStdString(), reftime, true);
     QStringList fsl;
     for (size_t i=0; i<fields.size(); ++i)
       fsl << QString::fromStdString(fields[i]);

@@ -38,6 +38,7 @@
 #include <EditItems/layer.h>
 #include <QHash>
 #include <QList>
+#include <QMap>
 #include <QPointF>
 #include <QSet>
 #include <QString>
@@ -93,8 +94,11 @@ public:
   virtual bool processInput(const std::vector<std::string>& inp);
   virtual std::vector<std::string> getAnnotations() const;
 
-  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res) {}
+  virtual void sendMouseEvent(QMouseEvent* event, EventResult& res);
   virtual void sendKeyboardEvent(QKeyEvent* event, EventResult& res) {}
+
+  QList<QSharedPointer<DrawingItemBase> > findHitItems(
+    const QPointF &pos, QList<QSharedPointer<DrawingItemBase> > *missedItems) const;
 
   QList<QPointF> getLatLonPoints(const DrawingItemBase &item) const;
   void setFromLatLonPoints(DrawingItemBase &item, const QList<QPointF> &latLonPoints) const;
@@ -146,18 +150,17 @@ public:
   QSize getSymbolSize(const QString &) const;
 
   // Dialog-related methods
-  QSet<QString> &getDrawings();
-  QSet<QString> &getLoaded();
+  QMap<QString, QString> &getDrawings();
+  QMap<QString, QString> &getLoaded();
   EditItems::LayerManager *getLayerManager();
   EditItems::LayerManager *getAuxLayerManager();
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
 
-  void setPlotRect(Rectangle r);
   void setEditRect(Rectangle r);
 
-  std::vector<PlotElement> getPlotElements(bool = true) const;
+  virtual std::vector<PlotElement> getPlotElements() const;
   virtual QString plotElementTag() const;
   void enablePlotElement(const PlotElement &);
 
@@ -167,19 +170,20 @@ public:
 public slots:
   std::vector<miutil::miTime> getTimes() const;
 
+signals:
+  void itemsClicked(const QList<QSharedPointer<DrawingItemBase> > &items);
+  void itemsHovered(const QList<QSharedPointer<DrawingItemBase> > &items);
+
 protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
   std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
-  static Rectangle plotRect_;
   static Rectangle editRect_;
-  Area currentArea_;
 
-  // ### are these needed any longer?
-  QSet<QString> drawings_;
-  QSet<QString> loaded_;
+  QMap<QString, QString> drawings_;
+  QMap<QString, QString> loaded_;
 
   EditItems::LayerManager *layerMgr_; // Read by DrawingManager::plot() and EditItemManager::plot(). Read/written by EditDrawingDialog.
 

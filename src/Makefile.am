@@ -68,6 +68,7 @@ common_cxx_sources = \
 	diPlot.cc \
 	diPlotModule.cc \
 	diPlotOptions.cc \
+	diPoint.cc \
 	diPrintOptions.cc \
 	diQuickMenues.cc \
 	diSat.cc \
@@ -212,6 +213,7 @@ diana_qt_sources = \
 diana_qt_sources += \
 	vcross_qt/qtVcrossSetup.cc \
 	vcross_qt/qtVcrossInterface.cc \
+	vcross_qt/qtVcrossLayerBar.cc \
 	vcross_qt/qtVcrossLayerButton.cc \
 	vcross_qt/qtVcrossSetupDialog.cc \
 	vcross_qt/qtVcrossWindow.cc \
@@ -347,6 +349,7 @@ noinst_HEADERS = \
 	diPlot.h \
 	diPlotModule.h \
 	diPlotOptions.h \
+	diPoint.h \
 	diPrintOptions.h \
 	diQuickMenues.h \
 	diSat.h \
@@ -789,7 +792,9 @@ nodist_language_DATA=$(language_sources:.ts=.qm)
 CLEANFILES += $(nodist_language_DATA)
 
 lupdate:
-	$(LUPDATE4) $(diana_qt_sources:%=$(srcdir)/%) -ts $(language_sources)
+	$(LUPDATE4) $(diana_qt_sources:%=$(srcdir)/%) \
+	    $(diana_qt_forms:%=$(srcdir)/%) \
+	    -ts $(language_sources)
 .PHONY: lupdate
 
 %.qm: %.ts  $(diana_qt_sources)

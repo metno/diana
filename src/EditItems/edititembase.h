@@ -54,16 +54,6 @@ public:
     };
     Q_DECLARE_FLAGS(DrawModes, DrawMode)
 
-    // Returns true iff the item is hit at \a pos.
-    // The item is considered selected iff \a selected is true (a selected item may typically be hit at
-    // control points as well).
-    virtual bool hit(const QPointF &pos, bool selected) const = 0;
-
-    // Returns true iff the item is considered to be hit by \a rect.
-    // Whether this means that the item's shape is partially or fully inside \a rect is
-    // up to the item itself.
-    virtual bool hit(const QRectF &bbox) const = 0;
-
     virtual void mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp = 0);
 
     virtual void incompleteMousePress(QMouseEvent *event, bool &repaintNeeded, bool &complete, bool &aborted);
@@ -106,8 +96,6 @@ protected:
 
     void init();
     void copyBaseData(EditItemBase *) const;
-
-    static qreal sqr(qreal);
 
     QList<QPointF> geometry() const;
     void setGeometry(const QList<QPointF> &);

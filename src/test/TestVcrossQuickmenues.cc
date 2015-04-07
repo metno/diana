@@ -31,20 +31,10 @@
 #include <vcross_v2/VcrossQtManager.h>
 #include <vcross_v2/VcrossQuickmenues.h>
 
-#define MILOGGER_CATEGORY "diana.test.VcrossQuickmenues"
-#include "miLogger/miLogging.h"
-
 #include <gtest/gtest.h>
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
+#define MILOGGER_CATEGORY "diana.test.VcrossQuickmenues"
+#include "miLogger/miLogging.h"
 
 namespace vcross {
 namespace test {
@@ -77,8 +67,6 @@ static const char AROME_FILE[] = "arome_vprof.nc";
 
 TEST(TestVcrossQuickmenues, Script)
 {
-  configureLogging();
-
   string_v sources;
   sources.push_back("m=MODEL1 f=" TEST_SRCDIR "/" + std::string(AROME_FILE) + " t=netcdf");
 

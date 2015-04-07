@@ -29,14 +29,15 @@
 #ifndef WeatherSymbol_h
 #define WeatherSymbol_h
 
-#include <diObjectPlot.h>
-#include <diComplexSymbolPlot.h>
-#include <diCommonTypes.h>
+#include "diObjectPlot.h"
+#include "diCommonTypes.h"
 
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
+
+class ComplexSymbolPlot;
 
 /**
    \brief A weather symbol that can be plotted and edited
@@ -52,7 +53,7 @@ private:
   static std::vector<editToolInfo> allRegions;
   static std::map<std::string,int> symbolTypes;  //finds symbol type number from name
   static std::map<std::string,int> regionTypes;  //finds region type number from name
-  static std::map<int,int> indexTypes;  //finds symbol type number 
+  static std::map<int,int> indexTypes;  //finds symbol type number
   static std::map<int,int> next;  //finds next symbol type number from number
   static std::map<int,int> last;  //finds last symbol type number from number
   static float defaultSize;
@@ -113,8 +114,7 @@ public:
   static void setStandardSize(int size1, int size2);
   /// add new point to weather symbol
   void addPoint(float x, float y);
-  bool plot();  ///< draws the WeatherSymbol
-  bool plot(const int){return false;}
+  void plot(PlotOrder zorder);
   /// set type of symbol
   void setType(int ty);
   /// set type of symbol

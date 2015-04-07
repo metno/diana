@@ -152,15 +152,27 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Precipitation"]=tr("Precipitation"); //Nedb�r ??
   editTranslations["Showers"]=tr("Showers"); //Byger
   editTranslations["Clouds"]=tr("Clouds"); //Skyer
-  editTranslations["Fog"]=tr("Fog"); //T�ke
+  editTranslations["Haze"]=tr("Haze"); //Dis
   editTranslations["Ice"]=tr("Ice"); //Is
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.v�r
   editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.v�r
   editTranslations["Generic area"]=tr("Generic area"); //
-
+  
+  // SMHI specific
+  editTranslations[TOOL_DECREASING]=tr(TOOL_DECREASING); //Pressure tendency, falling
+  editTranslations[TOOL_INCREASING]=tr(TOOL_INCREASING); //Pressure tendency, increasing
+  editTranslations["Drifting snow"]=tr("Drifting snow"); //Drifting snow
+  editTranslations["VMC-line"]=tr("VMC-line"); //VMC-line
+  editTranslations["CAT-line"]=tr("CAT-line"); //CAT-line
+  editTranslations["Line of thunderstorms red"]=tr("Line of thunderstorms red");
+  editTranslations["Line of thunderstorms green"]=tr("Line of thunderstorms green");
+  editTranslations["Line of thunderstorms blue"]=tr("Line of thunderstorms blue");
+  editTranslations["Graupel"]=tr("Graupel");
+  editTranslations["Jet stream"]=tr("Jet stream");
   // --------------------------------------------------------------------
   editAction = new QAction(this);
   editAction->setShortcut(Qt::CTRL+Qt::Key_E);
+  editAction->setShortcutContext(Qt::ApplicationShortcut);
   connect(editAction, SIGNAL( triggered() ), SLOT(EditMarkedText()));
   addAction( editAction );
   // --------------------------------------------------------------------
@@ -1259,7 +1271,11 @@ void  EditDialog::sendClicked()
 
 void  EditDialog::approveClicked()
 {
-
+  if (!undoFrontButton->isEnabled() && !undoFieldButton->isEnabled() ) {
+    QString message = "Can't approve empty product";
+    QMessageBox::warning( this, tr("Error approve product"),message);
+    return;
+  }
   saveEverything(true,true);
   if (m_editm->showAllObjects()) emit editUpdate();
 }
@@ -1430,7 +1446,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   emit editMode(true);
 
   // Turn off Undo-buttons
-  undoFrontsEnable();
+  undoFrontsDisable();
   undoFieldsDisable();
   // stop current edit
   m_editm->stopEdit();
@@ -1608,7 +1624,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
   saveButton->setEnabled(true);
   sendButton->setEnabled(currid.sendable);
   approveButton->setEnabled(currid.sendable);
-
   commentbutton->setEnabled(not currprod.commentFilenamePart.empty() );
 
   lStatus->setText(tr("Not saved"));
@@ -1668,7 +1683,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 {
   //   METLIBS_LOG_DEBUG("EditNewCombineOK");
   // Turn off Undo-buttons
-  undoFrontsEnable();
+  undoFrontsDisable();
   undoFieldsDisable();
   // stop current edit
   m_editm->stopEdit();

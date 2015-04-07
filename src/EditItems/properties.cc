@@ -70,22 +70,6 @@ void SpecialLineEdit::openTextEdit()
     setText(textEditor.text());
 }
 
-static QWidget * createEditor(const QString &propertyName, const QVariant &val, bool readOnly = false)
-{
-  QWidget *editor = 0;
-  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::Bool) ||
-      (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
-    editor = new SpecialLineEdit(propertyName, readOnly);
-    qobject_cast<QLineEdit *>(editor)->setText(val.toString());
-  } else if (val.type() == QVariant::DateTime) {
-    editor = new QDateTimeEdit(val.toDateTime());
-    qobject_cast<QDateTimeEdit *>(editor)->setReadOnly(readOnly);
-  } else {
-    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
-  }
-  return editor;
-}
-
 PropertiesEditor::PropertiesEditor()
 {
   setWindowTitle(tr("Item Properties"));
@@ -162,6 +146,33 @@ bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly
   }
 
   return false;
+}
+
+QWidget *PropertiesEditor::createEditor(const QString &propertyName, const QVariant &val, bool readOnly)
+{
+  if (rules_.contains("hide") && propertyName.contains(":")) {
+    QString section = propertyName.split(":").first();
+    if (rules_.value("hide").contains(section))
+      return 0;
+  }
+
+  QWidget *editor = 0;
+  if ((val.type() == QVariant::Double) || (val.type() == QVariant::Int) || (val.type() == QVariant::Bool) ||
+      (val.type() == QVariant::String) || (val.type() == QVariant::ByteArray)) {
+    editor = new SpecialLineEdit(propertyName, readOnly);
+    qobject_cast<QLineEdit *>(editor)->setText(val.toString());
+  } else if (val.type() == QVariant::DateTime) {
+    editor = new QDateTimeEdit(val.toDateTime());
+    qobject_cast<QDateTimeEdit *>(editor)->setReadOnly(readOnly);
+  } else {
+    METLIBS_LOG_WARN("WARNING: unsupported type:" << val.typeName());
+  }
+  return editor;
+}
+
+void PropertiesEditor::setPropertyRules(const QString &name, const QStringList &values)
+{
+  rules_[name] = values;
 }
 
 } // namespace

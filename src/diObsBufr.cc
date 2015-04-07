@@ -51,25 +51,25 @@
 
 // libemos interface (to fortran routines)
 extern "C" {
-  extern long readbufr(FILE * file, char * buffer, long * bufr_len);
+extern long readbufr(FILE * file, char * buffer, long * bufr_len);
 
-  extern void bufrex_(int* ilen, int* ibuff, int* ksup, int* ksec0, int* ksec1,
-      int* ksec2, int* ksec3, int* ksec4, int* kelem,
-      const char* cnames, const char* cunits, int* kvals,
-      double* values, const char* cvals, int* kerr,
-      int len_cnames, int len_cunits, int len_cvals);
-  extern void buprt_(int* kswitch, int* ksub1, int* ksub2, int* kkelem,
-      const char* cnames, const char* cunits, const char* cvals,
-      int* kkvals, double* values, int* ksup, int* ksec1,
-      int* kerr, int len_cnames, int len_cunits, int len_cvals);
-  extern void busel_(int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
-      int* kerr);
-  extern void busel2_(int* ksubset, int * kelem,
-      int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
-      const char* cnames, const char* cunits,
-      int* kerr);
-  extern void bus012_(int* ilen, int* ibuff, int* ksup,
-      int* ksec0, int* ksec1, int* ksec2,int* kerr);
+extern void bufrex_(int* ilen, int* ibuff, int* ksup, int* ksec0, int* ksec1,
+    int* ksec2, int* ksec3, int* ksec4, int* kelem,
+    const char* cnames, const char* cunits, int* kvals,
+    double* values, const char* cvals, int* kerr,
+    int len_cnames, int len_cunits, int len_cvals);
+extern void buprt_(int* kswitch, int* ksub1, int* ksub2, int* kkelem,
+    const char* cnames, const char* cunits, const char* cvals,
+    int* kkvals, double* values, int* ksup, int* ksec1,
+    int* kerr, int len_cnames, int len_cunits, int len_cvals);
+extern void busel_(int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
+    int* kerr);
+extern void busel2_(int* ksubset, int * kelem,
+    int* ktdlen, int* ktdlst, int* ktdexl, int* ktdexp,
+    const char* cnames, const char* cunits,
+    int* kerr);
+extern void bus012_(int* ilen, int* ibuff, int* ksup,
+    int* ksec0, int* ksec1, int* ksec2,int* kerr);
 } // extern "C"
 
 using namespace std;
@@ -537,7 +537,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
       //   7001  HEIGHT OF STATION, M
     case 7030:
       if (values[j] < bufrMissing)
-        d.fdata["stationHeight"] = values[j];
+        d.fdata["Height"] = values[j];
       break;
 
       //   7032  HEIGHT OF SENSOR, M
@@ -1044,8 +1044,7 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
 
   if (wmoNumber) {
     ostringstream ostr;
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                    << wmoStation;
+    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
     d.id = ostr.str();
   }
 
@@ -1065,10 +1064,16 @@ bool ObsBufr::get_diana_data(int ktdexl, int *ktdexp, double* values,
   if(d.fdata.count("N") && d.fdata.count("h") && d.fdata["N"]==0 && d.fdata["h"]==0) {
     d.fdata["h"] = 9;
   }
+  if ( !d.id.empty())
+    d.stringdata["Id"] = d.id;
+  if ( !d.name.empty())
+    d.stringdata["Name"] = d.name;
 
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
     d.obsTime = miTime(year, month, day, hour, minute, 0);
+    d.stringdata["Date"] = d.obsTime.format("%m-%d");
+    d.stringdata["Time"] = d.obsTime.format("%H.%M");
   }
 
   //skip obs if xpos or ypos  or obsTime not ok
@@ -1174,8 +1179,7 @@ bool ObsBufr::get_station_info(int ktdexl, int *ktdexp, double* values,
 
   ostringstream ostr;
   if (wmoNumber) {
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                    << wmoStation;
+    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
     station = ostr.str();
   } else {
     ostr << station;
@@ -1346,7 +1350,7 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
         //   7001  HEIGHT OF STATION, M
       case 7001:
         if (values[j] < bufrMissing)
-          d.fdata["stationHeight"] = values[j];
+          d.fdata["Height"] = values[j];
         break;
 
         //   007004  PRESSURE, Pa->hPa
@@ -1502,13 +1506,18 @@ bool ObsBufr::get_diana_data_level(int ktdexl, int *ktdexp, double* values,
   }
   if (wmoNumber) {
     ostringstream ostr;
-    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0')
-                        << wmoStation;
+    ostr << setw(2) << setfill('0') << wmoBlock << setw(3) << setfill('0') << wmoStation;
     d.id = ostr.str();
   }
 
+  if ( !d.id.empty())
+    d.stringdata["Id"] = d.id;
+  if ( !d.name.empty())
+    d.stringdata["Name"] = d.name;
   //TIME
   d.obsTime = miTime(year, month, day, hour, minute, 0);
+  d.stringdata["Date"] = d.obsTime.format("%m-%d");
+  d.stringdata["Time"] = d.obsTime.format("%H.%M");
 
   return true;
 }
@@ -1519,7 +1528,6 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   // constants for changing to met.no units
   const double pa2hpa = 0.01;
   const double t0 = 273.15;
-  const float rad = 3.141592654 / 180.;
   const double ms2knots = 3600.0 / 1852.0;
 
   //  int wmoBlock = 0;
@@ -1532,7 +1540,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
   int minute = 0;
   float p = 0, tt = -30000, td = -30000;
   float fff, ddd;
-  int dd, ff, bpart;
+  int dd=-1, ff=-1, bpart;
   float lat = 0., lon = 0.;
   int ffmax = -1, kmax = -1;
 
@@ -1574,7 +1582,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
             vplot->ff.push_back(ff);
             // convert to east/west and north/south component
             fff = float(ff);
-            ddd = (float(dd) + 90.) * rad;
+            ddd = (float(dd) + 90.) * DEG_TO_RAD;
             vplot->uu.push_back(fff * cosf(ddd));
             vplot->vv.push_back(-fff * sinf(ddd));
             vplot->sigwind.push_back(bpart);
@@ -1594,160 +1602,160 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
         continue;
       }
 
-        switch (ktdexp[i]) {
+      switch (ktdexp[i]) {
 
-        //   1001  WMO BLOCK NUMBER
-        case 1001:
-        {
-          if (izone != int(values[j])) {
-            return false;
-          }
-          found = true;
+      //   1001  WMO BLOCK NUMBER
+      case 1001:
+      {
+        if (izone != int(values[j])) {
+          return false;
         }
-        break;
+        found = true;
+      }
+      break;
 
-        //   1002  WMO STATION NUMBER
-        case 1002:
-        {
-          if (istation != int(values[j])) {
+      //   1002  WMO STATION NUMBER
+      case 1002:
+      {
+        if (istation != int(values[j])) {
+          return false;
+        }
+        if (index != ii) {
+          ii++;
+          return false;
+        }
+        ii = 0;
+        found = true;
+      }
+      break;
+
+
+
+      // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
+      case 1006:
+      case 1011:
+      case 1194:
+
+      {
+        if ( !found ) {
+          station.clear();
+          int iindex = int(values[j]) / 1000 - 1;
+          for (int k = 0; k < 6; k++) {
+            station += cvals[iindex][k];
+          }
+          miutil::trim(strStation);
+          miutil::trim(station);
+          if( strStation != station ) {
             return false;
           }
-          if (index != ii) {
+          if( index != ii){
             ii++;
             return false;
           }
-          ii = 0;
+          if (not station.empty()) {
+            ii=0;
+          }
           found = true;
         }
+      }
+      break;
+
+      //   4001  YEAR
+      case 4001:
+        year = int(values[j]);
         break;
 
+        //   4002  MONTH
+      case 4002:
+        month = int(values[j]);
+        break;
 
+        //   4003  DAY
+      case 4003:
+        day = int(values[j]);
+        break;
 
-        // 1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
-        case 1006:
-        case 1011:
-        case 1194:
+        //   4004  HOUR
+      case 4004:
+        hour = int(values[j]);
+        break;
 
-        {
-          if ( !found ) {
-            station.clear();
-            int iindex = int(values[j]) / 1000 - 1;
-            for (int k = 0; k < 6; k++) {
-              station += cvals[iindex][k];
-            }
-            miutil::trim(strStation);
-            miutil::trim(station);
-            if( strStation != station ) {
-              return false;
-            }
-            if( index != ii){
-              ii++;
-              return false;
-            }
-            if (not station.empty()) {
-              ii=0;
-            }
-            found = true;
-          }
+        //   4005  MINUTE
+      case 4005:
+        minute = int(values[j]);
+        break;
+
+        //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
+        //   5002  LATITUDE (COARSE ACCURACY), DEGREE
+      case 5001:
+      case 5002:{
+        lat = values[j];
+      }
+      break;
+
+      //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
+      //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
+      case 6001:
+      case 6002:
+      {
+        lon = values[j];
+      }
+      break;
+
+      //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
+      case 7004:
+        if (values[j] < bufrMissing) {
+          p = int(values[j] * pa2hpa);
+          ok = (p > 0. && p < 1300.);
+        } else {
+          p=-1;
+          ok=false;
         }
         break;
 
-        //   4001  YEAR
-        case 4001:
-          year = int(values[j]);
-          break;
-
-          //   4002  MONTH
-        case 4002:
-          month = int(values[j]);
-          break;
-
-          //   4003  DAY
-        case 4003:
-          day = int(values[j]);
-          break;
-
-          //   4004  HOUR
-        case 4004:
-          hour = int(values[j]);
-          break;
-
-          //   4005  MINUTE
-        case 4005:
-          minute = int(values[j]);
-          break;
-
-          //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
-          //   5002  LATITUDE (COARSE ACCURACY), DEGREE
-        case 5001:
-        case 5002:{
-          lat = values[j];
-        }
+        //   VERTICAL SOUNDING SIGNIFICANCE
+      case 8001:
+        if (values[j] > 31. && values[j] < 64)
+          bpart = 0;
+        else
+          bpart = 1;
         break;
 
-        //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
-        //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
-        case 6001:
-        case 6002:
-        {
-          lon = values[j];
-        }
+        //   008042 EXTENDED VERTICAL SOUNDING SIGNIFICE
+      case 8042:
+        if (values[j] < bufrMissing )
+          sounding_significance_ok = (values[j] != 0 );
         break;
 
-        //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
-        case 7004:
-          if (values[j] < bufrMissing) {
-            p = int(values[j] * pa2hpa);
-            ok = (p > 0. && p < 1300.);
-          } else {
-            p=-1;
-            ok=false;
-          }
-          break;
+        //   11001  WIND DIRECTION
+      case 11001:
+        if (values[j] < bufrMissing)
+          dd = int(values[j]);
+        break;
 
-          //   VERTICAL SOUNDING SIGNIFICANCE
-        case 8001:
-          if (values[j] > 31. && values[j] < 64)
-            bpart = 0;
-          else
-            bpart = 1;
-          break;
+        //   11002  WIND SPEED
+      case 11002:
+        if (values[j] < bufrMissing)
+          ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
+        break;
 
-          //   008042 EXTENDED VERTICAL SOUNDING SIGNIFICE
-        case 8042:
-          if (values[j] < bufrMissing )
-            sounding_significance_ok = (values[j] != 0 );
-          break;
+        //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
+        //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
+      case 12101:
+      case 12001:
+        if (values[j] < bufrMissing)
+          tt = values[j] - t0;
+        break;
 
-          //   11001  WIND DIRECTION
-        case 11001:
-          if (values[j] < bufrMissing)
-            dd = int(values[j]);
-          break;
+        //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
+        //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
+      case 12103:
+      case 12003:
+        if (values[j] < bufrMissing)
+          td = values[j] - t0;
+        break;
 
-          //   11002  WIND SPEED
-        case 11002:
-          if (values[j] < bufrMissing)
-            ff = int(values[j] * ms2knots + 0.5); //should be done elsewhere
-          break;
-
-          //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
-          //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
-        case 12101:
-        case 12001:
-          if (values[j] < bufrMissing)
-            tt = values[j] - t0;
-          break;
-
-          //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
-          //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
-        case 12103:
-        case 12003:
-          if (values[j] < bufrMissing)
-            td = values[j] - t0;
-          break;
-
-        }
+      }
     }
 
     // right pressure level found and corresponding parameters read
@@ -1772,7 +1780,7 @@ bool ObsBufr::get_data_level(int ktdexl, int *ktdexp, double* values,
       vplot->ff.push_back(ff);
       // convert to east/west and north/south component
       fff = float(ff);
-      ddd = (float(dd) + 90.) * rad;
+      ddd = (float(dd) + 90.) * DEG_TO_RAD;
       vplot->uu.push_back(fff * cosf(ddd));
       vplot->vv.push_back(-fff * sinf(ddd));
       vplot->sigwind.push_back(bpart);

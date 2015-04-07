@@ -30,6 +30,7 @@ inline string_v glob(const std::string& pattern, int glob_flags=0)
 { bool error; return glob(pattern, glob_flags, error); }
 
 bool startswith(const std::string& txt, const std::string& start);
+bool endswith(const std::string& txt, const std::string& end);
 
 namespace detail {
 void append_chars_split_newline(string_v& lines, const char* buffer, size_t nbuffer);

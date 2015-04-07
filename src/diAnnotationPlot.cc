@@ -430,6 +430,7 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
     vector<std::string> stokens = miutil::split_protected(elementstring, '\"', '\"', ",", true);
     e.classplot = new LegendPlot(stokens[0]);
     e.classplot->setPlotOptions(poptions);
+    e.classplot->setStaticPlot(getStaticPlot());
   } else if (miutil::contains(elementstring, "box")) {
     e.eType = box;
   } else {
@@ -506,11 +507,14 @@ bool AnnotationPlot::decodeElement(std::string elementstring, element& e)
   return true;
 }
 
-bool AnnotationPlot::plot()
+void AnnotationPlot::plot(PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
+  if (zorder != LINES && zorder != OVERLAY)
+    return;
+
   if (!isEnabled() || annotations.empty() || nothingToDo)
-    return false;
+    return;
 
   borderline.clear();
   scaleAnno = false;
@@ -552,7 +556,6 @@ bool AnnotationPlot::plot()
     else
       glIndexi(fc.Index());
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
     glVertex2f(bbox.x1, bbox.y1);
     glVertex2f(bbox.x1, bbox.y2);
@@ -568,7 +571,7 @@ bool AnnotationPlot::plot()
   //plotAnno could be false if annotations too big for box
   // return here after plotted box only
   if (!plotAnno)
-    return true;
+    return;
 
   // draw the annotations
   for (int i = 0; i < n; i++) {
@@ -619,8 +622,6 @@ bool AnnotationPlot::plot()
   }
 
   getStaticPlot()->UpdateOutput();
-
-  return true;
 }
 
 bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
@@ -752,9 +753,9 @@ bool AnnotationPlot::plotElements(vector<element>& annoEl, float& x, float& y,
     } else if (annoEl[j].eType == image) {
       ImageGallery ig;
       float scale = annoEl[j].eSize * scaleFactor;
-      hei = ig.height(annoEl[j].eImage) * scale;
-      wid = ig.width(annoEl[j].eImage) * scale;
-      ig.plotImage(annoEl[j].eImage, x + wid / 2, y + hei / 2, true, scale,
+      hei = ig.height_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleY() * scale;
+      wid = ig.width_(annoEl[j].eImage) * getStaticPlot()->getPhysToMapScaleX() * scale;
+      ig.plotImage(getStaticPlot(), annoEl[j].eImage, x + wid / 2, y + hei / 2, true, scale,
           annoEl[j].eAlpha);
     } else if (annoEl[j].eType == table) {
       hei = annoEl[j].classplot->height();
@@ -866,8 +867,8 @@ void AnnotationPlot::getAnnoSize(vector<element> &annoEl, float& wid,
       std::string aimage = annoEl[j].eImage;
       ImageGallery ig;
       float scale = annoEl[j].eSize * scaleFactor;
-      h = ig.height(aimage) * scale;
-      w = ig.width(aimage) * scale;
+      h = ig.height_(aimage) * getStaticPlot()->getPhysToMapScaleY() * scale;
+      w = ig.width_(aimage) * getStaticPlot()->getPhysToMapScaleX() * scale;
     } else if (annoEl[j].eType == table) {
       h = annoEl[j].classplot->height();
       w = annoEl[j].classplot->width();
@@ -1036,9 +1037,8 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
   bool wasMarked = isMarked;
   isMarked = false;
   //convert x and y...
-  float xpos = x * getStaticPlot()->getPlotSize().width() / getStaticPlot()->getPhysWidth() + getStaticPlot()->getPlotSize().x1;
-  float ypos = y * getStaticPlot()->getPlotSize().height() / getStaticPlot()->getPhysHeight() + getStaticPlot()->getPlotSize().y1;
-  if (xpos > bbox.x1 && xpos < bbox.x2 && ypos > bbox.y1 && ypos < bbox.y2) {
+  const XY pos = getStaticPlot()->PhysToMap(XY(x, y));
+  if (bbox.isinside(pos.x(), pos.y())) {
     isMarked = true;
     //loop over elements
     int n = annotations.size();
@@ -1049,8 +1049,8 @@ bool AnnotationPlot::markAnnotationPlot(int x, int y)
         element & annoEl = anno.annoElements[j];
         annoEl.isInside = false;
         if (annoEl.eType == input) {
-          if (xpos > annoEl.x1 && xpos < annoEl.x2 && ypos > annoEl.y1 && ypos
-              < annoEl.y2)
+          if (pos.x() > annoEl.x1 && pos.x() < annoEl.x2
+              && pos.y() > annoEl.y1 && pos.y() < annoEl.y2)
             annoEl.isInside = true;
         }
       }

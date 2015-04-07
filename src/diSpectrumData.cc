@@ -50,9 +50,8 @@ using namespace std;
 using namespace miutil;
 using namespace vcross;
 
-SpectrumData::SpectrumData(const std::string& filename,
-    const std::string& modelname)
-  : fileName(filename), modelName(modelname), numPos(0),
+SpectrumData::SpectrumData(const std::string& modelname)
+  : modelName(modelname), numPos(0),
     numTime(0), numDirec(0), numFreq(0)
 {
   METLIBS_LOG_SCOPE();
@@ -63,40 +62,50 @@ SpectrumData::~SpectrumData()
   METLIBS_LOG_SCOPE();
 }
 
-bool SpectrumData::readFileHeader(const std::string& setup_line)
+bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reftimestr)
 {
   METLIBS_LOG_SCOPE();
 
-  fs = vcross::ReftimeSource_p(new vcross::FimexReftimeSource(fileName, "netcdf", "", Time()));
+  collector = miutil::make_shared<vcross::Collector>(setup);
 
-  vcross::Inventory_cp inv = fs->getInventory();
+  if ( reftimestr.empty() ) {
+    reftime = collector->getResolver()->getSource(modelName)->getLatestReferenceTime();
+  } else {
+    miTime mt(reftimestr);
+    reftime = util::from_miTime(mt);
+  }
+
+  const vcross::ModelReftime mr(modelName, reftime);
+
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
   if (!inv || inv->times.npoint() == 0 || inv->crossections.empty()) {
-    METLIBS_LOG_ERROR("no or empty inventory for '" << fileName << "'");
+    METLIBS_LOG_ERROR("no or empty inventory for '" << modelName << "'");
     return false;
   }
 
   BOOST_FOREACH(vcross::Crossection_cp cs, inv->crossections) {
-    for (size_t i=0; i<cs->points.size(); ++i) {
-      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].latDeg()));
-      METLIBS_LOG_DEBUG(LOGVAL(cs->points[i].lonDeg()));
+    for (size_t i=0; i<cs->length(); ++i) {
+      const LonLat& p = cs->point(i);
+      METLIBS_LOG_DEBUG(LOGVAL(p.latDeg()));
+      METLIBS_LOG_DEBUG(LOGVAL(p.lonDeg()));
       ostringstream ost;
-      float lon = int (fabs(cs->points[i].lonDeg()) * 10);
+      float lon = int (fabs(p.lonDeg()) * 10);
       lon /= 10.;
-      float lat = int (fabs(cs->points[i].latDeg()) * 10);
+      float lat = int (fabs(p.latDeg()) * 10);
       lat /= 10.;
       ost << lon;
-      if ( cs->points[i].lonDeg() < 0. )
+      if (p.lonDeg() < 0)
         ost  << "W " ;
       else
         ost  << "E " ;
       ost << lat;
-      if ( cs->points[i].latDeg() < 0. )
+      if (p.latDeg() < 0)
         ost  << "S" ;
       else
         ost  << "N" ;
       posName.push_back( ost.str() );
-      posLatitude.push_back( cs->points[i].latDeg() );
-      posLongitude.push_back( cs->points[i].lonDeg() );
+      posLatitude.push_back(p.latDeg());
+      posLongitude.push_back(p.lonDeg());
     }
   }
 
@@ -117,7 +126,8 @@ bool SpectrumData::readFileHeader(const std::string& setup_line)
   request.insert(freq);
   request.insert(dir);
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs0, 0, inv->times.at(0), request, n2v);
+  fs = collector->getResolver()->getSource(modelName);
+  fs->getWaveSpectrumValues(mr.reftime,cs0, 0, inv->times.at(0), request, n2v);
   Values_cp freq_values = n2v[freq->id()];
   Values_cp dir_values = n2v[dir->id()];
 
@@ -180,7 +190,8 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   const LonLat pos = LonLat::fromDegrees(posLongitude[iPos], posLatitude[iPos]);
   const Time user_time(util::from_miTime(time));
 
-  vcross::Inventory_cp inv = fs->getInventory();
+  const vcross::ModelReftime mr(modelName, reftime);
+  vcross::Inventory_cp inv = collector->getResolver()->getInventory(mr);
   if (!inv) {
     METLIBS_LOG_WARN("no inventory");
     return 0;
@@ -192,7 +203,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
     METLIBS_LOG_WARN("no crossection");
     return 0;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(cs->label) << LOGVAL(index));
+  METLIBS_LOG_DEBUG(LOGVAL(cs->label()) << LOGVAL(index));
 
   InventoryBase_cps request;
   FieldData_cp field_spec = find_request_field(inv, request, "SPEC");
@@ -207,7 +218,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   FieldData_cp field_ddpeak = find_request_field(inv, request, "Pdir");
 
   name2value_t n2v;
-  fs->getWaveSpectrumValues(cs, index, user_time, request, n2v);
+  fs->getWaveSpectrumValues(mr.reftime,cs, index, user_time, request, n2v);
 
   std::auto_ptr<SpectrumPlot> spp(new SpectrumPlot);
   spp->prognostic = true;
@@ -290,9 +301,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   float *xdata = new float[m];
   float *ydata = new float[m];
 
-  const float rad = 3.141592654 / 180.;
-
-  float radstep = fabsf(directions[0] - directions[1]) * rad;
+  float radstep = fabsf(directions[0] - directions[1]) * DEG_TO_RAD;
 
   // extend direction size, for graphics
   for (int j = 0; j < numFreq; j++) {
@@ -329,7 +338,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time)
   float rotation = 0; //spp->northRotation;
   float angle;
   for (int i = 0; i < numDirec; i++) {
-    angle = (90. - directions[i] - rotation) * rad;
+    angle = (90. - directions[i] - rotation) * DEG_TO_RAD;
     cosdir[i] = cos(angle);
     sindir[i] = sin(angle);
   }

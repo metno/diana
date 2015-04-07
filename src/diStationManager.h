@@ -29,7 +29,7 @@
 #ifndef diStationManager_h
 #define diStationManager_h
 
-#include <diCommonTypes.h>
+#include "diCommonTypes.h"
 #include <QString>
 
 class StationPlot;
@@ -80,7 +80,7 @@ public:
       std::vector<std::string>& name, std::vector<int>& id,
       std::vector<std::string>& station);
   ///get editable stations, returns name/id of StationPlot and stations
-  bool getEditStation(int step, std::string& name, int& id,
+  void getEditStation(int step, std::string& name, int& id,
           std::vector<std::string>& stations);
   void getStationData(std::vector<std::string>& data);
   ///send command to StationPlot with name and id
@@ -97,11 +97,14 @@ public:
   QString getStationsText(int x, int y);
 
 private:
-  stationDialogInfo m_info;
-  //stations to be plotted
-  std::map <std::string,StationPlot*> stationPlots;
-
   Station* parseSMHI(std::string& miLine, std::string& url);
+
+private:
+  stationDialogInfo m_info;
+
+  //stations to be plotted
+  typedef std::map <std::string,StationPlot*> stationPlots_t;
+  stationPlots_t stationPlots;
 };
 
 #endif

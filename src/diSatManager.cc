@@ -226,7 +226,6 @@ void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& anno
     if (!vsp[j]->isEnabled())
       continue;
     vsp[j]->getSatAnnotation(ann.str, ann.col);
-    //ann.col= getContrastColour();
     annotations.push_back(ann);
   }
 }
@@ -237,11 +236,10 @@ void SatManager::getSatAnnotations(std::vector<std::string>& anno)
     vsp[j]->getAnnotations(anno);
 }
 
-void SatManager::plot()
+void SatManager::plot(Plot::PlotOrder porder)
 {
-  for (size_t i = 0; i < vsp.size(); i++) {
-    vsp[i]->plot();
-  }
+  for (size_t i = 0; i < vsp.size(); i++)
+    vsp[i]->plot(porder);
 }
 
 void SatManager::clear()

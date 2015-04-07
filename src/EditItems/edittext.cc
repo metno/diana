@@ -66,21 +66,6 @@ DrawingItemBase *Text::cloneSpecial(bool setUniqueId) const
   return item;
 }
 
-bool Text::hit(const QPointF &pos, bool selected) const
-{
-  QRectF textbox = drawingRect();
-  return textbox.contains(pos);
-}
-
-bool Text::hit(const QRectF &bbox) const
-{
-  if (points_.size() < 2)
-    return false;
-
-  QRectF textbox = drawingRect();
-  return textbox.intersects(bbox);
-}
-
 void Text::mousePress(QMouseEvent *event, bool &repaintNeeded, bool *multiItemOp)
 {
   if (event->button() == Qt::LeftButton) {

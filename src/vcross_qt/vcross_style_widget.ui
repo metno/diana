@@ -6,14 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>349</height>
+    <width>431</width>
+    <height>395</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,1">
    <property name="spacing">
     <number>2</number>
    </property>
@@ -30,7 +27,7 @@
        <property name="title">
         <string>Basic</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0">
+       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0">
         <property name="margin">
          <number>2</number>
         </property>
@@ -54,7 +51,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="linewidthlabel">
           <property name="text">
-           <string>Line width</string>
+           <string>Line &amp;width</string>
           </property>
           <property name="buddy">
            <cstring>lineWidthCbox</cstring>
@@ -64,20 +61,10 @@
         <item row="3" column="0">
          <widget class="QLabel" name="lineintervallabel">
           <property name="text">
-           <string>Line interval</string>
+           <string>Line inter&amp;val</string>
           </property>
           <property name="buddy">
            <cstring>lineintervalCbox</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="vectorunitlabel">
-          <property name="text">
-           <string>Unit</string>
-          </property>
-          <property name="buddy">
-           <cstring>vectorunitCbox</cstring>
           </property>
          </widget>
         </item>
@@ -91,7 +78,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="colorlabel">
           <property name="text">
-           <string>Colour</string>
+           <string>&amp;Colour</string>
           </property>
           <property name="buddy">
            <cstring>colorCbox</cstring>
@@ -108,13 +95,10 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QComboBox" name="vectorunitCbox"/>
-        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="linetypelabel">
           <property name="text">
-           <string>Line type</string>
+           <string>Line &amp;type</string>
           </property>
           <property name="buddy">
            <cstring>lineTypeCbox</cstring>
@@ -159,7 +143,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Show numbers on lines</string>
+           <string>Show &amp;numbers on lines</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -169,7 +153,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="labelSizeLabel">
           <property name="text">
-           <string>Size</string>
+           <string>&amp;Size</string>
           </property>
           <property name="buddy">
            <cstring>labelSizeSpinBox</cstring>
@@ -182,7 +166,7 @@
            <bool>false</bool>
           </property>
           <property name="suffix">
-           <string>%</string>
+           <string notr="true">%</string>
           </property>
           <property name="minimum">
            <number>5</number>
@@ -210,7 +194,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="extremeSizeLabel">
           <property name="text">
-           <string>Marker size</string>
+           <string>Marker s&amp;ize</string>
           </property>
           <property name="buddy">
            <cstring>extremeSizeSpinBox</cstring>
@@ -226,7 +210,7 @@
            <string>Size of min/max marker</string>
           </property>
           <property name="suffix">
-           <string>%</string>
+           <string notr="true">%</string>
           </property>
           <property name="minimum">
            <number>5</number>
@@ -248,7 +232,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Indicate min/max values</string>
+           <string>Indicate &amp;min/max values</string>
           </property>
          </widget>
         </item>
@@ -300,14 +284,14 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Repeat</string>
+           <string>&amp;Repeat</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="shadingLabel">
           <property name="text">
-           <string>Colours</string>
+           <string>C&amp;olours</string>
           </property>
           <property name="buddy">
            <cstring>shadingComboBox</cstring>
@@ -355,7 +339,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="alphaLabel">
           <property name="text">
-           <string>Alpha</string>
+           <string>&amp;Alpha</string>
           </property>
           <property name="buddy">
            <cstring>alphaSpinBox</cstring>
@@ -384,14 +368,14 @@
         <item row="4" column="0">
          <widget class="QLabel" name="baseLabel">
           <property name="text">
-           <string>Basis value</string>
+           <string>&amp;Basis value</string>
           </property>
           <property name="buddy">
            <cstring>zero1ComboBox</cstring>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="4" column="1" colspan="2">
          <widget class="QComboBox" name="zero1ComboBox">
           <property name="enabled">
            <bool>false</bool>
@@ -406,14 +390,14 @@
        <property name="title">
         <string>Value Range Limits</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0" columnstretch="0,1">
+       <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0" columnstretch="0,1">
         <property name="margin">
          <number>2</number>
         </property>
         <property name="spacing">
          <number>2</number>
         </property>
-        <item row="0" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="minLabel">
           <property name="text">
            <string>Min</string>
@@ -423,24 +407,24 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="2" column="1">
          <widget class="QComboBox" name="min1ComboBox">
           <property name="enabled">
            <bool>false</bool>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="0" column="0">
          <widget class="QLabel" name="maxLabel">
           <property name="text">
-           <string>Max</string>
+           <string>Ma&amp;x</string>
           </property>
           <property name="buddy">
            <cstring>max1ComboBox</cstring>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="0" column="1">
          <widget class="QComboBox" name="max1ComboBox">
           <property name="enabled">
            <bool>false</bool>
@@ -448,10 +432,10 @@
          </widget>
         </item>
        </layout>
-       <zorder>maxLabel</zorder>
        <zorder>min1ComboBox</zorder>
-       <zorder>max1ComboBox</zorder>
        <zorder>minLabel</zorder>
+       <zorder>maxLabel</zorder>
+       <zorder>max1ComboBox</zorder>
       </widget>
      </item>
      <item>
@@ -465,6 +449,128 @@
        <property name="checked">
         <bool>true</bool>
        </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupVectors">
+       <property name="title">
+        <string>Vectors</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <property name="margin">
+         <number>2</number>
+        </property>
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item row="5" column="1">
+         <widget class="QSpinBox" name="vectorthicknessSpinBox">
+          <property name="toolTip">
+           <string>Vector thickness relative to length</string>
+          </property>
+          <property name="specialValueText">
+           <string>Off</string>
+          </property>
+          <property name="suffix">
+           <string notr="true">%</string>
+          </property>
+          <property name="prefix">
+           <string notr="true"/>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="vectorunitCbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for length</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="vectorthicknesslabel">
+          <property name="text">
+           <string>Thickness</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorthicknessSpinBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="vectorunitlabel">
+          <property name="text">
+           <string>&amp;Unit</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorunitCbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="vectorScaleXLabel">
+          <property name="text">
+           <string>X scale</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorscalexSbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="vectorScaleYLabel">
+          <property name="text">
+           <string>Y scale</string>
+          </property>
+          <property name="buddy">
+           <cstring>vectorscaleySbox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="vectorscalexSbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for x component</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-1000000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="vectorscaleySbox">
+          <property name="toolTip">
+           <string>Visual scaling factor for y component</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-1000000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
@@ -490,7 +596,6 @@
   <tabstop>lineTypeCbox</tabstop>
   <tabstop>lineintervalCbox</tabstop>
   <tabstop>densityCbox</tabstop>
-  <tabstop>vectorunitCbox</tabstop>
   <tabstop>valueLabelCheckBox</tabstop>
   <tabstop>labelSizeSpinBox</tabstop>
   <tabstop>extremeValueCheckBox</tabstop>
@@ -503,7 +608,6 @@
   <tabstop>alphaSpinBox</tabstop>
   <tabstop>zero1ComboBox</tabstop>
   <tabstop>min1ComboBox</tabstop>
-  <tabstop>max1ComboBox</tabstop>
   <tabstop>zeroLineCheckBox</tabstop>
  </tabstops>
  <resources/>

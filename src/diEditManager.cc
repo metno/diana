@@ -1826,7 +1826,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
   METLIBS_LOG_SCOPE("Time = " << valid);
 
   int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
+  const Area& newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
   fieldsCombined= false;
 
@@ -2027,8 +2027,7 @@ bool EditManager::editCombine()
   METLIBS_LOG_SCOPE();
 
   int nfe = fedits.size();
-  Area newarea = ( nfe > 0 ? fedits[0]->editfield->area :
-  plotm->getMapArea() );
+  const Area& newarea = ( nfe > 0 ? fedits[0]->editfield->area : plotm->getMapArea() );
 
   fieldsCombined= false;
 
@@ -2395,8 +2394,8 @@ bool EditManager::recalcCombineMatrix(){
 //  }
   //####################################################################
 
-  Area oldArea= plotm->getMapArea();
-  Area newArea= fedits[0]->editfield->area;
+  const Area& oldArea= plotm->getMapArea();
+  const Area& newArea= fedits[0]->editfield->area;
   if (!gc.getPoints(oldArea.P(),newArea.P(),npos,xposis,yposis)) {
     METLIBS_LOG_ERROR("changeProjection: getPoints error");
     return false;
@@ -2722,13 +2721,15 @@ void EditManager::setEditMessage(const string& str)
 }
 
 
-void EditManager::plot(bool under, bool over)
+void EditManager::plot(Plot::PlotOrder zorder)
 {
+  const bool under = (zorder == Plot::LINES);
+  const bool over = (zorder == Plot::OVERLAY);
 //  METLIBS_LOG_DEBUG("EditManager::plot  under="<<under<<"  over="<<over
 //  <<"  showRegion="<<showRegion);
 
   if (apEditmessage)
-    apEditmessage->plot();
+    apEditmessage->plot(zorder);
 
   bool plototherfield= false, plotactivefield= false, plotobjects= false;
   bool plotcombine= false, plotregion= false;
@@ -2769,7 +2770,7 @@ void EditManager::plot(bool under, bool over)
   if (plotcombine && under){
     int n= objm->getCombiningObjects().objects.size();
     for (int i=0; i<n; i++)
-      objm->getCombiningObjects().objects[i]->plot();
+      objm->getCombiningObjects().objects[i]->plot(zorder);
   }
 
   if (plototherfield || plotactivefield) {
@@ -2777,21 +2778,21 @@ void EditManager::plot(bool under, bool over)
       if (fedits[i]->editfield && fedits[i]->editfieldplot) {
         bool act= fedits[i]->activated();
         if ((act && plotactivefield) || (!act && plototherfield)){
-          //METLIBS_LOG_DEBUG("  Plotting field " << i);
-          fedits[i]->plot(plotinfluence);
+          fedits[i]->plot(zorder, plotinfluence);
         }
       }
     }
   }
 
   if (plotobjects) {
-    objm->getEditObjects().plot();
+    objm->getEditObjects().plot(zorder);
     if (over) {
       objm->getEditObjects().drawJoinPoints();
     }
   }
 
-  if (plotregion) plotSingleRegion();
+  if (plotregion)
+    plotSingleRegion(zorder);
 
   if (plotcombine && over){
     int n= objm->getCombiningObjects().objects.size();
@@ -2817,7 +2818,7 @@ void EditManager::plot(bool under, bool over)
           }
         }
       }
-      if (gc.getPoints(plotm->getMapArea().P(),fedits[0]->editfield->area.P(),npos,x,y)) {
+      if (plotm->getStaticPlot()->MapToProj(fedits[0]->editfield->area.P(),npos,x,y)) {
         float s= 0.;
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
@@ -2834,14 +2835,14 @@ void EditManager::plot(bool under, bool over)
 
     objm->getCombiningObjects().setScaleToField(scale);
 
-    objm->getCombiningObjects().plot();
+    objm->getCombiningObjects().plot(zorder);
 
     objm->getCombiningObjects().drawJoinPoints();
   }
 }
 
 
-void EditManager::plotSingleRegion()
+void EditManager::plotSingleRegion(Plot::PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
 
@@ -2854,7 +2855,7 @@ void EditManager::plotSingleRegion()
     if (showRegion<int(combinefields[i].size())) {
       if (combinefields[i][showRegion]->editfield &&
           combinefields[i][showRegion]->editfieldplot)
-        combinefields[i][showRegion]->plot(false);
+        combinefields[i][showRegion]->plot(zorder, false);
     }
   }
 
@@ -2862,7 +2863,7 @@ void EditManager::plotSingleRegion()
     // projection may have been changed when showing single region data
     combineobjects[showRegion].changeProjection(plotm->getMapArea());
 
-    combineobjects[showRegion].plot();
+    combineobjects[showRegion].plot(zorder);
   }
 }
 
@@ -2933,13 +2934,13 @@ void EditManager::initEditTools(){
 
   // draw_mode types
 #ifdef SMHI
-  fronts.push_back(newEditToolInfo("Kallfront",Cold,"blue"));
-  fronts.push_back(newEditToolInfo("Varmfront",Warm,"red"));
-  fronts.push_back(newEditToolInfo("Ocklusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Kall ocklusion",Occluded,"blue"));
-  fronts.push_back(newEditToolInfo("Varm ocklusion",Occluded,"red"));
-  fronts.push_back(newEditToolInfo("Stationär front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Tråg",TroughLine,"black"));
+  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
+  fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
+  fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
+  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
+  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
+  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
+  fronts.push_back(newEditToolInfo("Trough",TroughLine,"black"));
 #else
   fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
   fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
@@ -2948,14 +2949,14 @@ void EditManager::initEditTools(){
   fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
 #endif
 #ifdef SMHI
-  //fronts.push_back(newEditToolInfo("Signifikant v�der",SigweatherFront,"green"));
-  fronts.push_back(newEditToolInfo("Molngräns",SigweatherFront,"green4"));
-  fronts.push_back(newEditToolInfo("VMC-linje",Line,"black","black",-2,true,"dash2"));
-  fronts.push_back(newEditToolInfo("CAT-linje",Line,"black","black",-2,true,"longlongdash"));
-  fronts.push_back(newEditToolInfo("Jetström",ArrowLine,"grey50"));
-  fronts.push_back(newEditToolInfo("Åsklinje röd",Line,"red","red",0,false));
-  fronts.push_back(newEditToolInfo("Åsklinje grön",Line,"green","green",0,false,"dash3"));
-  fronts.push_back(newEditToolInfo("Åsklinje blå",Line,"blue","blue",0,false,"dot"));
+    //fronts.push_back(newEditToolInfo("Signifikant vÃ¯Â¿Â½der",SigweatherFront,"green"));
+  fronts.push_back(newEditToolInfo("Clouds",SigweatherFront,"green4"));
+  fronts.push_back(newEditToolInfo("VMC-line",Line,"black","black",-2,true,"dash2"));
+  fronts.push_back(newEditToolInfo("CAT-line",Line,"black","black",-2,true,"longlongdash"));
+  fronts.push_back(newEditToolInfo("Jet stream",ArrowLine,"grey50"));
+  fronts.push_back(newEditToolInfo("Line of thunderstorms red",Line,"red","red",0,false));
+  fronts.push_back(newEditToolInfo("Line of thunderstorms green",Line,"green","green",0,false,"dash3"));
+  fronts.push_back(newEditToolInfo("Line of thunderstorms blue",Line,"blue","blue",0,false,"dot"));
 #else
   fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
   fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
@@ -2991,33 +2992,34 @@ void EditManager::initEditTools(){
 
 
 #ifdef SMHI
-  symbols.push_back(newEditToolInfo("Duggregn",180,"green4"));
-  symbols.push_back(newEditToolInfo( "Snö",254,"green4"));
+  symbols.push_back(newEditToolInfo("Drizzle",180,"green4"));
+  //symbols.push_back(newEditToolInfo("Duggregn",79,"green4"));
+  symbols.push_back(newEditToolInfo( "Snow",254,"green4"));
   //symbols.push_back(newEditToolInfo( "Regnskurar",1044,"green4","green4",4));
-  symbols.push_back(newEditToolInfo( "Regnskurar",109,"green4"));
-  symbols.push_back(newEditToolInfo( "Åska",119,"red"));
-  symbols.push_back(newEditToolInfo( "Åska med hagel",122,"red"));
+  symbols.push_back(newEditToolInfo( "Rain showers",109,"green4"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm",119,"red"));
+  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
   //symbols.push_back(newEditToolInfo("Torrdis",88,"black"));
-  //symbols.push_back(newEditToolInfo("R�k",42,"black"));
-  //symbols.push_back(newEditToolInfo("Sn�blandad regn",78,"green4"));
-  symbols.push_back(newEditToolInfo( "Snöblandad by",43,"green4"));
-  symbols.push_back(newEditToolInfo( "Snöby",114,"green4","green4",4));
-  //symbols.push_back(newEditToolInfo( "Sn�by",1043,"green4","green4",3));
-  symbols.push_back(newEditToolInfo( "Underkylt duggregn",83,"red"));
-  symbols.push_back(newEditToolInfo( "Underkylt regn",93,"red"));
-  symbols.push_back(newEditToolInfo( "Hagelbyar",118,"green4"));
-  symbols.push_back(newEditToolInfo( "Kornsnö",44,"red"));
-  symbols.push_back(newEditToolInfo( "Snödrev",46,"black"));
+  //symbols.push_back(newEditToolInfo("RÃ¶k",42,"black"));
+  //symbols.push_back(newEditToolInfo("SnÃ¶blandad regn",78,"green4"));
+  symbols.push_back(newEditToolInfo( "Sleet showers",43,"green4"));
+  symbols.push_back(newEditToolInfo( "Snow showers",114,"green4","green4",4));
+  //symbols.push_back(newEditToolInfo( "SnÃ¶by",1043,"green4","green4",3));
+  symbols.push_back(newEditToolInfo( "Freezing drizzle",83,"red"));
+  symbols.push_back(newEditToolInfo( "Freezing rain",93,"red"));
+  symbols.push_back(newEditToolInfo( "Hail showers",118,"green4"));
+  symbols.push_back(newEditToolInfo( "Graupel",44,"red"));
+  symbols.push_back(newEditToolInfo( "Drifting snow",46,"black"));
   //symbols.push_back(newEditToolInfo("Mountain waves",130,"black"));
   //symbols.push_back(newEditToolInfo( "Dimma",1041,"gulbrun"));
-  symbols.push_back(newEditToolInfo( "Dimma",62,"gulbrun"));
-  //symbols.push_back(newEditToolInfo( "L�gtryck",1019,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Lågtryck",242,"black","black",1));
-  //symbols.push_back(newEditToolInfo( "H�gtryck",1020,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Högtryck",243,"black","black",1));
-  symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
-  symbols.push_back(newEditToolInfo( "Fall",900,"red"));
-  symbols.push_back(newEditToolInfo( "Stig",900,"blue"));
+  symbols.push_back(newEditToolInfo( "Fog",62,"gulbrun"));
+  //symbols.push_back(newEditToolInfo( "LÃ¥gtryck",1019,"black","black",1));
+  symbols.push_back(newEditToolInfo( "Low pressure",242,"black","black",1));
+  //symbols.push_back(newEditToolInfo( "HÃ¶gtryck",1020,"black","black",1));
+  symbols.push_back(newEditToolInfo( "High pressure",243,"black","black",1));
+  //symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
+  symbols.push_back(newEditToolInfo( TOOL_DECREASING,900,"red"));
+  symbols.push_back(newEditToolInfo( TOOL_INCREASING,900,"blue"));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
@@ -3045,9 +3047,9 @@ void EditManager::initEditTools(){
   symbols.push_back(newEditToolInfo("Text",0,"black"));
 
 #ifdef SMHI
-  areas.push_back(newEditToolInfo("Dis",Genericarea_constline,"red", "red", 0, true, "solid", "vdiagleft"));
-  areas.push_back(newEditToolInfo("Dimma",Genericarea_constline,"red", "red", 0, true, "solid", "vldiagcross_little"));
-  areas.push_back(newEditToolInfo("Regnområde",Genericarea_constline,"green4","blank", 0, true, "solid", "ldiagleft2"));
+  areas.push_back(newEditToolInfo("Haze",Genericarea_constline,"red", "red", 0, true, "solid", "vdiagleft"));
+  areas.push_back(newEditToolInfo("Fog",Genericarea_constline,"red", "red", 0, true, "solid", "vldiagcross_little"));
+  areas.push_back(newEditToolInfo("Precipitation",Genericarea_constline,"green4","blank", 0, true, "solid", "ldiagleft2"));
   sigsymbols.push_back(newEditToolInfo("Sig18",247,"black","black",-1));
 #else
   areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4","green4"));
@@ -3136,6 +3138,7 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
 #ifdef SMHI
   //High
+    //High
   sigsymbols.push_back(newEditToolInfo("Sig20",243,"black","black",1));
   //Low
   sigsymbols.push_back(newEditToolInfo("Sig19",242,"black","black",1));
@@ -3153,24 +3156,24 @@ void EditManager::initEditTools(){
   sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green4"));
   //snow
 //ari  sigsymbols.push_back(newEditToolInfo( "Snow",1042,"green4"));
-  sigsymbols.push_back(newEditToolInfo( "Snow",254,"green4"));
+  sigsymbols.push_back(newEditToolInfo("Snow",254,"green4"));
   //snow showers
   //sigsymbols.push_back(newEditToolInfo( "Snow_showers",1043,"green4","green4",4));
-  sigsymbols.push_back(newEditToolInfo( "Snow_showers",114,"green4","green4",4));
+  sigsymbols.push_back(newEditToolInfo("Snow showers",114,"green4","green4",4));
   // Freezing fog
   sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
   //showers
   //sigsymbols.push_back(newEditToolInfo( "Rainshower",1044,"green4","green4",4));
-  sigsymbols.push_back(newEditToolInfo( "Rainshower",109,"green4","green4",4));
+  sigsymbols.push_back(newEditToolInfo("Rain showers",109,"green4","green4",4));
   sigsymbols.push_back(newEditToolInfo("Snow_rain",78,"green4","green4",2));
   sigsymbols.push_back(newEditToolInfo("Snow_rain_showers",43,"green4","green4",2));
   sigsymbols.push_back(newEditToolInfo("Drizzle",79,"green4","green4",2));
-  sigsymbols.push_back(newEditToolInfo("Freezing_drizzle",83,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Corn_snow",44,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Hails",118,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo( "Thunderstorm",119,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo( "Thunderstorm_hail",122,"red","red",2));
-  sigsymbols.push_back(newEditToolInfo("Drifting_snow",46,"black"));
+  sigsymbols.push_back(newEditToolInfo("Freezing drizzle",83,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Graupel",44,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Hail showers",118,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Thunderstorm",119,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Thunderstorm with hail",122,"red","red",2));
+  sigsymbols.push_back(newEditToolInfo("Drifting snow",46,"black"));
   sigsymbols.push_back(newEditToolInfo("Haze",88,"black"));
   sigsymbols.push_back(newEditToolInfo("Smoke",42,"black"));
   sigsymbols.push_back(newEditToolInfo( "FZRA",93,"red"));

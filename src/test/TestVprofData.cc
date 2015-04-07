@@ -12,26 +12,14 @@
 #include <fstream>
 #include <string>
 
-#define MILOGGER_CATEGORY "diField.test.VprofDataTest"
+#define MILOGGER_CATEGORY "diana.test.VprofData"
 #include "miLogger/miLogging.h"
 
 using namespace vcross;
 
-//#define DEBUG_MESSAGES
-#ifdef DEBUG_MESSAGES
-#include <log4cpp/Category.hh>
-#define configureLogging()                                              \
-  milogger::LoggingConfig lc("kjlhlkjH");                               \
-  log4cpp::Category::getRoot().setPriority(log4cpp::Priority::DEBUG)
-#else
-#define configureLogging() /* empty */
-#endif // !DEBUG_MESSAGES
-
 const char AROME_FILE[] = "arome_vprof.nc";
 const int AROME_N_CS = 6;
-const int AROME_CS_LEN[AROME_N_CS] = { 14, 14, 14, 1, 1 };
 const int AROME_N_TIME = 2;
-const int AROME_N_Z = 65;
 const char AROME_RTT[] = "2014-10-20 00:00:00";
 
 static const char BANGKOK_FILE[] = "bangkok_sonde.nc";
@@ -43,8 +31,6 @@ static const char modelName[] = "testmodel";
 
 TEST(VprofDataTest, TestSetup)
 {
-  configureLogging();
-
   Setup_p setup = miutil::make_shared<vcross::Setup>();
   Collector_p collector = miutil::make_shared<Collector>(setup);
 
@@ -73,7 +59,7 @@ TEST(VprofDataTest, TestSetup)
   ASSERT_EQ(AROME_N_TIME, inv->times.npoint());
   ASSERT_EQ(AROME_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(3);
-  ASSERT_EQ(1, cs->npoint());
+  ASSERT_EQ(1, cs->length());
 
   string_v field_ids;
   field_ids.push_back("air_temperature_celsius_ml");
@@ -130,8 +116,6 @@ TEST(VprofDataTest, TestSetup)
 
 TEST(VprofDataTest, TestBangkok)
 {
-  configureLogging();
-
   Setup_p setup = miutil::make_shared<vcross::Setup>();
   Collector_p collector = miutil::make_shared<Collector>(setup);
 
@@ -161,7 +145,7 @@ TEST(VprofDataTest, TestBangkok)
   ASSERT_EQ(BANGKOK_N_TIME, inv->times.npoint());
   ASSERT_EQ(BANGKOK_N_CS, inv->crossections.size());
   Crossection_cp cs = inv->crossections.at(0);
-  ASSERT_EQ(1, cs->npoint());
+  ASSERT_EQ(1, cs->length());
 
   string_v field_ids;
   field_ids.push_back("air_temperature");

@@ -35,7 +35,7 @@
 #include <vector>
 
 /**
- \brief Plots generic shape data 
+ \brief Plots generic shape data
  */
 class ShapeObject : public ObjectPlot {
 private:
@@ -45,7 +45,7 @@ private:
   std::map <std::string,Colour> stringcolourmap; //descr, colour
   std::map <int,Colour> intcolourmap; //descr, colour
   std::map <double,Colour> doublecolourmap; //descr, colour
-  bool colourmapMade; //true if colour map made  
+  bool colourmapMade; //true if colour map made
   bool stringcolourmapMade;
   bool intcolourmapMade;
   bool doublecolourmapMade;
@@ -75,13 +75,17 @@ private:
 
 public:
   ShapeObject();
-  ShapeObject(const ShapeObject & rhs);
-  //bool operator==(const ShapeObject &rhs) const;
-  ShapeObject& operator=(const ShapeObject &shpObj);
   ~ShapeObject();
-  bool changeProj(Area fromArea);
+
+  ShapeObject(const ShapeObject & rhs);
+  ShapeObject& operator=(const ShapeObject &shpObj);
+
+  bool changeProj(const Area& fromArea);
   bool read(std::string filename);
   bool read(std::string filename, bool convertFromGeo);
+
+  void plot(PlotOrder zorder);
+
   bool plot(Area area, // current area
             double gcd, // size of plotarea in m
             bool land, // plot triangles
@@ -95,8 +99,6 @@ public:
             const unsigned char* lcolour, // contour linecolour
             const unsigned char* fcolour, // triangles fill colour
             const unsigned char* bcolour);
-
-  virtual bool plot();
 
   virtual int getXYZsize();
   virtual std::vector<float> getX();

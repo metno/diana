@@ -43,35 +43,19 @@
 
 using namespace::miutil;
 
-AreaBorder::AreaBorder() : ObjectPlot()
+AreaBorder::AreaBorder()
 {
   typeOfObject = Border;
   linewidth=2;    // default linewidth of border
   transitionwidth = 8;// default transitionwidth
   type=7;         // default fronttype
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("New AreaBorder made");
-#endif
-}
-
-AreaBorder::AreaBorder(const AreaBorder &rhs) : ObjectPlot(rhs)
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
-#endif
-  linewidth=rhs.linewidth;    // default linewidth of front
-  transitionwidth=rhs.transitionwidth;  // default linewidth of transition area
-  type=rhs.type;         // default fronttype
-
 }
 
 AreaBorder::~AreaBorder()
 {
 }
 
-// draws the area border
-bool AreaBorder::plot()
+void AreaBorder::plot(PlotOrder porder)
 {
   if (isVisible){
     int end = nodePoints.size();
@@ -128,7 +112,6 @@ bool AreaBorder::plot()
       getStaticPlot()->UpdateOutput();
     }
   }
-  return true;
 }
 
 

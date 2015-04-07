@@ -50,8 +50,7 @@ using namespace std;
 using namespace miutil;
 //#define DEBUGPRINT
 
-ShapeObject::ShapeObject() :
-  ObjectPlot()
+ShapeObject::ShapeObject()
 {
   typeOfObject = ShapeXXX;
   //standard colours
@@ -73,21 +72,25 @@ ShapeObject::~ShapeObject()
   }
 }
 
-ShapeObject::ShapeObject(const ShapeObject &rhs) :
-  ObjectPlot(rhs)
+
+ShapeObject::ShapeObject(const ShapeObject &rhs)
+  : ObjectPlot(rhs)
 {
 }
 
-ShapeObject& ShapeObject::operator=(const ShapeObject &rhs) {
-  if (this == &rhs) return *this;
-  // elementwise copy
+ShapeObject& ShapeObject::operator=(const ShapeObject &rhs)
+{
+  METLIBS_LOG_SCOPE();
+  if (this == &rhs)
+    return *this;
   memberCopy(rhs);
-
   return *this;
 }
 
 void ShapeObject::memberCopy(const ShapeObject& rhs)
 {
+  ObjectPlot::memberCopy(rhs);
+
   int n=shapes.size();
   for (int i=0; i<n; i++) {
     SHPDestroyObject(shapes[i]);
@@ -108,11 +111,10 @@ void ShapeObject::memberCopy(const ShapeObject& rhs)
   }
 }
 
-bool ShapeObject::changeProj(Area fromArea)
+bool ShapeObject::changeProj(const Area& fromArea)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("ShapeObject::changeproj(): ");
-#endif
+  METLIBS_LOG_SCOPE();
+
   int nEntities = shapes.size();
   bool success = false;
   bool success2 = false;
@@ -130,7 +132,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[j] = -179.999;
       ty[j] = orig_shapes[i]->padfY[j];
     }
-    success = getStaticPlot()->geo2xy(nVertices, tx, ty);
+    success = getStaticPlot()->GeoToMap(nVertices, tx, ty);
 
     for (int k=0; k<nVertices; k++) {
       shapes[i]->padfX[k] = tx[k];
@@ -149,7 +151,7 @@ bool ShapeObject::changeProj(Area fromArea)
 		tx[1] = -179.999;
     ty[0] = orig_shapes[i]->dfYMin;
     ty[1] = orig_shapes[i]->dfYMax;
-    success2 = getStaticPlot()->geo2xy(nVertices, tx, ty);
+    success2 = getStaticPlot()->GeoToMap(nVertices, tx, ty);
 
     shapes[i]->dfXMin = tx[0];
     shapes[i]->dfXMax = tx[1];
@@ -205,7 +207,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
 			tx[j] = -179.999;
         ty[j] = psShape->padfY[j];
       }
-      getStaticPlot()->geo2xy(nVertices, tx, ty);
+      getStaticPlot()->GeoToMap(nVertices, tx, ty);
       for (int j=0; j<nVertices; j++) {
         psShape->padfX[j] = tx[j];
         psShape->padfY[j] = ty[j];
@@ -223,7 +225,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
       ty[0] = psShape->dfYMin;
       ty[1] = psShape->dfYMax;
       nVertices = 2;
-      getStaticPlot()->geo2xy(nVertices, tx, ty);
+      getStaticPlot()->GeoToMap(nVertices, tx, ty);
       psShape->dfXMin = tx[0];
       psShape->dfXMax = tx[1];
       psShape->dfYMin = ty[0];
@@ -253,7 +255,7 @@ bool ShapeObject::read(std::string filename, bool convertFromGeo)
   return (idbf == 0);
 }
 
-bool ShapeObject::plot()
+void ShapeObject::plot(PlotOrder porder)
 {
   makeColourmap();
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -303,7 +305,6 @@ bool ShapeObject::plot()
     endTesselation();
     delete[] gldata;
   }
-  return true;
 }
 
 bool ShapeObject::plot(Area area, // current area
@@ -460,14 +461,11 @@ bool ShapeObject::plot(Area area, // current area
 			       glColor4ubv(lcolour);
                                glBegin(GL_POLYGON);
                                      
-                               float PI       = acosf(-1.0);
                                GLfloat xc,yc;
                                GLfloat radius=symbol_rad;          //16271;
                                for(int j=0;j<150;j++){
-                                   xc = radius*cos(j*2*PI/150.0);
-                                   //xc = radius*cos(j*2*PI/100.0);
-                                   yc = radius*sin(j*2*PI/150.0);
-                                   //yc = radius*sin(j*2*PI/100.0);
+                                   xc = radius*cos(j*2*M_PI/150.0);
+                                   yc = radius*sin(j*2*M_PI/150.0);
                                    glVertex2f(shapes[i]->padfX[0]+xc,shapes[i]->padfY[0]+yc);
                                }
                                glEnd(); 

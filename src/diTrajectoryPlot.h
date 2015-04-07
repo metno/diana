@@ -91,17 +91,15 @@ private:
   TrajectoryPlot(const TrajectoryPlot &rhs){}
 
 public:
-  // Constructors
   TrajectoryPlot();
-  // Destructor
   ~TrajectoryPlot();
 
-  bool plot();
-  bool plot(const int){return false;}
+  void plot(PlotOrder zorder);
+
   ///change projection
   bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  int  trajPos(std::vector<std::string>&);
+  int  trajPos(const std::vector<std::string>&);
 
   bool startComputation(std::vector<Field*> vf);
   void stopComputation();

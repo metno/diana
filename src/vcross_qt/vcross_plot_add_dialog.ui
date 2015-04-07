@@ -2,15 +2,12 @@
 <ui version="4.0">
  <class>VcrossAddPlotDialog</class>
  <widget class="QDialog" name="VcrossAddPlotDialog">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>278</height>
+    <width>360</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +36,10 @@
        <item>
         <widget class="QLabel" name="modelLabel">
          <property name="text">
-          <string>Choose a model:</string>
+          <string>Choose a &amp;model:</string>
+         </property>
+         <property name="buddy">
+          <cstring>modelFilter</cstring>
          </property>
         </widget>
        </item>
@@ -63,7 +63,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="reftimePage">
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
        <property name="spacing">
         <number>2</number>
        </property>
@@ -71,9 +71,19 @@
         <number>0</number>
        </property>
        <item>
+        <widget class="QLabel" name="reftimeLabelModel">
+         <property name="text">
+          <string notr="true">Chosen model: %1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="reftimeLabel">
          <property name="text">
-          <string>Choose a reference time:</string>
+          <string>Choose a r&amp;eference time:</string>
+         </property>
+         <property name="buddy">
+          <cstring>reftimeList</cstring>
          </property>
         </widget>
        </item>
@@ -90,7 +100,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="plotPage">
-      <layout class="QVBoxLayout" name="layoutFields" stretch="0,0,0">
+      <layout class="QVBoxLayout" name="layoutFields" stretch="0,0,0,0,1">
        <property name="spacing">
         <number>2</number>
        </property>
@@ -100,7 +110,24 @@
        <item>
         <widget class="QLabel" name="plotLabelModel">
          <property name="text">
-          <string notr="true">Choose plot(s) for the selected model and reference time</string>
+          <string notr="true">Chosen model: %1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="plotLabelReftime">
+         <property name="text">
+          <string notr="true">Chosen reference time: %1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="plotLabel">
+         <property name="text">
+          <string>Choose &amp;plot(s):</string>
+         </property>
+         <property name="buddy">
+          <cstring>plotFilter</cstring>
          </property>
         </widget>
        </item>
@@ -153,7 +180,7 @@
      <item>
       <widget class="QPushButton" name="buttonRestart">
        <property name="text">
-        <string>Restart</string>
+        <string>&amp;Restart</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -163,7 +190,7 @@
      <item>
       <widget class="QPushButton" name="buttonBack">
        <property name="text">
-        <string>Back</string>
+        <string>&amp;Back</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -173,14 +200,14 @@
      <item>
       <widget class="QPushButton" name="buttonNext">
        <property name="text">
-        <string>Next</string>
+        <string>&amp;Next</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="buttonAdd">
        <property name="text">
-        <string>Add</string>
+        <string>&amp;Add</string>
        </property>
       </widget>
      </item>

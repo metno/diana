@@ -1,3 +1,40 @@
+diana (3.38.0~a1-1) unstable; urgency=low
+
+  * FieldFunctions - new functions with several forecasthours
+  * ObsPlot - more general plotList
+  * PlotModule/Controller - key events are interpreted in Controller
+  * PlotModule/StaticPlot/Plot - refactoring 
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Mar 2015 08:55:50 +0100
+
+diana (3.37.0~rc9-1) unstable; urgency=low
+
+  * vcross - several fixes
+  * vprof - check that source exists before using it, and init stations in bdiana
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 02 Mar 2015 11:53:54 +0100
+
+diana (3.37.0~rc8-1) unstable; urgency=low
+
+  * ObsBufr: bugfix uninitialized variables
+  * vcross: reset zoom if changing vertical axis unit
+  * bdiana: destroy vcross manager
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 13 Feb 2015 10:18:11 +0100
+
+diana (3.37.0~rc7-1) unstable; urgency=low
+
+  * vcross: horizontal grid lines
+  * vcross: layer buttons show palette / arcs and line colour
+  * vcross: added button for style dialog
+  * vcross: same timegraph zoom for all positions
+  * vcross: plot more y axis labels if zoomed in very much
+  * vcross: quickmenues read and write crossection/timegraph + points
+  * Spectrum: possible to select referencetime
+  * Vprof: bugfixes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 11 Feb 2015 12:04:15 +0100
+
 diana (3.37.0~rc6-1) unstable; urgency=low
 
   * Vertical crossections referencetime

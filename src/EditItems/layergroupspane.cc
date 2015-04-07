@@ -51,6 +51,9 @@
 #include <QMouseEvent>
 #include <QToolButton>
 
+#define MILOGGER_CATEGORY "diana.LayerGroupsPane"
+#include <miLogger/miLogging.h>
+
 namespace EditItems {
 
 LayerGroupWidget::LayerGroupWidget(const QSharedPointer<LayerGroup> &layerGroup, bool showInfo, QWidget *parent)
@@ -217,6 +220,8 @@ void LayerGroupsPane::addToNewLGFromFile()
 
 void LayerGroupsPane::mouseClicked(QMouseEvent *event)
 {
+  METLIBS_LOG_SCOPE();
+
   LayerGroupWidget *lgWidget = qobject_cast<LayerGroupWidget *>(sender());
   Q_ASSERT(lgWidget);
 // FIXME defaultLayerGroup does not exist  Q_ASSERT(lgWidget->layerGroup() != layerMgr_->defaultLayerGroup());
@@ -226,7 +231,7 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
   if (active) {
     // Only load the contents of a file when the layer group is selected.
     QString error;
-    QString fileName = lgWidget->layerGroup()->name();
+    QString fileName = lgWidget->layerGroup()->fileName();
     const QList<QSharedPointer<Layer> > layers = \
       KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
         EditItem_Text::Text, EditItem_Composite::Composite>(layerMgr_, fileName, &error);
@@ -234,7 +239,7 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
     if (error.isEmpty())
       layerMgr_->addToLayerGroup(lgWidget->layerGroup(), layers);
     else
-      qDebug() << QString("LayerGroupsPane::mouseClicked: failed to load layer group from %1: %2").arg(fileName).arg(error).toLatin1().data();
+      METLIBS_LOG_WARN("LayerGroupsPane::mouseClicked: failed to load layer group from " << fileName.toStdString() << ": " << error.toStdString());
   }
 
   lgWidget->updateLabels();
