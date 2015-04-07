@@ -3018,8 +3018,8 @@ void EditManager::initEditTools(){
   //symbols.push_back(newEditToolInfo( "HÃ¶gtryck",1020,"black","black",1));
   symbols.push_back(newEditToolInfo( "High pressure",243,"black","black",1));
   //symbols.push_back(newEditToolInfo( "Trycktendens",900,"black"));
-  symbols.push_back(newEditToolInfo( "Decreasing pressure",900,"red"));
-  symbols.push_back(newEditToolInfo( "Increasing pressure",900,"blue"));
+  symbols.push_back(newEditToolInfo( TOOL_DECREASING,900,"red"));
+  symbols.push_back(newEditToolInfo( TOOL_INCREASING,900,"blue"));
 #else
   symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
   symbols.push_back(newEditToolInfo("High pressure",243,"blue"));

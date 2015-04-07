@@ -75,7 +75,7 @@ ComplexPressureText::ComplexPressureText( QWidget* parent,
     std::set <std::string> cList,
     const std::string & currentTool,
     bool useColour)
-: QDialog(parent), m_ctrl(llctrl) , tool(currentTool)
+: QDialog(parent), m_ctrl(llctrl) , tool(currentTool) , colorIndex(0)
 {
   METLIBS_LOG_SCOPE();
   setModal(true);
@@ -91,11 +91,12 @@ ComplexPressureText::ComplexPressureText( QWidget* parent,
   }
 
   QPalette *tPalette = new QPalette();
-  if (miutil::contains(tool,"Fall")) {
+  std::cerr << "Tool: " << tool << std::endl;
+  if (miutil::contains(tool,TOOL_DECREASING)) {
     preText = "F";
     tPalette->setColor(QPalette::Text,Qt::red);
     colorIndex = 2;
-  } else if (miutil::contains(tool,"Stig")) {
+  } else if (miutil::contains(tool,TOOL_INCREASING)) {
     preText = "S";
     tPalette->setColor(QPalette::Text,Qt::blue);
     colorIndex = 15;

@@ -152,15 +152,15 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   editTranslations["Precipitation"]=tr("Precipitation"); //Nedb�r ??
   editTranslations["Showers"]=tr("Showers"); //Byger
   editTranslations["Clouds"]=tr("Clouds"); //Skyer
-  editTranslations["Fog"]=tr("Fog"); //T�ke
+  editTranslations["Haze"]=tr("Haze"); //Dis
   editTranslations["Ice"]=tr("Ice"); //Is
   editTranslations["Significant weather"]=tr("Significant weather"); //Sig.v�r
   editTranslations["Reduced visibility"]=tr("Reduced visibility"); //Sig.v�r
   editTranslations["Generic area"]=tr("Generic area"); //
   
   // SMHI specific
-  editTranslations["Decreasing pressure"]=tr("Decreasing pressure"); //Pressure tendency, falling
-  editTranslations["Increasing pressure"]=tr("Increasing pressure"); //Pressure tendency, increasing
+  editTranslations[TOOL_DECREASING]=tr(TOOL_DECREASING); //Pressure tendency, falling
+  editTranslations[TOOL_INCREASING]=tr(TOOL_INCREASING); //Pressure tendency, increasing
   editTranslations["Drifting snow"]=tr("Drifting snow"); //Drifting snow
   editTranslations["VMC-line"]=tr("VMC-line"); //VMC-line
   editTranslations["CAT-line"]=tr("CAT-line"); //CAT-line

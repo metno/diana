@@ -1062,14 +1062,18 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location filename="../../../src/qtEditDialog.cc" line="128"/>
-        <location filename="../../../src/qtEditDialog.cc" line="155"/>
         <source>Fog</source>
         <translation>Dimma</translation>
+    </message>
+      <message>
+        <location filename="../../../src/qtEditDialog.cc" line="155"/>
+        <source>Haze</source>
+        <translation>Dis</translation>
     </message>
     <message>
         <location filename="../../../src/qtEditDialog.cc" line="129"/>
         <source>Drizzle </source>
-        <translation>Duggregn</translation>
+        <translation>Duggregn</translation>       
     </message>
     <message>
         <location filename="../../../src/qtEditDialog.cc" line="130"/>
