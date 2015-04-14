@@ -118,6 +118,8 @@
 #include <puDatatypes/miCoordinates.h>
 #include <QErrorMessage>
 
+#include "wmsclient/WebMapDialog.h"
+#include "wmsclient/WebMapManager.h"
 #include "qtMailDialog.h"
 
 #include <puTools/miSetupParser.h>
@@ -930,6 +932,13 @@ DianaMainWindow::DianaMainWindow(Controller *co,
   connect(eimTestDialogToggleAction, SIGNAL(triggered()), SLOT(toggleEIMTestDialog()));
   addAction(eimTestDialogToggleAction);
 #endif // ENABLE_EIM_TESTDIALOG
+
+  { WebMapDialog* wmd = new WebMapDialog(this, contr);
+    wmd->hide();
+    addDialog(wmd);
+
+    connect(WebMapManager::instance(), SIGNAL(webMapsReady()), w, SLOT(updateGL()));
+  }
 
 //  paintToolBar = new PaintToolBar(this);
 //  paintToolBar->setObjectName("PaintToolBar");
@@ -4093,11 +4102,7 @@ bool DianaMainWindow::event(QEvent* event)
 
 void DianaMainWindow::addDialog(DataDialog *dialog)
 {
-  QAction *action = dialog->action();
-  dialogs[action] = dialog;
   dialogNames[dialog->name()] = dialog;
-  connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
-  connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
   connect(dialog, SIGNAL(applyData()), SLOT(MenuOK()));
   connect(dialog, SIGNAL(hideData()), SLOT(updateDialog()));
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &)),
@@ -4105,11 +4110,15 @@ void DianaMainWindow::addDialog(DataDialog *dialog)
   connect(dialog, SIGNAL(emitTimes(const std::string &, const std::vector<miutil::miTime> &, bool)),
       tslider, SLOT(insert(const std::string &, const std::vector<miutil::miTime> &, bool)));
 
-  showmenu->addAction(action);
-
+  if (QAction *action = dialog->action()) {
+    dialogs[action] = dialog;
+    connect(action, SIGNAL(toggled(bool)), dialog, SLOT(setVisible(bool)));
+    connect(action, SIGNAL(toggled(bool)), w, SLOT(updateGL()));
+    showmenu->addAction(action);
 #if defined(SHOW_DRAWING_MODE_BUTTON_IN_MAIN_TOOLBAR)
-  mainToolbar->addAction(action);
+    mainToolbar->addAction(action);
 #endif
+  }
 }
 
 /**

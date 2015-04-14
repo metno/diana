@@ -127,7 +127,17 @@ common_qt_sources += \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
 	vcross_v2/VcrossQtAxis.cc \
-	vcross_v2/VcrossQuickmenues.cc
+	vcross_v2/VcrossQuickmenues.cc \
+	wmsclient/WebMapDialog.cc \
+	wmsclient/WebMapManager.cc \
+	wmsclient/WebMapPainting.cc \
+	wmsclient/WebMapPlot.cc \
+	wmsclient/WebMapService.cc \
+	wmsclient/WebMapSlippyOSM.cc \
+	wmsclient/WebMapTile.cc \
+	wmsclient/WebMapUtilities.cc \
+	wmsclient/WebMapWMS.cc \
+	wmsclient/WebMapWMTS.cc
 
 common_qt_headers = \
 	diVcrossInterface.h

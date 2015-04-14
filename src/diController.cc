@@ -50,6 +50,7 @@
 #include <diImageGallery.h>
 #include <diMapManager.h>
 #include <diLocalSetupParser.h>
+#include "wmsclient/WebMapManager.h"
 
 #include <puTools/miSetupParser.h>
 
@@ -83,6 +84,7 @@ Controller::Controller()
   plotm->setManagers(fieldm,fieldplotm,obsm,satm,stam,objm,editm);
 
   addManager("DRAWING", DrawingManager::instance());
+  addManager("WEBMAP", WebMapManager::instance());
 }
 
 Controller::~Controller()
@@ -95,6 +97,8 @@ Controller::~Controller()
   delete stam;
   delete objm;
   delete editm;
+
+  delete WebMapManager::instance();
 }
 
 // hack: indices for colorIndex mode set from gui
