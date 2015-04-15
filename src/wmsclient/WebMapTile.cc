@@ -60,8 +60,10 @@ bool WebMapTile::loadImage(const char* format)
 {
   METLIBS_LOG_SCOPE(LOGVAL(mColumn) << LOGVAL(mRow) << LOGVAL(format));
   if (mReply) {
+    METLIBS_LOG_DEBUG(LOGVAL(mReply->isFinished()) << LOGVAL(mReply->error()));
+
     const QString ct = mReply->header(QNetworkRequest::ContentTypeHeader).toString();
-    METLIBS_LOG_DEBUG("url=" << mReply->url().toString().toStdString() << "' Content-Type=" << ct.toStdString() << "'");
+    METLIBS_LOG_DEBUG("url='" << mReply->url().toString().toStdString() << "' Content-Type=" << ct.toStdString() << "'");
     bool ok = false;
     const char* fmt = 0;
     if (ct == "image/png")

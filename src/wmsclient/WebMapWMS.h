@@ -152,6 +152,8 @@ public:
       const std::map<std::string, std::string>& dimensionValues,
       const std::string& crs, WebMapTile* tile);
 
+  QNetworkReply* submitUrl(const QUrl& url);
+
   void refresh();
 
   const std::string& tileFormat() const

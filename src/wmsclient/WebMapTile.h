@@ -38,6 +38,9 @@ public:
     { return loadImage(format.c_str()); }
   void dummyImage(int tw, int th);
 
+  const QNetworkReply* reply() const
+    { return mReply; }
+
 private Q_SLOTS:
   void replyFinished();
 

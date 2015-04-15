@@ -127,6 +127,17 @@ void WebMapWMSRequest::abort()
 void WebMapWMSRequest::tileFinished(WebMapTile* tile)
 {
   METLIBS_LOG_SCOPE();
+  if (tile->reply()) {
+    const QVariant vRedirect = tile->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (!vRedirect.isNull()) {
+      QUrl redirect = vRedirect.toUrl();
+      if (redirect.isRelative())
+        redirect = tile->reply()->url().resolved(redirect);
+      METLIBS_LOG_DEBUG("redirect to '" << redirect.toString().toStdString() << "'");
+      tile->submit(mService->submitUrl(redirect));
+      return;
+    }
+  }
   if (!tile->loadImage(mService->tileFormat()))
     tile->dummyImage(TILESIZE, TILESIZE);
   mUnfinished -= 1;
@@ -247,9 +258,13 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
   qurl.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4").arg(r.x1).arg(r.y1).arg(r.x2).arg(r.y2).replace("+", "%2B").toUtf8());
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
+  return submitUrl(qurl);
+}
 
+QNetworkReply* WebMapWMS::submitUrl(const QUrl& url)
+{
 #if 1
-  QNetworkRequest nr(qurl);
+  QNetworkRequest nr(url);
   nr.setRawHeader("User-Agent", "diana " PVERSION);
   return mNetworkAccess->get(nr);
 #else
