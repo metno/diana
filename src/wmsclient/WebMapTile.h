@@ -44,6 +44,9 @@ private Q_SLOTS:
 Q_SIGNALS:
   void finished(WebMapTile* self);
 
+private:
+  void dropRequest();
+
 protected:
   int mColumn;
   int mRow;

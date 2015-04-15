@@ -20,12 +20,13 @@ WebMapTile::WebMapTile(int column, int row, const Rectangle& rect)
 
 WebMapTile::~WebMapTile()
 {
-  delete mReply;
+  dropRequest();
 }
 
 void WebMapTile::submit(QNetworkReply* r)
 {
   METLIBS_LOG_SCOPE();
+  dropRequest();
   mReply = r;
   if (mReply) {
     METLIBS_LOG_DEBUG("waiting for " << mReply->url().toString().toStdString() << "'");
@@ -42,8 +43,17 @@ void WebMapTile::submit(QNetworkReply* r)
 
 void WebMapTile::abort()
 {
-  if (mReply)
+  dropRequest();
+}
+
+void WebMapTile::dropRequest()
+{
+  if (mReply) {
+    disconnect(mReply, SIGNAL(finished()), this, SLOT(replyFinished()));
     mReply->abort();
+    mReply->deleteLater();
+  }
+  mReply = 0;
 }
 
 bool WebMapTile::loadImage(const char* format)

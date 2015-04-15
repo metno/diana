@@ -182,7 +182,7 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
 
   const WebMapWmsCrsBoundingBox& cb = layer->crsBoundingBox(crsIndex);
   const Rectangle& bb = cb.boundingbox;
-  METLIBS_LOG_DEBUG(LOGVAL(cb.crs) << LOGVAL(cb.projection.getProjDefinitionExpanded()) << LOGVAL(cb.metersPerUnit));
+  METLIBS_LOG_DEBUG(LOGVAL(cb.crs) << LOGVAL(bb) << LOGVAL(cb.projection.getProjDefinitionExpanded()) << LOGVAL(cb.metersPerUnit));
 
   const float z0denominator = bb.width() * cb.metersPerUnit / TILESIZE / diutil::WMTS_M_PER_PIXEL;
   const int zoom = findZoomForScale(z0denominator, viewScale);

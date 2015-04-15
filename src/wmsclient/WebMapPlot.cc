@@ -60,9 +60,9 @@ void WebMapPlot::dropRequest()
   if (!mRequest)
     return;
   if (!mRequestCompleted) {
-    connect(mRequest, SIGNAL(completed()), mRequest, SLOT(deleteLater()));
     disconnect(mRequest, SIGNAL(completed()), this, SIGNAL(update()));
     mRequest->abort();
+    mRequest->deleteLater();
   } else {
     delete mRequest;
   }
