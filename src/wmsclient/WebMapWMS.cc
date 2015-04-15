@@ -255,7 +255,10 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
   qurl.addQueryItem(aCRS, QString::fromStdString(crs));
 
   const Rectangle& r = tile->rect();
-  qurl.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4").arg(r.x1).arg(r.y1).arg(r.x2).arg(r.y2).replace("+", "%2B").toUtf8());
+  const bool isDegrees = (crs == "EPSG:4326");
+  const float f = (isDegrees) ? RAD_TO_DEG : 1;
+  qurl.addEncodedQueryItem("BBOX", QString("%1,%2,%3,%4")
+      .arg(f*r.x1).arg(f*r.y1).arg(f*r.x2).arg(f*r.y2).replace("+", "%2B").toUtf8());
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
   return submitUrl(qurl);
