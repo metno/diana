@@ -443,22 +443,27 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, crs_bbox_m cr
     } else if (sCRS == "EPSG:4326" && it == crs_bboxes.end()) {
       if (mVersion == WMS_130) {
         QDomElement eBBox = eLayer.firstChildElement("EX_GeographicBoundingBox");
+        if (eBBox.isNull())
+          continue;
         minx = eBBox.firstChildElement("westBoundLongitude").text().toFloat() * DEG_TO_RAD;
         maxx = eBBox.firstChildElement("eastBoundLongitude").text().toFloat() * DEG_TO_RAD;
         miny = eBBox.firstChildElement("southBoundLatitude").text().toFloat() * DEG_TO_RAD;
         maxy = eBBox.firstChildElement("northBoundLatitude").text().toFloat() * DEG_TO_RAD;
       } else {
         QDomElement eBBox = eLayer.firstChildElement("LatLonBoundingBox");
-        const QStringList values = eBBox.text().split(",");
-        minx = values.at(0).toFloat() * DEG_TO_RAD;
-        miny = values.at(1).toFloat() * DEG_TO_RAD;
-        maxx = values.at(2).toFloat() * DEG_TO_RAD;
-        maxy = values.at(3).toFloat() * DEG_TO_RAD;
+        if (eBBox.isNull())
+          continue;
+        minx = eBBox.attribute("minx").toFloat() * DEG_TO_RAD;
+        miny = eBBox.attribute("miny").toFloat() * DEG_TO_RAD;
+        maxx = eBBox.attribute("maxx").toFloat() * DEG_TO_RAD;
+        maxy = eBBox.attribute("maxy").toFloat() * DEG_TO_RAD;
       }
     } else {
       continue;
     }
-    crs_bboxes[sCRS] = Rectangle(minx, miny, maxx, maxy);
+    const Rectangle bb(minx, miny, maxx, maxy);
+    if (bb.width() > 0 && bb.height() > 0)
+      crs_bboxes[sCRS] = bb;
   }
 
   // TODO implement ScaleHint for WMS 1.1.1 and Min/MaxScaleDenominator for WMS 1.3.0
@@ -522,10 +527,11 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, crs_bbox_m cr
       !hasAttributeValue(eLayer, "noSubsets", (QStringList() << "true" << "1"))
       && !hasAttributeValue(eLayer, "fixedWidth", (QStringList() << "0"))
       && !hasAttributeValue(eLayer, "fixedHeight", (QStringList() << "0"));
+  const bool hasCRS = !crs_bboxes.empty();
 
-  METLIBS_LOG_DEBUG(LOGVAL(hasContent) << LOGVAL(goodName) << LOGVAL(unusedName) << LOGVAL(tileable));
+  METLIBS_LOG_DEBUG(LOGVAL(hasContent) << LOGVAL(goodName) << LOGVAL(unusedName) << LOGVAL(tileable) << LOGVAL(hasCRS));
 
-  if (hasContent && goodName && unusedName && tileable) {
+  if (hasContent && goodName && unusedName && tileable && hasCRS) {
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
     std::auto_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));
