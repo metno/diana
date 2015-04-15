@@ -274,16 +274,21 @@ void WebMapPlot::serviceRefreshFinished()
 {
   METLIBS_LOG_SCOPE(LOGVAL(mLayerId));
   mLayer = mService->findLayerByIdentifier(mLayerId);
+  mTimeIndex = -1;
+  mTimeSelected = -1;
+
   if (!mLayer) {
     METLIBS_LOG_INFO("layer '" << mLayerId << "' not found");
-    return;
-  }
-
-  mTimeIndex = -1;
-  for (size_t i=0; i<mLayer->countDimensions(); ++i) {
-    if (mLayer->dimension(i).isTime()) {
-      mTimeIndex = i;
-      break;
+  } else {
+    // search new time index
+    for (size_t i=0; i<mLayer->countDimensions(); ++i) {
+      if (mLayer->dimension(i).isTime()) {
+        mTimeIndex = i;
+        break;
+      }
     }
+    // search plot time
+    setTimeValue(getStaticPlot()->getTime());
   }
+  Q_EMIT update();
 }
