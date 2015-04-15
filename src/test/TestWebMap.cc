@@ -28,6 +28,7 @@
 */
 
 #include <wmsclient/WebMapUtilities.h>
+#include <QStringList>
 #include <gtest/gtest.h>
 
 TEST(WebMapUtilities, ParseDecimals)
@@ -194,5 +195,124 @@ TEST(WebMapUtilities, WmsTimeToMiTime)
     const miutil::miTime mt = to_miTime(wt);
     EXPECT_FALSE(mt.undef());
     EXPECT_EQ(miutil::miTime(2015, 4, 7, 0, 0, 0), mt);
+  }
+}
+
+TEST(WebMapUtilities, ParseDouble)
+{
+  using diutil::detail::parseDouble;
+
+  double value = 0;
+  size_t idx = 0;
+  EXPECT_TRUE(parseDouble(value, "1234", idx));
+  EXPECT_FLOAT_EQ(1234.0, value);
+  EXPECT_EQ(4, idx);
+
+  value = 0;
+  idx = 0;
+  EXPECT_TRUE(parseDouble(value, "1234.0", idx));
+  EXPECT_FLOAT_EQ(1234.0, value);
+  EXPECT_EQ(6, idx);
+
+  value = 0;
+  idx = 0;
+  EXPECT_TRUE(parseDouble(value, "1234X", idx));
+  EXPECT_FLOAT_EQ(1234.0, value);
+  EXPECT_EQ(4, idx);
+
+  value = 0;
+  idx = 0;
+  EXPECT_TRUE(parseDouble(value, "12.34X", idx));
+  EXPECT_FLOAT_EQ(12.34, value);
+  EXPECT_EQ(5, idx);
+
+  value = 0;
+  idx = 0;
+  EXPECT_FALSE(parseDouble(value, "T1234.0", idx));
+}
+
+TEST(WebMapUtilities, ParseWmsIso8601Interval)
+{
+  using diutil::WmsTime;
+  using diutil::WmsInterval;
+  using diutil::parseWmsIso8601Interval;
+
+  { const WmsInterval wi = parseWmsIso8601Interval("P1Y");
+    EXPECT_EQ(WmsTime::YEAR, wi.resolution);
+    EXPECT_EQ(1, wi.year);
+  }
+  { const WmsInterval wi = parseWmsIso8601Interval("P12M");
+    EXPECT_EQ(WmsTime::MONTH, wi.resolution);
+    EXPECT_EQ(12, wi.month);
+  }
+  { const WmsInterval wi = parseWmsIso8601Interval("P2Y3M");
+    EXPECT_EQ(WmsTime::MONTH, wi.resolution);
+    EXPECT_EQ(2, wi.year);
+    EXPECT_EQ(3, wi.month);
+  }
+  { const WmsInterval wi = parseWmsIso8601Interval("PT3M");
+    EXPECT_EQ(WmsTime::MINUTE, wi.resolution);
+    EXPECT_EQ(3, wi.minute);
+  }
+  { const WmsInterval wi = parseWmsIso8601Interval("PT4H0M");
+    EXPECT_EQ(WmsTime::MINUTE, wi.resolution);
+    EXPECT_EQ(4, wi.hour);
+  }
+  { const WmsInterval wi = parseWmsIso8601Interval("P1YT0S");
+    EXPECT_EQ(WmsTime::SECOND, wi.resolution);
+    EXPECT_EQ(1, wi.year);
+  }
+}
+
+TEST(WebMapUtilities, ExpandWmsTimes)
+{
+  using diutil::expandWmsTimes;
+
+  { const QStringList actual = expandWmsTimes("2015-04-10T12:00:00Z/2015-04-10T21:00:00Z/PT3H");
+    const char* expected[] = {
+      "2015-04-10T12:00:00Z", "2015-04-10T15:00:00Z",
+      "2015-04-10T18:00:00Z", "2015-04-10T21:00:00Z"
+    };
+    const int N = sizeof(expected)/sizeof(expected[0]);
+    ASSERT_LE(N, actual.size());
+    EXPECT_EQ(N, actual.size());
+    for (int i=0; i<N; ++i)
+      EXPECT_EQ(expected[i], actual[i].toStdString()) << "i=" << i;
+  }
+
+  { const QStringList actual = expandWmsTimes("2014-12-31T00:00:00Z/2015-01-02T00:00:00Z/PT12H");
+    const char* expected[] = {
+      "2014-12-31T00:00:00Z", "2014-12-31T12:00:00Z",
+      "2015-01-01T00:00:00Z", "2015-01-01T12:00:00Z",
+      "2015-01-02T00:00:00Z"
+    };
+    const int N = sizeof(expected)/sizeof(expected[0]);
+    ASSERT_LE(N, actual.size());
+    EXPECT_EQ(N, actual.size());
+    for (int i=0; i<N; ++i)
+      EXPECT_EQ(expected[i], actual[i].toStdString()) << "i=" << i;
+  }
+
+  { const QStringList actual = expandWmsTimes("2001-01-01/2001-01-05"); // hack for NVE
+    const char* expected[] = { "2001-01-01", "2001-01-02", "2001-01-03", "2001-01-04", "2001-01-05" };
+    const int N = sizeof(expected)/sizeof(expected[0]);
+    ASSERT_LE(N, actual.size());
+    EXPECT_EQ(N, actual.size());
+    for (int i=0; i<N; ++i)
+      EXPECT_EQ(expected[i], actual[i].toStdString()) << "i=" << i;
+  }
+}
+
+TEST(WebMapUtilities, ExpandWmsValues)
+{
+  using diutil::expandWmsValues;
+
+  { const QStringList actual = expandWmsValues("3/12/3");
+    const char* expected[] = { "3", "6", "9", "12" };
+    const int N = sizeof(expected)/sizeof(expected[0]);
+    ASSERT_LE(N, actual.size());
+    EXPECT_EQ(N, actual.size());
+    for (int i=0; i<N; ++i)
+      EXPECT_EQ(expected[i], actual[i].toStdString()) << "i=" << i;
   }
 }

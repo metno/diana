@@ -9,6 +9,9 @@
 
 #include <QStringList>
 
+#include <iomanip>
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.WebMapUtilities"
 #include <miLogger/miLogging.h>
 
@@ -221,7 +224,37 @@ bool parseDecimals(int& value, const std::string& text, size_t& idx,
   else
     return n == count;
 }
+
+bool parseDouble(double& value, const std::string& text, size_t& idx)
+{
+  const size_t end = text.size();
+
+  value = 0;
+  const size_t begin = idx;
+  for (; idx<end; ++idx) {
+    if (!isdigit(text[idx]))
+      break;
+    value = 10*value + (text[idx] - '0');
+  }
+
+  if (idx<end && text[idx] == '.') {
+    idx += 1;
+    float f = 0.1;
+    for (; idx<end; ++idx, f /= 10) {
+      if (!isdigit(text[idx]))
+        break;
+      value += f*(text[idx] - '0');
+    }
+  }
+  return (idx > begin);
 }
+} // namespace detail
+
+WmsTime:: WmsTime()
+  : resolution(INVALID)
+  , year(1970), month(1), day(1), hour(0), minute(0), second(0)
+  , timezone_hours(0), timezone_minutes(0)
+{ }
 
 WmsTime parseWmsIso8601(const std::string& wmsIso8601)
 {
@@ -362,21 +395,159 @@ miutil::miTime to_miTime(const WmsTime& wmstime)
   return t;
 }
 
+std::string to_wmsIso8601(const miutil::miTime& t, WmsTime::Resolution resolution)
+{
+  if (resolution == WmsTime::INVALID)
+    return "default";
+  std::ostringstream o;
+  o << std::setfill('0') << std::setw(4) << t.year();
+  if (resolution > WmsTime::YEAR) {
+    o << '-';
+    o << std::setfill('0') << std::setw(2) << t.month();
+    if (resolution > WmsTime::MONTH) {
+      o << '-';
+      o << std::setfill('0') << std::setw(2) << t.day();
+      if (resolution > WmsTime::DAY) {
+        o << 'T';
+        o << std::setfill('0') << std::setw(2) << t.hour();
+        if (resolution > WmsTime::HOUR) {
+          o << ':';
+          o << std::setfill('0') << std::setw(2) << t.min();
+          if (resolution > WmsTime::MINUTE) {
+            o << ':';
+            o << std::setfill('0') << std::setw(2) << t.sec();
+            // FIXME SUBSECOND resolution
+          }
+        }
+        o << 'Z'; // always UTC
+      }
+    }
+  }
+  return o.str();
+}
+
+// ========================================================================
+
+WmsInterval::WmsInterval()
+  : resolution(WmsTime::INVALID), year(0), month(0), day(0), hour(0), minute(0), second(0) { }
+
+WmsInterval parseWmsIso8601Interval(const std::string& text)
+{
+  const size_t len = text.size();
+  if (len == 0 || text[0] != 'P')
+    return WmsInterval(); // INVALID
+
+  size_t i = 1;
+  bool inYMD = true;
+
+  WmsInterval wmsinterval;
+  for (; i < len; i += 1) {
+    if (inYMD && text[i] == 'T') {
+      inYMD = false;
+      continue;
+    }
+    double value = 0;
+    if (!detail::parseDouble(value, text, i))
+        return WmsInterval(); // INVALID
+    if (i == len)
+      return WmsInterval(); // INVALID
+    if (inYMD) {
+      if (text[i] == 'Y') {
+        if (wmsinterval.resolution >= WmsTime::YEAR)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::YEAR;
+        wmsinterval.year = value;
+      } else if (text[i] == 'M') {
+        if (wmsinterval.resolution >= WmsTime::MONTH)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::MONTH;
+        wmsinterval.month = value;
+      } else if (text[i] == 'D') {
+        if (wmsinterval.resolution >= WmsTime::DAY)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::DAY;
+        wmsinterval.day = value;
+      } else {
+        return WmsInterval(); // INVALID
+      }
+    } else {
+      if (text[i] == 'H') {
+        if (wmsinterval.resolution >= WmsTime::HOUR)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::HOUR;
+        wmsinterval.hour = value;
+      } else if (text[i] == 'M') {
+        if (wmsinterval.resolution >= WmsTime::MINUTE)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::MINUTE;
+        wmsinterval.minute = value;
+      } else if (text[i] == 'S') {
+        if (wmsinterval.resolution >= WmsTime::SECOND)
+          return WmsInterval(); // INVALID
+        wmsinterval.resolution = WmsTime::SECOND;
+        wmsinterval.second = value;
+      } else {
+        return WmsInterval(); // INVALID
+      }
+    }
+  }
+  return wmsinterval;
+}
+
 // ========================================================================
 
 QStringList expandWmsTimes(const QString& timesSpec)
 {
   const QStringList mmr = timesSpec.split("/");
+  if (mmr.size() < 2)
+    return QStringList(timesSpec);
+
+  WmsTime wstart = parseWmsIso8601(qs(mmr.at(0)));
+  WmsTime wend   = parseWmsIso8601(qs(mmr.at(1)));
+  if (wstart.resolution == WmsTime::INVALID || wend.resolution == WmsTime::INVALID)
+    return QStringList(mmr.at(0)) + QStringList(mmr.at(1));
+
+  WmsInterval wint;
+  if (mmr.size() >= 3) {
+    wint = parseWmsIso8601Interval(qs(mmr.at(2)));
+    if (wint.resolution < wstart.resolution)
+      wint.resolution = wstart.resolution;
+  } else {
+    wint.resolution = std::max(wstart.resolution, wend.resolution);
+    switch (wint.resolution) {
+    case WmsTime::YEAR:
+      wint.year = 1; break;
+    case WmsTime::MONTH:
+      wint.month = 1; break;
+    case WmsTime::DAY:
+      wint.day = 1; break;
+    case WmsTime::HOUR:
+      wint.hour = 1; break;
+    case WmsTime::MINUTE:
+      wint.minute = 1; break;
+    case WmsTime::SECOND:
+    case WmsTime::SUBSECOND:
+      wint.second = 1; break;
+    default:
+      break;
+    }
+  }
+  miutil::miTime start = to_miTime(wstart), end = to_miTime(wend);
+  if (end == start)
+    return QStringList(mmr.at(0)); // FIXME how to represent "repeated but not stored"?
+  if (end < start)
+    std::swap(start, end);
 
   QStringList times;
-#if 1
-  times << mmr.at(0) << mmr.at(1);
-#else
-  // TODO implement expanding times
-  WmsTime start = parseWmsIso8601(qs(mmr.at(0)));
-  WmsTime end   = parseWmsIso8601(qs(mmr.at(1)));
-#endif
+  miutil::miTime t = start;
+  while (t < end) {
+    times << sq(to_wmsIso8601(t, wint.resolution));
 
+    t.addSec(wint.second);
+    t.addMin(wint.minute + 60 * wint.hour);
+    t.addDay(wint.day + 365.25 * (wint.month/12.0 + wint.year)); // FIXME what is the meaning of adding 3.1415 months?
+  };
+  times << sq(to_wmsIso8601(end, wint.resolution));
   return times;
 }
 
@@ -398,7 +569,7 @@ QStringList expandWmsValues(const QString& valueSpec)
       // too many values
     values << QString::number(start);
   } else {
-    for (double v=start; v<end; v += resolution)
+    for (double v=start; v<=end; v += resolution)
       values << QString::number(v);
   }
   return values;

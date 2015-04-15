@@ -233,7 +233,6 @@ void WebMapPlot::setTimeValue(const miutil::miTime& time)
   actualTime.addSec(mTimeOffset);
   const WebMapDimension& timeDim = mLayer->dimension(mTimeIndex);
   for (size_t i=0; i<timeDim.count(); ++i) {
-    METLIBS_LOG_DEBUG(LOGVAL(timeDim.value(i)));
     const miutil::miTime dimTime
         = diutil::to_miTime(diutil::parseWmsIso8601(timeDim.value(i)));
     if (dimTime.undef()) {

@@ -48,17 +48,26 @@ struct WmsTime {
 
   int timezone_hours, timezone_minutes;
 
-  WmsTime()
-    : resolution(INVALID), timezone_hours(0), timezone_minutes(0)
-    { }
+  WmsTime();
+};
+
+struct WmsInterval {
+  WmsTime::Resolution resolution;
+  double year, month, day, hour, minute, second;
+
+  WmsInterval();
 };
 
 namespace detail {
 bool parseDecimals(int& value, const std::string& text, size_t& idx,
     int count, bool count_is_minimum = false);
+bool parseDouble(double& value, const std::string& text, size_t& idx);
 }
 WmsTime parseWmsIso8601(const std::string& wmsIso8601);
 miutil::miTime to_miTime(const WmsTime& wmstime);
+std::string to_wmsIso8601(const miutil::miTime& t, WmsTime::Resolution resolution);
+
+WmsInterval parseWmsIso8601Interval(const std::string& text);
 
 QStringList expandWmsTimes(const QString& values);
 QStringList expandWmsValues(const QString& values);
