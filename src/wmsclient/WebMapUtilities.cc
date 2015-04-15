@@ -117,7 +117,7 @@ void select_tiles(tilexy_s& tiles,
   // border in tile projection
   const int nbx = (nx + stepx - 1)/stepx,
       nby = (ny + stepy - 1)/stepy,
-      nb = 2*(nbx + nby) + 1;
+      nb = 2*(nbx + nby);
   const float top = y0, bottom = y0+ny*dy, left = x0, right = x0 + nx*dx;
   float *border_x_t = new float[nb],
       *border_y_t = new float[nb];
@@ -129,9 +129,13 @@ void select_tiles(tilexy_s& tiles,
       border_y_t[ixy+1] = bottom;
     }
     // right and left border
+    ixy -= 1;
     for (int i=0; i<ny; i += stepy, ixy += 2) {
-      border_y_t[ixy] = border_y_t[ixy+1] = y0+i*dy;
-      border_x_t[ixy] = left;
+      if (i>0) {
+        border_y_t[ixy] = y0+i*dy;
+        border_x_t[ixy] = left;
+      }
+      border_y_t[ixy+1] = y0+i*dy;
       border_x_t[ixy+1] = right;
     }
     border_x_t[ixy] = right;
@@ -157,7 +161,11 @@ void select_tiles(tilexy_s& tiles,
     return;
 
   if (nx == 1 && ny == 1) {
-    tiles.insert(tilexy(ix0, iy0));
+    assert(nb == 4);
+    const float x1 = (border_x_t[1] - border_x_t[0]), x2 = (border_x_t[2] - border_x_t[0]);
+    const float y1 = (border_y_t[1] - border_y_t[0]), y2 = (border_y_t[2] - border_y_t[0]);
+    if (x1*y2 > x2*y1)
+      tiles.insert(tilexy(ix0, iy0));
     return;
   }
 
