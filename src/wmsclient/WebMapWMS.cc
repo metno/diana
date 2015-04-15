@@ -191,7 +191,7 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
     return 0;
 
   const int nx = (1<<zoom);
-  const double x0 = bb.x1,
+  const float x0 = bb.x1,
       dx = bb.width() / nx,
       y0 = bb.y2,
       dy = -dx;

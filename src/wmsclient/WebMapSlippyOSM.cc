@@ -168,7 +168,7 @@ WebMapRequest_x WebMapSlippyOSM::createRequest(const std::string& layerIdentifie
     return 0;
 
   const int nxy = (1<<zoom);
-  const double x0 = -EARTH_CICRUMFERENCE_M/2,
+  const float x0 = -EARTH_CICRUMFERENCE_M/2,
       dx = EARTH_CICRUMFERENCE_M / nxy,
       y0 = -x0,
       dy = -dx;

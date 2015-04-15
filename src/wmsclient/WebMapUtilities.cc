@@ -101,7 +101,7 @@ Projection projectionForCRS(const std::string& crs)
 // ========================================================================
 
 void select_tiles(tilexy_s& tiles,
-    int ix0, int nx, int x0, int dx, int iy0, int ny, int y0, int dy,
+    int ix0, int nx, float x0, float dx, int iy0, int ny, float y0, float dy,
     const Projection& p_tiles, const Rectangle& r_view, const Projection& p_view)
 {
   if (nx <= 0 || ny <= 0)
@@ -161,7 +161,8 @@ void select_tiles(tilexy_s& tiles,
     return;
   }
 
-  int nxa, ix0b, nxb, x0b, nya, iy0b, nyb, y0b;
+  int nxa, ix0b, nxb, nya, iy0b, nyb;
+  float x0b, y0b;
   if (ny > nx) {
     nxa  = nx;
     ix0b = ix0;

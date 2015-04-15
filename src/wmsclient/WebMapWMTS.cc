@@ -224,7 +224,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   }
   METLIBS_LOG_DEBUG(LOGVAL(matrix->identifier()));
 
-  const double ps = pixelSpan(matrixSet, matrix),
+  const float ps = pixelSpan(matrixSet, matrix),
       tileSpanX = matrix->tileWidth()  * ps,
       tileSpanY = matrix->tileHeight() * ps;
   diutil::tilexy_s tiles;
