@@ -128,7 +128,6 @@ common_qt_sources += \
 	vcross_v2/VcrossQtUtil.cc \
 	vcross_v2/VcrossQtAxis.cc \
 	vcross_v2/VcrossQuickmenues.cc \
-	wmsclient/WebMapDialog.cc \
 	wmsclient/WebMapManager.cc \
 	wmsclient/WebMapPainting.cc \
 	wmsclient/WebMapPlot.cc \
@@ -230,7 +229,8 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossAddPlotDialog.cc \
 	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \
-	vcross_qt/VcrossQtWidget.cc 
+	vcross_qt/VcrossQtWidget.cc \
+	wmsclient/WebMapDialog.cc
 
 diana_qt_forms += \
 	vcross_qt/vcross_plot_add_dialog.ui \
