@@ -47,8 +47,7 @@ public:
     { return mValues; }
 
   /*! access default values */
-  const std::string& defaultValue() const
-    { return mValues[mDefaultIndex]; }
+  const std::string& defaultValue() const;
 
   /*! true iff this is the time dimension */
   bool isTime() const;

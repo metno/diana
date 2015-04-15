@@ -24,6 +24,14 @@ void WebMapDimension::clearValues()
   mDefaultIndex = 0;
 }
 
+const std::string& WebMapDimension::defaultValue() const
+{
+  if (mDefaultIndex >= 0 && mDefaultIndex < mValues.size())
+    return mValues[mDefaultIndex];
+  static const std::string DEFAULT("default");
+  return DEFAULT;
+}
+
 bool WebMapDimension::isTime() const
 {
   return miutil::to_lower(identifier()) == "time";
