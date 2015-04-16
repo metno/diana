@@ -53,6 +53,17 @@ namespace vcross {
 class QtManager : public QObject {
   Q_OBJECT;
 
+private:
+  struct Marker {
+    float position;
+    std::string text;
+    std::string colour;
+
+    Marker(float p, const std::string& t, const std::string& c)
+      : position(p), text(t), colour(c) { }
+  };
+  typedef std::vector<Marker> Marker_v;
+
 public:
   typedef miutil::miTime vctime_t;
   typedef std::vector<vctime_t> vctime_v;
@@ -136,6 +147,14 @@ public:
 
   void setFieldVisible(int index, bool visible);
 
+  size_t getMarkerCount() const
+    { return mMarkers.size(); }
+  float getMarkerPosition(size_t idx) const
+    { return mMarkers.at(idx).position; }
+  const std::string& getMarkerText(size_t idx) const
+    { return mMarkers.at(idx).text; }
+  const std::string& getMarkerColour(size_t idx) const
+    { return mMarkers.at(idx).colour; }
 
   int getCrossectionIndex() const;
   void setCrossectionIndex(int index);
@@ -265,6 +284,9 @@ private:
 
   //! Maps fieldname to field options set via the GUI (ie not via quickmenu). These are saved in writePlotOptions().
   string_string_m userFieldOptions;
+
+  Marker_v mMarkers;
+  float mReferencePosition;
 };
 
 typedef boost::shared_ptr<QtManager> QtManager_p;

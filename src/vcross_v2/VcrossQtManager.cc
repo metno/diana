@@ -663,6 +663,10 @@ void QtManager::preparePlot()
     }
   }
 
+  for (Marker_v::const_iterator im = mMarkers.begin(); im != mMarkers.end(); ++im)
+    mPlot->addMarker(im->position, im->text, im->colour);
+  mPlot->setReferencePosition(mReferencePosition);
+
   mPlot->prepare();
   restoreZoom();
 }
@@ -954,6 +958,8 @@ void QtManager::selectFields(const string_v& to_plot)
 
   fieldChangeStart(true);
   removeAllFields();
+  mMarkers.clear();
+  mReferencePosition = -1;
 
   for (string_v::const_iterator itL = to_plot.begin(); itL != to_plot.end(); ++itL) {
     const std::string& line = *itL;
@@ -962,10 +968,16 @@ void QtManager::selectFields(const string_v& to_plot)
     METLIBS_LOG_DEBUG(LOGVAL(line));
 
     string_v m_p_o = miutil::split(line);
+
     std::string poptions;
     std::string model, field;
     vctime_t reftime;
     int refhour = -1, refoffset = 0;
+
+    const bool isMarkerLine = miutil::contains(line, "MARKER");
+    const bool isReferenceLine = miutil::contains(line, "REFERENCE");
+    std::string markerText, markerColour = "black";
+    float markerPosition = -1;
 
     for (string_v::const_iterator itT = m_p_o.begin(); itT != m_p_o.end(); ++itT) {
       const std::string& token = *itT;
@@ -973,31 +985,50 @@ void QtManager::selectFields(const string_v& to_plot)
       if (stoken.size() != 2)
         continue;
       std::string key = boost::algorithm::to_lower_copy(stoken[0]);
-      if (key == "model") {
-        model = stoken[1];
-      } else if (key == "field") {
-        field = stoken[1];
-      } else if (key == "reftime") {
-        reftime = vctime_t(stoken[1]);
-      } else if (key == "refhour") {
-        refhour = miutil::to_int(stoken[1]);
-      } else if (key == "refoffset") {
-        refoffset = miutil::to_int(stoken[1]);
+      if (isMarkerLine) {
+        if (key == "text") {
+          markerText = stoken[1];
+        } else if (key == "colour") {
+          markerColour = stoken[1];
+        } else if (key == "position") {
+          markerPosition = miutil::to_float(stoken[1]);
+        }
+      } else if (isReferenceLine) {
+        if (key == "position") {
+          mReferencePosition = miutil::to_float(stoken[1]);
+        }
       } else {
-        if (!poptions.empty())
-          poptions += " ";
-        poptions += token;
+        if (key == "model") {
+          model = stoken[1];
+        } else if (key == "field") {
+          field = stoken[1];
+        } else if (key == "reftime") {
+          reftime = vctime_t(stoken[1]);
+        } else if (key == "refhour") {
+          refhour = miutil::to_int(stoken[1]);
+        } else if (key == "refoffset") {
+          refoffset = miutil::to_int(stoken[1]);
+        } else {
+          if (!poptions.empty())
+            poptions += " ";
+          poptions += token;
+        }
       }
     }
-    if (reftime.undef() && !model.empty()) {
-      const vctime_v reftimes = getModelReferenceTimes(model);
-      if (refhour != -1)
-        reftime = getBestReferenceTime(reftimes, refoffset, refhour);
-      if (reftime.undef() && !reftimes.empty())
-        reftime = reftimes.back();
+    if (isMarkerLine) {
+      if (!markerText.empty() && markerPosition >= 0)
+        mMarkers.push_back(Marker(markerPosition, markerText, markerColour));
+    } else {
+      if (reftime.undef() && !model.empty()) {
+        const vctime_v reftimes = getModelReferenceTimes(model);
+        if (refhour != -1)
+          reftime = getBestReferenceTime(reftimes, refoffset, refhour);
+        if (reftime.undef() && !reftimes.empty())
+          reftime = reftimes.back();
+      }
+      if (!model.empty() && !field.empty() && !reftime.undef())
+        addField(PlotSpec(model, reftime, field), poptions, -1, false);
     }
-    if (!model.empty() && !field.empty() && !reftime.undef())
-      addField(PlotSpec(model, reftime, field), poptions, -1, false);
   }
 
   fieldChangeDone();

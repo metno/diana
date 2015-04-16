@@ -202,6 +202,14 @@ std::vector<std::string> VcrossQuickmenues::get() const
         qm.push_back(pstr.str());
       }
     }
+
+    for (size_t i=0; i<mManager->getMarkerCount(); ++i) {
+      std::ostringstream marker;
+      marker << "VCROSS MARKER text=" << mManager->getMarkerText(i)
+             << " position=" << mManager->getMarkerPosition(i)
+             << " colour=" << mManager->getMarkerColour(i);
+      qm.push_back(marker.str());
+    }
   }
 
   return qm;
