@@ -81,9 +81,9 @@ QPushButton* annotationapply;
 QPushButton* annotationhide;
 QPushButton* annotationapplyhide;
 Controller* m_ctrl;
-QString defaultAnno;
 std::map<QString,QString> current_annoStrings;
 std::map<QString,QString> setup_annoStrings;
+QStringList annoNames;
 };
 
 #endif
