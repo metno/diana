@@ -11,8 +11,9 @@
 #endif
 
 class QNetworkAccessManager;
-class WebMapService;
+class WebMapLayer;
 class WebMapPlot;
+class WebMapService;
 
 class WebMapManager : public Manager {
   Q_OBJECT;
@@ -48,6 +49,13 @@ public:
     { }
 
   std::vector<std::string> getAnnotations() const Q_DECL_OVERRIDE;
+
+  int getServiceCount() const
+    { return webmapservices.size(); }
+  WebMapService* getService(int i) const
+    { return webmapservices.at(i); }
+
+  void addPlot(WebMapService* service, const WebMapLayer* layer);
 
 Q_SIGNALS:
   void webMapsReady();

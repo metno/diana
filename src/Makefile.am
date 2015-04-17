@@ -236,7 +236,8 @@ diana_qt_forms += \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
-	vcross_qt/vcross_window.ui
+	vcross_qt/vcross_window.ui \
+	wmsclient/webmap_dialog.ui
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)

@@ -190,13 +190,25 @@ bool WebMapManager::processInput(const std::vector<std::string>& input)
   METLIBS_LOG_SCOPE(LOGVAL(input.size()));
   diutil::delete_all_and_clear(webmaps);
   for (size_t i=0; i<input.size(); ++i) {
-    WebMapPlot* plot = createPlot(input[i]);
-    if (plot) {
-      connect(plot, SIGNAL(update()), SIGNAL(webMapsReady()));
-      webmaps.push_back(plot);
+    std::auto_ptr<WebMapPlot> plot(createPlot(input[i]));
+    if (plot.get()) {
+      connect(plot.get(), SIGNAL(update()), SIGNAL(webMapsReady()));
+      webmaps.push_back(plot.release());
     }
   }
   return true;
+}
+
+void WebMapManager::addPlot(WebMapService* service, const WebMapLayer* layer)
+{
+  METLIBS_LOG_SCOPE();
+  if (!service || !layer)
+    return;
+  METLIBS_LOG_DEBUG(LOGVAL(service->identifier()) << LOGVAL(layer->identifier()));
+
+  std::auto_ptr<WebMapPlot> plot(new WebMapPlot(service, layer->identifier()));
+  connect(plot.get(), SIGNAL(update()), SIGNAL(webMapsReady()));
+  webmaps.push_back(plot.release());
 }
 
 void WebMapManager::plot(Plot::PlotOrder zorder)
