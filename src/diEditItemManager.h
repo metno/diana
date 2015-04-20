@@ -70,6 +70,7 @@ public:
   void editItem(DrawingItemBase *item);
   void removeItem(const QSharedPointer<DrawingItemBase> &);
 
+  virtual DrawingItemBase *createItem(const QString &type);
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
   // Returns the undo stack.

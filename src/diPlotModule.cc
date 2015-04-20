@@ -1529,6 +1529,15 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
 }
 
+Manager *PlotModule::getManager(const std::string &name)
+{
+  managers_t::iterator it = managers.find(name);
+  if (it == managers.end())
+    return 0;
+  else
+    return it->second;
+}
+
 // return current plottime
 void PlotModule::getPlotTime(std::string& s)
 {

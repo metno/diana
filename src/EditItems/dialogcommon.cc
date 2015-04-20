@@ -164,9 +164,7 @@ QList<QSharedPointer<Layer> > createLayersFromFile(const QString &fileName, Laye
 {
   *error = QString();
 
-  const QList<QSharedPointer<Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-      EditItem_Text::Text, EditItem_Composite::Composite>(layerManager, fileName, error);
+  const QList<QSharedPointer<Layer> > layers = KML::createFromFile(layerManager, fileName, error);
   if (ensureUniqueNames) {
     foreach (const QSharedPointer<Layer> &layer, layers)
       layerManager->ensureUniqueLayerName(layer);

@@ -105,40 +105,8 @@ public:
   QList<QPointF> PhysToGeo(const QList<QPointF> &points) const;
   QList<QPointF> GeoToPhys(const QList<QPointF> &latLonPoints) const;
 
+  virtual DrawingItemBase *createItem(const QString &type);
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
-
-  template<typename BaseType, typename PolyLineType, typename SymbolType,
-           typename TextType, typename CompositeType>
-  inline BaseType *createItemFromVarMap_(const QVariantMap &vmap, QString *error)
-  {
-    Q_ASSERT(!vmap.empty());
-    Q_ASSERT(vmap.contains("type"));
-    Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
-    BaseType *item = 0;
-    *error = QString();
-    if (vmap.value("type").toString().endsWith("PolyLine")) {
-      item = new PolyLineType();
-    } else if (vmap.value("type").toString().endsWith("Symbol")) {
-      item = new SymbolType();
-    } else if (vmap.value("type").toString().endsWith("Text")) {
-      item = new TextType();
-    } else if (vmap.value("type").toString().endsWith("Composite")) {
-      item = new CompositeType();
-    } else {
-      *error = QString("unsupported item type: %1")
-          .arg(vmap.value("type").toString());
-      return 0;
-    }
-
-    item->setProperties(vmap);
-    setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
-
-    CompositeType *c = dynamic_cast<CompositeType *>(item);
-    if (c)
-      c->createElements();
-
-    return item;
-  }
 
   static DrawingManager *instance();
 
@@ -178,7 +146,6 @@ protected:
   virtual void addItem_(const QSharedPointer<DrawingItemBase> &);
   virtual void removeItem_(const QSharedPointer<DrawingItemBase> &);
   void applyPlotOptions(const QSharedPointer<DrawingItemBase> &) const;
-  std::string timeProperty(const QVariantMap &properties, std::string &time_str) const;
 
   static Rectangle editRect_;
 

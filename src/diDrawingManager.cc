@@ -39,7 +39,6 @@
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/drawingstylemanager.h>
-#include <EditItems/timefilesextractor.h>
 #include <diPlotModule.h>
 #include <diLocalSetupParser.h>
 
@@ -63,8 +62,6 @@
 //#define DEBUGPRINT
 #define MILOGGER_CATEGORY "diana.DrawingManager"
 #include <miLogger/miLogging.h>
-
-#include <QDebug>
 
 using namespace std;
 using namespace miutil;
@@ -212,10 +209,7 @@ bool DrawingManager::parseSetup()
     } else if (items.contains("tseries")) {
       const QString timeSeries = items.value("tseries");
       const QString filePattern = items.value("tsfiles");
-      QList<QPair<QFileInfo, QDateTime> > tfiles = TimeFilesExtractor::getFiles(filePattern);
-      //qDebug() << "time series" << timeSeries << "; timefiles matching pattern" << filePattern << ":";
-      for (int i = 0; i < tfiles.size(); ++i)
-        ; //qDebug() << tfiles.at(i).first.filePath() << " / " << tfiles.at(i).second;
+      drawings_[timeSeries] = filePattern;
     }
   }
 
@@ -284,11 +278,40 @@ std::vector<std::string> DrawingManager::getAnnotations() const
   return output;
 }
 
-QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVariantMap &properties, QString *error)
+DrawingItemBase *DrawingManager::createItem(const QString &type)
 {
-  return QSharedPointer<DrawingItemBase>(
-        createItemFromVarMap_<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-        DrawingItem_Text::Text, DrawingItem_Composite::Composite>(properties, error));
+  DrawingItemBase *item = 0;
+  if (type == "PolyLine") {
+    item = new DrawingItem_PolyLine::PolyLine();
+  } else if (type == "Symbol") {
+    item = new DrawingItem_Symbol::Symbol();
+  } else if (type == "Text") {
+    item = new DrawingItem_Text::Text();
+  } else if (type == "Composite") {
+    item = new DrawingItem_Composite::Composite();
+  }
+  return item;
+}
+
+QSharedPointer<DrawingItemBase> DrawingManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
+{
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+
+  QString type = vmap.value("type").toString().split("::").last();
+  DrawingItemBase *item = createItem(type);
+
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(*item, Drawing(item)->getLatLonPoints());
+
+    DrawingItem_Composite::Composite *c = dynamic_cast<DrawingItem_Composite::Composite *>(item);
+    if (c)
+      c->createElements();
+  }
+
+  return QSharedPointer<DrawingItemBase>(item);
 }
 
 void DrawingManager::addItem_(const QSharedPointer<DrawingItemBase> &item)
@@ -307,27 +330,8 @@ bool DrawingManager::loadDrawing(const QString &name)
   else
     fileName = name;
 
-  // parse file and create item layers
-  QString error;
-  QList<QSharedPointer<EditItems::Layer> > layers = KML::createFromFile<DrawingItemBase, DrawingItem_PolyLine::PolyLine, DrawingItem_Symbol::Symbol,
-      DrawingItem_Text::Text, DrawingItem_Composite::Composite>(layerMgr_, fileName, &error);
-
-  if (!error.isEmpty()) {
-    METLIBS_LOG_WARN("Failed to create items from file " << fileName.toStdString() << ": " << error.toStdString());
-    return false;
-  }
-  if (layers.isEmpty()) {
-    METLIBS_LOG_WARN("File " << fileName.toStdString() << " contained no items");
-    return false;
-  }
-
-  // initialize screen coordinates from lat/lon         ### already done in KML::createFromFile() ???
-  foreach (QSharedPointer<EditItems::Layer> layer, layers) {
-    for (int i = 0; i < layer->itemCount(); ++i)
-      setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
-  }
-
-  layerMgr_->addToNewLayerGroup(layers, name, fileName);
+  QSharedPointer<EditItems::LayerGroup> layerGroup = layerMgr_->createNewLayerGroup(name, fileName);
+  layerMgr_->addToNewLayerGroup(layerGroup, name);
   loaded_[name] = fileName;
 
   return true;
@@ -397,21 +401,15 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
   std::vector<miutil::miTime> output;
   std::set<miutil::miTime> times;
 
-  QList<QSharedPointer<EditItems::Layer> > layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
+  // Query the layer groups to find the available times. These will query
+  // individual layers as necessary.
 
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    if (layer->isVisible()) {
+  QList<QSharedPointer<EditItems::LayerGroup> > layerGroups = layerMgr_->layerGroups();
+  for (int i = layerGroups.size() - 1; i >= 0; --i) {
 
-      QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-      foreach (const QSharedPointer<DrawingItemBase> item, items) {
-
-        std::string time_str;
-        std::string prop_str = timeProperty(item->propertiesRef(), time_str);
-        if (!time_str.empty())
-          times.insert(miutil::miTime(time_str));
-      }
-    }
+    QSet<QString> groupTimes = layerGroups.at(i)->getTimes();
+    foreach (const QString &time, groupTimes)
+      times.insert(miutil::miTime(time.toStdString()));
   }
 
   output.assign(times.begin(), times.end());
@@ -427,19 +425,6 @@ std::vector<miutil::miTime> DrawingManager::getTimes() const
  * string if no suitable property name was found. The associated time string
  * is also updated with the time obtained from the property, if found.
 */
-
-std::string DrawingManager::timeProperty(const QVariantMap &properties, std::string &time_str) const
-{
-  static const char* timeProps[2] = {"time", "TimeSpan:begin"};
-
-  for (unsigned int i = 0; i < 2; ++i) {
-    time_str = properties.value(timeProps[i]).toString().toStdString();
-    if (!time_str.empty())
-      return timeProps[i];
-  }
-
-  return std::string();
-}
 
 /**
  * Prepares the manager for display of, and interaction with, items that
@@ -460,24 +445,11 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     }
   }
 
-  // Change the visibility of items.
-  const QList<QSharedPointer<EditItems::Layer> > &layers = layerMgr_->orderedLayers();
-  for (int i = layers.size() - 1; i >= 0; --i) {
+  // Update layer groups to change the visibility of items.
+  QString timeStr = QString::fromStdString(time.isoTime());
+  QDateTime dateTime = QDateTime::fromString(timeStr, Qt::ISODate);
 
-    const QSharedPointer<EditItems::Layer> layer = layers.at(i);
-    QList<QSharedPointer<DrawingItemBase> > items = layer->items();
-
-    foreach (const QSharedPointer<DrawingItemBase> item, items) {
-      std::string time_str;
-      std::string time_prop = timeProperty(item->propertiesRef(), time_str);
-      if (time_prop.empty())
-        item->setProperty("visible", true);
-      else {
-        bool visible = (time_str.empty() | ((time.isoTime("T") + "Z") == time_str));
-        item->setProperty("visible", visible);
-      }
-    }
-  }
+  layerMgr_->setTime(dateTime);
 
   return found;
 }
@@ -638,12 +610,12 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
   bool ok = false;
   const int i = s.toInt(&ok);
   if (!ok) {
-    qWarning() << "DM::enablePlotElement(): failed to extract int from pe.str:" << s;
+    METLIBS_LOG_WARN("DM::enablePlotElement(): failed to extract int from pe.str:" << pe.str);
     return;
   }
 
   if (!plotElems_.contains(i)) {
-    qWarning() << "DM::enablePlotElement(): key not found in plotElems_:" << i;
+    METLIBS_LOG_WARN("DM::enablePlotElement(): key not found in plotElems_:" << i);
     return;
   }
 

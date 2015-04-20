@@ -29,16 +29,18 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diEditItemManager.h"
+#include <EditItems/kml.h>
+#include <EditItems/edititembase.h>
+#include <EditItems/editpolyline.h>
+#include <EditItems/editsymbol.h>
+#include <EditItems/edittext.h>
+#include <EditItems/editcomposite.h>
 #include <EditItems/layergroupspane.h>
 #include <EditItems/dialogcommon.h>
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
 #include <EditItems/layermanager.h>
-#include <EditItems/kml.h>
-#include <EditItems/editpolyline.h>
-#include <EditItems/editsymbol.h>
-#include <EditItems/edittext.h>
-#include <EditItems/editcomposite.h>
 
 #include "fileopen.xpm"
 
@@ -228,23 +230,22 @@ void LayerGroupsPane::mouseClicked(QMouseEvent *event)
   const bool active = !lgWidget->layerGroup()->isActive();
   lgWidget->layerGroup()->setActive(active);
 
-  if (active) {
-    // Only load the contents of a file when the layer group is selected.
-    QString error;
-    QString fileName = lgWidget->layerGroup()->fileName();
-    const QList<QSharedPointer<Layer> > layers = \
-      KML::createFromFile<EditItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(layerMgr_, fileName, &error);
-
-    if (error.isEmpty())
-      layerMgr_->addToLayerGroup(lgWidget->layerGroup(), layers);
-    else
-      METLIBS_LOG_WARN("LayerGroupsPane::mouseClicked: failed to load layer group from " << fileName.toStdString() << ": " << error.toStdString());
-  }
+  // Only load the contents of a file when the layer group is selected.
+  if (active)
+    loadLayers(lgWidget);
 
   lgWidget->updateLabels();
 
   emit updated();
+}
+
+/**
+ * Load the layers referred to by the given \a lgWidget.
+*/
+void LayerGroupsPane::loadLayers(LayerGroupWidget *lgWidget)
+{
+  QString source = lgWidget->layerGroup()->name();
+  layerMgr_->addToNewLayerGroup(lgWidget->layerGroup(), source);
 }
 
 QList<LayerGroupWidget *> LayerGroupsPane::allWidgets()

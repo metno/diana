@@ -29,9 +29,13 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <EditItems/kml.h>
 #include <EditItems/layermanager.h>
 #include <EditItems/layer.h>
 #include <EditItems/layergroup.h>
+
+#define MILOGGER_CATEGORY "diana.LayerManager"
+#include <miLogger/miLogging.h>
 
 namespace EditItems {
 
@@ -144,7 +148,6 @@ bool LayerManager::deselectAllItems(bool notify)
   return cleared;
 }
 
-
 void LayerManager::addToLayerGroup(const QSharedPointer<LayerGroup> &layerGroup, const QList<QSharedPointer<Layer> > &layers)
 {
   foreach(const QSharedPointer<Layer> &layer, layers) {
@@ -172,7 +175,6 @@ QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QList<QSharedP
                                                             const QString &fileName)
 {
   QSharedPointer<LayerGroup> layerGroup = createNewLayerGroup(name, fileName);
-  layerGroups_.append(layerGroup);
   addToLayerGroup(layerGroup, layers);
   return layerGroup;
 }
@@ -182,11 +184,25 @@ QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QSharedPointer
   return addToNewLayerGroup(QList<QSharedPointer<Layer> >() << layer, name);
 }
 
-QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name, const QString &fileName) const
+QSharedPointer<LayerGroup> LayerManager::addToNewLayerGroup(const QSharedPointer<LayerGroup> &layerGroup, const QString &source)
+{
+  QString error;
+  const QList<QSharedPointer<Layer> > layers = KML::createFromFile(this, layerGroup->fileName(), &error);
+
+  if (!error.isEmpty())
+    METLIBS_LOG_WARN(QString("LayerManager::addToNewLayerGroup: failed to load layer group from %1: %2")
+                     .arg(source).arg(error).toStdString());
+
+  addToLayerGroup(layerGroup, layers);
+  return layerGroup;
+}
+
+QSharedPointer<LayerGroup> LayerManager::createNewLayerGroup(const QString &name, const QString &fileName)
 {
   QSharedPointer<LayerGroup> layerGroup(new LayerGroup(name.isEmpty() ? "new layer group" : name));
   layerGroup->setFileName(fileName);
   ensureUniqueLayerGroupName(layerGroup);
+  layerGroups_.append(layerGroup);
   return layerGroup;
 }
 
@@ -312,8 +328,9 @@ void LayerManager::removeLayer(const QSharedPointer<Layer> &layer)
            layer->name().toLatin1().data(),
            layerGroup->name().toLatin1().data());
 
-  layerGroup->layers_.removeOne(layer);
+  // The order of removal appears to matter here.
   orderedLayers_.removeOne(layer);
+  layerGroup->layers_.removeOne(layer);
 }
 
 // Moves \a srcLayer to the other side of \a dstLayer.
@@ -444,6 +461,43 @@ QSet<QSharedPointer<DrawingItemBase> > LayerManager::allItems() const
     items.unite(orderedLayers_.at(i)->items().toSet());
 
   return items;
+}
+
+void LayerManager::setTime(const QDateTime &dateTime)
+{
+  foreach (QSharedPointer<LayerGroup> layerGroup, layerGroups_) {
+
+    bool allVisible = true;
+
+    if (layerGroup->isCollection()) {
+
+      // For layer groups containing a collection of files, make the layers
+      // visible only if the current file is appropriate for the new time.
+      allVisible = (dateTime == layerGroup->time());
+
+      if (!allVisible && layerGroup->hasTime(dateTime)) {
+
+        // Another time was requested and is available. Discard the existing
+        // layers and load the ones from the corresponding file.
+        QList<QSharedPointer<Layer> > &layers = layerGroup->layersRef();
+        while (!layers.isEmpty())
+          removeLayer(layers.first());
+
+        QString fileName = layerGroup->fileName(dateTime);
+
+        QString error;
+        QList<QSharedPointer<Layer> > newLayers = KML::createFromFile(this, fileName, &error);
+        if (!error.isEmpty())
+          METLIBS_LOG_WARN(QString("LayerManager::addToNewLayerGroup: failed to load layer group from %1: %2")
+                           .arg(fileName).arg(error).toStdString());
+
+        addToLayerGroup(layerGroup, newLayers);
+        allVisible = true;
+      }
+    }
+
+    layerGroup->setTime(dateTime, allVisible);
+  }
 }
 
 } // namespace

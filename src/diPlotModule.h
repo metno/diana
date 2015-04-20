@@ -259,6 +259,7 @@ public:
   /// set managers
   void setManagers(FieldManager*, FieldPlotManager*, ObsManager*, SatManager*,
       StationManager*, ObjectManager*, EditManager*);
+  Manager *getManager(const std::string &name);
 
   /// return current plottime
   void getPlotTime(std::string&);

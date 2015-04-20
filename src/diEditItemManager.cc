@@ -275,11 +275,40 @@ void EditItemManager::addItem(const QSharedPointer<DrawingItemBase> &item, bool 
     repaint();
 }
 
+DrawingItemBase *EditItemManager::createItem(const QString &type)
+{
+  EditItemBase *item = 0;
+  if (type == "PolyLine") {
+    item = new EditItem_PolyLine::PolyLine();
+  } else if (type == "Symbol") {
+    item = new EditItem_Symbol::Symbol();
+  } else if (type == "Text") {
+    item = new EditItem_Text::Text();
+  } else if (type == "Composite") {
+    item = new EditItem_Composite::Composite();
+  }
+  return Drawing(item);
+}
+
 QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
 {
-  return QSharedPointer<DrawingItemBase>(
-        createItemFromVarMap_<DrawingItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(vmap, error));
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+
+  QString type = vmap.value("type").toString().split("::").last();
+  DrawingItemBase *item = createItem(type);
+
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(*item, item->getLatLonPoints());
+
+    EditItem_Composite::Composite *c = dynamic_cast<EditItem_Composite::Composite *>(item);
+    if (c)
+      c->createElements();
+  }
+
+  return QSharedPointer<DrawingItemBase>(Drawing(item));
 }
 
 void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded, bool ignoreSelection)
