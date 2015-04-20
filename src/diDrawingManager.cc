@@ -627,14 +627,13 @@ void DrawingManager::enablePlotElement(const PlotElement &pe)
  */
 void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult& res)
 {
-  if (event->type() != QEvent::MouseMove || event->buttons() != Qt::NoButton)
-    return;
-
-  // Find a list of items at the point passed in the event.
-  QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
-  if (hit.size() > 0) {
-    emit itemsHovered(hit);
-    event->setAccepted(true);
+  if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
+    // Find a list of items at the point passed in the event.
+    QList<QSharedPointer<DrawingItemBase> > hit = findHitItems(event->pos(), 0);
+    if (hit.size() > 0) {
+      emit itemsHovered(hit);
+      event->setAccepted(true);
+    }
   }
 }
 

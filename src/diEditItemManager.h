@@ -94,6 +94,7 @@ public:
 
   void sendMouseEvent(QMouseEvent* event, EventResult& res);
   void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
+  void getViewportDisplacement(int &w, int &h, float &dx, float &dy);
 
   QHash<Action, QAction*> actions();
   QUndoView *getUndoView();

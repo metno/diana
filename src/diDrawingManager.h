@@ -149,6 +149,7 @@ protected:
 
   static Rectangle editRect_;
 
+  // Drawing definitions held in the setup file and those that have been loaded.
   QMap<QString, QString> drawings_;
   QMap<QString, QString> loaded_;
 
