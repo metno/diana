@@ -98,7 +98,7 @@ PropertiesEditor *PropertiesEditor::instance_ = 0;
 // Opens a modal dialog to show the properties of \a item.
 // The properties may be modified if \a readOnly is false.
 // Returns true iff the properties were changed.
-bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly)
+bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly, bool modal)
 {
   const QVariantMap origProps = item->properties();
   if (origProps.isEmpty()) {
@@ -123,7 +123,9 @@ bool PropertiesEditor::edit(QSharedPointer<DrawingItemBase> &item, bool readOnly
   layout()->addWidget(readOnly ? readOnlyButtonBox_ : buttonBox_);
 
   // open dialog
-  if ((exec() == QDialog::Accepted) && (!readOnly)) {
+  if (!modal)
+    show();
+  else if ((exec() == QDialog::Accepted) && (!readOnly)) {
     QVariantMap newProps;
     for (int i = 0; i < formLayout->rowCount(); ++i) {
       QLayoutItem *litem = formLayout->itemAt(i, QFormLayout::LabelRole);

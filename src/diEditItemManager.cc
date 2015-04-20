@@ -1369,7 +1369,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     if (!hitItems.empty()) {
       QSharedPointer<DrawingItemBase> hitItem; // consider only this item to be hit
       hitItem = hitItems.first();
-      Properties::PropertiesEditor::instance()->edit(hitItem, true);
+      Properties::PropertiesEditor::instance()->edit(hitItem, true, false);
       event->accept();
       return;
     }
