@@ -519,6 +519,12 @@ void QtPlot::addMarker(float position, const std::string& text, const std::strin
   mMarkers.push_back(OptionMarker(position, text, colour));
 }
 
+void QtPlot::addMarker(float x, float y, const std::string& text, const std::string& colour)
+{
+  METLIBS_LOG_SCOPE();
+  mMarkers.push_back(OptionMarker(x, y, text, colour));
+}
+
 void QtPlot::prepare()
 {
   METLIBS_LOG_SCOPE();
@@ -787,18 +793,30 @@ void QtPlot::plotTitle(QPainter& painter)
   for (OptionMarker_v::const_iterator im = mMarkers.begin(); im != mMarkers.end(); ++im) {
     const OptionMarker& m = *im;
 
-    const float d = fractionalRequestedDistance(m.position);
-    if (d < 0)
-      continue;
+    QString q_str = QString::fromStdString(m.text);
 
-    const float x = mAxisX->value2paint(d);
-    if (!mAxisX->legalPaint(x))
-      continue;
+    float mx = 0, my = y;
+    if (m.position >= 0) {
+      const float d = fractionalRequestedDistance(m.position);
+      if (d < 0)
+        continue;
 
-    const QString q_str = QString::fromStdString(m.text);
-    const float lw = painter.fontMetrics().width(q_str);
+      mx = mAxisX->value2paint(d);
+      if (!mAxisX->legalPaint(mx))
+        continue;
+      mx -= painter.fontMetrics().width(q_str) / 2;
+    } else if (m.x != -1 || m.y != -1) {
+      if (m.text.find_first_of("$%") != std::string::npos)
+        q_str = QString::fromStdString(mCrossectionTime.format(m.text, "en"));
+      mx = m.x;
+      my = m.y;
+      const float w = painter.fontMetrics().width(q_str), border = 2;
+      painter.fillRect(mx-border, my-mCharSize.height()-border, w+2*border,
+          mCharSize.height() + 2*border, Qt::white);
+    }
+
     painter.setPen(util::QC(m.colour));
-    painter.drawText(QPointF(x - lw/2, y), q_str);
+    painter.drawText(QPointF(mx, my), q_str);
   }
 }
 
@@ -1095,13 +1113,13 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
       tickValues = ticks_table(zsteps, nzsteps);
       autotick_offset = 100;
     } else if (mAxisY->label() == "Ft") {
-      const int nftsteps = 11;
+      const int nftsteps = 12;
       const float ftsteps[nftsteps] =
-          { 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
+          { 0, 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
             70000, 80000, 90000 };
       tickValues = ticks_table(ftsteps, nftsteps);
       tta = foot_to_meter;
-      autotick_offset = 300;
+      autotick_offset = 500;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -1119,7 +1137,7 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
         visibleTicks += 1;
     }
     METLIBS_LOG_DEBUG(LOGVAL(visibleTicks));
-    if (visibleTicks < 3) {
+    if (visibleTicks < 6) {
       tickValues = ticks_auto(tickValues.front(), tickValues.back(),
           autotick_scale, autotick_offset);
       METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
@@ -1339,24 +1357,37 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
   const int example_length = 50 / pv.size();
   const float example_x = example_length / pv.mScaleX,
       example_y = example_length / pv.mScaleY;
-  const QString label_x = QString("%1 %2").arg(example_x, 0, 'G', 2)
-      .arg(QString::fromStdString(plot->evaluated->argument(0)->unit()));
-  const QString label_y = QString("%1 %2").arg(example_y, 0, 'G', 2)
-      .arg(QString::fromStdString(plot->evaluated->argument(1)->unit()));
+  float label_ex = example_x, label_ey = example_y;
+
+  std::string unit_x = plot->evaluated->argument(0)->unit(),
+      unit_y = plot->evaluated->argument(1)->unit();
+  if (vcross::util::unitsConvertible(unit_x, plot->poptions.vector_example_unit_x)) {
+    label_ex = vcross::util::unitConversion(example_x, unit_x, plot->poptions.vector_example_unit_x);
+    unit_x = plot->poptions.vector_example_unit_x;
+  }
+  if (vcross::util::unitsConvertible(unit_y, plot->poptions.vector_example_unit_y)) {
+    label_ey = vcross::util::unitConversion(example_y, unit_y, plot->poptions.vector_example_unit_y);
+    unit_y = plot->poptions.vector_example_unit_y;
+  }
+
+  const QString label_x = QString("%1 %2").arg(label_ex, 0, 'G', 2)
+      .arg(QString::fromStdString(unit_x));
+  const QString label_y = QString("%1 %2").arg(label_ey, 0, 'G', 2)
+      .arg(QString::fromStdString(unit_y));
   const int labelwidth_x = painter.fontMetrics().width(label_x),
       labelwidth_y = painter.fontMetrics().width(label_y);
 
-  const int border = 5;
+  const int border = 5, gap = 5;
   int x = plot->poptions.vector_example_x, y = plot->poptions.vector_example_y;
   int middle = y + example_length/2, bottom = y + example_length;
-  painter.fillRect(x-border, y-border, example_length + labelwidth_x + 10 + labelwidth_y + 2*border,
+  painter.fillRect(x-border, y-border, example_length + labelwidth_x + 4*gap + labelwidth_y + 2*border,
       example_length + 2*border, Qt::white);
   pv.paint(painter, example_x, 0, x, middle);
-  x += example_length;
+  x += example_length + gap;
   painter.drawText(x, bottom, label_x);
-  x += labelwidth_x + 5;
+  x += labelwidth_x + gap;
   pv.paint(painter, 0, example_y, x, bottom);
-  x += 5;
+  x += 2*gap;
   painter.drawText(x, bottom, label_y);
 }
 

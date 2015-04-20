@@ -58,9 +58,12 @@ private:
     float position;
     std::string text;
     std::string colour;
+    float x, y;
 
     Marker(float p, const std::string& t, const std::string& c)
-      : position(p), text(t), colour(c) { }
+      : position(p), text(t), colour(c), x(-1), y(-1) { }
+    Marker(float xx, float yy, const std::string& t, const std::string& c)
+      : position(-1), text(t), colour(c), x(xx), y(yy) { }
   };
   typedef std::vector<Marker> Marker_v;
 

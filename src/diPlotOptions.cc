@@ -162,6 +162,8 @@ const std::string PlotOptions::key_plot_under="plot_under";
 const std::string PlotOptions::key_maxDiagonalInMeters="maxdiagonalinmeters";
 const std::string PlotOptions::key_vector_example_x = "vector.example.x";
 const std::string PlotOptions::key_vector_example_y = "vector.example.y";
+const std::string PlotOptions::key_vector_example_unit_x = "vector.example.unit.x";
+const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.y";
 
 map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
 vector<std::string> PlotOptions::suffix;
@@ -784,6 +786,10 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.vector_example_x = miutil::to_float(value);
       } else if (key==key_vector_example_y){
         po.vector_example_y = miutil::to_float(value);
+      } else if (key==key_vector_example_unit_x){
+        po.vector_example_unit_x = value;
+      } else if (key==key_vector_example_unit_y){
+        po.vector_example_unit_y = value;
 
       } else {
        origStr += " " + key + "=" + value;

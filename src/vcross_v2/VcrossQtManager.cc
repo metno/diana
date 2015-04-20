@@ -663,8 +663,12 @@ void QtManager::preparePlot()
     }
   }
 
-  for (Marker_v::const_iterator im = mMarkers.begin(); im != mMarkers.end(); ++im)
-    mPlot->addMarker(im->position, im->text, im->colour);
+  for (Marker_v::const_iterator im = mMarkers.begin(); im != mMarkers.end(); ++im) {
+    if (im->position >= 0)
+      mPlot->addMarker(im->position, im->text, im->colour);
+    else
+      mPlot->addMarker(im->x, im->y, im->text, im->colour);
+  }
   mPlot->setReferencePosition(mReferencePosition);
 
   mPlot->prepare();
@@ -967,7 +971,7 @@ void QtManager::selectFields(const string_v& to_plot)
       continue;
     METLIBS_LOG_DEBUG(LOGVAL(line));
 
-    string_v m_p_o = miutil::split(line);
+    string_v m_p_o = miutil::split_protected(line, '"', '"');
 
     std::string poptions;
     std::string model, field;
@@ -977,21 +981,28 @@ void QtManager::selectFields(const string_v& to_plot)
     const bool isMarkerLine = miutil::contains(line, "MARKER");
     const bool isReferenceLine = miutil::contains(line, "REFERENCE");
     std::string markerText, markerColour = "black";
-    float markerPosition = -1;
+    float markerPosition = -1, markerX = -1, markerY = -1;
 
     for (string_v::const_iterator itT = m_p_o.begin(); itT != m_p_o.end(); ++itT) {
       const std::string& token = *itT;
-      string_v stoken = miutil::split(token,"=");
+      string_v //stoken = miutil::split(token,"=");
+      stoken = miutil::split_protected(token, '\"', '\"', "=", true);
       if (stoken.size() != 2)
         continue;
       std::string key = boost::algorithm::to_lower_copy(stoken[0]);
       if (isMarkerLine) {
         if (key == "text") {
           markerText = stoken[1];
+          if (markerText.size() >= 2 && markerText[0] == '"')
+            markerText = markerText.substr(1, markerText.size() - 2);
         } else if (key == "colour") {
           markerColour = stoken[1];
         } else if (key == "position") {
           markerPosition = miutil::to_float(stoken[1]);
+        } else if (key == "position.x") {
+          markerX = miutil::to_float(stoken[1]);
+        } else if (key == "position.y") {
+          markerY = miutil::to_float(stoken[1]);
         }
       } else if (isReferenceLine) {
         if (key == "position") {
@@ -1016,8 +1027,12 @@ void QtManager::selectFields(const string_v& to_plot)
       }
     }
     if (isMarkerLine) {
-      if (!markerText.empty() && markerPosition >= 0)
-        mMarkers.push_back(Marker(markerPosition, markerText, markerColour));
+      if (!markerText.empty()) {
+        if (markerPosition >= 0)
+          mMarkers.push_back(Marker(markerPosition, markerText, markerColour));
+        else if (markerX >= 0 && markerY >= 0)
+          mMarkers.push_back(Marker(markerX, markerY, markerText, markerColour));
+      }
     } else {
       if (reftime.undef() && !model.empty()) {
         const vctime_v reftimes = getModelReferenceTimes(model);

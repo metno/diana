@@ -94,11 +94,14 @@ private:
 
   struct OptionMarker {
     float position; //! fractional index, 2.75 meaning 75% of the way from 2 to 3
+    float x, y; //! screen pixels
     std::string text;
     std::string colour;
 
     OptionMarker(float p, const std::string& t, const std::string& c)
-      : position(p), text(t), colour(c) { }
+      : position(p), x(-1), y(-1), text(t), colour(c) { }
+    OptionMarker(float xx, float yy, const std::string& t, const std::string& c)
+      : position(-1), x(xx), y(yy), text(t), colour(c) { }
   };
   typedef std::vector<OptionMarker> OptionMarker_v;
 
@@ -135,6 +138,7 @@ public:
   void addPlot(EvaluatedPlot_cp ep);
   void addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth);
   void addMarker(float position, const std::string& text, const std::string& colour);
+  void addMarker(float x, float y, const std::string& text, const std::string& colour);
   void setReferencePosition(float rp)
     { mReferencePosition = rp; }
   void prepare();

@@ -280,6 +280,8 @@ public:
 
   static const std::string key_vector_example_x;
   static const std::string key_vector_example_y;
+  static const std::string key_vector_example_unit_x;
+  static const std::string key_vector_example_unit_y;
 
 public:
   bool options_1;
@@ -381,6 +383,8 @@ public:
 
   int vector_example_x; // example vector x-position, for vcross, in screen coordinates
   int vector_example_y; // example vector y-position, for vcross, in screen coordinates
+  std::string vector_example_unit_x; // unit for x-component of sample vector
+  std::string vector_example_unit_y; // unit for y-component of sample vector
 
   PlotOptions();
 
