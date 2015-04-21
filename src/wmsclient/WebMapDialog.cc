@@ -79,6 +79,7 @@ void WebMapDialog::setupUi()
 {
   METLIBS_LOG_SCOPE();
   ui->setupUi(this);
+  ui->labelPending->setVisible(false);
 
   mServicesModel = new QStringListModel(this);
   mServicesFilter = new QSortFilterProxyModel(this);
@@ -206,11 +207,15 @@ void WebMapDialog::initializeAddLayerPage(bool forward)
 void WebMapDialog::onServiceRefreshStarting()
 {
   mLayersModel->setStringList(QStringList());
+  ui->labelPending->setVisible(true);
+  ui->listAddLayers->setEnabled(false);
   checkAddComplete();
 }
 
 void WebMapDialog::onServiceRefreshFinished()
 {
+  ui->labelPending->setVisible(false);
+  ui->listAddLayers->setEnabled(true);
   updateAddLayers();
 }
 
@@ -284,7 +289,7 @@ void WebMapDialog::onAddBack()
 
 void WebMapDialog::onAddRestart()
 {
-  initializeAddLayerPage(true);
+  initializeAddServicePage(true);
 }
 
 void WebMapDialog::addSelectedLayer()

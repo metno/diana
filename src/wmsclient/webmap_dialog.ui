@@ -74,7 +74,7 @@
           </layout>
          </widget>
          <widget class="QWidget" name="addPageLayer">
-          <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,1">
+          <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,1">
            <property name="spacing">
             <number>2</number>
            </property>
@@ -92,6 +92,13 @@
             <widget class="QLineEdit" name="editAddLayerFilter">
              <property name="placeholderText">
               <string>Type to filter layer name</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPending">
+             <property name="text">
+              <string>Waiting for webmap service …</string>
              </property>
             </widget>
            </item>
@@ -116,6 +123,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>Start over (from service selection)</string>
+           </property>
            <property name="text">
             <string>Restart</string>
            </property>
@@ -139,6 +149,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>Back to the previous step</string>
+           </property>
            <property name="text">
             <string>Back</string>
            </property>
@@ -150,7 +163,7 @@
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Next/Add</string>
+            <string notr="true">Next/Add</string>
            </property>
           </widget>
          </item>
@@ -170,7 +183,11 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QComboBox" name="comboStyleLayer"/>
+        <widget class="QComboBox" name="comboStyleLayer">
+         <property name="toolTip">
+          <string>Choose the layer to modify</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="groupStyle">
@@ -196,7 +213,7 @@
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>Choose layer style</string>
+             <string>Choose a style provided by the webmap service</string>
             </property>
             <property name="sizeAdjustPolicy">
              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -237,7 +254,7 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="checkGrey">
             <property name="toolTip">
-             <string>Transform to greyscale</string>
+             <string>Transform webmap to greyscale</string>
             </property>
             <property name="text">
              <string>Grey</string>
@@ -308,6 +325,9 @@
           </item>
           <item row="3" column="2" colspan="3">
            <widget class="QComboBox" name="comboBox">
+            <property name="toolTip">
+             <string>Choose</string>
+            </property>
             <item>
              <property name="text">
               <string>Background</string>
@@ -458,8 +478,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>388</width>
-               <height>77</height>
+               <width>100</width>
+               <height>30</height>
               </rect>
              </property>
             </widget>
@@ -495,6 +515,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="buttonModifyApply">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>&amp;Apply</string>
            </property>
