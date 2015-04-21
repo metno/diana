@@ -101,12 +101,14 @@ public:
   static std::vector<ColourInfo> getColourInfo(){return colours;}
 
   void set(const unsigned char r, const unsigned char g,
-	   const unsigned char b, const unsigned char a =maxv){
-    v.rgba[red]=r; v.rgba[green]=g;
-    v.rgba[blue]=b; v.rgba[alpha]=a;}
+      const unsigned char b, const unsigned char a =maxv)
+    { v.rgba[red]=r; v.rgba[green]=g; v.rgba[blue]=b; v.rgba[alpha]=a;}
+
+  void setF(float r, float g, float b, float a = 1.0)
+    { v.rgba[red] = r*maxv; v.rgba[green] = g*maxv; v.rgba[blue] = b*maxv; v.rgba[alpha] = a*maxv;}
 
   void set(const values& va)
-  {v= va;}
+    {v= va;}
 
   void set(const cIndex i,const unsigned char b){v.rgba[i]=b;}
 

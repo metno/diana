@@ -92,6 +92,19 @@ private:
   };
   typedef std::vector<OptionLine> OptionLine_v;
 
+  struct OptionMarker {
+    float position; //! fractional index, 2.75 meaning 75% of the way from 2 to 3
+    float x, y; //! screen pixels
+    std::string text;
+    std::string colour;
+
+    OptionMarker(float p, const std::string& t, const std::string& c)
+      : position(p), x(-1), y(-1), text(t), colour(c) { }
+    OptionMarker(float xx, float yy, const std::string& t, const std::string& c)
+      : position(-1), x(xx), y(yy), text(t), colour(c) { }
+  };
+  typedef std::vector<OptionMarker> OptionMarker_v;
+
 public:
   QtPlot(VcrossOptions_p options);
   ~QtPlot();
@@ -124,6 +137,10 @@ public:
     { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);
   void addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth);
+  void addMarker(float position, const std::string& text, const std::string& colour);
+  void addMarker(float x, float y, const std::string& text, const std::string& colour);
+  void setReferencePosition(float rp)
+    { mReferencePosition = rp; }
   void prepare();
   void plot(QPainter& painter);
 
@@ -141,6 +158,7 @@ private:
       const ticks_t& tickValues, tick_to_axis_f& tta);
   void plotSurface(QPainter& painter);
   void plotXLabels(QPainter& painter);
+  void plotLegend(QPainter& painter);
   void plotTitle(QPainter& painter);
   void plotText(QPainter& painter, const std::vector<std::string>& annotations);
 
@@ -168,6 +186,7 @@ private:
   void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1);
   void plotDataWind(QPainter& painter, OptionPlot_cp plot);
   void plotDataVector(QPainter& painter, OptionPlot_cp plot);
+  void plotDataVectorExample(QPainter& painter, OptionPlot_cp plot);
   void plotDataLine(QPainter& painter, const OptionLine& ol);
 
   bool isTimeGraph() const
@@ -182,6 +201,8 @@ private:
 
   static float absValue(OptionPlot_cp plot, int ix, int iy, bool timegraph);
   std::string formatExtremeAnnotationValue(float value, float y);
+
+  float fractionalRequestedDistance(float p);
 
 private:
   VcrossOptions_p mOptions;
@@ -202,6 +223,7 @@ private:
   LonLat_v mCrossectionPointsRequested;
   std::vector<float> mCrossectionDistances; //! distance in m from first point
   std::vector<float> mCrossectionBearings;  //! direction to next point
+  std::vector<float> mRequestedDistances; //! distance in m from first point, only requested points
 
   // for time graph
   std::vector<miutil::miTime> mTimePoints;
@@ -212,6 +234,8 @@ private:
   Values_cp mSurface;
 
   OptionLine_v mLines;
+  OptionMarker_v mMarkers;
+  float mReferencePosition; //! fractional index in requested points
 };
 
 typedef boost::shared_ptr<QtPlot> QtPlot_p;

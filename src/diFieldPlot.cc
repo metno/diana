@@ -829,16 +829,16 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
     float numElements = float(maxElementsX) * getStaticPlot()->getPhysWidth() / 1000.;
     float elementSize = getStaticPlot()->getPlotSize().width() / numElements;
     step = int(elementSize / dist + 0.75);
-    if (step < 1)
+    if (step < 1) {
       step = 1;
+    } else {
+
+      dist *= float(step);
+      if (step > poptions.densityFactor && poptions.densityFactor > 0) {
+        step /= (poptions.densityFactor);
+      }
+    }
   }
-
-  dist *= float(step);
-
-  if (step > poptions.densityFactor && poptions.densityFactor > 0) {
-    step /= (poptions.densityFactor);
-  }
-
   //adjust ix1,iy1 to make sure that same grid points are used when panning
   ixx1 = int(ixx1 / step) * step;
   iyy1 = int(iyy1 / step) * step;
@@ -3330,36 +3330,38 @@ unsigned char * FieldPlot::createRGBAImage(Field * field)
         // set pixel value
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         int index = 0;
+        int npalettecolours = poptions.palettecolours.size();
+        int npalettecolours_cold = poptions.palettecolours_cold.size();
         if (poptions.linevalues.size() == 0) {
 
           if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
-                  % poptions.palettecolours.size();
+                  % npalettecolours;
             } else {
               // Just divide by lineintervall...
               index = int((value - poptions.base) / poptions.lineinterval);
             }
-            if (index > poptions.palettecolours.size() - 1)
-              index = poptions.palettecolours.size() - 1;
+            if (index > npalettecolours - 1)
+              index = npalettecolours - 1;
             if (index < 0)
               index = 0;
             pixelColor.set(poptions.palettecolours[index].R(),
                 poptions.palettecolours[index].G(),
                 poptions.palettecolours[index].B(),
                 poptions.palettecolours[index].A());
-          } else if (poptions.palettecolours_cold.size() != 0) {
+          } else if (npalettecolours_cold != 0) {
             float base = poptions.lineinterval
-                * poptions.palettecolours_cold.size() - poptions.base;
+                * npalettecolours_cold - poptions.base;
             if (poptions.repeat) {
               index = int((value + base) / poptions.lineinterval)
-                  % poptions.palettecolours_cold.size();
+                  % npalettecolours_cold;
             } else {
               index = int((value + base) / poptions.lineinterval);
             }
-            index = poptions.palettecolours_cold.size() - 1 - index;
-            if (index > poptions.palettecolours_cold.size() - 1)
-              index = poptions.palettecolours_cold.size() - 1;
+            index = npalettecolours_cold - 1 - index;
+            if (index > npalettecolours_cold - 1)
+              index = npalettecolours_cold - 1;
             if (index < 0)
               index = 0;
             pixelColor.set(poptions.palettecolours_cold[index].R(),
@@ -3709,31 +3711,33 @@ bool FieldPlot::plotFillCell()
         // Don't divide by poptions.palettecolours(_cold).size() if repeat not set.
         if (poptions.linevalues.size() == 0) {
           int index = 0;
+          int npalettecolours = poptions.palettecolours.size();
+          int npalettecolours_cold = poptions.palettecolours_cold.size();
           if (value > poptions.base) {
             if (poptions.repeat) {
               index = int((value - poptions.base) / poptions.lineinterval)
-                      % poptions.palettecolours.size();
+                      % npalettecolours;
             } else {
               // Just divide by lineintervall...
               index = int((value - poptions.base) / poptions.lineinterval);
             }
-            if (index > poptions.palettecolours.size() - 1)
-              index = poptions.palettecolours.size() - 1;
+            if (index > npalettecolours - 1)
+              index = npalettecolours - 1;
             if (index < 0)
               index = 0;
             glColor4ubv(poptions.palettecolours[index].RGBA());
-          } else if (poptions.palettecolours_cold.size() != 0) {
+          } else if (npalettecolours_cold != 0) {
             float base = poptions.lineinterval
-                * poptions.palettecolours_cold.size() - poptions.base;
+                * npalettecolours_cold - poptions.base;
             if (poptions.repeat) {
               index = int((value + base) / poptions.lineinterval)
-                      % poptions.palettecolours_cold.size();
+                      % npalettecolours_cold;
             } else {
               index = int((value + base) / poptions.lineinterval);
             }
-            index = poptions.palettecolours_cold.size() - 1 - index;
-            if (index > poptions.palettecolours_cold.size() - 1)
-              index = poptions.palettecolours_cold.size() - 1;
+            index = npalettecolours_cold - 1 - index;
+            if (index > npalettecolours_cold - 1)
+              index = npalettecolours_cold - 1;
             if (index < 0)
               index = 0;
             glColor4ubv(poptions.palettecolours_cold[index].RGBA());

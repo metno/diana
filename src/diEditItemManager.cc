@@ -275,11 +275,40 @@ void EditItemManager::addItem(const QSharedPointer<DrawingItemBase> &item, bool 
     repaint();
 }
 
+DrawingItemBase *EditItemManager::createItem(const QString &type)
+{
+  EditItemBase *item = 0;
+  if (type == "PolyLine") {
+    item = new EditItem_PolyLine::PolyLine();
+  } else if (type == "Symbol") {
+    item = new EditItem_Symbol::Symbol();
+  } else if (type == "Text") {
+    item = new EditItem_Text::Text();
+  } else if (type == "Composite") {
+    item = new EditItem_Composite::Composite();
+  }
+  return Drawing(item);
+}
+
 QSharedPointer<DrawingItemBase> EditItemManager::createItemFromVarMap(const QVariantMap &vmap, QString *error)
 {
-  return QSharedPointer<DrawingItemBase>(
-        createItemFromVarMap_<DrawingItemBase, EditItem_PolyLine::PolyLine, EditItem_Symbol::Symbol,
-        EditItem_Text::Text, EditItem_Composite::Composite>(vmap, error));
+  Q_ASSERT(!vmap.empty());
+  Q_ASSERT(vmap.contains("type"));
+  Q_ASSERT(vmap.value("type").canConvert(QVariant::String));
+
+  QString type = vmap.value("type").toString().split("::").last();
+  DrawingItemBase *item = createItem(type);
+
+  if (item) {
+    item->setProperties(vmap);
+    setFromLatLonPoints(*item, item->getLatLonPoints());
+
+    EditItem_Composite::Composite *c = dynamic_cast<EditItem_Composite::Composite *>(item);
+    if (c)
+      c->createElements();
+  }
+
+  return QSharedPointer<DrawingItemBase>(Drawing(item));
 }
 
 void EditItemManager::addItem_(const QSharedPointer<DrawingItemBase> &item, bool updateNeeded, bool ignoreSelection)
@@ -1323,6 +1352,29 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   if (!isEditing())
     return;
 
+  float dx, dy;
+  int w, h;
+
+  if (event->type() == QEvent::MouseButtonPress && event->buttons() == Qt::LeftButton) {
+    // Allow context menus to be created for items in the drawing manager.
+
+    // Translate the mouse event by the current displacement of the viewport.
+    getViewportDisplacement(w, h, dx, dy);
+    QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
+                    event->globalPos(), event->button(), event->buttons(), event->modifiers());
+
+    DrawingManager *drawm = DrawingManager::instance();
+
+    const QList<QSharedPointer<DrawingItemBase> > hitItems = drawm->findHitItems(me2.pos(), 0);
+    if (!hitItems.empty()) {
+      QSharedPointer<DrawingItemBase> hitItem; // consider only this item to be hit
+      hitItem = hitItems.first();
+      Properties::PropertiesEditor::instance()->edit(hitItem, true, false);
+      event->accept();
+      return;
+    }
+  }
+
   event->ignore();
   res.savebackground= true;   // Save the background after painting.
   res.background= false;      // Don't paint the background.
@@ -1333,21 +1385,8 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
   if (layerMgr_->selectedLayers().isEmpty()) // skip if no layers are selected
     return;
 
-  // Transform the mouse position into the original coordinate system used for the objects.
-  int w, h;
-  PLOTM->getPlotWindow(w, h);
-  const Rectangle& plotRect_ = PLOTM->getPlotSize();
-
-  if (layerMgr_->selectedLayersItemCount() == 0)
-    setEditRect(PLOTM->getPlotSize());
-
-  // Determine the displacement from the edit origin to the current view origin
-  // in screen coordinates. This gives us displaced screen coordinates - these
-  // are coordinates relative to the original edit rectangle.
-  float dx = (plotRect_.x1 - editRect_.x1) * (w/plotRect_.width());
-  float dy = (plotRect_.y1 - editRect_.y1) * (h/plotRect_.height());
-
   // Translate the mouse event by the current displacement of the viewport.
+  getViewportDisplacement(w, h, dx, dy);
   QMouseEvent me2(event->type(), QPoint(event->x() + dx, event->y() + dy),
                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
 
@@ -1566,6 +1605,22 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
 
   if (event->type() != QEvent::MouseMove)
     updateActionsAndTimes();
+}
+
+void EditItemManager::getViewportDisplacement(int &w, int &h, float &dx, float &dy)
+{
+  // Transform the mouse position into the original coordinate system used for the objects.
+  PLOTM->getPlotWindow(w, h);
+  const Rectangle& plotRect_ = PLOTM->getPlotSize();
+
+  if (layerMgr_->selectedLayersItemCount() == 0)
+    setEditRect(PLOTM->getPlotSize());
+
+  // Determine the displacement from the edit origin to the current view origin
+  // in screen coordinates. This gives us displaced screen coordinates - these
+  // are coordinates relative to the original edit rectangle.
+  dx = (plotRect_.x1 - editRect_.x1) * (w/plotRect_.width());
+  dy = (plotRect_.y1 - editRect_.y1) * (h/plotRect_.height());
 }
 
 bool EditItemManager::cycleHitOrder(QKeyEvent *event)

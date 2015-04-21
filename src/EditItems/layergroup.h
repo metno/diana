@@ -32,15 +32,22 @@
 #ifndef EDITITEMSLAYERGROUP_H
 #define EDITITEMSLAYERGROUP_H
 
-#include <QObject>
-#include <QString>
+#include <QDateTime>
+#include <QFileInfo>
 #include <QList>
+#include <QMap>
+#include <QObject>
+#include <QPair>
+#include <QSet>
+#include <QString>
 //#define QT_SHAREDPOINTER_TRACK_POINTERS
 #include <QSharedPointer>
+#include <QVariantMap>
 
 namespace EditItems {
 
 class Layer;
+class LayerManager;
 
 class LayerGroup : public QObject
 {
@@ -53,14 +60,24 @@ public:
   int id() const;
   QString name() const;
   void setName(const QString &);
-  QString fileName() const;
+  QString fileName(const QDateTime &dateTime = QDateTime()) const;
   void setFileName(const QString &);
   bool isEditable() const;
   bool isActive() const;
   void setActive(bool);
   const QList<QSharedPointer<Layer> > &layersRef() const;
   QList<QSharedPointer<Layer> > &layersRef();
+  QSet<QString> getTimes() const;
+  QDateTime time() const;
+  bool hasTime(const QDateTime &dateTime) const;
+  void setTime(const QDateTime &dateTime, bool allVisible = true);
+  QSet<QString> files() const;
+  void setFiles(const QList<QPair<QFileInfo, QDateTime> > &tfiles);
+  bool isCollection() const;
+
 private:
+  QString timeProperty(const QVariantMap &properties, QString &time_str);
+
   int id_;
   static int nextId_;
   static int nextId();
@@ -69,6 +86,8 @@ private:
   bool editable_;
   bool active_;
   QList<QSharedPointer<Layer> > layers_;
+  QMap<QDateTime, QFileInfo> tfiles_;
+  QDateTime currentTime_;
 };
 
 } // namespace

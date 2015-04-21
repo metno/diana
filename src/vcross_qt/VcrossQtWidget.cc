@@ -257,7 +257,7 @@ bool QtWidget::saveRasterImage(const QString& fname)
   if (!vcrossm)
     return false;
 
-  QImage image(width(), height(), QImage::Format_ARGB32);
+  QImage image(width(), height(), QImage::Format_ARGB32_Premultiplied);
 
   QPainter painter;
   painter.begin(&image);

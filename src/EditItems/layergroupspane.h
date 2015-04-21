@@ -80,6 +80,7 @@ private:
   void removeWidget(LayerGroupWidget *);
   void addToLGFromFile();
   LayerManager *layerMgr_;
+  void loadLayers(LayerGroupWidget *lgWidget);
 
 private slots:
   void addToNewLGFromFile();

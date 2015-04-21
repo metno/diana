@@ -37,6 +37,7 @@
 #include <diObsPlot.h>
 
 #include <diFieldPlot.h>
+#include "diLocalSetupParser.h"
 #include "diLocationPlot.h"
 #include <diMapPlot.h>
 #include <diTrajectoryPlot.h>
@@ -484,9 +485,8 @@ vector<PlotElement> PlotModule::getPlotElements()
   }
 
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-    std::vector<PlotElement> pe = it->second->getPlotElements();
-    for (std::vector<PlotElement>::const_iterator it_pe = pe.begin(); it_pe != pe.end(); ++it_pe)
-      pel.push_back(*it_pe);
+    const std::vector<PlotElement> pe = it->second->getPlotElements();
+    pel.insert(pel.end(), pe.begin(), pe.end());
   }
 
   return pel;
@@ -1529,6 +1529,15 @@ void PlotModule::setManagers(FieldManager* fm, FieldPlotManager* fpm,
     METLIBS_LOG_ERROR("PlotModule::ERROR editmanager==0");
 }
 
+Manager *PlotModule::getManager(const std::string &name)
+{
+  managers_t::iterator it = managers.find(name);
+  if (it == managers.end())
+    return 0;
+  else
+    return it->second;
+}
+
 // return current plottime
 void PlotModule::getPlotTime(std::string& s)
 {
@@ -1561,20 +1570,10 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
   if (pinfos.size() > 0) {
     times["fields"] = fieldplotm->getFieldTime(pinfos, updateSources);
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("--- Found fieldtimes:");
-  for (unsigned int i=0; i<fieldtimes.size(); i++)
-    METLIBS_LOG_DEBUG(fieldtimes[i]);
-#endif
 
   { std::vector<miTime> sattimes = satm->getSatTimes();
   if (not sattimes.empty())
     times["satellites"] = sattimes;
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("--- Found sattimes:");
-  for (unsigned int i=0; i<sattimes.size(); i++)
-    METLIBS_LOG_DEBUG(sattimes[i]);
-#endif
   }
 
   pinfos.clear();
@@ -1583,19 +1582,8 @@ void PlotModule::getPlotTimes(map<string,vector<miutil::miTime> >& times,
   if (pinfos.size() > 0) {
     times["observations"] = obsm->getObsTimes(pinfos);
   }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("--- Found obstimes:");
-  for (unsigned int i=0; i<obstimes.size(); i++)
-    METLIBS_LOG_DEBUG(obstimes[i]);
-#endif
 
   times["objects"] = objm->getObjectTimes();
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("--- Found objtimes:");
-  for (unsigned int i=0; i<objtimes.size(); i++)
-    METLIBS_LOG_DEBUG(objtimes[i]);
-#endif
 
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it)
     times[it->first] = it->second->getTimes();

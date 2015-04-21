@@ -278,6 +278,11 @@ public:
   //only plot if gcd less than maxDiagonalInMeters
   static const std::string key_maxDiagonalInMeters;
 
+  static const std::string key_vector_example_x;
+  static const std::string key_vector_example_y;
+  static const std::string key_vector_example_unit_x;
+  static const std::string key_vector_example_unit_y;
+
 public:
   bool options_1;
   bool options_2;
@@ -376,7 +381,11 @@ public:
   bool      plot_under;     // plot field together with shade plots
   float     maxDiagonalInMeters;
 
-  // Constructor
+  int vector_example_x; // example vector x-position, for vcross, in screen coordinates
+  int vector_example_y; // example vector y-position, for vcross, in screen coordinates
+  std::string vector_example_unit_x; // unit for x-component of sample vector
+  std::string vector_example_unit_y; // unit for y-component of sample vector
+
   PlotOptions();
 
   std::string toString();

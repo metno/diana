@@ -358,7 +358,7 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
     return false;
 
   float vectorAnnotationSize = 21 * getStaticPlot()->getPhysToMapScaleX();
-  std::string vectorAnnotationText = std::string(2.5 * current, 2) + "m/s";
+  std::string vectorAnnotationText = miutil::from_number(2.5 * current, 2) + "m/s";
   int nanno = anno.size();
   for (int j = 0; j < nanno; j++) {
     if (miutil::contains(anno[j], "arrow")) {

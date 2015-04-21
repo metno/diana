@@ -433,7 +433,7 @@ void VcrossOptions::readOptions(const std::vector<std::string>& vstr)
       else if (key=="verticalUnit")               verticalUnit= value;
 
       else if (key=="keepVerHorRatio") keepVerHorRatio = kv.toBool();
-      else if (key=="verHorRatio")     verHorRatio= kv.toInt();
+      else if (key=="verHorRatio")     verHorRatio= kv.toDouble();
 
       else if (key=="stdVerticalArea") stdVerticalArea = kv.toBool();
       else if (key=="minVerticalArea") minVerticalArea= kv.toInt();

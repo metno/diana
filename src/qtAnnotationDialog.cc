@@ -57,10 +57,7 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
   parseSetup();
 
   annoBox = new QComboBox(this);
-  map<QString,QString>::iterator ip = current_annoStrings.begin();
-  for ( ; ip!= current_annoStrings.end(); ++ip) {
-    annoBox->addItem(ip->first);
-  }
+  annoBox->addItems(annoNames);
   connect( annoBox, SIGNAL(activated(int)), SLOT(annoBoxActivated(int)));
 
   defaultButton = NormalPushButton( tr("Default"), this);
@@ -123,8 +120,9 @@ void AnnotationDialog::applyhideClicked(){
 void AnnotationDialog::parseSetup(){
   METLIBS_LOG_SCOPE();
 
-  std::string anno_section="ANNOTATIONS";
-  std::string label_section="LABELS";
+  const QString defaultName="default";
+  const std::string anno_section="ANNOTATIONS";
+  const std::string label_section="LABELS";
   vector<std::string> vstr;
 
   if (miutil::SetupParser::getSection(anno_section,vstr)){
@@ -159,34 +157,34 @@ void AnnotationDialog::parseSetup(){
       }
       setup_annoStrings[name]=qstr;
       current_annoStrings[name]=qstr;
-      if ( name == "default")
-        defaultAnno = qstr;
+      if (name == defaultName)
+        annoNames.prepend(name);
+      else
+        annoNames.append(name);
       qstr.clear();
     }
 
   } else if ( miutil::SetupParser::getSection(label_section,vstr) ) { //obsolete syntax, use annotations section
     METLIBS_LOG_INFO(LOGVAL(label_section));
-    QString name = "default";
     QString qstr;
     for(size_t i=0; i<vstr.size(); i++) {
       qstr += vstr[i].c_str();
       qstr += " \n";
     }
-    setup_annoStrings[name]=qstr;
-    current_annoStrings[name]=qstr;
-    defaultAnno = qstr;
+    setup_annoStrings[defaultName]=qstr;
+    current_annoStrings[defaultName]=qstr;
+    annoNames.append(defaultName);
 
   } else {
 
     METLIBS_LOG_WARN(anno_section << " section not found, using default");
-    QString name = "Labels";
-    QString qstr = "LABEL data font=BITMAPFONT \n";
-    qstr += "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=center ";
-    qstr += "font=BITMAPFONT fontsize=12 \n";
-    qstr += "LABEL anno=<table,fcolour=white:150> halign=right valign=top fcolour=white:0 margin=0 \n";
-    setup_annoStrings[name]=qstr;
-    current_annoStrings[name]=qstr;
-    defaultAnno = qstr;
+    QString qstr = "LABEL data font=BITMAPFONT fontsize=8 \n";
+    qstr += "LABEL text=\"$day $date $auto UTC\" tcolour=red bcolour=black fcolour=white:200 polystyle=both halign=left valign=top ";
+    qstr += "font=BITMAPFONT fontsize=8 \n";
+    qstr += "LABEL anno=<table,fcolour=white:150> halign=right valign=top polystyle=none margin=0 fontsize=10 \n";
+    setup_annoStrings[defaultName]=qstr;
+    current_annoStrings[defaultName]=qstr;
+    annoNames.append(defaultName);
     return;
   }
 
@@ -225,7 +223,8 @@ void AnnotationDialog::putOKString(const vector<string>& vstr)
 {
   METLIBS_LOG_SCOPE(vstr.size());
   if ( vstr.size() == 0 ) {
-    textedit->setText(defaultAnno);
+    annoBox->setCurrentIndex(0);
+    annoBoxActivated(0);
     return;
   }
 

@@ -70,6 +70,7 @@ public:
   void editItem(DrawingItemBase *item);
   void removeItem(const QSharedPointer<DrawingItemBase> &);
 
+  virtual DrawingItemBase *createItem(const QString &type);
   virtual QSharedPointer<DrawingItemBase> createItemFromVarMap(const QVariantMap &vmap, QString *error);
 
   // Returns the undo stack.
@@ -93,6 +94,7 @@ public:
 
   void sendMouseEvent(QMouseEvent* event, EventResult& res);
   void sendKeyboardEvent(QKeyEvent* event, EventResult& res);
+  void getViewportDisplacement(int &w, int &h, float &dx, float &dy);
 
   QHash<Action, QAction*> actions();
   QUndoView *getUndoView();

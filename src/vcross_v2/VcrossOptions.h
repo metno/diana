@@ -138,7 +138,7 @@ public:
   vcross::Z_AXIS_TYPE getVerticalType() const;
 
   bool keepVerHorRatio;
-  int  verHorRatio;
+  float  verHorRatio;
 
   bool stdVerticalArea;
   int  minVerticalArea;

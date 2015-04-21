@@ -160,6 +160,10 @@ const std::string PlotOptions::key_use_stencil="use_stencil";
 const std::string PlotOptions::key_update_stencil="update_stencil";
 const std::string PlotOptions::key_plot_under="plot_under";
 const std::string PlotOptions::key_maxDiagonalInMeters="maxdiagonalinmeters";
+const std::string PlotOptions::key_vector_example_x = "vector.example.x";
+const std::string PlotOptions::key_vector_example_y = "vector.example.y";
+const std::string PlotOptions::key_vector_example_unit_x = "vector.example.unit.x";
+const std::string PlotOptions::key_vector_example_unit_y = "vector.example.unit.y";
 
 map<std::string,PlotOptions> PlotOptions::fieldPlotOptions;
 vector<std::string> PlotOptions::suffix;
@@ -184,6 +188,7 @@ PlotOptions::PlotOptions():
   fontname(defaultFontName()), fontface(defaultFontFace()), fontsize(defaultFontSize()), precision(0),
   dimension(1), enabled(true), overlay(0), contourShape(0), tableHeader(true),
   antialiasing(false), use_stencil(false), update_stencil(false), plot_under(false), maxDiagonalInMeters(-1.0)
+    , vector_example_x(-1), vector_example_y(-1)
 {
   limits.clear();
   values.clear();
@@ -777,6 +782,14 @@ bool PlotOptions::parsePlotOption( std::string& optstr, PlotOptions& po, bool re
         po.plot_under=(value == TRUE);
       } else if (key==key_maxDiagonalInMeters){
         po.maxDiagonalInMeters=atof(value.c_str());
+      } else if (key==key_vector_example_x){
+        po.vector_example_x = miutil::to_float(value);
+      } else if (key==key_vector_example_y){
+        po.vector_example_y = miutil::to_float(value);
+      } else if (key==key_vector_example_unit_x){
+        po.vector_example_unit_x = value;
+      } else if (key==key_vector_example_unit_y){
+        po.vector_example_unit_y = value;
 
       } else {
        origStr += " " + key + "=" + value;

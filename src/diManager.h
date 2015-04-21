@@ -63,7 +63,7 @@ public:
   virtual bool prepare(const miutil::miTime &time) = 0;
 
   virtual void plot(bool under, bool over) = 0;
-  void plot(Plot::PlotOrder zorder)
+  virtual void plot(Plot::PlotOrder zorder)
     { plot(zorder == Plot::LINES, zorder == Plot::OVERLAY); }
 
   virtual bool processInput(const std::vector<std::string>& inp) = 0;

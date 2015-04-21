@@ -140,6 +140,31 @@ ticks_t ticks_auto(float start, float end, float scale, float offset)
 
 // end utility functions for y ticks
 
+bool isPlotOk(vcross::EvaluatedPlot_cp ep, int npoint, std::string& error, bool timegraph)
+{
+  if (ep->argument_values.empty()) {
+    error = "no argument_values, cannot plot";
+    return false;
+  } else if (not ep->z_values) {
+    error = "no z_values, cannot plot";
+    return false;
+  }
+  const char* H_COORD = horizontal(timegraph);
+  const int np_z = ep->z_values->shape().length(H_COORD),
+      np_v0 = ep->values(0)->shape().length(H_COORD);
+  if (np_z != npoint && np_z != 1) {
+    error = (miutil::StringBuilder() << "unexpected z point count " << np_z
+        << " != " << npoint << ", cannot plot").str();
+  } else if (np_v0 != npoint) {
+    error = (miutil::StringBuilder() << "unexpected v0 point count " << np_v0
+        << " != " << npoint << ", cannot plot").str();
+  } else {
+    error = std::string();
+    return true;
+  }
+  return false;
+}
+
 static const float LINE_GAP = 0.2;
 static const float LINES_1 = 1 + LINE_GAP;
 static const float LINES_2 = 2 + LINE_GAP;
@@ -172,6 +197,7 @@ QtPlot::QtPlot(VcrossOptions_p options)
   , mKeepY(false)
   , mAxisX(new vcross::detail::Axis(true))
   , mAxisY(new vcross::detail::Axis(false))
+  , mReferencePosition(-1)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -250,6 +276,20 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
     const QString time = QString::fromStdString(mCrossectionTime.isoTime());
     const float time_w = painter.fontMetrics().width(time);
     painter.drawText(QPointF(mTotalSize.width() - time_w - mCharSize.width(), yCSName - yStep), time);
+  }
+}
+
+void QtPlot::plotLegend(QPainter& painter)
+{
+  const bool tg = isTimeGraph();
+  const size_t npoint = ( tg ? mTimeDistances : mCrossectionDistances).size();
+  BOOST_FOREACH(OptionPlot_cp plot, mPlots) {
+    EvaluatedPlot_cp ep = plot->evaluated;
+    if (plot->type() == ConfiguredPlot::T_VECTOR) {
+      std::string error;
+      if (isPlotOk(ep, npoint, error, tg))
+        plotDataVectorExample(painter, plot);
+    }
   }
 }
 
@@ -365,6 +405,7 @@ void QtPlot::clear(bool keepX, bool keepY)
 
   mSurface = Values_cp();
   mLines.clear();
+  mMarkers.clear();
 
   mViewChanged = true;
 }
@@ -387,6 +428,15 @@ void QtPlot::setHorizontalCross(const std::string& csLabel, const miutil::miTime
   for (size_t i=1; i<mCrossectionPoints.size(); ++i) {
     const LonLat &p0 = mCrossectionPoints.at(i-1), &p1 = mCrossectionPoints.at(i);
     mCrossectionDistances.push_back(mCrossectionDistances.back() + p0.distanceTo(p1));
+  }
+
+  mRequestedDistances.clear();
+  mRequestedDistances.reserve(mCrossectionPointsRequested.size());
+  for (size_t i=0, j=0; i<mCrossectionPoints.size() && j<mCrossectionPointsRequested.size(); ++i) {
+    if (eq_LonLat(mCrossectionPointsRequested.at(j), mCrossectionPoints.at(i))) {
+      mRequestedDistances.push_back(mCrossectionDistances.at(i));
+      j += 1;
+    }
   }
 
   mCrossectionBearings.clear();
@@ -461,6 +511,18 @@ void QtPlot::addLine(Values_cp linevalues, const std::string& linecolour, const 
 {
   METLIBS_LOG_SCOPE();
   mLines.push_back(OptionLine(linevalues, linecolour, linetype, linewidth));
+}
+
+void QtPlot::addMarker(float position, const std::string& text, const std::string& colour)
+{
+  METLIBS_LOG_SCOPE();
+  mMarkers.push_back(OptionMarker(position, text, colour));
+}
+
+void QtPlot::addMarker(float x, float y, const std::string& text, const std::string& colour)
+{
+  METLIBS_LOG_SCOPE();
+  mMarkers.push_back(OptionMarker(x, y, text, colour));
 }
 
 void QtPlot::prepare()
@@ -584,6 +646,9 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
     charsXleft = charsXrght = (mOptions->pLevelNumbers) ? CHARS_NUMBERS : 0;
     linesYbot  = linesYtop = LINES_1;
   }
+  if (!mMarkers.empty()) {
+    linesYtop += LINES_2;
+  }
   if (not isTimeGraph()) {
     if (mOptions->pDistance) {
       linesYbot += LINES_1;
@@ -698,17 +763,77 @@ void QtPlot::plot(QPainter& painter)
   plotFrame(painter, tickValues, tta);
   plotText(painter, annotations);
   plotXLabels(painter);
+  plotLegend(painter);
   plotTitle(painter);
+}
+
+float QtPlot::fractionalRequestedDistance(float p)
+{
+  const int idx = (int)p;
+  const float f = p - idx;
+
+  const int nd = mRequestedDistances.size();
+  if (idx < 0 || idx >= nd || f<0 || (f>0 && idx+1 >= nd))
+    return -1; // invalid position
+
+  if (f>0)
+    return (1-f)*mRequestedDistances.at(idx) + f*mRequestedDistances.at(idx+1);
+  else
+    return mRequestedDistances.at(idx);
 }
 
 void QtPlot::plotTitle(QPainter& painter)
 {
+  // actually plots markers
+  if (isTimeGraph())
+    return;
+
+  const float y = mAxisY->getPaintMax() - 0.25 * mCharSize.height();
+
+  for (OptionMarker_v::const_iterator im = mMarkers.begin(); im != mMarkers.end(); ++im) {
+    const OptionMarker& m = *im;
+
+    QString q_str = QString::fromStdString(m.text);
+
+    float mx = 0, my = y;
+    if (m.position >= 0) {
+      const float d = fractionalRequestedDistance(m.position);
+      if (d < 0)
+        continue;
+
+      mx = mAxisX->value2paint(d);
+      if (!mAxisX->legalPaint(mx))
+        continue;
+      mx -= painter.fontMetrics().width(q_str) / 2;
+    } else if (m.x != -1 || m.y != -1) {
+      if (m.text.find_first_of("$%") != std::string::npos)
+        q_str = QString::fromStdString(mCrossectionTime.format(m.text, "en"));
+      mx = m.x;
+      my = m.y;
+      const float w = painter.fontMetrics().width(q_str), border = 2;
+      painter.fillRect(mx-border, my-mCharSize.height()-border, w+2*border,
+          mCharSize.height() + 2*border, Qt::white);
+    }
+
+    painter.setPen(util::QC(m.colour));
+    painter.drawText(QPointF(mx, my), q_str);
+  }
+}
+
+namespace {
+namespace Unit {
+const float m = 1;
+const float nm = 1852 * m; // nautical mile
+const float km = 1000 * m;
+}
 }
 
 void QtPlot::plotXLabels(QPainter& painter)
 {
   METLIBS_LOG_SCOPE();
   const float lines_1 = LINES_1*mCharSize.height();
+
+  const float referenceDistance = fractionalRequestedDistance(mReferencePosition);
 
   if (not isTimeGraph()) {
     float labelY = mAxisY->getPaintMin() + lines_1;
@@ -719,10 +844,10 @@ void QtPlot::plotXLabels(QPainter& painter)
       float unit;
       std::string uname;
       if (miutil::to_lower(mOptions->distanceUnit) == "nm") {
-        unit = 1852; // nautical mile
+        unit = Unit::nm;
         uname = "nm";
       } else {
-        unit = 1000; // kilometer
+        unit = Unit::km;
         uname = "km";
       }
 
@@ -731,6 +856,22 @@ void QtPlot::plotXLabels(QPainter& painter)
       float nextLabelX = mAxisX->getPaintMin();
       size_t requestedIndex = 0;
       const int precision = (((mAxisX->getValueMax() - mAxisX->getValueMin()) / unit) > 100) ? 0 : 1;
+
+      int reflabelXMin = 1000000, reflabelXMax = -1000000;
+      if (referenceDistance > 0) {
+        const float refX = mAxisX->value2paint(referenceDistance);
+        const bool legalX = mAxisX->legalPaint(refX);
+        if (legalX) {
+          std::ostringstream xostr;
+          xostr << "0" << uname;
+          const QString q_str = QString::fromStdString(xostr.str());
+          const float labelW = painter.fontMetrics().width(q_str), lw2 = labelW/2 + mCharSize.width();
+          reflabelXMin = refX - lw2;
+          reflabelXMax = refX + lw2;
+          painter.drawText(QPointF(refX - labelW/2, labelY), q_str);
+        }
+      }
+
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
         const float distance = mCrossectionDistances.at(i);
         const float tickX = mAxisX->value2paint(distance);
@@ -738,14 +879,17 @@ void QtPlot::plotXLabels(QPainter& painter)
         if (legalX) {
           int tickLineWidth = 1;
           if (tickX >= nextLabelX) {
+            float v_distance = distance;
+            if (referenceDistance > 0)
+              v_distance = abs(distance - referenceDistance);
             std::ostringstream xostr;
             xostr << std::setprecision(precision) << std::setiosflags(std::ios::fixed)
-                  << std::abs(distance / unit) << uname;
+                  << std::abs(v_distance / unit) << uname;
             const QString q_str = QString::fromStdString(xostr.str());
             const float labelW = painter.fontMetrics().width(q_str), lX = tickX - labelW/2;
-            if (lX >= nextLabelX) {
+            if (lX >= nextLabelX && (lX + labelW < reflabelXMin || lX > reflabelXMax)) {
               painter.drawText(QPointF(lX, labelY), q_str);
-              nextLabelX += labelW + mCharSize.width();
+              nextLabelX = lX + labelW + mCharSize.width();
               tickLineWidth += 1;
             }
           }
@@ -969,13 +1113,13 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
       tickValues = ticks_table(zsteps, nzsteps);
       autotick_offset = 100;
     } else if (mAxisY->label() == "Ft") {
-      const int nftsteps = 11;
+      const int nftsteps = 12;
       const float ftsteps[nftsteps] =
-          { 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
+          { 0, 100, 1500, 3000, 8000, 15000, 30000, 50000, 60000,
             70000, 80000, 90000 };
       tickValues = ticks_table(ftsteps, nftsteps);
       tta = foot_to_meter;
-      autotick_offset = 300;
+      autotick_offset = 500;
     } else {
       METLIBS_LOG_WARN("unknown y axis label '" << mAxisY->label() << "'");
       return;
@@ -993,7 +1137,7 @@ void QtPlot::generateYTicks(ticks_t& tickValues, tick_to_axis_f& tta)
         visibleTicks += 1;
     }
     METLIBS_LOG_DEBUG(LOGVAL(visibleTicks));
-    if (visibleTicks < 3) {
+    if (visibleTicks < 6) {
       tickValues = ticks_auto(tickValues.front(), tickValues.back(),
           autotick_scale, autotick_offset);
       METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
@@ -1073,31 +1217,6 @@ void QtPlot::plotFrame(QPainter& painter,
     painter.drawText(labelLeft - labelW, labelY, label);
     painter.drawText(labelRight,         labelY, label);
   }
-}
-
-static bool isPlotOk(EvaluatedPlot_cp ep, int npoint, std::string& error, bool timegraph)
-{
-  if (ep->argument_values.empty()) {
-    error = "no argument_values, cannot plot";
-    return false;
-  } else if (not ep->z_values) {
-    error = "no z_values, cannot plot";
-    return false;
-  }
-  const char* H_COORD = horizontal(timegraph);
-  const int np_z = ep->z_values->shape().length(H_COORD),
-      np_v0 = ep->values(0)->shape().length(H_COORD);
-  if (np_z != npoint && np_z != 1) {
-    error = (miutil::StringBuilder() << "unexpected z point count " << np_z
-        << " != " << npoint << ", cannot plot").str();
-  } else if (np_v0 != npoint) {
-    error = (miutil::StringBuilder() << "unexpected v0 point count " << np_v0
-        << " != " << npoint << ", cannot plot").str();
-  } else {
-    error = std::string();
-    return true;
-  }
-  return false;
 }
 
 std::vector<std::string> QtPlot::plotData(QPainter& painter)
@@ -1212,6 +1331,64 @@ void QtPlot::plotDataVector(QPainter& painter, OptionPlot_cp plot)
   METLIBS_LOG_DEBUG(LOGVAL(pv.mScale) << LOGVAL(pv.mScaleX) << LOGVAL(pv.mScaleY));
   pv.setThickArrowScale(plot->poptions.vectorthickness);
   plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
+}
+
+void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
+{
+  METLIBS_LOG_SCOPE();
+  if (plot->poptions.vector_example_x < 0 || plot->poptions.vector_example_y < 0)
+    return;
+
+  EvaluatedPlot_cp ep = plot->evaluated;
+  if (ep->argument_values.size() != 2) {
+    METLIBS_LOG_ERROR("not exactly 2 argument values, cannot plot");
+    return;
+  }
+
+  PaintVector pv;
+  pv.setScale(plot->poptions.vectorunit);
+  pv.setScaleXY(plot->poptions.vectorscale_x, plot->poptions.vectorscale_y);
+  pv.setThickArrowScale(plot->poptions.vectorthickness);
+  plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
+
+  const QColor color(vcross::util::QC(plot->poptions.linecolour));
+  painter.setPen(QPen(color, plot->poptions.linewidth));
+
+  const int example_length = 50 / pv.size();
+  const float example_x = example_length / pv.mScaleX,
+      example_y = example_length / pv.mScaleY;
+  float label_ex = example_x, label_ey = example_y;
+
+  std::string unit_x = plot->evaluated->argument(0)->unit(),
+      unit_y = plot->evaluated->argument(1)->unit();
+  if (vcross::util::unitsConvertible(unit_x, plot->poptions.vector_example_unit_x)) {
+    label_ex = vcross::util::unitConversion(example_x, unit_x, plot->poptions.vector_example_unit_x);
+    unit_x = plot->poptions.vector_example_unit_x;
+  }
+  if (vcross::util::unitsConvertible(unit_y, plot->poptions.vector_example_unit_y)) {
+    label_ey = vcross::util::unitConversion(example_y, unit_y, plot->poptions.vector_example_unit_y);
+    unit_y = plot->poptions.vector_example_unit_y;
+  }
+
+  const QString label_x = QString("%1 %2").arg(label_ex, 0, 'G', 2)
+      .arg(QString::fromStdString(unit_x));
+  const QString label_y = QString("%1 %2").arg(label_ey, 0, 'G', 2)
+      .arg(QString::fromStdString(unit_y));
+  const int labelwidth_x = painter.fontMetrics().width(label_x),
+      labelwidth_y = painter.fontMetrics().width(label_y);
+
+  const int border = 5, gap = 5;
+  int x = plot->poptions.vector_example_x, y = plot->poptions.vector_example_y;
+  int middle = y + example_length/2, bottom = y + example_length;
+  painter.fillRect(x-border, y-border, example_length + labelwidth_x + 4*gap + labelwidth_y + 2*border,
+      example_length + 2*border, Qt::white);
+  pv.paint(painter, example_x, 0, x, middle);
+  x += example_length + gap;
+  painter.drawText(x, bottom, label_x);
+  x += labelwidth_x + gap;
+  pv.paint(painter, 0, example_y, x, bottom);
+  x += 2*gap;
+  painter.drawText(x, bottom, label_y);
 }
 
 void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1)

@@ -127,7 +127,16 @@ common_qt_sources += \
 	vcross_v2/VcrossQtPlot.cc \
 	vcross_v2/VcrossQtUtil.cc \
 	vcross_v2/VcrossQtAxis.cc \
-	vcross_v2/VcrossQuickmenues.cc
+	vcross_v2/VcrossQuickmenues.cc \
+	wmsclient/WebMapManager.cc \
+	wmsclient/WebMapPainting.cc \
+	wmsclient/WebMapPlot.cc \
+	wmsclient/WebMapService.cc \
+	wmsclient/WebMapSlippyOSM.cc \
+	wmsclient/WebMapTile.cc \
+	wmsclient/WebMapUtilities.cc \
+	wmsclient/WebMapWMS.cc \
+	wmsclient/WebMapWMTS.cc
 
 common_qt_headers = \
 	diVcrossInterface.h
@@ -220,13 +229,15 @@ diana_qt_sources += \
 	vcross_qt/qtVcrossAddPlotDialog.cc \
 	vcross_qt/qtVcrossStyleDialog.cc \
 	vcross_qt/qtVcrossStyleWidget.cc \
-	vcross_qt/VcrossQtWidget.cc 
+	vcross_qt/VcrossQtWidget.cc \
+	wmsclient/WebMapDialog.cc
 
 diana_qt_forms += \
 	vcross_qt/vcross_plot_add_dialog.ui \
 	vcross_qt/vcross_style_dialog.ui \
 	vcross_qt/vcross_style_widget.ui \
-	vcross_qt/vcross_window.ui
+	vcross_qt/vcross_window.ui \
+	wmsclient/webmap_dialog.ui
 
 common_cppflags += \
 	$(QUTILITIES_CPPFLAGS)

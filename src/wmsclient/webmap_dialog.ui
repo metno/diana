@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>Alexander Bürger</author>
+ <class>WebMapDialog</class>
+ <widget class="QWidget" name="WebMapDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>412</width>
+    <height>459</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Web Maps</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="margin">
+    <number>2</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="tabsTop">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabAdd">
+      <attribute name="title">
+       <string>Add</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QStackedWidget" name="stackAdd">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="addPageService">
+          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,1">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="margin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="labelAddChooseService">
+             <property name="text">
+              <string>Choose service:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editAddServiceFilter">
+             <property name="placeholderText">
+              <string>Type to filter service name</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListView" name="listAddServices">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="addPageLayer">
+          <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,1">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="margin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="labelAddChooseLayer">
+             <property name="text">
+              <string notr="true" extracomment="translated in source code">Choose layer in service %1:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="editAddLayerFilter">
+             <property name="placeholderText">
+              <string>Type to filter layer name</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelPending">
+             <property name="text">
+              <string>Waiting for webmap service …</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListView" name="listAddLayers">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="buttonRestart">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Start over (from service selection)</string>
+           </property>
+           <property name="text">
+            <string>Restart</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonBack">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Back to the previous step</string>
+           </property>
+           <property name="text">
+            <string>Back</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonNextAdd">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string notr="true">Next/Add</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabStyle">
+      <attribute name="title">
+       <string>Modify</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,0,1,0">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="comboStyleLayer">
+         <property name="toolTip">
+          <string>Choose the layer to modify</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupStyle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Style</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QComboBox" name="comboStyle">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Choose a style provided by the webmap service</string>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="2" colspan="5">
+           <widget class="QPlainTextEdit" name="textStyleDescription">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>75</height>
+             </size>
+            </property>
+            <property name="tabChangesFocus">
+             <bool>true</bool>
+            </property>
+            <property name="undoRedoEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::NoWrap</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkGrey">
+            <property name="toolTip">
+             <string>Transform webmap to greyscale</string>
+            </property>
+            <property name="text">
+             <string>Grey</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="labelAlpha">
+            <property name="text">
+             <string>Change transparency:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QDoubleSpinBox" name="spinAlphaScale">
+            <property name="toolTip">
+             <string>Scale layer transparency with this value</string>
+            </property>
+            <property name="prefix">
+             <string notr="true">*</string>
+            </property>
+            <property name="maximum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value">
+             <double>1.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QDoubleSpinBox" name="spinAlphaOffset">
+            <property name="toolTip">
+             <string>Add this to layer transparency after scaling</string>
+            </property>
+            <property name="prefix">
+             <string notr="true">+</string>
+            </property>
+            <property name="maximum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4" colspan="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="labelAlpha_2">
+            <property name="text">
+             <string>Drawing order:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" colspan="3">
+           <widget class="QComboBox" name="comboBox">
+            <property name="toolTip">
+             <string>Choose</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Background</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Shade background</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Shade</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Lines</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>124</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupTime">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Time</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelTimeTolerance">
+            <property name="text">
+             <string>Time tolerance:</string>
+            </property>
+            <property name="buddy">
+             <cstring>spinTimeTolerance</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="spinTimeTolerance">
+            <property name="toolTip">
+             <string>Time matching tolerance</string>
+            </property>
+            <property name="suffix">
+             <string notr="true">min</string>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkTimeFixed">
+            <property name="toolTip">
+             <string>Check to fix time to a specific value</string>
+            </property>
+            <property name="text">
+             <string>Fixed time:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="spinTimeOffset">
+            <property name="toolTip">
+             <string>Time offset relative to plot time</string>
+            </property>
+            <property name="suffix">
+             <string notr="true">min</string>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelTimeOffset">
+            <property name="text">
+             <string>Time offset:</string>
+            </property>
+            <property name="buddy">
+             <cstring>spinTimeOffset</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboTimeFixed">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Fixed time value</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupStyleOtherDims">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Other dimensions</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QScrollArea" name="scrollOtherDims">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>100</width>
+               <height>30</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="pushModifyReset">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonModifyApply">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>&amp;Apply</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+      <zorder>comboStyleLayer</zorder>
+      <zorder>groupTime</zorder>
+      <zorder>groupStyle</zorder>
+      <zorder>groupStyleOtherDims</zorder>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="2" margin="2"/>
+ <tabstops>
+  <tabstop>tabsTop</tabstop>
+  <tabstop>editAddServiceFilter</tabstop>
+  <tabstop>listAddServices</tabstop>
+  <tabstop>buttonNextAdd</tabstop>
+  <tabstop>buttonBack</tabstop>
+  <tabstop>buttonRestart</tabstop>
+  <tabstop>comboStyleLayer</tabstop>
+  <tabstop>comboStyle</tabstop>
+  <tabstop>textStyleDescription</tabstop>
+  <tabstop>checkGrey</tabstop>
+  <tabstop>spinAlphaScale</tabstop>
+  <tabstop>spinAlphaOffset</tabstop>
+  <tabstop>spinTimeOffset</tabstop>
+  <tabstop>spinTimeTolerance</tabstop>
+  <tabstop>checkTimeFixed</tabstop>
+  <tabstop>comboTimeFixed</tabstop>
+  <tabstop>listAddLayers</tabstop>
+  <tabstop>editAddLayerFilter</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

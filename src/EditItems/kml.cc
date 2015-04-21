@@ -36,6 +36,8 @@
 #include "drawingitembase.h"
 #include "drawingpolyline.h"
 #include "drawingsymbol.h"
+#include "drawingcomposite.h"
+#include <diPlotModule.h>
 #include <cmath>
 #include <QAbstractMessageHandler>
 #include <QXmlSchemaValidator>
@@ -541,6 +543,299 @@ bool convertFromOldFormat(QByteArray &data, QString *error)
   data = createKMLText(doc, itemsFrag);
 
   return true;
+}
+
+/**
+ * Returns a list of item layers extracted from DOM document \a doc originally loaded from source file \a srcFileName.
+ * Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
+ * Upon failure, the function returns an empty list of item layers and a failure reason in \a error.
+ * If the document contains no layer information, the items are returned in a single layer with default properties.
+ */
+QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
+    EditItems::LayerManager *layerManager, const QDomDocument &doc, const QString &srcFileName, QString *error)
+{
+  *error = QString();
+
+  // *** PHASE 1: extract items
+
+  QList<QSharedPointer<DrawingItemBase> > items;
+
+  // loop over <coordinates> elements
+  QDomNodeList coordsNodes = doc.elementsByTagName("coordinates");
+  for (int i = 0; i < coordsNodes.size(); ++i) {
+    const QDomNode coordsNode = coordsNodes.item(i);
+    // create item
+    const QList<QPointF> points = getPoints(coordsNode, error);
+    if (!error->isEmpty())
+      return QList<QSharedPointer<EditItems::Layer> >();
+
+    // Find the extended data associated with the coordinates.
+
+    const QHash<QString, QString> pmExtData = getExtendedData(coordsNode, "Placemark");
+    if (pmExtData.isEmpty()) {
+      *error = "<Placemark> element without <ExtendedData> element found";
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    // Create a suitable item for this KML structure.
+    QString objectType = pmExtData.value("met:objectType");
+
+    // Try to create an editable item using the Edit Item Manager. If that
+    // fails, fall back on the Drawing Manager to create display items.
+    DrawingItemBase *itemObj;
+    DrawingManager *manager = dynamic_cast<DrawingManager *>(PlotModule::instance()->getManager("EDITDRAWING"));
+    if (manager)
+      itemObj = manager->createItem(objectType);
+    else
+      itemObj = DrawingManager::instance()->createItem(objectType);
+
+    if (!itemObj) {
+      *error = QString("unknown element found");
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    if (objectType == "Composite") {
+      Drawing(itemObj)->setProperty("style:type", pmExtData.value("met:style:type"));
+      static_cast<DrawingItem_Composite::Composite *>(itemObj)->createElements();
+    }
+
+    // Initialise the geographic position and read the extended data for the item.
+    itemObj->setLatLonPoints(points);
+    itemObj->fromKML(pmExtData);
+
+    Q_ASSERT(itemObj);
+    QSharedPointer<DrawingItemBase> item(Drawing(itemObj));
+    items.append(item);
+    DrawingItemBase *ditem = item.data();
+
+    DrawingStyleManager::instance()->setStyle(ditem, pmExtData, "met:style:");
+
+    ditem->setProperty("srcFile", srcFileName);
+
+    // Keep all the met: properties, treating the layerId and joinId properties specially.
+    QHashIterator<QString, QString> it(pmExtData);
+    while (it.hasNext()) {
+
+      it.next();
+
+      if (it.key() == "met:layerId") {
+        bool ok;
+        const int layerId = it.value().toInt(&ok);
+        if (!ok) {
+          *error = QString("failed to parse met:layerId as integer: %1").arg(it.value());
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        ditem->setProperty("layerId", layerId);
+
+      } else if (it.key() == "met:joinId") {
+        bool ok;
+        const int joinId = it.value().toInt(&ok);
+        if (!ok) {
+          *error = QString("failed to parse met:joinId as integer: %1").arg(it.value());
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        ditem->setProperty("joinId", joinId);
+
+      } else if (it.key() == "met:text") {
+        ;
+
+      } else if (it.key().startsWith("met:"))
+        ditem->setProperty(it.key().mid(4), it.value());
+    }
+
+    QMap<QString, QDomElement> ancElems;
+    findAncestorElements(coordsNode, &ancElems, error);
+    if (!error->isEmpty())
+      return QList<QSharedPointer<EditItems::Layer> >();
+
+    if (ancElems.contains("Placemark")) {
+      ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+
+      // Optionally obtain and use TimeSpan elements.
+      QString warning;
+      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Placemark"), &warning);
+      if (warning.isEmpty()) {
+        ditem->setProperty("TimeSpan:begin", timeSpan.first);
+        ditem->setProperty("TimeSpan:end", timeSpan.second);
+      }
+
+    } else {
+      *error = "found <coordinates> element outside a <Placemark> element";
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    if (ancElems.contains("Folder")) {
+      ditem->setProperty("Folder:name", getName(ancElems.value("Folder"), error));
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+
+      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Folder"), error);
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+      ditem->setProperty("TimeSpan:begin", timeSpan.first);
+      ditem->setProperty("TimeSpan:end", timeSpan.second);
+    }
+  }
+
+
+  // *** PHASE 2: extract layer structure (if any)
+
+  QMap<int, QSharedPointer<EditItems::Layer> > idToLayer;
+  QDomNodeList docNodes = doc.elementsByTagName("Document");
+  if (docNodes.size() != 1) {
+    *error = QString("number of <Document> elements != 1: %1").arg(docNodes.size());
+    return QList<QSharedPointer<EditItems::Layer> >();
+  }
+
+  // expect to find layer information in the <ExtendedData> element directly under the <Document> element
+  const QHash<QString, QString> docExtData = getExtendedData(docNodes.item(0), "Document");
+
+  // read layer-specific key-value pairs in any order
+  QRegExp rx("^met:layer:(\\d+):(name|visible)$");
+  QHash<QString, int> nameToId; // to ensure unique layer names
+  foreach (QString key, docExtData.keys()) {
+    if (rx.indexIn(key) >= 0) {
+      bool ok;
+      const int id = rx.cap(1).toInt(&ok);
+      if (!ok) {
+        *error = QString("failed to extract layer ID as int: %1").arg(rx.cap(1));
+        return QList<QSharedPointer<EditItems::Layer> >();
+      }
+      if (!idToLayer.contains(id))
+        idToLayer.insert(id, layerManager->createNewLayer());
+      QSharedPointer<EditItems::Layer> layer = idToLayer.value(id);
+      if (rx.cap(2) == "name") {
+        // register the layer name
+        const QString name = docExtData.value(key).trimmed();
+        if (name.isEmpty()) {
+          *error = QString("empty layer name found for key %1").arg(key);
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        if (nameToId.contains(name)) {
+          *error = QString("same name for layers %1 and %2: %3").arg(nameToId.value(name)).arg(id).arg(name);
+          return QList<QSharedPointer<EditItems::Layer> >();
+        }
+        nameToId.insert(name, id);
+        layer->setName(name);
+      } else if (rx.cap(2) == "visible") {
+        // register the layer visibility
+        const bool visible = ((QStringList() << "" << "0" << "false" << "off" << "no").indexOf(docExtData.value(key).trimmed().toLower()) == -1);
+        layer->setVisible(visible);
+      }
+    }
+  }
+
+  // ... validate the ID-sequence
+  for (int i = 0; i < idToLayer.size(); ++i) {
+    if (!idToLayer.contains(i)) {
+      *error = QString("missing layer with ID %1").arg(i);
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+  }
+
+  // ... copy layers to list
+  QList<QSharedPointer<EditItems::Layer> > layers;
+  const int nlayers = idToLayer.size();
+  for (int i = 0; i < nlayers; ++i)
+    layers.append(idToLayer.value(i));
+
+
+  // *** PHASE 3: insert items into layers
+
+  QSharedPointer<EditItems::Layer> defaultLayer;
+  foreach (QSharedPointer<DrawingItemBase> item, items) {
+    bool ok;
+    const int layerId = item->propertiesRef().value("layerId").toInt(&ok);
+    if (ok) {
+      // item has layer ID, so insert in one of the layers
+      if ((layerId < 0) || (layerId >= layers.size())) {
+        *error = QString("item with layer ID outside valid range ([0, %1]): %2").arg(layers.size() - 1).arg(layerId);
+        return QList<QSharedPointer<EditItems::Layer> >();
+      }
+      layers.at(layerId)->insertItem(item);
+    } else {
+      // item does not have a layer ID, so insert in default layer
+      if (defaultLayer.isNull())
+        // create default layer with empty name (note: none of the other layers may have an empty name)
+        defaultLayer = layerManager->createNewLayer();
+      defaultLayer->insertItem(item);
+    }
+  }
+
+  if (!defaultLayer.isNull())
+    layers.prepend(defaultLayer);
+
+  foreach (const QSharedPointer<EditItems::Layer> &layer, layers)
+    layer->insertSrcFile(srcFileName);
+
+  return layers;
+}
+
+/**
+ * Returns a list of item layers extracted from \a fileName.
+ * Upon success, the function returns a non-empty list of item layers and leaves \a error empty.
+ * Otherwise, the function returns an empty list of item layers and a failure reason in \a error.
+ * If the file contains no layer information, the items are returned in a single layer with default properties.
+ */
+QList<QSharedPointer<EditItems::Layer> > createFromFile(EditItems::LayerManager *layerManager,
+                                                        const QString &fileName, QString *error)
+{
+  *error = QString();
+
+  // load schema
+  QXmlSchema schema;
+  if (!loadSchema(schema, error)) {
+    *error = QString("failed to load KML schema: %1").arg(*error);
+    return QList<QSharedPointer<EditItems::Layer> >();
+  }
+
+  // load data
+  QFile file(fileName);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    *error = QString("failed to open file %1 for reading").arg(fileName);
+    return QList<QSharedPointer<EditItems::Layer> >();
+  }
+  QByteArray data = file.readAll();
+
+  // create document from data validated against schema
+  const QUrl docUri(QUrl::fromLocalFile(fileName));
+  QDomDocument doc = createDomDocument(data, schema, docUri, error);
+  if (doc.isNull()) {
+    // assume that the failure was caused by data being in old format
+    QString old2newError;
+    if (!convertFromOldFormat(data, &old2newError)) {
+      *error = QString("failed to create DOM document:<br/>%1<br/><br/>also failed to convert from old format:<br/>%2").arg(*error).arg(old2newError);
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+
+    doc = createDomDocument(data, schema, docUri, error);
+    if (doc.isNull()) {
+      *error = QString("failed to create DOM document after successfully converting from old format: %1").arg(*error);
+      return QList<QSharedPointer<EditItems::Layer> >();
+    }
+  }
+
+  // at this point, a document is successfully created from either the new or the old format
+
+  // parse document and create items
+  const QList<QSharedPointer<EditItems::Layer> > layers = createFromDomDocument(
+        layerManager, doc, fileName, error);
+
+  // initialize screen coordinates from lat/lon
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers) {
+    for (int i = 0; i < layer->itemCount(); ++i)
+      DrawingManager::instance()->setFromLatLonPoints(*(layer->itemRef(i)), layer->item(i)->getLatLonPoints());
+  }
+
+  // avoid conflict with existing joins
+  QList<QSharedPointer<DrawingItemBase> > items;
+  foreach (const QSharedPointer<EditItems::Layer> layer, layers)
+    items.append(layer->items());
+  DrawingManager::instance()->separateJoinIds(items);
+
+  return layers;
 }
 
 } // namespace
