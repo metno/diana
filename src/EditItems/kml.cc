@@ -652,6 +652,13 @@ QList<QSharedPointer<EditItems::Layer> > createFromDomDocument(
       ditem->setProperty("Placemark:name", getName(ancElems.value("Placemark"), error));
       if (!error->isEmpty())
         return QList<QSharedPointer<EditItems::Layer> >();
+
+      QPair<QString, QString> timeSpan = getTimeSpan(ancElems.value("Placemark"), error);
+      if (!error->isEmpty())
+        return QList<QSharedPointer<EditItems::Layer> >();
+      ditem->setProperty("TimeSpan:begin", timeSpan.first);
+      ditem->setProperty("TimeSpan:end", timeSpan.second);
+
     } else {
       *error = "found <coordinates> element outside a <Placemark> element";
       return QList<QSharedPointer<EditItems::Layer> >();
