@@ -57,11 +57,23 @@ public:
 
   void addPlot(WebMapService* service, const WebMapLayer* layer);
 
+  int getPlotCount() const
+    { return webmaps.size(); }
+  WebMapPlot* getPlot(int i) const
+    { return webmaps.at(i); }
+
 Q_SIGNALS:
+  //! sent when a webmap has finished its request
   void webMapsReady();
+
+  void webMapAdded(int index);
+  void webMapRemoved(int index);
+  void webMapsRemoved();
 
 private:
   WebMapPlot* createPlot(const std::string& qmstring);
+  void clearMaps();
+  void addMap(WebMapPlot* map);
 
 private:
   QNetworkAccessManager* network;

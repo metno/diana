@@ -2,6 +2,7 @@
 #include "WebMapDialog.h"
 
 #include "WebMapManager.h"
+#include "WebMapPlot.h"
 #include "WebMapService.h"
 
 #include <QAction>
@@ -16,16 +17,57 @@
 #define MILOGGER_CATEGORY "diana.WebMapDialog"
 #include <miLogger/miLogging.h>
 
+WebMapPlotListModel::WebMapPlotListModel(QObject* parent )
+  : QAbstractListModel(parent)
+{
+  connect(WebMapManager::instance(), SIGNAL(webMapsRemoved()),
+      this, SLOT(onPlotsRemoved()));
+  connect(WebMapManager::instance(), SIGNAL(webMapAdded(int)),
+      this, SLOT(onPlotAdded(int)));
+}
+
+int WebMapPlotListModel::rowCount(const QModelIndex& parent) const
+{
+  return WebMapManager::instance()->getPlotCount();
+}
+
+QVariant WebMapPlotListModel::data(const QModelIndex& index, int role) const
+{
+  if (role == Qt::DisplayRole) {
+    const int i = index.row();
+    WebMapPlot* plot = WebMapManager::instance()->getPlot(i);
+    QString d = QString::fromStdString(plot->service()->title())
+        + " -- "
+        + QString::fromStdString(plot->title());
+    return d;
+  }
+  return QVariant();
+}
+
+void WebMapPlotListModel::onPlotsRemoved()
+{
+  reset();
+}
+
+void WebMapPlotListModel::onPlotAdded(int idx)
+{
+  Q_EMIT beginInsertRows(QModelIndex(), idx, idx); // FIXME a bit late, plot already added
+  Q_EMIT endInsertRows();
+}
+
+// ========================================================================
+
 WebMapDialog::WebMapDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)
   , ui(new Ui_WebMapDialog)
   , mAddSelectedService(0)
 {
   METLIBS_LOG_SCOPE();
-  setupUi();
+
   m_action = new QAction("Web Maps", this);
   m_action->setCheckable(true);
 
+  setupUi();
   initializeAddServicePage(true);
 }
 
@@ -70,6 +112,8 @@ void WebMapDialog::setupUi()
       this, SLOT(onAddBack()));
   connect(ui->buttonRestart, SIGNAL(clicked()),
       this, SLOT(onAddRestart()));
+
+  ui->comboStyleLayer->setModel(new WebMapPlotListModel(this));
 }
 
 void WebMapDialog::initializeAddServicePage(bool forward)
@@ -277,11 +321,13 @@ void WebMapDialog::updateDialog()
 
 std::vector<std::string> WebMapDialog::getOKString()
 {
+  METLIBS_LOG_SCOPE(LOGVAL(mOk.size()));
   return mOk;
 }
 
 void WebMapDialog::putOKString(const std::vector<std::string>& ok)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(ok.size()));
   mOk = ok;
 }
 

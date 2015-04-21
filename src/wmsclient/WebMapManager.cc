@@ -42,10 +42,17 @@ WebMapManager::WebMapManager()
 
 WebMapManager::~WebMapManager()
 {
-  diutil::delete_all_and_clear(webmaps);
+  clearMaps();
   diutil::delete_all_and_clear(webmapservices);
+
   network->deleteLater();
   self = 0;
+}
+
+void WebMapManager::clearMaps()
+{
+  diutil::delete_all_and_clear(webmaps);
+  Q_EMIT webMapsRemoved();
 }
 
 bool WebMapManager::parseSetup()
@@ -62,7 +69,7 @@ bool WebMapManager::parseSetup()
     }
   }
 
-  diutil::delete_all_and_clear(webmaps);
+  clearMaps();
   diutil::delete_all_and_clear(webmapservices);
 
   const std::string SECTION = "WEBMAP_SERVICES";
@@ -188,14 +195,9 @@ WebMapPlot* WebMapManager::createPlot(const std::string& qmstring)
 bool WebMapManager::processInput(const std::vector<std::string>& input)
 {
   METLIBS_LOG_SCOPE(LOGVAL(input.size()));
-  diutil::delete_all_and_clear(webmaps);
-  for (size_t i=0; i<input.size(); ++i) {
-    std::auto_ptr<WebMapPlot> plot(createPlot(input[i]));
-    if (plot.get()) {
-      connect(plot.get(), SIGNAL(update()), SIGNAL(webMapsReady()));
-      webmaps.push_back(plot.release());
-    }
-  }
+  clearMaps();
+  for (size_t i=0; i<input.size(); ++i)
+    addMap(createPlot(input[i]));
   return true;
 }
 
@@ -206,9 +208,16 @@ void WebMapManager::addPlot(WebMapService* service, const WebMapLayer* layer)
     return;
   METLIBS_LOG_DEBUG(LOGVAL(service->identifier()) << LOGVAL(layer->identifier()));
 
-  std::auto_ptr<WebMapPlot> plot(new WebMapPlot(service, layer->identifier()));
-  connect(plot.get(), SIGNAL(update()), SIGNAL(webMapsReady()));
-  webmaps.push_back(plot.release());
+  addMap(new WebMapPlot(service, layer->identifier()));
+}
+
+void WebMapManager::addMap(WebMapPlot* plot)
+{
+  if (!plot)
+    return;
+  connect(plot, SIGNAL(update()), SIGNAL(webMapsReady()));
+  webmaps.push_back(plot);
+  Q_EMIT webMapAdded(webmaps.size() - 1);
 }
 
 void WebMapManager::plot(Plot::PlotOrder zorder)

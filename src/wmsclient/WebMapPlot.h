@@ -22,6 +22,9 @@ public:
   WebMapPlot(WebMapService* service, const std::string& layer);
   ~WebMapPlot();
 
+  WebMapService* service() const
+    { return mService; }
+
   std::string title() const;
 
   std::string attribution() const;
