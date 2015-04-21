@@ -81,9 +81,9 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   hideLayout->addWidget(hideButton);
   mainLayout->addLayout(hideLayout);
 
-#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
   QHBoxLayout *bottomLayout = new QHBoxLayout;
   //
+#ifdef ENABLE_EDITDRAWINGDIALOG_TESTING
   QPushButton *dsButton = new QPushButton("dump structure");
   connect(dsButton, SIGNAL(clicked()), SLOT(dumpStructure()));
   dsButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -98,6 +98,7 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   connect(undoCBox, SIGNAL(toggled(bool)), SLOT(showUndoStack(bool)));
   undoCBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   bottomLayout->addWidget(undoCBox);
+#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
   //
   QCheckBox *forceItemsVisibleCBox = new QCheckBox("items always visible");
   connect(forceItemsVisibleCBox, SIGNAL(toggled(bool)), SLOT(setItemsVisibilityForced(bool)));
@@ -106,7 +107,6 @@ EditDrawingDialog::EditDrawingDialog(QWidget *parent, Controller *ctrl)
   //
   bottomLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding));
   mainLayout->addLayout(bottomLayout);
-#endif // ENABLE_EDITDRAWINGDIALOG_TESTING
 
   // add connections
   connect(layersPane_, SIGNAL(updated()), editm_, SLOT(update()));
