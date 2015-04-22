@@ -712,6 +712,11 @@ bool PlotModule::updateFieldPlot(const vector<std::string>& pin)
   vector<Field*> fv;
   const miTime& t = staticPlot_->getTime();
 
+  if (pin.size() !=vfp.size()) {
+    METLIBS_LOG_WARN("Not possible to update levels/runs - FieldDialog has been changed, click apply to update FieldPlots");
+    return false;
+  }
+
   for (size_t i = 0; i < vfp.size(); i++) {
     if (vfp[i]->updatePinNeeded(pin[i])) {
       // Make the updated fields or return false.
